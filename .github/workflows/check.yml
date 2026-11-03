@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      CORTHEX_HUB_CHECKOUT: ${{ runner.temp }}/corthex-hub-reference
+      CORTHEX_HUB_CHECKOUT: ${{ github.workspace }}/../corthex-hub-reference
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -67,8 +67,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      CORTHEX_HUB_CHECKOUT: ${{ runner.temp }}/corthex-hub-reference
-      HYPOTHESIS_STORAGE_DIRECTORY: ${{ runner.temp }}/nexus-contract-cache
+      CORTHEX_HUB_CHECKOUT: ${{ github.workspace }}/../corthex-hub-reference
+      HYPOTHESIS_STORAGE_DIRECTORY: ${{ github.workspace }}/../nexus-contract-cache
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
