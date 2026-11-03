@@ -95,6 +95,15 @@ const activeEntry = `EXISTS(SELECT 1 FROM comments WHERE id=entry AND project=cl
  OR EXISTS(SELECT 1 FROM checkpoints WHERE id=entry AND project=claims.project AND pr_state IS NOT 'open' AND
    ((state='passed' AND recorded_commit IS NULL) OR (state='withdrawn' AND recorded_commit IS NOT NULL)))`;
 
+// Engine operations also stay here. The standalone adapter never owns product
+// SQL, and uses these fixed statements only for connection/transaction upkeep.
+export const SQLITE = Object.freeze({
+  setup: "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;",
+  begin: "BEGIN IMMEDIATE", commit: "COMMIT", rollback: "ROLLBACK",
+  changes: "SELECT total_changes() AS n", integrity: "PRAGMA integrity_check",
+  foreignKeys: "PRAGMA foreign_key_check", archive: "PRAGMA journal_mode=DELETE",
+});
+
 export class Store {
   constructor(db) {
     this.db = db;

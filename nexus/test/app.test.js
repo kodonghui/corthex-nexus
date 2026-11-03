@@ -253,5 +253,5 @@ test("a failure shows no stored text", async () => {
   assert.equal(reply.data().error, "the server could not finish the request");
   const unbound = await server({ DB: undefined })("GET", "/");
   assert.equal(unbound.status, 500);
-  assert.match(unbound.data().error, /no D1 database bound as DB/);
+  assert.match(unbound.data().error, /no database is bound as DB/);
 });

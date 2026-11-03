@@ -15,11 +15,11 @@ const escaped = (value) => String(value).replace(/[&<>"']/g,(ch)=>({"&":"&amp;",
 const dataText = (value) => JSON.stringify(value).replace(/[<>&]/g,(ch)=>({"<":"\\u003c",">":"\\u003e","&":"\\u0026"}[ch]));
 export const VIEW_POLICY = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 
-export async function handle(request,env,ctx,template,views={}) {
+export async function handle(request,env,ctx,template,views={},accessVerifier) {
   env ||= {};
   try {
-    const route=await preflight(request,env,ctx);
-    if(!env.DB)throw new Problem("internal","the Worker has no D1 database bound as DB");
+    const route=await preflight(request,env,ctx,accessVerifier);
+    if(!env.DB)throw new Problem("internal","no database is bound as DB");
     const store=new Store(env.DB),p=route.params,head=request.method==="HEAD";
     switch(route.operation) {
       case "pushSnapshot": {

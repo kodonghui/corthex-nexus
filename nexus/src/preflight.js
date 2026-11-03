@@ -100,8 +100,8 @@ export function requestHeaders(request, route, kind) {
 }
 
 const verifier = new AccessVerifier();
-export async function preflight(request, env, ctx) {
-  const kind = await verifier.verify(request, env, ctx);
+export async function preflight(request, env, ctx, accessVerifier = verifier) {
+  const kind = await accessVerifier.verify(request, env, ctx);
   const route = pathRoute(request);
   return { ...route, kind, ...requestHeaders(request, route, kind) };
 }

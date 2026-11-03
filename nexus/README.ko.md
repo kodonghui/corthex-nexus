@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기기에서든 열 수 있게 합니다. Cloudflare Worker로 돌아가며, `hub.py push`가 보낸 스냅샷을 Cloudflare D1 데이터베이스에 두고 `corthex-nexus`가 내 컴퓨터에서 만드는 것과 같은 페이지를 보여 줍니다. 내 Cloudflare 계정에서 돌고, 누가 열 수 있는지는 Cloudflare Access가 정합니다.
+NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기기에서든 열 수 있게 합니다. 승인된 단독 실행부는 Cloudflare Access·Tunnel 뒤에서 Node HTTP와 SQLite로 돌며 Worker/D1 호환 실행도 유지합니다. 둘 다 `hub.py push`가 보낸 스냅샷과 허브 페이지를 제공합니다. 단독 실행부의 배포·복구 절차는 아래에 있습니다.
 
 이 폴더는 플러그인이 아닙니다. 이 저장소를 내려받은 사본에서 배포합니다.
 
@@ -60,3 +60,60 @@ NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기�
 
 - 갱신하려면 저장소를 받아 온 뒤 `wrangler.jsonc`를 내 사본과 비교하고, `npm install`과 `npm run deploy`를 실행합니다.
 - 없애려면 `npx wrangler delete -c wrangler.local.jsonc`로 Worker를, `npx wrangler d1 delete corthex-nexus`로 데이터베이스와 스냅샷을 지웁니다. 그다음 **Zero Trust** › **Access controls**에서 Access 애플리케이션과 서비스 토큰을 지웁니다.
+# 단독 실행부 (승인된 개발 대상)
+
+Node 24 LTS의 내장 HTTP·SQLite·Web Crypto만 씁니다. Worker와 같은 처리 함수와
+Store를 쓰며 제품 질의와 엔진 SQL은 `src/store.js`에 모읍니다. SQLite는 외래 키,
+WAL, 전체 동기 쓰기, 5초 잠금 대기를 켭니다. D1 형태의 batch는 동기 트랜잭션
+하나이고 문장이 실패하면 앞의 변경도 되돌립니다.
+
+서버에 전용 `nexus-dev` 사용자와 `/var/lib/nexus-dev` 상태 폴더를 준비하고,
+`ops/runtime.env.example`을 참고해 root 소유·0600인 `/etc/nexus/dev.env`를 만듭니다.
+선택한 공개 HTTPS 주소와 기존 Access 앱의 발급자·AUD를 씁니다. 요청에서 발급자를
+고르지 않습니다. Node는 서명된 헤더를 확인하고 Worker는 기존 Access 컨텍스트도
+요구합니다. 개발용 인증 우회는 없고 서버는 루프백에서만 듣습니다.
+
+Tunnel은 **원 서버에서** `cloudflared tunnel login`과 `cloudflared tunnel create
+<개발용-이름>`으로 만듭니다. 브라우저에서 승인하고 인증서·자격 증명은 그 서버에
+둡니다. `ops/cloudflared.example.yml`을 참고해 승인된 개발 호스트만 연결하고
+별도 서비스로 돌립니다. Access 정책과 운영 호스트·Worker·D1은 유지합니다.
+
+노트북의 검토한 깨끗한 커밋에서 배포합니다.
+
+```powershell
+./nexus/ops/deploy-dev.ps1 -SshAlias <설정된-서버-별칭> -Commit <전체-SHA>
+```
+
+스크립트는 커밋된 실행부·운영 파일만 묶고 키를 보내지 않습니다. 기존 개발 DB를
+백업한 뒤 고정 릴리스를 선택하고 `nexus@dev`를 재시작합니다. 로컬 리스너가
+미인증 요청에 403을 주는지 확인합니다. 시작에 실패하면 이전 실행부를 선택합니다.
+`systemctl status nexus@dev`와 안전한 journal로 확인하고 `systemctl stop
+nexus@dev`로 멈춥니다. 서비스의 Unix 사용자·상태 폴더·메모리 한도는 독립적입니다.
+
+`nexus-backup@dev.timer`는 매일 03:15 UTC부터 최대 15분을 분산해 실행하며,
+중단 중 놓친 실행도 처리합니다. 배포 전과 `database.js migrate`의 이주 전에도
+백업합니다. SQLite 백업 API로 일관된 사본을 만들고 무결성·외래 키를 검사한 뒤
+WAL 보조 파일 없이 봉인합니다. 파일은 0600이고 SHA-256 영수증을 남기며 30일
+보관합니다. 예약은 `systemctl disable --now nexus-backup@dev.timer`로 멈추며
+상태·백업은 남습니다.
+
+복구 리허설에는 절대 경로를 씁니다.
+
+```sh
+node nexus/tools/database.js restore --backup /private/backups/<archive>.sqlite --destination /private/restore-check.sqlite
+```
+
+대상 파일은 없어야 합니다. 영수증을 확인하고 별도 파일로 복구·이주·검사합니다.
+독립 개발 리스너에서 행 수와 API를 확인한 뒤 복구 파일을 선택합니다. 실제로
+되돌릴 때는 해당 서비스를 멈추고 현재 DB를 백업한 뒤 비공개 환경 파일에서 검증한
+복구 DB를 선택하고 재시작합니다. 실행 중인 DB를 덮거나 WAL과 떼지 않습니다.
+실행부만 되돌리는 것으로 DB 이주까지 취소되지는 않습니다.
+
+출시 전 운영 D1은 **읽기 전용으로** 서버에 내보내 별도 리허설 DB에 넣습니다.
+행 수를 기록하고 백업·이주·동작 확인·사본 복구를 검증합니다. 승인 후 운영을
+전환하더라도 기존 Worker·D1은 최소 30일 보존합니다. main 병합, 운영 주소·데이터
+전환, 출시 태그, 실제 프로젝트 첫 스냅샷 전송은 별도 출시 결정입니다.
+
+CI는 Worker 검사와 단독 HTTP·SQLite 시험, 생성한 RSA 키와 임시 DB로 32개
+API를 검사하는 Schemathesis를 돌립니다. 이 로컬 시험과 실제 인증 Tunnel·화면
+수용 검증은 12단계에 따로 기록합니다.

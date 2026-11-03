@@ -45,9 +45,10 @@ export function requireAccessContext(env, ctx) {
 
 export class AccessVerifier {
   // Workers' host fetch must be called as a global, with no verifier receiver.
-  constructor({ fetcher = (...args) => fetch(...args), now = Date.now } = {}) {
+  constructor({ fetcher = (...args) => fetch(...args), now = Date.now, requireContext = true } = {}) {
     this.fetcher = fetcher;
     this.now = now;
+    this.requireContext = requireContext;
     this.keys = new Map();
   }
 
@@ -96,7 +97,7 @@ export class AccessVerifier {
 
   async verify(request, env, ctx) {
     // This first refusal is independent of path, method, body and token text.
-    requireAccessContext(env, ctx);
+    if (this.requireContext) requireAccessContext(env, ctx);
     const token = request.headers.get("Cf-Access-Jwt-Assertion");
     if (!token) throw denied();
     const parts = token.split(".");

@@ -1,0 +1,8 @@
+# Create this origin's tunnel on that origin. Never copy cert.pem or an
+# existing tunnel credentials file from another device.
+tunnel: REPLACE_WITH_ORIGIN_TUNNEL_ID
+credentials-file: /etc/nexus/tunnel-credentials.json
+ingress:
+  - hostname: nexus.example.com
+    service: http://127.0.0.1:8787
+  - service: http_status:404

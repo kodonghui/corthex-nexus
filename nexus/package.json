@@ -6,6 +6,7 @@
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
+    "start": "node src/node.js",
     "test": "node --test test/*.test.js",
     "dev": "wrangler dev -c wrangler.local.jsonc",
     "deploy": "wrangler deploy -c wrangler.local.jsonc"

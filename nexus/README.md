@@ -2,7 +2,7 @@
 
 [한국어](README.ko.md)
 
-The NEXUS server puts the CORTHEX project hub on an address of your own, so you can open it from any device. It is a Cloudflare Worker: it keeps the snapshots that `hub.py push` sends in a Cloudflare D1 database and serves the same page that `corthex-nexus` builds on your machine. It runs on your Cloudflare account, and Cloudflare Access decides who can open it.
+The NEXUS server puts the CORTHEX project hub on an address of your own, so you can open it from any device. The approved standalone runtime uses Node HTTP and SQLite behind Cloudflare Access and a Tunnel; the compatible Worker/D1 runtime remains available. Both keep snapshots sent by `hub.py push` and serve the hub page. The standalone deployment and recovery procedure is below.
 
 This folder is not a plugin. Deploy it from a clone of this repository.
 
@@ -60,3 +60,72 @@ The dashboard names follow Cloudflare's documentation as of October 2026: [Cloud
 
 - To update, pull the repository, compare `wrangler.jsonc` with your copy, then run `npm install` and `npm run deploy`.
 - To remove it, `npx wrangler delete -c wrangler.local.jsonc` deletes the Worker and `npx wrangler d1 delete corthex-nexus` deletes the database with its snapshots. Then delete the Access application and the service token under **Zero Trust** › **Access controls**.
+# Standalone runtime (approved development target)
+
+The standalone runtime uses Node 24 LTS built-ins only: `node:http`,
+`node:sqlite` and Web Crypto. It runs the same handler and Store as the Worker.
+All product and engine SQL remains in `src/store.js`. SQLite enables foreign
+keys, WAL, full synchronous writes and a five-second busy timeout. Each D1-style
+batch is one synchronous transaction; a failed statement rolls the batch back.
+
+Prepare the origin once: a dedicated `nexus-dev` user, private state under
+`/var/lib/nexus-dev`, and a root-owned, mode-0600 `/etc/nexus/dev.env` based on
+`ops/runtime.env.example`. Use the selected public HTTPS origin and the existing
+Access application's issuer and audience. No configuration value from the
+request selects the issuer. The Node entry point verifies the signed assertion
+header; the Worker still independently requires its checked Access context.
+There is no development authentication bypass. The server binds only loopback.
+
+Create the Tunnel **on the origin** with `cloudflared tunnel login` and
+`cloudflared tunnel create <development-name>`. Authorize its browser login, and
+keep the resulting certificate and credentials on that origin. Adapt
+`ops/cloudflared.example.yml`, route only the approved development hostname to
+the tunnel, and run cloudflared as its own service. Preserve Access policies.
+Do not change the production hostname or delete its Worker/D1.
+
+From a clean, reviewed commit on the laptop:
+
+```powershell
+./nexus/ops/deploy-dev.ps1 -SshAlias <configured-origin-alias> -Commit <full-sha>
+```
+
+The script archives only committed runtime/operations files, uploads no keys,
+backs up any existing development database, selects an immutable release and
+restarts `nexus@dev`. It requires an unauthenticated 403 from the local listener.
+On startup failure it selects the previous runtime. Inspect `systemctl status
+nexus@dev` and the safe journal; stop it with `systemctl stop nexus@dev`.
+The service has its own Unix user, state directory and memory limit.
+
+`nexus-backup@dev.timer` runs daily at 03:15 UTC with up to 15 minutes of jitter,
+including a missed run after downtime. `database.js backup` also runs before
+deployment; `database.js migrate` backs up before migration. Each archive is a
+consistent SQLite backup, checked for integrity and foreign keys, sealed without
+WAL companions, mode 0600, and accompanied by its SHA-256 receipt. Retention is
+30 days. Stop scheduled backups with `systemctl disable --now
+nexus-backup@dev.timer`; state/backups are retained.
+
+Restore rehearsal (use absolute paths):
+
+```sh
+node nexus/tools/database.js restore --backup /private/backups/<archive>.sqlite --destination /private/restore-check.sqlite
+```
+
+The destination must not exist. The tool verifies the receipt, restores and
+migrates the separate copy, and checks it again. Verify counts and the API on an
+isolated development listener before selecting a restored database. For an
+actual rollback, stop the affected service, back up its current database, select
+the verified restored file in its private environment and restart. Never replace
+a live database or detach it from its WAL. A runtime rollback alone does not
+undo database migrations.
+
+Before release, export production D1 **read-only** to the origin, import it into
+a separate rehearsal database, record table counts, back it up, apply migrations
+and verify both forward behavior and a restored copy. Keep the old production
+Worker and D1 for at least 30 days after an explicitly approved switch. Main
+merge, production routing/data changes, release tags and the first real-project
+snapshot upload remain separate release decisions.
+
+CI runs the original Worker checks and the standalone HTTP/SQLite tests, plus
+Schemathesis against all 32 operations using generated RSA keys and an isolated
+temporary database. These local fixtures do not prove an authenticated Tunnel
+deployment or browser acceptance; those are recorded separately in stage 12.

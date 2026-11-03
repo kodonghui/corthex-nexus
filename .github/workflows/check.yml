@@ -2,7 +2,7 @@ name: check
 
 on:
   push:
-    branches: [main]
+    branches: [main, codex/nexus-0.2]
   pull_request:
   workflow_dispatch:
 
@@ -90,6 +90,8 @@ jobs:
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/hub_contract_check.py'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/contract_hooks_check.py'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/contract_sanitizer_check.py'
+      - name: Exercise standalone HTTP and SQLite with Schemathesis
+        run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/standalone_contract_check.py'
 
   public-safety:
     runs-on: ubuntu-latest

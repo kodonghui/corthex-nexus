@@ -19,6 +19,6 @@ for expected,path in objects.items():
  except UnicodeDecodeError:continue
  text_blobs+=1
  for label,pattern in rules.PATTERNS.items():
-  if pattern.search(text):findings.append({'file':path,'blob':oid,'rule':label,'value':'withheld'})
+  if pattern.search(rules.checked_text(path,text,label)):findings.append({'file':path,'blob':oid,'rule':label,'value':'withheld'})
 print(json.dumps({'text_blob_versions':text_blobs,'findings':findings}))
 sys.exit(1 if findings else 0)

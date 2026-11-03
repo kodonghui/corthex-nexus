@@ -22,10 +22,10 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 | TASK-256 | 제품 원본과 고정 허브 연결 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-255 | agent | M | 루트 규칙·프로젝트 원본을 만들고 깨끗한 정확한 허브 커밋의 양식으로 실제 연결·페이지 사본 검사를 통과합니다. | in progress |
 | TASK-257 | 제품 CI와 저장소 보호 설정 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-256 | agent | M | Linux 서버·빌드·기존 계약 전부·연결·공개 이력 검사와 all-checks를 통과하고 secret scanning·push protection·PR/검사 보호를 확인합니다. | in progress |
 | TASK-258 | 원래 하네스를 제품으로 연결 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-257 | agent | M | 원래 저장소 PR 하나로 옮긴 경로만 빼고 허브·코어·시험을 지키며 공용 안내·CI·dependabot·draft와 두 저장소 검사 근거를 맞춥니다. | todo |
-| TASK-259 | Node HTTP와 SQLite 트랜잭션 실행 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-256 | agent | L | 내장 모듈 실행부가 D1 결과·원자적 batch를 맞추고 추가 실행 패키지 없이 보존·이주·한도·HEAD·재시작을 통과합니다. | todo |
-| TASK-260 | Tunnel 뒤 원 서버 토큰 확인 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-259 | agent | M | 독립 서버는 ctx.access 없이 서명·발급자·대상·시각·작성자 두 종류를 확인하고 Worker의 확인된 context와 기존 Access 정책을 유지합니다. | todo |
-| TASK-261 | SSH로 분리된 개발 서버 배포 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-260 | agent | M | 전용 사용자·폴더·systemd·loopback·Tunnel로 개발 서버를 열고 재시작·되돌리기를 확인합니다. 실제 값은 Git 밖, 키는 원래 기기에 두며 다른 서비스를 지킵니다. | todo |
-| TASK-262 | DB 백업과 실제 복구 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-259, TASK-261 | agent | M | 매일과 이주·배포 직전의 일관된 백업, 보관 기간·권한을 시험하고 복구 사본을 실제 열어 데이터·행동을 대조합니다. | todo |
+| TASK-259 | Node HTTP와 SQLite 트랜잭션 실행 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-256 | agent | L | 내장 모듈 실행부가 D1 결과·원자적 batch를 맞추고 추가 실행 패키지 없이 보존·이주·한도·HEAD·재시작을 통과합니다. | in progress |
+| TASK-260 | Tunnel 뒤 원 서버 토큰 확인 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-259 | agent | M | 독립 서버는 ctx.access 없이 서명·발급자·대상·시각·작성자 두 종류를 확인하고 Worker의 확인된 context와 기존 Access 정책을 유지합니다. | in progress |
+| TASK-261 | SSH로 분리된 개발 서버 배포 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-260 | agent | M | 전용 사용자·폴더·systemd·loopback·Tunnel로 개발 서버를 열고 재시작·되돌리기를 확인합니다. 실제 값은 Git 밖, 키는 원래 기기에 두며 다른 서비스를 지킵니다. | in progress |
+| TASK-262 | DB 백업과 실제 복구 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-259, TASK-261 | agent | M | 매일과 이주·배포 직전의 일관된 백업, 보관 기간·권한을 시험하고 복구 사본을 실제 열어 데이터·행동을 대조합니다. | in progress |
 | TASK-263 | 운영 데이터 이주와 되돌리기 리허설 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-262 | agent | L | 운영 D1을 읽기 전용으로 내보내 독립 개발 사본에서 이주·복구를 수·해시로 비교합니다. 기존 Worker·D1을 보존하고 운영 주소·데이터는 전환하지 않습니다. | todo |
 | TASK-264 | OVH 개발 계약·성능 재시험 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-261, TASK-262 | agent | M | Schemathesis·실제 Access 두 종류와 최대1MB 밀기의 처리·메모리를 재고 서버 처리는1초 안입니다. 완성 화면 모바일 검사는 TASK-224/238/251에서 따로 증명합니다. | todo |
 

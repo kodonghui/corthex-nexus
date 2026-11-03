@@ -23,6 +23,17 @@ PATTERNS = {
 }
 
 
+def checked_text(path, text, label):
+    # These reviewed systemd instance names are executable public syntax, not
+    # mailboxes. Limit the exception to these exact units and owning files.
+    relative = Path(path).as_posix()
+    if label == "email address" and relative in {
+        "nexus/ops/deploy-dev.sh", "nexus/README.md", "nexus/README.ko.md",
+    }:
+        return re.sub(r"\bnexus(?:-backup)?@dev\.(?:service|timer)\b", "SYSTEMD_UNIT", text)
+    return text
+
+
 def text_files():
     for path in sorted(ROOT.rglob("*")):
         if not path.is_file() or path.resolve() in SKIP_FILES:
@@ -41,7 +52,7 @@ class PublicSafetyTest(unittest.TestCase):
             for label, pattern in PATTERNS.items():
                 with self.subTest(file=str(path.relative_to(ROOT)), check=label):
                     self.assertFalse(
-                        bool(pattern.search(text)),
+                        bool(pattern.search(checked_text(path.relative_to(ROOT), text, label))),
                         "Private or secret text detected; value withheld.",
                     )
 
