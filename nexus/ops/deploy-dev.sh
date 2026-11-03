@@ -15,11 +15,15 @@ release=$base/releases/$revision
 # The uploader sends a Git archive of reviewed public runtime files only.
 tar -tf "$archive" | awk '/(^\/|(^|\/)\.\.(\/|$))/ {bad=1} END {exit bad}'
 getent passwd nexus-dev >/dev/null || useradd --system --home-dir "$state" --shell /usr/sbin/nologin nexus-dev
-install -d -m 0755 "$base/releases" "$release"
+install -d -m 0755 /opt/nexus "$base" "$base/releases" "$release"
 install -d -m 0700 -o nexus-dev -g nexus-dev "$state" "$state/backups"
 tar -xf "$archive" -C "$release" --no-same-owner
 chmod -R a+rX "$release"
-previous=$(readlink -f "$base/current" 2>/dev/null || true)
+previous=
+if [ -L "$base/current" ]; then
+  previous=$(readlink -f "$base/current" 2>/dev/null || true)
+  [ -d "$previous" ] || previous=
+fi
 if [ -f "$state/nexus.sqlite" ]; then
   runuser -u nexus-dev -- /usr/bin/node "$release/nexus/tools/database.js" backup --database "$state/nexus.sqlite" --directory "$state/backups" --reason predeploy
 fi
@@ -34,11 +38,11 @@ attempt=0
 while [ "$attempt" -lt 20 ]; do
   # Direct unauthenticated refusal proves HTTP is ready, without a bypass.
   code=$(curl -s --max-time 2 -o /dev/null -w '%{http_code}' http://127.0.0.1:8787/api/snapshots || true)
-  [ "$code" = 403 ] && break
+  if [ "$code" = 403 ] && systemctl is-active --quiet nexus@dev.service; then break; fi
   attempt=$((attempt+1))
   sleep 1
 done
-if [ "$code" != 403 ]; then
+if [ "$code" != 403 ] || ! systemctl is-active --quiet nexus@dev.service; then
   if [ -n "$previous" ]; then
     ln -s "$previous" "$base/rollback.next"
     mv -Tf "$base/rollback.next" "$base/current"
