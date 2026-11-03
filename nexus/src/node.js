@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { SQLiteD1 } from "./sqlite.js";
@@ -27,4 +27,4 @@ export async function start(settings = process.env) {
   } catch (error) { db.close(); throw error; }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) start().catch(() => { console.error("nexus", { kind: "startup_failed" }); process.exitCode = 1; });
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(resolve(process.argv[1]))).href) start().catch(() => { console.error("nexus", { kind: "startup_failed" }); process.exitCode = 1; });

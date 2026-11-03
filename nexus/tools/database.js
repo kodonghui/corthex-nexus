@@ -1,7 +1,7 @@
 // Offline operations: output contains receipts, never rows or SQL errors.
 import { backup } from "node:sqlite";
 import { createHash, randomUUID } from "node:crypto";
-import { chmodSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, renameSync, statSync, unlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, renameSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, isAbsolute, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { SQLiteD1 } from "../src/sqlite.js";
@@ -95,4 +95,4 @@ async function main() {
     finally { db.close(); }
   } else throw new Error("choose backup, restore or migrate");
 }
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) main().catch(() => { console.error(JSON.stringify({ kind: "database_operation_failed" })); process.exitCode = 1; });
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(resolve(process.argv[1]))).href) main().catch(() => { console.error(JSON.stringify({ kind: "database_operation_failed" })); process.exitCode = 1; });
