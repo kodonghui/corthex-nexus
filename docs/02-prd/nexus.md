@@ -4,7 +4,7 @@
 
 Stage 02 of CORTHEX's own project, for NEXUS: the `corthex-nexus` plugin and the NEXUS server. Status: rewritten on 2026-10-24 from the event storming board and the new stage 01. The maintainer checked the scope on 2026-10-25 and approved the recommendations of D8 to D13, without changes (the stage's first checkpoint). R4 of the harness review, which the maintainer approved on 2026-11-02, added REQ-197 and REQ-198 and widened REQ-076. The joint checkpoint of NEXUS's stages 03 to 08, which the maintainer passed on 2026-11-03, added REQ-199 to REQ-208 and changed REQ-115, REQ-118, REQ-197 and REQ-198, as the functional spec proposed. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS widened the goal and the scope and added problem 13 and REQ-209 to REQ-218, which the maintainer passed the same day ([For the checkpoint](#for-the-checkpoint)). It replaces the draft of 2026-10-24, which planned the next release around the hub of phase 1. The draft's rows keep their IDs: the rows marked `built` describe phase 1 as it runs now, in `corthex-nexus` 0.1.0 and the server deployed on 2026-10-24, and the rows that the board changed or removed say so. When this file and its Korean translation differ, this file is the source.
 
-Inputs: the contexts and the glossary in [docs/01-domain/nexus.md](../01-domain/nexus.md) (CTX-006 to CTX-015, TERM-047 to TERM-134), with the shared terms of [docs/01-domain/memory.md](../01-domain/memory.md). Words in this file have the meanings given there.
+Inputs: the contexts and the glossary in [docs/01-domain/nexus.md](../01-domain/nexus.md) (CTX-006 to CTX-015, TERM-047 to TERM-134), with the shared terms of [docs/01-domain/memory.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/docs/01-domain/memory.md). Words in this file have the meanings given there.
 
 ## Goal
 
@@ -61,7 +61,7 @@ The maintainer's own words and where they were said are in the maintainer's reco
 
 ## Open decisions
 
-None of NEXUS's own decisions is open. At the scope check on 2026-10-25 the maintainer approved the recommendations of D8 to D13, so the requirements that depended on them are `active`; the table keeps each question with the other choices that were weighed. D1 to D4 are memory's decisions, in [memory.md](memory.md#open-decisions); D5 to D7, from the draft, were replaced on 2026-10-24 and are listed after the table.
+None of NEXUS's own decisions is open. At the scope check on 2026-10-25 the maintainer approved the recommendations of D8 to D13, so the requirements that depended on them are `active`; the table keeps each question with the other choices that were weighed. D1 to D4 are memory's decisions, in [memory.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/docs/02-prd/memory.md#open-decisions); D5 to D7, from the draft, were replaced on 2026-10-24 and are listed after the table.
 
 | ID | Question | Recommendation | Other choices | Status |
 | --- | --- | --- | --- | --- |
@@ -143,7 +143,7 @@ Priorities: Must, Should, Could. Status: `active`, `built` (in phase 1 already) 
 | REQ-121 | The NEXUS server shall run no AI model. | non-functional | Must | CTX-009 | Design draft 2026-10-23 (judgement stays with the agents on the devices) | built |
 | REQ-122 | The NEXUS server shall hold no rights on any repository. | non-functional | Must | CTX-009 | Design draft 2026-10-23 | built |
 | REQ-123 | The NEXUS server shall keep its database code in one module, so that another database can replace D1. | non-functional | Should | CTX-009 | Decision 2026-10-23 | built |
-| REQ-124 | The NEXUS server shall stay within the free plans of Cloudflare Workers, D1 and Access for one person's projects. | non-functional | Should | CTX-009 | Design draft 2026-10-23 (an estimate, not measured) | active |
+| REQ-124 | The NEXUS server shall run on the maintainer’s existing VPS, within the free allowances of Cloudflare Access, Tunnel and DNS. Record server processing time and memory for the maximum synthetic push; processing shall be under1s. Workers remain a compatibility build/test path. | non-functional | Should | CTX-009 | Maintainer OVH decision2026-11-04; earlier Workers10ms trial retained as history | active |
 | REQ-125 | While a project is in the push list, when a stage's work is merged or its checkpoint is recorded, the hub skill shall have the agent push the project's new snapshot. | functional | Should | CTX-009 | Problem 4; decision D8 | active |
 | REQ-126 | The server's guide shall let a person deploy their own NEXUS server on their own Cloudflare account and domain. | non-functional | Should | CTX-009 | Design draft 2026-10-23 (a version for everyone); deployment of 2026-10-24 | built |
 | REQ-127 | Where editing is included, the picture view shall let the user edit a picture on a PC with the open-source editor. | functional | Could | CTX-010 | Problem 6; board checkpoint 1 (editing on a PC first); decision D11 | active |
@@ -257,7 +257,7 @@ For a two-week trial of phase ① with this repository on NEXUS:
 | Useful discrepancies | At most one discrepancy in three is a false lead, once the repository has a second picture | The maintainer's sample of the discrepancies raised |
 | Same everywhere | No stage shows different records on two devices or on the server | Stage records read on different devices and on the server, compared |
 | Nothing leaks | No pushed data holds a secret, an email address or a local path | Code check over the pushed data |
-| Cost | The server stays on the free plans | Cloudflare's usage pages |
+| Cost | Run on the existing VPS and free Access/Tunnel/DNS allowances | Server/Cloudflare usage and maximum push processing/memory evidence |
 
 ## For the checkpoint
 

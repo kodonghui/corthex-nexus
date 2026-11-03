@@ -12,7 +12,9 @@ import jsonschema
 import yaml
 
 root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(root / "tests"))
+sys.path.insert(0, str(root / "tools"))
+from hub_ref import locate_hub
+sys.path.insert(0, str(locate_hub() / "tests"))
 from test_hub02 import GitSourcesFixture, NOW, hub
 
 api = yaml.safe_load((root / "docs/06-api/nexus.openapi.yaml").read_text(encoding="utf8"))

@@ -1,13 +1,19 @@
 {
   "format": 1,
-  "project": "corthex",
+  "project": "corthex-nexus",
   "part": "nexus",
   "stages": {
     "10-wbs": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Review the phase-1 implementation plan; continue authorized trials and database migrations.",
-      "updated": "2026-11-03T22:54:15+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Plan64tasks/710cases: split, standalone server, views and QA; release remains separate.",
+          "by": "the maintainer",
+          "date": "2026-11-04"
+        }
+      ],
+      "next": "Finish repository extraction/CI, then the standalone-server bundle.",
+      "updated": "2026-11-04T08:08:23+09:00"
     },
     "12-qa": {
       "state": "in_progress",

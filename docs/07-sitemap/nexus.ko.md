@@ -4,7 +4,7 @@
 
 CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 07단계입니다: [nexus.yaml](nexus.yaml)에 있는 허브 페이지와 NEXUS 서버의 화면, 그리고 이 파일에 있는 화면마다 보여 주는 것, 그 파일에서 그린 보드와 목록, 화면마다 보여 주는 사용자 흐름의 단계입니다. 상태: 2026-11-03에 관리자가 2026-11-02에 고른 대로 기억 플러그인을 만드는 동안, 사용자 흐름, 기능 명세, 서버의 자료, 인터페이스의 추천을 따라 초안을 썼습니다. 관리자가 같은 날 03\~06단계, 08단계와 함께 이 파일의 확인 지점을 통과시켰습니다. 2026-11-03에 관리자가 01단계 이벤트 스토밍을 NEXUS에서 하기로 고르면서 그림 보기에 스텝별 보기와 ② 차례의 워크숍을 새 화면 없이 더했고, 이것은 관리자가 같은 날 통과시켰습니다([확인할 것](#확인할-것)). YAML이 화면의 원본이고, 이 파일은 그것을 설명하며 나머지의 원본입니다. 이 번역과 영어 원문이 다르면 영어 원문이 원본입니다.
 
-입력: [docs/03-user-flow/nexus/](../03-user-flow/nexus/README.ko.md)의 사용자 흐름(FL-101\~FL-116); [docs/04-functional-spec/nexus.ko.md](../04-functional-spec/nexus.ko.md)의 기능 명세(SPEC-101\~SPEC-142), 특히 그 [07·08단계를 위한 메모](../04-functional-spec/nexus.ko.md#0708단계-화면); [docs/06-api/nexus.ko.md](../06-api/nexus.ko.md)의 인터페이스와 그 안의 페이지 요청 API-101\~API-103, 사이트맵의 그림 자료 형식, [07·08단계를 위한 메모](../06-api/nexus.ko.md#0708단계-화면); [docs/05-erd/nexus.ko.md](../05-erd/nexus.ko.md)의 서버의 자료와 그 [07·08단계를 위한 메모](../05-erd/nexus.ko.md#0708단계-화면); [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)의 DDD 보드와 용어집(화면은 그 읽기 모델을 적고, 이 파일은 그 말을 그 뜻으로 씁니다); 그리고 지금 도는 1차의 허브 페이지 [hub.html](../../plugins/corthex-nexus/skills/corthex-hub/assets/hub.html)이며, 그 보기에는 저마다 주소가 있습니다. 기억 플러그인에는 화면이 없으므로 이 단계에는 그 파일이 없습니다.
+입력: [docs/03-user-flow/nexus/](../03-user-flow/nexus/README.ko.md)의 사용자 흐름(FL-101\~FL-116); [docs/04-functional-spec/nexus.ko.md](../04-functional-spec/nexus.ko.md)의 기능 명세(SPEC-101\~SPEC-142), 특히 그 [07·08단계를 위한 메모](../04-functional-spec/nexus.ko.md#0708단계-화면); [docs/06-api/nexus.ko.md](../06-api/nexus.ko.md)의 인터페이스와 그 안의 페이지 요청 API-101\~API-103, 사이트맵의 그림 자료 형식, [07·08단계를 위한 메모](../06-api/nexus.ko.md#0708단계-화면); [docs/05-erd/nexus.ko.md](../05-erd/nexus.ko.md)의 서버의 자료와 그 [07·08단계를 위한 메모](../05-erd/nexus.ko.md#0708단계-화면); [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)의 DDD 보드와 용어집(화면은 그 읽기 모델을 적고, 이 파일은 그 말을 그 뜻으로 씁니다); 그리고 지금 도는 1차의 허브 페이지 [hub.html](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/assets/hub.html)이며, 그 보기에는 저마다 주소가 있습니다. 기억 플러그인에는 화면이 없으므로 이 단계에는 그 파일이 없습니다.
 
 이 단계의 기본 사람 화면은 YAML에서 그린 세 보기, 곧 보드, 목록, 슬라이드가 있는 페이지입니다. 여기서는 이 파일이 nexus.yaml에서 그린 보드와 목록을 담고, 사람은 그것을 프로젝트의 Notion 기록에 있는 한국어 사본으로 읽으며, 목록은 거기서 데이터베이스입니다. 회의가 아니라 한 사람이 사이트맵을 확인하므로 슬라이드는 없습니다([8번 선택](#이-단계가-고른-것)). NEXUS 0.2부터는 NEXUS가 nexus.yaml에서 이 사이트맵을 직접 그립니다(REQ-142). `.corthex/project.json`이 이 선택을 적어 둡니다.
 
@@ -188,8 +188,8 @@ NEXUS는 한 부분의 DDD 보드에 있는 읽기 모델마다 그 부분의 �
 
 ### 10단계: 작업 분해
 
-- 보기는 06단계가 정한 차례대로 서버와 허브 뒤에 마지막으로 합니다: [hub.html](../../plugins/corthex-nexus/skills/corthex-hub/assets/hub.html)에서 허브 페이지에 더하는 것(이 파일을 [nexus/src/hub.html](../../nexus/src/hub.html)이 복사함), 그다음 패널이 있는 그림 보기, 그다음 단계 현황.
-- 릴리스는 `terms`와 `status`를 07단계 양식, 곧 핵심 플러그인의 [07-sitemap.md](../../plugins/corthex/skills/corthex-screen/references/07-sitemap.md)에 넣고, 에이전트에게 용어를 쓰게 하는 SPEC-137의 단계도 함께 넣습니다.
+- 보기는 06단계가 정한 차례대로 서버와 허브 뒤에 마지막으로 합니다: [hub.html](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/assets/hub.html)에서 허브 페이지에 더하는 것(이 파일을 [nexus/src/hub.html](../../nexus/src/hub.html)이 복사함), 그다음 패널이 있는 그림 보기, 그다음 단계 현황.
+- 릴리스는 `terms`와 `status`를 07단계 양식, 곧 핵심 플러그인의 [07-sitemap.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-screen/references/07-sitemap.md)에 넣고, 에이전트에게 용어를 쓰게 하는 SPEC-137의 단계도 함께 넣습니다.
 
 ### 11단계: 개발
 

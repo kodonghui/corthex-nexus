@@ -1,0 +1,89 @@
+{
+  "name": "corthex-nexus",
+  "title": "NEXUS",
+  "team": false,
+  "language": "en",
+  "parts": [
+    "nexus"
+  ],
+  "records": {
+    "kind": "notion"
+  },
+  "repos": {
+    "harness": "https://github.com/kodonghui/corthex"
+  },
+  "stages": {
+    "01-domain": {
+      "human": "miro",
+      "source": "docs/01-domain/nexus.md",
+      "truth": "source",
+      "note": "NEXUS in nexus.md (2026-10-24, from an event storming board). The maintainer chose on 2026-10-24 to try event storming for NEXUS on one private Miro board: the AI drafted each step, the maintainer answered at the checkpoints, and checkpoints 1 to 3 passed the same day. The board's link is in the project's records. Translations beside them, such as memory.ko.md, are not read as sources. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+    },
+    "02-prd": {
+      "human": "notion",
+      "source": "docs/02-prd/nexus.md",
+      "truth": "source",
+      "note": "NEXUS in nexus.md (rewritten on 2026-10-24 from the event storming board and the new stage 01; scope checked on 2026-10-25, with D8 to D13 approved as recommended). Translations beside them are not read as sources. Korean copies, with the tables as databases, are reviewed in the project's Notion records, as the maintainer asked on 2026-10-24; the copies follow these files. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+    },
+    "03-user-flow": {
+      "human": "notion",
+      "source": "docs/03-user-flow/nexus/",
+      "truth": "source",
+      "note": "NEXUS in nexus/ (drafted on 2026-11-02 while the memory plugin is built, as the maintainer chose that day; its flow IDs start at FL-101; the maintainer made its two choices, both as recommended, the same day, and its flows passed their checkpoint on 2026-11-03 together with the functional spec and the NEXUS stages 05 to 08). The README of each folder lists its flows; translations beside them are not read as sources. Korean copies of the flows, with their diagrams, are in the project's Notion records (memory on 2026-10-24, NEXUS on 2026-11-02). Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+    },
+    "04-functional-spec": {
+      "human": "notion",
+      "source": "docs/04-functional-spec/nexus.md",
+      "truth": "source",
+      "note": "NEXUS in nexus.md (drafted on 2026-11-02 while the memory plugin is built, as the maintainer chose that day; its SPEC IDs start at SPEC-101, and it passed its checkpoint on 2026-11-03 together with the NEXUS user flows and stages 05 to 08, so its rows are frozen for NEXUS 0.2). Translations beside them are not read as sources. Korean copies, with the tables as databases, are in the project's Notion records (memory on 2026-10-24, NEXUS on 2026-11-02); the copies follow these files. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+    },
+    "05-erd": {
+      "human": "notion",
+      "source": "docs/05-erd/nexus.md",
+      "truth": "source",
+      "note": "NEXUS's server data and files in nexus.md, with the D1 tables of the NEXUS server in nexus.sql (drafted on 2026-11-02 while the memory plugin is built, as the maintainer chose that day; its TBL IDs start at TBL-101, and it passed its checkpoint on 2026-11-03 together with the NEXUS user flows, functional spec and stages 06 to 08, so its schema is frozen for NEXUS 0.2). Not ERD Editor, the stage's default: the memory store is files, and only its search index is SQL; from NEXUS 0.2, NEXUS draws the ERD of nexus.sql itself. Translations beside them are not read as sources. Korean copies, with the tables as databases, are in the project's Notion records (memory on 2026-10-24, NEXUS on 2026-11-02); the copies follow these files. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+    },
+    "06-api": {
+      "human": "notion",
+      "source": "docs/06-api/nexus.md",
+      "truth": "source",
+      "note": "NEXUS in nexus.md, with the NEXUS server's requests in the OpenAPI 3.1 contract nexus.openapi.yaml (drafted on 2026-11-02 while the memory plugin is built, as the maintainer chose that day; its API IDs start at API-101, and it passed its checkpoint on 2026-11-03 together with the NEXUS user flows, functional spec, server data, sitemap and screen states, so its requests, commands and formats are frozen for NEXUS 0.2). The NEXUS server has one, so its contract is OpenAPI, kept beside the other interfaces instead of in api/openapi.yaml, and read in an OpenAPI viewer such as Swagger UI; the hub's commands are in nexus.md, in memory.md's form. Translations beside them are not read as sources. Korean copies, with the tables as databases, go in the project's Notion records and follow these files. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+    },
+    "07-sitemap": {
+      "human": "notion",
+      "source": "docs/07-sitemap/nexus.yaml",
+      "truth": "source",
+      "note": "NEXUS only: NEXUS's screens are in nexus.yaml, in the form of the stage 07 template with the terms that NEXUS's cross-check reads and a status for each, and nexus.md explains them (drafted on 2026-11-03 while the memory plugin is built, as the maintainer chose on 2026-11-02; its SCR IDs start at SCR-101, and it passed its checkpoint on 2026-11-03 together with the NEXUS user flows, functional spec, server data, interfaces and screen states). Not the stage's default page of three views: nexus.md holds the board and the list, drawn from nexus.yaml, and people read them in a Korean copy in the project's Notion records, with the list as a database; there are no slides, since one person checks the sitemap, and from NEXUS 0.2 NEXUS draws it itself. Translations beside them are not read as sources. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+    },
+    "08-screen-states": {
+      "human": "wireframes",
+      "source": "docs/08-screens/nexus/",
+      "truth": "source",
+      "note": "NEXUS only: NEXUS's screen definitions are in nexus/, one file for each of the sitemap's screens, SCR-101 to SCR-109, named by its ID and a short name, with README.md for the rules of every screen and the final words of the messages (drafted on 2026-11-03 while the memory plugin is built, as the maintainer chose on 2026-11-02; it passed its checkpoint on 2026-11-03 together with the NEXUS user flows, functional spec, server data, interfaces and sitemap). The human view is the stage's default, grayscale wireframes drawn from the definitions: one page, nexus/wireframes.html, with a frame for each state at 320 and 1440 pixels, drawn again in the same change as the definitions, and looked at as a private published page whose link is in the project's records, not in `link`, since the repository is public. The definitions are read in a Korean copy in the project's Notion records, with the tables as databases. Translations beside them are not read as sources. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+    },
+    "09-mockup": {
+      "human": "mockup page",
+      "source": "design/nexus/",
+      "truth": "source",
+      "note": "NEXUS only: NEXUS's design tokens are in design/nexus/, in the Design Tokens Community Group format 2025.10: base.tokens.json, one file for each theme under theme/, and tokens.resolver.json, which chooses between them (drafted on 2026-11-03 while the memory plugin is built, as the maintainer chose on 2026-11-02, on the recommendations of stages 03 to 08, whose joint checkpoint passed on 2026-11-03). Not Figma or Claude Design, the stage's defaults: Figma is not connected to this project, and a page drawn from the tokens keeps a token name in every value and can be measured in a browser. The maintainer chose direction A, Hub pages, on 2026-11-03, the stage's first checkpoint. Its mockups of every state of SCR-101, SCR-104 and SCR-105 to SCR-109 are one page, docs/09-mockup/nexus/mockup.html, explained in docs/09-mockup/nexus/README.md, and looked at as a private published page whose link is in the project's records, not in `link`, since the repository is public. The maintainer passed its second checkpoint, frozen tokens, on 2026-11-03, together with stages 03 to 08, so the tokens are frozen for NEXUS 0.2 before development uses them: a later change needs the maintainer's decision. Translations beside them are not read as sources. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+    },
+    "10-wbs": {
+      "human": "notion",
+      "source": "docs/10-wbs/nexus.md",
+      "truth": "source",
+      "note": "NEXUS in nexus.md (planned on 2026-11-03; the plan was approved on 2026-11-04 with repository extraction and the standalone-server bundle). Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained. Current plan:64 tasks (S7/M47/L10), source-first updates, Korean Notion task/case copies; release approval remains separate."
+    },
+    "11-development": {
+      "human": "pull request",
+      "source": "nexus/src/",
+      "truth": "source",
+      "note": "NEXUS source moved from the harness on2026-11-04. The split and standalone-server plan are approved; original stage01\u201309 decisions and frozen tokens remain traceable. Hub/core implementation stays in the harness; project source and QA are here."
+    },
+    "12-qa": {
+      "human": "notion",
+      "source": "docs/12-qa/nexus.md",
+      "truth": "source",
+      "note": "NEXUS in nexus.md (planned on 2026-11-03, covering active acceptance criteria, named API responses, hub outcomes and screen states; release decision pending). Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained. Current plan:710 cases, distinguishing pass/partial/blocked/unexecuted scope and preserving original receipts."
+    }
+  }
+}

@@ -1,0 +1,7 @@
+schemathesis==3.39.16
+openapi-spec-validator==0.7.1
+PyYAML==6.0.3
+jsonschema==4.26.0
+hypothesis==6.170.14
+hypothesis-jsonschema==0.23.2
+requests==2.34.2

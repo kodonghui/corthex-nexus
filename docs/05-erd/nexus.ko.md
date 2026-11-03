@@ -6,6 +6,10 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 05단계입니다: [nexus.sql]
 
 입력: [docs/04-functional-spec/nexus.ko.md](../04-functional-spec/nexus.ko.md)의 기능 명세(SPEC-101\~SPEC-142), 특히 그 [05단계를 위한 메모](../04-functional-spec/nexus.ko.md#05단계-서버의-자료와-파일); [docs/02-prd/nexus.ko.md](../02-prd/nexus.ko.md)의 요구사항 가운데 자료를 가장 많이 정하는 REQ-116, REQ-118, REQ-120, REQ-123, REQ-124; [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)의 용어집과 DDD 보드(이 파일은 그 말을 그 뜻으로 쓰고, 표는 그 보드의 애그리거트를 적습니다); [nexus/src/store.js](../../nexus/src/store.js)에 있는 1차의 표. Cloudflare의 D1 문서는 2026-11-02에 읽었습니다: [한도](https://developers.cloudflare.com/d1/platform/limits/), [요금](https://developers.cloudflare.com/d1/platform/pricing/), [외래 키](https://developers.cloudflare.com/d1/sql-api/foreign-keys/), [JSON 함수](https://developers.cloudflare.com/d1/sql-api/query-json/), [배치](https://developers.cloudflare.com/d1/worker-api/d1-database/).
 
+## 승인된 실행 위치 (2026-11-04)
+
+기본 서버는 기존 VPS의 Node와 SQLite 파일입니다. Worker 호환 경로는 D1을 계속 씁니다. 두 연결부의 batch는 한 트랜잭션이며 데이터 SQL은 store.js에만 둡니다. 아래 표·DDL·상태 전이·한도는 그대로이고 이전 D1 설명은 Worker 경로의 설명으로 남습니다. 서버에서 매일·이주/배포 직전 백업하고 실제 복구를 비교합니다. 실제 경로·접속값·DB·백업은 Git 밖 서버에 둡니다.
+
 ## 이 파일을 읽는 법
 
 - 서버의 표는 빈 데이터베이스의 스키마인 [nexus.sql](nexus.sql)에 있습니다. 표마다 주석에 TBL ID, 컨텍스트, 그 표가 간직하는 DDD 보드 애그리거트의 용어(없으면 `terms: none`), 그 표를 읽거나 쓰는 동작(SPEC)을 적습니다. 프로젝트 허브는 이 주석을 읽고, NEXUS 0.2부터는 그 파일에서 `nexus` 부분의 ERD 그림을 그립니다(SPEC-107). 이 파일은 표를 설명하고, 나머지 저장 단위, 곧 [저장 단위](#저장-단위)의 파일을 정합니다.
@@ -306,7 +310,7 @@ NEXUS 서버: Cloudflare Worker 하나와 그 D1 데이터베이스 corthex-nexu
 
 ### 스냅샷 (TBL-114)
 
-1차의 형식 `corthex-hub/0.1`은 허브의 [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)에 적혀 있습니다. NEXUS 0.2는 아래 필드를 `corthex-hub/0.2`로 더하며, 06단계가 그 파일에 더합니다. 허브는 스냅샷을 기기에 저장하고 보내기마다 새로 만든 것을 보냅니다(SPEC-111). 서버는 `pictures` 없이 간직합니다(TBL-101). 그 안의 모든 것은 SPEC-104대로 가립니다.
+1차의 형식 `corthex-hub/0.1`은 허브의 [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)에 적혀 있습니다. NEXUS 0.2는 아래 필드를 `corthex-hub/0.2`로 더하며, 06단계가 그 파일에 더합니다. 허브는 스냅샷을 기기에 저장하고 보내기마다 새로 만든 것을 보냅니다(SPEC-111). 서버는 `pictures` 없이 간직합니다(TBL-101). 그 안의 모든 것은 SPEC-104대로 가립니다.
 
 | 필드 | 값 | 뜻 |
 | --- | --- | --- |
@@ -370,7 +374,7 @@ NEXUS 서버: Cloudflare Worker 하나와 그 D1 데이터베이스 corthex-nexu
 
 ### 진행 기록 파일 (TBL-116)
 
-허브의 [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)가 적은 대로 `hub.py status`가 기기마다 쓰는 1차의 파일입니다: 단계마다 상태, 마지막 확인 지점과 그 날짜, 다음 행동, 검토 결과, 쓴 때. NEXUS 0.2부터 허브는 저장소에 단계 기록이 없는 프로젝트에서만 이것을 읽고, `records-in-status-file` 점검 결과를 냅니다(SPEC-109).
+허브의 [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)가 적은 대로 `hub.py status`가 기기마다 쓰는 1차의 파일입니다: 단계마다 상태, 마지막 확인 지점과 그 날짜, 다음 행동, 검토 결과, 쓴 때. NEXUS 0.2부터 허브는 저장소에 단계 기록이 없는 프로젝트에서만 이것을 읽고, `records-in-status-file` 점검 결과를 냅니다(SPEC-109).
 
 ### 보낼 편지함 (TBL-117)
 

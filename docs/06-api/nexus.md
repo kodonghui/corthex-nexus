@@ -4,9 +4,13 @@
 
 Stage 06 of CORTHEX's own project, for NEXUS 0.2: the requests that the NEXUS server answers, in the OpenAPI contract [nexus.openapi.yaml](nexus.openapi.yaml), and in this file the rules that the contract follows, the hub's commands and the formats of the files that go with them. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows, the functional spec and the server's data. The maintainer passed its checkpoint on 2026-11-03, together with stages 03 to 05, 07 and 08, so the requests, the commands and the formats are frozen for NEXUS 0.2 before stage 10 plans the work: a later breaking change needs the maintainer's decision. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the optional `timeline` to the DDD board's picture source, a compatible change, and named the work board of phase ② beside editing; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). The contract is the source of every request, answer, example and error code that it holds; this file explains them and is the source of the rest. When this file and its Korean translation differ, this file is the source.
 
-Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-142), above all its [notes for stage 06](../04-functional-spec/nexus.md#stage-06-requests-commands-and-formats); the server's data and the files in [docs/05-erd/nexus.md](../05-erd/nexus.md) and [nexus.sql](../05-erd/nexus.sql) (TBL-101 to TBL-118), with their [notes for stage 06](../05-erd/nexus.md#stage-06-requests-commands-and-formats) and their limits; the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md); the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps; and phase 1 as it runs: the server in [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js) and [store.js](../../nexus/src/store.js), and the hub in [hub.py](../../plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py) with its [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md). The sitemap (stage 07) comes later, so no screen ID is an input yet; the requests serve the screens that the user flows and the functional spec name.
+Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-142), above all its [notes for stage 06](../04-functional-spec/nexus.md#stage-06-requests-commands-and-formats); the server's data and the files in [docs/05-erd/nexus.md](../05-erd/nexus.md) and [nexus.sql](../05-erd/nexus.sql) (TBL-101 to TBL-118), with their [notes for stage 06](../05-erd/nexus.md#stage-06-requests-commands-and-formats) and their limits; the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md); the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps; and phase 1 as it runs: the server in [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js) and [store.js](../../nexus/src/store.js), and the hub in [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py) with its [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md). The sitemap (stage 07) comes later, so no screen ID is an input yet; the requests serve the screens that the user flows and the functional spec name.
 
-The stage's default contract is `api/openapi.yaml`, read in Swagger UI. The NEXUS server has an HTTP API, so its contract is OpenAPI 3.1, as the stage asks, kept beside the other part's interfaces as `docs/06-api/nexus.openapi.yaml`. People read it in the Korean copy in the project's Notion records, and the file itself in any OpenAPI viewer, such as Swagger UI; `.corthex/project.json` records the choice. The hub's commands are no HTTP requests, so this file defines them, in the form of MEMORY's [interfaces](memory.md): each with an API ID, the behaviours that it serves and its outcomes.
+The stage's default contract is `api/openapi.yaml`, read in Swagger UI. The NEXUS server has an HTTP API, so its contract is OpenAPI 3.1, as the stage asks, kept beside the other part's interfaces as `docs/06-api/nexus.openapi.yaml`. People read it in the Korean copy in the project's Notion records, and the file itself in any OpenAPI viewer, such as Swagger UI; `.corthex/project.json` records the choice. The hub's commands are no HTTP requests, so this file defines them, in the form of MEMORY's [interfaces](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/docs/06-api/memory.md): each with an API ID, the behaviours that it serves and its outcomes.
+
+## Approved origin sign-in (2026-11-04)
+
+The standalone origin binds only to127.0.0.1 behind a cloudflared Tunnel. Without ctx.access it directly verifies the Cf-Access-Jwt-Assertion RS256 signature, configured team issuer, ACCESS_AUD, expiry and nbf, then applies the existing user/agent classification. The Worker additionally retains its checked context/audience requirement. Missing configuration or an invalid signature fails closed; the token never chooses the issuer/key host. Existing Access policies and HTTP/snapshot formats are unchanged. TASK-260/264 verify implementation and both real identity kinds.
 
 ## How to read this file
 
@@ -525,11 +529,11 @@ Each picture source has `format: 1` and one of three shapes, the contract's `Dom
 
 - Each element has `where`, its file and line at the commit, relative to the repository, such as `docs/05-erd/nexus.sql:15`.
 - An element's `id` is its trace ID, or `""` when it has none; `context` is a CTX ID, or `""`. Names are cut at 120 characters and other texts at 300, as titles are, and each list stops at the contract's limit for it.
-- `removed` is `true` for an element whose status says that it is removed, as [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md) reads statuses.
+- `removed` is `true` for an element whose status says that it is removed, as [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md) reads statuses.
 - Secrets and email addresses become `[redacted]` (REQ-191).
 - A document that the forms below cannot fully read gives what could be read, with a `picture-partial` check that names the place.
 
-**DDD board (`01-domain`).** The forms of the stage 01 template, [01-domain.md](../../plugins/corthex/skills/corthex-discover/references/01-domain.md), in English, and in Korean as its Korean documents write them, such as [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md). The hub finds a table by its header row, reads the columns named here in any order, compares the names ignoring case and spacing, and ignores other columns.
+**DDD board (`01-domain`).** The forms of the stage 01 template, [01-domain.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-discover/references/01-domain.md), in English, and in Korean as its Korean documents write them, such as [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md). The hub finds a table by its header row, reads the columns named here in any order, compares the names ignoring case and spacing, and ignores other columns.
 
 | Element | English form | Korean form |
 | --- | --- | --- |
@@ -549,7 +553,7 @@ A command table outside a context's heading keeps its rows under the nearest con
 
 In a command row's `Events`, commas separate the events, and a leading `or` (`또는`) is not part of a name, so `Payment taken, or Payment failed` gives two events. The timeline is optional: a document without one gives no `timeline`, and the view then shows the board only as a whole (SPEC-141). Each lane keeps its `where`, the line of its row.
 
-**ERD (`05-erd`).** The SQL of [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md) and the stage 05 template, [05-erd.md](../../plugins/corthex/skills/corthex-contract/references/05-erd.md):
+**ERD (`05-erd`).** The SQL of [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md) and the stage 05 template, [05-erd.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-contract/references/05-erd.md):
 
 ```sql
 -- without a table: TERM-122
@@ -572,7 +576,7 @@ CREATE TABLE pictures (
 - An index expression that cannot be represented as column names is omitted as a whole unique rule, with a `picture-partial` check; a function name is never drawn as a column. Removed status words in table comments use the same vocabulary as other stage items: an explicit `status:` (`상태:`) wins; otherwise a standalone metadata field in parentheses or after a `|` may mark removal. Words in a table name or descriptive title are not its status. Quoted identifier/title spans are excluded before metadata delimiters are read, including escaped quotes; a quoted status value remains a value.
 - The markers `terms: none`, `without a table:` and `without a screen:` are the same in every language, as the code around them is.
 
-**Sitemap (`07-sitemap`).** The YAML of the stage 07 template, [07-sitemap.md](../../plugins/corthex/skills/corthex-screen/references/07-sitemap.md), with `terms`, here two screens of NEXUS's own [nexus.yaml](../07-sitemap/nexus.yaml):
+**Sitemap (`07-sitemap`).** The YAML of the stage 07 template, [07-sitemap.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-screen/references/07-sitemap.md), with `terms`, here two screens of NEXUS's own [nexus.yaml](../07-sitemap/nexus.yaml):
 
 ```yaml
 - id: SCR-104
@@ -599,7 +603,7 @@ CREATE TABLE pictures (
 
 ### Project settings
 
-The project settings, `.corthex/project.json`, gain two fields, which the core plugin's [project.md](../../plugins/corthex/skills/corthex/references/project.md) adds with the 0.2 release:
+The project settings, `.corthex/project.json`, gain two fields, which the core plugin's [project.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex/references/project.md) adds with the 0.2 release:
 
 | Field | Type | Meaning |
 | --- | --- | --- |
@@ -642,7 +646,7 @@ Each file of the outbox is TBL-117 of stage 05's [Outbox](../05-erd/nexus.md#out
 
 ## Check rules
 
-The hub's new rules, which its [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md) gains with the 0.2 release:
+The hub's new rules, which its [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md) gains with the 0.2 release:
 
 | Rule | Level | Meaning |
 | --- | --- | --- |
@@ -744,7 +748,7 @@ The codes of every request, as the contract's `components.x-corthex.errors` list
 
 ## Breaking changes
 
-Compared with phase 1, as the hub's [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) describes it:
+Compared with phase 1, as the hub's [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) describes it:
 
 1. Refusals are Problem Details, sent as `application/problem+json`, with more members. They keep `error`, so a hub of 0.1, which reads any JSON reply and shows `error`, still shows the reason, and the reasons are worded anew.
 2. A hub of 0.1 cannot push a project that a hub of 0.2 pushed: its snapshot names no commit while the stored one has one, so the server refuses it with `409` `commit_not_replaced`. Every device's hub moves to 0.2 before it pushes such a project again.
@@ -850,7 +854,7 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 05, 07 and 08: on 
 ### Stage 10: work breakdown
 
 - The server first: store.js's migrations, then the requests in the contract's order: the push with the held commit and the removal; the reads; the discussion; editing; stage progress with the claims. The hub follows: the snapshot 0.2 with its picture sources, stage records and settings, `status`, `push`, then the writes with the outbox. The views come last.
-- The release carries this file's formats and rules into the hub's [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md), and `parts` and `ask_before` into the core plugin's [project.md](../../plugins/corthex/skills/corthex/references/project.md), with the stage skills' steps that run the hub's commands.
+- The release carries this file's formats and rules into the hub's [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md), and `parts` and `ask_before` into the core plugin's [project.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex/references/project.md), with the stage skills' steps that run the hub's commands.
 
 ### Stage 11: development
 

@@ -4,7 +4,7 @@
 
 CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 08단계입니다: [사이트맵](../../07-sitemap/nexus.ko.md)의 화면 아홉 개마다 정의 하나, 곧 그 화면이 보여 주는 자료와 저마다 어느 요청에서 오는지, 그 동작과 결과와 실패, 그리고 모든 상태와 그것으로 이어지는 응답; 그리고 이 파일에 있는 모든 화면에 걸리는 규칙, 메시지의 최종 문구, 정의에서 그린 [와이어프레임](wireframes.html)입니다. 상태: 2026-11-03에 관리자가 2026-11-02에 고른 대로 기억 플러그인을 만드는 동안, 사용자 흐름, 기능 명세, 서버의 자료, 인터페이스, 사이트맵의 추천을 따라 초안을 썼습니다. 관리자가 같은 날 03\~07단계와 함께 이 단계의 확인 지점을 통과시켰습니다. 2026-11-03에 관리자가 01단계 이벤트 스토밍을 NEXUS에서 하기로 고르면서 그림 보기에 DDD 보드의 스텝 고르기와 그 말을 더했고, 이것은 관리자가 같은 날 통과시켰습니다([확인할 것](#확인할-것)). 이 번역과 영어 원문이 다르면 영어 원문이 원본입니다.
 
-입력: [docs/07-sitemap/nexus.yaml](../../07-sitemap/nexus.yaml)의 사이트맵(SCR-101\~SCR-109)과 그 [08단계를 위한 메모](../../07-sitemap/nexus.ko.md#08단계-화면-상태); [docs/04-functional-spec/nexus.ko.md](../../04-functional-spec/nexus.ko.md)의 기능 명세, 특히 SPEC-119, SPEC-122\~SPEC-127, SPEC-131\~SPEC-134, SPEC-138, SPEC-139, SPEC-141, SPEC-142와 그 [07·08단계를 위한 메모](../../04-functional-spec/nexus.ko.md#0708단계-화면); [docs/06-api/nexus.ko.md](../../06-api/nexus.ko.md)의 인터페이스와 계약 [nexus.openapi.yaml](../../06-api/nexus.openapi.yaml), 상태는 그 응답과 [오류 코드](../../06-api/nexus.ko.md#오류-코드)를 따르며, 그 [07·08단계를 위한 메모](../../06-api/nexus.ko.md#0708단계-화면)와 함께; [docs/05-erd/nexus.ko.md](../../05-erd/nexus.ko.md)의 서버의 자료, 거기서 오는 표시를 위해; [docs/03-user-flow/nexus/](../../03-user-flow/nexus/README.ko.md)에 있는, 브라우저에서 도는 사용자 흐름 FL-105\~FL-107, FL-109, FL-110, FL-113, FL-115, FL-116; 그리고 지금 도는 1차의 허브 페이지 [hub.html](../../../plugins/corthex-nexus/skills/corthex-hub/assets/hub.html), 허브 페이지와 그 보기는 그 상태를 그대로 둡니다. 기억 플러그인에는 화면이 없으므로 이 단계에는 그 파일이 없습니다.
+입력: [docs/07-sitemap/nexus.yaml](../../07-sitemap/nexus.yaml)의 사이트맵(SCR-101\~SCR-109)과 그 [08단계를 위한 메모](../../07-sitemap/nexus.ko.md#08단계-화면-상태); [docs/04-functional-spec/nexus.ko.md](../../04-functional-spec/nexus.ko.md)의 기능 명세, 특히 SPEC-119, SPEC-122\~SPEC-127, SPEC-131\~SPEC-134, SPEC-138, SPEC-139, SPEC-141, SPEC-142와 그 [07·08단계를 위한 메모](../../04-functional-spec/nexus.ko.md#0708단계-화면); [docs/06-api/nexus.ko.md](../../06-api/nexus.ko.md)의 인터페이스와 계약 [nexus.openapi.yaml](../../06-api/nexus.openapi.yaml), 상태는 그 응답과 [오류 코드](../../06-api/nexus.ko.md#오류-코드)를 따르며, 그 [07·08단계를 위한 메모](../../06-api/nexus.ko.md#0708단계-화면)와 함께; [docs/05-erd/nexus.ko.md](../../05-erd/nexus.ko.md)의 서버의 자료, 거기서 오는 표시를 위해; [docs/03-user-flow/nexus/](../../03-user-flow/nexus/README.ko.md)에 있는, 브라우저에서 도는 사용자 흐름 FL-105\~FL-107, FL-109, FL-110, FL-113, FL-115, FL-116; 그리고 지금 도는 1차의 허브 페이지 [hub.html](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/assets/hub.html), 허브 페이지와 그 보기는 그 상태를 그대로 둡니다. 기억 플러그인에는 화면이 없으므로 이 단계에는 그 파일이 없습니다.
 
 이 단계의 기본 사람 화면은 정의에서 그린 회색 와이어프레임입니다. 여기서는 그것이 한 페이지 [wireframes.html](wireframes.html)이며 상태마다 320과 1440픽셀의 틀이 있고, 저장소가 공개이므로 사람은 그것을 링크가 프로젝트의 기록에 있는 비공개 게시 페이지로 봅니다. 정의는 프로젝트의 Notion 기록에 있는 한국어 사본으로 읽으며, 표는 거기서 데이터베이스입니다. `.corthex/project.json`이 이 선택을 적어 둡니다.
 
@@ -257,7 +257,7 @@ NEXUS가 단계의 기본값과 다른 곳: `401`은 서버가 아니라 Access�
 
 ### 10단계: 작업 분해
 
-- 변경 1의 메시지 페이지는 서버의 페이지와 함께, 보기의 상태는 보기와 함께, 허브 페이지의 0.2 상태는 [hub.html](../../../plugins/corthex-nexus/skills/corthex-hub/assets/hub.html)에서 하며, 그 파일을 [nexus/src/hub.html](../../../nexus/src/hub.html)이 복사합니다.
+- 변경 1의 메시지 페이지는 서버의 페이지와 함께, 보기의 상태는 보기와 함께, 허브 페이지의 0.2 상태는 [hub.html](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/assets/hub.html)에서 하며, 그 파일을 [nexus/src/hub.html](../../../nexus/src/hub.html)이 복사합니다.
 
 ### 11단계: 개발
 

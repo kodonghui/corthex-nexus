@@ -8,7 +8,7 @@ This folder is not a plugin. Deploy it from a clone of this repository.
 
 ## What it keeps and who can see it
 
-- **Snapshots only.** One row per project holds the snapshot that `hub.py push` sent: IDs, titles, states, checks, file locations and commit IDs, never other file contents or local paths ([format](../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)). A new push of a project replaces its row. The Worker keeps nothing else and logs no stored text.
+- **Snapshots only.** One row per project holds the snapshot that `hub.py push` sent: IDs, titles, states, checks, file locations and commit IDs, never other file contents or local paths ([format](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)). A new push of a project replaces its row. The Worker keeps nothing else and logs no stored text.
 - **Access first.** The Worker answers only requests that Cloudflare Access checked. Any other request gets `403` and no data, so a Worker deployed before Access is set up shows nothing.
 - **One address.** Only the address you set serves it: no `workers.dev` or preview addresses, and no static assets, which would take the Access check away from the Worker.
 - **A page that loads nothing.** The page carries its data and loads nothing from the network. It runs only its own script, allowed by its hash, and other sites can neither frame it nor change what the server holds.

@@ -5,12 +5,22 @@ machine. The server's own checks run with `node --test nexus/test/*.test.js`."""
 import json
 import shutil
 import subprocess
+import sys
 import unittest
 import urllib.error
 import urllib.request
 
-import test_hub as hub_tests
-from _common import ROOT, read_text
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+from hub_ref import locate_hub
+_hub_tests_path = str(locate_hub() / "tests")
+sys.path.insert(0, _hub_tests_path)
+try:
+    import test_hub as hub_tests
+    from _common import read_text
+finally:
+    sys.path.remove(_hub_tests_path)
 
 hub = hub_tests.hub
 NEXUS = ROOT / "nexus"
@@ -45,7 +55,7 @@ class FilesTest(unittest.TestCase):
         )
         for copy, source in pairs:
             with self.subTest(copy=str(copy.relative_to(ROOT))):
-                self.assertEqual(copy.read_bytes(), source.read_bytes(), "copy %s again" % source.relative_to(ROOT))
+                self.assertEqual(copy.read_bytes(), source.read_bytes(), "copy %s from its canonical source again" % source.name)
 
     def test_worker_settings(self):
         config = jsonc(NEXUS / "wrangler.jsonc")

@@ -1565,9 +1565,9 @@ components:
       description: >-
         A person's own Cloudflare Access sign-in, which the browser holds after Access's login
         page. The development Access trial on 2026-11-03 selected the verified header JWT:
-        after requiring ctx.access and its own audience, the Worker verifies the RS256 signature
+        the origin verifies the RS256 signature; the Worker additionally requires ctx.access and its own audience. It verifies
         with the configured team's keys, issuer, audience and expiry, then reads a non-empty
-        sub as the user. getIdentity() did not give the fields for both kinds (Sign-in in nexus.md).
+        sub as the user. The standalone loopback origin behind Tunnel needs no ctx.access; it checks the same signed assertion. getIdentity() did not give both kinds (Sign-in in nexus.md).
     accessClientId:
       type: apiKey
       in: header

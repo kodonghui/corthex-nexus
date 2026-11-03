@@ -4,9 +4,13 @@
 
 CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계약 [nexus.openapi.yaml](nexus.openapi.yaml)에 있는 NEXUS 서버의 요청, 그리고 이 파일에 있는 그 계약이 따르는 규칙, 허브의 명령, 그것과 함께 가는 파일의 형식입니다. 상태: 2026-11-02에 관리자가 그날 고른 대로 기억 플러그인을 만드는 동안, 사용자 흐름, 기능 명세, 서버의 자료의 추천을 따라 초안을 썼습니다. 관리자가 2026-11-03에 03\~05단계, 07·08단계와 함께 이 파일의 확인 지점을 통과시켜, 10단계가 작업을 나누기 전에 NEXUS 0.2의 요청, 명령, 형식이 고정되었습니다. 이제 호환되지 않는 변경을 하려면 관리자의 결정이 필요합니다. 2026-11-03에 관리자가 01단계 이벤트 스토밍을 NEXUS에서 하기로 고르면서 DDD 보드의 그림 자료에 선택 항목 `timeline`을 더했고(호환되는 변경), ② 차례의 작업 보드를 편집 곁에 적었습니다. 둘 다 관리자가 같은 날 통과시켰습니다([확인할 것](#확인할-것)). 계약은 그 안에 있는 모든 요청, 응답, 예시, 오류 코드의 원본이고, 이 파일은 그것을 설명하며 나머지의 원본입니다. 이 번역과 영어 원문이 다르면 영어 원문이 원본입니다.
 
-입력: [docs/04-functional-spec/nexus.ko.md](../04-functional-spec/nexus.ko.md)의 기능 명세(SPEC-101\~SPEC-142), 특히 그 [06단계를 위한 메모](../04-functional-spec/nexus.ko.md#06단계-요청-명령-형식); [docs/05-erd/nexus.ko.md](../05-erd/nexus.ko.md)와 [nexus.sql](../05-erd/nexus.sql)의 서버의 자료와 파일(TBL-101\~TBL-118), 그 [06단계를 위한 메모](../05-erd/nexus.ko.md#06단계-요청-명령-형식)와 상한; [docs/02-prd/nexus.ko.md](../02-prd/nexus.ko.md)의 요구사항; [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)의 용어집과 DDD 보드(이 파일은 그 말을 그 뜻으로 씁니다); 그리고 지금 도는 1차, 곧 [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js), [store.js](../../nexus/src/store.js)의 서버와, [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md), [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 설명하는 [hub.py](../../plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py)의 허브입니다. 사이트맵(07단계)은 나중이라 아직 입력에 화면 ID가 없고, 요청은 사용자 흐름과 기능 명세가 적은 화면을 맡습니다.
+입력: [docs/04-functional-spec/nexus.ko.md](../04-functional-spec/nexus.ko.md)의 기능 명세(SPEC-101\~SPEC-142), 특히 그 [06단계를 위한 메모](../04-functional-spec/nexus.ko.md#06단계-요청-명령-형식); [docs/05-erd/nexus.ko.md](../05-erd/nexus.ko.md)와 [nexus.sql](../05-erd/nexus.sql)의 서버의 자료와 파일(TBL-101\~TBL-118), 그 [06단계를 위한 메모](../05-erd/nexus.ko.md#06단계-요청-명령-형식)와 상한; [docs/02-prd/nexus.ko.md](../02-prd/nexus.ko.md)의 요구사항; [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)의 용어집과 DDD 보드(이 파일은 그 말을 그 뜻으로 씁니다); 그리고 지금 도는 1차, 곧 [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js), [store.js](../../nexus/src/store.js)의 서버와, [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md), [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 설명하는 [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py)의 허브입니다. 사이트맵(07단계)은 나중이라 아직 입력에 화면 ID가 없고, 요청은 사용자 흐름과 기능 명세가 적은 화면을 맡습니다.
 
-이 단계의 기본 계약은 Swagger UI로 읽는 `api/openapi.yaml`입니다. NEXUS 서버에는 HTTP API가 있으므로 계약은 단계가 말하는 대로 OpenAPI 3.1이고, 다른 부분의 인터페이스 옆에 `docs/06-api/nexus.openapi.yaml`로 둡니다. 사람은 프로젝트의 Notion 기록에 있는 한국어 사본으로 읽고, 파일 자체는 Swagger UI 같은 OpenAPI 보기 도구로 읽습니다. `.corthex/project.json`이 이 선택을 적어 둡니다. 허브의 명령은 HTTP 요청이 아니므로 이 파일이 MEMORY의 [인터페이스](memory.ko.md)와 같은 꼴로 정합니다: 명령마다 API ID, 맡는 동작, 결과가 있습니다.
+이 단계의 기본 계약은 Swagger UI로 읽는 `api/openapi.yaml`입니다. NEXUS 서버에는 HTTP API가 있으므로 계약은 단계가 말하는 대로 OpenAPI 3.1이고, 다른 부분의 인터페이스 옆에 `docs/06-api/nexus.openapi.yaml`로 둡니다. 사람은 프로젝트의 Notion 기록에 있는 한국어 사본으로 읽고, 파일 자체는 Swagger UI 같은 OpenAPI 보기 도구로 읽습니다. `.corthex/project.json`이 이 선택을 적어 둡니다. 허브의 명령은 HTTP 요청이 아니므로 이 파일이 MEMORY의 [인터페이스](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/docs/06-api/memory.ko.md)와 같은 꼴로 정합니다: 명령마다 API ID, 맡는 동작, 결과가 있습니다.
+
+## 승인된 원 서버 로그인 (2026-11-04)
+
+독립 서버는127.0.0.1에서만 듣고 cloudflared Tunnel로 연결합니다. ctx.access가 없으므로 Cf-Access-Jwt-Assertion의 RS256 서명·설정한 팀 발급자·ACCESS_AUD·만료·nbf를 직접 확인하고 기존의 user/agent 분류를 씁니다. Worker는 원래의 ctx.access·대상 확인도 유지합니다. 설정 누락이나 잘못된 서명은 닫힌 상태로 거절하며 발급자/키 주소를 토큰에서 고르지 않습니다. 기존 Access 정책과 HTTP 요청·응답·스냅샷 형식은 바꾸지 않습니다. 구현·실제 두 종류 시험은 TASK-260/264에서 확인합니다.
 
 ## 이 파일을 읽는 법
 
@@ -526,11 +530,11 @@ hub.py outbox [PROJECT ...] [--send]
 
 - 요소마다 그 커밋에서의 파일과 줄인 `where`가 있으며, `docs/05-erd/nexus.sql:15`처럼 저장소에 대한 상대 경로입니다.
 - 요소의 `id`는 그 추적 ID이고, 없으면 `""`입니다. `context`는 CTX ID이거나 `""`입니다. 이름은 120자에서, 다른 글은 제목처럼 300자에서 자르고, 목록마다 계약이 정한 상한에서 멈춥니다.
-- 상태가 삭제라고 말하는 요소의 `removed`는 `true`이며, 상태는 [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 읽는 대로 읽습니다.
+- 상태가 삭제라고 말하는 요소의 `removed`는 `true`이며, 상태는 [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 읽는 대로 읽습니다.
 - 비밀값과 이메일 주소는 `[redacted]`가 됩니다(REQ-191).
 - 아래의 양식으로 다 읽을 수 없는 문서는 읽을 수 있었던 것을 주고, 그 자리를 적은 `picture-partial` 점검을 냅니다.
 
-**DDD 보드(`01-domain`).** 01단계 양식 [01-domain.md](../../plugins/corthex/skills/corthex-discover/references/01-domain.md)의 꼴을 영어로, 그리고 [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)처럼 한국어 문서가 쓰는 대로 한국어로 읽습니다. 허브는 표를 그 머리 줄로 찾고, 여기 적은 열을 어느 순서로든 읽으며, 이름은 대소문자와 띄어쓰기를 가리지 않고 견주고, 다른 열은 무시합니다.
+**DDD 보드(`01-domain`).** 01단계 양식 [01-domain.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-discover/references/01-domain.md)의 꼴을 영어로, 그리고 [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)처럼 한국어 문서가 쓰는 대로 한국어로 읽습니다. 허브는 표를 그 머리 줄로 찾고, 여기 적은 열을 어느 순서로든 읽으며, 이름은 대소문자와 띄어쓰기를 가리지 않고 견주고, 다른 열은 무시합니다.
 
 | 요소 | 영어 양식 | 한국어 양식 |
 | --- | --- | --- |
@@ -550,7 +554,7 @@ hub.py outbox [PROJECT ...] [--send]
 
 명령 줄의 `Events`에서는 쉼표가 사건을 가르고, 맨 앞의 `or`(`또는`)는 이름에 들지 않습니다. 그래서 `Payment taken, or Payment failed`는 사건 둘입니다. 타임라인은 없어도 됩니다: 타임라인이 없는 문서는 `timeline`을 주지 않고, 그러면 그림 보기는 보드를 전체로만 보여 줍니다(SPEC-141). 흐름마다 그 줄의 자리인 `where`를 둡니다.
 
-**ERD(`05-erd`).** [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md)와 05단계 양식 [05-erd.md](../../plugins/corthex/skills/corthex-contract/references/05-erd.md)의 SQL입니다:
+**ERD(`05-erd`).** [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)와 05단계 양식 [05-erd.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-contract/references/05-erd.md)의 SQL입니다:
 
 ```sql
 -- without a table: TERM-122
@@ -573,7 +577,7 @@ CREATE TABLE pictures (
 - 열 이름으로 나타낼 수 없는 수식 인덱스는 그 고유 규칙 전체를 빼고 `picture-partial` 검사를 붙입니다. 함수 이름을 열로 그리지 않습니다. 표 주석의 삭제 상태는 다른 단계 항목과 같은 상태말을 읽습니다. 명시한 `status:`(`상태:`)가 우선이며, 그것이 없으면 괄호 안이나 `|` 뒤의 독립된 메타데이터 칸이 삭제를 표시할 수 있습니다. 표 이름이나 설명 제목의 낱말은 상태로 읽지 않습니다. 이스케이프된 따옴표까지 구분해, 인용한 이름·제목 안의 구분자는 메타데이터로 읽지 않습니다. 상태의 인용된 값은 값으로 읽습니다.
 - 표지 `terms: none`, `without a table:`, `without a screen:`은 둘레의 코드처럼 모든 언어에서 같습니다.
 
-**사이트맵(`07-sitemap`).** 07단계 양식 [07-sitemap.md](../../plugins/corthex/skills/corthex-screen/references/07-sitemap.md)의 YAML에 `terms`를 더한 것입니다. 아래는 NEXUS 자신의 [nexus.yaml](../07-sitemap/nexus.yaml)에 있는 화면 둘입니다:
+**사이트맵(`07-sitemap`).** 07단계 양식 [07-sitemap.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-screen/references/07-sitemap.md)의 YAML에 `terms`를 더한 것입니다. 아래는 NEXUS 자신의 [nexus.yaml](../07-sitemap/nexus.yaml)에 있는 화면 둘입니다:
 
 ```yaml
 - id: SCR-104
@@ -600,7 +604,7 @@ CREATE TABLE pictures (
 
 ### 프로젝트 설정
 
-프로젝트 설정 `.corthex/project.json`에 두 필드가 생기며, 핵심 플러그인의 [project.md](../../plugins/corthex/skills/corthex/references/project.md)가 0.2 릴리스와 함께 그것을 더합니다:
+프로젝트 설정 `.corthex/project.json`에 두 필드가 생기며, 핵심 플러그인의 [project.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex/references/project.md)가 0.2 릴리스와 함께 그것을 더합니다:
 
 | 필드 | 유형 | 뜻 |
 | --- | --- | --- |
@@ -643,7 +647,7 @@ CREATE TABLE pictures (
 
 ## 점검 규칙
 
-허브의 새 규칙이며, 허브의 [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 0.2 릴리스와 함께 이것을 더합니다:
+허브의 새 규칙이며, 허브의 [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 0.2 릴리스와 함께 이것을 더합니다:
 
 | 규칙 | 수준 | 뜻 |
 | --- | --- | --- |
@@ -745,7 +749,7 @@ CREATE TABLE pictures (
 
 ## 호환되지 않는 변경
 
-허브의 [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)가 설명하는 1차와 견주어:
+허브의 [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)가 설명하는 1차와 견주어:
 
 1. 거절은 `application/problem+json`으로 보내는 문제 세부 정보이고, 멤버가 더 있습니다. `error`를 그대로 두므로, 어느 JSON 응답이든 읽고 `error`를 보여 주는 0.1의 허브도 여전히 까닭을 보여 주며, 까닭의 말은 새로 씁니다.
 2. 0.1의 허브는 0.2의 허브가 보낸 프로젝트를 보낼 수 없습니다: 저장된 스냅샷에는 커밋이 있는데 그 스냅샷은 커밋을 적지 않으므로, 서버가 `409` `commit_not_replaced`로 거절합니다. 그런 프로젝트를 다시 보내기 전에 모든 기기의 허브가 0.2로 옮겨 갑니다.
@@ -851,7 +855,7 @@ TASK-201은 임시 진단 Worker를 정적 자산 없이 Access 뒤에 올리고
 ### 10단계: 작업 분해
 
 - 서버가 먼저입니다: store.js의 변환, 그다음 계약의 순서대로 요청을 만듭니다. 쥔 커밋이 있는 보내기와 지우기, 읽기, 논의, 편집, 맡음이 있는 단계 진행 순입니다. 허브가 뒤따릅니다: 그림 자료, 단계 기록, 설정이 있는 스냅샷 0.2, `status`, `push`, 그다음 보낼 편지함이 있는 쓰기. 보기 화면이 마지막입니다.
-- 릴리스는 이 파일의 형식과 규칙을 허브의 [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)와 [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md)로, `parts`와 `ask_before`를 핵심 플러그인의 [project.md](../../plugins/corthex/skills/corthex/references/project.md)로 옮기며, 허브의 명령을 돌리는 단계 스킬의 절차도 함께 옮깁니다.
+- 릴리스는 이 파일의 형식과 규칙을 허브의 [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)와 [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)로, `parts`와 `ask_before`를 핵심 플러그인의 [project.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex/references/project.md)로 옮기며, 허브의 명령을 돌리는 단계 스킬의 절차도 함께 옮깁니다.
 
 ### 11단계: 개발
 

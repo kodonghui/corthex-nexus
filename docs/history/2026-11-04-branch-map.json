@@ -1,0 +1,10 @@
+{
+  "main": {
+    "source": "855bc6b463a4a5c57c949d1166b58db3915587c2",
+    "filtered": "93adb595f439e07e8a3476f3bd564105d034a5b6"
+  },
+  "codex/nexus-0.2": {
+    "source": "76508243558abaedcc15bb422c454341845fcabd",
+    "filtered": "23fb72a4a1bc003e18942cb48fb9d97c4f9b30b2"
+  }
+}

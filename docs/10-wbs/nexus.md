@@ -2,7 +2,7 @@
 
 [한국어](nexus.ko.md)
 
-Stage 10 of CORTHEX’s own project. Status: draft for the maintainer’s plan checkpoint, 2026-11-03. English is the source; the Notion databases follow it (`truth: source`). Implementation is authorized now on `codex/nexus-0.2`; the maintainer may adjust this plan while the first trials and migrations proceed. Main merge, production deployment and release tags wait for C1 0.2.0 and the maintainer’s release confirmation.
+Stage 10 of CORTHEX’s own project. Status: plan approved with repository split and standalone server on 2026-11-04; execution in progress. English is the source; the Notion databases follow it (`truth: source`). Implementation is authorized now on `codex/nexus-0.2`; the maintainer may adjust this plan while the first trials and migrations proceed. Main merge, production deployment and release tags wait for C1 0.2.0 and the maintainer’s release confirmation.
 
 Inputs: [functional spec](../04-functional-spec/nexus.md), [schema](../05-erd/nexus.md), [API contract](../06-api/nexus.md), [screens](../08-screens/nexus/README.md), [mockups](../09-mockup/nexus/README.md) and their Notes for later stages. All 01–09 checkpoints passed on 2026-11-03. SPEC-134 and SPEC-142 stay phase ②; the tables retain their future fields.
 
@@ -12,15 +12,30 @@ Inputs: [functional spec](../04-functional-spec/nexus.md), [schema](../05-erd/ne
 
 A request task is done only when each response it lists has a passing test; development API evidence, mock UI evidence, automated page checks and visual review are reported separately. A task that awaits cross-OS/live evidence remains in progress. Every commit runs AGENTS.md checks. Each bundle targets the integration branch and merges only after all-checks and code/security reviews.
 
-Current plan: 54 tasks (S 7, M 39, L 8). The [QA plan](../12-qa/nexus.md) lists 679 cases from acceptance criteria, named responses, command outcomes, screen states and cross-cutting scenarios.
+Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) lists 710 cases from acceptance criteria, named responses, command outcomes, screen states and cross-cutting scenarios.
+
+## Repository split and standalone server
+
+| ID | Task | From | Touches | Depends on | Owner | Estimate | Done when | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| TASK-255 | Extract and verify both histories | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | none | agent | M | Selected historical paths and bytes/modes match; old/new commit and branch maps, qualified references, preserved WIP and full-history public scans are recorded. | in progress |
+| TASK-256 | Establish product ownership and pinned hub bridge | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-255 | agent | M | Root metadata and project sources are valid; an exact clean hub pin supplies upstream fixtures; real hub/server bridge and template-copy checks pass. | in progress |
+| TASK-257 | Configure product CI and repository guards | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-256 | agent | M | Linux server/build/all existing contract/bridge/public-history jobs pass behind all-checks; secret scanning, push protection and PR/check protection are verified. | in progress |
+| TASK-258 | Redirect the upstream harness to the product | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-257 | agent | M | One upstream PR removes only migrated paths, keeps hub/core/tests, updates shared guidance/CI/dependabot and the draft, with paired-pin compatibility evidence. | todo |
+| TASK-259 | Run Node HTTP and transactional SQLite | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-256 | agent | L | The native-module runtime matches D1 result shapes and atomic batches; persistence/migrations/limits/HEAD and process restart pass without added runtime packages. | todo |
+| TASK-260 | Verify origin assertions behind Tunnel | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-259 | agent | M | Standalone verifies signature/issuer/audience/time and both author kinds without ctx.access; Worker still requires its checked context; Access policy is unchanged. | todo |
+| TASK-261 | Deploy isolated development over SSH | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-260 | agent | M | Loopback-only dedicated user/folders/systemd and Tunnel serve development with restart and rollback; real values stay outside Git, keys stay on their devices, other services are unchanged. | todo |
+| TASK-262 | Back up and restore the database | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-259, TASK-261 | agent | M | Daily and pre-migration/deploy consistent backups, explicit retention and permissions are tested; one restored copy is reopened and data/behavior compared. | todo |
+| TASK-263 | Rehearse production data migration and rollback | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-262 | agent | L | Production D1 is exported read-only into an isolated development copy; migrations and restore are compared by counts/digests, with old Worker/D1 preserved and no production address/data switch. | todo |
+| TASK-264 | Repeat development contracts and performance on OVH | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-261, TASK-262 | agent | M | Schemathesis, both real Access identities and maximum1MB push processing/memory are measured; server processing is under 1s; full-view mobile evidence remains TASK-224/238/251. | todo |
 
 ## Server
 
 | ID | Task | From | Touches | Depends on | Owner | Estimate | Done when | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-201 | Trial both Access identities | SPEC-113, SPEC-116 | API-101–API-104 | none | agent | M | Real development Access returns presence/absence of ctx.access, aud, sub, email and common_name for both identities; document the selected verifier before authentication code. | done (#92) |
-| TASK-202 | Preserve the phase-1 database as migration 1 | SPEC-114 | TBL-101, TBL-113 | none | agent | S | An empty and an existing phase-1 database acquire migration 1 atomically; existing snapshot bytes and revisions remain unchanged. | done (#91) |
-| TASK-203 | Apply schema migration 2 | SPEC-114 | TBL-101–TBL-113 | TASK-202 | agent | M | Migration output and nexus.sql agree on tables, columns, primary/foreign keys, indexes and CHECK constraints; concurrent/failing migration retries leave no partial schema. | done (#91) |
+| TASK-201 | Trial both Access identities | SPEC-113, SPEC-116 | API-101–API-104 | none | agent | M | Real development Access returns presence/absence of ctx.access, aud, sub, email and common_name for both identities; document the selected verifier before authentication code. | done (kodonghui/corthex#92) |
+| TASK-202 | Preserve the phase-1 database as migration 1 | SPEC-114 | TBL-101, TBL-113 | none | agent | S | An empty and an existing phase-1 database acquire migration 1 atomically; existing snapshot bytes and revisions remain unchanged. | done (kodonghui/corthex#91) |
+| TASK-203 | Apply schema migration 2 | SPEC-114 | TBL-101–TBL-113 | TASK-202 | agent | M | Migration output and nexus.sql agree on tables, columns, primary/foreign keys, indexes and CHECK constraints; concurrent/failing migration retries leave no partial schema. | done (kodonghui/corthex#91) |
 | TASK-254 | Persist reflection report identity | SPEC-133 | TBL-109, API-126 | TASK-203 | agent | S | Migration 3 preserves schema-2 entries and stores only internal last-report metadata; a repeated closed report differs from an invalid first closed report, even after write IDs expire. | in progress |
 | TASK-204 | Validate snapshot 0.2 and picture sources | SPEC-104, SPEC-105, SPEC-109, SPEC-110, SPEC-114 | API-105, TBL-114 | TASK-203 | agent | M | Both snapshot versions and every source shape meet the frozen contract, UTF-8 and limits; unknown snapshot fields survive and picture sources are separated from stored snapshots. | in progress |
 | TASK-205 | Store guarded pushes and held commits | SPEC-111, SPEC-112, SPEC-114, SPEC-117, SPEC-118, SPEC-140 | API-105, API-109, TBL-101–TBL-104, TBL-110 | TASK-204, TASK-206 | agent | L | All API-105/API-109 responses pass, including interleaved push batches, repository binding, same/older times, unchanged pictures and recorded checkpoints; overtaken pushes write no rows. | in progress |
@@ -46,7 +61,7 @@ Current plan: 54 tasks (S 7, M 39, L 8). The [QA plan](../12-qa/nexus.md) lists 
 
 | ID | Task | From | Touches | Depends on | Owner | Estimate | Done when | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-223 | Measure the largest development push | SPEC-114, SPEC-118, SPEC-121 | REQ-081, REQ-124, API-105 | TASK-205 | agent | M | Record synthetic 1,000,000-byte/3,000-item/2,000-check and three-picture load, CPU, D1 queries and rows on development; compare 10 ms/50 queries without changing frozen limits. | in progress |
+| TASK-223 | Measure maximum push processing and memory on OVH | SPEC-114, SPEC-118, SPEC-121 | REQ-081, REQ-124, API-105 | TASK-205 | agent | M | Record server processing time and memory on OVH development for synthetic1,000,000 bytes,3,000 items,2,000 checks,3 pictures; processing is under 1s. Preserve the earlier Workers 83ms result. | in progress |
 | TASK-224 | Trial mobile editors, CSP and Worker size | SPEC-119 | REQ-146–REQ-149, API-104 | TASK-222 | agent | L | Pin editors/React and licenses; serve all code/fonts through Worker; record gzip/raw sizes, current free Worker limit, CSP and 20 mobile/4G openings, P95 <=3 seconds for 300 elements or seek the maintainer decision. | in progress |
 
 ## Hub
@@ -82,7 +97,7 @@ Current plan: 54 tasks (S 7, M 39, L 8). The [QA plan](../12-qa/nexus.md) lists 
 
 | ID | Task | From | Touches | Depends on | Owner | Estimate | Done when | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-244 | Read agent work from entry and stage skills | SPEC-112, SPEC-135, SPEC-136 | REQ-181, REQ-185, plugins/corthex | C1 0.2.0 tag, PR C, PR D (#83), TASK-235 | agent | M | Merge latest main first; once/session/project to-do reads prioritize explicit user work, absent tokens do not stop work and claims/holds are respected. | todo |
+| TASK-244 | Read agent work from entry and stage skills | SPEC-112, SPEC-135, SPEC-136 | REQ-181, REQ-185, plugins/corthex | C1 0.2.0 tag, PR C, PR D (kodonghui/corthex#83), TASK-235 | agent | M | Merge latest main first; once/session/project to-do reads prioritize explicit user work, absent tokens do not stop work and claims/holds are respected. | todo |
 | TASK-245 | Teach stage records, reflection and timeline steps | SPEC-106, SPEC-132, SPEC-133, SPEC-137, SPEC-140 | REQ-086, REQ-131, REQ-154, REQ-167, REQ-168, REQ-212 | TASK-244, TASK-231 | agent | M | Update stage references, stage-contract where needed, hub stage table and template-reading tests together; write work/checkpoints by PR and verify standing before merge. | todo |
 | TASK-246 | Document project parts and ask_before | SPEC-110, SPEC-137 | plugins/corthex, .corthex/project.json, TBL-115 | TASK-244 | agent | S | After PR C, project reference/examples and sitemap terms/status agree; repository parts memory/nexus and both stage records preserve latest MEMORY source states. | todo |
 
@@ -167,7 +182,7 @@ The server rows name every declared response. The QA cases also distinguish the 
 
 - TASK-209 waits for TASK-201’s real Access identity trial. If neither ctx.access nor verified JWT fields distinguish both identities, take the alternatives to the maintainer.
 - TASK-238 waits for TASK-224’s mobile/editor and code-size trial. A required additional development dependency, changed editor choice, frozen token change or breached performance limit goes to the maintainer; independent server/hub work continues.
-- TASK-244–TASK-247 wait for `corthex-memory--v0.2.0`, PR C and PR D (#83) on main.
+- TASK-244–TASK-247 wait for `corthex-memory--v0.2.0`, PR C and PR D (kodonghui/corthex#83) on main.
 - TASK-253 waits for all QA evidence. Release, main merge, production deployment, tags and the first upload of this repository remain explicit maintainer decisions.
 
 ## Choices this stage made
@@ -180,7 +195,7 @@ The server rows name every declared response. The QA cases also distinguish the 
 
 ## For the checkpoint
 
-Plan awaiting the maintainer, 2026-11-03: 53 tasks, S 6/M 39/L 8. Order: trials and migrations → server → hub → views; core follows C1/PR C/PR D. Three measured trials are Access identities, maximal push CPU/queries, and 20 mobile openings. Aside is assigned the account steps, so no account action is currently requested from the maintainer. Show the Notion reading-copy links when created. The implementation instruction permits trials and migrations while this checkpoint is pending. No approval is inferred from silence.
+Approved on 2026-11-04: the maintainer supplied the OVH answer and repository-split follow-up (A, move now), and confirmed “proceed with this plan” on the plan decision card in the working conversation. The original 54 tasks(S 7/M 39/L 8) plus TASK-255–264 make 64(S 7/M 47/L 10), with 710 QA cases. Order: split → product plans/contracts → standalone server → views → complete QA. Core follows C1/PR C/PR D; SPEC-134/142 stay phase②. Release/main merge, production data/address switch, tags, first real repository snapshot upload and retirement of rollback resources remain one separate final decision. Recorded 2026-11-04 08:08 KST; message provenance and precise receipt times remain in private working records.
 
 ## Notes for later stages
 
@@ -196,6 +211,6 @@ Run the [plan](../12-qa/nexus.md) on development behind Access. Record commit, e
 
 TASK-204–TASK-224 and TASK-254 are in progress. The server router and transactions have local tests and a synthetic development smoke run, but complete per-response contracts, the editor trial and screens remain. See the QA evidence; neither API provision nor screen acceptance is inferred from a test count.
 
-Server foundation bundles #91 (migrations), #92 (Access) and #93 (router/transactions) are merged into the development integration branch. PR #93's final commit 5070de8 passed all three operating systems, Worker build, strict plugin validation, the external contract guard/corpus job and the aggregate check in workflow 41684359822; its review threads were resolved before merge commit c5e7308. Main release gates remain unchanged.
+Server foundation bundles kodonghui/corthex#91 (migrations), kodonghui/corthex#92 (Access) and kodonghui/corthex#93 (router/transactions) are merged into the development integration branch. PR kodonghui/corthex#93's final commit 5070de8 passed all three operating systems, Worker build, strict plugin validation, the external contract guard/corpus job and the aggregate check in workflow 41684359822; its review threads were resolved before merge commit c5e7308. Main release gates remain unchanged.
 
 TASK-225–TASK-235 are in progress: the hub now has the 0.2 Git-object readers, picture parsers, repository status, ancestry checks, 18-command surface and fenced outbox in source. Boundary tests and external schema checks run locally; final review and the Python 3.8/latest three-OS matrix must pass before the bundle merges. No task is marked done from a prototype or a command-count assertion.
