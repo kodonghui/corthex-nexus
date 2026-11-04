@@ -1,0 +1,117 @@
+{
+  "schema": "nexus-ui-local-acceptance-public/1",
+  "productCommit": "f51ca9cfa8ab692477d3722b2c07ef0a7aaaabfa",
+  "metadataSha256": "ca4ac3fd94fc14d08bd7a576792d92f8dd84a1529030fa63b6bb6c42bd4a2085",
+  "tool": "Aside1.26 own tabs plus isolated installed Chrome156/CDP; Node24",
+  "scope": "local synthetic Access/actual handler/Store/SQLite, plus locally parsed public own-domain source; no external repository upload",
+  "outcome": "findings, not all-QA success",
+  "uniqueFunctionalRows": 50,
+  "functionalWorks": 49,
+  "incompleteMeasurementRows": 1,
+  "attempts": 57,
+  "sourceVerdictChanges": 0,
+  "pageCheckReports": 65,
+  "pageCheckErrorObservations": 10,
+  "distinctFindings": 2,
+  "findings": [
+    {
+      "temporaryId": "QA-placeholder-dark-contrast",
+      "title": "Dark hub search placeholder has3.75:1 contrast",
+      "upstreamTemplate": "plugins/corthex-nexus/skills/corthex-hub/assets/hub.html",
+      "productTemplateEqualsPinnedUpstream": true,
+      "tcs": [
+        "TC-1217",
+        "TC-1218"
+      ],
+      "scope": "all4 EN/KO x320/1440 dark combinations; empty and populated hub",
+      "selector": "input#q::placeholder",
+      "observed": {
+        "foreground": "#757575",
+        "background": "#171b21",
+        "ratio": 3.75,
+        "required": 4.5,
+        "font": "15px400"
+      },
+      "expected": "Use the existing frozen accessible token for placeholder text; do not change frozen token values without authorization.",
+      "causeStatus": "The tokenized input has no explicit placeholder rule; observed browser placeholder is #757575. This is a measured failure, not a claimed framework cause."
+    },
+    {
+      "temporaryId": "QA-ko-long-title-overflow",
+      "title": "A long inert picture title widens Korean320px page by72px",
+      "tcs": [
+        "TC-1231",
+        "TC-657"
+      ],
+      "requirements": [
+        "REQ-146"
+      ],
+      "requirementPriority": "Must",
+      "normativeSource": "docs/08-screens/nexus/README.md:34",
+      "scope": "KO320 light and dark, scripted long sitemap title",
+      "trigger": "<script>window.QA_TITLE_EXECUTED=1</script>",
+      "observed": {
+        "cssViewportWidth": 320,
+        "documentClientWidth": 305,
+        "documentScrollWidth": 377,
+        "horizontalOverflow": 72,
+        "titleExecuted": false,
+        "injectedScript": false
+      },
+      "culprits": [
+        "section#items",
+        "div.after-picture > section.card",
+        "div.after-picture > div.legend"
+      ],
+      "causeStatus": "Measured intrinsic-width overflow in after-picture/list/legend. The exact CSS fix must be tested; no source was changed."
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "01-hub-placeholder-dark-320.png",
+      "sha256": "36a6d1e344c8b310cf5212d916fe8ad24a0d826cda285f660be79303f6a01bb5",
+      "bytes": 26269,
+      "copiedWithoutEditing": true
+    },
+    {
+      "file": "02-korean-long-title-overflow-320.png",
+      "sha256": "2b2889eb8ea6b6ffd8081416beba669dbf6f23d3308778e2dd2bc6639b1cd8ff",
+      "bytes": 23681,
+      "copiedWithoutEditing": true
+    },
+    {
+      "file": "03-own-domain-five-lanes-1440.png",
+      "sha256": "ca2e336d33b80e7275afea540f03c40ef42fbe0615fbf5b1db49fc50ad86f028",
+      "bytes": 51464,
+      "copiedWithoutEditing": true
+    },
+    {
+      "file": "04-ctx012-native-comment.png",
+      "sha256": "f5d14330754aa562ae73c2c4ec974b015c9ec05c6c7d3013cd78ef816e0afcdf",
+      "bytes": 75706,
+      "copiedWithoutEditing": true
+    },
+    {
+      "file": "05-aside-own-board-ko-320.png",
+      "sha256": "3bbfd93649c3097c0651d16e1f33671cff28e3fdf00ed5147c4954842750871c",
+      "bytes": 36202,
+      "copiedWithoutEditing": true
+    }
+  ],
+  "cleanup": {
+    "allOwnedBrowserProcessesExited": true,
+    "allLocalFixtureProcessesExited": true,
+    "allOwnedAsideTabsClosed": true,
+    "newSyntheticBrowserProfilesRetained": true
+  },
+  "notClaimed": [
+    "Full710 QA",
+    "complete original screen-state Prism-to-live-development sequence",
+    "real Access expiry/relogin",
+    "physical phone",
+    "mobile20/P95",
+    "Cold direct #step=6 entry",
+    "exact output-template no-timeline board",
+    "successful320 native pan camera observation",
+    "all65 images separately reviewed"
+  ]
+}

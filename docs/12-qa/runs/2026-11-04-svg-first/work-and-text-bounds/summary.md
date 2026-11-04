@@ -1,0 +1,9 @@
+# 연산·텍스트 한계 새 브라우저 검증
+
+metadata `14feb7e49feeb12109b934558766bd6071cd69d0f8c897519f384f495f0d856d`의로컬실제Node handler/Store/SQLite와합성Access로검사했습니다. 일반48상태와ordinary300HTML/native2행,work/text증폭각EN/KO320/1440의8조합이해당범위에서works입니다. 이전자료는보존하고섞지않았습니다.
+
+Work는valid200duplicateCTX/500sameTerms/9900events(snapshot121878B)이며원본항목4개로대체됩니다. Text는valid200duplicateCTX와299개행+X의300문자hotspot(snapshot29472B)이며원본항목2개로대체됩니다.8조합모두GET/HEAD200·HEAD0B,일반화된번역한계안내와목록·패널이작동했고false-ready0/native JS·CSS·font요청0/가로넘침0입니다. Text에서는X무ID항목을실제로열었습니다. Work에만댓글POST1회를보내GET에서확인했고두원본API의SHA·배열·개행수는그대로였습니다. 원래2billion반복은실행하지않았습니다.
+
+일반48상태page-check오류0이며24warn/24info는320px합성commit줄분리/orphan안내입니다. canvas/ShadowDOM전체대비,증폭패널44px/대비전체,목록3000경계/zeroitem을이번브라우저에서재검증했다고하지않습니다.정식P95·20회성능·전체제품QA통과주장도없습니다.
+
+공개6PNG는모두이번후보의합성자료로각각육안검토했습니다. 계정·인증값·세션/프로필파일이없습니다. Aside자체snapshot과own-tab닫힘은성공했지만PNG는10초viewport CDP timeout으로실패했으므로,모든선택PNG는별도ChromeCDP캡처입니다.

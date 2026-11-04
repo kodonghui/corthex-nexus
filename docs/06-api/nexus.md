@@ -874,3 +874,14 @@ The maintainer approved edge caching of public content-hashed code, styles and f
 REQ-124 server processing runs from complete body receipt to response handling completion. Body arrival, client round trip, process CPU windows and RSS remain separate. The existing31.085ms passes1s; the historical inclusive1031.079ms stays recorded.
 
 The maintainer conditionally approved NEXUS merges, production migration/routing and release tags after REQ-149/124 pass, all710 cases have verdicts with zero Must failures, migration/recovery rehearsals pass, core integrates after C1 release/PR C, and required checks plus Code/Security reviews pass. The first repository snapshot still needs REQ-107 confirmation. Preserve the old Worker/D1 for14days after switching and ask before deletion. If a condition remains, ask once with its numbers and release after the answer.
+
+## First picture decision, 2026-11-04
+
+The maintainer explicitly selected “SVG first + HTML path improvement” in the current Codex conversation. Keep the frozen tokens, same-origin Access boundary and pinned real editors. A complete server-rendered SVG is the first picture; Excalidraw/ERD Viewer loads afterwards. REQ-149/TC-654/TC-1271/TC-1309 measure this first visible picture under the unchanged mobile/network/CPU1 profile. Record native-editor readiness separately, keeping all earlier native-ready failures and any failed/incomplete observations. Do not use a DOM-ready marker alone as evidence of a visible, readable picture.
+
+The preview uses the same deterministic geometry and checked source as the editor, with safe text/fragment links and no SVG scripts, foreign content or external resources. It stays visible during editor loading and remains available with the item list when that loading fails. Core controls keep the current viewport when handing over to the real editor. Loading preserves the frame and surrounding layout. Distinguish first-preview and native-editor-ready states and timings.
+
+Trusted static view CSS may be inlined so a stylesheet request does not block the preview. HTML, SVG project content and API data remain no-store; hashed code/style/fonts retain the approved Access-protected public immutable cache. The standalone server may negotiate bounded built-in HTML compression to reduce Tunnel transfer. No project data is placed in a public code file or cache. Neither this decision nor a preview is a release, first real-repository upload, or approval to delete Worker/D1. Existing conditional-release gates remain.
+
+
+Repeated-layout safety bound: keep the300-element target and normal pictures. If expanded nodes (including context frames) exceed20000, server/view stop layout and show an explicit limitation with at most3000original source items and working panels. Do not claim a complete picture/editor-ready state. Preserve original API/storage and200/no-store GET/HEAD. [Validation](../12-qa/runs/2026-11-04-svg-first.md).

@@ -1,0 +1,16 @@
+{
+  "scope": "historical actual local handler and synthetic Access; separate from current native-failure runs",
+  "rawReceiptSha256": "902d0e3ce1d091f1b6175001c500856b7eecd23e0fd91bf7be4802c3ce5cbefe",
+  "heldRealStatus": 201,
+  "millisecondsBeforeRetry": 30525.0,
+  "draftPreserved": true,
+  "posts": 2,
+  "sameWriteId": true,
+  "replyCountsBeforeStoredAfter": [
+    2,
+    3,
+    3
+  ],
+  "actualWriteWithDelayedResponse": true,
+  "noAccessExpiryClaim": true
+}

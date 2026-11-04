@@ -1,0 +1,47 @@
+{
+  "scope": "One identity regression, actual local handler/SSR and explicitly mocked hash panel; no full QA/performance promotion",
+  "tests": 15,
+  "failures": 0,
+  "skips": 0,
+  "baselineFourteenTestSha256": "9d9545376d78080e2d45873fdf415238d2249139084dc989305dcf28821b3dff",
+  "testSha256": "d5a6ad24abe029a4508b20244a6232019c50786690865541415e3e36f75cd8d6",
+  "runReceiptSha256": "a54cb881d026ef3e57710b3d417247c24b45e28672d2af4305566785ca073340",
+  "diagnostic": {
+    "scope": "stable ID versus literal text; item panel is mocked",
+    "sourceItems": 5,
+    "listItems": 5,
+    "listLimited": false,
+    "linkId": "TERM-001",
+    "directPredicateVisits": 19804,
+    "ssrPredicateVisits": 19804,
+    "panelPredicateVisits": 19804
+  },
+  "sourceStableDuringRun": true,
+  "metadataAcceptanceTestRun": false,
+  "oldTwoBillionLoopExecuted": false,
+  "browserLaunches": 0,
+  "liveRequests": 0,
+  "runtimeSourceEditsByAgent": 0,
+  "frozenEvidence": [
+    {
+      "folder": "preview-work-regression",
+      "filesChecked": 9,
+      "changed": []
+    },
+    {
+      "folder": "preview-text-regression",
+      "filesChecked": 8,
+      "changed": []
+    },
+    {
+      "folder": "hub-build-ci-draft",
+      "filesChecked": 17,
+      "changed": []
+    },
+    {
+      "folder": "hub-build-probe",
+      "filesChecked": 30,
+      "changed": []
+    }
+  ]
+}

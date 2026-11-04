@@ -97,15 +97,15 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 
 | ID | 작업 | 근거 | 건드리는 곳 | 선행 작업 | 담당 | 크기 | 끝났다고 볼 때 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-244 | 입구·단계 스킬에서 에이전트 할 일 읽기 | SPEC-112, SPEC-135, SPEC-136 | REQ-181, REQ-185, plugins/corthex | C1 0.2.0 tag, PR C, PR D (kodonghui/corthex#83), TASK-235 | agent | M | 최신 main을 먼저 받습니다. 세션/프로젝트마다 한 번 할 일을 읽고 명시적 사용자 작업을 우선하며 토큰이 없어도 계속하고 클레임/PR 점유를 지킵니다. | todo |
-| TASK-245 | 단계 기록·반영·타임라인 절차 | SPEC-106, SPEC-132, SPEC-133, SPEC-137, SPEC-140 | REQ-086, REQ-131, REQ-154, REQ-167, REQ-168, REQ-212 | TASK-244, TASK-231 | agent | M | 단계 참조·필요한 stage-contract·허브 단계 표·틀 시험을 함께 고칩니다. 작업/확인 지점을 PR로 기록하고 병합 전에 여전히 유효한지 확인합니다. | todo |
+| TASK-244 | 입구·단계 스킬에서 에이전트 할 일 읽기 | SPEC-112, SPEC-135, SPEC-136 | REQ-181, REQ-185, plugins/corthex | C1 0.2.0 tag, PR C, PR D (kodonghui/corthex#83), TASK-235 | agent | M | 최신 main을 먼저 받습니다. 세션/프로젝트마다 한 번 할 일을 읽고 명시적 사용자 작업을 우선하며 토큰이 없어도 계속하고 클레임/PR 점유를 지킵니다. | in progress |
+| TASK-245 | 단계 기록·반영·타임라인 절차 | SPEC-106, SPEC-132, SPEC-133, SPEC-137, SPEC-140 | REQ-086, REQ-131, REQ-154, REQ-167, REQ-168, REQ-212 | TASK-244, TASK-231 | agent | M | 단계 참조·필요한 stage-contract·허브 단계 표·틀 시험을 함께 고칩니다. 작업/확인 지점을 PR로 기록하고 병합 전에 여전히 유효한지 확인합니다. | in progress |
 | TASK-246 | 프로젝트 parts·ask_before 문서 | SPEC-110, SPEC-137 | plugins/corthex, .corthex/project.json, TBL-115 | TASK-244 | agent | S | PR C 뒤 설정 참조/예시와 사이트맵 terms/status를 맞추고 memory/nexus 부분과 단계 기록에 최신 MEMORY 상태를 보존합니다. | todo |
 
 ## 통합
 
 | ID | 작업 | 근거 | 건드리는 곳 | 선행 작업 | 담당 | 크기 | 끝났다고 볼 때 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-247 | 버전·안내서·아키텍처 | SPEC-113, SPEC-137 | REQ-126, manifests, README pairs, NOTICE | TASK-245, TASK-246, TASK-237, TASK-242 | agent | M | NEXUS 0.2.0과 최신 main 다음 코어 판이 매니페스트·모든 스킬에서 같습니다. 두 언어 안내서에 개발·이주·서버 먼저 갱신을 쓰며 운영 배포/태그는 기다립니다. | todo |
+| TASK-247 | 버전·안내서·아키텍처 | SPEC-113, SPEC-137 | REQ-126, manifests, README pairs, NOTICE | TASK-245, TASK-246, TASK-237, TASK-242 | agent | M | NEXUS 0.2.0과 최신 main 다음 코어 판이 매니페스트·모든 스킬에서 같습니다. 두 언어 안내서에 개발·이주·서버 먼저 갱신을 쓰며 운영 배포/태그는 기다립니다. | in progress |
 | TASK-253 | 최신 main에 맞추고 출시 근거 넘기기 | SPEC-104–SPEC-141 | docs/10-wbs/nexus.md, docs/12-qa/nexus.md, draft PR | TASK-247, TASK-249, TASK-250, TASK-251, TASK-252 | agent | M | 작업/사례 원본과 Notion이 같고 최신 main의 실제 검사 트리를 적습니다. PR은 묶음·설계 변경·안 한 시험을 적고 출시/main 병합/배포/태그 확인을 기다립니다. | todo |
 
 ## QA
@@ -114,7 +114,7 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | TASK-248 | 고정 판 계약 검사와 mock 실행 | SPEC-113–SPEC-140 | API-101–API-132 | TASK-222 | agent | M | 저장소 밖 고정 판 validator 0.7.1·Prism 5.16.0·Schemathesis 3.39.16과 쿠키/경로/헤더 hook을 씁니다. 개발 계약 시험은 커밋을 적고 mock만의 결과를 나눕니다. | in progress |
 | TASK-249 | 서버의 이름 붙은 응답 모두 보내기 | SPEC-104–SPEC-140 | API-101–API-132 | TASK-217, TASK-218, TASK-220, TASK-248 | agent | L | 가능한 모든 이름 붙은 예시를 개발 서버에서 보내 스키마·코드·데이터 효과를 확인합니다. default/internal의 mock 사례는 따로 셉니다. | in progress |
-| TASK-250 | 세 운영체제의 허브 명령 검증 | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Windows/macOS/Linux에서 Python 3.8과 최신 판의 모든 명령 결과가 통과하며 네트워크/토큰 없는 시험의 격리가 유지됩니다. | todo |
+| TASK-250 | 세 운영체제의 허브 명령 검증 | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Windows/macOS/Linux에서 Python 3.8과 최신 판의 모든 명령 결과가 통과하며 네트워크/토큰 없는 시험의 격리가 유지됩니다. | in progress |
 | TASK-251 | 흐름과 모든 화면 상태 걷기 | SPEC-119, SPEC-123–SPEC-141 | FL-101–FL-114, SCR-101–SCR-109 | TASK-237, TASK-239, TASK-240, TASK-241, TASK-242, TASK-249 | agent | L | 브라우저 시험자가 역할·경로·커밋과 320/1440·두 테마/언어의 근거를 남깁니다. 페이지 검사와 이미지 확인을 나누고 작동한 경로를 CI e2e로 만듭니다. | in progress |
 | TASK-252 | 성능과 NEXUS 자신의 그림 맞대기 | SPEC-106, SPEC-107, SPEC-108, SPEC-119, SPEC-120 | REQ-124, REQ-149 | TASK-223, TASK-224, TASK-251 | agent | M | 20번의 원래 값·P95, Worker/편집기 크기와 최대 밀기를 기록합니다. 가상 자료와 NEXUS 자신의 로컬 그림을 확인하며 저장소는 허락 없이 보내지 않습니다. | in progress |
 
@@ -253,3 +253,13 @@ REQ-124의 서버 처리 시간은 본문을 모두 받은 뒤부터 응답 처�
 관리자는 REQ-149와 REQ-124 통과,710사례 전부 판정·Must 실패0,운영 자료 이전/복구 리허설, C1 출시·PR C 뒤의 코어 통합,필수 검사와 Code/Security 리뷰를 조건으로 NEXUS 병합·운영 전환·출시 태그를 사전 승인했습니다. 이 저장소 첫 보내기는 REQ-107의 별도 확인입니다. 이전 Worker/D1은 전환 뒤14일 보존하고 삭제는 다시 묻습니다. 조건이 남으면 수치로 한 번 묻고 답 뒤 출시합니다.
 
 현재 전송 변경 묶음의 상태: done 14, in progress 44, todo 6.
+
+## 첫 그림 표시 결정, 2026-11-04
+
+관리자가 현재 Codex 대화에서 “SVG 먼저 표시 + HTML 경로 개선 (추천)”을 명시적으로 선택했습니다. 고정 토큰, 같은 출처의 Access 경계와 실제 편집기 핀을 유지합니다. 서버에서 그린 완전한 SVG를 첫 그림으로 보여주고 Excalidraw/ERD Viewer를 이어 불러옵니다. REQ-149·TC-654·TC-1271·TC-1309는 기존 모바일·회선·CPU1 조건에서 이 첫 그림이 실제로 보인 시간을 잽니다. 편집기 준비 시간은 별도로 적고 이전 편집기 준비 실패와 미완료·계측 실패를 모두 보존합니다. DOM 준비 표시만으로 그림이 보이고 읽힌다고 판단하지 않습니다.
+
+미리보기는 편집기와 같은 결정적 배치와 검사된 원본을 사용합니다. 글자·같은 페이지 링크를 안전하게 쓰며 SVG 스크립트·외부 콘텐츠·외부 자원은 넣지 않습니다. 편집기가 준비되는 동안 그림을 유지하고, 실패해도 미리보기와 항목 목록을 사용할 수 있습니다. 기본 화면 기능에서 실제 편집기로 넘어갈 때 현재 보고 있는 영역을 유지합니다. 불러오는 동안 프레임과 주변 배치를 유지하고 첫 미리보기와 편집기 준비 상태·시간을 구분합니다.
+
+신뢰하는 고정 화면 CSS는 HTML 안에 넣어 스타일 요청이 미리보기를 막지 않게 할 수 있습니다. HTML·프로젝트 SVG·API 자료는 no-store를 유지하고 해시 코드·스타일·글꼴은 승인된 Access 보호 public immutable 캐시를 씁니다. 독립 서버는 내장 기능으로 크기를 제한해 HTML 압축을 협상하고 Tunnel 전송량을 줄일 수 있습니다. 프로젝트 자료를 공개 코드 파일이나 캐시에 넣지 않습니다. 이 결정과 미리보기는 출시·첫 실제 저장소 전송·Worker/D1 삭제 승인이 아니며 기존 조건부 출시 기준을 유지합니다.
+
+TASK-250: 빠진 CLI 결과59개를 원 TC별 메서드로 연결했습니다. Windows Python3.8/3.13 각각59/59이며 Linux·macOS의 새 CI 실행은 아직입니다.65개 backend partial 정리와 첫 SVG 후보 결함은 [QA 묶음](../12-qa/runs/2026-11-04-acceptance-audit.ko.md)에 기록합니다.

@@ -1,0 +1,54 @@
+{
+  "schema": "nexus-budget-public-whitelist/1",
+  "metadataSha256": "14feb7e49feeb12109b934558766bd6071cd69d0f8c897519f384f495f0d856d",
+  "files": [
+    {
+      "file": "01-normal-preview-ddd-ko320-dark.png",
+      "bytes": 20971,
+      "sha256": "589994fe8d959b5912c31f5ed63aafcd326f319570edd9583cafd9634db57aba"
+    },
+    {
+      "file": "02-normal-native-erd-en1440-dark.png",
+      "bytes": 39366,
+      "sha256": "29720fbf578d66550be3bb69257b3f164566b744face860f4932314f737dd558"
+    },
+    {
+      "file": "03-normal-native-sitemap-en1440-light.png",
+      "bytes": 43357,
+      "sha256": "11b7ea3dd94f5a9b40a85400f10b8097679a354b32d68bf0a685015d059aeb31"
+    },
+    {
+      "file": "04-work-limit-panel-comment-ko1440.png",
+      "bytes": 61764,
+      "sha256": "910f3ccf3d742cfc1f5dcde6cea44fdd152e67a9cbe30b6f0b6874271ec003b0"
+    },
+    {
+      "file": "05-text-limit-list-ko320.png",
+      "bytes": 28888,
+      "sha256": "2cca32aa7d2895d9f2d80c4f57be5e46ea333bee176548efc4e2e303b60dd194"
+    },
+    {
+      "file": "06-text-limit-noid-panel-ko1440.png",
+      "bytes": 55412,
+      "sha256": "58a0574bc8b3ca6e7e160c66fab36c9ffb4dffc423fed88ec0f7cd62c27b121d"
+    },
+    {
+      "file": "summary.md",
+      "bytes": 1606,
+      "sha256": "e68544fe2ddecffff155d221b1684d8414c22e080c5b2bad04d6aa3d6c97f064"
+    },
+    {
+      "file": "results.json",
+      "bytes": 1085,
+      "sha256": "e10d3e2b136b1e14aee310a6b878a4d172f54d00c0142cfc33244625f3fc2b16"
+    },
+    {
+      "file": "matrix48.md",
+      "bytes": 1901,
+      "sha256": "8e0d3bdcd074da2eab947d6c073ef10352b6034fc4a8ab001b793a93fd9ef122"
+    }
+  ],
+  "excludes": "Raw local receipts, failed attempts, browser profiles and sessions remain excluded and preserved locally.",
+  "originalSourceManifestSha256": "134b4f6fcfaa88e2e61bf2b1a9fbcc41e00fc264b9ad0275bf8233a055ca30f0",
+  "copyNormalization": "Selected text copied as UTF-8 LF; PNG bytes unchanged; selected SHA values describe the repository copy."
+}

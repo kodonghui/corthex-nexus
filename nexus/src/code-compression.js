@@ -17,7 +17,7 @@ export function codeVariants(code = {}) {
   return variants;
 }
 
-function coding(header) {
+export function acceptedCoding(header) {
   const qualities = new Map();
   for (const part of String(header || "").split(",")) {
     const [name, ...params] = part.trim().toLowerCase().split(";");
@@ -39,7 +39,7 @@ export function compressedCode(request, response, variants) {
   const match = /^\/code\/([^/]+)$/.exec(new URL(request.url).pathname);
   if (!match) return null;
   const file = variants.get(decodeURIComponent(match[1]));
-  const encoding = coding(request.headers.get("Accept-Encoding"));
+  const encoding = acceptedCoding(request.headers.get("Accept-Encoding"));
   if (!file) return null;
   return { encoding, body: file[encoding || "identity"] };
 }

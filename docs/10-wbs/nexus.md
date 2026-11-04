@@ -97,15 +97,15 @@ Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) lists
 
 | ID | Task | From | Touches | Depends on | Owner | Estimate | Done when | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-244 | Read agent work from entry and stage skills | SPEC-112, SPEC-135, SPEC-136 | REQ-181, REQ-185, plugins/corthex | C1 0.2.0 tag, PR C, PR D (kodonghui/corthex#83), TASK-235 | agent | M | Merge latest main first; once/session/project to-do reads prioritize explicit user work, absent tokens do not stop work and claims/holds are respected. | todo |
-| TASK-245 | Teach stage records, reflection and timeline steps | SPEC-106, SPEC-132, SPEC-133, SPEC-137, SPEC-140 | REQ-086, REQ-131, REQ-154, REQ-167, REQ-168, REQ-212 | TASK-244, TASK-231 | agent | M | Update stage references, stage-contract where needed, hub stage table and template-reading tests together; write work/checkpoints by PR and verify standing before merge. | todo |
+| TASK-244 | Read agent work from entry and stage skills | SPEC-112, SPEC-135, SPEC-136 | REQ-181, REQ-185, plugins/corthex | C1 0.2.0 tag, PR C, PR D (kodonghui/corthex#83), TASK-235 | agent | M | Merge latest main first; once/session/project to-do reads prioritize explicit user work, absent tokens do not stop work and claims/holds are respected. | in progress |
+| TASK-245 | Teach stage records, reflection and timeline steps | SPEC-106, SPEC-132, SPEC-133, SPEC-137, SPEC-140 | REQ-086, REQ-131, REQ-154, REQ-167, REQ-168, REQ-212 | TASK-244, TASK-231 | agent | M | Update stage references, stage-contract where needed, hub stage table and template-reading tests together; write work/checkpoints by PR and verify standing before merge. | in progress |
 | TASK-246 | Document project parts and ask_before | SPEC-110, SPEC-137 | plugins/corthex, .corthex/project.json, TBL-115 | TASK-244 | agent | S | After PR C, project reference/examples and sitemap terms/status agree; repository parts memory/nexus and both stage records preserve latest MEMORY source states. | todo |
 
 ## Integration
 
 | ID | Task | From | Touches | Depends on | Owner | Estimate | Done when | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-247 | Prepare versions, guides and architecture | SPEC-113, SPEC-137 | REQ-126, manifests, README pairs, NOTICE | TASK-245, TASK-246, TASK-237, TASK-242 | agent | M | NEXUS 0.2.0 and next main core version agree in both manifests/all skill metadata; bilingual guides describe dev, migrations and server-first upgrades; no production deploy/tag. | todo |
+| TASK-247 | Prepare versions, guides and architecture | SPEC-113, SPEC-137 | REQ-126, manifests, README pairs, NOTICE | TASK-245, TASK-246, TASK-237, TASK-242 | agent | M | NEXUS 0.2.0 and next main core version agree in both manifests/all skill metadata; bilingual guides describe dev, migrations and server-first upgrades; no production deploy/tag. | in progress |
 | TASK-253 | Reconcile main and hand over release evidence | SPEC-104–SPEC-141 | docs/10-wbs/nexus.md, docs/12-qa/nexus.md, draft PR | TASK-247, TASK-249, TASK-250, TASK-251, TASK-252 | agent | M | All source tasks/results and Notion copies agree; latest-main full checks name the exact tree; draft lists bundle PRs/design changes/untested work and waits for release, main merge, deploy and tag confirmation. | todo |
 
 ## QA
@@ -114,7 +114,7 @@ Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) lists
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | TASK-248 | Run pinned contract validation and mocks | SPEC-113–SPEC-140 | API-101–API-132 | TASK-222 | agent | M | External pinned validator 0.7.1, Prism 5.16.0 and Schemathesis 3.39.16 hooks cover Access cookie/path/header substitutions; live development contract run names commit and mock-only results separately. | in progress |
 | TASK-249 | Fire every named server response | SPEC-104–SPEC-140 | API-101–API-132 | TASK-217, TASK-218, TASK-220, TASK-248 | agent | L | Each named example is reproduced on development where feasible, with schema/code/effect checked; default/internal mock cases remain counted apart. | in progress |
-| TASK-250 | Verify hub commands on three operating systems | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Python 3.8 and latest matrix on Windows/macOS/Linux passes all command outcomes and preserves no-network/no-token fixture isolation. | todo |
+| TASK-250 | Verify hub commands on three operating systems | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Python 3.8 and latest matrix on Windows/macOS/Linux passes all command outcomes and preserves no-network/no-token fixture isolation. | in progress |
 | TASK-251 | Walk flows and all screen states | SPEC-119, SPEC-123–SPEC-141 | FL-101–FL-114, SCR-101–SCR-109 | TASK-237, TASK-239, TASK-240, TASK-241, TASK-242, TASK-249 | agent | L | Browser testers record role/path/commit and evidence for 320/1440, both themes/languages; page checks and image review are separate; working browser paths become CI e2e tests. | in progress |
 | TASK-252 | Record performance and own-project cross-check | SPEC-106, SPEC-107, SPEC-108, SPEC-119, SPEC-120 | REQ-124, REQ-149 | TASK-223, TASK-224, TASK-251 | agent | M | Record raw 20-opening measurements/P95, Worker/editor code sizes and maximal push metrics; synthetic plus local NEXUS self-picture check passes without an unauthorized repository upload. | in progress |
 
@@ -253,3 +253,13 @@ REQ-124 server processing runs from complete body receipt to response handling c
 The maintainer conditionally approved NEXUS merges, production migration/routing and release tags after REQ-149/124 pass, all710 cases have verdicts with zero Must failures, migration/recovery rehearsals pass, core integrates after C1 release/PR C, and required checks plus Code/Security reviews pass. The first repository snapshot still needs REQ-107 confirmation. Preserve the old Worker/D1 for14days after switching and ask before deletion. If a condition remains, ask once with its numbers and release after the answer.
 
 Current transport-bundle states: done 14, in progress 44, todo 6.
+
+## First picture decision, 2026-11-04
+
+The maintainer explicitly selected “SVG first + HTML path improvement” in the current Codex conversation. Keep the frozen tokens, same-origin Access boundary and pinned real editors. A complete server-rendered SVG is the first picture; Excalidraw/ERD Viewer loads afterwards. REQ-149/TC-654/TC-1271/TC-1309 measure this first visible picture under the unchanged mobile/network/CPU1 profile. Record native-editor readiness separately, keeping all earlier native-ready failures and any failed/incomplete observations. Do not use a DOM-ready marker alone as evidence of a visible, readable picture.
+
+The preview uses the same deterministic geometry and checked source as the editor, with safe text/fragment links and no SVG scripts, foreign content or external resources. It stays visible during editor loading and remains available with the item list when that loading fails. Core controls keep the current viewport when handing over to the real editor. Loading preserves the frame and surrounding layout. Distinguish first-preview and native-editor-ready states and timings.
+
+Trusted static view CSS may be inlined so a stylesheet request does not block the preview. HTML, SVG project content and API data remain no-store; hashed code/style/fonts retain the approved Access-protected public immutable cache. The standalone server may negotiate bounded built-in HTML compression to reduce Tunnel transfer. No project data is placed in a public code file or cache. Neither this decision nor a preview is a release, first real-repository upload, or approval to delete Worker/D1. Existing conditional-release gates remain.
+
+TASK-250:59 remaining CLI outcomes now have methods preserving their original TC IDs. Windows Python3.8/3.13 each59/59; new Linux/macOS CI remains pending.65 scoped backend partial verdicts and first-SVG findings are in the [QA bundle](../12-qa/runs/2026-11-04-acceptance-audit.md).

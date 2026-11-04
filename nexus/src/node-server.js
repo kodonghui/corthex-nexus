@@ -6,6 +6,7 @@ import { handle } from "./app.js";
 import { AccessVerifier } from "./access.js";
 import { problemResponse } from "./problem.js";
 import { codeVariants, compressedCode } from "./code-compression.js";
+import { compressedHTML } from "./html-compression.js";
 
 function bodyStream(incoming, onBytes, onEnd) {
   let data, end, error;
@@ -52,9 +53,7 @@ export function createNodeServer({ env, origin, template, views = {}, verifier =
       request = new Request(canonical + target, { method: incoming.method, headers, ...(reads ? { body: bodyStream(incoming, (size) => { receivedBytes += size; }, () => { bodyEnded = performance.now(); }), duplex: "half" } : {}) });
       const response = await handle(request, env, {}, template, views, verifier);
       if (request.body && !request.body.locked) await request.body.cancel();
-      const completed = performance.now(), processing = completed - started;
-      const cpu = cpuStart ? process.cpuUsage(cpuStart) : { user: 0, system: 0 };
-      const encoded = compressedCode(request, response, variants);
+      const encoded = compressedCode(request, response, variants) || await compressedHTML(request, response);
       const responseHeaders = new Headers(response.headers);
       if (encoded) {
         if (encoded.encoding) responseHeaders.set("Content-Encoding", encoded.encoding);
@@ -70,6 +69,8 @@ export function createNodeServer({ env, origin, template, views = {}, verifier =
         }
       }
       outgoing.end();
+      const completed = performance.now(), processing = completed - started;
+      const cpu = cpuStart ? process.cpuUsage(cpuStart) : { user: 0, system: 0 };
       // Metrics contain numbers only: never URLs, identities, request headers,
       // tokens, stored text or exception messages.
       onMetric?.({ status: response.status, request_bytes: receivedBytes, processing_ms: processing,

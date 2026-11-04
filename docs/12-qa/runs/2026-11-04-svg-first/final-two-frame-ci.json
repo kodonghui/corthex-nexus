@@ -1,0 +1,18 @@
+{
+  "metadataSha256": "16f4aad549173b160e4941aac252410a042e892c14af4c3675ca661eb6f21898",
+  "localSyntheticOnly": true,
+  "defaultCases": 8,
+  "works": 8,
+  "originalSvgNodes": 3,
+  "animationFrameCallbacks": 2,
+  "sameOriginalSvgConnectedAtBoth": true,
+  "endMarkerConnectedAtBoth": true,
+  "originalSvgRemovedBeforeSecondFrame": false,
+  "scriptIdentifierRemoved": true,
+  "profileRemoved": true,
+  "otherSixSuitesRerun": false,
+  "actualAccounts": 0,
+  "actualDevRequests": 0,
+  "sourceQaVerdictChanges": 0,
+  "full710PassClaims": 0
+}

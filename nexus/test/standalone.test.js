@@ -183,6 +183,28 @@ test("compressed code keeps checked Access, exact decoded bytes, HEAD and coding
   assert.equal(fontReply.headers["content-encoding"], undefined); assert.deepEqual(fontReply.bytes, font);
 });
 
+test("actual TCP HTML is compressed before transport while Access, no-store, CSP and HEAD remain checked", async (t) => {
+  const { server, call } = await fixture(t);
+  assert.equal((await call("POST", "/api/snapshots", example())).status, 200);
+  const jwt=await token();
+  const wire=(encoding,method="GET",authorized=true)=>new Promise((resolve,reject)=>{
+    const req=httpRequest({host:"127.0.0.1",port:server.address().port,path:"/",method,headers:{...(authorized?{"Cf-Access-Jwt-Assertion":jwt}:{}),"Accept-Encoding":encoding}},res=>{
+      const chunks=[];res.on("data",chunk=>chunks.push(chunk));res.on("end",()=>resolve({status:res.statusCode,headers:res.headers,bytes:Buffer.concat(chunks)}));
+    });req.on("error",reject);req.end();
+  });
+  let policy;
+  for(const [header,coding]of[["br,gzip","br"],["br;q=0,gzip;q=1","gzip"],["br;q=0,gzip;q=0",undefined]]){
+    const get=await wire(header),head=await wire(header,"HEAD");
+    assert.equal(get.status,200);assert.equal(head.status,200);
+    for(const response of[get,head]){assert.equal(response.headers["cache-control"],"no-store");assert.equal(response.headers["content-encoding"],coding);assert.match(response.headers.vary,/Accept-Encoding/i);assert.equal(response.headers["set-cookie"],undefined);assert.ok(Number(response.headers["content-length"])>0);policy??=response.headers["content-security-policy"];assert.equal(response.headers["content-security-policy"],policy);}
+    assert.equal(head.bytes.length,0);assert.equal(Number(get.headers["content-length"]),get.bytes.length);
+    const decoded=(coding==="br"?brotliDecompressSync(get.bytes):coding==="gzip"?gunzipSync(get.bytes):get.bytes).toString();
+    assert.match(decoded,/<!doctype html>/i);assert.ok(decoded.includes('"schema":"corthex-hub-page/0.2"'));assert.ok(decoded.includes('"name":"corthex"'));assert.ok(!decoded.includes("__CORTHEX_HUB_DATA__"));
+    if(coding)assert.ok(get.bytes.length<Buffer.byteLength(decoded)/2);
+  }
+  const refused=await wire("br","GET",false);assert.equal(refused.status,403);assert.equal(refused.headers["cache-control"],"no-store");assert.equal(refused.headers["content-encoding"],undefined);
+});
+
 test("numeric metrics separate delayed body arrival from work after the body", async (t) => {
   const db = new SQLiteD1(":memory:"), metrics = [];
   const server = createNodeServer({ env: { ...env, DB: db }, origin: "https://nexus.example.com", template, verifier: verifier(), onMetric: (value) => metrics.push(value) });

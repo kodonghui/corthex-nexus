@@ -1,0 +1,51 @@
+{
+  "status": "works",
+  "scope": "owned temporary Cache Bypass rule control only",
+  "exact_approved_scope_verified": true,
+  "actual_addresses_or_account_ids_saved": false,
+  "edge_ttl_override": false,
+  "stages": [
+    {
+      "stage": "initial",
+      "count": 1,
+      "enabled": false
+    },
+    {
+      "stage": "B01",
+      "arm": "A",
+      "enabled": true
+    },
+    {
+      "stage": "B02",
+      "arm": "B",
+      "enabled": false
+    },
+    {
+      "stage": "B03",
+      "arm": "B",
+      "enabled": false,
+      "reuses_B02": true,
+      "new_UI_read_or_toggle": false
+    },
+    {
+      "stage": "B04",
+      "arm": "A",
+      "enabled": true
+    },
+    {
+      "stage": "rollback",
+      "before": 1,
+      "after": 0,
+      "reload_count": 0,
+      "reload_time": "2026-11-04T16:39:10.437+09:00"
+    }
+  ],
+  "original_empty_restored": true,
+  "other_settings_changes": 0,
+  "dev_fetches_during_control": 0,
+  "auth_values_read": false,
+  "purge": false,
+  "performance_results": "not measured or claimed by settings operator",
+  "study_control_manifest_sha256": "f1e67a548351e9b3f08398eab20bde928692b94e959cd00bf64da14bc035d605",
+  "human_proof_manifest_sha256": "d7ec598ba7c2f050c34dd85bccbee6ca7a9d6a0af53884ee3437d1172b171b2a"
+}

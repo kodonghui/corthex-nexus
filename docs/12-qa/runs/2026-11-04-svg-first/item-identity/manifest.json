@@ -1,0 +1,34 @@
+{
+  "schema": "nexus-identity-public-whitelist/1",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "files": [
+    {
+      "file": "01-limited-both-items-G-panel.png",
+      "bytes": 67014,
+      "sha256": "f010a0679b82474b09fe6a2f81e46adcc7b0207ce8d67f6f4ace66b6c345d8c2"
+    },
+    {
+      "file": "02-normal-SVG-two-marks.png",
+      "bytes": 40026,
+      "sha256": "aed41b22b954c8b1c912c1fc16aafb53c76aed42c5ab7246c5eab1d733f0f45f"
+    },
+    {
+      "file": "03-normal-native-two-marks.png",
+      "bytes": 36464,
+      "sha256": "79556df2dd415f29fb3f8eaf6137eefda42104527db1dbe191d5be98e016a386"
+    },
+    {
+      "file": "summary.md",
+      "bytes": 1125,
+      "sha256": "3d901ee771c9eb040fcad140ee4f0fc12e48962b7ff8242405a556545abeb9b4"
+    },
+    {
+      "file": "results.json",
+      "bytes": 694,
+      "sha256": "0895bbde95299c071fdd51e72873748b273b10112963837f8f4fd3d9e4ac990d"
+    }
+  ],
+  "excludes": "All local raw receipts, source harnesses, profiles and session files are excluded from the public whitelist.",
+  "originalSourceManifestSha256": "15e788e7eb8c7030b6fad2dbeb1030e0d3becb85d8cd7a12548bd641c3c83d1d",
+  "copyNormalization": "Selected text copied as UTF-8 LF; PNG bytes unchanged; selected SHA values describe the repository copy."
+}

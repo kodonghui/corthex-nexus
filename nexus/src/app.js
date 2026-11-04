@@ -1,4 +1,5 @@
 // NEXUS: checked Access requests, contract ordering, and D1 transactions.
+import {rememberHTML} from "./html-body.js";
 import { Refused, readSnapshot } from "./snapshot.js";
 import { readSnapshot02 } from "./snapshot02.js";
 import { Store } from "./store.js";
@@ -60,7 +61,7 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
       case "getHubPage": {
         const [bodies,spaces]=await Promise.all([store.bodies(),store.readSpaces()]);
         const data={schema:"corthex-hub-page/0.2",generated_at:new Date().toISOString(),lang:lang(env),origin:"server",projects:bodies.map(JSON.parse),spaces,missing:[]};
-        return html(head?null:render(template,JSON.stringify(data)).replace('<html lang="en">',`<html lang="${data.lang}">`),await pagePolicy(template));
+        return html(render(template,JSON.stringify(data)).replace('<html lang="en">',`<html lang="${data.lang}">`),await pagePolicy(template),head);
       }
       case "getViewCode": {
         const file=views.code?.[p.file];
@@ -80,7 +81,7 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
         }
         const payload={schema:"corthex-view-page/0.2",generated_at:new Date().toISOString(),lang:lang(env),view,data,problem};
         const viewTemplate=(typeof views.template==="function"?views.template(payload):views.template) || '<!doctype html><html><head><meta charset="utf-8"><title>NEXUS</title></head><body><main id="view"></main><script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script></body></html>';
-        const response=html(head?null:renderView(viewTemplate,payload),VIEW_POLICY);
+        const response=html(renderView(viewTemplate,payload),VIEW_POLICY,head);
         if(env.NEXUS_EARLY_HINTS==="1"&&typeof views.hints==="function"){
           const hints=views.hints(payload);if(hints)response.headers.set("Link",hints);
         }
@@ -133,6 +134,6 @@ export async function pagePolicy(template) {
   }
   return policies.get(template);
 }
-function html(body,policy) {return new Response(body,{headers:{...COMMON_HEADERS,"Content-Type":"text/html; charset=utf-8","Content-Security-Policy":policy,"Cross-Origin-Opener-Policy":"same-origin"}});}
+function html(body,policy,head=false) {return rememberHTML(new Response(head?null:body,{headers:{...COMMON_HEADERS,"Content-Type":"text/html; charset=utf-8","Content-Security-Policy":policy,"Cross-Origin-Opener-Policy":"same-origin"}}),body);}
 function jsonHeaders() {return {...COMMON_HEADERS,"Content-Type":"application/json; charset=utf-8","Content-Security-Policy":"default-src 'none'; frame-ancestors 'none'"};}
 function json(data,status=200,head=false) {return new Response(head?null:JSON.stringify(data),{status,headers:jsonHeaders()});}
