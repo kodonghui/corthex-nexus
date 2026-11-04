@@ -295,3 +295,7 @@ Setup/cleanup causes remain unproved. A separate lifecycle diagnostic is being p
 ## Current refusal closure, 2026-11-05
 
 [R1](../12-qa/runs/2026-11-05-refusal-closure.md) adds245 current synthetic-handler6f scoped passes from exact fresh refusal responses and same-request schema/headers/trace/DB/receipt evidence. QA710 is now486pass/222partial/2fail. TASK-249 remains in progress with78 applicable named-response clauses and18 shared-example applicability reviews; no task closes. WBS64 stays15done/49in progress. Original performance/transport failures and release/REQ-107/Worker-D1 conditions remain; no real Access, deployed proof or new user checkpoint is claimed.
+
+## Current named-read closure, 2026-11-05
+
+The later [24-case read adjudication](../12-qa/runs/2026-11-05-read-closure.md) brings QA710 to510 pass/198 partial/2 fail. TASK-249 stays in progress with54 applicable named-response criteria and18 shared-example applicability reviews; all64 WBS rows and15 done/49 in progress remain unchanged. The local actual-handler GET evidence includes operation-specific policy/schema and same-request whole DB/receipt preservation. It adds no HEAD, default SSR, hub-parser, browser or deployed/real Access claim; old R1/transport/performance verdicts and release/REQ-107/Worker-D1 gates remain. Full required checks, Code/Security review and publication are pending under Root.

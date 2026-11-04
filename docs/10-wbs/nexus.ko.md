@@ -295,3 +295,7 @@ Root는 REQ-149/TC-1271/SPEC-119가 첫SVG와 편집기 준비를 구분하는�
 ## 현재 거절 응답 정리, 2026-11-05
 
 [R1](../12-qa/runs/2026-11-05-refusal-closure.ko.md)의정확한fresh거절·같은요청schema/헤더/trace/DB/receipt근거로현재합성handler6f범위245개를통과시켜QA710=486pass/222partial/2fail입니다. TASK-249에는적용명명응답78개·공유예시적용검토18개가남아진행중이며완료작업은추가하지않습니다. WBS64=15done/49in progress를유지합니다. 이전성능/전송실패·출시/REQ-107/Worker-D1 조건은그대로이고실제Access/배포근거·사용자새확인지점을주장하지않습니다.
+
+## 현재 명명 읽기 응답 정리, 2026-11-05
+
+이후 [읽기24개 새 판정](../12-qa/runs/2026-11-05-read-closure.ko.md)으로 현재 QA710은 pass510/partial198/fail2입니다. TASK-249는 적용 명명 응답54개·공유 예시 적용 검토18개가 남아 진행 중이며 WBS64행과15done/49in progress는 모두 그대로입니다. 로컬 실제 handler의 GET에서 API별 정책/스키마와 같은 요청 전체 DB/receipt 불변을 확인했습니다. HEAD·기본 SSR·허브 파서·브라우저·배포/실제 Access를 주장하지 않으며 과거 R1/전송/성능 판정과 출시/REQ-107/Worker-D1 관문을 보존합니다. 전체 필수 검사·Code/Security 검토·게시는 Root 소유로 아직 대기 중입니다.

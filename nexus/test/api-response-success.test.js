@@ -1,7 +1,7 @@
 // Review draft: place at nexus/test/api-response-success.test.js. No external packages or real accounts.
 // Synthetic read-only audit of repository code. Only in-memory SQLite is changed.
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { createHash } from 'node:crypto';
 import { handle } from '../src/app.js';
@@ -32,10 +32,25 @@ async function call(label,method,path,{body,kind='user',status=200,expectedCode,
  const requestHeaders={...access.headers(kind),...(method==='POST'?{'Idempotency-Key':'"nw_'+(++serial).toString().padStart(12,'0')+'"'}:{}),...(kind==='agent'?{'Nexus-Session':'qa-audit-agent'}:{}),...headers};
  if(body!==undefined)requestHeaders['Content-Type']='application/json';
  const response=await handle(new Request('https://nexus.example.com'+path,{method,headers:requestHeaders,...(body===undefined?{}:{body:JSON.stringify(body)})}),env,access.ctx,template,{code});
+ const codeBytes=path.startsWith('/code/')?Buffer.from(await response.clone().arrayBuffer()):null;
  const media=(response.headers.get('Content-Type')||'').split(';')[0],text=await response.text();
  const data=media.includes('json')&&text?JSON.parse(text):null;
  const after=databaseShape();
  const row={label,method,path,status:response.status,expected_status:status,media,code:data?.code||null,database_unchanged:before.hash===after.hash,before_counts:before.counts,after_counts:after.counts};
+ if(codeBytes){
+  const file=metadata.files.find(file=>path==='/code/'+file.name);
+  assert.ok(file,label+' uses a known content-hashed asset');
+  const policy=response.headers.get('Cache-Control')||'';
+  row.codePolicy={setCookiePresent:response.headers.has('Set-Cookie'),varyStar:(response.headers.get('Vary')||'').split(',').some(value=>value.trim()==='*'),public:/(?:^|,)\s*public\s*(?:,|$)/i.test(policy),immutable:/(?:^|,)\s*immutable\s*(?:,|$)/i.test(policy),maxAgeSeconds:/(?:^|,)\s*max-age=31536000\s*(?:,|$)/i.test(policy)?31536000:null,forbiddenCacheDirective:/(?:^|,)\s*(?:private|no-store|no-cache)(?:\s*=|\s*(?:,|$))/i.test(policy),bytes:codeBytes.length,payloadSha256:createHash('sha256').update(codeBytes).digest('hex')};
+  assert.equal(row.codePolicy.setCookiePresent,false,label+' code omits Set-Cookie (TC-770/771/772)');
+  assert.equal(row.codePolicy.varyStar,false,label+' code omits Vary star');
+  assert.equal(row.codePolicy.public,true,label+' code uses the approved shared cache');
+  assert.equal(row.codePolicy.immutable,true,label+' content hash remains immutable');
+  assert.equal(row.codePolicy.maxAgeSeconds,31536000,label+' code keeps its one-year lifetime');
+  assert.equal(row.codePolicy.forbiddenCacheDirective,false,label+' code has no conflicting private/no-store/no-cache');
+  assert.equal(codeBytes.length,file.raw,label+' bytes match approved metadata');
+  assert.equal(row.codePolicy.payloadSha256,file.payloadSha256,label+' payload matches approved metadata');
+ }
  records.push(row);
  assert.equal(response.status,status,label);
  if(expectedCode)assert.equal(data?.code,expectedCode,label);
@@ -89,7 +104,7 @@ try {
  await call('remove project','DELETE','/api/snapshots/corthex');
  assert.equal(databaseShape().counts.comments,0);assert.equal(databaseShape().counts.proposals,0);assert.equal(databaseShape().counts.edits,0);assert.equal(databaseShape().counts.checkpoints,0);
 } finally {
-
+ if(process.env.NEXUS_SUCCESS_RESULTS)writeFileSync(process.env.NEXUS_SUCCESS_RESULTS,JSON.stringify({requests:records},null,2)+'\n');
  db.close();
 }
 assert.equal(records.length,47);
