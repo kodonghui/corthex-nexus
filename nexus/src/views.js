@@ -3,7 +3,13 @@ const URL_PATTERN=/^\/code\/[a-z0-9][a-z0-9-]{0,63}\.[0-9a-f]{8}\.(?:js|css|woff
 export function createViews(code,entries){
   for(const value of Object.values(entries).flat())if(!URL_PATTERN.test(value))throw new Error("Invalid bundled view URL");
   const link=(rel,href,extra="")=>`<link rel="${rel}" href="${href}"${extra}>`;
-  return{code,template(payload){
+  return{code,hints(payload){
+    // Only immutable public bundle names; never project names or page data.
+    if(payload.view!=="picture"||!payload.data?.picture)return"";
+    const editor=payload.data.stage==="05-erd"?"erd":"excalidraw";
+    const scripts=[...new Set([...(entries[editor+"-preload"]||[]),...(entries[editor+"-en-preload"]||[]),...(entries[editor+"-ko-preload"]||[])])];
+    return[...scripts.map(h=>`<${h}>; rel=preload; as=script; crossorigin`),...(entries[editor+"-css"]?[`<${entries[editor+"-css"]}>; rel=preload; as=style`]:[]),...(editor==="excalidraw"?(entries["font-preload"]||[]).map(h=>`<${h}>; rel=preload; as=font; type="font/woff2"; crossorigin`):[])].join(", ");
+  },template(payload){
     const lang=payload.lang==="ko"?"ko":"en",picture=payload.view==="picture",editor=picture&&payload.data?.picture?(payload.data.stage==="05-erd"?"erd":"excalidraw"):null;
     const styles=[entries["view-css"],...(editor&&entries[editor+"-css"]?[entries[editor+"-css"]]:[])];
     const preloads=[entries["view-js"],...(editor?entries[editor+"-"+lang+"-preload"]||entries[editor+"-preload"]||[]:[])];

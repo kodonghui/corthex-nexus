@@ -129,3 +129,5 @@ API를 검사하는 Schemathesis를 돌립니다. 이 로컬 시험과 실제 �
 ### 독립 실행부의 코드 전송
 
 신뢰한 JS/CSS의 Brotli/gzip 변형은 시작할 때 한 번 만듭니다. 인증·역할·경로를 먼저 확인한 뒤 Accept-Encoding에 맞춰 제공하고, HEAD와 원래 private 캐시·CSP를 유지합니다. 글꼴과 거절 응답에는 이 변형을 적용하지 않습니다. NEXUS_METRICS=1은 숫자만 남기며 processing_ms는 본문 도착과 I/O를 포함합니다. body_receive_ms·after_body_ms를 따로 읽고 cpu_user_ms/cpu_system_ms는 같은 구간의 프로세스 CPU 차이로 봅니다. 병렬 요청의 CPU 구간은 겹치며 RSS는 응답 뒤 표본이지 peak가 아닙니다.
+
+서버의 비공개 설정 `NEXUS_EARLY_HINTS=1`을 켜면 성공한 그림 HTML에 `Link: rel=preload` 힌트를 붙입니다. 기본값은 꺼짐입니다. 힌트에는 해당 편집기의 고정된 같은 origin 파일 이름·두 지원 언어·글꼴만 있고 스냅숏이나 신원은 없습니다. 각 파일 요청도 인증을 거칩니다. 기존 프록시의 Early Hints 지원이 별도로 필요하며 Link 헤더만으로103 응답이나 속도 개선을 입증하지 않습니다. 본문은 계속 비공개입니다. 배포 파일 이름을 바꿀 때는 개발 그림 응답을 먼저 갱신한 뒤 측정해 이전 힌트가 낡은 파일을 고르지 않도록 합니다.

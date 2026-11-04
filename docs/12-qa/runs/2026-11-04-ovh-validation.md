@@ -26,4 +26,14 @@ Two additional openings are diagnostic, not replacement samples. Each script had
 
 Retained harness errors: adding an unnecessary replaces field to the exactly-full maximal fixture tripped its local size guard before a second POST; the diagnostic was corrected for its unchanged commit. An initial origin artifact check compared Windows CRLF worktree bytes; exact Git-blob/archived bytes then matched all seven origin files. The first restore helper had a local quotation syntax error and made no origin call. These are not product defects or successful measurements.
 
-The new transport's final mobile20-opening groups, CPU4 reference, maximum-request metrics and development rollback remain to be run. Core still waits for MEMORY C1/PR C/PR D; main merge, production switch, tags, first real repository upload and old-resource retirement remain the release decision.
+The new transport's final mobile20-opening groups and CPU4 reference remain to be run. Core still waits for MEMORY C1/PR C/PR D; main merge, production switch, tags, first real repository upload and old-resource retirement remain the release decision.
+
+## CA4 development follow-up
+
+Integration `db6313683848ecac10e0fcd1ad4ecd48e2babdcf` passed all seven CI jobs. One diagnostic opening per picture measured first-ready3560.7ms for sitemap and3671.1ms for ERD; these are not P95 samples and both still exceed3s. Both had300 Hangul names, loaded fonts, and no403, CSP or resource errors. The late module/font chain was removed. An optional, default-off Link-hint adapter is prepared for a proxy-supported development experiment; no103 or speed result is claimed from its unit test.
+
+The same integration accepted exactly1,000,000bytes/3000items/2000checks and matched readback. Inclusive handling was1031.079ms, body receipt999.994ms, processing after receipt31.085ms, process CPU-window deltas65.092ms user+8.985ms system, and post-response RSS139,616,256bytes. Network round trip was26982.324ms. The inclusive1s miss remains visible; the faster phase and CPU numbers do not replace that measurement.
+
+An actual development rollback selected the preceding runtime and then this integration, checking both listeners and all13 tables. Logical row counts/digest remained identical. A manual daily backup also succeeded with mode0600; no production switch occurred. Its first incomplete receipt is retained separately from the corrected complete run.
+
+Upstream integration `d18fe0e1d44fbc4df4350c8a5728759c98d91ca5` incorporates main `982fb4f10e8712aff89e0d472f9a10943283aa68`. The combined local suite ran943 tests:928passed,15skipped; four strict plugin validations and all17 CI jobs passed. This updates the hub/harness integration, while the product's exact hub pin remains3570fb0c755b50c314ca26f0361c72a71fe22d0d. No core implementation or release merge is inferred.
