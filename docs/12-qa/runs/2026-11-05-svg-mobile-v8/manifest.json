@@ -1,0 +1,47 @@
+{
+  "schema": "nexus-v8-four-criteria-manifest/1",
+  "sourceBaseCommit": "7b9c2f2f0daf71d7f1d4e3b890fa7381ded37d1b",
+  "publicDataScope": "Counts,enums,publicsource hashes,criterion IDs and repository-relative documents only; no raw headers/URLs/private paths/accounts/profiles.",
+  "inputSha256": {
+    "formalRaw": "e280329ec7fb4462488699d7cd8761a9a14344a4b5b0f40663aa14ccce92df40",
+    "formalPlan": "30003f64debfbe7abb3b196be69bf5ac22bc2edb1a4866f98d4ee8102085f555",
+    "formalRuntime": "bb9ea5fe629c0a14943f41b832d0e11b20a34227f07d66bfec35aec4a8618685",
+    "operatorFinalSummary": "8e7b20277e4ddda22aefe49e195c97f01ef7b6955e45b04f5e5773a0a307df9a",
+    "rootFormalAudit": "41f2e3b86ac5243e452658d99d0c91dfef444d0fbcb4d646a80f7af7497d2451",
+    "originalClauseReview": "69d80daec44164246a67bfc24dce991c9e963f01932f11ac06603bd878025fd1",
+    "currentSvgTextReview": "f205ccbceb38c3c3534eb06f994c630c82a2b64c2243862b63454071545ca9b1",
+    "repeatedReleaseReview": "bec421e733d8489e42c791629a0439280c6d00757aacee23f80edd9fabce14ea",
+    "independentRepeatedReleaseReview": "984d70ae0f8e05ebe8c33ca945a3e89c2398efd50335cb7f6d57a3dd571ec1db",
+    "retainedRelease-validated-observations.json": "8070b625603aded17cf1b18f4e6d635ee68b3e0fe70b74845b1c2f8daeacd7ea",
+    "retainedRelease-success-results.json": "237b19862bd0326b4eb4b0e4b6f7c4fda74eee9010d0dbcae436df9b5e1f288c",
+    "retainedRelease-execution-receipt.json": "d63ee9ca9bf4ccfecaf87232d01d0ccc21fb8ba4a67041c72ac165f47f02542b",
+    "retainedRelease-schema-observation-summary.json": "ea774cd8c76af8c7399da89161ca0d68dd7f4d31532aef9763a7f2618efed703"
+  },
+  "beforeSourceSha256": {
+    "docs/12-qa/nexus.md": "aaf1f074bd070ad54926515cd5d17dd18fd81e9beff0b8122b2c5b03a0c18b4f",
+    "docs/12-qa/nexus.ko.md": "cde496193691fa7d0e12159820fcef8a11a7f86462b77b77405d25018f5975d1",
+    "docs/10-wbs/nexus.md": "b82357cb5db054e8cd0c8aa2fbc03bc5d33c1bd30a1cce219f30e2772f172141",
+    "docs/10-wbs/nexus.ko.md": "32f20ae639428b96b9abf2925859fd9b02f4a827f97a1cc1782661aae13682b8"
+  },
+  "outputSha256": {
+    "docs/12-qa/nexus.md": "d9703c625a695eeff962cceab9f366ef1732641a73211eb9c8262b407a950ff8",
+    "docs/12-qa/nexus.ko.md": "3e90dfdb6f4a7d677e23f9abd3375e759ec346fc487243da917939d3d0f83eb7",
+    "docs/10-wbs/nexus.md": "96a541ed7eb1d3077703d7ebb6dee590cb3a649da223bc4b4ec0af3714af32f7",
+    "docs/10-wbs/nexus.ko.md": "03ee9c8b10e655cae9fa01f779173df06f981a615ccdddef419879ff6beb6dd9",
+    "docs/12-qa/runs/2026-11-05-svg-mobile-v8.md": "c38f235261e99d5fc0c03366a47b276e98b05990a6973bbe95a617d486d5284d",
+    "docs/12-qa/runs/2026-11-05-svg-mobile-v8.ko.md": "d4d38f3bc405669fe8817793c46ec0cc7f02ad318599f3aa22a7fb2e5fbc7b09",
+    "docs/12-qa/runs/2026-11-05-svg-mobile-v8/proof.json": "51b13d228689cce3fe35488cac9c99a1ccda5bea92ce561fdd8c53a547e92968"
+  },
+  "sourceRows": {
+    "criteriaUnchangedExcept": [
+      "TC-654",
+      "TC-1128",
+      "TC-1271",
+      "TC-1309"
+    ],
+    "unchangedOtherCriteria": 706,
+    "taskRowsUnchanged": 64
+  },
+  "priorResultsRetainedIn": "proof.json adjudication.history",
+  "stagedBlobVerification": "CanonicalUTF8LF output hashes; index verification follows staging by the commit owner. No index change performed here."
+}
