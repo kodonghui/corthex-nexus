@@ -16,7 +16,7 @@ export async function start(settings = process.env) {
   try {
     await new Store(db).ensure();
     db.check();
-    const env = { DB: db, ACCESS_TEAM_DOMAIN: settings.ACCESS_TEAM_DOMAIN, ACCESS_AUD: settings.ACCESS_AUD, NEXUS_LANGUAGE: settings.NEXUS_LANGUAGE || "en" };
+    const env = { DB: db, ACCESS_TEAM_DOMAIN: settings.ACCESS_TEAM_DOMAIN, ACCESS_AUD: settings.ACCESS_AUD, NEXUS_LANGUAGE: settings.NEXUS_LANGUAGE || "en", NEXUS_EARLY_HINTS: settings.NEXUS_EARLY_HINTS === "1" ? "1" : "0" };
     const template = readFileSync(new URL("./hub.html", import.meta.url), "utf8");
     const folder = new URL("./view-code/", import.meta.url);
     const manifest = JSON.parse(readFileSync(new URL("sizes.json", folder), "utf8"));

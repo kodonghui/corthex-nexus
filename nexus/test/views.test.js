@@ -27,5 +27,13 @@ test("actual handler uses the view factory while code and font delivery still re
  const req=(path,options={})=>new Request("https://nexus.example.com"+path,{headers:access.headers(),...options});
  assert.equal((await handle(req("/api/snapshots",{method:"POST",headers:{...access.headers("agent"),"Content-Type":"application/json"},body:JSON.stringify(snapshot)}),env,access.ctx,hub,views)).status,200);
  const response=await handle(req("/pictures/corthex/nexus/05-erd"),env,access.ctx,hub,views),html=await response.text();assert.equal(response.status,200);assert.equal(response.headers.get("Content-Security-Policy"),VIEW_POLICY);assert.ok(html.includes(metadata.entries["view-js"]));assert.match(html,/<html lang="ko">/);
+ assert.equal(response.headers.get("Link"),null,"hints are opt-in");
+ const enabled={...env,NEXUS_EARLY_HINTS:"1"};
+ const hinted=await handle(req("/pictures/corthex/nexus/05-erd"),enabled,access.ctx,hub,views);
+ assert.equal(hinted.status,200);assert.equal(hinted.headers.get("Cache-Control"),"no-store");assert.equal(hinted.headers.get("Content-Security-Policy"),VIEW_POLICY);
+ assert.ok(hinted.headers.get("Link").includes(metadata.entries["erd-js"]));
+ assert.doesNotMatch(hinted.headers.get("Link"),/corthex\/nexus|project|Bearer|Assertion|\/api\//);
+ for(const path of hinted.headers.get("Link").matchAll(/<([^>]+)>/g))assert.ok(Object.hasOwn(code,path[1].slice(6)));
+ const refusedHints=await handle(req("/pictures/corthex/nexus/05-erd"),enabled,{},hub,views);assert.equal(refusedHints.status,403);assert.equal(refusedHints.headers.get("Link"),null);
  for(const file of[metadata.files.find(f=>f.binary),metadata.files.find(f=>f.type.startsWith("text/javascript"))]){const path="/code/"+file.name,ok=await handle(req(path),env,access.ctx,hub,views);assert.equal(ok.status,200);assert.equal(ok.headers.get("Content-Type"),file.binary?"font/woff2":"text/javascript; charset=utf-8","stage-06 API-104 media type");assert.equal((await ok.arrayBuffer()).byteLength,file.raw);const refused=await handle(req(path),env,{},hub,views);assert.equal(refused.status,403);}
 });

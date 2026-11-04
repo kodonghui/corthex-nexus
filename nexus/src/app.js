@@ -80,7 +80,11 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
         }
         const payload={schema:"corthex-view-page/0.2",generated_at:new Date().toISOString(),lang:lang(env),view,data,problem};
         const viewTemplate=(typeof views.template==="function"?views.template(payload):views.template) || '<!doctype html><html><head><meta charset="utf-8"><title>NEXUS</title></head><body><main id="view"></main><script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script></body></html>';
-        return html(head?null:renderView(viewTemplate,payload),VIEW_POLICY);
+        const response=html(head?null:renderView(viewTemplate,payload),VIEW_POLICY);
+        if(env.NEXUS_EARLY_HINTS==="1"&&typeof views.hints==="function"){
+          const hints=views.hints(payload);if(hints)response.headers.set("Link",hints);
+        }
+        return response;
       }
       default: {
         if(!route.writeName)throw new Error("unhandled operation");
