@@ -31,7 +31,8 @@ test("actual handler uses the view factory while code and font delivery still re
  const enabled={...env,NEXUS_EARLY_HINTS:"1"};
  const hinted=await handle(req("/pictures/corthex/nexus/05-erd"),enabled,access.ctx,hub,views);
  assert.equal(hinted.status,200);assert.equal(hinted.headers.get("Cache-Control"),"no-store");assert.equal(hinted.headers.get("Content-Security-Policy"),VIEW_POLICY);
- assert.ok(hinted.headers.get("Link").includes(metadata.entries["erd-js"]));
+ assert.ok(hinted.headers.get("Link").includes(metadata.entries["view-js"]));
+ assert.ok(!hinted.headers.get("Link").includes(metadata.entries["erd-js"]),"native hints must wait for the first SVG paint");
  assert.doesNotMatch(hinted.headers.get("Link"),/corthex\/nexus|project|Bearer|Assertion|\/api\//);
  for(const path of hinted.headers.get("Link").matchAll(/<([^>]+)>/g))assert.ok(Object.hasOwn(code,path[1].slice(6)));
  const refusedHints=await handle(req("/pictures/corthex/nexus/05-erd"),enabled,{},hub,views);assert.equal(refusedHints.status,403);assert.equal(refusedHints.headers.get("Link"),null);

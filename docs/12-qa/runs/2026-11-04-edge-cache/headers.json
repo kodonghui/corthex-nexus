@@ -1,0 +1,343 @@
+{
+  "schema": "nexus-edge-cache-wire/1",
+  "deployedCommit": "f51ca9cfa8ab692477d3722b2c07ef0a7aaaabfa",
+  "startedAt": "2026-11-04T06:25:20.229Z",
+  "requestCacheDisabled": true,
+  "authMode": "cookie",
+  "bootstrapOutsideMeasurement": true,
+  "files": [
+    {
+      "name": "erd-chunk-1.76b5569b.js",
+      "type": "text/javascript; charset=utf-8",
+      "observed": [
+        {
+          "status": 200,
+          "cache": "HIT",
+          "age": 478,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "media": "text/javascript; charset=utf-8",
+          "setCookiePresent": false,
+          "setCookieNames": [],
+          "redirectToAccess": false,
+          "varyStar": false,
+          "headersMs": 383.811,
+          "bodyBytes": 106,
+          "cspMatches": false,
+          "linkPresent": false,
+          "payloadMatches": true
+        },
+        {
+          "status": 200,
+          "cache": "HIT",
+          "age": 479,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "media": "text/javascript; charset=utf-8",
+          "setCookiePresent": false,
+          "setCookieNames": [],
+          "redirectToAccess": false,
+          "varyStar": false,
+          "headersMs": 387.496,
+          "bodyBytes": 106,
+          "cspMatches": false,
+          "linkPresent": false,
+          "payloadMatches": true
+        },
+        {
+          "status": 200,
+          "cache": "HIT",
+          "age": 479,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "media": "text/javascript; charset=utf-8",
+          "setCookiePresent": false,
+          "setCookieNames": [],
+          "redirectToAccess": false,
+          "varyStar": false,
+          "headersMs": 368.799,
+          "bodyBytes": 106,
+          "cspMatches": false,
+          "linkPresent": false,
+          "payloadMatches": true
+        }
+      ],
+      "anonymous": [
+        {
+          "status": 302,
+          "cache": "other",
+          "age": null,
+          "cacheControl": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+          "media": "text/html; charset=UTF-8",
+          "setCookiePresent": true,
+          "setCookieNames": [
+            "other"
+          ],
+          "redirectToAccess": true,
+          "varyStar": false,
+          "headersMs": 386.636,
+          "bodyBytes": 143,
+          "cspMatches": false,
+          "linkPresent": false,
+          "method": "GET",
+          "assetPayloadDelivered": false
+        },
+        {
+          "status": 302,
+          "cache": "other",
+          "age": null,
+          "cacheControl": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+          "media": "text/html; charset=UTF-8",
+          "setCookiePresent": true,
+          "setCookieNames": [
+            "other"
+          ],
+          "redirectToAccess": true,
+          "varyStar": false,
+          "headersMs": 1251.824,
+          "bodyBytes": 0,
+          "cspMatches": false,
+          "linkPresent": false,
+          "method": "HEAD",
+          "assetPayloadDelivered": false
+        }
+      ]
+    },
+    {
+      "name": "view.d539993b.css",
+      "type": "text/css; charset=utf-8",
+      "observed": [
+        {
+          "status": 200,
+          "cache": "HIT",
+          "age": 471,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "media": "text/css; charset=utf-8",
+          "setCookiePresent": false,
+          "setCookieNames": [],
+          "redirectToAccess": false,
+          "varyStar": false,
+          "headersMs": 381.741,
+          "bodyBytes": 11966,
+          "cspMatches": false,
+          "linkPresent": false,
+          "payloadMatches": true
+        },
+        {
+          "status": 200,
+          "cache": "HIT",
+          "age": 471,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "media": "text/css; charset=utf-8",
+          "setCookiePresent": false,
+          "setCookieNames": [],
+          "redirectToAccess": false,
+          "varyStar": false,
+          "headersMs": 357.136,
+          "bodyBytes": 11966,
+          "cspMatches": false,
+          "linkPresent": false,
+          "payloadMatches": true
+        },
+        {
+          "status": 200,
+          "cache": "HIT",
+          "age": 472,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "media": "text/css; charset=utf-8",
+          "setCookiePresent": false,
+          "setCookieNames": [],
+          "redirectToAccess": false,
+          "varyStar": false,
+          "headersMs": 378.425,
+          "bodyBytes": 11966,
+          "cspMatches": false,
+          "linkPresent": false,
+          "payloadMatches": true
+        }
+      ],
+      "anonymous": [
+        {
+          "status": 302,
+          "cache": "other",
+          "age": null,
+          "cacheControl": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+          "media": "text/html; charset=UTF-8",
+          "setCookiePresent": true,
+          "setCookieNames": [
+            "other"
+          ],
+          "redirectToAccess": true,
+          "varyStar": false,
+          "headersMs": 369.899,
+          "bodyBytes": 143,
+          "cspMatches": false,
+          "linkPresent": false,
+          "method": "GET",
+          "assetPayloadDelivered": false
+        },
+        {
+          "status": 302,
+          "cache": "other",
+          "age": null,
+          "cacheControl": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+          "media": "text/html; charset=UTF-8",
+          "setCookiePresent": true,
+          "setCookieNames": [
+            "other"
+          ],
+          "redirectToAccess": true,
+          "varyStar": false,
+          "headersMs": 866.658,
+          "bodyBytes": 0,
+          "cspMatches": false,
+          "linkPresent": false,
+          "method": "HEAD",
+          "assetPayloadDelivered": false
+        }
+      ]
+    },
+    {
+      "name": "editor-font-12.b004007b.woff2",
+      "type": "font/woff2",
+      "observed": [
+        {
+          "status": 200,
+          "cache": "HIT",
+          "age": 470,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "media": "font/woff2",
+          "setCookiePresent": false,
+          "setCookieNames": [],
+          "redirectToAccess": false,
+          "varyStar": false,
+          "headersMs": 405.883,
+          "bodyBytes": 824,
+          "cspMatches": false,
+          "linkPresent": false,
+          "payloadMatches": true
+        },
+        {
+          "status": 200,
+          "cache": "HIT",
+          "age": 473,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "media": "font/woff2",
+          "setCookiePresent": false,
+          "setCookieNames": [],
+          "redirectToAccess": false,
+          "varyStar": false,
+          "headersMs": 1243.686,
+          "bodyBytes": 824,
+          "cspMatches": false,
+          "linkPresent": false,
+          "payloadMatches": true
+        },
+        {
+          "status": 200,
+          "cache": "HIT",
+          "age": 474,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "media": "font/woff2",
+          "setCookiePresent": false,
+          "setCookieNames": [],
+          "redirectToAccess": false,
+          "varyStar": false,
+          "headersMs": 376.169,
+          "bodyBytes": 824,
+          "cspMatches": false,
+          "linkPresent": false,
+          "payloadMatches": true
+        }
+      ],
+      "anonymous": [
+        {
+          "status": 302,
+          "cache": "other",
+          "age": null,
+          "cacheControl": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+          "media": "text/html; charset=UTF-8",
+          "setCookiePresent": true,
+          "setCookieNames": [
+            "other"
+          ],
+          "redirectToAccess": true,
+          "varyStar": false,
+          "headersMs": 387.654,
+          "bodyBytes": 143,
+          "cspMatches": false,
+          "linkPresent": false,
+          "method": "GET",
+          "assetPayloadDelivered": false
+        },
+        {
+          "status": 302,
+          "cache": "other",
+          "age": null,
+          "cacheControl": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+          "media": "text/html; charset=UTF-8",
+          "setCookiePresent": true,
+          "setCookieNames": [
+            "other"
+          ],
+          "redirectToAccess": true,
+          "varyStar": false,
+          "headersMs": 308.35,
+          "bodyBytes": 0,
+          "cspMatches": false,
+          "linkPresent": false,
+          "method": "HEAD",
+          "assetPayloadDelivered": false
+        }
+      ]
+    }
+  ],
+  "html": {
+    "status": 200,
+    "cache": "DYNAMIC",
+    "age": null,
+    "cacheControl": "no-store",
+    "media": "text/html; charset=utf-8",
+    "setCookiePresent": false,
+    "setCookieNames": [],
+    "redirectToAccess": false,
+    "varyStar": false,
+    "headersMs": 1129.731,
+    "bodyBytes": 0,
+    "cspMatches": true,
+    "linkPresent": false
+  },
+  "api": {
+    "status": 200,
+    "cache": "DYNAMIC",
+    "age": null,
+    "cacheControl": "no-store",
+    "media": "application/json; charset=utf-8",
+    "setCookiePresent": false,
+    "setCookieNames": [],
+    "redirectToAccess": false,
+    "varyStar": false,
+    "headersMs": 1627.414,
+    "bodyBytes": 0,
+    "cspMatches": false,
+    "linkPresent": false
+  },
+  "unknown": {
+    "status": 404,
+    "cache": "BYPASS",
+    "age": null,
+    "cacheControl": "no-store",
+    "media": "application/problem+json",
+    "setCookiePresent": false,
+    "setCookieNames": [],
+    "redirectToAccess": false,
+    "varyStar": false,
+    "headersMs": 2322.423,
+    "bodyBytes": 171,
+    "cspMatches": false,
+    "linkPresent": false
+  },
+  "originPublicBytesValid": true,
+  "accessProtectsWarmedAssets": false,
+  "accessRedirectsWithoutCode": true,
+  "edgeHitWithAge": true,
+  "privateDataUncached": true,
+  "finishedAt": "2026-11-04T06:25:35.577Z"
+}

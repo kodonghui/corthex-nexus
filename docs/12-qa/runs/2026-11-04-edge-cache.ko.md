@@ -7,3 +7,13 @@ TASK-223/224/249/251/252/264, SPEC-113, REQ-124/147/149. 관리자의 새 결정
 새 public 정책을 기대하는 두 handler 검사는 이전 private 코드에서 실제로 실패했습니다. 수정 뒤 Node123·Python9·Worker dry-run·고정 외부7검사가 통과했습니다. 실제 번들 바이트의 해시·두 신원/세션의 동일한 바이트·Set-Cookie 없음·Vary:* 없음·거절 no-store·HEAD와 압축 복호화를 검사합니다.443파일·CA4 payload와 편집기·CSP는 바꾸지 않았습니다.
 
 아직 새 개발 배포의 HIT/Age·미인증 GET/HEAD와 ABBA 동시간대 CPU1 모바일 표본은 준비 중입니다. 과거 private/Hints120회는 실패 이력이며 새 거점 캐시의 성공으로 세지 않습니다. 비교는 같은 public 응답·같은 배포에서 개발/code만 bypass와 eligible로 전환해 각arm/그림20회로 하며, 첫MISS·브라우저warm은 따로 기록합니다. 계정실제값과 자격은 원래기기/비공개설정에 둡니다.
+
+## f51ca9c의 실제 거점 캐시·역할 확인
+
+공개 코드 캐시 변경을 커밋한 f51ca9c는 개발 서버에만 배포했습니다. 기존 서비스 계정의 Access 세션을 메모리에서 재사용하고 요청 no-cache/Pragma를 보내도 JS·CSS·woff2는 모두 HIT와 숫자 Age, 정확한 컴파일 본문 해시, public1년immutable, Set-Cookie/Vary-star 없음으로 확인했습니다. HTML의 CSP와 no-store는 유지되고 API·없는 코드404도 no-store입니다. [실제 응답](2026-11-04-edge-cache/headers.json)과 [서비스 역할 거절](2026-11-04-edge-cache/service-role.json)을 보관합니다.
+
+캐시된 주소의 비로그인 GET·HEAD는 신뢰하는 Access 로그인 주소로302이며 코드를 내주지 않습니다. GET은 프록시가 만든143바이트 HTML 이동 안내이고 HEAD는0바이트입니다. 처음의 GET도0바이트여야 한다는 검사는 원시 기록에 false로 보존하고, 보호 코드가 오지 않는 경계는 통과로 구분합니다. Access 정책을 풀지 않았습니다. 서비스 헤더를 매번 보내는 첫 진단에서는 Access가 매번 CF_Authorization을 발급했습니다. 같은 서비스 세션을 한 번 인증해 쓰면 측정 코드 응답에 이 발급이 없습니다. 쿠키 값은 메모리에만 있고 파일·인자·Chrome 자식 환경에 남기지 않습니다.
+
+실제 사람 Aside 세션도 JS·CSS·글꼴의 본문 해시와 MISS→HIT를 확인했고 전후에 proposals{}403agent_only, checkpoints{}400invalid_request로4/4 일치했습니다. 최종 코드5회와 앞서 HTML 문맥으로 옮긴 JS 성공1회는 별도입니다. 브라우저 fetch는 Set-Cookie를 볼 수 없으므로 없다는 증거는 서비스 실제 응답에서 얻습니다. [사람 기록](2026-11-04-edge-cache/human-role.json)에 최초 JSON 문맥의 전송 여부 미확인을 남겼습니다. 이 진단의 실패는 API JSON 문서의 connect-src CSP였고 승인된 합성 HTML 문맥에서는 CSP 위반 없이 성공했습니다. 유효한 사용자 쓰기나 계정 설정 변경은 없습니다.
+
+별도 하네스 통합 d4f4e998은 main20f8725를 반영했습니다. 로컬952개(937통과·15건뜀), strict4개와 workflow41783759260이 통과했습니다. TASK-244/245/247은 로컬 초안을 만들었으며 최종 통합과 TASK-246은 C1·PR C 뒤입니다. 막힌4개는 이 선행을 구체적으로 남기고 이미 끝난 PR D와 구분합니다. 공통 응답 예제18개는 적용 한계로 유지하며 실제 핸들러 통과로 올리지 않습니다. 같은 시간대 모바일 측정과 원래 화면·API 수용 절의 빈칸은 아직 남습니다.

@@ -1,0 +1,53 @@
+{
+  "schema": "nexus-svg-public-whitelist/1",
+  "files": [
+    {
+      "file": "01-preview-ddd-ko320-dark.png",
+      "bytes": 21103,
+      "sha256": "d7189a3747cf2eacb050fb0302a935f069b0acc059a481173af7bd527bf4cf1a"
+    },
+    {
+      "file": "02-preview-erd-ko1440-light.png",
+      "bytes": 39311,
+      "sha256": "ee95a9271448e7cbb14b4ad098f6150a1e47ed309b6b7394d9c191ddd9a01d09"
+    },
+    {
+      "file": "03-native-erd-en1440-dark.png",
+      "bytes": 39606,
+      "sha256": "b1c6f614bd30b21201d466f79eb36ccf430c3a9afe3f406c0921826deeff90d5"
+    },
+    {
+      "file": "04-preview-sitemap-en1440-dark.png",
+      "bytes": 42110,
+      "sha256": "1459cda1cd9db7166ceb30e1e4b66a28bf0f9e89920f261a415e0a61e0d67e80"
+    },
+    {
+      "file": "05-native-comment-draft-ko1440.png",
+      "bytes": 59147,
+      "sha256": "4af8816d4e22c0569dbebd00dba2264218e896e6c0542a2972c680b3051c5724"
+    },
+    {
+      "file": "06-final-static-ddd-en1440-dark.png",
+      "bytes": 44221,
+      "sha256": "bdc6bdc5eaca072e4cb810f2ae6978ed3c137ce6e31f4c7f37499bed70c87147"
+    },
+    {
+      "file": "summary.md",
+      "bytes": 1639,
+      "sha256": "1518e40ef35f9949f5fc4a34ffa5a3c3a9ab772421f7fc3406193ca29f42e019"
+    },
+    {
+      "file": "results.json",
+      "bytes": 2893,
+      "sha256": "343a57e5182a2f868e4d592271cf3b55e16dfcfc90e5145de709647eec56c234"
+    },
+    {
+      "file": "matrix48.md",
+      "bytes": 2630,
+      "sha256": "66bea5ab7db603489c149c98ed8d88d094ae58125cb5f5e373d5624b0c544266"
+    }
+  ],
+  "excludes": "All other local files including profiles, session artifacts, local receipts, and failed harness attempts remain excluded. Originals retained locally.",
+  "sourceManifestSha256": "ab3d042bf435f79aba207f4e8e54e46ad611cdcfb1c08041f3d4a15085c51f9c",
+  "normalization": "Versioned text is LF-normalized for Git; original source bytes are retained separately; PNG bytes are unchanged."
+}

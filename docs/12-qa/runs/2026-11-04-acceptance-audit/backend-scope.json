@@ -1,0 +1,451 @@
+{
+  "schema": "nexus-original-criterion-backend-audit/1",
+  "productCommit": "f51ca9cfa8ab692477d3722b2c07ef0a7aaaabfa",
+  "scope": "Read-only mapping of retained local handler/SQLite/unit and separate live evidence; no new execution or full-TC promotion",
+  "rows": [
+    {
+      "id": "TC-632",
+      "en": "partial (read-only evidence audit): Actual local handler denied missing Access context with403 across contracted operations; database hashes were unchanged. Bodies can be checked separately for the synthetic project name. Remaining: These use synthetic checked-context/key fixtures, not an externally bypassed real Access application. Preserve origin403 separately from edge Access302.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 합성 인증 문맥의 원 서버403입니다. 실제 Access 바깥의302와 구별하며 실제 Access 우회 시험으로 확대하지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-633",
+      "en": "partial (read-only evidence audit): Comment-route Sec-Fetch-Site cross-site returns403 cross_site with unchanged full SQLite hash in the permission probe; the actual TCP test also sends a valid comment body and asserts cross_site. Remaining: The full-hash refusal probe and valid-body TCP assertion are distinct executions; no new deployed-origin cross-site write was performed.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 전체 DB 무변경 검사와 유효한 본문을 보낸 TCP 검사는 서로 다른 실행입니다. 새 실제 배포 주소의 교차 사이트 쓰기는 실행하지 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-634",
+      "en": "partial (read-only evidence audit): problemResponse logs only kind/trace, excludes an exception marker and suppresses HEAD body; a separate actual handler DB failure returns no stored exception text. Remaining: No captured actual comment-storage exception containing the original comment marker was found; generic error serialization is a narrower slice.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 의견 저장 중 그 의견의 표식을 담은 예외를 일으킨 정확한 실행은 없습니다. 공통 오류 직렬화 검증과 구별합니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-635",
+      "en": "pass (wire/local): f51ca9c public hashed JS/CSS/font exact bytes/HIT+Age; real development HTML/API/404 no-store, unchanged CSP;123 local cases verify response policy/refusals. See2026-11-04-edge-cache.md and headers.json. No performance verdict inferred.",
+      "ko": null,
+      "preserveExistingPass": true
+    },
+    {
+      "id": "TC-636",
+      "en": "partial (read-only evidence audit): Actual handler held-commit refusal records409 commit_not_replaced, held_commit and a full unchanged SQLite hash/no receipt; Store tests also preserve all rows. Remaining: The recorded handler request omits replaces rather than explicitly naming a wrong A while B is held. Keep that exact replacement-clause gap.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 기록된 handler 요청은 잘못된 A를 명시한 요청이 아니라 replaces를 뺀 요청입니다. B를 보관한 상태에서 잘못된 A를 보낸 원 조건은 남깁니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-637",
+      "en": "partial (read-only evidence audit): Two Store pushes are interleaved behind a read barrier; exactly one succeeds, revision becomes2, picture commit equals held commit and only2 rows change. Remaining: This is actual transactional Store/SQLite, not two HTTP pushes. The rejected error held_commit value was not explicitly compared with the winner.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 실제 Store·SQLite 경합이며 두 HTTP 요청을 경합시킨 검사는 아닙니다. 거절 오류의 held_commit을 승자와 대조한 단언도 남습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-638",
+      "en": "partial (read-only evidence audit): The exact ten-minute parser boundary and actual handler rejection of a future snapshot are asserted separately. Remaining: The literal eleven-minute-ahead handler request is not retained as its own request/effect row.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 정확히11분 앞선 스냅샷을 handler로 보낸 요청·효과 행은 별도로 보존돼 있지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-639",
+      "en": "partial (read-only evidence audit): Actual handler accepts30 named projects, refuses the next with409 too_many_projects, still updates an existing project; concurrent-limit regression is also in the123-case log. Remaining: Local actual handler/SQLite evidence only; no current deployed server was filled with30 projects. Do not perform that live stress operation merely to relabel this evidence.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 실제 로컬 handler·SQLite 범위입니다. 현재 개발 서버에30개 프로젝트를 채운 검사는 아니며 그 이름을 바꾸려고 실서버 부하 작업을 추가하지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-640",
+      "en": "partial (read-only evidence audit): Identical0.2 Store push increments revision1→2, returns one unchanged picture and changes only one SQLite row; plan emits no picture replacement. Remaining: Store/plan assertions are distinct from a repeated current-origin HTTP push and its complete response/effect check.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. Store·계획 단위 단언입니다. 현재 주소에 같은 스냅샷을 두 번 보낸 HTTP 응답·효과 전체와 구별합니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-641",
+      "en": "partial (read-only evidence audit): Read-only removal dry-run is checked against SQLite changes; handler roundtrip counts comments/replies/decisions/checkpoint; success probe preserves DB on removal GET. Remaining: The exact three open comments plus pending reflection ID list and user-confirmation ordering were not captured.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 열린 의견3개와 반영 대기의 ID 목록을 먼저 보이고 사용자에게 확인받는 정확한 순서는 미검증입니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-642",
+      "en": "partial (read-only evidence audit): Actual handler DELETE succeeds; separate Store test verifies zero rows in all12 project tables, and success probe confirms comment/proposal/edit/checkpoint cascade. Remaining: Synthetic removal was authorized by the test, not a real person's confirmation flow. No live real project was removed.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 시험이 허용한 합성 삭제입니다. 실제 사용자의 삭제 확인 흐름이나 실프로젝트 삭제로 보지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-643",
+      "en": "not run (exact workflow): Need the exact hub remove/dry-run warning and retained allowlist condition from a hub command test or execution. Related backend evidence does not execute this hub/agent behavior.",
+      "ko": "not run (정확한 작업 흐름): 프로젝트가 보내기 목록에 남은 상태에서 다음 보내기가 공간을 다시 만든다는 허브 안내의 명령 시험·실행 근거가 필요합니다. 관련 backend 근거로 허브·에이전트 행동을 실행했다고 보지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-644",
+      "en": "partial (read-only evidence audit): Synthetic service-kind request to acceptProposal is403 user_only with the full database hash unchanged. Remaining: The permission matrix uses an absent target ID; it does not demonstrate a particular existing open proposal remaining open after that refusal.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 역할 검사는 없는 대상 ID를 썼습니다. 이미 열린 특정 제안이 거절 뒤에도 열려 있다는 조건까지 보여 주지는 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-645",
+      "en": "partial (read-only evidence audit): Real Aside human-session synthetic comment readback reports author=user; authentication unit test returns only kind, never identity. Remaining: The live verification used API readback, not a direct persisted-comment-row email audit. Keep that distinction.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 실제 확인은 API 재조회이며 저장된 의견 행을 직접 읽어 이메일 부재를 감사한 검사는 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-646",
+      "en": "partial (read-only evidence audit): User-kind proposal request is403 agent_only and preserves the full SQLite row hash and receipt count in the local permission test. Remaining: Synthetic signing fixture; no newly deployed human proposal request was sent for this audit.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 합성 서명 자격의 로컬 시험입니다. 이번 정리에서 실제 배포의 사람 제안 요청을 새로 보내지 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-647",
+      "en": "partial (read-only evidence audit): First0.2 push creates project-space and picture rows; canonical repository binding is validated; actual handler success creates the space. Remaining: The exact acme/example-acme first-push request and bound-address readback are not retained together. Generic fixtures use corthex/qa-boundary names.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. acme/example-acme를 처음 보내고 묶인 주소를 재조회한 정확한 묶음은 없습니다. 기존 합성 자료는 corthex/qa-boundary 이름을 씁니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-648",
+      "en": "partial (read-only evidence audit): Actual handler changed-repository request returns409 repository_mismatch with all SQLite rows and receipts unchanged; Store binding refusal also preserves total changes. Remaining: The literal original acme/other-acme address fixture is not used; authentication remains synthetic.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 원문의 acme/other-acme 주소를 그대로 쓴 자료는 아니며 인증도 합성입니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-649",
+      "en": "partial (read-only evidence audit): A changed ERD source with a new commit is persisted in the winning transactional push; the picture commit agrees with the held snapshot commit. Remaining: The standalone sequential redraw's exact new committed time and old-current transition are not both asserted in a retained handler response.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 순차적으로 새 그림을 그린 응답에서 새 커밋 시각과 이전 그림의 최신 아님 전이를 모두 단언한 자료는 남아 있지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-650",
+      "en": "partial (read-only evidence audit): Repeated equal source produces no picture writes and only a snapshot revision update in actual SQLite/plan tests. Remaining: An explicit cross-check invocation counter and the complete actual-handler equality sequence are not recorded.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 어긋남 비교 호출 횟수와 실제 handler의 원본 동일 연쇄 전체는 별도로 기록되지 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-651",
+      "en": "partial (read-only evidence audit): Stable-ID comment/mark logic and persisted comment state have bounded unit/Store evidence. Remaining: No retained sequence creates a table comment, pushes an ERD without that table and then verifies the open comment in the browser's Apart list.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 테이블 의견을 만든 뒤 그 테이블 없는 ERD를 보내고 열린 의견이 화면의 따로 목록에 나타나는 연쇄는 미검증입니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-652",
+      "en": "partial (read-only evidence audit): Push-plan omission retains the old commit with a currentness mark; handler distinguishes a never-drawn size omission with404 picture_not_found/why=size. Remaining: The retained old-board path was tested for other-repository/source-gone, not the exact old DDD version omitted for size. A never-drawn size refusal is different.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 기존 그림 보존은 다른 저장소·원본 소실로 시험했습니다. 크기로 빠진 이전 DDD와 처음부터 없는 그림의 size 거절은 구별합니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-653",
+      "en": "partial (read-only evidence audit): Plan marks the same source current again without a redraw; separate crosscheck resumes an old waiting discrepancy when both sources are current. Remaining: The exact size-omitted DDD→same-source restoration→part recheck chain is not executed as one actual handler transaction.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 크기로 빠진 DDD를 같은 원본으로 복원하고 부분을 다시 비교하는 정확한 한 handler 트랜잭션의 연쇄는 미검증입니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-663",
+      "en": "partial (read-only evidence audit): Same-term aggregate/table pairing returns no false discrepancy in deterministic crosscheck tests. Remaining: This uses Order/TERM-001 rather than literal Picture/TERM-085 and is a function test, not a stored/pushed server pair.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. Picture/TERM-085가 아니라 Order/TERM-001을 쓴 함수 시험입니다. 저장·보내기를 거친 서버의 짝 자체와 구별합니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-664",
+      "en": "partial (read-only evidence audit): Explicit empty term lists/exempt terms do not generate inappropriate pairs or discrepancies, including removed-context variants. Remaining: The literal join-table terms:none case is not retained through HTTP/persisted pictures; pure-function evidence only.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 실제 조인 테이블의 terms:none을 HTTP·저장된 그림으로 확인한 기록은 아니며 순수 함수 범위입니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-665",
+      "en": "partial (read-only evidence audit): Crosscheck only evaluates available current comparison sides and respects changed-part isolation. Remaining: A domain-only part with neither ERD nor sitemap and an explicit no-crosscheck assertion is not retained as its own current-handler case.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. DDD만 있고 ERD·사이트맵이 모두 없는 부분에서 비교가 실행되지 않았다고 명시한 현재 handler 사례가 필요합니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-666",
+      "en": "partial (read-only evidence audit): A waiting old discrepancy resumes resolution when a current identical source returns; unchanged stable pairs keep their IDs. Remaining: The stored snapshot/commit effect and both stay-open/resolved alternatives are not combined in one handler trace.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 저장된 스냅샷·커밋 효과와 열린 상태 유지·해결 두 대안을 한 handler 추적으로 확인한 것은 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-667",
+      "en": "partial (read-only evidence audit): A table term absent from aggregates produces the not-on-board reason; separate local backend fixtures create a real discrepancy used by claim tests. Remaining: The exact single warn/table/term persisted response after that push is not the assertion retained by the boundary claim setup.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 그 보내기 뒤 단 하나의 warn이 해당 테이블·용어를 가리킨다는 저장 응답을 boundary 맡음 준비에서 단언하지는 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-668",
+      "en": "partial (read-only evidence audit): Stable existing pairs produce no new open/update/resolve plan and unchanged source produces only a snapshot row update. Remaining: A repeated actual-handler snapshot with a persisted open discrepancy and an explicit one-row discrepancy count is not retained.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 열린 어긋남을 저장한 상태에서 handler로 같은 스냅샷을 반복하고 어긋남 행이 하나라고 단언한 기록은 없습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-669",
+      "en": "partial (read-only evidence audit): Removing a mismatch from current source yields its old ID in resolve; no new open discrepancy is planned. Remaining: New ERD push, resolved persisted state and exact resolved_commit still require a composed handler/effect trace.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 새 ERD 보내기·저장된 해결 상태·정확한 resolved_commit을 묶은 handler·효과 추적이 남습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-670",
+      "en": "partial (read-only evidence audit): Missing aggregate table gives exactly TERM-001/empty-item/info/no-table in the deterministic function assertion. Remaining: Pure crosscheck function, not a current authenticated server push/readback of the original aggregate.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 순수 비교 함수의 결과이며 원 애그리거트를 현재 인증 서버에 보내고 재조회한 결과는 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-671",
+      "en": "partial (read-only evidence audit): Separate assertions cover a read-model term used as an aggregate table term and a missing-screen read model reason. Remaining: The two original parts of this criterion, with their warn/info levels and current sitemap, are not composed and read back as one stored server scenario.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 원 기준의 두 절을 최신 사이트맵과 함께 한 저장 서버 시나리오로 구성하고 warn/info·대상을 재조회하지 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-672",
+      "en": "partial (read-only evidence audit): Board+ERD with no sitemap produces only the aggregate-table comparison in the function assertion. Remaining: No HTTP push/readback specifically asserts the absence of read-model info discrepancies.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 읽기 모델의 info 어긋남이 없음을 구체적으로 단언한 HTTP 보내기·재조회는 없습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-673",
+      "en": "partial (read-only evidence audit): A read model used in two contexts pairs with a screen in the second context without a discrepancy, with case-normalized names. Remaining: Function-level concrete assertion only; no authenticated handler/persistent pair run.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 구체적 함수 단언 범위이며 인증 handler·저장된 짝 실행은 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-681",
+      "en": "partial (read-only evidence audit): Handler creates a user comment and to-do total1; real human UI creates a persisted user comment on the synthetic development project. Remaining: The exact phone/CTX-014 comment and matching ordered agent-to-do entry are not captured together; live fixture uses CTX-001.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 휴대폰·CTX-014 의견과 정렬된 에이전트 할 일 항목을 함께 확인하지 않았습니다. 실제 합성 개발 자료는 CTX-001입니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-682",
+      "en": "partial (read-only evidence audit): Quote-based non-ID parts have unit/earlier local browser evidence, separate from live stable-ID comment creation. Remaining: A comment stored on CTX-012 with the exact quote Picture drawn is not retained as its own API row.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. CTX-012에 Picture drawn을 정확히 인용해 저장한 의견의 독립 API 행은 없습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-683",
+      "en": "partial (read-only evidence audit): Actual Store duplicate reply commits once; handler rejects cross-request reuse with unchanged DB/no receipt; browser lost-response retry evidence exists for replies. Remaining: The exact lost-response user comment creation and same-ID resend with one stored comment is not the same as reply dedup or cross-request rejection.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 의견 생성 응답을 잃고 같은 ID로 다시 보내 의견 하나만 남는 조건은 답글 중복 방지나 다른 요청에서의 ID 재사용 거절과 구별합니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-684",
+      "en": "partial (read-only evidence audit): Draft text/write ID round-trip through browser-storage abstraction is asserted; earlier real local browser reload retains drafts. Remaining: No single captured flow combines no network on user send, reload, restored text and the same saved write ID.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 사용자 보내기의 네트워크 부재·새로고침·본문 복원·동일한 저장 쓰기 ID를 한 흐름으로 확인하지 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-685",
+      "en": "partial (read-only evidence audit): Local actual handler and real human UI reply reopen a closed comment; live readback confirms open/waits=agent/replies2. Remaining: The exact text not yet and the matching agent-to-do entry were not captured with that live reopen.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. not yet라는 정확한 문구와 실제 재열기 뒤 같은 의견이 할 일에 나타나는 것까지 함께 보존하지는 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-686",
+      "en": "partial (read-only evidence audit): Existing real local closed comment receives an agent reply and returns409 comment_closed; complete SQLite hash and receipt count stay unchanged. Remaining: Current source test replay is in Node123; raw183 row remains historical synthetic-auth handler evidence, not real Access.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 현재 원본은 Node123에서 재검사됐지만 원시183행은 과거 합성 인증 handler 근거이며 실제 Access 요청으로 바꾸어 부르지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-687",
+      "en": "partial (read-only evidence audit): User settling reply remains on the conversation and CommentThread.settled is true; actual handler readback verifies the flag. Remaining: The exact open/waiting-for-record and ordered to-do settled marker are not all asserted in the same handler sequence.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 열린 상태·에이전트 기록 대기·정렬된 할 일의 매듭지음 표지를 모두 같은 handler 연쇄에서 단언한 것은 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-688",
+      "en": "pass: Retained synthetic Windows Python 3.8/3.13 assertions at unchanged 7650824 runtime/hub pin, with exact newline equivalence; not deployed/browser evidence.",
+      "ko": null,
+      "preserveExistingPass": true
+    },
+    {
+      "id": "TC-689",
+      "en": "pass: Retained synthetic Windows Python 3.8/3.13 assertions at unchanged 7650824 runtime/hub pin, with exact newline equivalence; not deployed/browser evidence.",
+      "ko": null,
+      "preserveExistingPass": true
+    },
+    {
+      "id": "TC-690",
+      "en": "pass: Retained synthetic Windows Python 3.8/3.13 assertions at unchanged 7650824 runtime/hub pin, with exact newline equivalence; not deployed/browser evidence.",
+      "ko": null,
+      "preserveExistingPass": true
+    },
+    {
+      "id": "TC-691",
+      "en": "pass: Retained synthetic Windows Python 3.8/3.13 assertions at unchanged 7650824 runtime/hub pin, with exact newline equivalence; not deployed/browser evidence.",
+      "ko": null,
+      "preserveExistingPass": true
+    },
+    {
+      "id": "TC-692",
+      "en": "pass: Retained synthetic Windows Python 3.8/3.13 assertions at unchanged 7650824 runtime/hub pin, with exact newline equivalence; not deployed/browser evidence.",
+      "ko": null,
+      "preserveExistingPass": true
+    },
+    {
+      "id": "TC-693",
+      "en": "pass: Retained synthetic Windows Python 3.8/3.13 assertions at unchanged 7650824 runtime/hub pin, with exact newline equivalence; not deployed/browser evidence.",
+      "ko": null,
+      "preserveExistingPass": true
+    },
+    {
+      "id": "TC-694",
+      "en": "partial (read-only evidence audit): Actual handler creates a reasoned table proposal linked to a comment and reads its complete source text; bounded local browser proposal fixtures also exist. Remaining: That exact table proposal's rendered mark and the linked comment still-open state were not asserted together in the handler roundtrip.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 그 테이블 제안의 화면 마크와 연결된 의견의 열린 상태를 handler 왕복에서 함께 단언하지는 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-695",
+      "en": "partial (read-only evidence audit): Handler validates proposal bodies before receipt replay; empty reason is400 invalid_request and a syntactically incomplete proposal is also400. Remaining: The exact missing-reason request with a full unchanged database/receipt assertion is not one of boundary183's reason checks; do not substitute unknown_item or too-long reason.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. reason을 아예 뺀 요청의 전체 DB·receipt 무변경 단언은 boundary183의 reason 검사에 없습니다. unknown_item·너무 긴 reason으로 대신하지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-696",
+      "en": "partial (read-only evidence audit): Actual handler withdrawal and repeat are successful; Store-linked proposal withdrawal changes the comment wait back to agent. Remaining: The success-probe proposal has no linked comment; its comment-stays-open effect is a separate Store assertion rather than one handler trace.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 성공 probe의 제안은 의견에 연결되지 않았습니다. 의견이 열려 있다는 효과는 별도 Store 단언이며 한 handler 추적이 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-697",
+      "en": "partial (read-only evidence audit): Handler acceptance creates one edit; real human UI synthetic acceptance yields pendingTotal1 and unchanged picture source; local ERD needs-user marks are separately rendered. Remaining: The real human proposal is on CTX-001 rather than the original table; exact table accepted-mark, pending count and unchanged ERD are not all one live trace.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 실제 사람 제안의 대상은 원문의 테이블이 아니라 CTX-001입니다. 테이블 받음 마크·반영 대기 수·ERD 불변을 한 실제 추적으로 묶지 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-698",
+      "en": "partial (read-only evidence audit): Actual handler dismisses an open proposal; further incompatible actions refuse proposal_not_open with unchanged rows/receipts. Remaining: The linked comment's wait in the agent-to-do is not asserted by this unlinked success fixture; do not infer it from dismissal status.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 연결되지 않은 성공 자료에서는 의견의 에이전트 할 일 대기를 단언하지 않습니다. 제안 거절 상태만으로 그 효과를 추론하지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-699",
+      "en": "partial (read-only evidence audit): Synthetic service identity acceptance route receives403 user_only with unchanged database hash. Remaining: Local signed fixture, not a newly executed real Access request; no missing target success is inferred.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 로컬 서명 자료이며 새로 실행한 실제 Access 요청이 아닙니다. 없는 대상의 성공 조건을 추론하지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-700",
+      "en": "partial (read-only evidence audit): Actual handler stores a safe decision link; separate settling/decision Store chain preserves two decisions and comment lifecycle. Remaining: Agent creation of the user's actual project record with the person's words/time/location and verified closure link is not performed by backend tests.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 실제 사용자 말·시각·장소로 프로젝트 기록을 쓰고 닫힌 의견의 링크를 확인하는 에이전트 작업은 backend 시험에 없습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-701",
+      "en": "partial (read-only evidence audit): Decision input validation rejects an extra text/empty-text shape with400 and unchanged DB/no receipt in boundary183. Remaining: Boundary row52 contains a link plus invalid text, not the original missing-link request; exact missing-link/open-comment effect remains to be matched.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. boundary52는 링크가 있으나 text가 잘못된 요청입니다. 링크가 없는 원 요청과 의견의 열린 상태 효과를 대응시켜야 합니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-702",
+      "en": "partial (read-only evidence audit): Actual handler permits ordinary agent replies without a decision and returns the conversation on read. Remaining: No actual-model session discussion ending without a decision was recorded as an outcome reply while explicitly checking the comment stays open.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 결정 없이 끝난 실제 모델 대화의 결과를 답글로 남기고 의견이 열려 있음을 확인한 작업은 없습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-703",
+      "en": "partial (read-only evidence audit): Opened report stores the PR link and in-review state; duplicate PR/claim attempts refuse while that reported PR holds it. Remaining: No actual-model latest-source check or real source PR creation to rename a still-existing table occurred; fixture PR URLs are synthetic.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 최신 원본 확인이나 존재하는 테이블을 고치는 실제 원본 PR 생성은 하지 않았습니다. 자료의 PR 주소는 합성입니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-704",
+      "en": "partial (read-only evidence audit): Reporting reflected with a full commit closes an edit; report transitions are asserted separately from repository actions. Remaining: That is not the original real PR merge→merged report→push→ERD renamed chain. No real GitHub merge or repository upload is claimed.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 실제 PR 병합→merged 보고→보내기→ERD 이름 변경의 원 연쇄와 다릅니다. 실제 GitHub 병합·저장소 업로드로 주장하지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-705",
+      "en": "partial (read-only evidence audit): Actual handler accepts needs-user report; local browser needs-user state was rendered in earlier normal matrix. Remaining: No actual-model detects a table removed from latest source and asks the user on the associated comment before marking needs-user.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 최신 원본에서 테이블이 사라졌음을 실제 모델이 확인하고 연결된 의견에서 사용자에게 물은 뒤 needs-user로 기록한 작업은 없습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-706",
+      "en": "partial (read-only evidence audit): Opened then closed report returns a reflection to pending; Store explicitly reads pending and verifies repeat-report identity after receipt expiry. Remaining: Actual handler success probe does not read the post-closed state; the explicit pending assertion is at Store level. No real PR closure was performed.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. handler 성공 probe는 closed 뒤 상태를 읽지 않으며 pending 단언은 Store 수준입니다. 실제 PR을 닫은 것은 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-711",
+      "en": "partial (read-only evidence audit): A real local comment claimed by owner rejects another session's reply and claim/release with409 claimed; end time is present in the error; DB/receipt hashes remain unchanged. Remaining: The second session's ordered to-do taken entry and its exact lease-end correspondence are not asserted in the boundary trace.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 두 번째 세션의 정렬된 할 일에 맡은 항목이 보이고 정확한 끝 시각이 일치하는 것까지 boundary 추적에서 단언하지 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-712",
+      "en": "partial (read-only evidence audit): Claim rejects a second session at59:59.999 and lets it claim at exactly60minutes in actual SQLite Store assertions. Remaining: Not the literal61-minute actual HTTP claim request; no current deployed lease was waited out.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 정확히61분 뒤의 HTTP 요청은 아니며 현재 개발 서버의 맡음 만료까지 실제로 기다린 검사는 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-713",
+      "en": "partial (read-only evidence audit): Owner reply at12:30 extends original13:00 expiry to13:30, explicitly asserted at Store level. Remaining: Actual-handler reply/readback of the renewed lease is not captured as its own response pair.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. handler의 답글과 갱신된 맡음 재조회를 독립 응답 쌍으로 보존하지는 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-714",
+      "en": "partial (read-only evidence audit): Checkpoint exists and is claimed; another session's record report is refused409 claimed with unchanged rows/receipts. Remaining: Second session's to-do taken state and actual agent decision not to open a PR are not executed by a report refusal.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 두 번째 세션의 할 일 맡음 상태와 실제 에이전트가 PR을 열지 않는 행동은 보고 거절만으로 실행된 것이 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-715",
+      "en": "partial (read-only evidence audit): Open checkpoint PR report prevents a second PR report with409 pull_request_reported; reflection PR holds also block claims. Remaining: Checkpoint to-do after61minutes still in-review until merged/closed is not explicitly asserted; reflection hold is a different entry kind.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 확인 지점이61분 뒤에도 병합·닫힘 전까지 in-review라는 할 일 단언은 없습니다. 반영 항목의 PR 붙듦은 다른 종류입니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-722",
+      "en": "partial (read-only evidence audit): Service-kind checkpoint request is403 user_only with unchanged full database hash; current f51 real service-cookie proof also gets403 and unchanged to-do for invalid no-write body. Remaining: The current live proof intentionally uses invalid empty body, while the local role probe has no body; neither is a new valid user checkpoint attempt.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 현재 실제 증명은 무효한 빈 본문을 의도했고 로컬 역할 probe는 본문이 없습니다. 새 유효 사용자 확인 지점 시도로 보지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-724",
+      "en": "partial (read-only evidence audit): Open reported checkpoint PR can be withdrawn; Store to-do explicitly yields withdrawn-in-review and removes it after a closed report. Remaining: HTTP boundary run does not re-read that to-do sequence, and no real PR is closed by the agent.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. HTTP boundary 실행은 그 할 일 연쇄를 재조회하지 않으며 에이전트가 실제 PR을 닫은 것도 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-725",
+      "en": "partial (read-only evidence audit): Snapshot records a known checkpoint and then refuses withdrawal as checkpoint_recorded; Store removes a recorded checkpoint from to-do. Remaining: The exact NEXUS stage04 real record PR merge/push and hub done/date/link display are not executed by the synthetic snapshot path.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. NEXUS04단계의 실제 기록 PR 병합·보내기·허브 done/날짜/링크 표시는 합성 스냅샷 경로로 실행한 것이 아닙니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-726",
+      "en": "not run (exact workflow): Need actual agent status/record output linking where the user gave the session approval, with the authorized role/date and part. Related backend evidence does not execute this hub/agent behavior.",
+      "ko": "not run (정확한 작업 흐름): 대화에서 사용자가 승인한 곳을 역할·날짜·부분과 함께 가리키는 실제 에이전트 상태·기록 출력이 필요합니다. 관련 backend 근거로 허브·에이전트 행동을 실행했다고 보지 않습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-727",
+      "en": "partial (read-only evidence audit): Withdrawal during an open reported record PR remains actionable in to-do until the closed report. Remaining: No actual-model closes the real PR unmerged and verifies hub state is not done.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 실제 모델이 실제 PR을 병합 없이 닫고 허브가 done이 아님을 확인한 작업은 없습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-728",
+      "en": "partial (read-only evidence audit): Concurrent Store claims admit exactly one owner; another session cannot report a checkpoint PR under that claim. Remaining: Both sessions' actual to-do reads and their real one-PR/no-duplicate agent workflow were not run.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 두 세션이 실제로 할 일을 읽고 하나의 PR만 여는 에이전트 작업 흐름까지 실행하지는 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-1262",
+      "en": "partial (read-only evidence audit): Separate actual Store/handler assertions cover owner exclusion, user writes, renewal, release/no-op, exact expiry and a reported PR hold. Remaining: Original full multi-session claim/write/release/expiry/report sequence is not one composed HTTP test; each subproof keeps its own method.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 맡음·쓰기·놓기·만료·보고 전체의 다중 세션 연쇄는 하나의 HTTP 시험이 아닙니다. 각 하위 증명의 방법을 유지합니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-1263",
+      "en": "partial (read-only evidence audit): A deterministic actual SQLite read-barrier race ensures one accepted push, one commit_not_replaced, coherent snapshot/picture commit and only two changed rows. Remaining: Direct Store race, not the actual HTTP adapter; retain that boundary explicitly.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 실제 SQLite의 직접 Store 경합이며 HTTP 어댑터 경합과 구별합니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-1265",
+      "en": "partial (read-only evidence audit): Store replay, request-name reuse refusal, exact seven-day expiration and concurrent once-only writes have explicit SQLite assertions; handler reuse refusals preserve all rows/receipts. Remaining: No one actual handler flow combines network response loss, same-ID resend, different-request reuse and expiry past seven days.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 응답 유실·같은 ID 재전송·다른 요청에서 재사용·7일 이후 만료를 한 실제 handler 흐름으로 묶지는 않았습니다.",
+      "preserveExistingPass": false
+    },
+    {
+      "id": "TC-1267",
+      "en": "partial (read-only evidence audit): Store handles withdrawal during open PR and warns when a racing pushed record names a withdrawn checkpoint; plan reports withdrawn_recorded. Remaining: The exact pass→opened→withdraw→merged report→push withdrawn-ID record chain is not composed; actual model/Git PR operations are outside the corpus.",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 통과→opened→철회→merged 보고→철회 ID를 적은 기록 보내기의 정확한 연쇄는 합쳐 실행하지 않았습니다. 실제 모델·Git PR 동작도 이 묶음 밖입니다.",
+      "preserveExistingPass": false
+    }
+  ]
+}

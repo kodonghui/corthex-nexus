@@ -2,6 +2,8 @@ import {ApiClient,NexusProblem,Drafts,PendingWrites,LatestReads,characters} from
 import {pictureLayout,sceneItems,itemMarks,STEPS,stepIndex} from "./layout.js";
 import {words} from "./messages.js";
 import {drawPicture} from "./picture.js";
+import {mountPreview} from "./preview.js";
+import {pictureLimitMessage} from "../src/preview.js";
 import {stylesheetReady} from "./styles.js";
 import "./view.css";
 
@@ -11,15 +13,21 @@ const date=value=>{if(!value)return"";const d=new Date(value);return Number.isNa
 const count=value=>value>999?"999+":String(value||0);
 const entries=value=>Array.isArray(value)?value:value?.entries||[];
 const safeLink=(label,href)=>{const a=node("a",label,"control");try{const u=new URL(href,location.href);if(u.origin===location.origin&&!u.search)u.search=location.search;if(!["https:","http:"].includes(u.protocol)||u.username||u.password)return node("span",label);a.href=u.href;if(u.origin!==location.origin){a.target="_blank";a.rel="noopener noreferrer";}return a;}catch{return node("span",label);}};
+const previewPainted=new WeakSet();
 export function startView(payload){
   if(payload?.schema!=="corthex-view-page/0.2"||!["picture","overview"].includes(payload.view)||!["en","ko"].includes(payload.lang))throw new Error("Unreadable view data");
+  const initialRoot=document.getElementById("view");
+  if(payload.view==="picture"&&initialRoot?.querySelector?.(".preview-container [data-nexus-preview]")&&!previewPainted.has(initialRoot)){
+    // A fast cached module must not remove the server SVG before its first paint.
+    previewPainted.add(initialRoot);requestAnimationFrame(()=>requestAnimationFrame(()=>startView(payload)));return;
+  }
   const styled=()=>Boolean(getComputedStyle(document.documentElement).getPropertyValue("--nx-size-target").trim());
   if(!styled()){stylesheetReady("view",{required:true}).then(ready=>{if(ready&&styled())startView(payload);});return;}
   const lang=payload.lang,ko=lang==="ko",say=(en,kr)=>ko?kr:en,t=(key,values={})=>words(key,lang,values);
   document.documentElement.lang=lang;
   const route=location.pathname.split("/").slice(2).map(decodeURIComponent),project=route[0],part=route[1]==="_"?"":route[1],stage=route[2],place=[project,part||"_",stage].map(encodeURIComponent).join("/");
   const api=new ApiClient(location.origin),drafts=new Drafts(),pending=new PendingWrites(),reads=new LatestReads(),writeErrors=new Map(),replyBaselines=new Map(),base="/api/spaces/"+encodeURIComponent(project);
-  let data=payload.data,drawn=payload.data?.picture,scene,renderer,drawGeneration=0,localItem=null,panelTarget=null,previousFocus=null,lastStep=null;
+  let data=payload.data,drawn=payload.data?.picture,scene,renderer,drawGeneration=0,drawAbort,localItem=null,panelTarget=null,previousFocus=null,lastStep=null;
   const root=document.getElementById("view");root.replaceChildren();root.className="view";
   const top=node("header",null,"topbar"),title=node("h1",[project,part,stage].filter(Boolean).join(" / "));
   put(top,safeLink(say("Hub page","허브 페이지"),"/"),title,safeLink(payload.view==="picture"?say("Stage overview","단계 현황"):say("Picture view","그림 보기"),(payload.view==="picture"?"/overview/":"/pictures/")+place));
@@ -93,7 +101,7 @@ export function startView(payload){
     async function send(){if(waiting||pending.has(key))return;errorArea.replaceChildren();const locationAtSend=location.href,draft=drafts.ensure(key);try{const value=await pending.run(key,()=>api.call("POST",endpoint,{body:{},write:draft.write}));drafts.clear(key,draft.write);await refresh();if(location.href===locationAtSend)done?.(value);}catch(error){if(error.code==="write_id_reused")drafts.renew(key);if(["proposal_not_open","edit_state","checkpoint_recorded"].includes(error.code)){await refresh();if(location.href===locationAtSend)status.append(errorBox(error));}else errorArea.replaceChildren(errorBox(error,send));}finally{update();}}
   }
   function renderItem(id,provided){
-    const items=sceneItems(pictureLayout(drawn?.source||{},stage)),item=provided||items.find(n=>n.id===id),p=panelFrame(id||provided?.text||say("Part without an ID","ID 없는 부분"));
+    const items=sceneItems(scene?.limited?scene:pictureLayout(drawn?.source||{},stage)),item=provided||items.find(n=>n.id===id),p=panelFrame(id||provided?.text||say("Part without an ID","ID 없는 부분"));
     if(!item){put(p,notice(t("Not in the picture",{id})),button(t("Back to the picture"),closePanel));return;}
     p.append(node("p",item.text));if(!item.id)p.append(notice(t("No ID")));
     if(item.raw){for(const field of["context","terms","primary_key","unique","foreign_keys","path","flows","purpose"]){if(item.raw[field]!==undefined)put(p,node("h3",field),node("pre",typeof item.raw[field]==="object"?JSON.stringify(item.raw[field],null,2):item.raw[field]));}}
@@ -153,7 +161,7 @@ export function startView(payload){
     const legend=node("div",null,"legend");legend.setAttribute("aria-label",t("Legend"));for(const label of[say("Comments","의견"),say("Proposals","제안"),say("Discrepancies","어긋남"),t("Accepted"),t("Waits")])legend.append(node("span",label,"badge"));lists.append(legend);
   }
   async function renderPicture(){
-    const generation=++drawGeneration;renderer?.destroy();renderer=null;body.replaceChildren();setMeta();
+    const generation=++drawGeneration;drawAbort?.abort();drawAbort=new AbortController();renderer?.destroy();renderer=null;body.replaceChildren();setMeta();
     if(!drawn){body.append(errorBox(new NexusProblem(payload.problem?.code||"picture_not_found",404,payload.problem||{}),refresh));return;}
     scene=pictureLayout(drawn.source,stage,hash().get("step"));lastStep=scene.step;
     if(drawn.not_current){const versions=t("Not current",{commit:drawn.commit}).split(ko?" 또는: ":" Or: "),index={size:0,"source-gone":1,"other-repository":2}[drawn.not_current]||0;body.append(notice(index===0?versions[0]:say(`This picture shows commit ${drawn.commit}: `,`이 그림은 커밋 ${drawn.commit}의 그림입니다. `)+versions[index],"warn"));}
@@ -161,12 +169,14 @@ export function startView(payload){
       if(!drawn.source.timeline?.length)body.append(notice(t("No timeline")));
       else{const controls=node("nav",null,"controls"),labels=t("Steps").split(" · "),select=node("select");select.setAttribute("aria-label",labels[2]);for(const [i,key]of STEPS.entries()){const option=node("option",labels[i+3]);option.value=key;select.append(option);}select.value=STEPS[scene.step];function stepChange(index){const h=hash();h.set("step",STEPS[index]);history.pushState(null,"",location.pathname+location.search+"#"+h);renderPicture();openFromHash();}select.addEventListener("change",()=>stepChange(STEPS.indexOf(select.value)));const prev=button(labels[0],()=>stepChange(scene.step-1)),next=button(labels[1],()=>stepChange(scene.step+1));prev.disabled=scene.step===0;next.disabled=scene.step===8;put(controls,prev,select,next);body.append(controls);}
     }
-    const tools=node("div",null,"controls");put(tools,button(say("Zoom out","축소"),()=>renderer?.zoom(.8)),button(say("Zoom in","확대"),()=>renderer?.zoom(1.25)),button(say("Whole picture","그림 전체"),()=>renderer?.fit()),safeLink(say("Items as a list","항목 목록"),"#items"),button(say("Refresh","새로 읽기"),refresh));body.append(tools);
+    const tools=node("div",null,"controls");if(!scene.limited)put(tools,button(say("Zoom out","축소"),()=>renderer?.zoom(.8)),button(say("Zoom in","확대"),()=>renderer?.zoom(1.25)),button(say("Whole picture","그림 전체"),()=>renderer?.fit()));put(tools,safeLink(say("Items as a list","항목 목록"),"#items"),button(say("Refresh","새로 읽기"),refresh));body.append(tools);
+    if(scene.limited){const warning=notice(pictureLimitMessage(scene,lang),"warn");warning.dataset.previewLimited="true";lists=node("div",null,"after-picture");lists.dataset.fallback="true";body.append(warning,lists);renderLists();return;}
     if(scene.nodes.length>300)body.append(notice(t("Large",{n:scene.nodes.length})));
-    const loading=notice(t("Drawing")),target=node("div",null,"picture-shell");target.setAttribute("aria-label",say("Read-only picture","읽기 전용 그림"));body.append(loading,target);lists=node("div",null,"after-picture");body.append(lists);renderLists();
+    const loading=notice(say("The editor is loading. You can already read and move the picture.","편집기를 불러오는 중입니다. 그림은 바로 읽고 이동할 수 있습니다.")),target=node("div",null,"picture-shell");loading.classList.add("picture-loading");target.setAttribute("aria-label",say("Read-only picture","읽기 전용 그림"));body.append(target);lists=node("div",null,"after-picture");body.append(lists);renderLists();
     if(!scene.nodes.length){loading.remove();target.remove();return;}
-    try{const created=await drawPicture(target,scene,{stage,data,lang,onSelect:open,onReady:()=>{if(generation===drawGeneration){loading.remove();target.dataset.ready="true";}}});if(generation!==drawGeneration)created?.destroy();else renderer=created;}
-    catch{if(generation!==drawGeneration)return;loading.replaceWith(notice(t("Code failed"),"warn"));target.remove();lists.dataset.fallback="true";}
+    const preview=mountPreview(target,scene,{data,lang,onSelect:open});renderer=preview;target.dataset.previewReady="true";target.dataset.previewActive="true";target.dataset.editorReady="false";target.append(loading);
+    try{const created=await drawPicture(target,scene,{stage,data,lang,signal:drawAbort.signal,initialView:()=>preview.view(),onSelect:open,onReady:()=>{if(generation===drawGeneration){preview.destroy();loading.remove();target.dataset.previewActive="false";target.dataset.ready="true";target.dataset.editorReady="true";}}});if(generation!==drawGeneration)created?.destroy();else if(created){renderer=created;renderer.update(data);}}
+    catch{if(generation!==drawGeneration)return;loading.remove();const warning=notice(say("The editor could not load. The picture and item list remain available.","편집기를 불러오지 못했습니다. 그림과 항목 목록은 계속 사용할 수 있습니다."),"warn");target.after(warning);lists.dataset.fallback="true";}
   }
   function renderOverview(){
     body.replaceChildren();setMeta();if(!data)return;const wrap=node("div",null,"overview"),record=node("section",null,"card wide");put(record,node("h2",say("Recorded state","기록된 상태")),node("span",stateName(data.record?.state||"unknown"),"stage-state "+(data.record?.state||"unknown")));
@@ -188,6 +198,6 @@ export function startView(payload){
   window.addEventListener("popstate",()=>{localItem=null;openFromHash();});
   matchMedia("(max-width:1023px)").addEventListener("change",event=>{if(!panel.hidden)panel.setAttribute("aria-modal",String(event.matches));});
   if(payload.view==="picture")renderPicture();else renderOverview();openFromHash();
-  return{refresh,close:()=>{renderer?.destroy();reads.invalidate("page");reads.invalidate("panel");}};
+  return{refresh,close:()=>{drawGeneration++;drawAbort?.abort();renderer?.destroy();reads.invalidate("page");reads.invalidate("panel");}};
 }
 try{const source=document.getElementById("view-data");if(source)startView(JSON.parse(source.textContent));}catch{/* The localized static loading line is retained when bootstrap fails. */}

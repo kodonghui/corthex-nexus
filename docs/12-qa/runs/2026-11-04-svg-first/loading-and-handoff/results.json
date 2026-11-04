@@ -1,0 +1,106 @@
+{
+  "schema": "nexus-svg-first-public-summary/1",
+  "matrixMetadataSha256": "f08853eddbaa295f4f74f2b47eb004c7142205e7d9218949577f896d6d56d958",
+  "finalMetadataSha256": "612c16afcfbb84242e7dc0938a78b0f9020e60a8e76b1807b8faa83aac290d72",
+  "syntheticOnly": true,
+  "rows": {
+    "f088": 36,
+    "finalFocused": 14,
+    "matrixStates": 48
+  },
+  "pageCheckTotals": {
+    "error": 0,
+    "warn": 24,
+    "info": 24
+  },
+  "overflowStates": 0,
+  "controls": {
+    "minWidth": 44,
+    "minHeight": 44
+  },
+  "contrast": {
+    "lightText": 16.1842462961,
+    "darkText": 14.0427948278,
+    "lightBorder": 3.5450656938,
+    "darkBorder": 3.7351889745,
+    "darkPlaceholder": 6.987580805715807
+  },
+  "fixed": [
+    "BUG555",
+    "BUG556",
+    "BUG557",
+    "BUG558",
+    "SSR/core frame and minimum-zoom consistency"
+  ],
+  "limits": [
+    {
+      "name": "300-node whole-fit",
+      "status": "observed-limit",
+      "stage": "07-sitemap",
+      "bounds": {
+        "width": 560,
+        "height": 47800
+      },
+      "frame": {
+        "width": 1166,
+        "height": 504.390625
+      },
+      "zoom": 0.1,
+      "projected": {
+        "width": 56,
+        "height": 4780
+      },
+      "wholeBoundsFit": false,
+      "description": "SSR/core/native now use0.1 consistently. Whole picture remains10%; existing core/native lower zoom limit clips tall tree. HTML completeness is not simultaneous text readability."
+    },
+    {
+      "name": "Native after two paints",
+      "status": "partially-measured",
+      "description": "Native request interception saw at least two preview RAF callbacks; PerformancePaintTiming array was empty. DOM/RAF blank detector observed0 at tested handoffs; no compositor film or formal two-Paint-event proof."
+    },
+    {
+      "name": "Native canvas/ShadowDOM accessibility",
+      "status": "not-fully-measured",
+      "description": "DOM page-check excludes canvas glyphs and ShadowDOM. Control colors and targets measured; selected rendered editor images inspected."
+    },
+    {
+      "name": "Other scope",
+      "status": "not-run",
+      "description": "300-node DDD/ERD not seeded; small DDD14/ERD2 plus Sitemap3 were used in48-state matrix. No real Access role proof, full679/34 QA claim, formal20-run performance or mobile P95."
+    }
+  ],
+  "publicImages": [
+    {
+      "number": 1,
+      "source": "f088",
+      "visuallyInspected": true
+    },
+    {
+      "number": 2,
+      "source": "f088",
+      "visuallyInspected": true
+    },
+    {
+      "number": 3,
+      "source": "f088",
+      "visuallyInspected": true
+    },
+    {
+      "number": 4,
+      "source": "f088",
+      "visuallyInspected": true
+    },
+    {
+      "number": 5,
+      "source": "f088",
+      "visuallyInspected": true
+    },
+    {
+      "number": 6,
+      "source": "612c",
+      "visuallyInspected": true
+    }
+  ],
+  "performanceClaim": false,
+  "allOriginalQaClaim": false
+}

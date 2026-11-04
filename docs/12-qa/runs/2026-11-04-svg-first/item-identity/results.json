@@ -1,0 +1,28 @@
+{
+  "schema": "nexus-item-identity-public/1",
+  "status": "works",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "width": 1440,
+  "language": "ko",
+  "theme": "light",
+  "cases": 2,
+  "limited": {
+    "listItems": 5,
+    "literalPreserved": true,
+    "stablePreserved": true,
+    "directHashAndRealButtonOpenG": true
+  },
+  "normal": {
+    "listItems": 3,
+    "previewPins": 2,
+    "nativePins": 2,
+    "actualMarkerClickChecks": 4,
+    "separateQuoteAndStableComments": true
+  },
+  "seedComments": 2,
+  "browserPosts": 0,
+  "sourceShaPreserved": true,
+  "allThreeImagesVisuallyInspected": true,
+  "full48Rerun": false,
+  "performanceClaim": false
+}

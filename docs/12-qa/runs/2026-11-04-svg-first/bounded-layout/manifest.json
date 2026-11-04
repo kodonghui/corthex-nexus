@@ -1,0 +1,54 @@
+{
+  "schema": "nexus-svg-limit-public-whitelist/1",
+  "metadataSha256": "0d6a09de155e7c8d9b2bce00ba024d56853ed8d5a503e20f4c24b745e8d623a9",
+  "files": [
+    {
+      "file": "01-normal-preview-ddd-ko320-dark.png",
+      "bytes": 20925,
+      "sha256": "c2d1851708b1bb548c97ac91267219b8783e4758d3dc20539d4d68efc83001e1"
+    },
+    {
+      "file": "02-normal-native-erd-en1440-dark.png",
+      "bytes": 38887,
+      "sha256": "9b37f575d6628b846523fcab25176c860b5951b46c9dc51abcb85a6133a1ee67"
+    },
+    {
+      "file": "03-normal-native-sitemap-en1440-light.png",
+      "bytes": 43145,
+      "sha256": "4018fd9836f1cb8edc13c1141d14c7a73dd7b6b742e3c2bd8d852b931e299feb"
+    },
+    {
+      "file": "04-limited-source-list-ko320.png",
+      "bytes": 27779,
+      "sha256": "b2315ec7182a8ceef22c810c1452e99f87faf2e1ee48a8446f7e30e3c8de0d80"
+    },
+    {
+      "file": "05-limited-item-panel-ko1440.png",
+      "bytes": 60758,
+      "sha256": "19a5cc0d8c9b71231e476300bffb6c358d447456d7260c1efeec295dfd9ded01"
+    },
+    {
+      "file": "06-limited-saved-comment-en320.png",
+      "bytes": 29687,
+      "sha256": "235da7d9fe96b6b4af2890ce564d7d3be0caee4b22129d7577eae5be19a71a59"
+    },
+    {
+      "file": "summary.md",
+      "bytes": 1643,
+      "sha256": "a32be816384d4a0596d1030755a94f655b14aea0d9bb858cd28fdb1acee8f0ea"
+    },
+    {
+      "file": "results.json",
+      "bytes": 1124,
+      "sha256": "bd50ce15d2268f94176d221303f41606d9e35e10d88d33b58e287bad2c255b9d"
+    },
+    {
+      "file": "matrix48.md",
+      "bytes": 1971,
+      "sha256": "602571944b193f4be61ab9aac223d13061c9c4ec0e9aa9416fb7e014349ab73d"
+    }
+  ],
+  "excludes": "All local raw receipts, profiles, session files and tool failures are outside the delivery whitelist. Originals retained.",
+  "sourceManifestSha256": "85cf0643ff51cbd214ec3668d7aedede9649ef0670b3ef4c3a35eaa0c76ffac1",
+  "normalization": "Versioned text is LF-normalized for Git; original source bytes are retained separately; PNG bytes are unchanged."
+}
