@@ -4,6 +4,8 @@ import { test } from "node:test";
 import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { request as httpRequest } from "node:http";
+import { brotliDecompressSync, gunzipSync } from "node:zlib";
 import { AccessVerifier } from "../src/access.js";
 import { createNodeServer, publicOrigin } from "../src/node-server.js";
 import { SQLiteD1 } from "../src/sqlite.js";
@@ -53,7 +55,8 @@ test("standalone signs in without ctx, and keeps issuer, audience, expiry, nbf a
     assert.equal((await call("GET", "/api/snapshots", undefined, { jwt })).status, 403);
   }
   assert.equal((await call("GET", "/api/snapshots", undefined, { headers: { "Cf-Access-Jwt-Assertion": "" } })).status, 403);
-  assert.deepEqual(Object.keys(metrics[0]).sort(), ["processing_ms", "request_bytes", "rss_bytes", "status"]);
+  assert.deepEqual(Object.keys(metrics[0]).sort(), ["after_body_ms", "body_complete", "body_receive_ms", "cpu_system_ms", "cpu_user_ms", "processing_ms", "request_bytes", "rss_bytes", "status"]);
+  assert.ok(Object.values(metrics[0]).every((value) => Number.isFinite(value) && value >= 0));
   const agentRequest = new Request("https://nexus.example.com", { headers: { "Cf-Access-Jwt-Assertion": await token({ sub: "", common_name: "synthetic-client" }) } });
   assert.equal(await verifier().verify(agentRequest, env, {}), "agent");
   // Worker mode still refuses the same signed token with no checked context.
@@ -130,4 +133,68 @@ test("restoring a legacy backup preserves its schema until an explicit migration
     assert.equal((await new Store(restored).list())[0].revision, 7);
     restored.check();
   } finally { restored.close(); }
+});
+
+test("compressed code keeps checked Access, exact decoded bytes, HEAD and coding refusals", async (t) => {
+  const db = new SQLiteD1(":memory:");
+  const text = "// Synthetic browser payload.\n".repeat(1000) + "export const value=1;";
+  const font = Buffer.from("synthetic font bytes");
+  const views = { code: {
+    "fixture.12345678.js": { type: "text/javascript; charset=utf-8", body: text },
+    "fixture.12345678.woff2": { type: "font/woff2", body: font },
+  } };
+  const server = createNodeServer({ env: { ...env, DB: db }, origin: "https://nexus.example.com", template, views, verifier: verifier() });
+  await server.start();
+  t.after(async () => { server.closeAllConnections(); await new Promise((resolve) => server.close(resolve)); db.close(); });
+  const jwt = await token();
+  const wire = (path, coding, method = "GET", authorized = true) => new Promise((resolve, reject) => {
+    const req = httpRequest({ host: "127.0.0.1", port: server.address().port, path, method,
+      headers: { ...(authorized ? { "Cf-Access-Jwt-Assertion": jwt } : {}), ...(coding === undefined ? {} : { "Accept-Encoding": coding }) } }, (res) => {
+      const chunks = []; res.on("data", (chunk) => chunks.push(chunk));
+      res.on("end", () => resolve({ status: res.statusCode, headers: res.headers, bytes: Buffer.concat(chunks) }));
+    });
+    req.on("error", reject); req.end();
+  });
+  const path = "/code/fixture.12345678.js";
+  for (const [header, encoding] of [["br, gzip", "br"], ["br;q=0, gzip;q=1", "gzip"], ["gzip;q=0.5, br;q=1", "br"], ["br;q=0,gzip;q=0", undefined], ["*;q=0", undefined], [undefined, undefined]]) {
+    const get = await wire(path, header);
+    assert.equal(get.status, 200); assert.equal(get.headers["content-encoding"], encoding);
+    const decoded = encoding === "br" ? brotliDecompressSync(get.bytes) : encoding === "gzip" ? gunzipSync(get.bytes) : get.bytes;
+    assert.deepEqual(decoded, Buffer.from(text));
+    assert.equal(get.headers["cache-control"], "private, max-age=31536000, immutable");
+    assert.equal(get.headers["x-frame-options"], "DENY");
+    if (encoding) {
+      assert.ok(get.bytes.length < Buffer.byteLength(text));
+      assert.equal(Number(get.headers["content-length"]), get.bytes.length);
+      assert.match(get.headers.vary, /Accept-Encoding/i);
+      const head = await wire(path, header, "HEAD");
+      assert.equal(head.headers["content-encoding"], encoding);
+      assert.equal(head.headers["content-length"], get.headers["content-length"]); assert.equal(head.bytes.length, 0);
+    }
+  }
+  const denied = await wire(path, "br", "GET", false);
+  assert.equal(denied.status, 403); assert.equal(denied.headers["content-encoding"], undefined);
+  assert.equal(denied.headers["cache-control"], "no-store");
+  const missing = await wire("/code/missing.12345678.js", "br");
+  assert.equal(missing.status, 404); assert.equal(missing.headers["content-encoding"], undefined);
+  const fontReply = await wire("/code/fixture.12345678.woff2", "br");
+  assert.equal(fontReply.headers["content-encoding"], undefined); assert.deepEqual(fontReply.bytes, font);
+});
+
+test("numeric metrics separate delayed body arrival from work after the body", async (t) => {
+  const db = new SQLiteD1(":memory:"), metrics = [];
+  const server = createNodeServer({ env: { ...env, DB: db }, origin: "https://nexus.example.com", template, verifier: verifier(), onMetric: (value) => metrics.push(value) });
+  await server.start();
+  t.after(async () => { server.closeAllConnections(); await new Promise((resolve) => server.close(resolve)); db.close(); });
+  const jwt = await token();
+  const status = await new Promise((resolve, reject) => {
+    const req = httpRequest({ host: "127.0.0.1", port: server.address().port, path: "/api/snapshots", method: "POST",
+      headers: { "Cf-Access-Jwt-Assertion": jwt, "Nexus-Session": "synthetic-delay", "Content-Type": "application/json", "Content-Length": 2 } }, (res) => { res.resume(); res.on("end", () => resolve(res.statusCode)); });
+    req.on("error", reject); req.flushHeaders(); setTimeout(() => req.end("{}"), 80);
+  });
+  assert.equal(status, 400);
+  assert.equal(metrics.length, 1); const metric = metrics[0];
+  assert.ok(Object.values(metric).every((value) => Number.isFinite(value) && value >= 0));
+  assert.equal(metric.request_bytes, 2); assert.equal(metric.body_complete, 1);
+  assert.ok(metric.body_receive_ms >= 50); assert.ok(metric.after_body_ms < metric.processing_ms);
 });

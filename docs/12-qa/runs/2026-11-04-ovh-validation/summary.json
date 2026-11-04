@@ -1,0 +1,131 @@
+{
+  "scope": "approved synthetic development and origin-only isolated recovery; no production switch",
+  "deployedCommit": "aad16450d1256d809023b8b1da18aa67ea026010",
+  "metadataSha256": "caf43251385f56770cfa31bbad229bb16df7527d35a73adf2558b382d8adb5bb",
+  "conditions": {
+    "width": 390,
+    "height": 844,
+    "dpr": 2.75,
+    "touch": true,
+    "latencyMs": 165,
+    "downloadMbps": 8.1,
+    "uploadMbps": 1.35,
+    "cacheDisabled": true,
+    "serviceWorkersBypassed": true,
+    "cpu": 1
+  },
+  "mobile": {
+    "sitemap": {
+      "ready": 20,
+      "errorFree": 19,
+      "count": 20,
+      "nodes": 300,
+      "normativeP95Ms": null,
+      "allReadyTimingOnlyP95Ms": 5165.6,
+      "timingOnlyReadyFontsP95Ms": 5663.7,
+      "retainedFailure": "one favicon404",
+      "verdict": "fail"
+    },
+    "erd": {
+      "ready": 20,
+      "errorFree": 20,
+      "count": 20,
+      "nodes": 300,
+      "normativeP95Ms": 4123.9,
+      "readyFontsP95Ms": 4124.5,
+      "verdict": "fail"
+    },
+    "http403": 0,
+    "cspErrors": 0,
+    "pageExceptions": 0,
+    "networkFailures": 0,
+    "localeCorrection": "Bootstrap ko and valid document ko-KR; raw exact-ko harness false positives are preserved and only interpretation corrected",
+    "physicalDevice": false,
+    "cpu4Run": false
+  },
+  "maximalPush": {
+    "bytes": 1000000,
+    "items": 3000,
+    "checks": 2000,
+    "pictures": 3,
+    "first": {
+      "status": 200,
+      "inclusiveHandlerMs": 1078.165791,
+      "rssBytes": 132886528,
+      "roundTripMs": 5007.3634999999995
+    },
+    "repeat": {
+      "status": 200,
+      "inclusiveHandlerMs": 997.419159000041,
+      "rssBytes": 140259328,
+      "roundTripMs": 2406.855,
+      "serviceCpuDeltaUpperBoundMs": 72.256
+    },
+    "scope": "Handler includes body receipt and I/O; CPU delta includes the complete held-GET/maximal-POST/snapshot-GET sequence; RSS is a post-response sample, not peak"
+  },
+  "liveContract": {
+    "tool": "Schemathesis 3.39.16, experimental OpenAPI 3.1",
+    "operations": 32,
+    "responses": 154,
+    "checks": 5,
+    "passedPerCheck": 154,
+    "statusCounts": {
+      "200": 16,
+      "404": 102,
+      "400": 7,
+      "403": 29
+    },
+    "serviceIdentityOnly": true,
+    "allOperationSuccessesVerified": false
+  },
+  "recovery": {
+    "schema": "nexus-origin-cli-recovery/1",
+    "runtime_commit": "aad16450d1256d809023b8b1da18aa67ea026010",
+    "backup_source_preserved": true,
+    "production_changed": false,
+    "data_left_origin": false,
+    "before": {
+      "snapshot_rows": 1,
+      "snapshot_rows_sha256": "e96cf7e7d7314b20e2e8e7f4965e78e5d00ccae2df6bd76870ceb4a1504510d2",
+      "schema_sha256": "1c295ca8281fa060ff1c132ba1e3c03f5d17b5ceca8a5f3aa5b81d5a82aba584",
+      "migration_versions": [],
+      "table_count": 1
+    },
+    "restored": {
+      "snapshot_rows": 1,
+      "snapshot_rows_sha256": "e96cf7e7d7314b20e2e8e7f4965e78e5d00ccae2df6bd76870ceb4a1504510d2",
+      "schema_sha256": "1c295ca8281fa060ff1c132ba1e3c03f5d17b5ceca8a5f3aa5b81d5a82aba584",
+      "migration_versions": [],
+      "table_count": 1
+    },
+    "explicitly_migrated_copy": {
+      "snapshot_rows": 1,
+      "snapshot_rows_sha256": "e96cf7e7d7314b20e2e8e7f4965e78e5d00ccae2df6bd76870ceb4a1504510d2",
+      "schema_sha256": "bc06f06f0d3272d184433badec8e6bc9b298d79190a477715e69b2a3118b487b",
+      "migration_versions": [
+        1,
+        2,
+        3
+      ],
+      "table_count": 13
+    },
+    "behavior": {
+      "snapshotCount": 1,
+      "storeBodiesReadable": true
+    },
+    "restore_preserves_old_schema": true,
+    "rows_preserved_after_explicit_migration": true
+  },
+  "followUp": {
+    "metadataSha256": "ca4ac3fd94fc14d08bd7a576792d92f8dd84a1529030fa63b6bb6c42bd4a2085",
+    "payloadFilesUnchanged": 443,
+    "changes": [
+      "preload the pinned eager modules and selected locale",
+      "preload Assistant Medium",
+      "self-contained favicon",
+      "Node Brotli/gzip code variants selected only after Access and routing checks",
+      "numeric body-arrival/after-body/process-CPU metrics"
+    ],
+    "livePerformanceResult": "pending new integration deployment"
+  }
+}

@@ -9,7 +9,7 @@
     "esbuild": "0.28.2"
   },
   "buildInputs": {
-    "nexus/tools/build-ui.mjs": "a4ea3b8b423e3eea867b87b4e2440321a0fa1c50925ea080c37c87bb9d37aca8",
+    "nexus/tools/build-ui.mjs": "23d48b5e34eeaa4dd0bdfe66782948b5fc3ec0b20015e18151392525c0cbfb4a",
     "nexus/tools/tokens.mjs": "ce838ed135f70278b113100e88a7cb71d0b9f22bd05cc6dbb4212f1c545b981b",
     "nexus/tools/messages.mjs": "8642f6f7e1d14627816196add1cf2d91ff4816d50ae2cd05af1664c8d94b46a2",
     "nexus/ui/editor-patches.mjs": "52687c30158808381751ec7e38a2bb442d2772c42629be149b11b9cbe0327eb5",
@@ -46,7 +46,48 @@
       "/code/excalidraw-chunk-37.e31a124b.js",
       "/code/excalidraw-chunk-10.fec9fe26.js",
       "/code/excalidraw-chunk-47.de25aed8.js",
-      "/code/excalidraw-chunk-13.e6ca1c91.js"
+      "/code/excalidraw-chunk-13.e6ca1c91.js",
+      "/code/excalidraw-chunk-151.207f5e6e.js",
+      "/code/excalidraw-chunk-93.76114590.js",
+      "/code/excalidraw-chunk-94.0a72f68e.js",
+      "/code/excalidraw-chunk-80.4c8facf2.js",
+      "/code/excalidraw-chunk-79.857e6740.js",
+      "/code/excalidraw-chunk-96.2c1400e1.js",
+      "/code/excalidraw-chunk-95.159ce1cf.js"
+    ],
+    "excalidraw-en-preload": [
+      "/code/excalidraw.be3c1e87.js",
+      "/code/excalidraw-chunk-35.8eee4124.js",
+      "/code/excalidraw-chunk-17.8ad0238c.js",
+      "/code/excalidraw-chunk-37.e31a124b.js",
+      "/code/excalidraw-chunk-10.fec9fe26.js",
+      "/code/excalidraw-chunk-47.de25aed8.js",
+      "/code/excalidraw-chunk-13.e6ca1c91.js",
+      "/code/excalidraw-chunk-151.207f5e6e.js",
+      "/code/excalidraw-chunk-93.76114590.js",
+      "/code/excalidraw-chunk-94.0a72f68e.js",
+      "/code/excalidraw-chunk-80.4c8facf2.js",
+      "/code/excalidraw-chunk-79.857e6740.js",
+      "/code/excalidraw-chunk-96.2c1400e1.js",
+      "/code/excalidraw-chunk-95.159ce1cf.js",
+      "/code/excalidraw-chunk-86.4bfc5e09.js"
+    ],
+    "excalidraw-ko-preload": [
+      "/code/excalidraw.be3c1e87.js",
+      "/code/excalidraw-chunk-35.8eee4124.js",
+      "/code/excalidraw-chunk-17.8ad0238c.js",
+      "/code/excalidraw-chunk-37.e31a124b.js",
+      "/code/excalidraw-chunk-10.fec9fe26.js",
+      "/code/excalidraw-chunk-47.de25aed8.js",
+      "/code/excalidraw-chunk-13.e6ca1c91.js",
+      "/code/excalidraw-chunk-151.207f5e6e.js",
+      "/code/excalidraw-chunk-93.76114590.js",
+      "/code/excalidraw-chunk-94.0a72f68e.js",
+      "/code/excalidraw-chunk-80.4c8facf2.js",
+      "/code/excalidraw-chunk-79.857e6740.js",
+      "/code/excalidraw-chunk-96.2c1400e1.js",
+      "/code/excalidraw-chunk-95.159ce1cf.js",
+      "/code/excalidraw-chunk-121.b08cd499.js"
     ],
     "erd-js": "/code/erd.efbe66b1.js",
     "erd-preload": [
@@ -60,6 +101,7 @@
     ],
     "font-preload": [
       "/code/editor-font-2.76945f09.woff2",
+      "/code/editor-font-1.81a9f280.woff2",
       "/code/editor-font-0.e0cdd332.woff2"
     ]
   },
