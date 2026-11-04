@@ -303,3 +303,7 @@ The later [24-case read adjudication](../12-qa/runs/2026-11-05-read-closure.md) 
 ## Original-criterion evidence, 2026-11-05
 
 The later [R3 source record](../12-qa/runs/2026-11-05-original-criteria.md) adds8 scoped passes:4 distinct new criteria and4 exact reused replies. Source QA710 is518 pass/190 partial/2 fail. All64 WBS rows and15 done/49 in progress stay unchanged; no task closes. Parser data, literal ALTER/control differences and local role/state refusals keep their precise limits. Old results/269-row Notion evidence and stage/release/3s/REQ-107/Worker-D1 conditions remain. Root owns required checks/publication and the separate8-row Notion follow-up.
+
+## Later API/Job-formal evidence, 2026-11-05
+
+The [later source record](../12-qa/runs/2026-11-05-api-two-job-formal-r2.md) accepts TC787/1052 from retained exact-request proof and records one stopped v7-r2 formal attempt. QA710 is520 pass/188 partial/2 fail; every64 WBS row stays unchanged at15 done/49 in progress,with no task closed. E1 still has52 partial criteria plus18 separately unadjudicated shared examples. The formal run has37 qualified openings out of60 planned and no normative P95; original failures and all release/3s/REQ-107/Worker-D1 conditions remain. No new execution or approval is inferred from this record.

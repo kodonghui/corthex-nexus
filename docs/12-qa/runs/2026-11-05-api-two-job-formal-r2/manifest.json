@@ -1,0 +1,47 @@
+{
+  "schema": "api-two-job-formal-r2-canonical-manifest/1",
+  "canonicalEncoding": "utf8-lf-no-bom-final-lf",
+  "sourceBaseCommit": "b66d858d892d88cc73ff2e613e05cd7e915902c1",
+  "inputSha256": {
+    "formalReport": "dc33fc49bdb5327dc0b5e8b6c97c5d3ce4fa3e4a08ccd967bd92346e60c105aa",
+    "operatorStopSnapshot": "51a28a0f89dc0fa7cef0a83690b82e7b7ebec3d1c0868d18f2041244c411cad6",
+    "formalPlan": "c21281c70cfc6779be445c28dba5f9bf6edd0deccc9999e8d3380a2221d82e28",
+    "toolSourceManifest": "2cd9e1347b04a09174bb215d740bbc37a2fb0473bae4bf8fc5f15afe6ad3d871",
+    "toolReviewPacket": "453854c40962a09280b919775587fe40b8b579f1d2b6ebd12a4f565c1f991776",
+    "offlineCheckReceipt": "7323a674f8cb8607ec320d8fb6adaf3dd290f83e0ea6c20637f35d2cd009cec7",
+    "rejectedToolReview": "98de148784e19883df278a5c2a488eb52de5c097028a0b8bb2f3b55c0d6c4577",
+    "fixedToolReview": "609158b9845a6522e31849c1145b29f180aea887afa6d911492d13a7776d4935",
+    "rootToolReview": "3017eee335f9c3fb169d5786da5f50b5314a501456f469c55306a23dbaf5463a",
+    "criterionProof": "9775c327c360a85c899f0e36bb1b83b033478e97f37b4b58c43d070a51c54413",
+    "criterionAudit": "e39804d2736bb8a4bbde11a7643332184500f66c8849fc8c5d2da6d30cf0ae64",
+    "criterionProposalManifest": "edaf88575cc92fbe1dc9823ef623049f0ecb7d18030efc606f15c2a0a0f35594",
+    "fixtureManifest": "10df1cfc2fd1ffd636b271a0b22fb4c78cab9bdf636a67a1f25aa753c4acf0ae"
+  },
+  "rawReportSha256": "dc33fc49bdb5327dc0b5e8b6c97c5d3ce4fa3e4a08ccd967bd92346e60c105aa",
+  "proofSha256": "b1d2f9f2c8f2f170b24acb0bfc779c0a6ac5b4914ffe9e211a86f68dba766b74",
+  "runSha256": {
+    "2026-11-05-api-two-job-formal-r2.md": "cf59fd1b6f2cf9b4d6f0f50871f84e656afb1d91e578cc0833f7f3d0d3fff203",
+    "2026-11-05-api-two-job-formal-r2.ko.md": "59e24ba41fb1e986733606b515827e4bb54e023081a4ffcd19414347231c67ab"
+  },
+  "sourceQaCounts": {
+    "total": 710,
+    "pass": 520,
+    "partial": 188,
+    "fail": 2
+  },
+  "sourceWbsCounts": {
+    "total": 64,
+    "done": 15,
+    "inProgress": 49
+  },
+  "lastResultRowsChanged": 5,
+  "verdictsChanged": 2,
+  "other705WholeRowsChanged": 0,
+  "sourceIdsStepsExpectedChanged": 0,
+  "newApiExecutions": 0,
+  "newFormalExecutionsByThisRecord": 0,
+  "notionWrites": 0,
+  "stageOrReleaseApproval": false,
+  "stagedBlobVerificationOwner": "root after staging",
+  "criterionProofSha256": "9775c327c360a85c899f0e36bb1b83b033478e97f37b4b58c43d070a51c54413"
+}
