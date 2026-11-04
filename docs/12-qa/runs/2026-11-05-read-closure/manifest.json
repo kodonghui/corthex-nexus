@@ -1,0 +1,44 @@
+{
+  "schema": "current-read-closure-canonical-manifest/1",
+  "canonicalEncoding": "utf8-lf-no-bom-final-lf",
+  "acceptedInputsSha256": {
+    "read16": "4148497afd19580397d194ceba94a82447c5893209c55e0de702a877cf8863fa",
+    "remaining8": "602c79804f7dd4018e2b1ec83565b0a5bced2c48c55e657ac93b96675444bae1"
+  },
+  "workingTestSha256": {
+    "nexus/test/api-response-success.test.js": "2cb50d9aa88bc7cf015db8d8632ca553eb7087816b3299f9d75b06493425c6ff",
+    "nexus/test/api-read-variants.test.js": "575edc285174c1ed0f581e4da42490247906efb62529364f1d46ba748d6a8ec0"
+  },
+  "sourceRuntimeScopeCommit": "6f968eedab8feca92803be19b7a3e6fd99a9caa1",
+  "outputProofSha256": "0742ebda71550931e9e71e661829875c5f83814ffd21689de7fb9126d9a40be6",
+  "outputRunSha256": {
+    "docs/12-qa/runs/2026-11-05-read-closure.md": "a6e87b6fec63c608eb33cfb98e1eb68506078602cb3c7efed4b25f55310cef29",
+    "docs/12-qa/runs/2026-11-05-read-closure.ko.md": "29e6beb1ef8e1c70d10a145ee24efcb440882af11436b682273134f0949510e7"
+  },
+  "uniqueCaseChanges": 24,
+  "distinctReferencedGetResponses": 24,
+  "otherCaseRowsChanged": 0,
+  "wbsRowsChanged": 0,
+  "currentQaCounts": {
+    "total": 710,
+    "pass": 510,
+    "partial": 198,
+    "fail": 2
+  },
+  "currentTaskCounts": {
+    "total": 64,
+    "done": 15,
+    "inProgress": 49
+  },
+  "task249Remaining": {
+    "applicableNamedCriteria": 54,
+    "sharedExampleApplicability": 18,
+    "status": "in progress"
+  },
+  "previousRawArtifactsModified": 0,
+  "previousRunsReclassified": 0,
+  "deployedOrRealAccessClaim": false,
+  "newUserApproval": false,
+  "stageAccepted": false,
+  "gitStagedBlobCheckOwner": "root after staging; not claimed by this source-only publisher"
+}
