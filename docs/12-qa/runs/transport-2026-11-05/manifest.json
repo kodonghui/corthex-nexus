@@ -1,0 +1,100 @@
+{
+  "schema": "transport-diagnostic-manifest/1",
+  "scope": "diagnostic",
+  "assetCategory": "code",
+  "utcDay": [
+    2026,
+    11,
+    4
+  ],
+  "localDay": [
+    2026,
+    11,
+    5
+  ],
+  "timeZone": "Asia/Seoul",
+  "baseDocumentationCommit": "e75050978cc4119c0004abfdf2ece9cf3be5b4f6",
+  "artifacts": [
+    {
+      "kind": "node",
+      "bytes": 2316,
+      "sha256": "708a47bf39a7a809762225648733184186cfa0f06e26d570c14e97263d7f1802"
+    },
+    {
+      "kind": "chrome",
+      "bytes": 3215,
+      "sha256": "0196862ca15dbd37082a6b7a023f453dfbbd64878f6b3ad3081edce577dd7238"
+    }
+  ],
+  "inputs": [
+    {
+      "kind": "node",
+      "reportSha256": "95b28acb0da5bd57a2f3b857d3d9f9cf29c7427e6afb46f552881564a500f6f9",
+      "cleanupSha256": "9fda41d8203d4f05574cfb940b98e6692c05d9a1baf34459a235fabdce1c94c0",
+      "runtimeSha256": "7bd89f64b030542016cb72a6d492916825bbc8659ee2438751ea74a4ba4cd222",
+      "planSha256": "b124678694805854d757d7e8571be1f4eab731cc1cc50e3a8cd80ea20159287c"
+    },
+    {
+      "kind": "chrome",
+      "reportSha256": "79fcf2119eaa52994e62599b07029d0a7449a644c65181ced48cbed391abe6e5",
+      "cleanupSha256": "bec491e92f4400375762e48b8ef5c7ecfb4b1d41f461798c6f0cdcba4233ccb4",
+      "runtimeSha256": "1f1613c851ae0b66e345906329a954174703afde5c644384194d259a54389935",
+      "planSha256": "79d9a7e5860fae91087a127093525705d1329fe9351d411d3616245489a16e8f"
+    },
+    {
+      "kind": "configuration",
+      "receiptSha256": "72eb1902e231ff7512494e5f36a178036cabc63da55e0ddaebcbd9933447cbd1"
+    }
+  ],
+  "configuration": {
+    "sourceSha256": "72eb1902e231ff7512494e5f36a178036cabc63da55e0ddaebcbd9933447cbd1",
+    "http2": "on",
+    "http3": "on",
+    "protocolScope": "zone",
+    "http2ControlLocked": true,
+    "developmentHtmlRuleActive": true,
+    "ruleScope": [
+      "development",
+      "pictures",
+      "html"
+    ],
+    "compressionPreference": [
+      "brotli",
+      "gzip"
+    ],
+    "changes": 0,
+    "productionChanges": 0,
+    "loginOrMfaAttempts": 0,
+    "settingsProveNegotiation": false,
+    "causalityEstablished": false
+  },
+  "originMetricsPreparation": {
+    "receiptSha256": "4107e74f39b8315512139fc91809f9df9c72d00a4c0157ec7458714bf18bc735",
+    "active": true,
+    "temporaryFiles": 2,
+    "unauthenticatedLoopbackStatus": 403,
+    "privateEnvironmentFileRead": false,
+    "credentialsCopied": false,
+    "productionChanges": 0,
+    "otherServiceRestarts": 0
+  },
+  "qa": {
+    "total": 710,
+    "pass": 241,
+    "partial": 467,
+    "fail": 2,
+    "blocked": 0,
+    "notRun": 0
+  },
+  "tasks": {
+    "total": 64,
+    "done": 15,
+    "inProgress": 49
+  },
+  "formalMeasurementsAdded": 0,
+  "formalVerdictsChanged": 0,
+  "rawCopied": false,
+  "privateValuesCopied": false,
+  "selfExcluded": true
+}
+

@@ -267,3 +267,31 @@ Earlier TASK-250 checkpoint:59 remaining CLI outcomes had methods preserving the
 Earlier checkpoint evidence: core0.7 candidate d997b688/PR120, full1039/15existing skips/strict4/source Code-Security0. CLI62 pass/16 remaining clauses, actual-model/own-repository/mobile60 and Brotli transport evidence are in [scope record](../12-qa/runs/2026-11-04-acceptance-scopes.md). Tasks64=done14/in progress50/todo0; release follows the existing conditions.
 
 Current64 tasks: done15/in progress49/todo0. TASK-250 exact original78 CLI criteria now have individual named evidence; the remaining16 completed six hosted OS/Python cells in PR122. Full1057/strict4 and bounded source reviews passed. Mobile3s remains unmet; TASK-252/253 remain in progress. [Final evidence](../12-qa/runs/2026-11-04-mobile-final.md). No main/production/tag approval is inferred.
+
+## Keep the 3s target, 2026-11-04
+
+In the performance-decision card in this working conversation, dated 2026-11-04 with client timezone Asia/Seoul, the maintainer selected “3초 유지·개선 계속 (추천)” (keep the 3s target and continue improvement). The exact response time is unverified. This approves continued investigation and improvement while retaining the 3s requirement. The 64 tasks remain 15 done and 49 in progress; TASK-252/253 stay in progress, with no new stage10 checkpoint recorded.
+
+The [transport investigation proposal](../12-qa/runs/2026-11-04-transport-investigation.md) separates connection/TLS, headers/body, CDP network shaping, protocol and compression before choosing a small fix, regression checks and a new 20×3 formal run. Root selects the diagnostic arms after tool review. Diagnostic observations do not replace the existing failures. Conditional release, REQ-107, 14-day Worker/D1 retention followed by a deletion question, and the ban on new paid plans/dependencies remain in force.
+
+## Diagnostic follow-up, 2026-11-05 KST / 2026-11-04 UTC
+
+After decision record e750509, the separate Node16 and Chrome18 transfer diagnostics finished and returned zero owned processes. Node retained 16 valid transfers but only 13 cache-comparable observations; Chrome retained 18 diagnostic-qualified observations. The [follow-up record](../12-qa/runs/2026-11-04-transport-investigation.md) and [safe manifest](../12-qa/runs/transport-2026-11-05/manifest.json) keep their scope, hashes and the read-only Cloudflare findings. These are transfer observations, not a new 3s/P95 or release verdict. The 64 task rows remain 15 done and 49 in progress, with TASK-252/253 still in progress.
+
+The actual-module6 follow-up is being implemented offline and has not received Root GO. Current ownership is recorded in the follow-up: Root owns server/Cloudflare/branch/gates; UI owns the runner and other tool files; API owns only `module-wire.mjs`; QA owns records and independent audit. No checkpoint, latency exception or original release/REQ-107/Worker-D1 condition changes.
+
+## Preserved M01/v5 and prospective v6, 2026-11-05 KST / 2026-11-04 UTC
+
+The preceding preparation status is retained history. M01 subsequently observed 5 of 6 planned openings and stopped after slot5 cleanup was unverified; slot6 remained unstarted. The later owned-process0 receipt does not erase that failure. The v5 run then completed all60 openings and verified cleanup60/60, but its original qualification remained DDD17/20, ERD17/20 and sitemap16/20, with every normative P95 null. Of10 invalid openings,9 were cache-only and1 also had an actual code520/resource failure. The exact second opening of each stage separately verified all44 code responses as200/EOF/HIT+Age/approved-policy/cookie-only. These are scoped cache observations, not a new task completion or3s verdict. [Evidence and plan](../12-qa/runs/2026-11-04-transport-investigation.md).
+
+Root identified an added test condition: downstream editor-code HIT/Age had been used to qualify the first complete SVG, although REQ-149/TC-1271/SPEC-119 measure first SVG and native readiness separately. A new prospective v6 will retain3s,20 openings per stage, the original mobile4G/300/auth/CSP/security/200-completion/90s/cleanup criteria, recording cache status and Age separately. Existing v5 and older raw data, plans, verdicts and task rows stay unchanged. This is Root's test correction, not a new user approval or latency exception; v6 is preparation only and awaits its own review/gate. Tasks64 remain15done/49in progress, with no stage checkpoint or release promotion.
+
+## v6 stopped-run record, 2026-11-05 KST / 2026-11-04 UTC
+
+The subsequent authorized v6 retained all60 planned slots:29 observed,1 setup failure and30 not started. Original DDD/ERD/sitemap qualification is9/10/9 of20, every normative P95 is null and exit1/fail remains. Slot26 had a setup command timeout; slot30's cleanup was unverified with1 process remaining. The later OS receipt returned owned Chrome0/Node0 and retained30 profiles without reclassifying either failure. [Result and safe hashes](../12-qa/runs/2026-11-04-transport-investigation.md).
+
+Setup/cleanup causes remain unproved. A separate lifecycle diagnostic is being prepared offline; no target diagnostic execution, v7 formal result or new user approval is recorded. Root kept metrics OFF and Cloudflare settings unchanged. Tasks64 remain15done/49in progress; the3s, release/REQ-107 and Worker/D1 conditions remain pending and unchanged.
+
+## Current refusal closure, 2026-11-05
+
+[R1](../12-qa/runs/2026-11-05-refusal-closure.md) adds245 current synthetic-handler6f scoped passes from exact fresh refusal responses and same-request schema/headers/trace/DB/receipt evidence. QA710 is now486pass/222partial/2fail. TASK-249 remains in progress with78 applicable named-response clauses and18 shared-example applicability reviews; no task closes. WBS64 stays15done/49in progress. Original performance/transport failures and release/REQ-107/Worker-D1 conditions remain; no real Access, deployed proof or new user checkpoint is claimed.

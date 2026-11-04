@@ -1,0 +1,96 @@
+{
+  "schema": "transport-diagnostic-summary/1",
+  "kind": "node",
+  "scope": "diagnostic",
+  "assetCategory": "code",
+  "utcDay": [
+    2026,
+    11,
+    4
+  ],
+  "localDay": [
+    2026,
+    11,
+    5
+  ],
+  "timeZone": "Asia/Seoul",
+  "sourceCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "runtimeSha256": "7bd89f64b030542016cb72a6d492916825bbc8659ee2438751ea74a4ba4cd222",
+  "planSha256": "b124678694805854d757d7e8571be1f4eab731cc1cc50e3a8cd80ea20159287c",
+  "reportSha256": "95b28acb0da5bd57a2f3b857d3d9f9cf29c7427e6afb46f552881564a500f6f9",
+  "cleanupSha256": "9fda41d8203d4f05574cfb940b98e6692c05d9a1baf34459a235fabdce1c94c0",
+  "requests": {
+    "bootstrapHead": 1,
+    "codeGet": 16,
+    "totalObserved": 17,
+    "post": 0,
+    "replacement": 0,
+    "extra": 0
+  },
+  "slots": {
+    "planned": 16,
+    "completed": 16,
+    "transferValid": 16,
+    "cacheComparable": 13
+  },
+  "cache": {
+    "HIT": 13,
+    "MISS": 3
+  },
+  "protocol": {
+    "http/1.1": 8,
+    "h2": 8
+  },
+  "encoding": {
+    "br": 16
+  },
+  "decodedPayload": {
+    "bytesPerAsset": 73974,
+    "sha256": "dfcb3ebf25220b17059356734fcd1ba008752276907e84da82700dda1a3f62bd",
+    "matchingAssets": 16
+  },
+  "bytes": {
+    "encodedEntityBodyTotal": 380832,
+    "decodedBodyTotal": 1183584
+  },
+  "timing": {
+    "controllerElapsedMs": 21202.5851,
+    "slotDeadlineMs": 20000,
+    "bootstrapDeadlineMs": 30000,
+    "wholeHttpWindowMs": 360000,
+    "clock": "node-monotonic",
+    "selectedTransfers": [
+      {
+        "protocol": "h2",
+        "connection": "reused",
+        "cache": "HIT",
+        "headersToFirstDataMs": 0.21149999999943248,
+        "headersToBodyEofMs": 3279.5905999999995
+      },
+      {
+        "protocol": "h2",
+        "connection": "reused",
+        "cache": "HIT",
+        "headersToFirstDataMs": 0.11300000000119326,
+        "headersToBodyEofMs": 3291.191500000001
+      }
+    ]
+  },
+  "conditions": {
+    "concurrency": 1,
+    "networkThrottling": false,
+    "cpuThrottling": false,
+    "chrome": false
+  },
+  "cleanup": {
+    "bootstrapClosed": true,
+    "closedPairs": 8,
+    "ownedNodeRemaining": 0,
+    "windowReturned": true
+  },
+  "formalP95": false,
+  "retryReplacement": false,
+  "comparisonQualified": false
+}
+

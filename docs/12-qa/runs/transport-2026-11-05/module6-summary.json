@@ -1,0 +1,202 @@
+{
+  "schema": "module-result-independent-audit/1",
+  "scope": "diagnostic",
+  "utcDay": [
+    2026,
+    11,
+    4
+  ],
+  "localDay": [
+    2026,
+    11,
+    5
+  ],
+  "timeZone": "Asia/Seoul",
+  "sourceCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "planSha256": "0359c561a421149ab479abf17e95ef9d60b9fbe91e87549997e83d2c7eb38bdb",
+  "reportSha256": "4052a713cdda5580a2912d94a33f1d18215f300c6fa747bbcab2566768bcca91",
+  "originalRunState": "diagnostic-stopped-with-slots-retained",
+  "originalStopReason": "owned-cleanup-not-verified",
+  "plannedSlots": 6,
+  "observedSlots": 5,
+  "notStartedSlots": 1,
+  "renderQualifiedObserved": 5,
+  "nativeQualifiedObserved": 5,
+  "originalCleanupVerifiedSlots": 4,
+  "originalCleanupFailedSlot": 5,
+  "wholeRunSuccess": false,
+  "originalCleanupFailureReclassified": false,
+  "observations": [
+    {
+      "slot": 1,
+      "stage": "01-domain",
+      "networkArm": "legacy",
+      "state": "observed",
+      "firstSvgPaintMs": 1203,
+      "nativeReadyMs": 5248,
+      "diagnosticPrimaryQualified": true,
+      "diagnosticNativeQualified": true,
+      "originalCleanupVerified": true,
+      "originalCleanupRemaining": 0,
+      "httpAdmitted": 21,
+      "cdpRequestsIncludingInline": 25,
+      "codeRecords": 20,
+      "entryDataEventAfterFinish": true
+    },
+    {
+      "slot": 2,
+      "stage": "05-erd",
+      "networkArm": "by-rule",
+      "state": "observed",
+      "firstSvgPaintMs": 1592.9000000059605,
+      "nativeReadyMs": 5766.5,
+      "diagnosticPrimaryQualified": true,
+      "diagnosticNativeQualified": true,
+      "originalCleanupVerified": true,
+      "originalCleanupRemaining": 0,
+      "httpAdmitted": 5,
+      "cdpRequestsIncludingInline": 5,
+      "codeRecords": 4,
+      "entryDataEventAfterFinish": true
+    },
+    {
+      "slot": 3,
+      "stage": "07-sitemap",
+      "networkArm": "legacy",
+      "state": "observed",
+      "firstSvgPaintMs": 2036.5999999940395,
+      "nativeReadyMs": 9451.59999999404,
+      "diagnosticPrimaryQualified": true,
+      "diagnosticNativeQualified": true,
+      "originalCleanupVerified": true,
+      "originalCleanupRemaining": 0,
+      "httpAdmitted": 21,
+      "cdpRequestsIncludingInline": 25,
+      "codeRecords": 20,
+      "entryDataEventAfterFinish": true
+    },
+    {
+      "slot": 4,
+      "stage": "01-domain",
+      "networkArm": "by-rule",
+      "state": "observed",
+      "firstSvgPaintMs": 1054.199999988079,
+      "nativeReadyMs": 2977.800000011921,
+      "diagnosticPrimaryQualified": true,
+      "diagnosticNativeQualified": true,
+      "originalCleanupVerified": true,
+      "originalCleanupRemaining": 0,
+      "httpAdmitted": 21,
+      "cdpRequestsIncludingInline": 25,
+      "codeRecords": 20,
+      "entryDataEventAfterFinish": true
+    },
+    {
+      "slot": 5,
+      "stage": "05-erd",
+      "networkArm": "legacy",
+      "state": "observed",
+      "firstSvgPaintMs": 1679.4000000059605,
+      "nativeReadyMs": 3804,
+      "diagnosticPrimaryQualified": true,
+      "diagnosticNativeQualified": true,
+      "originalCleanupVerified": false,
+      "originalCleanupRemaining": 3,
+      "httpAdmitted": 5,
+      "cdpRequestsIncludingInline": 5,
+      "codeRecords": 4,
+      "entryDataEventAfterFinish": true
+    },
+    {
+      "slot": 6,
+      "stage": "07-sitemap",
+      "networkArm": "by-rule",
+      "state": "not-started",
+      "firstSvgPaintMs": null,
+      "nativeReadyMs": null,
+      "diagnosticPrimaryQualified": null,
+      "diagnosticNativeQualified": null,
+      "originalCleanupVerified": null,
+      "originalCleanupRemaining": null,
+      "httpAdmitted": 0,
+      "cdpRequestsIncludingInline": 0,
+      "codeRecords": 0,
+      "entryDataEventAfterFinish": null
+    }
+  ],
+  "requests": {
+    "bootstrapHead": 1,
+    "httpAdmitted": 73,
+    "totalHttpObserved": 74,
+    "cdpIncludingInline": 85,
+    "inlineDifference": 12,
+    "code200HitPolicyAuthFinished": 68
+  },
+  "receivedBytes": {
+    "decoded": 7972622,
+    "encoded": 2228698
+  },
+  "postStop": {
+    "ownedChromeObserved": 0,
+    "ownedNodeObserved": 0,
+    "manualTermination": 0,
+    "additionalRequests": 0,
+    "observedLaterThanOriginalStop": true,
+    "originalFailureRemains": true
+  },
+  "originMetrics": {
+    "rows": 8,
+    "statuses": {
+      "200": 6,
+      "403": 2
+    },
+    "maxProcessingMs": 506.2495970000746,
+    "maxAfterBodyMs": 506.2495970000746,
+    "bodyCompleteRows": 8,
+    "requestBodyByteValues": [
+      0
+    ],
+    "routeCorrelationAvailable": false,
+    "serverRequirementReclassified": false
+  },
+  "rollback": {
+    "recordedExactHashFilesRemoved": 2,
+    "pathsRemaining": 0,
+    "postRollbackProcessNumericEvents": 0,
+    "originalEnvironmentUntouched": true,
+    "privateEnvironmentFilesRead": 0,
+    "credentialsCopied": false,
+    "productionChanges": 0,
+    "otherServiceRestarts": 0
+  },
+  "freshSource": {
+    "assetRecords": 443,
+    "matchingAssetBytes": 443,
+    "candidateMatched": true,
+    "committedSourceMatched": true,
+    "loopbackUnauthenticatedStatus": 403,
+    "authFilesRead": 0,
+    "mutations": 0,
+    "registeredAliasVerificationClaimed": false
+  },
+  "formalP95": false,
+  "formalVerdictsChanged": 0,
+  "physicalFirstByteClaimed": false,
+  "checks": {
+    "total": 28,
+    "passed": 28,
+    "discrepancies": []
+  },
+  "qa": {
+    "total": 710,
+    "pass": 241,
+    "partial": 467,
+    "fail": 2
+  },
+  "tasks": {
+    "total": 64,
+    "done": 15,
+    "inProgress": 49
+  }
+}
