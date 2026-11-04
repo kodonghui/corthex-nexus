@@ -1,0 +1,44 @@
+{
+  "schema": "r1-current-refusal-canonical-manifest/1",
+  "sourceRuntimeScopeCommit": "6f968eedab8feca92803be19b7a3e6fd99a9caa1",
+  "inputs": {
+    "plan": "75fb492dc855e35a0edb430e29333cc924acb8fb7a2df3825501930cb0852d37",
+    "executionReceipt": "6ad81130a96c5751c96fb297e590ef60305d4b341457e7c13fd7ad1d0a9becec",
+    "boundaryMatrix": "e3cfc996eef823f8197951576df10d03c5c31d7b30386386fd8978183c6811ba",
+    "permissionMatrix": "6c8f6cb1eece463ca0163a58b609442e91c26af6ed88f5f4bd4dabef39fbb908",
+    "validatedCapture": "c99c572c2ee5e37c468f660930d510272bfc4bded62963a40b73ec4ad4fbb416",
+    "validationSummary": "08998e5e2ab3624698bed20b4f7201a1a56e9f3fdb1a335f484e030788bbcea4",
+    "boundaryAssertionSource": "607493753c4fc6503c535826070de51a29fc86a75105ae97da9e98c34f6e4a0d",
+    "permissionAssertionSource": "e5d66d6bcacb87961198ab7121d5060d75fc1b0bf2bb0f1587c346510ac463f9",
+    "loader": "29069e39b7d3bb4832dc8b22decde8f56f4a388b14d12a423ecefe80053593ac",
+    "captureRuntime": "f79bb639540438486d788279cfcc3e38b65e9e661b2172dfd80e7748ab07d16f",
+    "validator": "5c44f12ef34501a7715410ae6eecec85b885fc050d020361bab5c578eece06a5",
+    "networkGuard": "992b80eed29fd7ef010835bce3f805639d89f93cd774a5f91dc871b838763399",
+    "preloadErrorLog": "417b1671fdc5fbe490d7b406cf62dc0840a3e3a72da49428cefdd47a9d5bc0c5",
+    "boundaryCapture": "33892f380527896177d7654db6a64abb92314c75f8064743bc514bc78f0e07f1",
+    "permissionCapture": "f4bbd79aafd1714bbfe3a0cfd475b93445ca03166907df2dc270912951f6e6d3",
+    "independentReadOnlyCandidateProof": "0db83a50a0d5bc37bcd43596275d67f687642216492b3c59de6a0a9abdcd926d"
+  },
+  "outputProofSha256": "485df0b6a11800ff24a10f7cfcea7324bd1a7118001032b78d099ccec7fefc44",
+  "outputProofBytes": 416522,
+  "canonicalEncoding": "utf8-lf-no-bom-final-lf",
+  "uniqueCasesChanged": 245,
+  "freshReferencedRecords": 246,
+  "oldOtherCaseRowsChanged": 0,
+  "oldRawArtifactsModified": 0,
+  "currentQaCounts": {
+    "total": 710,
+    "pass": 486,
+    "partial": 222,
+    "fail": 2
+  },
+  "taskCounts": {
+    "total": 64,
+    "done": 15,
+    "inProgress": 49
+  },
+  "deployedOrRealAccessClaim": false,
+  "newUserApproval": false,
+  "stageAccepted": false,
+  "gitStagedBlobCheckOwner": "root-after-staging"
+}

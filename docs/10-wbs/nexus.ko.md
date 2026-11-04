@@ -291,3 +291,7 @@ Root는 REQ-149/TC-1271/SPEC-119가 첫SVG와 편집기 준비를 구분하는�
 이후 승인된 v6는 예정60개를 모두 보존했습니다. 관측29회·설정 실패1회·미시작30회이며 원래 DDD/ERD/사이트맵 적격 수는 각20회 중9/10/9, 정식P95는 모두null,exit1/fail입니다. slot26에는 설정 명령 시간초과, slot30에는 남은 프로세스1개로 정리 미확인이 있었습니다. 나중의 OS영수증은 소유Chrome0/Node0·프로필30개 보존을 기록했으며 두 실패를 다시 판정하지 않습니다. [결과와 안전 해시](../12-qa/runs/2026-11-04-transport-investigation.ko.md).
 
 설정/정리 원인은 아직 미확정입니다. 별도 lifecycle 진단은 오프라인 준비 중이며 대상 진단 실행·v7 정식 결과·사용자 새 승인을 기록하지 않습니다. Root는 계측OFF·Cloudflare 설정을 유지했습니다. 작업64개의15done/49in progress와3초·출시/REQ-107·Worker/D1 조건은 그대로 미완료로 남습니다.
+
+## 현재 거절 응답 정리, 2026-11-05
+
+[R1](../12-qa/runs/2026-11-05-refusal-closure.ko.md)의정확한fresh거절·같은요청schema/헤더/trace/DB/receipt근거로현재합성handler6f범위245개를통과시켜QA710=486pass/222partial/2fail입니다. TASK-249에는적용명명응답78개·공유예시적용검토18개가남아진행중이며완료작업은추가하지않습니다. WBS64=15done/49in progress를유지합니다. 이전성능/전송실패·출시/REQ-107/Worker-D1 조건은그대로이고실제Access/배포근거·사용자새확인지점을주장하지않습니다.

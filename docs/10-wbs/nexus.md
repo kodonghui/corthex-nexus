@@ -291,3 +291,7 @@ Root identified an added test condition: downstream editor-code HIT/Age had been
 The subsequent authorized v6 retained all60 planned slots:29 observed,1 setup failure and30 not started. Original DDD/ERD/sitemap qualification is9/10/9 of20, every normative P95 is null and exit1/fail remains. Slot26 had a setup command timeout; slot30's cleanup was unverified with1 process remaining. The later OS receipt returned owned Chrome0/Node0 and retained30 profiles without reclassifying either failure. [Result and safe hashes](../12-qa/runs/2026-11-04-transport-investigation.md).
 
 Setup/cleanup causes remain unproved. A separate lifecycle diagnostic is being prepared offline; no target diagnostic execution, v7 formal result or new user approval is recorded. Root kept metrics OFF and Cloudflare settings unchanged. Tasks64 remain15done/49in progress; the3s, release/REQ-107 and Worker/D1 conditions remain pending and unchanged.
+
+## Current refusal closure, 2026-11-05
+
+[R1](../12-qa/runs/2026-11-05-refusal-closure.md) adds245 current synthetic-handler6f scoped passes from exact fresh refusal responses and same-request schema/headers/trace/DB/receipt evidence. QA710 is now486pass/222partial/2fail. TASK-249 remains in progress with78 applicable named-response clauses and18 shared-example applicability reviews; no task closes. WBS64 stays15done/49in progress. Original performance/transport failures and release/REQ-107/Worker-D1 conditions remain; no real Access, deployed proof or new user checkpoint is claimed.
