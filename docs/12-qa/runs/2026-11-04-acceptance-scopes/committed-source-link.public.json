@@ -1,0 +1,167 @@
+{
+  "schema": "nexus-core-model-wip-to-commit-link/1",
+  "originalExecutionObservedHead": "d765a539ce8e858edc86012b436e437804965f99",
+  "laterLocalCommit": "d997b688d06cd8b8e5b4a5ee1d3815c62b65e4c5",
+  "originalPinRewritten": false,
+  "networkRequests": 0,
+  "readOnlyLocalGit": true,
+  "files": [
+    {
+      "path": "plugins/corthex/skills/corthex/SKILL.md",
+      "executionSha256": "28112805d991c5ad7652811a105efed0af8e105b910c47b123233e56ac0fe713",
+      "currentPhysicalSha256": "28112805d991c5ad7652811a105efed0af8e105b910c47b123233e56ac0fe713",
+      "consumedRuntimeSha256": "28112805d991c5ad7652811a105efed0af8e105b910c47b123233e56ac0fe713",
+      "committedBlobSha1": "a1741f188f8609ad06a114ab313692bd66673d6b",
+      "committedBlobSha256": "28112805d991c5ad7652811a105efed0af8e105b910c47b123233e56ac0fe713",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex/references/project.md",
+      "executionSha256": "6c1ee4073248d76ce804f15d99c04222fb6a7bc2c4b90ab491b1016c8c7d69f3",
+      "currentPhysicalSha256": "6c1ee4073248d76ce804f15d99c04222fb6a7bc2c4b90ab491b1016c8c7d69f3",
+      "consumedRuntimeSha256": "6c1ee4073248d76ce804f15d99c04222fb6a7bc2c4b90ab491b1016c8c7d69f3",
+      "committedBlobSha1": "7c09c1d16062c9f0848b15f88200f5b5b94f9582",
+      "committedBlobSha256": "6c1ee4073248d76ce804f15d99c04222fb6a7bc2c4b90ab491b1016c8c7d69f3",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex/assets/project.example.json",
+      "executionSha256": "ad4926a7bccd46ee161f65a55e8793bf812f46af21cbeaa0451cf05bf902c004",
+      "currentPhysicalSha256": "ad4926a7bccd46ee161f65a55e8793bf812f46af21cbeaa0451cf05bf902c004",
+      "consumedRuntimeSha256": "ad4926a7bccd46ee161f65a55e8793bf812f46af21cbeaa0451cf05bf902c004",
+      "committedBlobSha1": "f2a8d27c0325d9800d5ad50eb1496aa84456dcac",
+      "committedBlobSha256": "ad4926a7bccd46ee161f65a55e8793bf812f46af21cbeaa0451cf05bf902c004",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex/references/nexus-work.md",
+      "executionSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "currentPhysicalSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "consumedRuntimeSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "committedBlobSha1": "a4ffb9a785498f296828fa5ec6a2b635283174bc",
+      "committedBlobSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex-discover/references/nexus-work.md",
+      "executionSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "currentPhysicalSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "consumedRuntimeSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "committedBlobSha1": "a4ffb9a785498f296828fa5ec6a2b635283174bc",
+      "committedBlobSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex-define/references/nexus-work.md",
+      "executionSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "currentPhysicalSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "consumedRuntimeSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "committedBlobSha1": "a4ffb9a785498f296828fa5ec6a2b635283174bc",
+      "committedBlobSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex-contract/references/nexus-work.md",
+      "executionSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "currentPhysicalSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "consumedRuntimeSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "committedBlobSha1": "a4ffb9a785498f296828fa5ec6a2b635283174bc",
+      "committedBlobSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex-screen/references/nexus-work.md",
+      "executionSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "currentPhysicalSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "consumedRuntimeSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "committedBlobSha1": "a4ffb9a785498f296828fa5ec6a2b635283174bc",
+      "committedBlobSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex-build/references/nexus-work.md",
+      "executionSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "currentPhysicalSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "consumedRuntimeSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "committedBlobSha1": "a4ffb9a785498f296828fa5ec6a2b635283174bc",
+      "committedBlobSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex-present/references/nexus-work.md",
+      "executionSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "currentPhysicalSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "consumedRuntimeSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "committedBlobSha1": "a4ffb9a785498f296828fa5ec6a2b635283174bc",
+      "committedBlobSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex-record/references/nexus-work.md",
+      "executionSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "currentPhysicalSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "consumedRuntimeSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "committedBlobSha1": "a4ffb9a785498f296828fa5ec6a2b635283174bc",
+      "committedBlobSha256": "cf587bda9327589e0acfcfc95db6cbd2959192d524ed329c495db93cc00ac5b2",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex-discover/references/01-domain.md",
+      "executionSha256": "5ca19cad9fddfd1692cd4c14537ad1b16e4fcb9d539e3533a18a4d9d845910f2",
+      "currentPhysicalSha256": "5ca19cad9fddfd1692cd4c14537ad1b16e4fcb9d539e3533a18a4d9d845910f2",
+      "consumedRuntimeSha256": "5ca19cad9fddfd1692cd4c14537ad1b16e4fcb9d539e3533a18a4d9d845910f2",
+      "committedBlobSha1": "ba29d6b62c1a1a675b2c6da4e42dd1956a31c138",
+      "committedBlobSha256": "5ca19cad9fddfd1692cd4c14537ad1b16e4fcb9d539e3533a18a4d9d845910f2",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex-contract/references/05-erd.md",
+      "executionSha256": "e524463fae5792bfb23494ebc2661be495069051322d22a78c298413cf107cac",
+      "currentPhysicalSha256": "e524463fae5792bfb23494ebc2661be495069051322d22a78c298413cf107cac",
+      "consumedRuntimeSha256": "e524463fae5792bfb23494ebc2661be495069051322d22a78c298413cf107cac",
+      "committedBlobSha1": "c474207435248e7614711a99d200533a642c9ac5",
+      "committedBlobSha256": "e524463fae5792bfb23494ebc2661be495069051322d22a78c298413cf107cac",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    },
+    {
+      "path": "plugins/corthex/skills/corthex-screen/references/07-sitemap.md",
+      "executionSha256": "dce6b1c5546878febe35920371e56893a8b457e62eb74a617dae88bdc892e01c",
+      "currentPhysicalSha256": "dce6b1c5546878febe35920371e56893a8b457e62eb74a617dae88bdc892e01c",
+      "consumedRuntimeSha256": "dce6b1c5546878febe35920371e56893a8b457e62eb74a617dae88bdc892e01c",
+      "committedBlobSha1": "894753ef380f3d361c16387369985f2cf43eae39",
+      "committedBlobSha256": "dce6b1c5546878febe35920371e56893a8b457e62eb74a617dae88bdc892e01c",
+      "samePhysicalBytesAsExecution": true,
+      "sameConsumedBytesAsExecution": true,
+      "committedBlobMatchesConsumedLf": true
+    }
+  ],
+  "all14PhysicalUnchanged": true,
+  "all14ConsumedUnchanged": true,
+  "all14CommittedBlobsMatchConsumedLf": true
+}

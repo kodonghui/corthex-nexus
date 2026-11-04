@@ -1,0 +1,3747 @@
+{
+  "scope": "Exact original CLI clauses; historical audit before the follow-up16 completion tests.",
+  "counts": {
+    "partial": 16,
+    "pass": 62
+  },
+  "cases": [
+    {
+      "id": "TC-1139",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "The subprocess checks one done envelope; saved snapshot contents/file count and duplicate-write effect are not asserted for this snapshot done fixture."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_local_commands_have_one_json_envelope_per_project",
+              "test_hub.CommandLineTest.test_commands"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_local_commands_have_one_json_envelope_per_project",
+              "test_hub.CommandLineTest.test_commands"
+            ]
+          },
+          "gap": "The subprocess checks one done envelope; saved snapshot contents/file count and duplicate-write effect are not asserted for this snapshot done fixture."
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_local_commands_have_one_json_envelope_per_project",
+              "test_hub.CommandLineTest.test_commands"
+            ]
+          },
+          "gap": "The subprocess checks one done envelope; saved snapshot contents/file count and duplicate-write effect are not asserted for this snapshot done fixture."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_local_commands_have_one_json_envelope_per_project",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 936,
+            "endLine": 947,
+            "astSha256": "fe3100c26563b921c49a1d2cde19e4ac5b95cd7f284fc56ac6d72c9fac5b91b8",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub.CommandLineTest.test_commands",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub.py",
+            "line": 1277,
+            "endLine": 1289,
+            "astSha256": "29ff35292f24044c1d1b11136ab3272449b3e2d2410a7c025e3b5810fb4a18b4",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1140",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1141",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented failure is present",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 422
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1142",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "The subprocess checks the done envelope and separate command test checks the next value, but exact resulting status record/count and repeated/no-duplicate effect are not asserted for this fixture."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_local_commands_have_one_json_envelope_per_project",
+              "test_hub.CommandLineTest.test_commands"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_local_commands_have_one_json_envelope_per_project",
+              "test_hub.CommandLineTest.test_commands"
+            ]
+          },
+          "gap": "The subprocess checks the done envelope and separate command test checks the next value, but exact resulting status record/count and repeated/no-duplicate effect are not asserted for this fixture."
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_local_commands_have_one_json_envelope_per_project",
+              "test_hub.CommandLineTest.test_commands"
+            ]
+          },
+          "gap": "The subprocess checks the done envelope and separate command test checks the next value, but exact resulting status record/count and repeated/no-duplicate effect are not asserted for this fixture."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_local_commands_have_one_json_envelope_per_project",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 936,
+            "endLine": 947,
+            "astSha256": "fe3100c26563b921c49a1d2cde19e4ac5b95cd7f284fc56ac6d72c9fac5b91b8",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub.CommandLineTest.test_commands",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub.py",
+            "line": 1277,
+            "endLine": 1289,
+            "astSha256": "29ff35292f24044c1d1b11136ab3272449b3e2d2410a7c025e3b5810fb4a18b4",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1143",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1144",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "The unknown-part main call asserts exit1/failed, without an after-call outbox/file comparison."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_local_json_errors_do_not_crash_the_error_handler"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_local_json_errors_do_not_crash_the_error_handler"
+            ]
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_local_json_errors_do_not_crash_the_error_handler"
+            ]
+          },
+          "gap": "The unknown-part main call asserts exit1/failed, without an after-call outbox/file comparison."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_local_json_errors_do_not_crash_the_error_handler",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 949,
+            "endLine": 954,
+            "astSha256": "7f150b8a0552c8dca5524238e261afc782662f259833f09108644f38cb73f6eb",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1145",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR118-build3-plain-json",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__test_hub_build_outcomes.py",
+            "description": "invoke exact exit0 in plain/json"
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__test_hub_build_outcomes.py",
+            "description": "valid local page/schema/project and actual saved snapshot; JSON summary matches page"
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__test_hub_build_outcomes.py",
+            "description": "repeat --no-scan preserves file set/snapshot, one snapshot, no temporary write"
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41816854220,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1146",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR118-build3-plain-json",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__test_hub_build_outcomes.py",
+            "description": "actual argparse exit2 in plain/json"
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__test_hub_build_outcomes.py",
+            "description": "LocalPeer request delta0 plus socket/DNS guards0"
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__test_hub_build_outcomes.py",
+            "description": "no_queue plus unchanged home/project/no page"
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__test_hub_build_outcomes.py",
+            "description": "private marker absent, no traceback; argparse diagnostic retained"
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41816854220,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1147",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR118-build3-plain-json",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__test_hub_build_outcomes.py",
+            "description": "real regular-file parent obstruction, plain/json exit1"
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "verified",
+          "evidence": {
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__test_hub_build_outcomes.py",
+            "description": "plain hub.py build diagnostic or JSON failure nonempty; no fabricated network failure"
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__test_hub_build_outcomes.py",
+            "description": "no_queue, home/page/snapshot/project bytes unchanged"
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41816854220,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1148",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1149",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1150",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1151",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented failure is present",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 422
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1152",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1153",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1154",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1155",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented failure is present",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 422
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1156",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "404-to-empty todo and an exit0/one-call/no-outbox success are different mocked conditions; the exact documented empty answer plus complete CLI effect is not asserted together."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_claims_are_never_queued_and_todo_404_is_empty",
+              "test_hub02.CommandOutcomesTest.test_native_lease_unlink_failure_keeps_one_known_outcome_without_replay"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_claims_are_never_queued_and_todo_404_is_empty",
+              "test_hub02.CommandOutcomesTest.test_native_lease_unlink_failure_keeps_one_known_outcome_without_replay"
+            ]
+          },
+          "gap": "404-to-empty todo and an exit0/one-call/no-outbox success are different mocked conditions; the exact documented empty answer plus complete CLI effect is not asserted together."
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_claims_are_never_queued_and_todo_404_is_empty",
+              "test_hub02.CommandOutcomesTest.test_native_lease_unlink_failure_keeps_one_known_outcome_without_replay"
+            ]
+          },
+          "gap": "404-to-empty todo and an exit0/one-call/no-outbox success are different mocked conditions; the exact documented empty answer plus complete CLI effect is not asserted together."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_claims_are_never_queued_and_todo_404_is_empty",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 901,
+            "endLine": 911,
+            "astSha256": "b96b2d531b8129ea14047e0c470c7bffad2cc5256942ac95fd6e0c843ac41173",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_native_lease_unlink_failure_keeps_one_known_outcome_without_replay",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1012,
+            "endLine": 1032,
+            "astSha256": "d2a99ff0254047cf164840346cc9f65d94981d7556f8653f87eee090830284db",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1157",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1158",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1159",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented failure is present",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 422
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1160",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1161",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "Parser SystemExit2/private-marker assertions and command-layer invalid-input no-call/no-outbox assertions use different invalid fixtures; the exact parser invocation has no contact/outbox observation."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_response_keys_and_parser_errors_cannot_print_token_components",
+              "test_hub02.CommandOutcomesTest.test_invalid_cli_inputs_exit_before_contact_or_queue"
+            ]
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_response_keys_and_parser_errors_cannot_print_token_components",
+              "test_hub02.CommandOutcomesTest.test_invalid_cli_inputs_exit_before_contact_or_queue"
+            ]
+          },
+          "gap": "Parser SystemExit2/private-marker assertions and command-layer invalid-input no-call/no-outbox assertions use different invalid fixtures; the exact parser invocation has no contact/outbox observation."
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_response_keys_and_parser_errors_cannot_print_token_components",
+              "test_hub02.CommandOutcomesTest.test_invalid_cli_inputs_exit_before_contact_or_queue"
+            ]
+          },
+          "gap": "Parser SystemExit2/private-marker assertions and command-layer invalid-input no-call/no-outbox assertions use different invalid fixtures; the exact parser invocation has no contact/outbox observation."
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_response_keys_and_parser_errors_cannot_print_token_components",
+              "test_hub02.CommandOutcomesTest.test_invalid_cli_inputs_exit_before_contact_or_queue"
+            ]
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_response_keys_and_parser_errors_cannot_print_token_components",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 956,
+            "endLine": 967,
+            "astSha256": "aba02f68abaf0ac792a008b6447b7bb39b4faca52093637bc5764d388eaca921",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_invalid_cli_inputs_exit_before_contact_or_queue",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 885,
+            "endLine": 899,
+            "astSha256": "7cb379eb291716f069f78cafc9e6fa298190ec8605f491a6e1c88b7be9e14dd5",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1162",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1163",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "The per-command main loop asserts exit1 and failed outcome under atomic PermissionError, but not the failure diagnostic or post-call queue for comment."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The per-command main loop asserts exit1 and failed outcome under atomic PermissionError, but not the failure diagnostic or post-call queue for comment."
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The per-command main loop asserts exit1 and failed outcome under atomic PermissionError, but not the failure diagnostic or post-call queue for comment."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1164",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit3",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "retry_preserves_order",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "retry drain preserves admission order and identities",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 476
+          }
+        },
+        {
+          "criterion": "no_persisted_credentials",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "child environment has no service credentials",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 403
+          }
+        },
+        {
+          "criterion": "sensitive_text_redacted",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "kept queue is redacted",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 461
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1165",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "Reply done/path/body/new-ID/exit0 checks use a generic FakeClient answer. No exact documented reply answer or persisted single-effect/no-duplicate assertion is made."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_agent_writes_match_paths_bodies_and_new_write_ids",
+              "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code",
+              "test_hub02.CommandOutcomesTest.test_native_lease_unlink_failure_keeps_one_known_outcome_without_replay"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_agent_writes_match_paths_bodies_and_new_write_ids",
+              "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code",
+              "test_hub02.CommandOutcomesTest.test_native_lease_unlink_failure_keeps_one_known_outcome_without_replay"
+            ]
+          },
+          "gap": "Reply done/path/body/new-ID/exit0 checks use a generic FakeClient answer. No exact documented reply answer or persisted single-effect/no-duplicate assertion is made."
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_agent_writes_match_paths_bodies_and_new_write_ids",
+              "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code",
+              "test_hub02.CommandOutcomesTest.test_native_lease_unlink_failure_keeps_one_known_outcome_without_replay"
+            ]
+          },
+          "gap": "Reply done/path/body/new-ID/exit0 checks use a generic FakeClient answer. No exact documented reply answer or persisted single-effect/no-duplicate assertion is made."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_agent_writes_match_paths_bodies_and_new_write_ids",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 834,
+            "endLine": 857,
+            "astSha256": "b8845e917cb106e668db2372133e4e763dfb79b0ba2c1fb4b8776e8d315784a3",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 859,
+            "endLine": 868,
+            "astSha256": "f037ce2386bc531d4200fa56f85c5859b758e6f105cc11d4ab2f72a212083006",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_native_lease_unlink_failure_keeps_one_known_outcome_without_replay",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1012,
+            "endLine": 1032,
+            "astSha256": "d2a99ff0254047cf164840346cc9f65d94981d7556f8653f87eee090830284db",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1166",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1167",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "Reply refused/exit1 are asserted, but the emitted Problem Details and actual post-refusal queue absence are not asserted for this exact CLI fixture."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code"
+            ]
+          },
+          "gap": "Reply refused/exit1 are asserted, but the emitted Problem Details and actual post-refusal queue absence are not asserted for this exact CLI fixture."
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code"
+            ]
+          },
+          "gap": "Reply refused/exit1 are asserted, but the emitted Problem Details and actual post-refusal queue absence are not asserted for this exact CLI fixture."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 859,
+            "endLine": 868,
+            "astSha256": "f037ce2386bc531d4200fa56f85c5859b758e6f105cc11d4ab2f72a212083006",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1168",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "Main exit1, failed outcome, redacted recovery once and no outbox are covered by matching failure methods; the documented failure member/diagnostic itself is not asserted. Keep partial rather than infer it from the injected exception or test name."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_failed_persistence_gives_one_redacted_recovery_copy_only_to_output"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_failed_persistence_gives_one_redacted_recovery_copy_only_to_output"
+            ]
+          },
+          "gap": "Main exit1, failed outcome, redacted recovery once and no outbox are covered by matching failure methods; the documented failure member/diagnostic itself is not asserted. Keep partial rather than infer it from the injected exception or test name."
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_failed_persistence_gives_one_redacted_recovery_copy_only_to_output"
+            ]
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_failed_persistence_gives_one_redacted_recovery_copy_only_to_output",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 996,
+            "endLine": 1010,
+            "astSha256": "afec21f17339ceed5fbe02f60f0f4b74d72bbfe177017b0ce0339933deeab3d1",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1169",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "Reply kept/exit3 and actual queue redaction exist; direct Outbox.drain unit tests cover FIFO/IDs, but the kept CLI write is not retried through the actual outbox CLI in one acceptance chain. Preserve direct-unit credit, not full CLI retry credit."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit3",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code",
+              "test_hub02.CommandOutcomesTest.test_no_token_write_is_redacted_and_kept_without_credentials",
+              "test_hub02.OutboxTest.test_retry_keeps_original_id_body_session_and_order"
+            ]
+          }
+        },
+        {
+          "criterion": "retry_preserves_order",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code",
+              "test_hub02.CommandOutcomesTest.test_no_token_write_is_redacted_and_kept_without_credentials",
+              "test_hub02.OutboxTest.test_retry_keeps_original_id_body_session_and_order"
+            ]
+          },
+          "gap": "Reply kept/exit3 and actual queue redaction exist; direct Outbox.drain unit tests cover FIFO/IDs, but the kept CLI write is not retried through the actual outbox CLI in one acceptance chain. Preserve direct-unit credit, not full CLI retry credit."
+        },
+        {
+          "criterion": "no_persisted_credentials",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code",
+              "test_hub02.CommandOutcomesTest.test_no_token_write_is_redacted_and_kept_without_credentials",
+              "test_hub02.OutboxTest.test_retry_keeps_original_id_body_session_and_order"
+            ]
+          }
+        },
+        {
+          "criterion": "sensitive_text_redacted",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+              "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code",
+              "test_hub02.CommandOutcomesTest.test_no_token_write_is_redacted_and_kept_without_credentials",
+              "test_hub02.OutboxTest.test_retry_keeps_original_id_body_session_and_order"
+            ]
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_every_write_outcome_has_the_documented_exit_code",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 859,
+            "endLine": 868,
+            "astSha256": "f037ce2386bc531d4200fa56f85c5859b758e6f105cc11d4ab2f72a212083006",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_no_token_write_is_redacted_and_kept_without_credentials",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 870,
+            "endLine": 883,
+            "astSha256": "090482d709ba4fea0f6c76b3aa3a1e8aa3bfc49f0bed737ca433b23042a382f3",
+            "currentAstUnchanged": true
+          },
+          {
+            "method": "test_hub02.OutboxTest.test_retry_keeps_original_id_body_session_and_order",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 682,
+            "endLine": 699,
+            "astSha256": "bdb53b819ab2ebcd0d675250a54290643150c9e3c69da93bad9efe7624025e9d",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1170",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1171",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1172",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1173",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1174",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit3",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "retry_preserves_order",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "retry drain preserves admission order and identities",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 476
+          }
+        },
+        {
+          "criterion": "no_persisted_credentials",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "child environment has no service credentials",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 403
+          }
+        },
+        {
+          "criterion": "sensitive_text_redacted",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "kept queue is redacted",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 461
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1175",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1176",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1177",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1178",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1179",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit3",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "retry_preserves_order",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "retry drain preserves admission order and identities",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 476
+          }
+        },
+        {
+          "criterion": "no_persisted_credentials",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "child environment has no service credentials",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 403
+          }
+        },
+        {
+          "criterion": "sensitive_text_redacted",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "kept queue is redacted",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 461
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1180",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1181",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1182",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1183",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1184",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit3",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "retry_preserves_order",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "retry drain preserves admission order and identities",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 476
+          }
+        },
+        {
+          "criterion": "no_persisted_credentials",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "child environment has no service credentials",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 403
+          }
+        },
+        {
+          "criterion": "sensitive_text_redacted",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "kept queue is redacted",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 461
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1185",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1186",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1187",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1188",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1189",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit3",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "retry_preserves_order",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "retry drain preserves admission order and identities",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 476
+          }
+        },
+        {
+          "criterion": "no_persisted_credentials",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "child environment has no service credentials",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 403
+          }
+        },
+        {
+          "criterion": "sensitive_text_redacted",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "kept queue is redacted",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 461
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1190",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1191",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1192",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1193",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1194",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit3",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "retry_preserves_order",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "retry drain preserves admission order and identities",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 476
+          }
+        },
+        {
+          "criterion": "no_persisted_credentials",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "child environment has no service credentials",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 403
+          }
+        },
+        {
+          "criterion": "sensitive_text_redacted",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "kept queue is redacted",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 461
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1195",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1196",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1197",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1198",
+      "recommendedStatus": "partial",
+      "evidenceFamily": "prior16-bridge",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [
+        "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+      ],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "partial",
+          "evidence": {
+            "methods": [
+              "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli"
+            ]
+          },
+          "gap": "The eight-command main loop asserts this exact exit1/failed outcome under atomic PermissionError, but not this command's failure diagnostic or post-call queue absence."
+        }
+      ],
+      "matrix": {
+        "runId": 41783759260,
+        "sourceCommit": "d4f4e99835828c82529a01ac81ee7349a04731ee",
+        "sourceMethods": [
+          {
+            "method": "test_hub02.CommandOutcomesTest.test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+            "capturedSource": "work/hub-acceptance-audit/ci-41783759260/ci-head-test_hub02.py",
+            "line": 1063,
+            "endLine": 1089,
+            "astSha256": "9c3664377e05b0c3859f14934952e9e29f9c25f92cf9f10508f7ffae3cb3f969",
+            "currentAstUnchanged": true
+          }
+        ],
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1199",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit3",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "retry_preserves_order",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "retry drain preserves admission order and identities",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 476
+          }
+        },
+        {
+          "criterion": "no_persisted_credentials",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "child environment has no service credentials",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 403
+          }
+        },
+        {
+          "criterion": "sensitive_text_redacted",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "kept queue is redacted",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 461
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1200",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1201",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1202",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1203",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented failure is present",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 422
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1204",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1205",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1206",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1207",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented failure is present",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 422
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1208",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented success answer is preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 439
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1209",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1210",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented refusal Problem Details preserved",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 417
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1211",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented failure is present",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 422
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1212",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit0",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_answer_and_effect",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "outbox reports both fixture sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 432
+          }
+        },
+        {
+          "criterion": "no_duplicate_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "success request count has no duplicate sends",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 430
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1213",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit2",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "no_http_request",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI sends no HTTP",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 410
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invalid CLI leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 411
+          }
+        },
+        {
+          "criterion": "no_secret_output",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "synthetic private marker not printed",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 353
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1214",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_problem_or_refusal",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "outbox local refusal kind",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 420
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1215",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit1",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "documented_network_or_local_failure",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "documented failure is present",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 422
+          }
+        },
+        {
+          "criterion": "no_queued_write",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "non-kept failure leaves no queued write",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 414
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    },
+    {
+      "id": "TC-1216",
+      "recommendedStatus": "pass",
+      "evidenceFamily": "PR117-exact59",
+      "threeOsPythonEndsVerified": true,
+      "remainingCriteria": [],
+      "clauses": [
+        {
+          "criterion": "exit3",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "invoke(... EXITS[outcome]) plus exact process.returncode assertion",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 352
+          }
+        },
+        {
+          "criterion": "retry_preserves_order",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "retry drain preserves admission order and identities",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 476
+          }
+        },
+        {
+          "criterion": "no_persisted_credentials",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "child environment has no service credentials",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 403
+          }
+        },
+        {
+          "criterion": "sensitive_text_redacted",
+          "coverage": "verified",
+          "evidence": {
+            "assertion": "kept queue is redacted",
+            "file": "work/qa-acceptance/ci-build-118/executed-tests__hub_cli_fixture.py",
+            "line": 461
+          }
+        }
+      ],
+      "matrix": {
+        "runId": 41806949226,
+        "sixCellMethodsVerified": true
+      }
+    }
+  ]
+}

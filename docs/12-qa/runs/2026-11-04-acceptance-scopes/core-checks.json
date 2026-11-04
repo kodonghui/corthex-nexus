@@ -1,0 +1,18 @@
+{
+  "commit": "d997b688d06cd8b8e5b4a5ee1d3815c62b65e4c5",
+  "pr": "https://github.com/kodonghui/corthex/pull/120",
+  "tests": 1039,
+  "failures": 0,
+  "existingSkips": 15,
+  "strictPluginChecksPassed": 4,
+  "sourceOnlyCodeFindings": 0,
+  "sourceOnlySecurityFindings": 0,
+  "reviewerIndependentExecution": false,
+  "historyTextBlobs": 2256,
+  "publicSafetyFindings": 0,
+  "reviewedGitleaksNonSecrets": 39,
+  "repositoryScannerChanged": false,
+  "coreVersion": "0.7.0",
+  "skillVersions": 9,
+  "mainMerged": false
+}

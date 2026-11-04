@@ -39,9 +39,9 @@
     },
     "05-erd": {
       "human": "notion",
-      "source": "docs/05-erd/nexus.md",
+      "source": "docs/05-erd/nexus.sql",
       "truth": "source",
-      "note": "NEXUS's server data and files in nexus.md, with the D1 tables of the NEXUS server in nexus.sql (drafted on 2026-11-02 while the memory plugin is built, as the maintainer chose that day; its TBL IDs start at TBL-101, and it passed its checkpoint on 2026-11-03 together with the NEXUS user flows, functional spec and stages 06 to 08, so its schema is frozen for NEXUS 0.2). Not ERD Editor, the stage's default: the memory store is files, and only its search index is SQL; from NEXUS 0.2, NEXUS draws the ERD of nexus.sql itself. Translations beside them are not read as sources. Korean copies, with the tables as databases, are in the project's Notion records (memory on 2026-10-24, NEXUS on 2026-11-02); the copies follow these files. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+      "note": "NEXUS's server data and files in nexus.md, with the D1 tables of the NEXUS server in nexus.sql (drafted on 2026-11-02 while the memory plugin is built, as the maintainer chose that day; its TBL IDs start at TBL-101, and it passed its checkpoint on 2026-11-03 together with the NEXUS user flows, functional spec and stages 06 to 08, so its schema is frozen for NEXUS 0.2). Not ERD Editor, the stage's default: the memory store is files, and only its search index is SQL; from NEXUS 0.2, NEXUS draws the ERD of nexus.sql itself. Translations beside them are not read as sources. Korean copies, with the tables as databases, are in the project's Notion records (memory on 2026-10-24, NEXUS on 2026-11-02); the copies follow these files. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained. The machine source is nexus.sql so the hub includes the ERD picture; the explanatory model remains in nexus.md. Corrected after the local own-repository check on 2026-11-04."
     },
     "06-api": {
       "human": "notion",
@@ -77,7 +77,7 @@
       "human": "pull request",
       "source": "nexus/src/",
       "truth": "source",
-      "note": "NEXUS source moved from the harness on2026-11-04. The split and standalone-server plan are approved; original stage01\u201309 decisions and frozen tokens remain traceable. Hub/core implementation stays in the harness; project source and QA are here."
+      "note": "NEXUS source moved from the harness on2026-11-04. The split and standalone-server plan are approved; original stage01–09 decisions and frozen tokens remain traceable. Hub/core implementation stays in the harness; project source and QA are here."
     },
     "12-qa": {
       "human": "notion",

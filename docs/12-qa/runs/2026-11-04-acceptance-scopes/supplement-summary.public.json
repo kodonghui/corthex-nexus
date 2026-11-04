@@ -1,0 +1,448 @@
+{
+  "schema": "nexus-core-model-walk-public-receipt-summary/1",
+  "run": "runs-20261104T122307Z",
+  "executionCompleteCases": 2,
+  "plannedCases": 2,
+  "cases": [
+    {
+      "case": "claude-M05",
+      "executionComplete": true,
+      "exit": 0,
+      "timeout": false,
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "sessionCount": 1,
+      "actualInputTurns": 1,
+      "modelOrEffortFlags": false,
+      "todoPrecondition": [
+        {
+          "group": "comments",
+          "total": 0,
+          "ids": []
+        },
+        {
+          "group": "discrepancies",
+          "total": 1,
+          "ids": [
+            "nd_068dfhe8tr5n"
+          ]
+        },
+        {
+          "group": "reflections",
+          "total": 1,
+          "ids": [
+            "ne_6vkc54t4tas8"
+          ]
+        },
+        {
+          "group": "checkpoints",
+          "total": 0,
+          "ids": []
+        }
+      ],
+      "modelHubCalls": [
+        {
+          "command": "todo",
+          "args": [
+            "todo",
+            "qa-core-model",
+            "--session",
+            "qa-model-session",
+            "--json"
+          ],
+          "exit": 0,
+          "outcome": "done",
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 1,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "push",
+          "args": [
+            "push",
+            "qa-core-model",
+            "--dry-run"
+          ],
+          "exit": 0,
+          "outcome": null,
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 0,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "claim",
+          "args": [
+            "claim",
+            "qa-core-model",
+            "ne_6vkc54t4tas8",
+            "--session",
+            "qa-model-session"
+          ],
+          "exit": 0,
+          "outcome": null,
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 1,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "show",
+          "args": [
+            "show",
+            "qa-core-model",
+            "ne_6vkc54t4tas8"
+          ],
+          "exit": 0,
+          "outcome": null,
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 1,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "show",
+          "args": [
+            "show",
+            "qa-core-model",
+            "np_bfgh2bxecmvh"
+          ],
+          "exit": 0,
+          "outcome": null,
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 1,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "status",
+          "args": [
+            "status",
+            "--help"
+          ],
+          "exit": 0,
+          "outcome": null,
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 0,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "status",
+          "args": [
+            "status",
+            "qa-core-model",
+            "01-domain",
+            "--part",
+            "nexus",
+            "--repository",
+            "--state",
+            "in_progress",
+            "--next",
+            "Review and merge the PR for ne_6vkc54t4tas8; no human checkpoint has been recorded.",
+            "--check",
+            "info",
+            "Timeline note reworded per accepted proposal np_bfgh2bxecmvh; timeline lanes, places and alternatives unchanged."
+          ],
+          "exit": 0,
+          "outcome": null,
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 0,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "reflect",
+          "args": [
+            "reflect",
+            "qa-core-model",
+            "ne_6vkc54t4tas8",
+            "opened",
+            "--pr",
+            "[url omitted]",
+            "--session",
+            "qa-model-session"
+          ],
+          "exit": 0,
+          "outcome": null,
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 1,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "show",
+          "args": [
+            "show",
+            "qa-core-model",
+            "ne_6vkc54t4tas8"
+          ],
+          "exit": 0,
+          "outcome": null,
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 1,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        }
+      ],
+      "localPrState": {
+        "scope": "local simulated PR only",
+        "url": "[url omitted]",
+        "state": "open",
+        "head": "626ca3494abd9851842f34fdfb070f08a54aa678"
+      },
+      "memoryRecordUnchanged": true,
+      "changedCaseFiles": [
+        ".corthex/stages/nexus.json",
+        "docs/01-domain/nexus.md",
+        "handler-effects.private.json"
+      ],
+      "nexusStageStates": {
+        "01-domain": "in_progress",
+        "05-erd": "in_progress",
+        "11-development": "in_progress"
+      },
+      "checkpointCount": 0,
+      "actualApprovalWordsEntireValue": false,
+      "actualApprovalWordsQuotedInScope": false,
+      "actualApprovalLinkMatches": false,
+      "scope": "actual subscription CLI; explicit synthetic home; actual guarded local hub/handler/SQLite; simulated local PR only",
+      "acceptanceVerdict": "manual source-clause review required; no aggregate promotion"
+    },
+    {
+      "case": "claude-M08",
+      "executionComplete": true,
+      "exit": 0,
+      "timeout": false,
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "sessionCount": 1,
+      "actualInputTurns": 1,
+      "modelOrEffortFlags": false,
+      "todoPrecondition": [
+        {
+          "group": "comments",
+          "total": 0,
+          "ids": []
+        },
+        {
+          "group": "discrepancies",
+          "total": 1,
+          "ids": [
+            "nd_jhkh9d9gvp43"
+          ]
+        },
+        {
+          "group": "reflections",
+          "total": 0,
+          "ids": []
+        },
+        {
+          "group": "checkpoints",
+          "total": 1,
+          "ids": [
+            "nk_r1gqgkz0mfs2"
+          ]
+        }
+      ],
+      "modelHubCalls": [
+        {
+          "command": "todo",
+          "args": [
+            "todo",
+            "qa-core-model",
+            "--session",
+            "qa-model-session",
+            "--json"
+          ],
+          "exit": 0,
+          "outcome": "done",
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 1,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "show",
+          "args": [
+            "show",
+            "qa-core-model",
+            "nk_r1gqgkz0mfs2"
+          ],
+          "exit": 0,
+          "outcome": null,
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 1,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "record",
+          "args": [
+            "record",
+            "--help"
+          ],
+          "exit": 0,
+          "outcome": null,
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 0,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "record",
+          "args": [
+            "record",
+            "qa-core-model",
+            "nk_r1gqgkz0mfs2",
+            "closed",
+            "--pr",
+            "[url omitted]",
+            "--session",
+            "qa-model-session",
+            "--json"
+          ],
+          "exit": 0,
+          "outcome": "done",
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 1,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        },
+        {
+          "command": "todo",
+          "args": [
+            "todo",
+            "qa-core-model",
+            "--session",
+            "qa-model-session",
+            "--json"
+          ],
+          "exit": 0,
+          "outcome": "done",
+          "failure": null,
+          "problemStatus": null,
+          "problemCode": null,
+          "guard": {
+            "allowedLoopbackConnections": 1,
+            "blockedConnectionAttempts": 0,
+            "blockedResolutionAttempts": 0,
+            "rawAddressesPersisted": false
+          }
+        }
+      ],
+      "localPrState": {
+        "scope": "local simulated PR only",
+        "url": "[url omitted]",
+        "state": "closed",
+        "head": "170f9a09e663fc306321def4a19c8628acbddd4d"
+      },
+      "memoryRecordUnchanged": true,
+      "changedCaseFiles": [
+        "handler-effects.private.json"
+      ],
+      "nexusStageStates": {
+        "05-erd": "done",
+        "11-development": "in_progress"
+      },
+      "checkpointCount": 1,
+      "actualApprovalWordsEntireValue": false,
+      "actualApprovalWordsQuotedInScope": false,
+      "actualApprovalLinkMatches": false,
+      "scope": "actual subscription CLI; explicit synthetic home; actual guarded local hub/handler/SQLite; simulated local PR only",
+      "acceptanceVerdict": "manual source-clause review required; no aggregate promotion"
+    }
+  ],
+  "cleanup": {
+    "brokerStopped": true,
+    "peerExit": 0,
+    "close": {
+      "ok": true,
+      "closed": 2
+    },
+    "modelProcessesAllWaited": true,
+    "killedOwnedModelsAfterError": []
+  },
+  "sourceVerdictsChanged": false,
+  "publicApprovalUrls": 0,
+  "codexNative": {
+    "newAttemptsInThisRun": 0
+  },
+  "limits": [
+    "No automatic skill installation/default-home discovery proof.",
+    "No real repository upload or hosted PR.",
+    "Synthetic Access is not a real user account.",
+    "Root HTTPS approval receipt is transported original approval, not a new CLI approval.",
+    "No model/effort override or API-key fallback.",
+    "Normal CLI authentication internals were not inspected."
+  ],
+  "scopeOfRun": "bounded supplemental M05/M08 only; original eight-case run preserved"
+}
