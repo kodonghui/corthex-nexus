@@ -226,3 +226,8 @@ The independent API audit maps all 411 named examples without changing TC IDs. E
 The 8CC00C artifact passed 120 Node tests, nine Python bridge/public checks, Worker dry-run and all seven pinned external checks. Standalone Schemathesis exercised 32 operations, with 154/154 responses passing each of five checks. Mock/fixture evidence is distinct from the live Access trial and origin migration rehearsal. Later UI changes are rechecked before their commit.
 
 Development deployment is isolated. Core changes still wait for MEMORY C1, PR C and PR D on main. Main merge, production address/data switch, release tags, first real repository upload and old-resource retirement remain the release decision.
+
+
+## Frozen view bundle checkpoint
+
+The final CAF432 UI is reproduced and passes Python9/Node121/Worker/external7 plus34 exact-artifact portable browser paths. API named evidence is now355 handler variants/393 union;18 generic examples are scoped separately. Screen and API implementation is present; tasks remain in progress until their finishing integration PR and remaining live/state acceptance checks. The linked hub3570fb0 has17 green CI jobs and no code/security findings. [Scoped QA](../12-qa/runs/2026-11-04-product-development.md) retains earlier failures, the48-combination F260 matrix and current screenshots. No core gate or release decision is bypassed.

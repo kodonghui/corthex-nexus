@@ -2,6 +2,7 @@ import {ApiClient,NexusProblem,Drafts,PendingWrites,LatestReads,characters} from
 import {pictureLayout,sceneItems,itemMarks,STEPS,stepIndex} from "./layout.js";
 import {words} from "./messages.js";
 import {drawPicture} from "./picture.js";
+import {stylesheetReady} from "./styles.js";
 import "./view.css";
 
 const node=(tag,text,className)=>{const n=document.createElement(tag);if(text!==undefined&&text!==null)n.textContent=String(text);if(className)n.className=className;return n;};
@@ -12,10 +13,12 @@ const entries=value=>Array.isArray(value)?value:value?.entries||[];
 const safeLink=(label,href)=>{const a=node("a",label,"control");try{const u=new URL(href,location.href);if(u.origin===location.origin&&!u.search)u.search=location.search;if(!["https:","http:"].includes(u.protocol)||u.username||u.password)return node("span",label);a.href=u.href;if(u.origin!==location.origin){a.target="_blank";a.rel="noopener noreferrer";}return a;}catch{return node("span",label);}};
 export function startView(payload){
   if(payload?.schema!=="corthex-view-page/0.2"||!["picture","overview"].includes(payload.view)||!["en","ko"].includes(payload.lang))throw new Error("Unreadable view data");
+  const styled=()=>Boolean(getComputedStyle(document.documentElement).getPropertyValue("--nx-size-target").trim());
+  if(!styled()){stylesheetReady("view",{required:true}).then(ready=>{if(ready&&styled())startView(payload);});return;}
   const lang=payload.lang,ko=lang==="ko",say=(en,kr)=>ko?kr:en,t=(key,values={})=>words(key,lang,values);
   document.documentElement.lang=lang;
   const route=location.pathname.split("/").slice(2).map(decodeURIComponent),project=route[0],part=route[1]==="_"?"":route[1],stage=route[2],place=[project,part||"_",stage].map(encodeURIComponent).join("/");
-  const api=new ApiClient(location.origin),drafts=new Drafts(),pending=new PendingWrites(),reads=new LatestReads(),writeErrors=new Map(),base="/api/spaces/"+encodeURIComponent(project);
+  const api=new ApiClient(location.origin),drafts=new Drafts(),pending=new PendingWrites(),reads=new LatestReads(),writeErrors=new Map(),replyBaselines=new Map(),base="/api/spaces/"+encodeURIComponent(project);
   let data=payload.data,drawn=payload.data?.picture,scene,renderer,drawGeneration=0,localItem=null,panelTarget=null,previousFocus=null,lastStep=null;
   const root=document.getElementById("view");root.replaceChildren();root.className="view";
   const top=node("header",null,"topbar"),title=node("h1",[project,part,stage].filter(Boolean).join(" / "));
@@ -58,22 +61,23 @@ export function startView(payload){
     const h=hash();for(const k of["item","comment","proposal"])h.delete(k);localItem=null;history.replaceState(null,"",location.pathname+location.search+(h.size?"#"+h:""));openFromHash();
   }
   function panelFrame(heading){
+    const active=document.activeElement,editing=active?.tagName==="TEXTAREA"&&panel.contains(active)?{id:active.id,start:active.selectionStart,end:active.selectionEnd}:null;
     panel.replaceChildren();panel.hidden=false;scrim.hidden=false;document.body.classList.add("panel-open");
     panel.setAttribute("aria-modal",String(matchMedia("(max-width:1023px)").matches));
     const handle=node("div",null,"handle"),head=node("div",null,"panel-head"),h=node("h2",heading);h.id="panel-heading";h.tabIndex=-1;
-    put(head,h,button(say("Close","닫기"),closePanel));put(panel,handle,head);queueMicrotask(()=>h.focus());return panel;
+    put(head,h,button(say("Close","닫기"),closePanel));put(panel,handle,head);queueMicrotask(()=>{const input=editing&&document.getElementById(editing.id);if(input&&panel.contains(input)){input.focus();input.setSelectionRange(editing.start,editing.end);}else h.focus();});return panel;
   }
   function entryLink(kind,id,text){return button(text,()=>open(kind,id));}
   function listBlock(parent,title,entries,render,total=entries.length){const section=node("section",null,"card");section.append(node("h2",title));if(total>entries.length)section.append(node("p",say(`${entries.length} of ${total}`,`${total}개 중 ${entries.length}개`),"muted"));const list=node("ul",null,"entries");for(const item of entries){const row=node("li",null,"entry");render(row,item);list.append(row);}if(!entries.length)list.append(node("li",say("None","없음"),"muted"));section.append(list);parent.append(section);return section;}
   function renderCommentRow(row,c){put(row,entryLink("comment",c.id,c.text||c.quote||c.id),node("small",[c.author==="agent"?say("Agent","에이전트"):say("User","사용자"),commentState(c),date(c.last_at)].filter(Boolean).join(" · "),"meta"));}
   function renderProposalRow(row,value){const p=typeof value==="string"?(data.proposals||[]).find(p=>p.id===value)||{id:value}:value;put(row,node("p",p.reason||p.id),p.state?node("small",stateName(p.state),"meta"):null,entryLink("proposal",p.id,say("Open","열기")));}
   function commentState(c){if(c.state==="closed")return c.closed_as==="answered"?say("Closed as answered.","답이 나서 닫힘."):say("Closed with a decision.","결정으로 닫힘.");if(c.settled)return say("Settled by the user, waiting for the agent's record.","사용자가 정함, 에이전트의 기록을 기다림.");if(c.dismissed)return say("A proposal was dismissed.","제안을 버림.");return c.waits==="user"?say("Waiting for the user.","사용자를 기다림."):say("Waiting for the agent.","에이전트를 기다림.");}
-  function writeForm(parent,{scope,label,fieldLabel=label,max=4000,settles=false,optional=false,endpoint,makeBody,onSuccess}){
+  function writeForm(parent,{scope,label,fieldLabel=label,max=4000,settles=false,optional=false,waiting=false,endpoint,makeBody,onSuccess}){
     const key=project+":"+scope,initial=drafts.read(key),form=node("form"),labelNode=node("label",fieldLabel),textarea=node("textarea"),remaining=node("small",null,"meta"),errors=node("div"),submit=node("button",say("Send","보내기"),"primary");
     textarea.value=initial.text;textarea.id="draft-"+scope.replace(/[^a-z0-9-]/gi,"-");labelNode.htmlFor=textarea.id;submit.type="submit";errors.setAttribute("aria-live","polite");remaining.id=textarea.id+"-remaining";textarea.setAttribute("aria-describedby",remaining.id);
     let checkbox;if(settles){checkbox=node("input");checkbox.type="checkbox";checkbox.checked=initial.settles;const check=node("label",null,"check");put(check,checkbox,node("span",t("Settles it")));form.append(check);}
     function keep(){return drafts.update(key,{text:textarea.value,settles:checkbox?.checked||false});}
-    function update(){const n=characters(textarea.value),busy=pending.has(key);remaining.textContent=n>=max*.9?t("Characters left",{n:max-n}):"";textarea.readOnly=busy;if(checkbox)checkbox.disabled=busy;submit.disabled=busy||n>max||(!optional&&!textarea.value.trim());submit.textContent=busy?t("Sending"):label;form.setAttribute("aria-busy",String(busy));}
+    function update(){const n=characters(textarea.value),busy=pending.has(key);remaining.textContent=n>=max*.9?t("Characters left",{n:max-n}):"";textarea.readOnly=busy;if(checkbox)checkbox.disabled=busy;submit.disabled=waiting||busy||n>max||(!optional&&!textarea.value.trim());submit.textContent=busy?t("Sending"):label;form.setAttribute("aria-busy",String(waiting||busy));}
     textarea.addEventListener("input",()=>{keep();update();});checkbox?.addEventListener("change",()=>{keep();update();});
     const showError=()=>{errors.replaceChildren();const error=writeErrors.get(key);if(error)errors.append(errorBox(error,()=>form.requestSubmit()));};
     const unsubscribe=pending.subscribe(which=>{if(!form.isConnected){unsubscribe();return;}if(which===key){update();showError();}});showError();
@@ -83,10 +87,10 @@ export function startView(payload){
     });
     put(form,labelNode,textarea,remaining,errors,submit);parent.append(form);update();return form;
   }
-  function action(parent,{scope,label,endpoint,done}){
+  function action(parent,{scope,label,endpoint,done,waiting=false}){
     const key=project+":"+scope,group=node("div",null,"action"),errorArea=node("div"),b=button(label,send);put(group,errorArea,b);parent.append(group);
-    const update=()=>{b.disabled=pending.has(key);b.textContent=b.disabled?t("Sending"):label;};pending.subscribe(which=>{if(which===key&&b.isConnected)update();});update();
-    async function send(){if(pending.has(key))return;errorArea.replaceChildren();const locationAtSend=location.href,draft=drafts.ensure(key);try{const value=await pending.run(key,()=>api.call("POST",endpoint,{body:{},write:draft.write}));drafts.clear(key,draft.write);await refresh();if(location.href===locationAtSend)done?.(value);}catch(error){if(error.code==="write_id_reused")drafts.renew(key);errorArea.replaceChildren(errorBox(error,send));if(["proposal_not_open","edit_state","checkpoint_recorded"].includes(error.code))await refresh();}finally{update();}}
+    const update=()=>{b.disabled=waiting||pending.has(key);b.textContent=pending.has(key)?t("Sending"):label;};pending.subscribe(which=>{if(which===key&&b.isConnected)update();});update();
+    async function send(){if(waiting||pending.has(key))return;errorArea.replaceChildren();const locationAtSend=location.href,draft=drafts.ensure(key);try{const value=await pending.run(key,()=>api.call("POST",endpoint,{body:{},write:draft.write}));drafts.clear(key,draft.write);await refresh();if(location.href===locationAtSend)done?.(value);}catch(error){if(error.code==="write_id_reused")drafts.renew(key);if(["proposal_not_open","edit_state","checkpoint_recorded"].includes(error.code)){await refresh();if(location.href===locationAtSend)status.append(errorBox(error));}else errorArea.replaceChildren(errorBox(error,send));}finally{update();}}
   }
   function renderItem(id,provided){
     const items=sceneItems(pictureLayout(drawn?.source||{},stage)),item=provided||items.find(n=>n.id===id),p=panelFrame(id||provided?.text||say("Part without an ID","ID 없는 부분"));
@@ -103,21 +107,25 @@ export function startView(payload){
   function renderThread(c,{focus=true}={}){
     const p=focus?panelFrame((c.item||c.quote||c.id)+" · "+commentState(c)):panel;p.append(node("p",c.text));p.append(node("p",commentState(c),"muted"));
     put(p,node("small",(c.author==="agent"?say("Agent","에이전트"):say("User","사용자"))+" · "+date(c.made_at),"meta"));if(c.item)p.append(entryLink("item",c.item,c.item));if(c.quote)p.append(node("blockquote",c.quote));
-    if(!Array.isArray(c.replies)){p.append(node("div",t("Loading the replies"),"skeleton"));return;}
-    if(!c.replies.length)p.append(node("p",t("No replies")));
-    for(const reply of c.replies){const row=node("article",null,"entry");put(row,node("p",reply.text),node("small",(reply.author==="agent"?say("Agent","에이전트"):say("User","사용자"))+" · "+date(reply.made_at)+(reply.settles?" · "+t("Settles it"):""),"meta"));p.append(row);}
-    for(const decision of c.decisions||[])put(p,safeLink(decision.text||decision.link,decision.link),node("small",date(decision.made_at),"meta"));
+    const loaded=Array.isArray(c.replies);
+    const shownReplies=loaded?c.replies:c.last_reply?[c.last_reply]:[];if(!replyBaselines.has(c.id))replyBaselines.set(c.id,Math.max(0,...shownReplies.map(r=>r.seq)));
+    if(!loaded)p.append(node("div",t("Loading the replies"),"skeleton"));
+    else if(!c.replies.length)p.append(node("p",t("No replies")));
+    for(const reply of shownReplies){const row=node("article",null,"entry");put(row,node("p",reply.text),node("small",(reply.author==="agent"?say("Agent","에이전트"):say("User","사용자"))+" · "+date(reply.made_at)+(reply.settles?" · "+t("Settles it"):""),"meta"));if(reply.author==="agent"&&reply.seq>replyBaselines.get(c.id))row.append(node("span",say("New","새로 옴"),"badge"));p.append(row);}
+    if(c.part!==undefined&&(c.part!==part||c.stage!==stage))p.append(safeLink(say("Picture view","그림 보기"),"/pictures/"+[project,c.part||"_",c.stage].map(encodeURIComponent).join("/")+"#comment="+encodeURIComponent(c.id)));
+    for(const decision of Array.isArray(c.decisions)?c.decisions:[])put(p,safeLink(decision.text||decision.link,decision.link),node("small",date(decision.made_at),"meta"));
     if(c.proposals?.length)listBlock(p,say("Proposals","제안"),c.proposals,renderProposalRow);
-    writeForm(p,{scope:"reply:"+c.id,label:c.state==="closed"?t("Open again"):say("Reply","답글 남기기"),settles:true,endpoint:base+"/comments/"+encodeURIComponent(c.id)+"/replies",makeBody:d=>({text:d.text,settles:d.settles})});
-    if(c.state==="open")action(p,{scope:"answered:"+c.id,label:say("Answered","답이 나옴"),endpoint:base+"/comments/"+encodeURIComponent(c.id)+"/answered",done:value=>{if(value.changed===false)status.replaceChildren(notice(t("Already closed")));}});
+    writeForm(p,{scope:"reply:"+c.id,label:c.state==="closed"?t("Open again"):say("Reply","답글 남기기"),settles:true,waiting:!loaded,endpoint:base+"/comments/"+encodeURIComponent(c.id)+"/replies",makeBody:d=>({text:d.text,settles:d.settles})});
+    if(c.state==="open")action(p,{scope:"answered:"+c.id,label:say("Answered","답이 나옴"),waiting:!loaded,endpoint:base+"/comments/"+encodeURIComponent(c.id)+"/answered",done:value=>{if(value.changed===false)status.replaceChildren(notice(t("Already closed")));}});
   }
   async function renderProposal(p){
     const frame=panelFrame(say("Proposal on ","제안: ")+p.items.join(", ")),headings=say("Change · Reason · Stage source text · Made on commit {commit} · Answers","변경 · 까닭 · 단계 원본의 글 · 커밋 {commit}에서 낸 제안 · 답하는 의견").split(" · ");
     for(const [i,value]of[p.change,p.reason,p.source_text].entries()){frame.append(node("h3",headings[i]));if(value===undefined)frame.append(node("div",t("Loading the source text"),"skeleton"));else frame.append(node(i===2?"pre":"p",value||""));}
+    const sourceChars=p.source_text_chars??(p.source_text===undefined?null:characters(p.source_text||""));if(sourceChars!==null)frame.append(node("small",say(`${sourceChars} characters`,`${sourceChars}자`),"meta"));
     frame.append(node("p",headings[3].replace("{commit}",p.commit),"muted"));if(drawn&&p.commit!==drawn.commit)frame.append(notice(t("Earlier picture",{commit:p.commit}),"warn"));
     if(p.comment)frame.append(entryLink("comment",p.comment,p.comment));if(p.discrepancy){const d=entries(data.discrepancies).find(d=>d.id===p.discrepancy);if(d)frame.append(entryLink("item",d.item||d.term,d.item||d.term));}
     for(const id of p.items)frame.append(entryLink("item",id,id));
-    if(p.state==="open"&&p.source_text!==undefined){action(frame,{scope:"accept:"+p.id,label:say("Accept","받기"),endpoint:base+"/proposals/"+encodeURIComponent(p.id)+"/accept"});action(frame,{scope:"dismiss-proposal:"+p.id,label:say("Dismiss","버리기"),endpoint:base+"/proposals/"+encodeURIComponent(p.id)+"/dismiss"});}
+    if(p.state==="open"){action(frame,{scope:"accept:"+p.id,label:say("Accept","받기"),waiting:p.source_text===undefined,endpoint:base+"/proposals/"+encodeURIComponent(p.id)+"/accept"});action(frame,{scope:"dismiss-proposal:"+p.id,label:say("Dismiss","버리기"),waiting:p.source_text===undefined,endpoint:base+"/proposals/"+encodeURIComponent(p.id)+"/dismiss"});}
     else if(p.state==="accepted"){
       let edit=entries(data.reflections).find(e=>e.id===p.edit||e.proposal?.id===p.id);
       if(p.edit&&!edit)try{edit=await api.call("GET",base+"/edits/"+encodeURIComponent(p.edit));if(panelTarget!=="proposal:"+p.id)return;}catch(error){frame.append(errorBox(error,()=>openFromHash()));}
@@ -127,14 +135,14 @@ export function startView(payload){
   }
   async function openFromHash(){
     const h=hash(),kind=["item","comment","proposal"].find(k=>h.has(k)),id=kind?h.get(kind):"",target=kind?kind+":"+id:localItem?"local:"+localItem.key:null;
-    reads.invalidate("panel");panelTarget=target;
+    reads.invalidate("panel");if(target!==panelTarget&&kind==="comment")replyBaselines.delete(id);panelTarget=target;
     if(!target){panel.hidden=true;scrim.hidden=true;document.body.classList.remove("panel-open");previousFocus?.isConnected&&previousFocus.focus();return;}
     if(kind==="item"||localItem){renderItem(id,localItem);return;}
     panelFrame(say("Loading…","불러오는 중…")).append(node("div",kind==="comment"?t("Loading the replies"):t("Loading the source text"),"skeleton"));
     const cached=kind==="comment"?data?.comments?.entries?.find(c=>c.id===id):(data?.proposals||[]).find(p=>p.id===id);
     if(cached){if(kind==="comment")renderThread(cached);else renderProposal(cached);}
     try{await reads.run("panel",()=>api.call("GET",base+"/"+(kind==="comment"?"comments/":"proposals/")+encodeURIComponent(id)),value=>{if(kind==="comment")renderThread(value);else renderProposal(value);});}
-    catch(error){if(panelTarget!==target)return;panel.append(errorBox(error,openFromHash));if(error.status===404){panel.append(button(t("Back to the picture"),closePanel));refresh({panel:false});}}
+    catch(error){if(panelTarget!==target)return;const context=t("Could not load").split(ko?" 또는: ":" Or: ")[kind==="comment"?0:1];panel.querySelectorAll(".skeleton").forEach(n=>n.remove());if(!cached){panel.querySelector("h2").textContent=context;if(kind==="comment"&&/^nc_[0-9a-hjkmnp-tv-z]{12}$/.test(id))writeForm(panel,{scope:"reply:"+id,label:say("Reply","답글 남기기"),waiting:true,endpoint:base+"/comments/"+encodeURIComponent(id)+"/replies",makeBody:d=>({text:d.text,settles:d.settles})});}panel.append(notice(context,"error"),errorBox(error,openFromHash));if(error.status===404){panel.append(button(t("Back to the picture"),closePanel));refresh({panel:false});}}
   }
   let lists;
   function renderLists(){
@@ -162,7 +170,7 @@ export function startView(payload){
   }
   function renderOverview(){
     body.replaceChildren();setMeta();if(!data)return;const wrap=node("div",null,"overview"),record=node("section",null,"card wide");put(record,node("h2",say("Recorded state","기록된 상태")),node("span",stateName(data.record?.state||"unknown"),"stage-state "+(data.record?.state||"unknown")));
-    if(data.record){put(record,node("p",data.record.next),node("small",date(data.record.updated)+" · "+data.record.from,"meta"));for(const cp of data.record.checkpoints||[])put(record,node("p",cp.words||cp.date),cp.where?safeLink(cp.where,cp.where):null);}
+    if(data.record){put(record,node("p",data.record.next),node("small",date(data.record.updated)+" · "+(data.record.from==="repository"?say("from the default branch","기본 브랜치의 기록"):say("from this device","이 기기의 기록")),"meta"));for(const cp of data.record.checkpoints||[])put(record,node("p",cp.words||cp.date),cp.where?safeLink(cp.where,cp.where):null);}
     if(!data.read)record.append(notice(t("Not read",{why:data.source_state})));
     for(const pic of data.pictures||[])record.append(safeLink(say("Picture view","그림 보기")+" · "+pic.stage,"/pictures/"+[project,part||"_",pic.stage].map(encodeURIComponent).join("/")));
     for(const warning of data.warnings||[])record.append(notice(t("Withdrawn, recorded"),"warn"));if(data.not_opened)record.append(notice(t("Not opened",{n:data.not_opened}),"warn"));wrap.append(record);

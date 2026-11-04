@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      NEXUS_QA_ARTIFACTS: ${{ github.workspace }}/../nexus-browser-artifacts
+      NEXUS_QA_ARTIFACTS: ${{ runner.temp }}/nexus-browser-artifacts
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:

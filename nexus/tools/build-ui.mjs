@@ -62,7 +62,7 @@ async function bundle(name,entry,define={}){
  for(const file of result.outputFiles.filter(f=>f.path.endsWith(".LEGAL.txt")))legal.push({name:name+"-"+basename(file.path),text:file.text,sha256:sha(file.contents)});
 }
 await bundle("excalidraw",resolve(ui,"editor-excalidraw.js"));await bundle("erd",resolve(ui,"editor-erd.js"));
-await bundle("view",resolve(ui,"core.js"),{__NEXUS_ERD__:JSON.stringify(entries["erd-js"]),__NEXUS_EXCALIDRAW__:JSON.stringify(entries["excalidraw-js"])});
+await bundle("view",resolve(ui,"core.js"),{__NEXUS_ERD__:JSON.stringify(entries["erd-js"]),__NEXUS_EXCALIDRAW__:JSON.stringify(entries["excalidraw-js"]),__NEXUS_EXCALIDRAW_CSS__:JSON.stringify(entries["excalidraw-css"]||"")});
 entries["font-preload"]=["fonts/Assistant/Assistant-Regular.woff2","fonts/Assistant/Assistant-Bold.woff2"].map(p=>fontMap.get(p)).filter(Boolean);
 if(patches.filter(p=>p.name==="erd-viewport-bridge").length!==1||patches.filter(p=>p.name==="erd-high-level-label-fit").length!==1||patches.filter(p=>p.name==="excalidraw-no-hosted-firebase").length!==1)throw new Error("Expected browser patches not applied exactly once");
 const imports=files.map((f,i)=>`import f${i} from ${JSON.stringify("./"+f.path)};`).join("\n");writeFileSync(resolve(out,"manifest.js"),imports+"\nexport const code={\n"+files.map((f,i)=>JSON.stringify(f.name)+`:{type:${JSON.stringify(f.type)},body:f${i}}`).join(",\n")+"\n};\nexport const entries="+JSON.stringify(entries)+";\n");

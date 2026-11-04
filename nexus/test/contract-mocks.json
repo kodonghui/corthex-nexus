@@ -1,0 +1,334 @@
+{
+  "metadata": {
+    "schema": "nexus-ui-contract-mocks/1",
+    "syntheticOnly": true,
+    "project": "qa-synthetic",
+    "sourceFile": "C:\\Users\\Codelab\\Documents\\Codex\\2026-11-03\\dlr\\work\\corthex-nexus-extract\\docs\\06-api\\nexus.openapi.yaml",
+    "clientFile": "C:\\Users\\Codelab\\Documents\\Codex\\2026-11-03\\dlr\\work\\corthex-nexus-extract\\nexus\\ui\\state.js",
+    "scope": "Mock response bodies and transport instructions only; no browser, server, real write, or Prism run was performed to create this file.",
+    "responseBodyRule": "Send only an entry's body as its JSON response, not the surrounding metadata. Keep nullable required fields. Do not add project to strict response DTOs.",
+    "interceptionRule": "GET bodies and refusal problems may be intercepted. API129 success entries are reference-only; perform actual successful writes through the native client and verify them with the owning fixture GET/receipts.",
+    "adaptationRule": "Before intercepting a live synthetic fixture, adapt IDs, part, stage, item(s), commit, and nested references together to the observed fixture values; these contract example IDs are not guaranteed to match its current hash panel or scene.",
+    "inventedTestMarkers": [
+      {
+        "fields": ["metadata.schema", "metadata.project", "transport.*.name", "transport.*.expectedClientCode"],
+        "values": ["nexus-ui-contract-mocks/1", "qa-synthetic"],
+        "reason": "Local fixture labels and transport descriptions, not API body members."
+      },
+      {
+        "fields": ["problems.*.body.traceId"],
+        "value": "0123456789abcdef",
+        "reason": "Invented valid 16-hex trace marker; not a server receipt or Cloudflare Ray ID."
+      },
+      {
+        "fields": ["problems.*.body.detail", "problems.*.body.error"],
+        "pattern": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:<code>",
+        "reason": "Invented matching strings to verify that the UI localizes by code and never renders server detail. They are not observed server messages."
+      },
+      {
+        "fields": ["reads.edit_read.body.pull_request", "writeSuccessReferenceOnly.withdrawn.body.checkpoint.pull_request", "writeSuccessReferenceOnly.already_withdrawn.body.checkpoint.pull_request"],
+        "pattern": "https://github.com/example/qa-synthetic/pull/{124|125}",
+        "reason": "Replaces the documentation's public repository URLs with synthetic link targets. No navigation or GitHub effect was performed."
+      }
+    ],
+    "copiedFields": "All success DTO IDs, commits, timestamps, text, states, booleans, nulls, and part/stage values are copied from the named OpenAPI examples except the explicitly listed synthetic PR URLs. Problem titles, statuses, codes, state, and needs are copied from their named examples."
+  },
+  "contractRules": {
+    "problemRequired": ["title", "status", "detail", "code", "traceId", "error"],
+    "problemErrorType": "string",
+    "problemErrorEqualsDetail": true,
+    "problemAdditionalProperties": false,
+    "problemTraceIdPattern": "^[0-9a-f]{16}(?:-[A-Z]{3})?$",
+    "problemStateEnum": ["accepted", "dismissed", "withdrawn", "pending", "in-review", "needs-user", "closed"],
+    "proposalNotOpenStateEnum": ["accepted", "dismissed", "withdrawn"],
+    "proposalNotOpenStateNeededForUI": true,
+    "editStateEnum": ["pending", "in-review", "needs-user", "closed", "dismissed"],
+    "checkpointRecordedNeedsState": false,
+    "checkpointStateEnum": ["passed", "withdrawn"],
+    "checkpointStateWarning": "passed is not in Problem.state. Do not add state:passed to a checkpoint_recorded Problem.",
+    "uiReadsErrorFields": ["code", "traceId", "field", "state", "why", "limit"],
+    "uiNeverDisplaysServerDetail": true,
+    "checkpointReadAlias": "reads.checkpoint_read is the API117 local key; its embedded OpenAPI example is components/examples/checkpoint_passed, referenced by the path example named passed."
+  },
+  "reads": {
+    "comment_thread": {
+      "api": "API-114",
+      "method": "GET",
+      "path": "/api/spaces/{project}/comments/{comment}",
+      "sourceRef": "#/components/examples/comment_thread",
+      "status": 200,
+      "contentType": "application/json",
+      "body": {
+        "id": "nc_3a6d9g2j5m8r",
+        "part": "nexus",
+        "stage": "01-domain",
+        "item": "CTX-014",
+        "quote": null,
+        "discrepancy": null,
+        "commit": "3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a",
+        "author": "user",
+        "text": "Should a reply be able to settle a comment on its own?",
+        "state": "open",
+        "closed_as": null,
+        "waits": "agent",
+        "settled": true,
+        "dismissed": false,
+        "made_at": "2026-11-03T01:00:10.000Z",
+        "last_at": "2026-11-03T02:14:09.120Z",
+        "replies": [
+          {
+            "seq": 1,
+            "author": "agent",
+            "text": "The recommendation is yes: SPEC-127 lets the user's reply settle it, and the agent records the decision.",
+            "settles": false,
+            "made_at": "2026-11-03T01:30:00.000Z"
+          },
+          {
+            "seq": 2,
+            "author": "user",
+            "text": "Yes, as recommended: a reply settles it.",
+            "settles": true,
+            "made_at": "2026-11-03T02:14:09.120Z"
+          }
+        ],
+        "decisions": [],
+        "proposals": []
+      }
+    },
+    "proposal_made": {
+      "api": "API-115",
+      "method": "GET",
+      "path": "/api/spaces/{project}/proposals/{proposal}",
+      "sourceRef": "#/components/examples/proposal_made",
+      "status": 200,
+      "contentType": "application/json",
+      "body": {
+        "id": "np_2b5e8g1j4m7p",
+        "part": "nexus",
+        "stage": "05-erd",
+        "commit": "3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a",
+        "items": ["TBL-111"],
+        "reason": "The comment asks for the glossary's word.",
+        "change": "Rename the table claims to entry_claims.",
+        "source_text": "CREATE TABLE entry_claims (",
+        "comment": "nc_8k1n4q7s0v3y",
+        "discrepancy": null,
+        "state": "open",
+        "made_at": "2026-11-03T06:40:00.000Z",
+        "closed_at": null,
+        "edit": null
+      }
+    },
+    "edit_read": {
+      "api": "API-116",
+      "method": "GET",
+      "path": "/api/spaces/{project}/edits/{edit}",
+      "sourceRef": "#/components/examples/edit_read",
+      "status": 200,
+      "contentType": "application/json",
+      "body": {
+        "id": "ne_9c3f6h2k5n8q",
+        "part": "nexus",
+        "stage": "05-erd",
+        "commit": "3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a",
+        "state": "in-review",
+        "pull_request": "https://github.com/example/qa-synthetic/pull/124",
+        "closed_commit": null,
+        "made_at": "2026-11-03T07:30:41.882Z",
+        "changed_at": "2026-11-03T08:12:00.250Z",
+        "proposal": {
+          "id": "np_2b5e8g1j4m7p",
+          "part": "nexus",
+          "stage": "05-erd",
+          "commit": "3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a",
+          "items": ["TBL-111"],
+          "reason": "The comment asks for the glossary's word.",
+          "change": "Rename the table claims to entry_claims.",
+          "source_text": "CREATE TABLE entry_claims (",
+          "comment": "nc_8k1n4q7s0v3y",
+          "discrepancy": null,
+          "state": "accepted",
+          "made_at": "2026-11-03T06:40:00.000Z",
+          "closed_at": "2026-11-03T07:30:41.882Z",
+          "edit": "ne_9c3f6h2k5n8q"
+        }
+      }
+    },
+    "checkpoint_read": {
+      "api": "API-117",
+      "method": "GET",
+      "path": "/api/spaces/{project}/checkpoints/{checkpoint}",
+      "sourceRef": "#/components/examples/checkpoint_passed",
+      "pathExampleName": "passed",
+      "status": 200,
+      "contentType": "application/json",
+      "body": {
+        "id": "nk_7f3k2m9q4x1v",
+        "part": "nexus",
+        "stage": "04-functional-spec",
+        "commit": "3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a",
+        "words": "The rows as drafted, with the four points as recommended.",
+        "state": "passed",
+        "passed_at": "2026-11-03T09:00:00.000Z",
+        "withdrawn_at": null,
+        "pull_request": null,
+        "pr_state": null,
+        "recorded_commit": null
+      }
+    }
+  },
+  "writeSuccessReferenceOnly": {
+    "withdrawn": {
+      "api": "API-129",
+      "method": "POST",
+      "path": "/api/spaces/{project}/checkpoints/{checkpoint}/withdraw",
+      "sourceRef": "#/paths/~1api~1spaces~1{project}~1checkpoints~1{checkpoint}~1withdraw/post/responses/200/content/application~1json/examples/withdrawn",
+      "interceptSuccess": false,
+      "status": 200,
+      "contentType": "application/json",
+      "body": {
+        "checkpoint": {
+          "id": "nk_7f3k2m9q4x1v",
+          "part": "nexus",
+          "stage": "04-functional-spec",
+          "commit": "3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a",
+          "words": "The rows as drafted, with the four points as recommended.",
+          "state": "withdrawn",
+          "passed_at": "2026-11-03T09:00:00.000Z",
+          "withdrawn_at": "2026-11-03T09:20:00.000Z",
+          "pull_request": "https://github.com/example/qa-synthetic/pull/125",
+          "pr_state": "open",
+          "recorded_commit": null
+        },
+        "changed": true
+      }
+    },
+    "already_withdrawn": {
+      "api": "API-129",
+      "method": "POST",
+      "path": "/api/spaces/{project}/checkpoints/{checkpoint}/withdraw",
+      "sourceRef": "#/paths/~1api~1spaces~1{project}~1checkpoints~1{checkpoint}~1withdraw/post/responses/200/content/application~1json/examples/already-withdrawn",
+      "interceptSuccess": false,
+      "status": 200,
+      "contentType": "application/json",
+      "body": {
+        "checkpoint": {
+          "id": "nk_7f3k2m9q4x1v",
+          "part": "nexus",
+          "stage": "04-functional-spec",
+          "commit": "3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a",
+          "words": "The rows as drafted, with the four points as recommended.",
+          "state": "withdrawn",
+          "passed_at": "2026-11-03T09:00:00.000Z",
+          "withdrawn_at": "2026-11-03T09:20:00.000Z",
+          "pull_request": "https://github.com/example/qa-synthetic/pull/125",
+          "pr_state": "open",
+          "recorded_commit": null
+        },
+        "changed": false
+      }
+    }
+  },
+  "problems": {
+    "comment_not_found": {
+      "sourceRef": "#/components/examples/comment_not_found",
+      "status": 404,
+      "contentType": "application/problem+json",
+      "body": {"title": "No such comment", "status": 404, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:comment_not_found", "code": "comment_not_found", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:comment_not_found"}
+    },
+    "proposal_not_found": {
+      "sourceRef": "#/components/examples/proposal_not_found",
+      "status": 404,
+      "contentType": "application/problem+json",
+      "body": {"title": "No such proposal", "status": 404, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:proposal_not_found", "code": "proposal_not_found", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:proposal_not_found"}
+    },
+    "edit_not_found": {
+      "sourceRef": "#/components/examples/edit_not_found",
+      "status": 404,
+      "contentType": "application/problem+json",
+      "body": {"title": "No such reflection", "status": 404, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:edit_not_found", "code": "edit_not_found", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:edit_not_found"}
+    },
+    "checkpoint_not_found": {
+      "sourceRef": "#/components/examples/checkpoint_not_found",
+      "status": 404,
+      "contentType": "application/problem+json",
+      "body": {"title": "No such checkpoint", "status": 404, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:checkpoint_not_found", "code": "checkpoint_not_found", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:checkpoint_not_found"}
+    },
+    "project_not_found": {
+      "sourceRef": "#/components/examples/project_not_found",
+      "status": 404,
+      "contentType": "application/problem+json",
+      "body": {"title": "No such project", "status": 404, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:project_not_found", "code": "project_not_found", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:project_not_found"}
+    },
+    "space_not_found": {
+      "sourceRef": "#/components/examples/space_not_found",
+      "status": 404,
+      "contentType": "application/problem+json",
+      "body": {"title": "No space for this project", "status": 404, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:space_not_found", "code": "space_not_found", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:space_not_found"}
+    },
+    "access_missing": {
+      "sourceRef": "#/components/examples/access_missing",
+      "status": 403,
+      "contentType": "application/problem+json",
+      "body": {"title": "Not checked by Cloudflare Access", "status": 403, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:access_missing", "code": "access_missing", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:access_missing"}
+    },
+    "access_other_app": {
+      "sourceRef": "#/components/examples/access_other_app",
+      "status": 403,
+      "contentType": "application/problem+json",
+      "body": {"title": "Checked for another application", "status": 403, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:access_other_app", "code": "access_other_app", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:access_other_app"}
+    },
+    "user_only": {
+      "sourceRef": "#/components/examples/user_only",
+      "status": 403,
+      "contentType": "application/problem+json",
+      "body": {"title": "Only the user does this", "status": 403, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:user_only", "code": "user_only", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:user_only", "needs": "user"}
+    },
+    "no_kind": {
+      "sourceRef": "#/components/examples/no_kind",
+      "status": 403,
+      "contentType": "application/problem+json",
+      "body": {"title": "This sign-in cannot write here", "status": 403, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:no_kind", "code": "no_kind", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:no_kind"}
+    },
+    "cross_site": {
+      "sourceRef": "#/components/examples/cross_site",
+      "status": 403,
+      "contentType": "application/problem+json",
+      "body": {"title": "A change from another site", "status": 403, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:cross_site", "code": "cross_site", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:cross_site"}
+    },
+    "proposal_not_open": {
+      "sourceRef": "#/components/examples/proposal_not_open",
+      "status": 409,
+      "contentType": "application/problem+json",
+      "variants": {"state": ["accepted", "dismissed", "withdrawn"]},
+      "body": {"title": "The proposal is not open", "status": 409, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:proposal_not_open", "code": "proposal_not_open", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:proposal_not_open", "state": "dismissed"}
+    },
+    "edit_state": {
+      "sourceRef": "#/components/examples/edit_state",
+      "status": 409,
+      "contentType": "application/problem+json",
+      "variants": {"state": ["pending", "in-review", "needs-user", "closed", "dismissed"]},
+      "body": {"title": "The reflection is in another state", "status": 409, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:edit_state", "code": "edit_state", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:edit_state", "state": "pending"}
+    },
+    "checkpoint_recorded": {
+      "sourceRef": "#/components/examples/checkpoint_recorded",
+      "status": 409,
+      "contentType": "application/problem+json",
+      "body": {"title": "The checkpoint is recorded", "status": 409, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:checkpoint_recorded", "code": "checkpoint_recorded", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:checkpoint_recorded"}
+    },
+    "internal": {
+      "sourceRef": "#/components/examples/internal",
+      "status": 500,
+      "contentType": "application/problem+json",
+      "body": {"title": "Something went wrong", "status": 500, "detail": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:internal", "code": "internal", "traceId": "0123456789abcdef", "error": "QA_SYNTHETIC_DETAIL_NOT_FOR_UI:internal"}
+    }
+  },
+  "transport": {
+    "expired401": {"name": "Synthetic Access 401", "status": 401, "rawBody": "", "jsonBodyRequired": false, "expectedClientCode": "sign_in_expired", "source": "ApiClient checks status before parsing JSON; 401 is omitted from Worker OpenAPI operations because Access answers first."},
+    "opaqueRedirect": {"name": "Synthetic manual redirect", "responseType": "opaqueredirect", "jsonBodyRequired": false, "expectedClientCode": "sign_in_expired", "source": "Fetch Response.type must actually be opaqueredirect. A JSON member named type does not simulate it."},
+    "busy429": {"name": "Synthetic rate limit", "status": 429, "rawBody": "", "jsonBodyRequired": false, "expectedClientCode": "busy", "source": "ApiClient checks status before parsing JSON; no invented Problem code is needed."},
+    "busy503": {"name": "Synthetic unavailable", "status": 503, "rawBody": "", "jsonBodyRequired": false, "expectedClientCode": "busy", "source": "ApiClient checks status before parsing JSON; no invented Problem code is needed."},
+    "network": {"name": "Synthetic connection failure", "httpResponse": false, "expectedClientCode": "network", "source": "Reject/fail the fetch. A 500 JSON response tests internal, not a connection failure."},
+    "timeout": {"name": "Synthetic deadline failure", "httpResponse": false, "deadlineMs": 30000, "expectedClientCode": "timeout", "source": "The current ApiClient deadline is 30000ms. A shorter harness timeout is not proof of this UI path."}
+  }
+}

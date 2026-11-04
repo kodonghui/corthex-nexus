@@ -1,0 +1,307 @@
+{
+  "schema": "nexus-synthetic-browser-qa-public/1",
+  "generatedAt": "2026-11-04T01:42:12.073Z",
+  "syntheticOnly": true,
+  "production": false,
+  "tool": "Isolated Chrome156 CDP / Node24, one browser at a time. Aside baseline screenshot timed out; these selected PNGs are CDP captures.",
+  "build": "CAF43251385F56770CFA31BBAD229BB16DF7527D35A73ADF2558B382D8ADB5BB",
+  "status": "works for enumerated paths",
+  "driver": {
+    "rows": 34,
+    "suites": [
+      {
+        "startedAt": "2026-11-04T01:31:24.830Z",
+        "finishedAt": "2026-11-04T01:31:38.607Z",
+        "elapsedMs": 13777,
+        "status": "works",
+        "profileRemoved": true,
+        "tests": [
+          {
+            "name": "initial-fit-remains",
+            "verdict": "works"
+          },
+          {
+            "name": "ddd-mark-native-pointer",
+            "verdict": "works"
+          },
+          {
+            "name": "korean-line-breaks-and-reflow",
+            "verdict": "works"
+          },
+          {
+            "name": "back-and-escape-retain-draft",
+            "verdict": "works"
+          },
+          {
+            "name": "late-post-retains-new-panel-and-draft",
+            "verdict": "works"
+          }
+        ]
+      },
+      {
+        "startedAt": "2026-11-04T01:31:40.613Z",
+        "finishedAt": "2026-11-04T01:31:46.746Z",
+        "elapsedMs": 6133,
+        "status": "works",
+        "profileRemoved": true,
+        "tests": [
+          {
+            "name": "reply-settle-answer-reopen",
+            "verdict": "works"
+          },
+          {
+            "name": "accept-proposal-keeps-source-and-one-pending-reflection",
+            "verdict": "works"
+          },
+          {
+            "name": "dismiss-needs-user-reflection",
+            "verdict": "works"
+          },
+          {
+            "name": "checkpoint-pass-again-withdraw-date",
+            "verdict": "works"
+          }
+        ]
+      },
+      {
+        "startedAt": "2026-11-04T01:31:48.888Z",
+        "finishedAt": "2026-11-04T01:31:51.044Z",
+        "elapsedMs": 2156,
+        "status": "works",
+        "profileRemoved": true,
+        "tests": [
+          {
+            "name": "dismiss-open-proposal-leaves-comment-open",
+            "verdict": "works"
+          }
+        ]
+      },
+      {
+        "startedAt": "2026-11-04T01:31:53.215Z",
+        "finishedAt": "2026-11-04T01:32:47.521Z",
+        "elapsedMs": 54306,
+        "status": "works",
+        "profileRemoved": true,
+        "tests": [
+          {
+            "name": "comment-loading-ready-reply",
+            "verdict": "works"
+          },
+          {
+            "name": "proposal-loading-source-length",
+            "verdict": "works"
+          },
+          {
+            "name": "comment-read-internal",
+            "verdict": "works"
+          },
+          {
+            "name": "proposal-read-internal",
+            "verdict": "works"
+          },
+          {
+            "name": "comment-gone-keeps-copyable-draft",
+            "verdict": "works"
+          },
+          {
+            "name": "comment-write-no_kind",
+            "verdict": "works"
+          },
+          {
+            "name": "comment-write-access_missing",
+            "verdict": "works"
+          },
+          {
+            "name": "comment-write-access_other_app",
+            "verdict": "works"
+          },
+          {
+            "name": "comment-write-cross_site",
+            "verdict": "works"
+          },
+          {
+            "name": "comment-401-sign-in-retains-draft",
+            "verdict": "works"
+          },
+          {
+            "name": "comment-busy-429",
+            "verdict": "works"
+          },
+          {
+            "name": "comment-busy-503",
+            "verdict": "works"
+          },
+          {
+            "name": "network-retry-same-write-one-reply",
+            "verdict": "works"
+          },
+          {
+            "name": "proposal-permission-user-only",
+            "verdict": "works"
+          },
+          {
+            "name": "timeout-real201-retry-exactly-once",
+            "verdict": "works"
+          },
+          {
+            "name": "comment-real-already-answered",
+            "verdict": "works"
+          },
+          {
+            "name": "proposal-real-stale-accept-conflict",
+            "verdict": "works"
+          },
+          {
+            "name": "overview-write-error-retains-words",
+            "verdict": "works"
+          }
+        ]
+      },
+      {
+        "startedAt": "2026-11-04T01:32:50.060Z",
+        "finishedAt": "2026-11-04T01:32:53.849Z",
+        "elapsedMs": 3789,
+        "status": "works",
+        "profileRemoved": true,
+        "tests": [
+          {
+            "name": "pictures-core-js-only-failure",
+            "verdict": "works"
+          },
+          {
+            "name": "overview-core-js-only-failure",
+            "verdict": "works"
+          },
+          {
+            "name": "01-domain-editor-js-only-failure",
+            "verdict": "works"
+          },
+          {
+            "name": "05-erd-editor-js-only-failure",
+            "verdict": "works"
+          }
+        ]
+      },
+      {
+        "startedAt": "2026-11-04T01:32:56.510Z",
+        "finishedAt": "2026-11-04T01:33:01.230Z",
+        "elapsedMs": 4720,
+        "status": "works",
+        "profileRemoved": true,
+        "tests": [
+          {
+            "name": "view-css-only-failure",
+            "verdict": "works"
+          }
+        ]
+      },
+      {
+        "startedAt": "2026-11-04T01:33:03.789Z",
+        "finishedAt": "2026-11-04T01:33:08.702Z",
+        "elapsedMs": 4913,
+        "status": "works",
+        "profileRemoved": true,
+        "tests": [
+          {
+            "name": "excalidraw-css-only-failure",
+            "verdict": "works"
+          }
+        ]
+      }
+    ],
+    "stableBuild": true,
+    "pythonExitCode": 0
+  },
+  "normalMatrix": {
+    "build": "F26015D851CD1CD67256F6000CC6A8E9DC87D7CFA2D3BF41A73793CB9100B68A",
+    "variants": 48,
+    "languages": [
+      "en",
+      "ko"
+    ],
+    "widths": [
+      320,
+      1440
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "effects": "Successful writes used the real synthetic handle/Store/SQLite and were verified by GET/receipts. Error/refusal responses and stale/new-agent reads were mocked as identified; no real Access login or GitHub effect was tested.",
+  "assets": {
+    "rows": 6,
+    "freshBrowsers": "JS4 in one new browser; each CSS case in its own new browser",
+    "tests": [
+      {
+        "name": "pictures-core-js-only-failure",
+        "verdict": "works"
+      },
+      {
+        "name": "overview-core-js-only-failure",
+        "verdict": "works"
+      },
+      {
+        "name": "01-domain-editor-js-only-failure",
+        "verdict": "works"
+      },
+      {
+        "name": "05-erd-editor-js-only-failure",
+        "verdict": "works"
+      },
+      {
+        "name": "view-css-only-failure",
+        "verdict": "works"
+      },
+      {
+        "name": "excalidraw-css-only-failure",
+        "verdict": "works"
+      }
+    ]
+  },
+  "screenshots": [
+    {
+      "file": "01-proposal-ko-mobile-dark.png",
+      "caption": "한국어 320px dark 제안 원본, F260 정상 매트릭스",
+      "sha256": "0ef56f82d5c5fcb2fd2dcddef28938b43c43a2567140bd686f67162531afe7ea"
+    },
+    {
+      "file": "02-comment-loading-draft.png",
+      "caption": "실제 GET 응답을 지연한 동안 입력한 초안과 대기 버튼, F260",
+      "sha256": "f8dbe82e2b2b3695a31236032f9d42cf6b155ef8e4b53b1c6170ac3dc5ab95be"
+    },
+    {
+      "file": "03-stale-proposal-real409.png",
+      "caption": "오래된 GET만 모의한 뒤 실제 POST409와 재조회 후 안내, F260",
+      "sha256": "24d870b4753ab778123c455c93859d64a509061f7ae8f50d3f56b851c2881776"
+    },
+    {
+      "file": "04-core-css-fallback.png",
+      "caption": "실제 core CSS 요청을 차단한 새 Chrome의 정적 reload, CAF43",
+      "sha256": "ee7e566387994ee731b36860646feeb2e68d0486fb3ea510ef8f452c8fd14fad"
+    },
+    {
+      "file": "05-editor-css-fallback.png",
+      "caption": "실제 editor CSS 요청을 차단한 별도 새 Chrome의 목록/패널, CAF43",
+      "sha256": "2fd99635d63e70b2969f842fdcf4425541d3a05ecead9d46d5aefd7678086573"
+    },
+    {
+      "file": "06-korean-overview-source.png",
+      "caption": "한국어 320px dark 단계 현황의 출처 문구, CAF43",
+      "sha256": "709831ae107f42a23e4286a29626f5913094a64f8d2093f57e0259f4a2a9294d"
+    }
+  ],
+  "exclusions": [
+    "Raw browser profiles/cookies/tokens",
+    "Three old policy-rejected scratch profiles",
+    "One new EBUSY diagnostic scratch profile",
+    "Absolute workspace paths and local fixture ports",
+    "Unmeasured roles, limits, real external services and SW update races"
+  ],
+  "notClaimed": "No all-QA, production, performance20 or p95 success claim.",
+  "selectionRange": {
+    "original34": "Caret42..42 and focus preserved",
+    "supplemental": "Native Shift selected39..42; actual read completion preserved39..42 and focus",
+    "additionalFlowCount": 0
+  }
+}

@@ -1,6 +1,8 @@
 import {itemMarks} from "./layout.js";
+import {stylesheetReady} from "./styles.js";
 const union=rects=>{const x=Math.min(...rects.map(r=>r.x)),y=Math.min(...rects.map(r=>r.y));return{x,y,width:Math.max(...rects.map(r=>r.x+r.width))-x,height:Math.max(...rects.map(r=>r.y+r.height))-y};};
 export async function drawPicture(target,scene,{stage,data,lang,onSelect,onReady}){
+  if(!await stylesheetReady("editor",{required:stage!=="05-erd",href:stage==="05-erd"?"":__NEXUS_EXCALIDRAW_CSS__}))throw new Error("The editor stylesheet is unavailable");
   const canvas=document.createElement("div"),marks=document.createElement("div");canvas.className="picture-canvas";marks.className="markers";marks.setAttribute("aria-hidden","true");target.append(canvas,marks);
   let current=data,controller,destroyed=false,renderFrame,down=null,moved=false,pointers=new Set();
   const dark=matchMedia("(prefers-color-scheme: dark)"),theme=dark.matches?"dark":"light";
