@@ -51,11 +51,14 @@ class FilesTest(unittest.TestCase):
         pairs = (
             (NEXUS / "src" / "hub.html", hub_tests.TEMPLATE),
             (NEXUS / "LICENSE", ROOT / "LICENSE"),
-            (NEXUS / "NOTICE", ROOT / "NOTICE"),
         )
         for copy, source in pairs:
             with self.subTest(copy=str(copy.relative_to(ROOT))):
                 self.assertEqual(copy.read_bytes(), source.read_bytes(), "copy %s from its canonical source again" % source.name)
+        notices = (NEXUS / "NOTICE").read_text(encoding="utf8")
+        self.assertTrue(notices.startswith((ROOT / "NOTICE").read_text(encoding="utf8")))
+        for component in ("@excalidraw/excalidraw", "@dineug/erd-editor", "React", "SIL OPEN FONT LICENSE", "Generated bundle legal comments"):
+            self.assertIn(component, notices)
 
     def test_worker_settings(self):
         config = jsonc(NEXUS / "wrangler.jsonc")

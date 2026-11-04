@@ -13,7 +13,11 @@
   "d1_databases": [{ "binding": "DB", "database_name": "corthex-nexus" }],
   // The page template is bundled as text. Do not add static assets: a Worker
   // with assets does not receive the Access check (ctx.access) it relies on.
-  "rules": [{ "type": "Text", "globs": ["**/*.html"], "fallthrough": true }],
+  "rules": [
+    { "type": "Text", "globs": ["**/*.html"], "fallthrough": true },
+    { "type": "Text", "globs": ["**/*.txt"], "fallthrough": true },
+    { "type": "Data", "globs": ["**/*.woff2"], "fallthrough": true }
+  ],
   "vars": {
     // "ko" for a Korean page, otherwise English.
     "NEXUS_LANGUAGE": "en",

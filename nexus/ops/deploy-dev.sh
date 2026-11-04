@@ -19,6 +19,8 @@ install -d -m 0755 /opt/nexus "$base" "$base/releases" "$release"
 install -d -m 0700 -o nexus-dev -g nexus-dev "$state" "$state/backups"
 tar -xf "$archive" -C "$release" --no-same-owner
 chmod -R a+rX "$release"
+# Resolve every server import before touching the running service or database.
+NEXUS_RUNTIME_CHECK_MODULE="$release/nexus/src/node.js" /usr/bin/node --input-type=module -e 'await import(process.env.NEXUS_RUNTIME_CHECK_MODULE)'
 previous=
 if [ -L "$base/current" ]; then
   previous=$(readlink -f "$base/current" 2>/dev/null || true)

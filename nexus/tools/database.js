@@ -69,7 +69,7 @@ export async function restoreDatabase(sourcePath, destination) {
     source.check();
     await backup(source.connection, destination);
     const restored = new SQLiteD1(destination);
-    try { restored.check(); await new Store(restored).ensure(); restored.check(); }
+    try { restored.check(); }
     finally { restored.close(); }
     return { restored: true, bytes: statSync(destination).size, sha256: digest(destination) };
   } catch (error) { unlinkSync(destination); throw error; }

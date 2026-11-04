@@ -7,7 +7,7 @@ import { join } from "node:path";
 import { AccessVerifier } from "../src/access.js";
 import { createNodeServer, publicOrigin } from "../src/node-server.js";
 import { SQLiteD1 } from "../src/sqlite.js";
-import { Store } from "../src/store.js";
+import { Store, MIGRATIONS } from "../src/store.js";
 import { backupDatabase, restoreDatabase, retainBackups } from "../tools/database.js";
 
 const env = { ACCESS_AUD: "synthetic-audience", ACCESS_TEAM_DOMAIN: "access.example.com", NEXUS_LANGUAGE: "ko" };
@@ -53,7 +53,7 @@ test("standalone signs in without ctx, and keeps issuer, audience, expiry, nbf a
     assert.equal((await call("GET", "/api/snapshots", undefined, { jwt })).status, 403);
   }
   assert.equal((await call("GET", "/api/snapshots", undefined, { headers: { "Cf-Access-Jwt-Assertion": "" } })).status, 403);
-  assert.deepEqual(Object.keys(metrics[0]).sort(), ["processing_ms", "rss_bytes", "status"]);
+  assert.deepEqual(Object.keys(metrics[0]).sort(), ["processing_ms", "request_bytes", "rss_bytes", "status"]);
   const agentRequest = new Request("https://nexus.example.com", { headers: { "Cf-Access-Jwt-Assertion": await token({ sub: "", common_name: "synthetic-client" }) } });
   assert.equal(await verifier().verify(agentRequest, env, {}), "agent");
   // Worker mode still refuses the same signed token with no checked context.
@@ -111,4 +111,23 @@ test("a live WAL backup restores to a separate file and rejects a modified recei
 test("the public origin cannot come from an HTTP/credential/path/forwarded address", () => {
   for (const origin of ["http://nexus.example.com", "https://user:secret@example.com", "https://nexus.example.com/private", "bad"]) assert.throws(() => publicOrigin(origin));
   assert.equal(publicOrigin("https://nexus.example.com/"), "https://nexus.example.com");
+});
+
+test("restoring a legacy backup preserves its schema until an explicit migration", async (t) => {
+  const { db, folder, database } = await fixture(t);
+  db.connection.exec(MIGRATIONS[0].statements[0]);
+  const body = JSON.stringify({ schema: "corthex-hub/0.1", title: "Synthetic legacy" });
+  db.connection.prepare("INSERT INTO snapshots VALUES (?, ?, ?, ?, ?, ?, ?)").run("synthetic", 7, 1, "2026-01-01T00:00:00Z", "2026-01-01T00:00:00Z", Buffer.byteLength(body), body);
+  const receipt = await backupDatabase(database, join(folder, "legacy-backups"), "premigrate");
+  await new Store(db).ensure();
+  const destination = join(folder, "legacy-restored.sqlite");
+  await restoreDatabase(join(folder, "legacy-backups", receipt.file), destination);
+  const restored = new SQLiteD1(destination);
+  try {
+    assert.equal(restored.connection.prepare("SELECT body FROM snapshots").get().body, body);
+    assert.equal(restored.connection.prepare("SELECT name FROM sqlite_master WHERE name='migrations'").get(), undefined);
+    await new Store(restored).ensure();
+    assert.equal((await new Store(restored).list())[0].revision, 7);
+    restored.check();
+  } finally { restored.close(); }
 });

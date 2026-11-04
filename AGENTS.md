@@ -18,6 +18,6 @@ node --test nexus/test/*.test.js
 node nexus/node_modules/wrangler/bin/wrangler.js deploy --dry-run --config nexus/wrangler.jsonc --outdir <outside-checkout-path>
 ```
 
-Use Node 22.13 or later. Run the pinned external contract suite in `.github/workflows/check.yml` for contract, server or hub-boundary changes, and the full-history secret/public-safety checks before publishing imported history. No test uses real credentials or a paid API. Browser flows use synthetic development data and report actual effects.
+Use Node 24 LTS or later. Run the pinned external contract suite in `.github/workflows/check.yml` for contract, server or hub-boundary changes, and the full-history secret/public-safety checks before publishing imported history. No test uses real credentials or a paid API. Browser flows use synthetic development data and report actual effects.
 
 Core/MEMORY gates apply to upstream core changes: C1 0.2.0, PR C and PR D must land before those changes. Plan approval and repository import do not approve a release.

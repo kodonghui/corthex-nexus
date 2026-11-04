@@ -87,7 +87,7 @@ test("HEAD, the protected code endpoint and browser refusals keep their distinct
     assert.equal(head.status,get.status,path);assert.equal(head.text,"");
     for(const key of ["Content-Type","Content-Security-Policy","Cache-Control","X-Frame-Options"])assert.equal(head.headers.get(key),get.headers.get(key),path);
   }
-  const code="view.1234abcd.js",views={code:{[code]:{body:"export const version=2;",type:"application/javascript; charset=utf-8"}}};
+  const code="view.1234abcd.js",views={code:{[code]:{body:"export const version=2;",type:"text/javascript; charset=utf-8"}}};
   assert.equal((await call("GET","/code/"+code,{views,ctx:{}})).status,403);
   const file=await call("GET","/code/"+code,{views});assert.equal(file.text,"export const version=2;");assert.match(file.headers.get("Cache-Control"),/private.*immutable/);
   assert.equal((await call("GET","/code/view.ffffffff.js",{views})).data.code,"not_found");
