@@ -1,0 +1,324 @@
+{
+  "schema": "r3-original-eight-source-adjudication/1",
+  "baseCommit": "35a99413701bca699cdef12e2809de01ac3e3674",
+  "hubPin": "e7ff3947017703128df4c9e4e1b26b0d912eaa70",
+  "counts": {
+    "sourceCases": 710,
+    "priorPass": 510,
+    "priorPartial": 198,
+    "pass": 518,
+    "partial": 190,
+    "fail": 2,
+    "changedCases": 8,
+    "newDistinctExecutedCriteria": 4,
+    "reusedCriteria": 4,
+    "additionalAffectedTc613Execution": 1,
+    "otherWholeRowsUnchanged": 702
+  },
+  "workingTestSources": {
+    "tests/test_original_picture_acceptance.py": "c20ae13cf2acd0a6f41eb039646ed0a465465737797f00711cbad1b36416f9ff",
+    "nexus/test/project-limit-acceptance.test.js": "9235a62615d7939d78b91fb814d94bd8a2cdc907ab87f9fecd8afec17e2a2880"
+  },
+  "testCommitScope": "working source hashes; no invented new commit",
+  "previousResultTemplates": {
+    "prior-1": {
+      "en": "partial: Windows procedure slice verified; remaining original OS/browser clauses are unexecuted.",
+      "ko": "partial: Windows 절차는 확인했으나 원래 절차의 나머지 OS/브라우저 항목은 미확인."
+    },
+    "prior-2": {
+      "en": "partial (read-only evidence audit): Actual local handler denied missing Access context with403 across contracted operations; database hashes were unchanged. Bodies can be checked separately for the synthetic project name. Remaining: These use synthetic checked-context/key fixtures, not an externally bypassed real Access application. Preserve origin403 separately from edge Access302. [audit](runs/2026-11-04-acceptance-audit.md)",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 합성 인증 문맥의 원 서버403입니다. 실제 Access 바깥의302와 구별하며 실제 Access 우회 시험으로 확대하지 않습니다. [audit](runs/2026-11-04-acceptance-audit.ko.md)"
+    },
+    "prior-3": {
+      "en": "partial (read-only evidence audit): Actual handler accepts30 named projects, refuses the next with409 too_many_projects, still updates an existing project; concurrent-limit regression is also in the123-case log. Remaining: Local actual handler/SQLite evidence only; no current deployed server was filled with30 projects. Do not perform that live stress operation merely to relabel this evidence. [audit](runs/2026-11-04-acceptance-audit.md)",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 실제 로컬 handler·SQLite 범위입니다. 현재 개발 서버에30개 프로젝트를 채운 검사는 아니며 그 이름을 바꾸려고 실서버 부하 작업을 추가하지 않습니다. [audit](runs/2026-11-04-acceptance-audit.ko.md)"
+    },
+    "prior-4": {
+      "en": "partial (read-only evidence audit): User-kind proposal request is403 agent_only and preserves the full SQLite row hash and receipt count in the local permission test. Remaining: Synthetic signing fixture; no newly deployed human proposal request was sent for this audit. [audit](runs/2026-11-04-acceptance-audit.md)",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 합성 서명 자격의 로컬 시험입니다. 이번 정리에서 실제 배포의 사람 제안 요청을 새로 보내지 않았습니다. [audit](runs/2026-11-04-acceptance-audit.ko.md)"
+    },
+    "prior-5": {
+      "en": "partial (read-only evidence audit): Existing real local closed comment receives an agent reply and returns409 comment_closed; complete SQLite hash and receipt count stay unchanged. Remaining: Current source test replay is in Node123; raw183 row remains historical synthetic-auth handler evidence, not real Access. [audit](runs/2026-11-04-acceptance-audit.md)",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 현재 원본은 Node123에서 재검사됐지만 원시183행은 과거 합성 인증 handler 근거이며 실제 Access 요청으로 바꾸어 부르지 않습니다. [audit](runs/2026-11-04-acceptance-audit.ko.md)"
+    },
+    "prior-6": {
+      "en": "partial (read-only evidence audit): Synthetic service identity acceptance route receives403 user_only with unchanged database hash. Remaining: Local signed fixture, not a newly executed real Access request; no missing target success is inferred. [audit](runs/2026-11-04-acceptance-audit.md)",
+      "ko": "partial (읽기 전용 근거 정리): 원 요청·효과에 대응하는 범위는 backend-ledger.json의 test·원시 인덱스에 기록했습니다. 로컬 서명 자료이며 새로 실행한 실제 Access 요청이 아닙니다. 없는 대상의 성공 조건을 추론하지 않습니다. [audit](runs/2026-11-04-acceptance-audit.ko.md)"
+    }
+  },
+  "cases": [
+    {
+      "id": "TC-612",
+      "verdict": "pass (original criterion, scoped evidence)",
+      "evidenceKind": "new-focused-execution",
+      "originalEnglishStepsSha256": "62c055c339a3aaeac21bc6f634f1e5a51ed0eb148010c8f9c9beb3d6b283c4d3",
+      "originalEnglishExpectedSha256": "ca2146c028c5aad31e5d058aafbf5f2c4209138b360d08f5127ff52d91a087ae",
+      "limits": [
+        "Parser-source data only; outside node/edge pixels are not tested."
+      ],
+      "testSource": "tests/test_original_picture_acceptance.py",
+      "testMethod": "test_TC_612_exact_erd_template_columns_key_term_context_and_outside_restrict",
+      "asserted": "Exact E7 template plus the original Given's explicit TERM-001 comment augmentation; four column names/types/nulls, id PK, TERM/context, customer_id->customers.id/restrict, target absent from part.",
+      "workingTestSha256": "c20ae13cf2acd0a6f41eb039646ed0a465465737797f00711cbad1b36416f9ff",
+      "executionLabel": "parser-r2",
+      "executedR2SourceSha256": "a10f16b21179950050c2d8c9fa2f45faccb2c742a21428b256fc82e7a5799d6f",
+      "methodAstUnchanged": true,
+      "previousResultTemplate": "prior-1",
+      "previousResultSha256": {
+        "en": "f734ef8c19d37f3c60b9a90730cd5ce00eb82389b53ef6005e46107c05ab925f",
+        "ko": "065bd5bc9b30765a259741b7aeef54d1d57cf1fada68ca5e414ea9882d3ccf09"
+      }
+    },
+    {
+      "id": "TC-613",
+      "verdict": "pass (original criterion, scoped evidence)",
+      "evidenceKind": "new-focused-execution",
+      "originalEnglishStepsSha256": "f9abef09d294e20abeb3d47c68249b82fb9bd720e1350273f59252967f492bd6",
+      "originalEnglishExpectedSha256": "ca2146c028c5aad31e5d058aafbf5f2c4209138b360d08f5127ff52d91a087ae",
+      "limits": [
+        "No invented deletion default; no browser relation rendering claim."
+      ],
+      "testSource": "tests/test_original_picture_acceptance.py",
+      "testMethod": "test_TC_613_literal_alter_keeps_relation_and_unspecified_delete_action",
+      "asserted": "Exact inline versus literal ALTER endpoints/column/context/outside-part equivalence; literal omission of ON DELETE remains empty. Separate explicit RESTRICT control compares the complete FK except source location.",
+      "workingTestSha256": "c20ae13cf2acd0a6f41eb039646ed0a465465737797f00711cbad1b36416f9ff",
+      "executionLabel": "parser-r3-affected-TC613",
+      "deleteActionScope": {
+        "literalAlterUnspecifiedValue": "",
+        "explicitRestrictControl": "restrict",
+        "foreignKeysBeforeAlter": 0,
+        "templateReferenceForm": "column-inline",
+        "initialReviewerTableLevelAssumptionCorrected": true
+      },
+      "previousResultTemplate": "prior-1",
+      "previousResultSha256": {
+        "en": "f734ef8c19d37f3c60b9a90730cd5ce00eb82389b53ef6005e46107c05ab925f",
+        "ko": "065bd5bc9b30765a259741b7aeef54d1d57cf1fada68ca5e414ea9882d3ccf09"
+      }
+    },
+    {
+      "id": "TC-615",
+      "verdict": "pass (original criterion, scoped evidence)",
+      "evidenceKind": "new-focused-execution",
+      "originalEnglishStepsSha256": "6f05b4b385b4490d0ae5b6a5ec3248867e9f2cd8c549ba38c5fee8046fcfb843",
+      "originalEnglishExpectedSha256": "ca2146c028c5aad31e5d058aafbf5f2c4209138b360d08f5127ff52d91a087ae",
+      "limits": [
+        "Source edge is asserted; arrow pixels and browser layout are not tested."
+      ],
+      "testSource": "tests/test_original_picture_acceptance.py",
+      "testMethod": "test_TC_615_exact_sitemap_template_paths_access_and_home_to_detail_edge",
+      "asserted": "Exact E7 Home and Order detail names, paths, access values and parent-index-derived SCR-001->SCR-002 edge.",
+      "workingTestSha256": "c20ae13cf2acd0a6f41eb039646ed0a465465737797f00711cbad1b36416f9ff",
+      "executionLabel": "parser-r2",
+      "executedR2SourceSha256": "a10f16b21179950050c2d8c9fa2f45faccb2c742a21428b256fc82e7a5799d6f",
+      "methodAstUnchanged": true,
+      "previousResultTemplate": "prior-1",
+      "previousResultSha256": {
+        "en": "f734ef8c19d37f3c60b9a90730cd5ce00eb82389b53ef6005e46107c05ab925f",
+        "ko": "065bd5bc9b30765a259741b7aeef54d1d57cf1fada68ca5e414ea9882d3ccf09"
+      }
+    },
+    {
+      "id": "TC-632",
+      "verdict": "pass (original criterion, scoped evidence)",
+      "evidenceKind": "reused-exact-fresh-handler-observation",
+      "originalEnglishStepsSha256": "306964f733d2124e8c1cc972fc59d65fe2bd9c331a4d049b5723842787ba20da",
+      "originalEnglishExpectedSha256": "ca2146c028c5aad31e5d058aafbf5f2c4209138b360d08f5127ff52d91a087ae",
+      "limits": [
+        "Existing actual local handler/SQLite with generated signing fixture; no new API execution here; not live Access or browser proof."
+      ],
+      "freshObservation": {
+        "observationId": "handler-0204",
+        "phase": "current-refusal-permission-v1",
+        "phaseCaptureIndex": 20,
+        "matrixIndex": 19,
+        "matrixExcludesBootstrap": true,
+        "apiId": "API-107",
+        "operationId": "getSnapshot",
+        "status": 403,
+        "code": "access_missing",
+        "schemaErrors": 0,
+        "headersCspTraceVerified": true,
+        "sameRequestWholeDbAndReceiptsUnchanged": true,
+        "canonicalBodySha256": "988025c817b14b681e33a652d556cc5f640a235117315e87bc8d9148bf3976cc",
+        "seededProjectNameAbsent": true
+      },
+      "previousResultTemplate": "prior-2",
+      "previousResultSha256": {
+        "en": "e1420bae4ae280cd882912dd7a560bd7dfb0d687153c917541d925248a4c047c",
+        "ko": "c6ef3843f2553c0be7292a4c9eef1b7cc7c661fb600ba3d59126c3f20a6b836f"
+      }
+    },
+    {
+      "id": "TC-639",
+      "verdict": "pass (original criterion, scoped evidence)",
+      "evidenceKind": "new-focused-execution",
+      "originalEnglishStepsSha256": "ace94ac57e1da24e7ec1c9cac95cace7775b90666e919c2ef8a69ad16084fd41",
+      "originalEnglishExpectedSha256": "ca2146c028c5aad31e5d058aafbf5f2c4209138b360d08f5127ff52d91a087ae",
+      "limits": [
+        "Local real handler/SQLite and synthetic signing fixture; not deployed load or real Access proof."
+      ],
+      "testSource": "nexus/test/project-limit-acceptance.test.js",
+      "testMethod": "TC-639: thirty API-created projects reject the31st without changing schema, rows or receipts",
+      "asserted": "Thirty actual handler-created projects; valid31st request returns409/too_many_projects. Same request preserves all36 schema objects,13 tables and their rows/FKs/columns plus one nonempty API-created write receipt; no31st snapshot/space, list remains30, missing GET404, integrity holds.",
+      "workingTestSha256": "9235a62615d7939d78b91fb814d94bd8a2cdc907ab87f9fecd8afec17e2a2880",
+      "executionLabel": "quota-node-r2",
+      "sameRefusalEffects": {
+        "projectPushesAccepted": 30,
+        "refusalStatus": 409,
+        "refusalCode": "too_many_projects",
+        "tablesProtected": 13,
+        "schemaObjectsProtected": 36,
+        "databaseBeforeSha256": "35197d520091466e068dfdbdfb297c9c5295097be660a58455bf113444bc2750",
+        "databaseAfterSha256": "35197d520091466e068dfdbdfb297c9c5295097be660a58455bf113444bc2750",
+        "receiptsBefore": 1,
+        "receiptsAfter": 1,
+        "receiptBeforeSha256": "89e14f8a78e8ca0240e699e9aa030ad6ee901a471ee804d094c0db7e5d0ac343",
+        "receiptAfterSha256": "89e14f8a78e8ca0240e699e9aa030ad6ee901a471ee804d094c0db7e5d0ac343",
+        "refusedSnapshotAbsent": true,
+        "refusedSpaceAbsent": true,
+        "integrityVerified": true,
+        "commonHeadersVerified": true,
+        "traceAndLogVerified": true,
+        "databaseClosed": true
+      },
+      "externalTrafficCounterMeasured": false,
+      "staticZeroFieldIgnored": true,
+      "nodeAssertionAndHandlerCallsUnchanged": true,
+      "previousResultTemplate": "prior-3",
+      "previousResultSha256": {
+        "en": "ff23606978c265185c471b6c9d9806187e197d4e05f20b3d180558f24416999d",
+        "ko": "d6b9b866d2c976c9a5fa471c42f218b6ccbc9ee5504d762b266c58ccf256ce3f"
+      }
+    },
+    {
+      "id": "TC-646",
+      "verdict": "pass (original criterion, scoped evidence)",
+      "evidenceKind": "reused-exact-fresh-handler-observation",
+      "originalEnglishStepsSha256": "249a706db4c21261b4f76e440c8592a5002e3c5bc85dd87643ce12fe5a8947ac",
+      "originalEnglishExpectedSha256": "ca2146c028c5aad31e5d058aafbf5f2c4209138b360d08f5127ff52d91a087ae",
+      "limits": [
+        "Existing actual local handler/SQLite with generated signing fixture; no new API execution here; not live Access or browser proof."
+      ],
+      "freshObservation": {
+        "observationId": "handler-0251",
+        "phase": "current-refusal-permission-v1",
+        "phaseCaptureIndex": 67,
+        "matrixIndex": 66,
+        "matrixExcludesBootstrap": true,
+        "apiId": "API-122",
+        "operationId": "makeProposal",
+        "status": 403,
+        "code": "agent_only",
+        "schemaErrors": 0,
+        "headersCspTraceVerified": true,
+        "sameRequestWholeDbAndReceiptsUnchanged": true,
+        "canonicalBodySha256": "2d6e622958e5e494123765417118e63bd2822bf6c073134b08dc83b659bf0636"
+      },
+      "previousResultTemplate": "prior-4",
+      "previousResultSha256": {
+        "en": "b22345654c1b6b2764a516d43dded0925de50a4738e7ba623a16db5599928a62",
+        "ko": "a3ed7d13b6030594c5ae12233777e1db1e96eb60aecb871532e7c98028facb0a"
+      }
+    },
+    {
+      "id": "TC-686",
+      "verdict": "pass (original criterion, scoped evidence)",
+      "evidenceKind": "reused-exact-fresh-handler-observation",
+      "originalEnglishStepsSha256": "e831e50c35a3a952033c2d6ddb7d733dec709fff10e96283bfc7edbbdab5e3e2",
+      "originalEnglishExpectedSha256": "ca2146c028c5aad31e5d058aafbf5f2c4209138b360d08f5127ff52d91a087ae",
+      "limits": [
+        "Existing actual local handler/SQLite with generated signing fixture; no new API execution here; not live Access or browser proof."
+      ],
+      "freshObservation": {
+        "observationId": "handler-0117",
+        "phase": "current-refusal-boundary-v1",
+        "phaseCaptureIndex": 116,
+        "matrixIndex": 116,
+        "matrixExcludesBootstrap": false,
+        "apiId": "API-119",
+        "operationId": "replyToComment",
+        "status": 409,
+        "code": "comment_closed",
+        "schemaErrors": 0,
+        "headersCspTraceVerified": true,
+        "sameRequestWholeDbAndReceiptsUnchanged": true,
+        "canonicalBodySha256": "a026aedf76d1170e631ab9272bf1a3779207289442556bc6d2c4ac9ad7e96b3a"
+      },
+      "previousResultTemplate": "prior-5",
+      "previousResultSha256": {
+        "en": "043ee7f4f86558342abc151e96a8b7e585214fe3b8fd0b3f46b3e50a8503f2b4",
+        "ko": "9a8d0f1609de2da23b926857dcbebe1cf06fe55b0485971c5819f3088a3f9cb9"
+      }
+    },
+    {
+      "id": "TC-699",
+      "verdict": "pass (original criterion, scoped evidence)",
+      "evidenceKind": "reused-exact-fresh-handler-observation",
+      "originalEnglishStepsSha256": "73e0dd354a5f07408ed066863637aae407ee3bb77a3a8ed0bede91466cc55ea0",
+      "originalEnglishExpectedSha256": "ca2146c028c5aad31e5d058aafbf5f2c4209138b360d08f5127ff52d91a087ae",
+      "limits": [
+        "Existing actual local handler/SQLite with generated signing fixture; no new API execution here; not live Access or browser proof."
+      ],
+      "freshObservation": {
+        "observationId": "handler-0267",
+        "phase": "current-refusal-permission-v1",
+        "phaseCaptureIndex": 83,
+        "matrixIndex": 82,
+        "matrixExcludesBootstrap": true,
+        "apiId": "API-124",
+        "operationId": "acceptProposal",
+        "status": 403,
+        "code": "user_only",
+        "schemaErrors": 0,
+        "headersCspTraceVerified": true,
+        "sameRequestWholeDbAndReceiptsUnchanged": true,
+        "canonicalBodySha256": "78621b16893eb2bf9e85b6803f9de771033827d774bfb8fffcfe54548e259a1e"
+      },
+      "previousResultTemplate": "prior-6",
+      "previousResultSha256": {
+        "en": "9f328bac0f19a9be04d7f75026367fe8d71c5269e0bb42ccc4cac3c7d9daf6dd",
+        "ko": "f014dcfd81de61f996bae251eef83e604ca205d43a7410cf65f274fde1fa6d2f"
+      }
+    }
+  ],
+  "inputSha256": {
+    "r3-eight-row-receipt.json": "b0612011327a2697429f7825933da8d92e867e653b77319fa8cac26d2b4cc914",
+    "r3-manifest.json": "4fa65537b7ee4d27ed46cd11670b04d97ee25a7429b775740d6682ffbf290306",
+    "r3-source-scope.json": "9e884f9eb95f8c419187a8b79875f7d24994cd67774d1501c85596e162de0162",
+    "r3-focused-results.json": "263bd09c7208a399dd00fc202317b35839d2b735cdf74b4a475d57898e15013d",
+    "r3-review-resolution.json": "d9bcbd29c041012733c13e022c2127f92c7013726c8be8631646080697c71e52",
+    "execution-r1.json": "c60e51da48bcc3dfd6957ab94233d5b21f783e6b51e638a63b227ca470af505b",
+    "execution-r2.json": "13ddeb78e4205621f15551c7d06179dfd5f3a3cc3405613df6d0674e4a32c3b3",
+    "execution-r3.json": "167e6e7392cbf3a454e47725c34ce15bd5d7ceb1fad048659867d6b10627cdb6",
+    "contract-r2.stdout.json": "927b5efe86fb9711259a7ca8c28494c3881ecdb8091bcbd18050f6c6292126cd"
+  },
+  "runtimeScope": {
+    "python": "3.13.14",
+    "node": "v24.18.0",
+    "currentProductFilesMatchRetainedFresh18": true,
+    "hubTemplates": "exact E7 stage05/stage07 templates; no claim all templates match current core"
+  },
+  "reviewCorrections": {
+    "tc613InitialTableLevelAssumptionWrong": true,
+    "actualTemplateColumnInlineReference": true,
+    "literalDeleteActionDefaultInvented": false,
+    "staticExternalRequestsZeroUsedAsMeasurement": false,
+    "outboundTrafficCounterMeasured": false,
+    "separateContractProcessExitNotRecorded": true
+  },
+  "preservation": {
+    "oldRunsReclassified": 0,
+    "oldFailuresPreserved": true,
+    "old269NotionEvidenceModified": false,
+    "notionWritesByThisPublication": 0,
+    "rawStackOrPrivatePathPublished": false
+  },
+  "limits": [
+    "Exact original English Given controls each case; all EN/KO Steps/Expected remain unchanged.",
+    "Parser-source topology only; no browser arrow/outside-node pixel proof.",
+    "Generated signing/local in-memory handler fixtures; no real Access lifecycle or deployed request.",
+    "Four new distinct criteria plus four reused observations; affected TC613 repeat is not another case.",
+    "No full-suite/hosted CI pass, all-OS claim, new user checkpoint or release approval is inferred."
+  ]
+}

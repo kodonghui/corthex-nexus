@@ -299,3 +299,7 @@ Root는 REQ-149/TC-1271/SPEC-119가 첫SVG와 편집기 준비를 구분하는�
 ## 현재 명명 읽기 응답 정리, 2026-11-05
 
 이후 [읽기24개 새 판정](../12-qa/runs/2026-11-05-read-closure.ko.md)으로 현재 QA710은 pass510/partial198/fail2입니다. TASK-249는 적용 명명 응답54개·공유 예시 적용 검토18개가 남아 진행 중이며 WBS64행과15done/49in progress는 모두 그대로입니다. 로컬 실제 handler의 GET에서 API별 정책/스키마와 같은 요청 전체 DB/receipt 불변을 확인했습니다. HEAD·기본 SSR·허브 파서·브라우저·배포/실제 Access를 주장하지 않으며 과거 R1/전송/성능 판정과 출시/REQ-107/Worker-D1 관문을 보존합니다. 전체 필수 검사·Code/Security 검토·게시는 Root 소유로 아직 대기 중입니다.
+
+## 원 수용 기준 근거, 2026-11-05
+
+이후 [R3 원본 기록](../12-qa/runs/2026-11-05-original-criteria.ko.md)에서 서로 다른 새 실행 기준4개·정확한 재사용 응답4개로 범위별 통과8개를 더해 원본 QA710은 pass518/partial190/fail2입니다. WBS64행과15done/49in progress는 바꾸지 않았고 완료 작업도 추가하지 않습니다. 파서 자료·literal ALTER/대조군 차이·로컬 역할/상태 거절의 정확한 범위를 유지합니다. 이전 결과/269행 Notion 근거와 단계/출시/3초/REQ-107/Worker-D1 조건은 그대로이며 필수 검사/게시·별도8행 Notion 후속은 Root 소유입니다.
