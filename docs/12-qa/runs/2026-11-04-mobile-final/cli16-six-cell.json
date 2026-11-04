@@ -1,0 +1,2114 @@
+[
+  {
+    "case": "TC1139",
+    "method": "test_TC_1139_snapshot_done",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1142",
+    "method": "test_TC_1142_status_done",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1144",
+    "method": "test_TC_1144_status_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1156",
+    "method": "test_TC_1156_todo_done",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1161",
+    "method": "test_TC_1161_comment_command_line_invalid",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1163",
+    "method": "test_TC_1163_comment_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1165",
+    "method": "test_TC_1165_reply_done",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1167",
+    "method": "test_TC_1167_reply_refused",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1168",
+    "method": "test_TC_1168_reply_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1169",
+    "method": "test_TC_1169_reply_kept",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1173",
+    "method": "test_TC_1173_answered_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1178",
+    "method": "test_TC_1178_decide_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1183",
+    "method": "test_TC_1183_propose_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1188",
+    "method": "test_TC_1188_withdraw_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1193",
+    "method": "test_TC_1193_reflect_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1198",
+    "method": "test_TC_1198_record_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.x)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "13a0e54f9acfaccd440c7b3256c6e588a424ec3f6fd6ad5747fae044ae8538b8",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1139",
+    "method": "test_TC_1139_snapshot_done",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1142",
+    "method": "test_TC_1142_status_done",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1144",
+    "method": "test_TC_1144_status_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1156",
+    "method": "test_TC_1156_todo_done",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1161",
+    "method": "test_TC_1161_comment_command_line_invalid",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1163",
+    "method": "test_TC_1163_comment_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1165",
+    "method": "test_TC_1165_reply_done",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1167",
+    "method": "test_TC_1167_reply_refused",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1168",
+    "method": "test_TC_1168_reply_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1169",
+    "method": "test_TC_1169_reply_kept",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1173",
+    "method": "test_TC_1173_answered_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1178",
+    "method": "test_TC_1178_decide_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1183",
+    "method": "test_TC_1183_propose_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1188",
+    "method": "test_TC_1188_withdraw_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1193",
+    "method": "test_TC_1193_reflect_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1198",
+    "method": "test_TC_1198_record_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "5a2de3a934792cb15af759f8b7d8648e54ebd3f293d74d3c540db53ed834f14c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1139",
+    "method": "test_TC_1139_snapshot_done",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1142",
+    "method": "test_TC_1142_status_done",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1144",
+    "method": "test_TC_1144_status_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1156",
+    "method": "test_TC_1156_todo_done",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1161",
+    "method": "test_TC_1161_comment_command_line_invalid",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1163",
+    "method": "test_TC_1163_comment_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1165",
+    "method": "test_TC_1165_reply_done",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1167",
+    "method": "test_TC_1167_reply_refused",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1168",
+    "method": "test_TC_1168_reply_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1169",
+    "method": "test_TC_1169_reply_kept",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1173",
+    "method": "test_TC_1173_answered_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1178",
+    "method": "test_TC_1178_decide_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1183",
+    "method": "test_TC_1183_propose_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1188",
+    "method": "test_TC_1188_withdraw_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1193",
+    "method": "test_TC_1193_reflect_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1198",
+    "method": "test_TC_1198_record_failed",
+    "cell": "hub-compatibility (ubuntu-24.04, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Ubuntu",
+      "24.04.5",
+      "LTS"
+    ],
+    "runnerImage": [
+      "Image: ubuntu-24.04",
+      "Version: 20261025.353.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "2aadfa802812d774cab4cac41c25d7ad5a7850876a56689d1ab43e251e9878b1",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1139",
+    "method": "test_TC_1139_snapshot_done",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1142",
+    "method": "test_TC_1142_status_done",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1144",
+    "method": "test_TC_1144_status_failed",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1156",
+    "method": "test_TC_1156_todo_done",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1161",
+    "method": "test_TC_1161_comment_command_line_invalid",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1163",
+    "method": "test_TC_1163_comment_failed",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1165",
+    "method": "test_TC_1165_reply_done",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1167",
+    "method": "test_TC_1167_reply_refused",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1168",
+    "method": "test_TC_1168_reply_failed",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1169",
+    "method": "test_TC_1169_reply_kept",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1173",
+    "method": "test_TC_1173_answered_failed",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1178",
+    "method": "test_TC_1178_decide_failed",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1183",
+    "method": "test_TC_1183_propose_failed",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1188",
+    "method": "test_TC_1188_withdraw_failed",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1193",
+    "method": "test_TC_1193_reflect_failed",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1198",
+    "method": "test_TC_1198_record_failed",
+    "cell": "hub-compatibility (windows-latest, 3.8)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.8.10",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "d6f09eca1473991c283c0d5aec0049148b554410313d81d429f003ac7c28d3a5",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1139",
+    "method": "test_TC_1139_snapshot_done",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1142",
+    "method": "test_TC_1142_status_done",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1144",
+    "method": "test_TC_1144_status_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1156",
+    "method": "test_TC_1156_todo_done",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1161",
+    "method": "test_TC_1161_comment_command_line_invalid",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1163",
+    "method": "test_TC_1163_comment_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1165",
+    "method": "test_TC_1165_reply_done",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1167",
+    "method": "test_TC_1167_reply_refused",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1168",
+    "method": "test_TC_1168_reply_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1169",
+    "method": "test_TC_1169_reply_kept",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1173",
+    "method": "test_TC_1173_answered_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1178",
+    "method": "test_TC_1178_decide_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1183",
+    "method": "test_TC_1183_propose_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1188",
+    "method": "test_TC_1188_withdraw_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1193",
+    "method": "test_TC_1193_reflect_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1198",
+    "method": "test_TC_1198_record_failed",
+    "cell": "hub-compatibility (macos-15-intel, 3.8)",
+    "status": "ok",
+    "runner": [
+      "macOS",
+      "15.7.9",
+      "24G830"
+    ],
+    "runnerImage": [
+      "Image: macos-15",
+      "Version: 20260824.0482.1"
+    ],
+    "pythonVersion": "3.8.18",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "f87894db8c29b096a2c2e7b95590806aa289176cd310ef70e0c48f89522bb59c",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1139",
+    "method": "test_TC_1139_snapshot_done",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1142",
+    "method": "test_TC_1142_status_done",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1144",
+    "method": "test_TC_1144_status_failed",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1156",
+    "method": "test_TC_1156_todo_done",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1161",
+    "method": "test_TC_1161_comment_command_line_invalid",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1163",
+    "method": "test_TC_1163_comment_failed",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1165",
+    "method": "test_TC_1165_reply_done",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1167",
+    "method": "test_TC_1167_reply_refused",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1168",
+    "method": "test_TC_1168_reply_failed",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1169",
+    "method": "test_TC_1169_reply_kept",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1173",
+    "method": "test_TC_1173_answered_failed",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1178",
+    "method": "test_TC_1178_decide_failed",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1183",
+    "method": "test_TC_1183_propose_failed",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1188",
+    "method": "test_TC_1188_withdraw_failed",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1193",
+    "method": "test_TC_1193_reflect_failed",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  {
+    "case": "TC1198",
+    "method": "test_TC_1198_record_failed",
+    "cell": "hub-compatibility (windows-latest, 3.x)",
+    "status": "ok",
+    "runner": [
+      "Microsoft Windows Server 2025",
+      "10.0.26100",
+      "Datacenter"
+    ],
+    "runnerImage": [
+      "Image: windows-2025-vs2026",
+      "Version: 20261030.294.1"
+    ],
+    "pythonVersion": "3.15.2",
+    "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+    "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+    "newTestBlobSha": "a9c271037754a8d496faf626cd15ce69cb17c715",
+    "newTestPayloadSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+    "logSha256": "6deabd8fa94dc54fd8a79a0f95efda496836e8967af2d6405a476de597c7428a",
+    "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  }
+]

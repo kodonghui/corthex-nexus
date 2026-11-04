@@ -1,0 +1,28 @@
+{
+  "schema": "nexus-final-hosted-workflow/1",
+  "runId": 41845045363,
+  "attempt": 1,
+  "status": "completed",
+  "conclusion": "success",
+  "jobsSucceeded": 17,
+  "jobsFailed": 0,
+  "headCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+  "executedCiMerge": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+  "tree": "6a0e7e66b1f365694d1353bf25edbce5ae8face8",
+  "sourceReceiptSha256": "02fede0d53b945092bcc6efcfcee5d3ddf93f4e223de88803d972b1a8cf1362a",
+  "namedCliObservations": 96,
+  "namedCliSkipped": 0,
+  "namedCliEvidence": "cli16-six-cell.json",
+  "integrationMerge": "b629c7d655409dec5e36db917deade5d81efbd7b",
+  "mergeVerifiedBy": "Root GitHub merge API after whole workflow success; earlier collector PR snapshot was open/draft",
+  "requiredContextsQuery": "No required checks reported for this integration-target PR; not reclassified as failed or as configured-required-context success",
+  "localProductChecks": {
+    "python": 10,
+    "node": 144,
+    "workerDryRun": "passed",
+    "pin": "e7ff3947017703128df4c9e4e1b26b0d912eaa70"
+  },
+  "mainRelease": false,
+  "productionDeployment": false,
+  "tagsCreated": false
+}
