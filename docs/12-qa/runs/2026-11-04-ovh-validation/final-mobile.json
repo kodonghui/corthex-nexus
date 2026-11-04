@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "scope": "actual development synthetic mobile emulation; human Access and physical Android not claimed",
+  "deployedCommit": "30f79579dd6902aa3a4244fc15bcf478a6e46d39",
+  "metadataSha256": "ca4ac3fd94fc14d08bd7a576792d92f8dd84a1529030fa63b6bb6c42bd4a2085",
+  "configuration": "default-off",
+  "browser": "Chrome/156.0.8078.80",
+  "conditions": {
+    "width": 390,
+    "height": 844,
+    "dpr": 2.75,
+    "mobile": true,
+    "touch": true,
+    "maxTouchPoints": 5,
+    "network": "DevTools Fast 4G",
+    "latencyMs": 165,
+    "downloadBytesPerSec": 1012500,
+    "uploadBytesPerSec": 168750,
+    "downloadBitsPerSec": 8100000,
+    "uploadBitsPerSec": 1350000,
+    "cacheDisabled": true,
+    "serviceWorkerBypassed": true
+  },
+  "requiredOpenings": 40,
+  "observedOpenings": 40,
+  "everyBrowserContextNew": true,
+  "bodyCachePolicyChanged": false,
+  "edgeHintMetadataPrimingGetCount": 0,
+  "initialDiagnostics": [
+    {
+      "picture": "sitemap",
+      "readyMs": 8969.3,
+      "readyAndFontsMs": 8973.3,
+      "observed103Events": 0,
+      "valid": true,
+      "logicalNodes": 300,
+      "documentProtocol": "h2",
+      "documentEncoding": "zstd"
+    },
+    {
+      "picture": "erd",
+      "readyMs": 7180.5,
+      "readyAndFontsMs": 7180.8,
+      "observed103Events": 0,
+      "valid": true,
+      "logicalNodes": 300,
+      "documentProtocol": "h2",
+      "documentEncoding": "zstd"
+    }
+  ],
+  "groups": [
+    {
+      "configuration": "default-off",
+      "picture": "sitemap",
+      "cpu": 1,
+      "normative": true,
+      "sampleCount": 20,
+      "validCount": 20,
+      "verdict": "fail",
+      "ready": {
+        "count": 20,
+        "minMs": 3028.4,
+        "p50Ms": 6218.9,
+        "p95Ms": 9145.9,
+        "maxMs": 11544
+      },
+      "readyAndFonts": {
+        "count": 20,
+        "minMs": 3031.3,
+        "p50Ms": 6221.2,
+        "p95Ms": 9148.1,
+        "maxMs": 11544.1
+      },
+      "fontCompletionAfterReady": {
+        "count": 20,
+        "minMs": 0,
+        "p50Ms": 0.6,
+        "p95Ms": 5.4,
+        "maxMs": 7.9
+      },
+      "documentFinalHeaders": {
+        "count": 20,
+        "minMs": 975.1,
+        "p50Ms": 1424,
+        "p95Ms": 2178.6,
+        "maxMs": 2906.1
+      },
+      "documentFirstReportedTtfb": {
+        "count": 20,
+        "minMs": 542.8,
+        "p50Ms": 680.5,
+        "p95Ms": 1121.8,
+        "maxMs": 1125.7
+      },
+      "documentFinalResponseHeadersStart": {
+        "count": 20,
+        "minMs": 959.5,
+        "p50Ms": 1406,
+        "p95Ms": 2134.2,
+        "maxMs": 2883.1
+      },
+      "lastScriptFinish": {
+        "count": 20,
+        "minMs": 2825.4,
+        "p50Ms": 5997,
+        "p95Ms": 8936.3,
+        "maxMs": 11385.7
+      },
+      "readyAfterLastScript": {
+        "count": 20,
+        "minMs": 156,
+        "p50Ms": 202.2,
+        "p95Ms": 285.1,
+        "maxMs": 385.2
+      },
+      "hintedRequestAfterFinalHeaders": {
+        "count": 0,
+        "minMs": null,
+        "p50Ms": null,
+        "p95Ms": null,
+        "maxMs": null
+      },
+      "observed103Events": 0,
+      "openingsWith103": 0,
+      "openingsWithHintedRequestBeforeFinalHeaders": 0,
+      "totalHintedRequestsBeforeFinalHeaders": 0,
+      "openingsWithDuplicateCodeResponses": 0,
+      "resourceCounts": {
+        "26": 20
+      },
+      "codeResourceCounts": {
+        "21": 20
+      },
+      "uniqueCodePathCounts": {
+        "21": 20
+      },
+      "documentCacheStatuses": {
+        "DYNAMIC": 20
+      },
+      "codeCacheStatuses": {
+        "BYPASS": 420
+      },
+      "offOriginResourceClasses": {
+        "data:Image:image/svg+xml": 80
+      },
+      "codeEncodedBodyByteCounts": {
+        "497523": 3,
+        "497526": 3,
+        "497529": 3,
+        "497532": 9,
+        "497535": 2
+      },
+      "codeDecodedBodyByteCounts": {
+        "1619159": 20
+      },
+      "errors": {
+        "http403": 0,
+        "httpResponses": 0,
+        "csp": 0,
+        "interception": 0,
+        "network": 0,
+        "page": 0,
+        "fontIncomplete": 0
+      },
+      "cacheFlags": {
+        "disk": 0,
+        "serviceWorker": 0,
+        "prefetch": 0
+      },
+      "documentProtocols": {
+        "h2": 20
+      },
+      "documentEncodings": {
+        "zstd": 20
+      },
+      "document103Events": 0
+    },
+    {
+      "configuration": "default-off",
+      "picture": "erd",
+      "cpu": 1,
+      "normative": true,
+      "sampleCount": 20,
+      "validCount": 20,
+      "verdict": "fail",
+      "ready": {
+        "count": 20,
+        "minMs": 2687.4,
+        "p50Ms": 3986.7,
+        "p95Ms": 21375.4,
+        "maxMs": 22356.7
+      },
+      "readyAndFonts": {
+        "count": 20,
+        "minMs": 2687.7,
+        "p50Ms": 3987,
+        "p95Ms": 21375.7,
+        "maxMs": 22357.1
+      },
+      "fontCompletionAfterReady": {
+        "count": 20,
+        "minMs": 0.2,
+        "p50Ms": 0.4,
+        "p95Ms": 0.8,
+        "maxMs": 0.9
+      },
+      "documentFinalHeaders": {
+        "count": 20,
+        "minMs": 976.8,
+        "p50Ms": 1462.4,
+        "p95Ms": 4673.5,
+        "maxMs": 14452.7
+      },
+      "documentFirstReportedTtfb": {
+        "count": 20,
+        "minMs": 533.8,
+        "p50Ms": 647.9,
+        "p95Ms": 1150.8,
+        "maxMs": 13953.3
+      },
+      "documentFinalResponseHeadersStart": {
+        "count": 20,
+        "minMs": 962.1,
+        "p50Ms": 1442.4,
+        "p95Ms": 3535.7,
+        "maxMs": 14443.5
+      },
+      "lastScriptFinish": {
+        "count": 20,
+        "minMs": 2406.2,
+        "p50Ms": 4076.5,
+        "p95Ms": 21615.2,
+        "maxMs": 22535
+      },
+      "readyAfterLastScript": {
+        "count": 20,
+        "minMs": -381.9,
+        "p50Ms": 281.2,
+        "p95Ms": 382.7,
+        "maxMs": 468.8
+      },
+      "hintedRequestAfterFinalHeaders": {
+        "count": 0,
+        "minMs": null,
+        "p50Ms": null,
+        "p95Ms": null,
+        "maxMs": null
+      },
+      "observed103Events": 0,
+      "openingsWith103": 0,
+      "openingsWithHintedRequestBeforeFinalHeaders": 0,
+      "totalHintedRequestsBeforeFinalHeaders": 0,
+      "openingsWithDuplicateCodeResponses": 0,
+      "resourceCounts": {
+        "5": 12,
+        "6": 8
+      },
+      "codeResourceCounts": {
+        "4": 12,
+        "5": 8
+      },
+      "uniqueCodePathCounts": {
+        "4": 12,
+        "5": 8
+      },
+      "documentCacheStatuses": {
+        "DYNAMIC": 20
+      },
+      "codeCacheStatuses": {
+        "BYPASS": 88
+      },
+      "offOriginResourceClasses": {},
+      "codeEncodedBodyByteCounts": {
+        "308521": 11,
+        "308524": 1,
+        "315440": 7,
+        "315443": 1
+      },
+      "codeDecodedBodyByteCounts": {
+        "1026550": 12,
+        "1057883": 8
+      },
+      "errors": {
+        "http403": 0,
+        "httpResponses": 0,
+        "csp": 0,
+        "interception": 0,
+        "network": 0,
+        "page": 0,
+        "fontIncomplete": 0
+      },
+      "cacheFlags": {
+        "disk": 0,
+        "serviceWorker": 0,
+        "prefetch": 0
+      },
+      "documentProtocols": {
+        "h2": 20
+      },
+      "documentEncodings": {
+        "zstd": 20
+      },
+      "document103Events": 0
+    }
+  ],
+  "limits": {
+    "actualCacheControlHeaderRecorded": false,
+    "scriptEvaluationCpuDirectlyMeasured": false,
+    "readyAfterLastScriptIncludesEvaluationRenderingAndScheduling": true,
+    "schemeSplitUnavailableInHintExperiment": false,
+    "networkCountsIncludeRecordedResponseWindowOnly": true,
+    "lastScriptAndReadyUseSameDomPerformanceClock": true,
+    "cdpNetworkAndDomAbsoluteTimesNotDirectlySubtracted": true
+  },
+  "conclusions": {
+    "normativeVerdict": "fail",
+    "observed103DoesNotProveAdvancedFetch": true,
+    "earlierShortSamplesDoNotProveHintBenefit": true,
+    "configuredOffStillObserved103": false,
+    "absenceOf103VerifiedForAllDefaultOpenings": true
+  },
+  "originHintsConfiguredEnabled": false,
+  "proxyHintsConfiguredEnabled": false,
+  "configurationMeaning": "Parent-confirmed setting; actual103 response observations are counted independently"
+}

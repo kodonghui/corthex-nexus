@@ -24,7 +24,7 @@ Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) lists
 | TASK-258 | Redirect the upstream harness to the product | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-257 | agent | M | One upstream PR removes only migrated paths, keeps hub/core/tests, updates shared guidance/CI/dependabot and the draft, with paired-pin compatibility evidence. | done (kodonghui/corthex#102) |
 | TASK-259 | Run Node HTTP and transactional SQLite | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-256 | agent | L | The native-module runtime matches D1 result shapes and atomic batches; persistence/migrations/limits/HEAD and process restart pass without added runtime packages. | done |
 | TASK-260 | Verify origin assertions behind Tunnel | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-259 | agent | M | Standalone verifies signature/issuer/audience/time and both author kinds without ctx.access; Worker still requires its checked context; Access policy is unchanged. | done |
-| TASK-261 | Deploy isolated development over SSH | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-260 | agent | M | Loopback-only dedicated user/folders/systemd and Tunnel serve development with restart and rollback; real values stay outside Git, keys stay on their devices, other services are unchanged. | in progress |
+| TASK-261 | Deploy isolated development over SSH | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-260 | agent | M | Loopback-only dedicated user/folders/systemd and Tunnel serve development with restart and rollback; real values stay outside Git, keys stay on their devices, other services are unchanged. | done |
 | TASK-262 | Back up and restore the database | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-259, TASK-261 | agent | M | Daily and pre-migration/deploy consistent backups, explicit retention and permissions are tested; one restored copy is reopened and data/behavior compared. | done |
 | TASK-263 | Rehearse production data migration and rollback | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-262 | agent | L | Production D1 is exported read-only into an isolated development copy; migrations and restore are compared by counts/digests, with old Worker/D1 preserved and no production address/data switch. | done |
 | TASK-264 | Repeat development contracts and performance on OVH | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-261, TASK-262 | agent | M | Schemathesis, both real Access identities and maximum1MB push processing/memory are measured; server processing is under 1s; full-view mobile evidence remains TASK-224/238/251. | in progress |
@@ -207,7 +207,7 @@ Use a branch per bundle based on codex/nexus-0.2, identify TASK/SPEC and tests/u
 
 Run the [plan](../12-qa/nexus.md) on development behind Access. Record commit, environment and evidence for each pass. Browser testers walk every applicable phase-① flow; pin working paths in e2e CI. Keep live response counts, mock-only counts, page-check measurements and visual review separate. Release decision remains pending.
 
-## Current server implementation
+## Historical server foundation checkpoint
 
 TASK-204–TASK-224 and TASK-254 are in progress. The server router and transactions have local tests and a synthetic development smoke run, but complete per-response contracts, the editor trial and screens remain. See the QA evidence; neither API provision nor screen acceptance is inferred from a test count.
 
@@ -235,3 +235,11 @@ The final CAF432 UI is reproduced and passes Python9/Node121/Worker/external7 pl
 ## OVH validation checkpoint
 
 The finishing PR records extraction, exact hub/CI/protection, native runtime/real identities and origin recovery/rehearsal evidence. Performance, final view acceptance and SSH rollback remain separate. [QA](../12-qa/runs/2026-11-04-ovh-validation.md)
+
+## Development delivery, 2026-11-04
+
+The server, hub and phase-① browser implementation is integrated. The independent final source audit found no additional missing product function within the approved scope. Remaining in-progress acceptance rows must not be read as a claim that all710 cases passed. TASK-244–247 are still the explicitly gated core work; direct editing/workshops remain phase②. The actual development deployment is30f7957 with unchanged CA4 payloads. TASK-261 is done: immutable deploy, old/new runtime rollback, unchanged logical data in13 tables, and a restart that left22 other service PIDs/start times unchanged.
+
+The actual human session completed three success flows with seven writes: comment/reply/Answered/reopen, accept→pending reflection, and checkpoint pass→withdraw. API readback matched; this is development evidence, distinct from local fixtures and from the complete state matrix. The proxy hint experiment did not meet the mobile target and its zone-wide switch and owned server hint/metrics settings were restored. [Final scoped QA](../12-qa/runs/2026-11-04-ovh-validation.md) retains all failed samples and the final default-setting run. Main/release and first real-project upload remain the final decision.
+
+Task states: done 12, in progress 46, todo 6.
