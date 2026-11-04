@@ -1,0 +1,819 @@
+{
+  "schema": "nexus-eleven-wbs-closures/1",
+  "sourceBaseCommit": "efb2f00fbfbcd0bfba99dd53f97981873bde6249",
+  "sourceReviewCommit": "af76541a85bc029fb7fee83ebd2737294b967c20",
+  "scope": "Only eleven WBS status fields per language; no other task column, QA row, runtime or execution change.",
+  "taskCounts": {
+    "total": 64,
+    "before": {
+      "done": 15,
+      "inProgress": 49
+    },
+    "after": {
+      "done": 26,
+      "inProgress": 38
+    }
+  },
+  "qaCountsUnchanged": {
+    "total": 710,
+    "pass": 524,
+    "partial": 186,
+    "fail": 0
+  },
+  "closedTasks": [
+    "TASK-204",
+    "TASK-224",
+    "TASK-225",
+    "TASK-226",
+    "TASK-227",
+    "TASK-228",
+    "TASK-230",
+    "TASK-233",
+    "TASK-234",
+    "TASK-235",
+    "TASK-254"
+  ],
+  "unchangedWholeTaskRows": 53,
+  "allOriginalNonStatusColumnsPreserved": 64,
+  "statusHistory": [
+    {
+      "task": "TASK-204",
+      "language": "en",
+      "beforeStatus": "in progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "b449d5613a3192649b8396eea989dabd4e99fde91ffe94d30e1adcd05b9a3a72",
+      "originalNonStatusColumnsSha256": "bd2aa74559612a01cbbfb3ec2391967b1cc85e63b59f39c0791fe2b10043fb09"
+    },
+    {
+      "task": "TASK-224",
+      "language": "en",
+      "beforeStatus": "in progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "8de6e8ba3f348d2a0aa075cf902d55b709a7c2b9b5c91b38cb90d71ffc07058f",
+      "originalNonStatusColumnsSha256": "3b7dea52302341179cd9431a240ba07fa5199f59203d3ba24feace6f43934451"
+    },
+    {
+      "task": "TASK-225",
+      "language": "en",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "e89304f597204ac25ff134bb09cb75456048631d0f9a57e8ada03ccceaa33ae1",
+      "originalNonStatusColumnsSha256": "48afe78292bab3e66be3d189e7787cb8e4efa227b4c42409f7d1b57104937814"
+    },
+    {
+      "task": "TASK-226",
+      "language": "en",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "3e5303d141869417bd66d0ef57b3a60b9dda345e89a1405d6400d724299aaa77",
+      "originalNonStatusColumnsSha256": "61855d0d6450adb0bec9c958426d004085beac35b6577252dca64b0f456b6aae"
+    },
+    {
+      "task": "TASK-227",
+      "language": "en",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "61b96a4bd7e3014138f6ae4f8525d8e15be241788275b6c9042eb343abda2cba",
+      "originalNonStatusColumnsSha256": "a19c4faf3c6c2d6fce9a9638b2634413bd848eb8649fe29a02238774eb937cc1"
+    },
+    {
+      "task": "TASK-228",
+      "language": "en",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "b55028cd484063c80fc06091c4ada741fca5525adff197ed4c8c7565fa1ae597",
+      "originalNonStatusColumnsSha256": "f351245752fe042b43715a96b9ce69a1392fb56a8df76f9071b642366d133b4a"
+    },
+    {
+      "task": "TASK-230",
+      "language": "en",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "797c8a72e9a14a7a0d687ccaee6fef09ef692ced82e01a8a67ab534884730984",
+      "originalNonStatusColumnsSha256": "bbbaa3a8613fe5e17fb4fbe9675ecbce47fa07ccdea8bfcf9f42fa435ebc0861"
+    },
+    {
+      "task": "TASK-233",
+      "language": "en",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "df303daad2a1ce99349f77a2405cdc877238a19367941dcb5365505c4b482d0a",
+      "originalNonStatusColumnsSha256": "d7ae422b224dec330bf11c1edd666b9d48a1d037bc6edf54bfdd0662835becb8"
+    },
+    {
+      "task": "TASK-234",
+      "language": "en",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "8acd19fcdf99e6f5b801a3f5c597ca65091e918a8982092e1a548cfea72845be",
+      "originalNonStatusColumnsSha256": "3b91fce1acdf9a9ea531d2bc70c577656bdefc8038bc46caa0ce43e47243b986"
+    },
+    {
+      "task": "TASK-235",
+      "language": "en",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "0f36660260b8f5576f896b8d1480fa3c82d6cd4c4695b3b6a6e9d71df8d72078",
+      "originalNonStatusColumnsSha256": "f17ae7514696c294b20fe72262c8f82e58208056c6a28ec7639877cefb2ce503"
+    },
+    {
+      "task": "TASK-254",
+      "language": "en",
+      "beforeStatus": "in progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "ee9bd00988f0bc9056fff75c9cdedc5410ac2d8a247d85fb8ec66d980f6bae00",
+      "originalNonStatusColumnsSha256": "f4ccfcb4f0985505ff2aa2b55d9767783a58974b877983f4233840eee1bbc10e"
+    },
+    {
+      "task": "TASK-204",
+      "language": "ko",
+      "beforeStatus": "in progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "1b895baf3542e920c178c071c9302fbf1f0ac51259f2bc0e18254fd7d5463f8c",
+      "originalNonStatusColumnsSha256": "d2947b786da965d4af0d6dcae3cc521914ea0c47e6ed04d9752a0516aadbd7c0"
+    },
+    {
+      "task": "TASK-224",
+      "language": "ko",
+      "beforeStatus": "in progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "7cebef016097cb2ee9ec2b6a84063628dfc3c83b2e41055851c945ec364292d9",
+      "originalNonStatusColumnsSha256": "e90de9f5ed617c481911275d4887b5468eb48a2d274dee23faf80af0cd2a0663"
+    },
+    {
+      "task": "TASK-225",
+      "language": "ko",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "7507654caa27c05eeb062e278930e533d832b81c28a7030b9b440586d3c4c112",
+      "originalNonStatusColumnsSha256": "b136a86ea4bc26ca03e893bcbb9103a71fac02ecd101a8fd52fa3e0630724f57"
+    },
+    {
+      "task": "TASK-226",
+      "language": "ko",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "04eb75a24611fe0ff361a2cce19bb0649c5dd2de2ccbd14ef63ed86be72ee84f",
+      "originalNonStatusColumnsSha256": "b3fe7c91413fd0b3689f5ce4e43a22bcdb49991e8dda3f4ce7f5902548036e4b"
+    },
+    {
+      "task": "TASK-227",
+      "language": "ko",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "ca78587f1fb9129be565451f870830c5a827b50c1af947a7d8f4c66feaae2e02",
+      "originalNonStatusColumnsSha256": "346c4028fcdcd48e4b64b2fd00598c1dd7d7ddc0d43634469996f665df1b2720"
+    },
+    {
+      "task": "TASK-228",
+      "language": "ko",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "d9de6f7e1a9be0aa0decbe3052b6e5da49ac59d4679c1d30e2f3f598546a0096",
+      "originalNonStatusColumnsSha256": "3ba6d878ec099b6c9fe029ee91c8037f35961a7cb1b69c68dbb182cbae663490"
+    },
+    {
+      "task": "TASK-230",
+      "language": "ko",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "e689dc57bbb961c7c77b306036fa76a1d3ca1ae4f6bd956f700d860f99dfbf6d",
+      "originalNonStatusColumnsSha256": "e73fa36b6deffb0d537e7fb848fac411f68924432de32a049f0826123571cfc6"
+    },
+    {
+      "task": "TASK-233",
+      "language": "ko",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "ad8b6b8e6263d482c790cd9e7d9ca17c751163b867d97b2db357a2f8a1a83fc6",
+      "originalNonStatusColumnsSha256": "6fdf0dbf111a9addf52e6a20291c86d9da72cca27206c7ff593737d798b7c856"
+    },
+    {
+      "task": "TASK-234",
+      "language": "ko",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "eee458006e218ff8a9a476c3a1c24ef8a85c9e19cf0832854df253e4807397b6",
+      "originalNonStatusColumnsSha256": "473dead8dc9b3baf732f5bed55b5ba1dd1a7b9062689228399276363a9049fb5"
+    },
+    {
+      "task": "TASK-235",
+      "language": "ko",
+      "beforeStatus": "in_progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "1160359231752b7053512d0e19ae338baebcbf4540a14fc8b5626ea3408e716f",
+      "originalNonStatusColumnsSha256": "abbbf04f821cd56e11bce13a7e206d9dfff6f03d349a545f8681ce8485eb5738"
+    },
+    {
+      "task": "TASK-254",
+      "language": "ko",
+      "beforeStatus": "in progress",
+      "afterStatus": "done",
+      "beforeWholeRowSha256": "73dc40649e75d544aff59b560bd7c182b8ee04744b5be88f4067ee8d63286e43",
+      "originalNonStatusColumnsSha256": "17d49b0a3e408100cf7f7647585cb632169060af2ac7bbecc14f85e06db8ba01"
+    }
+  ],
+  "criterionEvidence": {
+    "TASK-204": {
+      "clauses": [
+        {
+          "original": "Both snapshot versions and every source shape meet frozen contract, UTF8 and limits",
+          "evidence": "snapshot02.test.js nine named assertions plus app.test.js legacy invalid corpus/UTF8/size/type tests, all actual handler/helper/SQLite on retained current146 run"
+        },
+        {
+          "original": "Unknown snapshot fields survive and picture sources are separated",
+          "evidence": "snapshot02.test.js:16 exact future.nested retention/no mutation/no pictures in stored body; app legacy stored snapshot and migrations byte-preservation tests"
+        }
+      ],
+      "scope": "The validation-only Done when is covered independently of still-partial API105 response transactions. Both formats, malformed UTF8/size/type, complete domain/ERD/sitemap source structures, Unicode caps/default binding and unknown0.2-field/source separation are asserted; legacy body persistence/migration remains byte-preserving."
+    },
+    "TASK-224": {
+      "clauses": [
+        {
+          "original": "Pin editors/React and licenses",
+          "evidence": "D802 metadata pins Excalidraw0.18.1/ERD5.1.0/React+DOM18.3.1; ui/README.md21–27,NOTICE and license-inventory pin package/font/OFL modifications"
+        },
+        {
+          "original": "Serve code/fonts through Worker; record raw/gzip,current freeWorker limit,CSP",
+          "evidence": "Original authenticated Worker trials/dated official64MiB source in QA817/879; retained raw/gzip metrics, current443 content-hashed payloads and actualv8 self-origin/CSP/code/font census. Approved OVH migration changes current host, not history or a new paid-plan inference."
+        },
+        {
+          "original": "20 mobile4G openings,P95≤3s,300elements or seek decision",
+          "evidence": "Prospective current906/D802 v8:20/20 each,initialSVG1399.2/1327.2/1357.3ms,original profile/security/cleanup; oldnative/4xCPU/failed runs retained separately."
+        }
+      ],
+      "scope": "The trial now has all its own required measurements/artifacts and the maintainer-approved initial-SVG definition; no whole-UI or release claim."
+    },
+    "TASK-225": {
+      "clauses": [
+        {
+          "original": "Branch/uncommitted changes cannot enter pictures;canonical origin,commit/time",
+          "evidence": "TC605–607 coupled Git fixture; GitSourcesTest default_objects/no_default_head and Settings canonical_origins assertions"
+        },
+        {
+          "original": "Longest prefix and every omission/check;no hooks/filters",
+          "evidence": "Named longest_prefix,budget/unsupported source checks,fsmonitor/filter and Git replace-ref/no-hook assertions in method map"
+        }
+      ],
+      "scope": "Current default-object/part grouping, omission and no-hook/filter conditions are covered by meaningful named source assertions and actual Git fixtures."
+    },
+    "TASK-226": {
+      "clauses": [
+        {
+          "original": "English/Korean templates yield contexts/rows/policies/terms",
+          "evidence": "TC609 full-template andTC610 missing-term exact source assertions; PictureReaders English/Korean policy/aggregate/read-model/TERM/timeline assertions"
+        },
+        {
+          "original": "NEXUS dependencies/hotspots and all five ordered lanes",
+          "evidence": "TC609 three dependencies/external target/three hotspots andTC611 actual own-domain five lanes/Editing alternatives; current domain.py identical to retained source"
+        }
+      ],
+      "scope": "English/Korean form parsing, full template details and the real public NEXUS five-lane source are individually evidenced; no browser-drawing or repository upload claim."
+    },
+    "TASK-227": {
+      "clauses": [
+        {
+          "original": "Template SQL/nexus.sql preserve types,nullability,keys/FKs/indexes",
+          "evidence": "Current E7 specific sql_types_keys and each_alter tests across6cells; exact R3 TC612/613 literal ALTER vs RESTRICT control; real defaultNEXUS SQL source API/hash comparison and13tables"
+        },
+        {
+          "original": "contexts/terms/without_table",
+          "evidence": "R3 TERM/context data,TC614 explicitnone; named SQL without_table/partial/index assertions and own public SQL source"
+        }
+      ],
+      "scope": "Original template/ALTER details, complete SQL feature preservation and own NEXUS SQL are evidenced as parser/source data, not UI rendering."
+    },
+    "TASK-228": {
+      "clauses": [
+        {
+          "original": "Template/nexus.yaml preserve parent/path/access/flow/status/terms/none/without_screen",
+          "evidence": "R3 TC615 exact parent edge;TC616/617 term/none; nested_sitemap_keeps_idless_parents and own default9-screen source/hash comparison"
+        },
+        {
+          "original": "partial source checks,standard-library Python",
+          "evidence": "Malformed/executable YAML variants yield picture-partial; sitemap.py identical current/E7/executed and uses stdlib implementation"
+        }
+      ],
+      "scope": "Template and own YAML/source preserve the named fields through the existing standard-library parser; malformed inputs produce partial checks rather than false empty success."
+    },
+    "TASK-230": {
+      "clauses": [
+        {
+          "original": "Snapshot0.2/five new check families;defaultask_before equals core example",
+          "evidence": "Current source0.2/new check tests; exact TC621–623 plus meaningful ask_before profile/project/invalid/limit/default-example assertions"
+        },
+        {
+          "original": "Largest whole picture omitted before item/check truncation;no paths/secrets",
+          "evidence": "Exact TC608 picture1.2MB,TC601–604 redaction/3000limit and selected largest_whole_picture/checks_after_items/sensitive_link methods"
+        }
+      ],
+      "scope": "The named settings/redaction/truncation/check families are asserted individually; schema0.2 and core-example default equality are current."
+    },
+    "TASK-233": {
+      "clauses": [
+        {
+          "original": "No redirects;only configured URL/projects receive tokens",
+          "evidence": "Named transport configured-peer headers,redirect one-request,unsafe URL/path/missing-token no-contact; registered/allowlisted project refusal tests and CLI exact outcomes"
+        },
+        {
+          "original": "Session/text/file validation/redaction,outcomes/exits",
+          "evidence": "UTF8/source-file/session/parser/privacy methods plus originalCLI78 case-specific proof; lateroriginal16 source/6cell completion replaces only its old missing assertions"
+        }
+      ],
+      "scope": "Transport and input/outcome boundaries have exact guarded CLI/HTTP fixtures and source continuity; no live Access boundary is inferred."
+    },
+    "TASK-234": {
+      "clauses": [
+        {
+          "original": "Retry status,token/network failure,7days,permanent refusal,oldest-first stop",
+          "evidence": "Exact TC691–693 guarded actual hub→outbox→handler/drop/lost-response paths; seven_day_expiry,retry_original_id_body_session_order,no_token,durable_before_send methods"
+        },
+        {
+          "original": "Two-hub lock and no queued credentials",
+          "evidence": "TC1266 actual mixed-runtime processes and reopened single reply; laterTC1169 exactkept→append→outboxCLI FIFO chain; lock/fencing/no-credential source assertions"
+        }
+      ],
+      "scope": "Queue lifecycle is covered by both exact same-chain persisted loopback effects and named portable source tests; no current full-product transaction inference."
+    },
+    "TASK-235": {
+      "clauses": [
+        {
+          "original": "Every documented command/result has a test",
+          "evidence": "CLI78 ledger62 scope + exact later16 completion96hosted observations; PR118 build3 plain/JSON36observations. Six-cell source/body/effect proof, not198/204/full-suite totals."
+        },
+        {
+          "original": "OutboxFile request names matchOpenAPI;snapshot/reading/hubskill describe0.2",
+          "evidence": "Named all18/agent_write_path_body/request-name assertions; currentcommand/outbox runtimeunchanged; direct E7 references snapshot.md,reading.md,SKILL.md explicitly0.2."
+        }
+      ],
+      "scope": "All18 commands and78 original command outcomes have clause-specific tests, including the16 later effect/privacy/FIFO fixes and3 actual build outcomes. Docs/OutboxFile request names remain aligned."
+    },
+    "TASK-254": {
+      "clauses": [
+        {
+          "original": "Migration3 preserves schema2 and keeps internal last_report",
+          "evidence": "entry-store.test.js migration3 populated reflection before/after exact comparison,internal field absent inpublic read; migrations version1/2/3 schema tests"
+        },
+        {
+          "original": "Repeatclosed differs from firstinvalidclosed after writeIDs expire",
+          "evidence": "entry-store acceptance/report test firstclosed→edit_state,opened/closed,DELETEwrites,repeatclosed changedfalse andpendingstate; actualnamed passes at current146 log123/127"
+        }
+      ],
+      "scope": "The precise migration/report-identity condition is directly asserted by current populated SQLite tests with actual passed named log receipts."
+    }
+  },
+  "hubSpecificMethods": {
+    "TASK-225": [
+      {
+        "method": "test_default_objects_exclude_branch_and_uncommitted_material",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 109,
+        "methodAstSha256": "e4dbfa8b5b0c7332770d10eb3841ed93e4da058bbbbd853a75b0dc3a87f09fda",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_no_default_head_has_no_pictures_and_explicit_fallback",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 132,
+        "methodAstSha256": "022cfd98c59db4428b557141b84eb411e8f67619452c8f08427bfd57aabb425e",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_parts_use_longest_prefix_and_unknown_documents_stay_project_wide",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 140,
+        "methodAstSha256": "9aa176d09356fc60256640043b871947db67b0792197dec805a07237d42bf6eb",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_safe_object_reader_does_not_execute_filters_or_fsmonitor",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 163,
+        "methodAstSha256": "cac98dcfec7474f5c143f579acadf2a2d5e7ee9ac791c640b2950443838c09f0",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_git_replacement_refs_cannot_change_the_reported_default_bytes",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 187,
+        "methodAstSha256": "494acdaab3257fb65b8652ae8185c2f8d4865659d6090802355f402a9ba64565",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_canonical_origins_remove_transport_credentials_and_suffix",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 558,
+        "methodAstSha256": "a0f77ad1131fd3666666d4994a39f92f720a80068402e28e93004dc1395cb6f4",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_reading_a_repository_runs_no_hook_and_writes_nothing",
+        "sourceModule": "tests/test_hub.py",
+        "sourceLine": 860,
+        "methodAstSha256": "123c6596537ad16b5bb09e5e02d3ab81f263f85c5606f5677c56eae008791068",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_picture_file_budget_ignores_unsupported_files",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 85,
+        "methodAstSha256": "9d1e63e778ac352a930c6e0af82f972ac71ac2f63a8042599fa52bc895b64fe4",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_supported_sources_over_the_budget_have_an_explicit_check",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 96,
+        "methodAstSha256": "f4dcde3800ccd153d5256e097e94b7753b3dec059dd3e076a92b57a27a0ef49d",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      }
+    ],
+    "TASK-226": [
+      {
+        "method": "test_english_and_korean_domain_forms_and_ambiguous_terms",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 291,
+        "methodAstSha256": "b2203a0647f841279dea1854677a92eb0a31641c1662c3b195ea2e3910b10883",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_domain_template_keeps_nested_mermaid_and_later_sections",
+        "sourceModule": "tests/test_hub.py",
+        "sourceLine": 172,
+        "methodAstSha256": "caf1617cd10812387b1ea5a63d23277fcb7274637e838a7f57da0587bb220500",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_struck_timeline_boundaries_do_not_leave_phantom_events",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 205,
+        "methodAstSha256": "efd355e1b00d74d41995c97923905a741ccef78938de8d3ce7c67692f2a1906d",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_command_rows_outside_context_headings_keep_their_names",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 230,
+        "methodAstSha256": "e427cf9153f32422d582f4006562e81958dca678b6c67475f7609b864a32b519",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      }
+    ],
+    "TASK-227": [
+      {
+        "method": "test_sql_types_keys_foreign_keys_and_partial_indexes",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 323,
+        "methodAstSha256": "fc1886cc9dc9d4898ac8362114b670e15d426a1c50ce5741e645fb66217909c4",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_each_alter_action_keeps_its_own_foreign_key_and_delete_rule",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 307,
+        "methodAstSha256": "5e0b2cfbcb87147c18991d65d059ff3e2f32cd428986e8da0c09245517d6368f",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_sql_removed_vocabulary_and_computed_indexes_do_not_invent_columns",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 253,
+        "methodAstSha256": "357196d173b6d504509014555c3733afb07bd2fa35c61e84608e409f7c25a35e",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_table_comments_as_erd_editor_writes_them",
+        "sourceModule": "tests/test_hub.py",
+        "sourceLine": 602,
+        "methodAstSha256": "74c6c04a2497f65c4814b234369847a5efb145762e6b0640e15f89793743f4de",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      }
+    ],
+    "TASK-228": [
+      {
+        "method": "test_nested_sitemap_keeps_idless_parents_and_explicit_none",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 344,
+        "methodAstSha256": "62bf0f12c774bbbea3d9d4f18f45eaac81d85e37eb123d13d93ca9bb29b9838e",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_malformed_or_executable_yaml_is_not_an_empty_current_picture",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 365,
+        "methodAstSha256": "89f46e88af78a711f8e4385be3ec9acabc4c3723927329951d3c31ab67e4a5a1",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      }
+    ],
+    "TASK-230": [
+      {
+        "method": "test_sensitive_links_are_omitted_whole_and_home_paths_are_redacted",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 564,
+        "methodAstSha256": "efe63b84ebbd21ed62011fddc5f30b8808c57259f05daccf554b8086245c6b64",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_ask_before_precedence_invalid_fallback_and_limit",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 574,
+        "methodAstSha256": "ba4112b6da2fd984bd35f43fb1bf8acd154f82240ec8464a145eb4804a87c8ad",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_default_ask_before_agrees_with_core_example",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 586,
+        "methodAstSha256": "fcd3e1660848b3d5545feceadd8fbf428f996ffecd907fee77dd65e4c3dabbd4",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_largest_whole_picture_is_omitted_before_items",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 172,
+        "methodAstSha256": "1940f5a8b9da2d927cd136a14fd309d90b8058e1cd5237a2a1607065a988951c",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_checks_are_cut_after_items",
+        "sourceModule": "tests/test_hub.py",
+        "sourceLine": 1018,
+        "methodAstSha256": "9d860ca8c4fbf982e9bf13ca54fa36edf039c17d769a26220ebcdfa80810cb8d",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_secrets_and_emails_are_redacted",
+        "sourceModule": "tests/test_hub.py",
+        "sourceLine": 813,
+        "methodAstSha256": "25a5d56dfbeb5656bb9a717724e3b2b69bf69bc7631339fe13dc5f7832945440",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_links_that_hold_secrets_are_left_out",
+        "sourceModule": "tests/test_hub.py",
+        "sourceLine": 823,
+        "methodAstSha256": "f3ef79ae0433354b1770cecdc6e84bcce40f7403d1f6e468061e501418434258",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      }
+    ],
+    "TASK-233": [
+      {
+        "method": "test_headers_and_quoted_write_id_only_reach_configured_peer",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 1158,
+        "methodAstSha256": "424fb1f9249f0176296f4b314ca098fc8b9752127da921dfdf73956443457a54",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_redirect_is_not_followed_and_access_failure_is_retryable",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 1169,
+        "methodAstSha256": "b89a7c2909d0a00b280735d941cce762aab91ebbc6522492b8053a7e4b02e459",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_missing_token_and_unsafe_urls_or_paths_do_not_contact_network",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 1180,
+        "methodAstSha256": "4ac8fa5a5c6f5b907a40e73028eae5962542fe4436a4186a9c48eece319f61e7",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_deadline_bounds_a_body_that_keeps_the_socket_busy",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 1192,
+        "methodAstSha256": "a26eda269ee7dd97f279b6f5e77dc771c5f551b2f768f3073f0e774463d7491a",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_cancelled_dns_lookup_cannot_later_send_headers",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 1200,
+        "methodAstSha256": "6d0ec90694697215f2a6762a7e1cb073a08f1c0489fd4236d7916ea193f6ea55",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_text_file_utf8_and_source_file_are_validated_before_send",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 1034,
+        "methodAstSha256": "5f4d2793b9e516be6267b5d01d313741a5cdcb9e0f04a3ba7e58fd29ac7ba859",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_invalid_cli_inputs_exit_before_contact_or_queue",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 885,
+        "methodAstSha256": "bfec1747241de52ee8e400d8e282149f8d4ff6f5e95ef47a5a27f4039b710467",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_response_keys_and_parser_errors_cannot_print_token_components",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 956,
+        "methodAstSha256": "48fa0ec660f71bfcd24481da3f48ac8512c4589c103ebce89fddfa7d5c25f231",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      }
+    ],
+    "TASK-234": [
+      {
+        "method": "test_retry_keeps_original_id_body_session_and_order",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 682,
+        "methodAstSha256": "6392b5f8ecf9f1c0f495044ef44be6f954e3157b318547b41a93e9cf54687f6a",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_millisecond_ties_follow_creation_order_without_changing_time",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 701,
+        "methodAstSha256": "518e82c3aec4fd104be70af6d293b4abad255789fee3e68e5f4667305a7fe034",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_seven_day_expiry_and_permanent_refusal_are_reported_and_dropped",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 726,
+        "methodAstSha256": "1891094bcefbdb2650dad9d9429a6aec73dd41d854fd0c5ff1f8e91068149ef6",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_another_process_cannot_own_the_live_lease",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 760,
+        "methodAstSha256": "cc586f31cd32a272618749f1114c5d61e2ae0e6206a1f63d5bd6acd4c379fdb6",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_stale_takeover_fences_the_old_owner",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 749,
+        "methodAstSha256": "e8c4ba4685d006da353592d136618dbfc24fa3e5f751926205cb96d631907042",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_no_token_write_is_redacted_and_kept_without_credentials",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 870,
+        "methodAstSha256": "9e753787d21e4556bbf10aefd673b948a12d0368ca4d8b5977bc26501f376b5d",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_current_write_is_durable_before_send_and_survives_lease_loss",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 969,
+        "methodAstSha256": "1525b195da22819127adf6f1cae64a2ae1f3bbdf1041217cd80ae5bbf4a62d7a",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_a_concurrent_append_cannot_bypass_the_prequeued_fresh_write",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 1044,
+        "methodAstSha256": "b696f899df6f1e629a2a0e34ca21cdadfe5db430b2388d3dbe588287bbc1e45a",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      }
+    ],
+    "TASK-235": [
+      {
+        "method": "test_all_eighteen_commands_exist",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 828,
+        "methodAstSha256": "98677f42dd12108eacaae861a24b8ba2833946ed34ca0921c04700cf5834a188",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_agent_writes_match_paths_bodies_and_new_write_ids",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 834,
+        "methodAstSha256": "553df2b4e2c78a04897a1409660bfb00079bb39532ea266bb05d2137d3496ce2",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_every_write_outcome_has_the_documented_exit_code",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 859,
+        "methodAstSha256": "460f236030ebdc8a0a3b216d8b1940513ebc6a6f2813113435320d852b47a004",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_all_agent_write_commands_handle_done_refused_kept_and_invalid_cli",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 1063,
+        "methodAstSha256": "1b5079ba38b321c330dd5d6a9f38726f9bf50807b5f961a4136c82f6fe9f2688",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_failed_persistence_gives_one_redacted_recovery_copy_only_to_output",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 996,
+        "methodAstSha256": "0c818d6c9ee88fd764a19a6a0b4a3883624bb8fe66e8ba3e36d192538802feaf",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      },
+      {
+        "method": "test_local_commands_have_one_json_envelope_per_project",
+        "sourceModule": "tests/test_hub02.py",
+        "sourceLine": 936,
+        "methodAstSha256": "bb87f348973c657ebdbbb17e820c4249e07146d9f0967f1fd57affad6f53eda1",
+        "currentMethodAstIdentical": true,
+        "passingHostedCells": 6
+      }
+    ]
+  },
+  "hubRuntimeContinuity": {
+    "productPin": "e7ff3947017703128df4c9e4e1b26b0d912eaa70",
+    "executedCiCheckout": "5b9c0670a753deee22fbaeeac53bafb818574785",
+    "currentCoreSource": "45af035dcae3720f15f82c1c9237b981d5797870",
+    "currentCoreDevelopment": "528afb7ef42adaf0606ef030b48d58d60a6c33c2",
+    "runtimeFiles": 9,
+    "allThreeRuntimeBytesEqual": true,
+    "selectedMethods": 48,
+    "hostedCellsPerMethod": 6,
+    "wholeCurrentTestModuleIdentityClaim": false
+  },
+  "formalV8": {
+    "runtimeCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+    "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+    "rawSha256": "e280329ec7fb4462488699d7cd8761a9a14344a4b5b0f40663aa14ccce92df40",
+    "qualifiedPerStage": [
+      20,
+      20,
+      20
+    ],
+    "firstSvgP95Ms": [
+      1399.199999988079,
+      1327.2000000178814,
+      1357.300000011921
+    ],
+    "nativeReadyP95Ms": [
+      2784,
+      2686,
+      2873.9000000059605
+    ],
+    "nativePaintOpportunityP95Ms": [
+      3159.5,
+      2721.7000000178814,
+      3067
+    ],
+    "definition": "Approved complete styled original SVG/all labels/two-rAF paint opportunity; native is separate."
+  },
+  "existingEvidenceDocuments": [
+    "docs/12-qa/runs/2026-11-05-svg-mobile-v8.md",
+    "docs/12-qa/runs/2026-11-05-original-criteria.md",
+    "docs/12-qa/runs/2026-11-04-mobile-final.md",
+    "docs/12-qa/runs/2026-11-04-acceptance-scopes.md"
+  ],
+  "retainedReviewerDigest": "82a6924555c3ffd65889e77c7b923b86d87eae86bef4495db9965421af1e33cf",
+  "newTestsHttpBrowserModels": 0,
+  "newUserCheckpointOrReleaseApproval": false,
+  "mainProductionTagsOrNotionChanged": false,
+  "limits": [
+    "Exact parser/source,CLI fixture,actual-handler,measured page and historical/current byte scopes stay separate.",
+    "Old failed runs and earlier partial CLI reports remain intact; later exact16 and build evidence supplement them.",
+    "Closing these tasks does not close any of the186 partial criteria or the remaining core/self-picture/release workflows."
+  ]
+}

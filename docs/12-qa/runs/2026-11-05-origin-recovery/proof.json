@@ -1,0 +1,103 @@
+{
+  "schema": "nexus-current-origin-copy-recovery/1",
+  "runtimeCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+  "releaseRuntimeByteEquivalent": "efb2f00fbfbcd0bfba99dd53f97981873bde6249",
+  "scope": "read-only provider exports plus isolated origin-local candidate; not final quiescence/cutover",
+  "before": {
+    "catalogSha256": "8d5f00923309b538b51630469908acbd4b879d6def4a0981b5ee1d36406fc65b",
+    "foreignKeyViolations": 0,
+    "integrity": true,
+    "logicalSha256": "22715d5487f321557f5ebbcb2e9ab1e5cfab7fb9fa203a9bbee7ec36cdd7a50b",
+    "rowCounts": {
+      "snapshots": 1
+    },
+    "snapshotCount": 1,
+    "snapshotLogicalSha256": "e96cf7e7d7314b20e2e8e7f4965e78e5d00ccae2df6bd76870ceb4a1504510d2",
+    "tableCount": 1
+  },
+  "after": {
+    "catalogSha256": "f72e53a99061155f5e77ca285294e9b86b2efb76853ce888fd3a7c8bc35ed671",
+    "foreignKeyViolations": 0,
+    "integrity": true,
+    "logicalSha256": "fc4e53603c867f012f5ec4cce0bbd3338ac56e3c871d9359964159229f4fabeb",
+    "rowCounts": {
+      "checkpoints": 0,
+      "claims": 0,
+      "comments": 0,
+      "decisions": 0,
+      "discrepancies": 0,
+      "edits": 0,
+      "migrations": 3,
+      "pictures": 0,
+      "project_spaces": 0,
+      "proposals": 0,
+      "replies": 0,
+      "snapshots": 1,
+      "writes": 0
+    },
+    "snapshotCount": 1,
+    "snapshotLogicalSha256": "e96cf7e7d7314b20e2e8e7f4965e78e5d00ccae2df6bd76870ceb4a1504510d2",
+    "tableCount": 13
+  },
+  "versions": [
+    1,
+    2,
+    3
+  ],
+  "counts": {
+    "import": 1,
+    "migration": 1,
+    "automaticPremigrationBackup": 1,
+    "postMigrationBackup": 1,
+    "newFileRestore": 1,
+    "separateReadonlyPostflight": 1
+  },
+  "importChecks": {
+    "commitAcknowledged": true,
+    "connectionClosed": true,
+    "destinationIdentityVerified": true,
+    "importVerified": true
+  },
+  "equality": {
+    "originalSnapshotPreserved": true,
+    "premigrationBackupEqualsOriginal": true,
+    "backupEqualsAll13TablesAndCatalog": true,
+    "restoreEqualsAll13TablesAndCatalog": true
+  },
+  "finalEightHashesUnchanged": true,
+  "rawDataLeftOrigin": false,
+  "oldProviderDatabaseMutated": false,
+  "liveDatabaseSelected": false,
+  "serviceOrRouteMutations": 0,
+  "finalQuiescenceProven": false,
+  "productionCutoverProven": false,
+  "devAndTunnelObservedActive": true,
+  "continuousServiceUptimeProven": false,
+  "retainedAttempts": {
+    "firstSetupStoppedBeforeImport": true,
+    "firstLauncherOmittedPrivilegeEscalation": true,
+    "secondImportAndRecoverySucceeded": true,
+    "secondAdditionalVersionGuardUnproved": true,
+    "specificVersionGuardCauseUnconfirmed": true,
+    "separatePostflightCompleted": true,
+    "noImportOrMigrationRerun": true
+  },
+  "sources": {
+    "safeSummary": "79eb76cb14cc236f300eaabc6f2bb6ee052b70aa3e16db87e1a4dd4f1fdf04c7",
+    "postflightReceipt": "de8ff7c6d990feb75811cec3c9015f49801016ea5e948ca0de50ac575d28efc2",
+    "secondReceipt": "65bdf1d57cbd3919348b1fce892a07616035fb86f61ae5921600e7083359789c"
+  },
+  "limitations": [
+    "This sealed schema/data pair only; no general SQL admission.",
+    "Source exports and independent read occurred at separate times.",
+    "Final source closure/freshness and production identity checks are separate.",
+    "No first real-repository upload or resource deletion."
+  ],
+  "runtimeContinuity": {
+    "fileCount": 476,
+    "originHashMatches": 476,
+    "archiveDigest": "2c21b119ef3f438d26df6b13a0ae8c72aa9c77c84423509db24eda04e4ce26b1",
+    "manifestDigest": "5eff6917e9468d18aa37c46a836bfad5c5f9fe7b8ad7e93e4d632ccb9b080296",
+    "originReceiptDigest": "60885a861f0f8cbd0919dc2b20277716a5f98aa8fc0ff81da7f24d0c9de45be3"
+  }
+}

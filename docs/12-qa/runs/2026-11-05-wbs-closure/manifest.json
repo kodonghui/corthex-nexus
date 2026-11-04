@@ -1,0 +1,43 @@
+{
+  "schema": "nexus-eleven-wbs-closure-manifest/1",
+  "sourceBaseCommit": "efb2f00fbfbcd0bfba99dd53f97981873bde6249",
+  "statusChangedTasks": [
+    "TASK-204",
+    "TASK-224",
+    "TASK-225",
+    "TASK-226",
+    "TASK-227",
+    "TASK-228",
+    "TASK-230",
+    "TASK-233",
+    "TASK-234",
+    "TASK-235",
+    "TASK-254"
+  ],
+  "fieldChangesPerLanguage": 11,
+  "unchangedWholeRows": 53,
+  "allOriginalNonStatusColumnsPreserved": 64,
+  "sourceBeforeSha256": {
+    "docs/10-wbs/nexus.md": "96a541ed7eb1d3077703d7ebb6dee590cb3a649da223bc4b4ec0af3714af32f7",
+    "docs/10-wbs/nexus.ko.md": "03ee9c8b10e655cae9fa01f779173df06f981a615ccdddef419879ff6beb6dd9"
+  },
+  "qaSourceUnchangedSha256": {
+    "docs/12-qa/nexus.md": "d9703c625a695eeff962cceab9f366ef1732641a73211eb9c8262b407a950ff8",
+    "docs/12-qa/nexus.ko.md": "3e90dfdb6f4a7d677e23f9abd3375e759ec346fc487243da917939d3d0f83eb7"
+  },
+  "outputSha256": {
+    "docs/10-wbs/nexus.md": "a8ad126e6e695a097d9cf789cf14585965531c960a92e4fcc5fea3a520f94ef8",
+    "docs/10-wbs/nexus.ko.md": "5512dfce7c9e254ab6879c3462588e182fc476bb8d81bc4f75cd483dc6e89c7c",
+    "docs/12-qa/runs/2026-11-05-wbs-closure.md": "f1c576f9f7bf3aa5dea6d3f5ac9b341d69b6835053628d9d529ea7cad2f355cf",
+    "docs/12-qa/runs/2026-11-05-wbs-closure.ko.md": "8327f1ae7a2a16608d850dff994a00c99cc258cbf7cc72d82e584d126ca98e92",
+    "docs/12-qa/runs/2026-11-05-wbs-closure/proof.json": "c4ba43e08fe90f51d747ac2b878d7c10afbb31a6cca9db73466bda98f4698b3b"
+  },
+  "evidenceDigests": {
+    "wbsClauseReview": "82a6924555c3ffd65889e77c7b923b86d87eae86bef4495db9965421af1e33cf",
+    "specificHubMethodReview": "bf4c7f0e1005bc4430a79190c82d3b11eecbe3d0ba9ef92930bdb2bd60534562",
+    "formalProof": "51b13d228689cce3fe35488cac9c99a1ccda5bea92ce561fdd8c53a547e92968"
+  },
+  "canonicalUtf8Lf": true,
+  "stagedBlobVerification": "No index change here; commit owner verifies canonical blobs after staging.",
+  "noNewExecutionOrRemoteMutation": true
+}

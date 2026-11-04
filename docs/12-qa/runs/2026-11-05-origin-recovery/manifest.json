@@ -1,0 +1,12 @@
+{
+  "schema": "nexus-current-origin-recovery-manifest/1",
+  "baseCommit": "efb2f00fbfbcd0bfba99dd53f97981873bde6249",
+  "files": {
+    "docs/12-qa/runs/2026-11-05-origin-recovery/proof.json": "b1dcf704e908417ce505c5f572cb2e0ebfdc9d6cf5efc7a8cd773cf416d19244",
+    "docs/12-qa/runs/2026-11-05-origin-recovery.md": "754472c0ee82c92128945f363cd2ff8e31c045400df223070eadffd3309f9707",
+    "docs/12-qa/runs/2026-11-05-origin-recovery.ko.md": "e8e37c0c7055c8596d8385902f38dbf7032c640168606ce4076eb685e89acc7f"
+  },
+  "summaryDigest": "79eb76cb14cc236f300eaabc6f2bb6ee052b70aa3e16db87e1a4dd4f1fdf04c7",
+  "qaRowsChanged": 0,
+  "canonicalUtf8Lf": true
+}

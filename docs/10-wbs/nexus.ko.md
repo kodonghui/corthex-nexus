@@ -36,8 +36,8 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 | TASK-201 | Access 로그인 두 종류 시험 | SPEC-113, SPEC-116 | API-101–API-104 | none | agent | M | 실제 개발 Access의 사람·서비스 토큰에서 ctx.access·aud·sub·email·common_name의 있음/비어 있음을 기록하고 로그인 구현 전에 확인 방법을 정합니다. | done (kodonghui/corthex#92) |
 | TASK-202 | 1단계 DB를 보존하는 이주 1 | SPEC-114 | TBL-101, TBL-113 | none | agent | S | 빈 DB와 1단계 DB에 이주 1이 원자적으로 적용되고 기존 스냅샷 바이트와 revision이 그대로 남습니다. | done (kodonghui/corthex#91) |
 | TASK-203 | 설계 스키마로 옮기는 이주 2 | SPEC-114 | TBL-101–TBL-113 | TASK-202 | agent | M | 이주 결과와 nexus.sql의 표·열·키·색인·CHECK가 같으며 실패·동시 적용 뒤 부분 스키마가 남지 않습니다. | done (kodonghui/corthex#91) |
-| TASK-254 | 반영 보고를 구별할 메타데이터 보존 | SPEC-133 | TBL-109, API-126 | TASK-203 | agent | S | 변환 3이 스키마 2 데이터를 지키고 내부 마지막 보고만 더합니다. 쓰기 ID 만료 뒤에도 같은 PR의 closed 재보고와 유효하지 않은 첫 closed를 구별합니다. | in progress |
-| TASK-204 | 스냅샷 0.2와 그림 자료 검증 | SPEC-104, SPEC-105, SPEC-109, SPEC-110, SPEC-114 | API-105, TBL-114 | TASK-203 | agent | M | 두 스냅샷 판과 그림 자료의 형식·UTF-8·한도를 검사하고 모르는 스냅샷 필드는 보존하며 그림 자료는 따로 저장합니다. | in progress |
+| TASK-254 | 반영 보고를 구별할 메타데이터 보존 | SPEC-133 | TBL-109, API-126 | TASK-203 | agent | S | 변환 3이 스키마 2 데이터를 지키고 내부 마지막 보고만 더합니다. 쓰기 ID 만료 뒤에도 같은 PR의 closed 재보고와 유효하지 않은 첫 closed를 구별합니다. | done |
+| TASK-204 | 스냅샷 0.2와 그림 자료 검증 | SPEC-104, SPEC-105, SPEC-109, SPEC-110, SPEC-114 | API-105, TBL-114 | TASK-203 | agent | M | 두 스냅샷 판과 그림 자료의 형식·UTF-8·한도를 검사하고 모르는 스냅샷 필드는 보존하며 그림 자료는 따로 저장합니다. | done |
 | TASK-205 | 앞지른 밀기를 막고 보관 커밋 읽기 | SPEC-111, SPEC-112, SPEC-114, SPEC-117, SPEC-118, SPEC-140 | API-105, API-109, TBL-101–TBL-104, TBL-110 | TASK-204, TASK-206 | agent | L | API-105·109의 모든 응답, 겹친 밀기, 저장소 주소, 같은/이전 시각, 바뀌지 않은 그림과 확인 지점을 시험합니다. 앞질러진 밀기는 아무 행도 쓰지 않습니다. | in progress |
 | TASK-206 | 그림 짝짓기와 불일치 정리 | SPEC-120, SPEC-121 | TBL-103, TBL-104 | TASK-204 | agent | M | 다섯 불일치 유형, 삭제된 용어, 명시적 none·예외, 기다리는 그림, 다시 생긴 불일치와 열린 항목 1,000개 한도를 시험합니다. | in progress |
 | TASK-207 | 삭제 전 확인과 프로젝트 삭제 | SPEC-115 | API-108, API-110, TBL-101–TBL-112 | TASK-205 | agent | S | 모든 응답과 제한된 ID·합계를 확인하고 삭제 뒤 어떤 표에도 그 프로젝트 행이 남지 않습니다. | in progress |
@@ -62,23 +62,23 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 | ID | 작업 | 근거 | 건드리는 곳 | 선행 작업 | 담당 | 크기 | 끝났다고 볼 때 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | TASK-223 | OVH 최대 밀기의 처리와 메모리 측정 | SPEC-114, SPEC-118, SPEC-121 | REQ-081, REQ-124, API-105 | TASK-205 | agent | M | OVH 개발 서버에서 합성1,000,000바이트·항목3,000·검사2,000·그림3개의 서버 처리 시간과 메모리를 기록하고 처리는1초 안입니다. 이전 Workers 83ms 결과를 보존합니다. 처리1초는 본문 전체 수신 뒤부터 응답 처리 완료까지이며 수신/왕복은 별도 참고입니다. | done |
-| TASK-224 | 모바일 편집기·CSP·Worker 크기 시험 | SPEC-119 | REQ-146–REQ-149, API-104 | TASK-222 | agent | L | 편집기/React 판·라이선스, 서버에서 주는 코드·글꼴, 압축 전후 크기와 현재 Worker 한도·CSP를 기록합니다. 모바일 4G에서 300요소를 20번 열어 P95 3초를 재며 초과는 판단을 받습니다. | in progress |
+| TASK-224 | 모바일 편집기·CSP·Worker 크기 시험 | SPEC-119 | REQ-146–REQ-149, API-104 | TASK-222 | agent | L | 편집기/React 판·라이선스, 서버에서 주는 코드·글꼴, 압축 전후 크기와 현재 Worker 한도·CSP를 기록합니다. 모바일 4G에서 300요소를 20번 열어 P95 3초를 재며 초과는 판단을 받습니다. | done |
 
 ## 허브
 
 | ID | 작업 | 근거 | 건드리는 곳 | 선행 작업 | 담당 | 크기 | 끝났다고 볼 때 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-225 | 기본 브랜치 Git 객체와 부분별 문서 읽기 | SPEC-104, SPEC-105 | API-133, TBL-114 | none | agent | M | 작업 브랜치·미커밋 글은 그림에 들어가지 않습니다. 원격 주소·기본 커밋·시각·가장 긴 부분 이름·생략 검사를 훅/필터 실행 없이 확인합니다. | in_progress |
-| TASK-226 | DDD 보드와 타임라인 읽기 | SPEC-106 | API-133, TBL-114 | TASK-225 | agent | M | 영어·한국어 틀과 NEXUS에서 맥락·명령/정책·애그리거트/읽기 모델/용어·의존·핫스팟·다섯 타임라인 흐름을 읽습니다. | in_progress |
-| TASK-227 | ERD SQL 그림 자료 읽기 | SPEC-107 | API-133, TBL-114 | TASK-225 | agent | M | 틀과 nexus.sql의 열 형식/NULL·PK/UNIQUE/FK·부분 색인·맥락/용어·without_table 예외를 읽습니다. | in_progress |
-| TASK-228 | 중첩 사이트맵 그림 자료 읽기 | SPEC-108 | API-133, TBL-114 | TASK-225 | agent | M | 표준 라이브러리로 부모·주소/권한/흐름/상태·맥락/용어/none·without_screen·일부만 읽은 검사를 보존합니다. | in_progress |
+| TASK-225 | 기본 브랜치 Git 객체와 부분별 문서 읽기 | SPEC-104, SPEC-105 | API-133, TBL-114 | none | agent | M | 작업 브랜치·미커밋 글은 그림에 들어가지 않습니다. 원격 주소·기본 커밋·시각·가장 긴 부분 이름·생략 검사를 훅/필터 실행 없이 확인합니다. | done |
+| TASK-226 | DDD 보드와 타임라인 읽기 | SPEC-106 | API-133, TBL-114 | TASK-225 | agent | M | 영어·한국어 틀과 NEXUS에서 맥락·명령/정책·애그리거트/읽기 모델/용어·의존·핫스팟·다섯 타임라인 흐름을 읽습니다. | done |
+| TASK-227 | ERD SQL 그림 자료 읽기 | SPEC-107 | API-133, TBL-114 | TASK-225 | agent | M | 틀과 nexus.sql의 열 형식/NULL·PK/UNIQUE/FK·부분 색인·맥락/용어·without_table 예외를 읽습니다. | done |
+| TASK-228 | 중첩 사이트맵 그림 자료 읽기 | SPEC-108 | API-133, TBL-114 | TASK-225 | agent | M | 표준 라이브러리로 부모·주소/권한/흐름/상태·맥락/용어/none·without_screen·일부만 읽은 검사를 보존합니다. | done |
 | TASK-229 | 기본 브랜치의 단계 기록 읽기 | SPEC-109 | API-133, TBL-115, TBL-116 | TASK-225 | agent | M | 부분별 저장소 기록이 기기 상태를 대신합니다. 잘못된 기록은 검사와 unknown으로 남고 대체 출처가 보이며 done은 날짜 있는 확인 지점이 필요합니다. | in_progress |
-| TASK-230 | 설정·가림·스냅샷 한도 | SPEC-104, SPEC-110 | API-133, TBL-114 | TASK-226, TASK-227, TASK-228, TASK-229 | agent | M | 0.2 형식과 새 검사를 확인합니다. 기본 ask_before는 코어 예시와 같고 큰 그림 전체부터 뺀 뒤 항목/검사를 줄이며 경로/비밀은 보내지 않습니다. | in_progress |
+| TASK-230 | 설정·가림·스냅샷 한도 | SPEC-104, SPEC-110 | API-133, TBL-114 | TASK-226, TASK-227, TASK-228, TASK-229 | agent | M | 0.2 형식과 새 검사를 확인합니다. 기본 ask_before는 코어 예시와 같고 큰 그림 전체부터 뺀 뒤 항목/검사를 줄이며 경로/비밀은 보내지 않습니다. | done |
 | TASK-231 | status로 저장소 단계 기록 쓰기 | SPEC-109, SPEC-137, SPEC-140 | API-134, TBL-115 | TASK-229 | agent | M | 부분·대체 상태·확인 지점 목록·NEXUS 링크의 모든 결과를 시험합니다. LF JSON 원자적 쓰기는 다른 부분을 지키고 커밋·밀기를 하지 않습니다. | in_progress |
 | TASK-232 | 조상 관계로 밀고 삭제 전 확인하기 | SPEC-111, SPEC-112, SPEC-115 | API-136, API-137 | TASK-230, TASK-233, TASK-234 | agent | M | 보관 스냅샷 없음·같음/자식/조상/갈라짐/커밋 없음·부모자식 같은 시각·replace-held·0.1 서버 거절의 명령 결과를 모두 확인합니다. | in_progress |
-| TASK-233 | 안전한 HTTP·세션·JSON 결과 | SPEC-128, SPEC-135 | API-136–API-150 | none | agent | M | 리디렉션을 따라가지 않습니다. 설정된 주소/프로젝트에만 토큰을 보내며 세션·글·파일을 검사/가리고 문서의 결과·종료 코드를 냅니다. | in_progress |
-| TASK-234 | 7일 outbox 저장과 전송 | SPEC-129 | API-150, TBL-117 | TASK-233 | agent | M | 재시도 상태·토큰/네트워크 실패·기한·영구 거절·오래된 순서·재실패 시 멈춤·두 허브의 잠금을 시험하고 파일에 인증값이 없습니다. | in_progress |
-| TASK-235 | 에이전트 명령과 참조 문서 | SPEC-127–SPEC-133, SPEC-135, SPEC-136, SPEC-140 | API-138–API-149 | TASK-233, TASK-234 | agent | L | 모든 명령/결과를 시험하고 OutboxFile 요청 이름을 계약과 맞대며 snapshot.md·reading.md·허브 스킬을 0.2로 맞춥니다. | in_progress |
+| TASK-233 | 안전한 HTTP·세션·JSON 결과 | SPEC-128, SPEC-135 | API-136–API-150 | none | agent | M | 리디렉션을 따라가지 않습니다. 설정된 주소/프로젝트에만 토큰을 보내며 세션·글·파일을 검사/가리고 문서의 결과·종료 코드를 냅니다. | done |
+| TASK-234 | 7일 outbox 저장과 전송 | SPEC-129 | API-150, TBL-117 | TASK-233 | agent | M | 재시도 상태·토큰/네트워크 실패·기한·영구 거절·오래된 순서·재실패 시 멈춤·두 허브의 잠금을 시험하고 파일에 인증값이 없습니다. | done |
+| TASK-235 | 에이전트 명령과 참조 문서 | SPEC-127–SPEC-133, SPEC-135, SPEC-136, SPEC-140 | API-138–API-149 | TASK-233, TASK-234 | agent | L | 모든 명령/결과를 시험하고 OutboxFile 요청 이름을 계약과 맞대며 snapshot.md·reading.md·허브 스킬을 0.2로 맞춥니다. | done |
 
 ## 화면
 
@@ -311,3 +311,8 @@ Root는 REQ-149/TC-1271/SPEC-119가 첫SVG와 편집기 준비를 구분하는�
 ## 2026-11-05: 모바일 성능 관문과 범위별 근거
 
 새 정식v8에서 현재906/D802의300노드 한국어 그림을 원 모바일4G/CPU1 조건으로 각각20번 완료했습니다. 첫SVG19번째값은DDD1399.2ms·ERD1327.2ms·사이트맵1357.3ms이며60회 보안/엄격한 정리 근거가 있습니다. native준비P95는2784/2686/2873.9ms,표시기회는3159.5/2721.7/3067ms로 분리합니다. 원 CTX012/320틀이동/script제목/응답·데이터불변과 기존TC1128근거는 [범위기록](../12-qa/runs/2026-11-05-svg-mobile-v8.ko.md)에 연결합니다. QA524pass/186partial/0fail이며64작업행15done/49in progress는 그대로입니다. 성능값으로 작업을 닫지 않으며 다른 출시 조건·REQ107 첫전송 동의·Worker/D1 보관 및 삭제 조건은 남습니다.
+
+
+## 2026-11-05: 근거가 갖춰진 작업 11개 완료
+
+원래 완료 조건과 기존 실제 근거를 대조해 TASK-204/224/225/226/227/228/230/233/234/235/254만 done으로 닫았습니다. 현재 64개 작업은 26done/38in progress입니다. 다른 53행과 모든 ID·완료 조건·나머지 열·이전 이력은 유지합니다. TASK-244/245/246/247/252와 남은 부분 검증은 진행 중입니다. QA 710개 행과 524pass/186partial/0fail 판정도 바꾸지 않습니다. [조건별 완료 근거](../12-qa/runs/2026-11-05-wbs-closure.ko.md)는 새 실행이나 전체 인수·출시 승인을 뜻하지 않습니다. 이주·복구와 다른 출시 관문, 첫 실제 저장소 전송 및 Worker/D1 보관·삭제 조건은 별도로 유지합니다.
