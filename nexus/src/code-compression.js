@@ -9,6 +9,7 @@ export function codeVariants(code = {}) {
     const bytes = typeof file.body === "string" ? Buffer.from(file.body) : Buffer.from(file.body.buffer, file.body.byteOffset, file.body.byteLength);
     if (bytes.length < 1024) continue;
     variants.set(name, {
+      identity: bytes,
       br: brotliCompressSync(bytes, { params: { [constants.BROTLI_PARAM_QUALITY]: 9 } }),
       gzip: gzipSync(bytes, { level: 9 }),
     });
@@ -28,6 +29,7 @@ function coding(header) {
     qualities.set(name, quality);
   }
   const quality = (name) => qualities.get(name) ?? qualities.get("*") ?? 0;
+  if ((qualities.get("identity") ?? 0) > Math.max(quality("br"), quality("gzip"))) return null;
   if (quality("br") > 0 && quality("br") >= quality("gzip")) return "br";
   return quality("gzip") > 0 ? "gzip" : null;
 }
@@ -38,6 +40,6 @@ export function compressedCode(request, response, variants) {
   if (!match) return null;
   const file = variants.get(decodeURIComponent(match[1]));
   const encoding = coding(request.headers.get("Accept-Encoding"));
-  if (!file || !encoding) return null;
-  return { encoding, body: file[encoding] };
+  if (!file) return null;
+  return { encoding, body: file[encoding || "identity"] };
 }

@@ -156,17 +156,18 @@ test("compressed code keeps checked Access, exact decoded bytes, HEAD and coding
     req.on("error", reject); req.end();
   });
   const path = "/code/fixture.12345678.js";
-  for (const [header, encoding] of [["br, gzip", "br"], ["br;q=0, gzip;q=1", "gzip"], ["gzip;q=0.5, br;q=1", "br"], ["br;q=0,gzip;q=0", undefined], ["*;q=0", undefined], [undefined, undefined]]) {
+  for (const [header, encoding] of [["br, gzip", "br"], ["br;q=0, gzip;q=1", "gzip"], ["gzip;q=0.5, br;q=1", "br"], ["br;q=0.2, identity;q=1", undefined], ["br;q=0,gzip;q=0", undefined], ["*;q=0", undefined], [undefined, undefined]]) {
     const get = await wire(path, header);
     assert.equal(get.status, 200); assert.equal(get.headers["content-encoding"], encoding);
     const decoded = encoding === "br" ? brotliDecompressSync(get.bytes) : encoding === "gzip" ? gunzipSync(get.bytes) : get.bytes;
     assert.deepEqual(decoded, Buffer.from(text));
     assert.equal(get.headers["cache-control"], "private, max-age=31536000, immutable");
     assert.equal(get.headers["x-frame-options"], "DENY");
+    assert.match(get.headers.vary, /Accept-Encoding/i);
+    assert.equal(Number(get.headers["content-length"]), get.bytes.length);
     if (encoding) {
       assert.ok(get.bytes.length < Buffer.byteLength(text));
       assert.equal(Number(get.headers["content-length"]), get.bytes.length);
-      assert.match(get.headers.vary, /Accept-Encoding/i);
       const head = await wire(path, header, "HEAD");
       assert.equal(head.headers["content-encoding"], encoding);
       assert.equal(head.headers["content-length"], get.headers["content-length"]); assert.equal(head.bytes.length, 0);

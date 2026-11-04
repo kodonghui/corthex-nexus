@@ -57,7 +57,7 @@ export function createNodeServer({ env, origin, template, views = {}, verifier =
       const encoded = compressedCode(request, response, variants);
       const responseHeaders = new Headers(response.headers);
       if (encoded) {
-        responseHeaders.set("Content-Encoding", encoded.encoding);
+        if (encoded.encoding) responseHeaders.set("Content-Encoding", encoded.encoding);
         responseHeaders.set("Content-Length", String(encoded.body.length));
         responseHeaders.set("Vary", [responseHeaders.get("Vary"), "Accept-Encoding"].filter(Boolean).join(", "));
         await response.body?.cancel();
