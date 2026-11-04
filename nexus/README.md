@@ -8,15 +8,15 @@ This folder is not a plugin. Deploy it from a clone of this repository.
 
 ## What it keeps and who can see it
 
-- **Snapshots only.** One row per project holds the snapshot that `hub.py push` sent: IDs, titles, states, checks, file locations and commit IDs, never other file contents or local paths ([format](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)). A new push of a project replaces its row. The Worker keeps nothing else and logs no stored text.
+- **Snapshots and a discussion space.** Snapshots hold IDs, titles, states, checks, relative file locations, commits and parsed pictures/stage records ([format](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)). A new push of a project replaces its row. The space separately retains comments/replies, proposals/reflections, discrepancies and checkpoints. Only author kind is retained; identities and stored text are never logged.
 - **Access first.** The Worker answers only requests that Cloudflare Access checked. Any other request gets `403` and no data, so a Worker deployed before Access is set up shows nothing.
 - **One address.** Only the address you set serves it: no `workers.dev` or preview addresses, and no static assets, which would take the Access check away from the Worker.
-- **A page that loads nothing.** The page carries its data and loads nothing from the network. It runs only its own script, allowed by its hash, and other sites can neither frame it nor change what the server holds.
+- **Self-contained hub, same-origin views.** The hub carries its data and hash-allowed inline script. Picture/overview pages load pinned prebuilt code/styles/fonts only through the Access-checked `/code/` operation. There is no CDN or static-assets bypass; see [the browser build guide](ui/README.md).
 
 ## Requirements
 
 - A Cloudflare account with a domain on it, and Cloudflare Zero Trust set up. The Zero Trust Free plan is enough; its setup asks for payment details even so.
-- Node.js 22.13 or later, and a clone of this repository.
+- Node.js 24 LTS or later, and a clone of this repository.
 - `corthex-nexus` on each machine that sends snapshots.
 
 ## Set up
@@ -110,8 +110,8 @@ Restore rehearsal (use absolute paths):
 node nexus/tools/database.js restore --backup /private/backups/<archive>.sqlite --destination /private/restore-check.sqlite
 ```
 
-The destination must not exist. The tool verifies the receipt, restores and
-migrates the separate copy, and checks it again. Verify counts and the API on an
+The destination must not exist. The tool verifies the receipt and restores a separate copy with its original
+schema. Run the explicit `migrate` command separately when an upgrade is wanted. Verify counts and the API on an
 isolated development listener before selecting a restored database. For an
 actual rollback, stop the affected service, back up its current database, select
 the verified restored file in its private environment and restart. Never replace
@@ -129,3 +129,11 @@ CI runs the original Worker checks and the standalone HTTP/SQLite tests, plus
 Schemathesis against all 32 operations using generated RSA keys and an isolated
 temporary database. These local fixtures do not prove an authenticated Tunnel
 deployment or browser acceptance; those are recorded separately in stage 12.
+
+For a supervised processing/RSS measurement, temporarily set `NEXUS_METRICS=1`
+in the private origin environment and restart. Each numeric receipt includes
+status, received body bytes, handler processing milliseconds and process RSS.
+It contains no path, identity, headers or stored text. Remove the setting after
+the run. `ops/cloudflared-nexus@.service` is the isolated Tunnel service example;
+its dedicated user needs only the origin-created Tunnel credentials, never the
+zone administrator certificate.

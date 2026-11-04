@@ -1,0 +1,178 @@
+{
+  "schema": "nexus-public-constants/1",
+  "rule": "Exact public license contacts and one compiled-WASM substring only; no credential patterns are ignored by file.",
+  "entries": [
+    {
+      "rule": "email address",
+      "value_sha256": "bdf9ce3b6fad26286e88dc74fe508107913344140b3282382d6ee4c290e7175c",
+      "file": "nexus/NOTICE",
+      "package": "clsx@1.1.1",
+      "source_sha256": "9a9edad7baae52622bddf3c15b2ef8a33d2c89f2d25408ad13e8a7481c6b0c97",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "3f425658ca720584036d9afc06844bc0d2d351357e2d5de53811b57caee8796f",
+      "file": "nexus/NOTICE",
+      "package": "fastdom@1.0.12",
+      "source_sha256": "df2ae14f12f31864acef768195afe4584b08a257f25925f49884619279f02f37",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "a0d4602853a0c952b5c5f2f8d66f0820a73a3774841aa4ba1a78c99ecb160348",
+      "file": "nexus/NOTICE",
+      "package": "nanoid@4.0.2",
+      "source_sha256": "da4db1480d9beea3483a2eda5c53b22238d0827d57da162b48f122e04d2d9987",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "a0d4602853a0c952b5c5f2f8d66f0820a73a3774841aa4ba1a78c99ecb160348",
+      "file": "nexus/NOTICE",
+      "package": "nanoid@4.0.2",
+      "source_sha256": "da4db1480d9beea3483a2eda5c53b22238d0827d57da162b48f122e04d2d9987",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "6e13be8b3eb67489f0f0a6585a310a4e3d2f56db869e9f7ea5cb4ed9452c9ec8",
+      "file": "nexus/NOTICE",
+      "package": "react-remove-scroll-bar@2.3.8",
+      "source_sha256": "a79aae0c0f21990d9d963bb3c5a79cdcea9a46f8523ba55c58d7fe776b6ebc84",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "30f3a219d62bd54dc6e8a1010ff5b44043e282cab2378ef6a1047145d4b11cb8",
+      "file": "nexus/NOTICE",
+      "package": "sliced@1.0.1",
+      "source_sha256": "601faae915be3661a9a6571550988fceafded0e3fc9ea7b020ad8d1ae824a573",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "3829459cf1bfde23363a92f4805e9a64b5b04ce3bd33afd72797b054d1c9da7e",
+      "file": "nexus/NOTICE",
+      "package": "@excalidraw/excalidraw@0.18.1 font Lilita",
+      "source_sha256": "2b6568c7a0f16300bc6c8d292bd426c361fcdb40699c2cbfab2bd3e9e6993dea",
+      "kind": "published font copyright name table"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "bbe1b3c4cbd39d0949345be2abc335dc34975dc0f46df89cb61ccd2be873cd24",
+      "file": "nexus/NOTICE",
+      "source": "node_modules/@excalidraw/excalidraw/dist/prod/chunk-EIO257PC.js",
+      "source_sha256": "6ca0a6b4a49be83ed6beb32f845648ca4927c592cc0f4ba43a909624f5659493",
+      "kind": "published bundled package source/legal contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "2dfa5ce9471670fc3b72002e234005d752472bfad6bda520238e2bdec5eec8e9",
+      "file": "nexus/NOTICE",
+      "source": "node_modules/@excalidraw/excalidraw/dist/prod/chunk-EIO257PC.js",
+      "source_sha256": "6ca0a6b4a49be83ed6beb32f845648ca4927c592cc0f4ba43a909624f5659493",
+      "kind": "published bundled package source/legal contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "5c5390ea20eb2b8635368515e43af66390fa87a2b629ccffee0d9eb534bca95c",
+      "file": "nexus/NOTICE",
+      "source": "node_modules/@excalidraw/excalidraw/dist/prod/chunk-EIO257PC.js",
+      "source_sha256": "6ca0a6b4a49be83ed6beb32f845648ca4927c592cc0f4ba43a909624f5659493",
+      "kind": "published bundled package source/legal contact"
+    },
+    {
+      "rule": "AWS key id",
+      "value_sha256": "417287c4c951ecbff5cc14d946d6ca4dfe82f71deaa31301f3593f04b6e31996",
+      "file": "nexus/src/view-code/excalidraw-chunk-58.7420c9b0.js.txt",
+      "kind": "substring of embedded compiled WASM base64, not a credential",
+      "provenance": [
+        {
+          "source": "node_modules/@excalidraw/excalidraw/dist/prod/chunk-EIO257PC.js",
+          "source_sha256": "6ca0a6b4a49be83ed6beb32f845648ca4927c592cc0f4ba43a909624f5659493"
+        }
+      ]
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "bbe1b3c4cbd39d0949345be2abc335dc34975dc0f46df89cb61ccd2be873cd24",
+      "file": "nexus/src/view-code/legal-comments.txt",
+      "source": "node_modules/@excalidraw/excalidraw/dist/prod/chunk-EIO257PC.js",
+      "source_sha256": "6ca0a6b4a49be83ed6beb32f845648ca4927c592cc0f4ba43a909624f5659493",
+      "kind": "published bundled package source/legal contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "2dfa5ce9471670fc3b72002e234005d752472bfad6bda520238e2bdec5eec8e9",
+      "file": "nexus/src/view-code/legal-comments.txt",
+      "source": "node_modules/@excalidraw/excalidraw/dist/prod/chunk-EIO257PC.js",
+      "source_sha256": "6ca0a6b4a49be83ed6beb32f845648ca4927c592cc0f4ba43a909624f5659493",
+      "kind": "published bundled package source/legal contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "5c5390ea20eb2b8635368515e43af66390fa87a2b629ccffee0d9eb534bca95c",
+      "file": "nexus/src/view-code/legal-comments.txt",
+      "source": "node_modules/@excalidraw/excalidraw/dist/prod/chunk-EIO257PC.js",
+      "source_sha256": "6ca0a6b4a49be83ed6beb32f845648ca4927c592cc0f4ba43a909624f5659493",
+      "kind": "published bundled package source/legal contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "bdf9ce3b6fad26286e88dc74fe508107913344140b3282382d6ee4c290e7175c",
+      "file": "nexus/ui/vendor/EDITOR-NOTICES.txt",
+      "package": "clsx@1.1.1",
+      "source_sha256": "9a9edad7baae52622bddf3c15b2ef8a33d2c89f2d25408ad13e8a7481c6b0c97",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "3f425658ca720584036d9afc06844bc0d2d351357e2d5de53811b57caee8796f",
+      "file": "nexus/ui/vendor/EDITOR-NOTICES.txt",
+      "package": "fastdom@1.0.12",
+      "source_sha256": "df2ae14f12f31864acef768195afe4584b08a257f25925f49884619279f02f37",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "a0d4602853a0c952b5c5f2f8d66f0820a73a3774841aa4ba1a78c99ecb160348",
+      "file": "nexus/ui/vendor/EDITOR-NOTICES.txt",
+      "package": "nanoid@4.0.2",
+      "source_sha256": "da4db1480d9beea3483a2eda5c53b22238d0827d57da162b48f122e04d2d9987",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "a0d4602853a0c952b5c5f2f8d66f0820a73a3774841aa4ba1a78c99ecb160348",
+      "file": "nexus/ui/vendor/EDITOR-NOTICES.txt",
+      "package": "nanoid@4.0.2",
+      "source_sha256": "da4db1480d9beea3483a2eda5c53b22238d0827d57da162b48f122e04d2d9987",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "6e13be8b3eb67489f0f0a6585a310a4e3d2f56db869e9f7ea5cb4ed9452c9ec8",
+      "file": "nexus/ui/vendor/EDITOR-NOTICES.txt",
+      "package": "react-remove-scroll-bar@2.3.8",
+      "source_sha256": "a79aae0c0f21990d9d963bb3c5a79cdcea9a46f8523ba55c58d7fe776b6ebc84",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "30f3a219d62bd54dc6e8a1010ff5b44043e282cab2378ef6a1047145d4b11cb8",
+      "file": "nexus/ui/vendor/EDITOR-NOTICES.txt",
+      "package": "sliced@1.0.1",
+      "source_sha256": "601faae915be3661a9a6571550988fceafded0e3fc9ea7b020ad8d1ae824a573",
+      "kind": "published license copyright/contact"
+    },
+    {
+      "rule": "email address",
+      "value_sha256": "3829459cf1bfde23363a92f4805e9a64b5b04ce3bd33afd72797b054d1c9da7e",
+      "file": "nexus/ui/vendor/EDITOR-NOTICES.txt",
+      "package": "@excalidraw/excalidraw@0.18.1 font Lilita",
+      "source_sha256": "2b6568c7a0f16300bc6c8d292bd426c361fcdb40699c2cbfab2bd3e9e6993dea",
+      "kind": "published font copyright name table"
+    }
+  ]
+}

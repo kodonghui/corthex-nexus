@@ -1,6 +1,8 @@
 """Checks that nothing private or secret is published with the repository."""
 
 import io
+import hashlib
+import json
 import re
 import unittest
 from pathlib import Path
@@ -21,6 +23,8 @@ PATTERNS = {
     "email address": re.compile(r"[A-Za-z0-9._%+-]+@(?!example\.(?:com|org)\b)[A-Za-z0-9.-]+\.[A-Za-z]{2,}"),
     "personal home path": re.compile(r"/home/[a-z][a-z0-9_-]*/|/Users/[A-Za-z][^/\s]*/|[A-Za-z]:\\Users\\[^\\\s%]+"),
 }
+_constants_file = ROOT / "nexus/ui/vendor/public-constants.json"
+PUBLIC_CONSTANTS = json.loads(_constants_file.read_text(encoding="utf8"))["entries"] if _constants_file.is_file() else []
 
 
 def checked_text(path, text, label):
@@ -30,7 +34,14 @@ def checked_text(path, text, label):
     if label == "email address" and relative in {
         "nexus/ops/deploy-dev.sh", "nexus/README.md", "nexus/README.ko.md",
     }:
-        return re.sub(r"\bnexus(?:-backup)?@dev\.(?:service|timer)\b", "SYSTEMD_UNIT", text)
+        text = re.sub(r"\bnexus(?:-backup)?@dev\.(?:service|timer)\b", "SYSTEMD_UNIT", text)
+    allowed = {entry["value_sha256"] for entry in PUBLIC_CONSTANTS
+               if entry["file"] == relative and entry["rule"] == label}
+    if allowed:
+        # Exact values reviewed against pinned public license/source bytes.
+        # This never exempts a file or any other credential/address match.
+        text = PATTERNS[label].sub(lambda match: "REVIEWED_PUBLIC_CONSTANT"
+            if hashlib.sha256(match.group().encode()).hexdigest() in allowed else match.group(), text)
     return text
 
 

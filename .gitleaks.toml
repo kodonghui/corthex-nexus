@@ -1,0 +1,14 @@
+title = "NEXUS public-source checks"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+  [[rules.allowlists]]
+  description = "Exact SHA256 of the checked token compiler, not a credential"
+  condition = "AND"
+  regexTarget = "match"
+  paths = ['''^nexus/src/view-code/sizes\.json$''']
+  regexes = ['''^tokens\.mjs": "ce838ed135f70278b113100e88a7cb71d0b9f22bd05cc6dbb4212f1c545b981b"$''']

@@ -21,13 +21,13 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 | TASK-255 | 두 브랜치 이력을 뽑고 검증 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | none | agent | M | 과거 경로·내용·권한을 대조하고 커밋·브랜치 대응표, 원래 PR 참조, 작업 보존과 이력 전체 검사를 기록합니다. | in progress |
 | TASK-256 | 제품 원본과 고정 허브 연결 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-255 | agent | M | 루트 규칙·프로젝트 원본을 만들고 깨끗한 정확한 허브 커밋의 양식으로 실제 연결·페이지 사본 검사를 통과합니다. | in progress |
 | TASK-257 | 제품 CI와 저장소 보호 설정 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-256 | agent | M | Linux 서버·빌드·기존 계약 전부·연결·공개 이력 검사와 all-checks를 통과하고 secret scanning·push protection·PR/검사 보호를 확인합니다. | in progress |
-| TASK-258 | 원래 하네스를 제품으로 연결 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-257 | agent | M | 원래 저장소 PR 하나로 옮긴 경로만 빼고 허브·코어·시험을 지키며 공용 안내·CI·dependabot·draft와 두 저장소 검사 근거를 맞춥니다. | todo |
+| TASK-258 | 원래 하네스를 제품으로 연결 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-257 | agent | M | 원래 저장소 PR 하나로 옮긴 경로만 빼고 허브·코어·시험을 지키며 공용 안내·CI·dependabot·draft와 두 저장소 검사 근거를 맞춥니다. | done (kodonghui/corthex#102) |
 | TASK-259 | Node HTTP와 SQLite 트랜잭션 실행 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-256 | agent | L | 내장 모듈 실행부가 D1 결과·원자적 batch를 맞추고 추가 실행 패키지 없이 보존·이주·한도·HEAD·재시작을 통과합니다. | in progress |
 | TASK-260 | Tunnel 뒤 원 서버 토큰 확인 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-259 | agent | M | 독립 서버는 ctx.access 없이 서명·발급자·대상·시각·작성자 두 종류를 확인하고 Worker의 확인된 context와 기존 Access 정책을 유지합니다. | in progress |
 | TASK-261 | SSH로 분리된 개발 서버 배포 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-260 | agent | M | 전용 사용자·폴더·systemd·loopback·Tunnel로 개발 서버를 열고 재시작·되돌리기를 확인합니다. 실제 값은 Git 밖, 키는 원래 기기에 두며 다른 서비스를 지킵니다. | in progress |
 | TASK-262 | DB 백업과 실제 복구 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-259, TASK-261 | agent | M | 매일과 이주·배포 직전의 일관된 백업, 보관 기간·권한을 시험하고 복구 사본을 실제 열어 데이터·행동을 대조합니다. | in progress |
-| TASK-263 | 운영 데이터 이주와 되돌리기 리허설 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-262 | agent | L | 운영 D1을 읽기 전용으로 내보내 독립 개발 사본에서 이주·복구를 수·해시로 비교합니다. 기존 Worker·D1을 보존하고 운영 주소·데이터는 전환하지 않습니다. | todo |
-| TASK-264 | OVH 개발 계약·성능 재시험 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-261, TASK-262 | agent | M | Schemathesis·실제 Access 두 종류와 최대1MB 밀기의 처리·메모리를 재고 서버 처리는1초 안입니다. 완성 화면 모바일 검사는 TASK-224/238/251에서 따로 증명합니다. | todo |
+| TASK-263 | 운영 데이터 이주와 되돌리기 리허설 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-262 | agent | L | 운영 D1을 읽기 전용으로 내보내 독립 개발 사본에서 이주·복구를 수·해시로 비교합니다. 기존 Worker·D1을 보존하고 운영 주소·데이터는 전환하지 않습니다. | in progress |
+| TASK-264 | OVH 개발 계약·성능 재시험 | REQ-124, SPEC-104–SPEC-140, 2026-11-04 결정 | 제품 이력·계약·배포 | TASK-261, TASK-262 | agent | M | Schemathesis·실제 Access 두 종류와 최대1MB 밀기의 처리·메모리를 재고 서버 처리는1초 안입니다. 완성 화면 모바일 검사는 TASK-224/238/251에서 따로 증명합니다. | in progress |
 
 ## 서버
 
@@ -84,14 +84,14 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 
 | ID | 작업 | 근거 | 건드리는 곳 | 선행 작업 | 담당 | 크기 | 끝났다고 볼 때 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-236 | 고정한 토큰으로 CSS 속성 만들기 | SPEC-119, SPEC-123, SPEC-138 | SCR-101, SCR-104–SCR-109 | none | agent | S | resolver 순서대로 기본과 테마를 적용합니다. 두 테마와 새 화면의 모든 색·길이를 덮고 대비를 다시 계산합니다. | todo |
-| TASK-237 | 허브 페이지에 0.2 추가 | SPEC-123, SPEC-124, SPEC-125 | API-101, API-135, SCR-101, SCR-104 | TASK-236, TASK-208, TASK-230 | agent | M | 부분·그림·개수·기록 전/철회 확인 지점·ask_before·빈 서버가 각 상태대로 보입니다. 로컬은 오프라인이며 복사 HTML이 같습니다. | todo |
-| TASK-238 | 읽기 전용 그림과 대체 항목 목록 | SPEC-119 | API-102, API-104, API-111, SCR-105 | TASK-224, TASK-236 | agent | L | Prism 상태로 그림 셋을 일정하게 그립니다. 편집기 실패에도 접근 가능한 목록과 크기 고정·이름 있는 표시가 남고 이동/확대가 틀 안에 있습니다. | todo |
-| TASK-239 | DDD 보드의 다섯 스텝 | SPEC-141 | SCR-105 | TASK-238 | agent | M | 타임라인/맥락에서 다섯 배치를 만들고 처음/마지막·타임라인 없음·step 주소를 확인하며 배치를 저장하지 않습니다. | todo |
-| TASK-240 | 항목·댓글 패널 | SPEC-126, SPEC-127, SPEC-132 | API-114, API-118–API-120, SCR-106, SCR-107 | TASK-238, TASK-243 | agent | M | 모든 상태가 mock 응답을 따르고 주소로 패널을 열고 닫습니다. 두 폭에서 답글/다시 열기/결정 요청이 동작하며 제안 원문을 미리 읽지 않습니다. | todo |
-| TASK-241 | 제안·반영 패널 | SPEC-130, SPEC-131, SPEC-133 | API-115, API-116, API-124, API-125, API-127, SCR-108 | TASK-238, TASK-243 | agent | M | 모든 제안/반영 상태와 뒤늦은 변경을 Prism으로 시험합니다. 수락/기각 뒤 다시 읽고 PR/반영 상태와 글을 안전하게 보여 줍니다. | todo |
-| TASK-242 | 단계 개요와 확인 지점 | SPEC-138, SPEC-139, SPEC-140 | API-103, API-112, API-128, API-129, SCR-109 | TASK-236, TASK-243 | agent | M | 개요의 모든 상태, 기록된 상태와 기록 전 확인 지점, 철회·경고가 두 폭에서 계약을 따릅니다. | todo |
-| TASK-243 | 작성 중 글·쓰기 ID·요청 복구 | SPEC-126, SPEC-127, SPEC-131, SPEC-139 | SCR-105–SCR-109 | TASK-236 | agent | M | manual 리디렉션·30초 중단을 씁니다. 글+쓰기 ID가 재열기 뒤 남고 잃은 응답의 재시도는 하나만 만들며 opaqueredirect/401·상태 충돌 뒤 글을 지킵니다. | todo |
+| TASK-236 | 고정한 토큰으로 CSS 속성 만들기 | SPEC-119, SPEC-123, SPEC-138 | SCR-101, SCR-104–SCR-109 | none | agent | S | resolver 순서대로 기본과 테마를 적용합니다. 두 테마와 새 화면의 모든 색·길이를 덮고 대비를 다시 계산합니다. | in progress |
+| TASK-237 | 허브 페이지에 0.2 추가 | SPEC-123, SPEC-124, SPEC-125 | API-101, API-135, SCR-101, SCR-104 | TASK-236, TASK-208, TASK-230 | agent | M | 부분·그림·개수·기록 전/철회 확인 지점·ask_before·빈 서버가 각 상태대로 보입니다. 로컬은 오프라인이며 복사 HTML이 같습니다. | in progress |
+| TASK-238 | 읽기 전용 그림과 대체 항목 목록 | SPEC-119 | API-102, API-104, API-111, SCR-105 | TASK-224, TASK-236 | agent | L | Prism 상태로 그림 셋을 일정하게 그립니다. 편집기 실패에도 접근 가능한 목록과 크기 고정·이름 있는 표시가 남고 이동/확대가 틀 안에 있습니다. | in progress |
+| TASK-239 | DDD 보드의 다섯 스텝 | SPEC-141 | SCR-105 | TASK-238 | agent | M | 타임라인/맥락에서 다섯 배치를 만들고 처음/마지막·타임라인 없음·step 주소를 확인하며 배치를 저장하지 않습니다. | in progress |
+| TASK-240 | 항목·댓글 패널 | SPEC-126, SPEC-127, SPEC-132 | API-114, API-118–API-120, SCR-106, SCR-107 | TASK-238, TASK-243 | agent | M | 모든 상태가 mock 응답을 따르고 주소로 패널을 열고 닫습니다. 두 폭에서 답글/다시 열기/결정 요청이 동작하며 제안 원문을 미리 읽지 않습니다. | in progress |
+| TASK-241 | 제안·반영 패널 | SPEC-130, SPEC-131, SPEC-133 | API-115, API-116, API-124, API-125, API-127, SCR-108 | TASK-238, TASK-243 | agent | M | 모든 제안/반영 상태와 뒤늦은 변경을 Prism으로 시험합니다. 수락/기각 뒤 다시 읽고 PR/반영 상태와 글을 안전하게 보여 줍니다. | in progress |
+| TASK-242 | 단계 개요와 확인 지점 | SPEC-138, SPEC-139, SPEC-140 | API-103, API-112, API-128, API-129, SCR-109 | TASK-236, TASK-243 | agent | M | 개요의 모든 상태, 기록된 상태와 기록 전 확인 지점, 철회·경고가 두 폭에서 계약을 따릅니다. | in progress |
+| TASK-243 | 작성 중 글·쓰기 ID·요청 복구 | SPEC-126, SPEC-127, SPEC-131, SPEC-139 | SCR-105–SCR-109 | TASK-236 | agent | M | manual 리디렉션·30초 중단을 씁니다. 글+쓰기 ID가 재열기 뒤 남고 잃은 응답의 재시도는 하나만 만들며 opaqueredirect/401·상태 충돌 뒤 글을 지킵니다. | in progress |
 
 ## C1 뒤 코어
 
@@ -115,8 +115,8 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 | TASK-248 | 고정 판 계약 검사와 mock 실행 | SPEC-113–SPEC-140 | API-101–API-132 | TASK-222 | agent | M | 저장소 밖 고정 판 validator 0.7.1·Prism 5.16.0·Schemathesis 3.39.16과 쿠키/경로/헤더 hook을 씁니다. 개발 계약 시험은 커밋을 적고 mock만의 결과를 나눕니다. | in progress |
 | TASK-249 | 서버의 이름 붙은 응답 모두 보내기 | SPEC-104–SPEC-140 | API-101–API-132 | TASK-217, TASK-218, TASK-220, TASK-248 | agent | L | 가능한 모든 이름 붙은 예시를 개발 서버에서 보내 스키마·코드·데이터 효과를 확인합니다. default/internal의 mock 사례는 따로 셉니다. | in progress |
 | TASK-250 | 세 운영체제의 허브 명령 검증 | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Windows/macOS/Linux에서 Python 3.8과 최신 판의 모든 명령 결과가 통과하며 네트워크/토큰 없는 시험의 격리가 유지됩니다. | todo |
-| TASK-251 | 흐름과 모든 화면 상태 걷기 | SPEC-119, SPEC-123–SPEC-141 | FL-101–FL-114, SCR-101–SCR-109 | TASK-237, TASK-239, TASK-240, TASK-241, TASK-242, TASK-249 | agent | L | 브라우저 시험자가 역할·경로·커밋과 320/1440·두 테마/언어의 근거를 남깁니다. 페이지 검사와 이미지 확인을 나누고 작동한 경로를 CI e2e로 만듭니다. | todo |
-| TASK-252 | 성능과 NEXUS 자신의 그림 맞대기 | SPEC-106, SPEC-107, SPEC-108, SPEC-119, SPEC-120 | REQ-124, REQ-149 | TASK-223, TASK-224, TASK-251 | agent | M | 20번의 원래 값·P95, Worker/편집기 크기와 최대 밀기를 기록합니다. 가상 자료와 NEXUS 자신의 로컬 그림을 확인하며 저장소는 허락 없이 보내지 않습니다. | todo |
+| TASK-251 | 흐름과 모든 화면 상태 걷기 | SPEC-119, SPEC-123–SPEC-141 | FL-101–FL-114, SCR-101–SCR-109 | TASK-237, TASK-239, TASK-240, TASK-241, TASK-242, TASK-249 | agent | L | 브라우저 시험자가 역할·경로·커밋과 320/1440·두 테마/언어의 근거를 남깁니다. 페이지 검사와 이미지 확인을 나누고 작동한 경로를 CI e2e로 만듭니다. | in progress |
+| TASK-252 | 성능과 NEXUS 자신의 그림 맞대기 | SPEC-106, SPEC-107, SPEC-108, SPEC-119, SPEC-120 | REQ-124, REQ-149 | TASK-223, TASK-224, TASK-251 | agent | M | 20번의 원래 값·P95, Worker/편집기 크기와 최대 밀기를 기록합니다. 가상 자료와 NEXUS 자신의 로컬 그림을 확인하며 저장소는 허락 없이 보내지 않습니다. | in progress |
 
 ## 결과
 
@@ -214,3 +214,15 @@ TASK-204–TASK-224와 TASK-254는 진행 중입니다. 서버 요청 처리와 
 서버 기반 묶음 kodonghui/corthex#91(이주)·kodonghui/corthex#92(Access)·kodonghui/corthex#93(요청 처리·트랜잭션)은 개발 통합 브랜치에 병합했습니다. #93의 마지막 커밋 5070de8은 workflow41684359822에서 세 운영체제·Worker 빌드·strict 플러그인 검사·외부 계약 제어와 응답 모음·종합 검사가 모두 통과했습니다. 리뷰 논의를 처리한 뒤 c5e7308로 병합했으며 main 출시 조건은 그대로입니다.
 
 TASK-225–TASK-235는 진행 중입니다. 허브 원본에 0.2 Git 객체 읽기·그림 파서·저장소 status·조상 검사·18개 명령·이전 소유자를 막는 보낼 편지함을 연결했습니다. 경계 시험과 외부 스키마 검사를 로컬에서 돌리며, 묶음 병합 전 최종 리뷰와 Python 3.8·최신판의 세 운영체제 검사가 통과해야 합니다. 시제품이나 명령 개수 확인만으로 작업을 완료 표시하지 않습니다.
+
+## Development checkpoint of 2026-11-04
+
+제품 원본에 독립 서버, 읽기 전용 그림 세 종류, 항목·의견·제안 패널, 단계 현황과 확인 지점 동작을 구현했습니다(TASK-236–TASK-243). 승인된 고정 브라우저 패키지와 전체 NOTICE를 사용하며 서버 실행 의존성은 없습니다. 허브 화면은 kodonghui/corthex#103에서 별도로 검토하고, 원본 저장소 정리는 kodonghui/corthex#102로 병합했습니다.
+
+로컬 브라우저 검사는 합성 Access와 실제 handler·Store, 메모리 SQLite로 실행합니다. 보존한 03E31C·B17B3C 묶음에서 포인터·초안·경합 회귀 다섯 개를 통과했고, 03E31C에서 그림·화면 폭 조합 열두 개를 확인했습니다. 이후 의견 화면 수정과 실제 OVH 성능은 별도 회차이며, 앞선 통과로 대신하지 않습니다. 초기 맞춤·마크 가림·언어·넘침 실패와 하네스 실패도 보존했습니다.
+
+독립 API 감사는 TC ID를 그대로 두고 명명 예제 411개를 대응했습니다. 예제 스키마는 맞지만 실제 handler에서 관측한 명명 variant는232개, default 제어 검사와의 합집합은270/411입니다. 미관측141개와 적용 조건을 명확히 해야 할 공유 예제11개가 남습니다. CI용 시험 둘은32개 동작 전체에 성공·상태 요청47개와 권한·헤더 거절 요청138개를 더하며 DB 불변도 확인합니다. 요청 수를 완전 통과 TC 수로 세지 않습니다.
+
+8CC00C 묶음에서 Node120개, Python 연결·공개 검사9개, Worker 빌드와 고정 외부 검사7개를 통과했습니다. 독립 서버 Schemathesis는32개 동작과154개 응답에 검사 다섯 종류를 각각 통과했습니다. 합성 검사는 실제 로그인 시험·원 서버 DB 이주 연습과 구분합니다. 이후 UI 수정은 커밋 전에 다시 검사합니다.
+
+배포는 개발 서버에 한정합니다. 코어 변경은 MEMORY C1·PR C·PR D가 main에 들어간 뒤 진행합니다. main 병합, 운영 주소·데이터 전환, 릴리스 태그, 실제 저장소 첫 업로드, 이전 자원 정리는 출시 결정에 남습니다.

@@ -8,15 +8,15 @@ NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기�
 
 ## 무엇을 두고 누가 보는가
 
-- **스냅샷만 둡니다.** 프로젝트마다 한 줄에 `hub.py push`가 보낸 스냅샷을 둡니다. ID, 제목, 상태, 점검 결과, 파일 위치, 커밋 ID만 있고, 그 밖의 파일 내용이나 내 컴퓨터의 경로는 없습니다([형식](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)). 같은 프로젝트를 다시 보내면 그 줄을 바꿉니다. 그 밖에는 아무것도 두지 않고, 저장된 글을 로그에 남기지 않습니다.
+- **스냅샷과 대화 공간을 둡니다.** 스냅샷에는 ID, 제목, 상태, 점검 결과, 상대 파일 위치, 커밋과 해석한 그림·단계 기록이 들어갑니다([형식](https://github.com/kodonghui/corthex/blob/010ccaa4e596676095b802e1283f1efac562377d/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)). 같은 프로젝트를 다시 보내면 그 줄을 바꿉니다. 그림·의견·답글·제안·반영·어긋남·확인 지점은 대화 공간에 따로 둡니다. 작성자 종류만 보존하며 계정 신원이나 저장된 글을 로그에 남기지 않습니다.
 - **Access가 먼저입니다.** Worker는 Cloudflare Access가 확인한 요청에만 답합니다. 다른 요청은 모두 `403`을 받고 데이터를 보지 못하므로, Access를 설정하기 전에 배포해도 아무것도 보이지 않습니다.
 - **주소는 하나입니다.** 내가 정한 주소에서만 열립니다. `workers.dev` 주소나 미리보기 주소가 없고, 정적 자산도 쓰지 않습니다. 정적 자산을 쓰면 Worker가 Access 확인 결과를 받지 못합니다.
-- **아무것도 불러오지 않는 페이지입니다.** 페이지는 데이터를 안에 담고 네트워크에서 아무것도 불러오지 않습니다. 해시로 허용한 자기 스크립트만 돌리고, 다른 사이트는 이 페이지를 틀 안에 넣을 수도, 서버에 둔 내용을 바꿀 수도 없습니다.
+- **허브는 독립적이고 그림 코드는 같은 주소에서 옵니다.** 허브는 데이터와 해시로 허용한 스크립트를 안에 담습니다. 그림·현황 화면의 고정 코드·스타일·글꼴은 Access를 확인하는 `/code/` 연산으로만 받으며 CDN이나 정적 자산 우회는 없습니다. [브라우저 빌드](ui/README.ko.md)를 참고하세요. 다른 사이트는 페이지를 틀에 넣거나 저장된 내용을 바꾸지 못합니다.
 
 ## 필요한 것
 
 - 도메인을 올려 둔 Cloudflare 계정과 Cloudflare Zero Trust 설정. Zero Trust Free 요금제로 충분하지만, 설정할 때 결제 정보를 넣어야 합니다.
-- Node.js 22.13 이상과 이 저장소를 내려받은 사본.
+- Node.js 24 LTS 이상과 이 저장소를 내려받은 사본.
 - 스냅샷을 보내는 컴퓨터마다 설치한 `corthex-nexus`.
 
 ## 설정
@@ -103,7 +103,7 @@ WAL 보조 파일 없이 봉인합니다. 파일은 0600이고 SHA-256 영수증
 node nexus/tools/database.js restore --backup /private/backups/<archive>.sqlite --destination /private/restore-check.sqlite
 ```
 
-대상 파일은 없어야 합니다. 영수증을 확인하고 별도 파일로 복구·이주·검사합니다.
+대상 파일은 없어야 합니다. 영수증을 확인하고 기존 스키마를 보존한 별도 파일로 복구·검사합니다. 업그레이드는 별도 `migrate` 명령으로 실행합니다.
 독립 개발 리스너에서 행 수와 API를 확인한 뒤 복구 파일을 선택합니다. 실제로
 되돌릴 때는 해당 서비스를 멈추고 현재 DB를 백업한 뒤 비공개 환경 파일에서 검증한
 복구 DB를 선택하고 재시작합니다. 실행 중인 DB를 덮거나 WAL과 떼지 않습니다.
@@ -117,3 +117,10 @@ node nexus/tools/database.js restore --backup /private/backups/<archive>.sqlite 
 CI는 Worker 검사와 단독 HTTP·SQLite 시험, 생성한 RSA 키와 임시 DB로 32개
 API를 검사하는 Schemathesis를 돌립니다. 이 로컬 시험과 실제 인증 Tunnel·화면
 수용 검증은 12단계에 따로 기록합니다.
+
+처리 시간·RSS를 감독하며 잴 때는 비공개 서버 환경에 잠시 `NEXUS_METRICS=1`을
+설정하고 재시작합니다. 숫자 영수증에는 상태, 읽은 본문 바이트, 처리 시간(ms),
+프로세스 RSS만 있으며 경로·신원·헤더·저장된 글은 없습니다. 시험 뒤 설정을
+지웁니다. `ops/cloudflared-nexus@.service`는 독립 Tunnel 서비스 예시이며 전용
+사용자는 그 서버에서 발급한 Tunnel 자격 증명만 읽고 영역 관리자 인증서는
+읽지 않습니다.

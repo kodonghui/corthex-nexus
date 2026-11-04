@@ -6,11 +6,11 @@ import { handle } from "./app.js";
 import { AccessVerifier } from "./access.js";
 import { problemResponse } from "./problem.js";
 
-function bodyStream(incoming) {
+function bodyStream(incoming, onBytes) {
   let data, end, error;
   return new ReadableStream({
     start(controller) {
-      data = (chunk) => { controller.enqueue(chunk); if (controller.desiredSize <= 0) incoming.pause(); };
+      data = (chunk) => { onBytes(chunk.length); controller.enqueue(chunk); if (controller.desiredSize <= 0) incoming.pause(); };
       end = () => controller.close();
       error = () => controller.error(new Error("request body could not be read"));
       incoming.on("data", data).once("end", end).once("error", error);
@@ -36,6 +36,7 @@ export function createNodeServer({ env, origin, template, views = {}, verifier =
   const canonical = publicOrigin(origin);
   const server = createServer({ maxHeaderSize: 32768, requestTimeout: 30000, headersTimeout: 15000 }, async (incoming, outgoing) => {
     const started = performance.now();
+    let receivedBytes = 0;
     let request;
     try {
       const headers = new Headers();
@@ -44,7 +45,7 @@ export function createNodeServer({ env, origin, template, views = {}, verifier =
       const target = incoming.url;
       if (!target?.startsWith("/") || target.startsWith("//")) throw new Error("invalid request target");
       const reads = incoming.method !== "GET" && incoming.method !== "HEAD";
-      request = new Request(canonical + target, { method: incoming.method, headers, ...(reads ? { body: bodyStream(incoming), duplex: "half" } : {}) });
+      request = new Request(canonical + target, { method: incoming.method, headers, ...(reads ? { body: bodyStream(incoming, (size) => { receivedBytes += size; }), duplex: "half" } : {}) });
       const response = await handle(request, env, {}, template, views, verifier);
       if (request.body && !request.body.locked) await request.body.cancel();
       const processing = performance.now() - started;
@@ -57,7 +58,7 @@ export function createNodeServer({ env, origin, template, views = {}, verifier =
       outgoing.end();
       // Metrics contain numbers only: never URLs, identities, request headers,
       // tokens, stored text or exception messages.
-      onMetric?.({ status: response.status, processing_ms: processing, rss_bytes: process.memoryUsage().rss });
+      onMetric?.({ status: response.status, request_bytes: receivedBytes, processing_ms: processing, rss_bytes: process.memoryUsage().rss });
     } catch {
       if (!outgoing.headersSent && !outgoing.destroyed) {
         const response = problemResponse(request || new Request(canonical), new Error());

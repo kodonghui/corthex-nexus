@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import { SQLiteD1 } from "./sqlite.js";
 import { Store } from "./store.js";
 import { createNodeServer } from "./node-server.js";
+import { createViews } from "./views.js";
 
 export async function start(settings = process.env) {
   const port = Number(settings.NEXUS_PORT || "8787");
@@ -17,7 +18,12 @@ export async function start(settings = process.env) {
     db.check();
     const env = { DB: db, ACCESS_TEAM_DOMAIN: settings.ACCESS_TEAM_DOMAIN, ACCESS_AUD: settings.ACCESS_AUD, NEXUS_LANGUAGE: settings.NEXUS_LANGUAGE || "en" };
     const template = readFileSync(new URL("./hub.html", import.meta.url), "utf8");
-    const server = createNodeServer({ env, origin: settings.NEXUS_ORIGIN, template });
+    const folder = new URL("./view-code/", import.meta.url);
+    const manifest = JSON.parse(readFileSync(new URL("sizes.json", folder), "utf8"));
+    const code = Object.fromEntries(manifest.files.map((file) => [file.name, { type: file.type, body: readFileSync(new URL(file.path, folder)) }]));
+    const views = createViews(code, manifest.entries);
+    const onMetric = settings.NEXUS_METRICS === "1" ? (metric) => console.log(JSON.stringify({ kind: "request_metrics", ...metric })) : undefined;
+    const server = createNodeServer({ env, origin: settings.NEXUS_ORIGIN, template, views, onMetric });
     await server.start(port);
     const stop = () => { server.close(() => { db.close(); process.exitCode = 0; }); server.closeIdleConnections(); };
     process.once("SIGTERM", stop);

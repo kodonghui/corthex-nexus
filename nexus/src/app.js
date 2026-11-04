@@ -60,7 +60,7 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
       case "getHubPage": {
         const [bodies,spaces]=await Promise.all([store.bodies(),store.readSpaces()]);
         const data={schema:"corthex-hub-page/0.2",generated_at:new Date().toISOString(),lang:lang(env),origin:"server",projects:bodies.map(JSON.parse),spaces,missing:[]};
-        return html(head?null:render(template,JSON.stringify(data)),await pagePolicy(template));
+        return html(head?null:render(template,JSON.stringify(data)).replace('<html lang="en">',`<html lang="${data.lang}">`),await pagePolicy(template));
       }
       case "getViewCode": {
         const file=views.code?.[p.file];
@@ -79,7 +79,7 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
           problem=problemDocument(request,error);console.error("nexus",{kind:problem.code,traceId:problem.traceId});
         }
         const payload={schema:"corthex-view-page/0.2",generated_at:new Date().toISOString(),lang:lang(env),view,data,problem};
-        const viewTemplate=views.template || '<!doctype html><html><head><meta charset="utf-8"><title>NEXUS</title></head><body><main id="view"></main><script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script></body></html>';
+        const viewTemplate=(typeof views.template==="function"?views.template(payload):views.template) || '<!doctype html><html><head><meta charset="utf-8"><title>NEXUS</title></head><body><main id="view"></main><script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script></body></html>';
         return html(head?null:renderView(viewTemplate,payload),VIEW_POLICY);
       }
       default: {

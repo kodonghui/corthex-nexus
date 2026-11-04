@@ -12,7 +12,7 @@ NEXUS는 프로젝트의 단계·그림·논의를 인증된 브라우저 화면
 - [OpenAPI 계약](docs/06-api/nexus.openapi.yaml), [도메인](docs/01-domain/nexus.ko.md), [데이터](docs/05-erd/nexus.ko.md), [화면](docs/08-screens/nexus/README.ko.md), [디자인](docs/09-mockup/nexus/README.ko.md).
 - [저장소 규칙](AGENTS.md), [보안 범위](SECURITY.ko.md), [이주와 이력](docs/history/README.ko.md).
 
-`hub-ref.json`은 허브와 서버를 함께 검사하는 원래 저장소의 커밋을 고정합니다. `python tools/fetch_hub_ref.py --destination <저장소-밖-절대경로>`로 준비하고 `CORTHEX_HUB_CHECKOUT`을 설정합니다. 시험은 고정 커밋을 확인하며 네트워크에서 가져오지 않습니다. Node 22.13+, Python 3.8+로 AGENTS.md의 검사를 실행하고 외부 계약 도구 버전은 CI에 고정합니다.
+`hub-ref.json`은 허브와 서버를 함께 검사하는 원래 저장소의 커밋을 고정합니다. `python tools/fetch_hub_ref.py --destination <저장소-밖-절대경로>`로 준비하고 `CORTHEX_HUB_CHECKOUT`을 설정합니다. 시험은 고정 커밋을 확인하며 네트워크에서 가져오지 않습니다. Node 24 LTS+, Python 3.8+로 AGENTS.md의 검사를 실행하고 외부 계약 도구 버전은 CI에 고정합니다.
 
 ## 옮겨 온 이력
 

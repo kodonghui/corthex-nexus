@@ -1,0 +1,14 @@
+{
+  "name": "corthex-nexus-views",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "Pinned browser-only read-only editors, prebuilt as authenticated Worker modules",
+  "dependencies": {
+    "@dineug/erd-editor": "5.1.0",
+    "@excalidraw/excalidraw": "0.18.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}

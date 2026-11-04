@@ -3,9 +3,13 @@
 
 import template from "./hub.html";
 import { handle } from "./app.js";
+import {createViews} from "./views.js";
+import {code,entries} from "./view-code/manifest.js";
+
+const views=createViews(code,entries);
 
 export default {
   fetch(request, env, ctx) {
-    return handle(request, env, ctx, template);
+    return handle(request, env, ctx, template,views);
   },
 };
