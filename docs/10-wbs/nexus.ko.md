@@ -114,7 +114,7 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | TASK-248 | 고정 판 계약 검사와 mock 실행 | SPEC-113–SPEC-140 | API-101–API-132 | TASK-222 | agent | M | 저장소 밖 고정 판 validator 0.7.1·Prism 5.16.0·Schemathesis 3.39.16과 쿠키/경로/헤더 hook을 씁니다. 개발 계약 시험은 커밋을 적고 mock만의 결과를 나눕니다. | in progress |
 | TASK-249 | 서버의 이름 붙은 응답 모두 보내기 | SPEC-104–SPEC-140 | API-101–API-132 | TASK-217, TASK-218, TASK-220, TASK-248 | agent | L | 가능한 모든 이름 붙은 예시를 개발 서버에서 보내 스키마·코드·데이터 효과를 확인합니다. default/internal의 mock 사례는 따로 셉니다. | in progress |
-| TASK-250 | 세 운영체제의 허브 명령 검증 | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Windows/macOS/Linux에서 Python 3.8과 최신 판의 모든 명령 결과가 통과하며 네트워크/토큰 없는 시험의 격리가 유지됩니다. | in progress |
+| TASK-250 | 세 운영체제의 허브 명령 검증 | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Windows/macOS/Linux에서 Python 3.8과 최신 판의 모든 명령 결과가 통과하며 네트워크/토큰 없는 시험의 격리가 유지됩니다. | done |
 | TASK-251 | 흐름과 모든 화면 상태 걷기 | SPEC-119, SPEC-123–SPEC-141 | FL-101–FL-114, SCR-101–SCR-109 | TASK-237, TASK-239, TASK-240, TASK-241, TASK-242, TASK-249 | agent | L | 브라우저 시험자가 역할·경로·커밋과 320/1440·두 테마/언어의 근거를 남깁니다. 페이지 검사와 이미지 확인을 나누고 작동한 경로를 CI e2e로 만듭니다. | in progress |
 | TASK-252 | 성능과 NEXUS 자신의 그림 맞대기 | SPEC-106, SPEC-107, SPEC-108, SPEC-119, SPEC-120 | REQ-124, REQ-149 | TASK-223, TASK-224, TASK-251 | agent | M | 20번의 원래 값·P95, Worker/편집기 크기와 최대 밀기를 기록합니다. 가상 자료와 NEXUS 자신의 로컬 그림을 확인하며 저장소는 허락 없이 보내지 않습니다. | in progress |
 
@@ -252,7 +252,7 @@ REQ-124의 서버 처리 시간은 본문을 모두 받은 뒤부터 응답 처�
 
 관리자는 REQ-149와 REQ-124 통과,710사례 전부 판정·Must 실패0,운영 자료 이전/복구 리허설, C1 출시·PR C 뒤의 코어 통합,필수 검사와 Code/Security 리뷰를 조건으로 NEXUS 병합·운영 전환·출시 태그를 사전 승인했습니다. 이 저장소 첫 보내기는 REQ-107의 별도 확인입니다. 이전 Worker/D1은 전환 뒤14일 보존하고 삭제는 다시 묻습니다. 조건이 남으면 수치로 한 번 묻고 답 뒤 출시합니다.
 
-현재 전송 변경 묶음의 상태: done 14, in progress 44, todo 6.
+이전 전송 변경 묶음의 상태: done 14, in progress 44, todo 6.
 
 ## 첫 그림 표시 결정, 2026-11-04
 
@@ -262,6 +262,8 @@ REQ-124의 서버 처리 시간은 본문을 모두 받은 뒤부터 응답 처�
 
 신뢰하는 고정 화면 CSS는 HTML 안에 넣어 스타일 요청이 미리보기를 막지 않게 할 수 있습니다. HTML·프로젝트 SVG·API 자료는 no-store를 유지하고 해시 코드·스타일·글꼴은 승인된 Access 보호 public immutable 캐시를 씁니다. 독립 서버는 내장 기능으로 크기를 제한해 HTML 압축을 협상하고 Tunnel 전송량을 줄일 수 있습니다. 프로젝트 자료를 공개 코드 파일이나 캐시에 넣지 않습니다. 이 결정과 미리보기는 출시·첫 실제 저장소 전송·Worker/D1 삭제 승인이 아니며 기존 조건부 출시 기준을 유지합니다.
 
-TASK-250: 빠진 CLI 결과59개를 원 TC별 메서드로 연결했습니다. Windows Python3.8/3.13 각각59/59이며 Linux·macOS의 새 CI 실행은 아직입니다.65개 backend partial 정리와 첫 SVG 후보 결함은 [QA 묶음](../12-qa/runs/2026-11-04-acceptance-audit.ko.md)에 기록합니다.
+이전 TASK-250 확인 지점: 빠진 CLI 결과59개를 원 TC별 메서드로 연결했습니다. Windows Python3.8/3.13 각각59/59였고 당시 Linux·macOS의 새 CI는 대기 중이었습니다.65개 backend partial 정리와 첫 SVG 후보 결함은 [QA 묶음](../12-qa/runs/2026-11-04-acceptance-audit.ko.md)에 보존합니다.
 
-2026-11-04 추가 근거: core0.7 후보 d997b688/PR120, 전체1039·기존skip15·strict4·소스 Code/Security0. CLI62통과/16잔여 절 보완, 실제모델·자기저장소·모바일60 및 Brotli 전송 실험은 [범위 기록](../12-qa/runs/2026-11-04-acceptance-scopes.ko.md). 작업64=done14/in progress50/todo0이며 출시 단계는 기존 조건 뒤입니다.
+앞선 확인 지점의 근거(2026-11-04): core0.7 후보 d997b688/PR120, 전체1039·기존skip15·strict4·소스 Code/Security0. CLI62통과/16잔여 절 보완, 실제모델·자기저장소·모바일60 및 Brotli 전송 실험은 [범위 기록](../12-qa/runs/2026-11-04-acceptance-scopes.ko.md). 작업64=done14/in progress50/todo0이며 출시 단계는 기존 조건 뒤입니다.
+
+현재64개 작업: done15/in progress49/todo0. TASK-250의 원CLI78개 조건에 개별 명명 근거가 있고 남은16개도 PR122의 실제OS/Python6셀을 통과했습니다. 전체1057·엄격4개·범위를 한정한 소스 리뷰를 통과했습니다. 모바일3초는 미달이며 TASK-252/253은 진행 중입니다. [최종 근거](../12-qa/runs/2026-11-04-mobile-final.ko.md). main·운영·태그 승인을 추측하지 않습니다.

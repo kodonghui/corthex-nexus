@@ -1,0 +1,21 @@
+# Final mobile SVG and local validation, 2026-11-04
+
+REQ-149 / TC-1271 / TC-1309 remain failed against the approved3s target. The new study is not a regrade of the retained60/80 openings. [Independent audit](2026-11-04-mobile-final/audit.md), [69 opening rows](2026-11-04-mobile-final/openings.csv), [public summary](2026-11-04-mobile-final/mobile-summary.json).
+
+| Stage | Eligible | Initial SVG opportunity P95 | Native-ready eligible / P95 |
+| --- | --- | --- | --- |
+| DDD |20/20|4546.3ms|20/20 /65602ms|
+| ERD |19/20|null|19/20 /null|
+| Sitemap |20/20|4381.2ms|20/20 /18907ms|
+
+The20-slot denominator is preserved. ERD6993.9ms is only the19-qualified diagnostic, not a normative P95. All60 initial SVG times were observed; global20/ERD7 had SVG2742.4ms but no completed response from its one code request within90s, leaving the code HIT prerequisite and native readiness unverified. This does not establish a cache MISS,403 or credential leak. RTT8/8 verified. Cold3/3 qualified; warm3/6 qualified, with the second openings' cookie transport unverified. No replacements or hidden retries. Native readiness is separate from the initial SVG milestone.
+
+Candidate906f360 / D802, runtime790efecc7cbf6cc160d6b7fb53cdbd0ba10362b075821cb4674d9fb41e29f3d7, plan26fdbd0fbb4ecf3763cdb1a0e6fc1b23cc469ccdf3f0620f326b9fa9aa7974af. Mobile390x844/DPR2.75/touch/CPU1/Fast4G/cacheOFF/SW bypass/new incognito per opening,300 Korean elements per picture and90s deadline are unchanged. The5s post-native evidence window is disclosed; cumulative CPU is not comparable to the former500ms window without that scope difference. The metric is a complete-DOM/style/visibility/two-rAF opportunity upper bound, not compositor pixel timing.
+
+[Latency chronology](2026-11-04-mobile-final/latency.md) shows38.7–186.1ms from HTML responseEnd to first SVG for the nine slowest selected rows. The largest SVG10.2472s row records requestStart7.6349/responseStart8.7865/responseEnd10.1917/DOM10.2026/two-rAF10.2472s and a bridged CDP TLS interval7.504856s. A DDD code response has a56.00534s header-to-completion interval before core/native readiness. These are observed phases, not established CF/compression/network causes or isolated CPU. Two preflight assertion mistakes about stored metadata and input-time/API-time mapping were corrected before this study; failed receipts remain and no existing seed was changed.
+
+[Local checks](2026-11-04-mobile-final/local-checks.json): upstreamc235a7a/tree6a0e7e66 includes main9ec6394 and the final16-CLI test. Full1057 ran1042pass/15 existing skips/zero failures/errors,657.096s; strict4 passed on unchanged source. The earlier warmup/cleanup error and short-TEMP focused pass remain, with no causal claim. Source-only Code/Security findings were fixed; final reviews have zero remaining findings in their bounded scopes. Hosted exact six-cell coverage is a separate receipt.
+
+The [current development wire check](2026-11-04-mobile-final/wire.json) verifies Brotli with zstd accepted, HTML no-store/CSP, hashed-code HIT/Age and anonymous302/no code. This development-only experiment has not proved a causal latency benefit. Production/main/tags remain gated; first real upload is still REQ-107. Old measurements, profiles, Worker/D1 and rollback data are retained. Owned measurement Chrome/Node are0. No all-case acceptance or release is inferred.
+
+[New16 exact hosted coverage](2026-11-04-mobile-final/cli16-six-cell.json): all96 named method observations pass, with zero skipped named cases, on Windows/macOS/Linux × Python3.8/latest3.15.2. Hosted Windows3.8.10 and Ubuntu/macOS3.8.18 are distinct from local3.8.20/3.13.14. PR headc235a7a and executed CI merge1aa71cd7 are separated; the new test and required source blobs match. [Current product hub pin](2026-11-04-mobile-final/current-hub-pin.json) e7ff394 matches all9 CLI runtime files; canonical hub.html is a separate product Python check. [Whole workflow](2026-11-04-mobile-final/workflow.json)41845045363 passed17/17 jobs; PR122 then merged into development integrationb629c7d. The configured-required-context query returned none for this integration-target PR; no configured context success is invented. Main/production/tags remain gated.

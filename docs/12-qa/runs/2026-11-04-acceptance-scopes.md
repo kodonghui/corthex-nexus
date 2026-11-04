@@ -1,5 +1,7 @@
 # Acceptance evidence after the SVG decision, 2026-11-04
 
+Snapshot at906f360; counts below are historical. Current scoped verdicts and later mobile/CLI evidence are in [final evidence](2026-11-04-mobile-final.md).
+
 All710 original case IDs now have scoped verdicts:225 pass,483 partial,2 fail. Partial means its named original clauses remain unproved; this is not full acceptance. Tasks remain14 done/50 in progress. The64-task plan and conditional release/REQ107 boundaries are unchanged.
 
 The [78-command audit](2026-11-04-acceptance-scopes/cli78-clauses.json) verifies exact named methods/OS-Python cells:62 original criteria pass;16 retain effect/diagnostic/queue-chain clauses. [Build's separate36 observations](2026-11-04-acceptance-scopes/build-six-cell.json) are PR118, not an aggregate substitute. The follow-up16 tests are a separate work item. TC643 reuses an actual client warning/effect assertion, without claiming live deletion or a later send.

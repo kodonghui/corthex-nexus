@@ -1,0 +1,112 @@
+{
+  "schema": "nexus-final-local-validation/1",
+  "commit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+  "tree": "6a0e7e66b1f365694d1353bf25edbce5ae8face8",
+  "mainBase": "9ec63945a5718ed11272f111fb91eeb49c77374a",
+  "newTestSha256": "4fef0e9e2c0a47eaf00b202b4624927e600f25f1eba446b8440c9afdd28f6af8",
+  "originalReceiptSha256": "265e5369de0343e38872f7e8f34e5641585a568acb1cbfb74f053b0fe4d742ea",
+  "fullRun": {
+    "runtime": "CPython 3.13.14 on Windows",
+    "total": 1057,
+    "passed": 1042,
+    "skipped": 15,
+    "errors": 0,
+    "failures": 0,
+    "exit": 0,
+    "unittestSeconds": 657.096,
+    "launcherSeconds": 658.0616207,
+    "startedAtUtc": "2026-11-04T13:57:07.6364568Z",
+    "finishedAtUtc": "2026-11-04T14:08:05.7425043Z",
+    "tempPathCharacters": 48,
+    "stdoutStderrImmediateFiles": true,
+    "newSkipRetryDeadlineOrSourceChanges": false,
+    "sameSkippedMethodsAndReasonsAsFirstRun": true,
+    "skipLines": [
+      "test_git_never_comes_from_the_current_folder (test_hub.SourcesTest.test_git_never_comes_from_the_current_folder) ... skipped 'the stand-in git is a shell script'",
+      "test_tc002_private_modes_ignore_the_umask (test_memory_files.MemoryFilesTest.test_tc002_private_modes_ignore_the_umask) ... skipped \"Windows inherits the parent folder's permissions\"",
+      "test_tc008_forked_child_has_its_own_order_and_cannot_release_parent (test_memory_locks.MemoryLocksTest.test_tc008_forked_child_has_its_own_order_and_cannot_release_parent) ... skipped 'fork inheritance applies only on POSIX'",
+      "test_tc008_inherited_mutex_held_by_another_thread_cannot_block_child (test_memory_locks.MemoryLocksTest.test_tc008_inherited_mutex_held_by_another_thread_cannot_block_child) ... skipped 'fork inheritance applies only on POSIX'",
+      "test_terminal_initialization_failure_reaps_its_actual_child_and_closes_fd (test_memory_native_compat.NativeCompatibilityGateTest.test_terminal_initialization_failure_reaps_its_actual_child_and_closes_fd) ... skipped 'Unix PTY cleanup; Windows native terminal cases are operator-run'",
+      "test_tc018_case_preserving_volume_keeps_distinct_directories_apart (test_memory_projects.MemoryProjectsTest.test_tc018_case_preserving_volume_keeps_distinct_directories_apart) ... skipped 'this volume ignores directory case'",
+      "test_a_size_or_fps_asked_for_fails_without_video (test_uxui.MediaCheckTest.test_a_size_or_fps_asked_for_fails_without_video) ... skipped 'ffmpeg and ffprobe are not installed'",
+      "test_a_small_flashing_area_passes_with_a_warning (test_uxui.MediaCheckTest.test_a_small_flashing_area_passes_with_a_warning) ... skipped 'ffmpeg and ffprobe are not installed'",
+      "test_areas_add_up_only_while_they_flash_together (test_uxui.MediaCheckTest.test_areas_add_up_only_while_they_flash_together) ... skipped 'ffmpeg and ffprobe are not installed'",
+      "test_fast_flashing_fails (test_uxui.MediaCheckTest.test_fast_flashing_fails) ... skipped 'ffmpeg and ffprobe are not installed'",
+      "test_it_changes_no_file (test_uxui.MediaCheckTest.test_it_changes_no_file) ... skipped 'ffmpeg and ffprobe are not installed'",
+      "test_it_reads_local_files_only (test_uxui.MediaCheckTest.test_it_reads_local_files_only) ... skipped 'ffmpeg and ffprobe are not installed'",
+      "test_loudness_is_judged_against_the_target (test_uxui.MediaCheckTest.test_loudness_is_judged_against_the_target) ... skipped 'ffmpeg and ffprobe are not installed'",
+      "test_red_flashes_are_counted_apart (test_uxui.MediaCheckTest.test_red_flashes_are_counted_apart) ... skipped 'ffmpeg and ffprobe are not installed'",
+      "test_slow_flashing_passes_and_long_flashing_is_named (test_uxui.MediaCheckTest.test_slow_flashing_passes_and_long_flashing_is_named) ... skipped 'ffmpeg and ffprobe are not installed'"
+    ],
+    "original16MethodsObservedOk": [
+      "test_TC_1139_snapshot_done",
+      "test_TC_1142_status_done",
+      "test_TC_1144_status_failed",
+      "test_TC_1156_todo_done",
+      "test_TC_1161_comment_command_line_invalid",
+      "test_TC_1163_comment_failed",
+      "test_TC_1165_reply_done",
+      "test_TC_1167_reply_refused",
+      "test_TC_1168_reply_failed",
+      "test_TC_1169_reply_kept",
+      "test_TC_1173_answered_failed",
+      "test_TC_1178_decide_failed",
+      "test_TC_1183_propose_failed",
+      "test_TC_1188_withdraw_failed",
+      "test_TC_1193_reflect_failed",
+      "test_TC_1198_record_failed"
+    ]
+  },
+  "strictFour": {
+    "repeated": false,
+    "sameUnchangedSource": true,
+    "sourceReceipt": "required-index6a0e7e66-r1/receipt.json",
+    "sourceReceiptSha256": "0e135a127d297fcff5a865807146dcb9b254f9034b6d11beb61fc72a71a37e34",
+    "phases": [
+      {
+        "name": "strict-root",
+        "state": "passed",
+        "exit": 0,
+        "elapsedSeconds": 1.20696
+      },
+      {
+        "name": "strict-corthex",
+        "state": "passed",
+        "exit": 0,
+        "elapsedSeconds": 0.3068279
+      },
+      {
+        "name": "strict-memory",
+        "state": "passed",
+        "exit": 0,
+        "elapsedSeconds": 0.2791728
+      },
+      {
+        "name": "strict-nexus",
+        "state": "passed",
+        "exit": 0,
+        "elapsedSeconds": 0.2492727
+      }
+    ]
+  },
+  "priorRun": {
+    "total": 1057,
+    "passed": 1041,
+    "skipped": 15,
+    "errors": 1,
+    "failures": 0,
+    "seconds": 626.135,
+    "failure": "Existing short real smoke start warmup logged deadline/ms1200; subsequent TemporaryDirectory cleanup raised WinError32. Original failure retained."
+  },
+  "focused": {
+    "total": 1,
+    "passed": 1,
+    "seconds": 6.376,
+    "tempCharactersBefore": 114,
+    "tempCharactersAfter": 48,
+    "causalPathLengthConclusion": false
+  },
+  "sourceUnchangedAcrossAttempts": true,
+  "ownedProcessesAfter": 0,
+  "hostedNewAssertions": "Not inferred from this local run. The later cli16-six-cell.json records96 exact hosted observations; workflow.json records whole-workflow17/17 completion."
+}

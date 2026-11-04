@@ -114,7 +114,7 @@ Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) lists
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | TASK-248 | Run pinned contract validation and mocks | SPEC-113–SPEC-140 | API-101–API-132 | TASK-222 | agent | M | External pinned validator 0.7.1, Prism 5.16.0 and Schemathesis 3.39.16 hooks cover Access cookie/path/header substitutions; live development contract run names commit and mock-only results separately. | in progress |
 | TASK-249 | Fire every named server response | SPEC-104–SPEC-140 | API-101–API-132 | TASK-217, TASK-218, TASK-220, TASK-248 | agent | L | Each named example is reproduced on development where feasible, with schema/code/effect checked; default/internal mock cases remain counted apart. | in progress |
-| TASK-250 | Verify hub commands on three operating systems | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Python 3.8 and latest matrix on Windows/macOS/Linux passes all command outcomes and preserves no-network/no-token fixture isolation. | in progress |
+| TASK-250 | Verify hub commands on three operating systems | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Python 3.8 and latest matrix on Windows/macOS/Linux passes all command outcomes and preserves no-network/no-token fixture isolation. | done |
 | TASK-251 | Walk flows and all screen states | SPEC-119, SPEC-123–SPEC-141 | FL-101–FL-114, SCR-101–SCR-109 | TASK-237, TASK-239, TASK-240, TASK-241, TASK-242, TASK-249 | agent | L | Browser testers record role/path/commit and evidence for 320/1440, both themes/languages; page checks and image review are separate; working browser paths become CI e2e tests. | in progress |
 | TASK-252 | Record performance and own-project cross-check | SPEC-106, SPEC-107, SPEC-108, SPEC-119, SPEC-120 | REQ-124, REQ-149 | TASK-223, TASK-224, TASK-251 | agent | M | Record raw 20-opening measurements/P95, Worker/editor code sizes and maximal push metrics; synthetic plus local NEXUS self-picture check passes without an unauthorized repository upload. | in progress |
 
@@ -252,7 +252,7 @@ REQ-124 server processing runs from complete body receipt to response handling c
 
 The maintainer conditionally approved NEXUS merges, production migration/routing and release tags after REQ-149/124 pass, all710 cases have verdicts with zero Must failures, migration/recovery rehearsals pass, core integrates after C1 release/PR C, and required checks plus Code/Security reviews pass. The first repository snapshot still needs REQ-107 confirmation. Preserve the old Worker/D1 for14days after switching and ask before deletion. If a condition remains, ask once with its numbers and release after the answer.
 
-Current transport-bundle states: done 14, in progress 44, todo 6.
+Historical transport-bundle states: done 14, in progress 44, todo 6.
 
 ## First picture decision, 2026-11-04
 
@@ -262,6 +262,8 @@ The preview uses the same deterministic geometry and checked source as the edito
 
 Trusted static view CSS may be inlined so a stylesheet request does not block the preview. HTML, SVG project content and API data remain no-store; hashed code/style/fonts retain the approved Access-protected public immutable cache. The standalone server may negotiate bounded built-in HTML compression to reduce Tunnel transfer. No project data is placed in a public code file or cache. Neither this decision nor a preview is a release, first real-repository upload, or approval to delete Worker/D1. Existing conditional-release gates remain.
 
-TASK-250:59 remaining CLI outcomes now have methods preserving their original TC IDs. Windows Python3.8/3.13 each59/59; new Linux/macOS CI remains pending.65 scoped backend partial verdicts and first-SVG findings are in the [QA bundle](../12-qa/runs/2026-11-04-acceptance-audit.md).
+Earlier TASK-250 checkpoint:59 remaining CLI outcomes had methods preserving their original TC IDs. Windows Python3.8/3.13 each59/59; new Linux/macOS CI was then pending.65 scoped backend partial verdicts and first-SVG findings are retained in the [QA bundle](../12-qa/runs/2026-11-04-acceptance-audit.md).
 
-2026-11-04 evidence: core0.7 candidate d997b688/PR120, full1039/15existing skips/strict4/source Code-Security0. CLI62 pass/16 remaining clauses, actual-model/own-repository/mobile60 and Brotli transport evidence are in [scope record](../12-qa/runs/2026-11-04-acceptance-scopes.md). Tasks64=done14/in progress50/todo0; release follows the existing conditions.
+Earlier checkpoint evidence: core0.7 candidate d997b688/PR120, full1039/15existing skips/strict4/source Code-Security0. CLI62 pass/16 remaining clauses, actual-model/own-repository/mobile60 and Brotli transport evidence are in [scope record](../12-qa/runs/2026-11-04-acceptance-scopes.md). Tasks64=done14/in progress50/todo0; release follows the existing conditions.
+
+Current64 tasks: done15/in progress49/todo0. TASK-250 exact original78 CLI criteria now have individual named evidence; the remaining16 completed six hosted OS/Python cells in PR122. Full1057/strict4 and bounded source reviews passed. Mobile3s remains unmet; TASK-252/253 remain in progress. [Final evidence](../12-qa/runs/2026-11-04-mobile-final.md). No main/production/tag approval is inferred.

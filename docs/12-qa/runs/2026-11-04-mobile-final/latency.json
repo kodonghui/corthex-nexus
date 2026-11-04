@@ -1,0 +1,1633 @@
+{
+  "schema": "nexus-svg-v4-read-only-latency-analysis/1",
+  "scope": "Latency intervals only; original rows, validity, denominator and plan are not changed or independently reclassified. No new measurement.",
+  "selection": "For each stage choose the3 smallest and3 largest finite recorded firstSvgPaint values across all20 slots; tie-break global ordinal. Retain original validity. Special global20 analyzed separately.",
+  "units": "milliseconds; endpoint axis is DOM performance.timeOrigin. DNS/TLS/connect are NOT native DOM fields: mapped CDP timings are labelled and require the recorded bridge.",
+  "formulae": {
+    "bridgedCdpEventToDomMs": "requestDomOffsetMs + eventRelativeToMainCdpMs",
+    "bridgedRawPhaseToDomMs": "requestDomOffsetMs + 1000*(raw.requestTime-mainRequestCdpMonotonicSeconds) + raw.phaseOffset",
+    "htmlResidualSignedMs": "firstSvgPaint - DOMNavigation.responseEndMs",
+    "limitations": "DNS/TLS/connect nest inside pre-request and must not be added again. Negative residuals/EOF-to-DOM show overlap, not negative work. DOMcomplete-to2RAF includes style/layout/visibility/scheduling/checker time; no isolated style/rAF CPU is recorded."
+  },
+  "primarySummaryAsRecorded": [
+    {
+      "stage": "01-domain",
+      "denominator": 20,
+      "primaryValid": 20,
+      "p95FirstSvgPaintMs": 4546.299999982119,
+      "completedOnlyP95Diagnostic": 4546.299999982119,
+      "p95NativeReadyMs": 65602,
+      "primaryVerdict": "fail"
+    },
+    {
+      "stage": "05-erd",
+      "denominator": 20,
+      "primaryValid": 19,
+      "p95FirstSvgPaintMs": null,
+      "completedOnlyP95Diagnostic": 6993.899999976158,
+      "p95NativeReadyMs": null,
+      "primaryVerdict": "fail"
+    },
+    {
+      "stage": "07-sitemap",
+      "denominator": 20,
+      "primaryValid": 20,
+      "p95FirstSvgPaintMs": 4381.199999988079,
+      "completedOnlyP95Diagnostic": 4381.199999988079,
+      "p95NativeReadyMs": 18907,
+      "primaryVerdict": "fail"
+    }
+  ],
+  "selected18": [
+    {
+      "selection": "fast1",
+      "globalOrdinal": 35,
+      "stageOrdinal": 12,
+      "stage": "01-domain",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 435.9,
+        "responseStart": 1131.8,
+        "responseEnd": 1144.8,
+        "initialSvgDomComplete": 1172,
+        "initialSvgTwoRafOpportunity": 1217.9
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 435.9,
+        "requestToResponseStart": 695.9,
+        "responseStartToResponseEnd": 13.0,
+        "responseEndToInitialDomCompleteSigned": 27.2,
+        "initialDomCompleteToTwoRaf": 45.9,
+        "responseEndToTwoRafSigned": 73.1
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.539,
+        "timingRequestAnchorOnDomAxisMs": 5.248,
+        "dns": {
+          "startOnDomAxisMs": 5.248,
+          "endOnDomAxisMs": 5.248,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 127.248,
+          "endOnDomAxisMs": 435.32,
+          "durationMs": 308.072,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 5.248,
+          "endOnDomAxisMs": 435.336,
+          "durationMs": 430.088,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "fast2",
+      "globalOrdinal": 17,
+      "stageOrdinal": 6,
+      "stage": "01-domain",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 462,
+        "responseStart": 1151,
+        "responseEnd": 1163.9,
+        "initialSvgDomComplete": 1191.1,
+        "initialSvgTwoRafOpportunity": 1241.5
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 462,
+        "requestToResponseStart": 689,
+        "responseStartToResponseEnd": 12.9,
+        "responseEndToInitialDomCompleteSigned": 27.2,
+        "initialDomCompleteToTwoRaf": 50.4,
+        "responseEndToTwoRafSigned": 77.6
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.633,
+        "timingRequestAnchorOnDomAxisMs": 2.989,
+        "dns": {
+          "startOnDomAxisMs": 2.989,
+          "endOnDomAxisMs": 2.989,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 127.486,
+          "endOnDomAxisMs": 461.603,
+          "durationMs": 334.117,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 2.989,
+          "endOnDomAxisMs": 461.614,
+          "durationMs": 458.625,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "fast3",
+      "globalOrdinal": 37,
+      "stageOrdinal": 13,
+      "stage": "01-domain",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 500.6,
+        "responseStart": 1207.3,
+        "responseEnd": 1219.7,
+        "initialSvgDomComplete": 1244.3,
+        "initialSvgTwoRafOpportunity": 1292.3
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 500.6,
+        "requestToResponseStart": 706.7,
+        "responseStartToResponseEnd": 12.4,
+        "responseEndToInitialDomCompleteSigned": 24.6,
+        "initialDomCompleteToTwoRaf": 48.0,
+        "responseEndToTwoRafSigned": 72.6
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.721,
+        "timingRequestAnchorOnDomAxisMs": 6.783,
+        "dns": {
+          "startOnDomAxisMs": 6.783,
+          "endOnDomAxisMs": 6.783,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 138.225,
+          "endOnDomAxisMs": 500.467,
+          "durationMs": 362.242,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 6.783,
+          "endOnDomAxisMs": 500.476,
+          "durationMs": 493.693,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "slow1",
+      "globalOrdinal": 26,
+      "stageOrdinal": 9,
+      "stage": "01-domain",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 1473.3,
+        "responseStart": 4977,
+        "responseEnd": 5315.8,
+        "initialSvgDomComplete": 5358.3,
+        "initialSvgTwoRafOpportunity": 5380.2
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 1473.3,
+        "requestToResponseStart": 3503.7,
+        "responseStartToResponseEnd": 338.8,
+        "responseEndToInitialDomCompleteSigned": 42.5,
+        "initialDomCompleteToTwoRaf": 21.9,
+        "responseEndToTwoRafSigned": 64.4
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.328,
+        "timingRequestAnchorOnDomAxisMs": 4.331,
+        "dns": {
+          "startOnDomAxisMs": 4.331,
+          "endOnDomAxisMs": 4.331,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 134.264,
+          "endOnDomAxisMs": 1472.856,
+          "durationMs": 1338.592,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 4.331,
+          "endOnDomAxisMs": 1472.865,
+          "durationMs": 1468.534,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "slow2",
+      "globalOrdinal": 46,
+      "stageOrdinal": 16,
+      "stage": "01-domain",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 495.1,
+        "responseStart": 3780,
+        "responseEnd": 4477.7,
+        "initialSvgDomComplete": 4488.6,
+        "initialSvgTwoRafOpportunity": 4546.3
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 495.1,
+        "requestToResponseStart": 3284.9,
+        "responseStartToResponseEnd": 697.7,
+        "responseEndToInitialDomCompleteSigned": 10.9,
+        "initialDomCompleteToTwoRaf": 57.7,
+        "responseEndToTwoRafSigned": 68.6
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.405,
+        "timingRequestAnchorOnDomAxisMs": 3.17,
+        "dns": {
+          "startOnDomAxisMs": 3.17,
+          "endOnDomAxisMs": 3.17,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 134.59,
+          "endOnDomAxisMs": 494.774,
+          "durationMs": 360.184,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 3.17,
+          "endOnDomAxisMs": 494.783,
+          "durationMs": 491.613,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "slow3",
+      "globalOrdinal": 6,
+      "stageOrdinal": 2,
+      "stage": "01-domain",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 488.7,
+        "responseStart": 1635.5,
+        "responseEnd": 4355.6,
+        "initialSvgDomComplete": 4367.6,
+        "initialSvgTwoRafOpportunity": 4413.8
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 488.7,
+        "requestToResponseStart": 1146.8,
+        "responseStartToResponseEnd": 2720.1,
+        "responseEndToInitialDomCompleteSigned": 12.0,
+        "initialDomCompleteToTwoRaf": 46.2,
+        "responseEndToTwoRafSigned": 58.2
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 1.114,
+        "timingRequestAnchorOnDomAxisMs": 12.74,
+        "dns": {
+          "startOnDomAxisMs": 12.74,
+          "endOnDomAxisMs": 12.74,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 124.641,
+          "endOnDomAxisMs": 488.218,
+          "durationMs": 363.577,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 12.74,
+          "endOnDomAxisMs": 488.249,
+          "durationMs": 475.509,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "fast1",
+      "globalOrdinal": 27,
+      "stageOrdinal": 9,
+      "stage": "05-erd",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 491.8,
+        "responseStart": 1133.8,
+        "responseEnd": 1146.1,
+        "initialSvgDomComplete": 1169.5,
+        "initialSvgTwoRafOpportunity": 1209.9
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 491.8,
+        "requestToResponseStart": 642.0,
+        "responseStartToResponseEnd": 12.3,
+        "responseEndToInitialDomCompleteSigned": 23.4,
+        "initialDomCompleteToTwoRaf": 40.4,
+        "responseEndToTwoRafSigned": 63.8
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.687,
+        "timingRequestAnchorOnDomAxisMs": 6.363,
+        "dns": {
+          "startOnDomAxisMs": 6.363,
+          "endOnDomAxisMs": 6.363,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 129.48,
+          "endOnDomAxisMs": 491.675,
+          "durationMs": 362.195,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 6.363,
+          "endOnDomAxisMs": 491.683,
+          "durationMs": 485.32,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "fast2",
+      "globalOrdinal": 13,
+      "stageOrdinal": 5,
+      "stage": "05-erd",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 454.2,
+        "responseStart": 1188.8,
+        "responseEnd": 1203.3,
+        "initialSvgDomComplete": 1234.7,
+        "initialSvgTwoRafOpportunity": 1277
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 454.2,
+        "requestToResponseStart": 734.6,
+        "responseStartToResponseEnd": 14.5,
+        "responseEndToInitialDomCompleteSigned": 31.4,
+        "initialDomCompleteToTwoRaf": 42.3,
+        "responseEndToTwoRafSigned": 73.7
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.364,
+        "timingRequestAnchorOnDomAxisMs": 2.751,
+        "dns": {
+          "startOnDomAxisMs": 2.751,
+          "endOnDomAxisMs": 2.751,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 125.579,
+          "endOnDomAxisMs": 453.872,
+          "durationMs": 328.293,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 2.751,
+          "endOnDomAxisMs": 453.88,
+          "durationMs": 451.129,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "fast3",
+      "globalOrdinal": 11,
+      "stageOrdinal": 4,
+      "stage": "05-erd",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 486.8,
+        "responseStart": 1639.2,
+        "responseEnd": 1652.9,
+        "initialSvgDomComplete": 1674,
+        "initialSvgTwoRafOpportunity": 1724.2
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 486.8,
+        "requestToResponseStart": 1152.4,
+        "responseStartToResponseEnd": 13.7,
+        "responseEndToInitialDomCompleteSigned": 21.1,
+        "initialDomCompleteToTwoRaf": 50.2,
+        "responseEndToTwoRafSigned": 71.3
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.756,
+        "timingRequestAnchorOnDomAxisMs": 3.64,
+        "dns": {
+          "startOnDomAxisMs": 3.64,
+          "endOnDomAxisMs": 3.64,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 135.638,
+          "endOnDomAxisMs": 486.57,
+          "durationMs": 350.932,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 3.64,
+          "endOnDomAxisMs": 486.589,
+          "durationMs": 482.949,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "slow1",
+      "globalOrdinal": 22,
+      "stageOrdinal": 8,
+      "stage": "05-erd",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 497.5,
+        "responseStart": 6186.9,
+        "responseEnd": 6879.1,
+        "initialSvgDomComplete": 6918.9,
+        "initialSvgTwoRafOpportunity": 6993.9
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 497.5,
+        "requestToResponseStart": 5689.4,
+        "responseStartToResponseEnd": 692.2,
+        "responseEndToInitialDomCompleteSigned": 39.8,
+        "initialDomCompleteToTwoRaf": 75.0,
+        "responseEndToTwoRafSigned": 114.8
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.457,
+        "timingRequestAnchorOnDomAxisMs": 4.128,
+        "dns": {
+          "startOnDomAxisMs": 4.128,
+          "endOnDomAxisMs": 4.128,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 138.659,
+          "endOnDomAxisMs": 497.175,
+          "durationMs": 358.516,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 4.128,
+          "endOnDomAxisMs": 497.183,
+          "durationMs": 493.055,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "slow2",
+      "globalOrdinal": 31,
+      "stageOrdinal": 11,
+      "stage": "05-erd",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 1488.9,
+        "responseStart": 3766.8,
+        "responseEnd": 5793.6,
+        "initialSvgDomComplete": 5787.4,
+        "initialSvgTwoRafOpportunity": 5832.3
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 1488.9,
+        "requestToResponseStart": 2277.9,
+        "responseStartToResponseEnd": 2026.8,
+        "responseEndToInitialDomCompleteSigned": -6.2,
+        "initialDomCompleteToTwoRaf": 44.9,
+        "responseEndToTwoRafSigned": 38.7
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.581,
+        "timingRequestAnchorOnDomAxisMs": 4.886,
+        "dns": {
+          "startOnDomAxisMs": 4.886,
+          "endOnDomAxisMs": 4.886,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 136.043,
+          "endOnDomAxisMs": 1488.86,
+          "durationMs": 1352.817,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 4.886,
+          "endOnDomAxisMs": 1488.87,
+          "durationMs": 1483.984,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "slow3",
+      "globalOrdinal": 29,
+      "stageOrdinal": 10,
+      "stage": "05-erd",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 496.6,
+        "responseStart": 1620.6,
+        "responseEnd": 5106,
+        "initialSvgDomComplete": 5112.4,
+        "initialSvgTwoRafOpportunity": 5176.5
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 496.6,
+        "requestToResponseStart": 1124.0,
+        "responseStartToResponseEnd": 3485.4,
+        "responseEndToInitialDomCompleteSigned": 6.4,
+        "initialDomCompleteToTwoRaf": 64.1,
+        "responseEndToTwoRafSigned": 70.5
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.363,
+        "timingRequestAnchorOnDomAxisMs": 2.467,
+        "dns": {
+          "startOnDomAxisMs": 2.467,
+          "endOnDomAxisMs": 2.467,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 136.681,
+          "endOnDomAxisMs": 496.23,
+          "durationMs": 359.549,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 2.467,
+          "endOnDomAxisMs": 496.238,
+          "durationMs": 493.771,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "fast1",
+      "globalOrdinal": 5,
+      "stageOrdinal": 2,
+      "stage": "07-sitemap",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 502.5,
+        "responseStart": 1105.6,
+        "responseEnd": 1126.9,
+        "initialSvgDomComplete": 1258.1,
+        "initialSvgTwoRafOpportunity": 1298.2
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 502.5,
+        "requestToResponseStart": 603.1,
+        "responseStartToResponseEnd": 21.3,
+        "responseEndToInitialDomCompleteSigned": 131.2,
+        "initialDomCompleteToTwoRaf": 40.1,
+        "responseEndToTwoRafSigned": 171.3
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.878,
+        "timingRequestAnchorOnDomAxisMs": 8.755,
+        "dns": {
+          "startOnDomAxisMs": 8.755,
+          "endOnDomAxisMs": 8.755,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 135.398,
+          "endOnDomAxisMs": 502.03,
+          "durationMs": 366.632,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 8.755,
+          "endOnDomAxisMs": 502.05,
+          "durationMs": 493.295,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "fast2",
+      "globalOrdinal": 3,
+      "stageOrdinal": 1,
+      "stage": "07-sitemap",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 494.4,
+        "responseStart": 1143,
+        "responseEnd": 1165.4,
+        "initialSvgDomComplete": 1197.9,
+        "initialSvgTwoRafOpportunity": 1369
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 494.4,
+        "requestToResponseStart": 648.6,
+        "responseStartToResponseEnd": 22.4,
+        "responseEndToInitialDomCompleteSigned": 32.5,
+        "initialDomCompleteToTwoRaf": 171.1,
+        "responseEndToTwoRafSigned": 203.6
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.351,
+        "timingRequestAnchorOnDomAxisMs": 5.023,
+        "dns": {
+          "startOnDomAxisMs": 5.023,
+          "endOnDomAxisMs": 5.023,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 132.619,
+          "endOnDomAxisMs": 493.808,
+          "durationMs": 361.189,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 5.023,
+          "endOnDomAxisMs": 493.829,
+          "durationMs": 488.806,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "fast3",
+      "globalOrdinal": 34,
+      "stageOrdinal": 12,
+      "stage": "07-sitemap",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 479.8,
+        "responseStart": 1489.8,
+        "responseEnd": 1511.9,
+        "initialSvgDomComplete": 1532.5,
+        "initialSvgTwoRafOpportunity": 1583.5
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 479.8,
+        "requestToResponseStart": 1010.0,
+        "responseStartToResponseEnd": 22.1,
+        "responseEndToInitialDomCompleteSigned": 20.6,
+        "initialDomCompleteToTwoRaf": 51.0,
+        "responseEndToTwoRafSigned": 71.6
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.272,
+        "timingRequestAnchorOnDomAxisMs": 3.709,
+        "dns": {
+          "startOnDomAxisMs": 3.709,
+          "endOnDomAxisMs": 3.709,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 128.796,
+          "endOnDomAxisMs": 479.296,
+          "durationMs": 350.5,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 3.709,
+          "endOnDomAxisMs": 479.308,
+          "durationMs": 475.599,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "slow1",
+      "globalOrdinal": 39,
+      "stageOrdinal": 13,
+      "stage": "07-sitemap",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 7634.9,
+        "responseStart": 8786.5,
+        "responseEnd": 10191.7,
+        "initialSvgDomComplete": 10202.6,
+        "initialSvgTwoRafOpportunity": 10247.2
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 7634.9,
+        "requestToResponseStart": 1151.6,
+        "responseStartToResponseEnd": 1405.2,
+        "responseEndToInitialDomCompleteSigned": 10.9,
+        "initialDomCompleteToTwoRaf": 44.6,
+        "responseEndToTwoRafSigned": 55.5
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.506,
+        "timingRequestAnchorOnDomAxisMs": 3.303,
+        "dns": {
+          "startOnDomAxisMs": 3.303,
+          "endOnDomAxisMs": 3.303,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 129.707,
+          "endOnDomAxisMs": 7634.563,
+          "durationMs": 7504.856,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 3.303,
+          "endOnDomAxisMs": 7634.572,
+          "durationMs": 7631.269,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "slow2",
+      "globalOrdinal": 7,
+      "stageOrdinal": 3,
+      "stage": "07-sitemap",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 2351.3,
+        "responseStart": 3528.7,
+        "responseEnd": 4321.5,
+        "initialSvgDomComplete": 4321,
+        "initialSvgTwoRafOpportunity": 4381.2
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 2351.3,
+        "requestToResponseStart": 1177.4,
+        "responseStartToResponseEnd": 792.8,
+        "responseEndToInitialDomCompleteSigned": -0.5,
+        "initialDomCompleteToTwoRaf": 60.2,
+        "responseEndToTwoRafSigned": 59.7
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 1.22,
+        "timingRequestAnchorOnDomAxisMs": 7.935,
+        "dns": {
+          "startOnDomAxisMs": 7.935,
+          "endOnDomAxisMs": 7.935,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 131.397,
+          "endOnDomAxisMs": 2351.103,
+          "durationMs": 2219.706,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 7.935,
+          "endOnDomAxisMs": 2351.112,
+          "durationMs": 2343.177,
+          "recorded": true
+        }
+      }
+    },
+    {
+      "selection": "slow3",
+      "globalOrdinal": 41,
+      "stageOrdinal": 14,
+      "stage": "07-sitemap",
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 2793.4,
+        "responseStart": 3854.4,
+        "responseEnd": 3876.9,
+        "initialSvgDomComplete": 3922.5,
+        "initialSvgTwoRafOpportunity": 4063
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 2793.4,
+        "requestToResponseStart": 1061.0,
+        "responseStartToResponseEnd": 22.5,
+        "responseEndToInitialDomCompleteSigned": 45.6,
+        "initialDomCompleteToTwoRaf": 140.5,
+        "responseEndToTwoRafSigned": 186.1
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.867,
+        "timingRequestAnchorOnDomAxisMs": 6.574,
+        "dns": {
+          "startOnDomAxisMs": 6.574,
+          "endOnDomAxisMs": 6.574,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 135.479,
+          "endOnDomAxisMs": 2793.321,
+          "durationMs": 2657.842,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 6.574,
+          "endOnDomAxisMs": 2793.333,
+          "durationMs": 2786.759,
+          "recorded": true
+        }
+      }
+    }
+  ],
+  "largestInitialSvgSample": {
+    "globalOrdinal": 39,
+    "stageOrdinal": 13,
+    "stage": "07-sitemap",
+    "primaryValidAsRecorded": true,
+    "nativeValidAsRecorded": true,
+    "domNavigationClockMs": {
+      "navigationStart": 0,
+      "requestStart": 7634.9,
+      "responseStart": 8786.5,
+      "responseEnd": 10191.7,
+      "initialSvgDomComplete": 10202.6,
+      "initialSvgTwoRafOpportunity": 10247.2
+    },
+    "intervalMs": {
+      "navStartToRequestStart": 7634.9,
+      "requestToResponseStart": 1151.6,
+      "responseStartToResponseEnd": 1405.2,
+      "responseEndToInitialDomCompleteSigned": 10.9,
+      "initialDomCompleteToTwoRaf": 44.6,
+      "responseEndToTwoRafSigned": 55.5
+    },
+    "connection": {
+      "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+      "bridgeOffsetMs": 0.506,
+      "timingRequestAnchorOnDomAxisMs": 3.303,
+      "dns": {
+        "startOnDomAxisMs": 3.303,
+        "endOnDomAxisMs": 3.303,
+        "durationMs": 0,
+        "recorded": true
+      },
+      "tls": {
+        "startOnDomAxisMs": 129.707,
+        "endOnDomAxisMs": 7634.563,
+        "durationMs": 7504.856,
+        "recorded": true
+      },
+      "connect": {
+        "startOnDomAxisMs": 3.303,
+        "endOnDomAxisMs": 7634.572,
+        "durationMs": 7631.269,
+        "recorded": true
+      }
+    }
+  },
+  "global20ErdMissingCodeEvidence": {
+    "sample": {
+      "globalOrdinal": 20,
+      "stageOrdinal": 7,
+      "stage": "05-erd",
+      "primaryValidAsRecorded": false,
+      "nativeValidAsRecorded": false,
+      "domNavigationClockMs": {
+        "navigationStart": 0,
+        "requestStart": 1436.4,
+        "responseStart": 2610.9,
+        "responseEnd": 2624,
+        "initialSvgDomComplete": 2658.2,
+        "initialSvgTwoRafOpportunity": 2742.4
+      },
+      "intervalMs": {
+        "navStartToRequestStart": 1436.4,
+        "requestToResponseStart": 1174.5,
+        "responseStartToResponseEnd": 13.1,
+        "responseEndToInitialDomCompleteSigned": 34.2,
+        "initialDomCompleteToTwoRaf": 84.2,
+        "responseEndToTwoRafSigned": 118.4
+      },
+      "connection": {
+        "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+        "bridgeOffsetMs": 0.79,
+        "timingRequestAnchorOnDomAxisMs": 8.79,
+        "dns": {
+          "startOnDomAxisMs": 8.79,
+          "endOnDomAxisMs": 8.79,
+          "durationMs": 0,
+          "recorded": true
+        },
+        "tls": {
+          "startOnDomAxisMs": 123.845,
+          "endOnDomAxisMs": 1436.152,
+          "durationMs": 1312.307,
+          "recorded": true
+        },
+        "connect": {
+          "startOnDomAxisMs": 8.79,
+          "endOnDomAxisMs": 1436.164,
+          "durationMs": 1427.374,
+          "recorded": true
+        }
+      }
+    },
+    "primaryInvalidReasonsAsRecorded": [
+      "formal-code-edge-hit-condition-not-verified"
+    ],
+    "nativeInvalidReasonsAsRecorded": [
+      "formal-code-edge-hit-condition-not-verified",
+      "native-ready-and-two-visible-frames-not-observed",
+      "native-ready-and-two-visible-frames-not-observed-in90s-window",
+      "erd-live300-count-not-verified"
+    ],
+    "nativeReadyMs": null,
+    "nativeTwoRafMs": null,
+    "codeRequests": [
+      {
+        "asset": "view.f3a8b693.js",
+        "requestOnDomAxisMs": 2634.228,
+        "cookieOnlyEvidence": "verified"
+      }
+    ],
+    "codeResponseCount": 0,
+    "observedCodeHttpStatuses": [],
+    "observedCodeCacheStatuses": [],
+    "authAsRecorded": {
+      "transport": "service-cookie-in-memory",
+      "allInitiatedCodeRequestsObserved": true,
+      "observedCodeRequestCount": 1,
+      "allCodeRequestsCookieOnly": true,
+      "unverifiedCodeRequests": 0,
+      "contradictedCodeRequests": 0,
+      "valuesSaved": false
+    },
+    "cacheAsRecorded": {
+      "referenceOnly": false,
+      "completedCodeResponses": 0,
+      "allCompletedCodeResponsesHit": false,
+      "violations": []
+    },
+    "stopReason": "whole-opening-deadline",
+    "measurementPollWallMs": 90013.601,
+    "lastSuccessfulPollDomMs": 89913.3,
+    "networkFailureCount": 0,
+    "exceptionCount": 0,
+    "interpretation": "Initial SVG observed in2.7424s; no observed code response at capture, so strict HIT condition is unverified. Not evidence of403, MISS, or a proven transport/root cause."
+  },
+  "dddNativeTails": [
+    {
+      "role": "reported-native-P95-row",
+      "globalOrdinal": 10,
+      "stageOrdinal": 4,
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domClockMs": {
+        "initialSvgTwoRaf": 3129.4,
+        "coreSvgTwoRaf": 59602.8,
+        "nativeReady": 65602,
+        "nativeTwoRaf": 65657.7,
+        "lastFontsLoadingDone": 65457.1
+      },
+      "intervalMs": {
+        "initialSvgToCoreSvg": 56473.4,
+        "coreSvgToNativeReady": 5999.2,
+        "nativeReadyToTwoRaf": 55.7,
+        "bridgedViewFinishToCoreSvg": 139.693,
+        "bridgedLastPreNativeCodeFinishToNativeReady": 469.03
+      },
+      "bridgeOffsetMs": 0.921,
+      "observedCodeResponses": 20,
+      "responseEventLaterThanLoadingFinishedCount": 19,
+      "importantCodeRecordsOnBridgedDomAxis": [
+        {
+          "asset": "view.f3a8b693.js",
+          "requestOnDomAxisMs": 3054.236,
+          "wireHeaderStartOnDomAxisMs": 3455.727,
+          "wireHeaderEndOnDomAxisMs": 3457.767,
+          "responseEventOnDomAxisMs": 59464.438,
+          "loadingFinishedOnDomAxisMs": 59463.107,
+          "wireHeaderEndToLoadingFinishedMs": 56005.34,
+          "status": 200,
+          "cacheStatus": "HIT"
+        },
+        {
+          "asset": "excalidraw.be3c1e87.js",
+          "requestOnDomAxisMs": 59603.183,
+          "wireHeaderStartOnDomAxisMs": 60397.262,
+          "wireHeaderEndOnDomAxisMs": 60408.206,
+          "responseEventOnDomAxisMs": 65041.792,
+          "loadingFinishedOnDomAxisMs": 65030.044,
+          "wireHeaderEndToLoadingFinishedMs": 4621.838,
+          "status": 200,
+          "cacheStatus": "HIT"
+        },
+        {
+          "asset": "excalidraw-chunk-37.e31a124b.js",
+          "requestOnDomAxisMs": 59603.366,
+          "wireHeaderStartOnDomAxisMs": 59983.274,
+          "wireHeaderEndOnDomAxisMs": 59985.664,
+          "responseEventOnDomAxisMs": 65142.677,
+          "loadingFinishedOnDomAxisMs": 65132.97,
+          "wireHeaderEndToLoadingFinishedMs": 5147.306,
+          "status": 200,
+          "cacheStatus": "HIT"
+        },
+        {
+          "asset": "editor-font-1.81a9f280.woff2",
+          "requestOnDomAxisMs": 59604.179,
+          "wireHeaderStartOnDomAxisMs": 60746.327,
+          "wireHeaderEndOnDomAxisMs": 60748.525,
+          "responseEventOnDomAxisMs": 65125.681,
+          "loadingFinishedOnDomAxisMs": 65116.803,
+          "wireHeaderEndToLoadingFinishedMs": 4368.278,
+          "status": 200,
+          "cacheStatus": "HIT"
+        }
+      ],
+      "scope": "Chronology only. Wire header timing, response event and loadingFinished are distinct recorded fields; no server/transfer/decode/CPU causality is established."
+    },
+    {
+      "role": "largest-observed-native-row",
+      "globalOrdinal": 8,
+      "stageOrdinal": 3,
+      "primaryValidAsRecorded": true,
+      "nativeValidAsRecorded": true,
+      "domClockMs": {
+        "initialSvgTwoRaf": 1340.6,
+        "coreSvgTwoRaf": 59265.4,
+        "nativeReady": 73179.8,
+        "nativeTwoRaf": 73239.1,
+        "lastFontsLoadingDone": 73044.5
+      },
+      "intervalMs": {
+        "initialSvgToCoreSvg": 57924.8,
+        "coreSvgToNativeReady": 13914.4,
+        "nativeReadyToTwoRaf": 59.3,
+        "bridgedViewFinishToCoreSvg": 1688.272,
+        "bridgedLastPreNativeCodeFinishToNativeReady": 1310.104
+      },
+      "bridgeOffsetMs": 0.503,
+      "observedCodeResponses": 20,
+      "responseEventLaterThanLoadingFinishedCount": 19,
+      "importantCodeRecordsOnBridgedDomAxis": [
+        {
+          "asset": "view.f3a8b693.js",
+          "requestOnDomAxisMs": 1282.48,
+          "wireHeaderStartOnDomAxisMs": 2026.612,
+          "wireHeaderEndOnDomAxisMs": 2030.197,
+          "responseEventOnDomAxisMs": 57582.307,
+          "loadingFinishedOnDomAxisMs": 57577.128,
+          "wireHeaderEndToLoadingFinishedMs": 55546.931,
+          "status": 200,
+          "cacheStatus": "HIT"
+        },
+        {
+          "asset": "excalidraw.be3c1e87.js",
+          "requestOnDomAxisMs": 59267.462,
+          "wireHeaderStartOnDomAxisMs": 60954.409,
+          "wireHeaderEndOnDomAxisMs": 60957.214,
+          "responseEventOnDomAxisMs": 70768.66,
+          "loadingFinishedOnDomAxisMs": 70762.865,
+          "wireHeaderEndToLoadingFinishedMs": 9805.651,
+          "status": 200,
+          "cacheStatus": "HIT"
+        },
+        {
+          "asset": "excalidraw-chunk-37.e31a124b.js",
+          "requestOnDomAxisMs": 59267.819,
+          "wireHeaderStartOnDomAxisMs": 59622.259,
+          "wireHeaderEndOnDomAxisMs": 59624.582,
+          "responseEventOnDomAxisMs": 71905.979,
+          "loadingFinishedOnDomAxisMs": 71869.696,
+          "wireHeaderEndToLoadingFinishedMs": 12245.114,
+          "status": 200,
+          "cacheStatus": "HIT"
+        },
+        {
+          "asset": "editor-font-0.e0cdd332.woff2",
+          "requestOnDomAxisMs": 59269.706,
+          "wireHeaderStartOnDomAxisMs": 62401.469,
+          "wireHeaderEndOnDomAxisMs": 62416.883,
+          "responseEventOnDomAxisMs": 72872.248,
+          "loadingFinishedOnDomAxisMs": 71855.154,
+          "wireHeaderEndToLoadingFinishedMs": 9438.271,
+          "status": 200,
+          "cacheStatus": "HIT"
+        }
+      ],
+      "scope": "Chronology only. Wire header timing, response event and loadingFinished are distinct recorded fields; no server/transfer/decode/CPU causality is established."
+    }
+  ],
+  "referencesNotFormal": {
+    "R-COLD": {
+      "formal": false,
+      "conditions": {
+        "cacheDisabled": true,
+        "newIncognitoPerOpening": true,
+        "cpu": 1,
+        "latencyMs": 165
+      },
+      "rows": [
+        {
+          "globalOrdinal": 1,
+          "stageOrdinal": 1,
+          "stage": "01-domain",
+          "primaryValidAsRecorded": true,
+          "nativeValidAsRecorded": true,
+          "domNavigationClockMs": {
+            "navigationStart": 0,
+            "requestStart": 486.5,
+            "responseStart": 1609.2,
+            "responseEnd": 1630.4,
+            "initialSvgDomComplete": 1669.3,
+            "initialSvgTwoRafOpportunity": 1803.8
+          },
+          "intervalMs": {
+            "navStartToRequestStart": 486.5,
+            "requestToResponseStart": 1122.7,
+            "responseStartToResponseEnd": 21.2,
+            "responseEndToInitialDomCompleteSigned": 38.9,
+            "initialDomCompleteToTwoRaf": 134.5,
+            "responseEndToTwoRafSigned": 173.4
+          },
+          "connection": {
+            "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+            "bridgeOffsetMs": 1.745,
+            "timingRequestAnchorOnDomAxisMs": 11.09,
+            "dns": {
+              "startOnDomAxisMs": 11.09,
+              "endOnDomAxisMs": 11.09,
+              "durationMs": 0,
+              "recorded": true
+            },
+            "tls": {
+              "startOnDomAxisMs": 128.841,
+              "endOnDomAxisMs": 486.366,
+              "durationMs": 357.525,
+              "recorded": true
+            },
+            "connect": {
+              "startOnDomAxisMs": 11.09,
+              "endOnDomAxisMs": 486.384,
+              "durationMs": 475.294,
+              "recorded": true
+            }
+          },
+          "invalidReasonsAsRecorded": []
+        },
+        {
+          "globalOrdinal": 2,
+          "stageOrdinal": 1,
+          "stage": "05-erd",
+          "primaryValidAsRecorded": true,
+          "nativeValidAsRecorded": true,
+          "domNavigationClockMs": {
+            "navigationStart": 0,
+            "requestStart": 484.5,
+            "responseStart": 2315.6,
+            "responseEnd": 4195.1,
+            "initialSvgDomComplete": 4202,
+            "initialSvgTwoRafOpportunity": 4251.1
+          },
+          "intervalMs": {
+            "navStartToRequestStart": 484.5,
+            "requestToResponseStart": 1831.1,
+            "responseStartToResponseEnd": 1879.5,
+            "responseEndToInitialDomCompleteSigned": 6.9,
+            "initialDomCompleteToTwoRaf": 49.1,
+            "responseEndToTwoRafSigned": 56.0
+          },
+          "connection": {
+            "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+            "bridgeOffsetMs": 0.994,
+            "timingRequestAnchorOnDomAxisMs": 10.717,
+            "dns": {
+              "startOnDomAxisMs": 10.717,
+              "endOnDomAxisMs": 10.717,
+              "durationMs": 0,
+              "recorded": true
+            },
+            "tls": {
+              "startOnDomAxisMs": 127.388,
+              "endOnDomAxisMs": 484.306,
+              "durationMs": 356.918,
+              "recorded": true
+            },
+            "connect": {
+              "startOnDomAxisMs": 10.717,
+              "endOnDomAxisMs": 484.316,
+              "durationMs": 473.599,
+              "recorded": true
+            }
+          },
+          "invalidReasonsAsRecorded": []
+        },
+        {
+          "globalOrdinal": 3,
+          "stageOrdinal": 1,
+          "stage": "07-sitemap",
+          "primaryValidAsRecorded": true,
+          "nativeValidAsRecorded": true,
+          "domNavigationClockMs": {
+            "navigationStart": 0,
+            "requestStart": 478.5,
+            "responseStart": 2033.3,
+            "responseEnd": 2059.6,
+            "initialSvgDomComplete": 2151.3,
+            "initialSvgTwoRafOpportunity": 2176.3
+          },
+          "intervalMs": {
+            "navStartToRequestStart": 478.5,
+            "requestToResponseStart": 1554.8,
+            "responseStartToResponseEnd": 26.3,
+            "responseEndToInitialDomCompleteSigned": 91.7,
+            "initialDomCompleteToTwoRaf": 25.0,
+            "responseEndToTwoRafSigned": 116.7
+          },
+          "connection": {
+            "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+            "bridgeOffsetMs": 0.607,
+            "timingRequestAnchorOnDomAxisMs": 4.31,
+            "dns": {
+              "startOnDomAxisMs": 4.31,
+              "endOnDomAxisMs": 4.31,
+              "durationMs": 0,
+              "recorded": true
+            },
+            "tls": {
+              "startOnDomAxisMs": 131.604,
+              "endOnDomAxisMs": 478.212,
+              "durationMs": 346.608,
+              "recorded": true
+            },
+            "connect": {
+              "startOnDomAxisMs": 4.31,
+              "endOnDomAxisMs": 478.22,
+              "durationMs": 473.91,
+              "recorded": true
+            }
+          },
+          "invalidReasonsAsRecorded": []
+        }
+      ]
+    },
+    "R-WARM": {
+      "formal": false,
+      "conditions": {
+        "cacheDisabled": false,
+        "newIncognitoPerOpening": false,
+        "cpu": 1,
+        "latencyMs": 165
+      },
+      "rows": [
+        {
+          "globalOrdinal": 1,
+          "stageOrdinal": 1,
+          "stage": "01-domain",
+          "primaryValidAsRecorded": true,
+          "nativeValidAsRecorded": true,
+          "domNavigationClockMs": {
+            "navigationStart": 0,
+            "requestStart": 499.3,
+            "responseStart": 1137.8,
+            "responseEnd": 3117.9,
+            "initialSvgDomComplete": 1540.5,
+            "initialSvgTwoRafOpportunity": 1615.7
+          },
+          "intervalMs": {
+            "navStartToRequestStart": 499.3,
+            "requestToResponseStart": 638.5,
+            "responseStartToResponseEnd": 1980.1,
+            "responseEndToInitialDomCompleteSigned": -1577.4,
+            "initialDomCompleteToTwoRaf": 75.2,
+            "responseEndToTwoRafSigned": -1502.2
+          },
+          "connection": {
+            "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+            "bridgeOffsetMs": 1.709,
+            "timingRequestAnchorOnDomAxisMs": 6.733,
+            "dns": {
+              "startOnDomAxisMs": 6.733,
+              "endOnDomAxisMs": 6.733,
+              "durationMs": 0,
+              "recorded": true
+            },
+            "tls": {
+              "startOnDomAxisMs": 133.957,
+              "endOnDomAxisMs": 499.03,
+              "durationMs": 365.073,
+              "recorded": true
+            },
+            "connect": {
+              "startOnDomAxisMs": 6.733,
+              "endOnDomAxisMs": 499.042,
+              "durationMs": 492.309,
+              "recorded": true
+            }
+          },
+          "invalidReasonsAsRecorded": []
+        },
+        {
+          "globalOrdinal": 2,
+          "stageOrdinal": 2,
+          "stage": "01-domain",
+          "primaryValidAsRecorded": false,
+          "nativeValidAsRecorded": false,
+          "domNavigationClockMs": {
+            "navigationStart": 0,
+            "requestStart": 7,
+            "responseStart": 1135.3,
+            "responseEnd": 1613.3,
+            "initialSvgDomComplete": 1638.3,
+            "initialSvgTwoRafOpportunity": 1662.6
+          },
+          "intervalMs": {
+            "navStartToRequestStart": 7,
+            "requestToResponseStart": 1128.3,
+            "responseStartToResponseEnd": 478.0,
+            "responseEndToInitialDomCompleteSigned": 25.0,
+            "initialDomCompleteToTwoRaf": 24.3,
+            "responseEndToTwoRafSigned": 49.3
+          },
+          "connection": {
+            "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+            "bridgeOffsetMs": 0.887,
+            "timingRequestAnchorOnDomAxisMs": 6.245,
+            "dns": {
+              "startOnDomAxisMs": null,
+              "endOnDomAxisMs": null,
+              "durationMs": null,
+              "recorded": false
+            },
+            "tls": {
+              "startOnDomAxisMs": null,
+              "endOnDomAxisMs": null,
+              "durationMs": null,
+              "recorded": false
+            },
+            "connect": {
+              "startOnDomAxisMs": null,
+              "endOnDomAxisMs": null,
+              "durationMs": null,
+              "recorded": false
+            }
+          },
+          "invalidReasonsAsRecorded": [
+            "cookie-only-code-transport-not-verified"
+          ]
+        },
+        {
+          "globalOrdinal": 3,
+          "stageOrdinal": 1,
+          "stage": "05-erd",
+          "primaryValidAsRecorded": true,
+          "nativeValidAsRecorded": true,
+          "domNavigationClockMs": {
+            "navigationStart": 0,
+            "requestStart": 448.7,
+            "responseStart": 1794.5,
+            "responseEnd": 1807.8,
+            "initialSvgDomComplete": 1846.4,
+            "initialSvgTwoRafOpportunity": 1887.2
+          },
+          "intervalMs": {
+            "navStartToRequestStart": 448.7,
+            "requestToResponseStart": 1345.8,
+            "responseStartToResponseEnd": 13.3,
+            "responseEndToInitialDomCompleteSigned": 38.6,
+            "initialDomCompleteToTwoRaf": 40.8,
+            "responseEndToTwoRafSigned": 79.4
+          },
+          "connection": {
+            "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+            "bridgeOffsetMs": 0.649,
+            "timingRequestAnchorOnDomAxisMs": 4.403,
+            "dns": {
+              "startOnDomAxisMs": 4.403,
+              "endOnDomAxisMs": 4.403,
+              "durationMs": 0,
+              "recorded": true
+            },
+            "tls": {
+              "startOnDomAxisMs": 132.513,
+              "endOnDomAxisMs": 448.431,
+              "durationMs": 315.918,
+              "recorded": true
+            },
+            "connect": {
+              "startOnDomAxisMs": 4.403,
+              "endOnDomAxisMs": 448.441,
+              "durationMs": 444.038,
+              "recorded": true
+            }
+          },
+          "invalidReasonsAsRecorded": []
+        },
+        {
+          "globalOrdinal": 4,
+          "stageOrdinal": 2,
+          "stage": "05-erd",
+          "primaryValidAsRecorded": false,
+          "nativeValidAsRecorded": false,
+          "domNavigationClockMs": {
+            "navigationStart": 0,
+            "requestStart": 6.1,
+            "responseStart": 656.5,
+            "responseEnd": 1118.4,
+            "initialSvgDomComplete": 1170.2,
+            "initialSvgTwoRafOpportunity": 1209.1
+          },
+          "intervalMs": {
+            "navStartToRequestStart": 6.1,
+            "requestToResponseStart": 650.4,
+            "responseStartToResponseEnd": 461.9,
+            "responseEndToInitialDomCompleteSigned": 51.8,
+            "initialDomCompleteToTwoRaf": 38.9,
+            "responseEndToTwoRafSigned": 90.7
+          },
+          "connection": {
+            "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+            "bridgeOffsetMs": 0.489,
+            "timingRequestAnchorOnDomAxisMs": 5.398,
+            "dns": {
+              "startOnDomAxisMs": null,
+              "endOnDomAxisMs": null,
+              "durationMs": null,
+              "recorded": false
+            },
+            "tls": {
+              "startOnDomAxisMs": null,
+              "endOnDomAxisMs": null,
+              "durationMs": null,
+              "recorded": false
+            },
+            "connect": {
+              "startOnDomAxisMs": null,
+              "endOnDomAxisMs": null,
+              "durationMs": null,
+              "recorded": false
+            }
+          },
+          "invalidReasonsAsRecorded": [
+            "cookie-only-code-transport-not-verified"
+          ]
+        },
+        {
+          "globalOrdinal": 5,
+          "stageOrdinal": 1,
+          "stage": "07-sitemap",
+          "primaryValidAsRecorded": true,
+          "nativeValidAsRecorded": true,
+          "domNavigationClockMs": {
+            "navigationStart": 0,
+            "requestStart": 479.2,
+            "responseStart": 1758.8,
+            "responseEnd": 3689.8,
+            "initialSvgDomComplete": 3694.1,
+            "initialSvgTwoRafOpportunity": 3736
+          },
+          "intervalMs": {
+            "navStartToRequestStart": 479.2,
+            "requestToResponseStart": 1279.6,
+            "responseStartToResponseEnd": 1931.0,
+            "responseEndToInitialDomCompleteSigned": 4.3,
+            "initialDomCompleteToTwoRaf": 41.9,
+            "responseEndToTwoRafSigned": 46.2
+          },
+          "connection": {
+            "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+            "bridgeOffsetMs": 0.635,
+            "timingRequestAnchorOnDomAxisMs": 4.487,
+            "dns": {
+              "startOnDomAxisMs": 4.487,
+              "endOnDomAxisMs": 4.487,
+              "durationMs": 0,
+              "recorded": true
+            },
+            "tls": {
+              "startOnDomAxisMs": 132.06,
+              "endOnDomAxisMs": 478.95,
+              "durationMs": 346.89,
+              "recorded": true
+            },
+            "connect": {
+              "startOnDomAxisMs": 4.487,
+              "endOnDomAxisMs": 478.959,
+              "durationMs": 474.472,
+              "recorded": true
+            }
+          },
+          "invalidReasonsAsRecorded": []
+        },
+        {
+          "globalOrdinal": 6,
+          "stageOrdinal": 2,
+          "stage": "07-sitemap",
+          "primaryValidAsRecorded": false,
+          "nativeValidAsRecorded": false,
+          "domNavigationClockMs": {
+            "navigationStart": 0,
+            "requestStart": 3.1,
+            "responseStart": 634.9,
+            "responseEnd": 1893.9,
+            "initialSvgDomComplete": 681.3,
+            "initialSvgTwoRafOpportunity": 789.1
+          },
+          "intervalMs": {
+            "navStartToRequestStart": 3.1,
+            "requestToResponseStart": 631.8,
+            "responseStartToResponseEnd": 1259.0,
+            "responseEndToInitialDomCompleteSigned": -1212.6,
+            "initialDomCompleteToTwoRaf": 107.8,
+            "responseEndToTwoRafSigned": -1104.8
+          },
+          "connection": {
+            "source": "CDP ResourceTiming mapped only with the recorded epoch bridge; not native DOM DNS/TLS fields",
+            "bridgeOffsetMs": 0.273,
+            "timingRequestAnchorOnDomAxisMs": 2.415,
+            "dns": {
+              "startOnDomAxisMs": null,
+              "endOnDomAxisMs": null,
+              "durationMs": null,
+              "recorded": false
+            },
+            "tls": {
+              "startOnDomAxisMs": null,
+              "endOnDomAxisMs": null,
+              "durationMs": null,
+              "recorded": false
+            },
+            "connect": {
+              "startOnDomAxisMs": null,
+              "endOnDomAxisMs": null,
+              "durationMs": null,
+              "recorded": false
+            }
+          },
+          "invalidReasonsAsRecorded": [
+            "cookie-only-code-transport-not-verified"
+          ]
+        }
+      ]
+    }
+  },
+  "cpuPolicy": "Whole-observation cumulative CPU includes added5s and instrumentation. No total CPU is assigned to server, network, decode, style, SVG or native phases.",
+  "actions": {
+    "inputWrites": 0,
+    "browserLaunches": 0,
+    "httpRequests": 0,
+    "remoteServerRequests": 0,
+    "newMeasurements": 0,
+    "modelCliRuns": 0,
+    "dependenciesInstalled": 0,
+    "sampleReclassifications": 0
+  }
+}
