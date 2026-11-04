@@ -697,3 +697,8 @@ store.js first: migrations 1 and 2, the push with its two batches, then the writ
 - A checkpoint withdrawn while its record's pull request is open, and that record merged and pushed anyway: the to-do keeps the checkpoint, and its stage has the `checkpoint-withdrawn` warning, until a push whose records no longer name it.
 - A write sent twice, and again after 7 days; two sessions that claim one entry, and a claim that ends; two hubs of one device that send one outbox; and a space at its text limit.
 - The stage records of two parts changed by two pull requests merged one after the other.
+
+
+## Machine source registration, 2026-11-04
+
+The hub stage05 source is `docs/05-erd/nexus.sql`. This file provides the table picture through the fetched default-branch Git objects. The explanatory model and its Korean copy remain the readable model for the human view. A local own-repository check found that registering only `nexus.md` produced DDD and sitemap pictures and omitted the ERD. The registration now selects the SQL source; the regression runs the actual pinned hub against both registrations and verifies all three picture stages for the current one. No new stage IDs or SQL schema change are introduced.

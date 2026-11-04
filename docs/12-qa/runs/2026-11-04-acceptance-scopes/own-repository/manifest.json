@@ -1,0 +1,34 @@
+{
+  "schema": "nexus-tc1268-public-selection/1",
+  "whitelistOnly": true,
+  "imagesVisuallyInspected": 3,
+  "files": [
+    {
+      "file": "01-real-domain.png",
+      "bytes": 153599,
+      "sha256": "0a01e4c068b5f4eb402ffe80ede94d2e582b177779e7b2ae8d366ab099912743"
+    },
+    {
+      "file": "02-real-erd.png",
+      "bytes": 75384,
+      "sha256": "c01e2cdc2dbc93839294588154f768285f982f7e9faa498601191c386b448d26"
+    },
+    {
+      "file": "03-synthetic-sitemap-mismatch.png",
+      "bytes": 124309,
+      "sha256": "e20629afa0c678031cb94b2355be1d110f046a23c58a2c0b49e2db0d89d5cedb"
+    },
+    {
+      "file": "results.json",
+      "bytes": 7579,
+      "sha256": "4af3b288c6cc27f807b5820487c494cfd24e305ce81d2de10e4a763f366da6e9"
+    },
+    {
+      "file": "summary.md",
+      "bytes": 2094,
+      "sha256": "b63e007461ea2cd3fb95b4201c141fbfae3f2c0b21db9e334a5f861c2455a364"
+    }
+  ],
+  "originalSourceManifestSha256": "3ba828b4b2b689f905f6662ade2c95392b64f2793b6289cb0d51c355c7513ab5",
+  "copyNormalization": "UTF-8 LF selected text; PNG bytes unchanged."
+}

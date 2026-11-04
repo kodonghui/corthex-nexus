@@ -1,0 +1,270 @@
+{
+  "schema": "nexus-tc1268-own-repo-local-evidence/1",
+  "status": "local-evidence-complete-with-original-registration-limit",
+  "tc": "TC-1268",
+  "finalTcPromotion": "parent-decision-pending",
+  "publicDefault": {
+    "repository": "https://github.com/kodonghui/corthex-nexus.git",
+    "branch": "main",
+    "commit": "93adb595f439e07e8a3476f3bd564105d034a5b6",
+    "part": "nexus",
+    "sourceBlobs": [
+      {
+        "path": "docs/01-domain/nexus.md",
+        "gitBlobId": "c7907ccfd657080e372a224e682196dae5548a5d",
+        "bytes": 46154,
+        "sha256": "aed92ce7f2d767ba3a5f8267d484f32a447d536623eb09d384dfdaeb5837c89e"
+      },
+      {
+        "path": "docs/05-erd/nexus.sql",
+        "gitBlobId": "350ed28af031e4409a74a79f9f261dc66f17ad72",
+        "bytes": 14170,
+        "sha256": "978379e299a64bc2a3576ebcd39984fd3e5927c7092295580b26f2d7a35198a2"
+      },
+      {
+        "path": "docs/07-sitemap/nexus.yaml",
+        "gitBlobId": "bbb81415fb3fbe428e5c35763effcbef80fa42c3",
+        "bytes": 2762,
+        "sha256": "27c1714b9492554a3d716951c8ea5243dd08a1dc8827536ebd486eb064f60a0b"
+      }
+    ]
+  },
+  "hubCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70",
+  "currentViewMetadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "registration": {
+    "defaultGitHasProjectSettings": false,
+    "defaultGitHasStageRecords": false,
+    "originalOwnedOverlayErdSource": "docs/05-erd/nexus.md",
+    "originalSnapshotPictures": [
+      "01-domain",
+      "07-sitemap"
+    ],
+    "supportedSupplementalOwnedOverlayErdSource": "docs/05-erd/nexus.sql",
+    "supplementalSnapshotPictures": [
+      "01-domain",
+      "05-erd",
+      "07-sitemap"
+    ],
+    "recordsFrom": "status-file",
+    "recordedStageStates": "all13 unknown; none inferred done",
+    "overlayIsNotCommittedGitEvidence": true
+  },
+  "rows": [
+    {
+      "name": "public-default-01-domain-KO1440",
+      "status": "works",
+      "language": "ko-KR",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "horizontalOverflowPx": 0,
+      "deduplicatedListButtons": 81,
+      "nativeTableCount": null,
+      "selectedItem": "CTX-012",
+      "ownDomSelectors": "#items button,.panel-head button",
+      "measuredOwnButtons": 82,
+      "minOwnButtonWidthPx": 56,
+      "minOwnButtonHeightPx": 44,
+      "sourceSha256": "da1ea6efd48c05d30d44f18b64aeb760ca2c5ed6a3b0093aed5d6a60ccd65236"
+    },
+    {
+      "name": "public-default-05-erd-KO1440",
+      "status": "works",
+      "language": "ko",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "horizontalOverflowPx": 0,
+      "deduplicatedListButtons": 13,
+      "nativeTableCount": 13,
+      "selectedItem": "TBL-101",
+      "ownDomSelectors": "#items button,.panel-head button",
+      "measuredOwnButtons": 14,
+      "minOwnButtonWidthPx": 56,
+      "minOwnButtonHeightPx": 44,
+      "sourceSha256": "26be7f2c807b6ca45236090b8d12f76a2248a7ed6a076afc0fe72728608d127f"
+    },
+    {
+      "name": "public-default-07-sitemap-KO1440",
+      "status": "works",
+      "language": "ko-KR",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "horizontalOverflowPx": 0,
+      "deduplicatedListButtons": 9,
+      "nativeTableCount": null,
+      "selectedItem": "SCR-101",
+      "ownDomSelectors": "#items button,.panel-head button",
+      "measuredOwnButtons": 10,
+      "minOwnButtonWidthPx": 56,
+      "minOwnButtonHeightPx": 44,
+      "sourceSha256": "8f87a64dcc058507026733ad57758f9d1a509b8b5a2a40cec38dcfc44a928d0e"
+    },
+    {
+      "name": "synthetic-copy-crosscheck-visible-and-SQLite-effect",
+      "status": "works",
+      "language": "ko-KR",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "horizontalOverflowPx": 0,
+      "deduplicatedListButtons": 9,
+      "nativeTableCount": null,
+      "selectedItem": "SCR-101",
+      "ownDomSelectors": "#items button,.panel-head button",
+      "measuredOwnButtons": 10,
+      "minOwnButtonWidthPx": 56,
+      "minOwnButtonHeightPx": 44,
+      "sourceSha256": null
+    }
+  ],
+  "sourceLogicalSceneNodes": {
+    "01-domain": 112,
+    "05-erd": 13,
+    "07-sitemap": 9
+  },
+  "crosscheck": {
+    "baselineDiscrepancies": 0,
+    "tableTermsNone": [
+      {
+        "id": "TBL-101",
+        "name": "snapshots"
+      },
+      {
+        "id": "TBL-111",
+        "name": "claims"
+      },
+      {
+        "id": "TBL-112",
+        "name": "writes"
+      },
+      {
+        "id": "TBL-113",
+        "name": "migrations"
+      }
+    ],
+    "screenTermsNone": [
+      {
+        "id": "SCR-101",
+        "name": "Hub page"
+      },
+      {
+        "id": "SCR-102",
+        "name": "Search results"
+      },
+      {
+        "id": "SCR-103",
+        "name": "Trace view"
+      },
+      {
+        "id": "SCR-104",
+        "name": "Stage detail"
+      }
+    ],
+    "withoutTable": [
+      "TERM-122"
+    ],
+    "withoutScreen": [
+      "TERM-121"
+    ],
+    "enumeratedSourceJoins": {
+      "aggregateTable": 9,
+      "readModelScreen": 9
+    },
+    "syntheticMutation": "Removed one table terms:none, one screen terms:none, TERM-122 without-table and TERM-121 without-screen, only in an explicit snapshot copy/new local project with synthetic f*40 commit.",
+    "syntheticDbRows": [
+      {
+        "id": "nd_6t546d3nk1z5",
+        "project": "qa-own-repo-mismatch",
+        "part": "nexus",
+        "compares": "aggregate-table",
+        "term": "",
+        "item": "TBL-101",
+        "reasons": [
+          {
+            "kind": "no-term"
+          }
+        ],
+        "level": "warn",
+        "state": "open",
+        "waiting": 0
+      },
+      {
+        "id": "nd_h3a9v30d4j31",
+        "project": "qa-own-repo-mismatch",
+        "part": "nexus",
+        "compares": "aggregate-table",
+        "term": "TERM-122",
+        "item": "",
+        "reasons": [
+          {
+            "kind": "no-table"
+          }
+        ],
+        "level": "info",
+        "state": "open",
+        "waiting": 0
+      },
+      {
+        "id": "nd_qhs7c7j2f7rq",
+        "project": "qa-own-repo-mismatch",
+        "part": "nexus",
+        "compares": "read-model-screen",
+        "term": "",
+        "item": "SCR-101",
+        "reasons": [
+          {
+            "kind": "no-term"
+          }
+        ],
+        "level": "warn",
+        "state": "open",
+        "waiting": 0
+      },
+      {
+        "id": "nd_bhpvcze6k5dt",
+        "project": "qa-own-repo-mismatch",
+        "part": "nexus",
+        "compares": "read-model-screen",
+        "term": "TERM-121",
+        "item": "",
+        "reasons": [
+          {
+            "kind": "no-screen"
+          }
+        ],
+        "level": "info",
+        "state": "open",
+        "waiting": 0
+      }
+    ],
+    "originalSnapshotFileSha256": "0c5a6cb394d3d20c4dea49567afec91dac89fca0e6b3548d2c6a0cfaa281c460",
+    "counts": {
+      "pictures": 6,
+      "comments": 0,
+      "proposals": 0,
+      "checkpoints": 0
+    }
+  },
+  "runtimeExceptions": 0,
+  "blockedBrowserRequests": 0,
+  "browserWrites": 0,
+  "externalNexusUploads": 0,
+  "accountOrCredentialStorageReads": 0,
+  "approvedCheckpointsCreated": 0,
+  "existingUnitEvidence": "Existing crosscheck.test.js unit cases were read only; not rerun or counted as browser/default-repo evidence. Actual local handler/SQLite effects and four browser paths are this run.",
+  "notClaimed": [
+    "300-element performance",
+    "P95",
+    "whole-picture simultaneous readability",
+    "entire710 QA",
+    "real Access login",
+    "external first push approval",
+    "full TC1268 promotion"
+  ]
+}

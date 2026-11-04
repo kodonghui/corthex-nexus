@@ -1,0 +1,422 @@
+{
+  "schema": "nexus-core-model-all-attempt-ledger/1",
+  "actualCliProcesses": 17,
+  "actualInputTurns": 19,
+  "claudeProcesses": 15,
+  "codexNativeProcesses": 2,
+  "codexNativePolicyBlocks": 2,
+  "aggregateTcPassClaimed": false,
+  "sourceVerdictsChanged": false,
+  "runs": [
+    {
+      "run": "runs-20261104T115443Z",
+      "actualCliProcesses": 2,
+      "operatorFailureFile": false,
+      "manualStopFile": false,
+      "cleanupFile": true,
+      "cleanupCorrectionFile": false,
+      "preflightOnlyNoModel": false
+    },
+    {
+      "run": "runs-20261104T115640Z",
+      "actualCliProcesses": 2,
+      "operatorFailureFile": false,
+      "manualStopFile": false,
+      "cleanupFile": true,
+      "cleanupCorrectionFile": false,
+      "preflightOnlyNoModel": false
+    },
+    {
+      "run": "runs-20261104T115739Z",
+      "actualCliProcesses": 0,
+      "operatorFailureFile": false,
+      "manualStopFile": false,
+      "cleanupFile": true,
+      "cleanupCorrectionFile": false,
+      "preflightOnlyNoModel": true
+    },
+    {
+      "run": "runs-20261104T115829Z",
+      "actualCliProcesses": 2,
+      "operatorFailureFile": false,
+      "manualStopFile": true,
+      "cleanupFile": false,
+      "cleanupCorrectionFile": false,
+      "preflightOnlyNoModel": false
+    },
+    {
+      "run": "runs-20261104T120219Z",
+      "actualCliProcesses": 1,
+      "operatorFailureFile": true,
+      "manualStopFile": false,
+      "cleanupFile": true,
+      "cleanupCorrectionFile": true,
+      "preflightOnlyNoModel": false
+    },
+    {
+      "run": "runs-20261104T120350Z",
+      "actualCliProcesses": 8,
+      "operatorFailureFile": false,
+      "manualStopFile": false,
+      "cleanupFile": true,
+      "cleanupCorrectionFile": false,
+      "preflightOnlyNoModel": false
+    },
+    {
+      "run": "runs-20261104T122307Z",
+      "actualCliProcesses": 2,
+      "operatorFailureFile": false,
+      "manualStopFile": false,
+      "cleanupFile": true,
+      "cleanupCorrectionFile": false,
+      "preflightOnlyNoModel": false
+    }
+  ],
+  "attempts": [
+    {
+      "run": "runs-20261104T115443Z",
+      "case": "claude-M02",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "wrong missing-token precondition (loopback token exemption) / inside-repo home; preserved",
+      "inputSha256": "b71b60a0d4422ae372332ef9f3b18c2bee47e27b626d6999983b84fd8bfddaf1",
+      "receipt": "runs-20261104T115443Z/claude-M02/model-output/initial.receipt.json",
+      "rawStdoutSha256": "cc70ed62cfe9fd3e5815c51b5a60e1cb07d70cf1b21ca0a063c4a7add2557a3c",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T115443Z",
+      "case": "codex-M02",
+      "phase": "initial",
+      "engine": "codex",
+      "actualModels": [
+        "gpt-6.1-sol"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 0,
+      "hostPolicyBlocked": true,
+      "classification": "native_host_policy_block; not a product/model workflow pass",
+      "inputSha256": "b71b60a0d4422ae372332ef9f3b18c2bee47e27b626d6999983b84fd8bfddaf1",
+      "receipt": "runs-20261104T115443Z/codex-M02/model-output/initial.receipt.json",
+      "rawStdoutSha256": "7e0df18210850e03aebf47d593e2744da99e6d631f85556a6c96b5b6724192c5",
+      "rawStderrSha256": "f4cefbfc30b00dd9fcae8838b8a25024057a6f2de13c1443bc8e22bdaeb7cd86"
+    },
+    {
+      "run": "runs-20261104T115640Z",
+      "case": "claude-M02",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "correct token absence, inside-repo home fixture guard; preserved",
+      "inputSha256": "b71b60a0d4422ae372332ef9f3b18c2bee47e27b626d6999983b84fd8bfddaf1",
+      "receipt": "runs-20261104T115640Z/claude-M02/model-output/initial.receipt.json",
+      "rawStdoutSha256": "84e2012d08494f92a3c176aff94283d66da17de1ca2afc75e25f7b4814c13916",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T115640Z",
+      "case": "codex-M02",
+      "phase": "initial",
+      "engine": "codex",
+      "actualModels": [
+        "gpt-6.1-sol"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 0,
+      "hostPolicyBlocked": true,
+      "classification": "native_host_policy_block; not a product/model workflow pass",
+      "inputSha256": "b71b60a0d4422ae372332ef9f3b18c2bee47e27b626d6999983b84fd8bfddaf1",
+      "receipt": "runs-20261104T115640Z/codex-M02/model-output/initial.receipt.json",
+      "rawStdoutSha256": "c667ec3111b338d890557072dc86684fbfb82db9454189d361ff39d26e0082a1",
+      "rawStderrSha256": "796df4811e4cd64401004a9cbc42fab50e2e8af9d771f3213e9bb27090c1f713"
+    },
+    {
+      "run": "runs-20261104T115829Z",
+      "case": "claude-M01",
+      "phase": "followup-new-cli-session",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": null,
+      "timeout": null,
+      "modelFinalResultEvents": 0,
+      "hostPolicyBlocked": false,
+      "classification": "earlier initial / separately started continuation; batch stopped for fixture correction",
+      "inputSha256": "6d8e9dd787b0462170cac0eec231605668cff084e859e46a5e31e8f173dfd98f",
+      "receipt": null,
+      "rawStdoutSha256": "60ff1a614ff70fa1870b61367012ea4ab630616571f3720c44ed0eb889e83415",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T115829Z",
+      "case": "claude-M01",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "earlier initial / separately started continuation; batch stopped for fixture correction",
+      "inputSha256": "0805fcc8defe5e2ed8d5c4a4124496ce13693f131438ec64691bbb18bbb20412",
+      "receipt": "runs-20261104T115829Z/claude-M01/model-output/initial.receipt.json",
+      "rawStdoutSha256": "a19ff2245eb3b81854a6bc2616f14c045da65ca43280a821d89ab07342b83ced",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T120219Z",
+      "case": "claude-M01",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": null,
+      "timeout": null,
+      "modelFinalResultEvents": 0,
+      "hostPolicyBlocked": false,
+      "classification": "owned stream-parser failure with explicit cleanup correction; not product failure",
+      "inputSha256": "0805fcc8defe5e2ed8d5c4a4124496ce13693f131438ec64691bbb18bbb20412",
+      "receipt": null,
+      "rawStdoutSha256": "808f91de0c1c69870e5cd388f2eb0b7583ff6244a985edacea4c3b7fd4e0810a",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T120350Z",
+      "case": "claude-M01",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 2,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 2,
+      "hostPolicyBlocked": false,
+      "classification": "primary scoped actual-model observation; see per-clause report",
+      "inputSha256": "0805fcc8defe5e2ed8d5c4a4124496ce13693f131438ec64691bbb18bbb20412",
+      "receipt": "runs-20261104T120350Z/claude-M01/model-output/initial.receipt.json",
+      "rawStdoutSha256": "0000b09700dad23596e9e2818ec7e8fc288e52e79fedff1b19ebb61919fc7e9b",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T120350Z",
+      "case": "claude-M02",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "primary scoped actual-model observation; see per-clause report",
+      "inputSha256": "b71b60a0d4422ae372332ef9f3b18c2bee47e27b626d6999983b84fd8bfddaf1",
+      "receipt": "runs-20261104T120350Z/claude-M02/model-output/initial.receipt.json",
+      "rawStdoutSha256": "0f34257a4b27ba5f4d6d12bed08a11277680579fb58887474b70afc3835e8be1",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T120350Z",
+      "case": "claude-M03",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "primary scoped actual-model observation; see per-clause report",
+      "inputSha256": "f9cd66348dc8ac80fe6bfd30145a948fd6b35cffa6fed87290c512509195ca6d",
+      "receipt": "runs-20261104T120350Z/claude-M03/model-output/initial.receipt.json",
+      "rawStdoutSha256": "aa126da3429dae14990eaaba90147b90a9cb9520cb028cd89e6e10fd513a313f",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T120350Z",
+      "case": "claude-M04",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "primary scoped actual-model observation; see per-clause report",
+      "inputSha256": "876aee84e06ae13d74335bc9c262cfbf83975d114bfab3c8bb40f24095bd2b63",
+      "receipt": "runs-20261104T120350Z/claude-M04/model-output/initial.receipt.json",
+      "rawStdoutSha256": "3dd5eca87711519acff77bf6ba199cf50c990fc034d483ee6ee3adbc678e44b7",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T120350Z",
+      "case": "claude-M05",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "primary scoped actual-model observation; see per-clause report",
+      "inputSha256": "f4f7b0e691fad02327233d3892c3cb28b67a7616b3c5e60c4ad78efa55806bd8",
+      "receipt": "runs-20261104T120350Z/claude-M05/model-output/initial.receipt.json",
+      "rawStdoutSha256": "c5a6f1065284d1c3f58a78a118e152158c99ed1f88e20275ac47098b50ff719f",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T120350Z",
+      "case": "claude-M06",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "primary scoped actual-model observation; see per-clause report",
+      "inputSha256": "f20476337694e9296b63caed55086ef45169cd1903ea28c8f6647112a1cf6e4f",
+      "receipt": "runs-20261104T120350Z/claude-M06/model-output/initial.receipt.json",
+      "rawStdoutSha256": "64c51e9917b014b70e6b865caa85a426a69e88fc677dc016f25ba317ba0ff014",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T120350Z",
+      "case": "claude-M07",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 2,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 2,
+      "hostPolicyBlocked": false,
+      "classification": "primary scoped actual-model observation; see per-clause report",
+      "inputSha256": "330b9e182b300b29625df43b47dd02bc5cfe879b200253976080c1fb48395370",
+      "receipt": "runs-20261104T120350Z/claude-M07/model-output/initial.receipt.json",
+      "rawStdoutSha256": "261db5fb29e8d10361582d6d5c5db5c2b1f90bc8b57fd33f664ddf4de3706634",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T120350Z",
+      "case": "claude-M08",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "primary scoped actual-model observation; see per-clause report",
+      "inputSha256": "0978f8163211ea954f0b7e4c8f707812d6782b7b52fe396e5ffd9fb274102829",
+      "receipt": "runs-20261104T120350Z/claude-M08/model-output/initial.receipt.json",
+      "rawStdoutSha256": "90f6078a6b47ed2cc636cebc230d535b6ff05c5ce5b09bb79df2959601f3c6ef",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T122307Z",
+      "case": "claude-M05",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "bounded supplemental observation; does not replace original attempt",
+      "inputSha256": "f4f7b0e691fad02327233d3892c3cb28b67a7616b3c5e60c4ad78efa55806bd8",
+      "receipt": "runs-20261104T122307Z/claude-M05/model-output/initial.receipt.json",
+      "rawStdoutSha256": "9756c93951c3578e8976e01ef5b89d1811cfc01de74d3955ea5fc62a37d9f098",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run": "runs-20261104T122307Z",
+      "case": "claude-M08",
+      "phase": "initial",
+      "engine": "claude",
+      "actualModels": [
+        "claude-opus-5-5"
+      ],
+      "identitySource": "actual CLI header/assistant stream; no default-model inference",
+      "actualInputTurnCount": 1,
+      "exit": 0,
+      "timeout": false,
+      "modelFinalResultEvents": 1,
+      "hostPolicyBlocked": false,
+      "classification": "bounded supplemental observation; does not replace original attempt",
+      "inputSha256": "0978f8163211ea954f0b7e4c8f707812d6782b7b52fe396e5ffd9fb274102829",
+      "receipt": "runs-20261104T122307Z/claude-M08/model-output/initial.receipt.json",
+      "rawStdoutSha256": "a9146d662a93b1eaa9fc6c4aff12557a2bdd3b05ff5754daecab0ba07ee32c43",
+      "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "scopeLimits": [
+    "CLI process counts are execution inventory, not QA pass counts.",
+    "Primary/supplemental/earlier failed attempts remain separate.",
+    "No fallback model or API-key run was introduced."
+  ]
+}

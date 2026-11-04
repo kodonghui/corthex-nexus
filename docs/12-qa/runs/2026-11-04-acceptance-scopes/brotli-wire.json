@@ -1,0 +1,197 @@
+{
+  "schema": "nexus-svg-dev-wire/1",
+  "checkedAt": "2026-11-04T12:34:39.834Z",
+  "candidate": "c0434727a058e9981a54b513996e48ecd39a103f",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "readOnly": true,
+  "html": [
+    {
+      "encodingRequested": "br",
+      "status": 200,
+      "encodingReceived": "br",
+      "wireBytes": 11399,
+      "decodedBytes": 274243,
+      "noStore": true,
+      "cspMatches": true,
+      "initialSvg": true,
+      "trustedInlineCss": true,
+      "noSetCookie": true,
+      "varyAcceptEncoding": true
+    },
+    {
+      "encodingRequested": "gzip",
+      "status": 200,
+      "encodingReceived": "gzip",
+      "wireBytes": 16519,
+      "decodedBytes": 274243,
+      "noStore": true,
+      "cspMatches": true,
+      "initialSvg": true,
+      "trustedInlineCss": true,
+      "noSetCookie": true,
+      "varyAcceptEncoding": true
+    },
+    {
+      "encodingRequested": "identity",
+      "status": 200,
+      "encodingReceived": "identity",
+      "wireBytes": 274243,
+      "decodedBytes": 274243,
+      "noStore": true,
+      "cspMatches": true,
+      "initialSvg": true,
+      "trustedInlineCss": true,
+      "noSetCookie": true,
+      "varyAcceptEncoding": true
+    },
+    {
+      "encodingRequested": "br,gzip,zstd",
+      "status": 200,
+      "encodingReceived": "br",
+      "wireBytes": 11399,
+      "decodedBytes": 274243,
+      "noStore": true,
+      "cspMatches": true,
+      "initialSvg": true,
+      "trustedInlineCss": true,
+      "noSetCookie": true,
+      "varyAcceptEncoding": true
+    }
+  ],
+  "code": [
+    {
+      "entry": "view-js",
+      "attempt": 1,
+      "status": 200,
+      "payloadMatches": true,
+      "cacheStatus": "HIT",
+      "ageSeconds": 5145,
+      "publicImmutable": true,
+      "noSetCookie": true,
+      "noVaryStar": true,
+      "decodedBytes": 73974
+    },
+    {
+      "entry": "view-js",
+      "attempt": 2,
+      "status": 200,
+      "payloadMatches": true,
+      "cacheStatus": "HIT",
+      "ageSeconds": 5148,
+      "publicImmutable": true,
+      "noSetCookie": true,
+      "noVaryStar": true,
+      "decodedBytes": 73974
+    },
+    {
+      "entry": "view-css",
+      "attempt": 1,
+      "status": 200,
+      "payloadMatches": true,
+      "cacheStatus": "HIT",
+      "ageSeconds": 5096,
+      "publicImmutable": true,
+      "noSetCookie": true,
+      "noVaryStar": true,
+      "decodedBytes": 13308
+    },
+    {
+      "entry": "view-css",
+      "attempt": 2,
+      "status": 200,
+      "payloadMatches": true,
+      "cacheStatus": "HIT",
+      "ageSeconds": 5096,
+      "publicImmutable": true,
+      "noSetCookie": true,
+      "noVaryStar": true,
+      "decodedBytes": 13308
+    },
+    {
+      "entry": "font-preload",
+      "attempt": 1,
+      "status": 200,
+      "payloadMatches": true,
+      "cacheStatus": "HIT",
+      "ageSeconds": 5096,
+      "publicImmutable": true,
+      "noSetCookie": true,
+      "noVaryStar": true,
+      "decodedBytes": 20232
+    },
+    {
+      "entry": "font-preload",
+      "attempt": 2,
+      "status": 200,
+      "payloadMatches": true,
+      "cacheStatus": "HIT",
+      "ageSeconds": 5097,
+      "publicImmutable": true,
+      "noSetCookie": true,
+      "noVaryStar": true,
+      "decodedBytes": 20232
+    }
+  ],
+  "anonymous": [
+    {
+      "entry": "view-js",
+      "method": "GET",
+      "status": 302,
+      "bodyBytes": 143,
+      "noCode": true,
+      "headEmpty": true
+    },
+    {
+      "entry": "view-js",
+      "method": "HEAD",
+      "status": 302,
+      "bodyBytes": 0,
+      "noCode": true,
+      "headEmpty": true
+    },
+    {
+      "entry": "view-css",
+      "method": "GET",
+      "status": 302,
+      "bodyBytes": 143,
+      "noCode": true,
+      "headEmpty": true
+    },
+    {
+      "entry": "view-css",
+      "method": "HEAD",
+      "status": 302,
+      "bodyBytes": 0,
+      "noCode": true,
+      "headEmpty": true
+    },
+    {
+      "entry": "font-preload",
+      "method": "GET",
+      "status": 302,
+      "bodyBytes": 143,
+      "noCode": true,
+      "headEmpty": true
+    },
+    {
+      "entry": "font-preload",
+      "method": "HEAD",
+      "status": 302,
+      "bodyBytes": 0,
+      "noCode": true,
+      "headEmpty": true
+    }
+  ],
+  "bootstrap": {
+    "status": 200,
+    "cookieIssued": true,
+    "bodyBytes": 0,
+    "valuesSaved": false
+  },
+  "head": {
+    "status": 200,
+    "bodyBytes": 0,
+    "noStore": true
+  },
+  "passed": true
+}

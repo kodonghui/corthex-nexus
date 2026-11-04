@@ -2,7 +2,7 @@
 
 [한국어](nexus.ko.md)
 
-Stage 10 of CORTHEX’s own project. Status: plan approved with repository split and standalone server on 2026-11-04; execution in progress. English is the source; the Notion databases follow it (`truth: source`). Implementation is authorized now on `codex/nexus-0.2`; the maintainer may adjust this plan while the first trials and migrations proceed. Main merge, production deployment and release tags wait for C1 0.2.0 and the maintainer’s release confirmation.
+Stage 10 of CORTHEX’s own project. Status: plan approved with repository split and standalone server on 2026-11-04; execution in progress. English is the source; the Notion databases follow it (`truth: source`). Implementation is authorized now on `codex/nexus-0.2`; the maintainer may adjust this plan while the first trials and migrations proceed. Main merge, production transition and release tags follow the conditional approval below; every release gate must pass first.
 
 Inputs: [functional spec](../04-functional-spec/nexus.md), [schema](../05-erd/nexus.md), [API contract](../06-api/nexus.md), [screens](../08-screens/nexus/README.md), [mockups](../09-mockup/nexus/README.md) and their Notes for later stages. All 01–09 checkpoints passed on 2026-11-03. SPEC-134 and SPEC-142 stay phase ②; the tables retain their future fields.
 
@@ -99,14 +99,14 @@ Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) lists
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | TASK-244 | Read agent work from entry and stage skills | SPEC-112, SPEC-135, SPEC-136 | REQ-181, REQ-185, plugins/corthex | C1 0.2.0 tag, PR C, PR D (kodonghui/corthex#83), TASK-235 | agent | M | Merge latest main first; once/session/project to-do reads prioritize explicit user work, absent tokens do not stop work and claims/holds are respected. | in progress |
 | TASK-245 | Teach stage records, reflection and timeline steps | SPEC-106, SPEC-132, SPEC-133, SPEC-137, SPEC-140 | REQ-086, REQ-131, REQ-154, REQ-167, REQ-168, REQ-212 | TASK-244, TASK-231 | agent | M | Update stage references, stage-contract where needed, hub stage table and template-reading tests together; write work/checkpoints by PR and verify standing before merge. | in progress |
-| TASK-246 | Document project parts and ask_before | SPEC-110, SPEC-137 | plugins/corthex, .corthex/project.json, TBL-115 | TASK-244 | agent | S | After PR C, project reference/examples and sitemap terms/status agree; repository parts memory/nexus and both stage records preserve latest MEMORY source states. | todo |
+| TASK-246 | Document project parts and ask_before | SPEC-110, SPEC-137 | plugins/corthex, .corthex/project.json, TBL-115 | TASK-244 | agent | S | After PR C, align parts/ask_before and sitemap terms/status. Under the approved source split, upstream declares memory and the product nexus; preserve verified MEMORY states and unknown/missing records. | in progress |
 
 ## Integration
 
 | ID | Task | From | Touches | Depends on | Owner | Estimate | Done when | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | TASK-247 | Prepare versions, guides and architecture | SPEC-113, SPEC-137 | REQ-126, manifests, README pairs, NOTICE | TASK-245, TASK-246, TASK-237, TASK-242 | agent | M | NEXUS 0.2.0 and next main core version agree in both manifests/all skill metadata; bilingual guides describe dev, migrations and server-first upgrades; no production deploy/tag. | in progress |
-| TASK-253 | Reconcile main and hand over release evidence | SPEC-104–SPEC-141 | docs/10-wbs/nexus.md, docs/12-qa/nexus.md, draft PR | TASK-247, TASK-249, TASK-250, TASK-251, TASK-252 | agent | M | All source tasks/results and Notion copies agree; latest-main full checks name the exact tree; draft lists bundle PRs/design changes/untested work and waits for release, main merge, deploy and tag confirmation. | todo |
+| TASK-253 | Reconcile main and hand over release evidence | SPEC-104–SPEC-141 | docs/10-wbs/nexus.md, docs/12-qa/nexus.md, draft PR | TASK-247, TASK-249, TASK-250, TASK-251, TASK-252 | agent | M | Source tasks/results and Notion agree; latest-main checks name the exact tree; release proceeds under the 2026-11-04 conditional approval only when every gate passes. List remaining issues and bundle PRs; first repository upload still requires REQ-107 confirmation. | in progress |
 
 ## QA
 
@@ -183,7 +183,7 @@ The server rows name every declared response. The QA cases also distinguish the 
 - TASK-209 waits for TASK-201’s real Access identity trial. If neither ctx.access nor verified JWT fields distinguish both identities, take the alternatives to the maintainer.
 - TASK-238 waits for TASK-224’s mobile/editor and code-size trial. A required additional development dependency, changed editor choice, frozen token change or breached performance limit goes to the maintainer; independent server/hub work continues.
 - TASK-244–TASK-247 wait for `corthex-memory--v0.2.0`, PR C and PR D (kodonghui/corthex#83) on main.
-- TASK-253 waits for all QA evidence. Release, main merge, production deployment, tags and the first upload of this repository remain explicit maintainer decisions.
+- TASK-253 waits for all QA evidence and the 2026-11-04 conditional-release gates. When every gate passes, the existing approval permits main merges, production transition and tags without another question. The first repository upload still follows REQ-107; deleting retained Worker/D1 resources requires its separate later decision.
 
 ## Choices this stage made
 
@@ -195,7 +195,7 @@ The server rows name every declared response. The QA cases also distinguish the 
 
 ## For the checkpoint
 
-Approved on 2026-11-04: the maintainer supplied the OVH answer and repository-split follow-up (A, move now), and confirmed “proceed with this plan” on the plan decision card in the working conversation. The original 54 tasks(S 7/M 39/L 8) plus TASK-255–264 make 64(S 7/M 47/L 10), with 710 QA cases. Order: split → product plans/contracts → standalone server → views → complete QA. Core follows C1/PR C/PR D; SPEC-134/142 stay phase②. Release/main merge, production data/address switch, tags, first real repository snapshot upload and retirement of rollback resources remain one separate final decision. Recorded 2026-11-04 08:08 KST; message provenance and precise receipt times remain in private working records.
+Approved on 2026-11-04: the maintainer supplied the OVH answer and repository-split follow-up (A, move now), and confirmed “proceed with this plan” on the plan decision card in the working conversation. The original 54 tasks(S 7/M 39/L 8) plus TASK-255–264 make 64(S 7/M 47/L 10), with 710 QA cases. Order: split → product plans/contracts → standalone server → views → complete QA. Core follows C1/PR C/PR D; SPEC-134/142 stay phase②. The original final-confirmation requirement recorded at 08:08 KST was superseded by the maintainer's 14:21 KST conditional approval for main merges, production transition and tags. REQ-107 first upload and later retirement of rollback resources remain separate decisions. Message provenance and precise receipt times remain in private working records.
 
 ## Notes for later stages
 
@@ -263,3 +263,5 @@ The preview uses the same deterministic geometry and checked source as the edito
 Trusted static view CSS may be inlined so a stylesheet request does not block the preview. HTML, SVG project content and API data remain no-store; hashed code/style/fonts retain the approved Access-protected public immutable cache. The standalone server may negotiate bounded built-in HTML compression to reduce Tunnel transfer. No project data is placed in a public code file or cache. Neither this decision nor a preview is a release, first real-repository upload, or approval to delete Worker/D1. Existing conditional-release gates remain.
 
 TASK-250:59 remaining CLI outcomes now have methods preserving their original TC IDs. Windows Python3.8/3.13 each59/59; new Linux/macOS CI remains pending.65 scoped backend partial verdicts and first-SVG findings are in the [QA bundle](../12-qa/runs/2026-11-04-acceptance-audit.md).
+
+2026-11-04 evidence: core0.7 candidate d997b688/PR120, full1039/15existing skips/strict4/source Code-Security0. CLI62 pass/16 remaining clauses, actual-model/own-repository/mobile60 and Brotli transport evidence are in [scope record](../12-qa/runs/2026-11-04-acceptance-scopes.md). Tasks64=done14/in progress50/todo0; release follows the existing conditions.

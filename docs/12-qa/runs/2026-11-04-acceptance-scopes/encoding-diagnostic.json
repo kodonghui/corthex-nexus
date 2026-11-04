@@ -1,0 +1,734 @@
+{
+  "schema": "nexus-http2-encoding-safe-summary/1",
+  "phase": "diagnostic-only-not-mobile-p95",
+  "clientNode": "v24.18.0",
+  "serverNode": "24.21 (parent-confirmed; not queried by this harness)",
+  "candidateCommit": "c0434727a058e9981a54b513996e48ecd39a103f",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "harnessSha256": "0aa29c5e9ed9dad894e08a0f7a807cd37513fe64e276eb757c8ddcc907adb420",
+  "startedAtUtc": "2026-11-04T11:57:14.826Z",
+  "finishedAtUtc": "2026-11-04T11:58:08.213Z",
+  "formalMobileP95": false,
+  "browser": false,
+  "cpuOrNetworkThrottling": false,
+  "rootLocalCoreTestsAllowed": true,
+  "getSlots": 20,
+  "headBootstrapAttempts": 1,
+  "postRequests": 0,
+  "retries": 0,
+  "freshHttp2Connections": true,
+  "concurrency": 1,
+  "deadlineMs": 20000,
+  "rawValuesPersisted": false,
+  "allConnectionsClosed": true,
+  "afterRunHttpRequests": 0,
+  "allHtmlStatus200": true,
+  "allHtmlCspMatched": true,
+  "allHtmlNoStore": true,
+  "allHtmlNoSetCookie": true,
+  "metroEnums": [
+    "LAX"
+  ],
+  "protocolEnums": [
+    "h2"
+  ],
+  "all": 20,
+  "arms": [
+    {
+      "arm": "A",
+      "slots": 10,
+      "completed": 10,
+      "valid": 10,
+      "timeouts": 0,
+      "actualEncodings": {
+        "zstd": 10
+      },
+      "connectMs": {
+        "n": 10,
+        "min": 485.4837000000007,
+        "median": 496.2333000000026,
+        "max": 1383.4910000000018
+      },
+      "ttfbAfterRequestIssueMs": {
+        "n": 10,
+        "min": 628.4684000000052,
+        "median": 1010.6375500000004,
+        "max": 1476.3083000000001
+      },
+      "headersToBodyEofMs": {
+        "n": 10,
+        "min": 0.30459999999948195,
+        "median": 7.646399999997811,
+        "max": 3501.2730999999985
+      },
+      "elapsedUntilTerminationMs": {
+        "n": 10,
+        "min": 1133.4522999999972,
+        "median": 1630.7127999999984,
+        "max": 5139.494400000003
+      },
+      "encodedDataBytes": {
+        "n": 10,
+        "min": 10299,
+        "median": 11332,
+        "max": 18236
+      }
+    },
+    {
+      "arm": "B",
+      "slots": 10,
+      "completed": 10,
+      "valid": 10,
+      "timeouts": 0,
+      "actualEncodings": {
+        "br": 10
+      },
+      "connectMs": {
+        "n": 10,
+        "min": 485.6412,
+        "median": 503.5725000000002,
+        "max": 1572.8588
+      },
+      "ttfbAfterRequestIssueMs": {
+        "n": 10,
+        "min": 622.8934999999983,
+        "median": 644.1641,
+        "max": 2372.6651
+      },
+      "headersToBodyEofMs": {
+        "n": 10,
+        "min": 0.38259999999900174,
+        "median": 6.2559499999970285,
+        "max": 724.9847999999984
+      },
+      "elapsedUntilTerminationMs": {
+        "n": 10,
+        "min": 1134.1026999999958,
+        "median": 1562.6869999999985,
+        "max": 3946.1733000000004
+      },
+      "encodedDataBytes": {
+        "n": 10,
+        "min": 9584,
+        "median": 11111,
+        "max": 17663
+      }
+    }
+  ],
+  "stageArms": [
+    {
+      "stage": "01-domain",
+      "arm": "A",
+      "slots": 4,
+      "completed": 4,
+      "valid": 4,
+      "timeouts": 0,
+      "actualEncodings": {
+        "zstd": 4
+      },
+      "connectMs": {
+        "n": 4,
+        "min": 492.9582999999984,
+        "median": 494.1586500000003,
+        "max": 500.15350000000035
+      },
+      "ttfbAfterRequestIssueMs": {
+        "n": 4,
+        "min": 634.6729999999989,
+        "median": 635.4063999999998,
+        "max": 1476.3083000000001
+      },
+      "headersToBodyEofMs": {
+        "n": 4,
+        "min": 4.941899999997986,
+        "median": 5.633949999999459,
+        "max": 1578.4951
+      },
+      "elapsedUntilTerminationMs": {
+        "n": 4,
+        "min": 1133.4522999999972,
+        "median": 1137.7864999999983,
+        "max": 3549.8576000000003
+      },
+      "encodedDataBytes": {
+        "n": 4,
+        "min": 10299,
+        "median": 10961,
+        "max": 10961
+      }
+    },
+    {
+      "stage": "01-domain",
+      "arm": "B",
+      "slots": 3,
+      "completed": 3,
+      "valid": 3,
+      "timeouts": 0,
+      "actualEncodings": {
+        "br": 3
+      },
+      "connectMs": {
+        "n": 3,
+        "min": 486.3158000000003,
+        "median": 504.5054000000018,
+        "max": 1572.8588
+      },
+      "ttfbAfterRequestIssueMs": {
+        "n": 3,
+        "min": 623.4544000000024,
+        "median": 647.4238000000005,
+        "max": 2372.6651
+      },
+      "headersToBodyEofMs": {
+        "n": 3,
+        "min": 0.38259999999900174,
+        "median": 4.42870000000039,
+        "max": 19.521600000000035
+      },
+      "elapsedUntilTerminationMs": {
+        "n": 3,
+        "min": 1138.4128000000019,
+        "median": 1147.670100000003,
+        "max": 3946.1733000000004
+      },
+      "encodedDataBytes": {
+        "n": 3,
+        "min": 9584,
+        "median": 9584,
+        "max": 9595
+      }
+    },
+    {
+      "stage": "05-erd",
+      "arm": "A",
+      "slots": 3,
+      "completed": 3,
+      "valid": 3,
+      "timeouts": 0,
+      "actualEncodings": {
+        "zstd": 3
+      },
+      "connectMs": {
+        "n": 3,
+        "min": 497.76970000000074,
+        "median": 499.78830000000016,
+        "max": 1383.4910000000018
+      },
+      "ttfbAfterRequestIssueMs": {
+        "n": 3,
+        "min": 628.4684000000052,
+        "median": 995.7036000000007,
+        "max": 1125.9610999999986
+      },
+      "headersToBodyEofMs": {
+        "n": 3,
+        "min": 0.30459999999948195,
+        "median": 8.468199999995704,
+        "max": 12.640699999999924
+      },
+      "elapsedUntilTerminationMs": {
+        "n": 3,
+        "min": 1494.0980999999992,
+        "median": 1638.6619999999984,
+        "max": 2020.5849999999991
+      },
+      "encodedDataBytes": {
+        "n": 3,
+        "min": 10998,
+        "median": 11666,
+        "max": 11667
+      }
+    },
+    {
+      "stage": "05-erd",
+      "arm": "B",
+      "slots": 4,
+      "completed": 4,
+      "valid": 4,
+      "timeouts": 0,
+      "actualEncodings": {
+        "br": 4
+      },
+      "connectMs": {
+        "n": 4,
+        "min": 485.6412,
+        "median": 645.3287500000006,
+        "max": 1479.590400000001
+      },
+      "ttfbAfterRequestIssueMs": {
+        "n": 4,
+        "min": 622.8934999999983,
+        "median": 787.7386500000048,
+        "max": 1134.026600000001
+      },
+      "headersToBodyEofMs": {
+        "n": 4,
+        "min": 3.580999999998312,
+        "median": 5.131099999996877,
+        "max": 14.502499999995052
+      },
+      "elapsedUntilTerminationMs": {
+        "n": 4,
+        "min": 1134.1026999999958,
+        "median": 1687.9610500000003,
+        "max": 2107.4236999999994
+      },
+      "encodedDataBytes": {
+        "n": 4,
+        "min": 10960,
+        "median": 11111,
+        "max": 11112
+      }
+    },
+    {
+      "stage": "07-sitemap",
+      "arm": "A",
+      "slots": 3,
+      "completed": 3,
+      "valid": 3,
+      "timeouts": 0,
+      "actualEncodings": {
+        "zstd": 3
+      },
+      "connectMs": {
+        "n": 3,
+        "min": 485.4837000000007,
+        "median": 495.0430000000051,
+        "max": 497.4236000000001
+      },
+      "ttfbAfterRequestIssueMs": {
+        "n": 3,
+        "min": 1025.5715,
+        "median": 1130.1407999999974,
+        "max": 1143.0283000000054
+      },
+      "headersToBodyEofMs": {
+        "n": 3,
+        "min": 6.8245999999999185,
+        "median": 345.98649999999907,
+        "max": 3501.2730999999985
+      },
+      "elapsedUntilTerminationMs": {
+        "n": 3,
+        "min": 1622.7635999999984,
+        "median": 1869.3765000000003,
+        "max": 5139.494400000003
+      },
+      "encodedDataBytes": {
+        "n": 3,
+        "min": 18235,
+        "median": 18236,
+        "max": 18236
+      }
+    },
+    {
+      "stage": "07-sitemap",
+      "arm": "B",
+      "slots": 3,
+      "completed": 3,
+      "valid": 3,
+      "timeouts": 0,
+      "actualEncodings": {
+        "br": 3
+      },
+      "connectMs": {
+        "n": 3,
+        "min": 491.97989999999845,
+        "median": 502.6395999999986,
+        "max": 1487.7459999999992
+      },
+      "ttfbAfterRequestIssueMs": {
+        "n": 3,
+        "min": 623.1432000000023,
+        "median": 640.9043999999994,
+        "max": 992.5074000000022
+      },
+      "headersToBodyEofMs": {
+        "n": 3,
+        "min": 6.586899999998423,
+        "median": 10.064599999997881,
+        "max": 724.9847999999984
+      },
+      "elapsedUntilTerminationMs": {
+        "n": 3,
+        "min": 1143.1771999999983,
+        "median": 1501.904599999998,
+        "max": 2836.276999999998
+      },
+      "encodedDataBytes": {
+        "n": 3,
+        "min": 17611,
+        "median": 17662,
+        "max": 17663
+      }
+    }
+  ],
+  "rows": [
+    {
+      "ordinal": 1,
+      "stage": "01-domain",
+      "arm": "A",
+      "startedAtUtc": "2026-11-04T11:57:17.467Z",
+      "finishedAtUtc": "2026-11-04T11:57:21.017Z",
+      "status": 200,
+      "encoding": "zstd",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 1476.3083000000001,
+      "headersToFirstDataMs": 0.3926999999994223,
+      "headersToEofMs": 1578.4951,
+      "encodedDataBytes": 10299,
+      "elapsedMs": 3549.8576000000003
+    },
+    {
+      "ordinal": 2,
+      "stage": "05-erd",
+      "arm": "B",
+      "startedAtUtc": "2026-11-04T11:57:21.376Z",
+      "finishedAtUtc": "2026-11-04T11:57:23.000Z",
+      "status": 200,
+      "encoding": "br",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 1134.026600000001,
+      "headersToFirstDataMs": 0.3026999999983673,
+      "headersToEofMs": 3.580999999998312,
+      "encodedDataBytes": 11110,
+      "elapsedMs": 1623.469399999999
+    },
+    {
+      "ordinal": 3,
+      "stage": "07-sitemap",
+      "arm": "A",
+      "startedAtUtc": "2026-11-04T11:57:23.358Z",
+      "finishedAtUtc": "2026-11-04T11:57:25.227Z",
+      "status": 200,
+      "encoding": "zstd",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 1025.5715,
+      "headersToFirstDataMs": 0.138199999999415,
+      "headersToEofMs": 345.98649999999907,
+      "encodedDataBytes": 18236,
+      "elapsedMs": 1869.3765000000003
+    },
+    {
+      "ordinal": 4,
+      "stage": "01-domain",
+      "arm": "B",
+      "startedAtUtc": "2026-11-04T11:57:25.584Z",
+      "finishedAtUtc": "2026-11-04T11:57:29.530Z",
+      "status": 200,
+      "encoding": "br",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 2372.6651,
+      "headersToFirstDataMs": 0.10559999999895808,
+      "headersToEofMs": 0.38259999999900174,
+      "encodedDataBytes": 9584,
+      "elapsedMs": 3946.1733000000004
+    },
+    {
+      "ordinal": 5,
+      "stage": "05-erd",
+      "arm": "A",
+      "startedAtUtc": "2026-11-04T11:57:29.870Z",
+      "finishedAtUtc": "2026-11-04T11:57:31.509Z",
+      "status": 200,
+      "encoding": "zstd",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 1125.9610999999986,
+      "headersToFirstDataMs": 0.39970000000175787,
+      "headersToEofMs": 12.640699999999924,
+      "encodedDataBytes": 10998,
+      "elapsedMs": 1638.6619999999984
+    },
+    {
+      "ordinal": 6,
+      "stage": "07-sitemap",
+      "arm": "B",
+      "startedAtUtc": "2026-11-04T11:57:31.871Z",
+      "finishedAtUtc": "2026-11-04T11:57:34.708Z",
+      "status": 200,
+      "encoding": "br",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 623.1432000000023,
+      "headersToFirstDataMs": 0.1238999999986845,
+      "headersToEofMs": 724.9847999999984,
+      "encodedDataBytes": 17663,
+      "elapsedMs": 2836.276999999998
+    },
+    {
+      "ordinal": 7,
+      "stage": "01-domain",
+      "arm": "A",
+      "startedAtUtc": "2026-11-04T11:57:35.054Z",
+      "finishedAtUtc": "2026-11-04T11:57:36.188Z",
+      "status": 200,
+      "encoding": "zstd",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 634.6729999999989,
+      "headersToFirstDataMs": 0.14870000000155414,
+      "headersToEofMs": 4.941899999997986,
+      "encodedDataBytes": 10961,
+      "elapsedMs": 1133.4522999999972
+    },
+    {
+      "ordinal": 8,
+      "stage": "05-erd",
+      "arm": "B",
+      "startedAtUtc": "2026-11-04T11:57:36.533Z",
+      "finishedAtUtc": "2026-11-04T11:57:38.641Z",
+      "status": 200,
+      "encoding": "br",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 623.2264000000032,
+      "headersToFirstDataMs": 0.18919999999707215,
+      "headersToEofMs": 4.33719999999812,
+      "encodedDataBytes": 11112,
+      "elapsedMs": 2107.4236999999994
+    },
+    {
+      "ordinal": 9,
+      "stage": "07-sitemap",
+      "arm": "A",
+      "startedAtUtc": "2026-11-04T11:57:38.995Z",
+      "finishedAtUtc": "2026-11-04T11:57:40.618Z",
+      "status": 200,
+      "encoding": "zstd",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 1130.1407999999974,
+      "headersToFirstDataMs": 0.12139999999999418,
+      "headersToEofMs": 6.8245999999999185,
+      "encodedDataBytes": 18236,
+      "elapsedMs": 1622.7635999999984
+    },
+    {
+      "ordinal": 10,
+      "stage": "01-domain",
+      "arm": "B",
+      "startedAtUtc": "2026-11-04T11:57:41.639Z",
+      "finishedAtUtc": "2026-11-04T11:57:42.778Z",
+      "status": 200,
+      "encoding": "br",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 647.4238000000005,
+      "headersToFirstDataMs": 0.1110000000007858,
+      "headersToEofMs": 4.42870000000039,
+      "encodedDataBytes": 9584,
+      "elapsedMs": 1138.4128000000019
+    },
+    {
+      "ordinal": 11,
+      "stage": "05-erd",
+      "arm": "A",
+      "startedAtUtc": "2026-11-04T11:57:43.130Z",
+      "finishedAtUtc": "2026-11-04T11:57:44.625Z",
+      "status": 200,
+      "encoding": "zstd",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 995.7036000000007,
+      "headersToFirstDataMs": 0.0930000000007567,
+      "headersToEofMs": 0.30459999999948195,
+      "encodedDataBytes": 11666,
+      "elapsedMs": 1494.0980999999992
+    },
+    {
+      "ordinal": 12,
+      "stage": "07-sitemap",
+      "arm": "B",
+      "startedAtUtc": "2026-11-04T11:57:45.810Z",
+      "finishedAtUtc": "2026-11-04T11:57:47.312Z",
+      "status": 200,
+      "encoding": "br",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 992.5074000000022,
+      "headersToFirstDataMs": 2.0976000000009662,
+      "headersToEofMs": 6.586899999998423,
+      "encodedDataBytes": 17662,
+      "elapsedMs": 1501.904599999998
+    },
+    {
+      "ordinal": 13,
+      "stage": "01-domain",
+      "arm": "A",
+      "startedAtUtc": "2026-11-04T11:57:47.655Z",
+      "finishedAtUtc": "2026-11-04T11:57:48.796Z",
+      "status": 200,
+      "encoding": "zstd",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 634.7094999999972,
+      "headersToFirstDataMs": 0.138200000001234,
+      "headersToEofMs": 6.040099999998347,
+      "encodedDataBytes": 10961,
+      "elapsedMs": 1141.0708999999988
+    },
+    {
+      "ordinal": 14,
+      "stage": "05-erd",
+      "arm": "B",
+      "startedAtUtc": "2026-11-04T11:57:49.152Z",
+      "finishedAtUtc": "2026-11-04T11:57:50.904Z",
+      "status": 200,
+      "encoding": "br",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 952.2509000000064,
+      "headersToFirstDataMs": 0.16560000000026776,
+      "headersToEofMs": 5.924999999995634,
+      "encodedDataBytes": 11112,
+      "elapsedMs": 1752.4527000000016
+    },
+    {
+      "ordinal": 15,
+      "stage": "07-sitemap",
+      "arm": "A",
+      "startedAtUtc": "2026-11-04T11:57:51.270Z",
+      "finishedAtUtc": "2026-11-04T11:57:56.409Z",
+      "status": 200,
+      "encoding": "zstd",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 1143.0283000000054,
+      "headersToFirstDataMs": 0.10689999999885913,
+      "headersToEofMs": 3501.2730999999985,
+      "encodedDataBytes": 18235,
+      "elapsedMs": 5139.494400000003
+    },
+    {
+      "ordinal": 16,
+      "stage": "01-domain",
+      "arm": "B",
+      "startedAtUtc": "2026-11-04T11:57:56.755Z",
+      "finishedAtUtc": "2026-11-04T11:57:57.903Z",
+      "status": 200,
+      "encoding": "br",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 623.4544000000024,
+      "headersToFirstDataMs": 0.09610000000247965,
+      "headersToEofMs": 19.521600000000035,
+      "encodedDataBytes": 9595,
+      "elapsedMs": 1147.670100000003
+    },
+    {
+      "ordinal": 17,
+      "stage": "05-erd",
+      "arm": "A",
+      "startedAtUtc": "2026-11-04T11:57:58.254Z",
+      "finishedAtUtc": "2026-11-04T11:58:00.274Z",
+      "status": 200,
+      "encoding": "zstd",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 628.4684000000052,
+      "headersToFirstDataMs": 0.15819999999803258,
+      "headersToEofMs": 8.468199999995704,
+      "encodedDataBytes": 11667,
+      "elapsedMs": 2020.5849999999991
+    },
+    {
+      "ordinal": 18,
+      "stage": "07-sitemap",
+      "arm": "B",
+      "startedAtUtc": "2026-11-04T11:58:02.204Z",
+      "finishedAtUtc": "2026-11-04T11:58:03.348Z",
+      "status": 200,
+      "encoding": "br",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 640.9043999999994,
+      "headersToFirstDataMs": 0.0996000000013737,
+      "headersToEofMs": 10.064599999997881,
+      "encodedDataBytes": 17611,
+      "elapsedMs": 1143.1771999999983
+    },
+    {
+      "ordinal": 19,
+      "stage": "01-domain",
+      "arm": "A",
+      "startedAtUtc": "2026-11-04T11:58:03.698Z",
+      "finishedAtUtc": "2026-11-04T11:58:04.832Z",
+      "status": 200,
+      "encoding": "zstd",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 636.1033000000025,
+      "headersToFirstDataMs": 0.10560000000259606,
+      "headersToEofMs": 5.22780000000057,
+      "encodedDataBytes": 10961,
+      "elapsedMs": 1134.5020999999979
+    },
+    {
+      "ordinal": 20,
+      "stage": "05-erd",
+      "arm": "B",
+      "startedAtUtc": "2026-11-04T11:58:06.746Z",
+      "finishedAtUtc": "2026-11-04T11:58:07.880Z",
+      "status": 200,
+      "encoding": "br",
+      "metro": "LAX",
+      "protocol": "h2",
+      "valid": true,
+      "ttfbMs": 622.8934999999983,
+      "headersToFirstDataMs": 0.12410000000090804,
+      "headersToEofMs": 14.502499999995052,
+      "encodedDataBytes": 10960,
+      "elapsedMs": 1134.1026999999958
+    }
+  ],
+  "limitations": [
+    "A and B differ only in requested Accept-Encoding in this Node harness; stage counts are7/7/6 and each stage/arm has3 or4 samples.",
+    "No Chrome rendering, native editor,2rAF, Fast4G or CPU1 profile was applied. No mobile P95 or release verdict is calculated.",
+    "Each fresh HTTP2 connection reaches the edge; h2 is not proof of the tunnel/origin-hop protocol.",
+    "TTFB is final-header callback minus request issue after connect. Wire-body counts are encoded DATA payload only, not HTTP2/TLS overhead.",
+    "No raw body was buffered/decompressed/hashed; equal source identity relies on the frozen synthetic namespace and previously verified hashes.",
+    "Twenty bounded attempts and concurrent local core work cannot establish a compression-format cause for the older Chrome tails. Timeouts would remain failures; no replacement is permitted."
+  ],
+  "serverWindow": {
+    "schema": "nexus-http2-server-window-reference/1",
+    "metricsWindowStartUtc": "2026-11-04T11:57:14.826Z",
+    "metricsWindowEndUtc": "2026-11-04T11:58:08.213Z",
+    "parentEvidenceSha256": "cb7c5bd43b71558f483b3a31cbaf411b5c9d95d315c1153b1c077279e76f9bba",
+    "observedMetricsEntries": 21,
+    "plannedHeadAndGetCount": 21,
+    "maxProcessingAndAfterBodyMs": 544.432871,
+    "maxCpuMs": 46.119,
+    "individualRequestCpuMappingClaimed": false,
+    "scope": "All development request numeric metrics in the exact UTC window. Equal count does not establish unique row-to-client mapping. Bootstrap or JWKS wait may be included; cause is unconfirmed.",
+    "temporaryMetricsRestored": true,
+    "parentConfirmedDevActive": true,
+    "parentConfirmedCommitUnchanged": true,
+    "otherServicesRestarted": 0,
+    "privateEnvironmentOriginalReadOrChanged": false,
+    "subsequentHttpRequests": 0
+  }
+}
