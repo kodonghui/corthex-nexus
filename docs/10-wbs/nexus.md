@@ -267,3 +267,9 @@ Earlier TASK-250 checkpoint:59 remaining CLI outcomes had methods preserving the
 Earlier checkpoint evidence: core0.7 candidate d997b688/PR120, full1039/15existing skips/strict4/source Code-Security0. CLI62 pass/16 remaining clauses, actual-model/own-repository/mobile60 and Brotli transport evidence are in [scope record](../12-qa/runs/2026-11-04-acceptance-scopes.md). Tasks64=done14/in progress50/todo0; release follows the existing conditions.
 
 Current64 tasks: done15/in progress49/todo0. TASK-250 exact original78 CLI criteria now have individual named evidence; the remaining16 completed six hosted OS/Python cells in PR122. Full1057/strict4 and bounded source reviews passed. Mobile3s remains unmet; TASK-252/253 remain in progress. [Final evidence](../12-qa/runs/2026-11-04-mobile-final.md). No main/production/tag approval is inferred.
+
+## Keep the 3s target, 2026-11-04
+
+In the performance-decision card in this working conversation, dated 2026-11-04 with client timezone Asia/Seoul, the maintainer selected “3초 유지·개선 계속 (추천)” (keep the 3s target and continue improvement). The exact response time is unverified. This approves continued investigation and improvement while retaining the 3s requirement. The 64 tasks remain 15 done and 49 in progress; TASK-252/253 stay in progress, with no new stage10 checkpoint recorded.
+
+The [transport investigation proposal](../12-qa/runs/2026-11-04-transport-investigation.md) separates connection/TLS, headers/body, CDP network shaping, protocol and compression before choosing a small fix, regression checks and a new 20×3 formal run. Root selects the diagnostic arms after tool review. Diagnostic observations do not replace the existing failures. Conditional release, REQ-107, 14-day Worker/D1 retention followed by a deletion question, and the ban on new paid plans/dependencies remain in force.

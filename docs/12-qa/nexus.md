@@ -1021,3 +1021,9 @@ Current710 verdicts: pass241, partial467, fail2, blocked0, not run0. Original16 
 | Bug | Trace | Evidence and state |
 | --- | --- | --- |
 | BUG-562 | SCR-105#loading, TC-1271/1309 | Native code completion has a56.00534s header-to-finish interval in one DDD row; one ERD code response remains unobserved within90s. Initial SVG is separate. Cause unresolved; not classified as403 or cache MISS. Open. |
+
+## Retain the performance criterion, 2026-11-04
+
+The maintainer's performance-decision card in this working conversation records “3초 유지·개선 계속 (추천)” (keep the 3s target and continue improvement), dated 2026-11-04 with client timezone Asia/Seoul; the exact response time is unverified. REQ-149 stays at 3s. The 710 QA cases remain 241 pass, 467 partial and 2 fail; TC-1271/1309 remain failed and BUG-562 stays open. This decision grants neither a latency waiver nor stage12 acceptance or release.
+
+The [source-first investigation proposal](runs/2026-11-04-transport-investigation.md) prepares bounded read-only diagnostic comparisons. No new measurement ran during preparation. Diagnostic conditions and timings remain separate from formal acceptance; only a later pinned20-opening run per editor under the original profile can support a new performance verdict. Existing raw60/80, v4 results, incomplete observations and prior failures remain intact.
