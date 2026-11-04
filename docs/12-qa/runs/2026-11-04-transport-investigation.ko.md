@@ -53,3 +53,32 @@ DOM navigation/rAF·CDP monotonic·Node monotonic·하네스 wall-clock 전달 �
 되돌릴 수 있는 작은 수정 하나를 고르고 이전 후보를 보존한 뒤 관련 회귀와 저장소 필수 검사를 실행합니다. 구현·리뷰·커밋·배포 결정은 Root가 소유합니다. 추가 비교도 진단으로 구분합니다. 추후 검토한 후보는 기존 정식 프로필로 세 그림을 각20회 다시 열어 실패와 별도 편집기 준비를 보존해야 하며,20/20 적격일 때만 최근접 순위 P95를 정식 값으로 씁니다. 기존 결과도 나란히 보존합니다.
 
 이번 준비는 원본 diff에서 끝납니다. Root가 필수 검사와 커밋을 한 뒤 별도 동기화 신호를 주면 Notion이 따릅니다. registry/profile/stage 메타데이터는 건드리지 않습니다. main·운영·태그에는 기존 조건부 출시 관문을 적용하고 실제 첫 보내기는 REQ-107 확인을 기다립니다. 전환 뒤 Worker/D1을14일 보존하고 삭제는 다시 묻습니다. 이번 답은 개선 지속이며 지연 예외나 추가 출시 승인이 아닙니다.
+
+## 관측한 후속 결과, 2026-11-05 KST / 2026-11-04 UTC
+
+e750509 결정 기록은 그대로입니다. 관리자는 사용자 날짜2026-11-04에 “3초 유지·개선 계속 (추천)”을 선택했으며 정확한 응답 시각은 미확인입니다. 이어진 진단은2026-11-04 UTC, Asia/Seoul 기준2026-11-05에 실행됐습니다. 계획 뒤의 관측이며 새 승인·출시 예외가 아닙니다. QA710개의241pass/467partial/2fail, WBS64개의15done/49in progress를 유지합니다.
+
+**Node:** bootstrap HEAD1과 code GET16개 모두200/EOF·압축 해제 뒤73974바이트/예상SHA가 일치했습니다. HIT13·실제MISS3으로 캐시 비교 가능은13개이며 보고된 exit1도 이 비교 관문에 맞습니다. controller는21202.5851ms를 기록했고 bootstrap과8쌍의 연결을 닫아 소유Node0, 대체/추가요청0을 확인했습니다. H2 재사용/HIT인 두 관측은 헤더→첫데이터0.2115/0.1130ms, 헤더→본문EOF3279.5906/3291.1915ms였습니다. 실제 압축은16개 모두br였습니다. [Node 최소 요약](transport-2026-11-05/node-summary.json)에는 숫자·enum·공개해시만 두며 원보고서는 소유 작업 기록에 보존합니다.
+
+**Chrome:** 프로토콜/회선6셀의 각3회, 총18회가 진단 조건 안에서 완료·적격이었습니다. metadata GET18 + code GET18 + bootstrap HEAD1 = 관측한 허용 요청37개입니다. AUTO9회는 실제h2, H1ONLY9회는http/1.1이며 ByRule6회 모두 실제rule일치 근거가 있습니다. code18/18은 같은SHA·200/HIT+Age·승인된 캐시 정책, 브라우저36/36은cookie-only·서비스client헤더없음을 확인했습니다. 소유 브라우저 census18회가 모두0이고 프로필18개를 보존했으며 operator는소유Chrome/Node0·추가HTTP0을 기록했습니다. [Chrome 최소 요약](transport-2026-11-05/chrome-summary.json)은 공통 기기 설정과 legacy/ByRule에만 요청한 회선 제한을 구분합니다.
+
+Chrome은 제한 없는metadata 준비 뒤 top-level Document/VeryHigh로 읽었습니다. asset연결18/18이 재사용이며 TLS시각도 미관측이라 콜드TLS나 원래module/렌더 작업을 재지 않았습니다. 두 진단의 실제 압축은br이며 Accept-Encoding 제안 차이를 실제codec 비교로 읽지 않습니다. Chrome의 dataReceived encoded합0은wire전송0이 아닙니다. loadingFinished441186바이트와 decoded asset1331532바이트는 서로 다른 범위입니다. DOM/CDP/Node/controller 시계와 바이트 범위를 구분하며 Cloudflare·압축·프로토콜 원인이나 첫SVG/native/P95 통과를 확정하지 않습니다.
+
+**외부 설정 읽기:** 기존 로그인된 Cloudflare UI에서 HTTP/2·HTTP/3가on이며 개발 호스트만이 아닌zone 전체 설정임을 확인했습니다. HTTP/2 조작 항목은 잠겨 있었습니다. 소유 압축 규칙은 정확한 개발 호스트의 HTML 그림 경로에만 활성화돼 있고 brotli/gzip 순서였습니다. Cloudflare 변경·운영 변경·로그인/MFA 시도는0입니다. 설정on만으로 실제요청의HTTP/3 협상이나 지연 원인을 증명하지 않습니다. 안전 영수증 해시72eb1902e231ff7512494e5f36a178036cabc63da55e0ddaebcbd9933447cbd1을 [manifest](transport-2026-11-05/manifest.json)에 고정하며 계정·zone·rule·요청 식별자는 공개하지 않습니다.
+
+최소 manifest는 두 요약 산출물과 report/cleanup/설정 입력을 공개SHA로만 연결합니다. 기존60/80/v4 바이트·계획·분모·실패 관측은 그대로입니다. 정식v4의 DDD20/20 첫SVG P954546.3ms/native65602ms, ERD19/20 정식P95null(적격19개 참고6993.9ms), sitemap20/20 첫SVG P954381.2ms/native18907ms를 유지합니다. TC-1271/1309는3초 실패, BUG-562는열림이며 새 인수통과·단계확인·waiver·출시 판정은 없습니다.
+
+### 현재 실제module6 준비
+
+다음 실제module6 진단은 오프라인 구현 중이며 Root GO 전입니다. 이번 기록에 module6 요청이나 결과를 포함하지 않습니다. 현재 소유는 다음과 같습니다.
+
+| 소유 | 현재 범위 |
+| --- | --- |
+| Root | 서버·Cloudflare·브랜치·최종 실행/출시 관문 |
+| UI | runner와 나머지 진단 도구 파일 |
+| API | `module-wire.mjs` 한 파일만 |
+| QA | 결정/진행 기록과 독립 정적·결과 감사 |
+
+Root가 실행 전에 동결한 소스/계획을 검토합니다. 단독 시간에 순서대로 진행하고 소유 프로세스0을 반환하며 끝냅니다. 추후 작은 수정에도 회귀 검사와 기존 프로필로 고정한 별도 정식20×3이 필요합니다. main·운영·태그·REQ-107의 실제 첫 보내기·전환 뒤 Worker/D1의14일 보존과 삭제 전 질문을 유지합니다. Notion은 Root 커밋과 별도 동기화 신호 뒤에 따릅니다.
+
+Root가 이후 module6 준비로 소유 임시flag/drop-in 두 파일을 써 개발 숫자 계측을 활성화했습니다. 실행부는906f360/D802 그대로이며 미인증loopback은403이었습니다. 활성화 영수증은 비공개 환경파일 읽기·인증값 복사·운영 변경·다른 서비스 재시작0을 확인합니다. Root는 원본 환경을 바꾸지 않았으며6회 실행 뒤 임시 설정을 원복할 예정이라고 기록했습니다. [manifest](transport-2026-11-05/manifest.json)에 파일 위치·프로세스 식별자 없이 영수증4107e74f39b8315512139fc91809f9df9c72d00a4c0157ec7458714bf18bc735를 고정합니다. 실제 로그값 수집·서버 처리시간 판정은 아직0이며 경로별 귀속도 불가합니다. 이 기록 시점의 module6 실행은 여전히 Root GO 전입니다.

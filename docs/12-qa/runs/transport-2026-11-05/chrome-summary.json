@@ -1,0 +1,140 @@
+{
+  "schema": "transport-diagnostic-summary/1",
+  "kind": "chrome",
+  "scope": "diagnostic",
+  "assetCategory": "code",
+  "utcDay": [
+    2026,
+    11,
+    4
+  ],
+  "localDay": [
+    2026,
+    11,
+    5
+  ],
+  "timeZone": "Asia/Seoul",
+  "sourceCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "runtimeSha256": "1f1613c851ae0b66e345906329a954174703afde5c644384194d259a54389935",
+  "planSha256": "79d9a7e5860fae91087a127093525705d1329fe9351d411d3616245489a16e8f",
+  "reportSha256": "79fcf2119eaa52994e62599b07029d0a7449a644c65181ced48cbed391abe6e5",
+  "cleanupSha256": "bec491e92f4400375762e48b8ef5c7ecfb4b1d41f461798c6f0cdcba4233ccb4",
+  "requests": {
+    "bootstrapHead": 1,
+    "metadataGet": 18,
+    "codeGet": 18,
+    "totalObserved": 37,
+    "blocked": 0,
+    "guardErrors": 0,
+    "extra": 0
+  },
+  "slots": {
+    "planned": 18,
+    "completed": 18,
+    "qualified": 18,
+    "rightCensored": 0,
+    "lateBodyDiscarded": 0
+  },
+  "cells": [
+    {
+      "protocolArm": "AUTO",
+      "networkArm": "legacy",
+      "slots": 3,
+      "completed": 3,
+      "qualified": 3
+    },
+    {
+      "protocolArm": "AUTO",
+      "networkArm": "by-rule",
+      "slots": 3,
+      "completed": 3,
+      "qualified": 3
+    },
+    {
+      "protocolArm": "AUTO",
+      "networkArm": "unthrottled",
+      "slots": 3,
+      "completed": 3,
+      "qualified": 3
+    },
+    {
+      "protocolArm": "H1ONLY",
+      "networkArm": "legacy",
+      "slots": 3,
+      "completed": 3,
+      "qualified": 3
+    },
+    {
+      "protocolArm": "H1ONLY",
+      "networkArm": "by-rule",
+      "slots": 3,
+      "completed": 3,
+      "qualified": 3
+    },
+    {
+      "protocolArm": "H1ONLY",
+      "networkArm": "unthrottled",
+      "slots": 3,
+      "completed": 3,
+      "qualified": 3
+    }
+  ],
+  "protocol": {
+    "h2": 9,
+    "http/1.1": 9
+  },
+  "encoding": {
+    "br": 18
+  },
+  "evidence": {
+    "byRuleMatched": 6,
+    "cookieOnlyBrowserRequests": 36,
+    "serviceClientHeadersAbsent": 36,
+    "cacheHitWithAge": 18,
+    "approvedCodeCachePolicy": 18,
+    "metadataNoStore": 18,
+    "decodedPayloadMatches": 18
+  },
+  "decodedPayload": {
+    "bytesPerAsset": 73974,
+    "sha256": "dfcb3ebf25220b17059356734fcd1ba008752276907e84da82700dda1a3f62bd"
+  },
+  "observations": {
+    "documentVeryHigh": 18,
+    "connectionReused": 18,
+    "assetTlsUnobserved": 18,
+    "zeroEncodedChunkTotals": 18,
+    "loadingFinishedBytesTotal": 441186,
+    "decodedAssetBytesTotal": 1331532
+  },
+  "conditions": {
+    "width": 390,
+    "height": 844,
+    "dpr": 2.75,
+    "touch": true,
+    "cpu": 1,
+    "cacheDisabled": true,
+    "serviceWorkerBypassed": true,
+    "slotDeadlineMs": 30000,
+    "metadataSetupUnthrottled": true
+  },
+  "cleanup": {
+    "observedCensuses": 18,
+    "zeroCensuses": 18,
+    "profilesRetained": 18,
+    "ownedChromeRemaining": 0,
+    "ownedNodeRemaining": 0,
+    "profileDeletion": 0,
+    "windowReturned": true
+  },
+  "requestedShaping": {
+    "appliesTo": ["legacy", "by-rule"],
+    "latencyMs": 165,
+    "downloadBitsPerSecond": 8100000,
+    "uploadBitsPerSecond": 1350000
+  },
+  "formalP95": false,
+  "retryReplacement": false
+}
+
