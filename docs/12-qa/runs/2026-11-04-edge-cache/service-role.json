@@ -1,0 +1,24 @@
+{
+  "schema": "nexus-edge-service-cookie-role/1",
+  "finishedAt": "2026-11-04T06:32:47.123Z",
+  "identity": "existing-service-session",
+  "credentialPersistence": false,
+  "validWrites": 0,
+  "rows": [
+    {
+      "resource": "proposals",
+      "status": 400,
+      "code": "invalid_request",
+      "cacheControl": "no-store",
+      "setCookiePresent": false
+    },
+    {
+      "resource": "checkpoints",
+      "status": 403,
+      "code": "user_only",
+      "cacheControl": "no-store",
+      "setCookiePresent": false
+    }
+  ],
+  "todoUnchanged": true
+}

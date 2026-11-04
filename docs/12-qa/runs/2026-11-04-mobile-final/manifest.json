@@ -1,0 +1,80 @@
+{
+  "schema": "nexus-final-evidence-copy/1",
+  "inputs": {
+    "mobile-summary.json": {
+      "sourceSha256": "ffe98293a166e782167324be5c4466897a580d71952e73dadd2959e70a817dcd",
+      "bytes": 14704
+    },
+    "openings.csv": {
+      "sourceSha256": "490db1c73c7f2d4fb3629306871b979953eb6a4fdc670411a56ed9c96faa27a6",
+      "bytes": 31057
+    },
+    "audit.md": {
+      "sourceSha256": "0e6511d84828c921dcdf4c756747b6f413f988bb10d1c98294a2756ef50825c0",
+      "bytes": 1804
+    },
+    "audit.ko.md": {
+      "sourceSha256": "047cdacee1b3a47da5934362a86c4ed49e40922fc8f0bf2b3c3b447c13c2f78f",
+      "bytes": 2039
+    },
+    "latency.md": {
+      "sourceSha256": "02ecc21194f184de43f59d3a08d1422d27db0cc5d5a2d6b9b802457fc672d7ed",
+      "bytes": 5928
+    },
+    "latency.ko.md": {
+      "sourceSha256": "d1844df85fb0f67ad6e22ef98970d0b4baa52cf4ed69904e5fcefe67cbc9253a",
+      "bytes": 6277
+    },
+    "latency.json": {
+      "sourceSha256": "8d20f842752325557d0cacaefc772caade70f32d9681029bfa85bf40336f0a0b",
+      "projection": "Input paths omitted; timing/validity rows unchanged"
+    },
+    "wire.json": {
+      "sourceSha256": "a221e7dc348b83a84df2cb84ca51a372e7f2ac32e7e9249898c30919e16c2bb6",
+      "bytes": 4418
+    },
+    "cli16-six-cell.json": {
+      "sourceSha256": "729a138ef0c7bf6f0146ec14068bb6765ecd400be45b400c62b68ce724bf115e",
+      "bytes": 79739
+    },
+    "cli16-six-cell.md": {
+      "sourceSha256": "1ebd9016e5b140c62b6b7348630d75bef1c8d4a539889c24e7da42665987da30",
+      "bytes": 2985
+    },
+    "current-hub-pin.json": {
+      "sourceSha256": "66f60f766d475e1e6d5884b9b235a4731d685d00a24a687671931ddd86737971",
+      "bytes": 2975
+    },
+    "workflow.json": {
+      "sourceSha256": "02fede0d53b945092bcc6efcfcee5d3ddf93f4e223de88803d972b1a8cf1362a",
+      "projection": "Only public identifiers, status/counts and separate root merge receipt"
+    }
+  },
+  "auditManifestSha256": "b333cb99ec561cc3d11c0481c686ebcffcaf5e7098e24453c1b75e04b9d7f7b7",
+  "timingManifestSha256": "121cec0e0b9598eb8fdb3fd91c6889e9c1463dd763e33916eabab752b497dd38",
+  "files": {
+    "audit.ko.md": "047cdacee1b3a47da5934362a86c4ed49e40922fc8f0bf2b3c3b447c13c2f78f",
+    "audit.md": "0e6511d84828c921dcdf4c756747b6f413f988bb10d1c98294a2756ef50825c0",
+    "cli16-six-cell.json": "c342c66b38e8228e6d3537a58dc04a764ba5230a82ec42979a2b2507efd99978",
+    "cli16-six-cell.md": "b30aad99bbb4544352335ef864decafe9334edd905c31a5780936bdbe3855baa",
+    "current-hub-pin.json": "4abc7ce09cc75fa28d702c21ac33d876fe2b4c4a7a7161d30700808a3a64097c",
+    "latency.json": "bb42daf79430e6bd0b7e6eff2c5e78f4e9c9e242ae17bd651b45a049281078af",
+    "latency.ko.md": "ddc33e099efc0abcb825647b77c1614bbae83062105b1951c2937956d0d22c3c",
+    "latency.md": "de386f6a2c470696c927e49357ecf7e1125e22c84c8111ab31343c7e3d0dcb02",
+    "local-checks.json": "e91e2210db3190f9f00601307d91aa4d430bedfe408266228166382ff2c83e7f",
+    "mobile-summary.json": "ffe98293a166e782167324be5c4466897a580d71952e73dadd2959e70a817dcd",
+    "openings.csv": "5c4228d20c79eb7a01731df6490ffd111191f4837176a3b35f72800627624a0c",
+    "previous-verdicts.json": "7554bb42cabba1656a097bfd28233b29252c50a2982fe1bd79e0a546b26ec00c",
+    "wire.json": "a221e7dc348b83a84df2cb84ca51a372e7f2ac32e7e9249898c30919e16c2bb6",
+    "workflow.json": "2a295825c4905098d6053a02af31f84921bdc25eb08fe596d83ec85f01df6164"
+  },
+  "publicTextNormalization": "CRLF to LF to match Git attributes; original input byte SHA values remain in inputs",
+  "normalizedFiles": [
+    "cli16-six-cell.json",
+    "cli16-six-cell.md",
+    "current-hub-pin.json",
+    "latency.ko.md",
+    "latency.md",
+    "openings.csv"
+  ]
+}

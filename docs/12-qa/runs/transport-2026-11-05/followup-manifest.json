@@ -1,0 +1,34 @@
+{
+  "schema": "transport-followup-public-sha-manifest/1",
+  "utcDay": [
+    2026,
+    11,
+    4
+  ],
+  "localDay": [
+    2026,
+    11,
+    5
+  ],
+  "inputs": {
+    "v5Report": "1d010ff52be0cdb23c7682588e09dd3bc8c4c6f47422e0e37fd6eb51c2aa0173",
+    "v5OperatorReturn": "87091808411e19b349104bf9e90f0f3a6f470a81768473944c11c196bef285f6",
+    "v5Plan": "a4d699a67859b60a5e4a3f939dc4c0f2ad0203d6cd01115b8c412dfed3c6efed",
+    "v5SourceManifest": "b78a0c085dba72a0599c764167ddff4412ae322da58b187706e1a2b9195b4de5",
+    "module6Report": "4052a713cdda5580a2912d94a33f1d18215f300c6fa747bbcab2566768bcca91",
+    "module6IndependentSummary": "d1b79b92623166b3b53cb663b890f41f5262e759d01d4211c225075dbdaa4dc5",
+    "module6PostStop": "e17cb841f43c1f385e3b82a995929f7cc702b9c7aac4be6688bd43d326e22413",
+    "originMetricsCollected": "7b74ad5caf58cf60f95823a329a3e001cd0eae08a8416a354cbb0e0ac5696195",
+    "originMetricsRollback": "d4b06f81acf66d29f0f0fa454faefa2166cdab60a6b66175afe90c2b56835b21",
+    "postRollbackSource": "20bb2d323a2971028fb2c2412e07343258aa4da40f199d96c5e3301451ea504c"
+  },
+  "outputs": {
+    "module6Summary": "4644dde63ae80f39f9690ee4c9c5dcedf09f6aaa258f7fb1a0a2d48452b714ad",
+    "v5Summary": "284d33d9c3c9fbc512807aa3efab84596d1636de9235b3d5817cf9d3fa8dabc6"
+  },
+  "originalArtifactsModified": 0,
+  "reclassifiedVerdicts": 0,
+  "newNormativeP95Calculated": false,
+  "rawPayloadsPublished": false,
+  "accountOrProfileIdentifiersPublished": false
+}

@@ -6,6 +6,10 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 05단계입니다: [nexus.sql]
 
 입력: [docs/04-functional-spec/nexus.ko.md](../04-functional-spec/nexus.ko.md)의 기능 명세(SPEC-101\~SPEC-142), 특히 그 [05단계를 위한 메모](../04-functional-spec/nexus.ko.md#05단계-서버의-자료와-파일); [docs/02-prd/nexus.ko.md](../02-prd/nexus.ko.md)의 요구사항 가운데 자료를 가장 많이 정하는 REQ-116, REQ-118, REQ-120, REQ-123, REQ-124; [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)의 용어집과 DDD 보드(이 파일은 그 말을 그 뜻으로 쓰고, 표는 그 보드의 애그리거트를 적습니다); [nexus/src/store.js](../../nexus/src/store.js)에 있는 1차의 표. Cloudflare의 D1 문서는 2026-11-02에 읽었습니다: [한도](https://developers.cloudflare.com/d1/platform/limits/), [요금](https://developers.cloudflare.com/d1/platform/pricing/), [외래 키](https://developers.cloudflare.com/d1/sql-api/foreign-keys/), [JSON 함수](https://developers.cloudflare.com/d1/sql-api/query-json/), [배치](https://developers.cloudflare.com/d1/worker-api/d1-database/).
 
+## 승인된 실행 위치 (2026-11-04)
+
+기본 서버는 기존 VPS의 Node와 SQLite 파일입니다. Worker 호환 경로는 D1을 계속 씁니다. 두 연결부의 batch는 한 트랜잭션이며 데이터 SQL은 store.js에만 둡니다. 아래 표·DDL·상태 전이·한도는 그대로이고 이전 D1 설명은 Worker 경로의 설명으로 남습니다. 서버에서 매일·이주/배포 직전 백업하고 실제 복구를 비교합니다. 실제 경로·접속값·DB·백업은 Git 밖 서버에 둡니다.
+
 ## 이 파일을 읽는 법
 
 - 서버의 표는 빈 데이터베이스의 스키마인 [nexus.sql](nexus.sql)에 있습니다. 표마다 주석에 TBL ID, 컨텍스트, 그 표가 간직하는 DDD 보드 애그리거트의 용어(없으면 `terms: none`), 그 표를 읽거나 쓰는 동작(SPEC)을 적습니다. 프로젝트 허브는 이 주석을 읽고, NEXUS 0.2부터는 그 파일에서 `nexus` 부분의 ERD 그림을 그립니다(SPEC-107). 이 파일은 표를 설명하고, 나머지 저장 단위, 곧 [저장 단위](#저장-단위)의 파일을 정합니다.
@@ -248,6 +252,7 @@ NEXUS 서버: Cloudflare Worker 하나와 그 D1 데이터베이스 corthex-nexu
 | `closed_commit` | 커밋, 또는 NULL | 에이전트가 PR 대신 그것을 보고했을 때, 단계별 원본이 이미 그 변경을 담고 있던 커밋 |
 | `made_at` | 시각 | |
 | `changed_at` | 시각 | 상태가 마지막으로 바뀐 때 |
+| `last_report` | JSON 또는 NULL | 마지막 보고의 사건·PR·커밋을 담는 내부 메타데이터입니다. PR 필드를 지운 뒤의 같은 `closed` 재보고와 처음부터 유효하지 않았던 `closed`를 구별하며 API에는 응답하지 않습니다 |
 
 ### 확인 지점 (TBL-110)
 
@@ -287,10 +292,12 @@ NEXUS 서버: Cloudflare Worker 하나와 그 D1 데이터베이스 corthex-nexu
 | `project` | 프로젝트 이름 | |
 | `id` | `nw_` ID | 페이지나 허브가 쓰기 하나를 위해 만들고, 그 쓰기를 보낼 때마다 함께 보냄(SPEC-126, SPEC-128) |
 | `request` | 요청의 이름 | 그 쓰기를 받은 요청. 예: `reply`, `accept`, 이름은 06단계가 정함. 같은 ID로 다른 요청을 보내면 거절합니다 |
-| `result` | JSON | 첫 응답. 다시 보낸 쓰기는 아무것도 바꾸지 않고 이것을 받습니다(SPEC-128) |
+| `result` | JSON | 첫 응답의 상태·본문과 요청 시도마다 새로 만드는 내부 트랜잭션 토큰을 담는 봉투입니다. 토큰은 응답하지 않으며, 다시 보낸 쓰기는 같은 상태·본문을 받고 아무것도 바꾸지 않습니다(SPEC-128) |
 | `received_at` | 시각 | 이로부터 7일이 지나면 공간의 다음 쓰기가 행을 지웁니다. 보낼 편지함은 쓰기를 만든 지 7일 뒤에 버리므로, ID가 없어진 쓰기를 다시 보내는 일은 없습니다 |
 
 서버가 받은 쓰기만 간직합니다. 거절한 쓰기는 행을 남기지 않으므로, 그 까닭이 없어지면 다시 보낼 수 있습니다.
+
+트랜잭션 토큰은 시각의 밀리초와 응답이 같은 재시도에서도 새로 받은 쓰기와 기존 ID를 구별합니다. 뒤 문장이 모두 이 토큰을 확인하므로 ID가 충돌한 묶음이 첫 쓰기의 변경을 다시 실행할 수 없습니다. 토큰은 저장소 내부 메타데이터이며 API 응답·보낼 편지함에 넣지 않고 스키마 열도 바꾸지 않습니다.
 
 ### 변환 (TBL-113)
 
@@ -303,7 +310,7 @@ NEXUS 서버: Cloudflare Worker 하나와 그 D1 데이터베이스 corthex-nexu
 
 ### 스냅샷 (TBL-114)
 
-1차의 형식 `corthex-hub/0.1`은 허브의 [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)에 적혀 있습니다. NEXUS 0.2는 아래 필드를 `corthex-hub/0.2`로 더하며, 06단계가 그 파일에 더합니다. 허브는 스냅샷을 기기에 저장하고 보내기마다 새로 만든 것을 보냅니다(SPEC-111). 서버는 `pictures` 없이 간직합니다(TBL-101). 그 안의 모든 것은 SPEC-104대로 가립니다.
+1차의 형식 `corthex-hub/0.1`은 허브의 [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)에 적혀 있습니다. NEXUS 0.2는 아래 필드를 `corthex-hub/0.2`로 더하며, 06단계가 그 파일에 더합니다. 허브는 스냅샷을 기기에 저장하고 보내기마다 새로 만든 것을 보냅니다(SPEC-111). 서버는 `pictures` 없이 간직합니다(TBL-101). 그 안의 모든 것은 SPEC-104대로 가립니다.
 
 | 필드 | 값 | 뜻 |
 | --- | --- | --- |
@@ -356,16 +363,18 @@ NEXUS 서버: Cloudflare Worker 하나와 그 D1 데이터베이스 corthex-nexu
 | `part` | 부분 이름 | 그 부분. `.corthex/stages.json`에서는 뺌 |
 | `stages` | 단계 키별 객체 | 기록이 있는 단계마다 기록 하나 |
 | `stages.<stage>.state` | `done`, `in_progress`, `not_started`, `skipped` | 기록한 대로(REQ-084). `done`은 확인 지점과 그 날짜가 있을 때만(REQ-085) |
-| `stages.<stage>.checkpoints` | 목록 | 확인 지점마다: `approved`는 승인한 것이며 사용자가 말을 주었으면 그 말로, `by`는 `관리자` 같은 역할이며 이름이나 이메일 주소는 절대 쓰지 않음, `where`는 승인한 곳의 링크, `date`, 그리고 NEXUS에서 통과했으면 `nexus`에 그 확인 지점의 ID(SPEC-137, SPEC-140) |
+| `stages.<stage>.checkpoints` | 목록 | 확인 지점마다: `approved`는 승인한 것이며 사용자가 말을 주었으면 그 말로, `by`는 `관리자` 같은 역할이며 이름이나 이메일 주소는 절대 쓰지 않음, 선택 필드 `where`는 승인한 곳의 안전한 HTTPS 링크, `date`, 그리고 NEXUS에서 통과했으면 선택 필드 `nexus`에 그 확인 지점의 ID(SPEC-137, SPEC-140). 안전하지 않은 링크는 SPEC-109대로 빼며, 링크가 없다는 이유로 승인을 버리지 않음 |
 | `stages.<stage>.next` | 글 | 다음 행동 |
 | `stages.<stage>.checks` | (선택) 목록 | 검토 결과. 저마다 `level`, `message`, (선택) `refs`, `at`(REQ-087) |
 | `stages.<stage>.updated` | 시간대가 있는 시각 | 기록을 쓴 때 |
 
 파일은 두 칸 들여 쓴 JSON이고, 필드는 이 순서대로 적고 끝에 LF를 두어, PR이 바뀐 것만 보여 주게 합니다. 부분마다 자기 파일이 있으므로 서로 다른 부분의 기록을 바꾸는 두 PR은 충돌하지 않습니다(SPEC-137). 저장소는 이 저장소처럼 공개일 수 있으므로, 기록에는 역할과 링크만 담고 개인 정보는 절대 담지 않습니다. 허브가 모르는 형식의 파일은, SPEC-109가 올바른 JSON이 아닌 파일에 대해 말하듯 올바르지 않은 것으로 칩니다.
 
+저장소 진행 기록은 파일마다 읽기·수정·교체 전체를 직렬화합니다. 프로세스가 끝나면 운영체제가 풀어 주는 짧은 네이티브 잠금을 저장소 밖, 사용자의 `~/.corthex/hub/record-locks/`에 둡니다. 기록 디렉터리의 파일 시스템 식별자와 정해진 파일 이름으로 키를 만들므로, `--home` 프로필이나 경로 별칭이 다른 세션도 같은 잠금을 씁니다. Windows에서는 Python판마다 장치 번호의 폭이 다를 수 있어, 고정된 네이티브 파일 정보 API로 식별자를 읽습니다. Windows 정션을 포함하여 다른 곳으로 연결된 잠금 디렉터리는 거절합니다. 연 잠금 파일은 초기화하기 전에 링크가 하나인 일반 파일인지 확인합니다. 잠금이 바쁘면 기록을 교체하지 않고 실패하며 재시도는 최신 파일을 다시 읽습니다. 잠금이나 새 데이터 필드는 커밋하거나 보내지 않습니다.
+
 ### 진행 기록 파일 (TBL-116)
 
-허브의 [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)가 적은 대로 `hub.py status`가 기기마다 쓰는 1차의 파일입니다: 단계마다 상태, 마지막 확인 지점과 그 날짜, 다음 행동, 검토 결과, 쓴 때. NEXUS 0.2부터 허브는 저장소에 단계 기록이 없는 프로젝트에서만 이것을 읽고, `records-in-status-file` 점검 결과를 냅니다(SPEC-109).
+허브의 [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)가 적은 대로 `hub.py status`가 기기마다 쓰는 1차의 파일입니다: 단계마다 상태, 마지막 확인 지점과 그 날짜, 다음 행동, 검토 결과, 쓴 때. NEXUS 0.2부터 허브는 저장소에 단계 기록이 없는 프로젝트에서만 이것을 읽고, `records-in-status-file` 점검 결과를 냅니다(SPEC-109).
 
 ### 보낼 편지함 (TBL-117)
 
@@ -385,6 +394,10 @@ NEXUS 서버: Cloudflare Worker 하나와 그 D1 데이터베이스 corthex-nexu
 | `failure` | (선택) 글 | 마지막 실패의 종류. 예: `no network`, `no service token` |
 
 한 기기의 허브들은 잠금 `outbox/<project>.lock`으로 프로젝트의 보낼 편지함을 차례로 씁니다. 이 잠금은 배타적 생성으로 만드는 파일이며 Linux, macOS, Windows에서 됩니다(REQ-083). 허브의 프로세스 ID와 시각을 담습니다. 잠금을 가진 쪽은 보낸 쓰기마다 그 뒤에 잠금을 새로 하고, 보내기 하나는 많아야 30초 기다리며, 2분보다 오래된 잠금은 낡은 것으로 보고 넘겨받습니다. 맡음은 절대 보낼 편지함에서 기다리지 않습니다: 나중에 보내면 이미 다른 일로 넘어간 세션을 위해 그것을 맡아 두게 되므로, 보내지 못한 맡음은 그것을 맡지 않은 채로 두고 허브가 그렇다고 알립니다. 보낼 편지함은 절대 서비스 토큰을 담지 않습니다(REQ-109).
+
+`outbox/<project>.guard`의 짧은 운영체제 잠금으로 위 잠금의 생성·갱신·넘겨받기를 차례로 처리합니다. 글이나 토큰을 담지 않고 네트워크 요청을 기다리는 동안 잡고 있지 않습니다. 보내는 쪽은 대기 파일을 고치기 전에 임의로 만든 소유 표시를 확인하여, 이전 소유자가 새 소유자의 대기열을 바꾸지 못하게 합니다. 잠금이 사용 중이면 다른 허브는 짧은 잠금 아래 새 고유 쓰기를 `tries: 0`으로 더할 수 있습니다. 다음 보내기까지 기다리며 대기열 맨 앞을 앞질러 보내지 않습니다. 기기 안의 동기화 세부이며 `OutboxFile`에 필드를 더하지 않습니다.
+
+에이전트 쓰기는 처음 보내기 전에 원래 ID로 원자적으로 보관하고, 같은 대기열 보내기에서 오래된 쓰기 뒤에 보냅니다. 대기열이 비었다고 확인한 뒤 새 글을 보내기 전의 틈을 없애고, 프로세스가 잠금을 잃어도 글을 남깁니다. `outbox/<project>.order`는 같은 짧은 잠금 아래 들어온 순서대로 쓰기 ID만 담아, 같은 밀리초의 글도 실제 `made` 시각을 바꾸지 않고 순서를 지킵니다. 새 대기 파일을 공개하기 전에 순서 항목을 쓰며, 없는 파일은 건너뜁니다. 순서 자료가 없는 기존 파일은 파일 이름 순서를 따릅니다. 재시도는 위치를 바꾸지 않고, 이전 소유자는 새 소유자의 파일을 덮어쓰지 않으며 원래 ID의 파일이 사라졌을 때만 고유 추가 경로로 복구합니다. 저장 실패 시 SPEC-129대로 가린 복구 사본을 에이전트에게 한 번 보여 주고 로그에는 저장하지 않습니다.
 
 ### 자리 (TBL-118), ② 차례
 
@@ -430,7 +443,7 @@ D1은 배치 하나를 무료 요금제의 요청마다 50개인 질의 가운�
 
 ## 형식 버전과 변환
 
-- 스키마의 버전은 `migrations`(TBL-113)에 있습니다. 1차의 서버는 처음 쓸 때 `snapshots`를 만들고 버전을 두지 않았으며, 그것이 버전 1입니다. NEXUS 0.2의 버전 2가 [nexus.sql](nexus.sql)입니다. nexus.sql은 버전을 기록하지 않으므로 서버의 데이터베이스는 늘 store.js가 차리고, nexus.sql만으로 만든 데이터베이스는 스키마를 비교하는 데만 씁니다.
+- 스키마의 버전은 `migrations`(TBL-113)에 있습니다. 1차의 버전 없는 `snapshots`가 버전 1이고, 버전 2가 NEXUS 0.2의 공간 표를 더합니다. 버전 3은 SPEC-133의 재보고를 구별할 내부 `edits.last_report`를 더하며 공개된 변환 1·2는 바꾸지 않습니다. [nexus.sql](nexus.sql)은 최신 스키마의 비교용 원본이고 버전을 기록하지 않으며, 서버 DB는 늘 store.js가 차립니다.
 - store.js가 변환을 모두 간직합니다. 데이터베이스를 처음 쓸 때 nexus.sql의 `migrations` 문장을 실행해 그 표가 없을 때만 만들고, 그 표에 없는 버전의 변환을 차례로, 저마다 그것을 기록하는 행과 함께 배치 하나로 실행합니다. 다른 인스턴스가 같은 버전을 먼저 적용했을 때처럼 실패한 배치는 아무것도 바꾸지 않고, store.js는 버전을 다시 읽습니다.
 - 변환 1은 1차의 문장이며, 이미 그 표가 있는 데이터베이스에서는 아무것도 바꾸지 않습니다:
 
@@ -684,3 +697,8 @@ store.js가 먼저입니다: 변환 1과 2, 두 배치로 하는 보내기, 그�
 - 기록의 PR이 열려 있는 동안 철회된 확인 지점과, 그래도 병합되어 보내진 그 기록: 기록이 더는 그것을 적지 않는 보내기까지 AI 할 일은 그 확인 지점을 두고, 그 단계에는 `checkpoint-withdrawn` 경고가 있습니다.
 - 두 번 보낸 쓰기와 7일 뒤에 다시 보낸 쓰기; 같은 것을 맡으려는 두 세션과 끝나는 맡음; 한 보낼 편지함을 보내는 한 기기의 두 허브; 글 상한에 닿은 공간.
 - 차례로 병합된 두 PR이 바꾼 두 부분의 단계 기록.
+
+
+## 기계 원본 등록, 2026-11-04
+
+허브의05단계 원본은 `docs/05-erd/nexus.sql`입니다. 최신으로 가져온 기본 브랜치의 Git 객체에서 이 파일로 테이블 그림을 읽습니다. 설명 문서와 한국어 사본은 사람 화면에서 읽는 모델로 유지합니다. 자기 저장소 로컬 검사에서 `nexus.md`만 등록하면 DDD·사이트맵만 나오고 ERD가 빠지는 문제를 찾았습니다. SQL 원본을 등록했고 실제 고정 허브를 두 등록에 실행하는 회귀 검사로 현재 등록의 세 그림을 확인합니다. 단계 ID와 SQL 스키마는 바꾸지 않습니다.

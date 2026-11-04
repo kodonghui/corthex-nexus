@@ -6,6 +6,10 @@ Stage 05 of CORTHEX's own project, for NEXUS 0.2: the tables of the NEXUS server
 
 Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-142), above all its [notes for stage 05](../04-functional-spec/nexus.md#stage-05-the-servers-data-and-the-files); the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md), of which REQ-116, REQ-118, REQ-120, REQ-123 and REQ-124 shape the data most; the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps and whose aggregates the tables name; and phase 1's table in [nexus/src/store.js](../../nexus/src/store.js). Cloudflare's D1 documents were read on 2026-11-02: its [limits](https://developers.cloudflare.com/d1/platform/limits/), [pricing](https://developers.cloudflare.com/d1/platform/pricing/), [foreign keys](https://developers.cloudflare.com/d1/sql-api/foreign-keys/), [JSON functions](https://developers.cloudflare.com/d1/sql-api/query-json/) and [batches](https://developers.cloudflare.com/d1/worker-api/d1-database/).
 
+## Approved runtime placement (2026-11-04)
+
+The default origin is Node with a SQLite file on the existing VPS; the Worker compatibility path retains D1. Both adapters execute each batch in one transaction and data SQL stays in store.js. Tables/DDL/transitions/limits below are unchanged; earlier D1 descriptions apply to the Worker path. Back up daily and before migrations/deployments and compare an actual restore. Real paths/connection values, databases and backups stay outside Git on the server.
+
 ## How to read this file
 
 - The server's tables are in [nexus.sql](nexus.sql), the schema of an empty database. Each table's comment gives its TBL ID, its context, the terms of the DDD board's aggregates that it keeps, or `terms: none`, and the behaviours (SPEC) that read or write it. The project hub reads these comments, and from NEXUS 0.2 it draws the ERD picture of the `nexus` part from that file (SPEC-107). This file explains the tables and defines the other records, the files in [Records](#records).
@@ -248,6 +252,7 @@ An accepted proposal makes one, in the same write as the acceptance (SPEC-131); 
 | `closed_commit` | commit, or NULL | The commit whose stage source already held the change, when the agent reported that instead of a pull request |
 | `made_at` | time | |
 | `changed_at` | time | When its state last changed |
+| `last_report` | JSON, or NULL | Internal event, pull request or commit of its last report. It distinguishes a repeated `closed` report after the pull request field was cleared from an invalid first `closed` report. Never returned by an API |
 
 ### Checkpoints (TBL-110)
 
@@ -287,10 +292,12 @@ While a claim lasts, the server refuses the agent's writes on the entry from oth
 | `project` | project name | |
 | `id` | `nw_` ID | Made by the page or the hub for one write, and sent with each try of it (SPEC-126, SPEC-128) |
 | `request` | name of a request | Which request took the write, such as `reply` or `accept`, as stage 06 names them. The same ID with another request is refused |
-| `result` | JSON | The first answer, which a write sent again gets without any change (SPEC-128) |
+| `result` | JSON | An internal envelope with the first answer's status and body, plus a random per-attempt transaction token that is never returned. A write sent again gets that status and body without any change (SPEC-128) |
 | `received_at` | time | The space's next write deletes the row 7 days after this. The outbox drops a write 7 days after it was made, so no write is sent again once its ID is gone |
 
 Only the writes that the server took are kept. A write that it refused leaves no row, so it can be sent again once the reason is gone.
+
+The transaction token distinguishes a newly inserted write from an already stored ID, even when retries have the same clock millisecond and answer. Every later statement checks this token; an ID conflict therefore cannot run the first write's mutations again. The token is storage metadata, not part of an API answer or an outbox file, and changes no schema column.
 
 ### Migrations (TBL-113)
 
@@ -303,7 +310,7 @@ Only the writes that the server took are kept. A write that it refused leaves no
 
 ### Snapshot (TBL-114)
 
-Phase 1's format, `corthex-hub/0.1`, is described in the hub's [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md). NEXUS 0.2 adds the fields below as `corthex-hub/0.2`, and stage 06 adds them to that file. The hub saves the snapshot on the device and sends a fresh one with each push (SPEC-111); the server keeps it without `pictures` (TBL-101). Everything in it is redacted as SPEC-104 says.
+Phase 1's format, `corthex-hub/0.1`, is described in the hub's [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md). NEXUS 0.2 adds the fields below as `corthex-hub/0.2`, and stage 06 adds them to that file. The hub saves the snapshot on the device and sends a fresh one with each push (SPEC-111); the server keeps it without `pictures` (TBL-101). Everything in it is redacted as SPEC-104 says.
 
 | Field | Value | Meaning |
 | --- | --- | --- |
@@ -356,16 +363,18 @@ The agent writes them in the pull request of the stage's work (SPEC-137) or of a
 | `part` | part name | The part; left out in `.corthex/stages.json` |
 | `stages` | object by stage key | One record for each stage that has one |
 | `stages.<stage>.state` | `done`, `in_progress`, `not_started` or `skipped` | As recorded (REQ-084); `done` only with a checkpoint and its date (REQ-085) |
-| `stages.<stage>.checkpoints` | list | Each checkpoint with `approved`, what was approved, in the user's words when they gave some; `by`, a role such as `the maintainer`, never a name or an email address; `where`, a link to where it was approved; `date`; and `nexus`, the ID of the checkpoint when it was passed in NEXUS (SPEC-137, SPEC-140) |
+| `stages.<stage>.checkpoints` | list | Each checkpoint with `approved`, what was approved, in the user's words when they gave some; `by`, a role such as `the maintainer`, never a name or an email address; optional `where`, a safe HTTPS link to where it was approved; `date`; and optional `nexus`, the ID of the checkpoint when it was passed in NEXUS (SPEC-137, SPEC-140). An unsafe link is left out as SPEC-109 requires; its absence does not discard the approval |
 | `stages.<stage>.next` | text | The next action |
 | `stages.<stage>.checks` | optional list | The review findings, each with `level`, `message`, optional `refs` and `at` (REQ-087) |
 | `stages.<stage>.updated` | time with its zone | When the record was written |
 
 The file is JSON indented by two spaces, with its fields in this order and a final LF, so that a pull request shows only what changed. Two pull requests that change the records of different parts never conflict, since each part has its own file (SPEC-137). A repository can be public, as this one is, so a record holds roles and links, never personal data. A file of a format that the hub does not know counts as not valid, as SPEC-109 says of one that is not valid JSON.
 
+Repository status updates serialize the complete read-modify-replace operation per record file. A short native OS guard, released by the OS after a process exits, is kept outside the repository under the user's `~/.corthex/hub/record-locks/`. Its key uses the record directory's filesystem identity and generated filename, so sessions using different `--home` profiles or path aliases still share it. Windows obtains that identity through one fixed native file-information API, since Python versions may expose different device-number widths. Redirected guard directories, including Windows junctions, are refused. An opened guard must be a regular file with one link before any initialization. A busy writer fails without replacing the record, and a retry reloads the latest file; no guard or new data field is committed or sent.
+
 ### Status file (TBL-116)
 
-Phase 1's file, which `hub.py status` writes on each device, as the hub's [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) describes: for each stage its state, its last checkpoint with its date, its next action, its review findings and when it was written. From NEXUS 0.2 the hub reads it only for a project whose repository holds no stage records, with a `records-in-status-file` check (SPEC-109).
+Phase 1's file, which `hub.py status` writes on each device, as the hub's [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) describes: for each stage its state, its last checkpoint with its date, its next action, its review findings and when it was written. From NEXUS 0.2 the hub reads it only for a project whose repository holds no stage records, with a `records-in-status-file` check (SPEC-109).
 
 ### Outbox (TBL-117)
 
@@ -385,6 +394,10 @@ The agent's writes that the hub could not send (SPEC-129), one file for each wri
 | `failure` | optional text | The kind of the last failure, such as `no network` or `no service token` |
 
 The hubs of one device take turns on a project's outbox with the lock `outbox/<project>.lock`, a file made with an exclusive create, which works on Linux, macOS and Windows (REQ-083). It holds the hub's process ID and the time. The holder renews it after each write that it sends, each send waiting at most 30 seconds, and a lock older than 2 minutes is stale and taken over. A claim never waits in the outbox: sent later, it would hold an entry for a session that has moved on, so a claim that cannot be sent leaves the entry untaken, and the hub says so. The outbox never holds the service token (REQ-109).
+
+A short native operating-system lock on `outbox/<project>.guard` serializes creating, renewing and taking over that lease. It holds no text or token and never spans a network request. A sender verifies its random ownership marker before changing a queued file, so a former holder cannot alter a new holder's queue. While the lease is busy, another hub may append a new unique write under the short guard, with `tries: 0`; it waits for the next drain and is never sent ahead of the waiting head. These are device-only synchronization details, not new fields of `OutboxFile`.
+
+Every agent write is atomically queued with its original ID before its first send, and that same drain sends it after older writes. This closes the gap between checking an empty queue and sending a fresh write, and retains the write if its process loses the lease. `outbox/<project>.order` holds only the queued write IDs in admission order, under the same short guard, so writes created in the same millisecond keep their order without altering their actual `made` times. Its entry is written before publishing a new queue file; a missing file is ignored. Existing queue files without ordering metadata retain filename order. Retries do not move a write, and a former sender may only recover its original missing file through the unique-append path, never overwrite a new holder's file. Failure to persist gives the agent one redacted recovery copy, as SPEC-129 requires, without saving it in a log.
 
 ### Positions (TBL-118), phase ②
 
@@ -430,7 +443,7 @@ One statement, `DELETE FROM snapshots WHERE name = ?`, deletes the snapshot, and
 
 ## Format version and migrations
 
-- The schema's version is in `migrations` (TBL-113). Phase 1's server made `snapshots` at its first use and kept no version: that is version 1. Version 2, for NEXUS 0.2, is [nexus.sql](nexus.sql). nexus.sql records no version, so the server's database is always set up by store.js, and one made from nexus.sql alone serves only to compare the schemas.
+- The schema's version is in `migrations` (TBL-113). Phase 1's unversioned `snapshots` is version 1. Version 2 adds NEXUS 0.2's space tables; version 3 adds the internal `edits.last_report` metadata needed for SPEC-133's repeated reports. Released migrations 1 and 2 stay unchanged. [nexus.sql](nexus.sql) describes the latest schema, records no version, and serves only to compare the schemas; store.js always initializes a server database.
 - store.js keeps every migration. At its first use of a database it runs nexus.sql's statement for `migrations`, which makes the table only when it is missing, and then runs, in order, each migration whose version the table does not hold, each in one batch with the row that records it. A batch that fails, as when another instance applied the same version first, changes nothing, and store.js reads the versions again.
 - Migration 1 is phase 1's statement, which changes nothing in a database that already holds the table:
 
@@ -684,3 +697,8 @@ store.js first: migrations 1 and 2, the push with its two batches, then the writ
 - A checkpoint withdrawn while its record's pull request is open, and that record merged and pushed anyway: the to-do keeps the checkpoint, and its stage has the `checkpoint-withdrawn` warning, until a push whose records no longer name it.
 - A write sent twice, and again after 7 days; two sessions that claim one entry, and a claim that ends; two hubs of one device that send one outbox; and a space at its text limit.
 - The stage records of two parts changed by two pull requests merged one after the other.
+
+
+## Machine source registration, 2026-11-04
+
+The hub stage05 source is `docs/05-erd/nexus.sql`. This file provides the table picture through the fetched default-branch Git objects. The explanatory model and its Korean copy remain the readable model for the human view. A local own-repository check found that registering only `nexus.md` produced DDD and sitemap pictures and omitted the ERD. The registration now selects the SQL source; the regression runs the actual pinned hub against both registrations and verifies all three picture stages for the current one. No new stage IDs or SQL schema change are introduced.

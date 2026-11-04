@@ -1,0 +1,46 @@
+{
+  "schema": "nexus-work-text-public-summary/1",
+  "status": "works",
+  "metadataSha256": "14feb7e49feeb12109b934558766bd6071cd69d0f8c897519f384f495f0d856d",
+  "syntheticOnly": true,
+  "normal": {
+    "states": 48,
+    "pageCheck": {
+      "error": 0,
+      "warn": 24,
+      "info": 24
+    },
+    "overflow": 0,
+    "ordinary300AdditionalRows": 2
+  },
+  "amplified": {
+    "combinations": 8,
+    "work": {
+      "contexts": 200,
+      "terms": 500,
+      "events": 9900,
+      "listItems": 4,
+      "snapshotBytes": 121878
+    },
+    "text": {
+      "contexts": 200,
+      "characters": 300,
+      "newlines": 299,
+      "listItems": 2,
+      "snapshotBytes": 29472
+    },
+    "getHeadStatus": 200,
+    "headBodyBytes": 0,
+    "falseReady": 0,
+    "nativeRequests": 0,
+    "newCommentPosts": 1,
+    "sourceShaPreserved": true,
+    "overflow": 0,
+    "oldTwoBillionLoopExecuted": false
+  },
+  "allSixImagesVisuallyInspected": true,
+  "all48ImagesIndividuallyReviewed": false,
+  "oldPayloadEquivalenceClaim": false,
+  "formalPerformanceClaim": false,
+  "entireProductQaClaim": false
+}

@@ -1,0 +1,158 @@
+{
+  "schema": "v6-original-stopped-evidence/1",
+  "utcDay": [
+    2026,
+    11,
+    4
+  ],
+  "localDay": [
+    2026,
+    11,
+    5
+  ],
+  "sourceCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "runtimeSha256": "116ce518dc54bf807834a059c03df6c08ebfa6f2ffcc7e172e6cc0665d5a4d14",
+  "planSha256": "fdccf05932e1a55ec7b923ce95ee4ba2cf7dfee4ae4dc905cc12a99e7a0fb4aa",
+  "reportSha256": "ae85aa4ef7f261f899835acbb8d7a7642eb841b922d9fd413ceced00b9abcd1b",
+  "savedSourceProofsEqual": true,
+  "currentHeadAfterRestorationClaimed": false,
+  "originalPlanned": 60,
+  "originalProcessed": 30,
+  "originalObserved": 29,
+  "originalSetupFailed": 1,
+  "originalNotStarted": 30,
+  "originalQualified": 28,
+  "originalState": "formal-stopped-with-all60-slots-retained",
+  "originalStopReason": "owned-cleanup-not-verified",
+  "originalExitCode": 1,
+  "originalVerdict": "fail",
+  "groups": [
+    {
+      "stage": "01-domain",
+      "denominator": 20,
+      "observed": 9,
+      "originalPrimaryQualified": 9,
+      "originalNativeQualified": 9,
+      "originalInvalidOrNotStarted": 11,
+      "originalFirstSvgP95Ms": null,
+      "originalNativeReadyP95Ms": null,
+      "originalNativePaintP95Ms": null,
+      "originalPrimaryVerdict": "fail"
+    },
+    {
+      "stage": "05-erd",
+      "denominator": 20,
+      "observed": 10,
+      "originalPrimaryQualified": 10,
+      "originalNativeQualified": 10,
+      "originalInvalidOrNotStarted": 10,
+      "originalFirstSvgP95Ms": null,
+      "originalNativeReadyP95Ms": null,
+      "originalNativePaintP95Ms": null,
+      "originalPrimaryVerdict": "fail"
+    },
+    {
+      "stage": "07-sitemap",
+      "denominator": 20,
+      "observed": 10,
+      "originalPrimaryQualified": 9,
+      "originalNativeQualified": 9,
+      "originalInvalidOrNotStarted": 11,
+      "originalFirstSvgP95Ms": null,
+      "originalNativeReadyP95Ms": null,
+      "originalNativePaintP95Ms": null,
+      "originalPrimaryVerdict": "fail"
+    }
+  ],
+  "observedSvgCountAtMost3000Ms": 29,
+  "observedSvgMinimumMs": 868.0999999940395,
+  "observedSvgMaximumMs": 1867.5,
+  "newNormativeP95Calculated": false,
+  "verdictsReclassified": 0,
+  "firstSvgMetric": "two-raf-paint-opportunity-upper-bound",
+  "setupFailure": {
+    "slot": 26,
+    "stage": "01-domain",
+    "stageOrdinal": 9,
+    "errorKind": "command-timeout",
+    "setupRecordPresent": false,
+    "navigationRecordPresent": false,
+    "wireRecordPresent": false,
+    "cleanupVerified": true,
+    "harnessNavigationReachedByFrozenControlFlow": false,
+    "independentZeroWireProof": false,
+    "causeEstablished": false
+  },
+  "cleanupFailure": {
+    "slot": 30,
+    "stage": "07-sitemap",
+    "stageOrdinal": 10,
+    "firstSvgPaintMs": 989,
+    "remainingAtOriginalCleanup": 1,
+    "verifiedAtOriginalCleanup": false,
+    "reclassifiedAfterOsCheck": false,
+    "causeEstablished": false
+  },
+  "observedCensusOnly": {
+    "openings": 29,
+    "codeRecords": 420,
+    "codeStatus": {
+      "200": 420
+    },
+    "codeCache": {
+      "MISS": 46,
+      "HIT": 374
+    },
+    "codeProtocol": {
+      "h2": 29,
+      "h3": 391
+    },
+    "codeEncoding": {
+      "br": 201,
+      "zstd": 162,
+      "none": 57
+    },
+    "code200EofApprovedPolicyCookieOnly": 420,
+    "html200NoStore": 29,
+    "htmlProtocol": {
+      "h2": 29
+    },
+    "htmlEncoding": {
+      "br": 29
+    },
+    "pageResourceNetworkCspErrors": 0,
+    "recordedBrowserFetchAdmitted": 449,
+    "recordedBrowserCdpEventsIncludingInline": 525,
+    "setupAttemptWithoutWireRecord": 1,
+    "exactWholeRunHttpCountClaimed": false
+  },
+  "receivedBytes": {
+    "decoded": 47506540,
+    "encoded": 13294750
+  },
+  "references": {
+    "planned": 8,
+    "started": 3,
+    "verified": 1,
+    "nonfatalMiss": 2,
+    "notStarted": 5,
+    "fatal": 0,
+    "excludedFromFormal60": true
+  },
+  "cacheFeatureComparisonsSeparateFromSla": true,
+  "futureLifecycleDiagnosticExecuted": false,
+  "newFormalV7Approved": false,
+  "newUserApprovalClaimed": false,
+  "qa": {
+    "total": 710,
+    "pass": 241,
+    "partial": 467,
+    "fail": 2
+  },
+  "tasks": {
+    "total": 64,
+    "done": 15,
+    "inProgress": 49
+  }
+}

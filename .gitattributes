@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.woff2 -text
+# Preserve pinned license text and generated literals byte for byte.
+nexus/NOTICE -whitespace
+nexus/ui/vendor/EDITOR-NOTICES.txt -whitespace
+nexus/ui/vendor/*LICENSE.txt -whitespace
+nexus/src/view-code/*.txt -whitespace

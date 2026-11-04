@@ -1,0 +1,13 @@
+{
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "scope": "Final source-only Code and Security reviews of the identity fix, following the complete layout work/text-budget review; parent execution is separate.",
+  "codeReviewActionableFindings": 0,
+  "securityReviewActionableFindings": 0,
+  "independentReviewerExecution": false,
+  "parentNodeTests": 144,
+  "parentNodeFailures": 0,
+  "focusedLayoutTests": 15,
+  "realBrowserIdentityCases": 2,
+  "defaultBrowserCases": 8,
+  "formalMobileP95Measured": false
+}

@@ -1,0 +1,68 @@
+{
+  "currentProductPinCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70",
+  "baselineRuntimePinCommit": "3570fb0c755b50c314ca26f0361c72a71fe22d0d",
+  "prHeadCommit": "c235a7a14220c229df53a29caf4c97d87c9261cf",
+  "ciCheckoutMergeCommit": "1aa71cd7aaa3e95698538136fb8ef7e86a988b2b",
+  "normalization": "CRLF to LF only",
+  "runtimeFileCount": 9,
+  "files": [
+    {
+      "file": "plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py",
+      "lfSha256": "007fde16b7b7352fb89cfa5445b3a2b6a56501fb3e912ebc79e0574cdcdc1d68",
+      "currentProductPinEquivalent": true,
+      "baseline3570Equivalent": true
+    },
+    {
+      "file": "plugins/corthex-nexus/skills/corthex-hub/scripts/commands.py",
+      "lfSha256": "bd70b9f00d5a9595a6a272049f263188adf30767537d096394082c666d44122c",
+      "currentProductPinEquivalent": true,
+      "baseline3570Equivalent": true
+    },
+    {
+      "file": "plugins/corthex-nexus/skills/corthex-hub/scripts/domain.py",
+      "lfSha256": "1f6c8866a8bbc76c7f71bc50df8c28aa309de4d24b292c216d787e4a56c622c4",
+      "currentProductPinEquivalent": true,
+      "baseline3570Equivalent": true
+    },
+    {
+      "file": "plugins/corthex-nexus/skills/corthex-hub/scripts/erd.py",
+      "lfSha256": "3fc334d9d30b97530788e3fb02bcef0b3637ab2004d1640d02012641602ecbc7",
+      "currentProductPinEquivalent": true,
+      "baseline3570Equivalent": true
+    },
+    {
+      "file": "plugins/corthex-nexus/skills/corthex-hub/scripts/outbox.py",
+      "lfSha256": "e4da8c52ce8b4518822777d747bbb956a7afe0f783e86e79b29b235d991f5c29",
+      "currentProductPinEquivalent": true,
+      "baseline3570Equivalent": true
+    },
+    {
+      "file": "plugins/corthex-nexus/skills/corthex-hub/scripts/records.py",
+      "lfSha256": "f623baa5617988c5f18d8767fc1d13d2b1e244839d8cd0c77418f1fe28a7e28c",
+      "currentProductPinEquivalent": true,
+      "baseline3570Equivalent": true
+    },
+    {
+      "file": "plugins/corthex-nexus/skills/corthex-hub/scripts/sitemap.py",
+      "lfSha256": "85f3fd59bc1940133de4a4997f8bace27b99dc7093ba4b4a54c6c0c37ed24df4",
+      "currentProductPinEquivalent": true,
+      "baseline3570Equivalent": true
+    },
+    {
+      "file": "plugins/corthex-nexus/skills/corthex-hub/scripts/snapshot02.py",
+      "lfSha256": "8253281ebea9ff4891e4556d0a116962f8b8e63583c3bdecb0b30c29d0fde0d7",
+      "currentProductPinEquivalent": true,
+      "baseline3570Equivalent": true
+    },
+    {
+      "file": "plugins/corthex-nexus/skills/corthex-hub/scripts/transport.py",
+      "lfSha256": "f6f041a3aea831b64ae045f286d0f570a5a2d38037db2b2d51379934b88797b8",
+      "currentProductPinEquivalent": true,
+      "baseline3570Equivalent": true
+    }
+  ],
+  "runtimeScopeIncludesCanonicalHubHtml": false,
+  "canonicalHubHtmlEvidence": "Separate product Python10 E7 comparison supplied by parent; no product test was rerun by this collector.",
+  "productTestsRun": 0,
+  "sourceOrIndexWritten": false
+}

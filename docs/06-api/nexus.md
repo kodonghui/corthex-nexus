@@ -4,9 +4,13 @@
 
 Stage 06 of CORTHEX's own project, for NEXUS 0.2: the requests that the NEXUS server answers, in the OpenAPI contract [nexus.openapi.yaml](nexus.openapi.yaml), and in this file the rules that the contract follows, the hub's commands and the formats of the files that go with them. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows, the functional spec and the server's data. The maintainer passed its checkpoint on 2026-11-03, together with stages 03 to 05, 07 and 08, so the requests, the commands and the formats are frozen for NEXUS 0.2 before stage 10 plans the work: a later breaking change needs the maintainer's decision. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the optional `timeline` to the DDD board's picture source, a compatible change, and named the work board of phase ② beside editing; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). The contract is the source of every request, answer, example and error code that it holds; this file explains them and is the source of the rest. When this file and its Korean translation differ, this file is the source.
 
-Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-142), above all its [notes for stage 06](../04-functional-spec/nexus.md#stage-06-requests-commands-and-formats); the server's data and the files in [docs/05-erd/nexus.md](../05-erd/nexus.md) and [nexus.sql](../05-erd/nexus.sql) (TBL-101 to TBL-118), with their [notes for stage 06](../05-erd/nexus.md#stage-06-requests-commands-and-formats) and their limits; the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md); the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps; and phase 1 as it runs: the server in [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js) and [store.js](../../nexus/src/store.js), and the hub in [hub.py](../../plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py) with its [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md). The sitemap (stage 07) comes later, so no screen ID is an input yet; the requests serve the screens that the user flows and the functional spec name.
+Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-142), above all its [notes for stage 06](../04-functional-spec/nexus.md#stage-06-requests-commands-and-formats); the server's data and the files in [docs/05-erd/nexus.md](../05-erd/nexus.md) and [nexus.sql](../05-erd/nexus.sql) (TBL-101 to TBL-118), with their [notes for stage 06](../05-erd/nexus.md#stage-06-requests-commands-and-formats) and their limits; the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md); the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps; and phase 1 as it runs: the server in [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js) and [store.js](../../nexus/src/store.js), and the hub in [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py) with its [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md). The sitemap (stage 07) comes later, so no screen ID is an input yet; the requests serve the screens that the user flows and the functional spec name.
 
-The stage's default contract is `api/openapi.yaml`, read in Swagger UI. The NEXUS server has an HTTP API, so its contract is OpenAPI 3.1, as the stage asks, kept beside the other part's interfaces as `docs/06-api/nexus.openapi.yaml`. People read it in the Korean copy in the project's Notion records, and the file itself in any OpenAPI viewer, such as Swagger UI; `.corthex/project.json` records the choice. The hub's commands are no HTTP requests, so this file defines them, in the form of MEMORY's [interfaces](memory.md): each with an API ID, the behaviours that it serves and its outcomes.
+The stage's default contract is `api/openapi.yaml`, read in Swagger UI. The NEXUS server has an HTTP API, so its contract is OpenAPI 3.1, as the stage asks, kept beside the other part's interfaces as `docs/06-api/nexus.openapi.yaml`. People read it in the Korean copy in the project's Notion records, and the file itself in any OpenAPI viewer, such as Swagger UI; `.corthex/project.json` records the choice. The hub's commands are no HTTP requests, so this file defines them, in the form of MEMORY's [interfaces](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/docs/06-api/memory.md): each with an API ID, the behaviours that it serves and its outcomes.
+
+## Approved origin sign-in (2026-11-04)
+
+The standalone origin binds only to127.0.0.1 behind a cloudflared Tunnel. Without ctx.access it directly verifies the Cf-Access-Jwt-Assertion RS256 signature, configured team issuer, ACCESS_AUD, expiry and nbf, then applies the existing user/agent classification. The Worker additionally retains its checked context/audience requirement. Missing configuration or an invalid signature fails closed; the token never chooses the issuer/key host. Existing Access policies and HTTP/snapshot formats are unchanged. TASK-260/264 verify implementation and both real identity kinds.
 
 ## How to read this file
 
@@ -117,7 +121,7 @@ The contract defines them, and this table lists them. Who may send each: `user`,
 - Every reply carries phase 1's headers: `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-Robots-Tag: noindex, nofollow` and `Cross-Origin-Resource-Policy: same-origin`, so that no reply is cached, shown in a frame of another site or indexed (SPEC-113). A JSON reply adds `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`.
 - The hub page keeps phase 1's policy, which runs only its own inline script, by its digest, and sends no request: `default-src 'none'; script-src 'sha256-…'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, with `Cross-Origin-Opener-Policy: same-origin`.
 - The picture view and the stage overview load their code from `/code/` and send their requests only to the server (REQ-147): `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, with `Cross-Origin-Opener-Policy: same-origin`. Their data is in a JSON script block, which the page reads as text and never runs.
-- Only the files of the view's code may be kept by the browser, with `Cache-Control: private, max-age=31536000, immutable`: each name carries a digest of the file's content, and they hold no project data. SPEC-113 allows this, as this stage's checkpoint changed it ([Changes to earlier stages](#changes-to-earlier-stages)).
+- Only public content-hashed view code, styles and fonts may be kept by the browser and the same-origin Access-protected Cloudflare edge, with `Cache-Control: public, max-age=31536000, immutable`: each name carries a digest of the file's content, and they hold no project data. SPEC-113 allows this, as this stage's checkpoint changed it ([Changes to earlier stages](#changes-to-earlier-stages)).
 
 ### Errors
 
@@ -167,7 +171,7 @@ The Worker then checks, as phase 1 does, that Access checked the request (`ctx.a
 - Reads, pushes and removals take any identity that Access let in, as in phase 1, and never answer `no_kind`. A write that only one kind may send answers the other with `user_only` or `agent_only`, whose `needs` names the kind that it takes.
 - Nothing of the identity is kept or logged: an entry keeps only its author's kind, `user` or `agent` (REQ-163).
 - A sign-in can expire while a view is open. The view sends its requests with `redirect: "manual"`, so Access's redirect to its login page reaches it as an `opaqueredirect` reply; the view then says that the sign-in expired, keeps the text and offers to load the page again (SPEC-126).
-- Open: how the Worker reads the identity. It reads it from `ctx.access`, by `getIdentity()` or the token's claims; where that does not give `sub` and `common_name` for both kinds, it reads the header `Cf-Access-Jwt-Assertion` instead and checks the token itself: signed with one of the team's keys, from `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs`, kept for up to an hour; an `aud` that `ACCESS_AUD` names; and not expired. A trial of both kinds on a real Access setup, before stage 11 builds it, decides which, and the contract's security schemes say the same. If neither works, the choice goes back to the maintainer.
+- Chosen on 2026-11-03 by the development Access trial: read the kind from `Cf-Access-Jwt-Assertion`, after requiring `ctx.access` and checking its audience. Verify RS256 with the matching `kid` from the configured team’s public `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs`, the exact team issuer, `ACCESS_AUD`, expiry and any not-before time. `ACCESS_TEAM_DOMAIN` is the configured host, never a host taken from a token. Keep public keys for at most one hour and refresh on an unknown key. Fetch the keys with manual redirects and refuse a non-200 response; the trial’s `redirect: error` request failed before an HTTP response, while manual mode returned the keys and both signatures verified. `getIdentity()` did not give `sub` for the person or `common_name` for the service token. No identity value, JWT, cookie or credential is kept or logged. The security schemes below and in OpenAPI use this selected method.
 
 ## Writes
 
@@ -274,6 +278,8 @@ A push that gets no answer within 30 seconds, or no network, is reported and not
 | One proposal (API-115), edit (API-116) or checkpoint (API-117) | The whole entry, with a proposal's stage source text | |
 | The dry run of a removal (API-110) | What the removal deletes, with the open comments, open proposals, pending reflections and checkpoints that no record names yet by ID | 20 of each, with their totals |
 
+Implementation clarification (2026-11-04): `CommentThread.proposals` has no lifetime array cap. The 500-proposal limit applies to open proposals in a space, not to a comment's historical proposals. The OpenAPI schema now agrees with API-114's existing promise to return all of them.
+
 The view finds which comments, proposals and discrepancies are apart, those whose item the current picture no longer holds, since only it reads the picture source's items (SPEC-119). A project without a space, which only hubs of 0.1 pushed, has no pictures: its picture view and its to-do are `404` `space_not_found`, and its overview shows the record and checks only.
 
 ### The agent to-do
@@ -333,6 +339,8 @@ The agent reports the pull request that writes a checkpoint passed in NEXUS into
 - A merged pull request does not record the checkpoint: the next push whose stored records name it does, and sets its `recorded_commit`.
 - Repeats and other pull requests are answered as for a reflection.
 
+Implementation clarification (2026-11-04): API-130 returns `409 checkpoint_state` for `merged` or `closed` without a reported open pull request, and for a new `opened` after a stored record names the checkpoint. Repeating its last report still changes nothing. This fills an unspecified refusal without changing SPEC-140's state transitions.
+
 ## The hub's commands
 
 ### Running a command
@@ -343,6 +351,8 @@ The agent reports the pull request that writes a checkpoint passed in NEXUS into
 - A text comes from `--text TEXT`, or from `--text-file FILE`, where `-` is standard input, in UTF-8; likewise `--reason` and `--reason-file`, `--change` and `--change-file`, and `--source-file`. Before it sends a text, the hub redacts it as it redacts a snapshot: secrets and email addresses become `[redacted]`, and the user's home folder becomes `~` (SPEC-128).
 - `--part PART` names a part; without it a command concerns the project as a whole.
 - `--json` prints, for each project, one line with a JSON object: `command`; `project`; `outcome`, as below; `answer`, the server's answer; `problem`, the server's Problem Details of a refusal; `failure`, the kind of a failure or of the hub's own refusal, such as `no network`, `timeout`, `HTTP 503`, `no service token`, `refused token` or `not in nexus.push`; and `outbox`, how many of its writes were `sent`, `dropped` and are `waiting`. Without it, the hub prints the same in lines for a person.
+  When a write is dropped, `outbox.notices` additionally names its write ID and reason (the Problem Details or the failure kind), never its body. This supplies the drop report below, including seven-day expiry, without exposing a kept text.
+  Only when an agent write cannot be persisted, the failed result also has `recovery`: its original redacted OutboxFile, including its write ID and body. The command shows this once to the calling agent, as SPEC-129 requires; it does not save or log this copy. The agent keeps the text in its session and preserves that ID when recovering it. Ordinary results and outbox listings have no recovery text.
 
 | Exit code | Outcome | When |
 | --- | --- | --- |
@@ -465,6 +475,7 @@ It lists the writes that wait, by project, with their request, when they were ma
 - A write is dropped, and reported with its reason, when the server refuses it for another reason, such as `409` or `404`, since sending it again changes nothing, and 7 days after it was made, since the to-do that it answered has moved on.
 - At each contact with the server for a project, a push, `todo`, a write, `show`, `claim`, `release` or `outbox --send`, the hub first sends that project's outbox, oldest first, each write with its own write ID and session label. It stops at the first write that is kept again, so that the writes keep their order.
 - Each write is one file, `outbox/<project>/<time>.<write>.json` under `~/.corthex/hub/` (TBL-117), in the form of the contract's `OutboxFile`. The hubs of one device take turns on a project's outbox with the lock `outbox/<project>.lock`, as stage 05 says.
+- A fresh agent write enters that queue before its first send. The device-only ID ordering metadata preserves admission order at millisecond ties; neither a concurrent append nor a lost sender's lease makes a new direct send bypass it. Successful first sends remove their transient files too, so the reported drain counts include them.
 - The outbox never holds the service token, and the hub never shows a kept write's text in a log.
 
 ## Formats
@@ -518,11 +529,11 @@ Each picture source has `format: 1` and one of three shapes, the contract's `Dom
 
 - Each element has `where`, its file and line at the commit, relative to the repository, such as `docs/05-erd/nexus.sql:15`.
 - An element's `id` is its trace ID, or `""` when it has none; `context` is a CTX ID, or `""`. Names are cut at 120 characters and other texts at 300, as titles are, and each list stops at the contract's limit for it.
-- `removed` is `true` for an element whose status says that it is removed, as [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md) reads statuses.
+- `removed` is `true` for an element whose status says that it is removed, as [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md) reads statuses.
 - Secrets and email addresses become `[redacted]` (REQ-191).
 - A document that the forms below cannot fully read gives what could be read, with a `picture-partial` check that names the place.
 
-**DDD board (`01-domain`).** The forms of the stage 01 template, [01-domain.md](../../plugins/corthex/skills/corthex-discover/references/01-domain.md), in English, and in Korean as its Korean documents write them, such as [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md). The hub finds a table by its header row, reads the columns named here in any order, compares the names ignoring case and spacing, and ignores other columns.
+**DDD board (`01-domain`).** The forms of the stage 01 template, [01-domain.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-discover/references/01-domain.md), in English, and in Korean as its Korean documents write them, such as [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md). The hub finds a table by its header row, reads the columns named here in any order, compares the names ignoring case and spacing, and ignores other columns.
 
 | Element | English form | Korean form |
 | --- | --- | --- |
@@ -538,9 +549,11 @@ Each picture source has `format: 1` and one of three shapes, the contract's `Dom
 
 An aggregate or read model takes the TERM ID written beside its name, as `Picture (TERM-085)`, or else that of the glossary row, in the same document, whose term is its name, ignoring case and spacing; with none, or with two such rows, it gets a `board-term-missing` warning (SPEC-106).
 
+A command table outside a context's heading keeps its rows under the nearest context heading above it, with a `picture-partial` check. If none precedes it but the document has a context elsewhere, the rows stay in a context whose `id` and `name` are empty, and their aggregates and read models have `context: ""`. A document with no context contributes no DDD board, including none of its dependencies or timeline (SPEC-106).
+
 In a command row's `Events`, commas separate the events, and a leading `or` (`또는`) is not part of a name, so `Payment taken, or Payment failed` gives two events. The timeline is optional: a document without one gives no `timeline`, and the view then shows the board only as a whole (SPEC-141). Each lane keeps its `where`, the line of its row.
 
-**ERD (`05-erd`).** The SQL of [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md) and the stage 05 template, [05-erd.md](../../plugins/corthex/skills/corthex-contract/references/05-erd.md):
+**ERD (`05-erd`).** The SQL of [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md) and the stage 05 template, [05-erd.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-contract/references/05-erd.md):
 
 ```sql
 -- without a table: TERM-122
@@ -560,9 +573,10 @@ CREATE TABLE pictures (
 - A table is a `CREATE TABLE` that a TBL ID comment defines. The parentheses after its name give its context, a CTX ID, and either its TERM IDs or `terms: none`. A comment with neither leaves `terms` out, which SPEC-121 reports.
 - A column has its name, its type as written and `null`, which is `false` for `NOT NULL` and for a column of the primary key. The primary key comes from `PRIMARY KEY` on a column or in the table; a unique rule from `UNIQUE` on a column or in the table, or from `CREATE UNIQUE INDEX … ON`, with `partial: true` for one with `WHERE`; a foreign key from `REFERENCES` on a column or in the table, or from `ALTER TABLE … ADD [CONSTRAINT …] FOREIGN KEY`, with `on_delete` in lowercase, or `""` without one.
 - A comment line `-- without a table:` followed by TERM IDs, anywhere in the part's SQL, lists the aggregates that the part keeps outside tables.
+- An index expression that cannot be represented as column names is omitted as a whole unique rule, with a `picture-partial` check; a function name is never drawn as a column. Removed status words in table comments use the same vocabulary as other stage items: an explicit `status:` (`상태:`) wins; otherwise a standalone metadata field in parentheses or after a `|` may mark removal. Words in a table name or descriptive title are not its status. Quoted identifier/title spans are excluded before metadata delimiters are read, including escaped quotes; a quoted status value remains a value.
 - The markers `terms: none`, `without a table:` and `without a screen:` are the same in every language, as the code around them is.
 
-**Sitemap (`07-sitemap`).** The YAML of the stage 07 template, [07-sitemap.md](../../plugins/corthex/skills/corthex-screen/references/07-sitemap.md), with `terms`, here two screens of NEXUS's own [nexus.yaml](../07-sitemap/nexus.yaml):
+**Sitemap (`07-sitemap`).** The YAML of the stage 07 template, [07-sitemap.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-screen/references/07-sitemap.md), with `terms`, here two screens of NEXUS's own [nexus.yaml](../07-sitemap/nexus.yaml):
 
 ```yaml
 - id: SCR-104
@@ -589,7 +603,7 @@ CREATE TABLE pictures (
 
 ### Project settings
 
-The project settings, `.corthex/project.json`, gain two fields, which the core plugin's [project.md](../../plugins/corthex/skills/corthex/references/project.md) adds with the 0.2 release:
+The project settings, `.corthex/project.json`, gain two fields, which the core plugin's [project.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex/references/project.md) adds with the 0.2 release:
 
 | Field | Type | Meaning |
 | --- | --- | --- |
@@ -601,6 +615,8 @@ The project settings, `.corthex/project.json`, gain two fields, which the core p
 ### Stage records
 
 The stage records are the file of TBL-115 in stage 05's [Stage records](../05-erd/nexus.md#stage-records-tbl-115), which the contract's `StageRecords` checks: `.corthex/stages/<part>.json` for each part that `parts` names, or `.corthex/stages.json` for a project without parts. The hub reads them from the default branch's commit through Git's object reader and writes them in the working tree with `status` (API-134). A file that is not valid JSON, of another `format` or with a state that is not one of the four gets a `records-invalid` warning, and its stages show as `unknown` (SPEC-109).
+
+`RecordCheckpoint.where` is optional: `status --where` is optional, and SPEC-109 leaves an unsafe link out of a snapshot while retaining the approval, role and date. The status-file fallback preserves phase 1's `checkpoint` and `checkpoint_date` without inventing a role or a NEXUS checkpoint. It never converts that legacy text into a repository checkpoint by itself. A legacy `done` without both a checkpoint and a valid calendar date is shown as `in_progress` with a warning (REQ-085).
 
 ### Outbox files
 
@@ -630,7 +646,7 @@ Each file of the outbox is TBL-117 of stage 05's [Outbox](../05-erd/nexus.md#out
 
 ## Check rules
 
-The hub's new rules, which its [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md) gains with the 0.2 release:
+The hub's new rules, which its [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md) gains with the 0.2 release:
 
 | Rule | Level | Meaning |
 | --- | --- | --- |
@@ -722,6 +738,7 @@ The codes of every request, as the contract's `components.x-corthex.errors` list
 | `entry_closed` | 409 | a claim on a closed entry | none | This entry is closed | the hub skips it |
 | `checkpoint_recorded` | 409 | a stored stage record names the checkpoint, so withdrawing it would change a recorded decision | none | This checkpoint is recorded. Changing it is a new decision | the overview shows the record |
 | `checkpoint_withdrawn` | 409 | the checkpoint was withdrawn, so no new record pull request may write it | none | This checkpoint was withdrawn | the hub reports it, and the agent writes no record |
+| `checkpoint_state` | 409 | no matching open record, or already recorded | none | Read the checkpoint before reporting | read it again |
 | `write_id_reused` | 409 | the write ID was taken by another request | none | This write could not be sent. Try again | the view makes a new ID; the hub reports it as a fault of its own |
 | `snapshot_too_large` | 413 | the snapshot is larger than 1 MiB | `limit` | The snapshot is larger than the server takes | the hub reports it; its own limits keep snapshots smaller |
 | `body_too_large` | 413 | a write's body is larger than 256 KiB | `limit` | This is larger than the server takes | the view and the hub report it |
@@ -731,7 +748,7 @@ The codes of every request, as the contract's `components.x-corthex.errors` list
 
 ## Breaking changes
 
-Compared with phase 1, as the hub's [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) describes it:
+Compared with phase 1, as the hub's [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) describes it:
 
 1. Refusals are Problem Details, sent as `application/problem+json`, with more members. They keep `error`, so a hub of 0.1, which reads any JSON reply and shows `error`, still shows the reason, and the reasons are worded anew.
 2. A hub of 0.1 cannot push a project that a hub of 0.2 pushed: its snapshot names no commit while the stored one has one, so the server refuses it with `409` `commit_not_replaced`. Every device's hub moves to 0.2 before it pushes such a project again.
@@ -793,6 +810,27 @@ Again on 2026-11-03, after the maintainer's choice to hold stage 01's event stor
 - Prism and Schemathesis were not run again: the change adds one optional field to one schema and a lane to one example, which the check of this stage validates.
 - The repository's checks pass, now with 756 tests (12 skipped), and the hub's snapshot of this repository reads 1014 items with no checks.
 
+### Development Access identity trial (2026-11-03)
+
+TASK-201 deployed a temporary diagnostic Worker behind Access without static assets and used a service-token request (this host’s user environment) and a person’s signed-in browser through Aside CLI 1.26.1028.2335. Both returned 200; ctx.access audience and the JWT audience, issuer, expiry and RS256 signature matched. An anonymous browser received Access’s 302. Only field presence, empty and absent are recorded below, never their values.
+
+| Source | Field | Person | Service token |
+| --- | --- | --- | --- |
+| ctx.access | aud | present | present |
+| ctx.access | sub | absent | absent |
+| ctx.access | email | absent | absent |
+| ctx.access | common_name | absent | absent |
+| getIdentity() | aud | absent | absent |
+| getIdentity() | sub | absent | absent |
+| getIdentity() | email | present | absent |
+| getIdentity() | common_name | empty | absent |
+| header JWT | aud | present | present |
+| header JWT | sub | present | empty |
+| header JWT | email | present | absent |
+| header JWT | common_name | absent | present |
+
+The selected header method distinguishes both kinds. Implementation checks of caching, expiry, rotation and refusal, and the full development API contract run are separate from this diagnostic and are not yet counted as complete. After the diagnostic, replace the development probe with the implemented server.
+
 ## For the checkpoint
 
 The maintainer's choice of 2026-11-03, to hold stage 01's event storming in NEXUS, passed at 16:54 KST the same day, together with the changes that it made to the other stages: on a decision card in the project's thread the maintainer chose to pass the step view and the work board as drawn ("모두 그린 대로 통과", pass all as drawn). The checkpoint covered: the optional `timeline` of `DomainSource`, with its forms in [Picture sources](#picture-sources), which is a compatible change, since a picture source without it stays valid and a snapshot of the frozen form still passes; and the work board of phase ② (SPEC-142), which adds its requests then, beside those of editing (SPEC-134).
@@ -816,7 +854,7 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 05, 07 and 08: on 
 ### Stage 10: work breakdown
 
 - The server first: store.js's migrations, then the requests in the contract's order: the push with the held commit and the removal; the reads; the discussion; editing; stage progress with the claims. The hub follows: the snapshot 0.2 with its picture sources, stage records and settings, `status`, `push`, then the writes with the outbox. The views come last.
-- The release carries this file's formats and rules into the hub's [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md), and `parts` and `ask_before` into the core plugin's [project.md](../../plugins/corthex/skills/corthex/references/project.md), with the stage skills' steps that run the hub's commands.
+- The release carries this file's formats and rules into the hub's [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md), and `parts` and `ask_before` into the core plugin's [project.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex/references/project.md), with the stage skills' steps that run the hub's commands.
 
 ### Stage 11: development
 
@@ -828,3 +866,22 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 05, 07 and 08: on 
 
 - A test case for each response of each request, from its named examples, written as `API-118#409`, and for each outcome of each command, on Linux, macOS and Windows.
 - The kinds of cases above: a write sent twice and again after 7 days, a write ID of another request, two sessions on one entry, a push that another overtook, a 0.1 hub after a 0.2 push, a sign-in that expires in the view, and the outbox without a network, without a token and after 7 days.
+
+## Transport, measurement and release decision of 2026-11-04
+
+The maintainer approved edge caching of public content-hashed code, styles and fonts at the same configured origin (REQ-147). HTML, API, project data and refusals remain no-store. Code has no Set-Cookie or Vary:*, with unchanged CSP and whole-host Access. Even a cached object must not reach unauthenticated GET/HEAD callers. An edge HIT does not visit the origin, so origin verification is not claimed on every HIT.
+
+REQ-124 server processing runs from complete body receipt to response handling completion. Body arrival, client round trip, process CPU windows and RSS remain separate. The existing31.085ms passes1s; the historical inclusive1031.079ms stays recorded.
+
+The maintainer conditionally approved NEXUS merges, production migration/routing and release tags after REQ-149/124 pass, all710 cases have verdicts with zero Must failures, migration/recovery rehearsals pass, core integrates after C1 release/PR C, and required checks plus Code/Security reviews pass. The first repository snapshot still needs REQ-107 confirmation. Preserve the old Worker/D1 for14days after switching and ask before deletion. If a condition remains, ask once with its numbers and release after the answer.
+
+## First picture decision, 2026-11-04
+
+The maintainer explicitly selected “SVG first + HTML path improvement” in the current Codex conversation. Keep the frozen tokens, same-origin Access boundary and pinned real editors. A complete server-rendered SVG is the first picture; Excalidraw/ERD Viewer loads afterwards. REQ-149/TC-654/TC-1271/TC-1309 measure this first visible picture under the unchanged mobile/network/CPU1 profile. Record native-editor readiness separately, keeping all earlier native-ready failures and any failed/incomplete observations. Do not use a DOM-ready marker alone as evidence of a visible, readable picture.
+
+The preview uses the same deterministic geometry and checked source as the editor, with safe text/fragment links and no SVG scripts, foreign content or external resources. It stays visible during editor loading and remains available with the item list when that loading fails. Core controls keep the current viewport when handing over to the real editor. Loading preserves the frame and surrounding layout. Distinguish first-preview and native-editor-ready states and timings.
+
+Trusted static view CSS may be inlined so a stylesheet request does not block the preview. HTML, SVG project content and API data remain no-store; hashed code/style/fonts retain the approved Access-protected public immutable cache. The standalone server may negotiate bounded built-in HTML compression to reduce Tunnel transfer. No project data is placed in a public code file or cache. Neither this decision nor a preview is a release, first real-repository upload, or approval to delete Worker/D1. Existing conditional-release gates remain.
+
+
+Repeated-layout safety bound: keep the300-element target and normal pictures. If expanded nodes (including context frames) exceed20000, server/view stop layout and show an explicit limitation with at most3000original source items and working panels. Do not claim a complete picture/editor-ready state. Preserve original API/storage and200/no-store GET/HEAD. [Validation](../12-qa/runs/2026-11-04-svg-first.md).

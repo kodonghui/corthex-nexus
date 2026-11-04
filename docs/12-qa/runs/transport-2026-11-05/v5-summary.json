@@ -1,0 +1,739 @@
+{
+  "schema": "svg-v5-preserved-evidence/1",
+  "scope": "original-formal-run-preserved",
+  "utcDay": [
+    2026,
+    11,
+    4
+  ],
+  "localDay": [
+    2026,
+    11,
+    5
+  ],
+  "sourceCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "runtimeSha256": "1022eaefc8372ba7b352dd6f5132d5bf0621ffd0f151aa0f23764a9757ec641d",
+  "planSha256": "a4d699a67859b60a5e4a3f939dc4c0f2ad0203d6cd01115b8c412dfed3c6efed",
+  "reportSha256": "1d010ff52be0cdb23c7682588e09dd3bc8c4c6f47422e0e37fd6eb51c2aa0173",
+  "operatorReturnSha256": "87091808411e19b349104bf9e90f0f3a6f470a81768473944c11c196bef285f6",
+  "slots": 60,
+  "observed": 60,
+  "originalState": "all60-planned-slots-processed",
+  "originalStudyVerdict": "fail",
+  "originalExitCode": 1,
+  "originalEligible": 50,
+  "originalInvalid": 10,
+  "cacheOnlyInvalid": 9,
+  "actualResourceFailureInvalid": 1,
+  "allOriginalInvalidAreMissOnly": false,
+  "groups": [
+    {
+      "stage": "01-domain",
+      "denominator": 20,
+      "originalPrimaryQualified": 17,
+      "originalNativeQualified": 17,
+      "originalInvalid": 3,
+      "originalFirstSvgP95Ms": null,
+      "originalNativeReadyP95Ms": null,
+      "originalNativePaintP95Ms": null,
+      "originalPrimaryVerdict": "fail",
+      "observedSvgCountAtMost3000Ms": 20,
+      "observedSvgMinimumMs": 792.0999999940395,
+      "observedSvgMaximumMs": 1542.7000000178814
+    },
+    {
+      "stage": "05-erd",
+      "denominator": 20,
+      "originalPrimaryQualified": 17,
+      "originalNativeQualified": 17,
+      "originalInvalid": 3,
+      "originalFirstSvgP95Ms": null,
+      "originalNativeReadyP95Ms": null,
+      "originalNativePaintP95Ms": null,
+      "originalPrimaryVerdict": "fail",
+      "observedSvgCountAtMost3000Ms": 20,
+      "observedSvgMinimumMs": 829.3999999761581,
+      "observedSvgMaximumMs": 1612.800000011921
+    },
+    {
+      "stage": "07-sitemap",
+      "denominator": 20,
+      "originalPrimaryQualified": 16,
+      "originalNativeQualified": 16,
+      "originalInvalid": 4,
+      "originalFirstSvgP95Ms": null,
+      "originalNativeReadyP95Ms": null,
+      "originalNativePaintP95Ms": null,
+      "originalPrimaryVerdict": "fail",
+      "observedSvgCountAtMost3000Ms": 20,
+      "observedSvgMinimumMs": 844,
+      "observedSvgMaximumMs": 2917.5999999940395
+    }
+  ],
+  "observedSvgCountAtMost3000Ms": 60,
+  "observedSvgMinimumMs": 792.0999999940395,
+  "observedSvgMaximumMs": 2917.5999999940395,
+  "newNormativeP95Calculated": false,
+  "verdictsReclassified": 0,
+  "frozenCodeCensus": {
+    "MISS": 107,
+    "total": 880,
+    "status200": 879,
+    "finished": 879,
+    "failed": 1,
+    "policy": 879,
+    "cookie": 880,
+    "HIT": 772,
+    "absent": 1
+  },
+  "actualFailure": [
+    {
+      "slot": 59,
+      "stage": "07-sitemap",
+      "stageOrdinal": 20,
+      "codeCount": 20,
+      "cacheCounts": {
+        "HIT": 1,
+        "MISS": 18,
+        "absent": 1
+      },
+      "failedCodeCount": 1,
+      "failedCodes": [
+        {
+          "ordinal": 19,
+          "kind": "other-code",
+          "status": 520,
+          "cache": "absent",
+          "finished": false,
+          "failed": true,
+          "approvedPolicy": false
+        }
+      ],
+      "networkFailureCount": 1,
+      "resourceErrorCount": 1,
+      "originalPrimaryReasons": [
+        "all-code-completed-public-hit-age-not-verified"
+      ],
+      "originalNativeReasons": [
+        "all-code-completed-public-hit-age-not-verified",
+        "page-resource-or-network-failure"
+      ]
+    }
+  ],
+  "secondOpeningCacheEvidence": [
+    {
+      "stage": "01-domain",
+      "slot": 6,
+      "stageOrdinal": 2,
+      "originalPrimaryValid": true,
+      "codeCount": 20,
+      "phases": [
+        {
+          "phase": "opening-cutoff",
+          "codeCount": 20,
+          "verifiedCodeCount": 20
+        },
+        {
+          "phase": "final",
+          "codeCount": 20,
+          "verifiedCodeCount": 20
+        }
+      ],
+      "codeEvidenceColumns": [
+        "ordinal",
+        "assetClass",
+        "status",
+        "cache",
+        "ageSeconds",
+        "eof",
+        "approvedPolicy",
+        "cookieOnly",
+        "redirect"
+      ],
+      "codeEvidence": [
+        [
+          2,
+          "entry",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          3,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          4,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          5,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          6,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          7,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          8,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          9,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          10,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          11,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          12,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          13,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          14,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          15,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          16,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          17,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          18,
+          "other-code",
+          200,
+          "HIT",
+          54,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          19,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          20,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          21,
+          "other-code",
+          200,
+          "HIT",
+          55,
+          true,
+          true,
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "stage": "05-erd",
+      "slot": 4,
+      "stageOrdinal": 2,
+      "originalPrimaryValid": true,
+      "codeCount": 4,
+      "phases": [
+        {
+          "phase": "opening-cutoff",
+          "codeCount": 4,
+          "verifiedCodeCount": 4
+        },
+        {
+          "phase": "final",
+          "codeCount": 4,
+          "verifiedCodeCount": 4
+        }
+      ],
+      "codeEvidenceColumns": [
+        "ordinal",
+        "assetClass",
+        "status",
+        "cache",
+        "ageSeconds",
+        "eof",
+        "approvedPolicy",
+        "cookieOnly",
+        "redirect"
+      ],
+      "codeEvidence": [
+        [
+          2,
+          "entry",
+          200,
+          "HIT",
+          18551,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          3,
+          "other-code",
+          200,
+          "HIT",
+          18,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          4,
+          "other-code",
+          200,
+          "HIT",
+          18,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          5,
+          "other-code",
+          200,
+          "HIT",
+          17,
+          true,
+          true,
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "stage": "07-sitemap",
+      "slot": 5,
+      "stageOrdinal": 2,
+      "originalPrimaryValid": true,
+      "codeCount": 20,
+      "phases": [
+        {
+          "phase": "opening-cutoff",
+          "codeCount": 20,
+          "verifiedCodeCount": 20
+        },
+        {
+          "phase": "final",
+          "codeCount": 20,
+          "verifiedCodeCount": 20
+        }
+      ],
+      "codeEvidenceColumns": [
+        "ordinal",
+        "assetClass",
+        "status",
+        "cache",
+        "ageSeconds",
+        "eof",
+        "approvedPolicy",
+        "cookieOnly",
+        "redirect"
+      ],
+      "codeEvidence": [
+        [
+          2,
+          "entry",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          3,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          4,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          5,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          6,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          7,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          8,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          9,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          10,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          11,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          12,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          13,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          14,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          15,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          16,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          17,
+          "other-code",
+          200,
+          "HIT",
+          43,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          18,
+          "other-code",
+          200,
+          "HIT",
+          43,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          19,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          20,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ],
+        [
+          21,
+          "other-code",
+          200,
+          "HIT",
+          44,
+          true,
+          true,
+          true,
+          false
+        ]
+      ]
+    }
+  ],
+  "cacheClaimScope": "three-exact-second-openings-only-not-all-later-openings",
+  "references": {
+    "planned": 8,
+    "verified": 4,
+    "missNonComparable": 4,
+    "fatal": 0,
+    "excludedFromFormal60": true
+  },
+  "cleanup": {
+    "verifiedSlots": 60,
+    "retainedProfiles": 60,
+    "deletedProfiles": 0,
+    "ownedChromeRemaining": 0,
+    "ownedNodeRemaining": 0,
+    "exclusiveWindowReturned": true
+  },
+  "receivedBytes": {
+    "decoded": 98528828,
+    "encoded": 27612457
+  },
+  "physicalFirstByteClaimed": false,
+  "sourceStartEndEqualExact906": true,
+  "qa": {
+    "total": 710,
+    "pass": 241,
+    "partial": 467,
+    "fail": 2
+  },
+  "tasks": {
+    "total": 64,
+    "done": 15,
+    "inProgress": 49
+  }
+}

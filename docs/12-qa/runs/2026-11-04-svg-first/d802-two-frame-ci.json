@@ -1,0 +1,19 @@
+{
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "localSyntheticOnly": true,
+  "defaultCases": 8,
+  "works": 8,
+  "sameFrozenQaAs16f4": true,
+  "sourceEdits": 0,
+  "sourceAndBuildInputsStable": true,
+  "originalSvgNodes": 3,
+  "rAFCallbacks": 2,
+  "sameOriginalSvgConnectedAtBoth": true,
+  "scriptIdentifierRemoved": true,
+  "profileRemoved": true,
+  "otherSixSuitesRerun": false,
+  "elapsedUsedForP95": false,
+  "actualDevRequests": 0,
+  "sourceQaVerdictChanges": 0,
+  "full710PassClaims": 0
+}

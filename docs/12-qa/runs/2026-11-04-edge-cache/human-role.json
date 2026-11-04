@@ -1,0 +1,95 @@
+{
+  "status": "works",
+  "before": [
+    {
+      "alias": "proposals",
+      "status": 403,
+      "code": "agent_only",
+      "expected_match": true
+    },
+    {
+      "alias": "checkpoints",
+      "status": 400,
+      "code": "invalid_request",
+      "expected_match": true
+    }
+  ],
+  "after": [
+    {
+      "alias": "proposals",
+      "status": 403,
+      "code": "agent_only",
+      "expected_match": true
+    },
+    {
+      "alias": "checkpoints",
+      "status": 400,
+      "code": "invalid_request",
+      "expected_match": true
+    }
+  ],
+  "code_reads": [
+    {
+      "alias": "JS",
+      "attempt": 1,
+      "status": 200,
+      "cf_cache_status": "HIT",
+      "age": 152,
+      "body_sha256": "c57f9a7d912df2a210166d5ab7207982bdbb768da619d23be524f3b44b2759d0",
+      "expected_match": true
+    },
+    {
+      "alias": "CSS",
+      "attempt": 1,
+      "status": 200,
+      "cf_cache_status": "HIT",
+      "age": 1468,
+      "body_sha256": "4637512226aff0327bb8ac8ad28e9485440029edffadf204d67a18dd95ab304f",
+      "expected_match": true
+    },
+    {
+      "alias": "CSS",
+      "attempt": 2,
+      "status": 200,
+      "cf_cache_status": "HIT",
+      "age": 1468,
+      "body_sha256": "4637512226aff0327bb8ac8ad28e9485440029edffadf204d67a18dd95ab304f",
+      "expected_match": true
+    },
+    {
+      "alias": "WOFF2",
+      "attempt": 1,
+      "status": 200,
+      "cf_cache_status": "MISS",
+      "age": null,
+      "body_sha256": "e0cdd332ce039770e93ec44336b6db65f931940f42b0342aad35a06e7f991d29",
+      "expected_match": true
+    },
+    {
+      "alias": "WOFF2",
+      "attempt": 2,
+      "status": 200,
+      "cf_cache_status": "HIT",
+      "age": 1,
+      "body_sha256": "e0cdd332ce039770e93ec44336b6db65f931940f42b0342aad35a06e7f991d29",
+      "expected_match": true
+    }
+  ],
+  "id_key_format_valid": true,
+  "credentials_mode": "same-origin",
+  "metadata": {
+    "deployment": "f51ca9c",
+    "CA4": "ca4ac3fd94fc14d08bd7a576792d92f8dd84a1529030fa63b6bb6c42bd4a2085",
+    "service_worker_controlled": false,
+    "source_no_write_refusal_order_checked": true,
+    "initial_json_dispatch_unknown": true,
+    "service_headers_injected": false,
+    "auth_values_read": false,
+    "settings_changes": 0,
+    "actual_successful_writes": 0
+  },
+  "errors": [],
+  "content_hashes_verified": true,
+  "cache_hit_observed": true,
+  "evidence_time": "2026-11-04T15:42:06.871+09:00"
+}

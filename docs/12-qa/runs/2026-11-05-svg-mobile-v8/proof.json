@@ -1,0 +1,347 @@
+{
+  "schema": "nexus-original-criteria-svg-v8/1",
+  "sourceBaseCommit": "7b9c2f2f0daf71d7f1d4e3b890fa7381ded37d1b",
+  "runtimeCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "runtimeSha256": "bb9ea5fe629c0a14943f41b832d0e11b20a34227f07d66bfec35aec4a8618685",
+  "planSha256": "30003f64debfbe7abb3b196be69bf5ac22bc2edb1a4866f98d4ee8102085f555",
+  "helperSha256": "57201e33d946068c5a3125eaa47f8e6d3c869454faa535676bfd96ef5f95221f",
+  "formal": {
+    "dateUtc": "2026-11-04",
+    "dateAsiaSeoul": "2026-11-05",
+    "rawSha256": "e280329ec7fb4462488699d7cd8761a9a14344a4b5b0f40663aa14ccce92df40",
+    "slots": 60,
+    "perStage": 20,
+    "retryReplacement": false,
+    "securityVerified": 60,
+    "strictCleanupVerified": 60,
+    "sourceStartEndEqual": true,
+    "groups": [
+      {
+        "stage": "01-domain",
+        "slots": 20,
+        "qualified": 20,
+        "rank19FirstSvgPaintMs": 1399.199999988079,
+        "nativeReadyMs": 2784,
+        "nativePaintOpportunityMs": 3159.5,
+        "koreanDocuments": 20,
+        "fontsLoaded": 20,
+        "originalSourceHashes": [
+          "29eb106aa5bff440dd4536e7350716e07f871a7b2debf50fa6bb93321d3d1f9f"
+        ],
+        "initialSvgPaintPhase": {
+          "initial": 20
+        }
+      },
+      {
+        "stage": "05-erd",
+        "slots": 20,
+        "qualified": 20,
+        "rank19FirstSvgPaintMs": 1327.2000000178814,
+        "nativeReadyMs": 2686,
+        "nativePaintOpportunityMs": 2721.7000000178814,
+        "koreanDocuments": 20,
+        "fontsLoaded": 20,
+        "originalSourceHashes": [
+          "58e3962e9cc27eb88fc83e2b40e46f751a19359a1c378f0b11160ff2c402956f"
+        ],
+        "initialSvgPaintPhase": {
+          "initial": 20
+        }
+      },
+      {
+        "stage": "07-sitemap",
+        "slots": 20,
+        "qualified": 20,
+        "rank19FirstSvgPaintMs": 1357.300000011921,
+        "nativeReadyMs": 2873.9000000059605,
+        "nativePaintOpportunityMs": 3067,
+        "koreanDocuments": 20,
+        "fontsLoaded": 20,
+        "originalSourceHashes": [
+          "dd5da0b7db196ffd52377b4746dcd71d91f37d631ee1d80fc753d47fb40c7edc"
+        ],
+        "initialSvgPaintPhase": {
+          "initial": 20
+        }
+      }
+    ],
+    "codeFontTransferBytes": [
+      {
+        "stage": "01-domain",
+        "scope": "Sum of retained final CDP code census; includes later/native traffic, not first-SVG network-only or unique bundle size",
+        "types": {
+          "Font": {
+            "records": 60,
+            "decodedDataBytes": 1218640,
+            "encodedDataBytes": 1219368,
+            "encodedAccountedBytes": 1255517
+          },
+          "Script": {
+            "records": 320,
+            "decodedDataBytes": 28264800,
+            "encodedDataBytes": 8149214,
+            "encodedAccountedBytes": 8549443
+          },
+          "Stylesheet": {
+            "records": 20,
+            "decodedDataBytes": 2892380,
+            "encodedDataBytes": 403308,
+            "encodedAccountedBytes": 416014
+          }
+        }
+      },
+      {
+        "stage": "05-erd",
+        "scope": "Sum of retained final CDP code census; includes later/native traffic, not first-SVG network-only or unique bundle size",
+        "types": {
+          "Script": {
+            "records": 80,
+            "decodedDataBytes": 21150300,
+            "encodedDataBytes": 6115924,
+            "encodedAccountedBytes": 6377382
+          }
+        }
+      },
+      {
+        "stage": "07-sitemap",
+        "scope": "Sum of retained final CDP code census; includes later/native traffic, not first-SVG network-only or unique bundle size",
+        "types": {
+          "Font": {
+            "records": 60,
+            "decodedDataBytes": 1218640,
+            "encodedDataBytes": 1219359,
+            "encodedAccountedBytes": 1255616
+          },
+          "Script": {
+            "records": 320,
+            "decodedDataBytes": 28264800,
+            "encodedDataBytes": 8060564,
+            "encodedAccountedBytes": 8549475
+          },
+          "Stylesheet": {
+            "records": 20,
+            "decodedDataBytes": 2892380,
+            "encodedDataBytes": 403280,
+            "encodedAccountedBytes": 415924
+          }
+        }
+      }
+    ],
+    "profile": {
+      "width": 390,
+      "height": 844,
+      "dpr": 2.75,
+      "mobileTouch": true,
+      "cpuRate": 1,
+      "cacheDisabled": true,
+      "serviceWorkerBypassed": true,
+      "legacyLatencyMs": 165,
+      "downloadBytesPerSecond": 1012500,
+      "uploadBytesPerSecond": 168750
+    },
+    "definition": "Original complete SVG300/all labels/styles/visibility/same SVG two-rAF paint-opportunity upper bound; native observed separately. Not compositor pixel proof."
+  },
+  "criterionEvidence": {
+    "TC-654": {
+      "formalDddQualified": 20,
+      "formalDddP95Ms": 1399.199999988079,
+      "historicalCtx012": {
+        "runtimePrefix": "f51ca9",
+        "metadataPrefix": "CA4",
+        "stage": "01-domain",
+        "width": 1440,
+        "height": 1000,
+        "method": "actual pointer opens exact comment; synthetic handler/SQLite"
+      },
+      "historicalPan": {
+        "metadataPrefix": "f088",
+        "stage": "07-sitemap",
+        "width": 320,
+        "height": 844,
+        "deltaX": 32,
+        "deltaY": 20,
+        "clientWidth": 305,
+        "scrollWidth": 305,
+        "commonPanCameraUnchanged": true,
+        "newDdd320Execution": false
+      },
+      "historicalXss": {
+        "metadataPrefix": "f088",
+        "stage": "07-sitemap",
+        "width": 320,
+        "height": 844,
+        "language": "ko",
+        "literalPreviewAndNative": true,
+        "executed": false,
+        "currentSharedEscapingAndMeaningfulRetainedNodeTest": true
+      },
+      "conditionalResponses": {
+        "successCriterion": "TC-738",
+        "permissionMatrixIndices": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "boundaryMatrixIndices": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          14,
+          15
+        ],
+        "sameRequestLogicalDataAndReceiptsUnchanged": true,
+        "realAccessClaim": false
+      },
+      "jointFixtureClaim": false
+    },
+    "TC-1128": {
+      "phase": "code-policy-acceptance-v1",
+      "matrixIndexZeroBased": 45,
+      "handlerOrdinal": 46,
+      "method": "DELETE",
+      "status": 200,
+      "released": false,
+      "responseSchemaErrors": 0,
+      "responseBodySha256": "7c973aaded0d1edcb67d912bc76c6be35b07e0890f0e12d883eaca392637de5f",
+      "logicalTables": 13,
+      "preservedReceiptRows": 24,
+      "claimRowsBeforeAfter": 0,
+      "sameRequestLogicalHashUnchanged": true,
+      "sourceTestSha256": "2cb50d9aa88bc7cf015db8d8632ca553eb7087816b3299f9d75b06493425c6ff",
+      "newExecution": false,
+      "successProblemTraceRequired": false,
+      "liveAccessBrowserClaim": false
+    },
+    "TC-1271": {
+      "initialSvgCriterion": true,
+      "codeFontBytesAndCspProof": true,
+      "nativeSeparate": true,
+      "olderCpu4xKeptSeparate": true
+    },
+    "TC-1309": {
+      "koreanSourceVerified": 60,
+      "allOriginalLabelsVerified": true,
+      "originalMobileProfile": true,
+      "taskSpecificServerEvidenceKeptSeparate": true,
+      "wholeFitOrNativeColumnLegibilityClaim": false
+    }
+  },
+  "adjudication": {
+    "before": {
+      "pass": 520,
+      "partial": 188,
+      "fail": 2
+    },
+    "after": {
+      "pass": 524,
+      "partial": 186,
+      "fail": 0
+    },
+    "criterionCount": 710,
+    "changedCriteria": [
+      "TC-654",
+      "TC-1128",
+      "TC-1271",
+      "TC-1309"
+    ],
+    "otherCriteriaUnchanged": 706,
+    "taskCount": 64,
+    "taskStates": {
+      "done": 15,
+      "inProgress": 49
+    },
+    "history": [
+      {
+        "criterion": "TC-654",
+        "language": "en",
+        "previousRowSha256": "2724b0d4fe37231756e6ee7ca322561895dc71ad9410c3a6b040fd54fbebc673",
+        "previousLastResult": "partial (formal v7-r2 stopped): DDD13/20 qualified; its fixed20 openings are incomplete and normative P95null. Slot38 ERD cleanup stopped the run; no replacement. Original SVG/3s evidence is retained. [2026-11-05](runs/2026-11-05-api-two-job-formal-r2.md).",
+        "currentLastResult": "pass (all original clauses, scoped): v8 DDD20/20 first-SVG P95 1399.2ms; retained CTX-012 pointer,320px shared-frame pan/no overflow,literal script title and response/no-effect proofs. The historical320pan used sitemap,not a new combinedDDD320 fixture [2026-11-05](runs/2026-11-05-svg-mobile-v8.md).",
+        "originalColumnsSha256": "860be0abb44d848d3c7d0b3235f699367426d7e43154948632527cd502b6ec04",
+        "previousVerdict": "partial",
+        "currentVerdict": "pass"
+      },
+      {
+        "criterion": "TC-1128",
+        "language": "en",
+        "previousRowSha256": "ab994986faa6f41de1a28f05fa8e5c0266175c38e33f441696551bfc8691a137",
+        "previousLastResult": "partial: named-example audit 2026-11-04; exact named variant observed at synthetic actual handler with schema matching; common headers/effects only where cited, no live Access or full TC pass.",
+        "currentLastResult": "pass (original criterion, current synthetic handler): `code-policy[45]` repeated release200 released:false; exact successful schema/security/CSP and same-request whole logical SQLite/24receipts hash unchanged. No new run, live Access or browser claim [2026-11-05](runs/2026-11-05-svg-mobile-v8.md).",
+        "originalColumnsSha256": "19bd3fc99429795b2fa9c9c175a7b77b79a34ada3de25f65b7a32516ad61a704",
+        "previousVerdict": "partial",
+        "currentVerdict": "pass"
+      },
+      {
+        "criterion": "TC-1271",
+        "language": "en",
+        "previousRowSha256": "3250df51e5cdcd40d8a59361268461cc499a4e1b4c84694785c05de8defe4a52",
+        "previousLastResult": "fail (formal v7-r2 stopped):38/60 observed,37 qualified,22 not started; stage qualification13/12/12 of20 and all normative SVG/native P95null. Slot38 cleanup unverified after Browser.close ACK; original3s failures retained. [2026-11-05](runs/2026-11-05-api-two-job-formal-r2.md).",
+        "currentLastResult": "pass (formal v8, initial SVG): DDD/ERD/sitemap20/20 each,rank19 1399.2/1327.2/1357.3ms; actual code/font bytes and CSP/self-origin proof. Native-ready/paint values,4xCPU batches and all earlier failures remain separate [2026-11-05](runs/2026-11-05-svg-mobile-v8.md).",
+        "originalColumnsSha256": "7deba4e58cb0475e9bd6b63ad63fc7a36d73f9f157a41ad916e5822a032313a0",
+        "previousVerdict": "fail",
+        "currentVerdict": "pass"
+      },
+      {
+        "criterion": "TC-1309",
+        "language": "en",
+        "previousRowSha256": "0789bce7267f740e7ec852d40bf68610588fbb66f3d6cb995c4ce72f28e7e44e",
+        "previousLastResult": "fail (formal v7-r2 stopped):38/60 observed,37 qualified,22 not started; stage qualification13/12/12 of20 and all normative SVG/native P95null. Slot38 cleanup unverified after Browser.close ACK; original3s failures retained. [2026-11-05](runs/2026-11-05-api-two-job-formal-r2.md).",
+        "currentLastResult": "pass (formal v8, Korean SVG): current906/D802,60/60 source-matching300-node/all-label SVGs under the original mobile4G/CPU1 profile,security/cleanup verified. Named-task server evidence remains separate; no whole-product/UX/release claim [2026-11-05](runs/2026-11-05-svg-mobile-v8.md).",
+        "originalColumnsSha256": "5ea325aae12703a3165ffe25b76caba7f8578b648c5f18744f31ef20c73552a7",
+        "previousVerdict": "fail",
+        "currentVerdict": "pass"
+      },
+      {
+        "criterion": "TC-654",
+        "language": "ko",
+        "previousRowSha256": "8f203156e4fe505cc01f6cef34ca4fb0122a895672ec8528a537496a4f7b5140",
+        "previousLastResult": "partial (정식 v7-r2 중단): DDD13/20만 유효하며 고정20회가 미완료여서 정규P95null입니다. slot38 ERD 정리 실패로 중단했고 대체 실행은 없습니다. 기존 SVG/3초 근거를 보존합니다. [2026-11-05](runs/2026-11-05-api-two-job-formal-r2.ko.md).",
+        "currentLastResult": "pass (원 조건 전체, 범위 한정): v8 DDD20/20 첫SVG P95 1399.2ms와 보존된 CTX-012 실제 클릭·320px 공용 틀 이동/가로넘침0·script 제목 비실행·응답/데이터 불변을 연결했습니다. 과거320이동은 사이트맵이며 새DDD320 결합 시험은 아닙니다 [2026-11-05](runs/2026-11-05-svg-mobile-v8.ko.md).",
+        "originalColumnsSha256": "75dd173528a8ea6861b1208bbd6333c9170bf65be86341df4c7528e68a492351",
+        "previousVerdict": "partial",
+        "currentVerdict": "pass"
+      },
+      {
+        "criterion": "TC-1128",
+        "language": "ko",
+        "previousRowSha256": "cf4679f637516f1b208dfb7319057a6e9c5a98710ea2f4fbbe07326eb748dd7f",
+        "previousLastResult": "partial: named-example audit 2026-11-04; 합성 실제 handler에서 명명 variant와 스키마 일치 관측. 공통 헤더·효과는 개별 근거 범위만 확인; 실제 Access·전체 TC 통과 아님.",
+        "currentLastResult": "pass (원 수용 기준, 현재 합성 handler): `code-policy[45]`의 재해제200 released:false·정확한 성공 schema/보안/CSP·같은 요청 전체 논리SQLite/receipt24개 해시 불변 확인. 새 실행/실제 Access/브라우저 주장은 아님 [2026-11-05](runs/2026-11-05-svg-mobile-v8.ko.md).",
+        "originalColumnsSha256": "c285d05926db9d30f7143b61c7dc4839ee461145e8ad89145cc56af2215af583",
+        "previousVerdict": "partial",
+        "currentVerdict": "pass"
+      },
+      {
+        "criterion": "TC-1271",
+        "language": "ko",
+        "previousRowSha256": "caa5b296f5685829db4c2f0ccf6c9c2b76ca248cb0cd23e6aa76e144b9969f69",
+        "previousLastResult": "fail (정식 v7-r2 중단):60회 중38관측·37유효·22미시작, 단계별20회 중13/12/12유효이며 SVG/native 정규P95는 모두null입니다. slot38은 Browser.close ACK 뒤에도 정리 미검증이며 기존3초 실패를 보존합니다. [2026-11-05](runs/2026-11-05-api-two-job-formal-r2.ko.md).",
+        "currentLastResult": "pass (정식 v8, 초기SVG): DDD/ERD/사이트맵 각20/20,19번째값1399.2/1327.2/1357.3ms·실제 코드/글꼴 바이트·CSP/동일출처를 확인했습니다. native준비/표시·4배CPU·모든 과거 실패는 따로 보존합니다 [2026-11-05](runs/2026-11-05-svg-mobile-v8.ko.md).",
+        "originalColumnsSha256": "b940e910cb4c98beda1679656bc60afb3f5e27a0bffda5853b4839c031361f61",
+        "previousVerdict": "fail",
+        "currentVerdict": "pass"
+      },
+      {
+        "criterion": "TC-1309",
+        "language": "ko",
+        "previousRowSha256": "84b9fb783c0c23c170be9c31d644ae5e4d07de904285fffb9d3aab0d6e6d839b",
+        "previousLastResult": "fail (정식 v7-r2 중단):60회 중38관측·37유효·22미시작, 단계별20회 중13/12/12유효이며 SVG/native 정규P95는 모두null입니다. slot38은 Browser.close ACK 뒤에도 정리 미검증이며 기존3초 실패를 보존합니다. [2026-11-05](runs/2026-11-05-api-two-job-formal-r2.ko.md).",
+        "currentLastResult": "pass (정식 v8, 한국어SVG): 현재906/D802의 원본일치300노드/모든글자 SVG60/60을 원 모바일4G/CPU1에서 확인하고 보안/정리도 검증했습니다. 해당 작업 서버 근거는 별도이며 전체제품/UX/출시 통과는 아닙니다 [2026-11-05](runs/2026-11-05-svg-mobile-v8.ko.md).",
+        "originalColumnsSha256": "98a734e96bb03b0878c94b86fdaad364861cb6c37b7f7c50b4709b6505b359f6",
+        "previousVerdict": "fail",
+        "currentVerdict": "pass"
+      }
+    ]
+  },
+  "limits": [
+    "No old raw measurement,qualification,failed cleanup or original result is regraded.",
+    "No new UI or TC1128 execution; historical synthetic behavior,current shared source and new deployed formal evidence are separate.",
+    "Normal300 completion is not simultaneous whole-picture readability or a new300-node pan test.",
+    "No stage12,whole-product,main/production/tag/first-upload/deletion approval is declared."
+  ]
+}

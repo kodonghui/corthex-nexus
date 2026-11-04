@@ -4,9 +4,13 @@
 
 CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계약 [nexus.openapi.yaml](nexus.openapi.yaml)에 있는 NEXUS 서버의 요청, 그리고 이 파일에 있는 그 계약이 따르는 규칙, 허브의 명령, 그것과 함께 가는 파일의 형식입니다. 상태: 2026-11-02에 관리자가 그날 고른 대로 기억 플러그인을 만드는 동안, 사용자 흐름, 기능 명세, 서버의 자료의 추천을 따라 초안을 썼습니다. 관리자가 2026-11-03에 03\~05단계, 07·08단계와 함께 이 파일의 확인 지점을 통과시켜, 10단계가 작업을 나누기 전에 NEXUS 0.2의 요청, 명령, 형식이 고정되었습니다. 이제 호환되지 않는 변경을 하려면 관리자의 결정이 필요합니다. 2026-11-03에 관리자가 01단계 이벤트 스토밍을 NEXUS에서 하기로 고르면서 DDD 보드의 그림 자료에 선택 항목 `timeline`을 더했고(호환되는 변경), ② 차례의 작업 보드를 편집 곁에 적었습니다. 둘 다 관리자가 같은 날 통과시켰습니다([확인할 것](#확인할-것)). 계약은 그 안에 있는 모든 요청, 응답, 예시, 오류 코드의 원본이고, 이 파일은 그것을 설명하며 나머지의 원본입니다. 이 번역과 영어 원문이 다르면 영어 원문이 원본입니다.
 
-입력: [docs/04-functional-spec/nexus.ko.md](../04-functional-spec/nexus.ko.md)의 기능 명세(SPEC-101\~SPEC-142), 특히 그 [06단계를 위한 메모](../04-functional-spec/nexus.ko.md#06단계-요청-명령-형식); [docs/05-erd/nexus.ko.md](../05-erd/nexus.ko.md)와 [nexus.sql](../05-erd/nexus.sql)의 서버의 자료와 파일(TBL-101\~TBL-118), 그 [06단계를 위한 메모](../05-erd/nexus.ko.md#06단계-요청-명령-형식)와 상한; [docs/02-prd/nexus.ko.md](../02-prd/nexus.ko.md)의 요구사항; [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)의 용어집과 DDD 보드(이 파일은 그 말을 그 뜻으로 씁니다); 그리고 지금 도는 1차, 곧 [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js), [store.js](../../nexus/src/store.js)의 서버와, [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md), [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 설명하는 [hub.py](../../plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py)의 허브입니다. 사이트맵(07단계)은 나중이라 아직 입력에 화면 ID가 없고, 요청은 사용자 흐름과 기능 명세가 적은 화면을 맡습니다.
+입력: [docs/04-functional-spec/nexus.ko.md](../04-functional-spec/nexus.ko.md)의 기능 명세(SPEC-101\~SPEC-142), 특히 그 [06단계를 위한 메모](../04-functional-spec/nexus.ko.md#06단계-요청-명령-형식); [docs/05-erd/nexus.ko.md](../05-erd/nexus.ko.md)와 [nexus.sql](../05-erd/nexus.sql)의 서버의 자료와 파일(TBL-101\~TBL-118), 그 [06단계를 위한 메모](../05-erd/nexus.ko.md#06단계-요청-명령-형식)와 상한; [docs/02-prd/nexus.ko.md](../02-prd/nexus.ko.md)의 요구사항; [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)의 용어집과 DDD 보드(이 파일은 그 말을 그 뜻으로 씁니다); 그리고 지금 도는 1차, 곧 [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js), [store.js](../../nexus/src/store.js)의 서버와, [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md), [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 설명하는 [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py)의 허브입니다. 사이트맵(07단계)은 나중이라 아직 입력에 화면 ID가 없고, 요청은 사용자 흐름과 기능 명세가 적은 화면을 맡습니다.
 
-이 단계의 기본 계약은 Swagger UI로 읽는 `api/openapi.yaml`입니다. NEXUS 서버에는 HTTP API가 있으므로 계약은 단계가 말하는 대로 OpenAPI 3.1이고, 다른 부분의 인터페이스 옆에 `docs/06-api/nexus.openapi.yaml`로 둡니다. 사람은 프로젝트의 Notion 기록에 있는 한국어 사본으로 읽고, 파일 자체는 Swagger UI 같은 OpenAPI 보기 도구로 읽습니다. `.corthex/project.json`이 이 선택을 적어 둡니다. 허브의 명령은 HTTP 요청이 아니므로 이 파일이 MEMORY의 [인터페이스](memory.ko.md)와 같은 꼴로 정합니다: 명령마다 API ID, 맡는 동작, 결과가 있습니다.
+이 단계의 기본 계약은 Swagger UI로 읽는 `api/openapi.yaml`입니다. NEXUS 서버에는 HTTP API가 있으므로 계약은 단계가 말하는 대로 OpenAPI 3.1이고, 다른 부분의 인터페이스 옆에 `docs/06-api/nexus.openapi.yaml`로 둡니다. 사람은 프로젝트의 Notion 기록에 있는 한국어 사본으로 읽고, 파일 자체는 Swagger UI 같은 OpenAPI 보기 도구로 읽습니다. `.corthex/project.json`이 이 선택을 적어 둡니다. 허브의 명령은 HTTP 요청이 아니므로 이 파일이 MEMORY의 [인터페이스](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/docs/06-api/memory.ko.md)와 같은 꼴로 정합니다: 명령마다 API ID, 맡는 동작, 결과가 있습니다.
+
+## 승인된 원 서버 로그인 (2026-11-04)
+
+독립 서버는127.0.0.1에서만 듣고 cloudflared Tunnel로 연결합니다. ctx.access가 없으므로 Cf-Access-Jwt-Assertion의 RS256 서명·설정한 팀 발급자·ACCESS_AUD·만료·nbf를 직접 확인하고 기존의 user/agent 분류를 씁니다. Worker는 원래의 ctx.access·대상 확인도 유지합니다. 설정 누락이나 잘못된 서명은 닫힌 상태로 거절하며 발급자/키 주소를 토큰에서 고르지 않습니다. 기존 Access 정책과 HTTP 요청·응답·스냅샷 형식은 바꾸지 않습니다. 구현·실제 두 종류 시험은 TASK-260/264에서 확인합니다.
 
 ## 이 파일을 읽는 법
 
@@ -72,7 +76,9 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 | API-131 | `POST /api/spaces/{project}/claims/{entry}` | `claimEntry` | 에이전트 | SPEC-113, SPEC-116, SPEC-136 | active |
 | API-132 | `DELETE /api/spaces/{project}/claims/{entry}` | `releaseEntry` | 에이전트 | SPEC-113, SPEC-116, SPEC-136 | active |
 
-### 허브의 명령 목록
+#구현에서 분명히 한 점(2026-11-04): API-130은 보고된 열린 PR 없이 `merged`·`closed`를 보내거나, 저장된 기록이 이미 가리키는 체크포인트에 새 `opened`를 보내면 `409 checkpoint_state`로 답합니다. 마지막 보고의 반복은 여전히 무변경입니다. SPEC-140의 상태 전이를 유지하면서 빠진 거절을 채웠습니다.
+
+## 허브의 명령 목록
 
 | ID | 이름 | 보내는 요청 | 맡는 동작 | 상태 |
 | --- | --- | --- | --- | --- |
@@ -117,7 +123,7 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 - 모든 응답은 1차의 헤더를 지닙니다: `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-Robots-Tag: noindex, nofollow`, `Cross-Origin-Resource-Policy: same-origin`. 그래서 어떤 응답도 캐시되거나, 다른 사이트의 프레임에 보이거나, 색인되지 않습니다(SPEC-113). JSON 응답에는 `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`을 더합니다.
 - 허브 페이지는 1차의 정책을 그대로 둡니다. 자기 인라인 스크립트만 그 다이제스트로 돌리고, 아무 요청도 보내지 않습니다: `default-src 'none'; script-src 'sha256-…'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, 그리고 `Cross-Origin-Opener-Policy: same-origin`.
 - 그림 보기와 단계 현황은 코드를 `/code/`에서만 불러오고 요청은 서버에만 보냅니다(REQ-147): `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, 그리고 `Cross-Origin-Opener-Policy: same-origin`. 그 자료는 JSON 스크립트 블록에 있고, 페이지는 그것을 글로 읽을 뿐 돌리지 않습니다.
-- 브라우저가 간직해도 되는 것은 보기 화면의 코드 파일뿐이며, `Cache-Control: private, max-age=31536000, immutable`을 지닙니다. 파일 이름마다 그 내용의 다이제스트가 들어 있고, 프로젝트 자료는 없기 때문입니다. 이 단계의 확인 지점이 SPEC-113을 그렇게 바꿨습니다([앞 단계의 변경](#앞-단계의-변경)).
+- 브라우저와 같은 origin의 Access 보호 Cloudflare 거점이 간직해도 되는 것은 공개된 내용 해시 이름의 보기 화면 코드·스타일·글꼴뿐이며, `Cache-Control: public, max-age=31536000, immutable`을 지닙니다. 파일 이름마다 그 내용의 다이제스트가 들어 있고, 프로젝트 자료는 없기 때문입니다. 이 단계의 확인 지점이 SPEC-113을 그렇게 바꿨습니다([앞 단계의 변경](#앞-단계의-변경)).
 
 ### 오류
 
@@ -167,7 +173,7 @@ NEXUS는 `type`을 보내지 않으며(RFC 9457은 이것을 `about:blank`로 �
 - 읽기, 보내기, 지우기는 1차처럼 Access가 들여보낸 어느 신원이든 받으며, `no_kind`로 답하지 않습니다. 한 종류만 보낼 수 있는 쓰기는 다른 종류에 `user_only`나 `agent_only`로 답하고, 그 `needs`가 받는 종류를 적습니다.
 - 신원은 아무것도 간직하거나 로그에 남기지 않습니다. 항목은 쓴 쪽의 종류, 곧 `user`나 `agent`만 간직합니다(REQ-163).
 - 보기 화면을 연 동안 로그인이 끝날 수 있습니다. 보기 화면은 요청을 `redirect: "manual"`로 보내므로, Access의 로그인 페이지로 가는 리디렉션이 `opaqueredirect` 응답으로 닿습니다. 그러면 보기 화면은 로그인이 끝났다고 말하고, 글을 간직한 채 페이지를 다시 불러오자고 합니다(SPEC-126).
-- 열린 질문: Worker가 신원을 읽는 방법. `ctx.access`에서 `getIdentity()`나 토큰의 클레임으로 읽고, 그것이 두 종류 모두에 `sub`와 `common_name`을 주지 않으면 대신 `Cf-Access-Jwt-Assertion` 헤더를 읽어 토큰을 스스로 검사합니다: `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs`에서 가져와 한 시간까지 간직하는 팀의 키 가운데 하나로 서명됐는지, `ACCESS_AUD`가 적은 `aud`인지, 끝나지 않았는지. 11단계가 만들기 전에 실제 Access 설정에서 두 종류를 시험해 어느 쪽인지 정하며, 계약의 보안 방식도 같은 말을 합니다. 어느 쪽도 되지 않으면 선택은 관리자에게 돌아갑니다.
+- 2026-11-03 개발 Access 시험으로 정한 방법: `ctx.access`와 그 audience를 먼저 확인하고 `Cf-Access-Jwt-Assertion`에서 로그인 종류를 읽습니다. 설정한 팀의 공개 `https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs`에서 `kid`가 맞는 키로 RS256 서명, 정확한 팀 발급자, `ACCESS_AUD`, 만료와 not-before가 있으면 그 시각을 확인합니다. `ACCESS_TEAM_DOMAIN`은 설정한 호스트이며 토큰이 적은 호스트를 쓰지 않습니다. 공개 키는 한 시간까지만 간직하고 모르는 키는 다시 읽습니다. 키 요청은 manual 리디렉션을 쓰고 200이 아니면 거절합니다. 시험의 `redirect: error` 요청은 HTTP 응답 전에 실패했고 manual에서는 키를 받아 두 서명을 확인했습니다. `getIdentity()`는 사람의 `sub`와 서비스 토큰의 `common_name`을 주지 않았습니다. 신원 값·JWT·쿠키·인증값은 저장하거나 로그에 남기지 않습니다. 이 문서와 OpenAPI의 보안 방식도 이 방법을 따릅니다.
 
 ## 쓰기
 
@@ -274,6 +280,8 @@ TBL-112가 쓰기마다 간직하고, 보낼 편지함이 에이전트의 쓰기
 | 제안(API-115), 편집(API-116), 확인 지점(API-117) 하나 | 제안의 단계별 원본 글까지 그 항목 전체 | |
 | 지우기의 미리 보기(API-110) | 지우기가 지우는 것, 그리고 ID로 적은 열린 의견, 열린 제안, 반영 대기, 아직 기록되지 않은 확인 지점 | 저마다 20개와 그 총수 |
 
+구현 명확화(2026-11-04): `CommentThread.proposals`에는 누적 배열 개수 제한이 없습니다. 제안 500개 한도는 공간의 열린 제안에 적용하며 의견의 과거 제안에는 적용하지 않습니다. OpenAPI 스키마를 모두 돌려준다는 기존 API-114의 약속에 맞췄습니다.
+
 어느 의견, 제안, 어긋남이 떨어져 있는지, 곧 지금 그림에 그 항목이 더는 없는지는 보기 화면이 찾습니다. 그림 자료의 항목을 읽는 것은 보기 화면뿐이기 때문입니다(SPEC-119). 0.1의 허브만 보낸, 공간이 없는 프로젝트에는 그림이 없습니다: 그림 보기와 할 일은 `404` `space_not_found`이고, 단계 현황은 기록과 점검만 보여 줍니다.
 
 ### AI 할 일
@@ -344,6 +352,8 @@ TBL-112가 쓰기마다 간직하고, 보낼 편지함이 에이전트의 쓰기
 - 글은 `--text TEXT`에서, 또는 `--text-file FILE`에서 UTF-8로 가져오며, `-`는 표준 입력입니다. `--reason`과 `--reason-file`, `--change`와 `--change-file`, `--source-file`도 그렇습니다. 허브는 글을 보내기 전에 스냅샷처럼 가립니다: 비밀값과 이메일 주소는 `[redacted]`가 되고, 사용자의 홈 폴더는 `~`가 됩니다(SPEC-128).
 - `--part PART`는 부분을 적습니다. 없으면 명령은 프로젝트 전체에 관한 것입니다.
 - `--json`은 프로젝트마다 JSON 객체 한 줄을 찍습니다: `command`; `project`; 아래의 `outcome`; 서버의 응답인 `answer`; 거절에 대한 서버의 문제 세부 정보인 `problem`; 실패나 허브 자신의 거절의 종류인 `failure`, 이를테면 `no network`, `timeout`, `HTTP 503`, `no service token`, `refused token`, `not in nexus.push`; 그리고 보낼 편지함의 쓰기 가운데 몇 개를 보냈고(`sent`), 버렸고(`dropped`), 기다리는지(`waiting`) 적은 `outbox`. 이것이 없으면 허브는 같은 것을 사람이 읽는 줄로 찍습니다.
+  쓰기를 버리면 `outbox.notices`에 쓰기 ID와 까닭(문제 세부 정보나 실패 종류)을 덧붙이고 본문은 담지 않습니다. 아래의 버림 보고와 7일 만료 보고를 제공하면서 간직한 글을 드러내지 않게 합니다.
+  에이전트 쓰기를 저장하지 못했을 때만 실패 결과에 원래 ID와 본문을 포함한 가린 OutboxFile인 `recovery`를 더합니다. SPEC-129대로 호출한 에이전트에게 한 번 보여 주고, 이 사본을 파일이나 로그에 남기지 않습니다. 에이전트는 세션에 글을 남기고 복구할 때 원래 ID를 지킵니다. 보통 결과나 보낼 편지함 목록에는 복구 글이 없습니다.
 
 | 종료 코드 | 결과 | 언제 |
 | --- | --- | --- |
@@ -466,6 +476,7 @@ hub.py outbox [PROJECT ...] [--send]
 - 서버가 `409`나 `404`처럼 다른 까닭으로 거절한 쓰기는 버리고 그 까닭과 함께 알립니다. 다시 보내도 바뀌는 것이 없기 때문입니다. 만든 지 7일이 지난 쓰기도 버립니다. 그것이 답한 할 일이 이미 다른 데로 넘어갔기 때문입니다.
 - 프로젝트로 서버에 닿을 때마다, 곧 보내기, `todo`, 쓰기, `show`, `claim`, `release`, `outbox --send`마다, 허브는 먼저 그 프로젝트의 보낼 편지함을 오래된 것부터, 쓰기마다 자기 쓰기 ID와 세션 이름표로 보냅니다. 다시 간직하게 된 첫 쓰기에서 멈추므로, 쓰기는 그 순서를 지킵니다.
 - 쓰기마다 `~/.corthex/hub/` 아래의 파일 하나, 곧 `outbox/<project>/<time>.<write>.json`(TBL-117)이며, 계약의 `OutboxFile` 꼴입니다. 한 기기의 허브들은 05단계가 말하는 대로 잠금 `outbox/<project>.lock`으로 프로젝트의 보낼 편지함을 차례로 씁니다.
+- 새 에이전트 쓰기도 처음 보내기 전에 이 대기열에 넣습니다. 기기 안의 ID 순서 자료가 같은 밀리초의 순서도 지키므로, 동시 추가나 잠금 상실 때문에 새 글이 직접 앞질러 가지 않습니다. 처음 보내기에 성공한 임시 보관 파일도 지우며, 보내기 개수에 그것도 포함합니다.
 - 보낼 편지함은 절대 서비스 토큰을 담지 않고, 허브는 간직한 쓰기의 글을 절대 로그에 보이지 않습니다.
 
 ## 형식
@@ -519,11 +530,11 @@ hub.py outbox [PROJECT ...] [--send]
 
 - 요소마다 그 커밋에서의 파일과 줄인 `where`가 있으며, `docs/05-erd/nexus.sql:15`처럼 저장소에 대한 상대 경로입니다.
 - 요소의 `id`는 그 추적 ID이고, 없으면 `""`입니다. `context`는 CTX ID이거나 `""`입니다. 이름은 120자에서, 다른 글은 제목처럼 300자에서 자르고, 목록마다 계약이 정한 상한에서 멈춥니다.
-- 상태가 삭제라고 말하는 요소의 `removed`는 `true`이며, 상태는 [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 읽는 대로 읽습니다.
+- 상태가 삭제라고 말하는 요소의 `removed`는 `true`이며, 상태는 [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 읽는 대로 읽습니다.
 - 비밀값과 이메일 주소는 `[redacted]`가 됩니다(REQ-191).
 - 아래의 양식으로 다 읽을 수 없는 문서는 읽을 수 있었던 것을 주고, 그 자리를 적은 `picture-partial` 점검을 냅니다.
 
-**DDD 보드(`01-domain`).** 01단계 양식 [01-domain.md](../../plugins/corthex/skills/corthex-discover/references/01-domain.md)의 꼴을 영어로, 그리고 [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)처럼 한국어 문서가 쓰는 대로 한국어로 읽습니다. 허브는 표를 그 머리 줄로 찾고, 여기 적은 열을 어느 순서로든 읽으며, 이름은 대소문자와 띄어쓰기를 가리지 않고 견주고, 다른 열은 무시합니다.
+**DDD 보드(`01-domain`).** 01단계 양식 [01-domain.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-discover/references/01-domain.md)의 꼴을 영어로, 그리고 [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)처럼 한국어 문서가 쓰는 대로 한국어로 읽습니다. 허브는 표를 그 머리 줄로 찾고, 여기 적은 열을 어느 순서로든 읽으며, 이름은 대소문자와 띄어쓰기를 가리지 않고 견주고, 다른 열은 무시합니다.
 
 | 요소 | 영어 양식 | 한국어 양식 |
 | --- | --- | --- |
@@ -539,9 +550,11 @@ hub.py outbox [PROJECT ...] [--send]
 
 애그리거트나 읽기 모델은 `Picture (TERM-085)`처럼 그 이름 옆에 적은 TERM ID를, 아니면 같은 문서에서 대소문자와 띄어쓰기를 가리지 않고 그 이름이 용어인 용어집 줄의 것을 가져옵니다. 그런 줄이 없거나 둘이면 `board-term-missing` 경고를 받습니다(SPEC-106).
 
+컨텍스트 제목 밖의 명령 표는 위쪽에서 가장 가까운 컨텍스트에 그 줄들을 남기고 `picture-partial` 검사를 붙입니다. 앞에 그런 제목이 없지만 문서의 다른 곳에 컨텍스트가 있으면, `id`와 `name`이 빈 컨텍스트에 줄들을 남기고 그 애그리거트와 읽기 모델의 `context`는 `""`로 둡니다. 컨텍스트가 하나도 없는 문서는 의존이나 타임라인을 포함해 DDD 보드를 내지 않습니다(SPEC-106).
+
 명령 줄의 `Events`에서는 쉼표가 사건을 가르고, 맨 앞의 `or`(`또는`)는 이름에 들지 않습니다. 그래서 `Payment taken, or Payment failed`는 사건 둘입니다. 타임라인은 없어도 됩니다: 타임라인이 없는 문서는 `timeline`을 주지 않고, 그러면 그림 보기는 보드를 전체로만 보여 줍니다(SPEC-141). 흐름마다 그 줄의 자리인 `where`를 둡니다.
 
-**ERD(`05-erd`).** [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md)와 05단계 양식 [05-erd.md](../../plugins/corthex/skills/corthex-contract/references/05-erd.md)의 SQL입니다:
+**ERD(`05-erd`).** [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)와 05단계 양식 [05-erd.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-contract/references/05-erd.md)의 SQL입니다:
 
 ```sql
 -- without a table: TERM-122
@@ -561,9 +574,10 @@ CREATE TABLE pictures (
 - 표는 TBL ID 주석이 정하는 `CREATE TABLE`입니다. 그 이름 뒤의 괄호가 그 컨텍스트인 CTX ID와, 그 TERM ID나 `terms: none`을 줍니다. 둘 다 없는 주석은 `terms`를 빼며, SPEC-121이 그것을 알립니다.
 - 열에는 그 이름, 적힌 그대로의 유형, `null`이 있으며, `null`은 `NOT NULL`인 열과 기본 키의 열에서 `false`입니다. 기본 키는 열이나 표의 `PRIMARY KEY`에서 옵니다. 유일 규칙은 열이나 표의 `UNIQUE`, 또는 `CREATE UNIQUE INDEX … ON`에서 오며, `WHERE`가 있는 것은 `partial: true`입니다. 외래 키는 열이나 표의 `REFERENCES`, 또는 `ALTER TABLE … ADD [CONSTRAINT …] FOREIGN KEY`에서 오며, `on_delete`는 소문자로, 없으면 `""`입니다.
 - 부분의 SQL 어디에든 있는, TERM ID가 뒤따르는 주석 줄 `-- without a table:`은 부분이 표 밖에 두는 애그리거트를 적습니다.
+- 열 이름으로 나타낼 수 없는 수식 인덱스는 그 고유 규칙 전체를 빼고 `picture-partial` 검사를 붙입니다. 함수 이름을 열로 그리지 않습니다. 표 주석의 삭제 상태는 다른 단계 항목과 같은 상태말을 읽습니다. 명시한 `status:`(`상태:`)가 우선이며, 그것이 없으면 괄호 안이나 `|` 뒤의 독립된 메타데이터 칸이 삭제를 표시할 수 있습니다. 표 이름이나 설명 제목의 낱말은 상태로 읽지 않습니다. 이스케이프된 따옴표까지 구분해, 인용한 이름·제목 안의 구분자는 메타데이터로 읽지 않습니다. 상태의 인용된 값은 값으로 읽습니다.
 - 표지 `terms: none`, `without a table:`, `without a screen:`은 둘레의 코드처럼 모든 언어에서 같습니다.
 
-**사이트맵(`07-sitemap`).** 07단계 양식 [07-sitemap.md](../../plugins/corthex/skills/corthex-screen/references/07-sitemap.md)의 YAML에 `terms`를 더한 것입니다. 아래는 NEXUS 자신의 [nexus.yaml](../07-sitemap/nexus.yaml)에 있는 화면 둘입니다:
+**사이트맵(`07-sitemap`).** 07단계 양식 [07-sitemap.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex-screen/references/07-sitemap.md)의 YAML에 `terms`를 더한 것입니다. 아래는 NEXUS 자신의 [nexus.yaml](../07-sitemap/nexus.yaml)에 있는 화면 둘입니다:
 
 ```yaml
 - id: SCR-104
@@ -590,7 +604,7 @@ CREATE TABLE pictures (
 
 ### 프로젝트 설정
 
-프로젝트 설정 `.corthex/project.json`에 두 필드가 생기며, 핵심 플러그인의 [project.md](../../plugins/corthex/skills/corthex/references/project.md)가 0.2 릴리스와 함께 그것을 더합니다:
+프로젝트 설정 `.corthex/project.json`에 두 필드가 생기며, 핵심 플러그인의 [project.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex/references/project.md)가 0.2 릴리스와 함께 그것을 더합니다:
 
 | 필드 | 유형 | 뜻 |
 | --- | --- | --- |
@@ -602,6 +616,8 @@ CREATE TABLE pictures (
 ### 단계 기록
 
 단계 기록은 05단계의 [단계 기록](../05-erd/nexus.ko.md#단계-기록-tbl-115)에 있는 TBL-115의 파일이고, 계약의 `StageRecords`가 그것을 검사합니다: `parts`가 적은 부분마다 `.corthex/stages/<part>.json`, 또는 부분이 없는 프로젝트에서는 `.corthex/stages.json`. 허브는 그것을 기본 브랜치의 커밋에서 Git의 객체 읽기로 읽고, `status`(API-134)로 작업 트리에 씁니다. 올바른 JSON이 아니거나, 다른 `format`이거나, 네 가지가 아닌 상태가 있는 파일은 `records-invalid` 경고를 받고, 그 단계는 `unknown`으로 보입니다(SPEC-109).
+
+`RecordCheckpoint.where`는 선택 필드입니다. `status --where`도 선택이며, SPEC-109는 스냅샷에서 안전하지 않은 링크를 빼되 승인한 것·역할·날짜는 남깁니다. 상태 파일을 대신 읽을 때는 1차의 `checkpoint`와 `checkpoint_date`를 보존하고 역할이나 NEXUS 확인 지점을 지어내지 않습니다. 이 옛 글을 자동으로 저장소 확인 지점으로 바꾸지 않습니다. 옛 `done`에 확인 지점과 유효한 날짜가 모두 있지 않으면 경고와 함께 `in_progress`로 보입니다(REQ-085).
 
 ### 보낼 편지함의 파일
 
@@ -631,7 +647,7 @@ CREATE TABLE pictures (
 
 ## 점검 규칙
 
-허브의 새 규칙이며, 허브의 [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 0.2 릴리스와 함께 이것을 더합니다:
+허브의 새 규칙이며, 허브의 [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 0.2 릴리스와 함께 이것을 더합니다:
 
 | 규칙 | 수준 | 뜻 |
 | --- | --- | --- |
@@ -723,6 +739,7 @@ CREATE TABLE pictures (
 | `entry_closed` | 409 | 닫힌 항목을 맡으려 했습니다 | 없음 | 이 항목은 닫혔습니다 | 허브는 그것을 건너뜁니다 |
 | `checkpoint_recorded` | 409 | 저장된 단계 기록이 그 확인 지점을 적으므로, 철회하면 기록된 결정이 바뀝니다 | 없음 | 이 확인 지점은 기록됐습니다. 이것을 바꾸는 것은 새 결정입니다 | 단계 현황은 그 기록을 보여 줍니다 |
 | `checkpoint_withdrawn` | 409 | 확인 지점을 철회했으므로, 새 기록 PR이 그것을 쓸 수 없습니다 | 없음 | 이 확인 지점은 철회됐습니다 | 허브는 그것을 알리고, 에이전트는 기록을 쓰지 않습니다 |
+| `checkpoint_state` | 409 | 맞는 열린 기록 PR이 없거나 이미 기록됨 | 없음 | 체크포인트를 읽고 보고하세요 | 다시 읽음 |
 | `write_id_reused` | 409 | 다른 요청이 그 쓰기 ID를 가졌습니다 | 없음 | 이것을 보내지 못했습니다. 다시 해 주세요 | 보기 화면은 새 ID를 만듭니다. 허브는 자기 잘못으로 알립니다 |
 | `snapshot_too_large` | 413 | 스냅샷이 1 MiB보다 큽니다 | `limit` | 스냅샷이 서버가 받는 것보다 큽니다 | 허브가 그것을 알립니다. 허브 자신의 상한이 스냅샷을 그보다 작게 지킵니다 |
 | `body_too_large` | 413 | 쓰기의 본문이 256 KiB보다 큽니다 | `limit` | 서버가 받는 것보다 큽니다 | 보기 화면과 허브가 그것을 알립니다 |
@@ -732,7 +749,7 @@ CREATE TABLE pictures (
 
 ## 호환되지 않는 변경
 
-허브의 [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)가 설명하는 1차와 견주어:
+허브의 [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)가 설명하는 1차와 견주어:
 
 1. 거절은 `application/problem+json`으로 보내는 문제 세부 정보이고, 멤버가 더 있습니다. `error`를 그대로 두므로, 어느 JSON 응답이든 읽고 `error`를 보여 주는 0.1의 허브도 여전히 까닭을 보여 주며, 까닭의 말은 새로 씁니다.
 2. 0.1의 허브는 0.2의 허브가 보낸 프로젝트를 보낼 수 없습니다: 저장된 스냅샷에는 커밋이 있는데 그 스냅샷은 커밋을 적지 않으므로, 서버가 `409` `commit_not_replaced`로 거절합니다. 그런 프로젝트를 다시 보내기 전에 모든 기기의 허브가 0.2로 옮겨 갑니다.
@@ -794,6 +811,27 @@ CREATE TABLE pictures (
 - Prism과 Schemathesis는 다시 돌리지 않았습니다: 이 변경은 스키마 하나에 선택 항목 하나를, 예시 하나에 흐름 하나를 더하고, 이 단계의 검사가 그것을 확인합니다.
 - 저장소의 검사가 통과하며, 이제 시험은 756개(건너뜀 12개)입니다. 허브가 찍은 이 저장소의 스냅샷은 항목 1014개를 읽고 점검이 없습니다.
 
+### 개발 Access의 두 로그인 시험 (2026-11-03)
+
+TASK-201은 임시 진단 Worker를 정적 자산 없이 Access 뒤에 올리고 서비스 토큰 요청(이 PC의 사용자 환경변수)과 Aside CLI 1.26.1028.2335의 사람 로그인 브라우저에서 실행했습니다. 둘 다 200이며 ctx.access audience와 JWT의 audience·발급자·기한·RS256 서명이 모두 맞았습니다. 로그인하지 않은 브라우저는 Access로 302였습니다. 아래는 필드의 있음(present)·비어 있음(empty)·없음(absent)만 기록하며 값은 기록하지 않았습니다.
+
+| 출처 | 필드 | 사람 | 서비스 토큰 |
+| --- | --- | --- | --- |
+| ctx.access | aud | present | present |
+| ctx.access | sub | absent | absent |
+| ctx.access | email | absent | absent |
+| ctx.access | common_name | absent | absent |
+| getIdentity() | aud | absent | absent |
+| getIdentity() | sub | absent | absent |
+| getIdentity() | email | present | absent |
+| getIdentity() | common_name | empty | absent |
+| header JWT | aud | present | present |
+| header JWT | sub | present | empty |
+| header JWT | email | present | absent |
+| header JWT | common_name | absent | present |
+
+선택한 헤더 방법은 두 종류 모두를 구별합니다. 구현의 캐시·만료·키 교체·거절 시험과 전체 개발 API 계약 시험은 이 진단과 별도이며 아직 완료로 세지 않습니다. 진단 뒤 개발 Worker는 구현한 서버로 되돌립니다.
+
 ## 확인할 것
 
 2026-11-03 관리자가 고른 01단계 이벤트 스토밍을 NEXUS에서 하는 것은 그것이 다른 단계에 낸 변경과 함께 같은 날 16:54(KST)에 통과했습니다: 관리자가 프로젝트 스레드의 결정 카드에서 스텝별 보기와 작업 보드를 그린 대로 통과시켰습니다(‘모두 그린 대로 통과’). 확인 지점이 다룬 것: `DomainSource`의 선택 항목 `timeline`과 [그림 자료](#그림-자료)에 적은 그 양식. 그것이 없는 그림 자료도 그대로 맞고 고정된 형식의 스냅샷도 그대로 통과하므로 호환되는 변경입니다. 그리고 ② 차례의 작업 보드(SPEC-142). 그 요청은 편집(SPEC-134)의 요청 곁에 그때 더합니다.
@@ -817,7 +855,7 @@ CREATE TABLE pictures (
 ### 10단계: 작업 분해
 
 - 서버가 먼저입니다: store.js의 변환, 그다음 계약의 순서대로 요청을 만듭니다. 쥔 커밋이 있는 보내기와 지우기, 읽기, 논의, 편집, 맡음이 있는 단계 진행 순입니다. 허브가 뒤따릅니다: 그림 자료, 단계 기록, 설정이 있는 스냅샷 0.2, `status`, `push`, 그다음 보낼 편지함이 있는 쓰기. 보기 화면이 마지막입니다.
-- 릴리스는 이 파일의 형식과 규칙을 허브의 [snapshot.md](../../plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)와 [reading.md](../../plugins/corthex-nexus/skills/corthex-hub/references/reading.md)로, `parts`와 `ask_before`를 핵심 플러그인의 [project.md](../../plugins/corthex/skills/corthex/references/project.md)로 옮기며, 허브의 명령을 돌리는 단계 스킬의 절차도 함께 옮깁니다.
+- 릴리스는 이 파일의 형식과 규칙을 허브의 [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)와 [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)로, `parts`와 `ask_before`를 핵심 플러그인의 [project.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex/references/project.md)로 옮기며, 허브의 명령을 돌리는 단계 스킬의 절차도 함께 옮깁니다.
 
 ### 11단계: 개발
 
@@ -829,3 +867,22 @@ CREATE TABLE pictures (
 
 - 요청마다 응답마다 그 이름 붙은 예시로 `API-118#409`처럼 적는 시험 사례 하나, 그리고 명령마다 결과마다 Linux, macOS, Windows에서 하나씩.
 - 위의 경우의 수: 두 번, 그리고 7일 뒤에 다시 보낸 쓰기, 다른 요청의 쓰기 ID, 한 항목에 두 세션, 다른 보내기에 앞질린 보내기, 0.2의 보내기 뒤의 0.1 허브, 보기 화면에서 끝나는 로그인, 그리고 네트워크 없이, 토큰 없이, 7일 뒤의 보낼 편지함.
+
+## 2026-11-04 전송·계측·출시 결정
+
+관리자는 REQ-147의 같은 출처를 유지하면서 공개 내용 해시 코드·스타일·글꼴의 거점 캐시를 승인했습니다. HTML·API·프로젝트 자료·거절 응답은 no-store입니다. 코드 응답에는 Set-Cookie와 Vary:*가 없고 CSP와 전체 호스트 Access를 유지합니다. 캐시 HIT도 미인증 GET/HEAD에 코드를 전달하지 않아야 합니다. 거점 HIT는 원 서버에 닿지 않으므로 원 서버 검증을 매 HIT마다 실행했다고 주장하지 않습니다.
+
+REQ-124의 서버 처리 시간은 본문을 모두 받은 뒤부터 응답 처리 완료까지입니다. 본문 수신·왕복·CPU 구간·RSS는 따로 기록합니다. 기존31.085ms는1초 기준 통과이며 과거 전체1031.079ms는 그대로 보존합니다.
+
+관리자는 REQ-149와 REQ-124 통과,710사례 전부 판정·Must 실패0,운영 자료 이전/복구 리허설, C1 출시·PR C 뒤의 코어 통합,필수 검사와 Code/Security 리뷰를 조건으로 NEXUS 병합·운영 전환·출시 태그를 사전 승인했습니다. 이 저장소 첫 보내기는 REQ-107의 별도 확인입니다. 이전 Worker/D1은 전환 뒤14일 보존하고 삭제는 다시 묻습니다. 조건이 남으면 수치로 한 번 묻고 답 뒤 출시합니다.
+
+## 첫 그림 표시 결정, 2026-11-04
+
+관리자가 현재 Codex 대화에서 “SVG 먼저 표시 + HTML 경로 개선 (추천)”을 명시적으로 선택했습니다. 고정 토큰, 같은 출처의 Access 경계와 실제 편집기 핀을 유지합니다. 서버에서 그린 완전한 SVG를 첫 그림으로 보여주고 Excalidraw/ERD Viewer를 이어 불러옵니다. REQ-149·TC-654·TC-1271·TC-1309는 기존 모바일·회선·CPU1 조건에서 이 첫 그림이 실제로 보인 시간을 잽니다. 편집기 준비 시간은 별도로 적고 이전 편집기 준비 실패와 미완료·계측 실패를 모두 보존합니다. DOM 준비 표시만으로 그림이 보이고 읽힌다고 판단하지 않습니다.
+
+미리보기는 편집기와 같은 결정적 배치와 검사된 원본을 사용합니다. 글자·같은 페이지 링크를 안전하게 쓰며 SVG 스크립트·외부 콘텐츠·외부 자원은 넣지 않습니다. 편집기가 준비되는 동안 그림을 유지하고, 실패해도 미리보기와 항목 목록을 사용할 수 있습니다. 기본 화면 기능에서 실제 편집기로 넘어갈 때 현재 보고 있는 영역을 유지합니다. 불러오는 동안 프레임과 주변 배치를 유지하고 첫 미리보기와 편집기 준비 상태·시간을 구분합니다.
+
+신뢰하는 고정 화면 CSS는 HTML 안에 넣어 스타일 요청이 미리보기를 막지 않게 할 수 있습니다. HTML·프로젝트 SVG·API 자료는 no-store를 유지하고 해시 코드·스타일·글꼴은 승인된 Access 보호 public immutable 캐시를 씁니다. 독립 서버는 내장 기능으로 크기를 제한해 HTML 압축을 협상하고 Tunnel 전송량을 줄일 수 있습니다. 프로젝트 자료를 공개 코드 파일이나 캐시에 넣지 않습니다. 이 결정과 미리보기는 출시·첫 실제 저장소 전송·Worker/D1 삭제 승인이 아니며 기존 조건부 출시 기준을 유지합니다.
+
+
+반복 배치 안전 한계:300요소 목표와 일반 그림은 그대로입니다. 확장된노드(컨텍스트프레임포함)가20000을넘으면서버와보기가배치를중단하고명확한한계안내및최대3000원본항목목록/패널을남깁니다. 완전한그림/편집기ready로표시하지않고원본API/저장은보존하며GET/HEAD는200/no-store를유지합니다. [검증](../12-qa/runs/2026-11-04-svg-first.ko.md).

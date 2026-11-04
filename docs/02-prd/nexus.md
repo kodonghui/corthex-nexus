@@ -4,7 +4,7 @@
 
 Stage 02 of CORTHEX's own project, for NEXUS: the `corthex-nexus` plugin and the NEXUS server. Status: rewritten on 2026-10-24 from the event storming board and the new stage 01. The maintainer checked the scope on 2026-10-25 and approved the recommendations of D8 to D13, without changes (the stage's first checkpoint). R4 of the harness review, which the maintainer approved on 2026-11-02, added REQ-197 and REQ-198 and widened REQ-076. The joint checkpoint of NEXUS's stages 03 to 08, which the maintainer passed on 2026-11-03, added REQ-199 to REQ-208 and changed REQ-115, REQ-118, REQ-197 and REQ-198, as the functional spec proposed. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS widened the goal and the scope and added problem 13 and REQ-209 to REQ-218, which the maintainer passed the same day ([For the checkpoint](#for-the-checkpoint)). It replaces the draft of 2026-10-24, which planned the next release around the hub of phase 1. The draft's rows keep their IDs: the rows marked `built` describe phase 1 as it runs now, in `corthex-nexus` 0.1.0 and the server deployed on 2026-10-24, and the rows that the board changed or removed say so. When this file and its Korean translation differ, this file is the source.
 
-Inputs: the contexts and the glossary in [docs/01-domain/nexus.md](../01-domain/nexus.md) (CTX-006 to CTX-015, TERM-047 to TERM-134), with the shared terms of [docs/01-domain/memory.md](../01-domain/memory.md). Words in this file have the meanings given there.
+Inputs: the contexts and the glossary in [docs/01-domain/nexus.md](../01-domain/nexus.md) (CTX-006 to CTX-015, TERM-047 to TERM-134), with the shared terms of [docs/01-domain/memory.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/docs/01-domain/memory.md). Words in this file have the meanings given there.
 
 ## Goal
 
@@ -61,7 +61,7 @@ The maintainer's own words and where they were said are in the maintainer's reco
 
 ## Open decisions
 
-None of NEXUS's own decisions is open. At the scope check on 2026-10-25 the maintainer approved the recommendations of D8 to D13, so the requirements that depended on them are `active`; the table keeps each question with the other choices that were weighed. D1 to D4 are memory's decisions, in [memory.md](memory.md#open-decisions); D5 to D7, from the draft, were replaced on 2026-10-24 and are listed after the table.
+None of NEXUS's own decisions is open. At the scope check on 2026-10-25 the maintainer approved the recommendations of D8 to D13, so the requirements that depended on them are `active`; the table keeps each question with the other choices that were weighed. D1 to D4 are memory's decisions, in [memory.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/docs/02-prd/memory.md#open-decisions); D5 to D7, from the draft, were replaced on 2026-10-24 and are listed after the table.
 
 | ID | Question | Recommendation | Other choices | Status |
 | --- | --- | --- | --- | --- |
@@ -143,7 +143,7 @@ Priorities: Must, Should, Could. Status: `active`, `built` (in phase 1 already) 
 | REQ-121 | The NEXUS server shall run no AI model. | non-functional | Must | CTX-009 | Design draft 2026-10-23 (judgement stays with the agents on the devices) | built |
 | REQ-122 | The NEXUS server shall hold no rights on any repository. | non-functional | Must | CTX-009 | Design draft 2026-10-23 | built |
 | REQ-123 | The NEXUS server shall keep its database code in one module, so that another database can replace D1. | non-functional | Should | CTX-009 | Decision 2026-10-23 | built |
-| REQ-124 | The NEXUS server shall stay within the free plans of Cloudflare Workers, D1 and Access for one person's projects. | non-functional | Should | CTX-009 | Design draft 2026-10-23 (an estimate, not measured) | active |
+| REQ-124 | The NEXUS server shall run on the maintainer’s existing VPS, within the free allowances of Cloudflare Access, Tunnel and DNS. Record server processing time and memory for the maximum synthetic push; processing shall be under1s. Workers remain a compatibility build/test path. Server processing is measured after complete body receipt until response handling completes; body receipt, round trip, CPU and RSS are recorded separately. | non-functional | Should | CTX-009 | Maintainer OVH decision2026-11-04; earlier Workers10ms trial retained as history | active |
 | REQ-125 | While a project is in the push list, when a stage's work is merged or its checkpoint is recorded, the hub skill shall have the agent push the project's new snapshot. | functional | Should | CTX-009 | Problem 4; decision D8 | active |
 | REQ-126 | The server's guide shall let a person deploy their own NEXUS server on their own Cloudflare account and domain. | non-functional | Should | CTX-009 | Design draft 2026-10-23 (a version for everyone); deployment of 2026-10-24 | built |
 | REQ-127 | Where editing is included, the picture view shall let the user edit a picture on a PC with the open-source editor. | functional | Could | CTX-010 | Problem 6; board checkpoint 1 (editing on a PC first); decision D11 | active |
@@ -162,9 +162,9 @@ Priorities: Must, Should, Could. Status: `active`, `built` (in phase 1 already) 
 | REQ-144 | If a project's pictured stage sources are in more than one repository, then NEXUS shall draw only those in the space's repository, naming the ones that it left out. | functional | Could | CTX-012 | Hotspot 1 (checkpoint 2: one repository for each space at first) | active |
 | REQ-145 | The picture view shall show a picture with its open comments, proposals and discrepancies on the items that they concern. | functional | Must | CTX-012 | Board step 8-a (read model Picture view) | active |
 | REQ-146 | The picture view shall work at every width from 320 to 1440 pixels without sideways scrolling of the page. | non-functional | Must | CTX-012 | Board checkpoint 1 (viewing on a phone too) | active |
-| REQ-147 | The picture view shall load its code, styles and fonts only from the NEXUS server. | non-functional | Must | CTX-012 | Problem 5 | active |
+| REQ-147 | The picture view shall load its code, styles and fonts only from the NEXUS server. Public content-hashed code, styles and fonts may be served from its same-origin Access-protected edge; no third-party CDN. | non-functional | Must | CTX-012 | Problem 5 | active |
 | REQ-148 | The picture view shall show text from the projects and from comments only as text. | non-functional | Must | CTX-012 | Problem 5 | active |
-| REQ-149 | The picture view shall draw a picture of up to 300 elements within 3 seconds at the 95th percentile of 20 openings, with one viewer on the NEXUS server, timed by the page from its request to the drawn picture in Chrome's mobile emulation with 4G throttling. | non-functional | Should | CTX-012 | Board checkpoint 1 (viewing on a phone too) | active |
+| REQ-149 | The picture view shall draw a picture of up to 300 elements within 3 seconds at the 95th percentile of 20 openings, with one viewer on the NEXUS server, timed by the page from its request to the drawn picture in Chrome's mobile emulation with 4G throttling. The2026-11-04 decision defines the first picture as actual paint of the complete SVG with every element/label. Keep the same20 openings,300 elements, mobile4G and3-second threshold; record native readiness/failures separately and preserve earlier failures. | non-functional | Should | CTX-012 | Board checkpoint 1 (viewing on a phone too) | active |
 | REQ-150 | The picture view shall follow the profile's language, Korean or English. | functional | Should | CTX-012 | Phase 1 (as the hub page does) | active |
 | REQ-151 | When a picture is drawn or drawn again, NEXUS shall cross-check the pairs between it and the project's other pictures. | functional | Must | CTX-013 | Board policies: when Picture drawn or Picture redrawn, Cross-check pictures | active |
 | REQ-152 | NEXUS shall pair each aggregate on the DDD board with the ERD tables that name its glossary term. | functional | Must | CTX-013 | Hotspot 4; decision D10 | active |
@@ -257,7 +257,7 @@ For a two-week trial of phase ① with this repository on NEXUS:
 | Useful discrepancies | At most one discrepancy in three is a false lead, once the repository has a second picture | The maintainer's sample of the discrepancies raised |
 | Same everywhere | No stage shows different records on two devices or on the server | Stage records read on different devices and on the server, compared |
 | Nothing leaks | No pushed data holds a secret, an email address or a local path | Code check over the pushed data |
-| Cost | The server stays on the free plans | Cloudflare's usage pages |
+| Cost | Run on the existing VPS and free Access/Tunnel/DNS allowances | Server/Cloudflare usage and maximum push processing/memory evidence |
 
 ## For the checkpoint
 
@@ -284,3 +284,19 @@ Conflicts, duplicates and open questions:
   - With what permissions NEXUS reads the state of Notion records and Jira work items (hotspot 12): decided when the links are built, in phase ③.
   - What disagreeing means for each pair, and how serious each discrepancy is: the functional spec settles it in stage 04.
   - From the draft, under CTX-006, CTX-008 and CTX-009: whether the hub reads a stage whose truth is a human view, such as a Notion database, from that tool, and results that are not stage sources, such as test runs or the state of tasks; which summaries of single stages the hub page shows, whether it shows what changed since the last visit, and memory's state of each project; whether the server keeps earlier snapshots, and how Cloudflare Access tells team members' projects apart. None of them is in this release. The first screen on a phone and the empty server are answered by REQ-190 and REQ-102, and an edit keeps the commit that it was based on, so edit conflicts need no earlier snapshot.
+
+## Transport, measurement and release decision of 2026-11-04
+
+The maintainer approved edge caching of public content-hashed code, styles and fonts at the same configured origin (REQ-147). HTML, API, project data and refusals remain no-store. Code has no Set-Cookie or Vary:*, with unchanged CSP and whole-host Access. Even a cached object must not reach unauthenticated GET/HEAD callers. An edge HIT does not visit the origin, so origin verification is not claimed on every HIT.
+
+REQ-124 server processing runs from complete body receipt to response handling completion. Body arrival, client round trip, process CPU windows and RSS remain separate. The existing31.085ms passes1s; the historical inclusive1031.079ms stays recorded.
+
+The maintainer conditionally approved NEXUS merges, production migration/routing and release tags after REQ-149/124 pass, all710 cases have verdicts with zero Must failures, migration/recovery rehearsals pass, core integrates after C1 release/PR C, and required checks plus Code/Security reviews pass. The first repository snapshot still needs REQ-107 confirmation. Preserve the old Worker/D1 for14days after switching and ask before deletion. If a condition remains, ask once with its numbers and release after the answer.
+
+## First picture decision, 2026-11-04
+
+The maintainer explicitly selected “SVG first + HTML path improvement” in the current Codex conversation. Keep the frozen tokens, same-origin Access boundary and pinned real editors. A complete server-rendered SVG is the first picture; Excalidraw/ERD Viewer loads afterwards. REQ-149/TC-654/TC-1271/TC-1309 measure this first visible picture under the unchanged mobile/network/CPU1 profile. Record native-editor readiness separately, keeping all earlier native-ready failures and any failed/incomplete observations. Do not use a DOM-ready marker alone as evidence of a visible, readable picture.
+
+The preview uses the same deterministic geometry and checked source as the editor, with safe text/fragment links and no SVG scripts, foreign content or external resources. It stays visible during editor loading and remains available with the item list when that loading fails. Core controls keep the current viewport when handing over to the real editor. Loading preserves the frame and surrounding layout. Distinguish first-preview and native-editor-ready states and timings.
+
+Trusted static view CSS may be inlined so a stylesheet request does not block the preview. HTML, SVG project content and API data remain no-store; hashed code/style/fonts retain the approved Access-protected public immutable cache. The standalone server may negotiate bounded built-in HTML compression to reduce Tunnel transfer. No project data is placed in a public code file or cache. Neither this decision nor a preview is a release, first real-repository upload, or approval to delete Worker/D1. Existing conditional-release gates remain.

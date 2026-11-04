@@ -1,0 +1,1076 @@
+{
+  "schema": "current-named-read-adjudication/1",
+  "adjudication": {
+    "kind": "new-current-synthetic-local-GET-scope",
+    "approvedBy": "root",
+    "casesChanged": 24,
+    "priorQaCounts": {
+      "total": 710,
+      "pass": 486,
+      "partial": 222,
+      "fail": 2
+    },
+    "currentQaCounts": {
+      "total": 710,
+      "pass": 510,
+      "partial": 198,
+      "fail": 2
+    },
+    "other686CaseRowsChanged": 0,
+    "originalIdsStepsExpectedChanged": 0,
+    "oldRunVerdictsReclassified": 0,
+    "newUserApproval": false
+  },
+  "runtimeSourceCommit": "6f968eedab8feca92803be19b7a3e6fd99a9caa1",
+  "workingTestSha256": {
+    "nexus/test/api-response-success.test.js": "2cb50d9aa88bc7cf015db8d8632ca553eb7087816b3299f9d75b06493425c6ff",
+    "nexus/test/api-read-variants.test.js": "575edc285174c1ed0f581e4da42490247906efb62529364f1d46ba748d6a8ec0"
+  },
+  "testCommitScope": "reviewed working files; no new test commit is invented",
+  "acceptedCandidateInputSha256": {
+    "read16": "4148497afd19580397d194ceba94a82447c5893209c55e0de702a877cf8863fa",
+    "remaining8": "602c79804f7dd4018e2b1ec83565b0a5bced2c48c55e657ac93b96675444bae1"
+  },
+  "phaseAliases": {
+    "success": "current-synthetic-success-v1",
+    "boundary": "current-refusal-boundary-v1",
+    "code-policy": "code-policy-acceptance-v1",
+    "eight-read": "e1-read-remaining-eight-v1"
+  },
+  "referencedDistinctGetResponses": 24,
+  "retainedCorpora": [
+    {
+      "phase": "current-synthetic-success-v1",
+      "requests": 47,
+      "sameRequestReadHashChecks": 17,
+      "schemaErrors": 0,
+      "planSha256": "447cf50546afa29ac0bbf0404c41b08049c2c360cca5cc68eb515cf7a555b549",
+      "receiptSha256": "a2f527e15a825ef57ea32bf27c3c91c653028dd6210c89642da87913ce29a0bc",
+      "rawCaptureSha256": "b14162c313ffb89089d3380baa9293408df954e703bbcd09072290ba176de36d",
+      "matrixSha256": "d5e18bda3044dbcbce627ad783e7827f2afd04ce6127d91fb4b8aa48343a2b6f",
+      "validatedSha256": "29909c0f7a9db2421b9c589001c661b55a0cd07773d494696f12ad2fc1e5057f",
+      "schemaSummarySha256": "ea774cd8c76af8c7399da89161ca0d68dd7f4d31532aef9763a7f2618efed703"
+    },
+    {
+      "phase": "current-refusal-boundary-v1",
+      "requests": 183,
+      "schemaErrors": 0,
+      "planSha256": "75fb492dc855e35a0edb430e29333cc924acb8fb7a2df3825501930cb0852d37",
+      "receiptSha256": "6ad81130a96c5751c96fb297e590ef60305d4b341457e7c13fd7ad1d0a9becec",
+      "preExecutionLoaderFailureRetained": true,
+      "rawCaptureSha256": "33892f380527896177d7654db6a64abb92314c75f8064743bc514bc78f0e07f1",
+      "matrixSha256": "e3cfc996eef823f8197951576df10d03c5c31d7b30386386fd8978183c6811ba",
+      "validatedSha256": "c99c572c2ee5e37c468f660930d510272bfc4bded62963a40b73ec4ad4fbb416",
+      "schemaSummarySha256": "08998e5e2ab3624698bed20b4f7201a1a56e9f3fdb1a335f484e030788bbcea4"
+    },
+    {
+      "phase": "code-policy-acceptance-v1",
+      "requests": 47,
+      "sameRequestReadHashChecks": 17,
+      "schemaErrors": 0,
+      "planSha256": "142b1b6173ed2815d4a1c52d6b13275cc4c1b7a79f0fce03ceb31265b31070d3",
+      "receiptSha256": "d63ee9ca9bf4ccfecaf87232d01d0ccc21fb8ba4a67041c72ac165f47f02542b",
+      "rawCaptureSha256": "427b67f7307f8d516a20accfe92f760444eae1cadbf6516a85af891f4e917886",
+      "matrixSha256": "237b19862bd0326b4eb4b0e4b6f7c4fda74eee9010d0dbcae436df9b5e1f288c",
+      "validatedSha256": "8070b625603aded17cf1b18f4e6d635ee68b3e0fe70b74845b1c2f8daeacd7ea",
+      "schemaSummarySha256": "ea774cd8c76af8c7399da89161ca0d68dd7f4d31532aef9763a7f2618efed703"
+    }
+  ],
+  "newEightFixtureRun": {
+    "handlerResponses": 21,
+    "targetGetResponses": 8,
+    "setupPosts": 13,
+    "nodeTestFunctions": 1,
+    "pass": 1,
+    "fail": 0,
+    "skip": 0,
+    "schemaMismatches": 0,
+    "inputSha256": {
+      "plan": "ee94b20dc34ce8e23523c8d58038913885cb97c16b3df9229c7f0e781721b7d1",
+      "rawCapture": "609e7633aece9ca6f4bcd4b070e9ee8a3d321339d5ea538ed3bdccd61da5b1ae",
+      "results": "5b91e8ad72ba0d5ae648739aafc73ee710c7420a295ca05d192cad2f95f2fa14",
+      "validated": "614110946530d08dc90c9d325873f48e260dd1fe28e2073838ad03ac1538a92c",
+      "schemaSummary": "496e47aa92789401bb48b666c096b2d193e7af652629fc2ae9f2d3eafd44b686",
+      "contract": "a9589422a44766175cbe9c03b6223b3233c02b1db4915f14af0a6b1659422bdd",
+      "originalCaseInventory": "1515e62db69a0b635ebcabd97ca24b15d3284dcc3f92407f6cdc115c9075a246"
+    }
+  },
+  "contractRules": [
+    {
+      "source": "docs/06-api/nexus.md",
+      "lines": [
+        120,
+        124
+      ],
+      "rule": "normal JSON/HTML no-store; operation-specific CSP/COOP; approved content-hashed code public immutable"
+    },
+    {
+      "source": "docs/06-api/nexus.md",
+      "lines": [
+        128,
+        140
+      ],
+      "rule": "Problem.traceId and same-error-log requirement are conditional on errors, not invented on successful schemas"
+    },
+    {
+      "source": "docs/06-api/nexus.md",
+      "lines": [
+        872
+      ],
+      "rule": "hashed code has no Set-Cookie or Vary-star; whole-host Access remains required outside this synthetic scope"
+    }
+  ],
+  "previousResultTemplates": {
+    "named-audit-2026-11-04": {
+      "en": "partial: named-example audit 2026-11-04; exact named variant observed at synthetic actual handler with schema matching; common headers/effects only where cited, no live Access or full TC pass.",
+      "ko": "partial: named-example audit 2026-11-04; 합성 실제 handler에서 명명 variant와 스키마 일치 관측. 공통 헤더·효과는 개별 근거 범위만 확인; 실제 Access·전체 TC 통과 아님."
+    }
+  },
+  "scopeLimits": [
+    "All original Steps name GET; no HEAD execution or equivalence proof.",
+    "The three HTML responses establish API/bootstrap only, not default SSR/native editors or browser painting.",
+    "The manual sitemap exactly matches the named API source fixture; no hub parser execution is claimed.",
+    "TC-827 explicitly abbreviates the illustration to one table; the permitted actual two-table fixture has one open comment.",
+    "Code3 uses only the new code-policy phase and its working2cb50 test assertions for Set-Cookie/Vary-star absence and exact binary metadata bytes/SHA.",
+    "Normal2xx success schemas use the declared conditional error-trace rule; no Problem.traceId is invented.",
+    "No deployed or real Access lifecycle, real repository upload, separate successful-mutation acceptance, stage checkpoint or release decision."
+  ],
+  "cases": [
+    {
+      "id": "TC-729",
+      "apiId": "API-101",
+      "operationId": "getHubPage",
+      "namedExample": "page",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-synthetic-success-v1",
+        "matrixIndex": 1,
+        "method": "GET",
+        "status": 200,
+        "media": "text/html",
+        "canonicalCapturedBodySha256": "ec57499fe53a591a8cfb7f8d1ad3133cc1dfd2fde3dcf6cc150a63ee4951c543",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "htmlString": true,
+        "singleExpectedDataScript": true,
+        "bootstrapSchema": "corthex-hub-page/0.2",
+        "bootstrapView": "hub",
+        "defaultSsrOrBrowserObserved": false
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "4d5b4d3c324bd0796ac1a5d651f495c06e4ffa913c4447fc3707eb755c223dd6",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "pageScope": "HTML response and nonexecuted JSON bootstrap only; default SSR/native factory and browser painting are not exercised by this injected-code handler call",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-738",
+      "apiId": "API-102",
+      "operationId": "getPictureViewPage",
+      "namedExample": "view",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-synthetic-success-v1",
+        "matrixIndex": 2,
+        "method": "GET",
+        "status": 200,
+        "media": "text/html",
+        "canonicalCapturedBodySha256": "86c6e847d14da17a2716348fbfcd6e3531d9f75c857cc988c2ff5bc36e98be63",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "htmlString": true,
+        "singleExpectedDataScript": true,
+        "bootstrapSchema": "corthex-view-page/0.2",
+        "bootstrapView": "picture",
+        "defaultSsrOrBrowserObserved": false
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "8d9e491f3b4f0304d754e41d309c00648d9faeaabbcf3078617b525727640f53",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "pageScope": "HTML response and nonexecuted JSON bootstrap only; default SSR/native factory and browser painting are not exercised by this injected-code handler call",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-755",
+      "apiId": "API-103",
+      "operationId": "getStageOverviewPage",
+      "namedExample": "overview",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-synthetic-success-v1",
+        "matrixIndex": 3,
+        "method": "GET",
+        "status": 200,
+        "media": "text/html",
+        "canonicalCapturedBodySha256": "61b6f7b92903cdbc9d8af96dfbff0a954baf51153be946a562305f49ebc29d0f",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "htmlString": true,
+        "singleExpectedDataScript": true,
+        "bootstrapSchema": "corthex-view-page/0.2",
+        "bootstrapView": "overview",
+        "defaultSsrOrBrowserObserved": false
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "26cd1ac1e86931f7116cdfa7f8cc5f1c84098c63cbc1e81438f05b79a2e98c73",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "pageScope": "HTML response and nonexecuted JSON bootstrap only; default SSR/native factory and browser painting are not exercised by this injected-code handler call",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-770",
+      "apiId": "API-104",
+      "operationId": "getViewCode",
+      "namedExample": "script",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "code-policy-acceptance-v1",
+        "matrixIndex": 11,
+        "method": "GET",
+        "status": 200,
+        "media": "text/javascript",
+        "canonicalCapturedBodySha256": "8184d7e1505206288aa92f9249bd61298d7d1b87d9d598e54ff16287b8cb4407",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "setCookiePresent": false,
+        "varyStar": false,
+        "public": true,
+        "immutable": true,
+        "maxAgeSeconds": 31536000,
+        "forbiddenCacheDirective": false,
+        "bytes": 2726,
+        "payloadSha256": "246aad4b5c81e37ba5469200cbb2e34b87d5a49abe4541745e54ed443c033fe3"
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "c110a5c6ee8c532f725251eb33c2baa1d6a37456db3db382bb4b744be8d2fe00",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-771",
+      "apiId": "API-104",
+      "operationId": "getViewCode",
+      "namedExample": "styles",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "code-policy-acceptance-v1",
+        "matrixIndex": 12,
+        "method": "GET",
+        "status": 200,
+        "media": "text/css",
+        "canonicalCapturedBodySha256": "055a5a02bc20bc49bba4f711a6c5eacdabc2ce4749276d0f92ecfde929ad826b",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "setCookiePresent": false,
+        "varyStar": false,
+        "public": true,
+        "immutable": true,
+        "maxAgeSeconds": 31536000,
+        "forbiddenCacheDirective": false,
+        "bytes": 144619,
+        "payloadSha256": "86cd6b8f727aa14574ab0d8be047e2efa2c4307887d30b57688e326ea80f9b68"
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "28400b6df5e09f8d46c6ce3ae162e456ce94b5c4a4bb76cbf961a81cc07f2191",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-772",
+      "apiId": "API-104",
+      "operationId": "getViewCode",
+      "namedExample": "font",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "code-policy-acceptance-v1",
+        "matrixIndex": 13,
+        "method": "GET",
+        "status": 200,
+        "media": "font/woff2",
+        "canonicalCapturedBodySha256": "c8d5623d0301e73cf39434300d91f5c1f3098d5ce511a970dc265fcee42226f3",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "setCookiePresent": false,
+        "varyStar": false,
+        "public": true,
+        "immutable": true,
+        "maxAgeSeconds": 31536000,
+        "forbiddenCacheDirective": false,
+        "bytes": 20380,
+        "payloadSha256": "e0cdd332ce039770e93ec44336b6db65f931940f42b0342aad35a06e7f991d29"
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "5cc561037f6144eb6942862ea2111a9e7ac718b4127256e55346b30e26ea8754",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-793",
+      "apiId": "API-106",
+      "operationId": "listSnapshots",
+      "namedExample": "two-projects",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-refusal-boundary-v1",
+        "matrixIndex": 21,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "canonicalCapturedBodySha256": "23f2e98ab20cc8440c3ed8eba680363c58f0d3b5f7dea245edc4031c9863834b",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "projects": 2
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "b7d450af88060e1928006febfc1c8a6ff31ffd9cb7ff20c104db3bfe28e2fa5e",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-794",
+      "apiId": "API-106",
+      "operationId": "listSnapshots",
+      "namedExample": "empty",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "e1-read-remaining-eight-v1",
+        "matrixIndex": 0,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "responseTextSha256": "46a926de2121dfc5e3e5c1c9430c5ec5235c1f0e5a32277765aab35e6536b8b4",
+        "schemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "beforeDatabaseSha256": "6255706597bed4a3639db11d48c3db6edea33615939abc56ed0a074824a2754a",
+        "afterDatabaseSha256": "6255706597bed4a3639db11d48c3db6edea33615939abc56ed0a074824a2754a",
+        "writeReceiptsBefore": 0,
+        "writeReceiptsAfter": 0
+      },
+      "semanticObservations": {
+        "projects": 0
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "f77ab3deac8003ecf5772be892e908223bd822e7f30d42618e1c13e9c5294da1",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-799",
+      "apiId": "API-107",
+      "operationId": "getSnapshot",
+      "namedExample": "stored-0-2",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-synthetic-success-v1",
+        "matrixIndex": 5,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "canonicalCapturedBodySha256": "19f32083eeabc83850ed6c8740a7cfe9620358c40d632330226e4ab208c27764",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "snapshotSchema": "corthex-hub/0.2",
+        "picturesFieldPresent": false
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "dd1cb0e7830253ac734a0c4cfe6f6f60a60547e572c46680a8fd4537f392d0b7",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-800",
+      "apiId": "API-107",
+      "operationId": "getSnapshot",
+      "namedExample": "stored-0-1",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "e1-read-remaining-eight-v1",
+        "matrixIndex": 2,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "responseTextSha256": "d8c65563bfdafb9acb03235c50513dfa6650f516fdecf13050f8dd1697806ba3",
+        "schemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "beforeDatabaseSha256": "ba4afb00d528e81bdf75c83a6d07fb707f8ad4b0f34b69f9c69aac8c5d4d200c",
+        "afterDatabaseSha256": "ba4afb00d528e81bdf75c83a6d07fb707f8ad4b0f34b69f9c69aac8c5d4d200c",
+        "writeReceiptsBefore": 0,
+        "writeReceiptsAfter": 0
+      },
+      "semanticObservations": {
+        "snapshotSchema": "corthex-hub/0.1",
+        "equalsPushedLegacySnapshot": true,
+        "picturesFieldPresent": false
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "0ed6d6f55a9daccceaee94706a518aa42def5e9af8114a7c01843cb8279a5f24",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-813",
+      "apiId": "API-109",
+      "operationId": "getHeldCommit",
+      "namedExample": "held",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-synthetic-success-v1",
+        "matrixIndex": 6,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "canonicalCapturedBodySha256": "2ca8ae77d82b9c172444033cc5b0a6eaa734ef068fd2fce9a6eba8ec919ea4d3",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "defaultCommitPresent": true,
+        "matchesPushedFixtureDefaultCommit": true
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "3e0012d72fff2a6a26fed77fda0caa5522d6451fe750b55b7a9fdcf3af1464fb",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-814",
+      "apiId": "API-109",
+      "operationId": "getHeldCommit",
+      "namedExample": "no-commit",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-refusal-boundary-v1",
+        "matrixIndex": 18,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "canonicalCapturedBodySha256": "b26f2ef658d6931f3ee8a06b3eb00f17038f8cd14fda6bc19e791e167f826cc8",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "defaultCommitPresent": false,
+        "sourceFixtureSchema": "corthex-hub/0.1"
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "f86bf3c3d18861a5e1fadc36d8c12c50b6578184e71f244ee31d0375ede370a7",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-820",
+      "apiId": "API-110",
+      "operationId": "getRemovalDryRun",
+      "namedExample": "open-entries",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "e1-read-remaining-eight-v1",
+        "matrixIndex": 14,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "responseTextSha256": "f9040b6de114e5eb4f8b771da2a2ed28c10c12467684710de9a5b4253c2a61ed",
+        "schemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "beforeDatabaseSha256": "0713967420b18cfe3e0c07a5811e9d4c146f2791c749f08e3a26beea95638cc2",
+        "afterDatabaseSha256": "0713967420b18cfe3e0c07a5811e9d4c146f2791c749f08e3a26beea95638cc2",
+        "writeReceiptsBefore": 7,
+        "writeReceiptsAfter": 7
+      },
+      "semanticObservations": {
+        "openComments": 3,
+        "openProposals": 1,
+        "openReflections": 1,
+        "openCheckpoints": 0,
+        "deletionTotalsMatchApiCreatedFixture": true
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "337d615ef3c383586e83199f6bda1aa9251ce7fe07bb1398aa086126d1b61248",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-821",
+      "apiId": "API-110",
+      "operationId": "getRemovalDryRun",
+      "namedExample": "snapshot-only",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-refusal-boundary-v1",
+        "matrixIndex": 19,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "canonicalCapturedBodySha256": "74660e5518fb39ac7e2f04786f2a0a337773c2bc2ed0775a0f88f160da7343ea",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "sourceFixtureSchema": "corthex-hub/0.1",
+        "deletesSnapshot": true,
+        "deletesSpace": false,
+        "otherDeletionTotals": 0,
+        "openTotal": 0
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "70b20582a7d2e8fc18dda0528c6e3329be8c2e6e6975fadc8afe3518c719d3d8",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-827",
+      "apiId": "API-111",
+      "operationId": "getPicture",
+      "namedExample": "erd-with-a-comment",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-refusal-boundary-v1",
+        "matrixIndex": 24,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "canonicalCapturedBodySha256": "ca91c96512cbdbf99af2614313065fb5a3e963830d0f63198a86f83975d7a7b6",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "stage": "05-erd",
+        "tables": 2,
+        "openComments": 1,
+        "openCommentState": "open"
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "57d696a5fa04bb304daa05a560495139a1da7e8f84a22f9f4eb310e7c56d2b0a",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "illustrationScope": "The actual ERD contains two tables and exactly one open comment. The example is explicitly shortened to one table; this review treats that shortening as illustrative, while preserving the one-comment named state.",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-828",
+      "apiId": "API-111",
+      "operationId": "getPicture",
+      "namedExample": "domain-board",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "e1-read-remaining-eight-v1",
+        "matrixIndex": 4,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "responseTextSha256": "f5ebb18cc3e8b44edeb89df08b23a0180bc14c719c65e1b93847c0e0ac9aeff4",
+        "schemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "beforeDatabaseSha256": "c358c7ce4b65517649b97af2305edc07b364bfc1ccbe11bbaa5e0c10492a472f",
+        "afterDatabaseSha256": "c358c7ce4b65517649b97af2305edc07b364bfc1ccbe11bbaa5e0c10492a472f",
+        "writeReceiptsBefore": 0,
+        "writeReceiptsAfter": 0
+      },
+      "semanticObservations": {
+        "stage": "01-domain",
+        "contexts": 1,
+        "openDiscrepancies": 1,
+        "reason": "no-table",
+        "otherOpenEntries": 0
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "f9ff3238f8725b955990a9af860bfbb1fde871af81c248865b908a398ca4ca0d",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-829",
+      "apiId": "API-111",
+      "operationId": "getPicture",
+      "namedExample": "sitemap",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "e1-read-remaining-eight-v1",
+        "matrixIndex": 20,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "responseTextSha256": "d0e6984d34efa13cfab22c745e826cde9884408fbb9ee6588fc6700f63bf67ac",
+        "schemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "beforeDatabaseSha256": "dd9d7f13b748d2018591b420eec28ecbce03c9e065d5caea7ad8151745acecc2",
+        "afterDatabaseSha256": "dd9d7f13b748d2018591b420eec28ecbce03c9e065d5caea7ad8151745acecc2",
+        "writeReceiptsBefore": 0,
+        "writeReceiptsAfter": 0
+      },
+      "semanticObservations": {
+        "partEmpty": true,
+        "screens": 2,
+        "allIdsBlank": true,
+        "allFlowsEmpty": true,
+        "termsRetained": true,
+        "notCurrent": "source-gone",
+        "drawnSourcePreserved": true
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "9fa349576bdf5b0283d0e542ee95ede869d9d08b3b07486c5666dce064747f40",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "fixtureAttribution": {
+        "manualSourceEqualsNamedContractExample": true,
+        "hubParserExecuted": false,
+        "browserOrDefaultSsrExecuted": false
+      },
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-840",
+      "apiId": "API-112",
+      "operationId": "getStageOverview",
+      "namedExample": "erd-of-nexus",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "e1-read-remaining-eight-v1",
+        "matrixIndex": 17,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "responseTextSha256": "4a95eda54f4386b9332a4c545c92c4a2c6e51fdf4164158af2883f4e7be8aecf",
+        "schemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "beforeDatabaseSha256": "f926e427ae25fe30c69d482c9f27bbd9ba51875486d5fb0cf17ae9f6f7cd4b81",
+        "afterDatabaseSha256": "f926e427ae25fe30c69d482c9f27bbd9ba51875486d5fb0cf17ae9f6f7cd4b81",
+        "writeReceiptsBefore": 1,
+        "writeReceiptsAfter": 1
+      },
+      "semanticObservations": {
+        "stage": "05-erd",
+        "openDiscrepancies": 1,
+        "passedCheckpoints": 1,
+        "recordedCheckpoints": 0,
+        "otherOpenEntries": 0
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "d8236553d456fa774f82c197f81a8413f6e888a69825a8f993307ca11202bfd2",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-848",
+      "apiId": "API-113",
+      "operationId": "getAgentTodo",
+      "namedExample": "waiting",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "e1-read-remaining-eight-v1",
+        "matrixIndex": 10,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "responseTextSha256": "6b765358aceaacf81baa6dfc05a16a35fdeb69f05485826a4856927b4aa127e5",
+        "schemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "beforeDatabaseSha256": "0c61c0218610012ff90857ab669d5fce58cb72be7f1e11403f933d6ada3a85a6",
+        "afterDatabaseSha256": "0c61c0218610012ff90857ab669d5fce58cb72be7f1e11403f933d6ada3a85a6",
+        "writeReceiptsBefore": 5,
+        "writeReceiptsAfter": 5
+      },
+      "semanticObservations": {
+        "comments": 2,
+        "discrepancies": 1,
+        "reflections": 1,
+        "reflectionState": "in-review",
+        "checkpoints": 0,
+        "waitingForUser": 0,
+        "taken": 0
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "d6ff01cbd38f3ab2a98c407020127805746aa2ff1d78f71845e66ca6cf7892c7",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "counterScope": "Named2comments/1discrepancy/1reflection plus actual fixture waitingForUser0/taken0. Illustrative example3/1 counters are not asserted as fixed values for a different synthetic history.",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-849",
+      "apiId": "API-113",
+      "operationId": "getAgentTodo",
+      "namedExample": "nothing",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-synthetic-success-v1",
+        "matrixIndex": 10,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "canonicalCapturedBodySha256": "e3f69c03d020bbf4924e59feb91171a01eeeb9768a3b9dabed6da95942803633",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "comments": 0,
+        "discrepancies": 0,
+        "reflections": 0,
+        "checkpoints": 0,
+        "waitingForUser": 0,
+        "taken": 0
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "9b1a45ffc9a0748615f33cbe4fcf818e2f67fd5bd34ffaac911abdfe44747cae",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-878",
+      "apiId": "API-114",
+      "operationId": "getComment",
+      "namedExample": "settled",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-synthetic-success-v1",
+        "matrixIndex": 16,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "canonicalCapturedBodySha256": "44ae7a18ce55bc4736ac2cba02a1b6998835362a535a15f41c140f4486118200",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "settled": true,
+        "state": "open",
+        "replies": 1,
+        "settlingUserReplyPresent": true
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "176bb7e09b69b3807d2036208cae1ff6c584e9721ffa5d07004343c5892a0d30",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "illustrationScope": "The actual user reply settles the comment and appears in its thread. One reply is observed; no additional reply count is stated in Steps.",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-962",
+      "apiId": "API-115",
+      "operationId": "getProposal",
+      "namedExample": "open",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "e1-read-remaining-eight-v1",
+        "matrixIndex": 13,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "responseTextSha256": "1ae130689de3c7e0d9dc90157103f5adf2167b9ed0abdeaf61c8d19ed7cbbc2c",
+        "schemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "beforeDatabaseSha256": "0713967420b18cfe3e0c07a5811e9d4c146f2791c749f08e3a26beea95638cc2",
+        "afterDatabaseSha256": "0713967420b18cfe3e0c07a5811e9d4c146f2791c749f08e3a26beea95638cc2",
+        "writeReceiptsBefore": 7,
+        "writeReceiptsAfter": 7
+      },
+      "semanticObservations": {
+        "state": "open",
+        "linksCreatedComment": true,
+        "sourceTextPreserved": true,
+        "closed": false,
+        "editPresent": false
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "297438da954d8db50ca9e0698fcb2db63fa6d39012a22d7d427d85019456f9da",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-1014",
+      "apiId": "API-116",
+      "operationId": "getEdit",
+      "namedExample": "in-review",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-synthetic-success-v1",
+        "matrixIndex": 30,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "canonicalCapturedBodySha256": "42bdc39e9065830368cba66aa00bb1e76bf2251cef3ad95b589bfb8889612779",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "state": "in-review",
+        "nestedProposalState": "accepted",
+        "nestedProposalLinksThisEdit": true
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "d80fecaa6286e21e929e3ed97679ddb97c25622c8c147f2127d6a394902be094",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    },
+    {
+      "id": "TC-1072",
+      "apiId": "API-117",
+      "operationId": "getCheckpoint",
+      "namedExample": "passed",
+      "verdict": "pass (current synthetic handler)",
+      "evidence": {
+        "phase": "current-synthetic-success-v1",
+        "matrixIndex": 37,
+        "method": "GET",
+        "status": 200,
+        "media": "application/json",
+        "canonicalCapturedBodySha256": "b5c045eac7bdd416b4b718cab64866c3422562a9fa7f9cbac4f939756a494591",
+        "recordedSchemaErrors": 0,
+        "sameRequestDatabaseUnchanged": true,
+        "receiptsIncludedInFullDbHash": true
+      },
+      "semanticObservations": {
+        "state": "passed",
+        "recordedCommitPresent": false,
+        "pullRequestPresent": false
+      },
+      "checks": {
+        "namedBodyAndCurrentSchema": true,
+        "operationSpecificHeadersAndCsp": true,
+        "sameRequestWholeDbIncludingReceiptsUnchanged": true,
+        "successTraceRuleConditional": true
+      },
+      "originalEnglishStepsSha256": "e2b7f733ff80e18d34d59115a6524d1000e593ac6348d75e22a16c820696960a",
+      "originalEnglishExpectedSha256": "a196f3df90de41fe41ad7ce9d0411128fbdce69735abcd548ff5cc27e10c5141",
+      "previousResultTemplate": "named-audit-2026-11-04",
+      "previousResultSha256": {
+        "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+        "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+      }
+    }
+  ]
+}

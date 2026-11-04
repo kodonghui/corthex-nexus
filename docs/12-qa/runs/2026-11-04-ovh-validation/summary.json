@@ -1,0 +1,299 @@
+{
+  "scope": "approved synthetic development and origin-only isolated recovery; no production switch",
+  "deployedCommit": "aad16450d1256d809023b8b1da18aa67ea026010",
+  "metadataSha256": "caf43251385f56770cfa31bbad229bb16df7527d35a73adf2558b382d8adb5bb",
+  "conditions": {
+    "width": 390,
+    "height": 844,
+    "dpr": 2.75,
+    "touch": true,
+    "latencyMs": 165,
+    "downloadMbps": 8.1,
+    "uploadMbps": 1.35,
+    "cacheDisabled": true,
+    "serviceWorkersBypassed": true,
+    "cpu": 1
+  },
+  "mobile": {
+    "sitemap": {
+      "ready": 20,
+      "errorFree": 19,
+      "count": 20,
+      "nodes": 300,
+      "normativeP95Ms": null,
+      "allReadyTimingOnlyP95Ms": 5165.6,
+      "timingOnlyReadyFontsP95Ms": 5663.7,
+      "retainedFailure": "one favicon404",
+      "verdict": "fail"
+    },
+    "erd": {
+      "ready": 20,
+      "errorFree": 20,
+      "count": 20,
+      "nodes": 300,
+      "normativeP95Ms": 4123.9,
+      "readyFontsP95Ms": 4124.5,
+      "verdict": "fail"
+    },
+    "http403": 0,
+    "cspErrors": 0,
+    "pageExceptions": 0,
+    "networkFailures": 0,
+    "localeCorrection": "Bootstrap ko and valid document ko-KR; raw exact-ko harness false positives are preserved and only interpretation corrected",
+    "physicalDevice": false,
+    "cpu4Run": false
+  },
+  "maximalPush": {
+    "bytes": 1000000,
+    "items": 3000,
+    "checks": 2000,
+    "pictures": 3,
+    "first": {
+      "status": 200,
+      "inclusiveHandlerMs": 1078.165791,
+      "rssBytes": 132886528,
+      "roundTripMs": 5007.3634999999995
+    },
+    "repeat": {
+      "status": 200,
+      "inclusiveHandlerMs": 997.419159000041,
+      "rssBytes": 140259328,
+      "roundTripMs": 2406.855,
+      "serviceCpuDeltaUpperBoundMs": 72.256
+    },
+    "scope": "Handler includes body receipt and I/O; CPU delta includes the complete held-GET/maximal-POST/snapshot-GET sequence; RSS is a post-response sample, not peak"
+  },
+  "liveContract": {
+    "tool": "Schemathesis 3.39.16, experimental OpenAPI 3.1",
+    "operations": 32,
+    "responses": 154,
+    "checks": 5,
+    "passedPerCheck": 154,
+    "statusCounts": {
+      "200": 16,
+      "404": 102,
+      "400": 7,
+      "403": 29
+    },
+    "serviceIdentityOnly": true,
+    "allOperationSuccessesVerified": false
+  },
+  "recovery": {
+    "schema": "nexus-origin-cli-recovery/1",
+    "runtime_commit": "aad16450d1256d809023b8b1da18aa67ea026010",
+    "backup_source_preserved": true,
+    "production_changed": false,
+    "data_left_origin": false,
+    "before": {
+      "snapshot_rows": 1,
+      "snapshot_rows_sha256": "e96cf7e7d7314b20e2e8e7f4965e78e5d00ccae2df6bd76870ceb4a1504510d2",
+      "schema_sha256": "1c295ca8281fa060ff1c132ba1e3c03f5d17b5ceca8a5f3aa5b81d5a82aba584",
+      "migration_versions": [],
+      "table_count": 1
+    },
+    "restored": {
+      "snapshot_rows": 1,
+      "snapshot_rows_sha256": "e96cf7e7d7314b20e2e8e7f4965e78e5d00ccae2df6bd76870ceb4a1504510d2",
+      "schema_sha256": "1c295ca8281fa060ff1c132ba1e3c03f5d17b5ceca8a5f3aa5b81d5a82aba584",
+      "migration_versions": [],
+      "table_count": 1
+    },
+    "explicitly_migrated_copy": {
+      "snapshot_rows": 1,
+      "snapshot_rows_sha256": "e96cf7e7d7314b20e2e8e7f4965e78e5d00ccae2df6bd76870ceb4a1504510d2",
+      "schema_sha256": "bc06f06f0d3272d184433badec8e6bc9b298d79190a477715e69b2a3118b487b",
+      "migration_versions": [
+        1,
+        2,
+        3
+      ],
+      "table_count": 13
+    },
+    "behavior": {
+      "snapshotCount": 1,
+      "storeBodiesReadable": true
+    },
+    "restore_preserves_old_schema": true,
+    "rows_preserved_after_explicit_migration": true
+  },
+  "followUp": {
+    "metadataSha256": "ca4ac3fd94fc14d08bd7a576792d92f8dd84a1529030fa63b6bb6c42bd4a2085",
+    "payloadFilesUnchanged": 443,
+    "changes": [
+      "preload the pinned eager modules and selected locale",
+      "preload Assistant Medium",
+      "self-contained favicon",
+      "Node Brotli/gzip code variants selected only after Access and routing checks",
+      "numeric body-arrival/after-body/process-CPU metrics"
+    ],
+    "livePerformanceResult": "See final-mobile.json; historical failures are retained",
+    "deployedCommit": "30f79579dd6902aa3a4244fc15bcf478a6e46d39"
+  },
+  "ca4MaximalPush": {
+    "push": {
+      "schema": "nexus-ovh-maximum-push/1",
+      "syntheticOnly": true,
+      "deployedCommit": "db6313683848ecac10e0fcd1ad4ecd48e2babdcf",
+      "metadataSha256": "ca4ac3fd94fc14d08bd7a576792d92f8dd84a1529030fa63b6bb6c42bd4a2085",
+      "items": 3000,
+      "checks": 2000,
+      "pictures": 3,
+      "bytes": 1000000,
+      "payloadSha256": "1495629d1b4457e0ab667297734947aab9ec2f4198928f7d69e1c1a1ccde7188",
+      "startedAt": "2026-11-04T02:55:52.519Z",
+      "networkRoundTripMs": 26982.3237,
+      "finishedAt": "2026-11-04T02:56:19.542Z",
+      "status": 200,
+      "code": null,
+      "readBackItems": 3000,
+      "readBackChecks": 2000,
+      "passed": true
+    },
+    "originMetric": {
+      "kind": "request_metrics",
+      "status": 200,
+      "request_bytes": 1000000,
+      "processing_ms": 1031.0787589999964,
+      "body_complete": 1,
+      "body_receive_ms": 999.9939009999944,
+      "after_body_ms": 31.084858000001987,
+      "cpu_user_ms": 65.092,
+      "cpu_system_ms": 8.985,
+      "rss_bytes": 139616256
+    },
+    "scope": "actual full maximal request; includes body arrival, after-body elapsed and process CPU-window differences; RSS sample, not peak"
+  },
+  "developmentRollback": {
+    "schema": "nexus-development-runtime-rollback/1",
+    "from": "db6313683848ecac10e0fcd1ad4ecd48e2babdcf",
+    "rollback": "aad16450d1256d809023b8b1da18aa67ea026010",
+    "final": "db6313683848ecac10e0fcd1ad4ecd48e2babdcf",
+    "old_runtime_healthy": true,
+    "final_runtime_healthy": true,
+    "database_logical_rows_unchanged": true,
+    "logical_sha256": "92b4d92c0fc9c09cea4ef1ff14c1d05daa764c3b8472727b587d1474424e1e3d",
+    "table_row_counts": {
+      "checkpoints": 1,
+      "claims": 0,
+      "comments": 1,
+      "decisions": 0,
+      "discrepancies": 0,
+      "edits": 1,
+      "migrations": 3,
+      "pictures": 8,
+      "project_spaces": 3,
+      "proposals": 1,
+      "replies": 2,
+      "snapshots": 3,
+      "writes": 8
+    },
+    "manual_daily_backup": {
+      "created_at": "2026-11-04T02:36:12.352Z",
+      "reason": "daily",
+      "bytes": 2174976,
+      "sha256": "35eda7cdb5513c8547896956ef22f4156c249040cfeeb0f101a4a760def2222a"
+    },
+    "daily_backup_mode_0600": true,
+    "production_touched": false
+  },
+  "developmentIsolation": {
+    "schema": "nexus-development-restart-isolation/1",
+    "developmentHealthy": true,
+    "unauthenticatedStatus": 403,
+    "otherRunningServices": 22,
+    "otherActivePidsAndStartTimesUnchanged": true,
+    "productionRouteOrDatabaseChanged": false
+  },
+  "humanUi": {
+    "schema": "nexus-live-synthetic-ui-public/1",
+    "syntheticOnly": true,
+    "environment": "Development, real Access human session and persistent server API",
+    "deployedCommit": "aad16450d1256d809023b8b1da18aa67ea026010",
+    "metadataSha256": "caf43251385f56770cfa31bbad229bb16df7527d35a73adf2558b382d8adb5bb",
+    "status": "works for three named success flows",
+    "humanUiActions": 7,
+    "effectSummary": {
+      "comment": "user comment + user reply + answered close + user reply reopen",
+      "proposal": "accepted, one pending reflection, picture source unchanged",
+      "checkpoint": "passed then withdrawn; server timestamp matches UI; recorded stage remains in progress"
+    },
+    "roleSeparation": "Service credentials only in separate seed/read child environments; UI actions in the existing Aside human session",
+    "mockedResponses": false,
+    "directSql": false,
+    "screenshots": [
+      {
+        "file": "01-proposal-pending.png",
+        "caption": "서비스가 만든 합성 제안을 사람 UI로 받은 뒤 반영 전",
+        "sha256": "46756f073f8ee5098da98f8e22aeef0f49400c88fa35014b97baaf81441a453e",
+        "pixelWidth": 1440,
+        "pixelHeight": 900
+      },
+      {
+        "file": "02-checkpoint-passed.png",
+        "caption": "사람 UI로 통과한 합성 확인 지점과 기록 대기",
+        "sha256": "1c50261f205942695329d2e029682597258209927a85cb2485cbb7a68eb4eb88",
+        "pixelWidth": 2160,
+        "pixelHeight": 1350
+      },
+      {
+        "file": "03-checkpoint-withdrawn.png",
+        "caption": "같은 합성 확인 지점 철회와 서버 날짜 안내",
+        "sha256": "9e017c429670bf6808fac8e97e5a54682742e33d11025817bc166e74f152a160",
+        "pixelWidth": 2160,
+        "pixelHeight": 1350
+      }
+    ],
+    "toolLimits": "Initial direct REPL screenshots timed out and its session was lost. Aside own-agent UI/screenshot paths completed the task. Original failures remain in the private run evidence.",
+    "notClaimed": "No full QA, mobile matrix, real MFA, direct SQL or performance20/p95 claim. This is a synthetic demo, not an upload of real repository content."
+  },
+  "trialSettingsRestored": {
+    "schema": "nexus-development-trial-settings-restored/1",
+    "deployedCommit": "30f79579dd6902aa3a4244fc15bcf478a6e46d39",
+    "metadataSha256": "ca4ac3fd94fc14d08bd7a576792d92f8dd84a1529030fa63b6bb6c42bd4a2085",
+    "ownedDropInsRemoved": [
+      "metrics.conf",
+      "hints.conf"
+    ],
+    "metricsDisabled": true,
+    "hintTrialDisabled": true,
+    "unauthenticatedStatus": 403,
+    "tunnelHealthy": true,
+    "productionRouteOrDatabaseChanged": false
+  },
+  "proxyTrial": {
+    "scope": "zone-wide",
+    "original": "off",
+    "trial": "on",
+    "restored": "off",
+    "restorationReloadConfirmed": true,
+    "otherSettingsChanged": 0,
+    "defaultOpeningsWith103": 0,
+    "defaultOpeningsObserved": 40
+  },
+  "upstreamCombinedChecks": {
+    "integration": "d18fe0e1d44fbc4df4350c8a5728759c98d91ca5",
+    "main": "982fb4f10e8712aff89e0d472f9a10943283aa68",
+    "tests": 943,
+    "passed": 928,
+    "skipped": 15,
+    "strictValidations": 4,
+    "ciJobsPassed": 17,
+    "workflow": 41764186300
+  },
+  "finalHeaderChecks": {
+    "deployedCommit": "30f79579dd6902aa3a4244fc15bcf478a6e46d39",
+    "checkedAt": "2026-11-04T03:56:32.545Z",
+    "readOnly": true,
+    "htmlStatus": 200,
+    "htmlNoStore": true,
+    "htmlCspMatchesSource": true,
+    "htmlLinkAbsent": true,
+    "codeStatus": 200,
+    "codeMediaType": "text/javascript; charset=utf-8",
+    "codePrivateImmutable": true,
+    "htmlCacheEnum": "DYNAMIC",
+    "codeCacheEnum": "BYPASS",
+    "unauthenticatedStatus": 302,
+    "unauthenticatedCodeNotDelivered": true
+  }
+}

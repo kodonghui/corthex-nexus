@@ -5,12 +5,22 @@ machine. The server's own checks run with `node --test nexus/test/*.test.js`."""
 import json
 import shutil
 import subprocess
+import sys
 import unittest
 import urllib.error
 import urllib.request
 
-import test_hub as hub_tests
-from _common import ROOT, read_text
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+from hub_ref import locate_hub
+_hub_tests_path = str(locate_hub() / "tests")
+sys.path.insert(0, _hub_tests_path)
+try:
+    import test_hub as hub_tests
+    from _common import read_text
+finally:
+    sys.path.remove(_hub_tests_path)
 
 hub = hub_tests.hub
 NEXUS = ROOT / "nexus"
@@ -41,11 +51,14 @@ class FilesTest(unittest.TestCase):
         pairs = (
             (NEXUS / "src" / "hub.html", hub_tests.TEMPLATE),
             (NEXUS / "LICENSE", ROOT / "LICENSE"),
-            (NEXUS / "NOTICE", ROOT / "NOTICE"),
         )
         for copy, source in pairs:
             with self.subTest(copy=str(copy.relative_to(ROOT))):
-                self.assertEqual(copy.read_bytes(), source.read_bytes(), "copy %s again" % source.relative_to(ROOT))
+                self.assertEqual(copy.read_bytes(), source.read_bytes(), "copy %s from its canonical source again" % source.name)
+        notices = (NEXUS / "NOTICE").read_text(encoding="utf8")
+        self.assertTrue(notices.startswith((ROOT / "NOTICE").read_text(encoding="utf8")))
+        for component in ("@excalidraw/excalidraw", "@dineug/erd-editor", "React", "SIL OPEN FONT LICENSE", "Generated bundle legal comments"):
+            self.assertIn(component, notices)
 
     def test_worker_settings(self):
         config = jsonc(NEXUS / "wrangler.jsonc")
@@ -99,7 +112,7 @@ class ServerCase(hub_tests.HubCase):
     def save(self, now=hub_tests.NOW):
         ((_, project, reason),) = hub.select_projects(self.home, [], self.repo)
         self.assertIsNotNone(project, reason)
-        snapshot = hub.make_snapshot(project, hub.load_status(self.home, project.name), now)
+        snapshot = hub.make_snapshot(project, hub.load_status(self.home, project.name), now, home=self.home)
         hub.save_snapshot(self.home, snapshot)
         return json.loads(read_text(hub.snapshot_path(self.home, "acme-shop")))
 
@@ -121,11 +134,12 @@ class ServerTest(ServerCase):
         listed = [(p["name"], p["revision"], p["generated_at"]) for p in json.loads(text)["projects"]]
         self.assertEqual((code, listed), (200, [("acme-shop", 1, sent["generated_at"])]))
         code, text = self.get(SNAPSHOTS + "/acme-shop")
-        self.assertEqual((code, json.loads(text)), (200, sent))
+        stored = {key: value for key, value in sent.items() if key != "pictures"}
+        self.assertEqual((code, json.loads(text)), (200, stored))
         code, page = self.get("/")
         start = page.index(DATA_BLOCK) + len(DATA_BLOCK)
         data = json.loads(page[start:page.index("</script>", start)])
-        self.assertEqual((code, data["origin"], data["projects"]), (200, "server", [sent]))
+        self.assertEqual((code, data["origin"], data["projects"]), (200, "server", [stored]))
 
         self.assertEqual(hub.push(self.home, env={}), ["acme-shop: sent, HTTP 200, revision 2"])
         self.save(now="2026-01-11T10:00:00+09:00")

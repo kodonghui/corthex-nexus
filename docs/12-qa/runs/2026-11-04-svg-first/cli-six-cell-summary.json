@@ -1,0 +1,97 @@
+{
+  "runUrl": "https://github.com/kodonghui/corthex/actions/runs/41806949226",
+  "associatedCommit": "e7ff3947017703128df4c9e4e1b26b0d912eaa70",
+  "scope": "59 named synthetic CLI outcome methods on each of the original six hosted OS/Python cells; not an aggregate-suite or full-product acceptance verdict.",
+  "perMethodObservations": 354,
+  "all59MethodsOkEachCell": true,
+  "cells": [
+    {
+      "id": 126496231429,
+      "requestedOS": "macos-15-intel",
+      "requestedPython": "3.x",
+      "actualPython": "3.15.2",
+      "runnerImage": "macos-15",
+      "runnerImageVersion": "20260824.0482.1",
+      "newTcOk": 59,
+      "newTcFail": 0,
+      "newTcSkip": 0,
+      "rawDecodedUtf8Sha256": "1d6b412ea4c9f106061bf018ed0e6138e51d59ea7b6ea305fecbd99629ce718a"
+    },
+    {
+      "id": 126496231470,
+      "requestedOS": "windows-latest",
+      "requestedPython": "3.x",
+      "actualPython": "3.15.2",
+      "runnerImage": "windows-2025-vs2026",
+      "runnerImageVersion": "20261030.294.1",
+      "newTcOk": 59,
+      "newTcFail": 0,
+      "newTcSkip": 0,
+      "rawDecodedUtf8Sha256": "93a8c4d724550e4149556c50e906d6277af3e257bce6091fef14907f36c11e75"
+    },
+    {
+      "id": 126496231473,
+      "requestedOS": "ubuntu-24.04",
+      "requestedPython": "3.x",
+      "actualPython": "3.15.2",
+      "runnerImage": "ubuntu-24.04",
+      "runnerImageVersion": "20261025.353.1",
+      "newTcOk": 59,
+      "newTcFail": 0,
+      "newTcSkip": 0,
+      "rawDecodedUtf8Sha256": "a648b810d853f7e0108bc763bbbf74c6d72fc9c19513eeaec3dec30b6c7c890e"
+    },
+    {
+      "id": 126496231483,
+      "requestedOS": "ubuntu-24.04",
+      "requestedPython": "3.8",
+      "actualPython": "3.8.18",
+      "runnerImage": "ubuntu-24.04",
+      "runnerImageVersion": "20261025.353.1",
+      "newTcOk": 59,
+      "newTcFail": 0,
+      "newTcSkip": 0,
+      "rawDecodedUtf8Sha256": "36126d8bf6dcec6f9d1669fdd7b24f588a093686d94324ce6e96ab7657e3f7cd"
+    },
+    {
+      "id": 126496231492,
+      "requestedOS": "windows-latest",
+      "requestedPython": "3.8",
+      "actualPython": "3.8.10",
+      "runnerImage": "windows-2025-vs2026",
+      "runnerImageVersion": "20261030.294.1",
+      "newTcOk": 59,
+      "newTcFail": 0,
+      "newTcSkip": 0,
+      "rawDecodedUtf8Sha256": "b6a4653a54194de8abad6ef4717eddf4baeb93510dfef42b7ad847d90badb2fe"
+    },
+    {
+      "id": 126496231661,
+      "requestedOS": "macos-15-intel",
+      "requestedPython": "3.8",
+      "actualPython": "3.8.18",
+      "runnerImage": "macos-15",
+      "runnerImageVersion": "20260824.0482.1",
+      "newTcOk": 59,
+      "newTcFail": 0,
+      "newTcSkip": 0,
+      "rawDecodedUtf8Sha256": "a26a1c2b9b989274e95fd78955f85a214f5129afa00ae3ebab305fc26ef69711"
+    }
+  ],
+  "bridge": {
+    "priorCandidateCount": 16,
+    "newCaseCount": 59,
+    "overlapCount": 0,
+    "combinedUniqueIds": 75,
+    "excludedBuildCases": [
+      "TC-1145",
+      "TC-1146",
+      "TC-1147"
+    ]
+  },
+  "sourceVerdictsChanged": false,
+  "fullTcPassClaimed": false,
+  "rawLogOrHomePathsPublished": false,
+  "observedCheckoutCommit": "3257f113fd2b9ff6b5c3d79b9c090b7c357b4009",
+  "executedSourceFilesMatchAssociatedCommit": true
+}

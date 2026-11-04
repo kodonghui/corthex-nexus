@@ -1,0 +1,424 @@
+{
+  "schema": "nexus-mobile-v4-independent-public-audit/1",
+  "scope": "Existing immutable recorded evidence and protocol only; no new visual, browser, network, model, or product acceptance test.",
+  "productCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+  "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+  "runtimeSha256": "790efecc7cbf6cc160d6b7fb53cdbd0ba10362b075821cb4674d9fb41e29f3d7",
+  "planSha256": "26fdbd0fbb4ecf3763cdb1a0e6fc1b23cc469ccdf3f0620f326b9fa9aa7974af",
+  "runtimeFileCount": 21,
+  "conditions": {
+    "width": 390,
+    "height": 844,
+    "dpr": 2.75,
+    "mobile": true,
+    "touch": true,
+    "maxTouchPoints": 5,
+    "network": "DevTools Fast 4G",
+    "latencyMs": 165,
+    "downloadBytesPerSec": 1012500,
+    "uploadBytesPerSec": 168750,
+    "downloadBitsPerSec": 8100000,
+    "uploadBitsPerSec": 1350000,
+    "cacheDisabled": true,
+    "serviceWorkerBypassed": true,
+    "cpu": 1,
+    "newIncognitoPerOpening": true
+  },
+  "formalDenominator": 60,
+  "perStageDenominator": 20,
+  "formalGroups": [
+    {
+      "stage": "01-domain",
+      "denominator": 20,
+      "recorded": 20,
+      "primaryValid": 20,
+      "primaryInvalidOrNotStarted": 0,
+      "p95FirstSvgPaintMs": 4546.299999982119,
+      "completedOnlyP95Diagnostic": 4546.299999982119,
+      "nativeReadyValid": 20,
+      "p95NativeReadyMs": 65602,
+      "failedOrdinals": [],
+      "primaryVerdict": "fail",
+      "primaryDiagnosticRank": 19,
+      "normativeRank": 19,
+      "nativeEligibleOnlyP95DiagnosticMs": 65602
+    },
+    {
+      "stage": "05-erd",
+      "denominator": 20,
+      "recorded": 20,
+      "primaryValid": 19,
+      "primaryInvalidOrNotStarted": 1,
+      "p95FirstSvgPaintMs": null,
+      "completedOnlyP95Diagnostic": 6993.899999976158,
+      "nativeReadyValid": 19,
+      "p95NativeReadyMs": null,
+      "failedOrdinals": [
+        7
+      ],
+      "primaryVerdict": "fail",
+      "primaryDiagnosticRank": 19,
+      "normativeRank": null,
+      "nativeEligibleOnlyP95DiagnosticMs": 18484.40000000596
+    },
+    {
+      "stage": "07-sitemap",
+      "denominator": 20,
+      "recorded": 20,
+      "primaryValid": 20,
+      "primaryInvalidOrNotStarted": 0,
+      "p95FirstSvgPaintMs": 4381.199999988079,
+      "completedOnlyP95Diagnostic": 4381.199999988079,
+      "nativeReadyValid": 20,
+      "p95NativeReadyMs": 18907,
+      "failedOrdinals": [],
+      "primaryVerdict": "fail",
+      "primaryDiagnosticRank": 19,
+      "normativeRank": 19,
+      "nativeEligibleOnlyP95DiagnosticMs": 18907
+    }
+  ],
+  "formalRttReferences": [
+    {
+      "label": "G01-before",
+      "verified": true,
+      "domTtfbMs": 364
+    },
+    {
+      "label": "G01-after",
+      "verified": true,
+      "domTtfbMs": 378.30000001192093
+    },
+    {
+      "label": "G02-before",
+      "verified": true,
+      "domTtfbMs": 385.2000000178814
+    },
+    {
+      "label": "G02-after",
+      "verified": true,
+      "domTtfbMs": 998.5999999940395
+    },
+    {
+      "label": "G03-before",
+      "verified": true,
+      "domTtfbMs": 394.80000001192093
+    },
+    {
+      "label": "G03-after",
+      "verified": true,
+      "domTtfbMs": 381.69999998807907
+    },
+    {
+      "label": "G04-before",
+      "verified": true,
+      "domTtfbMs": 372.7000000178814
+    },
+    {
+      "label": "G04-after",
+      "verified": true,
+      "domTtfbMs": 1017.3999999761581
+    }
+  ],
+  "referenceGroups": {
+    "cold": [
+      {
+        "stage": "01-domain",
+        "denominator": 1,
+        "recorded": 1,
+        "primaryValid": 1,
+        "primaryInvalidOrNotStarted": 0,
+        "p95FirstSvgPaintMs": 1803.800000011921,
+        "completedOnlyP95Diagnostic": 1803.800000011921,
+        "nativeReadyValid": 1,
+        "p95NativeReadyMs": 7156.200000017881,
+        "failedOrdinals": [],
+        "primaryVerdict": "reference-only",
+        "primaryDiagnosticRank": 1,
+        "normativeRank": 1,
+        "nativeEligibleOnlyP95DiagnosticMs": 7156.200000017881
+      },
+      {
+        "stage": "05-erd",
+        "denominator": 1,
+        "recorded": 1,
+        "primaryValid": 1,
+        "primaryInvalidOrNotStarted": 0,
+        "p95FirstSvgPaintMs": 4251.100000023842,
+        "completedOnlyP95Diagnostic": 4251.100000023842,
+        "nativeReadyValid": 1,
+        "p95NativeReadyMs": 9608.5,
+        "failedOrdinals": [],
+        "primaryVerdict": "reference-only",
+        "primaryDiagnosticRank": 1,
+        "normativeRank": 1,
+        "nativeEligibleOnlyP95DiagnosticMs": 9608.5
+      },
+      {
+        "stage": "07-sitemap",
+        "denominator": 1,
+        "recorded": 1,
+        "primaryValid": 1,
+        "primaryInvalidOrNotStarted": 0,
+        "p95FirstSvgPaintMs": 2176.2999999821186,
+        "completedOnlyP95Diagnostic": 2176.2999999821186,
+        "nativeReadyValid": 1,
+        "p95NativeReadyMs": 6667.5999999940395,
+        "failedOrdinals": [],
+        "primaryVerdict": "reference-only",
+        "primaryDiagnosticRank": 1,
+        "normativeRank": 1,
+        "nativeEligibleOnlyP95DiagnosticMs": 6667.5999999940395
+      }
+    ],
+    "warm": [
+      {
+        "stage": "01-domain",
+        "denominator": 2,
+        "recorded": 2,
+        "primaryValid": 1,
+        "primaryInvalidOrNotStarted": 1,
+        "p95FirstSvgPaintMs": null,
+        "completedOnlyP95Diagnostic": 1615.699999988079,
+        "nativeReadyValid": 1,
+        "p95NativeReadyMs": null,
+        "failedOrdinals": [
+          2
+        ],
+        "primaryVerdict": "reference-only",
+        "primaryDiagnosticRank": 1,
+        "normativeRank": null,
+        "nativeEligibleOnlyP95DiagnosticMs": 15379.59999999404
+      },
+      {
+        "stage": "05-erd",
+        "denominator": 2,
+        "recorded": 2,
+        "primaryValid": 1,
+        "primaryInvalidOrNotStarted": 1,
+        "p95FirstSvgPaintMs": null,
+        "completedOnlyP95Diagnostic": 1887.199999988079,
+        "nativeReadyValid": 1,
+        "p95NativeReadyMs": null,
+        "failedOrdinals": [
+          2
+        ],
+        "primaryVerdict": "reference-only",
+        "primaryDiagnosticRank": 1,
+        "normativeRank": null,
+        "nativeEligibleOnlyP95DiagnosticMs": 49168.90000000596
+      },
+      {
+        "stage": "07-sitemap",
+        "denominator": 2,
+        "recorded": 2,
+        "primaryValid": 1,
+        "primaryInvalidOrNotStarted": 1,
+        "p95FirstSvgPaintMs": null,
+        "completedOnlyP95Diagnostic": 3736,
+        "nativeReadyValid": 1,
+        "p95NativeReadyMs": null,
+        "failedOrdinals": [
+          2
+        ],
+        "primaryVerdict": "reference-only",
+        "primaryDiagnosticRank": 1,
+        "normativeRank": null,
+        "nativeEligibleOnlyP95DiagnosticMs": 7949.300000011921
+      }
+    ]
+  },
+  "coldEligible": 3,
+  "warmEligible": 3,
+  "referenceSlotsExcludedFromFormal": 9,
+  "formalGlobal20Stage7": {
+    "phase": "B01",
+    "ordinal": 20,
+    "stage": "05-erd",
+    "stageOrdinal": 7,
+    "primaryValid": false,
+    "nativeValid": false,
+    "firstSvgPaintDomMs": 2742.4000000059605,
+    "coreSvgPaintDomMs": null,
+    "nativeReadyDomMs": null,
+    "nativePaintOpportunityDomMs": null,
+    "firstSvgObservedWithin90s": true,
+    "nativeObservedWithin90s": false,
+    "stopReason": "whole-opening-deadline",
+    "primaryReasonCodes": "formal-code-edge-hit-condition-not-verified",
+    "nativeReasonCodes": "formal-code-edge-hit-condition-not-verified|native-ready-and-two-visible-frames-not-observed|native-ready-and-two-visible-frames-not-observed-in90s-window|erd-live300-count-not-verified",
+    "sourceIdentityMatch": true,
+    "htmlStatus": 200,
+    "htmlEncoding": "br",
+    "htmlNoStore": true,
+    "htmlCspHashMatch": true,
+    "htmlResponseEventCdpMs": 2620.736000011675,
+    "htmlLoadingFinishedCdpMs": 2623.079000011785,
+    "htmlHeaderStartCdpMs": 2610.0310000016298,
+    "htmlHeaderEndCdpMs": 2611.6090000016297,
+    "htmlHeaderWaitFromSendEndCdpMs": 1174.2549999999999,
+    "htmlResponseStartDomMs": 2610.9000000059605,
+    "htmlResponseEndDomMs": 2624,
+    "htmlEncodedBodyBytes": 11193,
+    "htmlDecodedBodyBytes": 219664,
+    "codeInitiatedRequests": 1,
+    "cookieOnlyVerified": true,
+    "cookieUnverifiedRequests": 0,
+    "cookieContradictedRequests": 0,
+    "cacheCondition_completedCodeResponses": 0,
+    "codeLoadingFinishedCount": 0,
+    "allObservedCodeResponseRecordsHit": false,
+    "sampledBlankIntervals": 0,
+    "sampledFrameCount": 2789,
+    "observerWorkMs": 1049.2000008821487,
+    "longTaskCount": 2,
+    "longTaskMs": 120,
+    "postNativeObservationMs": 5000,
+    "pollTimeouts": 1,
+    "navigationAckDeadlineMs": 95000,
+    "navigationAwaitedBeforePolling": false,
+    "cpuTaskDurationDeltaMs": 2409.54,
+    "cpuScriptDurationDeltaMs": 1164.7430000000002,
+    "cpuLayoutDurationDeltaMs": 20.515,
+    "cpuRecalcStyleDurationDeltaMs": 8.45,
+    "cpuV8CompileDurationDeltaMs": 0,
+    "cpuLayoutCountDeltaCount": 0,
+    "cpuRecalcStyleCountDeltaCount": 2
+  },
+  "warmSecondOpenings": [
+    {
+      "stage": "01-domain",
+      "ordinal": 2,
+      "primaryValid": false,
+      "nativeValid": false,
+      "firstSvgPaintDomMs": 1662.6000000238419,
+      "cookieUnverifiedRequests": 20,
+      "cookieContradictedRequests": 0,
+      "allObservedCodeResponseRecordsHit": true
+    },
+    {
+      "stage": "05-erd",
+      "ordinal": 4,
+      "primaryValid": false,
+      "nativeValid": false,
+      "firstSvgPaintDomMs": 1209.1000000238419,
+      "cookieUnverifiedRequests": 4,
+      "cookieContradictedRequests": 0,
+      "allObservedCodeResponseRecordsHit": true
+    },
+    {
+      "stage": "07-sitemap",
+      "ordinal": 6,
+      "primaryValid": false,
+      "nativeValid": false,
+      "firstSvgPaintDomMs": 789.0999999940395,
+      "cookieUnverifiedRequests": 20,
+      "cookieContradictedRequests": 0,
+      "allObservedCodeResponseRecordsHit": true
+    }
+  ],
+  "observedSafetyCounts": {
+    "http403ResponseRecords": 0,
+    "codeMissResponseRecords": 0,
+    "cookieTransportContradictions": 0,
+    "sampledBlankIntervals": 0,
+    "codeResponseRecordsByPhase": {
+      "R-COLD": 44,
+      "B01": 876,
+      "R-WARM": 88
+    },
+    "codeLoadingFinishedByPhase": {
+      "R-COLD": 44,
+      "B01": 876,
+      "R-WARM": 88
+    }
+  },
+  "fixtureNodeDenominators": {
+    "01-domain": {
+      "sourceRows": 99,
+      "renderedElements": 300,
+      "contextFrames": 1,
+      "eventNodes": 99,
+      "commandNodes": 99,
+      "actorNodes": 99,
+      "aggregateNodes": 1,
+      "readModelNodes": 1
+    },
+    "05-erd": {
+      "sourceTables": 300,
+      "renderedTableNodes": 300,
+      "columnsAreExtraNodes": false
+    },
+    "07-sitemap": {
+      "sourceScreens": 300,
+      "renderedScreenNodes": 300,
+      "edgesExcluded": 299
+    }
+  },
+  "interpretation": {
+    "normativeP95": "Nearest rank ceil(0.95*n), rank19 for20; requires all20 eligible. ERD19-only rank19 diagnostic is not normative.",
+    "firstSvgPaint": "Recorded complete initial SVG/style/labels/end-marker and visible geometry through2 rAF callbacks; second callback is a paint-opportunity upper bound, not pixels or FCP.",
+    "invalidRetention": "No slot replacement. Formal failure and three warm transport-unverified openings remain in their denominators.",
+    "formalFailure": "An initiated cookie-verified code request has no response/finish observation by90s; edge HIT and native readiness are unobserved. No actual MISS,403,or credential leak is demonstrated.",
+    "references": "Cold3 valid; warm6 numeric observations with only3 eligible. References9 and RTT8 never pooled into formal60. Cold chronology is not independently inferred from this report alone.",
+    "clockDomains": "DOM navigation/rAF, CDP-relative wire/response/finish, and harness ACK/wall clocks remain separate. No cross-domain subtraction or causal attribution.",
+    "cpu": "Cumulative CDP numeric metrics before navigation through final inspection, including instrumentation; duration seconds are explicitly converted to ms in CSV. New5s post-native observation can add4500ms versus old500ms and prevents an equal-window CPU comparison.",
+    "cpuFinalRead": "Final safe inspection and CPU collection may each extend up to5s beyond polling; they cannot rescue a missing90s milestone.",
+    "observerWork": "Synchronous rAF checker only; MutationObserver/event-callback overhead is excluded from this submetric but included in cumulative CDP metrics.",
+    "blankGaps": "Zero recorded sampled intervals does not exclude unsampled/subframe blank gaps or prove visible pixels inside a geometrically ready canvas.",
+    "codeResponseField": "cacheCondition.completedCodeResponses counts response records at responseReceived; loadingFinished is counted separately. In this dataset the totals happen to agree.",
+    "verdict": "All3 formal stage groups fail the declared3s first-SVG criterion; this metric alone cannot decide whole-product acceptance.",
+    "evidenceLimit": "A file audit can check recorded witness/eligibility/statistics and frozen bytes, not recreate past screen paint or independently authenticate historical remote deployment."
+  },
+  "cleanup": {
+    "ownedChromeRemaining": 0,
+    "ownedHarnessNodeRemaining": 0,
+    "allThreeBrowserCloseAcknowledged": true,
+    "profilesRetained": true,
+    "originalProfilesTouched": false,
+    "extraRequestsAfterWarm": 0,
+    "measurementWindowReturned": true
+  },
+  "earlierEvidencePreservation": {
+    "old60ArtifactFilesVerified": 73,
+    "old60ArtifactFilesTotal": 73,
+    "old60HarnessSnapshotFilesVerified": 63,
+    "old60HarnessSnapshotFilesTotal": 63,
+    "old60FormalRows": 60,
+    "old60ColdRows": 3,
+    "old60WarmActualRows": 0,
+    "old60RuntimeSha256": "13c946719811a9e773037d8dfb98cc9f1b4b17601519d6779cfe4a32e34d8a83",
+    "old60PlanSha256": "30872c319418843172ef17035dcc8894916f6be13dd4626ca71d93dd41b8fed3",
+    "old80RawBlocksVerified": 4,
+    "old80FormalRows": 80,
+    "old80RuntimeFilesVerified": 17,
+    "old80ReportListedRuntimeFilesPerBlock": {
+      "B01": 6,
+      "B02": 6,
+      "B03": 6,
+      "B04": 6
+    },
+    "old80RuntimeSha256": "81ad01c01c93c5e0148b15fd4e37a3e215dd0ef89e75f8e4c21bbe056177beda",
+    "old80PlanSha256": "807b07d539b169287ffb73651a5303a057e61fe779db8e602c8e84865ab38a41",
+    "conditionsAndPlansUnchanged": true,
+    "reclassifiedOrReplaced": false
+  },
+  "method": {
+    "reportRowsIndependentlyChecked": 69,
+    "reportedValidityRebuiltFromRecordedFields": true,
+    "rawInputsCopied": false,
+    "browserLaunches": 0,
+    "httpRequests": 0,
+    "modelCalls": 0,
+    "productOrRepoWrites": 0,
+    "notionWrites": 0,
+    "profileAccesses": 0,
+    "dependencyInstalls": 0
+  },
+  "checks": {
+    "total": 1584,
+    "passed": 1584
+  },
+  "actionableDiscrepancyCount": 0,
+  "discrepancies": []
+}

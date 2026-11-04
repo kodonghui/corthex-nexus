@@ -1,0 +1,16 @@
+{
+  "deployedCommit": "30f79579dd6902aa3a4244fc15bcf478a6e46d39",
+  "checkedAt": "2026-11-04T03:56:32.545Z",
+  "readOnly": true,
+  "htmlStatus": 200,
+  "htmlNoStore": true,
+  "htmlCspMatchesSource": true,
+  "htmlLinkAbsent": true,
+  "codeStatus": 200,
+  "codeMediaType": "text/javascript; charset=utf-8",
+  "codePrivateImmutable": true,
+  "htmlCacheEnum": "DYNAMIC",
+  "codeCacheEnum": "BYPASS",
+  "unauthenticatedStatus": 302,
+  "unauthenticatedCodeNotDelivered": true
+}
