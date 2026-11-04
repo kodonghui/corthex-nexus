@@ -1,0 +1,289 @@
+{
+  "schema": "api-two-and-job-formal-r2-source-record/1",
+  "sourceBaseCommit": "b66d858d892d88cc73ff2e613e05cd7e915902c1",
+  "counts": {
+    "total": 710,
+    "previousPass": 518,
+    "previousPartial": 190,
+    "pass": 520,
+    "partial": 188,
+    "fail": 2,
+    "changedLastResultRows": 5,
+    "changedVerdicts": 2,
+    "otherWholeRowsUnchanged": 705,
+    "wbsRowsUnchanged": 64,
+    "wbsDone": 15,
+    "wbsInProgress": 49
+  },
+  "acceptedApiCriteria": {
+    "TC-787": {
+      "evidenceKind": "retained actual-handler R3 quota request",
+      "phase": "original-criteria-r3-node-r2",
+      "sourceMethod": "31st snapshot refusal in project-limit-acceptance.test.js",
+      "testSourceSha256": "9235a62615d7939d78b91fb814d94bd8a2cdc907ab87f9fecd8afec17e2a2880",
+      "canonicalBodySha256": "36a1574bf141903bb3df269bc79a9391fb16102c16ae341743e3af30d5e7ec03",
+      "status": 409,
+      "code": "too_many_projects",
+      "semanticDiscriminator": {
+        "storedProjects": 30,
+        "limit": 30
+      },
+      "headersCspSchemaTraceLogVerified": true,
+      "sameRequestSchemaObjectsUnchanged": 36,
+      "sameRequestTablesUnchanged": 13,
+      "nonemptyReceiptsUnchanged": 1,
+      "databaseBeforeSha256": "35197d520091466e068dfdbdfb297c9c5295097be660a58455bf113444bc2750",
+      "databaseAfterSha256": "35197d520091466e068dfdbdfb297c9c5295097be660a58455bf113444bc2750",
+      "receiptBeforeSha256": "89e14f8a78e8ca0240e699e9aa030ad6ee901a471ee804d094c0db7e5d0ac343",
+      "receiptAfterSha256": "89e14f8a78e8ca0240e699e9aa030ad6ee901a471ee804d094c0db7e5d0ac343",
+      "externalRequestStaticZeroNotUsed": true,
+      "validatorSeparateProcessExitUnrecorded": true
+    },
+    "TC-1052": {
+      "phase": "code-policy-acceptance-v1",
+      "phaseCaptureIndex": 32,
+      "matrixIndex": 32,
+      "observationId": "handler-0033",
+      "apiId": "API-127",
+      "operationId": "dismissEdit",
+      "status": 409,
+      "media": "application/problem+json",
+      "schemaErrors": 0,
+      "canonicalBodySha256": "8b17293b93bd57f25ddbe3571d497e936e3b84b58219500da6663333b2dd7df9",
+      "allCommonHeadersAndCspObserved": true,
+      "sameRequestNoMutation": true,
+      "evidenceKind": "current captured actual-handler refusal",
+      "code": "edit_state",
+      "semanticDiscriminator": {
+        "state": "pending",
+        "action": "dismiss"
+      },
+      "sameRequestErrorLogTraceVerified": true,
+      "sameRequestWholeDbAndReceiptsUnchanged": true,
+      "sourceTestSha256": "2cb50d9aa88bc7cf015db8d8632ca553eb7087816b3299f9d75b06493425c6ff",
+      "logSourceSha256": "68459bd10c391faa377d675894d6e3b5b845dd51f248065119e4da40cb20dfc5"
+    }
+  },
+  "apiEvidenceNewExecutions": 0,
+  "formal": {
+    "schema": "job-formal-r2-safe-facts/1",
+    "runtimeSha256": "a9592f34a1a2beb256ae5615a926ad379835e2edef9d96ef91314c5447137ae1",
+    "planSha256": "c21281c70cfc6779be445c28dba5f9bf6edd0deccc9999e8d3380a2221d82e28",
+    "helperSha256": "0cd7a097a23a1e5d7d7cdaaeeccc7ef3b92b45ec25c95fb33461d6d9b9f01a81",
+    "rawReportSha256": "dc33fc49bdb5327dc0b5e8b6c97c5d3ce4fa3e4a08ccd967bd92346e60c105aa",
+    "operatorSnapshotSha256": "51a28a0f89dc0fa7cef0a83690b82e7b7ebec3d1c0868d18f2041244c411cad6",
+    "sourceCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+    "sourceProofStartEqualsEnd": true,
+    "sourceProofCanonicalSha256": "745f3b7423e6b00d9c5e4e09ef1742b7635f3d51ae562d61ed04b641d0429815",
+    "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+    "fixtureManifestSha256": "10df1cfc2fd1ffd636b271a0b22fb4c78cab9bdf636a67a1f25aa753c4acf0ae",
+    "plannedSlots": 60,
+    "denominatorPerStage": 20,
+    "observed": 38,
+    "primaryQualifiedWithCleanup": 37,
+    "nativeQualifiedWithCleanup": 37,
+    "notStarted": 22,
+    "fixedReferenceSlots": 8,
+    "referencesVerified": 5,
+    "referencesNotStarted": 3,
+    "referencesOutsideFormalDenominator": true,
+    "referencesSeparateUnshapedClock": true,
+    "groups": [
+      {
+        "stage": "01-domain",
+        "denominator": 20,
+        "primaryQualifiedWithCleanup": 13,
+        "firstPictureMetricValidCount": 13,
+        "p95FirstSvgPaintMs": null,
+        "nativeQualifiedWithCleanup": 13,
+        "p95NativeReadyMs": null,
+        "p95NativePaintOpportunityMs": null
+      },
+      {
+        "stage": "05-erd",
+        "denominator": 20,
+        "primaryQualifiedWithCleanup": 12,
+        "firstPictureMetricValidCount": 13,
+        "p95FirstSvgPaintMs": null,
+        "nativeQualifiedWithCleanup": 12,
+        "p95NativeReadyMs": null,
+        "p95NativePaintOpportunityMs": null
+      },
+      {
+        "stage": "07-sitemap",
+        "denominator": 20,
+        "primaryQualifiedWithCleanup": 12,
+        "firstPictureMetricValidCount": 12,
+        "p95FirstSvgPaintMs": null,
+        "nativeQualifiedWithCleanup": 12,
+        "p95NativeReadyMs": null,
+        "p95NativePaintOpportunityMs": null
+      }
+    ],
+    "state": "formal-stopped-with-all60-slots-retained",
+    "stopReason": "owned-cleanup-not-verified",
+    "studyVerdict": "fail",
+    "primaryMetricVerdict": "fail",
+    "securityVerdict": "fail",
+    "observedSecurityVerified": 38,
+    "observedFinalCodeFailureRows": 0,
+    "observedFinalCodeIncompleteRows": 0,
+    "failedOpening": {
+      "slot": 38,
+      "stage": "05-erd",
+      "browserCloseAck": true,
+      "graceDeadlineMs": 30000,
+      "ownedTerminationAttempts": 1,
+      "terminationDeadlineMs": 10000,
+      "terminationOutcome": "operation-deadline",
+      "helperExitCode": 1,
+      "finalReplyHeldHandles": 0,
+      "finalReplyActiveProcesses": 0,
+      "finalReplyRootWaitSignaled": false,
+      "cleanupVerified": false,
+      "chromeRootExitVerified": false,
+      "postFailureOsCensusPerformed": false
+    },
+    "conditions": {
+      "width": 390,
+      "height": 844,
+      "dpr": 2.75,
+      "mobile": true,
+      "touch": true,
+      "cpu": 1,
+      "cacheDisabled": true,
+      "serviceWorkerBypassed": true,
+      "newBrowserProfilePerSlot": true
+    },
+    "shaping": {
+      "offline": false,
+      "latency": 165,
+      "downloadThroughput": 1012500,
+      "uploadThroughput": 168750,
+      "connectionType": "cellular4g"
+    },
+    "primaryTargetMs": 3000,
+    "openingDeadlineMs": 90000,
+    "navigationAckDeadlineMs": 95000,
+    "nativePostObservationMs": 5000,
+    "controllerInvocations": 1,
+    "controllerExitCode": 1,
+    "retries": 0,
+    "replacements": 0,
+    "newNormativeP95Computed": false,
+    "oldResultsReclassified": false,
+    "newUserApproval": false,
+    "preexecution": {
+      "originalV7RejectedBeforeExecution": true,
+      "originalRuntimeSha256": "2f3f0518ba3f60cf359853c63412b42b27e10bab6e11f75c8da1549ac014c31d",
+      "originalPlanSha256": "46d95e047e8bab531baf1c99fe6b4ef834a7faf9d0e1c599b247f6152417f441",
+      "r2Guard": "unresolved event records must be zero at cutoff; later evidence may invalidate but not promote",
+      "r2OfflineGroupsPassed": 8,
+      "r2OfflineGroupsTotal": 8,
+      "r2CollectorChecks": 9,
+      "r2ReferenceChecks": 13,
+      "r2OfflineActualExecutions": 0,
+      "r2OfflineReceiptSha256": "7323a674f8cb8607ec320d8fb6adaf3dd290f83e0ea6c20637f35d2cd009cec7"
+    },
+    "fixtureCountsByStage": {
+      "01-domain": {
+        "sourceRows": 99,
+        "expectedNodeCount": 300,
+        "expectedEdgeCount": 0,
+        "kindCounts": {
+          "context": 1,
+          "event": 99,
+          "command": 99,
+          "actor": 99,
+          "aggregate": 1,
+          "read-model": 1
+        }
+      },
+      "05-erd": {
+        "sourceRows": 300,
+        "expectedNodeCount": 300,
+        "expectedEdgeCount": 0,
+        "kindCounts": {
+          "table": 300
+        }
+      },
+      "07-sitemap": {
+        "sourceRows": 300,
+        "expectedNodeCount": 300,
+        "expectedEdgeCount": 299,
+        "kindCounts": {
+          "screen": 300
+        }
+      }
+    }
+  },
+  "previousResults": {
+    "TC-654": {
+      "en": "partial (scoped evidence): Run20 DDD300 mobile openings under the original profile; do not substitute sitemap/ERD timings. [SVG QA](runs/2026-11-04-svg-first.md)",
+      "ko": "partial (범위를 한정한 근거): DDD300요소·원래 모바일4G 조건·20회 P95는 미실행입니다. 사이트맵·ERD 성능을 대신 쓰지 않습니다. [SVG QA](runs/2026-11-04-svg-first.ko.md)"
+    },
+    "TC-1309": {
+      "en": "fail (formal SVG mobile60): candidate906f360/D802; DDD20/20 P954546.3ms, ERD19/20 normative P95null, sitemap20/20 P954381.2ms against3s. All60 initial SVG times observed; ERD7 code completion/HIT prerequisite unverified within90s. Native readiness separate; original failures retained. [final](runs/2026-11-04-mobile-final.md)",
+      "ko": "fail (정규 SVG 모바일60): 후보906f360/D802. DDD20/20 P954546.3ms·ERD19/20 정규P95null·사이트맵20/20 P954381.2ms로3초미달입니다. 초기SVG60회시각은모두관측했고ERD7은90초내code완료/HIT전제가미검증입니다. 편집기준비와원실패는별도보존. [최종](runs/2026-11-04-mobile-final.ko.md)"
+    },
+    "TC-787": {
+      "en": "partial: named-example audit 2026-11-04; exact named variant observed at synthetic actual handler with schema matching; common headers/effects only where cited, no live Access or full TC pass.",
+      "ko": "partial: named-example audit 2026-11-04; 합성 실제 handler에서 명명 variant와 스키마 일치 관측. 공통 헤더·효과는 개별 근거 범위만 확인; 실제 Access·전체 TC 통과 아님."
+    },
+    "TC-1271": {
+      "en": "fail (formal SVG mobile60): candidate906f360/D802; DDD20/20 P954546.3ms, ERD19/20 normative P95null, sitemap20/20 P954381.2ms against3s. All60 initial SVG times observed; ERD7 code completion/HIT prerequisite unverified within90s. Native readiness separate; original failures retained. [final](runs/2026-11-04-mobile-final.md)",
+      "ko": "fail (정규 SVG 모바일60): 후보906f360/D802. DDD20/20 P954546.3ms·ERD19/20 정규P95null·사이트맵20/20 P954381.2ms로3초미달입니다. 초기SVG60회시각은모두관측했고ERD7은90초내code완료/HIT전제가미검증입니다. 편집기준비와원실패는별도보존. [최종](runs/2026-11-04-mobile-final.ko.md)"
+    },
+    "TC-1052": {
+      "en": "partial: named-example audit 2026-11-04; exact named variant observed at synthetic actual handler with schema matching; common headers/effects only where cited, no live Access or full TC pass.",
+      "ko": "partial: named-example audit 2026-11-04; 합성 실제 handler에서 명명 variant와 스키마 일치 관측. 공통 헤더·효과는 개별 근거 범위만 확인; 실제 Access·전체 TC 통과 아님."
+    }
+  },
+  "previousResultSha256": {
+    "TC-654": {
+      "en": "4a5ad8411b9b188e2f173764f315815c715419873e3ca49f0dc9eb1d67f21b45",
+      "ko": "cf05c1728dc28bb4d71087be80a5d580b830665a249bd0e95e49d641c809e53c"
+    },
+    "TC-1309": {
+      "en": "665670dfea263399488968ad81371d6e592e28c641ce581b489bd05c4e39ee5b",
+      "ko": "e3d5703ee7a46cda3e1f0565ab69de38156ba4d211feccf49fcc99bbcb3cd092"
+    },
+    "TC-787": {
+      "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+      "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+    },
+    "TC-1271": {
+      "en": "665670dfea263399488968ad81371d6e592e28c641ce581b489bd05c4e39ee5b",
+      "ko": "e3d5703ee7a46cda3e1f0565ab69de38156ba4d211feccf49fcc99bbcb3cd092"
+    },
+    "TC-1052": {
+      "en": "28604d39584f065bedad551b1ce4232f908c2021de07053ad8b2e064c7a98093",
+      "ko": "f16eae4db6341d8abb3153876a9b628c099914111335703528a526e31b46e917"
+    }
+  },
+  "recordOnlyChecksNoProductExecution": true,
+  "notionUpdatedByThisUnit": false,
+  "stageOrReleaseApproval": false,
+  "originalEnglishCriterionSha256": {
+    "TC-1052": {
+      "steps": "08bc8e44619aa6246866857bb3e44d0b5c5a6ac53a2805234291a197823ee09a",
+      "expected": "4e2915a9005986c6bb110bbf3f89526f411c2960c92ebcc7b8321075289b3798"
+    },
+    "TC-1271": {
+      "steps": "fa593ed7a462d7a7b6e6399b2a6dda2441a47fccf3f09c3ec89ccc428e1a88d2",
+      "expected": "6ea7a95f37592f907528a744e33deac3db15323bef338ab9fd9d62793c9822d3"
+    },
+    "TC-1309": {
+      "steps": "0fe58a184a0e0fdffdd268b1d510954b146eb46d45419b4eee7b9e3cda0065eb",
+      "expected": "442138d8d1596581f2e6e9823abfca48d477381e16c5a38dad9c7e369726302f"
+    },
+    "TC-654": {
+      "steps": "cb3b7e93533f3de82fbb9cf7956263d8afca75f93a6848ac7fb4f56a8107977e",
+      "expected": "ca2146c028c5aad31e5d058aafbf5f2c4209138b360d08f5127ff52d91a087ae"
+    },
+    "TC-787": {
+      "steps": "819dd8a53cb7ecba09f8263be5a77527ea006df684dc9c537d34df0a16316da1",
+      "expected": "0f5b0855329bfa30696c0051f37256c587f203319e87f9f58c308487d5c451db"
+    }
+  }
+}
