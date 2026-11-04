@@ -1,0 +1,21 @@
+{
+  "schema": "v6-separate-return-evidence/1",
+  "reportSha256": "ae85aa4ef7f261f899835acbb8d7a7642eb841b922d9fd413ceced00b9abcd1b",
+  "operatorReturnSha256": "15dd1cbf958d1bdcf33ab4d4fcb8bd6835514b255aecc97498c26ec5f89e64b6",
+  "originalPlanned": 60,
+  "originalObserved": 29,
+  "originalSetupFailed": 1,
+  "originalNotStarted": 30,
+  "originalSlot30CleanupRemaining": 1,
+  "originalSlot30CleanupVerified": false,
+  "laterOsChromeRemaining": 0,
+  "laterOsNodeRemaining": 0,
+  "laterOsObservationSeparate": true,
+  "originalCleanupFailureReclassified": false,
+  "retainedProfiles": 30,
+  "profilesDeleted": 0,
+  "manualKills": 0,
+  "additionalTargetRequestsAfterFinish": 0,
+  "retryReplacement": 0,
+  "exclusiveWindowReturned": true
+}

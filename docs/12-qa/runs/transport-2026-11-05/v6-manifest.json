@@ -1,0 +1,35 @@
+{
+  "schema": "v6-public-canonical-manifest/1",
+  "utcDay": [
+    2026,
+    11,
+    4
+  ],
+  "localDay": [
+    2026,
+    11,
+    5
+  ],
+  "inputs": {
+    "report": "ae85aa4ef7f261f899835acbb8d7a7642eb841b922d9fd413ceced00b9abcd1b",
+    "operatorSummary": "39d38f9080dc2c6be464447e656cf5cca077b4fc5c6bec1df60c6984ddbd88dd",
+    "operatorReturn": "15dd1cbf958d1bdcf33ab4d4fcb8bd6835514b255aecc97498c26ec5f89e64b6",
+    "operatorManifest": "24936b14fae0280b6c02dcd8e5fa40bcddb984cec0bb59ef13a1ab5f3362fda1",
+    "runtimeSourceManifest": "13febc745f9783149720f0a1ca45c6a2a86462477f5f09911277af1ba84759b3",
+    "plan": "fdccf05932e1a55ec7b923ce95ee4ba2cf7dfee4ae4dc905cc12a99e7a0fb4aa",
+    "previousCanonicalModule6Summary": "4644dde63ae80f39f9690ee4c9c5dcedf09f6aaa258f7fb1a0a2d48452b714ad",
+    "previousCanonicalV5Summary": "284d33d9c3c9fbc512807aa3efab84596d1636de9235b3d5817cf9d3fa8dabc6",
+    "previousCanonicalFollowupManifest": "65c352464b1ffe51379cc5fc3e8ca24e7212769322cbc8950cebfcfbd8df1b25"
+  },
+  "outputs": {
+    "v6Summary": "e8820d4b5768c8095bfc906fed459b206fef6a779bea997b3f5e1c9e2a51baeb",
+    "v6ReturnSummary": "7af6430478d6acb77e183020b93ad1b7eb13f62f43a23d06334fae0362699dba"
+  },
+  "canonicalEncoding": "utf8-lf-no-bom-final-lf",
+  "originalArtifactsModified": 0,
+  "reclassifiedVerdicts": 0,
+  "newNormativeP95Calculated": false,
+  "rawPayloadsPublished": false,
+  "privateIdentifiersPublished": false,
+  "gitStagedBlobComparison": "pending-root-stage"
+}
