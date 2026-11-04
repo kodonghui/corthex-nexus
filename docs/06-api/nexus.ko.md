@@ -123,7 +123,7 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 - 모든 응답은 1차의 헤더를 지닙니다: `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-Robots-Tag: noindex, nofollow`, `Cross-Origin-Resource-Policy: same-origin`. 그래서 어떤 응답도 캐시되거나, 다른 사이트의 프레임에 보이거나, 색인되지 않습니다(SPEC-113). JSON 응답에는 `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`을 더합니다.
 - 허브 페이지는 1차의 정책을 그대로 둡니다. 자기 인라인 스크립트만 그 다이제스트로 돌리고, 아무 요청도 보내지 않습니다: `default-src 'none'; script-src 'sha256-…'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, 그리고 `Cross-Origin-Opener-Policy: same-origin`.
 - 그림 보기와 단계 현황은 코드를 `/code/`에서만 불러오고 요청은 서버에만 보냅니다(REQ-147): `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, 그리고 `Cross-Origin-Opener-Policy: same-origin`. 그 자료는 JSON 스크립트 블록에 있고, 페이지는 그것을 글로 읽을 뿐 돌리지 않습니다.
-- 브라우저가 간직해도 되는 것은 보기 화면의 코드 파일뿐이며, `Cache-Control: private, max-age=31536000, immutable`을 지닙니다. 파일 이름마다 그 내용의 다이제스트가 들어 있고, 프로젝트 자료는 없기 때문입니다. 이 단계의 확인 지점이 SPEC-113을 그렇게 바꿨습니다([앞 단계의 변경](#앞-단계의-변경)).
+- 브라우저와 같은 origin의 Access 보호 Cloudflare 거점이 간직해도 되는 것은 공개된 내용 해시 이름의 보기 화면 코드·스타일·글꼴뿐이며, `Cache-Control: public, max-age=31536000, immutable`을 지닙니다. 파일 이름마다 그 내용의 다이제스트가 들어 있고, 프로젝트 자료는 없기 때문입니다. 이 단계의 확인 지점이 SPEC-113을 그렇게 바꿨습니다([앞 단계의 변경](#앞-단계의-변경)).
 
 ### 오류
 
@@ -867,3 +867,11 @@ TASK-201은 임시 진단 Worker를 정적 자산 없이 Access 뒤에 올리고
 
 - 요청마다 응답마다 그 이름 붙은 예시로 `API-118#409`처럼 적는 시험 사례 하나, 그리고 명령마다 결과마다 Linux, macOS, Windows에서 하나씩.
 - 위의 경우의 수: 두 번, 그리고 7일 뒤에 다시 보낸 쓰기, 다른 요청의 쓰기 ID, 한 항목에 두 세션, 다른 보내기에 앞질린 보내기, 0.2의 보내기 뒤의 0.1 허브, 보기 화면에서 끝나는 로그인, 그리고 네트워크 없이, 토큰 없이, 7일 뒤의 보낼 편지함.
+
+## 2026-11-04 전송·계측·출시 결정
+
+관리자는 REQ-147의 같은 출처를 유지하면서 공개 내용 해시 코드·스타일·글꼴의 거점 캐시를 승인했습니다. HTML·API·프로젝트 자료·거절 응답은 no-store입니다. 코드 응답에는 Set-Cookie와 Vary:*가 없고 CSP와 전체 호스트 Access를 유지합니다. 캐시 HIT도 미인증 GET/HEAD에 코드를 전달하지 않아야 합니다. 거점 HIT는 원 서버에 닿지 않으므로 원 서버 검증을 매 HIT마다 실행했다고 주장하지 않습니다.
+
+REQ-124의 서버 처리 시간은 본문을 모두 받은 뒤부터 응답 처리 완료까지입니다. 본문 수신·왕복·CPU 구간·RSS는 따로 기록합니다. 기존31.085ms는1초 기준 통과이며 과거 전체1031.079ms는 그대로 보존합니다.
+
+관리자는 REQ-149와 REQ-124 통과,710사례 전부 판정·Must 실패0,운영 자료 이전/복구 리허설, C1 출시·PR C 뒤의 코어 통합,필수 검사와 Code/Security 리뷰를 조건으로 NEXUS 병합·운영 전환·출시 태그를 사전 승인했습니다. 이 저장소 첫 보내기는 REQ-107의 별도 확인입니다. 이전 Worker/D1은 전환 뒤14일 보존하고 삭제는 다시 묻습니다. 조건이 남으면 수치로 한 번 묻고 답 뒤 출시합니다.

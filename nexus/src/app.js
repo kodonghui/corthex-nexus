@@ -65,7 +65,7 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
       case "getViewCode": {
         const file=views.code?.[p.file];
         if(!file)throw new Problem("not_found","no such file of the view's code");
-        return new Response(head?null:file.body,{headers:{...COMMON_HEADERS,"Content-Type":file.type,"Cache-Control":"private, max-age=31536000, immutable","Content-Security-Policy":"default-src 'none'; frame-ancestors 'none'"}});
+        return new Response(head?null:file.body,{headers:{...COMMON_HEADERS,"Content-Type":file.type,"Cache-Control":"public, max-age=31536000, immutable","Content-Security-Policy":"default-src 'none'; frame-ancestors 'none'"}});
       }
       case "getPictureViewPage":
       case "getStageOverviewPage": {

@@ -27,7 +27,7 @@ Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) lists
 | TASK-261 | Deploy isolated development over SSH | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-260 | agent | M | Loopback-only dedicated user/folders/systemd and Tunnel serve development with restart and rollback; real values stay outside Git, keys stay on their devices, other services are unchanged. | done |
 | TASK-262 | Back up and restore the database | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-259, TASK-261 | agent | M | Daily and pre-migration/deploy consistent backups, explicit retention and permissions are tested; one restored copy is reopened and data/behavior compared. | done |
 | TASK-263 | Rehearse production data migration and rollback | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-262 | agent | L | Production D1 is exported read-only into an isolated development copy; migrations and restore are compared by counts/digests, with old Worker/D1 preserved and no production address/data switch. | done |
-| TASK-264 | Repeat development contracts and performance on OVH | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-261, TASK-262 | agent | M | Schemathesis, both real Access identities and maximum1MB push processing/memory are measured; server processing is under 1s; full-view mobile evidence remains TASK-224/238/251. | in progress |
+| TASK-264 | Repeat development contracts and performance on OVH | REQ-124, SPEC-104–SPEC-140, decision of 2026-11-04 | Product history/contracts/deployment | TASK-261, TASK-262 | agent | M | Schemathesis, both real Access identities and maximum1MB push processing/memory are measured; server processing is under 1s; full-view mobile evidence remains TASK-224/238/251. The1s processing interval starts after complete body receipt and ends when response handling completes; arrival/round trip are separate references. | done |
 
 ## Server
 
@@ -61,7 +61,7 @@ Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) lists
 
 | ID | Task | From | Touches | Depends on | Owner | Estimate | Done when | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-223 | Measure maximum push processing and memory on OVH | SPEC-114, SPEC-118, SPEC-121 | REQ-081, REQ-124, API-105 | TASK-205 | agent | M | Record server processing time and memory on OVH development for synthetic1,000,000 bytes,3,000 items,2,000 checks,3 pictures; processing is under 1s. Preserve the earlier Workers 83ms result. | in progress |
+| TASK-223 | Measure maximum push processing and memory on OVH | SPEC-114, SPEC-118, SPEC-121 | REQ-081, REQ-124, API-105 | TASK-205 | agent | M | Record server processing time and memory on OVH development for synthetic1,000,000 bytes,3,000 items,2,000 checks,3 pictures; processing is under 1s. Preserve the earlier Workers 83ms result. The1s processing interval starts after complete body receipt and ends when response handling completes; arrival/round trip are separate references. | done |
 | TASK-224 | Trial mobile editors, CSP and Worker size | SPEC-119 | REQ-146–REQ-149, API-104 | TASK-222 | agent | L | Pin editors/React and licenses; serve all code/fonts through Worker; record gzip/raw sizes, current free Worker limit, CSP and 20 mobile/4G openings, P95 <=3 seconds for 300 elements or seek the maintainer decision. | in progress |
 
 ## Hub
@@ -242,4 +242,14 @@ The server, hub and phase-① browser implementation is integrated. The independ
 
 The actual human session completed three success flows with seven writes: comment/reply/Answered/reopen, accept→pending reflection, and checkpoint pass→withdraw. API readback matched; this is development evidence, distinct from local fixtures and from the complete state matrix. The proxy hint experiment did not meet the mobile target and its zone-wide switch and owned server hint/metrics settings were restored. [Final scoped QA](../12-qa/runs/2026-11-04-ovh-validation.md) retains all failed samples and the final default-setting run. Main/release and first real-project upload remain the final decision.
 
-Task states: done 12, in progress 46, todo 6.
+Task states at ce6875a: done 12, in progress 46, todo 6.
+
+## Transport, measurement and release decision of 2026-11-04
+
+The maintainer approved edge caching of public content-hashed code, styles and fonts at the same configured origin (REQ-147). HTML, API, project data and refusals remain no-store. Code has no Set-Cookie or Vary:*, with unchanged CSP and whole-host Access. Even a cached object must not reach unauthenticated GET/HEAD callers. An edge HIT does not visit the origin, so origin verification is not claimed on every HIT.
+
+REQ-124 server processing runs from complete body receipt to response handling completion. Body arrival, client round trip, process CPU windows and RSS remain separate. The existing31.085ms passes1s; the historical inclusive1031.079ms stays recorded.
+
+The maintainer conditionally approved NEXUS merges, production migration/routing and release tags after REQ-149/124 pass, all710 cases have verdicts with zero Must failures, migration/recovery rehearsals pass, core integrates after C1 release/PR C, and required checks plus Code/Security reviews pass. The first repository snapshot still needs REQ-107 confirmation. Preserve the old Worker/D1 for14days after switching and ask before deletion. If a condition remains, ask once with its numbers and release after the answer.
+
+Current transport-bundle states: done 14, in progress 44, todo 6.

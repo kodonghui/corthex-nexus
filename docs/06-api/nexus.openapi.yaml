@@ -173,7 +173,7 @@ paths:
           description: The file
           headers:
             Cache-Control:
-              schema: {type: string, const: "private, max-age=31536000, immutable"}
+              schema: {type: string, const: "public, max-age=31536000, immutable"}
           content:
             text/javascript:
               schema: {type: string}

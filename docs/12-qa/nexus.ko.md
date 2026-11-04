@@ -709,7 +709,7 @@ TC는 TC-601, BUG는 BUG-501부터입니다. 근거는 수용 기준·API 응답
 | TC-1267 | Withdraw while checkpoint record PR is open | SPEC-140, API-129, API-130 | TASK-220 | api, agent | 영어 원본의 같은 TC가 적은 자료·순서·역할·환경을 그대로 실행하고 실제 값을 남깁니다. | 원본 TC의 상태·코드·데이터 효과와 수치 기준을 모두 만족해야 통과이며, 실행하지 않은 것은 통과로 세지 않습니다. | not run |
 | TC-1268 | NEXUS compares its own pictures | SPEC-106, SPEC-107, SPEC-108, SPEC-120 | TASK-252 | unittest, manual | 영어 원본의 같은 TC가 적은 자료·순서·역할·환경을 그대로 실행하고 실제 값을 남깁니다. | 원본 TC의 상태·코드·데이터 효과와 수치 기준을 모두 만족해야 통과이며, 실행하지 않은 것은 통과로 세지 않습니다. | not run |
 | TC-1269 | Real user and service-token sign-ins | SPEC-113, SPEC-116 | TASK-201 | manual, api | 영어 원본의 같은 TC가 적은 자료·순서·역할·환경을 그대로 실행하고 실제 값을 남깁니다. | 원본 TC의 상태·코드·데이터 효과와 수치 기준을 모두 만족해야 통과이며, 실행하지 않은 것은 통과로 세지 않습니다. | pass: dev Access identity trial 2026-11-03; synthetic audience/signature checks, Node 24.18.0; 51cc0d3, kodonghui/corthex#92 |
-| TC-1270 | OVH 최대 밀기 처리·메모리 | REQ-081, REQ-124 | TASK-223 | api, manual | OVH 개발 서버에1,000,000바이트·항목3,000·검사2,000·그림3개의 합성 자료를 보냄. | 서버 처리 시간·메모리 기록, 처리1초 안. | fail: 과거 전체1078.166ms, CA4 전체1031.079ms·본문999.994ms·수신 뒤31.085ms·CPU 구간65.092+8.985ms·RSS139616256입니다. 최대 데이터 저장·재조회는 일치하며 계측 구간은 구분합니다. |
+| TC-1270 | OVH 최대 밀기 처리·메모리 | REQ-081, REQ-124 | TASK-223 | api, manual | OVH 개발 서버에1,000,000바이트·항목3,000·검사2,000·그림3개의 합성 자료를 보냄. 본문 전체 수신 뒤의 서버 처리 구간을 쓰고 수신·왕복·CPU·RSS를 따로 기록합니다. | 서버 처리 시간·메모리 기록, 처리1초 안. | pass (live, 2026-11-04 정의): 최대1MB·3000항목·2000검문·그림3개의 수신 뒤 처리31.085ms<1초, CPU구간74.077ms·RSS139616256. 저장·재조회 일치. 전체1031.079ms·수신999.994ms·왕복26982.324ms와 과거 실패는 별도 보존. |
 | TC-1271 | Twenty 4G mobile editor openings | REQ-149, REQ-146, REQ-147, REQ-148 | TASK-224 | agent, manual | Chrome390×844/DPR2.75/touch, cache/SW off, DevTools Fast4G(165ms,8.1/1.35Mbps), CPU1; each finished editor20opens, including Korean labels. | 20/20 success and nearest-rank P95≤3000ms per editor; keep4xCPU results separately, actual code/font bytes and CSP/self-origin proof. | fail: 최종30f7957/CA4 기본OFF·CPU1 그림별20/20에서 사이트맵 P959145.9ms·ERD21375.4ms로3초를 넘었습니다.40회 모두 한글300개·글꼴·표시 유효, 오류·103은0입니다. ON80회와 과거 실패도 따로 보존했습니다. |
 | TC-1272 | Expired sign-in and recovered draft | SPEC-126, SCR-107#permission | TASK-243 | agent, e2e | 영어 원본의 같은 TC가 적은 자료·순서·역할·환경을 그대로 실행하고 실제 값을 남깁니다. | 원본 TC의 상태·코드·데이터 효과와 수치 기준을 모두 만족해야 통과이며, 실행하지 않은 것은 통과로 세지 않습니다. | not run |
 | TC-1273 | Delayed request and editor-load failure | SPEC-119, SCR-105#code-failed | TASK-243 | agent, e2e | 영어 원본의 같은 TC가 적은 자료·순서·역할·환경을 그대로 실행하고 실제 값을 남깁니다. | 원본 TC의 상태·코드·데이터 효과와 수치 기준을 모두 만족해야 통과이며, 실행하지 않은 것은 통과로 세지 않습니다. | not run |
@@ -915,8 +915,8 @@ BUG-533 수정의 새 독립 검토는 실제 Python 3.8.20·3.13.14마다 10/10
 | TC-1304 | 실제 복구 DB 데이터·행동 대조 | 2026-11-04 decision, REQ-124/149, SPEC-104–140 | TASK-262 | agent, unittest, integration | 해당 작업의 합성 또는 승인된 개발 절차를 실행하고 실제 효과·원본 해시를 대조합니다. | 사례 제목과 작업의 Done when 전체를 근거로 확인하며 다른 실행 범위를 통과로 세지 않습니다. | pass (live): 수정한 ad CLI로 원 서버 과거 백업을 복구해 스키마·행 일치. 다른 사본 명시적 이주 뒤 해시·1/2/3·Store 목록/본문 동작 보존. 원 백업 무변경. |
 | TC-1305 | 운영 읽기 전용 내보내기 사본의 이주 | 2026-11-04 decision, REQ-124/149, SPEC-104–140 | TASK-263 | agent, unittest, integration | 해당 작업의 합성 또는 승인된 개발 절차를 실행하고 실제 효과·원본 해시를 대조합니다. | 사례 제목과 작업의 Done when 전체를 근거로 확인하며 다른 실행 범위를 통과로 세지 않습니다. | pass (live): read-only D1 export stayed on origin; migrations 1/2/3 preserved snapshot digest, isolated rollback matched schema/data |
 | TC-1306 | 운영과 되돌릴 자원 보존 | 2026-11-04 decision, REQ-124/149, SPEC-104–140 | TASK-263 | agent, unittest, integration | 해당 작업의 합성 또는 승인된 개발 절차를 실행하고 실제 효과·원본 해시를 대조합니다. | 사례 제목과 작업의 Done when 전체를 근거로 확인하며 다른 실행 범위를 통과로 세지 않습니다. | pass (live): production Worker route/database retained; only read-only export used for rehearsal |
-| TC-1307 | 최대 밀기1초와 처리·메모리 근거 | 2026-11-04 decision, REQ-124/149, SPEC-104–140 | TASK-264 | agent, unittest, integration | 해당 작업의 합성 또는 승인된 개발 절차를 실행하고 실제 효과·원본 해시를 대조합니다. | 사례 제목과 작업의 Done when 전체를 근거로 확인하며 다른 실행 범위를 통과로 세지 않습니다. | fail: 실제1MB·3000항목·2000검문·그림3개 저장·재조회는 일치했습니다. CA4 전체1031.079ms는1초 초과이며 수신 뒤31.085ms·CPU 구간74.077ms와 구분합니다. 최초1078.166ms 초과도 보존했습니다. |
-| TC-1308 | 해시 코드 캐시와 Access 경계 | 2026-11-04 decision, REQ-124/149, SPEC-104–140 | TASK-264 | agent, unittest, integration | 해당 작업의 합성 또는 승인된 개발 절차를 실행하고 실제 효과·원본 해시를 대조합니다. | 사례 제목과 작업의 Done when 전체를 근거로 확인하며 다른 실행 범위를 통과로 세지 않습니다. | pass (local wire): 인증·경로 검사 뒤 고정 코드의 원본/br/gzip을 고릅니다. 실제 HTTP 시험에서 미인증 거절·HEAD·q=0·복호화 바이트·private 캐시·CSP를 확인했습니다. 힌트도 승인된 정적 이름만 담습니다. |
+| TC-1307 | 최대 밀기1초와 처리·메모리 근거 | 2026-11-04 decision, REQ-124/149, SPEC-104–140 | TASK-264 | agent, unittest, integration | 해당 작업의 합성 또는 승인된 개발 절차를 실행하고 실제 효과·원본 해시를 대조합니다. 본문 전체 수신 뒤의 서버 처리 구간을 쓰고 수신·왕복·CPU·RSS를 따로 기록합니다. | 사례 제목과 작업의 Done when 전체를 근거로 확인하며 다른 실행 범위를 통과로 세지 않습니다. | pass (live, 2026-11-04 정의): 최대1MB·3000항목·2000검문·그림3개의 수신 뒤 처리31.085ms<1초, CPU구간74.077ms·RSS139616256. 저장·재조회 일치. 전체1031.079ms·수신999.994ms·왕복26982.324ms와 과거 실패는 별도 보존. |
+| TC-1308 | 해시 코드 캐시와 Access 경계 | 2026-11-04 decision, REQ-124/149, SPEC-104–140 | TASK-264 | agent, unittest, integration | 해당 작업의 합성 또는 승인된 개발 절차를 실행하고 실제 효과·원본 해시를 대조합니다. | 사례 제목과 작업의 Done when 전체를 근거로 확인하며 다른 실행 범위를 통과로 세지 않습니다. | partial: 공개 해시 코드의 같은 origin 거점 캐시로 계약을 변경했습니다. 새 Node/wire·실제HIT/Age·미인증GET/HEAD의 코드 거절을 재검증합니다. 과거 private 근거는 보존합니다. |
 | TC-1309 | 완성 한국어 그림의 원래 모바일 조건 | 2026-11-04 decision, REQ-124/149, SPEC-104–140 | TASK-264 | agent, unittest, integration | 해당 작업의 합성 또는 승인된 개발 절차를 실행하고 실제 효과·원본 해시를 대조합니다. | 사례 제목과 작업의 Done when 전체를 근거로 확인하며 다른 실행 범위를 통과로 세지 않습니다. | fail: 최종30f7957/CA4 기본OFF·CPU1 그림별20/20에서 사이트맵 P959145.9ms·ERD21375.4ms로3초를 넘었습니다.40회 모두 한글300개·글꼴·표시 유효, 오류·103은0입니다. ON80회와 과거 실패도 따로 보존했습니다. |
 | TC-1310 | 프로젝트 등록이 자동 전송하지 않음 | 2026-11-04 decision, REQ-124/149, SPEC-104–140 | TASK-256 | agent, unittest, integration | 해당 작업의 합성 또는 승인된 개발 절차를 실행하고 실제 효과·원본 해시를 대조합니다. | 사례 제목과 작업의 Done when 전체를 근거로 확인하며 다른 실행 범위를 통과로 세지 않습니다. | pass: product registered locally with a recovery copy; no repository scan/upload triggered |
 
@@ -961,4 +961,14 @@ CAF432 묶음을 두 번째 동일 빌드로 재현했습니다. 제품 Python9�
 
 ## 개발 결과 근거
 
-현재 사례 상태: pass 137, partial 424, blocked 4, not run 141, fail 4. 실제 사람 쓰기·불변 실행부 되돌리기/분리·최대 요청 구간 계측·최종 기본 모바일 측정은 [OVH 보고](runs/2026-11-04-ovh-validation.ko.md).
+ce6875a 확인 당시 사례 상태: pass 137, partial 424, blocked 4, not run 141, fail 4. 실제 사람 쓰기·불변 실행부 되돌리기/분리·최대 요청 구간 계측·최종 기본 모바일 측정은 [OVH 보고](runs/2026-11-04-ovh-validation.ko.md).
+
+## 2026-11-04 전송·계측·출시 결정
+
+관리자는 REQ-147의 같은 출처를 유지하면서 공개 내용 해시 코드·스타일·글꼴의 거점 캐시를 승인했습니다. HTML·API·프로젝트 자료·거절 응답은 no-store입니다. 코드 응답에는 Set-Cookie와 Vary:*가 없고 CSP와 전체 호스트 Access를 유지합니다. 캐시 HIT도 미인증 GET/HEAD에 코드를 전달하지 않아야 합니다. 거점 HIT는 원 서버에 닿지 않으므로 원 서버 검증을 매 HIT마다 실행했다고 주장하지 않습니다.
+
+REQ-124의 서버 처리 시간은 본문을 모두 받은 뒤부터 응답 처리 완료까지입니다. 본문 수신·왕복·CPU 구간·RSS는 따로 기록합니다. 기존31.085ms는1초 기준 통과이며 과거 전체1031.079ms는 그대로 보존합니다.
+
+관리자는 REQ-149와 REQ-124 통과,710사례 전부 판정·Must 실패0,운영 자료 이전/복구 리허설, C1 출시·PR C 뒤의 코어 통합,필수 검사와 Code/Security 리뷰를 조건으로 NEXUS 병합·운영 전환·출시 태그를 사전 승인했습니다. 이 저장소 첫 보내기는 REQ-107의 별도 확인입니다. 이전 Worker/D1은 전환 뒤14일 보존하고 삭제는 다시 묻습니다. 조건이 남으면 수치로 한 번 묻고 답 뒤 출시합니다.
+
+현재 전송 변경 묶음의 상태: pass 138, partial 425, blocked 4, not run 141, fail 2.

@@ -161,7 +161,8 @@ test("compressed code keeps checked Access, exact decoded bytes, HEAD and coding
     assert.equal(get.status, 200); assert.equal(get.headers["content-encoding"], encoding);
     const decoded = encoding === "br" ? brotliDecompressSync(get.bytes) : encoding === "gzip" ? gunzipSync(get.bytes) : get.bytes;
     assert.deepEqual(decoded, Buffer.from(text));
-    assert.equal(get.headers["cache-control"], "private, max-age=31536000, immutable");
+    assert.equal(get.headers["cache-control"], "public, max-age=31536000, immutable");
+    assert.equal(get.headers["set-cookie"],undefined);assert.notEqual(get.headers.vary,"*");
     assert.equal(get.headers["x-frame-options"], "DENY");
     assert.match(get.headers.vary, /Accept-Encoding/i);
     assert.equal(Number(get.headers["content-length"]), get.bytes.length);
