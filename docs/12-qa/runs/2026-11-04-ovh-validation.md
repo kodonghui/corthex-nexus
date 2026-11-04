@@ -37,3 +37,24 @@ The same integration accepted exactly1,000,000bytes/3000items/2000checks and mat
 An actual development rollback selected the preceding runtime and then this integration, checking both listeners and all13 tables. Logical row counts/digest remained identical. A manual daily backup also succeeded with mode0600; no production switch occurred. Its first incomplete receipt is retained separately from the corrected complete run.
 
 Upstream integration `d18fe0e1d44fbc4df4350c8a5728759c98d91ca5` incorporates main `982fb4f10e8712aff89e0d472f9a10943283aa68`. The combined local suite ran943 tests:928passed,15skipped; four strict plugin validations and all17 CI jobs passed. This updates the hub/harness integration, while the product's exact hub pin remains3570fb0c755b50c314ca26f0361c72a71fe22d0d. No core implementation or release merge is inferred.
+
+## Completed mobile groups and current development settings
+
+| Configuration | CPU | Picture | Valid/20 | P95 ready ms | P95 ready+fonts ms | 103 openings | Verdict |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | --- |
+| hints-on | 1 | sitemap | 20/20 | 6755.3 | 6759.2 | 20 | fail |
+| hints-on | 1 | erd | 20/20 | 6421.5 | 6421.9 | 20 | fail |
+| hints-on | 4 | sitemap | 20/20 | 6180.3 | 6203.6 | 20 | reference-only |
+| hints-on | 4 | erd | 20/20 | 11025.8 | 11027.4 | 20 | reference-only |
+| default-off | 1 | sitemap | 20/20 | 9145.9 | 9148.1 | 0 | fail |
+| default-off | 1 | erd | 20/20 | 21375.4 | 21375.7 | 0 | fail |
+
+All120 requested openings were valid, with300 Hangul names, loaded fonts and no403, CSP, network, page or resource errors. Each group has20 fresh incognito contexts with the original profile; CPU4 is reference only and was not repeated after restoration. [Final default numbers](2026-11-04-ovh-validation/final-mobile.json) and the separate [hint experiment](2026-11-04-ovh-validation/hint-experiment.json) retain the full distributions and diagnostic samples. Both configurations missed3s. Sequential, changing network conditions do not establish a causal speed comparison.
+
+The ON80 openings observed103, but zero hinted code requests began before the final HTML headers in this instrumentation. Short initial samples therefore do not prove a hint benefit. No duplicate code responses were found. In the final OFF run, extra sitemap resources were classified as data images; older records lacked a scheme split and are not retrospectively relabeled. Last-script and post-script timings are separated in JSON; direct script-evaluation CPU was not profiled.
+
+The existing zone-wide proxy setting was returned to its original OFF state and verified after reload. Only this run's exact development hint/metrics drop-ins were removed; actual process settings, loopback403 and Tunnel readiness were checked. Final raw observations confirmed zero103 across all40 default openings. An intermediate PowerShell array-length aggregation incorrectly reported residual103; explicit iteration corrected that derived count without altering any raw record. A zero-sample Chrome startup failure and the original diagnostics are also retained.
+
+[Actual human success flows](2026-11-04-ovh-validation/human-flows/summary.md) contain three selected screenshots and API-verified effects for seven UI writes. Their runtime remains the earlier aad1645/CAF receipt; the443 browser payload bytes are unchanged. [BUG-554](https://github.com/kodonghui/corthex-nexus/issues/22) remains open. The19 integrated view/hub/CI defects were closed with scoped evidence; complete710-case acceptance and core/release gates remain outstanding.
+
+Final read-only development HEAD checks at30f7957 returned200 for HTML and code, exact source CSP, HTML no-store/no Link, private immutable JavaScript and observed DYNAMIC/BYPASS cache enums. An unauthenticated code HEAD was redirected302 by outer Access, with no code delivered. [Safe header receipt](2026-11-04-ovh-validation/final-headers.json).

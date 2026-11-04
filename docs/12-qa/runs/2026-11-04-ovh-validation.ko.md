@@ -37,3 +37,24 @@ TASK-223/224/248/251/252/255–264, TC-1270/1271/1283/1291/1304/1307/1309. 실�
 개발 실행부를 직전판으로 되돌렸다가 이 통합판으로 복귀해 두 listener와13개 테이블을 확인했습니다. 논리 행 수와 digest가 같았고 일일 백업 수동 실행도0600으로 성공했습니다. 운영 전환은 없었습니다. 처음의 불완전한 영수증은 수정 뒤 완결된 실행과 따로 보존했습니다.
 
 상위 통합판 `d18fe0e1d44fbc4df4350c8a5728759c98d91ca5`는 main `982fb4f10e8712aff89e0d472f9a10943283aa68`을 포함합니다. 합친 로컬 시험943개 중928통과·15건너뜀, strict 플러그인 검증4개와 CI17개가 통과했습니다. 허브·하네스 통합 결과이며 제품의 정확한 hub-ref는3570fb0c755b50c314ca26f0361c72a71fe22d0d를 유지합니다. 코어 구현이나 출시 병합 완료로 세지 않습니다.
+
+## 완주한 모바일 묶음과 현재 개발 설정
+
+| Configuration | CPU | Picture | Valid/20 | P95 ready ms | P95 ready+fonts ms | 103 openings | Verdict |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | --- |
+| hints-on | 1 | sitemap | 20/20 | 6755.3 | 6759.2 | 20 | fail |
+| hints-on | 1 | erd | 20/20 | 6421.5 | 6421.9 | 20 | fail |
+| hints-on | 4 | sitemap | 20/20 | 6180.3 | 6203.6 | 20 | reference-only |
+| hints-on | 4 | erd | 20/20 | 11025.8 | 11027.4 | 20 | reference-only |
+| default-off | 1 | sitemap | 20/20 | 9145.9 | 9148.1 | 0 | fail |
+| default-off | 1 | erd | 20/20 | 21375.4 | 21375.7 | 0 | fail |
+
+요청한120회는 모두 한글 이름300개·글꼴·그림 표시가 유효했고403·CSP·네트워크·페이지·자원 오류는0이었습니다. 원래 조건에서 묶음마다 새 incognito20개를 썼습니다. CPU4는 참고이며 복구 뒤 재시험하지 않았습니다. [최종 기본 설정 수치](2026-11-04-ovh-validation/final-mobile.json)와 별도 [힌트 실험](2026-11-04-ovh-validation/hint-experiment.json)에 분포와 진단을 보존합니다. 두 설정 모두3초에 못 미쳤으며 시간 순서대로 달라진 네트워크 조건으로 인과적인 속도 비교를 하지 않습니다.
+
+ON80회에는103이 관측됐으나 이 계측에서 최종 HTML 헤더 전에 시작한 힌트 코드 요청은0이었습니다. 초기 짧은 표본을 힌트 효과로 쓰지 않습니다. 중복 코드 응답도 없었습니다. 최종OFF에서 사이트맵의 추가 자원은 data 이미지로 분류했습니다. 예전 기록에는 scheme 구분이 없어 소급해 덧씌우지 않습니다. JSON은 마지막 script·그 뒤 준비 시간을 구분하며 직접 script 평가 CPU는 측정하지 않았습니다.
+
+기존 zone 전체 프록시 스위치를 원래OFF로 되돌려 reload 뒤 확인했습니다. 이번 개발 힌트·계측 drop-in만 정확한 내용을 대조해 제거하고 실제 프로세스 설정·loopback403·Tunnel ready를 확인했습니다. 마지막 기본40회의 원시는103이 모두0이었습니다. 중간 PowerShell 집계가 배열길이를 읽어 잔존103으로 오보했으나 원시를 바꾸지 않고 각행 직접 순회로 파생 집계를 바로잡았습니다. 표본0인 Chrome 시작 실패와 원래 진단도 보존했습니다.
+
+[실제 사람 성공 흐름](2026-11-04-ovh-validation/human-flows/summary.md)은 세 선정 캡처와 API로 확인한 일곱 UI 쓰기를 담습니다. 실행 근거는 앞선 aad1645/CAF이며443개 브라우저 배포 바이트는 같습니다. [BUG-554](https://github.com/kodonghui/corthex-nexus/issues/22)는 열린 상태입니다. 통합된 화면·허브·CI 결함19개는 범위별 근거로 닫았으며 전체710개 수용과 코어·출시 조건은 남아 있습니다.
+
+30f7957의 실제 개발 HEAD 읽기에서 HTML·코드200, 원본과 같은 CSP, HTML no-store·Link 없음, private immutable JavaScript와 실제 DYNAMIC/BYPASS를 확인했습니다. 미인증 코드 HEAD는 바깥 Access가302로 돌려보냈고 코드 본문은 전달하지 않았습니다. [안전한 헤더 영수증](2026-11-04-ovh-validation/final-headers.json).
