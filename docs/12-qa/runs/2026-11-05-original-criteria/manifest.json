@@ -1,0 +1,38 @@
+{
+  "schema": "r3-original-criteria-canonical-manifest/1",
+  "canonicalEncoding": "utf8-lf-no-bom-final-lf",
+  "baseCommit": "35a99413701bca699cdef12e2809de01ac3e3674",
+  "hubPin": "e7ff3947017703128df4c9e4e1b26b0d912eaa70",
+  "inputReceiptSha256": "b0612011327a2697429f7825933da8d92e867e653b77319fa8cac26d2b4cc914",
+  "inputManifestSha256": "4fa65537b7ee4d27ed46cd11670b04d97ee25a7429b775740d6682ffbf290306",
+  "workingTestSources": {
+    "tests/test_original_picture_acceptance.py": "c20ae13cf2acd0a6f41eb039646ed0a465465737797f00711cbad1b36416f9ff",
+    "nexus/test/project-limit-acceptance.test.js": "9235a62615d7939d78b91fb814d94bd8a2cdc907ab87f9fecd8afec17e2a2880"
+  },
+  "proofSha256": "6d6ae837fee1a4e69a60526723f8e443382eb3b74d9f5bcd49c36bf2aba57ff2",
+  "runSha256": {
+    "docs/12-qa/runs/2026-11-05-original-criteria.md": "89ac58d384e3e792397e3a705e3b6e07f21cb11de89d16c61b7d208887dc251c",
+    "docs/12-qa/runs/2026-11-05-original-criteria.ko.md": "2800529324c9d3135ff02c50c23f8d5664c19361b15e04bd60a3372f978c03ab"
+  },
+  "sourceQaCounts": {
+    "total": 710,
+    "pass": 518,
+    "partial": 190,
+    "fail": 2
+  },
+  "sourceTaskCounts": {
+    "total": 64,
+    "done": 15,
+    "inProgress": 49
+  },
+  "caseRowsChanged": 8,
+  "other702CaseRowsChanged": 0,
+  "originalIdsStepsExpectedChanged": 0,
+  "newDistinctCriteria": 4,
+  "reusedCriteria": 4,
+  "additionalTc613Repeat": 1,
+  "externalTrafficMeasured": false,
+  "notionWrites": 0,
+  "stageOrReleaseApproved": false,
+  "gitStagedBlobCheckOwner": "root after staging"
+}

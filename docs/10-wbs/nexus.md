@@ -299,3 +299,7 @@ Setup/cleanup causes remain unproved. A separate lifecycle diagnostic is being p
 ## Current named-read closure, 2026-11-05
 
 The later [24-case read adjudication](../12-qa/runs/2026-11-05-read-closure.md) brings QA710 to510 pass/198 partial/2 fail. TASK-249 stays in progress with54 applicable named-response criteria and18 shared-example applicability reviews; all64 WBS rows and15 done/49 in progress remain unchanged. The local actual-handler GET evidence includes operation-specific policy/schema and same-request whole DB/receipt preservation. It adds no HEAD, default SSR, hub-parser, browser or deployed/real Access claim; old R1/transport/performance verdicts and release/REQ-107/Worker-D1 gates remain. Full required checks, Code/Security review and publication are pending under Root.
+
+## Original-criterion evidence, 2026-11-05
+
+The later [R3 source record](../12-qa/runs/2026-11-05-original-criteria.md) adds8 scoped passes:4 distinct new criteria and4 exact reused replies. Source QA710 is518 pass/190 partial/2 fail. All64 WBS rows and15 done/49 in progress stay unchanged; no task closes. Parser data, literal ALTER/control differences and local role/state refusals keep their precise limits. Old results/269-row Notion evidence and stage/release/3s/REQ-107/Worker-D1 conditions remain. Root owns required checks/publication and the separate8-row Notion follow-up.
