@@ -28,7 +28,9 @@
 
 원시 근거는 비공개 실행 기록에 보존합니다. 토큰·assertion·쿠키·사용자 프로필·실제 저장소 스냅샷·원 서버 DB 파일은 이 보고서에 넣지 않습니다.
 
-첫 Linux PR 실행 bc82059에서 브라우저 회귀5개가26.129초에 통과하고 소유 프로필도 제거했습니다. 뒤이어 근거 업로드 action이 `..`를 포함한 경로를 거부해 해당 job이 실패했고, 다른 제품 job은 모두 통과했습니다. 근거 경로는 `runner.temp`를 직접 쓰도록 고쳤습니다. 실패한 workflow도 이력으로 남기며 all-checks 통과로 부르지 않습니다.
+첫 Linux PR 실행 bc82059에서 브라우저 회귀5개가26.129초에 통과하고 소유 프로필도 제거했습니다. 뒤이어 근거 업로드 action이 `..`를 포함한 경로를 거부해 해당 job이 실패했고, 다른 제품 job은 모두 통과했습니다. 근거 경로는 runner의 임시 폴더를 직접 쓰도록 고쳤습니다. 실패한 workflow도 이력으로 남기며 all-checks 통과로 부르지 않습니다.
+
+BUG-553: 후속42d990a는 검사 작업을 시작하기 전 workflow 초기화에서 실패했습니다. `runner.temp`를 작업 수준 env에 썼으나 [공식 context 표](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability)는 그 위치에서 runner를 허용하지 않습니다. 실행 중인 준비 step이 RUNNER_TEMP를 읽어 GITHUB_ENV로 내보내도록 고쳤습니다. CI 기반 설정 실패를 정확한 묶음의 로컬 브라우저 통과와 구분해 보존합니다.
 
 ## 재검사할 수정 이력
 

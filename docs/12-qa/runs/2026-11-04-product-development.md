@@ -28,7 +28,9 @@ The first committed browser metadata SHA256 (historical 7C35) is `7c35c4998aa991
 
 Raw runs remain in the private execution packet. No tokens, assertions, cookies, user profiles, real repository snapshots or origin database files enter this report.
 
-The first Linux PR run at `bc82059` passed all five portable browser regressions in 26.129 seconds and removed its owned profile. The job then failed to upload receipts because the artifact action rejected a path containing `..`; all other product jobs passed. The artifact directory now uses `runner.temp` directly. The failed workflow remains historical evidence and is not called an all-checks pass.
+The first Linux PR run at `bc82059` passed all five portable browser regressions in 26.129 seconds and removed its owned profile. The job then failed to upload receipts because the artifact action rejected a path containing `..`; all other product jobs passed. The artifact directory now uses the runner's temporary directory directly. The failed workflow remains historical evidence and is not called an all-checks pass.
+
+BUG-553: the `42d990a` follow-up failed workflow initialization with no check jobs. It placed `runner.temp` in job-level `env`, where the [documented context table](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability) does not make `runner` available. The artifact location is now exported from the running setup step through `GITHUB_ENV`, using `RUNNER_TEMP`. This infrastructure failure is retained separately from the exact-artifact local browser pass.
 
 ## Findings preserved for retest
 

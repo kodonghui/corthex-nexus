@@ -115,8 +115,6 @@ jobs:
   browser-ui:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      NEXUS_QA_ARTIFACTS: ${{ runner.temp }}/nexus-browser-artifacts
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -132,6 +130,7 @@ jobs:
           chrome=$(command -v google-chrome || command -v google-chrome-stable)
           test -n "$chrome"
           printf 'NEXUS_CHROME=%s\n' "$chrome" >> "$GITHUB_ENV"
+          printf 'NEXUS_QA_ARTIFACTS=%s/nexus-browser-artifacts\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - run: python nexus/test/browser_check.py
       - name: Keep synthetic regression receipts and captures
         if: ${{ always() }}
