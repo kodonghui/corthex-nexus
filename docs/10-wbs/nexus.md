@@ -307,3 +307,7 @@ The later [R3 source record](../12-qa/runs/2026-11-05-original-criteria.md) adds
 ## Later API/Job-formal evidence, 2026-11-05
 
 The [later source record](../12-qa/runs/2026-11-05-api-two-job-formal-r2.md) accepts TC787/1052 from retained exact-request proof and records one stopped v7-r2 formal attempt. QA710 is520 pass/188 partial/2 fail; every64 WBS row stays unchanged at15 done/49 in progress,with no task closed. E1 still has52 partial criteria plus18 separately unadjudicated shared examples. The formal run has37 qualified openings out of60 planned and no normative P95; original failures and all release/3s/REQ-107/Worker-D1 conditions remain. No new execution or approval is inferred from this record.
+
+## 2026-11-05: formal mobile gate, scoped evidence
+
+Prospective v8 current906/D802 completed each300-node Korean picture20 times under the unchanged original mobile4G/CPU1 profile. First-SVG rank19 is DDD1399.2ms,ERD1327.2ms,sitemap1357.3ms;60 security/strict cleanup proofs are present. Native-ready P95 is2784/2686/2873.9ms and native-paint opportunity3159.5/2721.7/3067ms,kept separate. Original CTX012/320-frame/script-title/response/no-effect clauses and existing TC1128 capture are mapped in the [scope record](../12-qa/runs/2026-11-05-svg-mobile-v8.md). QA is524pass/186partial/0fail;all64 task rows remain15done/49in progress. No task is closed by this metric;other release conditions,REQ107 first-upload consent and the Worker/D1 retention/deletion conditions remain.
