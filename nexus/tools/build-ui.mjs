@@ -57,13 +57,26 @@ async function bundle(name,entry,define={}){
  function dependency(path,p){const absolute=resolve(root,p);return outputs.has(absolute)?absolute:resolve(dirname(path),p);}
  for(const [path,file]of ordered){let text=file.text;for(const dep of metas.get(path)?.imports||[]){if(dep.external)continue;const target=dependency(path,dep.path);if(!outputs.has(target))throw new Error("Unknown generated chunk dependency");text=text.replaceAll(JSON.stringify("./"+basename(target)),JSON.stringify("/code/"+names.get(target)));}const key=names.get(path);made.set(path,emit(key,key+".txt",extname(path)===".css"?"text/css; charset=utf-8":"text/javascript; charset=utf-8",Buffer.from(text),{graphDigest:graph}));}
  const main=[...outputs.keys()].find(p=>basename(p)===basename(entry,extname(entry))+".js"),css=[...outputs.keys()].find(p=>basename(p)===basename(entry,extname(entry))+".css");if(!main)throw new Error("Entry output missing");entries[name+"-js"]="/code/"+made.get(main).name;if(css)entries[name+"-css"]="/code/"+made.get(css).name;
- const preload=new Set();function staticGraph(path){if(preload.has(path))return;preload.add(path);for(const dep of metas.get(path)?.imports||[])if(!dep.external&&dep.kind==="import-statement")staticGraph(dependency(path,dep.path));}staticGraph(main);entries[name+"-preload"]=[...preload].map(p=>"/code/"+made.get(p).name);
+ const preload=new Set();function staticGraph(path,found=preload){if(found.has(path))return;found.add(path);for(const dep of metas.get(path)?.imports||[])if(!dep.external&&dep.kind==="import-statement")staticGraph(dependency(path,dep.path),found);}staticGraph(main);entries[name+"-preload"]=[...preload].map(p=>"/code/"+made.get(p).name);
+ if(name==="excalidraw"){
+  // These tiny backends/polyfill are eagerly imported by the pinned library;
+  // loading them with the main graph removes a late network round trip.
+  const eager=new Set(),locale={en:new Set(),ko:new Set()};
+  for(const [path,meta]of metas){
+   const inputs=Object.keys(meta.inputs||{}).map(p=>p.replaceAll("\\","/"));
+   if(inputs.some(p=>/\/browser-fs-access\/dist\/(?:directory-open|file-open|file-save)-/.test(p)||/\/canvas-roundrect-polyfill\/(?:.*\/)?roundRect\.js$/.test(p)))eager.add(path);
+   for(const [lang,code]of [["ko","ko-KR"],["en","en"]])if(inputs.some(p=>p.includes("/locales/")&&basename(p).replace(/(?:-[A-Z0-9]{8})?\.js$/,"")===code))locale[lang].add(path);
+  }
+  for(const path of eager)staticGraph(path);
+  entries[name+"-preload"]=[...preload].map(p=>"/code/"+made.get(p).name);
+  for(const [lang,paths]of Object.entries(locale)){const graph=new Set(preload);for(const p of paths)staticGraph(p,graph);entries[name+"-"+lang+"-preload"]=[...graph].map(p=>"/code/"+made.get(p).name);}
+ }
  const inputs={};for(const [path,value]of Object.entries(result.metafile.inputs)){const absolute=resolve(root,path);let label=relative(dependencies,absolute).replaceAll("\\","/");if(label.startsWith(".."))label=relative(root,absolute).replaceAll("\\","/");else label="node_modules/"+label;inputs[label]={bytes:value.bytes,sha256:sha(readFileSync(absolute))};}metafiles[name]=inputs;
  for(const file of result.outputFiles.filter(f=>f.path.endsWith(".LEGAL.txt")))legal.push({name:name+"-"+basename(file.path),text:file.text,sha256:sha(file.contents)});
 }
 await bundle("excalidraw",resolve(ui,"editor-excalidraw.js"));await bundle("erd",resolve(ui,"editor-erd.js"));
 await bundle("view",resolve(ui,"core.js"),{__NEXUS_ERD__:JSON.stringify(entries["erd-js"]),__NEXUS_EXCALIDRAW__:JSON.stringify(entries["excalidraw-js"]),__NEXUS_EXCALIDRAW_CSS__:JSON.stringify(entries["excalidraw-css"]||"")});
-entries["font-preload"]=["fonts/Assistant/Assistant-Regular.woff2","fonts/Assistant/Assistant-Bold.woff2"].map(p=>fontMap.get(p)).filter(Boolean);
+entries["font-preload"]=["fonts/Assistant/Assistant-Regular.woff2","fonts/Assistant/Assistant-Medium.woff2","fonts/Assistant/Assistant-Bold.woff2"].map(p=>fontMap.get(p)).filter(Boolean);
 if(patches.filter(p=>p.name==="erd-viewport-bridge").length!==1||patches.filter(p=>p.name==="erd-high-level-label-fit").length!==1||patches.filter(p=>p.name==="excalidraw-no-hosted-firebase").length!==1)throw new Error("Expected browser patches not applied exactly once");
 const imports=files.map((f,i)=>`import f${i} from ${JSON.stringify("./"+f.path)};`).join("\n");writeFileSync(resolve(out,"manifest.js"),imports+"\nexport const code={\n"+files.map((f,i)=>JSON.stringify(f.name)+`:{type:${JSON.stringify(f.type)},body:f${i}}`).join(",\n")+"\n};\nexport const entries="+JSON.stringify(entries)+";\n");
 const buildInputs=Object.fromEntries(["nexus/tools/build-ui.mjs","nexus/tools/tokens.mjs","nexus/tools/messages.mjs","nexus/ui/editor-patches.mjs","nexus/ui/package-lock.json","nexus/ui/vendor/liberation-2.1.5.json"].map(path=>[path,sha(readFileSync(resolve(root,path)))]));

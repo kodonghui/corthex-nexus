@@ -137,3 +137,8 @@ It contains no path, identity, headers or stored text. Remove the setting after
 the run. `ops/cloudflared-nexus@.service` is the isolated Tunnel service example;
 its dedicated user needs only the origin-created Tunnel credentials, never the
 zone administrator certificate.
+
+
+### Standalone code transport
+
+Trusted JS/CSS Brotli/gzip variants are made once at startup. Access, role and route checks precede Accept-Encoding selection; HEAD and the fixed private cache/CSP remain intact. Fonts and refusals do not use these variants. NEXUS_METRICS=1 emits numbers only: processing_ms includes body arrival and I/O; body_receive_ms and after_body_ms distinguish the phases. cpu_user_ms/cpu_system_ms are process CPU deltas over that window, which overlap for concurrent requests. RSS is a post-response sample, not peak.

@@ -124,3 +124,8 @@ API를 검사하는 Schemathesis를 돌립니다. 이 로컬 시험과 실제 �
 지웁니다. `ops/cloudflared-nexus@.service`는 독립 Tunnel 서비스 예시이며 전용
 사용자는 그 서버에서 발급한 Tunnel 자격 증명만 읽고 영역 관리자 인증서는
 읽지 않습니다.
+
+
+### 독립 실행부의 코드 전송
+
+신뢰한 JS/CSS의 Brotli/gzip 변형은 시작할 때 한 번 만듭니다. 인증·역할·경로를 먼저 확인한 뒤 Accept-Encoding에 맞춰 제공하고, HEAD와 원래 private 캐시·CSP를 유지합니다. 글꼴과 거절 응답에는 이 변형을 적용하지 않습니다. NEXUS_METRICS=1은 숫자만 남기며 processing_ms는 본문 도착과 I/O를 포함합니다. body_receive_ms·after_body_ms를 따로 읽고 cpu_user_ms/cpu_system_ms는 같은 구간의 프로세스 CPU 차이로 봅니다. 병렬 요청의 CPU 구간은 겹치며 RSS는 응답 뒤 표본이지 peak가 아닙니다.
