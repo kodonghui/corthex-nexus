@@ -89,8 +89,11 @@ test("HEAD, the protected code endpoint and browser refusals keep their distinct
   }
   const code="view.1234abcd.js",views={code:{[code]:{body:"export const version=2;",type:"text/javascript; charset=utf-8"}}};
   assert.equal((await call("GET","/code/"+code,{views,ctx:{}})).status,403);
-  const file=await call("GET","/code/"+code,{views});assert.equal(file.text,"export const version=2;");assert.match(file.headers.get("Cache-Control"),/private.*immutable/);
-  assert.equal((await call("GET","/code/view.ffffffff.js",{views})).data.code,"not_found");
+  const file=await call("GET","/code/"+code,{views});assert.equal(file.text,"export const version=2;");assert.equal(file.headers.get("Cache-Control"),"public, max-age=31536000, immutable");
+  assert.equal(file.headers.get("Set-Cookie"),null);assert.notEqual(file.headers.get("Vary"),"*");
+  const codeHead=await call("HEAD","/code/"+code,{views});assert.equal(codeHead.text,"");assert.equal(codeHead.headers.get("Cache-Control"),file.headers.get("Cache-Control"));
+  const unknown=await call("GET","/code/view.ffffffff.js",{views});assert.equal(unknown.data.code,"not_found");assert.equal(unknown.headers.get("Cache-Control"),"no-store");
+  const denied=await call("GET","/code/"+code,{views,ctx:{}});assert.equal(denied.status,403);assert.equal(denied.headers.get("Cache-Control"),"no-store");
   const browser=await call("GET","/pictures/missing/_/05-erd",{headers:{Accept:"text/html"}});
   assert.equal(browser.status,404);assert.equal(browser.headers.get("Content-Type"),"text/html; charset=utf-8");assert.match(browser.text,/이 프로젝트는 서버에 없습니다/);assert.match(browser.text,/확인 번호/);
   const api=await call("GET","/api/spaces/missing/todo",{headers:{Accept:"text/html"}});assert.equal(api.headers.get("Content-Type"),"application/problem+json");

@@ -121,9 +121,10 @@ undo database migrations.
 Before release, export production D1 **read-only** to the origin, import it into
 a separate rehearsal database, record table counts, back it up, apply migrations
 and verify both forward behavior and a restored copy. Keep the old production
-Worker and D1 for at least 30 days after an explicitly approved switch. Main
-merge, production routing/data changes, release tags and the first real-project
-snapshot upload remain separate release decisions.
+Worker and D1 for14days after the conditionally approved switch. Main
+merge, production routing/data changes and tags follow the conditional release
+decision of2026-11-04. First real-project snapshot upload still needs REQ-107
+confirmation, and removing the retained Worker/D1 requires a separate question.
 
 CI runs the original Worker checks and the standalone HTTP/SQLite tests, plus
 Schemathesis against all 32 operations using generated RSA keys and an isolated
@@ -141,6 +142,8 @@ zone administrator certificate.
 
 ### Standalone code transport
 
-Trusted JS/CSS Brotli/gzip variants are made once at startup. Access, role and route checks precede Accept-Encoding selection; HEAD and the fixed private cache/CSP remain intact. Fonts and refusals do not use these variants. NEXUS_METRICS=1 emits numbers only: processing_ms includes body arrival and I/O; body_receive_ms and after_body_ms distinguish the phases. cpu_user_ms/cpu_system_ms are process CPU deltas over that window, which overlap for concurrent requests. RSS is a post-response sample, not peak.
+Trusted JS/CSS Brotli/gzip variants are made once at startup. At the origin, Access, role and route checks precede Accept-Encoding selection; HEAD and code-cache/CSP policies remain intact. Same-origin edge HITs still require whole-host Access first. Fonts and refusals do not use these compression variants. NEXUS_METRICS=1 emits numbers only: processing_ms includes body arrival and I/O; body_receive_ms and after_body_ms distinguish the phases. cpu_user_ms/cpu_system_ms are process CPU deltas over that window, which overlap for concurrent requests. RSS is a post-response sample, not peak.
 
 The optional private setting `NEXUS_EARLY_HINTS=1` adds `Link: rel=preload` hints to successful picture HTML. It is off by default. Hints contain only the current editor's immutable same-origin bundle names, both supported locales and its fonts; they contain no snapshot or identity data. Access still checks every asset request. The existing proxy must separately support Early Hints; a Link header alone does not prove a 103 response or a faster page. Keep response bodies private. When changing those bundle names, refresh the development picture responses before measuring so cached hint metadata cannot select an older bundle.
+
+Only public content-hashed /code/ files may be edge-cached (public,max-age31536000,immutable). HTML/API/data remain no-store behind whole-host Access. Verify HIT/Age and unauthenticated GET/HEAD refusal at cached URLs before release. REQ-124 processing1s starts after body receipt and ends at response handling completion. Keep the old Worker/D1 for14days after switching and ask separately before removal.

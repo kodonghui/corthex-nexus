@@ -35,5 +35,9 @@ test("actual handler uses the view factory while code and font delivery still re
  assert.doesNotMatch(hinted.headers.get("Link"),/corthex\/nexus|project|Bearer|Assertion|\/api\//);
  for(const path of hinted.headers.get("Link").matchAll(/<([^>]+)>/g))assert.ok(Object.hasOwn(code,path[1].slice(6)));
  const refusedHints=await handle(req("/pictures/corthex/nexus/05-erd"),enabled,{},hub,views);assert.equal(refusedHints.status,403);assert.equal(refusedHints.headers.get("Link"),null);
- for(const file of[metadata.files.find(f=>f.binary),metadata.files.find(f=>f.type.startsWith("text/javascript"))]){const path="/code/"+file.name,ok=await handle(req(path),env,access.ctx,hub,views);assert.equal(ok.status,200);assert.equal(ok.headers.get("Content-Type"),file.binary?"font/woff2":"text/javascript; charset=utf-8","stage-06 API-104 media type");assert.equal((await ok.arrayBuffer()).byteLength,file.raw);const refused=await handle(req(path),env,{},hub,views);assert.equal(refused.status,403);}
+ for(const file of[metadata.files.find(f=>f.binary),metadata.files.find(f=>f.type.startsWith("text/javascript"))]){const path="/code/"+file.name,ok=await handle(req(path),env,access.ctx,hub,views);assert.equal(ok.status,200);assert.equal(ok.headers.get("Content-Type"),file.binary?"font/woff2":"text/javascript; charset=utf-8","stage-06 API-104 media type");
+  assert.equal(ok.headers.get("Cache-Control"),"public, max-age=31536000, immutable");assert.equal(ok.headers.get("Set-Cookie"),null);assert.notEqual(ok.headers.get("Vary"),"*");
+  const bytes=Buffer.from(await ok.arrayBuffer());assert.equal(bytes.byteLength,file.raw);assert.equal(createHash("sha256").update(bytes).digest("hex"),file.payloadSha256);
+  const other=await handle(req(path,{headers:{...access.headers("agent"),"Nexus-Session":"private-fixture-context"}}),env,access.ctx,hub,views);assert.equal(other.status,200);assert.ok(bytes.equals(Buffer.from(await other.arrayBuffer())),"cached bytes must not vary with project/session/identity");
+  const refused=await handle(req(path),env,{},hub,views);assert.equal(refused.status,403);assert.equal(refused.headers.get("Cache-Control"),"no-store");}
 });
