@@ -786,8 +786,12 @@ PR은 실제 돌린 사례만 바꾸고 원래 근거를 가리킵니다. 계약
 
 Wrangler 4.153.0으로 local D1과 개발 D1(`corthex-nexus-dev`)에도 이주했습니다. 정규화한 CREATE 문은 05와 같고 표 13개·명시적 색인 10개·이주 1과 2이며 올린 스냅샷은 없습니다. Windows Python 3.13 전체 817개(14개 건너뜀)와 Claude 플러그인 엄격 검사 네 개를 통과했습니다. GitHub 검사 41652400735의 Linux/macOS/Windows·Worker 빌드·플러그인 검사·all-checks도 통과했습니다. 읽기 전용 코드·보안 리뷰에서 구현 파일 세 개의 조치할 문제는 없었습니다. 한 리뷰어가 두 범위를 검토한 결과이며 0.2 API 제공·화면 수용 통과를 뜻하지 않습니다.
 
+| ID | 사례 | 근거 | Task | 방법 | 단계 | 기대 | 마지막 결과 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | TC-1278 | 변환 3의 기존 보고 보존과 재보고 구별 | SPEC-133, TBL-109, API-126 | TASK-254 | node | 스키마 2 자료를 이주하고 opened·closed 뒤 쓰기 ID를 만료시켜 closed를 다시 보냅니다. 보고가 없던 pending에도 closed를 보냅니다. | 기존 행을 지키며 last_report는 응답하지 않습니다. 반복은 무변경이고 유효하지 않은 첫 보고는 edit_state입니다. | pass: Node 24.18.0 / SQLite, Windows, 2026-11-04; server bundle |
 
+| ID | 사례 | 근거 | Task | 방법 | 단계 | 기대 | 마지막 결과 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | TC-1279 | API-130#409 checkpoint-state | API-130, SPEC-140 | TASK-220 | node, contract | opened 전 merged·closed, 기록 뒤 새 opened, 마지막 유효 보고 반복을 보냅니다. | 유효하지 않은 전이는 checkpoint_state이고 행을 지킵니다. 반복은 changed:false입니다. | partial: named-example audit 2026-11-04; 합성 실제 handler에서 명명 variant와 스키마 일치 관측. 공통 헤더·효과는 개별 근거 범위만 확인; 실제 Access·전체 TC 통과 아님. |
 
 ## 서버 묶음 근거(진행 중)

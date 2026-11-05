@@ -116,7 +116,7 @@ Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) lists
 | TASK-249 | Fire every named server response | SPEC-104–SPEC-140 | API-101–API-132 | TASK-217, TASK-218, TASK-220, TASK-248 | agent | L | Each named example is reproduced on development where feasible, with schema/code/effect checked; default/internal mock cases remain counted apart. | in progress |
 | TASK-250 | Verify hub commands on three operating systems | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Python 3.8 and latest matrix on Windows/macOS/Linux passes all command outcomes and preserves no-network/no-token fixture isolation. | done |
 | TASK-251 | Walk flows and all screen states | SPEC-119, SPEC-123–SPEC-141 | FL-101–FL-114, SCR-101–SCR-109 | TASK-237, TASK-239, TASK-240, TASK-241, TASK-242, TASK-249 | agent | L | Browser testers record role/path/commit and evidence for 320/1440, both themes/languages; page checks and image review are separate; working browser paths become CI e2e tests. | in progress |
-| TASK-252 | Record performance and own-project cross-check | SPEC-106, SPEC-107, SPEC-108, SPEC-119, SPEC-120 | REQ-124, REQ-149 | TASK-223, TASK-224, TASK-251 | agent | M | Record raw 20-opening measurements/P95, Worker/editor code sizes and maximal push metrics; synthetic plus local NEXUS self-picture check passes without an unauthorized repository upload. | in progress |
+| TASK-252 | Record performance and own-project cross-check | SPEC-106, SPEC-107, SPEC-108, SPEC-119, SPEC-120 | REQ-124, REQ-149 | TASK-223, TASK-224, TASK-251 | agent | M | Record raw 20-opening measurements/P95, Worker/editor code sizes and maximal push metrics; synthetic plus local NEXUS self-picture check passes without an unauthorized repository upload. | done |
 
 ## Outcomes
 
@@ -316,3 +316,8 @@ Prospective v8 current906/D802 completed each300-node Korean picture20 times und
 ## 2026-11-05: eleven evidence-backed task closures
 
 Only TASK-204/224/225/226/227/228/230/233/234/235/254 are now done after their original finishing conditions were matched to retained actual evidence. The current 64 tasks are 26done/38in progress. The other 53 rows, every ID, finishing condition, other column and earlier history are preserved. TASK-244/245/246/247/252 and the remaining partial clauses stay open. All 710 QA rows and their 524pass/186partial/0fail verdicts are unchanged. The [clause-specific record](../12-qa/runs/2026-11-05-wbs-closure.md) adds no execution, whole-product acceptance or release approval. Migration/recovery and other release gates, first real-repository upload, and Worker/D1 retention/deletion conditions remain separate.
+
+
+## 2026-11-05: actual-default own-picture closure
+
+TASK-252 is now done after its remaining actual-default local self-picture clause was checked without source overlays or an upload. Current64 tasks are27done/37in progress; the other63 whole rows and all original non-status columns/history remain. The [source-specific record](../12-qa/runs/2026-11-05-own-main.md) separates new local static/in-memory evidence from retained v8, code sizes and historical maximal-push metrics. QA710 remains524pass/186partial/0fail, with no live-role/UI or whole-product acceptance added. First real-repository upload and old Worker/D1 deletion keep their separate confirmations.

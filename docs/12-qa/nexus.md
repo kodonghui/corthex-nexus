@@ -786,8 +786,12 @@ On 2026-11-03, Node 24.18.0 on Windows ran all 19 server tests at `afbb3c8`, inc
 
 Wrangler 4.153.0 also installed the migrations in local D1 and the development D1 (`corthex-nexus-dev`). Their normalized CREATE statements equal stage 05: 13 tables and 10 explicit indexes, versions 1 and 2, no uploaded snapshots. Windows Python 3.13 ran 817 tests (14 skipped); all four strict Claude plugin validations passed. GitHub check run 41652400735 passed Linux/macOS/Windows, Worker dry build, plugin validation and all-checks. A read-only code/security review found no actionable issue in the three implementation files; this is one reviewer covering two review scopes. This does not mark any 0.2 API as provided or accepted.
 
+| ID | Case | From | Task | Runs as | Steps | Expected | Last result |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | TC-1278 | Schema-2 reports survive migration 3 and remain distinguishable | SPEC-133, TBL-109, API-126 | TASK-254 | node | Seed schema 2, migrate, report opened then closed, expire write IDs and repeat closed; separately send closed to a never-reported pending edit. | Existing rows survive; last_report is internal; repeat changes nothing while the invalid first report returns edit_state. | pass: Node 24.18.0 / SQLite, Windows, 2026-11-04; server bundle |
 
+| ID | Case | From | Task | Runs as | Steps | Expected | Last result |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | TC-1279 | API-130#409 checkpoint-state | API-130, SPEC-140 | TASK-220 | node, contract | Send merged/closed before opened; send opened after a stored record names the checkpoint; repeat the last valid report. | Invalid transitions return checkpoint_state and preserve rows; a repeat remains changed:false. | partial: named-example audit 2026-11-04; exact named variant observed at synthetic actual handler with schema matching; common headers/effects only where cited, no live Access or full TC pass. |
 
 ## Server bundle evidence (in progress)

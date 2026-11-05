@@ -1,0 +1,55 @@
+{
+  "schema": "nexus-own-main-publication-manifest/1",
+  "baseCommit": "fa62b9310239eba061ac8c54e6823d2e3b7c7213",
+  "collectedProductMain": "200b6aaaf4c953d71780caa3a0a98a549839a7b3",
+  "collectedCoreMain": "c0167339123dd0dc19e2e3c82cdc07231998e60b",
+  "sourceBeforeSha256": {
+    "README.md": "21b25cc895ffee80749ddce72d38284e654d853a36399048338d741094bfcffb",
+    "README.ko.md": "4549c868ad42b5a69abe88a73f8969db0a7d94a3334a0d46fdf5c992e1a3c3f1",
+    "docs/10-wbs/nexus.md": "a8ad126e6e695a097d9cf789cf14585965531c960a92e4fcc5fea3a520f94ef8",
+    "docs/10-wbs/nexus.ko.md": "5512dfce7c9e254ab6879c3462588e182fc476bb8d81bc4f75cd483dc6e89c7c",
+    "docs/12-qa/nexus.md": "d9703c625a695eeff962cceab9f366ef1732641a73211eb9c8262b407a950ff8",
+    "docs/12-qa/nexus.ko.md": "3e90dfdb6f4a7d677e23f9abd3375e759ec346fc487243da917939d3d0f83eb7"
+  },
+  "onlyWbsStatusChanged": "TASK-252",
+  "all710WholeCaseRowsPreserved": true,
+  "qaVerdictChanges": 0,
+  "other63WholeTaskRowsPreserved": true,
+  "all64OriginalNonStatusColumnsPreserved": true,
+  "taskCounts": {
+    "done": 27,
+    "inProgress": 37
+  },
+  "task252StatusHistory": {
+    "en": {
+      "beforeTask252WholeRowSha256": "e0cd997ab774010faf50e1c24a0f8df4cca467988421afd355afd7a79c4aba3a",
+      "afterTask252WholeRowSha256": "d4df2ee15e503d430edabc463fd511a7d708a166307cf18459ecf7749bb57793",
+      "originalNonStatusColumnsSha256": "0865be5d9aacbf6bb39a2a4e11a20b8af0ad9b7a25e23554dd0e754d3580b66c",
+      "other63WholeRowsUnchanged": true
+    },
+    "ko": {
+      "beforeTask252WholeRowSha256": "f3957d5e0e67674d95c0c74b0adb04abb0f3e57bec19005667d94374b9e5983d",
+      "afterTask252WholeRowSha256": "81226c9a6f328fa362b1bdf8f5233420a44b101fe1c551c2aa7cff004f6c311a",
+      "originalNonStatusColumnsSha256": "1e6c0f4c7d05fd26e127c5dcdca09f4eda83ba12599f91773ec4b5c68a74b7d5",
+      "other63WholeRowsUnchanged": true
+    }
+  },
+  "qaCounts": {
+    "pass": 524,
+    "partial": 186,
+    "fail": 0
+  },
+  "canonicalUtf8Lf": true,
+  "outputSha256": {
+    "README.md": "d799e425267b578137d39b3d8c12ee0b35188bc486acedc4d89d52c6ae1fdd4b",
+    "README.ko.md": "a5ac1b5700b400db384f7a790a6fe01bb2fc95c0735e0103d0b392cc06d3a45b",
+    "docs/10-wbs/nexus.md": "8f97d9fa9393b310ca82f4bf27ced909bad4fcb19e4727ce8f337e699f368b1d",
+    "docs/10-wbs/nexus.ko.md": "3b242a84534c2a1e3d1a6508a6d2169fb144189c2c38428e765792687b5af9d5",
+    "docs/12-qa/nexus.md": "34df5781889ae684fa4573d4f3c4c83557a70b3292d970f958bf0bffd555d55f",
+    "docs/12-qa/nexus.ko.md": "f4915606d60af9c85b561fcdf101d2862ecc05e986dc6c7033a2dcbf83b756ea",
+    "docs/12-qa/runs/2026-11-05-own-main.md": "a3af28adb0cbcacd12c0f1d99a270060bd766b0bb36df3fdd4bf69198d0dd691",
+    "docs/12-qa/runs/2026-11-05-own-main.ko.md": "5d05c176459e51771895cd2d48fd39f71763fed369498f9846c1c7a54da6e514",
+    "docs/12-qa/runs/2026-11-05-own-main/proof.json": "4811e3965a438a470ea6980acafdda18d7e66b0cdfd2d1078ca5dc1984123d8f"
+  },
+  "collectorResultDigest": "2658f419297892621acf38033b91eb59d9d81859b0e4fb36a96d7b89e3453029"
+}
