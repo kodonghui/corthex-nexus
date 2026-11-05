@@ -1,4 +1,14 @@
 // Synthetic, local-only browser fixtures. No repository is scanned or uploaded.
+// Screen headings contain the declared ID and title, independently of the DOM.
+export function viewItemHeading(id){
+ const pictures=viewSnapshot().pictures;
+ for(const {source}of pictures){
+  const rows=[...(source.contexts||[]),...(source.aggregates||[]),...(source.read_models||[]),...(source.tables||[]),...(source.screens||[])];
+  const row=rows.find(value=>(value.id||value.term)===id);
+  if(row)return id+" "+row.name;
+ }
+ throw new Error("Unknown synthetic fixture item: "+id);
+}
 export function viewSnapshot(name="qa-views"){
  const commit="a".repeat(40),time=new Date().toISOString(),where="docs/qa-sample.md:1";
  const term=(name,context,term)=>({name,context,term,removed:false,where});
