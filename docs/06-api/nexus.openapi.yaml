@@ -810,7 +810,7 @@ paths:
                   value:
                     comment: {id: nc_3a6d9g2j5m8r, state: closed, closed_as: answered, waits: null, settled: false, dismissed: false, last_at: "2026-11-03T02:20:00.004Z"}
                     changed: false
-        "400": {$ref: "#/components/responses/InvalidWrite"}
+        "400": {$ref: "#/components/responses/InvalidBodyFreeWrite"}
         "403": {$ref: "#/components/responses/EitherWriteRefused"}
         "404": {$ref: "#/components/responses/CommentNotFound"}
         "409":
@@ -950,7 +950,7 @@ paths:
                 space-full: {$ref: "#/components/examples/space_full"}
                 claimed: {$ref: "#/components/examples/claimed"}
                 write-id-reused: {$ref: "#/components/examples/write_id_reused"}
-        "413": {$ref: "#/components/responses/TooLarge"}
+        "413": {$ref: "#/components/responses/ProposalTooLarge"}
         "415": {$ref: "#/components/responses/NeedsJson"}
         default: {$ref: "#/components/responses/Unexpected"}
 
@@ -1017,7 +1017,7 @@ paths:
                 already-withdrawn:
                   summary: Sent again with a new write ID after the first withdrawal
                   value: {proposal: {id: np_2b5e8g1j4m7p, state: withdrawn, closed_at: "2026-11-03T06:00:00.000Z"}, changed: false}
-        "400": {$ref: "#/components/responses/InvalidWrite"}
+        "400": {$ref: "#/components/responses/InvalidBodyFreeWrite"}
         "403": {$ref: "#/components/responses/AgentWriteRefused"}
         "404": {$ref: "#/components/responses/ProposalNotFound"}
         "409":
@@ -1063,7 +1063,7 @@ paths:
                   value:
                     proposal: {id: np_2b5e8g1j4m7p, state: accepted, closed_at: "2026-11-03T07:30:41.882Z"}
                     edit: {id: ne_9c3f6h2k5n8q, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, proposal: np_2b5e8g1j4m7p, state: pending, pull_request: null, closed_commit: null, made_at: "2026-11-03T07:30:41.882Z", changed_at: "2026-11-03T07:30:41.882Z"}
-        "400": {$ref: "#/components/responses/InvalidWrite"}
+        "400": {$ref: "#/components/responses/InvalidUserAction"}
         "403": {$ref: "#/components/responses/UserWriteRefused"}
         "404": {$ref: "#/components/responses/ProposalNotFound"}
         "409":
@@ -1109,7 +1109,7 @@ paths:
                   value:
                     proposal: {id: np_2b5e8g1j4m7p, state: dismissed, closed_at: "2026-11-03T07:31:05.090Z"}
                     comment: {id: nc_8k1n4q7s0v3y, state: open, closed_as: null, waits: agent, settled: false, dismissed: true, last_at: "2026-11-03T07:31:05.090Z"}
-        "400": {$ref: "#/components/responses/InvalidWrite"}
+        "400": {$ref: "#/components/responses/InvalidUserAction"}
         "403": {$ref: "#/components/responses/UserWriteRefused"}
         "404": {$ref: "#/components/responses/ProposalNotFound"}
         "409":
@@ -1195,7 +1195,7 @@ paths:
                   value:
                     edit: {id: ne_9c3f6h2k5n8q, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, proposal: np_2b5e8g1j4m7p, state: in-review, pull_request: "https://github.com/kodonghui/corthex/pull/124", closed_commit: null, made_at: "2026-11-03T07:30:41.882Z", changed_at: "2026-11-03T08:12:00.250Z"}
                     changed: true
-        "400": {$ref: "#/components/responses/InvalidWrite"}
+        "400": {$ref: "#/components/responses/InvalidReport"}
         "403": {$ref: "#/components/responses/AgentWriteRefused"}
         "404": {$ref: "#/components/responses/EditNotFound"}
         "409":
@@ -1209,7 +1209,7 @@ paths:
                 pull-request-mismatch: {$ref: "#/components/examples/pull_request_mismatch"}
                 claimed: {$ref: "#/components/examples/claimed"}
                 write-id-reused: {$ref: "#/components/examples/write_id_reused"}
-        "413": {$ref: "#/components/responses/TooLarge"}
+        "413": {$ref: "#/components/responses/ReportTooLarge"}
         "415": {$ref: "#/components/responses/NeedsJson"}
         default: {$ref: "#/components/responses/Unexpected"}
 
@@ -1250,7 +1250,7 @@ paths:
                   value:
                     edit: {id: ne_9c3f6h2k5n8q, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, proposal: np_2b5e8g1j4m7p, state: dismissed, pull_request: null, closed_commit: null, made_at: "2026-11-03T07:30:41.882Z", changed_at: "2026-11-04T00:05:00.000Z"}
                     changed: false
-        "400": {$ref: "#/components/responses/InvalidWrite"}
+        "400": {$ref: "#/components/responses/InvalidUserAction"}
         "403": {$ref: "#/components/responses/UserWriteRefused"}
         "404": {$ref: "#/components/responses/EditNotFound"}
         "409":
@@ -1299,7 +1299,7 @@ paths:
               schema: {$ref: "#/components/schemas/Checkpoint"}
               examples:
                 passed: {$ref: "#/components/examples/checkpoint_passed"}
-        "400": {$ref: "#/components/responses/InvalidWrite"}
+        "400": {$ref: "#/components/responses/InvalidCheckpoint"}
         "403": {$ref: "#/components/responses/UserWriteRefused"}
         "404":
           description: No such project, space or part
@@ -1318,7 +1318,7 @@ paths:
               schema: {$ref: "#/components/schemas/Problem"}
               examples:
                 write-id-reused: {$ref: "#/components/examples/write_id_reused"}
-        "413": {$ref: "#/components/responses/TooLarge"}
+        "413": {$ref: "#/components/responses/CheckpointTooLarge"}
         "415": {$ref: "#/components/responses/NeedsJson"}
         default: {$ref: "#/components/responses/Unexpected"}
 
@@ -1388,7 +1388,7 @@ paths:
                   value:
                     checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: withdrawn, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: "2026-11-03T09:20:00.000Z", pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null}
                     changed: false
-        "400": {$ref: "#/components/responses/InvalidWrite"}
+        "400": {$ref: "#/components/responses/InvalidUserAction"}
         "403": {$ref: "#/components/responses/UserWriteRefused"}
         "404": {$ref: "#/components/responses/CheckpointNotFound"}
         "409":
@@ -1443,7 +1443,7 @@ paths:
                   value:
                     checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null}
                     changed: true
-        "400": {$ref: "#/components/responses/InvalidWrite"}
+        "400": {$ref: "#/components/responses/InvalidReport"}
         "403": {$ref: "#/components/responses/AgentWriteRefused"}
         "404": {$ref: "#/components/responses/CheckpointNotFound"}
         "409":
@@ -1458,7 +1458,7 @@ paths:
                 pull-request-mismatch: {$ref: "#/components/examples/pull_request_mismatch"}
                 claimed: {$ref: "#/components/examples/claimed"}
                 write-id-reused: {$ref: "#/components/examples/write_id_reused"}
-        "413": {$ref: "#/components/responses/TooLarge"}
+        "413": {$ref: "#/components/responses/ReportTooLarge"}
         "415": {$ref: "#/components/responses/NeedsJson"}
         default: {$ref: "#/components/responses/Unexpected"}
 
@@ -1749,6 +1749,62 @@ components:
           examples:
             text-too-long: {$ref: "#/components/examples/text_too_long"}
             body-too-large: {$ref: "#/components/examples/body_too_large"}
+    InvalidBodyFreeWrite:
+      description: A body-free write checks its write ID and, for an agent, its session; no body fields are read
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            missing-write-id: {$ref: "#/components/examples/missing_write_id"}
+            missing-session: {$ref: "#/components/examples/missing_session"}
+    InvalidUserAction:
+      description: A user-only body-free action checks its write ID; no body or agent session is read
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            missing-write-id: {$ref: "#/components/examples/missing_write_id"}
+    InvalidReport:
+      description: A report body, write ID or agent session is not in its required form
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            invalid-body: {$ref: "#/components/examples/invalid_request_body"}
+            missing-write-id: {$ref: "#/components/examples/missing_write_id"}
+            missing-session: {$ref: "#/components/examples/missing_session"}
+    InvalidCheckpoint:
+      description: A user checkpoint body or write ID is not in its required form
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            invalid-body: {$ref: "#/components/examples/invalid_request_body"}
+            missing-write-id: {$ref: "#/components/examples/missing_write_id"}
+    ProposalTooLarge:
+      description: A proposal reason over its limit, or a body over 256 KiB
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            reason-too-long: {$ref: "#/components/examples/reason_too_long"}
+            body-too-large: {$ref: "#/components/examples/body_too_large"}
+    ReportTooLarge:
+      description: A report pull-request URL over its limit, or a body over 256 KiB
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            pull-request-too-long: {$ref: "#/components/examples/pull_request_too_long"}
+            body-too-large: {$ref: "#/components/examples/body_too_large"}
+    CheckpointTooLarge:
+      description: Checkpoint words over their limit, or a body over 256 KiB
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            words-too-long: {$ref: "#/components/examples/words_too_long"}
+            body-too-large: {$ref: "#/components/examples/body_too_large"}
     NeedsJson:
       description: Not sent as application/json
       content:
@@ -1904,6 +1960,18 @@ components:
     invalid_request:
       summary: A field that is not in its form
       value: {title: The request is not valid, status: 400, detail: "text: write 1 to 4,000 characters, not spaces only", code: invalid_request, traceId: 8f6c3b2a1d0e9f80-ICN, error: "text: write 1 to 4,000 characters, not spaces only", field: text}
+    invalid_request_body:
+      summary: A report or checkpoint body outside its declared schema
+      value: {title: The request is not valid, status: 400, detail: the body is not in its required form, code: invalid_request, traceId: 8f6c3b2a1d0e9fb0-ICN, error: the body is not in its required form, field: body}
+    reason_too_long:
+      summary: A proposal reason over 2000 characters
+      value: {title: The text is too long, status: 413, detail: a text is too long, code: text_too_long, traceId: 8f6c3b2a1d0e9fb0-ICN, error: a text is too long, field: reason, limit: 2000}
+    pull_request_too_long:
+      summary: A report pull-request URL over 2000 characters
+      value: {title: The text is too long, status: 413, detail: a text is too long, code: text_too_long, traceId: 8f6c3b2a1d0e9fb0-ICN, error: a text is too long, field: pull_request, limit: 2000}
+    words_too_long:
+      summary: Checkpoint words over 2000 characters
+      value: {title: The text is too long, status: 413, detail: a text is too long, code: text_too_long, traceId: 8f6c3b2a1d0e9fb0-ICN, error: a text is too long, field: words, limit: 2000}
     invalid_reason:
       summary: A proposal without its reason
       value: {title: The request is not valid, status: 400, detail: "reason: a proposal needs its reason", code: invalid_request, traceId: 8f6c3b2a1d0e9f81-ICN, error: "reason: a proposal needs its reason", field: reason}

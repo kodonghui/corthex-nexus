@@ -12,6 +12,35 @@ The stage's default contract is `api/openapi.yaml`, read in Swagger UI. The NEXU
 
 The standalone origin binds only to127.0.0.1 behind a cloudflared Tunnel. Without ctx.access it directly verifies the Cf-Access-Jwt-Assertion RS256 signature, configured team issuer, ACCESS_AUD, expiry and nbf, then applies the existing user/agent classification. The Worker additionally retains its checked context/audience requirement. Missing configuration or an invalid signature fails closed; the token never chooses the issuer/key host. Existing Access policies and HTTP/snapshot formats are unchanged. TASK-260/264 verify implementation and both real identity kinds.
 
+## Response-example applicability (0.2.1, 2026-11-05)
+
+The maintainer authorized an example-only correction for the18 shared fixtures below. Their exact old examples are not applicable to these operations; this does not remove the400/413 response, change a code, schema, input, role or server behaviour. Each original TC ID and previous result stays in the QA history as **not applicable**, never as a pass. The seven corrected field-specific examples are distinct cases, with new QA IDs assigned separately.
+
+| Legacy TC | Operation/status | Old example | Why it is not applicable | Current distinct example |
+| --- | --- | --- | --- | --- |
+| TC-908 | API-120#400 | `invalid-field` | No body is read. | none |
+| TC-957 | API-122#413 | `text-too-long` | The actual field and bound differ from `text`/4000. | `reason-too-long`: `reason`, 2000 |
+| TC-971 | API-123#400 | `invalid-field` | No body is read. | none |
+| TC-986 | API-124#400 | `invalid-field` | No body is read. | none |
+| TC-988 | API-124#400 | `missing-session` | The user-only request ignores the agent session. | none |
+| TC-1001 | API-125#400 | `invalid-field` | No body is read. | none |
+| TC-1003 | API-125#400 | `missing-session` | The user-only request ignores the agent session. | none |
+| TC-1022 | API-126#400 | `invalid-field` | No `text` input; a bad body reports `body`. | `invalid-body`: `body` |
+| TC-1036 | API-126#413 | `text-too-long` | The actual field and bound differ from `text`/4000. | `pull-request-too-long`: `pull_request`, 2000 |
+| TC-1043 | API-127#400 | `invalid-field` | No body is read. | none |
+| TC-1045 | API-127#400 | `missing-session` | The user-only request ignores the agent session. | none |
+| TC-1057 | API-128#400 | `invalid-field` | No `text` input; a bad body reports `body`. | `invalid-body`: `body` |
+| TC-1059 | API-128#400 | `missing-session` | The user-only request ignores the agent session. | none |
+| TC-1067 | API-128#413 | `text-too-long` | The actual field and bound differ from `text`/4000. | `words-too-long`: `words`, 2000 |
+| TC-1081 | API-129#400 | `invalid-field` | No body is read. | none |
+| TC-1083 | API-129#400 | `missing-session` | The user-only request ignores the agent session. | none |
+| TC-1095 | API-130#400 | `invalid-field` | No `text` input; a bad body reports `body`. | `invalid-body`: `body` |
+| TC-1109 | API-130#413 | `text-too-long` | The actual field and bound differ from `text`/4000. | `pull-request-too-long`: `pull_request`, 2000 |
+
+The old contract had411 operation/status/media/example references. It retains393 unchanged references, omits18 exact old fixtures and adds7 corrected references: **400 current named examples**. Shared component definitions have a different count. Mock responses and actual HTTP evidence keep separate denominators; the seven new refusals do not become seven passes among the old18 TCs. The original710 IDs therefore contain626 pass,66 partial and18 not applicable before other work; adding the seven new QA rows later changes the overall total separately.
+
+The automatic [example applicability check](../../nexus/test/contract_example_check.py) compares field locations and limits with the operation's request schema, and rejects a missing-agent-session example on a user-only operation. Applicable header refusals remain named for body-free actions. The copied runtime input schemas are unchanged.
+
 ## How to read this file
 
 - The server's requests are the operations of the contract, API-101 to API-132. Each has its `operationId`, the behaviours (SPEC) that it serves, who may send it, every response that it can give, each with a named example, and under `x-corthex.omit` the responses that it cannot give, with the reason. [Interfaces](#interfaces) lists them; the contract defines them.

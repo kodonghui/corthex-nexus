@@ -1,0 +1,652 @@
+{
+  "schema": "nexus021-contract-and-http-invariants/1",
+  "baselineCommit": "e9d308fc9dd15afc94ab0550c5955025d65aa892",
+  "baselineContractSha256": "a9589422a44766175cbe9c03b6223b3233c02b1db4915f14af0a6b1659422bdd",
+  "correctedContractSha256": "38e1c7566e4dc13872aa2a92339fa56f5adc019e0b3af9a54f529a82a87d4d27",
+  "allComponentSchemasEqual": true,
+  "componentSchemaCount": 92,
+  "schemaGraphSha256": "bcd51421c2ab5ca763994fb8efd94963a7214a17ef1e1b13cf40207b2c88a3da",
+  "allOperationParameterSecurityBodyStatusAndResponseSchemasEqual": true,
+  "operationCount": 32,
+  "errorCodeDefinitionsEqual": true,
+  "runtimeInputSchemaCount": 39,
+  "runtimeInputSchemasDeepEqualAndCanonicalSourceUnchanged": true,
+  "runtimeWorkingRawSha256": "a599b9468d066e90970ba9d1bf1911efa49f336e57aab7d016d32f3290a6bd12",
+  "runtimeGitCanonicalRawSha256": "b55daaeabbe99556c701bb68668266750174f8281e7440cbe36a1d3a0eb9f280",
+  "runtimeRawBytesEqual": false,
+  "runtimeWindowsCheckoutLineEndingsOnly": true,
+  "legacyNamedReferences": 411,
+  "legacyRemovedExactExamples": 18,
+  "unchangedNamedReferences": 393,
+  "newNamedReferences": 7,
+  "currentNamedReferences": 400,
+  "all400ExamplesSchemaValid": true,
+  "applicabilityCheckerFindings": 0,
+  "independentNegativeMutationFindings": 2,
+  "actualHttpResponses": 23,
+  "actualNewRefusals": 7,
+  "legacyNaReachabilityControls": 7,
+  "legacyNaRowsCoveredByControls": 11,
+  "schemaErrors": 0,
+  "allSevenRefusalsWholeCatalog13TablesReceiptsUnchanged": true,
+  "actualRunSha256": "3dc829b60a9ce07653eba04ae9475abe9002907021ec0c87a107a958d1c58ed1",
+  "operationInvariants": [
+    {
+      "apiId": "API-101",
+      "path": "/",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-102",
+      "path": "/pictures/{project}/{part}/{stage}",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-103",
+      "path": "/overview/{project}/{part}/{stage}",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-104",
+      "path": "/code/{file}",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-105",
+      "path": "/api/snapshots",
+      "method": "post",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "409",
+        "413",
+        "415",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-106",
+      "path": "/api/snapshots",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-107",
+      "path": "/api/snapshots/{project}",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-108",
+      "path": "/api/snapshots/{project}",
+      "method": "delete",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-109",
+      "path": "/api/snapshots/{project}/held",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-110",
+      "path": "/api/snapshots/{project}/removal",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-111",
+      "path": "/api/spaces/{project}/pictures/{part}/{stage}",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-112",
+      "path": "/api/spaces/{project}/overview/{part}/{stage}",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-113",
+      "path": "/api/spaces/{project}/todo",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-118",
+      "path": "/api/spaces/{project}/comments",
+      "method": "post",
+      "statusSet": [
+        "201",
+        "400",
+        "403",
+        "404",
+        "409",
+        "413",
+        "415",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-114",
+      "path": "/api/spaces/{project}/comments/{comment}",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-119",
+      "path": "/api/spaces/{project}/comments/{comment}/replies",
+      "method": "post",
+      "statusSet": [
+        "201",
+        "400",
+        "403",
+        "404",
+        "409",
+        "413",
+        "415",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-120",
+      "path": "/api/spaces/{project}/comments/{comment}/answered",
+      "method": "post",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-121",
+      "path": "/api/spaces/{project}/comments/{comment}/decisions",
+      "method": "post",
+      "statusSet": [
+        "201",
+        "400",
+        "403",
+        "404",
+        "409",
+        "413",
+        "415",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-122",
+      "path": "/api/spaces/{project}/proposals",
+      "method": "post",
+      "statusSet": [
+        "201",
+        "400",
+        "403",
+        "404",
+        "409",
+        "413",
+        "415",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-115",
+      "path": "/api/spaces/{project}/proposals/{proposal}",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-123",
+      "path": "/api/spaces/{project}/proposals/{proposal}/withdraw",
+      "method": "post",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-124",
+      "path": "/api/spaces/{project}/proposals/{proposal}/accept",
+      "method": "post",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-125",
+      "path": "/api/spaces/{project}/proposals/{proposal}/dismiss",
+      "method": "post",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-116",
+      "path": "/api/spaces/{project}/edits/{edit}",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-126",
+      "path": "/api/spaces/{project}/edits/{edit}/report",
+      "method": "post",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "413",
+        "415",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-127",
+      "path": "/api/spaces/{project}/edits/{edit}/dismiss",
+      "method": "post",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-128",
+      "path": "/api/spaces/{project}/checkpoints",
+      "method": "post",
+      "statusSet": [
+        "201",
+        "400",
+        "403",
+        "404",
+        "409",
+        "413",
+        "415",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-117",
+      "path": "/api/spaces/{project}/checkpoints/{checkpoint}",
+      "method": "get",
+      "statusSet": [
+        "200",
+        "403",
+        "404",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-129",
+      "path": "/api/spaces/{project}/checkpoints/{checkpoint}/withdraw",
+      "method": "post",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-130",
+      "path": "/api/spaces/{project}/checkpoints/{checkpoint}/report",
+      "method": "post",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "413",
+        "415",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-131",
+      "path": "/api/spaces/{project}/claims/{entry}",
+      "method": "post",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    },
+    {
+      "apiId": "API-132",
+      "path": "/api/spaces/{project}/claims/{entry}",
+      "method": "delete",
+      "statusSet": [
+        "200",
+        "400",
+        "403",
+        "404",
+        "409",
+        "default"
+      ],
+      "parametersSecurityBodyAndResponseSchemasEqual": true
+    }
+  ],
+  "actualValidations": [
+    {
+      "index": 0,
+      "apiId": "API-105",
+      "status": 200,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 1,
+      "apiId": "API-118",
+      "status": 201,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 2,
+      "apiId": "API-120",
+      "status": 200,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 3,
+      "apiId": "API-122",
+      "status": 201,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 4,
+      "apiId": "API-123",
+      "status": 200,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 5,
+      "apiId": "API-122",
+      "status": 201,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 6,
+      "apiId": "API-124",
+      "status": 200,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 7,
+      "apiId": "API-122",
+      "status": 201,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 8,
+      "apiId": "API-125",
+      "status": 200,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 9,
+      "apiId": "API-122",
+      "status": 201,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 10,
+      "apiId": "API-124",
+      "status": 200,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 11,
+      "apiId": "API-126",
+      "status": 200,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 12,
+      "apiId": "API-127",
+      "status": 200,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 13,
+      "apiId": "API-128",
+      "status": 201,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 14,
+      "apiId": "API-129",
+      "status": 200,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 15,
+      "apiId": "API-128",
+      "status": 201,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": false
+    },
+    {
+      "index": 16,
+      "apiId": "API-122",
+      "status": 413,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": true
+    },
+    {
+      "index": 17,
+      "apiId": "API-126",
+      "status": 400,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": true
+    },
+    {
+      "index": 18,
+      "apiId": "API-126",
+      "status": 413,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": true
+    },
+    {
+      "index": 19,
+      "apiId": "API-128",
+      "status": 400,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": true
+    },
+    {
+      "index": 20,
+      "apiId": "API-128",
+      "status": 413,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": true
+    },
+    {
+      "index": 21,
+      "apiId": "API-130",
+      "status": 400,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": true
+    },
+    {
+      "index": 22,
+      "apiId": "API-130",
+      "status": 413,
+      "schemaErrors": 0,
+      "policyTraceAndDataEffectsPassed": true,
+      "sameRequestDatabaseUnchanged": true
+    }
+  ],
+  "scope": "mock/example schema count400 andactualHTTP count23 remain separate; legacy18TCs remain N/A. No runtime/source behavior change or real Access/shared/prod request."
+}
