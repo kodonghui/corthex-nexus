@@ -1,0 +1,257 @@
+{
+  "schema": "nexus-current-default-own-picture-closure/1",
+  "sourceBaseCommit": "fa62b9310239eba061ac8c54e6823d2e3b7c7213",
+  "scope": "Current real default Git source collection, local static pictures and in-memory actual handler GET; synthetic Access only.",
+  "task": "TASK-252",
+  "originalDoneWhen": "Record raw 20-opening measurements/P95, Worker/editor code sizes and maximal push metrics; synthetic plus local NEXUS self-picture check passes without an unauthorized repository upload.",
+  "productMain": "200b6aaaf4c953d71780caa3a0a98a549839a7b3",
+  "coreMain": "c0167339123dd0dc19e2e3c82cdc07231998e60b",
+  "hubRuntimeCommit": "c0167339123dd0dc19e2e3c82cdc07231998e60b",
+  "trackedProjectSettingsDigest": "88f7a01f7375de747525cd66d23486c4019952700dbe1df1dce7392647d15be7",
+  "parts": [
+    "nexus"
+  ],
+  "sourceOverlay": false,
+  "fakeDefaultRef": false,
+  "inputSnapshotCompactBytes": 388784,
+  "inputSnapshotCompactDigest": "d3e19550fe53c7f968a664ae9c7d510edb53485a4eb3e3de64499e04050eb468",
+  "beforeAfterSourcesUnchanged": true,
+  "knownWorkingSqlCrlfRepresentationOnly": true,
+  "executionCode": "Verbatim main Git blobs copied outside the repository; original checkout unchanged.",
+  "executionCodeFiles": 475,
+  "executionCodeManifestDigest": "e968ed495eaf645a06e424fdc4b9b86912c000429ee9854f3862442e68ffe583",
+  "pictures": [
+    {
+      "stage": "01-domain",
+      "part": "nexus",
+      "commit": "200b6aaaf4c953d71780caa3a0a98a549839a7b3",
+      "sourceCanonicalSha256": "da1ea6efd48c05d30d44f18b64aeb760ca2c5ed6a3b0093aed5d6a60ccd65236",
+      "sourceCounts": {
+        "contexts": 9,
+        "aggregates": 8,
+        "read_models": 5,
+        "dependencies": 10,
+        "hotspots": 14,
+        "timeline": 5
+      },
+      "sceneNodes": 112,
+      "sceneItems": 81,
+      "sceneEdges": 37,
+      "limited": false,
+      "allSceneNodesInStaticSvg": true,
+      "completeMarker": true,
+      "staticSvgBytes": 48892,
+      "staticSvgDigest": "cd4ffd31bd4f70b22ced6b252a1ea3082ec76e71a6c90a3d55b70cfb6de3ed01",
+      "responseStatus": 200,
+      "responseBytes": 14182,
+      "responseDigest": "f64f7c864ff021dde20af3bde4f1f5dafd6beb978800a2a7f904d2b06e8b3fe4",
+      "responseSourceDigestMatchesInput": true,
+      "wholeLogicalDatabaseAndReceiptsUnchanged": true,
+      "crosscheckDiscrepancies": 0
+    },
+    {
+      "stage": "05-erd",
+      "part": "nexus",
+      "commit": "200b6aaaf4c953d71780caa3a0a98a549839a7b3",
+      "sourceCanonicalSha256": "9ffe350f687b3c8b0e219a093b4bfbe0462b60b3a8b184334dc434910c324aa9",
+      "sourceCounts": {
+        "tables": 13,
+        "without_table": 1
+      },
+      "sceneNodes": 13,
+      "sceneItems": 13,
+      "sceneEdges": 16,
+      "limited": false,
+      "allSceneNodesInStaticSvg": true,
+      "completeMarker": true,
+      "staticSvgBytes": 17081,
+      "staticSvgDigest": "e95806f3d5b1a0e342dc705462052e81830ab950cda891f607d70b24fc27fd78",
+      "responseStatus": 200,
+      "responseBytes": 14731,
+      "responseDigest": "78d41d40ba58694d523567fa0e903c3f4a110b0847715f2e4bd0308acdd47d6b",
+      "responseSourceDigestMatchesInput": true,
+      "wholeLogicalDatabaseAndReceiptsUnchanged": true,
+      "crosscheckDiscrepancies": 0
+    },
+    {
+      "stage": "07-sitemap",
+      "part": "nexus",
+      "commit": "200b6aaaf4c953d71780caa3a0a98a549839a7b3",
+      "sourceCanonicalSha256": "8f87a64dcc058507026733ad57758f9d1a509b8b5a2a40cec38dcfc44a928d0e",
+      "sourceCounts": {
+        "screens": 9,
+        "without_screen": 1
+      },
+      "sceneNodes": 9,
+      "sceneItems": 9,
+      "sceneEdges": 8,
+      "limited": false,
+      "allSceneNodesInStaticSvg": true,
+      "completeMarker": true,
+      "staticSvgBytes": 6866,
+      "staticSvgDigest": "1fbe37f97c0337dbd4f9e0f94b2a8ec97d9a05b7c3cd59bf2e1d0327aa00f02b",
+      "responseStatus": 200,
+      "responseBytes": 2802,
+      "responseDigest": "177a902d35df14376efec27b859bfbec432de2908289ab3e94c8f42f290ec566",
+      "responseSourceDigestMatchesInput": true,
+      "wholeLogicalDatabaseAndReceiptsUnchanged": true,
+      "crosscheckDiscrepancies": 0
+    }
+  ],
+  "localHandlerGetCount": 3,
+  "certificateFetchInMemoryStubCount": 1,
+  "successfulLocalMemoryFixtureSetups": 1,
+  "unexpectedFetches": 0,
+  "serverHttp": 0,
+  "postRequests": 0,
+  "currentBrowserOrNativeEditorRuns": 0,
+  "deployedOrLiveRoleAcceptance": false,
+  "contractTextDigest": "7edaaee50b89ba5e8fbc4f10579c5b90f43328985536e9ae06fded4fdf26d081",
+  "contractYamlDigest": "a9589422a44766175cbe9c03b6223b3233c02b1db4915f14af0a6b1659422bdd",
+  "priorFormal": {
+    "runtimeCommit": "906f36009c3c08ce720b233b4aea6ed8fef5e7ad",
+    "metadataDigest": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+    "rawDigest": "e280329ec7fb4462488699d7cd8761a9a14344a4b5b0f40663aa14ccce92df40",
+    "proofDigest": "51b13d228689cce3fe35488cac9c99a1ccda5bea92ce561fdd8c53a547e92968",
+    "perStage": 20,
+    "plannedOpenings": 60,
+    "qualifiedOpenings": 60,
+    "firstSvgP95Ms": [
+      1399.2,
+      1327.2,
+      1357.3
+    ],
+    "nativeReadyP95Ms": [
+      2784,
+      2686,
+      2873.9
+    ],
+    "nativePaintOpportunityP95Ms": [
+      3159.5,
+      2721.7,
+      3067
+    ],
+    "scope": "Existing prospective v8 synthetic300-element Korean mobile run, original profile/rank19; not rerun for this documentation unit."
+  },
+  "priorCodeSizes": {
+    "clause": "Worker/editor code sizes",
+    "kind": "recorded dry-build and retained code metadata, not a Worker deployment",
+    "metadataSha256": "d802309fa8a1c4caf888372ad04f2d0dd37b7f777c5ff98fd36a5e370eba171e",
+    "files": 443,
+    "rawBytes": 23499931,
+    "summedGzipBytes": 16363253,
+    "workerLogSha256": "ff633bfddd3380ff387a6870ae9c049c961fc523bfac6b5fb286341ebf7e0eff",
+    "workerRawKiB": 23278.57,
+    "workerGzipKiB": 15967.48
+  },
+  "priorMaximalPush": {
+    "runtimeCommit": "db6313683848ecac10e0fcd1ad4ecd48e2babdcf",
+    "metadataDigest": "ca4ac3fd94fc14d08bd7a576792d92f8dd84a1529030fa63b6bb6c42bd4a2085",
+    "receiptDigest": "b681f922e369188a9175a2e316070c57ea3047d15f7b0e6ea61ab1ba0b395225",
+    "startedAt": "2026-11-04T02:55:52.519Z",
+    "finishedAt": "2026-11-04T02:56:19.542Z",
+    "syntheticOnly": true,
+    "bytes": 1000000,
+    "items": 3000,
+    "checks": 2000,
+    "pictures": 3,
+    "status": 200,
+    "afterBodyMs": 31.084858000001987,
+    "scope": "Retained historical actual maximal request; not current-main or new deployment performance."
+  },
+  "collectorBeforeHeaderRepair": {
+    "testDefinitions": 708,
+    "originalSourceCaseRows": 710,
+    "structuralWarnings": 621
+  },
+  "headerRepair": {
+    "criteria": [
+      "TC-1278",
+      "TC-1279"
+    ],
+    "insertedHeaderSeparatorLines": 8,
+    "all710OriginalRowsByteIdenticalAndSameOrder": true,
+    "verdictChanges": 0
+  },
+  "collectorAfterHeaderRepair": {
+    "hubCommit": "c0167339123dd0dc19e2e3c82cdc07231998e60b",
+    "collectedDefaultCommit": "200b6aaaf4c953d71780caa3a0a98a549839a7b3",
+    "workingStageSourceIsProposal": true,
+    "items": 1109,
+    "testItems": 710,
+    "uniqueTestItems": 710,
+    "addedDefinitions": [
+      "TC-1278",
+      "TC-1279"
+    ],
+    "snapshotDigest": "338694b406004f34e721f99c8386d9705b990822cd2759219b0109e4022c39d7",
+    "checks": {
+      "error": 0,
+      "warn": 619,
+      "info": 0
+    },
+    "checkRules": {
+      "unknown-ref": 97,
+      "missing-upstream": 522
+    },
+    "networkAttempts": 0
+  },
+  "wbs": {
+    "total": 64,
+    "beforeDone": 26,
+    "beforeInProgress": 38,
+    "afterDone": 27,
+    "afterInProgress": 37,
+    "onlyStatusChanged": "TASK-252",
+    "other63WholeRowsUnchanged": true,
+    "all64OriginalNonStatusColumnsUnchanged": true
+  },
+  "qa": {
+    "total": 710,
+    "pass": 524,
+    "partial": 186,
+    "fail": 0,
+    "verdictChanges": 0
+  },
+  "coreFirstDryrun": {
+    "project": "corthex",
+    "part": "memory",
+    "commit": "c0167339123dd0dc19e2e3c82cdc07231998e60b",
+    "bytes": 179196,
+    "items": 758,
+    "pictures": 2,
+    "dddContexts": 5,
+    "sqlPictureTables": 4,
+    "oversizeEvidenceFilesSkipped": 1,
+    "skippedFileBytes": 3455730,
+    "externalTermWarnings": 2,
+    "firstRealUploadAuthorizedOrExecuted": false
+  },
+  "retainedToolFailures": {
+    "rawBytePreflightStop": 1,
+    "nullDeviceGuardStop": 1,
+    "windowsPopenMetadataStop": 1,
+    "runtimeBytePreflightStop": 1,
+    "incorrectLocalRouteThenHelperFailure": 1,
+    "failedLocalHandleGets": 1,
+    "rawLogsPreserved": true,
+    "classifiedAsProductRegressions": false
+  },
+  "inputEvidenceDigests": {
+    "sourceReceipt": "190d4e21d35aad054bcf5ad79c5616e8a4d0d565b865ed3858be0bddaa1d0e7c",
+    "clauseReview": "69997716a520f793d03925a22f6c3a52ee753d2aabec29e94c9db9a4b10485d3",
+    "localHandlerReceipt": "2bea7b5bb9c933ac2e49b293a5526a82c8a698db2882b4c21ef95eadc1e29ed8"
+  },
+  "remoteUploads": 0,
+  "originalUserProfileOrRegistryChanges": 0,
+  "credentialFilesCopied": 0,
+  "notionWrites": 0,
+  "newUserCheckpointOrReleaseWaiver": false,
+  "limits": [
+    "Static SVG generation is not browser/native-editor/paint evidence.",
+    "Actual in-memory handler and synthetic Access are not deployed role acceptance.",
+    "Reference warnings remain separate; no all-warnings-zero gate was added.",
+    "First actual repository upload and old Worker/D1 deletion require their separate confirmations."
+  ],
+  "hubManifestVersion": "0.2.0"
+}

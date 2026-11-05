@@ -4,7 +4,7 @@
 
 NEXUS shows project stages, pictures and discussions in a private browser view. This public repository owns the server, browser views, stage 01–12 sources and frozen design tokens. The separately distributed **corthex-nexus hub plugin stays in [kodonghui/corthex](https://github.com/kodonghui/corthex/tree/main/plugins/corthex-nexus)** and is installed from its harness marketplace.
 
-The maintainer approved this repository split and the standalone-server plan on 2026-11-04. Work continues on `codex/nexus-0.2`; `main` imports the upstream 0.1 server. The 0.2 main merge and production switch remain release decisions. The implementation order is repository split → plans/contracts → standalone server → views → complete QA. Workers remain supported as a build/test and rollback route.
+The maintainer approved this repository split and the standalone-server plan on 2026-11-04. `main` now includes the 0.2 standalone server and browser implementation; further work goes through `codex/nexus-0.2`. Production selection and release tags follow the [conditional release decision](AGENTS.md) and its dated QA/WBS evidence. Consult the release and recovery records for the selected operating runtime. Workers retain build/test compatibility.
 
 ## Start here
 
@@ -18,4 +18,4 @@ The maintainer approved this repository split and the standalone-server plan on 
 
 Imported on **2026-11-04 KST** from `kodonghui/corthex`. Source main: `855bc6b463a4a5c57c949d1166b58db3915587c2`; source integration cut: `76508243558abaedcc15bb422c454341845fcabd`. The filtered tips are `93adb595f439e07e8a3476f3bd564105d034a5b6` and `23fb72a4a1bc003e18942cb48fb9d97c4f9b30b2`. [Commit map](docs/history/2026-11-04-commit-map.txt) and [branch map](docs/history/2026-11-04-branch-map.json) explain old QA/Notion SHAs. Historical PR/issue references remain qualified as `kodonghui/corthex#N`.
 
-No database, backup, credentials or real deployment coordinates belong in this repository. The first real project snapshot upload, production data/address switch, old Worker/D1 retirement and release tags still need the final release decision.
+Database files, backups, credentials and actual deployment coordinates stay outside this repository. The first real project snapshot upload and old Worker/D1 deletion require their separate confirmations. Keep the old Worker/D1 unchanged for at least14 days after cutover. After the new origin is exposed, regardless of whether a write has been observed, its full13-table database is authoritative: use a verified compatible0.2 runtime or a reviewed forward fix with a consistent latest backup. Returning to the old snapshot-only D1 alone is not a lossless rollback. See the [migration and recovery boundary](docs/12-qa/runs/2026-11-05-origin-recovery.md); production selection and tags follow the conditional release evidence above.
