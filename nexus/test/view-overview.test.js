@@ -20,16 +20,16 @@ class Element{
 function overview(){
  return{project:"qa-overview",part:"sample",stage:"05-erd",record:{state:"in_progress",checkpoints:[],next:"Review the stored record",updated:"2026-11-03T00:00:00.000Z",from:"repository"},read:true,source_state:"found",pictures:[],warnings:[],not_opened:0,checks:[{rule:"synthetic-check",message:"The stored check remains visible"}],comments:{total:0,entries:[]},discrepancies:{total:0,entries:[]},reflections:{total:0,entries:[]},checkpoints:[]};
 }
-function client(data,lang="en"){
+function client(data,lang="en",{post=async()=>({changed:true})}={}){
  const root=new Element("div"),body=new Element("body"),html=new Element("html"),location=new URL("https://nexus.example.com/overview/qa-overview/sample/05-erd");root.id="view";body.append(root);
  const document={documentElement:html,body,activeElement:body,createElement:tag=>new Element(tag),getElementById(id){if(id==="view")return root;if(id==="view-data")return null;return root.querySelectorAll("textarea").find(n=>n.id===id)||null;},addEventListener(){}};
  const values=new Map(),calls=[],storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)};let serial=0;
  class TestDrafts extends Drafts{constructor(){super({storage:()=>storage,makeId:()=>"nw_"+String(++serial).padStart(12,"0")});}}
- const sandbox={document,location,URL,URLSearchParams,AbortController,queueMicrotask,getComputedStyle:()=>({getPropertyValue:()=>"44px"}),matchMedia:()=>({matches:false,addEventListener(){}}),history:{state:null,replaceState(){},pushState(){},back(){}},ApiClient:class{async call(method,path,options){calls.push({method,path,...options});return method==="GET"?data:{changed:true};}},NexusProblem,Drafts:TestDrafts,PendingWrites,LatestReads,characters,words,stylesheetReady:async()=>true};sandbox.window={addEventListener(){}};
+ const sandbox={document,location,URL,URLSearchParams,AbortController,queueMicrotask,getComputedStyle:()=>({getPropertyValue:()=>"44px"}),matchMedia:()=>({matches:false,addEventListener(){}}),history:{state:null,replaceState(){},pushState(){},back(){}},ApiClient:class{async call(method,path,options){calls.push({method,path,...options});return method==="GET"?data:post(options);}},NexusProblem,Drafts:TestDrafts,PendingWrites,LatestReads,characters,words,stylesheetReady:async()=>true};sandbox.window={addEventListener(){}};
  const source=readFileSync(new URL("../ui/core.js",import.meta.url),"utf8").replace(/^import[^\n]*\r?\n/gm,"").replace("export function startView","function startView");
  runInNewContext(source+"\nglobalThis.checkedStartView=startView;",sandbox,{timeout:2000});
  const controller=sandbox.checkedStartView({schema:"corthex-view-page/0.2",view:"overview",lang,generated_at:"2026-11-03T00:00:00.000Z",data});
- return{root,calls,controller,cards:()=>root.querySelectorAll("section").filter(n=>n.querySelector("h2")),form:()=>root.querySelector("form")};
+ return{root,calls,values,controller,cards:()=>root.querySelectorAll("section").filter(n=>n.querySelector("h2")),form:()=>root.querySelector("form")};
 }
 const headings=lang=>lang==="ko"?["어긋남","의견","반영 대기"]:["Discrepancies","Comments","Pending reflections"];
 const lists=(d,lang)=>d.cards().filter(n=>headings(lang).some(h=>n.querySelector("h2").textContent.startsWith(h+" (")));
@@ -69,4 +69,14 @@ test("empty checks use the full screen-defined message in both empty and nonempt
   const d=client(data,lang),checks=d.cards().find(n=>n.querySelector("h2").textContent===(lang==="ko"?"점검":"Checks"));
   assert.equal(checks.querySelector("li").textContent,lang==="ko"?"점검에서 찾은 것이 없습니다.":"No checks found anything.");assert.equal(lists(d,lang).length,nonempty?3:0);assert.ok(d.form().querySelector("button"));d.controller.close();
  }
+});
+
+for(const code of["checkpoint_not_found","project_not_found"])for(const lang of["en","ko"])test(`${code} ${lang} withdrawal rereads overview and preserves action ID, checkpoint words and original trace`,async()=>{
+ const data=overview(),id="nk_aaaaaaaaaaaa";data.checkpoints=[{id,state:"passed",passed_at:"2026-11-05T00:00:00Z",words:"The synthetic checkpoint",recorded_commit:null}];
+ const d=client(data,lang,{post:async()=>{throw new NexusProblem(code,404,{traceId:"withdraw-trace"});}}),input=d.form().querySelector("textarea");input.value="Keep these unsent checkpoint words";input.listeners.input();
+ const passKey="nexus0.2:qa-overview:checkpoint:qa-overview/sample/05-erd",before=d.values.get(passKey),withdraw=d.root.querySelectorAll("button").find(b=>b.textContent===(lang==="ko"?"철회":"Withdraw"));
+ await withdraw.listeners.click();
+ assert.equal(d.calls.filter(c=>c.method==="POST").length,1);assert.equal(d.calls.filter(c=>c.method==="GET").length,1);assert.equal(d.calls.find(c=>c.method==="GET").path,"/api/spaces/qa-overview/overview/sample/05-erd");
+ assert.equal(d.form().querySelector("textarea").value,"Keep these unsent checkpoint words");assert.equal(d.values.get(passKey),before);assert.ok(d.root.textContent.includes("withdraw-trace"));
+ const sent=d.calls.find(c=>c.method==="POST");assert.equal(JSON.parse(d.values.get("nexus0.2:qa-overview:withdraw-checkpoint:"+id)).write,sent.write);d.controller.close();
 });

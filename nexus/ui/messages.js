@@ -284,6 +284,38 @@ export const messages={
     "Dismissed on {date}; its comment stays open. Withdrawn by the agent on {date}.",
     "{date}에 버림. 의견은 열린 채로 남습니다. {date}에 에이전트가 철회함."
   ],
+  "Reflection pending": [
+    "Accepted, not yet reflected.",
+    "받음, 아직 반영 전."
+  ],
+  "Reflection in review": [
+    "In review: {pull request}.",
+    "검토 중: {pull request}."
+  ],
+  "Reflection needs user": [
+    "The change no longer fits the stage source; the agent asks you on its comment.",
+    "단계 원본이 바뀌어 이 변경이 더는 맞지 않습니다. 에이전트가 의견에서 묻습니다."
+  ],
+  "Reflection by pull request": [
+    "Reflected by {pull request}.",
+    "{pull request}로 반영됨."
+  ],
+  "Reflection already in source": [
+    "Reflected: already in the stage source at commit {commit}.",
+    "반영됨: 커밋 {commit}의 단계 원본에 이미 있음."
+  ],
+  "Reflection dismissed": [
+    "The reflection was dismissed.",
+    "반영을 버렸습니다."
+  ],
+  "Proposal dismissed": [
+    "Dismissed on {date}; its comment stays open.",
+    "{date}에 버림. 의견은 열린 채로 남습니다."
+  ],
+  "Proposal withdrawn": [
+    "Withdrawn by the agent on {date}.",
+    "{date}에 에이전트가 철회함."
+  ],
   "Already dismissed": [
     "The reflection was already dismissed.",
     "이 반영은 이미 버려져 있었습니다."
@@ -379,6 +411,18 @@ export const messages={
   "Item panel": [
     "Proposals ({n}) · Comments ({n}) · Closed ({n}) · 1 reply · {n} replies",
     "제안 ({n}) · 의견 ({n}) · 닫힌 의견 ({n}) · 답글 {n}개"
+  ],
+  "One reply": [
+    "1 reply",
+    "답글 1개"
+  ],
+  "Reply count": [
+    "{n} replies",
+    "답글 {n}개"
+  ],
+  "Comment on": [
+    "Comment on {id}",
+    "{id}에 의견 남기기"
   ],
   "Back to the picture": [
     "Back to the picture",

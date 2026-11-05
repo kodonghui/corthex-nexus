@@ -94,10 +94,10 @@
       "/code/erd.efbe66b1.js",
       "/code/erd-chunk-1.76b5569b.js"
     ],
-    "view-js": "/code/view.bc173c92.js",
-    "view-css": "/code/view.8039cae9.css",
+    "view-js": "/code/view.0f58f8c3.js",
+    "view-css": "/code/view.cce5e116.css",
     "view-preload": [
-      "/code/view.bc173c92.js"
+      "/code/view.0f58f8c3.js"
     ],
     "font-preload": [
       "/code/editor-font-2.76945f09.woff2",
@@ -4076,26 +4076,26 @@
       "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
     },
     {
-      "name": "view.8039cae9.css",
-      "path": "view.8039cae9.css.txt",
+      "name": "view.cce5e116.css",
+      "path": "view.cce5e116.css.txt",
       "type": "text/css; charset=utf-8",
       "raw": 13307,
       "gzip": 3421,
       "payloadSha256": "1eefb2bb278e9912c343b3305559184dcb756476b89e38d5e7412cc0c1306f6f",
-      "graphDigest": "7f8fe2506da2c8c42a64b0337154a86e586011ad235cfb41c287b8b37781dfe5"
+      "graphDigest": "da85bb4ff78fdba8b6670ef7d57d2df87b63e14bb788da7cb42455fabb2973e3"
     },
     {
-      "name": "view.bc173c92.js",
-      "path": "view.bc173c92.js.txt",
+      "name": "view.0f58f8c3.js",
+      "path": "view.0f58f8c3.js.txt",
       "type": "text/javascript; charset=utf-8",
-      "raw": 76298,
-      "gzip": 25921,
-      "payloadSha256": "8aa346b5dc68cc2795baefca4190cb3449d49b1cbb8fa12dc712235ae7dfb3a1",
-      "graphDigest": "7f8fe2506da2c8c42a64b0337154a86e586011ad235cfb41c287b8b37781dfe5"
+      "raw": 81414,
+      "gzip": 27274,
+      "payloadSha256": "5a6d42448b10deba5182fef04b07b9d54a1ad3530769c27807a904866fc698c1",
+      "graphDigest": "da85bb4ff78fdba8b6670ef7d57d2df87b63e14bb788da7cb42455fabb2973e3"
     }
   ],
-  "totalRaw": 23502254,
-  "totalGzip": 16363984,
+  "totalRaw": 23507370,
+  "totalGzip": 16365337,
   "inputs": {
     "excalidraw": {
       "node_modules/react/cjs/react.production.min.js": {
@@ -25435,8 +25435,8 @@
         "sha256": "b7f45c2ff5649466d4e70fa7a076956d69443da550bf5a2a089cdd7d5573a680"
       },
       "nexus/ui/messages.js": {
-        "bytes": 18572,
-        "sha256": "10b2b4f7cd0578a42b99ab3b7668fbaa20466bcc423bac8a4eec79d2b398c138"
+        "bytes": 19854,
+        "sha256": "6c685014f7bac51cd9e4c4fc136b46793d57f701e34e595210e4c072d1c57fcd"
       },
       "nexus/src/preview.js": {
         "bytes": 9128,
@@ -25463,8 +25463,8 @@
         "sha256": "672b2aa659d7ae0fe1d3b1264822d3c25f5eda0465bb654c5c505950923b4aaf"
       },
       "nexus/ui/core.js": {
-        "bytes": 35066,
-        "sha256": "e733fea22af195f95de3598ae3bdf9df1d507e305934013491e2ecd085572d6b"
+        "bytes": 40451,
+        "sha256": "41703f20d2ff5d38d4489e3c557a61c05b1be87e156c6be024f12aca83012f4d"
       }
     }
   },
