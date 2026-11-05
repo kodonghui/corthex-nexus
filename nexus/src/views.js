@@ -6,7 +6,7 @@ export function createViews(code,entries){
   const cssFile=code[entries["view-css"]?.slice(6)],css=cssFile?(typeof cssFile.body==="string"?cssFile.body:new TextDecoder().decode(cssFile.body)):"";
   if(css&&(!cssFile.type.startsWith("text/css")||/<\/style\b/i.test(css)))throw new Error("Unsafe critical stylesheet");
   const link=(rel,href,extra="")=>`<link rel="${rel}" href="${href}"${extra}>`;
-  return{code,hints(payload){
+  return{code,refusalCSS:css,hints(payload){
     // Only immutable public bundle names; never project names or page data.
     if(payload.view!=="picture"||!payload.data?.picture)return"";
     return entries["view-js"]?`<${entries["view-js"]}>; rel=preload; as=script; crossorigin`:"";

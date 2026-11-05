@@ -1,7 +1,15 @@
 // Deterministic server/browser geometry. Source objects are never mutated.
 export const STEPS=Object.freeze(["1-b","2","3","4","5","6","7","8-a","8-b–9"]);
 export const MAX_PICTURE_NODES=20000,MAX_SOURCE_ITEMS=3000,MAX_PICTURE_WORK=200000,MAX_PICTURE_TEXT_WORK=1000000;
-export const itemIdentity=node=>node.id?"id:"+node.id:"text:"+node.text;
+export const itemIdentity=node=>node.id?"id:"+node.id:node.owner?"owner:"+JSON.stringify([node.owner,node.text]):"text:"+node.text;
+// An owner's declared ID is separate from a context's display name. Anonymous
+// contexts and ID-less tables/screens must not acquire an inferred trace ID.
+const inContext=context=>({context:context?.id||context?.name||"",owner:context?.id||""});
+export const commentTarget=item=>({item:item.id||item.owner||"",...(item.id?{}:{quote:Array.from(item.text).slice(0,300).join("")})});
+export function commentMatchesItem(item,comment){
+  const target=commentTarget(item);
+  return comment.item===target.item&&(Boolean(item.id)||comment.quote===target.quote);
+}
 class PictureLimit extends Error{constructor(reason,work,textWork=0){super("Picture complexity limit");this.reason=reason;this.work=work;this.textWork=textWork;}}
 export function stepIndex(key,source){return source.timeline?.length?Math.max(0,STEPS.indexOf(key)<0?8:STEPS.indexOf(key)):8;}
 const box=(key,text,x,y,{id="",context="",kind="item",where=null,width=220,height=100,...rest}={})=>({key,id,text:String(text),x,y,width,height,context,kind,where,...rest});
@@ -42,23 +50,23 @@ export function domainLayout(source,key){
     for(const [pi,place]of lane.places.entries())for(const [ei,name]of place.entries()){
       spend();
       const {c,r}=rowFor(name),ctx=c?.id||c?.name||"",x=720+pi*1000,y=laneY+ei*420,k=`event-${li}-${pi}-${ei}`;
-      add(box(k,name,x,y,{context:ctx,kind:"event",where:r?.where}));events.set(name,k);
+      add(box(k,name,x,y,{...inContext(c),kind:"event",where:r?.where}));events.set(name,k);
       if(!r)continue;placed.add(r);
       const title=text=>text,commandX=r.policy?x-550:x-270;
-      if(r.command){add(box(k+"-command",title(r.command),commandX,y,{context:ctx,kind:"command",where:r.where}),2);edges.push({from:k+"-command",to:k,text:""});}
-      if(r.given_by&&!r.policy)add(box(k+"-actor",title(r.given_by),x-270,y+120,{context:ctx,kind:"actor",height:65,where:r.where}),4);
-      if(r.aggregate){spend((source.aggregates||[]).length);const term=(source.aggregates||[]).find(a=>a.context===ctx&&a.name===r.aggregate);add(box(k+"-aggregate",title(r.aggregate),commandX,y-125,{context:ctx,id:term?.term||"",kind:"aggregate",where:term?.where||r.where,raw:term,removed:term?.removed}),5);}
-      if(r.policy&&r.given_by){add(box(k+"-policy",title(r.given_by),x-270,y,{context:ctx,kind:"policy",where:r.where}),7);edges.push({from:k+"-command",to:k+"-policy",text:""},{from:k+"-policy",to:k,text:""});}
-      if(r.read_model){spend((source.read_models||[]).length);const term=(source.read_models||[]).find(a=>a.context===ctx&&a.name===r.read_model);add(box(k+"-read",title(r.read_model),commandX-270,y+120,{context:ctx,id:term?.term||"",kind:"read-model",where:term?.where||r.where,raw:term,removed:term?.removed}),7);}
+      if(r.command){add(box(k+"-command",title(r.command),commandX,y,{...inContext(c),kind:"command",where:r.where}),2);edges.push({from:k+"-command",to:k,text:""});}
+      if(r.given_by&&!r.policy)add(box(k+"-actor",title(r.given_by),x-270,y+120,{...inContext(c),kind:"actor",height:65,where:r.where}),4);
+      if(r.aggregate){spend((source.aggregates||[]).length);const term=(source.aggregates||[]).find(a=>a.context===ctx&&a.name===r.aggregate);add(box(k+"-aggregate",title(r.aggregate),commandX,y-125,{...inContext(c),id:term?.term||"",kind:"aggregate",where:term?.where||r.where,raw:term,removed:term?.removed}),5);}
+      if(r.policy&&r.given_by){add(box(k+"-policy",title(r.given_by),x-270,y,{...inContext(c),kind:"policy",where:r.where}),7);edges.push({from:k+"-command",to:k+"-policy",text:""},{from:k+"-policy",to:k,text:""});}
+      if(r.read_model){spend((source.read_models||[]).length);const term=(source.read_models||[]).find(a=>a.context===ctx&&a.name===r.read_model);add(box(k+"-read",title(r.read_model),commandX-270,y+120,{...inContext(c),id:term?.term||"",kind:"read-model",where:term?.where||r.where,raw:term,removed:term?.removed}),7);}
     }laneY+=laneHeight;
   }
   if(whole)for(const [ci,c]of contexts.entries())for(const [ri,r]of c.rows.entries()){
     spend();
     if(placed.has(r))continue;const ctx=c.id||c.name,x=720+ri*1000,y=laneY+ci*540;
     spend(r.events.length);const names=[...r.events];if(!names.length)names.push(c.name);
-    for(const [i,name]of names.entries())add(box(`unplaced-${ci}-${ri}-${i}`,name,x,y+i*120,{context:ctx,kind:"event",where:r.where}));
-    if(r.command)add(box(`unplaced-command-${ci}-${ri}`,r.command,x-270,y,{context:ctx,kind:"command",where:r.where}));
-    if(r.given_by)add(box(`unplaced-actor-${ci}-${ri}`,r.given_by,x-540,y,{context:ctx,kind:r.policy?"policy":"actor",where:r.where}));
+    for(const [i,name]of names.entries())add(box(`unplaced-${ci}-${ri}-${i}`,name,x,y+i*120,{...inContext(c),kind:"event",where:r.where}));
+    if(r.command)add(box(`unplaced-command-${ci}-${ri}`,r.command,x-270,y,{...inContext(c),kind:"command",where:r.where}));
+    if(r.given_by)add(box(`unplaced-actor-${ci}-${ri}`,r.given_by,x-540,y,{...inContext(c),kind:r.policy?"policy":"actor",where:r.where}));
   }
   // External systems and hotspots belong beside the context's first event.
   const matchedTerms=new Map([["aggregate",new Map()],["read-model",new Map()]]);
@@ -66,14 +74,14 @@ export function domainLayout(source,key){
     spend();
     const ctx=c.id||c.name,first=contextNodes.get(ctx)?.[0],x=(first?.x||720)-650,y=first?.y||laneY+ci*540;
     if(!first&&!whole)continue;
-    if(c.external)add(box("external-"+ci,c.external,x,y-140,{context:ctx,kind:"external",where:c.where}),1);
-    for(const [hi,h]of(source.hotspots||[]).entries()){spend(h.contexts.length+1);if(h.contexts.includes(c.id))add(box(`hotspot-${ci}-${hi}`,h.text,x,y+hi*135,{context:ctx,kind:"hotspot",where:h.where,raw:h}),3);}
+    if(c.external)add(box("external-"+ci,c.external,x,y-140,{...inContext(c),kind:"external",where:c.where}),1);
+    for(const [hi,h]of(source.hotspots||[]).entries()){spend(h.contexts.length+1);if(h.contexts.includes(c.id))add(box(`hotspot-${ci}-${hi}`,h.text,x,y+hi*135,{...inContext(c),kind:"hotspot",where:h.where,raw:h}),3);}
     if(whole)for(const [kind,terms]of[["aggregate",source.aggregates||[]],["read-model",source.read_models||[]]])for(const [ti,t]of terms.entries()){
       spend();if(t.context!==ctx)continue;
       const byContext=matchedTerms.get(kind);let matches=byContext.get(ctx);if(!matches){matches={ids:new Set(),names:new Set()};byContext.set(ctx,matches);}
       if(matches.ids.has(t.term)||matches.names.has(t.name))continue;
       const found=nodes.some(n=>{spend();if(n.kind!==kind||n.context!==ctx)return false;const id=Boolean(n.id&&n.id===t.term),suffix=n.text.endsWith(t.name);if(id)matches.ids.add(t.term);if(suffix)matches.names.add(t.name);return id||suffix;});
-      if(!found)add(box(`term-${kind}-${ti}`,t.name,x+ti*260,y+300,{context:ctx,id:t.term||"",kind,where:t.where,raw:t,removed:t.removed}));
+      if(!found)add(box(`term-${kind}-${ti}`,t.name,x+ti*260,y+300,{...inContext(c),id:t.term||"",kind,where:t.where,raw:t,removed:t.removed}));
       // Only positive matches are cached: nodes are append-only and matching
       // keeps the existing nonempty-ID OR text-suffix semantics.
       if(!found){if(t.term)matches.ids.add(t.term);matches.names.add(t.name);}
@@ -89,17 +97,19 @@ export function domainLayout(source,key){
   spend(all.length+edges.length+contexts.length);return{nodes:all,edges:edges.filter(e=>keys.has(e.from)&&keys.has(e.to)),bounds:bounds(all),contexts:contexts.map(c=>c.id||c.name),step};
 }
 function limitedDomain(source,key,reason,work,textWork){
+  const contextIds=new Set((source.contexts||[]).map(c=>c.id).filter(Boolean));
+  const eventOwners=new Map();
   // Enumerate original source once, never the repeated timeline cross product.
   function* candidates(){
     let index=0;const item=(text,extra={})=>box("source-"+(index++),text,0,0,extra);
     for(const c of source.contexts||[]){
       const context=c.id||c.name;yield item([c.id,c.name,c.purpose].filter(Boolean).join("\n"),{id:c.id,context,kind:"context",where:c.where,raw:c});
-      if(c.external)yield item(c.external,{context,kind:"external",where:c.where});
-      for(const r of c.rows){for(const event of r.events)yield item(event,{context,kind:"event",where:r.where});for(const [field,kind]of[["command","command"],["given_by",r.policy?"policy":"actor"],["aggregate","aggregate"],["read_model","read-model"]])if(r[field])yield item(r[field],{context,kind,where:r.where});}
+      if(c.external)yield item(c.external,{...inContext(c),kind:"external",where:c.where});
+      for(const r of c.rows){for(const event of r.events){if(!eventOwners.has(event))eventOwners.set(event,inContext(c));yield item(event,{...inContext(c),kind:"event",where:r.where});}for(const [field,kind]of[["command","command"],["given_by",r.policy?"policy":"actor"],["aggregate","aggregate"],["read_model","read-model"]])if(r[field])yield item(r[field],{...inContext(c),kind,where:r.where});}
     }
-    for(const lane of source.timeline||[])for(const place of lane.places)for(const event of place)yield item(event,{kind:"event",where:lane.where});
-    for(const [field,kind]of[["aggregates","aggregate"],["read_models","read-model"]])for(const term of source[field]||[])yield item(term.name,{id:term.term,context:term.context,kind,where:term.where,raw:term});
-    for(const h of source.hotspots||[])yield item(h.text,{kind:"hotspot",context:h.contexts[0]||"",where:h.where,raw:h});
+    for(const lane of source.timeline||[])for(const place of lane.places)for(const event of place)yield item(event,{...eventOwners.get(event),kind:"event",where:lane.where});
+    for(const [field,kind]of[["aggregates","aggregate"],["read_models","read-model"]])for(const term of source[field]||[])yield item(term.name,{id:term.term,context:term.context,owner:contextIds.has(term.context)?term.context:"",kind,where:term.where,raw:term});
+    for(const h of source.hotspots||[])yield item(h.text,{kind:"hotspot",context:h.contexts[0]||"",owner:contextIds.has(h.contexts[0])?h.contexts[0]:"",where:h.where,raw:h});
   }
   const nodes=[],seen=new Set();let listLimited=false;
   for(const node of candidates()){const key=itemIdentity(node);if(seen.has(key))continue;seen.add(key);if(nodes.length>=MAX_SOURCE_ITEMS){listLimited=true;break;}nodes.push(node);}
@@ -108,7 +118,7 @@ function limitedDomain(source,key,reason,work,textWork){
 export function pictureLayout(source,stage,step){try{return stage==="01-domain"?domainLayout(source,step):stage==="05-erd"?erdLayout(source):sitemapLayout(source);}catch(error){if(!(error instanceof PictureLimit))throw error;return limitedDomain(source,step,error.reason,error.work,error.textWork);}}
 export function sceneItems(scene){const seen=new Set();return scene.nodes.filter(n=>{if(n.kind==="lane")return false;const key=itemIdentity(n);if(seen.has(key))return false;seen.add(key);return true;});}
 export function itemMarks(item,data){
-  const comments=(data.comments?.entries||[]).filter(c=>item.id?c.item===item.id:!c.item&&c.quote===item.text);
+  const comments=(data.comments?.entries||[]).filter(c=>commentMatchesItem(item,c));
   const proposals=(data.proposals||[]).filter(p=>item.id&&p.items.includes(item.id));
   const discrepancies=(data.discrepancies||[]).filter(d=>item.id&&(d.item===item.id||d.term===item.id)||!item.id&&d.item===item.text);
   const reflections=(data.reflections||[]).filter(e=>e.proposal?.items?.includes(item.id));

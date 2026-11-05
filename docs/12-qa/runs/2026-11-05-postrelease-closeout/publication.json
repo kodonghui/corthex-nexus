@@ -1,0 +1,126 @@
+{
+  "schema": "nexus-publication/1",
+  "textNormalization": "UTF-8 LF per repository gitattributes. Original private delivery/candidate hashes retain their original bytes; this mapping identifies published copies.",
+  "files": [
+    {
+      "file": "api-initial.json",
+      "retainedArtifactSha256": "172de51535abe4021d1a887d3d9d8d4cb3e3085109131dde0bf33f42c73aaf63",
+      "publishedLfSha256": "584e0013b9aec380037537c450bd74029721f7845c660afd00e5da306e2037a6",
+      "bytes": 4250
+    },
+    {
+      "file": "browser-cleanup.json",
+      "retainedArtifactSha256": "a895810f86f1cda3ab67cce5cd49cdd31dc9b8a841487fd8ad842da29b5f242e",
+      "publishedLfSha256": "98799e4910cb12d219fb0a57857fa1f1181b147eb8c8c091ce5487ef023eb885",
+      "bytes": 435
+    },
+    {
+      "file": "browser-summary.json",
+      "retainedArtifactSha256": "11c51a84c4579331b3e6305a0097fba0a56c21a14095db4261116f3e2dd4cf35",
+      "publishedLfSha256": "6702ea87189d4e02bba78b6a253ce4954e31fd2e9736a12f7c1b8ab2ea4f184b",
+      "bytes": 3696
+    },
+    {
+      "file": "browser-visual-review.json",
+      "retainedArtifactSha256": "cecbdef978ff774811d07a742ba05cf6084ac79ff61e896fea1b41ac12bf123e",
+      "publishedLfSha256": "c86250a7e071855f81ca22b1e7afedacd379506c97217816d4e6a6bad08abc43",
+      "bytes": 12532
+    },
+    {
+      "file": "browser.ko.md",
+      "retainedArtifactSha256": "1339230bcaf6cc3cd1dd90bb2617bd3e20a5e1843a3cc0a11d3a22806af1438f",
+      "publishedLfSha256": "7ccf30fcc2b1e4e87d2905764da80ce6aac879d7018c7856ec3181608a4c2663",
+      "bytes": 7444
+    },
+    {
+      "file": "browser.md",
+      "retainedArtifactSha256": "7a427c101aa9f33d01cb8da6b80fabe33f0c531fddbc17c22c924fe88faf8677",
+      "publishedLfSha256": "599b6246fba0579429b6b77956ce632669a9ce275ec8819110a18de4ac0a41be",
+      "bytes": 6840
+    },
+    {
+      "file": "candidate-final-v5.safe.json",
+      "retainedArtifactSha256": "849a700319360536f2f5fc7406c6f663eac430ef49e7d7b5c0d23cf88e530f70",
+      "publishedLfSha256": "6b93085879008de11f677e98d724d4a90c1f0aca008d8e4c6af768579ee756ea",
+      "bytes": 188458
+    },
+    {
+      "file": "case-verdict-suggestions.safe.json",
+      "retainedArtifactSha256": "943acd9dac68c2136618e18c29c0d5aaa6a9a9964ef9ea626cbe4a0bf04fa7f9",
+      "publishedLfSha256": "9506c2bf2afe935ebf1d13d329729879a34a2ffac9d48f4ba7cb79d161d2a6e0",
+      "bytes": 2411
+    },
+    {
+      "file": "codex-native-walk.ko.md",
+      "retainedArtifactSha256": "e16944c9d6f482ae0f3450432d821b7dac7a86e0257386d23d2e1a111f5c1d8a",
+      "publishedLfSha256": "e15a0f5fa057620be3aa5c1c0b0903bc7924158985c152e8331cafa02f0be2de",
+      "bytes": 3429
+    },
+    {
+      "file": "codex-native-walk.md",
+      "retainedArtifactSha256": "d87e2ddeff1371b9ee383c89895c779fbff7a29617b28816886ebb9abee05c72",
+      "publishedLfSha256": "c2e22fc1a090c35aa971c05de0616cb0e344d932f6ae0d24ded20fbe22f26774",
+      "bytes": 3412
+    },
+    {
+      "file": "figures/empty-overview-ko320-dark-v5.png",
+      "retainedArtifactSha256": "96d74818e5224e5f13683c08e6aa4d9e73ebefdb92e8625ce612dc859842ff52",
+      "publishedLfSha256": "96d74818e5224e5f13683c08e6aa4d9e73ebefdb92e8625ce612dc859842ff52",
+      "bytes": 27405
+    },
+    {
+      "file": "figures/gone-draft-ko320-dark.png",
+      "retainedArtifactSha256": "78bb65f9e7ab2be6b4ddcb2905c59395ce1098b76fa781ff9b7ea8e3aecd7458",
+      "publishedLfSha256": "78bb65f9e7ab2be6b4ddcb2905c59395ce1098b76fa781ff9b7ea8e3aecd7458",
+      "bytes": 32835
+    },
+    {
+      "file": "figures/offline-draft-en1440.png",
+      "retainedArtifactSha256": "a55db7aa537827b3b3ba483788678f4e027ee41610ca2e50dea9caa1ea4f2e86",
+      "publishedLfSha256": "a55db7aa537827b3b3ba483788678f4e027ee41610ca2e50dea9caa1ea4f2e86",
+      "bytes": 81380
+    },
+    {
+      "file": "figures/table-apart-id-en1440.png",
+      "retainedArtifactSha256": "5ffda37a0587b2629740e3ee7e7c68a0f540fa89e52dd3bc55663fbd9d994843",
+      "publishedLfSha256": "5ffda37a0587b2629740e3ee7e7c68a0f540fa89e52dd3bc55663fbd9d994843",
+      "bytes": 44697
+    },
+    {
+      "file": "figures.release.safe.json",
+      "retainedArtifactSha256": "ebdae80f5b8de9d7f8de798f160c348fbd6e67435bab33a1bbb4da8f53840166",
+      "publishedLfSha256": "84d43d61d98e71af011be55161e08d4147f199a024ca85145bc05d23e6ab53f1",
+      "bytes": 1689
+    },
+    {
+      "file": "pagecheck-classification.json",
+      "retainedArtifactSha256": "14db10488c606c60e5dd5dc0ded0dfa0ddb07c7f98e01506bb639fad8e7a5ac8",
+      "publishedLfSha256": "eb317b02f3d522a0e7c5f6c340e7e0a7938c82e0907541a5a40f3fce70610883",
+      "bytes": 4368
+    },
+    {
+      "file": "proof.json",
+      "retainedArtifactSha256": "717e0f73d03552b27ef86e1346876aa7b3a19f65a488aa52ff5a5f88c89699cb",
+      "publishedLfSha256": "717e0f73d03552b27ef86e1346876aa7b3a19f65a488aa52ff5a5f88c89699cb",
+      "bytes": 266982
+    },
+    {
+      "file": "remaining-43-exact-clauses.final.safe.json",
+      "retainedArtifactSha256": "2516bbf52af50dbee67808c83edf7fe8f70d74ae3a78dfd7f2d5ee87c425e56b",
+      "publishedLfSha256": "e17bf7477e339e7d2408a26ca1806b5df1c81aad6aac584a3cb06e205b3a301a",
+      "bytes": 48042
+    },
+    {
+      "file": "required-checks.json",
+      "retainedArtifactSha256": "d1f02f1e44d21f83aa608aa15d8aac6ffcbdc9a5ab05fd80aa261c4c4ce0883d",
+      "publishedLfSha256": "d1f02f1e44d21f83aa608aa15d8aac6ffcbdc9a5ab05fd80aa261c4c4ce0883d",
+      "bytes": 2885
+    },
+    {
+      "file": "summary.public-safe.json",
+      "retainedArtifactSha256": "cbc2a1f3e92e790a25afd6ebde833f7cacc6f25bde443972d0f507df56d8ed40",
+      "publishedLfSha256": "06fa8a7d897f33cb4cc49d9a9d8e23e973ac4927f23f2cae8a5f0b188f361f8e",
+      "bytes": 2190
+    }
+  ]
+}

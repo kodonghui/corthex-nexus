@@ -1,0 +1,118 @@
+{
+  "schema": "nexus-final-ui-browser-closeout/1",
+  "wholeCaseCandidateCounts": {
+    "pass": 5,
+    "partial": 43
+  },
+  "passIds": [
+    "TC-651",
+    "TC-682",
+    "TC-684",
+    "TC-1223",
+    "TC-1258"
+  ],
+  "screen45": {
+    "namedStateCells": 360,
+    "wholeCasePassCandidates": 2,
+    "partial": 43,
+    "originalKO320DarkStatesIndependentlyViewed": 45,
+    "originalFullPageChecks": 352,
+    "deliberatePendingCoreFullChecksNotRun": 8
+  },
+  "targetedFixes": {
+    "v2GoneFourBranches": {
+      "actualCells": 32,
+      "wholeCase1243": "partial"
+    },
+    "v2Readonly": {
+      "actualCells": 8,
+      "checkerErrors": 0,
+      "all8ScreenshotsReviewed": true
+    },
+    "v3BoundedGone": {
+      "actualCells": 8,
+      "all8ScreenshotsReviewed": true
+    },
+    "v3Literal651": {
+      "criterionPassed": true,
+      "all3ScreenshotsReviewed": true
+    },
+    "v3SearchEmpty1223": {
+      "prismCells": 8,
+      "actualCells": 8,
+      "all16PrimaryScreenshotsReviewed": true,
+      "actualOtherWordsAndNativeCloseCells": 8
+    },
+    "v4Empty1258": {
+      "prismCells": 8,
+      "actualAfterPrismCells": 8,
+      "all16PrimaryAnd8MobileLowerFilesReviewed": true,
+      "realPassWithdrawCells": 8,
+      "selectedWriteScreenshotsReviewed": 4,
+      "rawCheckerErrors": 0
+    },
+    "v4NonemptyRegression": {
+      "actualCells": 8,
+      "visualRepresentatives": 2
+    },
+    "v4UserRegression": {
+      "actualSteps": 11,
+      "exceptions": 0,
+      "selectedScreenshotsReviewed": 4
+    },
+    "v5Checks": {
+      "prismEmptyCells": 8,
+      "actualNormalCells": 8,
+      "actualEmptyCells": 8,
+      "exactENKOChecksTextPassed": true,
+      "defaultNoneForOtherListsPreserved": true,
+      "actualPassWithdrawCells": 8,
+      "all24PageChecksErrors": 0,
+      "visualFilesReviewed": 36
+    }
+  },
+  "prism": {
+    "version": "5.16.0",
+    "httpNamedResponsesPassed": 411,
+    "problemUIVariantsKO320Dark": 157,
+    "mockEvidenceDoesNotProveBackendRefusals": true
+  },
+  "retainedFailures": [
+    "Old DEV TC682 item empty",
+    "BUG565 refusal renderer",
+    "BUG566 screen-state label",
+    "BUG567 search metadata",
+    "BUG568 Gone comment/draft",
+    "BUG569 readonly contrast",
+    "BUG570 Apart ID",
+    "BUG571 empty lists",
+    "Initial v4 Prism startup stop0cells; retry succeeded, exact cause unconfirmed",
+    "BUG572 exact empty checks text",
+    "First v5 normal matcher had8 browser-evaluate regex tooling stops; corrected runner actual02 16/16 passed."
+  ],
+  "runtimeV4": {
+    "filesDigest": "1bad84007a2bdb228855eae99301e214479e09c3c775fcde3584d5814de00020",
+    "manifestSha256": "bc06a0e93eaac9fdcada7618abff631940655a210fd1fae193b384b736aa0dec",
+    "sizesSha256": "007e9ff2ec0fc728f374870a78f0297c7477fd283774b8c3705273a9b627814c",
+    "contractSha256": "a9589422a44766175cbe9c03b6223b3233c02b1db4915f14af0a6b1659422bdd"
+  },
+  "ownedProcessCountAtClose": 0,
+  "sharedDevReconfiguration": 0,
+  "productionWrites": 0,
+  "newDependencies": 0,
+  "productSourceWritesByTester": 0,
+  "notProven": [
+    "43 full original screen procedures and their listed subvariants",
+    "Genuine Cloudflare Access expiry/opaque redirect/provider429503 backend paths",
+    "A deployed EN/KO x320/1440 x light/dark matrix",
+    "A three-second performance criterion",
+    "All captured screenshots independently viewed"
+  ],
+  "runtimeV5": {
+    "filesDigest": "7b3de16f769bc90c53cb1d38c2cbccfb7336e4c8c89582ee93babb7c2f26685d",
+    "manifestSha256": "1d641b51c92c31c30a365122d569b0cfae9b3671d5c3ec42282ab31c83491d68",
+    "sizesSha256": "21f7ba71f24405beb6780aae418df927212a06f1c857739bc3da8fd55380d8b7",
+    "canonicalLF": true
+  },
+  "ownedNonShellProcessCountAtClose": 0
+}

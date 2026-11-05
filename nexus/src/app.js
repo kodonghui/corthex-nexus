@@ -6,6 +6,7 @@ import { Store } from "./store.js";
 import { preflight } from "./preflight.js";
 import { jsonBody } from "./body.js";
 import { COMMON_HEADERS, Problem, problemDocument, problemResponse } from "./problem.js";
+import {words} from "../ui/messages.js";
 
 export const MAX_PROJECTS = 30;
 const PLACEHOLDER = "__CORTHEX_HUB_DATA__";
@@ -97,17 +98,19 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
     }
   } catch(error) {
     const path=new URL(request.url).pathname;
-    if((path==="/"||path.startsWith("/pictures/")||path.startsWith("/overview/")) && /(?:^|[,;\s])text\/html(?:[,;\s]|$)/i.test(request.headers.get("Accept")||""))return refusalPage(request,env,error);
+    if((path==="/"||path.startsWith("/pictures/")||path.startsWith("/overview/")) && /(?:^|[,;\s])text\/html(?:[,;\s]|$)/i.test(request.headers.get("Accept")||""))return refusalPage(request,env,error,views);
     return problemResponse(request,error);
   }
 }
 
-function refusalPage(request,env,error) {
+function refusalPage(request,env,error,views) {
   const p=problemDocument(request,error),ko=lang(env)==="ko";
   console.error("nexus",{kind:p.code,traceId:p.traceId});
-  const messages={project_not_found:"이 프로젝트는 서버에 없습니다.",space_not_found:"아직 그림을 서버에 보내지 않았습니다.",part_not_found:"이 프로젝트에 없는 부분입니다.",picture_not_found:"이 단계와 부분의 그림이 아직 없습니다.",access_missing:"로그인을 확인하지 못했습니다.",access_other_app:"이 서버의 로그인으로 확인되지 않았습니다.",not_found:"페이지를 찾지 못했습니다.",method_not_allowed:"이 요청 방법으로 열 수 없습니다.",internal:"페이지를 불러오지 못했습니다."};
-  const message=ko?(messages[p.code]||"요청을 처리하지 못했습니다."):p.title;
-  const body=`<!doctype html><html lang="${ko?"ko":"en"}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NEXUS</title></head><body><main><h1>${escaped(message)}</h1><p>${ko?"확인 번호":"Trace ID"}: ${escaped(p.traceId)}</p><p><a href="">${ko?"다시 불러오기":"Load again"}</a> · <a href="/">${ko?"허브로":"Hub"}</a></p></main></body></html>`;
+  const language=ko?"ko":"en",message=words(p.code,language);
+  // The factory validates this already compiled, frozen stylesheet. A refusal
+  // must stay readable even when no browser code or stylesheet can be loaded.
+  const css=views.refusalCSS||"";
+  const body=`<!doctype html><html lang="${language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NEXUS</title>${css?`<style>${css}\n.refusal h1{word-break:keep-all;overflow-wrap:break-word}</style>`:""}</head><body><main class="content refusal"><h1>${escaped(message)}</h1><p class="meta">${escaped(words("Trace ID",language,{traceId:p.traceId}))}</p><p class="controls"><a class="control" href="">${ko?"다시 불러오기":"Load again"}</a><a class="control" href="/">${ko?"허브로":"Hub"}</a></p></main></body></html>`;
   return new Response(request.method==="HEAD"?null:body,{status:p.status,headers:{...COMMON_HEADERS,"Content-Type":"text/html; charset=utf-8","Content-Security-Policy":"default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",...(error instanceof Problem?error.headers:{})}});
 }
 

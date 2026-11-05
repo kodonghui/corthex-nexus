@@ -1,0 +1,97 @@
+{
+  "schema": "nexus-postrelease-check-summary/1",
+  "hubPin": "e30f7b1baa0dad68a267ff3b7453be36785f8da3",
+  "allLatestChecksPassed": true,
+  "python": {
+    "run": 13,
+    "passed": 13
+  },
+  "node": {
+    "run": 168,
+    "passed": 168
+  },
+  "workerBuild": "dry-run only",
+  "schemathesis": {
+    "operations": 32,
+    "examples": 154,
+    "checksPerExample": 5,
+    "failures": 0,
+    "identity": "generated RSA, actual local Node HTTP/SQLite"
+  },
+  "checks": [
+    {
+      "name": "python-unittest",
+      "exitCode": 0,
+      "seconds": 13.631,
+      "logSha256": "2a94cf82e1423992a9b7cc9926fc5807ace0e05ac216da56b0d5b22b32ce79c2"
+    },
+    {
+      "name": "node-tests",
+      "exitCode": 0,
+      "seconds": 2.633,
+      "logSha256": "98280103c37865343addeed722046350a5a61b406485f1efd10cc4fff6b64604"
+    },
+    {
+      "name": "worker-dry-run",
+      "exitCode": 0,
+      "seconds": 4.77,
+      "logSha256": "f547760bd8687ed54ae69abd1341ceef1b25b750da0eb23f7ee81240b230a269"
+    },
+    {
+      "name": "openapi-validator",
+      "exitCode": 0,
+      "seconds": 1.174,
+      "logSha256": "306f72d4ae8e55aa911454077b94ab08b05edd35722129904d7e9b6cbc6a7099"
+    },
+    {
+      "name": "contract_response_check",
+      "exitCode": 0,
+      "seconds": 2.27,
+      "logSha256": "01bacd53a802e953eca69df9612ecb4a7ddb1c2eb6dcacb8c3e23b36c58cbd03"
+    },
+    {
+      "name": "default_response_check",
+      "exitCode": 0,
+      "seconds": 0.66,
+      "logSha256": "0979c77625cbed8285e4941da14c7719c10bf1b0767a2e383caa738b4bc8d1f3"
+    },
+    {
+      "name": "hub_contract_check",
+      "exitCode": 0,
+      "seconds": 1.893,
+      "logSha256": "6bfe0115571cb99d212a81adf589a92acf0d9bad6e654d4ad8ff0f9880dd78f0"
+    },
+    {
+      "name": "contract_hooks_check",
+      "exitCode": 0,
+      "seconds": 1.851,
+      "logSha256": "70a0e53b2d553c0c14ea1ce27e4396742506b5fe84319527c86e54743535aa6d"
+    },
+    {
+      "name": "contract_sanitizer_check",
+      "exitCode": 0,
+      "seconds": 1.266,
+      "logSha256": "2a31ce892c887fc034f139cd5f292cff8deb08f169af2a2355c2bb9b29fe36c9"
+    },
+    {
+      "name": "standalone_contract_check",
+      "exitCode": 0,
+      "seconds": 17.741,
+      "logSha256": "5fd4dd2ae396e2ad3eca967c5c7a825d5b547ce1f23055e725072401cc34cfbf"
+    },
+    {
+      "name": "public-history",
+      "exitCode": 0,
+      "seconds": 7.75,
+      "logSha256": "5e9b25bc5a4225ba5c5e79609dec9d90a60c074151a547801eed0f5a5910db48"
+    }
+  ],
+  "historicalFailure": {
+    "run": "product-required-v1",
+    "check": "default_response_check",
+    "reason": "Test expected obsolete shortened HTML headings after BUG565 fixed source to exact stage08 wording. Corrected independent literal expectations; no runtime or contract changed.",
+    "retainedLogSha256": "c4487c5272654ba787dd965bf32f441eaef96dfe023ccd9534982a0cddb60a02"
+  },
+  "productionWrites": 0,
+  "deployments": 0
+}

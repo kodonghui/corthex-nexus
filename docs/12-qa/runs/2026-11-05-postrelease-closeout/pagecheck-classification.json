@@ -1,0 +1,162 @@
+{
+  "schema": "nexus-ui-raw-checker-triage/1",
+  "originalRun": "screen-matrix-01",
+  "originalRows": 360,
+  "originalFullPageChecks": 352,
+  "originalPendingNotRunJson": 4,
+  "originalHarnessStopsBeforeFollowup": 4,
+  "uniqueNamedStatesAfterFollowup": 360,
+  "fullPendingCoreChecksStillNotRun": 8,
+  "originalRawCounts": {
+    "error": 97,
+    "warn": 214,
+    "info": 263
+  },
+  "errorClassification": [
+    {
+      "count": 68,
+      "kind": "BUG565",
+      "resolution": "Fixed actual refusal renderer checked in all8 affected settings; original failures kept."
+    },
+    {
+      "count": 8,
+      "kind": "BUG569",
+      "resolution": "Fixed readonly style page-check0errors in all8 TC1240 settings, all8 screenshots independently reviewed."
+    },
+    {
+      "count": 15,
+      "kind": "checkbox input-only target measurement",
+      "resolution": "Actual effective label352x44 native outside-input click toggles16x16 control; raw errors retained."
+    },
+    {
+      "count": 6,
+      "kind": "Close content-box measurement",
+      "resolution": "Original TC1222 targeted an exact-ID shortcut and its corrected search remains separately retained. New KO320 TC1223/1224 Range geometry lies within the button with no scroll overflow; native Close works. Raw errors retained, not erased."
+    }
+  ],
+  "currentGeometry": [
+    {
+      "file": "final-v3-empty-actual-01/TC-1223-ko-320-light.observed.json",
+      "tc": "TC-1223",
+      "theme": "light",
+      "button": {
+        "x": 228,
+        "y": 256.875,
+        "width": 44,
+        "height": 44,
+        "top": 256.875,
+        "right": 272,
+        "bottom": 300.875,
+        "left": 228
+      },
+      "textRange": {
+        "x": 235,
+        "y": 268.25,
+        "width": 30,
+        "height": 20,
+        "top": 268.25,
+        "right": 265,
+        "bottom": 288.25,
+        "left": 235
+      },
+      "textRangeInsideButton": true,
+      "client": 42,
+      "scroll": 42
+    },
+    {
+      "file": "final-v3-empty-actual-01/TC-1223-ko-320-dark.observed.json",
+      "tc": "TC-1223",
+      "theme": "dark",
+      "button": {
+        "x": 228,
+        "y": 256.875,
+        "width": 44,
+        "height": 44,
+        "top": 256.875,
+        "right": 272,
+        "bottom": 300.875,
+        "left": 228
+      },
+      "textRange": {
+        "x": 235,
+        "y": 268.25,
+        "width": 30,
+        "height": 20,
+        "top": 268.25,
+        "right": 265,
+        "bottom": 288.25,
+        "left": 235
+      },
+      "textRangeInsideButton": true,
+      "client": 42,
+      "scroll": 42
+    },
+    {
+      "file": "screen-final-fixes-01/TC-1224-ko-320-light.observed.json",
+      "tc": "TC-1224",
+      "theme": "light",
+      "button": {
+        "x": 226.6875,
+        "y": 256.875,
+        "width": 45.3125,
+        "height": 44,
+        "top": 256.875,
+        "right": 272,
+        "bottom": 300.875,
+        "left": 226.6875
+      },
+      "textRange": {
+        "x": 234.34375,
+        "y": 268.25,
+        "width": 30,
+        "height": 20,
+        "top": 268.25,
+        "right": 264.34375,
+        "bottom": 288.25,
+        "left": 234.34375
+      },
+      "textRangeInsideButton": true,
+      "client": 43,
+      "scroll": 43
+    },
+    {
+      "file": "screen-final-fixes-01/TC-1224-ko-320-dark.observed.json",
+      "tc": "TC-1224",
+      "theme": "dark",
+      "button": {
+        "x": 226.6875,
+        "y": 256.875,
+        "width": 45.3125,
+        "height": 44,
+        "top": 256.875,
+        "right": 272,
+        "bottom": 300.875,
+        "left": 226.6875
+      },
+      "textRange": {
+        "x": 234.34375,
+        "y": 268.25,
+        "width": 30,
+        "height": 20,
+        "top": 268.25,
+        "right": 264.34375,
+        "bottom": 288.25,
+        "left": 234.34375
+      },
+      "textRangeInsideButton": true,
+      "client": 43,
+      "scroll": 43
+    }
+  ],
+  "checkboxEvidence": "final-v3-user-regression-01/report.safe.json#effectiveCheckboxTarget",
+  "nonBlockingImpressions": [
+    "EN320 Close wraps to two or three lines; all characters stay visible and native Close works.",
+    "Synthetic40-character commit runs wrap and may generate latin-split warnings."
+  ],
+  "notClaimed": [
+    "All360 full page-checks",
+    "All360 independent screenshot reviews",
+    "All45 whole-case passes",
+    "Real Cloudflare expiry or a deployed8-setting matrix"
+  ]
+}

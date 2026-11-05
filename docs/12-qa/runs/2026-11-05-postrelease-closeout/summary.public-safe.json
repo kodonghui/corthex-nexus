@@ -1,0 +1,69 @@
+{
+  "schema": "codex-native-closeout-summary/1",
+  "observedAtUtc": "2026-11-05T04:08:44.263042+00:00",
+  "installedCodexVersion": "0.166.0-alpha.6",
+  "frozenCoreRelease": "c0167339123dd0dc19e2e3c82cdc07231998e60b",
+  "productRuntime": "74f9e4504c5cbc85619cbe2ba269bcf6271d9fc3",
+  "readPolicyProbe": {
+    "works": true,
+    "sandbox": "read-only",
+    "cliExitCode": 0,
+    "seconds": 11.835880699999507,
+    "fixtureUnchanged": true,
+    "completedReadCommands": 1
+  },
+  "erdNativeWalk": {
+    "outerTimedOut": true,
+    "cliExitCode": 1,
+    "seconds": 180.93981690000055,
+    "nativeNewTableTermsRecordPatchVerified": true,
+    "sqlPassOutputLines": 5,
+    "sqlLimitOutputLines": 1,
+    "actualHubParserRecognizesTermsNone": true,
+    "inProgressNoCheckpoint": true,
+    "hostedPrCreated": false
+  },
+  "advancedDefaultWalk": {
+    "cliExitCode": 0,
+    "timedOut": false,
+    "seconds": 78.71944600000006,
+    "distinctStrictAncestorSetup": true,
+    "nativeHubHttpRequests": 0,
+    "blockedAction": "installed Python3.13 starts normal hub.py --help",
+    "observedBlocker": "Windows process-start AccessDenied",
+    "wholeTC630Passed": false
+  },
+  "nativeEventStats": {
+    "read": {
+      "nativeCommandStartedEvents": 1,
+      "nativeCommandCompletedEvents": 1,
+      "startedCommandsWithoutCompletedEvent": 0
+    },
+    "erd": {
+      "nativeCommandStartedEvents": 24,
+      "nativeCommandCompletedEvents": 24,
+      "startedCommandsWithoutCompletedEvent": 0
+    },
+    "advanced": {
+      "nativeCommandStartedEvents": 12,
+      "nativeCommandCompletedEvents": 12,
+      "startedCommandsWithoutCompletedEvent": 0
+    }
+  },
+  "ownedPeerCleanup": {
+    "peerStoppedAfterCleanupError": true,
+    "peerExit": 1,
+    "ownedModelReturned": true
+  },
+  "ownedPeerPortClosedObserved": true,
+  "globalSettingsOrRulesChangedByRunner": false,
+  "HOMEorCODEXHOMERepurposed": false,
+  "authFilesReadCopiedOrModifiedByRunner": false,
+  "productionWrites": 0,
+  "sharedDevelopmentWrites": 0,
+  "sourceOrNotionVerdictsChanged": false,
+  "newWholeTCCasePasses": 0,
+  "newWholeTCCaseFailures": 0,
+  "sourceFileChangesByModelConfinedToOwnedFixture": true,
+  "originalAttemptsPreserved": true
+}

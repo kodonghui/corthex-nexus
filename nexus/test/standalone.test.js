@@ -5,6 +5,8 @@ import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "n
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { request as httpRequest } from "node:http";
+import { createConnection } from "node:net";
+import { createHash } from "node:crypto";
 import { brotliDecompressSync, gunzipSync } from "node:zlib";
 import { AccessVerifier } from "../src/access.js";
 import { createNodeServer, publicOrigin } from "../src/node-server.js";
@@ -221,4 +223,67 @@ test("numeric metrics separate delayed body arrival from work after the body", a
   assert.ok(Object.values(metric).every((value) => Number.isFinite(value) && value >= 0));
   assert.equal(metric.request_bytes, 2); assert.equal(metric.body_complete, 1);
   assert.ok(metric.body_receive_ms >= 50); assert.ok(metric.after_body_ms < metric.processing_ms);
+});
+
+function logicalDatabase(db) {
+  const schema=db.connection.prepare("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name").all();
+  const rows=Object.fromEntries(schema.filter(row=>row.type==="table").map(row=>[row.name,db.connection.prepare('SELECT * FROM "'+row.name.replaceAll('"','""')+'"').all()]));
+  return createHash("sha256").update(JSON.stringify({schema,rows})).digest("hex");
+}
+async function bodyWire(server,body,{length=body.length,chunked=false,connection="close",end=true,jwt,headers={}}={}) {
+  jwt??=await token();
+  const started=performance.now();
+  return new Promise((resolve,reject)=>{
+    const req=httpRequest({host:"127.0.0.1",port:server.address().port,path:"/api/snapshots",method:"POST",agent:false,headers:{"Cf-Access-Jwt-Assertion":jwt,"Content-Type":"application/json",Connection:connection,...(chunked?{"Transfer-Encoding":"chunked"}:{"Content-Length":String(length)}),...headers}},res=>{
+      const chunks=[];res.on("data",chunk=>chunks.push(chunk));res.on("error",reject);
+      res.on("end",()=>{const bytes=Buffer.concat(chunks);resolve({status:res.statusCode,headers:res.headers,data:JSON.parse(bytes),bytes:bytes.length,elapsedMs:performance.now()-started});req.destroy();});
+    });
+    req.setTimeout(2000,()=>req.destroy(new Error("bounded TCP fixture did not receive its response")));
+    req.on("error",reject);
+    if(end)req.end(body);else{req.flushHeaders();if(body.length)req.write(body);}
+  });
+}
+test("BUG564: oversized fixed-length Connection:close returns the complete413 before socket teardown",async t=>{
+  const {server,db}=await fixture(t);await new Store(db).ensure();const before=logicalDatabase(db),body=Buffer.alloc(1048577,32),jwt=await token();
+  const errors=[],original=console.error;console.error=(...args)=>errors.push(args);t.after(()=>{console.error=original;});
+  for(const options of[{connection:"close"},{connection:"keep-alive"},{chunked:true}]){
+    const ray=(errors.length+1).toString(16).padStart(16,"0")+"-ICN",response=await bodyWire(server,body,{...options,jwt,headers:{"Cf-Ray":ray}});
+    assert.equal(response.status,413);assert.equal(response.data.code,"snapshot_too_large");assert.equal(response.data.limit,1048576);assert.equal(response.data.traceId,ray);
+    assert.equal(response.headers["cache-control"],"no-store");assert.equal(response.headers["x-frame-options"],"DENY");assert.equal(response.headers["content-security-policy"],"default-src 'none'; frame-ancestors 'none'");
+    assert.equal(errors.at(-1)[1].traceId,ray);assert.equal(errors.at(-1)[1].kind,"snapshot_too_large");assert.equal(logicalDatabase(db),before,"same refused request changes no catalog, row or receipt");
+  }
+});
+test("early refusals complete for unfinished, falsely huge and chunked uploads while a normal1MiB snapshot still works",async t=>{
+  const {server,db}=await fixture(t);await new Store(db).ensure();const before=logicalDatabase(db),jwt=await token();
+  for(const options of[{length:1048577},{length:1000000000000},{chunked:true}]){
+    const body=options.chunked?Buffer.alloc(1048577,32):Buffer.from("{}");
+    const response=await bodyWire(server,body,{...options,end:false,jwt});
+    assert.equal(response.status,413);assert.equal(response.data.code,"snapshot_too_large");assert.equal(Number(response.headers["content-length"]),response.bytes);assert.equal(logicalDatabase(db),before);
+    assert.ok(response.elapsedMs<1500,"the complete refusal does not wait for the unfinished upload or its30-second receive deadline");
+    t.diagnostic(JSON.stringify({scope:"synthetic unfinished upload; not a response-time SLO",declaredBytes:options.chunked?null:options.length,actualBytes:body.length,chunked:Boolean(options.chunked),clientRequestEnded:false,status:response.status,responseCompleteMs:response.elapsedMs}));
+  }
+  const oversized=Buffer.alloc(1048577,32);
+  for(const [options,code]of[[{jwt:"malformed"},"access_missing"],[{jwt,headers:{"Sec-Fetch-Site":"cross-site"}},"cross_site"]]){
+    const response=await bodyWire(server,oversized,options);assert.equal(response.status,403);assert.equal(response.data.code,code);assert.equal(logicalDatabase(db),before);
+  }
+  const json=JSON.stringify(example()),normal=Buffer.from(json+" ".repeat(1048576-Buffer.byteLength(json)));
+  const accepted=await bodyWire(server,normal,{jwt});assert.equal(accepted.status,200);assert.equal(accepted.data.name,"corthex");assert.equal(accepted.data.revision,1);db.check();
+});
+test("an unread oversized upload discards finitely and releases every socket by the existing receive deadline",async t=>{
+  const {server,db,metrics}=await fixture(t);await new Store(db).ensure();const before=logicalDatabase(db),jwt=await token(),sockets=new Set();
+  // Shorten the existing server property only in this disposable fixture.
+  // Production keeps its30-second receive deadline; there is no new setting.
+  server.requestTimeout=160;server.on("connection",socket=>{sockets.add(socket);socket.once("close",()=>sockets.delete(socket));});
+  const socket=createConnection({host:"127.0.0.1",port:server.address().port});t.after(()=>socket.destroy());
+  socket.on("error",()=>{});await new Promise(resolve=>socket.once("connect",resolve));socket.pause();
+  socket.write("POST /api/snapshots HTTP/1.1\r\nHost: nexus.example.com\r\nCf-Access-Jwt-Assertion: "+jwt+"\r\nContent-Type: application/json\r\nContent-Length: 1000000000000\r\nConnection: close\r\n\r\n");
+  for(let i=0;i<64;i++)socket.write(Buffer.alloc(65536,32));
+  const deadline=Date.now()+1500;while(sockets.size&&Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,20));
+  assert.equal(sockets.size,0,"the refusing server cannot retain a stalled or unread upload");assert.equal(await new Promise((resolve,reject)=>server.getConnections((error,n)=>error?reject(error):resolve(n))),0);
+  assert.equal(logicalDatabase(db),before);assert.equal(metrics.length,1);assert.equal(metrics[0].status,413);assert.ok(metrics[0].request_bytes<=2*1048576+2*65536,"discard stops after a finite budget plus an in-flight chunk");assert.ok(metrics[0].processing_ms<1400);socket.destroy();
+  // A client that aborts before finishing its advertised body also releases
+  // the server and preserves the database; no response is required to a gone peer.
+  const aborted=createConnection({host:"127.0.0.1",port:server.address().port});t.after(()=>aborted.destroy());aborted.on("error",()=>{});await new Promise(resolve=>aborted.once("connect",resolve));aborted.write("POST /api/snapshots HTTP/1.1\r\nHost: nexus.example.com\r\nContent-Length: 1048577\r\n\r\n{");aborted.destroy();
+  const stop=Date.now()+1500;while(sockets.size&&Date.now()<stop)await new Promise(resolve=>setTimeout(resolve,20));assert.equal(sockets.size,0);assert.equal(logicalDatabase(db),before);
+  t.diagnostic(JSON.stringify({scope:"synthetic unread/aborted upload and socket cleanup",testReceiveDeadlineMs:server.requestTimeout,productionReceiveDeadlineMs:30000,receivedBytes:metrics[0].request_bytes,processingMs:metrics[0].processing_ms,serverSocketsRemaining:sockets.size,dbUnchanged:logicalDatabase(db)===before}));
 });

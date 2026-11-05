@@ -38,24 +38,24 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 | TASK-203 | 설계 스키마로 옮기는 이주 2 | SPEC-114 | TBL-101–TBL-113 | TASK-202 | agent | M | 이주 결과와 nexus.sql의 표·열·키·색인·CHECK가 같으며 실패·동시 적용 뒤 부분 스키마가 남지 않습니다. | done (kodonghui/corthex#91) |
 | TASK-254 | 반영 보고를 구별할 메타데이터 보존 | SPEC-133 | TBL-109, API-126 | TASK-203 | agent | S | 변환 3이 스키마 2 데이터를 지키고 내부 마지막 보고만 더합니다. 쓰기 ID 만료 뒤에도 같은 PR의 closed 재보고와 유효하지 않은 첫 closed를 구별합니다. | done |
 | TASK-204 | 스냅샷 0.2와 그림 자료 검증 | SPEC-104, SPEC-105, SPEC-109, SPEC-110, SPEC-114 | API-105, TBL-114 | TASK-203 | agent | M | 두 스냅샷 판과 그림 자료의 형식·UTF-8·한도를 검사하고 모르는 스냅샷 필드는 보존하며 그림 자료는 따로 저장합니다. | done |
-| TASK-205 | 앞지른 밀기를 막고 보관 커밋 읽기 | SPEC-111, SPEC-112, SPEC-114, SPEC-117, SPEC-118, SPEC-140 | API-105, API-109, TBL-101–TBL-104, TBL-110 | TASK-204, TASK-206 | agent | L | API-105·109의 모든 응답, 겹친 밀기, 저장소 주소, 같은/이전 시각, 바뀌지 않은 그림과 확인 지점을 시험합니다. 앞질러진 밀기는 아무 행도 쓰지 않습니다. | in progress |
-| TASK-206 | 그림 짝짓기와 불일치 정리 | SPEC-120, SPEC-121 | TBL-103, TBL-104 | TASK-204 | agent | M | 다섯 불일치 유형, 삭제된 용어, 명시적 none·예외, 기다리는 그림, 다시 생긴 불일치와 열린 항목 1,000개 한도를 시험합니다. | in progress |
+| TASK-205 | 앞지른 밀기를 막고 보관 커밋 읽기 | SPEC-111, SPEC-112, SPEC-114, SPEC-117, SPEC-118, SPEC-140 | API-105, API-109, TBL-101–TBL-104, TBL-110 | TASK-204, TASK-206 | agent | L | API-105·109의 모든 응답, 겹친 밀기, 저장소 주소, 같은/이전 시각, 바뀌지 않은 그림과 확인 지점을 시험합니다. 앞질러진 밀기는 아무 행도 쓰지 않습니다. | done |
+| TASK-206 | 그림 짝짓기와 불일치 정리 | SPEC-120, SPEC-121 | TBL-103, TBL-104 | TASK-204 | agent | M | 다섯 불일치 유형, 삭제된 용어, 명시적 none·예외, 기다리는 그림, 다시 생긴 불일치와 열린 항목 1,000개 한도를 시험합니다. | done |
 | TASK-207 | 삭제 전 확인과 프로젝트 삭제 | SPEC-115 | API-108, API-110, TBL-101–TBL-112 | TASK-205 | agent | S | 모든 응답과 제한된 ID·합계를 확인하고 삭제 뒤 어떤 표에도 그 프로젝트 행이 남지 않습니다. | in progress |
-| TASK-208 | 공간·그림·개요·개별 항목 읽기 | SPEC-119, SPEC-123, SPEC-127, SPEC-130, SPEC-133, SPEC-138, SPEC-140 | API-106, API-107, API-111, API-112, API-114–API-117 | TASK-205 | agent | L | 모든 응답과 HEAD, 합계·순서·목록 한도를 확인합니다. 제안 원문은 개별 읽기에만 나옵니다. | in progress |
-| TASK-209 | Access 확인과 주소·역할별 요청 처리 | SPEC-113, SPEC-116 | API-101–API-132 | TASK-201 | agent | M | 실제 로그인 시험의 방법을 쓰고 앱·로그인 종류·주소·메서드·출처·세션 거절의 순서와 무변경을 확인합니다. | in progress |
-| TASK-210 | Problem Details와 안전한 추적 로그 | SPEC-113 | API-101–API-132 | TASK-209 | agent | S | 서버 오류 코드는 계약 목록과 같고 상태·추가 필드·안전한 detail·traceId가 맞습니다. 로그에는 종류와 traceId만 남습니다. | in progress |
-| TASK-211 | 항목·그림에 댓글 달기 | SPEC-126, SPEC-128 | API-118, TBL-105 | TASK-208, TASK-221 | agent | M | 모든 API-118 응답과 수용 기준, 없는 항목·인용문·그림 판·개수·UTF-8 글 바이트 한도를 시험합니다. | in progress |
+| TASK-208 | 공간·그림·개요·개별 항목 읽기 | SPEC-119, SPEC-123, SPEC-127, SPEC-130, SPEC-133, SPEC-138, SPEC-140 | API-106, API-107, API-111, API-112, API-114–API-117 | TASK-205 | agent | L | 모든 응답과 HEAD, 합계·순서·목록 한도를 확인합니다. 제안 원문은 개별 읽기에만 나옵니다. | done |
+| TASK-209 | Access 확인과 주소·역할별 요청 처리 | SPEC-113, SPEC-116 | API-101–API-132 | TASK-201 | agent | M | 실제 로그인 시험의 방법을 쓰고 앱·로그인 종류·주소·메서드·출처·세션 거절의 순서와 무변경을 확인합니다. | done |
+| TASK-210 | Problem Details와 안전한 추적 로그 | SPEC-113 | API-101–API-132 | TASK-209 | agent | S | 서버 오류 코드는 계약 목록과 같고 상태·추가 필드·안전한 detail·traceId가 맞습니다. 로그에는 종류와 traceId만 남습니다. | done |
+| TASK-211 | 항목·그림에 댓글 달기 | SPEC-126, SPEC-128 | API-118, TBL-105 | TASK-208, TASK-221 | agent | M | 모든 API-118 응답과 수용 기준, 없는 항목·인용문·그림 판·개수·UTF-8 글 바이트 한도를 시험합니다. | done |
 | TASK-212 | 답글·답함·결정 요청과 다시 열기 | SPEC-127, SPEC-128, SPEC-132 | API-119, API-120, TBL-105, TBL-106 | TASK-211 | agent | M | 모든 응답을 시험합니다. 사용자만 닫힌 댓글을 다시 열거나 결정을 요청하며 waits·dismissed·클레임 갱신이 맞습니다. | in progress |
 | TASK-213 | 결정 기록과 댓글 닫기 | SPEC-132 | API-121, TBL-105, TBL-107 | TASK-212 | agent | S | 모든 응답을 시험합니다. 에이전트가 사용자 결정을 안전한 HTTPS 링크로 기록하며 열린 댓글은 원자적으로 닫고 닫힌 댓글은 상태를 지킵니다. 세션에서 한 결정은 먼저 끝맺음 답글을 남길 필요가 없습니다. | in progress |
 | TASK-214 | 제안 만들기와 철회 | SPEC-130 | API-122, API-123, TBL-108 | TASK-211, TASK-221 | agent | M | 모든 응답에서 대상·새 항목·원문·한 답변 대상·한도·클레임·반복 철회를 확인합니다. | in progress |
 | TASK-215 | 제안 수락과 기각 | SPEC-131 | API-124, API-125, TBL-108, TBL-109 | TASK-214 | agent | M | 모든 응답에서 사용자 수락이 반영 하나만 만들고 한도가 원자적으로 적용되며 기각이 댓글의 기다림을 바꿉니다. | in progress |
 | TASK-216 | 반영 보고와 취소 | SPEC-133 | API-126, API-127, TBL-109 | TASK-215, TASK-254 | agent | M | 상태·사건·PR 조합별 응답과 반복 보고·다른 PR·needs-user·클레임 해제를 모두 시험합니다. | in progress |
-| TASK-217 | 순서가 있는 에이전트 할 일 읽기 | SPEC-135, SPEC-136, SPEC-140 | API-113 | TASK-208, TASK-216, TASK-220 | agent | M | 모든 응답, 묶음 순서·합계·기다림·mine/taken·검토 중 PR의 점유를 두 세션으로 확인합니다. | in progress |
+| TASK-217 | 순서가 있는 에이전트 할 일 읽기 | SPEC-135, SPEC-136, SPEC-140 | API-113 | TASK-208, TASK-216, TASK-220 | agent | M | 모든 응답, 묶음 순서·합계·기다림·mine/taken·검토 중 PR의 점유를 두 세션으로 확인합니다. | done |
 | TASK-218 | 세션별 클레임과 해제 | SPEC-136 | API-131, API-132, TBL-111 | TASK-221 | agent | M | 두 세션·기한·갱신·닫힌 항목·보고된 PR의 모든 응답을 확인하며 실패한 클레임은 outbox에 두지 않습니다. | in progress |
 | TASK-219 | 단계 확인 지점 통과와 철회 | SPEC-139 | API-128, API-129, TBL-110 | TASK-208, TASK-221 | agent | M | 모든 응답에서 기본 커밋 없음·없는 부분/단계·반복 철회·기록된 확인 지점을 확인합니다. | in progress |
 | TASK-220 | 확인 지점 기록 PR과 경고 | SPEC-140 | API-130, TBL-110 | TASK-219 | agent | M | 모든 보고 응답을 확인합니다. 검토 중 철회와 잘못 병합된 기록은 고칠 때까지 할 일과 checkpoint-withdrawn에 남습니다. | in progress |
-| TASK-221 | 7일 쓰기 기록과 원자적 재전송 | SPEC-126–SPEC-133, SPEC-136, SPEC-139, SPEC-140 | TBL-102, TBL-111, TBL-112 | TASK-203, TASK-209, TASK-210 | agent | L | 새 쓰기 ID와 클레임·상태·한도가 한 batch의 쓰기를 지킵니다. 재전송은 첫 상태/본문을 돌려주고 기한·동시 중복에도 한 번만 바뀝니다. | in progress |
-| TASK-222 | HTML 거절 화면과 안전한 코드 제공 | SPEC-113, SPEC-119, SPEC-138 | API-101–API-104 | TASK-209, TASK-210 | agent | M | 브라우저 Accept는 서버 언어의 한 장 HTML을 받고 API·코드는 Problem Details를 받습니다. 헤더·HEAD·내용 해시 캐시를 확인합니다. | in progress |
+| TASK-221 | 7일 쓰기 기록과 원자적 재전송 | SPEC-126–SPEC-133, SPEC-136, SPEC-139, SPEC-140 | TBL-102, TBL-111, TBL-112 | TASK-203, TASK-209, TASK-210 | agent | L | 새 쓰기 ID와 클레임·상태·한도가 한 batch의 쓰기를 지킵니다. 재전송은 첫 상태/본문을 돌려주고 기한·동시 중복에도 한 번만 바뀝니다. | done |
+| TASK-222 | HTML 거절 화면과 안전한 코드 제공 | SPEC-113, SPEC-119, SPEC-138 | API-101–API-104 | TASK-209, TASK-210 | agent | M | 브라우저 Accept는 서버 언어의 한 장 HTML을 받고 API·코드는 Problem Details를 받습니다. 헤더·HEAD·내용 해시 캐시를 확인합니다. | done |
 
 ## 먼저 하는 시험
 
@@ -84,10 +84,10 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 
 | ID | 작업 | 근거 | 건드리는 곳 | 선행 작업 | 담당 | 크기 | 끝났다고 볼 때 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-236 | 고정한 토큰으로 CSS 속성 만들기 | SPEC-119, SPEC-123, SPEC-138 | SCR-101, SCR-104–SCR-109 | none | agent | S | resolver 순서대로 기본과 테마를 적용합니다. 두 테마와 새 화면의 모든 색·길이를 덮고 대비를 다시 계산합니다. | in progress |
+| TASK-236 | 고정한 토큰으로 CSS 속성 만들기 | SPEC-119, SPEC-123, SPEC-138 | SCR-101, SCR-104–SCR-109 | none | agent | S | resolver 순서대로 기본과 테마를 적용합니다. 두 테마와 새 화면의 모든 색·길이를 덮고 대비를 다시 계산합니다. | done |
 | TASK-237 | 허브 페이지에 0.2 추가 | SPEC-123, SPEC-124, SPEC-125 | API-101, API-135, SCR-101, SCR-104 | TASK-236, TASK-208, TASK-230 | agent | M | 부분·그림·개수·기록 전/철회 확인 지점·ask_before·빈 서버가 각 상태대로 보입니다. 로컬은 오프라인이며 복사 HTML이 같습니다. | in progress |
 | TASK-238 | 읽기 전용 그림과 대체 항목 목록 | SPEC-119 | API-102, API-104, API-111, SCR-105 | TASK-224, TASK-236 | agent | L | Prism 상태로 그림 셋을 일정하게 그립니다. 편집기 실패에도 접근 가능한 목록과 크기 고정·이름 있는 표시가 남고 이동/확대가 틀 안에 있습니다. | in progress |
-| TASK-239 | DDD 보드의 다섯 스텝 | SPEC-141 | SCR-105 | TASK-238 | agent | M | 타임라인/맥락에서 다섯 배치를 만들고 처음/마지막·타임라인 없음·step 주소를 확인하며 배치를 저장하지 않습니다. | in progress |
+| TASK-239 | DDD 보드의 다섯 스텝 | SPEC-141 | SCR-105 | TASK-238 | agent | M | 타임라인/맥락에서 다섯 배치를 만들고 처음/마지막·타임라인 없음·step 주소를 확인하며 배치를 저장하지 않습니다. | done |
 | TASK-240 | 항목·댓글 패널 | SPEC-126, SPEC-127, SPEC-132 | API-114, API-118–API-120, SCR-106, SCR-107 | TASK-238, TASK-243 | agent | M | 모든 상태가 mock 응답을 따르고 주소로 패널을 열고 닫습니다. 두 폭에서 답글/다시 열기/결정 요청이 동작하며 제안 원문을 미리 읽지 않습니다. | in progress |
 | TASK-241 | 제안·반영 패널 | SPEC-130, SPEC-131, SPEC-133 | API-115, API-116, API-124, API-125, API-127, SCR-108 | TASK-238, TASK-243 | agent | M | 모든 제안/반영 상태와 뒤늦은 변경을 Prism으로 시험합니다. 수락/기각 뒤 다시 읽고 PR/반영 상태와 글을 안전하게 보여 줍니다. | in progress |
 | TASK-242 | 단계 개요와 확인 지점 | SPEC-138, SPEC-139, SPEC-140 | API-103, API-112, API-128, API-129, SCR-109 | TASK-236, TASK-243 | agent | M | 개요의 모든 상태, 기록된 상태와 기록 전 확인 지점, 철회·경고가 두 폭에서 계약을 따릅니다. | in progress |
@@ -97,22 +97,22 @@ CORTHEX 자신의 프로젝트 10단계입니다. 상태: 2026-11-04에 저장�
 
 | ID | 작업 | 근거 | 건드리는 곳 | 선행 작업 | 담당 | 크기 | 끝났다고 볼 때 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-244 | 입구·단계 스킬에서 에이전트 할 일 읽기 | SPEC-112, SPEC-135, SPEC-136 | REQ-181, REQ-185, plugins/corthex | C1 0.2.0 tag, PR C, PR D (kodonghui/corthex#83), TASK-235 | agent | M | 최신 main을 먼저 받습니다. 세션/프로젝트마다 한 번 할 일을 읽고 명시적 사용자 작업을 우선하며 토큰이 없어도 계속하고 클레임/PR 점유를 지킵니다. | in progress |
-| TASK-245 | 단계 기록·반영·타임라인 절차 | SPEC-106, SPEC-132, SPEC-133, SPEC-137, SPEC-140 | REQ-086, REQ-131, REQ-154, REQ-167, REQ-168, REQ-212 | TASK-244, TASK-231 | agent | M | 단계 참조·필요한 stage-contract·허브 단계 표·틀 시험을 함께 고칩니다. 작업/확인 지점을 PR로 기록하고 병합 전에 여전히 유효한지 확인합니다. | in progress |
-| TASK-246 | 프로젝트 parts·ask_before 문서 | SPEC-110, SPEC-137 | plugins/corthex, .corthex/project.json, TBL-115 | TASK-244 | agent | S | PR C 이후 부분/ask_before·사이트맵 term/status를 맞춥니다. 원본 분리에 따라 상위 memory/제품 nexus만 선언하고 검증된 MEMORY 상태와 미기록/미확인을 보존합니다. | in progress |
+| TASK-244 | 입구·단계 스킬에서 에이전트 할 일 읽기 | SPEC-112, SPEC-135, SPEC-136 | REQ-181, REQ-185, plugins/corthex | C1 0.2.0 tag, PR C, PR D (kodonghui/corthex#83), TASK-235 | agent | M | 최신 main을 먼저 받습니다. 세션/프로젝트마다 한 번 할 일을 읽고 명시적 사용자 작업을 우선하며 토큰이 없어도 계속하고 클레임/PR 점유를 지킵니다. | done |
+| TASK-245 | 단계 기록·반영·타임라인 절차 | SPEC-106, SPEC-132, SPEC-133, SPEC-137, SPEC-140 | REQ-086, REQ-131, REQ-154, REQ-167, REQ-168, REQ-212 | TASK-244, TASK-231 | agent | M | 단계 참조·필요한 stage-contract·허브 단계 표·틀 시험을 함께 고칩니다. 작업/확인 지점을 PR로 기록하고 병합 전에 여전히 유효한지 확인합니다. | done |
+| TASK-246 | 프로젝트 parts·ask_before 문서 | SPEC-110, SPEC-137 | plugins/corthex, .corthex/project.json, TBL-115 | TASK-244 | agent | S | PR C 이후 부분/ask_before·사이트맵 term/status를 맞춥니다. 원본 분리에 따라 상위 memory/제품 nexus만 선언하고 검증된 MEMORY 상태와 미기록/미확인을 보존합니다. | done |
 
 ## 통합
 
 | ID | 작업 | 근거 | 건드리는 곳 | 선행 작업 | 담당 | 크기 | 끝났다고 볼 때 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-247 | 버전·안내서·아키텍처 | SPEC-113, SPEC-137 | REQ-126, manifests, README pairs, NOTICE | TASK-245, TASK-246, TASK-237, TASK-242 | agent | M | NEXUS 0.2.0과 최신 main 다음 코어 판이 매니페스트·모든 스킬에서 같습니다. 두 언어 안내서에 개발·이주·서버 먼저 갱신을 쓰며 운영 배포/태그는 기다립니다. | in progress |
-| TASK-253 | 최신 main에 맞추고 출시 근거 넘기기 | SPEC-104–SPEC-141 | docs/10-wbs/nexus.md, docs/12-qa/nexus.md, draft PR | TASK-247, TASK-249, TASK-250, TASK-251, TASK-252 | agent | M | 작업·사례 원본과 Notion이 같고 최신 main 검사 트리를 적습니다. 2026-11-04 조건부 승인에 따라 모든 관문 통과 시 출시합니다. 남은 문제와 묶음 PR을 적고 저장소 첫 보내기는 REQ-107 확인을 받습니다. | in progress |
+| TASK-247 | 버전·안내서·아키텍처 | SPEC-113, SPEC-137 | REQ-126, manifests, README pairs, NOTICE | TASK-245, TASK-246, TASK-237, TASK-242 | agent | M | NEXUS 0.2.0과 최신 main 다음 코어 판이 매니페스트·모든 스킬에서 같습니다. 두 언어 안내서에 개발·이주·서버 먼저 갱신을 쓰며 운영 배포/태그는 기다립니다. | done |
+| TASK-253 | 최신 main에 맞추고 출시 근거 넘기기 | SPEC-104–SPEC-141 | docs/10-wbs/nexus.md, docs/12-qa/nexus.md, draft PR | TASK-247, TASK-249, TASK-250, TASK-251, TASK-252 | agent | M | 작업·사례 원본과 Notion이 같고 최신 main 검사 트리를 적습니다. 2026-11-04 조건부 승인에 따라 모든 관문 통과 시 출시합니다. 남은 문제와 묶음 PR을 적고 저장소 첫 보내기는 REQ-107 확인을 받습니다. | done |
 
 ## QA
 
 | ID | 작업 | 근거 | 건드리는 곳 | 선행 작업 | 담당 | 크기 | 끝났다고 볼 때 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-248 | 고정 판 계약 검사와 mock 실행 | SPEC-113–SPEC-140 | API-101–API-132 | TASK-222 | agent | M | 저장소 밖 고정 판 validator 0.7.1·Prism 5.16.0·Schemathesis 3.39.16과 쿠키/경로/헤더 hook을 씁니다. 개발 계약 시험은 커밋을 적고 mock만의 결과를 나눕니다. | in progress |
+| TASK-248 | 고정 판 계약 검사와 mock 실행 | SPEC-113–SPEC-140 | API-101–API-132 | TASK-222 | agent | M | 저장소 밖 고정 판 validator 0.7.1·Prism 5.16.0·Schemathesis 3.39.16과 쿠키/경로/헤더 hook을 씁니다. 개발 계약 시험은 커밋을 적고 mock만의 결과를 나눕니다. | done |
 | TASK-249 | 서버의 이름 붙은 응답 모두 보내기 | SPEC-104–SPEC-140 | API-101–API-132 | TASK-217, TASK-218, TASK-220, TASK-248 | agent | L | 가능한 모든 이름 붙은 예시를 개발 서버에서 보내 스키마·코드·데이터 효과를 확인합니다. default/internal의 mock 사례는 따로 셉니다. | in progress |
 | TASK-250 | 세 운영체제의 허브 명령 검증 | SPEC-104–SPEC-140 | API-133–API-150 | TASK-231, TASK-232, TASK-235 | agent | M | Windows/macOS/Linux에서 Python 3.8과 최신 판의 모든 명령 결과가 통과하며 네트워크/토큰 없는 시험의 격리가 유지됩니다. | done |
 | TASK-251 | 흐름과 모든 화면 상태 걷기 | SPEC-119, SPEC-123–SPEC-141 | FL-101–FL-114, SCR-101–SCR-109 | TASK-237, TASK-239, TASK-240, TASK-241, TASK-242, TASK-249 | agent | L | 브라우저 시험자가 역할·경로·커밋과 320/1440·두 테마/언어의 근거를 남깁니다. 페이지 검사와 이미지 확인을 나누고 작동한 경로를 CI e2e로 만듭니다. | in progress |
@@ -321,3 +321,7 @@ Root는 REQ-149/TC-1271/SPEC-119가 첫SVG와 편집기 준비를 구분하는�
 ## 2026-11-05: 실제 default 자체 그림 완료
 
 source overlay나 업로드 없이 남아 있던 실제 default의 로컬 자체 그림 조건을 확인해 TASK-252를 done으로 닫습니다. 현재64작업은27done/37in progress이며 다른63개 전체 행과 모든 원 비상태 열·이력은 유지합니다. [원본별 기록](../12-qa/runs/2026-11-05-own-main.ko.md)은 새 로컬 정적/메모리 근거와 기존 v8·코드 크기·과거 최대 밀기 기록을 구별합니다. QA710은524pass/186partial/0fail이며 운영 역할/화면이나 제품 전체 인수를 더하지 않았습니다. 첫 실제 저장소 전송과 기존 Worker/D1 삭제의 별도 확인은 남습니다.
+
+## 2026-11-05: 출시 뒤 인수 분류
+
+원진행37작업은 [단일 분류표](../12-qa/runs/2026-11-05-postrelease-closeout.ko.md)에17개 근거 있는 완료·20개 정확한 남은 인수로 정리했으며 이37개 안에 미구현 전체 작업은 없습니다. 원64행은44완료/20진행이고17개 상태 칸만 바꿨습니다. TASK-244~247·TASK-253을 포함합니다. 원완료 조건·ID·다른 열·이력은 보존했습니다. QA는626통과/84부분/0실패입니다. 2단계 FL-115/116은 시작하지 않았으며 운영 새 배포/전송·호스트 플러그인 갱신은 포함하지 않습니다.

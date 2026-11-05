@@ -8,6 +8,8 @@ import { problemResponse } from "./problem.js";
 import { codeVariants, compressedCode } from "./code-compression.js";
 import { compressedHTML } from "./html-compression.js";
 
+const RECEIVE_DEADLINE=30000,DISCARD_BYTES=2*1024*1024;
+
 function bodyStream(incoming, onBytes, onEnd) {
   let data, end, error;
   return new ReadableStream({
@@ -21,8 +23,28 @@ function bodyStream(incoming, onBytes, onEnd) {
     cancel() {
       incoming.removeListener("data", data).removeListener("end", end).removeListener("error", error);
       incoming.on("error", () => {});
-      incoming.resume();
+      incoming.pause();
     },
+  });
+}
+
+function finishEarlyRefusal(incoming,outgoing,{deadline,budget,onBytes,onEnd}) {
+  return new Promise(resolve=>{
+    let settled=false,timer;
+    const finish=(expired=false)=>{
+      if(settled)return;settled=true;clearTimeout(timer);
+      incoming.removeListener("data",data).removeListener("end",end).removeListener("error",closed).removeListener("aborted",closed).removeListener("close",closed);
+      outgoing.removeListener("close",closed).removeListener("error",closed);
+      if(expired)outgoing.destroy();
+      resolve();
+    };
+    const data=chunk=>{onBytes(chunk.length);budget-=chunk.length;if(budget<=0)incoming.pause();};
+    const end=()=>{onEnd();finish();},closed=()=>finish();
+    incoming.on("data",data).once("end",end).once("error",closed).once("aborted",closed).once("close",closed);
+    outgoing.once("close",closed).once("error",closed);
+    timer=setTimeout(()=>finish(true),Math.max(1,deadline-performance.now()));
+    if(incoming.complete||incoming.destroyed||outgoing.destroyed){finish();return;}
+    if(budget>0)incoming.resume();else incoming.pause();
   });
 }
 
@@ -37,7 +59,7 @@ export function publicOrigin(value) {
 export function createNodeServer({ env, origin, template, views = {}, verifier = new AccessVerifier({ requireContext: false }), onMetric } = {}) {
   const canonical = publicOrigin(origin);
   const variants = codeVariants(views.code);
-  const server = createServer({ maxHeaderSize: 32768, requestTimeout: 30000, headersTimeout: 15000 }, async (incoming, outgoing) => {
+  const server = createServer({ maxHeaderSize: 32768, requestTimeout: RECEIVE_DEADLINE, headersTimeout: 15000 }, async (incoming, outgoing) => {
     const started = performance.now();
     const cpuStart = onMetric ? process.cpuUsage() : null;
     let receivedBytes = 0;
@@ -61,14 +83,29 @@ export function createNodeServer({ env, origin, template, views = {}, verifier =
         responseHeaders.set("Vary", [responseHeaders.get("Vary"), "Accept-Encoding"].filter(Boolean).join(", "));
         await response.body?.cancel();
       }
+      // RFC9112§9.6: ending a close response while upload bytes are unread can
+      // reset the peer before its HTTP parser receives the error. Give this
+      // finite refusal an explicit length and write it before bounded discard.
+      // A normal client can read the whole response and close immediately even
+      // if its advertised upload never ends. An unread peer gets no new lease:
+      // discard has a byte ceiling and closure uses the existing receive deadline.
+      const earlyRefusal=reads&&response.status>=400&&!incoming.complete;
+      const refusalBody=earlyRefusal?(encoded?.body||Buffer.from(await response.arrayBuffer())):null;
+      if(earlyRefusal){responseHeaders.set("Content-Length",String(refusalBody.length));responseHeaders.set("Connection","close");responseHeaders.delete("Transfer-Encoding");}
       outgoing.writeHead(response.status, Object.fromEntries(responseHeaders));
-      if (encoded && request.method !== "HEAD") outgoing.write(encoded.body);
+      if(earlyRefusal){
+        outgoing.write(refusalBody);
+        const timeout=server.requestTimeout>0?server.requestTimeout:RECEIVE_DEADLINE;
+        await finishEarlyRefusal(incoming,outgoing,{deadline:started+timeout,budget:DISCARD_BYTES-receivedBytes,
+          onBytes:size=>{receivedBytes+=size;},onEnd:()=>{bodyEnded=performance.now();}});
+      }
+      else if (encoded && request.method !== "HEAD") outgoing.write(encoded.body);
       else if (!encoded && response.body) {
         for await (const chunk of response.body) {
           if (!outgoing.write(chunk)) await once(outgoing, "drain");
         }
       }
-      outgoing.end();
+      if(!outgoing.destroyed)outgoing.end();
       const completed = performance.now(), processing = completed - started;
       const cpu = cpuStart ? process.cpuUsage(cpuStart) : { user: 0, system: 0 };
       // Metrics contain numbers only: never URLs, identities, request headers,

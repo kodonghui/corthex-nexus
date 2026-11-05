@@ -95,7 +95,7 @@ test("HEAD, the protected code endpoint and browser refusals keep their distinct
   const unknown=await call("GET","/code/view.ffffffff.js",{views});assert.equal(unknown.data.code,"not_found");assert.equal(unknown.headers.get("Cache-Control"),"no-store");
   const denied=await call("GET","/code/"+code,{views,ctx:{}});assert.equal(denied.status,403);assert.equal(denied.headers.get("Cache-Control"),"no-store");
   const browser=await call("GET","/pictures/missing/_/05-erd",{headers:{Accept:"text/html"}});
-  assert.equal(browser.status,404);assert.equal(browser.headers.get("Content-Type"),"text/html; charset=utf-8");assert.match(browser.text,/이 프로젝트는 서버에 없습니다/);assert.match(browser.text,/확인 번호/);
+  assert.equal(browser.status,404);assert.equal(browser.headers.get("Content-Type"),"text/html; charset=utf-8");assert.match(browser.text,/이 프로젝트는 서버에 없습니다/);assert.match(browser.text,/추적 ID/);
   const api=await call("GET","/api/spaces/missing/todo",{headers:{Accept:"text/html"}});assert.equal(api.headers.get("Content-Type"),"application/problem+json");
 });
 

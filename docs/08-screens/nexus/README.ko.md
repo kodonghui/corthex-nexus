@@ -39,10 +39,12 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 08단계입니다: [사이트�
 6. **다시 읽기.** 쓰기 뒤 보기는 그 자료, 곧 그림(API-111)이나 현황(API-112)을, 열린 패널은 그 의견(API-114)이나 제안(API-115)을 다시 읽습니다. 그동안 "새로 읽는 중…"이 보이고 화면은 그대로 쓸 수 있습니다. 그린 그림보다 새 그림은 사용자 밑에서 다시 그리지 않고 권합니다(SCR-105#stale). 다시 읽기가 실패하면 화면은 보이던 것을 그대로 두고 "새로 읽지 못했습니다. 보이는 내용이 최신이 아닐 수 있습니다."와 다시 시도를 보입니다.
 7. **로그인.** 서버에서는 모든 페이지와 요청이 Cloudflare Access 뒤에 있고, 그 로그인 페이지와 거절은 Access 자신의 것으로 사이트맵 밖에 있습니다. 보기가 열린 동안 로그인이 끝나면 요청은 Access의 리다이렉트를 받고, 보기는 그것을 `opaqueredirect` 응답으로 보거나 `401`을 받습니다. 그러면 보기는 로그인이 끝났다고 알리고, 사용자가 쓴 것을 그대로 두며, 다시 로그인을 둡니다. 다시 로그인은 Access의 로그인을 거쳐 페이지를 다시 불러오고, 그 패널과 함께 같은 주소로 돌아옵니다.
 8. **연결.** 네트워크 없음, 30초 안에 답 없음, 또는 Cloudflare의 `429`나 `503`: [메시지](#메시지)의 그 메시지와 다시 시도가 있는 오류이며, 화면의 나머지는 그대로 돌고 사용자가 쓴 것은 남습니다.
-9. **페이지의 거절.** 세 페이지, 곧 허브 페이지(API-101), 그림 보기(API-102), 단계 현황(API-103)은 거절하거나 실패한 브라우저의 요청에 서버의 언어로 된 메시지 하나의 작은 HTML 페이지로 답하며, 거기에는 추적 ID, 다시 불러오기, 허브 페이지 링크가 있습니다([변경 1](#앞-단계의-변경)). 보기 자신의 자료는 `problem`에 Problem Details를 담습니다.
+9. **페이지의 거절.** 세 페이지, 곧 허브 페이지(API-101), 그림 보기(API-102), 단계 현황(API-103)은 거절하거나 실패한 브라우저의 요청에 서버의 언어로 된 메시지 하나의 작은 HTML 페이지로 답하며, 거기에는 추적 ID, 다시 불러오기, 허브 페이지 링크가 있습니다([변경 1](#앞-단계의-변경)). 생성된 코드 메시지를 빠짐없이 쓰고 기존 고정 보기 스타일의 시스템 밝은/어두운 테마, 읽기 쉬운 한국어 단어 줄바꿈과 목표 크기의 링크를 적용합니다. 이 페이지는 스크립트나 스타일시트를 요청하지 않습니다. 보기 자신의 자료는 `problem`에 Problem Details를 담습니다.
 10. **패널과 주소.** 항목, 의견, 제안의 패널은 `#` 뒤의 주소 `item=`, `comment=`, `proposal=`에서 곧바로, 휴대폰에서도 열립니다. 어느 항목도 담지 않는 부분은 자기 주소 없이 항목 패널을 엽니다([고른 것 12](#이-단계가-고른-것)). 포커스는 패널의 제목으로 옮겨 가고, Escape, 닫기, 브라우저의 뒤로 단추는 패널을 닫고 그림의 주소를 남깁니다. 허브 페이지는 1차의 주소, 곧 `q`, 그리고 `id`나 `s`가 붙은 `p`를 그대로 둡니다.
 11. **누구에게나 같음.** 화면은 그것을 보는 모든 사람, 곧 사용자와 Access가 들여보낸 다른 누구에게나 같은 것을 보입니다. 누가 무엇을 할 수 있는지는 요청의 로그인을 따릅니다: 제안을 받거나 버리기, 반영 버리기, 확인 지점을 통과시키거나 철회하기에는 사람 본인의 로그인이 필요하고(API-124, API-125, API-127\~API-129), 거절은 그 메시지를 보입니다. 어느 화면도 이메일 주소, 이름, 그 밖의 신원의 어떤 부분도 보이지 않습니다: 항목은 쓴 쪽의 종류 "사용자"나 "에이전트"를 보입니다(REQ-163, [고른 것 9](#이-단계가-고른-것)).
 12. **목록과 한도.** 읽기가 잘라 내는 목록은 "73개 중 50개"처럼 전체 가운데 몇 개를 담았는지 보입니다. 단계 현황은 저마다 50개를 늘어놓고, 500개를 늘어놓는 그림 보기로 잇습니다. 999를 넘는 수는 `999+`로 보입니다(SPEC-123).
+
+보내는 중 읽기 전용인 글상자도 기존 글을 포커스·선택·복사할 수 있으므로 원래 고정 글자/바탕색으로 읽을 수 있게 둡니다. 비활성 불투명도는 disabled 조작에만 씁니다.
 
 ## 응답과 상태
 
@@ -145,6 +147,9 @@ NEXUS가 단계의 기본값과 다른 곳: `401`은 서버가 아니라 Access�
 | 의견 없음 | SCR-106 | No comments on {id} yet. | {id}에는 아직 의견이 없습니다. |
 | 그림에 없음 | SCR-106 | {id} is not in this picture. | {id} 항목은 이 그림에 없습니다. |
 | ID 없음 | SCR-106 | No ID: comments on it are kept on the picture, with its name as the quote. | ID가 없어, 의견은 이 이름을 인용으로 붙여 그림에 남습니다. |
+| 항목 안의 부분 | SCR-106 | No ID of its own: comments are kept on {id}, with this name as the quote. | 자기 ID가 없어, 의견은 이 이름을 인용으로 붙여 {id}에 남습니다. |
+| 항목의 닫힌 의견 | SCR-106 | Closed on {id} | {id}의 닫힌 의견 |
+| 복구한 초안 | SCR-106 | An earlier picture draft was recovered. Its previous send may already be on the picture; check the comments before sending a new comment on {id}, with this name as the quote. | 이전 그림 초안을 복구했습니다. 이전 전송이 그림에 이미 남았을 수 있으니 의견을 확인한 뒤 보내세요. 새 의견은 이 이름을 인용으로 붙여 {id}에 남습니다. |
 | 의견의 상태 | SCR-107 | Waiting for the agent. Waiting for the user. Settled by the user, waiting for the agent's record. A proposal was dismissed. Closed as answered. Closed with a decision. | 에이전트를 기다림. 사용자를 기다림. 사용자가 정함, 에이전트의 기록을 기다림. 제안을 버림. 답이 나서 닫힘. 결정으로 닫힘. |
 | 답글 없음 | SCR-107 | No replies yet. | 아직 답글이 없습니다. |
 | 정함 | SCR-107 | This settles it | 이것으로 정함 |
@@ -157,6 +162,7 @@ NEXUS가 단계의 기본값과 다른 곳: `401`은 서버가 아니라 Access�
 | 앞 그림 | SCR-108 | Made on the picture of commit {commit}; the stage source may have changed since. | 커밋 {commit}의 그림에서 낸 제안입니다. 그 뒤 단계 원본이 바뀌었을 수 있습니다. |
 | 현황을 불러오는 중 | 코드가 돌기 전의 SCR-109 | Loading the stage overview. If it does not appear, load the page again. | 단계 현황을 불러오는 중입니다. 나타나지 않으면 페이지를 다시 불러와 주세요. |
 | 남은 것 없음 | SCR-109 | Nothing is left in this stage. | 이 단계에 남은 것이 없습니다. |
+| 점검 없음 | SCR-109 | No checks found anything. | 점검에서 찾은 것이 없습니다. |
 | 읽지 않는 단계 | SCR-109 | This project does not read this stage: {why}. You can still pass its checkpoint. | 이 프로젝트는 이 단계를 읽지 않습니다: {why}. 그래도 확인 지점은 통과시킬 수 있습니다. |
 | 기록을 기다림 | SCR-101, SCR-104, SCR-109 | Passed in NEXUS on {date}, waiting for its record | {date}에 NEXUS에서 통과, 기록을 기다림 |
 | 다시 통과 | SCR-109 | Pass again | 다시 통과 |
