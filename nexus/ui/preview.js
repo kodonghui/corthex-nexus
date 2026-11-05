@@ -1,5 +1,6 @@
 import {initialPictureView,previewSVG} from "../src/preview.js";
 import {itemMarks,itemIdentity} from "./layout.js";
+import {zoomCamera,fitCamera} from "./camera.js";
 
 // The first picture uses the same world coordinates as the pinned editor.
 export function mountPreview(target,scene,{data,lang,onSelect}){
@@ -9,10 +10,11 @@ export function mountPreview(target,scene,{data,lang,onSelect}){
   const svg=layer.querySelector("svg");svg.removeAttribute("style");
   svg.querySelector("[data-preview-static-marks]")?.remove();
   target.append(layer,marks);
-  let current=data,view=initialPictureView(scene,data,target.clientWidth,target.clientHeight,matchMedia("(min-width:1024px)").matches),down=null,destroyed=false;
+  const initial=initialPictureView(scene,data,target.clientWidth,target.clientHeight,matchMedia("(min-width:1024px)").matches);
+  let current=data,view=zoomCamera(initial,data.stage,initial.zoom,target.clientWidth,target.clientHeight),down=null,destroyed=false;
   const pointers=new Set();
   const bounds=nodes=>{const x=Math.min(...nodes.map(n=>n.x)),y=Math.min(...nodes.map(n=>n.y));return{x,y,width:Math.max(...nodes.map(n=>n.x+n.width))-x,height:Math.max(...nodes.map(n=>n.y+n.height))-y};};
-  function navigate(rect,whole=false){const zoom=Math.max(.1,Math.min(whole?1:1.2,(target.clientWidth-48)/Math.max(1,rect.width),(target.clientHeight-48)/Math.max(1,rect.height)));view={x:(target.clientWidth-rect.width*zoom)/2-rect.x*zoom,y:(target.clientHeight-rect.height*zoom)/2-rect.y*zoom,zoom};render();}
+  function navigate(rect,whole=false){view=fitCamera(rect,data.stage,target.clientWidth,target.clientHeight,whole);render();}
   function select(node,mark){if(mark.total===1&&mark.comments.length===1)onSelect("comment",mark.comments[0].id);else if(mark.total===1&&mark.proposals.length===1)onSelect("proposal",mark.proposals[0].id);else onSelect("item",node.id,node);}
   function render(){
     if(destroyed)return;
@@ -30,5 +32,5 @@ export function mountPreview(target,scene,{data,lang,onSelect}){
   function pointerEnd(event){pointers.delete(event.pointerId);if(!down||down.id!==event.pointerId)return;const selected=!down.moved&&event.type==="pointerup"&&scene.nodes.find(n=>n.key===down.node&&n.kind!=="lane");down=null;if(layer.hasPointerCapture(event.pointerId))layer.releasePointerCapture(event.pointerId);if(selected)onSelect("item",selected.id,selected);}
   layer.addEventListener("pointerdown",pointerDown);layer.addEventListener("pointermove",pointerMove);layer.addEventListener("pointerup",pointerEnd);layer.addEventListener("pointercancel",pointerEnd);
   const observer=new ResizeObserver(render);observer.observe(target);render();
-  return {view:()=>({...view,rects:scene.nodes}),update:value=>{current=value;render();},zoom:factor=>{const zoom=Math.max(.1,Math.min(5,view.zoom*factor)),cx=target.clientWidth/2,cy=target.clientHeight/2;view={x:cx-(cx-view.x)*zoom/view.zoom,y:cy-(cy-view.y)*zoom/view.zoom,zoom};render();},fit:()=>navigate(scene.bounds,true),focus:node=>navigate(node),destroy:()=>{destroyed=true;down=null;pointers.clear();observer.disconnect();layer.remove();marks.remove();}};
+  return {view:()=>({...view,rects:scene.nodes}),update:value=>{current=value;render();},zoom:factor=>{view=zoomCamera(view,data.stage,view.zoom*factor,target.clientWidth,target.clientHeight);render();},fit:()=>navigate(scene.bounds,true),focus:node=>navigate(node),destroy:()=>{destroyed=true;down=null;pointers.clear();observer.disconnect();layer.remove();marks.remove();}};
 }
