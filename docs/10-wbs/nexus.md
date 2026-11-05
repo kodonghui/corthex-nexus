@@ -12,7 +12,7 @@ Inputs: [functional spec](../04-functional-spec/nexus.md), [schema](../05-erd/ne
 
 A request task is done only when each response it lists has a passing test; development API evidence, mock UI evidence, automated page checks and visual review are reported separately. A task that awaits cross-OS/live evidence remains in progress. Every commit runs AGENTS.md checks. Each bundle targets the integration branch and merges only after all-checks and code/security reviews.
 
-Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) lists 710 cases from acceptance criteria, named responses, command outcomes, screen states and cross-cutting scenarios.
+Current plan: 64 tasks (S 7, M 47, L 10). The [QA plan](../12-qa/nexus.md) retains710 original cases from acceptance criteria, named responses, command outcomes, screen states and cross-cutting scenarios, plus seven distinct endpoint-specific examples from the0.2.1 applicability correction (717 current cases).
 
 ## Repository split and standalone server
 

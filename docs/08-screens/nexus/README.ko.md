@@ -158,6 +158,14 @@ NEXUS가 단계의 기본값과 다른 곳: `401`은 서버가 아니라 Access�
 | 불러오지 못함 | SCR-107, SCR-108 | Could not load this comment. Or: Could not load this proposal. | 이 의견을 불러오지 못했습니다. 또는: 이 제안을 불러오지 못했습니다. |
 | 반영의 상태 | SCR-108 | Accepted, not yet reflected. In review: {pull request}. The change no longer fits the stage source; the agent asks you on its comment. Reflected by {pull request}. Reflected: already in the stage source at commit {commit}. The reflection was dismissed. | 받음, 아직 반영 전. 검토 중: {pull request}. 단계 원본이 바뀌어 이 변경이 더는 맞지 않습니다. 에이전트가 의견에서 묻습니다. {pull request}로 반영됨. 반영됨: 커밋 {commit}의 단계 원본에 이미 있음. 반영을 버렸습니다. |
 | 버림, 철회됨 | SCR-108 | Dismissed on {date}; its comment stays open. Withdrawn by the agent on {date}. | {date}에 버림. 의견은 열린 채로 남습니다. {date}에 에이전트가 철회함. |
+| 반영 대기 | SCR-108 | Accepted, not yet reflected. | 받음, 아직 반영 전. |
+| 반영 검토 중 | SCR-108 | In review: {pull request}. | 검토 중: {pull request}. |
+| 사용자 확인이 필요한 반영 | SCR-108 | The change no longer fits the stage source; the agent asks you on its comment. | 단계 원본이 바뀌어 이 변경이 더는 맞지 않습니다. 에이전트가 의견에서 묻습니다. |
+| PR로 반영 | SCR-108 | Reflected by {pull request}. | {pull request}로 반영됨. |
+| 원본에 이미 반영 | SCR-108 | Reflected: already in the stage source at commit {commit}. | 반영됨: 커밋 {commit}의 단계 원본에 이미 있음. |
+| 반영 버림 | SCR-108 | The reflection was dismissed. | 반영을 버렸습니다. |
+| 제안 버림 | SCR-108 | Dismissed on {date}; its comment stays open. | {date}에 버림. 의견은 열린 채로 남습니다. |
+| 제안 철회 | SCR-108 | Withdrawn by the agent on {date}. | {date}에 에이전트가 철회함. |
 | 이미 버림 | SCR-108 | The reflection was already dismissed. | 이 반영은 이미 버려져 있었습니다. |
 | 앞 그림 | SCR-108 | Made on the picture of commit {commit}; the stage source may have changed since. | 커밋 {commit}의 그림에서 낸 제안입니다. 그 뒤 단계 원본이 바뀌었을 수 있습니다. |
 | 현황을 불러오는 중 | 코드가 돌기 전의 SCR-109 | Loading the stage overview. If it does not appear, load the page again. | 단계 현황을 불러오는 중입니다. 나타나지 않으면 페이지를 다시 불러와 주세요. |
@@ -193,6 +201,9 @@ NEXUS가 단계의 기본값과 다른 곳: `401`은 서버가 아니라 Access�
 | 표시의 설명 | SCR-105: 표시 설명의 이름 | Legend of the marks | 표시의 설명 |
 | 항목 목록 | SCR-105 | With marks ({n}) · The rest ({n}) · Part without an ID | 표시가 있는 것 ({n}) · 나머지 ({n}) · ID 없는 부분 |
 | 항목 패널 | SCR-106 | Proposals ({n}) · Comments ({n}) · Closed ({n}) · 1 reply · {n} replies | 제안 ({n}) · 의견 ({n}) · 닫힌 의견 ({n}) · 답글 {n}개 |
+| One reply | SCR-106, 의견 요약 | 1 reply | 답글 1개 |
+| Reply count | SCR-106, 의견 요약 | {n} replies | 답글 {n}개 |
+| Comment on | SCR-106, 의견 입력란 라벨 | Comment on {id} | {id}에 의견 남기기 |
 | 그림으로 돌아가기 | SCR-106, SCR-107, SCR-108, 그 항목·의견·제안이 없어졌을 때 | Back to the picture | 그림으로 돌아가기 |
 | 답글 불러오기 | SCR-107#loading, 화면 낭독기용 | Loading the replies… | 답글을 불러오는 중… |
 | 새 답글 | SCR-107#stale: 패널을 연 뒤에 온 답글 | New | 새 답글 |

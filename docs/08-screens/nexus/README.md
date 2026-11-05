@@ -158,6 +158,14 @@ No screen shows the other codes. `agent_only`, `claimed` and `comment_closed` re
 | Could not load | SCR-107, SCR-108 | Could not load this comment. Or: Could not load this proposal. | 이 의견을 불러오지 못했습니다. 또는: 이 제안을 불러오지 못했습니다. |
 | A reflection's state | SCR-108 | Accepted, not yet reflected. In review: {pull request}. The change no longer fits the stage source; the agent asks you on its comment. Reflected by {pull request}. Reflected: already in the stage source at commit {commit}. The reflection was dismissed. | 받음, 아직 반영 전. 검토 중: {pull request}. 단계 원본이 바뀌어 이 변경이 더는 맞지 않습니다. 에이전트가 의견에서 묻습니다. {pull request}로 반영됨. 반영됨: 커밋 {commit}의 단계 원본에 이미 있음. 반영을 버렸습니다. |
 | Dismissed, withdrawn | SCR-108 | Dismissed on {date}; its comment stays open. Withdrawn by the agent on {date}. | {date}에 버림. 의견은 열린 채로 남습니다. {date}에 에이전트가 철회함. |
+| Reflection pending | SCR-108 | Accepted, not yet reflected. | 받음, 아직 반영 전. |
+| Reflection in review | SCR-108 | In review: {pull request}. | 검토 중: {pull request}. |
+| Reflection needs user | SCR-108 | The change no longer fits the stage source; the agent asks you on its comment. | 단계 원본이 바뀌어 이 변경이 더는 맞지 않습니다. 에이전트가 의견에서 묻습니다. |
+| Reflection by pull request | SCR-108 | Reflected by {pull request}. | {pull request}로 반영됨. |
+| Reflection already in source | SCR-108 | Reflected: already in the stage source at commit {commit}. | 반영됨: 커밋 {commit}의 단계 원본에 이미 있음. |
+| Reflection dismissed | SCR-108 | The reflection was dismissed. | 반영을 버렸습니다. |
+| Proposal dismissed | SCR-108 | Dismissed on {date}; its comment stays open. | {date}에 버림. 의견은 열린 채로 남습니다. |
+| Proposal withdrawn | SCR-108 | Withdrawn by the agent on {date}. | {date}에 에이전트가 철회함. |
 | Already dismissed | SCR-108 | The reflection was already dismissed. | 이 반영은 이미 버려져 있었습니다. |
 | Earlier picture | SCR-108 | Made on the picture of commit {commit}; the stage source may have changed since. | 커밋 {commit}의 그림에서 낸 제안입니다. 그 뒤 단계 원본이 바뀌었을 수 있습니다. |
 | Loading the overview | SCR-109, before its code runs | Loading the stage overview. If it does not appear, load the page again. | 단계 현황을 불러오는 중입니다. 나타나지 않으면 페이지를 다시 불러와 주세요. |
@@ -193,6 +201,9 @@ The mockups of stage 09, in [direction A](../../09-mockup/nexus/README.md#the-ch
 | Legend | SCR-105: the legend's name | Legend of the marks | 표시의 설명 |
 | List of items | SCR-105 | With marks ({n}) · The rest ({n}) · Part without an ID | 표시가 있는 것 ({n}) · 나머지 ({n}) · ID 없는 부분 |
 | Item panel | SCR-106 | Proposals ({n}) · Comments ({n}) · Closed ({n}) · 1 reply · {n} replies | 제안 ({n}) · 의견 ({n}) · 닫힌 의견 ({n}) · 답글 {n}개 |
+| One reply | SCR-106, comment summary | 1 reply | 답글 1개 |
+| Reply count | SCR-106, comment summary | {n} replies | 답글 {n}개 |
+| Comment on | SCR-106, comment box label | Comment on {id} | {id}에 의견 남기기 |
 | Back to the picture | SCR-106, SCR-107 and SCR-108, when their item, comment or proposal is gone | Back to the picture | 그림으로 돌아가기 |
 | Loading the replies | SCR-107#loading, for screen readers | Loading the replies… | 답글을 불러오는 중… |
 | New reply | SCR-107#stale: a reply that came after the panel opened | New | 새 답글 |
