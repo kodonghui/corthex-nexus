@@ -1,0 +1,899 @@
+{
+  "schema": "nexus021-actual-example-replacements/1",
+  "sourceCommit": "e9d308fc9dd15afc94ab0550c5955025d65aa892",
+  "controls": [
+    {
+      "legacyCaseIds": [
+        "TC-908"
+      ],
+      "observationIndex": 2,
+      "actualStatus": 200,
+      "original400TextOrMissingSessionNotClaimed": true,
+      "requestBody": {
+        "text": ""
+      },
+      "userRequestHasNoNexusSession": false,
+      "response": {
+        "comment": {
+          "id": "nc_pqdad2cw1arq",
+          "state": "closed",
+          "closed_as": "answered",
+          "waits": null,
+          "last_at": "2026-11-05T09:41:13.025Z",
+          "settled": false,
+          "dismissed": false
+        },
+        "changed": true
+      },
+      "allEffectsLimitedToOwnedSyntheticEntities": true
+    },
+    {
+      "legacyCaseIds": [
+        "TC-971"
+      ],
+      "observationIndex": 4,
+      "actualStatus": 200,
+      "original400TextOrMissingSessionNotClaimed": true,
+      "requestBody": {
+        "text": ""
+      },
+      "userRequestHasNoNexusSession": false,
+      "response": {
+        "proposal": {
+          "id": "np_xgsm30wn3w7j",
+          "state": "withdrawn",
+          "closed_at": "2026-11-05T09:41:13.034Z"
+        },
+        "changed": true
+      },
+      "allEffectsLimitedToOwnedSyntheticEntities": true
+    },
+    {
+      "legacyCaseIds": [
+        "TC-986",
+        "TC-988"
+      ],
+      "observationIndex": 6,
+      "actualStatus": 200,
+      "original400TextOrMissingSessionNotClaimed": true,
+      "requestBody": {
+        "text": ""
+      },
+      "userRequestHasNoNexusSession": true,
+      "response": {
+        "proposal": {
+          "id": "np_k0p3w0hdmfsp",
+          "state": "accepted",
+          "closed_at": "2026-11-05T09:41:13.042Z"
+        },
+        "edit": {
+          "id": "ne_ewsn5j0w7d0v",
+          "part": "sample",
+          "stage": "05-erd",
+          "proposal": "np_k0p3w0hdmfsp",
+          "state": "pending",
+          "pull_request": null,
+          "closed_commit": null,
+          "made_at": "2026-11-05T09:41:13.042Z",
+          "changed_at": "2026-11-05T09:41:13.042Z",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "allEffectsLimitedToOwnedSyntheticEntities": true
+    },
+    {
+      "legacyCaseIds": [
+        "TC-1001",
+        "TC-1003"
+      ],
+      "observationIndex": 8,
+      "actualStatus": 200,
+      "original400TextOrMissingSessionNotClaimed": true,
+      "requestBody": {
+        "text": ""
+      },
+      "userRequestHasNoNexusSession": true,
+      "response": {
+        "proposal": {
+          "id": "np_j9xb8vr12qrz",
+          "state": "dismissed",
+          "closed_at": "2026-11-05T09:41:13.052Z"
+        },
+        "comment": null
+      },
+      "allEffectsLimitedToOwnedSyntheticEntities": true
+    },
+    {
+      "legacyCaseIds": [
+        "TC-1043",
+        "TC-1045"
+      ],
+      "observationIndex": 12,
+      "actualStatus": 200,
+      "original400TextOrMissingSessionNotClaimed": true,
+      "requestBody": {
+        "text": ""
+      },
+      "userRequestHasNoNexusSession": true,
+      "response": {
+        "edit": {
+          "id": "ne_4ag9fmz3d4dd",
+          "part": "sample",
+          "stage": "05-erd",
+          "proposal": "np_8rxb3vavwvvy",
+          "state": "dismissed",
+          "pull_request": null,
+          "closed_commit": null,
+          "made_at": "2026-11-05T09:41:13.062Z",
+          "changed_at": "2026-11-05T09:41:13.071Z",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "changed": true
+      },
+      "allEffectsLimitedToOwnedSyntheticEntities": true
+    },
+    {
+      "legacyCaseIds": [
+        "TC-1059"
+      ],
+      "observationIndex": 13,
+      "actualStatus": 201,
+      "original400TextOrMissingSessionNotClaimed": true,
+      "requestBody": {
+        "part": "sample",
+        "stage": "05-erd"
+      },
+      "userRequestHasNoNexusSession": true,
+      "response": {
+        "id": "nk_1sfktdb16n8p",
+        "part": "sample",
+        "stage": "05-erd",
+        "words": null,
+        "state": "passed",
+        "passed_at": "2026-11-05T09:41:13.075Z",
+        "withdrawn_at": null,
+        "pull_request": null,
+        "pr_state": null,
+        "recorded_commit": null,
+        "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "allEffectsLimitedToOwnedSyntheticEntities": true
+    },
+    {
+      "legacyCaseIds": [
+        "TC-1081",
+        "TC-1083"
+      ],
+      "observationIndex": 14,
+      "actualStatus": 200,
+      "original400TextOrMissingSessionNotClaimed": true,
+      "requestBody": {
+        "text": ""
+      },
+      "userRequestHasNoNexusSession": true,
+      "response": {
+        "checkpoint": {
+          "id": "nk_1sfktdb16n8p",
+          "part": "sample",
+          "stage": "05-erd",
+          "words": null,
+          "state": "withdrawn",
+          "passed_at": "2026-11-05T09:41:13.075Z",
+          "withdrawn_at": "2026-11-05T09:41:13.080Z",
+          "pull_request": null,
+          "pr_state": null,
+          "recorded_commit": null,
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "changed": true
+      },
+      "allEffectsLimitedToOwnedSyntheticEntities": true
+    }
+  ],
+  "controlRequests": 7,
+  "legacyNaRowsControlled": 11,
+  "replacements": [
+    {
+      "newDraftId": "API-122#413/reason-too-long",
+      "relatedLegacyCase": "TC-957",
+      "legacyVerdictRemainsNotApplicable": true,
+      "apiId": "API-122",
+      "exampleName": "reason-too-long",
+      "observationIndex": 16,
+      "method": "POST",
+      "path": "/api/spaces/qa-021-contract-examples/proposals",
+      "status": 413,
+      "code": "text_too_long",
+      "field": "reason",
+      "limit": 2000,
+      "request": {
+        "part": "sample",
+        "stage": "05-erd",
+        "items": [
+          "TBL-001"
+        ],
+        "reason": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+        "change": "No real source change"
+      },
+      "requestBodySha256": "e4d1aefcdf8ca24903be63f233933d1ec43e83053070f1cec419b725523b2022",
+      "response": {
+        "title": "The text is too long",
+        "status": 413,
+        "detail": "a text is too long",
+        "code": "text_too_long",
+        "traceId": "0000000000000011-ICN",
+        "error": "a text is too long",
+        "field": "reason",
+        "limit": 2000
+      },
+      "before": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "after": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "wholeDatabaseAndReceiptsUnchanged": true,
+      "newQaIdAssigned": false
+    },
+    {
+      "newDraftId": "API-126#400/invalid-body",
+      "relatedLegacyCase": "TC-1022",
+      "legacyVerdictRemainsNotApplicable": true,
+      "apiId": "API-126",
+      "exampleName": "invalid-body",
+      "observationIndex": 17,
+      "method": "POST",
+      "path": "/api/spaces/qa-021-contract-examples/edits/ne_ewsn5j0w7d0v/report",
+      "status": 400,
+      "code": "invalid_request",
+      "field": "body",
+      "limit": null,
+      "request": {
+        "event": "needs-user",
+        "text": ""
+      },
+      "requestBodySha256": "9b1018fbd97869f6eda7a7e8ce03dda68a9415c63dcee6761b8981bfc3086e71",
+      "response": {
+        "title": "The request is not valid",
+        "status": 400,
+        "detail": "the body is not in its required form",
+        "code": "invalid_request",
+        "traceId": "0000000000000012-ICN",
+        "error": "the body is not in its required form",
+        "field": "body"
+      },
+      "before": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "after": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "wholeDatabaseAndReceiptsUnchanged": true,
+      "newQaIdAssigned": false
+    },
+    {
+      "newDraftId": "API-126#413/pull-request-too-long",
+      "relatedLegacyCase": "TC-1036",
+      "legacyVerdictRemainsNotApplicable": true,
+      "apiId": "API-126",
+      "exampleName": "pull-request-too-long",
+      "observationIndex": 18,
+      "method": "POST",
+      "path": "/api/spaces/qa-021-contract-examples/edits/ne_ewsn5j0w7d0v/report",
+      "status": 413,
+      "code": "text_too_long",
+      "field": "pull_request",
+      "limit": 2000,
+      "request": {
+        "event": "opened",
+        "pull_request": "https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "requestBodySha256": "5f3bc97f6fb5e8a1539173a8da88a38dfc2bfdc313f0f6526a916a5ee3036726",
+      "response": {
+        "title": "The text is too long",
+        "status": 413,
+        "detail": "a text is too long",
+        "code": "text_too_long",
+        "traceId": "0000000000000013-ICN",
+        "error": "a text is too long",
+        "field": "pull_request",
+        "limit": 2000
+      },
+      "before": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "after": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "wholeDatabaseAndReceiptsUnchanged": true,
+      "newQaIdAssigned": false
+    },
+    {
+      "newDraftId": "API-128#400/invalid-body",
+      "relatedLegacyCase": "TC-1057",
+      "legacyVerdictRemainsNotApplicable": true,
+      "apiId": "API-128",
+      "exampleName": "invalid-body",
+      "observationIndex": 19,
+      "method": "POST",
+      "path": "/api/spaces/qa-021-contract-examples/checkpoints",
+      "status": 400,
+      "code": "invalid_request",
+      "field": "body",
+      "limit": null,
+      "request": {
+        "part": "sample",
+        "stage": "05-erd",
+        "text": ""
+      },
+      "requestBodySha256": "006bd2292eabc423313536f5f0204f669d0a45d855b3a793246e922c4785ac3e",
+      "response": {
+        "title": "The request is not valid",
+        "status": 400,
+        "detail": "the body is not in its required form",
+        "code": "invalid_request",
+        "traceId": "0000000000000014-ICN",
+        "error": "the body is not in its required form",
+        "field": "body"
+      },
+      "before": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "after": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "wholeDatabaseAndReceiptsUnchanged": true,
+      "newQaIdAssigned": false
+    },
+    {
+      "newDraftId": "API-128#413/words-too-long",
+      "relatedLegacyCase": "TC-1067",
+      "legacyVerdictRemainsNotApplicable": true,
+      "apiId": "API-128",
+      "exampleName": "words-too-long",
+      "observationIndex": 20,
+      "method": "POST",
+      "path": "/api/spaces/qa-021-contract-examples/checkpoints",
+      "status": 413,
+      "code": "text_too_long",
+      "field": "words",
+      "limit": 2000,
+      "request": {
+        "part": "sample",
+        "stage": "05-erd",
+        "words": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+      },
+      "requestBodySha256": "9f5600bf56e488e38b423f6cf4de2dbf1c5cab1e152e7b3c20b6def908747333",
+      "response": {
+        "title": "The text is too long",
+        "status": 413,
+        "detail": "a text is too long",
+        "code": "text_too_long",
+        "traceId": "0000000000000015-ICN",
+        "error": "a text is too long",
+        "field": "words",
+        "limit": 2000
+      },
+      "before": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "after": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "wholeDatabaseAndReceiptsUnchanged": true,
+      "newQaIdAssigned": false
+    },
+    {
+      "newDraftId": "API-130#400/invalid-body",
+      "relatedLegacyCase": "TC-1095",
+      "legacyVerdictRemainsNotApplicable": true,
+      "apiId": "API-130",
+      "exampleName": "invalid-body",
+      "observationIndex": 21,
+      "method": "POST",
+      "path": "/api/spaces/qa-021-contract-examples/checkpoints/nk_h7ck30r7xktm/report",
+      "status": 400,
+      "code": "invalid_request",
+      "field": "body",
+      "limit": null,
+      "request": {
+        "event": "opened",
+        "pull_request": "https://example.com/synthetic/repo/pull/1",
+        "text": ""
+      },
+      "requestBodySha256": "2bbb1853e71fc61451a2798ae97d9a9b9c9451150c44a77bd4680a543c9370b3",
+      "response": {
+        "title": "The request is not valid",
+        "status": 400,
+        "detail": "the body is not in its required form",
+        "code": "invalid_request",
+        "traceId": "0000000000000016-ICN",
+        "error": "the body is not in its required form",
+        "field": "body"
+      },
+      "before": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "after": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "wholeDatabaseAndReceiptsUnchanged": true,
+      "newQaIdAssigned": false
+    },
+    {
+      "newDraftId": "API-130#413/pull-request-too-long",
+      "relatedLegacyCase": "TC-1109",
+      "legacyVerdictRemainsNotApplicable": true,
+      "apiId": "API-130",
+      "exampleName": "pull-request-too-long",
+      "observationIndex": 22,
+      "method": "POST",
+      "path": "/api/spaces/qa-021-contract-examples/checkpoints/nk_h7ck30r7xktm/report",
+      "status": 413,
+      "code": "text_too_long",
+      "field": "pull_request",
+      "limit": 2000,
+      "request": {
+        "event": "opened",
+        "pull_request": "https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "requestBodySha256": "5f3bc97f6fb5e8a1539173a8da88a38dfc2bfdc313f0f6526a916a5ee3036726",
+      "response": {
+        "title": "The text is too long",
+        "status": 413,
+        "detail": "a text is too long",
+        "code": "text_too_long",
+        "traceId": "0000000000000017-ICN",
+        "error": "a text is too long",
+        "field": "pull_request",
+        "limit": 2000
+      },
+      "before": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "after": {
+        "schemaSha256": "fcbc72bc75201f2516cd04f315e192fe7ed2d05f3af65172400c206c01a08373",
+        "logicalSha256": "00dbe33c7b1c14f4cdb36f9516290c9ea5c354af1133a38f5c104c49a6a3f7fd",
+        "counts": {
+          "checkpoints": 2,
+          "claims": 0,
+          "comments": 1,
+          "decisions": 0,
+          "discrepancies": 0,
+          "edits": 2,
+          "migrations": 3,
+          "pictures": 3,
+          "project_spaces": 1,
+          "proposals": 4,
+          "replies": 0,
+          "snapshots": 1,
+          "writes": 15
+        },
+        "tableSha256": {
+          "checkpoints": "578b42b41ba7ad845e680faf211055856326be02ceb8d3f0a21dde69bb96b5af",
+          "claims": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "comments": "08facf748a5d8e18cb9b90a4e82dac7b669fb7123d35b53eb5e041b9cbc7221a",
+          "decisions": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "discrepancies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "edits": "d53b02719bcede775fdbbaa10336c3a7931df3b2af71f7a0c690dcf352e49f37",
+          "migrations": "54752948d63b796a9d6c90a4f216dffe3e8ad639a0eb31f666da0a5a33e4cdde",
+          "pictures": "7dbdc1f9bac589a059431c63860988762449d2aba838b1ee4c6efdb60490716e",
+          "project_spaces": "6ad03ef242f52af09b4b212770ac8a2ce336de4ef925085d83b8bc50032da657",
+          "proposals": "c01c7bd2aa7ee97f69eafb8557c75f1b9cb933b0317c32eb76530c74e7741955",
+          "replies": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "snapshots": "671e4b4660794dde72cd880d5bf0bdc82cd3259461ae5f9ef726b89ff9c5ea7d",
+          "writes": "33ea8498d4ee617444096c5451c652be2eac1e71b30ff8f444d6fd096b41c28d"
+        }
+      },
+      "wholeDatabaseAndReceiptsUnchanged": true,
+      "newQaIdAssigned": false
+    }
+  ],
+  "newReplacementRequests": 7,
+  "scope": "actual owned loopback Node HTTP/production SQLite adapter/generated RS256 identity. Legacy18 are N/A, never upgraded to pass. Seven distinct corrected examples are separate requests, not seven of411 legacy responses accepted. No shared development/production/repository/account actions.",
+  "schemaOrRuntimeEdits": 0,
+  "externalHttpRequests": 0
+}

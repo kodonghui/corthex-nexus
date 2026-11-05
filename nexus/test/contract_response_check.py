@@ -11,6 +11,8 @@ from pathlib import Path
 import jsonschema
 import yaml
 
+from contract_example_check import check_response_example_applicability
+
 root = Path(__file__).resolve().parents[2]
 program = None
 for folder in os.environ.get("PATH", "").split(os.pathsep):
@@ -29,6 +31,10 @@ if run.returncode:
     raise SystemExit("the offline actual-handler corpus failed; inspect its synthetic fixture locally")
 cases = json.loads(run.stdout.decode("utf8"))
 api = yaml.safe_load((root / "docs/06-api/nexus.openapi.yaml").read_text(encoding="utf8"))
+applicability = check_response_example_applicability(api)
+if applicability["findings"]:
+    print(json.dumps(applicability))
+    raise SystemExit("named response examples do not fit the operation's inputs")
 for case in cases:
     validator = jsonschema.Draft202012Validator(api["components"]["schemas"][case["schema"]],
         resolver=jsonschema.RefResolver.from_schema(api), format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER)
