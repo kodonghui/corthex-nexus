@@ -1,0 +1,11 @@
+{
+  "schema": "nexus-owned-ui-process-closeout/2",
+  "observedAtUtc": "2026-11-05T06:22:57.8417942Z",
+  "scope": "Processes naming this tester UI artifact subtree; current shell and shell wrappers excluded. No unrelated command lines emitted",
+  "ownedNonShellProcessCount": 0,
+  "ownedChromeNodeCount": 0,
+  "ownedChromeCount": 0,
+  "ownedNodeCount": 0,
+  "processActions": 0,
+  "profileDirectoriesRetainedForPrivateEvidence": true
+}

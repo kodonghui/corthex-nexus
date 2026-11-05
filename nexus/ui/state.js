@@ -64,6 +64,12 @@ export class Drafts {
     try {return this.storage()?.[method](...args)??null;}
     catch {this.storageAvailable=false;return null;}
   }
+  has(scope) {
+    const key=this.key(scope);
+    if(this.memory.has(key))return true;
+    try {const value=JSON.parse(this.access("getItem",key));return typeof value?.text==="string"&&WRITE.test(value.write||"")&&typeof value.settles==="boolean";}
+    catch {return false;}
+  }
   read(scope) {
     const key=this.key(scope),raw=this.access("getItem",key);
     if(raw!==null)try {

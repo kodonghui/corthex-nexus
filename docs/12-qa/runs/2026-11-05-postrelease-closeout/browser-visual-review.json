@@ -1,0 +1,233 @@
+{
+  "schema": "nexus-final-v5-independent-visual-review/1",
+  "runtime": "runtime-final-checks-v5",
+  "sourceDigest": "7b3de16f769bc90c53cb1d38c2cbccfb7336e4c8c89582ee93babb7c2f26685d",
+  "reviewedFileCount": 36,
+  "primaryEmptyStateFiles": 16,
+  "mobileLowerControlFiles": 8,
+  "normalChecksMessageFiles": 8,
+  "selectedWriteActionFiles": 4,
+  "reviewed": [
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-en-320-light.png",
+      "sha256": "52f042ddbc38d837c3cd6856e9b20f6526c17d4105dae05450f1aec94c208fda",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-en-320-dark.png",
+      "sha256": "337253653ca07976aae50ee8fe20c1dbfd344ad64195ed137682289d6f329d84",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-en-1440-light.png",
+      "sha256": "18812d6ab77aa8c2fe5245c8b1abfd8e74ef05b1b6a360c5779841675e0a4eda",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-en-1440-dark.png",
+      "sha256": "7a214e76eafd5df5b95b3a3ad6244b50fd9e446d182db58d52046a5d2a28bf4a",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-ko-320-light.png",
+      "sha256": "00bb6b4464f54ee04d96a078d5292be14611c8fb3ee08d5122a0c30298b0dec2",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-ko-320-dark.png",
+      "sha256": "aedb6faf204d022e82c1df39ce50ebb37110199ca812eaec8d2befa206529bed",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-ko-1440-light.png",
+      "sha256": "0cb4d530ce6840bbd1dcc3f115da50acba82a8b635d3a925ea6c97eabe5bc493",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-ko-1440-dark.png",
+      "sha256": "f17a47ec4c4162b5d08527e8d55f0fd7e786467b76f7603e038b54822931cc63",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-en-320-light-lower-controls.png",
+      "sha256": "52f042ddbc38d837c3cd6856e9b20f6526c17d4105dae05450f1aec94c208fda",
+      "scope": "Mobile lower controls; exact checks text and enabled Pass visible. Some primary/lower files have identical bytes.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-en-320-dark-lower-controls.png",
+      "sha256": "337253653ca07976aae50ee8fe20c1dbfd344ad64195ed137682289d6f329d84",
+      "scope": "Mobile lower controls; exact checks text and enabled Pass visible. Some primary/lower files have identical bytes.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-ko-320-light-lower-controls.png",
+      "sha256": "00bb6b4464f54ee04d96a078d5292be14611c8fb3ee08d5122a0c30298b0dec2",
+      "scope": "Mobile lower controls; exact checks text and enabled Pass visible. Some primary/lower files have identical bytes.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "empty-wire-final-v5-01/TC-1258-ko-320-dark-lower-controls.png",
+      "sha256": "aedb6faf204d022e82c1df39ce50ebb37110199ca812eaec8d2befa206529bed",
+      "scope": "Mobile lower controls; exact checks text and enabled Pass visible. Some primary/lower files have identical bytes.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-en-320-light.png",
+      "sha256": "f2d90217a71cfaf22ea6cefcd3d1deed5c252caafdfc195e999281a613a67324",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-en-320-dark.png",
+      "sha256": "b1732d7301510017df38fe8fc10652a181d3ca10decaa16729cf6a645972ff6b",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-en-1440-light.png",
+      "sha256": "4738af43b78ac7c4f7035304af1ee1309a6cacce8cbefab1684713067e5ab194",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-en-1440-dark.png",
+      "sha256": "d142e57c6ee2fd465dc3622b10549ff97569a4c392acdfc5376d5cf3db4bb79e",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-ko-320-light.png",
+      "sha256": "0207fdaa407df29d5ddbda87fafe01cf0ea76c7a0773d373ec9917c0615155f8",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-ko-320-dark.png",
+      "sha256": "96d74818e5224e5f13683c08e6aa4d9e73ebefdb92e8625ce612dc859842ff52",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-ko-1440-light.png",
+      "sha256": "35fbc10c06d5ffa18f5cca6ea8f80e245f326c3444f749d653b442a9f4a817e3",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-ko-1440-dark.png",
+      "sha256": "bde569d89de187b11525772cf7490048964d0b86c4cc113249f50e42e5b1a3ae",
+      "scope": "TC1258 full primary empty state, all8 required settings; mobile1:1 contacts, desktop original images.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-en-320-light-lower-controls.png",
+      "sha256": "f2d90217a71cfaf22ea6cefcd3d1deed5c252caafdfc195e999281a613a67324",
+      "scope": "Mobile lower controls; exact checks text and enabled Pass visible. Some primary/lower files have identical bytes.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-en-320-dark-lower-controls.png",
+      "sha256": "b1732d7301510017df38fe8fc10652a181d3ca10decaa16729cf6a645972ff6b",
+      "scope": "Mobile lower controls; exact checks text and enabled Pass visible. Some primary/lower files have identical bytes.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-ko-320-light-lower-controls.png",
+      "sha256": "0207fdaa407df29d5ddbda87fafe01cf0ea76c7a0773d373ec9917c0615155f8",
+      "scope": "Mobile lower controls; exact checks text and enabled Pass visible. Some primary/lower files have identical bytes.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-ko-320-dark-lower-controls.png",
+      "sha256": "96d74818e5224e5f13683c08e6aa4d9e73ebefdb92e8625ce612dc859842ff52",
+      "scope": "Mobile lower controls; exact checks text and enabled Pass visible. Some primary/lower files have identical bytes.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1257-en-320-light-checks-message.png",
+      "sha256": "fd5afe0fc8b4600e4dd8008f1ba488c06abeb216c6a9a8595d0f0b9e6a3cfed8",
+      "scope": "All8 actual normal-state Checks message screenshots; same screen also preserves other zero-list default None.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1257-en-320-dark-checks-message.png",
+      "sha256": "57750b7fe68149e1930be4a58f83594426d804c2a7ea6096b0334b72e2d0c46a",
+      "scope": "All8 actual normal-state Checks message screenshots; same screen also preserves other zero-list default None.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1257-en-1440-light-checks-message.png",
+      "sha256": "e56383822de07f795d90d7f843d3dc0a15dcf1947985bbfdc01dc9ac3dfbdf8a",
+      "scope": "All8 actual normal-state Checks message screenshots; same screen also preserves other zero-list default None.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1257-en-1440-dark-checks-message.png",
+      "sha256": "6d681d0e719fe52aa3978de9ca6e770c40d8d54865f820f4d02f14832a5f0557",
+      "scope": "All8 actual normal-state Checks message screenshots; same screen also preserves other zero-list default None.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1257-ko-320-light-checks-message.png",
+      "sha256": "3f8073c2bde4b6994ee2a3165b91c31b16dd11448bb783f1ef5d62eaa45a42aa",
+      "scope": "All8 actual normal-state Checks message screenshots; same screen also preserves other zero-list default None.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1257-ko-320-dark-checks-message.png",
+      "sha256": "31aa4b328efcb25b7b2b99b20716570c6a098d25d84e9ad95ddb97cd377583ef",
+      "scope": "All8 actual normal-state Checks message screenshots; same screen also preserves other zero-list default None.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1257-ko-1440-light-checks-message.png",
+      "sha256": "aff05a04964baf88066d87f1a71615166083d3e4db989f321dc7b71fccb01811",
+      "scope": "All8 actual normal-state Checks message screenshots; same screen also preserves other zero-list default None.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1257-ko-1440-dark-checks-message.png",
+      "sha256": "ea9f14e6155fadb94f02966ed8abb75726a4a0caa8ae42da8be4ac0184e01580",
+      "scope": "All8 actual normal-state Checks message screenshots; same screen also preserves other zero-list default None.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-en-320-dark-actual-passed.png",
+      "sha256": "7e545947066b9c8b39e857fd6a40c666fca96d0d8cefae6c41fc3d23746e7ca7",
+      "scope": "Four selected actual native Pass/Withdraw action images; all16 action captures exist but only these4 were viewed on v5.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-en-320-dark-actual-withdrawn.png",
+      "sha256": "41dc68e4ed8840dcfbd4fe634c8c0a6846f2cf964e11c291a02675ac8a1f5bc8",
+      "scope": "Four selected actual native Pass/Withdraw action images; all16 action captures exist but only these4 were viewed on v5.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-ko-320-dark-actual-passed.png",
+      "sha256": "2e29fe900150a9429a0db88a1f9b30375fa5e6be3b04320df01329f6c96165e9",
+      "scope": "Four selected actual native Pass/Withdraw action images; all16 action captures exist but only these4 were viewed on v5.",
+      "independentlyViewed": true
+    },
+    {
+      "file": "final-v5-overview-actual-02/TC-1258-ko-320-dark-actual-withdrawn.png",
+      "sha256": "8e6575088856a08be990d8cd79b10c802bd5ba6d2b19a743d99874a6adecf2bc",
+      "scope": "Four selected actual native Pass/Withdraw action images; all16 action captures exist but only these4 were viewed on v5.",
+      "independentlyViewed": true
+    }
+  ],
+  "notClaimed": [
+    "All16 action PNGs independently viewed",
+    "All360 original state screenshots viewed",
+    "TC1257 whole-case pass"
+  ]
+}

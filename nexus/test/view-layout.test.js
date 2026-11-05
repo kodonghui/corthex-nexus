@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {STEPS,domainLayout,sitemapLayout,erdLayout,sceneItems,itemMarks} from "../ui/layout.js";
+import {STEPS,domainLayout,pictureLayout,sitemapLayout,erdLayout,sceneItems,itemMarks,itemIdentity,commentTarget} from "../ui/layout.js";
 import {compileMessages} from "../tools/messages.mjs";
 import {readFileSync} from "node:fs";
 const where={path:"docs/01-domain/sample.md",line:1};
@@ -29,6 +29,31 @@ test("marks distinguish stable IDs, un-ID quotes and accepted pending reflection
  const scene=domainLayout(source),items=sceneItems(scene);assert.equal(items.filter(n=>n.id==="TERM-001").length,1);
  const data={comments:{entries:[{id:"nc_1",item:"TERM-001"},{id:"nc_2",item:"",quote:"Order placed"}]},proposals:[{id:"np_1",items:["TERM-001"]}],discrepancies:[{id:"nd_1",term:"TERM-001",item:"TBL-001"}],reflections:[{id:"ne_1",proposal:{items:["TERM-001"]}}]};
  assert.equal(itemMarks({id:"TERM-001",text:"Order"},data).total,4);assert.equal(itemMarks({id:"",text:"Order placed"},data).comments.length,1);assert.equal(itemMarks({id:"",text:"Another event"},data).total,0);
+});
+test("Picture drawn belongs to its declared context; identical events and legacy picture comments stay separate",()=>{
+ const contexts=["CTX-012","CTX-014"].map(id=>({id,name:id,rows:[{...row,events:["Picture drawn"]}],where})),s={...source,contexts,timeline:undefined},before=JSON.stringify(s);
+ const events=sceneItems(domainLayout(s)).filter(n=>n.kind==="event"&&n.text==="Picture drawn");
+ assert.equal(events.length,2,"the list must retain the event in both contexts");
+ assert.notEqual(itemIdentity(events[0]),itemIdentity(events[1]));
+ assert.deepEqual(commentTarget(events[0]),{item:"CTX-012",quote:"Picture drawn"});
+ const data={comments:{entries:[{id:"first",item:"CTX-012",quote:"Picture drawn"},{id:"second",item:"CTX-014",quote:"Picture drawn"},{id:"legacy",item:"",quote:"Picture drawn"}]}};
+ assert.deepEqual(itemMarks(events[0],data).comments.map(c=>c.id),["first"]);
+ assert.deepEqual(itemMarks(events[1],data).comments.map(c=>c.id),["second"]);
+ assert.deepEqual(itemMarks({id:"CTX-012"},data).comments.map(c=>c.id),["first"],"the holding item still counts its quoted comment");
+ assert.deepEqual(itemMarks({id:"",text:"Picture drawn"},data).comments.map(c=>c.id),["legacy"],"old picture-scoped comments are not reassigned");
+ assert.equal(JSON.stringify(s),before);
+});
+test("a context name that looks like an ID remains anonymous, including limited source lists",()=>{
+ const anonymous={...source,contexts:[{id:"CTX-014",name:"Declared",rows:[],where},{name:"CTX-014",rows:[{...row,events:["Picture drawn"]}],where}],timeline:undefined};
+ const event=domainLayout(anonymous).nodes.find(n=>n.kind==="event");
+ assert.deepEqual(commentTarget(event),{item:"",quote:"Picture drawn"});
+ assert.equal(itemIdentity({id:"TERM-001",text:"Order",owner:"CTX-012"}),"id:TERM-001");
+ assert.equal(itemIdentity({id:"",text:"Picture drawn"}),"text:Picture drawn");
+ const crowded={...anonymous,timeline:[{lane:"Repeated",places:[Array(20001).fill("Picture drawn")],where}]},before=JSON.stringify(crowded);
+ // The public bounded path must retain the same anonymous ownership rule.
+ const limited=pictureLayout(crowded,"01-domain");
+ assert.equal(limited.limited,true);assert.ok(sceneItems(limited).filter(n=>n.kind==="event").every(n=>commentTarget(n).item===""));
+ assert.equal(JSON.stringify(crowded),before);
 });
 test("all UI error words and nine step labels are generated from the frozen screen source",()=>{
  assert.equal(readFileSync(new URL("../ui/messages.js",import.meta.url),"utf8"),compileMessages());

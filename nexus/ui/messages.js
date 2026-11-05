@@ -240,6 +240,18 @@ export const messages={
     "No ID: comments on it are kept on the picture, with its name as the quote.",
     "ID가 없어, 의견은 이 이름을 인용으로 붙여 그림에 남습니다."
   ],
+  "Held part": [
+    "No ID of its own: comments are kept on {id}, with this name as the quote.",
+    "자기 ID가 없어, 의견은 이 이름을 인용으로 붙여 {id}에 남습니다."
+  ],
+  "Closed on": [
+    "Closed on {id}",
+    "{id}의 닫힌 의견"
+  ],
+  "Recovered draft": [
+    "An earlier picture draft was recovered. Its previous send may already be on the picture; check the comments before sending a new comment on {id}, with this name as the quote.",
+    "이전 그림 초안을 복구했습니다. 이전 전송이 그림에 이미 남았을 수 있으니 의견을 확인한 뒤 보내세요. 새 의견은 이 이름을 인용으로 붙여 {id}에 남습니다."
+  ],
   "A comment's state": [
     "Waiting for the agent. Waiting for the user. Settled by the user, waiting for the agent's record. A proposal was dismissed. Closed as answered. Closed with a decision.",
     "에이전트를 기다림. 사용자를 기다림. 사용자가 정함, 에이전트의 기록을 기다림. 제안을 버림. 답이 나서 닫힘. 결정으로 닫힘."
@@ -287,6 +299,10 @@ export const messages={
   "Nothing left": [
     "Nothing is left in this stage.",
     "이 단계에 남은 것이 없습니다."
+  ],
+  "No checks": [
+    "No checks found anything.",
+    "점검에서 찾은 것이 없습니다."
   ],
   "Not read": [
     "This project does not read this stage: {why}. You can still pass its checkpoint.",

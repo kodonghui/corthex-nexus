@@ -1,0 +1,56 @@
+{
+  "schema": "codex-closeout-case-suggestions/1",
+  "applied": false,
+  "sourceOrNotionModified": false,
+  "newPassCases": [],
+  "newFailCases": [],
+  "partialCases": [
+    {
+      "id": "TC-718",
+      "current": "partial",
+      "suggested": "partial",
+      "newEvidence": "actual Codex native patch creates a new table with CTX/terms:none, matching migration and in_progress/checkpoints[] stage record; actual native rg readback and node:sqlite checks completed",
+      "remaining": "same actual hosted PR/merge not executed; model outer180s cutoff preserved",
+      "evidence": [
+        "core-erd-walk-01/receipt.safe.json",
+        "core-erd-walk-01/artifact-verification.safe.json",
+        "core-erd-walk-01/events.safe.json"
+      ]
+    },
+    {
+      "id": "TC-630",
+      "current": "partial",
+      "suggested": "partial",
+      "newEvidence": "true local bare origin heldA strict ancestor of fetchedB, A!=B; normal Codex native rg reads current core/stage/NEXUS references",
+      "remaining": "installed Python launch for hub --help refused by Windows AccessDenied; no native fetch/sync/todo HTTP occurred",
+      "evidence": [
+        "advanced-default-walk-01/started.safe.json",
+        "advanced-default-walk-01/receipt.safe.json",
+        "advanced-default-walk-01/events.safe.json"
+      ]
+    },
+    {
+      "id": "TC-629",
+      "current": "partial",
+      "suggested": "partial",
+      "newEvidence": null,
+      "remaining": "stage05 PR merged then default fetch/push then new server ERD commit is not covered; TC630 B changes notes, not schema"
+    },
+    {
+      "id": "TC-726",
+      "current": "partial",
+      "suggested": "partial",
+      "newEvidence": null,
+      "remaining": "no new genuine approval/Notion read/merged-default repository record workflow; new ERD fixture has no checkpoint approval"
+    }
+  ],
+  "priorPassingCasesUnchanged": [
+    "TC-707",
+    "TC-708",
+    "TC-709",
+    "TC-710"
+  ],
+  "oneLineNeededPermission": "Codex 제한 실행 환경에서 설치된 Python3.13 실행 파일의 허브 실행(--help 및 이 합성 fixture의 --home 명령만)을 허용해야 합니다.",
+  "permissionLimit": "Observed OS process-start AccessDenied; whether the controlling mechanism is filesystem ACL, AppLocker or Codex sandbox is unverified. No policy was weakened and no disguised Python launch/copy was tried.",
+  "automaticApprovalRejectionClaimed": false
+}

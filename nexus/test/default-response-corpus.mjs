@@ -41,7 +41,10 @@ try {
       assert.equal(value.traceId,trace);
     } else {
       assert.ok(value.includes(trace));
-      assert.ok(value.includes("<h1>"+(selected.status===500?"Something went wrong":"Method not allowed")+"</h1>"));
+      // Exact stage08 wording, independent of the generated runtime translator.
+      assert.ok(value.includes("<h1>"+(selected.status===500?
+        "Something went wrong on the server. Try again.":
+        "This request is not allowed here. Load the page again.")+"</h1>"));
     }
     assert.equal(logs.length,1);assert.equal(logs[0][1].traceId,trace);
     records.push({operation:selected.operation,media:selected.media,example:selected.example,value});

@@ -11,6 +11,7 @@ Path `/pictures/{project}/{part}/{stage}#item={id}`, a panel of the picture view
 | Data | Source |
 | --- | --- |
 | The item: its trace ID, kind and title, and the quote of the selected part, up to 300 characters, when the part has no ID of its own (SPEC-126) | The picture's source, from API-111 (`picture.source`) |
+| A part held by an item with a declared ID: the holding item's ID and the selected part's quote; open comments match both, while closed comment summaries match the holding ID because they carry no quote | The picture's source and API-111 (`comments`, `closed_comments`) |
 | For a part that no item holds: its name, and the open comments on the picture itself that quote it | The picture's source and API-111 (`comments` whose item is `""`) |
 | Its open comments, each with its author's kind, time, text, count of replies and last reply, and its closed comments by ID with how they closed | API-111 (`comments`, `closed_comments`) |
 | Its open proposals with their reasons, and the reflections of its accepted proposals that are not closed | API-111 (`proposals`, `reflections`) |
@@ -22,6 +23,7 @@ Path `/pictures/{project}/{part}/{stage}#item={id}`, a panel of the picture view
 | Action | Result | Failure |
 | --- | --- | --- |
 | Leave a comment on the item | The comment open at the top of its comments, by "User"; the picture's marks count it, and it waits in the agent to-do (SPEC-126) | Not saved: SCR-106#error or SCR-106#permission, with the text kept |
+| Leave a comment on a part held by an item | The comment names the holding item's declared ID and quotes the selected part, up to 300 characters. A same-named part held by a different item has separate open comments, marks and unsent text; selecting the holding item still shows its comments (SPEC-126). A context name without a declared ID does not become an item ID | as above |
 | Leave a comment on a discrepancy | The comment on the discrepancy's first item, naming the discrepancy | as above |
 | Leave a comment on a part that no item holds | The comment on the picture itself, with the part's name as its quote (SPEC-126), at the top of the panel's comments | as above |
 | Open a comment or a proposal | Its panel, SCR-107 or SCR-108 | SCR-107#gone, SCR-108#gone |
@@ -39,6 +41,10 @@ Path `/pictures/{project}/{part}/{stage}#item={id}`, a panel of the picture view
 | SCR-106#gone | An item that the picture no longer holds, or an address that names one: "{id} is not in this picture." When the item still has open comments, they show with the box, since a comment is saved on the item's ID and shown apart (SPEC-126), and the box shows too when the browser's storage keeps an unsent comment on the item, with that text and its write ID ([rule 5](README.md#every-screen)); without either, only the way back to the picture. A part that no item holds has no address, so it is never gone here: once the picture no longer draws it, its open comments show apart on the picture view | The picture's data (API-111#200) without the item |
 
 Stale has no state of its own here: the panel shows the picture's data, and SCR-105#stale says when it is not current. The panel's data comes from the picture view, whose responses lead to its states (SCR-105).
+
+A selected part with no ID of its own but a declared holding item shows "No ID of its own: comments are kept on {id}, with this name as the quote." Its closed list says "Closed on {id}"; the frozen closed summaries identify the holding item, not the selected quote. Older picture-scoped comments stay picture-scoped and remain visible apart when no current picture-scoped part matches their quote. Existing stable-ID and picture-scoped draft keys stay unchanged. When a newly scoped part has no draft but an older picture-scoped draft has its name, show that text with a fresh write ID and a recovery notice: the old send may already be on the picture, so check the comments before sending this new comment to the displayed holding item. Keep the original draft until an explicit successful Send, and consume it only if both its write ID and recovered text are unchanged; never replace an existing scoped draft.
+
+When a stable ID is gone, keep its missing-item notice and way back. If it has open comments or nonempty saved draft text, show the ID's existing comments and form with the same draft scope and write ID. A closed summary alone does not restore the form; do not invent a removed item's title or source fields.
 
 ## Kinds of cases
 

@@ -1,0 +1,567 @@
+{
+  "schema": "nexus-screen-remaining-exact-clauses/1",
+  "count": 43,
+  "rows": [
+    {
+      "id": "TC-1217",
+      "remainingExactClauses": [
+        {
+          "en": "Team-card and device-only instructions, missing snapshot/project and no-recorded-progress branches; complete normal metadata and nonempty discrepancy/reflection datasets.",
+          "ko": "팀 카드·기기 전용 안내, 스냅샷·프로젝트 없음, 기록된 진행 없음 분기와 normal의 전체 메타데이터 및 어긋남·반영 대기 자료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1218",
+      "remainingExactClauses": [
+        {
+          "en": "The device-origin empty branch.",
+          "ko": "기기에서 만든 페이지의 empty 분기가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1219",
+      "remainingExactClauses": [
+        {
+          "en": "Source-gone/other-repository reasons, a record naming a withdrawn checkpoint, human-view copy time, and a newer push followed by user reload.",
+          "ko": "원본이 사라짐·다른 저장소인 이유, 철회한 확인 지점을 기록이 가리키는 경우, 사람 화면의 사본 시각, 새 전송 뒤 사용자가 새로고침하는 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1220",
+      "remainingExactClauses": [
+        {
+          "en": "Invalid/non-JSON hub data, method405 and every listed page-response branch.",
+          "ko": "유효하지 않거나 JSON이 아닌 허브 자료, method405 및 원문에 나열된 나머지 페이지 응답 분기가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1221",
+      "remainingExactClauses": [
+        {
+          "en": "The wrong-audience page branch and genuine Cloudflare Access provider refusal.",
+          "ko": "다른 앱 audience로 거절되는 페이지와 실제 Cloudflare Access 제공자 거절 경로는 미검증입니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1222",
+      "remainingExactClauses": [
+        {
+          "en": "Complete normal Prism search dataset and all match/order criteria.",
+          "ko": "정상 검색의 전체 Prism 자료와 일치·정렬 조건을 모두 짝지어 확인하는 절차가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1224",
+      "remainingExactClauses": [
+        {
+          "en": "The no-link/none branches, same-kind and decision datasets.",
+          "ko": "연결 없음·없음 분기와 같은 종류 항목·결정 자료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1225",
+      "remainingExactClauses": [
+        {
+          "en": "Mentioned-but-undefined IDs with their referring places, and an address naming a project not on the page.",
+          "ko": "언급만 있고 정의되지 않은 ID의 참조 위치와 페이지에 없는 프로젝트를 가리키는 주소가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1226",
+      "remainingExactClauses": [
+        {
+          "en": "Multiple parts, latest checkpoint/settings/copy facts, grouped item variants, human-tool links and the device-only line.",
+          "ko": "여러 부분, 최신 확인 지점·설정·사본 정보, 항목 묶음의 변형, 사람 도구 링크와 기기 전용 문구가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1227",
+      "remainingExactClauses": [
+        {
+          "en": "The none, no-checkout, skipped and invalid source-state reasons.",
+          "ko": "원본 상태의 none·no-checkout·skipped·invalid 이유가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1228",
+      "remainingExactClauses": [
+        {
+          "en": "Source-gone/other-repository reasons, a record naming a withdrawn checkpoint, and human-view copy time.",
+          "ko": "원본이 사라짐·다른 저장소인 이유, 철회한 확인 지점을 기록이 가리키는 경우와 사람 화면의 사본 시각이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1229",
+      "remainingExactClauses": [
+        {
+          "en": "An address naming a missing project.",
+          "ko": "없는 프로젝트를 가리키는 주소 분기가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1230",
+      "remainingExactClauses": [
+        {
+          "en": "Pan/zoom and opening a panel before the editor loads, followed by camera/draft handoff assertions.",
+          "ko": "편집기가 뜨기 전 이동·확대·축소와 패널 열기, 이어서 카메라·초안이 인계되는 효과 확인이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1231",
+      "remainingExactClauses": [
+        {
+          "en": "The ERD/sitemap variants, accepted reflection and unmatched-comment datasets, mark variants and normal readonly interactions.",
+          "ko": "ERD·사이트맵 변형, 받은 반영·맞지 않는 의견 자료, 표시의 변형과 정상 읽기 전용 조작이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1232",
+      "remainingExactClauses": [
+        {
+          "en": "The corresponding large Prism fixture/renderer and all originally required screenshot reviews. This run claims no three-second performance result.",
+          "ko": "큰 그림의 Prism 자료·렌더러 단계와 원래 요구한 전체 스크린샷 검토가 남았습니다. 이 결과로 3초 성능을 주장하지 않습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1233",
+      "remainingExactClauses": [
+        {
+          "en": "Actual other-repository omission and both navigation links.",
+          "ko": "다른 저장소여서 그림이 빠지는 실제 분기와 두 이동 링크의 확인이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1234",
+      "remainingExactClauses": [
+        {
+          "en": "Source-gone/other-repository reasons, waiting discrepancies, and a newer commit offered without replacement until Show it.",
+          "ko": "원본이 사라짐·다른 저장소인 이유, 기다리는 어긋남, 새 커밋을 안내하되 보기를 누르기 전 현재 그림을 바꾸지 않는 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1235",
+      "remainingExactClauses": [
+        {
+          "en": "Other initial-page target/default branches and every read-again error at every setting.",
+          "ko": "첫 페이지의 나머지 대상·기본 오류와 다시 읽기 오류 전체를 모든 설정에서 확인하는 절차가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1236",
+      "remainingExactClauses": [
+        {
+          "en": "The view-module failure and every API104 status variant.",
+          "ko": "보기 모듈 실패와 API104의 나머지 상태 응답이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1237",
+      "remainingExactClauses": [
+        {
+          "en": "401, opaque redirect, and a genuine Access session-expiry path without changing shared login/policy state.",
+          "ko": "401·opaque redirect 및 공유 로그인·정책을 바꾸지 않는 실제 Access 세션 만료 경로는 미검증입니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1238",
+      "remainingExactClauses": [
+        {
+          "en": "Successful send201 at every setting, all item-fact variants and closed-list datasets.",
+          "ko": "모든 설정에서 보내기201에 성공하는 연쇄, 항목 정보의 모든 변형과 닫힌 의견 자료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1239",
+      "remainingExactClauses": [
+        {
+          "en": "The ID-less part-name branch and the paired Prism empty-item fixture/renderer.",
+          "ko": "자기 ID가 없는 부분 이름 분기와 empty 항목의 Prism 자료·렌더러 단계가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1240",
+      "remainingExactClauses": [
+        {
+          "en": "The paired Prism pending-send renderer/loading-release procedure; fixed contrast is measured separately on v2 at all eight settings.",
+          "ko": "전송 대기 상태의 Prism 렌더러와 대기 해제 연쇄를 짝지어 확인하는 절차가 남았습니다. 수정 후 대비는 v2의 8개 설정에서 별도로 계측했습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1241",
+      "remainingExactClauses": [
+        {
+          "en": "Same/new write-ID retry, field associations and every listed refusal variant at every setting.",
+          "ko": "같은·새 write ID로 재시도, 필드 연결과 나열된 모든 거절 응답을 모든 설정에서 확인하는 절차가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1242",
+      "remainingExactClauses": [
+        {
+          "en": "401, opaque redirect, actual expiry and the full retry sequence.",
+          "ko": "401·opaque redirect·실제 만료와 전체 재시도 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1243",
+      "remainingExactClauses": [
+        {
+          "en": "ID-less parts that have no address, with their retained open comments shown Apart; the complete paired Prism gone-state stage and screenshot review of all required settings/subvariants.",
+          "ko": "주소가 없는 부분이 그림에서 사라진 뒤 열린 의견을 따로 보여 주는 분기, gone의 전체 Prism 단계 및 모든 설정·세부 경우의 스크린샷 검토가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1244",
+      "remainingExactClauses": [
+        {
+          "en": "The cached closed-comment branch and the complete mock pending/read-release sequence.",
+          "ko": "캐시에 있는 닫힌 의견 분기와 모의 대기·읽기 해제의 전체 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1245",
+      "remainingExactClauses": [
+        {
+          "en": "Other comment states, all decision/proposal links, settle/reopen/answer and cross-picture links.",
+          "ko": "나머지 의견 상태, 결정·제안 링크, 정하기·다시 열기·답이 나옴 및 다른 그림 링크 분기가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1246",
+      "remainingExactClauses": [
+        {
+          "en": "A newly arrived agent reply marked New.",
+          "ko": "새로 도착한 에이전트 답글에 새 표시가 붙는 분기가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1247",
+      "remainingExactClauses": [
+        {
+          "en": "Text retention/retry, the reply-limit move-to-new-comment path, and every variant at every setting.",
+          "ko": "글 보존·재시도, 답글 제한에서 새 의견으로 옮기기 및 모든 설정의 전체 응답 변형이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1248",
+      "remainingExactClauses": [
+        {
+          "en": "Actual settling-agent refusal,401,opaque redirect and genuine Access expiry.",
+          "ko": "에이전트가 정하기를 시도하는 실제 거절, 401·opaque redirect와 실제 Access 만료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1249",
+      "remainingExactClauses": [
+        {
+          "en": "A comment disappearing during a typed reply, with a retained copyable draft and refresh/navigation effects.",
+          "ko": "답글을 쓰는 중 의견이 사라지는 경우의 복사 가능한 초안 보존과 새로고침·이동 효과가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1250",
+      "remainingExactClauses": [
+        {
+          "en": "Closed/uncached proposal variants and the paired exact mock loading-release stage.",
+          "ko": "닫힌 제안·캐시 없는 제안 변형과 정확한 모의 대기 해제 단계가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1251",
+      "remainingExactClauses": [
+        {
+          "en": "Accepted reflection-state variants, dismissal/withdrawal and the full normal write/action sequence.",
+          "ko": "받은 뒤 반영 상태의 변형, 거절·철회와 정상 쓰기·조작의 전체 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1252",
+      "remainingExactClauses": [
+        {
+          "en": "The dismiss race, edit-state/already-dismissed variants, and earlier-picture notices.",
+          "ko": "거절 경쟁, 수정 상태·이미 거절됨 변형과 이전 그림 안내가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1253",
+      "remainingExactClauses": [
+        {
+          "en": "Same/new write-ID retries and every listed variant at every setting.",
+          "ko": "같은·새 write ID로 재시도와 모든 설정의 나머지 응답 변형이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1254",
+      "remainingExactClauses": [
+        {
+          "en": "Other actual role/read branches,401,opaque redirect and genuine provider expiry.",
+          "ko": "나머지 실제 역할·읽기 분기, 401·opaque redirect와 실제 제공자 만료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1255",
+      "remainingExactClauses": [
+        {
+          "en": "Reflection disappearing during viewing, then refresh/navigation effects.",
+          "ko": "보는 중 반영이 사라지는 경우와 이어지는 새로고침·이동 효과가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1256",
+      "remainingExactClauses": [
+        {
+          "en": "The unchanged full page-check while the core document remains deliberately pending; the checker waits document.fonts.ready, so raw overflow and a screenshot do not substitute for it.",
+          "ko": "코어 문서를 의도적으로 대기시킨 동안 원 page-check 전체를 돌린 근거가 남았습니다. 도구가 document.fonts.ready를 기다려 멈추므로 원시 넘침 수치와 캡처로 이를 대신 통과 처리하지 않았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1257",
+      "remainingExactClauses": [
+        {
+          "en": "Nonempty discrepancy/reflection/check datasets and the complete normal action procedure across every setting.",
+          "ko": "어긋남·반영 대기·점검이 있는 자료와 모든 설정에서 정상 조작 전체를 확인하는 절차가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1259",
+      "remainingExactClauses": [
+        {
+          "en": "Recorded409, a record naming a withdrawn checkpoint, Pass again with a new ID and all stale-picture reasons.",
+          "ko": "기록되어 철회할 수 없는409, 기록이 철회한 확인 지점을 가리키는 경우, 새 ID로 다시 통과 및 최신이 아닌 그림의 모든 이유가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1260",
+      "remainingExactClauses": [
+        {
+          "en": "Remaining initial-page/code-file failures and the full preserved-words/retry sequence at every setting.",
+          "ko": "나머지 첫 페이지·코드 파일 실패와 모든 설정의 남길 말 보존·재시도 전체 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1261",
+      "remainingExactClauses": [
+        {
+          "en": "Other actual role/read branches,401,opaque redirect and genuine expiry.",
+          "ko": "나머지 실제 역할·읽기 분기, 401·opaque redirect와 실제 만료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    }
+  ],
+  "criteriaChanged": false,
+  "note": "No untried procedure is replaced by an external-blocked claim. BUG572 bounded fix is separately passing; TC1257 stays partial for its original remaining branches."
+}

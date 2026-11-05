@@ -1,0 +1,2096 @@
+{
+  "schema": "nexus-final-ui-case-candidates/1",
+  "status": "FINAL tester proposal after BUG572 v5; Root owns source Last result application",
+  "scope": "48 original TCs:45 screen rows plus651/682/684. Criteria unchanged.5 local whole-case candidates/43 partial. v3/v4 passing scopes remain exact; v5 covers overview-only followup. No deployment or genuine Access-expiry claim.",
+  "cases": [
+    {
+      "id": "TC-651",
+      "verdict": "pass",
+      "proposedLastResult": {
+        "en": "pass on isolated local Node/SQLite and native browser (v3 copied-source a469771d8fac): user POST on TBL-001, actual snapshot redraw without that table, full Page.reload, API/SQLite/todo agree the same comment remains open. Apart displays TBL-001 before opening the thread; comment text intentionally has no ID. All3 screenshots independently reviewed. Prior v2 Apart-ID failure is retained.",
+        "ko": "pass, 격리된 로컬 Node/SQLite·실제 브라우저(v3 복사 소스 a469771d8fac): 사용자가 TBL-001에 의견을 보낸 뒤 해당 표 없는 스냅샷을 실제 전송하고 전체 새로고침했습니다. API·SQLite·할 일에서 같은 의견이 열린 채임을 확인했고, 본문에 ID를 넣지 않았는데도 대화를 열기 전 따로 목록에 TBL-001이 보였습니다. 캡처3개를 직접 검토했고 v2의 ID 누락 실패도 보존했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "literal-table-redraw-v3-01/report.safe.json",
+          "sha256": "ef2f5d2e9913e9c99beb48e7aeaf5308b898b2e77c579c664fbb7c14e74e6009",
+          "scope": "Exact literal table redraw user flow and actual data effects."
+        },
+        {
+          "file": "literal-table-redraw-v3-01/03-apart-without-open-panel.png",
+          "sha256": "5ffda37a0587b2629740e3ee7e7c68a0f540fa89e52dd3bc55663fbd9d994843",
+          "scope": "Directly reviewed1440EN Apart row; TBL-001 visible before selection."
+        },
+        {
+          "file": "literal-table-redraw-01/report.safe.json",
+          "sha256": "5125b972f43a8530181a58356b2bb3d65cda0543c6ff676bf070b3924e64feae",
+          "scope": "Retained pre-fix v2 failure, not overwritten."
+        },
+        {
+          "file": "runtime-final-id-v3.manifest.safe.json",
+          "sha256": "cd5599d08f1d2c79d3e85eaf6817a8ece56cc0c12f544a15a89466041893e918",
+          "scope": "Exact source/bundle copy; source mutations0."
+        },
+        {
+          "file": "final-visual-review-v3.safe.json",
+          "sha256": "b62843b7c737b58601e6bb9f8417b4e45d5e17773c532eed593aff68ae080fb6",
+          "scope": "Enumerated screenshots actually reviewed."
+        }
+      ],
+      "remainingExactClauses": []
+    },
+    {
+      "id": "TC-682",
+      "verdict": "pass",
+      "proposedLastResult": {
+        "en": "pass on isolated local Node/SQLite and native browser (v3 copied-source a469771d8fac): exact Picture drawn event sent from CTX-012 persists item CTX-012 and quote Picture drawn; API/SQL/todo agree. Identically named CTX-014 remains separate after reload, legacy draft recovery needs explicit send and the old empty-item comment remains Apart. Prior deployed failure is preserved separately.",
+        "ko": "pass, 격리된 로컬 Node/SQLite·실제 브라우저(v3 복사 소스 a469771d8fac): CTX-012의 정확한 Picture drawn 이벤트에 보낸 의견이 item CTX-012·quote Picture drawn으로 저장됨을 API·SQL·할 일에서 확인했습니다. 동명 CTX-014와 새로고침 뒤에도 분리되고, 옛 초안 복구는 명시 전송을 요구하며 옛 빈 item 의견은 따로 남습니다. 기존 개발 서버의 실패는 별도로 보존했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "fixed-owner-browser-01/report.safe.json",
+          "sha256": "c9ff91fccf1a1b2d82876fcec8500bf43fe1bb61f624e8b9f10549ab8831b5ce",
+          "scope": "First independent fixed owner/quote and legacy draft proof; all6 PNGs separately reviewed."
+        },
+        {
+          "file": "final-v3-user-regression-01/report.safe.json",
+          "sha256": "77ff7f87910e9bd9bed236600a9cf29040a9cc285322fca8f2ef5282fa98c490",
+          "scope": "Same-label owner and draft regression on final v3 copy; all11 screenshots independently reviewed."
+        },
+        {
+          "file": "readback-exact-quote-created.safe.json",
+          "sha256": "0d9b1c4f55e342df8b1d11be92fd64cacd9a56637e7cef8557effc682980541c",
+          "scope": "Retained actual DEV original empty-item failure; never reclassified as a pass."
+        },
+        {
+          "file": "runtime-final-id-v3.manifest.safe.json",
+          "sha256": "cd5599d08f1d2c79d3e85eaf6817a8ece56cc0c12f544a15a89466041893e918",
+          "scope": "Exact source/bundle copy; source mutations0."
+        },
+        {
+          "file": "final-visual-review-v3.safe.json",
+          "sha256": "b62843b7c737b58601e6bb9f8417b4e45d5e17773c532eed593aff68ae080fb6",
+          "scope": "Enumerated screenshots actually reviewed."
+        },
+        {
+          "file": "final-v4-user-regression-01/report.safe.json",
+          "sha256": "efcf81ec55fb48498e9e7a01e67bb982848052dbbb5f6422172115ae10cec924",
+          "scope": "Bounded current-copy owner/offline/stable-ID/checkpoint actual-browser regression:11 steps,0exceptions. Original v3 pass scope retained."
+        },
+        {
+          "file": "final-visual-review-v4.safe.json",
+          "sha256": "b5dc37af1e0f9f85bb2997682ce3111c5ae7cd377a383cd4935b05412c1fd0d1",
+          "scope": "Only the enumerated v4 regression screenshots were actually viewed."
+        }
+      ],
+      "remainingExactClauses": []
+    },
+    {
+      "id": "TC-684",
+      "verdict": "pass",
+      "proposedLastResult": {
+        "en": "pass on isolated local Node/SQLite and native browser (v3 copied-source a469771d8fac): only the owned comment POST was failed at browser transport. Text/write ID stayed, actual API/SQL did not change; transport restored, genuine Page.reload changed timeOrigin and restored the same text/write ID. Explicit online send later inserted exactly one row. Both offline/reload screenshots independently reviewed. This does not certify genuine Access expiry.",
+        "ko": "pass, 격리된 로컬 Node/SQLite·실제 브라우저(v3 복사 소스 a469771d8fac): 소유 댓글 POST 하나만 브라우저 전송 단계에서 실패시켰습니다. 글·write ID가 남고 실제 API·SQL은 불변이었습니다. 전송을 복원한 뒤 Page.reload의 timeOrigin 변경과 같은 글·write ID 복원을 확인했고, 이후 명시적으로 온라인 전송했을 때만 한 행이 생겼습니다. 오프라인·새로고침 화면을 직접 검토했습니다. 실제 Access 만료를 검증한 결과는 아닙니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "final-v3-user-regression-01/report.safe.json",
+          "sha256": "77ff7f87910e9bd9bed236600a9cf29040a9cc285322fca8f2ef5282fa98c490",
+          "scope": "TC684 real isolated network failure, write-ID preservation and true reload proof, plus separate owner/checkpoint regression."
+        },
+        {
+          "file": "final-v3-user-regression-01/07-tc684-offline-send-keeps-text.png",
+          "sha256": "a55db7aa537827b3b3ba483788678f4e027ee41610ca2e50dea9caa1ea4f2e86",
+          "scope": "Directly reviewed offline state; original draft visible with connection error."
+        },
+        {
+          "file": "final-v3-user-regression-01/08-tc684-restored-network-reload-same-draft.png",
+          "sha256": "c313dfe03e7bb0cec3a7506c6bf41fa4e9adbea42fee36a8251fde5a898e0e45",
+          "scope": "Directly reviewed real reload after restoring transport; original text restored."
+        },
+        {
+          "file": "runtime-final-id-v3.manifest.safe.json",
+          "sha256": "cd5599d08f1d2c79d3e85eaf6817a8ece56cc0c12f544a15a89466041893e918",
+          "scope": "Exact source/bundle copy; source mutations0."
+        },
+        {
+          "file": "final-visual-review-v3.safe.json",
+          "sha256": "b62843b7c737b58601e6bb9f8417b4e45d5e17773c532eed593aff68ae080fb6",
+          "scope": "Enumerated screenshots actually reviewed."
+        },
+        {
+          "file": "final-v4-user-regression-01/report.safe.json",
+          "sha256": "efcf81ec55fb48498e9e7a01e67bb982848052dbbb5f6422172115ae10cec924",
+          "scope": "Bounded current-copy owner/offline/stable-ID/checkpoint actual-browser regression:11 steps,0exceptions. Original v3 pass scope retained."
+        },
+        {
+          "file": "final-visual-review-v4.safe.json",
+          "sha256": "b5dc37af1e0f9f85bb2997682ce3111c5ae7cd377a383cd4935b05412c1fd0d1",
+          "scope": "Only the enumerated v4 regression screenshots were actually viewed."
+        }
+      ],
+      "remainingExactClauses": []
+    },
+    {
+      "id": "TC-1217",
+      "screenState": "SCR-101#normal",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named normal state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Team-card and device-only instructions, missing snapshot/project and no-recorded-progress branches; complete normal metadata and nonempty discrepancy/reflection datasets. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 normal 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 팀 카드·기기 전용 안내, 스냅샷·프로젝트 없음, 기록된 진행 없음 분기와 normal의 전체 메타데이터 및 어긋남·반영 대기 자료가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Team-card and device-only instructions, missing snapshot/project and no-recorded-progress branches; complete normal metadata and nonempty discrepancy/reflection datasets.",
+          "ko": "팀 카드·기기 전용 안내, 스냅샷·프로젝트 없음, 기록된 진행 없음 분기와 normal의 전체 메타데이터 및 어긋남·반영 대기 자료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1218",
+      "screenState": "SCR-101#empty",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named empty state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: The device-origin empty branch. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 empty 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 기기에서 만든 페이지의 empty 분기가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The device-origin empty branch.",
+          "ko": "기기에서 만든 페이지의 empty 분기가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1219",
+      "screenState": "SCR-101#stale",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named stale state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Source-gone/other-repository reasons, a record naming a withdrawn checkpoint, human-view copy time, and a newer push followed by user reload. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 stale 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원본이 사라짐·다른 저장소인 이유, 철회한 확인 지점을 기록이 가리키는 경우, 사람 화면의 사본 시각, 새 전송 뒤 사용자가 새로고침하는 연쇄가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Source-gone/other-repository reasons, a record naming a withdrawn checkpoint, human-view copy time, and a newer push followed by user reload.",
+          "ko": "원본이 사라짐·다른 저장소인 이유, 철회한 확인 지점을 기록이 가리키는 경우, 사람 화면의 사본 시각, 새 전송 뒤 사용자가 새로고침하는 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1220",
+      "screenState": "SCR-101#error",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named error state observed in 8 settings (320/1440 px x EN/KO x light/dark). The original renderer failure and the separately passing bounded fixed-source branch remain distinct. Remaining: Invalid/non-JSON hub data, method405 and every listed page-response branch. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 error 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원 렌더러 실패와 수정 소스의 해당 분기 통과를 별도로 보존했습니다. 유효하지 않거나 JSON이 아닌 허브 자료, method405 및 원문에 나열된 나머지 페이지 응답 분기가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "screen-final-fixes-01/report.safe.json",
+          "sha256": "461abbd5a09a2b55c46c06499de4e547027ff96f98fb2448d9002db34500636c",
+          "scope": "Reviewed source fixes565/566/567: 36 completed cells,20 KO marker harness stops retained."
+        },
+        {
+          "file": "screen-final-fixes-ko-02/report.safe.json",
+          "sha256": "9fedf94ea206dd4c6f9c9a5c45d351b944cb89ffd0572a27649fb6f2cd0d6719",
+          "scope": "Corrected KO marker:20 completed affected refusal-page cells."
+        },
+        {
+          "file": "screen-final-initial403-01/report.safe.json",
+          "sha256": "8efb2f9642a671f63baf142c8f0eb2747a36bab953b50a76b617a954cc32cf87",
+          "scope": "Eight actual initial overview missing-assertion403 cells for TC1261; this is synthetic verifier evidence."
+        },
+        {
+          "file": "runtime-final-ui-fixes.manifest.safe.json",
+          "sha256": "322518dbc8d8ca99f65bdb9ede61efa18094d1cf703837d2ccf41904e59cc4a1",
+          "scope": "Exact fixed renderer/hub source copy; actual adapter not exercised by this UI fixture."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Invalid/non-JSON hub data, method405 and every listed page-response branch.",
+          "ko": "유효하지 않거나 JSON이 아닌 허브 자료, method405 및 원문에 나열된 나머지 페이지 응답 분기가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1221",
+      "screenState": "SCR-101#permission",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named permission state observed in 8 settings (320/1440 px x EN/KO x light/dark). The original renderer failure and the separately passing bounded fixed-source branch remain distinct. Remaining: The wrong-audience page branch and genuine Cloudflare Access provider refusal. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 permission 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원 렌더러 실패와 수정 소스의 해당 분기 통과를 별도로 보존했습니다. 다른 앱 audience로 거절되는 페이지와 실제 Cloudflare Access 제공자 거절 경로는 미검증입니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "screen-final-fixes-01/report.safe.json",
+          "sha256": "461abbd5a09a2b55c46c06499de4e547027ff96f98fb2448d9002db34500636c",
+          "scope": "Reviewed source fixes565/566/567: 36 completed cells,20 KO marker harness stops retained."
+        },
+        {
+          "file": "screen-final-fixes-ko-02/report.safe.json",
+          "sha256": "9fedf94ea206dd4c6f9c9a5c45d351b944cb89ffd0572a27649fb6f2cd0d6719",
+          "scope": "Corrected KO marker:20 completed affected refusal-page cells."
+        },
+        {
+          "file": "screen-final-initial403-01/report.safe.json",
+          "sha256": "8efb2f9642a671f63baf142c8f0eb2747a36bab953b50a76b617a954cc32cf87",
+          "scope": "Eight actual initial overview missing-assertion403 cells for TC1261; this is synthetic verifier evidence."
+        },
+        {
+          "file": "runtime-final-ui-fixes.manifest.safe.json",
+          "sha256": "322518dbc8d8ca99f65bdb9ede61efa18094d1cf703837d2ccf41904e59cc4a1",
+          "scope": "Exact fixed renderer/hub source copy; actual adapter not exercised by this UI fixture."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The wrong-audience page branch and genuine Cloudflare Access provider refusal.",
+          "ko": "다른 앱 audience로 거절되는 페이지와 실제 Cloudflare Access 제공자 거절 경로는 미검증입니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1222",
+      "screenState": "SCR-102#normal",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named normal state observed in 8 settings (320/1440 px x EN/KO x light/dark). The original renderer failure and the separately passing bounded fixed-source branch remain distinct. Remaining: Complete normal Prism search dataset and all match/order criteria. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 normal 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원 렌더러 실패와 수정 소스의 해당 분기 통과를 별도로 보존했습니다. 정상 검색의 전체 Prism 자료와 일치·정렬 조건을 모두 짝지어 확인하는 절차가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "screen-matrix-followup-01/report.safe.json",
+          "sha256": "35fc7702122babf8929399a46e698108ed9e79623c60fcb47aad38057e39545a",
+          "scope": "Corrected fixture/harness follows original retained stops: this TC observed in eight settings."
+        },
+        {
+          "file": "screen-final-fixes-01/report.safe.json",
+          "sha256": "461abbd5a09a2b55c46c06499de4e547027ff96f98fb2448d9002db34500636c",
+          "scope": "Reviewed source fixes565/566/567: 36 completed cells,20 KO marker harness stops retained."
+        },
+        {
+          "file": "screen-final-fixes-ko-02/report.safe.json",
+          "sha256": "9fedf94ea206dd4c6f9c9a5c45d351b944cb89ffd0572a27649fb6f2cd0d6719",
+          "scope": "Corrected KO marker:20 completed affected refusal-page cells."
+        },
+        {
+          "file": "screen-final-initial403-01/report.safe.json",
+          "sha256": "8efb2f9642a671f63baf142c8f0eb2747a36bab953b50a76b617a954cc32cf87",
+          "scope": "Eight actual initial overview missing-assertion403 cells for TC1261; this is synthetic verifier evidence."
+        },
+        {
+          "file": "runtime-final-ui-fixes.manifest.safe.json",
+          "sha256": "322518dbc8d8ca99f65bdb9ede61efa18094d1cf703837d2ccf41904e59cc4a1",
+          "scope": "Exact fixed renderer/hub source copy; actual adapter not exercised by this UI fixture."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Complete normal Prism search dataset and all match/order criteria.",
+          "ko": "정상 검색의 전체 Prism 자료와 일치·정렬 조건을 모두 짝지어 확인하는 절차가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1223",
+      "verdict": "pass",
+      "originalCriterionChanged": false,
+      "proposedLastResult": {
+        "en": "pass on isolated local v3 copied-source a469771d8fac: pinned Prism empty-hub wire through the actual renderer first, then actual Node/SQLite no-match state; both phases cover all 8 settings (320/1440 px x EN/KO x light/dark). All 16 state screenshots independently reviewed. Search remains usable and mock/native Close clears the hash. Raw KO3206px content-box errors are retained: the30x20 glyph range fits the44x44 button and client=scroll42. EN320 Close wrapping is an impression.",
+        "ko": "pass, 격리된 로컬 v3 복사 소스 a469771d8fac: 고정 Prism의 빈 허브 응답을 실제 렌더러에 넣은 뒤 실제 Node/SQLite의 검색 결과 없음 상태를 확인했습니다. 두 단계 모두320/1440 x EN/KO x 라이트/다크의 8개 설정이며 상태 화면16개를 직접 검토했습니다. 검색창은 계속 쓸 수 있고 닫기로 해시가 지워졌습니다. KO320의 content-box6px 오류 원본은 보존했으며30x20 글자 범위가44x44 버튼 안에 들어가고 client=scroll42임을 별도 확인했습니다. EN320 닫기 줄바꿈은 사용 인상입니다."
+      },
+      "evidence": [
+        {
+          "file": "empty-wire-final-v3-01/report.safe.json",
+          "sha256": "e0d20ebfaffbbcb64152f877c7692403470dcd190a2eab5d4f9ac68dafdfed3a",
+          "scope": "Pinned Prism responses rendered by actual product renderer before actual-node phase,8 cells for TC1223."
+        },
+        {
+          "file": "final-v3-empty-actual-01/report.safe.json",
+          "sha256": "46dc68a09b4a5faeb9958ee1f7b0333d92fecf82ecdeea476911f7b8c9fa62c2",
+          "scope": "Actual Node/SQLite empty word-search eight settings; per-cell close text/button geometry."
+        },
+        {
+          "file": "final-v3-search-actions-01/report.safe.json",
+          "sha256": "d33916aff144c0bc3056cdaf975e02b30493b0b0bbfdf7c15580f011cf7017f3",
+          "scope": "Eight native actual-node search other words then Close with unchanged SQL/writes."
+        },
+        {
+          "file": "final-visual-review-v3.safe.json",
+          "sha256": "b62843b7c737b58601e6bb9f8417b4e45d5e17773c532eed593aff68ae080fb6",
+          "scope": "All16 TC1223 primary state PNGs independently viewed."
+        },
+        {
+          "file": "runtime-final-id-v3.manifest.safe.json",
+          "sha256": "cd5599d08f1d2c79d3e85eaf6817a8ece56cc0c12f544a15a89466041893e918",
+          "scope": "Exact source/bundle copy."
+        }
+      ],
+      "remainingExactClauses": []
+    },
+    {
+      "id": "TC-1224",
+      "screenState": "SCR-103#normal",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named normal state observed in 8 settings (320/1440 px x EN/KO x light/dark). The original renderer failure and the separately passing bounded fixed-source branch remain distinct. Remaining: The no-link/none branches, same-kind and decision datasets. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 normal 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원 렌더러 실패와 수정 소스의 해당 분기 통과를 별도로 보존했습니다. 연결 없음·없음 분기와 같은 종류 항목·결정 자료가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "screen-final-fixes-01/report.safe.json",
+          "sha256": "461abbd5a09a2b55c46c06499de4e547027ff96f98fb2448d9002db34500636c",
+          "scope": "Reviewed source fixes565/566/567: 36 completed cells,20 KO marker harness stops retained."
+        },
+        {
+          "file": "screen-final-fixes-ko-02/report.safe.json",
+          "sha256": "9fedf94ea206dd4c6f9c9a5c45d351b944cb89ffd0572a27649fb6f2cd0d6719",
+          "scope": "Corrected KO marker:20 completed affected refusal-page cells."
+        },
+        {
+          "file": "screen-final-initial403-01/report.safe.json",
+          "sha256": "8efb2f9642a671f63baf142c8f0eb2747a36bab953b50a76b617a954cc32cf87",
+          "scope": "Eight actual initial overview missing-assertion403 cells for TC1261; this is synthetic verifier evidence."
+        },
+        {
+          "file": "runtime-final-ui-fixes.manifest.safe.json",
+          "sha256": "322518dbc8d8ca99f65bdb9ede61efa18094d1cf703837d2ccf41904e59cc4a1",
+          "scope": "Exact fixed renderer/hub source copy; actual adapter not exercised by this UI fixture."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The no-link/none branches, same-kind and decision datasets.",
+          "ko": "연결 없음·없음 분기와 같은 종류 항목·결정 자료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1225",
+      "screenState": "SCR-103#error",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named error state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Mentioned-but-undefined IDs with their referring places, and an address naming a project not on the page. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 error 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 언급만 있고 정의되지 않은 ID의 참조 위치와 페이지에 없는 프로젝트를 가리키는 주소가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Mentioned-but-undefined IDs with their referring places, and an address naming a project not on the page.",
+          "ko": "언급만 있고 정의되지 않은 ID의 참조 위치와 페이지에 없는 프로젝트를 가리키는 주소가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1226",
+      "screenState": "SCR-104#normal",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named normal state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Multiple parts, latest checkpoint/settings/copy facts, grouped item variants, human-tool links and the device-only line. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 normal 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 여러 부분, 최신 확인 지점·설정·사본 정보, 항목 묶음의 변형, 사람 도구 링크와 기기 전용 문구가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Multiple parts, latest checkpoint/settings/copy facts, grouped item variants, human-tool links and the device-only line.",
+          "ko": "여러 부분, 최신 확인 지점·설정·사본 정보, 항목 묶음의 변형, 사람 도구 링크와 기기 전용 문구가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1227",
+      "screenState": "SCR-104#empty",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named empty state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: The none, no-checkout, skipped and invalid source-state reasons. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 empty 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원본 상태의 none·no-checkout·skipped·invalid 이유가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The none, no-checkout, skipped and invalid source-state reasons.",
+          "ko": "원본 상태의 none·no-checkout·skipped·invalid 이유가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1228",
+      "screenState": "SCR-104#stale",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named stale state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Source-gone/other-repository reasons, a record naming a withdrawn checkpoint, and human-view copy time. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 stale 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원본이 사라짐·다른 저장소인 이유, 철회한 확인 지점을 기록이 가리키는 경우와 사람 화면의 사본 시각이 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Source-gone/other-repository reasons, a record naming a withdrawn checkpoint, and human-view copy time.",
+          "ko": "원본이 사라짐·다른 저장소인 이유, 철회한 확인 지점을 기록이 가리키는 경우와 사람 화면의 사본 시각이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1229",
+      "screenState": "SCR-104#error",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named error state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: An address naming a missing project. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 error 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 없는 프로젝트를 가리키는 주소 분기가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "An address naming a missing project.",
+          "ko": "없는 프로젝트를 가리키는 주소 분기가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1230",
+      "screenState": "SCR-105#loading",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named loading state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Pan/zoom and opening a panel before the editor loads, followed by camera/draft handoff assertions. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 loading 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 편집기가 뜨기 전 이동·확대·축소와 패널 열기, 이어서 카메라·초안이 인계되는 효과 확인이 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Pan/zoom and opening a panel before the editor loads, followed by camera/draft handoff assertions.",
+          "ko": "편집기가 뜨기 전 이동·확대·축소와 패널 열기, 이어서 카메라·초안이 인계되는 효과 확인이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1231",
+      "screenState": "SCR-105#normal",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named normal state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: The ERD/sitemap variants, accepted reflection and unmatched-comment datasets, mark variants and normal readonly interactions. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 normal 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. ERD·사이트맵 변형, 받은 반영·맞지 않는 의견 자료, 표시의 변형과 정상 읽기 전용 조작이 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The ERD/sitemap variants, accepted reflection and unmatched-comment datasets, mark variants and normal readonly interactions.",
+          "ko": "ERD·사이트맵 변형, 받은 반영·맞지 않는 의견 자료, 표시의 변형과 정상 읽기 전용 조작이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1232",
+      "screenState": "SCR-105#large",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named large state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: The corresponding large Prism fixture/renderer and all originally required screenshot reviews. This run claims no three-second performance result. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 large 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 큰 그림의 Prism 자료·렌더러 단계와 원래 요구한 전체 스크린샷 검토가 남았습니다. 이 결과로 3초 성능을 주장하지 않습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The corresponding large Prism fixture/renderer and all originally required screenshot reviews. This run claims no three-second performance result.",
+          "ko": "큰 그림의 Prism 자료·렌더러 단계와 원래 요구한 전체 스크린샷 검토가 남았습니다. 이 결과로 3초 성능을 주장하지 않습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1233",
+      "screenState": "SCR-105#empty",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named empty state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Actual other-repository omission and both navigation links. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 empty 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 다른 저장소여서 그림이 빠지는 실제 분기와 두 이동 링크의 확인이 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Actual other-repository omission and both navigation links.",
+          "ko": "다른 저장소여서 그림이 빠지는 실제 분기와 두 이동 링크의 확인이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1234",
+      "screenState": "SCR-105#stale",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named stale state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Source-gone/other-repository reasons, waiting discrepancies, and a newer commit offered without replacement until Show it. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 stale 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원본이 사라짐·다른 저장소인 이유, 기다리는 어긋남, 새 커밋을 안내하되 보기를 누르기 전 현재 그림을 바꾸지 않는 연쇄가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Source-gone/other-repository reasons, waiting discrepancies, and a newer commit offered without replacement until Show it.",
+          "ko": "원본이 사라짐·다른 저장소인 이유, 기다리는 어긋남, 새 커밋을 안내하되 보기를 누르기 전 현재 그림을 바꾸지 않는 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1235",
+      "screenState": "SCR-105#error",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named error state observed in 8 settings (320/1440 px x EN/KO x light/dark). The original renderer failure and the separately passing bounded fixed-source branch remain distinct. Remaining: Other initial-page target/default branches and every read-again error at every setting. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 error 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원 렌더러 실패와 수정 소스의 해당 분기 통과를 별도로 보존했습니다. 첫 페이지의 나머지 대상·기본 오류와 다시 읽기 오류 전체를 모든 설정에서 확인하는 절차가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "screen-final-fixes-01/report.safe.json",
+          "sha256": "461abbd5a09a2b55c46c06499de4e547027ff96f98fb2448d9002db34500636c",
+          "scope": "Reviewed source fixes565/566/567: 36 completed cells,20 KO marker harness stops retained."
+        },
+        {
+          "file": "screen-final-fixes-ko-02/report.safe.json",
+          "sha256": "9fedf94ea206dd4c6f9c9a5c45d351b944cb89ffd0572a27649fb6f2cd0d6719",
+          "scope": "Corrected KO marker:20 completed affected refusal-page cells."
+        },
+        {
+          "file": "screen-final-initial403-01/report.safe.json",
+          "sha256": "8efb2f9642a671f63baf142c8f0eb2747a36bab953b50a76b617a954cc32cf87",
+          "scope": "Eight actual initial overview missing-assertion403 cells for TC1261; this is synthetic verifier evidence."
+        },
+        {
+          "file": "runtime-final-ui-fixes.manifest.safe.json",
+          "sha256": "322518dbc8d8ca99f65bdb9ede61efa18094d1cf703837d2ccf41904e59cc4a1",
+          "scope": "Exact fixed renderer/hub source copy; actual adapter not exercised by this UI fixture."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Other initial-page target/default branches and every read-again error at every setting.",
+          "ko": "첫 페이지의 나머지 대상·기본 오류와 다시 읽기 오류 전체를 모든 설정에서 확인하는 절차가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1236",
+      "screenState": "SCR-105#code-failed",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named code-failed state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: The view-module failure and every API104 status variant. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 code-failed 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 보기 모듈 실패와 API104의 나머지 상태 응답이 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The view-module failure and every API104 status variant.",
+          "ko": "보기 모듈 실패와 API104의 나머지 상태 응답이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1237",
+      "screenState": "SCR-105#permission",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named permission state observed in 8 settings (320/1440 px x EN/KO x light/dark). The original renderer failure and the separately passing bounded fixed-source branch remain distinct. Remaining: 401, opaque redirect, and a genuine Access session-expiry path without changing shared login/policy state. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 permission 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원 렌더러 실패와 수정 소스의 해당 분기 통과를 별도로 보존했습니다. 401·opaque redirect 및 공유 로그인·정책을 바꾸지 않는 실제 Access 세션 만료 경로는 미검증입니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "screen-final-fixes-01/report.safe.json",
+          "sha256": "461abbd5a09a2b55c46c06499de4e547027ff96f98fb2448d9002db34500636c",
+          "scope": "Reviewed source fixes565/566/567: 36 completed cells,20 KO marker harness stops retained."
+        },
+        {
+          "file": "screen-final-fixes-ko-02/report.safe.json",
+          "sha256": "9fedf94ea206dd4c6f9c9a5c45d351b944cb89ffd0572a27649fb6f2cd0d6719",
+          "scope": "Corrected KO marker:20 completed affected refusal-page cells."
+        },
+        {
+          "file": "screen-final-initial403-01/report.safe.json",
+          "sha256": "8efb2f9642a671f63baf142c8f0eb2747a36bab953b50a76b617a954cc32cf87",
+          "scope": "Eight actual initial overview missing-assertion403 cells for TC1261; this is synthetic verifier evidence."
+        },
+        {
+          "file": "runtime-final-ui-fixes.manifest.safe.json",
+          "sha256": "322518dbc8d8ca99f65bdb9ede61efa18094d1cf703837d2ccf41904e59cc4a1",
+          "scope": "Exact fixed renderer/hub source copy; actual adapter not exercised by this UI fixture."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "401, opaque redirect, and a genuine Access session-expiry path without changing shared login/policy state.",
+          "ko": "401·opaque redirect 및 공유 로그인·정책을 바꾸지 않는 실제 Access 세션 만료 경로는 미검증입니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1238",
+      "screenState": "SCR-106#normal",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named normal state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Successful send201 at every setting, all item-fact variants and closed-list datasets. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 normal 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 모든 설정에서 보내기201에 성공하는 연쇄, 항목 정보의 모든 변형과 닫힌 의견 자료가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Successful send201 at every setting, all item-fact variants and closed-list datasets.",
+          "ko": "모든 설정에서 보내기201에 성공하는 연쇄, 항목 정보의 모든 변형과 닫힌 의견 자료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1239",
+      "screenState": "SCR-106#empty",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named empty state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: The ID-less part-name branch and the paired Prism empty-item fixture/renderer. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 empty 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 자기 ID가 없는 부분 이름 분기와 empty 항목의 Prism 자료·렌더러 단계가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The ID-less part-name branch and the paired Prism empty-item fixture/renderer.",
+          "ko": "자기 ID가 없는 부분 이름 분기와 empty 항목의 Prism 자료·렌더러 단계가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1240",
+      "screenState": "SCR-106#loading",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named loading state observed in 8 settings (320/1440 px x EN/KO x light/dark). Fixed v2 pending-send cells keep the draft and Sending/readonly state; all eight unchanged page-checks report zero errors. Remaining: The paired Prism pending-send renderer/loading-release procedure; fixed contrast is measured separately on v2 at all eight settings. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests. All 8 fixed actual-state PNGs were independently reviewed; the mock-stage gap remains.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 loading 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. v2 전송 대기 상태에서 초안·Sending·readonly를 보존했고 해당 8개 원 page-check 오류는 0개입니다. 전송 대기 상태의 Prism 렌더러와 대기 해제 연쇄를 짝지어 확인하는 절차가 남았습니다. 수정 후 대비는 v2의 8개 설정에서 별도로 계측했습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다. 수정 후 실제 상태의 화면8개를 모두 직접 검토했으며 모의 단계의 미검증 절은 남아 있습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "final-v2-basic-actual-01/report.safe.json",
+          "sha256": "615880528bda01021177658dc25beded4c8d97dfcccfe1f56308f6669d9bc906",
+          "scope": "TC1240 pending-send eight cells on the fixed readonly CSS source; contrast errors0 for those eight."
+        },
+        {
+          "file": "runtime-final-gone-v2.manifest.safe.json",
+          "sha256": "115ee3669100ab99d3735c363b52b32d5c02df1bf1f53bf293740feb204f835e",
+          "scope": "Exact reviewed v2 source/bundle copy for BUG569 readonly contrast fix."
+        },
+        {
+          "file": "readonly-v2-eight-visual-review.safe.json",
+          "sha256": "1700405ad2b18be3f3821216b364cf95b7c542876f6a421d4851149eedf0ae9f",
+          "scope": "All8 fixed readonly-state screenshots actually reviewed; each unchanged checker reports0errors."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The paired Prism pending-send renderer/loading-release procedure; fixed contrast is measured separately on v2 at all eight settings.",
+          "ko": "전송 대기 상태의 Prism 렌더러와 대기 해제 연쇄를 짝지어 확인하는 절차가 남았습니다. 수정 후 대비는 v2의 8개 설정에서 별도로 계측했습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1241",
+      "screenState": "SCR-106#error",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named error state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Same/new write-ID retry, field associations and every listed refusal variant at every setting. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 error 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 같은·새 write ID로 재시도, 필드 연결과 나열된 모든 거절 응답을 모든 설정에서 확인하는 절차가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Same/new write-ID retry, field associations and every listed refusal variant at every setting.",
+          "ko": "같은·새 write ID로 재시도, 필드 연결과 나열된 모든 거절 응답을 모든 설정에서 확인하는 절차가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1242",
+      "screenState": "SCR-106#permission",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named permission state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: 401, opaque redirect, actual expiry and the full retry sequence. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 permission 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 401·opaque redirect·실제 만료와 전체 재시도 연쇄가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "401, opaque redirect, actual expiry and the full retry sequence.",
+          "ko": "401·opaque redirect·실제 만료와 전체 재시도 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1243",
+      "screenState": "SCR-106#gone",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named gone state observed in 8 settings (320/1440 px x EN/KO x light/dark). After BUG568, actual source redraw/full reload passes comment-only, draft-only (same text/write ID), neither and closed-only:32 v2 cells plus8 bounded v3 regressions. Remaining: ID-less parts that have no address, with their retained open comments shown Apart; the complete paired Prism gone-state stage and screenshot review of all required settings/subvariants. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 gone 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. BUG568 뒤 실제 원본 재전송·전체 새로고침에서 댓글만·초안만(같은 글/write ID)·둘 다 없음·닫힌 댓글만의 32개 v2 조합과 v3 영향 회귀 8개를 확인했습니다. 주소가 없는 부분이 그림에서 사라진 뒤 열린 의견을 따로 보여 주는 분기, gone의 전체 Prism 단계 및 모든 설정·세부 경우의 스크린샷 검토가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "gone-item-live-source-probe-03/report.safe.json",
+          "sha256": "1d74871daa829e23d9f3fd853a84fe76939aca53c22075ad0f637e16b34ccb8f",
+          "scope": "Original actual source-change retained-open-comment/draft UI failure (BUG568)."
+        },
+        {
+          "file": "gone-v2-four-branches-01/report.safe.json",
+          "sha256": "88cab143847e0eb183d5a06be56889bac7e0982a6a98982621abf72743f71eae",
+          "scope": "Actual source push/full Page.reload/timeOrigin, comment-only/draft-only/neither/closed-only across eight settings:32/32."
+        },
+        {
+          "file": "gone-v3-bounded-01/report.safe.json",
+          "sha256": "82504b07b7f4530841db72f4987a426578caff9faab2d73596a4371b2b5ed044",
+          "scope": "Final v3 metadata regression: same four branches in EN/KO320 dark,8/8; screenshot contacts actually viewed."
+        },
+        {
+          "file": "final-visual-review-v3.safe.json",
+          "sha256": "b62843b7c737b58601e6bb9f8417b4e45d5e17773c532eed593aff68ae080fb6",
+          "scope": "Exact enumerated final v3 screenshots independently viewed; does not expand v2 32 captures to32 visual reviews."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "ID-less parts that have no address, with their retained open comments shown Apart; the complete paired Prism gone-state stage and screenshot review of all required settings/subvariants.",
+          "ko": "주소가 없는 부분이 그림에서 사라진 뒤 열린 의견을 따로 보여 주는 분기, gone의 전체 Prism 단계 및 모든 설정·세부 경우의 스크린샷 검토가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1244",
+      "screenState": "SCR-107#loading",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named loading state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: The cached closed-comment branch and the complete mock pending/read-release sequence. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 loading 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 캐시에 있는 닫힌 의견 분기와 모의 대기·읽기 해제의 전체 연쇄가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The cached closed-comment branch and the complete mock pending/read-release sequence.",
+          "ko": "캐시에 있는 닫힌 의견 분기와 모의 대기·읽기 해제의 전체 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1245",
+      "screenState": "SCR-107#normal",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named normal state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Other comment states, all decision/proposal links, settle/reopen/answer and cross-picture links. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 normal 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 나머지 의견 상태, 결정·제안 링크, 정하기·다시 열기·답이 나옴 및 다른 그림 링크 분기가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Other comment states, all decision/proposal links, settle/reopen/answer and cross-picture links.",
+          "ko": "나머지 의견 상태, 결정·제안 링크, 정하기·다시 열기·답이 나옴 및 다른 그림 링크 분기가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1246",
+      "screenState": "SCR-107#stale",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named stale state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: A newly arrived agent reply marked New. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 stale 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 새로 도착한 에이전트 답글에 새 표시가 붙는 분기가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "A newly arrived agent reply marked New.",
+          "ko": "새로 도착한 에이전트 답글에 새 표시가 붙는 분기가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1247",
+      "screenState": "SCR-107#error",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named error state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Text retention/retry, the reply-limit move-to-new-comment path, and every variant at every setting. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 error 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 글 보존·재시도, 답글 제한에서 새 의견으로 옮기기 및 모든 설정의 전체 응답 변형이 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Text retention/retry, the reply-limit move-to-new-comment path, and every variant at every setting.",
+          "ko": "글 보존·재시도, 답글 제한에서 새 의견으로 옮기기 및 모든 설정의 전체 응답 변형이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1248",
+      "screenState": "SCR-107#permission",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named permission state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Actual settling-agent refusal,401,opaque redirect and genuine Access expiry. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 permission 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 에이전트가 정하기를 시도하는 실제 거절, 401·opaque redirect와 실제 Access 만료가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Actual settling-agent refusal,401,opaque redirect and genuine Access expiry.",
+          "ko": "에이전트가 정하기를 시도하는 실제 거절, 401·opaque redirect와 실제 Access 만료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1249",
+      "screenState": "SCR-107#gone",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named gone state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: A comment disappearing during a typed reply, with a retained copyable draft and refresh/navigation effects. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 gone 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 답글을 쓰는 중 의견이 사라지는 경우의 복사 가능한 초안 보존과 새로고침·이동 효과가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "A comment disappearing during a typed reply, with a retained copyable draft and refresh/navigation effects.",
+          "ko": "답글을 쓰는 중 의견이 사라지는 경우의 복사 가능한 초안 보존과 새로고침·이동 효과가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1250",
+      "screenState": "SCR-108#loading",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named loading state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Closed/uncached proposal variants and the paired exact mock loading-release stage. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 loading 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 닫힌 제안·캐시 없는 제안 변형과 정확한 모의 대기 해제 단계가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Closed/uncached proposal variants and the paired exact mock loading-release stage.",
+          "ko": "닫힌 제안·캐시 없는 제안 변형과 정확한 모의 대기 해제 단계가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1251",
+      "screenState": "SCR-108#normal",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named normal state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Accepted reflection-state variants, dismissal/withdrawal and the full normal write/action sequence. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 normal 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 받은 뒤 반영 상태의 변형, 거절·철회와 정상 쓰기·조작의 전체 연쇄가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Accepted reflection-state variants, dismissal/withdrawal and the full normal write/action sequence.",
+          "ko": "받은 뒤 반영 상태의 변형, 거절·철회와 정상 쓰기·조작의 전체 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1252",
+      "screenState": "SCR-108#stale",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named stale state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: The dismiss race, edit-state/already-dismissed variants, and earlier-picture notices. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 stale 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 거절 경쟁, 수정 상태·이미 거절됨 변형과 이전 그림 안내가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The dismiss race, edit-state/already-dismissed variants, and earlier-picture notices.",
+          "ko": "거절 경쟁, 수정 상태·이미 거절됨 변형과 이전 그림 안내가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1253",
+      "screenState": "SCR-108#error",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named error state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Same/new write-ID retries and every listed variant at every setting. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 error 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 같은·새 write ID로 재시도와 모든 설정의 나머지 응답 변형이 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Same/new write-ID retries and every listed variant at every setting.",
+          "ko": "같은·새 write ID로 재시도와 모든 설정의 나머지 응답 변형이 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1254",
+      "screenState": "SCR-108#permission",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named permission state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Other actual role/read branches,401,opaque redirect and genuine provider expiry. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 permission 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 나머지 실제 역할·읽기 분기, 401·opaque redirect와 실제 제공자 만료가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Other actual role/read branches,401,opaque redirect and genuine provider expiry.",
+          "ko": "나머지 실제 역할·읽기 분기, 401·opaque redirect와 실제 제공자 만료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1255",
+      "screenState": "SCR-108#gone",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named gone state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Reflection disappearing during viewing, then refresh/navigation effects. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 gone 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 보는 중 반영이 사라지는 경우와 이어지는 새로고침·이동 효과가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Reflection disappearing during viewing, then refresh/navigation effects.",
+          "ko": "보는 중 반영이 사라지는 경우와 이어지는 새로고침·이동 효과가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1256",
+      "screenState": "SCR-109#loading",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named loading state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: The unchanged full page-check while the core document remains deliberately pending; the checker waits document.fonts.ready, so raw overflow and a screenshot do not substitute for it. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 loading 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 코어 문서를 의도적으로 대기시킨 동안 원 page-check 전체를 돌린 근거가 남았습니다. 도구가 document.fonts.ready를 기다려 멈추므로 원시 넘침 수치와 캡처로 이를 대신 통과 처리하지 않았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "screen-matrix-followup-01/report.safe.json",
+          "sha256": "35fc7702122babf8929399a46e698108ed9e79623c60fcb47aad38057e39545a",
+          "scope": "Corrected fixture/harness follows original retained stops: this TC observed in eight settings."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "The unchanged full page-check while the core document remains deliberately pending; the checker waits document.fonts.ready, so raw overflow and a screenshot do not substitute for it.",
+          "ko": "코어 문서를 의도적으로 대기시킨 동안 원 page-check 전체를 돌린 근거가 남았습니다. 도구가 document.fonts.ready를 기다려 멈추므로 원시 넘침 수치와 캡처로 이를 대신 통과 처리하지 않았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1257",
+      "screenState": "SCR-109#normal",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named normal state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Nonempty discrepancy/reflection/check datasets and the complete normal action procedure across every setting. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests. Additional v4 nonempty regression preserves all 3 lists in8 settings;2 representative PNGs independently reviewed. BUG572 exact empty-checks text now matches EN/KO in all 8 v5 normal settings; other empty lists keep None. All 8 Checks message captures viewed; original v4 mismatch retained. The remaining full-case branches below are unchanged.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 normal 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 어긋남·반영 대기·점검이 있는 자료와 모든 설정에서 정상 조작 전체를 확인하는 절차가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다. v4의 8개 설정에서는 남은 의견이 있을 때 목록3개가 남고 빈 상태를 잘못 안내하지 않으며 대표 화면2개를 직접 검토했습니다. BUG572 수정 뒤 v5 normal의 8개 설정에서 정확한 EN/KO 빈 점검 문구를 확인했고 다른 빈 목록의 없음은 유지됩니다. 점검 문구 화면 8개를 직접 보았으며 v4 원 불일치는 보존했습니다. 아래 나머지 원문 절은 그대로 미검증입니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "final-v4-overview-actual-01/report.safe.json",
+          "sha256": "2ad0f95aa98496af41d669b18472a974d1ecb000e646bd8b0efb10c139b57e81",
+          "scope": "Current-copy eight-setting nonempty overview regression preserves all3 lists and does not show a false empty notice."
+        },
+        {
+          "file": "final-visual-review-v4.safe.json",
+          "sha256": "b5dc37af1e0f9f85bb2997682ce3111c5ae7cd377a383cd4935b05412c1fd0d1",
+          "scope": "Two nonempty representatives actually viewed; no wholeTC1257 promotion."
+        },
+        {
+          "file": "bug-normal-overview-checks-v4.safe.json",
+          "sha256": "e02fb3b4776fa46f8cce40fd1e158a93bcbb982b94724b5afc135bd97c30c039",
+          "scope": "Original actual message mismatch in8 settings; two independently viewed representatives."
+        },
+        {
+          "file": "final-v5-overview-actual-02/report.safe.json",
+          "sha256": "f052e96320192f460298ae09d3d414cce4d891c86e86172dfff63674c5ae3729",
+          "scope": "Final normal8 exact message/default None assertions; this does not complete all normal subvariants."
+        },
+        {
+          "file": "final-visual-review-v5.safe.json",
+          "sha256": "cecbdef978ff774811d07a742ba05cf6084ac79ff61e896fea1b41ac12bf123e",
+          "scope": "All8 normal Checks message PNGs actually viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Nonempty discrepancy/reflection/check datasets and the complete normal action procedure across every setting.",
+          "ko": "어긋남·반영 대기·점검이 있는 자료와 모든 설정에서 정상 조작 전체를 확인하는 절차가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1258",
+      "verdict": "pass",
+      "originalCriterionChanged": false,
+      "proposedLastResult": {
+        "en": "pass on isolated local Node/SQLite (v5 canonical copied-source 7b3de16f769b, synthetic signed Access): pinned Prism DTO through the real renderer in 8 settings, then actual Node in the same 8 (320/1440 px x EN/KO x light/dark). The notice replaces all 3 empty lists; record, exact empty-checks message and enabled Pass remain. All 16 primary state and 8 mobile lower-control files independently viewed; both phases have 0 checker errors. Each actual cell passed then withdrew one checkpoint: SQL/to-do agree, record unchanged. Original v3 BUG571 and v4 BUG572 failures retained.",
+        "ko": "pass, 격리된 로컬 Node/SQLite(v5 canonical 복사 소스 7b3de16f769b, 합성 서명 Access): Prism DTO→실제 렌더러 8개 설정 다음 실제 Node의 같은 8개 설정(320/1440픽셀 x EN/KO x 라이트/다크)을 실행했습니다. 안내가 빈 목록 3개를 대신하고 기록·정확한 빈 점검 문구·활성 통과 버튼이 남습니다. 상태 16개와 모바일 하단 8개를 직접 보았으며 두 단계 모두 도구 오류 0개입니다. 실제 각 셀에서 확인 지점 한 개를 통과·철회해 SQL·할 일 일치와 기록 불변을 확인했습니다. v3 BUG571·v4 BUG572 원 실패를 보존했습니다."
+      },
+      "evidence": [
+        {
+          "file": "bug-empty-overview-v3.safe.json",
+          "sha256": "d88d601325a69a4963b4d49dda0d8bf45073d61042a7a5bf8d198b60aa305cf7",
+          "scope": "All16 actual/mock observations and per-cell PNG hashes for the confirmed mismatch."
+        },
+        {
+          "file": "final-v3-empty-actual-01/TC-1258-ko-320-dark.png",
+          "sha256": "9cbb9683d2a1beead77773917bf7edbed441d8aed4964f6ff300461dcf96270d",
+          "scope": "Directly reviewed actual-node screenshot showing all three empty list cards."
+        },
+        {
+          "file": "empty-wire-final-v3-01/TC-1258-ko-320-dark.png",
+          "sha256": "471553229286b21390093b33c8895e4e322c63b477ae3342007a1b1dbbeba9f8",
+          "scope": "Directly reviewed Prism DTO through the same renderer; same mismatch."
+        },
+        {
+          "file": "empty-wire-final-v4-02/report.safe.json",
+          "sha256": "7f302d3880313ccc944d526164cd1995092c4897bdeac0ba2820bfc638695e37",
+          "scope": "Successful pinned Prism DTO→actual renderer phase,8 settings, completed before the actual-node phase."
+        },
+        {
+          "file": "final-v4-overview-after-prism-02/report.safe.json",
+          "sha256": "697dce1b5d31d0f4e6484cbb644721a2e15c00eed768de0d358ee09f244fb8fb",
+          "scope": "Actual Node/SQLite phase,8 settings; each includes real native Pass/Withdraw, SQL/to-do effects and unchanged record."
+        },
+        {
+          "file": "final-visual-review-v4.safe.json",
+          "sha256": "b5dc37af1e0f9f85bb2997682ce3111c5ae7cd377a383cd4935b05412c1fd0d1",
+          "scope": "All16 primary state files and8 lower-mobile files actually reviewed; selected4 action screenshots separately counted."
+        },
+        {
+          "file": "runtime-final-empty-v4.manifest.safe.json",
+          "sha256": "f3e288aab6fb7e0887ea982ea9f0c9cc821a6829cb724a84e4b5f44e0ed73a67",
+          "scope": "Exact Root-reviewed source/bundle copy: filesDigest1bad84007a2bdb228855eae99301e214479e09c3c775fcde3584d5814de00020."
+        },
+        {
+          "file": "empty-wire-final-v4-01/report.safe.json",
+          "sha256": "5ff040f31fab66658f446b92364edb7728d03498bd292386d17f462658123047",
+          "scope": "Retained first Prism startup tooling stop with0 cells; not a product failure or acceptance evidence."
+        },
+        {
+          "file": "empty-wire-final-v5-01/report.safe.json",
+          "sha256": "a3a6b26c6cfc1c2b228c4fa73f18ab9bc46895898a50cc0b9ff3f83244c636aa",
+          "scope": "Final canonical-LF Prism empty8 phase, completed before actual02."
+        },
+        {
+          "file": "final-v5-overview-actual-02/report.safe.json",
+          "sha256": "f052e96320192f460298ae09d3d414cce4d891c86e86172dfff63674c5ae3729",
+          "scope": "Final actual normal8+empty8; empty8 native Pass/Withdraw/SQL/to-do and unchanged record."
+        },
+        {
+          "file": "final-visual-review-v5.safe.json",
+          "sha256": "cecbdef978ff774811d07a742ba05cf6084ac79ff61e896fea1b41ac12bf123e",
+          "scope": "Exact final36 screenshot files independently viewed;16 primary empty+8 lower+8 normal message+4 selected native writes."
+        },
+        {
+          "file": "runtime-final-checks-v5.manifest.safe.json",
+          "sha256": "7cb770ce1e8086e2456eca8cadd7504c1ef51a703c42f33350074f495db23fa3",
+          "scope": "Final reviewed canonical-LF source/bundle copy."
+        },
+        {
+          "file": "bug-normal-overview-checks-v4.safe.json",
+          "sha256": "e02fb3b4776fa46f8cce40fd1e158a93bcbb982b94724b5afc135bd97c30c039",
+          "scope": "Retained original exact checks-message mismatch; not hidden in a partial clause."
+        }
+      ],
+      "remainingExactClauses": []
+    },
+    {
+      "id": "TC-1259",
+      "screenState": "SCR-109#stale",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named stale state observed in 8 settings (320/1440 px x EN/KO x light/dark). Remaining: Recorded409, a record naming a withdrawn checkpoint, Pass again with a new ID and all stale-picture reasons. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 stale 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 기록되어 철회할 수 없는409, 기록이 철회한 확인 지점을 가리키는 경우, 새 ID로 다시 통과 및 최신이 아닌 그림의 모든 이유가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Recorded409, a record naming a withdrawn checkpoint, Pass again with a new ID and all stale-picture reasons.",
+          "ko": "기록되어 철회할 수 없는409, 기록이 철회한 확인 지점을 가리키는 경우, 새 ID로 다시 통과 및 최신이 아닌 그림의 모든 이유가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1260",
+      "screenState": "SCR-109#error",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named error state observed in 8 settings (320/1440 px x EN/KO x light/dark). The original renderer failure and the separately passing bounded fixed-source branch remain distinct. Remaining: Remaining initial-page/code-file failures and the full preserved-words/retry sequence at every setting. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 error 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원 렌더러 실패와 수정 소스의 해당 분기 통과를 별도로 보존했습니다. 나머지 첫 페이지·코드 파일 실패와 모든 설정의 남길 말 보존·재시도 전체 연쇄가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "screen-final-fixes-01/report.safe.json",
+          "sha256": "461abbd5a09a2b55c46c06499de4e547027ff96f98fb2448d9002db34500636c",
+          "scope": "Reviewed source fixes565/566/567: 36 completed cells,20 KO marker harness stops retained."
+        },
+        {
+          "file": "screen-final-fixes-ko-02/report.safe.json",
+          "sha256": "9fedf94ea206dd4c6f9c9a5c45d351b944cb89ffd0572a27649fb6f2cd0d6719",
+          "scope": "Corrected KO marker:20 completed affected refusal-page cells."
+        },
+        {
+          "file": "screen-final-initial403-01/report.safe.json",
+          "sha256": "8efb2f9642a671f63baf142c8f0eb2747a36bab953b50a76b617a954cc32cf87",
+          "scope": "Eight actual initial overview missing-assertion403 cells for TC1261; this is synthetic verifier evidence."
+        },
+        {
+          "file": "runtime-final-ui-fixes.manifest.safe.json",
+          "sha256": "322518dbc8d8ca99f65bdb9ede61efa18094d1cf703837d2ccf41904e59cc4a1",
+          "scope": "Exact fixed renderer/hub source copy; actual adapter not exercised by this UI fixture."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Remaining initial-page/code-file failures and the full preserved-words/retry sequence at every setting.",
+          "ko": "나머지 첫 페이지·코드 파일 실패와 모든 설정의 남길 말 보존·재시도 전체 연쇄가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    },
+    {
+      "id": "TC-1261",
+      "screenState": "SCR-109#permission",
+      "verdict": "partial",
+      "proposedLastResult": {
+        "en": "partial on isolated local Node/SQLite (original copied-source b05184c87319, synthetic signed Access): named permission state observed in 8 settings (320/1440 px x EN/KO x light/dark). The original renderer failure and the separately passing bounded fixed-source branch remain distinct. Remaining: Other actual role/read branches,401,opaque redirect and genuine expiry. The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+        "ko": "partial, 격리된 로컬 Node/SQLite(원 복사 소스 b05184c87319, 합성 서명 Access): 지정한 permission 상태를320/1440 x EN/KO x 라이트/다크의 8개 설정에서 관측했습니다. 원 렌더러 실패와 수정 소스의 해당 분기 통과를 별도로 보존했습니다. 나머지 실제 역할·읽기 분기, 401·opaque redirect와 실제 만료가 남았습니다. 해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+      },
+      "originalCriterionChanged": false,
+      "evidence": [
+        {
+          "file": "screen-matrix-01/report.safe.json",
+          "sha256": "67e00fadcdf4b37b7edb56229ba3d6dc81655f09f2fe9d10e64f5c234bddf730",
+          "scope": "Original named-state matrix: this TC has eight cells; the four TC1256 EN harness stops are retained and separately completed by followup."
+        },
+        {
+          "file": "runtime-fixed-tc682.manifest.safe.json",
+          "sha256": "4b219213638bcf00ba82cc5182c3a9f866c166a99148dc3d22efec5cecb323dd",
+          "scope": "Immutable actual Node/SQLite/synthetic-Access runtime copy used for original matrix."
+        },
+        {
+          "file": "screen-visual-review-01/sources.safe.json",
+          "sha256": "dffccf75fee3e8d22dab1485ef62a537a8f7b715d2cdc0aa5405890c5017847c",
+          "scope": "Original 45 KO320/dark viewports inspected through 1:1 contact sheets; TC1222 uses its separately viewed corrected word-search screenshot. Not all 360 screenshots were independently viewed."
+        },
+        {
+          "file": "screen-final-fixes-01/report.safe.json",
+          "sha256": "461abbd5a09a2b55c46c06499de4e547027ff96f98fb2448d9002db34500636c",
+          "scope": "Reviewed source fixes565/566/567: 36 completed cells,20 KO marker harness stops retained."
+        },
+        {
+          "file": "screen-final-fixes-ko-02/report.safe.json",
+          "sha256": "9fedf94ea206dd4c6f9c9a5c45d351b944cb89ffd0572a27649fb6f2cd0d6719",
+          "scope": "Corrected KO marker:20 completed affected refusal-page cells."
+        },
+        {
+          "file": "screen-final-initial403-01/report.safe.json",
+          "sha256": "8efb2f9642a671f63baf142c8f0eb2747a36bab953b50a76b617a954cc32cf87",
+          "scope": "Eight actual initial overview missing-assertion403 cells for TC1261; this is synthetic verifier evidence."
+        },
+        {
+          "file": "runtime-final-ui-fixes.manifest.safe.json",
+          "sha256": "322518dbc8d8ca99f65bdb9ede61efa18094d1cf703837d2ccf41904e59cc4a1",
+          "scope": "Exact fixed renderer/hub source copy; actual adapter not exercised by this UI fixture."
+        }
+      ],
+      "remainingExactClauses": [
+        {
+          "en": "Other actual role/read branches,401,opaque redirect and genuine expiry.",
+          "ko": "나머지 실제 역할·읽기 분기, 401·opaque redirect와 실제 만료가 남았습니다."
+        },
+        {
+          "en": "The complete corresponding Prism state/data through the actual product renderer has not been paired at all eight required settings. The separate 157 Problem variants cover KO320/dark presentation only. Independent screenshot review of every required subvariant/setting is not complete; exact reviewed files are listed in the manifests.",
+          "ko": "해당 상태·자료를 실제 제품 렌더러에 넣는 Prism 단계가 원래 요구한 8개 설정 전체와 아직 짝지어지지 않았습니다. 별도 Problem 157개 검사는 KO320·다크 표시만 증명합니다. 모든 세부 경우·설정의 독립 스크린샷 검토도 미완료이며 실제 본 파일은 명부에 구분했습니다."
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "pass": 5,
+    "partial": 43
+  },
+  "screenCaseCounts": {
+    "total": 45,
+    "pass": 2,
+    "partial": 43
+  },
+  "passIds": [
+    "TC-651",
+    "TC-682",
+    "TC-684",
+    "TC-1223",
+    "TC-1258"
+  ],
+  "productionWrites": 0,
+  "sourceWritesByTester": 0,
+  "cleanup": {
+    "file": "final-owned-process-cleanup-v5.safe.json",
+    "sha256": "a895810f86f1cda3ab67cce5cd49cdd31dc9b8a841487fd8ad842da29b5f242e",
+    "scope": "After all owned tabs/servers/Prism closed:0 matching non-shell processes, Chrome0/Node0. Profile directories retained privately."
+  }
+}

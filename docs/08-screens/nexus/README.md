@@ -39,10 +39,12 @@ The stage's default human view is grayscale wireframes drawn from the definition
 6. **Reading again.** After a write, the view reads its data again, the picture (API-111) or the overview (API-112), and an open panel its comment (API-114) or its proposal (API-115). Meanwhile "Updating…" shows, and the screen stays usable. A newer picture than the one drawn is offered, not drawn under the user (SCR-105#stale). A reading that fails leaves what the screen shows, with "Could not update. What you see may be out of date." and Try again.
 7. **Sign-in.** On the server every page and request is behind Cloudflare Access, whose login page and refusals are its own, outside the sitemap. When a sign-in expires while a view is open, a request gets Access's redirect, which the view sees as an `opaqueredirect` reply, or a `401`. The view then says that the sign-in expired, keeps what the user wrote and offers Sign in again, which loads the page again through Access's login and comes back to the same address, with its panel.
 8. **Connection.** No network, no answer within 30 seconds, or a `429` or `503` from Cloudflare: an error with its message from [Messages](#messages) and Try again, while the rest of the screen still works and what the user wrote is kept.
-9. **Page refusals.** The three pages, the hub page (API-101), the picture view (API-102) and the stage overview (API-103), answer a browser's request that they refuse or fail as a small HTML page of one message in the server's language, with the trace ID, Load again and a link to the hub page ([change 1](#changes-to-earlier-stages)). A view's own data holds Problem Details in `problem`.
+9. **Page refusals.** The three pages, the hub page (API-101), the picture view (API-102) and the stage overview (API-103), answer a browser's request that they refuse or fail as a small HTML page of one message in the server's language, with the trace ID, Load again and a link to the hub page ([change 1](#changes-to-earlier-stages)). Use the complete generated code message and the existing frozen view styles, including the system light/dark theme, readable Korean word breaks and target-sized links. This page loads no script or stylesheet request. A view's own data holds Problem Details in `problem`.
 10. **Panels and addresses.** The item, comment and proposal panels open from their address after `#`, `item=`, `comment=` or `proposal=`, at once and on a phone too. A part that no item holds opens the item panel without an address of its own ([choice 12](#choices-this-stage-made)). The focus moves to the panel's heading; Escape, Close and the browser's back button close the panel and leave the picture's address. The hub page keeps phase 1's addresses, `q`, and `p` with `id` or `s`.
 11. **The same for everyone.** A screen shows the same to everyone whom it shows, the user and anyone else whom Access lets in. What someone may do follows the requests' sign-ins: accepting or dismissing a proposal, dismissing a reflection and passing or withdrawing a checkpoint need a person's own sign-in (API-124, API-125, API-127 to API-129), and a refusal shows its message. No screen shows an email address, a name or any other part of an identity: an entry shows its author's kind, "User" or "Agent" (REQ-163, [choice 9](#choices-this-stage-made)).
 12. **Lists and limits.** A list that a read caps shows how many it holds of its total, such as "50 of 73"; the stage overview lists 50 of each and links the picture view, which lists 500. Counts over 999 show as `999+` (SPEC-123).
+
+Pending text boxes stay readable in their normal frozen foreground/background colors while read-only: users can focus, select and copy their existing text. Disabled opacity is reserved for disabled controls.
 
 ## Responses and states
 
@@ -145,6 +147,9 @@ No screen shows the other codes. `agent_only`, `claimed` and `comment_closed` re
 | No comments | SCR-106 | No comments on {id} yet. | {id}에는 아직 의견이 없습니다. |
 | Not in the picture | SCR-106 | {id} is not in this picture. | {id} 항목은 이 그림에 없습니다. |
 | No ID | SCR-106 | No ID: comments on it are kept on the picture, with its name as the quote. | ID가 없어, 의견은 이 이름을 인용으로 붙여 그림에 남습니다. |
+| Held part | SCR-106 | No ID of its own: comments are kept on {id}, with this name as the quote. | 자기 ID가 없어, 의견은 이 이름을 인용으로 붙여 {id}에 남습니다. |
+| Closed on | SCR-106 | Closed on {id} | {id}의 닫힌 의견 |
+| Recovered draft | SCR-106 | An earlier picture draft was recovered. Its previous send may already be on the picture; check the comments before sending a new comment on {id}, with this name as the quote. | 이전 그림 초안을 복구했습니다. 이전 전송이 그림에 이미 남았을 수 있으니 의견을 확인한 뒤 보내세요. 새 의견은 이 이름을 인용으로 붙여 {id}에 남습니다. |
 | A comment's state | SCR-107 | Waiting for the agent. Waiting for the user. Settled by the user, waiting for the agent's record. A proposal was dismissed. Closed as answered. Closed with a decision. | 에이전트를 기다림. 사용자를 기다림. 사용자가 정함, 에이전트의 기록을 기다림. 제안을 버림. 답이 나서 닫힘. 결정으로 닫힘. |
 | No replies | SCR-107 | No replies yet. | 아직 답글이 없습니다. |
 | Settles it | SCR-107 | This settles it | 이것으로 정함 |
@@ -157,6 +162,7 @@ No screen shows the other codes. `agent_only`, `claimed` and `comment_closed` re
 | Earlier picture | SCR-108 | Made on the picture of commit {commit}; the stage source may have changed since. | 커밋 {commit}의 그림에서 낸 제안입니다. 그 뒤 단계 원본이 바뀌었을 수 있습니다. |
 | Loading the overview | SCR-109, before its code runs | Loading the stage overview. If it does not appear, load the page again. | 단계 현황을 불러오는 중입니다. 나타나지 않으면 페이지를 다시 불러와 주세요. |
 | Nothing left | SCR-109 | Nothing is left in this stage. | 이 단계에 남은 것이 없습니다. |
+| No checks | SCR-109 | No checks found anything. | 점검에서 찾은 것이 없습니다. |
 | Not read | SCR-109 | This project does not read this stage: {why}. You can still pass its checkpoint. | 이 프로젝트는 이 단계를 읽지 않습니다: {why}. 그래도 확인 지점은 통과시킬 수 있습니다. |
 | Waiting for its record | SCR-101, SCR-104, SCR-109 | Passed in NEXUS on {date}, waiting for its record | {date}에 NEXUS에서 통과, 기록을 기다림 |
 | Pass again | SCR-109 | Pass again | 다시 통과 |
