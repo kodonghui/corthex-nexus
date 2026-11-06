@@ -10,6 +10,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def run_suite(executable, clean, script, arguments=()):
+    if script == "browser-regression.mjs":
+        clean["NEXUS_QA_TALL_SITEMAP"] = "1"
     server = subprocess.Popen([executable, str(ROOT / "nexus/test/view-server.mjs")], cwd=ROOT, env=clean,
                               stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     try:
@@ -21,7 +23,10 @@ def run_suite(executable, clean, script, arguments=()):
         receipt = json.loads(lines[-1]) if lines else {}
         print(json.dumps({"scope": "synthetic local browser regression", "suite": script, "arguments": arguments, "status": receipt.get("status", "blocked"),
                           "elapsed_ms": receipt.get("elapsedMs"), "profile_removed": receipt.get("profileRemoved", False)}))
-        return result.returncode or int(receipt.get("status") != "works" or not receipt.get("profileRemoved"))
+        status = result.returncode or int(receipt.get("status") != "works" or not receipt.get("profileRemoved"))
+        if status:
+            sys.stderr.write(result.stderr)
+        return status
     finally:
         server.stdin.close()
         try:
@@ -40,6 +45,8 @@ def main():
     clean.pop("NEXUS_QA_LINKS", None)
     clean.pop("NEXUS_QA_HUB", None)
     clean.pop("NEXUS_QA_LATE_SCREEN", None)
+    clean.pop("NEXUS_QA_TALL_SITEMAP", None)
+    clean["NEXUS_QA_PYTHON"] = sys.executable
     for script, arguments in [("browser-regression.mjs", ()), ("discussion-regression.mjs", ()),
                               ("discussion-regression.mjs", ("--dismiss",)), ("error-regression.mjs", ()),
                               ("asset-regression.mjs", ()), ("asset-regression.mjs", ("--core-css",)),

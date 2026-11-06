@@ -21,10 +21,16 @@ test("quantized and bounded zoom preserves the world point under the frame cente
   assert.deepEqual(zoomCamera(ready,"05-erd",ready.zoom,600,800),ready);
 });
 
-test("DDD and sitemap keep their existing zoom range and precision",()=>{
+test("DDD and sitemap keep their zoom ceiling and support a 300-node whole fit",()=>{
   for(const stage of["01-domain","07-sitemap"]){
     assert.equal(cameraZoom(stage,.25485714285714284),.25485714285714284);
     assert.equal(cameraZoom(stage,5),5);
     assert.equal(cameraZoom(stage,6),5);
+    const rect={x:100,y:160,width:560,height:47800},width=345,height=500;
+    const view=fitCamera(rect,stage,width,height,true);
+    assert.ok(view.zoom<.1&&view.zoom>0);
+    assert.ok(Math.abs(rect.y*view.zoom+view.y-24)<1e-9);
+    assert.ok(Math.abs((rect.y+rect.height)*view.zoom+view.y-(height-24))<1e-9);
+    assert.equal(zoomCamera(view,stage,view.zoom*1.25,width,height).zoom,view.zoom*1.25);
   }
 });

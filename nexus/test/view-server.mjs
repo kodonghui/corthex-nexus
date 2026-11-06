@@ -14,6 +14,18 @@ async function call(method,path,body,kind="user"){
  const response=await handle(new Request("http://127.0.0.1"+path,{method,headers,...(body===undefined?{}:{body:JSON.stringify(body)})}),env,access.ctx,template,views);const data=await response.json();if(!response.ok)throw new Error(JSON.stringify(data));return data;
 }
 for(const project of["qa-views","qa-views-reply","qa-views-overview"])await call("POST","/api/snapshots",viewSnapshot(project),"agent");
+if(process.env.NEXUS_QA_TALL_SITEMAP==="1"){
+ const project="qa-tall-sitemap",snapshot=viewSnapshot(project),sitemap=snapshot.pictures.find(p=>p.stage==="07-sitemap");
+ const [root,child]=sitemap.source.screens;
+ sitemap.source.screens=Array.from({length:300},(_,i)=>({
+  ...(i===0?root:child),id:"SCR-"+String(i+1).padStart(3,"0"),context:"",
+  name:"시험 화면 "+(i+1),path:i===0?"/":"/qa-"+i,
+ }));
+ await call("POST","/api/snapshots",snapshot,"agent");
+ for(const item of ["SCR-001","SCR-300"]){
+  await call("POST",`/api/spaces/${project}/comments`,{part:"sample",stage:"07-sitemap",item,text:"Whole-picture endpoint"});
+ }
+}
 if(process.env.NEXUS_QA_HUB==="1"){
  const snapshot=viewSnapshot("qa-hub-complete");
  for(const stage of Object.values(snapshot.stages)){stage.parts.sample.state="done";stage.parts.sample.next="";stage.parts.sample.checkpoints=[{date:"2026-11-04",by:"user",approved:"Synthetic QA completion"}];}

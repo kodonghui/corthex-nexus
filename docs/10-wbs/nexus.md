@@ -329,3 +329,7 @@ The [single classification table](../12-qa/runs/2026-11-05-postrelease-closeout.
 ## NEXUS 0.2.1 completion conditions (2026-11-06 KST)
 
 Of 64 tasks, 62 are done and 2 are in progress. The closeout links the completion conditions to their evidence and preserves their previous statuses. Phase 2 is on hold. [Closeout](../12-qa/runs/2026-11-05-patch-021-closeout.md)
+
+## NEXUS 0.2.2 editor patch (2026-11-06 KST)
+
+The patch fixes whole-picture fit for the tall sitemap and the Windows browser runner. The development transport investigation leaves BUG-562 open. The Phase 2 editor note is available for design review. [Patch evidence](../12-qa/runs/2026-11-06-patch-022-editor.md) · [Editor memo PR](https://github.com/kodonghui/corthex-nexus/pull/47)

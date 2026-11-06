@@ -2,6 +2,7 @@ import React from "react";
 import {createRoot} from "react-dom/client";
 import {Excalidraw,MainMenu,convertToExcalidrawElements} from "@excalidraw/excalidraw";
 import "@excalidraw/excalidraw/index.css";
+import {EXCALIDRAW_MIN_ZOOM} from "./camera.js";
 window.EXCALIDRAW_ASSET_PATH=location.origin+"/";
 const palette={context:["#64748b","transparent"],event:["#9a3412","#ffedd5"],command:["#1e40af","#dbeafe"],actor:["#854d0e","#fef9c3"],aggregate:["#854d0e","#fef08a"],"read-model":["#166534","#dcfce7"],policy:["#6b21a8","#f3e8ff"],external:["#86198f","#fae8ff"],hotspot:["#991b1b","#fee2e2"],screen:["#334155","#e2e8f0"],lane:["#64748b","transparent"]};
 export function mount(target,scene,{lang,onView,theme}){
@@ -13,7 +14,7 @@ export function mount(target,scene,{lang,onView,theme}){
     const deadline=performance.now()+30000;
     const controller={
       view:()=>{const s=api.getAppState();return{x:s.scrollX*s.zoom.value,y:s.scrollY*s.zoom.value,zoom:s.zoom.value,rects:scene.nodes};},
-      navigate:({x,y,zoom})=>api.updateScene({appState:{scrollX:x/zoom,scrollY:y/zoom,zoom:{value:Math.max(.1,Math.min(30,zoom))}}}),
+      navigate:({x,y,zoom})=>api.updateScene({appState:{scrollX:x/zoom,scrollY:y/zoom,zoom:{value:Math.max(EXCALIDRAW_MIN_ZOOM,Math.min(30,zoom))}}}),
       destroy:()=>{destroyed=true;cancelAnimationFrame(readyFrame);root.unmount();},
       theme:value=>api.updateScene({appState:{theme:value}})
     };

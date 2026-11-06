@@ -1,8 +1,13 @@
-// Match the pinned ERD viewer before it replaces the interactive SVG.
-// ERD Editor 5.1.0 supports 0.1–1.5 and stores zoom to two decimal places.
+// Shared with the pinned Excalidraw build so native gestures and the SVG
+// handoff can keep the same camera below 10%.
+export const EXCALIDRAW_MIN_ZOOM=0.001;
+
 export function cameraZoom(stage,value){
-  const zoom=Math.max(.1,Math.min(stage==="05-erd"?1.5:5,Number.isFinite(value)?value:.1));
-  return stage==="05-erd"?Math.round(zoom*100)/100:zoom;
+  const erd=stage==="05-erd";
+  // ERD Editor 5.1.0 stores zoom to two decimal places.
+  const minimum=erd?0.1:EXCALIDRAW_MIN_ZOOM;
+  const zoom=Math.max(minimum,Math.min(erd?1.5:5,Number.isFinite(value)?value:.1));
+  return erd?Math.round(zoom*100)/100:zoom;
 }
 export function zoomCamera(view,stage,value,width,height){
   const zoom=cameraZoom(stage,value);

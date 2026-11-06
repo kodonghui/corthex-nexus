@@ -329,3 +329,7 @@ source overlay나 업로드 없이 남아 있던 실제 default의 로컬 자체
 ## NEXUS 0.2.1 완료 조건 판정 (2026-11-06 KST)
 
 64개 중 62개 완료, 2개 진행입니다. 작업의 완료 조건을 각 시험 근거에 연결하고 이전 상태를 보존했습니다. 2단계는 보류합니다. [마무리 기록](../12-qa/runs/2026-11-05-patch-021-closeout.ko.md)
+
+## NEXUS 0.2.2 편집기 패치 (2026-11-06 KST)
+
+세로 사이트맵의 전체 맞춤과 Windows 브라우저 실행부를 고쳤습니다. 개발 서버 전송 조사 뒤 BUG-562는 열린 상태입니다. 2단계 편집기 설계용 메모를 PR에 올렸습니다. [패치 근거](../12-qa/runs/2026-11-06-patch-022-editor.ko.md) · [편집기 메모 PR](https://github.com/kodonghui/corthex-nexus/pull/47)
