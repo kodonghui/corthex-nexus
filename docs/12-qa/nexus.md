@@ -1112,3 +1112,7 @@ Found while drawing checkpoint 2 of the redesign of 2026-11-06. Both are fixed w
 | --- | --- | --- | --- |
 | BUG-595 | The dark picture ground comes out light | SCR-105, `color.picture-ground` | In the dark theme the picture view gives Excalidraw `#111827` as its background ([editor-excalidraw.js](../../nexus/ui/editor-excalidraw.js)), and Excalidraw 0.18.1 draws its canvas through `invert(93%) hue-rotate(180deg)` in that theme, so the ground comes out light grey, about `#d3d9e6`, under a dark page; `#ffffff` comes out `#121212`, the token's value. Computed from the filter; not yet looked at on the server. Open. |
 | BUG-596 | Symbols missing from the new fonts | REQ-236, SCR-110, SCR-111 | The symbols ✓ › ◐ ⌕ ▾ ▸ ✕ ☰, which the redesign's screens use for a stage's state, the steps and buttons, are missing from IBM Plex Sans KR or IBM Plex Mono, so a browser takes them from another font, at another size and weight. The redesign draws them as SVG icons. Open. |
+
+## Phase ② checkpoint 1 (2026-11-07 KST)
+
+Phase ②'s checkpoint 1 gave the stage 01 document two more timeline lanes and two more places in Editing directly, so NEXUS's own document now has seven lanes, and Picture edited and Edit conflict found share the second place of Editing directly. SPEC-106 acceptance 3 and SPEC-141 acceptance 1 now name the lanes without a count, and the pinned contract check expects the seven lanes. TC-611 and TC-658 keep their original criteria and results, which were taken against the five-lane document; neither case has been run against the seven-lane document.
