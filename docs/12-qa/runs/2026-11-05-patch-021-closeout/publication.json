@@ -1,0 +1,71 @@
+{
+  "schema": "nexus021-closeout-publication-byte-map/1",
+  "files": [
+    {
+      "file": "docs/12-qa/runs/2026-11-05-patch-021-closeout/figures/01-erd-camera-en-1440.png",
+      "sha256": "cd2bd90369011ae484b6e92905dc2f4bb5374e29d4b614e0b37b459334af0f3a",
+      "bytes": 47265
+    },
+    {
+      "file": "docs/12-qa/runs/2026-11-05-patch-021-closeout/figures/02-overview-en-1440.png",
+      "sha256": "48fda665acd3d6b75c627205d559a6bd4fec9730fdaa7e46ba846453e72b6542",
+      "bytes": 57985
+    },
+    {
+      "file": "docs/12-qa/runs/2026-11-05-patch-021-closeout/figures/03-comment-sending-ko-320.png",
+      "sha256": "6a9ed915d9310462c709268a21db065d758a0ee5ad7fa45c160757ca9ac44c63",
+      "bytes": 33764
+    },
+    {
+      "file": "docs/12-qa/runs/2026-11-05-patch-021-closeout/figures/04-gone-draft-ko-320.png",
+      "sha256": "aa3af21b4fb548f1c52effec4dfe5d1e263d467875493b8fb3631b2e460cbf64",
+      "bytes": 33255
+    },
+    {
+      "file": "docs/12-qa/runs/2026-11-05-patch-021-closeout/browser.json",
+      "sha256": "f5dd84ad67997fab26787aba9fb2830c43535b14fd38ad507c5a02f0e3071476",
+      "bytes": 117735
+    },
+    {
+      "file": "docs/12-qa/runs/2026-11-05-patch-021-closeout/summary.json",
+      "sha256": "801b0b7cf7d05492dcb470e231bc10474641e046f47b974dc81b07a6d0864824",
+      "bytes": 1512
+    },
+    {
+      "file": "docs/12-qa/runs/2026-11-05-patch-021-closeout.md",
+      "sha256": "df3e5dbb9fc9e34d1e458aa7faf2d6d6c9346555f8654584d6e1e36dac194824",
+      "bytes": 3430
+    },
+    {
+      "file": "docs/12-qa/runs/2026-11-05-patch-021-closeout/browser.md",
+      "sha256": "469629884a7280391031e730a4e91a63362a52033d4b389b0e072dc0b40a560a",
+      "bytes": 1118
+    },
+    {
+      "file": "docs/12-qa/runs/2026-11-05-patch-021-closeout.ko.md",
+      "sha256": "3883c03836c1457a73382bb03570cd9bed6de7dd6b5d7c5589bfc712af02ca61",
+      "bytes": 3682
+    },
+    {
+      "file": "docs/12-qa/runs/2026-11-05-patch-021-closeout/browser.ko.md",
+      "sha256": "311379ae207727ce02349b933282b4fdce8749415cb60264e4c0c6b20628cea7",
+      "bytes": 1010
+    }
+  ],
+  "originalBrowserProjectionSha256": "1a3fe5138f3b46eaf9dee3fd2e5fc5a3b6e2b0e21e7e2cc1c29dca51dbd207ca",
+  "originalBrowserProjectionSemanticallyPreserved": true,
+  "jsonEncoding": "UTF-8 LF; parsed original object preserved under originalProjection",
+  "nativeByteMap": {
+    "schema": "nexus021-publication-byte-map/1",
+    "files": [
+      {
+        "sourceArtifact": "native/public-projection.safe.json",
+        "published": "native.json",
+        "sourceSha256": "5728a30abe67ff94903b7cd90464756d0bc396a36caabf80da32128ba7eb2208",
+        "publishedSha256": "2b782fc694c5a62d265cc51944c193885d59fbbe7c7e0fcb76c6c8f0211bbc96",
+        "transformation": "UTF8 JSON; CRLF to LF only; parsed values unchanged"
+      }
+    ]
+  },
+  "privateRawAccountMetadataPublished": false
+}
