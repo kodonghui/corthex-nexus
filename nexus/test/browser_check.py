@@ -39,6 +39,7 @@ def main():
              if not key.startswith(("NEXUS_DEV_", "CORTHEX_NEXUS_"))}
     clean.pop("NEXUS_QA_LINKS", None)
     clean.pop("NEXUS_QA_HUB", None)
+    clean.pop("NEXUS_QA_LATE_SCREEN", None)
     for script, arguments in [("browser-regression.mjs", ()), ("discussion-regression.mjs", ()),
                               ("discussion-regression.mjs", ("--dismiss",)), ("error-regression.mjs", ()),
                               ("asset-regression.mjs", ()), ("asset-regression.mjs", ("--core-css",)),
@@ -46,7 +47,9 @@ def main():
         result = run_suite(executable, clean.copy(), script, arguments)
         if result:
             return result
-    return 0
+    late_screen = clean.copy()
+    late_screen["NEXUS_QA_LATE_SCREEN"] = "1"
+    return run_suite(executable, late_screen, "late-screen-regression.mjs")
 
 
 if __name__ == "__main__":

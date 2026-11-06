@@ -43,10 +43,33 @@ if(process.env.NEXUS_QA_LINKS==="1"){
  await call("POST",base+"/checkpoints/"+cp.id+"/report",{event:"opened",pull_request:"https://github.com/example/qa-shop/pull/204"},"agent");
  linked.project=project;linked.checkpoint=cp.id;
 }
+// Only the eighth browser suite opts into these additional stored snapshots.
+// All data is synthetic and enters SQLite through the normal application API.
+const lateScreen={};
+if(process.env.NEXUS_QA_LATE_SCREEN==="1"){
+ const project="qa-late-screen",base="/api/spaces/"+project,snapshot=viewSnapshot(project);
+ snapshot.project.parts=["sample","stale"];
+ for(const stage of Object.values(snapshot.stages))stage.parts.stale=structuredClone(stage.parts.sample);
+ const checkpoints=[{approved:"<b>Synthetic approval</b>",by:"Synthetic reviewer",date:"2026-11-03",where:"https://example.com/qa/synthetic-checkpoint"},{approved:"Second synthetic approval",by:"Another synthetic reviewer",date:"2026-11-04"}];
+ snapshot.stages["05-erd"].parts.sample.checkpoints=checkpoints;
+ const board=snapshot.pictures.find(p=>p.stage==="01-domain").source;
+ board.aggregates.push({...board.aggregates[0],name:"Synthetic receipt",term:"TERM-003"});
+ snapshot.pictures.push(...snapshot.pictures.map(p=>({...structuredClone(p),part:"stale"})));
+ const initial=await call("POST","/api/snapshots",snapshot,"agent");
+ const stale=structuredClone(snapshot);
+ stale.generated_at=new Date(Math.max(Date.now(),Date.parse(snapshot.generated_at)+1)).toISOString();
+ stale.pictures=stale.pictures.filter(p=>p.part!=="stale");
+ stale.left_out=[{part:"stale",stage:"01-domain",why:"size"},{part:"stale",stage:"07-sitemap",why:"other-repository"}];
+ const marked=await call("POST","/api/snapshots",stale,"agent");
+ const c=await call("POST",base+"/comments",{part:"sample",stage:"05-erd",item:"TBL-001",text:"Synthetic late-screen comment"});
+ const p=await call("POST",base+"/proposals",{part:"sample",stage:"05-erd",items:["TBL-001"],reason:"Synthetic late-screen reflection",change:"Describe the synthetic constraint.",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);",comment:c.id},"agent");
+ const accepted=await call("POST",base+"/proposals/"+p.id+"/accept",{});
+ Object.assign(lateScreen,{project,part:"sample",stalePart:"stale",checkpoints,comment:c.id,proposal:p.id,edit:accepted.edit.id,initial,marked});
+}
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{})}));return;}
  const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const bytes=Buffer.concat(chunks);
  if(incoming.method==="POST")writes.push({path:url.pathname,id:incoming.headers["idempotency-key"],body:JSON.parse(bytes)});
  const currentEnv={...env,NEXUS_LANGUAGE:url.searchParams.get("lang")==="ko"?"ko":"en"};

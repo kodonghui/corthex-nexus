@@ -94,7 +94,7 @@ test("source-item fallback is capped at3000, remains a list and leaves its valid
 
 // Minimal DOM test double: executes actual core control flow with renderer
 // spies, not a browser. It makes no CSS, paint, mobile or performance claim.
-function clientDouble(source,{hash=""}={}){
+function clientDouble(source,{hash="",lang="en",read=null}={}){
  class Element{
   constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.parentElement=null;this.dataset={};this.attributes={};this.listeners={};this.hidden=false;this._text="";this.isConnected=true;this.classList={add(){},remove(){}};}
   set textContent(value){this._text=String(value);this.children=[];}get textContent(){return this._text+this.children.map(n=>typeof n==="string"?n:n.textContent).join("");}
@@ -106,9 +106,9 @@ function clientDouble(source,{hash=""}={}){
  }
  const root=new Element("div"),body=new Element("body"),html=new Element("html");root.id="view";body.append(root);const location=new URL("https://nexus.example.com/pictures/qa-preview-limit/sample/01-domain"+hash);
  const document={documentElement:html,body,activeElement:body,createElement:tag=>new Element(tag),getElementById(id){if(id==="view")return root;if(id==="view-data")return null;const visit=n=>n.id===id?n:n.children.filter(c=>typeof c!=="string").map(visit).find(Boolean);return visit(root)||null;},addEventListener(){}};
- let nativeCalls=0,svgCalls=0,apiCalls=0;const sandbox={document,location,URL,URLSearchParams,AbortController,queueMicrotask,getComputedStyle:()=>({getPropertyValue:()=>"44px"}),matchMedia:()=>({matches:false,addEventListener(){}}),history:{pushState(value,_,href){this.state=value;location.href=new URL(href,location).href;},replaceState(value,_,href){this.state=value;location.href=new URL(href,location).href;},back(){}},ApiClient:class{async call(){apiCalls++;throw Error("unexpected mocked client request");}},NexusProblem,Drafts,PendingWrites,LatestReads,characters,pictureLayout,sceneItems,itemMarks:browserLayout.itemMarks,itemIdentity:browserLayout.itemIdentity,commentTarget:browserLayout.commentTarget,commentMatchesItem:browserLayout.commentMatchesItem,STEPS:browserLayout.STEPS,stepIndex:browserLayout.stepIndex,words,pictureLimitMessage:(scene,lang)=>lang==="ko"?"한계 안내":"Limit notice",drawPicture:async()=>{nativeCalls++;return{destroy(){},update(){}};},mountPreview:()=>{svgCalls++;return{view(){return{};},destroy(){}};},stylesheetReady:async()=>true};sandbox.window={addEventListener(){}};
+ let nativeCalls=0,svgCalls=0,apiCalls=0;const sandbox={document,location,URL,URLSearchParams,AbortController,queueMicrotask,getComputedStyle:()=>({getPropertyValue:()=>"44px"}),matchMedia:()=>({matches:false,addEventListener(){}}),history:{pushState(value,_,href){this.state=value;location.href=new URL(href,location).href;},replaceState(value,_,href){this.state=value;location.href=new URL(href,location).href;},back(){}},ApiClient:class{async call(...args){apiCalls++;if(read)return read(...args);throw Error("unexpected mocked client request");}},NexusProblem,Drafts,PendingWrites,LatestReads,characters,pictureLayout,sceneItems,itemMarks:browserLayout.itemMarks,itemIdentity:browserLayout.itemIdentity,commentTarget:browserLayout.commentTarget,commentMatchesItem:browserLayout.commentMatchesItem,STEPS:browserLayout.STEPS,stepIndex:browserLayout.stepIndex,words,pictureLimitMessage:(scene,lang)=>lang==="ko"?"한계 안내":"Limit notice",drawPicture:async()=>{nativeCalls++;return{destroy(){},update(){}};},mountPreview:()=>{svgCalls++;return{view(){return{};},destroy(){}};},stylesheetReady:async()=>true};sandbox.window={addEventListener(){}};
  const core=readFileSync(new URL("../ui/core.js",import.meta.url),"utf8").replace(/^import[^\n]*\r?\n/gm,"").replace("export function startView", "function startView");
- runInNewContext(core+"\nglobalThis.checkedStartView=startView;",sandbox,{timeout:2000});const controller=sandbox.checkedStartView(pageData(source));
+ runInNewContext(core+"\nglobalThis.checkedStartView=startView;",sandbox,{timeout:2000});const controller=sandbox.checkedStartView(pageData(source,lang));
  return{root,document,controller,counts:()=>({nativeCalls,svgCalls,apiCalls})};
 }
 test("mocked client keeps limited source list and item panel without starting SVG/native or claiming readiness",async()=>{
@@ -216,4 +216,44 @@ test("literal timeline text cannot hide an equal stable term ID in fallback, SSR
  const mocked=await sceneSomeCounter(async()=>{const d=clientDouble(source,{hash:"#item=TERM-001"});await new Promise(resolve=>queueMicrotask(resolve));return d;}),d=mocked.value;assert.equal(mocked.stats.trapped,false);
  const panel=d.root.querySelectorAll("section").find(n=>(n.className||"").split(" ").includes("panel"));assert.equal(panel.hidden,false);assert.equal(panel.querySelector("h2").textContent,"TERM-001 G");assert.equal(panel.querySelector("p").textContent,"G","deep link opens the aggregate, not the literal event or a missing-item warning");assert.ok(panel.querySelectorAll("pre").some(p=>p.textContent==="CTX-001"));assert.ok(panel.querySelector("form"));assert.deepEqual(d.counts(),{nativeCalls:0,svgCalls:0,apiCalls:0});d.controller.close();
  t.diagnostic(JSON.stringify({scope:"stable ID versus literal text; item panel is mocked",sourceItems:scene.nodes.length,listItems:sceneItems(scene).length,listLimited:scene.listLimited,linkId:"TERM-001",directPredicateVisits:direct.stats.predicateVisits,ssrPredicateVisits:measured.stats.predicateVisits,panelPredicateVisits:mocked.stats.predicateVisits}));
+});
+
+
+test("newer-picture notice ends on explicit redraw and returns only for another new commit",async()=>{
+ for (const lang of ["en", "ko"]) {
+  const source = domainOf(viewSnapshot("qa-newer-picture"));
+  const [originalCommit, nextCommit, laterCommit] = ["a", "b", "c"].map(c => c.repeat(40));
+  let fresh = pageData(source, lang).data;
+  fresh.picture.commit = nextCommit;
+  const calls = [];
+  const d = clientDouble(source, {lang, read: async (...args) => {
+   calls.push(args);
+   return fresh;
+  }});
+  const noticeText = lang === "ko" ? "서버에 이 그림의 새 판이 있습니다." : "A newer version of this picture is on the server.";
+  const showLabel = lang === "ko" ? "보기" : "Show it";
+  const notice = () => d.root.textContent.includes(noticeText);
+  const show = () => d.root.querySelectorAll("button").find(b => b.textContent === showLabel);
+
+  assert.equal(notice(), false);
+  await d.controller.refresh();
+  assert.equal(notice(), true);
+  assert.ok(d.root.textContent.includes(originalCommit), "refresh retains the drawn commit until explicit Show it");
+  show().listeners.click();
+  assert.equal(notice(), false);
+  assert.equal(show(), undefined);
+  assert.ok(d.root.textContent.includes(nextCommit));
+
+  await d.controller.refresh();
+  assert.equal(notice(), false, "a reread of the drawn commit does not recreate the notice");
+  fresh = {...fresh, picture: {...fresh.picture, commit: laterCommit}};
+  await d.controller.refresh();
+  assert.equal(notice(), true);
+  assert.ok(d.root.textContent.includes(nextCommit));
+  show().listeners.click();
+  assert.equal(notice(), false);
+  assert.ok(d.root.textContent.includes(laterCommit));
+  assert.ok(calls.every(([method]) => method === "GET"), "explicit redraw adds no write");
+  d.controller.close();
+ }
 });
