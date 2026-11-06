@@ -1,5 +1,5 @@
 /**
- * BUG-589–592: actual local browser regressions, Node 24 built-ins only.
+ * BUG-589–592 and BUG-594: actual local browser regressions, Node 24 built-ins only.
  * Requires NEXUS_QA_LATE_SCREEN=1, the opt-in view-server, and NEXUS_CHROME.
  * EN/KO × light/dark × 320/1440px. No credentials, external sites or DOM writes.
  * Camera input uses CDP mouse events; nexusView() is observed, never mutated.
@@ -153,6 +153,7 @@ try{
  assert(seed?.project===project&&seed.part==='sample'&&seed.stalePart==='stale'&&/^nc_/.test(seed.comment||'')&&/^np_/.test(seed.proposal||'')&&/^ne_/.test(seed.edit||''),'The origin is not the opt-in synthetic late-screen fixture');
  const rich=await get(api+'/overview/sample/05-erd'),stale=await get(api+'/overview/stale/05-erd'),source=await get(api+'/pictures/sample/05-erd');
  assert(['comments','discrepancies','reflections'].every(key=>rich[key].total>0),'Rich fixture must have all three actual stored remaining-work groups');
+ assert(rich.record.from==='repository','The overview fixture must hold repository stage records');
  assert(JSON.stringify(rich.record.checkpoints)===JSON.stringify(checkpointValues),'Stored approval DTO differs from its independent literal fixture expectation');
  assert(rich.pictures.length===3&&rich.pictures.every(p=>p.not_current===null),'Current-part pictures must actually be current in the store');
  assert(stale.pictures.length===3&&stale.pictures.every(p=>p.not_current===staleReasons[p.stage]),'Normal snapshot pushes must store all three distinct stale reasons');
@@ -178,6 +179,11 @@ try{
    const current=await evaluate(`(()=>{const wrap=document.querySelector('.overview'),record=wrap.querySelector('.recorded-state')||wrap.querySelector('section.card.wide'),heading=[...wrap.querySelectorAll('h2')].find(e=>e.textContent===${JSON.stringify(setting.lang==='ko'?'남은 것':'What is left')});return{lang:document.documentElement.lang,width:innerWidth,dark:matchMedia('(prefers-color-scheme: dark)').matches,recordText:record.textContent,recordMarkup:{b:record.querySelectorAll('b').length,script:record.querySelectorAll('script').length},recordLinks:[...record.querySelectorAll('a')].map(e=>({text:e.textContent,href:e.href,row:e.parentElement.textContent,warning:!!e.parentElement.querySelector('span')})),remaining:heading?{text:heading.textContent,visible:!!heading.getClientRects().length}:null,groups:[...wrap.querySelectorAll('section.card')].filter(e=>/^(${setting.lang==='ko'?'어긋남|의견|반영 대기':'Discrepancies|Comments|Pending reflections'}) \\(/.test(e.querySelector('h2')?.textContent||'')).map(e=>({heading:e.querySelector('h2').textContent,text:e.textContent,afterHeading:!!(heading?.compareDocumentPosition(e)&Node.DOCUMENT_POSITION_FOLLOWING)}))};})()`);
    assert(current.lang===setting.lang&&current.width===setting.width&&current.dark===(setting.theme==='dark'),'The actual browser setting differs from its declared matrix row');
    assert(current.remaining?.visible&&current.groups.length===3&&current.groups.every(g=>g.afterHeading),'The specified remaining-work heading must precede all three actual rich groups');
+   const sourceLabel=setting.lang==='ko'?'저장소에서':'from the repository';
+   const passHeading=setting.lang==='ko'?'확인 지점 통과시키기':'Pass the checkpoint';
+   assert(current.recordText.includes(sourceLabel),'The stage record must identify its repository source');
+   const passHeadingVisible=await evaluate(`[...document.querySelectorAll('.overview h3')].some(h=>h.textContent===${JSON.stringify(passHeading)}&&h.getClientRects().length>0)`);
+   assert(passHeadingVisible,'The checkpoint form must display the specified heading');
    for(const cp of checkpointValues)for(const field of['approved','by','date'])assert(current.recordText.includes(cp[field]),'Recorded checkpoint '+field+' is missing from the actual DOM');
    assert(current.recordMarkup.b===0&&current.recordMarkup.script===0,'Approval text must not become HTML');
    assert(current.recordLinks.some(a=>a.href===checkpointValues[0].where&&a.text===checkpointValues[0].where),'The safe optional recorded checkpoint link is missing');
