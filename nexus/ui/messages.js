@@ -447,6 +447,54 @@ export const messages={
   "Overview's headings": [
     "Recorded state · Updated {time} · Discrepancies ({n}) · Comments ({n}) · Pending reflections ({n}) · Words (optional)",
     "기록된 상태 · 갱신 {time} · 어긋남 ({n}) · 의견 ({n}) · 반영 대기 ({n}) · 남길 말 (선택)"
+  ],
+  "Wheel hint": [
+    "The wheel scrolls the page. To zoom the picture, hold Ctrl or ⌘ while turning the wheel, pinch, or use the zoom buttons.",
+    "휠은 페이지를 내립니다. 그림을 확대하려면 Ctrl이나 ⌘를 누른 채 휠을 굴리거나, 두 손가락을 오므리거나 벌리거나, 확대 단추를 쓰세요."
+  ],
+  "Item fields": [
+    "Context · Terms · Primary key · Unique · Foreign keys · Path · Flows · Purpose",
+    "컨텍스트 · 용어 · 기본 키 · 고유 · 외래 키 · 경로 · 흐름 · 목적"
+  ],
+  "Item values": [
+    "None · {columns}, on some rows only · Details",
+    "없음 · {columns}, 일부 행에만 · 자세히"
+  ],
+  "Foreign key": [
+    "{columns} → {table} ({references}). Deleting the referenced row {action} · {columns} → {table}. Deleting the referenced row {action}",
+    "{columns} → {table} ({references}). 가리키는 행을 지우면 {action} · {columns} → {table}. 가리키는 행을 지우면 {action}"
+  ],
+  "On delete": [
+    "also deletes this row. · empties these columns. · sets these columns to their default. · is refused. · is refused.",
+    "이 행도 지워집니다. · 이 열이 비워집니다. · 이 열이 기본값으로 바뀝니다. · 거부됩니다. · 거부됩니다."
+  ],
+  "No 01 term": [
+    "This table names no 01 term. · This screen names no 01 term.",
+    "이 표에 맞는 01 용어가 없습니다. · 이 화면에 맞는 01 용어가 없습니다."
+  ],
+  "Not on the board": [
+    "The 01 board has no such term.",
+    "01 보드에 없는 용어입니다."
+  ],
+  "Other context": [
+    "The 01 board puts this term in {board}, and this table is in {here}. · The 01 board puts this term in {board}, and this screen is in {here}.",
+    "01 보드는 이 용어를 {board}에 두고, 이 표는 {here}에 있습니다. · 01 보드는 이 용어를 {board}에 두고, 이 화면은 {here}에 있습니다."
+  ],
+  "Removed": [
+    "The 01 board marks this term removed. · This table is marked removed. · This screen is marked removed.",
+    "01 보드가 이 용어를 지운 것으로 표시합니다. · 이 표는 지운 것으로 표시되어 있습니다. · 이 화면은 지운 것으로 표시되어 있습니다."
+  ],
+  "No table": [
+    "No 05 table names this aggregate.",
+    "이 애그리거트를 쓰는 05 표가 없습니다."
+  ],
+  "No screen": [
+    "No 07 screen names this read model.",
+    "이 읽기 모델을 쓰는 07 화면이 없습니다."
+  ],
+  "Removed mark": [
+    "removed",
+    "지움"
   ]
 };
 export function words(key,lang="en",values={}) {

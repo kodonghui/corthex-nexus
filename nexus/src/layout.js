@@ -88,9 +88,13 @@ export function domainLayout(source,key){
     }
   }
   const frames=[];
+  // A context without items has no place of its own. Such frames stand in one row
+  // below the board, so they never cover each other or the board's items.
+  let board=null,empty=0;if(whole&&nodes.length){spend(nodes.length);board=bounds(nodes);}
   if(whole)for(const [i,c]of contexts.entries()){
     if(nodes.length+frames.length>=MAX_PICTURE_NODES)throw new PictureLimit("nodes",work,textWork);
-    const ns=contextNodes.get(c.id||c.name)||[];spend(ns.length+1);const b=bounds(ns),text=[c.id,c.name,c.purpose].filter(Boolean);spendText(text);frames.push(box("context-"+i,text.join("\n"),b.x-50,b.y-100,{id:c.id,context:c.id||c.name,kind:"context",where:c.where,raw:c,removed:c.removed,width:b.width+100,height:b.height+160}));
+    const ns=contextNodes.get(c.id||c.name)||[];spend(ns.length+1);
+    const b=ns.length?bounds(ns):{x:(board?board.x:0)+400*empty++,y:board?board.y+board.height+300:0,width:220,height:100},text=[c.id,c.name,c.purpose].filter(Boolean);spendText(text);frames.push(box("context-"+i,text.join("\n"),b.x-50,b.y-100,{id:c.id,context:c.id||c.name,kind:"context",where:c.where,raw:c,removed:c.removed,width:b.width+100,height:b.height+160}));
   }
   if(whole)for(const d of source.dependencies||[]){spend(frames.length*2+1);const from=frames.find(n=>n.id===d.from||n.raw.name===d.from),to=frames.find(n=>n.id===d.to||n.raw.name===d.to);if(from&&to)edges.push({from:from.key,to:to.key,text:[d.kind,d.why,d.data].filter(Boolean).join(" · ")});}
   const all=[...frames,...nodes],keys=new Set(all.map(n=>n.key));

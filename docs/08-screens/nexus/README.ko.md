@@ -211,6 +211,25 @@ NEXUS가 단계의 기본값과 다른 곳: `401`은 서버가 아니라 Access�
 | 원본 글 불러오기 | SCR-108#loading, 화면 낭독기용 | Loading the stage source text… | 단계 원본의 글을 불러오는 중… |
 | 단계 현황의 제목 | SCR-109 | Recorded state · Updated {time} · Discrepancies ({n}) · Comments ({n}) · Pending reflections ({n}) · Words (optional) | 기록된 상태 · 갱신 {time} · 어긋남 ({n}) · 의견 ({n}) · 반영 대기 ({n}) · 남길 말 (선택) |
 
+### 0.2.3이 더한 말
+
+NEXUS 0.2.3은 지금 화면의 틀은 그대로 두고 고칩니다. 이 말들은 필드 이름, 까닭 코드, 아무 말 없던 휠을 대신하며, 2026-11-06에 그 패치와 함께 더했습니다. `·` 사이의 말은 저마다 따로 쓰는 이름표이고, 코드는 '자세히' 안에 남습니다.
+
+| 말 | 나오는 곳 | 영어 | 한국어 |
+| --- | --- | --- | --- |
+| 휠 안내 | SCR-105: 그림 위에서 휠을 그냥 처음 굴렸을 때 한 번 | The wheel scrolls the page. To zoom the picture, hold Ctrl or ⌘ while turning the wheel, pinch, or use the zoom buttons. | 휠은 페이지를 내립니다. 그림을 확대하려면 Ctrl이나 ⌘를 누른 채 휠을 굴리거나, 두 손가락을 오므리거나 벌리거나, 확대 단추를 쓰세요. |
+| 항목 필드 | SCR-106: 항목의 원본 필드 context, terms, primary_key, unique, foreign_keys, path, flows, purpose의 이름 | Context · Terms · Primary key · Unique · Foreign keys · Path · Flows · Purpose | 컨텍스트 · 용어 · 기본 키 · 고유 · 외래 키 · 경로 · 흐름 · 목적 |
+| 항목 값 | SCR-106: 빈 필드, 일부 행에만 걸린 고유 키, 접어 둔 원본 필드 | None · {columns}, on some rows only · Details | 없음 · {columns}, 일부 행에만 · 자세히 |
+| 외래 키 | SCR-106: 외래 키 하나, 가리키는 열이 있을 때와 없을 때 | {columns} → {table} ({references}). Deleting the referenced row {action} · {columns} → {table}. Deleting the referenced row {action} | {columns} → {table} ({references}). 가리키는 행을 지우면 {action} · {columns} → {table}. 가리키는 행을 지우면 {action} |
+| 지울 때 | SCR-106: 외래 키 안, 지울 때의 동작 cascade, set null, set default, restrict, no action | also deletes this row. · empties these columns. · sets these columns to their default. · is refused. · is refused. | 이 행도 지워집니다. · 이 열이 비워집니다. · 이 열이 기본값으로 바뀝니다. · 거부됩니다. · 거부됩니다. |
+| 01 용어 없음 | SCR-106, SCR-109: 어긋남의 까닭 no-term, 표일 때와 화면일 때 | This table names no 01 term. · This screen names no 01 term. | 이 표에 맞는 01 용어가 없습니다. · 이 화면에 맞는 01 용어가 없습니다. |
+| 보드에 없음 | SCR-106, SCR-109: 어긋남의 까닭 not-on-board | The 01 board has no such term. | 01 보드에 없는 용어입니다. |
+| 다른 컨텍스트 | SCR-106, SCR-109: 어긋남의 까닭 other-context, 표일 때와 화면일 때 | The 01 board puts this term in {board}, and this table is in {here}. · The 01 board puts this term in {board}, and this screen is in {here}. | 01 보드는 이 용어를 {board}에 두고, 이 표는 {here}에 있습니다. · 01 보드는 이 용어를 {board}에 두고, 이 화면은 {here}에 있습니다. |
+| 지움 표시 | SCR-106, SCR-109: 어긋남의 까닭 removed, 용어일 때와 표일 때와 화면일 때 | The 01 board marks this term removed. · This table is marked removed. · This screen is marked removed. | 01 보드가 이 용어를 지운 것으로 표시합니다. · 이 표는 지운 것으로 표시되어 있습니다. · 이 화면은 지운 것으로 표시되어 있습니다. |
+| 표 없음 | SCR-106, SCR-109: 어긋남의 까닭 no-table | No 05 table names this aggregate. | 이 애그리거트를 쓰는 05 표가 없습니다. |
+| 화면 없음 | SCR-106, SCR-109: 어긋남의 까닭 no-screen | No 07 screen names this read model. | 이 읽기 모델을 쓰는 07 화면이 없습니다. |
+| 그림의 지움 표시 | SCR-105: 그림 속 05 표의 설명 줄에서 ID와 컨텍스트 뒤, 그 표가 지운 것으로 표시되어 있을 때 | removed | 지움 |
+
 ## 이 단계가 고른 것
 
 앞 단계들이 이것들을 08단계에 맡겼습니다. 2026-11-03의 확인 지점은 저마다 그대로 두었습니다.

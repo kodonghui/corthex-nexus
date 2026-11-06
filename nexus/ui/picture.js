@@ -4,7 +4,7 @@ import {stylesheetReady} from "./styles.js";
 import {zoomCamera,fitCamera} from "./camera.js";
 const union=rects=>{const x=Math.min(...rects.map(r=>r.x)),y=Math.min(...rects.map(r=>r.y));return{x,y,width:Math.max(...rects.map(r=>r.x+r.width))-x,height:Math.max(...rects.map(r=>r.y+r.height))-y};};
 const paint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-export async function drawPicture(target,scene,{stage,data,lang,onSelect,onReady,initialView,signal}){
+export async function drawPicture(target,scene,{stage,data,lang,removedMark,onSelect,onReady,initialView,signal}){
   // Give the complete SVG a paint before native chunks or fonts compete for bandwidth.
   await paint();if(signal?.aborted)return null;
   const assets=document.getElementById("nexus-editor-assets");if(assets){document.head.append(assets.content.cloneNode(true));assets.remove();}
@@ -35,7 +35,7 @@ export async function drawPicture(target,scene,{stage,data,lang,onSelect,onReady
   try{
     const module=await import(stage==="05-erd"?__NEXUS_ERD__:__NEXUS_EXCALIDRAW__);
     if(destroyed)return null;
-    controller=await module.mount(canvas,scene,{lang,theme,onView:schedule});
+    controller=await module.mount(canvas,scene,{lang,theme,removedMark,onView:schedule});
     if(destroyed){controller.destroy();return null;}
     const first=initialView?.()||initialPictureView(scene,data,target.clientWidth,target.clientHeight,matchMedia("(min-width:1024px)").matches);
     controller.navigate(zoomCamera(first,stage,first.zoom,target.clientWidth,target.clientHeight));

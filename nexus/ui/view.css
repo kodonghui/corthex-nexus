@@ -9,8 +9,9 @@ html:lang(ko) body,html:lang(ko) a.control{word-break:keep-all;overflow-wrap:bre
 .subbar>*{min-width:0;max-width:100%;overflow-wrap:break-word}
 .after-picture{grid-template-columns:minmax(0,1fr)}.after-picture>*{min-width:0}.items li button,.items li a{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:keep-all}.items li a{display:flex;align-items:center;min-height:var(--nx-size-target);padding:var(--nx-space-sm) var(--nx-space-md)}
 .preview-scene{position:absolute;display:block;max-width:none;overflow:visible}.picture-preview{position:absolute;inset:0;z-index:2;touch-action:none;cursor:grab;user-select:none}.picture-preview:active{cursor:grabbing}.picture-preview .preview-scene{inset:0;width:100%;height:100%;transform:none}.preview-marks{z-index:3}.picture-loading{position:absolute;z-index:4;bottom:var(--nx-space-sm);left:var(--nx-space-sm);right:var(--nx-space-sm);margin:0;pointer-events:none;font-size:var(--nx-font-size-small)}
-.items summary{min-height:var(--nx-size-target);padding:var(--nx-space-sm) 0;cursor:pointer;touch-action:manipulation}
+.items summary,.source summary{min-height:var(--nx-size-target);padding:var(--nx-space-sm) 0;cursor:pointer;touch-action:manipulation}
 html{scrollbar-gutter:stable}
 @media(min-width:1024px){.after-picture{grid-template-columns:repeat(2,minmax(0,1fr))}.preview-container>.preview-scene{width:max(min(calc(100% - 48px),var(--preview-width)),calc(var(--preview-width) * .1))!important;height:max(min(calc(100% - 48px),var(--preview-height)),calc(var(--preview-height) * .1))!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)}}
 .entry p,.panel p,.panel blockquote,.overview p,.overview a{word-break:keep-all;overflow-wrap:break-word}
 @media(max-width:1023px){.topbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.topbar h1{grid-column:1/-1;grid-row:1}.topbar a{min-width:0;white-space:normal}.overview{min-width:0}.card{min-width:0}}
+.wheel-hint{position:absolute;z-index:5;top:var(--nx-space-sm);left:var(--nx-space-sm);right:var(--nx-space-sm);margin:0;pointer-events:none;font-size:var(--nx-font-size-small)}
