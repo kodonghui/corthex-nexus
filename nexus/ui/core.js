@@ -54,7 +54,16 @@ export function startView(payload){
   async function refresh({panel:refreshPanel=true}={}){
     status.replaceChildren(notice(t("Updating")));
     try{await reads.run("page",()=>api.call("GET",dataPath()),fresh=>{data=fresh;status.replaceChildren();if(payload.view==="overview")renderOverview();else{
-      if(!drawn||fresh.picture.commit!==drawn.commit){const newer=notice(t("Newer version").split(ko?" 보기":" Show it")[0]);newer.append(button(say("Show it","보기"),()=>{drawn=fresh.picture;renderPicture();openFromHash();}));status.append(newer);}
+      if(!drawn||fresh.picture.commit!==drawn.commit){
+        const newer=notice(t("Newer version").split(ko?" 보기":" Show it")[0]);
+        newer.append(button(say("Show it","보기"),()=>{
+          drawn=fresh.picture;
+          newer.remove();
+          renderPicture();
+          openFromHash();
+        }));
+        status.append(newer);
+      }
       renderLists();renderer?.update(fresh);
     }if(panelTarget&&refreshPanel)openFromHash();});}
     catch(error){status.replaceChildren(notice(t("Could not update"),"warn"),errorBox(error,refresh));}
