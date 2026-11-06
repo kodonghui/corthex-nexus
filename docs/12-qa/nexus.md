@@ -1095,3 +1095,7 @@ The [paired applicability record](runs/2026-11-05-api-example-applicability-021.
 ## NEXUS 0.2.1 QA closeout (2026-11-06 KST)
 
 Of 717 cases, 692 pass, 7 are partial, 18 do not apply and 0 fail. The closeout preserves the previous rows for the 66 reassessed cases. It records five approved provider 429/503 clauses, the deferred expiry checks and the separately unobserved provider 403/401. See the release for production status. [QA closeout](runs/2026-11-05-patch-021-closeout.md)
+
+## NEXUS 0.2.2 editor patch (2026-11-06 KST)
+
+BUG-559 is fixed for the 300-node tall sitemap in the native viewer. BUG-562 remains open after a same-profile development investigation. All eight Windows browser suites and their profile cleanup completed on the patch. The new regression is separate from the 717-case ledger. [Patch evidence](runs/2026-11-06-patch-022-editor.md)

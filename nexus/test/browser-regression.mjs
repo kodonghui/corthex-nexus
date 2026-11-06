@@ -10,7 +10,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {viewItemHeading} from './view-fixtures.js';
-import {spawn} from 'node:child_process';
+import {createBrowserRun} from './owned-browser.mjs';
 import {tmpdir} from 'node:os';
 
 if(Number(process.versions.node.split('.')[0])<24)throw Error('Node 24 or newer is required');
@@ -23,11 +23,12 @@ const hostname=target.hostname.replace(/^\[|\]$/g,'');
 if(target.protocol!=='http:'||!['127.0.0.1','localhost','::1'].includes(hostname)||target.username||target.password||target.pathname!=='/'||target.search||target.hash)throw Error('NEXUS_QA_ORIGIN must be a plain HTTP loopback origin');
 const origin=target.origin,api='/api/spaces/qa-views',here=path.dirname(fileURLToPath(import.meta.url));
 const artifactBase=path.resolve(process.env.NEXUS_QA_ARTIFACTS||path.join(tmpdir(),'nexus-browser-artifacts'));
+const tallSitemap=process.env.NEXUS_QA_TALL_SITEMAP==='1';
 await fs.mkdir(artifactBase,{recursive:true});
-const folder=await fs.mkdtemp(path.join(artifactBase,'run-'));
-const profile=await fs.mkdtemp(path.join(folder,'profile-'));
+const browser=await createBrowserRun(artifactBase,'run-');
+const {folder,profile}=browser;
 const report={schema:'nexus-picture-browser-regression/1',startedAt:new Date().toISOString(),origin,node:process.version,tests:[],posts:[],blockedExternalOrigins:[]};
-let child,ws,session,seq=0,hold=null,assetHold=null;
+let ws,session,seq=0,hold=null,assetHold=null;
 const pending=new Map();
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const out=async(name,data)=>fs.writeFile(path.join(folder,name),JSON.stringify(data,null,2));
@@ -77,23 +78,16 @@ async function onPaused(event){const url=new URL(event.request.url),response=eve
 }
 async function closeOwnedBrowser(){
  if(ws?.readyState===1){try{await command('Browser.close',{},false,3000);}catch{}ws.close();}
- const running=()=>child&&child.exitCode===null&&child.signalCode===null;
- async function waitExit(ms){
-  if(!running())return;
-  await new Promise(resolve=>{const done=()=>{clearTimeout(timer);child.off('exit',done);resolve();};const timer=setTimeout(done,ms);child.once('exit',done);if(!running())done();});
- }
- await waitExit(2500);if(running()){child.kill();await waitExit(5000);}
  for(const call of pending.values())call.reject(Error('Owned browser closed'));pending.clear();
- if(running())throw Error('Owned Chrome has not exited; preserve its generated profile');
+ await browser.stop();
  report.browserExited=true;
 }
-async function removeOwnedProfile(){if(child&&child.exitCode===null&&child.signalCode===null)throw Error('Owned Chrome still running; profile preserved');const realFolder=await fs.realpath(folder),realProfile=await fs.realpath(profile);const relative=path.relative(realFolder,realProfile);if(!relative||relative.startsWith('..')||path.isAbsolute(relative)||!path.basename(realProfile).startsWith('profile-'))throw Error('Refusing profile cleanup outside the generated run folder');await fs.rm(realProfile,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
 
 try{
  const fixture=await fetch(origin+'/__qa/receipts').then(async r=>({status:r.status,data:await r.json()}));
  assert(fixture.status===200&&Array.isArray(fixture.data.writes)&&/^nc_/.test(fixture.data.comment||'')&&/^np_/.test(fixture.data.proposal||''),'The origin is not the expected synthetic view-server fixture');
  const browserEnv={...process.env};for(const key of Object.keys(browserEnv))if(/(?:TOKEN|SECRET|PASSWORD|API_KEY)|^(?:NEXUS_DEV_|CORTHEX_NEXUS_)/.test(key))delete browserEnv[key];
- child=spawn(chrome,['--headless=new','--remote-debugging-port=0','--user-data-dir='+profile,'--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-component-update','--disable-sync','--disable-extensions','--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1, EXCLUDE localhost','about:blank'],{stdio:'ignore',windowsHide:true,env:browserEnv});
+ browser.launch(chrome,['--headless=new','--remote-debugging-port=0','--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-component-update','--disable-sync','--disable-extensions','--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1, EXCLUDE localhost','about:blank'],browserEnv);
  let endpoint;for(let i=0;i<100;i++){try{endpoint=(await fs.readFile(path.join(profile,'DevToolsActivePort'),'utf8')).trim().split('\n');break;}catch{await sleep(100);}}
  if(!endpoint)throw Error('The owned Chrome process did not publish a CDP endpoint');
  ws=new WebSocket('ws://127.0.0.1:'+endpoint[0]+endpoint[1]);await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
@@ -126,11 +120,37 @@ try{
  await test('korean-line-breaks-and-reflow',async()=>{const measurements=[];for(const stage of ['01-domain','05-erd','07-sitemap']){await size(1440,1000);await navigate(stage);for(const width of [320,390,768,1440]){await size(width,844);const measure=await evaluate(`(()=>{const issues=[],root=document.documentElement,walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n,checked=0;while(n=walker.nextNode()){if(!/[가-힣]/.test(n.data))continue;const e=n.parentElement;if(!e||e.closest('script,style,option')||!e.checkVisibility({opacityProperty:true,visibilityProperty:true}))continue;const b=e.getBoundingClientRect();if(b.width<=1||b.height<=1)continue;checked++;const s=getComputedStyle(e);if(s.wordBreak!=='keep-all'||!['break-word','anywhere'].includes(s.overflowWrap))issues.push({type:'korean-style',tag:e.tagName,text:n.data.trim().slice(0,60),wordBreak:s.wordBreak,overflowWrap:s.overflowWrap});for(const m of n.data.matchAll(/[가-힣]{2,12}/g)){const range=document.createRange();let top=null;for(let i=0;i<m[0].length;i++){range.setStart(n,m.index+i);range.setEnd(n,m.index+i+1);const r=range.getBoundingClientRect();if(r.width&&r.height){if(top!==null&&Math.abs(r.top-top)>Math.max(2,parseFloat(s.fontSize)*.5)){issues.push({type:'korean-split',word:m[0]});break;}top=r.top;}}}}const client=root.clientWidth,scroll=Math.max(root.scrollWidth,document.body.scrollWidth);if(scroll>client+1)issues.push({type:'page-overflow',client,scroll});return{url:location.href,width:innerWidth,height:innerHeight,lang:root.lang,checked,issues};})()`);measurements.push(measure);assert(measure.checked>0&&!measure.issues.length,'Korean line-break/reflow measurement failed: '+JSON.stringify(measure));}}return{measurements,screenshot:await shot('korean-line-breaks-and-reflow')};});
  await test('back-and-escape-retain-draft',async()=>{await size(1440,1000);await navigate();await item('CTX-001');const draft='QA 회귀 초안 보존 '+Date.now();await type(draft);await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await waitFor('document.querySelector(".panel").hidden');await item('CTX-001');assert((await state()).panel?.draft===draft,'Escape lost the draft');const history=await command('Page.getNavigationHistory');await command('Page.navigateToHistoryEntry',{entryId:history.entries[history.currentIndex-1].id});await waitFor('document.querySelector(".panel").hidden');const closed=await state();await item('CTX-001');const restored=await state();assert(restored.panel?.draft===draft,'Browser Back lost the draft');return{closed,restored,screenshot:await shot('back-and-escape-retain-draft')};});
  await test('late-post-retains-new-panel-and-draft',async()=>{await navigate();await item('TERM-001');const text='QA regression late POST '+Date.now();await type(text);hold={};await clickText('보내기','.panel button');const until=Date.now()+12000;while(!hold.paused&&Date.now()<until)await sleep(50);assert(hold.paused?.status===201,'A real comment 201 response was not held');const paused=hold.paused,pendingState=await state();assert(pendingState.panel?.readOnly,'Pending comment did not keep its protected draft');await item('TERM-002');const draft='QA 새로운 패널 초안 유지';await type(draft);const before=await state();hold=null;await command('Fetch.continueRequest',{requestId:paused.requestId});await sleep(600);await settled();const after=await state(),persisted=await pictureGet();assert(after.panel?.heading===viewItemHeading('TERM-002')&&after.panel.draft===draft&&new URL(after.url).hash.includes('item=TERM-002'),'The late POST replaced the new panel or its draft');assert(persisted.status===200&&persisted.data.comments.entries.filter(c=>c.text===text).length===1,'The held successful comment was not persisted exactly once');return{paused,pending:pendingState,before,after,persistedCount:1,screenshot:await shot('late-post-retains-new-panel-and-draft')};});
+ if(tallSitemap)await test('whole-picture-fits-300-native-nodes',async()=>{
+  const measurements=[];
+  for(const width of [390,1440]){
+   await size(width);
+   const url=origin+'/pictures/qa-tall-sitemap/sample/07-sitemap?lang=ko';
+   await command('Page.navigate',{url});
+   await waitFor('location.href==='+JSON.stringify(url)+'&&document.querySelector(".picture-shell")?.dataset.editorReady==="true"');
+   await clickText('그림 전체','main.content .controls button');
+   await settled();
+   const view=await evaluate(`(()=>{
+    const frame=document.querySelector('.picture-shell');
+    const canvas=frame.querySelector('.picture-canvas canvas');
+    const pin=id=>[...frame.querySelectorAll('.pin')].find(button=>button.title.startsWith(id+': '));
+    const point=button=>button&&{x:parseFloat(button.style.left),y:parseFloat(button.style.top)};
+    return {height:frame.clientHeight,width:frame.clientWidth,native:canvas?.checkVisibility(),
+      preview:!!frame.querySelector('svg[data-nexus-preview]'),first:point(pin('SCR-001')),last:point(pin('SCR-300'))};
+   })()`);
+   assert(view.native&&!view.preview&&view.first&&view.last,'Native fit must show both endpoints after SVG handoff');
+   const zoom=(view.last.y-view.first.y)/47680;
+   assert(zoom>0&&zoom<.1&&Math.abs(view.first.y-24)<2&&Math.abs(view.last.y+120*zoom-(view.height-24))<2,
+    'The first and last nodes must fit with room above and below');
+   assert([view.first.x,view.last.x].every(x=>x>0&&x<view.width),'Native fit clipped an endpoint horizontally');
+   measurements.push({viewportWidth:width,zoom,...view});
+  }
+  return {measurements,screenshot:await shot('whole-picture-fits-300-native-nodes')};
+ });
  assert(!report.eventError,'CDP interception error: '+report.eventError);
- report.status=report.tests.length===8&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
+ report.status=report.tests.length===(tallSitemap?9:8)&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{
  try{await closeOwnedBrowser();}catch(error){report.shutdownError=String(error);}
- try{await removeOwnedProfile();report.profileRemoved=true;}catch(error){report.profileRemoved=false;report.profileCleanupError=String(error);}
+ try{await browser.removeProfile();report.profileRemoved=true;}catch(error){report.profileRemoved=false;report.profileCleanupError=String(error);}
  report.finishedAt=new Date().toISOString();report.elapsedMs=Date.parse(report.finishedAt)-Date.parse(report.startedAt);await out('results.json',report);console.log(JSON.stringify({status:report.status,startedAt:report.startedAt,finishedAt:report.finishedAt,elapsedMs:report.elapsedMs,results:path.join(folder,'results.json'),profileRemoved:report.profileRemoved}));if(report.status!=='works')process.exitCode=1;
 }

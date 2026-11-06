@@ -5,6 +5,7 @@ import {fileURLToPath,pathToFileURL} from "node:url";
 import {createHash} from "node:crypto";
 import {gzipSync} from "node:zlib";
 import {patchViewer,VIEWER_SHA} from "../ui/editor-patches.mjs";
+import {EXCALIDRAW_MIN_ZOOM} from "../ui/camera.js";
 import {compileTokens} from "./tokens.mjs";
 import {compileMessages} from "./messages.mjs";
 const root=fileURLToPath(new URL("../../",import.meta.url)),ui=resolve(root,"nexus/ui"),out=resolve(root,"nexus/src/view-code");
@@ -40,6 +41,12 @@ var fitNameFontSize = (preferred, rect, text) => {
   }
   if(!path.includes("@excalidraw"))return;
   let contents=readFileSync(args.path,"utf8");
+  if(path.endsWith("/@excalidraw/excalidraw/dist/prod/chunk-K2UTITRG.js")){
+    const sourceSha256=sha(contents),bounds="DE=.1,Js=.1,Ys=30";
+    if(sourceSha256!=="72b54e8e9b3c17c69f1dd5e40203bfaed62313bc611b86ecb8a1625a12562e51"||contents.split(bounds).length!==2)throw new Error("Pinned Excalidraw zoom bounds changed");
+    patches.push({name:"excalidraw-whole-picture-zoom",package:"@excalidraw/excalidraw@0.18.1",license:"MIT",sourceSha256});
+    contents=contents.replace(bounds,`DE=.1,Js=${EXCALIDRAW_MIN_ZOOM},Ys=30`);
+  }
   if(path.endsWith("/@excalidraw/excalidraw/dist/prod/chunk-ZUYEQ4TG.js")){
     if(sha(contents)!=="810dbb85e738f382cdd82e080185029a5ba30c17d3ba0df587e0e6d92e04d952")throw new Error("Pinned Excalidraw configuration changed");
     const config=/VITE_APP_FIREBASE_CONFIG:'[^']*'/g;if([...contents.matchAll(config)].length!==1)throw new Error("Expected one upstream hosted-service configuration");
@@ -77,12 +84,13 @@ async function bundle(name,entry,define={}){
 await bundle("excalidraw",resolve(ui,"editor-excalidraw.js"));await bundle("erd",resolve(ui,"editor-erd.js"));
 await bundle("view",resolve(ui,"core.js"),{__NEXUS_ERD__:JSON.stringify(entries["erd-js"]),__NEXUS_EXCALIDRAW__:JSON.stringify(entries["excalidraw-js"]),__NEXUS_EXCALIDRAW_CSS__:JSON.stringify(entries["excalidraw-css"]||"")});
 entries["font-preload"]=["fonts/Assistant/Assistant-Regular.woff2","fonts/Assistant/Assistant-Medium.woff2","fonts/Assistant/Assistant-Bold.woff2"].map(p=>fontMap.get(p)).filter(Boolean);
-if(patches.filter(p=>p.name==="erd-viewport-bridge").length!==1||patches.filter(p=>p.name==="erd-high-level-label-fit").length!==1||patches.filter(p=>p.name==="excalidraw-no-hosted-firebase").length!==1)throw new Error("Expected browser patches not applied exactly once");
+if(patches.filter(p=>p.name==="erd-viewport-bridge").length!==1||patches.filter(p=>p.name==="erd-high-level-label-fit").length!==1||patches.filter(p=>p.name==="excalidraw-no-hosted-firebase").length!==1||patches.filter(p=>p.name==="excalidraw-whole-picture-zoom").length!==1)throw new Error("Expected browser patches not applied exactly once");
 const imports=files.map((f,i)=>`import f${i} from ${JSON.stringify("./"+f.path)};`).join("\n");writeFileSync(resolve(out,"manifest.js"),imports+"\nexport const code={\n"+files.map((f,i)=>JSON.stringify(f.name)+`:{type:${JSON.stringify(f.type)},body:f${i}}`).join(",\n")+"\n};\nexport const entries="+JSON.stringify(entries)+";\n");
 const buildInputs=Object.fromEntries(["nexus/tools/build-ui.mjs","nexus/tools/tokens.mjs","nexus/tools/messages.mjs","nexus/ui/editor-patches.mjs","nexus/ui/package-lock.json","nexus/ui/vendor/liberation-2.1.5.json"].map(path=>[path,sha(readFileSync(resolve(root,path)))]));
+patches.sort((a,b)=>a.name.localeCompare(b.name,"en"));
 const report={packages:expected,tool:{esbuild:version},buildInputs,patches,entries,files,totalRaw:files.reduce((n,f)=>n+f.raw,0),totalGzip:files.reduce((n,f)=>n+f.gzip,0),inputs:metafiles,legalComments:legal.map(({name,sha256})=>({name,sha256}))};
 writeFileSync(resolve(out,"sizes.json"),JSON.stringify(report,null,2)+"\n");writeFileSync(resolve(out,"legal-comments.txt"),legal.map(f=>f.name+"\n"+f.text).join("\n\n"));
-writeFileSync(resolve(root,"nexus/NOTICE"),readFileSync(resolve(root,"NOTICE"),"utf8")+"\nNEXUS browser components\n========================\n\n"+readFileSync(resolve(ui,"vendor/EDITOR-NOTICES.txt"),"utf8")+"\nThe pinned ERD Viewer also exposes bounded read-only navigation/geometry and a viewport event.\nThe bridge changes only this browser build; uploaded JSON and persisted layout are unchanged.\n\nGenerated bundle legal comments\n==============================\n\n"+legal.map(f=>f.name+"\n"+f.text).join("\n\n"));
+writeFileSync(resolve(root,"nexus/NOTICE"),readFileSync(resolve(root,"NOTICE"),"utf8")+"\nNEXUS browser components\n========================\n\n"+readFileSync(resolve(ui,"vendor/EDITOR-NOTICES.txt"),"utf8")+"\nThe pinned ERD Viewer also exposes bounded read-only navigation/geometry and a viewport event.\nThe bridge changes only this browser build; uploaded JSON and persisted layout are unchanged.\nThe pinned Excalidraw build lowers its minimum zoom for large-picture viewing.\n\nGenerated bundle legal comments\n==============================\n\n"+legal.map(f=>f.name+"\n"+f.text).join("\n\n"));
 // Only obsolete generated payloads in this exact directory are removed, after
 // the complete new graph and manifest have been written successfully.
 const keep=new Set(files.map(f=>f.path));

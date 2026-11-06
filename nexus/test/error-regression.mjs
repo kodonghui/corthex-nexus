@@ -10,7 +10,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {viewItemHeading} from './view-fixtures.js';
-import {spawn} from 'node:child_process';
+import {createBrowserRun} from './owned-browser.mjs';
 import {tmpdir} from 'node:os';
 
 if(Number(process.versions.node.split('.')[0])<24)throw Error('Node 24 or newer is required');
@@ -24,10 +24,10 @@ if(target.protocol!=='http:'||!['127.0.0.1','localhost','::1'].includes(hostname
 const origin=target.origin,api='/api/spaces/qa-views',here=path.dirname(fileURLToPath(import.meta.url));
 const artifactBase=path.resolve(process.env.NEXUS_QA_ARTIFACTS||path.join(tmpdir(),'nexus-browser-artifacts'));
 await fs.mkdir(artifactBase,{recursive:true});
-const folder=await fs.mkdtemp(path.join(artifactBase,'run-'));
-const profile=await fs.mkdtemp(path.join(folder,'profile-'));
+const browser=await createBrowserRun(artifactBase,'run-');
+const {folder,profile}=browser;
 const report={schema:'nexus-state-error-browser-regression/1',startedAt:new Date().toISOString(),origin,node:process.version,tests:[],interceptions:[],posts:[],blockedExternalOrigins:[]};
-let child,ws,session,seq=0,hold=null;let rules=[],paused=[];
+let ws,session,seq=0,hold=null;let rules=[],paused=[];
 const pending=new Map();
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const out=async(name,data)=>fs.writeFile(path.join(folder,name),JSON.stringify(data,null,2));
@@ -61,26 +61,21 @@ async function onPaused(event){
 }
 async function closeOwnedBrowser(){
  if(ws?.readyState===1){try{await command('Browser.close',{},false,3000);}catch{}ws.close();}
- const running=()=>child&&child.exitCode===null&&child.signalCode===null;
- async function waitExit(ms){if(!running())return;await Promise.race([new Promise(resolve=>child.once('exit',resolve)),sleep(ms)]);}
- await waitExit(2500);if(running()){child.kill();await waitExit(5000);}
  for(const call of pending.values())call.reject(Error('Owned browser closed'));pending.clear();
- if(running())throw Error('Owned Chrome did not finish exiting; preserve its generated profile');
- await sleep(150);
+ await browser.stop();
 }
-async function removeOwnedProfile(){if(child&&child.exitCode===null&&child.signalCode===null)throw Error("Owned Chrome still running; profile preserved");const realFolder=await fs.realpath(folder),realProfile=await fs.realpath(profile);const relative=path.relative(realFolder,realProfile);if(!relative||relative.startsWith('..')||path.isAbsolute(relative)||!path.basename(realProfile).startsWith('profile-'))throw Error('Refusing profile cleanup outside the generated run folder');await fs.rm(realProfile,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
 
 try{
  const fixture=await fetch(origin+'/__qa/receipts').then(async r=>({status:r.status,data:await r.json()}));
  assert(fixture.status===200&&Array.isArray(fixture.data.writes)&&/^nc_/.test(fixture.data.comment||'')&&/^np_/.test(fixture.data.proposal||''),'The origin is not the expected synthetic view-server fixture');
  const browserEnv={...process.env};for(const key of Object.keys(browserEnv))if(/(?:TOKEN|SECRET|PASSWORD|API_KEY)|^(?:NEXUS_DEV_|CORTHEX_NEXUS_)/.test(key))delete browserEnv[key];
- child=spawn(chrome,['--headless=new','--remote-debugging-port=0','--user-data-dir='+profile,'--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-component-update','--disable-sync','--disable-extensions','--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1, EXCLUDE localhost','about:blank'],{stdio:'ignore',windowsHide:true,env:browserEnv});
+ browser.launch(chrome,['--headless=new','--remote-debugging-port=0','--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-component-update','--disable-sync','--disable-extensions','--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1, EXCLUDE localhost','about:blank'],browserEnv);
  let endpoint;for(let i=0;i<100;i++){try{endpoint=(await fs.readFile(path.join(profile,'DevToolsActivePort'),'utf8')).trim().split('\n');break;}catch{await sleep(100);}}
  if(!endpoint)throw Error('The owned Chrome process did not publish a CDP endpoint');
  ws=new WebSocket('ws://127.0.0.1:'+endpoint[0]+endpoint[1]);await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
  ws.onmessage=message=>{const m=JSON.parse(message.data);if(m.id){const call=pending.get(m.id);pending.delete(m.id);if(call)m.error?call.reject(Error(JSON.stringify(m.error))):call.resolve(m.result);}else if(m.sessionId===session){if(m.method==='Runtime.exceptionThrown'){report.runtimeExceptions??=[];report.runtimeExceptions.push(m.params.exceptionDetails);}if(m.method==='Fetch.requestPaused')onPaused(m.params).catch(error=>{report.eventError=String(error);});if(m.method==='Network.requestWillBeSent'&&m.params.request.method==='POST'&&m.params.request.url.startsWith(origin)){report.posts.push({at:new Date().toISOString(),path:new URL(m.params.request.url).pathname,body:m.params.request.postData,write:Object.entries(m.params.request.headers).find(([k])=>k.toLowerCase()==="idempotency-key")?.[1]});}}};
  ws.onclose=()=>{for(const call of pending.values())call.reject(Error('Owned CDP connection closed'));pending.clear();};
- report.browserPid=child.pid;report.nodePid=process.pid;report.browser=await command('Browser.getVersion',{},false);
+ report.nodePid=process.pid;report.browser=await command('Browser.getVersion',{},false);
  const tab=await command('Target.createTarget',{url:'about:blank'},false);session=(await command('Target.attachToTarget',{targetId:tab.targetId,flatten:true},false)).sessionId;
  await command('Page.enable');await command('Runtime.enable');await command('Network.enable');await command('Network.setCacheDisabled',{cacheDisabled:true});await command('Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Request'},{urlPattern:origin+'/api/*',requestStage:'Response'}]});
  await size(1440,1000);
@@ -125,7 +120,6 @@ try{
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{
  try{await closeOwnedBrowser();}catch(error){report.shutdownError=String(error);}
- report.browserExitCode=child?.exitCode;report.browserSignalCode=child?.signalCode;
- try{await removeOwnedProfile();report.profileRemoved=true;}catch(error){report.profileRemoved=false;report.profileCleanupError=String(error);}
+ try{await browser.removeProfile();report.profileRemoved=true;}catch(error){report.profileRemoved=false;report.profileCleanupError=String(error);}
  report.finishedAt=new Date().toISOString();report.elapsedMs=Date.parse(report.finishedAt)-Date.parse(report.startedAt);await out('results.json',report);console.log(JSON.stringify({status:report.status,startedAt:report.startedAt,finishedAt:report.finishedAt,elapsedMs:report.elapsedMs,results:path.join(folder,'results.json'),profileRemoved:report.profileRemoved}));if(report.status!=='works'||!report.profileRemoved)process.exitCode=1;
 }
