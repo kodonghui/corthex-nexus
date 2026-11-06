@@ -54,7 +54,16 @@ export function startView(payload){
   async function refresh({panel:refreshPanel=true}={}){
     status.replaceChildren(notice(t("Updating")));
     try{await reads.run("page",()=>api.call("GET",dataPath()),fresh=>{data=fresh;status.replaceChildren();if(payload.view==="overview")renderOverview();else{
-      if(!drawn||fresh.picture.commit!==drawn.commit){const newer=notice(t("Newer version").split(ko?" 보기":" Show it")[0]);newer.append(button(say("Show it","보기"),()=>{drawn=fresh.picture;renderPicture();openFromHash();}));status.append(newer);}
+      if(!drawn||fresh.picture.commit!==drawn.commit){
+        const newer=notice(t("Newer version").split(ko?" 보기":" Show it")[0]);
+        newer.append(button(say("Show it","보기"),()=>{
+          drawn=fresh.picture;
+          newer.remove();
+          renderPicture();
+          openFromHash();
+        }));
+        status.append(newer);
+      }
       renderLists();renderer?.update(fresh);
     }if(panelTarget&&refreshPanel)openFromHash();});}
     catch(error){status.replaceChildren(notice(t("Could not update"),"warn"),errorBox(error,refresh));}
@@ -243,18 +252,23 @@ export function startView(payload){
   }
   function renderOverview(){
     body.replaceChildren();setMeta();if(!data)return;const wrap=node("div",null,"overview"),record=node("section",null,"card wide");put(record,node("h2",say("Recorded state","기록된 상태")),node("span",stateName(data.record?.state||"unknown"),"stage-state "+(data.record?.state||"unknown")));
-    if(data.record){put(record,node("p",data.record.next),node("small",date(data.record.updated)+" · "+(data.record.from==="repository"?say("from the default branch","기본 브랜치의 기록"):say("from this device","이 기기의 기록")),"meta"));for(const cp of data.record.checkpoints||[])put(record,node("p",cp.words||cp.date),cp.where?safeLink(cp.where,cp.where):null);}
+    if(data.record){
+      const source=data.record.from==="repository"?say("from the repository","저장소에서"):say("from the device's status file","기기의 상태 파일에서");
+      put(record,node("p",data.record.next),node("small",date(data.record.updated)+" · "+source,"meta"));
+      for(const cp of data.record.checkpoints||[])put(record,node("p",cp.approved||cp.words||""),node("small",[cp.by,cp.date].filter(Boolean).join(" · "),"meta"),cp.where?safeLink(cp.where,cp.where):null);
+    }
     if(!data.read)record.append(notice(t("Not read",{why:data.source_state})));
-    for(const pic of data.pictures||[])record.append(safeLink(say("Picture view","그림 보기")+" · "+pic.stage,"/pictures/"+[project,part||"_",pic.stage].map(encodeURIComponent).join("/")));
+    for(const pic of data.pictures||[]){const row=node("p");row.append(safeLink(say("Picture view","그림 보기")+" · "+pic.stage,"/pictures/"+[project,part||"_",pic.stage].map(encodeURIComponent).join("/")));if(pic.not_current){const versions=t("Not current, by a link").split(ko?" 또는: ":" Or: "),index={size:0,"source-gone":1,"other-repository":2}[pic.not_current]||0;row.append(" · ",node("span",index===0?versions[0]:say("Not current: its newest source ","최신 아님: ")+versions[index],"meta"));}record.append(row);}
     for(const warning of data.warnings||[])record.append(notice(t("Withdrawn, recorded"),"warn"));if(data.not_opened)record.append(notice(t("Not opened",{n:data.not_opened}),"warn"));wrap.append(record);
     if(data.discrepancies.total===0&&data.comments.total===0&&data.reflections.total===0)wrap.prepend(notice(t("Nothing left")));
     else{
+      wrap.append(node("h2",say("What is left","남은 것"),"wide"));
       listBlock(wrap,say(`Discrepancies (${count(data.discrepancies.total)})`,`어긋남 (${count(data.discrepancies.total)})`),data.discrepancies.entries,(row,d)=>{const target=d.compares==="aggregate-table"?"05-erd":"07-sitemap",link="/pictures/"+[project,part||"_",target].map(encodeURIComponent).join("/")+"#item="+encodeURIComponent(d.item||d.term);put(row,safeLink([d.term,d.item].filter(Boolean).join(" · "),link),node("p",d.reasons.map(r=>r.kind).join(" · ")));if(d.waiting)row.append(node("p",t("Waits")));},data.discrepancies.total);
       listBlock(wrap,say(`Comments (${count(data.comments.total)})`,`의견 (${count(data.comments.total)})`),data.comments.entries,(row,c)=>row.append(safeLink(c.text,"/pictures/"+[project,c.part||"_",c.stage].map(encodeURIComponent).join("/")+"#comment="+encodeURIComponent(c.id))),data.comments.total);
       listBlock(wrap,say(`Pending reflections (${count(data.reflections.total)})`,`반영 대기 (${count(data.reflections.total)})`),data.reflections.entries,(row,e)=>put(row,safeLink(e.proposal?.reason||e.id,"/pictures/"+[project,e.part||"_",e.stage].map(encodeURIComponent).join("/")+"#proposal="+encodeURIComponent(e.proposal?.id||"")),node("small",stateName(e.state),"meta")),data.reflections.total);
     }
     const checkpoints=node("section",null,"card");checkpoints.append(node("h2",say("Checkpoints","확인 지점")));for(const cp of data.checkpoints){const item=node("article",null,"entry");put(item,node("p",cp.words),node("p",cp.state==="withdrawn"?t("Withdrawn",{date:date(cp.withdrawn_at)}):t("Waiting for its record",{date:date(cp.passed_at)})));if(cp.pull_request)item.append(safeLink(cp.pull_request,cp.pull_request));if(cp.state==="passed"&&!cp.recorded_commit)action(item,{scope:"withdraw-checkpoint:"+cp.id,label:say("Withdraw","철회"),endpoint:base+"/checkpoints/"+encodeURIComponent(cp.id)+"/withdraw",done:value=>status.replaceChildren(notice(value.changed?t("Withdrawn",{date:date(value.checkpoint.withdrawn_at)}):t("Already withdrawn")))});checkpoints.append(item);}
-    checkpoints.append(node("h3",say("Pass the checkpoint","확인 지점 통과")));
+    checkpoints.append(node("h3",say("Pass the checkpoint","확인 지점 통과시키기")));
     writeForm(checkpoints,{scope:"checkpoint:"+place,label:data.checkpoints.some(cp=>cp.state==="passed"&&!cp.recorded_commit)?t("Pass again"):say("Pass","통과"),fieldLabel:t("Overview's headings").split(" · ").at(-1),max:2000,optional:true,endpoint:base+"/checkpoints",makeBody:d=>({part,stage,...(d.text.trim()?{words:d.text}:{})})});wrap.append(checkpoints);
     listBlock(wrap,say("Checks","점검"),data.checks,(row,c)=>put(row,node("strong",c.rule),node("p",c.message||c.rule)),data.checks.length,t("No checks"));
     body.append(wrap);

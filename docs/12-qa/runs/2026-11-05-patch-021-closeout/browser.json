@@ -1,0 +1,1897 @@
+{
+  "schema": "nexus021-final-original-screen-adjudication/1",
+  "originalProjection": {
+    "schema": "nexus-021-ui-public-projection/1",
+    "createdAtUtc": "2026-11-05T13:43:21.994601+00:00",
+    "scope": {
+      "en": "Original43 screen criteria: isolated actual local browser/Node/SQLite with synthetic signed Access, paired with preserved Prism state rendering. Original criterion wording is unchanged. Candidate verdicts await Root adjudication.",
+      "ko": "원래화면43조건: 격리된실제로컬브라우저/Node/SQLite·합성서명Access와보존Prism상태화면을짝지음. 원조건문구유지·최종판정은Root소유."
+    },
+    "counts": {
+      "pass": 37,
+      "partial": 6
+    },
+    "cases": [
+      {
+        "id": "TC-1217",
+        "status": "pass",
+        "lastResultEN": "pass — rich team/personal cards; two parts; snapshots/state/check counts; nonempty comments/proposals/discrepancies; current picture stage marks; checkpoint overview links; ask project/profile/default origins; no recorded progress; device server-only instructions; missing snapshot reason Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 팀/개인 카드·두 부분·자료시각/커밋·상태/개수·의견/제안/어긋남·그림/확인지점/출처있는우선질문·진행기록없음·스냅샷누락이유·기기안내 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "ace978ef460a124f834d44a902d36a005f608cf6300b7a6b499a21d859d90767",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1218",
+        "status": "pass",
+        "lastResultEN": "pass — server four push steps with variable names only and no secret/path/project section; actual CLI device empty notice Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 서버빈상태의네전송절차·변수명만·프로젝트/비밀/경로없음, 실제기기빈안내 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "015b7c71aa9d4dc9379f4c2dafafdd8f4d9ce436639cddf4e355782d14a605ac",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1219",
+        "status": "pass",
+        "lastResultEN": "pass — build/snapshot time and commit, dirty; source size/gone/other-repository; copied-view time; actual pending checkpoint; withdrawn checkpoint named in a newly pushed record; native reload newer source; actual formal9636 CLI rebuild Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 생성/자료시각·커밋·미커밋변경·그림세이유·복사시각·기록전/철회확인지점·실제재열기/정식CLI재빌드 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "9dcd9521986e6f455d3af39ddda8f39006a144042c1469d1fa1e55d5f870b5fe",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1220",
+        "status": "pass",
+        "lastResultEN": "pass — real handler internal500 and method405 HTML with trace and reload; invalid JSON/schema on server renderer and actual CLI-device HTML (controlled local inert-data corruption); corresponding exact Prism HTML at eight settings Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 실제500/405와trace/다시열기·서버/기기의JSON/스키마오류; rule9의코드별문구를적용 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "f5320d9366b609b7ab9f37328d51d4c4ad15e24b26d44afaf31618b1a00b86d4",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1221",
+        "status": "partial",
+        "lastResultEN": "partial — synthetic verifier actual missing and wrong audience403 plus exact Prism HTML at eight settings Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim. Safe deployed reads302 only; real provider403/401 remains unproved, separately from expiry deferral.",
+        "lastResultKO": "부분 — 실제합성검증기의missing/wrongaudience403·정확Prism문구; 배포edge의안전한무자격읽기는302로그인만관측 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음. 배포edge안전읽기는302만이며실제제공자403/401미입증은만료보류와별도임.",
+        "wholeExactClausesCompletion": false,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "b84517929ebd7f43101fd9701cbaeac1565897a481c1659c773c5391e5139dec",
+        "remainingExactClauses": [
+          "Anyone whom Access refuses sees Access's own page outside the application; a genuine provider401 is Access's too. Safe unchanged-policy unauthenticated reads observed302 login only; provider403/401 remains unproved. This is separate from the user expiry deferral."
+        ],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1222",
+        "status": "pass",
+        "lastResultEN": "pass — count/words focused heading; each result native ID button/title/kind/project/stage; native Close Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 검색개수/단어·초점제목·ID버튼/종류/제목/프로젝트/단계·실제닫기 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "dea991049a9deecdf6f165f9d209bb277e12ac63e85fcef7fe1c9dd0dd4e27c9",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1224",
+        "status": "pass",
+        "lastResultEN": "pass — ID/title focused heading/facts; Comes from/Leads to grouped by stages; earlier/later reach; same kind/decisions; screen definition/states; no-link none; native Close Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — ID/제목/초점/사실·단계별양방향trace·도달단계/동종/결정·화면상태/정의위치·연결없음 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "432609e8da860fe3fb72aeef6650a2136d77cf01f6d96aad243f8f4af18fcb81",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1225",
+        "status": "pass",
+        "lastResultEN": "pass — undefined ID sentence; referring related item and source place; unknown-project address/projects link; native Close Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 정의없는ID의함께언급/참조위치·페이지에없는프로젝트와프로젝트돌아가기 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "cc1731f1eb00883c2d57fa4eadb41d95c0912c66c0b80b0196ffa22adaf245a6",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1226",
+        "status": "pass",
+        "lastResultEN": "pass — focused stage name+state heading; two parts state/checkpoint/next; settings source/truth/link/note/copy metadata; checks and empty-check notice; items grouped by kind; server picture/overview links; device server-only line Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 초점받는단계이름/상태·부분별상태/확인지점/다음일·설정/점검/점검없음·종류별항목·서버그림/개요·기기안내 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "9ecb9f03b3a8ce42f2ddbdb852d7f87d35dba6c94e8e8a1d7ef9b6415e2ba9e1",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1227",
+        "status": "pass",
+        "lastResultEN": "pass — five explicit source reasons missing/none/no-checkout/skipped/invalid with state/checkpoint/next/overview link Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 원본없음/텍스트없음/저장소없음/건너뜀/잘못된설정5상태와기록/다음일/개요유지 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "aa063cd759dd021f80cbc798618d7d87cd6c5ff774199c24b1cfbf311c3407af",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1228",
+        "status": "pass",
+        "lastResultEN": "pass — three actual stale reasons; pending checkpoint date by state; withdrawn namedrecord warning; copied-view time Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 그림최신아님3이유·기록전확인지점·기록이명명한철회경고·사람화면복사시각 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "f8d3d56bcf3aad5ced17237588bf5d598ca8a7a41327ab1994092151b6306e34",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1229",
+        "status": "pass",
+        "lastResultEN": "pass — missing project and non13 stage addresses; exact message and projects link; native Close Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 없는프로젝트/13단계밖주소의정확안내·프로젝트링크 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "c155f49ab3f35f903a9d0aaf5958ede57e8ef8ddaea8ba1e456ed14e28652ba1",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1230",
+        "status": "pass",
+        "lastResultEN": "pass — All3 complete SVG/critical styles and pre-JS item links; tiny view native pan/zoom/item+comment panels before editor; exact loading notice; preserved DDD/Sitemap marker camera and ERD public viewport, including exact1.25handoff and.1..1.5limits. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 그림3종완전SVG/중요스타일·JS전항목링크, 편집기전작은보기의이동/확대/항목·의견패널·정확로딩문구, DDD/사이트맵위치와ERD공개viewport보존(1.25배정확전환·.1~1.5범위). 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "7c4b609867ee157d65fe0b733c8750c97d5cbf326e518c745462ea45f2fe65d4",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "picture-prejs-final-01/report.safe.json",
+            "sha256": "8101dbbb513e01de8c2493222e5aac8fa14e1f471960d3524bc671cd30de5192"
+          },
+          {
+            "file": "picture-camera-fixed-final-05/report.safe.json",
+            "sha256": "cf09e15e3101a2c5eda7b332f56240dd409eea66d8139fe1616b6d1043b0ecff"
+          },
+          {
+            "file": "erd-camera-range-fixed-final-01/report.safe.json",
+            "sha256": "a020c18380aacbc534856c0d181f19389b8c6ca442527a5732f98d4932c781aa"
+          },
+          {
+            "file": "erd-wide-handoff-fixed-final-03/report.safe.json",
+            "sha256": "e525fa0d08b95dcd725ac59d158d495906be33d31fa4fe61ace6848467882930"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1231",
+        "status": "pass",
+        "lastResultEN": "pass — All3 top links/commit/time/read-only deterministic SVG/list/Apart/legend; named44px accepted/discrepancy/unowned marks exposed with actual native pan; nine original step keys initially whole board, first/last boundaries and native reload/hash restoration; no timeline notice. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 그림3종상단링크/커밋/시각·읽기그림/목록/Apart/범례, 실제이동으로44px수락/어긋남/ID없는부분표시, 원래9step키/전체그림초기·양끝·주소/실제재열기·타임라인없음. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "32143c535024333c0b8ea2d5cc3dadcb814493adbff2cd9563c8ff6cc255ac81",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "screen-picture-literal-final-01/report.safe.json",
+            "sha256": "521df70d7901651f5c42f74d9b1def4d1427ee4e8afd26d97c15aa0034dfe817"
+          },
+          {
+            "file": "picture-normal-named-marks-final-03/report.safe.json",
+            "sha256": "fc2f242a3e3505d7ca1702db3dcf61515db4a7fac44a345ced3348ab9bf8b226"
+          },
+          {
+            "file": "native-picture-remaining-final-01/report.safe.json",
+            "sha256": "9a0394d1daa49a55d45e0f0f11a640785e0d998daebce3cf23ebb493db518df0"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1232",
+        "status": "pass",
+        "lastResultEN": "pass — Actual and Prism301-element picture with exact large notice, normal read-only frame/list/controls; no3second performance claim for large state. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 실제/Prism301요소와정확큰그림문구·일반읽기그림/목록/조작, 큰그림의3초성능주장없음. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "c7f96a18ce66ae1018e05395904123e7bdcb96aac8f9ca2fbca75ab786fc6b49",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "screen-picture-literal-final-01/report.safe.json",
+            "sha256": "521df70d7901651f5c42f74d9b1def4d1427ee4e8afd26d97c15aa0034dfe817"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1233",
+        "status": "pass",
+        "lastResultEN": "pass — All3 why messages not-drawn/size/other-repository and valid origin-bound overview/hub links. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 미작성/크기/다른저장소3이유의정확문구와개요/허브링크. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "b537ea0515f429716ed20c29a8b3f1a4620c3ae7ab5ffbf0a2b594d5480feecc",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "screen-picture-literal-final-01/report.safe.json",
+            "sha256": "521df70d7901651f5c42f74d9b1def4d1427ee4e8afd26d97c15aa0034dfe817"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1234",
+        "status": "pass",
+        "lastResultEN": "pass — Three stale-source reasons/old commit usable frame/waiting discrepancy; actual changed-source push and native Refresh preserve old drawing until explicit Show it, which then displays actual new commit/source. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 이전커밋·원본3이유·그림사용/대기어긋남, 실제변경원본push/새로읽기뒤보기클릭전이전그림유지·클릭후새커밋/원본. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "1ba29f116a0d9509a9899cd5ca51181f0a55ee33b17c0d4d872990f11554fd3b",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "stale-picture-overview-final-01/report.safe.json",
+            "sha256": "b06110d6bf5b4144fae5d693efacb06a61f6a0829bf8c7fc74a71538d943d326"
+          },
+          {
+            "file": "native-picture-remaining-final-01/report.safe.json",
+            "sha256": "9a0394d1daa49a55d45e0f0f11a640785e0d998daebce3cf23ebb493db518df0"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1235",
+        "status": "pass",
+        "lastResultEN": "pass — Applicable page Problem/trace/Hub and internal Reload, refresh bar retains drawn picture; controlled network and real30s timeout/retry. Only real provider429/503 clauses close with user-approved transport mock evidence. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 해당페이지Problem/trace/허브·internal재열기, 읽기오류바/기존그림유지·통제연결오류/실제30초/재시도. 실제제공자429/503절만사용자승인모의근거완료. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "6646dbff4381575d324e1ac88830fb474b705a8016cd9c69509307abdc3b8529",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": true,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "prism-errors-eight-02/report.safe.json",
+            "sha256": "f76954bfc86d1d21cdb9d3ec8745541c1b48d5f7e86a195e13cb10e8f5e92fa1"
+          },
+          {
+            "file": "recovery-refresh-timeout-01/report.safe.json",
+            "sha256": "41e5ffe928c1e65b5232799f059f0ad21437436d629003f00e258ffa164d784e"
+          },
+          {
+            "file": "recovery-refresh-boundaries-01/report.safe.json",
+            "sha256": "47cc2154dd3d01bf8df446615cd5b62a8175ddf50c8b540c2c4006e5a88c328e"
+          },
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1236",
+        "status": "pass",
+        "lastResultEN": "pass — Three sources × six exact code fault paths per mode: failed native editor leaves SVG/pan/zoom/item list/panels and never ready; failed tiny module leaves SSR SVG/item links; no-picture native failure retains reload fallback. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 3종×6코드실패경로: 편집기실패뒤SVG/이동/확대/목록/패널·준비아님, 작은보기실패뒤서버SVG/항목링크, 그림없음은재열기대체안내유지. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "6976e64c87b9b7a15d525c85f5266f94ae17d852f10d25d57fff77d336f9b6ba",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "picture-failed-native-final-01/report.safe.json",
+            "sha256": "886a0ca3501fddec720a2b51950e6afd71da8fa91b2bad1baa889732be6ebc61"
+          },
+          {
+            "file": "picture-failed-view-final-01/report.safe.json",
+            "sha256": "370bc7fd51361328dac7acd5e419f3c52864e348ea22922652810c893854ac68"
+          },
+          {
+            "file": "picture-empty-code-fallback-final-01/report.safe.json",
+            "sha256": "b96a2374a72268812f24232f6da4d87fe2e4fd55f0239fb82a103a0e6a736049"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1237",
+        "status": "partial",
+        "lastResultEN": "partial — Page/refresh Access code messages and retained panels with controlled401/manual opaqueredirect; genuine mid-view human expiry remains explicitly user-deferred. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "부분 — 페이지/읽기Access문구·모의401/manual불투명리디렉션·패널보존확인, 실제사람세션중도만료는사용자보류. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": false,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "0123badf28a99a367e0a1510368a76ceeb134d394561266952448a9f04189f73",
+        "remainingExactClauses": [
+          "Genuine human Access sign-in expires while this view is open, followed by the original rule7 normal sign-in and preserved panel/draft/write ID, as applicable. The user explicitly deferred the actual expiry test; no policy/cookie/session changes or forced reauthentication occurred."
+        ],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": true,
+        "evidence": [
+          {
+            "file": "prism-errors-eight-02/report.safe.json",
+            "sha256": "f76954bfc86d1d21cdb9d3ec8745541c1b48d5f7e86a195e13cb10e8f5e92fa1"
+          },
+          {
+            "file": "recovery-refresh-boundaries-01/report.safe.json",
+            "sha256": "47cc2154dd3d01bf8df446615cd5b62a8175ddf50c8b540c2c4006e5a88c328e"
+          },
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1238",
+        "status": "pass",
+        "lastResultEN": "pass — ID/title/focus/Close/quote, nonempty discrepancies and Open proposals, most-active timestamp ordering, user/agent/time/text/reply count+last reply/closed outcomes; ready labeled form/near-limit counter; native Send creates exactly one scoped row/receipt, keeps item, top new comment and empty form; unowned exact-name/quote policy and send. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — ID/제목/초점/닫기/인용·어긋남/제안열기·실제활동시각순서·역할/시각/본문/답글수/마지막답글/닫힘종류, 라벨/한도근처계수·실제보내기1행/1영수증·항목유지/새의견맨위/빈입력·ID없는이름/인용/쓰기. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "45c5acc8cf48d62e51d81a80da033820fb95957566f425717a1233f62300f551",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "screen-item-literal-final-01/report.safe.json",
+            "sha256": "e0f0ebf3d049a0762e02e2895ffa2f1c9e2f9cdc382bed424cae4f56206f6779"
+          },
+          {
+            "file": "item-fixed-literal-01/report.safe.json",
+            "sha256": "390612fed42fc91d7ca558a32c95372e901486c1d3ea8cdc31641c9409a89f47"
+          },
+          {
+            "file": "native-item-literal-final-01/report.safe.json",
+            "sha256": "278e0843cef9cba8b2fd97e063f3b4199975608abeffc0cbccfb19ad56cce3c8"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1239",
+        "status": "pass",
+        "lastResultEN": "pass — Stable-ID and unowned-name exact empty notices with ready form and no proposals/discrepancies. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — ID/ID없는이름의정확빈안내·쓰기준비·제안/어긋남없음. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "e88371a9600dcfcd7ecba75fba8287fbc27cb6f02bf184f90c1dbd82fa663a76",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "screen-item-literal-final-01/report.safe.json",
+            "sha256": "e0f0ebf3d049a0762e02e2895ffa2f1c9e2f9cdc382bed424cae4f56206f6779"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1240",
+        "status": "pass",
+        "lastResultEN": "pass — Native Send held at response boundary, exact Sending/disabled submit, retained text and usable Close/rest of panel; release creates one actual receipt and empty form. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 실제보내기응답대기중전송중/버튼꺼짐·본문보존·닫기/패널사용, 응답해제후실제영수증1개와빈폼. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "68e1831a11ae250727ae838eb3c054331929b497fbff1bbbbd048ba0e8d62d82",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "native-pending-final-01/report.safe.json",
+            "sha256": "dffd85ef29ffb77f3d87befbfe0d760c368049a91aed48718262faad19c11a62"
+          },
+          {
+            "file": "native-item-literal-final-01/report.safe.json",
+            "sha256": "278e0843cef9cba8b2fd97e063f3b4199975608abeffc0cbccfb19ad56cce3c8"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1241",
+        "status": "pass",
+        "lastResultEN": "pass — All declared human comment error messages/field placement/canonical link/retained text+same ID and reused-ID rotation; actual four missing-target readbacks incl discrepancy404; threshold/size/content/method/server failures and agent-only claimed separation; real30s/network/retry, approved provider429/503 mocks. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 사람댓글의명시오류/필드위치/정규링크/글+동일ID·재사용시새ID, 어긋남포함4대상404실제재읽기·한도/크기/형식/메서드/서버·agent전용claimed분리, 실제30초/연결/재시도·승인429/503모의. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "dbbaf4a4042f1154001b126b44dd8b506608f07176bccb7a5d80a1ec65b9d1bb",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": true,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "prism-errors-eight-02/report.safe.json",
+            "sha256": "f76954bfc86d1d21cdb9d3ec8745541c1b48d5f7e86a195e13cb10e8f5e92fa1"
+          },
+          {
+            "file": "actual-comment-faults-02/report.safe.json",
+            "sha256": "03a215ddf205068b90768f62f9a8fd8b69c2099f9c07be5924d2c71a40dc05ee"
+          },
+          {
+            "file": "actual-comment-target-fixed-01/report.safe.json",
+            "sha256": "06e175e1a4b6cbbbbbf4246b1c4314b0c5f9a95275d25e2257f186f35a28aa7c"
+          },
+          {
+            "file": "actual-comment-discrepancy-final-01/report.safe.json",
+            "sha256": "7f03a94b156cc87ecee53bf2c7db2fc81679fd3bb50e5a99f09e278cc4c0fd32"
+          },
+          {
+            "file": "recovery-comment-timeout-01/report.safe.json",
+            "sha256": "a7d901b82ad7d18dadff419d933679de209c5111b382d5dabd393ae7a86d3aa1"
+          },
+          {
+            "file": "recovery-comment-boundaries-01/report.safe.json",
+            "sha256": "019182feb7e226892930eab50f5822d860297aaf31531787d2aee674da06c8b7"
+          },
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1242",
+        "status": "partial",
+        "lastResultEN": "partial — Actual synthetic missing/other-app/no-kind role failures preserve text; controlled401/manual redirect and browser-storage text/write ID recovery. Genuine human expiry→normal sign-in remains user-deferred. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "부분 — 실제합성missing/다른앱/no_kind와본문보존·모의401/manual리디렉션/브라우저저장글+ID복원, 실제만료→정상재로그인은사용자보류. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": false,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "cbf2e9e7ea4e5bd80c99e06ce2247635af0d5a252ee756b0be8bb07457b14176",
+        "remainingExactClauses": [
+          "Genuine human Access sign-in expires while this view is open, followed by the original rule7 normal sign-in and preserved panel/draft/write ID, as applicable. The user explicitly deferred the actual expiry test; no policy/cookie/session changes or forced reauthentication occurred."
+        ],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": true,
+        "evidence": [
+          {
+            "file": "prism-errors-eight-02/report.safe.json",
+            "sha256": "f76954bfc86d1d21cdb9d3ec8745541c1b48d5f7e86a195e13cb10e8f5e92fa1"
+          },
+          {
+            "file": "actual-comment-faults-02/report.safe.json",
+            "sha256": "03a215ddf205068b90768f62f9a8fd8b69c2099f9c07be5924d2c71a40dc05ee"
+          },
+          {
+            "file": "recovery-comment-boundaries-01/report.safe.json",
+            "sha256": "019182feb7e226892930eab50f5822d860297aaf31531787d2aee674da06c8b7"
+          },
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1243",
+        "status": "pass",
+        "lastResultEN": "pass — Stable-ID comment-only/draft-only/neither/closed-only64 valid observations; actual changed-source push/native reload keeps open comments or meaningful draft+same ID, otherwise Back only. Unowned removal16 readiness-correct observations shows no address/Gone panel and moves still-open item-empty quoted comment to Apart without writes. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — ID의댓글만/초안만/둘없음/닫힘만64유효관측·실제원본변경push/재열기뒤열린댓글또는글+동일ID보존/없으면돌아가기, ID없는부분제거16유효관측에서주소/Gone패널없이인용댓글Apart이동·쓰기없음. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "3e64c336ec51f5ec412cd29fb6889c9ddeffbaef554786b84007087636c90625",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "item-gone-completion-final-03/report.safe.json",
+            "sha256": "de028044025b4900afa5cb5ebd1d1fc9ae3f9b521442f70802a9603bd7ce92a5"
+          },
+          {
+            "file": "item-gone-unowned-final-04/report.safe.json",
+            "sha256": "0f83c140c1b47376017ada66a32ffaaa718aa9322b8931bc232676944d2bb29a"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1244",
+        "status": "pass",
+        "lastResultEN": "pass — Open and closed cached comment summary including text/author/state/last reply or item/closed outcome; delayed real detail requests leave skeleton replies, editable reply box and disabled Reply/Answered. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 열림/닫힘캐시의본문/작성자/상태/마지막답글또는ID/닫힘종류·실제상세요청대기중회색답글·수정가능답글입력/Reply·Answered대기. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "8fd278768a4fbc305170d49abbd35d37c098d28e3a26ff8e43f59a923a594616",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "panel-loading-fixed-final-01/report.safe.json",
+            "sha256": "49c9431ed3ebe404cbfada7d9fe322a87d474bafb925e59541445a1914f0bab5"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1245",
+        "status": "pass",
+        "lastResultEN": "pass — All six exact focused comment headings, ordered replies/settles marker/decision links/proposal entries, empty-replies and foreign-picture link; native plain/settling reply→Answered→reopen verified actual API/SQLite and four receipts, no early proposal-source API requests. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 6종초점제목·시간순답글/결정요청표시/결정링크/제안·답글없음/다른그림링크, 실제일반/결정답글→Answered→재열기와API/SQL/영수증4개·제안원문조기조회없음. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "29b248f82dc78bec3cb33b49a6179c8850e2194648d0efce950de3d9f375d134",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "screen-thread-literal-final-01/report.safe.json",
+            "sha256": "449d51fc5ee4199e8c7851839529fade52e9c29c1329472eaa4b5bed592d8da1"
+          },
+          {
+            "file": "native-thread-success-final-01/report.safe.json",
+            "sha256": "ef9df1d1648d5bc0a47ae4be6e3cffa3f630e497d2896484e1aff24b44626f28"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1246",
+        "status": "pass",
+        "lastResultEN": "pass — Actual closed race then native Answered shows already-closed/current data; new agent reply since panel opened becomes marked-new after actual in-panel user write; mobile background refresh is not clicked through modal. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 실제선행닫힘뒤Answered의이미닫힘/최신자료, 패널열린뒤새agent답글과패널안실제사용자쓰기로새표시·현재내용. 모바일모달뒤버튼을뚫어누르지않음. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "4ec4b3c94c3b4b5690ed9e6b5c8d921ad907cd83f042e58c9df205f696512826",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "native-comment-stale-final-02/report.safe.json",
+            "sha256": "d6d73d8dfe39eedc190508c8f04d322abfcc185eb7181d2311615868854b72c6"
+          },
+          {
+            "file": "native-comment-newreply-final-03/report.safe.json",
+            "sha256": "55797ebb02d7cf1fd1dfdff91a5ac4d211575e01e14e5633c1004a23dbef5c9c"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1247",
+        "status": "pass",
+        "lastResultEN": "pass — Read retry/cached summary, every declared human reply error/retained draft+ID, agent-only closed/claimed separation; actual200-reply limit and explicit new-comment transfer with original named target/new ID/old draft preservation; real30s/network and approved429/503 mocks. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 읽기실패/재시도/캐시·명시사람답글오류/초안+ID보존·agent전용오류분리, 실제200답글한도/명시새의견이동과원대상/새ID/기존초안보존, 실제30초/연결·승인429/503모의. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "b101edf6e7836f8470dc4179841d197cc320efe8a1339b18a9a73e78c8d35b1f",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": true,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "prism-errors-eight-02/report.safe.json",
+            "sha256": "f76954bfc86d1d21cdb9d3ec8745541c1b48d5f7e86a195e13cb10e8f5e92fa1"
+          },
+          {
+            "file": "actual-reply-faults-02/report.safe.json",
+            "sha256": "2ea03486d2d9574940c7776ebaa83d84a0d8bdc5a318a5ebb3e1278297a76c1d"
+          },
+          {
+            "file": "reply-transfer-advanced-final-03/report.safe.json",
+            "sha256": "eee29427a1b86947e98535282ce9e8cc06a4c10da2428ceaa0e5b40aa98a231f"
+          },
+          {
+            "file": "recovery-reply-timeout-01/report.safe.json",
+            "sha256": "41de21ba1a603f868d9de4205c53bdac210f4024ccef6a35c7edd5fd942f71ec"
+          },
+          {
+            "file": "recovery-reply-boundaries-01/report.safe.json",
+            "sha256": "4f87a5c4d6415084cabe637a65623a4c51ad2844b69c2b4c28dfd1e745e82411"
+          },
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1248",
+        "status": "partial",
+        "lastResultEN": "partial — Actual synthetic Access code failures and agent settling user_only preserve reply; controlled expiry presentation only. Genuine mid-view human expiry remains user-deferred. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "부분 — 실제합성Access오류·agent결정답글user_only와글보존·모의만료표시, 실제사람세션중도만료는사용자보류. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": false,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "a38426602e679dfb62605a82d39f02dce006e78aa55bbf04943aa51111084a63",
+        "remainingExactClauses": [
+          "Genuine human Access sign-in expires while this view is open, followed by the original rule7 normal sign-in and preserved panel/draft/write ID, as applicable. The user explicitly deferred the actual expiry test; no policy/cookie/session changes or forced reauthentication occurred."
+        ],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": true,
+        "evidence": [
+          {
+            "file": "prism-errors-eight-02/report.safe.json",
+            "sha256": "f76954bfc86d1d21cdb9d3ec8745541c1b48d5f7e86a195e13cb10e8f5e92fa1"
+          },
+          {
+            "file": "actual-reply-faults-02/report.safe.json",
+            "sha256": "2ea03486d2d9574940c7776ebaa83d84a0d8bdc5a318a5ebb3e1278297a76c1d"
+          },
+          {
+            "file": "recovery-reply-boundaries-01/report.safe.json",
+            "sha256": "4f87a5c4d6415084cabe637a65623a4c51ad2844b69c2b4c28dfd1e745e82411"
+          },
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1249",
+        "status": "pass",
+        "lastResultEN": "pass — All8 declared comment GET/reply/answered×404code paths each Prism8+actual8=128: typed comment Gone, Back and picture reread, copyable unchanged reply+ID, submit disabled, no write effect; stale read/write order guards retained. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 댓글GET/답글/Answered의명시8개404경로×Prism8+실제8=128: 댓글Gone/돌아가기/그림재읽기·복사가능동일초안+ID·보내기불가·쓰기효과없음·읽기/쓰기역순가드. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "49f8c12ee1d0e9f8b1b8f239fbd343e5e67d4b3a106a767c23d4ba198c2ce879",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "gone-comment-literal-final-03/report.safe.json",
+            "sha256": "85b231a09f5d93c23526db72074dc4477cc466b86daeefde5b404f928958e363"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1250",
+        "status": "pass",
+        "lastResultEN": "pass — Open and accepted nested-reflection cached proposal item/reason/change/state summaries; delayed source text length/grey box, Accept/Dismiss wait. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 열림/수락된중첩반영의항목/이유/변경/상태캐시, 원문길이/회색상자·수락/기각대기. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "7e9c75ee175600d0e0bdccb3556563f6f399fa5b6d23268b68b373da89cf1e6f",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "panel-loading-fixed-final-01/report.safe.json",
+            "sha256": "49c9431ed3ebe404cbfada7d9fe322a87d474bafb925e59541445a1914f0bab5"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1251",
+        "status": "pass",
+        "lastResultEN": "pass — Focused proposal heading/Close/reason/change/source own scroll/commit/related comment; exact8 original terminal/reflection phrases with PR/commit metadata; actual native Accept/Dismiss/reflection-dismiss48 observations with one-effect receipts. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 제안초점제목/닫기/이유/변경/독립스크롤원문/커밋/원댓글·원명세8상태문구와PR/커밋, 실제수락/기각/반영기각48관측·각1효과영수증. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "0e5c7683e273a28b878f085d98763262ddd504e787519a9c28161d52949b593e",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "screen-proposal-literal-final-01/report.safe.json",
+            "sha256": "d32b68e4f9fafc7808144b1fa7e08a879b7f173238c0a0dfb8cd8705a05a6a32"
+          },
+          {
+            "file": "bug573-fixed-actual-01/report.safe.json",
+            "sha256": "4d45f127004ece8e9d078ec9a1f16c2d54a27806ae98bac50e76980ca9a23551"
+          },
+          {
+            "file": "native-proposal-success-final-01/report.safe.json",
+            "sha256": "cf379703321e8facfe86e84ea860b39d3522fa0a89651073f7d1ce5c32b9b8e2"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1252",
+        "status": "pass",
+        "lastResultEN": "pass — Actual accept/dismiss races against3terminal states, changed in-review/closed reflection and already-dismissed rereads; corrected actual changed-source push gives earlier-picture notice while Accept stays enabled. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 수락/기각전3종종료경쟁·검토/닫힌반영/이미기각재읽기, 실제변경원본push의이전그림커밋안내·수락유지. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "f13515bb90ef4468639e0613a3c165df09c5d98c5be6b3a160c6aaa6afc8c995",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "native-proposal-stale-final-01/report.safe.json",
+            "sha256": "dec1a58e0ec27f162bc553c8c16c6179c9a0a5eb70b7e5d21ef0be5bcc9967ca"
+          },
+          {
+            "file": "native-proposal-earlier-final-02/report.safe.json",
+            "sha256": "37916f5560a3cf6dc79846391988b3911e17ee630e934c06b0d47e2d9277b858"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1253",
+        "status": "pass",
+        "lastResultEN": "pass — Read retry/cached proposal and all declared accept/dismiss errors including actual500reflection cap, same-ID retry/reused-ID rotation; real30s/network/retry and approved provider429/503 mocks. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 읽기재시도/캐시·명시수락/기각오류와실제500반영한도·동일ID재시도/재사용시새ID, 실제30초/연결·승인429/503모의. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "b06b722b87fd8e60b73dc0e86cead942992906b8180108ca9643e51a267c259e",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": true,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "prism-errors-eight-02/report.safe.json",
+            "sha256": "f76954bfc86d1d21cdb9d3ec8745541c1b48d5f7e86a195e13cb10e8f5e92fa1"
+          },
+          {
+            "file": "actual-other-faults-02/report.safe.json",
+            "sha256": "db9a3b214522d2eb707e962f113c1f61cc1d598adc1ba88f9a20724de6067273"
+          },
+          {
+            "file": "recovery-accept-timeout-01/report.safe.json",
+            "sha256": "7f56a91991350b6665402986ead482971323735599de360c9cabc76f28bc8c12"
+          },
+          {
+            "file": "recovery-accept-boundaries-01/report.safe.json",
+            "sha256": "b2c3ca2a15ce9c2ec4431527a49551875129aae0bd2efe32b84424b598a52863"
+          },
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1254",
+        "status": "partial",
+        "lastResultEN": "partial — Actual signed role user_only/missing/other-app and controlled401/manual redirect retain panel/actions; genuine human mid-view expiry user-deferred. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "부분 — 실제서명합성역할user_only/missing/다른앱·모의401/manual리디렉션과패널보존, 실제사람중도만료는사용자보류. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": false,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "479b11ace2208143e038a5d5426756ab0a4c56744ff669738401e3119f73295f",
+        "remainingExactClauses": [
+          "Genuine human Access sign-in expires while this view is open, followed by the original rule7 normal sign-in and preserved panel/draft/write ID, as applicable. The user explicitly deferred the actual expiry test; no policy/cookie/session changes or forced reauthentication occurred."
+        ],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": true,
+        "evidence": [
+          {
+            "file": "prism-errors-eight-02/report.safe.json",
+            "sha256": "f76954bfc86d1d21cdb9d3ec8745541c1b48d5f7e86a195e13cb10e8f5e92fa1"
+          },
+          {
+            "file": "actual-other-faults-02/report.safe.json",
+            "sha256": "db9a3b214522d2eb707e962f113c1f61cc1d598adc1ba88f9a20724de6067273"
+          },
+          {
+            "file": "recovery-accept-boundaries-01/report.safe.json",
+            "sha256": "b2c3ca2a15ce9c2ec4431527a49551875129aae0bd2efe32b84424b598a52863"
+          },
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1255",
+        "status": "pass",
+        "lastResultEN": "pass — All10 declared proposal/edit GET/accept/dismiss×404code paths each Prism8+actual8=160: correctly typed Gone, Back+picture reread, safe disabled actions and no effects, asynchronous read/write stale guards. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 제안/반영GET/수락/기각명시10개404경로×Prism8+실제8=160: 종류맞는Gone·돌아가기/그림재읽기·동작불가/효과없음·비동기역순가드. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "e538da90a060c64e2ab2929166de769abdef3cad61537f5d70101e2085a99d70",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "gone-proposal-literal-final-01/report.safe.json",
+            "sha256": "3df59ff578900e1e2c48ce68cfaff1c552874760afc2b53ee34d4b76aec768ab"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1256",
+        "status": "pass",
+        "lastResultEN": "pass — Before actual code exact static line and native reload; changed timeOrigin then release draws bootstrap in same new document without API calls.16 observations/32 before-after captures reviewed; before-code bounded metrics separated from full checker after release. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 실제코드전정확고정문구/실제재열기·새timeOrigin에서모듈해제후같은문서의포함자료를API없이그림,16관측/전후32그림검토·코드전한정계측과해제후전체체커분리. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "4b828fb47c525442b76da0c3acbbeb901c1d827987841e24d06649e3044c700f",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "overview-loading-native-reload-05/report.safe.json",
+            "sha256": "fdd96e1de36c7d5097c19383580c9570d30d4efcc5a7a083b1532e491c14cb1b"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1257",
+        "status": "pass",
+        "lastResultEN": "pass — Exact top links and record/source/update/checkpoints; What is left nonempty three totals/panel links; exact No checks; optional Pass≤2000 box; source5explanations still Pass and no-picture record/checks only; recorded checkpoint approved/by/rawdate/link. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 상단/기록/출처/갱신/확인지점·남은것3목록총수/패널링크·정확점검없음·선택2000자Pass·원본5이유/Pass유지·그림없음기록/점검만·기록확인지점approved/by/원날짜/링크. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "4d1241e5c38caa7fa4b4fed9d11d81243c52b25472493df05a5a00adbce761ef",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "screen-overview-fixed-final-01/report.safe.json",
+            "sha256": "cdbe75607e8f63911b4c8ad2fb3bb884d40b48264ec0ec58b6b28bd74bd214ec"
+          },
+          {
+            "file": "screen-overview-stale-fixed-final-02/report.safe.json",
+            "sha256": "17ecea2fe590293aeb9605a6b7a2dff4ad293011f79bbc3fa7e82838215a7c1e"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1259",
+        "status": "pass",
+        "lastResultEN": "pass — Actual Pass again distinct checkpoint/receipt, words/PR metadata; already-withdrawn message, record-race refusal with current overview reread, actual withdrawn-record warning, and inline Not-current3why next to picture link. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 실제다시확인별도확인지점/영수증·문구/PR, 이미철회문구·기록경쟁거절/최신개요재읽기·철회기록경고·그림링크옆최신아님3이유. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "51807fddf763755b0bd16384fbe8aa8990751b716777bcf8d0422dc0c5bf79f4",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "native-overview-stale-final-01/report.safe.json",
+            "sha256": "99e0d13e84b52e565fda5dea4452543f50b082dde8a6fe3bf4b55806f35320e3"
+          },
+          {
+            "file": "screen-overview-stale-fixed-final-02/report.safe.json",
+            "sha256": "17ecea2fe590293aeb9605a6b7a2dff4ad293011f79bbc3fa7e82838215a7c1e"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1260",
+        "status": "pass",
+        "lastResultEN": "pass — Applicable initial Problem/trace/Hub/internal Reload; module failure static reload; refresh bar/overview preserved; every Pass/Withdraw error with correct retention/ID and actual missing-target reread, real30s/network/retry, approved429/503 mocks. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "통과 — 해당최초Problem/trace/허브/internal재열기·모듈실패고정대체문구·읽기오류/개요보존·명시Pass/철회오류와본문/ID/대상404실제재읽기·실제30초/연결·승인429/503모의. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": true,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "4482bbb55b5052b1f904e6ab55a8cc41c0182e4e58ab598a505e578fdf160dd9",
+        "remainingExactClauses": [],
+        "externalProviderMockApprovalApplied": true,
+        "actualExpiryUserDeferred": false,
+        "evidence": [
+          {
+            "file": "prism-errors-eight-02/report.safe.json",
+            "sha256": "f76954bfc86d1d21cdb9d3ec8745541c1b48d5f7e86a195e13cb10e8f5e92fa1"
+          },
+          {
+            "file": "actual-other-faults-02/report.safe.json",
+            "sha256": "db9a3b214522d2eb707e962f113c1f61cc1d598adc1ba88f9a20724de6067273"
+          },
+          {
+            "file": "overview-loading-native-reload-05/report.safe.json",
+            "sha256": "fdd96e1de36c7d5097c19383580c9570d30d4efcc5a7a083b1532e491c14cb1b"
+          },
+          {
+            "file": "recovery-pass-timeout-01/report.safe.json",
+            "sha256": "54023b2bee17dd24d365f3be3d1ff27add4e36bcf4701aaeeb77b4796db0a0fa"
+          },
+          {
+            "file": "recovery-pass-boundaries-01/report.safe.json",
+            "sha256": "5be806c3f86d1ce607caf155473f7af47a4cf84bf1facb209168a29d0beab71b"
+          },
+          {
+            "file": "recovery-withdraw-timeout-01/report.safe.json",
+            "sha256": "665bc2cfc6c15a6cc29283a68cc2e6ce6a2506125f71c363bff737b91fe8a28a"
+          },
+          {
+            "file": "recovery-withdraw-boundaries-01/report.safe.json",
+            "sha256": "6d2546144a6e4dd5dac03ffa2addc4824c38b9bfb3fcf4e7952e241bc50b213f"
+          },
+          {
+            "file": "recovery-refresh-timeout-01/report.safe.json",
+            "sha256": "41e5ffe928c1e65b5232799f059f0ad21437436d629003f00e258ffa164d784e"
+          },
+          {
+            "file": "recovery-refresh-boundaries-01/report.safe.json",
+            "sha256": "47cc2154dd3d01bf8df446615cd5b62a8175ddf50c8b540c2c4006e5a88c328e"
+          },
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      },
+      {
+        "id": "TC-1261",
+        "status": "partial",
+        "lastResultEN": "partial — Initial/refresh/pass/withdraw synthetic missing/other-app/user_only refusals preserve words, controlled401/manual redirect; genuine human mid-view expiry user-deferred. Required eight settings use exact Prism wire/DTO→product UI and independent actual local Node/SQLite; original criteria unchanged. Evidence sources remain scoped; no production or genuine Access-expiry claim.",
+        "lastResultKO": "부분 — 최초/읽기/Pass/철회의합성missing/다른앱/user_only·글보존·모의401/manual리디렉션, 실제사람중도만료는사용자보류. 요구8설정은정확Prism응답/DTO→제품화면과독립실제로컬Node/SQLite로검증했고원조건은유지. 원본별실행범위를보존하며운영/실제Access만료검증으로확대하지않음.",
+        "wholeExactClausesCompletion": false,
+        "originalCriterionChanged": false,
+        "originalCriterionSha256": "2f9a8a500766bc9bb84cc4faee2a74a8d3082316d6e0c9c295d84459ec9e808e",
+        "remainingExactClauses": [
+          "Genuine human Access sign-in expires while this view is open, followed by the original rule7 normal sign-in and preserved panel/draft/write ID, as applicable. The user explicitly deferred the actual expiry test; no policy/cookie/session changes or forced reauthentication occurred."
+        ],
+        "externalProviderMockApprovalApplied": false,
+        "actualExpiryUserDeferred": true,
+        "evidence": [
+          {
+            "file": "prism-errors-eight-02/report.safe.json",
+            "sha256": "f76954bfc86d1d21cdb9d3ec8745541c1b48d5f7e86a195e13cb10e8f5e92fa1"
+          },
+          {
+            "file": "actual-other-faults-02/report.safe.json",
+            "sha256": "db9a3b214522d2eb707e962f113c1f61cc1d598adc1ba88f9a20724de6067273"
+          },
+          {
+            "file": "recovery-pass-boundaries-01/report.safe.json",
+            "sha256": "5be806c3f86d1ce607caf155473f7af47a4cf84bf1facb209168a29d0beab71b"
+          },
+          {
+            "file": "recovery-withdraw-boundaries-01/report.safe.json",
+            "sha256": "6d2546144a6e4dd5dac03ffa2addc4824c38b9bfb3fcf4e7952e241bc50b213f"
+          },
+          {
+            "file": "recovery-refresh-boundaries-01/report.safe.json",
+            "sha256": "47cc2154dd3d01bf8df446615cd5b62a8175ddf50c8b540c2c4006e5a88c328e"
+          },
+          {
+            "file": "external-11-final-decisions-v4.safe.json",
+            "sha256": "99662010fbec7ffb95f60c510bebbd0af09265015abf1d6fcf4a588d38e498db"
+          },
+          {
+            "file": "original-43-criterion-verification.safe.json",
+            "sha256": "3bc6a0df479e00289c151f2b6fc86eb5efdf6a38b94c7b8823187c5e91f0915b"
+          },
+          {
+            "file": "final-runtime-721-assets.safe.json",
+            "sha256": "85a9436d4ab4482c6633bdacc1b7f4b297063c0d05206bcb57b757048b72f838"
+          },
+          {
+            "file": "readonly-assertion-audit.safe.json",
+            "sha256": "6a89db3848874409256c0763fdb44f3ef86213a07738015fe4c4be7d0ed5d7bb"
+          }
+        ]
+      }
+    ],
+    "taskRecommendations": [
+      {
+        "id": "TASK-237",
+        "recommendation": "done",
+        "originalDoneWhen": {
+          "en": "Parts, pictures, counts, pending/withdrawn checkpoints, ask_before and empty-server guidance match every state; local page stays offline and copied HTML agrees.",
+          "ko": "부분·그림·개수·기록 전/철회 확인 지점·ask_before·빈 서버가 각 상태대로 보입니다. 로컬은 오프라인이며 복사 HTML이 같습니다."
+        },
+        "remainingExactClauses": []
+      },
+      {
+        "id": "TASK-238",
+        "recommendation": "done",
+        "originalDoneWhen": {
+          "en": "Prism-driven states render all three sources deterministically; editor failure preserves the accessible item list and size-stable named marks; pan/zoom remain within the frame.",
+          "ko": "Prism 상태로 그림 셋을 일정하게 그립니다. 편집기 실패에도 접근 가능한 목록과 크기 고정·이름 있는 표시가 남고 이동/확대가 틀 안에 있습니다."
+        },
+        "remainingExactClauses": []
+      },
+      {
+        "id": "TASK-240",
+        "recommendation": "done",
+        "originalDoneWhen": {
+          "en": "Each state follows its mock response, hashes open/close panels, reply/reopen/settled states work at both widths and full proposal text is not loaded early.",
+          "ko": "모든 상태가 mock 응답을 따르고 주소로 패널을 열고 닫습니다. 두 폭에서 답글/다시 열기/결정 요청이 동작하며 제안 원문을 미리 읽지 않습니다."
+        },
+        "remainingExactClauses": []
+      },
+      {
+        "id": "TASK-241",
+        "recommendation": "done",
+        "originalDoneWhen": {
+          "en": "All proposal/reflection states and stale races match Prism; accept/dismiss re-read data and display PR/reflection status with text safely.",
+          "ko": "모든 제안/반영 상태와 뒤늦은 변경을 Prism으로 시험합니다. 수락/기각 뒤 다시 읽고 PR/반영 상태와 글을 안전하게 보여 줍니다."
+        },
+        "remainingExactClauses": []
+      },
+      {
+        "id": "TASK-242",
+        "recommendation": "done",
+        "originalDoneWhen": {
+          "en": "All overview states, recorded state plus unrecorded checkpoint, withdrawal and warning states follow the contract at both widths.",
+          "ko": "개요의 모든 상태, 기록된 상태와 기록 전 확인 지점, 철회·경고가 두 폭에서 계약을 따릅니다."
+        },
+        "remainingExactClauses": []
+      },
+      {
+        "id": "TASK-243",
+        "recommendation": "done",
+        "originalDoneWhen": {
+          "en": "Requests use manual redirects and 30-second aborts; draft plus write ID survives reload, lost responses replay once, opaqueredirect/401 preserve text and stale writes reload safely.",
+          "ko": "manual 리디렉션·30초 중단을 씁니다. 글+쓰기 ID가 재열기 뒤 남고 잃은 응답의 재시도는 하나만 만들며 opaqueredirect/401·상태 충돌 뒤 글을 지킵니다."
+        },
+        "remainingExactClauses": []
+      },
+      {
+        "id": "TASK-251",
+        "recommendation": "in progress",
+        "originalDoneWhen": {
+          "en": "Browser testers record role/path/commit and evidence for 320/1440, both themes/languages; page checks and image review are separate; working browser paths become CI e2e tests.",
+          "ko": "브라우저 시험자가 역할·경로·커밋과 320/1440·두 테마/언어의 근거를 남깁니다. 페이지 검사와 이미지 확인을 나누고 작동한 경로를 CI e2e로 만듭니다."
+        },
+        "remainingExactClauses": [
+          "Promote selected late589–592 working browser regressions into the repository CI e2e suite; current targeted owned scripts and existing7 CI suites are separate evidence. Root owns implementation."
+        ]
+      }
+    ],
+    "finalAssets": {
+      "manifestSha256": "721501dacdfea3f5c5f16379c0fbb21b2194ec36732df86b0c5ce2224c6abfb8",
+      "sizesSha256": "9861afd6ea301cbf7979a2e0778ab150bd12f6c7432f4fb4df1b661e3e02fcb2",
+      "coreSha256": "38328dd6def531eda69e9bbe3ee8bbcb391fbaa3f47dc31b516e3f76afd61545",
+      "hubSha256": "3ec4356f57bc2c5e82f937d923392697f4e7f656c2ae67d548a1f38f70e46881",
+      "filesDigest": "599a741488c2fb9ae018f1d0b45bcae852a639b2681e2cbbffe369e0a8860e47",
+      "assets": [
+        {
+          "name": "erd-chunk-1.0c683534.js",
+          "moduleFileSha256": "ff9e0dca4365b7b1581e7275f3c6dbcf1474ffb874d81a3375ecf7a835dbaa6f",
+          "payloadSha256": "ff9e0dca4365b7b1581e7275f3c6dbcf1474ffb874d81a3375ecf7a835dbaa6f",
+          "rawBytes": 106,
+          "gzipBytes": 120
+        },
+        {
+          "name": "erd.64604cc8.js",
+          "moduleFileSha256": "5c562d97d720faf0c8d7d418b6ec7d88a61716c95b0b6c31a9d3e422e391120a",
+          "payloadSha256": "5c562d97d720faf0c8d7d418b6ec7d88a61716c95b0b6c31a9d3e422e391120a",
+          "rawBytes": 952103,
+          "gzipBytes": 315254
+        },
+        {
+          "name": "view.01362745.css",
+          "moduleFileSha256": "1eefb2bb278e9912c343b3305559184dcb756476b89e38d5e7412cc0c1306f6f",
+          "payloadSha256": "1eefb2bb278e9912c343b3305559184dcb756476b89e38d5e7412cc0c1306f6f",
+          "rawBytes": 13307,
+          "gzipBytes": 3421
+        },
+        {
+          "name": "view.7ead4a34.js",
+          "moduleFileSha256": "fc643e0167c66d9c91a94c605bebc0453f7e0f5a56fe950f2ee80860052d9169",
+          "payloadSha256": "fc643e0167c66d9c91a94c605bebc0453f7e0f5a56fe950f2ee80860052d9169",
+          "rawBytes": 81987,
+          "gzipBytes": 27423
+        }
+      ]
+    },
+    "scopedObservations": {
+      "finalCameraThreeSources": 48,
+      "finalErdRangeNativePan": 16,
+      "exact125PercentHandoff": 1,
+      "typedGoneCommentPaths": 128,
+      "typedGoneProposalReflectionPaths": 160,
+      "nativeItemSuccess": 32,
+      "nativeThreadSuccess": 16,
+      "nativeProposalSuccess": 48,
+      "directInstalledChromeSuites": 7,
+      "helperFalseFlagsAuditedWithoutChangingRawReports": 265
+    },
+    "imageReview": {
+      "finalSheets": 57,
+      "finalActualCaptureEntries": 442,
+      "earlierHubSheets": 20,
+      "earlierHubActualCaptures": 160,
+      "earlierOverviewLoadingSheets": 4,
+      "earlierOverviewLoadingCaptures": 32,
+      "pageChecksSeparateFromImageReview": true,
+      "everyTransportErrorScreenshotDirectlyReviewed": false
+    },
+    "boundaries": {
+      "provider429503": {
+        "caseIds": [
+          "TC-1235",
+          "TC-1241",
+          "TC-1247",
+          "TC-1253",
+          "TC-1260"
+        ],
+        "decision": "User approved controlled mock proof only for these external provider error clauses; all internal original clauses retain their own actual proof."
+      },
+      "realHumanExpiry": {
+        "caseIds": [
+          "TC-1237",
+          "TC-1242",
+          "TC-1248",
+          "TC-1254",
+          "TC-1261"
+        ],
+        "additionalCase": "TC-1272",
+        "decision": "User explicitly deferred genuine session expiry testing. No policy/cookie/session changes or forced reauthentication."
+      },
+      "realProviderRefusal": {
+        "caseId": "TC-1221",
+        "observation": "Two unchanged-policy unauthenticated read-only requests returned302 login. Genuine provider403/401 outside the application remains unproved; this is separate from the expiry deferral."
+      }
+    },
+    "figures": [
+      {
+        "file": "figures/01-erd-camera-en-1440.png",
+        "sha256": "cd2bd90369011ae484b6e92905dc2f4bb5374e29d4b614e0b37b459334af0f3a",
+        "originalFile": "erd-wide-handoff-fixed-final-03/actual-TC-1230-gates-loading-picture-erd-en-1440-light.png",
+        "originalSha256": "cd2bd90369011ae484b6e92905dc2f4bb5374e29d4b614e0b37b459334af0f3a",
+        "tc": "TC-1230",
+        "sourceSnapshot": "runtime-camera-final",
+        "caption": {
+          "en": "Actual synthetic ERD after native handoff: public viewport x165.5/y197.75/zoom1.25 is preserved exactly.",
+          "ko": "실제합성ERD의편집기전환뒤공개viewport x165.5/y197.75/확대1.25정확보존."
+        },
+        "syntheticOnly": true,
+        "directlyReviewedAtFullResolution": true,
+        "alteredPixels": false
+      },
+      {
+        "file": "figures/02-overview-en-1440.png",
+        "sha256": "0ec80a51ef304c48317e22bc5ea5b6d8e097aa482cc18b414bb8afb37e6307ac",
+        "originalFile": "screen-overview-stale-fixed-final-02/actual-TC-1257-overview-rich-en-1440-light.png",
+        "originalSha256": "0ec80a51ef304c48317e22bc5ea5b6d8e097aa482cc18b414bb8afb37e6307ac",
+        "tc": "TC-1257",
+        "sourceSnapshot": "runtime-completion-final",
+        "caption": {
+          "en": "Actual synthetic overview: recorded approved/by/rawdate/link, What is left and three nonempty totals.",
+          "ko": "실제합성단계현황: 기록문구/작성자/원날짜/링크·남은것과3종목록개수."
+        },
+        "syntheticOnly": true,
+        "directlyReviewedAtFullResolution": true,
+        "alteredPixels": false
+      },
+      {
+        "file": "figures/03-comment-sending-ko-320.png",
+        "sha256": "6a9ed915d9310462c709268a21db065d758a0ee5ad7fa45c160757ca9ac44c63",
+        "originalFile": "native-item-literal-final-01/actual-TC-1238-item-all-ko-320-dark-pending.png",
+        "originalSha256": "6a9ed915d9310462c709268a21db065d758a0ee5ad7fa45c160757ca9ac44c63",
+        "tc": "TC-1240",
+        "sourceSnapshot": "runtime-completion-final",
+        "caption": {
+          "en": "Actual synthetic item comment held at response boundary: retained draft and localized Sending, disabled Send; two visible closed outcomes.",
+          "ko": "실제합성항목의전송응답대기: 글유지/보내는중/보내기꺼짐·닫힘2종문구."
+        },
+        "syntheticOnly": true,
+        "directlyReviewedAtFullResolution": true,
+        "alteredPixels": false
+      },
+      {
+        "file": "figures/04-gone-draft-ko-320.png",
+        "sha256": "aa3af21b4fb548f1c52effec4dfe5d1e263d467875493b8fb3631b2e460cbf64",
+        "originalFile": "item-gone-completion-final-03/TC-1243-draftonly-ko-320-light-actual.png",
+        "originalSha256": "aa3af21b4fb548f1c52effec4dfe5d1e263d467875493b8fb3631b2e460cbf64",
+        "tc": "TC-1243",
+        "sourceSnapshot": "runtime-completion-final",
+        "caption": {
+          "en": "Actual synthetic changed-source/native reload: removed stable item keeps meaningful unsent draft and its write ID; Back remains.",
+          "ko": "실제합성원본변경/실제재열기: 없어진고정ID항목의의미있는초안+쓰기ID보존·돌아가기유지."
+        },
+        "syntheticOnly": true,
+        "directlyReviewedAtFullResolution": true,
+        "alteredPixels": false
+      }
+    ],
+    "productionWrites": 0,
+    "accountPolicyChanges": 0,
+    "newDependencies": 0,
+    "sourceChangesByTester": 0,
+    "withheld": "Raw provider/account metadata, exact deployed hosts and app/tenant identifiers, machine paths, native-model hosted fixture/private source links, authentication data and raw profiles are excluded.",
+    "machinePlanSha256": "9389f96b88e652401f233a4853d0e8ae234de9fefcdb1de119a8d95f3340a79f",
+    "taskPlanSha256": "5b8f3f95e1f7c92ddac1bf0cf455892f66031325fdcab0637899da8336ff3c0f",
+    "visualManifestSha256": "b755601d8681a578ae14f6222b3a73bddc349deb061392a6aa78146c43edb826"
+  },
+  "rootDecisionSha256": "129b43942ec0a11a2e841b98d7960326f9ae147d0659965b98f5eb0f2cf8a1d9",
+  "finalAdjudication": "The original 43 cases were adjudicated after reviewing supplemental screenshots against the required regions. The candidate projection is preserved verbatim. Its seven-suite result and earlier image-review status describe that earlier run.",
+  "finalCaseCounts": {
+    "pass": 37,
+    "partial": 6
+  },
+  "finalVisualReview": {
+    "scope": "The 43 original procedures use exact case, setting, route and mode bindings. These counts are separate evidence scopes and can overlap.",
+    "settings": {
+      "widthsPx": [
+        320,
+        1440
+      ],
+      "languages": [
+        "en",
+        "ko"
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ]
+    },
+    "focusedProductCommit": "e83838380ddedaf81859a77008a82d9d27e76a96",
+    "earlierEvidenceRetained": "Unchanged runtime behavior keeps its earlier direct evidence. The two latest changes have focused actual and Prism results on the tested code.",
+    "supplementScopes": {
+      "earlierScrollEvidence": 402,
+      "correctedActualOverviewErrors": 24,
+      "actualFaultScrollRegions": 246,
+      "mobileEditorFailureRegions": 288,
+      "hubConditions": 172,
+      "hubCaptures": 218,
+      "initialHtmlRouteCodePairs": 15,
+      "initialHtmlVisualMappings": 240,
+      "initialHtmlSupplementalCaptures": 48,
+      "recoveryOriginalRegions": 72,
+      "recoveryDistinctSupplementalCaptures": 48,
+      "overviewLowerConditions": 80,
+      "normalPanelLowerConditions": 112,
+      "normalPanelCaptureRegions": 156,
+      "focusedLatestFixConditions": 48,
+      "focusedLatestFixCaptures": 100
+    },
+    "visibilityBoundary": "Page/DOM checks, exact wire transport, rendered images and actual database effects keep separate bindings. Identical refusal layouts and recovery states share only visual evidence. Desktop static item-list links use the visible disclosure together with its DOM and native interaction evidence.",
+    "approvedMockProviderClauses": [
+      "TC-1235",
+      "TC-1241",
+      "TC-1247",
+      "TC-1253",
+      "TC-1260"
+    ],
+    "deferredHumanAccessExpiryCases": [
+      "TC-1237",
+      "TC-1242",
+      "TC-1248",
+      "TC-1254",
+      "TC-1261",
+      "TC-1272"
+    ],
+    "unobservedExternalAccessRefusal": "TC-1221",
+    "unresolvedRequiredInternalVisualRegions": 0,
+    "representativeSyntheticScreenshots": 4
+  },
+  "finalResultRefinements": {
+    "TC-1234": {
+      "lastResultEN": "pass — Three stale-source reasons and the waiting discrepancy remain visible. In Prism and on the local Node/SQLite server, Refresh offered commit c while retaining commit a. Show it applied c and cleared the notice. A subsequent reread of c kept the notice clear. The focused check covered all eight settings on e838383.",
+      "lastResultKO": "통과 — 오래된 그림의 이유 3가지와 기다리는 어긋남을 확인했습니다. Prism과 로컬 Node·SQLite 서버에서 새로 읽기가 커밋 a 그림을 유지하면서 c를 제안했습니다. 보기로 c를 적용하면 안내가 사라졌고, 같은 c를 다시 읽어도 안내가 나타나지 않았습니다. e838383의 8개 설정에서 확인했습니다."
+    },
+    "TC-1257": {
+      "lastResultEN": "pass — Prism and the local Node/SQLite server showed both record-source labels and the specified checkpoint form heading in all eight settings on e838383. The overview retained record metadata, three remaining-work groups and their links, scoped checks and the optional 2,000-character Pass form. Five source reasons retained Pass. For stages without pictures, record and check summaries remain visible and checkpoint actions follow SPEC-139.",
+      "lastResultKO": "통과 — e838383의 8개 설정에서 Prism과 로컬 Node·SQLite 서버로 저장소·기기 상태 파일 출처 문구와 확인 지점 양식 제목을 확인했습니다. 기록·승인 메타데이터, 남은 일 3개 그룹과 링크, 해당 단계 점검과 선택 입력 2,000자 통과 양식을 확인했습니다. 원본 상태 5가지에서 통과 버튼이 보였습니다. 그림 없는 단계는 기록과 점검을 표시하며, 확인 지점 동작은 SPEC-139를 따릅니다."
+    }
+  },
+  "finalBrowserCi": {
+    "scope": "Code candidate including both focused fixes. The ledger-only commit and resulting main receive their own CI before deployment.",
+    "platform": "Linux GitHub Actions",
+    "passedSuites": 8,
+    "requiredJobsPassed": 7,
+    "sourceCheckoutsVerified": 6,
+    "runId": 42141699811,
+    "sourceHead": "e83838380ddedaf81859a77008a82d9d27e76a96",
+    "testedCommit": "3487b6151b1308555ed9daadf40f6a466c1409db",
+    "testedTree": "c5088b2c53f3e7c1fe3cd0ab2de0e7a08ffec33c",
+    "artifactSha256": "3a78a1d215aa281ff55371796b30b69cdeb11a607d92a1d675f7cbdad285d2d1",
+    "browserReceiptSha256": "8a5bda5c01bdff2deb25f7ee9e7e730b3a40996ec2f56d56c3fa68cec2f7f871",
+    "newSuiteTestsPassed": 16,
+    "windowsFullSuitePassed": false
+  },
+  "independentAudit": {
+    "requiredFindings": 0,
+    "scope": "Scoped code, security and source-to-evidence reviews. Earlier renderer defects were corrected and rechecked on their exact affected conditions.",
+    "latestTwoFixReviewSha256": [
+      "3f4377238db362957c15b3b616bb5729483722ac143f2cc50ba23702b64772a5",
+      "b1ab35722b5e3f3cf7a3f4ed05d9fa7bf787403b74a746812d65ffb708343920"
+    ],
+    "original43SourceBindingSha256": "9045c5d707ae3e897aeb5dc3646452930f40942a86efb8b51adbb981b7dfd500",
+    "finalNormalPanelReviewSha256": "f683b70fa7aba5e80dec0031a9ad7e96147a9e95d1dec50e97dcc38d62cf11c6"
+  },
+  "rootTaskOverrides": {
+    "TASK-243": "in progress",
+    "TASK-251": "in progress"
+  },
+  "rootTaskOverrideReasons": {
+    "TASK-243": {
+      "en": "The maintainer deferred genuine Access session expiry. The combined expiry, reauthentication, lost-response and same-write-ID procedure in TC-1272 remains partial.",
+      "ko": "유지관리자가 실제 Access 로그인 만료 시험을 보류했습니다. TC-1272의 만료·재로그인·응답 유실·같은 쓰기 ID 복구 결합 절차는 부분입니다."
+    },
+    "TASK-251": {
+      "en": "The actual provider 403 or 401 page outside the portal remains unobserved in TC-1221, and five screen procedures still require genuine human session expiry. The maintainer approved mock evidence for five provider 429/503 clauses only.",
+      "ko": "TC-1221의 포털 밖 실제 제공자 403·401 화면과 화면 절차 5건의 실제 로그인 만료 조건이 남았습니다. 모의 근거 수용은 제공자 429·503 외부 오류 조건 5건에 적용했습니다."
+    }
+  },
+  "productionExecuted": false,
+  "phase2": "on hold",
+  "finalFigures": [
+    {
+      "file": "figures/01-erd-camera-en-1440.png",
+      "tc": "TC-1230",
+      "sha256": "cd2bd90369011ae484b6e92905dc2f4bb5374e29d4b614e0b37b459334af0f3a",
+      "caption": {
+        "en": "Actual synthetic ERD after native handoff: public viewport x165.5/y197.75/zoom1.25 is preserved exactly.",
+        "ko": "실제합성ERD의편집기전환뒤공개viewport x165.5/y197.75/확대1.25정확보존."
+      }
+    },
+    {
+      "file": "figures/02-overview-en-1440.png",
+      "tc": "TC-1257",
+      "sha256": "48fda665acd3d6b75c627205d559a6bd4fec9730fdaa7e46ba846453e72b6542",
+      "caption": {
+        "en": "Stage overview of the synthetic project showing the repository record, checkpoint approval metadata and remaining work at 1440 px.",
+        "ko": "합성 프로젝트의 1440px 단계 현황에서 저장소 출처, 확인 지점 승인 기록과 남은 일을 표시합니다."
+      }
+    },
+    {
+      "file": "figures/03-comment-sending-ko-320.png",
+      "tc": "TC-1240",
+      "sha256": "6a9ed915d9310462c709268a21db065d758a0ee5ad7fa45c160757ca9ac44c63",
+      "caption": {
+        "en": "Actual synthetic item comment held at response boundary: retained draft and localized Sending, disabled Send; two visible closed outcomes.",
+        "ko": "실제합성항목의전송응답대기: 글유지/보내는중/보내기꺼짐·닫힘2종문구."
+      }
+    },
+    {
+      "file": "figures/04-gone-draft-ko-320.png",
+      "tc": "TC-1243",
+      "sha256": "aa3af21b4fb548f1c52effec4dfe5d1e263d467875493b8fb3631b2e460cbf64",
+      "caption": {
+        "en": "Actual synthetic changed-source/native reload: removed stable item keeps meaningful unsent draft and its write ID; Back remains.",
+        "ko": "실제합성원본변경/실제재열기: 없어진고정ID항목의의미있는초안+쓰기ID보존·돌아가기유지."
+      }
+    }
+  ]
+}

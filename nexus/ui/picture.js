@@ -1,6 +1,7 @@
 import {itemMarks,itemIdentity} from "./layout.js";
 import {initialPictureView} from "../src/preview.js";
 import {stylesheetReady} from "./styles.js";
+import {zoomCamera,fitCamera} from "./camera.js";
 const union=rects=>{const x=Math.min(...rects.map(r=>r.x)),y=Math.min(...rects.map(r=>r.y));return{x,y,width:Math.max(...rects.map(r=>r.x+r.width))-x,height:Math.max(...rects.map(r=>r.y+r.height))-y};};
 const paint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
 export async function drawPicture(target,scene,{stage,data,lang,onSelect,onReady,initialView,signal}){
@@ -17,7 +18,7 @@ export async function drawPicture(target,scene,{stage,data,lang,onSelect,onReady
   function destroy(){if(destroyed)return;destroyed=true;cancelAnimationFrame(renderFrame);observer?.disconnect();dark.removeEventListener("change",changeTheme);signal?.removeEventListener("abort",destroy);controller?.destroy();canvas.remove();marks.remove();}
   signal?.addEventListener("abort",destroy,{once:true});
   function rectFor(node,view){return view.rects.find(r=>r.key===node.key)||node;}
-  function navigateTo(rect,whole=false){if(!controller)return;const zoom=Math.max(.1,Math.min(whole?1:1.2,(target.clientWidth-48)/Math.max(1,rect.width),(target.clientHeight-48)/Math.max(1,rect.height)));controller.navigate({x:(target.clientWidth-rect.width*zoom)/2-rect.x*zoom,y:(target.clientHeight-rect.height*zoom)/2-rect.y*zoom,zoom});}
+  function navigateTo(rect,whole=false){if(!controller)return;controller.navigate(fitCamera(rect,stage,target.clientWidth,target.clientHeight,whole));}
   function selectMark(node,mark){if(mark.total===1&&mark.comments.length===1)onSelect("comment",mark.comments[0].id);else if(mark.total===1&&mark.proposals.length===1)onSelect("proposal",mark.proposals[0].id);else onSelect("item",node.id,node);}
   function render(){
     if(!controller||destroyed)return;const view=controller.view();if(!view)return;marks.replaceChildren();
@@ -36,10 +37,11 @@ export async function drawPicture(target,scene,{stage,data,lang,onSelect,onReady
     if(destroyed)return null;
     controller=await module.mount(canvas,scene,{lang,theme,onView:schedule});
     if(destroyed){controller.destroy();return null;}
-    controller.navigate(initialView?.()||initialPictureView(scene,data,target.clientWidth,target.clientHeight,matchMedia("(min-width:1024px)").matches));
+    const first=initialView?.()||initialPictureView(scene,data,target.clientWidth,target.clientHeight,matchMedia("(min-width:1024px)").matches);
+    controller.navigate(zoomCamera(first,stage,first.zoom,target.clientWidth,target.clientHeight));
     await paint();if(destroyed)return null;
     // A reader can pan or zoom the SVG while the native editor mounts.
-    if(initialView)controller.navigate(initialView());
+    if(initialView){const latest=initialView();controller.navigate(zoomCamera(latest,stage,latest.zoom,target.clientWidth,target.clientHeight));}
     await paint();if(destroyed)return null;
   }catch(error){destroy();throw error;}
   function pointerDown(e){if(e.target.closest("button"))return;pointers.add(e.pointerId);if(pointers.size===1){down={x:e.clientX,y:e.clientY};moved=false;}else moved=true;}
@@ -47,5 +49,5 @@ export async function drawPicture(target,scene,{stage,data,lang,onSelect,onReady
   function pointerUp(e){pointers.delete(e.pointerId);if(!down||moved||e.target.closest("button")){if(!pointers.size)down=null;return;}const view=controller.view(),b=canvas.getBoundingClientRect(),x=(e.clientX-b.left-view.x)/view.zoom,y=(e.clientY-b.top-view.y)/view.zoom;down=null;const node=[...scene.nodes].reverse().find(n=>n.kind!=="lane"&&(()=>{const r=rectFor(n,view);return x>=r.x&&x<=r.x+r.width&&y>=r.y&&y<=r.y+r.height;})());if(node)onSelect("item",node.id,node);}
   canvas.addEventListener("pointerdown",pointerDown,true);canvas.addEventListener("pointermove",pointerMove,true);canvas.addEventListener("pointerup",pointerUp,true);canvas.addEventListener("pointercancel",()=>{down=null;pointers.clear();},true);
   observer=new ResizeObserver(schedule);observer.observe(target);dark.addEventListener("change",changeTheme);canvas.style.visibility="";marks.style.visibility="";render();onReady?.();
-  return{view:()=>controller.view(),update:value=>{current=value;schedule();},zoom:factor=>{const v=controller.view(),zoom=Math.max(.1,Math.min(5,v.zoom*factor)),cx=target.clientWidth/2,cy=target.clientHeight/2;controller.navigate({x:cx-(cx-v.x)*zoom/v.zoom,y:cy-(cy-v.y)*zoom/v.zoom,zoom});schedule();},fit:()=>navigateTo(union(controller.view().rects),true),focus:node=>navigateTo(rectFor(node,controller.view())),destroy};
+  return{view:()=>controller.view(),update:value=>{current=value;schedule();},zoom:factor=>{const v=controller.view();controller.navigate(zoomCamera(v,stage,v.zoom*factor,target.clientWidth,target.clientHeight));schedule();},fit:()=>navigateTo(union(controller.view().rects),true),focus:node=>navigateTo(rectFor(node,controller.view())),destroy};
 }

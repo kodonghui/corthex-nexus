@@ -140,6 +140,8 @@ jobs:
           path: |
             ${{ env.NEXUS_QA_ARTIFACTS }}/run-*/*.json
             ${{ env.NEXUS_QA_ARTIFACTS }}/run-*/*.png
+            ${{ env.NEXUS_QA_ARTIFACTS }}/late-screen-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/late-screen-*/*.png
           if-no-files-found: ignore
           retention-days: 7
 

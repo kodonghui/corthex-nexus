@@ -68,7 +68,7 @@ async function closeOwnedBrowser(){
  if(running())throw Error('Owned Chrome did not finish exiting; preserve its generated profile');
  await sleep(150);
 }
-async function removeOwnedProfile(){if(child&&child.exitCode===null&&child.signalCode===null)throw Error("Owned Chrome still running; profile preserved");const realFolder=await fs.realpath(folder),realProfile=await fs.realpath(profile);const relative=path.relative(realFolder,realProfile);if(!relative||relative.startsWith('..')||path.isAbsolute(relative)||!path.basename(realProfile).startsWith('profile-'))throw Error('Refusing profile cleanup outside the generated run folder');await fs.rm(realProfile,{recursive:true,force:true});}
+async function removeOwnedProfile(){if(child&&child.exitCode===null&&child.signalCode===null)throw Error("Owned Chrome still running; profile preserved");const realFolder=await fs.realpath(folder),realProfile=await fs.realpath(profile);const relative=path.relative(realFolder,realProfile);if(!relative||relative.startsWith('..')||path.isAbsolute(relative)||!path.basename(realProfile).startsWith('profile-'))throw Error('Refusing profile cleanup outside the generated run folder');await fs.rm(realProfile,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
 
 try{
  const fixture=await fetch(origin+'/__qa/receipts').then(async r=>({status:r.status,data:await r.json()}));

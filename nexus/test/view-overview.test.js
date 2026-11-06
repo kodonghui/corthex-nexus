@@ -64,6 +64,30 @@ test("nonempty overview retains each fifty-entry DTO order, totals and links",()
  assert.ok(cards[0].querySelector("a").href.endsWith("#item=TBL-001"));assert.ok(cards[1].querySelector("a").href.endsWith("#comment=nc_000000000001"));assert.ok(cards[2].querySelector("a").href.endsWith("#proposal=np_000000000001"));assertPersistentRegions(d,"en");assert.equal(d.calls.length,0);d.controller.close();
 });
 
+test("the specified remaining-work heading appears only when a stage has open entries",()=>{
+ for(const lang of["en","ko"])for(const nonempty of[false,true]){const data=overview();if(nonempty)data.comments={total:1,entries:[{id:"nc_000000000001",part:"sample",stage:"05-erd",text:"Retained comment"}]};
+  const d=client(data,lang),heading=lang==="ko"?"남은 것":"What is left";
+  assert.equal(d.root.querySelectorAll("h2").filter(n=>n.textContent===heading).length,nonempty?1:0);assert.equal(lists(d,lang).length,nonempty?3:0);assertPersistentRegions(d,lang);assert.equal(d.calls.length,0);d.controller.close();
+ }
+});
+
+test("recorded checkpoints retain approval, author and date as text with safe optional links",()=>{
+ for(const lang of["en","ko"]){const data=overview();data.record.checkpoints=[{approved:"<img src=x onerror=alert(1)> Synthetic approval",by:"<script>Synthetic author</script>",date:"2026-11-03",where:"https://example.com/records/synthetic"},{approved:"Second synthetic approval",by:"Another synthetic author",date:"2026-11-04"}];
+  const d=client(data,lang),record=d.cards().find(n=>n.querySelector("h2").textContent===(lang==="ko"?"기록된 상태":"Recorded state"));
+  for(const cp of data.record.checkpoints){assert.ok(record.textContent.includes(cp.approved));assert.ok(record.textContent.includes(cp.by));assert.ok(record.textContent.includes(cp.date));}
+  assert.equal(record.querySelectorAll("a").length,1);assert.equal(record.querySelector("a").href,data.record.checkpoints[0].where);assert.equal(record.querySelector("img"),null);assert.equal(record.querySelector("script"),null);assert.equal(d.calls.length,0);d.controller.close();
+ }
+});
+
+test("overview picture links name every stale-source reason and keep current links clear",()=>{
+ const expected={en:{size:"Not current: its newest source is larger than a snapshot may hold.","source-gone":"Not current: its newest source is gone from the repository.","other-repository":"Not current: its newest source is in another repository."},ko:{size:"최신 아님: 최신 원본이 스냅샷에 담을 수 있는 크기보다 큼.","source-gone":"최신 아님: 저장소에서 사라짐.","other-repository":"최신 아님: 다른 저장소에 있음."}};
+ for(const lang of["en","ko"])for(const reason of[null,"size","source-gone","other-repository"]){const data=overview();data.pictures=[{stage:"05-erd",commit:"a".repeat(40),...(reason?{not_current:reason}:{})}];
+  const d=client(data,lang),record=d.cards().find(n=>n.querySelector("h2").textContent===(lang==="ko"?"기록된 상태":"Recorded state")),link=record.querySelector("a");
+  assert.ok(link.href.endsWith("/pictures/qa-overview/sample/05-erd"));assert.equal(link.parentElement.tagName,"P");
+  if(reason)assert.ok(link.parentElement.textContent.includes(expected[lang][reason]));else assert.equal(link.parentElement.querySelector("span"),null);assert.equal(d.calls.length,0);d.controller.close();
+ }
+});
+
 test("empty checks use the full screen-defined message in both empty and nonempty overviews",()=>{
  for(const lang of["en","ko"])for(const nonempty of[false,true]){const data=overview();data.checks=[];if(nonempty)data.comments={total:1,entries:[{id:"nc_000000000001",part:"sample",stage:"05-erd",text:"Retained comment"}]};
   const d=client(data,lang),checks=d.cards().find(n=>n.querySelector("h2").textContent===(lang==="ko"?"점검":"Checks"));

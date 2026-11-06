@@ -12,7 +12,7 @@
     "nexus/tools/build-ui.mjs": "23d48b5e34eeaa4dd0bdfe66782948b5fc3ec0b20015e18151392525c0cbfb4a",
     "nexus/tools/tokens.mjs": "ce838ed135f70278b113100e88a7cb71d0b9f22bd05cc6dbb4212f1c545b981b",
     "nexus/tools/messages.mjs": "8642f6f7e1d14627816196add1cf2d91ff4816d50ae2cd05af1664c8d94b46a2",
-    "nexus/ui/editor-patches.mjs": "52687c30158808381751ec7e38a2bb442d2772c42629be149b11b9cbe0327eb5",
+    "nexus/ui/editor-patches.mjs": "1e5da0a5c0abbe968df7ae6f6f5b6fe0df0ae230a00bb378e170e796b125e0fe",
     "nexus/ui/package-lock.json": "a3c92dcca4207754d1d9dcd0193b0c7edde2afdc2828afb763ef564f1a3b981d",
     "nexus/ui/vendor/liberation-2.1.5.json": "f892c9330aa0c1f93ca073f114cd7ba10dc0bb123ff9ebac70abdea0fe1b3d76"
   },
@@ -89,15 +89,15 @@
       "/code/excalidraw-chunk-95.159ce1cf.js",
       "/code/excalidraw-chunk-121.b08cd499.js"
     ],
-    "erd-js": "/code/erd.efbe66b1.js",
+    "erd-js": "/code/erd.64604cc8.js",
     "erd-preload": [
-      "/code/erd.efbe66b1.js",
-      "/code/erd-chunk-1.76b5569b.js"
+      "/code/erd.64604cc8.js",
+      "/code/erd-chunk-1.0c683534.js"
     ],
-    "view-js": "/code/view.0f58f8c3.js",
-    "view-css": "/code/view.cce5e116.css",
+    "view-js": "/code/view.052da884.js",
+    "view-css": "/code/view.0d135504.css",
     "view-preload": [
-      "/code/view.0f58f8c3.js"
+      "/code/view.052da884.js"
     ],
     "font-preload": [
       "/code/editor-font-2.76945f09.woff2",
@@ -3842,260 +3842,260 @@
       "graphDigest": "963defe32503693e6885dbefcf9eca47db9ac51be09ceae7f6032a5a4ff14bda"
     },
     {
-      "name": "erd-chunk-0.2820ea99.js",
-      "path": "erd-chunk-0.2820ea99.js.txt",
+      "name": "erd-chunk-0.498d2438.js",
+      "path": "erd-chunk-0.498d2438.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 56278,
       "gzip": 8465,
-      "payloadSha256": "71fc43b5b66bc14bea798465b44e3a1e95db1a6f6d1874953e75d04fc04374a3",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "payloadSha256": "753c11eacf9a932acb739609387c057cb916ce214e80e3b20a0ddb4124274421",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-1.76b5569b.js",
-      "path": "erd-chunk-1.76b5569b.js.txt",
+      "name": "erd-chunk-1.0c683534.js",
+      "path": "erd-chunk-1.0c683534.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 106,
       "gzip": 120,
       "payloadSha256": "ff9e0dca4365b7b1581e7275f3c6dbcf1474ffb874d81a3375ecf7a835dbaa6f",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-2.d98fce0d.js",
-      "path": "erd-chunk-2.d98fce0d.js.txt",
+      "name": "erd-chunk-2.e058c38f.js",
+      "path": "erd-chunk-2.e058c38f.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 24386,
-      "gzip": 6829,
-      "payloadSha256": "87cee91ef672f7dbe89cf835887453f232d6a47be714491cd36d4fa3efb33959",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 6830,
+      "payloadSha256": "6f34846ea9f314f7175fdc987ecb9162386cc2ecc636b5b19303a4f369707b77",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd.efbe66b1.js",
-      "path": "erd.efbe66b1.js.txt",
+      "name": "erd.64604cc8.js",
+      "path": "erd.64604cc8.js.txt",
       "type": "text/javascript; charset=utf-8",
-      "raw": 952102,
-      "gzip": 315244,
-      "payloadSha256": "d9a64f6be646a5a4c4428fe5364923373dd9b94f788c8d81d1c6c5288faaa583",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "raw": 952103,
+      "gzip": 315254,
+      "payloadSha256": "5c562d97d720faf0c8d7d418b6ec7d88a61716c95b0b6c31a9d3e422e391120a",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-4.b305b74c.js",
-      "path": "erd-chunk-4.b305b74c.js.txt",
+      "name": "erd-chunk-4.14cbd522.js",
+      "path": "erd-chunk-4.14cbd522.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 24395,
-      "gzip": 6794,
-      "payloadSha256": "d078bd7f5671b47dfb0c28e884fab50bb446adc9ed32ba7c0476331e7ae937e8",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 6795,
+      "payloadSha256": "68a684874d034c44a25e4b7bec605786f24d041327546fc945b4e3b14055f87c",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-5.6db66a0a.js",
-      "path": "erd-chunk-5.6db66a0a.js.txt",
+      "name": "erd-chunk-5.0de98e4d.js",
+      "path": "erd-chunk-5.0de98e4d.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 23352,
-      "gzip": 6719,
-      "payloadSha256": "6e6f2288de43c4bbd8fed81ffd1c00210d210fc627586ba84f63057906120e38",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 6720,
+      "payloadSha256": "3ea30473fb593b3d615d2613f83683fc68052c0ce0c985762ac4909b95d228c0",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-6.eee2f865.js",
-      "path": "erd-chunk-6.eee2f865.js.txt",
+      "name": "erd-chunk-6.a32dd308.js",
+      "path": "erd-chunk-6.a32dd308.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 52107,
-      "gzip": 8139,
-      "payloadSha256": "e54b498481c61e49542c6730c93f6a78185a80ce86fa3b504a2a1ac666d34c9c",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 8138,
+      "payloadSha256": "94a79a928e256614ae2f66b1f0534d776da883c802f60ea07cab230d34eef8e1",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-7.8fb4cc66.js",
-      "path": "erd-chunk-7.8fb4cc66.js.txt",
+      "name": "erd-chunk-7.3eaf408d.js",
+      "path": "erd-chunk-7.3eaf408d.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 25978,
       "gzip": 6956,
-      "payloadSha256": "6f40460540d311bcc8cfa78f4086982493000da9febf1dcc98a386e37f8fa27e",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "payloadSha256": "a1655b170640a09f5b28f31830078b5cae454efbcc01ad38da70e4896892c40a",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-8.77e787a5.js",
-      "path": "erd-chunk-8.77e787a5.js.txt",
+      "name": "erd-chunk-8.100c12e3.js",
+      "path": "erd-chunk-8.100c12e3.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 48605,
-      "gzip": 7867,
-      "payloadSha256": "6f21a472c49fcfa2164b07c8eea122416540d1c9b7a9b94f5cc9a58c8498bae3",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 7866,
+      "payloadSha256": "331955e9130d2eafa0e555df76052025c7ddcbbe30068cddcb2d7f45616c0134",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-9.9ceeccfa.js",
-      "path": "erd-chunk-9.9ceeccfa.js.txt",
+      "name": "erd-chunk-9.f490a188.js",
+      "path": "erd-chunk-9.f490a188.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 21975,
-      "gzip": 6325,
-      "payloadSha256": "27548bdd0d8322814abe68bc3eb16246d53ce97ded28810e61ee79a6cce9711c",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 6327,
+      "payloadSha256": "3b24fa5d8b0df5805bbbebe240fe1680b1f0f52e1b75ef2eef3e7c27f36850f0",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-10.ef97192e.js",
-      "path": "erd-chunk-10.ef97192e.js.txt",
+      "name": "erd-chunk-10.8a1d6369.js",
+      "path": "erd-chunk-10.8a1d6369.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 24149,
-      "gzip": 6725,
-      "payloadSha256": "669d4d5c7037ed568309a5735a718608d4c0e1cfd18ab0b12a6990b32f35db86",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 6724,
+      "payloadSha256": "0b6b9e3bad06e0705af94fbf642f28e6913e785fc3a6b630302044f564fac2a5",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-11.10dc42b0.js",
-      "path": "erd-chunk-11.10dc42b0.js.txt",
+      "name": "erd-chunk-11.cf8f2265.js",
+      "path": "erd-chunk-11.cf8f2265.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 35903,
       "gzip": 7638,
-      "payloadSha256": "59c60a40f7f615bb24cb9a033bb495071c0ab9eb3c4e19c4f9f3478816d65df7",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "payloadSha256": "7e34b0525549430f868b11414b1ffe6f7b2697cade9678c99a3ad5f95c9891c8",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-12.5db78d35.js",
-      "path": "erd-chunk-12.5db78d35.js.txt",
+      "name": "erd-chunk-12.da16ef03.js",
+      "path": "erd-chunk-12.da16ef03.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 31333,
       "gzip": 7211,
-      "payloadSha256": "a5f5efe217f83a2c670ca949ee026f926c4811d69b5198d716ee5c4122429a11",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "payloadSha256": "3d3241622ccd1ea33c4ec989c3702fe94860b549868d442846b74d0f0ee2347d",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-13.d735f2ed.js",
-      "path": "erd-chunk-13.d735f2ed.js.txt",
+      "name": "erd-chunk-13.494ad8e3.js",
+      "path": "erd-chunk-13.494ad8e3.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 23239,
-      "gzip": 6628,
-      "payloadSha256": "0143c1c0b8e08e340eef9b0813c35b614e268ac2e81488bf965d54e7b0daeb62",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 6629,
+      "payloadSha256": "789d6f407474e57a3041b4be30361a65279b9db569114778815d090f22ee976e",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-14.326d49c6.js",
-      "path": "erd-chunk-14.326d49c6.js.txt",
+      "name": "erd-chunk-14.f60866b0.js",
+      "path": "erd-chunk-14.f60866b0.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 25558,
-      "gzip": 7211,
-      "payloadSha256": "93974f438689140086d18f7c44d12e3eb629464961d104c9ee58c02fe7c4a03a",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 7212,
+      "payloadSha256": "65a6c1ce2a134800a6fcb176facb8bf024f6d4381ce9bd18ca4e72ad85732dbc",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-15.a2689edd.js",
-      "path": "erd-chunk-15.a2689edd.js.txt",
+      "name": "erd-chunk-15.c9f5f144.js",
+      "path": "erd-chunk-15.c9f5f144.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 24784,
-      "gzip": 6828,
-      "payloadSha256": "51150538f63383d3f618f38ac58cea7735887acc1c48e4a7a2b35037ac9509db",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 6829,
+      "payloadSha256": "d0f2408ad789050f92fe5c19ddcc5e216598ecc6fe55e38f1758dfb5426bb72f",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-16.7d2bf41c.js",
-      "path": "erd-chunk-16.7d2bf41c.js.txt",
+      "name": "erd-chunk-16.f6d4ef77.js",
+      "path": "erd-chunk-16.f6d4ef77.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 24844,
-      "gzip": 6840,
-      "payloadSha256": "039859815d4ce1d7ebc6b5f0a75cddae742429098603aa2cf3ba069fffa5c10d",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 6841,
+      "payloadSha256": "d6399a2f54aae845c1061d07d69565ce0dda97f95a1c542fcf8d4af73da3bdc5",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-17.e7dadabc.js",
-      "path": "erd-chunk-17.e7dadabc.js.txt",
+      "name": "erd-chunk-17.5f626e8f.js",
+      "path": "erd-chunk-17.5f626e8f.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 25504,
       "gzip": 6905,
-      "payloadSha256": "0b9806b45ba55e5f49b9aea40e5e1f903fd3dc6b8af9cbb0c3107f3897d586e9",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "payloadSha256": "592a950cfddf1f8255b41ed6576a8d5ae5b0b827f25082442a4cddccb70eb4d3",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-18.7ebbdec4.js",
-      "path": "erd-chunk-18.7ebbdec4.js.txt",
+      "name": "erd-chunk-18.c8417f70.js",
+      "path": "erd-chunk-18.c8417f70.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 64258,
-      "gzip": 9157,
-      "payloadSha256": "61ca5eb2c506178fbe29762fd6774447fd8ab80eda094efe20927fa9e4bf1fd1",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 9156,
+      "payloadSha256": "57a24716aeaada750fbb3333d7d445638f35c1c7671601fc2e5cd102c6558587",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-19.c79f2511.js",
-      "path": "erd-chunk-19.c79f2511.js.txt",
+      "name": "erd-chunk-19.4988755f.js",
+      "path": "erd-chunk-19.4988755f.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 27767,
-      "gzip": 7374,
-      "payloadSha256": "4490b62443435c7fe6c216636949949ebc985a010de673f1ac175d015da54b51",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 7375,
+      "payloadSha256": "0eceacb3f606a560ac5cd696b9f1fb087b928a766afaf01531b3daa034d8ce03",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-20.e99bb37d.js",
-      "path": "erd-chunk-20.e99bb37d.js.txt",
+      "name": "erd-chunk-20.16455ff9.js",
+      "path": "erd-chunk-20.16455ff9.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 24821,
-      "gzip": 7040,
-      "payloadSha256": "af063227be1c718543fd3c448c548c9179bc32cc14a45f24169091449a6f1981",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 7042,
+      "payloadSha256": "936266792b4dfff3b2cdedf71c79274812ed04571c298610f2cfcbf0184593f5",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-21.8ff7eed9.js",
-      "path": "erd-chunk-21.8ff7eed9.js.txt",
+      "name": "erd-chunk-21.1419ccf1.js",
+      "path": "erd-chunk-21.1419ccf1.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 23334,
       "gzip": 6618,
-      "payloadSha256": "6349e20326d9245d68daf63235a8898e733a496ecad59a53e6ba74a4d00e9d56",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "payloadSha256": "d2c99082f917b0a0d39aec3b38a0bb57b0be60668196e2f4dadbe2a3b4a6b19a",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-22.5e5599a6.js",
-      "path": "erd-chunk-22.5e5599a6.js.txt",
+      "name": "erd-chunk-22.c523498a.js",
+      "path": "erd-chunk-22.c523498a.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 26185,
-      "gzip": 6828,
-      "payloadSha256": "a1d48224af17975a56d0e55e0975be447a3f2446f4ef99452eeeae3b6252f0de",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 6829,
+      "payloadSha256": "ac185b10aacbf3881af634caf3f95eda9fdd0a4610ef5f01e8f5668dc52da787",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-23.72e515d9.js",
-      "path": "erd-chunk-23.72e515d9.js.txt",
+      "name": "erd-chunk-23.f1f85d0b.js",
+      "path": "erd-chunk-23.f1f85d0b.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 63509,
       "gzip": 9138,
-      "payloadSha256": "b05a1f16f29fddb1c3c919c8c1de2129569e8f503b9075e526a44a3dd3c000a9",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "payloadSha256": "f3d9040fb5029928e5a92dddc348f4649b057ec1fc8966b0b5bb2e021236c3c5",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-24.df4362f8.js",
-      "path": "erd-chunk-24.df4362f8.js.txt",
+      "name": "erd-chunk-24.d64004cf.js",
+      "path": "erd-chunk-24.d64004cf.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 27021,
       "gzip": 6989,
-      "payloadSha256": "705118b42615bf1fd19c770e461c986722d254bd375678bca4c44292c98b89e4",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "payloadSha256": "d4826e7b85a0aedae0929b9376997a5ce12ad53dcee1e306aaa4b2e6fa95d240",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "erd-chunk-25.1b904044.js",
-      "path": "erd-chunk-25.1b904044.js.txt",
+      "name": "erd-chunk-25.0f0e8cdd.js",
+      "path": "erd-chunk-25.0f0e8cdd.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 28514,
-      "gzip": 7115,
-      "payloadSha256": "2b5fcbbf4186ac79419b5f11edc00b41c0ad07b803dc64b09f2bc211630e3f5c",
-      "graphDigest": "66ea8a45a16c0c0976165588ce33c86b395f826de544980502008964d10ce5a2"
+      "gzip": 7114,
+      "payloadSha256": "24ddf672d21796131163ede925c0d66b6c4bc7a8f819d138d7ccda2a844087b6",
+      "graphDigest": "fedae4eb170786c6d01a147de6f57c489a54a4b4a0e5b77f1140e2ad794fd0ae"
     },
     {
-      "name": "view.cce5e116.css",
-      "path": "view.cce5e116.css.txt",
+      "name": "view.0d135504.css",
+      "path": "view.0d135504.css.txt",
       "type": "text/css; charset=utf-8",
       "raw": 13307,
       "gzip": 3421,
       "payloadSha256": "1eefb2bb278e9912c343b3305559184dcb756476b89e38d5e7412cc0c1306f6f",
-      "graphDigest": "da85bb4ff78fdba8b6670ef7d57d2df87b63e14bb788da7cb42455fabb2973e3"
+      "graphDigest": "7c9a8fd83f1bce8a19951194f0a1418bf4d2b0c562f3182f97e07db307d58042"
     },
     {
-      "name": "view.0f58f8c3.js",
-      "path": "view.0f58f8c3.js.txt",
+      "name": "view.052da884.js",
+      "path": "view.052da884.js.txt",
       "type": "text/javascript; charset=utf-8",
-      "raw": 81414,
-      "gzip": 27274,
-      "payloadSha256": "5a6d42448b10deba5182fef04b07b9d54a1ad3530769c27807a904866fc698c1",
-      "graphDigest": "da85bb4ff78fdba8b6670ef7d57d2df87b63e14bb788da7cb42455fabb2973e3"
+      "raw": 82029,
+      "gzip": 27437,
+      "payloadSha256": "1be32946b07539c1779a03af86dcacf99cbf7093963bc28078db261802493289",
+      "graphDigest": "7c9a8fd83f1bce8a19951194f0a1418bf4d2b0c562f3182f97e07db307d58042"
     }
   ],
-  "totalRaw": 23507370,
-  "totalGzip": 16365337,
+  "totalRaw": 23507986,
+  "totalGzip": 16365518,
   "inputs": {
     "excalidraw": {
       "node_modules/react/cjs/react.production.min.js": {
@@ -25409,7 +25409,7 @@
         "sha256": "89fae8702bcafad1c359610bbe96e100367817af99264fb95cdbf7644dc4da71"
       },
       "node_modules/@dineug/erd-editor/dist/components/erd-viewer/ErdViewer.js": {
-        "bytes": 10651,
+        "bytes": 10818,
         "sha256": "a00453b277930062024de3d5b5880e41da28130cd950a757ae2fc33f4641d47b"
       },
       "node_modules/@dineug/erd-editor/dist/erd-viewer.js": {
@@ -25446,13 +25446,17 @@
         "bytes": 1520,
         "sha256": "243b25f72ea297906fa62e35cc7ec615b605506ef9e7a4a80fad07d096b9b6d5"
       },
+      "nexus/ui/camera.js": {
+        "bytes": 894,
+        "sha256": "1f40809f71fc6537802285e58c3c1e780e89c2ab8a6ba8d674112e86a5ff5498"
+      },
       "nexus/ui/picture.js": {
-        "bytes": 6483,
-        "sha256": "200b8b043425fb7c135254aad0969433fd485f2ea02b059d2e546409faf89d56"
+        "bytes": 6446,
+        "sha256": "d8ff1d5ad819e41ea103f3b4d56052b57197d24f4b6aa32dec007fcca7388ea9"
       },
       "nexus/ui/preview.js": {
-        "bytes": 4810,
-        "sha256": "e7f92073ee1e2af5af0b8d91a56986b53e819ed30b149c9fc9dacb6041d839cf"
+        "bytes": 4686,
+        "sha256": "0867f6d99ac6f92c7d26e69c856e33090fdd128df40fa6a8220f4206b53229ca"
       },
       "nexus/ui/tokens.css": {
         "bytes": 3770,
@@ -25463,8 +25467,8 @@
         "sha256": "672b2aa659d7ae0fe1d3b1264822d3c25f5eda0465bb654c5c505950923b4aaf"
       },
       "nexus/ui/core.js": {
-        "bytes": 40451,
-        "sha256": "41703f20d2ff5d38d4489e3c557a61c05b1be87e156c6be024f12aca83012f4d"
+        "bytes": 41096,
+        "sha256": "9fa8bc93d6ba7e464aff8af20cb4cf1936d9d2263a4782606073d5e7a2fa0e17"
       }
     }
   },
