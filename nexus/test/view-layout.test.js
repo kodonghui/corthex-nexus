@@ -15,6 +15,22 @@ test("nine cumulative DDD steps preserve timeline positions, IDs and whole-board
  assert.ok(scenes[6].nodes.filter(n=>n.context).every(n=>n.label.startsWith("CTX-001\n")));assert.ok(scenes.slice(0,8).every(s=>!s.nodes.some(n=>n.kind==="context")));assert.ok(scenes[8].nodes.some(n=>n.id==="CTX-001"));assert.ok(scenes[5].nodes.some(n=>n.id==="TERM-001"));assert.ok(scenes[7].nodes.some(n=>n.id==="TERM-002"));assert.equal(JSON.stringify(source),original);
  assert.equal(domainLayout(source,"invalid").step,8);assert.equal(domainLayout({...source,timeline:undefined},"1-b").step,8);
 });
+test("contexts without items stand side by side below the board at the whole picture",()=>{
+ const overlap=(a,b)=>a.x<b.x+b.width&&b.x<a.x+a.width&&a.y<b.y+b.height&&b.y<a.y+a.height;
+ const bare=id=>({id,name:"Context "+id,purpose:"Synthetic purpose",rows:[],where});
+ const mixed={...source,contexts:[...source.contexts,bare("CTX-002"),bare("CTX-003"),bare("CTX-004")],dependencies:[{from:"CTX-002",to:"CTX-003",kind:"customer-supplier",where}]};
+ const only={format:1,contexts:["CTX-001","CTX-002","CTX-003","CTX-004","CTX-005"].map(bare),aggregates:[],read_models:[],dependencies:[],hotspots:[]};
+ for(const s of [mixed,only]){
+  const before=JSON.stringify(s),scene=domainLayout(s,STEPS[8]),frames=scene.nodes.filter(n=>n.kind==="context"),items=scene.nodes.filter(n=>n.kind!=="context");
+  const empty=frames.filter(f=>!items.some(n=>n.context===f.context));
+  assert.equal(frames.length,s.contexts.length);assert.equal(empty.length,s===mixed?3:5);
+  for(const [i,a]of frames.entries())for(const b of frames.slice(i+1))if(empty.includes(a)||empty.includes(b))assert.ok(!overlap(a,b),a.id+" and "+b.id+" overlap");
+  for(const frame of empty)for(const item of items)assert.ok(!overlap(frame,item),frame.id+" covers "+(item.id||item.text));
+  assert.ok(empty.every(f=>f.x>=scene.bounds.x&&f.y>=scene.bounds.y&&f.x+f.width<=scene.bounds.x+scene.bounds.width&&f.y+f.height<=scene.bounds.y+scene.bounds.height));
+  assert.equal(JSON.stringify(domainLayout(s,STEPS[8])),JSON.stringify(scene));assert.equal(JSON.stringify(s),before);
+ }
+ assert.equal(domainLayout(mixed,STEPS[8]).edges.filter(e=>e.from.startsWith("context-")).length,1,"a dependency between item-less contexts is still drawn");
+});
 test("sitemap parents produce stable edges and malformed cycles cannot recurse forever",()=>{
  const s={screens:[{id:"SCR-001",name:"Home",path:"/",access:"user",context:"CTX-001",where},{id:"SCR-002",name:"Order",path:"/order",access:"user",parent:0,context:"CTX-002",where}]};
  const scene=sitemapLayout(s);assert.equal(scene.edges.length,1);assert.ok(scene.nodes[1].x>scene.nodes[0].x);assert.equal(scene.nodes[1].context,"CTX-002");

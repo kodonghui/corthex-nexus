@@ -5,6 +5,8 @@ import {drawPicture} from "./picture.js";
 import {mountPreview} from "./preview.js";
 import {pictureLimitMessage} from "../src/preview.js";
 import {stylesheetReady} from "./styles.js";
+import {itemFields,reasonText} from "./fields.js";
+import {cameraZoom} from "./camera.js";
 import "./view.css";
 
 const node=(tag,text,className)=>{const n=document.createElement(tag);if(text!==undefined&&text!==null)n.textContent=String(text);if(className)n.className=className;return n;};
@@ -38,6 +40,9 @@ export function startView(payload){
   root.append(top,meta,content,scrim,panel);put(content,status,body);
   function button(label,act,className){const b=node("button",label,className);b.type="button";b.addEventListener("click",act);return b;}
   function notice(text,kind=""){return node("div",text,"notice "+kind);}
+  // Codes and source text stay folded under Details (SCR-106, SCR-109).
+  function details(value){const more=node("details",null,"source");put(more,node("summary",t("Item values").split(" · ")[2]),node("pre",JSON.stringify(value,null,2)));return more;}
+  function reasons(d){return[...d.reasons.map(r=>node("p",reasonText(r,d.compares,lang))),details(d.reasons)];}
   function errorBox(error,retry){
     const code={sign_in_expired:"Sign-in expired",network:"No connection",timeout:"No answer in time",busy:"Busy"}[error.code]||error.code;
     const values={...error,state:stateName(error.state)},box=notice(t(error.code==="picture_not_found"?code+":"+(error.why||"not-drawn"):code,values),"error");box.dataset.code=error.code||"internal";
@@ -161,10 +166,10 @@ export function startView(payload){
     const target=transfer?{item:transfer.target.item,...(typeof transfer.target.quote==="string"?{quote:transfer.target.quote}:{})}:commentTarget(item),ownedPart=!item.id&&Boolean(item.owner),foreign=transfer&&(transfer.target.part!==part||transfer.target.stage!==stage);
     p.append(node("p",item.text));if(!item.id)p.append(notice(t(ownedPart?"Held part":"No ID",{id:target.item})));
     if(foreign)p.append(safeLink(say("Picture view","그림 보기"),"/pictures/"+[project,transfer.target.part||"_",transfer.target.stage].map(encodeURIComponent).join("/")));
-    if(item.raw){for(const field of["context","terms","primary_key","unique","foreign_keys","path","flows","purpose"]){if(item.raw[field]!==undefined)put(p,node("h3",field),node("pre",typeof item.raw[field]==="object"?JSON.stringify(item.raw[field],null,2):item.raw[field]));}}
+    if(item.raw){const shown=itemFields(item.raw,lang),source={};for(const f of shown){put(p,node("h3",f.name),node("p",f.text));source[f.field]=item.raw[f.field];}if(shown.length)p.append(details(source));}
     if(!foreign){
     const mark=itemMarks(item,data);listBlock(p,say(`Proposals (${count(mark.proposals.length)})`,`제안 (${count(mark.proposals.length)})`),mark.proposals,renderProposalRow);
-    for(const mismatch of mark.discrepancies){const n=notice([mismatch.term,mismatch.item,...mismatch.reasons.map(r=>r.kind)].filter(Boolean).join(" · "),"warn");if(mismatch.waiting)n.append(node("p",t("Waits")));p.append(n);}
+    for(const mismatch of mark.discrepancies){const n=notice([mismatch.term,mismatch.item].filter(Boolean).join(" · "),"warn");n.append(...reasons(mismatch));if(mismatch.waiting)n.append(node("p",t("Waits")));p.append(n);}
     listBlock(p,say(`Comments (${count(mark.comments.length)})`,`의견 (${count(mark.comments.length)})`),mark.comments,renderCommentRow);
     const closed=(data.closed_comments?.entries||[]).filter(c=>c.item===target.item),closedLabel=ownedPart?t("Closed on",{id:target.item}):say("Closed","닫힌 의견");listBlock(p,`${closedLabel} (${count(closed.length)})`,closed,(row,c)=>put(row,entryLink("comment",c.id,c.id),node("small",commentState({...c,state:"closed"}),"meta")));
     if(!mark.comments.length)p.append(node("p",t("No comments",{id:item.id||item.text})));
@@ -232,6 +237,24 @@ export function startView(payload){
     lists.append(section);const ids=new Set(items.map(n=>n.id).filter(Boolean)),quotes=new Set(items.filter(n=>!n.id).map(n=>{const c=commentTarget(n);return JSON.stringify([c.item,c.quote]);})),apart=(data.comments?.entries||[]).filter(c=>!ids.has(c.item)&&!quotes.has(JSON.stringify([c.item,c.quote])));listBlock(lists,t("Apart",{n:apart.length}),apart,renderCommentRow);
     const legend=node("div",null,"legend");legend.setAttribute("aria-label",t("Legend"));for(const label of[say("Comments","의견"),say("Proposals","제안"),say("Discrepancies","어긋남"),t("Accepted"),t("Waits")])legend.append(node("span",label,"badge"));lists.append(legend);
   }
+  // SCR-105 (0.2.3): the wheel and a two-finger scroll move the page. Ctrl or ⌘ with the wheel,
+  // which is also how a trackpad pinch arrives, zooms the picture. Excalidraw zooms by itself;
+  // the first picture, the marks and the ERD viewer zoom here, so the page itself never zooms.
+  let wheelHinted=false,wheelZoom=1;
+  function pictureWheel(event,target){
+    if(event.ctrlKey||event.metaKey){
+      if(stage!=="05-erd"&&event.target.closest?.(".picture-canvas"))return;
+      event.preventDefault();event.stopPropagation();const view=renderer?.view?.();if(!view)return;
+      const step=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?400:1),factor=Math.min(1.25,Math.max(.8,Math.exp(-step/400)));
+      // Small pinch steps add up until the viewer's rounded zoom changes; a turn back starts again.
+      if(factor<1!==wheelZoom<1)wheelZoom=1;wheelZoom*=factor;
+      if(cameraZoom(stage,view.zoom*wheelZoom)!==view.zoom){renderer.zoom(wheelZoom);wheelZoom=1;}
+      return;
+    }
+    event.stopPropagation();if(wheelHinted)return;wheelHinted=true;
+    try{if(localStorage.getItem("nexus0.2:wheel-hint"))return;localStorage.setItem("nexus0.2:wheel-hint","1");}catch{}
+    const hint=notice(t("Wheel hint"));hint.classList.add("wheel-hint");hint.setAttribute("role","status");target.append(hint);setTimeout(()=>hint.remove(),6000);
+  }
   async function renderPicture(){
     const generation=++drawGeneration;drawAbort?.abort();drawAbort=new AbortController();renderer?.destroy();renderer=null;body.replaceChildren();setMeta();
     if(!drawn){body.append(errorBox(new NexusProblem(payload.problem?.code||"picture_not_found",404,payload.problem||{}),refresh));return;}
@@ -244,10 +267,10 @@ export function startView(payload){
     const tools=node("div",null,"controls");if(!scene.limited)put(tools,button(say("Zoom out","축소"),()=>renderer?.zoom(.8)),button(say("Zoom in","확대"),()=>renderer?.zoom(1.25)),button(say("Whole picture","그림 전체"),()=>renderer?.fit()));put(tools,safeLink(say("Items as a list","항목 목록"),"#items"),button(say("Refresh","새로 읽기"),refresh));body.append(tools);
     if(scene.limited){const warning=notice(pictureLimitMessage(scene,lang),"warn");warning.dataset.previewLimited="true";lists=node("div",null,"after-picture");lists.dataset.fallback="true";body.append(warning,lists);renderLists();return;}
     if(scene.nodes.length>300)body.append(notice(t("Large",{n:scene.nodes.length})));
-    const loading=notice(say("The editor is loading. You can already read and move the picture.","편집기를 불러오는 중입니다. 그림은 바로 읽고 이동할 수 있습니다.")),target=node("div",null,"picture-shell");loading.classList.add("picture-loading");target.setAttribute("aria-label",say("Read-only picture","읽기 전용 그림"));body.append(target);lists=node("div",null,"after-picture");body.append(lists);renderLists();
+    const loading=notice(say("The editor is loading. You can already read and move the picture.","편집기를 불러오는 중입니다. 그림은 바로 읽고 이동할 수 있습니다.")),target=node("div",null,"picture-shell");loading.classList.add("picture-loading");target.setAttribute("aria-label",say("Read-only picture","읽기 전용 그림"));target.addEventListener("wheel",event=>pictureWheel(event,target),{capture:true,passive:false});body.append(target);lists=node("div",null,"after-picture");body.append(lists);renderLists();
     if(!scene.nodes.length){loading.remove();target.remove();return;}
     const preview=mountPreview(target,scene,{data,lang,onSelect:open});renderer=preview;target.dataset.previewReady="true";target.dataset.previewActive="true";target.dataset.editorReady="false";target.append(loading);
-    try{const created=await drawPicture(target,scene,{stage,data,lang,signal:drawAbort.signal,initialView:()=>preview.view(),onSelect:open,onReady:()=>{if(generation===drawGeneration){preview.destroy();loading.remove();target.dataset.previewActive="false";target.dataset.ready="true";target.dataset.editorReady="true";}}});if(generation!==drawGeneration)created?.destroy();else if(created){renderer=created;renderer.update(data);}}
+    try{const created=await drawPicture(target,scene,{stage,data,lang,removedMark:t("Removed mark"),signal:drawAbort.signal,initialView:()=>preview.view(),onSelect:open,onReady:()=>{if(generation===drawGeneration){preview.destroy();loading.remove();target.dataset.previewActive="false";target.dataset.ready="true";target.dataset.editorReady="true";}}});if(generation!==drawGeneration)created?.destroy();else if(created){renderer=created;renderer.update(data);}}
     catch{if(generation!==drawGeneration)return;loading.remove();const warning=notice(say("The editor could not load. The picture and item list remain available.","편집기를 불러오지 못했습니다. 그림과 항목 목록은 계속 사용할 수 있습니다."),"warn");target.after(warning);lists.dataset.fallback="true";}
   }
   function renderOverview(){
@@ -263,14 +286,14 @@ export function startView(payload){
     if(data.discrepancies.total===0&&data.comments.total===0&&data.reflections.total===0)wrap.prepend(notice(t("Nothing left")));
     else{
       wrap.append(node("h2",say("What is left","남은 것"),"wide"));
-      listBlock(wrap,say(`Discrepancies (${count(data.discrepancies.total)})`,`어긋남 (${count(data.discrepancies.total)})`),data.discrepancies.entries,(row,d)=>{const target=d.compares==="aggregate-table"?"05-erd":"07-sitemap",link="/pictures/"+[project,part||"_",target].map(encodeURIComponent).join("/")+"#item="+encodeURIComponent(d.item||d.term);put(row,safeLink([d.term,d.item].filter(Boolean).join(" · "),link),node("p",d.reasons.map(r=>r.kind).join(" · ")));if(d.waiting)row.append(node("p",t("Waits")));},data.discrepancies.total);
+      listBlock(wrap,say(`Discrepancies (${count(data.discrepancies.total)})`,`어긋남 (${count(data.discrepancies.total)})`),data.discrepancies.entries,(row,d)=>{const target=d.compares==="aggregate-table"?"05-erd":"07-sitemap",link="/pictures/"+[project,part||"_",target].map(encodeURIComponent).join("/")+"#item="+encodeURIComponent(d.item||d.term);put(row,safeLink([d.term,d.item].filter(Boolean).join(" · "),link),...reasons(d));if(d.waiting)row.append(node("p",t("Waits")));},data.discrepancies.total);
       listBlock(wrap,say(`Comments (${count(data.comments.total)})`,`의견 (${count(data.comments.total)})`),data.comments.entries,(row,c)=>row.append(safeLink(c.text,"/pictures/"+[project,c.part||"_",c.stage].map(encodeURIComponent).join("/")+"#comment="+encodeURIComponent(c.id))),data.comments.total);
       listBlock(wrap,say(`Pending reflections (${count(data.reflections.total)})`,`반영 대기 (${count(data.reflections.total)})`),data.reflections.entries,(row,e)=>put(row,safeLink(e.proposal?.reason||e.id,"/pictures/"+[project,e.part||"_",e.stage].map(encodeURIComponent).join("/")+"#proposal="+encodeURIComponent(e.proposal?.id||"")),node("small",stateName(e.state),"meta")),data.reflections.total);
     }
     const checkpoints=node("section",null,"card");checkpoints.append(node("h2",say("Checkpoints","확인 지점")));for(const cp of data.checkpoints){const item=node("article",null,"entry");put(item,node("p",cp.words),node("p",cp.state==="withdrawn"?t("Withdrawn",{date:date(cp.withdrawn_at)}):t("Waiting for its record",{date:date(cp.passed_at)})));if(cp.pull_request)item.append(safeLink(cp.pull_request,cp.pull_request));if(cp.state==="passed"&&!cp.recorded_commit)action(item,{scope:"withdraw-checkpoint:"+cp.id,label:say("Withdraw","철회"),endpoint:base+"/checkpoints/"+encodeURIComponent(cp.id)+"/withdraw",done:value=>status.replaceChildren(notice(value.changed?t("Withdrawn",{date:date(value.checkpoint.withdrawn_at)}):t("Already withdrawn")))});checkpoints.append(item);}
     checkpoints.append(node("h3",say("Pass the checkpoint","확인 지점 통과시키기")));
     writeForm(checkpoints,{scope:"checkpoint:"+place,label:data.checkpoints.some(cp=>cp.state==="passed"&&!cp.recorded_commit)?t("Pass again"):say("Pass","통과"),fieldLabel:t("Overview's headings").split(" · ").at(-1),max:2000,optional:true,endpoint:base+"/checkpoints",makeBody:d=>({part,stage,...(d.text.trim()?{words:d.text}:{})})});wrap.append(checkpoints);
-    listBlock(wrap,say("Checks","점검"),data.checks,(row,c)=>put(row,node("strong",c.rule),node("p",c.message||c.rule)),data.checks.length,t("No checks"));
+    listBlock(wrap,say("Checks","점검"),data.checks,(row,c)=>{const {message,...codes}=c;put(row,node("p",message||c.rule),details(codes));},data.checks.length,t("No checks"));
     body.append(wrap);
   }
   scrim.addEventListener("click",closePanel);document.addEventListener("keydown",event=>{if(panel.hidden)return;if(event.key==="Escape"){event.preventDefault();closePanel();}if(event.key==="Tab"&&matchMedia("(max-width:1023px)").matches){const focusable=[...panel.querySelectorAll("button:not(:disabled),a[href],textarea,input,select")].filter(n=>!n.hidden),first=focusable[0],last=focusable.at(-1);if(event.shiftKey&&[first,panel.querySelector("h2")].includes(document.activeElement)){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}});

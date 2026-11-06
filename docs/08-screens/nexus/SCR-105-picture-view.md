@@ -29,7 +29,7 @@ Path `/pictures/{project}/{part}/{stage}`, on the NEXUS server only (API-102), l
 | Select a part drawn without an ID | The item panel, SCR-106, for the picture itself, with the part's name ([choice 12](README.md#choices-this-stage-made)) | none |
 | Select a comment's mark, or open `#comment=` | The comment's panel, SCR-107 | SCR-107#gone |
 | Select a proposal's mark, or open `#proposal=` | The proposal's panel, SCR-108 | SCR-108#gone |
-| Move or zoom the picture | The picture moves inside its frame, and the page does not scroll sideways (REQ-146) | none |
+| Move or zoom the picture | Dragging moves the picture inside its frame, and the page does not scroll sideways (REQ-146). The wheel and a two-finger scroll move the page, with the Wheel hint the first time; Ctrl or ⌘ with the wheel, a pinch or the zoom buttons zoom the picture. Touch on a phone works as before (0.2.3) | none |
 | Show the items as a list | Every item of the picture, and each part drawn without an ID by its name, in a list with its marks, from which the panels open; a screen reader reads the same list | none |
 | Show a newer version | The picture drawn again from the newer data | The read fails: SCR-105#error |
 | Open the stage overview, or the hub page | SCR-109 for the part and stage, or SCR-101 | Their own refusals |

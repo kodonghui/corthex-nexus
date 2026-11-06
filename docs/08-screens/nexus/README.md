@@ -211,6 +211,25 @@ The mockups of stage 09, in [direction A](../../09-mockup/nexus/README.md#the-ch
 | Loading the source text | SCR-108#loading, for screen readers | Loading the stage source text… | 단계 원본의 글을 불러오는 중… |
 | Overview's headings | SCR-109 | Recorded state · Updated {time} · Discrepancies ({n}) · Comments ({n}) · Pending reflections ({n}) · Words (optional) | 기록된 상태 · 갱신 {time} · 어긋남 ({n}) · 의견 ({n}) · 반영 대기 ({n}) · 남길 말 (선택) |
 
+### Words 0.2.3 added
+
+NEXUS 0.2.3 fixes the current screens without changing their structure. These words take the place of field names, reason codes and a wheel that said nothing, and were added on 2026-11-06 with that patch. A word between `·` marks is a label of its own, and the codes stay under Details.
+
+| Words | Where | English | Korean |
+| --- | --- | --- | --- |
+| Wheel hint | SCR-105: once, the first time a plain wheel turns over the picture | The wheel scrolls the page. To zoom the picture, hold Ctrl or ⌘ while turning the wheel, pinch, or use the zoom buttons. | 휠은 페이지를 내립니다. 그림을 확대하려면 Ctrl이나 ⌘를 누른 채 휠을 굴리거나, 두 손가락을 오므리거나 벌리거나, 확대 단추를 쓰세요. |
+| Item fields | SCR-106: the names of an item's source fields context, terms, primary_key, unique, foreign_keys, path, flows and purpose | Context · Terms · Primary key · Unique · Foreign keys · Path · Flows · Purpose | 컨텍스트 · 용어 · 기본 키 · 고유 · 외래 키 · 경로 · 흐름 · 목적 |
+| Item values | SCR-106: an empty field, a unique key that holds on some rows only, and the folded source fields | None · {columns}, on some rows only · Details | 없음 · {columns}, 일부 행에만 · 자세히 |
+| Foreign key | SCR-106: one foreign key, with and without the columns it refers to | {columns} → {table} ({references}). Deleting the referenced row {action} · {columns} → {table}. Deleting the referenced row {action} | {columns} → {table} ({references}). 가리키는 행을 지우면 {action} · {columns} → {table}. 가리키는 행을 지우면 {action} |
+| On delete | SCR-106: in Foreign key, for the delete actions cascade, set null, set default, restrict and no action | also deletes this row. · empties these columns. · sets these columns to their default. · is refused. · is refused. | 이 행도 지워집니다. · 이 열이 비워집니다. · 이 열이 기본값으로 바뀝니다. · 거부됩니다. · 거부됩니다. |
+| No 01 term | SCR-106, SCR-109: the discrepancy reason no-term, for a table and for a screen | This table names no 01 term. · This screen names no 01 term. | 이 표에 맞는 01 용어가 없습니다. · 이 화면에 맞는 01 용어가 없습니다. |
+| Not on the board | SCR-106, SCR-109: the discrepancy reason not-on-board | The 01 board has no such term. | 01 보드에 없는 용어입니다. |
+| Other context | SCR-106, SCR-109: the discrepancy reason other-context, for a table and for a screen | The 01 board puts this term in {board}, and this table is in {here}. · The 01 board puts this term in {board}, and this screen is in {here}. | 01 보드는 이 용어를 {board}에 두고, 이 표는 {here}에 있습니다. · 01 보드는 이 용어를 {board}에 두고, 이 화면은 {here}에 있습니다. |
+| Removed | SCR-106, SCR-109: the discrepancy reason removed, for the term, a table and a screen | The 01 board marks this term removed. · This table is marked removed. · This screen is marked removed. | 01 보드가 이 용어를 지운 것으로 표시합니다. · 이 표는 지운 것으로 표시되어 있습니다. · 이 화면은 지운 것으로 표시되어 있습니다. |
+| No table | SCR-106, SCR-109: the discrepancy reason no-table | No 05 table names this aggregate. | 이 애그리거트를 쓰는 05 표가 없습니다. |
+| No screen | SCR-106, SCR-109: the discrepancy reason no-screen | No 07 screen names this read model. | 이 읽기 모델을 쓰는 07 화면이 없습니다. |
+| Removed mark | SCR-105: in the comment line of a 05 table in the picture, after its ID and context, when the table is marked removed | removed | 지움 |
+
 ## Choices this stage made
 
 The earlier stages left these to stage 08. The checkpoint of 2026-11-03 kept each as it is.

@@ -7,6 +7,8 @@ import {runInNewContext} from "node:vm";
 import * as layout from "../ui/layout.js";
 import {Drafts,NexusProblem,PendingWrites,LatestReads,characters} from "../ui/state.js";
 import {words} from "../ui/messages.js";
+import {itemFields,reasonText} from "../ui/fields.js";
+import {cameraZoom} from "../ui/camera.js";
 
 const project="qa-comment-target",place=project+"/sample/01-domain",legacyScope=project+":comment:"+place+":Picture drawn";
 const storageKey=scope=>"nexus0.2:"+scope;
@@ -31,7 +33,7 @@ function client({values=new Map(),post=async()=>({}),get,comments=[],closed=[],p
  const picture={commit:"a".repeat(40),committed_at:new Date().toISOString(),source:source(anonymous)},data={picture,comments:{entries:comments},closed_comments:{entries:closed},proposals,reflections,discrepancies:[]};
  const storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)},calls=[];let number=0,select;
  class TestDrafts extends Drafts{constructor(){super({storage:()=>storage,makeId:()=>"nw_"+String(++number).padStart(12,"0")});}}
- const sandbox={document,location,URL,URLSearchParams,AbortController,queueMicrotask,getComputedStyle:()=>({getPropertyValue:()=>"44px"}),matchMedia:()=>({matches:false,addEventListener(){}}),history:{pushState(value,_,href){this.state=value;location.href=new URL(href,location).href;},replaceState(value,_,href){this.state=value;location.href=new URL(href,location).href;},back(){}},ApiClient:class{async call(method,path,options){calls.push({method,path,...options});return method==="POST"?post(options):get?get(path,data):data;}},NexusProblem,Drafts:TestDrafts,PendingWrites,LatestReads,characters,...layout,words,pictureLimitMessage:()=>"Limit notice",mountPreview:(_target,_scene,options)=>{select=options.onSelect;return{view(){return{};},destroy(){}};},drawPicture:async()=>({destroy(){},update(){}}),stylesheetReady:async()=>true};const events={};sandbox.window={addEventListener(name,handler){events[name]=handler;}};
+ const sandbox={document,location,URL,URLSearchParams,AbortController,queueMicrotask,getComputedStyle:()=>({getPropertyValue:()=>"44px"}),matchMedia:()=>({matches:false,addEventListener(){}}),history:{pushState(value,_,href){this.state=value;location.href=new URL(href,location).href;},replaceState(value,_,href){this.state=value;location.href=new URL(href,location).href;},back(){}},ApiClient:class{async call(method,path,options){calls.push({method,path,...options});return method==="POST"?post(options):get?get(path,data):data;}},NexusProblem,Drafts:TestDrafts,PendingWrites,LatestReads,characters,...layout,words,itemFields,reasonText,cameraZoom,pictureLimitMessage:()=>"Limit notice",mountPreview:(_target,_scene,options)=>{select=options.onSelect;return{view(){return{};},destroy(){}};},drawPicture:async()=>({destroy(){},update(){}}),stylesheetReady:async()=>true};const events={};sandbox.window={addEventListener(name,handler){events[name]=handler;}};
  const core=readFileSync(new URL("../ui/core.js",import.meta.url),"utf8").replace(/^import[^\n]*\r?\n/gm,"").replace("export function startView","function startView");
  runInNewContext(core+"\nglobalThis.checkedStartView=startView;",sandbox,{timeout:2000});
  const controller=sandbox.checkedStartView({schema:"corthex-view-page/0.2",view:"picture",lang,data}),scene=layout.domainLayout(picture.source);

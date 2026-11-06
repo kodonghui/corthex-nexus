@@ -333,3 +333,7 @@ source overlay나 업로드 없이 남아 있던 실제 default의 로컬 자체
 ## NEXUS 0.2.2 편집기 패치 (2026-11-06 KST)
 
 세로 사이트맵의 전체 맞춤과 Windows 브라우저 실행부를 고쳤습니다. 개발 서버 전송 조사 뒤 BUG-562는 열린 상태입니다. 2단계 편집기 설계용 메모를 PR에 올렸습니다. [패치 근거](../12-qa/runs/2026-11-06-patch-022-editor.ko.md) · [편집기 메모 PR](https://github.com/kodonghui/corthex-nexus/pull/47)
+
+## NEXUS 0.2.3 화면 패치 (2026-11-06 KST)
+
+지금 화면의 틀 안에서 읽히게 고쳤습니다: 접힌 허브 점검과 한국어 문구, 먼저 묻기 목록 맞추기, 근거가 있는 단계 기록, 한 줄로 선 항목 없는 DDD 컨텍스트, 페이지를 내리는 휠, 필드·까닭 코드 대신 쓰는 말. 허브 플러그인 변경은 [kodonghui/corthex#155](https://github.com/kodonghui/corthex/pull/155)입니다. 그림 중심 재디자인은 따로 이어집니다. [패치 근거](../12-qa/runs/2026-11-06-patch-023-screens.ko.md)

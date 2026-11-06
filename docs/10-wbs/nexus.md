@@ -333,3 +333,7 @@ Of 64 tasks, 62 are done and 2 are in progress. The closeout links the completio
 ## NEXUS 0.2.2 editor patch (2026-11-06 KST)
 
 The patch fixes whole-picture fit for the tall sitemap and the Windows browser runner. The development transport investigation leaves BUG-562 open. The Phase 2 editor note is available for design review. [Patch evidence](../12-qa/runs/2026-11-06-patch-022-editor.md) · [Editor memo PR](https://github.com/kodonghui/corthex-nexus/pull/47)
+
+## NEXUS 0.2.3 screen patch (2026-11-06 KST)
+
+The patch makes the current screens readable within their structure: folded hub checks with Korean texts, ask-before matching, stage records with evidence, item-less DDD contexts in a row, the wheel scrolling the page, and words in place of field and reason codes. The hub plugin change is [kodonghui/corthex#155](https://github.com/kodonghui/corthex/pull/155). The picture-first redesign follows as its own work. [Patch evidence](../12-qa/runs/2026-11-06-patch-023-screens.md)

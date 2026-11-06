@@ -6,6 +6,8 @@ import {readFileSync} from "node:fs";
 import {runInNewContext} from "node:vm";
 import {Drafts,NexusProblem,PendingWrites,LatestReads,characters} from "../ui/state.js";
 import {words} from "../ui/messages.js";
+import {itemFields,reasonText} from "../ui/fields.js";
+import {cameraZoom} from "../ui/camera.js";
 
 class Element{
  constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.parentElement=null;this.dataset={};this.attributes={};this.listeners={};this.hidden=false;this.isConnected=true;this._text="";this.classList={add(){},remove(){}};}
@@ -25,7 +27,7 @@ function client(data,lang="en",{post=async()=>({changed:true})}={}){
  const document={documentElement:html,body,activeElement:body,createElement:tag=>new Element(tag),getElementById(id){if(id==="view")return root;if(id==="view-data")return null;return root.querySelectorAll("textarea").find(n=>n.id===id)||null;},addEventListener(){}};
  const values=new Map(),calls=[],storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)};let serial=0;
  class TestDrafts extends Drafts{constructor(){super({storage:()=>storage,makeId:()=>"nw_"+String(++serial).padStart(12,"0")});}}
- const sandbox={document,location,URL,URLSearchParams,AbortController,queueMicrotask,getComputedStyle:()=>({getPropertyValue:()=>"44px"}),matchMedia:()=>({matches:false,addEventListener(){}}),history:{state:null,replaceState(){},pushState(){},back(){}},ApiClient:class{async call(method,path,options){calls.push({method,path,...options});return method==="GET"?data:post(options);}},NexusProblem,Drafts:TestDrafts,PendingWrites,LatestReads,characters,words,stylesheetReady:async()=>true};sandbox.window={addEventListener(){}};
+ const sandbox={document,location,URL,URLSearchParams,AbortController,queueMicrotask,getComputedStyle:()=>({getPropertyValue:()=>"44px"}),matchMedia:()=>({matches:false,addEventListener(){}}),history:{state:null,replaceState(){},pushState(){},back(){}},ApiClient:class{async call(method,path,options){calls.push({method,path,...options});return method==="GET"?data:post(options);}},NexusProblem,Drafts:TestDrafts,PendingWrites,LatestReads,characters,words,itemFields,reasonText,cameraZoom,stylesheetReady:async()=>true};sandbox.window={addEventListener(){}};
  const source=readFileSync(new URL("../ui/core.js",import.meta.url),"utf8").replace(/^import[^\n]*\r?\n/gm,"").replace("export function startView","function startView");
  runInNewContext(source+"\nglobalThis.checkedStartView=startView;",sandbox,{timeout:2000});
  const controller=sandbox.checkedStartView({schema:"corthex-view-page/0.2",view:"overview",lang,generated_at:"2026-11-03T00:00:00.000Z",data});
@@ -103,4 +105,21 @@ for(const code of["checkpoint_not_found","project_not_found"])for(const lang of[
  assert.equal(d.calls.filter(c=>c.method==="POST").length,1);assert.equal(d.calls.filter(c=>c.method==="GET").length,1);assert.equal(d.calls.find(c=>c.method==="GET").path,"/api/spaces/qa-overview/overview/sample/05-erd");
  assert.equal(d.form().querySelector("textarea").value,"Keep these unsent checkpoint words");assert.equal(d.values.get(passKey),before);assert.ok(d.root.textContent.includes("withdraw-trace"));
  const sent=d.calls.find(c=>c.method==="POST");assert.equal(JSON.parse(d.values.get("nexus0.2:qa-overview:withdraw-checkpoint:"+id)).write,sent.write);d.controller.close();
+});
+
+test("0.2.3 checks and discrepancy reasons read as sentences, with their codes under Details",()=>{
+ for(const lang of["en","ko"]){
+  const data=overview();data.checks=[{rule:"synthetic-check",level:"warn",stage:"05-erd",message:"The stored check remains visible",args:{count:3}}];
+  data.discrepancies={total:1,entries:[{id:"nd_000000000001",compares:"aggregate-table",item:"TBL-002",term:"TERM-001",reasons:[{kind:"other-context",contexts:["CTX-001","CTX-002"]},{kind:"removed",side:"item"}]}]};
+  const d=client(data,lang),cards=d.cards(),checks=cards.find(n=>n.querySelector("h2").textContent===(lang==="ko"?"점검":"Checks")),row=checks.querySelector("li");
+  assert.equal(row.querySelectorAll("strong").length,0,"the rule is no longer the row's title");
+  assert.equal(row.querySelector("p").textContent,"The stored check remains visible");
+  const more=row.querySelector("details");assert.ok(more);assert.equal(more.querySelector("summary").textContent,lang==="ko"?"자세히":"Details");
+  assert.deepEqual(JSON.parse(more.querySelector("pre").textContent),{rule:"synthetic-check",level:"warn",stage:"05-erd",args:{count:3}});
+  const [left]=lists(d,lang),entry=left.querySelector("li"),sentences=entry.querySelectorAll("p").map(p=>p.textContent);
+  assert.deepEqual(sentences,lang==="ko"?["01 보드는 이 용어를 CTX-001에 두고, 이 표는 CTX-002에 있습니다.","이 표는 지운 것으로 표시되어 있습니다."]:["The 01 board puts this term in CTX-001, and this table is in CTX-002.","This table is marked removed."]);
+  assert.ok(!sentences.some(text=>/other-context|removed"|kind/.test(text)));
+  assert.deepEqual(JSON.parse(entry.querySelector("details").querySelector("pre").textContent),data.discrepancies.entries[0].reasons);
+  d.controller.close();
+ }
 });

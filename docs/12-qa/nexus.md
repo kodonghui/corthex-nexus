@@ -1099,3 +1099,7 @@ Of 717 cases, 692 pass, 7 are partial, 18 do not apply and 0 fail. The closeout 
 ## NEXUS 0.2.2 editor patch (2026-11-06 KST)
 
 BUG-559 is fixed for the 300-node tall sitemap in the native viewer. BUG-562 remains open after a same-profile development investigation. All eight Windows browser suites and their profile cleanup completed on the patch. The new regression is separate from the 717-case ledger. [Patch evidence](runs/2026-11-06-patch-022-editor.md)
+
+## NEXUS 0.2.3 screen patch (2026-11-06 KST)
+
+The product checks, the browser regression suites and the pinned hub contract pass on the patch. A browser walk from the hub to the stage overview passed 64 steps in English and Korean, at 1440 and 390 px, in light and dark themes. The walk found two more code words, in the stage overview's checks and the ERD removed mark, and the patch fixes both. Nine frame overlaps among NEXUS contexts that share timeline lanes remain for the redesign. The new regressions are separate from the 717-case ledger. [Patch evidence](runs/2026-11-06-patch-023-screens.md)
