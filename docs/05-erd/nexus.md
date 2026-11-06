@@ -2,9 +2,9 @@
 
 [한국어](nexus.ko.md)
 
-Stage 05 of CORTHEX's own project, for NEXUS 0.2: the tables of the NEXUS server, in [nexus.sql](nexus.sql), and the files that go with them: the snapshot that carries a project to the server, the stage records in the project's repository and the hub's outbox on a device. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows and the functional spec. The maintainer passed its checkpoint on 2026-11-03, together with stages 03, 04 and 06 to 08, so the schema is frozen for NEXUS 0.2: a later breaking change needs the maintainer's decision and a new schema version. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the timeline to the DDD board's picture source, which changes no table, and left the work boards of phase ② to that phase; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). When this file and its Korean translation differ, this file is the source.
+Stage 05 of CORTHEX's own project, for NEXUS 0.2: the tables of the NEXUS server, in [nexus.sql](nexus.sql), and the files that go with them: the snapshot that carries a project to the server, the stage records in the project's repository and the hub's outbox on a device. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows and the functional spec. The maintainer passed its checkpoint on 2026-11-03, together with stages 03, 04 and 06 to 08, so the schema is frozen for NEXUS 0.2: a later breaking change needs the maintainer's decision and a new schema version. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the timeline to the DDD board's picture source, which changes no table, and left the work boards of phase ② to that phase; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). The maintainer's redesign of 2026-11-06 plans a change of comments (TBL-105) and checkpoints (TBL-110), for talk on the items of every stage, choice ② A of its checkpoint 1, which nexus.sql and a migration take when the redesign is built ([The redesign's change](#the-redesigns-change)). When this file and its Korean translation differ, this file is the source.
 
-Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-142), above all its [notes for stage 05](../04-functional-spec/nexus.md#stage-05-the-servers-data-and-the-files); the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md), of which REQ-116, REQ-118, REQ-120, REQ-123 and REQ-124 shape the data most; the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps and whose aggregates the tables name; and phase 1's table in [nexus/src/store.js](../../nexus/src/store.js). Cloudflare's D1 documents were read on 2026-11-02: its [limits](https://developers.cloudflare.com/d1/platform/limits/), [pricing](https://developers.cloudflare.com/d1/platform/pricing/), [foreign keys](https://developers.cloudflare.com/d1/sql-api/foreign-keys/), [JSON functions](https://developers.cloudflare.com/d1/sql-api/query-json/) and [batches](https://developers.cloudflare.com/d1/worker-api/d1-database/).
+Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-156), above all its [notes for stage 05](../04-functional-spec/nexus.md#stage-05-the-servers-data-and-the-files); the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md), of which REQ-116, REQ-118, REQ-120, REQ-123 and REQ-124 shape the data most; the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps and whose aggregates the tables name; and phase 1's table in [nexus/src/store.js](../../nexus/src/store.js). Cloudflare's D1 documents were read on 2026-11-02: its [limits](https://developers.cloudflare.com/d1/platform/limits/), [pricing](https://developers.cloudflare.com/d1/platform/pricing/), [foreign keys](https://developers.cloudflare.com/d1/sql-api/foreign-keys/), [JSON functions](https://developers.cloudflare.com/d1/sql-api/query-json/) and [batches](https://developers.cloudflare.com/d1/worker-api/d1-database/).
 
 ## Approved runtime placement (2026-11-04)
 
@@ -471,6 +471,21 @@ One statement, `DELETE FROM snapshots WHERE name = ?`, deletes the snapshot, and
 - The files have their own formats: the snapshot's `schema`, and the `format` of picture sources, stage records and outbox files. The server takes the snapshot formats that it knows (SPEC-114). A picture keeps the format of its picture source, and the view draws each format that it knows.
 - After the checkpoint, a breaking change of a table or a file needs the maintainer's decision, as the stage contract says.
 
+## The redesign's change
+
+Planned with the redesign of 2026-11-06, whose checkpoint 1 chose talk on the items of every stage (choice ② A). Its checkpoint 3 sees it, and [nexus.sql](nexus.sql), store.js and a migration 4 take it when the redesign is built; until then the tables above are as they run.
+
+| Table | Column or key | Now | With the redesign |
+| --- | --- | --- | --- |
+| TBL-105 `comments` | `project`, `part`, `stage` | The picture that the comment is on, a foreign key to `pictures` | The stage of a part that the comment is on, any of the 13 stages. The key goes to `project_spaces (project)`, so that a comment needs no picture and a removal still deletes it with its space (SPEC-151) |
+| TBL-105 `comments` | `item` | A trace ID of the picture, or `''` for the picture itself | A trace ID of the stage's items, or `''` for the stage as a whole (REQ-231) |
+| TBL-105 `comments` | `commit_id` | The picture's document version | The default branch commit of the stored snapshot when the comment was left, which is the picture's document version on a pictured stage |
+| TBL-105 `comments` | `asks`, new | | `answer`, `recommended`, `checkpoint`, or NULL: what the comment's last entry by the agent asks of the user, while the comment waits for the user; NULL while it waits for the agent or is closed. The agent's comment or reply sets it, and the user's next entry empties it (SPEC-143) |
+| TBL-105 `comments` | index | `comments_picture (project, part, stage, state)` | The same columns as `comments_stage`, since it now serves a stage's talk (SPEC-150) |
+| TBL-110 `checkpoints` | `comment`, new | | `nc_` ID, or NULL: the comment whose checkpoint the user passed as recommended, which holds what was approved (SPEC-143, REQ-090) |
+
+SQLite changes a foreign key only by making the table again: a new table with the new key, the rows copied, the old table dropped and the new one renamed ([SQLite, ALTER TABLE](https://www.sqlite.org/lang_altertable.html#otheralter)). `replies` and `decisions` delete their rows with their comment, and `proposals` empties its `comment`, so dropping the old table must not run those actions. Stage 11 writes migration 4 so that it keeps every reply, decision and proposal on both runtimes, the Node SQLite file and the Worker's D1 ([D1, foreign keys](https://developers.cloudflare.com/d1/sql-api/foreign-keys/)), and stage 12 checks it on a copy of a database that holds them.
+
 ## What leaves the device, and what the server keeps
 
 - From a device to the server: the snapshot, redacted as SPEC-104 says, and the agent's writes, redacted as SPEC-128 says (REQ-105). Never the service token, the outbox's files, the status file itself or the project's files.
@@ -555,6 +570,20 @@ Besides these records, the hub reads the project list, the project settings, the
 | SPEC-140 | Write a passed checkpoint into the stage record | TBL-110, TBL-111, TBL-115 | TBL-115, TBL-110, TBL-111, TBL-112 |
 | SPEC-141 | Go through a DDD board step by step | TBL-103 | none |
 | SPEC-142 | Hold a workshop on a work board | the work boards of phase ② | the work boards of phase ② |
+| SPEC-143 | Gather my turn | TBL-101, TBL-102, TBL-105, TBL-106, TBL-108, TBL-112 | TBL-106, TBL-105, TBL-108, TBL-109, TBL-110, TBL-102, TBL-112, when the user answers on the page |
+| SPEC-144 | Show the agent to-do's counts | TBL-102, TBL-104, TBL-105, TBL-109, TBL-110, TBL-111 | none |
+| SPEC-145 | Show the projects on the first page | TBL-101, TBL-103, TBL-105 | none |
+| SPEC-146 | Open a project's workspace | TBL-101, TBL-105, TBL-108 | none |
+| SPEC-147 | Show a stage's head with its picture or list | TBL-101, TBL-103, TBL-104, TBL-105, TBL-109, TBL-110 | none |
+| SPEC-148 | List a stage's items | TBL-101, TBL-104, TBL-105, TBL-108, TBL-109 | none |
+| SPEC-149 | Show an item with its links | TBL-101, TBL-105, TBL-106 | none |
+| SPEC-150 | Show the talk by turn | TBL-105, TBL-106, TBL-107, TBL-108, TBL-111 | none |
+| SPEC-151 | Leave a comment on any stage | TBL-101, TBL-102, TBL-103, TBL-104, TBL-112 | TBL-105, TBL-102, TBL-112 |
+| SPEC-152 | Search from every page | TBL-101 | none |
+| SPEC-153 | Keep the hub page as the full checks | as SPEC-122 to SPEC-125 | none |
+| SPEC-154 | Lead NEXUS 0.2's addresses to their new places | TBL-101 | none |
+| SPEC-155 | Show the workspace as tabs on a phone | as SPEC-146 to SPEC-150 | none |
+| SPEC-156 | Show where the view is in a large picture | TBL-103 | none |
 
 ## Diagram
 
@@ -656,6 +685,8 @@ The functional spec left these to stage 05. The checkpoint of 2026-11-03 kept ea
 
 ## For the checkpoint
 
+The redesign of 2026-11-06 passed its checkpoint 1 at 17:44 KST that day ("이대로 진행", go ahead as drawn), with talk on the items of every stage (choice ② A), which its list of changes named as a change of TBL-105. [The redesign's change](#the-redesigns-change) writes it down for its checkpoint 3: comments bound to the project space instead of a picture, what the agent's last entry asks, and the comment that a checkpoint passed as recommended keeps. A migration that makes `comments` again is the risk to check first (stage 11).
+
 The maintainer's choice of 2026-11-03, to hold stage 01's event storming in NEXUS, passed at 16:54 KST the same day, together with the changes that it made to the other stages: on a decision card in the project's thread the maintainer chose to pass the step view and the work board as drawn ("모두 그린 대로 통과", pass all as drawn). The checkpoint covered: the DDD board's picture source gains its timeline inside the JSON of `pictures.source`, so no table, field or migration changes; and phase ② adds the work boards (SPEC-142), whose tables it numbers when it draws their steps.
 
 Passed on 2026-11-03 at 11:39 KST, together with stages 03, 04 and 06 to 08: on a decision card in the project's thread the maintainer chose all the recommendations ("모두 추천대로", all as recommended), so the choices below stand as drawn, with the changes of stage 06. The checkpoint covered:
@@ -669,6 +700,7 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03, 04 and 06 to 08: on 
 
 ### Stage 06: requests, commands and formats
 
+- For the redesign: a comment's stage instead of its picture, `asks` on the agent's comments and replies, and the comment that a checkpoint passed as recommended keeps ([The redesign's change](#the-redesigns-change)).
 - The JSON of the snapshot 0.2, from the fields of TBL-114, and that of the picture sources, with the hub's forms. Both go into the hub's snapshot.md and reading.md.
 - For each request, its write ID, its session label and its answer, which `writes.result` keeps, and the names of the requests that `writes.request` and the outbox's `request` hold.
 - The answer to the question for the held commit: `default_commit` and `revision`.
@@ -690,6 +722,7 @@ store.js first: migrations 1 and 2, the push with its two batches, then the writ
 
 ### Stage 12: QA
 
+- For the redesign: migration 4 on a copy of a database with comments, replies, decisions and proposals keeps every row, on the Node SQLite file and on D1.
 - nexus.sql on an empty database in D1, as Wrangler runs it locally, gives the schema that store.js makes, and a database of phase 1 with stored snapshots keeps them through the migration.
 - A removal leaves no row of the project in any table.
 - The largest push: its queries, the rows that it writes and its CPU time on the free plan (REQ-124).

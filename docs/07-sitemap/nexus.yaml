@@ -3,6 +3,8 @@
 # cross-check reads and a status for each. nexus.md explains them and draws the board and
 # the list from this file. Paths are written as the contract ../06-api/nexus.openapi.yaml
 # writes them, and the part after "#" is the page's own address of a view or a panel.
+# The second tree, from SCR-110, is the redesign of 2026-11-06: its screens are `planned`
+# until they are built, and then SCR-101 to SCR-109 become addresses that lead to them.
 - id: SCR-101
   name: Hub page
   path: /
@@ -69,4 +71,61 @@
           flows: [FL-113]
           terms: [CTX-007, TERM-120]
           status: active
-# without a screen: TERM-121
+- id: SCR-110
+  name: Home
+  path: /
+  access: anyone Cloudflare Access lets in, on the server
+  flows: [FL-117, FL-118]
+  terms: [CTX-014, TERM-121]
+  status: planned
+  children:
+    - id: SCR-116
+      name: Search
+      path: "{any page}#q={words}"
+      access: anyone Cloudflare Access lets in, on the server
+      flows: [FL-118]
+      terms: none
+      status: planned
+    - id: SCR-117
+      name: Full checks
+      path: /hub
+      access: anyone Cloudflare Access lets in, on the server
+      flows: [FL-118]
+      terms: none
+      status: planned
+    - id: SCR-111
+      name: Project workspace
+      path: "/p/{project}"
+      access: anyone Cloudflare Access lets in, on the server
+      flows: [FL-117, FL-118]
+      terms: none
+      status: planned
+      children:
+        - id: SCR-112
+          name: Picture stage
+          path: "/p/{project}/{part}/{picture stage}"
+          access: anyone Cloudflare Access lets in, on the server
+          flows: [FL-118, FL-119]
+          terms: [CTX-014, TERM-111]
+          status: planned
+        - id: SCR-113
+          name: Document stage
+          path: "/p/{project}/{part}/{document stage}"
+          access: anyone Cloudflare Access lets in, on the server
+          flows: [FL-118, FL-119]
+          terms: [CTX-007, TERM-120]
+          status: planned
+        - id: SCR-114
+          name: Talk
+          path: "/p/{project}/{part}/{stage}#talk={comment}"
+          access: anyone Cloudflare Access lets in, on the server
+          flows: [FL-117, FL-119]
+          terms: [CTX-014, TERM-111]
+          status: planned
+        - id: SCR-115
+          name: Item
+          path: "/p/{project}/{part}/{stage}#item={id}"
+          access: anyone Cloudflare Access lets in, on the server
+          flows: [FL-118, FL-119]
+          terms: [CTX-014, TERM-111]
+          status: planned

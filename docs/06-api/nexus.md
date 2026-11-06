@@ -2,9 +2,9 @@
 
 [한국어](nexus.ko.md)
 
-Stage 06 of CORTHEX's own project, for NEXUS 0.2: the requests that the NEXUS server answers, in the OpenAPI contract [nexus.openapi.yaml](nexus.openapi.yaml), and in this file the rules that the contract follows, the hub's commands and the formats of the files that go with them. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows, the functional spec and the server's data. The maintainer passed its checkpoint on 2026-11-03, together with stages 03 to 05, 07 and 08, so the requests, the commands and the formats are frozen for NEXUS 0.2 before stage 10 plans the work: a later breaking change needs the maintainer's decision. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the optional `timeline` to the DDD board's picture source, a compatible change, and named the work board of phase ② beside editing; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). The contract is the source of every request, answer, example and error code that it holds; this file explains them and is the source of the rest. When this file and its Korean translation differ, this file is the source.
+Stage 06 of CORTHEX's own project, for NEXUS 0.2: the requests that the NEXUS server answers, in the OpenAPI contract [nexus.openapi.yaml](nexus.openapi.yaml), and in this file the rules that the contract follows, the hub's commands and the formats of the files that go with them. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows, the functional spec and the server's data. The maintainer passed its checkpoint on 2026-11-03, together with stages 03 to 05, 07 and 08, so the requests, the commands and the formats are frozen for NEXUS 0.2 before stage 10 plans the work: a later breaking change needs the maintainer's decision. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the optional `timeline` to the DDD board's picture source, a compatible change, and named the work board of phase ② beside editing; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). The maintainer's redesign of 2026-11-06 plans the pages and requests API-151 to API-159 and changes to API-101 to API-103, API-118, API-119 and the hub's `comment` and `reply`, which the contract and the code take when the redesign is built ([The redesign's interfaces](#the-redesigns-interfaces)). The contract is the source of every request, answer, example and error code that it holds; this file explains them and is the source of the rest. When this file and its Korean translation differ, this file is the source.
 
-Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-142), above all its [notes for stage 06](../04-functional-spec/nexus.md#stage-06-requests-commands-and-formats); the server's data and the files in [docs/05-erd/nexus.md](../05-erd/nexus.md) and [nexus.sql](../05-erd/nexus.sql) (TBL-101 to TBL-118), with their [notes for stage 06](../05-erd/nexus.md#stage-06-requests-commands-and-formats) and their limits; the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md); the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps; and phase 1 as it runs: the server in [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js) and [store.js](../../nexus/src/store.js), and the hub in [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py) with its [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md). The sitemap (stage 07) comes later, so no screen ID is an input yet; the requests serve the screens that the user flows and the functional spec name.
+Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-156), above all its [notes for stage 06](../04-functional-spec/nexus.md#stage-06-requests-commands-and-formats); the server's data and the files in [docs/05-erd/nexus.md](../05-erd/nexus.md) and [nexus.sql](../05-erd/nexus.sql) (TBL-101 to TBL-118), with their [notes for stage 06](../05-erd/nexus.md#stage-06-requests-commands-and-formats) and their limits; the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md); the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps; and phase 1 as it runs: the server in [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js) and [store.js](../../nexus/src/store.js), and the hub in [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py) with its [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md). The sitemap (stage 07) comes later, so no screen ID is an input yet; the requests serve the screens that the user flows and the functional spec name.
 
 The stage's default contract is `api/openapi.yaml`, read in Swagger UI. The NEXUS server has an HTTP API, so its contract is OpenAPI 3.1, as the stage asks, kept beside the other part's interfaces as `docs/06-api/nexus.openapi.yaml`. People read it in the Korean copy in the project's Notion records, and the file itself in any OpenAPI viewer, such as Swagger UI; `.corthex/project.json` records the choice. The hub's commands are no HTTP requests, so this file defines them, in the form of MEMORY's [interfaces](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/docs/06-api/memory.md): each with an API ID, the behaviours that it serves and its outcomes.
 
@@ -48,7 +48,7 @@ The automatic [example applicability check](../../nexus/test/contract_example_ch
 - A response is written as its request's ID and its status, as `API-105#409`, and an outcome of a command as its ID and the outcome, as `API-136#refused`.
 - An error code is written as `commit_not_replaced`. [Error codes](#error-codes) lists each with its status, its meaning, the members that it adds, the message that the user sees and what the client does, as the contract's `components.x-corthex.errors` holds them.
 - Times from the server are in UTC with milliseconds, as `2026-11-03T09:00:00.000Z`; times from a device or from Git keep their zone. Sizes in bytes count UTF-8, and lengths in characters count code points, as in stage 05.
-- Status: `built` for what phase 1 serves as it runs, `active` for what NEXUS 0.2 adds or changes. Editing on a PC (SPEC-134) and the work board (SPEC-142) are phase ②, which adds their requests then.
+- Status: `built` for what phase 1 serves as it runs, `active` for what NEXUS 0.2 adds or changes, and `planned` for the redesign's interfaces, API-151 to API-159, which [The redesign's interfaces](#the-redesigns-interfaces) defines until the contract takes them. Editing on a PC (SPEC-134) and the work board (SPEC-142) are phase ②, which adds their requests then.
 - `~/.corthex/` is the CORTHEX folder in the user's home folder, `%USERPROFILE%\.corthex\` on Windows. The hub's files are under `~/.corthex/hub/`, as in phase 1.
 
 ## Sources
@@ -64,7 +64,7 @@ Not yet seen: both kinds of sign-in on a real Access setup, and what `getIdentit
 
 ## Interfaces
 
-Every behaviour of the functional spec has an interface, apart from editing on a PC (SPEC-134) and the work board (SPEC-142), which phase ② adds. The step view (SPEC-141) has no request of its own: it shows the picture that the view reads (API-111).
+Every behaviour of the functional spec has an interface, apart from editing on a PC (SPEC-134) and the work board (SPEC-142), which phase ② adds. The step view (SPEC-141) has no request of its own: it shows the picture that the view reads (API-111). The redesign's behaviours, SPEC-143 to SPEC-156, have their planned interfaces in [The redesign's interfaces](#the-redesigns-interfaces).
 
 ### Requests of the server
 
@@ -127,6 +127,38 @@ The contract defines them, and this table lists them. Who may send each: `user`,
 | API-148 | `claim` | API-131 | SPEC-136 | active |
 | API-149 | `release` | API-132 | SPEC-136 | active |
 | API-150 | `outbox` | the requests of the writes that it holds | SPEC-129 | active |
+
+## The redesign's interfaces
+
+Planned with the redesign of 2026-11-06 for SPEC-143 to SPEC-156. Its checkpoint 3 sees them; the contract, the server and the hub take them when the redesign is built, with the same rules as 0.2's requests: Access on every request (SPEC-113), Problem Details for refusals, write IDs for writes, and no reply cached but the view's code.
+
+| ID | Request | Code name | Who | Serves | Status |
+| --- | --- | --- | --- | --- | --- |
+| API-151 | `GET /api/home` | `getHome` | either | SPEC-113, SPEC-143, SPEC-144, SPEC-145 | planned |
+| API-152 | `GET /api/spaces/{project}/talk/{part}/{stage}` | `getStageTalk` | either | SPEC-113, SPEC-150 | planned |
+| API-153 | `GET /p/{project}` | `getProjectPage` | either | SPEC-113, SPEC-146 | planned |
+| API-154 | `GET /p/{project}/{part}/{stage}` | `getStagePage` | either | SPEC-113, SPEC-146 to SPEC-151, SPEC-155, SPEC-156 | planned |
+| API-155 | `GET /` | `getHomePage` | either | SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-154 | planned |
+| API-156 | `GET /api/search` | `searchItems` | either | SPEC-113, SPEC-152 | planned |
+| API-157 | `GET /api/spaces/{project}/items/{id}` | `getItem` | either | SPEC-113, SPEC-149 | planned |
+| API-158 | `GET /api/spaces/{project}/stages/{part}/{stage}` | `getStage` | either | SPEC-113, SPEC-147, SPEC-148 | planned |
+| API-159 | `POST /api/spaces/{project}/comments/{comment}/recommended` | `takeRecommendation` | user | SPEC-113, SPEC-116, SPEC-143 | planned |
+
+- API-151 answers the first page in one read: my turn, up to 50 entries with the total, each with its kind, project, part, stage, item, quote, the first 300 characters of the agent's last entry, its time and its `asks`; the agent to-do's counts for each project, by list, with the taken ones; and a card for each project, from its stored snapshot and space: its parts' current stage and next action, the 13 stages' states and item counts, its warnings, and for each picture its stage, whether it is current, its open comments and a small drawing, which is the server's first picture of it without labels (the first picture decision of 2026-11-04).
+- API-152 answers a stage's talk: the open proposals and comments, those that wait for the user first, each with its item or the stage as a whole, its quote, its author's kind and time, its last reply, its `asks` and, while one lasts, its claim's start; the comments whose item the snapshot no longer holds, apart; and the count of closed ones. `item` narrows it to one item, and `closed=1` adds the closed ones, newest first, 50 at a time.
+- API-158 answers a stage's head and items: the head as SPEC-147 lists it, with the stage record of API-112, and the items 200 at a time after `after`, filtered by `filter`, one of `talk`, `mine` and `left`, and by `q`, grouped by `group`, `context` or `source`.
+- API-157 answers one item: its fields and their names, its context, the place of its source with the snapshot's commit, the items that it comes from and leads to by stage, and its comments as API-152 gives them. `404` `item_not_found` when no stage of the project holds it, with the comments that still name it.
+- API-156 takes `q`, from 2 characters, and answers up to 20 matches across every stored snapshot, each with its project, part, stage, ID and title.
+- API-159 takes the agent's recommendation on a comment that waits for the user. With `asks` `recommended`, it adds the user's reply that settles the comment, with the words for "as recommended" in the server's language, as API-119 with `settles` would. With `asks` `checkpoint`, it also passes the checkpoint of the comment's part and stage, with those words and the comment in its `comment`, as API-128 would. Both happen in one transaction with the write ID. `409` `not_recommended` when the comment no longer waits for the user or asks for nothing that can be taken; the refusals of API-119 and API-128 otherwise.
+- The pages, API-153 to API-155, hold their data as the 0.2 pages do ([Page data](#page-data)), and their code comes from API-104. API-153 answers `302` to the project's current stage, and `404` for an unknown project.
+
+Changes to 0.2's interfaces, made when the redesign is built:
+
+1. API-101 `getHubPage` moves to `GET /hub` (SPEC-153); `GET /` becomes API-155.
+2. API-102 and API-103 answer `302` to the stage's page instead of their own pages, the second with `#view=list` (SPEC-154); their IDs stay, as redirects. A `302` is not kept by browsers, so the server can go back to 0.2.
+3. API-118 `leaveComment` takes any of the 13 stage keys and needs no picture; `item` may be empty for the stage as a whole (SPEC-151). A stage key outside the 13 is `400`, and a part that the stored snapshot does not hold is `404`, with error codes that the contract adds. The agent's comment may carry `asks`.
+4. API-119 `replyToComment`: the agent's reply may carry `asks`; the user's reply empties the comment's `asks`.
+5. The hub's `comment` (API-139) takes any of the 13 stages in `--stage`, not only the pictured ones, and leaves `--item` out for the stage as a whole; `comment` and `reply` (API-140) take `--asks answer|recommended|checkpoint`. These are changes of the hub in `kodonghui/corthex`, so they come in its pull request, with the new tokens of the hub page's template (stage 09), and this repository's `hub-ref.json` moves to that exact commit with the product checks, as this repository's rules say.
 
 ## Common rules
 
@@ -862,6 +894,8 @@ The selected header method distinguishes both kinds. Implementation checks of ca
 
 ## For the checkpoint
 
+The redesign of 2026-11-06 passed its checkpoint 1 at 17:44 KST that day ("이대로 진행", go ahead as drawn), whose list of changes named the first page's data in one read and comments without a picture (choice ② A). [The redesign's interfaces](#the-redesigns-interfaces) writes them down for its checkpoint 3, with what writing them found: the first page needs one more write, API-159, to take the agent's recommendation in one transaction, and the hub's `comment` and `reply` change in the core plugin's repository, so the build needs a pull request there and a new `hub-ref.json`, which the checkpoint's list did not name.
+
 The maintainer's choice of 2026-11-03, to hold stage 01's event storming in NEXUS, passed at 16:54 KST the same day, together with the changes that it made to the other stages: on a decision card in the project's thread the maintainer chose to pass the step view and the work board as drawn ("모두 그린 대로 통과", pass all as drawn). The checkpoint covered: the optional `timeline` of `DomainSource`, with its forms in [Picture sources](#picture-sources), which is a compatible change, since a picture source without it stays valid and a snapshot of the frozen form still passes; and the work board of phase ② (SPEC-142), which adds its requests then, beside those of editing (SPEC-134).
 
 Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 05, 07 and 08: on a decision card in the project's thread the maintainer chose all the recommendations ("모두 추천대로", all as recommended), so the requests, the commands and the formats stand as written, with the changes of stage 08. The sign-in (3) stays open until its trial. The checkpoint covered:
@@ -876,12 +910,14 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 05, 07 and 08: on 
 
 ### Stages 07 and 08: screens
 
+- For the redesign: the first page reads API-151 and writes with API-124, API-125 and API-159; the stage page reads API-158, API-111, API-152 and API-157, and writes with API-118 to API-120, API-124, API-125, API-128 and API-129; the search reads API-156. Each refusal leads to the state that its 0.2 counterpart leads to, and `item_not_found` to an item that is gone.
 - The requests of each screen: the hub page, API-101; the picture view, API-102 and API-104 to load, API-111 to read again, API-114 and API-115 to open a comment or a proposal, API-116 to read a reflection that the picture no longer lists, closed or dismissed, so that the proposal's panel shows its pull request, and API-118 to API-120, API-124, API-125 and API-127 to write; and the stage overview, API-103 and API-104 to load, API-112 to read again, and API-128 and API-129 to write.
 - The states that the errors lead to: `picture_not_found` with its `why` is empty; `access_missing`, `access_other_app`, `no_kind` and an `opaqueredirect` reply are permission or an expired sign-in; `cross_site` is an error that offers the server's own address; `comment_limit`, `reply_limit`, `space_full` and `text_too_long` keep the text; `proposal_not_open`, `edit_state` and `checkpoint_recorded` are stale, and the view reads again. The view keeps an unsent text with its write ID (SPEC-126).
 - Each message of [Error codes](#error-codes) gets its final words, in English and Korean.
 
 ### Stage 10: work breakdown
 
+- For the redesign: the hub's `comment` and `reply` and the hub page's tokens in the core plugin first, with the new `hub-ref.json`; then migration 4 and API-151 to API-159 with the changes to API-118 and API-119; then the pages; the move of API-101 and the redirects of API-102 and API-103 last.
 - The server first: store.js's migrations, then the requests in the contract's order: the push with the held commit and the removal; the reads; the discussion; editing; stage progress with the claims. The hub follows: the snapshot 0.2 with its picture sources, stage records and settings, `status`, `push`, then the writes with the outbox. The views come last.
 - The release carries this file's formats and rules into the hub's [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md), and `parts` and `ask_before` into the core plugin's [project.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex/references/project.md), with the stage skills' steps that run the hub's commands.
 
@@ -893,6 +929,7 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 05, 07 and 08: on 
 
 ### Stage 12: QA
 
+- For the redesign: a case for each response of API-151 to API-159 and of the changed API-118 and API-119; API-159 sent twice with one write ID, with the service token and on a comment that no longer waits; and every address of 0.2 opened against a server of the redesign.
 - A test case for each response of each request, from its named examples, written as `API-118#409`, and for each outcome of each command, on Linux, macOS and Windows.
 - The kinds of cases above: a write sent twice and again after 7 days, a write ID of another request, two sessions on one entry, a push that another overtook, a 0.1 hub after a 0.2 push, a sign-in that expires in the view, and the outbox without a network, without a token and after 7 days.
 

@@ -1103,3 +1103,12 @@ BUG-559 is fixed for the 300-node tall sitemap in the native viewer. BUG-562 rem
 ## NEXUS 0.2.3 screen patch (2026-11-06 KST)
 
 The product checks, the browser regression suites and the pinned hub contract pass on the patch. A browser walk from the hub to the stage overview passed 64 steps in English and Korean, at 1440 and 390 px, in light and dark themes. The walk found two more code words, in the stage overview's checks and the ERD removed mark, and the patch fixes both. Nine frame overlaps among NEXUS contexts that share timeline lanes remain for the redesign. The new regressions are separate from the 717-case ledger. [Patch evidence](runs/2026-11-06-patch-023-screens.md)
+
+## Redesign findings (2026-11-07 KST)
+
+Found while drawing checkpoint 2 of the redesign of 2026-11-06. Both are fixed when the redesign is built ([stage 09](../09-mockup/nexus/README.md#the-redesigns-look)).
+
+| ID | Title | Trace | Evidence and state |
+| --- | --- | --- | --- |
+| BUG-595 | The dark picture ground comes out light | SCR-105, `color.picture-ground` | In the dark theme the picture view gives Excalidraw `#111827` as its background ([editor-excalidraw.js](../../nexus/ui/editor-excalidraw.js)), and Excalidraw 0.18.1 draws its canvas through `invert(93%) hue-rotate(180deg)` in that theme, so the ground comes out light grey, about `#d3d9e6`, under a dark page; `#ffffff` comes out `#121212`, the token's value. Computed from the filter; not yet looked at on the server. Open. |
+| BUG-596 | Symbols missing from the new fonts | REQ-236, SCR-110, SCR-111 | The symbols ✓ › ◐ ⌕ ▾ ▸ ✕ ☰, which the redesign's screens use for a stage's state, the steps and buttons, are missing from IBM Plex Sans KR or IBM Plex Mono, so a browser takes them from another font, at another size and weight. The redesign draws them as SVG icons. Open. |
