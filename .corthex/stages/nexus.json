@@ -34,8 +34,8 @@
           "date": "2026-11-07"
         }
       ],
-      "next": "Once phase 2's checkpoint of stages 02 to 04 passes, take hotspots 18 and 21 as answered, add points 2 to 5 and 7 of stage 02's review to the rules of CTX-012 and CTX-016, and add TERM-149's new words",
-      "updated": "2026-11-07T13:23:51+00:00"
+      "next": "None for phase 2: stage 02's checkpoint for phase 2 answered hotspots 18 and 21 on 2026-11-07. The redesign's my turn may join the read models at the board's next change",
+      "updated": "2026-11-07T14:38:55+00:00"
     },
     "02-prd": {
       "state": "in_progress",
@@ -51,10 +51,15 @@
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's requirements: REQ-240 to REQ-269 and the changed rows, with D14 and D15 as recommended, together with stages 03 and 04",
+          "by": "the maintainer",
+          "date": "2026-11-07"
         }
       ],
-      "next": "Phase 2's checkpoint of stages 02 to 04: REQ-240 to REQ-269 and the changed rows, with D14 and D15; and the redesign's checkpoint 3 for REQ-219 to REQ-237, both in the design pull request",
-      "updated": "2026-11-07T13:23:51+00:00"
+      "next": "The redesign's checkpoint 3 for REQ-219 to REQ-237, in the design pull request",
+      "updated": "2026-11-07T14:38:55+00:00"
     },
     "03-user-flow": {
       "state": "in_progress",
@@ -64,10 +69,15 @@
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/03-user-flow/nexus/README.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's flows: FL-115 and FL-116 redrawn, FL-125 and FL-126, the widened flows and points 19 to 23, together with stages 02 and 04",
+          "by": "the maintainer",
+          "date": "2026-11-07"
         }
       ],
-      "next": "Phase 2's checkpoint of stages 02 to 04: FL-115 and FL-116 redrawn, FL-125 and FL-126; and the redesign's checkpoint 3 for FL-117 to FL-119, both in the design pull request",
-      "updated": "2026-11-07T13:23:51+00:00"
+      "next": "The redesign's checkpoint 3 for FL-117 to FL-119, in the design pull request",
+      "updated": "2026-11-07T14:38:55+00:00"
     },
     "04-functional-spec": {
       "state": "in_progress",
@@ -77,10 +87,15 @@
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/04-functional-spec/nexus.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's rows: SPEC-134 and SPEC-142 rewritten, SPEC-170 to SPEC-186, with the five points that writing them settled, together with stages 02 and 03",
+          "by": "the maintainer",
+          "date": "2026-11-07"
         }
       ],
-      "next": "Phase 2's checkpoint of stages 02 to 04: SPEC-134 and SPEC-142 rewritten, SPEC-170 to SPEC-186; and the redesign's checkpoint 3 for SPEC-143 to SPEC-156, both in the design pull request",
-      "updated": "2026-11-07T13:23:51+00:00"
+      "next": "The redesign's checkpoint 3 for SPEC-143 to SPEC-156, in the design pull request",
+      "updated": "2026-11-07T14:38:55+00:00"
     },
     "05-erd": {
       "state": "done",
