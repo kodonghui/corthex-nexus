@@ -2,9 +2,9 @@
 
 [한국어](FL-108-start-the-agents-work.ko.md)
 
-Serves: REQ-131, REQ-180, REQ-181, REQ-182, REQ-183, REQ-185, REQ-193
+Serves: REQ-131, REQ-180, REQ-181, REQ-182, REQ-183, REQ-185, REQ-193, REQ-245, REQ-267
 
-Context: CTX-007 Stage progress, which serves the agent to-do, with CTX-014 Discussion and CTX-010 Editing. Starts when the agent starts its work on a project in a session, following a stage skill. New in NEXUS 0.2.
+Context: CTX-007 Stage progress, which serves the agent to-do, with CTX-014 Discussion, CTX-010 Editing and, where editing is included, CTX-016 Workshops. Starts when the agent starts its work on a project in a session, following a stage skill. New in NEXUS 0.2.
 
 ```mermaid
 flowchart TD
@@ -15,7 +15,7 @@ flowchart TD
   D --> E{"Could the hub read it?"}
   E -->|no, no token here or no answer from the server| E1["Say so, and go on with the work<br/>REQ-185"]
   E1 --> Z(["End"])
-  E -->|yes| F["List the open comments first, then the open<br/>discrepancies, then the pending reflections, and<br/>the checkpoints passed in NEXUS that the stage<br/>records do not hold yet<br/>REQ-180, REQ-182"]
+  E -->|yes| F["List the open comments first, then the open<br/>discrepancies, then the pending reflections, and<br/>the checkpoints passed in NEXUS that the stage<br/>records do not hold yet; where editing is included,<br/>also the dropped edits whose pull request is open,<br/>the workshops' passed checkpoints not yet reflected<br/>and the work boards changed since the agent read them<br/>REQ-180, REQ-182, REQ-267"]
   F --> G{"Is anything waiting?"}
   G -->|no| Z
   G -->|yes| H["Tell the user in the session what is waiting"]
@@ -23,7 +23,8 @@ flowchart TD
   I --> J["Look into the open discrepancies: fix the stage<br/>source by stage work, FL-112, or take it up<br/>on the discrepancy, FL-109"]
   J --> K["Reflect the pending reflections<br/>by pull request, FL-111<br/>REQ-131"]
   K --> L["Write the passed checkpoints into<br/>the stage records, FL-113"]
-  L --> Z
+  L --> L2["Where editing is included: close the dropped edits'<br/>pull requests, FL-125; reflect the workshops' passed<br/>checkpoints, FL-126; read the changed work boards, FL-116<br/>REQ-245, REQ-267"]
+  L2 --> Z
 ```
 
 A project that is not on the NEXUS server has no agent to-do, and a device without the service token, such as a cloud session, cannot read it. Two agents that start on one project at once, and what counts as the start of the agent's work and how the to-do meets what the user asked in the session, are points 12 and 13 of the [README](README.md#points-for-the-functional-spec).

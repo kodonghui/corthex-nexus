@@ -10,7 +10,7 @@
 -- the table keeps, or terms: none for a table that keeps none of them. The limits of the
 -- functional spec are checked by the code, not by constraints here, so that changing one
 -- needs no migration.
--- without a table: TERM-122
+-- without a table: TERM-122, TERM-132, TERM-134, TERM-146
 
 -- TBL-101 snapshots (CTX-009, terms: none) ← SPEC-111, SPEC-112, SPEC-114, SPEC-115, SPEC-122, SPEC-123, SPEC-124, SPEC-125, SPEC-138, SPEC-139
 -- The newest snapshot of each project, as phase 1 keeps it. From schema 2 the body is the
