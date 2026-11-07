@@ -17,13 +17,28 @@
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/09-mockup/nexus/README.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's event storming frames, checkpoint 1: Steps 0 to 1-b as drawn",
+          "by": "the maintainer",
+          "date": "2026-11-06"
+        },
+        {
+          "approved": "Phase 2's frames, checkpoint 2: Steps 2 to 7 as recommended, with the work board as its own context, CTX-016",
+          "by": "the maintainer",
+          "date": "2026-11-07"
+        },
+        {
+          "approved": "Phase 2's frames, checkpoint 3: Steps 8 and 9 as recommended, ending stage 01 for phase 2",
+          "by": "the maintainer",
+          "date": "2026-11-07"
         }
       ],
-      "next": "Design the phase 2 work board (FL-115, FL-116) in the NEXUS design thread",
-      "updated": "2026-11-06T09:35:42+00:00"
+      "next": "Once phase 2's checkpoint of stages 02 to 04 passes, take hotspots 18 and 21 as answered, add points 2 to 5 and 7 of stage 02's review to the rules of CTX-012 and CTX-016, and add TERM-149's new words",
+      "updated": "2026-11-07T13:23:51+00:00"
     },
     "02-prd": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Scope, with D8 to D13 as recommended",
@@ -38,11 +53,11 @@
           "date": "2026-11-03"
         }
       ],
-      "next": "Add the redesign requirements REQ-219 to REQ-239 in the design pull request",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Phase 2's checkpoint of stages 02 to 04: REQ-240 to REQ-269 and the changed rows, with D14 and D15; and the redesign's checkpoint 3 for REQ-219 to REQ-237, both in the design pull request",
+      "updated": "2026-11-07T13:23:51+00:00"
     },
     "03-user-flow": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "The user flows, with the joint checkpoint of stages 03 to 08",
@@ -51,11 +66,11 @@
           "date": "2026-11-03"
         }
       ],
-      "next": "Add the redesign flows FL-117 to FL-124 in the design pull request",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Phase 2's checkpoint of stages 02 to 04: FL-115 and FL-116 redrawn, FL-125 and FL-126; and the redesign's checkpoint 3 for FL-117 to FL-119, both in the design pull request",
+      "updated": "2026-11-07T13:23:51+00:00"
     },
     "04-functional-spec": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "The functional spec, frozen for 0.2, with the joint checkpoint of stages 03 to 08",
@@ -64,8 +79,8 @@
           "date": "2026-11-03"
         }
       ],
-      "next": "Add the redesign specs SPEC-143 to SPEC-169 in the design pull request",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Phase 2's checkpoint of stages 02 to 04: SPEC-134 and SPEC-142 rewritten, SPEC-170 to SPEC-186; and the redesign's checkpoint 3 for SPEC-143 to SPEC-156, both in the design pull request",
+      "updated": "2026-11-07T13:23:51+00:00"
     },
     "05-erd": {
       "state": "done",

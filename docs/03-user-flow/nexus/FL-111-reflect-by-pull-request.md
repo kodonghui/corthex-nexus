@@ -2,7 +2,7 @@
 
 [한국어](FL-111-reflect-by-pull-request.ko.md)
 
-Serves: REQ-125, REQ-131, REQ-170, REQ-184
+Serves: REQ-125, REQ-131, REQ-170, REQ-184, REQ-247
 
 Context: CTX-010 Editing. Starts when the agent's work on a project starts with pending reflections in its agent to-do (FL-108): accepted proposals, and the user's edits where editing is included. New in NEXUS 0.2.
 
@@ -16,7 +16,7 @@ flowchart TD
   D --> E{"Is the pull request merged,<br/>as the project's rules say?"}
   E -->|not yet| E1["The reflection stays pending, and the agent<br/>looks at it again at its next work"]
   E1 --> N
-  E -->|yes| F["Report it merged through the hub; the server<br/>closes the edit with a link to the pull request<br/>REQ-170, REQ-184"]
+  E -->|yes| F["Report it merged through the hub; the server<br/>closes the edit with a link to the pull request;<br/>where editing is included, the report names the IDs<br/>that the stage source gave the items an edit added,<br/>under which NEXUS keeps their positions<br/>REQ-170, REQ-184, REQ-247"]
   F --> N{"Another pending reflection?"}
   N -->|yes| B
   N -->|no| P{"Was a reflection merged, with the<br/>project in the push list?"}
@@ -25,4 +25,4 @@ flowchart TD
   P1 --> Z
 ```
 
-NEXUS never writes to Git: the agent writes every reflection by pull request, in team projects too. A reflection whose stage source moved on, and a pull request closed without being merged, are point 11 of the [README](README.md#points-for-the-functional-spec).
+NEXUS never writes to Git: the agent writes every reflection by pull request, in team projects too. Where editing is included, a sent edit whose picture is redrawn meanwhile waits here, marked as sent on an earlier document version (FL-125), and only an edit draft becomes an edit conflict (FL-115, hotspot 22 of stage 01). A reflection whose stage source moved on, and a pull request closed without being merged, are point 11 of the [README](README.md#points-for-the-functional-spec).
