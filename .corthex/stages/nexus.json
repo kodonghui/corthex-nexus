@@ -98,7 +98,7 @@
       "updated": "2026-11-07T14:38:55+00:00"
     },
     "05-erd": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "The server tables, frozen for 0.2, with the joint checkpoint of stages 03 to 08",
@@ -107,11 +107,11 @@
           "date": "2026-11-03"
         }
       ],
-      "next": "Let comments hold document items (TBL-105), as the redesign's first checkpoint chose",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Phase 2's checkpoint of stages 05 and 06 for TBL-119 to TBL-124, migration 5 and the changes to six tables, and the redesign's checkpoint 3 for TBL-105, both in the design pull request",
+      "updated": "2026-11-07T15:41:24+00:00"
     },
     "06-api": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "The requests, frozen for 0.2, with the joint checkpoint of stages 03 to 08",
@@ -120,8 +120,8 @@
           "date": "2026-11-03"
         }
       ],
-      "next": "Let comments hold document items (API-118), as the redesign's first checkpoint chose",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Phase 2's checkpoint of stages 05 and 06 for API-161 to API-176 and the thirteen changed interfaces, and the redesign's checkpoint 3 for API-151 to API-159, both in the design pull request",
+      "updated": "2026-11-07T15:41:24+00:00"
     },
     "07-sitemap": {
       "state": "in_progress",
