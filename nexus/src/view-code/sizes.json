@@ -11,9 +11,9 @@
     "esbuild": "0.28.2"
   },
   "buildInputs": {
-    "nexus/tools/build-ui.mjs": "44e41dd2534d88168bc8b995ef6febb8dfb75d576cdd455b7b572295a333fdfe",
+    "nexus/tools/build-ui.mjs": "4e45c62474bc3489141a68aa3ab19f6187fcc60a1b3eb60268f127f4667fa433",
     "nexus/tools/tokens.mjs": "ce838ed135f70278b113100e88a7cb71d0b9f22bd05cc6dbb4212f1c545b981b",
-    "nexus/tools/messages.mjs": "8642f6f7e1d14627816196add1cf2d91ff4816d50ae2cd05af1664c8d94b46a2",
+    "nexus/tools/messages.mjs": "8cfa5fbb76aa57d5f0fda2053eb9d4f2efe992262699e98309db483683c28847",
     "nexus/ui/editor-patches.mjs": "1e5da0a5c0abbe968df7ae6f6f5b6fe0df0ae230a00bb378e170e796b125e0fe",
     "nexus/ui/package-lock.json": "ebf8ccdb2f3429a8b70c2c20de1f1bed9ae8b935e89079aeb2be009216934a9f",
     "nexus/ui/vendor/liberation-2.1.5.json": "f892c9330aa0c1f93ca073f114cd7ba10dc0bb123ff9ebac70abdea0fe1b3d76"
@@ -102,10 +102,15 @@
       "/code/erd.e6d724ab.js",
       "/code/erd-chunk-1.3b3d88cf.js"
     ],
-    "view-js": "/code/view.2472ca69.js",
-    "view-css": "/code/view.e3c3b11f.css",
+    "view-js": "/code/view.977a7d47.js",
+    "view-css": "/code/view.d8b85cb6.css",
     "view-preload": [
-      "/code/view.2472ca69.js"
+      "/code/view.977a7d47.js"
+    ],
+    "page-js": "/code/page.1f78db06.js",
+    "page-css": "/code/page.a42eb1fc.css",
+    "page-preload": [
+      "/code/page.1f78db06.js"
     ],
     "font-preload": [
       "/code/editor-font-2.76945f09.woff2",
@@ -4085,22 +4090,40 @@
       "graphDigest": "858eeda69efc1917ada1b5fb61ac4593cc7913a4ef1ebc7d682241295aec950c"
     },
     {
-      "name": "view.e3c3b11f.css",
-      "path": "view.e3c3b11f.css.txt",
+      "name": "view.d8b85cb6.css",
+      "path": "view.d8b85cb6.css.txt",
       "type": "text/css; charset=utf-8",
       "raw": 13691,
       "gzip": 3437,
       "payloadSha256": "bab06befc997b17ccd24c45c9761a3a5853659df358cdbe89fbdbfb13080e79b",
-      "graphDigest": "1e7189f65804d30a0d37f358bc50af09c8b0cfad81656a213669b4db983817f2"
+      "graphDigest": "20b4bbee5f6109e3a055ac08d371b33b7a2cbb8dba60df8606a6cd8c64a3bbef"
     },
     {
-      "name": "view.2472ca69.js",
-      "path": "view.2472ca69.js.txt",
+      "name": "view.977a7d47.js",
+      "path": "view.977a7d47.js.txt",
       "type": "text/javascript; charset=utf-8",
-      "raw": 88086,
-      "gzip": 29582,
-      "payloadSha256": "bd7e4f4da637f6c6ae7d85a6a2c51b7aca90714bbb3db9d0a24395922e7c8ddf",
-      "graphDigest": "1e7189f65804d30a0d37f358bc50af09c8b0cfad81656a213669b4db983817f2"
+      "raw": 88646,
+      "gzip": 29722,
+      "payloadSha256": "c4857e50c097bc9027e53070f476a86d98415698b3ace2ee25ee0102463381d4",
+      "graphDigest": "20b4bbee5f6109e3a055ac08d371b33b7a2cbb8dba60df8606a6cd8c64a3bbef"
+    },
+    {
+      "name": "page.a42eb1fc.css",
+      "path": "page.a42eb1fc.css.txt",
+      "type": "text/css; charset=utf-8",
+      "raw": 17754,
+      "gzip": 3962,
+      "payloadSha256": "793bef180e64fd839c3bf7bd06ce48c7160a1a29212ecf43e1338530892bf7af",
+      "graphDigest": "f01a29cf51cdbec9ada451af1be5802f0cb268d1a328e78b48a3555be0a94f2b"
+    },
+    {
+      "name": "page.1f78db06.js",
+      "path": "page.1f78db06.js.txt",
+      "type": "text/javascript; charset=utf-8",
+      "raw": 21952,
+      "gzip": 7757,
+      "payloadSha256": "ab4955056064dba27c86a3997735bc535dead7aa43f67aa80f60d1a333321a88",
+      "graphDigest": "f01a29cf51cdbec9ada451af1be5802f0cb268d1a328e78b48a3555be0a94f2b"
     },
     {
       "name": "ibm-plex-sans-kr-0-400-normal.c61d2369.woff2",
@@ -6739,8 +6762,8 @@
       "payloadSha256": "0856e28ca1e42c7247c5edeaf006d5385f46f7d4b10af881e20593174308a33d"
     }
   ],
-  "totalRaw": 27262333,
-  "totalGzip": 20017969,
+  "totalRaw": 27302599,
+  "totalGzip": 20029828,
   "inputs": {
     "excalidraw": {
       "node_modules/react/cjs/react.production.min.js": {
@@ -28084,8 +28107,8 @@
         "sha256": "b7f45c2ff5649466d4e70fa7a076956d69443da550bf5a2a089cdd7d5573a680"
       },
       "nexus/ui/messages.js": {
-        "bytes": 22434,
-        "sha256": "ddfe360999eecd4232031ecf5db7a54501e6012dbaac72356c64687d9aab27f4"
+        "bytes": 32398,
+        "sha256": "97b23f4fe5e0869dfed678da18db3d608b285ec53b7a54ac9cb484198c60ba95"
       },
       "nexus/src/preview.js": {
         "bytes": 9128,
@@ -28122,6 +28145,48 @@
       "nexus/ui/core.js": {
         "bytes": 43231,
         "sha256": "2888bdaa34d683523a3302b10e4f8b9ff63500c0cf03b22cd09626061ede10c7"
+      }
+    },
+    "page": {
+      "nexus/src/draw/html.js": {
+        "bytes": 853,
+        "sha256": "600e2c08b189b5e69ef519f78558f2151aaf7e6c3f41fb21f89aebe783ecc774"
+      },
+      "nexus/src/draw/icons.js": {
+        "bytes": 3987,
+        "sha256": "b611aa3687669a79bcbf5d3376d4afa8947d6629fd48fd6fdb237ee53d5f6b20"
+      },
+      "nexus/ui/messages.js": {
+        "bytes": 32398,
+        "sha256": "97b23f4fe5e0869dfed678da18db3d608b285ec53b7a54ac9cb484198c60ba95"
+      },
+      "nexus/src/draw/words.js": {
+        "bytes": 1396,
+        "sha256": "fc9f860bdc7cdaa49d4b7b202cf37aecb8d5cf5733e79fc89170681e9223c76d"
+      },
+      "nexus/src/draw/stages.js": {
+        "bytes": 4052,
+        "sha256": "93c11535d0f1ce9b51bbaed41bef204031652305407fc655cecd5e7068a7ea90"
+      },
+      "nexus/src/draw/frame.js": {
+        "bytes": 3161,
+        "sha256": "6c2ceaa6318bb667ff6e171345f250e0dadde226cbfc3ba3d8da0e9969ba1e0f"
+      },
+      "nexus/src/draw/page.js": {
+        "bytes": 3191,
+        "sha256": "0bff6ab4892ed44f41c20d73ae0afa9a8aa97dbae5d30b0a7ea4c406cf8ff92b"
+      },
+      "nexus/ui/tokens.css": {
+        "bytes": 3979,
+        "sha256": "447a29636db00122b420d99b5b99c6ca516b6384a6d091785621df80f91ee603"
+      },
+      "nexus/ui/page.css": {
+        "bytes": 16382,
+        "sha256": "09c49dd0d0ea89f3ff1aa56ff45cbfcdf00a2f1a6554dece4a4c6811e9ba9d0c"
+      },
+      "nexus/ui/page.js": {
+        "bytes": 2019,
+        "sha256": "94d416dea8ac86584660bcdf3b74f2cb2cb295a43edc08b1bf1999b8ce5b3114"
       }
     },
     "fonts": {

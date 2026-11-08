@@ -1,7 +1,8 @@
 // Local QA server with synthetic Access and in-memory SQLite. Never deploy.
 import {readFileSync,statSync}from"node:fs";
 import {createServer}from"node:http";
-import {handle}from"../src/app.js";
+import {handle,renderView,VIEW_POLICY}from"../src/app.js";
+import {COMMON_HEADERS}from"../src/problem.js";
 import {createViews}from"../src/views.js";
 import {fakeD1}from"./fake-d1.js";
 import {testAccess}from"./access-fixture.js";
@@ -78,10 +79,42 @@ if(process.env.NEXUS_QA_LATE_SCREEN==="1"){
  const accepted=await call("POST",base+"/proposals/"+p.id+"/accept",{});
  Object.assign(lateScreen,{project,part:"sample",stalePart:"stale",checkpoints,comment:c.id,proposal:p.id,edit:accepted.edit.id,initial,marked});
 }
+// The redesign's pages (TASK-272) before their addresses (TASK-271): a synthetic project
+// with two parts, the five states, my turn and a title that tries markup and the data's
+// marker. Only the page suite opts in; the pages come from the reads API-154 will hold.
+const pages={};
+if(process.env.NEXUS_QA_PAGES==="1"){
+ const project="qa-pages",base="/api/spaces/"+project,snapshot=viewSnapshot(project);
+ snapshot.project.title='<b>QA</b> "pages" & __CORTHEX_VIEW_DATA__ 합성 가게의 아주 긴 이름이 줄을 넘는 경우';
+ snapshot.project.parts=["sample","second"];
+ for(const [key,state]of[["01-domain","done"],["04-functional-spec","in_progress"],["05-erd","not_started"],["07-sitemap","skipped"]]){
+  const record=snapshot.stages[key].parts.sample;record.state=state;
+  if(state==="done")record.checkpoints=[{date:"2026-11-08",by:"Synthetic reviewer",approved:"Synthetic checkpoint"}];
+ }
+ for(const stage of Object.values(snapshot.stages))stage.parts.second=structuredClone(stage.parts.sample);
+ snapshot.pictures.push(...snapshot.pictures.map(p=>({...structuredClone(p),part:"second"})));
+ await call("POST","/api/snapshots",snapshot,"agent");
+ const mine=await call("POST",base+"/comments",{part:"sample",stage:"05-erd",item:"TBL-001",text:"Synthetic question for the page suite"},"agent");
+ Object.assign(pages,{project,parts:snapshot.project.parts,title:snapshot.project.title,mine:mine.id});
+}
+async function pagePayload(url){
+ const lang=url.searchParams.get("lang")==="ko"?"ko":"en",[kind,...place]=url.pathname.slice("/__qa/page/".length).split("/").map(decodeURIComponent),generated_at=new Date().toISOString();
+ if(kind==="home"&&!place.length)return{schema:"corthex-home-page/0.3",generated_at,lang};
+ if(kind!=="stage"||place.length!==3)return null;
+ const [project,part,stage]=place,base="/api/spaces/"+encodeURIComponent(project),at="/"+encodeURIComponent(part)+"/"+encodeURIComponent(stage);
+ const data=await call("GET",base+"/stages"+at),talk=await call("GET",base+"/talk"+at);
+ const picture=data.stages.find(row=>row.key===stage)?.picture?await call("GET",base+"/pictures"+at):null;
+ return{schema:"corthex-stage-page/0.3",generated_at,lang,data,talk,picture,problem:null};
+}
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{})}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{})}));return;}
+ if(url.pathname.startsWith("/__qa/page/")&&incoming.method==="GET"){
+  const payload=await pagePayload(url);
+  if(!payload){outgoing.writeHead(404,{"Content-Type":"text/plain"});outgoing.end("Unknown synthetic page");return;}
+  outgoing.writeHead(200,{...COMMON_HEADERS,"Content-Type":"text/html; charset=utf-8","Content-Security-Policy":VIEW_POLICY,"Cross-Origin-Opener-Policy":"same-origin"});outgoing.end(renderView(views.page(payload),payload));return;
+ }
  const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const bytes=Buffer.concat(chunks);
  if(incoming.method==="POST")writes.push({path:url.pathname,id:incoming.headers["idempotency-key"],body:JSON.parse(bytes)});
  const currentEnv={...env,NEXUS_LANGUAGE:url.searchParams.get("lang")==="ko"?"ko":"en"};

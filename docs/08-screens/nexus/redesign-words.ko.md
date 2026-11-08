@@ -2,7 +2,7 @@
 
 [English](redesign-words.md)
 
-다시 디자인의 정의 SCR-110\~SCR-117에 필요한 말이며, 2026-11-07에 그 확인 지점 3을 위해 초안을 썼습니다. `·` 사이의 말은 저마다 따로 쓰는 이름표이고, 한국어에서 AI 에이전트는 AI입니다([고른 것 17](README.ko.md#이-단계가-고른-것)). 0.2에 이미 있는 코드와 상태에는 화면이 08단계의 [메시지](README.ko.md#메시지)를 그대로 씁니다. 다시 디자인을 만들 때까지 이 말은 이 파일에 둡니다. `nexus/tools/messages.mjs`가 [README.md](README.md)의 표를 모두 0.2에서 만든 보기의 말로 바꾸기 때문입니다([다시 디자인이 더한 말](README.ko.md#다시-디자인이-더한-말)). 이 파일과 영어 파일이 다르면 영어 파일이 원본입니다.
+다시 디자인의 정의 SCR-110\~SCR-117에 필요한 말이며, 2026-11-07에 그 확인 지점 3을 위해 초안을 썼습니다. `·` 사이의 말은 저마다 따로 쓰는 이름표이고, 한국어에서 AI 에이전트는 AI입니다([고른 것 17](README.ko.md#이-단계가-고른-것)). 0.2에 이미 있는 코드와 상태에는 화면이 08단계의 [메시지](README.ko.md#메시지)를 그대로 씁니다. 다시 디자인을 만들면서부터 `nexus/tools/messages.mjs`는 [README.md](README.md)의 표를 0.2의 말로 바꾸듯 이 파일의 영어판 표도 다시 디자인한 보기의 말로 바꾸고([다시 디자인이 더한 말](README.ko.md#다시-디자인이-더한-말)), 줄마다 영어와 한국어가 같은 수의 이름표와 같은 중괄호 값을 갖는지 확인합니다. 그래서 두 말 칸에는 말만 두고, 줄의 뜻이나 말이 어디서 왔는지는 나오는 곳 칸에 둡니다. 이 파일과 영어 파일이 다르면 영어 파일이 원본입니다.
 
 | 말 | 나오는 곳 | 영어 | 한국어 |
 | --- | --- | --- | --- |
@@ -27,8 +27,8 @@
 | 탭 | SCR-111(규칙 16) | Picture · List · Talk {n} · Item · Talk ({n}) | 그림 · 목록 · 대화 {n} · 항목 · 대화 ({n}) |
 | 머리 | SCR-112, SCR-113 | Last checkpoint {date} · No checkpoint yet · Commit {commit} · drawn {time} · Stage record · Back to the talk · Edit · Phase ② | 마지막 확인 지점 {date} · 아직 확인 지점 없음 · 커밋 {commit} · {time}에 그림 · 단계 기록 · 대화로 돌아가기 · 편집 · 2단계 |
 | 머리의 수 | SCR-112, SCR-113 | {n} contexts · {n} terms · {n} open hotspots · {n} tables · {n} screens · {n} requirements · {n} cases | 컨텍스트 {n} · 용어 {n} · 열린 핫스팟 {n} · 표 {n} · 화면 {n} · 요구사항 {n} · 사례 {n} |
-| 읽지 않음 | SCR-113#not-read | Not read: {why} · the source is missing · no text source is set · the project skips this stage · its repository was not on the machine that made the snapshot · its setting needs a fix | 읽지 않음: {why}. {why}는 텍스트 원본의 상태 `missing`, `none`, `skipped`, `no-checkout`, `invalid`를 따라: 원본이 없음 · 텍스트 원본이 정해지지 않음 · 프로젝트가 이 단계를 건너뜀 · 스냅샷을 만든 기기에 저장소가 없었음 · 설정을 고쳐야 함. 같은 {why}가 0.2의 메시지 "이 프로젝트는 이 단계를 읽지 않습니다: {why}."를 채웁니다 |
-| 단계 기록 | SCR-112, SCR-113 (SPEC-138, SPEC-139) | Next action · Checkpoints · Checks · Pass the checkpoint · Pass · Withdraw | 다음 행동 · 확인 지점 · 점검 · 확인 지점 통과 · 통과 · 철회. 기록된 상태, 없음, 남길 말 (선택), 다시 통과, 기록을 기다리는 확인 지점의 말은 0.2에 있습니다 |
+| 읽지 않음 | SCR-113#not-read. {why}는 텍스트 원본의 상태 `missing`, `none`, `skipped`, `no-checkout`, `invalid`를 따라 뒤의 다섯 가운데 하나이고, 같은 {why}가 0.2의 메시지 "이 프로젝트는 이 단계를 읽지 않습니다: {why}."를 채웁니다 | Not read: {why} · the source is missing · no text source is set · the project skips this stage · its repository was not on the machine that made the snapshot · its setting needs a fix | 읽지 않음: {why} · 원본이 없음 · 텍스트 원본이 정해지지 않음 · 프로젝트가 이 단계를 건너뜀 · 스냅샷을 만든 기기에 저장소가 없었음 · 설정을 고쳐야 함 |
+| 단계 기록 | SCR-112, SCR-113 (SPEC-138, SPEC-139). 기록된 상태, 없음, 남길 말 (선택), 다시 통과, 기록을 기다리는 확인 지점의 말은 0.2에 있습니다 | Next action · Checkpoints · Checks · Pass the checkpoint · Pass · Withdraw | 다음 행동 · 확인 지점 · 점검 · 확인 지점 통과 · 통과 · 철회 |
 | 그림의 도구 | SCR-112 | Zoom out · Zoom in · Fit · Go to · Map of the whole picture | 축소 · 확대 · 맞추기 · 바로 가기 · 전체 그림 지도 |
 | 편집기 | SCR-112#loading, SCR-112#code-failed | The editor is loading. You can already read and move the picture. · The editor could not load. The picture and item list remain available. | 편집기를 불러오는 중입니다. 그림은 바로 읽고 이동할 수 있습니다. · 편집기를 불러오지 못했습니다. 그림과 항목 목록은 계속 사용할 수 있습니다. |
 | 목록 | SCR-113 | All · With talk · My turn · What is left · Search in this stage · By context · In the source's order · Show all · No context · {n} of {total} · Loading more… · Could not load more. | 모두 · 대화 있음 · 내 차례 · 남은 것 · 이 단계에서 찾기 · 컨텍스트별 · 원문 순서 · 모두 보기 · 컨텍스트 없음 · {total}개 중 {n}개 · 더 불러오는 중… · 더 불러오지 못했습니다. |
@@ -44,6 +44,7 @@
 | 찾기 | SCR-116 | Searching… · {n} matches for “{q}” · The first 20. Add a word to narrow it. · Type at least two characters. · Nothing matches “{q}”. · Look in the full checks | 찾는 중… · “{q}” 검색 결과 {n}개 · 처음 20개입니다. 낱말을 더하면 좁혀집니다. · 두 글자 이상 넣어 주세요. · “{q}”에 맞는 항목이 없습니다. · 전체 점검에서 보기 |
 | 목록 표시 | SCR-113 | Discrepancy · Pending reflection | 어긋남 · 반영 대기 |
 | 더 있음 | SCR-112(단계 기록의 점검), SCR-115(나온 곳, 이어지는 곳) | and {n} more | 외 {n}개 |
-| 항목의 종류 | SCR-115 | context · term · requirement · user flow · spec · table · API · screen · task · test case · bug · decision · scene | 허브 페이지가 부르는 대로: 컨텍스트 · 용어 · 요구사항 · 유저 플로우 · 기능 명세 · 표 · API · 화면 · 작업 · 테스트 · 버그 · 결정 · 장면. 표는 0.2의 보기처럼 테이블 대신 표라고 씁니다 |
-| 단계 이름 | SCR-110\~SCR-116 | Domain discovery · PRD · User flow · Functional spec · ERD · API · Sitemap · Screen states · Mockup · WBS · Development · QA · Presentation | 허브 페이지가 부르는 대로: 도메인 탐색 · PRD · 유저 플로우 · 기능 명세 · ERD · API · 사이트맵 · 화면 상태 · 목업 · WBS · 개발 · QA · 발표 |
-| 허브 페이지 | SCR-117 | hub.html's own words, unchanged with the page (REQ-233) | hub.html 자신의 말이 페이지와 함께 그대로입니다(REQ-233). 그래서 이 페이지의 한국어는 에이전트라고 씁니다 |
+| 항목의 종류 | SCR-115, 허브 페이지가 부르는 대로. 표는 0.2의 보기처럼 테이블 대신 표라고 씁니다 | context · term · requirement · user flow · spec · table · API · screen · task · test case · bug · decision · scene | 컨텍스트 · 용어 · 요구사항 · 유저 플로우 · 기능 명세 · 표 · API · 화면 · 작업 · 테스트 · 버그 · 결정 · 장면 |
+| 단계 이름 | SCR-110\~SCR-116, 허브 페이지가 부르는 대로 | Domain discovery · PRD · User flow · Functional spec · ERD · API · Sitemap · Screen states · Mockup · WBS · Development · QA · Presentation | 도메인 탐색 · PRD · 유저 플로우 · 기능 명세 · ERD · API · 사이트맵 · 화면 상태 · 목업 · WBS · 개발 · QA · 발표 |
+
+SCR-117 허브 페이지는 hub.html 자신의 말이 페이지와 함께 그대로이고(REQ-233), 그래서 그 한국어는 에이전트라고 씁니다.

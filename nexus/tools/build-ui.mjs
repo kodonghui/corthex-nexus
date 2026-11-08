@@ -83,6 +83,8 @@ async function bundle(name,entry,define={}){
 }
 await bundle("excalidraw",resolve(ui,"editor-excalidraw.js"));await bundle("erd",resolve(ui,"editor-erd.js"));
 await bundle("view",resolve(ui,"core.js"),{__NEXUS_ERD__:JSON.stringify(entries["erd-js"]),__NEXUS_EXCALIDRAW__:JSON.stringify(entries["excalidraw-js"]),__NEXUS_EXCALIDRAW_CSS__:JSON.stringify(entries["excalidraw-css"]||"")});
+// The redesign's pages (TASK-272): their code and stylesheet, apart from 0.2's views.
+await bundle("page",resolve(ui,"page.js"));
 entries["font-preload"]=["fonts/Assistant/Assistant-Regular.woff2","fonts/Assistant/Assistant-Medium.woff2","fonts/Assistant/Assistant-Bold.woff2"].map(p=>fontMap.get(p)).filter(Boolean);
 // IBM Plex Sans KR and IBM Plex Mono for the views (stage 09, the redesign's checkpoint 3
 // of 2026-11-08): each package's own Unicode-range slices, unmodified, at same-origin

@@ -256,7 +256,7 @@ NEXUS 0.2.3 fixes the current screens without changing their structure. These wo
 
 ### Words the redesign added
 
-The redesign's definitions, SCR-110 to SCR-117, need the words in [redesign-words.md](redesign-words.md), drafted on 2026-11-07 for its checkpoint 3; for the codes and states that 0.2 already has, they keep the messages above. The words are in a file of their own because `nexus/tools/messages.mjs` turns every table of this file into the words of 0.2's built views; they join those when the redesign is built ([stage 11](#stage-11-development)).
+The redesign's definitions, SCR-110 to SCR-117, need the words in [redesign-words.md](redesign-words.md), drafted on 2026-11-07 for its checkpoint 3; for the codes and states that 0.2 already has, they keep the messages above. The words are in a file of their own because `nexus/tools/messages.mjs` turns every table of this file into the words of 0.2's built views; since the redesign's build it turns that file's table into the redesign's words beside them, and the codes there, `not_recommended` and `item_not_found`, join 0.2's codes ([stage 11](#stage-11-development)).
 
 ## Choices this stage made
 

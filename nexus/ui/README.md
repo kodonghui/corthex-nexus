@@ -18,6 +18,10 @@ The committed files under `../src/view-code/` run without an npm install or a bu
 
 Build twice with the same pins and compare `sizes.json` and `manifest.js`. Record browser measurements against the actual deployment and exact bundle; a ready flag alone is not evidence that a picture is readable. The prototype's timing result does not accept the completed screens.
 
+## The redesign's pages
+
+The redesign's pages (TASK-272) have a bundle of their own beside 0.2's views: `page.js` and `page.css`, which the manifest names `page-js`, `page-css` and `page-preload`. The server and the page's code draw from the same modules in `../src/draw/`: the top bar, the shapes and words of a stage's state, the list of stages and the tabs, with stage 09's frozen tokens and the words of stage 08's `redesign-words.md`, which `../tools/messages.mjs` compiles into `messages.js` beside 0.2's words. The server sends each page drawn, with its stylesheet inline, so a page whose code never comes stays readable ([stage 08, rule 15](../../docs/08-screens/nexus/README.md#the-redesigns-screens)). The code draws the same parts from the page's data and replaces only a part that differs. The bar of rule 15 opens after 6 seconds unless the code has started by then, and at once when the code fails or scripts are off; it needs no inline script, which the pages' policy refuses. The links that change what a narrow page shows work without the code (rule 16). `../test/draw.test.js` compares the two drawings in Node, and `../test/page-regression.mjs` in a browser, before and after the code runs.
+
 ## Modifications and licenses
 
 The pinned MIT ERD Viewer has two bounded modifications: fit overview labels inside their rectangles without truncating names, and expose read-only navigation/geometry plus a viewport event. Its closed shadow remains private. Source hashes and patch names are recorded. The viewer is read-only and no layout is persisted or added to the snapshot contract.
@@ -30,6 +34,6 @@ The pinned Excalidraw build replaces its upstream hosted Firebase configuration 
 
 ## Local synthetic browser fixture
 
-`node nexus/test/view-server.mjs` from the repository root prints a loopback address. It uses the actual handler/Store with in-memory SQLite and synthetic Access, then exits when stdin closes. `--keep-open` is for a supervised local browser run. Projects `qa-views`, `qa-views-reply` and `qa-views-overview` are independent synthetic seeds. `/__qa/receipts` reports synthetic write bodies/IDs for effect checks. This test server must never be deployed; no real credentials or repository content are read.
+`node nexus/test/view-server.mjs` from the repository root prints a loopback address. It uses the actual handler/Store with in-memory SQLite and synthetic Access, then exits when stdin closes. `--keep-open` is for a supervised local browser run. Projects `qa-views`, `qa-views-reply` and `qa-views-overview` are independent synthetic seeds. `/__qa/receipts` reports synthetic write bodies/IDs for effect checks. With `NEXUS_QA_PAGES=1` it also seeds `qa-pages`, a project of two parts whose title holds markup, and draws the redesign's pages at `/__qa/page/home` and `/__qa/page/stage/{project}/{part}/{stage}` from what the server's own requests answer, until TASK-271 serves them at their own addresses. This test server must never be deployed; no real credentials or repository content are read.
 
 After a source/handler change restart the fixture. Browser payload rebuilds can be picked up without a restart; old modules are retained in the fixture's memory for already open tabs. A final browser run names the frozen source/build hashes and uses a restarted fixture.

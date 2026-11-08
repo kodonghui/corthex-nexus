@@ -1,0 +1,155 @@
+@import url("./tokens.css");
+/* The redesign's pages (SCR-110 to SCR-116), as stage 09's redesign.html draws them
+   in checkpoint 3's frozen tokens. Colours, type, gaps, corners, borders and the
+   controls' heights are tokens; the frames' gaps of 6 and 10 pixels take the nearest
+   step of space (checkpoint 3). The sizes below are stage 08's layout tables and
+   stage 09's frames, which no token names. 1,024 is breakpoint.side-panel and 1,280
+   rule 16's; a media query cannot read a custom property, so they are written out. */
+:root{--pg-top:56px;--pg-rail:248px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-codebar-wait:6s}
+*,*::before,*::after{box-sizing:border-box}
+html{color-scheme:light dark;-webkit-text-size-adjust:100%}
+body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-family:var(--nx-font-family-sans);font-size:var(--nx-font-size-body);line-height:var(--nx-font-line-height-body);font-weight:var(--nx-font-weight-regular);word-break:keep-all;overflow-wrap:anywhere}
+.nx h1,.nx h2,.nx h3,.nx p,.nx ul,.nx ol{margin:0;padding:0}
+.nx ul,.nx ol{list-style:none}
+.nx h1,.nx h2,.nx h3{font-weight:var(--nx-font-weight-bold);line-height:var(--nx-font-line-height-heading)}
+.nx b,.nx strong{font-weight:var(--nx-font-weight-bold)}
+.nx a{color:var(--nx-color-accent)}
+.nx button,.nx input,.nx select,.nx textarea{font:inherit;color:inherit}
+.nx button,.nx a,.nx input,.nx select,.nx textarea,.nx summary{touch-action:manipulation}
+.nx :focus-visible{outline:var(--nx-border-strong) solid var(--nx-color-focus);outline-offset:var(--nx-space-2xs)}
+.nx [hidden]{display:none!important}
+.nx .mono{font-family:var(--nx-font-family-mono);font-size:.9em;letter-spacing:0}
+.nx .mu{color:var(--nx-color-muted)}
+.nx .sm{font-size:var(--nx-font-size-small)}
+.nx .cap{font-size:var(--nx-font-size-caption)}
+.nx .sp{flex:1}
+.nx .clip{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.nx .lnk{color:var(--nx-color-accent);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:var(--nx-border-thin)}
+.nx .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.nx .sprite{position:absolute;width:0;height:0;overflow:hidden}
+
+/* Icons and the stages' shapes (rule 13): SVG symbols, never colour alone */
+.nx svg.i{width:var(--nx-size-icon);height:var(--nx-size-icon);flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.nx svg.st{width:var(--nx-size-icon);height:var(--nx-size-icon);flex:none}
+.c-done-bg{fill:var(--nx-color-done-bg)}.c-done-fg{stroke:var(--nx-color-done-fg);fill:none}
+.c-prog{stroke:var(--nx-color-progress-line);fill:none}.c-prog-f{fill:var(--nx-color-progress-line)}
+.c-todo{stroke:var(--nx-color-todo-line);fill:none}.c-skip{stroke:var(--nx-color-skipped-fg);fill:none}
+.c-unk{stroke:var(--nx-color-unknown-line);fill:none}.c-unk-q{stroke:var(--nx-color-muted);fill:none}.c-unk-d{fill:var(--nx-color-muted)}
+
+/* Controls (rule 14): drawn 34 pixels high, or 28 in a dense row, each with a hit
+   area of size.target around what is drawn that moves nothing next to it. The hit
+   area stands on the padding box, inside the border, so it adds the border back; a
+   field's is inside its label, so it focuses the field's input. */
+.nx .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:var(--nx-space-sm);height:var(--nx-size-button);padding:0 var(--nx-space-md);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);color:var(--nx-color-text);font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-medium);line-height:var(--nx-font-line-height-tight);white-space:nowrap;text-decoration:none;cursor:pointer}
+.nx .btn::after{content:"";position:absolute;inset:calc((var(--nx-size-button) - var(--nx-size-target)) / 2 - var(--nx-border-thin)) calc(var(--nx-space-xs) * -1)}
+.nx .btn.sm{height:var(--nx-size-button-small);padding:0 var(--nx-space-md)}
+.nx .btn.sm::after{inset:calc((var(--nx-size-button-small) - var(--nx-size-target)) / 2 - var(--nx-border-thin)) calc(var(--nx-space-xs) * -1)}
+.nx .btn.pri{background:var(--nx-color-accent);border-color:var(--nx-color-accent);color:var(--nx-color-on-accent)}
+.nx .btn.quiet{border-color:transparent;background:transparent;color:var(--nx-color-accent);padding:0 var(--nx-space-sm)}
+.nx .ib{position:relative;display:inline-grid;place-items:center;width:var(--nx-size-target);height:var(--nx-size-target);flex:none;padding:0;border:0;border-radius:var(--nx-radius-md);background:transparent;color:var(--nx-color-text);cursor:pointer}
+.nx .btn:disabled,.nx .ib:disabled,.nx input:disabled{opacity:var(--nx-opacity-disabled);cursor:default}
+.nx .field{position:relative;display:flex;align-items:center;gap:var(--nx-space-sm);height:var(--nx-size-button);padding:0 var(--nx-space-md);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);color:var(--nx-color-muted);font-size:var(--nx-font-size-small);min-width:0}
+.nx .field::after{content:"";position:absolute;inset:calc((var(--nx-size-button) - var(--nx-size-target)) / 2 - var(--nx-border-thin)) calc(var(--nx-border-thin) * -1)}
+.nx .field input{flex:1;min-width:0;height:100%;padding:0;border:0;background:transparent;color:var(--nx-color-text);outline:0}
+.nx .field input::placeholder{color:var(--nx-color-muted);opacity:1}
+.nx .field:focus-within{outline:var(--nx-border-strong) solid var(--nx-color-focus);outline-offset:var(--nx-border-thin);border-color:var(--nx-color-focus)}
+.nx .cnt{display:inline-flex;align-items:center;justify-content:center;min-width:var(--pg-chip);height:var(--pg-count);padding:0 var(--nx-space-sm);border-radius:var(--nx-radius-pill);background:var(--nx-color-accent);color:var(--nx-color-on-accent);font-size:var(--nx-font-size-caption);font-weight:var(--nx-font-weight-bold);line-height:var(--nx-font-line-height-tight);font-variant-numeric:tabular-nums}
+
+/* The bars under the top bar, and the bar of rule 15: collapsed, so that it takes
+   no room while the code may still come; the code removes its wait when it runs,
+   and shows it at once when it fails. Without scripts it shows from the start. The
+   wait of 6 seconds is this build's choice, twice the 3 seconds that REQ-149 gives a
+   picture on a phone over 4G, so that code that is only slow shows no bar. */
+.nx .bars{flex:none}
+.nx .bar{display:flex;align-items:center;gap:var(--nx-space-md);min-height:var(--pg-bar);padding:var(--nx-space-sm) var(--nx-space-xl);border-bottom:var(--nx-border-thin) solid var(--nx-color-line);font-size:var(--nx-font-size-small)}
+.nx .bar .t{flex:1;min-width:0;color:var(--nx-color-text)}
+.nx .bar.info{background:var(--nx-color-info-bg);color:var(--nx-color-info)}
+.nx .bar.warn{background:var(--nx-color-warn-bg);color:var(--nx-color-warn)}
+.nx .bar.err{background:var(--nx-color-error-bg);color:var(--nx-color-error)}
+.nx .bar[data-nx-codebar]{min-height:0;max-height:0;padding-block:0;border-bottom-width:0;overflow:hidden;visibility:hidden;animation:nx-codebar 0s linear var(--pg-codebar-wait) forwards}
+@keyframes nx-codebar{to{min-height:var(--pg-bar);max-height:none;padding-block:var(--nx-space-sm);border-bottom-width:var(--nx-border-thin);visibility:visible}}
+:root[data-nx-code] .nx .bar[data-nx-codebar]{animation:none}
+:root[data-nx-code="failed"] .nx .bar[data-nx-codebar]{min-height:var(--pg-bar);max-height:none;padding-block:var(--nx-space-sm);border-bottom-width:var(--nx-border-thin);visibility:visible}
+@media (scripting:none){.nx .bar[data-nx-codebar]{animation-delay:0s}}
+
+/* The top bar (rule 17): one line from 1,024 pixels; under it, the phone's own */
+.nx .tb{flex:none;position:relative;z-index:3;display:flex;align-items:center;gap:var(--nx-space-lg);height:var(--pg-top);padding:0 var(--nx-space-xl);background:var(--nx-color-surface);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .logo{display:inline-flex;align-items:center;min-height:var(--nx-size-target);color:var(--nx-color-text);font-weight:var(--nx-font-weight-bold);letter-spacing:.14em;font-size:var(--nx-font-size-small);white-space:nowrap;text-decoration:none}
+.nx .place{display:flex;align-items:center;gap:var(--nx-space-sm);min-width:0;font-size:var(--nx-font-size-small);color:var(--nx-color-muted);white-space:nowrap}
+.nx .place b{color:var(--nx-color-text)}
+.nx .place svg.sep{width:calc(var(--nx-size-icon) * .75);height:calc(var(--nx-size-icon) * .75)}
+.nx .place a,.nx .place b{flex:none}.nx .place a.clip{flex:0 1 auto}
+.nx .tb .fw{flex:0 1 var(--pg-search);min-width:0;margin-left:auto}
+.nx .tb .fw .field{width:100%}
+.nx .menu{position:relative}
+.nx .menu summary{list-style:none}.nx .menu summary::-webkit-details-marker{display:none}
+.nx .menu .pop{position:absolute;right:0;top:100%;z-index:4;display:grid;padding:var(--nx-space-sm);background:var(--nx-color-surface);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md)}
+.nx .ttl{flex:1;min-width:0;display:flex;align-items:center;gap:var(--nx-space-sm);height:var(--nx-size-target);padding:0 var(--nx-space-sm);color:var(--nx-color-text);font-weight:var(--nx-font-weight-bold);text-decoration:none}
+.nx .ttl .num{font-family:var(--nx-font-family-mono);font-weight:var(--nx-font-weight-medium);color:var(--nx-color-muted)}
+
+/* The first page (SCR-110): two thirds and one third, 1,200 pixels at most */
+.nx .home{width:100%;max-width:calc(var(--nx-size-column) + var(--nx-space-2xl) * 2);margin:0 auto;padding:var(--nx-space-xl) var(--nx-space-2xl);display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--nx-space-xl);align-content:start}
+.nx .home > .full{grid-column:1/-1}
+
+/* The workspace (SCR-111): three columns from 1,280 pixels (rule 16) */
+body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+.nx .ws{flex:1;min-height:0;position:relative;display:grid;grid-template-columns:var(--pg-rail) minmax(0,1fr) var(--nx-size-panel)}
+.nx .scrim,.nx .rail .close{display:none}
+.nx .rail{min-height:0;display:flex;flex-direction:column;overflow:auto;background:var(--nx-color-sunken);border-right:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .rail-in{display:flex;flex-direction:column;flex:1}
+.nx .rail .proj{display:grid;gap:var(--nx-space-2xs);padding:var(--nx-space-lg) var(--nx-space-lg) var(--nx-space-md);border-bottom:var(--nx-border-thin) solid var(--nx-color-line);min-width:0}
+.nx .rail .proj b{font-size:var(--nx-font-size-title);line-height:var(--nx-font-line-height-heading)}
+.nx .partsw{margin-top:var(--nx-space-sm)}
+.nx .partsw summary{list-style:none;justify-content:space-between;width:100%}.nx .partsw summary::-webkit-details-marker{display:none}
+.nx .partsw ul{display:grid;margin-top:var(--nx-space-sm)} /* clear of the switch's hit area */
+.nx .partsw li a{display:flex;align-items:center;min-height:var(--nx-size-target);padding:0 var(--nx-space-sm)}
+.nx .stl{display:grid;align-content:start;padding-bottom:var(--nx-space-sm)}
+.nx .grp .gname{display:block;padding:var(--nx-space-sm) var(--nx-space-lg) var(--nx-space-2xs);font-size:var(--nx-font-size-caption);font-weight:var(--nx-font-weight-bold);color:var(--nx-color-muted)}
+.nx .row{display:grid;grid-template-columns:var(--nx-size-icon) min-content minmax(0,1fr) auto;align-items:center;gap:var(--nx-space-sm);min-height:var(--nx-size-row);padding:0 var(--nx-space-md);border-left:calc(var(--nx-border-thin) + var(--nx-border-strong)) solid transparent;color:var(--nx-color-text);font-size:var(--nx-font-size-small);text-decoration:none}
+.nx .row .num{font-family:var(--nx-font-family-mono);font-size:var(--nx-font-size-caption);color:var(--nx-color-muted);white-space:nowrap}
+.nx .row .name{display:flex;align-items:center;gap:var(--nx-space-sm);min-width:0}
+.nx .row .name svg.i{width:calc(var(--nx-size-icon) * .75);height:calc(var(--nx-size-icon) * .75);color:var(--nx-color-muted)}
+.nx .row .end{display:flex;align-items:center;gap:var(--nx-space-sm);color:var(--nx-color-muted);font-size:var(--nx-font-size-caption);font-variant-numeric:tabular-nums}
+.nx .row .end .cnt{min-width:var(--pg-count);height:calc(var(--pg-count) - var(--nx-space-2xs));padding:0 var(--nx-space-xs)}
+.nx .row.on{background:var(--nx-color-accent-soft);border-left-color:var(--nx-color-accent);font-weight:var(--nx-font-weight-bold)}
+.nx .row.on .num{color:var(--nx-color-accent)}
+.nx .key{margin-top:auto;display:flex;flex-wrap:wrap;gap:var(--nx-space-xs) var(--nx-space-md);padding:var(--nx-space-md) var(--nx-space-lg) var(--nx-space-lg);border-top:var(--nx-border-thin) solid var(--nx-color-line);font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
+.nx .key li{display:inline-flex;align-items:center;gap:var(--nx-space-xs)}
+.nx .stage{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:auto;position:relative}
+.nx .side{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:auto;background:var(--nx-color-surface);border-left:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .tabs{display:none}
+@media (pointer:coarse){.nx .row{min-height:var(--nx-size-target)}}
+
+/* From 1,024 to 1,279 pixels the talk folds into "Talk ({n})" in the stage's head,
+   which opens it as a panel over the stage's right edge (rule 16, choice 14) */
+@media (min-width:1024px) and (max-width:1279.98px){
+ .nx .ws{grid-template-columns:var(--pg-rail) minmax(0,1fr)}
+ .nx .side{display:none;position:absolute;z-index:2;top:0;right:0;bottom:0;width:var(--nx-size-panel);border-left-color:var(--nx-color-control-line)}
+ .nx .side:target,.nx .ws[data-nx-open="talk"] .side{display:flex}
+}
+
+/* Under 1,024 pixels: the phone's top bar, one column on the first page, and the
+   workspace's stage, talk and item as tabs, with the stages in a sheet (rule 16) */
+@media (max-width:1023.98px){
+ .nx .only-pc{display:none!important}
+ .nx .tb{gap:var(--nx-space-2xs);padding:0 var(--nx-space-xs)}
+ .nx .tb .logo{padding:0 var(--nx-space-md)}
+ .nx .bar{padding:var(--nx-space-sm) var(--nx-space-md);flex-wrap:wrap;gap:var(--nx-space-sm)}
+ .nx .bar .btn,.nx .btn.answer{height:var(--nx-size-target)}
+ .nx .home{grid-template-columns:minmax(0,1fr);padding:var(--nx-space-md);gap:var(--nx-space-md)}
+ .nx .ws{display:flex;flex-direction:column}
+ .nx .tabs{flex:none;display:flex;background:var(--nx-color-surface);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+ .nx .tab{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:var(--nx-space-sm);height:var(--nx-size-target);color:var(--nx-color-muted);font-size:var(--nx-font-size-small);text-decoration:none}
+ .nx .ws:not(:has(.side:target)):not([data-nx-tab]) .tab[data-nx-tab="stage"],.nx .ws:has(.side:target) .tab[data-nx-tab="talk"],.nx .ws[data-nx-tab="stage"] .tab[data-nx-tab="stage"],.nx .ws[data-nx-tab="talk"] .tab[data-nx-tab="talk"],.nx .ws[data-nx-tab="item"] .tab[data-nx-tab="item"]{color:var(--nx-color-text);font-weight:var(--nx-font-weight-bold);box-shadow:inset 0 calc(var(--nx-border-strong) * -1) 0 var(--nx-color-text)}
+ .nx .stage,.nx .side{flex:1}
+ .nx .side{display:none;border-left:0}
+ .nx .ws:has(.side:target) .stage,.nx .ws[data-nx-tab="talk"] .stage,.nx .ws[data-nx-tab="item"] .stage{display:none}
+ .nx .ws:has(.side:target) .side,.nx .ws[data-nx-tab="talk"] .side,.nx .ws[data-nx-tab="item"] .side{display:flex}
+ .nx .rail{display:none;position:fixed;z-index:6;left:0;right:0;bottom:0;max-height:calc(100dvh * var(--nx-layout-sheet-height));background:var(--nx-color-surface);border-right:0;border-radius:var(--nx-radius-sheet) var(--nx-radius-sheet) 0 0;box-shadow:var(--nx-shadow-sheet)}
+ .nx .rail:target,.nx .ws[data-nx-open="stages"] .rail{display:flex}
+ .nx .ws:has(.rail:target) .scrim,.nx .ws[data-nx-open="stages"] .scrim{display:block;position:fixed;inset:0;z-index:5;background:var(--nx-color-scrim)}
+ .nx .rail .close{display:inline-grid;position:absolute;top:var(--nx-space-xs);right:var(--nx-space-xs)}
+ .nx .rail .proj{padding-right:calc(var(--nx-size-target) + var(--nx-space-sm))}
+ .nx .row{min-height:var(--nx-size-target)}
+}
+@media (min-width:1024px){.nx .only-ph{display:none!important}}
