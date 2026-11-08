@@ -3,6 +3,7 @@ import { planPush, checkCommit } from "./push-plan.js";
 import * as E from "./entries.js";
 import { checkWriteBody, planEntryWrite, entryDisposition } from "./entry-plan.js";
 import { stageData } from "./stage-items.js";
+import { talkData, CLOSED } from "./stage-talk.js";
 // Everything that touches the database is in this file. The SQL is the part
 // SQLite (D1) and Postgres share, apart from the `?` placeholders, so moving
 // to another database changes this file only.
@@ -121,6 +122,18 @@ const activeEntry = `EXISTS(SELECT 1 FROM comments WHERE id=entry AND project=cl
  OR EXISTS(SELECT 1 FROM edits WHERE id=entry AND project=claims.project AND state IN ('pending','needs-user'))
  OR EXISTS(SELECT 1 FROM checkpoints WHERE id=entry AND project=claims.project AND pr_state IS NOT 'open' AND
    ((state='passed' AND recorded_commit IS NULL) OR (state='withdrawn' AND recorded_commit IS NOT NULL)))`;
+// A comment as a list holds it: its count of replies, its last reply and its
+// proposals' IDs, newest first.
+const COMMENT_EXTRAS = `(SELECT COUNT(*) FROM replies AS r WHERE r.comment=c.id) AS reply_count,
+      (SELECT json_object('seq',r.seq,'author',r.author,'text',r.text,'settles',r.settles,'made_at',r.made_at)
+       FROM replies AS r WHERE r.comment=c.id ORDER BY r.seq DESC LIMIT 1) AS last_reply_json,
+      (SELECT json_group_array(id) FROM (SELECT id FROM proposals WHERE comment=c.id ORDER BY made_at DESC,id LIMIT 500)) AS proposal_ids_json`;
+// A stage's closed talk (API-152): its closed comments, by their last entry,
+// and its proposals no longer open, by when they closed; an item narrows both.
+const CLOSED_TALK = `talk AS (SELECT 'comment' AS kind,id,last_at AS at FROM comments
+      WHERE project=? AND part=? AND stage=? AND state='closed' AND (? IS NULL OR item=?)
+    UNION ALL SELECT 'proposal',id,COALESCE(closed_at,made_at) FROM proposals
+      WHERE project=? AND part=? AND stage=? AND state<>'open' AND (? IS NULL OR EXISTS(SELECT 1 FROM json_each(items) WHERE value=?)))`;
 
 // Engine operations also stay here. The standalone adapter never owns product
 // SQL, and uses these fixed statements only for connection/transaction upkeep.
@@ -340,17 +353,14 @@ export class Store {
     if (part && (!Array.isArray(snapshot.project.parts) || !snapshot.project.parts.includes(part))) throw new Problem("part_not_found", "no such part");
   }
 
-  commentStatement(project, mode, part, stage, limit) {
+  commentStatement(project, mode, part, stage, limit, item = null) {
     let where = "c.project=?";
     const params = [project];
     if (part !== undefined) { where += " AND c.part=?"; params.push(part); }
     if (stage !== undefined) { where += " AND c.stage=?"; params.push(stage); }
+    if (item !== null) { where += " AND c.item=?"; params.push(item); }
     where += mode === "todo" ? " AND c.state='open' AND c.waits='agent'" : " AND c.state='open'";
-    return this.db.prepare(`SELECT c.*, COUNT(*) OVER() AS _total,
-      (SELECT COUNT(*) FROM replies AS r WHERE r.comment=c.id) AS reply_count,
-      (SELECT json_object('seq',r.seq,'author',r.author,'text',r.text,'settles',r.settles,'made_at',r.made_at)
-       FROM replies AS r WHERE r.comment=c.id ORDER BY r.seq DESC LIMIT 1) AS last_reply_json,
-      (SELECT json_group_array(id) FROM (SELECT id FROM proposals WHERE comment=c.id ORDER BY made_at DESC,id LIMIT 500)) AS proposal_ids_json
+    return this.db.prepare(`SELECT c.*, COUNT(*) OVER() AS _total, ${COMMENT_EXTRAS}
       FROM comments AS c WHERE ${where} ORDER BY c.last_at ${mode === "todo" ? "ASC" : "DESC"}, c.id LIMIT ?`).bind(...params, limit);
   }
 
@@ -470,6 +480,34 @@ export class Store {
     ]);
     return stageData({ ...context, record: this.overview(context, project, part, stage, rows.slice(0, 5)), project, part, stage, query,
       comments: rows[5].results, proposals: rows[6].results, discrepancies: rows[7].results, reflections: rows[8].results, pictures: rows[9].results });
+  }
+
+  // API-152: the part's stage talk. One batch reads the stage's open comments,
+  // which a project holds 2,000 of at most, its open proposals and pending
+  // reflections, 500 of each at most, the claims that last, and the count of
+  // its closed talk with, for closed=1, a page of it; stage-talk.js sorts them
+  // into turns. An item narrows the comments here and the lists of items there.
+  async readTalk(project, part, stage, query, now = new Date().toISOString()) {
+    const context = await this.readContext(project, true);
+    this.validPart(context.snapshot, part);
+    const { item, closed, after } = query;
+    const keys = [project, part, stage, item, item, project, part, stage, item, item];
+    const page = `WITH ${CLOSED_TALK}, page AS (SELECT kind,id,at FROM talk ORDER BY at DESC,id LIMIT ${CLOSED} OFFSET ?)`;
+    const rows = await this.db.batch([
+      this.commentStatement(project, "talk", part, stage, 2000, item),
+      this.proposalStatement(project, part, stage), this.editStatement(project, "talk", part, stage, 500),
+      this.db.prepare(`SELECT * FROM claims WHERE project=? AND ends_at>? AND (${activeEntry})`).bind(project, now),
+      this.db.prepare(`WITH ${CLOSED_TALK} SELECT COUNT(*) AS total FROM talk`).bind(...keys),
+      ...(closed ? [
+        this.db.prepare(`${page} SELECT c.*,page.at AS _at,${COMMENT_EXTRAS} FROM page JOIN comments AS c ON c.id=page.id
+          WHERE page.kind='comment'`).bind(...keys, after),
+        this.db.prepare(`${page} SELECT p.*,e.id AS edit,page.at AS _at FROM page JOIN proposals AS p ON p.id=page.id
+          LEFT JOIN edits AS e ON e.proposal=p.id WHERE page.kind='proposal'`).bind(...keys, after),
+      ] : []),
+    ]);
+    return talkData({ snapshot: context.snapshot, project, part, stage, item, now,
+      open: rows[0].results, proposals: rows[1].results, reflections: rows[2].results, claims: rows[3].results,
+      closedTotal: rows[4].results[0].total, closedRows: closed ? [...rows[5].results, ...rows[6].results] : [] });
   }
 
   async readEntry(project, kind, id) {

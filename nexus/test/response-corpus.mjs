@@ -8,8 +8,8 @@ import { testAccess } from "./access-fixture.js";
 const access=await testAccess(),env={...access.env,DB:fakeD1(),NEXUS_LANGUAGE:"en"};
 const template=readFileSync(new URL("../src/hub.html",import.meta.url),"utf8");
 let serial=0;
-async function call(method,path,body) {
-  const headers={...access.headers("agent"),"Nexus-Session":"qa-offline-contract"};
+async function call(method,path,body,kind="agent") {
+  const headers={...access.headers(kind),"Nexus-Session":"qa-offline-contract"};
   if(method==="POST")headers["Idempotency-Key"]='"nw_'+(++serial).toString().padStart(12,"0")+'"';
   if(body!==undefined)headers["Content-Type"]="application/json";
   const response=await handle(new Request("https://nexus.example.com"+path,{method,headers,...(body===undefined?{}:{body:JSON.stringify(body)})}),env,access.ctx,template);
@@ -29,6 +29,8 @@ for(const path of ["/pictures/corthex/nexus/05-erd","/overview/corthex/nexus/05-
 cases.push({name:"constructor part overview",schema:"Overview",value:await call("GET","/api/spaces/corthex/overview/constructor/05-erd")});
 for(const path of ["/api/spaces/corthex/stages/nexus/05-erd","/api/spaces/corthex/stages/_/02-prd?group=source&filter=left&q=claims","/api/spaces/corthex/stages/constructor/01-domain"])
   cases.push({name:path,schema:"StageData",value:await call("GET",path)});
+for(const path of ["/api/spaces/corthex/talk/nexus/05-erd","/api/spaces/corthex/talk/_/02-prd?closed=1"])
+  cases.push({name:path,schema:"StageTalk",value:await call("GET",path)});
 const comment=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic history"});
 for(let index=0;index<501;index++){
   const proposal=await call("POST","/api/spaces/corthex/proposals",{part:"nexus",stage:"05-erd",items:["TBL-111"],reason:"Synthetic",change:"Synthetic",comment:comment.id});
@@ -38,4 +40,21 @@ const history=await call("GET","/api/spaces/corthex/comments/"+comment.id);
 if(history.proposals.length!==501)throw new Error("history was truncated");
 cases.push({name:"501 historical proposals",schema:"CommentThread",value:history});
 cases.push({name:"stage with talk",schema:"StageData",value:await call("GET","/api/spaces/corthex/stages/nexus/05-erd?filter=talk")});
+// The talk by turn: the agent's turn with a claim, my turn, a comment apart, a
+// claimed reflection and the closed talk, whole and narrowed to the item.
+const question=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic question"},"user");
+await call("POST","/api/spaces/corthex/claims/"+question.id,{});
+await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"",text:"Synthetic checkpoint",asks:"checkpoint"});
+await call("POST","/api/spaces/corthex/proposals",{part:"nexus",stage:"05-erd",items:["TBL-111"],reason:"Synthetic",change:"Synthetic"});
+await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-109",text:"Synthetic gone item"},"user");
+const answered=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic answered"},"user");
+await call("POST","/api/spaces/corthex/comments/"+answered.id+"/answered",{});
+const accepted=await call("POST","/api/spaces/corthex/proposals",{part:"nexus",stage:"05-erd",items:["TBL-111"],reason:"Synthetic",change:"Synthetic"});
+const reflection=(await call("POST","/api/spaces/corthex/proposals/"+accepted.id+"/accept",{},"user")).edit;
+await call("POST","/api/spaces/corthex/claims/"+reflection.id,{});
+for(const path of ["/api/spaces/corthex/talk/nexus/05-erd?closed=1","/api/spaces/corthex/talk/nexus/05-erd?item=TBL-111&closed=1&after=500"]){
+  const value=await call("GET",path);
+  if(!value.agent.entries[0]?.claim?.claimed_at||!value.mine.total||!value.closed.entries.length||!value.reflections[0]?.claim)throw new Error("the talk lacks an entry that its case needs: "+path);
+  cases.push({name:path,schema:"StageTalk",value});
+}
 process.stdout.write(JSON.stringify(cases));

@@ -48,4 +48,4 @@ for case in cases:
             "errors":[{"path":list(error.absolute_path),"rule":error.validator} for error in errors[:10]]}))
         raise SystemExit(1)
 print("offline response contracts: " + str(fitted["namedJsonExamples"]) + " named JSON examples fit their schemas; "
-      "normal/empty bootstraps, constructor overview, four stage answers and 501-proposal history passed")
+      "normal/empty bootstraps, constructor overview, four stage answers, four talk answers and 501-proposal history passed")

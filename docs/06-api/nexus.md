@@ -135,7 +135,7 @@ Planned with the redesign of 2026-11-06 for SPEC-143 to SPEC-156. Its checkpoint
 | ID | Request | Code name | Who | Serves | Status |
 | --- | --- | --- | --- | --- | --- |
 | API-151 | `GET /api/home` | `getHome` | either | SPEC-113, SPEC-143, SPEC-144, SPEC-145 | planned |
-| API-152 | `GET /api/spaces/{project}/talk/{part}/{stage}` | `getStageTalk` | either | SPEC-113, SPEC-150 | planned |
+| API-152 | `GET /api/spaces/{project}/talk/{part}/{stage}` | `getStageTalk` | either | SPEC-113, SPEC-150 | active |
 | API-153 | `GET /p/{project}` | `getProjectPage` | either | SPEC-113, SPEC-146 | planned |
 | API-154 | `GET /p/{project}/{part}/{stage}` | `getStagePage` | either | SPEC-113, SPEC-146 to SPEC-151, SPEC-155, SPEC-156 | planned |
 | API-155 | `GET /` | `getHomePage` | either | SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-154 | planned |
@@ -180,6 +180,15 @@ API-158 is active since TASK-266: the server answers it, and the contract checks
 - When an item comes from several items that have a context, the nearest stage wins, then the order of its links, then the order of IDs. The groups follow the order of the contexts in the snapshot; an ID that the snapshot's prefixes make a context, but that no item of the snapshot holds, is a group without a title after them, and the items without a context come last.
 - A hotspot of a stage 01 board is open while its state is `open` or `열림`, ignoring case and the spaces at its ends, as the board's template writes them in either language; `hotspots` is null when the part has no stage 01 board.
 - `q` comes back trimmed, or null when it holds no words. A query value given twice is refused as one in another form is, and a name that the read does not take is ignored.
+
+API-152 is active since TASK-267: the server answers it, and the contract checks and Schemathesis cover it. Building it settled these points:
+
+- A comment is in my turn while it waits for the user and in the agent's turn while it waits for the agent; while the stored snapshot's stage does not hold its item, it is apart, in neither turn, whichever it waits for. A comment on the stage as a whole is never apart. API-158 still counts an apart comment that waits for the user in the stage's my turn, since it waits for the user (TERM-135).
+- My turn lists the comments whose last entry asks for the stage's checkpoint, then the open proposals, then the other comments that wait for the user (SPEC-143), each oldest first: a comment by the time of its last entry, when it began to wait, and a proposal by when it was made. The agent's turn and apart follow the time of the last entry too, and equal times go by ID.
+- The closed talk is the stage's closed comments, by the time of their last entry, and its proposals no longer open, accepted, dismissed or withdrawn, by when they closed, newest first. `after` counts only these; with `closed=0` the answer gives their total and no entries.
+- `item` narrows the comments to those on the item, and the proposals and reflections to those whose items include it, closed ones too; a comment on the stage as a whole is on no item.
+- The view asks with no session, so no claim in the talk is `mine`. Each comment and reflection gives `claim` with the claim's start and end while one lasts, and null otherwise; a proposal has no claim.
+- Each turn and apart give their first 200 entries with their totals, and the reflections all of the stage's, up to the 500 that a project holds at most. A project without a space is `404` `space_not_found`.
 
 ## Phase ②'s interfaces
 
@@ -1100,6 +1109,12 @@ On 2026-11-08, when the server took API-158 (TASK-266), locally with synthetic d
 - openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 7 of them planned.
 - The contract checks: the 445 named JSON examples and four of the server's answers to API-158 fit their schemas; the 72 named defaults pass; Schemathesis 3.39.16 tests the 33 operations that the server answers, 160 of 160 for each check, and leaves the 7 planned ones out. Prism was not run.
 - The repository's 13 Python tests and 274 Node tests pass, and the hub's snapshot of this repository reads 1272 items, the 8 new cases among them, with the same 630 warnings apart from line numbers. Read from this repository's snapshot at `58ac651` in a local in-memory server, part `nexus`: stage 02's 199 requirements fall into 11 contexts and 6 without one, stage 01's head counts 1 open hotspot, and stage 12's 723 items take four reads of 200, from 10 to 21 milliseconds each, 13 at the median of three rounds.
+
+On 2026-11-08, when the server took API-152 (TASK-267), locally with synthetic data:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 6 of them planned.
+- The contract checks: the 445 named JSON examples, four of the server's answers to API-158 and four to API-152 fit their schemas; the 74 named defaults pass; Schemathesis 3.39.16 tests the 34 operations that the server answers, 165 of 165 for each check, and leaves the 6 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 279 Node tests pass, and the hub's snapshot of this repository reads 1278 items, the 6 new cases among them, with the same 630 warnings apart from line numbers. In a local in-memory server, with a project's 2,000 comments on one stage, 1,500 of them open, and three replies each, a read of the whole talk takes 29 milliseconds at the median of five, with or without a page of the closed talk, and one narrowed to an item 19, for answers of 342,585 to 415,822 bytes.
 
 ### Development Access identity trial (2026-11-03)
 

@@ -27,6 +27,12 @@ export function withClaim(entry, claims, session, now) {
   return held ? { ...entry, claim: { ends_at: held.ends_at, mine: held.session === session } } : entry;
 }
 
+// The talk's claim (API-152): its start too, and null while none lasts.
+export function withClaimStart(entry, claims, session, now) {
+  const held = claims.find((row) => row.entry === entry.id && row.ends_at > now);
+  return { ...entry, claim: held ? { claimed_at: held.claimed_at, ends_at: held.ends_at, mine: held.session === session } : null };
+}
+
 export function commentEntry(row, replies, proposals, claims = [], session = null, now = "") {
   const thread = replies.filter((entry) => entry.comment === row.id).sort((a, b) => a.seq - b.seq);
   return withClaim({ ...comment(row), replies: thread.length, last_reply: thread.length ? reply(thread[thread.length - 1]) : null,

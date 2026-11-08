@@ -130,8 +130,8 @@
           "date": "2026-11-08"
         }
       ],
-      "next": "Build API-151 to API-157 and API-159 with the redesign's screens: the contract holds all but API-155, and the server answers API-158 since TASK-266, which marked it active; each server task marks its own active; API-118, API-119 and the hub's comment and reply already take any stage and asks (hub 0.3.0)",
-      "updated": "2026-11-08T09:18:01+00:00"
+      "next": "Build API-151, API-153 to API-157 and API-159 with the redesign's screens: the contract holds all but API-155, and the server answers API-158 since TASK-266 and API-152 since TASK-267, each marked active by its task; each server task marks its own active; API-118, API-119 and the hub's comment and reply already take any stage and asks (hub 0.3.0)",
+      "updated": "2026-11-08T09:46:07+00:00"
     },
     "07-sitemap": {
       "state": "in_progress",
@@ -233,8 +233,8 @@
           "date": "2026-11-05"
         }
       ],
-      "next": "Build the redesign from the contract, TASK-267 to TASK-278, after TASK-265 took its requests and TASK-266 read a stage's head and items; the 0.2.3 release waits for the maintainer",
-      "updated": "2026-11-08T09:18:01+00:00"
+      "next": "Build the redesign from the contract, TASK-268 to TASK-278, after TASK-265 took its requests, TASK-266 read a stage's head and items and TASK-267 its talk by turn; the 0.2.3 release waits for the maintainer",
+      "updated": "2026-11-08T09:46:07+00:00"
     },
     "12-qa": {
       "state": "in_progress",

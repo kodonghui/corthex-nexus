@@ -9,9 +9,9 @@ const path = (route) => route.path.replace(/\{(\w+)\}/g, (_, name) => values[nam
 const code = (value) => (error) => error.code === value;
 const headers = { "Idempotency-Key": '"nw_' + ID + '"', "Nexus-Session": "agent-one" };
 
-test("all 33 contracted operations dispatch, and every GET also takes HEAD", () => {
-  assert.equal(ROUTES.length, 33);
-  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 33);
+test("all 34 contracted operations dispatch, and every GET also takes HEAD", () => {
+  assert.equal(ROUTES.length, 34);
+  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 34);
   for (const route of ROUTES) {
     assert.equal(pathRoute(request(route.method, path(route))).operation, route.operation);
     if (route.method === "GET") assert.equal(pathRoute(request("HEAD", path(route))).operation, route.operation);
@@ -79,7 +79,21 @@ test("a stage read takes its query values with their defaults and refuses one in
     ["?filter=All", "filter"], ["?filter=", "filter"], ["?group=kind", "group"], ["?q=" + "가".repeat(201), "q"], ["?q=a&q=b", "q"]]) {
     assert.throws(() => requestHeaders(stage(query), route, null), (error) => error.code === "invalid_request" && error.fields.field === field, query);
   }
-  // Only the stage read takes query values; the others ignore what is sent.
+  // Only the stage and talk reads take query values; the others ignore what is sent.
   const todo = pathRoute(request("GET", "/api/spaces/acme/todo?after=x"));
   assert.deepEqual(requestHeaders(request("GET", "/api/spaces/acme/todo?after=x"), todo, null).query, {});
+});
+
+test("a talk read takes its item, closed and after with their defaults and refuses one in another form by its field", () => {
+  const talk = (query = "") => request("GET", "/api/spaces/acme/talk/_/05-erd" + query);
+  const route = pathRoute(talk());
+  assert.equal(route.operation, "getStageTalk");
+  assert.deepEqual(requestHeaders(talk(), route, null).query, { item: null, closed: 0, after: 0 });
+  assert.deepEqual(requestHeaders(talk("?item=TBL-111&closed=1&after=50&filter=x"), route, null).query, { item: "TBL-111", closed: 1, after: 50 });
+  assert.equal(requestHeaders(talk("?item=A" + "B".repeat(22) + "-123456"), route, null).query.item.length, 30);
+  for (const [query, field] of [["?item=tbl-111", "item"], ["?item=TBL-111x", "item"], ["?item=TBL-1234567", "item"], ["?item=A" + "B".repeat(23) + "-123456", "item"],
+    ["?item=", "item"], ["?item=TBL-1&item=TBL-2", "item"], ["?closed=2", "closed"], ["?closed=true", "closed"], ["?closed=", "closed"], ["?closed=1&closed=1", "closed"],
+    ["?after=100001", "after"], ["?after=-1", "after"], ["?item=TBL-111&closed=2&after=x", "closed"]]) {
+    assert.throws(() => requestHeaders(talk(query), route, null), (error) => error.code === "invalid_request" && error.fields.field === field, query);
+  }
 });
