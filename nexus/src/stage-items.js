@@ -16,6 +16,8 @@ const OPEN_HOTSPOT = new Set(["open", "열림"]);
 export const cut = (text, limit) => Array.from(text).slice(0, limit).join("");
 const list = (value) => { try { const parsed = typeof value === "string" ? JSON.parse(value) : value; return Array.isArray(parsed) ? parsed : []; } catch { return []; } };
 export const https = (value) => typeof value === "string" && value.startsWith("https://") && value.length <= 2000 ? value : null;
+// The web address that the settings give for the project's own repository.
+export const repositoryOf = (repo) => https(repo?.url) || https(repo?.web);
 // An item's fields that the contract's Item names, as the snapshot holds them.
 export const itemFields = (item) => Object.fromEntries(FIELDS.filter((name) => item[name] !== undefined).map((name) => [name, item[name]]));
 // The project's parts, or the project as a whole when the snapshot names none.
@@ -168,7 +170,7 @@ export function stageData({ held, snapshot, record, project, part, stage, query,
   const parts = partsOf(snapshot);
   return {
     project: { name: held.name, title: typeof snapshot.project?.title === "string" ? cut(snapshot.project.title, 120) : null,
-      repository: https(repo.url) || https(repo.web), commit: held.default_commit || null,
+      repository: repositoryOf(repo), commit: held.default_commit || null,
       generated_at: held.generated_at, pushed_at: held.received_at, parts },
     part, stage, head, record,
     stages: STAGES.map((key) => ({ key, state: stageRecord(snapshot, part, key).state, items: items.filter((item) => item.stage === key).length,

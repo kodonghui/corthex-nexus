@@ -17,6 +17,9 @@ async function call(method,path,body,kind="agent") {
   if(response.status>=400)throw new Error("offline corpus request failed: "+response.status+" "+path);
   return response.headers.get("Content-Type").includes("json")?JSON.parse(text):text;
 }
+const cases=[];
+// The first page of a server that holds no snapshot yet.
+cases.push({name:"empty server home",schema:"Home",value:await call("GET","/api/home")});
 const snapshot=JSON.parse(readFileSync(new URL("./snapshot-02-example.json",import.meta.url),"utf8"));
 snapshot.project.parts.push("constructor");
 // The context and the items that TBL-111 comes from and leads to, for its trace.
@@ -26,7 +29,6 @@ snapshot.items.push({id:"CTX-007",kind:"context",stage:"01-domain",where:"docs/0
   {id:"API-131",kind:"api",stage:"06-api",where:"docs/06-api/nexus.openapi.yaml:900",title:"claimEntry",links:["TBL-111","SPEC-136"]});
 snapshot.summary={...snapshot.summary,items:snapshot.items.length};
 await call("POST","/api/snapshots",snapshot);
-const cases=[];
 for(const path of ["/pictures/corthex/nexus/05-erd","/overview/corthex/nexus/05-erd","/pictures/corthex/constructor/05-erd"]){
   const page=await call("GET",path);
   const value=JSON.parse(page.match(/<script id="view-data" type="application\/json">(.*?)<\/script>/s)[1]);
@@ -73,4 +75,10 @@ for(const path of ["/api/spaces/corthex/items/TBL-111","/api/spaces/corthex/item
 }
 for(const path of ["/api/search?q=TBL-111","/api/search?q=claim","/api/search?q=settles%20twice"])
   cases.push({name:path,schema:"SearchAnswer",value:await call("GET",path)});
+// The first page with my turn, the agent's to-do with a claim and the card's
+// picture with its drawing.
+const home=await call("GET","/api/home");
+if(!home.my_turn.entries.some((entry)=>entry.kind==="proposal")||!home.my_turn.entries.some((entry)=>entry.asks==="checkpoint")||!home.agent[0]?.comments.oldest
+  ||!home.agent[0].taken||!home.projects[0]?.pictures[0]?.drawing?.boxes.length)throw new Error("the first page lacks an entry that its case needs");
+cases.push({name:"/api/home",schema:"Home",value:home});
 process.stdout.write(JSON.stringify(cases));

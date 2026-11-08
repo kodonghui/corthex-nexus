@@ -15,9 +15,9 @@ info:
     with the same status and headers and no body, a method that a path does not take gets 405 with
     an Allow header, and every reply carries the security headers that nexus.md lists. The
     operations whose x-corthex.status is planned are the redesign's that the server does not
-    answer yet, API-151, API-153, API-154 and API-159: each is marked active once the server
-    answers it, as API-152 and API-156 to API-158 are, and until then the checks leave it out and
-    the server answers its path as unknown.
+    answer yet, API-153, API-154 and API-159: each is marked active once the server answers it, as
+    API-151, API-152 and API-156 to API-158 are, and until then the checks leave it out and the
+    server answers its path as unknown.
 servers:
   - url: https://nexus.example.com
     description: >-
@@ -1664,7 +1664,7 @@ paths:
       x-corthex:
         id: API-151
         spec: [SPEC-113, SPEC-143, SPEC-144, SPEC-145]
-        status: planned
+        status: active
         omit:
           "400": the request has no input
           "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
@@ -4345,8 +4345,8 @@ components:
     MyTurnEntry:
       description: >-
         An entry of my turn. For a comment, text is the first 300 characters of its last entry,
-        the agent's comment or reply, and at is that entry's time; for a proposal, its change and
-        when it was made, with its first item.
+        the agent's comment or reply or the change of an open proposal that answers it, and at is
+        when it began to wait; for a proposal, its change and when it was made, with its first item.
       type: object
       required: [kind, id, project, part, stage, item, title, quote, text, at, asks]
       additionalProperties: false

@@ -55,6 +55,7 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
       case "getStage": return json(await store.readStage(p.project,p.part,p.stage,route.query),200,head);
       case "getStageTalk": return json(await store.readTalk(p.project,p.part,p.stage,route.query),200,head);
       case "getItem": return json(await store.readItem(p.project,p.id,route.query.part),200,head);
+      case "getHome": return json(await store.readHome(),200,head);
       case "searchItems": return json(await store.searchItems(route.query.q),200,head);
       case "getAgentTodo": return json(await store.readTodo(p.project,route.session),200,head);
       case "getComment": return json(await store.readEntry(p.project,"comment",p.comment),200,head);

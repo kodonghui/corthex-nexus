@@ -10,9 +10,9 @@ const path = (route) => route.path.replace(/\{(\w+)\}/g, (_, name) => values[nam
 const code = (value) => (error) => error.code === value;
 const headers = { "Idempotency-Key": '"nw_' + ID + '"', "Nexus-Session": "agent-one" };
 
-test("all 36 contracted operations dispatch, and every GET also takes HEAD", () => {
-  assert.equal(ROUTES.length, 36);
-  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 36);
+test("all 37 contracted operations dispatch, and every GET also takes HEAD", () => {
+  assert.equal(ROUTES.length, 37);
+  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 37);
   for (const route of ROUTES) {
     assert.equal(pathRoute(request(route.method, path(route))).operation, route.operation);
     if (route.method === "GET") assert.equal(pathRoute(request("HEAD", path(route))).operation, route.operation);
@@ -127,4 +127,14 @@ test("a search takes 2 to 200 characters of words once their outer spaces are cu
     assert.throws(() => requestHeaders(search(query), route, null), (error) => error.code === "invalid_request" && error.fields.field === "q"
       && error.message === "q: write 2 to 200 characters", query);
   }
+});
+
+test("the first page's read takes no query value and ignores any that it is given", () => {
+  const home = (query = "") => request("GET", "/api/home" + query);
+  const route = pathRoute(home());
+  assert.deepEqual([route.operation, route.params], ["getHome", {}]);
+  assert.deepEqual(requestHeaders(home("?q=REQ-107&part=x&part=y"), route, null).query, {});
+  assert.equal(pathRoute(request("HEAD", "/api/home")).operation, "getHome");
+  assert.throws(() => pathRoute(request("POST", "/api/home")), (error) => error.code === "method_not_allowed" && error.headers.Allow === "GET, HEAD");
+  assert.throws(() => pathRoute(request("GET", "/api/home/x")), code("not_found"));
 });

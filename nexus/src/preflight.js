@@ -23,6 +23,7 @@ const rules = [
   ["getStage", "GET", "/api/spaces/{project}/stages/{part}/{stage}"],
   ["getStageTalk", "GET", "/api/spaces/{project}/talk/{part}/{stage}"],
   ["getItem", "GET", "/api/spaces/{project}/items/{id}"],
+  ["getHome", "GET", "/api/home"],
   ["searchItems", "GET", "/api/search"],
   ["leaveComment", "POST", "/api/spaces/{project}/comments", "either", "comment"],
   ["getComment", "GET", "/api/spaces/{project}/comments/{comment}"],
