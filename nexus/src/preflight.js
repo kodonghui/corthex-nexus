@@ -19,6 +19,7 @@ const rules = [
   ["getPicture", "GET", "/api/spaces/{project}/pictures/{part}/{pictureStage}"],
   ["getStageOverview", "GET", "/api/spaces/{project}/overview/{part}/{stage}"],
   ["getAgentTodo", "GET", "/api/spaces/{project}/todo"],
+  ["getStage", "GET", "/api/spaces/{project}/stages/{part}/{stage}"],
   ["leaveComment", "POST", "/api/spaces/{project}/comments", "either", "comment"],
   ["getComment", "GET", "/api/spaces/{project}/comments/{comment}"],
   ["replyToComment", "POST", "/api/spaces/{project}/comments/{comment}/replies", "either", "reply"],
@@ -80,6 +81,31 @@ export function pathRoute(request) {
   return { ...selected.route, params: parsed };
 }
 
+// The query values that a read takes, each with its default, how it is read
+// and the words of its refusal (stage 06, Addresses and paths). A value that
+// is not in its form, or given twice, is refused by its field, never ignored.
+const QUERIES = Object.freeze({
+  getStage: {
+    after: [0, (value) => /^[0-9]{1,6}$/.test(value) && Number(value) <= 100000 ? Number(value) : undefined, "write a whole number from 0 to 100000"],
+    filter: ["all", (value) => ["all", "talk", "mine", "left"].includes(value) ? value : undefined, "write all, talk, mine or left"],
+    q: [null, (value) => Array.from(value).length <= 200 ? value : undefined, "write at most 200 characters"],
+    group: ["context", (value) => ["context", "source"].includes(value) ? value : undefined, "write context or source"],
+  },
+});
+
+export function queryValues(request, route) {
+  const rules = QUERIES[route.operation];
+  if (!rules) return {};
+  const params = new URL(request.url).searchParams, values = {};
+  for (const [name, [fallback, read, words]] of Object.entries(rules)) {
+    const given = params.getAll(name);
+    const value = given.length === 1 ? read(given[0]) : given.length ? undefined : fallback;
+    if (value === undefined) throw new Problem("invalid_request", name + ": " + words, { field: name });
+    values[name] = value;
+  }
+  return values;
+}
+
 export function requestHeaders(request, route, kind) {
   const change = request.method !== "GET" && request.method !== "HEAD";
   const site = request.headers.get("Sec-Fetch-Site");
@@ -96,7 +122,7 @@ export function requestHeaders(request, route, kind) {
     session = request.headers.get("Nexus-Session");
     if ((route.role && !session) || (session !== null && !SESSION.test(session))) throw new Problem("invalid_request", "send a session label of 1 to 100 ASCII letters, digits, dot, underscore, colon or hyphen", { field: "Nexus-Session" });
   }
-  return { write, session };
+  return { write, session, query: queryValues(request, route) };
 }
 
 const verifier = new AccessVerifier();

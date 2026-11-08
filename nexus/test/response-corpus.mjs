@@ -27,6 +27,8 @@ for(const path of ["/pictures/corthex/nexus/05-erd","/overview/corthex/nexus/05-
   cases.push({name:path,schema:"ViewPageData",value});
 }
 cases.push({name:"constructor part overview",schema:"Overview",value:await call("GET","/api/spaces/corthex/overview/constructor/05-erd")});
+for(const path of ["/api/spaces/corthex/stages/nexus/05-erd","/api/spaces/corthex/stages/_/02-prd?group=source&filter=left&q=claims","/api/spaces/corthex/stages/constructor/01-domain"])
+  cases.push({name:path,schema:"StageData",value:await call("GET",path)});
 const comment=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic history"});
 for(let index=0;index<501;index++){
   const proposal=await call("POST","/api/spaces/corthex/proposals",{part:"nexus",stage:"05-erd",items:["TBL-111"],reason:"Synthetic",change:"Synthetic",comment:comment.id});
@@ -35,4 +37,5 @@ for(let index=0;index<501;index++){
 const history=await call("GET","/api/spaces/corthex/comments/"+comment.id);
 if(history.proposals.length!==501)throw new Error("history was truncated");
 cases.push({name:"501 historical proposals",schema:"CommentThread",value:history});
+cases.push({name:"stage with talk",schema:"StageData",value:await call("GET","/api/spaces/corthex/stages/nexus/05-erd?filter=talk")});
 process.stdout.write(JSON.stringify(cases));

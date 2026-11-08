@@ -2,6 +2,7 @@ import { Problem } from "./problem.js";
 import { planPush, checkCommit } from "./push-plan.js";
 import * as E from "./entries.js";
 import { checkWriteBody, planEntryWrite, entryDisposition } from "./entry-plan.js";
+import { stageData } from "./stage-items.js";
 // Everything that touches the database is in this file. The SQL is the part
 // SQLite (D1) and Postgres share, apart from the `?` placeholders, so moving
 // to another database changes this file only.
@@ -418,16 +419,23 @@ export class Store {
   }
 
   async readOverview(project, part, stage) {
-    const { snapshot, space } = await this.readContext(project);
-    this.validPart(snapshot, part);
-    const [comments, edits, discrepancies, checkpoints, pictures] = await this.db.batch([
+    const context = await this.readContext(project);
+    this.validPart(context.snapshot, part);
+    return this.overview(context, project, part, stage, await this.db.batch(this.overviewStatements(project, part, stage)));
+  }
+
+  overviewStatements(project, part, stage) {
+    return [
       this.commentStatement(project,"overview",part,stage,50), this.editStatement(project,"overview",part,stage,50),
       this.discrepancyStatement(project,part,stage,50),
       this.db.prepare(`SELECT * FROM checkpoints WHERE project=? AND part=? AND stage=?
         AND ((state='passed' AND recorded_commit IS NULL) OR (state='withdrawn' AND recorded_commit IS NOT NULL))
         ORDER BY passed_at,id LIMIT 50`).bind(project,part,stage),
       this.db.prepare("SELECT stage,commit_id,not_current FROM pictures WHERE project=? AND part=? ORDER BY stage").bind(project,part),
-    ]);
+    ];
+  }
+
+  overview({ snapshot, space }, project, part, stage, [comments, edits, discrepancies, checkpoints, pictures]) {
     const source = snapshot.stages?.[stage] || {};
     const notOpened = space ? JSON.parse(space.unopened) : {};
     const warnings = checkpoints.results.filter((row) => row.state==='withdrawn').map((row) => ({ rule:"checkpoint-withdrawn", checkpoint:row.id }));
@@ -440,6 +448,28 @@ export class Store {
       comments:envelope(comments.results,(row)=>E.commentListRow(row)), reflections:envelope(edits.results,(row)=>E.editListRow(row)),
       discrepancies:envelope(discrepancies.results,(row)=>E.discrepancy(row)), checkpoints:checkpoints.results.map((row)=>E.checkpoint(row)), warnings,
       not_opened:Object.hasOwn(notOpened,part)?notOpened[part]:0 };
+  }
+
+  // API-158: the overview's statements, then the part's marks: each stage's and
+  // item's comments, the open proposals, the open discrepancies, the stage's
+  // pending reflections and the part's pictures, with the DDD board's source
+  // only on stage 01, whose head counts its open hotspots.
+  async readStage(project, part, stage, query) {
+    const context = await this.readContext(project);
+    this.validPart(context.snapshot, part);
+    const rows = await this.db.batch([
+      ...this.overviewStatements(project, part, stage),
+      this.db.prepare(`SELECT stage,item,COUNT(*) AS total,SUM(state='open') AS open,SUM(state='open' AND waits='user') AS mine
+        FROM comments WHERE project=? AND part=? GROUP BY stage,item`).bind(project, part),
+      this.db.prepare("SELECT stage,items FROM proposals WHERE project=? AND part=? AND state='open'").bind(project, part),
+      this.db.prepare("SELECT term,item FROM discrepancies WHERE project=? AND part=? AND state='open'").bind(project, part),
+      this.db.prepare(`SELECT p.items FROM edits AS e JOIN proposals AS p ON e.proposal=p.id
+        WHERE e.project=? AND e.part=? AND e.stage=? AND e.state NOT IN ('closed','dismissed')`).bind(project, part, stage),
+      this.db.prepare(`SELECT stage,commit_id,committed_at,CASE WHEN stage='01-domain' AND ?='01-domain' THEN source END AS source
+        FROM pictures WHERE project=? AND part=?`).bind(stage, project, part),
+    ]);
+    return stageData({ ...context, record: this.overview(context, project, part, stage, rows.slice(0, 5)), project, part, stage, query,
+      comments: rows[5].results, proposals: rows[6].results, discrepancies: rows[7].results, reflections: rows[8].results, pictures: rows[9].results });
   }
 
   async readEntry(project, kind, id) {

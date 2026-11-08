@@ -52,6 +52,7 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
       case "getRemovalDryRun": return json(await store.removalDryRun(p.project),200,head);
       case "getPicture": return json(await store.readPicture(p.project,p.part,p.stage),200,head);
       case "getStageOverview": return json(await store.readOverview(p.project,p.part,p.stage),200,head);
+      case "getStage": return json(await store.readStage(p.project,p.part,p.stage,route.query),200,head);
       case "getAgentTodo": return json(await store.readTodo(p.project,route.session),200,head);
       case "getComment": return json(await store.readEntry(p.project,"comment",p.comment),200,head);
       case "getProposal": return json(await store.readEntry(p.project,"proposal",p.proposal),200,head);

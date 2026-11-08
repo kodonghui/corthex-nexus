@@ -141,7 +141,7 @@ Planned with the redesign of 2026-11-06 for SPEC-143 to SPEC-156. Its checkpoint
 | API-155 | `GET /` | `getHomePage` | either | SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-154 | planned |
 | API-156 | `GET /api/search` | `searchItems` | either | SPEC-113, SPEC-152 | planned |
 | API-157 | `GET /api/spaces/{project}/items/{id}` | `getItem` | either | SPEC-113, SPEC-149 | planned |
-| API-158 | `GET /api/spaces/{project}/stages/{part}/{stage}` | `getStage` | either | SPEC-113, SPEC-147, SPEC-148 | planned |
+| API-158 | `GET /api/spaces/{project}/stages/{part}/{stage}` | `getStage` | either | SPEC-113, SPEC-147, SPEC-148 | active |
 | API-159 | `POST /api/spaces/{project}/comments/{comment}/recommended` | `takeRecommendation` | user | SPEC-113, SPEC-116, SPEC-143 | planned |
 
 - API-151 answers the first page in one read: my turn, up to 50 entries with the total, each with its kind, project, part, stage, item, quote, the first 300 characters of the agent's last entry, its time and its `asks`; the agent to-do's counts for each project, by list, with the taken ones; and a card for each project, from its stored snapshot and space: its parts' current stage and next action, the 13 stages' states and item counts, its warnings, and for each picture its stage, whether it is current, its open comments and a small drawing, which is the server's first picture of it without labels (the first picture decision of 2026-11-04).
@@ -172,6 +172,14 @@ The contract holds API-151 to API-154 and API-156 to API-159 since TASK-265, mar
 - API-156 answers up to 20 matches, each opening in the project's first part.
 - API-159 answers the comment's state, the reply that settles it and the checkpoint, with `changed` false when the recommendation was taken already; a checkpoint passed this way names the comment in `comment`.
 - The stage page holds `corthex-stage-page/0.3` ([Page data](#page-data)), and two codes are new: `item_not_found` and `not_recommended` ([Error codes](#error-codes)).
+
+API-158 is active since TASK-266: the server answers it, and the contract checks and Schemathesis cover it. Building it settled these points:
+
+- The items are the project's items of the stage, as the hub page lists them; their marks, each stage's count of my turn, and the head's picture, commit and hotspots are the part's.
+- My turn on a stage counts its comments that wait for the user and its open proposals (TERM-135). `talk` keeps the items with comments, open or closed; `left` keeps those with an open comment, an open discrepancy on either of its sides, or a pending reflection.
+- When an item comes from several items that have a context, the nearest stage wins, then the order of its links, then the order of IDs. The groups follow the order of the contexts in the snapshot; an ID that the snapshot's prefixes make a context, but that no item of the snapshot holds, is a group without a title after them, and the items without a context come last.
+- A hotspot of a stage 01 board is open while its state is `open` or `열림`, ignoring case and the spaces at its ends, as the board's template writes them in either language; `hotspots` is null when the part has no stage 01 board.
+- `q` comes back trimmed, or null when it holds no words. A query value given twice is refused as one in another form is, and a name that the read does not take is ignored.
 
 ## Phase ②'s interfaces
 
@@ -1086,6 +1094,12 @@ On 2026-11-08, when the contract took the redesign's requests as planned (TASK-2
 - openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 8 of them planned.
 - The contract checks: each of the 445 named JSON examples fits its schema, a check that the response check now runs, and no example names a field or query value that its operation lacks; the 70 named defaults pass as before; Schemathesis 3.39.16 tests the 32 operations that the server answers, 156 of 156 for each check, and leaves the 8 planned ones out. Prism was not run.
 - The repository's 13 Python tests and 267 Node tests pass, and the hub's snapshot of this repository reads 1264 items, the 4 new cases among them, with 630 warnings, the same as before apart from line numbers.
+
+On 2026-11-08, when the server took API-158 (TASK-266), locally with synthetic data and this repository's own snapshot:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 7 of them planned.
+- The contract checks: the 445 named JSON examples and four of the server's answers to API-158 fit their schemas; the 72 named defaults pass; Schemathesis 3.39.16 tests the 33 operations that the server answers, 160 of 160 for each check, and leaves the 7 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 274 Node tests pass, and the hub's snapshot of this repository reads 1272 items, the 8 new cases among them, with the same 630 warnings apart from line numbers. Read from this repository's snapshot at `58ac651` in a local in-memory server, part `nexus`: stage 02's 199 requirements fall into 11 contexts and 6 without one, stage 01's head counts 1 open hotspot, and stage 12's 723 items take four reads of 200, from 10 to 21 milliseconds each, 13 at the median of three rounds.
 
 ### Development Access identity trial (2026-11-03)
 

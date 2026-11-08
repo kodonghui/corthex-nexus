@@ -9,9 +9,9 @@ const path = (route) => route.path.replace(/\{(\w+)\}/g, (_, name) => values[nam
 const code = (value) => (error) => error.code === value;
 const headers = { "Idempotency-Key": '"nw_' + ID + '"', "Nexus-Session": "agent-one" };
 
-test("all 32 contracted operations dispatch, and every GET also takes HEAD", () => {
-  assert.equal(ROUTES.length, 32);
-  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 32);
+test("all 33 contracted operations dispatch, and every GET also takes HEAD", () => {
+  assert.equal(ROUTES.length, 33);
+  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 33);
   for (const route of ROUTES) {
     assert.equal(pathRoute(request(route.method, path(route))).operation, route.operation);
     if (route.method === "GET") assert.equal(pathRoute(request("HEAD", path(route))).operation, route.operation);
@@ -65,4 +65,21 @@ test("session labels are required only where specified and user's session header
   const todo = pathRoute(request("GET", "/api/spaces/acme/todo"));
   assert.equal(requestHeaders(request("GET", "/api/spaces/acme/todo"), todo, "user").session, null);
   assert.throws(() => requestHeaders(request("GET", "/api/spaces/acme/todo", { "Nexus-Session": "bad session" }), todo, "user"), (error) => error.fields.field === "Nexus-Session");
+});
+
+test("a stage read takes its query values with their defaults and refuses one in another form by its field", () => {
+  const stage = (query = "") => request("GET", "/api/spaces/acme/stages/_/02-prd" + query);
+  const route = pathRoute(stage());
+  assert.equal(route.operation, "getStage");
+  assert.deepEqual(requestHeaders(stage(), route, null).query, { after: 0, filter: "all", q: null, group: "context" });
+  assert.deepEqual(requestHeaders(stage("?after=100000&filter=left&q=" + encodeURIComponent("구매 push") + "&group=source&other=1"), route, null).query,
+    { after: 100000, filter: "left", q: "구매 push", group: "source" });
+  assert.equal(requestHeaders(stage("?q=" + "가".repeat(200)), route, null).query.q.length, 200);
+  for (const [query, field] of [["?after=100001", "after"], ["?after=-1", "after"], ["?after=1.5", "after"], ["?after=", "after"], ["?after=0&after=0", "after"],
+    ["?filter=All", "filter"], ["?filter=", "filter"], ["?group=kind", "group"], ["?q=" + "가".repeat(201), "q"], ["?q=a&q=b", "q"]]) {
+    assert.throws(() => requestHeaders(stage(query), route, null), (error) => error.code === "invalid_request" && error.fields.field === field, query);
+  }
+  // Only the stage read takes query values; the others ignore what is sent.
+  const todo = pathRoute(request("GET", "/api/spaces/acme/todo?after=x"));
+  assert.deepEqual(requestHeaders(request("GET", "/api/spaces/acme/todo?after=x"), todo, null).query, {});
 });
