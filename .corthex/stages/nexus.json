@@ -76,8 +76,8 @@
           "date": "2026-11-07"
         }
       ],
-      "next": "The redesign's checkpoint 3 for FL-117 to FL-119, in the design pull request",
-      "updated": "2026-11-07T14:38:55+00:00"
+      "next": "Build FL-117 to FL-119 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "04-functional-spec": {
       "state": "in_progress",
@@ -94,8 +94,8 @@
           "date": "2026-11-07"
         }
       ],
-      "next": "The redesign's checkpoint 3 for SPEC-143 to SPEC-156, in the design pull request",
-      "updated": "2026-11-07T14:38:55+00:00"
+      "next": "Build SPEC-143 to SPEC-156 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "05-erd": {
       "state": "in_progress",
@@ -112,8 +112,8 @@
           "date": "2026-11-08"
         }
       ],
-      "next": "The redesign's checkpoint 3 for TBL-105, in the design pull request",
-      "updated": "2026-11-08T00:39:00+00:00"
+      "next": "Build the change of TBL-105 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "06-api": {
       "state": "in_progress",
@@ -130,8 +130,8 @@
           "date": "2026-11-08"
         }
       ],
-      "next": "The redesign's checkpoint 3 for API-151 to API-159, in the design pull request",
-      "updated": "2026-11-08T00:39:00+00:00"
+      "next": "Build API-151 to API-159 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "07-sitemap": {
       "state": "in_progress",
@@ -148,8 +148,8 @@
           "date": "2026-11-06"
         }
       ],
-      "next": "Write the redesign screens SCR-110 to SCR-129 in the design pull request",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Phase ②'s sitemap, after the redesign's build (order of 2026-11-08)",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "08-screen-states": {
       "state": "in_progress",
@@ -164,10 +164,16 @@
           "approved": "Redesign checkpoint 1: the new structure as drawn, with conversation on document items",
           "by": "the maintainer",
           "date": "2026-11-06"
+        },
+        {
+          "approved": "Redesign checkpoint 3: the 53 states of SCR-110 to SCR-117 as defined and drawn",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/08-screens/nexus/README.md",
+          "date": "2026-11-08"
         }
       ],
-      "next": "Define the states of the redesign screens in the design pull request",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Phase ②'s screen states, after the redesign's build and phase ②'s sitemap",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "09-mockup": {
       "state": "in_progress",
@@ -182,10 +188,22 @@
           "approved": "Picture-first redesign reopening the token freeze, and its checkpoint 1: the structure as drawn",
           "by": "the maintainer",
           "date": "2026-11-06"
+        },
+        {
+          "approved": "Redesign checkpoint 2: candidate A, Drawing sheet",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/09-mockup/nexus/README.md",
+          "date": "2026-11-07"
+        },
+        {
+          "approved": "Redesign checkpoint 3: the 53 states as drawn and A's tokens frozen again, with the nearest space step for the 6- and 10-pixel gaps, a 44-pixel hit area, the two IBM Plex packages and done-fg counts on a done stage",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/09-mockup/nexus/README.md",
+          "date": "2026-11-08"
         }
       ],
-      "next": "Checkpoint 2: choose one of two color and font candidates",
-      "updated": "2026-11-06T09:35:44+00:00"
+      "next": "Phase ②'s mockups, after the redesign's build and phase ②'s stages 07 and 08",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "10-wbs": {
       "state": "done",

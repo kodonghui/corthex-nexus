@@ -329,7 +329,7 @@ On 2026-11-07, for the redesign's checkpoint 3, on the eight definitions of SCR-
 
 ## For the checkpoint
 
-The redesign's checkpoint 3 is open. It sees this stage's definitions with stage 09's states and tokens ([stage 09](../../09-mockup/nexus/README.md#for-the-checkpoint)); its points for this stage:
+The redesign's checkpoint 3 passed on 2026-11-08 at 14:54 KST, with stage 09's states and tokens ([stage 09](../../09-mockup/nexus/README.md#for-the-checkpoint)): on a decision card in the project's thread, which asked whether to confirm checkpoint 3's drawings of the states and the values of the tokens as they are, the maintainer chose to confirm them as drawn ("그린 대로 확정 (추천)", confirm as drawn, recommended). The states of SCR-110 to SCR-117 stand as their definitions write them and stage 09 draws them. The points that this stage put to it:
 
 1. The 53 states of SCR-110 to SCR-117, as their definitions write them and stage 09's [redesign.html](../../09-mockup/nexus/redesign.html) draws them.
 2. Rules 13 to 18 of [the redesign's screens](#the-redesigns-screens), and choices 13 to 19.
@@ -349,7 +349,7 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 07: on a decision 
 
 ### Stage 09: mockups
 
-- For the redesign: [redesign.html](../../09-mockup/nexus/redesign.html) draws every state of SCR-110 to SCR-117 in the look of checkpoint 2, at 390 and 1,440 pixels, with SCR-111 at 1,152 too, in both themes and languages; its checkpoint 3 freezes the tokens that it uses.
+- For the redesign: [redesign.html](../../09-mockup/nexus/redesign.html) draws every state of SCR-110 to SCR-117 in the look of checkpoint 2, at 390 and 1,440 pixels, with SCR-111 at 1,152 too, in both themes and languages; its checkpoint 3 froze the tokens that it uses on 2026-11-08.
 - Two candidates for each new screen, SCR-105 to SCR-109, the phone first, at 320 pixels, from these frames; each state is a frame to design. The hub page keeps phase 1's design, with the additions of 0.2 on SCR-101 and SCR-104.
 - The marks on a picture's items, and "Accepted, not yet reflected", need a form that reads on a full DDD board and in both themes, and a size that a finger can select.
 - The step control of a DDD board, at both widths, and the notice of a board without a timeline (SPEC-141).

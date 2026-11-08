@@ -1,212 +1,220 @@
 {
-  "$description": "NEXUS 0.2: the dark theme's colours and shadows, under the same names in each theme file (stage 09, direction A, frozen on 2026-11-03).",
+  "$description": "NEXUS: the dark theme's colours and shadows, under the same names in each theme file (stage 09). Drawn for direction A and frozen for NEXUS 0.2 on 2026-11-03; redrawn for the redesign's candidate A, Drawing sheet, and frozen again at its checkpoint 3 on 2026-11-08.",
   "color": {
     "$type": "color",
     "bg": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0588, 0.0706, 0.0863],
-        "hex": "#0f1216"
+        "components": [0.0863, 0.0824, 0.0706],
+        "hex": "#161512"
       },
       "$description": "The page's ground"
     },
     "surface": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0902, 0.1059, 0.1294],
-        "hex": "#171b21"
+        "components": [0.1176, 0.1137, 0.098],
+        "hex": "#1e1d19"
       },
       "$description": "Cards, bars, sheets and panels"
     },
     "sunken": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.1216, 0.1451, 0.1765],
-        "hex": "#1f252d"
+        "components": [0.1608, 0.1529, 0.1255],
+        "hex": "#292720"
       },
       "$description": "Wells inside a surface"
     },
     "text": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.8941, 0.9098, 0.9294],
-        "hex": "#e4e8ed"
+        "components": [0.9255, 0.9098, 0.8706],
+        "hex": "#ece8de"
       },
       "$description": "Text"
     },
     "muted": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.6078, 0.651, 0.698],
-        "hex": "#9ba6b2"
+        "components": [0.6706, 0.6471, 0.5922],
+        "hex": "#aba597"
       },
       "$description": "Meta text, legends and placeholders' labels"
     },
     "line": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.1922, 0.2235, 0.2588],
-        "hex": "#313942"
+        "components": [0.2157, 0.2039, 0.1765],
+        "hex": "#37342d"
       },
       "$description": "Dividers and the borders of controls"
     },
     "accent": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.4784, 0.7059, 1.0],
-        "hex": "#7ab4ff"
+        "components": [0.5608, 0.7255, 0.902],
+        "hex": "#8fb9e6"
       },
       "$description": "Links, the primary button and a proposal's mark"
+    },
+    "accent-soft": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.1176, 0.1725, 0.2314],
+        "hex": "#1e2c3b"
+      },
+      "$description": "The selected row, the current stage's row and my turn, with a 3-pixel bar of the accent at their start"
     },
     "on-accent": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0588, 0.0706, 0.0863],
-        "hex": "#0f1216"
+        "components": [0.0588, 0.0863, 0.1255],
+        "hex": "#0f1620"
       },
       "$description": "Text on the accent"
     },
     "focus": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.4784, 0.7059, 1.0],
-        "hex": "#7ab4ff"
+        "components": [0.5608, 0.7255, 0.902],
+        "hex": "#8fb9e6"
       },
       "$description": "The focus ring"
     },
     "error": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [1.0, 0.5412, 0.502],
-        "hex": "#ff8a80"
+        "components": [1.0, 0.549, 0.4902],
+        "hex": "#ff8c7d"
       },
       "$description": "Error text"
     },
     "error-bg": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.2275, 0.102, 0.0941],
-        "hex": "#3a1a18"
+        "components": [0.2275, 0.1059, 0.0863],
+        "hex": "#3a1b16"
       },
       "$description": "An error's notice"
     },
     "warn": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.9529, 0.7529, 0.3843],
-        "hex": "#f3c062"
+        "components": [0.9098, 0.7294, 0.3608],
+        "hex": "#e8ba5c"
       },
       "$description": "Warning text and a discrepancy's mark"
     },
     "warn-bg": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.2, 0.1529, 0.0588],
-        "hex": "#33270f"
+        "components": [0.2, 0.1608, 0.0588],
+        "hex": "#33290f"
       },
       "$description": "A warning's notice"
     },
     "on-warn": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0588, 0.0706, 0.0863],
-        "hex": "#0f1216"
+        "components": [0.0863, 0.0824, 0.0706],
+        "hex": "#161512"
       },
       "$description": "Text on the warning colour"
     },
     "info": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.6118, 0.7529, 0.9255],
-        "hex": "#9cc0ec"
+        "components": [0.5608, 0.7255, 0.902],
+        "hex": "#8fb9e6"
       },
       "$description": "Information text"
     },
     "info-bg": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0941, 0.149, 0.2275],
-        "hex": "#18263a"
+        "components": [0.1176, 0.1725, 0.2314],
+        "hex": "#1e2c3b"
       },
       "$description": "An information notice"
     },
     "done-bg": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0784, 0.1961, 0.1333],
-        "hex": "#143222"
+        "components": [0.9255, 0.9098, 0.8706],
+        "hex": "#ece8de"
       },
       "$description": "A done stage, as phase 1"
     },
     "done-fg": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.5608, 0.8784, 0.6588],
-        "hex": "#8fe0a8"
+        "components": [0.0863, 0.0824, 0.0706],
+        "hex": "#161512"
       },
       "$description": "A done stage's text"
     },
     "done-line": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.1843, 0.5412, 0.298],
-        "hex": "#2f8a4c"
+        "components": [0.9255, 0.9098, 0.8706],
+        "hex": "#ece8de"
       },
       "$description": "A done stage's border"
     },
     "progress-bg": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0745, 0.1608, 0.2902],
-        "hex": "#13294a"
+        "components": [0.1176, 0.1725, 0.2314],
+        "hex": "#1e2c3b"
       },
       "$description": "A stage in progress, as phase 1"
     },
     "progress-fg": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.6627, 0.8039, 0.9882],
-        "hex": "#a9cdfc"
+        "components": [0.5608, 0.7255, 0.902],
+        "hex": "#8fb9e6"
       },
       "$description": "A stage in progress: its text"
     },
     "progress-line": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.2392, 0.4824, 0.8157],
-        "hex": "#3d7bd0"
+        "components": [0.5608, 0.7255, 0.902],
+        "hex": "#8fb9e6"
       },
       "$description": "A stage in progress: its border"
     },
     "todo-line": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.2275, 0.2627, 0.302],
-        "hex": "#3a434d"
+        "components": [0.502, 0.4745, 0.4118],
+        "hex": "#807969"
       },
       "$description": "A stage not started: its border, as phase 1"
     },
     "skipped-fg": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.5294, 0.5725, 0.6275],
-        "hex": "#8792a0"
+        "components": [0.6706, 0.6471, 0.5922],
+        "hex": "#aba597"
       },
       "$description": "A skipped stage: its text, on color.sunken with a dotted color.todo-line border; phase 1's, darkened to 4.5:1 in light"
     },
     "unknown-line": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.3373, 0.3804, 0.4275],
-        "hex": "#56616d"
+        "components": [0.502, 0.4745, 0.4118],
+        "hex": "#807969"
       },
       "$description": "A stage not recorded: its dashed border, on color.surface with color.muted text, as phase 1"
     },
     "control-line": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.4196, 0.4627, 0.5098],
-        "hex": "#6b7682"
+        "components": [0.502, 0.4745, 0.4118],
+        "hex": "#807969"
       },
       "$description": "The border of a field, a chip or a check box: 3:1 against the page and a surface (WCAG 1.4.11), where phase 1's line is lighter"
     },
@@ -214,16 +222,16 @@
       "ink": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.8941, 0.9098, 0.9294],
-          "hex": "#e4e8ed"
+          "components": [0.9255, 0.9098, 0.8706],
+          "hex": "#ece8de"
         },
         "$description": "A comment's mark, and a merged mark"
       },
       "on-ink": {
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0588, 0.0706, 0.0863],
-          "hex": "#0f1216"
+          "components": [0.0863, 0.0824, 0.0706],
+          "hex": "#161512"
         },
         "$description": "The count on a mark"
       },

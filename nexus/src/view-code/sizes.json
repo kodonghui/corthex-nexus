@@ -100,10 +100,10 @@
       "/code/erd.e6d724ab.js",
       "/code/erd-chunk-1.3b3d88cf.js"
     ],
-    "view-js": "/code/view.b7923c21.js",
-    "view-css": "/code/view.27ce8602.css",
+    "view-js": "/code/view.2a9980bc.js",
+    "view-css": "/code/view.2da71f93.css",
     "view-preload": [
-      "/code/view.b7923c21.js"
+      "/code/view.2a9980bc.js"
     ],
     "font-preload": [
       "/code/editor-font-2.76945f09.woff2",
@@ -4082,26 +4082,26 @@
       "graphDigest": "858eeda69efc1917ada1b5fb61ac4593cc7913a4ef1ebc7d682241295aec950c"
     },
     {
-      "name": "view.27ce8602.css",
-      "path": "view.27ce8602.css.txt",
+      "name": "view.2da71f93.css",
+      "path": "view.2da71f93.css.txt",
       "type": "text/css; charset=utf-8",
-      "raw": 13500,
-      "gzip": 3450,
-      "payloadSha256": "0a94eccdc025467440a93189672aee285b8318871b552b83a1051bda1b3bc12c",
-      "graphDigest": "16bfe988004eb630920eb4b13836165cd5fad9e774be7f1a9f5783cac935438d"
+      "raw": 13691,
+      "gzip": 3437,
+      "payloadSha256": "bab06befc997b17ccd24c45c9761a3a5853659df358cdbe89fbdbfb13080e79b",
+      "graphDigest": "f8eb84cba84603f74814a30b3a4ccbc5a15c019593b06e9a3bdf286502fd5975"
     },
     {
-      "name": "view.b7923c21.js",
-      "path": "view.b7923c21.js.txt",
+      "name": "view.2a9980bc.js",
+      "path": "view.2a9980bc.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 87906,
       "gzip": 29552,
       "payloadSha256": "27c5e675e2ad01a8025f3c67b04e99702ed1fc9633e792ecd2e9f237561bc11f",
-      "graphDigest": "16bfe988004eb630920eb4b13836165cd5fad9e774be7f1a9f5783cac935438d"
+      "graphDigest": "f8eb84cba84603f74814a30b3a4ccbc5a15c019593b06e9a3bdf286502fd5975"
     }
   ],
-  "totalRaw": 23514080,
-  "totalGzip": 16367747,
+  "totalRaw": 23514271,
+  "totalGzip": 16367734,
   "inputs": {
     "excalidraw": {
       "node_modules/react/cjs/react.production.min.js": {
@@ -25473,8 +25473,8 @@
         "sha256": "4c35b6ae1331686fec871c376864e4bbc40d38afeff194489be5609dcf9f108f"
       },
       "nexus/ui/tokens.css": {
-        "bytes": 3770,
-        "sha256": "24a07b1ef33e5b56eec64dcfcb941e91e662c4dd9c447cdb7894dc07130e84ed"
+        "bytes": 3979,
+        "sha256": "447a29636db00122b420d99b5b99c6ca516b6384a6d091785621df80f91ee603"
       },
       "nexus/ui/view.css": {
         "bytes": 10227,
