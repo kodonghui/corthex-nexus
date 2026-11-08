@@ -4,14 +4,15 @@ import { ROUTES, pathRoute, requestHeaders } from "../src/preflight.js";
 
 const request = (method, path, headers) => new Request("https://nexus.example.com" + path, { method, headers });
 const ID = "0123456789ab";
-const values = { project: "acme-shop", part: "_", stage: "02-prd", pictureStage: "05-erd", file: "view.01234567.js", comment: "nc_" + ID, proposal: "np_" + ID, edit: "ne_" + ID, checkpoint: "nk_" + ID, entry: "nd_" + ID };
-const path = (route) => route.path.replace(/\{(\w+)\}/g, (_, name) => values[name]);
+const values = { project: "acme-shop", part: "_", stage: "02-prd", pictureStage: "05-erd", id: "TBL-111", file: "view.01234567.js", comment: "nc_" + ID, proposal: "np_" + ID, edit: "ne_" + ID, checkpoint: "nk_" + ID, entry: "nd_" + ID };
+// The search requires its words, so that a request of it reaches its handler.
+const path = (route) => route.path.replace(/\{(\w+)\}/g, (_, name) => values[name]) + (route.operation === "searchItems" ? "?q=REQ-107" : "");
 const code = (value) => (error) => error.code === value;
 const headers = { "Idempotency-Key": '"nw_' + ID + '"', "Nexus-Session": "agent-one" };
 
-test("all 34 contracted operations dispatch, and every GET also takes HEAD", () => {
-  assert.equal(ROUTES.length, 34);
-  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 34);
+test("all 36 contracted operations dispatch, and every GET also takes HEAD", () => {
+  assert.equal(ROUTES.length, 36);
+  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 36);
   for (const route of ROUTES) {
     assert.equal(pathRoute(request(route.method, path(route))).operation, route.operation);
     if (route.method === "GET") assert.equal(pathRoute(request("HEAD", path(route))).operation, route.operation);
@@ -26,6 +27,9 @@ test("invalid path values get resource-specific 404s and never reach a handler",
     ["/api/spaces/acme/edits/wrong", "edit_not_found"], ["/api/spaces/acme/checkpoints/wrong", "checkpoint_not_found"],
     ["/api/spaces/acme/claims/np_" + ID, "entry_not_found"], ["/api/snapshots/a%2fb", "project_not_found"],
     ["/code/private.js", "not_found"], ["/api/snapshots/%ZZ", "not_found"], ["/nothing", "not_found"],
+    ["/api/spaces/acme/items/tbl-111", "item_not_found"], ["/api/spaces/acme/items/TBL-1234567", "item_not_found"],
+    ["/api/spaces/acme/items/A" + "B".repeat(23) + "-123456", "item_not_found"], ["/api/spaces/Acme/items/tbl-111", "project_not_found"],
+    ["/api/spaces/acme/items/", "not_found"],
   ]) assert.throws(() => pathRoute(request("GET", path)), code(error), path);
 });
 
@@ -95,5 +99,32 @@ test("a talk read takes its item, closed and after with their defaults and refus
     ["?item=", "item"], ["?item=TBL-1&item=TBL-2", "item"], ["?closed=2", "closed"], ["?closed=true", "closed"], ["?closed=", "closed"], ["?closed=1&closed=1", "closed"],
     ["?after=100001", "after"], ["?after=-1", "after"], ["?item=TBL-111&closed=2&after=x", "closed"]]) {
     assert.throws(() => requestHeaders(talk(query), route, null), (error) => error.code === "invalid_request" && error.fields.field === field, query);
+  }
+});
+
+test("an item read takes its part, the first part when it is left out, and refuses one in another form by its field", () => {
+  const item = (query = "") => request("GET", "/api/spaces/acme/items/TBL-111" + query);
+  const route = pathRoute(item());
+  assert.deepEqual([route.operation, route.params], ["getItem", { project: "acme", id: "TBL-111" }]);
+  assert.deepEqual(requestHeaders(item(), route, null).query, { part: null });
+  assert.deepEqual(requestHeaders(item("?part=nexus&item=x"), route, null).query, { part: "nexus" });
+  assert.deepEqual(requestHeaders(item("?part=_"), route, null).query, { part: "" });
+  assert.equal(requestHeaders(item("?part=" + "a".repeat(100)), route, null).query.part.length, 100);
+  for (const query of ["?part=Nexus", "?part=", "?part=a_b", "?part=-a", "?part=" + "a".repeat(101), "?part=nexus&part=memory"]) {
+    assert.throws(() => requestHeaders(item(query), route, null), (error) => error.code === "invalid_request" && error.fields.field === "part", query);
+  }
+});
+
+test("a search takes 2 to 200 characters of words once their outer spaces are cut, and refuses others by q", () => {
+  const search = (query = "") => request("GET", "/api/search" + query);
+  const route = pathRoute(search());
+  assert.deepEqual([route.operation, route.params], ["searchItems", {}]);
+  assert.deepEqual(requestHeaders(search("?q=REQ-107&part=x"), route, null).query, { q: "REQ-107" });
+  assert.deepEqual(requestHeaders(search("?q=" + encodeURIComponent("  구매 확인 ")), route, null).query, { q: "구매 확인" });
+  assert.deepEqual(requestHeaders(search("?q=%20%20ab%20%20"), route, null).query, { q: "ab" });
+  assert.equal(Array.from(requestHeaders(search("?q=" + encodeURIComponent(" " + "가".repeat(200) + " ")), route, null).query.q).length, 200);
+  for (const query of ["", "?q=", "?q=a", "?q=%20a%20", "?q=" + encodeURIComponent("가"), "?q=" + "x".repeat(201), "?q=" + encodeURIComponent("가".repeat(201)), "?q=ab&q=cd"]) {
+    assert.throws(() => requestHeaders(search(query), route, null), (error) => error.code === "invalid_request" && error.fields.field === "q"
+      && error.message === "q: write 2 to 200 characters", query);
   }
 });

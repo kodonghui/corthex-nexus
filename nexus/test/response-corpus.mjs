@@ -19,6 +19,12 @@ async function call(method,path,body,kind="agent") {
 }
 const snapshot=JSON.parse(readFileSync(new URL("./snapshot-02-example.json",import.meta.url),"utf8"));
 snapshot.project.parts.push("constructor");
+// The context and the items that TBL-111 comes from and leads to, for its trace.
+snapshot.ids={...snapshot.ids,CTX:"context",SPEC:"spec",API:"api"};
+snapshot.items.push({id:"CTX-007",kind:"context",stage:"01-domain",where:"docs/01-domain/nexus.md:40",title:"Stage progress"},
+  {id:"SPEC-136",kind:"spec",stage:"04-functional-spec",where:"docs/04-functional-spec/nexus.md:90",title:"Claim what the agent takes",links:["CTX-007"]},
+  {id:"API-131",kind:"api",stage:"06-api",where:"docs/06-api/nexus.openapi.yaml:900",title:"claimEntry",links:["TBL-111","SPEC-136"]});
+snapshot.summary={...snapshot.summary,items:snapshot.items.length};
 await call("POST","/api/snapshots",snapshot);
 const cases=[];
 for(const path of ["/pictures/corthex/nexus/05-erd","/overview/corthex/nexus/05-erd","/pictures/corthex/constructor/05-erd"]){
@@ -57,4 +63,14 @@ for(const path of ["/api/spaces/corthex/talk/nexus/05-erd?closed=1","/api/spaces
   if(!value.agent.entries[0]?.claim?.claimed_at||!value.mine.total||!value.closed.entries.length||!value.reflections[0]?.claim)throw new Error("the talk lacks an entry that its case needs: "+path);
   cases.push({name:path,schema:"StageTalk",value});
 }
+// One item with its links and its talk, in the project's first part and in
+// the part that holds the talk; the search by ID, by words and with no match.
+for(const path of ["/api/spaces/corthex/items/TBL-111","/api/spaces/corthex/items/TBL-111?part=nexus"]){
+  const value=await call("GET",path);
+  if(!value.context||!value.source?.link||!value.trace.from.length||!value.trace.to.length)throw new Error("the item lacks a part that its case needs: "+path);
+  if(path.endsWith("nexus")&&(!value.comments.agent.entries.length||!value.comments.mine.total||!value.comments.reflections.length))throw new Error("the item's talk lacks an entry that its case needs");
+  cases.push({name:path,schema:"ItemData",value});
+}
+for(const path of ["/api/search?q=TBL-111","/api/search?q=claim","/api/search?q=settles%20twice"])
+  cases.push({name:path,schema:"SearchAnswer",value:await call("GET",path)});
 process.stdout.write(JSON.stringify(cases));

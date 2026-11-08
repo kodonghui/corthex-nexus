@@ -3,6 +3,7 @@ import { Problem } from "./problem.js";
 
 export const STAGES = Object.freeze(["01-domain", "02-prd", "03-user-flow", "04-functional-spec", "05-erd", "06-api", "07-sitemap", "08-screen-states", "09-mockup", "10-wbs", "11-development", "12-qa", "13-presentation"]);
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const TRACE = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
 const ID = /^[0-9a-hjkmnp-tv-z]{12}$/;
 const SESSION = /^[A-Za-z0-9._:-]{1,100}$/;
 const rules = [
@@ -21,6 +22,8 @@ const rules = [
   ["getAgentTodo", "GET", "/api/spaces/{project}/todo"],
   ["getStage", "GET", "/api/spaces/{project}/stages/{part}/{stage}"],
   ["getStageTalk", "GET", "/api/spaces/{project}/talk/{part}/{stage}"],
+  ["getItem", "GET", "/api/spaces/{project}/items/{id}"],
+  ["searchItems", "GET", "/api/search"],
   ["leaveComment", "POST", "/api/spaces/{project}/comments", "either", "comment"],
   ["getComment", "GET", "/api/spaces/{project}/comments/{comment}"],
   ["replyToComment", "POST", "/api/spaces/{project}/comments/{comment}/replies", "either", "reply"],
@@ -56,6 +59,7 @@ function validate(name, value) {
   const prefix = { comment: "nc_", proposal: "np_", edit: "ne_", checkpoint: "nk_" }[name];
   if (prefix && (!value.startsWith(prefix) || !ID.test(value.slice(3)))) return name + "_not_found";
   if (name === "entry" && (!/^n[cdek]_/.test(value) || !ID.test(value.slice(3)))) return "entry_not_found";
+  if (name === "id" && (value.length > 30 || !TRACE.test(value))) return "item_not_found";
   return null;
 }
 
@@ -86,17 +90,27 @@ export function pathRoute(request) {
 // and the words of its refusal (stage 06, Addresses and paths). A value that
 // is not in its form, or given twice, is refused by its field, never ignored.
 const AFTER = Object.freeze([0, (value) => /^[0-9]{1,6}$/.test(value) && Number(value) <= 100000 ? Number(value) : undefined, "write a whole number from 0 to 100000"]);
+// Characters are counted as code points, as the contract's lengths count them.
+const length = (value) => Array.from(value).length;
 const QUERIES = Object.freeze({
   getStage: {
     after: AFTER,
     filter: ["all", (value) => ["all", "talk", "mine", "left"].includes(value) ? value : undefined, "write all, talk, mine or left"],
-    q: [null, (value) => Array.from(value).length <= 200 ? value : undefined, "write at most 200 characters"],
+    q: [null, (value) => length(value) <= 200 ? value : undefined, "write at most 200 characters"],
     group: ["context", (value) => ["context", "source"].includes(value) ? value : undefined, "write context or source"],
   },
   getStageTalk: {
-    item: [null, (value) => value.length <= 30 && /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/.test(value) ? value : undefined, "write a trace ID, such as TBL-111"],
+    item: [null, (value) => value.length <= 30 && TRACE.test(value) ? value : undefined, "write a trace ID, such as TBL-111"],
     closed: [0, (value) => value === "0" || value === "1" ? Number(value) : undefined, "write 0 or 1"],
     after: AFTER,
+  },
+  // null is the project's first part, and _ the project as a whole.
+  getItem: {
+    part: [null, (value) => value === "_" ? "" : NAME.test(value) && value.length <= 100 ? value : undefined, "write a part's name, or _ for the project as a whole"],
+  },
+  // The words are required, and counted once their outer spaces are cut.
+  searchItems: {
+    q: [undefined, (value) => { const words = value.trim(); return length(words) >= 2 && length(words) <= 200 ? words : undefined; }, "write 2 to 200 characters"],
   },
 });
 

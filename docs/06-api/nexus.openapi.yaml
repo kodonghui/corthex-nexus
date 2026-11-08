@@ -15,8 +15,8 @@ info:
     with the same status and headers and no body, a method that a path does not take gets 405 with
     an Allow header, and every reply carries the security headers that nexus.md lists. The
     operations whose x-corthex.status is planned are the redesign's that the server does not
-    answer yet, API-151, API-153, API-154, API-156, API-157 and API-159: each is marked active once
-    the server answers it, as API-152 and API-158 are, and until then the checks leave it out and
+    answer yet, API-151, API-153, API-154 and API-159: each is marked active once the server
+    answers it, as API-152 and API-156 to API-158 are, and until then the checks leave it out and
     the server answers its path as unknown.
 servers:
   - url: https://nexus.example.com
@@ -1701,7 +1701,7 @@ paths:
       x-corthex:
         id: API-156
         spec: [SPEC-113, SPEC-152]
-        status: planned
+        status: active
         omit:
           "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
           "404": the path names no resource; words without a match are 200 with none
@@ -1829,11 +1829,13 @@ paths:
         repository's web address; the items that it comes from and leads to, by stage, as the hub
         page's trace (SPEC-122); and its talk in the part, as getStageTalk gives it narrowed to
         the item. An item that no stage of the project holds is 404 item_not_found; the view then
-        reads the talk that still names it with getStageTalk, where it shows apart.
+        reads the talk that still names it with getStageTalk, where it shows apart. A project
+        without a space, pushed only by a hub of 0.1, has no talk and is 404 space_not_found, as
+        for getStageTalk.
       x-corthex:
         id: API-157
         spec: [SPEC-113, SPEC-149]
-        status: planned
+        status: active
         omit:
           "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
@@ -1854,13 +1856,14 @@ paths:
                 invalid-part: {$ref: "#/components/examples/invalid_part"}
         "403": {$ref: "#/components/responses/ReadRefused"}
         "404":
-          description: No such project or part, or no stage of the project holds the item
+          description: No such project, space or part, or no stage of the project holds the item
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/Problem"}
               examples:
                 item-not-found: {$ref: "#/components/examples/item_not_found"}
                 project-not-found: {$ref: "#/components/examples/project_not_found"}
+                space-not-found: {$ref: "#/components/examples/space_not_found"}
                 part-not-found: {$ref: "#/components/examples/part_not_found"}
         default: {$ref: "#/components/responses/Unexpected"}
 

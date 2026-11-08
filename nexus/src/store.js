@@ -2,8 +2,10 @@ import { Problem } from "./problem.js";
 import { planPush, checkCommit } from "./push-plan.js";
 import * as E from "./entries.js";
 import { checkWriteBody, planEntryWrite, entryDisposition } from "./entry-plan.js";
-import { stageData } from "./stage-items.js";
+import { stageData, heldItem, partsOf } from "./stage-items.js";
 import { talkData, CLOSED } from "./stage-talk.js";
+import { itemData } from "./item-data.js";
+import { searchData } from "./search.js";
 // Everything that touches the database is in this file. The SQL is the part
 // SQLite (D1) and Postgres share, apart from the `?` placeholders, so moving
 // to another database changes this file only.
@@ -490,7 +492,10 @@ export class Store {
   async readTalk(project, part, stage, query, now = new Date().toISOString()) {
     const context = await this.readContext(project, true);
     this.validPart(context.snapshot, part);
-    const { item, closed, after } = query;
+    return this.talk(context, project, part, stage, query, now);
+  }
+
+  async talk(context, project, part, stage, { item, closed, after }, now) {
     const keys = [project, part, stage, item, item, project, part, stage, item, item];
     const page = `WITH ${CLOSED_TALK}, page AS (SELECT kind,id,at FROM talk ORDER BY at DESC,id LIMIT ${CLOSED} OFFSET ?)`;
     const rows = await this.db.batch([
@@ -508,6 +513,30 @@ export class Store {
     return talkData({ snapshot: context.snapshot, project, part, stage, item, now,
       open: rows[0].results, proposals: rows[1].results, reflections: rows[2].results, claims: rows[3].results,
       closedTotal: rows[4].results[0].total, closedRows: closed ? [...rows[5].results, ...rows[6].results] : [] });
+  }
+
+  // API-157: an item that a stage of the stored snapshot holds, with its talk
+  // in the part, the project's first part unless the request names one, as
+  // API-152 gives it narrowed to the item, so a project without a space is
+  // space_not_found as there.
+  async readItem(project, id, part, now = new Date().toISOString()) {
+    const context = await this.readContext(project, true);
+    const chosen = part === null ? partsOf(context.snapshot)[0] : part;
+    this.validPart(context.snapshot, chosen);
+    const item = heldItem(context.snapshot, id);
+    if (!item) throw new Problem("item_not_found", `no stage of the stored snapshot of ${project} holds ${id}`);
+    const comments = await this.talk(context, project, chosen, item.stage, { item: id, closed: 0, after: 0 }, now);
+    return itemData({ snapshot: context.snapshot, project, part: chosen, item, comments });
+  }
+
+  // API-156: each stored snapshot's first part and items, in the order of the
+  // projects' names; SQLite takes them out of the stored body, so the server
+  // parses only the items, never the checks or the stage sources.
+  async searchItems(q) {
+    await this.ensure();
+    const { results } = await this.db.prepare(`SELECT name,json_extract(body,'$.project.parts[0]') AS part,
+      json_extract(body,'$.items') AS items FROM snapshots ORDER BY name`).all();
+    return searchData(q, results || []);
   }
 
   async readEntry(project, kind, id) {

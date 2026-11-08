@@ -7,15 +7,22 @@ import { stageRecord } from "./entries.js";
 // The hub page's order of kinds, which is the stage contract's order of stages.
 export const KIND_ORDER = Object.freeze(["context", "term", "requirement", "flow", "spec", "table", "api", "screen", "task", "test", "bug", "scene"]);
 export const PAGE = 200;
-const TRACE = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
+export const TRACE = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
 const FIELDS = ["id", "kind", "stage", "where", "title", "status", "type", "priority", "link", "parent", "screen_doc", "states", "links"];
 // A DDD board's hotspot is open while its state says so, in the stage 01
 // template's English or in Korean; answered ones (answered, 답함) are not.
 const OPEN_HOTSPOT = new Set(["open", "열림"]);
 
-const cut = (text, limit) => Array.from(text).slice(0, limit).join("");
+export const cut = (text, limit) => Array.from(text).slice(0, limit).join("");
 const list = (value) => { try { const parsed = typeof value === "string" ? JSON.parse(value) : value; return Array.isArray(parsed) ? parsed : []; } catch { return []; } };
-const https = (value) => typeof value === "string" && value.startsWith("https://") && value.length <= 2000 ? value : null;
+export const https = (value) => typeof value === "string" && value.startsWith("https://") && value.length <= 2000 ? value : null;
+// An item's fields that the contract's Item names, as the snapshot holds them.
+export const itemFields = (item) => Object.fromEntries(FIELDS.filter((name) => item[name] !== undefined).map((name) => [name, item[name]]));
+// The project's parts, or the project as a whole when the snapshot names none.
+export const partsOf = (snapshot) => Array.isArray(snapshot.project?.parts) && snapshot.project.parts.length ? snapshot.project.parts : [""];
+// The item that a stage holds by its ID: the first in the snapshot's order of
+// those with the ID on one of the 13 stages, as the list shows each of them.
+export const heldItem = (snapshot, id) => (Array.isArray(snapshot.items) ? snapshot.items : []).find((item) => item.id === id && STAGES.includes(item.stage)) || null;
 
 // The hub page's order of IDs: by prefix, then by number.
 export function compareIds(a, b) {
@@ -62,7 +69,7 @@ export function contextFinder(snapshot) {
     found.set(id, context);
     return context;
   }
-  return { byId, contextOf };
+  return { byId, contextOf, kindOf, near };
 }
 
 function counted(values, limit) {
@@ -129,7 +136,7 @@ export function stageData({ held, snapshot, record, project, part, stage, query,
     });
   }
   const entries = ordered.slice(query.after, query.after + PAGE).map(({ item, mark }) => ({
-    ...Object.fromEntries(FIELDS.filter((name) => item[name] !== undefined).map((name) => [name, item[name]])),
+    ...itemFields(item),
     context: contextOf(item.id), comments: mark.comments, mine: mark.mine, discrepancies: mark.discrepancies, reflections: mark.reflections,
   }));
 
@@ -158,7 +165,7 @@ export function stageData({ held, snapshot, record, project, part, stage, query,
     picture: Boolean(picture),
   };
 
-  const parts = Array.isArray(snapshot.project?.parts) && snapshot.project.parts.length ? snapshot.project.parts : [""];
+  const parts = partsOf(snapshot);
   return {
     project: { name: held.name, title: typeof snapshot.project?.title === "string" ? cut(snapshot.project.title, 120) : null,
       repository: https(repo.url) || https(repo.web), commit: held.default_commit || null,

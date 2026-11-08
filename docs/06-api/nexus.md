@@ -139,8 +139,8 @@ Planned with the redesign of 2026-11-06 for SPEC-143 to SPEC-156. Its checkpoint
 | API-153 | `GET /p/{project}` | `getProjectPage` | either | SPEC-113, SPEC-146 | planned |
 | API-154 | `GET /p/{project}/{part}/{stage}` | `getStagePage` | either | SPEC-113, SPEC-146 to SPEC-151, SPEC-155, SPEC-156 | planned |
 | API-155 | `GET /` | `getHomePage` | either | SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-154 | planned |
-| API-156 | `GET /api/search` | `searchItems` | either | SPEC-113, SPEC-152 | planned |
-| API-157 | `GET /api/spaces/{project}/items/{id}` | `getItem` | either | SPEC-113, SPEC-149 | planned |
+| API-156 | `GET /api/search` | `searchItems` | either | SPEC-113, SPEC-152 | active |
+| API-157 | `GET /api/spaces/{project}/items/{id}` | `getItem` | either | SPEC-113, SPEC-149 | active |
 | API-158 | `GET /api/spaces/{project}/stages/{part}/{stage}` | `getStage` | either | SPEC-113, SPEC-147, SPEC-148 | active |
 | API-159 | `POST /api/spaces/{project}/comments/{comment}/recommended` | `takeRecommendation` | user | SPEC-113, SPEC-116, SPEC-143 | planned |
 
@@ -189,6 +189,14 @@ API-152 is active since TASK-267: the server answers it, and the contract checks
 - `item` narrows the comments to those on the item, and the proposals and reflections to those whose items include it, closed ones too; a comment on the stage as a whole is on no item.
 - The view asks with no session, so no claim in the talk is `mine`. Each comment and reflection gives `claim` with the claim's start and end while one lasts, and null otherwise; a proposal has no claim.
 - Each turn and apart give their first 200 entries with their totals, and the reflections all of the stage's, up to the 500 that a project holds at most. A project without a space is `404` `space_not_found`.
+
+API-156 and API-157 are active since TASK-268: the server answers them, and the contract checks and Schemathesis cover them. Building them settled these points:
+
+- API-157's item is the first item of the stored snapshot, in its order, that one of the 13 stages holds by the ID, as the list shows it. `part` names the part of its talk: the project's first part when it is left out, and `_` for the project as a whole. The talk is that of the item's stage in the part, as API-152 gives it narrowed to the item. A project without a space, pushed only by a hub of 0.1, is `404` `space_not_found`, as for API-152.
+- The source's place is read as the hub page's links read it, `[repository:]path:line`. A repository that the settings name holds the file at its own commit in the snapshot; any other name stays in the path, in the project's own repository, whose commit is the one that the snapshot was made from and may differ from the held default branch commit. The link opens the file at that commit, at its line unless it is the first. There is no link when the settings give no web address or no whole commit: the hub page also links an abbreviated commit, but the contract's commits are whole. There is no source when the item names no place or its path is over 300 characters.
+- The trace takes the item's direct links in either direction: items of an earlier kind, in the stage contract's order of kinds, are what it comes from, and items of a later kind what it leads to. Links to an item of the same kind, to a decision or another kind outside that order, to an ID that no item holds, or to an item outside the 13 stages have no place, though the hub page's trace view shows the first three as the same kind, decisions and links. The groups follow the stages' order, each by kind and then by ID, with its first 100 items and its total.
+- API-156 trims the words and counts them in code points. The items whose ID equals the words, ignoring case, come first; then the items whose ID or title holds every word, ignoring case; each list goes by the projects' names and then in the snapshot's order. An ID matches once in each project that holds it, as the first of its items on the 13 stages, so an ID in several projects is one match for each, by name; IDs in another form and items outside the 13 stages are left out. A match opens in the project's first part, or the project as a whole when it has no parts. `total` counts every match, and the first 20 come back, with titles cut at 120 characters.
+- The search reads only the stored items, never the checks or the stage sources, and keeps no index. Over 30 stored snapshots of 3,000 items each, 29 of them about 1 MB, it took from 104 to 156 milliseconds in a local in-memory server ([Checks run](#checks-run)).
 
 ## Phase ②'s interfaces
 
@@ -1115,6 +1123,12 @@ On 2026-11-08, when the server took API-152 (TASK-267), locally with synthetic d
 - openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 6 of them planned.
 - The contract checks: the 445 named JSON examples, four of the server's answers to API-158 and four to API-152 fit their schemas; the 74 named defaults pass; Schemathesis 3.39.16 tests the 34 operations that the server answers, 165 of 165 for each check, and leaves the 6 planned ones out. Prism was not run.
 - The repository's 13 Python tests and 279 Node tests pass, and the hub's snapshot of this repository reads 1278 items, the 6 new cases among them, with the same 630 warnings apart from line numbers. In a local in-memory server, with a project's 2,000 comments on one stage, 1,500 of them open, and three replies each, a read of the whole talk takes 29 milliseconds at the median of five, with or without a page of the closed talk, and one narrowed to an item 19, for answers of 342,585 to 415,822 bytes.
+
+On 2026-11-08, when the server took API-157 and API-156 (TASK-268), locally with synthetic data:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 4 of them planned.
+- The contract checks: the 446 named JSON examples, four of the server's answers to API-158, four to API-152, two to API-157 and three to API-156 fit their schemas; the 78 named defaults pass; Schemathesis 3.39.16 tests the 36 operations that the server answers, 174 of 174 for each check, and leaves the 4 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 287 Node tests pass, and the hub's snapshot of this repository reads 1286 items, the 8 new cases among them, with the same 630 warnings apart from line numbers. In a local in-memory server holding 30 projects, 29 snapshots of about 1 MB with 3,000 items each and one of 3,000 items, each of four searches takes from 104 to 156 milliseconds, from 109 to 135 at the median of five, for answers of 44 to 3,121 bytes; one item that 600 cases link, with 60 comments, reads in 9 milliseconds at the median, in 32,681 bytes.
 
 ### Development Access identity trial (2026-11-03)
 

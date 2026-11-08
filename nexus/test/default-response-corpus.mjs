@@ -13,15 +13,17 @@ const template=readFileSync(new URL("../src/hub.html",import.meta.url),"utf8");
 const common={"Cache-Control":"no-store","Referrer-Policy":"no-referrer",
   "X-Content-Type-Options":"nosniff","X-Frame-Options":"DENY",
   "X-Robots-Tag":"noindex, nofollow","Cross-Origin-Resource-Policy":"same-origin"};
-const values={project:"qa-offline-default",part:"nexus",stage:"05-erd",comment:"nc_aaaaaaaaaaaa",
+const values={project:"qa-offline-default",part:"nexus",stage:"05-erd",id:"TBL-111",comment:"nc_aaaaaaaaaaaa",
   proposal:"np_bbbbbbbbbbbb",edit:"ne_cccccccccccc",checkpoint:"nk_dddddddddddd",
   entry:"nc_aaaaaaaaaaaa",file:"view.deadbeef.js"};
+// A query value that an operation requires, so that the request reaches the handler.
+const queries={searchItems:"?q=REQ-107"};
 const records=[],originalError=console.error;
 try {
   for(const selected of manifest) {
     const route=ROUTES.find(row=>row.operation===selected.operation);assert.ok(route);
     const kind=route.role==="user"?"user":"agent",trace="1234567890abcdef-ICN";
-    const path=selected.path.replace(/\{(\w+)\}/g,(_,name)=>values[name]);
+    const path=selected.path.replace(/\{(\w+)\}/g,(_,name)=>values[name])+(queries[selected.operation]||"");
     const method=selected.status===405?"PATCH":selected.method.toUpperCase();
     const headers={...access.headers(kind),Accept:selected.media,"Cf-Ray":trace,
       "Nexus-Session":"offline-default-session","Idempotency-Key":'"nw_aaaaaaaaaaaa"'};
