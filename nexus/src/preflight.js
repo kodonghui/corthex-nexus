@@ -7,9 +7,12 @@ const TRACE = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
 const ID = /^[0-9a-hjkmnp-tv-z]{12}$/;
 const SESSION = /^[A-Za-z0-9._:-]{1,100}$/;
 const rules = [
-  ["getHubPage", "GET", "/"],
+  ["getHomePage", "GET", "/"],
+  ["getHubPage", "GET", "/hub"],
   ["getPictureViewPage", "GET", "/pictures/{project}/{part}/{pictureStage}"],
   ["getStageOverviewPage", "GET", "/overview/{project}/{part}/{stage}"],
+  ["getProjectPage", "GET", "/p/{project}"],
+  ["getStagePage", "GET", "/p/{project}/{part}/{stage}"],
   ["getViewCode", "GET", "/code/{file}"],
   ["pushSnapshot", "POST", "/api/snapshots"],
   ["listSnapshots", "GET", "/api/snapshots"],
@@ -115,6 +118,10 @@ const QUERIES = Object.freeze({
     q: [undefined, (value) => { const words = value.trim(); return length(words) >= 2 && length(words) <= 200 ? words : undefined; }, "write 2 to 200 characters"],
   },
 });
+
+// The values that a read takes when a request names none, which a page uses
+// for the reads that it holds (stage 06's Page data).
+export const defaultQuery = (operation) => Object.fromEntries(Object.entries(QUERIES[operation]).map(([name, [fallback]]) => [name, fallback]));
 
 export function queryValues(request, route) {
   const rules = QUERIES[route.operation];

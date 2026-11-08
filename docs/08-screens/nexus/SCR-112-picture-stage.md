@@ -55,7 +55,7 @@ Every state of the stage applies, with two of the picture's own, large and code-
 | --- | --- |
 | Access | Access's own login page or refusal comes before the page; the Worker's `403` and a sign-in that expired: SCR-112#permission. Passing and withdrawing need a person's own sign-in: `user_only` |
 | Input | The checkpoint's words, up to 2,000 characters, kept in their box and in the browser's storage until the server takes them (rule 5); empty words are left out and the checkpoint passes without them (SPEC-139) |
-| Target | A part, a space or a project that the server does not hold: SCR-111#error. No picture: SCR-112#empty. An address whose item the stage does not hold: SCR-115#gone. A step key that the board does not have: the whole board |
+| Target | A part or a project that the server does not hold: SCR-111#error. A project without a space: the message of `space_not_found` in the picture's place, as SCR-111's Target says. No picture: SCR-112#empty. An address whose item the stage does not hold: SCR-115#gone. A step key that the board does not have: the whole board |
 | State changes | A picture that is not current, a newer picture, a discrepancy that waits, a checkpoint that waits for its record or was recorded meanwhile: SCR-112#stale |
 | Repeats | Pass, Withdraw, Show it and Load again are disabled while they run; Pass again after a lost reply sends the same write ID (SPEC-126) |
 | Concurrency | Another tab's or the agent's writes show when the view reads again (rule 6) or after Load again; a newer picture is offered, not drawn under the user |

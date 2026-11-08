@@ -18,8 +18,11 @@ async function call(method,path,body,kind="agent") {
   return response.headers.get("Content-Type").includes("json")?JSON.parse(text):text;
 }
 const cases=[];
-// The first page of a server that holds no snapshot yet.
+// The data that a page holds in its script block view-data.
+const pageData=(page)=>JSON.parse(page.match(/<script id="view-data" type="application\/json">(.*?)<\/script>/s)[1]);
+// The first page of a server that holds no snapshot yet, as its data and as the page.
 cases.push({name:"empty server home",schema:"Home",value:await call("GET","/api/home")});
+cases.push({name:"empty server first page",schema:"HomePageData",value:pageData(await call("GET","/"))});
 const snapshot=JSON.parse(readFileSync(new URL("./snapshot-02-example.json",import.meta.url),"utf8"));
 snapshot.project.parts.push("constructor");
 // The context and the items that TBL-111 comes from and leads to, for its trace.
@@ -30,9 +33,15 @@ snapshot.items.push({id:"CTX-007",kind:"context",stage:"01-domain",where:"docs/0
 snapshot.summary={...snapshot.summary,items:snapshot.items.length};
 await call("POST","/api/snapshots",snapshot);
 for(const path of ["/pictures/corthex/nexus/05-erd","/overview/corthex/nexus/05-erd","/pictures/corthex/constructor/05-erd"]){
-  const page=await call("GET",path);
-  const value=JSON.parse(page.match(/<script id="view-data" type="application\/json">(.*?)<\/script>/s)[1]);
-  cases.push({name:path,schema:"ViewPageData",value});
+  cases.push({name:path,schema:"ViewPageData",value:pageData(await call("GET",path))});
+}
+// A stage's page with its picture, a pictured stage whose part has no picture,
+// and a stage without pictures, for the project as a whole.
+for(const [path,check] of [["/p/corthex/nexus/05-erd",(value)=>value.picture&&!value.problem],["/p/corthex/constructor/05-erd",(value)=>!value.picture&&value.problem?.code==="picture_not_found"],
+  ["/p/corthex/_/02-prd",(value)=>!value.picture&&!value.problem&&value.talk]]){
+  const value=pageData(await call("GET",path));
+  if(!check(value))throw new Error("the stage page lacks what its case needs: "+path);
+  cases.push({name:path,schema:"StagePageData",value});
 }
 cases.push({name:"constructor part overview",schema:"Overview",value:await call("GET","/api/spaces/corthex/overview/constructor/05-erd")});
 for(const path of ["/api/spaces/corthex/stages/nexus/05-erd","/api/spaces/corthex/stages/_/02-prd?group=source&filter=left&q=claims","/api/spaces/corthex/stages/constructor/01-domain"])
@@ -81,6 +90,7 @@ const home=await call("GET","/api/home");
 if(!home.my_turn.entries.some((entry)=>entry.kind==="proposal")||!home.my_turn.entries.some((entry)=>entry.asks==="checkpoint")||!home.agent[0]?.comments.oldest
   ||!home.agent[0].taken||!home.projects[0]?.pictures[0]?.drawing?.boxes.length)throw new Error("the first page lacks an entry that its case needs");
 cases.push({name:"/api/home",schema:"Home",value:home});
+cases.push({name:"first page",schema:"HomePageData",value:pageData(await call("GET","/"))});
 // Taking the agent's recommendation: a checkpoint passed with the reply, the
 // same taken again, a recommendation without a checkpoint, and the checkpoint
 // that names its comment.
@@ -92,4 +102,11 @@ if(!taken.checkpoint?.comment||again.changed||replied.checkpoint)throw new Error
 for(const [name,value] of [["checkpoint taken as recommended",taken],["recommendation taken already",again],["recommendation taken",replied]])
   cases.push({name,schema:"RecommendationAnswer",value});
 cases.push({name:"checkpoint that names its comment",schema:"Checkpoint",value:await call("GET","/api/spaces/corthex/checkpoints/"+taken.checkpoint.id)});
+// The stage page of a project that only a hub of 0.1 pushed, which has no space.
+await call("POST","/api/snapshots",{schema:"corthex-hub/0.1",generated_at:"2026-01-12T10:00:00+09:00",project:{name:"legacy-shop",title:"Legacy shop"},
+  stages:{"02-prd":{source_state:"found",read:true,state:"in_progress",next:"Write the PRD"}},summary:{items:1},
+  items:[{id:"REQ-001",kind:"requirement",stage:"02-prd",title:"Send an order confirmation",priority:"Must"}],checks:[]});
+const legacy=pageData(await call("GET","/p/legacy-shop/_/02-prd"));
+if(legacy.talk||legacy.problem?.code!=="space_not_found")throw new Error("the page of a project without a space lacks what its case needs");
+cases.push({name:"stage page without a space",schema:"StagePageData",value:legacy});
 process.stdout.write(JSON.stringify(cases));

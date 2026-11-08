@@ -49,5 +49,6 @@ for case in cases:
         raise SystemExit(1)
 print("offline response contracts: " + str(fitted["namedJsonExamples"]) + " named JSON examples fit their schemas; "
       "normal/empty bootstraps, constructor overview, four stage answers, four talk answers, two item answers, "
-      "three search answers, two first pages, three answers to API-159, a checkpoint that names its comment "
+      "three search answers, two first page answers, two first pages, four stage pages, three answers to API-159, "
+      "a checkpoint that names its comment "
       "and 501-proposal history passed")

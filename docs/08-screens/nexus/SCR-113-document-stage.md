@@ -50,7 +50,7 @@ Every state of the stage applies, with two of the list's own: not-read, a stage 
 | --- | --- |
 | Access | Access's own login page or refusal comes before the page; the Worker's `403` and a sign-in that expired: SCR-113#permission. Passing and withdrawing need a person's own sign-in: `user_only` |
 | Input | The search in this stage, up to 200 characters, sent as `q`; the checkpoint's words, up to 2,000 characters (rule 5) |
-| Target | A part, a space or a project that the server does not hold: SCR-111#error. An address whose item the stage does not hold: SCR-115#gone. A stage that the project does not read: SCR-113#not-read |
+| Target | A part or a project that the server does not hold: SCR-111#error. A project without a space shows its list, with the message of `space_not_found` in the talk's place, as SCR-111's Target says. An address whose item the stage does not hold: SCR-115#gone. A stage that the project does not read: SCR-113#not-read |
 | State changes | A checkpoint that waits for its record or was recorded meanwhile, and a newer push: SCR-113#stale |
 | Repeats | Pass and Withdraw are disabled while they run; a filter picked twice reads once |
 | Concurrency | Another tab's or the agent's writes show in the counts and marks when the list reads again (rule 6) |

@@ -22,7 +22,7 @@ sys.path.insert(0, str(root))
 from nexus.test import contract_hooks  # noqa: E402 - registers existing checks
 
 def planned_operations():
-    """The redesign's operations, which the server answers once they are built."""
+    """Operations that the contract plans and the server does not answer yet, left out until it does."""
     api = yaml.safe_load((root / "docs/06-api/nexus.openapi.yaml").read_text(encoding="utf8"))
     return sorted(operation["operationId"] for item in api["paths"].values() for method, operation in item.items()
                   if method in ("get", "post", "put", "patch", "delete")

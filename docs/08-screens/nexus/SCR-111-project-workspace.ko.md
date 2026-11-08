@@ -38,7 +38,7 @@
 | SCR-111#normal | 위 막대: NEXUS, 지금 자리 "모든 프로젝트 › {project} › {stage}", 찾기 칸, 전체 점검. 왼쪽에 프로젝트 이름, 저장소와 커밋, 부분이 여럿이면 부분 바꾸기, 그리고 여섯 묶음의 13단계: 발견(01), 정의(02\~04), 계약(05, 06), 화면(07\~09), 만들기(10\~12), 발표(13). 단계마다 한 행에 모양으로 그린 상태와 화면 낭독기를 위한 그 말, 번호와 이름, 01·05·07의 그림 표시, 항목 수, 사용자를 기다리는 것의 수. 지금 단계는 강조색 막대로 표시합니다. 목록 아래에 모양의 설명. 가운데에 단계(SCR-112나 SCR-113), 오른쪽에 그 대화(SCR-114)나, 대화로 돌아가는 길을 단 고른 항목(SCR-115) | API-154#200, API-158#200 |
 | SCR-111#unrecorded | 진행 기록이 없는 프로젝트: `/p/{project}`가 01단계를 열고, 설정이 건너뛰는 단계("–")를 빼고 모든 단계가 "?"이며, 목록 위에 허브 페이지처럼 "아직 단계별 진행 상태를 기록하지 않았습니다. AI에게 corthex-hub 스킬로 기록해 달라고 하세요."(REQ-103) | 01단계로 가는 API-153#302, API-154#200, 단계 기록이 없는 API-158#200 |
 | SCR-111#stale | 다시 읽어 페이지가 보이는 것보다 새로 올라온 것을 찾음: 위 막대 아래 막대에 "이 프로젝트가 {time}에 다시 올라왔습니다. 보려면 다시 불러와 주세요."와 다시 불러오기가 보이고, 페이지는 그린 것을 그대로 보입니다. 그림이 최신이 아닌 단계: 그 행의 그림 표시가 화면 낭독기에 "최신 아님"을 말하고, SCR-112#stale이 그 까닭을 보입니다 | API-158#200, API-152#200 |
-| SCR-111#error | 페이지의 요청: 코드의 메시지, 추적 ID, 다시 불러오기, 모든 프로젝트 `/`로 가는 링크를 단 [규칙 9](README.ko.md#모든-화면)의 메시지 페이지: `project_not_found`의 "이 프로젝트는 서버에 없습니다.", `space_not_found`, `part_not_found`, 13개 밖의 단계 키나 모르는 경로의 `not_found`, `internal`과 `method_not_allowed`. 다시 읽기: "새로 읽지 못했습니다. 보이는 내용이 최신이 아닐 수 있습니다."와 다시 시도(규칙 6). 연결 없음, 30초 안에 답 없음, `429`나 `503`: 규칙 8 | API-153#404(`project_not_found`, `not_found`), API-153#default(`internal`, `method_not_allowed`), API-154#404(`project_not_found`, `space_not_found`, `part_not_found`, `not_found`), API-154#default(`internal`, `method_not_allowed`), API-158#404(`project_not_found`, `space_not_found`, `part_not_found`, `not_found`), API-158#default(`internal`, `method_not_allowed`) |
+| SCR-111#error | 페이지의 요청: 코드의 메시지, 추적 ID, 다시 불러오기, 모든 프로젝트 `/`로 가는 링크를 단 [규칙 9](README.ko.md#모든-화면)의 메시지 페이지: `project_not_found`의 "이 프로젝트는 서버에 없습니다.", `part_not_found`, 13개 밖의 단계 키나 모르는 경로의 `not_found`, `internal`과 `method_not_allowed`. 다시 읽기: "새로 읽지 못했습니다. 보이는 내용이 최신이 아닐 수 있습니다."와 다시 시도(규칙 6). 연결 없음, 30초 안에 답 없음, `429`나 `503`: 규칙 8 | API-153#404(`project_not_found`, `not_found`), API-153#default(`internal`, `method_not_allowed`), API-154#404(`project_not_found`, `part_not_found`, `not_found`), API-154#default(`internal`, `method_not_allowed`), API-158#404(`project_not_found`, `part_not_found`, `not_found`), API-158#default(`internal`, `method_not_allowed`) |
 | SCR-111#permission | 페이지의 요청: 코드의 메시지를 단 메시지 페이지. 다시 읽기: 막대에 코드의 메시지. 끝난 로그인: [규칙 7](README.ko.md#모든-화면), 대화에 쓰던 글은 남습니다 | API-153#403, API-154#403, API-158#403(`access_missing`, `access_other_app`), `opaqueredirect` 응답이나 `401` |
 
 empty를 빼고 단계의 모든 상태가 해당하고, 작업 공간 자신의 상태 unrecorded가 더해집니다. 해당하지 않는 것:
@@ -51,7 +51,7 @@ empty를 빼고 단계의 모든 상태가 해당하고, 작업 공간 자신의
 | --- | --- |
 | 접근 | Access 자신의 로그인 페이지나 거절이 페이지보다 먼저 옵니다. Worker의 `403`과 끝난 로그인: SCR-111#permission |
 | 입력 | 자신의 것은 없습니다: 찾기는 SCR-116의 것, 대화의 칸은 SCR-114의 것입니다 |
-| 대상 | 모르는 프로젝트, 스냅샷에 없는 부분, 13개 밖의 단계 키: 모든 프로젝트로 가는 링크를 단 SCR-111#error(SPEC-146). 0.2의 주소는 먼저 여기로 이어집니다(SPEC-154) |
+| 대상 | 모르는 프로젝트, 스냅샷에 없는 부분, 13개 밖의 단계 키: 모든 프로젝트로 가는 링크를 단 SCR-111#error(SPEC-146). 0.1 허브로만 올라와 공간이 없는 프로젝트: API-158이 주는 단계의 머리와 목록, 그리고 대화와 그림의 자리에 `space_not_found`의 메시지. 페이지가 그 문제를 지니기 때문입니다(API-154#200, TASK-265부터 06단계의 페이지 자료가 말하는 대로). 0.2의 주소는 먼저 여기로 이어집니다(SPEC-154) |
 | 상태 변화 | 페이지가 열린 동안 새로 올라온 것: SCR-111#stale. 그사이 기록된 단계의 상태는 다시 불러온 뒤 보입니다 |
 | 되풀이 | 같은 단계를 다시 고르면 페이지가 그대로입니다. 다시 불러오기는 도는 동안 막힙니다 |
 | 동시성 | 다른 탭이나 AI가 쓴 것은 페이지가 다시 읽을 때 수에 보입니다(규칙 6) |

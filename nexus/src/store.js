@@ -6,8 +6,8 @@ import { stageData, heldItem, partsOf } from "./stage-items.js";
 import { talkData, CLOSED } from "./stage-talk.js";
 import { itemData } from "./item-data.js";
 import { searchData } from "./search.js";
-import { homeData, TURN } from "./home-data.js";
-import { STAGES } from "./preflight.js";
+import { homeData, currentPlace, TURN } from "./home-data.js";
+import { STAGES, defaultQuery } from "./preflight.js";
 // Everything that touches the database is in this file. The SQL is the part
 // SQLite (D1) and Postgres share, apart from the `?` placeholders, so moving
 // to another database changes this file only.
@@ -467,6 +467,10 @@ export class Store {
   async readPicture(project, part, stage) {
     const { snapshot } = await this.readContext(project, true);
     this.validPart(snapshot, part);
+    return this.picture(snapshot, project, part, stage);
+  }
+
+  async picture(snapshot, project, part, stage) {
     const rows = await this.db.batch([
       this.db.prepare("SELECT * FROM pictures WHERE project=? AND part=? AND stage=?").bind(project, part, stage),
       this.commentStatement(project, "picture", part, stage, 500),
@@ -528,6 +532,10 @@ export class Store {
   async readStage(project, part, stage, query) {
     const context = await this.readContext(project);
     this.validPart(context.snapshot, part);
+    return this.stage(context, project, part, stage, query);
+  }
+
+  async stage(context, project, part, stage, query) {
     const rows = await this.db.batch([
       ...this.overviewStatements(project, part, stage),
       this.db.prepare(`SELECT stage,item,COUNT(*) AS total,SUM(state='open') AS open,SUM(state='open' AND waits='user') AS mine
@@ -541,6 +549,34 @@ export class Store {
     ]);
     return stageData({ ...context, record: this.overview(context, project, part, stage, rows.slice(0, 5)), project, part, stage, query,
       comments: rows[5].results, proposals: rows[6].results, discrepancies: rows[7].results, reflections: rows[8].results, pictures: rows[9].results });
+  }
+
+  // API-154: what a stage's page holds (stage 06's Page data), from one read of
+  // the stored snapshot: the stage as API-158 answers it in its default order,
+  // the whole talk as API-152 answers it and, on a pictured stage, the picture
+  // as API-111 answers it. A project without a space, pushed only by a hub of
+  // 0.1, has neither talk nor picture, and a pictured stage whose picture the
+  // space does not hold has no picture: the page holds why, as its problem.
+  async readStagePage(project, part, stage, now = new Date().toISOString()) {
+    const context = await this.readContext(project);
+    this.validPart(context.snapshot, part);
+    const data = await this.stage(context, project, part, stage, defaultQuery("getStage"));
+    if (!context.space) return { data, talk: null, picture: null,
+      problem: new Problem("space_not_found", "this project has no space; push a 0.2 snapshot first") };
+    const talk = await this.talk(context, project, part, stage, defaultQuery("getStageTalk"), now);
+    if (!["01-domain", "05-erd", "07-sitemap"].includes(stage)) return { data, talk, picture: null, problem: null };
+    try {
+      return { data, talk, picture: await this.picture(context.snapshot, project, part, stage), problem: null };
+    } catch (error) {
+      if (!(error instanceof Problem) || error.code !== "picture_not_found") throw error;
+      return { data, talk, picture: null, problem: error };
+    }
+  }
+
+  // API-153: where a project's address leads (SPEC-146), the current stage of
+  // its first part as its card on the first page names it.
+  async projectPlace(project) {
+    return currentPlace((await this.readContext(project)).snapshot);
   }
 
   // API-152: the part's stage talk. One batch reads the stage's open comments,

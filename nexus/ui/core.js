@@ -35,7 +35,7 @@ export function startView(payload){
   const commentTransfers=new Map();
   const root=document.getElementById("view");root.replaceChildren();root.className="view";
   const top=node("header",null,"topbar"),title=node("h1",[project,part,stage].filter(Boolean).join(" / "));
-  put(top,safeLink(say("Hub page","허브 페이지"),"/"),title,safeLink(payload.view==="picture"?say("Stage overview","단계 현황"):say("Picture view","그림 보기"),(payload.view==="picture"?"/overview/":"/pictures/")+place));
+  put(top,safeLink(say("Hub page","허브 페이지"),"/hub"),title,safeLink(payload.view==="picture"?say("Stage overview","단계 현황"):say("Picture view","그림 보기"),(payload.view==="picture"?"/overview/":"/pictures/")+place));
   if(payload.view==="overview"&&!["01-domain","05-erd","07-sitemap"].includes(stage))top.lastChild.remove();
   const meta=node("div",null,"subbar"),content=node("main",null,"content"),status=node("div"),body=node("div"),panel=node("section",null,"panel"),scrim=node("div",null,"scrim");
   status.setAttribute("aria-live","polite");status.setAttribute("role","status");panel.hidden=true;scrim.hidden=true;panel.setAttribute("role","dialog");panel.setAttribute("aria-labelledby","panel-heading");
@@ -52,7 +52,7 @@ export function startView(payload){
     if(error.code==="sign_in_expired")box.append(button(say("Sign in again","다시 로그인"),()=>location.reload()));
     else if(retry)box.append(button(say("Try again","다시 시도"),retry));
     if(error.code==="cross_site")box.append(safeLink(say("Open this page","이 페이지 열기"),location.origin+location.pathname+location.hash));
-    if(/(?:project|space|part)_not_found/.test(error.code))box.append(safeLink(say("Hub page","허브 페이지"),"/"));
+    if(/(?:project|space|part)_not_found/.test(error.code))box.append(safeLink(say("Hub page","허브 페이지"),"/hub"));
     return box;
   }
   function stateName(value){const en={open:"open",accepted:"accepted",dismissed:"dismissed",withdrawn:"withdrawn",pending:"not yet reflected","in-review":"in review","needs-user":"waiting for the user",closed:"reflected",done:"done",in_progress:"in progress",not_started:"not started",skipped:"skipped",unknown:"unknown"},kr={open:"열림",accepted:"받음",dismissed:"버림",withdrawn:"철회됨",pending:"반영 전","in-review":"검토 중","needs-user":"사용자를 기다림",closed:"반영됨",done:"완료",in_progress:"진행 중",not_started:"시작 전",skipped:"건너뜀",unknown:"알 수 없음"};return(ko?kr:en)[value]||value||"";}

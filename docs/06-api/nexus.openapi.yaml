@@ -14,10 +14,10 @@ info:
     the outbox, the limits and the error codes with their messages. Every GET also answers HEAD
     with the same status and headers and no body, a method that a path does not take gets 405 with
     an Allow header, and every reply carries the security headers that nexus.md lists. The
-    operations whose x-corthex.status is planned are the redesign's that the server does not
-    answer yet, API-153 and API-154: each is marked active once the server answers it, as
-    API-151, API-152 and API-156 to API-159 are, and until then the checks leave it out and the
-    server answers its path as unknown.
+    redesign's operations, API-151 to API-159, are active: the server answers them and the checks
+    cover them. With the redesign's first page at /, the hub page moved to /hub (SPEC-153); the
+    picture view and the stage overview keep their pages until the redesign's stages draw what
+    they show, and then answer 302 to the stage's page (SPEC-154).
 servers:
   - url: https://nexus.example.com
     description: >-
@@ -46,11 +46,47 @@ tags:
 paths:
   /:
     get:
+      operationId: getHomePage
+      tags: [Pages]
+      summary: The first page
+      description: >-
+        The redesign's first page (SCR-110), with the answer of getHome, read when the page is
+        served, in its JSON script block (HomePageData). The server also draws the page's reading
+        parts from that data, so that the page reads before its code runs (stage 08's rule 15); the
+        code comes from /code/ and sends its requests only to this server. What follows # in the
+        address, such as 0.2's q=, p= with id= and p= with s=, never reaches the server
+        (SPEC-154). A refusal or an error is a page of the code's message when the request accepts
+        text/html, as a browser's does, and Problem Details otherwise (Errors in nexus.md).
+      x-corthex:
+        id: API-155
+        spec: [SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-154]
+        status: active
+        omit:
+          "400": the request has no input
+          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "404": the path names no resource
+          "409": a read clashes with no state
+      responses:
+        "200":
+          description: The first page
+          content:
+            text/html:
+              schema: {type: string}
+              examples:
+                page:
+                  summary: The page, shortened
+                  value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>NEXUS</title><style data-nexus-css="page"></style></head><body class="nx" data-nx-page="home"><header class="tb" data-nx-part="top"></header><main class="home" id="main" data-nx-part="home"></main><script id="view-data" type="application/json">{"schema":"corthex-home-page/0.3","generated_at":"2026-11-08T08:30:00.000Z","lang":"en","data":{"generated_at":"2026-11-08T08:30:00.000Z","my_turn":{"total":0,"entries":[]},"agent":[],"projects":[]}}</script><script type="module" src="/code/page.3f9a1c2b.js"></script></body></html>'
+        "403": {$ref: "#/components/responses/PageReadRefused"}
+        default: {$ref: "#/components/responses/PageUnexpected"}
+
+  /hub:
+    get:
       operationId: getHubPage
       tags: [Pages]
       summary: The hub page
       description: >-
-        The hub page of phase 1, with the page data corthex-hub-page/0.2 in its JSON script block
+        The hub page of phase 1, at /hub since the redesign's first page took / (SPEC-153), and
+        otherwise unchanged (SCR-117), with the page data corthex-hub-page/0.2 in its JSON script block
         (HubPageData): every stored snapshot and, for each project that has a space, its pictures,
         its counts of open comments, proposals and discrepancies, its checkpoints passed in NEXUS
         that wait for their records and its checkpoint-withdrawn warnings. A server that holds no
@@ -59,7 +95,7 @@ paths:
         otherwise (Errors in nexus.md).
       x-corthex:
         id: API-101
-        spec: [SPEC-113, SPEC-122, SPEC-123, SPEC-124, SPEC-125]
+        spec: [SPEC-113, SPEC-122, SPEC-123, SPEC-124, SPEC-125, SPEC-153]
         status: active
         omit:
           "400": the request has no input
@@ -1591,7 +1627,7 @@ paths:
       x-corthex:
         id: API-153
         spec: [SPEC-113, SPEC-146]
-        status: planned
+        status: active
         omit:
           "400": the request has no input; a path value in another form gets 404
           "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
@@ -1631,7 +1667,7 @@ paths:
       x-corthex:
         id: API-154
         spec: [SPEC-113, SPEC-146, SPEC-147, SPEC-148, SPEC-149, SPEC-150, SPEC-151, SPEC-155, SPEC-156]
-        status: planned
+        status: active
         omit:
           "400": the request has no input; a path value in another form gets 404
           "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
@@ -1645,7 +1681,7 @@ paths:
               examples:
                 stage:
                   summary: The page, shortened
-                  value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><script type="module" src="/code/view.3f9a1c2b.js"></script></head><body><main id="view"></main><script id="view-data" type="application/json">{"schema":"corthex-stage-page/0.3","generated_at":"2026-11-08T08:30:00.000Z","lang":"en","data":{},"talk":null,"picture":null,"problem":null}</script></body></html>'
+                  value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>05 ERD · Corthex · NEXUS</title><style data-nexus-css="page"></style></head><body class="nx" data-nx-page="stage"><header class="tb" data-nx-part="top"></header><div class="ws"><nav class="rail" id="stages"></nav><main class="stage" id="stage" data-nx-part="stage"></main><aside class="side" id="talk" data-nx-part="side"></aside></div><script id="view-data" type="application/json">{"schema":"corthex-stage-page/0.3","generated_at":"2026-11-08T08:30:00.000Z","lang":"en","data":{},"talk":null,"picture":null,"problem":null}</script><script type="module" src="/code/page.3f9a1c2b.js"></script></body></html>'
         "403": {$ref: "#/components/responses/PageReadRefused"}
         "404": {$ref: "#/components/responses/PageOverviewNotFound"}
         default: {$ref: "#/components/responses/PageUnexpected"}
@@ -4791,6 +4827,18 @@ components:
         reply: {$ref: "#/components/schemas/Reply"}
         checkpoint: {anyOf: [{$ref: "#/components/schemas/Checkpoint"}, {type: "null"}]}
         changed: {type: boolean}
+    HomePageData:
+      description: >-
+        The data in the script block view-data of the first page (API-155): data, the answer of
+        getHome when the page was served
+      type: object
+      required: [schema, generated_at, lang, data]
+      additionalProperties: false
+      properties:
+        schema: {const: corthex-home-page/0.3}
+        generated_at: {$ref: "#/components/schemas/Time"}
+        lang: {type: string, enum: [en, ko]}
+        data: {$ref: "#/components/schemas/Home"}
     StagePageData:
       description: >-
         The data in the script block view-data of a stage's page (API-154): data, the answer of

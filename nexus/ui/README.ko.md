@@ -34,7 +34,7 @@ IBM Plex Sans KR(굵기 400·500·600)과 IBM Plex Mono(400·500)는 OFL 1.1의 
 
 ## 로컬 합성 브라우저 시험
 
-저장소 루트에서 `node nexus/test/view-server.mjs`를 실행하면 loopback 주소를 출력합니다. 실제 handler/Store와 메모리 SQLite, 합성 Access를 쓰며 표준 입력이 닫히면 끝납니다. `--keep-open`은 관리되는 로컬 브라우저 시험에 씁니다. `qa-views`, `qa-views-reply`, `qa-views-overview`는 독립된 합성 프로젝트입니다. `/__qa/receipts`에서 시험용 쓰기 본문·ID를 확인합니다. `NEXUS_QA_PAGES=1`이면 제목에 마크업을 지닌, 부분 두 개의 프로젝트 `qa-pages`도 심고, TASK-271이 다시 디자인의 페이지를 제 주소에서 내주기 전까지 `/__qa/page/home`과 `/__qa/page/stage/{project}/{part}/{stage}`에서 서버 자신의 요청이 답한 자료로 그 페이지를 그립니다. 이 시험 서버는 배포하지 않으며 실제 계정이나 저장소 원문을 읽지 않습니다.
+저장소 루트에서 `node nexus/test/view-server.mjs`를 실행하면 loopback 주소를 출력합니다. 실제 handler/Store와 메모리 SQLite, 합성 Access를 쓰며 표준 입력이 닫히면 끝납니다. `--keep-open`은 관리되는 로컬 브라우저 시험에 씁니다. `qa-views`, `qa-views-reply`, `qa-views-overview`는 독립된 합성 프로젝트입니다. `/__qa/receipts`에서 시험용 쓰기 본문·ID를 확인합니다. `NEXUS_QA_PAGES=1`이면 제목에 마크업과 자료 표식을 지닌, 부분 두 개의 프로젝트 `qa-pages`도 다시 디자인의 페이지를 위해 심습니다. handler는 TASK-271부터 그 페이지를 제 주소 `/`, `/p/qa-pages`, `/p/qa-pages/{part}/{stage}`에서 냅니다. `?lang=ko`는 요청 하나에서 서버의 언어를 정합니다. 이 시험 서버는 배포하지 않으며 실제 계정이나 저장소 원문을 읽지 않습니다.
 
 handler나 원본이 바뀌면 시험 서버를 다시 시작합니다. 브라우저 빌드만 바뀌면 재시작 없이 읽고, 열린 탭을 위해 이전 파일도 시험 서버 메모리에 남겨 둡니다. 마지막 브라우저 시험은 확정된 원본·빌드 해시를 적고 다시 시작한 서버에서 실행합니다.
 

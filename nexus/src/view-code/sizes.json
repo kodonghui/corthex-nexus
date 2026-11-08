@@ -102,10 +102,10 @@
       "/code/erd.e6d724ab.js",
       "/code/erd-chunk-1.3b3d88cf.js"
     ],
-    "view-js": "/code/view.977a7d47.js",
-    "view-css": "/code/view.d8b85cb6.css",
+    "view-js": "/code/view.903df394.js",
+    "view-css": "/code/view.230134de.css",
     "view-preload": [
-      "/code/view.977a7d47.js"
+      "/code/view.903df394.js"
     ],
     "page-js": "/code/page.1f78db06.js",
     "page-css": "/code/page.a42eb1fc.css",
@@ -4090,22 +4090,22 @@
       "graphDigest": "858eeda69efc1917ada1b5fb61ac4593cc7913a4ef1ebc7d682241295aec950c"
     },
     {
-      "name": "view.d8b85cb6.css",
-      "path": "view.d8b85cb6.css.txt",
+      "name": "view.230134de.css",
+      "path": "view.230134de.css.txt",
       "type": "text/css; charset=utf-8",
       "raw": 13691,
       "gzip": 3437,
       "payloadSha256": "bab06befc997b17ccd24c45c9761a3a5853659df358cdbe89fbdbfb13080e79b",
-      "graphDigest": "20b4bbee5f6109e3a055ac08d371b33b7a2cbb8dba60df8606a6cd8c64a3bbef"
+      "graphDigest": "4d1ebe2b444a58adbfbea60bad8cf266b02c4cedb8d31e5f8c1c2688f4f9b9ce"
     },
     {
-      "name": "view.977a7d47.js",
-      "path": "view.977a7d47.js.txt",
+      "name": "view.903df394.js",
+      "path": "view.903df394.js.txt",
       "type": "text/javascript; charset=utf-8",
-      "raw": 88646,
-      "gzip": 29722,
-      "payloadSha256": "c4857e50c097bc9027e53070f476a86d98415698b3ace2ee25ee0102463381d4",
-      "graphDigest": "20b4bbee5f6109e3a055ac08d371b33b7a2cbb8dba60df8606a6cd8c64a3bbef"
+      "raw": 88652,
+      "gzip": 29725,
+      "payloadSha256": "2908605f14fe5c2d01bc6805e41cb4bce98a7e473bdbc8d26c340f4385b45d49",
+      "graphDigest": "4d1ebe2b444a58adbfbea60bad8cf266b02c4cedb8d31e5f8c1c2688f4f9b9ce"
     },
     {
       "name": "page.a42eb1fc.css",
@@ -6762,8 +6762,8 @@
       "payloadSha256": "0856e28ca1e42c7247c5edeaf006d5385f46f7d4b10af881e20593174308a33d"
     }
   ],
-  "totalRaw": 27302599,
-  "totalGzip": 20029828,
+  "totalRaw": 27302605,
+  "totalGzip": 20029831,
   "inputs": {
     "excalidraw": {
       "node_modules/react/cjs/react.production.min.js": {
@@ -28111,8 +28111,8 @@
         "sha256": "97b23f4fe5e0869dfed678da18db3d608b285ec53b7a54ac9cb484198c60ba95"
       },
       "nexus/src/preview.js": {
-        "bytes": 9128,
-        "sha256": "aeb67fcbfd43cc3000fb87addd66a24ea9885bcdedac95819f82f8fee1ce9e35"
+        "bytes": 9131,
+        "sha256": "7bbf340a208a60154bc9b486e0ef0062480e0587a0b73f904f8f8df12a409f12"
       },
       "nexus/ui/styles.js": {
         "bytes": 1520,
@@ -28143,8 +28143,8 @@
         "sha256": "18d3aa73e4bbc90549dbc116ca25622adf004e92b3284c40ce1f6f47dd01a28b"
       },
       "nexus/ui/core.js": {
-        "bytes": 43231,
-        "sha256": "2888bdaa34d683523a3302b10e4f8b9ff63500c0cf03b22cd09626061ede10c7"
+        "bytes": 43237,
+        "sha256": "5737ca3f9e17b4f0cb060ae0c2b4a7f30b794e34a3f051492931451c75cbb50d"
       }
     },
     "page": {

@@ -70,6 +70,13 @@ function cardPart(snapshot, name) {
     next: typeof next === "string" && next ? cut(next, 300) : null, states };
 }
 
+// Where a project's address leads (API-153, SPEC-146): the current stage of
+// its first part, as its card names it, or stage 01 when none is current.
+export function currentPlace(snapshot) {
+  const project = fields(snapshot.project), part = cardParts(project)[0];
+  return { part, stage: cardPart({ project, stages: fields(snapshot.stages) }, part).current || STAGES[0] };
+}
+
 function card(row, pictures) {
   const project = fields(parse(row.project));
   const snapshot = { project, stages: fields(parse(row.stages)) };

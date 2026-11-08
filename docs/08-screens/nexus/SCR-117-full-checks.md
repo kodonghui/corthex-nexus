@@ -24,7 +24,7 @@ The hub page's own, as SCR-101 to SCR-104 define them. Its picture links lead th
 | SCR-117#normal | SCR-101#normal, at `/hub`, in the redesign's look | API-101#200 |
 | SCR-117#empty | SCR-101#empty: what the hub shows and the four steps that push a project (SPEC-124) | API-101#200 with no project |
 | SCR-117#stale | SCR-101#stale | API-101#200 |
-| SCR-117#error | SCR-101#error | API-101#default (`internal`, `method_not_allowed`) |
+| SCR-117#error | SCR-101#error, whose message page leads on to all projects, `/`, as the workspace's does (SCR-111#error), since its way to the hub page would lead back to itself | API-101#default (`internal`, `method_not_allowed`) |
 | SCR-117#permission | SCR-101#permission | API-101#403 (`access_missing`, `access_other_app`) |
 
 As on SCR-101, loading does not apply: the page is one document that holds its data, and it draws at once. Its views keep their states, SCR-102 to SCR-104.

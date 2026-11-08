@@ -24,7 +24,7 @@ SCR-101\~SCR-104가 정한 허브 페이지 자신의 동작입니다. 그 그�
 | SCR-117#normal | 다시 디자인의 모습으로 `/hub`에 있는 SCR-101#normal | API-101#200 |
 | SCR-117#empty | SCR-101#empty: 허브가 무엇을 보여 주는지와 프로젝트를 올리는 네 단계(SPEC-124) | 프로젝트가 없는 API-101#200 |
 | SCR-117#stale | SCR-101#stale | API-101#200 |
-| SCR-117#error | SCR-101#error | API-101#default(`internal`, `method_not_allowed`) |
+| SCR-117#error | SCR-101#error. 그 메시지 페이지는 허브 페이지로 가는 길이 제자리로 돌아오므로, 작업 공간의 것(SCR-111#error)처럼 모든 프로젝트 `/`로 이어 줍니다 | API-101#default(`internal`, `method_not_allowed`) |
 | SCR-117#permission | SCR-101#permission | API-101#403(`access_missing`, `access_other_app`) |
 
 SCR-101에서처럼 loading은 해당하지 않습니다: 페이지는 그 자료를 담은 문서 하나이고 바로 그려집니다. 그 보기는 저마다의 상태 SCR-102\~SCR-104를 지킵니다.

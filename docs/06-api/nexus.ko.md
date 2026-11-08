@@ -2,7 +2,7 @@
 
 [English](nexus.md)
 
-CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계약 [nexus.openapi.yaml](nexus.openapi.yaml)에 있는 NEXUS 서버의 요청, 그리고 이 파일에 있는 그 계약이 따르는 규칙, 허브의 명령, 그것과 함께 가는 파일의 형식입니다. 상태: 2026-11-02에 관리자가 그날 고른 대로 기억 플러그인을 만드는 동안, 사용자 흐름, 기능 명세, 서버의 자료의 추천을 따라 초안을 썼습니다. 관리자가 2026-11-03에 03\~05단계, 07·08단계와 함께 이 파일의 확인 지점을 통과시켜, 10단계가 작업을 나누기 전에 NEXUS 0.2의 요청, 명령, 형식이 고정되었습니다. 이제 호환되지 않는 변경을 하려면 관리자의 결정이 필요합니다. 2026-11-03에 관리자가 01단계 이벤트 스토밍을 NEXUS에서 하기로 고르면서 DDD 보드의 그림 자료에 선택 항목 `timeline`을 더했고(호환되는 변경), ② 차례의 작업 보드를 편집 곁에 적었습니다. 둘 다 관리자가 같은 날 통과시켰습니다([확인할 것](#확인할-것)). 관리자의 2026-11-06 다시 디자인은 페이지와 요청 API-151\~API-159, 그리고 API-101\~API-103, API-118, API-119와 허브의 `comment`·`reply`의 변경을 계획하며, 계약과 코드는 다시 디자인을 만들 때 그것을 받아들입니다. API-118, API-119와 허브 명령의 변경은 만들어졌습니다([다시 디자인의 인터페이스](#다시-디자인의-인터페이스)). ② 차례, 곧 PC에서 고치기와 01단계 워크숍은 그 01\~04단계가 2026-11-06과 2026-11-07에 통과했으며, 요청 API-161\~API-173, 허브의 명령 API-174\~API-176, 그리고 0.2와 다시 디자인의 인터페이스의 변경을 계획하고, 계약과 코드는 ② 차례를 만들 때 다시 디자인 뒤에 그것을 받아들입니다([② 차례의 인터페이스](#②-차례의-인터페이스)). 이 단계의 ② 차례 확인 지점이 05단계의 것과 함께 2026-11-08 09:33(KST)에 이것들을 통과시켰습니다([확인할 것](#확인할-것)). 계약은 그 안에 있는 모든 요청, 응답, 예시, 오류 코드의 원본이고, 이 파일은 그것을 설명하며 나머지의 원본입니다. 이 번역과 영어 원문이 다르면 영어 원문이 원본입니다.
+CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계약 [nexus.openapi.yaml](nexus.openapi.yaml)에 있는 NEXUS 서버의 요청, 그리고 이 파일에 있는 그 계약이 따르는 규칙, 허브의 명령, 그것과 함께 가는 파일의 형식입니다. 상태: 2026-11-02에 관리자가 그날 고른 대로 기억 플러그인을 만드는 동안, 사용자 흐름, 기능 명세, 서버의 자료의 추천을 따라 초안을 썼습니다. 관리자가 2026-11-03에 03\~05단계, 07·08단계와 함께 이 파일의 확인 지점을 통과시켜, 10단계가 작업을 나누기 전에 NEXUS 0.2의 요청, 명령, 형식이 고정되었습니다. 이제 호환되지 않는 변경을 하려면 관리자의 결정이 필요합니다. 2026-11-03에 관리자가 01단계 이벤트 스토밍을 NEXUS에서 하기로 고르면서 DDD 보드의 그림 자료에 선택 항목 `timeline`을 더했고(호환되는 변경), ② 차례의 작업 보드를 편집 곁에 적었습니다. 둘 다 관리자가 같은 날 통과시켰습니다([확인할 것](#확인할-것)). 관리자의 2026-11-06 다시 디자인은 페이지와 요청 API-151\~API-159, 그리고 API-101\~API-103, API-118, API-119와 허브의 `comment`·`reply`의 변경을 계획하며, 계약과 코드는 다시 디자인을 만들 때 그것을 받아들입니다. API-118, API-119와 허브 명령의 변경은 만들어졌고, API-151\~API-159와 API-101을 `/hub`로 옮기는 것도 만들어졌습니다([다시 디자인의 인터페이스](#다시-디자인의-인터페이스)). ② 차례, 곧 PC에서 고치기와 01단계 워크숍은 그 01\~04단계가 2026-11-06과 2026-11-07에 통과했으며, 요청 API-161\~API-173, 허브의 명령 API-174\~API-176, 그리고 0.2와 다시 디자인의 인터페이스의 변경을 계획하고, 계약과 코드는 ② 차례를 만들 때 다시 디자인 뒤에 그것을 받아들입니다([② 차례의 인터페이스](#②-차례의-인터페이스)). 이 단계의 ② 차례 확인 지점이 05단계의 것과 함께 2026-11-08 09:33(KST)에 이것들을 통과시켰습니다([확인할 것](#확인할-것)). 계약은 그 안에 있는 모든 요청, 응답, 예시, 오류 코드의 원본이고, 이 파일은 그것을 설명하며 나머지의 원본입니다. 이 번역과 영어 원문이 다르면 영어 원문이 원본입니다.
 
 입력: [docs/04-functional-spec/nexus.ko.md](../04-functional-spec/nexus.ko.md)의 기능 명세(SPEC-101\~SPEC-156, ② 차례는 SPEC-170\~SPEC-186), 특히 그 [06단계를 위한 메모](../04-functional-spec/nexus.ko.md#06단계-요청-명령-형식); [docs/05-erd/nexus.ko.md](../05-erd/nexus.ko.md)와 [nexus.sql](../05-erd/nexus.sql)의 서버의 자료와 파일(TBL-101\~TBL-118, ② 차례는 TBL-119\~TBL-124), 그 [06단계를 위한 메모](../05-erd/nexus.ko.md#06단계-요청-명령-형식)와 상한; [docs/02-prd/nexus.ko.md](../02-prd/nexus.ko.md)의 요구사항; [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)의 용어집과 DDD 보드(이 파일은 그 말을 그 뜻으로 씁니다); 그리고 지금 도는 1차, 곧 [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js), [store.js](../../nexus/src/store.js)의 서버와, [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md), [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 설명하는 [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py)의 허브입니다. 사이트맵(07단계)은 나중이라 아직 입력에 화면 ID가 없고, 요청은 사용자 흐름과 기능 명세가 적은 화면을 맡습니다.
 
@@ -48,7 +48,7 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 - 응답은 그 요청의 ID와 상태로 `API-105#409`처럼 적고, 명령의 결과는 그 ID와 결과로 `API-136#refused`처럼 적습니다.
 - 오류 코드는 `commit_not_replaced`처럼 적습니다. [오류 코드](#오류-코드)는 계약의 `components.x-corthex.errors`대로 코드마다 상태, 뜻, 더하는 멤버, 사용자가 보는 말, 클라이언트가 하는 일을 적습니다.
 - 서버의 시각은 `2026-11-03T09:00:00.000Z`처럼 밀리초까지 UTC이고, 기기나 Git의 시각은 그 시간대를 지닙니다. 바이트 크기는 UTF-8로 세고, 글자 수는 05단계처럼 코드 포인트로 셉니다.
-- 상태: 지금 도는 1차가 주는 것은 `built`, NEXUS 0.2가 더하거나 바꾸는 것은 `active`, 다시 디자인의 인터페이스 API-151\~API-159는 `planned`이며 [다시 디자인의 인터페이스](#다시-디자인의-인터페이스)가 그것을 정합니다. 계약은 API-155 말고는 그것을 지니고, 서버가 답하기 전까지 `x-corthex.status: planned`로 표시합니다. ② 차례의 인터페이스 API-161\~API-176은 `later (phase ②)`이며, [② 차례의 인터페이스](#②-차례의-인터페이스)가 같은 방법으로 그것을 정합니다.
+- 상태: 지금 도는 1차가 주는 것은 `built`, NEXUS 0.2와 다시 디자인이 더하거나 바꾸는 것은 `active`이며, 다시 디자인의 인터페이스 API-151\~API-159도 그렇습니다. [다시 디자인의 인터페이스](#다시-디자인의-인터페이스)가 그것을 정하고, 서버는 TASK-271부터 그것에 답합니다. ② 차례의 인터페이스 API-161\~API-176은 `later (phase ②)`이며, [② 차례의 인터페이스](#②-차례의-인터페이스)가 같은 방법으로 그것을 정합니다. 계약은 서버가 아직 답하지 않는 작업을 `x-corthex.status: planned`로 표시하고 검사는 그것을 빼는데, 지금은 그런 작업이 없습니다.
 - `~/.corthex/`는 사용자 홈 폴더의 CORTHEX 폴더이고, Windows에서는 `%USERPROFILE%\.corthex\`입니다. 허브의 파일은 1차처럼 `~/.corthex/hub/` 아래에 있습니다.
 
 ## 출처
@@ -64,7 +64,7 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 
 ## 인터페이스
 
-기능 명세의 모든 동작에 인터페이스가 있습니다. 스텝별 보기(SPEC-141)는 제 요청이 없고, 그림 보기가 읽는 그림(API-111)을 보여 줍니다. 다시 디자인의 동작 SPEC-143\~SPEC-156의 계획한 인터페이스는 [다시 디자인의 인터페이스](#다시-디자인의-인터페이스)에, ② 차례의 동작인 PC에서 고치기와 워크숍(SPEC-134, SPEC-142, SPEC-170\~SPEC-186)의 것은 [② 차례의 인터페이스](#②-차례의-인터페이스)에 있습니다.
+기능 명세의 모든 동작에 인터페이스가 있습니다. 스텝별 보기(SPEC-141)는 제 요청이 없고, 그림 보기가 읽는 그림(API-111)을 보여 줍니다. 다시 디자인의 동작 SPEC-143\~SPEC-156의 인터페이스는 [다시 디자인의 인터페이스](#다시-디자인의-인터페이스)에, ② 차례의 동작인 PC에서 고치기와 워크숍(SPEC-134, SPEC-142, SPEC-170\~SPEC-186)의 것은 [② 차례의 인터페이스](#②-차례의-인터페이스)에 있습니다.
 
 ### 서버의 요청 목록
 
@@ -72,7 +72,7 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 
 | API | 요청 | 코드 이름 | 보낼 수 있는 쪽 | 맡는 동작 | 상태 |
 | --- | --- | --- | --- | --- | --- |
-| API-101 | `GET /` | `getHubPage` | 둘 다 | SPEC-113, SPEC-122, SPEC-123, SPEC-124, SPEC-125 | active |
+| API-101 | `GET /hub` | `getHubPage` | 둘 다 | SPEC-113, SPEC-122, SPEC-123, SPEC-124, SPEC-125, SPEC-153 | active |
 | API-102 | `GET /pictures/{project}/{part}/{stage}` | `getPictureViewPage` | 둘 다 | SPEC-113, SPEC-119 | active |
 | API-103 | `GET /overview/{project}/{part}/{stage}` | `getStageOverviewPage` | 둘 다 | SPEC-113, SPEC-138, SPEC-139 | active |
 | API-104 | `GET /code/{file}` | `getViewCode` | 둘 다 | SPEC-113, SPEC-119 | active |
@@ -138,9 +138,9 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 | --- | --- | --- | --- | --- | --- |
 | API-151 | `GET /api/home` | `getHome` | 둘 다 | SPEC-113, SPEC-143, SPEC-144, SPEC-145 | active |
 | API-152 | `GET /api/spaces/{project}/talk/{part}/{stage}` | `getStageTalk` | 둘 다 | SPEC-113, SPEC-150 | active |
-| API-153 | `GET /p/{project}` | `getProjectPage` | 둘 다 | SPEC-113, SPEC-146 | planned |
-| API-154 | `GET /p/{project}/{part}/{stage}` | `getStagePage` | 둘 다 | SPEC-113, SPEC-146\~SPEC-151, SPEC-155, SPEC-156 | planned |
-| API-155 | `GET /` | `getHomePage` | 둘 다 | SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-154 | planned |
+| API-153 | `GET /p/{project}` | `getProjectPage` | 둘 다 | SPEC-113, SPEC-146 | active |
+| API-154 | `GET /p/{project}/{part}/{stage}` | `getStagePage` | 둘 다 | SPEC-113, SPEC-146\~SPEC-151, SPEC-155, SPEC-156 | active |
+| API-155 | `GET /` | `getHomePage` | 둘 다 | SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-154 | active |
 | API-156 | `GET /api/search` | `searchItems` | 둘 다 | SPEC-113, SPEC-152 | active |
 | API-157 | `GET /api/spaces/{project}/items/{id}` | `getItem` | 둘 다 | SPEC-113, SPEC-149 | active |
 | API-158 | `GET /api/spaces/{project}/stages/{part}/{stage}` | `getStage` | 둘 다 | SPEC-113, SPEC-147, SPEC-148 | active |
@@ -162,9 +162,9 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 4. API-119 `replyToComment`: 에이전트의 답글은 `asks`를 지닐 수 있고, 사용자의 답글은 의견의 `asks`를 비웁니다.
 5. 허브의 `comment`(API-139)는 그림이 있는 단계만이 아니라 13단계 어느 것이든 `--stage`로 받고, 단계 전체에는 `--item`을 뺍니다. `comment`와 `reply`(API-140)는 `--asks answer|recommended|checkpoint`를 받습니다. 이것은 `kodonghui/corthex`에 있는 허브의 변경이므로 허브 페이지 템플릿의 새 토큰(09단계)과 함께 그곳의 풀 리퀘스트로 들어오고, 이 저장소의 규칙대로 이 저장소의 `hub-ref.json`은 제품 검사와 함께 그 정확한 커밋으로 옮깁니다.
 
-변경 3\~5는 만들어졌습니다: 계약과 서버는 kodonghui/corthex-nexus#50에서 05단계의 변환 4와 함께, 허브 0.3.0은 kodonghui/corthex#172에서 만들었고, `hub-ref.json`은 그 커밋 `318035d`을 적습니다. 그것을 쓰면서 정한 두 가지: 무엇을 묻는지는 에이전트만 말하므로 사용자의 `asks`는 `asks` 칸의 `400` `invalid_request`로 거절합니다. 그리고 `commit`을 뺀 의견은 그림의 문서 판을, 그림이 없는 단계에서는 간직한 기본 브랜치 커밋을 받고, 저장된 스냅샷에 그것이 없으면 `commit` 칸으로 거절합니다.
+변경 1은 TASK-271부터 만들어졌고, 변경 2는 TASK-278과 함께 옵니다(아래 API-153\~API-155). 변경 3\~5는 만들어졌습니다: 계약과 서버는 kodonghui/corthex-nexus#50에서 05단계의 변환 4와 함께, 허브 0.3.0은 kodonghui/corthex#172에서 만들었고, `hub-ref.json`은 그 커밋 `318035d`을 적습니다. 그것을 쓰면서 정한 두 가지: 무엇을 묻는지는 에이전트만 말하므로 사용자의 `asks`는 `asks` 칸의 `400` `invalid_request`로 거절합니다. 그리고 `commit`을 뺀 의견은 그림의 문서 판을, 그림이 없는 단계에서는 간직한 기본 브랜치 커밋을 받고, 저장된 스냅샷에 그것이 없으면 `commit` 칸으로 거절합니다.
 
-계약은 TASK-265부터 API-151\~API-154와 API-156\~API-159를 `x-corthex.status: planned`로 표시해 지니며, 계약 검사는 서버가 답하기 전까지 그것을 뺍니다. API-155는 API-101을 옮길 때 함께 옵니다(TASK-271). 그것을 쓰면서 정한 것:
+계약은 TASK-265부터 API-151\~API-154와 API-156\~API-159를 `x-corthex.status: planned`로 표시해 지니며, 계약 검사는 서버가 답하기 전까지 그것을 뺍니다. API-155는 TASK-271에서 API-101을 옮길 때 함께 왔습니다. 그것을 쓰면서 정한 것:
 
 - 꼴이 다른 쿼리 값은 경로 값과 달리 그 칸의 `400` `invalid_request`입니다([주소와 경로](#주소와-경로)).
 - API-152의 `closed`는 `0`이나 `1`을 받고, `after`는 보기 화면이 이미 지닌 글의 수를 100,000까지 셉니다. 대화의 맡음은 그 시작을 `claimed_at`으로 주며, 에이전트 자신의 읽기에서는 빠질 수 있습니다.
@@ -221,6 +221,16 @@ API-159는 TASK-270부터 active입니다: 서버가 답하고, 계약 검사와
 - 이렇게 통과한 확인 지점은 그것을 지닌 모든 응답, 곧 API-159와 함께 API-112, API-113, API-117, API-129, API-130에서 `comment`에 그 의견을 적습니다. 다른 확인 지점은 `comment`를 뺍니다. 프로젝트 전체에 단 의견은 프로젝트의 확인 지점을 통과시킵니다.
 - 요청은 본문을 받지 않고 읽지도 않습니다. 저마다 쓰기 ID가 있는 두 따름이 한꺼번에 와도 결과는 하나입니다: 둘째는 바뀐 의견에서 다시 계획되어 추천을 이미 따른 것으로 봅니다.
 - 위의 표는 이제 계약이 TASK-265부터 그랬듯 API-159에 SPEC-139를 적습니다: 그 요청은 API-128처럼 확인 지점을 통과시킵니다.
+
+API-153\~API-155는 API-101을 `/hub`로 옮긴 것과 함께 TASK-271부터 active입니다: 서버가 답하고, 계약 검사와 Schemathesis가 다룹니다. 그것을 만들면서 정한 것:
+
+- `/`는 첫 화면이고 `/hub`는 허브 페이지이며, 허브 페이지는 찾기·추적·단계 보기를 제 조각 주소에 그대로 지닙니다. 0.2의 다른 것은 아직 옮기지 않습니다: 그림 보기와 단계 현황, 곧 API-102와 API-103은 다시 디자인의 단계가 그것들이 보이는 그림과 목록을 그릴 때까지(TASK-274, TASK-275) 제 주소에서 제 페이지를 지닙니다. 그때까지 단계의 페이지는 그 자료를 지니되 틀만 그리므로, 그리로 가는 `302`는 하나뿐인 동작하는 보기를 빼앗습니다. 그 넘겨주기, 곧 변경 2는 0.2의 모든 주소를 걸어 보는 TASK-278과 함께 옵니다. 두 보기의 허브 페이지 링크와 그 메시지 페이지의 링크는 `/hub`로 갑니다.
+- API-153은 저장된 스냅샷만 읽습니다: 설정의 순서로 첫 부분의 지금 단계, 곧 첫 화면의 카드가 적는 대로 처음 진행 중인 단계, 없으면 처음 시작 전인 단계이고, 둘 다 없으면 01단계입니다. 부분이 없는 프로젝트는 `_`입니다. `302`는 본문이 없고, 모든 응답의 헤더와 JSON 응답의 정책을 지니며, 브라우저는 그것을 지나며 `#` 뒤를 지니므로 `/p/{project}#talk=…`는 지금 단계에서 열립니다.
+- API-154는 저장된 스냅샷 한 번의 읽기에서 단계를 API-158이 기본값으로 답하는 대로, 대화 전체를 API-152가 답하는 대로, 01·05·07단계에서는 그림을 API-111이 답하는 대로 읽으며, 저마다 제 묶음으로 읽습니다. 0.1 허브로만 올라와 공간이 없는 프로젝트는 단계를 지니되 `talk`와 `picture`가 null이고 `problem`이 `space_not_found`입니다. 그림이 있는 단계인데 그 부분에 그림이 없으면 `picture`가 null이고 `problem`이 API-111의 답처럼 `why`를 단 `picture_not_found`입니다. 두 경우 모두 페이지는 `200`이고, 서버는 거절을 기록하듯 그 문제의 코드와 추적 ID를 기록합니다.
+- API-155는 페이지를 낼 때 읽은 API-151의 응답을 계약의 `HomePageData`, 곧 `corthex-home-page/0.3`으로 지닙니다.
+- 서버는 두 페이지의 읽는 부분을 TASK-272의 모듈로 그리고, 그 자료를 스크립트 블록에 한 번 넣습니다. 보기 화면의 빌드가 없는 서버는 자료만 지닌 페이지를 보냅니다.
+- 페이지의 거절이나 오류는 메시지 페이지입니다([오류](#오류)): `/`에서는 SCR-110#error대로 다시 불러오기만, `/hub`와 `/p/…`에서는 다시 불러오기와 모든 프로젝트(`/`), `/pictures/…`와 `/overview/…`에서는 다시 불러오기와 허브 페이지(`/hub`)를 답니다.
+- 계약 검사는 이제 이름 붙은 기본 응답 94개를 셉니다. 세 작업이 넷씩 더했습니다. 응답 검사는 첫 화면 둘과 단계 페이지 넷을 지닙니다: 그림이 있는 것, 그림이 있는 단계인데 그 부분에 그림이 없는 것, 그림이 없는 단계, 공간이 없는 프로젝트. Schemathesis는 41개 작업을 모두 시험하며, 계획 상태인 것은 없습니다.
 
 ## ② 차례의 인터페이스
 
@@ -406,7 +416,7 @@ hub.py change PROJECT WORKSHOP --file FILE
 
 ### 주소와 경로
 
-- 서버는 1차처럼 사용자가 정한 주소, 곧 `nexus.url`이 적은 주소에서만 답하고, `workers.dev`나 미리 보기 주소에서는 답하지 않습니다(SPEC-113). 페이지는 `/`, `/pictures/…`, `/overview/…`이고, 보기 화면의 코드는 `/code/` 아래, 나머지는 `/api/` 아래에 있습니다.
+- 서버는 1차처럼 사용자가 정한 주소, 곧 `nexus.url`이 적은 주소에서만 답하고, `workers.dev`나 미리 보기 주소에서는 답하지 않습니다(SPEC-113). 페이지는 `/`, `/hub`, `/p/…`, `/pictures/…`, `/overview/…`이고, 보기 화면의 코드는 `/code/` 아래, 나머지는 `/api/` 아래에 있습니다.
 - `{project}`는 등록한 이름입니다: 소문자와 숫자로 된 낱말을 하이픈으로 이은 것으로, 100자까지입니다. `{part}`는 같은 꼴의 부분 이름이거나, 프로젝트 전체를 뜻하는 `_`이며, JSON 본문에서는 `""`로 씁니다. `{stage}`는 단계 키이고, 그림이 있는 단계는 `01-domain`, `05-erd`, `07-sitemap`뿐입니다.
 - 서버 자신의 ID는 접두어와 소문자 Crockford base32의 임의 글자 12개입니다. 숫자와 `i`, `l`, `o`, `u`를 뺀 글자를 씁니다: 의견은 `nc_`, 어긋남은 `nd_`, 제안은 `np_`, 편집은 `ne_`, 확인 지점은 `nk_`, 쓰기는 `nw_`입니다. 쓰기 ID는 페이지와 허브가 만들고, 나머지는 서버가 만듭니다. 이것은 추적 ID가 아니며, 허브는 이것을 항목으로 읽지 않습니다.
 - 꼴이 다른 경로 값은 서버가 갖지 않은 값과 같은 `404`를 받습니다. 1차가 프로젝트 이름에 그렇게 답하는 것과 같으며, `400`은 받지 않습니다([고른 것 1](#이-단계가-고른-것)).
@@ -424,7 +434,7 @@ hub.py change PROJECT WORKSHOP --file FILE
 - 응답은 `application/json; charset=utf-8`의 JSON이고, 상태는 `200`, 항목을 더하는 쓰기는 `201`입니다. 페이지는 `text/html; charset=utf-8`이고, 보기 화면의 코드 파일은 제 형식을 지닙니다.
 - 모든 응답은 1차의 헤더를 지닙니다: `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-Robots-Tag: noindex, nofollow`, `Cross-Origin-Resource-Policy: same-origin`. 그래서 어떤 응답도 캐시되거나, 다른 사이트의 프레임에 보이거나, 색인되지 않습니다(SPEC-113). JSON 응답에는 `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`을 더합니다.
 - 허브 페이지는 1차의 정책을 그대로 둡니다. 자기 인라인 스크립트만 그 다이제스트로 돌리고, 아무 요청도 보내지 않습니다: `default-src 'none'; script-src 'sha256-…'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, 그리고 `Cross-Origin-Opener-Policy: same-origin`.
-- 그림 보기와 단계 현황은 코드를 `/code/`에서만 불러오고 요청은 서버에만 보냅니다(REQ-147): `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, 그리고 `Cross-Origin-Opener-Policy: same-origin`. 그 자료는 JSON 스크립트 블록에 있고, 페이지는 그것을 글로 읽을 뿐 돌리지 않습니다.
+- 그림 보기, 단계 현황, 그리고 다시 디자인의 페이지 `/`와 `/p/{project}/{part}/{stage}`는 코드를 `/code/`에서만 불러오고 요청은 서버에만 보냅니다(REQ-147): `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, 그리고 `Cross-Origin-Opener-Policy: same-origin`. 그 자료는 JSON 스크립트 블록에 있고, 페이지는 그것을 글로 읽을 뿐 돌리지 않습니다. 프로젝트의 주소 `/p/{project}`는 본문 없이 JSON 응답의 정책으로 `302`를 답합니다.
 - 브라우저와 같은 origin의 Access 보호 Cloudflare 거점이 간직해도 되는 것은 공개된 내용 해시 이름의 보기 화면 코드·스타일·글꼴뿐이며, `Cache-Control: public, max-age=31536000, immutable`을 지닙니다. 파일 이름마다 그 내용의 다이제스트가 들어 있고, 프로젝트 자료는 없기 때문입니다. 이 단계의 확인 지점이 SPEC-113을 그렇게 바꿨습니다([앞 단계의 변경](#앞-단계의-변경)).
 
 ### 오류
@@ -443,7 +453,7 @@ hub.py change PROJECT WORKSHOP --file FILE
 
 NEXUS는 `type`을 보내지 않으며(RFC 9457은 이것을 `about:blank`로 읽습니다), `instance`도 보내지 않습니다. 클라이언트는 RFC 9457이 말하는 대로 모르는 멤버를 무시합니다. 보기 화면은 `detail`이 아니라 사용자의 언어로 된 코드의 말을 보여 주고, 허브는 `detail`을 보여 줍니다. 서버의 로그에는 오류의 종류와 추적 ID만 있고, 저장된 글이나 요청의 값은 없습니다(SPEC-113).
 
-세 페이지 API-101\~API-103은 요청의 `Accept` 헤더가 `text/html`을 적으면, 곧 브라우저가 페이지를 열 때처럼 하면 거절과 오류에 `text/html; charset=utf-8`로 답하고, 그렇지 않으면 문제 세부 정보로 답합니다. 브라우저는 문제 세부 정보를 날 글로 보이기 때문입니다. 그 페이지에는 서버의 언어로 된 코드의 말 하나와 추적 ID, 다시 불러오기, 허브 페이지 링크가 있고, 응답의 상태와 정책 `default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`을 지니며, 08단계의 [규칙 9](../08-screens/nexus/README.ko.md#모든-화면)가 그것을 그립니다. `/api/` 요청과 보기 화면의 코드는 언제나 문제 세부 정보로 답하고, 보기 자신의 자료는 그것을 `problem`에 담습니다.
+페이지 API-101\~API-103과 API-153\~API-155는 요청의 `Accept` 헤더가 `text/html`을 적으면, 곧 브라우저가 페이지를 열 때처럼 하면 거절과 오류에 `text/html; charset=utf-8`로 답하고, 그렇지 않으면 문제 세부 정보로 답합니다. 브라우저는 문제 세부 정보를 날 글로 보이기 때문입니다. 그 페이지에는 서버의 언어로 된 코드의 말 하나와 추적 ID, 다시 불러오기, 그리고 갈 곳이 있습니다: 첫 화면 `/`에는 더 없고, 허브 페이지와 다시 디자인의 다른 페이지에는 모든 프로젝트(`/`), 그림 보기와 단계 현황에는 허브 페이지(`/hub`)입니다. 그 페이지는 응답의 상태와 정책 `default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`을 지니며, 08단계의 [규칙 9](../08-screens/nexus/README.ko.md#모든-화면)가 그것을 그립니다. `/api/` 요청과 보기 화면의 코드는 언제나 문제 세부 정보로 답하고, 보기 자신의 자료는 그것을 `problem`에 담습니다.
 
 ### 어느 거절이 먼저인지
 
@@ -947,6 +957,7 @@ CREATE TABLE pictures (
 
 - 허브 페이지는 `<script id="hub-data" type="application/json">`에 `corthex-hub-page/0.2`, 곧 계약의 `HubPageData`를 담습니다: 1차의 멤버와 `spaces`이며, `spaces`는 공간이 있는 프로젝트마다 그 그림, 열린 것의 개수, 기록을 기다리는 확인 지점, 경고를 담습니다. `lang`은 1차처럼 서버의 `NEXUS_LANGUAGE`에서, 기기에서는 프로필에서 옵니다.
 - 그림 보기와 단계 현황은 `<script id="view-data" type="application/json">`에 `corthex-view-page/0.2`, 곧 계약의 `ViewPageData`를 담습니다: `picture`나 `overview`인 `view`; API-111이나 API-112의 응답인 `data`; 그리고 서버가 그것을 읽지 못했을 때의 문제 세부 정보인 `problem`, 이를테면 `picture_not_found`. 쓰기 뒤에 보기 화면은 그 요청으로 자료를 다시 읽습니다.
+- 다시 디자인의 첫 화면 API-155는 같은 스크립트 블록에 `corthex-home-page/0.3`, 곧 계약의 `HomePageData`를 담습니다: 페이지를 낼 때의 API-151 응답인 `data`.
 - 다시 디자인의 단계 페이지 API-154는 같은 스크립트 블록에 `corthex-stage-page/0.3`, 곧 계약의 `StagePageData`를 담습니다: 기본 순서의 처음 항목 200개에 대한 API-158의 응답인 `data`; 단계 전체에 대한 API-152의 응답인 `talk`, 공간이 없는 프로젝트에서는 null; 그림이 있는 단계에서 API-111의 응답인 `picture`, 그 밖에는 null; 그리고 페이지가 담지 못한 것의 문제 세부 정보인 `problem`, 곧 `space_not_found`나 `picture_not_found`.
 
 ## 점검 규칙
@@ -1165,6 +1176,12 @@ CREATE TABLE pictures (
 - openapi-spec-validator: 계약은 요청 40개, 그 가운데 planned 2개로 올바른 OpenAPI 3.1입니다.
 - 계약 검사: 이름 붙은 JSON 예시 446개와 API-158에 대한 서버의 응답 네 개, API-152에 대한 응답 네 개, API-157에 대한 응답 두 개, API-156에 대한 응답 세 개, API-151에 대한 응답 두 개, API-159에 대한 응답 세 개, 그리고 그 의견을 적은 확인 지점 하나가 그 스키마에 맞습니다. 이름 붙은 기본 응답 82개가 통과하고, Schemathesis 3.39.16은 서버가 답하는 요청 38개를 검사마다 181/181로 통과하며 planned 2개를 뺍니다. Prism은 돌리지 않았습니다.
 - 저장소의 Python 시험 13개와 Node 시험 302개가 통과하고, 허브가 찍은 이 저장소의 스냅샷은 새 사례 7개를 포함해 항목 1301개를 읽으며, 경고 630개는 줄 번호 말고는 전과 같습니다.
+
+2026-11-08, 서버가 API-153–API-155를 받고 API-101을 `/hub`로 옮겼을 때(TASK-271), 로컬에서 합성 자료로:
+
+- openapi-spec-validator: 계약은 요청 41개, 그 가운데 planned 없이 올바른 OpenAPI 3.1입니다.
+- 계약 검사: 이름 붙은 JSON 예시 450개와 앞선 작업들의 서버 응답, 첫 화면 두 개, 단계 페이지 네 개가 그 스키마에 맞습니다. 이름 붙은 응답 예시 493개에 문제가 없고, 이름 붙은 기본 응답 94개가 통과하며, Schemathesis 3.39.16은 요청 41개 모두를 검사마다 192/192로 통과합니다. Prism은 돌리지 않았습니다.
+- 저장소의 Python 시험 13개와 Node 시험 318개가 통과하고, 페이지 묶음이 이제 페이지 제 주소에서 도는 브라우저 묶음 아홉 개도 통과합니다. 허브가 찍은 이 저장소의 스냅샷은 새 사례 11개를 포함해 항목 1327개를 읽으며, 경고 630개는 줄 번호 말고는 전과 같습니다.
 
 ### 개발 Access의 두 로그인 시험 (2026-11-03)
 

@@ -64,6 +64,24 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
       case "getCheckpoint": return json(await store.readEntry(p.project,"checkpoint",p.checkpoint),200,head);
       case "claimEntry": return json(await store.claimEntry(p.project,p.entry,route.session));
       case "releaseEntry": return json(await store.claimEntry(p.project,p.entry,route.session,true));
+      case "getHomePage": {
+        // The first page (API-155, SCR-110), with the answer of API-151 as it is now.
+        return page(views,{schema:"corthex-home-page/0.3",generated_at:new Date().toISOString(),lang:lang(env),data:await store.readHome()},head);
+      }
+      case "getProjectPage": {
+        // A project leads to its current stage (API-153, SPEC-146); browsers keep no 302,
+        // and keep what follows # in the address that the user opened.
+        const {part,stage}=await store.projectPlace(p.project);
+        return redirect(`/p/${p.project}/${part||"_"}/${stage}`);
+      }
+      case "getStagePage": {
+        // One part's stage (API-154, SCR-111 to SCR-115): API-158, API-152 and, on a
+        // pictured stage, API-111 in the page's data, and why the page lacks any of them.
+        const {data,talk,picture,problem:missing}=await store.readStagePage(p.project,p.part,p.stage);
+        let problem=null;
+        if(missing){problem=problemDocument(request,missing);console.error("nexus",{kind:problem.code,traceId:problem.traceId});}
+        return page(views,{schema:"corthex-stage-page/0.3",generated_at:new Date().toISOString(),lang:lang(env),data,talk,picture,problem},head);
+      }
       case "getHubPage": {
         const [bodies,spaces]=await Promise.all([store.bodies(),store.readSpaces()]);
         const data={schema:"corthex-hub-page/0.2",generated_at:new Date().toISOString(),lang:lang(env),origin:"server",projects:bodies.map(JSON.parse),spaces,missing:[]};
@@ -103,19 +121,29 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
     }
   } catch(error) {
     const path=new URL(request.url).pathname;
-    if((path==="/"||path.startsWith("/pictures/")||path.startsWith("/overview/")) && /(?:^|[,;\s])text\/html(?:[,;\s]|$)/i.test(request.headers.get("Accept")||""))return refusalPage(request,env,error,views);
+    if((path==="/"||path==="/hub"||/^\/(?:pictures|overview|p)\//.test(path)) && /(?:^|[,;\s])text\/html(?:[,;\s]|$)/i.test(request.headers.get("Accept")||""))return refusalPage(request,env,error,views,path);
     return problemResponse(request,error);
   }
 }
 
-function refusalPage(request,env,error,views) {
+// The way out of a page's message (stage 08's rule 9): Load again, and on the
+// redesign's pages all projects, the first page; on 0.2's views the hub page.
+// The first page's own message has only Load again (SCR-110#error).
+function refusalLinks(path,ko) {
+  const again=`<a class="control" href="">${ko?"다시 불러오기":"Load again"}</a>`;
+  if(path==="/")return again;
+  if(path==="/hub"||path.startsWith("/p/"))return again+`<a class="control" href="/">${escaped(words("All projects",ko?"ko":"en"))}</a>`;
+  return again+`<a class="control" href="/hub">${ko?"허브로":"Hub"}</a>`;
+}
+
+function refusalPage(request,env,error,views,path) {
   const p=problemDocument(request,error),ko=lang(env)==="ko";
   console.error("nexus",{kind:p.code,traceId:p.traceId});
   const language=ko?"ko":"en",message=words(p.code,language);
   // The factory validates this already compiled, frozen stylesheet. A refusal
   // must stay readable even when no browser code or stylesheet can be loaded.
   const css=views.refusalCSS||"";
-  const body=`<!doctype html><html lang="${language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NEXUS</title>${css?`<style>${css}\n.refusal h1{word-break:keep-all;overflow-wrap:break-word}</style>`:""}</head><body><main class="content refusal"><h1>${escaped(message)}</h1><p class="meta">${escaped(words("Trace ID",language,{traceId:p.traceId}))}</p><p class="controls"><a class="control" href="">${ko?"다시 불러오기":"Load again"}</a><a class="control" href="/">${ko?"허브로":"Hub"}</a></p></main></body></html>`;
+  const body=`<!doctype html><html lang="${language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NEXUS</title>${css?`<style>${css}\n.refusal h1{word-break:keep-all;overflow-wrap:break-word}</style>`:""}</head><body><main class="content refusal"><h1>${escaped(message)}</h1><p class="meta">${escaped(words("Trace ID",language,{traceId:p.traceId}))}</p><p class="controls">${refusalLinks(path,ko)}</p></main></body></html>`;
   return new Response(request.method==="HEAD"?null:body,{status:p.status,headers:{...COMMON_HEADERS,"Content-Type":"text/html; charset=utf-8","Content-Security-Policy":"default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",...(error instanceof Problem?error.headers:{})}});
 }
 
@@ -142,6 +170,13 @@ export async function pagePolicy(template) {
   }
   return policies.get(template);
 }
+// The redesign's pages: drawn by the views from their data, or, for a server
+// without the view's build, an empty page that holds the data alone.
+function page(views,payload,head) {
+  const template=typeof views.page==="function"?views.page(payload):`<!doctype html><html lang="${payload.lang}"><head><meta charset="utf-8"><title>NEXUS</title></head><body><script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script></body></html>`;
+  return html(renderView(template,payload),VIEW_POLICY,head);
+}
+function redirect(location) {return new Response(null,{status:302,headers:{...COMMON_HEADERS,Location:location,"Content-Security-Policy":"default-src 'none'; frame-ancestors 'none'"}});}
 function html(body,policy,head=false) {return rememberHTML(new Response(head?null:body,{headers:{...COMMON_HEADERS,"Content-Type":"text/html; charset=utf-8","Content-Security-Policy":policy,"Cross-Origin-Opener-Policy":"same-origin"}}),body);}
 function jsonHeaders() {return {...COMMON_HEADERS,"Content-Type":"application/json; charset=utf-8","Content-Security-Policy":"default-src 'none'; frame-ancestors 'none'"};}
 function json(data,status=200,head=false) {return new Response(head?null:JSON.stringify(data),{status,headers:jsonHeaders()});}

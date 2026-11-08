@@ -190,7 +190,7 @@ test("actual TCP HTML is compressed before transport while Access, no-store, CSP
   assert.equal((await call("POST", "/api/snapshots", example())).status, 200);
   const jwt=await token();
   const wire=(encoding,method="GET",authorized=true)=>new Promise((resolve,reject)=>{
-    const req=httpRequest({host:"127.0.0.1",port:server.address().port,path:"/",method,headers:{...(authorized?{"Cf-Access-Jwt-Assertion":jwt}:{}),"Accept-Encoding":encoding}},res=>{
+    const req=httpRequest({host:"127.0.0.1",port:server.address().port,path:"/hub",method,headers:{...(authorized?{"Cf-Access-Jwt-Assertion":jwt}:{}),"Accept-Encoding":encoding}},res=>{
       const chunks=[];res.on("data",chunk=>chunks.push(chunk));res.on("end",()=>resolve({status:res.statusCode,headers:res.headers,bytes:Buffer.concat(chunks)}));
     });req.on("error",reject);req.end();
   });

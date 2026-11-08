@@ -10,9 +10,13 @@ const path = (route) => route.path.replace(/\{(\w+)\}/g, (_, name) => values[nam
 const code = (value) => (error) => error.code === value;
 const headers = { "Idempotency-Key": '"nw_' + ID + '"', "Nexus-Session": "agent-one" };
 
-test("all 38 contracted operations dispatch, and every GET also takes HEAD", () => {
-  assert.equal(ROUTES.length, 38);
-  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 38);
+test("all 41 contracted operations dispatch, and every GET also takes HEAD", () => {
+  assert.equal(ROUTES.length, 41);
+  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 41);
+  // The first page holds the root since TASK-271, and the hub page moved to /hub.
+  assert.equal(pathRoute(request("GET", "/")).operation, "getHomePage");
+  assert.equal(pathRoute(request("GET", "/hub")).operation, "getHubPage");
+  assert.deepEqual(pathRoute(request("GET", "/p/acme/_/02-prd")).params, { project: "acme", part: "", stage: "02-prd" });
   for (const route of ROUTES) {
     assert.equal(pathRoute(request(route.method, path(route))).operation, route.operation);
     if (route.method === "GET") assert.equal(pathRoute(request("HEAD", path(route))).operation, route.operation);
@@ -30,6 +34,8 @@ test("invalid path values get resource-specific 404s and never reach a handler",
     ["/api/spaces/acme/items/tbl-111", "item_not_found"], ["/api/spaces/acme/items/TBL-1234567", "item_not_found"],
     ["/api/spaces/acme/items/A" + "B".repeat(23) + "-123456", "item_not_found"], ["/api/spaces/Acme/items/tbl-111", "project_not_found"],
     ["/api/spaces/acme/items/", "not_found"],
+    ["/p/Acme", "project_not_found"], ["/p/acme/Part/02-prd", "part_not_found"], ["/p/acme/_/14-other", "not_found"],
+    ["/p/acme/part", "not_found"], ["/p/", "not_found"], ["/hub/", "not_found"],
   ]) assert.throws(() => pathRoute(request("GET", path)), code(error), path);
 });
 

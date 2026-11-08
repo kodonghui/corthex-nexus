@@ -1,6 +1,7 @@
 /**
  * TASK-272: the redesign's pages read before their code, and the code moves nothing
- * (stage 08's rules 14 to 17). Node 24 built-ins only; an owned headless Chrome over CDP.
+ * (stage 08's rules 14 to 17); TASK-271: they answer at their addresses, a project's
+ * address leads to its current stage and the hub page answers at /hub. Node 24 built-ins only; an owned headless Chrome over CDP.
  * Requires NEXUS_QA_PAGES=1, the opt-in view-server, NEXUS_CHROME and NEXUS_QA_ORIGIN.
  * Synthetic loopback fixture only. The suite reads pages and sends no writes. One case
  * writes into the page itself: it empties the data block before the held code runs, to
@@ -20,7 +21,7 @@ await fs.access(chrome);
 const target=new URL(process.env.NEXUS_QA_ORIGIN||'about:blank');
 if(target.protocol!=='http:'||target.hostname!=='127.0.0.1'||!target.port||target.username||target.password||target.pathname!=='/'||target.search||target.hash)throw Error('Use a plain numeric IPv4 loopback fixture origin');
 const origin=target.origin,project='qa-pages';
-const stagePage=(lang,part='sample',stage='05-erd')=>`/__qa/page/stage/${project}/${part}/${stage}?lang=${lang}`,homePage=lang=>'/__qa/page/home?lang='+lang;
+const stagePage=(lang,part='sample',stage='05-erd')=>`/p/${project}/${part}/${stage}?lang=${lang}`,homePage=lang=>'/?lang='+lang;
 const words={en:{bar:"The page's buttons could not load. Load the page again to answer here."},ko:{bar:'페이지의 단추를 불러오지 못했습니다. 여기서 답하려면 페이지를 다시 불러와 주세요.'}};
 const artifactBase=path.resolve(process.env.NEXUS_QA_ARTIFACTS||path.join(tmpdir(),'nexus-browser-artifacts'));
 await fs.mkdir(artifactBase,{recursive:true});
@@ -203,25 +204,57 @@ try{
     const misses=[[0,-21],[0,21],[-21,0],[21,0]].filter(([dx,dy])=>{const hit=document.elementFromPoint(x+dx,y+dy);return!hit||!(hit===e||e.contains(hit));});
     return{name:(e.textContent.trim()||e.getAttribute('aria-label')||e.className).slice(0,40),box:[r.x,r.y,r.width,r.height].map(Math.round),misses};}).filter(Boolean);})`;
   const checked=[];
+  // The fonts join after the first paint (TC-1368) and may wrap the sheet's title on fewer
+  // lines: probe and click only once they have, or a control may move between the two.
+  const fontsIn=async()=>{await waitFor(`document.documentElement.dataset.nxCode==='ready'&&!!document.querySelector('link[data-nexus-css="fonts"]')?.sheet&&document.fonts.status==='loaded'&&[...document.fonts].some(f=>f.family.includes('IBM Plex Sans KR')&&f.status==='loaded')`);await paint();};
   const run=async(label,scope)=>{const found=await evaluate(probe+'('+JSON.stringify(scope)+')');checked.push({label,found});for(const c of found)assert(!c.misses.length,`${label}: ${c.name} misses ${JSON.stringify(c.misses)}`);return found.length;};
   await setting({width:390});
-  await open(stagePage('en'));await waitFor(`document.documentElement.dataset.nxCode==='ready'`);
+  await open(stagePage('en'));await fontsIn();
   assert(await run('stage top bar and tabs','header.tb a,header.tb button,nav.tabs a')>=4,'Too few controls in the top bar and tabs');
-  await open(stagePage('en')+'#stages');await waitFor(`document.documentElement.dataset.nxCode==='ready'`);
+  await open(stagePage('en')+'#stages');await fontsIn();
   assert(await run('sheet of stages','nav.rail a,nav.rail summary')>=8,'Too few controls in the sheet');
   const summary=await evaluate(`(()=>{const r=document.querySelector('.partsw summary').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()`);
   for(const type of['mousePressed','mouseReleased'])await command('Input.dispatchMouseEvent',{type,x:summary.x,y:summary.y,button:'left',clickCount:1});await paint();
   assert(await evaluate(`document.querySelector('.partsw').open`),'The part switch opens without code');
   assert(await run('part switch','.partsw ul a')===2,'Both parts are links');
-  await open(homePage('ko'));await waitFor(`document.documentElement.dataset.nxCode==='ready'`);
+  await open(homePage('ko'));await fontsIn();
   assert(await run('first page top bar','header.tb a,header.tb button,header.tb summary')>=3,'Too few controls on the first page');
   return{checked,screenshot:await shot('hit-areas-390')};
+ });
+
+ // API-153 and API-101 at their addresses (TASK-271): a project's address answers 302 to its
+ // first part's current stage, and the browser keeps what follows #; the hub page is at /hub.
+ await test('addresses-lead-to-their-pages',async()=>{
+  await setting({width:1440});
+  const asked=origin+'/p/'+project+'#talk='+fixture.pages.mine,ends=origin+'/p/'+project+'/sample/04-functional-spec#talk='+fixture.pages.mine;
+  await command('Page.navigate',{url:asked});
+  await waitFor(`location.href===${JSON.stringify(ends)}&&document.readyState!=='loading'&&!!document.getElementById('view-data')`);
+  const stage=await evaluate(`(()=>{const data=JSON.parse(document.getElementById('view-data').textContent);return{schema:data.schema,part:data.data.part,stage:data.data.stage,current:document.querySelector('nav.rail [aria-current]')?.getAttribute('href')||null};})()`);
+  assert(stage.schema==='corthex-stage-page/0.3'&&stage.part==='sample'&&stage.stage==='04-functional-spec','The project leads to its first part\'s current stage: '+JSON.stringify(stage));
+  await command('Page.navigate',{url:origin+'/hub'});
+  await waitFor(`location.pathname==='/hub'&&document.readyState==='complete'&&document.getElementById('projects')?.children.length>0`);
+  const hub=await evaluate(`({data:!!document.getElementById('hub-data'),view:!!document.getElementById('view-data'),projects:document.getElementById('projects').children.length})`);
+  assert(hub.data&&!hub.view,'/hub serves the hub page');
+  const screenshot=await shot('hub-at-hub');
+  // 0.2's picture view and stage overview keep their pages until TASK-278 leads them to the
+  // stage's page. Their top bar leads back to the hub page at /hub: the picture view's as the
+  // server first draws it, and the overview's as its code draws it, since the server draws none.
+  const kept={};
+  for(const view of['pictures','overview']){
+   const url=origin+'/'+view+'/'+project+'/sample/05-erd';
+   await command('Page.navigate',{url});
+   await waitFor(`location.href===${JSON.stringify(url)}&&document.readyState==='complete'&&!!document.querySelector('#view > header.topbar a.control')`);
+   kept[view]=await evaluate(`(()=>{const data=JSON.parse(document.getElementById('view-data').textContent),link=document.querySelector('#view > header.topbar a.control');return{schema:data.schema,view:data.view,path:location.pathname,back:link.origin===location.origin?link.pathname+link.search+link.hash:link.href,words:link.textContent};})()`);
+   assert(kept[view].schema==='corthex-view-page/0.2'&&kept[view].view===(view==='pictures'?'picture':'overview')&&kept[view].path==='/'+view+'/'+project+'/sample/05-erd','0.2\'s '+view+' page answers at its address: '+JSON.stringify(kept[view]));
+   assert(kept[view].back==='/hub'&&kept[view].words==='Hub page','The top bar leads back to the hub page at /hub: '+JSON.stringify(kept[view]));
+  }
+  return{asked:'/p/'+project+'#talk=<the fixture comment>',ended:new URL(ends).pathname+'#talk=<the fixture comment>',stage,hub,kept,screenshot};
  });
 
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.posts.length,'The page suite must not send writes');
  assert(!report.blockedExternalOrigins.length,'The pages asked another origin: '+report.blockedExternalOrigins.join());
- const expected=1+1+1+1+1+1+8;
+ const expected=1+1+1+1+1+1+8+1;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{
