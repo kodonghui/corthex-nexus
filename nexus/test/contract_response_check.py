@@ -11,7 +11,7 @@ from pathlib import Path
 import jsonschema
 import yaml
 
-from contract_example_check import check_response_example_applicability
+from contract_example_check import check_named_examples_fit_schemas, check_response_example_applicability
 
 root = Path(__file__).resolve().parents[2]
 program = None
@@ -35,6 +35,10 @@ applicability = check_response_example_applicability(api)
 if applicability["findings"]:
     print(json.dumps(applicability))
     raise SystemExit("named response examples do not fit the operation's inputs")
+fitted = check_named_examples_fit_schemas(api)
+if fitted["findings"]:
+    print(json.dumps(fitted["findings"][:10]))
+    raise SystemExit("named response examples do not match their schemas")
 for case in cases:
     validator = jsonschema.Draft202012Validator(api["components"]["schemas"][case["schema"]],
         resolver=jsonschema.RefResolver.from_schema(api), format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER)
@@ -43,4 +47,5 @@ for case in cases:
         print(json.dumps({"case":case["name"],"schema":case["schema"],
             "errors":[{"path":list(error.absolute_path),"rule":error.validator} for error in errors[:10]]}))
         raise SystemExit(1)
-print("offline response contracts: normal/empty bootstraps, constructor overview and 501-proposal history passed")
+print("offline response contracts: " + str(fitted["namedJsonExamples"]) + " named JSON examples fit their schemas; "
+      "normal/empty bootstraps, constructor overview and 501-proposal history passed")

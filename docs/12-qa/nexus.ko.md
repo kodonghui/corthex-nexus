@@ -1116,3 +1116,14 @@ BUG-559의 300노드 세로 사이트맵은 내장 편집기에서 전체 맞춤
 ## ② 확인 지점 1 (2026-11-07 KST)
 
 ② 확인 지점 1에서 01단계 문서의 타임라인에 흐름이 둘, Editing directly에 자리가 둘 늘어, NEXUS 자신의 문서는 흐름이 일곱이고 Picture edited와 Edit conflict found는 Editing directly의 둘째 자리에 함께 있습니다. SPEC-106 수용 기준 3과 SPEC-141 수용 기준 1은 이제 흐름을 개수 없이 적고, 고정된 계약 검사는 흐름 일곱을 기대합니다. TC-611과 TC-658, 그리고 같은 수용 기준을 옮겨 적은 TC-609·610·659–662는 흐름 다섯 문서에서 얻은 원래 기준과 결과를 그대로 둡니다. 두 사례 모두 흐름 일곱 문서로는 아직 돌리지 않았습니다.
+
+## 다시 디자인의 만들기 (2026-11-08 KST)
+
+다시 디자인의 만들기([10단계](../10-wbs/nexus.ko.md#재디자인-만들기-2026-11-08-kst))의 사례이며, 작업마다 끝내는 커밋에서 씁니다. 결과마다 어디서 돌렸는지 적으며, 배포된 서버의 결과는 없습니다.
+
+| ID | 사례 | 근거 | Task | 방법 | 단계 | 기대 | 마지막 결과 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| TC-1318 | 계약이 다시 디자인의 요청을 planned로 지님 | API-151–API-154, API-156–API-159 (SPEC-143–SPEC-156) | TASK-265 | contract | 고정한 `openapi-spec-validator`로 `docs/06-api/nexus.openapi.yaml`을 검사하고, `x-corthex.status`가 `planned`인 요청을 꼽고, 이름 붙은 JSON 예시마다 그 응답의 스키마로 검사하는 `nexus/test/contract_response_check.py`를 돌립니다. | 올바르고, `getProjectPage`, `getStagePage`, `getHome`, `searchItems`, `getStage`, `getStageTalk`, `getItem`, `takeRecommendation` 여덟 개만 planned이며, 이름 붙은 예시가 모두 그 스키마에 맞습니다. | 통과(로컬, 고정한 계약 도구, Node 24, 합성 자료, 2026-11-08): 올바름, 그 여덟 개가 planned, 이름 붙은 JSON 예시 445개가 스키마에 맞음. |
+| TC-1319 | 서버가 답하기 전까지 검사가 planned 요청을 뺌 | API-151–API-154, API-156–API-159 (SPEC-143–SPEC-156) | TASK-265 | contract | 만들어 낸 Access 단언과 함께, 소유한 로컬 Node HTTP/SQLite 서버에 `nexus/test/default_response_check.py`와 `nexus/test/standalone_contract_check.py`를 돌립니다. | 이름 붙은 기본 응답은 70개 가운데 70개 그대로이고, Schemathesis는 서버가 답하는 요청 32개를 모으며 planned 여덟 개를 뺐다고 적고 검사마다 통과합니다. | 통과(로컬, TC-1318과 같음): 기본 응답 70/70, Schemathesis 3.39.16이 요청 32개를 모으고 여덟 개를 뺌, 다섯 검사 모두 156/156. |
+| TC-1320 | 쿼리 값의 거절은 그 요청의 쿼리 값을 적음 | API-152, API-156, API-157, API-158 (SPEC-148, SPEC-149, SPEC-150, SPEC-152) | TASK-265 | contract | 계약에, 그리고 `invalid_after` 예시를 `text_too_long`으로, `home` 예시의 `my_turn.total`을 글자로 바꾼 사본에 `nexus/test/contract_example_check.py`를 돌립니다. | 계약: 이름 붙은 예시 483개, 찾은 것 없음. 사본: API-152와 API-158의 `after`에 대한 적용성 결과와 API-151 예시의 스키마 결과, 종료 코드 1. | 통과(로컬, TC-1318과 같음): 계약에서 찾은 것 없음, 사본에서 심어 둔 두 잘못을 모두 알림, 종료 코드 1. |
+| TC-1321 | 서버가 다시 디자인의 오류 코드 두 개를 앎 | `item_not_found`, `not_recommended` (SPEC-143, SPEC-149) | TASK-265 | unit | 서버의 오류 이름을 계약의 `ErrorCode`와 견주는 `nexus/test/problem.test.js`를 돌립니다. | 이름이 같고, `item_not_found`는 404, `not_recommended`는 409입니다. | 통과(로컬 Node 24, 2026-11-08): Node 시험 267개 가운데 267개. |

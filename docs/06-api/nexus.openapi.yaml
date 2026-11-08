@@ -13,7 +13,10 @@ info:
     the hub's commands, the formats of the snapshot, the picture sources, the stage records and
     the outbox, the limits and the error codes with their messages. Every GET also answers HEAD
     with the same status and headers and no body, a method that a path does not take gets 405 with
-    an Allow header, and every reply carries the security headers that nexus.md lists.
+    an Allow header, and every reply carries the security headers that nexus.md lists. The
+    operations whose x-corthex.status is planned are the redesign's, API-151 to API-154 and
+    API-156 to API-159, which the server answers once the redesign is built; until then the checks
+    leave them out, and the server answers their paths as unknown.
 servers:
   - url: https://nexus.example.com
     description: >-
@@ -36,6 +39,8 @@ tags:
     description: Pending reflections (CTX-010)
   - name: Stage progress
     description: The agent to-do, claims and checkpoints passed in NEXUS (CTX-007)
+  - name: Workspace
+    description: The redesign's first page, stages, items and search
 
 paths:
   /:
@@ -1567,6 +1572,358 @@ paths:
                 claimed: {$ref: "#/components/examples/claimed"}
         default: {$ref: "#/components/responses/Unexpected"}
 
+
+  /p/{project}:
+    parameters:
+      - $ref: "#/components/parameters/Project"
+    get:
+      operationId: getProjectPage
+      tags: [Pages]
+      summary: A project, which leads to its current stage
+      description: >-
+        Answers 302 to the page of the project's current stage (SPEC-146): the current stage of
+        the first part, in the order of the settings' parts, as the hub page names it, the first
+        stage in progress or else the first not started; stage 01 when no stage is recorded or
+        none is current. Browsers do not keep a 302, so the server can go back to 0.2. A refusal
+        or an error is a page of the code's message when the request accepts text/html, as a
+        browser's does, and Problem Details otherwise (Errors in nexus.md).
+      x-corthex:
+        id: API-153
+        spec: [SPEC-113, SPEC-146]
+        status: planned
+        omit:
+          "400": the request has no input; a path value in another form gets 404
+          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "409": a read clashes with no state
+      responses:
+        "302":
+          description: To the page of the project's current stage
+          headers:
+            Location:
+              description: The stage page's path, with _ for the project as a whole
+              schema:
+                type: string
+                pattern: '^/p/[a-z0-9]+(?:-[a-z0-9]+)*/(?:_|[a-z0-9]+(?:-[a-z0-9]+)*)/(?:01-domain|02-prd|03-user-flow|04-functional-spec|05-erd|06-api|07-sitemap|08-screen-states|09-mockup|10-wbs|11-development|12-qa|13-presentation)$'
+              example: /p/corthex/nexus/12-qa
+        "403": {$ref: "#/components/responses/PageReadRefused"}
+        "404": {$ref: "#/components/responses/PageProjectNotFound"}
+        default: {$ref: "#/components/responses/PageUnexpected"}
+
+  /p/{project}/{part}/{stage}:
+    parameters:
+      - $ref: "#/components/parameters/Project"
+      - $ref: "#/components/parameters/Part"
+      - $ref: "#/components/parameters/Stage"
+    get:
+      operationId: getStagePage
+      tags: [Pages]
+      summary: One part's stage in the project's workspace
+      description: >-
+        The workspace at one part's stage (SCR-111 to SCR-115), with the answers of getStage,
+        getStageTalk and, on a stage with a picture, getPicture in its JSON script block
+        (StagePageData). The server also draws the page's reading parts from that data, so that
+        the page reads before its code runs (stage 08's rule 15); the code comes from /code/ and
+        sends its requests only to this server. What follows # in the address, talk, item,
+        view=list, step and q, never reaches the server. A refusal or an error is a page of the
+        code's message when the request accepts text/html, as a browser's does, and Problem
+        Details otherwise (Errors in nexus.md).
+      x-corthex:
+        id: API-154
+        spec: [SPEC-113, SPEC-146, SPEC-147, SPEC-148, SPEC-149, SPEC-150, SPEC-151, SPEC-155, SPEC-156]
+        status: planned
+        omit:
+          "400": the request has no input; a path value in another form gets 404
+          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "409": a read clashes with no state
+      responses:
+        "200":
+          description: The workspace at the stage
+          content:
+            text/html:
+              schema: {type: string}
+              examples:
+                stage:
+                  summary: The page, shortened
+                  value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><script type="module" src="/code/view.3f9a1c2b.js"></script></head><body><main id="view"></main><script id="view-data" type="application/json">{"schema":"corthex-stage-page/0.3","generated_at":"2026-11-08T08:30:00.000Z","lang":"en","data":{},"talk":null,"picture":null,"problem":null}</script></body></html>'
+        "403": {$ref: "#/components/responses/PageReadRefused"}
+        "404": {$ref: "#/components/responses/PageOverviewNotFound"}
+        default: {$ref: "#/components/responses/PageUnexpected"}
+
+  /api/home:
+    get:
+      operationId: getHome
+      tags: [Workspace]
+      summary: The first page's data
+      description: >-
+        What the first page shows, in one read: my turn across every project space, up to 50
+        entries with their total, in SPEC-143's order; the agent to-do's counts for each project
+        with a space, each with the place of its oldest entry, and how many a session has taken;
+        and a card for each stored snapshot, by name, with the order of the last push as the
+        page's other choice. A server without snapshots answers with no card.
+      x-corthex:
+        id: API-151
+        spec: [SPEC-113, SPEC-143, SPEC-144, SPEC-145]
+        status: planned
+        omit:
+          "400": the request has no input
+          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "404": the path names no resource
+          "409": a read clashes with no state
+      responses:
+        "200":
+          description: The first page's data
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Home"}
+              examples:
+                waiting: {$ref: "#/components/examples/home"}
+                empty-server:
+                  summary: No snapshot on the server
+                  value: {generated_at: "2026-11-08T08:30:00.000Z", my_turn: {total: 0, entries: []}, agent: [], projects: []}
+        "403": {$ref: "#/components/responses/ReadRefused"}
+        default: {$ref: "#/components/responses/Unexpected"}
+
+  /api/search:
+    parameters:
+      - $ref: "#/components/parameters/SearchWords"
+    get:
+      operationId: searchItems
+      tags: [Workspace]
+      summary: Search every stored snapshot
+      description: >-
+        Up to 20 items across every stored snapshot, with the total of the matches: an item
+        whose ID is the words first, then the items whose ID or title holds every word,
+        case-insensitive, as the hub page's search matches (REQ-094), each in the order of the
+        projects' names and then of the snapshot. An ID that several projects hold matches once
+        for each. Each match names the part where it opens, the project's first part. Only IDs
+        and titles are searched and answered, never a stage source's text.
+      x-corthex:
+        id: API-156
+        spec: [SPEC-113, SPEC-152]
+        status: planned
+        omit:
+          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "404": the path names no resource; words without a match are 200 with none
+          "409": a read clashes with no state
+      responses:
+        "200":
+          description: The matches
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/SearchAnswer"}
+              examples:
+                exact-id: {$ref: "#/components/examples/search_answer"}
+                no-match:
+                  summary: Words that match nothing
+                  value: {q: settles twice, total: 0, matches: []}
+        "400":
+          description: Words that are too short or too long
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/Problem"}
+              examples:
+                short-words: {$ref: "#/components/examples/invalid_words"}
+        "403": {$ref: "#/components/responses/ReadRefused"}
+        default: {$ref: "#/components/responses/Unexpected"}
+
+  /api/spaces/{project}/stages/{part}/{stage}:
+    parameters:
+      - $ref: "#/components/parameters/Project"
+      - $ref: "#/components/parameters/Part"
+      - $ref: "#/components/parameters/Stage"
+      - $ref: "#/components/parameters/After"
+      - $ref: "#/components/parameters/StageFilter"
+      - $ref: "#/components/parameters/StageWords"
+      - $ref: "#/components/parameters/Group"
+    get:
+      operationId: getStage
+      tags: [Workspace]
+      summary: One part's stage, with its head, record and items
+      description: >-
+        What the workspace shows of a part's stage (SPEC-146 to SPEC-148): the stage's head, with
+        whether the project reads it and why not; its record as getStageOverview gives it; the
+        project, its parts and the part's 13 stages for the list of stages, with their states,
+        item counts, pictures and entries in my turn; and the stage's items from the stored
+        snapshot, 200 at a time after the first after, filtered by filter and the words q and
+        ordered by group, each with its context and its marks for the part. A project without a
+        space, pushed only by a hub of 0.1, has no talk, so its marks and the counts of my turn
+        are 0, as its stage overview has only the record and the checks.
+      x-corthex:
+        id: API-158
+        spec: [SPEC-113, SPEC-146, SPEC-147, SPEC-148]
+        status: planned
+        omit:
+          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "409": a read clashes with no state
+      responses:
+        "200":
+          description: The stage
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StageData"}
+              examples:
+                prd-by-context: {$ref: "#/components/examples/stage_data"}
+        "400": {$ref: "#/components/responses/InvalidQuery"}
+        "403": {$ref: "#/components/responses/ReadRefused"}
+        "404": {$ref: "#/components/responses/OverviewNotFound"}
+        default: {$ref: "#/components/responses/Unexpected"}
+
+  /api/spaces/{project}/talk/{part}/{stage}:
+    parameters:
+      - $ref: "#/components/parameters/Project"
+      - $ref: "#/components/parameters/Part"
+      - $ref: "#/components/parameters/Stage"
+      - $ref: "#/components/parameters/TalkItem"
+      - $ref: "#/components/parameters/Closed"
+      - $ref: "#/components/parameters/After"
+    get:
+      operationId: getStageTalk
+      tags: [Discussion]
+      summary: One part's stage talk, by turn
+      description: >-
+        The talk of a part's stage (SPEC-150): my turn, the open proposals and the open comments
+        that wait for the user, in SPEC-143's order; the agent's turn, the open comments that wait
+        for the agent, oldest first, with the claim's start and end while a session holds one; the
+        open comments whose item the stored snapshot's stage no longer holds, apart (REQ-162); the
+        count of the closed comments and proposals, and with closed 1 those, newest first, 50 at a
+        time after the first after; and the stage's pending reflections. item narrows every list
+        to the entries on that item (REQ-230). The view reads a comment's replies with getComment
+        and a proposal's stage source text with getProposal.
+      x-corthex:
+        id: API-152
+        spec: [SPEC-113, SPEC-136, SPEC-150]
+        status: planned
+        omit:
+          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "409": a read clashes with no state
+      responses:
+        "200":
+          description: The talk
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StageTalk"}
+              examples:
+                by-turn: {$ref: "#/components/examples/stage_talk"}
+                nothing-yet:
+                  summary: No talk on the stage yet
+                  value: {project: corthex, part: nexus, stage: 13-presentation, item: null, mine: {total: 0, entries: []}, agent: {total: 0, entries: []}, apart: {total: 0, entries: []}, closed: {total: 0, entries: []}, reflections: []}
+        "400": {$ref: "#/components/responses/InvalidQuery"}
+        "403": {$ref: "#/components/responses/ReadRefused"}
+        "404": {$ref: "#/components/responses/TalkNotFound"}
+        default: {$ref: "#/components/responses/Unexpected"}
+
+  /api/spaces/{project}/items/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Project"
+      - $ref: "#/components/parameters/ItemId"
+      - $ref: "#/components/parameters/ItemPart"
+    get:
+      operationId: getItem
+      tags: [Workspace]
+      summary: One item with its links and its talk
+      description: >-
+        An item of the stored snapshot (SPEC-149), as the snapshot holds it: its fields, with the
+        language of the project's sources; its context; the place of its source, with a link to
+        the file at the commit of the repository that holds it when the settings give that
+        repository's web address; the items that it comes from and leads to, by stage, as the hub
+        page's trace (SPEC-122); and its talk in the part, as getStageTalk gives it narrowed to
+        the item. An item that no stage of the project holds is 404 item_not_found; the view then
+        reads the talk that still names it with getStageTalk, where it shows apart.
+      x-corthex:
+        id: API-157
+        spec: [SPEC-113, SPEC-149]
+        status: planned
+        omit:
+          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "409": a read clashes with no state
+      responses:
+        "200":
+          description: The item
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ItemData"}
+              examples:
+                table: {$ref: "#/components/examples/item_data"}
+        "400":
+          description: A part in another form
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/Problem"}
+              examples:
+                invalid-part: {$ref: "#/components/examples/invalid_part"}
+        "403": {$ref: "#/components/responses/ReadRefused"}
+        "404":
+          description: No such project or part, or no stage of the project holds the item
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/Problem"}
+              examples:
+                item-not-found: {$ref: "#/components/examples/item_not_found"}
+                project-not-found: {$ref: "#/components/examples/project_not_found"}
+                part-not-found: {$ref: "#/components/examples/part_not_found"}
+        default: {$ref: "#/components/responses/Unexpected"}
+
+  /api/spaces/{project}/comments/{comment}/recommended:
+    parameters:
+      - $ref: "#/components/parameters/Project"
+      - $ref: "#/components/parameters/Comment"
+      - $ref: "#/components/parameters/IdempotencyKey"
+    post:
+      operationId: takeRecommendation
+      tags: [Discussion]
+      summary: Take the agent's recommendation on a comment
+      description: >-
+        The user takes what the agent's last entry on an open comment that waits for the user asks
+        (SPEC-143). With asks recommended, the server adds the user's reply that settles the
+        comment, in the words for "as recommended" of the server's language, as replyToComment
+        with settles does. With asks checkpoint, it also passes the checkpoint of the comment's
+        part and stage with those words, with the comment in the checkpoint's comment, which holds
+        what was approved, as passCheckpoint does. Both are one transaction with the write ID, and
+        the comment then waits for the agent's record. A comment whose recommendation was taken
+        already, so that its last entry is that reply and, for a checkpoint, a passed checkpoint
+        names it, changes nothing. It takes no body.
+      security:
+        - accessUser: []
+      x-corthex:
+        id: API-159
+        spec: [SPEC-113, SPEC-116, SPEC-139, SPEC-143]
+        status: planned
+        omit:
+          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "413": the request takes no body
+          "415": the request takes no body
+      responses:
+        "200":
+          description: Taken
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/RecommendationAnswer"}
+              examples:
+                checkpoint-passed: {$ref: "#/components/examples/recommendation_taken"}
+        "400": {$ref: "#/components/responses/InvalidUserAction"}
+        "403": {$ref: "#/components/responses/UserWriteRefused"}
+        "404":
+          description: No such project, space or comment, or a checkpoint asked for on a part that the stored snapshot no longer holds
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/Problem"}
+              examples:
+                comment-not-found: {$ref: "#/components/examples/comment_not_found"}
+                project-not-found: {$ref: "#/components/examples/project_not_found"}
+                space-not-found: {$ref: "#/components/examples/space_not_found"}
+                part-not-found: {$ref: "#/components/examples/part_not_found"}
+        "409":
+          description: Nothing to take, at a limit, or the write ID was taken
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/Problem"}
+              examples:
+                not-recommended: {$ref: "#/components/examples/not_recommended"}
+                reply-limit: {$ref: "#/components/examples/reply_limit"}
+                space-full: {$ref: "#/components/examples/space_full"}
+                write-id-reused: {$ref: "#/components/examples/write_id_reused"}
+        default: {$ref: "#/components/responses/Unexpected"}
+
 components:
   securitySchemes:
     accessUser:
@@ -1694,6 +2051,85 @@ components:
         none, since claims never hold them back.
       schema: {$ref: "#/components/schemas/SessionLabel"}
       example: claude-code-4f2a91
+    ItemId:
+      name: id
+      in: path
+      required: true
+      description: An item's trace ID. An ID in another form gets 404 item_not_found, as one that no stage of the project holds.
+      schema: {$ref: "#/components/schemas/TraceId"}
+      example: TBL-111
+    ItemPart:
+      name: part
+      in: query
+      required: false
+      description: >-
+        The part whose talk the answer holds, as the workspace's address names it, or _ for the
+        project as a whole; the project's first part when it is left out. A part that the stored
+        snapshot does not hold gets 404 part_not_found, and a value in another form 400
+        invalid_request by the field part.
+      schema: {type: string, pattern: '^(?:_|[a-z0-9]+(?:-[a-z0-9]+)*)$', maxLength: 100}
+      example: nexus
+    TalkItem:
+      name: item
+      in: query
+      required: false
+      description: Narrows every list of the talk to the entries on this item (REQ-230). A value in another form gets 400 invalid_request by the field item.
+      schema: {$ref: "#/components/schemas/TraceId"}
+      example: TBL-111
+    Closed:
+      name: closed
+      in: query
+      required: false
+      description: 1 adds the closed comments and the proposals no longer open, newest first, 50 at a time after after; 0 gives only their total. A value in another form gets 400 invalid_request by the field closed.
+      schema: {type: integer, enum: [0, 1], default: 0}
+      example: 1
+    After:
+      name: after
+      in: query
+      required: false
+      description: How many entries of this order the view holds already, so that the answer starts after them. A value in another form gets 400 invalid_request by the field after.
+      schema: {type: integer, minimum: 0, maximum: 100000, default: 0}
+      example: 0
+    StageFilter:
+      name: filter
+      in: query
+      required: false
+      description: >-
+        Which of the stage's items (REQ-227): all; talk, those that the part's comments name;
+        mine, those that an entry in my turn names; left, those with an open discrepancy, open
+        comment or pending reflection of the part, what the 0.2 stage overview left (REQ-176). A
+        value in another form gets 400 invalid_request by the field filter.
+      schema: {type: string, enum: [all, talk, mine, left], default: all}
+      example: talk
+    StageWords:
+      name: q
+      in: query
+      required: false
+      description: >-
+        Narrows the items to those whose ID or title holds every word, case-insensitive, as the
+        hub page's search matches (REQ-094). Words longer than 200 characters get 400
+        invalid_request by the field q.
+      schema: {type: string, maxLength: 200}
+      example: push
+    Group:
+      name: group
+      in: query
+      required: false
+      description: >-
+        context groups the items by their contexts, the items without one last; source keeps the
+        source's order (REQ-227). A value in another form gets 400 invalid_request by the field
+        group.
+      schema: {type: string, enum: [context, source], default: context}
+      example: context
+    SearchWords:
+      name: q
+      in: query
+      required: true
+      description: >-
+        An ID or words, from 2 characters to 200, counted after leading and trailing spaces are
+        cut. Fewer or more, or none, get 400 invalid_request by the field q.
+      schema: {type: string, minLength: 2, maxLength: 200}
+      example: REQ-107
 
   responses:
     ReadRefused:
@@ -1888,6 +2324,23 @@ components:
           examples:
             entry-not-found: {$ref: "#/components/examples/entry_not_found"}
             project-not-found: {$ref: "#/components/examples/project_not_found"}
+    InvalidQuery:
+      description: A query value that is not in its form; field names it
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            invalid-after: {$ref: "#/components/examples/invalid_after"}
+    TalkNotFound:
+      description: No such project, space or part, or a stage that is not one of the 13
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            space-not-found: {$ref: "#/components/examples/space_not_found"}
+            project-not-found: {$ref: "#/components/examples/project_not_found"}
+            part-not-found: {$ref: "#/components/examples/part_not_found"}
+            no-such-stage: {$ref: "#/components/examples/not_found"}
     Unexpected:
       description: Any other error, such as one inside the server
       content:
@@ -1950,6 +2403,20 @@ components:
             part-not-found: {$ref: "#/components/examples/part_not_found"}
             project-not-found: {$ref: "#/components/examples/project_not_found"}
             no-such-stage: {$ref: "#/components/examples/not_found"}
+    PageProjectNotFound:
+      description: >-
+        The server holds no such project: a page of the code's message for a request whose Accept
+        header names text/html, as a browser's does, and Problem Details otherwise (Errors in
+        nexus.md)
+      content:
+        text/html:
+          schema: {type: string}
+          examples:
+            project-not-found: {$ref: "#/components/examples/project_not_found_page"}
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            project-not-found: {$ref: "#/components/examples/project_not_found"}
     PageUnexpected:
       description: >-
         Any other error, such as one inside the server: a page of the code's message for a
@@ -2136,6 +2603,21 @@ components:
     internal:
       summary: An error inside the server
       value: {title: Something went wrong, status: 500, detail: the server could not finish the request, code: internal, traceId: 8f6c3b2a1d0e9fb2-ICN, error: the server could not finish the request}
+    invalid_words:
+      summary: Words of one character
+      value: {title: The request is not valid, status: 400, detail: "q: write 2 to 200 characters", code: invalid_request, traceId: 8f6c3b2a1d0e9fb3-ICN, error: "q: write 2 to 200 characters", field: q}
+    invalid_after:
+      summary: A query value that is not in its form
+      value: {title: The request is not valid, status: 400, detail: "after: write a whole number from 0 to 100000", code: invalid_request, traceId: 8f6c3b2a1d0e9fb4-ICN, error: "after: write a whole number from 0 to 100000", field: after}
+    invalid_part:
+      summary: A part in another form
+      value: {title: The request is not valid, status: 400, detail: "part: write a part's name, or _ for the project as a whole", code: invalid_request, traceId: 8f6c3b2a1d0e9fb5-ICN, error: "part: write a part's name, or _ for the project as a whole", field: part}
+    item_not_found:
+      summary: No stage of the project holds the item
+      value: {title: No such item, status: 404, detail: no stage of the stored snapshot of corthex holds TBL-109, code: item_not_found, traceId: 8f6c3b2a1d0e9fb6-ICN, error: no stage of the stored snapshot of corthex holds TBL-109}
+    not_recommended:
+      summary: The comment no longer waits for a recommendation to be taken
+      value: {title: No recommendation to take, status: 409, detail: the comment no longer waits for the user with a recommendation or a checkpoint, code: not_recommended, traceId: 8f6c3b2a1d0e9fb7-ICN, error: the comment no longer waits for the user with a recommendation or a checkpoint}
     access_missing_page:
       summary: The page of access_missing, for a browser
       value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>NEXUS</title></head><body><main><p>Cloudflare Access did not check this request. Protect the server with Access first.</p><p>Trace ID 8f6c3b2a1d0e9f88-ICN</p><p><a href="">Load again</a> <a href="/">Hub page</a></p></main></body></html>'
@@ -2502,6 +2984,178 @@ components:
         proposals: []
         reflections: []
         discrepancies: []
+    home:
+      summary: A checkpoint, a proposal and a question wait for the user in one project
+      value:
+        generated_at: "2026-11-08T08:30:00.000Z"
+        my_turn:
+          total: 3
+          entries:
+            - {kind: comment, id: nc_7d1g4k8n2q5t, project: corthex, part: nexus, stage: 04-functional-spec, item: "", title: null, quote: null, text: "The rows of stage 04 are drafted. The recommendation is to pass its checkpoint with the rows as drafted.", at: "2026-11-08T07:10:00.000Z", asks: checkpoint}
+            - {kind: proposal, id: np_2b5e8g1j4m7p, project: corthex, part: nexus, stage: 05-erd, item: TBL-111, title: claims, quote: null, text: "Rename the table claims to entry_claims.", at: "2026-11-08T06:40:00.000Z", asks: null}
+            - {kind: comment, id: nc_9m2p5s8v1y4b, project: corthex, part: nexus, stage: 02-prd, item: REQ-107, title: "Before the first push of a project, the hub skill shall have the agent ask the user.", quote: null, text: "Should the agent also ask before a push of a project that was removed and is pushed again?", at: "2026-11-08T07:40:00.000Z", asks: answer}
+        agent:
+          - project: corthex
+            comments: {total: 2, oldest: {part: nexus, stage: 01-domain, entry: nc_3a6d9g2j5m8r}}
+            discrepancies: {total: 1, oldest: {part: nexus, stage: 05-erd, entry: nd_4h8r2t6w9z3c}}
+            reflections: {total: 0, oldest: null}
+            checkpoints: {total: 0, oldest: null}
+            taken: 1
+        projects:
+          - name: corthex
+            title: CORTHEX
+            repository: "https://github.com/kodonghui/corthex"
+            commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
+            generated_at: "2026-11-08T16:20:00+09:00"
+            pushed_at: "2026-11-08T07:20:03.410Z"
+            items: 1260
+            warnings: 630
+            parts:
+              - {name: nexus, recorded: true, current: 10-wbs, next: "Build the redesign's screens, TASK-265 to TASK-278", states: [done, done, done, done, done, done, done, done, done, in_progress, in_progress, not_started, not_started]}
+            stages:
+              - {key: 01-domain, items: 160}
+              - {key: 02-prd, items: 270}
+              - {key: 03-user-flow, items: 26}
+              - {key: 04-functional-spec, items: 186}
+              - {key: 05-erd, items: 25}
+              - {key: 06-api, items: 176}
+              - {key: 07-sitemap, items: 30}
+              - {key: 08-screen-states, items: 0}
+              - {key: 09-mockup, items: 0}
+              - {key: 10-wbs, items: 278}
+              - {key: 11-development, items: 0}
+              - {key: 12-qa, items: 109}
+              - {key: 13-presentation, items: 0}
+            pictures:
+              - {part: nexus, stage: 01-domain, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, committed_at: "2026-11-08T16:01:00+09:00", not_current: null, comments: 1, drawing: {bounds: [0, 0, 1240, 520], boxes: [[context, 0, 0, 600, 520], [event, 40, 80, 160, 96], [command, 240, 80, 160, 96], [context, 640, 0, 600, 520], [aggregate, 680, 80, 160, 96]], lines: [[200, 128, 240, 128], [400, 128, 680, 128]]}}
+              - {part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, committed_at: "2026-11-08T16:01:00+09:00", not_current: null, comments: 1, drawing: {bounds: [0, 0, 880, 400], boxes: [[table, 0, 0, 280, 240], [table, 600, 0, 280, 400]], lines: [[280, 120, 600, 120]]}}
+              - {part: nexus, stage: 07-sitemap, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, committed_at: "2026-11-08T16:01:00+09:00", not_current: size, comments: 0, drawing: null}
+    search_answer:
+      summary: An ID that one project holds
+      value: {q: REQ-107, total: 1, matches: [{project: corthex, part: nexus, stage: 02-prd, id: REQ-107, title: "Before the first push of a project, the hub skill shall have the agent ask the user."}]}
+    stage_data:
+      summary: Stage 02 of nexus by context, shortened to two items and one group
+      value:
+        project: {name: corthex, title: CORTHEX, repository: "https://github.com/kodonghui/corthex", commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, generated_at: "2026-11-08T16:20:00+09:00", pushed_at: "2026-11-08T07:20:03.410Z", parts: [nexus]}
+        part: nexus
+        stage: 02-prd
+        head:
+          key: 02-prd
+          state: done
+          checkpoint: {approved: "The requirements as drafted, with the three points as recommended", by: the maintainer, date: "2026-11-07"}
+          commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
+          time: "2026-11-08T16:20:00+09:00"
+          reads: true
+          source_state: found
+          counts: {items: 270, kinds: [{kind: requirement, count: 270}], priorities: [{priority: Must, count: 151}, {priority: Should, count: 98}, {priority: Could, count: 21}], hotspots: null}
+          picture: false
+        record:
+          project: corthex
+          part: nexus
+          stage: 02-prd
+          record: {state: done, checkpoints: [{approved: "The requirements as drafted, with the three points as recommended", by: the maintainer, date: "2026-11-07"}], next: "", updated: "2026-11-07T23:27:00+09:00", from: repository}
+          source_state: found
+          read: true
+          checks: []
+          pictures: []
+          discrepancies: {total: 0, entries: []}
+          comments:
+            total: 1
+            entries:
+              - {id: nc_9m2p5s8v1y4b, part: nexus, stage: 02-prd, item: REQ-107, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: agent, text: "Should the agent also ask before a push of a project that was removed and is pushed again?", state: open, closed_as: null, waits: user, asks: answer, settled: false, dismissed: false, made_at: "2026-11-08T07:40:00.000Z", last_at: "2026-11-08T07:40:00.000Z", replies: 0, last_reply: null, proposals: [], claim: null}
+          reflections: {total: 0, entries: []}
+          checkpoints: []
+          warnings: []
+          not_opened: 0
+        stages:
+          - {key: 01-domain, state: done, items: 160, picture: true, mine: 0}
+          - {key: 02-prd, state: done, items: 270, picture: false, mine: 1}
+          - {key: 03-user-flow, state: done, items: 26, picture: false, mine: 0}
+          - {key: 04-functional-spec, state: done, items: 186, picture: false, mine: 1}
+          - {key: 05-erd, state: done, items: 25, picture: true, mine: 1}
+          - {key: 06-api, state: done, items: 176, picture: false, mine: 0}
+          - {key: 07-sitemap, state: done, items: 30, picture: true, mine: 0}
+          - {key: 08-screen-states, state: done, items: 0, picture: false, mine: 0}
+          - {key: 09-mockup, state: done, items: 0, picture: false, mine: 0}
+          - {key: 10-wbs, state: in_progress, items: 278, picture: false, mine: 0}
+          - {key: 11-development, state: in_progress, items: 0, picture: false, mine: 0}
+          - {key: 12-qa, state: not_started, items: 109, picture: false, mine: 0}
+          - {key: 13-presentation, state: not_started, items: 0, picture: false, mine: 0}
+        items:
+          group: context
+          filter: all
+          q: null
+          total: 270
+          after: 0
+          counts: {all: 270, talk: 3, mine: 1, left: 1}
+          groups:
+            - {context: CTX-009, title: Snapshots, count: 52}
+          entries:
+            - {id: REQ-107, kind: requirement, stage: 02-prd, where: "docs/02-prd/nexus.md:139", title: "Before the first push of a project, the hub skill shall have the agent ask the user.", type: functional, priority: Must, status: built, links: [CTX-009], context: CTX-009, comments: 1, mine: true, discrepancies: 0, reflections: 0}
+            - {id: REQ-108, kind: requirement, stage: 02-prd, where: "docs/02-prd/nexus.md:140", title: "Before a push, the hub skill shall have the agent show a dry run.", type: functional, priority: Should, status: built, links: [CTX-009], context: CTX-009, comments: 0, mine: false, discrepancies: 0, reflections: 0}
+    stage_talk:
+      summary: The talk of nexus's ERD, with my turn, the agent's turn and a comment apart
+      value:
+        project: corthex
+        part: nexus
+        stage: 05-erd
+        item: null
+        mine:
+          total: 1
+          entries:
+            - kind: proposal
+              comment: null
+              proposal: {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The glossary names it entry claims.", change: "Rename the table claims to entry_claims.", source_text_chars: 27, comment: null, discrepancy: null, state: open, made_at: "2026-11-08T06:40:00.000Z", closed_at: null, edit: null}
+        agent:
+          total: 1
+          entries:
+            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a claim end when the session releases it early?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-08T07:00:00.000Z", last_at: "2026-11-08T07:00:00.000Z", replies: 0, last_reply: null, proposals: [], claim: {claimed_at: "2026-11-08T08:05:00.000Z", ends_at: "2026-11-08T09:05:00.000Z", mine: false}}
+        apart:
+          total: 1
+          entries:
+            - {id: nc_6r9v2x5a8d1g, part: nexus, stage: 05-erd, item: TBL-109, quote: null, discrepancy: null, commit: c0ffee5e7a1b2c3d4e5f60718293a4b5c6d7e8f9, author: user, text: "Does this table need its own index on the proposal?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-06T02:00:00.000Z", last_at: "2026-11-06T02:00:00.000Z", replies: 0, last_reply: null, proposals: [], claim: null}
+        closed: {total: 4, entries: []}
+        reflections: []
+    item_data:
+      summary: A table of nexus with its links and its talk
+      value:
+        project: corthex
+        part: nexus
+        language: en
+        item: {id: TBL-111, kind: table, stage: 05-erd, where: "docs/05-erd/nexus.sql:226", title: claims, links: [CTX-007, SPEC-136]}
+        context: {id: CTX-007, title: Stage progress}
+        source: {path: docs/05-erd/nexus.sql, line: 226, link: "https://github.com/kodonghui/corthex/blob/3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a/docs/05-erd/nexus.sql#L226", commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a}
+        trace:
+          from:
+            - {stage: 01-domain, total: 1, items: [{id: CTX-007, kind: context, title: Stage progress}]}
+            - {stage: 04-functional-spec, total: 1, items: [{id: SPEC-136, kind: spec, title: Claim what the agent takes}]}
+          to:
+            - {stage: 06-api, total: 2, items: [{id: API-131, kind: api, title: claimEntry}, {id: API-132, kind: api, title: releaseEntry}]}
+        comments:
+          project: corthex
+          part: nexus
+          stage: 05-erd
+          item: TBL-111
+          mine:
+            total: 1
+            entries:
+              - kind: proposal
+                comment: null
+                proposal: {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The glossary names it entry claims.", change: "Rename the table claims to entry_claims.", source_text_chars: 27, comment: null, discrepancy: null, state: open, made_at: "2026-11-08T06:40:00.000Z", closed_at: null, edit: null}
+          agent:
+            total: 1
+            entries:
+              - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a claim end when the session releases it early?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-08T07:00:00.000Z", last_at: "2026-11-08T07:00:00.000Z", replies: 0, last_reply: null, proposals: [], claim: {claimed_at: "2026-11-08T08:05:00.000Z", ends_at: "2026-11-08T09:05:00.000Z", mine: false}}
+          apart: {total: 0, entries: []}
+          closed: {total: 1, entries: []}
+          reflections: []
+    recommendation_taken:
+      summary: A checkpoint passed as the agent recommended
+      value:
+        comment: {id: nc_7d1g4k8n2q5t, state: open, closed_as: null, waits: agent, asks: null, settled: true, dismissed: false, last_at: "2026-11-08T08:31:12.204Z"}
+        reply: {seq: 2, author: user, text: As recommended, settles: true, made_at: "2026-11-08T08:31:12.204Z"}
+        checkpoint: {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: As recommended, state: passed, passed_at: "2026-11-08T08:31:12.204Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t}
+        changed: true
 
   schemas:
     ProjectName:
@@ -2578,7 +3232,7 @@ components:
 
     ErrorCode:
       type: string
-      enum: [invalid_request, invalid_snapshot, clock_ahead, unknown_item, access_missing, access_other_app, cross_site, user_only, agent_only, no_kind, not_found, project_not_found, space_not_found, part_not_found, picture_not_found, comment_not_found, discrepancy_not_found, proposal_not_found, edit_not_found, checkpoint_not_found, entry_not_found, method_not_allowed, older_snapshot, commit_not_replaced, too_many_projects, repository_mismatch, comment_limit, reply_limit, proposal_limit, reflection_limit, space_full, comment_closed, proposal_not_open, edit_state, pull_request_reported, pull_request_mismatch, claimed, entry_closed, checkpoint_recorded, checkpoint_withdrawn, checkpoint_state, write_id_reused, snapshot_too_large, body_too_large, text_too_long, json_required, internal]
+      enum: [invalid_request, invalid_snapshot, clock_ahead, unknown_item, access_missing, access_other_app, cross_site, user_only, agent_only, no_kind, not_found, project_not_found, space_not_found, part_not_found, picture_not_found, comment_not_found, discrepancy_not_found, proposal_not_found, edit_not_found, checkpoint_not_found, entry_not_found, item_not_found, method_not_allowed, older_snapshot, commit_not_replaced, too_many_projects, repository_mismatch, comment_limit, reply_limit, proposal_limit, reflection_limit, space_full, comment_closed, proposal_not_open, edit_state, pull_request_reported, pull_request_mismatch, claimed, entry_closed, checkpoint_recorded, checkpoint_withdrawn, checkpoint_state, not_recommended, write_id_reused, snapshot_too_large, body_too_large, text_too_long, json_required, internal]
     Problem:
       description: >-
         Problem Details (RFC 9457), sent as application/problem+json. NEXUS sends no type, which
@@ -3179,11 +3833,14 @@ components:
         dismissed: {type: boolean}
         last_at: {$ref: "#/components/schemas/Time"}
     ClaimMark:
-      description: The claim on an entry, mine when the session that asked holds it
+      description: >-
+        The claim on an entry, mine when the session that asked holds it, with claimed_at, when
+        it began, in the redesign's talk (API-152)
       type: object
       required: [ends_at, mine]
       additionalProperties: false
       properties:
+        claimed_at: {$ref: "#/components/schemas/Time"}
         ends_at: {$ref: "#/components/schemas/Time"}
         mine: {type: boolean}
     CommentEntry:
@@ -3367,6 +4024,9 @@ components:
         pull_request: {anyOf: [{$ref: "#/components/schemas/Link"}, {type: "null"}]}
         pr_state: {enum: [open, merged, closed, null]}
         recorded_commit: {anyOf: [{$ref: "#/components/schemas/Commit"}, {type: "null"}]}
+        comment:
+          description: The comment whose recommendation the user took to pass the checkpoint (API-159), which holds what was approved; from the redesign
+          anyOf: [{$ref: "#/components/schemas/CommentId"}, {type: "null"}]
     CheckpointEntry:
       description: A checkpoint as the agent to-do holds it, with why it is listed
       allOf:
@@ -3634,6 +4294,519 @@ components:
             - type: "null"
         problem: {anyOf: [{$ref: "#/components/schemas/Problem"}, {type: "null"}]}
 
+    StageState:
+      description: A stage's recorded state, unknown when no record names it
+      type: string
+      enum: [done, in_progress, not_started, skipped, unknown]
+    Place:
+      description: >-
+        Where an entry opens in the workspace: a comment, an edit or a checkpoint at its own part
+        and stage, a discrepancy at its table's or screen's stage, 05-erd for aggregate-table and
+        07-sitemap for read-model-screen
+      type: object
+      required: [part, stage, entry]
+      additionalProperties: false
+      properties:
+        part: {$ref: "#/components/schemas/PartName"}
+        stage: {$ref: "#/components/schemas/StageKey"}
+        entry: {$ref: "#/components/schemas/EntryId"}
+    Home:
+      description: The first page's data (API-151)
+      type: object
+      required: [generated_at, my_turn, agent, projects]
+      additionalProperties: false
+      properties:
+        generated_at: {$ref: "#/components/schemas/Time"}
+        my_turn:
+          description: >-
+            What waits for the user in every space, in SPEC-143's order: the open comments whose
+            last entry asks for a checkpoint, then the open proposals, then the other open
+            comments that wait for the user, each group oldest first; up to 50, with their total
+          type: object
+          required: [total, entries]
+          additionalProperties: false
+          properties:
+            total: {type: integer, minimum: 0}
+            entries: {type: array, maxItems: 50, items: {$ref: "#/components/schemas/MyTurnEntry"}}
+        agent:
+          description: The agent to-do's counts for each project with a space, by the projects' names (SPEC-144)
+          type: array
+          maxItems: 30
+          items: {$ref: "#/components/schemas/AgentCounts"}
+        projects:
+          description: A card for each stored snapshot, by the projects' names (SPEC-145); the page keeps its own order
+          type: array
+          maxItems: 30
+          items: {$ref: "#/components/schemas/ProjectCard"}
+    MyTurnEntry:
+      description: >-
+        An entry of my turn. For a comment, text is the first 300 characters of its last entry,
+        the agent's comment or reply, and at is that entry's time; for a proposal, its change and
+        when it was made, with its first item.
+      type: object
+      required: [kind, id, project, part, stage, item, title, quote, text, at, asks]
+      additionalProperties: false
+      properties:
+        kind: {type: string, enum: [comment, proposal]}
+        id: {type: string, pattern: '^n[cp]_[0-9a-hjkmnp-tv-z]{12}$'}
+        project: {$ref: "#/components/schemas/ProjectName"}
+        part: {$ref: "#/components/schemas/PartName"}
+        stage: {$ref: "#/components/schemas/StageKey"}
+        item: {$ref: "#/components/schemas/ItemRef"}
+        title: {description: "The item's title in the stored snapshot; null for the stage as a whole or an item that no stage holds now", type: [string, "null"], maxLength: 120}
+        quote: {type: [string, "null"], maxLength: 300}
+        text: {type: string, maxLength: 300}
+        at: {$ref: "#/components/schemas/Time"}
+        asks: {description: "What the comment asks of the user; null for a proposal", enum: [answer, recommended, checkpoint, null]}
+    AgentCount:
+      type: object
+      required: [total, oldest]
+      additionalProperties: false
+      properties:
+        total: {type: integer, minimum: 0}
+        oldest: {description: "Where the list's oldest entry opens; null when the list is empty", anyOf: [{$ref: "#/components/schemas/Place"}, {type: "null"}]}
+    AgentCounts:
+      description: One project's agent to-do in counts, by the lists of getAgentTodo read without a session
+      type: object
+      required: [project, comments, discrepancies, reflections, checkpoints, taken]
+      additionalProperties: false
+      properties:
+        project: {$ref: "#/components/schemas/ProjectName"}
+        comments: {$ref: "#/components/schemas/AgentCount"}
+        discrepancies: {$ref: "#/components/schemas/AgentCount"}
+        reflections: {$ref: "#/components/schemas/AgentCount"}
+        checkpoints: {$ref: "#/components/schemas/AgentCount"}
+        taken: {description: How many of the entries a session's claim holds now, type: integer, minimum: 0}
+    ProjectCard:
+      description: >-
+        A project's card, from its stored snapshot and its space. title is the settings' title,
+        cut at 120 characters as titles are; repository the web address that the settings give
+        for the project's own repository; commit the snapshot's held commit; pushed_at when the
+        server stored it.
+      type: object
+      required: [name, title, repository, commit, generated_at, pushed_at, items, warnings, parts, stages, pictures]
+      additionalProperties: false
+      properties:
+        name: {$ref: "#/components/schemas/ProjectName"}
+        title: {type: [string, "null"], maxLength: 120}
+        repository: {anyOf: [{$ref: "#/components/schemas/Link"}, {type: "null"}]}
+        commit: {anyOf: [{$ref: "#/components/schemas/Commit"}, {type: "null"}]}
+        generated_at: {$ref: "#/components/schemas/ZonedTime"}
+        pushed_at: {$ref: "#/components/schemas/Time"}
+        items: {type: integer, minimum: 0}
+        warnings: {description: The snapshot's checks of level warn, type: integer, minimum: 0}
+        parts:
+          description: The settings' parts in their order, or one part "" for the project as a whole
+          type: array
+          minItems: 1
+          maxItems: 50
+          items: {$ref: "#/components/schemas/CardPart"}
+        stages:
+          description: The 13 stages in order, with how many items the snapshot holds of each
+          type: array
+          minItems: 13
+          maxItems: 13
+          items:
+            type: object
+            required: [key, items]
+            additionalProperties: false
+            properties:
+              key: {$ref: "#/components/schemas/StageKey"}
+              items: {type: integer, minimum: 0}
+        pictures:
+          description: The space's pictures, in the order of the parts and the stages; empty for a project without a space
+          type: array
+          maxItems: 150
+          items: {$ref: "#/components/schemas/CardPicture"}
+    CardPart:
+      description: >-
+        A part on a card. current is the part's first stage in progress, or else its first not
+        started, as the hub page names it; null when no stage is recorded or none is current.
+        next is the current stage's next action.
+      type: object
+      required: [name, recorded, current, next, states]
+      additionalProperties: false
+      properties:
+        name: {$ref: "#/components/schemas/PartName"}
+        recorded: {description: Whether a record names a state for any of its stages, type: boolean}
+        current: {anyOf: [{$ref: "#/components/schemas/StageKey"}, {type: "null"}]}
+        next: {type: [string, "null"], maxLength: 300}
+        states:
+          description: The 13 stages' recorded states, in order
+          type: array
+          minItems: 13
+          maxItems: 13
+          items: {$ref: "#/components/schemas/StageState"}
+    CardPicture:
+      description: A picture of the space on a card, with how many open comments it holds and its small drawing
+      type: object
+      required: [part, stage, commit, committed_at, not_current, comments, drawing]
+      additionalProperties: false
+      properties:
+        part: {$ref: "#/components/schemas/PartName"}
+        stage: {$ref: "#/components/schemas/PictureStage"}
+        commit: {$ref: "#/components/schemas/Commit"}
+        committed_at: {$ref: "#/components/schemas/ZonedTime"}
+        not_current: {enum: [size, source-gone, other-repository, null]}
+        comments: {type: integer, minimum: 0}
+        drawing: {description: "null when the picture has nothing to draw or is too complex to lay out", anyOf: [{$ref: "#/components/schemas/Drawing"}, {type: "null"}]}
+    Drawing:
+      description: >-
+        A picture as the server first lays it out, without labels (the first picture decision of
+        2026-11-04): its bounds as x, y, width and height, its boxes as a kind with x, y, width and
+        height, and its lines from x and y to x and y, in whole units of the layout
+      type: object
+      required: [bounds, boxes, lines]
+      additionalProperties: false
+      properties:
+        bounds:
+          type: array
+          prefixItems: [{type: integer}, {type: integer}, {type: integer, minimum: 0}, {type: integer, minimum: 0}]
+          minItems: 4
+          maxItems: 4
+        boxes:
+          type: array
+          maxItems: 2000
+          items:
+            type: array
+            prefixItems: [{$ref: "#/components/schemas/DrawingKind"}, {type: integer}, {type: integer}, {type: integer, minimum: 0}, {type: integer, minimum: 0}]
+            minItems: 5
+            maxItems: 5
+        lines:
+          type: array
+          maxItems: 2000
+          items:
+            type: array
+            prefixItems: [{type: integer}, {type: integer}, {type: integer}, {type: integer}]
+            minItems: 4
+            maxItems: 4
+    DrawingKind:
+      type: string
+      enum: [context, lane, event, command, actor, aggregate, read-model, policy, external, hotspot, screen, table]
+
+    StageData:
+      description: A part's stage as the workspace shows it (API-158)
+      type: object
+      required: [project, part, stage, head, record, stages, items]
+      additionalProperties: false
+      properties:
+        project: {$ref: "#/components/schemas/StageProject"}
+        part: {$ref: "#/components/schemas/PartName"}
+        stage: {$ref: "#/components/schemas/StageKey"}
+        head: {$ref: "#/components/schemas/StageHead"}
+        record: {$ref: "#/components/schemas/Overview"}
+        stages:
+          description: The part's 13 stages in order, for the workspace's list of stages
+          type: array
+          minItems: 13
+          maxItems: 13
+          items: {$ref: "#/components/schemas/StageRow"}
+        items: {$ref: "#/components/schemas/StageItems"}
+    StageProject:
+      description: The project of a stage, as its card names it, with its parts in the settings' order, or "" for the project as a whole
+      type: object
+      required: [name, title, repository, commit, generated_at, pushed_at, parts]
+      additionalProperties: false
+      properties:
+        name: {$ref: "#/components/schemas/ProjectName"}
+        title: {type: [string, "null"], maxLength: 120}
+        repository: {anyOf: [{$ref: "#/components/schemas/Link"}, {type: "null"}]}
+        commit: {anyOf: [{$ref: "#/components/schemas/Commit"}, {type: "null"}]}
+        generated_at: {$ref: "#/components/schemas/ZonedTime"}
+        pushed_at: {$ref: "#/components/schemas/Time"}
+        parts: {type: array, minItems: 1, maxItems: 50, items: {$ref: "#/components/schemas/PartName"}}
+    StageHead:
+      description: >-
+        The stage's head (SPEC-147). checkpoint is the part's last recorded checkpoint of the
+        stage; commit is the picture's document version on a stage with a picture of the part,
+        and the snapshot's held commit otherwise, with time, its time; reads is false when the
+        project does not read the stage, and source_state says why.
+      type: object
+      required: [key, state, checkpoint, commit, time, reads, source_state, counts, picture]
+      additionalProperties: false
+      properties:
+        key: {$ref: "#/components/schemas/StageKey"}
+        state: {$ref: "#/components/schemas/StageState"}
+        checkpoint: {anyOf: [{$ref: "#/components/schemas/RecordCheckpoint"}, {type: "null"}]}
+        commit: {anyOf: [{$ref: "#/components/schemas/Commit"}, {type: "null"}]}
+        time: {anyOf: [{$ref: "#/components/schemas/ZonedTime"}, {type: "null"}]}
+        reads: {type: boolean}
+        source_state: {type: string, enum: [found, missing, none, no-checkout, skipped, invalid]}
+        counts: {$ref: "#/components/schemas/StageCounts"}
+        picture: {description: Whether the space holds a picture of the part at the stage, type: boolean}
+    StageCounts:
+      description: >-
+        The stage's counts for its head (REQ-226), from the stored snapshot: its items, by kind in
+        the order of the stage contract's kinds, by priority in the order of their first item, and
+        for stage 01 the open hotspots of the part's DDD board, null on the other stages
+      type: object
+      required: [items, kinds, priorities, hotspots]
+      additionalProperties: false
+      properties:
+        items: {type: integer, minimum: 0}
+        kinds:
+          type: array
+          maxItems: 13
+          items:
+            type: object
+            required: [kind, count]
+            additionalProperties: false
+            properties:
+              kind: {type: string, maxLength: 40}
+              count: {type: integer, minimum: 1}
+        priorities:
+          type: array
+          maxItems: 20
+          items:
+            type: object
+            required: [priority, count]
+            additionalProperties: false
+            properties:
+              priority: {type: string, maxLength: 40}
+              count: {type: integer, minimum: 1}
+        hotspots: {type: [integer, "null"], minimum: 0}
+    StageRow:
+      description: One of the part's 13 stages in the workspace's list, with its items, whether it has a picture of the part and its entries in my turn
+      type: object
+      required: [key, state, items, picture, mine]
+      additionalProperties: false
+      properties:
+        key: {$ref: "#/components/schemas/StageKey"}
+        state: {$ref: "#/components/schemas/StageState"}
+        items: {type: integer, minimum: 0}
+        picture: {type: boolean}
+        mine: {type: integer, minimum: 0}
+    StageItems:
+      description: >-
+        The stage's items from the stored snapshot, as filter and q narrow them, 200 after after.
+        An item's context is the context that its links name, a context's own ID for a context,
+        or else that of the first item that it comes from that has one, a stage back at a time, as
+        the hub page's trace follows the links; an item without one is in the last group, whose
+        context is null. With group context the entries follow their groups, in the order of the
+        contexts in the snapshot, and the source's order within each; with group source, the
+        source's order, and groups is empty. counts says how many items each filter holds with
+        the words q.
+      type: object
+      required: [group, filter, q, total, after, counts, groups, entries]
+      additionalProperties: false
+      properties:
+        group: {type: string, enum: [context, source]}
+        filter: {type: string, enum: [all, talk, mine, left]}
+        q: {type: [string, "null"], maxLength: 200}
+        total: {type: integer, minimum: 0}
+        after: {type: integer, minimum: 0}
+        counts:
+          type: object
+          required: [all, talk, mine, left]
+          additionalProperties: false
+          properties:
+            all: {type: integer, minimum: 0}
+            talk: {type: integer, minimum: 0}
+            mine: {type: integer, minimum: 0}
+            left: {type: integer, minimum: 0}
+        groups:
+          type: array
+          maxItems: 3000
+          items:
+            type: object
+            required: [context, title, count]
+            additionalProperties: false
+            properties:
+              context: {anyOf: [{$ref: "#/components/schemas/TraceId"}, {type: "null"}]}
+              title: {type: [string, "null"], maxLength: 120}
+              count: {type: integer, minimum: 1}
+        entries: {type: array, maxItems: 200, items: {$ref: "#/components/schemas/ListItem"}}
+    ListItem:
+      description: >-
+        An item of the list, as the snapshot holds it, with its context and its marks for the
+        part: the comments on it, open or closed; whether an entry in my turn names it; and its
+        open discrepancies and pending reflections
+      allOf:
+        - $ref: "#/components/schemas/Item"
+        - type: object
+          required: [context, comments, mine, discrepancies, reflections]
+          properties:
+            context: {anyOf: [{$ref: "#/components/schemas/TraceId"}, {type: "null"}]}
+            comments: {type: integer, minimum: 0}
+            mine: {type: boolean}
+            discrepancies: {type: integer, minimum: 0}
+            reflections: {type: integer, minimum: 0}
+
+    StageTalk:
+      description: >-
+        A part's stage talk by turn (API-152), narrowed to item when it names one. mine holds the
+        open proposals and the open comments that wait for the user, in SPEC-143's order; agent
+        the open comments that wait for the agent, oldest first, each with its claim while a
+        session holds one; apart the open comments whose item the stored snapshot's stage no
+        longer holds, oldest first, in neither of those (REQ-162); closed the closed comments and
+        the proposals no longer open, newest first, with their total and, with closed 1, 50 after
+        after; and reflections the part's pending reflections of the stage.
+      type: object
+      required: [project, part, stage, item, mine, agent, apart, closed, reflections]
+      additionalProperties: false
+      properties:
+        project: {$ref: "#/components/schemas/ProjectName"}
+        part: {$ref: "#/components/schemas/PartName"}
+        stage: {$ref: "#/components/schemas/StageKey"}
+        item: {anyOf: [{$ref: "#/components/schemas/TraceId"}, {type: "null"}]}
+        mine:
+          type: object
+          required: [total, entries]
+          additionalProperties: false
+          properties:
+            total: {type: integer, minimum: 0}
+            entries: {type: array, maxItems: 200, items: {$ref: "#/components/schemas/TalkEntry"}}
+        agent:
+          type: object
+          required: [total, entries]
+          additionalProperties: false
+          properties:
+            total: {type: integer, minimum: 0}
+            entries: {type: array, maxItems: 200, items: {$ref: "#/components/schemas/CommentEntry"}}
+        apart:
+          type: object
+          required: [total, entries]
+          additionalProperties: false
+          properties:
+            total: {type: integer, minimum: 0}
+            entries: {type: array, maxItems: 200, items: {$ref: "#/components/schemas/CommentEntry"}}
+        closed:
+          type: object
+          required: [total, entries]
+          additionalProperties: false
+          properties:
+            total: {type: integer, minimum: 0}
+            entries: {type: array, maxItems: 50, items: {$ref: "#/components/schemas/TalkEntry"}}
+        reflections: {type: array, maxItems: 500, items: {$ref: "#/components/schemas/EditEntry"}}
+    TalkEntry:
+      description: A comment, with its count of replies and its last reply, or a proposal of the talk
+      type: object
+      required: [kind, comment, proposal]
+      additionalProperties: false
+      properties:
+        kind: {type: string, enum: [comment, proposal]}
+        comment: {anyOf: [{$ref: "#/components/schemas/CommentEntry"}, {type: "null"}]}
+        proposal: {anyOf: [{$ref: "#/components/schemas/ProposalEntry"}, {type: "null"}]}
+
+    ItemData:
+      description: >-
+        An item of the stored snapshot (API-157): its fields as the snapshot holds them, with the
+        language of the project's sources from the settings; its context, as the list finds it;
+        where its stage source holds it, with a link to the file at the commit when the settings
+        give the web address of the repository that holds it; the items that it comes from and
+        leads to, by stage in the stages' order, as the hub page's trace (SPEC-122); and its talk
+        in the part, as getStageTalk gives it narrowed to the item.
+      type: object
+      required: [project, part, language, item, context, source, trace, comments]
+      additionalProperties: false
+      properties:
+        project: {$ref: "#/components/schemas/ProjectName"}
+        part: {$ref: "#/components/schemas/PartName"}
+        language: {type: [string, "null"], maxLength: 20}
+        item: {$ref: "#/components/schemas/Item"}
+        context:
+          anyOf:
+            - type: object
+              required: [id, title]
+              additionalProperties: false
+              properties:
+                id: {$ref: "#/components/schemas/TraceId"}
+                title: {type: [string, "null"], maxLength: 120}
+            - type: "null"
+        source:
+          description: null when the snapshot names no place for the item
+          anyOf:
+            - type: object
+              required: [path, line, link, commit]
+              additionalProperties: false
+              properties:
+                path: {type: string, maxLength: 300}
+                line: {type: [integer, "null"], minimum: 1}
+                link: {anyOf: [{$ref: "#/components/schemas/Link"}, {type: "null"}]}
+                commit: {anyOf: [{$ref: "#/components/schemas/Commit"}, {type: "null"}]}
+            - type: "null"
+        trace:
+          type: object
+          required: [from, to]
+          additionalProperties: false
+          properties:
+            from: {type: array, maxItems: 13, items: {$ref: "#/components/schemas/TraceGroup"}}
+            to: {type: array, maxItems: 13, items: {$ref: "#/components/schemas/TraceGroup"}}
+        comments: {$ref: "#/components/schemas/StageTalk"}
+    TraceGroup:
+      description: The linked items of one stage, up to 100 with their total
+      type: object
+      required: [stage, total, items]
+      additionalProperties: false
+      properties:
+        stage: {$ref: "#/components/schemas/StageKey"}
+        total: {type: integer, minimum: 1}
+        items:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            required: [id, kind, title]
+            additionalProperties: false
+            properties:
+              id: {$ref: "#/components/schemas/TraceId"}
+              kind: {type: string, maxLength: 40}
+              title: {type: [string, "null"], maxLength: 120}
+
+    SearchAnswer:
+      description: The matches of searchItems (API-156)
+      type: object
+      required: [q, total, matches]
+      additionalProperties: false
+      properties:
+        q: {type: string, minLength: 2, maxLength: 200}
+        total: {type: integer, minimum: 0}
+        matches: {type: array, maxItems: 20, items: {$ref: "#/components/schemas/SearchMatch"}}
+    SearchMatch:
+      description: A matching item, with the part where it opens, the project's first part or "" for the project as a whole
+      type: object
+      required: [project, part, stage, id, title]
+      additionalProperties: false
+      properties:
+        project: {$ref: "#/components/schemas/ProjectName"}
+        part: {$ref: "#/components/schemas/PartName"}
+        stage: {$ref: "#/components/schemas/StageKey"}
+        id: {$ref: "#/components/schemas/TraceId"}
+        title: {type: [string, "null"], maxLength: 120}
+
+    RecommendationAnswer:
+      description: >-
+        The comment after the user took the recommendation, the reply that settles it and, with
+        asks checkpoint, the checkpoint passed; changed is false when the recommendation was taken
+        already, and the answer then holds that reply and that checkpoint
+      type: object
+      required: [comment, reply, checkpoint, changed]
+      additionalProperties: false
+      properties:
+        comment: {$ref: "#/components/schemas/CommentState"}
+        reply: {$ref: "#/components/schemas/Reply"}
+        checkpoint: {anyOf: [{$ref: "#/components/schemas/Checkpoint"}, {type: "null"}]}
+        changed: {type: boolean}
+    StagePageData:
+      description: >-
+        The data in the script block view-data of a stage's page (API-154): data, the answer of
+        getStage for the first 200 items in the default order; talk, the answer of getStageTalk
+        for the whole stage, null for a project without a space; picture, the answer of
+        getPicture on a stage with a picture, null otherwise; and problem, the Problem Details of
+        what the page could not hold, space_not_found for a project without a space or
+        picture_not_found for a picture that the space does not hold
+      type: object
+      required: [schema, generated_at, lang, data, talk, picture, problem]
+      additionalProperties: false
+      properties:
+        schema: {const: corthex-stage-page/0.3}
+        generated_at: {$ref: "#/components/schemas/Time"}
+        lang: {type: string, enum: [en, ko]}
+        data: {$ref: "#/components/schemas/StageData"}
+        talk: {anyOf: [{$ref: "#/components/schemas/StageTalk"}, {type: "null"}]}
+        picture: {anyOf: [{$ref: "#/components/schemas/PictureData"}, {type: "null"}]}
+        problem: {anyOf: [{$ref: "#/components/schemas/Problem"}, {type: "null"}]}
+
     NewComment:
       type: object
       required: [part, stage, item, text]
@@ -3852,6 +5025,7 @@ components:
       edit_not_found: {status: 404, meaning: "the space holds no such edit", message: "This reflection is not on the server", client: "as for comment_not_found"}
       checkpoint_not_found: {status: 404, meaning: "the space holds no such checkpoint", message: "This checkpoint is not on the server", client: "the overview loads again; the hub reports it, and the agent writes no record of it"}
       entry_not_found: {status: 404, meaning: "the space holds no comment, discrepancy, edit or checkpoint with that ID", message: "This entry is not on the server", client: "the hub reports it and leaves the entry"}
+      item_not_found: {status: 404, meaning: "no stage of the project's stored snapshot holds the item", message: "This item is not in this project's stages now", client: "the view says so with the item's ID, shows the talk that still names it apart and offers to search every project"}
       method_not_allowed: {status: 405, meaning: "the path does not take the method; Allow names those that it takes", message: "This request is not allowed here", client: "the hub reports it as a fault of its own"}
       older_snapshot: {status: 409, meaning: "a snapshot of the held commit, or of a project that holds none, made earlier than the stored one; stored_at says when that was made", message: "The server holds a newer snapshot", client: "the hub takes a fresh snapshot and pushes again"}
       commit_not_replaced: {status: 409, meaning: "a snapshot of another commit than the held one that does not name the held one as the one it replaces, one without a commit where the stored snapshot has one, or a push that another push overtook; held_commit names the held commit", message: "The server holds another commit. Fetch the default branch and push again", client: "the agent fetches and pushes again, once"}
@@ -3872,6 +5046,7 @@ components:
       checkpoint_recorded: {status: 409, meaning: "a stored stage record names the checkpoint, so withdrawing it would change a recorded decision", message: "This checkpoint is recorded. Changing it is a new decision", client: "the overview shows the record"}
       checkpoint_withdrawn: {status: 409, meaning: "the checkpoint was withdrawn, so no new record pull request may write it", message: "This checkpoint was withdrawn", client: "the hub reports it, and the agent writes no record"}
       checkpoint_state: {status: 409, meaning: "the checkpoint has no reported open record pull request for merged or closed, or is already recorded for opened", message: "Read the checkpoint's current record state before reporting", client: "the hub reports it, and the agent reads the checkpoint again"}
+      not_recommended: {status: 409, meaning: "the comment no longer waits for the user, or its last entry asks for no recommendation or checkpoint to take", message: "This no longer waits for your answer", client: "the view marks the entry as answered or closed meanwhile and reads my turn again"}
       write_id_reused: {status: 409, meaning: "the write ID was taken by another request", message: "This write could not be sent. Try again", client: "the view makes a new ID; the hub reports it as a fault of its own"}
       snapshot_too_large: {status: 413, meaning: "the snapshot is larger than 1 MiB", message: "The snapshot is larger than the server takes", client: "the hub reports it; its own limits keep snapshots smaller"}
       body_too_large: {status: 413, meaning: "a write's body is larger than 256 KiB", message: "This is larger than the server takes", client: "the view and the hub report it"}

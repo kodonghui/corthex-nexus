@@ -36,6 +36,8 @@ for path, item in api["paths"].items():
     for method, operation in item.items():
         if method not in methods or "default" not in operation["responses"]:
             continue
+        if operation.get("x-corthex", {}).get("status") == "planned":
+            continue  # the redesign's operations, which the server answers once they are built
         for media, definition in deref(operation["responses"]["default"])["content"].items():
             for example, value in definition["examples"].items():
                 value = deref(value)["value"]

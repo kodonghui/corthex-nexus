@@ -48,7 +48,7 @@ The automatic [example applicability check](../../nexus/test/contract_example_ch
 - A response is written as its request's ID and its status, as `API-105#409`, and an outcome of a command as its ID and the outcome, as `API-136#refused`.
 - An error code is written as `commit_not_replaced`. [Error codes](#error-codes) lists each with its status, its meaning, the members that it adds, the message that the user sees and what the client does, as the contract's `components.x-corthex.errors` holds them.
 - Times from the server are in UTC with milliseconds, as `2026-11-03T09:00:00.000Z`; times from a device or from Git keep their zone. Sizes in bytes count UTF-8, and lengths in characters count code points, as in stage 05.
-- Status: `built` for what phase 1 serves as it runs, `active` for what NEXUS 0.2 adds or changes, and `planned` for the redesign's interfaces, API-151 to API-159, which [The redesign's interfaces](#the-redesigns-interfaces) defines until the contract takes them, and `later (phase ②)` for phase ②'s, API-161 to API-176, which [Phase ②'s interfaces](#phase-②s-interfaces) defines in the same way.
+- Status: `built` for what phase 1 serves as it runs, `active` for what NEXUS 0.2 adds or changes, and `planned` for the redesign's interfaces, API-151 to API-159, which [The redesign's interfaces](#the-redesigns-interfaces) defines and the contract holds, all but API-155, as `x-corthex.status: planned` until the server answers them, and `later (phase ②)` for phase ②'s, API-161 to API-176, which [Phase ②'s interfaces](#phase-②s-interfaces) defines in the same way.
 - `~/.corthex/` is the CORTHEX folder in the user's home folder, `%USERPROFILE%\.corthex\` on Windows. The hub's files are under `~/.corthex/hub/`, as in phase 1.
 
 ## Sources
@@ -146,8 +146,8 @@ Planned with the redesign of 2026-11-06 for SPEC-143 to SPEC-156. Its checkpoint
 
 - API-151 answers the first page in one read: my turn, up to 50 entries with the total, each with its kind, project, part, stage, item, quote, the first 300 characters of the agent's last entry, its time and its `asks`; the agent to-do's counts for each project, by list, with the taken ones; and a card for each project, from its stored snapshot and space: its parts' current stage and next action, the 13 stages' states and item counts, its warnings, and for each picture its stage, whether it is current, its open comments and a small drawing, which is the server's first picture of it without labels (the first picture decision of 2026-11-04).
 - API-152 answers a stage's talk: the open proposals and comments, those that wait for the user first, each with its item or the stage as a whole, its quote, its author's kind and time, its last reply, its `asks` and, while one lasts, its claim's start; the comments whose item the snapshot no longer holds, apart; and the count of closed ones. `item` narrows it to one item, and `closed=1` adds the closed ones, newest first, 50 at a time.
-- API-158 answers a stage's head and items: the head as SPEC-147 lists it, with whether the project reads the stage and why not (`head.reads`), and the stage record of API-112; the project's name, repository and commit (`project`); the part's 13 stages with their states, item counts, pictures and counts of entries in my turn, for the workspace's list of stages (`stages`); and the items 200 at a time after `after`, filtered by `filter`, one of `talk`, `mine` and `left`, and by `q`, up to 200 characters, grouped by `group`, `context` or `source`.
-- API-157 answers one item: its fields and their names, its context, the place of its source with the snapshot's commit, the items that it comes from and leads to by stage, and its comments as API-152 gives them. `404` `item_not_found` when no stage of the project holds it, with the comments that still name it.
+- API-158 answers a stage's head and items: the head as SPEC-147 lists it, with whether the project reads the stage and why not (`head.reads`), and the stage record of API-112; the project's name, repository and commit (`project`); the part's 13 stages with their states, item counts, pictures and counts of entries in my turn, for the workspace's list of stages (`stages`); and the items 200 at a time after `after`, filtered by `filter`, `all`, the default, `talk`, `mine` or `left`, and by `q`, up to 200 characters, grouped by `group`, `context`, the default, or `source`.
+- API-157 answers one item: its fields and their names, its context, the place of its source with the snapshot's commit, the items that it comes from and leads to by stage, and its comments as API-152 gives them. `404` `item_not_found` when no stage of the project holds it; the view then reads the comments that still name it with API-152, where they show apart.
 - API-156 takes `q`, from 2 characters to 200, and answers up to 20 matches across every stored snapshot, each with its project, part, stage, ID and title.
 - API-159 takes the agent's recommendation on a comment that waits for the user. With `asks` `recommended`, it adds the user's reply that settles the comment, with the words for "as recommended" in the server's language, as API-119 with `settles` would. With `asks` `checkpoint`, it also passes the checkpoint of the comment's part and stage, with those words and the comment in its `comment`, as API-128 would. Both happen in one transaction with the write ID. `409` `not_recommended` when the comment no longer waits for the user or asks for nothing that can be taken; the refusals of API-119 and API-128 otherwise.
 - The pages, API-153 to API-155, hold their data as the 0.2 pages do ([Page data](#page-data)), and their code comes from API-104. API-153 answers `302` to the project's current stage, and `404` for an unknown project.
@@ -161,6 +161,17 @@ Changes to 0.2's interfaces, made when the redesign is built:
 5. The hub's `comment` (API-139) takes any of the 13 stages in `--stage`, not only the pictured ones, and leaves `--item` out for the stage as a whole; `comment` and `reply` (API-140) take `--asks answer|recommended|checkpoint`. These are changes of the hub in `kodonghui/corthex`, so they come in its pull request, with the new tokens of the hub page's template (stage 09), and this repository's `hub-ref.json` moves to that exact commit with the product checks, as this repository's rules say.
 
 Changes 3 to 5 are built: the contract and the server in kodonghui/corthex-nexus#50, with stage 05's migration 4, and the hub 0.3.0 in kodonghui/corthex#172, whose commit `318035d` `hub-ref.json` names. Two points that writing them settled: the user's `asks` is refused as `400` `invalid_request` by the field `asks`, since only the agent says what it asks; and a comment that leaves out `commit` takes the picture's document version, or on a stage without a picture the held default branch commit, and is refused by the field `commit` when the stored snapshot has none.
+
+The contract holds API-151 to API-154 and API-156 to API-159 since TASK-265, marked `x-corthex.status: planned`, which the contract checks leave out until the server answers them; API-155 comes with the move of API-101 (TASK-271). Writing them settled these points:
+
+- A query value in another form is `400` `invalid_request` by its field, unlike a path value ([Addresses and paths](#addresses-and-paths)).
+- API-152's `closed` takes `0` or `1`, and `after` counts the entries that the view holds already, up to 100,000. A claim in the talk gives its start as `claimed_at`, which the agent's own reads may leave out.
+- API-158's `filter` also takes `all`, the default, and `group` is `context` by default. An item's context is the context that its links name, a context's own ID for a context, or else that of the first item that it comes from that has one, a stage back at a time; the items without one are the last group. `counts` gives each filter's items with the words `q`.
+- API-157 takes the part as the query value `part`, the project's first part when it is left out, and holds the talk as `comments`. `item_not_found` holds no comments, since Problem Details hold only the code's members: the view reads the comments that still name the item with API-152 narrowed to it, where they show apart.
+- API-151's small drawing is the server's first layout of the picture, as boxes and lines in whole units without labels, up to 2,000 of each, and null for a picture that is too complex to lay out. A card's title is cut at 120 characters, as titles are.
+- API-156 answers up to 20 matches, each opening in the project's first part.
+- API-159 answers the comment's state, the reply that settles it and the checkpoint, with `changed` false when the recommendation was taken already; a checkpoint passed this way names the comment in `comment`.
+- The stage page holds `corthex-stage-page/0.3` ([Page data](#page-data)), and two codes are new: `item_not_found` and `not_recommended` ([Error codes](#error-codes)).
 
 ## Phase ②'s interfaces
 
@@ -350,6 +361,7 @@ Phase ② changes nothing that 0.2's clients send: its fields are optional, and 
 - `{project}` is the registered name: lowercase letters and digits in words joined by hyphens, up to 100 characters. `{part}` is a part's name of the same form, or `_` for the project as a whole, which a JSON body writes as `""`. `{stage}` is a stage key; only `01-domain`, `05-erd` and `07-sitemap` have pictures.
 - The server's own IDs are a prefix and 12 random characters of lowercase Crockford base32, the digits and the letters but `i`, `l`, `o` and `u`: `nc_` for comments, `nd_` discrepancies, `np_` proposals, `ne_` edits, `nk_` checkpoints and `nw_` writes. The server makes them, apart from write IDs, which the page and the hub make. They are not trace IDs, and the hub never reads them as items.
 - A path value in another form gets the `404` that a value the server does not hold gets, as phase 1 answers a project name, and never `400` ([choice 1](#choices-this-stage-made)).
+- A query value in another form gets `400` `invalid_request` by its field, as a body's field does. The redesign's reads, API-152 and API-156 to API-158, take query values.
 
 ### Methods and bodies
 
@@ -392,7 +404,7 @@ A request that breaks several rules gets the refusal of the first in this order,
 2. The path and the method: `404` `not_found`; `405` `method_not_allowed`; a path value in another form, the `404` of what it names.
 3. A change that a browser sends from another site: `403` `cross_site`.
 4. The kind of sign-in that a write needs: `403` `user_only`, `agent_only` or `no_kind`.
-5. The headers: the write ID and the session label, `400` `invalid_request`.
+5. The headers, the write ID and the session label, and the query values: `400` `invalid_request`.
 6. The body's type, `415` `json_required`, and its size, `413` `snapshot_too_large` or `body_too_large`.
 7. The body: not UTF-8, not JSON or not in its form, `400` `invalid_request` or `invalid_snapshot`; a snapshot dated ahead, `400` `clock_ahead`; a text over its limit, `413` `text_too_long`.
 8. The write ID: a write that the server took already gets its first answer, and an ID that another request took, `409` `write_id_reused`.
@@ -886,6 +898,7 @@ Each file of the outbox is TBL-117 of stage 05's [Outbox](../05-erd/nexus.md#out
 
 - The hub page holds `corthex-hub-page/0.2` in `<script id="hub-data" type="application/json">`, the contract's `HubPageData`: phase 1's members and `spaces`, which holds for each project that has a space its pictures, open counts, checkpoints that wait for their records and warnings. `lang` comes from the server's `NEXUS_LANGUAGE`, as in phase 1, or from the profile on a device.
 - The picture view and the stage overview hold `corthex-view-page/0.2` in `<script id="view-data" type="application/json">`, the contract's `ViewPageData`: `view`, `picture` or `overview`; `data`, the answer of API-111 or API-112; and `problem`, the Problem Details when the server could not read it, such as `picture_not_found`. After a write the view reads its data again with that request.
+- The redesign's stage page, API-154, holds `corthex-stage-page/0.3` in the same script block, the contract's `StagePageData`: `data`, the answer of API-158 for the first 200 items in the default order; `talk`, that of API-152 for the whole stage, or null for a project without a space; `picture`, that of API-111 on a stage with a picture, or null; and `problem`, the Problem Details of what the page could not hold, `space_not_found` or `picture_not_found`.
 
 ## Check rules
 
@@ -962,6 +975,7 @@ The codes of every request, as the contract's `components.x-corthex.errors` list
 | `edit_not_found` | 404 | the space holds no such edit | none | This reflection is not on the server | as for comment_not_found |
 | `checkpoint_not_found` | 404 | the space holds no such checkpoint | none | This checkpoint is not on the server | the overview loads again; the hub reports it, and the agent writes no record of it |
 | `entry_not_found` | 404 | the space holds no comment, discrepancy, edit or checkpoint with that ID | none | This entry is not on the server | the hub reports it and leaves the entry |
+| `item_not_found` | 404 | no stage of the project's stored snapshot holds the item | none | This item is not in this project's stages now | the view says so with the item's ID, shows the talk that still names it apart and offers to search every project |
 | `method_not_allowed` | 405 | the path does not take the method; Allow names those that it takes | none | This request is not allowed here | the hub reports it as a fault of its own |
 | `older_snapshot` | 409 | a snapshot of the held commit, or of a project that holds none, made earlier than the stored one; stored_at says when that was made | `stored_at` | The server holds a newer snapshot | the hub takes a fresh snapshot and pushes again |
 | `commit_not_replaced` | 409 | a snapshot of another commit than the held one that does not name the held one as the one it replaces, one without a commit where the stored snapshot has one, or a push that another push overtook; held_commit names the held commit | `held_commit` | The server holds another commit. Fetch the default branch and push again | the agent fetches and pushes again, once |
@@ -982,6 +996,7 @@ The codes of every request, as the contract's `components.x-corthex.errors` list
 | `checkpoint_recorded` | 409 | a stored stage record names the checkpoint, so withdrawing it would change a recorded decision | none | This checkpoint is recorded. Changing it is a new decision | the overview shows the record |
 | `checkpoint_withdrawn` | 409 | the checkpoint was withdrawn, so no new record pull request may write it | none | This checkpoint was withdrawn | the hub reports it, and the agent writes no record |
 | `checkpoint_state` | 409 | no matching open record, or already recorded | none | Read the checkpoint before reporting | read it again |
+| `not_recommended` | 409 | the comment no longer waits for the user, or its last entry asks for no recommendation or checkpoint to take | none | This no longer waits for your answer | the view marks the entry as answered or closed meanwhile and reads my turn again |
 | `write_id_reused` | 409 | the write ID was taken by another request | none | This write could not be sent. Try again | the view makes a new ID; the hub reports it as a fault of its own |
 | `snapshot_too_large` | 413 | the snapshot is larger than 1 MiB | `limit` | The snapshot is larger than the server takes | the hub reports it; its own limits keep snapshots smaller |
 | `body_too_large` | 413 | a write's body is larger than 256 KiB | `limit` | This is larger than the server takes | the view and the hub report it |
@@ -1065,6 +1080,12 @@ Again on 2026-11-03, after the maintainer's choice to hold stage 01's event stor
 - The check of this stage finds no problems: the example `picture_data_domain`, which now holds a lane of the timeline, is taken by its schema, and each of the 72 examples is still used.
 - Prism and Schemathesis were not run again: the change adds one optional field to one schema and a lane to one example, which the check of this stage validates.
 - The repository's checks pass, now with 756 tests (12 skipped), and the hub's snapshot of this repository reads 1014 items with no checks.
+
+On 2026-11-08, when the contract took the redesign's requests as planned (TASK-265), locally with synthetic data:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 8 of them planned.
+- The contract checks: each of the 445 named JSON examples fits its schema, a check that the response check now runs, and no example names a field or query value that its operation lacks; the 70 named defaults pass as before; Schemathesis 3.39.16 tests the 32 operations that the server answers, 156 of 156 for each check, and leaves the 8 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 267 Node tests pass, and the hub's snapshot of this repository reads 1264 items, the 4 new cases among them, with 630 warnings, the same as before apart from line numbers.
 
 ### Development Access identity trial (2026-11-03)
 
