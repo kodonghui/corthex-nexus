@@ -78,7 +78,7 @@ async function bundle(name,entry,define={}){
   entries[name+"-preload"]=[...preload].map(p=>"/code/"+made.get(p).name);
   for(const [lang,paths]of Object.entries(locale)){const graph=new Set(preload);for(const p of paths)staticGraph(p,graph);entries[name+"-"+lang+"-preload"]=[...graph].map(p=>"/code/"+made.get(p).name);}
  }
- const inputs={};for(const [path,value]of Object.entries(result.metafile.inputs)){const absolute=resolve(root,path);let label=relative(dependencies,absolute).replaceAll("\\","/");if(label.startsWith(".."))label=relative(root,absolute).replaceAll("\\","/");else label="node_modules/"+label;inputs[label]={bytes:value.bytes,sha256:sha(readFileSync(absolute))};}metafiles[name]=inputs;
+ const inputs={};for(const [path,value]of Object.entries(result.metafile.inputs)){const absolute=resolve(root,path);let label=relative(dependencies,absolute).replaceAll("\\","/");if(label.startsWith("..")){label=relative(root,absolute).replaceAll("\\","/");if(/(?:^|\/)node_modules\//.test(label))throw new Error("A package was resolved outside --dependencies: "+label);}else label="node_modules/"+label;inputs[label]={bytes:value.bytes,sha256:sha(readFileSync(absolute))};}metafiles[name]=inputs;
  for(const file of result.outputFiles.filter(f=>f.path.endsWith(".LEGAL.txt")))legal.push({name:name+"-"+basename(file.path),text:file.text,sha256:sha(file.contents)});
 }
 await bundle("excalidraw",resolve(ui,"editor-excalidraw.js"));await bundle("erd",resolve(ui,"editor-erd.js"));
