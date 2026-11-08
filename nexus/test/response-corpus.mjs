@@ -52,7 +52,7 @@ cases.push({name:"stage with talk",schema:"StageData",value:await call("GET","/a
 // claimed reflection and the closed talk, whole and narrowed to the item.
 const question=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic question"},"user");
 await call("POST","/api/spaces/corthex/claims/"+question.id,{});
-await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"",text:"Synthetic checkpoint",asks:"checkpoint"});
+const asking=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"",text:"Synthetic checkpoint",asks:"checkpoint"});
 await call("POST","/api/spaces/corthex/proposals",{part:"nexus",stage:"05-erd",items:["TBL-111"],reason:"Synthetic",change:"Synthetic"});
 await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-109",text:"Synthetic gone item"},"user");
 const answered=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic answered"},"user");
@@ -81,4 +81,15 @@ const home=await call("GET","/api/home");
 if(!home.my_turn.entries.some((entry)=>entry.kind==="proposal")||!home.my_turn.entries.some((entry)=>entry.asks==="checkpoint")||!home.agent[0]?.comments.oldest
   ||!home.agent[0].taken||!home.projects[0]?.pictures[0]?.drawing?.boxes.length)throw new Error("the first page lacks an entry that its case needs");
 cases.push({name:"/api/home",schema:"Home",value:home});
+// Taking the agent's recommendation: a checkpoint passed with the reply, the
+// same taken again, a recommendation without a checkpoint, and the checkpoint
+// that names its comment.
+const taken=await call("POST","/api/spaces/corthex/comments/"+asking.id+"/recommended",{},"user");
+const again=await call("POST","/api/spaces/corthex/comments/"+asking.id+"/recommended",{},"user");
+const offered=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic recommendation",asks:"recommended"});
+const replied=await call("POST","/api/spaces/corthex/comments/"+offered.id+"/recommended",{},"user");
+if(!taken.checkpoint?.comment||again.changed||replied.checkpoint)throw new Error("an answer to API-159 lacks what its case needs");
+for(const [name,value] of [["checkpoint taken as recommended",taken],["recommendation taken already",again],["recommendation taken",replied]])
+  cases.push({name,schema:"RecommendationAnswer",value});
+cases.push({name:"checkpoint that names its comment",schema:"Checkpoint",value:await call("GET","/api/spaces/corthex/checkpoints/"+taken.checkpoint.id)});
 process.stdout.write(JSON.stringify(cases));

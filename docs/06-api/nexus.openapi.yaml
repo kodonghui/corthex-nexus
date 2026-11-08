@@ -15,8 +15,8 @@ info:
     with the same status and headers and no body, a method that a path does not take gets 405 with
     an Allow header, and every reply carries the security headers that nexus.md lists. The
     operations whose x-corthex.status is planned are the redesign's that the server does not
-    answer yet, API-153, API-154 and API-159: each is marked active once the server answers it, as
-    API-151, API-152 and API-156 to API-158 are, and until then the checks leave it out and the
+    answer yet, API-153 and API-154: each is marked active once the server answers it, as
+    API-151, API-152 and API-156 to API-159 are, and until then the checks leave it out and the
     server answers its path as unknown.
 servers:
   - url: https://nexus.example.com
@@ -1891,7 +1891,7 @@ paths:
       x-corthex:
         id: API-159
         spec: [SPEC-113, SPEC-116, SPEC-139, SPEC-143]
-        status: planned
+        status: active
         omit:
           "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
           "413": the request takes no body

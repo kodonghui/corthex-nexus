@@ -10,13 +10,18 @@ const bytes = (...texts) => texts.reduce((n, text) => n + new TextEncoder().enco
 const fail = (code, fields = {}) => { throw new Problem(code, "the write cannot be applied in the current state", fields); };
 const need = (row, kind) => { if (!row) fail(kind + "_not_found"); return row; };
 const PICTURE_STAGES = ["01-domain", "05-erd", "07-sitemap"];
+// The words of "as recommended" in the server's language (stage 08's words of
+// the redesign, Answers): the user's reply that takes the agent's
+// recommendation, and the words of a checkpoint passed with it (API-159).
+export const AS_RECOMMENDED = Object.freeze({ en: "As recommended", ko: "추천대로" });
+const RECOMMENDED_WORDS = Object.values(AS_RECOMMENDED);
 
 // Shape checks that need no stored data run before the write-ID lookup too.
 export function checkWriteBody(name, body, kind) {
   // The redesign: an empty item is the stage as a whole and needs no quote
   // (SPEC-151), and only the agent says what it asks of the user (SPEC-143).
   if ((name === "comment" || name === "reply") && body.asks && kind !== "agent") fail("invalid_request", { field: "asks" });
-  if (name === "reply" && body.settles && kind !== "user") fail("user_only", { needs: "user" });
+  if ((name === "reply" && body.settles || name === "recommended") && kind !== "user") fail("user_only", { needs: "user" });
   if (name === "proposal") {
     if (body.comment && body.discrepancy) fail("invalid_request", { field: "discrepancy" });
     if ((body.adds || []).some((id) => !body.items.includes(id))) fail("invalid_request", { field: "adds" });
@@ -32,7 +37,7 @@ function sameReport(a, b) {
   return a && a.event === b.event && (a.pull_request || null) === (b.pull_request || null) && (a.commit || null) === (b.commit || null);
 }
 
-export function planEntryWrite(name, body, state, { project, kind, session, now }) {
+export function planEntryWrite(name, body, state, { project, kind, session, now, language = "en" }) {
   if (!state.held) fail("project_not_found");
   if (!state.space) fail("space_not_found");
   const changes = [];
@@ -104,6 +109,37 @@ export function planEntryWrite(name, body, state, { project, kind, session, now 
       put("replies", row, true);
       touchComment(kind, { state: "open", closed_as: null, ...(kind === "user" ? { settled: row.settles } : { asks: body.asks || null }) });
       textBytes = bytes(body.text); status = 201; answer = { comment: E.commentState(comment), reply: E.reply(row) }; break;
+    }
+    case "recommended": {
+      // API-159: the user takes what the agent's last entry asks, as API-119
+      // with settles and, for a checkpoint, API-128 would. The reply, the
+      // comment's last entry and the checkpoint take one time, so that a
+      // second take finds them: the comment then waits for the agent after
+      // the user's reply in the words for "as recommended", and a checkpoint
+      // passed with that reply still stands.
+      need(comment, "comment"); claim(comment.id);
+      const last = state.lastReply, named = state.commentCheckpoint;
+      if (comment.state === "open" && comment.waits === "agent" && last?.author === "user" && last.settles
+          && last.made_at === comment.last_at && RECOMMENDED_WORDS.includes(last.text)) {
+        const passed = named?.passed_at === last.made_at ? named : null;
+        if (!passed || passed.state === "passed") {
+          answer = { comment: E.commentState(comment), reply: E.reply(last), checkpoint: passed && E.checkpoint(passed), changed: false };
+          break;
+        }
+      }
+      if (comment.state !== "open" || comment.waits !== "user" || !["recommended", "checkpoint"].includes(comment.asks)) fail("not_recommended");
+      const asksCheckpoint = comment.asks === "checkpoint";
+      if (asksCheckpoint && comment.part && !(state.parts || []).includes(comment.part)) fail("part_not_found");
+      if (state.replyCount >= 200) fail("reply_limit", { limit: 200 });
+      const words = AS_RECOMMENDED[language] || AS_RECOMMENDED.en;
+      const row = { comment: comment.id, seq: state.replyCount + 1, author: "user", text: words, settles: 1, made_at: eventAt };
+      put("replies", row, true);
+      touchComment("user", { state: "open", closed_as: null, settled: 1 });
+      const passed = asksCheckpoint ? { id: entryId("nk_"), project, part: comment.part, stage: comment.stage, commit_id: state.held.default_commit,
+        words, state: "passed", passed_at: eventAt, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: comment.id } : null;
+      if (passed) put("checkpoints", passed, true);
+      textBytes = bytes(words);
+      answer = { comment: E.commentState(comment), reply: E.reply(row), checkpoint: passed && E.checkpoint(passed), changed: true }; break;
     }
     case "answered": {
       need(comment, "comment"); claim(comment.id);

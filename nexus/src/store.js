@@ -116,7 +116,7 @@ const ENTRY_COLUMNS = Object.freeze({
   decisions: "comment seq link text made_at".split(" "),
   proposals: "id project part stage commit_id items reason change source_text comment discrepancy state made_at closed_at".split(" "),
   edits: "id project part stage commit_id proposal content state pull_request closed_commit made_at changed_at last_report".split(" "),
-  checkpoints: "id project part stage commit_id words state passed_at withdrawn_at pull_request pr_state recorded_commit".split(" "),
+  checkpoints: "id project part stage commit_id words state passed_at withdrawn_at pull_request pr_state recorded_commit comment".split(" "),
   discrepancies: "id project part compares term item reasons level state waiting opened_commit opened_at resolved_commit resolved_at earlier".split(" "),
   claims: "entry project session claimed_at ends_at".split(" "),
 });
@@ -667,7 +667,8 @@ export class Store {
           'edits',(SELECT COUNT(*) FROM edits WHERE project=t.project AND state NOT IN ('closed','dismissed'))),
         'replyCount',(SELECT COUNT(*) FROM replies WHERE comment=t.thread),
         'decisionCount',(SELECT COUNT(*) FROM decisions WHERE comment=t.thread),
-        'lastReply',(SELECT json_object('author',author,'made_at',made_at) FROM replies WHERE comment=t.thread ORDER BY seq DESC LIMIT 1),
+        'lastReply',json((SELECT json_object('seq',seq,'author',author,'text',text,'settles',settles,'made_at',made_at) FROM replies WHERE comment=t.thread ORDER BY seq DESC LIMIT 1)),
+        'commentCheckpoint',json(${rowJSON("checkpoints", "project=t.project AND comment=t.thread ORDER BY passed_at DESC,id DESC LIMIT 1")}),
         'threadProposals',json((SELECT json_group_array(json_object('id',id,'state',state,'made_at',made_at,'closed_at',closed_at)) FROM proposals WHERE project=t.project AND comment=t.thread)),
         'claims',json((SELECT json_group_array(json_object('entry',entry,'session',session,'claimed_at',claimed_at,'ends_at',ends_at)) FROM claims WHERE project=t.project AND entry IN(t.target,t.thread,t.diff))),
         'prior',(SELECT json_object('request',request,'result',result) FROM writes WHERE project=t.project AND id=t.write AND received_at>t.cutoff)
@@ -675,7 +676,7 @@ export class Store {
     return { sql, params: [project,id || null,body.comment || null,body.discrepancy || null,body.part ?? null,body.stage || null,write || null,cutoff] };
   }
 
-  async writeEntry(name, project, id, body, { kind, session = null, write, now = new Date().toISOString() }) {
+  async writeEntry(name, project, id, body, { kind, session = null, write, now = new Date().toISOString(), language = "en" }) {
     checkWriteBody(name, body, kind);
     await this.ensure();
     const cutoff = new Date(Date.parse(now)-7*86400000).toISOString();
@@ -688,7 +689,7 @@ export class Store {
         const { status,body: answer }=JSON.parse(state.prior.result);
         return { status,body:answer };
       }
-      const plan=planEntryWrite(name,body,state,{project,kind,session,now});
+      const plan=planEntryWrite(name,body,state,{project,kind,session,now,language});
       const nonce=crypto.randomUUID();
       const result=JSON.stringify({status:plan.status,body:plan.body,nonce});
       const gate="EXISTS(SELECT 1 FROM writes WHERE project=? AND id=? AND json_extract(result,'$.nonce')=?)";

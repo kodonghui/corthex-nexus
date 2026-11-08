@@ -18,7 +18,10 @@ export function proposal(row, full = false) {
 }
 export const proposalState = (row) => only(row, ["id", "state", "closed_at"]);
 export const edit = (row) => ({ ...only(row, ["id", "part", "stage", "proposal", "state", "pull_request", "closed_commit", "made_at", "changed_at"]), commit: row.commit_id });
-export const checkpoint = (row) => ({ ...only(row, ["id", "part", "stage", "words", "state", "passed_at", "withdrawn_at", "pull_request", "pr_state", "recorded_commit"]), commit: row.commit_id ?? null });
+// A checkpoint passed by taking a comment's recommendation names the comment,
+// which holds what was approved (API-159); any other leaves `comment` out.
+export const checkpoint = (row) => ({ ...only(row, ["id", "part", "stage", "words", "state", "passed_at", "withdrawn_at", "pull_request", "pr_state", "recorded_commit"]),
+  commit: row.commit_id ?? null, ...(row.comment ? { comment: row.comment } : {}) });
 export const discrepancy = (row) => ({ ...only(row, ["id", "part", "compares", "term", "item", "level", "state", "opened_commit", "opened_at", "resolved_commit", "resolved_at", "earlier"]), reasons: json(row.reasons, []), waiting: Boolean(row.waiting) });
 export const claim = (row) => only(row, ["entry", "session", "claimed_at", "ends_at"]);
 

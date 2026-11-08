@@ -10,9 +10,9 @@ const path = (route) => route.path.replace(/\{(\w+)\}/g, (_, name) => values[nam
 const code = (value) => (error) => error.code === value;
 const headers = { "Idempotency-Key": '"nw_' + ID + '"', "Nexus-Session": "agent-one" };
 
-test("all 37 contracted operations dispatch, and every GET also takes HEAD", () => {
-  assert.equal(ROUTES.length, 37);
-  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 37);
+test("all 38 contracted operations dispatch, and every GET also takes HEAD", () => {
+  assert.equal(ROUTES.length, 38);
+  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 38);
   for (const route of ROUTES) {
     assert.equal(pathRoute(request(route.method, path(route))).operation, route.operation);
     if (route.method === "GET") assert.equal(pathRoute(request("HEAD", path(route))).operation, route.operation);
@@ -137,4 +137,13 @@ test("the first page's read takes no query value and ignores any that it is give
   assert.equal(pathRoute(request("HEAD", "/api/home")).operation, "getHome");
   assert.throws(() => pathRoute(request("POST", "/api/home")), (error) => error.code === "method_not_allowed" && error.headers.Allow === "GET, HEAD");
   assert.throws(() => pathRoute(request("GET", "/api/home/x")), code("not_found"));
+});
+
+test("taking a recommendation is the user's write on one comment, with a write ID and no session", () => {
+  const route = pathRoute(request("POST", "/api/spaces/acme-shop/comments/nc_" + ID + "/recommended"));
+  assert.deepEqual([route.operation, route.role, route.writeName, route.params], ["takeRecommendation", "user", "recommended", { project: "acme-shop", comment: "nc_" + ID }]);
+  assert.deepEqual(requestHeaders(request("POST", "/api/spaces/acme-shop/comments/nc_" + ID + "/recommended", headers), route, "user"),
+    { write: "nw_" + ID, session: null, query: {} });
+  assert.throws(() => pathRoute(request("POST", "/api/spaces/acme-shop/comments/np_" + ID + "/recommended")), code("comment_not_found"));
+  assert.throws(() => pathRoute(request("GET", "/api/spaces/acme-shop/comments/nc_" + ID + "/recommended")), (error) => error.code === "method_not_allowed" && error.headers.Allow === "POST");
 });

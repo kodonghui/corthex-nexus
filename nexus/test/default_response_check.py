@@ -45,7 +45,7 @@ for path, item in api["paths"].items():
                 manifest.append({"operation": operation["operationId"], "method": method, "path": path,
                                  "status": status, "media": media, "example": example, "allow": allow})
                 schemas.append(definition["schema"])
-if len(manifest) != 80:
+if len(manifest) != 82:
     raise SystemExit("the named-default inventory changed; review the intended coverage")
 program = None
 for folder in os.environ.get("PATH", "").split(os.pathsep):
@@ -73,4 +73,4 @@ for expected, schema, record in zip(manifest, schemas, records):
         format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER)
     if list(validator.iter_errors(record["value"])):
         raise SystemExit("an actual default response does not match its full OpenAPI schema")
-print("offline default controls: 80/80 actual statuses, media, common headers, CSP, Allow, trace/log and full schemas passed")
+print("offline default controls: 82/82 actual statuses, media, common headers, CSP, Allow, trace/log and full schemas passed")

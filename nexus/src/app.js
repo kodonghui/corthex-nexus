@@ -97,7 +97,7 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
         if(!route.writeName)throw new Error("unhandled operation");
         const body=INPUTS[route.writeName]?(await jsonBody(request,INPUTS[route.writeName])).data:{};
         const id=p.comment||p.proposal||p.edit||p.checkpoint||null;
-        const result=await store.writeEntry(route.writeName,p.project,id,body,{kind:route.kind,session:route.session,write:route.write});
+        const result=await store.writeEntry(route.writeName,p.project,id,body,{kind:route.kind,session:route.session,write:route.write,language:lang(env)});
         return json(result.body,result.status);
       }
     }

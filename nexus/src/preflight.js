@@ -30,6 +30,7 @@ const rules = [
   ["replyToComment", "POST", "/api/spaces/{project}/comments/{comment}/replies", "either", "reply"],
   ["markAnswered", "POST", "/api/spaces/{project}/comments/{comment}/answered", "either", "answered"],
   ["recordDecision", "POST", "/api/spaces/{project}/comments/{comment}/decisions", "agent", "decision"],
+  ["takeRecommendation", "POST", "/api/spaces/{project}/comments/{comment}/recommended", "user", "recommended"],
   ["makeProposal", "POST", "/api/spaces/{project}/proposals", "agent", "proposal"],
   ["getProposal", "GET", "/api/spaces/{project}/proposals/{proposal}"],
   ["withdrawProposal", "POST", "/api/spaces/{project}/proposals/{proposal}/withdraw", "agent", "withdraw-proposal"],

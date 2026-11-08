@@ -142,7 +142,7 @@ Planned with the redesign of 2026-11-06 for SPEC-143 to SPEC-156. Its checkpoint
 | API-156 | `GET /api/search` | `searchItems` | either | SPEC-113, SPEC-152 | active |
 | API-157 | `GET /api/spaces/{project}/items/{id}` | `getItem` | either | SPEC-113, SPEC-149 | active |
 | API-158 | `GET /api/spaces/{project}/stages/{part}/{stage}` | `getStage` | either | SPEC-113, SPEC-147, SPEC-148 | active |
-| API-159 | `POST /api/spaces/{project}/comments/{comment}/recommended` | `takeRecommendation` | user | SPEC-113, SPEC-116, SPEC-143 | planned |
+| API-159 | `POST /api/spaces/{project}/comments/{comment}/recommended` | `takeRecommendation` | user | SPEC-113, SPEC-116, SPEC-139, SPEC-143 | active |
 
 - API-151 answers the first page in one read: my turn, up to 50 entries with the total, each with its kind, project, part, stage, item, quote, the first 300 characters of the agent's last entry, its time and its `asks`; the agent to-do's counts for each project, by list, with the taken ones; and a card for each project, from its stored snapshot and space: its parts' current stage and next action, the 13 stages' states and item counts, its warnings, and for each picture its stage, whether it is current, its open comments and a small drawing, which is the server's first picture of it without labels (the first picture decision of 2026-11-04).
 - API-152 answers a stage's talk: the open proposals and comments, those that wait for the user first, each with its item or the stage as a whole, its quote, its author's kind and time, its last reply, its `asks` and, while one lasts, its claim's start; the comments whose item the snapshot no longer holds, apart; and the count of closed ones. `item` narrows it to one item, and `closed=1` adds the closed ones, newest first, 50 at a time.
@@ -208,6 +208,17 @@ API-151 is active since TASK-269: the server answers it, and the contract checks
 - A card holds the pictures of the parts that its snapshot names, in their order and then the stages' order; a picture of a part that the settings no longer name stays in the space but off the card. A picture that is not current is still drawn from its stored source, and `comments` counts the open comments of its part and stage.
 - The small drawing is the server's first layout of the picture, the whole board for stage 01, and gives each box its kind and each line from the right middle of one box to the left middle of the other, rounded to whole units. It is null when the picture has nothing to draw, when the layout stops at its limit, or past 2,000 boxes or lines.
 - The server reads the page in one batch of four statements, and SQLite takes the cards' fields out of the stored bodies. Over 30 projects with spaces, the server's limit, it took a median of 123 to 327 milliseconds in a local in-memory server, with 90 to 4,500 pictures and answers of 0.7 to 2.7 MB ([Checks run](#checks-run)).
+
+API-159 is active since TASK-270: the server answers it, and the contract checks and Schemathesis cover it. Building it settled these points:
+
+- The reply is the user's and settles the comment, with stage 08's words for the answer: "As recommended", or "추천대로" when the server's language is Korean. Its words count in the space's 8 MiB of text, as a reply's do, and the checkpoint's words count no more, as API-128's do not.
+- The reply, the comment's last entry and the checkpoint take one time: the request's, or a millisecond after the comment's last entry when the request's is not later, as for a reply. The checkpoint is that of the comment's part and stage, passed at the held default branch commit with the reply's words, as API-128 passes one.
+- A recommendation is taken already while the comment waits for the agent after its last entry, the user's reply that settled it in the words of either language, and while the checkpoint passed at that time, if one was, is not withdrawn. The answer is then `200` with `changed` false, with that reply and that checkpoint, and the server keeps only the new write ID with it. Any other comment that is not open, waits for the agent or asks, by its last entry, for neither `recommended` nor `checkpoint` is `409` `not_recommended`: a closed comment, one that the user answered in other words or whose checkpoint taken this way was withdrawn, and one that asks for an answer or for nothing, as after a proposal that answers it.
+- `not_recommended` comes first; then `part_not_found` when the comment asks for the checkpoint of a part that the stored snapshot no longer holds, while a recommendation there is still taken, as API-119 takes a reply on any part; then `reply_limit` at the comment's 200 replies, and `space_full`.
+- A session's claim on the comment does not hold the user back and stays, so the agent to-do still counts the entry as taken.
+- A checkpoint passed this way names the comment in `comment` in every answer that holds it, API-112, API-113, API-117, API-129 and API-130 as well as API-159; any other checkpoint leaves `comment` out. A comment on the project as a whole passes the project's checkpoint.
+- The request takes no body and reads none. Two takes at once, each with its own write ID, give one result: the second, planned again on the changed comment, finds the recommendation taken.
+- The table above now names SPEC-139 for API-159, as the contract has done since TASK-265: the request passes a checkpoint as API-128 does.
 
 ## Phase ②'s interfaces
 
@@ -495,6 +506,7 @@ The name that TBL-112 keeps for each write, and the outbox for the agent's:
 | `checkpoint` | API-128 | user |
 | `withdraw-checkpoint` | API-129 | user |
 | `report-checkpoint` | API-130 | agent |
+| `recommended` | API-159 | user |
 
 ### Sessions
 
@@ -519,7 +531,7 @@ The name that TBL-112 keeps for each write, and the outbox for the agent's:
 
 ### Answers that change nothing
 
-A write whose outcome holds already changes nothing, and its answer says so with `changed: false`: marking answered a comment that is closed, whether as answered or as decided (SPEC-127); withdrawing a proposal or a checkpoint that is withdrawn already, or dismissing a reflection that is dismissed already; and a report that repeats the last one of its entry. A write that another outcome has closed is refused with `409` and the state that closed it: accepting or dismissing a proposal that is not open (`proposal_not_open`, SPEC-131), and a report that does not fit its entry's state. A write sent again with its write ID gets its first answer, whatever it said ([Write IDs](#write-ids)).
+A write whose outcome holds already changes nothing, and its answer says so with `changed: false`: marking answered a comment that is closed, whether as answered or as decided (SPEC-127); withdrawing a proposal or a checkpoint that is withdrawn already, or dismissing a reflection that is dismissed already; taking a recommendation that is taken already, with the reply and the checkpoint that took it (API-159); and a report that repeats the last one of its entry. A write that another outcome has closed is refused with `409` and the state that closed it: accepting or dismissing a proposal that is not open (`proposal_not_open`, SPEC-131), taking a recommendation that no longer waits to be taken (`not_recommended`), and a report that does not fit its entry's state. A write sent again with its write ID gets its first answer, whatever it said ([Write IDs](#write-ids)).
 
 ## A push
 
@@ -1146,6 +1158,12 @@ On 2026-11-08, when the server took API-151 (TASK-269), locally with synthetic d
 - openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 3 of them planned.
 - The contract checks: the 446 named JSON examples, four of the server's answers to API-158, four to API-152, two to API-157, three to API-156 and two to API-151 fit their schemas; the 80 named defaults pass; Schemathesis 3.39.16 tests the 37 operations that the server answers, 177 of 177 for each check, and leaves the 3 planned ones out. Prism was not run.
 - The repository's 13 Python tests and 295 Node tests pass, and the hub's snapshot of this repository reads 1294 items, the 8 new cases among them, with the same 630 warnings apart from line numbers. In a local in-memory server holding 30 projects with spaces, the first page took from 119 to 336 milliseconds a read: 207 at the median of five with three parts and 270 pictures in all, 123 with 50 parts and 4,500 small pictures, and 327 with 90 pictures as large as a push holds, for answers of 719,912 to 2,724,782 bytes.
+
+On 2026-11-08, when the server took API-159 (TASK-270), locally with synthetic data:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 2 of them planned.
+- The contract checks: the 446 named JSON examples, four of the server's answers to API-158, four to API-152, two to API-157, three to API-156, two to API-151 and three to API-159, and a checkpoint that names its comment, fit their schemas; the 82 named defaults pass; Schemathesis 3.39.16 tests the 38 operations that the server answers, 181 of 181 for each check, and leaves the 2 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 302 Node tests pass, and the hub's snapshot of this repository reads 1301 items, the 7 new cases among them, with the same 630 warnings apart from line numbers.
 
 ### Development Access identity trial (2026-11-03)
 
