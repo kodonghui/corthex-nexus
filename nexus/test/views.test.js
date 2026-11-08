@@ -42,3 +42,19 @@ test("actual handler uses the view factory while code and font delivery still re
   const other=await handle(req(path,{headers:{...access.headers("agent"),"Nexus-Session":"private-fixture-context"}}),env,access.ctx,hub,views);assert.equal(other.status,200);assert.ok(bytes.equals(Buffer.from(await other.arrayBuffer())),"cached bytes must not vary with project/session/identity");
   const refused=await handle(req(path),env,{},hub,views);assert.equal(refused.status,403);assert.equal(refused.headers.get("Cache-Control"),"no-store");}
 });
+test("views take IBM Plex from one cacheable same-origin stylesheet of the packages' Unicode-range slices (stage 09, REQ-147)",async()=>{
+ const href=metadata.entries["fonts-css"];assert.match(href,/^\/code\/fonts\.[0-9a-f]{8}\.css$/);const sheet=code[href.slice(6)];assert.ok(sheet);assert.equal(sheet.type,"text/css; charset=utf-8");
+ const css=sheet.body.toString(),rules=css.trim().split("\n"),weights={};
+ for(const rule of rules){
+  const m=rule.match(/^@font-face\{font-family:"(IBM Plex Sans KR|IBM Plex Mono)";font-style:normal;font-display:swap;font-weight:(\d+);src:url\(\/code\/([a-z0-9-]+\.[0-9a-f]{8}\.woff2)\) format\("woff2"\);unicode-range:(U\+[0-9a-f?-]+(?:,U\+[0-9a-f?-]+)*)\}$/i);assert.ok(m,rule.slice(0,120));
+  assert.equal(code[m[3]]?.type,"font/woff2",m[3]);const key=m[1]+" "+m[2];weights[key]=(weights[key]||0)+1;
+ }
+ assert.deepEqual(Object.keys(weights).sort(),["IBM Plex Mono 400","IBM Plex Mono 500","IBM Plex Sans KR 400","IBM Plex Sans KR 500","IBM Plex Sans KR 600"]);
+ assert.ok(rules.length===new Set(rules.map(r=>r.match(/url\(([^)]+)\)/)[1])).size,"each slice is its own file");
+ assert.doesNotMatch(css,/https?:|\.woff\)/,"no other origin and no WOFF fallback");
+ assert.equal(metadata.packages["@fontsource/ibm-plex-sans-kr"],"5.3.0");assert.equal(metadata.packages["@fontsource/ibm-plex-mono"],"5.3.0");
+ const inert=`<template id="nexus-font-assets"><link rel="stylesheet" href="${href}" data-nexus-css="fonts"></template>`;
+ for(const payload of[{view:"overview",lang:"ko",data:{stage:"05-erd"}},{view:"picture",lang:"en",data:{stage:"05-erd",picture:{}}},{view:"picture",lang:"ko",data:{stage:"01-domain",picture:{}}}]){const html=views.template(payload);assert.equal(html.split(inert).length,2,"inert until the first paint");assert.equal(html.split(href).length,2);}
+ assert.doesNotMatch(views.refusalCSS,/@font-face/,"a refusal keeps only the inline critical stylesheet");
+ assert.match(VIEW_POLICY,/font-src 'self'/);assert.match(VIEW_POLICY,/style-src 'self'/);
+});

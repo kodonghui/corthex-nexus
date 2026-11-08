@@ -25,6 +25,8 @@ export function startView(payload){
   }
   const styled=()=>Boolean(getComputedStyle(document.documentElement).getPropertyValue("--nx-size-target").trim());
   if(!styled()){stylesheetReady("view",{required:true}).then(ready=>{if(ready&&styled())startView(payload);});return;}
+  // IBM Plex (font-display: swap) joins after the first paint, like the editor's assets.
+  const fonts=document.getElementById("nexus-font-assets");if(fonts){fonts.remove();requestAnimationFrame(()=>requestAnimationFrame(()=>document.head.append(fonts.content.cloneNode(true))));}
   const lang=payload.lang,ko=lang==="ko",say=(en,kr)=>ko?kr:en,t=(key,values={})=>words(key,lang,values);
   document.documentElement.lang=lang;
   const route=location.pathname.split("/").slice(2).map(decodeURIComponent),project=route[0],part=route[1]==="_"?"":route[1],stage=route[2],place=[project,part||"_",stage].map(encodeURIComponent).join("/");
