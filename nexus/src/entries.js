@@ -2,10 +2,10 @@ const only = (row, names) => Object.fromEntries(names.map((name) => [name, row[n
 const json = (value, fallback) => value == null ? fallback : typeof value === "string" ? JSON.parse(value) : value;
 
 export function comment(row) {
-  return { ...only(row, ["id", "part", "stage", "item", "quote", "discrepancy", "author", "text", "state", "closed_as", "waits", "made_at", "last_at"]), commit: row.commit_id, settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
+  return { ...only(row, ["id", "part", "stage", "item", "quote", "discrepancy", "author", "text", "state", "closed_as", "waits", "asks", "made_at", "last_at"]), commit: row.commit_id, settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
 }
 export function commentState(row) {
-  return { ...only(row, ["id", "state", "closed_as", "waits", "last_at"]), settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
+  return { ...only(row, ["id", "state", "closed_as", "waits", "asks", "last_at"]), settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
 }
 export const reply = (row) => ({ ...only(row, ["seq", "author", "text", "made_at"]), settles: Boolean(row.settles) });
 export const decision = (row) => only(row, ["seq", "link", "text", "made_at"]);

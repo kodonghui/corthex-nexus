@@ -2,7 +2,7 @@
 
 [한국어](nexus.ko.md)
 
-Stage 06 of CORTHEX's own project, for NEXUS 0.2: the requests that the NEXUS server answers, in the OpenAPI contract [nexus.openapi.yaml](nexus.openapi.yaml), and in this file the rules that the contract follows, the hub's commands and the formats of the files that go with them. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows, the functional spec and the server's data. The maintainer passed its checkpoint on 2026-11-03, together with stages 03 to 05, 07 and 08, so the requests, the commands and the formats are frozen for NEXUS 0.2 before stage 10 plans the work: a later breaking change needs the maintainer's decision. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the optional `timeline` to the DDD board's picture source, a compatible change, and named the work board of phase ② beside editing; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). The maintainer's redesign of 2026-11-06 plans the pages and requests API-151 to API-159 and changes to API-101 to API-103, API-118, API-119 and the hub's `comment` and `reply`, which the contract and the code take when the redesign is built ([The redesign's interfaces](#the-redesigns-interfaces)). Phase ②, editing on a PC and the workshops of stage 01, whose stages 01 to 04 passed on 2026-11-06 and 2026-11-07, plans the requests API-161 to API-173, the hub's commands API-174 to API-176 and changes to 0.2's and the redesign's interfaces, which the contract and the code take when phase ② is built, after the redesign ([Phase ②'s interfaces](#phase-②s-interfaces)). This stage's checkpoint for phase ②, with stage 05's, passed them at 09:33 KST on 2026-11-08 ([For the checkpoint](#for-the-checkpoint)). The contract is the source of every request, answer, example and error code that it holds; this file explains them and is the source of the rest. When this file and its Korean translation differ, this file is the source.
+Stage 06 of CORTHEX's own project, for NEXUS 0.2: the requests that the NEXUS server answers, in the OpenAPI contract [nexus.openapi.yaml](nexus.openapi.yaml), and in this file the rules that the contract follows, the hub's commands and the formats of the files that go with them. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows, the functional spec and the server's data. The maintainer passed its checkpoint on 2026-11-03, together with stages 03 to 05, 07 and 08, so the requests, the commands and the formats are frozen for NEXUS 0.2 before stage 10 plans the work: a later breaking change needs the maintainer's decision. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the optional `timeline` to the DDD board's picture source, a compatible change, and named the work board of phase ② beside editing; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). The maintainer's redesign of 2026-11-06 plans the pages and requests API-151 to API-159 and changes to API-101 to API-103, API-118, API-119 and the hub's `comment` and `reply`, which the contract and the code take when the redesign is built; the changes to API-118, API-119 and the hub's commands are built ([The redesign's interfaces](#the-redesigns-interfaces)). Phase ②, editing on a PC and the workshops of stage 01, whose stages 01 to 04 passed on 2026-11-06 and 2026-11-07, plans the requests API-161 to API-173, the hub's commands API-174 to API-176 and changes to 0.2's and the redesign's interfaces, which the contract and the code take when phase ② is built, after the redesign ([Phase ②'s interfaces](#phase-②s-interfaces)). This stage's checkpoint for phase ②, with stage 05's, passed them at 09:33 KST on 2026-11-08 ([For the checkpoint](#for-the-checkpoint)). The contract is the source of every request, answer, example and error code that it holds; this file explains them and is the source of the rest. When this file and its Korean translation differ, this file is the source.
 
 Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-156, and SPEC-170 to SPEC-186 for phase ②), above all its [notes for stage 06](../04-functional-spec/nexus.md#stage-06-requests-commands-and-formats); the server's data and the files in [docs/05-erd/nexus.md](../05-erd/nexus.md) and [nexus.sql](../05-erd/nexus.sql) (TBL-101 to TBL-118, and TBL-119 to TBL-124 for phase ②), with their [notes for stage 06](../05-erd/nexus.md#stage-06-requests-commands-and-formats) and their limits; the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md); the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps; and phase 1 as it runs: the server in [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js) and [store.js](../../nexus/src/store.js), and the hub in [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py) with its [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md). The sitemap (stage 07) comes later, so no screen ID is an input yet; the requests serve the screens that the user flows and the functional spec name.
 
@@ -89,8 +89,8 @@ The contract defines them, and this table lists them. Who may send each: `user`,
 | API-115 | `GET /api/spaces/{project}/proposals/{proposal}` | `getProposal` | either | SPEC-113, SPEC-130, SPEC-131 | active |
 | API-116 | `GET /api/spaces/{project}/edits/{edit}` | `getEdit` | either | SPEC-113, SPEC-133 | active |
 | API-117 | `GET /api/spaces/{project}/checkpoints/{checkpoint}` | `getCheckpoint` | either | SPEC-113, SPEC-140 | active |
-| API-118 | `POST /api/spaces/{project}/comments` | `leaveComment` | either | SPEC-113, SPEC-116, SPEC-126, SPEC-128 | active |
-| API-119 | `POST /api/spaces/{project}/comments/{comment}/replies` | `replyToComment` | either | SPEC-113, SPEC-116, SPEC-127, SPEC-128, SPEC-132 | active |
+| API-118 | `POST /api/spaces/{project}/comments` | `leaveComment` | either | SPEC-113, SPEC-116, SPEC-126, SPEC-128, SPEC-143, SPEC-151 | active |
+| API-119 | `POST /api/spaces/{project}/comments/{comment}/replies` | `replyToComment` | either | SPEC-113, SPEC-116, SPEC-127, SPEC-128, SPEC-132, SPEC-143 | active |
 | API-120 | `POST /api/spaces/{project}/comments/{comment}/answered` | `markAnswered` | either | SPEC-113, SPEC-116, SPEC-127 | active |
 | API-121 | `POST /api/spaces/{project}/comments/{comment}/decisions` | `recordDecision` | agent | SPEC-113, SPEC-116, SPEC-128, SPEC-132 | active |
 | API-122 | `POST /api/spaces/{project}/proposals` | `makeProposal` | agent | SPEC-113, SPEC-116, SPEC-128, SPEC-130 | active |
@@ -115,8 +115,8 @@ The contract defines them, and this table lists them. Who may send each: `user`,
 | API-136 | `push` | API-109, API-105 | SPEC-111, SPEC-112, SPEC-129 | active |
 | API-137 | `remove` | API-110, API-108 | SPEC-115 | active |
 | API-138 | `todo` | API-113 | SPEC-135, SPEC-129 | active |
-| API-139 | `comment` | API-118 | SPEC-128, SPEC-129, SPEC-135 | active |
-| API-140 | `reply` | API-119 | SPEC-127, SPEC-128, SPEC-129, SPEC-132 | active |
+| API-139 | `comment` | API-118 | SPEC-128, SPEC-129, SPEC-135, SPEC-143, SPEC-151 | active |
+| API-140 | `reply` | API-119 | SPEC-127, SPEC-128, SPEC-129, SPEC-132, SPEC-143 | active |
 | API-141 | `answered` | API-120 | SPEC-127, SPEC-128, SPEC-129 | active |
 | API-142 | `decide` | API-121 | SPEC-132, SPEC-128, SPEC-129 | active |
 | API-143 | `propose` | API-122 | SPEC-130, SPEC-128, SPEC-129 | active |
@@ -159,6 +159,8 @@ Changes to 0.2's interfaces, made when the redesign is built:
 3. API-118 `leaveComment` takes any of the 13 stage keys and needs no picture; `item` may be empty for the stage as a whole (SPEC-151). A stage key outside the 13 is `400` `invalid_request` by the field `stage`, and a part that the stored snapshot does not hold is `404` `part_not_found`, codes that 0.2 already has. The agent's comment may carry `asks`.
 4. API-119 `replyToComment`: the agent's reply may carry `asks`; the user's reply empties the comment's `asks`.
 5. The hub's `comment` (API-139) takes any of the 13 stages in `--stage`, not only the pictured ones, and leaves `--item` out for the stage as a whole; `comment` and `reply` (API-140) take `--asks answer|recommended|checkpoint`. These are changes of the hub in `kodonghui/corthex`, so they come in its pull request, with the new tokens of the hub page's template (stage 09), and this repository's `hub-ref.json` moves to that exact commit with the product checks, as this repository's rules say.
+
+Changes 3 to 5 are built: the contract and the server in kodonghui/corthex-nexus#50, with stage 05's migration 4, and the hub 0.3.0 in kodonghui/corthex#172, whose commit `318035d` `hub-ref.json` names. Two points that writing them settled: the user's `asks` is refused as `400` `invalid_request` by the field `asks`, since only the agent says what it asks; and a comment that leaves out `commit` takes the picture's document version, or on a stage without a picture the held default branch commit, and is refused by the field `commit` when the stored snapshot has none.
 
 ## Phase ②'s interfaces
 
@@ -669,8 +671,8 @@ The writes (API-139 to API-146):
 
 ```txt
 hub.py comment  PROJECT --stage STAGE [--part PART] [--item ID] [--quote TEXT]
-                [--discrepancy ID] [--commit COMMIT] (--text TEXT | --text-file FILE)
-hub.py reply    PROJECT COMMENT (--text TEXT | --text-file FILE)
+                [--discrepancy ID] [--commit COMMIT] [--asks ASKS] (--text TEXT | --text-file FILE)
+hub.py reply    PROJECT COMMENT [--asks ASKS] (--text TEXT | --text-file FILE)
 hub.py answered PROJECT COMMENT
 hub.py decide   PROJECT COMMENT --link LINK [--text TEXT | --text-file FILE]
 hub.py propose  PROJECT --stage STAGE [--part PART] --item ID [--item ID ...] [--adds ID ...]
@@ -681,7 +683,7 @@ hub.py reflect  PROJECT EDIT EVENT [--pr LINK] [--commit COMMIT]
 hub.py record   PROJECT CHECKPOINT EVENT --pr LINK
 ```
 
-- Each sends one write with a new write ID and the session label (API-118 to API-123, API-126 and API-130), after the project's outbox. `comment` without `--item` comments on the picture itself and needs `--quote`. `reflect` takes the events `opened`, `merged`, `closed`, `reflected` and `needs-user`, and `record` takes `opened`, `merged` and `closed` ([Reports](#reports)).
+- Each sends one write with a new write ID and the session label (API-118 to API-123, API-126 and API-130), after the project's outbox. `comment` takes any of the 13 stages in `--stage`; without `--item` it comments on the stage as a whole, and `--quote` quotes the part of a picture that it is on. `comment` and `reply` take `--asks answer|recommended|checkpoint`, what the agent asks of the user (SPEC-143). Both come with hub 0.3.0; a server of 0.2 refuses a stage without a picture, a comment with neither an item nor a quote, and `asks`, as `invalid_request`. `reflect` takes the events `opened`, `merged`, `closed`, `reflected` and `needs-user`, and `record` takes `opened`, `merged` and `closed` ([Reports](#reports)).
 - `decide` refuses, before sending, a link that is not `https` or that holds a secret or an email address (SPEC-132).
 - A write that cannot be sent waits in the outbox, with exit code 3; a refusal of the server is reported with its reason and is not sent again (SPEC-128, SPEC-129).
 

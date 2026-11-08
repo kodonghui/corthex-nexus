@@ -617,13 +617,17 @@ paths:
       tags: [Discussion]
       summary: Leave a comment
       description: >-
-        A comment by the user from the view or by the agent through the hub, attached to an item
-        of a picture by its trace ID, or to the picture itself with a quote. The comment waits for
-        the agent when the user leaves it, and for the user when the agent does. commit is the
-        document version that the writer saw; left out, it is the picture's.
+        A comment by the user from the view or by the agent through the hub, on any of the 13
+        stages of a part that the stored snapshot holds, with or without a picture: on an item by
+        its trace ID, on a part of a picture with a quote, or on the stage as a whole with an empty
+        item, which needs no quote (SPEC-151). The comment waits for the agent when the user leaves
+        it, and for the user when the agent does. Only the agent sends asks, what its comment asks
+        of the user (SPEC-143). commit is the document version that the writer saw; left out, it is
+        the picture's, or on a stage without a picture the held default branch commit, and a request
+        that has neither is refused by the field commit.
       x-corthex:
         id: API-118
-        spec: [SPEC-113, SPEC-116, SPEC-126, SPEC-128]
+        spec: [SPEC-113, SPEC-116, SPEC-126, SPEC-128, SPEC-143, SPEC-151]
         status: active
         omit:
           "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
@@ -639,6 +643,9 @@ paths:
                 value: {part: nexus, stage: 01-domain, item: CTX-012, quote: Picture drawn, text: "Is this one event or two?"}
               on-a-discrepancy:
                 value: {part: nexus, stage: 05-erd, item: TBL-111, discrepancy: nd_4h8r2t6w9z3c, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, text: "Claims keep no aggregate's data, so terms: none is right here."}
+              on-a-stage-as-a-whole:
+                summary: The agent's comment on a stage without a picture, asking for its checkpoint
+                value: {part: nexus, stage: 04-functional-spec, item: "", text: "The five points that the rows settled stand as written; pass stage 04's checkpoint as recommended?", asks: checkpoint}
       responses:
         "201":
           description: Left
@@ -650,12 +657,12 @@ paths:
         "400": {$ref: "#/components/responses/InvalidWrite"}
         "403": {$ref: "#/components/responses/EitherWriteRefused"}
         "404":
-          description: No such project, space, picture or discrepancy
+          description: No such project, space, part or discrepancy
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/Problem"}
               examples:
-                picture-not-found: {$ref: "#/components/examples/picture_not_found"}
+                part-not-found: {$ref: "#/components/examples/part_not_found"}
                 discrepancy-not-found: {$ref: "#/components/examples/discrepancy_not_found"}
                 project-not-found: {$ref: "#/components/examples/project_not_found"}
                 space-not-found: {$ref: "#/components/examples/space_not_found"}
@@ -721,10 +728,11 @@ paths:
       description: >-
         A reply by the user or the agent. A user's reply may settle the comment, which then waits
         for the agent to record the decision; a user's reply to a closed comment opens it again,
-        and the agent's is refused. Only the user may send settles.
+        and the agent's is refused. Only the user may send settles, and only the agent asks, what
+        its reply asks of the user; the user's next entry empties the comment's asks (SPEC-143).
       x-corthex:
         id: API-119
-        spec: [SPEC-113, SPEC-116, SPEC-127, SPEC-128, SPEC-132]
+        spec: [SPEC-113, SPEC-116, SPEC-127, SPEC-128, SPEC-132, SPEC-143]
         status: active
         omit:
           "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
@@ -736,6 +744,9 @@ paths:
             examples:
               not-yet: {value: {text: "Not yet: the reply should not close it."}}
               settles: {value: {text: "Yes, as recommended: a reply settles it.", settles: true}}
+              recommends:
+                summary: The agent's reply with a recommendation that the user can take as recommended
+                value: {text: "I recommend that a reply settles it only when the user says so. Take it as recommended?", asks: recommended}
       responses:
         "201":
           description: Replied
@@ -746,7 +757,7 @@ paths:
                 opened-again:
                   summary: The user's reply opened a closed comment again
                   value:
-                    comment: {id: nc_3a6d9g2j5m8r, state: open, closed_as: null, waits: agent, settled: false, dismissed: false, last_at: "2026-11-03T02:14:09.120Z"}
+                    comment: {id: nc_3a6d9g2j5m8r, state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, last_at: "2026-11-03T02:14:09.120Z"}
                     reply: {seq: 3, author: user, text: "Not yet: the reply should not close it.", settles: false, made_at: "2026-11-03T02:14:09.120Z"}
         "400": {$ref: "#/components/responses/InvalidWrite"}
         "403":
@@ -803,12 +814,12 @@ paths:
               examples:
                 closed:
                   value:
-                    comment: {id: nc_3a6d9g2j5m8r, state: closed, closed_as: answered, waits: null, settled: false, dismissed: false, last_at: "2026-11-03T02:20:00.004Z"}
+                    comment: {id: nc_3a6d9g2j5m8r, state: closed, closed_as: answered, waits: null, asks: null, settled: false, dismissed: false, last_at: "2026-11-03T02:20:00.004Z"}
                     changed: true
                 already-closed:
                   summary: The other side marked it first
                   value:
-                    comment: {id: nc_3a6d9g2j5m8r, state: closed, closed_as: answered, waits: null, settled: false, dismissed: false, last_at: "2026-11-03T02:20:00.004Z"}
+                    comment: {id: nc_3a6d9g2j5m8r, state: closed, closed_as: answered, waits: null, asks: null, settled: false, dismissed: false, last_at: "2026-11-03T02:20:00.004Z"}
                     changed: false
         "400": {$ref: "#/components/responses/InvalidBodyFreeWrite"}
         "403": {$ref: "#/components/responses/EitherWriteRefused"}
@@ -863,7 +874,7 @@ paths:
               examples:
                 decided:
                   value:
-                    comment: {id: nc_3a6d9g2j5m8r, state: closed, closed_as: decided, waits: null, settled: false, dismissed: false, last_at: "2026-11-03T05:02:11.310Z"}
+                    comment: {id: nc_3a6d9g2j5m8r, state: closed, closed_as: decided, waits: null, asks: null, settled: false, dismissed: false, last_at: "2026-11-03T05:02:11.310Z"}
                     decision: {seq: 1, link: "https://github.com/kodonghui/corthex/pull/123", text: "A user's reply settles a comment; SPEC-127 says so now.", made_at: "2026-11-03T05:02:11.310Z"}
         "400": {$ref: "#/components/responses/InvalidWrite"}
         "403": {$ref: "#/components/responses/AgentWriteRefused"}
@@ -1108,7 +1119,7 @@ paths:
                 dismissed:
                   value:
                     proposal: {id: np_2b5e8g1j4m7p, state: dismissed, closed_at: "2026-11-03T07:31:05.090Z"}
-                    comment: {id: nc_8k1n4q7s0v3y, state: open, closed_as: null, waits: agent, settled: false, dismissed: true, last_at: "2026-11-03T07:31:05.090Z"}
+                    comment: {id: nc_8k1n4q7s0v3y, state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: true, last_at: "2026-11-03T07:31:05.090Z"}
         "400": {$ref: "#/components/responses/InvalidUserAction"}
         "403": {$ref: "#/components/responses/UserWriteRefused"}
         "404": {$ref: "#/components/responses/ProposalNotFound"}
@@ -2152,7 +2163,7 @@ components:
 
     comment_left:
       summary: The user's comment, waiting for the agent
-      value: {id: nc_3a6d9g2j5m8r, part: nexus, stage: 01-domain, item: CTX-014, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a reply be able to settle a comment on its own?", state: open, closed_as: null, waits: agent, settled: false, dismissed: false, made_at: "2026-11-03T01:00:10.000Z", last_at: "2026-11-03T01:00:10.000Z"}
+      value: {id: nc_3a6d9g2j5m8r, part: nexus, stage: 01-domain, item: CTX-014, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a reply be able to settle a comment on its own?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-03T01:00:10.000Z", last_at: "2026-11-03T01:00:10.000Z"}
     comment_thread:
       summary: A comment that the user settled, with its replies
       value:
@@ -2168,6 +2179,7 @@ components:
         state: open
         closed_as: null
         waits: agent
+        asks: null
         settled: true
         dismissed: false
         made_at: "2026-11-03T01:00:10.000Z"
@@ -2205,8 +2217,8 @@ components:
         comments:
           total: 2
           entries:
-            - {id: nc_3a6d9g2j5m8r, part: nexus, stage: 01-domain, item: CTX-014, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a reply be able to settle a comment on its own?", state: open, closed_as: null, waits: agent, settled: true, dismissed: false, made_at: "2026-11-03T01:00:10.000Z", last_at: "2026-11-03T02:14:09.120Z", replies: 2, last_reply: {seq: 2, author: user, text: "Yes, as recommended: a reply settles it.", settles: true, made_at: "2026-11-03T02:14:09.120Z"}, proposals: [], claim: {ends_at: "2026-11-03T03:05:00.000Z", mine: true}}
-            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Use the glossary's word for this table.", state: open, closed_as: null, waits: agent, settled: false, dismissed: true, made_at: "2026-11-03T06:00:00.000Z", last_at: "2026-11-03T07:31:05.090Z", replies: 0, last_reply: null, proposals: [], claim: null}
+            - {id: nc_3a6d9g2j5m8r, part: nexus, stage: 01-domain, item: CTX-014, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a reply be able to settle a comment on its own?", state: open, closed_as: null, waits: agent, asks: null, settled: true, dismissed: false, made_at: "2026-11-03T01:00:10.000Z", last_at: "2026-11-03T02:14:09.120Z", replies: 2, last_reply: {seq: 2, author: user, text: "Yes, as recommended: a reply settles it.", settles: true, made_at: "2026-11-03T02:14:09.120Z"}, proposals: [], claim: {ends_at: "2026-11-03T03:05:00.000Z", mine: true}}
+            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Use the glossary's word for this table.", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: true, made_at: "2026-11-03T06:00:00.000Z", last_at: "2026-11-03T07:31:05.090Z", replies: 0, last_reply: null, proposals: [], claim: null}
         discrepancies:
           total: 1
           entries:
@@ -2250,7 +2262,7 @@ components:
         comments:
           total: 1
           entries:
-            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Use the glossary's word for this table.", state: open, closed_as: null, waits: user, settled: false, dismissed: false, made_at: "2026-11-03T06:00:00.000Z", last_at: "2026-11-03T06:40:00.000Z", replies: 0, last_reply: null, proposals: [np_2b5e8g1j4m7p]}
+            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Use the glossary's word for this table.", state: open, closed_as: null, waits: user, asks: null, settled: false, dismissed: false, made_at: "2026-11-03T06:00:00.000Z", last_at: "2026-11-03T06:40:00.000Z", replies: 0, last_reply: null, proposals: [np_2b5e8g1j4m7p]}
         closed_comments: {total: 0, entries: []}
         proposals:
           - {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The comment asks for the glossary's word.", change: "Rename the table claims to entry_claims.", source_text_chars: 27, comment: nc_8k1n4q7s0v3y, discrepancy: null, state: open, made_at: "2026-11-03T06:40:00.000Z", closed_at: null, edit: null}
@@ -3134,11 +3146,11 @@ components:
 
     Comment:
       type: object
-      required: [id, part, stage, item, quote, discrepancy, commit, author, text, state, closed_as, waits, settled, dismissed, made_at, last_at]
+      required: [id, part, stage, item, quote, discrepancy, commit, author, text, state, closed_as, waits, asks, settled, dismissed, made_at, last_at]
       properties:
         id: {$ref: "#/components/schemas/CommentId"}
         part: {$ref: "#/components/schemas/PartName"}
-        stage: {$ref: "#/components/schemas/PictureStage"}
+        stage: {$ref: "#/components/schemas/StageKey"}
         item: {$ref: "#/components/schemas/ItemRef"}
         quote: {type: [string, "null"], maxLength: 300}
         discrepancy: {anyOf: [{$ref: "#/components/schemas/DiscrepancyId"}, {type: "null"}]}
@@ -3148,19 +3160,21 @@ components:
         state: {type: string, enum: [open, closed]}
         closed_as: {enum: [answered, decided, null]}
         waits: {enum: [user, agent, null]}
+        asks: {description: "What the agent's last entry asks of the user while the comment waits for the user (SPEC-143)", enum: [answer, recommended, checkpoint, null]}
         settled: {type: boolean}
         dismissed: {type: boolean}
         made_at: {$ref: "#/components/schemas/Time"}
         last_at: {$ref: "#/components/schemas/Time"}
     CommentState:
       type: object
-      required: [id, state, closed_as, waits, settled, dismissed, last_at]
+      required: [id, state, closed_as, waits, asks, settled, dismissed, last_at]
       additionalProperties: false
       properties:
         id: {$ref: "#/components/schemas/CommentId"}
         state: {type: string, enum: [open, closed]}
         closed_as: {enum: [answered, decided, null]}
         waits: {enum: [user, agent, null]}
+        asks: {enum: [answer, recommended, checkpoint, null]}
         settled: {type: boolean}
         dismissed: {type: boolean}
         last_at: {$ref: "#/components/schemas/Time"}
@@ -3626,12 +3640,13 @@ components:
       additionalProperties: false
       properties:
         part: {$ref: "#/components/schemas/PartName"}
-        stage: {$ref: "#/components/schemas/PictureStage"}
+        stage: {$ref: "#/components/schemas/StageKey"}
         item: {$ref: "#/components/schemas/ItemRef"}
         quote: {type: string, minLength: 1, maxLength: 300}
         discrepancy: {$ref: "#/components/schemas/DiscrepancyId"}
         commit: {$ref: "#/components/schemas/Commit"}
         text: {type: string, minLength: 1, maxLength: 4000, pattern: '\S'}
+        asks: {description: "What the agent's comment asks of the user; only the agent sends it", type: string, enum: [answer, recommended, checkpoint]}
     NewReply:
       type: object
       required: [text]
@@ -3639,6 +3654,7 @@ components:
       properties:
         text: {type: string, minLength: 1, maxLength: 4000, pattern: '\S'}
         settles: {type: boolean, default: false}
+        asks: {description: "What the agent's reply asks of the user; only the agent sends it", type: string, enum: [answer, recommended, checkpoint]}
     ReplyAnswer:
       type: object
       required: [comment, reply]

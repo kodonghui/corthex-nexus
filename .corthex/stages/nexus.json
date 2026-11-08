@@ -112,8 +112,8 @@
           "date": "2026-11-08"
         }
       ],
-      "next": "Build the change of TBL-105 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
-      "updated": "2026-11-08T06:07:00+00:00"
+      "next": "Build phase 2's tables in migration 5, after the redesign's screens; the redesign's change of TBL-105 and TBL-110 is built in migration 4",
+      "updated": "2026-11-08T07:39:01+00:00"
     },
     "06-api": {
       "state": "in_progress",
@@ -130,8 +130,8 @@
           "date": "2026-11-08"
         }
       ],
-      "next": "Build API-151 to API-159 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
-      "updated": "2026-11-08T06:07:00+00:00"
+      "next": "Build API-151 to API-159 with the redesign's screens; API-118, API-119 and the hub's comment and reply already take any stage and asks (hub 0.3.0)",
+      "updated": "2026-11-08T07:39:01+00:00"
     },
     "07-sitemap": {
       "state": "in_progress",

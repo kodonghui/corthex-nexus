@@ -2,7 +2,7 @@
 
 [English](nexus.md)
 
-CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계약 [nexus.openapi.yaml](nexus.openapi.yaml)에 있는 NEXUS 서버의 요청, 그리고 이 파일에 있는 그 계약이 따르는 규칙, 허브의 명령, 그것과 함께 가는 파일의 형식입니다. 상태: 2026-11-02에 관리자가 그날 고른 대로 기억 플러그인을 만드는 동안, 사용자 흐름, 기능 명세, 서버의 자료의 추천을 따라 초안을 썼습니다. 관리자가 2026-11-03에 03\~05단계, 07·08단계와 함께 이 파일의 확인 지점을 통과시켜, 10단계가 작업을 나누기 전에 NEXUS 0.2의 요청, 명령, 형식이 고정되었습니다. 이제 호환되지 않는 변경을 하려면 관리자의 결정이 필요합니다. 2026-11-03에 관리자가 01단계 이벤트 스토밍을 NEXUS에서 하기로 고르면서 DDD 보드의 그림 자료에 선택 항목 `timeline`을 더했고(호환되는 변경), ② 차례의 작업 보드를 편집 곁에 적었습니다. 둘 다 관리자가 같은 날 통과시켰습니다([확인할 것](#확인할-것)). 관리자의 2026-11-06 다시 디자인은 페이지와 요청 API-151\~API-159, 그리고 API-101\~API-103, API-118, API-119와 허브의 `comment`·`reply`의 변경을 계획하며, 계약과 코드는 다시 디자인을 만들 때 그것을 받아들입니다([다시 디자인의 인터페이스](#다시-디자인의-인터페이스)). ② 차례, 곧 PC에서 고치기와 01단계 워크숍은 그 01\~04단계가 2026-11-06과 2026-11-07에 통과했으며, 요청 API-161\~API-173, 허브의 명령 API-174\~API-176, 그리고 0.2와 다시 디자인의 인터페이스의 변경을 계획하고, 계약과 코드는 ② 차례를 만들 때 다시 디자인 뒤에 그것을 받아들입니다([② 차례의 인터페이스](#②-차례의-인터페이스)). 이 단계의 ② 차례 확인 지점이 05단계의 것과 함께 2026-11-08 09:33(KST)에 이것들을 통과시켰습니다([확인할 것](#확인할-것)). 계약은 그 안에 있는 모든 요청, 응답, 예시, 오류 코드의 원본이고, 이 파일은 그것을 설명하며 나머지의 원본입니다. 이 번역과 영어 원문이 다르면 영어 원문이 원본입니다.
+CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계약 [nexus.openapi.yaml](nexus.openapi.yaml)에 있는 NEXUS 서버의 요청, 그리고 이 파일에 있는 그 계약이 따르는 규칙, 허브의 명령, 그것과 함께 가는 파일의 형식입니다. 상태: 2026-11-02에 관리자가 그날 고른 대로 기억 플러그인을 만드는 동안, 사용자 흐름, 기능 명세, 서버의 자료의 추천을 따라 초안을 썼습니다. 관리자가 2026-11-03에 03\~05단계, 07·08단계와 함께 이 파일의 확인 지점을 통과시켜, 10단계가 작업을 나누기 전에 NEXUS 0.2의 요청, 명령, 형식이 고정되었습니다. 이제 호환되지 않는 변경을 하려면 관리자의 결정이 필요합니다. 2026-11-03에 관리자가 01단계 이벤트 스토밍을 NEXUS에서 하기로 고르면서 DDD 보드의 그림 자료에 선택 항목 `timeline`을 더했고(호환되는 변경), ② 차례의 작업 보드를 편집 곁에 적었습니다. 둘 다 관리자가 같은 날 통과시켰습니다([확인할 것](#확인할-것)). 관리자의 2026-11-06 다시 디자인은 페이지와 요청 API-151\~API-159, 그리고 API-101\~API-103, API-118, API-119와 허브의 `comment`·`reply`의 변경을 계획하며, 계약과 코드는 다시 디자인을 만들 때 그것을 받아들입니다. API-118, API-119와 허브 명령의 변경은 만들어졌습니다([다시 디자인의 인터페이스](#다시-디자인의-인터페이스)). ② 차례, 곧 PC에서 고치기와 01단계 워크숍은 그 01\~04단계가 2026-11-06과 2026-11-07에 통과했으며, 요청 API-161\~API-173, 허브의 명령 API-174\~API-176, 그리고 0.2와 다시 디자인의 인터페이스의 변경을 계획하고, 계약과 코드는 ② 차례를 만들 때 다시 디자인 뒤에 그것을 받아들입니다([② 차례의 인터페이스](#②-차례의-인터페이스)). 이 단계의 ② 차례 확인 지점이 05단계의 것과 함께 2026-11-08 09:33(KST)에 이것들을 통과시켰습니다([확인할 것](#확인할-것)). 계약은 그 안에 있는 모든 요청, 응답, 예시, 오류 코드의 원본이고, 이 파일은 그것을 설명하며 나머지의 원본입니다. 이 번역과 영어 원문이 다르면 영어 원문이 원본입니다.
 
 입력: [docs/04-functional-spec/nexus.ko.md](../04-functional-spec/nexus.ko.md)의 기능 명세(SPEC-101\~SPEC-156, ② 차례는 SPEC-170\~SPEC-186), 특히 그 [06단계를 위한 메모](../04-functional-spec/nexus.ko.md#06단계-요청-명령-형식); [docs/05-erd/nexus.ko.md](../05-erd/nexus.ko.md)와 [nexus.sql](../05-erd/nexus.sql)의 서버의 자료와 파일(TBL-101\~TBL-118, ② 차례는 TBL-119\~TBL-124), 그 [06단계를 위한 메모](../05-erd/nexus.ko.md#06단계-요청-명령-형식)와 상한; [docs/02-prd/nexus.ko.md](../02-prd/nexus.ko.md)의 요구사항; [docs/01-domain/nexus.ko.md](../01-domain/nexus.ko.md)의 용어집과 DDD 보드(이 파일은 그 말을 그 뜻으로 씁니다); 그리고 지금 도는 1차, 곧 [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js), [store.js](../../nexus/src/store.js)의 서버와, [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md), [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md)가 설명하는 [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py)의 허브입니다. 사이트맵(07단계)은 나중이라 아직 입력에 화면 ID가 없고, 요청은 사용자 흐름과 기능 명세가 적은 화면을 맡습니다.
 
@@ -89,8 +89,8 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 | API-115 | `GET /api/spaces/{project}/proposals/{proposal}` | `getProposal` | 둘 다 | SPEC-113, SPEC-130, SPEC-131 | active |
 | API-116 | `GET /api/spaces/{project}/edits/{edit}` | `getEdit` | 둘 다 | SPEC-113, SPEC-133 | active |
 | API-117 | `GET /api/spaces/{project}/checkpoints/{checkpoint}` | `getCheckpoint` | 둘 다 | SPEC-113, SPEC-140 | active |
-| API-118 | `POST /api/spaces/{project}/comments` | `leaveComment` | 둘 다 | SPEC-113, SPEC-116, SPEC-126, SPEC-128 | active |
-| API-119 | `POST /api/spaces/{project}/comments/{comment}/replies` | `replyToComment` | 둘 다 | SPEC-113, SPEC-116, SPEC-127, SPEC-128, SPEC-132 | active |
+| API-118 | `POST /api/spaces/{project}/comments` | `leaveComment` | 둘 다 | SPEC-113, SPEC-116, SPEC-126, SPEC-128, SPEC-143, SPEC-151 | active |
+| API-119 | `POST /api/spaces/{project}/comments/{comment}/replies` | `replyToComment` | 둘 다 | SPEC-113, SPEC-116, SPEC-127, SPEC-128, SPEC-132, SPEC-143 | active |
 | API-120 | `POST /api/spaces/{project}/comments/{comment}/answered` | `markAnswered` | 둘 다 | SPEC-113, SPEC-116, SPEC-127 | active |
 | API-121 | `POST /api/spaces/{project}/comments/{comment}/decisions` | `recordDecision` | 에이전트 | SPEC-113, SPEC-116, SPEC-128, SPEC-132 | active |
 | API-122 | `POST /api/spaces/{project}/proposals` | `makeProposal` | 에이전트 | SPEC-113, SPEC-116, SPEC-128, SPEC-130 | active |
@@ -117,8 +117,8 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 | API-136 | `push` | API-109, API-105 | SPEC-111, SPEC-112, SPEC-129 | active |
 | API-137 | `remove` | API-110, API-108 | SPEC-115 | active |
 | API-138 | `todo` | API-113 | SPEC-135, SPEC-129 | active |
-| API-139 | `comment` | API-118 | SPEC-128, SPEC-129, SPEC-135 | active |
-| API-140 | `reply` | API-119 | SPEC-127, SPEC-128, SPEC-129, SPEC-132 | active |
+| API-139 | `comment` | API-118 | SPEC-128, SPEC-129, SPEC-135, SPEC-143, SPEC-151 | active |
+| API-140 | `reply` | API-119 | SPEC-127, SPEC-128, SPEC-129, SPEC-132, SPEC-143 | active |
 | API-141 | `answered` | API-120 | SPEC-127, SPEC-128, SPEC-129 | active |
 | API-142 | `decide` | API-121 | SPEC-132, SPEC-128, SPEC-129 | active |
 | API-143 | `propose` | API-122 | SPEC-130, SPEC-128, SPEC-129 | active |
@@ -161,6 +161,8 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 3. API-118 `leaveComment`는 13단계의 키 어느 것이든 받고 그림이 필요 없습니다. 단계 전체에 남기는 의견은 `item`이 비어도 됩니다(SPEC-151). 13개 밖의 단계 키는 `stage` 칸의 `400` `invalid_request`, 저장된 스냅샷에 없는 부분은 `404` `part_not_found`로, 0.2에 이미 있는 코드입니다. 에이전트의 의견은 `asks`를 지닐 수 있습니다.
 4. API-119 `replyToComment`: 에이전트의 답글은 `asks`를 지닐 수 있고, 사용자의 답글은 의견의 `asks`를 비웁니다.
 5. 허브의 `comment`(API-139)는 그림이 있는 단계만이 아니라 13단계 어느 것이든 `--stage`로 받고, 단계 전체에는 `--item`을 뺍니다. `comment`와 `reply`(API-140)는 `--asks answer|recommended|checkpoint`를 받습니다. 이것은 `kodonghui/corthex`에 있는 허브의 변경이므로 허브 페이지 템플릿의 새 토큰(09단계)과 함께 그곳의 풀 리퀘스트로 들어오고, 이 저장소의 규칙대로 이 저장소의 `hub-ref.json`은 제품 검사와 함께 그 정확한 커밋으로 옮깁니다.
+
+변경 3\~5는 만들어졌습니다: 계약과 서버는 kodonghui/corthex-nexus#50에서 05단계의 변환 4와 함께, 허브 0.3.0은 kodonghui/corthex#172에서 만들었고, `hub-ref.json`은 그 커밋 `318035d`을 적습니다. 그것을 쓰면서 정한 두 가지: 무엇을 묻는지는 에이전트만 말하므로 사용자의 `asks`는 `asks` 칸의 `400` `invalid_request`로 거절합니다. 그리고 `commit`을 뺀 의견은 그림의 문서 판을, 그림이 없는 단계에서는 간직한 기본 브랜치 커밋을 받고, 저장된 스냅샷에 그것이 없으면 `commit` 칸으로 거절합니다.
 
 ## ② 차례의 인터페이스
 
@@ -670,8 +672,8 @@ hub.py todo PROJECT [--session LABEL]
 
 ```txt
 hub.py comment  PROJECT --stage STAGE [--part PART] [--item ID] [--quote TEXT]
-                [--discrepancy ID] [--commit COMMIT] (--text TEXT | --text-file FILE)
-hub.py reply    PROJECT COMMENT (--text TEXT | --text-file FILE)
+                [--discrepancy ID] [--commit COMMIT] [--asks ASKS] (--text TEXT | --text-file FILE)
+hub.py reply    PROJECT COMMENT [--asks ASKS] (--text TEXT | --text-file FILE)
 hub.py answered PROJECT COMMENT
 hub.py decide   PROJECT COMMENT --link LINK [--text TEXT | --text-file FILE]
 hub.py propose  PROJECT --stage STAGE [--part PART] --item ID [--item ID ...] [--adds ID ...]
@@ -682,7 +684,7 @@ hub.py reflect  PROJECT EDIT EVENT [--pr LINK] [--commit COMMIT]
 hub.py record   PROJECT CHECKPOINT EVENT --pr LINK
 ```
 
-- 저마다 새 쓰기 ID와 세션 이름표로 쓰기 하나를 보내며(API-118\~API-123, API-126, API-130), 그 전에 프로젝트의 보낼 편지함을 보냅니다. `--item`이 없는 `comment`는 그림 자체에 다는 의견이고 `--quote`가 있어야 합니다. `reflect`는 사건 `opened`, `merged`, `closed`, `reflected`, `needs-user`를, `record`는 `opened`, `merged`, `closed`를 받습니다([보고](#보고)).
+- 저마다 새 쓰기 ID와 세션 이름표로 쓰기 하나를 보내며(API-118\~API-123, API-126, API-130), 그 전에 프로젝트의 보낼 편지함을 보냅니다. `comment`는 13단계 어느 것이든 `--stage`로 받고, `--item`이 없으면 단계 전체에 다는 의견이며, `--quote`는 의견이 있는 그림의 부분을 인용합니다. `comment`와 `reply`는 에이전트가 사용자에게 묻는 것인 `--asks answer|recommended|checkpoint`를 받습니다(SPEC-143). 둘 다 허브 0.3.0부터이며, 0.2의 서버는 그림이 없는 단계, 항목도 인용도 없는 의견, `asks`를 `invalid_request`로 거절합니다. `reflect`는 사건 `opened`, `merged`, `closed`, `reflected`, `needs-user`를, `record`는 `opened`, `merged`, `closed`를 받습니다([보고](#보고)).
 - `decide`는 `https`가 아니거나 비밀값이나 이메일 주소가 든 링크를 보내기 전에 거절합니다(SPEC-132).
 - 보내지 못한 쓰기는 보낼 편지함에서 기다리고 종료 코드는 3입니다. 서버의 거절은 그 까닭과 함께 알리고 다시 보내지 않습니다(SPEC-128, SPEC-129).
 

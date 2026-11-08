@@ -53,6 +53,32 @@ export const MIGRATIONS = [
 // field was cleared. Preserve the last event internally without changing APIs.
 MIGRATIONS.push({ version: 3, statements: ["ALTER TABLE edits ADD COLUMN last_report TEXT"] });
 
+// The redesign (stage 05, TBL-105 and TBL-110): a comment is on any of the 13
+// stages of a part, bound to the project space instead of a picture, and keeps
+// what the agent's last entry asks of the user. SQLite changes a foreign key
+// only by making the table again. Dropping the old table deletes the replies
+// and decisions with their comment and empties a proposal's comment even while
+// foreign keys are deferred (D1 runs with them on), so the batch copies those
+// rows aside first and puts them back after the rename, in one transaction.
+MIGRATIONS.push({ version: 4, statements: [
+  "CREATE TABLE comments_new (\n  id           TEXT    PRIMARY KEY,\n  project      TEXT    NOT NULL REFERENCES project_spaces (project) ON DELETE CASCADE,\n  part         TEXT    NOT NULL,\n  stage        TEXT    NOT NULL CHECK (stage IN ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap', '08-screen-states', '09-mockup', '10-wbs', '11-development', '12-qa', '13-presentation')),\n  item         TEXT    NOT NULL,\n  quote        TEXT,\n  discrepancy  TEXT    REFERENCES discrepancies (id) ON DELETE SET NULL,\n  commit_id    TEXT    NOT NULL,\n  author       TEXT    NOT NULL CHECK (author IN ('user', 'agent')),\n  text         TEXT    NOT NULL,\n  state        TEXT    NOT NULL CHECK (state IN ('open', 'closed')),\n  closed_as    TEXT    CHECK (closed_as IN ('answered', 'decided')),\n  waits        TEXT    CHECK (waits IN ('user', 'agent')),\n  asks         TEXT    CHECK (asks IN ('answer', 'recommended', 'checkpoint')),\n  settled      INTEGER NOT NULL DEFAULT 0 CHECK (settled IN (0, 1)),\n  dismissed    INTEGER NOT NULL DEFAULT 0 CHECK (dismissed IN (0, 1)),\n  made_at      TEXT    NOT NULL,\n  last_at      TEXT    NOT NULL,\n  CHECK ((state = 'open' AND closed_as IS NULL AND waits IS NOT NULL)\n      OR (state = 'closed' AND closed_as IS NOT NULL AND waits IS NULL)),\n  CHECK ((settled = 0 AND dismissed = 0) OR state = 'open'),\n  CHECK (asks IS NULL OR (state = 'open' AND waits = 'user'))\n)",
+  "CREATE TABLE replies_keep AS SELECT comment, seq, author, text, settles, made_at FROM replies",
+  "CREATE TABLE decisions_keep AS SELECT comment, seq, link, text, made_at FROM decisions",
+  "CREATE TABLE proposals_keep AS SELECT id, comment FROM proposals WHERE comment IS NOT NULL",
+  "INSERT INTO comments_new (id, project, part, stage, item, quote, discrepancy, commit_id, author, text, state, closed_as, waits, asks, settled, dismissed, made_at, last_at)\n  SELECT id, project, part, stage, item, quote, discrepancy, commit_id, author, text, state, closed_as, waits, NULL, settled, dismissed, made_at, last_at FROM comments",
+  "DROP TABLE comments",
+  "ALTER TABLE comments_new RENAME TO comments",
+  "INSERT INTO replies (comment, seq, author, text, settles, made_at)\n  SELECT comment, seq, author, text, settles, made_at FROM replies_keep",
+  "INSERT INTO decisions (comment, seq, link, text, made_at)\n  SELECT comment, seq, link, text, made_at FROM decisions_keep",
+  "UPDATE proposals SET comment = (SELECT k.comment FROM proposals_keep AS k WHERE k.id = proposals.id)\n  WHERE id IN (SELECT id FROM proposals_keep)",
+  "DROP TABLE replies_keep",
+  "DROP TABLE decisions_keep",
+  "DROP TABLE proposals_keep",
+  "CREATE INDEX comments_waiting ON comments (project, state, waits, last_at)",
+  "CREATE INDEX comments_stage ON comments (project, part, stage, state)",
+  "ALTER TABLE checkpoints ADD COLUMN comment TEXT REFERENCES comments (id) ON DELETE SET NULL"
+] });
+
 const MIGRATION_TABLE = "CREATE TABLE IF NOT EXISTS migrations (\n  version    INTEGER PRIMARY KEY,\n  applied_at TEXT    NOT NULL\n)";
 
 // The newer of two snapshots of a project wins: the update runs only when
@@ -79,7 +105,7 @@ const CHECKPOINT_BASIS = `SELECT json_group_array(json_object('id',id,'state',st
 
 // Identifiers below are fixed by the schema, never taken from a request.
 const ENTRY_COLUMNS = Object.freeze({
-  comments: "id project part stage item quote discrepancy commit_id author text state closed_as waits settled dismissed made_at last_at".split(" "),
+  comments: "id project part stage item quote discrepancy commit_id author text state closed_as waits asks settled dismissed made_at last_at".split(" "),
   replies: "comment seq author text settles made_at".split(" "),
   decisions: "comment seq link text made_at".split(" "),
   proposals: "id project part stage commit_id items reason change source_text comment discrepancy state made_at closed_at".split(" "),
