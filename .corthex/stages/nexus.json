@@ -58,8 +58,8 @@
           "date": "2026-11-07"
         }
       ],
-      "next": "The redesign's checkpoint 3 for REQ-219 to REQ-237, in the design pull request",
-      "updated": "2026-11-07T14:38:55+00:00"
+      "next": "Build REQ-219 to REQ-237 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
+      "updated": "2026-11-08T06:14:52+00:00"
     },
     "03-user-flow": {
       "state": "in_progress",
