@@ -97,6 +97,8 @@ try{
  report.nodePid=process.pid;report.browser=await command('Browser.getVersion',{},false);
  const tab=await command('Target.createTarget',{url:'about:blank'},false);session=(await command('Target.attachToTarget',{targetId:tab.targetId,flatten:true},false)).sessionId;
  await command('Page.enable');await command('Runtime.enable');await command('Network.enable');await command('Network.setCacheDisabled',{cacheDisabled:true});await command('Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Request'}]});
+ // The times stay in the server's UTC here; the first page's suite shows them in another zone.
+ await command('Emulation.setTimezoneOverride',{timezoneId:'UTC'});
 
  // Rule 15: the code draws every part again from the page's data and keeps the server's,
  // node for node and pixel for pixel. The fonts stay out, so that only the code differs.
@@ -112,7 +114,11 @@ try{
    await release();await waitFor(`document.documentElement.dataset.nxCode==='ready'`);await paint();
    const after=await read();
    assert(after.redrawn==='0','The code redrew '+after.redrawn+' parts');
-   assert(JSON.stringify(after.parts)===JSON.stringify(before.parts),'A part differs after the code ran');
+   // The code makes the first page's answers and order work (TASK-273): those controls lose
+   // their wait, and nothing else changes.
+   const working=parts=>Object.fromEntries(Object.entries(parts).map(([key,html])=>[key,html.replace(/ disabled="" data-nx-wait="(?:answer|order)"/g,"")]));
+   assert(JSON.stringify(after.parts)===JSON.stringify(working(before.parts)),'A part differs after the code ran');
+   assert(kind!=='home'||/data-nx-wait="(?:answer|order)"/.test(before.parts.home)&&!/data-nx-wait="(?:answer|order)"/.test(after.parts.home),'The first page\'s answers and order did not start to work');
    assert(after.elements===before.elements&&after.kept===before.elements,'The code replaced elements ('+after.kept+' of '+before.elements+' kept)');
    assert(JSON.stringify(after.frame)===JSON.stringify(before.frame)&&JSON.stringify(after.boxes)===JSON.stringify(before.boxes),'An element moved or changed size when the code ran');
    assert(!after.bar.visible&&after.scrollWidth<=after.width,'The bar stays hidden and nothing scrolls sideways');

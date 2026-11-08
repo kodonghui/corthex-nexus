@@ -89,7 +89,7 @@ Drawn from nexus.yaml on 2026-11-03, and again on 2026-11-07, one row for each s
 | SCR-107 | Comment | SCR-105 | `/pictures/{project}/{part}/{stage}#comment={comment}` | anyone Cloudflare Access lets in, on the server | FL-107, FL-109 | CTX-014, TERM-111 | active |
 | SCR-108 | Proposal | SCR-105 | `/pictures/{project}/{part}/{stage}#proposal={proposal}` | anyone Cloudflare Access lets in, on the server | FL-110 | CTX-014, TERM-111 | active |
 | SCR-109 | Stage overview | SCR-104 | `/overview/{project}/{part}/{stage}` | anyone Cloudflare Access lets in, on the server | FL-113 | CTX-007, TERM-120 | active |
-| SCR-110 | Home | none | `/` | anyone Cloudflare Access lets in, on the server | FL-117, FL-118 | CTX-014, TERM-121 | planned |
+| SCR-110 | Home | none | `/` | anyone Cloudflare Access lets in, on the server | FL-117, FL-118 | CTX-014, TERM-121 | active |
 | SCR-116 | Search | SCR-110 | `{any page}#q={words}` | anyone Cloudflare Access lets in, on the server | FL-118 | `none` | planned |
 | SCR-117 | Full checks | SCR-110 | `/hub` | anyone Cloudflare Access lets in, on the server | FL-118 | `none` | active |
 | SCR-111 | Project workspace | SCR-110 | `/p/{project}` | anyone Cloudflare Access lets in, on the server | FL-117, FL-118 | `none` | planned |
@@ -136,7 +136,7 @@ Every step that shows the user something on a screen names that screen. A flow t
 - An address whose item, comment or proposal the picture does not hold opens the picture view, which says so; stage 08 draws that state.
 - In a path, `{part}` is `_` for the project as a whole, as in the contract's requests.
 
-The redesign's addresses, once it is built. Since TASK-271 the server answers its pages at them: `/` and a stage's address with the frame that TASK-272 draws, `/p/{project}` with its redirect, and `/hub` with the hub page, so SCR-117 is active; the first page's and the workspace's screens come with TASK-273 to TASK-277, and the redirects of 0.2's two paths with TASK-278:
+The redesign's addresses, once it is built. Since TASK-271 the server answers its pages at them: `/` and a stage's address with the frame that TASK-272 draws, `/p/{project}` with its redirect, and `/hub` with the hub page, so SCR-117 is active; since TASK-273 `/` is the first page, so SCR-110 is active too; the workspace's screens come with TASK-274 to TASK-277, and the redirects of 0.2's two paths with TASK-278:
 
 - The pages are the first page `/` (API-155), a project `/p/{project}`, which leads to its current stage (API-153), a stage `/p/{project}/{part}/{stage}` (API-154) and the hub page, now at `/hub` (API-101). `{stage}` is a stage's key, such as `02-prd`; SCR-112 and SCR-113 share the form and differ by whether the stage has a picture.
 - After `#`, in the same form as 0.2's: `talk` alone opens the stage's talk, and with an `nc_` or `np_` ID opens that comment or proposal in it; `item` with a trace ID opens the item; `view=list` shows a picture stage's list instead of its picture; `step` keeps a DDD board's step, as in 0.2; `q` holds the search's words on any page.

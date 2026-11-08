@@ -233,8 +233,8 @@
           "date": "2026-11-05"
         }
       ],
-      "next": "Build the redesign's screens, TASK-273 to TASK-277, on the pages that TASK-271 serves and TASK-272 draws, then TASK-278, which walks the 53 states and leads 0.2's picture and overview addresses to the stage's page; TASK-265 to TASK-272 are done; the 0.2.3 release waits for the maintainer",
-      "updated": "2026-11-08T13:46:16+00:00"
+      "next": "Build the redesign's screens, TASK-274 to TASK-277, on the pages that TASK-271 serves and TASK-272 draws, with the first page's ways on to a stage's list, its items and the search (TASK-273's handoff), then TASK-278, which walks the 53 states and leads 0.2's picture and overview addresses to the stage's page; TASK-265 to TASK-273 are done; the 0.2.3 release waits for the maintainer",
+      "updated": "2026-11-08T15:40:00+00:00"
     },
     "12-qa": {
       "state": "in_progress",

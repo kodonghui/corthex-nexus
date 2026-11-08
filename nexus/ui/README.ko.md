@@ -20,7 +20,7 @@
 
 ## 다시 디자인의 페이지
 
-다시 디자인의 페이지(TASK-272)는 0.2의 보기 옆에 자기 묶음을 따로 둡니다. `page.js`와 `page.css`이며, manifest는 이를 `page-js`, `page-css`, `page-preload`로 부릅니다. 서버와 페이지의 코드는 `../src/draw/`의 같은 모듈로 그립니다: 위 막대, 단계 상태의 모양과 말, 단계 목록, 탭을 09단계의 확정된 토큰과 08단계 `redesign-words.md`의 문구로 그리며, 그 문구는 `../tools/messages.mjs`가 0.2의 문구 옆에 `messages.js`로 엮습니다. 서버는 페이지마다 스타일시트를 안에 넣어 그려 보내므로, 코드가 끝내 오지 않아도 페이지를 읽을 수 있습니다([08단계 규칙 15](../../docs/08-screens/nexus/README.ko.md#다시-디자인의-화면)). 코드는 페이지의 자료로 같은 부분을 그리고, 다른 부분만 바꿉니다. 규칙 15의 막대는 코드가 6초 안에 시작하지 않으면 열리고, 코드가 실패하거나 스크립트가 꺼져 있으면 바로 열립니다. 페이지의 정책이 막는 인라인 스크립트는 쓰지 않습니다. 좁은 페이지가 보이는 것을 바꾸는 링크는 코드 없이도 동작합니다(규칙 16). `../test/draw.test.js`는 두 그림을 Node에서, `../test/page-regression.mjs`는 브라우저에서, 코드가 돌기 전과 뒤에 비교합니다.
+다시 디자인의 페이지(TASK-272)는 0.2의 보기 옆에 자기 묶음을 따로 둡니다. `page.js`와 `page.css`이며, manifest는 이를 `page-js`, `page-css`, `page-preload`로 부릅니다. 서버와 페이지의 코드는 `../src/draw/`의 같은 모듈로 그립니다: 위 막대, 단계 상태의 모양과 말, 단계 목록, 탭을 09단계의 확정된 토큰과 08단계 `redesign-words.md`의 문구로 그리며, 그 문구는 `../tools/messages.mjs`가 0.2의 문구 옆에 `messages.js`로 엮습니다. 서버는 페이지마다 스타일시트를 안에 넣어 그려 보내므로, 코드가 끝내 오지 않아도 페이지를 읽을 수 있습니다([08단계 규칙 15](../../docs/08-screens/nexus/README.ko.md#다시-디자인의-화면)). 코드는 페이지의 자료로 같은 부분을 그리고, 다른 부분만 바꿉니다. 첫 페이지에서는 `home.js`(TASK-273)가 그 자리에서 답하고, 다시 읽고, 카드의 차례를 브라우저에 둡니다. 서버와 같은 `../src/draw/home.js`로 그리며, 초점과 메시지가 제자리에 남도록 그림이 바뀐 요소만 `data-nx-key`로 찾아 바꿉니다. 서버가 UTC로 쓴 때는 브라우저의 시간대로 보이고, `/`의 0.2 주소 조각은 제자리로 이끕니다. 규칙 15의 막대는 코드가 6초 안에 시작하지 않으면 열리고, 코드가 실패하거나 스크립트가 꺼져 있으면 바로 열립니다. 페이지의 정책이 막는 인라인 스크립트는 쓰지 않습니다. 좁은 페이지가 보이는 것을 바꾸는 링크는 코드 없이도 동작합니다(규칙 16). `../test/draw.test.js`는 두 그림을 Node에서, `../test/page-regression.mjs`는 브라우저에서, 코드가 돌기 전과 뒤에 비교합니다. `../test/home.test.js`는 첫 페이지의 그림을, `../test/home-regression.mjs`는 브라우저에서 그 상태, 답, 주소 조각을 시험합니다.
 
 ## 수정과 라이선스
 
@@ -34,7 +34,7 @@ IBM Plex Sans KR(굵기 400·500·600)과 IBM Plex Mono(400·500)는 OFL 1.1의 
 
 ## 로컬 합성 브라우저 시험
 
-저장소 루트에서 `node nexus/test/view-server.mjs`를 실행하면 loopback 주소를 출력합니다. 실제 handler/Store와 메모리 SQLite, 합성 Access를 쓰며 표준 입력이 닫히면 끝납니다. `--keep-open`은 관리되는 로컬 브라우저 시험에 씁니다. `qa-views`, `qa-views-reply`, `qa-views-overview`는 독립된 합성 프로젝트입니다. `/__qa/receipts`에서 시험용 쓰기 본문·ID를 확인합니다. `NEXUS_QA_PAGES=1`이면 제목에 마크업과 자료 표식을 지닌, 부분 두 개의 프로젝트 `qa-pages`도 다시 디자인의 페이지를 위해 심습니다. handler는 TASK-271부터 그 페이지를 제 주소 `/`, `/p/qa-pages`, `/p/qa-pages/{part}/{stage}`에서 냅니다. `?lang=ko`는 요청 하나에서 서버의 언어를 정합니다. 이 시험 서버는 배포하지 않으며 실제 계정이나 저장소 원문을 읽지 않습니다.
+저장소 루트에서 `node nexus/test/view-server.mjs`를 실행하면 loopback 주소를 출력합니다. 실제 handler/Store와 메모리 SQLite, 합성 Access를 쓰며 표준 입력이 닫히면 끝납니다. `--keep-open`은 관리되는 로컬 브라우저 시험에 씁니다. `qa-views`, `qa-views-reply`, `qa-views-overview`는 독립된 합성 프로젝트입니다. `/__qa/receipts`에서 시험용 쓰기 본문·ID를 확인합니다. `NEXUS_QA_PAGES=1`이면 제목에 마크업과 자료 표식을 지닌, 부분 두 개의 프로젝트 `qa-pages`도 다시 디자인의 페이지를 위해 심습니다. handler는 TASK-271부터 그 페이지를 제 주소 `/`, `/p/qa-pages`, `/p/qa-pages/{part}/{stage}`에서 냅니다. `NEXUS_QA_HOME=1`이면 내 차례에 모든 종류의 줄을 지닌 `qa-home`과 `qa-home-two`를 첫 페이지를 위해 심고, 줄이 없는 상태와 프로젝트가 없는 상태를 위한 서버 둘을 더 두며, 이는 쿠키 `nexus-qa-space=quiet`나 `empty`로 고릅니다. `/__qa/push-again`은 `qa-home-two`를 다시 올립니다. `?lang=ko`는 요청 하나에서 서버의 언어를 정합니다. 이 시험 서버는 배포하지 않으며 실제 계정이나 저장소 원문을 읽지 않습니다.
 
 handler나 원본이 바뀌면 시험 서버를 다시 시작합니다. 브라우저 빌드만 바뀌면 재시작 없이 읽고, 열린 탭을 위해 이전 파일도 시험 서버 메모리에 남겨 둡니다. 마지막 브라우저 시험은 확정된 원본·빌드 해시를 적고 다시 시작한 서버에서 실행합니다.
 

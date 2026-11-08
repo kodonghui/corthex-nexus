@@ -1,10 +1,11 @@
 // Shared, dependency-free SVG. Only checked geometry and escaped text enter HTML.
 import {pictureLayout,itemMarks,sceneItems,itemIdentity,STEPS} from "./layout.js";
 import {words} from "../ui/messages.js";
+import {PALETTE} from "./draw/palette.js";
 export const escapePreview=value=>String(value??"").replace(/[&<>"'_]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","_":"&#95;"}[ch]));
 export function pictureLimitMessage(scene,lang){return lang==="ko"?`반복 배치가 너무 복잡해 이 그림을 표시하지 못했습니다. 원본은 그대로 보관되어 있으며 아래에 원본 항목 ${scene.nodes.length}개${scene.listLimited?"까지":""}를 표시합니다.`:`Repeated layout is too complex to display this picture. The original source is unchanged; ${scene.listLimited?"up to ":""}${scene.nodes.length} source items are listed below.`;}
 const number=value=>Number.isFinite(Number(value))?Number(value):0;
-const palette={context:["#64748b","none"],lane:["#64748b","none"],event:["#9a3412","#ffedd5"],command:["#1e40af","#dbeafe"],actor:["#854d0e","#fef9c3"],aggregate:["#854d0e","#fef08a"],"read-model":["#166534","#dcfce7"],policy:["#6b21a8","#f3e8ff"],external:["#86198f","#fae8ff"],hotspot:["#991b1b","#fee2e2"],screen:["#334155","#e2e8f0"],table:["#334155","#e2e8f0"]};
+const palette=PALETTE;
 const fragment=id=>{try{return "#item="+encodeURIComponent(id);}catch{return "#items";}};
 function labelLines(node){
  if(node.kind!=="table")return String(node.label||node.text).split("\n");

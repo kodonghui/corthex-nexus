@@ -14,7 +14,7 @@ Path `/p/{project}/{part}/{stage}` for the ten stages other than `01-domain`, `0
 | The stage record: the recorded state, next action, checkpoints, checks and findings, and a checkpoint passed in NEXUS that waits for its record (SPEC-138) | API-158 (`record`) |
 | Whether the project reads the stage, and why not, from the state of its text source | API-158 (`head.reads`) |
 | The items, 200 at a time: each with its ID, its title or sentence as the source has it, its main fields, such as a requirement's priority and status, the number of its comments, a mark when it is in my turn, and marks for its open discrepancies and pending reflections; grouped by context, with the items without a context last, or in the source's order (REQ-227) | API-158 (`items`, `after`, `group`), the first 200 from the page's data |
-| The filter, all, with talk, my turn or what is left, and the words of the search within the stage | Kept in the page while it is open; sent as `filter` and `q` (API-158) |
+| The filter, all, with talk, my turn or what is left, and the words of the search within the stage | Kept in the page while it is open; sent as `filter` and `q` (API-158). An address with `#filter=left`, from the first page's agent to-do (SCR-110), opens the list with what is left, on a pictured stage too |
 
 ## Actions
 

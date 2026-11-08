@@ -7,6 +7,7 @@ import {SPRITE,icon} from "./icons.js";
 import {topBar,codeBar,tabs} from "./frame.js";
 import {stageRail,stageName,stageNumber} from "./stages.js";
 import {labels} from "./words.js";
+import {drawHome} from "./home.js";
 export const PAGE_SCHEMAS=Object.freeze({home:"corthex-home-page/0.3",stage:"corthex-stage-page/0.3"});
 export function pageKind(payload){
   const kind=Object.keys(PAGE_SCHEMAS).find(key=>PAGE_SCHEMAS[key]===payload?.schema);
@@ -16,12 +17,12 @@ export function pageKind(payload){
 // The open talk of the stage, for its tab: what waits for the user, for the agent,
 // and the comments whose item is gone (API-152).
 export const openTalk=talk=>talk?["mine","agent","apart"].reduce((n,key)=>n+(Number(talk[key]?.total)||0),0):0;
-// The inside of every part of the page, by the part's name, from the page's data.
-// The stage's middle and side and the first page's sections join as their screens
-// are built (TASK-273 to TASK-277); until then they are empty.
+// The inside of every part of the page, by the part's name, from the page's data: the
+// first page's sections (SCR-110, TASK-273), and the frame of a stage, whose middle and
+// side join as their screens are built (TASK-274 to TASK-277); until then they are empty.
 export function drawParts(payload){
   const kind=pageKind(payload),lang=payload.lang;
-  if(kind==="home")return{top:topBar({kind:"home"},lang),bars:codeBar(lang),home:""};
+  if(kind==="home")return{top:topBar({kind:"home"},lang),bars:codeBar(lang),home:drawHome(payload.data,lang)};
   const data=payload.data;
   return{
     top:topBar({kind:"stage",project:data.project.name,title:data.project.title,part:data.part,stage:data.stage},lang),

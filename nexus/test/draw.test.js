@@ -14,6 +14,7 @@ import {labels,label,legendWord,STATES} from "../src/draw/words.js";
 import {STAGE_KEYS,stageName,stageRail} from "../src/draw/stages.js";
 import {topBar,codeBar,tabs} from "../src/draw/frame.js";
 import {drawParts,drawBody,pageKind,pageTitle,openTalk,PAGE_SCHEMAS} from "../src/draw/page.js";
+import {homeData} from "./home-fixtures.js";
 
 const metadata=JSON.parse(readFileSync(new URL("../src/view-code/sizes.json",import.meta.url))),folder=new URL("../src/view-code/",import.meta.url);
 const code=Object.fromEntries(metadata.files.map(f=>[f.name,{type:f.type,body:readFileSync(new URL(f.path,folder))}])),views=createViews(code,metadata.entries);
@@ -25,7 +26,7 @@ function stageData({stage="05-erd",part="sample",parts=["sample"],rows}={}){
     stages:rows??STAGE_KEYS.map((key,i)=>({key,state:STATES[i%STATES.length],items:[0,3,1500][i%3],picture:["01-domain","05-erd","07-sitemap"].includes(key),mine:[0,2,1000][i%3]}))};
 }
 const stagePage=(lang="en",over={})=>({schema:PAGE_SCHEMAS.stage,generated_at:"2026-11-08T08:30:00.000Z",lang,data:stageData(over),talk:{mine:{total:2},agent:{total:1},apart:{total:4}},picture:null,problem:null});
-const homePage=(lang="en")=>({schema:PAGE_SCHEMAS.home,generated_at:"2026-11-08T08:30:00.000Z",lang});
+const homePage=(lang="en",over={})=>({schema:PAGE_SCHEMAS.home,generated_at:"2026-11-08T08:30:00.000Z",lang,data:homeData(over)});
 const tags=(html,pattern)=>html.match(pattern)||[];
 
 test("the redesign's words come from stage 08's table, with as many labels and the same values in both languages",()=>{
@@ -129,7 +130,7 @@ test("the bar of rule 15 and the phone's tabs are drawn before the code",()=>{
 
 test("the server's page holds each part exactly as the view's code draws it (rule 15)",()=>{
   const css=code[metadata.entries["page-css"].slice(6)].body.toString();
-  for(const payload of[homePage("en"),homePage("ko"),stagePage("en"),stagePage("ko",{parts:["sample","second"]}),{...stagePage("en"),picture:{}}]){
+  for(const payload of[homePage("en"),homePage("ko"),homePage("en",{entries:[]}),homePage("ko",{projects:[],entries:[],agent:[]}),stagePage("en"),stagePage("ko",{parts:["sample","second"]}),{...stagePage("en"),picture:{}}]){
     const html=views.page(payload),parts=drawParts(payload),names=Object.keys(parts);
     assert.deepEqual(names,pageKind(payload)==="home"?["top","bars","home"]:["top","bars","rail","tabs","stage","side"]);
     assert.equal(tags(html,/data-nx-part="/g).length,names.length);
@@ -144,7 +145,7 @@ test("the server's page holds each part exactly as the view's code draws it (rul
     const filled=renderView(html,payload);
     assert.ok(filled.includes(JSON.stringify(payload).replace(/[<>&]/g,ch=>({"<":"\\u003c",">":"\\u003e","&":"\\u0026"}[ch]))));
   }
-  for(const bad of[{...homePage(),schema:"corthex-view-page/0.2"},{...homePage(),lang:"fr"},null])assert.throws(()=>views.page(bad),/Unreadable page data/);
+  for(const bad of[{...homePage(),schema:"corthex-view-page/0.2"},{...homePage(),lang:"fr"},{...homePage(),data:{}},null])assert.throws(()=>views.page(bad),/Unreadable page data/);
 });
 
 test("a page whose code does not run stays readable, with the bar of rule 15, and the three widths need no code",()=>{
@@ -159,7 +160,10 @@ test("a page whose code does not run stays readable, with the bar of rule 15, an
   assert.match(css,/\.nx \.rail:target,\.nx \.ws\[data-nx-open=stages\] \.rail\{display:flex\}/);
   assert.match(css,/\.nx \.btn:after\{content:"";position:absolute;inset:calc\(\(var\(--nx-size-button\) - var\(--nx-size-target\)\) \/ 2 - var\(--nx-border-thin\)\)/,"the hit area adds back the border that its padding box leaves out");
   assert.doesNotMatch(readFileSync(new URL("../ui/page.css",import.meta.url),"utf8"),/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i,"colours come from the frozen tokens");
-  const html=views.page(stagePage("en"));
-  for(const control of tags(html,/<(?:button|input)\b[^>]*>/g))assert.match(control,/ disabled data-nx-wait="[a-z]+"/,"a control that needs the code waits for it");
-  for(const link of tags(html,/<a\b[^>]*>/g))assert.match(link,/href="(?:\/|#stage|#stages|#talk)[^"]*"/,"every link works without the code");
+  for(const payload of[stagePage("en"),homePage("ko")]){
+    const html=views.page(payload),controls=tags(html,/<(?:button|input)\b[^>]*>/g);
+    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order)"/,"a control that needs the code waits for it");
+    for(const link of tags(html,/<a\b[^>]*>/g))assert.match(link,/href="(?:\/|#stage|#stages|#talk)[^"]*"/,"every link works without the code");
+    if(pageKind(payload)==="home")assert.deepEqual([...new Set(controls.map(c=>c.match(/data-nx-wait="(\w+)"/)[1]))].sort(),["answer","order","search"]);
+  }
 });

@@ -544,8 +544,8 @@ export const redesign={
     "답하면 AI 차례가 됩니다. AI는 그 프로젝트의 다음 작업 때 읽습니다."
   ],
   "Agent to-do": [
-    "Agent to-do ({n}) · Comments that wait for the agent · Open discrepancies · Pending reflections · Checkpoints that wait for their records · {n} taken by a session · The agent reads these when its work on the project next starts. The NEXUS server runs no AI.",
-    "AI 할 일 ({n}) · AI를 기다리는 의견 · 열린 어긋남 · 반영 대기 · 기록을 기다리는 확인 지점 · 세션이 맡은 것 {n} · AI는 그 프로젝트의 다음 작업을 시작할 때 이것을 읽습니다. NEXUS 서버는 AI를 돌리지 않습니다."
+    "Agent to-do ({n}) · Comments that wait for the agent · Open discrepancies · Pending reflections · Checkpoints that wait for their records · {n} taken by a session · The agent reads these when its work on the project next starts. The NEXUS server runs no AI. · Nothing waits for the agent now.",
+    "AI 할 일 ({n}) · AI를 기다리는 의견 · 열린 어긋남 · 반영 대기 · 기록을 기다리는 확인 지점 · 세션이 맡은 것 {n} · AI는 그 프로젝트의 다음 작업을 시작할 때 이것을 읽습니다. NEXUS 서버는 AI를 돌리지 않습니다. · 지금은 AI를 기다리는 것이 없습니다."
   ],
   "Nothing waits": [
     "Nothing waits for your answer now. · When the agent asks or proposes something, it gathers here.",
@@ -556,8 +556,8 @@ export const redesign={
     "다른 탭에서 이미 했습니다."
   ],
   "Projects": [
-    "Projects ({n}) · By name · By last push · Now: {stage} {state} · Next: {next action} · No picture yet · Not current · Pushed again at {time} · {n} items · {n} warnings · Open",
-    "프로젝트 ({n}) · 이름순 · 올린 순 · 지금: {stage} {state} · 다음: {next action} · 아직 그림 없음 · 최신 아님 · {time}에 다시 올라옴 · 항목 {n} · 경고 {n} · 열기"
+    "Projects ({n}) · By name · By last push · Now: {stage} {state} · Next: {next action} · No picture yet · Not current · Pushed again at {time} · {n} items · {n} warnings · Open · {n} open comments",
+    "프로젝트 ({n}) · 이름순 · 올린 순 · 지금: {stage} {state} · 다음: {next action} · 아직 그림 없음 · 최신 아님 · {time}에 다시 올라옴 · 항목 {n} · 경고 {n} · 열기 · 열린 의견 {n}"
   ],
   "Buttons not loaded": [
     "The page's buttons could not load. Load the page again to answer here.",
@@ -658,6 +658,22 @@ export const redesign={
   "Stage names": [
     "Domain discovery · PRD · User flow · Functional spec · ERD · API · Sitemap · Screen states · Mockup · WBS · Development · QA · Presentation",
     "도메인 탐색 · PRD · 유저 플로우 · 기능 명세 · ERD · API · 사이트맵 · 화면 상태 · 목업 · WBS · 개발 · QA · 발표"
+  ],
+  "Page buttons": [
+    "Try again · Load again · Sign in again · Open this page",
+    "다시 시도 · 다시 불러오기 · 다시 로그인 · 이 페이지 열기"
+  ],
+  "Proposal states": [
+    "open · accepted · dismissed · withdrawn",
+    "열림 · 받음 · 버림 · 철회됨"
+  ],
+  "No progress": [
+    "No progress recorded yet. Ask your AI to record each stage with the corthex-hub skill.",
+    "아직 단계별 진행 상태를 기록하지 않았습니다. AI에게 corthex-hub 스킬로 기록해 달라고 하세요."
+  ],
+  "Nothing pushed": [
+    "Nothing has been pushed to this server yet. It shows each pushed project's stages, checks and pictures. · To push a project: · register it with the corthex skill; · list it in `nexus.push` with this server's address in `nexus.url`; · set the service token's two environment variables, `CORTHEX_NEXUS_CLIENT_ID` and `CORTHEX_NEXUS_CLIENT_SECRET`; · then have the agent show a dry run and push.",
+    "아직 이 서버에 올라온 프로젝트가 없습니다. 이 서버는 올라온 프로젝트마다 단계, 점검, 그림을 보여 줍니다. · 프로젝트를 올리려면: · corthex 스킬로 등록하고, · `nexus.push`에 넣고 `nexus.url`에 이 서버의 주소를 적고, · 서비스 토큰의 환경 변수 두 개 `CORTHEX_NEXUS_CLIENT_ID`와 `CORTHEX_NEXUS_CLIENT_SECRET`을 설정한 뒤, · AI에게 미리 보기를 보이고 올려 달라고 하세요."
   ]
 };
 export function words(key,lang="en",values={}) {

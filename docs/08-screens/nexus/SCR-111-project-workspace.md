@@ -15,7 +15,7 @@ Path `/p/{project}`, which leads to the project's current stage (API-153), and a
 | The view's code: its core file, and the read-only editor of a pictured stage (SCR-112) | API-104 |
 | The project's parts and, for the shown part, its 13 stages in six groups, each with its number, name, state, item count, whether it has a picture and how many of its entries are in my turn | API-158 (`stages`), first from the page's data |
 | The project's name, repository, the snapshot's commit and time | API-158 (`project`) |
-| What is open beside the stage, and the list or the picture | The page's address after `#`: `talk=`, `item=`, `view=list`, and `step=` on a DDD board |
+| What is open beside the stage, and the list or the picture | The page's address after `#`: `talk=`, `item=`, `view=list`, `filter=left`, with which the first page's agent to-do opens the list filtered to what is left (SCR-110), and `step=` on a DDD board |
 | The tab open under 1,024 pixels | The address's panel, else the stage |
 
 ## Actions

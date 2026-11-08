@@ -19,3 +19,12 @@ export const codeMessage=(code,lang,values={})=>fill(words(code,lang).split(SEPA
 const LEGEND=Object.freeze({done:0,in_progress:1,not_started:2,skipped:3,unknown:4,picture:5});
 export const legendWord=(name,lang)=>label("Legend",LEGEND[name]??LEGEND.unknown,lang).replace(/^[^\p{L}\p{N}]+\s+/u,"");
 export const STATES=Object.freeze(["done","in_progress","not_started","skipped","unknown"]);
+// Why a picture is not current, in the words of 0.2's picture view (SCR-105's "Not
+// current"): its three reasons, the second and third after the first's opening words.
+const NOT_CURRENT=Object.freeze({size:0,"source-gone":1,"other-repository":2});
+export function notCurrentWhy(why,commit,lang){
+  const ko=lang==="ko",versions=words("Not current",lang,{commit}).split(ko?" 또는: ":" Or: "),index=NOT_CURRENT[why]??0;
+  if(index===0)return versions[0];
+  const first=versions[0],cut=first.indexOf(ko?". ":": ");
+  return first.slice(0,cut+2)+versions[index];
+}

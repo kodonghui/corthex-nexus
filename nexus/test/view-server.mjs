@@ -9,10 +9,11 @@ import {viewSnapshot}from"./view-fixtures.js";
 const access=await testAccess(),env={...access.env,DB:fakeD1(),NEXUS_LANGUAGE:"en"},template=readFileSync(new URL("../src/hub.html",import.meta.url),"utf8"),folder=new URL("../src/view-code/",import.meta.url),manifestFile=new URL("sizes.json",folder),code={};
 let stamp=0,views;function reloadBuild(){const next=statSync(manifestFile).mtimeMs;if(next===stamp)return;const manifest=JSON.parse(readFileSync(manifestFile));for(const f of manifest.files)code[f.name]={type:f.type,body:readFileSync(new URL(f.path,folder))};views=createViews(code,manifest.entries);stamp=next;}reloadBuild();
 let sequence=0;const writes=[];
-async function call(method,path,body,kind="user"){
+async function callIn(target,method,path,body,kind="user"){
  const headers={...access.headers(kind),"Content-Type":"application/json","Nexus-Session":"qa-fixture","Idempotency-Key":JSON.stringify("nw_"+(++sequence).toString(16).padStart(12,"0"))};
- const response=await handle(new Request("http://127.0.0.1"+path,{method,headers,...(body===undefined?{}:{body:JSON.stringify(body)})}),env,access.ctx,template,views);const data=await response.json();if(!response.ok)throw new Error(JSON.stringify(data));return data;
+ const response=await handle(new Request("http://127.0.0.1"+path,{method,headers,...(body===undefined?{}:{body:JSON.stringify(body)})}),target,access.ctx,template,views);const data=await response.json();if(!response.ok)throw new Error(JSON.stringify(data));return data;
 }
+const call=(...args)=>callIn(env,...args);
 for(const project of["qa-views","qa-views-reply","qa-views-overview"])await call("POST","/api/snapshots",viewSnapshot(project),"agent");
 if(process.env.NEXUS_QA_TALL_SITEMAP==="1"){
  const project="qa-tall-sitemap",snapshot=viewSnapshot(project),sitemap=snapshot.pictures.find(p=>p.stage==="07-sitemap");
@@ -96,13 +97,52 @@ if(process.env.NEXUS_QA_PAGES==="1"){
  const mine=await call("POST",base+"/comments",{part:"sample",stage:"05-erd",item:"TBL-001",text:"Synthetic question for the page suite"},"agent");
  Object.assign(pages,{project,parts:snapshot.project.parts,title:snapshot.project.title,mine:mine.id});
 }
+// The first page (TASK-273): my turn with each kind of entry and those that its suite
+// answers, the agent to-do, two cards in different orders by name and by push, and two
+// more servers, chosen by a cookie, for SCR-110#nothing-waits and SCR-110#empty. Only the
+// first page's suite opts in; its "other tab" writes go through /api like the page's.
+const home={},spaces={};
+if(process.env.NEXUS_QA_HOME==="1"){
+ const project="qa-home",base="/api/spaces/"+project,snapshot=viewSnapshot(project),where="docs/qa-sample.md:1";
+ snapshot.project.title='<b>QA</b> 첫 페이지 & __CORTHEX_VIEW_DATA__ 합성 가게의 아주 긴 이름이 줄을 넘는 경우';
+ snapshot.project.parts=["sample","gone"];
+ for(const stage of Object.values(snapshot.stages))stage.parts.gone=structuredClone(stage.parts.sample);
+ snapshot.items=[{id:"TBL-001",kind:"table",stage:"05-erd",where,title:"orders"},{id:"SCR-001",kind:"screen",stage:"07-sitemap",where,title:"Home"},{id:"REQ-107",kind:"requirement",stage:"02-prd",where,title:"Lead 0.2's addresses to their new places"}];
+ snapshot.summary={...snapshot.summary,items:snapshot.items.length};
+ await call("POST","/api/snapshots",snapshot,"agent");
+ const proposal=async n=>(await call("POST",base+"/proposals",{part:"sample",stage:"05-erd",items:["TBL-001"],reason:"Synthetic proposal "+n,change:"Describe the reference constraint "+n+".",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);"},"agent")).id;
+ const asks=async(asks,{part="sample",stage="07-sitemap",item="SCR-001",quote}={})=>(await call("POST",base+"/comments",{part,stage,item,...(quote?{quote}:{}),text:`Synthetic ${asks}: keep SCR-105's address as a redirect, so that links from 0.2 keep working.`,asks},"agent")).id;
+ for(const name of["accept","dismiss","stale","retry","reused","sending"])home[name]=await proposal(name);
+ home.recommended=await asks("recommended");home.taken=await asks("recommended");home.closed=await asks("recommended");
+ home.checkpoint=await asks("checkpoint",{stage:"05-erd",item:""});home.gonePart=await asks("checkpoint",{part:"gone",stage:"05-erd",item:""});
+ home.question=await asks("answer",{stage:"01-domain",item:"",quote:"Ordering"});
+ // The agent's to-do: a comment of the user's that waits for it.
+ home.forAgent=(await call("POST",base+"/comments",{part:"sample",stage:"07-sitemap",item:"SCR-001",text:"Synthetic comment that waits for the agent"})).id;
+ // The part "gone" leaves the snapshot, with a checkpoint still asked for on it, and the
+ // sitemap's newest source is in another repository, so that its picture is not current.
+ const again=structuredClone(snapshot);again.project.parts=["sample"];again.generated_at=new Date(Date.parse(snapshot.generated_at)+1000).toISOString();
+ for(const stage of Object.values(again.stages))delete stage.parts.gone;
+ again.pictures=again.pictures.filter(p=>p.stage!=="07-sitemap");again.left_out=[{part:"sample",stage:"07-sitemap",why:"other-repository"}];
+ await call("POST","/api/snapshots",again,"agent");
+ // A second project, pushed last: first by the last push, second by name. The suite asks
+ // for it to be pushed again (/__qa/push-again), as the agent would, to see a card change.
+ const two=viewSnapshot("qa-home-two");two.generated_at=new Date(Date.parse(again.generated_at)+1000).toISOString();
+ await call("POST","/api/snapshots",two,"agent");
+ home.pushAgain=async()=>{two.generated_at=new Date(Math.max(Date.now(),Date.parse(two.generated_at)+1000)).toISOString();return call("POST","/api/snapshots",two,"agent");};
+ Object.assign(home,{project,second:"qa-home-two",title:snapshot.project.title});
+ spaces.quiet={...env,DB:fakeD1()};spaces.empty={...env,DB:fakeD1()};
+ await callIn(spaces.quiet,"POST","/api/snapshots",viewSnapshot("qa-home-quiet"),"agent");
+ await callIn(spaces.quiet,"POST","/api/spaces/qa-home-quiet/comments",{part:"sample",stage:"05-erd",item:"TBL-001",text:"Synthetic comment that waits for the agent"});
+}
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{})}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{})}));return;}
+ if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&home.pushAgain){const pushed=await home.pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
  const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const bytes=Buffer.concat(chunks);
  if(incoming.method==="POST")writes.push({path:url.pathname,id:incoming.headers["idempotency-key"],body:JSON.parse(bytes)});
- const currentEnv={...env,NEXUS_LANGUAGE:url.searchParams.get("lang")==="ko"?"ko":"en"};
+ const space=/(?:^|;\s*)nexus-qa-space=(quiet|empty)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];
+ const currentEnv={...(space&&spaces[space]?spaces[space]:env),NEXUS_LANGUAGE:url.searchParams.get("lang")==="ko"?"ko":"en"};
  const response=await handle(new Request("http://"+incoming.headers.host+incoming.url,{method:incoming.method,headers,...(["GET","HEAD"].includes(incoming.method)?{}:{body:bytes})}),currentEnv,access.ctx,template,views);
  outgoing.writeHead(response.status,Object.fromEntries(response.headers));outgoing.end(Buffer.from(await response.arrayBuffer()));
  }catch{outgoing.writeHead(500);outgoing.end("Synthetic fixture failed");}});
