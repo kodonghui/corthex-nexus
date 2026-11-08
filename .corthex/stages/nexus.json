@@ -214,8 +214,8 @@
           "date": "2026-11-04"
         }
       ],
-      "next": "Add the 0.2.3 patch and redesign tasks",
-      "updated": "2026-11-06T09:35:44+00:00"
+      "next": "Phase ②'s tasks, after its stages 07 to 09; the redesign's build is TASK-265 to TASK-278",
+      "updated": "2026-11-08T08:08:57+00:00"
     },
     "11-development": {
       "state": "in_progress",
@@ -233,8 +233,8 @@
           "date": "2026-11-05"
         }
       ],
-      "next": "Release 0.2.3: folded hub checks, Korean texts, item-less contexts, the wheel and panel words",
-      "updated": "2026-11-06T09:35:44+00:00"
+      "next": "Build the redesign, TASK-265 to TASK-278, from the contract; the 0.2.3 release waits for the maintainer",
+      "updated": "2026-11-08T08:09:03+00:00"
     },
     "12-qa": {
       "state": "in_progress",
