@@ -105,10 +105,15 @@
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/05-erd/nexus.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's tables: TBL-118 to TBL-124, migration 5 and the changes to six tables, as written, together with stage 06",
+          "by": "the maintainer",
+          "date": "2026-11-08"
         }
       ],
-      "next": "Phase 2's checkpoint of stages 05 and 06 for TBL-119 to TBL-124, migration 5 and the changes to six tables, and the redesign's checkpoint 3 for TBL-105, both in the design pull request",
-      "updated": "2026-11-07T15:41:24+00:00"
+      "next": "The redesign's checkpoint 3 for TBL-105, in the design pull request",
+      "updated": "2026-11-08T00:39:00+00:00"
     },
     "06-api": {
       "state": "in_progress",
@@ -118,10 +123,15 @@
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/06-api/nexus.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's interfaces: API-161 to API-176, the thirteen changed interfaces and the nineteen error codes, as written, together with stage 05",
+          "by": "the maintainer",
+          "date": "2026-11-08"
         }
       ],
-      "next": "Phase 2's checkpoint of stages 05 and 06 for API-161 to API-176 and the thirteen changed interfaces, and the redesign's checkpoint 3 for API-151 to API-159, both in the design pull request",
-      "updated": "2026-11-07T15:41:24+00:00"
+      "next": "The redesign's checkpoint 3 for API-151 to API-159, in the design pull request",
+      "updated": "2026-11-08T00:39:00+00:00"
     },
     "07-sitemap": {
       "state": "in_progress",
