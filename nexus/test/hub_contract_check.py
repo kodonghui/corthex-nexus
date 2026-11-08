@@ -54,8 +54,8 @@ try:
         file = "docs/01-domain/nexus." + language
         data = hub.companion("domain").parse([(file, (root / file).read_text(encoding="utf8"))], checks, helper, "nexus")
         validate("NEXUS domain " + language, "DomainSource", data)
-        if len(data.get("timeline", [])) != 5:
-            raise SystemExit("the NEXUS domain fixture must retain all five timeline lanes")
+        if len(data.get("timeline", [])) != 7:
+            raise SystemExit("the NEXUS domain fixture must retain all seven timeline lanes")
     checks = []
     row = "| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| User | Summary | Save | Order | Saved |\n"
     data = hub.companion("domain").parse([("fixture.md", row + "\n## CTX-001 Shop\n## Other section\n" + row)], checks, helper, "nexus")

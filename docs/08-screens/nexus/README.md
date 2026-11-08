@@ -2,11 +2,11 @@
 
 [한국어](README.ko.md)
 
-Stage 08 of CORTHEX's own project, for NEXUS 0.2: one definition for each of the nine screens of the [sitemap](../../07-sitemap/nexus.md), with the data that it shows and the request that each piece comes from, its actions with their results and failures, and every state with the responses that lead to it; and in this file the rules that hold on every screen, the final words of the messages, and the [wireframes](wireframes.html), drawn from the definitions. Status: drafted on 2026-11-03, while the memory plugin is being built, as the maintainer chose on 2026-11-02, on the recommendations of the user flows, the functional spec, the server's data, the interfaces and the sitemap. The maintainer passed its checkpoint the same day, together with stages 03 to 07. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added a DDD board's step control to the picture view, with its words, which the maintainer passed the same day ([For the checkpoint](#for-the-checkpoint)). When a file and its Korean translation differ, the English file is the source.
+Stage 08 of CORTHEX's own project, for NEXUS 0.2: one definition for each of the nine screens of the [sitemap](../../07-sitemap/nexus.md), with the data that it shows and the request that each piece comes from, its actions with their results and failures, and every state with the responses that lead to it; and in this file the rules that hold on every screen, the final words of the messages, and the [wireframes](wireframes.html), drawn from the definitions. Status: drafted on 2026-11-03, while the memory plugin is being built, as the maintainer chose on 2026-11-02, on the recommendations of the user flows, the functional spec, the server's data, the interfaces and the sitemap. The maintainer passed its checkpoint the same day, together with stages 03 to 07. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added a DDD board's step control to the picture view, with its words, which the maintainer passed the same day ([For the checkpoint](#for-the-checkpoint)). The maintainer's redesign of 2026-11-06 added a second tree to the sitemap, SCR-110 to SCR-117; their definitions were drafted on 2026-11-07 for its checkpoint 3, with their words in [redesign-words.md](redesign-words.md) and every state drawn in the look that its checkpoint 2 chose, in stage 09's [redesign.html](../../09-mockup/nexus/redesign.html) ([The redesign's screens](#the-redesigns-screens)). When a file and its Korean translation differ, the English file is the source.
 
-Inputs: the sitemap in [docs/07-sitemap/nexus.yaml](../../07-sitemap/nexus.yaml) (SCR-101 to SCR-109), with its [notes for stage 08](../../07-sitemap/nexus.md#stage-08-screen-states); the functional spec in [docs/04-functional-spec/nexus.md](../../04-functional-spec/nexus.md), above all SPEC-119, SPEC-122 to SPEC-127, SPEC-131 to SPEC-134, SPEC-138, SPEC-139, SPEC-141 and SPEC-142 and its [notes for stages 07 and 08](../../04-functional-spec/nexus.md#stages-07-and-08-screens); the interfaces in [docs/06-api/nexus.md](../../06-api/nexus.md) and the contract [nexus.openapi.yaml](../../06-api/nexus.openapi.yaml), whose responses and [error codes](../../06-api/nexus.md#error-codes) the states follow, with the [notes for stages 07 and 08](../../06-api/nexus.md#stages-07-and-08-screens); the server's data in [docs/05-erd/nexus.md](../../05-erd/nexus.md), for the marks that come from it; the user flows that run in a browser, FL-105 to FL-107, FL-109, FL-110, FL-113, FL-115 and FL-116, in [docs/03-user-flow/nexus/](../../03-user-flow/nexus/README.md); and phase 1's hub page as it runs, [hub.html](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/assets/hub.html), whose states the hub page and its views keep. The memory plugin has no screens, so this stage has no file for it.
+Inputs: the sitemap in [docs/07-sitemap/nexus.yaml](../../07-sitemap/nexus.yaml) (SCR-101 to SCR-109), with its [notes for stage 08](../../07-sitemap/nexus.md#stage-08-screen-states); the functional spec in [docs/04-functional-spec/nexus.md](../../04-functional-spec/nexus.md), above all SPEC-119, SPEC-122 to SPEC-127, SPEC-131 to SPEC-134, SPEC-138, SPEC-139, SPEC-141 and SPEC-142 and its [notes for stages 07 and 08](../../04-functional-spec/nexus.md#stages-07-and-08-screens); the interfaces in [docs/06-api/nexus.md](../../06-api/nexus.md) and the contract [nexus.openapi.yaml](../../06-api/nexus.openapi.yaml), whose responses and [error codes](../../06-api/nexus.md#error-codes) the states follow, with the [notes for stages 07 and 08](../../06-api/nexus.md#stages-07-and-08-screens); the server's data in [docs/05-erd/nexus.md](../../05-erd/nexus.md), for the marks that come from it; the user flows that run in a browser, FL-105 to FL-107, FL-109, FL-110, FL-113, FL-115 and FL-116, in [docs/03-user-flow/nexus/](../../03-user-flow/nexus/README.md); and phase 1's hub page as it runs, [hub.html](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/assets/hub.html), whose states the hub page and its views keep. The memory plugin has no screens, so this stage has no file for it. For the redesign: the sitemap's second tree, SCR-110 to SCR-117, with its [notes for stage 08](../../07-sitemap/nexus.md#stage-08-screen-states); the rows SPEC-143 to SPEC-156; the flows FL-117 to FL-119; stage 06's [redesign's interfaces](../../06-api/nexus.md#the-redesigns-interfaces), API-151 to API-159, with the changes to 0.2's; the glossary's TERM-135 to TERM-138; and the look of its checkpoint 2 in [the redesign's look](../../09-mockup/nexus/README.md#the-redesigns-look).
 
-The stage's default human view is grayscale wireframes drawn from the definitions. Here they are one page, [wireframes.html](wireframes.html), with a frame for each state at 320 and 1440 pixels, and people look at it as a private published page whose link is in the project's records, since the repository is public. The definitions are read in the Korean copy in the project's Notion records, with the tables as databases. `.corthex/project.json` records the choice.
+The stage's default human view is grayscale wireframes drawn from the definitions. Here they are one page, [wireframes.html](wireframes.html), with a frame for each state at 320 and 1440 pixels, and people look at it as a private published page whose link is in the project's records, since the repository is public. The definitions are read in the Korean copy in the project's Notion records, with the tables as databases. `.corthex/project.json` records the choice. The redesign's states are drawn once, in the look of its checkpoint 2, in stage 09's [redesign.html](../../09-mockup/nexus/redesign.html), and seen the same way ([choice 13](#choices-this-stage-made)).
 
 ## The screens
 
@@ -20,6 +20,17 @@ The stage's default human view is grayscale wireframes drawn from the definition
 - [SCR-108 Proposal](SCR-108-proposal.md), `#proposal={proposal}`: loading, normal, stale, error, permission and gone.
 - [SCR-109 Stage overview](SCR-109-stage-overview.md), `/overview/{project}/{part}/{stage}`: loading, normal, empty, stale, error and permission.
 
+The redesign's screens, planned until they are built, in stage 07's [second tree](../../07-sitemap/nexus.md#the-redesigns-screens):
+
+- [SCR-110 Home](SCR-110-home.md), `/`: loading, normal, nothing-waits, empty, stale, error and permission.
+- [SCR-111 Project workspace](SCR-111-project-workspace.md), `/p/{project}`: loading, normal, unrecorded, stale, error and permission.
+- [SCR-112 Picture stage](SCR-112-picture-stage.md), `/p/{project}/{part}/{picture stage}`: loading, normal, large, empty, stale, error, code-failed and permission.
+- [SCR-113 Document stage](SCR-113-document-stage.md), `/p/{project}/{part}/{document stage}`: loading, normal, empty, not-read, no-match, stale, error and permission.
+- [SCR-114 Talk](SCR-114-talk.md), `#talk={comment}`: loading, normal, narrowed, empty, stale, error, permission and gone.
+- [SCR-115 Item](SCR-115-item.md), `#item={id}`: loading, normal, gone, error and permission.
+- [SCR-116 Search](SCR-116-search.md), `{any page}#q={words}`: loading, normal, short, empty, error and permission.
+- [SCR-117 Full checks](SCR-117-full-checks.md), `/hub`: normal, empty, stale, error and permission.
+
 ## How to read a definition
 
 - **Purpose**: one sentence, from the flows that pass through the screen, with their FL IDs. Then the screen's path, who can see it, and whether it was built in phase 1 or is new in NEXUS 0.2.
@@ -27,7 +38,7 @@ The stage's default human view is grayscale wireframes drawn from the definition
 - **Actions**: each with its result and its failure, which names the state that the failure leads to.
 - **States**: each state's ID, written as `SCR-105#empty`, what the user sees and can do, and the responses that lead to it, written as `API-111#404`, with the error codes that decide it in brackets. Every response that the contract lists for a request of the screen leads to a state, and every code that the contract gives for that response is named. Under the table, the states of the stage that do not apply, with why.
 - **Kinds of cases**: the 12 kinds that stages 04, 06 and 12 use, each with what the screen shows, or why it does not reach the screen.
-- **Layout**: the screen's regions at 320 and 1440 pixels, the narrowest and widest widths that NEXUS supports (REQ-101, REQ-146), which the wireframes draw.
+- **Layout**: the screen's regions at 320 and 1440 pixels, the narrowest and widest widths that NEXUS supports (REQ-101, REQ-146), which the wireframes draw. The redesign's definitions give them under 1,024 pixels, drawn at 390, the width of its checkpoints, and checked down to 320, and from 1,024 pixels, drawn at 1,440; the workspace has a third width, from 1,024 to 1,279, where the talk folds ([rule 16](#the-redesigns-screens)).
 
 ## Every screen
 
@@ -45,6 +56,19 @@ The stage's default human view is grayscale wireframes drawn from the definition
 12. **Lists and limits.** A list that a read caps shows how many it holds of its total, such as "50 of 73"; the stage overview lists 50 of each and links the picture view, which lists 500. Counts over 999 show as `999+` (SPEC-123).
 
 Pending text boxes stay readable in their normal frozen foreground/background colors while read-only: users can focus, select and copy their existing text. Disabled opacity is reserved for disabled controls.
+
+## The redesign's screens
+
+The twelve rules hold on SCR-110 to SCR-116 too, with these six, from the redesign's rows and its two checkpoints. SCR-117 is the hub page, which keeps its own.
+
+13. **Shapes and words.** A stage's state is a shape and a word, ✓ done, ◐ in progress, ○ not started, – skipped and ? not recorded, drawn as icons, since the fonts lack some of the shapes (BUG-596); whose turn it is, is written in words; a count or a mark has a name that says what it counts (REQ-236). No state is told by colour alone.
+14. **Hit areas.** Controls are drawn 34 pixels high, or 28 in a dense row such as the zoom's, and wherever a finger can select them they take a hit area of 44 pixels (`size.target`) around what is drawn, without moving what is next to them. Under 1,024 pixels, the buttons that answer and the tabs are drawn 44 pixels high.
+15. **Reading before the code.** The server draws each page's reading parts from the page's data: the first page's lists and cards, a stage's head and list, the talk, and a picture's first SVG are text and links before the view's code runs, in the layout that the code keeps, so that nothing moves when it runs. The controls that write show disabled until it runs. If it does not load, the page stays readable, with "The page's buttons could not load. Load the page again to answer here." in a bar ([choice 15](#choices-this-stage-made)).
+16. **Widths.** Under 1,024 pixels the first page is one column and the workspace shows the stage, its talk and the selected item as tabs (SPEC-155); from 1,024 to 1,279 pixels the workspace keeps the list of stages and the stage, and the talk folds into "Talk ({n})" in the stage's head, which opens it over the stage's right edge; from 1,280 pixels it has its three columns. Nothing scrolls the page sideways from 320 pixels (REQ-101, REQ-146) ([choice 14](#choices-this-stage-made)).
+17. **One top bar.** Every page of the redesign has the same top bar: NEXUS, which leads to the first page, where the user is, the search (SCR-116) and Full checks (SCR-117). It has no account menu ([choice 16](#choices-this-stage-made)).
+18. **The agent's turn.** Wherever the user writes to the agent or answers it, the page says that the agent reads it at its next work on the project, and the first page says that the server runs no AI (REQ-121, hotspot 6 of stage 01).
+
+The redesign's requests are planned in stage 06's [interfaces](../../06-api/nexus.md#the-redesigns-interfaces), so its definitions name their responses as stage 06 describes them, with 0.2's error codes and two new ones, `item_not_found` and `not_recommended`, whose words are in [redesign-words.md](redesign-words.md). The contract takes them when the redesign is built, and the states are checked against it then ([Notes for later stages](#notes-for-later-stages)).
 
 ## Responses and states
 
@@ -230,6 +254,10 @@ NEXUS 0.2.3 fixes the current screens without changing their structure. These wo
 | No screen | SCR-106, SCR-109: the discrepancy reason no-screen | No 07 screen names this read model. | 이 읽기 모델을 쓰는 07 화면이 없습니다. |
 | Removed mark | SCR-105: in the comment line of a 05 table in the picture, after its ID and context, when the table is marked removed | removed | 지움 |
 
+### Words the redesign added
+
+The redesign's definitions, SCR-110 to SCR-117, need the words in [redesign-words.md](redesign-words.md), drafted on 2026-11-07 for its checkpoint 3; for the codes and states that 0.2 already has, they keep the messages above. The words are in a file of their own because `nexus/tools/messages.mjs` turns every table of this file into the words of 0.2's built views; since the redesign's build it turns that file's table into the redesign's words beside them, and the codes there, `not_recommended` and `item_not_found`, join 0.2's codes ([stage 11](#stage-11-development)).
+
 ## Choices this stage made
 
 The earlier stages left these to stage 08. The checkpoint of 2026-11-03 kept each as it is.
@@ -247,6 +275,16 @@ The earlier stages left these to stage 08. The checkpoint of 2026-11-03 kept eac
 11. The human view: the wireframes on one page, published as a private page whose link is in the project's records, as the repository is public, and the definitions in the Korean copy in Notion with the tables as databases.
 12. A part that no item holds, such as a table or a screen drawn without an ID, opens the item panel for the picture itself, with the part's name as its heading and as the quote of the comments left there (SPEC-126). No ID names the part, so this panel has no address of its own: a reload shows the picture, the part's mark opens the panel again, and its unsent text comes back once the part is selected.
 
+The redesign's choices, drafted on 2026-11-07 for its checkpoint 3:
+
+13. Every state is drawn once, in the look that the redesign's checkpoint 2 chose, in stage 09's [redesign.html](../../09-mockup/nexus/redesign.html), instead of grey wireframes first: checkpoint 1 passed the structure in grey and checkpoint 2 the look, so what is left to see is each state in that look. The page serves both stages and lives with the mockups, since it is drawn with the tokens.
+14. Three widths for the workspace (rule 16). At 1,024 pixels, three columns would leave the picture 376 pixels between a list of 248 and a talk of 400, so the talk folds into a button there until 1,280 pixels, which keeps the stage at least 776 pixels wide.
+15. The server draws the pages' reading parts (rule 15), so that a phone reads my turn before the view's code arrives, which stage 12 measures on the first page as REQ-149 measures the picture, and so that a page whose code fails stays readable, as the first picture decision of 2026-11-04 made the picture's SVG.
+16. No account menu. Checkpoint 1's wireframes drew one; no row asks for it and no screen may show an identity (rule 11), so the top bar has none, and signing out stays Access's own.
+17. In Korean the agent is AI, as the glossary names the agent to-do (TERM-121, AI 할 일) and the turn (TERM-138, AI 차례), and as checkpoints 1 and 2 drew it; 0.2's screens keep 에이전트.
+18. The stage record opens in the side, in the talk's place, so that the picture or the list stays in sight while the user reads the record or passes the checkpoint; under 1,024 pixels, as a sheet.
+19. An entry answered on the first page stays where it was, marked with its result, until the page is loaded again, and my turn's count drops at once, so that the list does not move under the user's finger. No answer asks for a confirmation: the buttons say what they do, and a checkpoint passed this way can be withdrawn in its stage record until a record holds it (SPEC-143).
+
 ## Changes to earlier stages
 
 Applied on 2026-11-03, when the checkpoint passed: 1 to 3 to the interfaces. The last, which corrects two slips of stage 07, was made with this stage.
@@ -255,6 +293,13 @@ Applied on 2026-11-03, when the checkpoint passed: 1 to 3 to the interfaces. The
 2. Stage 06's [Reads](../../06-api/nexus.md#reads) say that the picture view of a project without a space shows `picture_not_found`, while the contract answers that page with `404` `space_not_found`. The sentence follows the contract, and this stage words that code's message so that it also fits a checkpoint's pass (API-128).
 3. Stage 06's notes for stages 07 and 08 list each screen's requests. The stage overview loads its code from API-104 too, as its policy says, and the proposal's panel reads its reflection with API-116 once the picture no longer lists it, closed or dismissed, to show its pull request.
 4. Stage 07's notes for stage 08 named REQ-099, the hub page's language, for the widths, which are REQ-101 and REQ-146; and its account of stage 06's examples named the template's two example screen IDs, which the hub then reported as mentioned but not defined. This change corrects both there, which changes no rule.
+
+Proposed with the redesign's definitions on 2026-11-07, for its checkpoint 3, and made in the same pull request, since the redesign's interfaces are planned:
+
+5. Stage 06, API-158: it also answers the project's name, repository and commit (`project`), the part's 13 stages with their states, item counts, pictures and counts of entries in my turn, for the workspace's list of stages (`stages`), and whether the project reads the stage, with why (`head.reads`), so that the workspace reads them again with the stage.
+6. Stage 06, API-118: a stage key outside the 13 is `400` `invalid_request` by the field `stage`, and a part that the stored snapshot does not hold is `404` `part_not_found`, codes that 0.2 has, so the contract adds none for them; it adds only `item_not_found` and `not_recommended`.
+7. Stage 06's notes for stages 07 and 08: the stage page also reads API-114 to API-116, for an opened comment, an opened proposal and a reflection that the talk no longer lists, and writes with API-127 to dismiss a reflection, as 0.2's panels do.
+8. Stage 06: the words of API-156 and API-158, `q`, take 200 characters at most.
 
 ## Checks run
 
@@ -272,7 +317,24 @@ Again on 2026-11-03, after the maintainer's choice to hold stage 01's event stor
 - The wireframes were not drawn again, so they do not draw the step control, as SCR-105's definition says; stage 09's mockups draw it.
 - The repository's checks pass, with 756 tests (12 skipped), and the hub's snapshot of this repository reads 1014 items with no checks.
 
+On 2026-11-07, for the redesign's checkpoint 3, on the eight definitions of SCR-110 to SCR-117, this file, [the redesign's words](redesign-words.md) and their Korean translations:
+
+- The stage's checks, by a script kept outside the repository, as before, with the redesign's own: each definition has its five sections in order; every piece of data names where it comes from; every action has a result and a failure; each state names the responses that lead to it; each of the stage's six states is defined or said not to apply; the 12 kinds of cases follow SCR-105's order, and the layout has a column for each width, three for SCR-111, while SCR-117 keeps SCR-101's; each of the 589 mentions of a state in this stage's files and stage 09's README names a defined state; the states that this file and its translation list for each screen match the definitions; the Korean translations hold the same states, responses, codes and named states; each response named for a request of the contract is one of its responses, and every response that the contract lists for the 13 requests of 0.2 that the screens call leads to a state; and each error code named is the contract's or one of the two of change 6. Eight definitions and 53 states, with no problem. The planned requests, API-151 to API-159, are checked against the contract once it takes them ([stage 11](#stage-11-development)).
+- What the script found: SCR-114 named no response of API-116, with which the talk reads a reflection that it no longer lists (change 7). Its normal, error, permission and gone states now name them, and the gone state shows the message of `edit_not_found`, "This reflection is not on the server.", in the proposal's entry.
+- Every link of the 44 files that the redesign changed or added under `docs/` resolves, with its anchor.
+- Stage 09's [redesign.html](../../09-mockup/nexus/redesign.html) draws each state at its widths, measured and looked at as stage 09's [checks](../../09-mockup/nexus/README.md#checks-run) record.
+- The hub's snapshot of this repository, with the core plugin at the commit that `hub-ref.json` pins, reads the eight definitions as the screen definitions of SCR-110 to SCR-117, with their states: 1,176 items, no error, and the same 628 warnings as on `main`, none of which names SCR-110 to SCR-117; its note of the plan's commit, that those eight screens have no screen definition yet, is gone.
+- What the repository's checks found: with the redesign's words as a table of this file, the views' test that the generated words match this file failed, since the generator reads every table of four columns. The words moved to [redesign-words.md](redesign-words.md), which it does not read.
+- The repository's checks with these files pass: `python -m unittest discover -s tests`, with 13 tests, `node --test nexus/test/*.test.js`, with 264 tests, the Worker's `wrangler deploy --dry-run` and `git diff --check`.
+
 ## For the checkpoint
+
+The redesign's checkpoint 3 passed on 2026-11-08 at 14:54 KST, with stage 09's states and tokens ([stage 09](../../09-mockup/nexus/README.md#for-the-checkpoint)): on a decision card in the project's thread, which asked whether to confirm checkpoint 3's drawings of the states and the values of the tokens as they are, the maintainer chose to confirm them as drawn ("그린 대로 확정 (추천)", confirm as drawn, recommended). The states of SCR-110 to SCR-117 stand as their definitions write them and stage 09 draws them. The points that this stage put to it:
+
+1. The 53 states of SCR-110 to SCR-117, as their definitions write them and stage 09's [redesign.html](../../09-mockup/nexus/redesign.html) draws them.
+2. Rules 13 to 18 of [the redesign's screens](#the-redesigns-screens), and choices 13 to 19.
+3. Changes 5 to 8 to stage 06, which the contract takes with the planned requests.
+4. The redesign's words in English and Korean, in [redesign-words.md](redesign-words.md).
 
 The maintainer's choice of 2026-11-03, to hold stage 01's event storming in NEXUS, passed at 16:54 KST the same day, together with the changes that it made to the other stages: on a decision card in the project's thread the maintainer chose to pass the step view and the work board as drawn ("모두 그린 대로 통과", pass all as drawn). The checkpoint covered: SCR-105's step control on a DDD board, the notice of a board without a timeline and their words, and the workshop of phase ②, whose states come with that phase. The wireframes predate the step control; the mockups of stage 09 draw it.
 
@@ -287,16 +349,19 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 07: on a decision 
 
 ### Stage 09: mockups
 
+- For the redesign: [redesign.html](../../09-mockup/nexus/redesign.html) draws every state of SCR-110 to SCR-117 in the look of checkpoint 2, at 390 and 1,440 pixels, with SCR-111 at 1,152 too, in both themes and languages; its checkpoint 3 froze the tokens that it uses on 2026-11-08.
 - Two candidates for each new screen, SCR-105 to SCR-109, the phone first, at 320 pixels, from these frames; each state is a frame to design. The hub page keeps phase 1's design, with the additions of 0.2 on SCR-101 and SCR-104.
 - The marks on a picture's items, and "Accepted, not yet reflected", need a form that reads on a full DDD board and in both themes, and a size that a finger can select.
 - The step control of a DDD board, at both widths, and the notice of a board without a timeline (SPEC-141).
 
 ### Stage 10: work breakdown
 
+- For the redesign: the pages that the server draws before the code (rule 15), the three widths of the workspace (rule 16), and the planned requests' states, which come with API-151 to API-159.
 - The message page of change 1 comes with the server's pages; the views' states with the views; the hub page's states of 0.2 in [hub.html](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/assets/hub.html), which [nexus/src/hub.html](../../../nexus/src/hub.html) copies.
 
 ### Stage 11: development
 
+- For the redesign: each state built against the contract's mock once the contract takes API-151 to API-159, with this file's responses checked against it then; the server's first drawing and the view's code sharing one layout, so that nothing moves when the code runs; the hit areas of rule 14 measured, not assumed; and the views' words generated from [redesign-words.md](redesign-words.md) too, for the screens that use them.
 - Each state is built against Prism's mock, which returns any response that the contract lists on request, before the server is ready.
 - The view's requests: `redirect: "manual"`, an abort after 30 seconds, the write ID kept with the text in the browser's storage, and an `opaqueredirect` reply read as an expired sign-in.
 - The static line in each view's HTML, which the core file hides when it runs, and the editor loaded on its own, so that its failure leaves the list of items.
@@ -304,5 +369,6 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 07: on a decision 
 
 ### Stage 12: QA
 
+- For the redesign: a case for each of the 53 states, at 390 and 1,440 pixels, with SCR-111 at 1,152 too, in both themes and languages, walked as FL-117 to FL-119 by the stage's browser agents; every address of 0.2 opened to see where it leads; a page whose code does not load; and the hit areas measured at 390 pixels.
 - A test case for each state, such as `SCR-105#large`, at 320 and 1440 pixels, walked by the stage's browser agents, first with the mock's responses and then on a development server behind Access.
 - By hand: a sign-in that expires in an open view, a reply that is lost, a second tab that closes a comment, and a request that waits more than 30 seconds.

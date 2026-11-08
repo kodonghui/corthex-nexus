@@ -2,9 +2,9 @@
 
 [한국어](nexus.ko.md)
 
-Stage 05 of CORTHEX's own project, for NEXUS 0.2: the tables of the NEXUS server, in [nexus.sql](nexus.sql), and the files that go with them: the snapshot that carries a project to the server, the stage records in the project's repository and the hub's outbox on a device. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows and the functional spec. The maintainer passed its checkpoint on 2026-11-03, together with stages 03, 04 and 06 to 08, so the schema is frozen for NEXUS 0.2: a later breaking change needs the maintainer's decision and a new schema version. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the timeline to the DDD board's picture source, which changes no table, and left the work boards of phase ② to that phase; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). When this file and its Korean translation differ, this file is the source.
+Stage 05 of CORTHEX's own project, for NEXUS 0.2: the tables of the NEXUS server, in [nexus.sql](nexus.sql), and the files that go with them: the snapshot that carries a project to the server, the stage records in the project's repository and the hub's outbox on a device. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows and the functional spec. The maintainer passed its checkpoint on 2026-11-03, together with stages 03, 04 and 06 to 08, so the schema is frozen for NEXUS 0.2: a later breaking change needs the maintainer's decision and a new schema version. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the timeline to the DDD board's picture source, which changes no table, and left the work boards of phase ② to that phase; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). The maintainer's redesign of 2026-11-06 changes comments (TBL-105) and checkpoints (TBL-110), for talk on the items of every stage, choice ② A of its checkpoint 1; after its checkpoint 3 passed on 2026-11-08, its build made the change in nexus.sql and migration 4 ([The redesign's change](#the-redesigns-change)). Phase ②, editing on a PC and the workshops of stage 01, whose stages 01 to 04 passed on 2026-11-06 and 2026-11-07, plans the tables TBL-118 to TBL-124 and changes of six tables of 0.2, which nexus.sql and a migration 5 take when phase ② is built, after the redesign ([Phase ②'s tables](#phase-②s-tables)). This stage's checkpoint for phase ②, with stage 06's, passed them at 09:33 KST on 2026-11-08 ([For the checkpoint](#for-the-checkpoint)). When this file and its Korean translation differ, this file is the source.
 
-Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-142), above all its [notes for stage 05](../04-functional-spec/nexus.md#stage-05-the-servers-data-and-the-files); the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md), of which REQ-116, REQ-118, REQ-120, REQ-123 and REQ-124 shape the data most; the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps and whose aggregates the tables name; and phase 1's table in [nexus/src/store.js](../../nexus/src/store.js). Cloudflare's D1 documents were read on 2026-11-02: its [limits](https://developers.cloudflare.com/d1/platform/limits/), [pricing](https://developers.cloudflare.com/d1/platform/pricing/), [foreign keys](https://developers.cloudflare.com/d1/sql-api/foreign-keys/), [JSON functions](https://developers.cloudflare.com/d1/sql-api/query-json/) and [batches](https://developers.cloudflare.com/d1/worker-api/d1-database/).
+Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-156, and SPEC-170 to SPEC-186 for phase ②), above all its [notes for stage 05](../04-functional-spec/nexus.md#stage-05-the-servers-data-and-the-files); the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md), of which REQ-116, REQ-118, REQ-120, REQ-123 and REQ-124 shape the data most; the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps and whose aggregates the tables name; and phase 1's table in [nexus/src/store.js](../../nexus/src/store.js). Cloudflare's D1 documents were read on 2026-11-02: its [limits](https://developers.cloudflare.com/d1/platform/limits/), [pricing](https://developers.cloudflare.com/d1/platform/pricing/), [foreign keys](https://developers.cloudflare.com/d1/sql-api/foreign-keys/), [JSON functions](https://developers.cloudflare.com/d1/sql-api/query-json/) and [batches](https://developers.cloudflare.com/d1/worker-api/d1-database/).
 
 ## Approved runtime placement (2026-11-04)
 
@@ -14,9 +14,9 @@ The default origin is Node with a SQLite file on the existing VPS; the Worker co
 
 - The server's tables are in [nexus.sql](nexus.sql), the schema of an empty database. Each table's comment gives its TBL ID, its context, the terms of the DDD board's aggregates that it keeps, or `terms: none`, and the behaviours (SPEC) that read or write it. The project hub reads these comments, and from NEXUS 0.2 it draws the ERD picture of the `nexus` part from that file (SPEC-107). This file explains the tables and defines the other records, the files in [Records](#records).
 - `From` and the table comments name every behaviour that reads or writes a record, and [Data each behaviour reads and writes](#data-each-behaviour-reads-and-writes) lists the same the other way round.
-- Status: `built` for phase 1 as it runs (the snapshots table, the saved snapshot and the status file), `active` for what NEXUS 0.2 adds or changes, and `later (phase ②)` for the positions of editing and the work boards.
+- Status: `built` for phase 1 as it runs (the snapshots table, the saved snapshot and the status file), `active` for what NEXUS 0.2 adds or changes, and `later (phase ②)` for what phase ② adds or changes, editing on a PC and the work boards ([Phase ②'s tables](#phase-②s-tables)).
 - The field tables give the columns and fields in the order in which they are written. A column that has no value is NULL; an optional field of a file is left out.
-- A table names only the terms of the board's aggregates, since a term that no aggregate has would open a discrepancy when NEXUS cross-checks its own pictures (SPEC-121). The hub's contexts, CTX-006, CTX-008 and CTX-009, have no aggregates on the board, so the tables that keep their data, or that keep writes in order, say `terms: none`. Tool link, the aggregate of phase ③, is listed after `without a table:`.
+- A table names only the terms of the board's aggregates, since a term that no aggregate has would open a discrepancy when NEXUS cross-checks its own pictures (SPEC-121). The hub's contexts, CTX-006, CTX-008 and CTX-009, have no aggregates on the board, so the tables that keep their data, or that keep writes in order, say `terms: none`. Tool link, the aggregate of phase ③, is listed after `without a table:`, and so are Positions, Workshop and Sticky, phase ②'s aggregates, until phase ② builds their tables.
 
 ## Where the data is
 
@@ -57,7 +57,7 @@ The server's tree also shows what a removal deletes: deleting a project's snapsh
 | TBL-115 | Stage records | CTX-007 | `.corthex/stages/<part>.json` for each part, or `.corthex/stages.json` for a project without parts, in the project's repository | one per part | in Git, as long as the repository | SPEC-109, SPEC-137, SPEC-140 | active |
 | TBL-116 | Status file | CTX-007 | `status/<project>.json` on a device | one per project | until the user deletes it | SPEC-109 | built |
 | TBL-117 | Outbox | CTX-014 | `outbox/<project>/<time>.<write>.json` on a device | its write ID | until the server takes it or refuses it for good, or for 7 days | SPEC-128, SPEC-129, SPEC-135 | active |
-| TBL-118 | Positions | CTX-012 | a table of the server, `positions`, which phase ② adds | its project, part, stage and item | while the item is in its picture | SPEC-134 | later (phase ②) |
+| TBL-118 | Positions | CTX-012 | a table of the server, `positions`, which phase ② adds | its project, part, stage and item | while the item is in its picture | SPEC-134, SPEC-174, SPEC-175 | later (phase ②) |
 
 The server's tables are in [nexus.sql](nexus.sql):
 
@@ -67,12 +67,12 @@ The server's tables are in [nexus.sql](nexus.sql):
 | TBL-102 | `project_spaces` | One space for each project, bound to its repository's address | until a removal | active |
 | TBL-103 | `pictures` | The last picture of each part and pictured stage, current or not | until a removal | active |
 | TBL-104 | `discrepancies` | What the cross-checks found, open and resolved | until a removal | active |
-| TBL-105 | `comments` | The comments on the items of the pictures | until a removal | active |
+| TBL-105 | `comments` | The comments on the items of every stage, or on a stage as a whole | until a removal | active; the redesign binds it to the space and adds `asks` |
 | TBL-106 | `replies` | The replies under each comment | until a removal | active |
 | TBL-107 | `decisions` | The decisions recorded on comments, with their links | until a removal | active |
 | TBL-108 | `proposals` | The agent's proposals and what became of them | until a removal | active |
 | TBL-109 | `edits` | The edits, which are pending reflections until they close | until a removal | active |
-| TBL-110 | `checkpoints` | The checkpoints passed in NEXUS, the pull requests of their records, and whether a stage record names them | until a removal | active |
+| TBL-110 | `checkpoints` | The checkpoints passed in NEXUS, the pull requests of their records, and whether a stage record names them | until a removal | active; the redesign adds `comment` |
 | TBL-111 | `claims` | Which agent session holds which entry of the agent to-do, and until when | while the claim lasts | active |
 | TBL-112 | `writes` | The IDs of the writes that the server took, with their first answers | 7 days | active |
 | TBL-113 | `migrations` | The schema versions applied to the database | as long as the database | active |
@@ -172,21 +172,22 @@ The unique index on the pair keeps one open discrepancy for each (REQ-156). A di
 
 ### Comments (TBL-105)
 
-Left by the user in the view or by the agent through the hub (SPEC-126, SPEC-128). A comment is deleted only with its space; it closes, and it can open again (SPEC-127).
+Left by the user in the view or by the agent through the hub (SPEC-126, SPEC-128), on any of the 13 stages of a part, with or without a picture (SPEC-151). A comment is deleted only with its space; it closes, and it can open again (SPEC-127).
 
 | Column | Value | Meaning |
 | --- | --- | --- |
 | `id` | `nc_` ID | |
-| `project`, `part`, `stage` | | The picture that the comment is on |
-| `item` | trace ID, or `''` | The item that the comment is attached to (REQ-160): the selected item, the item that holds a part without an ID of its own, or the discrepancy's first item. Empty for a comment on the picture itself (SPEC-126) |
+| `project`, `part`, `stage` | | The stage of a part that the comment is on, any of the 13 stages. `project` is a foreign key to the space, so a comment needs no picture (SPEC-151) |
+| `item` | trace ID, or `''` | The item that the comment is attached to (REQ-160): the selected item, the item that holds a part without an ID of its own, or the discrepancy's first item. Empty for a comment on the stage as a whole, or on its picture itself (SPEC-126, REQ-231) |
 | `quote` | up to 300 characters, or NULL | The part that the comment was left on, such as an event, a column or a table without an ID (REQ-161) |
 | `discrepancy` | `nd_` ID, or NULL | The discrepancy that the comment is on |
-| `commit_id` | commit | The document version of the picture when the comment was left, so that the agent can tell what the user saw |
+| `commit_id` | commit | The version that the writer saw, so that the agent can tell what the user saw: on a pictured stage the picture's document version, on any other the default branch commit of the stored snapshot when the comment was left |
 | `author` | `user` or `agent` | From the kind of sign-in (SPEC-116) |
 | `text` | up to 4,000 characters | |
 | `state` | `open` or `closed` | |
 | `closed_as` | `answered`, `decided`, or NULL | How it closed: marked answered by the user or the agent (REQ-166), or with a decision (REQ-165) |
 | `waits` | `agent`, `user`, or NULL | Whom an open comment waits for: the agent after an entry of the user's or a dismissed proposal, and the user after an entry of the agent's (SPEC-135). NULL while it is closed |
+| `asks` | `answer`, `recommended`, `checkpoint`, or NULL | What the agent's last entry asks of the user while the comment waits for the user: an answer, taking its recommendation, or passing the stage's checkpoint as recommended. The agent's comment or reply sets it and any other entry empties it, so it is NULL while the comment waits for the agent or is closed (SPEC-143) |
 | `settled` | `1` or `0` | `1` while the user's last reply settles the comment and the agent has not yet recorded the decision (SPEC-127, SPEC-132) |
 | `dismissed` | `1` or `0` | `1` while a proposal that answered it is dismissed and the agent has made no entry on it since (SPEC-131) |
 | `made_at` | time | |
@@ -238,7 +239,7 @@ Only the agent makes a proposal, so its author is not kept (SPEC-116).
 
 ### Edits (TBL-109)
 
-An accepted proposal makes one, in the same write as the acceptance (SPEC-131); in phase ②, so does a change that the user makes in the editor (SPEC-134). An edit that is neither closed nor dismissed is a pending reflection (TERM-117).
+An accepted proposal makes one, in the same write as the acceptance (SPEC-131); in phase ②, so does the user's edit draft when it is sent (SPEC-171). An edit that is neither closed, dismissed nor dropped is a pending reflection (TERM-117); phase ② adds the drop and its columns ([Phase ②'s tables](#phase-②s-tables)).
 
 | Column | Value | Meaning |
 | --- | --- | --- |
@@ -246,7 +247,7 @@ An accepted proposal makes one, in the same write as the acceptance (SPEC-131); 
 | `project`, `part`, `stage` | | The picture that it edits |
 | `commit_id` | commit | The document version that it is bound to: its proposal's, or in phase ② that of the picture that the user edited. A newer document version makes it an edit conflict (REQ-130) |
 | `proposal` | `np_` ID, or NULL | The accepted proposal, whose items, change and text are the edit |
-| `content` | JSON, or NULL | Phase ②: the change made in the editor. NULL for an accepted proposal |
+| `content` | JSON, or NULL | Phase ②: the list of changes and the note of an edit sent from the editor. NULL for an accepted proposal |
 | `state` | `pending`, `in-review`, `needs-user`, `closed` or `dismissed` | Pending; in review while its reported pull request is open; needing the user when its change no longer fits the stage source; closed once it is reflected; dismissed by the user (SPEC-133) |
 | `pull_request` | address, or NULL | The pull request that the agent reported: open while the edit is in review, merged once it closed. NULL again when the pull request was closed unmerged and the edit is pending again |
 | `closed_commit` | commit, or NULL | The commit whose stage source already held the change, when the agent reported that instead of a pull request |
@@ -272,6 +273,7 @@ Passed by the user in a stage's overview (SPEC-139), never by the agent (REQ-179
 | `pull_request` | address, or NULL | The pull request of the record that the agent reported (SPEC-140) |
 | `pr_state` | `open`, `merged`, `closed`, or NULL | While it is `open`, the pull request holds the checkpoint (SPEC-136), and a second pull request reported for it is refused |
 | `recorded_commit` | commit, or NULL | The default branch commit of the stored snapshot whose stage record names the checkpoint. Each push sets it, or empties it when the records no longer name the checkpoint. A withdrawn checkpoint with a recorded commit gives its stage the `checkpoint-withdrawn` warning (SPEC-140) |
+| `comment` | `nc_` ID, or NULL | The agent's comment that asked for the checkpoint which the user passed as recommended, and which holds what was approved (SPEC-143, REQ-090). Set when the user takes the recommendation from the comment (API-159); NULL for a checkpoint passed any other way |
 
 ### Claims (TBL-111)
 
@@ -303,7 +305,7 @@ The transaction token distinguishes a newly inserted write from an already store
 
 | Column | Value | Meaning |
 | --- | --- | --- |
-| `version` | integer | A schema version that store.js applied: 1 for phase 1's table, 2 for NEXUS 0.2 |
+| `version` | integer | A schema version that store.js applied: 1 for phase 1's table, 2 for NEXUS 0.2, 3 for the internal metadata of repeated reports, 4 for the redesign's comments |
 | `applied_at` | time | |
 
 ## Fields of each file
@@ -401,18 +403,20 @@ Every agent write is atomically queued with its original ID before its first sen
 
 ### Positions (TBL-118), phase ②
 
-Phase ② adds the table `positions`, with a migration, for the positions that the user keeps by moving elements on a PC (REQ-172, SPEC-134). Nothing else of 0.2 changes for it.
+Phase ② adds the table `positions`, with migration 5, for the positions that the user keeps by moving the items of a picture on a PC (REQ-172, SPEC-174). The stage sources and the edit drafts never hold them.
 
 | Column | Value | Meaning |
 | --- | --- | --- |
-| `project`, `part`, `stage` | | The picture; the positions go with it |
-| `item` | trace ID | The element that the user moved |
-| `x`, `y` | numbers | Its position in the picture |
-| `moved_at` | time | |
+| `project`, `part`, `stage` | | The picture, a foreign key to `pictures`, so that the positions go with its space |
+| `item` | trace ID | The item that the user moved: a context or an aggregate of the DDD board, a table of the ERD or a screen of the sitemap. A part without an ID of its own, such as a column, moves with its item |
+| `x`, `y` | numbers | Its place in the picture |
+| `moved_at` | time | When the user put it there; of two windows, the later save wins |
 
-A redraw deletes the positions of the items that its picture no longer holds, and the layout starts from the kept positions (SPEC-134).
+- A save takes only IDs that the current picture holds, up to 2,000 positions for each part's stage (SPEC-174).
+- A redraw deletes the positions of the items that the picture before it held and the new one does not (REQ-246), and the layout starts from the positions kept (SPEC-119).
+- The positions of the items that a sent edit adds wait in the edit's list of changes, under their temporary names, which no redraw touches. When the agent reports the edit merged with the IDs that the stage source gave those items, the same write keeps each position under its new ID, unless that ID has a newer one already (REQ-247, SPEC-175); when the edit closes otherwise, they go with it.
 
-Phase ② also adds the work boards of stage 01's workshops (SPEC-142), with their frames, stickies and authors, once it has drawn their steps (hotspot 14 of stage 01); their tables take the next free TBL IDs then. NEXUS 0.2 keeps no work board: the step view of a DDD board (SPEC-141) reads only the picture.
+Phase ② also adds the edit drafts and the work boards of stage 01's workshops, TBL-119 to TBL-124, in [Phase ②'s tables](#phase-②s-tables). NEXUS 0.2 keeps no work board: the step view of a DDD board (SPEC-141) reads only the picture.
 
 ## How the server writes
 
@@ -443,7 +447,7 @@ One statement, `DELETE FROM snapshots WHERE name = ?`, deletes the snapshot, and
 
 ## Format version and migrations
 
-- The schema's version is in `migrations` (TBL-113). Phase 1's unversioned `snapshots` is version 1. Version 2 adds NEXUS 0.2's space tables; version 3 adds the internal `edits.last_report` metadata needed for SPEC-133's repeated reports. Released migrations 1 and 2 stay unchanged. [nexus.sql](nexus.sql) describes the latest schema, records no version, and serves only to compare the schemas; store.js always initializes a server database.
+- The schema's version is in `migrations` (TBL-113). Phase 1's unversioned `snapshots` is version 1. Version 2 adds NEXUS 0.2's space tables; version 3 adds the internal `edits.last_report` metadata needed for SPEC-133's repeated reports; version 4 makes `comments` again for the redesign and adds `checkpoints.comment` ([The redesign's change](#the-redesigns-change)). Released migrations 1 to 3 stay unchanged. [nexus.sql](nexus.sql) describes the latest schema, records no version, and serves only to compare the schemas; store.js always initializes a server database.
 - store.js keeps every migration. At its first use of a database it runs nexus.sql's statement for `migrations`, which makes the table only when it is missing, and then runs, in order, each migration whose version the table does not hold, each in one batch with the row that records it. A batch that fails, as when another instance applied the same version first, changes nothing, and store.js reads the versions again.
 - Migration 1 is phase 1's statement, which changes nothing in a database that already holds the table:
 
@@ -470,6 +474,238 @@ One statement, `DELETE FROM snapshots WHERE name = ?`, deletes the snapshot, and
 - A migration, once released, is never changed. A change of the schema is a new version, with its migration and the same change to nexus.sql.
 - The files have their own formats: the snapshot's `schema`, and the `format` of picture sources, stage records and outbox files. The server takes the snapshot formats that it knows (SPEC-114). A picture keeps the format of its picture source, and the view draws each format that it knows.
 - After the checkpoint, a breaking change of a table or a file needs the maintainer's decision, as the stage contract says.
+
+## The redesign's change
+
+Planned with the redesign of 2026-11-06, whose checkpoint 1 chose talk on the items of every stage (choice ② A). Its checkpoint 3 passed on 2026-11-08, and its build made the change that day: [nexus.sql](nexus.sql), store.js and migration 4 hold it, and the tables above describe it.
+
+| Table | Column or key | In 0.2 | With the redesign |
+| --- | --- | --- | --- |
+| TBL-105 `comments` | `project`, `part`, `stage` | The picture that the comment is on, a foreign key to `pictures` | The stage of a part that the comment is on, any of the 13 stages. The key goes to `project_spaces (project)`, so that a comment needs no picture and a removal still deletes it with its space (SPEC-151) |
+| TBL-105 `comments` | `item` | A trace ID of the picture, or `''` for the picture itself | A trace ID of the stage's items, or `''` for the stage as a whole (REQ-231) |
+| TBL-105 `comments` | `commit_id` | The picture's document version | The default branch commit of the stored snapshot when the comment was left, which is the picture's document version on a pictured stage |
+| TBL-105 `comments` | `asks`, new | | `answer`, `recommended`, `checkpoint`, or NULL: what the comment's last entry by the agent asks of the user, while the comment waits for the user; NULL while it waits for the agent or is closed. The agent's comment or reply sets it, and the user's next entry empties it (SPEC-143) |
+| TBL-105 `comments` | index | `comments_picture (project, part, stage, state)` | The same columns as `comments_stage`, since it now serves a stage's talk (SPEC-150) |
+| TBL-105 `comments` | checks | `stage` is a pictured stage, through the picture's key | `stage` is one of the 13 stage keys, and `asks` is NULL unless the comment is open and waits for the user |
+| TBL-110 `checkpoints` | `comment`, new | | `nc_` ID, or NULL: the comment whose checkpoint the user passed as recommended, which holds what was approved (SPEC-143, REQ-090) |
+
+SQLite changes a foreign key only by making the table again: a new table with the new key, the rows copied, the old table dropped and the new one renamed ([SQLite, ALTER TABLE](https://www.sqlite.org/lang_altertable.html#otheralter)). `replies` and `decisions` delete their rows with their comment, and `proposals` empties its `comment`, so dropping the old table must not run those actions. Migration 4 therefore copies the replies, the decisions and the proposals' comments aside before it drops the old table, and puts them back after the rename, all in its one batch: those actions run even while foreign keys are deferred, and D1 keeps foreign keys on ([D1, foreign keys](https://developers.cloudflare.com/d1/sql-api/foreign-keys/)). On 2026-11-08, with Node 24.22.1's SQLite and foreign keys on, as the standalone server and the Worker's D1 run, a database of schema 3 with a comment, its reply and decision, a proposal on it and a checkpoint kept every row, and `PRAGMA foreign_key_check` found nothing (`nexus/test/entry-store.test.js`); D1 itself was not run.
+
+## Phase ②'s tables
+
+Planned for phase ②, editing on a PC and the workshops of stage 01 (SPEC-134, SPEC-142, SPEC-170 to SPEC-186), whose stages 01 to 04 passed on 2026-11-06 and 2026-11-07. This stage's checkpoint for phase ②, with stage 06's, passed them at 09:33 KST on 2026-11-08; [nexus.sql](nexus.sql), store.js and a migration 5 take them when phase ② is built, after the redesign's migration 4, and until then the tables above are as they run. Every table here hangs from the project space, so a removal deletes it with the rest of the project (SPEC-115).
+
+```txt
+project_spaces                TBL-102
+├─ pictures                   TBL-103
+│  ├─ positions               TBL-118 where the user moved the items of a part's stage
+│  └─ edit_drafts             TBL-119 one open draft for each part's pictured stage
+└─ workshops                  TBL-120 the workshops of a part's stage 01, one open for each part
+   └─ frames                  TBL-121 one for each step
+      ├─ stickies             TBL-122
+      ├─ arrows               TBL-123
+      └─ sticky_groups        TBL-124
+```
+
+| Table | Name | Holds | Kept | Status |
+| --- | --- | --- | --- | --- |
+| TBL-118 | `positions` | Where the user moved the items of a part's pictured stage ([Positions](#positions-tbl-118-phase-②)) | while the picture holds the item | later (phase ②) |
+| TBL-119 | `edit_drafts` | The open edit draft of each part's pictured stage, with its revision, its list of changes and the editor's elements | until it is sent or dropped | later (phase ②) |
+| TBL-120 | `workshops` | Each workshop of a part's stage 01, open or ended, with its way of working, its board version and the agent's last read | until a removal | later (phase ②) |
+| TBL-121 | `frames` | The frames of a workshop's board, one for each step | until a removal | later (phase ②) |
+| TBL-122 | `stickies` | The stickies of each frame, removed ones too | until a removal | later (phase ②) |
+| TBL-123 | `arrows` | The arrows between two stickies of a frame, taken-away ones too | until a removal | later (phase ②) |
+| TBL-124 | `sticky_groups` | The named groups of stickies of a frame, ungrouped ones too | until a removal | later (phase ②) |
+
+### Changes to 0.2's tables
+
+| Table | Column or key | Now | In phase ② |
+| --- | --- | --- | --- |
+| TBL-102 `project_spaces` | `text_bytes` | The UTF-8 bytes of the space's comments, replies, decisions, proposals and edits | Also those of the open drafts and of the boards' texts and names, so that the space's 8 MiB hold phase ②'s data too |
+| TBL-105 `comments` | `item` | A trace ID, or `''` | Also the `ns_` ID of a sticky or the `nf_` ID of a frame, on stage `01-domain`, for a comment on a work board (REQ-258, SPEC-180) |
+| TBL-109 `edits` | `id` | An `ne_` ID made with the edit | For an edit sent from the editor, its draft's ID (SPEC-171) |
+| TBL-109 `edits` | `content` | JSON reserved for phase ② | `{"changes": [...], "note": "..."}`: the list of changes as sent, whose added items keep, under their temporary names, the positions at which the user placed them, and the one-line note (SPEC-171, SPEC-175) |
+| TBL-109 `edits` | `state` | `pending`, `in-review`, `needs-user`, `closed` or `dismissed` | Also `dropped`: the user dropped the sent edit while it waited (SPEC-173). A dropped edit whose `pull_request` is set still has that pull request open, and the agent to-do lists it until the agent reports the pull request closed, which empties `pull_request`, or merged, which closes the edit as reflected after the drop (SPEC-185, point 20) |
+| TBL-109 `edits` | `dropped_at`, new | | Time, or NULL: when the user dropped it, kept when a pull request merged before the drop closes it (REQ-244). Who dropped it is always the user, since only a person's sign-in drops one (SPEC-116) |
+| TBL-109 `edits` | `comment`, new | | `nc_` ID, or NULL: for an edit sent from the editor, the agent's comment on the stage as a whole that asks the user about the edit or tells them what became of it (SPEC-171, SPEC-172) |
+| TBL-110 `checkpoints` | `frame` and `board_version`, new | | For a workshop's checkpoint, the `nf_` ID of the frame of Step 1-b, 7 or 9 that it passed and the board version that the user passed (REQ-261); NULL for any other checkpoint. Its record's pull request is the board's reflection, so `pr_state` `merged` marks the version as reflected (SPEC-183) |
+| TBL-110 `checkpoints` | `differs`, new | | `1` while the agent has reported that another pull request changed the stage 01 source since the board was last reflected, and waits for the user (REQ-265); `0` otherwise |
+| TBL-111 `claims` | `entry` | An `nc_`, `nd_`, `ne_` or `nk_` ID | Also an `nb_` ID, a workshop whose board the user changed since the agent read it (SPEC-185) |
+| TBL-113 `migrations` | `version` | 1 to 3, and 4 with the redesign | 5 for phase ② |
+
+The new IDs follow the form of the others: `nb_` for a workshop, whose board it is, `nf_` a frame, `ns_` a sticky, `na_` an arrow and `ng_` a group. An edit draft takes the `ne_` ID that its edit keeps.
+
+### Edit drafts (TBL-119)
+
+The user's changes to a picture that are not sent yet (TERM-145): one open draft for each part's pictured stage, whatever document version it is on (REQ-240). Only the user writes one (SPEC-116).
+
+| Column | Value | Meaning |
+| --- | --- | --- |
+| `id` | `ne_` ID | The ID that the edit keeps once the draft is sent |
+| `project`, `part`, `stage` | | The picture, and the table's key, so that one draft is open for each |
+| `commit_id` | commit | The document version that the draft is bound to: the picture's when the draft started, or the latest one on which the user kept it (SPEC-170) |
+| `revision` | integer from 1 | Raised by one with each save. A save, a choice, a send or a drop names the revision that it starts from, and is taken only when the draft holds it (REQ-241) |
+| `changes` | JSON | The list of changes against the picture of `commit_id`, item by item (TERM-149), in the form that stage 06 gives, at most 300 |
+| `elements` | JSON | The editor's elements that show the changes, so that the editor opens the draft where it was left, on any PC (SPEC-134) |
+| `earlier` | JSON, or NULL | The list of changes of the draft that the user's choice to edit again dropped, shown beside this one until it is sent or dropped (SPEC-170) |
+| `bytes` | integer | The UTF-8 bytes of `changes`, `elements` and `earlier`: at most 1 MiB, and counted in the space's text |
+| `made_at` | time | |
+| `saved_at` | time | Its last save, which the picture's mark shows with `commit_id` (point 19) |
+
+- A draft has no expiry (point 19). Sending it deletes its row and makes the edit under its ID (SPEC-171); dropping it deletes its row (SPEC-173). No closed draft is kept, so a save, a choice, a send or a drop that names a draft that is no longer open is refused.
+- Whether each change still applies is found when the draft is read or sent, from the values before the change that each change keeps and the current picture source, so a redraw writes nothing to a draft (SPEC-170).
+
+### Workshops (TBL-120)
+
+| Column | Value | Meaning |
+| --- | --- | --- |
+| `id` | `nb_` ID | |
+| `project`, `part` | | The part whose stage 01 the workshop holds, `''` for the project as a whole |
+| `way` | `draft-first` or `people-first` | The way of working that the user chose at the start (REQ-249) |
+| `state` | `open` or `ended` | One open workshop for each part, which a partial unique index keeps (REQ-248). An ended workshop's board is read-only (REQ-218) |
+| `version` | integer from 1 | The board version (TERM-147): 1 with the Step 0 frame, raised by one with each change to the board (SPEC-181) |
+| `read_version` | integer, or NULL | The board version that the agent last read through the hub (REQ-259); NULL before its first read |
+| `read_session` | label, or NULL | The session label of that read |
+| `read_at` | time, or NULL | |
+| `started_at` | time | |
+| `ended_at` | time, or NULL | When the pass of its last checkpoint or the user ended it (SPEC-184) |
+
+Who started a workshop is not kept: the user starts one, or the agent when the user asks in the session (SPEC-142, SPEC-186).
+
+### Frames (TBL-121)
+
+| Column | Value | Meaning |
+| --- | --- | --- |
+| `id` | `nf_` ID | The ID that a comment on the whole frame names (REQ-258) |
+| `workshop` | `nb_` ID | |
+| `step` | `0`, `1-a`, `1-b`, `2` to `7`, `8-a`, `8-b` or `9` | One frame for each step, in stage 01's order (SPEC-176) |
+| `text` | up to 4,000 characters, or NULL | The frame's own words beside its stickies: on Step 0, the workshop's goal and scope, which names the contexts that the workshop changes or adds (SPEC-142, point 22). A new frame does not copy it |
+| `version` | integer | The board version of the frame's last change, its addition or its text |
+| `changed_by` | `user` or `agent` | Who made that change |
+| `made_at` | time | |
+
+A frame changes only while it is its board's last one and has no passed checkpoint (REQ-250). Whether its checkpoint passed is read from `checkpoints` (TBL-110), so a frame keeps no state of its own.
+
+### Stickies (TBL-122)
+
+| Column | Value | Meaning |
+| --- | --- | --- |
+| `id` | `ns_` ID | NEXUS's ID for the sticky, which comments and the hub name (TERM-134) |
+| `frame` | `nf_` ID | |
+| `copies` | `ns_` ID, or NULL | The sticky of the previous frame that this one copies (REQ-269) |
+| `kind` | `event`, `external-system`, `command`, `hotspot`, `answered-hotspot`, `actor`, `aggregate`, `policy` or `read-model` | One of the nine kinds of stage 01's legend (REQ-214) |
+| `text` | up to 300 characters | Shown only as text |
+| `x`, `y` | numbers | Its place in the frame |
+| `author` | `user` or `agent` | Who placed it, from the kind of sign-in; a copy keeps its origin's (REQ-215, REQ-269) |
+| `label` | `sure`, `inferred`, `guessed`, or NULL | The agent's label, which the user's change or confirmation takes off (REQ-252, REQ-253); a copy keeps its origin's |
+| `removed_by` | `user`, `agent`, or NULL | Who removed it; NULL while it is on the board (REQ-257) |
+| `removed_at` | time, or NULL | |
+| `made_version` | integer | The board version at which it was placed or copied |
+| `version` | integer | The board version of its last change, which a change names as the one it starts from (REQ-256) |
+| `changed_by` | `user` or `agent` | Who made that change, which a refusal for an older version names (point 23) |
+| `change` | `placed`, `copied`, `changed`, `removed` or `restored` | What that change was |
+| `made_at` | time | |
+
+### Arrows (TBL-123) and groups (TBL-124)
+
+| Column | Value | Meaning |
+| --- | --- | --- |
+| `id` | `na_` or `ng_` ID | |
+| `frame` | `nf_` ID | |
+| `copies` | `na_` or `ng_` ID, or NULL | The arrow or group of the previous frame that this one copies, joining the copies of its stickies (SPEC-176) |
+| `from_sticky`, `to_sticky` | `ns_` IDs | An arrow's two stickies, of its frame |
+| `name` | up to 100 characters | A group's name, such as a context of Step 7 |
+| `members` | JSON list of 1 to 300 `ns_` IDs | A group's stickies, of its frame |
+| `author` | `user` or `agent` | Who drew or grouped it; a copy keeps its origin's |
+| `removed_at` | time, or NULL | When the arrow was taken away or the group ungrouped |
+| `made_version`, `version`, `changed_by`, `change` | | As for a sticky, with `placed` for drawing or grouping, `changed` for a renaming or new members and `removed` for taking away or ungrouping |
+| `made_at` | time | |
+
+`arrows` has the arrow's columns and `sticky_groups` the group's. A sticky's removal folds its arrows away with it and its restoring brings them back, without changing them (REQ-257). An arrow taken away and a group ungrouped are kept as removed, so that an open board and the marks since the agent's read see them, and they count in their frame's limits as removed stickies do. A new frame copies neither.
+
+### How phase ② writes
+
+- Each write of phase ② is one batch, as 0.2's writes are, with its write ID and, for the agent, its session's claim (SPEC-128, SPEC-136). The agent's read mark needs no write ID, as a claim needs none (stage 06).
+- A draft's save replaces its changes, elements and earlier list only while the draft holds the revision that the save names, raises the revision, and adds the difference of its bytes to the space's `text_bytes`. A send makes the edit under the draft's ID and deletes the draft, and a drop deletes it; both take its bytes off (SPEC-134, SPEC-171, SPEC-173).
+- A change to a board is one batch that checks the workshop's state, the last frame, the version of each element that the change starts from and the frame's limits, raises the workshop's `version` by one and writes every element of the change with that version, or nothing (SPEC-177, SPEC-179). Adding a frame copies, in the same batch, the last frame's stickies, arrows and groups that are not removed, with new IDs, each naming what it copies (SPEC-176). A comment or a reply writes no board version (SPEC-180).
+- What changed since a version is read from the elements: those whose `version` is higher. The marks since the agent's read are the elements whose last change after `read_version` is the user's: added for a sticky, arrow or group that the user placed since, otherwise as its `change` says; a copy that nobody changed since is not marked, since its frame's addition is (SPEC-181).
+- The agent's read sets `read_version`, `read_session` and `read_at` (REQ-259); a read of an older version than the one recorded changes nothing.
+- Passing a workshop's checkpoint records its frame and board version in `checkpoints` only while the board still holds that version, and passing Step 9's also ends the workshop, in the same batch (SPEC-182, SPEC-184).
+- A push that redraws a picture deletes, in its batch of writes, the positions of the items that the old picture held and the new one does not (REQ-246). It writes nothing to drafts, edits or boards.
+
+### Migration 5
+
+Migration 5 makes TBL-118 to TBL-124 with their indexes and adds the new columns of `edits` and `checkpoints`. SQLite changes a `CHECK` only by making the table again, so `edits`, with its new state, is made again as migration 4 makes `comments` again, keeping every row. When phase ② is built, nexus.sql takes the same tables, and its `without a table:` line names TERM-122 alone again: until then it also names Positions (TERM-146), Workshop (TERM-132) and Sticky (TERM-134), the board's aggregates that phase ② keeps in these tables, so that NEXUS's cross-check of its own pictures opens no discrepancy for them in the meantime (choice 19).
+
+### Diagram of phase ②
+
+```mermaid
+erDiagram
+  PROJECT_SPACES ||--o{ PICTURES : "one for each part and stage"
+  PICTURES ||--o{ POSITIONS : "a position for each moved item"
+  PICTURES ||--o| EDIT_DRAFTS : "one open draft"
+  PICTURES ||--o{ EDITS : "edits"
+  PROJECT_SPACES ||--o{ WORKSHOPS : "one open for each part"
+  WORKSHOPS ||--|{ FRAMES : "one for each step"
+  FRAMES ||--o{ STICKIES : holds
+  FRAMES ||--o{ ARROWS : holds
+  FRAMES ||--o{ STICKY_GROUPS : holds
+  STICKIES |o--o{ STICKIES : "copied as"
+  STICKIES ||--o{ ARROWS : joins
+  FRAMES |o--o| CHECKPOINTS : "passed at a board version"
+
+  POSITIONS {
+    string item PK "trace ID"
+    float x
+    float y
+  }
+  EDIT_DRAFTS {
+    string id "ne_..., kept by its edit"
+    string commit_id "bound to"
+    int revision
+    string changes "list of changes"
+  }
+  EDITS {
+    string id PK "ne_..."
+    string content "changes and note"
+    string state "pending, in-review, needs-user, closed, dismissed, dropped"
+    string dropped_at
+  }
+  WORKSHOPS {
+    string id PK "nb_..."
+    string way "draft-first, people-first"
+    string state "open, ended"
+    int version "board version"
+    int read_version "the agent's last read"
+  }
+  FRAMES {
+    string id PK "nf_..."
+    string step "0 to 9"
+    int version
+  }
+  STICKIES {
+    string id PK "ns_..."
+    string kind "one of nine"
+    string author "user, agent"
+    string label "sure, inferred, guessed"
+    int version
+  }
+  ARROWS {
+    string id PK "na_..."
+    string from_sticky
+    string to_sticky
+  }
+  STICKY_GROUPS {
+    string id PK "ng_..."
+    string name
+    string members
+  }
+  CHECKPOINTS {
+    string id PK "nk_..."
+    string frame "for a workshop"
+    int board_version "passed"
+  }
+```
 
 ## What leaves the device, and what the server keeps
 
@@ -499,8 +735,14 @@ Lengths in characters count code points. The numbers that come from the requirem
 | Text of a decision | 4,000 characters | this file |
 | A link: a decision's or a pull request's | 2,000 characters | this file |
 | A session label | 1 to 100 ASCII letters, digits, `.`, `_`, `:` and `-` | this file |
-| Text in a space: its comments, replies, decisions, proposals and edits | 8 MiB of UTF-8 | this file |
-| The body of a write | 256 KiB | stage 06 |
+| Text in a space: its comments, replies, decisions, proposals and edits, and in phase ② its open drafts and its boards' texts and names | 8 MiB of UTF-8 | this file |
+| The body of a write | 256 KiB, and 1 MiB for a draft's save and a board's change in phase ② | stage 06 |
+| Phase ②: an edit draft | 1 MiB of its changes, elements and earlier list, and 300 changes | SPEC-134 |
+| Phase ②: the note of a sent edit | 200 characters | SPEC-171 |
+| Phase ②: positions of a part's pictured stage | 2,000 | SPEC-174 |
+| Phase ②: frames of a work board | 12, one for each step | SPEC-142 |
+| Phase ②: stickies, arrows and groups of a frame | 300, 600 and 50, removed ones included | SPEC-142, this file for the arrows and groups |
+| Phase ②: text of a sticky, name of a group, text of a frame | 300, 100 and 4,000 characters | SPEC-177, this file for a frame |
 | A claim | 60 minutes after the session's last write on the entry | SPEC-136 |
 | Write IDs | 7 days after the server took the write | the functional spec's notes for stage 05 |
 | A write in the outbox | 7 days after it was made | SPEC-129 |
@@ -527,7 +769,7 @@ Besides these records, the hub reads the project list, the project settings, the
 | SPEC-112 | Push after merges and checkpoints, and at the start of work | TBL-101 | TBL-101, through SPEC-111 |
 | SPEC-113 | Answer only checked requests at the user's address | none | none |
 | SPEC-114 | Store a snapshot | TBL-101, TBL-102, TBL-103, TBL-104, TBL-110, TBL-113 | TBL-101, TBL-102, TBL-103, TBL-104, TBL-110, TBL-113 |
-| SPEC-115 | Remove a project | TBL-101, TBL-102, TBL-103, TBL-104, TBL-105, TBL-108, TBL-109, TBL-110 | deletes TBL-101, and with it the project's rows of TBL-102 to TBL-112 |
+| SPEC-115 | Remove a project | TBL-101, TBL-102, TBL-103, TBL-104, TBL-105, TBL-108, TBL-109, TBL-110; in phase ②, TBL-119 and TBL-120 | deletes TBL-101, and with it the project's rows of TBL-102 to TBL-112, and in phase ② of TBL-118 to TBL-124 |
 | SPEC-116 | Tell the user from the agent | none | the author of TBL-105 and TBL-106 |
 | SPEC-117 | Create the project space | TBL-102 | TBL-102 |
 | SPEC-118 | Draw and redraw the pictures | TBL-103 | TBL-103 |
@@ -546,7 +788,7 @@ Besides these records, the hub reads the project list, the project settings, the
 | SPEC-131 | Accept or dismiss a proposal | TBL-108, TBL-109, TBL-112 | TBL-108, TBL-109, TBL-105, TBL-112 |
 | SPEC-132 | Settle a comment with a decision | TBL-105, TBL-111 | TBL-107, TBL-106, TBL-105, TBL-102, TBL-111, TBL-112 |
 | SPEC-133 | Reflect by pull request | TBL-108, TBL-109, TBL-111 | TBL-109, TBL-106, TBL-102, TBL-111, TBL-112 |
-| SPEC-134 | Edit a picture on a PC | TBL-103, TBL-109, TBL-118 | TBL-118, TBL-109, TBL-102 |
+| SPEC-134 | Edit a picture on a PC | TBL-103, TBL-119 | TBL-119, TBL-102, TBL-112 |
 | SPEC-135 | Read the agent to-do at the start of work | TBL-104, TBL-105, TBL-109, TBL-110, TBL-111, TBL-117 | TBL-117 |
 | SPEC-136 | Claim what the agent takes | TBL-104, TBL-105, TBL-109, TBL-110, TBL-111 | TBL-111 |
 | SPEC-137 | Write the stage record with the work | TBL-115 | TBL-115 |
@@ -554,7 +796,38 @@ Besides these records, the hub reads the project list, the project settings, the
 | SPEC-139 | Pass a checkpoint in NEXUS | TBL-101, TBL-110, TBL-112 | TBL-110, TBL-112 |
 | SPEC-140 | Write a passed checkpoint into the stage record | TBL-110, TBL-111, TBL-115 | TBL-115, TBL-110, TBL-111, TBL-112 |
 | SPEC-141 | Go through a DDD board step by step | TBL-103 | none |
-| SPEC-142 | Hold a workshop on a work board | the work boards of phase ② | the work boards of phase ② |
+| SPEC-142 | Hold a workshop on a work board | TBL-101, TBL-102, TBL-120 to TBL-124 | TBL-120, TBL-121, TBL-102, TBL-112 |
+| SPEC-143 | Gather my turn | TBL-101, TBL-102, TBL-105, TBL-106, TBL-108, TBL-112 | TBL-106, TBL-105, TBL-108, TBL-109, TBL-110, TBL-102, TBL-112, when the user answers on the page |
+| SPEC-144 | Show the agent to-do's counts | TBL-102, TBL-104, TBL-105, TBL-109, TBL-110, TBL-111 | none |
+| SPEC-145 | Show the projects on the first page | TBL-101, TBL-103, TBL-105 | none |
+| SPEC-146 | Open a project's workspace | TBL-101, TBL-105, TBL-108 | none |
+| SPEC-147 | Show a stage's head with its picture or list | TBL-101, TBL-103, TBL-104, TBL-105, TBL-109, TBL-110 | none |
+| SPEC-148 | List a stage's items | TBL-101, TBL-104, TBL-105, TBL-108, TBL-109 | none |
+| SPEC-149 | Show an item with its links | TBL-101, TBL-105, TBL-106 | none |
+| SPEC-150 | Show the talk by turn | TBL-105, TBL-106, TBL-107, TBL-108, TBL-111 | none |
+| SPEC-151 | Leave a comment on any stage | TBL-101, TBL-102, TBL-103, TBL-104, TBL-112 | TBL-105, TBL-102, TBL-112 |
+| SPEC-152 | Search from every page | TBL-101 | none |
+| SPEC-153 | Keep the hub page as the full checks | as SPEC-122 to SPEC-125 | none |
+| SPEC-154 | Lead NEXUS 0.2's addresses to their new places | TBL-101 | none |
+| SPEC-155 | Show the workspace as tabs on a phone | as SPEC-146 to SPEC-150 | none |
+| SPEC-156 | Show where the view is in a large picture | TBL-103 | none |
+| SPEC-170 | Resolve an edit conflict | TBL-103, TBL-119 | TBL-119, TBL-102, TBL-112 |
+| SPEC-171 | Send an edit | TBL-103, TBL-109, TBL-119 | TBL-109, TBL-119, TBL-102, TBL-112 |
+| SPEC-172 | Show a sent edit while it waits | TBL-103, TBL-105, TBL-109 | none |
+| SPEC-173 | Drop an edit | TBL-109, TBL-119 | TBL-109, TBL-119, TBL-102, TBL-112 |
+| SPEC-174 | Keep the positions of moved items | TBL-103, TBL-118 | TBL-118, TBL-112; a push's redraw deletes from TBL-118 |
+| SPEC-175 | Keep the positions of the items that an edit adds | TBL-109, TBL-118 | TBL-118, TBL-109, TBL-112 |
+| SPEC-176 | Add a step frame | TBL-110, TBL-120 to TBL-124 | TBL-120 to TBL-124, TBL-102, TBL-112 |
+| SPEC-177 | Place and change stickies, arrows and groups | TBL-110, TBL-111, TBL-120 to TBL-124 | TBL-120, TBL-122 to TBL-124, TBL-102, TBL-111, TBL-112 |
+| SPEC-178 | Remove and restore stickies | TBL-110, TBL-111, TBL-120, TBL-121, TBL-122 | TBL-120, TBL-122, TBL-111, TBL-112 |
+| SPEC-179 | Place the agent's draft of a step | as SPEC-176 and SPEC-177 | as SPEC-176 and SPEC-177 |
+| SPEC-180 | Comment on a work board | TBL-120, TBL-121, TBL-122, and as SPEC-126 | TBL-105, TBL-102, TBL-112 |
+| SPEC-181 | Show what changed since the agent read the board | TBL-120 to TBL-124 | TBL-120, when the agent reads |
+| SPEC-182 | Pass a workshop's checkpoint | TBL-101, TBL-105, TBL-110, TBL-120, TBL-121, TBL-122 | TBL-110, TBL-120, TBL-112 |
+| SPEC-183 | Reflect a workshop's board | TBL-110, TBL-111, TBL-120 to TBL-124 | TBL-110, TBL-111, TBL-112, TBL-115 |
+| SPEC-184 | End a workshop | TBL-110, TBL-120 | TBL-120, TBL-112 |
+| SPEC-185 | List phase ②'s work in the agent to-do | TBL-109, TBL-110, TBL-111, TBL-120, TBL-122 to TBL-124 | none |
+| SPEC-186 | Read and write a work board through the hub | TBL-111, TBL-117, TBL-120 to TBL-124 | TBL-120 to TBL-124, TBL-111, TBL-112, TBL-117 |
 
 ## Diagram
 
@@ -654,7 +927,22 @@ The functional spec left these to stage 05. The checkpoint of 2026-11-03 kept ea
 10. The outbox as one file for each write, which the hubs of a device take turns on with a lock file, and the stage records as one file for each part, with roles and no names.
 11. The human view: this file with its diagram, and a Korean copy in Notion with the tables as databases, as the stage's settings give, instead of ERD Editor, the stage's default. From NEXUS 0.2, NEXUS draws this ERD itself from nexus.sql.
 
+For phase ②, this stage chose ([Phase ②'s tables](#phase-②s-tables)):
+
+12. The edit draft in a table of its own, one row for each part's pictured stage, whose ID the edit keeps once it is sent, and no closed draft kept: a draft is written again every few seconds, while the edits, which the to-do and the reflections read, stay as 0.2 has them.
+13. The positions of the items that an edit adds kept in the edit's list of changes, under their temporary names, and written into `positions` by the report of the merge, so that no position waits outside its edit (D14).
+14. A dropped edit as a state of the edit, `dropped`, which keeps its pull request while that is open, with 0.2's `dismissed` kept for a reflection that needs the user and is dismissed.
+15. The board versions on the board's elements: each sticky, arrow and group keeps the version of its creation and of its last change, who made it and what it was, so that the checks of a change, what changed since a version and the marks since the agent's read come from the elements, with no log of changes to keep or trim. An arrow taken away and a group ungrouped are kept as removed, so that the marks and an open board see them, and they count in their frame's limits as removed stickies do.
+16. A frame's own text, for Step 0's goal and scope, since no kind of the legend holds them.
+17. A workshop's checkpoint as a row of `checkpoints` with its frame and board version, whose record's pull request is the board's reflection, so that 0.2's reports, claims and to-do serve it.
+18. Phase ②'s drafts and texts counted in the space's 8 MiB, so that a space stays within the free plan whatever it holds.
+19. Positions, Workshop and Sticky listed after `without a table:` in nexus.sql until phase ② builds their tables, as Tool link waits for phase ③ (choice 7), so that NEXUS's cross-check of its own pictures opens no discrepancy for them meanwhile.
+
 ## For the checkpoint
+
+Phase ②'s stages 05 and 06 came to one checkpoint after its stages 02 to 04 passed at 23:27 KST on 2026-11-07, and it passed at 09:33 KST on 2026-11-08: on a decision card in the project's thread the maintainer chose to pass them as recommended ("추천대로 통과", pass as recommended), so this stage's choices 12 to 19 and stage 06's 12 to 21 stand as written. [Phase ②'s tables](#phase-②s-tables) writes down the data of editing on a PC and of the workshops: the tables TBL-118 to TBL-124, and the changes of TBL-102, TBL-105, TBL-109, TBL-110, TBL-111 and TBL-113. The points that the checkpoint looked at first: the draft in a table of its own, whose row goes when it is sent or dropped (choice 12); the dropped edit as a state of the edit (choice 14); the versions kept on the board's elements, with taken-away arrows and ungrouped groups counted in the limits (choice 15); the frame's text for Step 0 (choice 16); phase ②'s drafts and texts in the space's 8 MiB (choice 18); and the `without a table:` line of nexus.sql (choice 19). Migration 5 makes `edits` again, the risk to check first, as migration 4 is for `comments` (stage 11).
+
+The redesign of 2026-11-06 passed its checkpoint 1 at 17:44 KST that day ("이대로 진행", go ahead as drawn), with talk on the items of every stage (choice ② A), which its list of changes named as a change of TBL-105. [The redesign's change](#the-redesigns-change) writes it down for its checkpoint 3: comments bound to the project space instead of a picture, what the agent's last entry asks, and the comment that a checkpoint passed as recommended keeps. A migration that makes `comments` again is the risk to check first (stage 11). Its checkpoint 3 passed at 14:54 KST on 2026-11-08 ([stage 08](../08-screens/nexus/README.md#for-the-checkpoint)), and the build that followed made the change in migration 4.
 
 The maintainer's choice of 2026-11-03, to hold stage 01's event storming in NEXUS, passed at 16:54 KST the same day, together with the changes that it made to the other stages: on a decision card in the project's thread the maintainer chose to pass the step view and the work board as drawn ("모두 그린 대로 통과", pass all as drawn). The checkpoint covered: the DDD board's picture source gains its timeline inside the JSON of `pictures.source`, so no table, field or migration changes; and phase ② adds the work boards (SPEC-142), whose tables it numbers when it draws their steps.
 
@@ -669,6 +957,8 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03, 04 and 06 to 08: on 
 
 ### Stage 06: requests, commands and formats
 
+- For phase ②: the requests of the drafts, the positions, the drop and the work boards, the merge report's IDs for temporary names, and the changes to 0.2's requests, in stage 06's [Phase ②'s interfaces](../06-api/nexus.md#phase-②s-interfaces).
+- For the redesign: a comment's stage instead of its picture, `asks` on the agent's comments and replies, and the comment that a checkpoint passed as recommended keeps ([The redesign's change](#the-redesigns-change)).
 - The JSON of the snapshot 0.2, from the fields of TBL-114, and that of the picture sources, with the hub's forms. Both go into the hub's snapshot.md and reading.md.
 - For each request, its write ID, its session label and its answer, which `writes.result` keeps, and the names of the requests that `writes.request` and the outbox's `request` hold.
 - The answer to the question for the held commit: `default_commit` and `revision`.
@@ -676,20 +966,27 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03, 04 and 06 to 08: on 
 
 ### Stages 07 and 08: screens
 
+For phase ②: the draft's mark from `edit_drafts`, the sent edit as not yet reflected and as dropped with its pull request, and on the work board the folded stickies, the labels, the marks since the agent's read and the checkpoint box with its board version. The sitemap lists Work board view (TERM-148) and List of changes (TERM-149) after `# without a screen:` until phase ②'s screens name them, as this file does for its aggregates (choice 19).
+
 What each screen reads, as [Reads](#reads) lists it, and the marks that come from the data: a picture that is not current and why (`not_current`), a discrepancy that waits for a current picture (`waiting`), a comment whose item is gone (found when the picture is read), an accepted proposal not yet reflected (an edit that is not closed), and a checkpoint that waits for its record (`recorded_commit` empty). A DDD board's step view needs only its picture source, with or without `timeline` (SPEC-141).
 
 ### Stage 10: work breakdown
+
+For phase ②, after the redesign's migration 4: migration 5, the requests of the drafts, positions and drops, then those of the work boards, then the hub's board commands in the core repository, and the views last.
 
 store.js first: migrations 1 and 2, the push with its two batches, then the writes of the discussion, the agent to-do with the claims, and the checkpoints. The hub's side follows: the snapshot 0.2 with its picture sources and stage records, then the outbox.
 
 ### Stage 11: development
 
+- For phase ②: migration 5 makes `edits` again with its new state on both runtimes, keeping every row; once nexus.sql holds phase ②'s tables, the test that compares it with the migrations covers them, and its `without a table:` line names TERM-122 alone again.
 - store.js keeps the SQL of both migrations, and a test builds one database from nexus.sql and one through the migrations and compares their tables, columns, keys, indexes and constraints.
 - Two things differ in Postgres, and store.js's comments say so: it reads a JSON list with `json_array_elements` where SQLite has `json_each`, and its INTEGER has 32 bits, so `generated_ms`, in milliseconds, is BIGINT there.
 - Writing only the rows that change needs comparisons that treat two NULLs as equal: `IS DISTINCT FROM`, which SQLite has from 3.39 and Postgres always had, where D1's SQLite has it, otherwise `IS NOT`.
 
 ### Stage 12: QA
 
+- For phase ②: migration 5 on a copy of a database with edits; a draft at 1 MiB and at 300 changes; two windows on one draft and on one sticky; a frame added at its limits; a redraw that drops positions while an edit's positions under temporary names stay; a merged report with and without IDs; and a removal that leaves no row of phase ②.
+- For the redesign: migration 4 on a copy of a database with comments, replies, decisions and proposals keeps every row, on the Node SQLite file and on D1.
 - nexus.sql on an empty database in D1, as Wrangler runs it locally, gives the schema that store.js makes, and a database of phase 1 with stored snapshots keeps them through the migration.
 - A removal leaves no row of the project in any table.
 - The largest push: its queries, the rows that it writes and its CPU time on the free plan (REQ-124).

@@ -26,4 +26,4 @@ flowchart TD
   K --> Z
 ```
 
-Only the user passes a checkpoint; an AI recommendation, a read receipt or an edit time is not one. How the stage overview shows a checkpoint passed in NEXUS before the agent records it is point 15 of the [README](README.md#points-for-the-functional-spec).
+Only the user passes a checkpoint; an AI recommendation, a read receipt or an edit time is not one. Where editing is included, a workshop's checkpoint after Step 1-b, 7 or 9 is passed here too, in NEXUS only, and the server records the board version that the user passed (FL-116, REQ-261, D15 of stage 02). How the stage overview shows a checkpoint passed in NEXUS before the agent records it is point 15 of the [README](README.md#points-for-the-functional-spec).

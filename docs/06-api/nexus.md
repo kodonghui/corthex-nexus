@@ -2,9 +2,9 @@
 
 [한국어](nexus.ko.md)
 
-Stage 06 of CORTHEX's own project, for NEXUS 0.2: the requests that the NEXUS server answers, in the OpenAPI contract [nexus.openapi.yaml](nexus.openapi.yaml), and in this file the rules that the contract follows, the hub's commands and the formats of the files that go with them. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows, the functional spec and the server's data. The maintainer passed its checkpoint on 2026-11-03, together with stages 03 to 05, 07 and 08, so the requests, the commands and the formats are frozen for NEXUS 0.2 before stage 10 plans the work: a later breaking change needs the maintainer's decision. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the optional `timeline` to the DDD board's picture source, a compatible change, and named the work board of phase ② beside editing; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). The contract is the source of every request, answer, example and error code that it holds; this file explains them and is the source of the rest. When this file and its Korean translation differ, this file is the source.
+Stage 06 of CORTHEX's own project, for NEXUS 0.2: the requests that the NEXUS server answers, in the OpenAPI contract [nexus.openapi.yaml](nexus.openapi.yaml), and in this file the rules that the contract follows, the hub's commands and the formats of the files that go with them. Status: drafted on 2026-11-02, while the memory plugin is being built, as the maintainer chose that day, on the recommendations of the user flows, the functional spec and the server's data. The maintainer passed its checkpoint on 2026-11-03, together with stages 03 to 05, 07 and 08, so the requests, the commands and the formats are frozen for NEXUS 0.2 before stage 10 plans the work: a later breaking change needs the maintainer's decision. The maintainer's choice of 2026-11-03 to hold stage 01's event storming in NEXUS added the optional `timeline` to the DDD board's picture source, a compatible change, and named the work board of phase ② beside editing; the maintainer passed both the same day ([For the checkpoint](#for-the-checkpoint)). The maintainer's redesign of 2026-11-06 plans the pages and requests API-151 to API-159 and changes to API-101 to API-103, API-118, API-119 and the hub's `comment` and `reply`, which the contract and the code take when the redesign is built; the changes to API-118, API-119 and the hub's commands are built, and so are API-151 to API-159 and the move of API-101 to `/hub` ([The redesign's interfaces](#the-redesigns-interfaces)). Phase ②, editing on a PC and the workshops of stage 01, whose stages 01 to 04 passed on 2026-11-06 and 2026-11-07, plans the requests API-161 to API-173, the hub's commands API-174 to API-176 and changes to 0.2's and the redesign's interfaces, which the contract and the code take when phase ② is built, after the redesign ([Phase ②'s interfaces](#phase-②s-interfaces)). This stage's checkpoint for phase ②, with stage 05's, passed them at 09:33 KST on 2026-11-08 ([For the checkpoint](#for-the-checkpoint)). The contract is the source of every request, answer, example and error code that it holds; this file explains them and is the source of the rest. When this file and its Korean translation differ, this file is the source.
 
-Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-142), above all its [notes for stage 06](../04-functional-spec/nexus.md#stage-06-requests-commands-and-formats); the server's data and the files in [docs/05-erd/nexus.md](../05-erd/nexus.md) and [nexus.sql](../05-erd/nexus.sql) (TBL-101 to TBL-118), with their [notes for stage 06](../05-erd/nexus.md#stage-06-requests-commands-and-formats) and their limits; the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md); the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps; and phase 1 as it runs: the server in [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js) and [store.js](../../nexus/src/store.js), and the hub in [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py) with its [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md). The sitemap (stage 07) comes later, so no screen ID is an input yet; the requests serve the screens that the user flows and the functional spec name.
+Inputs: the functional spec in [docs/04-functional-spec/nexus.md](../04-functional-spec/nexus.md) (SPEC-101 to SPEC-156, and SPEC-170 to SPEC-186 for phase ②), above all its [notes for stage 06](../04-functional-spec/nexus.md#stage-06-requests-commands-and-formats); the server's data and the files in [docs/05-erd/nexus.md](../05-erd/nexus.md) and [nexus.sql](../05-erd/nexus.sql) (TBL-101 to TBL-118, and TBL-119 to TBL-124 for phase ②), with their [notes for stage 06](../05-erd/nexus.md#stage-06-requests-commands-and-formats) and their limits; the requirements in [docs/02-prd/nexus.md](../02-prd/nexus.md); the glossary and the DDD board in [docs/01-domain/nexus.md](../01-domain/nexus.md), whose words this file keeps; and phase 1 as it runs: the server in [app.js](../../nexus/src/app.js), [snapshot.js](../../nexus/src/snapshot.js) and [store.js](../../nexus/src/store.js), and the hub in [hub.py](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py) with its [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md). The sitemap (stage 07) comes later, so no screen ID is an input yet; the requests serve the screens that the user flows and the functional spec name.
 
 The stage's default contract is `api/openapi.yaml`, read in Swagger UI. The NEXUS server has an HTTP API, so its contract is OpenAPI 3.1, as the stage asks, kept beside the other part's interfaces as `docs/06-api/nexus.openapi.yaml`. People read it in the Korean copy in the project's Notion records, and the file itself in any OpenAPI viewer, such as Swagger UI; `.corthex/project.json` records the choice. The hub's commands are no HTTP requests, so this file defines them, in the form of MEMORY's [interfaces](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/docs/06-api/memory.md): each with an API ID, the behaviours that it serves and its outcomes.
 
@@ -48,7 +48,7 @@ The automatic [example applicability check](../../nexus/test/contract_example_ch
 - A response is written as its request's ID and its status, as `API-105#409`, and an outcome of a command as its ID and the outcome, as `API-136#refused`.
 - An error code is written as `commit_not_replaced`. [Error codes](#error-codes) lists each with its status, its meaning, the members that it adds, the message that the user sees and what the client does, as the contract's `components.x-corthex.errors` holds them.
 - Times from the server are in UTC with milliseconds, as `2026-11-03T09:00:00.000Z`; times from a device or from Git keep their zone. Sizes in bytes count UTF-8, and lengths in characters count code points, as in stage 05.
-- Status: `built` for what phase 1 serves as it runs, `active` for what NEXUS 0.2 adds or changes. Editing on a PC (SPEC-134) and the work board (SPEC-142) are phase ②, which adds their requests then.
+- Status: `built` for what phase 1 serves as it runs, `active` for what NEXUS 0.2 and the redesign add or change, the redesign's interfaces API-151 to API-159 among them, which [The redesign's interfaces](#the-redesigns-interfaces) defines and the server answers since TASK-271, and `later (phase ②)` for phase ②'s, API-161 to API-176, which [Phase ②'s interfaces](#phase-②s-interfaces) defines in the same way. The contract marks an operation that the server does not answer yet `x-corthex.status: planned`, which the checks leave out; none is planned now.
 - `~/.corthex/` is the CORTHEX folder in the user's home folder, `%USERPROFILE%\.corthex\` on Windows. The hub's files are under `~/.corthex/hub/`, as in phase 1.
 
 ## Sources
@@ -64,7 +64,7 @@ Not yet seen: both kinds of sign-in on a real Access setup, and what `getIdentit
 
 ## Interfaces
 
-Every behaviour of the functional spec has an interface, apart from editing on a PC (SPEC-134) and the work board (SPEC-142), which phase ② adds. The step view (SPEC-141) has no request of its own: it shows the picture that the view reads (API-111).
+Every behaviour of the functional spec has an interface. The step view (SPEC-141) has no request of its own: it shows the picture that the view reads (API-111). The redesign's behaviours, SPEC-143 to SPEC-156, have their interfaces in [The redesign's interfaces](#the-redesigns-interfaces), and phase ②'s, editing on a PC and the workshops (SPEC-134, SPEC-142, SPEC-170 to SPEC-186), theirs in [Phase ②'s interfaces](#phase-②s-interfaces).
 
 ### Requests of the server
 
@@ -72,7 +72,7 @@ The contract defines them, and this table lists them. Who may send each: `user`,
 
 | API | Request | Code name | Who | Serves | Status |
 | --- | --- | --- | --- | --- | --- |
-| API-101 | `GET /` | `getHubPage` | either | SPEC-113, SPEC-122, SPEC-123, SPEC-124, SPEC-125 | active |
+| API-101 | `GET /hub` | `getHubPage` | either | SPEC-113, SPEC-122, SPEC-123, SPEC-124, SPEC-125, SPEC-153 | active |
 | API-102 | `GET /pictures/{project}/{part}/{stage}` | `getPictureViewPage` | either | SPEC-113, SPEC-119 | active |
 | API-103 | `GET /overview/{project}/{part}/{stage}` | `getStageOverviewPage` | either | SPEC-113, SPEC-138, SPEC-139 | active |
 | API-104 | `GET /code/{file}` | `getViewCode` | either | SPEC-113, SPEC-119 | active |
@@ -89,8 +89,8 @@ The contract defines them, and this table lists them. Who may send each: `user`,
 | API-115 | `GET /api/spaces/{project}/proposals/{proposal}` | `getProposal` | either | SPEC-113, SPEC-130, SPEC-131 | active |
 | API-116 | `GET /api/spaces/{project}/edits/{edit}` | `getEdit` | either | SPEC-113, SPEC-133 | active |
 | API-117 | `GET /api/spaces/{project}/checkpoints/{checkpoint}` | `getCheckpoint` | either | SPEC-113, SPEC-140 | active |
-| API-118 | `POST /api/spaces/{project}/comments` | `leaveComment` | either | SPEC-113, SPEC-116, SPEC-126, SPEC-128 | active |
-| API-119 | `POST /api/spaces/{project}/comments/{comment}/replies` | `replyToComment` | either | SPEC-113, SPEC-116, SPEC-127, SPEC-128, SPEC-132 | active |
+| API-118 | `POST /api/spaces/{project}/comments` | `leaveComment` | either | SPEC-113, SPEC-116, SPEC-126, SPEC-128, SPEC-143, SPEC-151 | active |
+| API-119 | `POST /api/spaces/{project}/comments/{comment}/replies` | `replyToComment` | either | SPEC-113, SPEC-116, SPEC-127, SPEC-128, SPEC-132, SPEC-143 | active |
 | API-120 | `POST /api/spaces/{project}/comments/{comment}/answered` | `markAnswered` | either | SPEC-113, SPEC-116, SPEC-127 | active |
 | API-121 | `POST /api/spaces/{project}/comments/{comment}/decisions` | `recordDecision` | agent | SPEC-113, SPEC-116, SPEC-128, SPEC-132 | active |
 | API-122 | `POST /api/spaces/{project}/proposals` | `makeProposal` | agent | SPEC-113, SPEC-116, SPEC-128, SPEC-130 | active |
@@ -115,8 +115,8 @@ The contract defines them, and this table lists them. Who may send each: `user`,
 | API-136 | `push` | API-109, API-105 | SPEC-111, SPEC-112, SPEC-129 | active |
 | API-137 | `remove` | API-110, API-108 | SPEC-115 | active |
 | API-138 | `todo` | API-113 | SPEC-135, SPEC-129 | active |
-| API-139 | `comment` | API-118 | SPEC-128, SPEC-129, SPEC-135 | active |
-| API-140 | `reply` | API-119 | SPEC-127, SPEC-128, SPEC-129, SPEC-132 | active |
+| API-139 | `comment` | API-118 | SPEC-128, SPEC-129, SPEC-135, SPEC-143, SPEC-151 | active |
+| API-140 | `reply` | API-119 | SPEC-127, SPEC-128, SPEC-129, SPEC-132, SPEC-143 | active |
 | API-141 | `answered` | API-120 | SPEC-127, SPEC-128, SPEC-129 | active |
 | API-142 | `decide` | API-121 | SPEC-132, SPEC-128, SPEC-129 | active |
 | API-143 | `propose` | API-122 | SPEC-130, SPEC-128, SPEC-129 | active |
@@ -128,14 +128,299 @@ The contract defines them, and this table lists them. Who may send each: `user`,
 | API-149 | `release` | API-132 | SPEC-136 | active |
 | API-150 | `outbox` | the requests of the writes that it holds | SPEC-129 | active |
 
+## The redesign's interfaces
+
+Planned with the redesign of 2026-11-06 for SPEC-143 to SPEC-156. Its checkpoint 3 sees them; the contract, the server and the hub take them when the redesign is built, with the same rules as 0.2's requests: Access on every request (SPEC-113), Problem Details for refusals, write IDs for writes, and no reply cached but the view's code.
+
+| ID | Request | Code name | Who | Serves | Status |
+| --- | --- | --- | --- | --- | --- |
+| API-151 | `GET /api/home` | `getHome` | either | SPEC-113, SPEC-143, SPEC-144, SPEC-145 | active |
+| API-152 | `GET /api/spaces/{project}/talk/{part}/{stage}` | `getStageTalk` | either | SPEC-113, SPEC-150 | active |
+| API-153 | `GET /p/{project}` | `getProjectPage` | either | SPEC-113, SPEC-146 | active |
+| API-154 | `GET /p/{project}/{part}/{stage}` | `getStagePage` | either | SPEC-113, SPEC-146 to SPEC-151, SPEC-155, SPEC-156 | active |
+| API-155 | `GET /` | `getHomePage` | either | SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-154 | active |
+| API-156 | `GET /api/search` | `searchItems` | either | SPEC-113, SPEC-152 | active |
+| API-157 | `GET /api/spaces/{project}/items/{id}` | `getItem` | either | SPEC-113, SPEC-149 | active |
+| API-158 | `GET /api/spaces/{project}/stages/{part}/{stage}` | `getStage` | either | SPEC-113, SPEC-147, SPEC-148 | active |
+| API-159 | `POST /api/spaces/{project}/comments/{comment}/recommended` | `takeRecommendation` | user | SPEC-113, SPEC-116, SPEC-139, SPEC-143 | active |
+
+- API-151 answers the first page in one read: my turn, up to 50 entries with the total, each with its kind, project, part, stage, item, quote, the first 300 characters of the agent's last entry, its time and its `asks`; the agent to-do's counts for each project, by list, with the taken ones; and a card for each project, from its stored snapshot and space: its parts' current stage and next action, the 13 stages' states and item counts, its warnings, and for each picture its stage, whether it is current, its open comments and a small drawing, which is the server's first picture of it without labels (the first picture decision of 2026-11-04).
+- API-152 answers a stage's talk: the open proposals and comments, those that wait for the user first, each with its item or the stage as a whole, its quote, its author's kind and time, its last reply, its `asks` and, while one lasts, its claim's start; the comments whose item the snapshot no longer holds, apart; and the count of closed ones. `item` narrows it to one item, and `closed=1` adds the closed ones, newest first, 50 at a time.
+- API-158 answers a stage's head and items: the head as SPEC-147 lists it, with whether the project reads the stage and why not (`head.reads`), and the stage record of API-112; the project's name, repository and commit (`project`); the part's 13 stages with their states, item counts, pictures, whether each picture is current, and counts of entries in my turn, for the workspace's list of stages (`stages`); and the items 200 at a time after `after`, filtered by `filter`, `all`, the default, `talk`, `mine` or `left`, and by `q`, up to 200 characters, grouped by `group`, `context`, the default, or `source`.
+- API-157 answers one item: its fields and their names, its context, the place of its source with the snapshot's commit, the items that it comes from and leads to by stage, and its comments as API-152 gives them. `404` `item_not_found` when no stage of the project holds it; the view then reads the comments that still name it with API-152, where they show apart.
+- API-156 takes `q`, from 2 characters to 200, and answers up to 20 matches across every stored snapshot, each with its project, part, stage, ID and title.
+- API-159 takes the agent's recommendation on a comment that waits for the user. With `asks` `recommended`, it adds the user's reply that settles the comment, with the words for "as recommended" in the server's language, as API-119 with `settles` would. With `asks` `checkpoint`, it also passes the checkpoint of the comment's part and stage, with those words and the comment in its `comment`, as API-128 would. Both happen in one transaction with the write ID. `409` `not_recommended` when the comment no longer waits for the user or asks for nothing that can be taken; the refusals of API-119 and API-128 otherwise.
+- The pages, API-153 to API-155, hold their data as the 0.2 pages do ([Page data](#page-data)), and their code comes from API-104. API-153 answers `302` to the project's current stage, and `404` for an unknown project.
+
+Changes to 0.2's interfaces, made when the redesign is built:
+
+1. API-101 `getHubPage` moves to `GET /hub` (SPEC-153); `GET /` becomes API-155.
+2. API-102 and API-103 answer `302` to the stage's page instead of their own pages, the second with `#view=list` (SPEC-154); their IDs stay, as redirects. A `302` is not kept by browsers, so the server can go back to 0.2.
+3. API-118 `leaveComment` takes any of the 13 stage keys and needs no picture; `item` may be empty for the stage as a whole (SPEC-151). A stage key outside the 13 is `400` `invalid_request` by the field `stage`, and a part that the stored snapshot does not hold is `404` `part_not_found`, codes that 0.2 already has. The agent's comment may carry `asks`.
+4. API-119 `replyToComment`: the agent's reply may carry `asks`; the user's reply empties the comment's `asks`.
+5. The hub's `comment` (API-139) takes any of the 13 stages in `--stage`, not only the pictured ones, and leaves `--item` out for the stage as a whole; `comment` and `reply` (API-140) take `--asks answer|recommended|checkpoint`. These are changes of the hub in `kodonghui/corthex`, so they come in its pull request, with the new tokens of the hub page's template (stage 09), and this repository's `hub-ref.json` moves to that exact commit with the product checks, as this repository's rules say.
+
+Change 1 is built since TASK-271, and change 2 comes with TASK-278 (see API-153 to API-155 below). Changes 3 to 5 are built: the contract and the server in kodonghui/corthex-nexus#50, with stage 05's migration 4, and the hub 0.3.0 in kodonghui/corthex#172, whose commit `318035d` `hub-ref.json` names. Two points that writing them settled: the user's `asks` is refused as `400` `invalid_request` by the field `asks`, since only the agent says what it asks; and a comment that leaves out `commit` takes the picture's document version, or on a stage without a picture the held default branch commit, and is refused by the field `commit` when the stored snapshot has none.
+
+The contract holds API-151 to API-154 and API-156 to API-159 since TASK-265, marked `x-corthex.status: planned`, which the contract checks leave out until the server answers them; API-155 came with the move of API-101 in TASK-271. Writing them settled these points:
+
+- A query value in another form is `400` `invalid_request` by its field, unlike a path value ([Addresses and paths](#addresses-and-paths)).
+- API-152's `closed` takes `0` or `1`, and `after` counts the entries that the view holds already, up to 100,000. A claim in the talk gives its start as `claimed_at`, which the agent's own reads may leave out.
+- API-158's `filter` also takes `all`, the default, and `group` is `context` by default. An item's context is the context that its links name, a context's own ID for a context, or else that of the first item that it comes from that has one, a stage back at a time; the items without one are the last group. `counts` gives each filter's items with the words `q`.
+- API-157 takes the part as the query value `part`, the project's first part when it is left out, and holds the talk as `comments`. `item_not_found` holds no comments, since Problem Details hold only the code's members: the view reads the comments that still name the item with API-152 narrowed to it, where they show apart.
+- API-151's small drawing is the server's first layout of the picture, as boxes and lines in whole units without labels, up to 2,000 of each, and null for a picture that is too complex to lay out. A card's title is cut at 120 characters, as titles are.
+- API-156 answers up to 20 matches, each opening in the project's first part.
+- API-159 answers the comment's state, the reply that settles it and the checkpoint, with `changed` false when the recommendation was taken already; a checkpoint passed this way names the comment in `comment`.
+- The stage page holds `corthex-stage-page/0.3` ([Page data](#page-data)), and two codes are new: `item_not_found` and `not_recommended` ([Error codes](#error-codes)).
+
+API-158 is active since TASK-266: the server answers it, and the contract checks and Schemathesis cover it. Building it settled these points:
+
+- The items are the project's items of the stage, as the hub page lists them; their marks, each stage's count of my turn, and the head's picture, commit and hotspots are the part's.
+- My turn on a stage counts its comments that wait for the user and its open proposals (TERM-135). `talk` keeps the items with comments, open or closed; `left` keeps those with an open comment, an open discrepancy on either of its sides, or a pending reflection.
+- When an item comes from several items that have a context, the nearest stage wins, then the order of its links, then the order of IDs. The groups follow the order of the contexts in the snapshot; an ID that the snapshot's prefixes make a context, but that no item of the snapshot holds, is a group without a title after them, and the items without a context come last.
+- A hotspot of a stage 01 board is open while its state is `open` or `열림`, ignoring case and the spaces at its ends, as the board's template writes them in either language; `hotspots` is null when the part has no stage 01 board.
+- `q` comes back trimmed, or null when it holds no words. A query value given twice is refused as one in another form is, and a name that the read does not take is ignored.
+
+API-152 is active since TASK-267: the server answers it, and the contract checks and Schemathesis cover it. Building it settled these points:
+
+- A comment is in my turn while it waits for the user and in the agent's turn while it waits for the agent; while the stored snapshot's stage does not hold its item, it is apart, in neither turn, whichever it waits for. A comment on the stage as a whole is never apart. API-158 still counts an apart comment that waits for the user in the stage's my turn, since it waits for the user (TERM-135).
+- My turn lists the comments whose last entry asks for the stage's checkpoint, then the open proposals, then the other comments that wait for the user (SPEC-143), each oldest first: a comment by the time of its last entry, when it began to wait, and a proposal by when it was made. The agent's turn and apart follow the time of the last entry too, and equal times go by ID.
+- The closed talk is the stage's closed comments, by the time of their last entry, and its proposals no longer open, accepted, dismissed or withdrawn, by when they closed, newest first. `after` counts only these; with `closed=0` the answer gives their total and no entries.
+- `item` narrows the comments to those on the item, and the proposals and reflections to those whose items include it, closed ones too; a comment on the stage as a whole is on no item.
+- The view asks with no session, so no claim in the talk is `mine`. Each comment and reflection gives `claim` with the claim's start and end while one lasts, and null otherwise; a proposal has no claim.
+- Each turn and apart give their first 200 entries with their totals, and the reflections all of the stage's, up to the 500 that a project holds at most. A project without a space is `404` `space_not_found`.
+
+API-156 and API-157 are active since TASK-268: the server answers them, and the contract checks and Schemathesis cover them. Building them settled these points:
+
+- API-157's item is the first item of the stored snapshot, in its order, that one of the 13 stages holds by the ID, as the list shows it. `part` names the part of its talk: the project's first part when it is left out, and `_` for the project as a whole. The talk is that of the item's stage in the part, as API-152 gives it narrowed to the item. A project without a space, pushed only by a hub of 0.1, is `404` `space_not_found`, as for API-152.
+- The source's place is read as the hub page's links read it, `[repository:]path:line`. A repository that the settings name holds the file at its own commit in the snapshot; any other name stays in the path, in the project's own repository, whose commit is the one that the snapshot was made from and may differ from the held default branch commit. The link opens the file at that commit, at its line unless it is the first. There is no link when the settings give no web address or no whole commit: the hub page also links an abbreviated commit, but the contract's commits are whole. There is no source when the item names no place or its path is over 300 characters.
+- The trace takes the item's direct links in either direction: items of an earlier kind, in the stage contract's order of kinds, are what it comes from, and items of a later kind what it leads to. Links to an item of the same kind, to a decision or another kind outside that order, to an ID that no item holds, or to an item outside the 13 stages have no place, though the hub page's trace view shows the first three as the same kind, decisions and links. The groups follow the stages' order, each by kind and then by ID, with its first 100 items and its total.
+- API-156 trims the words and counts them in code points. The items whose ID equals the words, ignoring case, come first; then the items whose ID or title holds every word, ignoring case; each list goes by the projects' names and then in the snapshot's order. An ID matches once in each project that holds it, as the first of its items on the 13 stages, so an ID in several projects is one match for each, by name; IDs in another form and items outside the 13 stages are left out. A match opens in the project's first part, or the project as a whole when it has no parts. `total` counts every match, and the first 20 come back, with titles cut at 120 characters.
+- The search reads only the stored items, never the checks or the stage sources, and keeps no index. Over 30 stored snapshots of 3,000 items each, 29 of them about 1 MB, it took from 104 to 156 milliseconds in a local in-memory server ([Checks run](#checks-run)).
+
+API-151 is active since TASK-269: the server answers it, and the contract checks and Schemathesis cover it. Building it settled these points:
+
+- My turn gathers every space's open comments that wait for the user and its open proposals, in API-152's order: the comments whose last entry asks for the stage's checkpoint, then the proposals, then the other comments, each oldest first, a comment by when it began to wait and a proposal by when it was made, and equal times by ID. A comment whose item no stage holds now is there too, with no title, since it still waits for the user; the stage's talk shows it apart.
+- A comment's text is its last entry, the agent's: the change of an open proposal that answers it after its last reply, or else its last reply, or else its own text, so that a reply of the user's before the proposal never shows as the agent's. A proposal's text is its change, with its first item, and its quote and `asks` are null. Texts are cut at 300 characters.
+- An entry's title is that of the first item of the stored snapshot that one of the 13 stages holds by the ID, as API-157 finds it, cut at 120 characters; it is null for the stage as a whole and for an item that no stage holds. Only the 50 entries that come back read their last entries and titles.
+- The agent's counts are API-113's lists read without a session, for each project with a space, by name, even when every list is empty. Each list's oldest entry, by the time that the list keeps (a comment's last entry, when a discrepancy opened, whatever its level, when a reflection was made and when a checkpoint passed) and then by ID, opens at its part and stage; a discrepancy opens at stage 05 when it compares an aggregate with a table and at stage 07 when it compares a read model with a screen. `taken` counts the claims that last on these entries, so a claim on a comment that waits for the user is not counted.
+- A card counts the items of the 13 stages, and its warnings are the stored checks of level warn. Its parts are the settings' valid parts, up to 50, or the project as a whole when they name none. A part's current stage is its first in progress, or else its first not started, as the hub page names it; `recorded` is true when any of its stages has a recorded state, skipped included; `next` is the current stage's next action cut at 300 characters, or null. `repository` is the web address of the project's own repository, `commit` the held default branch commit and `pushed_at` when the server stored the snapshot.
+- A card holds the pictures of the parts that its snapshot names, in their order and then the stages' order; a picture of a part that the settings no longer name stays in the space but off the card. A picture that is not current is still drawn from its stored source, and `comments` counts the open comments of its part and stage.
+- The small drawing is the server's first layout of the picture, the whole board for stage 01, and gives each box its kind and each line from the right middle of one box to the left middle of the other, rounded to whole units. It is null when the picture has nothing to draw, when the layout stops at its limit, or past 2,000 boxes or lines.
+- The server reads the page in one batch of four statements, and SQLite takes the cards' fields out of the stored bodies. Over 30 projects with spaces, the server's limit, it took a median of 123 to 327 milliseconds in a local in-memory server, with 90 to 4,500 pictures and answers of 0.7 to 2.7 MB ([Checks run](#checks-run)).
+
+API-159 is active since TASK-270: the server answers it, and the contract checks and Schemathesis cover it. Building it settled these points:
+
+- The reply is the user's and settles the comment, with stage 08's words for the answer: "As recommended", or "추천대로" when the server's language is Korean. Its words count in the space's 8 MiB of text, as a reply's do, and the checkpoint's words count no more, as API-128's do not.
+- The reply, the comment's last entry and the checkpoint take one time: the request's, or a millisecond after the comment's last entry when the request's is not later, as for a reply. The checkpoint is that of the comment's part and stage, passed at the held default branch commit with the reply's words, as API-128 passes one.
+- A recommendation is taken already while the comment waits for the agent after its last entry, the user's reply that settled it in the words of either language, and while the checkpoint passed at that time, if one was, is not withdrawn. The answer is then `200` with `changed` false, with that reply and that checkpoint, and the server keeps only the new write ID with it. Any other comment that is not open, waits for the agent or asks, by its last entry, for neither `recommended` nor `checkpoint` is `409` `not_recommended`: a closed comment, one that the user answered in other words or whose checkpoint taken this way was withdrawn, and one that asks for an answer or for nothing, as after a proposal that answers it.
+- `not_recommended` comes first; then `part_not_found` when the comment asks for the checkpoint of a part that the stored snapshot no longer holds, while a recommendation there is still taken, as API-119 takes a reply on any part; then `reply_limit` at the comment's 200 replies, and `space_full`.
+- A session's claim on the comment does not hold the user back and stays, so the agent to-do still counts the entry as taken.
+- A checkpoint passed this way names the comment in `comment` in every answer that holds it, API-112, API-113, API-117, API-129 and API-130 as well as API-159; any other checkpoint leaves `comment` out. A comment on the project as a whole passes the project's checkpoint.
+- The request takes no body and reads none. Two takes at once, each with its own write ID, give one result: the second, planned again on the changed comment, finds the recommendation taken.
+- The table above now names SPEC-139 for API-159, as the contract has done since TASK-265: the request passes a checkpoint as API-128 does.
+
+API-153 to API-155 are active since TASK-271, with the move of API-101 to `/hub`: the server answers them, and the contract checks and Schemathesis cover them. Building them settled these points:
+
+- `/` is the first page and `/hub` the hub page, unchanged, with its search, trace and stage views at their fragments. Nothing else of 0.2 moves yet: the picture view and the stage overview, API-102 and API-103, keep their pages at their addresses until the redesign's stages draw the picture and the list that they show (TASK-274, TASK-275). Until then the stage's page holds their data but draws only its frame, so a `302` to it would take away the only view that works; their redirects, change 2, come with TASK-278, which walks every address of 0.2. Their link to the hub page, and that of their message page, lead to `/hub`.
+- API-153 reads only the stored snapshot: the current stage of the first part in the settings' order, as the first page's card names it, the first in progress or else the first not started, and stage 01 when none is; `_` when the project has no parts. The `302` has no body, the headers of every reply and the policy of a JSON reply, and a browser keeps what follows `#` across it, so `/p/{project}#talk=…` opens at the current stage.
+- API-154 reads the stage as API-158 answers it with its default values, the whole talk as API-152 answers it, and, on stage 01, 05 or 07, the picture as API-111 answers it, from one read of the stored snapshot, each in its own batch. A project without a space, pushed only by a hub of 0.1, has its stage with `talk` and `picture` null and `problem` `space_not_found`; a pictured stage whose part has no picture has `picture` null and `problem` `picture_not_found` with its `why`, as API-111 answers it. The page is `200` in both cases, and the server logs the problem's code and trace ID, as it logs a refusal.
+- API-155 holds API-151's answer, read when the page is served, as the contract's `HomePageData`, `corthex-home-page/0.3`.
+- The server draws the reading parts of both pages with the modules of TASK-272 and puts their data in the script block once; a server without the view's build sends a page that holds the data alone.
+- A page's refusal or error is the message page ([Errors](#errors)): on `/` with Load again only, as SCR-110#error has it; on `/hub` and `/p/…` with Load again and All projects, `/`; on `/pictures/…` and `/overview/…` with Load again and the hub page, `/hub`.
+- The contract checks now count 94 named defaults, four more for each of the three operations, and the response check holds two first pages and four stage pages: with a picture, a pictured stage whose part has none, a stage without pictures, and a project without a space. Schemathesis tests all 41 operations; none is planned.
+
+TASK-274, which builds the workspace and the document stage on API-158, API-128 and API-129, added one member to API-158 on 2026-11-09: each row of `stages` gives `not_current`, why the part's picture of the stage is not current, `size`, `source-gone` or `other-repository` as the picture view names it, or null for a current picture and a stage without one, so that the list of stages can say which pictures are not current (SCR-111#stale). Nothing else reads the rows, so no client changes.
+
+## Phase ②'s interfaces
+
+Planned for phase ②, editing on a PC and the workshops of stage 01 (SPEC-134, SPEC-142, SPEC-170 to SPEC-186), on the tables of stage 05's [Phase ②'s tables](../05-erd/nexus.md#phase-②s-tables), whose stages 01 to 04 passed on 2026-11-06 and 2026-11-07. This stage's checkpoint for phase ②, with stage 05's, passed them at 09:33 KST on 2026-11-08; the contract, the server and the hub take them when phase ② is built, after the redesign, with the same rules as 0.2's requests: Access on every request (SPEC-113), Problem Details for refusals, write IDs for writes, the session label for the agent's writes and the claims of the agent to-do (SPEC-136), and no reply cached but the view's code.
+
+| ID | Request | Code name | Who | Serves | Status |
+| --- | --- | --- | --- | --- | --- |
+| API-161 | `GET /api/spaces/{project}/drafts/{part}/{stage}` | `getEditDraft` | either | SPEC-113, SPEC-134, SPEC-170 | later (phase ②) |
+| API-162 | `POST /api/spaces/{project}/drafts/{part}/{stage}` | `saveEditDraft` | user | SPEC-113, SPEC-116, SPEC-134 | later (phase ②) |
+| API-163 | `POST /api/spaces/{project}/drafts/{part}/{stage}/choice` | `chooseOnConflict` | user | SPEC-113, SPEC-116, SPEC-170 | later (phase ②) |
+| API-164 | `POST /api/spaces/{project}/drafts/{part}/{stage}/send` | `sendEdit` | user | SPEC-113, SPEC-116, SPEC-171, SPEC-175 | later (phase ②) |
+| API-165 | `POST /api/spaces/{project}/drafts/{part}/{stage}/drop` | `dropEditDraft` | user | SPEC-113, SPEC-116, SPEC-173 | later (phase ②) |
+| API-166 | `POST /api/spaces/{project}/edits/{edit}/drop` | `dropEdit` | user | SPEC-113, SPEC-116, SPEC-172, SPEC-173 | later (phase ②) |
+| API-167 | `POST /api/spaces/{project}/positions/{part}/{stage}` | `keepPositions` | user | SPEC-113, SPEC-116, SPEC-174 | later (phase ②) |
+| API-168 | `GET /api/spaces/{project}/workshops` | `listWorkshops` | either | SPEC-113, SPEC-142, SPEC-184, SPEC-186 | later (phase ②) |
+| API-169 | `POST /api/spaces/{project}/workshops` | `startWorkshop` | either | SPEC-113, SPEC-116, SPEC-142, SPEC-186 | later (phase ②) |
+| API-170 | `GET /api/spaces/{project}/workshops/{workshop}` | `getWorkBoard` | either | SPEC-113, SPEC-142, SPEC-181, SPEC-183, SPEC-186 | later (phase ②) |
+| API-171 | `POST /api/spaces/{project}/workshops/{workshop}/changes` | `changeWorkBoard` | either | SPEC-113, SPEC-116, SPEC-176, SPEC-177, SPEC-178, SPEC-179, SPEC-186 | later (phase ②) |
+| API-172 | `POST /api/spaces/{project}/workshops/{workshop}/read` | `markBoardRead` | agent | SPEC-113, SPEC-181, SPEC-186 | later (phase ②) |
+| API-173 | `POST /api/spaces/{project}/workshops/{workshop}/end` | `endWorkshop` | user | SPEC-113, SPEC-116, SPEC-184 | later (phase ②) |
+
+| ID | Command | Sends | Serves | Status |
+| --- | --- | --- | --- | --- |
+| API-174 | `workshop` | API-168, API-169 | SPEC-142, SPEC-186 | later (phase ②) |
+| API-175 | `board` | API-168, API-170, API-172 | SPEC-181, SPEC-183, SPEC-186 | later (phase ②) |
+| API-176 | `change` | API-171 | SPEC-179, SPEC-186, SPEC-128, SPEC-129 | later (phase ②) |
+
+### Edit drafts and sent edits
+
+The draft's requests take the picture's path, since one draft is open for each part's pictured stage (REQ-240), and name the draft's ID and the revision that they start from in the body (REQ-241). Only the user writes a draft (SPEC-116); `{stage}` is one of the three pictured stages, and a stage without a picture gets `404` `picture_not_found`.
+
+- **API-161** answers the open draft: its ID, its document version (`commit`), its revision, its list of changes, the editor's elements, the list of the draft that editing again dropped (`earlier`), and when it was made and last saved. It adds `latest`, the picture's current document version, and, when the draft is on another, `applies`: for each change, in order, `true` or why it no longer applies, `gone`, `changed` or `name-taken` (SPEC-170). `404` `draft_not_found` when no draft is open: the editor then opens the picture itself, and its first save starts the draft.
+- **API-162** saves the draft: `{draft, revision, commit, changes, elements}`. A first save sends `draft: null`, `revision: 0` and `commit`, the document version of the picture that the editor opened, and gets `201` with the new draft's ID and revision 1; a later save sends the draft's ID and the revision that it holds, without `commit`, and gets `200` with the next revision. Each save replaces the list of changes and the elements whole. When the picture was redrawn between the editor's opening and the first save, the draft starts on the editor's version, and API-161 shows it as an edit conflict. `409` `draft_revision` when the draft holds another revision, or when a first save finds a draft open, as from a second window: its `draft`, `revision` and `saved_at` give the draft as last saved, which the view offers to load (REQ-241). `409` `draft_closed` when the named draft was sent or dropped. `413` `draft_too_large` over 1 MiB of changes, elements and earlier list, or over 300 changes, and `413` `body_too_large` for a body over 1 MiB; `409` `space_full` when the space's text would pass 8 MiB.
+- **API-163** takes the user's choice on an edit conflict: `{draft, revision, choice, commit}`, where `choice` is `keep` or `edit-again` and `commit` is the latest document version that the conflict was shown over. `keep` binds the draft to `commit` (SPEC-170): refused with `409` `draft_not_applying`, whose `changes` names the changes that stop it, each with why; answered `changed: false` when the draft is on `commit` already. `edit-again` drops the draft and opens a new one on `commit`, with no changes and the dropped draft's list as its `earlier`, and gets `201` with the new draft. Both get `409` `picture_changed`, whose `latest` gives the newer version, when the stage source changed again while the conflict was shown.
+- **API-164** sends the draft as an edit: `{draft, revision, note}`, with a note of up to 200 characters (SPEC-171). When the draft's version is still the latest, the server makes the edit under the draft's ID, pending, with the draft's version, its list of changes and the note, deletes the draft and puts the edit in the agent to-do, all in one batch, and answers `201` with the edit. The positions at which the user placed the added items go with their changes' `at`, under their temporary names (SPEC-175). `409` `picture_changed` when the version is no longer the latest, and the view shows the conflict (SPEC-170). `400` `invalid_request` for an empty list, whose `field` is `changes`, and for an empty note, whose `field` is `note`; `413` `text_too_long` for a note over 200 characters; `409` `reflection_limit` when the space holds 500 pending reflections.
+- **API-165** drops the draft: `{draft, revision}` (SPEC-173). The draft's row goes, with its bytes. A draft that is no longer open and was not sent is dropped already: `changed: false`. `409` `draft_closed` when it was sent, naming the edit.
+- **API-166** drops an edit sent from the editor while it waits (SPEC-173): a pending edit, or one that needs the user, becomes `dropped` and leaves the pending reflections; one in review becomes `dropped` with its pull request kept, and the agent to-do lists it until the agent reports the pull request closed or merged (SPEC-185). `409` `edit_state`, with its `state`, when the edit is closed, dismissed or dropped already, as SPEC-173 says, and for an edit that an accepted proposal made, which only a dismissal closes (API-127). A session's claim never refuses it (SPEC-136).
+- **API-167** keeps positions: `{positions}`, a list of 1 to 2,000 `{item, x, y}`, each a trace ID that the current picture holds, a context or an aggregate of the DDD board, a table of the ERD or a screen of the sitemap (SPEC-174). Each is kept under its item for the part's stage, with the server's time; of two windows, the later save wins. `400` `unknown_item`, whose `items` names them, for IDs that the picture does not hold; `409` `position_limit` when the part's stage would hold more than 2,000. The answer gives how many were kept and the stage's total.
+
+### Work boards
+
+A workshop is the work board of a part's stage 01 (SPEC-142). The agent's writes on a board are on the workshop's entry for its claims ([Claims](#claims)), and a comment on a board is API-118's, on a sticky or a frame (SPEC-180).
+
+- **API-168** lists the project's workshops, or a part's with `part`: the open one first, then the ended ones, newest first, each with its ID, part, way of working, state, board version, last step, the version that the agent last read, and when it started and ended; 50 at a time, with the total.
+- **API-169** starts a workshop: `{part, way, text}`, where `way` is `draft-first` or `people-first`, which the user chose (REQ-249), and `text`, optional, is Step 0's goal and scope, up to 4,000 characters. It makes the workshop, open, at board version 1, with its Step 0 frame, and answers `201` with both. The user starts one in the view, and the agent through the hub when the user asks in the session (SPEC-186). `409` `workshop_open`, whose `workshop` gives the open one, which the view opens (REQ-248). `400` `invalid_request` without `way`; `404` `part_not_found` for a part that the stored snapshot does not hold.
+- **API-170** answers a board: the workshop, with its state, way, board version and the agent's last read; its frames in step order, each with its text, the version and author of its last change and its checkpoint, with the checkpoint's state, the board version passed, its reflection's pull request and whether it differs from the source; every sticky, arrow and group, removed ones too, each with its ID, frame, the ID that it copies, its fields, its author, its label, the version at which it was made and of its last change, who made that change and what it was; the marks since the agent's read; and the counts of open comments on each sticky and frame. Its fields follow stage 05's columns. `since`, a board version, narrows it to the frames and elements changed after that version, with the board's version, so that an open board asks for its changes every 10 seconds and when it is shown again (point 23). `upto`, a checkpoint's `nk_` ID, narrows it to the frames up to that checkpoint's step, which no longer change once it passed, with the board version passed (point 21); `409` `checkpoint_withdrawn` for a withdrawn checkpoint.
+- **API-171** changes a board's last frame: `{frame, operations}`, where `frame`, optional, is the step of a frame to add first, as a copy of the last frame without its removed elements (SPEC-176), and `operations` is a list of up to 1,000 operations, which may be empty only with `frame`. The server checks the workshop, the frame, each operation, its author and the version that it starts from, and the frame's limits, then writes all of it in one batch, which raises the board version by one, or nothing (SPEC-177, SPEC-179). The answer gives the new board version, `changed`, the IDs given to the keys of the elements that it placed (`keys`), the elements as written, and `unchanged`, the places of the operations that changed nothing. A body may have up to 1 MiB.
+- **API-172** records the agent's read of a board: `{version}`, the board version that the hub read in full, with the session label (REQ-259). A version older than the recorded read changes nothing (`changed: false`), as when two reads cross; the later read counts. A version above the board's is `400`. It needs no write ID, as a claim needs none, since recording one version twice leaves one mark, and the hub never keeps it in the outbox: a read that it could not complete records nothing (SPEC-181).
+- **API-173** ends a workshop (SPEC-184): its board becomes read-only, as material. Only the user ends one; the agent gets `403` `user_only` and asks the user. An ended workshop answers `changed: false`.
+
+The operations of API-171:
+
+| `op` | Fields | Who | What it does |
+| --- | --- | --- | --- |
+| `place` | `key`, `kind`, `text`, `x`, `y`, and `label` from the agent | either; the agent must send `label`, the user sends none | Places a sticky of one of the legend's nine kinds, marked with its author (REQ-214, REQ-215, REQ-252) |
+| `change` | `sticky`, `version`, and one or more of `kind`, `text`, `x` and `y` | the user any sticky; the agent only its own | Changes or moves it; the user's change takes the agent's label off (REQ-253). A hotspot is answered by changing its kind to `answered-hotspot` |
+| `confirm` | `sticky`, `version` | user | Takes the agent's label off, as the sticky is (REQ-253) |
+| `remove` | `sticky`, `version` | the user any sticky; the agent only its own | Folds it away with its arrows, with who removed it and when (REQ-257) |
+| `restore` | `sticky`, `version` | user | Brings it back with its arrows |
+| `arrow` | `key`, `from`, `to` | either | Draws an arrow between two stickies of the frame |
+| `unarrow` | `arrow`, `version` | the user any arrow; the agent only its own | Takes it away |
+| `group` | `key`, `name`, `members` | either | Groups 1 to 300 stickies of the frame under a name of up to 100 characters |
+| `regroup` | `group`, `version`, and `name` or `members` or both | the user any group; the agent only its own | Renames it or changes its stickies |
+| `ungroup` | `group`, `version` | the user any group; the agent only its own | Ungroups it |
+| `text` | `version`, `text` | either | Sets the frame's own text, up to 4,000 characters, such as Step 0's goal and scope |
+
+- `key` is a name for an element that the change places, 1 to 40 ASCII letters, digits, `-` and `_`, unique in the change, so that its arrows and groups can join the stickies that it places; `from`, `to` and `members` take a sticky's ID or a key of the same change. With `frame`, an operation may name a sticky, arrow or group of the frame before it, meaning its copy in the new frame, and names no version, since the copy is new.
+- `version` is the element's version that the operation starts from, or the frame's for `text`. An older one is refused with `409` `element_changed`, whose `at` gives the operation's place in the list and `element` the element as it is now, with who changed it (REQ-256, point 23).
+- An operation whose outcome holds already, a removal of a removed sticky, a restoring of one that is back, a confirmation of a sticky without a label, a taking away of an arrow taken away or an ungrouping of an ungrouped group, changes nothing, whatever version it names, and is listed in `unchanged` (SPEC-178). A change of only such operations is answered with `changed: false` and raises no version.
+- Refusals: `409` `workshop_ended` (REQ-218); `409` `frame_not_next`, whose `next` gives the next step or `null` after Step 9, and `409` `checkpoint_waits`, whose `step` is 1-b or 7, for a frame that may not come yet (REQ-251); `409` `frame_closed` for a change on a frame that is not the last, or whose checkpoint passed (REQ-250); `403` `not_placed_by_agent` for the agent's change, move or removal of what it did not place (REQ-254); `403` `user_only` for the agent's `confirm` and `restore`, and for the agent's `frame` on a board of the way `people-first`, whose frames the user adds (SPEC-176); `400` `unknown_item` for IDs that the frame does not hold; `400` `invalid_request` for an arrow or a group across frames, a key used twice, and the agent's `place` without a label or the user's with one; `413` `text_too_long` for a sticky's text over 300 characters, a name over 100 or a frame's text over 4,000; and `409` `board_limit`, whose `field` and `limit` name it, for 12 frames, or in a frame 300 stickies, 600 arrows or 50 groups, removed ones included (SPEC-142). An empty text is `400`, as for any text that a write must have.
+
+### Commands of the hub for phase ②
+
+They follow [Running a command](#running-a-command): the session label, `--json`, the exit codes, and the outbox for the writes. They are changes of the hub in `kodonghui/corthex`, so they come in its pull request, and this repository's `hub-ref.json` moves to that exact commit with the product checks, as for the redesign.
+
+`workshop` (API-174):
+
+```txt
+hub.py workshop PROJECT [--part PART]
+                [--start --way draft-first|people-first [--text TEXT | --text-file FILE]]
+```
+
+Without `--start` it lists the part's workshops (API-168). With `--start` it starts one with the way of working that the user chose in the session, and Step 0's goal and scope as its text, redacted (API-169, SPEC-142). The stage 01 skill has the agent start one only when the user asks, and never choose the way itself (REQ-249). `409` `workshop_open` is `refused`, with the open workshop's ID.
+
+`board` (API-175):
+
+```txt
+hub.py board PROJECT [WORKSHOP] [--part PART] [--checkpoint CHECKPOINT] [--since VERSION]
+```
+
+It reads a board (API-170): the workshop that `WORKSHOP` names, or the part's open one, which it finds through API-168; with no open workshop it says so, with exit code 0 (SPEC-186). It prints the board frame by frame, each sticky with its ID, kind, text, author, label, the ID that it copies and whether it is removed, then the arrows, the groups, each frame's checkpoint and the marks since the agent's read, after redacting every text and name as it redacts a snapshot, so that no secret on a sticky reaches a stage source (SPEC-183). After a complete read of an open board, whole or since a version no later than the agent's last read, it records the read (API-172); a read of a checkpoint, `--checkpoint`, gives the frames up to its step at the version passed and records nothing, since it leaves the later frames out (point 21). A read cut off records nothing, and the marks stay (SPEC-181).
+
+`change` (API-176):
+
+```txt
+hub.py change PROJECT WORKSHOP --file FILE
+```
+
+It sends the change in `FILE`, `-` for standard input, a JSON object of API-171's body, after redacting its texts and names, with a new write ID and the session label, after the project's outbox (SPEC-128). It prints the board version, the IDs given to the keys and the operations that changed nothing. A change that cannot be sent waits whole in the outbox, with exit code 3, and goes at the next contact; a refusal then, as for a frame passed meanwhile, is reported and dropped, and the agent reads the board again (SPEC-179, SPEC-129).
+
+### Changes to 0.2's and the redesign's interfaces
+
+Made when phase ② is built:
+
+1. API-110 `getRemovalDryRun` lists the open drafts and the workshops, open and ended, with the rest of what a removal deletes (SPEC-115).
+2. API-111 `getPicture` gains `draft`, the mark of the part's stage's open draft, with its ID, revision, document version and last save (point 19); `positions`, the kept positions, from which the layout starts (SPEC-119, SPEC-174); and, among its reflections, the edits sent from the editor, with their list of changes and note, marked as sent on an earlier document version once the picture was redrawn (REQ-243, SPEC-172), and the dropped ones whose pull request is open.
+3. API-113 `getAgentTodo` lists, after its checkpoints, `dropped_edits`, the dropped edits whose pull request is open; `workshop_checkpoints`, the workshops' passed checkpoints not yet reflected, oldest first, each with its board version and its pull request when one was reported; and `changed_boards`, the open workshops whose board the user changed since the agent's read, each with its count of changes: 50 of each, with their totals (SPEC-185). A workshop's checkpoint is not among `checkpoints`, since its reflection writes the record.
+4. API-116 `getEdit` gains, for an edit sent from the editor, `changes`, `note`, `comment` and `dropped_at`.
+5. API-118 `leaveComment` takes, on stage `01-domain`, an `item` that is the `ns_` ID of a sticky or the `nf_` ID of a frame of the part's workshop (REQ-258, SPEC-180). `404` `item_not_found` when the board does not hold it, and `409` `workshop_ended` for a new comment on an ended workshop, whose open comments can still be answered.
+6. API-126 `reportEdit`: `merged` takes `ids`, the IDs that the stage source gave the items that the edit added, by their temporary names, and the same write keeps their positions under those IDs, unless an ID has a newer position already (REQ-247, SPEC-175); a name that the edit does not hold is `400` `unknown_name`, whose `names` gives them, and the edit stays as it was. For an edit sent from the editor, `needs-user` and `merged` take `comment`, the agent's comment on the stage as a whole that asks the user or tells them what became of it (SPEC-171, SPEC-173). A dropped edit takes `closed` for its pull request, which empties it and leaves the edit dropped, and `merged`, with its pull request or none, which closes it as reflected after the drop (point 20); any other report is `409` `edit_state`.
+7. API-128 `passCheckpoint` takes, for stage `01-domain`, `frame` and `board_version`: the workshop's checkpoint after the frame's step, at the board version that the user sees (REQ-261, SPEC-182). `409` `board_changed`, whose `version` gives the board's, when the board changed since; `409` `not_checkpoint_step`, whose `step` gives the last frame's, when the frame is not the board's last or its step is not 1-b, 7 or 9; `409` `frame_closed` when its checkpoint passed already. The pass of Step 9's checkpoint also ends the workshop, in the same batch (REQ-263).
+8. API-129 `withdrawCheckpoint` withdraws a workshop's checkpoint only while its frame is still the board's last one and no pull request reflects it: `409` `frame_closed` once a later frame was added, `409` `pull_request_reported` once its reflection's pull request was reported, and `409` `workshop_ended` for the last checkpoint, which ended the workshop (SPEC-182).
+9. API-130 `reportCheckpoint` takes, for a workshop's checkpoint, the event `differs`, without a pull request: another pull request changed the stage 01 source since the board was last reflected, and the agent asks the user (REQ-265, SPEC-183); its `opened` clears it. `differs` for any other checkpoint is `400`.
+10. API-131 `claimEntry` and API-132 `releaseEntry` take an `nb_` ID, a workshop whose board the user changed since the agent's read; its claim ends as any claim ends, or when the session's read leaves the board out of the to-do (SPEC-185).
+11. The redesign's API-151 `getHome` gives, for an agent's comment on a frame that asks for its checkpoint, the board version of the frame's workshop, and API-159 `takeRecommendation` takes it back as `board_version` and passes the checkpoint as API-128 would, with its refusals (D15, SPEC-182).
+12. The redesign's API-152 `getStageTalk` gives, on stage `01-domain`, the board comments with their step and sticky's text (SPEC-180), and on the pictured stages the edits sent from the editor with their list and note (SPEC-172). API-158 `getStage` names, in stage 01's head, the part's open workshop with its last step and board version, and its ended ones (SPEC-142).
+13. The hub: `todo` (API-138) prints phase ②'s lists; `comment` (API-139) takes a sticky's or a frame's ID in `--item` with `--stage 01-domain`; `reflect` (API-145) takes `--id NAME=ID`, again for each name, with `merged`, and `--comment ID`; `record` (API-146) takes the event `differs`, without `--pr`; `claim` and `release` (API-148, API-149) take an `nb_` ID. They come in the core repository's pull request with API-174 to API-176.
+
+### Request names, claims and limits of phase ②
+
+| Name | Request | Who |
+| --- | --- | --- |
+| `save-draft` | API-162 | user |
+| `draft-choice` | API-163 | user |
+| `send-edit` | API-164 | user |
+| `drop-draft` | API-165 | user |
+| `drop-edit` | API-166 | user |
+| `positions` | API-167 | user |
+| `start-workshop` | API-169 | either |
+| `board` | API-171 | either |
+| `end-workshop` | API-173 | user |
+
+- The agent's writes on a board, its changes and its read marks, are on the workshop's entry, and its reports of a workshop's checkpoint, `differs` too, on the checkpoint's ([Claims](#claims)).
+- A draft's save and a board's change may have bodies of up to 1 MiB; every other request of phase ② keeps 256 KiB. Stage 05's [limits](../05-erd/nexus.md#limits) give the rest: a draft of 1 MiB and 300 changes, a note of 200 characters, 2,000 positions for each part's stage, and a board's 12 frames with, in each, 300 stickies, 600 arrows and 50 groups.
+
+### Formats of phase ②
+
+**The list of changes** of a draft and of a sent edit (TERM-149, REQ-242) is a list of up to 300 changes, each an object:
+
+| Field | Value |
+| --- | --- |
+| `kind` | `added`, `renamed`, `changed`, `removed`, `connected` or `disconnected` |
+| `item` | The item's trace ID; for an item that the draft adds, its temporary name, `new-` with lowercase letters, digits and hyphens, up to 40 characters in all, unique in the draft, such as `new-1` |
+| `before` | The fields of the item that the change touches, as the draft's version of the picture had them, named as the picture source's element names them ([Picture sources](#picture-sources)), such as `name`, `context` or a column's definition; empty for `added`. Each value is up to 300 characters |
+| `after` | The same fields after the change; empty for `removed` |
+| `to` | For `connected` and `disconnected`, the other item's trace ID or temporary name |
+| `at` | For `added`, `{x, y}`: where the user placed the item (SPEC-175) |
+| `quote` | Optional: up to 300 characters that the list shows with the change |
+
+- A change applies to a newer picture when the item that it touches is in it with the fields of `before`, its other item too for a connection, and, for `added`, when no item of the new picture has its name (SPEC-170). `applies` gives `gone`, `changed` or `name-taken` otherwise. A redraw writes nothing to a draft.
+- The list and the note are shown only as text (REQ-148), and the server reads only these fields. `elements` is the editor's own document, Excalidraw's elements or ERD Editor's, which the server keeps and gives back as it was sent, and which only the editor reads.
+- **A board's elements** have the fields of stage 05's columns: a sticky's `id`, `frame`, `copies`, `kind`, `text`, `x`, `y`, `author`, `label`, `removed`, `removed_by`, `removed_at`, `made_version`, `version`, `changed_by` and `change`, and an arrow's and a group's likewise. A mark is `{element, mark}`, where `mark` is `added`, `changed`, `removed` or `restored` (SPEC-181).
+
+### Error codes of phase ②
+
+| Code | Status | Meaning | Members | Message | What the client does |
+| --- | --- | --- | --- | --- | --- |
+| `draft_not_found` | 404 | the picture has no open edit draft | none | There is no unsent edit here | the editor opens the picture itself, and its first save starts the draft |
+| `draft_revision` | 409 | a request names another revision than the draft holds, or a first save finds a draft open; the members give the draft as last saved | `draft`, `revision`, `saved_at` | This edit was saved in another window | the view offers to load the draft as last saved, keeping the refused changes in the page until the user chooses |
+| `draft_closed` | 409 | the named draft was sent or dropped; state says which, and edit names the sent edit | `state`, `edit` | This edit was sent or dropped already | the view reads the picture again |
+| `picture_changed` | 409 | the picture holds a newer document version than the request starts from; latest gives it | `latest` | The picture changed since this edit began | the view shows the edit conflict over the newest picture |
+| `draft_not_applying` | 409 | changes of the draft no longer apply to the latest picture; changes names them, each with why | `changes` | Some changes no longer fit the new picture | the view lists them apart, with editing again and dropping |
+| `draft_too_large` | 413 | the draft would pass 1 MiB or 300 changes; field and limit name which | `field`, `limit` | This edit is too large. Send it or drop it first | the view says so and keeps the unsaved changes in the page |
+| `unknown_name` | 400 | a report names temporary names that the edit does not hold; names gives them | `names` | The report names items that the edit did not add | the hub reports the names, and the agent checks the stage source |
+| `position_limit` | 409 | the part's stage would keep more positions than its limit | `limit` | No more positions can be kept for this picture | the view says so and lays out the other items |
+| `workshop_not_found` | 404 | the space holds no such workshop | none | This workshop is not here | the view reads the stage again; the hub reports it |
+| `workshop_open` | 409 | the part has an open workshop; workshop gives it | `workshop` | A workshop is open for this part already | the view opens it; the hub reports its ID |
+| `workshop_ended` | 409 | the workshop has ended, so its board is read-only and takes no new comment | none | This workshop has ended | the view shows the board read-only |
+| `frame_not_next` | 409 | the frame to add is not the next step's; next gives it, or null after Step 9 | `next` | This is not the next step | the view offers the next step |
+| `checkpoint_waits` | 409 | the next frame comes only after a checkpoint that has not passed; step gives its step | `step` | Pass this step's checkpoint first | the view opens the checkpoint box |
+| `frame_closed` | 409 | the frame is not the board's last, or its checkpoint passed; frame gives it | `frame` | This step is closed | the view shows the board as it is |
+| `element_changed` | 409 | an operation starts from an older version of its element; at gives the operation's place, element the element as it is now | `at`, `element` | This was changed meanwhile | the view puts the element back, says who changed it and keeps the refused text to copy |
+| `not_placed_by_agent` | 403 | the agent changes, moves or removes what it did not place; element names it | `element` | The agent changes only what it placed | the hub reports it, and the agent asks in a comment on it |
+| `board_limit` | 409 | the change would take the board past a limit; field and limit name it | `field`, `limit` | This board is full here | the view and the hub name the limit |
+| `board_changed` | 409 | the board holds a newer version than the pass names; version gives it | `version` | The board changed since you looked | the view shows the board as it is now, to pass again |
+| `not_checkpoint_step` | 409 | the frame is not the board's last, or its step has no checkpoint; step gives the last frame's | `step` | This step has no checkpoint | the view reads the board again |
+
+Phase ② also uses 0.2's `invalid_request`, `unknown_item`, `user_only`, `agent_only`, `picture_not_found`, `part_not_found`, `edit_state`, `pull_request_reported`, `checkpoint_withdrawn`, `reflection_limit`, `space_full`, `text_too_long` and `body_too_large`, and the redesign's `item_not_found`. Its refusals keep the order of [Which refusal comes first](#which-refusal-comes-first): the `404`s of what a request names and `unknown_item` and `unknown_name` at 9, and the `409`s, with `not_placed_by_agent` and an operation's `user_only`, at 10.
+
+Phase ② changes nothing that 0.2's clients send: its fields are optional, and its answers add members, which a client that does not know them ignores. The edit's new state, `dropped`, reaches a hub of 0.2 only in an answer that it prints as it reads it.
+
 ## Common rules
 
 ### Addresses and paths
 
-- The server answers only at the address that the user set, which `nexus.url` names, and at no `workers.dev` or preview address, as phase 1 does (SPEC-113). The pages are `/`, `/pictures/…` and `/overview/…`, the view's code is under `/code/`, and the rest under `/api/`.
+- The server answers only at the address that the user set, which `nexus.url` names, and at no `workers.dev` or preview address, as phase 1 does (SPEC-113). The pages are `/`, `/hub`, `/p/…`, `/pictures/…` and `/overview/…`, the view's code is under `/code/`, and the rest under `/api/`.
 - `{project}` is the registered name: lowercase letters and digits in words joined by hyphens, up to 100 characters. `{part}` is a part's name of the same form, or `_` for the project as a whole, which a JSON body writes as `""`. `{stage}` is a stage key; only `01-domain`, `05-erd` and `07-sitemap` have pictures.
 - The server's own IDs are a prefix and 12 random characters of lowercase Crockford base32, the digits and the letters but `i`, `l`, `o` and `u`: `nc_` for comments, `nd_` discrepancies, `np_` proposals, `ne_` edits, `nk_` checkpoints and `nw_` writes. The server makes them, apart from write IDs, which the page and the hub make. They are not trace IDs, and the hub never reads them as items.
 - A path value in another form gets the `404` that a value the server does not hold gets, as phase 1 answers a project name, and never `400` ([choice 1](#choices-this-stage-made)).
+- A query value in another form gets `400` `invalid_request` by its field, as a body's field does. The redesign's reads, API-152 and API-156 to API-158, take query values.
 
 ### Methods and bodies
 
@@ -149,7 +434,7 @@ The contract defines them, and this table lists them. Who may send each: `user`,
 - An answer is JSON, as `application/json; charset=utf-8`, with `200`, or `201` for a write that adds an entry. A page is `text/html; charset=utf-8`, and a file of the view's code has its own type.
 - Every reply carries phase 1's headers: `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-Robots-Tag: noindex, nofollow` and `Cross-Origin-Resource-Policy: same-origin`, so that no reply is cached, shown in a frame of another site or indexed (SPEC-113). A JSON reply adds `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`.
 - The hub page keeps phase 1's policy, which runs only its own inline script, by its digest, and sends no request: `default-src 'none'; script-src 'sha256-…'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, with `Cross-Origin-Opener-Policy: same-origin`.
-- The picture view and the stage overview load their code from `/code/` and send their requests only to the server (REQ-147): `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, with `Cross-Origin-Opener-Policy: same-origin`. Their data is in a JSON script block, which the page reads as text and never runs.
+- The picture view, the stage overview and the redesign's pages, `/` and `/p/{project}/{part}/{stage}`, load their code from `/code/` and send their requests only to the server (REQ-147): `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, with `Cross-Origin-Opener-Policy: same-origin`. Their data is in a JSON script block, which the page reads as text and never runs. A project's address, `/p/{project}`, answers `302` with no body and the policy of a JSON reply.
 - Only public content-hashed view code, styles and fonts may be kept by the browser and the same-origin Access-protected Cloudflare edge, with `Cache-Control: public, max-age=31536000, immutable`: each name carries a digest of the file's content, and they hold no project data. SPEC-113 allows this, as this stage's checkpoint changed it ([Changes to earlier stages](#changes-to-earlier-stages)).
 
 ### Errors
@@ -168,7 +453,7 @@ Every refusal and error is Problem Details (RFC 9457), sent as `application/prob
 
 NEXUS sends no `type`, which RFC 9457 reads as `about:blank`, and no `instance`. A client ignores the members that it does not know, as RFC 9457 says. The view shows the code's message in the user's language, never `detail`; the hub shows `detail`. The server's log holds only the kind of an error and its trace ID, never a stored text or a value of the request (SPEC-113).
 
-The three pages, API-101 to API-103, answer a refusal or an error as `text/html; charset=utf-8` when the request's `Accept` header names `text/html`, as a browser's does when it opens a page, and as Problem Details otherwise, since a browser shows those as raw text. The page holds one message, the code's in the server's language, with the trace ID, Load again and a link to the hub page; it has the reply's status and the policy `default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, and stage 08's [rule 9](../08-screens/nexus/README.md#every-screen) draws it. The `/api/` requests and the view's code always answer Problem Details, and a view's own data holds them in `problem`.
+The pages, API-101 to API-103 and API-153 to API-155, answer a refusal or an error as `text/html; charset=utf-8` when the request's `Accept` header names `text/html`, as a browser's does when it opens a page, and as Problem Details otherwise, since a browser shows those as raw text. The page holds one message, the code's in the server's language, with the trace ID, Load again and a way on: none more on the first page, `/`; All projects, `/`, on the hub page and the redesign's other pages; and the hub page, `/hub`, on the picture view and the stage overview; it has the reply's status and the policy `default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`, and stage 08's [rule 9](../08-screens/nexus/README.md#every-screen) draws it. The `/api/` requests and the view's code always answer Problem Details, and a view's own data holds them in `problem`.
 
 ### Which refusal comes first
 
@@ -178,7 +463,7 @@ A request that breaks several rules gets the refusal of the first in this order,
 2. The path and the method: `404` `not_found`; `405` `method_not_allowed`; a path value in another form, the `404` of what it names.
 3. A change that a browser sends from another site: `403` `cross_site`.
 4. The kind of sign-in that a write needs: `403` `user_only`, `agent_only` or `no_kind`.
-5. The headers: the write ID and the session label, `400` `invalid_request`.
+5. The headers, the write ID and the session label, and the query values: `400` `invalid_request`.
 6. The body's type, `415` `json_required`, and its size, `413` `snapshot_too_large` or `body_too_large`.
 7. The body: not UTF-8, not JSON or not in its form, `400` `invalid_request` or `invalid_snapshot`; a snapshot dated ahead, `400` `clock_ahead`; a text over its limit, `413` `text_too_long`.
 8. The write ID: a write that the server took already gets its first answer, and an ID that another request took, `409` `write_id_reused`.
@@ -233,6 +518,7 @@ The name that TBL-112 keeps for each write, and the outbox for the agent's:
 | `checkpoint` | API-128 | user |
 | `withdraw-checkpoint` | API-129 | user |
 | `report-checkpoint` | API-130 | agent |
+| `recommended` | API-159 | user |
 
 ### Sessions
 
@@ -257,7 +543,7 @@ The name that TBL-112 keeps for each write, and the outbox for the agent's:
 
 ### Answers that change nothing
 
-A write whose outcome holds already changes nothing, and its answer says so with `changed: false`: marking answered a comment that is closed, whether as answered or as decided (SPEC-127); withdrawing a proposal or a checkpoint that is withdrawn already, or dismissing a reflection that is dismissed already; and a report that repeats the last one of its entry. A write that another outcome has closed is refused with `409` and the state that closed it: accepting or dismissing a proposal that is not open (`proposal_not_open`, SPEC-131), and a report that does not fit its entry's state. A write sent again with its write ID gets its first answer, whatever it said ([Write IDs](#write-ids)).
+A write whose outcome holds already changes nothing, and its answer says so with `changed: false`: marking answered a comment that is closed, whether as answered or as decided (SPEC-127); withdrawing a proposal or a checkpoint that is withdrawn already, or dismissing a reflection that is dismissed already; taking a recommendation that is taken already, with the reply and the checkpoint that took it (API-159); and a report that repeats the last one of its entry. A write that another outcome has closed is refused with `409` and the state that closed it: accepting or dismissing a proposal that is not open (`proposal_not_open`, SPEC-131), taking a recommendation that no longer waits to be taken (`not_recommended`), and a report that does not fit its entry's state. A write sent again with its write ID gets its first answer, whatever it said ([Write IDs](#write-ids)).
 
 ## A push
 
@@ -457,8 +743,8 @@ The writes (API-139 to API-146):
 
 ```txt
 hub.py comment  PROJECT --stage STAGE [--part PART] [--item ID] [--quote TEXT]
-                [--discrepancy ID] [--commit COMMIT] (--text TEXT | --text-file FILE)
-hub.py reply    PROJECT COMMENT (--text TEXT | --text-file FILE)
+                [--discrepancy ID] [--commit COMMIT] [--asks ASKS] (--text TEXT | --text-file FILE)
+hub.py reply    PROJECT COMMENT [--asks ASKS] (--text TEXT | --text-file FILE)
 hub.py answered PROJECT COMMENT
 hub.py decide   PROJECT COMMENT --link LINK [--text TEXT | --text-file FILE]
 hub.py propose  PROJECT --stage STAGE [--part PART] --item ID [--item ID ...] [--adds ID ...]
@@ -469,7 +755,7 @@ hub.py reflect  PROJECT EDIT EVENT [--pr LINK] [--commit COMMIT]
 hub.py record   PROJECT CHECKPOINT EVENT --pr LINK
 ```
 
-- Each sends one write with a new write ID and the session label (API-118 to API-123, API-126 and API-130), after the project's outbox. `comment` without `--item` comments on the picture itself and needs `--quote`. `reflect` takes the events `opened`, `merged`, `closed`, `reflected` and `needs-user`, and `record` takes `opened`, `merged` and `closed` ([Reports](#reports)).
+- Each sends one write with a new write ID and the session label (API-118 to API-123, API-126 and API-130), after the project's outbox. `comment` takes any of the 13 stages in `--stage`; without `--item` it comments on the stage as a whole, and `--quote` quotes the part of a picture that it is on. `comment` and `reply` take `--asks answer|recommended|checkpoint`, what the agent asks of the user (SPEC-143). Both come with hub 0.3.0; a server of 0.2 refuses a stage without a picture, a comment with neither an item nor a quote, and `asks`, as `invalid_request`. `reflect` takes the events `opened`, `merged`, `closed`, `reflected` and `needs-user`, and `record` takes `opened`, `merged` and `closed` ([Reports](#reports)).
 - `decide` refuses, before sending, a link that is not `https` or that holds a secret or an email address (SPEC-132).
 - A write that cannot be sent waits in the outbox, with exit code 3; a refusal of the server is reported with its reason and is not sent again (SPEC-128, SPEC-129).
 
@@ -672,6 +958,8 @@ Each file of the outbox is TBL-117 of stage 05's [Outbox](../05-erd/nexus.md#out
 
 - The hub page holds `corthex-hub-page/0.2` in `<script id="hub-data" type="application/json">`, the contract's `HubPageData`: phase 1's members and `spaces`, which holds for each project that has a space its pictures, open counts, checkpoints that wait for their records and warnings. `lang` comes from the server's `NEXUS_LANGUAGE`, as in phase 1, or from the profile on a device.
 - The picture view and the stage overview hold `corthex-view-page/0.2` in `<script id="view-data" type="application/json">`, the contract's `ViewPageData`: `view`, `picture` or `overview`; `data`, the answer of API-111 or API-112; and `problem`, the Problem Details when the server could not read it, such as `picture_not_found`. After a write the view reads its data again with that request.
+- The redesign's first page, API-155, holds `corthex-home-page/0.3` in the same script block, the contract's `HomePageData`: `data`, the answer of API-151 when the page was served.
+- The redesign's stage page, API-154, holds `corthex-stage-page/0.3` in the same script block, the contract's `StagePageData`: `data`, the answer of API-158 for the first 200 items in the default order; `talk`, that of API-152 for the whole stage, or null for a project without a space; `picture`, that of API-111 on a stage with a picture, or null; and `problem`, the Problem Details of what the page could not hold, `space_not_found` or `picture_not_found`.
 
 ## Check rules
 
@@ -748,6 +1036,7 @@ The codes of every request, as the contract's `components.x-corthex.errors` list
 | `edit_not_found` | 404 | the space holds no such edit | none | This reflection is not on the server | as for comment_not_found |
 | `checkpoint_not_found` | 404 | the space holds no such checkpoint | none | This checkpoint is not on the server | the overview loads again; the hub reports it, and the agent writes no record of it |
 | `entry_not_found` | 404 | the space holds no comment, discrepancy, edit or checkpoint with that ID | none | This entry is not on the server | the hub reports it and leaves the entry |
+| `item_not_found` | 404 | no stage of the project's stored snapshot holds the item | none | This item is not in this project's stages now | the view says so with the item's ID, shows the talk that still names it apart and offers to search every project |
 | `method_not_allowed` | 405 | the path does not take the method; Allow names those that it takes | none | This request is not allowed here | the hub reports it as a fault of its own |
 | `older_snapshot` | 409 | a snapshot of the held commit, or of a project that holds none, made earlier than the stored one; stored_at says when that was made | `stored_at` | The server holds a newer snapshot | the hub takes a fresh snapshot and pushes again |
 | `commit_not_replaced` | 409 | a snapshot of another commit than the held one that does not name the held one as the one it replaces, one without a commit where the stored snapshot has one, or a push that another push overtook; held_commit names the held commit | `held_commit` | The server holds another commit. Fetch the default branch and push again | the agent fetches and pushes again, once |
@@ -768,6 +1057,7 @@ The codes of every request, as the contract's `components.x-corthex.errors` list
 | `checkpoint_recorded` | 409 | a stored stage record names the checkpoint, so withdrawing it would change a recorded decision | none | This checkpoint is recorded. Changing it is a new decision | the overview shows the record |
 | `checkpoint_withdrawn` | 409 | the checkpoint was withdrawn, so no new record pull request may write it | none | This checkpoint was withdrawn | the hub reports it, and the agent writes no record |
 | `checkpoint_state` | 409 | no matching open record, or already recorded | none | Read the checkpoint before reporting | read it again |
+| `not_recommended` | 409 | the comment no longer waits for the user, or its last entry asks for no recommendation or checkpoint to take | none | This no longer waits for your answer | the view marks the entry as answered or closed meanwhile and reads my turn again |
 | `write_id_reused` | 409 | the write ID was taken by another request | none | This write could not be sent. Try again | the view makes a new ID; the hub reports it as a fault of its own |
 | `snapshot_too_large` | 413 | the snapshot is larger than 1 MiB | `limit` | The snapshot is larger than the server takes | the hub reports it; its own limits keep snapshots smaller |
 | `body_too_large` | 413 | a write's body is larger than 256 KiB | `limit` | This is larger than the server takes | the view and the hub report it |
@@ -814,6 +1104,19 @@ Applied on 2026-11-03, when the checkpoint passed: 1, 2 and 6 to the functional 
 10. The contract is YAML, `nexus.openapi.yaml`, beside MEMORY's interfaces: the hub reads YAML as it reads JSON, and MEMORY's tests check the JSON files of this folder for a field named `id`, which an OpenAPI contract's examples hold.
 11. The markers of the picture sources in SQL and YAML, `terms: none`, `without a table:` and `without a screen:`, are English in every language, as the code around them is; the DDD board's tables are read in English and in Korean, as people write them.
 
+For phase ②, this stage chose ([Phase ②'s interfaces](#phase-②s-interfaces)):
+
+12. The draft's requests under the picture's path, with the draft's ID and its revision in the body, since one draft is open for each part's pictured stage and a second window must find the first one's draft (REQ-240, REQ-241).
+13. Each save sends the whole list of changes and the editor's elements instead of a difference, so that a refused save leaves nothing half written and another PC opens what was last saved; saves within 2 seconds of a change keep each one small, and 1 MiB bounds them.
+14. Whether a change still applies is read from its `before` against the current picture, so that a redraw writes nothing to a draft, and an item that a draft adds keeps a temporary name until the agent's report of the merge gives its ID (D14).
+15. Dropping a draft that is gone already changes nothing, as 0.2's answers that change nothing do, while dropping a sent edit that closed meanwhile is refused with `409`, as SPEC-173 says.
+16. A board's change as one request of operations, all or none and one board version, so that the agent's draft of a step and the user's change of several stickies are one change each (SPEC-178, SPEC-179), with keys for the elements that it places and a new frame's copies named by the elements that they copy.
+17. The agent changes and removes only the arrows and groups that it drew, as it does for its stickies (REQ-254), and asks in a comment otherwise.
+18. The agent's read recorded by a request of its own after the hub's complete read, with no write ID and never kept in the outbox, as for a claim, so that a read cut off records nothing (SPEC-181).
+19. The open board asks for its changes with `since` every 10 seconds instead of a stream, since 0.2 has none and a board serves one person and their agents (point 23).
+20. A workshop's checkpoint passed with API-128 and its reflection reported with API-130, with `differs`, so that 0.2's checkpoints, claims and records serve it, and only the user passes it, in NEXUS (D15).
+21. The hub's work on a board in three commands, `workshop`, `board` and `change`, with a change as a JSON file, since a draft of a step holds more stickies than options can carry.
+
 ## Checks run
 
 On 2026-11-02, on the contract and this file:
@@ -839,6 +1142,48 @@ Again on 2026-11-03, after the maintainer's choice to hold stage 01's event stor
 - Prism and Schemathesis were not run again: the change adds one optional field to one schema and a lane to one example, which the check of this stage validates.
 - The repository's checks pass, now with 756 tests (12 skipped), and the hub's snapshot of this repository reads 1014 items with no checks.
 
+On 2026-11-08, when the contract took the redesign's requests as planned (TASK-265), locally with synthetic data:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 8 of them planned.
+- The contract checks: each of the 445 named JSON examples fits its schema, a check that the response check now runs, and no example names a field or query value that its operation lacks; the 70 named defaults pass as before; Schemathesis 3.39.16 tests the 32 operations that the server answers, 156 of 156 for each check, and leaves the 8 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 267 Node tests pass, and the hub's snapshot of this repository reads 1264 items, the 4 new cases among them, with 630 warnings, the same as before apart from line numbers.
+
+On 2026-11-08, when the server took API-158 (TASK-266), locally with synthetic data and this repository's own snapshot:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 7 of them planned.
+- The contract checks: the 445 named JSON examples and four of the server's answers to API-158 fit their schemas; the 72 named defaults pass; Schemathesis 3.39.16 tests the 33 operations that the server answers, 160 of 160 for each check, and leaves the 7 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 274 Node tests pass, and the hub's snapshot of this repository reads 1272 items, the 8 new cases among them, with the same 630 warnings apart from line numbers. Read from this repository's snapshot at `58ac651` in a local in-memory server, part `nexus`: stage 02's 199 requirements fall into 11 contexts and 6 without one, stage 01's head counts 1 open hotspot, and stage 12's 723 items take four reads of 200, from 10 to 21 milliseconds each, 13 at the median of three rounds.
+
+On 2026-11-08, when the server took API-152 (TASK-267), locally with synthetic data:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 6 of them planned.
+- The contract checks: the 445 named JSON examples, four of the server's answers to API-158 and four to API-152 fit their schemas; the 74 named defaults pass; Schemathesis 3.39.16 tests the 34 operations that the server answers, 165 of 165 for each check, and leaves the 6 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 279 Node tests pass, and the hub's snapshot of this repository reads 1278 items, the 6 new cases among them, with the same 630 warnings apart from line numbers. In a local in-memory server, with a project's 2,000 comments on one stage, 1,500 of them open, and three replies each, a read of the whole talk takes 29 milliseconds at the median of five, with or without a page of the closed talk, and one narrowed to an item 19, for answers of 342,585 to 415,822 bytes.
+
+On 2026-11-08, when the server took API-157 and API-156 (TASK-268), locally with synthetic data:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 4 of them planned.
+- The contract checks: the 446 named JSON examples, four of the server's answers to API-158, four to API-152, two to API-157 and three to API-156 fit their schemas; the 78 named defaults pass; Schemathesis 3.39.16 tests the 36 operations that the server answers, 174 of 174 for each check, and leaves the 4 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 287 Node tests pass, and the hub's snapshot of this repository reads 1286 items, the 8 new cases among them, with the same 630 warnings apart from line numbers. In a local in-memory server holding 30 projects, 29 snapshots of about 1 MB with 3,000 items each and one of 3,000 items, each of four searches takes from 104 to 156 milliseconds, from 109 to 135 at the median of five, for answers of 44 to 3,121 bytes; one item that 600 cases link, with 60 comments, reads in 9 milliseconds at the median, in 32,681 bytes.
+
+On 2026-11-08, when the server took API-151 (TASK-269), locally with synthetic data:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 3 of them planned.
+- The contract checks: the 446 named JSON examples, four of the server's answers to API-158, four to API-152, two to API-157, three to API-156 and two to API-151 fit their schemas; the 80 named defaults pass; Schemathesis 3.39.16 tests the 37 operations that the server answers, 177 of 177 for each check, and leaves the 3 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 295 Node tests pass, and the hub's snapshot of this repository reads 1294 items, the 8 new cases among them, with the same 630 warnings apart from line numbers. In a local in-memory server holding 30 projects with spaces, the first page took from 119 to 336 milliseconds a read: 207 at the median of five with three parts and 270 pictures in all, 123 with 50 parts and 4,500 small pictures, and 327 with 90 pictures as large as a push holds, for answers of 719,912 to 2,724,782 bytes.
+
+On 2026-11-08, when the server took API-159 (TASK-270), locally with synthetic data:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 40 operations, 2 of them planned.
+- The contract checks: the 446 named JSON examples, four of the server's answers to API-158, four to API-152, two to API-157, three to API-156, two to API-151 and three to API-159, and a checkpoint that names its comment, fit their schemas; the 82 named defaults pass; Schemathesis 3.39.16 tests the 38 operations that the server answers, 181 of 181 for each check, and leaves the 2 planned ones out. Prism was not run.
+- The repository's 13 Python tests and 302 Node tests pass, and the hub's snapshot of this repository reads 1301 items, the 7 new cases among them, with the same 630 warnings apart from line numbers.
+
+On 2026-11-08, when the server took API-153 to API-155 and moved API-101 to `/hub` (TASK-271), locally with synthetic data:
+
+- openapi-spec-validator: the contract is valid OpenAPI 3.1, with 41 operations, none of them planned.
+- The contract checks: the 450 named JSON examples, the server's answers of the earlier tasks, two first pages and four stage pages fit their schemas; the 493 named response examples have no finding; the 94 named defaults pass; Schemathesis 3.39.16 tests all 41 operations, 192 of 192 for each check. Prism was not run.
+- The repository's 13 Python tests and 318 Node tests pass, and so do the nine browser suites, the page suite now at the pages' own addresses; the hub's snapshot of this repository reads 1327 items, the 11 new cases among them, with the same 630 warnings apart from line numbers.
+
 ### Development Access identity trial (2026-11-03)
 
 TASK-201 deployed a temporary diagnostic Worker behind Access without static assets and used a service-token request (this host’s user environment) and a person’s signed-in browser through Aside CLI 1.26.1028.2335. Both returned 200; ctx.access audience and the JWT audience, issuer, expiry and RS256 signature matched. An anonymous browser received Access’s 302. Only field presence, empty and absent are recorded below, never their values.
@@ -862,6 +1207,10 @@ The selected header method distinguishes both kinds. Implementation checks of ca
 
 ## For the checkpoint
 
+Phase ②'s stages 05 and 06 came to one checkpoint after its stages 02 to 04 passed at 23:27 KST on 2026-11-07, and it passed at 09:33 KST on 2026-11-08: on a decision card in the project's thread the maintainer chose to pass them as recommended ("추천대로 통과", pass as recommended), so this stage's choices 12 to 21 and stage 05's 12 to 19 stand as written. [Phase ②'s interfaces](#phase-②s-interfaces) writes down the requests of editing on a PC and of the workshops, API-161 to API-173, the hub's commands API-174 to API-176, thirteen changes to 0.2's and the redesign's interfaces and nineteen error codes. The points that the checkpoint looked at first: the list of changes, whose `before` decides what still applies (choice 14); a board's change as one request of operations (choice 16), with the agent's limit on arrows and groups (choice 17); the read mark without a write ID (choice 18); the open board's requests every 10 seconds (choice 19); and the workshop's checkpoint through 0.2's checkpoints (choice 20). The hub's three commands and its changes are in the core plugin's repository, so phase ②'s build needs a pull request there and a new `hub-ref.json`, as the redesign's does.
+
+The redesign of 2026-11-06 passed its checkpoint 1 at 17:44 KST that day ("이대로 진행", go ahead as drawn), whose list of changes named the first page's data in one read and comments without a picture (choice ② A). [The redesign's interfaces](#the-redesigns-interfaces) writes them down for its checkpoint 3, with what writing them found: the first page needs one more write, API-159, to take the agent's recommendation in one transaction, and the hub's `comment` and `reply` change in the core plugin's repository, so the build needs a pull request there and a new `hub-ref.json`, which the checkpoint's list did not name.
+
 The maintainer's choice of 2026-11-03, to hold stage 01's event storming in NEXUS, passed at 16:54 KST the same day, together with the changes that it made to the other stages: on a decision card in the project's thread the maintainer chose to pass the step view and the work board as drawn ("모두 그린 대로 통과", pass all as drawn). The checkpoint covered: the optional `timeline` of `DomainSource`, with its forms in [Picture sources](#picture-sources), which is a compatible change, since a picture source without it stays valid and a snapshot of the frozen form still passes; and the work board of phase ② (SPEC-142), which adds its requests then, beside those of editing (SPEC-134).
 
 Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 05, 07 and 08: on a decision card in the project's thread the maintainer chose all the recommendations ("모두 추천대로", all as recommended), so the requests, the commands and the formats stand as written, with the changes of stage 08. The sign-in (3) stays open until its trial. The checkpoint covered:
@@ -876,23 +1225,30 @@ Passed on 2026-11-03 at 11:39 KST, together with stages 03 to 05, 07 and 08: on 
 
 ### Stages 07 and 08: screens
 
+- For phase ②: the editor reads API-161 and writes with API-162 to API-165 and API-167, and a sent edit's panel drops it with API-166; the work board reads API-168 and API-170, with `since` every 10 seconds, and writes with API-169, API-171 and API-173, its comments with API-118 and its checkpoint box with API-128 and API-129. `draft_revision` offers the draft as last saved; `picture_changed` and `draft_not_applying` lead to the edit conflict; `element_changed` puts the element back and names who changed it; `workshop_ended` and `frame_closed` show the board read-only or as it is; `board_changed` shows it as it is now, to pass again.
+- For the redesign: the first page reads API-151 and writes with API-124, API-125 and API-159; the stage page reads API-158, API-111, API-152 and API-157, and API-114 to API-116 for an opened comment, an opened proposal and a reflection that the talk no longer lists, and writes with API-118 to API-120, API-124, API-125 and API-127 to API-129; the search reads API-156. Each refusal leads to the state that its 0.2 counterpart leads to, and `item_not_found` to an item that is gone.
 - The requests of each screen: the hub page, API-101; the picture view, API-102 and API-104 to load, API-111 to read again, API-114 and API-115 to open a comment or a proposal, API-116 to read a reflection that the picture no longer lists, closed or dismissed, so that the proposal's panel shows its pull request, and API-118 to API-120, API-124, API-125 and API-127 to write; and the stage overview, API-103 and API-104 to load, API-112 to read again, and API-128 and API-129 to write.
 - The states that the errors lead to: `picture_not_found` with its `why` is empty; `access_missing`, `access_other_app`, `no_kind` and an `opaqueredirect` reply are permission or an expired sign-in; `cross_site` is an error that offers the server's own address; `comment_limit`, `reply_limit`, `space_full` and `text_too_long` keep the text; `proposal_not_open`, `edit_state` and `checkpoint_recorded` are stale, and the view reads again. The view keeps an unsent text with its write ID (SPEC-126).
 - Each message of [Error codes](#error-codes) gets its final words, in English and Korean.
 
 ### Stage 10: work breakdown
 
+- For phase ②, after the redesign: the hub's three commands and its changes in the core plugin, with the new `hub-ref.json`; then migration 5 and API-161 to API-167, with the changes to API-110, API-111, API-116 and API-126; then API-168 to API-173, with the changes to API-113, API-118 and API-128 to API-132; the views last.
+- For the redesign: the hub's `comment` and `reply` and the hub page's tokens in the core plugin first, with the new `hub-ref.json`; then migration 4 and API-151 to API-159 with the changes to API-118 and API-119; then the pages; the move of API-101 and the redirects of API-102 and API-103 last.
 - The server first: store.js's migrations, then the requests in the contract's order: the push with the held commit and the removal; the reads; the discussion; editing; stage progress with the claims. The hub follows: the snapshot 0.2 with its picture sources, stage records and settings, `status`, `push`, then the writes with the outbox. The views come last.
 - The release carries this file's formats and rules into the hub's [snapshot.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md) and [reading.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex-nexus/skills/corthex-hub/references/reading.md), and `parts` and `ask_before` into the core plugin's [project.md](https://github.com/kodonghui/corthex/blob/76508243558abaedcc15bb422c454341845fcabd/plugins/corthex/skills/corthex/references/project.md), with the stage skills' steps that run the hub's commands.
 
 ### Stage 11: development
 
+- For phase ②: tests that a board's change is written whole or not at all and raises the board version by one, that the outbox keeps a change whole, and that the hub redacts what it reads from a board before it prints it; and an example of the contract for each response of API-161 to API-173.
 - The trial of both kinds of sign-in on a real Access setup comes first, and closes the open question of [Sign-in](#sign-in).
 - Contract tests run Schemathesis against a development Worker behind Access, with the hooks of [Checks run](#checks-run) in the repository, and Prism's mock serves the views' work before the server is built.
 - Tests that hold the parts together: the server's error codes against the contract's list; the hub's request names against the contract's `OutboxFile`; the hub's copy of the default `ask_before` list against the core plugin's example profile; and the order of refusals of [Which refusal comes first](#which-refusal-comes-first).
 
 ### Stage 12: QA
 
+- For phase ②: a case for each response of API-161 to API-173 and of the changed requests, and for each outcome of API-174 to API-176; two windows on one draft and on one sticky; a draft started across a redraw; temporary names reported with and without IDs; a frame added at each limit; the agent's draft of a step refused whole; a read cut off; and a change kept in the outbox while its frame is passed.
+- For the redesign: a case for each response of API-151 to API-159 and of the changed API-118 and API-119; API-159 sent twice with one write ID, with the service token and on a comment that no longer waits; and every address of 0.2 opened against a server of the redesign.
 - A test case for each response of each request, from its named examples, written as `API-118#409`, and for each outcome of each command, on Linux, macOS and Windows.
 - The kinds of cases above: a write sent twice and again after 7 days, a write ID of another request, two sessions on one entry, a push that another overtook, a 0.1 hub after a 0.2 push, a sign-in that expires in the view, and the outbox without a network, without a token and after 7 days.
 

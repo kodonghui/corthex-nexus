@@ -2,6 +2,12 @@ import { Problem } from "./problem.js";
 import { planPush, checkCommit } from "./push-plan.js";
 import * as E from "./entries.js";
 import { checkWriteBody, planEntryWrite, entryDisposition } from "./entry-plan.js";
+import { stageData, heldItem, partsOf } from "./stage-items.js";
+import { talkData, CLOSED } from "./stage-talk.js";
+import { itemData } from "./item-data.js";
+import { searchData } from "./search.js";
+import { homeData, currentPlace, TURN } from "./home-data.js";
+import { STAGES, defaultQuery } from "./preflight.js";
 // Everything that touches the database is in this file. The SQL is the part
 // SQLite (D1) and Postgres share, apart from the `?` placeholders, so moving
 // to another database changes this file only.
@@ -53,6 +59,32 @@ export const MIGRATIONS = [
 // field was cleared. Preserve the last event internally without changing APIs.
 MIGRATIONS.push({ version: 3, statements: ["ALTER TABLE edits ADD COLUMN last_report TEXT"] });
 
+// The redesign (stage 05, TBL-105 and TBL-110): a comment is on any of the 13
+// stages of a part, bound to the project space instead of a picture, and keeps
+// what the agent's last entry asks of the user. SQLite changes a foreign key
+// only by making the table again. Dropping the old table deletes the replies
+// and decisions with their comment and empties a proposal's comment even while
+// foreign keys are deferred (D1 runs with them on), so the batch copies those
+// rows aside first and puts them back after the rename, in one transaction.
+MIGRATIONS.push({ version: 4, statements: [
+  "CREATE TABLE comments_new (\n  id           TEXT    PRIMARY KEY,\n  project      TEXT    NOT NULL REFERENCES project_spaces (project) ON DELETE CASCADE,\n  part         TEXT    NOT NULL,\n  stage        TEXT    NOT NULL CHECK (stage IN ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap', '08-screen-states', '09-mockup', '10-wbs', '11-development', '12-qa', '13-presentation')),\n  item         TEXT    NOT NULL,\n  quote        TEXT,\n  discrepancy  TEXT    REFERENCES discrepancies (id) ON DELETE SET NULL,\n  commit_id    TEXT    NOT NULL,\n  author       TEXT    NOT NULL CHECK (author IN ('user', 'agent')),\n  text         TEXT    NOT NULL,\n  state        TEXT    NOT NULL CHECK (state IN ('open', 'closed')),\n  closed_as    TEXT    CHECK (closed_as IN ('answered', 'decided')),\n  waits        TEXT    CHECK (waits IN ('user', 'agent')),\n  asks         TEXT    CHECK (asks IN ('answer', 'recommended', 'checkpoint')),\n  settled      INTEGER NOT NULL DEFAULT 0 CHECK (settled IN (0, 1)),\n  dismissed    INTEGER NOT NULL DEFAULT 0 CHECK (dismissed IN (0, 1)),\n  made_at      TEXT    NOT NULL,\n  last_at      TEXT    NOT NULL,\n  CHECK ((state = 'open' AND closed_as IS NULL AND waits IS NOT NULL)\n      OR (state = 'closed' AND closed_as IS NOT NULL AND waits IS NULL)),\n  CHECK ((settled = 0 AND dismissed = 0) OR state = 'open'),\n  CHECK (asks IS NULL OR (state = 'open' AND waits = 'user'))\n)",
+  "CREATE TABLE replies_keep AS SELECT comment, seq, author, text, settles, made_at FROM replies",
+  "CREATE TABLE decisions_keep AS SELECT comment, seq, link, text, made_at FROM decisions",
+  "CREATE TABLE proposals_keep AS SELECT id, comment FROM proposals WHERE comment IS NOT NULL",
+  "INSERT INTO comments_new (id, project, part, stage, item, quote, discrepancy, commit_id, author, text, state, closed_as, waits, asks, settled, dismissed, made_at, last_at)\n  SELECT id, project, part, stage, item, quote, discrepancy, commit_id, author, text, state, closed_as, waits, NULL, settled, dismissed, made_at, last_at FROM comments",
+  "DROP TABLE comments",
+  "ALTER TABLE comments_new RENAME TO comments",
+  "INSERT INTO replies (comment, seq, author, text, settles, made_at)\n  SELECT comment, seq, author, text, settles, made_at FROM replies_keep",
+  "INSERT INTO decisions (comment, seq, link, text, made_at)\n  SELECT comment, seq, link, text, made_at FROM decisions_keep",
+  "UPDATE proposals SET comment = (SELECT k.comment FROM proposals_keep AS k WHERE k.id = proposals.id)\n  WHERE id IN (SELECT id FROM proposals_keep)",
+  "DROP TABLE replies_keep",
+  "DROP TABLE decisions_keep",
+  "DROP TABLE proposals_keep",
+  "CREATE INDEX comments_waiting ON comments (project, state, waits, last_at)",
+  "CREATE INDEX comments_stage ON comments (project, part, stage, state)",
+  "ALTER TABLE checkpoints ADD COLUMN comment TEXT REFERENCES comments (id) ON DELETE SET NULL"
+] });
+
 const MIGRATION_TABLE = "CREATE TABLE IF NOT EXISTS migrations (\n  version    INTEGER PRIMARY KEY,\n  applied_at TEXT    NOT NULL\n)";
 
 // The newer of two snapshots of a project wins: the update runs only when
@@ -79,12 +111,12 @@ const CHECKPOINT_BASIS = `SELECT json_group_array(json_object('id',id,'state',st
 
 // Identifiers below are fixed by the schema, never taken from a request.
 const ENTRY_COLUMNS = Object.freeze({
-  comments: "id project part stage item quote discrepancy commit_id author text state closed_as waits settled dismissed made_at last_at".split(" "),
+  comments: "id project part stage item quote discrepancy commit_id author text state closed_as waits asks settled dismissed made_at last_at".split(" "),
   replies: "comment seq author text settles made_at".split(" "),
   decisions: "comment seq link text made_at".split(" "),
   proposals: "id project part stage commit_id items reason change source_text comment discrepancy state made_at closed_at".split(" "),
   edits: "id project part stage commit_id proposal content state pull_request closed_commit made_at changed_at last_report".split(" "),
-  checkpoints: "id project part stage commit_id words state passed_at withdrawn_at pull_request pr_state recorded_commit".split(" "),
+  checkpoints: "id project part stage commit_id words state passed_at withdrawn_at pull_request pr_state recorded_commit comment".split(" "),
   discrepancies: "id project part compares term item reasons level state waiting opened_commit opened_at resolved_commit resolved_at earlier".split(" "),
   claims: "entry project session claimed_at ends_at".split(" "),
 });
@@ -94,6 +126,75 @@ const activeEntry = `EXISTS(SELECT 1 FROM comments WHERE id=entry AND project=cl
  OR EXISTS(SELECT 1 FROM edits WHERE id=entry AND project=claims.project AND state IN ('pending','needs-user'))
  OR EXISTS(SELECT 1 FROM checkpoints WHERE id=entry AND project=claims.project AND pr_state IS NOT 'open' AND
    ((state='passed' AND recorded_commit IS NULL) OR (state='withdrawn' AND recorded_commit IS NOT NULL)))`;
+// The agent to-do's checkpoints (API-113): passed and in no stage record yet,
+// or withdrawn while a record or an open pull request still names them.
+const TODO_CHECKPOINT = `((state='passed' AND recorded_commit IS NULL) OR (state='withdrawn' AND (recorded_commit IS NOT NULL OR pr_state='open')))`;
+// A claim that the to-do counts as taken: on a comment that waits for the
+// agent or on another entry that the agent still has to finish.
+const TAKEN = `(${activeEntry}) AND (EXISTS(SELECT 1 FROM comments WHERE id=entry AND waits='agent') OR substr(entry,1,3)<>'nc_')`;
+const STAGE_LIST = STAGES.map((stage) => `'${stage}'`).join(",");
+// The first page (API-151). My turn across the spaces in SPEC-143's order: the
+// comments that ask for a checkpoint, the open proposals, then the other
+// comments that wait for the user, each oldest first by the time that it began
+// to wait, as API-152 orders a stage's talk; 50 with their total. Only those 50
+// read a comment's last entry, the agent's: the change of an open proposal
+// that answers it after its last reply, else that reply, else the comment; and
+// look their item up in the stored snapshot, the first with the ID on one of
+// the 13 stages, as API-157 finds it. A comment's entries take strictly later
+// times, so the proposal and the reply never tie.
+const MY_TURN = `WITH mine AS (
+    SELECT CASE WHEN asks='checkpoint' THEN 0 ELSE 2 END AS rank,'comment' AS kind,id,project,part,stage,item,quote,text AS own,last_at AS at,asks
+      FROM comments WHERE state='open' AND waits='user'
+    UNION ALL SELECT 1,'proposal',id,project,part,stage,COALESCE(json_extract(items,'$[0]'),''),NULL,change,made_at,NULL
+      FROM proposals WHERE state='open'),
+  top AS MATERIALIZED (SELECT *,COUNT(*) OVER() AS _total FROM mine ORDER BY rank,at,id LIMIT ${TURN}),
+  titles AS MATERIALIZED (SELECT s.name AS project,json_extract(j.value,'$.id') AS item,json_extract(j.value,'$.title') AS title,j.key AS place
+    FROM snapshots AS s JOIN json_each(s.body,'$.items') AS j
+    WHERE s.name IN (SELECT project FROM top WHERE item<>'') AND json_extract(j.value,'$.stage') IN (${STAGE_LIST})
+      AND json_extract(j.value,'$.id') IN (SELECT item FROM top WHERE top.project=s.name AND item<>''))
+  SELECT top.*,CASE WHEN kind='comment' THEN COALESCE((SELECT p.change FROM proposals AS p WHERE p.comment=top.id AND p.state='open'
+      AND p.made_at>COALESCE((SELECT r.made_at FROM replies AS r WHERE r.comment=top.id ORDER BY r.seq DESC LIMIT 1),'') ORDER BY p.made_at DESC,p.id DESC LIMIT 1),
+    (SELECT r.text FROM replies AS r WHERE r.comment=top.id ORDER BY r.seq DESC LIMIT 1),own) ELSE own END AS last_text,
+    (SELECT title FROM titles AS t WHERE t.project=top.project AND t.item=top.item ORDER BY t.place LIMIT 1) AS title
+  FROM top ORDER BY rank,at,id`;
+// Each space's agent to-do in counts, by the lists of API-113 read without a
+// session, with the place of each list's oldest entry: a discrepancy opens at
+// its table's or screen's stage.
+const TODO_LISTS = [
+  ["comments", "comments", "state='open' AND waits='agent'", "stage", "last_at"],
+  ["discrepancies", "discrepancies", "state='open'", "CASE compares WHEN 'aggregate-table' THEN '05-erd' ELSE '07-sitemap' END", "opened_at"],
+  ["reflections", "edits", "state NOT IN ('closed','dismissed')", "stage", "made_at"],
+  ["checkpoints", "checkpoints", TODO_CHECKPOINT, "stage", "passed_at"],
+];
+const AGENT_COUNTS = `SELECT ps.project,${TODO_LISTS.map(([list, table, where, stage, time]) =>
+  `(SELECT COUNT(*) FROM ${table} WHERE project=ps.project AND ${where}) AS ${list},
+  (SELECT json_object('part',part,'stage',${stage},'entry',id) FROM ${table} WHERE project=ps.project AND ${where} ORDER BY ${time},id LIMIT 1) AS ${list}_oldest`).join(",\n  ")},
+  (SELECT COUNT(*) FROM claims WHERE project=ps.project AND ends_at>? AND ${TAKEN}) AS taken
+  FROM project_spaces AS ps ORDER BY ps.project`;
+// A card for each stored snapshot, by name: SQLite takes the settings, the
+// stage records, each stage's count of items and the count of warnings out of
+// the stored body, so the server never parses the items or the checks.
+const CARDS = `SELECT name,default_commit,generated_at,received_at,json_extract(body,'$.project') AS project,
+  json_extract(body,'$.repos."."') AS repo,json_extract(body,'$.stages') AS stages,
+  (SELECT json_group_object(stage,n) FROM (SELECT json_extract(value,'$.stage') AS stage,COUNT(*) AS n
+    FROM json_each(snapshots.body,'$.items') WHERE json_extract(value,'$.stage') IN (${STAGE_LIST}) GROUP BY 1)) AS counts,
+  (SELECT COUNT(*) FROM json_each(snapshots.body,'$.checks') WHERE json_extract(value,'$.level')='warn') AS warnings
+  FROM snapshots ORDER BY name`;
+const CARD_PICTURES = `SELECT p.project,p.part,p.stage,p.commit_id,p.committed_at,p.not_current,p.source,
+  (SELECT COUNT(*) FROM comments AS c WHERE c.project=p.project AND c.part=p.part AND c.stage=p.stage AND c.state='open') AS comments
+  FROM pictures AS p ORDER BY p.project,p.part,p.stage`;
+// A comment as a list holds it: its count of replies, its last reply and its
+// proposals' IDs, newest first.
+const COMMENT_EXTRAS = `(SELECT COUNT(*) FROM replies AS r WHERE r.comment=c.id) AS reply_count,
+      (SELECT json_object('seq',r.seq,'author',r.author,'text',r.text,'settles',r.settles,'made_at',r.made_at)
+       FROM replies AS r WHERE r.comment=c.id ORDER BY r.seq DESC LIMIT 1) AS last_reply_json,
+      (SELECT json_group_array(id) FROM (SELECT id FROM proposals WHERE comment=c.id ORDER BY made_at DESC,id LIMIT 500)) AS proposal_ids_json`;
+// A stage's closed talk (API-152): its closed comments, by their last entry,
+// and its proposals no longer open, by when they closed; an item narrows both.
+const CLOSED_TALK = `talk AS (SELECT 'comment' AS kind,id,last_at AS at FROM comments
+      WHERE project=? AND part=? AND stage=? AND state='closed' AND (? IS NULL OR item=?)
+    UNION ALL SELECT 'proposal',id,COALESCE(closed_at,made_at) FROM proposals
+      WHERE project=? AND part=? AND stage=? AND state<>'open' AND (? IS NULL OR EXISTS(SELECT 1 FROM json_each(items) WHERE value=?)))`;
 
 // Engine operations also stay here. The standalone adapter never owns product
 // SQL, and uses these fixed statements only for connection/transaction upkeep.
@@ -313,17 +414,14 @@ export class Store {
     if (part && (!Array.isArray(snapshot.project.parts) || !snapshot.project.parts.includes(part))) throw new Problem("part_not_found", "no such part");
   }
 
-  commentStatement(project, mode, part, stage, limit) {
+  commentStatement(project, mode, part, stage, limit, item = null) {
     let where = "c.project=?";
     const params = [project];
     if (part !== undefined) { where += " AND c.part=?"; params.push(part); }
     if (stage !== undefined) { where += " AND c.stage=?"; params.push(stage); }
+    if (item !== null) { where += " AND c.item=?"; params.push(item); }
     where += mode === "todo" ? " AND c.state='open' AND c.waits='agent'" : " AND c.state='open'";
-    return this.db.prepare(`SELECT c.*, COUNT(*) OVER() AS _total,
-      (SELECT COUNT(*) FROM replies AS r WHERE r.comment=c.id) AS reply_count,
-      (SELECT json_object('seq',r.seq,'author',r.author,'text',r.text,'settles',r.settles,'made_at',r.made_at)
-       FROM replies AS r WHERE r.comment=c.id ORDER BY r.seq DESC LIMIT 1) AS last_reply_json,
-      (SELECT json_group_array(id) FROM (SELECT id FROM proposals WHERE comment=c.id ORDER BY made_at DESC,id LIMIT 500)) AS proposal_ids_json
+    return this.db.prepare(`SELECT c.*, COUNT(*) OVER() AS _total, ${COMMENT_EXTRAS}
       FROM comments AS c WHERE ${where} ORDER BY c.last_at ${mode === "todo" ? "ASC" : "DESC"}, c.id LIMIT ?`).bind(...params, limit);
   }
 
@@ -369,6 +467,10 @@ export class Store {
   async readPicture(project, part, stage) {
     const { snapshot } = await this.readContext(project, true);
     this.validPart(snapshot, part);
+    return this.picture(snapshot, project, part, stage);
+  }
+
+  async picture(snapshot, project, part, stage) {
     const rows = await this.db.batch([
       this.db.prepare("SELECT * FROM pictures WHERE project=? AND part=? AND stage=?").bind(project, part, stage),
       this.commentStatement(project, "picture", part, stage, 500),
@@ -392,16 +494,23 @@ export class Store {
   }
 
   async readOverview(project, part, stage) {
-    const { snapshot, space } = await this.readContext(project);
-    this.validPart(snapshot, part);
-    const [comments, edits, discrepancies, checkpoints, pictures] = await this.db.batch([
+    const context = await this.readContext(project);
+    this.validPart(context.snapshot, part);
+    return this.overview(context, project, part, stage, await this.db.batch(this.overviewStatements(project, part, stage)));
+  }
+
+  overviewStatements(project, part, stage) {
+    return [
       this.commentStatement(project,"overview",part,stage,50), this.editStatement(project,"overview",part,stage,50),
       this.discrepancyStatement(project,part,stage,50),
       this.db.prepare(`SELECT * FROM checkpoints WHERE project=? AND part=? AND stage=?
         AND ((state='passed' AND recorded_commit IS NULL) OR (state='withdrawn' AND recorded_commit IS NOT NULL))
         ORDER BY passed_at,id LIMIT 50`).bind(project,part,stage),
       this.db.prepare("SELECT stage,commit_id,not_current FROM pictures WHERE project=? AND part=? ORDER BY stage").bind(project,part),
-    ]);
+    ];
+  }
+
+  overview({ snapshot, space }, project, part, stage, [comments, edits, discrepancies, checkpoints, pictures]) {
     const source = snapshot.stages?.[stage] || {};
     const notOpened = space ? JSON.parse(space.unopened) : {};
     const warnings = checkpoints.results.filter((row) => row.state==='withdrawn').map((row) => ({ rule:"checkpoint-withdrawn", checkpoint:row.id }));
@@ -414,6 +523,115 @@ export class Store {
       comments:envelope(comments.results,(row)=>E.commentListRow(row)), reflections:envelope(edits.results,(row)=>E.editListRow(row)),
       discrepancies:envelope(discrepancies.results,(row)=>E.discrepancy(row)), checkpoints:checkpoints.results.map((row)=>E.checkpoint(row)), warnings,
       not_opened:Object.hasOwn(notOpened,part)?notOpened[part]:0 };
+  }
+
+  // API-158: the overview's statements, then the part's marks: each stage's and
+  // item's comments, the open proposals, the open discrepancies, the stage's
+  // pending reflections and the part's pictures, with the DDD board's source
+  // only on stage 01, whose head counts its open hotspots.
+  async readStage(project, part, stage, query) {
+    const context = await this.readContext(project);
+    this.validPart(context.snapshot, part);
+    return this.stage(context, project, part, stage, query);
+  }
+
+  async stage(context, project, part, stage, query) {
+    const rows = await this.db.batch([
+      ...this.overviewStatements(project, part, stage),
+      this.db.prepare(`SELECT stage,item,COUNT(*) AS total,SUM(state='open') AS open,SUM(state='open' AND waits='user') AS mine
+        FROM comments WHERE project=? AND part=? GROUP BY stage,item`).bind(project, part),
+      this.db.prepare("SELECT stage,items FROM proposals WHERE project=? AND part=? AND state='open'").bind(project, part),
+      this.db.prepare("SELECT term,item FROM discrepancies WHERE project=? AND part=? AND state='open'").bind(project, part),
+      this.db.prepare(`SELECT p.items FROM edits AS e JOIN proposals AS p ON e.proposal=p.id
+        WHERE e.project=? AND e.part=? AND e.stage=? AND e.state NOT IN ('closed','dismissed')`).bind(project, part, stage),
+      this.db.prepare(`SELECT stage,commit_id,committed_at,not_current,CASE WHEN stage='01-domain' AND ?='01-domain' THEN source END AS source
+        FROM pictures WHERE project=? AND part=?`).bind(stage, project, part),
+    ]);
+    return stageData({ ...context, record: this.overview(context, project, part, stage, rows.slice(0, 5)), project, part, stage, query,
+      comments: rows[5].results, proposals: rows[6].results, discrepancies: rows[7].results, reflections: rows[8].results, pictures: rows[9].results });
+  }
+
+  // API-154: what a stage's page holds (stage 06's Page data), from one read of
+  // the stored snapshot: the stage as API-158 answers it in its default order,
+  // the whole talk as API-152 answers it and, on a pictured stage, the picture
+  // as API-111 answers it. A project without a space, pushed only by a hub of
+  // 0.1, has neither talk nor picture, and a pictured stage whose picture the
+  // space does not hold has no picture: the page holds why, as its problem.
+  async readStagePage(project, part, stage, now = new Date().toISOString()) {
+    const context = await this.readContext(project);
+    this.validPart(context.snapshot, part);
+    const data = await this.stage(context, project, part, stage, defaultQuery("getStage"));
+    if (!context.space) return { data, talk: null, picture: null,
+      problem: new Problem("space_not_found", "this project has no space; push a 0.2 snapshot first") };
+    const talk = await this.talk(context, project, part, stage, defaultQuery("getStageTalk"), now);
+    if (!["01-domain", "05-erd", "07-sitemap"].includes(stage)) return { data, talk, picture: null, problem: null };
+    try {
+      return { data, talk, picture: await this.picture(context.snapshot, project, part, stage), problem: null };
+    } catch (error) {
+      if (!(error instanceof Problem) || error.code !== "picture_not_found") throw error;
+      return { data, talk, picture: null, problem: error };
+    }
+  }
+
+  // API-153: where a project's address leads (SPEC-146), the current stage of
+  // its first part as its card on the first page names it.
+  async projectPlace(project) {
+    return currentPlace((await this.readContext(project)).snapshot);
+  }
+
+  // API-152: the part's stage talk. One batch reads the stage's open comments,
+  // which a project holds 2,000 of at most, its open proposals and pending
+  // reflections, 500 of each at most, the claims that last, and the count of
+  // its closed talk with, for closed=1, a page of it; stage-talk.js sorts them
+  // into turns. An item narrows the comments here and the lists of items there.
+  async readTalk(project, part, stage, query, now = new Date().toISOString()) {
+    const context = await this.readContext(project, true);
+    this.validPart(context.snapshot, part);
+    return this.talk(context, project, part, stage, query, now);
+  }
+
+  async talk(context, project, part, stage, { item, closed, after }, now) {
+    const keys = [project, part, stage, item, item, project, part, stage, item, item];
+    const page = `WITH ${CLOSED_TALK}, page AS (SELECT kind,id,at FROM talk ORDER BY at DESC,id LIMIT ${CLOSED} OFFSET ?)`;
+    const rows = await this.db.batch([
+      this.commentStatement(project, "talk", part, stage, 2000, item),
+      this.proposalStatement(project, part, stage), this.editStatement(project, "talk", part, stage, 500),
+      this.db.prepare(`SELECT * FROM claims WHERE project=? AND ends_at>? AND (${activeEntry})`).bind(project, now),
+      this.db.prepare(`WITH ${CLOSED_TALK} SELECT COUNT(*) AS total FROM talk`).bind(...keys),
+      ...(closed ? [
+        this.db.prepare(`${page} SELECT c.*,page.at AS _at,${COMMENT_EXTRAS} FROM page JOIN comments AS c ON c.id=page.id
+          WHERE page.kind='comment'`).bind(...keys, after),
+        this.db.prepare(`${page} SELECT p.*,e.id AS edit,page.at AS _at FROM page JOIN proposals AS p ON p.id=page.id
+          LEFT JOIN edits AS e ON e.proposal=p.id WHERE page.kind='proposal'`).bind(...keys, after),
+      ] : []),
+    ]);
+    return talkData({ snapshot: context.snapshot, project, part, stage, item, now,
+      open: rows[0].results, proposals: rows[1].results, reflections: rows[2].results, claims: rows[3].results,
+      closedTotal: rows[4].results[0].total, closedRows: closed ? [...rows[5].results, ...rows[6].results] : [] });
+  }
+
+  // API-157: an item that a stage of the stored snapshot holds, with its talk
+  // in the part, the project's first part unless the request names one, as
+  // API-152 gives it narrowed to the item, so a project without a space is
+  // space_not_found as there.
+  async readItem(project, id, part, now = new Date().toISOString()) {
+    const context = await this.readContext(project, true);
+    const chosen = part === null ? partsOf(context.snapshot)[0] : part;
+    this.validPart(context.snapshot, chosen);
+    const item = heldItem(context.snapshot, id);
+    if (!item) throw new Problem("item_not_found", `no stage of the stored snapshot of ${project} holds ${id}`);
+    const comments = await this.talk(context, project, chosen, item.stage, { item: id, closed: 0, after: 0 }, now);
+    return itemData({ snapshot: context.snapshot, project, part: chosen, item, comments });
+  }
+
+  // API-156: each stored snapshot's first part and items, in the order of the
+  // projects' names; SQLite takes them out of the stored body, so the server
+  // parses only the items, never the checks or the stage sources.
+  async searchItems(q) {
+    await this.ensure();
+    const { results } = await this.db.prepare(`SELECT name,json_extract(body,'$.project.parts[0]') AS part,
+      json_extract(body,'$.items') AS items FROM snapshots ORDER BY name`).all();
+    return searchData(q, results || []);
   }
 
   async readEntry(project, kind, id) {
@@ -485,7 +703,8 @@ export class Store {
           'edits',(SELECT COUNT(*) FROM edits WHERE project=t.project AND state NOT IN ('closed','dismissed'))),
         'replyCount',(SELECT COUNT(*) FROM replies WHERE comment=t.thread),
         'decisionCount',(SELECT COUNT(*) FROM decisions WHERE comment=t.thread),
-        'lastReply',(SELECT json_object('author',author,'made_at',made_at) FROM replies WHERE comment=t.thread ORDER BY seq DESC LIMIT 1),
+        'lastReply',json((SELECT json_object('seq',seq,'author',author,'text',text,'settles',settles,'made_at',made_at) FROM replies WHERE comment=t.thread ORDER BY seq DESC LIMIT 1)),
+        'commentCheckpoint',json(${rowJSON("checkpoints", "project=t.project AND comment=t.thread ORDER BY passed_at DESC,id DESC LIMIT 1")}),
         'threadProposals',json((SELECT json_group_array(json_object('id',id,'state',state,'made_at',made_at,'closed_at',closed_at)) FROM proposals WHERE project=t.project AND comment=t.thread)),
         'claims',json((SELECT json_group_array(json_object('entry',entry,'session',session,'claimed_at',claimed_at,'ends_at',ends_at)) FROM claims WHERE project=t.project AND entry IN(t.target,t.thread,t.diff))),
         'prior',(SELECT json_object('request',request,'result',result) FROM writes WHERE project=t.project AND id=t.write AND received_at>t.cutoff)
@@ -493,7 +712,7 @@ export class Store {
     return { sql, params: [project,id || null,body.comment || null,body.discrepancy || null,body.part ?? null,body.stage || null,write || null,cutoff] };
   }
 
-  async writeEntry(name, project, id, body, { kind, session = null, write, now = new Date().toISOString() }) {
+  async writeEntry(name, project, id, body, { kind, session = null, write, now = new Date().toISOString(), language = "en" }) {
     checkWriteBody(name, body, kind);
     await this.ensure();
     const cutoff = new Date(Date.parse(now)-7*86400000).toISOString();
@@ -506,7 +725,7 @@ export class Store {
         const { status,body: answer }=JSON.parse(state.prior.result);
         return { status,body:answer };
       }
-      const plan=planEntryWrite(name,body,state,{project,kind,session,now});
+      const plan=planEntryWrite(name,body,state,{project,kind,session,now,language});
       const nonce=crypto.randomUUID();
       const result=JSON.stringify({status:plan.status,body:plan.body,nonce});
       const gate="EXISTS(SELECT 1 FROM writes WHERE project=? AND id=? AND json_extract(result,'$.nonce')=?)";
@@ -580,13 +799,11 @@ export class Store {
     const {held}=await this.readContext(project,true);
     const [comments,discrepancies,edits,checkpoints,claims,counts]=await this.db.batch([
       this.commentStatement(project,"todo",undefined,undefined,50),this.discrepancyStatement(project,undefined,undefined,50),this.editStatement(project,"todo",undefined,undefined,50),
-      this.db.prepare(`SELECT *,COUNT(*) OVER() AS _total FROM checkpoints WHERE project=? AND
-        ((state='passed' AND recorded_commit IS NULL) OR (state='withdrawn' AND (recorded_commit IS NOT NULL OR pr_state='open')))
+      this.db.prepare(`SELECT *,COUNT(*) OVER() AS _total FROM checkpoints WHERE project=? AND ${TODO_CHECKPOINT}
         ORDER BY CASE WHEN state='passed' THEN 0 ELSE 1 END,passed_at,id LIMIT 50`).bind(project),
       this.db.prepare(`SELECT * FROM claims WHERE project=? AND ends_at>? AND (${activeEntry})`).bind(project,now),
       this.db.prepare(`SELECT (SELECT COUNT(*) FROM comments WHERE project=? AND state='open' AND waits='user') AS waiting,
-        (SELECT COUNT(*) FROM claims WHERE project=? AND ends_at>? AND session IS NOT ? AND (${activeEntry})
-        AND (EXISTS(SELECT 1 FROM comments WHERE id=entry AND waits='agent') OR substr(entry,1,3)<>'nc_')) AS taken`).bind(project,project,now,session),
+        (SELECT COUNT(*) FROM claims WHERE project=? AND ends_at>? AND session IS NOT ? AND ${TAKEN}) AS taken`).bind(project,project,now,session),
     ]);
     const rows=claims.results;
     const wrap=(result,mapper)=>({total:result.results[0]?._total||0,entries:result.results.map(mapper)});
@@ -619,6 +836,16 @@ export class Store {
     }
     for(const row of warnings.results)if(result[row.project].warnings.length<100)result[row.project].warnings.push({part:row.part,stage:row.stage,rule:"checkpoint-withdrawn",checkpoint:row.id});
     return result;
+  }
+
+  // API-151: the first page in one batch, every space's my turn and to-do and
+  // every stored snapshot's card; home-data.js shapes them.
+  async readHome(now = new Date().toISOString()) {
+    await this.ensure();
+    const [turn, agent, cards, pictures] = await this.db.batch([
+      this.db.prepare(MY_TURN), this.db.prepare(AGENT_COUNTS).bind(now), this.db.prepare(CARDS), this.db.prepare(CARD_PICTURES),
+    ]);
+    return homeData({ now, turn: turn.results, agent: agent.results, cards: cards.results, pictures: pictures.results });
   }
 
 }

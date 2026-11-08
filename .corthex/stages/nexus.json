@@ -17,13 +17,28 @@
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/09-mockup/nexus/README.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's event storming frames, checkpoint 1: Steps 0 to 1-b as drawn",
+          "by": "the maintainer",
+          "date": "2026-11-06"
+        },
+        {
+          "approved": "Phase 2's frames, checkpoint 2: Steps 2 to 7 as recommended, with the work board as its own context, CTX-016",
+          "by": "the maintainer",
+          "date": "2026-11-07"
+        },
+        {
+          "approved": "Phase 2's frames, checkpoint 3: Steps 8 and 9 as recommended, ending stage 01 for phase 2",
+          "by": "the maintainer",
+          "date": "2026-11-07"
         }
       ],
-      "next": "Design the phase 2 work board (FL-115, FL-116) in the NEXUS design thread",
-      "updated": "2026-11-06T09:35:42+00:00"
+      "next": "None for phase 2: stage 02's checkpoint for phase 2 answered hotspots 18 and 21 on 2026-11-07. The redesign's my turn may join the read models at the board's next change",
+      "updated": "2026-11-07T14:38:55+00:00"
     },
     "02-prd": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Scope, with D8 to D13 as recommended",
@@ -36,62 +51,87 @@
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's requirements: REQ-240 to REQ-269 and the changed rows, with D14 and D15 as recommended, together with stages 03 and 04",
+          "by": "the maintainer",
+          "date": "2026-11-07"
         }
       ],
-      "next": "Add the redesign requirements REQ-219 to REQ-239 in the design pull request",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Build REQ-219 to REQ-237 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
+      "updated": "2026-11-08T06:14:52+00:00"
     },
     "03-user-flow": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "The user flows, with the joint checkpoint of stages 03 to 08",
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/03-user-flow/nexus/README.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's flows: FL-115 and FL-116 redrawn, FL-125 and FL-126, the widened flows and points 19 to 23, together with stages 02 and 04",
+          "by": "the maintainer",
+          "date": "2026-11-07"
         }
       ],
-      "next": "Add the redesign flows FL-117 to FL-124 in the design pull request",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Build FL-117 to FL-119 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "04-functional-spec": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "The functional spec, frozen for 0.2, with the joint checkpoint of stages 03 to 08",
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/04-functional-spec/nexus.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's rows: SPEC-134 and SPEC-142 rewritten, SPEC-170 to SPEC-186, with the five points that writing them settled, together with stages 02 and 03",
+          "by": "the maintainer",
+          "date": "2026-11-07"
         }
       ],
-      "next": "Add the redesign specs SPEC-143 to SPEC-169 in the design pull request",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Build SPEC-143 to SPEC-156 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "05-erd": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "The server tables, frozen for 0.2, with the joint checkpoint of stages 03 to 08",
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/05-erd/nexus.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's tables: TBL-118 to TBL-124, migration 5 and the changes to six tables, as written, together with stage 06",
+          "by": "the maintainer",
+          "date": "2026-11-08"
         }
       ],
-      "next": "Let comments hold document items (TBL-105), as the redesign's first checkpoint chose",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Build phase 2's tables in migration 5, after the redesign's screens; the redesign's change of TBL-105 and TBL-110 is built in migration 4",
+      "updated": "2026-11-08T07:39:01+00:00"
     },
     "06-api": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "The requests, frozen for 0.2, with the joint checkpoint of stages 03 to 08",
           "by": "the maintainer",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/06-api/nexus.md",
           "date": "2026-11-03"
+        },
+        {
+          "approved": "Phase 2's interfaces: API-161 to API-176, the thirteen changed interfaces and the nineteen error codes, as written, together with stage 05",
+          "by": "the maintainer",
+          "date": "2026-11-08"
         }
       ],
-      "next": "Let comments hold document items (API-118), as the redesign's first checkpoint chose",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Lead 0.2's picture and overview addresses to the stage's page with TASK-278 (change 2), once TASK-275 draws the picture there, as TASK-274 draws the list: the server answers API-151 to API-159 since TASK-266 to TASK-271, each marked active by its task, and the hub page at /hub since TASK-271; API-158's rows of stages say since TASK-274 why a picture is not current; API-118, API-119 and the hub's comment and reply take any stage and asks (hub 0.3.0)",
+      "updated": "2026-11-08T17:43:00+00:00"
     },
     "07-sitemap": {
       "state": "in_progress",
@@ -108,8 +148,8 @@
           "date": "2026-11-06"
         }
       ],
-      "next": "Write the redesign screens SCR-110 to SCR-129 in the design pull request",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Phase ②'s sitemap, after the redesign's build (order of 2026-11-08)",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "08-screen-states": {
       "state": "in_progress",
@@ -124,10 +164,16 @@
           "approved": "Redesign checkpoint 1: the new structure as drawn, with conversation on document items",
           "by": "the maintainer",
           "date": "2026-11-06"
+        },
+        {
+          "approved": "Redesign checkpoint 3: the 53 states of SCR-110 to SCR-117 as defined and drawn",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/08-screens/nexus/README.md",
+          "date": "2026-11-08"
         }
       ],
-      "next": "Define the states of the redesign screens in the design pull request",
-      "updated": "2026-11-06T09:35:43+00:00"
+      "next": "Phase ②'s screen states, after the redesign's build and phase ②'s sitemap",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "09-mockup": {
       "state": "in_progress",
@@ -142,10 +188,22 @@
           "approved": "Picture-first redesign reopening the token freeze, and its checkpoint 1: the structure as drawn",
           "by": "the maintainer",
           "date": "2026-11-06"
+        },
+        {
+          "approved": "Redesign checkpoint 2: candidate A, Drawing sheet",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/09-mockup/nexus/README.md",
+          "date": "2026-11-07"
+        },
+        {
+          "approved": "Redesign checkpoint 3: the 53 states as drawn and A's tokens frozen again, with the nearest space step for the 6- and 10-pixel gaps, a 44-pixel hit area, the two IBM Plex packages and done-fg counts on a done stage",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/09-mockup/nexus/README.md",
+          "date": "2026-11-08"
         }
       ],
-      "next": "Checkpoint 2: choose one of two color and font candidates",
-      "updated": "2026-11-06T09:35:44+00:00"
+      "next": "Phase ②'s mockups, after the redesign's build and phase ②'s stages 07 and 08",
+      "updated": "2026-11-08T06:07:00+00:00"
     },
     "10-wbs": {
       "state": "done",
@@ -156,8 +214,8 @@
           "date": "2026-11-04"
         }
       ],
-      "next": "Add the 0.2.3 patch and redesign tasks",
-      "updated": "2026-11-06T09:35:44+00:00"
+      "next": "Phase ②'s tasks, after its stages 07 to 09; the redesign's build is TASK-265 to TASK-278",
+      "updated": "2026-11-08T08:08:57+00:00"
     },
     "11-development": {
       "state": "in_progress",
@@ -175,8 +233,8 @@
           "date": "2026-11-05"
         }
       ],
-      "next": "Release 0.2.3: folded hub checks, Korean texts, item-less contexts, the wheel and panel words",
-      "updated": "2026-11-06T09:35:44+00:00"
+      "next": "Build the redesign's screens, TASK-275 to TASK-277, on the pages that TASK-271 serves and TASK-272 draws, with what TASK-274 left to them: the picture in place of a pictured stage's list, the talk in the side and the item beside the stage, with the first page's search (TASK-273's handoff); then TASK-278, which walks the 53 states and leads 0.2's picture and overview addresses to the stage's page; TASK-265 to TASK-274 are done; the 0.2.3 release waits for the maintainer",
+      "updated": "2026-11-08T17:43:00+00:00"
     },
     "12-qa": {
       "state": "in_progress",

@@ -28,7 +28,9 @@ test("native requests remain inert until after the first preview paint",()=>{
  const inert=html.match(/<template id="nexus-editor-assets">([\s\S]*?)<\/template>/);
  assert.ok(inert,"native preloads must be deferred, not discarded");
  assert.ok(inert[1].includes(metadata.entries["excalidraw-js"]));
- const active=html.replace(inert[0],"");
+ const fonts=html.match(/<template id="nexus-font-assets">([\s\S]*?)<\/template>/);
+ assert.ok(fonts&&fonts[1].includes(metadata.entries["fonts-css"]),"the font stylesheet waits for the first paint too");
+ const active=html.replace(inert[0],"").replace(fonts[0],"");
  assert.ok(!active.includes(metadata.entries["excalidraw-js"]),"native graph must not compete with the initial HTML");
  assert.ok(!active.includes('rel="stylesheet"'),"critical CSS is inline");
 });
