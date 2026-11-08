@@ -114,11 +114,14 @@ try{
    await release();await waitFor(`document.documentElement.dataset.nxCode==='ready'`);await paint();
    const after=await read();
    assert(after.redrawn==='0','The code redrew '+after.redrawn+' parts');
-   // The code makes the first page's answers and order work (TASK-273): those controls lose
-   // their wait, and nothing else changes.
-   const working=parts=>Object.fromEntries(Object.entries(parts).map(([key,html])=>[key,html.replace(/ disabled="" data-nx-wait="(?:answer|order)"/g,"")]));
+   // The code makes the first page's answers and order work (TASK-273), and a stage's list
+   // and record (TASK-274): those controls lose their wait, and nothing else changes. The
+   // search waits for SCR-116 (TASK-277).
+   const waits=kind==='home'?/ disabled="" data-nx-wait="(?:answer|order)"/g:/ disabled="" data-nx-wait="(?:list|record)"/g;
+   const working=parts=>Object.fromEntries(Object.entries(parts).map(([key,html])=>[key,html.replace(waits,"")]));
    assert(JSON.stringify(after.parts)===JSON.stringify(working(before.parts)),'A part differs after the code ran');
-   assert(kind!=='home'||/data-nx-wait="(?:answer|order)"/.test(before.parts.home)&&!/data-nx-wait="(?:answer|order)"/.test(after.parts.home),'The first page\'s answers and order did not start to work');
+   const named=kind==='home'?/data-nx-wait="(?:answer|order)"/:/data-nx-wait="(?:list|record)"/,where=kind==='home'?['home']:['stage','side'];
+   assert(where.some(key=>named.test(before.parts[key]||''))&&!where.some(key=>named.test(after.parts[key]||'')),kind==='home'?'The first page\'s answers and order did not start to work':'The stage\'s list and record did not start to work');
    assert(after.elements===before.elements&&after.kept===before.elements,'The code replaced elements ('+after.kept+' of '+before.elements+' kept)');
    assert(JSON.stringify(after.frame)===JSON.stringify(before.frame)&&JSON.stringify(after.boxes)===JSON.stringify(before.boxes),'An element moved or changed size when the code ran');
    assert(!after.bar.visible&&after.scrollWidth<=after.width,'The bar stays hidden and nothing scrolls sideways');

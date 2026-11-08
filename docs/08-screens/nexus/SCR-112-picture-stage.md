@@ -70,7 +70,7 @@ Every state of the stage applies, with two of the picture's own, large and code-
 
 | Region | Under 1,024 pixels, drawn at 390 | From 1,024 pixels, drawn at 1,440 |
 | --- | --- | --- |
-| The head | Under the tabs: the state, the last checkpoint and the commit on one line that wraps, the counts on a second line, and Stage record; Edit is not shown, since editing is for a PC | One line: the number and name, the state, the last checkpoint and the commit; the counts and Edit at its right end |
+| The head | Under the tabs: the state, the last checkpoint and the commit on one line that wraps, the counts on a second line, and Stage record; Edit is not shown, since editing is for a PC | Two lines, as stage 09 draws them: the number and name, the state, and the counts with Edit at the right end; under them the last checkpoint and the commit. Until TASK-275 draws the picture, the stage shows SCR-113's list with SCR-113's head |
 | The tools | Picture and List, then Fit and Go to; the zoom buttons over the picture's lower right corner, 44 pixels each | One line under the head: Picture and List, the zoom buttons with the zoom, Fit and Go to, and Stage record at its right end |
 | The step control, on a DDD board | Above the frame, across the width: Previous step and Next step, 44 pixels each, with the list of steps between them | Left of the tools' end, on the same line |
 | The picture | Its frame takes the rest of the height, so the page does not scroll; the map, 120 pixels wide, in the lower right corner above the zoom buttons | Its frame takes the middle under the tools; the map, 188 pixels wide, in the lower right corner, and the legend in the lower left |

@@ -134,11 +134,51 @@ if(process.env.NEXUS_QA_HOME==="1"){
  await callIn(spaces.quiet,"POST","/api/snapshots",viewSnapshot("qa-home-quiet"),"agent");
  await callIn(spaces.quiet,"POST","/api/spaces/qa-home-quiet/comments",{part:"sample",stage:"05-erd",item:"TBL-001",text:"Synthetic comment that waits for the agent"});
 }
+// A stage in the workspace (TASK-274): 450 requirements on 02, in two contexts and without one,
+// with priorities, statuses and Korean and English sentences, so that the list reads three
+// times; talk and my turn on some of them; a checkpoint that waits for its record; a stage
+// that the project does not read (03) and one without items (04); a pictured stage with talk,
+// my turn and a pending reflection (05); and a second project without recorded progress. Only
+// the stage suite opts in; it pushes the project again through /__qa/push-again.
+const stageQa={};
+if(process.env.NEXUS_QA_STAGE==="1"){
+ const project="qa-stage",base="/api/spaces/"+project,snapshot=viewSnapshot(project),where="docs/qa-prd.md:1",time=snapshot.generated_at;
+ snapshot.project.title='<b>QA</b> 단계 & __CORTHEX_VIEW_DATA__ 합성 가게';
+ snapshot.stages["02-prd"]={name:"PRD",human:"notion",truth:"source",source:"docs/qa-prd.md",source_state:"found",read:true,files:1,items:450,parts:{sample:{state:"in_progress",checkpoints:[{date:"2026-11-07",by:"Synthetic reviewer",approved:"Synthetic first draft"}],next:"Review the synthetic requirements",updated:time}}};
+ snapshot.stages["03-user-flow"]={name:"User flow",human:"notion",truth:"source",source:"docs/qa-flow/",source_state:"missing",read:false,files:0,items:0,parts:{sample:{state:"not_started",checkpoints:[],next:"",updated:time}}};
+ const priorities=["Must","Should","Could","Won't"],statuses=["approved","draft","review"];
+ const sentence=i=>i%5===4?`합성 구매자가 결제를 다시 시도하면 가게는 그 시도와 결과를 빠짐없이 기록해야 한다 (${i+1})`:`When a synthetic buyer places order ${i+1}, the shop shall record the order and tell the buyer what happens next.`;
+ snapshot.items=[
+  {id:"CTX-001",kind:"context",stage:"01-domain",where,title:"Ordering"},{id:"CTX-002",kind:"context",stage:"01-domain",where,title:"Payment"},
+  ...Array.from({length:450},(_,i)=>({id:"REQ-"+String(i+1).padStart(3,"0"),kind:"requirement",stage:"02-prd",where,title:sentence(i),priority:priorities[i%4],status:statuses[i%3],links:i%10===9?[]:[i%2?"CTX-002":"CTX-001"]})),
+  {id:"TBL-001",kind:"table",stage:"05-erd",where,title:"orders",links:["CTX-001"]},{id:"TBL-002",kind:"table",stage:"05-erd",where,title:"payments",links:["CTX-002"]},
+ ];
+ snapshot.summary={...snapshot.summary,items:snapshot.items.length};
+ await call("POST","/api/snapshots",snapshot,"agent");
+ const said=async(item,text,kind="user",extra={},stage="02-prd")=>(await call("POST",base+"/comments",{part:"sample",stage,item,text,...extra},kind)).id;
+ stageQa.talk=await said("REQ-002","Synthetic question: should the record keep the buyer's note?");
+ stageQa.asks=await said("REQ-003","Synthetic question for the user: is a retry its own requirement?","agent",{asks:"answer"});
+ stageQa.last=await said("REQ-450","Synthetic comment on the last requirement");
+ // Proposals and so reflections are only on pictured stages: an open one on TBL-001 and one
+ // accepted on TBL-002, whose edit waits for the agent.
+ stageQa.erd=await said("TBL-001","Synthetic comment on a pictured stage","user",{},"05-erd");
+ const proposal=change=>call("POST",base+"/proposals",{part:"sample",stage:"05-erd",items:[change[0]],reason:"Synthetic "+change[1],change:"Describe the synthetic constraint.",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);"},"agent");
+ stageQa.proposal=(await proposal(["TBL-001","proposal"])).id;
+ const reflected=await proposal(["TBL-002","reflection"]);
+ stageQa.edit=(await call("POST",base+"/proposals/"+reflected.id+"/accept",{})).edit.id;
+ stageQa.checkpoint=(await call("POST",base+"/checkpoints",{part:"sample",stage:"02-prd",words:"Synthetic checkpoint that waits for its record"})).id;
+ stageQa.pushAgain=async()=>{snapshot.generated_at=new Date(Math.max(Date.now(),Date.parse(snapshot.generated_at)+1000)).toISOString();return call("POST","/api/snapshots",snapshot,"agent");};
+ const quiet=viewSnapshot("qa-stage-unrecorded");
+ for(const stage of Object.values(quiet.stages))stage.parts.sample.state="unknown";
+ await call("POST","/api/snapshots",quiet,"agent");
+ Object.assign(stageQa,{project,part:"sample",unrecorded:quiet.project.name,title:snapshot.project.title});
+}
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{})}));return;}
- if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&home.pushAgain){const pushed=await home.pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{})}));return;}
+ const pushAgain=home.pushAgain||stageQa.pushAgain;
+ if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&pushAgain){const pushed=await pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
  const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const bytes=Buffer.concat(chunks);
  if(incoming.method==="POST")writes.push({path:url.pathname,id:incoming.headers["idempotency-key"],body:JSON.parse(bytes)});
  const space=/(?:^|;\s*)nexus-qa-space=(quiet|empty)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];

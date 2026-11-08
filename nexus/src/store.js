@@ -544,7 +544,7 @@ export class Store {
       this.db.prepare("SELECT term,item FROM discrepancies WHERE project=? AND part=? AND state='open'").bind(project, part),
       this.db.prepare(`SELECT p.items FROM edits AS e JOIN proposals AS p ON e.proposal=p.id
         WHERE e.project=? AND e.part=? AND e.stage=? AND e.state NOT IN ('closed','dismissed')`).bind(project, part, stage),
-      this.db.prepare(`SELECT stage,commit_id,committed_at,CASE WHEN stage='01-domain' AND ?='01-domain' THEN source END AS source
+      this.db.prepare(`SELECT stage,commit_id,committed_at,not_current,CASE WHEN stage='01-domain' AND ?='01-domain' THEN source END AS source
         FROM pictures WHERE project=? AND part=?`).bind(stage, project, part),
     ]);
     return stageData({ ...context, record: this.overview(context, project, part, stage, rows.slice(0, 5)), project, part, stage, query,

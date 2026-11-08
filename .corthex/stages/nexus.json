@@ -130,8 +130,8 @@
           "date": "2026-11-08"
         }
       ],
-      "next": "Lead 0.2's picture and overview addresses to the stage's page with TASK-278 (change 2), once TASK-274 and TASK-275 draw the list and the picture there: the server answers API-151 to API-159 since TASK-266 to TASK-271, each marked active by its task, and the hub page at /hub since TASK-271; API-118, API-119 and the hub's comment and reply take any stage and asks (hub 0.3.0)",
-      "updated": "2026-11-08T13:46:16+00:00"
+      "next": "Lead 0.2's picture and overview addresses to the stage's page with TASK-278 (change 2), once TASK-275 draws the picture there, as TASK-274 draws the list: the server answers API-151 to API-159 since TASK-266 to TASK-271, each marked active by its task, and the hub page at /hub since TASK-271; API-158's rows of stages say since TASK-274 why a picture is not current; API-118, API-119 and the hub's comment and reply take any stage and asks (hub 0.3.0)",
+      "updated": "2026-11-08T17:43:00+00:00"
     },
     "07-sitemap": {
       "state": "in_progress",
@@ -233,8 +233,8 @@
           "date": "2026-11-05"
         }
       ],
-      "next": "Build the redesign's screens, TASK-274 to TASK-277, on the pages that TASK-271 serves and TASK-272 draws, with the first page's ways on to a stage's list, its items and the search (TASK-273's handoff), then TASK-278, which walks the 53 states and leads 0.2's picture and overview addresses to the stage's page; TASK-265 to TASK-273 are done; the 0.2.3 release waits for the maintainer",
-      "updated": "2026-11-08T15:40:00+00:00"
+      "next": "Build the redesign's screens, TASK-275 to TASK-277, on the pages that TASK-271 serves and TASK-272 draws, with what TASK-274 left to them: the picture in place of a pictured stage's list, the talk in the side and the item beside the stage, with the first page's search (TASK-273's handoff); then TASK-278, which walks the 53 states and leads 0.2's picture and overview addresses to the stage's page; TASK-265 to TASK-274 are done; the 0.2.3 release waits for the maintainer",
+      "updated": "2026-11-08T17:43:00+00:00"
     },
     "12-qa": {
       "state": "in_progress",

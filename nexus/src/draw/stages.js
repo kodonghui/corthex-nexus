@@ -1,6 +1,7 @@
 // The 13 stages in six groups, and the workspace's list of them (SCR-111): each a
 // link with its state as a shape and a word, its number, name, picture mark, item
 // count and entries in my turn (rule 13), as the server and the view draw it.
+// A stage row of API-158: {key, state, items, picture, not_current, mine}.
 import {esc,path,count} from "./html.js";
 import {icon,shapeIcon} from "./icons.js";
 import {label,legendWord,STATES} from "./words.js";
@@ -20,7 +21,9 @@ export function legend(lang){
 const counted=(className,n,words)=>`<span class="${className}"><span aria-hidden="true">${esc(count(n))}</span>${sr(words)}</span>`;
 function row(data,stage,lang){
   const key=stage.key,on=key===data.stage,mine=Number(stage.mine)||0,items=Number(stage.items)||0;
-  const picture=stage.picture?` ${icon("i-pic")}${sr(legendWord("picture",lang))}`:"";
+  // A picture that is not current says so to screen readers (SCR-111#stale); its stage's
+  // page shows why (SCR-112#stale).
+  const picture=stage.picture?` ${icon("i-pic")}${sr(stage.not_current?`${legendWord("picture",lang)}, ${label("Projects",6,lang).toLocaleLowerCase(lang)}`:legendWord("picture",lang))}`:"";
   const end=`<span class="end">${[items?counted("n",items,label("Projects",8,lang,{n:count(items)})):"",mine?counted("cnt",mine,label("The talk",1,lang,{n:count(mine)})):""].filter(Boolean).join(" ")}</span>`;
   // The spaces between the parts keep their words apart when the link is read.
   return `<li><a class="row${on?" on":""}" href="${esc(stagePath(data.project.name,data.part,key))}"${on?' aria-current="page"':""}>${shape(stage.state,lang)} <span class="num">${esc(stageNumber(key))}</span> <span class="name"><span class="clip">${esc(stageName(key,lang))}</span>${picture}</span> ${end}</a></li>`;
@@ -41,5 +44,8 @@ export function stageRail(data,lang){
     if(GROUP_OF[index]!==group){if(group>=0)list+="</ul></li>";group=GROUP_OF[index];list+=`<li class="grp"><span class="gname" id="grp-${group}">${esc(label("Stage groups",group,lang))}</span><ul aria-labelledby="grp-${group}">`;}
     list+=row(data,stage,lang);
   });
-  return `${head}<ul class="stl">${list}</ul></li></ul>${legend(lang)}`;
+  // A project without recorded progress says how progress gets recorded (SCR-111#unrecorded,
+  // REQ-103): no stage has a state but those that its settings skip.
+  const unrecorded=rows.every(stage=>stage.state==="unknown"||stage.state==="skipped"||!STATES.includes(stage.state));
+  return `${head}${unrecorded?`<p class="unrec">${esc(label("No progress",0,lang))}</p>`:""}<ul class="stl">${list}</ul></li></ul>${legend(lang)}`;
 }

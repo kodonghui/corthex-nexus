@@ -8,6 +8,7 @@ import {topBar,codeBar,tabs} from "./frame.js";
 import {stageRail,stageName,stageNumber} from "./stages.js";
 import {labels} from "./words.js";
 import {drawHome} from "./home.js";
+import {drawStage,drawSide,stageBars} from "./stage.js";
 export const PAGE_SCHEMAS=Object.freeze({home:"corthex-home-page/0.3",stage:"corthex-stage-page/0.3"});
 export function pageKind(payload){
   const kind=Object.keys(PAGE_SCHEMAS).find(key=>PAGE_SCHEMAS[key]===payload?.schema);
@@ -18,19 +19,21 @@ export function pageKind(payload){
 // and the comments whose item is gone (API-152).
 export const openTalk=talk=>talk?["mine","agent","apart"].reduce((n,key)=>n+(Number(talk[key]?.total)||0),0):0;
 // The inside of every part of the page, by the part's name, from the page's data: the
-// first page's sections (SCR-110, TASK-273), and the frame of a stage, whose middle and
-// side join as their screens are built (TASK-274 to TASK-277); until then they are empty.
-export function drawParts(payload){
+// first page's sections (SCR-110, TASK-273), and a stage's frame, middle and side (SCR-111
+// and SCR-113, TASK-274), which the picture and the talk join in TASK-275 and TASK-276.
+// view is what the stage page's code adds when it draws again (./stage.js); the server
+// draws with none.
+export function drawParts(payload,view={}){
   const kind=pageKind(payload),lang=payload.lang;
   if(kind==="home")return{top:topBar({kind:"home"},lang),bars:codeBar(lang),home:drawHome(payload.data,lang)};
-  const data=payload.data;
+  const data=payload.data,talk=openTalk(payload.talk);
   return{
     top:topBar({kind:"stage",project:data.project.name,title:data.project.title,part:data.part,stage:data.stage},lang),
-    bars:codeBar(lang),
+    bars:codeBar(lang)+stageBars(view,lang),
     rail:stageRail(data,lang),
-    tabs:tabs({picture:Boolean(payload.picture),talk:openTalk(payload.talk)},lang),
-    stage:"",
-    side:"",
+    tabs:tabs({picture:Boolean(payload.picture),talk},lang),
+    stage:drawStage(data,lang,{...view,talk}),
+    side:drawSide(data,payload.problem,lang,view),
   };
 }
 export function pageTitle(payload){

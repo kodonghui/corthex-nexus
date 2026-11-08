@@ -7,6 +7,7 @@ import {path} from "../src/draw/html.js";
 import {STAGE_KEYS,stagePath} from "../src/draw/stages.js";
 import {label,labels,codeMessage} from "../src/draw/words.js";
 import {ApiClient,LatestReads,PendingWrites,writeId} from "./state.js";
+import {reconcile} from "./reconcile.js";
 
 const ORDER_KEY="nexus0.3:order";
 const STATES=Object.freeze(["open","accepted","dismissed","withdrawn"]);
@@ -14,36 +15,6 @@ const GONE=Object.freeze(["proposal_not_found","comment_not_found","project_not_
 const PERMISSION=Object.freeze(["user_only","access_missing","access_other_app"]);
 const CONNECTION=Object.freeze({network:"No connection",timeout:"No answer in time",busy:"Busy"});
 const PROJECT=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
-// What was drawn for each element that the code compares: the markup of the drawing, not of
-// the element, whose times the code writes in the browser's time zone.
-const drawn=new WeakMap();
-const drawnOf=element=>drawn.get(element)??element.outerHTML;
-const attributes=element=>[...element.attributes].map(a=>a.name+"="+a.value).join("\n");
-// An element and the elements that it holds and the code compares, with their drawing,
-// which holds the same elements in the same order.
-function remember(element,drawing){
-  const nodes=[drawing,...drawing.querySelectorAll("[data-nx-key]")];
-  [element,...element.querySelectorAll("[data-nx-key]")].forEach((node,index)=>{if(nodes[index])drawn.set(node,nodes[index].outerHTML);});
-}
-// Children by their data-nx-key: kept when drawn the same, compared one by one inside a
-// data-nx-sub element, changed in place in a data-nx-live one, and otherwise replaced.
-export function reconcile(live,next){
-  const old=new Map([...live.children].map(element=>[element.dataset.nxKey,element])),kids=[...next.children];
-  kids.forEach((child,index)=>{
-    const match=old.get(child.dataset.nxKey),html=child.outerHTML;let use=child;
-    if(match&&match.tagName===child.tagName){
-      if(drawnOf(match)===html){remember(match,child);use=match;}
-      else if(child.hasAttribute("data-nx-live")&&attributes(match)===attributes(child)){if(match.innerHTML!==child.innerHTML)match.innerHTML=child.innerHTML;remember(match,child);use=match;}
-      // The drawing as it was before its children moved into the page.
-      else if(child.hasAttribute("data-nx-sub")&&attributes(match)===attributes(child)){reconcile(match,child);drawn.set(match,html);use=match;}
-    }
-    if(use===child)remember(child,child);
-    if(live.children[index]!==use)live.insertBefore(use,live.children[index]||null);
-    if(match&&match!==use)match.remove();
-  });
-  while(live.children.length>kids.length)live.lastElementChild.remove();
-}
 
 function storedOrder(){try{return globalThis.localStorage?.getItem(ORDER_KEY)==="push"?"push":"name";}catch{return"name";}}
 function storeOrder(order){try{globalThis.localStorage?.setItem(ORDER_KEY,order);}catch{/* The order stays for this page only. */}}

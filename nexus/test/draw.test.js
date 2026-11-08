@@ -20,10 +20,20 @@ const metadata=JSON.parse(readFileSync(new URL("../src/view-code/sizes.json",imp
 const code=Object.fromEntries(metadata.files.map(f=>[f.name,{type:f.type,body:readFileSync(new URL(f.path,folder))}])),views=createViews(code,metadata.entries);
 const MARKER="__CORTHEX_VIEW_DATA__",TITLE=`<b>QA</b> "pages" & '${MARKER}' 합성 가게`;
 const SHAPES={done:"s-done",in_progress:"s-prog",not_started:"s-todo",skipped:"s-skip",unknown:"s-unk"};
-// A stage's data as API-158 answers it, with only the members that the drawing reads.
-function stageData({stage="05-erd",part="sample",parts=["sample"],rows}={}){
-  return{project:{name:"qa/shop #1",title:TITLE,repository:"https://github.com/example/qa-shop",commit:"0123456789abcdef0123456789abcdef01234567",parts},part,stage,
-    stages:rows??STAGE_KEYS.map((key,i)=>({key,state:STATES[i%STATES.length],items:[0,3,1500][i%3],picture:["01-domain","05-erd","07-sitemap"].includes(key),mine:[0,2,1000][i%3]}))};
+// A stage's data as API-158 answers it, with only the members that the drawing reads: three
+// tables, two of them in a context, with marks, a title that tries markup and no checkpoint.
+const AT="2026-11-08T07:00:00.000Z";
+const ENTRIES=()=>[
+  {id:"TBL-001",kind:"table",title:"orders <b>&</b>",priority:"Must",status:"built",parent:"CTX-001",context:"CTX-001",comments:2,mine:true,discrepancies:1,reflections:0},
+  {id:"TBL-002",kind:"table",title:"order_lines",type:"table",context:"CTX-001",comments:0,mine:false,discrepancies:0,reflections:1},
+  {id:"TBL-003",kind:"table",title:"notes",context:null,comments:1000,mine:false,discrepancies:0,reflections:0},
+];
+function stageData({stage="05-erd",part="sample",parts=["sample"],rows,head={},items={},record={}}={}){
+  return{project:{name:"qa/shop #1",title:TITLE,repository:"https://github.com/example/qa-shop",commit:"0123456789abcdef0123456789abcdef01234567",generated_at:AT,pushed_at:"2026-11-08T08:00:00.000Z",parts},part,stage,
+    head:{key:stage,state:"in_progress",checkpoint:null,commit:"0123456789abcdef0123456789abcdef01234567",time:AT,reads:true,source_state:"found",counts:{items:3,kinds:[{kind:"table",count:3}],priorities:[],hotspots:null},picture:false,...head},
+    record:{project:"qa/shop #1",part,stage,record:{state:"in_progress",checkpoints:[],next:null,from:"snapshot"},source_state:"found",read:true,checks:[],pictures:[],discrepancies:{total:0,entries:[]},comments:{total:0,entries:[]},reflections:{total:0,entries:[]},checkpoints:[],warnings:[],not_opened:0,...record},
+    stages:rows??STAGE_KEYS.map((key,i)=>({key,state:STATES[i%STATES.length],items:[0,3,1500][i%3],picture:["01-domain","05-erd","07-sitemap"].includes(key),not_current:null,mine:[0,2,1000][i%3]})),
+    items:{group:"context",filter:"all",q:null,total:3,after:0,counts:{all:3,talk:2,mine:1,left:2},groups:[{context:"CTX-001",title:"Ordering <i>",count:2},{context:null,title:null,count:1}],entries:ENTRIES(),...items}};
 }
 const stagePage=(lang="en",over={})=>({schema:PAGE_SCHEMAS.stage,generated_at:"2026-11-08T08:30:00.000Z",lang,data:stageData(over),talk:{mine:{total:2},agent:{total:1},apart:{total:4}},picture:null,problem:null});
 const homePage=(lang="en",over={})=>({schema:PAGE_SCHEMAS.home,generated_at:"2026-11-08T08:30:00.000Z",lang,data:homeData(over)});
@@ -162,8 +172,8 @@ test("a page whose code does not run stays readable, with the bar of rule 15, an
   assert.doesNotMatch(readFileSync(new URL("../ui/page.css",import.meta.url),"utf8"),/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i,"colours come from the frozen tokens");
   for(const payload of[stagePage("en"),homePage("ko")]){
     const html=views.page(payload),controls=tags(html,/<(?:button|input)\b[^>]*>/g);
-    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order)"/,"a control that needs the code waits for it");
-    for(const link of tags(html,/<a\b[^>]*>/g))assert.match(link,/href="(?:\/|#stage|#stages|#talk)[^"]*"/,"every link works without the code");
-    if(pageKind(payload)==="home")assert.deepEqual([...new Set(controls.map(c=>c.match(/data-nx-wait="(\w+)"/)[1]))].sort(),["answer","order","search"]);
+    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order|list|record)"/,"a control that needs the code waits for it");
+    for(const link of tags(html,/<a\b[^>]*>/g))assert.match(link,/href="(?:\/|#stage|#stages|#talk|#item=|#view=list&amp;item=)[^"]*"/,"every link works without the code");
+    assert.deepEqual([...new Set(controls.map(c=>c.match(/data-nx-wait="(\w+)"/)[1]))].sort(),pageKind(payload)==="home"?["answer","order","search"]:["list","record","search"]);
   }
 });

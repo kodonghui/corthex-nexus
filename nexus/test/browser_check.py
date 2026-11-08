@@ -48,6 +48,7 @@ def main():
     clean.pop("NEXUS_QA_TALL_SITEMAP", None)
     clean.pop("NEXUS_QA_PAGES", None)
     clean.pop("NEXUS_QA_HOME", None)
+    clean.pop("NEXUS_QA_STAGE", None)
     clean["NEXUS_QA_PYTHON"] = sys.executable
     for script, arguments in [("browser-regression.mjs", ()), ("discussion-regression.mjs", ()),
                               ("discussion-regression.mjs", ("--dismiss",)), ("error-regression.mjs", ()),
@@ -70,7 +71,13 @@ def main():
     # The first page's answers, reading again and fragments (TASK-273), with its own spaces.
     home = clean.copy()
     home["NEXUS_QA_HOME"] = "1"
-    return run_suite(executable, home, "home-regression.mjs")
+    result = run_suite(executable, home, "home-regression.mjs")
+    if result:
+        return result
+    # A stage in the workspace (TASK-274): the document stage's list, addresses and stage record.
+    stage = clean.copy()
+    stage["NEXUS_QA_STAGE"] = "1"
+    return run_suite(executable, stage, "stage-regression.mjs")
 
 
 if __name__ == "__main__":

@@ -91,7 +91,11 @@ async function onPaused(event){
   await command('Fetch.fulfillRequest',{requestId:event.requestId,responseCode:rule.status,responseHeaders:rule.headers,body:Buffer.from(rule.body||'').toString('base64')});return;
  }
  if(held&&held.pattern.test(url.pathname)&&(!held.method||held.method===method)){held.requests.push(event.requestId);report.interceptions.push({path:url.pathname,method,action:'held',at:new Date().toISOString()});return;}
- await command('Fetch.continueRequest',{requestId:event.requestId});
+ // A request that the page dropped while it was paused, as when a test navigates on before
+ // the fonts that the page adds after its first paint have loaded, has no interception left
+ // to continue: Chrome answers "Invalid InterceptionId", which is recorded, not a failure.
+ try{await command('Fetch.continueRequest',{requestId:event.requestId});}
+ catch(error){if(!String(error).includes('Invalid InterceptionId'))throw error;report.interceptions.push({path:url.pathname,method,action:'dropped by the page',at:new Date().toISOString()});}
 }
 // A write of another tab or the agent's, to the fixture server through /api, as the page's go.
 let otherSerial=0;
@@ -147,7 +151,7 @@ try{
  let endpoint;for(let n=0;n<100;n++){try{endpoint=(await fs.readFile(path.join(profile,'DevToolsActivePort'),'utf8')).trim().split('\n');break;}catch{await sleep(100);}}
  if(!endpoint)throw Error('Owned Chrome did not publish its CDP endpoint');
  ws=new WebSocket('ws://127.0.0.1:'+endpoint[0]+endpoint[1]);await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
- ws.onmessage=message=>{const m=JSON.parse(message.data);if(m.id){const call=pending.get(m.id);pending.delete(m.id);if(call)m.error?call.reject(Error(JSON.stringify(m.error))):call.resolve(m.result);}else if(m.sessionId===session){if(m.method==='Page.loadEventFired')loads++;if(m.method==='Fetch.requestPaused')onPaused(m.params).catch(error=>{report.eventError=String(error);});if(m.method==='Runtime.exceptionThrown')report.runtimeExceptions.push({at:new Date().toISOString(),text:m.params.exceptionDetails?.exception?.description||m.params.exceptionDetails?.text});}};
+ ws.onmessage=message=>{const m=JSON.parse(message.data);if(m.id){const call=pending.get(m.id);pending.delete(m.id);if(call)m.error?call.reject(Error(JSON.stringify(m.error))):call.resolve(m.result);}else if(m.sessionId===session){if(m.method==='Page.loadEventFired')loads++;if(m.method==='Fetch.requestPaused')onPaused(m.params).catch(error=>{report.eventError=String(error)+' ('+m.params.request.method+' '+new URL(m.params.request.url).pathname+')';});if(m.method==='Runtime.exceptionThrown')report.runtimeExceptions.push({at:new Date().toISOString(),text:m.params.exceptionDetails?.exception?.description||m.params.exceptionDetails?.text});}};
  ws.onclose=()=>{for(const call of pending.values())call.reject(Error('Owned CDP connection closed'));pending.clear();};
  report.nodePid=process.pid;report.browser=await command('Browser.getVersion',{},false);
  const tab=await command('Target.createTarget',{url:'about:blank'},false);session=(await command('Target.attachToTarget',{targetId:tab.targetId,flatten:true},false)).sessionId;

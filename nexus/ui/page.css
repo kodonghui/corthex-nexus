@@ -5,7 +5,7 @@
    step of space (checkpoint 3). The sizes below are stage 08's layout tables and
    stage 09's frames, which no token names. 1,024 is breakpoint.side-panel and 1,280
    rule 16's; a media query cannot read a custom property, so they are written out. */
-:root{--pg-top:56px;--pg-rail:248px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s}
+:root{--pg-top:56px;--pg-rail:248px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s;--pg-id:112px;--pg-find:280px;--pg-fields:120px;--pg-comments:36px;--pg-marks:144px;--pg-term:120px;--pg-note:480px}
 *,*::before,*::after{box-sizing:border-box}
 html{color-scheme:light dark;-webkit-text-size-adjust:100%}
 body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-family:var(--nx-font-family-sans);font-size:var(--nx-font-size-body);line-height:var(--nx-font-line-height-body);font-weight:var(--nx-font-weight-regular);word-break:keep-all;overflow-wrap:anywhere}
@@ -231,13 +231,96 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .side{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:auto;background:var(--nx-color-surface);border-left:var(--nx-border-thin) solid var(--nx-color-line)}
 .nx .tabs{display:none}
 @media (pointer:coarse){.nx .row{min-height:var(--nx-size-target)}}
+.nx .rail .unrec{margin:var(--nx-space-sm) var(--nx-space-md) var(--nx-space-2xs);padding:var(--nx-space-sm) var(--nx-space-md);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);font-size:var(--nx-font-size-small);color:var(--nx-color-muted);text-wrap:pretty}
+.nx .only-mid{display:none!important}
+
+/* The stage's middle (SCR-113, and SCR-112's list until TASK-275 draws its picture): the
+   head, the notes of reading again, the filters, and the list, which scrolls inside the
+   middle under them. The head's two lines are stage 09's drawing; the list's columns are
+   SCR-113's layout table (an ID of 112 pixels) and the drawing's. A row's padding keeps the
+   36 pixels of size.row, and its bar is the border that a selected row colours. */
+.nx .shd{flex:none;display:grid;grid-template-columns:auto auto minmax(0,1fr);grid-template-areas:"h st counts" "meta meta meta";align-items:center;gap:var(--nx-space-2xs) var(--nx-space-md);min-height:var(--pg-top);padding:var(--nx-space-sm) var(--nx-space-xl);background:var(--nx-color-surface);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .shd h1{grid-area:h;display:flex;align-items:baseline;gap:var(--nx-space-sm);font-size:var(--nx-font-size-title);white-space:nowrap}
+.nx .shd h1 .num{font-family:var(--nx-font-family-mono);font-weight:var(--nx-font-weight-medium);font-size:.85em;color:var(--nx-color-muted)}
+.nx .shd > .st{grid-area:st}
+.nx .stw{display:inline-flex;align-items:center;gap:var(--nx-space-sm);font-size:var(--nx-font-size-small);white-space:nowrap}
+.nx .shd .meta{grid-area:meta;display:flex;flex-wrap:wrap;align-items:center;gap:var(--nx-space-2xs) var(--nx-space-md);min-width:0;font-size:var(--nx-font-size-small);color:var(--nx-color-muted)}
+.nx .shd .counts{grid-area:counts;display:flex;align-items:center;justify-content:flex-end;gap:var(--nx-space-md);min-width:0;font-size:var(--nx-font-size-small);color:var(--nx-color-muted)}
+.nx .shd .cn{min-width:0;text-align:end}
+.nx .shd .cn .c{white-space:nowrap}
+.nx .shd .counts .btn{flex:none}
+.nx .shd .cn:empty{display:none}
+.nx .wait{display:inline-flex;align-items:center;gap:var(--nx-space-sm);min-width:0;padding:var(--nx-space-2xs) var(--nx-space-sm);border-radius:var(--nx-radius-pill);background:var(--nx-color-warn-bg);color:var(--nx-color-warn);font-size:var(--nx-font-size-caption)}
+.nx .wait > span{color:var(--nx-color-text)}
+.nx .notes{flex:none}
+.nx .notes:empty{display:none}
+.nx .bar .tid{font-family:var(--nx-font-family-mono);font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
+.nx .filters{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:var(--nx-space-sm);padding:var(--nx-space-sm) var(--nx-space-xl);background:var(--nx-color-surface);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .chip{position:relative;display:inline-flex;align-items:center;gap:var(--nx-space-sm);height:var(--nx-size-button-small);padding:0 var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-pill);background:var(--nx-color-surface);color:var(--nx-color-text);font-size:var(--nx-font-size-small);white-space:nowrap;cursor:pointer}
+.nx .chip::after{content:"";position:absolute;inset:calc((var(--nx-size-button-small) - var(--nx-size-target)) / 2 - var(--nx-border-thin)) calc(var(--nx-space-xs) * -1)}
+.nx .chip .n{color:var(--nx-color-muted);font-variant-numeric:tabular-nums}
+.nx .chip[aria-pressed="true"]{background:var(--nx-color-accent-soft);border-color:var(--nx-color-accent);color:var(--nx-color-accent);font-weight:var(--nx-font-weight-bold)}
+.nx .chip[aria-pressed="true"] .n{color:var(--nx-color-accent)}
+.nx .chip:disabled{opacity:var(--nx-opacity-disabled);cursor:default}
+/* The search shrinks to 144 pixels before the search and the grouping take a line of their own. */
+.nx .filters .tools{flex:1 1 0;display:flex;align-items:center;justify-content:flex-end;gap:var(--nx-space-sm)}
+.nx .filters .find{flex:0 1 var(--pg-find);min-width:var(--nx-size-source)}
+.nx .filters .find input{width:0;text-overflow:ellipsis}
+.nx .gm .pop{gap:var(--nx-space-2xs);min-width:max-content}
+.nx .gm .pop [aria-pressed="true"]{color:var(--nx-color-text);font-weight:var(--nx-font-weight-bold)}
+.nx .lw{flex:1;min-height:0;position:relative;display:flex;flex-direction:column}
+.nx .lw > .list{flex:1;min-height:0;overflow:auto;background:var(--nx-color-surface)}
+.nx .upd{position:absolute;z-index:1;top:var(--nx-space-sm);right:var(--nx-space-xl);padding:var(--nx-space-2xs) var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-pill);background:var(--nx-color-surface);color:var(--nx-color-muted);font-size:var(--nx-font-size-caption)}
+.nx .upd:empty{display:none}
+.nx .gh{display:flex;align-items:center;gap:var(--nx-space-sm);padding:var(--nx-space-sm) var(--nx-space-xl);background:var(--nx-color-sunken);border-bottom:var(--nx-border-thin) solid var(--nx-color-line);font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
+.nx .gh .mono{font-weight:var(--nx-font-weight-medium);color:var(--nx-color-muted)}
+.nx .li{display:grid;grid-template-columns:var(--pg-id) minmax(0,1fr) var(--pg-fields) var(--pg-comments) var(--pg-marks);align-items:center;gap:var(--nx-space-md);min-height:var(--nx-size-row);padding:var(--nx-space-xs) var(--nx-space-xl) var(--nx-space-xs) calc(var(--nx-space-xl) - var(--nx-border-thin) - var(--nx-border-strong));border-left:calc(var(--nx-border-thin) + var(--nx-border-strong)) solid transparent;border-bottom:var(--nx-border-thin) solid var(--nx-color-line);color:var(--nx-color-text);font-size:var(--nx-font-size-small);text-decoration:none}
+.nx .li:focus-visible{outline-offset:calc(var(--nx-border-strong) * -1)}
+.nx .li.on{background:var(--nx-color-accent-soft);border-left-color:var(--nx-color-accent)}
+.nx .li .id{min-width:0;font-family:var(--nx-font-family-mono);font-size:var(--nx-font-size-caption);color:var(--nx-color-accent)}
+.nx .li .tt{min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nx .li .flds{display:flex;flex-wrap:wrap;gap:var(--nx-space-2xs) var(--nx-space-sm);min-width:0;font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
+.nx .li .cm{display:inline-flex;align-items:center;gap:var(--nx-space-xs);font-size:var(--nx-font-size-caption);color:var(--nx-color-muted);font-variant-numeric:tabular-nums}
+.nx .li .mks{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:var(--nx-space-xs);min-width:0}
+.nx .tagm{display:inline-flex;align-items:center;height:var(--pg-count);padding:0 var(--nx-space-sm);border-radius:var(--nx-radius-pill);font-size:var(--nx-font-size-caption);font-weight:var(--nx-font-weight-medium);white-space:nowrap}
+.nx .tagm.my{background:var(--nx-color-accent);color:var(--nx-color-on-accent)}
+.nx .tagm.disc{border:var(--nx-border-thin) solid var(--nx-color-warn);background:var(--nx-color-warn-bg);color:var(--nx-color-warn)}
+.nx .tagm.refl{border:var(--nx-border-thin) solid var(--nx-color-info);background:var(--nx-color-info-bg);color:var(--nx-color-info)}
+.nx .more{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--nx-space-sm);min-height:var(--nx-size-row);padding:var(--nx-space-xs) var(--nx-space-xl);font-size:var(--nx-font-size-small);color:var(--nx-color-muted);text-align:center}
+.nx .nolist{display:grid;place-items:center;padding:calc(var(--nx-space-2xl) + var(--nx-space-xl)) var(--nx-space-xl);text-align:center}
+.nx .nolist > div{display:grid;justify-items:center;gap:var(--nx-space-md);max-width:var(--pg-note)}
+.nx .nolist p{text-wrap:pretty}
+.nx svg.i.big{width:calc(var(--nx-size-icon) * 2);height:calc(var(--nx-size-icon) * 2);stroke-width:1.3;color:var(--nx-color-muted)}
+
+/* The stage record (SPEC-138, SPEC-139), in the side in the talk's place: from 1,280 pixels
+   its column, from 1,024 a panel over the stage's right edge, and under 1,024 a sheet */
+.nx .rec{flex:1;min-height:0;display:flex;flex-direction:column}
+.nx .rec .th{flex:none;display:flex;align-items:center;gap:var(--nx-space-sm);padding:var(--nx-space-md) var(--nx-space-lg);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .rec .th h2{font-size:var(--nx-font-size-title);white-space:nowrap}
+.nx .rec .rb{flex:1;min-height:0;overflow:auto;display:grid;align-content:start;gap:var(--nx-space-md);padding:var(--nx-space-md) var(--nx-space-lg);font-size:var(--nx-font-size-small)}
+.nx .rec dl{display:grid;grid-template-columns:var(--pg-term) minmax(0,1fr);gap:var(--nx-space-sm) var(--nx-space-md);margin:0}
+.nx .rec dt{color:var(--nx-color-muted)}
+.nx .rec dd{display:flex;flex-wrap:wrap;align-items:center;gap:var(--nx-space-sm);min-width:0;margin:0}
+.nx .rec .cps{display:grid;gap:var(--nx-space-xs);min-width:0}
+.nx .rec h3{font-size:var(--nx-font-size-small)}
+.nx .rec .cpl{display:grid;gap:var(--nx-space-sm)}
+.nx .rec .wbox{display:grid;justify-items:start;gap:var(--nx-space-sm);padding:var(--nx-space-md);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-bg)}
+.nx .rec .wbox.warn{border-color:var(--nx-color-warn);background:var(--nx-color-warn-bg)}
+.nx .rec .lab{font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
+.nx .rec .ta{display:block;width:100%;min-height:calc(var(--nx-size-box) - var(--nx-space-sm));padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);color:var(--nx-color-text);font-size:var(--nx-font-size-small);line-height:var(--nx-font-line-height-body);resize:vertical}
+.nx .rec .ta[aria-invalid="true"]{border-color:var(--nx-color-error)}
+.nx .rec .left{font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
+.nx .rec .rnote:empty,.nx .rec .pnote:empty,.nx .rec .left:empty{display:none}
+.nx .rec .r2{display:flex;align-items:center;gap:var(--nx-space-sm)}
+.nx .sidemsg{padding:var(--nx-space-lg)}
 
 /* From 1,024 to 1,279 pixels the talk folds into "Talk ({n})" in the stage's head,
    which opens it as a panel over the stage's right edge (rule 16, choice 14) */
 @media (min-width:1024px) and (max-width:1279.98px){
  .nx .ws{grid-template-columns:var(--pg-rail) minmax(0,1fr)}
  .nx .side{display:none;position:absolute;z-index:2;top:0;right:0;bottom:0;width:var(--nx-size-panel);border-left-color:var(--nx-color-control-line)}
- .nx .side:target,.nx .ws[data-nx-open="talk"] .side{display:flex}
+ .nx .side:target,.nx .ws[data-nx-open="talk"] .side,.nx .ws[data-nx-open="record"] .side{display:flex}
+ .nx .only-mid{display:inline-flex!important}
 }
 
 /* Under 1,024 pixels: the phone's top bar, one column on the first page, and the
@@ -271,5 +354,29 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
  .nx .rail .close{display:inline-grid;position:absolute;top:var(--nx-space-xs);right:var(--nx-space-xs)}
  .nx .rail .proj{padding-right:calc(var(--nx-size-target) + var(--nx-space-sm))}
  .nx .row{min-height:var(--nx-size-target)}
+ .nx .shd{display:flex;flex-wrap:wrap;gap:var(--nx-space-xs) var(--nx-space-md);min-height:0;padding:var(--nx-space-sm) var(--nx-space-md)}
+ .nx .shd h1{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+ .nx .shd .meta{display:contents}
+ .nx .shd .counts{flex:1 1 100%;justify-content:flex-start}
+ .nx .shd .cn{flex:0 1 auto;text-align:start}
+ .nx .shd .counts .btn{margin-left:auto}
+ .nx .filters{padding:var(--nx-space-sm) var(--nx-space-md)}
+ .nx .chip{height:var(--nx-size-target)}
+ .nx .chip::after{inset:0}
+ .nx .filters .tools{flex:1 1 100%}
+ .nx .filters .find{flex:1 1 0;min-width:0;height:var(--nx-size-target)}
+ .nx .filters .find::after{inset:0}
+ .nx .filters .gm > .btn,.nx .filters .gm > summary{height:var(--nx-size-target)}
+ .nx .upd{right:var(--nx-space-md)}
+ .nx .gh{padding:var(--nx-space-sm) var(--nx-space-md)}
+ .nx .li{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"id mks" "tt tt" "flds cm";gap:var(--nx-space-xs) var(--nx-space-sm);min-height:var(--nx-size-target);padding:var(--nx-space-sm) var(--nx-space-md) var(--nx-space-sm) calc(var(--nx-space-md) - var(--nx-border-thin) - var(--nx-border-strong))}
+ .nx .li .id{grid-area:id}.nx .li .tt{grid-area:tt}.nx .li .flds{grid-area:flds}.nx .li .cm{grid-area:cm;justify-self:end}.nx .li .mks{grid-area:mks}
+ .nx .more{padding:var(--nx-space-xs) var(--nx-space-md)}
+ .nx .nolist{padding:calc(var(--nx-space-2xl) + var(--nx-space-xl)) var(--nx-space-lg)}
+ .nx .ws[data-nx-open="record"] .side{display:flex;position:fixed;z-index:6;left:0;right:0;bottom:0;max-height:calc(100dvh * var(--nx-layout-sheet-height));border-radius:var(--nx-radius-sheet) var(--nx-radius-sheet) 0 0;box-shadow:var(--nx-shadow-sheet)}
+ .nx .ws[data-nx-open="record"] .scrim{display:block;position:fixed;inset:0;z-index:5;background:var(--nx-color-scrim)}
+ .nx .rec .handle{display:block;flex:none;width:var(--nx-size-handle-width);height:var(--nx-size-handle-height);margin:var(--nx-space-sm) auto var(--nx-space-xs);border-radius:var(--nx-radius-round);background:var(--nx-color-control-line)}
+ .nx .rec .th{padding:var(--nx-space-sm) var(--nx-space-md) var(--nx-space-md)}
+ .nx .rec .rb{padding:var(--nx-space-md)}
 }
 @media (min-width:1024px){.nx .only-ph{display:none!important}}

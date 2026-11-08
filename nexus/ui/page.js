@@ -2,21 +2,17 @@
 // part from the page's data with ../src/draw/page.js; this code draws them again from
 // the same data with the same functions and replaces only a part whose drawing differs,
 // so that nothing moves when it runs. Then it adds what the parts do: the first page's
-// answers, reading again, order and fragments (./home.js, TASK-273); a stage's parts join
-// with their screens (TASK-274 to TASK-277), and until then their controls stay as drawn.
+// answers, reading again, order and fragments (./home.js, TASK-273), and a stage's filters,
+// search, grouping, next 200, addresses and record (./stage.js, TASK-274); the picture, the
+// talk, the item and the search join with their screens (TASK-275 to TASK-277).
 import {drawParts,pageKind} from "../src/draw/page.js";
-import {clock} from "../src/draw/html.js";
+import {clock,day} from "../src/draw/html.js";
 import {startHome} from "./home.js";
+import {startStage} from "./stage.js";
+import {markup} from "./reconcile.js";
 import "./page.css";
 
 const root=document.documentElement;
-// A part as the code compares it: the browser's reading of its markup, without what the
-// person changed on it before the code ran, such as a <details> that they opened.
-function markup(html){
-  const template=document.createElement("template");template.innerHTML=html;
-  for(const open of template.content.querySelectorAll("details[open]"))open.removeAttribute("open");
-  return template.innerHTML;
-}
 function drawPage(payload){
   const parts=drawParts(payload);let redrawn=0;
   for(const element of document.querySelectorAll("[data-nx-part]")){
@@ -27,10 +23,11 @@ function drawPage(payload){
   return redrawn;
 }
 // The server wrote each time in UTC; the code writes it in the browser's time zone
-// (rule 2), in the same digits, so that nothing moves.
+// (rule 2), in the same digits, so that nothing moves: a time, or a day where only its
+// date shows, such as a checkpoint's.
 function localTimes(scope){
   for(const element of scope.querySelectorAll("time[datetime]")){
-    const text=clock(element.getAttribute("datetime"),true);
+    const value=element.getAttribute("datetime"),text=element.hasAttribute("data-nx-day")?day(value,true):clock(value,true);
     if(element.textContent!==text)element.textContent=text;
   }
 }
@@ -41,6 +38,7 @@ try{
   const payload=JSON.parse(document.getElementById("view-data").textContent);
   root.dataset.nxRedrawn=String(drawPage(payload));
   if(pageKind(payload)==="home")startHome(document.querySelector('[data-nx-part="home"]'),payload,{localize:localTimes});
+  else startStage(payload,{localize:localTimes});
   localTimes(document.body);
   // IBM Plex (font-display: swap) joins after the first paint, as on 0.2's views.
   const fonts=document.getElementById("nexus-font-assets");

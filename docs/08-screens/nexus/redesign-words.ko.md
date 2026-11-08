@@ -42,7 +42,8 @@
 | 항목 | SCR-115 | Context: {id} {name} · Source: {path}, line {n} · Comes from · Leads to · Discrepancies ({n}) · Comment on this discrepancy · Loading {id}… | 컨텍스트: {id} {name} · 원문: {path}, {n}번째 줄 · 나온 곳 · 이어지는 곳 · 어긋남 ({n}) · 이 어긋남에 의견 남기기 · {id} 불러오는 중… |
 | `item_not_found`, 404 | SCR-115#gone | {id} is not in this project's stages now. · Search all projects for {id} | {id} 항목은 지금 이 프로젝트의 단계에 없습니다. · 모든 프로젝트에서 {id} 찾기 |
 | 찾기 | SCR-116 | Searching… · {n} matches for “{q}” · The first 20. Add a word to narrow it. · Type at least two characters. · Nothing matches “{q}”. · Look in the full checks | 찾는 중… · “{q}” 검색 결과 {n}개 · 처음 20개입니다. 낱말을 더하면 좁혀집니다. · 두 글자 이상 넣어 주세요. · “{q}”에 맞는 항목이 없습니다. · 전체 점검에서 보기 |
-| 목록 표시 | SCR-113 | Discrepancy · Pending reflection | 어긋남 · 반영 대기 |
+| 목록 표시 | SCR-113. 마지막 이름표는 줄의 의견 수가 무엇을 세는지 말함(규칙 13) | Discrepancy · Pending reflection · {n} comments | 어긋남 · 반영 대기 · 의견 {n} |
+| 목록 칸 | SCR-113: 줄의 주요 칸 이름으로, 화면 낭독기가 값보다 먼저 읽음. 마지막은 원문이 그 항목을 정의한 상위 항목, 예를 들어 사례의 작업 | Priority · Status · Type · Part of | 우선순위 · 상태 · 유형 · 속한 곳 |
 | 더 있음 | SCR-112(단계 기록의 점검), SCR-115(나온 곳, 이어지는 곳) | and {n} more | 외 {n}개 |
 | 항목의 종류 | SCR-115, 허브 페이지가 부르는 대로. 표는 0.2의 보기처럼 테이블 대신 표라고 씁니다 | context · term · requirement · user flow · spec · table · API · screen · task · test case · bug · decision · scene | 컨텍스트 · 용어 · 요구사항 · 유저 플로우 · 기능 명세 · 표 · API · 화면 · 작업 · 테스트 · 버그 · 결정 · 장면 |
 | 단계 이름 | SCR-110\~SCR-116, 허브 페이지가 부르는 대로 | Domain discovery · PRD · User flow · Functional spec · ERD · API · Sitemap · Screen states · Mockup · WBS · Development · QA · Presentation | 도메인 탐색 · PRD · 유저 플로우 · 기능 명세 · ERD · API · 사이트맵 · 화면 상태 · 목업 · WBS · 개발 · QA · 발표 |

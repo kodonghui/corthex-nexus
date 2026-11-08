@@ -644,8 +644,12 @@ export const redesign={
     "찾는 중… · “{q}” 검색 결과 {n}개 · 처음 20개입니다. 낱말을 더하면 좁혀집니다. · 두 글자 이상 넣어 주세요. · “{q}”에 맞는 항목이 없습니다. · 전체 점검에서 보기"
   ],
   "List marks": [
-    "Discrepancy · Pending reflection",
-    "어긋남 · 반영 대기"
+    "Discrepancy · Pending reflection · {n} comments",
+    "어긋남 · 반영 대기 · 의견 {n}"
+  ],
+  "List fields": [
+    "Priority · Status · Type · Part of",
+    "우선순위 · 상태 · 유형 · 속한 곳"
   ],
   "More": [
     "and {n} more",

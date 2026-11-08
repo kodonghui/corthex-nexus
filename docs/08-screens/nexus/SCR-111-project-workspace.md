@@ -4,7 +4,7 @@
 
 Purpose: the user opens a project and finds the way in it: the 13 stages of a part in a list with their states, the chosen stage in the middle with its picture or its items, and beside it the stage's talk or the selected item; on a phone, as tabs. (FL-117, FL-118)
 
-Path `/p/{project}`, which leads to the project's current stage (API-153), and around every stage `/p/{project}/{part}/{stage}` (API-154), whose middle is SCR-112 or SCR-113 and whose side is SCR-114 or SCR-115. Who can see it: anyone Cloudflare Access lets in. Planned in the redesign of 2026-11-06 (SPEC-146, SPEC-155). The rules of [every screen](README.md#every-screen) apply, with those of [the redesign](README.md#the-redesigns-screens).
+Path `/p/{project}`, which leads to the project's current stage (API-153), and around every stage `/p/{project}/{part}/{stage}` (API-154), whose middle is SCR-112 or SCR-113 and whose side is SCR-114 or SCR-115. Who can see it: anyone Cloudflare Access lets in. Planned in the redesign of 2026-11-06 (SPEC-146, SPEC-155) and built by TASK-274, whose middle is SCR-113's list for every stage until TASK-275 draws the pictures; the talk and the item join with TASK-276 and TASK-277. The rules of [every screen](README.md#every-screen) apply, with those of [the redesign](README.md#the-redesigns-screens).
 
 ## Data
 
@@ -13,7 +13,7 @@ Path `/p/{project}`, which leads to the project's current stage (API-153), and a
 | Where `/p/{project}` leads: the stage of the first part, in the order of the settings' `parts`, that its records name as current, or stage 01 when no stage is recorded (SPEC-146) | API-153, as a `302` |
 | The page: the project, part and stage, and in `view-data` the answers of API-158 and API-152 for the stage, and of API-111 for a pictured stage | API-154 |
 | The view's code: its core file, and the read-only editor of a pictured stage (SCR-112) | API-104 |
-| The project's parts and, for the shown part, its 13 stages in six groups, each with its number, name, state, item count, whether it has a picture and how many of its entries are in my turn | API-158 (`stages`), first from the page's data |
+| The project's parts and, for the shown part, its 13 stages in six groups, each with its number, name, state, item count, whether it has a picture, whether that picture is current and how many of its entries are in my turn | API-158 (`stages`, with `not_current` since TASK-274), first from the page's data |
 | The project's name, repository, the snapshot's commit and time | API-158 (`project`) |
 | What is open beside the stage, and the list or the picture | The page's address after `#`: `talk=`, `item=`, `view=list`, `filter=left`, with which the first page's agent to-do opens the list filtered to what is left (SCR-110), and `step=` on a DDD board |
 | The tab open under 1,024 pixels | The address's panel, else the stage |
@@ -24,7 +24,7 @@ Path `/p/{project}`, which leads to the project's current stage (API-153), and a
 | --- | --- | --- |
 | Pick a stage in the list, or in the sheet of stages under 1,024 pixels | That stage's page, SCR-112 or SCR-113, with its talk beside it; the address changes and the browser's back button returns | The stage's own states |
 | Switch the part | The same stage of the other part, and the list of that part's stages | A part that the snapshot no longer holds: SCR-111#error |
-| Open the talk under 1,280 pixels | From 1,024 pixels, "Talk ({n})" in the stage's head opens the talk as a panel, 400 pixels wide, over the stage's right edge; Close or Escape folds it again. Under 1,024 pixels, the Talk tab | none |
+| Open the talk under 1,280 pixels | From 1,024 pixels, "Talk ({n})" in the stage's head opens the talk as a panel, 400 pixels wide, over the stage's right edge; Close or Escape folds it again, and the focus returns to "Talk ({n})"; until TASK-276 builds the talk with its Close, the panel opens empty and Escape folds it. Under 1,024 pixels, the Talk tab | none |
 | Select a tab under 1,024 pixels | The stage, its talk, or the selected item, one at a time; the tab stays when the phone turns (SPEC-155) | none |
 | All projects, or NEXUS | SCR-110 | SCR-110's own states |
 | Type in the search, or Full checks | SCR-116, or SCR-117 | Their own states |

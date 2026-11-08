@@ -12,6 +12,8 @@ const FIELDS = ["id", "kind", "stage", "where", "title", "status", "type", "prio
 // A DDD board's hotspot is open while its state says so, in the stage 01
 // template's English or in Korean; answered ones (answered, 답함) are not.
 const OPEN_HOTSPOT = new Set(["open", "열림"]);
+// Why a stored picture is not current (SPEC-119), as the pictures table holds it.
+const NOT_CURRENT = new Set(["size", "source-gone", "other-repository"]);
 
 export const cut = (text, limit) => Array.from(text).slice(0, limit).join("");
 const list = (value) => { try { const parsed = typeof value === "string" ? JSON.parse(value) : value; return Array.isArray(parsed) ? parsed : []; } catch { return []; } };
@@ -174,7 +176,7 @@ export function stageData({ held, snapshot, record, project, part, stage, query,
       generated_at: held.generated_at, pushed_at: held.received_at, parts },
     part, stage, head, record,
     stages: STAGES.map((key) => ({ key, state: stageRecord(snapshot, part, key).state, items: items.filter((item) => item.stage === key).length,
-      picture: drawn.has(key), mine: mine.get(key) || 0 })),
+      picture: drawn.has(key), not_current: NOT_CURRENT.has(drawn.get(key)?.not_current) ? drawn.get(key).not_current : null, mine: mine.get(key) || 0 })),
     items: { group: query.group, filter: query.filter, q: words.length ? query.q.trim() : null, total: chosen.length, after: query.after,
       counts, groups, entries },
   };

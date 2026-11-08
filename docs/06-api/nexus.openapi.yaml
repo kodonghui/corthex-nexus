@@ -1780,11 +1780,11 @@ paths:
         What the workspace shows of a part's stage (SPEC-146 to SPEC-148): the stage's head, with
         whether the project reads it and why not; its record as getStageOverview gives it; the
         project, its parts and the part's 13 stages for the list of stages, with their states,
-        item counts, pictures and entries in my turn; and the stage's items from the stored
-        snapshot, 200 at a time after the first after, filtered by filter and the words q and
-        ordered by group, each with its context and its marks for the part. A project without a
-        space, pushed only by a hub of 0.1, has no talk, so its marks and the counts of my turn
-        are 0, as its stage overview has only the record and the checks.
+        item counts, pictures, whether each picture is current and entries in my turn; and the
+        stage's items from the stored snapshot, 200 at a time after the first after, filtered by
+        filter and the words q and ordered by group, each with its context and its marks for the
+        part. A project without a space, pushed only by a hub of 0.1, has no talk, so its marks
+        and the counts of my turn are 0, as its stage overview has only the record and the checks.
       x-corthex:
         id: API-158
         spec: [SPEC-113, SPEC-146, SPEC-147, SPEC-148]
@@ -3108,19 +3108,19 @@ components:
           warnings: []
           not_opened: 0
         stages:
-          - {key: 01-domain, state: done, items: 160, picture: true, mine: 0}
-          - {key: 02-prd, state: done, items: 270, picture: false, mine: 1}
-          - {key: 03-user-flow, state: done, items: 26, picture: false, mine: 0}
-          - {key: 04-functional-spec, state: done, items: 186, picture: false, mine: 1}
-          - {key: 05-erd, state: done, items: 25, picture: true, mine: 1}
-          - {key: 06-api, state: done, items: 176, picture: false, mine: 0}
-          - {key: 07-sitemap, state: done, items: 30, picture: true, mine: 0}
-          - {key: 08-screen-states, state: done, items: 0, picture: false, mine: 0}
-          - {key: 09-mockup, state: done, items: 0, picture: false, mine: 0}
-          - {key: 10-wbs, state: in_progress, items: 278, picture: false, mine: 0}
-          - {key: 11-development, state: in_progress, items: 0, picture: false, mine: 0}
-          - {key: 12-qa, state: not_started, items: 109, picture: false, mine: 0}
-          - {key: 13-presentation, state: not_started, items: 0, picture: false, mine: 0}
+          - {key: 01-domain, state: done, items: 160, picture: true, not_current: null, mine: 0}
+          - {key: 02-prd, state: done, items: 270, picture: false, not_current: null, mine: 1}
+          - {key: 03-user-flow, state: done, items: 26, picture: false, not_current: null, mine: 0}
+          - {key: 04-functional-spec, state: done, items: 186, picture: false, not_current: null, mine: 1}
+          - {key: 05-erd, state: done, items: 25, picture: true, not_current: null, mine: 1}
+          - {key: 06-api, state: done, items: 176, picture: false, not_current: null, mine: 0}
+          - {key: 07-sitemap, state: done, items: 30, picture: true, not_current: size, mine: 0}
+          - {key: 08-screen-states, state: done, items: 0, picture: false, not_current: null, mine: 0}
+          - {key: 09-mockup, state: done, items: 0, picture: false, not_current: null, mine: 0}
+          - {key: 10-wbs, state: in_progress, items: 278, picture: false, not_current: null, mine: 0}
+          - {key: 11-development, state: in_progress, items: 0, picture: false, not_current: null, mine: 0}
+          - {key: 12-qa, state: not_started, items: 109, picture: false, not_current: null, mine: 0}
+          - {key: 13-presentation, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
         items:
           group: context
           filter: all
@@ -4606,15 +4606,19 @@ components:
               count: {type: integer, minimum: 1}
         hotspots: {type: [integer, "null"], minimum: 0}
     StageRow:
-      description: One of the part's 13 stages in the workspace's list, with its items, whether it has a picture of the part and its entries in my turn
+      description: >-
+        One of the part's 13 stages in the workspace's list, with its items, whether it has a
+        picture of the part, why that picture is not current, as the picture view names it, or
+        null for a current picture and a stage without one, and its entries in my turn
       type: object
-      required: [key, state, items, picture, mine]
+      required: [key, state, items, picture, not_current, mine]
       additionalProperties: false
       properties:
         key: {$ref: "#/components/schemas/StageKey"}
         state: {$ref: "#/components/schemas/StageState"}
         items: {type: integer, minimum: 0}
         picture: {type: boolean}
+        not_current: {enum: [size, source-gone, other-repository, null]}
         mine: {type: integer, minimum: 0}
     StageItems:
       description: >-

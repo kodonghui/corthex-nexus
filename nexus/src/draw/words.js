@@ -15,6 +15,10 @@ export function label(key,index,lang,values={}){
 // A code's message, as rule 3 shows it: its first label, which the redesign's codes
 // follow with the words of their own state, such as SCR-115#gone's link.
 export const codeMessage=(code,lang,values={})=>fill(words(code,lang).split(SEPARATOR)[0],values);
+// A row of 0.2's words that holds several labels, such as the overview's headings.
+export const oldLabels=(key,lang)=>words(key,lang).split(SEPARATOR);
+// The first letter of a word as the start of a line: "Not recorded" for "not recorded".
+export const capital=(text,lang)=>{const value=String(text);return value.charAt(0).toLocaleUpperCase(lang)+value.slice(1);};
 // The legend's words without their symbols, which the page draws as icons (rule 13).
 const LEGEND=Object.freeze({done:0,in_progress:1,not_started:2,skipped:3,unknown:4,picture:5});
 export const legendWord=(name,lang)=>label("Legend",LEGEND[name]??LEGEND.unknown,lang).replace(/^[^\p{L}\p{N}]+\s+/u,"");

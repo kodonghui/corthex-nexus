@@ -230,3 +230,19 @@ test("API-158 refuses what it does not hold by the code of what it names", async
     assert.deepEqual([method.status, method.data.code, method.headers.get("Allow")], [405, "method_not_allowed", "GET, HEAD"]);
   });
 });
+
+test("API-158 says why a stage's picture is not current, for the list of stages (TASK-274)", async () => {
+  const { call } = await server();
+  assert.equal((await call("POST", "/api/snapshots", { body: shop() })).status, 200);
+  const pictured = async () => (await call("GET", "/api/spaces/corthex/stages/nexus/02-prd")).data.stages.filter((row) => row.picture || row.not_current !== null)
+    .map((row) => [row.key, row.picture, row.not_current]);
+  assert.deepEqual(await pictured(), [["01-domain", true, null], ["05-erd", true, null]]);
+  // A newer push that leaves the ERD out for its size keeps the stored picture, which is
+  // then not current; a stage without a picture says null.
+  const again = shop();
+  again.generated_at = "2026-11-03T11:00:00+09:00";
+  again.pictures = again.pictures.filter((picture) => !(picture.part === "nexus" && picture.stage === "05-erd"));
+  again.left_out = [{ part: "nexus", stage: "05-erd", why: "size" }];
+  assert.equal((await call("POST", "/api/snapshots", { body: again })).status, 200);
+  assert.deepEqual(await pictured(), [["01-domain", true, null], ["05-erd", true, "size"]]);
+});

@@ -20,3 +20,14 @@ export function clock(value,local=false){
 export const time=value=>`<time datetime="${esc(value)}">${esc(clock(value))}</time>`;
 // Words that hold a time: the label's {time} becomes a <time> element.
 export const timed=(text,value)=>String(text).split("{time}").map(esc).join(time(value));
+// A day as "2026-11-08", the day of a time (stage 09's frames), in UTC on the server and
+// in the browser's time zone in the view, as clock() writes its time. A value that is a
+// day already, such as a stage record's date, stays as it is, since it has no time zone.
+export function day(value,local=false){
+  if(typeof value==="string"&&/^\d{4}-\d\d-\d\d$/.test(value))return value;
+  const text=clock(value,local);
+  return /^\d{4}-\d\d-\d\d /.test(text)?text.slice(0,10):text;
+}
+export const dayTime=value=>typeof value==="string"&&/^\d{4}-\d\d-\d\d$/.test(value)?esc(value):`<time datetime="${esc(value)}" data-nx-day>${esc(day(value))}</time>`;
+// Words that hold a day: the label's {date} becomes the day.
+export const dated=(text,value)=>String(text).split("{date}").map(esc).join(dayTime(value));
