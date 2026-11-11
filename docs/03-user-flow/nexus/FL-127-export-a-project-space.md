@@ -8,7 +8,7 @@ Context: CTX-009 Sharing. Starts when the user opens a project's data in NEXUS a
 
 ```mermaid
 flowchart TD
-  A(["The user opens the project's data,<br/>from the workspace or from a link<br/>SCR-130"]) --> B["Show, each with its count, what the space holds and Git<br/>does not: its comments with their replies, proposals, edits<br/>and passed checkpoints, and from phase ② its edit drafts<br/>and work boards<br/>REQ-292 · SCR-130"]
+  A(["The user opens the project's data,<br/>from the workspace or from a link<br/>SCR-130"]) --> B["Show, each with its count, what the space holds and Git<br/>does not: its comments with their replies, proposals, edits<br/>and passed checkpoints, and from phase ② its edit drafts,<br/>positions and work boards<br/>REQ-292 · SCR-130"]
   B --> C{"Does the user ask for the export?"}
   C -->|no| Z(["End"])
   C -->|yes| D{"Did Cloudflare Access check the request,<br/>from the user's own sign-in?<br/>REQ-113"}
