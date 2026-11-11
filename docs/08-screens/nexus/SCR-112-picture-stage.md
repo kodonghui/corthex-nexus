@@ -117,13 +117,15 @@ The revision adds no state. A reading again that sends a query value out of its 
 | State changes | A push, or the agent's newer request, between the page's drawing and the pass: SCR-112#stale |
 | Repeats | A pass sent again with its write ID leaves one checkpoint and gets its first answer, even when the commit changed in between (SPEC-194) |
 | Data exposure | The record shows the kind of browser and device in a fixed vocabulary, never the text that the browser sent or a network address (SPEC-195); the address to look at first opens only when the user presses it, in a new tab without a referrer |
-| Screen states | The changed head, the item that the talk selects and the record with a request in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-112); stage 09 draws them in the redesign's look and, in grey, the editor and the work board in this column (stage 07, choice 18) |
+| Screen states | The changed head, the item that the talk selects and the record with a request in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-112); the column's four views, the picture, the list, the editor and the work board, in grey at 1,280 and 1,440 pixels, in [picture-stage-views.html](../../09-mockup/nexus/picture-stage-views.html) (stage 07, choice 18); stage 09 draws the revision's states in the redesign's look after the revision's checkpoint |
 
 ### Layout of the revision
 
 | Region | Under 1,024 pixels, drawn at 390 | From 1,024 pixels, drawn at 1,440 |
 | --- | --- | --- |
 | The head | As above, where Edit was not shown | The counts reach the right end of the first line, where Edit stood |
+| The tools | As above; with the list, Picture and List alone, since Fit, Go to and the zoom buttons are the picture's | One line under the head, which wraps where its parts do not fit: Picture and List, then the tools of the view that shows, the zoom buttons with the zoom, Fit and Go to with the picture and none with the list, and Stage record at its right end ([the four views](../../09-mockup/nexus/picture-stage-views.html)) |
+| The step control, on a DDD board | As above, with the picture only | A line of its own under the tools, with the picture only, as [redesign.html](../../09-mockup/nexus/redesign.html#scr-112) draws it in SCR-112#large. The cell above that puts it on the tools' line gives way: in the redesign's look the two need 816 pixels on one line, and at 1,440 pixels beside both columns the line has 752 |
 | The item that the talk selected | The Item tab appears and the Talk tab stays in front; the picture shows the item marked when the user opens its tab | The item in sight in the picture, an outline around it; its panel in the side |
 | The record's request | In the sheet, above the words box: the text, then "Look at first", the commit and what is left, each on a line of its own | In the side, above the words box, the same |
 | A passed checkpoint's record | Under the checkpoint's date: the commit, the request and the kind of browser and device, each on a line of its own | One line that wraps under the checkpoint's date |
