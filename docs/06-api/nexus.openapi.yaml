@@ -17,7 +17,16 @@ info:
     redesign's operations, API-151 to API-159, are active: the server answers them and the checks
     cover them. With the redesign's first page at /, the hub page moved to /hub (SPEC-153); the
     picture view and the stage overview keep their pages until the redesign's stages draw what
-    they show, and then answer 302 to the stage's page (SPEC-154).
+    they show, and then answer 302 to the stage's page (SPEC-154). The design revision of
+    2026-11-11 adds what stage 04's rows SPEC-187 to SPEC-203 ask of the server, as planned
+    forms that the server does not answer yet. Its new operations, API-177 and API-178, are in
+    paths with the status planned. The planned form of each operation that it changes is a
+    whole path item under components.pathItems, by the operation's code name, which the
+    release that builds it puts into paths in place of the built operation. The fields that
+    it adds to built answers are optional properties marked planned under x-corthex, which
+    the built server does not send and which become required when their rows are built. Until
+    then the built operations stay as the server answers them, and version stays 0.2.0 until
+    a release first serves a changed contract (The design revision's interfaces in nexus.md).
 servers:
   - url: https://nexus.example.com
     description: >-
@@ -41,7 +50,7 @@ tags:
   - name: Stage progress
     description: The agent to-do, claims and checkpoints passed in NEXUS (CTX-007)
   - name: Workspace
-    description: The redesign's first page, stages, items and search
+    description: The redesign's first page, stages, items and search, and the design revision's project data and export
 
 paths:
   /:
@@ -63,7 +72,7 @@ paths:
         status: active
         omit:
           "400": the request has no input
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "404": the path names no resource
           "409": a read clashes with no state
       responses:
@@ -99,7 +108,7 @@ paths:
         status: active
         omit:
           "400": the request has no input
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "404": the path names no resource
           "409": a read clashes with no state
       responses:
@@ -137,7 +146,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; a path value in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -173,7 +182,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; a path value in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -208,7 +217,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; a name in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -256,7 +265,7 @@ paths:
         spec: [SPEC-111, SPEC-112, SPEC-113, SPEC-114, SPEC-117, SPEC-118, SPEC-120, SPEC-121, SPEC-140]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "404": the path names no resource; a project that the server does not hold is stored as a new one
       requestBody:
         required: true
@@ -340,7 +349,7 @@ paths:
         status: built
         omit:
           "400": the request has no input
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "404": the path names no resource; an empty server answers an empty list
           "409": a read clashes with no state
       responses:
@@ -376,7 +385,7 @@ paths:
         status: built
         omit:
           "400": the request has no input; a name in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -412,7 +421,7 @@ paths:
         status: active
         omit:
           "400": the request has no body; a name in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": no state holds a removal back, since the user confirmed the dry run
       responses:
         "200":
@@ -443,7 +452,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; a name in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -479,7 +488,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; a name in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -533,7 +542,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; a path value in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -581,7 +590,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; a path value in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -616,7 +625,7 @@ paths:
         spec: [SPEC-113, SPEC-135, SPEC-136]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -672,7 +681,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-126, SPEC-128, SPEC-143, SPEC-151]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       requestBody:
         required: true
         content:
@@ -736,7 +745,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; an ID in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -777,7 +786,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-127, SPEC-128, SPEC-132, SPEC-143]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       requestBody:
         required: true
         content:
@@ -846,7 +855,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-127]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       responses:
         "200":
           description: Marked, or already closed
@@ -898,7 +907,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-128, SPEC-132]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       requestBody:
         required: true
         content:
@@ -956,7 +965,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-128, SPEC-130]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       requestBody:
         required: true
         content:
@@ -1021,7 +1030,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; an ID in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -1057,7 +1066,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-130]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       responses:
         "200":
           description: Withdrawn, or already withdrawn
@@ -1104,7 +1113,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-131]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       responses:
         "200":
           description: Accepted
@@ -1150,7 +1159,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-131]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       responses:
         "200":
           description: Dismissed
@@ -1189,7 +1198,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; an ID in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -1226,7 +1235,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-128, SPEC-133, SPEC-136]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       requestBody:
         required: true
         content:
@@ -1286,7 +1295,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-133]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       responses:
         "200":
           description: Dismissed, or already dismissed
@@ -1335,7 +1344,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-139]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       requestBody:
         required: true
         content:
@@ -1390,7 +1399,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; an ID in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -1424,7 +1433,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-139]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       responses:
         "200":
           description: Withdrawn, or already withdrawn
@@ -1476,7 +1485,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-128, SPEC-136, SPEC-140]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       requestBody:
         required: true
         content:
@@ -1537,7 +1546,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-136]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       responses:
         "200":
           description: Claimed for the session
@@ -1581,7 +1590,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-136]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
       responses:
         "200":
           description: Released, or nothing to release
@@ -1630,7 +1639,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; a path value in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "302":
@@ -1670,7 +1679,7 @@ paths:
         status: active
         omit:
           "400": the request has no input; a path value in another form gets 404
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -1703,7 +1712,7 @@ paths:
         status: active
         omit:
           "400": the request has no input
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "404": the path names no resource
           "409": a read clashes with no state
       responses:
@@ -1739,7 +1748,7 @@ paths:
         spec: [SPEC-113, SPEC-152]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "404": the path names no resource; words without a match are 200 with none
           "409": a read clashes with no state
       responses:
@@ -1790,7 +1799,7 @@ paths:
         spec: [SPEC-113, SPEC-146, SPEC-147, SPEC-148]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -1831,7 +1840,7 @@ paths:
         spec: [SPEC-113, SPEC-136, SPEC-150]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -1873,7 +1882,7 @@ paths:
         spec: [SPEC-113, SPEC-149]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
         "200":
@@ -1929,7 +1938,7 @@ paths:
         spec: [SPEC-113, SPEC-116, SPEC-139, SPEC-143]
         status: active
         omit:
-          "401": answered by Cloudflare Access before the Worker sees the request (Sign-in in nexus.md)
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "413": the request takes no body
           "415": the request takes no body
       responses:
@@ -1962,6 +1971,126 @@ paths:
                 reply-limit: {$ref: "#/components/examples/reply_limit"}
                 space-full: {$ref: "#/components/examples/space_full"}
                 write-id-reused: {$ref: "#/components/examples/write_id_reused"}
+        default: {$ref: "#/components/responses/Unexpected"}
+
+  /api/spaces/{project}/data:
+    parameters:
+      - $ref: "#/components/parameters/Project"
+    get:
+      operationId: getProjectData
+      tags: [Workspace]
+      summary: What the server holds of a project
+      description: >-
+        For the panel of a project's data (SCR-130, at /p/{project}#data, SPEC-203): when the
+        server stored the project's snapshot, with its commit and its revision; when the agent
+        last read the agent to-do, with that read's session label, and since when an entry waits
+        unread; and removal, the answer of getRemovalDryRun at the same moment, whose counts are
+        the panel's counts and those of the export's head, so that the three cannot differ. A
+        project with a snapshot and no space answers with space false, no read and counts of 0.
+        The read records nothing, under either sign-in. Planned by the design revision of
+        2026-11-11: the server does not answer it yet.
+      x-corthex:
+        id: API-177
+        spec: [SPEC-113, SPEC-188, SPEC-202, SPEC-203]
+        status: planned
+        omit:
+          "400": the request has no input; a name in another form gets 404
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+          "409": a read clashes with no state
+      responses:
+        "200":
+          description: The project's data
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProjectData"}
+              examples:
+                with-a-space: {$ref: "#/components/examples/project_data"}
+                without-a-space:
+                  summary: A project with a snapshot and no space, which the agent cannot have read
+                  value:
+                    project: acme-shop
+                    title: null
+                    repository: null
+                    commit: null
+                    revision: 3
+                    generated_at: "2026-10-24T12:00:00+09:00"
+                    pushed_at: "2026-10-24T03:00:00.512Z"
+                    space: false
+                    read_at: null
+                    read_session: null
+                    unread_since: null
+                    removal:
+                      project: acme-shop
+                      deletes: {snapshot: true, space: false, pictures: 0, discrepancies: 0, comments: 0, replies: 0, decisions: 0, proposals: 0, edits: 0, checkpoints: 0}
+                      open:
+                        comments: {total: 0, ids: []}
+                        proposals: {total: 0, ids: []}
+                        reflections: {total: 0, ids: []}
+                        checkpoints: {total: 0, ids: []}
+        "403": {$ref: "#/components/responses/ReadRefused"}
+        "404": {$ref: "#/components/responses/ProjectNotFound"}
+        default: {$ref: "#/components/responses/Unexpected"}
+
+  /api/spaces/{project}/export:
+    parameters:
+      - $ref: "#/components/parameters/Project"
+    get:
+      operationId: exportProject
+      tags: [Workspace]
+      summary: Export what a project's space holds and Git does not
+      description: >-
+        One JSON file with what the project's space holds and Git does not (SPEC-201): the
+        comments with their replies and the decisions recorded on them, the proposals, the
+        edits and the checkpoints passed in NEXUS, under a head that names the project, the
+        commit that the project shows, the server's time, the agent's last read, the format's
+        version and how many of each kind the file holds. Only the user asks for it, under their
+        own sign-in; the service token is refused, and so is a request that a page of another
+        site starts, the one read that the server checks for that. The server builds the file as
+        it answers, keeps no copy and changes nothing; two exports with no change between them
+        differ only in exported_at. It holds no snapshot, picture or discrepancy, no claim, write
+        ID or session label, and no identity. A project with a snapshot and no space answers
+        with space false and empty lists. The panel asks with fetch and saves the body under
+        the name that Content-Disposition gives, so that it can show a refusal. Planned by the
+        design revision of 2026-11-11: the server does not answer it yet.
+      security:
+        - accessUser: []
+      x-corthex:
+        id: API-178
+        spec: [SPEC-113, SPEC-116, SPEC-201]
+        status: planned
+        omit:
+          "400": the request has no input; a name in another form gets 404
+          "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+          "409": a read clashes with no state
+      responses:
+        "200":
+          description: The export, as a file to save
+          headers:
+            Content-Disposition:
+              description: The file's name, with the project and the date of exported_at in UTC
+              schema: {type: string, pattern: '^attachment; filename="nexus-[a-z0-9-]+-[0-9]{4}-[0-9]{2}-[0-9]{2}\.json"$'}
+              example: 'attachment; filename="nexus-corthex-2026-11-11.json"'
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProjectExport"}
+              examples:
+                with-a-space: {$ref: "#/components/examples/project_export"}
+                without-a-space:
+                  summary: A project with a snapshot and no space, whose head says that the file holds no entries
+                  value:
+                    format: 1
+                    project: acme-shop
+                    commit: null
+                    exported_at: "2026-11-11T09:30:00.000Z"
+                    read_at: null
+                    space: false
+                    counts: {comments: 0, replies: 0, decisions: 0, proposals: 0, edits: 0, checkpoints: 0}
+                    comments: []
+                    proposals: []
+                    edits: []
+                    checkpoints: []
+        "403": {$ref: "#/components/responses/UserReadRefused"}
+        "404": {$ref: "#/components/responses/ProjectNotFound"}
         default: {$ref: "#/components/responses/Unexpected"}
 
 components:
@@ -2219,6 +2348,18 @@ components:
             access-missing: {$ref: "#/components/examples/access_missing"}
             access-other-app: {$ref: "#/components/examples/access_other_app"}
             cross-site: {$ref: "#/components/examples/cross_site"}
+    UserReadRefused:
+      description: >-
+        Refused by the access checks, not a person's own sign-in, or asked from a page of
+        another site; for the one read that only the user makes, the export (API-178)
+      content:
+        application/problem+json:
+          schema: {$ref: "#/components/schemas/Problem"}
+          examples:
+            user-only: {$ref: "#/components/examples/user_only"}
+            access-missing: {$ref: "#/components/examples/access_missing"}
+            access-other-app: {$ref: "#/components/examples/access_other_app"}
+            cross-site: {$ref: "#/components/examples/cross_site_export"}
     InvalidWrite:
       description: A field, a header or the body is not in its form
       content:
@@ -3197,6 +3338,339 @@ components:
         checkpoint: {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: As recommended, state: passed, passed_at: "2026-11-08T08:31:12.204Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t}
         changed: true
 
+    cross_site_export:
+      summary: The export asked from a page of another site
+      value: {title: A request from another site, status: 403, detail: a page of another site cannot ask for a project's export, code: cross_site, traceId: 8f6c3b2a1d0e9fc0-ICN, error: a page of another site cannot ask for a project's export}
+    user_only_removal:
+      summary: A removal sent with the service token
+      value: {title: Only the user does this, status: 403, detail: "only the user removes a project, in NEXUS: open the project's data at /p/corthex#data", code: user_only, traceId: 8f6c3b2a1d0e9fc1-ICN, error: "only the user removes a project, in NEXUS: open the project's data at /p/corthex#data", needs: user}
+    request_without_look_first:
+      summary: A checkpoint request without its thing to look at first, as a hub before the revision sends it
+      value: {title: The request is not valid, status: 400, detail: "look_first: a checkpoint request names one thing to look at first, an item's ID or an https address; update the hub", code: invalid_request, traceId: 8f6c3b2a1d0e9fc2-ICN, error: "look_first: a checkpoint request names one thing to look at first, an item's ID or an https address; update the hub", field: look_first}
+    request_too_long:
+      summary: A checkpoint request of more than 10 lines or 1,200 characters
+      value: {title: The request is not valid, status: 400, detail: "text: a checkpoint request holds at most 10 lines and 1,200 characters", code: invalid_request, traceId: 8f6c3b2a1d0e9fc3-ICN, error: "text: a checkpoint request holds at most 10 lines and 1,200 characters", field: text}
+    request_on_an_item:
+      summary: A checkpoint request on an item, not on the stage as a whole
+      value: {title: The request is not valid, status: 400, detail: "item: a checkpoint request is on the stage as a whole, with an empty item", code: invalid_request, traceId: 8f6c3b2a1d0e9fc4-ICN, error: "item: a checkpoint request is on the stage as a whole, with an empty item", field: item}
+    request_on_another_comment:
+      summary: A reply that asks for a checkpoint on a comment that is on an item
+      value: {title: The request is not valid, status: 400, detail: "asks: a reply asks for a checkpoint only on a comment on the stage as a whole", code: invalid_request, traceId: 8f6c3b2a1d0e9fc5-ICN, error: "asks: a reply asks for a checkpoint only on a comment on the stage as a whole", field: asks}
+    look_first_without_request:
+      summary: A thing to look at first on an entry that asks for no checkpoint
+      value: {title: The request is not valid, status: 400, detail: "look_first: only a checkpoint request names a thing to look at first", code: invalid_request, traceId: 8f6c3b2a1d0e9fc6-ICN, error: "look_first: only a checkpoint request names a thing to look at first", field: look_first}
+    look_first_not_held:
+      summary: A thing to look at first that no stage of the stored snapshot holds
+      value: {title: The request is not valid, status: 400, detail: "look_first: no stage of the stored snapshot of corthex holds SPEC-999", code: invalid_request, traceId: 8f6c3b2a1d0e9fc7-ICN, error: "look_first: no stage of the stored snapshot of corthex holds SPEC-999", field: look_first}
+    checkpoint_requested:
+      summary: The part's stage has an open checkpoint request already
+      value: {title: A checkpoint request is open, status: 409, detail: "stage 04-functional-spec of nexus has an open checkpoint request, nc_7d1g4k8n2q5t; ask again as a reply on it", code: checkpoint_requested, traceId: 8f6c3b2a1d0e9fc8-ICN, error: "stage 04-functional-spec of nexus has an open checkpoint request, nc_7d1g4k8n2q5t; ask again as a reply on it", comment: nc_7d1g4k8n2q5t}
+    pass_without_what_was_seen:
+      summary: A pass that names neither the commit nor the revision that the page showed, as a page loaded before the release sends it
+      value: {title: The request is not valid, status: 400, detail: "commit: a pass names the commit that the page showed, or the snapshot's revision; load the page again", code: invalid_request, traceId: 8f6c3b2a1d0e9fc9-ICN, error: "commit: a pass names the commit that the page showed, or the snapshot's revision; load the page again", field: commit}
+    pass_with_commit_and_revision:
+      summary: A pass that names both a commit and a revision
+      value: {title: The request is not valid, status: 400, detail: "revision: a pass names the commit or, where the snapshot names none, the revision, not both", code: invalid_request, traceId: 8f6c3b2a1d0e9fca-ICN, error: "revision: a pass names the commit or, where the snapshot names none, the revision, not both", field: revision}
+    pass_with_half_a_request:
+      summary: A pass that names a request's comment without its last entry
+      value: {title: The request is not valid, status: 400, detail: "entry: a pass that names a checkpoint request names its last entry too", code: invalid_request, traceId: 8f6c3b2a1d0e9fcb-ICN, error: "entry: a pass that names a checkpoint request names its last entry too", field: entry}
+    snapshot_changed:
+      summary: The project shows another commit than the page showed
+      value: {title: The project shows another commit, status: 409, detail: "corthex now shows commit c0ffee5, not the one that the page showed; read the stage again before passing", code: snapshot_changed, traceId: 8f6c3b2a1d0e9fcc-ICN, error: "corthex now shows commit c0ffee5, not the one that the page showed; read the stage again before passing", held_commit: c0ffee5e7a1b2c3d4e5f60718293a4b5c6d7e8f9}
+    snapshot_changed_without_commit:
+      summary: A newer snapshot of a project whose snapshot names no commit
+      value: {title: The project shows another commit, status: 409, detail: "acme-shop now shows a newer snapshot than the page showed; read the stage again before passing", code: snapshot_changed, traceId: 8f6c3b2a1d0e9fcd-ICN, error: "acme-shop now shows a newer snapshot than the page showed; read the stage again before passing", revision: 4}
+    request_changed:
+      summary: The checkpoint request has a newer last entry than the page showed
+      value: {title: The checkpoint request changed, status: 409, detail: "the checkpoint request nc_7d1g4k8n2q5t has a newer entry than the page showed; read it again before passing", code: request_changed, traceId: 8f6c3b2a1d0e9fce-ICN, error: "the checkpoint request nc_7d1g4k8n2q5t has a newer entry than the page showed; read it again before passing", comment: nc_7d1g4k8n2q5t, entry: 2}
+    request_not_named:
+      summary: The part's stage has an open checkpoint request that the pass does not name, as when the agent asked after the page was drawn
+      value: {title: The checkpoint request changed, status: 409, detail: "stage 04-functional-spec of nexus now has a checkpoint request, nc_7d1g4k8n2q5t; read it before passing", code: request_changed, traceId: 8f6c3b2a1d0e9fcf-ICN, error: "stage 04-functional-spec of nexus now has a checkpoint request, nc_7d1g4k8n2q5t; read it before passing", comment: nc_7d1g4k8n2q5t, entry: 0}
+    request_no_longer_open:
+      summary: The request that the pass names is closed, settled or no longer asks for the checkpoint, and the stage has no open one
+      value: {title: The checkpoint request changed, status: 409, detail: "the checkpoint request nc_7d1g4k8n2q5t no longer asks for the checkpoint; read the stage again", code: request_changed, traceId: 8f6c3b2a1d0e9fd0-ICN, error: "the checkpoint request nc_7d1g4k8n2q5t no longer asks for the checkpoint; read the stage again"}
+    not_recommended_planned:
+      summary: The comment no longer waits with a recommendation, or its last entry asks for a checkpoint, which is passed and not taken
+      value: {title: No recommendation to take, status: 409, detail: the comment does not wait for the user with a recommendation to take, code: not_recommended, traceId: 8f6c3b2a1d0e9fd1-ICN, error: the comment does not wait for the user with a recommendation to take}
+
+    project_data:
+      summary: A project with a space, pushed and read on the same day
+      value:
+        project: corthex
+        title: CORTHEX
+        repository: "https://github.com/kodonghui/corthex"
+        commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
+        revision: 31
+        generated_at: "2026-11-11T16:20:00+09:00"
+        pushed_at: "2026-11-11T07:20:03.410Z"
+        space: true
+        read_at: "2026-11-11T07:25:00.000Z"
+        read_session: claude-code-4f2a91
+        unread_since: "2026-11-11T08:02:11.300Z"
+        removal:
+          project: corthex
+          deletes: {snapshot: true, space: true, pictures: 5, discrepancies: 21, comments: 2, replies: 3, decisions: 1, proposals: 1, edits: 1, checkpoints: 1}
+          open:
+            comments: {total: 1, ids: [nc_7d1g4k8n2q5t]}
+            proposals: {total: 0, ids: []}
+            reflections: {total: 1, ids: [ne_9c3f6h2k5n8q]}
+            checkpoints: {total: 1, ids: [nk_5q8t1w4z7c2f]}
+    project_export:
+      summary: A space with a decided comment, a checkpoint request that was passed, a proposal and its reflection
+      value:
+        format: 1
+        project: corthex
+        commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
+        exported_at: "2026-11-11T09:30:00.000Z"
+        read_at: "2026-11-11T07:25:00.000Z"
+        space: true
+        counts: {comments: 2, replies: 3, decisions: 1, proposals: 1, edits: 1, checkpoints: 1}
+        comments:
+          - id: nc_3a6d9g2j5m8r
+            part: nexus
+            stage: 01-domain
+            item: CTX-014
+            quote: null
+            discrepancy: null
+            commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
+            author: user
+            text: "Should a reply be able to settle a comment on its own?"
+            state: closed
+            closed_as: decided
+            waits: null
+            asks: null
+            settled: true
+            dismissed: false
+            made_at: "2026-11-03T01:00:10.000Z"
+            last_at: "2026-11-03T02:14:09.120Z"
+            look_first: null
+            replies:
+              - {seq: 1, author: agent, text: "The recommendation is yes: SPEC-127 lets the user's reply settle it, and the agent records the decision.", settles: false, made_at: "2026-11-03T01:30:00.000Z", look_first: null}
+              - {seq: 2, author: user, text: "Yes, as recommended: a reply settles it.", settles: true, made_at: "2026-11-03T02:14:09.120Z", look_first: null}
+            decisions:
+              - {seq: 1, link: "https://github.com/kodonghui/corthex/pull/123", text: null, made_at: "2026-11-03T03:00:00.000Z"}
+          - id: nc_7d1g4k8n2q5t
+            part: nexus
+            stage: 04-functional-spec
+            item: ""
+            quote: null
+            discrepancy: null
+            commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
+            author: agent
+            text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself."
+            state: open
+            closed_as: null
+            waits: agent
+            asks: null
+            settled: true
+            dismissed: false
+            made_at: "2026-11-11T07:10:00.000Z"
+            last_at: "2026-11-11T08:02:11.300Z"
+            look_first: SPEC-139
+            replies:
+              - {seq: 1, author: user, text: Pass the stage 04 checkpoint, settles: true, made_at: "2026-11-11T08:02:11.300Z", look_first: null}
+            decisions: []
+        proposals:
+          - {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The glossary names it entry claims.", change: "Rename the table claims to entry_claims.", source_text: "CREATE TABLE entry_claims (", comment: null, discrepancy: null, state: accepted, made_at: "2026-11-10T06:40:00.000Z", closed_at: "2026-11-10T07:30:41.882Z", edit: ne_9c3f6h2k5n8q}
+        edits:
+          - {id: ne_9c3f6h2k5n8q, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, proposal: np_2b5e8g1j4m7p, state: pending, pull_request: null, closed_commit: null, made_at: "2026-11-10T07:30:41.882Z", changed_at: "2026-11-10T07:30:41.882Z"}
+        checkpoints:
+          - {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-11T08:02:11.300Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, revision: null, entry: 0, browser: safari, device: phone, driven: false}
+
+    todo_planned:
+      summary: "The planned form: the read's recorded time, with a comment, a reflection and two checkpoints that wait, one of them passed before the revision"
+      value:
+        project: corthex
+        default_commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
+        session: claude-code-4f2a91
+        read_at: "2026-11-11T09:00:00.000Z"
+        comments:
+          total: 1
+          entries:
+            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Use the glossary's word for this table.", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-11T06:00:00.000Z", last_at: "2026-11-11T06:00:00.000Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: null, unread: false}
+        discrepancies: {total: 0, entries: []}
+        reflections:
+          total: 1
+          entries:
+            - {id: ne_9c3f6h2k5n8q, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, state: pending, pull_request: null, closed_commit: null, made_at: "2026-11-10T07:30:41.882Z", changed_at: "2026-11-10T07:30:41.882Z", proposal: {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The glossary names it entry claims.", change: "Rename the table claims to entry_claims.", source_text_chars: 27, comment: null, discrepancy: null, state: accepted, made_at: "2026-11-10T06:40:00.000Z", closed_at: "2026-11-10T07:30:41.882Z", edit: ne_9c3f6h2k5n8q}, claim: null, unread: false}
+        checkpoints:
+          total: 2
+          entries:
+            - {id: nk_7f3k2m9q4x1v, part: nexus, stage: 03-user-flow, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The flows as drafted.", state: passed, passed_at: "2026-11-09T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: null, revision: null, entry: null, browser: null, device: null, driven: null, why: not-recorded, claim: null}
+            - {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-11T08:02:11.300Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, revision: null, entry: 0, browser: safari, device: phone, driven: false, why: not-recorded, claim: null}
+        waiting_for_user: 0
+        taken: 0
+    comment_left_planned:
+      summary: "The planned form: the user's comment, which names no thing to look at first"
+      value: {id: nc_3a6d9g2j5m8r, part: nexus, stage: 01-domain, item: CTX-014, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a reply be able to settle a comment on its own?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-11T01:00:10.000Z", last_at: "2026-11-11T01:00:10.000Z", look_first: null}
+    checkpoint_request_left:
+      summary: The agent's checkpoint request for a stage, which waits for the user
+      value: {id: nc_7d1g4k8n2q5t, part: nexus, stage: 04-functional-spec, item: "", quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: agent, text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself.", state: open, closed_as: null, waits: user, asks: checkpoint, settled: false, dismissed: false, made_at: "2026-11-11T07:10:00.000Z", last_at: "2026-11-11T07:10:00.000Z", look_first: SPEC-139}
+    checkpoint_passed_planned:
+      summary: "The planned form: a checkpoint passed on a request, with what the user saw and the kind of browser and device"
+      value: {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-11T08:02:11.300Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, revision: null, entry: 0, browser: safari, device: phone, driven: false}
+    checkpoint_passed_without_request:
+      summary: A checkpoint passed in the stage's record with no request, on a snapshot that names no commit, from a page that reported nothing of software driving the browser
+      value: {id: nk_9b2e5h8k1n4q, part: "", stage: 02-prd, commit: null, words: "The requirements as drafted.", state: passed, passed_at: "2026-11-11T08:40:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: null, revision: 3, entry: null, browser: firefox, device: desktop, driven: null}
+    home_planned:
+      summary: "The planned form: a checkpoint request shown whole and a question, with the agent's last read and what it has not read"
+      value:
+        generated_at: "2026-11-11T08:30:00.000Z"
+        my_turn:
+          total: 2
+          entries:
+            - kind: comment
+              id: nc_7d1g4k8n2q5t
+              project: corthex
+              part: nexus
+              stage: 04-functional-spec
+              item: ""
+              title: null
+              quote: null
+              text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself."
+              at: "2026-11-11T07:10:00.000Z"
+              asks: checkpoint
+              request:
+                entry: 0
+                text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself."
+                look_first: {item: SPEC-139, url: null, stage: 04-functional-spec, held: true, title: Pass a checkpoint in NEXUS}
+                left: {discrepancies: 0, comments: 1, reflections: 0}
+            - {kind: comment, id: nc_9m2p5s8v1y4b, project: corthex, part: nexus, stage: 02-prd, item: REQ-107, title: "Before the first push of a project, the hub skill shall have the agent ask the user.", quote: null, text: "Should the agent also ask before a push of a project that was removed and is pushed again?", at: "2026-11-11T07:40:00.000Z", asks: answer, request: null}
+        agent:
+          - project: corthex
+            comments: {total: 2, oldest: {part: nexus, stage: 01-domain, entry: nc_3a6d9g2j5m8r}}
+            discrepancies: {total: 1, oldest: {part: nexus, stage: 05-erd, entry: nd_4h8r2t6w9z3c}}
+            reflections: {total: 0, oldest: null}
+            checkpoints: {total: 0, oldest: null}
+            taken: 1
+            read_at: "2026-11-10T01:00:00.000Z"
+            unread: 1
+            unread_since: "2026-11-10T02:14:09.120Z"
+        projects:
+          - name: corthex
+            title: CORTHEX
+            repository: "https://github.com/kodonghui/corthex"
+            commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
+            revision: 31
+            generated_at: "2026-11-11T16:20:00+09:00"
+            pushed_at: "2026-11-11T07:20:03.410Z"
+            items: 1406
+            warnings: 601
+            parts:
+              - {name: nexus, recorded: true, current: 04-functional-spec, next: "Stage 04 waits for its checkpoint", states: [done, done, done, in_progress, not_started, not_started, not_started, not_started, not_started, not_started, not_started, not_started, not_started]}
+            stages:
+              - {key: 01-domain, items: 165}
+              - {key: 02-prd, items: 296}
+              - {key: 03-user-flow, items: 27}
+              - {key: 04-functional-spec, items: 210}
+              - {key: 05-erd, items: 25}
+              - {key: 06-api, items: 179}
+              - {key: 07-sitemap, items: 30}
+              - {key: 08-screen-states, items: 0}
+              - {key: 09-mockup, items: 0}
+              - {key: 10-wbs, items: 278}
+              - {key: 11-development, items: 0}
+              - {key: 12-qa, items: 196}
+              - {key: 13-presentation, items: 0}
+            pictures:
+              - {part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, committed_at: "2026-11-11T16:01:00+09:00", not_current: null, comments: 1, drawing: {bounds: [0, 0, 880, 400], boxes: [[table, 0, 0, 280, 240], [table, 600, 0, 280, 400]], lines: [[280, 120, 600, 120]]}}
+    stage_data_planned:
+      summary: "The planned form: stage 04 of nexus while its checkpoint request is open, shortened to one item"
+      value:
+        project: {name: corthex, title: CORTHEX, repository: "https://github.com/kodonghui/corthex", commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, revision: 31, generated_at: "2026-11-11T16:20:00+09:00", pushed_at: "2026-11-11T07:20:03.410Z", space: true, read_at: "2026-11-10T01:00:00.000Z", unread_since: "2026-11-10T02:14:09.120Z", parts: [nexus]}
+        part: nexus
+        stage: 04-functional-spec
+        head:
+          key: 04-functional-spec
+          state: in_progress
+          checkpoint: null
+          commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
+          time: "2026-11-11T16:20:00+09:00"
+          reads: true
+          source_state: found
+          counts: {items: 210, kinds: [{kind: spec, count: 210}], priorities: [], hotspots: null}
+          picture: false
+        record:
+          project: corthex
+          part: nexus
+          stage: 04-functional-spec
+          record: {state: in_progress, checkpoints: [], next: "Stage 04 waits for its checkpoint", updated: "2026-11-11T16:05:00+09:00", from: repository}
+          source_state: found
+          read: true
+          checks: []
+          pictures: []
+          discrepancies: {total: 0, entries: []}
+          comments:
+            total: 1
+            entries:
+              - {id: nc_7d1g4k8n2q5t, part: nexus, stage: 04-functional-spec, item: "", quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: agent, text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself.", state: open, closed_as: null, waits: user, asks: checkpoint, settled: false, dismissed: false, made_at: "2026-11-11T07:10:00.000Z", last_at: "2026-11-11T07:10:00.000Z", look_first: SPEC-139, replies: 0, last_reply: null, proposals: [], claim: null, unread: false}
+          reflections: {total: 0, entries: []}
+          checkpoints: []
+          warnings: []
+          not_opened: 0
+        stages:
+          - {key: 01-domain, state: done, items: 165, picture: true, not_current: null, mine: 0}
+          - {key: 02-prd, state: done, items: 296, picture: false, not_current: null, mine: 1}
+          - {key: 03-user-flow, state: done, items: 27, picture: false, not_current: null, mine: 0}
+          - {key: 04-functional-spec, state: in_progress, items: 210, picture: false, not_current: null, mine: 1}
+          - {key: 05-erd, state: not_started, items: 25, picture: true, not_current: null, mine: 0}
+          - {key: 06-api, state: not_started, items: 179, picture: false, not_current: null, mine: 0}
+          - {key: 07-sitemap, state: not_started, items: 30, picture: true, not_current: size, mine: 0}
+          - {key: 08-screen-states, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
+          - {key: 09-mockup, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
+          - {key: 10-wbs, state: not_started, items: 278, picture: false, not_current: null, mine: 0}
+          - {key: 11-development, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
+          - {key: 12-qa, state: not_started, items: 196, picture: false, not_current: null, mine: 0}
+          - {key: 13-presentation, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
+        items:
+          group: source
+          filter: all
+          q: null
+          total: 210
+          after: 0
+          counts: {all: 210, talk: 1, mine: 1, left: 0}
+          groups: []
+          entries:
+            - {id: SPEC-139, kind: spec, stage: 04-functional-spec, where: "docs/04-functional-spec/nexus.md:187", title: Pass a checkpoint in NEXUS, status: active, links: [REQ-117, REQ-178], context: CTX-007, comments: 0, mine: false, discrepancies: 0, reflections: 0}
+    stage_talk_planned:
+      summary: "The planned form: the talk of stage 04 with its open checkpoint request in my turn, and an entry that the agent has not read"
+      value:
+        project: corthex
+        part: nexus
+        stage: 04-functional-spec
+        item: null
+        mine:
+          total: 1
+          entries:
+            - kind: comment
+              comment: {id: nc_7d1g4k8n2q5t, part: nexus, stage: 04-functional-spec, item: "", quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: agent, text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself.", state: open, closed_as: null, waits: user, asks: checkpoint, settled: false, dismissed: false, made_at: "2026-11-11T07:10:00.000Z", last_at: "2026-11-11T07:10:00.000Z", look_first: SPEC-139, replies: 0, last_reply: null, proposals: [], claim: null, unread: false}
+              proposal: null
+        agent:
+          total: 2
+          entries:
+            - {id: nc_2f5h8k1n4q7s, part: nexus, stage: 04-functional-spec, item: SPEC-194, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Say what the page shows after a refused pass.", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-10T02:14:09.120Z", last_at: "2026-11-10T02:14:09.120Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: null, unread: true}
+            - {id: nc_6r9v2x5a8d1g, part: nexus, stage: 04-functional-spec, item: SPEC-197, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Is ten lines enough for a stage of screens?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-09T05:00:00.000Z", last_at: "2026-11-11T08:10:00.000Z", look_first: null, replies: 2, last_reply: {seq: 2, author: user, text: "Then say so in the row.", settles: false, made_at: "2026-11-11T08:10:00.000Z", look_first: null}, proposals: [], claim: {claimed_at: "2026-11-11T08:20:00.000Z", ends_at: "2026-11-11T09:20:00.000Z", mine: false}, unread: false}
+        apart: {total: 0, entries: []}
+        closed: {total: 3, entries: []}
+        reflections: []
+    recommendation_taken_planned:
+      summary: "The planned form: a recommendation taken, which settles the comment and passes no checkpoint"
+      value:
+        comment: {id: nc_9m2p5s8v1y4b, state: open, closed_as: null, waits: agent, asks: null, settled: true, dismissed: false, last_at: "2026-11-11T08:31:12.204Z"}
+        reply: {seq: 2, author: user, text: As recommended, settles: true, made_at: "2026-11-11T08:31:12.204Z", look_first: null}
+        checkpoint: null
+        changed: true
+    reply_asks_again:
+      summary: "The agent's reply that asks for the checkpoint again on the stage's open request, whose last entry it now is"
+      value:
+        comment: {id: nc_7d1g4k8n2q5t, state: open, closed_as: null, waits: user, asks: checkpoint, settled: false, dismissed: false, last_at: "2026-11-11T08:20:00.000Z"}
+        reply: {seq: 2, author: agent, text: "SPEC-194 now says what the page shows after a refused pass.\nThe rest of stage 04 is as before.\nLook at SPEC-194 first.", settles: false, made_at: "2026-11-11T08:20:00.000Z", look_first: SPEC-194}
+    reply_planned:
+      summary: "The planned form: the user's reply, which names no thing to look at first"
+      value:
+        comment: {id: nc_3a6d9g2j5m8r, state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, last_at: "2026-11-11T02:14:09.120Z"}
+        reply: {seq: 3, author: user, text: "Not yet: the reply should not close it.", settles: false, made_at: "2026-11-11T02:14:09.120Z", look_first: null}
+
   schemas:
     ProjectName:
       type: string
@@ -3859,6 +4333,13 @@ components:
         dismissed: {type: boolean}
         made_at: {$ref: "#/components/schemas/Time"}
         last_at: {$ref: "#/components/schemas/Time"}
+        look_first:
+          description: >-
+            The thing to look at first of a checkpoint request, a trace ID or an https address
+            (SPEC-197, SPEC-198); null for any other comment, and for a request stored before
+            the revision, which the pages show without a pass (SPEC-196)
+          x-corthex: {status: planned, spec: [SPEC-197, SPEC-198]}
+          anyOf: [{$ref: "#/components/schemas/TraceId"}, {$ref: "#/components/schemas/Link"}, {type: "null"}]
     CommentState:
       type: object
       required: [id, state, closed_as, waits, asks, settled, dismissed, last_at]
@@ -3894,6 +4375,13 @@ components:
             last_reply: {anyOf: [{$ref: "#/components/schemas/Reply"}, {type: "null"}]}
             proposals: {type: array, maxItems: 500, items: {$ref: "#/components/schemas/ProposalId"}}
             claim: {anyOf: [{$ref: "#/components/schemas/ClaimMark"}, {type: "null"}]}
+            unread:
+              description: >-
+                Whether the agent has not read the comment yet (SPEC-189): true while it waits
+                for the agent, no claim holds it, and its last_at is at or after the space's
+                last read or the space was never read
+              x-corthex: {status: planned, spec: [SPEC-189]}
+              type: boolean
     Reply:
       type: object
       required: [seq, author, text, settles, made_at]
@@ -3904,6 +4392,12 @@ components:
         text: {type: string, maxLength: 4000}
         settles: {type: boolean}
         made_at: {$ref: "#/components/schemas/Time"}
+        look_first:
+          description: >-
+            The thing to look at first of the agent's reply that asks for the checkpoint, a
+            trace ID or an https address (SPEC-197); null for any other reply
+          x-corthex: {status: planned, spec: [SPEC-197]}
+          anyOf: [{$ref: "#/components/schemas/TraceId"}, {$ref: "#/components/schemas/Link"}, {type: "null"}]
     Decision:
       type: object
       required: [seq, link, text, made_at]
@@ -3993,6 +4487,13 @@ components:
         made_at: {$ref: "#/components/schemas/Time"}
         changed_at: {$ref: "#/components/schemas/Time"}
         claim: {anyOf: [{$ref: "#/components/schemas/ClaimMark"}, {type: "null"}]}
+        unread:
+          description: >-
+            Whether the agent has not read the edit yet (SPEC-189): true while it is pending,
+            no claim holds it, and its made_at is at or after the space's last read or the
+            space was never read
+          x-corthex: {status: planned, spec: [SPEC-189]}
+          type: boolean
     EditWithProposal:
       type: object
       required: [id, part, stage, commit, proposal, state, pull_request, closed_commit, made_at, changed_at]
@@ -4065,8 +4566,49 @@ components:
         pr_state: {enum: [open, merged, closed, null]}
         recorded_commit: {anyOf: [{$ref: "#/components/schemas/Commit"}, {type: "null"}]}
         comment:
-          description: The comment whose recommendation the user took to pass the checkpoint (API-159), which holds what was approved; from the redesign
+          description: >-
+            The comment whose recommendation the user took to pass the checkpoint (API-159),
+            which holds what was approved; from the redesign. From the design revision of
+            2026-11-11, open under D17 of stage 02: the checkpoint request that the pass named
+            (API-128), and null for a pass without a request
           anyOf: [{$ref: "#/components/schemas/CommentId"}, {type: "null"}]
+        revision:
+          description: >-
+            The stored snapshot's revision that the pass named in place of a commit, for a
+            project whose snapshot names none (SPEC-194); null when the pass named a commit,
+            and for a checkpoint passed before the revision
+          x-corthex: {status: planned, decision: D17, spec: [SPEC-194]}
+          type: [integer, "null"]
+          minimum: 1
+        entry:
+          description: >-
+            The request's last entry that the user saw and the pass named, 0 for the comment's
+            own text and otherwise its reply's seq, so that comment and entry hold what was
+            approved (SPEC-194); null for a pass without a request, and for a checkpoint
+            passed before the revision
+          x-corthex: {status: planned, decision: D17, spec: [SPEC-194]}
+          type: [integer, "null"]
+          minimum: 0
+          maximum: 200
+        browser:
+          description: >-
+            The family of the browser that sent the pass, as the server read it from the
+            request and never the request's own text (SPEC-195); null only for a checkpoint
+            passed before the revision, which is not the same as unknown
+          x-corthex: {status: planned, spec: [SPEC-195]}
+          enum: [chrome, safari, firefox, edge, other, unknown, null]
+        device:
+          description: The class of the device, read in the same way (SPEC-195); null as for browser
+          x-corthex: {status: planned, spec: [SPEC-195]}
+          enum: [phone, tablet, desktop, unknown, null]
+        driven:
+          description: >-
+            Whether the page reported that software drives the browser, as navigator.webdriver
+            says (SPEC-195); null when the page reported nothing, as an older page does, and
+            for a checkpoint passed before the revision. A record to look at afterwards, never
+            a check
+          x-corthex: {status: planned, spec: [SPEC-195]}
+          type: [boolean, "null"]
     CheckpointEntry:
       description: A checkpoint as the agent to-do holds it, with why it is listed
       allOf:
@@ -4101,6 +4643,13 @@ components:
         project: {$ref: "#/components/schemas/ProjectName"}
         default_commit: {anyOf: [{$ref: "#/components/schemas/Commit"}, {type: "null"}]}
         session: {anyOf: [{$ref: "#/components/schemas/SessionLabel"}, {type: "null"}]}
+        read_at:
+          description: >-
+            The time that this read recorded for the project's space, by the server's clock
+            (SPEC-187); null for a read under a person's own sign-in, which records nothing.
+            The hub knows a server of the revision by this member
+          x-corthex: {status: planned, spec: [SPEC-187]}
+          anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]
         comments:
           type: object
           required: [total, entries]
@@ -4398,6 +4947,14 @@ components:
         text: {type: string, maxLength: 300}
         at: {$ref: "#/components/schemas/Time"}
         asks: {description: "What the comment asks of the user; null for a proposal", enum: [answer, recommended, checkpoint, null]}
+        request:
+          description: >-
+            For a checkpoint request in form, the request whole, so that the entry may offer
+            the pass as its second action (SPEC-196); null for any other entry, for a request
+            stored without its thing to look at first and, in phase ②, for a workshop's
+            request, which offer only to open
+          x-corthex: {status: planned, decision: D17, spec: [SPEC-196]}
+          anyOf: [{$ref: "#/components/schemas/RequestShown"}, {type: "null"}]
     AgentCount:
       type: object
       required: [total, oldest]
@@ -4417,6 +4974,27 @@ components:
         reflections: {$ref: "#/components/schemas/AgentCount"}
         checkpoints: {$ref: "#/components/schemas/AgentCount"}
         taken: {description: How many of the entries a session's claim holds now, type: integer, minimum: 0}
+        read_at:
+          description: >-
+            When the agent last read the project's agent to-do with the service token
+            (SPEC-187, SPEC-188); null before the first read, which the page shows as not read
+            yet
+          x-corthex: {status: planned, spec: [SPEC-188]}
+          anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]
+        unread:
+          description: >-
+            How many entries of the four lists the agent has not read yet (SPEC-189): those
+            that no claim holds and that wait since read_at or later, or every one that no
+            claim holds while read_at is null
+          x-corthex: {status: planned, spec: [SPEC-189]}
+          type: integer
+          minimum: 0
+        unread_since:
+          description: >-
+            The oldest time since which one of those entries waits, from which the page tells
+            a wait of more than 24 hours (SPEC-188); null when unread is 0
+          x-corthex: {status: planned, spec: [SPEC-188, SPEC-189]}
+          anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]
     ProjectCard:
       description: >-
         A project's card, from its stored snapshot and its space. title is the settings' title,
@@ -4458,6 +5036,13 @@ components:
           type: array
           maxItems: 150
           items: {$ref: "#/components/schemas/CardPicture"}
+        revision:
+          description: >-
+            The stored snapshot's revision, which a pass from the first page names where the
+            snapshot names no commit (SPEC-194, SPEC-196)
+          x-corthex: {status: planned, decision: D17, spec: [SPEC-194, SPEC-196]}
+          type: integer
+          minimum: 1
     CardPart:
       description: >-
         A part on a card. current is the part's first stage in progress, or else its first not
@@ -4555,6 +5140,25 @@ components:
         generated_at: {$ref: "#/components/schemas/ZonedTime"}
         pushed_at: {$ref: "#/components/schemas/Time"}
         parts: {type: array, minItems: 1, maxItems: 50, items: {$ref: "#/components/schemas/PartName"}}
+        revision:
+          description: >-
+            The stored snapshot's revision, which a pass from the stage's record names where
+            the snapshot names no commit (SPEC-194)
+          x-corthex: {status: planned, decision: D17, spec: [SPEC-194]}
+          type: integer
+          minimum: 1
+        space:
+          description: Whether the project has a space; without one the head says that the project has no agent to-do yet (SPEC-188)
+          x-corthex: {status: planned, spec: [SPEC-188]}
+          type: boolean
+        read_at:
+          description: When the agent last read the project's agent to-do with the service token (SPEC-187, SPEC-188); null before the first read and for a project without a space
+          x-corthex: {status: planned, spec: [SPEC-188]}
+          anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]
+        unread_since:
+          description: The oldest time since which an entry that the agent has not read waits, as getHome gives it (SPEC-188, SPEC-189); null when there is none
+          x-corthex: {status: planned, spec: [SPEC-188, SPEC-189]}
+          anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]
     StageHead:
       description: >-
         The stage's head (SPEC-147). checkpoint is the part's last recorded checkpoint of the
@@ -5057,6 +5661,835 @@ components:
         body: {type: object}
         tries: {type: integer, minimum: 0}
         failure: {type: string, maxLength: 120}
+    SessionReads:
+      description: >-
+        The session reads file of TBL-125, reads/<project>.json under ~/.corthex/hub/ on a
+        device: for each session, the time of its last read of the project's agent to-do, as the
+        server's answer named it in read_at (SPEC-187, SPEC-191), the newest first. Sessions
+        without a label share the entry that has no session. Not a request: it is here so that
+        one schema checks it. Planned by the design revision of 2026-11-11.
+      type: object
+      required: [format, project, reads]
+      additionalProperties: false
+      properties:
+        format: {const: 1}
+        project: {$ref: "#/components/schemas/ProjectName"}
+        reads:
+          type: array
+          items:
+            type: object
+            required: [at]
+            additionalProperties: false
+            properties:
+              session: {$ref: "#/components/schemas/SessionLabel"}
+              at: {$ref: "#/components/schemas/Time"}
+
+    ProjectData:
+      description: >-
+        What the server holds of a project (API-177). title, repository, commit, revision,
+        generated_at and pushed_at are the stored snapshot's, as the project's card gives them;
+        read_at and read_session are the space's last read of the agent to-do with the service
+        token (TBL-102), both null before the first read and for a project without a space, and
+        read_session also null when that read named no session; unread_since is the oldest time
+        since which an entry that the agent has not read waits, null when there is none
+        (SPEC-188, SPEC-189); and removal is the answer of getRemovalDryRun at the same moment.
+      type: object
+      required: [project, title, repository, commit, revision, generated_at, pushed_at, space, read_at, read_session, unread_since, removal]
+      additionalProperties: false
+      properties:
+        project: {$ref: "#/components/schemas/ProjectName"}
+        title: {type: [string, "null"], maxLength: 120}
+        repository: {anyOf: [{$ref: "#/components/schemas/Link"}, {type: "null"}]}
+        commit: {anyOf: [{$ref: "#/components/schemas/Commit"}, {type: "null"}]}
+        revision: {type: integer, minimum: 1}
+        generated_at: {$ref: "#/components/schemas/ZonedTime"}
+        pushed_at: {$ref: "#/components/schemas/Time"}
+        space: {type: boolean}
+        read_at: {anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]}
+        read_session: {anyOf: [{$ref: "#/components/schemas/SessionLabel"}, {type: "null"}]}
+        unread_since: {anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]}
+        removal: {$ref: "#/components/schemas/RemovalDryRun"}
+    ProjectExport:
+      description: >-
+        The export of a project's space (API-178, SPEC-201), with its head first: format, which
+        stays 1 while members are only added, and a reader skips a member that it does not know;
+        the project; commit, the default branch commit that the project shows, null when the
+        stored snapshot names none; exported_at, the server's time; read_at, the agent's last
+        read of the agent to-do, null before the first; space, false for a project with a
+        snapshot and no space; and counts, how many of each kind the file holds, by which a
+        reader checks that the file is whole. Then the lists, each in a fixed order: the comments
+        by made_at and ID, each with its replies and its decisions by seq; the proposals and the
+        edits by made_at and ID; and the checkpoints by passed_at and ID. The server writes the
+        members in this order. Phase ② adds its lists: the edit drafts, the positions and the
+        work boards.
+      type: object
+      required: [format, project, commit, exported_at, read_at, space, counts, comments, proposals, edits, checkpoints]
+      additionalProperties: false
+      properties:
+        format: {const: 1}
+        project: {$ref: "#/components/schemas/ProjectName"}
+        commit: {anyOf: [{$ref: "#/components/schemas/Commit"}, {type: "null"}]}
+        exported_at: {$ref: "#/components/schemas/Time"}
+        read_at: {anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]}
+        space: {type: boolean}
+        counts:
+          type: object
+          required: [comments, replies, decisions, proposals, edits, checkpoints]
+          additionalProperties: false
+          properties:
+            comments: {type: integer, minimum: 0}
+            replies: {type: integer, minimum: 0}
+            decisions: {type: integer, minimum: 0}
+            proposals: {type: integer, minimum: 0}
+            edits: {type: integer, minimum: 0}
+            checkpoints: {type: integer, minimum: 0}
+        comments: {type: array, maxItems: 2000, items: {$ref: "#/components/schemas/ExportComment"}}
+        proposals: {type: array, items: {$ref: "#/components/schemas/Proposal"}}
+        edits: {type: array, items: {$ref: "#/components/schemas/Edit"}}
+        checkpoints: {type: array, items: {$ref: "#/components/schemas/Checkpoint"}}
+    ExportComment:
+      description: A comment as the export holds it, whole, with its replies and the decisions recorded on it (SPEC-201)
+      allOf:
+        - $ref: "#/components/schemas/Comment"
+        - type: object
+          required: [replies, decisions]
+          properties:
+            replies: {type: array, maxItems: 200, items: {$ref: "#/components/schemas/Reply"}}
+            decisions: {type: array, items: {$ref: "#/components/schemas/Decision"}}
+    RequestShown:
+      description: >-
+        A checkpoint request as an entry of my turn shows it whole (SPEC-196, open under D17 of
+        stage 02): entry, the place of the request's last entry, 0 for the comment's own text and
+        otherwise its reply's seq, which a pass names; text, that entry's whole text; look_first,
+        the thing to look at first as that entry gave it, an item with the stage that holds it
+        and its title in the stored snapshot, or an address; and left, what is left in the
+        request's stage of the part: its open discrepancies, its other open comments and its
+        pending reflections (REQ-176). The commit that the entry shows is that of the project's
+        card.
+      type: object
+      required: [entry, text, look_first, left]
+      additionalProperties: false
+      properties:
+        entry: {type: integer, minimum: 0, maximum: 200}
+        text: {type: string, minLength: 1, maxLength: 1200}
+        look_first:
+          type: object
+          required: [item, url, stage, held, title]
+          additionalProperties: false
+          properties:
+            item: {anyOf: [{$ref: "#/components/schemas/TraceId"}, {type: "null"}]}
+            url: {anyOf: [{$ref: "#/components/schemas/Link"}, {type: "null"}]}
+            stage:
+              description: The stage of the stored snapshot that holds the item, at whose page the item opens; null for an address and for an item that no stage holds now
+              anyOf: [{$ref: "#/components/schemas/StageKey"}, {type: "null"}]
+            held:
+              description: Whether a stage of the stored snapshot holds the item now; when false the entry shows the item's ID as text, and for an address it is false
+              type: boolean
+            title: {description: "The item's title in the stored snapshot; null for an address and for an item that is not held", type: [string, "null"], maxLength: 120}
+        left:
+          type: object
+          required: [discrepancies, comments, reflections]
+          additionalProperties: false
+          properties:
+            discrepancies: {type: integer, minimum: 0}
+            comments: {type: integer, minimum: 0}
+            reflections: {type: integer, minimum: 0}
+
+    PlannedNewComment:
+      description: >-
+        The planned body of leaveComment (SPEC-197, SPEC-198): NewComment with look_first. A
+        comment whose asks is checkpoint is its stage's checkpoint request: item is "", text
+        holds at most 1,200 characters and 10 lines, and look_first is required, a trace ID that
+        a stage of the stored snapshot holds or an https address. Any other comment sends no
+        look_first. The server checks these rules in code and answers 400 by the field, as it
+        does for the other rules that a schema of this contract cannot state. When built, it
+        replaces NewComment.
+      type: object
+      required: [part, stage, item, text]
+      additionalProperties: false
+      properties:
+        part: {$ref: "#/components/schemas/PartName"}
+        stage: {$ref: "#/components/schemas/StageKey"}
+        item: {$ref: "#/components/schemas/ItemRef"}
+        quote: {type: string, minLength: 1, maxLength: 300}
+        discrepancy: {$ref: "#/components/schemas/DiscrepancyId"}
+        commit: {$ref: "#/components/schemas/Commit"}
+        text: {type: string, minLength: 1, maxLength: 4000, pattern: '\S'}
+        asks: {description: "What the agent's comment asks of the user; only the agent sends it", type: string, enum: [answer, recommended, checkpoint]}
+        look_first:
+          description: The thing to look at first of a checkpoint request; sent only with asks checkpoint, and then required
+          anyOf:
+            - $ref: "#/components/schemas/TraceId"
+            - $ref: "#/components/schemas/Link"
+    PlannedNewReply:
+      description: >-
+        The planned body of replyToComment (SPEC-197): NewReply with look_first. A reply whose
+        asks is checkpoint asks for the checkpoint on a comment on the stage as a whole: text
+        holds at most 1,200 characters and 10 lines, and look_first is required, as for
+        PlannedNewComment. Any other reply sends no look_first. The server checks these rules in
+        code and answers 400 by the field. When built, it replaces NewReply.
+      type: object
+      required: [text]
+      additionalProperties: false
+      properties:
+        text: {type: string, minLength: 1, maxLength: 4000, pattern: '\S'}
+        settles: {type: boolean, default: false}
+        asks: {description: "What the agent's reply asks of the user; only the agent sends it", type: string, enum: [answer, recommended, checkpoint]}
+        look_first:
+          description: The thing to look at first of a reply that asks for the checkpoint; sent only with asks checkpoint, and then required
+          anyOf:
+            - $ref: "#/components/schemas/TraceId"
+            - $ref: "#/components/schemas/Link"
+    PlannedNewCheckpoint:
+      description: >-
+        The planned body of passCheckpoint (SPEC-194 to SPEC-196): NewCheckpoint with what the
+        page showed, open under D17 of stage 02, and with driven, planned whatever D17 decides.
+        A pass names commit, the default branch commit of the project's snapshot as the page's
+        data gave it, or revision, the snapshot's revision, where that snapshot names no commit:
+        one of the two, never both and never neither. A pass that answers a checkpoint request
+        names its comment and entry together: the place of the request's last entry as the page
+        showed it, 0 for the comment's own text and otherwise its reply's seq. driven is what
+        the page read from navigator.webdriver, left out when the page cannot tell. The server
+        checks these rules in code and answers 400 by the field. When built, it replaces
+        NewCheckpoint.
+      type: object
+      required: [part, stage]
+      additionalProperties: false
+      properties:
+        part: {$ref: "#/components/schemas/PartName"}
+        stage: {$ref: "#/components/schemas/StageKey"}
+        words: {type: string, minLength: 1, maxLength: 2000, pattern: '\S'}
+        commit: {$ref: "#/components/schemas/Commit"}
+        revision: {type: integer, minimum: 1}
+        comment: {$ref: "#/components/schemas/CommentId"}
+        entry: {type: integer, minimum: 0, maximum: 200}
+        driven: {type: boolean}
+    PlannedErrorCode:
+      description: >-
+        ErrorCode with the three codes that the design revision of 2026-11-11 plans
+        (planned_errors under x-corthex). When the first of them is built, the codes join
+        ErrorCode and their entries join errors, and this schema goes.
+      anyOf:
+        - $ref: "#/components/schemas/ErrorCode"
+        - type: string
+          enum: [checkpoint_requested, snapshot_changed, request_changed]
+    PlannedProblem:
+      description: >-
+        Problem with the planned codes and the three members that they add: comment and entry,
+        the stage's open checkpoint request and the place of its last entry, and revision, the
+        stored snapshot's revision where it names no commit. The planned forms use it for the
+        answers that can hold them. When built, the members join Problem and this schema goes.
+      type: object
+      required: [title, status, detail, code, traceId, error]
+      additionalProperties: false
+      properties:
+        type: {type: string, format: uri-reference}
+        title: {type: string, maxLength: 120}
+        status: {type: integer, minimum: 400, maximum: 599}
+        detail: {type: string, maxLength: 300}
+        instance: {type: string, format: uri-reference}
+        code: {$ref: "#/components/schemas/PlannedErrorCode"}
+        traceId:
+          description: As in Problem
+          type: string
+          pattern: '^[0-9a-f]{16}(?:-[A-Z]{3})?$'
+        error: {type: string, maxLength: 300}
+        field: {type: string, maxLength: 120}
+        limit: {type: integer, minimum: 1}
+        items: {type: array, minItems: 1, maxItems: 50, items: {$ref: "#/components/schemas/TraceId"}}
+        held_commit: {$ref: "#/components/schemas/Commit"}
+        stored_at: {$ref: "#/components/schemas/ZonedTime"}
+        bound: {$ref: "#/components/schemas/Link"}
+        state: {type: string, enum: [accepted, dismissed, withdrawn, pending, in-review, needs-user, closed]}
+        pull_request: {$ref: "#/components/schemas/Link"}
+        ends_at: {$ref: "#/components/schemas/Time"}
+        why: {type: string, enum: [not-drawn, size, other-repository]}
+        needs: {$ref: "#/components/schemas/Author"}
+        comment: {$ref: "#/components/schemas/CommentId"}
+        entry: {type: integer, minimum: 0, maximum: 200}
+        revision: {type: integer, minimum: 1}
+
+  pathItems:
+    getAgentTodo:
+      parameters:
+        - $ref: "#/components/parameters/Project"
+        - $ref: "#/components/parameters/SessionOptional"
+      get:
+        tags: [Stage progress]
+        summary: The agent to-do, with the read recorded
+        description: >-
+          The planned form of getAgentTodo (SPEC-187). A read that carries the service token
+          records the time of the read for the project's space, by the server's clock, with the
+          session label that Nexus-Session names or with none, before the lists are gathered, and
+          the answer names that time in read_at; the record replaces the one before it, and
+          nothing else of the request is stored. A read under a person's own sign-in is answered
+          as now, records nothing and names null, so that no page can move the last read; a HEAD
+          records nothing either. A project without a space is 404 and a label in another form is
+          400, and neither records anything. When the record cannot be written, the answer is 500
+          and holds no list, so that an answered read is always a recorded one. The lists, their
+          order and their limits stay as they are; their comments, reflections and checkpoints
+          hold the fields that the revision adds. The hub knows a server of the revision by
+          read_at in the answer.
+        x-corthex:
+          id: API-113
+          replaces: getAgentTodo
+          spec: [SPEC-113, SPEC-135, SPEC-136, SPEC-187, SPEC-189, SPEC-191]
+          status: planned
+          omit:
+            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+            "409": a read clashes with no state
+        responses:
+          "200":
+            description: The agent to-do
+            content:
+              application/json:
+                schema: {$ref: "#/components/schemas/Todo"}
+                examples:
+                  read-by-the-agent: {$ref: "#/components/examples/todo_planned"}
+                  read-by-the-user:
+                    summary: Nothing waits, read under a person's own sign-in, which records no read
+                    value:
+                      project: corthex
+                      default_commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
+                      session: null
+                      read_at: null
+                      comments: {total: 0, entries: []}
+                      discrepancies: {total: 0, entries: []}
+                      reflections: {total: 0, entries: []}
+                      checkpoints: {total: 0, entries: []}
+                      waiting_for_user: 0
+                      taken: 0
+          "400":
+            description: The session label is not in its form
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/Problem"}
+                examples:
+                  bad-session: {$ref: "#/components/examples/invalid_session"}
+          "403": {$ref: "#/components/responses/ReadRefused"}
+          "404": {$ref: "#/components/responses/SpaceNotFound"}
+          default: {$ref: "#/components/responses/Unexpected"}
+    leaveComment:
+      parameters:
+        - $ref: "#/components/parameters/Project"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/SessionOptional"
+      post:
+        tags: [Discussion]
+        summary: Leave a comment, or a stage's checkpoint request
+        description: >-
+          The planned form of leaveComment: as now, with look_first, the thing to look at first
+          of a checkpoint request (SPEC-197, SPEC-198). The agent's comment whose asks is
+          checkpoint is the checkpoint request of its part's stage, and the server takes it only
+          in form: on the stage as a whole, with an empty item; a text of at most 1,200
+          characters and 10 lines, so at most 9 line feeds; and look_first, a trace ID that a
+          stage of the stored snapshot holds or an https address. Anything else is 400 by the
+          field: item, text or look_first. A comment that asks for no checkpoint sends no
+          look_first, and one that does is 400 by look_first. A part's stage has one open request
+          at a time: while one is open, another is 409 checkpoint_requested, which names the open
+          request in comment, and the hub then sends the request as a reply on it
+          (replyToComment). The answer holds look_first, null for any other comment. In phase ②,
+          a workshop's request is the one request that is on an item, its frame.
+        x-corthex:
+          id: API-118
+          replaces: leaveComment
+          spec: [SPEC-113, SPEC-116, SPEC-126, SPEC-128, SPEC-143, SPEC-151, SPEC-197, SPEC-198]
+          status: planned
+          omit:
+            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PlannedNewComment"}
+              examples:
+                on-a-context:
+                  value: {part: nexus, stage: 01-domain, item: CTX-014, text: "Should a reply be able to settle a comment on its own?"}
+                a-checkpoint-request:
+                  summary: The agent's checkpoint request for a stage, with an item to look at first
+                  value: {part: nexus, stage: 04-functional-spec, item: "", text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself.", asks: checkpoint, look_first: SPEC-139}
+                a-request-for-a-stage-of-screens:
+                  summary: A request whose thing to look at first is an address where the user can press the screens (SPEC-198)
+                  value: {part: nexus, stage: 09-mockup, item: "", text: "Stage 09's mockups are ready for their checkpoint.\n- The first page and the project's data, as mockups that answer presses.\n- I looked at 390 and 1440 pixels, in the normal, empty and error states, and not at the loading state.\nOpen the address first, on your phone.", asks: checkpoint, look_first: "https://mockups.example.com/nexus/first-page"}
+        responses:
+          "201":
+            description: Left
+            content:
+              application/json:
+                schema: {$ref: "#/components/schemas/Comment"}
+                examples:
+                  left: {$ref: "#/components/examples/comment_left_planned"}
+                  request-left: {$ref: "#/components/examples/checkpoint_request_left"}
+          "400":
+            description: A field, a header or the body is not in its form, or a checkpoint request is not in its form
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/Problem"}
+                examples:
+                  invalid-field: {$ref: "#/components/examples/invalid_request"}
+                  missing-write-id: {$ref: "#/components/examples/missing_write_id"}
+                  missing-session: {$ref: "#/components/examples/missing_session"}
+                  request-without-look-first: {$ref: "#/components/examples/request_without_look_first"}
+                  request-too-long: {$ref: "#/components/examples/request_too_long"}
+                  request-on-an-item: {$ref: "#/components/examples/request_on_an_item"}
+                  look-first-without-request: {$ref: "#/components/examples/look_first_without_request"}
+                  look-first-not-held: {$ref: "#/components/examples/look_first_not_held"}
+          "403": {$ref: "#/components/responses/EitherWriteRefused"}
+          "404":
+            description: No such project, space, part or discrepancy
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/Problem"}
+                examples:
+                  part-not-found: {$ref: "#/components/examples/part_not_found"}
+                  discrepancy-not-found: {$ref: "#/components/examples/discrepancy_not_found"}
+                  project-not-found: {$ref: "#/components/examples/project_not_found"}
+                  space-not-found: {$ref: "#/components/examples/space_not_found"}
+          "409":
+            description: The part's stage has an open checkpoint request, the space is at a limit, or the write ID was taken
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/PlannedProblem"}
+                examples:
+                  checkpoint-requested: {$ref: "#/components/examples/checkpoint_requested"}
+                  comment-limit: {$ref: "#/components/examples/comment_limit"}
+                  space-full: {$ref: "#/components/examples/space_full"}
+                  claimed: {$ref: "#/components/examples/claimed"}
+                  write-id-reused: {$ref: "#/components/examples/write_id_reused"}
+          "413": {$ref: "#/components/responses/TooLarge"}
+          "415": {$ref: "#/components/responses/NeedsJson"}
+          default: {$ref: "#/components/responses/Unexpected"}
+    replyToComment:
+      parameters:
+        - $ref: "#/components/parameters/Project"
+        - $ref: "#/components/parameters/Comment"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/SessionOptional"
+      post:
+        tags: [Discussion]
+        summary: Reply to a comment, or ask for a stage's checkpoint again
+        description: >-
+          The planned form of replyToComment: as now, with look_first (SPEC-197). The agent's
+          reply whose asks is checkpoint asks for the checkpoint on a comment that is on the stage
+          as a whole, which is then the stage's open request with the reply as its last entry,
+          the entry that a pass names (SPEC-194). The server takes it only in form, as
+          leaveComment takes a request: a text of at most 1,200 characters and 10 lines, and
+          look_first; on a comment that is on an item it is 400 by asks. While another comment is
+          the stage's open request, it is 409 checkpoint_requested, which names that one. A reply
+          that asks for no checkpoint sends no look_first, and one that does is 400 by look_first.
+          The answer's reply holds look_first, null for any other reply. The rest is as now: only
+          the user sends settles, and the user's next entry empties the comment's asks.
+        x-corthex:
+          id: API-119
+          replaces: replyToComment
+          spec: [SPEC-113, SPEC-116, SPEC-127, SPEC-128, SPEC-132, SPEC-143, SPEC-197]
+          status: planned
+          omit:
+            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PlannedNewReply"}
+              examples:
+                not-yet: {value: {text: "Not yet: the reply should not close it."}}
+                settles: {value: {text: "Yes, as recommended: a reply settles it.", settles: true}}
+                recommends:
+                  summary: The agent's reply with a recommendation that the user can take as recommended
+                  value: {text: "I recommend that a reply settles it only when the user says so. Take it as recommended?", asks: recommended}
+                asks-again:
+                  summary: The agent's reply that asks for the checkpoint again on the stage's open request
+                  value: {text: "SPEC-194 now says what the page shows after a refused pass.\nThe rest of stage 04 is as before.\nLook at SPEC-194 first.", asks: checkpoint, look_first: SPEC-194}
+        responses:
+          "201":
+            description: Replied
+            content:
+              application/json:
+                schema: {$ref: "#/components/schemas/ReplyAnswer"}
+                examples:
+                  replied: {$ref: "#/components/examples/reply_planned"}
+                  asked-again: {$ref: "#/components/examples/reply_asks_again"}
+          "400":
+            description: A field, a header or the body is not in its form, or a checkpoint request is not in its form
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/Problem"}
+                examples:
+                  invalid-field: {$ref: "#/components/examples/invalid_request"}
+                  missing-write-id: {$ref: "#/components/examples/missing_write_id"}
+                  missing-session: {$ref: "#/components/examples/missing_session"}
+                  request-without-look-first: {$ref: "#/components/examples/request_without_look_first"}
+                  request-too-long: {$ref: "#/components/examples/request_too_long"}
+                  request-on-another-comment: {$ref: "#/components/examples/request_on_another_comment"}
+                  look-first-without-request: {$ref: "#/components/examples/look_first_without_request"}
+                  look-first-not-held: {$ref: "#/components/examples/look_first_not_held"}
+          "403":
+            description: Refused by the access checks, or settles from the agent
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/Problem"}
+                examples:
+                  access-missing: {$ref: "#/components/examples/access_missing"}
+                  cross-site: {$ref: "#/components/examples/cross_site"}
+                  user-only: {$ref: "#/components/examples/user_only"}
+                  no-kind: {$ref: "#/components/examples/no_kind"}
+          "404": {$ref: "#/components/responses/CommentNotFound"}
+          "409":
+            description: Another comment is the stage's open checkpoint request, or the comment is closed, at a limit or claimed, or the write ID was taken
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/PlannedProblem"}
+                examples:
+                  checkpoint-requested: {$ref: "#/components/examples/checkpoint_requested"}
+                  comment-closed: {$ref: "#/components/examples/comment_closed"}
+                  reply-limit: {$ref: "#/components/examples/reply_limit"}
+                  space-full: {$ref: "#/components/examples/space_full"}
+                  claimed: {$ref: "#/components/examples/claimed"}
+                  write-id-reused: {$ref: "#/components/examples/write_id_reused"}
+          "413": {$ref: "#/components/responses/TooLarge"}
+          "415": {$ref: "#/components/responses/NeedsJson"}
+          default: {$ref: "#/components/responses/Unexpected"}
+    passCheckpoint:
+      parameters:
+        - $ref: "#/components/parameters/Project"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      post:
+        tags: [Stage progress]
+        summary: Pass a stage's checkpoint in NEXUS, on what the user saw
+        description: >-
+          The planned form of passCheckpoint, open under D17 of stage 02 but for driven and the
+          kind of browser and device, which are planned whatever D17 decides (SPEC-195). The page
+          sends with the pass what it showed (SPEC-194): commit, the default branch commit of the
+          project's snapshot as the page's data gave it, or revision, the snapshot's revision,
+          where that snapshot names no commit; and, where the pass answers a checkpoint request,
+          the request's comment with entry, the place of its last entry, 0 for the comment's own
+          text and otherwise its reply's seq. The server takes the pass only while these hold.
+          The stored snapshot has that commit, or that revision where it names no commit, or else
+          409 snapshot_changed, with held_commit or revision. The comment is open, on the pass's
+          part and stage, asks for the checkpoint and has that entry as its last, and a pass that
+          names no request finds no open request on the part's stage, or else 409
+          request_changed, with the stage's open request and its last entry in comment and entry
+          when there is one. A comment that the space does not hold is 404. A pass with a request
+          also adds, in the same transaction, the user's reply that settles the comment, in the
+          user's words or else those of the pass's button in the server's language, so that the
+          comment waits for the agent's record (SPEC-196); the reply's limits can refuse the
+          pass. The server records the checkpoint with the commit or the revision, the comment
+          and the entry, with the kind of browser and device that it reads from the request's
+          User-Agent and client hints, in a fixed vocabulary and never as text, and with driven
+          as the page sent it (SPEC-195); none of the three refuses a pass. A write ID sent again
+          gets the first answer, even when the commit changed in between. In phase ②, a
+          workshop's pass keeps its own binding, the board version.
+        security:
+          - accessUser: []
+        x-corthex:
+          id: API-128
+          replaces: passCheckpoint
+          spec: [SPEC-113, SPEC-116, SPEC-139, SPEC-194, SPEC-195, SPEC-196]
+          status: planned
+          decision: D17
+          omit:
+            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PlannedNewCheckpoint"}
+              examples:
+                on-a-request:
+                  summary: A pass that answers the stage's checkpoint request, from the first page or the stage's record
+                  value: {part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, comment: nc_7d1g4k8n2q5t, entry: 0, driven: false}
+                with-words-and-no-request:
+                  summary: A pass from the stage's record when the agent did not ask
+                  value: {part: nexus, stage: 03-user-flow, words: "The flows as drafted.", commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, driven: false}
+                without-a-commit:
+                  summary: A pass on a snapshot that names no commit, from a page that cannot tell whether software drives the browser
+                  value: {part: "", stage: 02-prd, words: "The requirements as drafted.", revision: 3}
+        responses:
+          "201":
+            description: Passed
+            content:
+              application/json:
+                schema: {$ref: "#/components/schemas/Checkpoint"}
+                examples:
+                  passed-on-a-request: {$ref: "#/components/examples/checkpoint_passed_planned"}
+                  passed-without-a-request: {$ref: "#/components/examples/checkpoint_passed_without_request"}
+          "400":
+            description: The body or the write ID is not in its required form, or the pass does not name what the page showed
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/Problem"}
+                examples:
+                  invalid-body: {$ref: "#/components/examples/invalid_request_body"}
+                  missing-write-id: {$ref: "#/components/examples/missing_write_id"}
+                  neither-commit-nor-revision: {$ref: "#/components/examples/pass_without_what_was_seen"}
+                  commit-and-revision: {$ref: "#/components/examples/pass_with_commit_and_revision"}
+                  half-a-request: {$ref: "#/components/examples/pass_with_half_a_request"}
+          "403": {$ref: "#/components/responses/UserWriteRefused"}
+          "404":
+            description: No such project, space or part, or no such comment in the space
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/Problem"}
+                examples:
+                  part-not-found: {$ref: "#/components/examples/part_not_found"}
+                  space-not-found: {$ref: "#/components/examples/space_not_found"}
+                  comment-not-found: {$ref: "#/components/examples/comment_not_found"}
+          "409":
+            description: >-
+              What the page showed has changed, the commit or the checkpoint request; the reply
+              that settles the request finds its comment or the space at a limit; or the write ID
+              was taken by another request. A checkpoint passed again with another write ID is a
+              second checkpoint.
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/PlannedProblem"}
+                examples:
+                  snapshot-changed: {$ref: "#/components/examples/snapshot_changed"}
+                  snapshot-changed-without-commit: {$ref: "#/components/examples/snapshot_changed_without_commit"}
+                  request-changed: {$ref: "#/components/examples/request_changed"}
+                  request-not-named: {$ref: "#/components/examples/request_not_named"}
+                  request-no-longer-open: {$ref: "#/components/examples/request_no_longer_open"}
+                  reply-limit: {$ref: "#/components/examples/reply_limit"}
+                  space-full: {$ref: "#/components/examples/space_full"}
+                  write-id-reused: {$ref: "#/components/examples/write_id_reused"}
+          "413": {$ref: "#/components/responses/CheckpointTooLarge"}
+          "415": {$ref: "#/components/responses/NeedsJson"}
+          default: {$ref: "#/components/responses/Unexpected"}
+    takeRecommendation:
+      parameters:
+        - $ref: "#/components/parameters/Project"
+        - $ref: "#/components/parameters/Comment"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      post:
+        tags: [Discussion]
+        summary: Take the agent's recommendation on a comment, which passes no checkpoint
+        description: >-
+          The planned form of takeRecommendation, open under D17 of stage 02: taking a
+          recommendation passes no checkpoint any more (SPEC-143, SPEC-196). With asks
+          recommended, the server adds the user's reply that settles the comment, in the words
+          for "as recommended" of the server's language, as now. A comment whose last entry asks
+          for a checkpoint is 409 not_recommended: a checkpoint request is opened and passed with
+          passCheckpoint, on what the user saw. checkpoint stays in the answer, for a page that
+          was loaded before the release, and is always null. A comment whose recommendation was
+          taken already changes nothing. It takes no body.
+        security:
+          - accessUser: []
+        x-corthex:
+          id: API-159
+          replaces: takeRecommendation
+          spec: [SPEC-113, SPEC-116, SPEC-143, SPEC-196]
+          status: planned
+          decision: D17
+          omit:
+            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+            "413": the request takes no body
+            "415": the request takes no body
+        responses:
+          "200":
+            description: Taken
+            content:
+              application/json:
+                schema: {$ref: "#/components/schemas/RecommendationAnswer"}
+                examples:
+                  taken: {$ref: "#/components/examples/recommendation_taken_planned"}
+          "400": {$ref: "#/components/responses/InvalidUserAction"}
+          "403": {$ref: "#/components/responses/UserWriteRefused"}
+          "404":
+            description: No such project, space or comment
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/Problem"}
+                examples:
+                  comment-not-found: {$ref: "#/components/examples/comment_not_found"}
+                  project-not-found: {$ref: "#/components/examples/project_not_found"}
+                  space-not-found: {$ref: "#/components/examples/space_not_found"}
+          "409":
+            description: Nothing to take, as for a checkpoint request, at a limit, or the write ID was taken
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/Problem"}
+                examples:
+                  not-recommended: {$ref: "#/components/examples/not_recommended_planned"}
+                  reply-limit: {$ref: "#/components/examples/reply_limit"}
+                  space-full: {$ref: "#/components/examples/space_full"}
+                  write-id-reused: {$ref: "#/components/examples/write_id_reused"}
+          default: {$ref: "#/components/responses/Unexpected"}
+    removeProject:
+      parameters:
+        - $ref: "#/components/parameters/Project"
+      delete:
+        tags: [Snapshots]
+        summary: Remove a project, under the user's own sign-in
+        description: >-
+          The planned form of removeProject (SPEC-202, REQ-293): only the user removes a project,
+          from the panel of the project's data (SCR-130), where the page shows what the removal
+          deletes, as getProjectData gives it, offers the export and has the user type the
+          project's name. The typed name is the page's check, and the request takes no body. The
+          server deletes the snapshot and, with it, the space and everything in it, in one
+          transaction. A removal that carries the service token is 403 user_only, whose detail
+          says where the user removes, so that no session, push job or hub can delete a space;
+          the hub's remove only shows the dry run and that address. A project that the server
+          does not hold, as when the removal is sent twice, is 404.
+        security:
+          - accessUser: []
+        x-corthex:
+          id: API-108
+          replaces: removeProject
+          spec: [SPEC-113, SPEC-115, SPEC-116, SPEC-202]
+          status: planned
+          omit:
+            "400": the request has no body; a name in another form gets 404
+            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+            "409": no state holds a removal back, since the user typed the project's name
+        responses:
+          "200":
+            description: Removed
+            content:
+              application/json:
+                schema: {$ref: "#/components/schemas/Removed"}
+                examples:
+                  removed: {value: {name: corthex, removed: true}}
+          "403":
+            description: Refused by the access checks, or not a person's own sign-in
+            content:
+              application/problem+json:
+                schema: {$ref: "#/components/schemas/Problem"}
+                examples:
+                  user-only: {$ref: "#/components/examples/user_only_removal"}
+                  access-missing: {$ref: "#/components/examples/access_missing"}
+                  access-other-app: {$ref: "#/components/examples/access_other_app"}
+                  cross-site: {$ref: "#/components/examples/cross_site"}
+                  no-kind: {$ref: "#/components/examples/no_kind"}
+          "404": {$ref: "#/components/responses/ProjectNotFound"}
+          default: {$ref: "#/components/responses/Unexpected"}
+    getHome:
+      get:
+        tags: [Workspace]
+        summary: The first page's data, with the last reads and the checkpoint requests whole
+        description: >-
+          The planned form of getHome: as now, with what the design revision of 2026-11-11 adds.
+          Each project's entry of agent names read_at, when the agent last read its agent to-do
+          (SPEC-187, SPEC-188); unread, how many of its entries the agent has not read yet
+          (SPEC-189); and unread_since, the oldest time since which one of those waits, from
+          which the page tells a wait of more than 24 hours. A card already holds pushed_at, when
+          the server stored the snapshot, and commit, which the page shows as the last push; a
+          card whose project has no entry in agent is of a project without a space, which has no
+          agent to-do yet. Open under D17 of stage 02: each card names the snapshot's revision,
+          and an entry of my turn that is a checkpoint request in form holds request, the request
+          whole, so that the entry may offer the pass as its second action, with passCheckpoint
+          (SPEC-196); request is null for any other entry.
+        x-corthex:
+          id: API-151
+          replaces: getHome
+          spec: [SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-188, SPEC-189, SPEC-196]
+          status: planned
+          omit:
+            "400": the request has no input
+            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+            "404": the path names no resource
+            "409": a read clashes with no state
+        responses:
+          "200":
+            description: The first page's data
+            content:
+              application/json:
+                schema: {$ref: "#/components/schemas/Home"}
+                examples:
+                  waiting: {$ref: "#/components/examples/home_planned"}
+                  empty-server:
+                    summary: No snapshot on the server
+                    value: {generated_at: "2026-11-11T08:30:00.000Z", my_turn: {total: 0, entries: []}, agent: [], projects: []}
+          "403": {$ref: "#/components/responses/ReadRefused"}
+          default: {$ref: "#/components/responses/Unexpected"}
+    getStage:
+      parameters:
+        - $ref: "#/components/parameters/Project"
+        - $ref: "#/components/parameters/Part"
+        - $ref: "#/components/parameters/Stage"
+        - $ref: "#/components/parameters/After"
+        - $ref: "#/components/parameters/StageFilter"
+        - $ref: "#/components/parameters/StageWords"
+        - $ref: "#/components/parameters/Group"
+      get:
+        tags: [Workspace]
+        summary: One part's stage, with the project's last push and the agent's last read
+        description: >-
+          The planned form of getStage: as now, with what the design revision of 2026-11-11 adds.
+          project names space, whether the project has a space; read_at, when the agent last
+          read its agent to-do; and unread_since, as getHome gives it, for the head of the
+          workspace (SPEC-188); with pushed_at and commit, which it holds already. Open under D17
+          of stage 02, it also names the snapshot's revision, which a pass names where the
+          snapshot names no commit (SPEC-194). The stage's record shows the stage's open
+          checkpoint request whole above the pass (SPEC-139): the page takes it from the talk's
+          my turn (getStageTalk), the open comment on the stage as a whole whose asks is
+          checkpoint, with its last entry's text and look_first, and names in the pass the
+          comment and the place of that entry, the last reply's seq or 0. The record's
+          checkpoints passed in NEXUS hold what was seen and the kind of browser and device
+          (SPEC-194, SPEC-195).
+        x-corthex:
+          id: API-158
+          replaces: getStage
+          spec: [SPEC-113, SPEC-139, SPEC-146, SPEC-147, SPEC-148, SPEC-188, SPEC-194, SPEC-195]
+          status: planned
+          omit:
+            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+            "409": a read clashes with no state
+        responses:
+          "200":
+            description: The stage
+            content:
+              application/json:
+                schema: {$ref: "#/components/schemas/StageData"}
+                examples:
+                  spec-with-a-request: {$ref: "#/components/examples/stage_data_planned"}
+          "400": {$ref: "#/components/responses/InvalidQuery"}
+          "403": {$ref: "#/components/responses/ReadRefused"}
+          "404": {$ref: "#/components/responses/OverviewNotFound"}
+          default: {$ref: "#/components/responses/Unexpected"}
+    getStageTalk:
+      parameters:
+        - $ref: "#/components/parameters/Project"
+        - $ref: "#/components/parameters/Part"
+        - $ref: "#/components/parameters/Stage"
+        - $ref: "#/components/parameters/TalkItem"
+        - $ref: "#/components/parameters/Closed"
+        - $ref: "#/components/parameters/After"
+      get:
+        tags: [Discussion]
+        summary: One part's stage talk, by turn, with what the agent has not read
+        description: >-
+          The planned form of getStageTalk: as now, with what the design revision of 2026-11-11
+          adds. Each comment and each pending reflection names unread, whether the agent has not
+          read it yet (SPEC-189): true while it waits for the agent, no claim holds it, and the
+          time since which it waits is at or after the space's last read, or the space was never
+          read. A claimed entry shows as taken, without the mark, and an entry that waits for the
+          user or is closed is never unread. Each comment and reply names look_first, so that the
+          talk and the stage's record show a checkpoint request whole (SPEC-197, SPEC-139). The
+          marks come with the read; the page does not update them by itself. The item's talk of
+          getItem and the pages' data hold the same fields.
+        x-corthex:
+          id: API-152
+          replaces: getStageTalk
+          spec: [SPEC-113, SPEC-136, SPEC-150, SPEC-189, SPEC-197]
+          status: planned
+          omit:
+            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
+            "409": a read clashes with no state
+        responses:
+          "200":
+            description: The talk
+            content:
+              application/json:
+                schema: {$ref: "#/components/schemas/StageTalk"}
+                examples:
+                  by-turn: {$ref: "#/components/examples/stage_talk_planned"}
+                  nothing-yet:
+                    summary: No talk on the stage yet
+                    value: {project: corthex, part: nexus, stage: 13-presentation, item: null, mine: {total: 0, entries: []}, agent: {total: 0, entries: []}, apart: {total: 0, entries: []}, closed: {total: 0, entries: []}, reflections: []}
+          "400": {$ref: "#/components/responses/InvalidQuery"}
+          "403": {$ref: "#/components/responses/ReadRefused"}
+          "404": {$ref: "#/components/responses/TalkNotFound"}
+          default: {$ref: "#/components/responses/Unexpected"}
 
   x-corthex:
     errors:
@@ -5109,3 +6542,9 @@ components:
       text_too_long: {status: 413, meaning: "a text is longer than its limit; field and limit name them", message: "This text is too long", client: "the view counts down by the field; the hub reports the field"}
       json_required: {status: 415, meaning: "a body that is not sent as application/json", message: "This could not be sent", client: "the hub reports it as a fault of its own"}
       internal: {status: 500, meaning: "an error inside the server; its log holds only the kind of error and the trace ID", message: "Something went wrong. Try again", client: "the view keeps what it holds and offers to send again; the hub keeps the write in its outbox"}
+    planned_errors:
+      checkpoint_requested: {status: 409, meaning: "the part's stage has an open checkpoint request already; comment names it", message: "This stage has an open checkpoint request", client: "the hub sends the request as a reply on the named comment; the view never sends a request"}
+      snapshot_changed: {status: 409, meaning: "the stored snapshot has another commit than the pass named, or another revision where it names no commit; held_commit names the commit, or revision the revision", message: "The project now shows another commit. Look again before you pass", client: "the view keeps the user's words, reads the stage again and shows it as it is now"}
+      request_changed: {status: 409, meaning: "the checkpoint request that the pass named is closed, has a newer last entry, no longer asks for the checkpoint or is on another part or stage, or the stage has an open request that the pass did not name; comment and entry name the stage's open request and its last entry, when there is one", message: "The checkpoint request changed. Read it again before you pass", client: "the view keeps the user's words and shows the request as it is now"}
+      not_recommended: {status: 409, meaning: "the comment no longer waits for the user, or its last entry asks for no recommendation to take; a checkpoint request is passed and not taken. Replaces the entry of errors when API-159's planned form is built", message: "This no longer waits for your answer", client: "the view marks the entry as answered or closed meanwhile and reads my turn again"}
+      cross_site: {status: 403, meaning: "a browser sent a change, or asked for a project's export, from another site. Replaces the entry of errors when API-178 is built, and the code's title becomes A request from another site", message: "A request from another site is refused", client: "the view offers to open the page at the server's own address"}
