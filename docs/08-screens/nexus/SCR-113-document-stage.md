@@ -4,7 +4,7 @@
 
 Purpose: in a project's workspace the user looks at a stage without a picture, such as the requirements of 02 or the QA cases of 12: its head with its recorded state, last checkpoint, commit and counts, and its items as a list that the user narrows to what has talk, what waits for the user or what is left; selects an item to read it and talk about it; and passes the stage's checkpoint from its record. The same list is the List tab of a picture stage. (FL-118, FL-119)
 
-Path `/p/{project}/{part}/{stage}` for the ten stages other than `01-domain`, `05-erd` and `07-sitemap`, and `#view=list` on those three, on the NEXUS server only (API-154), in the middle of the workspace (SCR-111). Who can see it: anyone Cloudflare Access lets in. Planned in the redesign of 2026-11-06 (SPEC-147, SPEC-148) and built by TASK-274; until TASK-275 draws the picture, a pictured stage shows this list, whose rows lead to `#view=list&item=`. It takes in the stage detail (SCR-104) and the stage overview (SCR-109), whose "what is left" becomes a filter. The rules of [every screen](README.md#every-screen) apply, with those of [the redesign](README.md#the-redesigns-screens).
+Path `/p/{project}/{part}/{stage}` for the ten stages other than `01-domain`, `05-erd` and `07-sitemap`, and `#view=list` on those three, on the NEXUS server only (API-154), in the middle of the workspace (SCR-111). Who can see it: anyone Cloudflare Access lets in. Planned in the redesign of 2026-11-06 (SPEC-147, SPEC-148) and built by TASK-274; until TASK-275 draws the picture, a pictured stage shows this list, whose rows lead to `#view=list&item=`. It takes in the stage detail (SCR-104) and the stage overview (SCR-109), whose "what is left" becomes a filter. What the design revision of 2026-11-11 plans on this screen is in [its last section](#the-design-revision-of-2026-11-11), with a status on each row; until a task builds a row, the sections before it tell the screen as it is. The rules of [every screen](README.md#every-screen) apply, with those of [the redesign](README.md#the-redesigns-screens).
 
 ## Data
 
@@ -39,7 +39,7 @@ Path `/p/{project}/{part}/{stage}` for the ten stages other than `01-domain`, `0
 | SCR-113#not-read | A stage that the project does not read: the head says why, from the state of its text source, and in place of the list "This project does not read this stage: {why}. You can still pass its checkpoint.", with Stage record (SPEC-147, SPEC-148) | API-158#200 with `head.reads` false |
 | SCR-113#no-match | A filter or a search that matches nothing: "Nothing waits for you in this stage.", "Nothing is left in this stage.", "No item of this stage has talk yet." or "Nothing in this stage matches “{q}”.", with Show all, which clears the filter and the search | API-158#200 with no items for `filter` or `q` |
 | SCR-113#stale | A checkpoint passed in NEXUS that no record names, one recorded meanwhile or one withdrawn already: as SCR-112#stale, in the head and the record. A newer push found when the list reads again: SCR-111#stale's bar, and the list keeps what it drew until Load again, with the filter and the search that it was read with; meanwhile the end of the list reads no more | API-158#200, API-129#409 (`checkpoint_recorded`), API-129#200 with `changed: false` |
-| SCR-113#error | The page's request: SCR-111#error. A filter, a search or the next 200 that fail: "Could not update. What you see may be out of date." with Try again, or "Could not load more." with Try again as the last row, while the list stays; the filter that the user picked stays pressed, and Try again reads it. Passing or withdrawing: as SCR-112#error. No connection, no answer in 30 seconds, `429` or `503`: rule 8 | API-158#404 (`project_not_found`, `space_not_found`, `part_not_found`, `not_found`), API-158#default (`internal`, `method_not_allowed`), and the responses of API-128 and API-129 as on SCR-112#error |
+| SCR-113#error | The page's request: SCR-111#error. A filter, a search or the next 200 that fail: "Could not update. What you see may be out of date." with Try again, or "Could not load more." with Try again as the last row, while the list stays; the filter that the user picked stays pressed, and Try again reads it. A query value out of its form, `invalid_request`, is such a failure. Passing or withdrawing: as SCR-112#error. No connection, no answer in 30 seconds, `429` or `503`: rule 8 | API-158#400 (`invalid_request`), API-158#404 (`project_not_found`, `space_not_found`, `part_not_found`, `not_found`), API-158#default (`internal`, `method_not_allowed`), and the responses of API-128 and API-129 as on SCR-112#error |
 | SCR-113#permission | Reading again: the code's message in the bar. Passing or withdrawing: as SCR-112#permission. A sign-in that expired: [rule 7](README.md#every-screen), with the words kept | API-158#403 (`access_missing`, `access_other_app`), API-128#403 and API-129#403 (`user_only`, `access_missing`, `access_other_app`), an `opaqueredirect` reply or a `401` |
 
 Every state of the stage applies, with two of the list's own: not-read, a stage that the project does not read, and no-match, a filter or a search without a match.
@@ -72,3 +72,48 @@ Every state of the stage applies, with two of the list's own: not-read, a stage 
 | The stage record | A sheet of up to 85 per cent of the height | In the side, 400 pixels wide, in the talk's place; from 1,024 to 1,279 pixels, a panel as wide over the stage's right edge, where the talk opens too |
 
 On a screen that a finger selects, the filters, the search, the grouping, Stage record, the rows and, in the record, its buttons take a hit area of 44 pixels (rule 14).
+
+## The design revision of 2026-11-11
+
+What the design revision of 2026-11-11 adds to this screen or changes on it, planned and not built: its checkpoint has not passed ([the review's map](../../reviews/2026-11-11-design-review.md), findings 3 and 25). The sections above tell the list as it is built; a task that builds a row of this section moves it into them. `open (D17)` marks what follows the recommendation of stage 02's decision D17, which is open. The words are in [revision-words.md](revision-words.md), and the rules are those of [the design revision](README.md#the-design-revisions-screens).
+
+### Data of the revision
+
+| Data | Source | Status |
+| --- | --- | --- |
+| The item that an entry of the talk selects | The entry's item (SCR-114); its row is found as the row of an address's `#item=` is, 200 items at a time | planned |
+| For the record: the stage's open checkpoint request with what is left in the stage, what a pass names, and what each checkpoint passed in NEXUS recorded | As SCR-112's revision says: API-152, API-158 (`project`, `record`) | planned; what the pass names open (D17) |
+
+### Actions of the revision
+
+| Action | Result | Failure | Status |
+| --- | --- | --- | --- |
+| Pick an entry of the talk that is on an item | The item is selected in the list ([rule 24](README.md#the-design-revisions-screens), SPEC-209): the list scrolls so that the item's row is in sight and shows it as selected, with the accent's bar and as the current row for screen readers, reading on 200 items at a time until the row is drawn; the item's panel opens with its talk narrowed to it and the picked entry open (SCR-115); and the address gains `item={id}` beside the entry's `talk=` (SCR-114), so that the browser's back button returns to the stage's whole talk at that entry. The List view of a pictured stage does the same, and its address keeps `view=list` | The stage no longer holds the item: nothing is selected, and the entry says so with the item's ID (SCR-114). The list as the user narrowed it does not hold the row: no row is selected, the filter and the search stay, and the item's panel says "This item is not in the list as you narrowed it." with Show all, which clears the filter and the search and selects the row | planned |
+| Stage record, Pass | As SCR-112's revision says: the stage's open request whole above the words box, "Pass the stage {n} checkpoint", and beside each checkpoint passed in NEXUS what it recorded. A stage that the project does not read passes in the same way, with the commit that its head shows (SCR-113#not-read) | SCR-113#stale, SCR-113#error or SCR-113#permission, with the words kept | planned; what the pass names open (D17) |
+
+### States of the revision
+
+| State | What the revision adds or changes | From responses | Status |
+| --- | --- | --- | --- |
+| SCR-113#normal | An item that the talk selected: its row in sight and shown as selected, with its panel beside the list; where the narrowed list does not hold the row, the panel's line with Show all. In the record, the stage's open request whole above the pass, the pass named for the stage, and what each checkpoint passed in NEXUS recorded, as on SCR-112 | API-158#200, API-152#200, API-128#201 | planned; what the pass names open (D17) |
+| SCR-113#stale | A pass refused because what the page showed has changed: as SCR-112#stale's revision says, above the words box, with the words kept and nothing recorded | API-128#409 (`snapshot_changed`, `request_changed`) | open (D17) |
+| SCR-113#error | A pass that fails for its request: as SCR-112#error's revision says, above the words box, with the words kept | API-128#400 (`invalid_request`), API-128#404 (`comment_not_found`), API-128#409 (`reply_limit`, `space_full`) | open (D17) |
+
+The revision adds no state. A reading again that sends a query value out of its form is an error like any reading that fails, which SCR-113#error now names (API-158#400).
+
+### Kinds of cases of the revision
+
+| Kind | What the revision adds |
+| --- | --- |
+| Target | An item that the talk selects and the stage no longer holds: nothing is selected, and the entry says so. An item whose row the narrowed list does not hold: no row is selected, and the item's panel offers Show all |
+| State changes | A push, or the agent's newer request, between the page's drawing and the pass: SCR-113#stale |
+| Repeats | Picking an entry of the item that is selected already keeps the row and the panel, and opens that entry. A pass sent again with its write ID leaves one checkpoint and gets its first answer, even when the commit changed in between (SPEC-194) |
+| Limits | The row of an item that the talk selects is read as an address's is: 200 items at a time, until it is drawn |
+| Screen states | The row that the talk selected and the record with a request in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-113); stage 09 draws them in the redesign's look |
+
+### Layout of the revision
+
+| Region | Under 1,024 pixels, drawn at 390 | From 1,024 pixels, drawn at 1,440 |
+| --- | --- | --- |
+| The item that the talk selected | The Item tab appears and the Talk tab stays in front; the list shows the row selected when the user opens its tab | The row in sight in the list, selected; its panel in the side |
+| The record's request and a passed checkpoint's record | As on SCR-112, in the sheet | As on SCR-112, in the side |

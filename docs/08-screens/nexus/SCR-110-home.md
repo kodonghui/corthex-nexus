@@ -4,7 +4,7 @@
 
 Purpose: the user opens NEXUS on a phone or a PC and sees first what waits for their answer in every project, answers a proposal or the agent's recommendation in place or opens an entry at its place in the talk, sees how many entries wait for the agent and when the agent reads them, and opens a project from its card. (FL-117, FL-118)
 
-Path `/`, on the NEXUS server only (API-155); every page's wordmark leads here. Who can see it: anyone Cloudflare Access lets in. Planned in the redesign of 2026-11-06 (SPEC-143 to SPEC-145, SPEC-154) and built by TASK-271 to TASK-273; the hub page, SCR-101, moved to `/hub` as SCR-117. The rules of [every screen](README.md#every-screen) apply, with those of [the redesign](README.md#the-redesigns-screens).
+Path `/`, on the NEXUS server only (API-155); every page's wordmark leads here. Who can see it: anyone Cloudflare Access lets in. Planned in the redesign of 2026-11-06 (SPEC-143 to SPEC-145, SPEC-154) and built by TASK-271 to TASK-273; the hub page, SCR-101, moved to `/hub` as SCR-117. What the design revision of 2026-11-11 plans on this screen is in [its last section](#the-design-revision-of-2026-11-11), with a status on each row; until a task builds a row, the sections before it tell the screen as it is. The rules of [every screen](README.md#every-screen) apply, with those of [the redesign](README.md#the-redesigns-screens).
 
 ## Data
 
@@ -75,3 +75,64 @@ Every state of the stage applies, with two of the page's own: nothing-waits, an 
 | The notices | Each a bar under the top bar, across the width | The same, above my turn |
 
 On a screen that a finger selects, the links of the agent to-do take a line of 44 pixels, and so do an entry's place and the links under its answer, whose lines grow to it (rule 14). An entry's place keeps the project's title to two fifths of its line, cut with an ellipsis, and wraps under 1,024 pixels, so that the stage and the item stay readable.
+
+## The design revision of 2026-11-11
+
+What the design revision of 2026-11-11 adds to this screen or changes on it, planned and not built: its checkpoint has not passed ([the review's map](../../reviews/2026-11-11-design-review.md), findings 1, 3 and 15). The sections above tell the page as it is built; a task that builds a row of this section moves it into them. `open (D17)` marks what follows the recommendation of stage 02's decision D17, which is open, and goes if the maintainer decides otherwise. The words are in [revision-words.md](revision-words.md), and the rules are those of [the design revision](README.md#the-design-revisions-screens).
+
+### Data of the revision
+
+| Data | Source | Status |
+| --- | --- | --- |
+| On each card: when the server last stored the project's snapshot, `pushed_at`, by the server's clock, with the first 7 characters of its commit or "No commit". It takes the place of the snapshot's own time, which the card shows now (SPEC-145, SPEC-188) | API-151 (`projects`), first from the page's data | planned |
+| On each card and in each project's lines of the agent to-do: the agent's last read of the project's agent to-do, `read_at`, null before the first read; how many entries the agent has not read, `unread`; and since when the oldest of them waits, `unread_since`, from which the page works out the mark of a long wait ([rule 20](README.md#the-design-revisions-screens)). A project without an entry in `agent` has no space, so no agent to-do yet (SPEC-144, SPEC-188, SPEC-189) | API-151 (`agent`), first from the page's data | planned |
+| In each entry of my turn that is a checkpoint request in form: the request whole, `request`: the place of its last entry, `entry`; that entry's whole text; the thing to look at first, `look_first`, an item with its ID, title and stage and whether a stage holds it, or an address; and what is left in the stage, `left`, the counts of its open discrepancies, its other open comments and its pending reflections. Null for any other entry, for a request stored without the form and for a workshop's request, which show their first 300 characters as now (SPEC-196) | API-151 (`my_turn`) | open (D17) |
+| What a pass names: the commit that the project's card shows or, where the snapshot names none, its `revision` | API-151 (`projects`) | open (D17) |
+| The user's words for a pass, up to 2,000 characters, with the write ID | The browser's storage, for the request's comment (rule 5) | open (D17) |
+| A project that was removed a moment ago: its name | The browser's session storage, where the project's data left it (SCR-130), read once and emptied | planned |
+
+### Actions of the revision
+
+| Action | Result | Failure | Status |
+| --- | --- | --- | --- |
+| Open the request, the first action of a checkpoint request's entry | The stage's workspace with the talk at the request, `/p/{project}/{part}/{stage}#talk={comment}`, beside the stage that it asks about, where the stage's record passes it (SCR-112, SCR-113). It takes the place of Open on such an entry and is drawn as the entry's first, filled button | SCR-114's own states | open (D17) |
+| Pass the stage {n} checkpoint, the second action of an entry that shows the request whole | The checkpoint passes with what the entry showed: the commit or the revision, and the request's comment and last entry (API-128). The user's reply settles the request's comment, with the user's words or, without them, the button's. The entry stays where it was, marked "Checkpoint passed. You can withdraw it in the stage record until it is recorded.", with a link to the stage's record, and my turn's count drops ([choice 19](README.md#choices-this-stage-made)). "Pass as recommended" goes, and API-159 passes no checkpoint | SCR-110#stale, SCR-110#error or SCR-110#permission, with the entry and the words kept | open (D17) |
+| Add your words, on such an entry | A box for the pass's words opens in the entry, up to 2,000 characters; without words the pass holds the button's words | none | open (D17) |
+| Open the thing to look at first | An item: its stage's page with `#item={id}`, at the stage that holds it. An address: a new tab, without a referrer; the page itself never loads it ([rule 22](README.md#the-design-revisions-screens)) | SCR-115#gone on that page | open (D17) |
+| Close, on the bar after a removal | The bar goes | none | planned |
+
+### States of the revision
+
+| State | What the revision adds or changes | From responses | Status |
+| --- | --- | --- | --- |
+| SCR-110#loading | The server draws the times with how long ago, and the mark of a long wait, as they are when it serves the page, in the boxes that the code keeps, so that nothing moves when the code shows them in the browser's time zone ([rule 19](README.md#the-design-revisions-screens)). "Open the request" and the thing to look at first are links that work at once; the pass and "Add your words" show disabled until the code runs | API-155#200 | planned; the request's links and the pass open (D17) |
+| SCR-110#normal | In my turn, a checkpoint request in form shows whole: its kind, place and "Agent · {time}" as now; the whole text of its last entry, up to ten lines; "Look at first", a link with the item's ID and title or the address's host; "Commit {commit}"; and "Left in this stage", with the counts of its open discrepancies, its other open comments and its pending reflections. Its buttons are "Open the request", the first, and "Pass the stage {n} checkpoint", with "Add your words". A request that does not show whole, one stored without the form, a workshop's, or one whose thing to look at first no stage holds now, which then shows as text with its ID, offers only "Open the request". A recommendation keeps "As recommended" and Reply. In the agent to-do, under each project's name: "Pushed {time}" and "Read by the agent {time}" or "Not read by the agent yet", each time with how long ago; beside its counts, "{n} not read yet"; and, while an entry has waited unread for more than 24 hours, the mark "Unread for more than 24 hours", a shape and words, with its line on what that means. On each card, in the place of the commit and the time: the first 7 characters of the commit or "No commit", and "Pushed {time}"; then "Read by the agent {time}", "Not read by the agent yet" or, for a project without a space, "No agent to-do yet", with the same mark | API-151#200, API-128#201 | planned; the request whole and the pass open (D17) |
+| SCR-110#stale | A pass refused because what the entry showed has changed, under the entry: `snapshot_changed`, "The project now shows another commit: {commit}. Look again before you pass.", or `request_changed`, "The checkpoint request changed. Read it again before you pass." Nothing is recorded and the user's words stay; my turn reads again, and the entry shows the request as it is now, with the commit that the project now shows, or leaves my turn when the request is closed. The next pass names what the entry then shows. `not_recommended` on a checkpoint request, as from a page loaded before the release: its new words, and my turn reads again | API-128#409 (`snapshot_changed`, `request_changed`), API-159#409 (`not_recommended`) | open (D17) |
+| SCR-110#removed | After a removal in the project's data (SCR-130): "{project} was removed from this server. Its sources stay in Git, and the files on your devices stay." in a bar under the top bar, with Close; under it the page as its data says, without the project's card and entries: SCR-110#normal, SCR-110#nothing-waits or SCR-110#empty. The bar shows once: a page loaded again does not show it, and where the browser keeps no session storage it never shows, and the missing card tells | API-108#200 on SCR-130, then API-155#200 | planned |
+| SCR-110#error | A pass that fails: its code's message under the entry, with the trace ID and Try again, which sends the same write ID, and the words kept: `invalid_request`, by the words' box, or with Load again for a pass that names no commit, as from a page loaded before the release; `cross_site`, with a link to the page at the server's own address; `comment_not_found` and `space_not_found`, after which my turn reads again; `part_not_found`, with "Open the request", which opens the entry in the talk; `reply_limit` and `space_full`, whose messages say what is full, with "Open the request", since the stage's record passes without the request once its comment is marked answered; `write_id_reused`, whose Try again makes a new write ID; `text_too_long` by the box, and `body_too_large`; `json_required`, `internal` and `method_not_allowed`. With its planned form, API-159 no longer answers `part_not_found` | API-128#400 (`invalid_request`), API-128#403 (`cross_site`), API-128#404 (`part_not_found`, `space_not_found`, `comment_not_found`), API-128#409 (`reply_limit`, `space_full`, `write_id_reused`), API-128#413 (`text_too_long`, `body_too_large`), API-128#415 (`json_required`), API-128#default (`internal`, `method_not_allowed`) | open (D17) |
+| SCR-110#permission | A pass that was not sent with a person's own sign-in: "Only you can do this, signed in yourself." under the entry, with the words kept; `access_missing` and `access_other_app` the same way | API-128#403 (`user_only`, `access_missing`, `access_other_app`) | open (D17) |
+
+The revision adds one state of the page's own, removed. Nothing-waits and empty stay as they are: an empty server has no card to show a time on.
+
+### Kinds of cases of the revision
+
+| Kind | What the revision adds |
+| --- | --- |
+| Input | The pass's words, up to 2,000 characters, kept in the entry's box and in the browser's storage for the request's comment, with the write ID (rule 5); empty words are left out, and the settling reply then holds the button's words (SPEC-196) |
+| Target | A request whose thing to look at first no stage holds now: text with its ID, and only "Open the request". A request on a part that the snapshot no longer holds: `part_not_found`, with "Open the request" |
+| State changes | A push, or the agent's newer entry, between the page's drawing and the pass: SCR-110#stale. A project removed a moment ago: SCR-110#removed |
+| Repeats | The pass is disabled and says "Sending…" while it runs; sent again with its write ID it leaves one checkpoint and gets its first answer, even when the commit changed in between (SPEC-194) |
+| Concurrency | The agent's read moves the last read and empties the count of what it has not read when the page reads again; the page does not update by itself (SPEC-189) |
+| Limits | A request shows whole up to its ten lines and 1,200 characters (SPEC-197); an address to look at first shows its host and what follows, cut after 120 characters |
+| Outside services | The address to look at first is the one link of the page that can leave the server: it opens only when the user presses it, in a new tab without a referrer, and the page never loads it (REQ-147) |
+| Data exposure | The request's text and the address show as text (REQ-098); the times and counts name no person, and the session's label of the last read shows only in the project's data (SCR-130) |
+| Screen states | The new and the changed states in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-110); stage 09 draws them in the redesign's look |
+
+### Layout of the revision
+
+| Region | Under 1,024 pixels, drawn at 390 | From 1,024 pixels, drawn at 1,440 |
+| --- | --- | --- |
+| A checkpoint request's entry | The whole text; then "Look at first", the commit and what is left, each on a line of its own; the words' box when it is open; then the two buttons one under the other, each across the width and 44 pixels high, "Open the request" first | The text in the entry's width; "Look at first", the commit and what is left on one line that wraps; the words' box under it when it is open; the two buttons at the entry's end, "Open the request" first |
+| The agent to-do's times | Two lines under the project's name, and the mark with its line under them | The same |
+| A card's times | Two lines under the repository: the commit and the push, then the agent's read; the mark with its line under them | The same two lines in the place of the commit and the time |
+| The bar after a removal | Under the top bar, across the width, Close 44 pixels high | Under the top bar, across the page's column |

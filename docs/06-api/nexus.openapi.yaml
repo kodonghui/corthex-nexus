@@ -6130,6 +6130,7 @@ components:
                 schema: {$ref: "#/components/schemas/Problem"}
                 examples:
                   access-missing: {$ref: "#/components/examples/access_missing"}
+                  access-other-app: {$ref: "#/components/examples/access_other_app"}
                   cross-site: {$ref: "#/components/examples/cross_site"}
                   user-only: {$ref: "#/components/examples/user_only"}
                   no-kind: {$ref: "#/components/examples/no_kind"}

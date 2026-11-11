@@ -4,7 +4,7 @@
 
 목적: 사용자는 프로젝트 작업 공간의 어느 단계 옆에서든 그 단계의 의견과 제안을 차례별로 읽습니다: 사용자를 기다리는 것을 먼저, 그다음 AI를 기다리는 것과 세션이 그것을 맡았는지, 그리고 접힌 닫힌 것. 고른 항목으로 대화를 좁히고, 항목이나 단계 전체에 의견을 남기며, 답글을 달고, 의견을 정하고, 답이 났다고 표시하고, 제안을 받거나 버립니다. (FL-117, FL-119)
 
-경로 `/p/{project}/{part}/{stage}#talk={comment}`, 또는 그것이 없는 단계의 페이지. NEXUS 서버에만 있고(API-154), 작업 공간(SCR-111)의 옆에 있습니다. 볼 수 있는 사람: Cloudflare Access가 들여보낸 누구나. 2026-11-06 다시 디자인에서 계획한 화면입니다(SPEC-150, SPEC-151, 그리고 SPEC-126, SPEC-127, SPEC-131, SPEC-133). 의견(SCR-107)과 제안(SCR-108)을 받아들이고, 그 주소는 여기로 이어집니다(SPEC-154). [모든 화면](README.ko.md#모든-화면)과 [다시 디자인](README.ko.md#다시-디자인의-화면)의 규칙을 따릅니다.
+경로 `/p/{project}/{part}/{stage}#talk={comment}`, 또는 그것이 없는 단계의 페이지. NEXUS 서버에만 있고(API-154), 작업 공간(SCR-111)의 옆에 있습니다. 볼 수 있는 사람: Cloudflare Access가 들여보낸 누구나. 2026-11-06 다시 디자인에서 계획한 화면입니다(SPEC-150, SPEC-151, 그리고 SPEC-126, SPEC-127, SPEC-131, SPEC-133). 의견(SCR-107)과 제안(SCR-108)을 받아들이고, 그 주소는 여기로 이어집니다(SPEC-154). 2026-11-11의 설계 수정이 이 화면에 계획한 것은 [마지막 절](#2026-11-11의-설계-수정)에 행마다 진행과 함께 있고, 작업이 행을 만들기 전까지는 그 앞의 절들이 지금의 화면을 적습니다. [모든 화면](README.ko.md#모든-화면)과 [다시 디자인](README.ko.md#다시-디자인의-화면)의 규칙을 따릅니다.
 
 ## 자료
 
@@ -40,9 +40,9 @@
 | SCR-114#narrowed | 항목을 고름: "{id}의 대화"에 그 항목의 줄만, 따로인 것과 닫힌 것도 함께 보입니다. 칸은 "{id}에 의견 남기기"라고 말하고, 돌아가는 "단계의 대화 모두"가 있습니다(REQ-230) | `item`을 단 API-152#200 |
 | SCR-114#empty | 단계에 아직 대화가 없음: 칸 위에 "이 단계에는 아직 대화가 없습니다. 항목을 골라 그 항목에 대해 말하거나, 단계 전체에 대해 써 주세요." 의견이 없는 항목으로 좁혔을 때: "{id}에 아직 의견이 없습니다." | 줄이 없는 API-152#200 |
 | SCR-114#stale | 그사이 다른 탭에서 닫히거나 답이 난 의견에 한 쓰기: 그 상태와 "이 의견은 이미 닫혀 있었습니다."가 보이고 대화를 다시 읽습니다. 줄을 연 뒤에 온 답글: 그 옆에 "새 답글". 더는 열려 있지 않은 제안: "이 제안은 이제 열려 있지 않습니다. 상태: {state}" 바뀐 반영: "이 반영은 그사이 바뀌었습니다. 지금 상태: {state}" 이미 버린 반영: "이 반영은 이미 버려져 있었습니다." 저마다 대화를 다시 읽고, 쓰던 글은 남습니다 | `changed: false`인 API-120#200, API-124#409와 API-125#409(`proposal_not_open`), API-127#409(`edit_state`), `changed: false`인 API-127#200, API-152#200, API-114#200 |
-| SCR-114#error | 실패한 쓰기: 칸 위에 그 코드의 메시지와, 글을 그대로 두고 같은 쓰기 ID로 보내는 다시 시도: 13개 밖의 단계 키처럼 그 필드 옆의 `invalid_request`, 서버 자체 주소의 페이지로 가는 링크를 단 `cross_site`, `part_not_found`와 `space_not_found`, 그사이 풀린 어긋남에 단 의견의 `discrepancy_not_found`(그 뒤 대화를 다시 읽음), `comment_limit`과 `space_full`, 글을 단계의 칸으로 옮기는 "새 의견으로 남기기"를 단 `reply_limit`, 다시 시도가 새 쓰기 ID를 만드는 `write_id_reused`, 칸 옆의 `text_too_long`과 `body_too_large`, 그리고 `json_required`, `internal`, `method_not_allowed`. 다시 읽기: "새로 읽지 못했습니다. 보이는 내용이 최신이 아닐 수 있습니다."와 다시 시도. 줄 열기: "이 의견을 불러오지 못했습니다."나 "이 제안을 불러오지 못했습니다."와 다시 시도. 연결 없음, 30초 안에 답 없음, `429`나 `503`: 규칙 8 | API-152#404(`project_not_found`, `space_not_found`, `part_not_found`, `not_found`), API-152#default(`internal`, `method_not_allowed`), API-118#400(`invalid_request`), API-118#403(`cross_site`), API-118#404(`part_not_found`, `discrepancy_not_found`, `project_not_found`, `space_not_found`), API-118#409(`comment_limit`, `space_full`, `write_id_reused`), API-118#413(`text_too_long`, `body_too_large`), API-118#415(`json_required`), API-118#default(`internal`, `method_not_allowed`), API-119#400(`invalid_request`), API-119#403(`cross_site`), API-119#404(`project_not_found`, `space_not_found`), API-119#409(`reply_limit`, `space_full`, `write_id_reused`), API-119#413(`text_too_long`, `body_too_large`), API-119#415(`json_required`), API-119#default(`internal`, `method_not_allowed`), API-120#400(`invalid_request`), API-120#403(`cross_site`), API-120#409(`write_id_reused`), API-120#default(`internal`, `method_not_allowed`), API-124#400, API-125#400, API-127#400(`invalid_request`), API-124#403, API-125#403, API-127#403(`cross_site`), API-124#409(`reflection_limit`, `write_id_reused`), API-125#409, API-127#409(`write_id_reused`), API-124#default, API-125#default, API-127#default(`internal`, `method_not_allowed`), API-114#default, API-115#default, API-116#default(`internal`, `method_not_allowed`) |
-| SCR-114#permission | 거절된 쓰기: 칸 위에 그 코드의 메시지가 보이고 글은 그대로 남습니다: `no_kind`의 "이 로그인으로는 여기에 쓸 수 없습니다. Access 정책을 확인해 주세요.", 사람 본인의 로그인이 필요한 받기, 버리기, 반영 버리기의 "본인이 직접 로그인해야 할 수 있습니다."(SPEC-116), 그리고 `access_missing`과 `access_other_app`. 끝난 로그인: [규칙 7](README.ko.md#모든-화면), "다시 로그인", 글은 그 칸과 브라우저의 저장소에 남습니다 | API-152#403, API-114#403, API-115#403, API-116#403(`access_missing`, `access_other_app`), API-118#403, API-119#403, API-120#403(`access_missing`, `access_other_app`, `no_kind`), API-124#403, API-125#403, API-127#403(`user_only`, `access_missing`, `access_other_app`), `opaqueredirect` 응답이나 `401` |
-| SCR-114#gone | 주소나 링크가 서버에 없는 의견이나 제안을 가리킴: 대화 맨 위에 "이 의견은 서버에 없습니다."나 "이 제안은 서버에 없습니다."가 보이고, 그 아래에 단계의 대화가 있습니다. 닫힌 것은 닫힌 대화에서 펼쳐진 채 그 상태와 함께 열립니다(SPEC-154). 연 동안 지워진 줄: 그 자리에 같은 말이 보이고 대화를 다시 읽습니다. 서버에 더는 없는 반영(대화가 더는 늘어놓지 않는 반영을 읽거나 사용자가 반영을 버릴 때): 그 제안의 줄에 "이 반영은 서버에 없습니다." | API-114#404(`comment_not_found`, `project_not_found`), API-115#404(`proposal_not_found`, `project_not_found`), API-116#404(`edit_not_found`, `project_not_found`), API-119#404, API-120#404(`comment_not_found`), API-124#404, API-125#404(`proposal_not_found`), API-127#404(`edit_not_found`, `project_not_found`) |
+| SCR-114#error | 실패한 쓰기: 칸 위에 그 코드의 메시지와, 글을 그대로 두고 같은 쓰기 ID로 보내는 다시 시도: 13개 밖의 단계 키처럼 그 필드 옆의 `invalid_request`, 서버 자체 주소의 페이지로 가는 링크를 단 `cross_site`, `part_not_found`와 `space_not_found`, 그사이 풀린 어긋남에 단 의견의 `discrepancy_not_found`(그 뒤 대화를 다시 읽음), `comment_limit`과 `space_full`, 글을 단계의 칸으로 옮기는 "새 의견으로 남기기"를 단 `reply_limit`, 다시 시도가 새 쓰기 ID를 만드는 `write_id_reused`, 칸 옆의 `text_too_long`과 `body_too_large`, 그리고 `json_required`, `internal`, `method_not_allowed`. 다시 읽기: "새로 읽지 못했습니다. 보이는 내용이 최신이 아닐 수 있습니다."와 다시 시도. 꼴이 다른 쿼리 값의 `invalid_request`도 같습니다. 줄 열기: "이 의견을 불러오지 못했습니다."나 "이 제안을 불러오지 못했습니다."와 다시 시도. 연결 없음, 30초 안에 답 없음, `429`나 `503`: 규칙 8 | API-152#400(`invalid_request`), API-152#404(`project_not_found`, `space_not_found`, `part_not_found`, `not_found`), API-152#default(`internal`, `method_not_allowed`), API-118#400(`invalid_request`), API-118#403(`cross_site`), API-118#404(`part_not_found`, `discrepancy_not_found`, `project_not_found`, `space_not_found`), API-118#409(`comment_limit`, `space_full`, `write_id_reused`), API-118#413(`text_too_long`, `body_too_large`), API-118#415(`json_required`), API-118#default(`internal`, `method_not_allowed`), API-119#400(`invalid_request`), API-119#403(`cross_site`), API-119#404, API-120#404(`project_not_found`, `space_not_found`), API-119#409(`reply_limit`, `space_full`, `write_id_reused`), API-119#413(`text_too_long`, `body_too_large`), API-119#415(`json_required`), API-119#default(`internal`, `method_not_allowed`), API-120#400(`invalid_request`), API-120#403(`cross_site`), API-120#409(`write_id_reused`), API-120#default(`internal`, `method_not_allowed`), API-124#400, API-125#400, API-127#400(`invalid_request`), API-124#403, API-125#403, API-127#403(`cross_site`), API-124#409(`reflection_limit`, `write_id_reused`), API-125#409, API-127#409(`write_id_reused`), API-124#default, API-125#default, API-127#default(`internal`, `method_not_allowed`), API-114#default, API-115#default, API-116#default(`internal`, `method_not_allowed`) |
+| SCR-114#permission | 거절된 쓰기: 칸 위에 그 코드의 메시지가 보이고 글은 그대로 남습니다: `no_kind`의 "이 로그인으로는 여기에 쓸 수 없습니다. Access 정책을 확인해 주세요.", 사람 본인의 로그인이 필요한 받기, 버리기, 반영 버리기의 "본인이 직접 로그인해야 할 수 있습니다."(SPEC-116), 그리고 `access_missing`과 `access_other_app`. 끝난 로그인: [규칙 7](README.ko.md#모든-화면), "다시 로그인", 글은 그 칸과 브라우저의 저장소에 남습니다 | API-152#403, API-114#403, API-115#403, API-116#403(`access_missing`, `access_other_app`), API-118#403, API-120#403(`access_missing`, `access_other_app`, `no_kind`), API-119#403(`access_missing`, `access_other_app`, `no_kind`, `user_only`), API-124#403, API-125#403, API-127#403(`user_only`, `access_missing`, `access_other_app`), `opaqueredirect` 응답이나 `401` |
+| SCR-114#gone | 주소나 링크가 서버에 없는 의견이나 제안을 가리킴: 대화 맨 위에 "이 의견은 서버에 없습니다."나 "이 제안은 서버에 없습니다."가 보이고, 그 아래에 단계의 대화가 있습니다. 닫힌 것은 닫힌 대화에서 펼쳐진 채 그 상태와 함께 열립니다(SPEC-154). 연 동안 지워진 줄: 그 자리에 같은 말이 보이고 대화를 다시 읽습니다. 서버에 더는 없는 반영(대화가 더는 늘어놓지 않는 반영을 읽거나 사용자가 반영을 버릴 때): 그 제안의 줄에 "이 반영은 서버에 없습니다." | API-114#404(`comment_not_found`, `project_not_found`), API-115#404(`proposal_not_found`, `project_not_found`), API-116#404(`edit_not_found`, `project_not_found`), API-119#404, API-120#404(`comment_not_found`), API-124#404, API-125#404(`proposal_not_found`, `project_not_found`), API-127#404(`edit_not_found`, `project_not_found`) |
 
 단계의 모든 상태가 해당하고, 대화 자신의 상태 두 개가 더해집니다: 한 항목의 대화인 narrowed와, 0.2의 패널에서처럼 gone. 대화는 페이지가 다시 보일 때와 쓰기마다 다시 읽고, 스스로 새로 바뀌지는 않습니다(SPEC-150).
 
@@ -71,3 +71,54 @@
 | 차례의 수 | 제목 아래 두 반쪽, 저마다 높이 44픽셀이고, 누르면 대화를 그 묶음으로 내립니다 | 같음, 옆의 머리에 |
 | 줄 | 저마다 너비를 가로지르는 카드. 그 단추는 따로 한 줄에, 높이 44픽셀 | 저마다 옆의 카드. 그 단추는 끝에 |
 | 칸 | 탭의 맨 아래, 시스템 막대 위에 고정되고, 높이의 40퍼센트까지 늘어남 | 옆의 맨 아래에 고정되고, 240픽셀까지 늘어남 |
+
+## 2026-11-11의 설계 수정
+
+2026-11-11의 설계 수정이 이 화면에 더하거나 바꾸는 것이며, 계획일 뿐 만들지 않았습니다: 그 확인 지점은 아직 통과하지 않았습니다([검토 지도](../../reviews/2026-11-11-design-review.ko.md), 발견 1·3·25). 위의 절들은 다시 디자인의 확인 지점 3이 통과시킨 대로의 대화를 적습니다. 설계 수정의 확인 지점이 통과하면 TASK-276이 이 절의 행과 함께 이 대화를 만들고, 그 행을 위의 절로 옮깁니다. `open (D17)`은 열려 있는 02단계 결정 D17의 추천을 따르는 것을 가리킵니다. 말은 [revision-words.ko.md](revision-words.ko.md)에 있고, 규칙은 [설계 수정](README.ko.md#설계-수정의-화면)의 것입니다.
+
+### 설계 수정의 자료
+
+| 자료 | 출처 | 진행 |
+| --- | --- | --- |
+| AI 차례의 줄마다, 곧 의견이나 반영 대기마다: AI가 아직 읽지 않았는지 `unread`. 서버가 그 줄이 언제부터 기다리는지와 공간의 마지막 읽음으로 알아냅니다(SPEC-189) | API-152, 먼저 페이지의 자료에서 | planned |
+| 확인 요청과, 확인 지점을 청하는 그 글마다: 먼저 볼 것 `look_first`, 곧 항목의 ID나 `https` 주소. 다른 의견과 설계 수정 전에 저장된 요청에서는 null입니다(SPEC-197, SPEC-198) | API-152, 답글은 API-114 | planned |
+| 사용자가 고른 줄. 항목의 대화에서 열고, 돌아갈 자리가 됩니다 | `#` 뒤의 페이지 주소: `item=` 옆의 `talk=`. 단계 전체의 대화에서의 자리는 열려 있는 동안 페이지에 둡니다 | planned |
+
+### 설계 수정의 동작
+
+| 동작 | 결과 | 실패 | 진행 |
+| --- | --- | --- | --- |
+| 항목에 달린 줄 열기, 또는 그 줄의 항목 ID 누르기 | 줄이 지금처럼 열리고, 단계에서 그 항목이 골라집니다([규칙 24](README.ko.md#설계-수정의-화면), SPEC-209): 그림에서는 SCR-112의 설계 수정이, 목록에서는 SCR-113의 설계 수정이 말하는 대로. 옆에는 항목의 패널이 그 항목으로 좁힌 대화와 함께, 그 줄을 열어 보이는 곳에 둔 채 보이고(SCR-115, SCR-114#narrowed), 주소는 브라우저 방문 기록의 한 걸음으로 `talk={comment}`와 `item={id}`를 지닙니다. 브라우저의 뒤로 단추, 항목의 닫기, 또는 "단계의 대화 모두"는 그 줄이 보이고 포커스가 놓인 단계 전체의 대화로 돌아옵니다. 단계 전체에 달린 줄은 열리기만 하고 아무것도 고르지 않습니다. 어긋남에 달린 줄은 그 어긋남의 첫 항목을 고릅니다 | 따로 보이는 줄에서처럼 단계가 더는 그 항목을 지니지 않음: 줄은 열리고 아무것도 고르지 않으며, "{id} 항목은 이제 이 단계에 없습니다."라고 말합니다(REQ-162). 그림이 최신이 아니거나 그려지지 않았거나, 좁혀 놓은 목록에 그 행이 없음: SCR-112와 SCR-113의 설계 수정이 말하는 대로 | planned |
+| 단계 기록, 내 차례의 확인 요청 줄에서 | 단계 기록이 열리고, 남길 말 칸 위에 요청이 통째로, 그리고 통과가 있습니다(SCR-112, SCR-113). 이런 줄에서 "추천대로 통과"를 대신하고, 줄의 첫째인 채운 단추로 그립니다: 대화 자신은 확인 지점을 통과시키지 않습니다. 답하기는 모든 줄에 남고, 추천은 "추천대로"를 그대로 둡니다 | 없음 | open (D17) |
+| 먼저 볼 것 열기, 확인 요청의 줄에서 | 항목의 ID: 단계 옆에 그 항목의 패널, `#item={id}`(SCR-115). 프로젝트의 어느 단계가 그 항목을 지니든 그렇고, 이 단계가 지닌 항목이면 단계에서 골라집니다. 주소: 리퍼러 없이 새 탭. 페이지 자신은 그 주소를 결코 불러오지 않습니다([규칙 22](README.ko.md#설계-수정의-화면)) | 지금 어느 단계도 지니지 않는 항목이면 SCR-115#gone | planned |
+
+### 설계 수정의 상태
+
+| 상태 | 설계 수정이 더하거나 바꾸는 것 | 이어지는 응답 | 진행 |
+| --- | --- | --- | --- |
+| SCR-114#normal | AI 차례에서, AI가 아직 읽지 않은 줄은 "{time}부터 AI를 기다림" 뒤에 "AI가 아직 읽지 않음"이라 하고, 반영을 기다리는 받은 제안은 "받음, 아직 반영 전" 옆에 그렇게 말합니다. 세션이 맡은 줄은 표시 없이 "{time}에 AI가 맡음"이라 합니다. 표시가 없는 줄은 작업 공간의 머리가 보여 주는(SCR-111) AI의 마지막 읽음보다 오래됐다는 뜻일 뿐입니다: 대화는 그 이상을 말하지 않습니다. 내 차례에서 확인 요청의 줄은 글 전체, 항목의 ID나 주소의 호스트를 단 링크 "먼저 볼 것", 그리고 첫째 단추 "단계 기록"과 답하기를 보입니다. 형식 없이 저장된 요청은 "먼저 볼 것" 없이 있는 그대로 보입니다. 두 링크는 서버가 그린 페이지에 이미 있습니다. 단계가 더는 지니지 않는 항목의 줄은 고르면: "{id} 항목은 이제 이 단계에 없습니다." | API-152#200, API-114#200 | planned. 통과 자리의 "단계 기록"은 open (D17) |
+| SCR-114#narrowed | 줄에서도 이릅니다: 그 줄의 항목이 단계에서 골라지고, 대화는 그 항목의 줄들을 고른 줄을 열어 보이는 곳에 둔 채 보이며, "단계의 대화 모두"나 브라우저의 뒤로 단추가 전체 대화의 그 줄로 돌아옵니다 | `item`을 단 API-152#200 | planned |
+| SCR-114#error | 확인 요청만 받는 `checkpoint_requested`, 보기는 확인 요청을 보내지 않습니다: 혹시 오면 다른 코드처럼 칸 위에 그 메시지 | API-118#409, API-119#409(`checkpoint_requested`) | planned |
+
+설계 수정은 상태를 더하지 않습니다. 꼴이 다른 쿼리 값을 보낸 다시 읽기는 실패한 여느 읽기와 같은 오류이며, 이제 SCR-114#error가 이를 적습니다(API-152#400).
+
+### 설계 수정의 경우의 수
+
+| 종류 | 설계 수정이 더하는 것 |
+| --- | --- |
+| 대상 | 단계가 더는 지니지 않는 항목의 줄: 골라도 아무것도 고르지 않고, 줄이 그 항목의 ID와 함께 그렇게 말합니다. 지금 어느 단계도 지니지 않는 먼저 볼 것: 찾기를 단 SCR-115#gone |
+| 상태 변화 | 대화가 열린 동안 온 AI의 더 새 요청은 대화를 다시 읽을 때, 열린 요청의 답글로 보입니다: 한 부분의 단계에는 열린 요청이 하나입니다(SPEC-197) |
+| 되풀이 | 이미 열린 줄을 열면 지금처럼 접히고, 항목은 사용자가 닫을 때까지 골라진 채 남습니다 |
+| 동시성 | AI가 읽으면 대화를 다시 읽을 때 표시가 없어집니다. 대화는 스스로 새로 고치지 않습니다(SPEC-150) |
+| 상한 | 표시는 서버의 `unread`이며, 대화는 받은 대로 보일 뿐 스스로 알아내지 않습니다. 요청의 글은 열 줄과 1,200자까지여서 통째로 보입니다(SPEC-197). 먼저 볼 것인 주소는 호스트와 그 뒤를 120자에서 잘라 보입니다 |
+| 바깥 서비스 | 요청의 먼저 볼 것인 주소는 사용자가 누를 때만, 리퍼러 없이 새 탭에서 열리고, 대화는 그것을 결코 불러오지 않습니다(REQ-147) |
+| 자료 노출 | 표시는 두 때의 앞뒤만 알리고 세션을 가리키지 않습니다. 요청의 글과 주소는 글로 보입니다(REQ-098) |
+| 화면 상태 | AI가 아직 읽지 않은 것의 표시와 확인 요청의 줄을 390과 1,440픽셀에서 회색으로, [revision-wireframes.html](revision-wireframes.html#scr-114)에. 09단계가 다시 디자인의 모습으로 그립니다 |
+
+### 설계 수정의 배치
+
+| 영역 | 1,024픽셀보다 좁을 때, 390에서 그림 | 1,024픽셀부터, 1,440에서 그림 |
+| --- | --- | --- |
+| AI가 아직 읽지 않은 것의 표시 | 줄의 기다림을 적은 줄에서 "{time}부터 AI를 기다림" 뒤에, 둘이 함께 들어가지 않으면 따로 한 줄에 | 같음 |
+| 확인 요청의 줄 | 글 전체. "먼저 볼 것"을 따로 한 줄에. 그다음 저마다 높이 44픽셀의 "단계 기록"과 답하기 | 글 전체. "먼저 볼 것"을 따로 한 줄에. 줄의 끝에 "단계 기록"과 답하기, "단계 기록"이 먼저 |
+| 줄이 고른 항목의 대화 | 대화 탭이 앞에 남아 그 항목으로 좁혀지고, 고른 줄이 열려 있습니다. 그 옆에 항목 탭이 생깁니다 | 항목의 패널에서 추적 아래에, 옆이 거기로 스크롤합니다 |

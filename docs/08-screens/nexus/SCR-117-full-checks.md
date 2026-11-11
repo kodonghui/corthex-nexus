@@ -4,7 +4,7 @@
 
 Purpose: the user looks at every project's 13 stages and their checks on one page, as the hub page shows them in NEXUS 0.2, from the first page's Full checks or from a search without a match. (FL-118)
 
-Path `/hub`, on the NEXUS server only (API-101). Who can see it: anyone Cloudflare Access lets in. Planned in the redesign of 2026-11-06 (SPEC-153): the hub page of 0.2, SCR-101, moves here unchanged (REQ-233), with its own views at its own fragments, the search results, the trace view and the stage detail (SCR-102 to SCR-104). The hub page that the hub builds on a device stays as it is. The rules of [every screen](README.md#every-screen) apply.
+Path `/hub` on the NEXUS server (API-101), and on a device the file that the hub's `build` makes (API-135). Who can see it: anyone Cloudflare Access lets in, or the device's user. Planned in the redesign of 2026-11-06 (SPEC-153): the hub page of 0.2, SCR-101, moves here unchanged (REQ-233), with its own views at its own fragments, the search results, the trace view and the stage detail (SCR-102 to SCR-104). The hub page that the hub builds on a device stays as it is. From the design revision of 2026-11-11 this definition stands for that file too, where the passed text gave `/hub` on the server only (stage 07, [choice 15](../../07-sitemap/nexus.md#choices-this-stage-made)): SCR-101 is `removed` and its definition stays as the text of the hub page's states, which the states below name, and SCR-102 to SCR-104 are this page's views, on the server at `/hub`'s addresses after `#`. The rules of [every screen](README.md#every-screen) apply.
 
 ## Data
 
