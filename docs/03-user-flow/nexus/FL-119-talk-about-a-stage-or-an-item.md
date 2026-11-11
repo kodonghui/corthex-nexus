@@ -9,7 +9,7 @@ Context: CTX-014 Discussion. Starts when the user opens a stage's talk, from the
 ```mermaid
 flowchart TD
   A(["The user opens a stage's talk, from the stage,<br/>the first page or a link<br/>SCR-114"]) --> B["Show the talk by turn: what waits for the user<br/>first, then what waits for the agent, with whether<br/>it took it and whether it was written after the agent's<br/>last read, then the closed talk, folded<br/>REQ-229, REQ-272 · SCR-114"]
-  B --> B2["Show apart, still open, the comments<br/>whose items are no longer in the stage<br/>REQ-162"]
+  B --> B2["Show apart, still open, the comments<br/>whose items are no longer in the stage<br/>REQ-162 · SCR-114"]
   B2 --> B3{"Does the user pick a comment<br/>that is on an item?<br/>REQ-294"}
   B3 -->|yes| B4["Select the comment's item in the stage, moving the<br/>picture to the item or the list to its row, and mark it<br/>REQ-294 · SCR-112, SCR-113, SCR-115"]
   B3 -->|no| C

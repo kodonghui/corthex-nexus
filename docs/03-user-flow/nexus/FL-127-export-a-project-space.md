@@ -12,10 +12,10 @@ flowchart TD
   B --> C{"Does the user ask for the export?"}
   C -->|no| Z(["End"])
   C -->|yes| D{"Did Cloudflare Access check the request,<br/>from the user's own sign-in?<br/>REQ-113"}
-  D -->|no, or it carries the service token| D1["Refuse it, and the page says why"]
+  D -->|no, or it carries the service token| D1["Refuse it, and the page says why<br/>SCR-130"]
   D1 --> Z
   D -->|yes| E{"Does the server hold the project?"}
-  E -->|no| E1["Say that there is nothing to export"]
+  E -->|no| E1["Say that there is nothing to export<br/>SCR-130"]
   E1 --> Z
   E -->|yes| F["Build one file with what the space holds and Git<br/>does not, naming the commit that the project<br/>shows and the time<br/>REQ-292"]
   F --> G["The browser saves the file on the user's device; the<br/>server keeps no copy of it and changes nothing"]

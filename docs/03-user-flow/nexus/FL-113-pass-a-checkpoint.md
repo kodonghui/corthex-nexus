@@ -18,7 +18,7 @@ flowchart TD
   E -->|no| E1["Refuse it<br/>REQ-179"]
   E1 --> Z
   E -->|yes| E2{"Has the commit that the project shows, or the<br/>checkpoint request, changed since the page was drawn?<br/>REQ-279"}
-  E2 -->|yes| E3["Refuse the pass, saying what changed;<br/>the page shows the stage as it is now<br/>REQ-279"]
+  E2 -->|yes| E3["Refuse the pass, saying what changed;<br/>the page shows the stage as it is now<br/>REQ-279 · SCR-109, SCR-112, SCR-113"]
   E3 --> D
   E2 -->|no| F["Record who passed it and when, what was seen, and the<br/>kind of browser and device that the request names<br/>REQ-178, REQ-278, REQ-283"]
   F --> G["List it in the agent to-do until<br/>the stage record holds it<br/>REQ-180"]
@@ -26,7 +26,7 @@ flowchart TD
   B -->|in the session| I["The agent writes the checkpoint into the<br/>stage record, with a reference to the record<br/>that holds the user's approval<br/>REQ-086, REQ-090"]
   H --> J["The pull request is merged, and the agent<br/>pushes the new snapshot, FL-102<br/>REQ-125"]
   I --> J
-  J --> K["The hub reads the record from the repository and<br/>shows the stage as recorded, the same on<br/>every device and on the server<br/>REQ-084, REQ-089, REQ-173 · SCR-101, SCR-104"]
+  J --> K["The hub reads the record from the repository and<br/>shows the stage as recorded, the same on<br/>every device and on the server<br/>REQ-084, REQ-089, REQ-173 · SCR-104, SCR-117"]
   K --> Z
 ```
 

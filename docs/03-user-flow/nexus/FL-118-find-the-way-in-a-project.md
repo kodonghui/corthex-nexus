@@ -13,14 +13,14 @@ flowchart TD
   B1 --> C
   B -->|no| C["Open the project's workspace at the stage,<br/>its current stage when none is named: the 13 stages<br/>in a list, the stage, and its talk beside it, under a head that<br/>shows when the project was last pushed, with the commit that<br/>it shows, and when the agent last read its to-do<br/>REQ-224, REQ-236, REQ-271 · SCR-111"]
   C --> W{"Is the window under 1024 pixels wide?"}
-  W -->|yes| W1["Show the stage, the talk and the item as tabs,<br/>and the list of stages from the stage's title<br/>REQ-235"]
+  W -->|yes| W1["Show the stage, the talk and the item as tabs,<br/>and the list of stages from the stage's title<br/>REQ-235 · SCR-111"]
   W -->|no| D
   W1 --> D{"Has the stage a picture?"}
   D -->|yes, 01, 05 or 07| E["Show the stage's head and its picture, with where<br/>the view is in the whole picture, and a tab<br/>that lists the stage's items<br/>REQ-225, REQ-226, REQ-237 · SCR-112"]
   D -->|no| F["Show the stage's head<br/>and its items as a list<br/>REQ-225, REQ-226 · SCR-113"]
   E --> G{"What does the user do?"}
   F --> G
-  G -->|narrows the list| H["Narrow it to the items with talk, those that wait<br/>for the user or those with what is left,<br/>or group them by context<br/>REQ-176, REQ-227"]
+  G -->|narrows the list| H["Narrow it to the items with talk, those that wait<br/>for the user or those with what is left,<br/>or group them by context<br/>REQ-176, REQ-227 · SCR-112, SCR-113"]
   H --> G
   G -->|selects an item| I["Show the item beside the stage, with its fields,<br/>the place of its source and the items that it<br/>comes from and leads to, and narrow the talk to it<br/>REQ-093, REQ-228, REQ-230 · SCR-115"]
   I --> Z(["End"])

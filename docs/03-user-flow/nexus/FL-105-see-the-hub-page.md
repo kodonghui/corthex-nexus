@@ -4,7 +4,7 @@
 
 Serves: REQ-091, REQ-092, REQ-093, REQ-094, REQ-095, REQ-096, REQ-097, REQ-098, REQ-099, REQ-100, REQ-101, REQ-102, REQ-103, REQ-104, REQ-113, REQ-176, REQ-189, REQ-190, REQ-197
 
-Context: CTX-008 Overview. Starts when the user opens the hub page, built on a device or served by the NEXUS server, on a phone or a PC. Built in phase 1; NEXUS 0.2 adds the explanation on an empty server, the pictures' links and counts and the stages' overviews (REQ-102, REQ-176, REQ-189, REQ-190), and R4 of 2026-11-02 adds each project's actions to ask about first (REQ-197). Since the redesign of 2026-11-06 the server's hub page is the full checks at `/hub` (SCR-117), behind the first page and the workspaces that FL-117 and FL-118 draw; the hub page that the hub builds on a device stays as this flow draws it.
+Context: CTX-008 Overview. Starts when the user opens the hub page, built on a device or served by the NEXUS server, on a phone or a PC. Built in phase 1; NEXUS 0.2 adds the explanation on an empty server, the pictures' links and counts and the stages' overviews (REQ-102, REQ-176, REQ-189, REQ-190), and R4 of 2026-11-02 adds each project's actions to ask about first (REQ-197). Since the redesign of 2026-11-06 the server's hub page is the full checks at `/hub` (SCR-117), behind the first page and the workspaces that FL-117 and FL-118 draw; the hub page that the hub builds on a device stays as this flow draws it. From stage 07 of the design revision of 2026-11-11 the steps name SCR-117 where they named SCR-101: the full checks stands for the hub page on the server and on a device, and SCR-102 to SCR-104 stay its three views.
 
 ```mermaid
 flowchart TD
@@ -14,14 +14,14 @@ flowchart TD
   D -->|no| D1["The request is refused"]
   D1 --> Z(["End"])
   D -->|yes| E{"Does the server hold a snapshot?"}
-  E -->|no| E1["Say what the hub shows and<br/>how a project gets pushed to it<br/>REQ-102 · SCR-101"]
+  E -->|no| E1["Say what the hub shows and<br/>how a project gets pushed to it<br/>REQ-102 · SCR-117"]
   E1 --> Z
-  E -->|yes| F["Show each project's open comments, proposals<br/>and discrepancies, and link each stage that<br/>has a picture to its picture view<br/>REQ-189, REQ-190 · SCR-101, SCR-104"]
+  E -->|yes| F["Show each project's open comments, proposals<br/>and discrepancies, and link each stage that<br/>has a picture to its picture view<br/>REQ-189, REQ-190 · SCR-104, SCR-117"]
   C --> G
-  F --> G["Show every project, its current stage and next action<br/>first, then its 13 stages with their states, item<br/>counts and checks, and when and from which<br/>commit each snapshot was made<br/>REQ-091, REQ-092, REQ-096 · SCR-101"]
-  G --> G1["Show what the agent asks about first in each project,<br/>whether the list is the project's own or the profile's,<br/>and that anything that cannot be undone is asked in any case<br/>REQ-197 · SCR-101"]
+  F --> G["Show every project, its current stage and next action<br/>first, then its 13 stages with their states, item<br/>counts and checks, and when and from which<br/>commit each snapshot was made<br/>REQ-091, REQ-092, REQ-096 · SCR-117"]
+  G --> G1["Show what the agent asks about first in each project,<br/>whether the list is the project's own or the profile's,<br/>and that anything that cannot be undone is asked in any case<br/>REQ-197 · SCR-117"]
   G1 --> H{"Has the project recorded progress?"}
-  H -->|no| H1["Say how progress gets recorded<br/>REQ-103 · SCR-101"]
+  H -->|no| H1["Say how progress gets recorded<br/>REQ-103 · SCR-117"]
   H -->|yes| I
   H1 --> I{"What does the user do?"}
   I -->|selects an ID| J["Show what the item comes from and<br/>what it leads to, through all stages<br/>REQ-093 · SCR-103"]

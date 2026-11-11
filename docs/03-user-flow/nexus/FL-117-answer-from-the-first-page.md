@@ -13,8 +13,8 @@ flowchart TD
   B1 --> Z(["End"])
   B -->|yes| C["Gather my turn from every project: the open<br/>proposals, the comments that wait for the user<br/>and the checkpoints that the agent asks for<br/>REQ-219 · SCR-110"]
   C --> D{"Does anything wait for the user?"}
-  D -->|no| D1["Say that nothing waits for the user<br/>REQ-219"]
-  D -->|yes| E["Show each entry with its kind, its project,<br/>stage and item, its first lines,<br/>and who wrote it when<br/>REQ-219"]
+  D -->|no| D1["Say that nothing waits for the user<br/>REQ-219 · SCR-110"]
+  D -->|yes| E["Show each entry with its kind, its project,<br/>stage and item, its first lines,<br/>and who wrote it when<br/>REQ-219 · SCR-110"]
   D1 --> F
   E --> F["Show how many entries of each project's agent to-do wait and how<br/>many of them the agent has not read, when the project was last pushed,<br/>with the commit that it shows, and when the agent last read its to-do;<br/>and that the agent reads them at its next work on the project<br/>REQ-221, REQ-271, REQ-272 · SCR-110"]
   F --> G["Show each project's card with its current stage<br/>and next action, a small view of each picture<br/>and its 13 stages by shape and word<br/>REQ-222, REQ-236 · SCR-110"]

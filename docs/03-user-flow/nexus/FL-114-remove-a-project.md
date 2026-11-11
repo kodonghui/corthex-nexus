@@ -19,10 +19,10 @@ flowchart TD
   D -->|no| D1["Nothing is removed"]
   D1 --> Z(["End"])
   D -->|yes| E{"Did Cloudflare Access check the request, from the<br/>user's own sign-in and not from another site?<br/>REQ-113, REQ-117"}
-  E -->|no| E1["The server refuses it, and<br/>the page says why"]
+  E -->|no| E1["The server refuses it, and<br/>the page says why<br/>SCR-130"]
   E1 --> Z
   E -->|yes| F["Delete the snapshot and the project space<br/>REQ-120"]
-  F --> G["The project's sources and<br/>the device's files stay"]
+  F --> G["The page leads to the first page, which says that<br/>the project was removed; the project's sources<br/>and the device's files stay<br/>SCR-110"]
   G --> Z
   X(["A request to remove a project<br/>carries the service token"]) --> X1["The server refuses it: only the user<br/>removes a project, in NEXUS<br/>REQ-293"]
   X1 --> Z

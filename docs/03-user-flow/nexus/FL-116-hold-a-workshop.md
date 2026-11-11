@@ -24,13 +24,13 @@ flowchart TD
   E -->|people| E2["The user places stickies in the legend's colours,<br/>arrows, groups and comments on the last frame<br/>REQ-214, REQ-258"]
   E1 --> F
   E2 --> F["Mark each placed sticky with its author,<br/>from the kind of sign-in<br/>REQ-215"]
-  F --> R["The agent reads the board through the hub when the<br/>user tells it in the session or at its next work, FL-108;<br/>NEXUS records the version read, and the board<br/>shows what changed since<br/>REQ-259, REQ-260, REQ-268"]
+  F --> R["The agent reads the board through the hub when the<br/>user tells it in the session or at its next work, FL-108;<br/>NEXUS records the version read, and the board<br/>shows what changed since<br/>REQ-259, REQ-260, REQ-268 · SCR-112"]
   R --> G{"How does the frame change?"}
   G -->|the user corrects or confirms an agent's sticky| G1["Take its label off<br/>REQ-253"]
   G -->|the agent changes a sticky that it did not place| G2["Refuse it; the agent asks<br/>in a comment on the sticky<br/>REQ-254, REQ-258"]
   G -->|the agent removes stickies of its own| G3["The agent lists them and waits for<br/>the user's agreement in the session<br/>REQ-255"]
   G -->|the user removes a sticky| G6
-  G -->|two changes start from the same version of a sticky| G4["Refuse the later one, and show<br/>the sticky as it is now<br/>REQ-256"]
+  G -->|two changes start from the same version of a sticky| G4["Refuse the later one, and show<br/>the sticky as it is now<br/>REQ-256 · SCR-112"]
   G -->|a change reaches an earlier or a passed frame| G5["Refuse it<br/>REQ-250"]
   G3 --> G6["Keep the removed sticky folded away,<br/>for the user to restore<br/>REQ-257"]
   G1 --> H
