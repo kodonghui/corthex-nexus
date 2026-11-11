@@ -4,7 +4,7 @@
 
 Serves: REQ-091, REQ-092, REQ-093, REQ-094, REQ-095, REQ-096, REQ-097, REQ-098, REQ-099, REQ-100, REQ-101, REQ-102, REQ-103, REQ-104, REQ-113, REQ-176, REQ-189, REQ-190, REQ-197
 
-Context: CTX-008 Overview. Starts when the user opens the hub page, built on a device or served by the NEXUS server, on a phone or a PC. Built in phase 1; NEXUS 0.2 adds the explanation on an empty server, the pictures' links and counts and the stages' overviews (REQ-102, REQ-176, REQ-189, REQ-190), and R4 of 2026-11-02 adds each project's actions to ask about first (REQ-197).
+Context: CTX-008 Overview. Starts when the user opens the hub page, built on a device or served by the NEXUS server, on a phone or a PC. Built in phase 1; NEXUS 0.2 adds the explanation on an empty server, the pictures' links and counts and the stages' overviews (REQ-102, REQ-176, REQ-189, REQ-190), and R4 of 2026-11-02 adds each project's actions to ask about first (REQ-197). Since the redesign of 2026-11-06 the server's hub page is the full checks at `/hub` (SCR-117), behind the first page and the workspaces that FL-117 and FL-118 draw; the hub page that the hub builds on a device stays as this flow draws it.
 
 ```mermaid
 flowchart TD

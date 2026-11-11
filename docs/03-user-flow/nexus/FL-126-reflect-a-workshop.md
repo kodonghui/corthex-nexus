@@ -2,9 +2,9 @@
 
 [한국어](FL-126-reflect-a-workshop.ko.md)
 
-Serves: REQ-086, REQ-180, REQ-184, REQ-216, REQ-217, REQ-259, REQ-265, REQ-267, REQ-268
+Serves: REQ-086, REQ-180, REQ-184, REQ-216, REQ-217, REQ-259, REQ-265, REQ-267, REQ-268, REQ-290
 
-Context: CTX-016 Workshops, with CTX-007 Stage progress for the agent to-do and the stage record. Where editing is included, in phase ②; not in NEXUS 0.2. Starts when the agent to-do lists a workshop's passed checkpoint that is not yet reflected (FL-108), or when the user tells the agent in the session that a checkpoint passed. Drawn on 2026-11-07 from stage 01's frames for phase ②.
+Context: CTX-016 Workshops, with CTX-007 Stage progress for the agent to-do and the stage record. Where editing is included, in phase ②; not in NEXUS 0.2. Starts when the agent to-do lists a workshop's passed checkpoint that is not yet reflected (FL-108), or when the user tells the agent in the session that a checkpoint passed. Drawn on 2026-11-07 from stage 01's frames for phase ②. The design revision of 2026-11-11 added what the agent may remove from an existing source (REQ-290).
 
 ```mermaid
 flowchart TD
@@ -14,7 +14,7 @@ flowchart TD
   C1 --> C2{"What does the user decide?"}
   C2 -->|not now| Z(["End"])
   C2 -->|how to write it| D
-  C -->|no| D["Write the stage 01 source from the version<br/>passed, by pull request naming the board version;<br/>for an existing document, change only<br/>what the board holds<br/>REQ-217"]
+  C -->|no| D["Write the stage 01 source from the version<br/>passed, by pull request naming the board version;<br/>for an existing document, change only what the board<br/>holds, and remove only the items that the board<br/>held and that were removed there<br/>REQ-217, REQ-290"]
   D --> E["Report the pull request through the hub,<br/>so that the version passed shows as in review<br/>REQ-184, REQ-268"]
   E --> F{"Is the pull request merged,<br/>as the project's rules say?"}
   F -->|not yet| F1["It waits, and the agent looks<br/>at it again at its next work"]
@@ -26,4 +26,4 @@ flowchart TD
   H --> Z
 ```
 
-The agent writes only what the user passed: the frames up to the checkpoint's step, at the board version recorded with the pass. A change made later, on the next frame, waits for the next checkpoint. The board leads while the workshop runs, yet a change that another pull request made to the stage 01 source is never overwritten unseen: the agent shows the differences, as stage 01's sync rule asks, and writes as the user decides.
+The agent writes only what the user passed: the frames up to the checkpoint's step, at the board version recorded with the pass. A change made later, on the next frame, waits for the next checkpoint. The board leads while the workshop runs, yet a change that another pull request made to the stage 01 source is never overwritten unseen: the agent shows the differences, as stage 01's sync rule asks, and writes as the user decides. An item of the source that was never put on the board stays in the source: the agent removes only what the board held, marked as from the source, and lost there (REQ-289, REQ-290).

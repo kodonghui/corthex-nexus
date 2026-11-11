@@ -4,7 +4,7 @@
 
 Serves: REQ-117, REQ-129, REQ-145, REQ-159, REQ-169
 
-Context: CTX-014 Discussion, and CTX-010 Editing for an accepted proposal. Starts when the user opens a proposal in the picture view (FL-106), on a phone or a PC. New in NEXUS 0.2.
+Context: CTX-014 Discussion, and CTX-010 Editing for an accepted proposal. Starts when the user opens a proposal in the picture view (FL-106), on a phone or a PC. New in NEXUS 0.2. In the redesign, the first page offers the same answer in place (FL-117) and the stage's talk shows the proposal (FL-119); this flow's steps name the picture view of NEXUS 0.2 until the picture stage replaces it (SCR-112).
 
 ```mermaid
 flowchart TD

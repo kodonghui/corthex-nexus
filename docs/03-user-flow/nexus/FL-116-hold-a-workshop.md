@@ -2,17 +2,20 @@
 
 [한국어](FL-116-hold-a-workshop.ko.md)
 
-Serves: REQ-213, REQ-214, REQ-215, REQ-216, REQ-217, REQ-218, REQ-248, REQ-249, REQ-250, REQ-251, REQ-252, REQ-253, REQ-254, REQ-255, REQ-256, REQ-257, REQ-258, REQ-259, REQ-260, REQ-261, REQ-262, REQ-263, REQ-264, REQ-266, REQ-268, REQ-269
+Serves: REQ-213, REQ-214, REQ-215, REQ-216, REQ-217, REQ-218, REQ-248, REQ-249, REQ-250, REQ-251, REQ-252, REQ-253, REQ-254, REQ-255, REQ-256, REQ-257, REQ-258, REQ-259, REQ-260, REQ-261, REQ-262, REQ-263, REQ-264, REQ-266, REQ-268, REQ-269, REQ-289
 
-Context: CTX-016 Workshops, with CTX-014 Discussion for comments and CTX-007 Stage progress for checkpoints. Where editing is included, in phase ②; not in NEXUS 0.2. Starts when the user starts a part's stage 01 event storming in NEXUS on a PC, or asks the agent in the session to start it. Drawn with the maintainer's choice of 2026-11-03 and redrawn on 2026-11-07 from stage 01's frames for phase ②.
+Context: CTX-016 Workshops, with CTX-014 Discussion for comments and CTX-007 Stage progress for checkpoints. Where editing is included, in phase ②; not in NEXUS 0.2. Starts when the user starts a part's stage 01 event storming in NEXUS on a PC, or asks the agent in the session to start it. Drawn with the maintainer's choice of 2026-11-03 and redrawn on 2026-11-07 from stage 01's frames for phase ②. The design revision of 2026-11-11 added the source's items that a workshop starts from (REQ-289).
 
 ```mermaid
 flowchart TD
   A(["Where editing is included, the user starts a part's<br/>stage 01 event storming in NEXUS, or the agent<br/>starts it through the hub when the user asks<br/>REQ-213, REQ-268"]) --> B{"Does the part have<br/>an open workshop?<br/>REQ-248"}
   B -->|yes| B1["Refuse the start, and open<br/>the part's open workshop<br/>REQ-248 · SCR-112"]
   B1 --> Z(["End"])
-  B -->|no| C["The user chooses the way of working, the<br/>agent's draft first or people first; NEXUS<br/>records it and adds the Step 0 frame<br/>REQ-249 · SCR-112"]
-  C --> W{"Is the window at least<br/>1024 pixels wide?<br/>REQ-213"}
+  B -->|no| C["The user chooses the way of working, the agent's<br/>draft first or people first, and for a part with a stage 01<br/>source the workshop's scope, the contexts that it works on;<br/>NEXUS records them and adds the Step 0 frame<br/>REQ-249, REQ-289 · SCR-112"]
+  C --> C2{"Does the part have<br/>a stage 01 source?<br/>REQ-289"}
+  C2 -->|no| W
+  C2 -->|yes| C3["Put on the work board the source's items that<br/>the workshop's scope names, each marked<br/>as from the source<br/>REQ-289"]
+  C3 --> W{"Is the window at least<br/>1024 pixels wide?<br/>REQ-213"}
   W -->|no| W1["Show the work board read-only; comments<br/>and checkpoint passes still work, FL-113<br/>REQ-213, REQ-258 · SCR-112"]
   W1 --> Z
   W -->|yes| D["Show the part's work board in Excalidraw, apart<br/>from the DDD board, which is still drawn<br/>only from the stage 01 source<br/>REQ-216 · SCR-112"]
@@ -53,6 +56,6 @@ flowchart TD
   X1 --> Z
 ```
 
-The agent works in the session with the user and reaches the work board only through the hub, as everywhere in NEXUS. NEXUS never calls the agent, so the agent reads what the user placed when the user tells it in the session, or at its next work (FL-108). Once a checkpoint's pull request is merged and pushed, FL-103 draws the DDD board again from the stage 01 source, so the DDD board catches up with the work board at each checkpoint (FL-126).
+The agent works in the session with the user and reaches the work board only through the hub, as everywhere in NEXUS. NEXUS never calls the agent, so the agent reads what the user placed when the user tells it in the session, or at its next work (FL-108). Once a checkpoint's pull request is merged and pushed, FL-103 draws the DDD board again from the stage 01 source, so the DDD board catches up with the work board at each checkpoint (FL-126). A part that already has a stage 01 source starts with the source's items in the workshop's scope on the board, marked as from the source, so that the board and the document start from the same items and the agent can later tell an item that the user took off the board from one that was never on it (REQ-289, REQ-290, FL-126); which frame holds them and what the mark shows are point 32 of the [README](README.md#points-for-the-functional-spec).
 
 A frame that passed its checkpoint stays as it was passed, and the next step's frame comes only after the pass, so what changes after a pass is made in the later frames and goes to the next checkpoint. Comments are not changes to the board: they can be left on any frame of an open workshop. The user passes a workshop's checkpoint in NEXUS only, under D15 of stage 02, which this stage's checkpoint for phase ② decided as recommended on 2026-11-07. Team members' real-time work on a work board comes with team members; until then, team workshops stay on Miro.
