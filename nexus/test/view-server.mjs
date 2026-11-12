@@ -56,6 +56,11 @@ if(process.env.NEXUS_QA_PAGES==="1"){
 // more servers, chosen by a cookie, for SCR-110#nothing-waits and SCR-110#empty. Only the
 // first page's suite opts in; its "other tab" writes go through /api like the page's.
 const home={},spaces={};
+// The walk's real failures and refusals (TASK-278): a server whose database fails every query,
+// chosen by the cookie nexus-qa-space=broken, which the server answers with `internal`; and a
+// request without the person's Access assertion, chosen by nexus-qa-access=none, which it
+// refuses with `access_missing`. Each page then shows its message page (stage 08's rule 9).
+spaces.broken={...env,DB:new Proxy({},{get:()=>()=>{throw new Error("Synthetic database failure");}})};
 if(process.env.NEXUS_QA_HOME==="1"){
  const project="qa-home",base="/api/spaces/"+project,snapshot=viewSnapshot(project),where="docs/qa-sample.md:1";
  snapshot.project.title='<b>QA</b> 첫 페이지 & __CORTHEX_VIEW_DATA__ 합성 가게의 아주 긴 이름이 줄을 넘는 경우';
@@ -251,7 +256,8 @@ if(process.env.NEXUS_QA_ITEM==="1"){
 }
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
- const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
+ const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);
+ if(!/(?:^|;\s*)nexus-qa-access=none(?:;|$)/.test(incoming.headers.cookie||""))headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
  if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_ITEM==="1"?{item:itemQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
  const pushAgain=home.pushAgain||stageQa.pushAgain;
  if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&pushAgain){const pushed=await pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
@@ -259,7 +265,7 @@ const server=createServer(async(incoming,outgoing)=>{try{
  if(url.pathname==="/__qa/agent-reply"&&incoming.method==="POST"&&talkQa.project){const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const {comment:id,text}=JSON.parse(Buffer.concat(chunks).toString("utf8")||"{}");const reply=await call("POST",`/api/spaces/${talkQa.project}/comments/${encodeURIComponent(String(id))}/replies`,{text:String(text)},"agent");outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify(reply));return;}
  const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const bytes=Buffer.concat(chunks);
  if(incoming.method==="POST")writes.push({path:url.pathname,id:incoming.headers["idempotency-key"],body:JSON.parse(bytes)});
- const space=/(?:^|;\s*)nexus-qa-space=(quiet|empty)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];
+ const space=/(?:^|;\s*)nexus-qa-space=(quiet|empty|broken)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];
  // The page's language: ?lang=, or the cookie nexus-qa-lang where a redirect leaves no query (TASK-278).
  const lang=url.searchParams.get("lang")??/(?:^|;\s*)nexus-qa-lang=(ko|en)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];
  const currentEnv={...(space&&spaces[space]?spaces[space]:env),NEXUS_LANGUAGE:lang==="ko"?"ko":"en"};
