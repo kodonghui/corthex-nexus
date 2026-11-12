@@ -1,0 +1,97 @@
+{
+ "why": {
+  "response": "A case of the plan's server responses. It covers one response of the contract, named by its operation and status, such as API-131#403, and reaches its requirements through that operation in stage 06.",
+  "outcome": "A case of the plan's hub command outcomes. It covers one outcome of a hub command, named by the command's API ID, and reaches its requirements through that command in stage 06.",
+  "state": "A case of the plan's screen states. It covers one state of a screen, such as SCR-101#error, with the responses or the data that lead to it, and reaches its requirements through the screen in stage 07 and the responses in stage 06.",
+  "example": "A case of 0.2.1's endpoint-specific examples. It covers one example response of the contract by its operation and status, as the server responses do.",
+  "memory": "An ID of the memory part, which kodonghui/corthex defines. Stages 01 and 03 name memory's terms and contexts beside a word of NEXUS that means the same or differs, and stages 01, 03 and 04 say that their own numbers start after memory's.",
+  "files": "A file of the hub, the snapshot, the stage records, the status file, the outbox or the session reads (TBL-114 to TBL-117, TBL-125), or a table that phase ② plans (TBL-118 to TBL-124). The ERD guide defines them in its table of records beside nexus.sql, and the hub reads nexus.sql alone as stage 05's source.",
+  "sample": "An ID of an example or of a synthetic fixture: the contract's table of the forms that a source takes, and a past result that names its fixture's table, kept as written.",
+  "bug": "A bug that an earlier run found. The plan's evidence names it in its text and in tables whose first column is headed Bug, which the hub reads as mentions; the plan has no table of bugs with an ID column."
+ },
+ "warnings": {
+  "missing-upstream": {
+   "response": [
+    "TC-729", "TC-730", "TC-731", "TC-732", "TC-733", "TC-734", "TC-735", "TC-736", "TC-737", "TC-738",
+    "TC-739", "TC-740", "TC-741", "TC-742", "TC-743", "TC-744", "TC-745", "TC-746", "TC-747", "TC-748",
+    "TC-749", "TC-750", "TC-751", "TC-752", "TC-753", "TC-754", "TC-755", "TC-756", "TC-757", "TC-758",
+    "TC-759", "TC-760", "TC-761", "TC-762", "TC-763", "TC-764", "TC-765", "TC-766", "TC-767", "TC-768",
+    "TC-769", "TC-770", "TC-771", "TC-772", "TC-773", "TC-774", "TC-775", "TC-776", "TC-777", "TC-778",
+    "TC-779", "TC-780", "TC-781", "TC-782", "TC-783", "TC-784", "TC-785", "TC-786", "TC-787", "TC-788",
+    "TC-789", "TC-790", "TC-791", "TC-792", "TC-793", "TC-794", "TC-795", "TC-796", "TC-797", "TC-798",
+    "TC-799", "TC-800", "TC-801", "TC-802", "TC-803", "TC-804", "TC-805", "TC-806", "TC-807", "TC-808",
+    "TC-809", "TC-810", "TC-811", "TC-812", "TC-813", "TC-814", "TC-815", "TC-816", "TC-817", "TC-818",
+    "TC-819", "TC-820", "TC-821", "TC-822", "TC-823", "TC-824", "TC-825", "TC-826", "TC-827", "TC-828",
+    "TC-829", "TC-830", "TC-831", "TC-832", "TC-833", "TC-834", "TC-835", "TC-836", "TC-837", "TC-838",
+    "TC-839", "TC-840", "TC-841", "TC-842", "TC-843", "TC-844", "TC-845", "TC-846", "TC-847", "TC-848",
+    "TC-849", "TC-850", "TC-851", "TC-852", "TC-853", "TC-854", "TC-855", "TC-856", "TC-857", "TC-858",
+    "TC-859", "TC-860", "TC-861", "TC-862", "TC-863", "TC-864", "TC-865", "TC-866", "TC-867", "TC-868",
+    "TC-869", "TC-870", "TC-871", "TC-872", "TC-873", "TC-874", "TC-875", "TC-876", "TC-877", "TC-878",
+    "TC-879", "TC-880", "TC-881", "TC-882", "TC-883", "TC-884", "TC-885", "TC-886", "TC-887", "TC-888",
+    "TC-889", "TC-890", "TC-891", "TC-892", "TC-893", "TC-894", "TC-895", "TC-896", "TC-897", "TC-898",
+    "TC-899", "TC-900", "TC-901", "TC-902", "TC-903", "TC-904", "TC-905", "TC-906", "TC-907", "TC-908",
+    "TC-909", "TC-910", "TC-911", "TC-912", "TC-913", "TC-914", "TC-915", "TC-916", "TC-917", "TC-918",
+    "TC-919", "TC-920", "TC-921", "TC-922", "TC-923", "TC-924", "TC-925", "TC-926", "TC-927", "TC-928",
+    "TC-929", "TC-930", "TC-931", "TC-932", "TC-933", "TC-934", "TC-935", "TC-936", "TC-937", "TC-938",
+    "TC-939", "TC-940", "TC-941", "TC-942", "TC-943", "TC-944", "TC-945", "TC-946", "TC-947", "TC-948",
+    "TC-949", "TC-950", "TC-951", "TC-952", "TC-953", "TC-954", "TC-955", "TC-956", "TC-957", "TC-958",
+    "TC-959", "TC-960", "TC-961", "TC-962", "TC-963", "TC-964", "TC-965", "TC-966", "TC-967", "TC-968",
+    "TC-969", "TC-970", "TC-971", "TC-972", "TC-973", "TC-974", "TC-975", "TC-976", "TC-977", "TC-978",
+    "TC-979", "TC-980", "TC-981", "TC-982", "TC-983", "TC-984", "TC-985", "TC-986", "TC-987", "TC-988",
+    "TC-989", "TC-990", "TC-991", "TC-992", "TC-993", "TC-994", "TC-995", "TC-996", "TC-997", "TC-998",
+    "TC-999", "TC-1000", "TC-1001", "TC-1002", "TC-1003", "TC-1004", "TC-1005", "TC-1006", "TC-1007", "TC-1008",
+    "TC-1009", "TC-1010", "TC-1011", "TC-1012", "TC-1013", "TC-1014", "TC-1015", "TC-1016", "TC-1017", "TC-1018",
+    "TC-1019", "TC-1020", "TC-1021", "TC-1022", "TC-1023", "TC-1024", "TC-1025", "TC-1026", "TC-1027", "TC-1028",
+    "TC-1029", "TC-1030", "TC-1031", "TC-1032", "TC-1033", "TC-1034", "TC-1035", "TC-1036", "TC-1037", "TC-1038",
+    "TC-1039", "TC-1040", "TC-1041", "TC-1042", "TC-1043", "TC-1044", "TC-1045", "TC-1046", "TC-1047", "TC-1048",
+    "TC-1049", "TC-1050", "TC-1051", "TC-1052", "TC-1053", "TC-1054", "TC-1055", "TC-1056", "TC-1057", "TC-1058",
+    "TC-1059", "TC-1060", "TC-1061", "TC-1062", "TC-1063", "TC-1064", "TC-1065", "TC-1066", "TC-1067", "TC-1068",
+    "TC-1069", "TC-1070", "TC-1071", "TC-1072", "TC-1073", "TC-1074", "TC-1075", "TC-1076", "TC-1077", "TC-1078",
+    "TC-1079", "TC-1080", "TC-1081", "TC-1082", "TC-1083", "TC-1084", "TC-1085", "TC-1086", "TC-1087", "TC-1088",
+    "TC-1089", "TC-1090", "TC-1091", "TC-1092", "TC-1093", "TC-1094", "TC-1095", "TC-1096", "TC-1097", "TC-1098",
+    "TC-1099", "TC-1100", "TC-1101", "TC-1102", "TC-1103", "TC-1104", "TC-1105", "TC-1106", "TC-1107", "TC-1108",
+    "TC-1109", "TC-1110", "TC-1111", "TC-1112", "TC-1113", "TC-1114", "TC-1115", "TC-1116", "TC-1117", "TC-1118",
+    "TC-1119", "TC-1120", "TC-1121", "TC-1122", "TC-1123", "TC-1124", "TC-1125", "TC-1126", "TC-1127", "TC-1128",
+    "TC-1129", "TC-1130", "TC-1131", "TC-1132", "TC-1133", "TC-1134", "TC-1135", "TC-1136", "TC-1137", "TC-1138"
+   ],
+   "outcome": [
+    "TC-1139", "TC-1140", "TC-1141", "TC-1142", "TC-1143", "TC-1144", "TC-1145", "TC-1146", "TC-1147", "TC-1148",
+    "TC-1149", "TC-1150", "TC-1151", "TC-1152", "TC-1153", "TC-1154", "TC-1155", "TC-1156", "TC-1157", "TC-1158",
+    "TC-1159", "TC-1160", "TC-1161", "TC-1162", "TC-1163", "TC-1164", "TC-1165", "TC-1166", "TC-1167", "TC-1168",
+    "TC-1169", "TC-1170", "TC-1171", "TC-1172", "TC-1173", "TC-1174", "TC-1175", "TC-1176", "TC-1177", "TC-1178",
+    "TC-1179", "TC-1180", "TC-1181", "TC-1182", "TC-1183", "TC-1184", "TC-1185", "TC-1186", "TC-1187", "TC-1188",
+    "TC-1189", "TC-1190", "TC-1191", "TC-1192", "TC-1193", "TC-1194", "TC-1195", "TC-1196", "TC-1197", "TC-1198",
+    "TC-1199", "TC-1200", "TC-1201", "TC-1202", "TC-1203", "TC-1204", "TC-1205", "TC-1206", "TC-1207", "TC-1208",
+    "TC-1209", "TC-1210", "TC-1211", "TC-1212", "TC-1213", "TC-1214", "TC-1215", "TC-1216"
+   ],
+   "state": [
+    "TC-1217", "TC-1220", "TC-1221", "TC-1222", "TC-1223", "TC-1224", "TC-1225", "TC-1226", "TC-1227", "TC-1228",
+    "TC-1229", "TC-1230", "TC-1233", "TC-1234", "TC-1235", "TC-1236", "TC-1237", "TC-1238", "TC-1239", "TC-1240",
+    "TC-1241", "TC-1242", "TC-1244", "TC-1245", "TC-1246", "TC-1247", "TC-1248", "TC-1249", "TC-1250", "TC-1253",
+    "TC-1255", "TC-1256", "TC-1258", "TC-1260"
+   ],
+   "example": [
+    "TC-1311", "TC-1312", "TC-1313", "TC-1314", "TC-1315", "TC-1316", "TC-1317"
+   ]
+  },
+  "unknown-ref": {
+   "memory": [
+    "CTX-004", "FL-001", "FL-012", "SPEC-001", "SPEC-039", "TERM-002", "TERM-003", "TERM-005", "TERM-010", "TERM-018",
+    "TERM-020", "TERM-033", "TERM-036", "TERM-041", "TERM-108"
+   ],
+   "files": [
+    "TBL-114", "TBL-115", "TBL-116", "TBL-117", "TBL-118", "TBL-119", "TBL-124", "TBL-125"
+   ],
+   "sample": [
+    "CTX-001", "TBL-001"
+   ],
+   "bug": [
+    "BUG-501", "BUG-502", "BUG-503", "BUG-504", "BUG-506", "BUG-507", "BUG-508", "BUG-509", "BUG-510", "BUG-511",
+    "BUG-512", "BUG-513", "BUG-514", "BUG-515", "BUG-516", "BUG-517", "BUG-518", "BUG-519", "BUG-520", "BUG-521",
+    "BUG-522", "BUG-523", "BUG-524", "BUG-525", "BUG-526", "BUG-527", "BUG-528", "BUG-529", "BUG-530", "BUG-531",
+    "BUG-532", "BUG-533", "BUG-534", "BUG-546", "BUG-554", "BUG-555", "BUG-556", "BUG-557", "BUG-558", "BUG-559",
+    "BUG-560", "BUG-561", "BUG-562", "BUG-563", "BUG-572"
+   ]
+  }
+ }
+}
