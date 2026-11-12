@@ -1,5 +1,5 @@
 import {spawn} from "node:child_process";
-import {promises as fs} from "node:fs";
+import {closeSync, openSync, promises as fs} from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 
@@ -9,19 +9,27 @@ const jobOwner = fileURLToPath(new URL("./windows-browser-job.py", import.meta.u
 export async function createBrowserRun(artifactBase, prefix = "run-") {
   const folder = await fs.mkdtemp(path.join(await fs.realpath(artifactBase), prefix));
   const profile = await fs.mkdtemp(path.join(folder, "profile-"));
-  let child, spawnError, stopped = false, output = "";
+  // The browser's own output goes to a file of the run, not a pipe: a helper process of the
+  // browser that outlives it would hold a pipe open and keep the suite from ending.
+  const log = path.join(folder, "browser.log");
+  let child, spawnError, stopped = false;
 
   function launch(chrome, args, env) {
     const browserArgs = ["--user-data-dir=" + profile, ...args];
-    child = windows
-      ? spawn(env.NEXUS_QA_PYTHON || "python", [jobOwner, chrome, ...browserArgs], {
+    if (windows) {
+      child = spawn(env.NEXUS_QA_PYTHON || "python", [jobOwner, chrome, ...browserArgs], {
         stdio: ["pipe", "ignore", "inherit"], windowsHide: true, env
-      })
-      : spawn(chrome, browserArgs, {stdio: ["ignore", "ignore", "pipe"], env});
+      });
+    } else {
+      const output = openSync(log, "w");
+      try {
+        child = spawn(chrome, browserArgs, {stdio: ["ignore", "ignore", output], env});
+      } finally {
+        closeSync(output);
+      }
+    }
     child.on("error", error => { spawnError = error; });
     child.stdin?.on("error", () => {}); // The job owner may have exited before EOF.
-    // The browser's own last words, kept for a start that fails.
-    child.stderr?.on("data", chunk => { output = (output + chunk.toString("utf8")).slice(-4000); });
   }
 
   const running = () => child?.pid !== undefined && child.exitCode === null && child.signalCode === null;
@@ -38,7 +46,7 @@ export async function createBrowserRun(artifactBase, prefix = "run-") {
     }
     const state = spawnError ? "it could not start: " + spawnError.message
       : running() ? `it still runs after ${ms / 1000} seconds` : `it ended with ${child?.exitCode ?? child?.signalCode}`;
-    const words = output.trim().split("\n").slice(-6).join(" | ");
+    const words = (await fs.readFile(log, "utf8").catch(() => "")).trim().split("\n").slice(-6).join(" | ");
     throw new Error("Owned Chrome did not publish its CDP endpoint: " + state + (words ? "; its last output: " + words : ""));
   }
   async function waitForExit(ms) {
