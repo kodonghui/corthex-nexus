@@ -113,7 +113,7 @@ The revision adds one state of the workspace's own, folded. A reading again that
 | Repeats | Folding what is folded, or showing what shows, changes nothing; the two controls answer at once and wait for no request |
 | Limits | The rail holds the 13 stages of the shown part; a window made narrower than 1,024 pixels shows the tabs, and made wider again shows the folds as they were |
 | Data exposure | The folds stay in the browser: the server keeps nothing of how the user looks at a page (REQ-118) |
-| Screen states | The changed head and the folds in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-111), and a picture stage at 1,280 and 1,440 pixels with its columns shown and folded, in [picture-stage-views.html](../../09-mockup/nexus/picture-stage-views.html); stage 09 draws them in the redesign's look after the revision's checkpoint |
+| Screen states | The changed head and the folds in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-111), and a picture stage at 1,280 and 1,440 pixels with its columns shown and folded, in [picture-stage-views.html](../../09-mockup/nexus/picture-stage-views.html); and in the redesign's look in both themes, with the folds at 1,152 and 1,280 pixels too, as stage 09 drew them after the revision's checkpoint, in [revision.html](../../09-mockup/nexus/revision.html#scr-111) |
 
 ### Layout of the revision
 

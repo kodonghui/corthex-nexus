@@ -113,7 +113,7 @@ The revision adds no state. A reading again that sends a query value out of its 
 | Limits | The mark is the server's `unread`, which the talk shows as given and does not work out; a request's text is at most ten lines and 1,200 characters, so it shows whole (SPEC-197); an address to look at first shows its host and what follows, cut after 120 characters |
 | Outside services | A request's address to look at first opens only when the user presses it, in a new tab without a referrer, and the talk never loads it (REQ-147) |
 | Data exposure | The mark tells the order of two times and names no session; the request's text and the address show as text (REQ-098) |
-| Screen states | The marks of what the agent has not read and a checkpoint request's entry in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-114); stage 09 draws them in the redesign's look |
+| Screen states | The marks of what the agent has not read and a checkpoint request's entry in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-114), and in the redesign's look in both themes, as stage 09 drew them after the revision's checkpoint, in [revision.html](../../09-mockup/nexus/revision.html#scr-114) |
 
 ### Layout of the revision
 

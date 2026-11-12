@@ -109,7 +109,7 @@ The revision adds no state. A reading again that sends a query value out of its 
 | State changes | A push, or the agent's newer request, between the page's drawing and the pass: SCR-113#stale |
 | Repeats | Picking an entry of the item that is selected already keeps the row and the panel, and opens that entry. A pass sent again with its write ID leaves one checkpoint and gets its first answer, even when the commit changed in between (SPEC-194) |
 | Limits | The row of an item that the talk selects is read as an address's is: 200 items at a time, until it is drawn |
-| Screen states | The row that the talk selected and the record with a request in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-113); stage 09 draws them in the redesign's look |
+| Screen states | The row that the talk selected and the record with a request in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-113), and in the redesign's look in both themes, as stage 09 drew them after the revision's checkpoint, in [revision.html](../../09-mockup/nexus/revision.html#scr-113) |
 
 ### Layout of the revision
 

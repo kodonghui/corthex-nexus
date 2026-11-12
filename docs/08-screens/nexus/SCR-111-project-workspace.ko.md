@@ -113,7 +113,7 @@ empty를 빼고 단계의 모든 상태가 해당하고, 작업 공간 자신의
 | 되풀이 | 접힌 것을 접거나 보이는 것을 펴도 바뀌는 것이 없습니다. 두 조작은 바로 답하고 요청을 기다리지 않습니다 |
 | 상한 | 띠는 보이는 부분의 13단계를 담습니다. 창을 1,024픽셀보다 좁히면 탭이 보이고, 다시 넓히면 접은 것이 그대로 보입니다 |
 | 자료 노출 | 접은 것은 브라우저에 남습니다: 서버는 사용자가 페이지를 어떻게 보는지에 대해 아무것도 두지 않습니다(REQ-118) |
-| 화면 상태 | 바뀐 머리와 접은 것을 390과 1,440픽셀에서 회색으로, [revision-wireframes.html](revision-wireframes.html#scr-111)에. 그림 단계를 1,280과 1,440픽셀에서 열을 편 것과 접은 것으로, [picture-stage-views.html](../../09-mockup/nexus/picture-stage-views.html)에. 09단계가 설계 수정의 확인 지점 뒤에 다시 디자인의 모습으로 그립니다 |
+| 화면 상태 | 바뀐 머리와 접은 것을 390과 1,440픽셀에서 회색으로, [revision-wireframes.html](revision-wireframes.html#scr-111)에. 그림 단계를 1,280과 1,440픽셀에서 열을 편 것과 접은 것으로, [picture-stage-views.html](../../09-mockup/nexus/picture-stage-views.html)에. 09단계가 설계 수정의 확인 지점 뒤에 다시 디자인의 모습으로 두 테마에서, 접은 것은 1,152와 1,280픽셀에서도 그린 것은 [revision.html](../../09-mockup/nexus/revision.html#scr-111)에 |
 
 ### 설계 수정의 배치
 

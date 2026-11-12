@@ -117,7 +117,7 @@ The revision adds no state. A reading again that sends a query value out of its 
 | State changes | A push, or the agent's newer request, between the page's drawing and the pass: SCR-112#stale |
 | Repeats | A pass sent again with its write ID leaves one checkpoint and gets its first answer, even when the commit changed in between (SPEC-194) |
 | Data exposure | The record shows the kind of browser and device in a fixed vocabulary, never the text that the browser sent or a network address (SPEC-195); the address to look at first opens only when the user presses it, in a new tab without a referrer |
-| Screen states | The changed head, the item that the talk selects and the record with a request in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-112); the column's four views, the picture, the list, the editor and the work board, in grey at 1,280 and 1,440 pixels, in [picture-stage-views.html](../../09-mockup/nexus/picture-stage-views.html) (stage 07, choice 18); stage 09 draws the revision's states in the redesign's look after the revision's checkpoint |
+| Screen states | The changed head, the item that the talk selects and the record with a request in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-112); the column's four views, the picture, the list, the editor and the work board, in grey at 1,280 and 1,440 pixels, in [picture-stage-views.html](../../09-mockup/nexus/picture-stage-views.html) (stage 07, choice 18); and the revision's states in the redesign's look in both themes, as stage 09 drew them after the revision's checkpoint, in [revision.html](../../09-mockup/nexus/revision.html#scr-112) |
 
 ### Layout of the revision
 

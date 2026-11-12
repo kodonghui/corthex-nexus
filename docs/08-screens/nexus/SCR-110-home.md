@@ -126,7 +126,7 @@ The revision adds one state of the page's own, removed. Nothing-waits and empty 
 | Limits | A request shows whole up to its ten lines and 1,200 characters (SPEC-197); an address to look at first shows its host and what follows, cut after 120 characters |
 | Outside services | The address to look at first is the one link of the page that can leave the server: it opens only when the user presses it, in a new tab without a referrer, and the page never loads it (REQ-147) |
 | Data exposure | The request's text and the address show as text (REQ-098); the times and counts name no person, and the session's label of the last read shows only in the project's data (SCR-130) |
-| Screen states | The new and the changed states in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-110); stage 09 draws them in the redesign's look |
+| Screen states | The new and the changed states in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-110), and in the redesign's look in both themes, as stage 09 drew them after the revision's checkpoint, in [revision.html](../../09-mockup/nexus/revision.html#scr-110) |
 
 ### Layout of the revision
 

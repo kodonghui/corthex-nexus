@@ -62,7 +62,7 @@ Every state of the stage applies, with three of the panel's own: removal and rem
 | Outside services | None: the panel's requests go only to the server (REQ-147), and the browser saves the file on the user's own device |
 | Data exposure | Counts, IDs and two times; the session's label of the last read, which names no person (SPEC-128), shows here only; no identity but "User" or "Agent" (rule 11). The export holds the comments' and replies' text: it leaves the server only for the user's own browser, under a person's own sign-in, with `no-store` (SPEC-201) |
 | Empty and streamed answers | No space: SCR-130#empty. No stream: the page takes the export whole before it hands it to the browser, so a reply that is cut saves nothing |
-| Screen states | Every state in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-130); stage 09 draws them in the redesign's look |
+| Screen states | Every state in grey at 390 and 1,440 pixels, in [revision-wireframes.html](revision-wireframes.html#scr-130), and in the redesign's look in both themes, as stage 09 drew them after the revision's checkpoint, in [revision.html](../../09-mockup/nexus/revision.html#scr-130) |
 | AI answers | None: NEXUS calls no AI model (REQ-121) |
 
 ## Layout

@@ -100,7 +100,7 @@ The revision adds no state. A request whose `part` is in another form is an erro
 | --- | --- |
 | Target | An item whose picture is not current or not drawn: the panel says so, and the list shows its row. An item whose row the narrowed list does not hold: the panel offers Show all |
 | Repeats | Picking another entry of the same item keeps the panel and opens that entry in its talk |
-| Screen states | The item that the talk selected in grey at 390 and 1,440 pixels, on SCR-112's frames in [revision-wireframes.html](revision-wireframes.html#scr-115); stage 09 draws it in the redesign's look |
+| Screen states | The item that the talk selected in grey at 390 and 1,440 pixels, on SCR-112's frames in [revision-wireframes.html](revision-wireframes.html#scr-115), and in the redesign's look in both themes, as stage 09 drew it after the revision's checkpoint, in [revision.html](../../09-mockup/nexus/revision.html#scr-115) |
 
 ### Layout of the revision
 

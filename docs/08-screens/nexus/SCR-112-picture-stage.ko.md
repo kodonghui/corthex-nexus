@@ -117,7 +117,7 @@
 | 상태 변화 | 페이지를 그린 뒤 통과하기 전에 새로 올라온 것이나 AI의 더 새 요청: SCR-112#stale |
 | 되풀이 | 같은 쓰기 ID로 다시 보낸 통과는 그사이 커밋이 바뀌었어도 확인 지점 하나를 남기고 첫 답을 받습니다(SPEC-194) |
 | 자료 노출 | 기록은 브라우저와 기기의 종류를 정해 둔 낱말로만 보이고, 브라우저가 보낸 글 그대로나 네트워크 주소는 결코 보이지 않습니다(SPEC-195). 먼저 볼 것인 주소는 사용자가 누를 때만, 리퍼러 없이 새 탭에서 열립니다 |
-| 화면 상태 | 바뀐 머리, 대화가 고르는 항목, 요청이 있는 기록을 390과 1,440픽셀에서 회색으로, [revision-wireframes.html](revision-wireframes.html#scr-112)에. 이 열의 네 보기, 곧 그림, 목록, 편집기, 작업 보드를 1,280과 1,440픽셀에서 회색으로, [picture-stage-views.html](../../09-mockup/nexus/picture-stage-views.html)에(07단계, 선택 18). 09단계가 설계 수정의 상태를 설계 수정의 확인 지점 뒤에 다시 디자인의 모습으로 그립니다 |
+| 화면 상태 | 바뀐 머리, 대화가 고르는 항목, 요청이 있는 기록을 390과 1,440픽셀에서 회색으로, [revision-wireframes.html](revision-wireframes.html#scr-112)에. 이 열의 네 보기, 곧 그림, 목록, 편집기, 작업 보드를 1,280과 1,440픽셀에서 회색으로, [picture-stage-views.html](../../09-mockup/nexus/picture-stage-views.html)에(07단계, 선택 18). 09단계가 설계 수정의 확인 지점 뒤에 설계 수정의 상태를 다시 디자인의 모습으로 두 테마에서 그린 것은 [revision.html](../../09-mockup/nexus/revision.html#scr-112)에 |
 
 ### 설계 수정의 배치
 
