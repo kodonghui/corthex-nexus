@@ -11,7 +11,7 @@
 1. 이 폴더에서 확정된 lockfile로 `npm ci --ignore-scripts`를 실행합니다. 버전을 올리지 않습니다.
 2. **저장소 밖 임시 폴더에 esbuild 0.28.2**를 `npm install --ignore-scripts --save-exact --prefix <scratch> esbuild@0.28.2`로 설치합니다. 저장소 의존성에 넣지 않습니다.
 3. 저장소 루트에서 `node nexus/tools/build-ui.mjs --dependencies <브라우저-node_modules-절대경로> --tool <임시-node_modules/esbuild/lib/main.js-절대경로>`를 실행합니다.
-4. `node nexus/tools/hub-style.mjs --write`로 같은 토큰을 기기의 허브에 넣고 Worker 사본을 맞춥니다.
+4. `node nexus/tools/hub-style.mjs --write`로 고정한 토큰을 제품 사본에 넣습니다. 양식을 바꿀 때는 upstream 허브 PR과 함께 하고 정확한 허브 고정점을 갱신합니다. 이 명령은 바깥의 체크아웃을 고치지 않습니다.
 5. AGENTS.md의 필수 검사를 실행합니다. UI 묶음을 인수하기 전에 브라우저 검사자가 실제 그림을 살피고 03단계 흐름을 걷습니다.
 
 `sizes.json`은 최종 파일별 SHA256, 원본·gzip 크기, 경로를 정규화한 모듈 그래프와 입력 원본의 해시를 기록합니다. 주소에는 전체 그래프의 해시가 반영되므로 의존성이 바뀌면 그것을 가져오는 파일의 주소도 바뀝니다. JS/CSS는 Worker Text, WOFF2는 Data 모듈이며 Access를 검사하는 `/code/` 요청으로만 제공합니다. 정적 assets나 CDN은 쓰지 않습니다. 빌드가 모두 성공한 뒤 그 디렉터리의 오래된 생성 파일명만 지우며 디렉터리를 재귀 삭제하지 않습니다.
@@ -37,5 +37,3 @@ IBM Plex Sans KR(굵기 400·500·600)과 IBM Plex Mono(400·500)는 OFL 1.1의 
 저장소 루트에서 `node nexus/test/view-server.mjs`를 실행하면 loopback 주소를 출력합니다. 실제 handler/Store와 메모리 SQLite, 합성 Access를 쓰며 표준 입력이 닫히면 끝납니다. `--keep-open`은 관리되는 로컬 브라우저 시험에 씁니다. `qa-views`, `qa-views-reply`, `qa-views-overview`는 독립된 합성 프로젝트입니다. `/__qa/receipts`에서 시험용 쓰기 본문·ID를 확인합니다. `NEXUS_QA_PAGES=1`이면 제목에 마크업과 자료 표식을 지닌, 부분 두 개의 프로젝트 `qa-pages`도 다시 디자인의 페이지를 위해 심습니다. handler는 TASK-271부터 그 페이지를 제 주소 `/`, `/p/qa-pages`, `/p/qa-pages/{part}/{stage}`에서 냅니다. `NEXUS_QA_HOME=1`이면 내 차례에 모든 종류의 줄을 지닌 `qa-home`과 `qa-home-two`를 첫 페이지를 위해 심고, 줄이 없는 상태와 프로젝트가 없는 상태를 위한 서버 둘을 더 두며, 이는 쿠키 `nexus-qa-space=quiet`나 `empty`로 고릅니다. `/__qa/push-again`은 `qa-home-two`를 다시 올립니다. `NEXUS_QA_STAGE=1`이면 02단계에 대화, 내 차례의 줄, 기록을 기다리는 확인 지점과 함께 합성 요구사항 450개를 두고, 05단계에 열린 제안과 반영 대기를 두며, 03단계는 프로젝트가 읽지 않는 `qa-stage`와, 기록된 진행이 없는 `qa-stage-unrecorded`를 심습니다. 그때 `/__qa/push-again`은 `qa-stage`를 다시 올립니다. `NEXUS_QA_HUB_VIEWS=1`이면 허브 페이지의 검색, 추적 보기, 단계 상세가 `/hub`에서 읽는 항목을 지닌 `qa-hub`를 심습니다(TASK-281). `nexus/test/hub-regression.mjs`는 고정한 허브가 같은 합성 스냅샷으로 기기의 파일을 만들게 합니다. `?lang=ko`는 요청 하나에서 서버의 언어를 정합니다. 이 시험 서버는 배포하지 않으며 실제 계정이나 저장소 원문을 읽지 않습니다.
 
 handler나 원본이 바뀌면 시험 서버를 다시 시작합니다. 브라우저 빌드만 바뀌면 재시작 없이 읽고, 열린 탭을 위해 이전 파일도 시험 서버 메모리에 남겨 둡니다. 마지막 브라우저 시험은 확정된 원본·빌드 해시를 적고 다시 시작한 서버에서 실행합니다.
-
-저장소 분리 후 `hub-style.mjs --write`는 제품 사본만 고칩니다. 허브 양식 변경은 upstream PR과 정확한 hub-ref 갱신을 함께 검증하며 외부 기준점 폴더를 자동으로 고치지 않습니다.
