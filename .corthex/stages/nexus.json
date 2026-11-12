@@ -214,8 +214,8 @@
           "date": "2026-11-04"
         }
       ],
-      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: TASK-279 to TASK-320 planned, five of them removed with D20, none started. Then the builder follows the plan as written; phase ②'s tasks come after its stages 07 to 09",
-      "updated": "2026-11-12T03:12:33+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: TASK-279 to TASK-320 planned, five removed with D20; TASK-303 to TASK-305 are draft pull requests, no other task started. Then the builder follows the plan as written; phase ②'s tasks come after its stages 07 to 09",
+      "updated": "2026-11-12T04:06:04+00:00"
     },
     "11-development": {
       "state": "in_progress",
