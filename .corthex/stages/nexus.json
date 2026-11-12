@@ -293,14 +293,14 @@
           "date": "2026-11-05"
         }
       ],
-      "next": "Build TASK-275 to TASK-278 with the revision's changes, TASK-275 from its work that was not committed, and TASK-279 to TASK-320 as stage 10 orders them; the design revision passed its checkpoint on 2026-11-12. The 0.2.3 release stopped before its switch",
-      "updated": "2026-11-12T05:12:24+00:00"
+      "next": "TASK-275 to TASK-278 are built on the draft pull request kodonghui/corthex-nexus#53; next TASK-287, the folds of the workspace, then the revision's tasks as stage 10 orders them. The 0.2.3 release stopped before its switch",
+      "updated": "2026-11-12T22:15:43+00:00"
     },
     "12-qa": {
       "state": "in_progress",
       "checkpoints": [],
-      "next": "387 planned cases, TC-1408 to TC-1794, none run: each runs with the task that builds its row. The stage's own checkpoint is the release's go or no-go (D19) and has not passed; the walk of production after the release, with ego lite where it is installed, stays to do",
-      "updated": "2026-11-12T05:12:24+00:00"
+      "next": "The revision's 387 planned cases, TC-1408 to TC-1794: 15 pass, 4 in part and 368 not run, each to run with the task that builds its row; TC-1795 to TC-1878, the cases of TASK-276 to TASK-278, pass. The flows walk's 34 impressions wait for the maintainer's choice (TC-1785). The stage's own checkpoint is the release's go or no-go (D19) and has not passed; the walk of production after the release, with ego lite where it is installed, stays to do",
+      "updated": "2026-11-12T22:15:43+00:00"
     }
   }
 }
