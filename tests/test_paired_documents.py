@@ -10,8 +10,9 @@ difference shortens the list in the same commit. `python tests/test_paired_docum
 differences that stand now in the list's form, for a person to review.
 
 Every inner and relative link of every document resolves: its file exists and, in a Markdown file, its heading or
-anchor exists. Whether the Mermaid diagrams draw stays a check that the builder runs by hand with a pinned Mermaid
-outside the repository's dependencies, since a new development dependency needs the maintainer's approval."""
+anchor exists, and in a page, its ID, as stage 08 checked its links into the wireframes (TASK-282). Whether the
+Mermaid diagrams draw stays a check that the builder runs by hand with a pinned Mermaid outside the repository's
+dependencies, since a new development dependency needs the maintainer's approval."""
 
 import collections
 import json
@@ -102,7 +103,10 @@ _anchors = {}
 
 
 def anchors(path):
-    """The places that a link can name in a Markdown file: its headings, as GitHub names them, and its anchors."""
+    """The places that a link can name in a Markdown file, its headings as GitHub names them and its anchors, or in a
+    page, its IDs."""
+    if path not in _anchors and path.suffix == ".html":
+        _anchors[path] = set(re.findall(r'\bid="([^"]+)"', path.read_text(encoding="utf8")))
     if path not in _anchors:
         found, seen, fence = set(), collections.Counter(), False
         for line in path.read_text(encoding="utf8").split("\n"):
@@ -134,7 +138,7 @@ def broken_links(relative):
                 continue
             target, _, place = link.partition("#")
             file = (path.parent / target).resolve() if target else path
-            if not file.exists() or (place and file.suffix == ".md" and place not in anchors(file)):
+            if not file.exists() or (place and file.suffix in (".md", ".html") and place not in anchors(file)):
                 found.append((number, link))
     return found
 

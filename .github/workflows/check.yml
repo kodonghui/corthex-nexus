@@ -87,6 +87,7 @@ jobs:
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" -m openapi_spec_validator docs/06-api/nexus.openapi.yaml'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/contract_response_check.py'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/contract_planned_check.py'
+      - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/screen_states_check.py'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/default_response_check.py'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/hub_contract_check.py'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/contract_hooks_check.py'
