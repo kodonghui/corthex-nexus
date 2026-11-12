@@ -173,6 +173,13 @@ jobs:
           test -n "$chrome"
           printf 'NEXUS_CHROME=%s\n' "$chrome" >> "$GITHUB_ENV"
           printf 'NEXUS_QA_ARTIFACTS=%s/nexus-browser-artifacts\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      # The pages that wait for their code show the system's fonts, since the code adds the
+      # page's own. The runner has no Korean font and drew Korean as empty boxes, narrower
+      # than any phone's letters; Noto Sans CJK is the one the font list names.
+      - name: Install a Korean font
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends fonts-noto-cjk
       - run: python nexus/test/browser_check.py walk
       - name: Keep the walk's receipts and screenshots
         if: ${{ always() }}
