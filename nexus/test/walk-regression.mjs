@@ -553,8 +553,7 @@ try{
  // Each state opens a new page: Chrome's back-forward cache kept the pages left behind, and with
  // them the large picture's canvases, 13.4 GB at most where one page takes 4.7 (BUG-601).
  browser.launch(chrome,['--headless=new','--remote-debugging-port=0','--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-component-update','--disable-sync','--disable-extensions','--disable-features=BackForwardCache','--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1','about:blank'],browserEnv);
- let endpoint;for(let n=0;n<100;n++){try{endpoint=(await fs.readFile(path.join(profile,'DevToolsActivePort'),'utf8')).trim().split('\n');break;}catch{await sleep(100);}}
- if(!endpoint)throw Error('Owned Chrome did not publish its CDP endpoint');
+ const endpoint=await browser.endpoint();
  ws=new WebSocket('ws://127.0.0.1:'+endpoint[0]+endpoint[1]);await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
  ws.onmessage=message=>{const m=JSON.parse(message.data);if(m.id){const call=pending.get(m.id);pending.delete(m.id);if(call)m.error?call.reject(Error(JSON.stringify(m.error))):call.resolve(m.result);return;}
   if(m.sessionId!==session)return;

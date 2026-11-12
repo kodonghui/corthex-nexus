@@ -9,7 +9,7 @@ const jobOwner = fileURLToPath(new URL("./windows-browser-job.py", import.meta.u
 export async function createBrowserRun(artifactBase, prefix = "run-") {
   const folder = await fs.mkdtemp(path.join(await fs.realpath(artifactBase), prefix));
   const profile = await fs.mkdtemp(path.join(folder, "profile-"));
-  let child, spawnError, stopped = false;
+  let child, spawnError, stopped = false, output = "";
 
   function launch(chrome, args, env) {
     const browserArgs = ["--user-data-dir=" + profile, ...args];
@@ -17,12 +17,30 @@ export async function createBrowserRun(artifactBase, prefix = "run-") {
       ? spawn(env.NEXUS_QA_PYTHON || "python", [jobOwner, chrome, ...browserArgs], {
         stdio: ["pipe", "ignore", "inherit"], windowsHide: true, env
       })
-      : spawn(chrome, browserArgs, {stdio: "ignore", env});
+      : spawn(chrome, browserArgs, {stdio: ["ignore", "ignore", "pipe"], env});
     child.on("error", error => { spawnError = error; });
     child.stdin?.on("error", () => {}); // The job owner may have exited before EOF.
+    // The browser's own last words, kept for a start that fails.
+    child.stderr?.on("data", chunk => { output = (output + chunk.toString("utf8")).slice(-4000); });
   }
 
   const running = () => child?.pid !== undefined && child.exitCode === null && child.signalCode === null;
+  // The browser writes the port of its DevTools endpoint into the profile once it listens. A start
+  // that does not says whether the browser still runs or how it ended, with its last output.
+  async function endpoint(ms = 30000) {
+    for (const end = Date.now() + ms; ;) {
+      try {
+        return (await fs.readFile(path.join(profile, "DevToolsActivePort"), "utf8")).trim().split("\n");
+      } catch {
+        if (spawnError || (child && !running()) || Date.now() >= end) break;
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+    const state = spawnError ? "it could not start: " + spawnError.message
+      : running() ? `it still runs after ${ms / 1000} seconds` : `it ended with ${child?.exitCode ?? child?.signalCode}`;
+    const words = output.trim().split("\n").slice(-6).join(" | ");
+    throw new Error("Owned Chrome did not publish its CDP endpoint: " + state + (words ? "; its last output: " + words : ""));
+  }
   async function waitForExit(ms) {
     if (!running()) return;
     await new Promise(resolve => {
@@ -59,5 +77,5 @@ export async function createBrowserRun(artifactBase, prefix = "run-") {
     await fs.rm(realProfile, {recursive: true, force: true, maxRetries: 5, retryDelay: 200});
   }
 
-  return {folder, profile, launch, stop, removeProfile};
+  return {folder, profile, launch, endpoint, stop, removeProfile};
 }
