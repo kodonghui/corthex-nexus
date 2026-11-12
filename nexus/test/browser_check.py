@@ -2,8 +2,8 @@
 
 Since TASK-278 no address serves 0.2's picture view or stage overview (SPEC-154), so their suites are retired; the
 page suite opens their addresses and sees where they lead (TC-1767). The walk of the redesign's 53 states (TASK-278)
-runs last, one group of screens per fixture server. Names given as arguments run only those suites, such as `page`,
-`walk` or `walk:talk`."""
+runs after them, one group of screens per fixture server, and the paths that browser agents walked through the flows
+(TC-1785) last. Names given as arguments run only those suites, such as `page`, `walk`, `walk:talk` or `flows`."""
 import json
 import os
 import shutil
@@ -67,6 +67,12 @@ SUITES = (
     ("walk:item", "walk-regression.mjs", ("NEXUS_QA_ITEM",), ("item",)),
     ("walk:search", "walk-regression.mjs", ("NEXUS_QA_ITEM",), ("search",)),
     ("walk:hub", "walk-regression.mjs", ("NEXUS_QA_HOME", "NEXUS_QA_STAGE"), ("hub",)),
+    # The paths that browser agents walked through FL-117 to FL-119 and that no suite above repeats,
+    # each named with its case (TASK-278, TC-1785), one group per fixture server.
+    ("flows:first-page", "flow-regression.mjs", ("NEXUS_QA_HOME",), ("first-page",)),
+    ("flows:workspace", "flow-regression.mjs", ("NEXUS_QA_STAGE",), ("workspace",)),
+    ("flows:picture", "flow-regression.mjs", ("NEXUS_QA_PICTURE",), ("picture",)),
+    ("flows:talk", "flow-regression.mjs", ("NEXUS_QA_TALK",), ("talk",)),
 )
 
 
@@ -74,14 +80,15 @@ def main(names=()):
     executable = shutil.which("node")
     if not executable or Path(executable).resolve().parent == ROOT:
         raise RuntimeError("Node 24 must be installed on PATH outside the checkout")
-    unknown = [name for name in names if name != "walk" and name not in {suite[0] for suite in SUITES}]
+    groups = ("walk", "flows")
+    unknown = [name for name in names if name not in groups and name not in {suite[0] for suite in SUITES}]
     if unknown:
         raise SystemExit("Unknown suites: " + ", ".join(unknown))
     clean = {key: value for key, value in os.environ.items()
              if not key.startswith(("NEXUS_DEV_", "CORTHEX_NEXUS_")) and key not in FLAGS}
     clean["NEXUS_QA_PYTHON"] = sys.executable
     for name, script, flags, arguments in SUITES:
-        if names and name not in names and not ("walk" in names and name.startswith("walk:")):
+        if names and name not in names and not any(group in names and name.startswith(group + ":") for group in groups):
             continue
         suite = clean.copy()
         for flag in flags:

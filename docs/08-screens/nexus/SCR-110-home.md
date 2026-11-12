@@ -74,7 +74,7 @@ Every state of the stage applies, with two of the page's own: nothing-waits, an 
 | The projects | One card under another; in a card, the small views three in a row, and the 13 stages wrap | Two cards in a row, the column 1,200 pixels at most |
 | The notices | Each a bar under the top bar, across the width | The same, above my turn |
 
-On a screen that a finger selects, the links of the agent to-do take a line of 44 pixels, and so do an entry's place and the links under its answer, whose lines grow to it (rule 14). An entry's place keeps the project's title to two fifths of its line, cut with an ellipsis, and wraps under 1,024 pixels, so that the stage and the item stay readable.
+On a screen that a finger selects, the links of the agent to-do take a line of 44 pixels, and so do an entry's place and the links under its answer, whose lines grow to it (rule 14). An entry's place keeps the project's title to two fifths of its line, cut with an ellipsis, and wraps at every width, so that the stage and the item stay readable.
 
 ## The design revision of 2026-11-11
 

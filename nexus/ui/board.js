@@ -106,10 +106,12 @@ export const mapView=bounds=>{const room=Math.max(bounds.width,bounds.height)*.0
 // an item's address; editor(state) tells the page that the editor loads or failed.
 export function createBoard(part,{state,lang,pick,editor:told}){
   const dark=matchMedia("(prefers-color-scheme: dark)");
-  let cv=null,board=null,world=null,scene=null,version="",cam=null,stage="",editor=null,token=0,frame=0,selected=null,rects=null,lastZoom=1;
+  let cv=null,board=null,world=null,scene=null,version="",cam=null,stage="",editor=null,token=0,frame=0,selected=null,rects=null,lastZoom=1,unseen=null;
   // The view of each drawing, so that the picture keeps it when the list was shown between.
   const views=new Map();
-  const observer=new ResizeObserver(()=>schedule());
+  // unseen is the item selected while the frame had no size, as behind a phone's other tab: it
+  // comes into sight once the frame has one (BUG-603).
+  const observer=new ResizeObserver(()=>{if(unseen&&cv?.clientWidth&&cv.clientHeight){const id=unseen;unseen=null;if(id===selected)select(id);}schedule();});
   const rectOf=node=>rects?.get(node.key)||node;
   const size=()=>({width:cv.clientWidth,height:cv.clientHeight});
 
@@ -191,11 +193,13 @@ export function createBoard(part,{state,lang,pick,editor:told}){
   // and marked by an outline. "elsewhere" where a DDD board's step does not hold it and the
   // whole board might, "absent" where the picture does not hold it.
   function select(id){
-    selected=id||null;
+    selected=id||null;unseen=null;
     if(!cv||!id){schedule();return id?"absent":"none";}
     const box=itemBox(scene,id,rectOf);
     if(!box){schedule();return stage==="01-domain"&&scene.step<8?"elsewhere":"absent";}
-    const {width,height}=size();move(sightCamera(cam,box,stage,width,height));
+    const {width,height}=size();
+    if(!width||!height){unseen=id;schedule();return"found";}
+    move(sightCamera(cam,box,stage,width,height));
     return"found";
   }
 

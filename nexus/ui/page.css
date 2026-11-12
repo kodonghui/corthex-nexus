@@ -142,7 +142,9 @@ body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-f
 .nx .home .mine ol{display:grid}
 .nx .home .ent{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"kind where when" "txt txt acts" "after after after";align-items:center;gap:var(--nx-space-xs) var(--nx-space-lg);padding:var(--nx-space-md) var(--nx-space-lg);border-top:var(--nx-border-thin) solid var(--nx-color-line)}
 .nx .home .ent > .kind{grid-area:kind;justify-self:start}
-.nx .home .ent > .where{grid-area:where;display:flex;align-items:center;gap:var(--nx-space-sm);min-width:0;margin-left:calc(var(--nx-space-sm) - var(--nx-space-lg));font-size:var(--nx-font-size-small);color:var(--nx-color-muted)}
+/* An entry's place wraps at every width, so that its stage and item stay readable beside a
+   project's title of two fifths of the line (SCR-110's layout, BUG-602). */
+.nx .home .ent > .where{grid-area:where;display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--nx-space-sm);min-width:0;margin-left:calc(var(--nx-space-sm) - var(--nx-space-lg));font-size:var(--nx-font-size-small);color:var(--nx-color-muted)}
 .nx .home .where > *{flex:none;white-space:nowrap}
 .nx .home .where > .clip{flex:0 1 auto}
 .nx .home .where > span:first-child{flex:0 1 auto;max-width:40%;overflow:hidden;text-overflow:ellipsis}
@@ -596,7 +598,7 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
  .nx .home > .notes{gap:0;margin:calc(var(--nx-space-md) * -1) calc(var(--nx-space-md) * -1) 0}
  .nx .home > .notes .bar{border-width:0 0 var(--nx-border-thin);border-radius:0}
  .nx .home .ent{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"kind when" "where where" "txt txt" "acts acts" "after after";padding:var(--nx-space-md)}
- .nx .home .ent > .where{margin-left:0;flex-wrap:wrap;row-gap:0}
+ .nx .home .ent > .where{margin-left:0}
  .nx .home .where > span:first-child{max-width:100%}
  .nx .home .ent > .acts{justify-self:stretch;padding-top:var(--nx-space-xs)}
  .nx .home .ent > .acts > *{flex:1}

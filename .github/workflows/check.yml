@@ -153,7 +153,8 @@ jobs:
           retention-days: 7
 
   # TASK-278: each of the redesign's 53 states at its widths, in both themes and languages, with the
-  # page checks; its screenshots are kept for a person to look at.
+  # page checks, and the paths that browser agents walked through the flows (TC-1785) that no suite
+  # of browser-ui repeats; their screenshots are kept for a person to look at.
   browser-walk:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -180,7 +181,7 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q --no-install-recommends fonts-noto-cjk
-      - run: python nexus/test/browser_check.py walk
+      - run: python nexus/test/browser_check.py walk flows
       - name: Keep the walk's receipts and screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -189,6 +190,8 @@ jobs:
           path: |
             ${{ env.NEXUS_QA_ARTIFACTS }}/walk-*/*.json
             ${{ env.NEXUS_QA_ARTIFACTS }}/walk-*/*.png
+            ${{ env.NEXUS_QA_ARTIFACTS }}/flows-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/flows-*/*.png
           if-no-files-found: ignore
           retention-days: 7
 
