@@ -14,11 +14,11 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 08단계입니다: [사이트�
 - [SCR-102 검색 결과](SCR-102-search-results.ko.md), `/hub#q={words}`: normal, empty.
 - [SCR-103 추적 화면](SCR-103-trace-view.ko.md), `/hub#p={project}&id={id}`: normal, error.
 - [SCR-104 단계 자세히 보기](SCR-104-stage-detail.ko.md), `/hub#p={project}&s={stage}`: normal, empty, stale, error.
-- [SCR-105 그림 보기](SCR-105-picture-view.ko.md), `/pictures/{project}/{part}/{stage}`: loading, normal, large, empty, stale, error, code-failed, permission.
-- [SCR-106 항목](SCR-106-item.ko.md), `#item={id}`: normal, empty, loading, error, permission, gone.
-- [SCR-107 의견](SCR-107-comment.ko.md), `#comment={comment}`: loading, normal, stale, error, permission, gone.
-- [SCR-108 제안](SCR-108-proposal.ko.md), `#proposal={proposal}`: loading, normal, stale, error, permission, gone.
-- [SCR-109 단계 현황](SCR-109-stage-overview.ko.md), `/overview/{project}/{part}/{stage}`: loading, normal, empty, stale, error, permission.
+- [SCR-105 그림 보기](SCR-105-picture-view.ko.md), `/pictures/{project}/{part}/{stage}`, 주소가 SCR-112로 이어지는 TASK-278부터 `removed`이며 0.2 그림 보기의 기록으로 남습니다: loading, normal, large, empty, stale, error, code-failed, permission.
+- [SCR-106 항목](SCR-106-item.ko.md), `#item={id}`, 주소가 SCR-115로 이어지는 TASK-278부터 `removed`이며 0.2 항목 패널의 기록으로 남습니다: normal, empty, loading, error, permission, gone.
+- [SCR-107 의견](SCR-107-comment.ko.md), `#comment={comment}`, 주소가 SCR-114로 이어지는 TASK-278부터 `removed`이며 0.2 의견 패널의 기록으로 남습니다: loading, normal, stale, error, permission, gone.
+- [SCR-108 제안](SCR-108-proposal.ko.md), `#proposal={proposal}`, 주소가 SCR-114로 이어지는 TASK-278부터 `removed`이며 0.2 제안 패널의 기록으로 남습니다: loading, normal, stale, error, permission, gone.
+- [SCR-109 단계 현황](SCR-109-stage-overview.ko.md), `/overview/{project}/{part}/{stage}`, 주소가 SCR-112나 SCR-113의 목록으로 이어지는 TASK-278부터 `removed`이며 0.2 단계 현황의 기록으로 남습니다: loading, normal, empty, stale, error, permission.
 
 다시 디자인의 화면이며, 만들기 전까지는 계획입니다. 2026-11-11의 설계 수정부터 07단계가 허브 페이지와 함께 한 나무에 둡니다([다시 디자인한 화면](../../07-sitemap/nexus.ko.md#다시-디자인한-화면)):
 

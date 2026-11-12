@@ -21,11 +21,10 @@ export function createViews(code,entries){
     const deferred=[...new Set(entries[editor+"-"+lang+"-preload"]||entries[editor+"-preload"]||[])];
     return`<template id="nexus-editor-assets">${deferred.map(h=>link("modulepreload",h)).join("")}${entries[editor+"-css"]?link("stylesheet",entries[editor+"-css"],' data-nexus-css="editor"'):""}${editor==="excalidraw"?(entries["font-preload"]||[]).map(h=>link("preload",h,' as="font" type="font/woff2" crossorigin')).join(""):""}</template>`;
   };
-  return{code,refusalCSS:css,hints(payload){
-    // Only immutable public bundle names; never project names or page data.
-    if(payload.view!=="picture"||!payload.data?.picture)return"";
-    return entries["view-js"]?`<${entries["view-js"]}>; rel=preload; as=script; crossorigin`:"";
-  },template(payload){
+  return{code,refusalCSS:css,template(payload){
+    // 0.2's picture view and stage overview (SCR-105 to SCR-109), which no address serves since
+    // TASK-278 leads theirs to the stage's page (SPEC-154). Their code stays until it is taken out,
+    // since the message page takes its stylesheet from it (refusalCSS).
     const lang=payload.lang==="ko"?"ko":"en",picture=payload.view==="picture",editor=picture&&payload.data?.picture?(payload.data.stage==="05-erd"?"erd":"excalidraw"):null;
     const loading=words(picture?"Loading the view":"Loading the overview",lang),reload=lang==="ko"?"다시 불러오기":"Load again";
     const initial=picture?picturePreview(payload.data,lang):"";

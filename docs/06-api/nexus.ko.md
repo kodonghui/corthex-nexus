@@ -74,8 +74,8 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 | ID | 요청 | 코드 이름 | 보낼 수 있는 쪽 | 맡는 동작 | 상태 |
 | --- | --- | --- | --- | --- | --- |
 | API-101 | `GET /hub` | `getHubPage` | 둘 다 | SPEC-113, SPEC-122, SPEC-123, SPEC-124, SPEC-125, SPEC-153 | active |
-| API-102 | `GET /pictures/{project}/{part}/{stage}` | `getPictureViewPage` | 둘 다 | SPEC-113, SPEC-119 | active |
-| API-103 | `GET /overview/{project}/{part}/{stage}` | `getStageOverviewPage` | 둘 다 | SPEC-113, SPEC-138, SPEC-139 | active |
+| API-102 | `GET /pictures/{project}/{part}/{stage}` | `getPictureViewPage` | 둘 다 | SPEC-113, SPEC-119, SPEC-154 | active |
+| API-103 | `GET /overview/{project}/{part}/{stage}` | `getStageOverviewPage` | 둘 다 | SPEC-113, SPEC-138, SPEC-139, SPEC-154 | active |
 | API-104 | `GET /code/{file}` | `getViewCode` | 둘 다 | SPEC-113, SPEC-119 | active |
 | API-105 | `POST /api/snapshots` | `pushSnapshot` | 둘 다 | SPEC-111, SPEC-112, SPEC-113, SPEC-114, SPEC-117, SPEC-118, SPEC-120, SPEC-121, SPEC-140 | active |
 | API-106 | `GET /api/snapshots` | `listSnapshots` | 둘 다 | SPEC-113, SPEC-122 | built |
@@ -161,7 +161,7 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 4. API-119 `replyToComment`: 에이전트의 답글은 `asks`를 지닐 수 있고, 사용자의 답글은 의견의 `asks`를 비웁니다.
 5. 허브의 `comment`(API-139)는 그림이 있는 단계만이 아니라 13단계 어느 것이든 `--stage`로 받고, 단계 전체에는 `--item`을 뺍니다. `comment`와 `reply`(API-140)는 `--asks answer|recommended|checkpoint`를 받습니다. 이것은 `kodonghui/corthex`에 있는 허브의 변경이므로 허브 페이지 템플릿의 새 토큰(09단계)과 함께 그곳의 풀 리퀘스트로 들어오고, 이 저장소의 규칙대로 이 저장소의 `hub-ref.json`은 제품 검사와 함께 그 정확한 커밋으로 옮깁니다.
 
-변경 1은 TASK-271부터 만들어졌고, 변경 2는 TASK-278과 함께 옵니다(아래 API-153\~API-155). 변경 3\~5는 만들어졌습니다: 계약과 서버는 kodonghui/corthex-nexus#50에서 05단계의 변환 4와 함께, 허브 0.3.0은 kodonghui/corthex#172에서 만들었고, `hub-ref.json`은 그 커밋 `318035d`을 적습니다. 그것을 쓰면서 정한 두 가지: 무엇을 묻는지는 에이전트만 말하므로 사용자의 `asks`는 `asks` 칸의 `400` `invalid_request`로 거절합니다. 그리고 `commit`을 뺀 의견은 그림의 문서 판을, 그림이 없는 단계에서는 간직한 기본 브랜치 커밋을 받고, 저장된 스냅샷에 그것이 없으면 `commit` 칸으로 거절합니다.
+변경 1은 TASK-271부터, 변경 2는 TASK-278부터 만들어졌습니다(아래 API-153\~API-155). 변경 3\~5는 만들어졌습니다: 계약과 서버는 kodonghui/corthex-nexus#50에서 05단계의 변환 4와 함께, 허브 0.3.0은 kodonghui/corthex#172에서 만들었고, `hub-ref.json`은 그 커밋 `318035d`을 적습니다. 그것을 쓰면서 정한 두 가지: 무엇을 묻는지는 에이전트만 말하므로 사용자의 `asks`는 `asks` 칸의 `400` `invalid_request`로 거절합니다. 그리고 `commit`을 뺀 의견은 그림의 문서 판을, 그림이 없는 단계에서는 간직한 기본 브랜치 커밋을 받고, 저장된 스냅샷에 그것이 없으면 `commit` 칸으로 거절합니다.
 
 계약은 TASK-265부터 API-151\~API-154와 API-156\~API-159를 `x-corthex.status: planned`로 표시해 지니며, 계약 검사는 서버가 답하기 전까지 그것을 뺍니다. API-155는 TASK-271에서 API-101을 옮길 때 함께 왔습니다. 그것을 쓰면서 정한 것:
 
@@ -223,7 +223,7 @@ API-159는 TASK-270부터 active입니다: 서버가 답하고, 계약 검사와
 
 API-153\~API-155는 API-101을 `/hub`로 옮긴 것과 함께 TASK-271부터 active입니다: 서버가 답하고, 계약 검사와 Schemathesis가 다룹니다. 그것을 만들면서 정한 것:
 
-- `/`는 첫 화면이고 `/hub`는 허브 페이지이며, 허브 페이지는 찾기·추적·단계 보기를 제 조각 주소에 그대로 지닙니다. 0.2의 다른 것은 아직 옮기지 않습니다: 그림 보기와 단계 현황, 곧 API-102와 API-103은 다시 디자인의 단계가 그것들이 보이는 그림과 목록을 그릴 때까지(TASK-274, TASK-275) 제 주소에서 제 페이지를 지닙니다. 그때까지 단계의 페이지는 그 자료를 지니되 틀만 그리므로, 그리로 가는 `302`는 하나뿐인 동작하는 보기를 빼앗습니다. 그 넘겨주기, 곧 변경 2는 0.2의 모든 주소를 걸어 보는 TASK-278과 함께 옵니다. 두 보기의 허브 페이지 링크와 그 메시지 페이지의 링크는 `/hub`로 갑니다.
+- `/`는 첫 화면이고 `/hub`는 허브 페이지이며, 허브 페이지는 찾기·추적·단계 보기를 제 조각 주소에 그대로 지닙니다. 0.2의 다른 것은 아직 옮기지 않습니다: 그림 보기와 단계 현황, 곧 API-102와 API-103은 다시 디자인의 단계가 그것들이 보이는 그림과 목록을 그릴 때까지(TASK-274, TASK-275) 제 주소에서 제 페이지를 지닙니다. 그때까지 단계의 페이지는 그 자료를 지니되 틀만 그리므로, 그리로 가는 `302`는 하나뿐인 동작하는 보기를 빼앗습니다. 그 넘겨주기, 곧 변경 2는 0.2의 모든 주소를 걸어 보는 TASK-278과 함께 옵니다. 두 보기의 허브 페이지 링크와 그 메시지 페이지의 링크는 `/hub`로 갑니다. TASK-278부터 두 주소는 단계의 페이지로 `302`를 답하고, 단계 현황의 것은 `#view=list`를 답니다. Access나 다른 꼴의 경로 값에 대한 그 주소 자신의 거절은 여전히 `/hub` 링크를 단 메시지 페이지입니다. 두 보기의 코드는 메시지 페이지가 그 스타일을 가져다 쓰므로, 뒤의 작업이 꺼낼 때까지 어느 주소에서도 내주지 않은 채 저장소에 남습니다.
 - API-153은 저장된 스냅샷만 읽습니다: 설정의 순서로 첫 부분의 지금 단계, 곧 첫 화면의 카드가 적는 대로 처음 진행 중인 단계, 없으면 처음 시작 전인 단계이고, 둘 다 없으면 01단계입니다. 부분이 없는 프로젝트는 `_`입니다. `302`는 본문이 없고, 모든 응답의 헤더와 JSON 응답의 정책을 지니며, 브라우저는 그것을 지나며 `#` 뒤를 지니므로 `/p/{project}#talk=…`는 지금 단계에서 열립니다.
 - API-154는 저장된 스냅샷 한 번의 읽기에서 단계를 API-158이 기본값으로 답하는 대로, 대화 전체를 API-152가 답하는 대로, 01·05·07단계에서는 그림을 API-111이 답하는 대로 읽으며, 저마다 제 묶음으로 읽습니다. 0.1 허브로만 올라와 공간이 없는 프로젝트는 단계를 지니되 `talk`와 `picture`가 null이고 `problem`이 `space_not_found`입니다. 그림이 있는 단계인데 그 부분에 그림이 없으면 `picture`가 null이고 `problem`이 API-111의 답처럼 `why`를 단 `picture_not_found`입니다. 두 경우 모두 페이지는 `200`이고, 서버는 거절을 기록하듯 그 문제의 코드와 추적 ID를 기록합니다.
 - API-155는 페이지를 낼 때 읽은 API-151의 응답을 계약의 `HomePageData`, 곧 `corthex-home-page/0.3`으로 지닙니다.
@@ -1240,7 +1240,7 @@ CREATE TABLE pictures (
 ### 페이지 자료
 
 - 허브 페이지는 `<script id="hub-data" type="application/json">`에 `corthex-hub-page/0.2`, 곧 계약의 `HubPageData`를 담습니다: 1차의 멤버와 `spaces`이며, `spaces`는 공간이 있는 프로젝트마다 그 그림, 열린 것의 개수, 기록을 기다리는 확인 지점, 경고를 담습니다. `lang`은 1차처럼 서버의 `NEXUS_LANGUAGE`에서, 기기에서는 프로필에서 옵니다.
-- 그림 보기와 단계 현황은 `<script id="view-data" type="application/json">`에 `corthex-view-page/0.2`, 곧 계약의 `ViewPageData`를 담습니다: `picture`나 `overview`인 `view`; API-111이나 API-112의 응답인 `data`; 그리고 서버가 그것을 읽지 못했을 때의 문제 세부 정보인 `problem`, 이를테면 `picture_not_found`. 쓰기 뒤에 보기 화면은 그 요청으로 자료를 다시 읽습니다.
+- 그림 보기와 단계 현황은 `<script id="view-data" type="application/json">`에 `corthex-view-page/0.2`, 곧 TASK-278까지 계약의 `ViewPageData`였던 것을 담았습니다: `picture`나 `overview`인 `view`; API-111이나 API-112의 응답인 `data`; 그리고 서버가 그것을 읽지 못했을 때의 문제 세부 정보인 `problem`, 이를테면 `picture_not_found`. 쓰기 뒤에 보기 화면은 그 요청으로 자료를 다시 읽었습니다. TASK-278부터 두 주소는 단계의 페이지로 이어지고, 계약은 더는 `ViewPageData`를 담지 않습니다.
 - 다시 디자인의 첫 화면 API-155는 같은 스크립트 블록에 `corthex-home-page/0.3`, 곧 계약의 `HomePageData`를 담습니다: 페이지를 낼 때의 API-151 응답인 `data`.
 - 다시 디자인의 단계 페이지 API-154는 같은 스크립트 블록에 `corthex-stage-page/0.3`, 곧 계약의 `StagePageData`를 담습니다: 기본 순서의 처음 항목 200개에 대한 API-158의 응답인 `data`; 단계 전체에 대한 API-152의 응답인 `talk`, 공간이 없는 프로젝트에서는 null; 그림이 있는 단계에서 API-111의 응답인 `picture`, 그 밖에는 null; 그리고 페이지가 담지 못한 것의 문제 세부 정보인 `problem`, 곧 `space_not_found`나 `picture_not_found`.
 

@@ -114,7 +114,9 @@ try{
    // The hub page whole: its frame, its words and every project the place holds.
    assert(seen.lang===language&&seen.hubData&&!seen.viewData&&seen.title===w.title,'The hub page in '+language+': '+JSON.stringify(seen));
    assert(seen.footer===(place==='server'?w.server:w.local),'The footer says where the page was built: '+seen.footer);
-   assert(seen.cards.includes('project-'+project)&&(place==='server'?seen.cards.length===4:seen.cards.length===1),'The cards of the place\'s projects: '+seen.cards.join());
+   // The server holds this suite's project and the fixture's qa-views; since TASK-278 it no
+   // longer pushes the two projects of 0.2's retired suites.
+   assert(seen.cards.includes('project-'+project)&&(place==='server'?seen.cards.length===2:seen.cards.length===1),'The cards of the place\'s projects: '+seen.cards.join());
    assert(!seen.sideways,'Nothing scrolls sideways');
    if(view==='hub'){
     assert(seen.heading===null&&!seen.open.length&&!seen.pressed.length,'/hub opens no view: '+JSON.stringify(seen));

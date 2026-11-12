@@ -144,10 +144,6 @@ jobs:
         with:
           name: nexus-browser-regression
           path: |
-            ${{ env.NEXUS_QA_ARTIFACTS }}/run-*/*.json
-            ${{ env.NEXUS_QA_ARTIFACTS }}/run-*/*.png
-            ${{ env.NEXUS_QA_ARTIFACTS }}/late-screen-*/*.json
-            ${{ env.NEXUS_QA_ARTIFACTS }}/late-screen-*/*.png
             ${{ env.NEXUS_QA_ARTIFACTS }}/pages-*/*.json
             ${{ env.NEXUS_QA_ARTIFACTS }}/pages-*/*.png
             ${{ env.NEXUS_QA_ARTIFACTS }}/hub-*/*.json

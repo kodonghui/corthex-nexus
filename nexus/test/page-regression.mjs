@@ -277,19 +277,42 @@ try{
   const hub=await evaluate(`({data:!!document.getElementById('hub-data'),view:!!document.getElementById('view-data'),projects:document.getElementById('projects').children.length})`);
   assert(hub.data&&!hub.view,'/hub serves the hub page');
   const screenshot=await shot('hub-at-hub');
-  // 0.2's picture view and stage overview keep their pages until TASK-278 leads them to the
-  // stage's page. Their top bar leads back to the hub page at /hub: the picture view's as the
-  // server first draws it, and the overview's as its code draws it, since the server draws none.
-  const kept={};
-  for(const view of['pictures','overview']){
-   const url=origin+'/'+view+'/'+project+'/sample/05-erd';
-   await command('Page.navigate',{url});
-   await waitFor(`location.href===${JSON.stringify(url)}&&document.readyState==='complete'&&!!document.querySelector('#view > header.topbar a.control')`);
-   kept[view]=await evaluate(`(()=>{const data=JSON.parse(document.getElementById('view-data').textContent),link=document.querySelector('#view > header.topbar a.control');return{schema:data.schema,view:data.view,path:location.pathname,back:link.origin===location.origin?link.pathname+link.search+link.hash:link.href,words:link.textContent};})()`);
-   assert(kept[view].schema==='corthex-view-page/0.2'&&kept[view].view===(view==='pictures'?'picture':'overview')&&kept[view].path==='/'+view+'/'+project+'/sample/05-erd','0.2\'s '+view+' page answers at its address: '+JSON.stringify(kept[view]));
-   assert(kept[view].back==='/hub'&&kept[view].words==='Hub page','The top bar leads back to the hub page at /hub: '+JSON.stringify(kept[view]));
+  // 0.2's addresses (TASK-278, TC-1767, SPEC-154), in English and in Korean, the page's language
+  // set by the fixture's cookie, since a 302 keeps no query. The picture view's answers 302 to the
+  // stage's page, where the browser keeps what follows #: item= and step= read as they are, and
+  // comment= and proposal= open their entry in the talk; the stage overview's leads to the stage's
+  // list; and on /, the hub page's fragments lead to the search, to the item in its stage and to
+  // that stage of the project's first part. No address ends on a page of a removed screen.
+  const views='qa-views',led={};
+  const picture=(stage,hash)=>'/pictures/'+views+'/sample/'+stage+hash,place=(stage,hash)=>'/p/'+views+'/sample/'+stage+hash;
+  const opened=entry=>`!!document.querySelector('li[data-nx-entry="${entry}"] > .hd .ref[aria-expanded="true"]')`;
+  const found=id=>`document.querySelector('.side .item .ih .id')?.textContent===${JSON.stringify(id)}&&!document.querySelector('.side .item .sk')&&!!document.querySelector('.side .item :is(.fields,.src)')`;
+  const cases=[
+   ['item',picture('01-domain','#item=CTX-001'),place('01-domain','#item=CTX-001'),found('CTX-001')],
+   ['step',picture('01-domain','#step=3'),place('01-domain','#step=3'),`document.querySelector('.stage select[name=step]')?.value==='3'&&!!document.querySelector('.stage .pf')`],
+   ['comment',picture('01-domain','#comment='+fixture.comment),null,opened(fixture.comment)],
+   ['proposal',picture('01-domain','#proposal='+fixture.proposal),null,opened(fixture.proposal)],
+   ['overview','/overview/'+views+'/sample/05-erd',place('05-erd','#view=list'),`!!document.querySelector('.stage .lw')&&!document.querySelector('.stage .pf')`],
+   ['search','/#q=orders',null,`!document.querySelector('.tb .spanel')?.hidden&&document.querySelector('.tb input[name="q"]')?.value==='orders'`],
+   ['found','/#p='+views+'&id=TBL-001',place('05-erd','#item=TBL-001'),found('TBL-001')],
+   ['stage','/#p='+views+'&s=02-prd',place('02-prd',''),`!!document.querySelector('.stage .lw')`],
+  ];
+  for(const lang of['en','ko']){
+   await command('Network.setCookie',{name:'nexus-qa-lang',value:lang,url:origin,path:'/'});
+   for(const [name,from,to,shows]of cases){
+    await command('Page.navigate',{url:'about:blank'});await command('Page.navigate',{url:origin+from});
+    const ends=to===null?'':`location.pathname+location.hash===${JSON.stringify(to)}&&`;
+    await waitFor(`${ends}document.readyState==='complete'&&document.documentElement.dataset.nxCode==='ready'&&!!document.getElementById('view-data')&&(${shows})`);
+    const seen=await evaluate(`(()=>{const data=JSON.parse(document.getElementById('view-data').textContent);return{at:location.pathname+location.hash,schema:data.schema,lang:document.documentElement.lang,old:!!document.querySelector('#view > header.topbar')};})()`);
+    led[lang+' '+name]={from,at:seen.at};
+    assert(seen.lang===lang&&!seen.old&&['corthex-stage-page/0.3','corthex-home-page/0.3'].includes(seen.schema),'0.2\'s address '+from+' ends on a page of the redesign in its language: '+JSON.stringify(seen));
+    if(name==='comment'||name==='proposal')assert(/^\/p\/qa-views\/sample\/01-domain$/.test(seen.at.split('#')[0])&&/(?:^|[#&])(?:talk|comment|proposal)=/.test(seen.at),'The entry opens in the talk of its stage: '+JSON.stringify(seen));
+    if(name==='search')assert(seen.at==='/#q=orders'&&seen.schema==='corthex-home-page/0.3','#q= opens the search on the first page: '+JSON.stringify(seen));
+   }
   }
-  return{asked:'/p/'+project+'#talk=<the fixture comment>',redirect:first.headers.get('location'),ended:new URL(ends).pathname+'#talk=<the fixture comment>',stage,hub,kept,screenshot};
+  await command('Network.deleteCookies',{name:'nexus-qa-lang',url:origin});
+  const ledShot=await shot('old-address-ko');
+  return{asked:'/p/'+project+'#talk=<the fixture comment>',redirect:first.headers.get('location'),ended:new URL(ends).pathname+'#talk=<the fixture comment>',stage,hub,led,screenshot,ledShot};
  });
 
  assert(!report.eventError,'CDP interception error: '+report.eventError);

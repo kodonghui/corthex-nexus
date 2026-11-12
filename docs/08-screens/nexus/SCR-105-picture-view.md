@@ -4,7 +4,7 @@
 
 Purpose: the user looks at one part's picture of a stage, the DDD board, the ERD or the sitemap, with its document version and the open comments, proposals and discrepancies on its items, on a phone or a PC, and opens an item, a comment or a proposal from it. On a DDD board the user can also follow the steps that built it, from the timeline to the whole board (SPEC-141). (FL-106, FL-110, FL-115, FL-116)
 
-Path `/pictures/{project}/{part}/{stage}`, on the NEXUS server only (API-102), linked from the stage detail (SCR-104) and the stage overview (SCR-109). Who can see it: anyone Cloudflare Access lets in. New in NEXUS 0.2 (SPEC-119, SPEC-141). The rules of [every screen](README.md#every-screen) apply.
+Path `/pictures/{project}/{part}/{stage}`, on the NEXUS server only (API-102), linked from the stage detail (SCR-104) and the stage overview (SCR-109). Who can see it: anyone Cloudflare Access lets in. New in NEXUS 0.2 (SPEC-119, SPEC-141). Since TASK-278 this screen is `removed`: its address answers `302` to the stage's page (API-102, SPEC-154), where the picture stage (SCR-112) shows the picture, and this definition stays as the record of 0.2's picture view. The rules of [every screen](README.md#every-screen) apply.
 
 ## Data
 

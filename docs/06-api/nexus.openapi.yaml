@@ -15,9 +15,9 @@ info:
     with the same status and headers and no body, a method that a path does not take gets 405 with
     an Allow header, and every reply carries the security headers that nexus.md lists. The
     redesign's operations, API-151 to API-159, are active: the server answers them and the checks
-    cover them. With the redesign's first page at /, the hub page moved to /hub (SPEC-153); the
-    picture view and the stage overview keep their pages until the redesign's stages draw what
-    they show, and then answer 302 to the stage's page (SPEC-154). The design revision of
+    cover them. With the redesign's first page at /, the hub page moved to /hub (SPEC-153); since
+    the redesign's stages draw what they showed, the picture view and the stage overview answer
+    302 to the stage's page (SPEC-154). The design revision of
     2026-11-11 adds what stage 04's rows SPEC-187 to SPEC-203 ask of the server, as planned
     forms that the server does not answer yet. Its new operations, API-177 and API-178, are in
     paths with the status planned. The planned form of each operation that it changes is a
@@ -132,34 +132,36 @@ paths:
     get:
       operationId: getPictureViewPage
       tags: [Pages]
-      summary: The picture view of one part's picture
+      summary: 0.2's picture view, which leads to the stage's page
       description: >-
-        The picture view, with the answer of getPicture in its JSON script block (ViewPageData).
-        The page loads its code from /code/ only, lays the picture out, draws it and sends the
-        user's writes to this server. When the space holds no picture of that part and stage, the
-        page holds the problem picture_not_found instead, and shows why. A refusal or an error is
-        a page of the code's message when the request accepts text/html, as a browser's does, and
-        Problem Details otherwise (Errors in nexus.md).
+        Answers 302 to the page of the same part's stage (SPEC-154), which draws the picture since
+        the redesign (SCR-112). The Location has no #, so the browser keeps what follows # in the
+        address that the user opened (RFC 9110, section 10.2.2), and the stage's page reads 0.2's
+        item= and step= as they are, and comment= and proposal= as talk=. The stage's page answers
+        a project or a part that the server does not hold with its 404. Browsers do not keep a 302,
+        so the server can go back to 0.2. A refusal or an error is a page of the code's message
+        when the request accepts text/html, as a browser's does, and Problem Details otherwise
+        (Errors in nexus.md).
       x-corthex:
         id: API-102
-        spec: [SPEC-113, SPEC-119]
+        spec: [SPEC-113, SPEC-119, SPEC-154]
         status: active
         omit:
           "400": the request has no input; a path value in another form gets 404
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
-        "200":
-          description: The picture view
-          content:
-            text/html:
-              schema: {type: string}
-              examples:
-                view:
-                  summary: The page, shortened
-                  value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><script type="module" src="/code/view.3f9a1c2b.js"></script></head><body><script id="view-data" type="application/json">{"schema":"corthex-view-page/0.2","view":"picture","lang":"en","data":{},"problem":null}</script></body></html>'
+        "302":
+          description: To the stage's page of the same part and stage
+          headers:
+            Location:
+              description: The stage page's path, with _ for the project as a whole
+              schema:
+                type: string
+                pattern: '^/p/[a-z0-9]+(?:-[a-z0-9]+)*/(?:_|[a-z0-9]+(?:-[a-z0-9]+)*)/(?:01-domain|05-erd|07-sitemap)$'
+              example: /p/corthex/nexus/05-erd
         "403": {$ref: "#/components/responses/PageReadRefused"}
-        "404": {$ref: "#/components/responses/PagePictureTargetNotFound"}
+        "404": {$ref: "#/components/responses/PageAddressNotFound"}
         default: {$ref: "#/components/responses/PageUnexpected"}
 
   /overview/{project}/{part}/{stage}:
@@ -170,32 +172,34 @@ paths:
     get:
       operationId: getStageOverviewPage
       tags: [Pages]
-      summary: The stage overview of one part's stage
+      summary: 0.2's stage overview, which leads to the stage's list
       description: >-
-        The stage overview, with the answer of getStageOverview in its JSON script block
-        (ViewPageData), from which the user passes or withdraws the stage's checkpoint. A refusal
-        or an error is a page of the code's message when the request accepts text/html, as a
-        browser's does, and Problem Details otherwise (Errors in nexus.md).
+        Answers 302 to the page of the same part's stage with #view=list (SPEC-154), whose list
+        and record show what the overview showed since the redesign (SCR-112, SCR-113), where the
+        user passes or withdraws the stage's checkpoint. The stage's page answers a project or a
+        part that the server does not hold with its 404. Browsers do not keep a 302, so the server
+        can go back to 0.2. A refusal or an error is a page of the code's message when the request
+        accepts text/html, as a browser's does, and Problem Details otherwise (Errors in nexus.md).
       x-corthex:
         id: API-103
-        spec: [SPEC-113, SPEC-138, SPEC-139]
+        spec: [SPEC-113, SPEC-138, SPEC-139, SPEC-154]
         status: active
         omit:
           "400": the request has no input; a path value in another form gets 404
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
           "409": a read clashes with no state
       responses:
-        "200":
-          description: The stage overview
-          content:
-            text/html:
-              schema: {type: string}
-              examples:
-                overview:
-                  summary: The page, shortened
-                  value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><script type="module" src="/code/view.3f9a1c2b.js"></script></head><body><script id="view-data" type="application/json">{"schema":"corthex-view-page/0.2","view":"overview","lang":"en","data":{},"problem":null}</script></body></html>'
+        "302":
+          description: To the list of the stage's page of the same part and stage
+          headers:
+            Location:
+              description: The stage page's path with view=list after #, with _ for the project as a whole
+              schema:
+                type: string
+                pattern: '^/p/[a-z0-9]+(?:-[a-z0-9]+)*/(?:_|[a-z0-9]+(?:-[a-z0-9]+)*)/(?:01-domain|02-prd|03-user-flow|04-functional-spec|05-erd|06-api|07-sitemap|08-screen-states|09-mockup|10-wbs|11-development|12-qa|13-presentation)#view=list$'
+              example: /p/corthex/nexus/05-erd#view=list
         "403": {$ref: "#/components/responses/PageReadRefused"}
-        "404": {$ref: "#/components/responses/PageOverviewNotFound"}
+        "404": {$ref: "#/components/responses/PageAddressNotFound"}
         default: {$ref: "#/components/responses/PageUnexpected"}
 
   /code/{file}:
@@ -2546,24 +2550,23 @@ components:
           examples:
             access-missing: {$ref: "#/components/examples/access_missing"}
             access-other-app: {$ref: "#/components/examples/access_other_app"}
-    PagePictureTargetNotFound:
+    PageAddressNotFound:
       description: >-
-        No such project, space or part, or a stage without pictures: a page of the code's
-        message for a request whose Accept header names text/html, as a browser's does, and
-        Problem Details otherwise (Errors in nexus.md)
+        A path value in another form, which no address of the server takes: a project's or a
+        part's name, or a stage that the path does not take. A page of the code's message for a
+        request whose Accept header names text/html, as a browser's does, and Problem Details
+        otherwise (Errors in nexus.md)
       content:
         text/html:
           schema: {type: string}
           examples:
             project-not-found: {$ref: "#/components/examples/project_not_found_page"}
-            space-not-found: {$ref: "#/components/examples/space_not_found_page"}
             part-not-found: {$ref: "#/components/examples/part_not_found_page"}
             no-such-stage: {$ref: "#/components/examples/not_found_page"}
         application/problem+json:
           schema: {$ref: "#/components/schemas/Problem"}
           examples:
             project-not-found: {$ref: "#/components/examples/project_not_found"}
-            space-not-found: {$ref: "#/components/examples/space_not_found"}
             part-not-found: {$ref: "#/components/examples/part_not_found"}
             no-such-stage: {$ref: "#/components/examples/not_found"}
     PageOverviewNotFound:
@@ -2811,9 +2814,6 @@ components:
     project_not_found_page:
       summary: The page of project_not_found, for a browser
       value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>NEXUS</title></head><body><main><p>This project is not on the server.</p><p>Trace ID 8f6c3b2a1d0e9f8f-ICN</p><p><a href="">Load again</a> <a href="/">Hub page</a></p></main></body></html>'
-    space_not_found_page:
-      summary: The page of space_not_found, for a browser
-      value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>NEXUS</title></head><body><main><p>This project was pushed only by an older hub, so it has no pictures or checkpoints here yet. Push it with corthex-nexus 0.2.</p><p>Trace ID 8f6c3b2a1d0e9f90-ICN</p><p><a href="">Load again</a> <a href="/">Hub page</a></p></main></body></html>'
     part_not_found_page:
       summary: The page of part_not_found, for a browser
       value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>NEXUS</title></head><body><main><p>This part is not in the project''s snapshot.</p><p>Trace ID 8f6c3b2a1d0e9f91-ICN</p><p><a href="">Load again</a> <a href="/">Hub page</a></p></main></body></html>'
@@ -4866,22 +4866,6 @@ components:
         not_opened:
           type: object
           additionalProperties: {type: integer, minimum: 1}
-    ViewPageData:
-      description: The data in the script block view-data of the picture view and the stage overview
-      type: object
-      required: [schema, generated_at, lang, view, data, problem]
-      additionalProperties: false
-      properties:
-        schema: {const: corthex-view-page/0.2}
-        generated_at: {$ref: "#/components/schemas/Time"}
-        lang: {type: string, enum: [en, ko]}
-        view: {type: string, enum: [picture, overview]}
-        data:
-          anyOf:
-            - $ref: "#/components/schemas/PictureData"
-            - $ref: "#/components/schemas/Overview"
-            - type: "null"
-        problem: {anyOf: [{$ref: "#/components/schemas/Problem"}, {type: "null"}]}
 
     StageState:
       description: A stage's recorded state, unknown when no record names it

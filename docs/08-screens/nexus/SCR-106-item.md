@@ -4,7 +4,7 @@
 
 Purpose: the user sees one item of the picture with its comments, proposals and discrepancies, and leaves a comment on it, on a phone or a PC. (FL-106, FL-107)
 
-Path `/pictures/{project}/{part}/{stage}#item={id}`, a panel of the picture view (SCR-105), on the NEXUS server only. Who can see it: anyone Cloudflare Access lets in. New in NEXUS 0.2 (SPEC-119, SPEC-126). A part that no item holds, such as a table or a screen drawn without an ID, opens this panel for the picture itself, without an address of its own ([choice 12](README.md#choices-this-stage-made)). The rules of [every screen](README.md#every-screen) apply.
+Path `/pictures/{project}/{part}/{stage}#item={id}`, a panel of the picture view (SCR-105), on the NEXUS server only. Who can see it: anyone Cloudflare Access lets in. New in NEXUS 0.2 (SPEC-119, SPEC-126). Since TASK-278 this screen is `removed`: its address leads to the stage's page with the same `#item=` (SPEC-154), where the item (SCR-115) opens, and this definition stays as the record of 0.2's item panel. A part that no item holds, such as a table or a screen drawn without an ID, opens this panel for the picture itself, without an address of its own ([choice 12](README.md#choices-this-stage-made)). The rules of [every screen](README.md#every-screen) apply.
 
 ## Data
 

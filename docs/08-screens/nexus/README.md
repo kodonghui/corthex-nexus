@@ -14,11 +14,11 @@ The stage's default human view is grayscale wireframes drawn from the definition
 - [SCR-102 Search results](SCR-102-search-results.md), `/hub#q={words}`: normal and empty.
 - [SCR-103 Trace view](SCR-103-trace-view.md), `/hub#p={project}&id={id}`: normal and error.
 - [SCR-104 Stage detail](SCR-104-stage-detail.md), `/hub#p={project}&s={stage}`: normal, empty, stale and error.
-- [SCR-105 Picture view](SCR-105-picture-view.md), `/pictures/{project}/{part}/{stage}`: loading, normal, large, empty, stale, error, code-failed and permission.
-- [SCR-106 Item](SCR-106-item.md), `#item={id}`: normal, empty, loading, error, permission and gone.
-- [SCR-107 Comment](SCR-107-comment.md), `#comment={comment}`: loading, normal, stale, error, permission and gone.
-- [SCR-108 Proposal](SCR-108-proposal.md), `#proposal={proposal}`: loading, normal, stale, error, permission and gone.
-- [SCR-109 Stage overview](SCR-109-stage-overview.md), `/overview/{project}/{part}/{stage}`: loading, normal, empty, stale, error and permission.
+- [SCR-105 Picture view](SCR-105-picture-view.md), `/pictures/{project}/{part}/{stage}`, `removed` since TASK-278, whose address leads to SCR-112, and kept as the record of 0.2's picture view: loading, normal, large, empty, stale, error, code-failed and permission.
+- [SCR-106 Item](SCR-106-item.md), `#item={id}`, `removed` since TASK-278, whose address leads to SCR-115, and kept as the record of 0.2's item panel: normal, empty, loading, error, permission and gone.
+- [SCR-107 Comment](SCR-107-comment.md), `#comment={comment}`, `removed` since TASK-278, whose address leads to SCR-114, and kept as the record of 0.2's comment panel: loading, normal, stale, error, permission and gone.
+- [SCR-108 Proposal](SCR-108-proposal.md), `#proposal={proposal}`, `removed` since TASK-278, whose address leads to SCR-114, and kept as the record of 0.2's proposal panel: loading, normal, stale, error, permission and gone.
+- [SCR-109 Stage overview](SCR-109-stage-overview.md), `/overview/{project}/{part}/{stage}`, `removed` since TASK-278, whose address leads to the list of SCR-112 or SCR-113, and kept as the record of 0.2's stage overview: loading, normal, empty, stale, error and permission.
 
 The redesign's screens, planned until they are built, which stage 07 keeps in one tree with the hub page since the design revision of 2026-11-11 ([the redesign's screens](../../07-sitemap/nexus.md#the-redesigns-screens)):
 

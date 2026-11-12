@@ -59,7 +59,9 @@ async function call(label,method,path,{body,kind='user',status=200,expectedCode,
 }
 try {
  await call('push snapshot','POST','/api/snapshots',{body:snapshot,kind:'agent'});
- for(const path of ['/','/hub','/p/corthex/nexus/05-erd','/pictures/corthex/nexus/05-erd','/overview/corthex/nexus/05-erd','/api/snapshots','/api/snapshots/corthex','/api/snapshots/corthex/held','/api/snapshots/corthex/removal','/api/spaces/corthex/pictures/nexus/05-erd','/api/spaces/corthex/overview/nexus/05-erd','/api/spaces/corthex/todo','/api/spaces/corthex/stages/nexus/05-erd','/api/spaces/corthex/talk/nexus/05-erd?closed=1','/api/spaces/corthex/items/TBL-111?part=nexus','/api/home','/api/search?q=claims'])await call('read '+path,'GET',path);
+ // 0.2's picture view and stage overview succeed with a 302 to the stage's page since TASK-278.
+ for(const path of ['/pictures/corthex/nexus/05-erd','/overview/corthex/nexus/05-erd'])await call('lead '+path,'GET',path,{status:302});
+ for(const path of ['/','/hub','/p/corthex/nexus/05-erd','/api/snapshots','/api/snapshots/corthex','/api/snapshots/corthex/held','/api/snapshots/corthex/removal','/api/spaces/corthex/pictures/nexus/05-erd','/api/spaces/corthex/overview/nexus/05-erd','/api/spaces/corthex/todo','/api/spaces/corthex/stages/nexus/05-erd','/api/spaces/corthex/talk/nexus/05-erd?closed=1','/api/spaces/corthex/items/TBL-111?part=nexus','/api/home','/api/search?q=claims'])await call('read '+path,'GET',path);
  await call('read /p/corthex','GET','/p/corthex',{status:302});
  for(const type of ['javascript','text/css','font/woff2']){
    const file=metadata.files.find(f=>f.type.includes(type));assert.ok(file,type);

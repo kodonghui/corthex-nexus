@@ -32,9 +32,6 @@ snapshot.items.push({id:"CTX-007",kind:"context",stage:"01-domain",where:"docs/0
   {id:"API-131",kind:"api",stage:"06-api",where:"docs/06-api/nexus.openapi.yaml:900",title:"claimEntry",links:["TBL-111","SPEC-136"]});
 snapshot.summary={...snapshot.summary,items:snapshot.items.length};
 await call("POST","/api/snapshots",snapshot);
-for(const path of ["/pictures/corthex/nexus/05-erd","/overview/corthex/nexus/05-erd","/pictures/corthex/constructor/05-erd"]){
-  cases.push({name:path,schema:"ViewPageData",value:pageData(await call("GET",path))});
-}
 // A stage's page with its picture, a pictured stage whose part has no picture,
 // and a stage without pictures, for the project as a whole.
 for(const [path,check] of [["/p/corthex/nexus/05-erd",(value)=>value.picture&&!value.problem],["/p/corthex/constructor/05-erd",(value)=>!value.picture&&value.problem?.code==="picture_not_found"],

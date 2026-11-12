@@ -94,22 +94,13 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
       }
       case "getPictureViewPage":
       case "getStageOverviewPage": {
-        const view=route.operation==="getPictureViewPage"?"picture":"overview";
-        let data=null,problem=null;
-        try {data=await(view==="picture"?store.readPicture(p.project,p.part,p.stage):store.readOverview(p.project,p.part,p.stage));}
-        catch(error) {
-          if(view!=="picture" || !(error instanceof Problem) || error.code!=="picture_not_found")throw error;
-          // A known space whose picture has not arrived still has a working
-          // view shell. Its bootstrap explains the empty/left-out state.
-          problem=problemDocument(request,error);console.error("nexus",{kind:problem.code,traceId:problem.traceId});
-        }
-        const payload={schema:"corthex-view-page/0.2",generated_at:new Date().toISOString(),lang:lang(env),view,data,problem};
-        const viewTemplate=(typeof views.template==="function"?views.template(payload):views.template) || '<!doctype html><html><head><meta charset="utf-8"><title>NEXUS</title></head><body><main id="view"></main><script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script></body></html>';
-        const response=html(renderView(viewTemplate,payload),VIEW_POLICY,head);
-        if(env.NEXUS_EARLY_HINTS==="1"&&typeof views.hints==="function"){
-          const hints=views.hints(payload);if(hints)response.headers.set("Link",hints);
-        }
-        return response;
+        // 0.2's picture view and stage overview lead to the stage's page (API-102, API-103,
+        // SPEC-154), which answers an unknown project or part with its 404. The picture view's
+        // 302 has no #, so the browser keeps what follows # in the address that the user opened
+        // (RFC 9110, section 10.2.2), and the stage's page reads 0.2's item=, step=, comment= and
+        // proposal=; the overview's opens the list. Browsers keep no 302.
+        const place=`/p/${p.project}/${p.part||"_"}/${p.stage}`;
+        return redirect(route.operation==="getPictureViewPage"?place:place+"#view=list");
       }
       default: {
         if(!route.writeName)throw new Error("unhandled operation");

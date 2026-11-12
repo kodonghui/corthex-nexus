@@ -28,17 +28,20 @@ from test_screen_states import NEW_IN_THE_REVISION, REVISION, SCREENS, definitio
 
 # The screens that share a page, so that a response of one of them may lead to a state of another, from stage 07's
 # paths and the definitions' own words: the workspace holds its stage, its talk, the item and the project's data; the
-# hub page its three views; 0.2's picture view its three panels. SCR-116, the search, is a layer of any page with
-# states of its own. A new screen joins a page here.
+# hub page its three views. SCR-116, the search, is a layer of any page with states of its own. A new screen joins a
+# page here.
 PAGES = (
     ("SCR-110",),
     ("SCR-111", "SCR-112", "SCR-113", "SCR-114", "SCR-115", "SCR-130"),
     ("SCR-116",),
     ("SCR-117", "SCR-102", "SCR-103", "SCR-104"),
     ("SCR-101",),
-    ("SCR-105", "SCR-106", "SCR-107", "SCR-108"),
-    ("SCR-109",),
 )
+# The definitions that stay as the record of a removed screen that no address serves: 0.2's picture view with its
+# three panels and its stage overview, since TASK-278 leads their addresses to the workspace (SPEC-154), whose states
+# name the responses of API-102 and API-103. Their states are not read against the contract. SCR-101 is removed too,
+# but stays on a page, since its states are the text of the hub page's, which /hub still serves.
+RECORDS = ("SCR-105", "SCR-106", "SCR-107", "SCR-108", "SCR-109")
 # The codes named with a response whose examples do not give them, as stage 08 recorded them on 2026-11-12, in rows
 # that the redesign wrote and that stay as they are: the server answers `not_found` to a path in no form, and API-158
 # does not answer `space_not_found`. A change that alters these places changes this list in the same commit.
@@ -131,10 +134,10 @@ def screens(definitions_by_screen):
 
 def check(forms, read, unshown):
     findings = []
-    on_pages = [screen for page in PAGES for screen in page]
+    on_pages = [screen for page in PAGES for screen in page] + list(RECORDS)
     if sorted(on_pages) != sorted(read):
-        findings.append({"rule": "each definition is on one page", "not on a page": sorted(set(read) - set(on_pages)),
-                         "no definition": sorted(set(on_pages) - set(read))})
+        findings.append({"rule": "each definition is on one page or a record",
+                         "not on a page": sorted(set(read) - set(on_pages)), "no definition": sorted(set(on_pages) - set(read))})
     rows_by_state = {row.cells[0]: row for states, _, _ in read.values() for row in states}
     responses = codes = 0
     known = set()
@@ -221,7 +224,8 @@ if __name__ == "__main__":
         print(json.dumps(result["findings"][:40], indent=1))
         raise SystemExit(f"{len(result['findings'])} findings in stage 08's states against the contract")
     self_test(contract, read, unshown)
-    print(f"{len(read)} definitions on {len(PAGES)} pages: {result['responses']} responses of the requests that they call, "
+    print(f"{len(read) - len(RECORDS)} definitions on {len(PAGES)} pages and {len(RECORDS)} records of removed screens: "
+          f"{result['responses']} responses of the requests that they call, "
           f"built and planned, each lead to a state, with {result['codes']} codes named with them ({len(unshown)} codes "
           f"that no screen shows apart); {len(KNOWN)} codes are named where the contract's examples do not give them, "
           f"the known list; a broken row fails")

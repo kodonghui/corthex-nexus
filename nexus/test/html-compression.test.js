@@ -10,7 +10,7 @@ test("private HTML compresses per response, including HEAD metadata, without cac
   const bytes=[];
   for(const method of["GET","HEAD"]){
    const response=rememberHTML(new Response(method==="HEAD"?null:source,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store"}}),source);
-   const encoded=await compressedHTML(new Request("https://example.com/pictures/synthetic/_/05-erd",{method,headers:{"Accept-Encoding":header}}),response);
+   const encoded=await compressedHTML(new Request("https://example.com/p/synthetic/_/05-erd",{method,headers:{"Accept-Encoding":header}}),response);
    assert.equal(encoded.encoding,coding);bytes.push(encoded.body);
    assert.equal((coding==="br"?brotliDecompressSync(encoded.body):coding==="gzip"?gunzipSync(encoded.body):encoded.body).toString(),source);
    assert.equal(takeHTML(response),undefined,"the private string is removed after selecting transport bytes");

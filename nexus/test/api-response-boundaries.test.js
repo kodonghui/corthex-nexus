@@ -81,8 +81,11 @@ test('actual handler boundaries preserve rows and receipts on quota, state, clai
  try {
   // Read/target/media conditions, including a genuine phase-1 snapshot-only space.
   const f=await fixture(),legacy=await fixture({legacy:true});
-  for(const prefix of ['/pictures/','/overview/'])for(const [suffix,expected]of [['missing/sample/05-erd','project_not_found'],[f.name+'/other/05-erd','part_not_found'],[f.name+'/sample/02-wrong','not_found']])for(const accept of ['text/html','application/problem+json'])await f.call('page target '+expected,'GET',prefix+suffix,{status:404,code:expected,headers:{Accept:accept}});
-  for(const accept of ['text/html','application/problem+json'])await legacy.call('legacy page has no space','GET','/pictures/'+legacy.name+'/sample/05-erd',{status:404,code:'space_not_found',headers:{Accept:accept}});
+  // 0.2's picture view and stage overview lead to the stage's page (TASK-278, SPEC-154), which
+  // answers an unknown project or part; a stage outside their forms is still refused at theirs.
+  for(const [prefix,targets]of [['/p/',[['missing/sample/05-erd','project_not_found'],[f.name+'/other/05-erd','part_not_found'],[f.name+'/sample/02-wrong','not_found']]],['/pictures/',[[f.name+'/sample/02-wrong','not_found']]],['/overview/',[[f.name+'/sample/02-wrong','not_found']]]])for(const [suffix,expected]of targets)for(const accept of ['text/html','application/problem+json'])await f.call('page target '+expected,'GET',prefix+suffix,{status:404,code:expected,headers:{Accept:accept}});
+  // A project that only a hub of 0.1 pushed has its stage's page, which says that it has no space.
+  for(const accept of ['text/html','application/problem+json'])await legacy.call('legacy page has no space','GET','/p/'+legacy.name+'/sample/05-erd',{status:200,headers:{Accept:accept}});
   for(const path of ['/pictures/sample/05-erd','/todo'])await legacy.call('legacy API has no space','GET',legacy.base+path,{status:404,code:'space_not_found'});
   await legacy.call('legacy held has no default commit','GET','/api/snapshots/'+legacy.name+'/held');await legacy.call('legacy removal is snapshot-only','GET','/api/snapshots/'+legacy.name+'/removal');
   // One database with exactly two projects for the named two-project list.

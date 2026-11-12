@@ -230,23 +230,45 @@ test("a page address that names no project, part or stage is the message page wi
   } finally { console.error = original; }
 });
 
-// SPEC-154's redirects of these two addresses come with TASK-278, once the stage's
-// page draws the picture and the list (TASK-274, TASK-275); until then they keep
-// their pages, whose way back leads to the hub page at its new address.
-test("0.2's picture view and stage overview keep their pages, whose top bar leads to the hub page at /hub", async () => {
+// SPEC-154's redirects (TASK-278): 0.2's picture view and stage overview answer 302 to the
+// stage's page, the overview with #view=list. The picture view's has no #, so the browser keeps
+// what follows # in the address that the user opened, and the stage's page reads 0.2's item=,
+// step=, comment= and proposal= (TC-1767 opens them in a browser). They read nothing: an unknown
+// project or part leads on, and the stage's page answers its 404.
+const LED = /^\/p\/[a-z0-9]+(?:-[a-z0-9]+)*\/(?:_|[a-z0-9]+(?:-[a-z0-9]+)*)\/(?:01-domain|05-erd|07-sitemap)$/;
+const LISTED = /^\/p\/[a-z0-9]+(?:-[a-z0-9]+)*\/(?:_|[a-z0-9]+(?:-[a-z0-9]+)*)\/(?:01-domain|02-prd|03-user-flow|04-functional-spec|05-erd|06-api|07-sitemap|08-screen-states|09-mockup|10-wbs|11-development|12-qa|13-presentation)#view=list$/;
+test("0.2's picture view and stage overview answer 302 to the stage's page, the overview with #view=list", async () => {
   const { call } = await server([viewSnapshot("qa-shop")]);
-  for (const lang of ["en", "ko"]) {
-    const { call: local } = lang === "en" ? { call } : await server([viewSnapshot("qa-shop")], { lang });
-    for (const view of ["picture", "overview"]) {
-      const path = `/${view === "picture" ? "pictures" : "overview"}/qa-shop/sample/05-erd`, page = await local("GET", path);
-      assert.deepEqual([page.status, page.headers.get("Location"), page.headers.get("Content-Security-Policy")], [200, null, VIEW_POLICY], path);
-      const held = viewData(page.text);
-      assert.deepEqual([held.schema, held.view, held.lang], ["corthex-view-page/0.2", view, lang], path);
-      // The picture view's first drawing, before its code, has the top bar too.
-      if (view === "picture") assert.ok(page.text.includes(`<header class="topbar"><a class="control" href="/hub">${lang === "ko" ? "허브 페이지" : "Hub page"}</a>`), path);
-      assert.doesNotMatch(page.text, /href="\/"/, path);
+  for (const [path, location, pattern] of [["/pictures/qa-shop/sample/05-erd", "/p/qa-shop/sample/05-erd", LED], ["/pictures/qa-shop/_/01-domain", "/p/qa-shop/_/01-domain", LED],
+    ["/overview/qa-shop/sample/05-erd", "/p/qa-shop/sample/05-erd#view=list", LISTED], ["/overview/qa-shop/second/12-qa", "/p/qa-shop/second/12-qa#view=list", LISTED],
+    ["/pictures/nobody/sample/07-sitemap", "/p/nobody/sample/07-sitemap", LED], ["/overview/qa-shop/gone/02-prd", "/p/qa-shop/gone/02-prd#view=list", LISTED]]) {
+    for (const [method, accept] of [["GET", "text/html"], ["GET", undefined], ["HEAD", "text/html"]]) {
+      const reply = await call(method, path, { accept });
+      assert.deepEqual([reply.status, reply.headers.get("Location"), reply.text], [302, location, ""], path);
+      assert.match(location, pattern);
+      assert.deepEqual([reply.headers.get("Cache-Control"), reply.headers.get("Content-Security-Policy"), reply.headers.get("Content-Type")],
+        ["no-store", "default-src 'none'; frame-ancestors 'none'", null], path);
     }
   }
+  // The stage's page then answers what the redirect did not read.
+  const original = console.error;
+  console.error = () => {};
+  try {
+    for (const [path, status, code] of [["/p/qa-shop/sample/05-erd", 200, null], ["/p/nobody/sample/07-sitemap", 404, "project_not_found"], ["/p/qa-shop/gone/02-prd", 404, "part_not_found"]]) {
+      const page = await call("GET", path);
+      assert.deepEqual([page.status, page.data?.code ?? null], [status, code], path);
+    }
+    // A path value in another form is refused by its code, as before: a stage that 0.2 drew no
+    // picture of, a name in capitals and a stage outside the 13.
+    for (const [path, code] of [["/pictures/qa-shop/sample/02-prd", "not_found"], ["/pictures/Qa-shop/sample/05-erd", "project_not_found"],
+      ["/overview/qa-shop/Sample/05-erd", "part_not_found"], ["/overview/qa-shop/sample/14-other", "not_found"]]) {
+      const refused = await call("GET", path);
+      assert.deepEqual([refused.status, refused.data.code, refused.headers.get("Location")], [404, code, null], path);
+      const page = await call("GET", path, { accept: "text/html" });
+      assert.deepEqual([page.status, page.headers.get("Content-Type")], [404, "text/html; charset=utf-8"], path);
+      assert.ok(page.text.includes('<a class="control" href="/hub">'), path);
+    }
+  } finally { console.error = original; }
 });
 
 test("without the view's build, each page holds its data alone", async () => {

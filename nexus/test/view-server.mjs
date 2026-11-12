@@ -14,25 +14,8 @@ async function callIn(target,method,path,body,kind="user"){
  const response=await handle(new Request("http://127.0.0.1"+path,{method,headers,...(body===undefined?{}:{body:JSON.stringify(body)})}),target,access.ctx,template,views);const data=await response.json();if(!response.ok)throw new Error(JSON.stringify(data));return data;
 }
 const call=(...args)=>callIn(env,...args);
-for(const project of["qa-views","qa-views-reply","qa-views-overview"])await call("POST","/api/snapshots",viewSnapshot(project),"agent");
-if(process.env.NEXUS_QA_TALL_SITEMAP==="1"){
- const project="qa-tall-sitemap",snapshot=viewSnapshot(project),sitemap=snapshot.pictures.find(p=>p.stage==="07-sitemap");
- const [root,child]=sitemap.source.screens;
- sitemap.source.screens=Array.from({length:300},(_,i)=>({
-  ...(i===0?root:child),id:"SCR-"+String(i+1).padStart(3,"0"),context:"",
-  name:"시험 화면 "+(i+1),path:i===0?"/":"/qa-"+i,
- }));
- await call("POST","/api/snapshots",snapshot,"agent");
- for(const item of ["SCR-001","SCR-300"]){
-  await call("POST",`/api/spaces/${project}/comments`,{part:"sample",stage:"07-sitemap",item,text:"Whole-picture endpoint"});
- }
-}
-if(process.env.NEXUS_QA_HUB==="1"){
- const snapshot=viewSnapshot("qa-hub-complete");
- for(const stage of Object.values(snapshot.stages)){stage.parts.sample.state="done";stage.parts.sample.next="";stage.parts.sample.checkpoints=[{date:"2026-11-04",by:"user",approved:"Synthetic QA completion"}];}
- snapshot.pictures.push({...snapshot.pictures.find(p=>p.stage==="05-erd"),part:""});
- await call("POST","/api/snapshots",snapshot,"agent");
-}
+// The project that the page suite opens at 0.2's addresses (TASK-278) and the talk's receipts name.
+await call("POST","/api/snapshots",viewSnapshot("qa-views"),"agent");
 // The hub page's views (TASK-281, TC-1766): a project with items to find, trace and list.
 // Only the hub suite opts in; it builds the device's file from the same synthetic snapshot.
 const hubViews={};
@@ -44,45 +27,6 @@ const erdComment=await call("POST","/api/spaces/qa-views/comments",{part:"sample
 const erdProposal=await call("POST","/api/spaces/qa-views/proposals",{part:"sample",stage:"05-erd",items:["TBL-001"],reason:"Keep the unique reference",change:"Add a unique index.",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);",comment:erdComment.id},"agent");
 const accepted=await call("POST",`/api/spaces/qa-views/proposals/${erdProposal.id}/accept`,{});
 await call("POST",`/api/spaces/qa-views/edits/${accepted.edit.id}/report`,{event:"needs-user"},"agent");
-// Opt-in cases keep each browser run's initial state independent.
-const linked={};
-if(process.env.NEXUS_QA_LINKS==="1"){
- const project="qa-views-links",base="/api/spaces/"+project;
- await call("POST","/api/snapshots",viewSnapshot(project),"agent");
- for(const [index,event]of["opened","reflected","merged"].entries()){
-  const p=await call("POST",base+"/proposals",{part:"sample",stage:"05-erd",items:["TBL-001"],reason:"Synthetic reflection: "+event,change:"Describe the reference constraint.",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);"},"agent");
-  const a=await call("POST",base+"/proposals/"+p.id+"/accept",{});
-  const report=event==="reflected"?{event,commit:"b".repeat(40)}:{event,pull_request:"https://github.com/example/qa-shop/pull/"+(201+index)};
-  await call("POST",base+"/edits/"+a.edit.id+"/report",report,"agent");
-  linked[event]={proposal:p.id,edit:a.edit.id};
- }
- const cp=await call("POST",base+"/checkpoints",{part:"sample",stage:"05-erd",words:"Synthetic checkpoint waiting for its record"});
- await call("POST",base+"/checkpoints/"+cp.id+"/report",{event:"opened",pull_request:"https://github.com/example/qa-shop/pull/204"},"agent");
- linked.project=project;linked.checkpoint=cp.id;
-}
-// Only the eighth browser suite opts into these additional stored snapshots.
-// All data is synthetic and enters SQLite through the normal application API.
-const lateScreen={};
-if(process.env.NEXUS_QA_LATE_SCREEN==="1"){
- const project="qa-late-screen",base="/api/spaces/"+project,snapshot=viewSnapshot(project);
- snapshot.project.parts=["sample","stale"];
- for(const stage of Object.values(snapshot.stages))stage.parts.stale=structuredClone(stage.parts.sample);
- const checkpoints=[{approved:"<b>Synthetic approval</b>",by:"Synthetic reviewer",date:"2026-11-03",where:"https://example.com/qa/synthetic-checkpoint"},{approved:"Second synthetic approval",by:"Another synthetic reviewer",date:"2026-11-04"}];
- snapshot.stages["05-erd"].parts.sample.checkpoints=checkpoints;
- const board=snapshot.pictures.find(p=>p.stage==="01-domain").source;
- board.aggregates.push({...board.aggregates[0],name:"Synthetic receipt",term:"TERM-003"});
- snapshot.pictures.push(...snapshot.pictures.map(p=>({...structuredClone(p),part:"stale"})));
- const initial=await call("POST","/api/snapshots",snapshot,"agent");
- const stale=structuredClone(snapshot);
- stale.generated_at=new Date(Math.max(Date.now(),Date.parse(snapshot.generated_at)+1)).toISOString();
- stale.pictures=stale.pictures.filter(p=>p.part!=="stale");
- stale.left_out=[{part:"stale",stage:"01-domain",why:"size"},{part:"stale",stage:"07-sitemap",why:"other-repository"}];
- const marked=await call("POST","/api/snapshots",stale,"agent");
- const c=await call("POST",base+"/comments",{part:"sample",stage:"05-erd",item:"TBL-001",text:"Synthetic late-screen comment"});
- const p=await call("POST",base+"/proposals",{part:"sample",stage:"05-erd",items:["TBL-001"],reason:"Synthetic late-screen reflection",change:"Describe the synthetic constraint.",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);",comment:c.id},"agent");
- const accepted=await call("POST",base+"/proposals/"+p.id+"/accept",{});
- Object.assign(lateScreen,{project,part:"sample",stalePart:"stale",checkpoints,comment:c.id,proposal:p.id,edit:accepted.edit.id,initial,marked});
-}
 // The redesign's pages (TASK-272) at their addresses (TASK-271): a synthetic project with
 // two parts, the five states, my turn and a title that tries markup and the data's marker.
 // Only the page suite opts in.
@@ -100,6 +44,12 @@ if(process.env.NEXUS_QA_PAGES==="1"){
  await call("POST","/api/snapshots",snapshot,"agent");
  const mine=await call("POST",base+"/comments",{part:"sample",stage:"05-erd",item:"TBL-001",text:"Synthetic question for the page suite"},"agent");
  Object.assign(pages,{project,parts:snapshot.project.parts,title:snapshot.project.title,mine:mine.id});
+ // 0.2's addresses (TASK-278): qa-views again, with the two items that they name, so that
+ // #item= and the hub page's #p=&id= find them in their stages.
+ const views=viewSnapshot("qa-views");views.generated_at=new Date(Date.parse(views.generated_at)+1000).toISOString();
+ views.items=[{id:"CTX-001",kind:"context",stage:"01-domain",where:"docs/qa/domain.md:3",title:"Ordering"},{id:"TBL-001",kind:"table",stage:"05-erd",where:"docs/qa/erd.sql:3",title:"orders"}];
+ views.summary={...views.summary,items:views.items.length};
+ await call("POST","/api/snapshots",views,"agent");
 }
 // The first page (TASK-273): my turn with each kind of entry and those that its suite
 // answers, the agent to-do, two cards in different orders by name and by push, and two
@@ -302,7 +252,7 @@ if(process.env.NEXUS_QA_ITEM==="1"){
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_ITEM==="1"?{item:itemQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_ITEM==="1"?{item:itemQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
  const pushAgain=home.pushAgain||stageQa.pushAgain;
  if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&pushAgain){const pushed=await pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
  // The agent's reply to a comment of the talk's project, as a session would send it (TASK-276).
@@ -310,7 +260,9 @@ const server=createServer(async(incoming,outgoing)=>{try{
  const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const bytes=Buffer.concat(chunks);
  if(incoming.method==="POST")writes.push({path:url.pathname,id:incoming.headers["idempotency-key"],body:JSON.parse(bytes)});
  const space=/(?:^|;\s*)nexus-qa-space=(quiet|empty)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];
- const currentEnv={...(space&&spaces[space]?spaces[space]:env),NEXUS_LANGUAGE:url.searchParams.get("lang")==="ko"?"ko":"en"};
+ // The page's language: ?lang=, or the cookie nexus-qa-lang where a redirect leaves no query (TASK-278).
+ const lang=url.searchParams.get("lang")??/(?:^|;\s*)nexus-qa-lang=(ko|en)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];
+ const currentEnv={...(space&&spaces[space]?spaces[space]:env),NEXUS_LANGUAGE:lang==="ko"?"ko":"en"};
  const response=await handle(new Request("http://"+incoming.headers.host+incoming.url,{method:incoming.method,headers,...(["GET","HEAD"].includes(incoming.method)?{}:{body:bytes})}),currentEnv,access.ctx,template,views);
  outgoing.writeHead(response.status,Object.fromEntries(response.headers));outgoing.end(Buffer.from(await response.arrayBuffer()));
  }catch{outgoing.writeHead(500);outgoing.end("Synthetic fixture failed");}});

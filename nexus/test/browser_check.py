@@ -1,4 +1,7 @@
-"""Run picture/discussion regressions with separately owned fixture servers."""
+"""Run the browser regressions of the redesign's pages with separately owned fixture servers.
+
+Since TASK-278 no address serves 0.2's picture view or stage overview (SPEC-154), so their suites are retired; the
+page suite opens their addresses and sees where they lead (TC-1767)."""
 import json
 import os
 import shutil
@@ -10,8 +13,6 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def run_suite(executable, clean, script, arguments=()):
-    if script == "browser-regression.mjs":
-        clean["NEXUS_QA_TALL_SITEMAP"] = "1"
     server = subprocess.Popen([executable, str(ROOT / "nexus/test/view-server.mjs")], cwd=ROOT, env=clean,
                               stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     try:
@@ -42,10 +43,6 @@ def main():
         raise RuntimeError("Node 24 must be installed on PATH outside the checkout")
     clean = {key: value for key, value in os.environ.items()
              if not key.startswith(("NEXUS_DEV_", "CORTHEX_NEXUS_"))}
-    clean.pop("NEXUS_QA_LINKS", None)
-    clean.pop("NEXUS_QA_HUB", None)
-    clean.pop("NEXUS_QA_LATE_SCREEN", None)
-    clean.pop("NEXUS_QA_TALL_SITEMAP", None)
     clean.pop("NEXUS_QA_PAGES", None)
     clean.pop("NEXUS_QA_HOME", None)
     clean.pop("NEXUS_QA_STAGE", None)
@@ -54,19 +51,7 @@ def main():
     clean.pop("NEXUS_QA_ITEM", None)
     clean.pop("NEXUS_QA_HUB_VIEWS", None)
     clean["NEXUS_QA_PYTHON"] = sys.executable
-    for script, arguments in [("browser-regression.mjs", ()), ("discussion-regression.mjs", ()),
-                              ("discussion-regression.mjs", ("--dismiss",)), ("error-regression.mjs", ()),
-                              ("asset-regression.mjs", ()), ("asset-regression.mjs", ("--core-css",)),
-                              ("asset-regression.mjs", ("--editor-css",))]:
-        result = run_suite(executable, clean.copy(), script, arguments)
-        if result:
-            return result
-    late_screen = clean.copy()
-    late_screen["NEXUS_QA_LATE_SCREEN"] = "1"
-    result = run_suite(executable, late_screen, "late-screen-regression.mjs")
-    if result:
-        return result
-    # The redesign's pages (TASK-272), with their own opt-in synthetic project.
+    # The redesign's pages (TASK-272), with their own opt-in synthetic project, and 0.2's addresses (TASK-278).
     pages = clean.copy()
     pages["NEXUS_QA_PAGES"] = "1"
     result = run_suite(executable, pages, "page-regression.mjs")
