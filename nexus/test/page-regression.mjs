@@ -67,13 +67,34 @@ async function onPaused(event){
 // What the page shows: each part's markup and the box of every element in the parts and
 // the frame, in the order of the document. mark names each element, so that a later read
 // can tell whether the code replaced it.
+// A picture's frame (SCR-112#loading) is the one place where the code adds to the server's
+// page: it joins the marks, the map, the editor and, in the lower left corner, the editor's
+// note and the legend as layers over the server's board, and makes the board live, sizing its
+// SVG to the frame without moving the picture in it. The parts' markup leaves those layers
+// and classes out, and the boxes of the layers and of the board's SVG may change; every other
+// element keeps its node, its order and its box, which the boxes of the picture's own boxes
+// and lines inside the SVG prove for the picture.
 const READ=`((mark)=>{
+ const LAYERS='.pf > svg.mks,.pf > .map,.pf > .cv > .ed,.pf > .pcn',RESIZED='.pf > .cv > svg.board,.pf > svg.mks,.pf > .map,.pf > .pcn,.pf > .pcn > .fnote';
  const frame=[...document.querySelectorAll('header.tb,.bars,.ws,nav.rail,nav.tabs,main.stage,aside.side,main.home')],inside=[...document.querySelectorAll('[data-nx-part] *')];
  const box=e=>{const r=e.getBoundingClientRect();return[r.x,r.y,r.width,r.height].map(v=>Math.round(v*100)/100);};
- const parts=Object.fromEntries([...document.querySelectorAll('[data-nx-part]')].map(e=>[e.dataset.nxPart,e.innerHTML]));
- let kept=0;inside.forEach((e,i)=>{if(e.__nexusMark===i)kept++;if(mark)e.__nexusMark=i;});
+ const plain=part=>{const copy=part.cloneNode(true);
+  copy.querySelectorAll('.pf > .cv').forEach(e=>e.classList.remove('live','grab','drawn'));
+  copy.querySelectorAll('.pf > svg.mks,.pf > .pcn > .fnote').forEach(e=>e.replaceChildren());
+  copy.querySelectorAll('.pf > .cv > .ed,.pf > .pcn > .lgd').forEach(e=>e.remove());
+  copy.querySelectorAll('.pf > .map').forEach(e=>{e.replaceChildren();e.removeAttribute('hidden');e.removeAttribute('data-drawn');});
+  return copy.innerHTML;};
+ const parts=Object.fromEntries([...document.querySelectorAll('[data-nx-part]')].map(e=>[e.dataset.nxPart,plain(e)]));
+ let kept=0,last=-1,ordered=true;const strays=[],marked=[];
+ inside.forEach((e,i)=>{
+  if(mark){e.__nexusMark=i;return;}
+  if(e.__nexusMark===undefined){if(!e.closest(LAYERS))strays.push(e.tagName.toLowerCase()+'.'+e.getAttribute('class'));return;}
+  kept++;if(e.__nexusMark<=last)ordered=false;last=e.__nexusMark;
+  marked.push([e.__nexusMark,e.matches(RESIZED)?null:box(e)]);
+ });
  const bar=document.querySelector('[data-nx-codebar]'),barBox=bar.getBoundingClientRect(),style=getComputedStyle(bar);
- return{code:document.documentElement.dataset.nxCode||null,redrawn:document.documentElement.dataset.nxRedrawn||null,parts,frame:frame.map(e=>[e.tagName+'.'+e.className,box(e)]),boxes:inside.map(box),elements:inside.length,kept,
+ return{code:document.documentElement.dataset.nxCode||null,redrawn:document.documentElement.dataset.nxRedrawn||null,parts,frame:frame.map(e=>[e.tagName+'.'+e.className,box(e)]),boxes:inside.map(box),marked,elements:inside.length,kept,ordered,strays,
+  live:Boolean(document.querySelector('.pf > .cv.live')),marks:[...document.querySelectorAll('.pf > svg.mks g.mk')].map(e=>e.dataset.nxId),
   bar:{height:barBox.height,visible:style.visibility==='visible'&&barBox.height>0,text:bar.textContent},width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
   fonts:[...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family+' '+f.weight)};
 })`;
@@ -114,16 +135,19 @@ try{
    await release();await waitFor(`document.documentElement.dataset.nxCode==='ready'`);await paint();
    const after=await read();
    assert(after.redrawn==='0','The code redrew '+after.redrawn+' parts');
-   // The code makes the first page's answers and order work (TASK-273), and a stage's list
-   // and record (TASK-274): those controls lose their wait, and nothing else changes. The
-   // search waits for SCR-116 (TASK-277).
-   const waits=kind==='home'?/ disabled="" data-nx-wait="(?:answer|order)"/g:/ disabled="" data-nx-wait="(?:list|record)"/g;
+   // The code makes the first page's answers and order work (TASK-273), a stage's list and
+   // record (TASK-274) and its picture's tools (TASK-275): those controls lose their wait, and
+   // nothing else changes but the picture's layers (READ). The search waits for SCR-116
+   // (TASK-277).
+   const waits=kind==='home'?/ disabled="" data-nx-wait="(?:answer|order)"/g:/ disabled="" data-nx-wait="(?:list|record|picture)"/g;
    const working=parts=>Object.fromEntries(Object.entries(parts).map(([key,html])=>[key,html.replace(waits,"")]));
    assert(JSON.stringify(after.parts)===JSON.stringify(working(before.parts)),'A part differs after the code ran');
-   const named=kind==='home'?/data-nx-wait="(?:answer|order)"/:/data-nx-wait="(?:list|record)"/,where=kind==='home'?['home']:['stage','side'];
-   assert(where.some(key=>named.test(before.parts[key]||''))&&!where.some(key=>named.test(after.parts[key]||'')),kind==='home'?'The first page\'s answers and order did not start to work':'The stage\'s list and record did not start to work');
-   assert(after.elements===before.elements&&after.kept===before.elements,'The code replaced elements ('+after.kept+' of '+before.elements+' kept)');
-   assert(JSON.stringify(after.frame)===JSON.stringify(before.frame)&&JSON.stringify(after.boxes)===JSON.stringify(before.boxes),'An element moved or changed size when the code ran');
+   const named=kind==='home'?[/data-nx-wait="(?:answer|order)"/]:[/data-nx-wait="(?:list|record)"/,/data-nx-wait="picture"/],where=kind==='home'?['home']:['stage','side'];
+   assert(named.every(wait=>where.some(key=>wait.test(before.parts[key]||''))&&!where.some(key=>wait.test(after.parts[key]||''))),kind==='home'?'The first page\'s answers and order did not start to work':'The stage\'s list, record and picture did not start to work');
+   if(kind==='stage')assert(after.live&&after.marks.includes('TBL-001'),'The picture did not become live with its marks');
+   assert(after.kept===before.elements&&after.ordered&&!after.strays.length,'The code replaced elements or added them outside the picture\'s layers ('+after.kept+' of '+before.elements+' kept; '+after.strays.slice(0,5).join(', ')+')');
+   const moved=after.marked.filter(([index,box])=>box&&JSON.stringify(box)!==JSON.stringify(before.boxes[index]));
+   assert(JSON.stringify(after.frame)===JSON.stringify(before.frame)&&!moved.length,'An element moved or changed size when the code ran ('+moved.length+')');
    assert(!after.bar.visible&&after.scrollWidth<=after.width,'The bar stays hidden and nothing scrolls sideways');
    return{elements:before.elements,frame:after.frame,redrawn:after.redrawn,screenshot:await shot(`code-${kind}-${lang}-${theme}-${width}`)};
   });
@@ -165,7 +189,7 @@ try{
   await waitFor(`document.documentElement.dataset.nxCode==='failed'`);await paint();
   const after=await read(),elapsed=Date.now()-start;
   assert(after.bar.visible&&after.bar.text===words.ko.bar&&elapsed<6000,'The bar did not show at once ('+elapsed+' ms)');
-  assert(JSON.stringify(after.parts)===JSON.stringify(before.parts)&&after.kept===before.elements,'The failed code changed the page');
+  assert(JSON.stringify(after.parts)===JSON.stringify(before.parts)&&after.kept===before.elements&&after.elements===before.elements&&after.ordered,'The failed code changed the page');
   await sleep(200);assert(report.runtimeExceptions.length===exceptions+1,'The failure is reported once');
   return{elapsedMs:elapsed,bar:after.bar,screenshot:await shot('code-fails-390-ko')};
  });

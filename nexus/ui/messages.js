@@ -580,8 +580,8 @@ export const redesign={
     "그림 · 목록 · 대화 {n} · 항목 · 대화 ({n})"
   ],
   "The head": [
-    "Last checkpoint {date} · No checkpoint yet · Commit {commit} · drawn {time} · Stage record · Back to the talk · Edit · Phase ②",
-    "마지막 확인 지점 {date} · 아직 확인 지점 없음 · 커밋 {commit} · {time}에 그림 · 단계 기록 · 대화로 돌아가기 · 편집 · 2단계"
+    "Last checkpoint {date} · No checkpoint yet · Commit {commit} · drawn {time} · Stage record · Back to the talk",
+    "마지막 확인 지점 {date} · 아직 확인 지점 없음 · 커밋 {commit} · {time}에 그림 · 단계 기록 · 대화로 돌아가기"
   ],
   "The head's counts": [
     "{n} contexts · {n} terms · {n} open hotspots · {n} tables · {n} screens · {n} requirements · {n} cases",
@@ -596,12 +596,20 @@ export const redesign={
     "다음 행동 · 확인 지점 · 점검 · 확인 지점 통과 · 통과 · 철회"
   ],
   "The picture's tools": [
-    "Zoom out · Zoom in · Fit · Go to · Map of the whole picture",
-    "축소 · 확대 · 맞추기 · 바로 가기 · 전체 그림 지도"
+    "Zoom out · Zoom in · Fit · Go to · Map of the whole picture · {stage}, read-only",
+    "축소 · 확대 · 맞추기 · 바로 가기 · 전체 그림 지도 · {stage}, 읽기 전용"
   ],
   "The editor": [
     "The editor is loading. You can already read and move the picture. · The editor could not load. The picture and item list remain available.",
     "편집기를 불러오는 중입니다. 그림은 바로 읽고 이동할 수 있습니다. · 편집기를 불러오지 못했습니다. 그림과 항목 목록은 계속 사용할 수 있습니다."
+  ],
+  "The marks": [
+    "Open comments · Open proposals · Open discrepancies · Accepted, not yet reflected · Legend of the marks · {label}: {n}",
+    "열린 의견 · 열린 제안 · 열린 어긋남 · 받음, 아직 반영 전 · 표시 범례 · {label}: {n}"
+  ],
+  "A newer picture": [
+    "A newer version of this picture is on the server. · Show it",
+    "서버에 이 다이어그램의 새 버전이 있습니다. · 보기"
   ],
   "The list": [
     "All · With talk · My turn · What is left · Search in this stage · By context · In the source's order · Show all · No context · {n} of {total} · Loading more… · Could not load more.",

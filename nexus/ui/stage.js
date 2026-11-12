@@ -1,12 +1,15 @@
-// A stage page's code (SCR-111 and SCR-113, and SCR-112's list until TASK-275 draws its
-// picture): the filters, the search in the stage, the grouping and the next 200 items (API-158),
-// an address's #filter=left and #item=, and the stage record, where the user passes the
-// checkpoint or withdraws one passed in NEXUS (API-128, API-129). It draws with the server's
+// A stage page's code (SCR-111, SCR-112 and SCR-113): the filters, the search in the stage, the
+// grouping and the next 200 items (API-158); on a pictured stage the picture or the list, the
+// picture's tools and a DDD board's steps (./board.js), and a newer picture (API-111); an
+// address's #view=, #step=, #filter=left and #item=; and the stage record, where the user passes
+// the checkpoint or withdraws one passed in NEXUS (API-128, API-129). It draws with the server's
 // own functions (../src/draw/page.js): the stage's middle and the side are compared element by
 // element (./reconcile.js), so that the focus, the words and the messages stay where they are,
 // and the list of stages and the bars are replaced when their drawing changes.
 import {drawParts} from "../src/draw/page.js";
-import {FILTERS,GROUPS,WORDS_LIMIT} from "../src/draw/stage.js";
+import {FILTERS,GROUPS,WORDS_LIMIT,PICTURE_STAGES} from "../src/draw/stage.js";
+import {STEPS} from "../src/layout.js";
+import {createBoard} from "./board.js";
 import {day} from "../src/draw/html.js";
 import {codeMessage} from "../src/draw/words.js";
 import {ApiClient,Drafts,LatestReads,PendingWrites,characters} from "./state.js";
@@ -27,14 +30,19 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   const base=`/api/spaces/${encodeURIComponent(project)}`;
   // The drafts of 0.2's stage overview, so that its words and write IDs carry over (rule 5).
   const passScope=`${project}:checkpoint:${place}`,withdrawScope=id=>`${project}:withdraw-checkpoint:${id}`;
-  const view={code:true,query:{filter:first.items.filter,group:first.items.group,q:first.items.q??""},entries:null,selected:null,more:null,updating:false,notice:null,pushed:null,signIn:false,record:false,recordState:{sending:null,note:null,passNote:null,left:null,over:false}};
+  const pictured=PICTURE_STAGES.includes(stage);
+  // mode, step, newer and editor are a pictured stage's: the picture or the list, a DDD board's
+  // step, a newer picture on the server, and whether the editor loads or failed.
+  const view={code:true,query:{filter:first.items.filter,group:first.items.group,q:first.items.q??""},entries:null,selected:null,more:null,updating:false,notice:null,pushed:null,signIn:false,record:false,recordState:{sending:null,note:null,passNote:null,left:null,over:false},mode:"picture",step:undefined,newer:null,editor:null};
   // What the list of stages and the bars show, which the code replaces when it changes.
   const shown=new Map(Object.entries(drawParts(payload)).filter(([name])=>name==="rail"||name==="bars"));
-  let reading=0,searchTimer=0,opener="record",before=null;
+  let reading=0,searchTimer=0,opener="record",before=null,picked=null,applied=null;
+  // The picture's board (SCR-112), which follows the frame of each drawing.
+  const board=pictured?createBoard(parts.stage,{state:()=>({payload,view}),lang,pick,editor:(state,quiet)=>{if(view.editor===state)return;view.editor=state;if(!quiet)render(["stage"]);}}):null;
 
   const data=()=>payload.data;
   const entries=()=>view.entries||data().items.entries;
-  const applied=()=>({filter:data().items.filter,group:data().items.group,q:data().items.q??""});
+  const asked=()=>({filter:data().items.filter,group:data().items.group,q:data().items.q??""});
   const same=(a,b)=>a.filter===b.filter&&a.group===b.group&&a.q===b.q;
   const textarea=()=>parts.side.querySelector("#cp-words");
   function stageUrl(query,after=0){
@@ -53,6 +61,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
       else{const template=document.createElement("template");template.innerHTML=drawn[name];reconcile(element,template.content);}
       localize(element);
     }
+    if(names.includes("stage"))board?.sync();
     // A control that the drawing replaced: the same one again (stage 08's rule 3).
     if(focus&&!document.body.contains(active))document.querySelector(`[data-nx-focus="${CSS.escape(focus)}"]`)?.focus({preventScroll:true});
   }
@@ -78,7 +87,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
       await reads.run("list",()=>api.call("GET",stageUrl(query)),answer=>{
         if(!readable(answer))throw new Error("Unreadable answer");
         // The list keeps what it drew, and the filters say so, until Load again (SCR-113#stale).
-        if(newer(answer)){view.query=applied();return;}
+        if(newer(answer)){view.query=asked();return;}
         payload.data=answer;view.entries=null;settled();
         const list=listElement();if(list)list.scrollTop=0;
       });
@@ -87,7 +96,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   }
   // Reading again (rule 6), after a write and on Try again: as many items as the list holds.
   async function readAgain(){
-    const query=applied(),want=Math.max(entries().length,1);
+    const query=asked(),want=Math.max(entries().length,1);
     reading++;view.updating=true;render(["stage"]);
     try{
       await reads.run("list",async()=>{
@@ -107,13 +116,33 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     }catch(error){failed(error);}
     finally{reading--;view.updating=reading>0;render();}
   }
-  const refresh=()=>same(view.query,applied())?readAgain():readQuery();
+  // A pictured stage reads its picture again too (API-111): the marks of the same picture, or a
+  // newer picture, which waits for Show it while the drawn one stays (SCR-112#stale). It gives
+  // back its failure, which the bar shows after the list's reading, whose success would
+  // otherwise clear it (SCR-112#error and #permission).
+  async function readPicture(){
+    if(!pictured)return null;
+    try{
+      await reads.run("picture",()=>api.call("GET",`${base}/pictures/${encodeURIComponent(partName||"_")}/${encodeURIComponent(stage)}`),answer=>{
+        const drawn=payload.picture?.picture,fresh=answer?.picture;
+        if(!fresh||!fresh.source||typeof fresh.source!=="object")throw new Error("Unreadable answer");
+        if(drawn&&fresh.commit===drawn.commit&&fresh.drawn_at===drawn.drawn_at){payload.picture={...answer,picture:{...fresh,source:drawn.source}};view.newer=null;}
+        else view.newer=answer;
+      });
+      return null;
+    }catch(error){return error?.code==="picture_not_found"?null:error;}
+  }
+  async function refresh(){
+    const [,problem]=await Promise.all([same(view.query,asked())?readAgain():readQuery(),readPicture()]);
+    if(problem)failed(problem);
+    render();
+  }
   // The next 200, when the list's end comes into view (SCR-113's actions).
   async function loadMore(){
     const list=entries(),total=Number(data().items.total)||0;
     // A newer push keeps the list as it is drawn until Load again (SCR-113#stale).
     if(reading||view.pushed||view.more==="loading"||list.length>=total)return false;
-    const query=applied();
+    const query=asked();
     view.more="loading";render(["stage"]);
     let done=false;
     try{
@@ -146,6 +175,75 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     rowOf(id)?.scrollIntoView({block:"nearest"});
   }
   const hash=()=>new URLSearchParams(location.hash.replace(/^#/,""));
+  // A new address: a new entry for the back button with push, else in the place of this one,
+  // which the page has already followed.
+  function setHash(params,push=false){
+    const rest=params.toString();
+    history[push?"pushState":"replaceState"](history.state,"",location.pathname+location.search+(rest?"#"+rest:""));
+    if(!push)applied=location.hash;
+  }
+  // An item on a pictured stage (SPEC-209, SCR-112's actions): in the picture, in sight and
+  // outlined; on a DDD board's step that does not hold it, on the whole board. Where the picture
+  // is not current or not drawn, or does not hold the item, its row in the list instead, at
+  // #view=list&item=. An item that the user picked in the picture stays there.
+  async function selectItem(id,stay=false){
+    if(typeof id!=="string"||!id||id.length>200)return;
+    if(pictured&&view.mode==="picture"){
+      const drawn=payload.picture?.picture,mine=picked===id;picked=null;
+      if(drawn&&(mine||stay||!drawn.not_current)&&board.shown()){
+        let found=board.select(id);
+        if(found==="elsewhere"){const params=hash();params.delete("step");setHash(params);view.step=undefined;render(["stage"]);found=board.select(id);}
+        if(found==="found"||stay){view.selected=id;render(["stage"]);return;}
+      }
+      // Picture, which the user pressed, stays the view, with the item selected and no outline.
+      if(stay){view.selected=id;board?.select(null);render(["stage"]);return;}
+      const params=hash();params.set("view","list");params.delete("step");setHash(params);
+      view.mode="list";board.select(null);render(["stage"]);
+    }
+    await select(id);
+  }
+  // A pick in the picture: its item's address, as a row's link gives it.
+  function pick(id){
+    picked=id;const params=hash();params.set("item",id);setHash(params,true);applyAddress().catch(()=>{});
+  }
+  // Picture or List (SCR-112's actions), each an address that the back button returns to; the
+  // picture leaves the address's filter to the list.
+  function showView(name){
+    if(!pictured||!["picture","list"].includes(name)||name===view.mode)return;
+    const params=hash();
+    if(name==="list")params.set("view","list");else{params.delete("view");params.delete("filter");}
+    setHash(params,true);applyAddress(name==="picture").catch(()=>{});
+  }
+  // A DDD board's step (SPEC-141), in the place of the address; the whole board has none.
+  function setStep(key){
+    if(stage!=="01-domain"||!STEPS.includes(key))return;
+    const params=hash();
+    if(key===STEPS.at(-1))params.delete("step");else params.set("step",key);
+    const rest=params.toString();
+    history.replaceState(history.state,"",location.pathname+location.search+(rest?"#"+rest:""));
+    applyAddress().catch(()=>{});
+  }
+  // Show it: the newer picture that waited (SCR-112#stale).
+  function showNewer(){
+    if(!view.newer)return;
+    payload.picture=view.newer;payload.problem=null;view.newer=null;render(["stage"]);
+    const id=hash().get("item");if(id&&view.mode==="picture")selectItem(id,true);
+  }
+  // The address after # (SCR-111's data): on a pictured stage #view=list for the list, else the
+  // picture, also for #view=edit and #view=board until a release includes editing (SPEC-147);
+  // #filter= alone opens the list too, as the first page's links expect; a DDD board's #step=,
+  // a key that it does not have giving the whole board; then #filter= and #item=.
+  async function applyAddress(stay=false){
+    const now=location.hash;if(now===applied)return;applied=now;
+    const params=hash(),shown=params.get("view"),filter=params.get("filter"),id=params.get("item"),key=params.get("step");
+    if(pictured){
+      const mode=shown==="list"||!shown&&params.has("filter")?"list":"picture",step=stage==="01-domain"&&STEPS.includes(key)?key:undefined;
+      if(mode!==view.mode||step!==view.step){view.mode=mode;view.step=step;render(["stage"]);}
+    }
+    if(FILTERS.includes(filter)&&filter!==view.query.filter&&(!pictured||view.mode==="list")){view.query={...view.query,filter};await readQuery();}
+    if(id)await selectItem(id,stay);
+    else if(view.selected){view.selected=null;board?.select(null);render(["stage"]);}
+  }
   // A filter that the user picks takes the place of the address's (SCR-113's data).
   function dropHashFilter(){
     const params=hash();if(!params.has("filter"))return;
@@ -252,6 +350,13 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
       view.query={...view.query,filter:"all",q:""};dropHashFilter();readQuery();
     }
     else if(act==="more")loadMore();
+    else if(act==="view")showView(control.dataset.nxView);
+    else if(act==="zoom-in")board?.zoomIn();
+    else if(act==="zoom-out")board?.zoomOut();
+    else if(act==="fit")board?.fit();
+    else if(act==="goto"){const menu=control.closest("details");if(menu)menu.open=false;board?.goTo(Number(control.dataset.nxGoto));}
+    else if(act==="step")setStep(control.dataset.nxStep);
+    else if(act==="newer")showNewer();
     else if(act==="read")refresh();
     else if(act==="pass")pass();
     else if(act==="withdraw")withdraw(control.dataset.nxCheckpoint);
@@ -263,6 +368,8 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     clearTimeout(searchTimer);
     searchTimer=setTimeout(()=>{const q=event.target.value.trim().slice(0,200);if(q===view.query.q)return;view.query={...view.query,q};readQuery();},SEARCH_WAIT);
   });
+  // A DDD board's list of steps.
+  parts.stage.addEventListener("change",event=>{if(event.target?.name==="step")setStep(event.target.value);});
   parts.side.addEventListener("input",event=>{
     if(event.target?.id!=="cp-words")return;
     drafts.update(passScope,{text:event.target.value});event.target.removeAttribute("aria-invalid");
@@ -275,17 +382,20 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     if(view.record){event.preventDefault();closeRecord();}
     else if(ws?.dataset.nxOpen==="talk"){event.preventDefault();delete ws.dataset.nxOpen;document.querySelector('[data-nx-focus="talk"]')?.focus();}
   });
-  window.addEventListener("hashchange",()=>{const id=hash().get("item");if(id&&id!==view.selected)select(id);});
+  // The back button and a link's address (rule 9).
+  window.addEventListener("hashchange",()=>applyAddress().catch(()=>{}));
+  window.addEventListener("popstate",()=>applyAddress().catch(()=>{}));
 
   // The controls that wait for the code (rule 15) work from here on.
-  for(const control of document.querySelectorAll('[data-nx-wait="list"],[data-nx-wait="record"]')){control.disabled=false;control.removeAttribute("data-nx-wait");}
+  for(const control of document.querySelectorAll('[data-nx-wait="list"],[data-nx-wait="record"],[data-nx-wait="picture"]')){control.disabled=false;control.removeAttribute("data-nx-wait");}
+  // The address: the view and the step first, so that the first drawing of the code shows them,
+  // then #filter=left from the first page's agent to-do (SCR-110) and #item=.
+  if(pictured){
+    const params=hash(),shown=params.get("view"),key=params.get("step");
+    view.mode=shown==="list"||!shown&&params.has("filter")?"list":"picture";
+    view.step=stage==="01-domain"&&STEPS.includes(key)?key:undefined;
+  }
   render();
-  // The address: #filter=left from the first page's agent to-do (SCR-110), then #item=.
-  (async()=>{
-    const params=hash(),filter=params.get("filter"),id=params.get("item");
-    if(FILTERS.includes(filter)&&filter!==view.query.filter){view.query={...view.query,filter};await readQuery();}
-    if(id)await select(id);
-    nearEnd();
-  })().catch(()=>{});
-  return{render,readQuery,readAgain,loadMore,select,openRecord,closeRecord,pass,withdraw,view};
+  applyAddress().then(nearEnd).catch(()=>{});
+  return{render,readQuery,readAgain,readPicture,loadMore,select,selectItem,openRecord,closeRecord,pass,withdraw,view,board};
 }

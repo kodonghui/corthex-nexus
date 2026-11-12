@@ -6,7 +6,7 @@
   "example": "A case of 0.2.1's endpoint-specific examples. It covers one example response of the contract by its operation and status, as the server responses do.",
   "memory": "An ID of the memory part, which kodonghui/corthex defines. Stages 01 and 03 name memory's terms and contexts beside a word of NEXUS that means the same or differs, and stages 01, 03 and 04 say that their own numbers start after memory's.",
   "files": "A file of the hub, the snapshot, the stage records, the status file, the outbox or the session reads (TBL-114 to TBL-117, TBL-125), or a table that phase ② plans (TBL-118 to TBL-124). The ERD guide defines them in its table of records beside nexus.sql, and the hub reads nexus.sql alone as stage 05's source.",
-  "sample": "An ID of an example or of a synthetic fixture: the contract's table of the forms that a source takes, and a past result that names its fixture's table, kept as written.",
+  "sample": "An ID of an example or of a synthetic fixture: the contract's table of the forms that a source takes, and results that name their fixture's items, kept as written.",
   "bug": "A bug that an earlier run found. The plan's evidence names it in its text and in tables whose first column is headed Bug, which the hub reads as mentions; the plan has no table of bugs with an ID column."
  },
  "warnings": {
@@ -83,7 +83,7 @@
     "TBL-114", "TBL-115", "TBL-116", "TBL-117", "TBL-118", "TBL-119", "TBL-124", "TBL-125"
    ],
    "sample": [
-    "CTX-001", "TBL-001"
+    "CTX-001", "SCR-002", "TBL-001", "TERM-001"
    ],
    "bug": [
     "BUG-501", "BUG-502", "BUG-503", "BUG-504", "BUG-506", "BUG-507", "BUG-508", "BUG-509", "BUG-510", "BUG-511",

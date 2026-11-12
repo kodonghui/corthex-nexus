@@ -109,7 +109,7 @@
     {
       "rule": "AWS key id",
       "value_sha256": "417287c4c951ecbff5cc14d946d6ca4dfe82f71deaa31301f3593f04b6e31996",
-      "file": "nexus/src/view-code/excalidraw-chunk-28.bb51da00.js.txt",
+      "file": "nexus/src/view-code/excalidraw-chunk-28.f9b9f816.js.txt",
       "kind": "substring of embedded compiled WASM base64",
       "provenance": [
         {

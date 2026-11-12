@@ -1,5 +1,5 @@
-// The stage in the workspace's middle (SCR-113, and SCR-112's list until TASK-275 draws its
-// picture): its head, the filters, the search in the stage, the grouping and the items, 200
+// The stage in the workspace's middle (SCR-113, and SCR-112's list, whose picture ./picture.js
+// draws): its head, the filters, the search in the stage, the grouping and the items, 200
 // at a time; and the stage record in the side, in the talk's place (SCR-112's and SCR-113's
 // "Stage record"). The server draws them from API-158's answer and the view's code draws
 // them again. view is what the code adds, and the server draws with none: the query that
@@ -47,7 +47,7 @@ export const notReadWhy=(state,lang)=>label("Not read",NOT_READ[state]??1,lang);
 // The newest checkpoint passed in NEXUS that no stage record names yet (SPEC-138).
 export const waiting=record=>(record?.checkpoints||[]).filter(cp=>cp.state==="passed"&&!cp.recorded_commit).sort((a,b)=>String(b.passed_at).localeCompare(String(a.passed_at)))[0]||null;
 
-function drawHead(data,lang,view){
+export function drawHead(data,lang,view){
   const head=data.head,words=labels("The head",lang),checkpoint=head.checkpoint,meta=[];
   if(checkpoint)meta.push(`<span>${checkpoint.date?dated(words[0],checkpoint.date):esc(words[0].replace(/\s*\{date\}\s*/,""))}</span>`);
   else meta.push(`<span>${esc(words[1])}</span>`);
@@ -59,7 +59,10 @@ function drawHead(data,lang,view){
   const passed=waiting(data.record);
   if(passed)meta.push(`<span class="wait">${icon("i-warn")}<span>${dated(codeMessage("Waiting for its record",lang),passed.passed_at)}</span></span>`);
   const wait=view.code?"":' disabled data-nx-wait="record"';
-  const record=`<button class="btn sm" type="button" data-nx-key="rec" data-nx-act="record" data-nx-focus="record" aria-expanded="${Boolean(view.record)}"${wait}>${icon("i-record")}<span>${esc(words[4])}</span></button>`;
+  // On a pictured stage (SCR-112's layout) Stage record is in the head under 1,024 pixels and
+  // at the right end of the tools' line from 1,024. The head shows no Edit until a release
+  // includes editing, so that its counts reach its right end (stage 08's rule 23, SPEC-147).
+  const record=`<button class="btn sm${view.pictured?" only-ph":""}" type="button" data-nx-key="rec" data-nx-act="record" data-nx-focus="record" aria-expanded="${Boolean(view.record)}"${wait}>${icon("i-record")}<span>${esc(words[4])}</span></button>`;
   // From 1,024 to 1,279 pixels the talk folds into "Talk ({n})" (SCR-111, rule 16), whose link
   // opens it without the code.
   const talk=`<a class="btn sm only-mid" href="#talk" data-nx-key="talk" data-nx-act="talk" data-nx-focus="talk">${icon("i-talk")}<span>${esc(label("Tabs",4,lang,{n:count(view.talk)}))}</span></a>`;
@@ -70,7 +73,7 @@ function drawHead(data,lang,view){
 
 // The notes of reading again, between the head and the filters (SCR-113#error and #permission):
 // a read that failed, with Try again (rule 6), or a refusal's message with its trace ID.
-function drawNotes(view,lang){
+export function drawNotes(view,lang){
   const note=view.notice;let html="";
   if(note?.kind==="unread")html=`<div class="bar err" role="alert">${icon("i-err")}<span class="t">${esc(codeMessage("Could not update",lang))}</span><button class="btn sm" type="button" data-nx-act="read" data-nx-focus="read">${icon("i-reload")}${esc(labels("Page buttons",lang)[0])}</button></div>`;
   else if(note?.kind==="refused")html=`<div class="bar warn" role="status">${icon("i-warn")}<span class="t">${esc(codeMessage(note.code,lang))}${note.trace?` <span class="tid">${esc(codeMessage("Trace ID",lang,{traceId:note.trace}))}</span>`:""}</span></div>`;
@@ -80,7 +83,7 @@ function drawNotes(view,lang){
 // What the list is asked for: the user's pick while the code runs, else what was read.
 const queryOf=(items,view)=>({filter:FILTERS.includes(view.query?.filter)?view.query.filter:items.filter,group:GROUPS.includes(view.query?.group)?view.query.group:items.group,q:view.query?.q??items.q??""});
 
-function drawFilters(data,lang,view){
+export function drawFilters(data,lang,view){
   const items=data.items,words=labels("The list",lang),counts=items.counts||{},query=queryOf(items,view);
   // A stage that holds no items has nothing to narrow: its filters stay off (SCR-113#empty).
   const none=!Number(data.head.counts?.items),wait=none?" disabled":view.code?"":' disabled data-nx-wait="list"';
@@ -126,7 +129,7 @@ function emptyList(data,lang,view){
 // The items read so far, in groups by context or in the source's order (REQ-227), and the last
 // row while more remain: "{n} of {total}", "Loading more…", or "Could not load more." with Try
 // again. view.entries holds the pages that the code read after the first.
-function drawList(data,lang,view){
+export function drawList(data,lang,view){
   const items=data.items,entries=view.entries||items.entries,words=labels("The list",lang),stage=data.stage;
   if(!entries.length)return`<section class="list" data-nx-key="list" data-nx-sub>${emptyList(data,lang,view)}</section>`;
   // Each row's key: its ID, and a count after it for a second item with the same ID, so that
@@ -154,12 +157,13 @@ function drawList(data,lang,view){
   return`<section class="list" data-nx-key="list" data-nx-sub>${body}${more}</section>`;
 }
 
+// "Updating…" while the code reads again (rule 6), over the list or the picture.
+export const drawUpdating=(view,lang)=>`<p class="upd" role="status" data-nx-key="upd" data-nx-live>${view.updating?esc(codeMessage("Updating",lang)):""}</p>`;
 // The inside of the stage's middle (the stage part): data is API-158's answer.
 export function drawStage(data,lang,view={}){
   if(!data?.head||!data.items||!Array.isArray(data.items.entries))throw new Error("Unreadable page data");
-  const updating=`<p class="upd" role="status" data-nx-key="upd" data-nx-live>${view.updating?esc(codeMessage("Updating",lang)):""}</p>`;
   const filters=data.head.reads===false?"":drawFilters(data,lang,view);
-  return drawHead(data,lang,view)+drawNotes(view,lang)+filters+`<div class="lw" data-nx-key="lw" data-nx-sub>${updating}${drawList(data,lang,view)}</div>`;
+  return drawHead(data,lang,view)+drawNotes(view,lang)+filters+`<div class="lw" data-nx-key="lw" data-nx-sub>${drawUpdating(view,lang)}${drawList(data,lang,view)}</div>`;
 }
 
 // The stage record (SPEC-138, SPEC-139): the recorded state, next action, checkpoints and checks,

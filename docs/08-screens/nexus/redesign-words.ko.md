@@ -25,12 +25,14 @@
 | 모양의 설명 | SCR-111(규칙 13) | ✓ done · ◐ in progress · ○ not started · – skipped · ? not recorded · picture | ✓ 완료 · ◐ 진행 중 · ○ 시작 전 · – 건너뜀 · ? 기록 없음 · 그림 |
 | 다시 올라옴 | SCR-111#stale | This project was pushed again at {time}. Load again to see it. | 이 프로젝트가 {time}에 다시 올라왔습니다. 보려면 다시 불러와 주세요. |
 | 탭 | SCR-111(규칙 16) | Picture · List · Talk {n} · Item · Talk ({n}) | 그림 · 목록 · 대화 {n} · 항목 · 대화 ({n}) |
-| 머리 | SCR-112, SCR-113 | Last checkpoint {date} · No checkpoint yet · Commit {commit} · drawn {time} · Stage record · Back to the talk · Edit · Phase ② | 마지막 확인 지점 {date} · 아직 확인 지점 없음 · 커밋 {commit} · {time}에 그림 · 단계 기록 · 대화로 돌아가기 · 편집 · 2단계 |
+| 머리 | SCR-112, SCR-113 | Last checkpoint {date} · No checkpoint yet · Commit {commit} · drawn {time} · Stage record · Back to the talk | 마지막 확인 지점 {date} · 아직 확인 지점 없음 · 커밋 {commit} · {time}에 그림 · 단계 기록 · 대화로 돌아가기 |
 | 머리의 수 | SCR-112, SCR-113 | {n} contexts · {n} terms · {n} open hotspots · {n} tables · {n} screens · {n} requirements · {n} cases | 컨텍스트 {n} · 용어 {n} · 열린 핫스팟 {n} · 표 {n} · 화면 {n} · 요구사항 {n} · 사례 {n} |
 | 읽지 않음 | SCR-113#not-read. {why}는 텍스트 원본의 상태 `missing`, `none`, `skipped`, `no-checkout`, `invalid`를 따라 뒤의 다섯 가운데 하나이고, 같은 {why}가 0.2의 메시지 "이 프로젝트는 이 단계를 읽지 않습니다: {why}."를 채웁니다 | Not read: {why} · the source is missing · no text source is set · the project skips this stage · its repository was not on the machine that made the snapshot · its setting needs a fix | 읽지 않음: {why} · 원본이 없음 · 텍스트 원본이 정해지지 않음 · 프로젝트가 이 단계를 건너뜀 · 스냅샷을 만든 기기에 저장소가 없었음 · 설정을 고쳐야 함 |
 | 단계 기록 | SCR-112, SCR-113 (SPEC-138, SPEC-139). 기록된 상태, 없음, 남길 말 (선택), 다시 통과, 기록을 기다리는 확인 지점의 말은 0.2에 있습니다 | Next action · Checkpoints · Checks · Pass the checkpoint · Pass · Withdraw | 다음 행동 · 확인 지점 · 점검 · 확인 지점 통과 · 통과 · 철회 |
-| 그림의 도구 | SCR-112 | Zoom out · Zoom in · Fit · Go to · Map of the whole picture | 축소 · 확대 · 맞추기 · 바로 가기 · 전체 그림 지도 |
+| 그림의 도구 | SCR-112. 여섯째 라벨은 스크린 리더에 다이어그램 영역의 이름을 알립니다 | Zoom out · Zoom in · Fit · Go to · Map of the whole picture · {stage}, read-only | 축소 · 확대 · 맞추기 · 바로 가기 · 전체 그림 지도 · {stage}, 읽기 전용 |
 | 편집기 | SCR-112#loading, SCR-112#code-failed | The editor is loading. You can already read and move the picture. · The editor could not load. The picture and item list remain available. | 편집기를 불러오는 중입니다. 그림은 바로 읽고 이동할 수 있습니다. · 편집기를 불러오지 못했습니다. 그림과 항목 목록은 계속 사용할 수 있습니다. |
+| 표시 | SCR-112 (규칙 13): 다이어그램 왼쪽 아래의 범례와, 포인터를 올린 표시의 라벨 "{label}: {n}" | Open comments · Open proposals · Open discrepancies · Accepted, not yet reflected · Legend of the marks · {label}: {n} | 열린 의견 · 열린 제안 · 열린 어긋남 · 받음, 아직 반영 전 · 표시 범례 · {label}: {n} |
+| 새 버전 | SCR-112#stale | A newer version of this picture is on the server. · Show it | 서버에 이 다이어그램의 새 버전이 있습니다. · 보기 |
 | 목록 | SCR-113 | All · With talk · My turn · What is left · Search in this stage · By context · In the source's order · Show all · No context · {n} of {total} · Loading more… · Could not load more. | 모두 · 대화 있음 · 내 차례 · 남은 것 · 이 단계에서 찾기 · 컨텍스트별 · 원문 순서 · 모두 보기 · 컨텍스트 없음 · {total}개 중 {n}개 · 더 불러오는 중… · 더 불러오지 못했습니다. |
 | 항목 없음 | SCR-113#empty | This stage holds no items yet. | 이 단계에는 아직 항목이 없습니다. |
 | 맞는 것 없음 | SCR-113#no-match | Nothing waits for you in this stage. · No item of this stage has talk yet. · Nothing in this stage matches “{q}”. | 이 단계에는 내 답을 기다리는 것이 없습니다. · 이 단계에는 아직 대화가 있는 항목이 없습니다. · 이 단계에서 “{q}”에 맞는 항목이 없습니다. |

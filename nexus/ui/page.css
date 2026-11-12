@@ -5,7 +5,7 @@
    step of space (checkpoint 3). The sizes below are stage 08's layout tables and
    stage 09's frames, which no token names. 1,024 is breakpoint.side-panel and 1,280
    rule 16's; a media query cannot read a custom property, so they are written out. */
-:root{--pg-top:56px;--pg-rail:248px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s;--pg-id:112px;--pg-find:280px;--pg-fields:120px;--pg-comments:36px;--pg-marks:144px;--pg-term:120px;--pg-note:480px}
+:root{--pg-gap:6px;--pg-gap-wide:10px;--pg-map-w:188px;--pg-map-h:120px;--pg-map-w-ph:120px;--pg-map-h-ph:78px;--pg-fnote:560px;--pg-cover:440px;--pg-lg:14px;--pg-pop:420px;--pg-top:56px;--pg-rail:248px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s;--pg-id:112px;--pg-find:280px;--pg-fields:120px;--pg-comments:36px;--pg-marks:144px;--pg-term:120px;--pg-note:480px}
 *,*::before,*::after{box-sizing:border-box}
 html{color-scheme:light dark;-webkit-text-size-adjust:100%}
 body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-family:var(--nx-font-family-sans);font-size:var(--nx-font-size-body);line-height:var(--nx-font-line-height-body);font-weight:var(--nx-font-weight-regular);word-break:keep-all;overflow-wrap:anywhere}
@@ -234,7 +234,7 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .rail .unrec{margin:var(--nx-space-sm) var(--nx-space-md) var(--nx-space-2xs);padding:var(--nx-space-sm) var(--nx-space-md);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);font-size:var(--nx-font-size-small);color:var(--nx-color-muted);text-wrap:pretty}
 .nx .only-mid{display:none!important}
 
-/* The stage's middle (SCR-113, and SCR-112's list until TASK-275 draws its picture): the
+/* The stage's middle (SCR-113, and SCR-112's list): the
    head, the notes of reading again, the filters, and the list, which scrolls inside the
    middle under them. The head's two lines are stage 09's drawing; the list's columns are
    SCR-113's layout table (an ID of 112 pixels) and the drawing's. A row's padding keeps the
@@ -291,6 +291,106 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .nolist > div{display:grid;justify-items:center;gap:var(--nx-space-md);max-width:var(--pg-note)}
 .nx .nolist p{text-wrap:pretty}
 .nx svg.i.big{width:calc(var(--nx-size-icon) * 2);height:calc(var(--nx-size-icon) * 2);stroke-width:1.3;color:var(--nx-color-muted)}
+
+/* The picture stage (SCR-112), stage 09's sheet of the revision: the tools' line, which wraps
+   and hides no tool; a DDD board's steps on a line of their own; the bars; and the frame, with
+   the picture, its marks, the map, the legend, the phone's zoom buttons and the frame's note.
+   Before the code runs the frame scrolls the picture (rule 15); then the code moves and zooms
+   it, and the frame takes the pointer and the fingers (SPEC-156). */
+.nx .ptools{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:var(--nx-space-sm);padding:var(--nx-space-sm) var(--nx-space-xl);background:var(--nx-color-surface);border-bottom:var(--nx-border-thin) solid var(--nx-color-line);white-space:nowrap}
+.nx .ptools > [data-nx-act="record"]{margin-left:auto}
+.nx .ptools .seg{display:inline-flex;flex:none;border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);overflow:hidden}
+.nx .ptools .seg > button{display:flex;align-items:center;gap:var(--pg-gap);height:calc(var(--nx-size-button) - var(--nx-border-thin) * 2);padding:0 var(--nx-space-md);border:0;background:transparent;color:var(--nx-color-muted);font-size:var(--nx-font-size-small);cursor:pointer}
+.nx .ptools .seg > button + button{border-left:var(--nx-border-thin) solid var(--nx-color-control-line)}
+.nx .ptools .seg > button[aria-pressed="true"]{background:var(--nx-color-surface);color:var(--nx-color-text);font-weight:var(--nx-font-weight-bold);box-shadow:inset 0 calc(var(--nx-border-strong) * -1) 0 var(--nx-color-text)}
+.nx .ptools .seg > button:disabled{opacity:var(--nx-opacity-disabled);cursor:default}
+.nx .ptools .seg > button:focus-visible{outline-offset:calc(var(--nx-border-strong) * -1)}
+/* The line's buttons as stage 09 draws them, so that the whole line fits the 632 pixels of the
+   stage's column at 1,280 (TC-1770) */
+.nx .ptools .btn.sm,.nx .steps .btn.sm{gap:var(--pg-gap);padding:0 var(--pg-gap-wide)}
+.nx .btn.icon{width:var(--nx-size-button);padding:0}
+.nx .btn.sm.icon{width:var(--nx-size-button-small)}
+.nx .zoom{display:inline-flex;align-items:center;gap:var(--nx-space-xs)}
+.nx .zoom .pct{min-width:var(--nx-size-target);text-align:center;font-size:var(--nx-font-size-small);font-variant-numeric:tabular-nums}
+.nx .goto .pop{left:0;right:auto;gap:var(--nx-space-2xs);min-width:max-content;max-height:min(60vh,var(--pg-pop));overflow:auto}
+.nx .goto .pop .btn{justify-content:flex-start;color:var(--nx-color-text);font-weight:var(--nx-font-weight-regular)}
+.nx .goto .pop .mono{color:var(--nx-color-muted)}
+.nx .steps{flex:none;display:flex;align-items:center;gap:var(--pg-gap);padding:var(--pg-gap) var(--nx-space-xl);font-size:var(--nx-font-size-small);background:var(--nx-color-surface);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .steps .stl1{margin-right:var(--nx-space-xs)}
+.nx .field.sm-f{height:var(--nx-size-button-small);gap:var(--nx-space-xs);padding:0 var(--nx-space-sm);color:var(--nx-color-text)}
+.nx .field.sel{padding:0}
+.nx .field.sel select{position:relative;z-index:1;height:100%;padding:0 calc(var(--nx-space-sm) * 2 + var(--nx-size-icon)) 0 var(--nx-space-sm);border:0;background:transparent;color:var(--nx-color-text);font-size:var(--nx-font-size-small);-webkit-appearance:none;appearance:none;cursor:pointer;outline:0}
+.nx .field.sel select:disabled{opacity:var(--nx-opacity-disabled);cursor:default}
+.nx .field.sel > svg.i{position:absolute;right:var(--nx-space-sm);pointer-events:none}
+.nx .pnote,.nx .pbars{flex:none}
+.nx .pbars:empty{display:none}
+.nx .pf{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--nx-color-picture-ground)}
+.nx .pf > .cv{position:absolute;inset:0;overflow:auto}
+.nx .pf > .cv:focus-visible{outline-offset:calc(var(--nx-border-strong) * -1)}
+.nx .pf > .cv > svg.board{display:block}
+.nx .pf > .cv.live{overflow:hidden;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+.nx .pf > .cv.grab{cursor:grabbing}
+.nx .pf > .cv.live > svg.board{position:absolute;left:0;top:0;width:100%;height:100%}
+.nx .pf > .cv.drawn > svg.board{visibility:hidden}
+.nx .pf > .cv > .ed{position:absolute;inset:0}
+.nx .pf > .cv:not(.drawn) > .ed{visibility:hidden}
+/* The editor only draws: its own menus, zoom and scroll bars stay out of the frame, whose
+   tools are the page's */
+.nx .pf .ed .layer-ui__wrapper,.nx .pf .ed .excalidraw .App-bottom-bar,.nx .pf .ed .excalidraw .scroll-back-to-content{display:none!important}
+.nx .pf > svg.mks{position:absolute;z-index:1;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.nx .pf > svg.mks .mk{pointer-events:auto;cursor:pointer;touch-action:none}
+.nx .pf > .map{position:absolute;z-index:2;right:var(--nx-space-lg);bottom:var(--nx-space-lg);width:var(--pg-map-w);height:var(--pg-map-h);background:var(--nx-color-surface);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);overflow:hidden;cursor:pointer;touch-action:none}
+.nx .pf > .map svg{position:absolute;inset:var(--nx-space-xs);width:calc(100% - var(--nx-space-xs) * 2);height:calc(100% - var(--nx-space-xs) * 2)}
+/* The lower left corner: the frame's note above the legend, which wraps, both clear of the map
+   while the map shows */
+.nx .pcn{position:absolute;z-index:2;left:var(--nx-space-lg);bottom:var(--nx-space-lg);display:flex;flex-direction:column;align-items:flex-start;gap:var(--nx-space-sm);max-width:calc(100% - var(--nx-space-lg) * 2);pointer-events:none}
+.nx .pcn > *{pointer-events:auto}
+.nx .map:not([hidden]) ~ .pcn{max-width:calc(100% - var(--nx-space-lg) * 3 - var(--pg-map-w))}
+.nx .lgd{display:flex;flex-wrap:wrap;align-items:center;gap:var(--nx-space-xs) var(--nx-space-md);margin:0;padding:var(--pg-gap) var(--pg-gap-wide);list-style:none;background:var(--nx-color-surface);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);font-size:var(--nx-font-size-caption)}
+.nx .lgd li{display:inline-flex;align-items:center;gap:var(--pg-gap);white-space:nowrap}
+.nx svg.lg{width:var(--pg-lg);height:var(--pg-lg);flex:none}
+.nx .zpad{position:absolute;z-index:2;right:var(--nx-space-md);bottom:var(--nx-space-md);display:grid;gap:var(--nx-space-sm)}
+.nx .zpad .btn{width:var(--nx-size-target);height:var(--nx-size-target);padding:0}
+.nx .fnote{display:flex;max-width:var(--pg-fnote)}
+.nx .fnote:empty{display:none}
+.nx .fnote .msg{border:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .pf > .upd{z-index:4}
+.nx .empty-p{position:absolute;z-index:3;inset:0;display:grid;place-items:center;background:var(--nx-color-bg)}
+.nx .empty-p > div{display:grid;justify-items:center;gap:var(--nx-space-md);max-width:var(--pg-cover);padding:var(--nx-space-xl);text-align:center}
+.nx .empty-p p{text-wrap:pretty}
+/* The marks of rule 13, each a shape with its words, the outline of a selected item and the
+   view's frame in the map */
+.nx .mk-pin{fill:var(--nx-color-mark-ink);stroke:var(--nx-color-mark-halo);stroke-width:var(--nx-border-strong)}
+.nx .mk-txt{fill:var(--nx-color-mark-on-ink);font:var(--nx-font-weight-bold) var(--nx-font-size-caption) var(--nx-font-family-sans)}
+.nx .mk-prop{fill:var(--nx-color-info);stroke:var(--nx-color-mark-halo);stroke-width:var(--nx-border-strong)}
+.nx .mk-prop-t{fill:var(--nx-color-on-accent);font:var(--nx-font-weight-bold) var(--nx-font-size-caption) var(--nx-font-family-sans)}
+.nx .mk-warn{fill:var(--nx-color-warn);stroke:var(--nx-color-mark-halo);stroke-width:var(--nx-border-strong)}
+.nx .mk-warn-t{fill:var(--nx-color-on-warn);font:var(--nx-font-weight-bold) var(--nx-font-size-caption) var(--nx-font-family-sans)}
+.nx .mk-wait{fill:var(--nx-color-picture-ground);stroke:var(--nx-color-warn);stroke-width:var(--nx-border-strong);stroke-dasharray:4 3}
+.nx .mk-wait-t{fill:var(--nx-color-warn);font:var(--nx-font-weight-bold) var(--nx-font-size-caption) var(--nx-font-family-sans)}
+.nx .mk-acc{fill:var(--nx-color-info);stroke:var(--nx-color-mark-halo);stroke-width:var(--nx-border-strong)}
+.nx .mk-acc-t{fill:var(--nx-color-on-accent);font:var(--nx-font-weight-bold) var(--nx-font-size-caption) var(--nx-font-family-sans)}
+.nx .mk-sel{fill:none;stroke:var(--nx-color-focus);stroke-width:calc(var(--nx-border-strong) + var(--nx-border-thin))}
+.nx .mk-view{fill:none;stroke:var(--nx-color-accent);stroke-width:var(--nx-border-strong)}
+/* The editors' dark filter (palette.js) on the picture and the map's boxes, as on the first
+   page's small views; the marks keep the dark theme's own colours */
+@media (prefers-color-scheme:dark){.nx .pf svg.board,.nx .pf svg.mpn{filter:invert(93%) hue-rotate(180deg)}}
+/* Under 1,024 pixels: the view's buttons and the steps at the target's size, Fit and Go to as
+   icons at the line's end, the map above the zoom buttons, and the note clear of both */
+@media (max-width:1023.98px){
+ .nx .ptools{padding:var(--nx-space-sm) var(--nx-space-md)}
+ .nx .ptools .seg > button{height:calc(var(--nx-size-target) - var(--nx-border-thin) * 2)}
+ .nx .ptools .fit{margin-left:auto}
+ .nx .ptools .fit,.nx .ptools .goto > summary{width:var(--nx-size-target);height:var(--nx-size-target);padding:0}
+ .nx .ptools .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .nx .goto .pop{left:auto;right:0}
+ .nx .steps{justify-content:space-between;padding:var(--pg-gap) var(--nx-space-md)}
+ .nx .steps .btn{width:var(--nx-size-target);height:var(--nx-size-target);padding:0}
+ .nx .steps .field{height:var(--nx-size-target)}
+ .nx .pf > .map{right:var(--nx-space-md);bottom:calc(var(--nx-space-md) + var(--nx-size-target) * 2 + var(--nx-space-sm) + var(--nx-space-xs));width:var(--pg-map-w-ph);height:var(--pg-map-h-ph)}
+ .nx .pcn{left:var(--nx-space-md);bottom:var(--nx-space-md);max-width:calc(100% - var(--nx-space-md) * 3 - var(--nx-size-target))}
+ .nx .map:not([hidden]) ~ .pcn{max-width:calc(100% - var(--nx-space-md) * 3 - var(--pg-map-w-ph))}
+}
 
 /* The stage record (SPEC-138, SPEC-139), in the side in the talk's place: from 1,280 pixels
    its column, from 1,024 a panel over the stage's right edge, and under 1,024 a sheet */

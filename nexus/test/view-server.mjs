@@ -177,10 +177,40 @@ if(process.env.NEXUS_QA_STAGE==="1"){
  await call("POST","/api/snapshots",quiet,"agent");
  Object.assign(stageQa,{project,part:"sample",unrecorded:quiet.project.name,title:snapshot.project.title});
 }
+// The picture stage (TASK-275): a project whose three pictures carry talk, a proposal and an
+// accepted reflection, so that their marks show; and a second one whose ERD was left out for
+// its size, whose DDD board is no longer current and whose sitemap holds 320 screens
+// (SCR-112#empty, #stale and #large). Only the picture suite opts in.
+const pictureQa={};
+if(process.env.NEXUS_QA_PICTURE==="1"){
+ const project="qa-picture",base="/api/spaces/"+project,snapshot=viewSnapshot(project),where="docs/qa-sample.md:1";
+ snapshot.items=[
+  {id:"CTX-001",kind:"context",stage:"01-domain",where,title:"Ordering"},
+  {id:"TBL-001",kind:"table",stage:"05-erd",where,title:"orders",links:["CTX-001"]},{id:"TBL-002",kind:"table",stage:"05-erd",where,title:"payments",links:["CTX-001"]},
+  {id:"SCR-001",kind:"screen",stage:"07-sitemap",where,title:"Home",links:["CTX-001"]},{id:"SCR-002",kind:"screen",stage:"07-sitemap",where,title:"Orders",links:["CTX-001"]},
+ ];
+ snapshot.summary={...snapshot.summary,items:snapshot.items.length};
+ await call("POST","/api/snapshots",snapshot,"agent");
+ const said=async(item,stage,text)=>(await call("POST",base+"/comments",{part:"sample",stage,item,text})).id;
+ pictureQa.erd=await said("TBL-001","05-erd","Synthetic comment on a table");
+ pictureQa.domain=await said("CTX-001","01-domain","Synthetic comment on a context");
+ const proposal=(item,reason)=>call("POST",base+"/proposals",{part:"sample",stage:"05-erd",items:[item],reason:"Synthetic "+reason,change:"Describe the synthetic constraint.",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);"},"agent");
+ pictureQa.proposal=(await proposal("TBL-001","proposal")).id;
+ const reflected=await proposal("TBL-002","reflection");
+ pictureQa.edit=(await call("POST",base+"/proposals/"+reflected.id+"/accept",{})).edit.id;
+ const states=viewSnapshot("qa-picture-states"),sitemap=states.pictures.find(p=>p.stage==="07-sitemap"),[root,child]=sitemap.source.screens;
+ sitemap.source.screens=Array.from({length:320},(_,i)=>({...(i===0?root:child),id:"SCR-"+String(i+1).padStart(3,"0"),context:"",name:"Synthetic screen "+(i+1),path:i===0?"/":"/qa-"+i}));
+ states.pictures=states.pictures.filter(p=>p.stage!=="05-erd");states.left_out=[{part:"sample",stage:"05-erd",why:"size"}];
+ await call("POST","/api/snapshots",states,"agent");
+ // The second push leaves the DDD board out: the server keeps it, as not current.
+ states.pictures=states.pictures.filter(p=>p.stage!=="01-domain");states.generated_at=new Date(Date.parse(states.generated_at)+1000).toISOString();
+ await call("POST","/api/snapshots",states,"agent");
+ Object.assign(pictureQa,{project,part:"sample",states:states.project.name});
+}
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
  const pushAgain=home.pushAgain||stageQa.pushAgain;
  if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&pushAgain){const pushed=await pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
  const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const bytes=Buffer.concat(chunks);

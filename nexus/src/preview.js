@@ -7,11 +7,13 @@ export function pictureLimitMessage(scene,lang){return lang==="ko"?`반복 배�
 const number=value=>Number.isFinite(Number(value))?Number(value):0;
 const palette=PALETTE;
 const fragment=id=>{try{return "#item="+encodeURIComponent(id);}catch{return "#items";}};
-function labelLines(node){
+// A box's lines, and their width in a font's em units: the picture stage's board
+// (./draw/picture.js) sizes its labels the same way.
+export function labelLines(node){
  if(node.kind!=="table")return String(node.label||node.text).split("\n");
  const table=node.raw;return [table.name,...table.columns.map(column=>[table.primary_key.includes(column.name)?"PK":"",table.foreign_keys.some(fk=>fk.columns.includes(column.name))?"FK":"",column.name,column.type,column.null?"":"NOT NULL"].filter(Boolean).join(" "))];
 }
-const widthUnits=text=>Array.from(text).reduce((n,ch)=>n+(ch.codePointAt(0)>255?1:.62),0);
+export const widthUnits=text=>Array.from(text).reduce((n,ch)=>n+(ch.codePointAt(0)>255?1:.62),0);
 export function firstPictureNode(scene,data){
  if(scene.step!==undefined&&scene.step<8)return scene.nodes.find(node=>node.kind==="event")||scene.nodes[0];
  const groups=new Map();for(const node of scene.nodes){const key=node.context||node.key;if(!groups.has(key))groups.set(key,{nodes:[],marks:0});groups.get(key).nodes.push(node);groups.get(key).marks+=itemMarks(node,data||{}).total;}

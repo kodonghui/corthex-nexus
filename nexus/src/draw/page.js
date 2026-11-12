@@ -8,7 +8,8 @@ import {topBar,codeBar,tabs} from "./frame.js";
 import {stageRail,stageName,stageNumber} from "./stages.js";
 import {labels} from "./words.js";
 import {drawHome} from "./home.js";
-import {drawStage,drawSide,stageBars} from "./stage.js";
+import {drawStage,drawSide,stageBars,PICTURE_STAGES} from "./stage.js";
+import {drawPictureStage} from "./picture.js";
 export const PAGE_SCHEMAS=Object.freeze({home:"corthex-home-page/0.3",stage:"corthex-stage-page/0.3"});
 export function pageKind(payload){
   const kind=Object.keys(PAGE_SCHEMAS).find(key=>PAGE_SCHEMAS[key]===payload?.schema);
@@ -20,7 +21,8 @@ export function pageKind(payload){
 export const openTalk=talk=>talk?["mine","agent","apart"].reduce((n,key)=>n+(Number(talk[key]?.total)||0),0):0;
 // The inside of every part of the page, by the part's name, from the page's data: the
 // first page's sections (SCR-110, TASK-273), and a stage's frame, middle and side (SCR-111
-// and SCR-113, TASK-274), which the picture and the talk join in TASK-275 and TASK-276.
+// and SCR-113, TASK-274), with a pictured stage's picture (SCR-112, TASK-275), which the
+// talk joins in TASK-276.
 // view is what the stage page's code adds when it draws again (./stage.js); the server
 // draws with none.
 export function drawParts(payload,view={}){
@@ -32,7 +34,7 @@ export function drawParts(payload,view={}){
     bars:codeBar(lang)+stageBars(view,lang),
     rail:stageRail(data,lang),
     tabs:tabs({picture:Boolean(payload.picture),talk},lang),
-    stage:drawStage(data,lang,{...view,talk}),
+    stage:PICTURE_STAGES.includes(data.stage)?drawPictureStage(payload,lang,{...view,talk}):drawStage(data,lang,{...view,talk}),
     side:drawSide(data,payload.problem,lang,view),
   };
 }
