@@ -4,7 +4,7 @@
 
 Serves: REQ-117, REQ-129, REQ-159, REQ-178, REQ-179, REQ-219, REQ-220, REQ-221, REQ-222, REQ-223, REQ-236, REQ-271, REQ-272, REQ-278, REQ-279, REQ-280
 
-Context: CTX-014 Discussion. Starts when the user opens NEXUS's first page, on a phone or a PC. New in the redesign of 2026-11-06; until it is built, the user answers in the picture view (FL-107, FL-110) and passes checkpoints in the stage overview (FL-113). The design revision of 2026-11-11 added the last push and the agent's last read, and changed how a checkpoint is passed from the page (REQ-278 to REQ-280, open under D17 of stage 02).
+Context: CTX-014 Discussion. Starts when the user opens NEXUS's first page, on a phone or a PC. New in the redesign of 2026-11-06; until it is built, the user answers in the picture view (FL-107, FL-110) and passes checkpoints in the stage overview (FL-113). The design revision of 2026-11-11 added the last push and the agent's last read, and changed how a checkpoint is passed from the page (REQ-278 to REQ-280, under D17 of stage 02, decided on 2026-11-12).
 
 ```mermaid
 flowchart TD

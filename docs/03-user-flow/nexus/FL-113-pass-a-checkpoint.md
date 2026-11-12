@@ -4,7 +4,7 @@
 
 Serves: REQ-084, REQ-086, REQ-089, REQ-090, REQ-117, REQ-125, REQ-173, REQ-176, REQ-177, REQ-178, REQ-179, REQ-180, REQ-278, REQ-279, REQ-283
 
-Context: CTX-007 Stage progress. Starts when the user looks at whether a stage is ready, in the stage overview of NEXUS or in the session with the agent. New in NEXUS 0.2; the design revision of 2026-11-11 binds a pass to what the user saw (REQ-278, REQ-279, open under D17 of stage 02) and names the stage's record of the redesign beside the stage overview.
+Context: CTX-007 Stage progress. Starts when the user looks at whether a stage is ready, in the stage overview of NEXUS or in the session with the agent. New in NEXUS 0.2; the design revision of 2026-11-11 binds a pass to what the user saw (REQ-278, REQ-279, under D17 of stage 02, decided on 2026-11-12) and names the stage's record of the redesign beside the stage overview.
 
 ```mermaid
 flowchart TD

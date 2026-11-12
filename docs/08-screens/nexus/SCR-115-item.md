@@ -70,7 +70,7 @@ Every state of the stage applies but empty and stale, with one of the item's own
 
 ## The design revision of 2026-11-11
 
-What the design revision of 2026-11-11 adds to this screen or changes on it, planned and not built: its checkpoint has not passed ([the review's map](../../reviews/2026-11-11-design-review.md), finding 25). The sections above tell the item as the redesign's checkpoint 3 passed it; TASK-277 builds it with the rows of this section once the revision's checkpoint has passed, and moves them into the sections above. The words are in [revision-words.md](revision-words.md), and the rules are those of [the design revision](README.md#the-design-revisions-screens).
+What the design revision of 2026-11-11 adds to this screen or changes on it, planned and not built: its checkpoint passed on 2026-11-12 ([the review's map](../../reviews/2026-11-11-design-review.md), finding 25). The sections above tell the item as the redesign's checkpoint 3 passed it; TASK-277 builds it with the rows of this section, now that the revision's checkpoint has passed, and moves them into the sections above. The words are in [revision-words.md](revision-words.md), and the rules are those of [the design revision](README.md#the-design-revisions-screens).
 
 ### Data of the revision
 

@@ -4569,8 +4569,8 @@ components:
           description: >-
             The comment whose recommendation the user took to pass the checkpoint (API-159),
             which holds what was approved; from the redesign. From the design revision of
-            2026-11-11, open under D17 of stage 02: the checkpoint request that the pass named
-            (API-128), and null for a pass without a request
+            2026-11-11, under D17 of stage 02, decided on 2026-11-12: the checkpoint request that
+            the pass named (API-128), and null for a pass without a request
           anyOf: [{$ref: "#/components/schemas/CommentId"}, {type: "null"}]
         revision:
           description: >-
@@ -5758,8 +5758,9 @@ components:
             decisions: {type: array, items: {$ref: "#/components/schemas/Decision"}}
     RequestShown:
       description: >-
-        A checkpoint request as an entry of my turn shows it whole (SPEC-196, open under D17 of
-        stage 02): entry, the place of the request's last entry, 0 for the comment's own text and
+        A checkpoint request as an entry of my turn shows it whole (SPEC-196, under D17 of stage
+        02, decided on 2026-11-12): entry, the place of the request's last entry, 0 for the
+        comment's own text and
         otherwise its reply's seq, which a pass names; text, that entry's whole text; look_first,
         the thing to look at first as that entry gave it, an item with the stage that holds it
         and its title in the stored snapshot, or an address; and left, what is left in the
@@ -5843,7 +5844,8 @@ components:
     PlannedNewCheckpoint:
       description: >-
         The planned body of passCheckpoint (SPEC-194 to SPEC-196): NewCheckpoint with what the
-        page showed, open under D17 of stage 02, and with driven, planned whatever D17 decides.
+        page showed, under D17 of stage 02, decided on 2026-11-12, and with driven, which did
+        not depend on D17.
         A pass names commit, the default branch commit of the project's snapshot as the page's
         data gave it, or revision, the snapshot's revision, where that snapshot names no commit:
         one of the two, never both and never neither. A pass that answers a checkpoint request
@@ -6158,8 +6160,8 @@ components:
         tags: [Stage progress]
         summary: Pass a stage's checkpoint in NEXUS, on what the user saw
         description: >-
-          The planned form of passCheckpoint, open under D17 of stage 02 but for driven and the
-          kind of browser and device, which are planned whatever D17 decides (SPEC-195). The page
+          The planned form of passCheckpoint, under D17 of stage 02, decided on 2026-11-12;
+          driven and the kind of browser and device did not depend on D17 (SPEC-195). The page
           sends with the pass what it showed (SPEC-194): commit, the default branch commit of the
           project's snapshot as the page's data gave it, or revision, the snapshot's revision,
           where that snapshot names no commit; and, where the pass answers a checkpoint request,
@@ -6265,8 +6267,8 @@ components:
         tags: [Discussion]
         summary: Take the agent's recommendation on a comment, which passes no checkpoint
         description: >-
-          The planned form of takeRecommendation, open under D17 of stage 02: taking a
-          recommendation passes no checkpoint any more (SPEC-143, SPEC-196). With asks
+          The planned form of takeRecommendation, under D17 of stage 02, decided on 2026-11-12:
+          taking a recommendation passes no checkpoint any more (SPEC-143, SPEC-196). With asks
           recommended, the server adds the user's reply that settles the comment, in the words
           for "as recommended" of the server's language, as now. A comment whose last entry asks
           for a checkpoint is 409 not_recommended: a checkpoint request is opened and passed with
@@ -6375,8 +6377,9 @@ components:
           which the page tells a wait of more than 24 hours. A card already holds pushed_at, when
           the server stored the snapshot, and commit, which the page shows as the last push; a
           card whose project has no entry in agent is of a project without a space, which has no
-          agent to-do yet. Open under D17 of stage 02: each card names the snapshot's revision,
-          and an entry of my turn that is a checkpoint request in form holds request, the request
+          agent to-do yet. Under D17 of stage 02, decided on 2026-11-12: each card names the
+          snapshot's revision, and an entry of my turn that is a checkpoint request in form holds
+          request, the request
           whole, so that the entry may offer the pass as its second action, with passCheckpoint
           (SPEC-196); request is null for any other entry.
         x-corthex:
@@ -6418,8 +6421,9 @@ components:
           The planned form of getStage: as now, with what the design revision of 2026-11-11 adds.
           project names space, whether the project has a space; read_at, when the agent last
           read its agent to-do; and unread_since, as getHome gives it, for the head of the
-          workspace (SPEC-188); with pushed_at and commit, which it holds already. Open under D17
-          of stage 02, it also names the snapshot's revision, which a pass names where the
+          workspace (SPEC-188); with pushed_at and commit, which it holds already. Under D17 of
+          stage 02, decided on 2026-11-12, it also names the snapshot's revision, which a pass
+          names where the
           snapshot names no commit (SPEC-194). The stage's record shows the stage's open
           checkpoint request whole above the pass (SPEC-139): the page takes it from the talk's
           my turn (getStageTalk), the open comment on the stage as a whole whose asks is

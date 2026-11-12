@@ -74,7 +74,7 @@ Every state of the stage applies but empty, with one of the workspace's own, unr
 
 ## The design revision of 2026-11-11
 
-What the design revision of 2026-11-11 adds to this screen or changes on it, planned and not built: its checkpoint has not passed ([the review's map](../../reviews/2026-11-11-design-review.md), findings 1, 11 and 15). The sections above tell the workspace as it is built; a task that builds a row of this section moves it into them. The words are in [revision-words.md](revision-words.md), and the rules are those of [the design revision](README.md#the-design-revisions-screens).
+What the design revision of 2026-11-11 adds to this screen or changes on it, planned and not built: its checkpoint passed on 2026-11-12 ([the review's map](../../reviews/2026-11-11-design-review.md), findings 1, 11 and 15). The sections above tell the workspace as it is built; a task that builds a row of this section moves it into them. The words are in [revision-words.md](revision-words.md), and the rules are those of [the design revision](README.md#the-design-revisions-screens).
 
 ### Data of the revision
 

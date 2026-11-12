@@ -1246,13 +1246,13 @@ TC-1397 to TC-1407 are TASK-274's cases. Their browser cases ran the workspace o
 
 ## The design revision of 2026-11-11
 
-An independent review of the whole NEXUS design found 41 points on 2026-11-11, and the maintainer asked the same day to fix the design from them ([the review's map](../reviews/2026-11-11-design-review.md)). Stages 01 to 10 are revised, and this section plans the cases that judge the revision's rows: 387 cases, TC-1408 to TC-1794, written before any task of the revision starts, from the flows, the acceptance criteria, the contract's planned forms and the screens' states, and not from code. None is run: nothing of the revision is built, and no task starts before the revision's checkpoint passes in the maintainer's own words. The cases above this section keep their rows and results as they are.
+An independent review of the whole NEXUS design found 41 points on 2026-11-11, and the maintainer asked the same day to fix the design from them ([the review's map](../reviews/2026-11-11-design-review.md)). Stages 01 to 10 are revised, and this section plans the cases that judge the revision's rows: 387 cases, TC-1408 to TC-1794, written before any task of the revision starts, from the flows, the acceptance criteria, the contract's planned forms and the screens' states, and not from code. None is run: nothing of the revision is built, and no task started before the revision's checkpoint, which passed on 2026-11-12 in the maintainer's own words. The cases above this section keep their rows and results as they are.
 
-No case measures stage 02's [success measures](../02-prd/nexus.md#success-measures). The revision had planned a two-week trial for them, and on 2026-11-12 the maintainer decided not to run it (D20): the measures stay as what NEXUS is for, the rows of the loop are judged by their own cases here, and one case shows the loop once in the maintainer's own sessions (TC-1789). The decisions D16 to D18 are open, and D19 was decided on 2026-11-12 as recommended. A case whose row follows an open one is run only if the decision goes as recommended, and is marked removed, with its ID kept, if it does not.
+No case measures stage 02's [success measures](../02-prd/nexus.md#success-measures). The revision had planned a two-week trial for them, and on 2026-11-12 the maintainer decided not to run it (D20): the measures stay as what NEXUS is for, the rows of the loop are judged by their own cases here, and one case shows the loop once in the maintainer's own sessions (TC-1789). The decisions D16 to D19 were decided on 2026-11-12 as recommended, D16 to D18 at the revision's checkpoint. A case whose row followed one of them while it was open is run as written, and none is marked removed.
 
 ### Counts of the revision
 
-| Part | Cases | IDs | Follow an open decision, or are phase ②'s |
+| Part | Cases | IDs | Under D16 to D18, or phase ②'s |
 | --- | --- | --- | --- |
 | Acceptance criteria | 96 | TC-1408 to TC-1503 | 5 under D16; 10 under D17; 3 under D18; 18 of phase ② |
 | Server responses | 159 | TC-1504 to TC-1662 | 42 under D17 |
@@ -1266,7 +1266,7 @@ No case measures stage 02's [success measures](../02-prd/nexus.md#success-measur
 | The walk, the loop and the release decision | 5 | TC-1785 to TC-1789 | none |
 | The evidence that the review asked for | 5 | TC-1790 to TC-1794 | none |
 
-Of the 387 cases, 274 wait for no decision; 90 follow an open decision, 13 D16, 74 D17 and 3 D18; 5, among the screens' states, hold one part under D17 beside what is planned; and 18 are phase ②'s, with no task yet. The numbers are counted by the script that built this section from the stage sources, and it fails when a criterion, a planned example or a state row has no case.
+Of the 387 cases, 274 waited for no decision; 90 follow one of the decisions that were open until 2026-11-12, 13 D16, 74 D17 and 3 D18; 5, among the screens' states, hold one part under D17 beside the rest; and 18 are phase ②'s, with no task yet. The numbers were counted before the decisions by the script that built this section from the stage sources, which fails when a criterion, a planned example or a state row has no case; since D16 to D18 were decided as recommended, the 90 and the 5 are run as written.
 
 ### How the revision's cases are read
 

@@ -75,29 +75,29 @@ On a screen that a finger selects, the filters, the search, the grouping, Stage 
 
 ## The design revision of 2026-11-11
 
-What the design revision of 2026-11-11 adds to this screen or changes on it, planned and not built: its checkpoint has not passed ([the review's map](../../reviews/2026-11-11-design-review.md), findings 3 and 25). The sections above tell the list as it is built; a task that builds a row of this section moves it into them. `open (D17)` marks what follows the recommendation of stage 02's decision D17, which is open. The words are in [revision-words.md](revision-words.md), and the rules are those of [the design revision](README.md#the-design-revisions-screens).
+What the design revision of 2026-11-11 adds to this screen or changes on it, planned and not built: its checkpoint passed on 2026-11-12 ([the review's map](../../reviews/2026-11-11-design-review.md), findings 3 and 25). The sections above tell the list as it is built; a task that builds a row of this section moves it into them. The rows that said `open (D17)` are `planned`: the maintainer decided D17 on 2026-11-12 as recommended. The words are in [revision-words.md](revision-words.md), and the rules are those of [the design revision](README.md#the-design-revisions-screens).
 
 ### Data of the revision
 
 | Data | Source | Status |
 | --- | --- | --- |
 | The item that an entry of the talk selects | The entry's item (SCR-114); its row is found as the row of an address's `#item=` is, 200 items at a time | planned |
-| For the record: the stage's open checkpoint request with what is left in the stage, what a pass names, and what each checkpoint passed in NEXUS recorded | As SCR-112's revision says: API-152, API-158 (`project`, `record`) | planned; what the pass names open (D17) |
+| For the record: the stage's open checkpoint request with what is left in the stage, what a pass names, and what each checkpoint passed in NEXUS recorded | As SCR-112's revision says: API-152, API-158 (`project`, `record`) | planned |
 
 ### Actions of the revision
 
 | Action | Result | Failure | Status |
 | --- | --- | --- | --- |
 | Pick an entry of the talk that is on an item | The item is selected in the list ([rule 24](README.md#the-design-revisions-screens), SPEC-209): the list scrolls so that the item's row is in sight and shows it as selected, with the accent's bar and as the current row for screen readers, reading on 200 items at a time until the row is drawn; the item's panel opens with its talk narrowed to it and the picked entry open (SCR-115); and the address gains `item={id}` beside the entry's `talk=` (SCR-114), so that the browser's back button returns to the stage's whole talk at that entry. The List view of a pictured stage does the same, and its address keeps `view=list` | The stage no longer holds the item: nothing is selected, and the entry says so with the item's ID (SCR-114). The list as the user narrowed it does not hold the row: no row is selected, the filter and the search stay, and the item's panel says "This item is not in the list as you narrowed it." with Show all, which clears the filter and the search and selects the row | planned |
-| Stage record, Pass | As SCR-112's revision says: the stage's open request whole above the words box, "Pass the stage {n} checkpoint", and beside each checkpoint passed in NEXUS what it recorded. A stage that the project does not read passes in the same way, with the commit that its head shows (SCR-113#not-read) | SCR-113#stale, SCR-113#error or SCR-113#permission, with the words kept | planned; what the pass names open (D17) |
+| Stage record, Pass | As SCR-112's revision says: the stage's open request whole above the words box, "Pass the stage {n} checkpoint", and beside each checkpoint passed in NEXUS what it recorded. A stage that the project does not read passes in the same way, with the commit that its head shows (SCR-113#not-read) | SCR-113#stale, SCR-113#error or SCR-113#permission, with the words kept | planned |
 
 ### States of the revision
 
 | State | What the revision adds or changes | From responses | Status |
 | --- | --- | --- | --- |
-| SCR-113#normal | An item that the talk selected: its row in sight and shown as selected, with its panel beside the list; where the narrowed list does not hold the row, the panel's line with Show all. In the record, the stage's open request whole above the pass, the pass named for the stage, and what each checkpoint passed in NEXUS recorded, as on SCR-112 | API-158#200, API-152#200, API-128#201 | planned; what the pass names open (D17) |
-| SCR-113#stale | A pass refused because what the page showed has changed: as SCR-112#stale's revision says, above the words box, with the words kept and nothing recorded | API-128#409 (`snapshot_changed`, `request_changed`) | open (D17) |
-| SCR-113#error | A pass that fails for its request: as SCR-112#error's revision says, above the words box, with the words kept | API-128#400 (`invalid_request`), API-128#404 (`comment_not_found`), API-128#409 (`reply_limit`, `space_full`) | open (D17) |
+| SCR-113#normal | An item that the talk selected: its row in sight and shown as selected, with its panel beside the list; where the narrowed list does not hold the row, the panel's line with Show all. In the record, the stage's open request whole above the pass, the pass named for the stage, and what each checkpoint passed in NEXUS recorded, as on SCR-112 | API-158#200, API-152#200, API-128#201 | planned |
+| SCR-113#stale | A pass refused because what the page showed has changed: as SCR-112#stale's revision says, above the words box, with the words kept and nothing recorded | API-128#409 (`snapshot_changed`, `request_changed`) | planned |
+| SCR-113#error | A pass that fails for its request: as SCR-112#error's revision says, above the words box, with the words kept | API-128#400 (`invalid_request`), API-128#404 (`comment_not_found`), API-128#409 (`reply_limit`, `space_full`) | planned |
 
 The revision adds no state. A reading again that sends a query value out of its form is an error like any reading that fails, which SCR-113#error now names (API-158#400).
 
