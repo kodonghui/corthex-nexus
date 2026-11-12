@@ -407,6 +407,16 @@ SPEC-155와 SPEC-210은 대화 탭과 접힌 대화의 단추가 내 차례의 �
 - 회색 와이어프레임은 SCR-114의 행 셋의 진행 때문에 다시 그림. 바뀐 틀은 없고, 페이지는 틀 64개와 라벨 205개를 그대로 지님.
 - 저장소의 검사가 통과함: 고정한 허브로 `python -m unittest discover -s tests`(테스트 39개), `node --test nexus/test/*.test.js`(테스트 360개, Node 24), Worker의 dry-run 빌드, `git diff --check`.
 
+2026-11-13, 0.2의 그림 보기와 단계 현황을 단계 페이지로 이끄는 TASK-278에서:
+
+- 0.2의 화면: SCR-105부터 SCR-109까지는 `removed`이고, 그 정의서는 0.2가 보인 것의 기록으로 남으며, 저마다 그 주소가 어디로 이어지는지 말하는 줄을 지님. SCR-111#loading, SCR-111#error, SCR-111#permission은 단계 페이지로 이끄는 `302`를 비롯해 API-102와 API-103의 응답을 적고, [screen_states_check.py](../../../nexus/test/screen_states_check.py)는 이 다섯 기록을 더는 계약에 대어 읽지 않음.
+- SCR-112와 SCR-113의 설계 수정은 무엇을 만들었는지 말함. SCR-112에서는 대화의 줄이 고르는 항목, 편집 없는 머리, 항목에 달린 대화의 줄 고르기가 `built`이고, SCR-112#normal은 머리와 대화가 고르는 항목에 대해 `built in part`임. SCR-113에서는 그 항목과 고르기가 `built`이고, SCR-113#normal은 `built in part`임. 진행마다 코드와, 그것을 돌린 케이스 TC-1492부터 TC-1495까지, TC-1803, TC-1819에서 정함. 기록 안의 열린 요청, 브라우저와 기기의 종류, 사용자가 본 것에 묶인 통과는 `planned`로 남음. 위의 SCR-112의 절들은 TASK-275가 바꾼 것을 말함: 머리에는 편집이 보이지 않고, `view=edit`나 `view=board`인 주소는 그림을 보임.
+- 표시의 범례: SCR-112의 한국어 사본은 두 곳에서, 9단계의 README는 한 곳에서 이것을 "표시의 설명"이라 불렀고, 서버가 내주는 페이지와 [redesign-words.md](redesign-words.ko.md)는 "표시 범례"라 함. 이제 세 곳 모두 "표시 범례"라 함. [목업이 더한 말](#목업이-더한-말)의 SCR-105 행은 그 화면의 기록으로서 0.2가 보인 말 "표시의 설명"을 지니므로, 회색 페이지의 생성기는 여전히 두 꼴을 적고, 어느 페이지도 이 말을 그리지 않음. SCR-101의 단계 표시의 설명은 허브의 말로 된 다른 것임.
+- SCR-110, 위에서 TASK-282가 본 것: 그 데이터는 0.2의 `#p={project}&id={id}`에 API-157을 적었으나, 어느 상태도 그 응답을 적지 않았음. 이제 SCR-110#normal이 그것을 적음: API-157#200이면 페이지는 그 단계의 항목으로 이어지고, 다른 응답이면 코드가 하는 대로 그 ID로 찾기를 엶. 데이터 행도 이제 서버가 찾지 못한 ID만이 아니라 API-157의 어떤 실패든 찾기를 연다고 말함. 화면이 보이는 말은 바뀌지 않음.
+- 단계의 검사: [test_screen_states.py](../../../tests/test_screen_states.py)가 통과하고, [screen_states_check.py](../../../nexus/test/screen_states_check.py)는 페이지 5개의 정의서 13개와 기록 5개를 읽음: 응답 223개가 저마다 상태로 이어지고 코드는 405개이며, SCR-110의 API-157 몫인 응답 다섯과 코드 아홉이 전보다 많음.
+- 회색 와이어프레임은 SCR-112#normal과 SCR-113#normal의 진행 때문에 다시 그림. 그 설명만 바뀌었고, 페이지는 틀 64개와 라벨 205개를 그대로 지니며 이제 1,010,247바이트임. [measure.mjs](../../../tools/grey_pages/measure.mjs)는 16번 돌리고 틀을 128번 재어 문제를 찾지 못함.
+- 저장소의 검사가 통과함: 고정한 허브로 `python -m unittest discover -s tests`(테스트 39개), `node --test nexus/test/*.test.js`(테스트 368개, Node 24), Worker의 dry-run 빌드, `git diff --check`.
+
 ## 확인할 것
 
 2026-11-11의 설계 수정은 2026-11-12에 관리자 자신의 말로 확인 지점을 통과했습니다([검토 지도](../../reviews/2026-11-11-design-review.ko.md)). 이 단계가 거기에 내는 것을, 관리자에게 달라지는 일 하나에 한 줄씩 적습니다:
