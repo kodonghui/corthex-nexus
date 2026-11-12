@@ -244,13 +244,14 @@ def build():
     lede_en = ("Grey wireframes of what the design revision of 2026-11-11 adds or changes: frames for each of its %d state rows on "
                "seven screens, at 390 and 1,440 pixels, drawn from the last section of the definitions of SCR-110 to SCR-115 and from "
                "the definition of SCR-130 in docs/08-screens/nexus/ of the corthex-nexus repository. The definitions are the source: "
-               "where a frame and its definition differ, the definition holds. Nothing here is built, and the revision's checkpoint "
-               "passed on 2026-11-12; stage 09 draws these states in the redesign's look after it. Drawn on %s." % (nstates, DRAWN))
+               "where a frame and its definition differ, the definition holds. The revision's checkpoint passed on 2026-11-12, and "
+               "stage 09 draws these states in the redesign's look after it; tasks build them since, and each frame gives its row's "
+               "status. Drawn on %s." % (nstates, DRAWN))
     lede_ko = ("2026-11-11의 설계 수정이 더하거나 바꾸는 것을 그린 회색 와이어프레임입니다. 화면 일곱 개에 걸친 상태 행 %d개마다 390픽셀과 "
                "1,440픽셀의 틀이 있고, corthex-nexus 저장소의 docs/08-screens/nexus/에 있는 SCR-110~SCR-115 정의서의 마지막 절과 "
-               "SCR-130 정의서에서 그렸습니다. 원본은 정의서이며, 틀과 정의서가 다르면 정의서를 따릅니다. 여기 있는 것은 아직 만들지 않았고, "
-               "설계 수정의 확인 지점은 2026-11-12에 통과했습니다. 그 뒤에 09단계가 이 상태들을 다시 디자인의 모습으로 그립니다. %s에 그렸습니다."
-               % (nstates, DRAWN))
+               "SCR-130 정의서에서 그렸습니다. 원본은 정의서이며, 틀과 정의서가 다르면 정의서를 따릅니다. 설계 수정의 확인 지점은 "
+               "2026-11-12에 통과했고, 그 뒤에 09단계가 이 상태들을 다시 디자인의 모습으로 그립니다. 그 뒤로 작업들이 이것을 만들고 있으며, "
+               "틀마다 그 행의 진행을 적습니다. %s에 그렸습니다." % (nstates, DRAWN))
     key_en = ("Grey bars stand for the projects' own text. The words in the frames are the final words of the definitions' words files; "
               "the dates, counts, commits and names are examples, and a name in braces, such as {time}, comes from the data. "
               "A dotted outline surrounds what the revision adds or changes on a screen that exists; on SCR-130, which is new, the "

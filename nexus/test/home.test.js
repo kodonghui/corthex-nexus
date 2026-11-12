@@ -186,13 +186,16 @@ test("why a picture is not current, in the words of 0.2's picture view",()=>{
 test("0.2's fragments on / lead to their places (SPEC-154)",async()=>{
   const data=homeData(),asked=[];
   const api=answer=>({call:async(method,url)=>{asked.push([method,url]);if(answer instanceof Error)throw answer;return answer;}});
-  const follow=async(hash,answer={part:"sample",item:{id:"REQ-107",stage:"02-prd"}})=>{const went=[];const handled=await followFragment(hash,data,api(answer),target=>went.push(target));return[handled,went];};
-  assert.deepEqual(await follow("#q=retry%20payment"),[true,["/hub#q=retry%20payment"]],"the search, until SCR-116 (TASK-277), is the hub page's");
+  // The top bar's search (SCR-116) takes the words; a page without it sends them to the hub page.
+  const follow=async(hash,answer={part:"sample",item:{id:"REQ-107",stage:"02-prd"}})=>{const went=[];const handled=await followFragment(hash,data,api(answer),target=>went.push(target),words=>went.push("search:"+words));return[handled,went];};
+  assert.deepEqual(await follow("#q=retry%20payment"),[true,["search:retry payment"]],"the search of SCR-116 with the words");
+  const hub=[];assert.equal(await followFragment("#q=retry%20payment",data,api({}),target=>hub.push(target)),true);
+  assert.deepEqual(hub,["/hub#q=retry%20payment"],"without the top bar's search, the hub page's");
   assert.deepEqual(await follow("#p=qa-shop&id=REQ-107"),[true,["/p/qa-shop/sample/02-prd#item=REQ-107"]],"the item in its stage");
   assert.deepEqual(asked.at(-1),["GET","/api/spaces/qa-shop/items/REQ-107"]);
   const gone=Object.assign(new Error("item_not_found"),{code:"item_not_found"});
-  assert.deepEqual(await follow("#p=qa-shop&id=REQ-999",gone),[true,["/hub#q=REQ-999"]],"an item that the project no longer holds: the search with its ID");
-  assert.deepEqual(await follow("#p=qa-shop&id=REQ-1",{part:"sample",item:{stage:"14-later"}}),[true,["/hub#q=REQ-1"]]);
+  assert.deepEqual(await follow("#p=qa-shop&id=REQ-999",gone),[true,["search:REQ-999"]],"an item that the project no longer holds: the search with its ID");
+  assert.deepEqual(await follow("#p=qa-shop&id=REQ-1",{part:"sample",item:{stage:"14-later"}}),[true,["search:REQ-1"]]);
   assert.deepEqual(await follow("#p=qa-shop&s=05-erd"),[true,["/p/qa-shop/sample/05-erd"]],"that stage of the project's first part");
   assert.deepEqual(await follow("#p=qa-second&s=12-qa"),[true,["/p/qa-second/_/12-qa"]]);
   assert.deepEqual(await follow("#p=qa-unknown&s=12-qa"),[true,["/p/qa-unknown/_/12-qa"]],"an unknown project: the new page's 404");

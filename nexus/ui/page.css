@@ -5,7 +5,7 @@
    step of space (checkpoint 3). The sizes below are stage 08's layout tables and
    stage 09's frames, which no token names. 1,024 is breakpoint.side-panel and 1,280
    rule 16's; a media query cannot read a custom property, so they are written out. */
-:root{--pg-gap:6px;--pg-gap-wide:10px;--pg-map-w:188px;--pg-map-h:120px;--pg-map-w-ph:120px;--pg-map-h-ph:78px;--pg-fnote:560px;--pg-cover:440px;--pg-lg:14px;--pg-pop:420px;--pg-top:56px;--pg-rail:248px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s;--pg-id:112px;--pg-find:280px;--pg-fields:120px;--pg-comments:36px;--pg-marks:144px;--pg-term:120px;--pg-note:480px}
+:root{--pg-gap:6px;--pg-gap-wide:10px;--pg-map-w:188px;--pg-map-h:120px;--pg-map-w-ph:120px;--pg-map-h-ph:78px;--pg-fnote:560px;--pg-cover:440px;--pg-lg:14px;--pg-pop:420px;--pg-top:56px;--pg-rail:248px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s;--pg-id:112px;--pg-find:280px;--pg-fields:120px;--pg-comments:36px;--pg-marks:144px;--pg-term:120px;--pg-note:480px;--pg-search-h:70vh}
 *,*::before,*::after{box-sizing:border-box}
 html{color-scheme:light dark;-webkit-text-size-adjust:100%}
 body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-family:var(--nx-font-family-sans);font-size:var(--nx-font-size-body);line-height:var(--nx-font-line-height-body);font-weight:var(--nx-font-weight-regular);word-break:keep-all;overflow-wrap:anywhere}
@@ -52,6 +52,9 @@ body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-f
 .nx .field::after{content:"";position:absolute;inset:calc((var(--nx-size-button) - var(--nx-size-target)) / 2 - var(--nx-border-thin)) calc(var(--nx-border-thin) * -1)}
 .nx .field input{flex:1;min-width:0;height:100%;padding:0;border:0;background:transparent;color:var(--nx-color-text);outline:0}
 .nx .field input::placeholder{color:var(--nx-color-muted);opacity:1}
+/* A search field draws no clear button of the browser's own: its hit area falls short of a finger's
+   (rule 14), and on a phone it stood beside the search's Close (SCR-116) */
+.nx .field input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
 .nx .field:focus-within{outline:var(--nx-border-strong) solid var(--nx-color-focus);outline-offset:var(--nx-border-thin);border-color:var(--nx-color-focus)}
 .nx .cnt{display:inline-flex;align-items:center;justify-content:center;min-width:var(--pg-chip);height:var(--pg-count);padding:0 var(--nx-space-sm);border-radius:var(--nx-radius-pill);background:var(--nx-color-accent);color:var(--nx-color-on-accent);font-size:var(--nx-font-size-caption);font-weight:var(--nx-font-weight-bold);line-height:var(--nx-font-line-height-tight);font-variant-numeric:tabular-nums}
 
@@ -79,8 +82,25 @@ body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-f
 .nx .place b{color:var(--nx-color-text)}
 .nx .place svg.sep{width:calc(var(--nx-size-icon) * .75);height:calc(var(--nx-size-icon) * .75)}
 .nx .place a,.nx .place b{flex:none}.nx .place a.clip{flex:0 1 auto}
-.nx .tb .fw{flex:0 1 var(--pg-search);min-width:0;margin-left:auto}
+.nx .tb .fw{position:relative;flex:0 1 var(--pg-search);min-width:0;margin-left:auto}
 .nx .tb .fw .field{width:100%}
+/* The search (SCR-116), as stage 09's redesign.html draws it: from 1,024 pixels a panel under the
+   field, as wide as it and up to 70 per cent of the height (SCR-116's layout), whose matches
+   scroll inside, over the page dimmed behind it; the match under the arrow keys has the accent's
+   bar, the border that each match's left keeps */
+.nx .spanel{position:absolute;z-index:4;top:calc(100% + var(--pg-gap));left:0;right:0;display:flex;flex-direction:column;max-height:var(--pg-search-h);overflow:hidden;background:var(--nx-color-surface);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md)}
+.nx .spanel .sh2{flex:none;display:flex;align-items:center;gap:var(--nx-space-sm);padding:var(--nx-space-sm) var(--nx-space-md);border-bottom:var(--nx-border-thin) solid var(--nx-color-line);font-size:var(--nx-font-size-small);color:var(--nx-color-muted)}
+.nx .spanel .ms{flex:0 1 auto;min-height:0;overflow:auto;display:grid;align-content:start}
+.nx .spanel .m{display:grid;grid-template-columns:auto minmax(0,1fr);align-content:center;gap:0 var(--nx-space-md);min-height:var(--nx-size-target);padding:var(--nx-space-sm) var(--nx-space-md) var(--nx-space-sm) calc(var(--nx-space-md) - var(--nx-border-thin) - var(--nx-border-strong));border-left:calc(var(--nx-border-thin) + var(--nx-border-strong)) solid transparent;border-bottom:var(--nx-border-thin) solid var(--nx-color-line);font-size:var(--nx-font-size-small);cursor:pointer}
+.nx .spanel .m .mono{color:var(--nx-color-accent);font-size:var(--nx-font-size-caption);padding-top:var(--nx-space-2xs)}
+.nx .spanel .m .clip{grid-column:2}
+.nx .spanel .m .wh{grid-column:2;color:var(--nx-color-muted);font-size:var(--nx-font-size-caption)}
+.nx .spanel .m:hover .mono{text-decoration:underline}
+.nx .spanel .m.on{background:var(--nx-color-accent-soft);border-left-color:var(--nx-color-accent)}
+.nx .spanel .foot{flex:none;padding:var(--nx-space-sm) var(--nx-space-md);font-size:var(--nx-font-size-small);color:var(--nx-color-muted)}
+.nx .spanel .pad{display:grid;justify-items:start;gap:var(--pg-gap-wide);padding:var(--nx-space-lg) var(--nx-space-md);font-size:var(--nx-font-size-small)}
+.nx .tb > .sdim{position:fixed;inset:var(--pg-top) 0 0 0;z-index:1;background:var(--nx-color-scrim)}
+.nx .tb:not([data-nx-search="open"]) > .sclose{display:none}
 .nx .menu{position:relative}
 .nx .menu summary{list-style:none}.nx .menu summary::-webkit-details-marker{display:none}
 .nx .menu .pop{position:absolute;right:0;top:100%;z-index:4;display:grid;padding:var(--nx-space-sm);background:var(--nx-color-surface);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md)}
@@ -428,16 +448,16 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .turns > a,.nx .turns > span{display:flex;align-items:center;justify-content:center;gap:var(--nx-space-sm);height:var(--nx-size-target);border-bottom:var(--nx-border-strong) solid transparent;color:var(--nx-color-muted);font-size:var(--nx-font-size-small);text-decoration:none;white-space:nowrap}
 .nx .turns > .mine{border-bottom-color:var(--nx-color-accent);color:var(--nx-color-accent);font-weight:var(--nx-font-weight-bold)}
 .nx .talk > .body{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:var(--pg-gap-wide);padding:var(--nx-space-md) var(--nx-space-lg);background:var(--nx-color-bg)}
-.nx .talk .tnotes{display:grid;gap:var(--nx-space-sm)}
-.nx .talk .tnotes:empty,.nx .talk .tupd:empty{display:none}
-.nx .talk .tupd{font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
+.nx :is(.talk,.item) .tnotes{display:grid;gap:var(--nx-space-sm)}
+.nx :is(.talk,.item) .tnotes:empty,.nx :is(.talk,.item) .tupd:empty{display:none}
+.nx :is(.talk,.item) .tupd{font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
 .nx .tg{display:flex;align-items:center;gap:var(--pg-gap);padding-top:var(--nx-space-2xs);color:var(--nx-color-muted);font-size:var(--nx-font-size-caption);font-weight:var(--nx-font-weight-bold)}
 .nx .tg.fold{position:relative;justify-content:space-between;width:100%;min-height:var(--nx-size-button);padding:var(--nx-space-sm) var(--pg-gap-wide);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);text-align:start;cursor:pointer}
 .nx .tg.fold::after{content:"";position:absolute;inset:calc((var(--nx-size-button) - var(--nx-size-target)) / 2 - var(--nx-border-thin)) calc(var(--nx-border-thin) * -1)}
 .nx .tg.fold[aria-expanded="true"] svg.i{transform:rotate(180deg)}
 .nx .tg.fold:disabled{opacity:var(--nx-opacity-disabled);cursor:default}
-.nx .talk .tl{display:grid;gap:var(--pg-gap-wide)}
-.nx .talk .more{min-height:0;padding:0}
+.nx :is(.talk,.item) .tl{display:grid;gap:var(--pg-gap-wide)}
+.nx :is(.talk,.item) .more{min-height:0;padding:0}
 .nx .te{display:grid;gap:var(--pg-gap);min-width:0;padding:var(--pg-gap-wide) var(--nx-space-md);border:var(--nx-border-thin) solid var(--nx-color-line);border-left-width:calc(var(--nx-border-thin) + var(--nx-border-strong));border-radius:var(--nx-radius-lg);background:var(--nx-color-surface);font-size:var(--nx-font-size-small)}
 .nx .te.my{border-left-color:var(--nx-color-accent)}
 .nx .te.apart{border-style:dashed;border-left-style:solid}
@@ -471,26 +491,79 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .te .dec .lnk{display:block;max-width:100%}
 .nx .te .newt{display:inline-flex;align-items:center;height:calc(var(--pg-chip) - var(--nx-space-xs));margin-left:var(--nx-space-xs);padding:0 var(--pg-gap);border-radius:var(--nx-radius-pill);background:var(--nx-color-accent);color:var(--nx-color-on-accent);font-size:var(--nx-font-size-caption);font-weight:var(--nx-font-weight-bold)}
 .nx .te .chg{display:grid;gap:var(--nx-space-xs);min-width:0;padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-sunken)}
-.nx .te .stx{max-height:var(--nx-size-source);overflow:auto;margin:0;padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);font-family:var(--nx-font-family-mono);font-size:var(--nx-font-size-caption);line-height:var(--nx-font-line-height-body);white-space:pre-wrap}
-.nx .talk .sk{display:grid;gap:var(--nx-space-sm);padding:var(--nx-space-xs) 0}
-.nx .talk .skel{display:block;height:var(--pg-gap-wide);border-radius:var(--nx-radius-sm);background:var(--nx-color-sunken)}
-.nx .talk .skel.short{width:60%}
+.nx .te .stx,.nx .item .det .stx{max-height:var(--nx-size-source);overflow:auto;margin:0;padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);font-family:var(--nx-font-family-mono);font-size:var(--nx-font-size-caption);line-height:var(--nx-font-line-height-body);white-space:pre-wrap}
+.nx :is(.talk,.item) .sk{display:grid;gap:var(--nx-space-sm);padding:var(--nx-space-xs) 0}
+.nx :is(.talk,.item) .skel{display:block;height:var(--pg-gap-wide);border-radius:var(--nx-radius-sm);background:var(--nx-color-sunken)}
+.nx :is(.talk,.item) .skel.short{width:60%}
 .nx .te .rbox{display:grid;gap:var(--nx-space-sm);padding-top:var(--nx-space-sm);border-top:var(--nx-border-thin) solid var(--nx-color-line)}
 .nx .empty-t{display:grid;justify-items:center;gap:var(--nx-space-sm);padding:calc(var(--nx-space-xl) + var(--nx-space-xs)) var(--nx-space-md);color:var(--nx-color-muted);font-size:var(--nx-font-size-small);text-align:center}
 .nx .empty-t svg.i{width:calc(var(--nx-size-icon) * 1.75);height:calc(var(--nx-size-icon) * 1.75);stroke-width:1.3}
-.nx .talk > .box{flex:none;display:grid;gap:var(--nx-space-sm);padding:var(--pg-gap-wide) var(--nx-space-lg) var(--nx-space-md);border-top:var(--nx-border-thin) solid var(--nx-color-line);background:var(--nx-color-surface)}
-.nx .talk .lab{font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
-.nx .talk .ta{display:block;width:100%;min-height:calc(var(--nx-size-box) - var(--nx-space-2xl));padding:var(--nx-space-sm) var(--pg-gap-wide);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);color:var(--nx-color-text);font-size:var(--nx-font-size-small);line-height:var(--nx-font-line-height-body);resize:vertical}
-.nx .talk .ta[aria-invalid="true"]{border-color:var(--nx-color-error)}
-.nx .talk .ta:disabled{opacity:var(--nx-opacity-disabled)}
-.nx .talk .left{font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
-.nx .talk .left:empty,.nx .talk .rnote:empty,.nx .talk .bnote:empty{display:none}
-.nx .talk .r2{display:flex;flex-wrap:wrap;align-items:center;gap:var(--nx-space-sm) var(--pg-gap-wide)}
-.nx .talk > .box .r2{justify-content:space-between}
-.nx .talk > .box .r2 .mu{flex:1 1 0;min-width:0;font-size:var(--nx-font-size-caption)}
-.nx .talk .chk{position:relative;display:inline-flex;align-items:center;gap:var(--nx-space-sm);min-height:var(--nx-size-button-small);font-size:var(--nx-font-size-small);cursor:pointer}
-.nx .talk .chk::after{content:"";position:absolute;inset:calc((var(--nx-size-button-small) - var(--nx-size-target)) / 2) 0}
-.nx .talk .chk input{width:var(--nx-size-icon);height:var(--nx-size-icon);margin:0;accent-color:var(--nx-color-accent)}
+.nx :is(.talk,.item) > .box{flex:none;display:grid;gap:var(--nx-space-sm);padding:var(--pg-gap-wide) var(--nx-space-lg) var(--nx-space-md);border-top:var(--nx-border-thin) solid var(--nx-color-line);background:var(--nx-color-surface)}
+.nx :is(.talk,.item) .lab{font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
+.nx :is(.talk,.item) .ta{display:block;width:100%;min-height:calc(var(--nx-size-box) - var(--nx-space-2xl));padding:var(--nx-space-sm) var(--pg-gap-wide);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);color:var(--nx-color-text);font-size:var(--nx-font-size-small);line-height:var(--nx-font-line-height-body);resize:vertical}
+.nx :is(.talk,.item) .ta[aria-invalid="true"]{border-color:var(--nx-color-error)}
+.nx :is(.talk,.item) .ta:disabled{opacity:var(--nx-opacity-disabled)}
+.nx :is(.talk,.item) .left{font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
+.nx :is(.talk,.item) .left:empty,.nx :is(.talk,.item) .rnote:empty,.nx :is(.talk,.item) .bnote:empty{display:none}
+.nx :is(.talk,.item) .r2{display:flex;flex-wrap:wrap;align-items:center;gap:var(--nx-space-sm) var(--pg-gap-wide)}
+.nx :is(.talk,.item) > .box .r2{justify-content:space-between}
+.nx :is(.talk,.item) > .box .r2 .mu{flex:1 1 0;min-width:0;font-size:var(--nx-font-size-caption)}
+.nx :is(.talk,.item) .chk{position:relative;display:inline-flex;align-items:center;gap:var(--nx-space-sm);min-height:var(--nx-size-button-small);font-size:var(--nx-font-size-small);cursor:pointer}
+.nx :is(.talk,.item) .chk::after{content:"";position:absolute;inset:calc((var(--nx-size-button-small) - var(--nx-size-target)) / 2) 0}
+.nx :is(.talk,.item) .chk input{width:var(--nx-size-icon);height:var(--nx-size-icon);margin:0;accent-color:var(--nx-color-accent)}
+
+/* The switch between the talk and the item (SCR-115's head), small, as the first page's order */
+.nx .seg.sw{display:inline-flex;flex:none;border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md)}
+.nx .seg.sw > button{position:relative;display:flex;align-items:center;gap:var(--pg-gap);height:calc(var(--nx-size-button-small) - var(--nx-border-thin) * 2);padding:0 var(--pg-gap-wide);border:0;background:transparent;color:var(--nx-color-muted);font-size:var(--nx-font-size-small);white-space:nowrap;cursor:pointer}
+.nx .seg.sw > button + button{border-left:var(--nx-border-thin) solid var(--nx-color-control-line)}
+.nx .seg.sw > button::after{content:"";position:absolute;inset:calc((var(--nx-size-button-small) - var(--nx-border-thin) * 2 - var(--nx-size-target)) / 2) 0}
+.nx .seg.sw > button[aria-pressed="true"]{background:var(--nx-color-surface);color:var(--nx-color-text);font-weight:var(--nx-font-weight-bold);box-shadow:inset 0 calc(var(--nx-border-strong) * -1) 0 var(--nx-color-text)}
+.nx .seg.sw > button:focus-visible{outline-offset:calc(var(--nx-border-strong) * -1)}
+
+/* The item (SCR-115), as stage 09's redesign.html and revision.html draw it: its head with the
+   ID, the kind, the switch and Close; its body, which scrolls under the head, with the line on
+   why the stage does not show it, its text, its fields in a column of 112 pixels (SCR-115's
+   layout), its context and source, its discrepancies, its trace by stage and its talk; and the
+   talk's box at its foot (rule 18). The body's gaps of 14 pixels are the drawing's */
+.nx .item{flex:1;min-height:0;display:flex;flex-direction:column}
+.nx .item > .ih{flex:none;display:flex;align-items:center;gap:var(--nx-space-sm);padding:var(--pg-gap-wide) var(--nx-space-md) var(--pg-gap-wide) var(--nx-space-lg);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+/* The head keeps an item's ID whole up to a dozen characters or so, and breaks a longer one (rule
+   1) so that the switch and Close keep their places; the spacer before the switch takes back its
+   gap; where the head is still short of room, the kind's word ends in an ellipsis first */
+.nx .item > .ih h2{flex:none;max-width:calc(100% - var(--nx-size-target) * 5);font-size:var(--nx-font-size-title)}
+.nx .item > .ih .kind{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:calc(var(--pg-chip) - var(--nx-border-thin) * 2)}
+.nx .item > .ih .sp{margin-left:calc(var(--nx-space-sm) * -1)}
+.nx .item > .ih .id{font-family:var(--nx-font-family-mono);font-weight:var(--nx-font-weight-bold)}
+.nx .item > .ib2{flex:1;min-height:0;overflow:auto;display:grid;align-content:start;gap:calc(var(--nx-space-md) + var(--nx-space-2xs));padding:calc(var(--nx-space-md) + var(--nx-space-2xs)) var(--nx-space-lg)}
+.nx .item > .ib2 > .tx{white-space:pre-wrap;text-wrap:pretty}
+.nx .item > .ib2 > h3{display:flex;align-items:center;gap:var(--pg-gap);font-size:var(--nx-font-size-small);color:var(--nx-color-muted)}
+.nx .item .fields{display:grid;grid-template-columns:var(--pg-id) minmax(0,1fr);gap:var(--pg-gap) var(--nx-space-md);margin:0;font-size:var(--nx-font-size-small)}
+.nx .item .fields dt{color:var(--nx-color-muted)}
+.nx .item .fields dd{min-width:0;margin:0;white-space:pre-wrap}
+.nx .item .det > summary{display:inline-flex;align-items:center;gap:var(--nx-space-xs);color:var(--nx-color-accent);font-size:var(--nx-font-size-small);list-style:none;cursor:pointer}
+.nx .item .det > summary::-webkit-details-marker{display:none}
+.nx .item .det[open] > summary svg.i{transform:rotate(90deg)}
+.nx .item .det .stx{margin-top:var(--nx-space-sm)}
+.nx .item .ctx{font-size:var(--nx-font-size-small)}
+.nx .item .src{display:flex;flex-wrap:wrap;align-items:center;gap:var(--pg-gap);min-width:0;font-size:var(--nx-font-size-small)}
+.nx .item .src .lnk{display:inline-flex;align-items:center;gap:var(--nx-space-xs);min-width:0}
+.nx .item .dscs{display:grid;gap:var(--nx-space-sm)}
+.nx .item .dsc{display:grid;gap:var(--pg-gap);padding:var(--pg-gap-wide);border:var(--nx-border-thin) solid var(--nx-color-warn);border-radius:var(--nx-radius-md);background:var(--nx-color-warn-bg);font-size:var(--nx-font-size-small)}
+.nx .item .dsc .btn{justify-self:start}
+.nx .item .dsc .btn[aria-pressed="true"]{border-color:var(--nx-color-accent);background:var(--nx-color-accent-soft)}
+.nx .item .trace{display:grid;gap:var(--nx-space-sm);font-size:var(--nx-font-size-small)}
+.nx .item .tsg{display:grid;justify-items:start;gap:var(--nx-space-2xs);min-width:0}
+.nx .item .sgh{display:flex;gap:var(--pg-gap);color:var(--nx-color-muted);font-size:var(--nx-font-size-caption);font-weight:var(--nx-font-weight-bold)}
+.nx .item .trace .a{display:flex;align-items:baseline;gap:var(--nx-space-sm);max-width:100%;min-width:0;color:var(--nx-color-text);text-decoration:none}
+.nx .item .trace .a .mono{flex:none;color:var(--nx-color-accent)}
+.nx .item .trace .a:hover .mono{text-decoration:underline}
+.nx .item .itk{display:grid;gap:var(--nx-space-sm);padding-top:var(--nx-space-md);border-top:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .itk .itkh{display:flex;flex-wrap:wrap;align-items:center;gap:var(--nx-space-sm);min-width:0}
+.nx .itk h3{font-size:var(--nx-font-size-small);color:var(--nx-color-text)}
+.nx .itk > .body{display:flex;flex-direction:column;gap:var(--pg-gap-wide)}
+/* Where a finger selects, the trace's links and a stage's More take the target's height, so More's
+   hit area keeps clear of the link above it (rule 14) */
+@media (pointer:coarse){.nx .item .trace .a{align-items:center;min-height:var(--nx-size-target)}.nx .item .trace .btn{min-height:var(--nx-size-target)}.nx .item .trace .btn::after{inset:0}}
 
 /* From 1,024 to 1,279 pixels the talk folds into "Talk ({n})" in the stage's head,
    which opens it as a panel over the stage's right edge (rule 16, choice 14) */
@@ -558,11 +631,27 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
  .nx .rec .rb{padding:var(--nx-space-md)}
  .nx .talk > .th{padding:var(--nx-space-sm) var(--nx-space-md) 0}
  .nx .talk > .body{padding:var(--nx-space-md)}
- .nx .te > .acts > .btn,.nx .talk .r2 .btn{flex:1;height:var(--nx-size-target)}
+ .nx .te > .acts > .btn,.nx :is(.talk,.item) .r2 .btn{flex:1;height:var(--nx-size-target)}
  .nx .tg.fold{min-height:var(--nx-size-target)}
- .nx .te > .acts > .btn::after,.nx .talk .r2 .btn::after,.nx .tg.fold::after{inset:0}
- .nx .talk > .box{padding:var(--pg-gap-wide) var(--nx-space-md) var(--nx-space-md)}
- .nx .talk > .box .r2 .mu{flex:1 1 0;min-width:0}
- .nx .talk > .box .r2 .btn{flex:none}
+ .nx .te > .acts > .btn::after,.nx :is(.talk,.item) .r2 .btn::after,.nx .tg.fold::after{inset:0}
+ .nx :is(.talk,.item) > .box{padding:var(--pg-gap-wide) var(--nx-space-md) var(--nx-space-md)}
+ .nx :is(.talk,.item) > .box .r2 .mu{flex:1 1 0;min-width:0}
+ .nx :is(.talk,.item) > .box .r2 .btn{flex:none}
+ .nx .item > .ih{padding:var(--nx-space-xs) var(--nx-space-xs) var(--nx-space-xs) var(--nx-space-md)}
+ .nx .item > .ih h2{max-width:calc(100% - var(--nx-size-target) * 2)}
+ .nx .item > .ib2{padding:var(--nx-space-md)}
+ .nx .item .fields{grid-template-columns:minmax(0,1fr);gap:0}
+ .nx .item .fields dd{margin-bottom:var(--nx-space-sm)}
+ .nx .item .msg .row .btn,.nx .item .dsc .btn{height:var(--nx-size-target)}
+ .nx .item .msg .row .btn::after,.nx .item .dsc .btn::after{inset:0}
+ .nx .item .src .lnk,.nx .item .det > summary{min-height:var(--nx-size-target)}
+ /* The search under 1,024 pixels: the field takes the top bar, with Close, and the matches fill
+    the screen under it */
+ .nx .tb[data-nx-search="open"]{gap:var(--pg-gap);padding:0 var(--nx-space-xs) 0 var(--nx-space-md)}
+ .nx .tb[data-nx-search="open"] > :not(.fw):not(.sclose):not(.sdim){display:none!important}
+ .nx .tb[data-nx-search="open"] > .fw.only-pc{display:block!important;flex:1;margin:0}
+ .nx .tb[data-nx-search="open"] .fw .field{height:var(--nx-size-target)}
+ .nx .tb .spanel{position:fixed;top:var(--pg-top);bottom:0;max-height:none;border-width:0;border-radius:0}
+ .nx .tb > .sdim{display:none}
 }
 @media (min-width:1024px){.nx .only-ph{display:none!important}}

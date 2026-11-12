@@ -88,7 +88,7 @@ flowchart TD
 | 화면 | 이름 | 상위 | 경로 | 볼 수 있는 사람 | 흐름 | 용어 | 상태 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | SCR-110 | 첫 화면 | 없음 | `/` | Cloudflare Access가 들인 사람, 서버에서 | FL-114, FL-117, FL-118 | CTX-014, TERM-121 | active |
-| SCR-116 | 찾기 | SCR-110 | `{any page}#q={words}` | Cloudflare Access가 들인 사람, 서버에서 | FL-118 | `none` | planned |
+| SCR-116 | 찾기 | SCR-110 | `{any page}#q={words}` | Cloudflare Access가 들인 사람, 서버에서 | FL-118 | `none` | active |
 | SCR-117 | 전체 점검 | SCR-110 | `/hub` | Cloudflare Access가 들인 사람, 또는 기기의 사용자 | FL-105, FL-113, FL-118 | `none` | active |
 | SCR-102 | 검색 결과 | SCR-117 | `/hub#q={words}` | Cloudflare Access가 들인 사람, 또는 기기의 사용자 | FL-105 | `none` | built |
 | SCR-103 | 추적 화면 | SCR-117 | `/hub#p={project}&id={id}` | Cloudflare Access가 들인 사람, 또는 기기의 사용자 | FL-105 | `none` | built |
@@ -99,10 +99,10 @@ flowchart TD
 | SCR-108 | 제안 | SCR-105 | `/pictures/{project}/{part}/{stage}#proposal={proposal}` | Cloudflare Access가 들인 사람, 서버에서 | FL-110 | CTX-014, TERM-111 | active |
 | SCR-109 | 단계 현황 | SCR-104 | `/overview/{project}/{part}/{stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-113 | CTX-007, TERM-120 | active |
 | SCR-111 | 프로젝트 작업 공간 | SCR-110 | `/p/{project}` | Cloudflare Access가 들인 사람, 서버에서 | FL-117, FL-118 | `none` | active |
-| SCR-112 | 그림 단계 | SCR-111 | `/p/{project}/{part}/{picture stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-113, FL-115, FL-116, FL-118, FL-119, FL-125 | CTX-014, TERM-111 | planned |
+| SCR-112 | 그림 단계 | SCR-111 | `/p/{project}/{part}/{picture stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-113, FL-115, FL-116, FL-118, FL-119, FL-125 | CTX-014, TERM-111 | active |
 | SCR-113 | 문서 단계 | SCR-111 | `/p/{project}/{part}/{document stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-113, FL-118, FL-119 | CTX-007, TERM-120 | active |
-| SCR-114 | 대화 | SCR-111 | `/p/{project}/{part}/{stage}#talk={comment}` | Cloudflare Access가 들인 사람, 서버에서 | FL-117, FL-119 | CTX-014, TERM-111 | planned |
-| SCR-115 | 항목 | SCR-111 | `/p/{project}/{part}/{stage}#item={id}` | Cloudflare Access가 들인 사람, 서버에서 | FL-118, FL-119 | CTX-014, TERM-111 | planned |
+| SCR-114 | 대화 | SCR-111 | `/p/{project}/{part}/{stage}#talk={comment}` | Cloudflare Access가 들인 사람, 서버에서 | FL-117, FL-119 | CTX-014, TERM-111 | active |
+| SCR-115 | 항목 | SCR-111 | `/p/{project}/{part}/{stage}#item={id}` | Cloudflare Access가 들인 사람, 서버에서 | FL-118, FL-119 | CTX-014, TERM-111 | active |
 | SCR-130 | 프로젝트 자료 | SCR-111 | `/p/{project}#data` | Cloudflare Access가 들인 사람, 서버에서 | FL-114, FL-118, FL-127 | `none` | planned |
 | SCR-101 | 허브 페이지 | 없음 | `/` | Cloudflare Access가 들인 사람, 또는 기기의 사용자 | FL-105, FL-113 | `none` | removed |
 <!-- end of list -->
@@ -147,7 +147,7 @@ flowchart TD
 - 그림에 없는 항목, 의견, 제안의 주소는 그림 보기를 열고 그렇다고 알립니다. 그 상태는 08단계가 그립니다.
 - 경로에서 `{part}`는, 계약의 요청처럼, 프로젝트 전체이면 `_`입니다.
 
-다시 디자인을 만든 뒤의 주소. TASK-271부터 서버는 그 페이지를 이 주소에서 답합니다: `/`와 단계의 주소는 TASK-272가 그리는 틀과 함께, `/p/{project}`는 그 넘겨주기로, `/hub`는 허브 페이지로 답하므로 SCR-117은 active입니다. TASK-273부터 `/`는 첫 화면이므로 SCR-110도 active입니다. TASK-274부터 단계의 주소는 단계의 목록과 함께 작업 공간을 보이므로 SCR-111과 SCR-113도 active이고, 그림 단계는 TASK-275가 그림을 그릴 때까지 그 목록을 보입니다. 그림 단계, 대화, 항목, 찾기는 TASK-275\~TASK-277과 함께, 0.2의 두 경로의 넘겨주기는 TASK-278과 함께 옵니다:
+다시 디자인을 만든 뒤의 주소. TASK-271부터 서버는 그 페이지를 이 주소에서 답합니다: `/`와 단계의 주소는 TASK-272가 그리는 틀과 함께, `/p/{project}`는 그 넘겨주기로, `/hub`는 허브 페이지로 답하므로 SCR-117은 active입니다. TASK-273부터 `/`는 첫 화면이므로 SCR-110도 active입니다. TASK-274부터 단계의 주소는 단계의 목록과 함께 작업 공간을 보이므로 SCR-111과 SCR-113도 active이고, 그림 단계는 TASK-275가 그림을 그릴 때까지 그 목록을 보였습니다. TASK-275\~TASK-277부터 그림 단계, 대화, 항목, 찾기를 만들었으므로 SCR-112, SCR-114, SCR-115, SCR-116도 active이고, 0.2의 두 경로의 넘겨주기는 TASK-278과 함께 옵니다:
 
 - 페이지는 첫 화면 `/`(API-155), 지금 단계로 이어 주는 프로젝트 `/p/{project}`(API-153), 단계 `/p/{project}/{part}/{stage}`(API-154), 이제 `/hub`에 있는 허브 페이지(API-101)입니다. `{stage}`는 `02-prd` 같은 단계의 키입니다. SCR-112와 SCR-113은 같은 꼴을 나눠 쓰고, 단계에 그림이 있는지로 갈립니다.
 - `#` 뒤는 0.2와 같은 꼴입니다: `talk`만 있으면 단계의 대화를, `nc_`나 `np_` ID와 함께면 그 의견이나 제안을 엽니다. `item`과 추적 ID는 항목을, `view=list`는 그림 단계에서 그림 대신 목록을 보여 줍니다. `step`은 0.2처럼 DDD 보드의 스텝을 지니고, `q`는 어느 페이지에서나 찾는 말을 지닙니다.
@@ -155,7 +155,7 @@ flowchart TD
 
 2026-11-11의 설계 수정부터. 이 수정은 열쇠 하나 `data`를 더하고, ② 차례를 위해 `view`의 값 둘을 맡아 두며, 페이지는 더하지 않습니다:
 
-- 허브 페이지의 세 보기는 `/hub`에서도, 허브가 기기에서 만드는 파일에서도 `#` 뒤에 1차의 주소를 그대로 둡니다: `/hub#q={words}`, `/hub#p={project}&id={id}`, `/hub#p={project}&s={stage}`(SCR-102\~SCR-104). `/`에서는 첫 화면이 같은 세 주소를 읽어 위에 적은 대로 다시 디자인으로 이어 주고, TASK-277이 찾기를 만들 때까지 `/`의 `#q=`는 `/hub#q=`로 갑니다. SCR-116의 `{any page}`는 다시 디자인의 페이지 SCR-110\~SCR-115 가운데 어느 것이든이고, `/hub`는 허브 페이지 자신의 검색을 그대로 둡니다.
+- 허브 페이지의 세 보기는 `/hub`에서도, 허브가 기기에서 만드는 파일에서도 `#` 뒤에 1차의 주소를 그대로 둡니다: `/hub#q={words}`, `/hub#p={project}&id={id}`, `/hub#p={project}&s={stage}`(SCR-102\~SCR-104). `/`에서는 첫 화면이 같은 세 주소를 읽어 위에 적은 대로 다시 디자인으로 이어 주며, `#q=`는 찾기(SCR-116)를 엽니다. SCR-116의 `{any page}`는 다시 디자인의 페이지 SCR-110\~SCR-115 가운데 어느 것이든이고, `/hub`는 허브 페이지 자신의 검색을 그대로 둡니다.
 - 값이 없는 열쇠 `data`는 단계 위에 프로젝트 자료(SCR-130)를 엽니다. `/p/{project}#data`는 패널을 연 채 프로젝트의 지금 단계로 갑니다. 브라우저가 넘겨주기를 거치면서 `#` 뒤를 그대로 지니기 때문입니다. 다른 열쇠 곁에서는 `#item=REQ-107&data`처럼 적습니다. 패널을 닫으면 주소에서 `data`만 빠지고 나머지는 남으며, 브라우저의 뒤로 가기 버튼이 패널을 닫습니다(SPEC-203).
 - `view`는 그림 단계에서 단계의 칸이 한 번에 하나씩 보여 주는 보기를 가리킵니다: 없으면 그림, `list`는 목록이고, ② 차례를 위해 두 값을 맡아 둡니다. `edit`는 그림의 자리에 들어가는 편집기, `board`는 01단계에서 부분의 작업 보드입니다. 편집이 든 릴리스가 나오기 전에는 두 값 모두 그림을 보여 주며, 페이지가 모르는 값도 그렇습니다(SPEC-147, [선택 18](#이-단계가-고른-것)).
 - `filter=left`는 단계의 목록을 남은 것으로 좁혀서 열며, 그림 단계에서도 그렇습니다. 첫 화면의 AI 할 일이 이 주소로 잇고, 페이지에서 거르기를 고르면 주소에서 빠집니다. TASK-274부터 만들어져 있고 08단계(SCR-113)가 정의하는데, 이 목록에는 빠져 있었습니다.

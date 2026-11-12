@@ -122,10 +122,13 @@ test("one top bar: NEXUS, where the user is, the search and Full checks, with th
     assert.equal(tags(stage,/<svg class="i sep" aria-hidden="true" focusable="false"><use href="#i-next"\/><\/svg>/g).length,2,"the separators are icons (BUG-596)");
     assert.doesNotMatch(home+stage,/[✓›◐⌕▾▸✕☰]/,"no symbol that the fonts lack is drawn as text");
     for(const bar of[home,stage]){
-      assert.equal(tags(bar,/data-nx-wait="search"/g).length,2,"the search waits for its code");
-      assert.equal(tags(bar,/<input [^>]*disabled data-nx-wait="search">/g).length,1);assert.equal(tags(bar,/<button [^>]*disabled data-nx-wait="search">/g).length,1);
+      assert.equal(tags(bar,/data-nx-wait="search"/g).length,3,"the search waits for its code: its field, its button and Close");
+      assert.equal(tags(bar,/<input [^>]*disabled data-nx-wait="search">/g).length,1);assert.equal(tags(bar,/<button [^>]*disabled data-nx-wait="search">/g).length,2);
       assert.ok(bar.includes(`placeholder="${esc(labels("Search hint",lang).join(" · "))}"`)&&bar.includes('maxlength="200"'));
       assert.ok(bar.includes(`<a class="btn only-pc" href="/hub">${esc(words[3])}</a>`),"Full checks");
+      assert.match(bar,/<div class="fw only-pc"><label class="field"><svg [^>]*><use href="#i-search"\/><\/svg><input [^>]*><\/label><div class="spanel" id="search-panel" hidden>.*?<\/div><\/div>/,"the field in its own place, with the panel of its matches under it, hidden until the code fills it (SCR-116)");
+      assert.ok(bar.includes('role="combobox" aria-autocomplete="list" aria-controls="search-list" aria-expanded="false"')&&bar.includes(`<ul class="ms" id="search-list" role="listbox" aria-label="${esc(words[2])}"></ul>`),"the field controls the list of matches");
+      assert.ok(bar.includes(`<button class="ib only-ph sclose" type="button" disabled data-nx-wait="search">${icon("i-close")}<span class="sr">${esc(words[5])}</span></button>`)&&bar.endsWith('<div class="sdim" hidden></div>'),"Close for the phone's field, and the page behind the matches");
     }
   }
 });
@@ -136,6 +139,9 @@ test("the bar of rule 15 and the phone's tabs are drawn before the code",()=>{
   const list=tabs({picture:false,talk:7},"en"),picture=tabs({picture:true,talk:1000},"ko");
   assert.ok(list.includes('href="#stage" data-nx-tab="stage"')&&list.includes(">List<")&&list.includes(">Talk 7<")&&list.includes('href="#talk" data-nx-tab="talk"'));
   assert.ok(picture.includes(">그림<")&&picture.includes(">대화 999+<"));
+  assert.ok(!list.includes('data-nx-tab="item"'),"the item's tab only while an item is selected");
+  const item=tabs({picture:false,talk:7,item:true},"ko");
+  assert.ok(item.endsWith(`<a class="tab" href="#talk" data-nx-tab="item">${icon("i-record")}<span>항목</span></a>`),"then the Item tab, after the talk's (SCR-115's layout)");
 });
 
 test("the server's page holds each part exactly as the view's code draws it (rule 15)",()=>{
@@ -169,6 +175,7 @@ test("a page whose code does not run stays readable, with the bar of rule 15, an
   assert.match(css,/@media ?\(min-width:1024px\) ?and \(max-width:1279\.98px\)/);assert.match(css,/@media ?\(max-width:1023\.98px\)/);assert.match(css,/@media ?\(min-width:1024px\) ?\{/);
   assert.match(css,/\.nx \.rail:target,\.nx \.ws\[data-nx-open=stages\] \.rail\{display:flex\}/);
   assert.match(css,/\.nx \.btn:after\{content:"";position:absolute;inset:calc\(\(var\(--nx-size-button\) - var\(--nx-size-target\)\) \/ 2 - var\(--nx-border-thin\)\)/,"the hit area adds back the border that its padding box leaves out");
+  assert.match(css,/\.nx \.field input::-webkit-search-cancel-button\{[^}]*display:none/,"a search field draws no clear button of the browser's, whose hit area falls short of rule 14");
   assert.doesNotMatch(readFileSync(new URL("../ui/page.css",import.meta.url),"utf8"),/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i,"colours come from the frozen tokens");
   // A pictured stage without a picture (05), a document stage (02) and the first page.
   for(const [payload,waits]of[[stagePage("en"),["picture","record","search","talk"]],[stagePage("ko",{stage:"02-prd"}),["list","record","search","talk"]],[homePage("ko"),["answer","order","search"]]]){

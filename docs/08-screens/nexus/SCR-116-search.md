@@ -4,7 +4,7 @@
 
 Purpose: from the top of any page of the server, the user finds an item by its ID or the words of its title in every project, and opens it at its place in its project's workspace. (FL-118)
 
-Path `{any page}#q={words}`, on the NEXUS server only, a field in the top bar of every page of the redesign (SCR-110 to SCR-115), which asks API-156. Who can see it: anyone Cloudflare Access lets in. Planned in the redesign of 2026-11-06 (SPEC-152). It takes in phase 1's search results (SCR-102), whose address `/#q={words}` opens it on the first page (SPEC-154). The rules of [every screen](README.md#every-screen) apply, with those of [the redesign](README.md#the-redesigns-screens).
+Path `{any page}#q={words}`, on the NEXUS server only, a field in the top bar of every page of the redesign (SCR-110 to SCR-115), which asks API-156. Who can see it: anyone Cloudflare Access lets in. Planned in the redesign of 2026-11-06 (SPEC-152) and built by TASK-277. It takes in phase 1's search results (SCR-102), whose address `/#q={words}` opens it on the first page (SPEC-154). The rules of [every screen](README.md#every-screen) apply, with those of [the redesign](README.md#the-redesigns-screens).
 
 ## Data
 
@@ -18,10 +18,10 @@ Path `{any page}#q={words}`, on the NEXUS server only, a field in the top bar of
 | Action | Result | Failure |
 | --- | --- | --- |
 | Type in the field | From two characters, after a pause of 250 milliseconds, the matches under the field; the words go into the address as `q=` | SCR-116#short, SCR-116#empty, SCR-116#error |
-| Move with the arrow keys, then Enter, or select a match | The item at its place: `/p/{project}/{part}/{stage}#item={id}` in its project's workspace (SPEC-149, REQ-232) | SCR-115#gone on that page |
-| Escape, or select outside the matches | The matches close; the words stay in the field | none |
+| Move with the arrow keys, then Enter, or select a match | The item at its place: `/p/{project}/{part}/{stage}#item={id}` in its project's workspace (SPEC-149, REQ-232). Down and Up move the mark and wrap from the last match to the first and back; on matches that are closed, Down opens them with the first marked, and Up with the last, as WAI-ARIA's combobox pattern has it | SCR-115#gone on that page |
+| Escape, or select outside the matches | The matches close without a mark; the words stay in the field, whose focus shows the matches again | none |
 | Full checks, when nothing matches | SCR-117 | SCR-117's own states |
-| Under 1,024 pixels, the search button | The field opens over the top bar with the keyboard, and the matches fill the screen under it; Close returns to the page | none |
+| Under 1,024 pixels, the search button | The field opens over the top bar with the keyboard, and the matches fill the screen under it; Close, or Escape once the matches are closed, returns to the page with the focus on the search button, and the button opens the field again with its words | none |
 
 ## States
 
@@ -60,4 +60,6 @@ Every state of the stage applies but stale, with one of the search's own, short.
 | Region | Under 1,024 pixels, drawn at 390 | From 1,024 pixels, drawn at 1,440 |
 | --- | --- | --- |
 | The field | Behind the search button; opened, it takes the top bar, with Close | In the top bar, 560 pixels wide, with the hint "Find by ID or words · e.g. REQ-107" |
-| The matches | Under the field, the whole width and the rest of the height; each match at least 44 pixels high | A panel under the field, as wide as it, up to 70 per cent of the height, which scrolls inside |
+| The matches | Under the field, the whole width and the rest of the height; each match at least 44 pixels high | A panel under the field, as wide as it, up to 70 per cent of the height, which scrolls inside; the page behind it dims |
+
+The server draws the field, the panel, the search button, Close and the dim on every page of the redesign; the field and the buttons wait, shown disabled, until the view's code runs, which fills the panel (rule 15). The field draws no clear button of the browser's own, whose hit area falls short of rule 14 and which on a phone stood beside Close.

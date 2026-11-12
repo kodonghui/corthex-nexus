@@ -23,8 +23,8 @@ export function pageKind(payload){
 export const openTalk=talk=>talk?(Number(talk.mine?.total)||0)+agentCount(talk)+(Number(talk.apart?.total)||0):0;
 // The inside of every part of the page, by the part's name, from the page's data: the
 // first page's sections (SCR-110, TASK-273), and a stage's frame, middle and side (SCR-111
-// and SCR-113, TASK-274), with a pictured stage's picture (SCR-112, TASK-275) and the
-// talk in the side (SCR-114, TASK-276).
+// and SCR-113, TASK-274), with a pictured stage's picture (SCR-112, TASK-275), the
+// talk in the side (SCR-114, TASK-276) and the selected item there (SCR-115, TASK-277).
 // view is what the stage page's code adds when it draws again (./stage.js); the server
 // draws with none.
 export function drawParts(payload,view={}){
@@ -35,7 +35,7 @@ export function drawParts(payload,view={}){
     top:topBar({kind:"stage",project:data.project.name,title:data.project.title,part:data.part,stage:data.stage},lang),
     bars:codeBar(lang)+stageBars(view,lang),
     rail:stageRail(data,lang),
-    tabs:tabs({picture:Boolean(payload.picture),talk},lang),
+    tabs:tabs({picture:Boolean(payload.picture),talk,item:Boolean(view.item)},lang),
     stage:PICTURE_STAGES.includes(data.stage)?drawPictureStage(payload,lang,{...view,talk}):drawStage(data,lang,{...view,talk}),
     side:drawSide(data,payload.problem,lang,view,payload.talk),
   };

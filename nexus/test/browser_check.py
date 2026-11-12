@@ -51,6 +51,7 @@ def main():
     clean.pop("NEXUS_QA_STAGE", None)
     clean.pop("NEXUS_QA_PICTURE", None)
     clean.pop("NEXUS_QA_TALK", None)
+    clean.pop("NEXUS_QA_ITEM", None)
     clean.pop("NEXUS_QA_HUB_VIEWS", None)
     clean["NEXUS_QA_PYTHON"] = sys.executable
     for script, arguments in [("browser-regression.mjs", ()), ("discussion-regression.mjs", ()),
@@ -93,6 +94,13 @@ def main():
     talk = clean.copy()
     talk["NEXUS_QA_TALK"] = "1"
     result = run_suite(executable, talk, "talk-regression.mjs")
+    if result:
+        return result
+    # The item's panel and the search in the top bar (TASK-277): their states, the trace, the switch
+    # and the Item tab, with their own projects.
+    item = clean.copy()
+    item["NEXUS_QA_ITEM"] = "1"
+    result = run_suite(executable, item, "item-regression.mjs")
     if result:
         return result
     # The hub page's views at /hub and in the file that the pinned hub builds (TASK-281), with its own project.

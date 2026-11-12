@@ -14,7 +14,9 @@
  * after the entry opened, a comment closed and a proposal answered meanwhile in another tab, and
  * a reflection that changed (SCR-114#stale); words, "This settles it" and write IDs kept across
  * the page loaded again (rule 5); the panel from 1,024 to 1,279 pixels with Escape (rule 10);
- * and the Talk tab at 390 and 320 pixels with its hit areas (rule 14). Node 24 built-ins only;
+ * and the Talk tab at 390 and 320 pixels with its hit areas (rule 14). From 1,024 pixels the
+ * talk narrowed to an item is the item's panel's "Talk on {id}" (SCR-115, TASK-277), which the
+ * suite reads as the narrowed talk. Node 24 built-ins only;
  * an owned headless Chrome over CDP. Requires NEXUS_QA_TALK=1, the opt-in view-server,
  * NEXUS_CHROME and NEXUS_QA_ORIGIN. Synthetic loopback fixture only. The page's reads and
  * writes reach the fixture server, except those that a test answers or fails itself, which
@@ -57,7 +59,9 @@ function command(method,params={},scoped=true,timeout=10000){
  return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{pending.delete(id);reject(Error('CDP timeout: '+method));},timeout);pending.set(id,{resolve:value=>{clearTimeout(timer);resolve(value);},reject:error=>{clearTimeout(timer);reject(error);}});ws.send(JSON.stringify({id,method,params,...(scoped?{sessionId:session}:{})}));});
 }
 async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description||r.exceptionDetails.text);return r.result?.value;}
-async function waitFor(expression,timeout=10000){const stop=Date.now()+timeout;while(Date.now()<stop){if(await evaluate(expression))return;await sleep(25);}throw Error('Page wait timed out: '+expression);}
+// A wait that outlives a navigation of the page's own, such as an address that leads to another stage.
+const NAVIGATED=/navigated or closed|Execution context was destroyed|Cannot find context/;
+async function waitFor(expression,timeout=10000){const stop=Date.now()+timeout;while(Date.now()<stop){let ok=false;try{ok=await evaluate(expression);}catch(error){if(!NAVIGATED.test(String(error)))throw error;}if(ok)return;await sleep(25);}throw Error('Page wait timed out: '+expression);}
 async function paint(){await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');}
 async function setting({width,height=width<1024?844:900,theme='light',touch=false}){
  await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
@@ -66,7 +70,7 @@ async function setting({width,height=width<1024?844:900,theme='light',touch=fals
 }
 // No reading runs in the talk or the stage, no entry is loading and nothing is being sent.
 const SENDING=JSON.stringify([codeMessage('Sending','en'),codeMessage('Sending','ko')]);
-async function settled(){await waitFor(`(document.querySelector('.talk .tupd')?.textContent||'')===''&&(document.querySelector('.stage .upd')?.textContent||'')===''&&!document.querySelector('.talk .sk')&&![...document.querySelectorAll('.talk button')].some(b=>${SENDING}.includes(b.textContent.trim()))`);await paint();}
+async function settled(){await waitFor(`(document.querySelector('.side .tupd')?.textContent||'')===''&&(document.querySelector('.stage .upd')?.textContent||'')===''&&!document.querySelector('.side .sk')&&![...document.querySelectorAll('.side button')].some(b=>${SENDING}.includes(b.textContent.trim()))`);await paint();}
 // Navigation returns once the page is parsed; its held code may not have run yet.
 async function open(route,{ready=true}={}){
  const url=origin+route;await command('Page.navigate',{url:'about:blank'});await command('Page.navigate',{url});
@@ -121,11 +125,11 @@ async function type(selector,text){await evaluate(`document.querySelector(${JSON
 // A write that the page sent, then its follow-up readings.
 async function posted(before,pattern){const stop=Date.now()+10000;while(Date.now()<stop){const hit=report.posts.slice(before).find(p=>pattern.test(p.path));if(hit){await settled();return hit;}await sleep(25);}throw new CheckFailure('No write to '+pattern);}
 // The message above the talk's box, where a comment that failed says why.
-const boxNote=()=>evaluate(`(()=>{const m=document.querySelector('.talk > .box .bnote .msg'),t=e=>e?e.textContent.replace(/\\s+/g,' ').trim():null;return m&&{tone:m.classList[1],text:t(m.querySelector('.t')),trace:t(m.querySelector('.tid')),acts:[...m.querySelectorAll('button')].map(b=>b.dataset.nxAct)};})()`);
+const boxNote=()=>evaluate(`(()=>{const m=document.querySelector('.side :is(.talk,.item) > .box .bnote .msg'),t=e=>e?e.textContent.replace(/\\s+/g,' ').trim():null;return m&&{tone:m.classList[1],text:t(m.querySelector('.t')),trace:t(m.querySelector('.tid')),acts:[...m.querySelectorAll('button')].map(b=>b.dataset.nxAct)};})()`);
 // A box emptied as a person empties it, so that the browser keeps no words of a test.
 async function clearBox(selector){await evaluate(`(()=>{const t=document.querySelector(${JSON.stringify(selector)});t.value='';t.dispatchEvent(new Event('input',{bubbles:true}));})()`);await paint();}
 // An entry's press inside the talk's scrolled view, and a list's selected row inside the list's.
-const inSight=id=>evaluate(`(()=>{const e=document.querySelector('li[data-nx-entry="${id}"] > .hd .ref'),b=document.querySelector('.talk > .body')?.getBoundingClientRect(),r=e?.getBoundingClientRect();return!!r&&!!b&&r.height>0&&r.top>=b.top-1&&r.bottom<=b.bottom+1;})()`);
+const inSight=id=>evaluate(`(()=>{const e=document.querySelector('li[data-nx-entry="${id}"] > .hd .ref'),b=document.querySelector('.side .talk > .body,.side .item > .ib2')?.getBoundingClientRect(),r=e?.getBoundingClientRect();return!!r&&!!b&&r.height>0&&r.top>=b.top-1&&r.bottom<=b.bottom+1;})()`);
 const rowShown=id=>`(()=>{const r=document.querySelector('.stage .li[aria-current="true"]'),l=document.querySelector('.lw > .list');if(!r||!l||r.querySelector('.id')?.textContent.trim()!==${JSON.stringify(id)})return false;const a=r.getBoundingClientRect(),b=l.getBoundingClientRect();return a.top>=b.top-1&&a.bottom<=b.bottom+1;})()`;
 // The talk reads again when the page comes back into view (SPEC-150), as after another tab.
 const backInView=()=>evaluate(`document.dispatchEvent(new Event('visibilitychange'))`);
@@ -139,13 +143,13 @@ function talkState(){
   box:!!li.querySelector(':scope > .rbox'),reply:li.querySelector(':scope > .rbox textarea')?.value??null});
  const active=document.activeElement,side=q('.side'),sideBox=side?.getBoundingClientRect();
  return{hash:location.hash,path:location.pathname,tab:q('.ws')?.dataset.nxTab||null,open:q('.ws')?.dataset.nxOpen||null,redrawn:document.documentElement.dataset.nxRedrawn||null,
-  side:side&&side.checkVisibility()?[sideBox.left,sideBox.width].map(Math.round):null,talk:!!q('.side .talk'),record:!!q('.side .rec'),
-  heading:txt(q('#talk-h')),whole:!!q('.talk [data-nx-act="whole"]'),turns:all('.talk .turns > *').map(e=>({text:txt(e),link:e.tagName==='A'})),
-  groups:all('.talk .body > .tg').map(txt),closed:q('.talk [data-nx-act="closed"]')?.getAttribute('aria-expanded')??null,
-  lists:Object.fromEntries(['mine','agent','apart','closed'].map(key=>[key,all('.talk ol[data-nx-key="l-'+key+'"] > li').map(entry)])),
-  notes:all('.talk .tnotes .msg').map(m=>({tone:m.classList[1],text:txt(m.querySelector('.t')),trace:txt(m.querySelector('.tid')),act:m.querySelector('button')?.dataset.nxAct||null})),
-  label:txt(q('.talk > .box .lab')),text:q('#talk-text')?.value??null,leave:q('.talk [data-nx-act="leave"]')?.getAttribute('aria-disabled')??null,
-  waits:all('[data-nx-wait="talk"]').length,disabled:all('.talk button:disabled, .talk textarea:disabled').length,selected:txt(q('.stage .li[aria-current="true"] .id')),
+  side:side&&side.checkVisibility()?[sideBox.left,sideBox.width].map(Math.round):null,talk:!!q('.side .talk'),item:!!q('.side .item'),record:!!q('.side .rec'),
+  heading:txt(q('#talk-h')||q('#itk-h')),whole:!!q('.side [data-nx-act="whole"]'),turns:all('.talk .turns > *').map(e=>({text:txt(e),link:e.tagName==='A'})),
+  groups:all('.side .body > .tg').map(txt),closed:q('.side [data-nx-act="closed"]')?.getAttribute('aria-expanded')??null,
+  lists:Object.fromEntries(['mine','agent','apart','closed'].map(key=>[key,all('.side ol[data-nx-key="l-'+key+'"] > li').map(entry)])),
+  notes:all('.side .tnotes .msg').map(m=>({tone:m.classList[1],text:txt(m.querySelector('.t')),trace:txt(m.querySelector('.tid')),act:m.querySelector('button')?.dataset.nxAct||null})),
+  label:txt(q('.side :is(.talk,.item) > .box .lab')),text:q('#talk-text')?.value??null,leave:q('.side [data-nx-act="leave"]')?.getAttribute('aria-disabled')??null,
+  waits:all('[data-nx-wait="talk"]').length,disabled:all('.side :is(.talk,.item) button:disabled, .side :is(.talk,.item) textarea:disabled').length,selected:txt(q('.stage .li[aria-current="true"] .id')),
   active:active?.dataset?.nxFocus||active?.id||active?.tagName||null,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth};
 }
 const state=()=>evaluate(`(${talkState})()`);
@@ -213,6 +217,8 @@ try{
  await test('addresses-closed-and-gone-1440-en',async()=>{
   await setting({width:1440});
   await open(page('02-prd','en','#talk='+qa.decided));
+  // The entry's thread reads after the item's panel and the talk narrowed to it.
+  await waitFor(`!!document.getElementById('th-${qa.decided}')`);await settled();
   let s=await state();
   const [decided,answered]=s.lists.closed;
   assert(s.closed==='true'&&decided?.id===qa.decided&&decided.open&&decided.chip===label("The talk's entries",3,'en')&&answered?.id===qa.answered&&answered.chip===label("The talk's entries",2,'en'),'The closed talk unfolds, newest first, with the entry open: '+JSON.stringify(s.lists.closed));
@@ -229,7 +235,8 @@ try{
   const apart=one(s.lists.apart,qa.apart);
   assert(apart?.open&&apart.msgs.some(m=>m.text===label('An item that the talk selects',0,'en',{id:'REQ-999'}))&&!/item=/.test(s.hash)&&s.heading===labels('The talk','en')[0],'An entry apart opens on the stage\'s talk and says its item is gone: '+JSON.stringify({apart,hash:s.hash}));
   const goneShot=await shot('apart-1440-en');
-  await open(page('02-prd','en','#proposal='+qa.accept));
+  // The page leads to the proposal's stage at once, so that the suite waits for that page only.
+  await command('Page.navigate',{url:'about:blank'});await command('Page.navigate',{url:origin+page('02-prd','en','#proposal='+qa.accept)});
   await waitFor(`location.pathname.endsWith('/05-erd')&&document.documentElement.dataset.nxCode==='ready'`);await settled();
   s=await state();
   assert(s.hash==='#talk='+qa.accept&&one(s.lists.mine,qa.accept)?.open&&one(s.lists.mine,qa.accept).change.includes('CREATE UNIQUE INDEX orders_reference ON orders(reference);'),'Another stage\'s proposal opens in that stage\'s talk, with its change: '+JSON.stringify({path:s.path,hash:s.hash}));
@@ -277,7 +284,7 @@ try{
    // their own where the line cannot hold all three, and a band of 44 pixels in the talk's view.
    const sizes=await evaluate(`(()=>{const all=s=>[...document.querySelectorAll(s)].filter(e=>e.checkVisibility());const h=e=>Math.round(e.getBoundingClientRect().height),body=document.querySelector('.talk > .body').getBoundingClientRect();
     const band=b=>{const r=b.getBoundingClientRect(),x=r.left+Math.min(r.width/2,20),hit=y=>document.elementFromPoint(x,y)?.closest('.ref')===b;return r.top-22>body.top&&r.bottom+22<body.bottom?hit(r.top+r.height/2-21)&&hit(r.top+r.height/2+21):null;};
-    return{acts:all('.talk .te > .acts > .btn').map(h),refs:all('.talk .te > .hd .ref').map(e=>Math.round(e.getBoundingClientRect().width)),bands:all('.talk .te > .hd .ref').map(band).filter(v=>v!==null),leave:h(document.querySelector('.talk [data-nx-act="leave"]')),fold:h(document.querySelector('.talk .tg.fold'))};})()`);
+    return{acts:all('.talk .te > .acts > .btn').map(h),refs:all('.talk .te > .hd .ref').map(e=>Math.round(e.getBoundingClientRect().width)),bands:all('.talk .te > .hd .ref').map(band).filter(v=>v!==null),leave:h(document.querySelector('.side [data-nx-act="leave"]')),fold:h(document.querySelector('.talk .tg.fold'))};})()`);
    assert(sizes.acts.length>=5&&sizes.acts.every(n=>n>=44)&&sizes.refs.every(n=>n>=44)&&sizes.leave>=44&&sizes.fold>=44&&sizes.bands.length>=2&&sizes.bands.every(Boolean),'Hit areas of 44 pixels: '+JSON.stringify(sizes));
    const tabShot=await shot(`talk-tab-${width}-${lang}`);
    await click(`li[data-nx-entry="${qa.question}"] [data-nx-act="reply-open"]`);await settled();
@@ -317,7 +324,7 @@ try{
   assert(second.write===first.write&&entry.reps.includes('Synthetic reply that fails once')&&entry.reply==='','Try again sends the same write ID once more: '+JSON.stringify({first:first.write,second:second.write}));
   assert(s.notes.some(n=>n.tone==='err'&&n.text===codeMessage('Could not update','en')&&n.act==='read-talk'),'The reading after it fails, above the talk: '+JSON.stringify(s.notes));
   const errorShot=await shot('error-1440-en');
-  await click('.talk .tnotes [data-nx-act="read-talk"]');await settled();
+  await click('.side .tnotes [data-nx-act="read-talk"]');await settled();
   s=await state();
   assert(!s.notes.length,'Try again reads the talk: '+JSON.stringify(s.notes));
   return{evidence:'fixture page and writes; one reading of the comment and of the talk answered 500 and one reply failed by the suite (mocked)',screenshot:errorShot};
@@ -333,7 +340,7 @@ try{
   const text='합성 의견: 권한이 없는 쓰기';
   await type('#talk-text',text);
   responses.push({method:'POST',pattern:new RegExp('^/api/spaces/'+project+'/comments$'),...problem(403,'no_kind')});
-  await click('.talk [data-nx-act="leave"]');await settled();
+  await click('.side [data-nx-act="leave"]');await settled();
   let note=await boxNote(),s=await state();
   assert(note?.tone==='warn'&&note.text===codeMessage('no_kind','ko')&&note.trace===codeMessage('Trace ID','ko',{traceId:'tr_qa_no_kind'})&&!note.acts.length&&s.text===text,'no_kind above the box, the words kept, without Try again: '+JSON.stringify({note,text:s.text}));
   responses.push({method:'GET',pattern:new RegExp('^/api/spaces/'+project+'/talk/'+part+'/02-prd$'),...problem(403,'access_missing')});
@@ -341,7 +348,7 @@ try{
   s=await state();
   assert(s.notes.some(n=>n.tone==='warn'&&n.text===codeMessage('access_missing','ko')&&n.trace===codeMessage('Trace ID','ko',{traceId:'tr_qa_access_missing'})),'A reading again refused, above the talk with its trace ID: '+JSON.stringify(s.notes));
   responses.push({method:'POST',pattern:new RegExp('^/api/spaces/'+project+'/comments$'),...signedOut});
-  await click('.talk [data-nx-act="leave"]');await settled();
+  await click('.side [data-nx-act="leave"]');await settled();
   note=await boxNote();s=await state();
   assert(note?.tone==='warn'&&note.text===codeMessage('Sign-in expired','ko')&&note.acts.join()==='sign-in'&&s.text===text,'A sign-in that expired: Sign in again, the words kept: '+JSON.stringify({note,text:s.text}));
   const refusedShot=await shot('permission-1440-ko-dark');
@@ -354,7 +361,7 @@ try{
 
  // #empty: a stage without talk, and an item without comments with the box on it (TC-1802).
  await test('empty-1440-en-ko',async()=>{
-  const empty=()=>evaluate(`document.querySelector('.talk .empty-t p')?.textContent.trim()??null`);
+  const empty=()=>evaluate(`document.querySelector('.side .empty-t p')?.textContent.trim()??null`);
   await setting({width:1440});
   await open(page('01-domain','en'));
   let s=await state(),said=await empty();
@@ -389,14 +396,14 @@ try{
    s=await state();
    assert(!s.selected&&!one(s.lists.mine,qa.question)?.open&&await inSight(qa.question)&&s.active==='talk:'+qa.question&&s.side,'The back button: the whole talk at the entry, the focus on it: '+JSON.stringify({selected:s.selected,active:s.active,side:s.side}));
    await click(`li[data-nx-entry="${qa.question}"] .ref`);await settled();
-   await click('.talk [data-nx-act="whole"]');
+   await click('.side [data-nx-act="whole"]');
    await waitFor(`location.hash===''`);await settled();
    s=await state();
    assert(!s.selected&&s.heading===labels('The talk',lang)[0]&&await inSight(qa.question)&&s.active==='talk:'+qa.question,'All talk of the stage: the same: '+JSON.stringify({heading:s.heading,active:s.active}));
    const text=lang==='ko'?'합성 의견: 요청으로 거절됨':'Synthetic comment refused as a request';
    await type('#talk-text',text);
    responses.push({method:'POST',pattern:new RegExp('^/api/spaces/'+project+'/comments$'),...problem(409,'checkpoint_requested')});
-   await click('.talk [data-nx-act="leave"]');await settled();
+   await click('.side [data-nx-act="leave"]');await settled();
    const note=await boxNote();s=await state();
    assert(note?.tone==='err'&&note.text===codeMessage('checkpoint_requested',lang)&&note.acts.includes('leave')&&s.text===text&&s.overflow===0,'checkpoint_requested above the box, the words kept, with Try again: '+JSON.stringify({note,text:s.text,overflow:s.overflow}));
    const errorShot=await shot(`error-${width}-${lang}-${theme}`);
@@ -434,21 +441,21 @@ try{
   await click(`li[data-nx-entry="${qa.open}"] [data-nx-act="answered"]`);
   await posted(before,new RegExp('/comments/'+qa.open+'/answered$'));
   s=await state();
-  assert(!one(s.lists.agent,qa.open)&&s.groups.includes(label('The talk',5,'en',{n:'1'}))&&s.hash==='#item=REQ-240'&&s.active==='talk-h','Answered, it folds into the closed talk, the focus on the heading: '+JSON.stringify({groups:s.groups,hash:s.hash,active:s.active}));
-  await click('.talk [data-nx-act="whole"]');await settled();
+  assert(!one(s.lists.agent,qa.open)&&s.groups.includes(label('The talk',5,'en',{n:'1'}))&&s.hash==='#item=REQ-240'&&s.item&&s.active==='itk-h','Answered, it folds into the item\'s closed talk, the focus on its heading: '+JSON.stringify({groups:s.groups,hash:s.hash,active:s.active}));
+  await click('.side [data-nx-act="whole"]');await settled();
   s=await state();
   assert(s.hash===''&&s.heading===labels('The talk','en')[0]&&s.groups.includes(label('The talk',5,'en',{n:'3'})),'All talk of the stage: '+JSON.stringify({hash:s.hash,heading:s.heading,groups:s.groups}));
   await type('#talk-text','Synthetic comment on the stage as a whole');
   before=report.posts.length;
-  await click('.talk [data-nx-act="leave"]');
+  await click('.side [data-nx-act="leave"]');
   const left=await posted(before,/\/comments$/);
   s=await state();
   const added=s.lists.agent.find(e=>e.place===label("An entry's place",0,'en')&&e.waits.length);
   assert(JSON.parse(left.body).item===''&&added&&s.text===''&&s.active==='leave','A comment on the stage as a whole joins the agent\'s turn: '+JSON.stringify({body:left.body,added,active:s.active}));
-  await evaluate(`location.hash='#item=REQ-002'`);await waitFor(`document.getElementById('talk-h')?.textContent===${JSON.stringify(label('Narrowed',0,'en',{id:'REQ-002'}))}`);await settled();
+  await evaluate(`location.hash='#item=REQ-002'`);await waitFor(`document.getElementById('itk-h')?.textContent===${JSON.stringify(label('Narrowed',0,'en',{id:'REQ-002'}))}`);await settled();
   await type('#talk-text','Synthetic comment on the item');
   before=report.posts.length;
-  await click('.talk [data-nx-act="leave"]');
+  await click('.side [data-nx-act="leave"]');
   const onItem=await posted(before,/\/comments$/);
   s=await state();
   assert(JSON.parse(onItem.body).item==='REQ-002'&&s.label===words('Comment on','en',{id:'REQ-002'})&&s.lists.agent.some(e=>e.place==='REQ-002'),'A comment on the selected item: '+JSON.stringify({body:onItem.body,label:s.label}));
@@ -507,8 +514,8 @@ try{
   await click(`li[data-nx-entry="${qa.claimed}"] [data-nx-act="answered"]`);
   await posted(before,new RegExp('/comments/'+qa.claimed+'/answered$'));
   const s=await state();
-  const emptied=await evaluate(`!!document.querySelector('.talk .empty-t')`);
-  assert(!one(s.lists.agent,qa.claimed)&&!one(s.lists.mine,qa.claimed)&&s.notes.some(n=>n.tone==='info'&&n.text===words('Already closed','en'))&&s.hash==='#item=REQ-003'&&s.active==='talk-h'&&s.groups.includes(label('The talk',5,'en',{n:'1'}))&&!emptied,'Closed meanwhile: it folds into the closed talk, and the talk says so: '+JSON.stringify({notes:s.notes,hash:s.hash,active:s.active,groups:s.groups,emptied}));
+  const emptied=await evaluate(`!!document.querySelector('.side .empty-t')`);
+  assert(!one(s.lists.agent,qa.claimed)&&!one(s.lists.mine,qa.claimed)&&s.notes.some(n=>n.tone==='info'&&n.text===words('Already closed','en'))&&s.hash==='#item=REQ-003'&&s.item&&s.active==='itk-h'&&s.groups.includes(label('The talk',5,'en',{n:'1'}))&&!emptied,'Closed meanwhile: it folds into the closed talk, and the talk says so: '+JSON.stringify({notes:s.notes,hash:s.hash,active:s.active,groups:s.groups,emptied}));
   return{evidence:'fixture page and writes; one other-tab write, and one reply as the agent through the fixture',screenshots:[newShot,await shot('stale-closed-1440-en')]};
  });
 
@@ -541,7 +548,7 @@ try{
   await posted(before,new RegExp('/proposals/'+qa.accept+'/accept$'));
   s=await state();entry=one(s.lists.mine,qa.accept);
   assert(entry.after===label('Answered',0,'en')&&entry.rst===words('Reflection pending','en')&&s.active===qa.accept+':after','Accept, in place, with its reflection pending: '+JSON.stringify({entry,active:s.active}));
-  await click('.talk [data-nx-act="whole"]');await settled();
+  await click('.side [data-nx-act="whole"]');await settled();
   before=report.posts.length;
   await click(`li[data-nx-entry="${qa.dismiss}"] [data-nx-act="dismiss"]`);
   await posted(before,new RegExp('/proposals/'+qa.dismiss+'/dismiss$'));
@@ -570,14 +577,14 @@ try{
   const text='Synthetic comment kept across a reload',said='Synthetic reply kept across a reload',first=pattern=>report.posts.slice(before).find(p=>pattern.test(p.path));
   let before=report.posts.length;
   await type('#talk-text',text);
-  await click('.talk [data-nx-act="leave"]');await settled();
+  await click('.side [data-nx-act="leave"]');await settled();
   const leave=first(/\/comments$/);
   await click(`li[data-nx-entry="${qa.question}"] [data-nx-act="reply-open"]`);await settled();
   await type('#rp-'+qa.question,said);
   await click(`li[data-nx-entry="${qa.question}"] input[name="settles"]`);
   await click(`li[data-nx-entry="${qa.question}"] [data-nx-act="reply"]`);await settled();
   const reply=first(/\/replies$/);
-  await click('.talk [data-nx-act="whole"]');await waitFor(`location.hash===''`);await settled();
+  await click('.side [data-nx-act="whole"]');await waitFor(`location.hash===''`);await settled();
   await click(`li[data-nx-entry="${qa.settled}"] .ref`);await settled();
   await click(`li[data-nx-entry="${qa.settled}"] [data-nx-act="answered"]`);await settled();
   const answered=first(/\/answered$/);
@@ -587,7 +594,7 @@ try{
   let s=await state();
   assert(s.text===text,'The stage\'s box holds its words: '+JSON.stringify(s.text));
   before=report.posts.length;
-  await click('.talk [data-nx-act="leave"]');
+  await click('.side [data-nx-act="leave"]');
   const leaveAgain=await posted(before,/\/comments$/);
   await click(`li[data-nx-entry="${qa.question}"] [data-nx-act="reply-open"]`);await settled();
   const kept=await evaluate(`(()=>{const li=document.querySelector('li[data-nx-entry="${qa.question}"]');return{text:li.querySelector('textarea[name="reply"]').value,settles:li.querySelector('input[name="settles"]').checked};})()`);
@@ -595,7 +602,7 @@ try{
   before=report.posts.length;
   await click(`li[data-nx-entry="${qa.question}"] [data-nx-act="reply"]`);
   const replyAgain=await posted(before,/\/replies$/);
-  await click('.talk [data-nx-act="whole"]');await waitFor(`location.hash===''`);await settled();
+  await click('.side [data-nx-act="whole"]');await waitFor(`location.hash===''`);await settled();
   await click(`li[data-nx-entry="${qa.settled}"] .ref`);await settled();
   before=report.posts.length;
   await click(`li[data-nx-entry="${qa.settled}"] [data-nx-act="answered"]`);

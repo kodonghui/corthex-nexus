@@ -255,10 +255,54 @@ if(process.env.NEXUS_QA_TALK==="1"){
  await call("POST",base+"/edits/"+talkQa.edit+"/report",{event:"needs-user"},"agent");
  Object.assign(talkQa,{project,part:"sample"});
 }
+// The item and the search (TASK-277): a project whose requirement REQ-001 carries the list's
+// fields, one of them empty, and leads to nine flows, past the trace's first six; whose table
+// TBL-002 names the aggregate of another context, so that a discrepancy opens on the ERD; whose
+// talk holds a comment on REQ-001 and one on an item that the stage no longer holds, and on the
+// DDD board one on its context; whose sitemap's newest source is in another repository, so that
+// its picture is not current; and whose second part has no ERD drawn. A second project holds REQ-001 too, with 25 requirements
+// that one word finds, past the search's first 20. Only the item suite opts in.
+const itemQa={};
+if(process.env.NEXUS_QA_ITEM==="1"){
+ const project="qa-item",base="/api/spaces/"+project,snapshot=viewSnapshot(project),time=snapshot.generated_at;
+ snapshot.project.title="QA item";snapshot.ids.REQ="requirement";snapshot.project.parts=["sample","bare"];
+ const stage=(name,source,items)=>({name,human:"notion",truth:"source",source,source_state:"found",read:true,files:1,items,parts:{sample:{state:"in_progress",checkpoints:[],next:"Review the synthetic sample",updated:time}}});
+ snapshot.stages["02-prd"]=stage("PRD","docs/qa-prd.md",2);snapshot.stages["03-user-flow"]=stage("User flow","docs/qa-flow/",9);
+ for(const record of Object.values(snapshot.stages))record.parts.bare=structuredClone(record.parts.sample);
+ snapshot.pictures.find(p=>p.stage==="05-erd").source.tables[1].terms=["TERM-001"];
+ snapshot.pictures.push(...snapshot.pictures.filter(p=>p.stage!=="05-erd").map(p=>({...structuredClone(p),part:"bare"})));
+ snapshot.left_out=[{part:"bare",stage:"05-erd",why:"size"}];
+ const flows=Array.from({length:9},(_,i)=>"FL-"+String(i+1).padStart(3,"0"));
+ snapshot.items=[
+  {id:"CTX-001",kind:"context",stage:"01-domain",where:"docs/qa-domain.md:12",title:"Ordering"},
+  {id:"REQ-001",kind:"requirement",stage:"02-prd",where:"docs/qa-prd.md:14",title:"When a synthetic buyer places an order, the shop shall record it.",priority:"Must",status:"approved",type:"",links:["CTX-001",...flows]},
+  {id:"REQ-002",kind:"requirement",stage:"02-prd",where:"docs/qa-prd.md:1",title:"Retry the payment of a synthetic order",priority:"Should",status:"draft",links:["CTX-001"]},
+  ...flows.map((id,i)=>({id,kind:"flow",stage:"03-user-flow",where:`docs/qa-flow/${id}.md:3`,title:"Synthetic flow "+(i+1),links:["REQ-001"]})),
+  {id:"TBL-001",kind:"table",stage:"05-erd",where:"docs/qa.sql:3",title:"orders",links:["REQ-001"]},{id:"TBL-002",kind:"table",stage:"05-erd",where:"docs/qa.sql:9",title:"payments",links:["REQ-002"]},
+  {id:"SCR-001",kind:"screen",stage:"07-sitemap",where:"docs/qa-sitemap.yaml:2",title:"Home",links:["REQ-001","TBL-001"]},{id:"SCR-002",kind:"screen",stage:"07-sitemap",where:"docs/qa-sitemap.yaml",title:"Orders",links:["REQ-001"]},
+ ];
+ snapshot.summary={...snapshot.summary,items:snapshot.items.length};
+ await call("POST","/api/snapshots",snapshot,"agent");
+ // The sitemap's newest source is in another repository: the server keeps its picture, as not current.
+ const again=structuredClone(snapshot);again.generated_at=new Date(Date.parse(snapshot.generated_at)+1000).toISOString();
+ again.pictures=again.pictures.filter(p=>p.stage!=="07-sitemap"||p.part!=="sample");again.left_out=[...again.left_out,{part:"sample",stage:"07-sitemap",why:"other-repository"}];
+ const pushed=await call("POST","/api/snapshots",again,"agent");
+ const said=async(item,text,stage="02-prd")=>(await call("POST",base+"/comments",{part:"sample",stage,item,text})).id;
+ itemQa.talk=await said("REQ-001","Synthetic question on the recorded order");
+ itemQa.apart=await said("REQ-999","Synthetic comment on a requirement that left the stage");
+ itemQa.board=await said("CTX-001","Synthetic question on the ordering context","01-domain");
+ const two=viewSnapshot("qa-item-two");two.project.title="QA item two";two.ids.REQ="requirement";
+ two.stages["02-prd"]=stage("PRD","docs/qa-prd.md",26);
+ two.items=[{id:"REQ-001",kind:"requirement",stage:"02-prd",where:"docs/qa-prd.md:3",title:"Record each synthetic order of the second shop"},
+  ...Array.from({length:25},(_,i)=>({id:"REQ-"+String(i+101),kind:"requirement",stage:"02-prd",where:"docs/qa-prd.md:"+(i+10),title:"Synthetic refund rule "+(i+1)}))];
+ two.summary={...two.summary,items:two.items.length};
+ await call("POST","/api/snapshots",two,"agent");
+ Object.assign(itemQa,{project,part:"sample",bare:"bare",second:two.project.name,discrepancies:pushed.discrepancies});
+}
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_ITEM==="1"?{item:itemQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
  const pushAgain=home.pushAgain||stageQa.pushAgain;
  if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&pushAgain){const pushed=await pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
  // The agent's reply to a comment of the talk's project, as a session would send it (TASK-276).

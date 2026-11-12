@@ -27,7 +27,7 @@
       access: anyone Cloudflare Access lets in, on the server
       flows: [FL-118]
       terms: none
-      status: planned
+      status: active
     - id: SCR-117
       name: Full checks
       path: /hub
@@ -108,7 +108,7 @@
           access: anyone Cloudflare Access lets in, on the server
           flows: [FL-113, FL-115, FL-116, FL-118, FL-119, FL-125]
           terms: [CTX-014, TERM-111]
-          status: planned
+          status: active
         - id: SCR-113
           name: Document stage
           path: "/p/{project}/{part}/{document stage}"
@@ -122,14 +122,14 @@
           access: anyone Cloudflare Access lets in, on the server
           flows: [FL-117, FL-119]
           terms: [CTX-014, TERM-111]
-          status: planned
+          status: active
         - id: SCR-115
           name: Item
           path: "/p/{project}/{part}/{stage}#item={id}"
           access: anyone Cloudflare Access lets in, on the server
           flows: [FL-118, FL-119]
           terms: [CTX-014, TERM-111]
-          status: planned
+          status: active
         - id: SCR-130
           name: Project data
           path: "/p/{project}#data"

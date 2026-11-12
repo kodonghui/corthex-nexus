@@ -7,6 +7,10 @@ import {icon} from "./icons.js";
 import {label,labels} from "./words.js";
 import {stageName,stageNumber} from "./stages.js";
 const sr=text=>`<span class="sr">${esc(text)}</span>`;
+// The panel of the search's matches, hidden until the code fills it (../../ui/search.js with
+// ./search.js): its status line, which screen readers hear, the matches, the line under them and
+// the place of a message.
+const searchPanel=words=>`<div class="spanel" id="search-panel" hidden><p class="sh2" role="status">${icon("i-search")}<span class="st"></span></p><ul class="ms" id="search-list" role="listbox" aria-label="${esc(words[2])}"></ul><p class="foot"></p><div class="pad" role="status"></div></div>`;
 // place: {kind:"home"} or {kind:"stage", project, title, part, stage}.
 export function topBar(place,lang){
   const words=labels("Top bar",lang),stage=place.kind==="stage";
@@ -20,18 +24,24 @@ export function topBar(place,lang){
     `<a class="logo${stage?" only-pc":""}" href="/">${esc(words[0])}</a>`,
     `<nav class="place only-pc">${where}</nav>`,
     stage?`<a class="ttl only-ph" href="#stages"><span class="num">${esc(stageNumber(place.stage))}</span> <span class="clip">${esc(stageName(place.stage,lang))}</span>${icon("i-down")}</a>`:`<span class="sp only-ph"></span>`,
-    `<label class="fw only-pc"><span class="field">${icon("i-search")}<input type="search" name="q" maxlength="200" autocomplete="off" placeholder="${esc(hint)}" aria-label="${esc(words[2])}" disabled data-nx-wait="search"></span></label>`,
-    `<button class="ib only-ph" type="button" disabled data-nx-wait="search">${icon("i-search")}${sr(words[2])}</button>`,
+    // The search (SCR-116): its field, with the panel of its matches under it, which the code
+    // fills; under 1,024 pixels the search button, which opens the field over the top bar, and
+    // Close, which only that shows; and from 1,024 the page behind the matches, dimmed.
+    `<div class="fw only-pc"><label class="field">${icon("i-search")}<input type="search" name="q" maxlength="200" autocomplete="off" placeholder="${esc(hint)}" aria-label="${esc(words[2])}" role="combobox" aria-autocomplete="list" aria-controls="search-list" aria-expanded="false" disabled data-nx-wait="search"></label>${searchPanel(words)}</div>`,
+    `<button class="ib only-ph sclose" type="button" disabled data-nx-wait="search">${icon("i-close")}${sr(words[5])}</button>`,
+    `<button class="ib only-ph sbtn" type="button" disabled data-nx-wait="search">${icon("i-search")}${sr(words[2])}</button>`,
     `<a class="btn only-pc" href="/hub">${esc(words[3])}</a>`,
     stage?"":`<details class="menu only-ph"><summary class="ib">${icon("i-menu")}${sr(words[4])}</summary><div class="pop"><a class="btn" href="/hub">${esc(words[3])}</a></div></details>`,
+    `<div class="sdim" hidden></div>`,
   ].join("");
 }
 // Hidden while the code may still come; shown when it failed, or after a wait
 // that only a page whose code never ran reaches (the page's stylesheet times it).
 export const codeBar=lang=>`<div class="bar warn" data-nx-codebar role="status">${icon("i-warn")}<span class="t">${esc(label("Buttons not loaded",0,lang))}</span></div>`;
 // The phone's tabs (rule 16): the stage, its talk, and the item that the view adds
-// while one is selected. As links to the parts they work without the code.
-export function tabs({picture,talk},lang){
+// while one is selected (SCR-115's layout). As links to the parts the first two work
+// without the code; the item's, which only the code draws, leads to the side too.
+export function tabs({picture,talk,item=false},lang){
   const words=labels("Tabs",lang);
-  return `<a class="tab" href="#stage" data-nx-tab="stage">${icon(picture?"i-picture":"i-list")}<span>${esc(picture?words[0]:words[1])}</span></a><a class="tab" href="#talk" data-nx-tab="talk">${icon("i-talk")}<span>${esc(label("Tabs",2,lang,{n:count(talk)}))}</span></a>`;
+  return `<a class="tab" href="#stage" data-nx-tab="stage">${icon(picture?"i-picture":"i-list")}<span>${esc(picture?words[0]:words[1])}</span></a><a class="tab" href="#talk" data-nx-tab="talk">${icon("i-talk")}<span>${esc(label("Tabs",2,lang,{n:count(talk)}))}</span></a>${item?`<a class="tab" href="#talk" data-nx-tab="item">${icon("i-record")}<span>${esc(words[3])}</span></a>`:""}`;
 }

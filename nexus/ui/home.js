@@ -1,5 +1,6 @@
-// The first page's code (SCR-110): answers in place, reading again, the cards' order and
-// 0.2's fragments on `/` (SPEC-143 to SPEC-145, SPEC-154). It draws with the server's own
+// The first page's code (SCR-110): answers in place, reading again, the cards' order, 0.2's
+// fragments on `/` (SPEC-143 to SPEC-145, SPEC-154) and the top bar's search (./search.js,
+// SCR-116), whose words the address holds as q=. It draws with the server's own
 // functions (../src/draw/home.js) and replaces only the elements whose drawing changed,
 // so that the focus and the messages stay where they are (stage 08's rules 3 to 8).
 import {drawHome,talkPath} from "../src/draw/home.js";
@@ -8,6 +9,7 @@ import {STAGE_KEYS,stagePath} from "../src/draw/stages.js";
 import {label,labels,codeMessage} from "../src/draw/words.js";
 import {ApiClient,LatestReads,PendingWrites,writeId} from "./state.js";
 import {reconcile} from "./reconcile.js";
+import {createSearch} from "./search.js";
 
 const ORDER_KEY="nexus0.3:order";
 const STATES=Object.freeze(["open","accepted","dismissed","withdrawn"]);
@@ -19,12 +21,11 @@ const PROJECT=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 function storedOrder(){try{return globalThis.localStorage?.getItem(ORDER_KEY)==="push"?"push":"name";}catch{return"name";}}
 function storeOrder(order){try{globalThis.localStorage?.setItem(ORDER_KEY,order);}catch{/* The order stays for this page only. */}}
 
-// 0.2's fragments on `/` (SPEC-154): #q= opens the search, #p=&id= the item in its stage and
-// #p=&s= that stage of the project's first part. Until the search of SCR-116 is built
-// (TASK-277), the search is the hub page's, at /hub.
-export async function followFragment(hash,data,api,go=target=>location.replace(target)){
+// 0.2's fragments on `/` (SPEC-154): #q= opens the search (SCR-116), #p=&id= the item in its
+// stage, or the search for the ID where no stage holds it, and #p=&s= that stage of the
+// project's first part. search(words) opens the top bar's search; without it, the hub page's.
+export async function followFragment(hash,data,api,go=target=>location.replace(target),search=words=>go("/hub#q="+encodeURIComponent(words))){
   const params=new URLSearchParams(String(hash||"").replace(/^#/,""));
-  const search=words=>go("/hub#q="+encodeURIComponent(words));
   const project=params.get("p");
   if(project===null){if(params.has("q")){search(params.get("q"));return true;}return false;}
   if(!PROJECT.test(project)||project.length>100)return false;
@@ -131,6 +132,8 @@ export function startHome(root,payload,{api=new ApiClient(location.origin),local
   // than by name draws the cards again.
   for(const control of root.querySelectorAll('[data-nx-wait="answer"],[data-nx-wait="order"]')){control.disabled=false;control.removeAttribute("data-nx-wait");}
   render();
-  followFragment(location.hash,data,api).catch(()=>{});
-  return{render,readAgain,answer};
+  // The top bar's search: its words in the address as q=, in the place of this one.
+  const search=createSearch({lang,api,address:q=>history.replaceState(history.state,"",location.pathname+location.search+(q?"#q="+encodeURIComponent(q):""))});
+  followFragment(location.hash,data,api,undefined,search?words=>search.openWith(words):undefined).catch(()=>{});
+  return{render,readAgain,answer,search};
 }

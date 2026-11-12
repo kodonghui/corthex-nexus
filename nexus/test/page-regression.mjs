@@ -140,14 +140,14 @@ try{
    const after=await read();
    assert(after.redrawn==='0','The code redrew '+after.redrawn+' parts');
    // The code makes the first page's answers and order work (TASK-273), a stage's list and
-   // record (TASK-274), its picture's tools (TASK-275) and its talk (TASK-276): those controls
-   // lose their wait, and nothing else changes but the picture's layers (READ). The search
-   // waits for SCR-116 (TASK-277).
-   const waits=kind==='home'?/ disabled="" data-nx-wait="(?:answer|order)"/g:/ disabled="" data-nx-wait="(?:list|record|picture|talk)"/g;
+   // record (TASK-274), its picture's tools (TASK-275), its talk (TASK-276) and the top bar's
+   // search (TASK-277): those controls lose their wait, and nothing else changes but the
+   // picture's layers (READ).
+   const waits=kind==='home'?/ disabled="" data-nx-wait="(?:answer|order|search)"/g:/ disabled="" data-nx-wait="(?:list|record|picture|talk|search)"/g;
    const working=parts=>Object.fromEntries(Object.entries(parts).map(([key,html])=>[key,html.replace(waits,"")]));
    assert(JSON.stringify(after.parts)===JSON.stringify(working(before.parts)),'A part differs after the code ran');
-   const named=kind==='home'?[/data-nx-wait="(?:answer|order)"/]:[/data-nx-wait="(?:list|record)"/,/data-nx-wait="picture"/,/data-nx-wait="talk"/],where=kind==='home'?['home']:['stage','side'];
-   assert(named.every(wait=>where.some(key=>wait.test(before.parts[key]||''))&&!where.some(key=>wait.test(after.parts[key]||''))),kind==='home'?'The first page\'s answers and order did not start to work':'The stage\'s list, record, picture and talk did not start to work');
+   const named=kind==='home'?[/data-nx-wait="(?:answer|order)"/,/data-nx-wait="search"/]:[/data-nx-wait="(?:list|record)"/,/data-nx-wait="picture"/,/data-nx-wait="talk"/,/data-nx-wait="search"/],where=kind==='home'?['home','top']:['stage','side','top'];
+   assert(named.every(wait=>where.some(key=>wait.test(before.parts[key]||''))&&!where.some(key=>wait.test(after.parts[key]||''))),kind==='home'?'The first page\'s answers, order and search did not start to work':'The stage\'s list, record, picture, talk and search did not start to work');
    if(kind==='stage')assert(after.live&&after.marks.includes('TBL-001'),'The picture did not become live with its marks');
    assert(after.kept===before.elements&&after.ordered&&!after.strays.length,'The code replaced elements or added them outside the picture\'s layers ('+after.kept+' of '+before.elements+' kept; '+after.strays.slice(0,5).join(', ')+')');
    const moved=after.marked.filter(([index,box])=>box&&JSON.stringify(box)!==JSON.stringify(before.boxes[index]));

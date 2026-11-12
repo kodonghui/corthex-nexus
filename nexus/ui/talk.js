@@ -6,7 +6,9 @@
 // closed talk, 50 at a time; and the writes, a comment, a reply, settling, Mark answered, Accept,
 // Dismiss, As recommended and dismissing a reflection (API-118 to API-120, API-124, API-125,
 // API-127, API-159), each with its words and write ID kept in the browser until the server
-// takes it (rules 4 and 5). The stage page (./stage.js) draws, follows the address and calls in.
+// takes it (rules 4 and 5); in the selected item's panel (SCR-115) its talk, whose box may name
+// one of the item's discrepancies. The stage page (./stage.js) draws, follows the address and
+// calls in.
 import {TALK_LIMIT,leftOf,entryOf,talkGroups,itemsOf,kindOf,narrowTalk} from "../src/draw/talk.js";
 import {stagePath} from "../src/draw/stages.js";
 import {label,labels,codeMessage} from "../src/draw/words.js";
@@ -23,11 +25,14 @@ const TARGETS=Object.freeze(["talk","comment","proposal"]);
 const MAX_PAGES=25;
 const readable=answer=>Boolean(answer&&answer.mine&&Array.isArray(answer.mine.entries)&&answer.agent&&Array.isArray(answer.agent.entries)&&answer.apart&&Array.isArray(answer.apart.entries)&&answer.closed);
 
-export function createTalk({payload,view,api,drafts,lang,base,project,part,stage,place,ws,side,render,hash,applyAddress,refresh}){
+// whole() says that the side shows the stage's whole talk although an item is selected (SCR-115's
+// switch); selected() is the selected item; onDiscrepancyGone() reads the item again after a
+// comment on one of its discrepancies found it resolved.
+export function createTalk({payload,view,api,drafts,lang,base,project,part,stage,place,ws,side,render,hash,applyAddress,refresh,whole:wholeShown=()=>false,selected=()=>null,onDiscrepancyGone=()=>{}}){
   const reads=new LatestReads(),writes=new PendingWrites();
   // shown is what the side draws: the talk as read, narrowed or not, with the answered entries
   // kept in their places (choice 19); the rest is each part's state.
-  const st=view.talkState={shown:null,narrow:null,item:null,open:null,threads:{},entries:{},replies:{},box:{sending:false,note:null,left:null,over:false,empty:true},closed:{open:false,entries:null,total:null,more:null},notes:[],updating:false};
+  const st=view.talkState={shown:null,narrow:null,item:null,open:null,threads:{},entries:{},replies:{},box:{sending:false,note:null,left:null,over:false,empty:true,discrepancy:null},closed:{open:false,entries:null,total:null,more:null},notes:[],updating:false};
   const kept=new Map(),filled=new WeakSet();
   // back is the entry picked in the stage's whole talk, to return to; shownBy says that an
   // entry opened the folded talk, which folds again when the entry closes; reply is an entry
@@ -147,7 +152,7 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   async function narrow(item){
     if(item===st.item)return;
     st.item=item;st.narrow=null;kept.clear();
-    st.closed={open:false,entries:null,total:null,more:null};st.box={...st.box,note:null};
+    st.closed={open:false,entries:null,total:null,more:null};st.box={...st.box,note:null,discrepancy:null};
     if(!item){draw();return;}
     st.updating=true;draw();
     try{
@@ -206,9 +211,10 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   }
   // The folded talk shows for as long as an entry is open: the Talk tab under 1,024 pixels and
   // the panel from 1,024 to 1,279 (SPEC-210).
+  // An entry opened in the item's panel on the Item tab keeps that tab in front.
   function showTalk(on){
     if(!ws)return;
-    if(on){ws.dataset.nxTab="talk";if(!ws.dataset.nxOpen){ws.dataset.nxOpen="talk";shownBy="entry";}}
+    if(on){if(ws.dataset.nxTab!=="item")ws.dataset.nxTab="talk";if(!ws.dataset.nxOpen){ws.dataset.nxOpen="talk";shownBy="entry";}}
     else if(shownBy==="entry"){if(ws.dataset.nxOpen==="talk")delete ws.dataset.nxOpen;shownBy=null;}
   }
   // The user's own Talk ({n}), Close or press in the talk: the panel stays as the user leaves it.
@@ -253,10 +259,12 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
     draw();
   }
 
+  // The address's item, unless the side shows the stage's whole talk beside it.
+  const narrowedTo=params=>{const raw=params.get("item");return raw&&raw.length<=30&&TRACE.test(raw)&&!wholeShown()?raw:null;};
   // The address, after the stage followed its view, filter and item (./stage.js): the talk of
   // the address's item, and the entry that talk=, comment= or proposal= names, open and in sight.
   async function follow(params){
-    const raw=params.get("item"),item=raw&&raw.length<=30&&TRACE.test(raw)?raw:null;
+    const item=narrowedTo(params);
     const target=TARGETS.map(key=>params.get(key)).find(Boolean)||null;
     st.notes=st.notes.filter(n=>n.kind!=="gone"&&n.kind!=="write");
     await narrow(item);
@@ -291,8 +299,8 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
     for(const key of TARGETS)params.delete(key);
     params.set("talk",id);
     // An entry on several items selects the selected one when it is among them, else its first.
-    const items=itemsOf(found.entry);
-    if(found.group!=="apart"&&items.length){if(!st.item)back=id;params.set("item",items.includes(st.item)?st.item:items[0]);}
+    const items=itemsOf(found.entry),chosen=st.item||selected();
+    if(found.group!=="apart"&&items.length){if(!st.item)back=id;params.set("item",items.includes(chosen)?chosen:items[0]);}
     if(answer)reply=id;
     const rest=params.toString();
     history.pushState(history.state,"",location.pathname+location.search+"#"+rest);
@@ -302,11 +310,11 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   // All talk of the stage: as the back button, after an entry picked in the whole talk; else
   // the address without its item, a step of its own.
   function showWhole(){
-    if(history.state?.nexusTalk&&history.state.nexusTalk===location.hash&&back){history.back();return;}
+    if(history.state?.nexusTalk&&history.state.nexusTalk===location.hash&&back){history.back();return null;}
     const params=hash();params.delete("item");
     if(st.open)back=st.open;
     for(const key of TARGETS)params.delete(key);
-    go(params,true).catch(()=>{});
+    return go(params,true).catch(()=>{});
   }
 
   // A write that failed, by its code (SCR-114#stale, #error, #permission and #gone): its message
@@ -365,17 +373,20 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
     if(!box)return;
     measure(box.value,state);
     if(state.sending||state.over||state.empty||writes.has(scope)){draw();return;}
-    const draft=drafts.update(scope,{text:box.value}),item=st.item||"";
+    const draft=drafts.update(scope,{text:box.value}),item=st.item||"",discrepancy=item&&state.discrepancy;
     state.sending=true;state.note=null;box.readOnly=true;draw();
     let again=false;
     try{
-      await writes.run(scope,()=>api.call("POST",`${base}/comments`,{body:{part,stage,item,text:draft.text},write:draft.write}));
+      await writes.run(scope,()=>api.call("POST",`${base}/comments`,{body:{part,stage,item,...(discrepancy?{discrepancy}:{}),text:draft.text},write:draft.write}));
       drafts.clear(scope,draft.write);
       if(box.value===draft.text)box.value="";
-      box.removeAttribute("aria-invalid");measure(box.value,state);again=true;
+      box.removeAttribute("aria-invalid");measure(box.value,state);state.discrepancy=null;again=true;
     }catch(error){
       if(error?.code==="text_too_long"||error?.code==="invalid_request"&&error?.field==="text")box.setAttribute("aria-invalid","true");
       again=failed(error,scope,"leave",state,null);
+      // A discrepancy resolved meanwhile (SCR-115's state changes): the box names the item again,
+      // with a new write ID for the comment without it, and the item reads again.
+      if(error?.code==="discrepancy_not_found"){state.discrepancy=null;drafts.renew(scope);onDiscrepancyGone();}
     }
     finally{state.sending=false;box.readOnly=false;draw();}
     if(again)await after();
@@ -429,7 +440,19 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   }
 
   return{
-    sync,fill,follow,readAgain,
+    sync,fill,follow,readAgain,showWhole,
+    // The entry that is open, if any.
+    opened:()=>st.open,
+    // The switch between the item and the whole talk (SCR-115): the talk as the side shows it now.
+    async renarrow(){await narrow(narrowedTo(hash()));},
+    // "Comment on this discrepancy" (SCR-115, SPEC-126): the box names it, or the item again when
+    // pressed twice, with a new write ID, since the comment changes; the focus in the box.
+    target(id){
+      if(!st.item||typeof id!=="string")return;
+      st.box.discrepancy=st.box.discrepancy===id?null:id;st.box.note=null;
+      drafts.renew(boxScope());draw();
+      side.querySelector("#talk-text")?.focus();
+    },
     // The talk's presses, from ./stage.js's one listener: true when the talk took it.
     click(act,control,event){
       const id=control.closest("[data-nx-entry]")?.dataset.nxEntry;

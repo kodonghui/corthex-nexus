@@ -12,6 +12,7 @@ import {icon,shapeIcon} from "./icons.js";
 import {label,labels,codeMessage,oldLabels,legendWord,capital,STATES} from "./words.js";
 import {stageName,stageNumber} from "./stages.js";
 import {drawTalk} from "./talk.js";
+import {drawItem} from "./item.js";
 
 export const FILTERS=Object.freeze(["all","talk","mine","left"]);
 export const GROUPS=Object.freeze(["context","source"]);
@@ -21,8 +22,9 @@ const sr=text=>`<span class="sr">${esc(text)}</span>`;
 const stateOf=state=>STATES.includes(state)?state:"unknown";
 const stateWord=(state,lang)=>`<span class="stw">${shapeIcon(stateOf(state))}<span>${esc(capital(legendWord(stateOf(state),lang),lang))}</span></span>`;
 
-// Where a row of the list leads: the item, selected in the list (SCR-115 from TASK-277), and on a
-// pictured stage the list's tab too, so that the address keeps the list (SCR-111's `#`).
+// Where a row of the list leads: the item, selected in the list with its panel in the side
+// (SCR-115), and on a pictured stage the list's tab too, so that the address keeps the list
+// (SCR-111's `#`).
 export const itemHash=(stage,id)=>(PICTURE_STAGES.includes(stage)?"#view=list&item=":"#item=")+encodeURIComponent(id);
 
 // The head's counts (REQ-226): the kinds that a stage defines, and the items of the others;
@@ -215,13 +217,18 @@ export function drawRecord(data,lang,state={}){
 }
 
 // The inside of the side (SCR-111): the stage record while it is open, else what the page could
-// not hold, such as a project without a space (SCR-111's Target), else the talk (SCR-114): the
-// page's talk, or what the view's code shows of it, narrowed to an item, with its state.
+// not hold, such as a project without a space (SCR-111's Target), else the selected item's panel
+// (SCR-115), whose talk is narrowed to it, unless its switch or the Talk tab shows the talk; else
+// the talk (SCR-114): the page's talk, or what the view's code shows of it, with its state. Only
+// the view's code selects an item (view.item, ../../ui/item.js), and view.shownSide says which of
+// the two the side shows.
 export function drawSide(data,problem,lang,view={},talk=null){
   if(view.record)return drawRecord(data,lang,view.recordState);
   if(problem?.code==="space_not_found")return`<div class="sidemsg" data-nx-key="problem">${message({tone:"warn",text:codeMessage(problem.code,lang),trace:problem.traceId},lang,"problem")}</div>`;
   if(!talk)return"";
-  return drawTalk(view.talkState?.shown||talk,data,lang,view.talkState||{},Boolean(view.code));
+  const shown=view.talkState?.shown||talk,state=view.talkState||{};
+  if(view.item&&view.shownSide!=="talk")return drawItem(view.item,shown,data,lang,state);
+  return drawTalk(shown,data,lang,state,Boolean(view.code),{sw:Boolean(view.item)});
 }
 
 // The bars under the top bar (SCR-111#stale and rule 7): a newer push, with Load again, and a

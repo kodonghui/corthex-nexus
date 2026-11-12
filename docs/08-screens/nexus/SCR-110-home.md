@@ -16,7 +16,7 @@ Path `/`, on the NEXUS server only (API-155); every page's wordmark leads here. 
 | The agent to-do of each project with a space: how many comments wait for the agent, open discrepancies, pending reflections and checkpoints that wait for their records, and how many of them a session has taken | API-151 (`agent`) |
 | A card for each project: its name, repository, the snapshot's commit and time; for each part, its current stage and next action; its 13 stages' states and item counts; its warnings; and for each picture its stage, whether it is current, its open comments and its small drawing, the server's first picture of it without labels | API-151 (`projects`) |
 | The order of the cards: by name, or by the last push | The browser's storage, by name when it holds none; the server draws the cards by name, and the code draws them again in a stored order by the last push |
-| 0.2's fragments on `/`: `#q={words}`, `#p={project}&id={id}` and `#p={project}&s={stage}`, which lead to the search, to the item in its stage at `#item={id}`, and to that stage of the project's first part. Until the search of SCR-116 is built (TASK-277), the search, and an ID that the server does not find, are the hub page's, at `/hub#q={words}` | The page's address after `#` (SPEC-154); the item's stage from API-157 |
+| 0.2's fragments on `/`: `#q={words}`, `#p={project}&id={id}` and `#p={project}&s={stage}`, which lead to the search, to the item in its stage at `#item={id}`, and to that stage of the project's first part. `#q={words}` opens the search with its words, and an ID that the server does not find opens it with the ID, at `/#q={id}` | The page's address after `#` (SPEC-154); the item's stage from API-157 |
 
 ## Actions
 
@@ -29,7 +29,7 @@ Path `/`, on the NEXUS server only (API-155); every page's wordmark leads here. 
 | Open a count of the agent to-do | The project's workspace at the stage of the count's oldest entry: the talk at that comment, `#talk={comment}`, for the comments; the list filtered to what is left, `#filter=left`, for the discrepancies and the reflections; and the stage for the checkpoints. A count without its oldest entry opens the project | SCR-111's own states |
 | Open a project's card, or a small view of one of its pictures | The project's workspace at its current stage (SCR-111), or at that picture's stage (SCR-112) | SCR-111's own states |
 | Change the cards' order | The cards by name or by their last push, remembered in the browser | none |
-| Type in the search | SCR-116; until it is built (TASK-277), the field waits, shown disabled, and the hub page's search serves at `/hub` | SCR-116's own states |
+| Type in the search | SCR-116: the matches of every project under the field | SCR-116's own states |
 | Full checks | SCR-117, at `/hub` | SCR-117's own states |
 | Load again | The page from the server | SCR-110#error |
 

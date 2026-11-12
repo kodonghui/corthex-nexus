@@ -7,7 +7,8 @@
 // API-115), each write's state and message, and the closed talk read 50 at a time. Every element
 // that the code compares when it draws again has data-nx-key; data-nx-sub marks one whose children
 // it compares one by one, and data-nx-live one whose text it changes in place
-// (../../ui/reconcile.js). Before the code runs the controls that need it wait, disabled.
+// (../../ui/reconcile.js). Before the code runs the controls that need it wait, disabled. The
+// item's panel (./item.js, SCR-115) holds the same body and box under its trace.
 import {esc,count,time,timed,dated} from "./html.js";
 import {icon} from "./icons.js";
 import {label,labels,codeMessage,capital} from "./words.js";
@@ -185,9 +186,17 @@ export function drawEntry(entry,group,lang,state={},code=false,copy=false){
   return`<li class="${cls}" data-nx-key="e:${id}" data-nx-entry="${id}" data-nx-sub>${head}${quote}${text}${body}${gone}${waits}${copy?"":acts(entry,group,lang,state,code,tx)+after(entry,lang,state)}${box}</li>`;
 }
 
+// The switch between the talk and the item's panel (SCR-115's head), from 1,024 pixels while an
+// item is selected; under 1,024 the tabs do it (rule 16). Only the view's code draws it, since
+// only the address after # selects an item.
+export function sideSwitch(on,lang){
+  const button=(mode,text,name)=>`<button type="button" data-nx-act="side" data-nx-side="${mode}" data-nx-focus="side:${mode}" aria-pressed="${on===mode}">${name?icon(name):""}<span>${esc(text)}</span></button>`;
+  return`<span class="seg sw only-pc" data-nx-key="sw">${button("talk",labels("The talk",lang)[0],"i-talk")}${button("item",labels("Tabs",lang)[3],"")}</span>`;
+}
 // The talk's head: "Talk", or "Talk on {id}" with "All talk of the stage" (SCR-114#narrowed), the
-// stage, and the two turns' counts, which take the talk to their groups.
-function head(talk,data,lang,code){
+// stage, and the two turns' counts, which take the talk to their groups. sw: the switch to the
+// item's panel, while an item is selected.
+function head(talk,data,lang,code,sw){
   const names=labels("The talk",lang),item=talk.item,mine=Number(talk.mine?.total)||0,agent=agentCount(talk),groups=talkGroups(talk);
   // A turn's count leads to its group, when the talk lists one.
   const turn=(key,text,shown)=>shown?`<a${key==="mine"?' class="mine"':""} href="#t-${key}" data-nx-act="turn" data-nx-turn="${key}" data-nx-focus="turn:${key}">${esc(text)}</a>`:`<span${key==="mine"?' class="mine"':""}>${esc(text)}</span>`;
@@ -195,7 +204,7 @@ function head(talk,data,lang,code){
   // From 1,024 to 1,279 pixels the talk is a panel, which Close folds (SCR-111's actions): a
   // link to the stage, which works before the code runs too, as the list of stages' Close.
   const close=`<a class="ib only-mid" href="#stage" data-nx-act="talk-close" data-nx-focus="talk-close">${icon("i-close")}<span class="sr">${esc(labels("Top bar",lang)[5])}</span></a>`;
-  return`<div class="th" data-nx-key="th" data-nx-sub><div class="r1" data-nx-key="r1"><h2 id="talk-h" tabindex="-1" data-nx-focus="talk-h">${esc(item?label("Narrowed",0,lang,{id:item}):names[0])}</h2><span class="mu sm">${esc(stageNumber(data.stage)+" "+stageName(data.stage,lang))}</span><span class="sp"></span>${whole}${close}</div><div class="turns" data-nx-key="turns">${turn("mine",label("The talk",1,lang,{n:count(mine)}),groups.mine.length)}${turn("agent",label("The talk",2,lang,{n:count(agent)}),groups.agent.length)}</div></div>`;
+  return`<div class="th" data-nx-key="th" data-nx-sub><div class="r1" data-nx-key="r1"><h2 id="talk-h" tabindex="-1" data-nx-focus="talk-h">${esc(item?label("Narrowed",0,lang,{id:item}):names[0])}</h2><span class="mu sm">${esc(stageNumber(data.stage)+" "+stageName(data.stage,lang))}</span><span class="sp"></span>${whole}${sw?sideSwitch("talk",lang):""}${close}</div><div class="turns" data-nx-key="turns">${turn("mine",label("The talk",1,lang,{n:count(mine)}),groups.mine.length)}${turn("agent",label("The talk",2,lang,{n:count(agent)}),groups.agent.length)}</div></div>`;
 }
 // The notes at the top of the talk: an address or a link that names an entry not on the server
 // (SCR-114#gone), and a reading again that failed or was refused (rule 6, SCR-114#error).
@@ -217,28 +226,35 @@ function closedTalk(talk,lang,state,code,seen){
   else if(list.length<total)tail=`<button class="btn sm" type="button" data-nx-act="closed-more" data-nx-focus="closed-more">${esc(label("The talk",6,lang))}</button>`;
   return`${fold}${entries?`<ol class="tl" data-nx-key="l-closed" data-nx-sub>${entries}</ol>`:""}${tail?`<p class="more" data-nx-key="cmore" data-nx-live>${tail}</p>`:""}`;
 }
-// The box at the talk's foot (rule 18): a comment on the selected item or on the stage as a whole,
-// up to 4,000 characters, with Leave, and the agent's time to read it.
-function box(talk,lang,state,code){
+// The box at the talk's foot (rule 18): a comment on the selected item, on one of its discrepancies
+// (SCR-115), or on the stage as a whole, up to 4,000 characters, with Leave, and the agent's time
+// to read it.
+export function talkBox(talk,lang,state={},code=false){
   const b=state.box||{},said=labels("The box",lang),item=talk.item||"";
+  const named=item&&b.discrepancy?label("The item",5,lang):item?words("Comment on",lang,{id:item}):said[0];
   const left=b.over?esc(codeMessage("text_too_long",lang,{limit:TALK_LIMIT.toLocaleString("en-US")})):Number.isInteger(b.left)?esc(codeMessage("Characters left",lang,{n:b.left})):"";
   // Before the code runs, Leave waits, disabled, and is unavailable as the empty box's is once
   // the code runs, so that the code's first drawing finds it as it draws it (rule 15).
   const off=!code?' aria-disabled="true" disabled data-nx-wait="talk"':b.over?" disabled":b.empty!==false||b.sending?' aria-disabled="true"':"";
-  return`<div class="box" data-nx-key="box" data-nx-sub><div class="bnote" data-nx-key="bnote">${message(b.note,lang,"box")}</div><label class="lab" for="talk-text" data-nx-key="lab">${esc(item?words("Comment on",lang,{id:item}):said[0])}</label><textarea class="ta" id="talk-text" name="text" rows="2" data-nx-key="ta:${esc(item)}" data-nx-focus="talk-text" aria-describedby="talk-left talk-hint"${code?"":' disabled data-nx-wait="talk"'}></textarea><p class="left" id="talk-left" data-nx-key="left" data-nx-live>${left}</p><div class="r2" data-nx-key="r2"><span class="mu" id="talk-hint">${esc(said[2])}</span><button class="btn pri" type="button" data-nx-act="leave" data-nx-focus="leave"${off}>${esc(b.sending?codeMessage("Sending",lang):said[1])}</button></div></div>`;
+  return`<div class="box" data-nx-key="box" data-nx-sub><div class="bnote" data-nx-key="bnote">${message(b.note,lang,"box")}</div><label class="lab" for="talk-text" data-nx-key="lab">${esc(named)}</label><textarea class="ta" id="talk-text" name="text" rows="2" data-nx-key="ta:${esc(item)}" data-nx-focus="talk-text" aria-describedby="talk-left talk-hint"${code?"":' disabled data-nx-wait="talk"'}></textarea><p class="left" id="talk-left" data-nx-key="left" data-nx-live>${left}</p><div class="r2" data-nx-key="r2"><span class="mu" id="talk-hint">${esc(said[2])}</span><button class="btn pri" type="button" data-nx-act="leave" data-nx-focus="leave"${off}>${esc(b.sending?codeMessage("Sending",lang):said[1])}</button></div></div>`;
 }
 
-// The talk (SCR-114): talk is API-152's answer, narrowed or not, that the view shows; data is the
-// stage's page data; state is what the view's code adds, and the server draws with none.
-export function drawTalk(talk,data,lang,state={},code=false){
-  const groups=talkGroups(talk),item=talk.item||null,seen=new Set();
+// The talk's body: its notes, the words of no talk, the turns' groups and the closed talk. level is
+// the groups' heading level: 3 in the talk, 4 under the item's "Talk on {id}" (SCR-115).
+export function talkBody(talk,lang,state={},code=false,level=3){
+  const groups=talkGroups(talk),item=talk.item||null,seen=new Set(),h=level===4?"h4":"h3";
   // An entry drawn twice, such as a kept answer that the closed talk lists too, opens only once.
   const one=(entry,key)=>{const copy=seen.has(entry.id);seen.add(entry.id);return drawEntry(entry,key,lang,state,code,copy);};
-  const group=(key,heading,list)=>list.length?`<h3 class="tg" id="t-${key}" data-nx-key="h-${key}">${esc(heading)}</h3><ol class="tl" data-nx-key="l-${key}" data-nx-sub>${list.map(entry=>one(entry,key)).join("")}</ol>`:"";
+  const group=(key,heading,list)=>list.length?`<${h} class="tg" id="t-${key}" data-nx-key="h-${key}">${esc(heading)}</${h}><ol class="tl" data-nx-key="l-${key}" data-nx-sub>${list.map(entry=>one(entry,key)).join("")}</ol>`:"";
   // No talk yet (SCR-114#empty): nothing open and nothing closed; closed talk alone shows its
   // fold under the counts of none.
   const open=groups.mine.length+groups.agent.length+groups.apart.length,closed=Number(state.closed?.total??talk.closed?.total)||state.closed?.entries?.length||0;
   const none=open||closed?"":`<div class="empty-t" data-nx-key="empty">${icon("i-talk")}<p>${esc(item?label("No talk",1,lang,{id:item}):label("No talk",0,lang))}</p></div>`;
-  const body=notes(state,lang)+none+group("mine",label("My turn",0,lang,{n:count(talk.mine?.total)}),groups.mine)+group("agent",label("The talk",3,lang,{n:count(agentCount(talk))}),groups.agent)+group("apart",label("The talk",4,lang,{n:count(talk.apart?.total)}),groups.apart)+closedTalk(talk,lang,state,code,seen);
-  return`<section class="talk" aria-labelledby="talk-h" data-nx-key="talk" data-nx-sub>${head(talk,data,lang,code)}<div class="body" data-nx-key="body" data-nx-sub>${body}</div>${box(talk,lang,state,code)}</section>`;
+  return notes(state,lang)+none+group("mine",label("My turn",0,lang,{n:count(talk.mine?.total)}),groups.mine)+group("agent",label("The talk",3,lang,{n:count(agentCount(talk))}),groups.agent)+group("apart",label("The talk",4,lang,{n:count(talk.apart?.total)}),groups.apart)+closedTalk(talk,lang,state,code,seen);
+}
+// The talk (SCR-114): talk is API-152's answer, narrowed or not, that the view shows; data is the
+// stage's page data; state is what the view's code adds, and the server draws with none. sw: an
+// item is selected, whose panel the switch in the head returns to (SCR-115).
+export function drawTalk(talk,data,lang,state={},code=false,{sw=false}={}){
+  return`<section class="talk" aria-labelledby="talk-h" data-nx-key="talk" data-nx-sub>${head(talk,data,lang,code,sw)}<div class="body" data-nx-key="body" data-nx-sub>${talkBody(talk,lang,state,code,3)}</div>${talkBox(talk,lang,state,code)}</section>`;
 }

@@ -3,7 +3,8 @@
  * both themes and languages; answers in place that stay until the page is loaded again
  * (choice 19); a try after a lost reply with the same write ID (rule 4); reading again, the
  * notices and the cards' order (rules 6 and 7); times in the browser's time zone (rule 2);
- * hit areas (rule 14); and 0.2's fragments on / (SPEC-154). Node 24 built-ins only; an owned
+ * hit areas (rule 14); and 0.2's fragments on / (SPEC-154), whose words open the top bar's
+ * search there (SCR-116). Node 24 built-ins only; an owned
  * headless Chrome over CDP. Requires NEXUS_QA_HOME=1, the opt-in view-server, NEXUS_CHROME
  * and NEXUS_QA_ORIGIN. Synthetic loopback fixture only. The page's writes reach the fixture
  * server, except those that a test answers itself, which the report lists as mocked; the
@@ -372,7 +373,9 @@ try{
   return{evidence:'fixture page, touch emulation',coarse,checked,screenshot:await shot('hit-areas-390')};
  });
 
- // SPEC-154: 0.2's fragments on / lead to their places.
+ // SPEC-154: 0.2's fragments on / lead to their places; the words of #q=, and an ID that the
+ // server does not find, open the top bar's search on the first page (SCR-116, TASK-277),
+ // under 1,024 pixels over the top bar.
  await test('fragments-on-slash-lead-to-their-places',async()=>{
   await setting({width:390});const seen=[];
   const go=async(hash,expected)=>{
@@ -381,9 +384,16 @@ try{
    while(Date.now()<stop){at=await evaluate(`location.pathname+location.hash`).catch(()=>null);if(at===expected&&await evaluate(`document.readyState==='complete'`).catch(()=>false))break;await sleep(50);}
    seen.push({hash,at});assert(at===expected,`${hash} leads to ${at}, not ${expected}`);
   };
-  await go('#q=retry%20payment','/hub#q=retry%20payment');
+  // The search, opened with its words, once its answer came: nothing of the fixture matches them.
+  const searched=async words=>{
+   const nothing=label('The search',4,'en',{q:words});
+   await waitFor(`document.querySelector('.tb .spanel .pad p')?.textContent===${JSON.stringify(nothing)}`);
+   const field=await evaluate(`(()=>{const t=document.querySelector('.tb'),i=t.querySelector('input[name="q"]');return{words:i.value,open:t.dataset.nxSearch||null,focused:document.activeElement===i,panel:!t.querySelector('.spanel').hidden};})()`);
+   seen.push({words,field});assert(field.words===words&&field.open==='open'&&field.focused&&field.panel,'The search opens with the words: '+JSON.stringify(field));
+  };
+  await go('#q=retry%20payment','/#q=retry%20payment');await searched('retry payment');
   await go('#p='+project+'&id=REQ-107',stagePath(project,'sample','02-prd')+'#item=REQ-107');
-  await go('#p='+project+'&id=TBL-999','/hub#q=TBL-999');
+  await go('#p='+project+'&id=TBL-999','/#q=TBL-999');await searched('TBL-999');
   await go('#p='+project+'&s=07-sitemap',stagePath(project,'sample','07-sitemap'));
   await go('#talk=nc_1','/#talk=nc_1');
   const current=await serverGet('/api/home'),card=current.data.projects.find(c=>c.name===project),part=card.parts[0];

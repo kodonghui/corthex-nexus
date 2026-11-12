@@ -2,9 +2,12 @@
 // grouping and the next 200 items (API-158); on a pictured stage the picture or the list, the
 // picture's tools and a DDD board's steps (./board.js), and a newer picture (API-111); an
 // address's #view=, #step=, #filter=left and #item=; the stage record, where the user passes
-// the checkpoint or withdraws one passed in NEXUS (API-128, API-129); and the talk in the side
+// the checkpoint or withdraws one passed in NEXUS (API-128, API-129); the talk in the side
 // (./talk.js), with the address's talk=, the phone's tabs and the panel from 1,024 to 1,279
-// pixels. It draws with the server's own functions (../src/draw/page.js): the stage's middle and
+// pixels; the selected item's panel there (./item.js, SCR-115), with the switch back to the
+// talk and the phone's Item tab; and the top bar's search (./search.js, SCR-116), whose words
+// the address holds as q=. It draws with the server's own functions (../src/draw/page.js): the
+// stage's middle and
 // the side are compared element by element (./reconcile.js), so that the focus, the words and
 // the messages stay where they are, and the list of stages, the bars and the tabs are replaced
 // when their drawing changes.
@@ -13,6 +16,8 @@ import {FILTERS,GROUPS,WORDS_LIMIT,PICTURE_STAGES} from "../src/draw/stage.js";
 import {STEPS} from "../src/layout.js";
 import {createBoard} from "./board.js";
 import {createTalk} from "./talk.js";
+import {createItem} from "./item.js";
+import {createSearch} from "./search.js";
 import {day} from "../src/draw/html.js";
 import {codeMessage} from "../src/draw/words.js";
 import {ApiClient,Drafts,LatestReads,PendingWrites,characters} from "./state.js";
@@ -23,6 +28,7 @@ const CONNECTION=Object.freeze({network:"No connection",timeout:"No answer in ti
 // After these the record reads again (SCR-112#error and #stale).
 const GONE=Object.freeze(["part_not_found","space_not_found","checkpoint_not_found","project_not_found"]);
 const SEARCH_WAIT=250,MAX_PAGES=25;
+const TRACE=/^[A-Z][A-Z0-9]*-[0-9]{1,6}$/,TALK_KEYS=Object.freeze(["talk","comment","proposal"]);
 // The parts that the code replaces when their drawing changes; it compares the others.
 const REPLACED=Object.freeze(["rail","bars","tabs"]);
 // A fragment without a value, such as the phone's #stages and #stage or the panel's #talk, which
@@ -41,10 +47,18 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   const pictured=PICTURE_STAGES.includes(stage);
   // mode, step, newer and editor are a pictured stage's: the picture or the list, a DDD board's
   // step, a newer picture on the server, and whether the editor loads or failed.
-  const view={code:true,query:{filter:first.items.filter,group:first.items.group,q:first.items.q??""},entries:null,selected:null,more:null,updating:false,notice:null,pushed:null,signIn:false,record:false,recordState:{sending:null,note:null,passNote:null,left:null,over:false},mode:"picture",step:undefined,newer:null,editor:null};
+  // item is the selected item's panel (./item.js); side is what the side shows of it from 1,024
+  // pixels, the item or, by its switch, the stage's whole talk; shownSide is what the side shows
+  // when it draws, under 1,024 pixels by the tab in front.
+  const view={code:true,query:{filter:first.items.filter,group:first.items.group,q:first.items.q??""},entries:null,selected:null,more:null,updating:false,notice:null,pushed:null,signIn:false,record:false,recordState:{sending:null,note:null,passNote:null,left:null,over:false},mode:"picture",step:undefined,newer:null,editor:null,item:null,side:"item",shownSide:"item"};
   // What the list of stages, the bars and the tabs show, which the code replaces when it changes.
   const shown=new Map(Object.entries(drawParts(payload)).filter(([name])=>REPLACED.includes(name)));
-  let reading=0,searchTimer=0,opener="record",before=null,picked=null,applied=null,talk=null,runs=0;
+  // tabBefore is the phone's tab in front before the item's took its place, panelBy says that
+  // the item opened the panel from 1,024 to 1,279 pixels, and pictureWhy why the list, not the
+  // picture, shows the selected item.
+  let reading=0,searchTimer=0,opener="record",before=null,picked=null,applied=null,talk=null,runs=0,itemPanel=null,search=null,tabBefore=null,panelBy=null,pictureWhy=null;
+  // Under 1,024 pixels the phone's tabs, and from 1,024 to 1,279 the side's panel (rule 16).
+  const small=matchMedia("(max-width:1023.98px)"),mid=matchMedia("(min-width:1024px) and (max-width:1279.98px)");
   // The picture's board (SCR-112), which follows the frame of each drawing.
   const board=pictured?createBoard(parts.stage,{state:()=>({payload,view}),lang,pick,editor:(state,quiet)=>{if(view.editor===state)return;view.editor=state;if(!quiet)render(["stage"]);}}):null;
 
@@ -62,7 +76,8 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
 
   function render(names=["stage","side","rail","bars","tabs"]){
     const active=document.activeElement,focus=active?.closest?.("[data-nx-focus]")?.dataset.nxFocus??null,inSide=Boolean(parts.side?.contains(active));
-    talk?.sync();
+    view.shownSide=small.matches?(ws?.dataset.nxTab==="item"?"item":"talk"):view.side;
+    talk?.sync();itemPanel?.sync();
     const drawn=drawParts(payload,view);
     for(const name of names){
       const element=parts[name];if(!element)continue;
@@ -73,11 +88,14 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     if(names.includes("stage"))board?.sync();
     // A control that the drawing replaced: the same one again (stage 08's rule 3); a talk's
     // answer that left with its entry's answers, the answer in place, else the entry's press;
-    // an entry that left the talk, such as one marked answered, the talk's heading.
+    // an entry that left the talk, such as one marked answered, from its answers or its press,
+    // the heading of the talk that held it, "Talk on {id}" in the item's panel; any other control
+    // of the side, the item's or the talk's heading.
     if(focus&&!document.body.contains(active)){
-      const find=key=>document.querySelector(`[data-nx-focus="${CSS.escape(key)}"]`),entry=/^(n[cpe]_[0-9a-z]{12}):/.exec(focus)?.[1];
+      const find=key=>document.querySelector(`[data-nx-focus="${CSS.escape(key)}"]`),entry=/^(?:talk:)?(n[cpe]_[0-9a-z]{12})(?::|$)/.exec(focus)?.[1];
       const usable=element=>element&&!element.disabled&&element.getClientRects().length>0;
-      [find(focus),entry&&find(entry+":after"),entry&&find("talk:"+entry),inSide&&find("talk-h")].find(usable)?.focus({preventScroll:true});
+      const heads=!inSide?[]:entry?["itk-h","talk-h","item-h"]:["item-h","talk-h"];
+      [find(focus),entry&&find(entry+":after"),entry&&find("talk:"+entry),...heads.map(find)].find(usable)?.focus({preventScroll:true});
     }
     // The words that the browser keeps, in the talk's boxes that the drawing made new.
     if(names.includes("side")&&talk?.fill())render(["side"]);
@@ -183,13 +201,17 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   }
 
   // An item named by the address (#item=, or #view=list&item= on a pictured stage): its row
-  // selected, after as many pages as it takes to reach it. SCR-115 opens beside it in TASK-277.
+  // selected, after as many pages as it takes to reach it, with SCR-115 beside it. "narrowed"
+  // where the list as the user narrowed it does not hold the row (SCR-115's revision).
   const rowOf=id=>parts.stage.querySelector(`[data-nx-item="${CSS.escape(id)}"]`);
   async function select(id){
-    if(typeof id!=="string"||!id||id.length>200)return;
+    if(typeof id!=="string"||!id||id.length>200)return null;
     view.selected=id;render(["stage"]);
     for(let page=0;!rowOf(id)&&page<MAX_PAGES;page++)if(!await loadMore())break;
-    rowOf(id)?.scrollIntoView({block:"nearest"});
+    const row=rowOf(id);
+    if(row){row.scrollIntoView({block:"nearest"});return null;}
+    const query=asked();
+    return query.filter!=="all"||query.q?"narrowed":null;
   }
   // The address after #; a plain fragment leaves the one that the page last followed.
   const hash=()=>new URLSearchParams((plain(location.hash)?applied||"":location.hash).replace(/^#/,""));
@@ -203,22 +225,58 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   // An item on a pictured stage (SPEC-209, SCR-112's actions): in the picture, in sight and
   // outlined; on a DDD board's step that does not hold it, on the whole board. Where the picture
   // is not current or not drawn, or does not hold the item, its row in the list instead, at
-  // #view=list&item=. An item that the user picked in the picture stays there.
+  // #view=list&item=. An item that the user picked in the picture stays there. It gives back
+  // why the stage does not show the item where the user looks, for its panel (rule 24): a
+  // picture not current or not drawn, or a list narrowed past its row.
   async function selectItem(id,stay=false){
-    if(typeof id!=="string"||!id||id.length>200)return;
+    if(typeof id!=="string"||!id||id.length>200)return null;
     if(pictured&&view.mode==="picture"){
-      const drawn=payload.picture?.picture,mine=picked===id;picked=null;
+      const drawn=payload.picture?.picture,mine=picked===id;picked=null;pictureWhy=null;
       if(drawn&&(mine||stay||!drawn.not_current)&&board.shown()){
         let found=board.select(id);
         if(found==="elsewhere"){const params=hash();params.delete("step");setHash(params);view.step=undefined;render(["stage"]);found=board.select(id);}
-        if(found==="found"||stay){view.selected=id;render(["stage"]);return;}
+        if(found==="found"||stay){view.selected=id;render(["stage"]);return null;}
       }
       // Picture, which the user pressed, stays the view, with the item selected and no outline.
-      if(stay){view.selected=id;board?.select(null);render(["stage"]);return;}
+      if(stay){view.selected=id;board?.select(null);render(["stage"]);return null;}
+      pictureWhy=!drawn?"none":drawn.not_current?"stale":null;
       const params=hash();params.set("view","list");params.delete("step");setHash(params);
       view.mode="list";board.select(null);render(["stage"]);
-    }
-    await select(id);
+    }else if(!pictured||view.mode!=="list")pictureWhy=null;
+    return await select(id)||pictureWhy;
+  }
+  // The item's panel (SCR-115): beside the stage from 1,024 pixels, from 1,024 to 1,279 as the
+  // side's panel; under 1,024 the Item tab in front, unless an entry of the talk selected it,
+  // whose Talk tab stays in front (SCR-114's layout). The same item again keeps its panel.
+  function showItem(id,fromTalk){
+    if(!itemPanel.open(id))return;
+    view.side="item";
+    if(!ws)return;
+    if(small.matches){if(!fromTalk&&ws.dataset.nxTab!=="item"){tabBefore=ws.dataset.nxTab||"stage";ws.dataset.nxTab="item";}}
+    else if(mid.matches&&!ws.dataset.nxOpen){ws.dataset.nxOpen="talk";panelBy="item";}
+  }
+  // The address without an item: the panel closes, the phone's tab in front before it returns,
+  // and the side shows the stage's talk.
+  function closeItemView(){
+    if(!view.item)return;
+    itemPanel.close();view.side="item";pictureWhy=null;
+    if(ws?.dataset.nxTab==="item")ws.dataset.nxTab=tabBefore||"stage";
+    tabBefore=null;
+  }
+  // Close or Escape on the item (SCR-115's actions): the address leaves item= and talk=, as "All
+  // talk of the stage" does; the panel that the item opened from 1,024 to 1,279 pixels folds, and
+  // without an entry to return to, the focus goes back to the item's row or the picture.
+  function closeItem(){
+    const id=view.item?.id,entry=talk?.opened();
+    if(!id)return;
+    if(ws&&panelBy==="item"&&ws.dataset.nxOpen==="talk")delete ws.dataset.nxOpen;
+    panelBy=null;
+    Promise.resolve(talk?.showWhole()).then(()=>{if(!entry)(rowOf(id)||parts.stage.querySelector(".cv"))?.focus({preventScroll:true});}).catch(()=>{});
+  }
+  // A pressed item that no stage holds now (SCR-115#gone): nothing stays selected.
+  function itemGone(id){
+    if(view.selected!==id)return;
+    view.selected=null;board?.select(null);render(["stage"]);
   }
   // A pick in the picture: its item's address, as a row's link gives it.
   function pick(id){
@@ -255,16 +313,30 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     const now=location.hash;if(plain(now)||now===applied)return;applied=now;
     const run=++runs;
     const params=hash(),shown=params.get("view"),filter=params.get("filter"),id=params.get("item"),key=params.get("step");
+    const valid=Boolean(id)&&id.length<=30&&TRACE.test(id),fromTalk=TALK_KEYS.some(name=>params.get(name));
     if(pictured){
       const mode=shown==="list"||!shown&&params.has("filter")?"list":"picture",step=stage==="01-domain"&&STEPS.includes(key)?key:undefined;
       if(mode!==view.mode||step!==view.step){view.mode=mode;view.step=step;render(["stage"]);}
     }
     if(FILTERS.includes(filter)&&filter!==view.query.filter&&(!pictured||view.mode==="list")){view.query={...view.query,filter};await readQuery();}
-    if(id)await selectItem(id,stay);
-    else if(view.selected){view.selected=null;board?.select(null);render(["stage"]);}
+    // The item: its panel at once (SCR-115#loading), then its place in the stage and why the stage
+    // does not show it there; an ID that no stage can hold is gone at once.
+    if(id&&id.length<=200){
+      showItem(id,fromTalk);render(["side","tabs"]);
+      if(valid){
+        const why=await selectItem(id,stay);
+        if(view.item?.state==="gone")itemGone(id);
+        else if(run===runs)itemPanel.setWhy(id,why);
+      }else itemGone(view.selected);
+    }else{
+      closeItemView();
+      if(view.selected){view.selected=null;board?.select(null);}
+      render(["stage","side","tabs"]);
+    }
     // Then the talk: narrowed to the item, with the entry that talk= names open (SCR-114),
-    // unless a newer address came meanwhile.
+    // unless a newer address came meanwhile; the words of q= in the top bar's search.
     if(run===runs)await talk?.follow(params);
+    if(run===runs&&params.get("q")&&search&&search.state().q!==params.get("q").trim())search.openWith(params.get("q"));
   }
   // A filter that the user picks takes the place of the address's (SCR-113's data).
   function dropHashFilter(){
@@ -275,12 +347,13 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
 
   // The stage record: in the side, in the talk's place; a panel from 1,024 to 1,279 pixels and a
   // sheet under 1,024, which the page behind waits for (rule 10's focus and Escape).
-  const small=matchMedia("(max-width:1023.98px)");
   function holdPage(){
     const hold=view.record&&small.matches;
     for(const element of [document.querySelector(".tb"),parts.bars,document.querySelector(".rail"),document.querySelector(".tabs"),parts.stage])element?.toggleAttribute("inert",hold);
   }
-  small.addEventListener?.("change",holdPage);
+  // Crossing 1,024 pixels, the side shows what its new layout shows: the tab in front, or the
+  // item and its switch.
+  small.addEventListener?.("change",()=>{holdPage();if(view.item)talk?.renarrow();render(["side","tabs"]);});
   function counter(){
     const box=textarea(),n=characters(box?.value||"");
     view.recordState.left=n>=WORDS_LIMIT*.9?WORDS_LIMIT-n:null;view.recordState.over=n>WORDS_LIMIT;
@@ -351,12 +424,36 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   document.addEventListener("click",event=>{
     // The phone's tabs (SPEC-155): the stage or the talk, without a step of the history.
     const tab=event.target.closest?.(".tab[data-nx-tab]");
-    if(tab&&ws&&parts.tabs?.contains(tab)){event.preventDefault();ws.dataset.nxTab=tab.dataset.nxTab;return;}
+    if(tab&&ws&&parts.tabs?.contains(tab)){event.preventDefault();ws.dataset.nxTab=tab.dataset.nxTab;render(["side","tabs"]);return;}
     const control=event.target.closest?.("[data-nx-act]"),inside=control&&[parts.stage,parts.side,parts.bars].some(element=>element?.contains(control));
     if(!control&&view.record&&event.target.closest?.(".scrim")){event.preventDefault();closeRecord(null);return;}
     if(!inside||control.disabled||control.getAttribute("aria-disabled")==="true")return;
     const act=control.dataset.nxAct;
+    // "All talk of the stage" from the item's panel on the phone: the talk's tab, in front.
+    if(act==="whole"&&ws?.dataset.nxTab==="item"){ws.dataset.nxTab="talk";tabBefore=null;}
     if(talk?.click(act,control,event))return;
+    // The item's panel (SCR-115's actions).
+    if(act==="item-close"){closeItem();return;}
+    if(act==="side"){
+      const side=control.dataset.nxSide;if(!["talk","item"].includes(side)||side===view.side)return;
+      view.side=side;render(["side"]);talk?.renarrow();return;
+    }
+    if(act==="item-retry"){itemPanel.read();return;}
+    if(act==="item-search"){search?.openWith(view.item?.id);return;}
+    if(act==="discrepancy"){talk?.target(control.dataset.nxDiscrepancy);return;}
+    if(act==="trace-more"){
+      const key=control.dataset.nxTrace,at=control.dataset.nxStage;
+      itemPanel.unfold(key,at);render(["side"]);
+      parts.side.querySelector(`[data-nx-focus="${CSS.escape(`t:${key}:${at}:6`)}"]`)?.focus();
+      return;
+    }
+    if(act==="item-show-all"){
+      // Show all: the list's filter and search clear, and the row is selected (SCR-113).
+      const find=parts.stage.querySelector('input[name="q"]'),id=view.item?.id;if(find)find.value="";
+      view.query={...view.query,filter:"all",q:""};dropHashFilter();
+      readQuery().then(async()=>{if(id&&view.item?.id===id)itemPanel.setWhy(id,await select(id)||pictureWhy);}).catch(()=>{});
+      return;
+    }
     // Talk ({n}) from 1,024 to 1,279 pixels: the panel, with the focus on its heading.
     if(act==="talk"){
       event.preventDefault();
@@ -410,11 +507,15 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   });
   parts.stage.addEventListener("scroll",nearEnd,true);
   // Escape closes the record, else folds the talk's opened entry where the focus is in the talk
-  // (SCR-114's actions), else folds the talk that Talk ({n}) opened (SCR-111's actions).
+  // (SCR-114's actions), else closes the selected item where the focus is not in a field
+  // (SCR-115's actions), else folds the talk that Talk ({n}) opened (SCR-111's actions). The
+  // search's Escape is its own.
+  const typing=target=>Boolean(target?.closest?.("input,textarea,select,[contenteditable]"));
   document.addEventListener("keydown",event=>{
-    if(event.key!=="Escape")return;
+    if(event.key!=="Escape"||event.defaultPrevented)return;
     if(view.record){event.preventDefault();closeRecord();}
     else if(parts.side.contains(document.activeElement)&&talk?.escape())event.preventDefault();
+    else if(view.item&&!typing(event.target)){event.preventDefault();closeItem();}
     else if(ws?.dataset.nxOpen==="talk"){event.preventDefault();delete ws.dataset.nxOpen;document.querySelector('[data-nx-focus="talk"]')?.focus();}
   });
   // The talk reads again when the page comes back into view (SPEC-150).
@@ -434,7 +535,13 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   }
   // The talk (SCR-114), and the tab or the panel that shows it: the talk's, for an address that
   // names an entry or a fragment #talk, which the stylesheet followed until now; else the stage's.
-  talk=createTalk({payload,view,api,drafts,lang,base,project,part:partName,stage,place,ws,side:parts.side,render,hash,applyAddress,refresh});
+  talk=createTalk({payload,view,api,drafts,lang,base,project,part:partName,stage,place,ws,side:parts.side,render,hash,applyAddress,refresh,
+    // From 1,024 pixels the switch shows the stage's whole talk with the item still selected.
+    whole:()=>!small.matches&&view.side==="talk"&&Boolean(view.item),selected:()=>view.item?.id??null,
+    onDiscrepancyGone:()=>itemPanel.read()});
+  itemPanel=createItem({payload,view,api,base,project,part:partName,stage,entries,render,refreshPage:()=>refresh().catch(()=>{}),onGone:itemGone});
+  // The top bar's search (SCR-116): its words in the address as q=, in the place of this one.
+  search=createSearch({lang,api,address:q=>{const params=hash();if(q)params.set("q",q);else params.delete("q");setHash(params);}});
   if(ws){
     const params=hash(),toTalk=location.hash==="#talk"||["talk","comment","proposal"].some(key=>params.get(key));
     ws.dataset.nxTab=toTalk?"talk":"stage";
@@ -442,5 +549,5 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   }
   render();
   applyAddress().then(nearEnd).catch(()=>{});
-  return{render,readQuery,readAgain,readPicture,loadMore,select,selectItem,openRecord,closeRecord,pass,withdraw,view,board,talk};
+  return{render,readQuery,readAgain,readPicture,loadMore,select,selectItem,openRecord,closeRecord,pass,withdraw,view,board,talk,item:itemPanel,search};
 }

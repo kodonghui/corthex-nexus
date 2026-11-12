@@ -656,8 +656,8 @@ export const redesign={
     "{id} 항목은 이제 이 단계에 없습니다. · 그림이 최신이 아니어서 목록에서 이 항목을 보여 줍니다. · 그림을 아직 그리지 않아 목록에서 이 항목을 보여 줍니다. · 좁혀 놓은 목록에는 이 항목이 없습니다."
   ],
   "The item": [
-    "Context: {id} {name} · Source: {path}, line {n} · Comes from · Leads to · Discrepancies ({n}) · Comment on this discrepancy · Loading {id}…",
-    "컨텍스트: {id} {name} · 원문: {path}, {n}번째 줄 · 나온 곳 · 이어지는 곳 · 어긋남 ({n}) · 이 어긋남에 의견 남기기 · {id} 불러오는 중…"
+    "Context: {id} {name} · Source: {path}, line {n} · Comes from · Leads to · Discrepancies ({n}) · Comment on this discrepancy · Loading {id}… · Source: {path}",
+    "컨텍스트: {id} {name} · 원문: {path}, {n}번째 줄 · 나온 곳 · 이어지는 곳 · 어긋남 ({n}) · 이 어긋남에 의견 남기기 · {id} 불러오는 중… · 원문: {path}"
   ],
   "The search": [
     "Searching… · {n} matches for “{q}” · The first 20. Add a word to narrow it. · Type at least two characters. · Nothing matches “{q}”. · Look in the full checks",
