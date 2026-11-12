@@ -5,7 +5,7 @@ import {handle}from"../src/app.js";
 import {createViews}from"../src/views.js";
 import {fakeD1}from"./fake-d1.js";
 import {testAccess}from"./access-fixture.js";
-import {viewSnapshot}from"./view-fixtures.js";
+import {hubSnapshot,viewSnapshot}from"./view-fixtures.js";
 const access=await testAccess(),env={...access.env,DB:fakeD1(),NEXUS_LANGUAGE:"en"},template=readFileSync(new URL("../src/hub.html",import.meta.url),"utf8"),folder=new URL("../src/view-code/",import.meta.url),manifestFile=new URL("sizes.json",folder),code={};
 let stamp=0,views;function reloadBuild(){const next=statSync(manifestFile).mtimeMs;if(next===stamp)return;const manifest=JSON.parse(readFileSync(manifestFile));for(const f of manifest.files)code[f.name]={type:f.type,body:readFileSync(new URL(f.path,folder))};views=createViews(code,manifest.entries);stamp=next;}reloadBuild();
 let sequence=0;const writes=[];
@@ -33,6 +33,10 @@ if(process.env.NEXUS_QA_HUB==="1"){
  snapshot.pictures.push({...snapshot.pictures.find(p=>p.stage==="05-erd"),part:""});
  await call("POST","/api/snapshots",snapshot,"agent");
 }
+// The hub page's views (TASK-281, TC-1766): a project with items to find, trace and list.
+// Only the hub suite opts in; it builds the device's file from the same synthetic snapshot.
+const hubViews={};
+if(process.env.NEXUS_QA_HUB_VIEWS==="1"){await call("POST","/api/snapshots",hubSnapshot("qa-hub"),"agent");hubViews.project="qa-hub";}
 const comment=await call("POST","/api/spaces/qa-views/comments",{part:"sample",stage:"01-domain",item:"CTX-001",text:"Should retry be a separate action?"});
 await call("POST",`/api/spaces/qa-views/comments/${comment.id}/replies`,{text:"The source can describe a retry command."},"agent");
 const proposal=await call("POST","/api/spaces/qa-views/proposals",{part:"sample",stage:"01-domain",items:["CTX-001"],reason:"Make the retry explicit",change:"Add a retry command to Ordering.",source_text:"| Buyer | Orders | Retry payment | Order | Payment retried |",comment:comment.id},"agent");
@@ -176,7 +180,7 @@ if(process.env.NEXUS_QA_STAGE==="1"){
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{})}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
  const pushAgain=home.pushAgain||stageQa.pushAgain;
  if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&pushAgain){const pushed=await pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
  const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const bytes=Buffer.concat(chunks);

@@ -49,6 +49,7 @@ def main():
     clean.pop("NEXUS_QA_PAGES", None)
     clean.pop("NEXUS_QA_HOME", None)
     clean.pop("NEXUS_QA_STAGE", None)
+    clean.pop("NEXUS_QA_HUB_VIEWS", None)
     clean["NEXUS_QA_PYTHON"] = sys.executable
     for script, arguments in [("browser-regression.mjs", ()), ("discussion-regression.mjs", ()),
                               ("discussion-regression.mjs", ("--dismiss",)), ("error-regression.mjs", ()),
@@ -77,7 +78,13 @@ def main():
     # A stage in the workspace (TASK-274): the document stage's list, addresses and stage record.
     stage = clean.copy()
     stage["NEXUS_QA_STAGE"] = "1"
-    return run_suite(executable, stage, "stage-regression.mjs")
+    result = run_suite(executable, stage, "stage-regression.mjs")
+    if result:
+        return result
+    # The hub page's views at /hub and in the file that the pinned hub builds (TASK-281), with its own project.
+    hub_views = clean.copy()
+    hub_views["NEXUS_QA_HUB_VIEWS"] = "1"
+    return run_suite(executable, hub_views, "hub-regression.mjs")
 
 
 if __name__ == "__main__":

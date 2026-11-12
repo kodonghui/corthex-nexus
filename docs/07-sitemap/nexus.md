@@ -269,6 +269,8 @@ On 2026-11-11, for the design revision, which changes nexus.yaml, this file, its
 - Mermaid 11.4.1 draws the board in Chromium, in English and Korean, with 18 boxes, 16 arrows and the removed screen in a box of its own, and all 44 drawings of the flows.
 - The repository's checks pass: `python -m unittest discover -s tests` with the pinned hub (13 tests), `node --test nexus/test/*.test.js` (337 tests, on Node 22, since the container has no Node 24), the Worker's dry-run build and `git diff --check`. Every link of the changed documents resolves, and each changed line has the same IDs, code and links as its translation, apart from two lines that differed before this stage.
 
+Since TASK-281 of 2026-11-12, `tests/test_sitemap.py` runs these checks as the repository's test, reading nexus.yaml with the pinned hub's own code: the second, the third and the fourth as written, and the first on the steps of the 22 flows in both languages, while whether each step that shows something names its screen stays a check by hand. It also takes this repository's snapshot with the pinned hub and runs NEXUS's cross-check on it (TC-1768), and `nexus/test/hub-regression.mjs` opens the hub page's three views at `/hub` and in the file that the hub builds on a device (TC-1766).
+
 ## For the checkpoint
 
 The design revision of 2026-11-11 passed its checkpoint on 2026-11-12, in the maintainer's own words ([the review's map](../reviews/2026-11-11-design-review.md)). It builds no screen and changes none: the YAML, this file and the steps of eight flows change, and the pages answer as before. The first thing to look at is the [board](#board). The revision changes this stage as follows, one line for each thing that changes for the maintainer:
