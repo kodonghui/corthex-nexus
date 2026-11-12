@@ -1396,7 +1396,10 @@ The other rows of 0.2, of the redesign and of phase ② that the revision change
 | SPEC-170 | Resolve an edit conflict | TC-1475, TC-1476 |
 | SPEC-171 | Send an edit | TC-1481 to TC-1484 |
 | SPEC-172 | Show a sent edit while it waits | TC-1474 |
+| SPEC-142 | Hold a workshop on a work board | TC-1485 to TC-1488 |
 | SPEC-183 | Reflect a workshop's board | TC-1489 to TC-1491 |
+
+That makes 20 rows that passed and that the revision changed: the four with a clause of their own, the 15 of this table, and SPEC-119, whose wording the revision corrected without changing what it specifies, so that it gets no case.
 
 ### Server responses of the revision
 
