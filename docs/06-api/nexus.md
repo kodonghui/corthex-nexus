@@ -1616,7 +1616,7 @@ REQ-124 server processing runs from complete body receipt to response handling c
 
 The maintainer conditionally approved NEXUS merges, production migration/routing and release tags after REQ-149/124 pass, all 710 cases have verdicts with zero Must failures, migration/recovery rehearsals pass, core integrates after C1 release/PR C, and required checks plus Code/Security reviews pass. The first repository snapshot still needs REQ-107 confirmation. Preserve the old Worker/D1 for 14 days after switching and ask before deletion. If a condition remains, ask once with its numbers and release after the answer.
 
-D19, open since the design revision of 2026-11-11, asks what a release needs from QA from the next release on. Until it is decided, this decision stands as written.
+D19, which the design revision of 2026-11-11 raised, says what a release needs from QA from the next release on, and the maintainer decided it on 2026-11-12 as recommended (stage 02's [Decisions in force](../02-prd/nexus.md#decisions-in-force)). This decision stays as written, as the record of what NEXUS 0.2.0 was released under.
 
 ## First picture decision, 2026-11-04
 

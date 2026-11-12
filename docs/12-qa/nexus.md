@@ -763,7 +763,7 @@ From the design revision of 2026-11-11, the walk of the redesign's and the revis
 
 The maintainer's 2026-11-04 conditional approval supersedes the original final release question: all specified gates must pass before main merges, production transition and tags. Finish the feasible active tasks and final-tree checks, retain incomplete flow/response/platform scopes and report remaining issues. If any release condition remains unmet, ask once with its numbers and wait before release. First repository upload still requires REQ-107 confirmation; local tests do not provide it.
 
-From the design revision of 2026-11-11, what a later release needs from QA is D19 of stage 02, which is open: until the maintainer decides, the work follows its recommendation, which [The walk in a real browser and the release decision](#the-walk-in-a-real-browser-and-the-release-decision) writes into cases, and no release is made under it without the maintainer's own go.
+From the design revision of 2026-11-11, what a later release needs from QA is D19 of stage 02, which the maintainer decided on 2026-11-12 as recommended: [The walk in a real browser and the release decision](#the-walk-in-a-real-browser-and-the-release-decision) writes it into cases, and no release is made under it without the maintainer's own go.
 
 ## Coverage
 
@@ -1248,7 +1248,7 @@ TC-1397 to TC-1407 are TASK-274's cases. Their browser cases ran the workspace o
 
 An independent review of the whole NEXUS design found 41 points on 2026-11-11, and the maintainer asked the same day to fix the design from them ([the review's map](../reviews/2026-11-11-design-review.md)). Stages 01 to 10 are revised, and this section plans the cases that judge the revision's rows: 387 cases, TC-1408 to TC-1794, written before any task of the revision starts, from the flows, the acceptance criteria, the contract's planned forms and the screens' states, and not from code. None is run: nothing of the revision is built, and no task starts before the revision's checkpoint passes in the maintainer's own words. The cases above this section keep their rows and results as they are.
 
-No case measures stage 02's [success measures](../02-prd/nexus.md#success-measures). The revision had planned a two-week trial for them, and on 2026-11-12 the maintainer decided not to run it (D20): the measures stay as what NEXUS is for, the rows of the loop are judged by their own cases here, and one case shows the loop once in the maintainer's own sessions (TC-1789). The decisions D16 to D19 are open. A case whose row follows one of them is run only if the decision goes as recommended, and is marked removed, with its ID kept, if it does not.
+No case measures stage 02's [success measures](../02-prd/nexus.md#success-measures). The revision had planned a two-week trial for them, and on 2026-11-12 the maintainer decided not to run it (D20): the measures stay as what NEXUS is for, the rows of the loop are judged by their own cases here, and one case shows the loop once in the maintainer's own sessions (TC-1789). The decisions D16 to D18 are open, and D19 was decided on 2026-11-12 as recommended. A case whose row follows an open one is run only if the decision goes as recommended, and is marked removed, with its ID kept, if it does not.
 
 ### Counts of the revision
 
@@ -1263,10 +1263,10 @@ No case measures stage 02's [success measures](../02-prd/nexus.md#success-measur
 | Addresses, widths and the look | 10 | TC-1764 to TC-1773 | 1 under D17 |
 | By hand or with a second session | 7 | TC-1774 to TC-1780 | 2 under D17 |
 | Migrations | 4 | TC-1781 to TC-1784 | none |
-| The walk, the loop and the release decision | 5 | TC-1785 to TC-1789 | 3 under D19 |
+| The walk, the loop and the release decision | 5 | TC-1785 to TC-1789 | none |
 | The evidence that the review asked for | 5 | TC-1790 to TC-1794 | none |
 
-Of the 387 cases, 271 wait for no decision; 93 follow an open decision, 13 D16, 74 D17, 3 D18 and 3 D19; 5, among the screens' states, hold one part under D17 beside what is planned; and 18 are phase ②'s, with no task yet. The numbers are counted by the script that built this section from the stage sources, and it fails when a criterion, a planned example or a state row has no case.
+Of the 387 cases, 274 wait for no decision; 90 follow an open decision, 13 D16, 74 D17 and 3 D18; 5, among the screens' states, hold one part under D17 beside what is planned; and 18 are phase ②'s, with no task yet. The numbers are counted by the script that built this section from the stage sources, and it fails when a criterion, a planned example or a state row has no case.
 
 ### How the revision's cases are read
 
@@ -1769,7 +1769,7 @@ The statements that [stage 05](../05-erd/nexus.md#the-revisions-migrations) plan
 
 ### The walk in a real browser and the release decision
 
-D19 of [stage 02](../02-prd/nexus.md#open-decisions) asks what a release needs from QA, from the next release on. It is open, and it is asked with this stage. Its recommendation is what these cases write down: every case of the release run and judged, with no failure of a Must case and no partial pass unless the maintainer passes that case by name; every screen that the release adds or changes walked in a real browser, with the testers' impressions shown to the maintainer apart from the bugs; and the go or no-go in the stage record, in the maintainer's own words, before the tag. The other choices are to keep the decision of 2026-11-04 for later releases, under which partial passes keep riding through, or to allow no partial pass and no exception, under which one condition that cannot be reproduced holds a release. If the maintainer decides otherwise, TC-1786 to TC-1788 change with the answer.
+D19 of [stage 02](../02-prd/nexus.md#open-decisions) says what a release needs from QA, from the next release on. The maintainer decided it on 2026-11-12, by choosing the recommendation on the decision card that asked it in the project's thread, and these cases write it down: every case of the release run and judged, with no failure of a Must case and no partial pass unless the maintainer passes that case by name; every screen that the release adds or changes walked in a real browser, with the testers' impressions shown to the maintainer apart from the bugs; and the go or no-go in the stage record, in the maintainer's own words, before the tag. The choices that were not taken are to keep the decision of 2026-11-04 for later releases, under which partial passes keep riding through, and to allow no partial pass and no exception, under which one condition that cannot be reproduced holds a release.
 
 A walk is made by browser agents in a real browser, ego lite or Aside where the session has one and otherwise a named browser of the host, on a synthetic project that the walk's brief names (SPEC-200). What works and what does not are results and bugs. What was hard to use or looked wrong is an impression: it is listed apart, and the maintainer decides which impressions become bugs, tasks or changes to the requirements. The review found that the QA of 0.2 recorded no impressions and that the release went ahead of acceptance (findings 8 and 9).
 
@@ -1821,6 +1821,6 @@ The points of [the review's map](../reviews/2026-11-11-design-review.md) that wa
 
 ### For the revision's checkpoint
 
-1. D19, asked with this stage: whether a release needs every case run and judged, the walk in a real browser with its impressions, and the go or no-go in the stage record before the tag, as recommended.
+1. D19, which the maintainer decided on 2026-11-12 as recommended: a release needs every case run and judged, the walk in a real browser with its impressions, and the go or no-go in the stage record before the tag.
 2. The plan's shape: 387 cases written before the tasks, each run by the task that builds its row, and none run yet.
 3. What the plan leaves out: no case measures the success measures (D20), and phase ②'s requests, API-161 to API-176, get their response cases in phase ②'s own stage 12, once they are planned forms in the contract (TASK-320).

@@ -58,8 +58,8 @@
           "date": "2026-11-07"
         }
       ],
-      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: problems 15 and 16, REQ-270 to REQ-295, D16 to D19 open and D20 decided on 2026-11-12. Then build REQ-219 to REQ-237 with the redesign's screens",
-      "updated": "2026-11-12T03:12:33+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: problems 15 and 16, REQ-270 to REQ-295, D16 to D18 open, D19 and D20 decided on 2026-11-12. Then build REQ-219 to REQ-237 with the redesign's screens",
+      "updated": "2026-11-12T03:42:57+00:00"
     },
     "03-user-flow": {
       "state": "in_progress",
@@ -239,8 +239,8 @@
     "12-qa": {
       "state": "in_progress",
       "checkpoints": [],
-      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: 387 planned cases, TC-1408 to TC-1794, none run, with D19 open. Then each case runs with the task that builds its row; the walk of production after the release, with ego lite where it is installed, stays to do",
-      "updated": "2026-11-12T03:12:33+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: 387 planned cases, TC-1408 to TC-1794, none run; D19 decided. Then each case runs with the task that builds its row; the walk of production after the release, with ego lite where it is installed, stays to do",
+      "updated": "2026-11-12T03:42:57+00:00"
     }
   }
 }
