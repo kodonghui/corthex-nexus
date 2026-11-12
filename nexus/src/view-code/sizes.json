@@ -107,10 +107,10 @@
     "view-preload": [
       "/code/view.d8b76071.js"
     ],
-    "page-js": "/code/page.2fe4a454.js",
-    "page-css": "/code/page.44fa4d63.css",
+    "page-js": "/code/page.207e3c33.js",
+    "page-css": "/code/page.ec1b29eb.css",
     "page-preload": [
-      "/code/page.2fe4a454.js"
+      "/code/page.207e3c33.js"
     ],
     "font-preload": [
       "/code/editor-font-2.76945f09.woff2",
@@ -4108,22 +4108,22 @@
       "graphDigest": "a01045c9315c67f1202cb7b97896650a7f864db3cc3c8d67f3ed86c13d03f65e"
     },
     {
-      "name": "page.44fa4d63.css",
-      "path": "page.44fa4d63.css.txt",
+      "name": "page.ec1b29eb.css",
+      "path": "page.ec1b29eb.css.txt",
       "type": "text/css; charset=utf-8",
-      "raw": 65777,
-      "gzip": 10217,
-      "payloadSha256": "d95e8e7020c90b6bc3b2d50eb262343f96515a595d4a48318b5d3dc8f3381880",
-      "graphDigest": "980ee1b7569e65a7f815591061198892e77732758355f9bb664351f12b018f1d"
+      "raw": 66412,
+      "gzip": 10281,
+      "payloadSha256": "a23939afceb7306445e8e76324467c2aca0d1f784bc3f5af42f9125de79ae5c4",
+      "graphDigest": "9e51896bd5ed626b262f772427ce13c03a01947672b18ded4a24b565e203abb9"
     },
     {
-      "name": "page.2fe4a454.js",
-      "path": "page.2fe4a454.js.txt",
+      "name": "page.207e3c33.js",
+      "path": "page.207e3c33.js.txt",
       "type": "text/javascript; charset=utf-8",
       "raw": 189269,
-      "gzip": 58589,
-      "payloadSha256": "4c35c5860cc007d182c7ae6ac977bdc52ac46398b6a76e287d98ea84035f51e0",
-      "graphDigest": "980ee1b7569e65a7f815591061198892e77732758355f9bb664351f12b018f1d"
+      "gzip": 58587,
+      "payloadSha256": "2c92dff55ea61db1b9b86ef41ebf4f26e1a3383acb527813cae2fc9bfe2baee6",
+      "graphDigest": "9e51896bd5ed626b262f772427ce13c03a01947672b18ded4a24b565e203abb9"
     },
     {
       "name": "ibm-plex-sans-kr-0-400-normal.c61d2369.woff2",
@@ -6762,8 +6762,8 @@
       "payloadSha256": "0856e28ca1e42c7247c5edeaf006d5385f46f7d4b10af881e20593174308a33d"
     }
   ],
-  "totalRaw": 27518280,
-  "totalGzip": 20087051,
+  "totalRaw": 27518915,
+  "totalGzip": 20087113,
   "inputs": {
     "excalidraw": {
       "node_modules/react/cjs/react.production.min.js": {
@@ -28265,8 +28265,8 @@
         "sha256": "447a29636db00122b420d99b5b99c6ca516b6384a6d091785621df80f91ee603"
       },
       "nexus/ui/page.css": {
-        "bytes": 71027,
-        "sha256": "770dc56945bc2292d1df27f070fca7771505dcbf7a86f71715b8ccba13f21fe2"
+        "bytes": 72015,
+        "sha256": "3ec366c06096643e545e1e4ee004dda3a55106e2c2caff0ed536d965d2113edf"
       },
       "nexus/ui/page.js": {
         "bytes": 2695,
