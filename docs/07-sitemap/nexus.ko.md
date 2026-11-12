@@ -10,7 +10,7 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 07단계입니다: [nexus.yaml
 
 ## 이 파일을 읽는 법
 
-- 화면은 [nexus.yaml](nexus.yaml)이 정하는 SCR-101\~SCR-109와, 다시 디자인의 SCR-110\~SCR-117입니다. 화면마다 `children` 아래 중첩에서 오는 상위 화면, 경로, 볼 수 있는 사람, 흐름, 용어, 상태가 있습니다. 2026-11-11의 설계 수정부터 화면은 SCR-110에서 시작하는 나무 하나이고, 이 나무는 프로젝트 자료 SCR-130도 지니며, SCR-101은 `removed`로 나무 뒤에 섭니다.
+- 화면은 [nexus.yaml](nexus.yaml)이 정하는 SCR-101\~SCR-109와, 다시 디자인의 SCR-110\~SCR-117입니다. 화면마다 `children` 아래 중첩에서 오는 상위 화면, 경로, 볼 수 있는 사람, 흐름, 용어, 상태가 있습니다. 2026-11-11의 설계 수정부터 화면은 SCR-110에서 시작하는 나무 하나이고, 이 나무는 프로젝트 자료 SCR-130도 지니며, SCR-101은 `removed`로 나무 뒤에 섭니다. TASK-278부터 SCR-105\~SCR-109도 `removed`로 거기 섭니다.
 - 경로는 서버에서의 페이지 주소이며, 계약 [nexus.openapi.yaml](../06-api/nexus.openapi.yaml)이 그 요청을 적는 대로 `{project}`, `{part}`, `{stage}`를 써서 적습니다. `#` 뒤는 보기나 패널의 페이지 자신의 주소로, 브라우저가 지니고 서버로 보내지 않습니다([주소](#주소)).
 - 화면의 흐름은 그 화면이 보여 주는 단계가 있는 흐름입니다. 그런 단계는 흐름 안에서 요구사항 뒤에 `REQ-102 · SCR-101`처럼 화면의 ID를 적습니다([화면 위의 흐름](#화면-위의-흐름)). 2026-11-11의 설계 수정부터 그 단계는 `REQ-102 · SCR-117`이라고 적고, 화면의 흐름은 그 화면을 적은 단계가 있는 흐름과 정확히 같습니다([선택 17](#이-단계가-고른-것)).
 - 화면의 용어는 그 컨텍스트와, 그 화면이 나타내는 DDD 보드의 읽기 모델의 TERM ID, 또는 `none`입니다([용어](#용어)).
@@ -29,7 +29,7 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 07단계입니다: [nexus.yaml
 - **SCR-108 제안**, `/pictures/{project}/{part}/{stage}#proposal={proposal}`: 제안 하나를 그 `np_` ID로, 그 까닭, 그것이 바꾸는 단계별 원본의 글, 그 반영의 상태와 함께 보여 줍니다. 사용자는 여기서 제안을 받거나 버리고, 반영이 사용자를 필요로 하면 그 반영을 버립니다(SPEC-131, SPEC-133).
 - **SCR-109 단계 현황**, `/overview/{project}/{part}/{stage}`: 한 부분의 단계에 남은 것, 곧 그 열린 어긋남, 의견, 반영 대기를 함께, 그리고 기록된 상태, 확인 지점, 점검 결과를 보여 주며, 사용자는 여기서 확인 지점을 통과시키거나 NEXUS에서 통과시킨 것을 철회합니다(SPEC-138, SPEC-139). 항목마다 그림 보기의 그 항목, 의견, 제안으로 잇습니다.
 
-2026-11-11의 설계 수정부터 위 목록은 이렇게 읽습니다. 다시 디자인의 첫 작업들을 이미 만들었기 때문입니다. SCR-101은 `removed`입니다: `/`는 첫 화면(SCR-110)이고, 허브 페이지는 전체 점검(SCR-117)이며, 서버에서는 `/hub`에, 기기에서는 허브가 만드는 파일로 있습니다. SCR-102\~SCR-104는 여전히 허브 페이지의 세 보기이고 이제 SCR-117 아래에 있습니다: 서버에서는 `/hub#q={words}`, `/hub#p={project}&id={id}`, `/hub#p={project}&s={stage}`이고, 기기의 파일에서는 같은 `#` 뒤입니다. SCR-105\~SCR-109는 TASK-278이 그 경로에 넘겨주기로 답할 때까지 그 경로에서 내줍니다([다시 디자인한 화면](#다시-디자인한-화면)).
+2026-11-11의 설계 수정부터 위 목록은 이렇게 읽습니다. 다시 디자인의 첫 작업들을 이미 만들었기 때문입니다. SCR-101은 `removed`입니다: `/`는 첫 화면(SCR-110)이고, 허브 페이지는 전체 점검(SCR-117)이며, 서버에서는 `/hub`에, 기기에서는 허브가 만드는 파일로 있습니다. SCR-102\~SCR-104는 여전히 허브 페이지의 세 보기이고 이제 SCR-117 아래에 있습니다: 서버에서는 `/hub#q={words}`, `/hub#p={project}&id={id}`, `/hub#p={project}&s={stage}`이고, 기기의 파일에서는 같은 `#` 뒤입니다. SCR-105\~SCR-109는 TASK-278이 그 경로에 넘겨주기로 답할 때까지 그 경로에서 내줍니다([다시 디자인한 화면](#다시-디자인한-화면)). TASK-278이 2026-11-13에 그렇게 했고, 그 화면들은 `removed`입니다.
 
 ## 다시 디자인한 화면
 
@@ -47,11 +47,11 @@ NEXUS 0.2는 13단계와 점검의 표로 열리고, 그림마다 따로 주소�
 
 1024픽셀보다 좁으면 작업 공간은 단계·대화·항목을 탭으로 보여 주고, 단계 목록은 단계 제목에서 엽니다(SPEC-155). ② 차례를 위해 두 자리를 꺼 둔 채 둡니다: 단계 머리의 ‘편집’과 그림 옆의 작업 보드 탭. 2026-11-11의 설계 수정부터 두 자리는 편집이 든 릴리스가 나오기 전에는 보이지 않고(SPEC-147), 둘 다 그림 단계의 보기로서 단계의 칸에서 그림의 자리에 들어갑니다: 편집기는 `view=edit`, 01단계에서 부분의 작업 보드는 `view=board`입니다([주소](#주소), [선택 18](#이-단계가-고른-것)).
 
-다시 디자인을 만들면 SCR-101\~SCR-109는 ID를 지닌 채 새 자리로 이어 줍니다: SCR-101은 SCR-117로, SCR-102는 SCR-116으로, SCR-103과 SCR-106은 SCR-115로, SCR-104는 SCR-112나 SCR-113의 머리로, SCR-105는 SCR-112로, SCR-107과 SCR-108은 SCR-114로, SCR-109는 SCR-112나 SCR-113의 목록으로 갑니다(SPEC-154). 그때 그 상태는 더는 길이 아닌 화면으로서 `removed`가 되고, 이 파일이 저마다 어디로 갔는지 적습니다. 2026-11-11의 설계 수정은 이 문단을 만든 것에 비추어 다시 읽습니다(검토의 발견 18): SCR-101은 이제 `removed`입니다. 그 페이지가 TASK-271과 TASK-273으로 `/`를 떠났기 때문이며, SCR-101이 그랬듯 SCR-117이 서버에서든 기기에서든 만들어지는 곳 어디서나 허브 페이지를 가리킵니다. 허브 페이지의 세 보기는 없어지지 않습니다: REQ-233이 허브 페이지를 통째로 남기므로 SCR-102\~SCR-104는 SCR-117 아래에서 그 보기로 남고, `/`에 온 허브 페이지의 옛 주소는 다시 디자인으로, 곧 찾기(SCR-116), 항목(SCR-115), 단계(SCR-112나 SCR-113)로 이어집니다. SCR-105\~SCR-109는 TASK-278과 함께 저마다 `terms: none`과 어디로 갔는지를 적고 `removed`가 됩니다([선택 15](#이-단계가-고른-것)).
+다시 디자인을 만들면 SCR-101\~SCR-109는 ID를 지닌 채 새 자리로 이어 줍니다: SCR-101은 SCR-117로, SCR-102는 SCR-116으로, SCR-103과 SCR-106은 SCR-115로, SCR-104는 SCR-112나 SCR-113의 머리로, SCR-105는 SCR-112로, SCR-107과 SCR-108은 SCR-114로, SCR-109는 SCR-112나 SCR-113의 목록으로 갑니다(SPEC-154). 그때 그 상태는 더는 길이 아닌 화면으로서 `removed`가 되고, 이 파일이 저마다 어디로 갔는지 적습니다. 2026-11-11의 설계 수정은 이 문단을 만든 것에 비추어 다시 읽습니다(검토의 발견 18): SCR-101은 이제 `removed`입니다. 그 페이지가 TASK-271과 TASK-273으로 `/`를 떠났기 때문이며, SCR-101이 그랬듯 SCR-117이 서버에서든 기기에서든 만들어지는 곳 어디서나 허브 페이지를 가리킵니다. 허브 페이지의 세 보기는 없어지지 않습니다: REQ-233이 허브 페이지를 통째로 남기므로 SCR-102\~SCR-104는 SCR-117 아래에서 그 보기로 남고, `/`에 온 허브 페이지의 옛 주소는 다시 디자인으로, 곧 찾기(SCR-116), 항목(SCR-115), 단계(SCR-112나 SCR-113)로 이어집니다. SCR-105\~SCR-109는 TASK-278과 함께 저마다 `terms: none`과 어디로 갔는지를 적고 `removed`가 됩니다([선택 15](#이-단계가-고른-것)). 2026-11-13부터 `removed`입니다.
 
 ## 보드
 
-2026-11-03에 nexus.yaml에서 그렸고, 2026-11-07에 SCR-110부터의 다시 디자인 나무와 함께 다시 그렸습니다: 화면마다 ID, 이름, 경로, 볼 수 있는 사람, 그리고 상위 화면에서 하위 화면마다 가는 화살표. 2026-11-11에 설계 수정과 함께 나무 하나로 다시 그렸습니다: 없어진 화면은 ‘없어진 화면’이라는 상자 안에 따로, 점선 테두리로, 화살표 없이, 볼 수 있는 사람 대신 `removed`를 적어 둡니다.
+2026-11-03에 nexus.yaml에서 그렸고, 2026-11-07에 SCR-110부터의 다시 디자인 나무와 함께 다시 그렸습니다: 화면마다 ID, 이름, 경로, 볼 수 있는 사람, 그리고 상위 화면에서 하위 화면마다 가는 화살표. 2026-11-11에 설계 수정과 함께 나무 하나로 다시 그렸습니다: 없어진 화면은 ‘없어진 화면’이라는 상자 안에 따로, 점선 테두리로, 화살표 없이, 볼 수 있는 사람 대신 `removed`를 적어 둡니다. 2026-11-13에 SCR-105\~SCR-109를 `removed`로 바꾼 TASK-278과 함께 다시 그렸습니다: 그 화면들은 SCR-101과 함께 따로 섭니다.
 
 <!-- board: drawn from nexus.yaml -->
 ```mermaid
@@ -62,11 +62,6 @@ flowchart TD
   SCR117 --> SCR102["SCR-102 검색 결과<br/>/hub#q={words}<br/>Cloudflare Access가<br/>들인 사람,<br/>또는 기기의 사용자"]
   SCR117 --> SCR103["SCR-103 추적 화면<br/>/hub#p={project}&id={id}<br/>Cloudflare Access가<br/>들인 사람,<br/>또는 기기의 사용자"]
   SCR117 --> SCR104["SCR-104 단계 자세히 보기<br/>/hub#p={project}&s={stage}<br/>Cloudflare Access가<br/>들인 사람,<br/>또는 기기의 사용자"]
-  SCR104 --> SCR105["SCR-105 그림 보기<br/>/pictures/{project}/{part}/{stage}<br/>Cloudflare Access가<br/>들인 사람,<br/>서버에서"]
-  SCR105 --> SCR106["SCR-106 항목<br/>/pictures/{project}/{part}/{stage}#item={id}<br/>Cloudflare Access가<br/>들인 사람,<br/>서버에서"]
-  SCR105 --> SCR107["SCR-107 의견<br/>/pictures/{project}/{part}/{stage}#comment={comment}<br/>Cloudflare Access가<br/>들인 사람,<br/>서버에서"]
-  SCR105 --> SCR108["SCR-108 제안<br/>/pictures/{project}/{part}/{stage}#proposal={proposal}<br/>Cloudflare Access가<br/>들인 사람,<br/>서버에서"]
-  SCR104 --> SCR109["SCR-109 단계 현황<br/>/overview/{project}/{part}/{stage}<br/>Cloudflare Access가<br/>들인 사람,<br/>서버에서"]
   SCR110 --> SCR111["SCR-111 프로젝트 작업 공간<br/>/p/{project}<br/>Cloudflare Access가<br/>들인 사람,<br/>서버에서"]
   SCR111 --> SCR112["SCR-112 그림 단계<br/>/p/{project}/{part}/{picture stage}<br/>Cloudflare Access가<br/>들인 사람,<br/>서버에서"]
   SCR111 --> SCR113["SCR-113 문서 단계<br/>/p/{project}/{part}/{document stage}<br/>Cloudflare Access가<br/>들인 사람,<br/>서버에서"]
@@ -75,6 +70,11 @@ flowchart TD
   SCR111 --> SCR130["SCR-130 프로젝트 자료<br/>/p/{project}#data<br/>Cloudflare Access가<br/>들인 사람,<br/>서버에서"]
   subgraph gone["없어진 화면"]
     SCR101["SCR-101 허브 페이지<br/>/<br/>removed"]:::removed
+    SCR105["SCR-105 그림 보기<br/>/pictures/{project}/{part}/{stage}<br/>removed"]:::removed
+    SCR106["SCR-106 항목<br/>/pictures/{project}/{part}/{stage}#item={id}<br/>removed"]:::removed
+    SCR107["SCR-107 의견<br/>/pictures/{project}/{part}/{stage}#comment={comment}<br/>removed"]:::removed
+    SCR108["SCR-108 제안<br/>/pictures/{project}/{part}/{stage}#proposal={proposal}<br/>removed"]:::removed
+    SCR109["SCR-109 단계 현황<br/>/overview/{project}/{part}/{stage}<br/>removed"]:::removed
   end
   classDef removed stroke-dasharray: 5 5
 ```
@@ -82,7 +82,7 @@ flowchart TD
 
 ## 목록
 
-2026-11-03에 nexus.yaml에서 그렸고 2026-11-07에 다시 그렸으며, 나무의 차례대로 화면마다 한 줄입니다. 2026-11-11에 다시 그렸으며, 나무 하나의 차례대로 적고 없어진 화면은 맨 뒤에 둡니다.
+2026-11-03에 nexus.yaml에서 그렸고 2026-11-07에 다시 그렸으며, 나무의 차례대로 화면마다 한 줄입니다. 2026-11-11에 다시 그렸으며, 나무 하나의 차례대로 적고 없어진 화면은 맨 뒤에 둡니다. 2026-11-13에 TASK-278과 함께 다시 그렸으며, SCR-105\~SCR-109는 SCR-101 뒤 맨 끝에 둡니다.
 
 <!-- list: drawn from nexus.yaml -->
 | 화면 | 이름 | 상위 | 경로 | 볼 수 있는 사람 | 흐름 | 용어 | 상태 |
@@ -93,23 +93,23 @@ flowchart TD
 | SCR-102 | 검색 결과 | SCR-117 | `/hub#q={words}` | Cloudflare Access가 들인 사람, 또는 기기의 사용자 | FL-105 | `none` | built |
 | SCR-103 | 추적 화면 | SCR-117 | `/hub#p={project}&id={id}` | Cloudflare Access가 들인 사람, 또는 기기의 사용자 | FL-105 | `none` | built |
 | SCR-104 | 단계 자세히 보기 | SCR-117 | `/hub#p={project}&s={stage}` | Cloudflare Access가 들인 사람, 또는 기기의 사용자 | FL-105, FL-113 | `none` | active |
-| SCR-105 | 그림 보기 | SCR-104 | `/pictures/{project}/{part}/{stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-110 | CTX-014, TERM-111 | active |
-| SCR-106 | 항목 | SCR-105 | `/pictures/{project}/{part}/{stage}#item={id}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-107 | CTX-014, TERM-111 | active |
-| SCR-107 | 의견 | SCR-105 | `/pictures/{project}/{part}/{stage}#comment={comment}` | Cloudflare Access가 들인 사람, 서버에서 | FL-107, FL-109 | CTX-014, TERM-111 | active |
-| SCR-108 | 제안 | SCR-105 | `/pictures/{project}/{part}/{stage}#proposal={proposal}` | Cloudflare Access가 들인 사람, 서버에서 | FL-110 | CTX-014, TERM-111 | active |
-| SCR-109 | 단계 현황 | SCR-104 | `/overview/{project}/{part}/{stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-113 | CTX-007, TERM-120 | active |
 | SCR-111 | 프로젝트 작업 공간 | SCR-110 | `/p/{project}` | Cloudflare Access가 들인 사람, 서버에서 | FL-117, FL-118 | `none` | active |
-| SCR-112 | 그림 단계 | SCR-111 | `/p/{project}/{part}/{picture stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-113, FL-115, FL-116, FL-118, FL-119, FL-125 | CTX-014, TERM-111 | active |
+| SCR-112 | 그림 단계 | SCR-111 | `/p/{project}/{part}/{picture stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-110, FL-113, FL-115, FL-116, FL-118, FL-119, FL-125 | CTX-014, TERM-111 | active |
 | SCR-113 | 문서 단계 | SCR-111 | `/p/{project}/{part}/{document stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-113, FL-118, FL-119 | CTX-007, TERM-120 | active |
-| SCR-114 | 대화 | SCR-111 | `/p/{project}/{part}/{stage}#talk={comment}` | Cloudflare Access가 들인 사람, 서버에서 | FL-117, FL-119 | CTX-014, TERM-111 | active |
-| SCR-115 | 항목 | SCR-111 | `/p/{project}/{part}/{stage}#item={id}` | Cloudflare Access가 들인 사람, 서버에서 | FL-118, FL-119 | CTX-014, TERM-111 | active |
+| SCR-114 | 대화 | SCR-111 | `/p/{project}/{part}/{stage}#talk={comment}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-107, FL-109, FL-110, FL-117, FL-119 | CTX-014, TERM-111 | active |
+| SCR-115 | 항목 | SCR-111 | `/p/{project}/{part}/{stage}#item={id}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-107, FL-118, FL-119 | CTX-014, TERM-111 | active |
 | SCR-130 | 프로젝트 자료 | SCR-111 | `/p/{project}#data` | Cloudflare Access가 들인 사람, 서버에서 | FL-114, FL-118, FL-127 | `none` | planned |
 | SCR-101 | 허브 페이지 | 없음 | `/` | Cloudflare Access가 들인 사람, 또는 기기의 사용자 | FL-105, FL-113 | `none` | removed |
+| SCR-105 | 그림 보기 | 없음 | `/pictures/{project}/{part}/{stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-110 | `none` | removed |
+| SCR-106 | 항목 | 없음 | `/pictures/{project}/{part}/{stage}#item={id}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-107 | `none` | removed |
+| SCR-107 | 의견 | 없음 | `/pictures/{project}/{part}/{stage}#comment={comment}` | Cloudflare Access가 들인 사람, 서버에서 | FL-107, FL-109 | `none` | removed |
+| SCR-108 | 제안 | 없음 | `/pictures/{project}/{part}/{stage}#proposal={proposal}` | Cloudflare Access가 들인 사람, 서버에서 | FL-110 | `none` | removed |
+| SCR-109 | 단계 현황 | 없음 | `/overview/{project}/{part}/{stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-113 | `none` | removed |
 <!-- end of list -->
 
 ## 화면 위의 흐름
 
-화면에서 사용자에게 무언가를 보여 주는 단계는 모두 그 화면을 적습니다. 기기, 서버, 세션에서 도는 흐름은 자기 화면에 아무것도 보여 주지 않습니다: 허브가 그 명령의 결과(API-133\~API-150)로 세션에서 알리고, 화면은 다음에 열릴 때 그 결과를 보여 줍니다. "그림 보기를 엶, FL-106"처럼 다른 흐름으로 넘기기만 하는 단계는, 그 흐름이 화면을 적으므로 화면을 적지 않습니다. 2026-11-11의 설계 수정부터 이 표는 없어지지 않은 화면의 `flows`에서 그리고 FL-125\~FL-127까지 모든 흐름을 담습니다. 흐름이 도는 곳은 이 표가 직접 적는 것이며, 사용자가 프로젝트를 NEXUS에서 지우므로(SPEC-202) FL-114는 이제 세션과 브라우저에서 돕니다.
+화면에서 사용자에게 무언가를 보여 주는 단계는 모두 그 화면을 적습니다. 기기, 서버, 세션에서 도는 흐름은 자기 화면에 아무것도 보여 주지 않습니다: 허브가 그 명령의 결과(API-133\~API-150)로 세션에서 알리고, 화면은 다음에 열릴 때 그 결과를 보여 줍니다. "그림 보기를 엶, FL-106"처럼 다른 흐름으로 넘기기만 하는 단계는, 그 흐름이 화면을 적으므로 화면을 적지 않습니다. 2026-11-11의 설계 수정부터 이 표는 없어지지 않은 화면의 `flows`에서 그리고 FL-125\~FL-127까지 모든 흐름을 담습니다. 흐름이 도는 곳은 이 표가 직접 적는 것이며, 사용자가 프로젝트를 NEXUS에서 지우므로(SPEC-202) FL-114는 이제 세션과 브라우저에서 돕니다. 2026-11-13에 TASK-278과 함께 다시 그렸습니다: FL-106, FL-107, FL-109, FL-110, FL-113은 SCR-105\~SCR-109를 적던 자리에 다시 디자인의 화면을 적습니다.
 
 <!-- flows: drawn from nexus.yaml -->
 | 흐름 | 도는 곳 | 그 단계의 화면 |
@@ -119,14 +119,14 @@ flowchart TD
 | FL-103 | 서버에서 | 없음: 허브가 세션에서 알림 |
 | FL-104 | 서버에서 | 없음: 허브가 세션에서 알림 |
 | FL-105 | 브라우저와 기기에서 | SCR-102, SCR-103, SCR-104, SCR-117 |
-| FL-106 | 브라우저에서 | SCR-105, SCR-106 |
-| FL-107 | 브라우저에서 | SCR-106, SCR-107 |
+| FL-106 | 브라우저에서 | SCR-112, SCR-114, SCR-115 |
+| FL-107 | 브라우저에서 | SCR-114, SCR-115 |
 | FL-108 | 세션에서 | 없음: 허브가 세션에서 알림 |
-| FL-109 | 세션에서. 그 답과 결정은 의견에 보임 | SCR-107 |
-| FL-110 | 브라우저에서 | SCR-105, SCR-108 |
+| FL-109 | 세션에서. 그 답과 결정은 의견에 보임 | SCR-114 |
+| FL-110 | 브라우저에서 | SCR-112, SCR-114 |
 | FL-111 | 세션에서 | 없음: 허브가 세션에서 알림 |
 | FL-112 | 세션에서 | 없음: 허브가 세션에서 알림 |
-| FL-113 | 브라우저와 세션에서 | SCR-104, SCR-109, SCR-112, SCR-113, SCR-117 |
+| FL-113 | 브라우저와 세션에서 | SCR-104, SCR-112, SCR-113, SCR-117 |
 | FL-114 | 세션과 브라우저에서 | SCR-110, SCR-130 |
 | FL-115 | PC의 브라우저에서, ② 차례 | SCR-112 |
 | FL-116 | PC의 브라우저에서, ② 차례 | SCR-112 |
@@ -147,7 +147,7 @@ flowchart TD
 - 그림에 없는 항목, 의견, 제안의 주소는 그림 보기를 열고 그렇다고 알립니다. 그 상태는 08단계가 그립니다.
 - 경로에서 `{part}`는, 계약의 요청처럼, 프로젝트 전체이면 `_`입니다.
 
-다시 디자인을 만든 뒤의 주소. TASK-271부터 서버는 그 페이지를 이 주소에서 답합니다: `/`와 단계의 주소는 TASK-272가 그리는 틀과 함께, `/p/{project}`는 그 넘겨주기로, `/hub`는 허브 페이지로 답하므로 SCR-117은 active입니다. TASK-273부터 `/`는 첫 화면이므로 SCR-110도 active입니다. TASK-274부터 단계의 주소는 단계의 목록과 함께 작업 공간을 보이므로 SCR-111과 SCR-113도 active이고, 그림 단계는 TASK-275가 그림을 그릴 때까지 그 목록을 보였습니다. TASK-275\~TASK-277부터 그림 단계, 대화, 항목, 찾기를 만들었으므로 SCR-112, SCR-114, SCR-115, SCR-116도 active이고, 0.2의 두 경로의 넘겨주기는 TASK-278과 함께 옵니다:
+다시 디자인을 만든 뒤의 주소. TASK-271부터 서버는 그 페이지를 이 주소에서 답합니다: `/`와 단계의 주소는 TASK-272가 그리는 틀과 함께, `/p/{project}`는 그 넘겨주기로, `/hub`는 허브 페이지로 답하므로 SCR-117은 active입니다. TASK-273부터 `/`는 첫 화면이므로 SCR-110도 active입니다. TASK-274부터 단계의 주소는 단계의 목록과 함께 작업 공간을 보이므로 SCR-111과 SCR-113도 active이고, 그림 단계는 TASK-275가 그림을 그릴 때까지 그 목록을 보였습니다. TASK-275\~TASK-277부터 그림 단계, 대화, 항목, 찾기를 만들었으므로 SCR-112, SCR-114, SCR-115, SCR-116도 active이며, TASK-278부터 서버가 0.2의 두 경로에 아래의 넘겨주기로 답하므로 SCR-105\~SCR-109는 `removed`입니다:
 
 - 페이지는 첫 화면 `/`(API-155), 지금 단계로 이어 주는 프로젝트 `/p/{project}`(API-153), 단계 `/p/{project}/{part}/{stage}`(API-154), 이제 `/hub`에 있는 허브 페이지(API-101)입니다. `{stage}`는 `02-prd` 같은 단계의 키입니다. SCR-112와 SCR-113은 같은 꼴을 나눠 쓰고, 단계에 그림이 있는지로 갈립니다.
 - `#` 뒤는 0.2와 같은 꼴입니다: `talk`만 있으면 단계의 대화를, `nc_`나 `np_` ID와 함께면 그 의견이나 제안을 엽니다. `item`과 추적 ID는 항목을, `view=list`는 그림 단계에서 그림 대신 목록을 보여 줍니다. `step`은 0.2처럼 DDD 보드의 스텝을 지니고, `q`는 어느 페이지에서나 찾는 말을 지닙니다.
@@ -180,7 +180,7 @@ NEXUS는 한 부분의 DDD 보드에 있는 읽기 모델마다 그 부분의 �
 
 - 다시 디자인한 화면: 그림 단계, 대화, 항목은 그림 보기와 그 패널처럼 논의(CTX-014)의 그림 보기(TERM-111)를 적습니다. 문서 단계는 단계 진행(CTX-007)의 단계 현황(TERM-120)을 적습니다. 그림 없는 단계는 그 단계에 든 것과 남은 것을 보여 주고, 사용자가 거기서 확인 지점을 통과시키기 때문입니다. 첫 화면은 그 수를 보여 주는 AI 할 일(TERM-121)을 논의에서 적으므로, YAML은 이제 AI 할 일을 `# without a screen:` 뒤에 적지 않습니다. 작업 공간, 찾기, 전체 점검은 `terms: none`입니다. 열린 대화의 사용자 쪽인 내 차례(TERM-135)는 용어집의 낱말이고 아직 보드의 읽기 모델이 아니므로 그것을 적는 화면은 없습니다. 01단계가 다음에 보드를 고칠 때 더할 수 있습니다.
 - ② 차례의 읽기 모델인 작업 보드 보기(TERM-148)와 바뀐 것 목록(TERM-149)에는 아직 화면이 없습니다: ② 차례의 화면이 그림 단계(SCR-112)와 그 대화에서 그것을 적을 때까지 YAML이 그것을 `# without a screen:` 뒤에 적습니다. 05단계의 nexus.sql이 ② 차례의 애그리거트를 `without a table:` 뒤에 적는 것과 같아서(그 선택 19), 그동안 그것을 기다리는 어긋남은 없습니다.
-- 2026-11-11의 설계 수정부터: 프로젝트 자료 SCR-130은 `terms: none`입니다. 프로젝트 자료(TERM-154)는 함께 보기(CTX-009)에 있는 용어집의 낱말이고, 그 컨텍스트에는 보드에 읽기 모델이 없으므로, 허브 페이지에서처럼 그것을 적으면 어긋남이 열립니다. 없어진 화면도 `terms: none`입니다. NEXUS의 점검은 읽기 모델을 여전히 적는 없어진 화면에 어긋남을 열기 때문입니다: SCR-101은 적은 것이 없었고, SCR-105\~SCR-109는 TASK-278이 그 화면을 없앨 때 용어를 빼며, 그때부터 그 읽기 모델은 다시 디자인의 화면만 적습니다.
+- 2026-11-11의 설계 수정부터: 프로젝트 자료 SCR-130은 `terms: none`입니다. 프로젝트 자료(TERM-154)는 함께 보기(CTX-009)에 있는 용어집의 낱말이고, 그 컨텍스트에는 보드에 읽기 모델이 없으므로, 허브 페이지에서처럼 그것을 적으면 어긋남이 열립니다. 없어진 화면도 `terms: none`입니다. NEXUS의 점검은 읽기 모델을 여전히 적는 없어진 화면에 어긋남을 열기 때문입니다: SCR-101은 적은 것이 없었고, SCR-105\~SCR-109는 TASK-278이 그 화면을 없앨 때 용어를 빼며, 그때부터 그 읽기 모델은 다시 디자인의 화면만 적습니다. TASK-278부터 그렇게 뺐습니다.
 
 그러면 NEXUS가 자기 그림끼리 하는 점검은 이 사이트맵과 보드 사이에서 어긋남을 찾지 않아야 하며, 12단계가 그것을 확인합니다. [3번 변경](#앞-단계의-변경)은 여러 컨텍스트에서 읽는 읽기 모델에 관한 것입니다.
 
@@ -270,6 +270,13 @@ NEXUS는 한 부분의 DDD 보드에 있는 읽기 모델마다 그 부분의 �
 - 저장소의 검사가 통과함: 고정한 허브로 `python -m unittest discover -s tests`(시험 13개), `node --test nexus/test/*.test.js`(시험 337개, 컨테이너에 Node 24가 없어 Node 22에서), Worker의 dry-run 빌드, `git diff --check`. 바뀐 문서의 링크가 모두 맞고, 바뀐 줄마다 그 번역과 ID, 코드, 링크가 같음(이 단계 전부터 다르던 두 줄은 빼고).
 
 2026-11-12의 TASK-281부터는 `tests/test_sitemap.py`가 이 검사들을 저장소의 시험으로 돌리며, nexus.yaml은 고정한 허브의 코드가 읽는 그대로 읽습니다. 둘째, 셋째, 넷째는 적힌 그대로, 첫째는 흐름 22개의 단계를 두 언어로 보고, 무언가를 보여 주는 단계가 그 화면을 적는지는 여전히 손으로 봅니다. 또 고정한 허브로 이 저장소의 스냅샷을 만들어 NEXUS의 교차 검사를 돌리고(TC-1768), `nexus/test/hub-regression.mjs`는 허브 페이지의 세 보기를 `/hub`와 허브가 기기에 만드는 파일에서 엽니다(TC-1766).
+
+2026-11-13, SCR-105\~SCR-109를 `removed`로 바꾸고 흐름 다섯 개가 그 자리에 다시 디자인의 화면을 적게 하는 TASK-278에서:
+
+- `tests/test_sitemap.py`가 검사 네 가지와 교차 검사를 통과함: FL-106, FL-107, FL-109, FL-110, FL-113이 SCR-105\~SCR-109를 적던 자리에 SCR-112, SCR-114, SCR-115를 적은 뒤, 흐름 22개마다 단계의 SCR ID가 영어와 한국어에서 없어지지 않은 화면의 `flows`와 같음. nexus.yaml의 화면은 18개로, 9개가 `active`, 1개가 `planned`, 2개가 `built`, 6개가 `removed`이며, 없어진 화면은 저마다 `terms: none`으로 나무 뒤에 섬. 이 파일과 그 영어 원문은 새로 그린 것과 같음. 이 파일들에서 그린 그림으로 NEXUS가 보드와 이 사이트맵을 교차 검사하면 어긋남이 열리지 않음: 없어진 화면이 적던 읽기 모델을 SCR-112\~SCR-115가 적기 때문.
+- 고정한 허브가 이 저장소의 스냅샷을 항목 1903개, 오류 0개, 그리고 `tests/hub_warnings.json`이 규칙과 ID로 적는 경고 601개로 전과 같이 만들고, 화면 18개를 없어진 여섯과 따로 읽음.
+- Mermaid 11.17.2가 Playwright의 Chromium에서 보드를 영어와 한국어로 그리며, 상자 18개와 화살표 11개가 나오고 없어진 화면 여섯은 ‘없어진 화면’ 상자에 듦. 바뀐 흐름 다섯 개도 두 언어로 그림.
+- 저장소의 검사가 통과함: 고정한 허브로 `python -m unittest discover -s tests`(시험 39개), `node --test nexus/test/*.test.js`(시험 368개, Node 24), Worker의 dry-run 빌드, `git diff --check`.
 
 ## 확인할 것
 

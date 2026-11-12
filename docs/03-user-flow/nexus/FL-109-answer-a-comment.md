@@ -4,12 +4,12 @@
 
 Serves: REQ-128, REQ-163, REQ-164, REQ-165, REQ-166, REQ-167, REQ-168, REQ-184, REQ-202
 
-Context: CTX-014 Discussion. Starts when the agent takes an open comment from its agent to-do (FL-108); the user can also bring a comment up in the session. New in NEXUS 0.2.
+Context: CTX-014 Discussion. Starts when the agent takes an open comment from its agent to-do (FL-108); the user can also bring a comment up in the session. New in NEXUS 0.2. Since TASK-278 its steps name the talk (SCR-114) in the place of 0.2's comment panel, now `removed`.
 
 ```mermaid
 flowchart TD
   A(["The agent takes the next open comment<br/>from its agent to-do, FL-108"]) --> B{"What does the comment need?"}
-  B -->|an answer| C["Answer it on the comment through the hub;<br/>the server marks the agent as its author<br/>REQ-163, REQ-184, REQ-202 · SCR-107"]
+  B -->|an answer| C["Answer it on the comment through the hub;<br/>the server marks the agent as its author<br/>REQ-163, REQ-184, REQ-202 · SCR-114"]
   C --> C1["Mark the comment answered,<br/>and NEXUS closes it<br/>REQ-166"]
   C1 --> Z(["End"])
   B -->|a change to a picture| D["Make a proposal with its reason,<br/>through the hub<br/>REQ-128, REQ-184"]
@@ -24,7 +24,7 @@ flowchart TD
   F1 --> Z
   B -->|the user's reply settles it| G
   F -->|yes| G["Write the decision where the project's rules put it:<br/>changes to the stage sources by pull request,<br/>the user's choices in the project's records<br/>REQ-167"]
-  G --> H["Record the decision on the comment,<br/>with a link to where it was written<br/>REQ-164, REQ-168 · SCR-107"]
+  G --> H["Record the decision on the comment,<br/>with a link to where it was written<br/>REQ-164, REQ-168 · SCR-114"]
   H --> I["NEXUS closes the comment<br/>REQ-165"]
   I --> Z
 ```

@@ -4,22 +4,22 @@
 
 Serves: REQ-117, REQ-145, REQ-158, REQ-160, REQ-161, REQ-163, REQ-166, REQ-182, REQ-202, REQ-203
 
-Context: CTX-014 Discussion. Starts when the user selects a part of a picture in the picture view (FL-106) to comment on it, on a phone or a PC. The agent leaves its comments through the hub (FL-109). New in NEXUS 0.2. Once the redesign's talk is built (SCR-114), FL-119 takes over this flow's steps in the browser, with comments on the items of every stage; until then they name the picture view of NEXUS 0.2.
+Context: CTX-014 Discussion. Starts when the user selects a part of a picture on the picture stage (FL-106) to comment on it, on a phone or a PC. The agent leaves its comments through the hub (FL-109). New in NEXUS 0.2. Once the redesign's talk is built (SCR-114), FL-119 takes over this flow's steps in the browser, with comments on the items of every stage. Since TASK-278 they name the talk (SCR-114) and the item (SCR-115) in the place of 0.2's item and comment panels, now `removed`.
 
 ```mermaid
 flowchart TD
   A(["The user selects a part of a picture to<br/>comment on, on a phone or a PC, FL-106<br/>REQ-158"]) --> B{"Has the part a trace ID of its own?"}
   B -->|yes| C["Attach the comment to the item's<br/>trace ID, not to a position<br/>REQ-160"]
   B -->|no, such as an event on the DDD board| D["Attach it to the item that holds the part,<br/>with a quote of the part<br/>REQ-161"]
-  C --> E["The user writes the comment and sends it<br/>SCR-106"]
+  C --> E["The user writes the comment in the talk's box<br/>and sends it<br/>SCR-114"]
   D --> E
   E --> F{"Does the NEXUS server take it: checked<br/>by Cloudflare Access, and not<br/>sent from another site?<br/>REQ-117"}
-  F -->|no| F1["Say that the comment was not saved,<br/>and keep its text in the page<br/>SCR-106"]
+  F -->|no| F1["Say that the comment was not saved,<br/>and keep its text in the page<br/>SCR-114"]
   F1 --> Z(["End"])
   F -->|yes| G["Mark the user as its author, from the kind<br/>of Cloudflare Access sign-in<br/>REQ-163"]
-  G --> H["Show it open on its item<br/>REQ-145 · SCR-106"]
+  G --> H["Show it open on its item<br/>REQ-145 · SCR-115"]
   H --> I["It waits in the agent to-do, where open comments<br/>come first, until the agent's next work, FL-108<br/>REQ-182"]
-  I --> J["Under it, the user and the agent reply, FL-109,<br/>and the user can mark it answered, settle it,<br/>or open it again by replying to it closed<br/>REQ-163, REQ-166, REQ-202, REQ-203 · SCR-107"]
+  I --> J["Under it, the user and the agent reply, FL-109,<br/>and the user can mark it answered, settle it,<br/>or open it again by replying to it closed<br/>REQ-163, REQ-166, REQ-202, REQ-203 · SCR-114"]
   J --> Z
 ```
 

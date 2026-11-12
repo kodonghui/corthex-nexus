@@ -9,9 +9,9 @@
 # moved to /hub, SCR-110 since TASK-273, which built the first page, and SCR-111 and SCR-113
 # since TASK-274, which built the workspace and the document stage; a screen that is
 # approved and not built is `planned`. SCR-117 stands for the hub page on the server and on
-# a device, with its three views, SCR-102 to SCR-104. SCR-105 to SCR-109 are NEXUS 0.2's two
-# pages and their panels, served until TASK-278 answers their paths with redirects and turns
-# them `removed`. A removed screen keeps its ID and the flows that last named it, says
+# a device, with its three views, SCR-102 to SCR-104. SCR-105 to SCR-109 were NEXUS 0.2's two
+# pages and their panels: since TASK-278 their paths answer with redirects to the stage's page,
+# and they are `removed`. A removed screen keeps its ID and the flows that last named it, says
 # `terms: none` and stands after the tree: it is no route, and no flow's step names it.
 - id: SCR-110
   name: Home
@@ -57,43 +57,6 @@
           flows: [FL-105, FL-113]
           terms: none
           status: active
-          children:
-            - id: SCR-105
-              name: Picture view
-              path: "/pictures/{project}/{part}/{stage}"
-              access: anyone Cloudflare Access lets in, on the server
-              flows: [FL-106, FL-110]
-              terms: [CTX-014, TERM-111]
-              status: active
-              children:
-                - id: SCR-106
-                  name: Item
-                  path: "/pictures/{project}/{part}/{stage}#item={id}"
-                  access: anyone Cloudflare Access lets in, on the server
-                  flows: [FL-106, FL-107]
-                  terms: [CTX-014, TERM-111]
-                  status: active
-                - id: SCR-107
-                  name: Comment
-                  path: "/pictures/{project}/{part}/{stage}#comment={comment}"
-                  access: anyone Cloudflare Access lets in, on the server
-                  flows: [FL-107, FL-109]
-                  terms: [CTX-014, TERM-111]
-                  status: active
-                - id: SCR-108
-                  name: Proposal
-                  path: "/pictures/{project}/{part}/{stage}#proposal={proposal}"
-                  access: anyone Cloudflare Access lets in, on the server
-                  flows: [FL-110]
-                  terms: [CTX-014, TERM-111]
-                  status: active
-            - id: SCR-109
-              name: Stage overview
-              path: "/overview/{project}/{part}/{stage}"
-              access: anyone Cloudflare Access lets in, on the server
-              flows: [FL-113]
-              terms: [CTX-007, TERM-120]
-              status: active
     - id: SCR-111
       name: Project workspace
       path: "/p/{project}"
@@ -106,7 +69,7 @@
           name: Picture stage
           path: "/p/{project}/{part}/{picture stage}"
           access: anyone Cloudflare Access lets in, on the server
-          flows: [FL-113, FL-115, FL-116, FL-118, FL-119, FL-125]
+          flows: [FL-106, FL-110, FL-113, FL-115, FL-116, FL-118, FL-119, FL-125]
           terms: [CTX-014, TERM-111]
           status: active
         - id: SCR-113
@@ -120,14 +83,14 @@
           name: Talk
           path: "/p/{project}/{part}/{stage}#talk={comment}"
           access: anyone Cloudflare Access lets in, on the server
-          flows: [FL-117, FL-119]
+          flows: [FL-106, FL-107, FL-109, FL-110, FL-117, FL-119]
           terms: [CTX-014, TERM-111]
           status: active
         - id: SCR-115
           name: Item
           path: "/p/{project}/{part}/{stage}#item={id}"
           access: anyone Cloudflare Access lets in, on the server
-          flows: [FL-118, FL-119]
+          flows: [FL-106, FL-107, FL-118, FL-119]
           terms: [CTX-014, TERM-111]
           status: active
         - id: SCR-130
@@ -142,6 +105,41 @@
   path: /
   access: anyone Cloudflare Access lets in, or the device's user
   flows: [FL-105, FL-113]
+  terms: none
+  status: removed
+- id: SCR-105
+  name: Picture view
+  path: "/pictures/{project}/{part}/{stage}"
+  access: anyone Cloudflare Access lets in, on the server
+  flows: [FL-106, FL-110]
+  terms: none
+  status: removed
+- id: SCR-106
+  name: Item
+  path: "/pictures/{project}/{part}/{stage}#item={id}"
+  access: anyone Cloudflare Access lets in, on the server
+  flows: [FL-106, FL-107]
+  terms: none
+  status: removed
+- id: SCR-107
+  name: Comment
+  path: "/pictures/{project}/{part}/{stage}#comment={comment}"
+  access: anyone Cloudflare Access lets in, on the server
+  flows: [FL-107, FL-109]
+  terms: none
+  status: removed
+- id: SCR-108
+  name: Proposal
+  path: "/pictures/{project}/{part}/{stage}#proposal={proposal}"
+  access: anyone Cloudflare Access lets in, on the server
+  flows: [FL-110]
+  terms: none
+  status: removed
+- id: SCR-109
+  name: Stage overview
+  path: "/overview/{project}/{part}/{stage}"
+  access: anyone Cloudflare Access lets in, on the server
+  flows: [FL-113]
   terms: none
   status: removed
 # without a screen: TERM-148, TERM-149

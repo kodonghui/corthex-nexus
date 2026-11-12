@@ -4,12 +4,12 @@
 
 Serves: REQ-084, REQ-086, REQ-089, REQ-090, REQ-117, REQ-125, REQ-173, REQ-176, REQ-177, REQ-178, REQ-179, REQ-180, REQ-278, REQ-279, REQ-283
 
-Context: CTX-007 Stage progress. Starts when the user looks at whether a stage is ready, in the stage overview of NEXUS or in the session with the agent. New in NEXUS 0.2; the design revision of 2026-11-11 binds a pass to what the user saw (REQ-278, REQ-279, under D17 of stage 02, decided on 2026-11-12) and names the stage's record of the redesign beside the stage overview.
+Context: CTX-007 Stage progress. Starts when the user looks at whether a stage is ready, in the stage overview of NEXUS or in the session with the agent. New in NEXUS 0.2; the design revision of 2026-11-11 binds a pass to what the user saw (REQ-278, REQ-279, under D17 of stage 02, decided on 2026-11-12) and names the stage's record of the redesign beside the stage overview. Since TASK-278 the stage's record behind the stage's head is the place in NEXUS, and the steps name the picture stage and the document stage (SCR-112, SCR-113) without the stage overview (SCR-109, now `removed`).
 
 ```mermaid
 flowchart TD
   A(["The user looks at whether a stage is ready"]) --> B{"Where?"}
-  B -->|in NEXUS| C["Open the stage's record, in the stage overview or, in the<br/>redesign, behind the stage's head: the checkpoint request whole,<br/>the commit that the project shows, and the stage's open<br/>discrepancies, comments and pending reflections, together<br/>REQ-176 · SCR-109, SCR-112, SCR-113"]
+  B -->|in NEXUS| C["Open the stage's record, behind the stage's head:<br/>the checkpoint request whole, the commit that the<br/>project shows, and the stage's open discrepancies,<br/>comments and pending reflections, together<br/>REQ-176 · SCR-112, SCR-113"]
   C --> D{"Does the user pass the checkpoint,<br/>with or without what is left?<br/>REQ-177"}
   D -->|no| D1["The stage stays as it is, and the user<br/>may leave a comment, FL-107, FL-119"]
   D1 --> Z(["End"])
@@ -18,7 +18,7 @@ flowchart TD
   E -->|no| E1["Refuse it<br/>REQ-179"]
   E1 --> Z
   E -->|yes| E2{"Has the commit that the project shows, or the<br/>checkpoint request, changed since the page was drawn?<br/>REQ-279"}
-  E2 -->|yes| E3["Refuse the pass, saying what changed;<br/>the page shows the stage as it is now<br/>REQ-279 · SCR-109, SCR-112, SCR-113"]
+  E2 -->|yes| E3["Refuse the pass, saying what changed;<br/>the page shows the stage as it is now<br/>REQ-279 · SCR-112, SCR-113"]
   E3 --> D
   E2 -->|no| F["Record who passed it and when, what was seen, and the<br/>kind of browser and device that the request names<br/>REQ-178, REQ-278, REQ-283"]
   F --> G["List it in the agent to-do until<br/>the stage record holds it<br/>REQ-180"]

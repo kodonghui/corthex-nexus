@@ -10,7 +10,7 @@ The stage's default human view is a page of three views drawn from the YAML: a b
 
 ## How to read this file
 
-- The screens are SCR-101 to SCR-109, and the redesign's SCR-110 to SCR-117, defined in [nexus.yaml](nexus.yaml). Each has its parent, from the nesting under `children`, its path, who can see it, its flows, its terms and its status. From the design revision of 2026-11-11 they are one tree, from SCR-110, which also holds the project's data, SCR-130, and SCR-101 stands after the tree, `removed`.
+- The screens are SCR-101 to SCR-109, and the redesign's SCR-110 to SCR-117, defined in [nexus.yaml](nexus.yaml). Each has its parent, from the nesting under `children`, its path, who can see it, its flows, its terms and its status. From the design revision of 2026-11-11 they are one tree, from SCR-110, which also holds the project's data, SCR-130, and SCR-101 stands after the tree, `removed`. Since TASK-278 SCR-105 to SCR-109 stand there too, `removed`.
 - A path is the page's address on the server, written as the contract [nexus.openapi.yaml](../06-api/nexus.openapi.yaml) writes its requests, with `{project}`, `{part}` and `{stage}` as there. What follows `#` is the page's own address of a view or a panel, which the browser keeps and never sends ([Addresses](#addresses)).
 - A screen's flows are the flows with a step that the screen shows. Each such step names the screen's ID in the flow, after its requirements, as `REQ-102 · SCR-101` ([The flows on the screens](#the-flows-on-the-screens)). From the design revision of 2026-11-11 that step reads `REQ-102 · SCR-117`, and a screen's flows are exactly the flows whose steps name it ([choice 17](#choices-this-stage-made)).
 - A screen's terms are its context and the TERM IDs of the DDD board's read models that it stands for, or `none` ([Terms](#terms)).
@@ -29,7 +29,7 @@ The stage's default human view is a page of three views drawn from the YAML: a b
 - **SCR-108 Proposal**, `/pictures/{project}/{part}/{stage}#proposal={proposal}`: one proposal, by its `np_` ID, with its reason and the stage source text that it changes, where the user accepts or dismisses it, and the state of its reflection, which the user dismisses when it needs them (SPEC-131, SPEC-133).
 - **SCR-109 Stage overview**, `/overview/{project}/{part}/{stage}`: what is left in one part's stage, its open discrepancies, comments and pending reflections together, with its recorded state, checkpoints and checks, where the user passes the checkpoint or withdraws one passed in NEXUS (SPEC-138, SPEC-139). Each entry links to its item, comment or proposal in the picture view.
 
-From the design revision of 2026-11-11 the list above reads as follows, since the redesign's first tasks are built. SCR-101 is `removed`: `/` is the first page (SCR-110), and the hub page is the full checks (SCR-117), on the server at `/hub` and on a device as the file that the hub builds. SCR-102 to SCR-104 are still the hub page's three views, now under SCR-117: at `/hub#q={words}`, `/hub#p={project}&id={id}` and `/hub#p={project}&s={stage}` on the server, and after the same `#` in the device's file. SCR-105 to SCR-109 are served at their paths until TASK-278 answers those with redirects ([The redesign's screens](#the-redesigns-screens)).
+From the design revision of 2026-11-11 the list above reads as follows, since the redesign's first tasks are built. SCR-101 is `removed`: `/` is the first page (SCR-110), and the hub page is the full checks (SCR-117), on the server at `/hub` and on a device as the file that the hub builds. SCR-102 to SCR-104 are still the hub page's three views, now under SCR-117: at `/hub#q={words}`, `/hub#p={project}&id={id}` and `/hub#p={project}&s={stage}` on the server, and after the same `#` in the device's file. SCR-105 to SCR-109 are served at their paths until TASK-278 answers those with redirects ([The redesign's screens](#the-redesigns-screens)). TASK-278 did so on 2026-11-13, and they are `removed`.
 
 ## The redesign's screens
 
@@ -47,11 +47,11 @@ NEXUS 0.2 opens on a table of 13 stages and their checks, keeps each picture at 
 
 Under 1024 pixels the workspace shows the stage, the talk and the item as tabs, and the stage list from the stage's title (SPEC-155). Phase ② keeps two places switched off: "Edit" in the stage's head and a work board tab beside the picture. From the design revision of 2026-11-11 neither place shows until a release includes editing (SPEC-147), and both are views of the picture stage, which take the picture's place in the stage's column: `view=edit` for the editor and `view=board` for a part's work board on stage 01 ([Addresses](#addresses), [choice 18](#choices-this-stage-made)).
 
-When the redesign is built, SCR-101 to SCR-109 keep their IDs and lead to their new places: SCR-101 to SCR-117, SCR-102 to SCR-116, SCR-103 and SCR-106 to SCR-115, SCR-104 to the head of SCR-112 or SCR-113, SCR-105 to SCR-112, SCR-107 and SCR-108 to SCR-114, and SCR-109 to the list of SCR-112 or SCR-113 (SPEC-154). Their status then says `removed`, as a screen that is no longer a route, and this file says where each went. From the design revision of 2026-11-11, which reads this paragraph against what is built (the review, finding 18): SCR-101 is `removed` now, since its page left `/` with TASK-271 and TASK-273, and SCR-117 stands for the hub page wherever it is built, on the server and on a device, as SCR-101 did. The hub page's three views are not removed: REQ-233 keeps the hub page whole, so SCR-102 to SCR-104 stay its views, under SCR-117, while the hub page's old addresses on `/` lead into the redesign, to the search (SCR-116), the item (SCR-115) and the stage (SCR-112 or SCR-113). SCR-105 to SCR-109 turn `removed` with TASK-278, each with `terms: none` and with where it went ([choice 15](#choices-this-stage-made)).
+When the redesign is built, SCR-101 to SCR-109 keep their IDs and lead to their new places: SCR-101 to SCR-117, SCR-102 to SCR-116, SCR-103 and SCR-106 to SCR-115, SCR-104 to the head of SCR-112 or SCR-113, SCR-105 to SCR-112, SCR-107 and SCR-108 to SCR-114, and SCR-109 to the list of SCR-112 or SCR-113 (SPEC-154). Their status then says `removed`, as a screen that is no longer a route, and this file says where each went. From the design revision of 2026-11-11, which reads this paragraph against what is built (the review, finding 18): SCR-101 is `removed` now, since its page left `/` with TASK-271 and TASK-273, and SCR-117 stands for the hub page wherever it is built, on the server and on a device, as SCR-101 did. The hub page's three views are not removed: REQ-233 keeps the hub page whole, so SCR-102 to SCR-104 stay its views, under SCR-117, while the hub page's old addresses on `/` lead into the redesign, to the search (SCR-116), the item (SCR-115) and the stage (SCR-112 or SCR-113). SCR-105 to SCR-109 turn `removed` with TASK-278, each with `terms: none` and with where it went ([choice 15](#choices-this-stage-made)). They are `removed` since 2026-11-13.
 
 ## Board
 
-Drawn from nexus.yaml on 2026-11-03, and again on 2026-11-07 with the redesign's tree from SCR-110: each screen with its ID, name, path and who can see it, and an arrow from each parent to each child. Drawn again on 2026-11-11, with the design revision, as one tree: a removed screen stands apart, in a box named Removed, with a dashed outline, no arrow and `removed` in place of who can see it.
+Drawn from nexus.yaml on 2026-11-03, and again on 2026-11-07 with the redesign's tree from SCR-110: each screen with its ID, name, path and who can see it, and an arrow from each parent to each child. Drawn again on 2026-11-11, with the design revision, as one tree: a removed screen stands apart, in a box named Removed, with a dashed outline, no arrow and `removed` in place of who can see it. Drawn again on 2026-11-13 with TASK-278, which turned SCR-105 to SCR-109 `removed`: they stand apart with SCR-101.
 
 <!-- board: drawn from nexus.yaml -->
 ```mermaid
@@ -62,11 +62,6 @@ flowchart TD
   SCR117 --> SCR102["SCR-102 Search results<br/>/hub#q={words}<br/>anyone Cloudflare Access lets in, or the device's user"]
   SCR117 --> SCR103["SCR-103 Trace view<br/>/hub#p={project}&id={id}<br/>anyone Cloudflare Access lets in, or the device's user"]
   SCR117 --> SCR104["SCR-104 Stage detail<br/>/hub#p={project}&s={stage}<br/>anyone Cloudflare Access lets in, or the device's user"]
-  SCR104 --> SCR105["SCR-105 Picture view<br/>/pictures/{project}/{part}/{stage}<br/>anyone Cloudflare Access lets in, on the server"]
-  SCR105 --> SCR106["SCR-106 Item<br/>/pictures/{project}/{part}/{stage}#item={id}<br/>anyone Cloudflare Access lets in, on the server"]
-  SCR105 --> SCR107["SCR-107 Comment<br/>/pictures/{project}/{part}/{stage}#comment={comment}<br/>anyone Cloudflare Access lets in, on the server"]
-  SCR105 --> SCR108["SCR-108 Proposal<br/>/pictures/{project}/{part}/{stage}#proposal={proposal}<br/>anyone Cloudflare Access lets in, on the server"]
-  SCR104 --> SCR109["SCR-109 Stage overview<br/>/overview/{project}/{part}/{stage}<br/>anyone Cloudflare Access lets in, on the server"]
   SCR110 --> SCR111["SCR-111 Project workspace<br/>/p/{project}<br/>anyone Cloudflare Access lets in, on the server"]
   SCR111 --> SCR112["SCR-112 Picture stage<br/>/p/{project}/{part}/{picture stage}<br/>anyone Cloudflare Access lets in, on the server"]
   SCR111 --> SCR113["SCR-113 Document stage<br/>/p/{project}/{part}/{document stage}<br/>anyone Cloudflare Access lets in, on the server"]
@@ -75,6 +70,11 @@ flowchart TD
   SCR111 --> SCR130["SCR-130 Project data<br/>/p/{project}#data<br/>anyone Cloudflare Access lets in, on the server"]
   subgraph gone["Removed"]
     SCR101["SCR-101 Hub page<br/>/<br/>removed"]:::removed
+    SCR105["SCR-105 Picture view<br/>/pictures/{project}/{part}/{stage}<br/>removed"]:::removed
+    SCR106["SCR-106 Item<br/>/pictures/{project}/{part}/{stage}#item={id}<br/>removed"]:::removed
+    SCR107["SCR-107 Comment<br/>/pictures/{project}/{part}/{stage}#comment={comment}<br/>removed"]:::removed
+    SCR108["SCR-108 Proposal<br/>/pictures/{project}/{part}/{stage}#proposal={proposal}<br/>removed"]:::removed
+    SCR109["SCR-109 Stage overview<br/>/overview/{project}/{part}/{stage}<br/>removed"]:::removed
   end
   classDef removed stroke-dasharray: 5 5
 ```
@@ -82,7 +82,7 @@ flowchart TD
 
 ## List
 
-Drawn from nexus.yaml on 2026-11-03, and again on 2026-11-07, one row for each screen in the order of the trees. Drawn again on 2026-11-11, in the order of the one tree, with a removed screen last.
+Drawn from nexus.yaml on 2026-11-03, and again on 2026-11-07, one row for each screen in the order of the trees. Drawn again on 2026-11-11, in the order of the one tree, with a removed screen last. Drawn again on 2026-11-13 with TASK-278, with SCR-105 to SCR-109 last, after SCR-101.
 
 <!-- list: drawn from nexus.yaml -->
 | Screen | Name | Parent | Path | Who can see it | Flows | Terms | Status |
@@ -93,23 +93,23 @@ Drawn from nexus.yaml on 2026-11-03, and again on 2026-11-07, one row for each s
 | SCR-102 | Search results | SCR-117 | `/hub#q={words}` | anyone Cloudflare Access lets in, or the device's user | FL-105 | `none` | built |
 | SCR-103 | Trace view | SCR-117 | `/hub#p={project}&id={id}` | anyone Cloudflare Access lets in, or the device's user | FL-105 | `none` | built |
 | SCR-104 | Stage detail | SCR-117 | `/hub#p={project}&s={stage}` | anyone Cloudflare Access lets in, or the device's user | FL-105, FL-113 | `none` | active |
-| SCR-105 | Picture view | SCR-104 | `/pictures/{project}/{part}/{stage}` | anyone Cloudflare Access lets in, on the server | FL-106, FL-110 | CTX-014, TERM-111 | active |
-| SCR-106 | Item | SCR-105 | `/pictures/{project}/{part}/{stage}#item={id}` | anyone Cloudflare Access lets in, on the server | FL-106, FL-107 | CTX-014, TERM-111 | active |
-| SCR-107 | Comment | SCR-105 | `/pictures/{project}/{part}/{stage}#comment={comment}` | anyone Cloudflare Access lets in, on the server | FL-107, FL-109 | CTX-014, TERM-111 | active |
-| SCR-108 | Proposal | SCR-105 | `/pictures/{project}/{part}/{stage}#proposal={proposal}` | anyone Cloudflare Access lets in, on the server | FL-110 | CTX-014, TERM-111 | active |
-| SCR-109 | Stage overview | SCR-104 | `/overview/{project}/{part}/{stage}` | anyone Cloudflare Access lets in, on the server | FL-113 | CTX-007, TERM-120 | active |
 | SCR-111 | Project workspace | SCR-110 | `/p/{project}` | anyone Cloudflare Access lets in, on the server | FL-117, FL-118 | `none` | active |
-| SCR-112 | Picture stage | SCR-111 | `/p/{project}/{part}/{picture stage}` | anyone Cloudflare Access lets in, on the server | FL-113, FL-115, FL-116, FL-118, FL-119, FL-125 | CTX-014, TERM-111 | active |
+| SCR-112 | Picture stage | SCR-111 | `/p/{project}/{part}/{picture stage}` | anyone Cloudflare Access lets in, on the server | FL-106, FL-110, FL-113, FL-115, FL-116, FL-118, FL-119, FL-125 | CTX-014, TERM-111 | active |
 | SCR-113 | Document stage | SCR-111 | `/p/{project}/{part}/{document stage}` | anyone Cloudflare Access lets in, on the server | FL-113, FL-118, FL-119 | CTX-007, TERM-120 | active |
-| SCR-114 | Talk | SCR-111 | `/p/{project}/{part}/{stage}#talk={comment}` | anyone Cloudflare Access lets in, on the server | FL-117, FL-119 | CTX-014, TERM-111 | active |
-| SCR-115 | Item | SCR-111 | `/p/{project}/{part}/{stage}#item={id}` | anyone Cloudflare Access lets in, on the server | FL-118, FL-119 | CTX-014, TERM-111 | active |
+| SCR-114 | Talk | SCR-111 | `/p/{project}/{part}/{stage}#talk={comment}` | anyone Cloudflare Access lets in, on the server | FL-106, FL-107, FL-109, FL-110, FL-117, FL-119 | CTX-014, TERM-111 | active |
+| SCR-115 | Item | SCR-111 | `/p/{project}/{part}/{stage}#item={id}` | anyone Cloudflare Access lets in, on the server | FL-106, FL-107, FL-118, FL-119 | CTX-014, TERM-111 | active |
 | SCR-130 | Project data | SCR-111 | `/p/{project}#data` | anyone Cloudflare Access lets in, on the server | FL-114, FL-118, FL-127 | `none` | planned |
 | SCR-101 | Hub page | none | `/` | anyone Cloudflare Access lets in, or the device's user | FL-105, FL-113 | `none` | removed |
+| SCR-105 | Picture view | none | `/pictures/{project}/{part}/{stage}` | anyone Cloudflare Access lets in, on the server | FL-106, FL-110 | `none` | removed |
+| SCR-106 | Item | none | `/pictures/{project}/{part}/{stage}#item={id}` | anyone Cloudflare Access lets in, on the server | FL-106, FL-107 | `none` | removed |
+| SCR-107 | Comment | none | `/pictures/{project}/{part}/{stage}#comment={comment}` | anyone Cloudflare Access lets in, on the server | FL-107, FL-109 | `none` | removed |
+| SCR-108 | Proposal | none | `/pictures/{project}/{part}/{stage}#proposal={proposal}` | anyone Cloudflare Access lets in, on the server | FL-110 | `none` | removed |
+| SCR-109 | Stage overview | none | `/overview/{project}/{part}/{stage}` | anyone Cloudflare Access lets in, on the server | FL-113 | `none` | removed |
 <!-- end of list -->
 
 ## The flows on the screens
 
-Every step that shows the user something on a screen names that screen. A flow that runs on a device, on the server or in a session shows nothing on a screen of its own: the hub reports it in the session, through the outcomes of its commands (API-133 to API-150), and the screens show its results the next time they are opened. A step that only hands over to another flow, such as "Open the picture view, FL-106", names no screen, since that flow names it. From the design revision of 2026-11-11 the table is drawn from the `flows` of the screens that are not removed and holds every flow, FL-125 to FL-127 too. Where a flow runs is the table's own, and FL-114 now runs in a session and in a browser, since the user removes a project in NEXUS (SPEC-202).
+Every step that shows the user something on a screen names that screen. A flow that runs on a device, on the server or in a session shows nothing on a screen of its own: the hub reports it in the session, through the outcomes of its commands (API-133 to API-150), and the screens show its results the next time they are opened. A step that only hands over to another flow, such as "Open the picture view, FL-106", names no screen, since that flow names it. From the design revision of 2026-11-11 the table is drawn from the `flows` of the screens that are not removed and holds every flow, FL-125 to FL-127 too. Where a flow runs is the table's own, and FL-114 now runs in a session and in a browser, since the user removes a project in NEXUS (SPEC-202). Drawn again on 2026-11-13 with TASK-278: FL-106, FL-107, FL-109, FL-110 and FL-113 name the redesign's screens where they named SCR-105 to SCR-109.
 
 <!-- flows: drawn from nexus.yaml -->
 | Flow | Where it runs | Screens of its steps |
@@ -119,14 +119,14 @@ Every step that shows the user something on a screen names that screen. A flow t
 | FL-103 | on the server | none: the hub reports in the session |
 | FL-104 | on the server | none: the hub reports in the session |
 | FL-105 | in a browser, and on a device | SCR-102, SCR-103, SCR-104, SCR-117 |
-| FL-106 | in a browser | SCR-105, SCR-106 |
-| FL-107 | in a browser | SCR-106, SCR-107 |
+| FL-106 | in a browser | SCR-112, SCR-114, SCR-115 |
+| FL-107 | in a browser | SCR-114, SCR-115 |
 | FL-108 | in a session | none: the hub reports in the session |
-| FL-109 | in a session; the comment shows its answers and decisions | SCR-107 |
-| FL-110 | in a browser | SCR-105, SCR-108 |
+| FL-109 | in a session; the comment shows its answers and decisions | SCR-114 |
+| FL-110 | in a browser | SCR-112, SCR-114 |
 | FL-111 | in a session | none: the hub reports in the session |
 | FL-112 | in a session | none: the hub reports in the session |
-| FL-113 | in a browser, and in a session | SCR-104, SCR-109, SCR-112, SCR-113, SCR-117 |
+| FL-113 | in a browser, and in a session | SCR-104, SCR-112, SCR-113, SCR-117 |
 | FL-114 | in a session, and in a browser | SCR-110, SCR-130 |
 | FL-115 | in a browser on a PC, phase ② | SCR-112 |
 | FL-116 | in a browser on a PC, phase ② | SCR-112 |
@@ -147,7 +147,7 @@ Every step that shows the user something on a screen names that screen. A flow t
 - An address whose item, comment or proposal the picture does not hold opens the picture view, which says so; stage 08 draws that state.
 - In a path, `{part}` is `_` for the project as a whole, as in the contract's requests.
 
-The redesign's addresses, once it is built. Since TASK-271 the server answers its pages at them: `/` and a stage's address with the frame that TASK-272 draws, `/p/{project}` with its redirect, and `/hub` with the hub page, so SCR-117 is active; since TASK-273 `/` is the first page, so SCR-110 is active too; since TASK-274 a stage's address shows the workspace with the stage's list, so SCR-111 and SCR-113 are active, and a pictured stage showed its list until TASK-275 drew its picture; since TASK-275 to TASK-277 the picture stage, the talk, the item and the search are built, so SCR-112, SCR-114, SCR-115 and SCR-116 are active too; the redirects of 0.2's two paths come with TASK-278:
+The redesign's addresses, once it is built. Since TASK-271 the server answers its pages at them: `/` and a stage's address with the frame that TASK-272 draws, `/p/{project}` with its redirect, and `/hub` with the hub page, so SCR-117 is active; since TASK-273 `/` is the first page, so SCR-110 is active too; since TASK-274 a stage's address shows the workspace with the stage's list, so SCR-111 and SCR-113 are active, and a pictured stage showed its list until TASK-275 drew its picture; since TASK-275 to TASK-277 the picture stage, the talk, the item and the search are built, so SCR-112, SCR-114, SCR-115 and SCR-116 are active too; and since TASK-278 the server answers 0.2's two paths with the redirects below, so SCR-105 to SCR-109 are `removed`:
 
 - The pages are the first page `/` (API-155), a project `/p/{project}`, which leads to its current stage (API-153), a stage `/p/{project}/{part}/{stage}` (API-154) and the hub page, now at `/hub` (API-101). `{stage}` is a stage's key, such as `02-prd`; SCR-112 and SCR-113 share the form and differ by whether the stage has a picture.
 - After `#`, in the same form as 0.2's: `talk` alone opens the stage's talk, and with an `nc_` or `np_` ID opens that comment or proposal in it; `item` with a trace ID opens the item; `view=list` shows a picture stage's list instead of its picture; `step` keeps a DDD board's step, as in 0.2; `q` holds the search's words on any page.
@@ -180,7 +180,7 @@ NEXUS pairs each read model on a part's DDD board with the screens of the part's
 
 - The redesign's screens: the picture stage, the talk and the item name Picture view (TERM-111) in Discussion, as the picture view and its panels do. The document stage names Stage overview (TERM-120) in Stage progress, since a stage without a picture shows what it holds and what is left in it, and the user passes its checkpoint there. The first page names the agent to-do (TERM-121) in Discussion, whose counts it shows, so the YAML no longer lists the agent to-do after `# without a screen:`. The workspace, the search and the full checks say `terms: none`. My turn (TERM-135), the user's side of the open talk, is a word of the glossary and not yet a read model of the board, so no screen names it; stage 01's next change of the board can add it.
 - Phase ②'s read models, Work board view (TERM-148) and List of changes (TERM-149), have no screen yet: the YAML lists them after `# without a screen:` until phase ②'s screens name them, on the picture stage (SCR-112) and its talk, as stage 05's nexus.sql lists phase ②'s aggregates after `without a table:` (its choice 19), so no discrepancy waits for them meanwhile.
-- From the design revision of 2026-11-11: the project's data, SCR-130, says `terms: none`. Project data (TERM-154) is a word of the glossary in Sharing (CTX-009), a context without a read model on the board, so naming it would open a discrepancy, as for the hub page. A removed screen says `terms: none` too, since NEXUS's cross-check opens a discrepancy for a removed screen that still names a read model: SCR-101 named none, and SCR-105 to SCR-109 take their terms out when TASK-278 removes them, from when the redesign's screens alone name those read models.
+- From the design revision of 2026-11-11: the project's data, SCR-130, says `terms: none`. Project data (TERM-154) is a word of the glossary in Sharing (CTX-009), a context without a read model on the board, so naming it would open a discrepancy, as for the hub page. A removed screen says `terms: none` too, since NEXUS's cross-check opens a discrepancy for a removed screen that still names a read model: SCR-101 named none, and SCR-105 to SCR-109 take their terms out when TASK-278 removes them, from when the redesign's screens alone name those read models. They have since TASK-278.
 
 NEXUS's cross-check of its own pictures should then find no discrepancy between this sitemap and the board, which stage 12 checks. [Change 3](#changes-to-earlier-stages) concerns the read models that are read in more than one context.
 
@@ -270,6 +270,13 @@ On 2026-11-11, for the design revision, which changes nexus.yaml, this file, its
 - The repository's checks pass: `python -m unittest discover -s tests` with the pinned hub (13 tests), `node --test nexus/test/*.test.js` (337 tests, on Node 22, since the container has no Node 24), the Worker's dry-run build and `git diff --check`. Every link of the changed documents resolves, and each changed line has the same IDs, code and links as its translation, apart from two lines that differed before this stage.
 
 Since TASK-281 of 2026-11-12, `tests/test_sitemap.py` runs these checks as the repository's test, reading nexus.yaml with the pinned hub's own code: the second, the third and the fourth as written, and the first on the steps of the 22 flows in both languages, while whether each step that shows something names its screen stays a check by hand. It also takes this repository's snapshot with the pinned hub and runs NEXUS's cross-check on it (TC-1768), and `nexus/test/hub-regression.mjs` opens the hub page's three views at `/hub` and in the file that the hub builds on a device (TC-1766).
+
+On 2026-11-13, with TASK-278, which turns SCR-105 to SCR-109 `removed` and has five flows name the redesign's screens in their place:
+
+- `tests/test_sitemap.py` passes its four checks and its cross-check: the SCR IDs in the steps of each of the 22 flows equal, in English and Korean, the `flows` of the screens that are not removed, once FL-106, FL-107, FL-109, FL-110 and FL-113 name SCR-112, SCR-114 and SCR-115 where they named SCR-105 to SCR-109; nexus.yaml holds 18 screens, 9 `active`, 1 `planned`, 2 `built` and 6 `removed`, each removed one after the tree with `terms: none`; and this file and its translation equal a fresh drawing. With the pictures drawn from these files, NEXUS's cross-check of the board and this sitemap opens no discrepancy, since SCR-112 to SCR-115 name the read models that the removed screens named.
+- The pinned hub builds this repository's snapshot with 1903 items, no error and the 601 warnings that `tests/hub_warnings.json` lists by rule and ID, as before, and reads the 18 screens with the six removed ones apart.
+- Mermaid 11.17.2 draws the board in Playwright's Chromium, in English and Korean, with 18 boxes, 11 arrows and the six removed screens in the Removed box, and the five changed flows in both languages.
+- The repository's checks pass: `python -m unittest discover -s tests` with the pinned hub (39 tests), `node --test nexus/test/*.test.js` (368 tests, Node 24), the Worker's dry-run build and `git diff --check`.
 
 ## For the checkpoint
 

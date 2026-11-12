@@ -180,7 +180,7 @@ class SitemapChecksTest(unittest.TestCase):
                 self.assertTrue(all(len(row) == 3 and row[1] for row in cells), "each flow says where it runs")
                 self.assertEqual([(row[0], row[2]) for row in cells], flows)
         counted = screens()
-        self.assertEqual((len(counted), sum(screen["status"] == "removed" for screen in counted)), (18, 1))
+        self.assertEqual((len(counted), sum(screen["status"] == "removed" for screen in counted)), (18, 6))
 
 
 class SitemapCrosscheckTest(GitSourcesFixture):
@@ -210,8 +210,10 @@ class SitemapCrosscheckTest(GitSourcesFixture):
         self.assertEqual(sorted(picture["stage"] for picture in pictures), ["01-domain", "07-sitemap"])
         sitemap = next(picture["source"] for picture in pictures if picture["stage"] == "07-sitemap")
         by_id = {screen["id"]: screen for screen in sitemap["screens"]}
-        self.assertTrue(by_id["SCR-101"]["removed"])
-        self.assertNotIn("parent", by_id["SCR-101"])
+        # SCR-101 since the design revision of 2026-11-11, and 0.2's two pages and their panels since TASK-278.
+        for removed in ("SCR-101", "SCR-105", "SCR-106", "SCR-107", "SCR-108", "SCR-109"):
+            self.assertTrue(by_id[removed]["removed"], removed)
+            self.assertNotIn("parent", by_id[removed], removed)
         self.assertEqual(sitemap["screens"][by_id["SCR-130"]["parent"]]["id"], "SCR-111", "SCR-130 is in the tree")
 
         crosscheck = (ROOT / "nexus/src/crosscheck.js").as_uri()
