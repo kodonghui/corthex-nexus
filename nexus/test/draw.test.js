@@ -142,6 +142,32 @@ test("the bar of rule 15 and the phone's tabs are drawn before the code",()=>{
   assert.ok(!list.includes('data-nx-tab="item"'),"the item's tab only while an item is selected");
   const item=tabs({picture:false,talk:7,item:true},"ko");
   assert.ok(item.endsWith(`<a class="tab" href="#talk" data-nx-tab="item">${icon("i-record")}<span>항목</span></a>`),"then the Item tab, after the talk's (SCR-115's layout)");
+  // While entries of the stage wait for the user, "My turn {n}" under "Talk {n}" (SCR-111#folded).
+  for(const lang of["en","ko"]){
+    const mine=tabs({picture:false,talk:7,mine:2},lang);
+    assert.ok(mine.includes(`<a class="tab" href="#talk" data-nx-tab="talk"><span class="tl2"><span>${icon("i-talk")}<span>${esc(label("Tabs",2,lang,{n:"7"}))}</span></span><span class="mt">${esc(label("The talk",1,lang,{n:"2"}))}</span></span></a>`),"the Talk tab's two lines");
+    assert.ok(!tabs({picture:false,talk:7,mine:0},lang).includes('class="mt"'),"nothing waits: one line");
+    assert.ok(tabs({picture:false,talk:7,mine:1500},lang).includes(`>${esc(label("The talk",1,lang,{n:"999+"}))}<`),"a count over 999");
+  }
+});
+
+test("the folds' controls: the list's in the frame, the talk's in its head, and Talk ({n}) with my turn (SPEC-210)",()=>{
+  for(const lang of["en","ko"]){
+    const words=labels("The folds",lang),payload=stagePage(lang),html=drawBody(payload),parts=drawParts(payload);
+    // The list's control is part of the frame: in the list's column, outside its part, waiting for the code.
+    const control=`<div class="ftop only-pc"><button class="btn sm icon fold-s" type="button" data-nx-act="fold-stages" aria-controls="stages" aria-expanded="true" title="${esc(words[0])}" disabled data-nx-wait="folds">${icon("i-back","f-on")}${icon("i-next","f-off")}<span class="sr f-on">${esc(words[0])}</span><span class="sr f-off">${esc(words[1])}</span></button></div>`;
+    assert.ok(html.includes(`<span class="sr">${esc(labels("Top bar",lang)[5])}</span></a>${control}<div class="rail-in" data-nx-part="rail">`),"between the phone's Close and the list's part");
+    for(const part of Object.values(parts))assert.ok(!part.includes("fold-stages"),"no part holds it");
+    // The stage's count in my turn (API-158's stages) on Talk ({n}) and the Talk tab.
+    const mine=payload.data.stages.find(stage=>stage.key===payload.data.stage).mine;
+    assert.equal(mine,2);
+    assert.ok(parts.stage.includes(`<a class="btn sm tbtn" href="#talk" data-nx-key="talk" data-nx-act="talk" data-nx-focus="talk" data-nx-fold="talk" aria-controls="talk" title="${esc(words[3])}">${icon("i-talk")}<span>${esc(label("Tabs",4,lang,{n:"7"}))}</span><span class="mt">${esc(label("The talk",1,lang,{n:"2"}))}</span></a>`),"Talk ({n}) says my turn");
+    assert.ok(parts.tabs.includes(`<span class="mt">${esc(label("The talk",1,lang,{n:"2"}))}</span>`));
+    const none=drawParts(stagePage(lang,{rows:STAGE_KEYS.map(key=>({key,state:"done",items:1,picture:false,not_current:null,mine:0}))}));
+    assert.ok(!none.stage.includes('class="mt"')&&!none.tabs.includes('class="mt"'),"nothing waits: no my turn");
+    // The talk's own control, in its head, from 1,280 pixels.
+    assert.ok(parts.side.includes(`<button class="btn sm icon fold-t" type="button" data-nx-act="fold-talk" data-nx-focus="fold-talk" aria-controls="talk" aria-expanded="true" title="${esc(words[2])}" disabled data-nx-wait="talk">${icon("i-next")}<span class="sr">${esc(words[2])}</span></button>`),"the talk's control waits for the code");
+  }
 });
 
 test("the server's page holds each part exactly as the view's code draws it (rule 15)",()=>{
@@ -174,13 +200,20 @@ test("a page whose code does not run stays readable, with the bar of rule 15, an
   // The widths of rule 16 and the hit areas of rule 14 are the stylesheet's.
   assert.match(css,/@media ?\(min-width:1024px\) ?and \(max-width:1279\.98px\)/);assert.match(css,/@media ?\(max-width:1023\.98px\)/);assert.match(css,/@media ?\(min-width:1024px\) ?\{/);
   assert.match(css,/\.nx \.rail:target,\.nx \.ws\[data-nx-open=stages\] \.rail\{display:flex\}/);
+  // The folds (SPEC-210): a first visit, which keeps nothing, folds the talk from 1,280 to 1,439
+  // pixels and before the code too, unless a link to #talk targets it; a kept value holds from
+  // 1,280; the list folds to its rail of 56 pixels from 1,024.
+  assert.match(css,/--pg-frail:56px/);
+  assert.match(css,/@media ?\(min-width:1280px\) ?and \(max-width:1439\.98px\) ?\{\.nx \.ws:not\(\[data-nx-talk\]\):not\(\[data-nx-open=talk\]\):not\(\[data-nx-open=record\]\):is\(\[data-nx-tab\],:not\(:has\(\.side:target\)\)\)\{grid-template-columns:var\(--pg-rail\) minmax\(0,1fr\)\}/);
+  assert.match(css,/@media ?\(min-width:1280px\) ?\{\.nx \.fold-t\{display:inline-flex\}\.nx \.ws\[data-nx-talk=folded\]:not\(\[data-nx-open=talk\]\):not\(\[data-nx-open=record\]\)\{grid-template-columns:var\(--pg-rail\) minmax\(0,1fr\)\}/);
+  assert.match(css,/\.nx \.ws\[data-nx-stages=folded\]\{--pg-rail:var\(--pg-frail\)\}/);
   assert.match(css,/\.nx \.btn:after\{content:"";position:absolute;inset:calc\(\(var\(--nx-size-button\) - var\(--nx-size-target\)\) \/ 2 - var\(--nx-border-thin\)\)/,"the hit area adds back the border that its padding box leaves out");
   assert.match(css,/\.nx \.field input::-webkit-search-cancel-button\{[^}]*display:none/,"a search field draws no clear button of the browser's, whose hit area falls short of rule 14");
   assert.doesNotMatch(readFileSync(new URL("../ui/page.css",import.meta.url),"utf8"),/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i,"colours come from the frozen tokens");
   // A pictured stage without a picture (05), a document stage (02) and the first page.
-  for(const [payload,waits]of[[stagePage("en"),["picture","record","search","talk"]],[stagePage("ko",{stage:"02-prd"}),["list","record","search","talk"]],[homePage("ko"),["answer","order","search"]]]){
+  for(const [payload,waits]of[[stagePage("en"),["folds","picture","record","search","talk"]],[stagePage("ko",{stage:"02-prd"}),["folds","list","record","search","talk"]],[homePage("ko"),["answer","order","search"]]]){
     const html=views.page(payload),controls=tags(html,/<(?:button|input|select|textarea)\b[^>]*>/g);
-    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order|list|record|picture|talk)"/,"a control that needs the code waits for it");
+    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order|list|record|picture|talk|folds)"/,"a control that needs the code waits for it");
     // The talk's turns lead to their groups, each a heading of the page (SCR-114).
     for(const link of tags(html,/<a\b[^>]*>/g))assert.match(link,/href="(?:\/|#stage|#stages|#talk|#t-mine|#t-agent|#item=|#view=list&amp;item=)[^"]*"/,"every link works without the code");
     for(const turn of html.matchAll(/href="#(t-mine|t-agent)"/g))assert.ok(html.includes(`id="${turn[1]}"`),"a turn's link leads to its group");

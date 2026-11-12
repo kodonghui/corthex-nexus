@@ -25,6 +25,7 @@
 | 모양의 설명 | SCR-111(규칙 13) | ✓ done · ◐ in progress · ○ not started · – skipped · ? not recorded · picture | ✓ 완료 · ◐ 진행 중 · ○ 시작 전 · – 건너뜀 · ? 기록 없음 · 그림 |
 | 다시 올라옴 | SCR-111#stale | This project was pushed again at {time}. Load again to see it. | 이 프로젝트가 {time}에 다시 올라왔습니다. 보려면 다시 불러와 주세요. |
 | 탭 | SCR-111(규칙 16) | Picture · List · Talk {n} · Item · Talk ({n}) | 그림 · 목록 · 대화 {n} · 항목 · 대화 ({n}) |
+| 접기 | SCR-111(SPEC-210): 누르면 하는 일을 말하는 두 접기 조작의 이름이며, 마지막은 접힌 대화의 "대화 ({n})"에 붙는 설명 | Fold the list of stages · Show the list of stages · Fold the talk · Show the talk | 단계 목록 접기 · 단계 목록 펴기 · 대화 접기 · 대화 펴기 |
 | 머리 | SCR-112, SCR-113 | Last checkpoint {date} · No checkpoint yet · Commit {commit} · drawn {time} · Stage record · Back to the talk | 마지막 확인 지점 {date} · 아직 확인 지점 없음 · 커밋 {commit} · {time}에 그림 · 단계 기록 · 대화로 돌아가기 |
 | 머리의 수 | SCR-112, SCR-113 | {n} contexts · {n} terms · {n} open hotspots · {n} tables · {n} screens · {n} requirements · {n} cases | 컨텍스트 {n} · 용어 {n} · 열린 핫스팟 {n} · 표 {n} · 화면 {n} · 요구사항 {n} · 사례 {n} |
 | 읽지 않음 | SCR-113#not-read. {why}는 텍스트 원본의 상태 `missing`, `none`, `skipped`, `no-checkout`, `invalid`를 따라 뒤의 다섯 가운데 하나이고, 같은 {why}가 0.2의 메시지 "이 프로젝트는 이 단계를 읽지 않습니다: {why}."를 채웁니다 | Not read: {why} · the source is missing · no text source is set · the project skips this stage · its repository was not on the machine that made the snapshot · its setting needs a fix | 읽지 않음: {why} · 원본이 없음 · 텍스트 원본이 정해지지 않음 · 프로젝트가 이 단계를 건너뜀 · 스냅샷을 만든 기기에 저장소가 없었음 · 설정을 고쳐야 함 |

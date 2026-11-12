@@ -66,9 +66,12 @@ export function drawHead(data,lang,view){
   // at the right end of the tools' line from 1,024. The head shows no Edit until a release
   // includes editing, so that its counts reach its right end (stage 08's rule 23, SPEC-147).
   const record=`<button class="btn sm${view.pictured?" only-ph":""}" type="button" data-nx-key="rec" data-nx-act="record" data-nx-focus="record" aria-expanded="${Boolean(view.record)}"${wait}>${icon("i-record")}<span>${esc(words[4])}</span></button>`;
-  // From 1,024 to 1,279 pixels the talk folds into "Talk ({n})" (SCR-111, rule 16), whose link
-  // opens it without the code.
-  const talk=`<a class="btn sm only-mid" href="#talk" data-nx-key="talk" data-nx-act="talk" data-nx-focus="talk">${icon("i-talk")}<span>${esc(label("Tabs",4,lang,{n:count(view.talk)}))}</span></a>`;
+  // The folded talk's button, "Talk ({n})" (SCR-111, rule 16, SPEC-210): from 1,024 to 1,279
+  // pixels always, and from 1,280 while the talk is folded, which the stylesheet decides; its link
+  // opens the talk without the code. While entries of the stage wait for the user it says "My
+  // turn {n}" too (SCR-111#folded). The code says whether the talk shows (aria-expanded).
+  const mine=Number(view.mine)||0,turn=mine?`<span class="mt">${esc(label("The talk",1,lang,{n:count(mine)}))}</span>`:"";
+  const talk=`<a class="btn sm tbtn" href="#talk" data-nx-key="talk" data-nx-act="talk" data-nx-focus="talk" data-nx-fold="talk" aria-controls="talk" title="${esc(label("The folds",3,lang))}">${icon("i-talk")}<span>${esc(label("Tabs",4,lang,{n:count(view.talk)}))}</span>${turn}</a>`;
   // Each count whole on its line, so that a line that breaks ends with "·" (REQ-226).
   const counts=head.reads===false?"":headCountParts(head,lang).map((part,index,all)=>`<span class="c">${esc(part)}${index<all.length-1?" ·":""}</span>`).join(" ");
   return`<div class="shd" data-nx-key="head" data-nx-sub><h1 data-nx-key="h"><span class="num">${esc(stageNumber(head.key))}</span> ${esc(stageName(head.key,lang))}</h1><span class="st" data-nx-key="st">${stateWord(head.state,lang)}</span><span class="meta" data-nx-key="meta">${meta.join("")}</span><span class="counts" data-nx-key="counts" data-nx-sub><span class="cn" data-nx-key="cn">${counts}</span>${record}${talk}</span></div>`;

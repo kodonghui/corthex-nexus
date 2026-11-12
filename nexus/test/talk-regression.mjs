@@ -379,13 +379,15 @@ try{
  // selects its item, and the talk narrows to it with the entry open and in sight; the browser's
  // back button returns to the whole talk at the entry with the focus on it, and so does All
  // talk of the stage; checkpoint_requested, if it ever came to the box, keeps the words under
- // its message (SPEC-209, TC-1720, TC-1721; the folds come with TASK-287).
+ // its message (SPEC-209, TC-1720, TC-1721; the folds suite runs them with each fold, TASK-287).
  for(const width of[390,1152,1280,1440])for(const [lang,theme]of[['en','light'],['ko','dark']]){
   await test(`narrowed-and-error-${width}-${lang}-${theme}`,async()=>{
    await setting({width,theme,touch:width<1024});
    await open(page('02-prd',lang));
+   // From 1,024 to 1,439 pixels Talk ({n}) shows the talk: the panel, and from 1,280 a first
+   // visit's folded column, which the browser then keeps shown (SPEC-210).
    if(width<1024)await click('.tabs .tab[data-nx-tab="talk"]');
-   else if(width<1280){await click('.stage [data-nx-act="talk"]');await settled();}
+   else if(width<1440&&!await evaluate(`document.querySelector('aside.side').checkVisibility()`)){await click('.stage [data-nx-act="talk"]');await settled();}
    await click(`li[data-nx-entry="${qa.question}"] .ref`);await waitFor(rowShown('REQ-002')+'||'+(width<1024));await settled();
    let s=await state();
    assert(s.hash===`#talk=${qa.question}&item=REQ-002`&&s.heading===label('Narrowed',0,lang,{id:'REQ-002'})&&s.whole&&s.selected==='REQ-002'&&one(s.lists.mine,qa.question)?.open&&await inSight(qa.question)&&s.label===words('Comment on',lang,{id:'REQ-002'})&&s.side&&s.overflow===0,'Narrowed from the entry, its item selected: '+JSON.stringify({hash:s.hash,heading:s.heading,selected:s.selected,label:s.label,side:s.side,overflow:s.overflow}));

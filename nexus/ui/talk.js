@@ -470,8 +470,9 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
         case "closed":toggleClosed();return true;
         case "closed-more":readClosed(st.closed.entries?.length||0);return true;
         case "read-talk":readAgain();return true;
-        // Talk ({n}) in the stage's head, which ./stage.js runs.
-        case "talk":own();return false;
+        // Talk ({n}) in the stage's head, and the control that folds the talk from 1,280 pixels
+        // (SPEC-210), which ./stage.js runs.
+        case "talk":case "fold-talk":own();return false;
         case "talk-close":
           event.preventDefault();own();
           if(ws&&ws.dataset.nxOpen==="talk")delete ws.dataset.nxOpen;

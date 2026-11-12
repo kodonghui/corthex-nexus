@@ -188,7 +188,7 @@ test("an entry drawn twice opens once, and an entry whose item is gone says so w
   const html=drawTalk(talk(),DATA,"en",{open:g,threads:{[g]:{state:"ready",data:{replies:[]},seen:[]}},closed:{open:true,entries:[closedCopy],total:3}},true);
   assert.equal((html.match(/data-nx-entry="nc&#95;gggggggggggg"/g)||[]).length,2);
   assert.equal((html.match(/id="rp-nc&#95;gggggggggggg"/g)||[]).length,1,"one reply box");
-  assert.equal((html.match(/aria-expanded="true"/g)||[]).length,2,"the entry and the unfolded closed talk");
+  assert.equal((html.match(/aria-expanded="true"/g)||[]).length,3,"the entry, the unfolded closed talk and the control that folds the talk (SPEC-210)");
   assert.ok(html.includes('id="tx-nc&#95;gggggggggggg-2"')&&html.includes('data-nx-focus="talk:nc&#95;gggggggggggg:2"'),"the copy's IDs differ");
   assert.ok(html.includes(esc(label("An item that the talk selects",0,"en",{id:"TBL-999"}))),"the gone item, with its ID");
   assertKeyed(html,"copies");

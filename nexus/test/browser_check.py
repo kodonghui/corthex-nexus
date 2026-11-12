@@ -1,7 +1,8 @@
 """Run the browser regressions of the redesign's pages with separately owned fixture servers.
 
 Since TASK-278 no address serves 0.2's picture view or stage overview (SPEC-154), so their suites are retired; the
-page suite opens their addresses and sees where they lead (TC-1767). The walk of the redesign's 53 states (TASK-278)
+page suite opens their addresses and sees where they lead (TC-1767). The folds of the workspace's columns (TASK-287)
+run on the talk's fixture, with their own page checks. The walk of the redesign's 53 states (TASK-278)
 runs after them, one group of screens per fixture server, and the paths that browser agents walked through the flows
 (TC-1785) last. Names given as arguments run only those suites, such as `page`, `walk`, `walk:talk` or `flows`."""
 import json
@@ -57,6 +58,9 @@ SUITES = (
     ("item", "item-regression.mjs", ("NEXUS_QA_ITEM",), ()),
     # The hub page's views at /hub and in the file that the pinned hub builds (TASK-281), with its own project.
     ("hub", "hub-regression.mjs", ("NEXUS_QA_HUB_VIEWS",), ()),
+    # The folds of the workspace's columns (TASK-287): by width, kept, with items and addresses, on a
+    # phone and without storage, by keyboard, and SCR-111#folded with the page checks, on the talk's fixture.
+    ("folds", "folds-regression.mjs", ("NEXUS_QA_TALK",), ()),
     # The walk of the 53 states (TASK-278): each group of screens on the fixture of the suites above that
     # holds its states, at its widths, in both themes and languages, with the page checks.
     ("walk:home", "walk-regression.mjs", ("NEXUS_QA_HOME",), ("home",)),
@@ -93,7 +97,7 @@ def main(names=()):
         suite = clean.copy()
         for flag in flags:
             suite[flag] = "1"
-        result = run_suite(executable, suite, script, arguments, timeout=360 if name.startswith("walk:") else 180)
+        result = run_suite(executable, suite, script, arguments, timeout=360 if name.startswith("walk:") or name == "folds" else 180)
         if result:
             return result
     return 0

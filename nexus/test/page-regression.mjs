@@ -217,7 +217,8 @@ try{
  });
 
  // Rule 16's widths without the code's help: the links #stages and #talk open the sheet
- // and the talk, and nothing scrolls the page sideways from 320 pixels.
+ // and the talk, and nothing scrolls the page sideways from 320 pixels. From 1,280 to 1,439 a
+ // first visit's talk is folded, and its link shows it (SPEC-210).
  await test('widths-without-code',async()=>{
   const layout=`(()=>{const shown=s=>{const e=document.querySelector(s);return!!e&&e.getClientRects().length>0&&getComputedStyle(e).display!=='none';},box=s=>{const r=document.querySelector(s)?.getBoundingClientRect();return r?[r.x,r.y,r.width,r.height].map(Math.round):null;};
    return{rail:shown('nav.rail'),stage:shown('main.stage'),side:shown('aside.side'),tabs:shown('nav.tabs'),scrim:shown('a.scrim'),railBox:box('nav.rail'),stageBox:box('main.stage'),sideBox:box('aside.side'),railPosition:getComputedStyle(document.querySelector('nav.rail')).position,width:innerWidth,scrollWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth};})()`;
@@ -225,7 +226,8 @@ try{
   for(const width of[320,390,1024,1152,1279,1280,1440])for(const hash of['','#talk','#stages']){
    await setting({width});await open(stagePage('ko')+hash);const l=await evaluate(layout);seen.push({width,hash,...l});
    assert(l.scrollWidth<=width&&l.bodyWidth<=width,`The page scrolls sideways at ${width}${hash}`);
-   if(width>=1280)assert(l.rail&&l.stage&&l.side&&!l.tabs&&l.railBox[0]<l.stageBox[0]&&l.stageBox[0]+l.stageBox[2]<=l.sideBox[0],'Three columns from 1,280 pixels');
+   if(width>=1440||width>=1280&&hash==='#talk')assert(l.rail&&l.stage&&l.side&&!l.tabs&&l.railBox[0]<l.stageBox[0]&&l.stageBox[0]+l.stageBox[2]<=l.sideBox[0],'Three columns from 1,440 pixels, and from 1,280 by the talk\'s link');
+   else if(width>=1280)assert(l.rail&&l.stage&&!l.side&&!l.tabs&&l.stageBox[0]+l.stageBox[2]===width,'From 1,280 to 1,439 pixels a first visit\'s talk is folded, the stage to the right edge (SPEC-210)');
    else if(width>=1024){assert(l.rail&&l.stage&&!l.tabs,'The list of stages and the stage from 1,024 pixels');assert(l.side===(hash==='#talk'),'The talk opens over the stage only by its link');if(l.side)assert(l.sideBox[0]+l.sideBox[2]===width&&l.sideBox[0]>l.stageBox[0],'The talk sits over the stage\'s right edge');}
    else{assert(l.tabs,'The tabs under 1,024 pixels');assert(l.side===(hash==='#talk')&&l.stage===(hash!=='#talk'),'The tabs show the stage or the talk');assert(l.rail===(hash==='#stages')&&l.scrim===(hash==='#stages'),'The list of stages is a sheet opened by its link');if(l.rail)assert(l.railPosition==='fixed'&&l.railBox[1]+l.railBox[3]===844,'The sheet rises from the bottom');}
   }

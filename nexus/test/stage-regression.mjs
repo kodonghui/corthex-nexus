@@ -114,7 +114,7 @@ const STATE=`(()=>{const q=s=>document.querySelector(s),all=s=>[...document.quer
  const head=q('.stage .shd'),bar=q('.stage .notes .bar'),more=q('.stage .more'),nolist=q('.stage .nolist'),rec=q('.side .rec'),button=b=>b&&{text:txt(b),disabled:b.disabled,wait:b.dataset.nxWait||null,aria:b.getAttribute('aria-disabled'),expanded:b.getAttribute('aria-expanded')};
  const msg=m=>m&&{tone:tone(m,'msg'),role:m.getAttribute('role'),text:txt(m.querySelector('.t')),trace:txt(m.querySelector('.tid')),retry:m.querySelector('[data-nx-act=pass],[data-nx-act=withdraw]')?.dataset.nxAct||null,signIn:!!m.querySelector('[data-nx-act=sign-in]')};
  return{code:document.documentElement.dataset.nxCode||null,
-  head:head?{h1:txt(head.querySelector('h1')),state:txt(head.querySelector('.st')),meta:[...head.querySelectorAll('.meta > span')].map(txt),waiting:txt(head.querySelector('.meta > .wait')),counts:txt(head.querySelector('.cn')),record:button(head.querySelector('[data-nx-act=record]')),talk:txt(head.querySelector('[data-nx-act=talk]'))}:null,
+  head:head?{h1:txt(head.querySelector('h1')),state:txt(head.querySelector('.st')),meta:[...head.querySelectorAll('.meta > span')].map(txt),waiting:txt(head.querySelector('.meta > .wait')),counts:txt(head.querySelector('.cn')),record:button(head.querySelector('[data-nx-act=record]')),talk:txt(head.querySelector('[data-nx-act=talk] > span:not(.mt)')),talkMine:txt(head.querySelector('[data-nx-act=talk] > .mt'))}:null,
   chips:all('.stage .chip').map(b=>({filter:b.dataset.nxFilter,text:txt(b.firstElementChild),n:txt(b.querySelector('.n')),pressed:b.getAttribute('aria-pressed'),disabled:b.disabled,wait:b.dataset.nxWait||null})),
   find:(i=>i&&{disabled:i.disabled,wait:i.dataset.nxWait||null,value:i.value})(q('.stage input[name=q]')),
   group:txt(q('.stage .gm > summary')||q('.stage .gm')),groupWaits:all('.stage .gm [data-nx-act=group]').map(b=>b.dataset.nxWait||(b.disabled?'disabled':null)),
@@ -220,7 +220,8 @@ try{
    assert(n.head.counts===`${label("The head's counts",5,lang,{n:'450'})} · Must 113 · Should 113 · Could 112 · Won't 112`,'#normal: the requirements by priority, MoSCoW\'s order: '+n.head.counts);
    const L=seen.layout;
    if(width>=1280)assert(L.rail&&L.side&&L.side.box[2]===400&&L.side.position!=='absolute'&&!L.talk&&!L.tabs&&L.columns?.startsWith('112px'),'From 1,280: the list of stages, the stage and the side, the ID 112 pixels: '+JSON.stringify(L));
-   else if(width>=1024)assert(L.rail&&!L.side&&L.talk&&!L.tabs&&L.columns?.startsWith('112px')&&n.head.talk===label('Tabs',4,lang,{n:'3'}),'From 1,024 to 1,279: the talk folds into Talk (3): '+JSON.stringify({L,talk:n.head.talk}));
+   // Beside Talk ({n}) the comments that wait for the user, as the list of stages counts them (SPEC-210).
+   else if(width>=1024){const mine=first.stages.find(s=>s.key==='02-prd').mine;assert(L.rail&&!L.side&&L.talk&&!L.tabs&&L.columns?.startsWith('112px')&&n.head.talk===label('Tabs',4,lang,{n:'3'})&&n.head.talkMine===(mine?label('The talk',1,lang,{n:String(mine)}):null),'From 1,024 to 1,279: the talk folds into Talk (3), with My turn: '+JSON.stringify({L,talk:n.head.talk,mine:n.head.talkMine,stage:mine}));}
    else assert(!L.rail&&!L.side&&L.tabs&&L.h1[2]<=1&&L.rows.every(h=>h>=44)&&L.chips.every(h=>h===44),'Under 1,024: the tabs, rows of 44 pixels at least and chips 44 high: '+JSON.stringify(L));
    if(width>=1024)assert(L.rows.every(h=>h>=36)&&L.chips.every(h=>h===28),'Rows of 36 pixels at least and chips 28 high: '+JSON.stringify(L));
    await noSideways('#normal');shots.push(await shot('normal-'+tag));

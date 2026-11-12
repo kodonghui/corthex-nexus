@@ -5,10 +5,10 @@
 // the checkpoint or withdraws one passed in NEXUS (API-128, API-129); the talk in the side
 // (./talk.js), with the address's talk=, the phone's tabs and the panel from 1,024 to 1,279
 // pixels; the selected item's panel there (./item.js, SCR-115), with the switch back to the
-// talk and the phone's Item tab; and the top bar's search (./search.js, SCR-116), whose words
-// the address holds as q=. It draws with the server's own functions (../src/draw/page.js): the
-// stage's middle and
-// the side are compared element by element (./reconcile.js), so that the focus, the words and
+// talk and the phone's Item tab; the top bar's search (./search.js, SCR-116), whose words
+// the address holds as q=; and the folds of the list of stages and of the talk (./folds.js,
+// SPEC-210). It draws with the server's own functions (../src/draw/page.js): the stage's middle
+// and the side are compared element by element (./reconcile.js), so that the focus, the words and
 // the messages stay where they are, and the list of stages, the bars and the tabs are replaced
 // when their drawing changes.
 import {drawParts} from "../src/draw/page.js";
@@ -19,7 +19,8 @@ import {createTalk} from "./talk.js";
 import {createItem} from "./item.js";
 import {createSearch} from "./search.js";
 import {day} from "../src/draw/html.js";
-import {codeMessage} from "../src/draw/words.js";
+import {codeMessage,labels} from "../src/draw/words.js";
+import {createFolds} from "./folds.js";
 import {ApiClient,Drafts,LatestReads,PendingWrites,characters} from "./state.js";
 import {reconcile} from "./reconcile.js";
 
@@ -56,9 +57,12 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   // tabBefore is the phone's tab in front before the item's took its place, panelBy says that
   // the item opened the panel from 1,024 to 1,279 pixels, and pictureWhy why the list, not the
   // picture, shows the selected item.
-  let reading=0,searchTimer=0,opener="record",before=null,picked=null,applied=null,talk=null,runs=0,itemPanel=null,search=null,tabBefore=null,panelBy=null,pictureWhy=null;
-  // Under 1,024 pixels the phone's tabs, and from 1,024 to 1,279 the side's panel (rule 16).
-  const small=matchMedia("(max-width:1023.98px)"),mid=matchMedia("(min-width:1024px) and (max-width:1279.98px)");
+  let reading=0,searchTimer=0,opener="record",before=null,picked=null,applied=null,talk=null,runs=0,itemPanel=null,search=null,tabBefore=null,panelBy=null,pictureWhy=null,sideWas=null,focusInSide=false;
+  // Under 1,024 pixels the phone's tabs, and from 1,024 to 1,279 the side's panel (rule 16);
+  // from 1,280 the talk's column, which a first visit folds under 1,440 (SPEC-210).
+  const small=matchMedia("(max-width:1023.98px)"),mid=matchMedia("(min-width:1024px) and (max-width:1279.98px)"),wide=matchMedia("(min-width:1280px)"),narrowWide=matchMedia("(min-width:1280px) and (max-width:1439.98px)");
+  // The folds (SPEC-210), applied in one step as soon as the code runs, before its first drawing.
+  const folds=createFolds(ws);folds.apply();
   // The picture's board (SCR-112), which follows the frame of each drawing.
   const board=pictured?createBoard(parts.stage,{state:()=>({payload,view}),lang,pick,editor:(state,quiet)=>{if(view.editor===state)return;view.editor=state;if(!quiet)render(["stage"]);}}):null;
 
@@ -99,6 +103,8 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     }
     // The words that the browser keeps, in the talk's boxes that the drawing made new.
     if(names.includes("side")&&talk?.fill())render(["side"]);
+    // A "Talk ({n})" that the drawing made new says the talk's state again (SPEC-210).
+    if(names.includes("stage"))syncFolds();
   }
 
   // A read's answer from a newer push leaves the page as it is, with the bar of SCR-111#stale.
@@ -247,21 +253,24 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   }
   // The item's panel (SCR-115): beside the stage from 1,024 pixels, from 1,024 to 1,279 as the
   // side's panel; under 1,024 the Item tab in front, unless an entry of the talk selected it,
-  // whose Talk tab stays in front (SCR-114's layout). The same item again keeps its panel.
+  // whose Talk tab stays in front (SCR-114's layout). The same item again keeps its panel. From
+  // 1,280 pixels a folded talk's column shows for as long as the item is open (SPEC-210).
   function showItem(id,fromTalk){
     if(!itemPanel.open(id))return;
     view.side="item";
     if(!ws)return;
     if(small.matches){if(!fromTalk&&ws.dataset.nxTab!=="item"){tabBefore=ws.dataset.nxTab||"stage";ws.dataset.nxTab="item";}}
-    else if(mid.matches&&!ws.dataset.nxOpen){ws.dataset.nxOpen="talk";panelBy="item";}
+    else if(!ws.dataset.nxOpen&&(mid.matches||!sideShown())){ws.dataset.nxOpen="talk";panelBy="item";}
   }
   // The address without an item: the panel closes, the phone's tab in front before it returns,
-  // and the side shows the stage's talk.
+  // the panel or the folded talk's column that the item opened folds again, and the side shows
+  // the stage's talk.
   function closeItemView(){
     if(!view.item)return;
     itemPanel.close();view.side="item";pictureWhy=null;
     if(ws?.dataset.nxTab==="item")ws.dataset.nxTab=tabBefore||"stage";
-    tabBefore=null;
+    if(ws&&panelBy==="item"&&ws.dataset.nxOpen==="talk")delete ws.dataset.nxOpen;
+    tabBefore=null;panelBy=null;
   }
   // Close or Escape on the item (SCR-115's actions): the address leaves item= and talk=, as "All
   // talk of the stage" does; the panel that the item opened from 1,024 to 1,279 pixels folds, and
@@ -345,6 +354,51 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     history.replaceState(history.state,"",location.pathname+location.search+(rest?"#"+rest:""));
   }
 
+  // Whether the side shows now: the talk's column, or the panel that it opens.
+  function sideShown(){return Boolean(parts.side?.getClientRects().length);}
+  // The folds' states, which a screen reader says (SPEC-210): the list's control says whether the
+  // list shows and names what a press does; "Talk ({n})" says whether the talk shows while it is
+  // in sight, and says nothing while the talk's column or the phone's tabs take its place. A side
+  // that folds with the focus in it, as the back button folds what an entry or an item showed,
+  // leaves the focus on "Talk ({n})", where Close and Escape leave it (rule 16).
+  function syncFolds(){
+    const stagesShown=folds.value("stages")!=="folded",words=labels("The folds",lang);
+    for(const control of document.querySelectorAll('[data-nx-act="fold-stages"]')){
+      control.setAttribute("aria-expanded",String(stagesShown));
+      const title=words[stagesShown?0:1];if(control.title!==title)control.title=title;
+    }
+    const shown=sideShown(),shows=String(shown),active=document.activeElement;
+    if(sideWas&&!shown&&focusInSide&&(!active||active===document.body||parts.side.contains(active))){
+      const button=parts.stage?.querySelector('[data-nx-fold="talk"]');
+      if(button?.getClientRects().length)button.focus({preventScroll:true});
+    }
+    sideWas=shown;
+    for(const control of parts.stage?.querySelectorAll('[data-nx-fold="talk"]')||[]){
+      if(control.getClientRects().length){if(control.getAttribute("aria-expanded")!==shows)control.setAttribute("aria-expanded",shows);}
+      else control.removeAttribute("aria-expanded");
+    }
+  }
+  // Fold the list of stages, or show it again (SCR-111's actions of the revision): the focus stays
+  // on the control, which the rail keeps at its top.
+  function foldStages(){
+    folds.keep("stages",folds.value("stages")==="folded"?"shown":"folded");
+    syncFolds();
+  }
+  // Fold the talk from 1,280 pixels: kept folded, and a column that an entry or an item showed
+  // folds too; the focus goes to "Talk ({n})", which takes its place.
+  function foldTalk(){
+    folds.keep("talk","folded");
+    if(ws?.dataset.nxOpen==="talk")delete ws.dataset.nxOpen;
+    panelBy=null;syncFolds();
+    document.querySelector('[data-nx-focus="talk"]')?.focus();
+  }
+  // "Talk ({n})" from 1,280 pixels: the talk kept shown, as a column again, with the focus on the
+  // heading of what the side shows.
+  function showTalkColumn(){
+    folds.keep("talk","shown");syncFolds();
+    (parts.side.querySelector("#talk-h")||parts.side.querySelector("#item-h"))?.focus();
+  }
+
   // The stage record: in the side, in the talk's place; a panel from 1,024 to 1,279 pixels and a
   // sheet under 1,024, which the page behind waits for (rule 10's focus and Escape).
   function holdPage(){
@@ -425,12 +479,16 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     // The phone's tabs (SPEC-155): the stage or the talk, without a step of the history.
     const tab=event.target.closest?.(".tab[data-nx-tab]");
     if(tab&&ws&&parts.tabs?.contains(tab)){event.preventDefault();ws.dataset.nxTab=tab.dataset.nxTab;render(["side","tabs"]);return;}
+    // The list's fold control, a part of the frame (SPEC-210).
+    const foldList=event.target.closest?.('[data-nx-act="fold-stages"]');
+    if(foldList){event.preventDefault();if(!foldList.disabled)foldStages();return;}
     const control=event.target.closest?.("[data-nx-act]"),inside=control&&[parts.stage,parts.side,parts.bars].some(element=>element?.contains(control));
     if(!control&&view.record&&event.target.closest?.(".scrim")){event.preventDefault();closeRecord(null);return;}
     if(!inside||control.disabled||control.getAttribute("aria-disabled")==="true")return;
     const act=control.dataset.nxAct;
     // "All talk of the stage" from the item's panel on the phone: the talk's tab, in front.
     if(act==="whole"&&ws?.dataset.nxTab==="item"){ws.dataset.nxTab="talk";tabBefore=null;}
+    if(act==="fold-talk"){talk?.click(act,control,event);foldTalk();return;}
     if(talk?.click(act,control,event))return;
     // The item's panel (SCR-115's actions).
     if(act==="item-close"){closeItem();return;}
@@ -454,11 +512,14 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
       readQuery().then(async()=>{if(id&&view.item?.id===id)itemPanel.setWhy(id,await select(id)||pictureWhy);}).catch(()=>{});
       return;
     }
-    // Talk ({n}) from 1,024 to 1,279 pixels: the panel, with the focus on its heading.
+    // Talk ({n}) from 1,024 to 1,279 pixels: the panel, with the focus on its heading; from 1,280,
+    // the folded talk shown again as a column, which the browser keeps (SPEC-210).
     if(act==="talk"){
       event.preventDefault();
       if(view.record)closeRecord("talk");
+      else if(ws&&wide.matches)showTalkColumn();
       else if(ws){if(ws.dataset.nxOpen==="talk")delete ws.dataset.nxOpen;else{ws.dataset.nxOpen="talk";parts.side.querySelector("#talk-h")?.focus();}}
+      syncFolds();
       return;
     }
     if(act==="record")openRecord(control);
@@ -511,12 +572,17 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   // (SCR-115's actions), else folds the talk that Talk ({n}) opened (SCR-111's actions). The
   // search's Escape is its own.
   const typing=target=>Boolean(target?.closest?.("input,textarea,select,[contenteditable]"));
+  // Whether the focus went into the side last, for a side that folds with it (syncFolds).
+  document.addEventListener("focusin",event=>{focusInSide=Boolean(parts.side?.contains(event.target));});
   document.addEventListener("keydown",event=>{
     if(event.key!=="Escape"||event.defaultPrevented)return;
     if(view.record){event.preventDefault();closeRecord();}
     else if(parts.side.contains(document.activeElement)&&talk?.escape())event.preventDefault();
     else if(view.item&&!typing(event.target)){event.preventDefault();closeItem();}
-    else if(ws?.dataset.nxOpen==="talk"){event.preventDefault();delete ws.dataset.nxOpen;document.querySelector('[data-nx-focus="talk"]')?.focus();}
+    else if(ws?.dataset.nxOpen==="talk"){
+      event.preventDefault();delete ws.dataset.nxOpen;panelBy=null;
+      const button=document.querySelector('[data-nx-focus="talk"]');if(button?.getClientRects().length)button.focus();
+    }
   });
   // The talk reads again when the page comes back into view (SPEC-150).
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")talk?.readAgain();});
@@ -525,7 +591,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   window.addEventListener("popstate",()=>applyAddress().catch(()=>{}));
 
   // The controls that wait for the code (rule 15) work from here on.
-  for(const control of document.querySelectorAll('[data-nx-wait="list"],[data-nx-wait="record"],[data-nx-wait="picture"],[data-nx-wait="talk"]')){control.disabled=false;control.removeAttribute("data-nx-wait");}
+  for(const control of document.querySelectorAll('[data-nx-wait="list"],[data-nx-wait="record"],[data-nx-wait="picture"],[data-nx-wait="talk"],[data-nx-wait="folds"]')){control.disabled=false;control.removeAttribute("data-nx-wait");}
   // The address: the view and the step first, so that the first drawing of the code shows them,
   // then #filter=left from the first page's agent to-do (SCR-110) and #item=.
   if(pictured){
@@ -548,6 +614,11 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     if(location.hash==="#talk")ws.dataset.nxOpen="talk";
   }
   render();
+  // The folds' states follow whatever shows or hides a column: the folds, the panel, the record,
+  // the tabs and the window's width.
+  if(ws)new MutationObserver(syncFolds).observe(ws,{attributes:true,attributeFilter:["data-nx-open","data-nx-tab","data-nx-stages","data-nx-talk"]});
+  for(const query of [small,mid,wide,narrowWide])query.addEventListener?.("change",syncFolds);
+  syncFolds();
   applyAddress().then(nearEnd).catch(()=>{});
   return{render,readQuery,readAgain,readPicture,loadMore,select,selectItem,openRecord,closeRecord,pass,withdraw,view,board,talk,item:itemPanel,search};
 }

@@ -5,7 +5,7 @@
    step of space (checkpoint 3). The sizes below are stage 08's layout tables and
    stage 09's frames, which no token names. 1,024 is breakpoint.side-panel and 1,280
    rule 16's; a media query cannot read a custom property, so they are written out. */
-:root{--pg-gap:6px;--pg-gap-wide:10px;--pg-map-w:188px;--pg-map-h:120px;--pg-map-w-ph:120px;--pg-map-h-ph:78px;--pg-fnote:560px;--pg-cover:440px;--pg-lg:14px;--pg-pop:420px;--pg-top:56px;--pg-rail:248px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s;--pg-id:112px;--pg-find:280px;--pg-fields:120px;--pg-comments:36px;--pg-marks:144px;--pg-term:120px;--pg-note:480px;--pg-search-h:70vh}
+:root{--pg-gap:6px;--pg-gap-wide:10px;--pg-map-w:188px;--pg-map-h:120px;--pg-map-w-ph:120px;--pg-map-h-ph:78px;--pg-fnote:560px;--pg-cover:440px;--pg-lg:14px;--pg-pop:420px;--pg-top:56px;--pg-rail:248px;--pg-frail:56px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s;--pg-id:112px;--pg-find:280px;--pg-fields:120px;--pg-comments:36px;--pg-marks:144px;--pg-term:120px;--pg-note:480px;--pg-search-h:70vh}
 *,*::before,*::after{box-sizing:border-box}
 html{color-scheme:light dark;-webkit-text-size-adjust:100%}
 body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-family:var(--nx-font-family-sans);font-size:var(--nx-font-size-body);line-height:var(--nx-font-line-height-body);font-weight:var(--nx-font-weight-regular);word-break:keep-all;overflow-wrap:anywhere}
@@ -229,7 +229,7 @@ body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-f
 body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 .nx .ws{flex:1;min-height:0;position:relative;display:grid;grid-template-columns:var(--pg-rail) minmax(0,1fr) var(--nx-size-panel)}
 .nx .scrim,.nx .rail .close{display:none}
-.nx .rail{min-height:0;display:flex;flex-direction:column;overflow:auto;background:var(--nx-color-sunken);border-right:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .rail{position:relative;min-height:0;display:flex;flex-direction:column;overflow:auto;background:var(--nx-color-sunken);border-right:var(--nx-border-thin) solid var(--nx-color-line)}
 .nx .rail-in{display:flex;flex-direction:column;flex:1}
 .nx .rail .proj{display:grid;gap:var(--nx-space-2xs);padding:var(--nx-space-lg) var(--nx-space-lg) var(--nx-space-md);border-bottom:var(--nx-border-thin) solid var(--nx-color-line);min-width:0}
 .nx .rail .proj b{font-size:var(--nx-font-size-title);line-height:var(--nx-font-line-height-heading)}
@@ -255,6 +255,30 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 @media (pointer:coarse){.nx .row{min-height:var(--nx-size-target)}}
 .nx .rail .unrec{margin:var(--nx-space-sm) var(--nx-space-md) var(--nx-space-2xs);padding:var(--nx-space-sm) var(--nx-space-md);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);font-size:var(--nx-font-size-small);color:var(--nx-color-muted);text-wrap:pretty}
 .nx .only-mid{display:none!important}
+/* The folds (SPEC-210, SCR-111#folded): the folded talk's button "Talk ({n})", with "My turn {n}",
+   from 1,024 pixels; the control that folds the talk from 1,280; and the control that folds the
+   list of stages from 1,024, at the head's right end, which shows the icon and the name of what a
+   press does. The code keeps each fold on .ws: data-nx-stages, and data-nx-talk, which a first
+   visit leaves out, so that the width decides */
+.nx .tbtn,.nx .fold-t{display:none}
+.nx .tbtn .mt{color:var(--nx-color-accent);font-weight:var(--nx-font-weight-bold)}
+.nx .fold-s .f-off{display:none}
+@media (min-width:1024px){
+ .nx .rail > .ftop{position:absolute;z-index:1;top:calc(var(--nx-space-lg) - var(--nx-space-2xs));right:var(--nx-space-md)}
+ .nx .rail .proj{padding-right:calc(var(--nx-size-button-small) + var(--nx-space-md) + var(--nx-space-sm))}
+ .nx .ws[data-nx-stages="folded"]{--pg-rail:var(--pg-frail)}
+ .nx .ws[data-nx-stages="folded"] .fold-s .f-on{display:none}
+ .nx .ws[data-nx-stages="folded"] .fold-s .f-off{display:inline}
+ .nx .ws[data-nx-stages="folded"] .rail > .ftop{position:static;flex:none;display:grid;justify-items:center;padding:var(--nx-space-sm) 0;border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+ .nx .ws[data-nx-stages="folded"] .rail :is(.proj,.unrec,.key,.gname){display:none}
+ .nx .ws[data-nx-stages="folded"] .rail .stl{padding:var(--nx-space-xs) 0}
+ /* The rail: each stage 44 pixels high, its shape over its number, its name and state in words
+    for screen readers, and its count in my turn at the top right */
+ .nx .ws[data-nx-stages="folded"] .rail .row{position:relative;grid-template-columns:none;justify-items:start;align-content:center;gap:var(--nx-space-2xs);height:var(--nx-size-target);min-height:0;padding:0 0 0 calc(var(--nx-space-sm) + var(--nx-border-thin))}
+ .nx .ws[data-nx-stages="folded"] .rail .row .name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .nx .ws[data-nx-stages="folded"] .rail .row .end{position:absolute;top:var(--nx-space-xs);right:var(--nx-space-xs)}
+ .nx .ws[data-nx-stages="folded"] .rail .row .end .n{display:none}
+}
 
 /* The stage's middle (SCR-113, and SCR-112's list): the
    head, the notes of reading again, the filters, and the list, which scrolls inside the
@@ -584,6 +608,23 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
  .nx .side{display:none;position:absolute;z-index:2;top:0;right:0;bottom:0;width:var(--nx-size-panel);border-left-color:var(--nx-color-control-line)}
  .nx .ws:not([data-nx-tab]) .side:target,.nx .ws[data-nx-open="talk"] .side,.nx .ws[data-nx-open="record"] .side{display:flex}
  .nx .only-mid{display:inline-flex!important}
+ .nx .tbtn{display:inline-flex}
+}
+
+/* From 1,280 pixels the talk is a column, or folded to "Talk ({n})" in the stage's head
+   (SPEC-210): as the user kept it, and on a first visit from 1,280 to 1,439 pixels. An entry
+   or an item that the talk shows, the stage record, and before the code runs a link to #talk,
+   show the column while they are open */
+@media (min-width:1280px){
+ .nx .fold-t{display:inline-flex}
+ .nx .ws[data-nx-talk="folded"]:not([data-nx-open="talk"]):not([data-nx-open="record"]){grid-template-columns:var(--pg-rail) minmax(0,1fr)}
+ .nx .ws[data-nx-talk="folded"]:not([data-nx-open="talk"]):not([data-nx-open="record"]) .side{display:none}
+ .nx .ws[data-nx-talk="folded"]:not([data-nx-open="talk"]):not([data-nx-open="record"]) .tbtn{display:inline-flex}
+}
+@media (min-width:1280px) and (max-width:1439.98px){
+ .nx .ws:not([data-nx-talk]):not([data-nx-open="talk"]):not([data-nx-open="record"]):is([data-nx-tab],:not(:has(.side:target))){grid-template-columns:var(--pg-rail) minmax(0,1fr)}
+ .nx .ws:not([data-nx-talk]):not([data-nx-open="talk"]):not([data-nx-open="record"]):is([data-nx-tab],:not(:has(.side:target))) .side{display:none}
+ .nx .ws:not([data-nx-talk]):not([data-nx-open="talk"]):not([data-nx-open="record"]):is([data-nx-tab],:not(:has(.side:target))) .tbtn{display:inline-flex}
 }
 
 /* Under 1,024 pixels: the phone's top bar, one column on the first page, and the
@@ -606,6 +647,9 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
  .nx .ws{display:flex;flex-direction:column}
  .nx .tabs{flex:none;display:flex;background:var(--nx-color-surface);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
  .nx .tab{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:var(--nx-space-sm);height:var(--nx-size-target);color:var(--nx-color-muted);font-size:var(--nx-font-size-small);text-decoration:none}
+ .nx .tab .tl2{display:grid;justify-items:center;line-height:var(--nx-font-line-height-tight)}
+ .nx .tab .tl2 > span:first-child{display:inline-flex;align-items:center;gap:var(--pg-gap)}
+ .nx .tab .tl2 .mt{font-size:var(--nx-font-size-caption);color:var(--nx-color-accent);font-weight:var(--nx-font-weight-bold)}
  .nx .ws:not(:has(.side:target)):not([data-nx-tab]) .tab[data-nx-tab="stage"],.nx .ws:not([data-nx-tab]):has(.side:target) .tab[data-nx-tab="talk"],.nx .ws[data-nx-tab="stage"] .tab[data-nx-tab="stage"],.nx .ws[data-nx-tab="talk"] .tab[data-nx-tab="talk"],.nx .ws[data-nx-tab="item"] .tab[data-nx-tab="item"]{color:var(--nx-color-text);font-weight:var(--nx-font-weight-bold);box-shadow:inset 0 calc(var(--nx-border-strong) * -1) 0 var(--nx-color-text)}
  .nx .stage,.nx .side{flex:1}
  .nx .side{display:none;border-left:0}

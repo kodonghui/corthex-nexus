@@ -583,6 +583,10 @@ export const redesign={
     "Picture · List · Talk {n} · Item · Talk ({n})",
     "그림 · 목록 · 대화 {n} · 항목 · 대화 ({n})"
   ],
+  "The folds": [
+    "Fold the list of stages · Show the list of stages · Fold the talk · Show the talk",
+    "단계 목록 접기 · 단계 목록 펴기 · 대화 접기 · 대화 펴기"
+  ],
   "The head": [
     "Last checkpoint {date} · No checkpoint yet · Commit {commit} · drawn {time} · Stage record · Back to the talk",
     "마지막 확인 지점 {date} · 아직 확인 지점 없음 · 커밋 {commit} · {time}에 그림 · 단계 기록 · 대화로 돌아가기"

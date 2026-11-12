@@ -20,6 +20,7 @@ import {createHash} from 'node:crypto';
 import {label,labels,codeMessage,notCurrentWhy} from '../src/draw/words.js';
 import {stagePath} from '../src/draw/stages.js';
 import {words} from '../ui/messages.js';
+import {FOLD_KEYS} from '../ui/folds.js';
 
 if(Number(process.versions.node.split('.')[0])<24)throw Error('Node 24 or newer is required');
 if(process.env.NEXUS_QA_PICTURE!=='1')throw Error('Use only the opt-in synthetic picture fixture');
@@ -208,12 +209,16 @@ try{
   });
  }
 
- // TC-1770: at 1,280 pixels the stage is 632 pixels wide; the tools' line holds Picture and List,
- // the picture's tools and Stage record on one line, the steps a line under it; the list's line
- // holds no picture's tools; longer words wrap inside the column.
+ // TC-1770: at 1,280 pixels with the talk kept shown, the narrowest stage of the workspace, the
+ // stage is 632 pixels wide; the tools' line holds Picture and List, the picture's tools and Stage
+ // record on one line, the steps a line under it; the list's line holds no picture's tools; longer
+ // words wrap inside the column. A first visit's talk is folded from 1,280 to 1,439 (SPEC-210), so
+ // the browser keeps it shown as after Talk ({n}), and forgets it after the test.
  for(const lang of['en','ko']){
   await test(`tools-line-1280-${lang}`,async()=>{
    await setting({width:1280});await open(page(project,'01-domain',lang));
+   await evaluate(`localStorage.setItem(${JSON.stringify(FOLD_KEYS.talk)},'shown')`);
+   try{await open(page(project,'01-domain',lang));}finally{await evaluate(`localStorage.removeItem(${JSON.stringify(FOLD_KEYS.talk)})`);}
    const s=await state(),line=s.tools.filter(t=>t.box);
    assert(s.stage[2]-s.stage[0]===632,'The stage is 632 pixels wide: '+JSON.stringify(s.stage));
    assert(line.map(t=>t.part).join()==='seg,zoom,fit,goto,rec'&&line.every(t=>t.box[1]<line[0].box[3]&&t.box[3]>line[0].box[1]),'One line: Picture and List, the zoom, Fit, Go to and Stage record: '+JSON.stringify(line));

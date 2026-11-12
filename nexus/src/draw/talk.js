@@ -204,7 +204,10 @@ function head(talk,data,lang,code,sw){
   // From 1,024 to 1,279 pixels the talk is a panel, which Close folds (SCR-111's actions): a
   // link to the stage, which works before the code runs too, as the list of stages' Close.
   const close=`<a class="ib only-mid" href="#stage" data-nx-act="talk-close" data-nx-focus="talk-close">${icon("i-close")}<span class="sr">${esc(labels("Top bar",lang)[5])}</span></a>`;
-  return`<div class="th" data-nx-key="th" data-nx-sub><div class="r1" data-nx-key="r1"><h2 id="talk-h" tabindex="-1" data-nx-focus="talk-h">${esc(item?label("Narrowed",0,lang,{id:item}):names[0])}</h2><span class="mu sm">${esc(stageNumber(data.stage)+" "+stageName(data.stage,lang))}</span><span class="sp"></span>${whole}${sw?sideSwitch("talk",lang):""}${close}</div><div class="turns" data-nx-key="turns">${turn("mine",label("The talk",1,lang,{n:count(mine)}),groups.mine.length)}${turn("agent",label("The talk",2,lang,{n:count(agent)}),groups.agent.length)}</div></div>`;
+  // From 1,280 pixels the talk is a column, which this folds to "Talk ({n})" in the stage's head
+  // (SPEC-210); whenever it shows, the talk is shown.
+  const folds=labels("The folds",lang),fold=`<button class="btn sm icon fold-t" type="button" data-nx-act="fold-talk" data-nx-focus="fold-talk" aria-controls="talk" aria-expanded="true" title="${esc(folds[2])}"${code?"":' disabled data-nx-wait="talk"'}>${icon("i-next")}<span class="sr">${esc(folds[2])}</span></button>`;
+  return`<div class="th" data-nx-key="th" data-nx-sub><div class="r1" data-nx-key="r1"><h2 id="talk-h" tabindex="-1" data-nx-focus="talk-h">${esc(item?label("Narrowed",0,lang,{id:item}):names[0])}</h2><span class="mu sm">${esc(stageNumber(data.stage)+" "+stageName(data.stage,lang))}</span><span class="sp"></span>${whole}${sw?sideSwitch("talk",lang):""}${fold}${close}</div><div class="turns" data-nx-key="turns">${turn("mine",label("The talk",1,lang,{n:count(mine)}),groups.mine.length)}${turn("agent",label("The talk",2,lang,{n:count(agent)}),groups.agent.length)}</div></div>`;
 }
 // The notes at the top of the talk: an address or a link that names an entry not on the server
 // (SCR-114#gone), and a reading again that failed or was refused (rule 6, SCR-114#error).

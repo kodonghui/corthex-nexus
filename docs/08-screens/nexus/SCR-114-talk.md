@@ -67,7 +67,7 @@ Every state of the stage applies, with two of the talk's own: narrowed, the talk
 
 | Region | Under 1,024 pixels, drawn at 390 | From 1,024 pixels, drawn at 1,440 |
 | --- | --- | --- |
-| The talk | The Talk tab, the whole width under the tabs | The side, 400 pixels wide; from 1,024 to 1,279 pixels, a panel over the stage's right edge (SCR-111) |
+| The talk | The Talk tab, the whole width under the tabs | The side, 400 pixels wide; from 1,024 to 1,279 pixels, a panel over the stage's right edge, and from 1,280 a column that the button at the end of its head, "Fold the talk", folds to "Talk ({n})" in the stage's head (SCR-111) |
 | The turn counts | Two halves under the heading, each 44 pixels high, which scroll the talk to their group | The same, in the side's head |
 | The entries | Each a card across the width; its buttons on a row of their own, 44 pixels high | Each a card in the side; its buttons at its end |
 | The box | Fixed at the bottom of the tab, above the system's bars, growing to 40 per cent of the height | Fixed at the bottom of the side, growing to 240 pixels |

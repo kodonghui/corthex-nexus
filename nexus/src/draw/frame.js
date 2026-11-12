@@ -40,8 +40,11 @@ export function topBar(place,lang){
 export const codeBar=lang=>`<div class="bar warn" data-nx-codebar role="status">${icon("i-warn")}<span class="t">${esc(label("Buttons not loaded",0,lang))}</span></div>`;
 // The phone's tabs (rule 16): the stage, its talk, and the item that the view adds
 // while one is selected (SCR-115's layout). As links to the parts the first two work
-// without the code; the item's, which only the code draws, leads to the side too.
-export function tabs({picture,talk,item=false},lang){
-  const words=labels("Tabs",lang);
-  return `<a class="tab" href="#stage" data-nx-tab="stage">${icon(picture?"i-picture":"i-list")}<span>${esc(picture?words[0]:words[1])}</span></a><a class="tab" href="#talk" data-nx-tab="talk">${icon("i-talk")}<span>${esc(label("Tabs",2,lang,{n:count(talk)}))}</span></a>${item?`<a class="tab" href="#talk" data-nx-tab="item">${icon("i-record")}<span>${esc(words[3])}</span></a>`:""}`;
+// without the code; the item's, which only the code draws, leads to the side too. While
+// entries of the stage wait for the user, the Talk tab says "My turn {n}" under "Talk {n}"
+// (SCR-111#folded, SPEC-155): mine is the stage's count of API-158.
+export function tabs({picture,talk,item=false,mine=0},lang){
+  const words=labels("Tabs",lang),said=`${icon("i-talk")}<span>${esc(label("Tabs",2,lang,{n:count(talk)}))}</span>`;
+  const turn=Number(mine)>0?`<span class="tl2"><span>${said}</span><span class="mt">${esc(label("The talk",1,lang,{n:count(mine)}))}</span></span>`:said;
+  return `<a class="tab" href="#stage" data-nx-tab="stage">${icon(picture?"i-picture":"i-list")}<span>${esc(picture?words[0]:words[1])}</span></a><a class="tab" href="#talk" data-nx-tab="talk">${turn}</a>${item?`<a class="tab" href="#talk" data-nx-tab="item">${icon("i-record")}<span>${esc(words[3])}</span></a>`:""}`;
 }
