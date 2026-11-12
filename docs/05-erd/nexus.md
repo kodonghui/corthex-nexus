@@ -613,7 +613,7 @@ A new file on a device, under `~/.corthex/hub/`: `reads/<project>.json`, in whic
 
 ### For phase ②
 
-The functional spec's rows SPEC-204 to SPEC-208 add to what [Phase ②'s tables](#phase-②s-tables) plans. Phase ②'s migration and nexus.sql take these with the rest, when phase ② is built. Stage 02's decision D20, which is open, puts two prototypes before that, one edit read back as a list of changes and a work board of two frames, and these columns may change with what the prototypes find.
+The functional spec's rows SPEC-204 to SPEC-208 add to what [Phase ②'s tables](#phase-②s-tables) plans. Phase ②'s migration and nexus.sql take these with the rest, when phase ② is built. Stage 02's decision D20, made on 2026-11-12, puts no prototype before that, so these columns may change with what phase ②'s build finds when it makes the reading back and the work board first.
 
 | Table | Column or key | As planned for phase ② | With the revision | Status |
 | --- | --- | --- | --- | --- |
@@ -1178,7 +1178,7 @@ The design revision of 2026-11-11 has not passed its checkpoint ([the review's m
 5. A device keeps the times of its sessions' last reads in one file for each project, TBL-125, the revision's only new record (choice 26).
 6. The export and the project's data add no table, and a removal deletes what it deletes now; the server only refuses it from the service token (choice 27).
 7. A migration takes the next free number when its release is built, so phase ②'s migration is no longer called migration 5 (choice 28).
-8. Phase ②: five changes to its planned tables, for a draft that starts on a waiting edit, the notes that an edit carries and the stickies that come from the source ([For phase ②](#for-phase-②)). They wait for the two prototypes of D20.
+8. Phase ②: five changes to its planned tables, for a draft that starts on a waiting edit, the notes that an edit carries and the stickies that come from the source ([For phase ②](#for-phase-②)). They come with phase ②, with no prototype before it (D20).
 9. No limit changes. The free plan's numbers bind the Worker build only, and what came from the free plan alone is decided again after the old Worker and its D1 database are deleted (choice 29).
 10. Corrections: the tree and the diagram draw the comments under the project space, where migration 4 put them; the tree names both runtimes; the paragraph of 2026-11-04 has its wording mended and gains REQ-291's copy on another machine; and two rows of the functional spec gain a clause, SPEC-189 for a withdrawn checkpoint and SPEC-201 for the decisions.
 
@@ -1219,7 +1219,7 @@ What each screen reads, as [Reads](#reads) lists it, and the marks that come fro
 
 ### Stage 10: work breakdown
 
-For the design revision of 2026-11-11: each release's first task is its migration, with the next free version, the same change to nexus.sql and the migration's test, before the requests that read the new columns: the two columns of `project_spaces` with the loop (SPEC-187); `look_first` and the index with the checkpoint request (SPEC-197); `browser`, `device` and `driven` with SPEC-195; and `snapshot_revision` and `entry` only after D17. TBL-125 belongs to the hub's task for the read again, in the harness's repository (SPEC-191). Phase ②'s five changes go into phase ②'s migration, after the prototypes of D20.
+For the design revision of 2026-11-11: each release's first task is its migration, with the next free version, the same change to nexus.sql and the migration's test, before the requests that read the new columns: the two columns of `project_spaces` with the loop (SPEC-187); `look_first` and the index with the checkpoint request (SPEC-197); `browser`, `device` and `driven` with SPEC-195; and `snapshot_revision` and `entry` only after D17. TBL-125 belongs to the hub's task for the read again, in the harness's repository (SPEC-191). Phase ②'s five changes go into phase ②'s migration; D20 puts no prototype before it.
 
 For phase ②, after the redesign's migration 4 and the revision's migrations: phase ②'s migration, the requests of the drafts, positions and drops, then those of the work boards, then the hub's board commands in the core repository, and the views last.
 
