@@ -211,7 +211,7 @@ test("the stage record: the recorded state, next action, checkpoints and checks,
 
 test("the side holds the record while it is open, else what the page could not hold",()=>{
   for(const lang of["en","ko"]){
-    assert.equal(drawSide(stageData(),null,lang,{}),"","the talk joins in TASK-276");
+    assert.equal(drawSide(stageData(),null,lang,{}),"","without the page's talk the side is empty; draw-talk.test.js draws the talk");
     assert.ok(drawSide(stageData(),null,lang,{record:true}).startsWith('<section class="rec"'));
     const problem=drawSide(stageData(),{code:"space_not_found",traceId:"8f6c-ICN"},lang,{});
     assert.ok(problem.startsWith('<div class="sidemsg" data-nx-key="problem"><div class="msg warn" role="status">')&&problem.includes(esc(codeMessage("space_not_found",lang)))&&problem.includes("8f6c-ICN"));

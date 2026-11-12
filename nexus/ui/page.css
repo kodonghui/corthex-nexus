@@ -414,12 +414,90 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .rec .r2{display:flex;align-items:center;gap:var(--nx-space-sm)}
 .nx .sidemsg{padding:var(--nx-space-lg)}
 
+/* The talk (SCR-114), as stage 09's redesign.html draws it: its head with the stage and the
+   two turns, the entries by turn on the page's ground, which scroll under the head, and the
+   box at its foot (rule 18). An entry is a card with a line of 3 pixels on its left, the
+   accent's in my turn; one whose item is gone is dashed; an answered or closed one keeps the
+   line's colour and mutes its text. The boxes are 64 pixels high at least, the drawing's,
+   which is size.box less space.2xl */
+.nx .talk{flex:1;min-height:0;display:flex;flex-direction:column}
+.nx .talk > .th{flex:none;display:grid;gap:var(--nx-space-xs);padding:var(--nx-space-md) var(--nx-space-lg) 0;border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .talk .r1{display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--nx-space-sm);min-width:0}
+.nx .talk .r1 h2{font-size:var(--nx-font-size-title);white-space:nowrap}
+.nx .turns{display:grid;grid-template-columns:1fr 1fr;margin-top:var(--pg-gap)}
+.nx .turns > a,.nx .turns > span{display:flex;align-items:center;justify-content:center;gap:var(--nx-space-sm);height:var(--nx-size-target);border-bottom:var(--nx-border-strong) solid transparent;color:var(--nx-color-muted);font-size:var(--nx-font-size-small);text-decoration:none;white-space:nowrap}
+.nx .turns > .mine{border-bottom-color:var(--nx-color-accent);color:var(--nx-color-accent);font-weight:var(--nx-font-weight-bold)}
+.nx .talk > .body{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:var(--pg-gap-wide);padding:var(--nx-space-md) var(--nx-space-lg);background:var(--nx-color-bg)}
+.nx .talk .tnotes{display:grid;gap:var(--nx-space-sm)}
+.nx .talk .tnotes:empty,.nx .talk .tupd:empty{display:none}
+.nx .talk .tupd{font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
+.nx .tg{display:flex;align-items:center;gap:var(--pg-gap);padding-top:var(--nx-space-2xs);color:var(--nx-color-muted);font-size:var(--nx-font-size-caption);font-weight:var(--nx-font-weight-bold)}
+.nx .tg.fold{position:relative;justify-content:space-between;width:100%;min-height:var(--nx-size-button);padding:var(--nx-space-sm) var(--pg-gap-wide);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);text-align:start;cursor:pointer}
+.nx .tg.fold::after{content:"";position:absolute;inset:calc((var(--nx-size-button) - var(--nx-size-target)) / 2 - var(--nx-border-thin)) calc(var(--nx-border-thin) * -1)}
+.nx .tg.fold[aria-expanded="true"] svg.i{transform:rotate(180deg)}
+.nx .tg.fold:disabled{opacity:var(--nx-opacity-disabled);cursor:default}
+.nx .talk .tl{display:grid;gap:var(--pg-gap-wide)}
+.nx .talk .more{min-height:0;padding:0}
+.nx .te{display:grid;gap:var(--pg-gap);min-width:0;padding:var(--pg-gap-wide) var(--nx-space-md);border:var(--nx-border-thin) solid var(--nx-color-line);border-left-width:calc(var(--nx-border-thin) + var(--nx-border-strong));border-radius:var(--nx-radius-lg);background:var(--nx-color-surface);font-size:var(--nx-font-size-small)}
+.nx .te.my{border-left-color:var(--nx-color-accent)}
+.nx .te.apart{border-style:dashed;border-left-style:solid}
+.nx .te.answered{border-left-color:var(--nx-color-line)}
+.nx .te.answered > .tx{color:var(--nx-color-muted)}
+/* The head: the kind, the press and, where the line cannot hold all three, the author and time
+   on a line of their own, so that the press keeps the width of what it names (rule 14) */
+.nx .te > .hd{display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--nx-space-sm);min-width:0}
+.nx .te > .hd > *{flex:none}
+.nx .te > .hd .who{margin-left:auto;color:var(--nx-color-muted);font-size:var(--nx-font-size-caption);white-space:nowrap}
+/* The entry's press: what it is on, one line cut at its end, with a hit area of size.target
+   above and below that moves nothing (rule 14) */
+.nx .te .ref{position:relative;display:flex;flex:0 1 auto;min-width:0;padding:0;border:0;background:transparent;color:var(--nx-color-text);text-align:start;cursor:pointer}
+.nx .te .ref::after{content:"";position:absolute;left:0;right:0;top:50%;height:var(--nx-size-target);transform:translateY(-50%)}
+.nx .te .ref > .clip{display:block}
+.nx .te .ref .mono{color:var(--nx-color-accent);font-weight:var(--nx-font-weight-medium)}
+.nx .te .ref:hover .mono{text-decoration:underline}
+.nx .te .ref:disabled{cursor:default}
+.nx .te > .qt{padding-left:var(--nx-space-sm);border-left:var(--nx-border-strong) solid var(--nx-color-line);color:var(--nx-color-muted)}
+.nx .te > .tx,.nx .te .rep p,.nx .te .chg p{white-space:pre-wrap;text-wrap:pretty}
+.nx .te .wt,.nx .te .rst{display:flex;align-items:center;gap:var(--pg-gap);color:var(--nx-color-muted);font-size:var(--nx-font-size-caption)}
+.nx .te > .acts{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:var(--nx-space-sm)}
+.nx .te > .after{display:grid;justify-items:start;gap:var(--nx-space-sm)}
+.nx .te .res .btn{margin-left:var(--nx-space-xs)}
+.nx .te .res{align-items:flex-start}
+.nx .te .res > .i{margin-top:var(--nx-space-2xs)}
+.nx .te .reps{display:grid;gap:var(--pg-gap);padding-left:var(--pg-gap-wide);border-left:var(--nx-border-strong) solid var(--nx-color-line)}
+.nx .te .rep .who{color:var(--nx-color-muted);font-size:var(--nx-font-size-caption)}
+.nx .te .rep .kind{margin-left:var(--nx-space-xs)}
+.nx .te .rep p{margin-top:var(--nx-space-2xs)}
+.nx .te .dec .lnk{display:block;max-width:100%}
+.nx .te .newt{display:inline-flex;align-items:center;height:calc(var(--pg-chip) - var(--nx-space-xs));margin-left:var(--nx-space-xs);padding:0 var(--pg-gap);border-radius:var(--nx-radius-pill);background:var(--nx-color-accent);color:var(--nx-color-on-accent);font-size:var(--nx-font-size-caption);font-weight:var(--nx-font-weight-bold)}
+.nx .te .chg{display:grid;gap:var(--nx-space-xs);min-width:0;padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-sunken)}
+.nx .te .stx{max-height:var(--nx-size-source);overflow:auto;margin:0;padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);font-family:var(--nx-font-family-mono);font-size:var(--nx-font-size-caption);line-height:var(--nx-font-line-height-body);white-space:pre-wrap}
+.nx .talk .sk{display:grid;gap:var(--nx-space-sm);padding:var(--nx-space-xs) 0}
+.nx .talk .skel{display:block;height:var(--pg-gap-wide);border-radius:var(--nx-radius-sm);background:var(--nx-color-sunken)}
+.nx .talk .skel.short{width:60%}
+.nx .te .rbox{display:grid;gap:var(--nx-space-sm);padding-top:var(--nx-space-sm);border-top:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .empty-t{display:grid;justify-items:center;gap:var(--nx-space-sm);padding:calc(var(--nx-space-xl) + var(--nx-space-xs)) var(--nx-space-md);color:var(--nx-color-muted);font-size:var(--nx-font-size-small);text-align:center}
+.nx .empty-t svg.i{width:calc(var(--nx-size-icon) * 1.75);height:calc(var(--nx-size-icon) * 1.75);stroke-width:1.3}
+.nx .talk > .box{flex:none;display:grid;gap:var(--nx-space-sm);padding:var(--pg-gap-wide) var(--nx-space-lg) var(--nx-space-md);border-top:var(--nx-border-thin) solid var(--nx-color-line);background:var(--nx-color-surface)}
+.nx .talk .lab{font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
+.nx .talk .ta{display:block;width:100%;min-height:calc(var(--nx-size-box) - var(--nx-space-2xl));padding:var(--nx-space-sm) var(--pg-gap-wide);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);color:var(--nx-color-text);font-size:var(--nx-font-size-small);line-height:var(--nx-font-line-height-body);resize:vertical}
+.nx .talk .ta[aria-invalid="true"]{border-color:var(--nx-color-error)}
+.nx .talk .ta:disabled{opacity:var(--nx-opacity-disabled)}
+.nx .talk .left{font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
+.nx .talk .left:empty,.nx .talk .rnote:empty,.nx .talk .bnote:empty{display:none}
+.nx .talk .r2{display:flex;flex-wrap:wrap;align-items:center;gap:var(--nx-space-sm) var(--pg-gap-wide)}
+.nx .talk > .box .r2{justify-content:space-between}
+.nx .talk > .box .r2 .mu{flex:1 1 0;min-width:0;font-size:var(--nx-font-size-caption)}
+.nx .talk .chk{position:relative;display:inline-flex;align-items:center;gap:var(--nx-space-sm);min-height:var(--nx-size-button-small);font-size:var(--nx-font-size-small);cursor:pointer}
+.nx .talk .chk::after{content:"";position:absolute;inset:calc((var(--nx-size-button-small) - var(--nx-size-target)) / 2) 0}
+.nx .talk .chk input{width:var(--nx-size-icon);height:var(--nx-size-icon);margin:0;accent-color:var(--nx-color-accent)}
+
 /* From 1,024 to 1,279 pixels the talk folds into "Talk ({n})" in the stage's head,
    which opens it as a panel over the stage's right edge (rule 16, choice 14) */
 @media (min-width:1024px) and (max-width:1279.98px){
  .nx .ws{grid-template-columns:var(--pg-rail) minmax(0,1fr)}
  .nx .side{display:none;position:absolute;z-index:2;top:0;right:0;bottom:0;width:var(--nx-size-panel);border-left-color:var(--nx-color-control-line)}
- .nx .side:target,.nx .ws[data-nx-open="talk"] .side,.nx .ws[data-nx-open="record"] .side{display:flex}
+ .nx .ws:not([data-nx-tab]) .side:target,.nx .ws[data-nx-open="talk"] .side,.nx .ws[data-nx-open="record"] .side{display:flex}
  .nx .only-mid{display:inline-flex!important}
 }
 
@@ -443,11 +521,11 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
  .nx .ws{display:flex;flex-direction:column}
  .nx .tabs{flex:none;display:flex;background:var(--nx-color-surface);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
  .nx .tab{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:var(--nx-space-sm);height:var(--nx-size-target);color:var(--nx-color-muted);font-size:var(--nx-font-size-small);text-decoration:none}
- .nx .ws:not(:has(.side:target)):not([data-nx-tab]) .tab[data-nx-tab="stage"],.nx .ws:has(.side:target) .tab[data-nx-tab="talk"],.nx .ws[data-nx-tab="stage"] .tab[data-nx-tab="stage"],.nx .ws[data-nx-tab="talk"] .tab[data-nx-tab="talk"],.nx .ws[data-nx-tab="item"] .tab[data-nx-tab="item"]{color:var(--nx-color-text);font-weight:var(--nx-font-weight-bold);box-shadow:inset 0 calc(var(--nx-border-strong) * -1) 0 var(--nx-color-text)}
+ .nx .ws:not(:has(.side:target)):not([data-nx-tab]) .tab[data-nx-tab="stage"],.nx .ws:not([data-nx-tab]):has(.side:target) .tab[data-nx-tab="talk"],.nx .ws[data-nx-tab="stage"] .tab[data-nx-tab="stage"],.nx .ws[data-nx-tab="talk"] .tab[data-nx-tab="talk"],.nx .ws[data-nx-tab="item"] .tab[data-nx-tab="item"]{color:var(--nx-color-text);font-weight:var(--nx-font-weight-bold);box-shadow:inset 0 calc(var(--nx-border-strong) * -1) 0 var(--nx-color-text)}
  .nx .stage,.nx .side{flex:1}
  .nx .side{display:none;border-left:0}
- .nx .ws:has(.side:target) .stage,.nx .ws[data-nx-tab="talk"] .stage,.nx .ws[data-nx-tab="item"] .stage{display:none}
- .nx .ws:has(.side:target) .side,.nx .ws[data-nx-tab="talk"] .side,.nx .ws[data-nx-tab="item"] .side{display:flex}
+ .nx .ws:not([data-nx-tab]):has(.side:target) .stage,.nx .ws[data-nx-tab="talk"] .stage,.nx .ws[data-nx-tab="item"] .stage{display:none}
+ .nx .ws:not([data-nx-tab]):has(.side:target) .side,.nx .ws[data-nx-tab="talk"] .side,.nx .ws[data-nx-tab="item"] .side{display:flex}
  .nx .rail{display:none;position:fixed;z-index:6;left:0;right:0;bottom:0;max-height:calc(100dvh * var(--nx-layout-sheet-height));background:var(--nx-color-surface);border-right:0;border-radius:var(--nx-radius-sheet) var(--nx-radius-sheet) 0 0;box-shadow:var(--nx-shadow-sheet)}
  .nx .rail:target,.nx .ws[data-nx-open="stages"] .rail{display:flex}
  .nx .ws:has(.rail:target) .scrim,.nx .ws[data-nx-open="stages"] .scrim{display:block;position:fixed;inset:0;z-index:5;background:var(--nx-color-scrim)}
@@ -478,5 +556,13 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
  .nx .rec .handle{display:block;flex:none;width:var(--nx-size-handle-width);height:var(--nx-size-handle-height);margin:var(--nx-space-sm) auto var(--nx-space-xs);border-radius:var(--nx-radius-round);background:var(--nx-color-control-line)}
  .nx .rec .th{padding:var(--nx-space-sm) var(--nx-space-md) var(--nx-space-md)}
  .nx .rec .rb{padding:var(--nx-space-md)}
+ .nx .talk > .th{padding:var(--nx-space-sm) var(--nx-space-md) 0}
+ .nx .talk > .body{padding:var(--nx-space-md)}
+ .nx .te > .acts > .btn,.nx .talk .r2 .btn{flex:1;height:var(--nx-size-target)}
+ .nx .tg.fold{min-height:var(--nx-size-target)}
+ .nx .te > .acts > .btn::after,.nx .talk .r2 .btn::after,.nx .tg.fold::after{inset:0}
+ .nx .talk > .box{padding:var(--pg-gap-wide) var(--nx-space-md) var(--nx-space-md)}
+ .nx .talk > .box .r2 .mu{flex:1 1 0;min-width:0}
+ .nx .talk > .box .r2 .btn{flex:none}
 }
 @media (min-width:1024px){.nx .only-ph{display:none!important}}

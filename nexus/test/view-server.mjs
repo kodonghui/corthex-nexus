@@ -207,12 +207,62 @@ if(process.env.NEXUS_QA_PICTURE==="1"){
  await call("POST","/api/snapshots",states,"agent");
  Object.assign(pictureQa,{project,part:"sample",states:states.project.name});
 }
+// The talk (TASK-276): a project whose PRD of 250 requirements holds each kind of entry, closed
+// first so that they are the oldest: one answered and one closed with a decision; then, on my
+// turn, the agent's question with its reply, its recommendation and its checkpoint request, both
+// on the stage as a whole; on the agent's turn a comment that a session took, one that the user
+// settled and one to answer in the browser, on REQ-240, past the list's first 200; and one on an
+// item that the stage no longer holds. Its ERD talk holds three open proposals, one for another
+// tab to dismiss meanwhile, and a reflection that waits for the user; its DDD board holds no
+// talk. Only the talk suite opts in; /__qa/agent-reply replies as the agent would.
+const talkQa={};
+if(process.env.NEXUS_QA_TALK==="1"){
+ const project="qa-talk",base="/api/spaces/"+project,snapshot=viewSnapshot(project),where="docs/qa-prd.md:1",time=snapshot.generated_at;
+ snapshot.project.title="QA talk";snapshot.ids.REQ="requirement";
+ snapshot.stages["02-prd"]={name:"PRD",human:"notion",truth:"source",source:"docs/qa-prd.md",source_state:"found",read:true,files:1,items:250,parts:{sample:{state:"in_progress",checkpoints:[],next:"Review the synthetic requirements",updated:time}}};
+ const titles=["Record each synthetic order","Retry the payment of a synthetic order","Keep the buyer's note","Tell the buyer when an order ships","Cancel an unpaid order","Refund a cancelled order"];
+ snapshot.items=[
+  {id:"CTX-001",kind:"context",stage:"01-domain",where,title:"Ordering"},
+  ...Array.from({length:250},(_,i)=>({id:"REQ-"+String(i+1).padStart(3,"0"),kind:"requirement",stage:"02-prd",where,title:titles[i]||"Synthetic requirement "+(i+1),priority:"Must",status:"draft",links:["CTX-001"]})),
+  {id:"TBL-001",kind:"table",stage:"05-erd",where,title:"orders",links:["CTX-001"]},{id:"TBL-002",kind:"table",stage:"05-erd",where,title:"payments",links:["CTX-001"]},
+ ];
+ snapshot.summary={...snapshot.summary,items:snapshot.items.length};
+ await call("POST","/api/snapshots",snapshot,"agent");
+ const said=async(item,text,kind="user",extra={},stage="02-prd")=>(await call("POST",base+"/comments",{part:"sample",stage,item,text,...extra},kind)).id;
+ const reply=(id,text,kind="user",extra={})=>call("POST",base+"/comments/"+id+"/replies",{text,...extra},kind);
+ talkQa.answered=await said("REQ-001","Synthetic question that the agent answered");
+ await reply(talkQa.answered,"Synthetic answer from the agent","agent");
+ await call("POST",base+"/comments/"+talkQa.answered+"/answered",{});
+ talkQa.decided=await said("REQ-006","Synthetic question that a decision closed");
+ await call("POST",base+"/comments/"+talkQa.decided+"/decisions",{link:"https://example.com/qa/decision",text:"Synthetic decision"},"agent");
+ talkQa.question=await said("REQ-002","Synthetic question for the user: may a payment be retried twice?","agent",{asks:"answer"});
+ await reply(talkQa.question,"Synthetic detail: the provider allows two retries.","agent",{asks:"answer"});
+ talkQa.recommended=await said("","Synthetic recommendation: keep the requirements in one context.","agent",{asks:"recommended"});
+ talkQa.checkpoint=await said("","Synthetic request: pass the PRD's checkpoint.","agent",{asks:"checkpoint"});
+ talkQa.claimed=await said("REQ-003","Synthetic comment that a session works on");
+ await call("POST",base+"/claims/"+talkQa.claimed,undefined,"agent");
+ talkQa.settled=await said("REQ-004","Synthetic comment that the user settled");
+ await reply(talkQa.settled,"Synthetic answer to settle","agent");
+ await reply(talkQa.settled,"Synthetic: that settles it.","user",{settles:true});
+ talkQa.open=await said("REQ-240","Synthetic comment to answer in the browser");
+ talkQa.apart=await said("REQ-999","Synthetic comment on a requirement that left the stage");
+ const proposal=(item,reason)=>call("POST",base+"/proposals",{part:"sample",stage:"05-erd",items:[item],reason:"Synthetic "+reason,change:"Describe the synthetic constraint.",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);"},"agent");
+ talkQa.accept=(await proposal("TBL-001","proposal to accept")).id;
+ talkQa.dismiss=(await proposal("TBL-002","proposal to dismiss")).id;
+ talkQa.stale=(await proposal("TBL-002","proposal that another tab dismisses")).id;
+ const reflected=await proposal("TBL-001","reflection that waits for the user");
+ talkQa.edit=(await call("POST",base+"/proposals/"+reflected.id+"/accept",{})).edit.id;
+ await call("POST",base+"/edits/"+talkQa.edit+"/report",{event:"needs-user"},"agent");
+ Object.assign(talkQa,{project,part:"sample"});
+}
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,linked,...(process.env.NEXUS_QA_LATE_SCREEN==="1"?{lateScreen}:{}),...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
  const pushAgain=home.pushAgain||stageQa.pushAgain;
  if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&pushAgain){const pushed=await pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
+ // The agent's reply to a comment of the talk's project, as a session would send it (TASK-276).
+ if(url.pathname==="/__qa/agent-reply"&&incoming.method==="POST"&&talkQa.project){const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const {comment:id,text}=JSON.parse(Buffer.concat(chunks).toString("utf8")||"{}");const reply=await call("POST",`/api/spaces/${talkQa.project}/comments/${encodeURIComponent(String(id))}/replies`,{text:String(text)},"agent");outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify(reply));return;}
  const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const bytes=Buffer.concat(chunks);
  if(incoming.method==="POST")writes.push({path:url.pathname,id:incoming.headers["idempotency-key"],body:JSON.parse(bytes)});
  const space=/(?:^|;\s*)nexus-qa-space=(quiet|empty)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];

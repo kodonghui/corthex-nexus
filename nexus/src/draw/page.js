@@ -10,6 +10,7 @@ import {labels} from "./words.js";
 import {drawHome} from "./home.js";
 import {drawStage,drawSide,stageBars,PICTURE_STAGES} from "./stage.js";
 import {drawPictureStage} from "./picture.js";
+import {agentCount} from "./talk.js";
 export const PAGE_SCHEMAS=Object.freeze({home:"corthex-home-page/0.3",stage:"corthex-stage-page/0.3"});
 export function pageKind(payload){
   const kind=Object.keys(PAGE_SCHEMAS).find(key=>PAGE_SCHEMAS[key]===payload?.schema);
@@ -17,12 +18,13 @@ export function pageKind(payload){
   return kind;
 }
 // The open talk of the stage, for its tab: what waits for the user, for the agent,
-// and the comments whose item is gone (API-152).
-export const openTalk=talk=>talk?["mine","agent","apart"].reduce((n,key)=>n+(Number(talk[key]?.total)||0),0):0;
+// with the pending reflections that its turn lists, and the comments whose item is
+// gone (API-152, SCR-114).
+export const openTalk=talk=>talk?(Number(talk.mine?.total)||0)+agentCount(talk)+(Number(talk.apart?.total)||0):0;
 // The inside of every part of the page, by the part's name, from the page's data: the
 // first page's sections (SCR-110, TASK-273), and a stage's frame, middle and side (SCR-111
-// and SCR-113, TASK-274), with a pictured stage's picture (SCR-112, TASK-275), which the
-// talk joins in TASK-276.
+// and SCR-113, TASK-274), with a pictured stage's picture (SCR-112, TASK-275) and the
+// talk in the side (SCR-114, TASK-276).
 // view is what the stage page's code adds when it draws again (./stage.js); the server
 // draws with none.
 export function drawParts(payload,view={}){
@@ -35,7 +37,7 @@ export function drawParts(payload,view={}){
     rail:stageRail(data,lang),
     tabs:tabs({picture:Boolean(payload.picture),talk},lang),
     stage:PICTURE_STAGES.includes(data.stage)?drawPictureStage(payload,lang,{...view,talk}):drawStage(data,lang,{...view,talk}),
-    side:drawSide(data,payload.problem,lang,view),
+    side:drawSide(data,payload.problem,lang,view,payload.talk),
   };
 }
 export function pageTitle(payload){

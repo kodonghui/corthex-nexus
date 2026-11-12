@@ -500,6 +500,10 @@ export const messages={
     "This no longer waits for your answer. It was answered or closed meanwhile.",
     "이 일은 이제 답을 기다리지 않습니다. 그사이 답했거나 닫혔습니다."
   ],
+  "checkpoint_requested": [
+    "This stage has an open checkpoint request.",
+    "이 단계에는 열린 확인 요청이 있습니다."
+  ],
   "item_not_found": [
     "{id} is not in this project's stages now. · Search all projects for {id}",
     "{id} 항목은 지금 이 프로젝트의 단계에 없습니다. · 모든 프로젝트에서 {id} 찾기"
@@ -641,7 +645,15 @@ export const redesign={
   ],
   "No talk": [
     "No talk on this stage yet. Select an item to talk about it, or write about the stage as a whole. · No comments on {id} yet.",
-    "이 단계에는 아직 대화가 없습니다. 항목을 골라 그 항목에 대해 말하거나, 단계 전체에 대해 써 주세요. · {id}에 아직 의견이 없습니다."
+    "이 단계에는 아직 대화가 없습니다. 항목을 골라 그 항목에 대해 말하거나, 단계 전체에 대해 써 주세요. · {id}에는 아직 의견이 없습니다."
+  ],
+  "The talk's entries": [
+    "Mark answered · Settled, waiting for the agent's record · Closed as answered · Closed with a decision",
+    "답변 완료로 표시 · 결정됨, AI의 기록을 기다림 · 답변 완료로 닫힘 · 결정으로 닫힘"
+  ],
+  "An item that the talk selects": [
+    "{id} is no longer in this stage. · The picture is not current, so the list shows this item. · The picture is not drawn yet, so the list shows this item. · This item is not in the list as you narrowed it.",
+    "{id} 항목은 이제 이 단계에 없습니다. · 그림이 최신이 아니어서 목록에서 이 항목을 보여 줍니다. · 그림을 아직 그리지 않아 목록에서 이 항목을 보여 줍니다. · 좁혀 놓은 목록에는 이 항목이 없습니다."
   ],
   "The item": [
     "Context: {id} {name} · Source: {path}, line {n} · Comes from · Leads to · Discrepancies ({n}) · Comment on this discrepancy · Loading {id}…",

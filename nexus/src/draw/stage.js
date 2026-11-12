@@ -11,6 +11,7 @@ import {esc,count,time,timed,dated,dayTime} from "./html.js";
 import {icon,shapeIcon} from "./icons.js";
 import {label,labels,codeMessage,oldLabels,legendWord,capital,STATES} from "./words.js";
 import {stageName,stageNumber} from "./stages.js";
+import {drawTalk} from "./talk.js";
 
 export const FILTERS=Object.freeze(["all","talk","mine","left"]);
 export const GROUPS=Object.freeze(["context","source"]);
@@ -214,12 +215,13 @@ export function drawRecord(data,lang,state={}){
 }
 
 // The inside of the side (SCR-111): the stage record while it is open, else what the page could
-// not hold, such as a project without a space (SCR-111's Target), until the talk joins it
-// (SCR-114, TASK-276).
-export function drawSide(data,problem,lang,view={}){
+// not hold, such as a project without a space (SCR-111's Target), else the talk (SCR-114): the
+// page's talk, or what the view's code shows of it, narrowed to an item, with its state.
+export function drawSide(data,problem,lang,view={},talk=null){
   if(view.record)return drawRecord(data,lang,view.recordState);
   if(problem?.code==="space_not_found")return`<div class="sidemsg" data-nx-key="problem">${message({tone:"warn",text:codeMessage(problem.code,lang),trace:problem.traceId},lang,"problem")}</div>`;
-  return"";
+  if(!talk)return"";
+  return drawTalk(view.talkState?.shown||talk,data,lang,view.talkState||{},Boolean(view.code));
 }
 
 // The bars under the top bar (SCR-111#stale and rule 7): a newer push, with Load again, and a

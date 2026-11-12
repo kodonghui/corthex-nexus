@@ -56,9 +56,10 @@ async function setting({width,height=844,theme='light',touch=false}){
  await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme},{name:'prefers-reduced-motion',value:'no-preference'}]});
  await command('Emulation.setTouchEmulationEnabled',touch?{enabled:true,maxTouchPoints:1}:{enabled:false});
 }
-// No read runs, no more items are loading and nothing is being sent.
+// No read runs, no more items are loading and the record sends nothing. (The talk's buttons of
+// an empty box are unavailable at rest, so only the record's say that something is sent.)
 const LOADING=JSON.stringify([labels('The list','en')[10],labels('The list','ko')[10]]);
-async function settled(){await waitFor(`(document.querySelector('.stage .upd')?.textContent||'')===''&&!${LOADING}.includes(document.querySelector('.stage .more')?.textContent)&&!document.querySelector('.side [aria-disabled="true"]')`);}
+async function settled(){await waitFor(`(document.querySelector('.stage .upd')?.textContent||'')===''&&!${LOADING}.includes(document.querySelector('.stage .more')?.textContent)&&!document.querySelector('.side .rec [aria-disabled="true"]')`);}
 // Navigation returns once the page is parsed; its held code may not have run yet.
 async function open(route,{ready=true}={}){
  const url=origin+route;await command('Page.navigate',{url:'about:blank'});await command('Page.navigate',{url});

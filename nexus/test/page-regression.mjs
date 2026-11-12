@@ -62,7 +62,11 @@ async function onPaused(event){
  if(url.origin!==origin&&!['about:','data:'].includes(url.protocol)){report.blockedExternalOrigins.push(url.origin);await command('Fetch.failRequest',{requestId:event.requestId,errorReason:'BlockedByClient'});return;}
  if(failing.some(pattern=>pattern.test(url.pathname))){report.interceptions.push({path:url.pathname,action:'failed',at:new Date().toISOString()});await command('Fetch.failRequest',{requestId:event.requestId,errorReason:'BlockedByClient'});return;}
  if(held&&held.pattern.test(url.pathname)){held.requests.push(event.requestId);report.interceptions.push({path:url.pathname,action:'held',at:new Date().toISOString()});return;}
- await command('Fetch.continueRequest',{requestId:event.requestId});
+ // A request that the page dropped while it was paused, as when the talk moves an address to
+ // its entry's stage while it reads, has no interception left to continue: Chrome answers
+ // "Invalid InterceptionId", which is recorded, not a failure.
+ try{await command('Fetch.continueRequest',{requestId:event.requestId});}
+ catch(error){if(!String(error).includes('Invalid InterceptionId'))throw error;report.interceptions.push({path:url.pathname,action:'dropped by the page',at:new Date().toISOString()});}
 }
 // What the page shows: each part's markup and the box of every element in the parts and
 // the frame, in the order of the document. mark names each element, so that a later read
@@ -136,14 +140,14 @@ try{
    const after=await read();
    assert(after.redrawn==='0','The code redrew '+after.redrawn+' parts');
    // The code makes the first page's answers and order work (TASK-273), a stage's list and
-   // record (TASK-274) and its picture's tools (TASK-275): those controls lose their wait, and
-   // nothing else changes but the picture's layers (READ). The search waits for SCR-116
-   // (TASK-277).
-   const waits=kind==='home'?/ disabled="" data-nx-wait="(?:answer|order)"/g:/ disabled="" data-nx-wait="(?:list|record|picture)"/g;
+   // record (TASK-274), its picture's tools (TASK-275) and its talk (TASK-276): those controls
+   // lose their wait, and nothing else changes but the picture's layers (READ). The search
+   // waits for SCR-116 (TASK-277).
+   const waits=kind==='home'?/ disabled="" data-nx-wait="(?:answer|order)"/g:/ disabled="" data-nx-wait="(?:list|record|picture|talk)"/g;
    const working=parts=>Object.fromEntries(Object.entries(parts).map(([key,html])=>[key,html.replace(waits,"")]));
    assert(JSON.stringify(after.parts)===JSON.stringify(working(before.parts)),'A part differs after the code ran');
-   const named=kind==='home'?[/data-nx-wait="(?:answer|order)"/]:[/data-nx-wait="(?:list|record)"/,/data-nx-wait="picture"/],where=kind==='home'?['home']:['stage','side'];
-   assert(named.every(wait=>where.some(key=>wait.test(before.parts[key]||''))&&!where.some(key=>wait.test(after.parts[key]||''))),kind==='home'?'The first page\'s answers and order did not start to work':'The stage\'s list, record and picture did not start to work');
+   const named=kind==='home'?[/data-nx-wait="(?:answer|order)"/]:[/data-nx-wait="(?:list|record)"/,/data-nx-wait="picture"/,/data-nx-wait="talk"/],where=kind==='home'?['home']:['stage','side'];
+   assert(named.every(wait=>where.some(key=>wait.test(before.parts[key]||''))&&!where.some(key=>wait.test(after.parts[key]||''))),kind==='home'?'The first page\'s answers and order did not start to work':'The stage\'s list, record, picture and talk did not start to work');
    if(kind==='stage')assert(after.live&&after.marks.includes('TBL-001'),'The picture did not become live with its marks');
    assert(after.kept===before.elements&&after.ordered&&!after.strays.length,'The code replaced elements or added them outside the picture\'s layers ('+after.kept+' of '+before.elements+' kept; '+after.strays.slice(0,5).join(', ')+')');
    const moved=after.marked.filter(([index,box])=>box&&JSON.stringify(box)!==JSON.stringify(before.boxes[index]));
@@ -256,14 +260,18 @@ try{
  });
 
  // API-153 and API-101 at their addresses (TASK-271): a project's address answers 302 to its
- // first part's current stage, and the browser keeps what follows #; the hub page is at /hub.
+ // first part's current stage, and the browser keeps what follows #, which the stage's talk
+ // follows to the comment's own stage (SPEC-154, TASK-276); the hub page is at /hub.
  await test('addresses-lead-to-their-pages',async()=>{
   await setting({width:1440});
-  const asked=origin+'/p/'+project+'#talk='+fixture.pages.mine,ends=origin+'/p/'+project+'/sample/04-functional-spec#talk='+fixture.pages.mine;
+  const first=await fetch(origin+'/p/'+project,{redirect:'manual',signal:AbortSignal.timeout(10000)});
+  assert(first.status===302&&first.headers.get('location')==='/p/'+project+'/sample/04-functional-spec','The project answers 302 to its first part\'s current stage: '+first.status+' '+first.headers.get('location'));
+  const asked=origin+'/p/'+project+'#talk='+fixture.pages.mine,ends=origin+'/p/'+project+'/sample/05-erd#talk='+fixture.pages.mine;
   await command('Page.navigate',{url:asked});
-  await waitFor(`location.href===${JSON.stringify(ends)}&&document.readyState!=='loading'&&!!document.getElementById('view-data')`);
+  await waitFor(`location.href===${JSON.stringify(ends)}&&document.readyState!=='loading'&&!!document.getElementById('view-data')&&document.documentElement.dataset.nxCode==='ready'`);
+  await waitFor(`document.querySelector('li[data-nx-entry="${fixture.pages.mine}"] > .hd .ref')?.getAttribute('aria-expanded')==='true'`);
   const stage=await evaluate(`(()=>{const data=JSON.parse(document.getElementById('view-data').textContent);return{schema:data.schema,part:data.data.part,stage:data.data.stage,current:document.querySelector('nav.rail [aria-current]')?.getAttribute('href')||null};})()`);
-  assert(stage.schema==='corthex-stage-page/0.3'&&stage.part==='sample'&&stage.stage==='04-functional-spec','The project leads to its first part\'s current stage: '+JSON.stringify(stage));
+  assert(stage.schema==='corthex-stage-page/0.3'&&stage.part==='sample'&&stage.stage==='05-erd','The kept #talk= leads on to the comment\'s stage, open in its talk: '+JSON.stringify(stage));
   await command('Page.navigate',{url:origin+'/hub'});
   await waitFor(`location.pathname==='/hub'&&document.readyState==='complete'&&document.getElementById('projects')?.children.length>0`);
   const hub=await evaluate(`({data:!!document.getElementById('hub-data'),view:!!document.getElementById('view-data'),projects:document.getElementById('projects').children.length})`);
@@ -281,7 +289,7 @@ try{
    assert(kept[view].schema==='corthex-view-page/0.2'&&kept[view].view===(view==='pictures'?'picture':'overview')&&kept[view].path==='/'+view+'/'+project+'/sample/05-erd','0.2\'s '+view+' page answers at its address: '+JSON.stringify(kept[view]));
    assert(kept[view].back==='/hub'&&kept[view].words==='Hub page','The top bar leads back to the hub page at /hub: '+JSON.stringify(kept[view]));
   }
-  return{asked:'/p/'+project+'#talk=<the fixture comment>',ended:new URL(ends).pathname+'#talk=<the fixture comment>',stage,hub,kept,screenshot};
+  return{asked:'/p/'+project+'#talk=<the fixture comment>',redirect:first.headers.get('location'),ended:new URL(ends).pathname+'#talk=<the fixture comment>',stage,hub,kept,screenshot};
  });
 
  assert(!report.eventError,'CDP interception error: '+report.eventError);

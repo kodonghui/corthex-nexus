@@ -171,10 +171,12 @@ test("a page whose code does not run stays readable, with the bar of rule 15, an
   assert.match(css,/\.nx \.btn:after\{content:"";position:absolute;inset:calc\(\(var\(--nx-size-button\) - var\(--nx-size-target\)\) \/ 2 - var\(--nx-border-thin\)\)/,"the hit area adds back the border that its padding box leaves out");
   assert.doesNotMatch(readFileSync(new URL("../ui/page.css",import.meta.url),"utf8"),/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i,"colours come from the frozen tokens");
   // A pictured stage without a picture (05), a document stage (02) and the first page.
-  for(const [payload,waits]of[[stagePage("en"),["picture","record","search"]],[stagePage("ko",{stage:"02-prd"}),["list","record","search"]],[homePage("ko"),["answer","order","search"]]]){
-    const html=views.page(payload),controls=tags(html,/<(?:button|input|select)\b[^>]*>/g);
-    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order|list|record|picture)"/,"a control that needs the code waits for it");
-    for(const link of tags(html,/<a\b[^>]*>/g))assert.match(link,/href="(?:\/|#stage|#stages|#talk|#item=|#view=list&amp;item=)[^"]*"/,"every link works without the code");
+  for(const [payload,waits]of[[stagePage("en"),["picture","record","search","talk"]],[stagePage("ko",{stage:"02-prd"}),["list","record","search","talk"]],[homePage("ko"),["answer","order","search"]]]){
+    const html=views.page(payload),controls=tags(html,/<(?:button|input|select|textarea)\b[^>]*>/g);
+    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order|list|record|picture|talk)"/,"a control that needs the code waits for it");
+    // The talk's turns lead to their groups, each a heading of the page (SCR-114).
+    for(const link of tags(html,/<a\b[^>]*>/g))assert.match(link,/href="(?:\/|#stage|#stages|#talk|#t-mine|#t-agent|#item=|#view=list&amp;item=)[^"]*"/,"every link works without the code");
+    for(const turn of html.matchAll(/href="#(t-mine|t-agent)"/g))assert.ok(html.includes(`id="${turn[1]}"`),"a turn's link leads to its group");
     assert.deepEqual([...new Set(controls.map(c=>c.match(/data-nx-wait="(\w+)"/)[1]))].sort(),waits);
   }
 });
