@@ -4,7 +4,7 @@
   "part": "nexus",
   "stages": {
     "01-domain": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Event storming checkpoints 1 to 3: everything as drawn",
@@ -34,8 +34,8 @@
           "date": "2026-11-07"
         }
       ],
-      "next": "None for phase 2: stage 02's checkpoint for phase 2 answered hotspots 18 and 21 on 2026-11-07. The redesign's my turn may join the read models at the board's next change",
-      "updated": "2026-11-07T14:38:55+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: corrected sentences, notes on four names and TERM-150 to TERM-154. After it, none for phase ②; the redesign's my turn may join the read models at the board's next change",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "02-prd": {
       "state": "in_progress",
@@ -58,8 +58,8 @@
           "date": "2026-11-07"
         }
       ],
-      "next": "Build REQ-219 to REQ-237 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
-      "updated": "2026-11-08T06:14:52+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: problems 15 and 16, REQ-270 to REQ-295, D16 to D19 open and D20 decided on 2026-11-12. Then build REQ-219 to REQ-237 with the redesign's screens",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "03-user-flow": {
       "state": "in_progress",
@@ -76,8 +76,8 @@
           "date": "2026-11-07"
         }
       ],
-      "next": "Build FL-117 to FL-119 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
-      "updated": "2026-11-08T06:07:00+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: 17 flows changed and FL-127 added. Then build FL-117 to FL-119 with the redesign's screens",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "04-functional-spec": {
       "state": "in_progress",
@@ -94,8 +94,8 @@
           "date": "2026-11-07"
         }
       ],
-      "next": "Build SPEC-143 to SPEC-156 with the redesign's screens, whose checkpoint 3 passed on 2026-11-08",
-      "updated": "2026-11-08T06:07:00+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: SPEC-187 to SPEC-210 added and 20 passed rows changed. Then build SPEC-143 to SPEC-156 with the redesign's screens",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "05-erd": {
       "state": "in_progress",
@@ -112,8 +112,8 @@
           "date": "2026-11-08"
         }
       ],
-      "next": "Build phase 2's tables in migration 5, after the redesign's screens; the redesign's change of TBL-105 and TBL-110 is built in migration 4",
-      "updated": "2026-11-08T07:39:01+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: nine columns, one index and TBL-125 planned, none built. Then the revision's migration takes the next free version (TASK-295), and phase ②'s migration the version that is free when phase ② is built",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "06-api": {
       "state": "in_progress",
@@ -130,8 +130,8 @@
           "date": "2026-11-08"
         }
       ],
-      "next": "Lead 0.2's picture and overview addresses to the stage's page with TASK-278 (change 2), once TASK-275 draws the picture there, as TASK-274 draws the list: the server answers API-151 to API-159 since TASK-266 to TASK-271, each marked active by its task, and the hub page at /hub since TASK-271; API-158's rows of stages say since TASK-274 why a picture is not current; API-118, API-119 and the hub's comment and reply take any stage and asks (hub 0.3.0)",
-      "updated": "2026-11-08T17:43:00+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: API-177, API-178 and nine changed operations as planned forms, and the hub's API-179, none built. Then TASK-278 leads 0.2's picture and overview addresses to the stage's page, once TASK-275 draws the picture there",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "07-sitemap": {
       "state": "in_progress",
@@ -148,8 +148,8 @@
           "date": "2026-11-06"
         }
       ],
-      "next": "Phase ②'s sitemap, after the redesign's build (order of 2026-11-08)",
-      "updated": "2026-11-08T06:07:00+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: one tree of 18 screens, SCR-101 removed and SCR-130 added. Then phase ②'s sitemap, after the redesign's build (order of 2026-11-08, kept by D20 on 2026-11-12)",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "08-screen-states": {
       "state": "in_progress",
@@ -172,8 +172,8 @@
           "date": "2026-11-08"
         }
       ],
-      "next": "Phase ②'s screen states, after the redesign's build and phase ②'s sitemap",
-      "updated": "2026-11-08T06:07:00+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: SCR-130's definition, the revision's rows on SCR-110 to SCR-115 and 64 grey frames. Then phase ②'s screen states, after the redesign's build and phase ②'s sitemap",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "09-mockup": {
       "state": "in_progress",
@@ -202,11 +202,11 @@
           "date": "2026-11-08"
         }
       ],
-      "next": "Phase ②'s mockups, after the redesign's build and phase ②'s stages 07 and 08",
-      "updated": "2026-11-08T06:07:00+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: one grey sheet of the picture stage's four views; no token and no passed frame changed. After it, revision.html draws the revision's states; then phase ②'s mockups",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "10-wbs": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Plan64tasks/710cases: split, standalone server, views and QA; release remains separate.",
@@ -214,8 +214,8 @@
           "date": "2026-11-04"
         }
       ],
-      "next": "Phase ②'s tasks, after its stages 07 to 09; the redesign's build is TASK-265 to TASK-278",
-      "updated": "2026-11-08T08:08:57+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: TASK-279 to TASK-320 planned, five of them removed with D20, none started. Then the builder follows the plan as written; phase ②'s tasks come after its stages 07 to 09",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "11-development": {
       "state": "in_progress",
@@ -233,14 +233,14 @@
           "date": "2026-11-05"
         }
       ],
-      "next": "Build the redesign's screens, TASK-275 to TASK-277, on the pages that TASK-271 serves and TASK-272 draws, with what TASK-274 left to them: the picture in place of a pictured stage's list, the talk in the side and the item beside the stage, with the first page's search (TASK-273's handoff); then TASK-278, which walks the 53 states and leads 0.2's picture and overview addresses to the stage's page; TASK-265 to TASK-274 are done; the 0.2.3 release waits for the maintainer",
-      "updated": "2026-11-08T17:43:00+00:00"
+      "next": "Nothing of the design revision of 2026-11-11 is built before its checkpoint passes, and the maintainer paused the redesign's build on 2026-11-11. Then TASK-275 to TASK-278 with the revision's changes and TASK-279 to TASK-320 as stage 10 orders them; the 0.2.3 release stopped before its switch",
+      "updated": "2026-11-12T03:12:33+00:00"
     },
     "12-qa": {
       "state": "in_progress",
       "checkpoints": [],
-      "next": "Walk production after the 0.2.3 release, with ego lite on the computer where it is installed",
-      "updated": "2026-11-06T10:33:20+00:00"
+      "next": "Waits for the checkpoint of the design revision of 2026-11-11, which has not passed: 387 planned cases, TC-1408 to TC-1794, none run, with D19 open. Then each case runs with the task that builds its row; the walk of production after the release, with ego lite where it is installed, stays to do",
+      "updated": "2026-11-12T03:12:33+00:00"
     }
   }
 }
