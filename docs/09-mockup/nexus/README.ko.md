@@ -52,9 +52,9 @@ Design Tokens Community Group의 2025.10 형식이며, 모드는 Resolver Module
 
 | 파일 | 담은 것 |
 | --- | --- |
-| [base.tokens.json](../../../design/nexus/base.tokens.json) | 모든 테마가 함께 쓰는 토큰 46개: `font`(글꼴 묶음, 크기 다섯, 굵기 셋, 줄 높이 셋), `space`(2\~32픽셀), `radius`, `border`, `size`(누르는 곳, 표시, 입력 칸, 옆 패널, 단계 현황의 단, 허브의 단계 칸), `opacity`, `layout`(화면 높이에 대한 몫), `breakpoint`, `duration`, `easing` |
-| [theme/light.tokens.json](../../../design/nexus/theme/light.tokens.json) | 밝은 테마의 색과 그림자 32개 |
-| [theme/dark.tokens.json](../../../design/nexus/theme/dark.tokens.json) | 어두운 테마의 32개, 이름은 같음 |
+| [base.tokens.json](../../../design/nexus/base.tokens.json) | 모든 테마가 함께 쓰는 토큰 50개(다시 디자인의 확인 지점 3이 `radius.round`, `size.row`, `size.button`, `size.button-small`을 더하기 전에는 46개): `font`(글꼴 묶음, 크기 다섯, 굵기 셋, 줄 높이 셋), `space`(2\~32픽셀), `radius`, `border`, `size`(누르는 곳, 표시, 입력 칸, 옆 패널, 단계 현황의 단, 허브의 단계 칸), `opacity`, `layout`(화면 높이에 대한 몫), `breakpoint`, `duration`, `easing` |
+| [theme/light.tokens.json](../../../design/nexus/theme/light.tokens.json) | 밝은 테마의 색과 그림자 33개(확인 지점 3이 `color.accent-soft`를 더하기 전에는 32개) |
+| [theme/dark.tokens.json](../../../design/nexus/theme/dark.tokens.json) | 어두운 테마의 33개, 이름은 같음 |
 | [tokens.resolver.json](../../../design/nexus/tokens.resolver.json) | 기본을 먼저, 그다음 테마: 기본값은 `light`, 또는 `dark` |
 
 - 1차 허브 페이지에서 온 것: 한국어 글꼴을 포함한 기기 글꼴, 15픽셀 본문, 페이지와 카드의 색, 강조색, 완료·진행 중·시작 전 단계의 색, 단계 칸의 최소 크기, 그리고 6·8·12픽셀 모서리와 알약 모양.

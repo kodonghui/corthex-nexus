@@ -52,9 +52,9 @@ Format 2025.10 of the Design Tokens Community Group, with the modes of the Resol
 
 | File | Holds |
 | --- | --- |
-| [base.tokens.json](../../../design/nexus/base.tokens.json) | 46 tokens that every theme shares: `font` (families, five sizes, three weights, three line heights), `space` (2 to 32 pixels), `radius`, `border`, `size` (targets, marks, boxes, the side panel, the overview's column and the hub's stages), `opacity`, `layout` (shares of the screen's height), `breakpoint`, `duration` and `easing` |
-| [theme/light.tokens.json](../../../design/nexus/theme/light.tokens.json) | The light theme's 32 colours and shadows |
-| [theme/dark.tokens.json](../../../design/nexus/theme/dark.tokens.json) | The dark theme's 32, under the same names |
+| [base.tokens.json](../../../design/nexus/base.tokens.json) | 50 tokens that every theme shares, 46 until the redesign's checkpoint 3 added `radius.round`, `size.row`, `size.button` and `size.button-small`: `font` (families, five sizes, three weights, three line heights), `space` (2 to 32 pixels), `radius`, `border`, `size` (targets, marks, boxes, the side panel, the overview's column and the hub's stages), `opacity`, `layout` (shares of the screen's height), `breakpoint`, `duration` and `easing` |
+| [theme/light.tokens.json](../../../design/nexus/theme/light.tokens.json) | The light theme's 33 colours and shadows, 32 until checkpoint 3 added `color.accent-soft` |
+| [theme/dark.tokens.json](../../../design/nexus/theme/dark.tokens.json) | The dark theme's 33, under the same names |
 | [tokens.resolver.json](../../../design/nexus/tokens.resolver.json) | Base first, then the theme: `light` by default, or `dark` |
 
 - From phase 1's hub page: the system fonts with the Korean ones, body text of 15 pixels, the page's and the cards' colours, the accent, the colours of the stages done, in progress and not started, a stage's least size, and the corners of 6, 8 and 12 pixels and the pill.
