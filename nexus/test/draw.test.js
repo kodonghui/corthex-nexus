@@ -161,7 +161,7 @@ test("the folds' controls: the list's in the frame, the talk's in its head, and 
     // The stage's count in my turn (API-158's stages) on Talk ({n}) and the Talk tab.
     const mine=payload.data.stages.find(stage=>stage.key===payload.data.stage).mine;
     assert.equal(mine,2);
-    assert.ok(parts.stage.includes(`<a class="btn sm tbtn" href="#talk" data-nx-key="talk" data-nx-act="talk" data-nx-focus="talk" data-nx-fold="talk" aria-controls="talk" title="${esc(words[3])}">${icon("i-talk")}<span>${esc(label("Tabs",4,lang,{n:"7"}))}</span><span class="mt">${esc(label("The talk",1,lang,{n:"2"}))}</span></a>`),"Talk ({n}) says my turn");
+    assert.ok(parts.stage.includes(`<a class="btn sm tbtn" href="#talk" data-nx-key="talk" data-nx-act="talk" data-nx-focus="talk" data-nx-fold="talk" role="button" aria-controls="talk" title="${esc(words[3])}">${icon("i-talk")}<span>${esc(label("Tabs",4,lang,{n:"7"}))}</span><span class="mt">${esc(label("The talk",1,lang,{n:"2"}))}</span></a>`),"Talk ({n}) says my turn");
     assert.ok(parts.tabs.includes(`<span class="mt">${esc(label("The talk",1,lang,{n:"2"}))}</span>`));
     const none=drawParts(stagePage(lang,{rows:STAGE_KEYS.map(key=>({key,state:"done",items:1,picture:false,not_current:null,mine:0}))}));
     assert.ok(!none.stage.includes('class="mt"')&&!none.tabs.includes('class="mt"'),"nothing waits: no my turn");

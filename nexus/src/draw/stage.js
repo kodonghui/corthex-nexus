@@ -68,10 +68,11 @@ export function drawHead(data,lang,view){
   const record=`<button class="btn sm${view.pictured?" only-ph":""}" type="button" data-nx-key="rec" data-nx-act="record" data-nx-focus="record" aria-expanded="${Boolean(view.record)}"${wait}>${icon("i-record")}<span>${esc(words[4])}</span></button>`;
   // The folded talk's button, "Talk ({n})" (SCR-111, rule 16, SPEC-210): from 1,024 to 1,279
   // pixels always, and from 1,280 while the talk is folded, which the stylesheet decides; its link
-  // opens the talk without the code. While entries of the stage wait for the user it says "My
-  // turn {n}" too (SCR-111#folded). The code says whether the talk shows (aria-expanded).
+  // opens the talk without the code, and it is a button to the keyboard and to screen readers,
+  // which Space presses once the code runs. While entries of the stage wait for the user it says
+  // "My turn {n}" too (SCR-111#folded). The code says whether the talk shows (aria-expanded).
   const mine=Number(view.mine)||0,turn=mine?`<span class="mt">${esc(label("The talk",1,lang,{n:count(mine)}))}</span>`:"";
-  const talk=`<a class="btn sm tbtn" href="#talk" data-nx-key="talk" data-nx-act="talk" data-nx-focus="talk" data-nx-fold="talk" aria-controls="talk" title="${esc(label("The folds",3,lang))}">${icon("i-talk")}<span>${esc(label("Tabs",4,lang,{n:count(view.talk)}))}</span>${turn}</a>`;
+  const talk=`<a class="btn sm tbtn" href="#talk" data-nx-key="talk" data-nx-act="talk" data-nx-focus="talk" data-nx-fold="talk" role="button" aria-controls="talk" title="${esc(label("The folds",3,lang))}">${icon("i-talk")}<span>${esc(label("Tabs",4,lang,{n:count(view.talk)}))}</span>${turn}</a>`;
   // Each count whole on its line, so that a line that breaks ends with "·" (REQ-226).
   const counts=head.reads===false?"":headCountParts(head,lang).map((part,index,all)=>`<span class="c">${esc(part)}${index<all.length-1?" ·":""}</span>`).join(" ");
   return`<div class="shd" data-nx-key="head" data-nx-sub><h1 data-nx-key="h"><span class="num">${esc(stageNumber(head.key))}</span> ${esc(stageName(head.key,lang))}</h1><span class="st" data-nx-key="st">${stateWord(head.state,lang)}</span><span class="meta" data-nx-key="meta">${meta.join("")}</span><span class="counts" data-nx-key="counts" data-nx-sub><span class="cn" data-nx-key="cn">${counts}</span>${record}${talk}</span></div>`;

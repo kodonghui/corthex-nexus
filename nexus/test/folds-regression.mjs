@@ -531,11 +531,24 @@ try{
   await key('Enter');
   v=await view();layoutIs(v,expected(1440,{talk:'folded'}),'Enter folds the talk');
   [node]=await ax('.stage [data-nx-fold="talk"]');
-  assert(v.active==='talk'&&node.name.includes(label('Tabs',4,'en',{n:'7'}))&&node.name.includes(mine('en'))&&node.expanded===false,'The focus on "Talk (7)", which says my turn and that the talk is folded: '+JSON.stringify({active:v.active,node}));
+  assert(v.active==='talk'&&node.role==='button'&&node.name.includes(label('Tabs',4,'en',{n:'7'}))&&node.name.includes(mine('en'))&&node.expanded===false,'The focus on "Talk (7)", a button that says my turn and that the talk is folded: '+JSON.stringify({active:v.active,node}));
+  // Space presses "Talk (7)" as it presses a button, without scrolling what holds it (BUG-605: the
+  // browser agent's walk, FL-118/B1-7, found that it scrolled the stage and showed nothing).
+  const scrolled=`(()=>{let n=scrollY;for(let e=document.querySelector('.stage [data-nx-fold="talk"]');e;e=e.parentElement)n+=e.scrollTop;return n;})()`;
+  const before=await evaluate(scrolled);
+  await key(' ');
+  v=await view();layoutIs(v,expected(1440,{talk:'shown'}),'Space on "Talk (7)" shows it');
+  const after=await evaluate(scrolled);
+  assert(v.active==='talk-h'&&after===before,'The focus on the talk\'s heading, nothing scrolled: '+JSON.stringify({active:v.active,before,after}));
+  // And Enter, once the talk is folded again from its own control.
+  const again=await tabTo(`document.activeElement?.dataset?.nxAct==='fold-talk'`,10);
+  assert(again,'The keyboard reaches the talk\'s control again');
+  await key('Enter');
+  v=await view();layoutIs(v,expected(1440,{talk:'folded'}),'Enter folds the talk again');
   await key('Enter');
   v=await view();layoutIs(v,expected(1440,{talk:'shown'}),'Enter on "Talk (7)" shows it');
   assert(v.active==='talk-h','The focus on the talk\'s heading: '+v.active);
-  return{evidence:'fixture page and reads; Chrome\'s accessibility tree, not a screen reader',tabs:{toList,toTalk},names:{list:labels('The folds','en').slice(0,2),row:current.name},screenshot:railShot};
+  return{evidence:'fixture page and reads; Chrome\'s accessibility tree, not a screen reader',tabs:{toList,toTalk,again},names:{list:labels('The folds','en').slice(0,2),row:current.name},screenshot:railShot};
  });
 
  // TC-1712: SCR-111#folded in each setting, a list's stage and a picture's, at 390 with both

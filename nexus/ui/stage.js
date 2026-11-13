@@ -584,6 +584,12 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
       const button=document.querySelector('[data-nx-focus="talk"]');if(button?.getClientRects().length)button.focus();
     }
   });
+  // "Talk ({n})" is a link that opens the talk before the code runs and a button to the keyboard
+  // and to screen readers (SCR-111's actions): Space presses it on its release, as it presses a
+  // button, and does not scroll the stage.
+  const linkButton=target=>Boolean(target?.matches?.('a[role="button"]'));
+  document.addEventListener("keydown",event=>{if(event.key===" "&&linkButton(event.target))event.preventDefault();});
+  document.addEventListener("keyup",event=>{if(event.key===" "&&linkButton(event.target)){event.preventDefault();event.target.click();}});
   // The talk reads again when the page comes back into view (SPEC-150).
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")talk?.readAgain();});
   // The back button and a link's address (rule 9).

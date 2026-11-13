@@ -107,10 +107,10 @@
     "view-preload": [
       "/code/view.d7d18b5f.js"
     ],
-    "page-js": "/code/page.9f66881b.js",
-    "page-css": "/code/page.946bcfeb.css",
+    "page-js": "/code/page.3d3032c3.js",
+    "page-css": "/code/page.077005a0.css",
     "page-preload": [
-      "/code/page.9f66881b.js"
+      "/code/page.3d3032c3.js"
     ],
     "font-preload": [
       "/code/editor-font-2.76945f09.woff2",
@@ -4108,22 +4108,22 @@
       "graphDigest": "f6c77f02abb51e20a6861bc583fd7fe295abb2fd52c306ede6b745ac756a7383"
     },
     {
-      "name": "page.946bcfeb.css",
-      "path": "page.946bcfeb.css.txt",
+      "name": "page.077005a0.css",
+      "path": "page.077005a0.css.txt",
       "type": "text/css; charset=utf-8",
       "raw": 69185,
       "gzip": 10668,
       "payloadSha256": "aef2b4d0741a73f8760d7436d38f3b7fc0f1e5050cd58e1007fcdf4e81547d04",
-      "graphDigest": "8e7f9b3e55f890d12aa001fc7120f66f91b02e927e13261567a956dcb98a17b2"
+      "graphDigest": "baa2f69d033551ce3b153604d2f6d155b51136739d76796a6701c4b0e589b40d"
     },
     {
-      "name": "page.9f66881b.js",
-      "path": "page.9f66881b.js.txt",
+      "name": "page.3d3032c3.js",
+      "path": "page.3d3032c3.js.txt",
       "type": "text/javascript; charset=utf-8",
-      "raw": 192819,
-      "gzip": 59576,
-      "payloadSha256": "e2f7f9fcd0c0beb30b7b36c8c19bc1e09502358ac73f3d65c7b3be435cb5b0e1",
-      "graphDigest": "8e7f9b3e55f890d12aa001fc7120f66f91b02e927e13261567a956dcb98a17b2"
+      "raw": 193071,
+      "gzip": 59629,
+      "payloadSha256": "75f7c418beab7ed0ae7586e50065183f8c8bf66866d6a3a043044ff184a4d5ff",
+      "graphDigest": "baa2f69d033551ce3b153604d2f6d155b51136739d76796a6701c4b0e589b40d"
     },
     {
       "name": "ibm-plex-sans-kr-0-400-normal.c61d2369.woff2",
@@ -6762,8 +6762,8 @@
       "payloadSha256": "0856e28ca1e42c7247c5edeaf006d5385f46f7d4b10af881e20593174308a33d"
     }
   ],
-  "totalRaw": 27525238,
-  "totalGzip": 20088491,
+  "totalRaw": 27525490,
+  "totalGzip": 20088544,
   "inputs": {
     "excalidraw": {
       "node_modules/react/cjs/react.production.min.js": {
@@ -28197,8 +28197,8 @@
         "sha256": "01c5ec366a95015e3d62e7dab2f7988c3fe875c17297de6bf7a791c386804afc"
       },
       "nexus/src/draw/stage.js": {
-        "bytes": 24503,
-        "sha256": "c221f167012ad6247de01ea71b87b41e41ae4bbc582bba2b30d6f915c23f1578"
+        "bytes": 24620,
+        "sha256": "077bb76f9e6a985192aee960cd29c6d9f2bc2f6523f5303cf0e391ea22180141"
       },
       "nexus/src/layout.js": {
         "bytes": 13876,
@@ -28261,8 +28261,8 @@
         "sha256": "ca569bef3f487b174263f1e95eaf6aad41f33b7a2a5e7ecd27bc53569590e2f0"
       },
       "nexus/ui/stage.js": {
-        "bytes": 39050,
-        "sha256": "1221ea006b60271f8aaca7cee7ef1fa080b82b2685e338c3a247b1a8886fd38f"
+        "bytes": 39621,
+        "sha256": "09f4c301f7ac5b000599925d898b46c46509efbed7a76cab9739c715165de660"
       },
       "nexus/ui/tokens.css": {
         "bytes": 3979,
