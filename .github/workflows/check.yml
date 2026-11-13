@@ -154,8 +154,10 @@ jobs:
 
   # TASK-278: each of the redesign's 53 states at its widths, in both themes and languages, with the
   # page checks, and the paths that browser agents walked through the flows (TC-1785) that no suite
-  # of browser-ui repeats; and TASK-287's folds of the workspace's columns, whose first visits draw
-  # Korean before the page's code adds its fonts. Their screenshots are kept for a person to look at.
+  # of browser-ui repeats; TASK-287's folds of the workspace's columns, whose first visits draw
+  # Korean before the page's code adds its fonts; and TASK-298's times and marks of the loop, drawn
+  # by the server and again by the code in both languages. Their screenshots are kept for a person
+  # to look at.
   browser-walk:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -182,7 +184,7 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q --no-install-recommends fonts-noto-cjk
-      - run: python nexus/test/browser_check.py walk flows folds
+      - run: python nexus/test/browser_check.py walk flows folds loop
       - name: Keep the walk's receipts and screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -195,6 +197,8 @@ jobs:
             ${{ env.NEXUS_QA_ARTIFACTS }}/flows-*/*.png
             ${{ env.NEXUS_QA_ARTIFACTS }}/folds-*/*.json
             ${{ env.NEXUS_QA_ARTIFACTS }}/folds-*/*.png
+            ${{ env.NEXUS_QA_ARTIFACTS }}/loop-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/loop-*/*.png
           if-no-files-found: ignore
           retention-days: 7
 
