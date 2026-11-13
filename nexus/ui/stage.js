@@ -57,7 +57,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   // item is the selected item's panel (./item.js); side is what the side shows of it from 1,024
   // pixels, the item or, by its switch, the stage's whole talk; shownSide is what the side shows
   // when it draws, under 1,024 pixels by the tab in front.
-  const view={code:true,query:{filter:first.items.filter,group:first.items.group,q:first.items.q??""},entries:null,selected:null,more:null,updating:false,notice:null,pushed:null,signIn:false,record:false,recordState:{sending:null,note:null,passNote:null,left:null,over:false,stale:false},mode:"picture",step:undefined,newer:null,editor:null,item:null,side:"item",shownSide:"item"};
+  const view={code:true,query:{filter:first.items.filter,group:first.items.group,q:first.items.q??""},entries:null,selected:null,more:null,updating:false,notice:null,pushed:null,signIn:false,record:false,recordState:{sending:null,reading:false,note:null,passNote:null,left:null,over:false,stale:false},mode:"picture",step:undefined,newer:null,editor:null,item:null,side:"item",shownSide:"item"};
   // What the list of stages, the bars and the tabs show, which the code replaces when it changes.
   const shown=new Map(Object.entries(drawParts(payload)).filter(([name])=>REPLACED.includes(name)));
   // tabBefore is the phone's tab in front before the item's took its place, panelBy says that
@@ -430,6 +430,9 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   }
   function closeRecord(to=before,focus=true){
     if(!view.record)return;
+    // An address that opened the record (#record) loses it in its place, so that loading the
+    // page again shows the stage (BUG-607).
+    if(location.hash==="#record")history.replaceState(history.state,"",location.pathname+location.search);
     view.record=false;view.recordState={...view.recordState,note:null,passNote:null};
     if(ws){if(to)ws.dataset.nxOpen=to;else delete ws.dataset.nxOpen;}
     before=null;holdPage();render(["stage","side"]);
@@ -491,7 +494,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   }
   async function pass(){
     const state=view.recordState,box=textarea();
-    if(!box||state.sending||state.stale||writes.has(passScope)||characters(box.value)>WORDS_LIMIT)return;
+    if(!box||state.sending||state.reading||state.stale||writes.has(passScope)||characters(box.value)>WORDS_LIMIT)return;
     // The pass names what the page showed (SPEC-194): the commit of the project's snapshot as the
     // page's data gave it, or its revision where it names no commit, and the stage's open
     // checkpoint request that the record shows whole, with the place of its last entry.
@@ -509,13 +512,16 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
       if(box.value===draft.text)box.value="";
       box.removeAttribute("aria-invalid");counter();again=true;
     }catch(error){again=writeFailed("pass",error,passScope,undefined,Boolean(request));talkToo=ASKED.includes(error?.code);}
-    finally{state.sending=null;box.readOnly=false;render(["side"]);}
-    // A pass with a request settled it, which the talk then shows waiting for the agent.
-    if(again)await Promise.all([refresh(),talkToo?talk?.readAgain():null]);
+    finally{state.sending=null;state.reading=again;box.readOnly=false;render(["side"]);}
+    // A pass with a request settled it, which the talk then shows waiting for the agent. Until
+    // the page has read again, the pass and Withdraw stay off, so that a second press sends
+    // nothing and the next pass names what the record then shows (SCR-112's repeats, rule 21,
+    // BUG-608).
+    if(again){try{await Promise.all([refresh(),talkToo?talk?.readAgain():null]);}finally{state.reading=false;render(["side"]);}}
   }
   async function withdraw(id){
     const state=view.recordState,scope=withdrawScope(id);
-    if(!/^nk_[0-9a-hjkmnp-tv-z]{12}$/.test(id||"")||state.sending||writes.has(scope))return;
+    if(!/^nk_[0-9a-hjkmnp-tv-z]{12}$/.test(id||"")||state.sending||state.reading||writes.has(scope))return;
     const draft=drafts.ensure(scope);
     state.sending="withdraw:"+id;state.passNote=null;state.note=null;render(["side"]);
     let again=false;
@@ -525,8 +531,8 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
       state.note={tone:"info",text:result?.changed===false?codeMessage("Already withdrawn",lang):codeMessage("Withdrawn",lang,{date:day(result?.checkpoint?.withdrawn_at,true)})};
       again=true;
     }catch(error){again=writeFailed("withdraw",error,scope,id);}
-    finally{state.sending=null;render(["side"]);}
-    if(again)await refresh();
+    finally{state.sending=null;state.reading=again;render(["side"]);}
+    if(again){try{await refresh();}finally{state.reading=false;render(["side"]);}}
   }
 
   document.addEventListener("click",event=>{
@@ -685,5 +691,13 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   for(const query of [small,mid,wide,narrowWide])query.addEventListener?.("change",syncFolds);
   syncFolds();
   applyAddress().then(nearEnd).catch(()=>{});
+  // An address with #record, as the first page's link after a pass gives it (SCR-110), opens the
+  // stage record once the code runs, from the Stage record button that shows (BUG-607).
+  const recordAsked=()=>{
+    if(location.hash!=="#record"||view.record)return;
+    openRecord([...document.querySelectorAll('[data-nx-act="record"]')].find(control=>control.getClientRects().length&&!control.disabled)||null);
+  };
+  recordAsked();
+  window.addEventListener("hashchange",recordAsked);
   return{render,readQuery,readAgain,readPicture,loadMore,select,selectItem,openRecord,closeRecord,pass,withdraw,view,board,talk,item:itemPanel,search};
 }

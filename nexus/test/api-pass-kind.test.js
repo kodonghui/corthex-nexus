@@ -108,6 +108,12 @@ test("TASK-299: the code that reads the kind returns only the contract's words, 
     // Chrome for Testing without a head, as the repository's browser suites run it.
     [{ "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
       "Sec-CH-UA": '"Chromium";v="153", "Not_A Brand";v="8"', "Sec-CH-UA-Mobile": "?0", "Sec-CH-UA-Platform": '"Linux"' }, "chrome", "desktop"],
+    // Chromium without a head, as Playwright 1.63 launches it, adds the brand HeadlessChrome,
+    // which is of Chrome's family as its User-Agent is (BUG-609).
+    [{ "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "Sec-CH-UA": '"HeadlessChrome";v="153", "Not_A Brand";v="8", "Chromium";v="153"', "Sec-CH-UA-Mobile": "?0", "Sec-CH-UA-Platform": '"Linux"' }, "chrome", "desktop"],
+    // A brand of its own beside HeadlessChrome is still another browser.
+    [{ "Sec-CH-UA": '"HeadlessChrome";v="153", "Brave";v="153", "Chromium";v="153"', "Sec-CH-UA-Mobile": "?0", "Sec-CH-UA-Platform": '"Linux"' }, "other", "desktop"],
     // An app's own web view on a phone, which is no browser of the four.
     [{ "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 KAKAOTALK 10.4.5" }, "other", "phone"],
     [{ "User-Agent": "curl/8.5.0" }, "unknown", "unknown"],

@@ -5,6 +5,11 @@ export const esc=value=>String(value??"").replace(/[&<>"'_]/g,ch=>({"&":"&amp;",
 // A path on this server from its segments, each encoded; never another origin.
 export const path=(...segments)=>"/"+segments.map(segment=>encodeURIComponent(String(segment))).join("/");
 // Counts over 999 show as 999+ (rule 12).
+// A button's words while it is sent: "Sending…" over the button's own words, which keep their
+// room unseen, so that the button keeps at least its width and nothing beside it moves under
+// the pointer (stage 08's choice 19, BUG-606); else its own words. sending is the words to show
+// while it is sent, or nothing.
+export const keepWidth=(words,sending)=>sending?`<span class="keep"><span class="was" aria-hidden="true">${esc(words)}</span><span>${esc(sending)}</span></span>`:esc(words);
 export const count=value=>Number(value)>999?"999+":String(Math.max(0,Math.trunc(Number(value)||0)));
 // The fixed width of a number's digits keeps a count's box the same when it changes.
 export const two=value=>String(value).padStart(2,"0");

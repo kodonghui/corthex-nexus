@@ -7,7 +7,7 @@
 // the record's state. Every element that the code compares when it draws again has
 // data-nx-key; data-nx-sub marks one whose children it compares one by one, and
 // data-nx-live one whose text it changes in place (../../ui/reconcile.js).
-import {esc,count,time,timed,dated,dayTime} from "./html.js";
+import {esc,count,time,timed,dated,dayTime,keepWidth} from "./html.js";
 import {icon,shapeIcon} from "./icons.js";
 import {label,labels,codeMessage,oldLabels,legendWord,capital,STATES} from "./words.js";
 import {stageName,stageNumber} from "./stages.js";
@@ -248,7 +248,7 @@ export function drawRecord(data,lang,state={},talk=null){
   const passedList=(overview.checkpoints||[]).map(cp=>{
     const id=esc(cp.id),sending=state.sending==="withdraw:"+cp.id,quote=cp.words?`<span class="mu">“${esc(cp.words)}”</span>`:"";
     if(cp.state==="passed"&&!cp.recorded_commit){
-      const button=`<button class="btn sm" type="button" data-nx-act="withdraw" data-nx-checkpoint="${id}" data-nx-focus="withdraw:${id}"${sending?' aria-disabled="true"':""}>${esc(sending?codeMessage("Sending",lang):words[5])}</button>`;
+      const button=`<button class="btn sm" type="button" data-nx-act="withdraw" data-nx-checkpoint="${id}" data-nx-focus="withdraw:${id}"${sending||state.reading?' aria-disabled="true"':""}>${keepWidth(words[5],sending&&codeMessage("Sending",lang))}</button>`;
       return`<div class="wbox" data-nx-key="cp:${id}"><b>${dated(codeMessage("Waiting for its record",lang),cp.passed_at)}</b>${drawPassed(cp,lang)}${quote}${button}</div>`;
     }
     if(cp.state==="withdrawn")return`<div class="wbox warn" data-nx-key="cp:${id}"><b>${dated(codeMessage("Withdrawn",lang),cp.withdrawn_at)}</b>${drawPassed(cp,lang)}${quote}${named.has(cp.id)?`<span>${esc(codeMessage("Withdrawn, recorded",lang))}</span>`:""}</div>`;
@@ -259,11 +259,12 @@ export function drawRecord(data,lang,state={},talk=null){
   // "Pass the stage 04 checkpoint" (SPEC-196). After a refusal because the project shows another
   // commit, the pass is off until the page is loaded again (SCR-112#stale).
   const again=(overview.checkpoints||[]).some(cp=>cp.state==="passed"&&!cp.recorded_commit),sending=state.sending==="pass";
-  const pass=sending?codeMessage("Sending",lang):stageRequest(talk)?label("The pass",0,lang,{n:String(data.stage).slice(0,2)}):again?codeMessage("Pass again",lang):words[4];
+  const pass=stageRequest(talk)?label("The pass",0,lang,{n:String(data.stage).slice(0,2)}):again?codeMessage("Pass again",lang):words[4];
   // Past the limit, the limit itself, since nothing is left (rule 5).
   const left=state.over?esc(codeMessage("text_too_long",lang,{limit:WORDS_LIMIT.toLocaleString("en-US")})):state.left===null||state.left===undefined?"":esc(codeMessage("Characters left",lang,{n:state.left}));
-  const off=state.over?" disabled":sending||state.stale?' aria-disabled="true"':"";
-  return`<section class="rec" aria-labelledby="rec-h" data-nx-key="rec" data-nx-sub><span class="handle only-ph" data-nx-key="hd" aria-hidden="true"></span><div class="th" data-nx-key="th"><h2 id="rec-h" tabindex="-1" data-nx-focus="rec-h">${esc(head[4])}</h2><span class="mu sm">${esc(stageNumber(data.stage)+" "+stageName(data.stage,lang))}</span><span class="sp"></span><button class="btn quiet sm" type="button" data-nx-act="close" data-nx-focus="close">${icon("i-back")}${esc(head[5])}</button></div><div class="rb" data-nx-key="rb" data-nx-sub><div class="rnote" data-nx-key="rnote">${message(state.note,lang,"record")}</div>${list}${notOpened?`<div data-nx-key="not-opened">${notOpened}</div>`:""}${passedList?`<div class="cpl" data-nx-key="cpl" data-nx-sub>${passedList}</div>`:""}<h3 data-nx-key="ph">${esc(words[3])}</h3>${drawRequest(data,lang,talk)}<div class="pnote" data-nx-key="pnote">${message(state.passNote,lang,"pass")}</div><label class="lab" for="cp-words" data-nx-key="pl">${esc(headings[5])}</label><textarea class="ta" id="cp-words" name="words" rows="4" data-nx-key="ta" data-nx-focus="words" aria-describedby="cp-left"></textarea><p class="left" id="cp-left" data-nx-key="left" data-nx-live>${left}</p><div class="r2" data-nx-key="r2"><span class="sp"></span><button class="btn pri" type="button" data-nx-act="pass" data-nx-focus="pass"${off}>${esc(pass)}</button></div></div></section>`;
+  // While the record reads again after a pass or a withdrawal, the pass stays off too (BUG-608).
+  const off=state.over?" disabled":sending||state.stale||state.reading?' aria-disabled="true"':"";
+  return`<section class="rec" aria-labelledby="rec-h" data-nx-key="rec" data-nx-sub><span class="handle only-ph" data-nx-key="hd" aria-hidden="true"></span><div class="th" data-nx-key="th"><h2 id="rec-h" tabindex="-1" data-nx-focus="rec-h">${esc(head[4])}</h2><span class="mu sm">${esc(stageNumber(data.stage)+" "+stageName(data.stage,lang))}</span><span class="sp"></span><button class="btn quiet sm" type="button" data-nx-act="close" data-nx-focus="close">${icon("i-back")}${esc(head[5])}</button></div><div class="rb" data-nx-key="rb" data-nx-sub><div class="rnote" data-nx-key="rnote">${message(state.note,lang,"record")}</div>${list}${notOpened?`<div data-nx-key="not-opened">${notOpened}</div>`:""}${passedList?`<div class="cpl" data-nx-key="cpl" data-nx-sub>${passedList}</div>`:""}<h3 data-nx-key="ph">${esc(words[3])}</h3>${drawRequest(data,lang,talk)}<div class="pnote" data-nx-key="pnote">${message(state.passNote,lang,"pass")}</div><label class="lab" for="cp-words" data-nx-key="pl">${esc(headings[5])}</label><textarea class="ta" id="cp-words" name="words" rows="4" data-nx-key="ta" data-nx-focus="words" aria-describedby="cp-left"></textarea><p class="left" id="cp-left" data-nx-key="left" data-nx-live>${left}</p><div class="r2" data-nx-key="r2"><span class="sp"></span><button class="btn pri" type="button" data-nx-act="pass" data-nx-focus="pass"${off}>${keepWidth(pass,sending&&codeMessage("Sending",lang))}</button></div></div></section>`;
 }
 
 // The inside of the side (SCR-111): the stage record while it is open, else what the page could

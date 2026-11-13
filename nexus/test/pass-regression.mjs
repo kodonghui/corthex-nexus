@@ -22,8 +22,9 @@
  * by the keyboard at 1,440 pixels and by a finger's press at 390; a push that keeps the pass off
  * until Load again, after which the pass names the new commit; a request asked after the page was
  * drawn; a snapshot without a commit, whose pass names its revision; a request whose comment is
- * full, which the user marks answered in the talk before passing without it; and a stage that the
- * project does not read, which passes with the project's commit (SCR-113#not-read).
+ * full, which the user marks answered in the talk before passing without it; a stage that the
+ * project does not read, which passes with the project's commit (SCR-113#not-read); and a second
+ * press of the pass while the record reads again after the first, which sends nothing (BUG-608).
  *
  * Node 24 built-ins only; an owned headless Chrome over CDP. Requires NEXUS_QA_PASS=1, the opt-in
  * view-server, NEXUS_CHROME and NEXUS_QA_ORIGIN. Synthetic loopback fixture only: the page's reads
@@ -58,7 +59,7 @@ const {folder}=browser;
 const report={schema:'nexus-pass-browser-regression/1',scope:'synthetic loopback fixture only',evidence:'page measurement, stage 12\'s page checks and screenshots; reads and writes reach the fixture server (real), or the suite answers or rewrites them (mocked, rewritten), as each test says',
  startedAt:new Date().toISOString(),origin,node:process.version,tests:[],interceptions:[],blockedExternalOrigins:[],posts:[],reads:[],fixture:[],runtimeExceptions:[],console:[]};
 const budget=Number(process.env.NEXUS_QA_PASS_BUDGET_MS)||300000,softDeadline=Date.now()+budget;
-let ws,session,seq=0,responses=[],closing=false,loads=0;
+let ws,session,seq=0,responses=[],held=null,closing=false,loads=0;
 const pending=new Map(),sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const out=(name,value)=>fs.writeFile(path.join(folder,name),JSON.stringify(value,null,2));
 class CheckFailure extends Error{}
@@ -89,9 +90,11 @@ async function test(name,fn){
  const startedAt=new Date().toISOString();
  try{const evidence=await fn();report.tests.push({name,verdict:'works',startedAt,finishedAt:new Date().toISOString(),...evidence});console.log('PASS '+name);}
  catch(error){let screenshot;try{screenshot=await shot(name+'-failure');}catch{}report.tests.push({name,verdict:error instanceof CheckFailure?'fails':'blocked',startedAt,finishedAt:new Date().toISOString(),error:String(error),screenshot});console.error('FAIL '+name+': '+error);}
- finally{responses=[];}
+ finally{responses=[];if(held){try{await release();}catch{}}}
  await out('results.json',report);
 }
+// The requests that a test holds (a delay that the suite makes), until it lets them go on.
+async function release(){const active=held;held=null;if(!active)return;for(const id of active.requests)await command('Fetch.continueRequest',{requestId:id});}
 const problem=(status,code,extra={})=>({status,headers:[{name:'Content-Type',value:'application/problem+json'}],body:JSON.stringify({type:'about:blank',title:'Synthetic refusal',status,code,traceId:'tr_qa_'+code,...extra})});
 // A rule answers a request (mocked), or rewrites its body on its way to the fixture (rewritten).
 async function onPaused(event){
@@ -110,6 +113,7 @@ async function onPaused(event){
   report.interceptions.push({path:where,method,action:'mocked '+rule.status,at:new Date().toISOString()});
   await command('Fetch.fulfillRequest',{requestId:event.requestId,responseCode:rule.status,responseHeaders:rule.headers,body:Buffer.from(rule.body||'').toString('base64')});return;
  }
+ if(held&&held.method===method&&held.pattern.test(where)){held.requests.push(event.requestId);report.interceptions.push({path:where,method,action:'held',at:new Date().toISOString()});return;}
  try{await command('Fetch.continueRequest',{requestId:event.requestId});}
  catch(error){if(!String(error).includes('Invalid InterceptionId'))throw error;report.interceptions.push({path:where,method,action:'dropped by the page',at:new Date().toISOString()});}
 }
@@ -487,10 +491,43 @@ try{
   return{evidence:'fixture server (a real pass on a stage that the project does not read)',seen:{shown,sent:{stage:body.stage,commit:body.commit},line:made},screenshots:shots};
  });
 
+ // Two quick presses of the pass in the record (BUG-608): after the first is answered, the record
+ // reads again, and until it has, the pass and Withdraw stay off, so that the second press sends
+ // nothing and no refusal shows. The suite holds that reading (a delay that it makes) and presses
+ // then, by a finger at 390 pixels: on a pass that answers a request, then on a plain pass.
+ await test('a-second-press-while-the-record-reads-again-390-ko',async()=>{
+  const lang='ko',stage='07-sitemap',seen={},shots=[],since=report.console.length;
+  const asked=await fixture({act:'request',stage});requests[stage]=asked.comment;
+  await setting({width:390,theme:'dark',touch:true});await open(page(stage,lang));await openRecord();
+  const read=new RegExp('^/api/spaces/'+project+'/stages/'+part+'/'+stage+'(?:\\?|$)');
+  const off=()=>evaluate(`({pass:document.querySelector(${JSON.stringify(PASS)})?.getAttribute('aria-disabled')||null,withdraw:[...document.querySelectorAll('.side .rec [data-nx-act="withdraw"]')].map(b=>b.getAttribute('aria-disabled'))})`);
+  for(const what of['request','plain']){
+   const before=await counts(),mark=report.posts.length;
+   held={pattern:read,method:'GET',requests:[]};
+   await tap(PASS);
+   for(const stop=Date.now()+10000;!held.requests.length&&Date.now()<stop;)await sleep(25);
+   assert(held.requests.length>=1&&postsTo(passPath,mark).length===1,what+': the pass is answered and the record reads again');
+   await paint();seen[what]={during:await off()};
+   await tap(PASS);await sleep(200);
+   seen[what].sent=postsTo(passPath,mark).length;
+   assert(seen[what].sent===1,what+': the second press sends nothing: '+JSON.stringify(postsTo(passPath,mark).map(p=>p.write)));
+   assert(seen[what].during.pass==='true'&&seen[what].during.withdraw.every(a=>a==='true')&&(what==='request'||seen[what].during.withdraw.length>=1),what+': the pass and Withdraw are off while the record reads again: '+JSON.stringify(seen[what].during));
+   shots.push(await shot('second-press-'+what+'-390-ko'));
+   await release();await quiet();await waitFor(`document.querySelector(${JSON.stringify(PASS)})?.getAttribute('aria-disabled')!=='true'`);await paint();
+   const after=(await state()).record,now=await counts();
+   seen[what].after={pass:after.pass,button:after.passButton,boxes:after.boxes.length,checkpoints:now.checkpoints-before.checkpoints,replies:now.replies-before.replies};
+   assert(!after.pass&&now.checkpoints===before.checkpoints+1&&now.replies===before.replies+(what==='request'?1:0),what+': one checkpoint and no refusal: '+JSON.stringify(seen[what].after));
+   const body=sentBody(postsTo(passPath,mark)[0]);
+   assert(what==='request'?body.comment===asked.comment&&body.entry===0:!('comment' in body),what+': the pass names '+(what==='request'?'the request':'no request')+': '+JSON.stringify(body));
+  }
+  judge('second press',await pageChecks(390),since);
+  return{evidence:'fixture server (a real request and two real passes); the record\'s reading again held by the suite (a delay that it makes); touch emulation',seen,screenshots:shots};
+ });
+
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=2+2+7;
+ const expected=2+2+8;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{

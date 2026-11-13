@@ -128,12 +128,16 @@ test("the stage's record shows the open checkpoint request whole above the words
 });
 
 test("the pass names the stage while its request is open, and after a refusal because the project shows another commit it stays off with a Load again of its own (SCR-112#stale, SPEC-196)",()=>{
-  const pass=html=>/<button class="btn pri" type="button" data-nx-act="pass" data-nx-focus="pass"([^>]*)>([^<]*)<\/button>/.exec(html)?.slice(1);
+  const pass=html=>/<button class="btn pri" type="button" data-nx-act="pass" data-nx-focus="pass"([^>]*)>([\s\S]*?)<\/button>/.exec(html)?.slice(1);
   for(const lang of["en","ko"]){
     const named=esc(label("The pass",0,lang,{n:"04"}));
     assert.deepEqual(pass(drawRecord(data(),lang,{},talk(request()))),["",named],"Pass the stage 04 checkpoint");
     assert.deepEqual(pass(drawRecord(data(),lang,{},talk(question()))),["",esc(labels("The stage record",lang)[4])],"without a request, as before");
-    assert.deepEqual(pass(drawRecord(data(),lang,{sending:"pass"},talk(request()))),[' aria-disabled="true"',esc(codeMessage("Sending",lang))],"while it sends");
+    // While it sends, "Sending…" over the pass's own words, which keep their room unseen (BUG-606).
+    assert.deepEqual(pass(drawRecord(data(),lang,{sending:"pass"},talk(request()))),[' aria-disabled="true"',`<span class="keep"><span class="was" aria-hidden="true">${named}</span><span>${esc(codeMessage("Sending",lang))}</span></span>`],"while it sends");
+    // Until the page has read again after the answer, the pass stays off with its own words, so
+    // that a second press sends nothing (BUG-608).
+    assert.deepEqual(pass(drawRecord(data(),lang,{reading:true},talk(request()))),[' aria-disabled="true"',named],"while the page reads again");
     const note={tone:"warn",text:codeMessage("snapshot_changed",lang,{commit:"bbbbbbb"}),trace:"0123456789abcdef-ICN",load:true};
     const stale=drawRecord(data(),lang,{stale:true,passNote:note},talk(request()));
     assert.deepEqual(pass(stale),[' aria-disabled="true"',named],"off until the page is loaded again, still named, never removed");

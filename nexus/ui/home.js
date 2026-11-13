@@ -4,7 +4,7 @@
 // holds as q=. It draws with the server's own functions (../src/draw/home.js) and replaces only
 // the elements whose drawing changed, so that the focus, the words and the messages stay where
 // they are (stage 08's rules 3 to 8).
-import {drawHome,talkPath,PASS_WORDS,passScope,wholeRequest} from "../src/draw/home.js";
+import {drawHome,talkPath,PASS_WORDS,passScope,wholeRequest,partGone} from "../src/draw/home.js";
 import {path} from "../src/draw/html.js";
 import {STAGE_KEYS,stagePath} from "../src/draw/stages.js";
 import {label,labels,oldLabels,codeMessage} from "../src/draw/words.js";
@@ -15,7 +15,9 @@ import {createSearch} from "./search.js";
 const ORDER_KEY="nexus0.3:order";
 const STATES=Object.freeze(["open","accepted","dismissed","withdrawn"]);
 const GONE=Object.freeze(["proposal_not_found","comment_not_found","project_not_found","space_not_found"]);
-const PERMISSION=Object.freeze(["user_only","access_missing","access_other_app"]);
+// A refusal of who sent the request, which trying again cannot help (SCR-110#permission); no_kind
+// comes only from Mark answered, which either side may write (API-120), as in the talk.
+const PERMISSION=Object.freeze(["user_only","access_missing","access_other_app","no_kind"]);
 const CONNECTION=Object.freeze({network:"No connection",timeout:"No answer in time",busy:"Busy"});
 // The fields of a pass that names what the entry showed: a refusal by one of them comes from a
 // page of before the release, which Load again answers (SCR-110#error).
@@ -133,7 +135,9 @@ export function startHome(root,payload,{api=new ApiClient(location.origin),draft
     }
     if(code==="not_recommended"){state.done=true;keep(entry);state.note={tone:"info",text:codeMessage(code,lang)};return true;}
     if(GONE.includes(code)){state.done=true;keep(entry);state.note={tone:"err",text:codeMessage(code,lang),trace};return true;}
-    if(code==="part_not_found"){state.note={tone:"err",text:codeMessage(code,lang),trace,open:talkPath(entry.project,entry.part,entry.stage,entry.id)};return false;}
+    // A part that the snapshot no longer holds has no page to open the request in: my turn reads
+    // again, and the entry then shows why, with Mark answered (BUG-610).
+    if(code==="part_not_found"){state.note={tone:"err",text:codeMessage(code,lang),trace};return true;}
     if(PERMISSION.includes(code)){state.note={tone:"warn",text:codeMessage(code,lang),trace};return false;}
     if(code==="cross_site"){state.note={tone:"err",text:codeMessage(code,lang),trace,here:location.origin+location.pathname+location.hash};return false;}
     if(code==="write_id_reused"){if(passing)drafts.renew(passScope(entry));else delete state.writes[act];}
@@ -142,17 +146,19 @@ export function startHome(root,payload,{api=new ApiClient(location.origin),draft
   }
   async function answer(id,act){
     const entry=list.find(item=>item.id===id),state=stateOf(id);
-    if(!entry||state.done||writes.has(id)||!["accept","dismiss","recommended"].includes(act))return;
+    if(!entry||state.done||writes.has(id)||!["accept","dismiss","recommended","answered"].includes(act))return;
+    // Mark answered is offered only on an entry whose part the snapshot no longer holds (BUG-610).
+    if(act==="answered"&&(entry.kind==="proposal"||!partGone(entry,cardOf(entry))))return;
     state.writes[act]??=writeId();state.sending=act;state.note=null;
     const project=encodeURIComponent(entry.project),target=encodeURIComponent(entry.id);
-    const url=act==="recommended"?`/api/spaces/${project}/comments/${target}/recommended`:`/api/spaces/${project}/proposals/${target}/${act}`;
+    const url=act==="recommended"||act==="answered"?`/api/spaces/${project}/comments/${target}/${act}`:`/api/spaces/${project}/proposals/${target}/${act}`;
     let again=false;
     const sent=writes.run(id,()=>api.call("POST",url,{write:state.writes[act]}));
     render();
     try{
       const result=await sent;
       state.done=true;keep(entry);again=true;
-      state.mark=act==="accept"?0:act==="dismiss"?1:2;
+      state.mark=act==="accept"?0:act==="dismiss"?1:act==="recommended"?2:4;
       if(result?.changed===false)state.note={tone:"info",text:label("Done already",0,lang)};
     }catch(error){again=failed(entry,state,act,error);}
     finally{state.sending=null;render();}
@@ -170,7 +176,7 @@ export function startHome(root,payload,{api=new ApiClient(location.origin),draft
   // stays open while it is there, so that no words that the pass sends are hidden.
   function openWords(id){
     const entry=list.find(item=>item.id===id),state=stateOf(id);
-    if(!entry||state.done||state.words||!wholeRequest(entry,cardOf(entry)))return;
+    if(!entry||state.done||state.words||!wholeRequest(entry,cardOf(entry))||partGone(entry,cardOf(entry)))return;
     state.words=true;render();
     words(id)?.focus();
   }
@@ -180,7 +186,7 @@ export function startHome(root,payload,{api=new ApiClient(location.origin),draft
   // and otherwise the button's words. driven is what navigator.webdriver says (SPEC-195).
   async function pass(id){
     const entry=list.find(item=>item.id===id),state=stateOf(id),card=cardOf(entry);
-    if(!entry||state.done||state.reread||state.over||writes.has(id)||!wholeRequest(entry,card))return;
+    if(!entry||state.done||state.reread||state.over||writes.has(id)||!wholeRequest(entry,card)||partGone(entry,card))return;
     const scope=passScope(entry),box=words(id),text=box?box.value:drafts.read(scope).text;
     if(characters(text)>PASS_WORDS)return;
     const draft=drafts.update(scope,{text});

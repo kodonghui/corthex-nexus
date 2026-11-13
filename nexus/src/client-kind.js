@@ -26,11 +26,14 @@ function brands(hint) {
 
 // Edge and Chrome name themselves; a browser that adds a brand of its own,
 // such as Opera, Brave or Samsung Internet, is another; and Chromium alone, as
-// Chromium and Chrome for Testing send it, is of Chrome's family.
+// Chromium and Chrome for Testing send it, is of Chrome's family, with the
+// brand HeadlessChrome that Chromium without a head adds, as its User-Agent's
+// HeadlessChrome is (BUG-609).
+const CHROMIUM = ["Chromium", "HeadlessChrome"];
 function browserOfBrands(list) {
   if (list.includes("Microsoft Edge")) return "edge";
   if (list.includes("Google Chrome")) return "chrome";
-  return list.some((name) => name !== "Chromium") ? "other" : "chrome";
+  return list.some((name) => !CHROMIUM.includes(name)) ? "other" : "chrome";
 }
 
 // Safari and Firefox send no client hints, so the User-Agent tells them. The

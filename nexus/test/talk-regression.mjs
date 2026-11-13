@@ -70,8 +70,9 @@ async function setting({width,height=width<1024?844:900,theme='light',touch=fals
  await command('Emulation.setTouchEmulationEnabled',touch?{enabled:true,maxTouchPoints:1}:{enabled:false});
 }
 // No reading runs in the talk or the stage, no entry is loading and nothing is being sent.
+// The words of a button that is sent, which show over its own words kept unseen (BUG-606).
 const SENDING=JSON.stringify([codeMessage('Sending','en'),codeMessage('Sending','ko')]);
-async function settled(){await waitFor(`(document.querySelector('.side .tupd')?.textContent||'')===''&&(document.querySelector('.stage .upd')?.textContent||'')===''&&!document.querySelector('.side .sk')&&![...document.querySelectorAll('.side button')].some(b=>${SENDING}.includes(b.textContent.trim()))`);await paint();}
+async function settled(){await waitFor(`(document.querySelector('.side .tupd')?.textContent||'')===''&&(document.querySelector('.stage .upd')?.textContent||'')===''&&!document.querySelector('.side .sk')&&![...document.querySelectorAll('.side button')].some(b=>${SENDING}.includes((b.querySelector('.keep > :not(.was)')||b).textContent.trim()))`);await paint();}
 // Navigation returns once the page is parsed; its held code may not have run yet.
 async function open(route,{ready=true}={}){
  const url=origin+route;await command('Page.navigate',{url:'about:blank'});await command('Page.navigate',{url});

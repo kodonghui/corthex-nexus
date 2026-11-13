@@ -44,6 +44,8 @@ body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-f
 .nx .btn::after{content:"";position:absolute;inset:calc((var(--nx-size-button) - var(--nx-size-target)) / 2 - var(--nx-border-thin)) calc(var(--nx-space-xs) * -1)}
 .nx .btn.sm{height:var(--nx-size-button-small);padding:0 var(--nx-space-md)}
 .nx .btn.sm::after{inset:calc((var(--nx-size-button-small) - var(--nx-size-target)) / 2 - var(--nx-border-thin)) calc(var(--nx-space-xs) * -1)}
+/* A button that says "Sending…" keeps the room of its own words, unseen (BUG-606). */
+.nx .keep{display:inline-grid;justify-items:center}.nx .keep>*{grid-area:1/1}.nx .keep>.was{visibility:hidden}
 .nx .btn.pri{background:var(--nx-color-accent);border-color:var(--nx-color-accent);color:var(--nx-color-on-accent)}
 .nx .btn.quiet{border-color:transparent;background:transparent;color:var(--nx-color-accent);padding:0 var(--nx-space-sm)}
 .nx .ib{position:relative;display:inline-grid;place-items:center;width:var(--nx-size-target);height:var(--nx-size-target);flex:none;padding:0;border:0;border-radius:var(--nx-radius-md);background:transparent;color:var(--nx-color-text);cursor:pointer}

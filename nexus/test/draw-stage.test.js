@@ -90,7 +90,11 @@ test("a checkpoint passed in NEXUS that waits for its record shows in the head a
     assert.ok(record.includes(esc(codeMessage("Withdrawn, recorded",lang))));
     assert.ok(record.includes(`>${esc(codeMessage("Pass again",lang))}</button>`),"Pass then says Pass again");
     const sending=drawRecord(data,lang,{sending:"withdraw:nk_7f3k2m9q4x1v"});
-    assert.ok(sending.includes(`aria-disabled="true">${esc(codeMessage("Sending",lang))}</button>`),"Withdraw says Sending… while it runs");
+    assert.ok(sending.includes(`aria-disabled="true"><span class="keep"><span class="was" aria-hidden="true">${esc(labels("The stage record",lang)[5])}</span><span>${esc(codeMessage("Sending",lang))}</span></span></button>`),"Withdraw says Sending… while it runs, keeping its room (BUG-606)");
+    // While the record reads again after a pass or a withdrawal, Withdraw and the pass stay off (BUG-608).
+    const reading=drawRecord(data,lang,{reading:true});
+    assert.ok(reading.includes(`data-nx-focus="withdraw:nk&#95;7f3k2m9q4x1v" aria-disabled="true">${esc(labels("The stage record",lang)[5])}</button>`),"Withdraw off while the record reads again");
+    assert.ok(reading.includes(`data-nx-act="pass" data-nx-focus="pass" aria-disabled="true">${esc(codeMessage("Pass again",lang))}</button>`),"the pass off while the record reads again");
   }
 });
 
@@ -202,7 +206,7 @@ test("the stage record: the recorded state, next action, checkpoints and checks,
     const over=drawRecord(stageData(),lang,{over:true,left:-1});
     assert.ok(over.includes('data-nx-act="pass" data-nx-focus="pass" disabled>'),"no pass past the limit");
     assert.ok(over.includes(`<p class="left" id="cp-left" data-nx-key="left" data-nx-live>${esc(codeMessage("text_too_long",lang,{limit:"2,000"}))}</p>`),"past the limit, the limit itself");
-    assert.ok(drawRecord(stageData(),lang,{sending:"pass"}).includes(`data-nx-act="pass" data-nx-focus="pass" aria-disabled="true">${esc(codeMessage("Sending",lang))}</button>`));
+    assert.ok(drawRecord(stageData(),lang,{sending:"pass"}).includes(`data-nx-act="pass" data-nx-focus="pass" aria-disabled="true"><span class="keep"><span class="was" aria-hidden="true">${esc(labels("The stage record",lang)[4])}</span><span>${esc(codeMessage("Sending",lang))}</span></span></button>`));
     const signIn=drawRecord(stageData(),lang,{passNote:{tone:"warn",text:codeMessage("Sign-in expired",lang),signIn:true}});
     assert.ok(signIn.includes('data-nx-act="sign-in" data-nx-focus="pass:sign-in">'),"rule 7 with the words kept");
     const cross=drawRecord(stageData(),lang,{passNote:{tone:"err",text:codeMessage("cross_site",lang),here:"https://nexus.example/p/qa-shop/sample/05-erd"}});

@@ -5,7 +5,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {drawHome,talkPath,countPath,entryKind,drawingSVG,wholeRequest,passScope,PASS_WORDS,PICTURED,AGENT_LISTS} from "../src/draw/home.js";
+import {drawHome,talkPath,countPath,entryKind,drawingSVG,wholeRequest,partGone,passScope,PASS_WORDS,PICTURED,AGENT_LISTS} from "../src/draw/home.js";
 import {esc,count,clock,time,timed} from "../src/draw/html.js";
 import {label,labels,oldLabels,legendWord,codeMessage,notCurrentWhy} from "../src/draw/words.js";
 import {stageName} from "../src/draw/stages.js";
@@ -119,12 +119,15 @@ test("what the view's code adds: answers in place, their messages, the notices, 
   assert.ok(!/disabled|data-nx-wait="(?:answer|order)"/.test(code),"the code's drawing has the answers and the order working");
   // While an answer is sent: its buttons say so and are disabled, yet keep the focus (rule 4).
   const sending=entry(drawHome(data,lang,{code:true,entries:{np_1:{sending:"accept"}}}),"np_1");
-  assert.deepEqual(tags(sending,/<button [^>]*>[^<]+<\/button>/g).map(b=>[b.includes(' aria-disabled="true"'),b.replace(/<[^>]+>/g,"")]),[[true,codeMessage("Sending",lang)],[true,"Dismiss"]]);
+  // "Sending…" shows over the button's own words, which keep their room unseen (BUG-606).
+  const shown=b=>b.replace(/<span class="was" aria-hidden="true">[^<]*<\/span>/,"").replace(/<[^>]+>/g,"");
+  assert.deepEqual(tags(sending,/<button [^>]*>[\s\S]*?<\/button>/g).map(b=>[b.includes(' aria-disabled="true"'),shown(b)]),[[true,codeMessage("Sending",lang)],[true,"Dismiss"]]);
+  assert.ok(sending.includes(`<span class="keep"><span class="was" aria-hidden="true">Accept</span><span>${codeMessage("Sending",lang)}</span></span></button>`));
   // Answered (choice 19): marked in place, without its buttons, until the page loads again.
   const answered=drawHome(data,lang,{code:true,entries:{np_1:{done:true,mark:0},nc_3:{done:true,mark:3}}});
   assert.ok(entry(answered,"np_1").startsWith('data-nx-entry="np&#95;1"')&&answered.includes('<li class="ent answered" data-nx-key="e:np&#95;1"'));
   assert.ok(!entry(answered,"np_1").includes('class="acts"')&&entry(answered,"np_1").includes(`<div class="after" tabindex="-1" data-nx-key="x" data-nx-focus="np&#95;1:after"><p class="res"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>${label("Answered",0,lang)}</span></p></div>`));
-  assert.ok(entry(answered,"nc_3").includes(`<span>${esc(label("Answered",3,lang))} <a class="lnk" href="/p/qa-shop/sample/12-qa">${esc(label("The head",4,lang))}</a></span>`),"a passed checkpoint links its stage's record");
+  assert.ok(entry(answered,"nc_3").includes(`<span>${esc(label("Answered",3,lang))} <a class="lnk" href="/p/qa-shop/sample/12-qa#record">${esc(label("The head",4,lang))}</a></span>`),"a passed checkpoint links its stage's record, which #record opens (BUG-607)");
   // Messages under an entry (rule 3), with Try again, Open, or the page at its own address.
   const failed=drawHome(data,lang,{code:true,entries:{
     np_1:{note:{tone:"err",text:codeMessage("internal",lang),trace:"tr_<1>",retry:"accept"}},
@@ -173,11 +176,11 @@ test("SCR-110's revision: a checkpoint request's pass, its words and their messa
     // While the pass is sent, and while my turn reads again after a refusal, it stays off but
     // keeps the focus (rule 4).
     const sending=entry(drawHome(data,lang,{code:true,entries:{nc_3:{sending:"pass"}}}),"nc_3"),reread=entry(drawHome(data,lang,{code:true,entries:{nc_3:{reread:true}}}),"nc_3");
-    assert.ok(sending.includes(`aria-describedby="w-nc&#95;3" aria-disabled="true">${esc(codeMessage("Sending",lang))}</button>`));
+    assert.ok(sending.includes(`aria-describedby="w-nc&#95;3" aria-disabled="true"><span class="keep"><span class="was" aria-hidden="true">${esc(pass)}</span><span>${esc(codeMessage("Sending",lang))}</span></span></button>`),"Sending… keeps the pass's room, so that nothing beside it moves under the pointer (BUG-606)");
     assert.ok(reread.includes(`aria-describedby="w-nc&#95;3" aria-disabled="true">${esc(pass)}</button>`));
     // Passed (choice 19): marked in place with the stage's record, without its buttons or box.
     const passed=entry(drawHome(data,lang,{code:true,entries:{nc_3:{done:true,mark:3,words:true}}}),"nc_3");
-    assert.ok(!passed.includes('class="acts')&&!passed.includes('class="wb"')&&passed.includes(`<span>${esc(label("Answered",3,lang))} <a class="lnk" href="/p/qa-shop/sample/12-qa">${esc(label("The head",4,lang))}</a></span>`));
+    assert.ok(!passed.includes('class="acts')&&!passed.includes('class="wb"')&&passed.includes(`<span>${esc(label("Answered",3,lang))} <a class="lnk" href="/p/qa-shop/sample/12-qa#record">${esc(label("The head",4,lang))}</a></span>`),"its link opens the stage's record (BUG-607)");
     assert.ok(drawHome(data,lang,{code:true,entries:{nc_3:{done:true,mark:3}}}).includes('<li class="ent req answered" data-nx-key="e:nc&#95;3"'));
     // A refusal by the words shows by their box, with the words' Try again; any other under the
     // entry, such as Load again for a pass that names no commit (SCR-110#error).
@@ -219,6 +222,45 @@ test("SCR-110's revision: a request that does not show whole offers only Open th
   const [plain,plainActs]=only(request({item:"TC-120",stage:"12-qa",held:true},{project:"qa-second",part:""}),[second]);
   assert.deepEqual(plainActs,[open,label("The pass",0,lang,{n:"12"}),add]);
   assert.ok(!plain.includes('class="cm"')&&plain.includes('href="/p/qa-second/&#95;/12-qa#item=TC-120"'));
+});
+
+test("an entry on a part that the snapshot no longer holds links to no talk, offers no pass and closes as answered in place (BUG-610)",()=>{
+  for(const lang of["en","ko"]){
+    // Each kind of entry on the part gone, which qa-shop's card no longer lists.
+    const entries=turnEntries().filter(item=>item.project==="qa-shop").map(item=>({...item,part:"gone"}));
+    const html=drawHome(homeData({entries}),lang,{code:true}),answers=labels("Answers",lang),mark=labels("The talk's entries",lang)[0];
+    const acts=item=>tags(item,/<(?:a|button) class="btn[^"]*"[^>]*>[\s\S]*?<\/(?:a|button)>/g).map(b=>b.replace(/<[^>]+>/g,""));
+    for(const [id,expected]of[["np_1",[answers[0],answers[1]]],["nc_2",[answers[2],mark]],["nc_3",[mark]]]){
+      const item=entry(html,id);
+      assert.ok(!item.includes("#talk=")&&!item.includes('href="/p/'),id+": no link into a part that has no page");
+      assert.ok(item.includes(`<p class="rqf" data-nx-key="f">${esc(codeMessage("part_not_found",lang))}</p>`),id+": why");
+      assert.deepEqual(acts(item),expected.map(esc),id+": its answers in place");
+      assert.ok(!item.includes('data-nx-act="pass"')&&!item.includes('data-nx-act="words"')&&!item.includes('class="wb"'),id+": no pass and no words");
+    }
+    // The request shows its whole text, without the lines that link into its stage.
+    const request=entry(html,"nc_3");
+    assert.ok(request.includes(`<p class="txt rq" data-nx-key="t">${esc(REQUEST.text)}</p>`)&&!request.includes('class="lf"')&&!request.includes("#item="));
+    assert.ok(html.includes('<li class="ent req gone" data-nx-key="e:nc&#95;3"'));
+    // Mark answered is the request's first and filled button, and the recommendation's second.
+    assert.ok(request.includes('<button class="btn sm answer pri" type="button" data-nx-act="answered" data-nx-focus="nc&#95;3:answered"'));
+    assert.ok(entry(html,"nc_2").includes('<button class="btn sm answer" type="button" data-nx-act="answered" data-nx-focus="nc&#95;2:answered"'));
+    // Before the code runs, its answers wait for it (rule 15); while one is sent, it keeps its room.
+    const server=entry(drawHome(homeData({entries}),lang,{code:false}),"nc_3");
+    assert.ok(server.includes('data-nx-act="answered" data-nx-focus="nc&#95;3:answered" aria-describedby="w-nc&#95;3" disabled data-nx-wait="answer">'));
+    const sending=entry(drawHome(homeData({entries}),lang,{code:true,entries:{nc_3:{sending:"answered"}}}),"nc_3");
+    assert.ok(sending.includes(`aria-disabled="true"><span class="keep"><span class="was" aria-hidden="true">${esc(mark)}</span><span>${esc(codeMessage("Sending",lang))}</span></span></button>`));
+    // Closed as answered: marked in place, without its buttons.
+    const closed=entry(drawHome(homeData({entries}),lang,{code:true,entries:{nc_3:{done:true,mark:4}}}),"nc_3");
+    assert.ok(!closed.includes('class="acts')&&closed.includes(`<span>${esc(labels("The talk's entries",lang)[2])}</span>`));
+  }
+  // Which entries: a part that the card does not list; not the project as a whole, and not
+  // without a card, which has nothing to say.
+  const [second,shop]=homeData().projects;
+  assert.equal(partGone({part:"gone"},shop),true);
+  assert.equal(partGone({part:"sample"},shop),false);
+  assert.equal(partGone({part:""},second),false);
+  assert.equal(partGone({part:"sample"},second),true);
+  assert.equal(partGone({part:"gone"},null),false);
 });
 
 test("which requests show whole, and where the pass's words are kept (SPEC-194, SPEC-196, rule 5)",()=>{

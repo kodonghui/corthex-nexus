@@ -68,11 +68,12 @@ async function setting({width,theme='light',touch=width<1024}){
 }
 // No reading runs, no item loads, nothing is being sent, a picture shown is drawn, and the fonts
 // that the code adds are in.
+// The words of a button that is sent, which show over its own words kept unseen (BUG-606).
 const SENDING=JSON.stringify([codeMessage('Sending','en'),codeMessage('Sending','ko')]);
 const SETTLED=`(()=>{const q=s=>document.querySelector(s),shown=e=>!!e&&e.checkVisibility({visibilityProperty:true});
  if(['.stage .upd','.side .tupd'].some(s=>(q(s)?.textContent||'')!==''))return false;
  if(q('.side .item .sk')&&shown(q('.side .item')))return false;
- if([...document.querySelectorAll('.side button')].some(b=>${SENDING}.includes(b.textContent.trim())))return false;
+ if([...document.querySelectorAll('.side button')].some(b=>${SENDING}.includes((b.querySelector('.keep > :not(.was)')||b).textContent.trim())))return false;
  const pf=q('.pf');if(shown(pf)&&!q('.pf > .cv.drawn, .pf .empty-p, .pf .fnote .msg.warn'))return false;
  const fonts=q('link[data-nexus-css="fonts"]');if(fonts&&(!fonts.sheet||document.fonts.status!=='loaded'))return false;
  return true;})()`;

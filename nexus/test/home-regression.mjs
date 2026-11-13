@@ -7,6 +7,11 @@
  * search there (SCR-116). Since TASK-302 a checkpoint request's entry shows the request whole,
  * with "Open the request" first, then its pass and "Add your words" (SPEC-194, SPEC-196): the pass
  * names what the entry showed, its words stay in the browser, and its refusals show in place.
+ * Since the group 4 walk of 2026-11-13: a button keeps its width while it is sent, so that a
+ * second press on the same spot sends nothing (BUG-606); the passed entry's link opens the stage
+ * record (BUG-607); and an entry on a part that left the snapshot says why and closes in place
+ * with Mark answered (BUG-610). The pass refused because Access did not check the request, or
+ * checked it for another app, shows as user_only does (the walk's row G4/B5).
  * Node 24 built-ins only; an owned
  * headless Chrome over CDP. Requires NEXUS_QA_HOME=1, the opt-in view-server, NEXUS_CHROME
  * and NEXUS_QA_ORIGIN. Synthetic loopback fixture only. The page's writes reach the fixture
@@ -82,7 +87,7 @@ async function test(name,fn){
  const startedAt=new Date().toISOString();
  try{const evidence=await fn();report.tests.push({name,verdict:'works',startedAt,finishedAt:new Date().toISOString(),...evidence});console.log('PASS '+name);}
  catch(error){let screenshot;try{screenshot=await shot(name+'-failure');}catch{}report.tests.push({name,verdict:error instanceof CheckFailure?'fails':'blocked',startedAt,finishedAt:new Date().toISOString(),error:String(error),screenshot});console.error('FAIL '+name+': '+error);}
- finally{held=null;failing=[];responses=[];try{await space(null);}catch{}}
+ finally{try{await release();}catch{}held=null;failing=[];responses=[];try{await space(null);}catch{}}
  await out('results.json',report);
 }
 async function release(){const active=held;held=null;if(!active)return;for(const id of active.requests)await command('Fetch.continueRequest',{requestId:id});}
@@ -115,9 +120,10 @@ async function otherTab(pathname){
  assert(response.ok,'The other tab\'s write failed: '+pathname+' '+response.status);return response.json();
 }
 async function serverGet(pathname){const response=await fetch(origin+pathname,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(10000)});return{status:response.status,data:await response.json()};}
-// One entry as the page shows it.
+// One entry as the page shows it. A button's text is the words that show: while it is sent,
+// "Sending…" over its own words, which keep its width unseen (BUG-606).
 const ENTRY=`((id)=>{const e=document.querySelector('[data-nx-entry="'+CSS.escape(id)+'"]');if(!e)return null;const msg=e.querySelector('.msg');
- return{answered:e.classList.contains('answered'),kind:e.querySelector('.kind')?.textContent,buttons:[...e.querySelectorAll('.acts button')].map(b=>({act:b.dataset.nxAct,text:b.textContent,disabled:b.disabled,wait:b.dataset.nxWait||null,aria:b.getAttribute('aria-disabled')})),
+ return{answered:e.classList.contains('answered'),kind:e.querySelector('.kind')?.textContent,buttons:[...e.querySelectorAll('.acts button')].map(b=>({act:b.dataset.nxAct,text:(b.querySelector('.keep > :not(.was)')||b).textContent,disabled:b.disabled,wait:b.dataset.nxWait||null,aria:b.getAttribute('aria-disabled')})),
   links:[...e.querySelectorAll('.acts a')].map(a=>({text:a.textContent,href:a.getAttribute('href')})),res:e.querySelector('.res')?.textContent||null,record:e.querySelector('.res a')?.getAttribute('href')||null,
   msg:msg?{tone:[...msg.classList].find(c=>c!=='msg'),role:msg.getAttribute('role'),text:msg.querySelector('.t')?.textContent,trace:msg.querySelector('.tid')?.textContent||null,retry:msg.querySelector('[data-nx-act=retry]')?.textContent||null,links:[...msg.querySelectorAll('a')].map(a=>({text:a.textContent,href:a.getAttribute('href')}))}:null,
   focus:document.activeElement?.dataset?.nxFocus||null};})`;
@@ -138,7 +144,7 @@ const REQUEST=`((id)=>{const e=document.querySelector('[data-nx-entry="'+CSS.esc
  return{text:t?.textContent,pre:t&&getComputedStyle(t).whiteSpace,textWhole:whole(t),lookHead:f?.querySelector('.lf .rk')?.textContent||null,
   look:look?{tag:look.tagName,text:look.textContent,href:look.getAttribute('href'),target:look.getAttribute('target'),rel:look.getAttribute('rel')}:null,
   commit:f?.querySelector('.cm')?.textContent||null,left:f?.querySelector('.lt')?.textContent||null,
-  acts:[...e.querySelectorAll(':scope > .acts > *')].map(x=>({act:x.tagName==='A'?'link':x.dataset.nxAct,text:x.textContent,pri:x.classList.contains('pri'),href:x.getAttribute('href'),disabled:x.tagName==='A'?null:x.disabled,aria:x.getAttribute('aria-disabled'),box:r(x),whole:inside(x)})),
+  acts:[...e.querySelectorAll(':scope > .acts > *')].map(x=>({act:x.tagName==='A'?'link':x.dataset.nxAct,text:(x.querySelector('.keep > :not(.was)')||x).textContent,pri:x.classList.contains('pri'),href:x.getAttribute('href'),disabled:x.tagName==='A'?null:x.disabled,aria:x.getAttribute('aria-disabled'),box:r(x),whole:inside(x)})),
   entry:r(e),answered:e.classList.contains('answered'),res:e.querySelector('.res')?.textContent||null,msg:msg(m),
   box:box?{value:box.value,label:e.querySelector(':scope > .wb label')?.textContent,focused:document.activeElement===box,invalid:box.getAttribute('aria-invalid'),readOnly:box.readOnly,left:e.querySelector(':scope > .wb .left')?.textContent,note:msg(bn),rect:r(box)}:null,
   focus:document.activeElement?.dataset?.nxFocus||null};})`;
@@ -339,16 +345,42 @@ try{
    assert(seen.reused.msg?.text===codeMessage('write_id_reused',lang)&&seen.reused.msg.acts[0]?.retry==='pass','write_id_reused: '+JSON.stringify(seen.reused.msg));
    seen.permission=await refused(403,'user_only',{},()=>press(retry(id)));
    assert(seen.permission.msg?.tone==='warn'&&seen.permission.msg.text===codeMessage('user_only',lang)&&!seen.permission.msg.acts.length&&seen.permission.acts.map(a=>a.act).join()==='link,pass','user_only: '+JSON.stringify(seen.permission));
+   // Access did not check the request, or checked it for another app: as user_only, with the
+   // words kept and no Try again (the group 4 walk's row G4/B5).
+   for(const code of['access_missing','access_other_app']){
+    seen[code]=await refused(403,code);
+    assert(seen[code].msg?.tone==='warn'&&seen[code].msg.text===codeMessage(code,lang)&&!seen[code].msg.acts.length&&seen[code].acts.map(a=>a.act).join()==='link,pass'&&seen[code].box?.value===words,code+': '+JSON.stringify(seen[code]));
+   }
    // Every try named what the entry showed; one write ID until write_id_reused, then a new one.
    const sent=passes(),bodies=sent.map(p=>JSON.parse(p.body)),keys=sent.map(p=>p.write),driven=await evaluate('navigator.webdriver');
    const expected=JSON.stringify({part:'sample',stage:'05-erd',commit:'a'.repeat(40),comment:id,entry:shown.entry,words,driven});
-   assert(bodies.length===9&&bodies.every(b=>JSON.stringify(b)===expected),'Each pass names what the entry showed: '+JSON.stringify({bodies,expected}));
-   assert(new Set(keys.slice(0,8)).size===1&&keys[8]!==keys[0]&&keys.every(k=>/^"nw_[0-9a-z]{12}"$/.test(k)),'One write ID until write_id_reused: '+JSON.stringify(keys));
+   assert(bodies.length===11&&bodies.every(b=>JSON.stringify(b)===expected),'Each pass names what the entry showed: '+JSON.stringify({bodies,expected}));
+   assert(new Set(keys.slice(0,8)).size===1&&keys[8]!==keys[0]&&keys.slice(8).every(k=>k===keys[8])&&keys.every(k=>/^"nw_[0-9a-z]{12}"$/.test(k)),'One write ID until write_id_reused: '+JSON.stringify(keys));
    await noSideways('with the words and a message');
    await evaluate(`localStorage.removeItem(${JSON.stringify(scope)})`);
    return{evidence:'fixture page; every refusal answered by the suite (mocked); the bodies as the page sent them',seen:{opened:seen.opened.acts,kept:{text:seen.kept.text},near:seen.near.box,over:seen.over.box,stale:seen.stale.msg,changed:seen.changed.msg,old:seen.old.msg,full:seen.full.msg,long:seen.long.box.note,field:seen.field.box.note,internal:seen.internal.msg,reused:seen.reused.msg,permission:seen.permission.msg},bodies:bodies.length,keys,screenshots:shots};
   });
  }
+
+ // Rule 14 at 390 pixels: a finger hits each control 22 pixels around its centre. It runs while a
+ // checkpoint request still waits with its Look at first, before the answers below pass it.
+ await test('hit-areas-at-390',async()=>{
+  await setting({width:390,touch:true});await open('/?lang=ko');
+  await waitFor(`!!document.querySelector('link[data-nexus-css="fonts"]')?.sheet&&document.fonts.status==='loaded'`);await paint();
+  const coarse=await evaluate(`matchMedia('(pointer:coarse)').matches`);
+  const probe=`((scope)=>{const controls=[...document.querySelectorAll(scope)].filter(e=>e.checkVisibility({visibilityProperty:true}));
+   return controls.map(e=>{e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;
+    const misses=[[0,-21],[0,21],[-21,0],[21,0]].filter(([dx,dy])=>{const hit=document.elementFromPoint(x+dx,y+dy);return!hit||!(hit===e||e.contains(hit));});
+    return{name:(e.textContent.trim()||e.className).slice(0,40),box:[r.x,r.y,r.width,r.height].map(Math.round),misses};});})`;
+  const checked=[];
+  for(const [name,scope]of[['answers','.home .acts button,.home .acts a'],['places','.home .where > a'],['look at first','.home .rqf a'],['agent to-do','.home .todo a'],['order','.home .seg button'],['cards','.home .pcard footer a,.home .thumb']]){
+   const found=await evaluate(probe+'('+JSON.stringify(scope)+')');checked.push({name,found:found.length});
+   assert(found.length>0,'No '+name);for(const c of found)assert(!c.misses.length,`${name}: ${c.name} misses ${JSON.stringify(c.misses)} at ${JSON.stringify(c.box)}`);
+  }
+  const heights=await evaluate(`[...document.querySelectorAll('.home .acts > *')].map(e=>Math.round(e.getBoundingClientRect().height))`);
+  assert(heights.every(h=>h===44),'Under 1,024 pixels the answers are drawn 44 pixels high: '+heights.join());
+  return{evidence:'fixture page, touch emulation',coarse,checked,screenshot:await shot('hit-areas-390')};
+ });
 
  // Answers in place (choice 19), against the fixture server: each kind, and the entries that
  // another tab or the agent answered meanwhile. They stay, marked, until the page loads again.
@@ -374,8 +406,24 @@ try{
   // and the place of its last entry; the words settle the request, and the server holds them.
   const shown=(await serverGet('/api/home')).data.my_turn.entries.find(e=>e.id===home.checkpoint).request,passWords='Synthetic words: the orders table reads well.';
   await press(button(home.checkpoint,'words'));await waitFor(`document.activeElement?.id===${JSON.stringify('pw-'+home.checkpoint)}`);await insert(passWords);
-  await press(button(home.checkpoint,'pass'));seen.checkpoint=await answered(home.checkpoint);
-  assert(seen.checkpoint.res===label('Answered',3,lang)+' '+label('The head',4,lang)&&seen.checkpoint.record===stagePath(project,'sample','05-erd')&&!seen.checkpoint.buttons.length&&!seen.checkpoint.links.length,'Checkpoint passed, with Stage record: '+JSON.stringify(seen.checkpoint));
+  // Two presses of the pass by the mouse on one spot (BUG-606): while it is sent, it says
+  // "Sending…" in its own width, so that nothing beside it moves under the pointer, and the
+  // second press sends nothing and leaves the page where it is.
+  const at=await evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(button(home.checkpoint,'pass'))});e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()`);
+  await paint();const sentBefore=report.posts.length,boxes=(await request(home.checkpoint)).acts.map(a=>a.box);
+  const mouse=async()=>{for(const type of['mousePressed','mouseReleased'])await command('Input.dispatchMouseEvent',{type,x:at.x,y:at.y,button:'left',clickCount:1});};
+  held={pattern:new RegExp(api+'/checkpoints$'),method:'POST',requests:[]};
+  await mouse();for(const stop=Date.now()+10000;!held.requests.length&&Date.now()<stop;)await sleep(25);await paint();
+  seen.sending=await request(home.checkpoint);
+  const moved=seen.sending.acts.some((a,i)=>!boxes[i]||a.box.some((v,k)=>Math.abs(v-boxes[i][k])>1));
+  assert(held.requests.length===1&&seen.sending.acts.length===boxes.length&&!moved&&seen.sending.acts[1].text===codeMessage('Sending',lang)&&seen.sending.acts[1].aria==='true','Sending… in the pass\'s own width, nothing moved: '+JSON.stringify({before:boxes,during:seen.sending.acts.map(a=>[a.act,a.text,a.box])}));
+  const sendingShot=await entryShot('pass-sending-1440',home.checkpoint);
+  await mouse();await sleep(150);
+  const passesSent=report.posts.slice(sentBefore).filter(p=>p.path===api+'/checkpoints').length;
+  assert(await evaluate('location.pathname')==='/'&&passesSent===1,'The second press sends nothing and opens nothing: '+JSON.stringify({at:await evaluate('location.href'),passesSent}));
+  await release();seen.checkpoint=await answered(home.checkpoint);
+  // The link opens the stage's record, where the checkpoint can be withdrawn (BUG-607).
+  assert(seen.checkpoint.res===label('Answered',3,lang)+' '+label('The head',4,lang)&&seen.checkpoint.record===stagePath(project,'sample','05-erd')+'#record'&&!seen.checkpoint.buttons.length&&!seen.checkpoint.links.length,'Checkpoint passed, with Stage record: '+JSON.stringify(seen.checkpoint));
   const body=JSON.parse(report.posts.filter(p=>p.path===api+'/checkpoints').at(-1)?.body||'null');seen.passed=body;
   assert(JSON.stringify(body)===JSON.stringify({part:'sample',stage:'05-erd',commit:'a'.repeat(40),comment:home.checkpoint,entry:shown.entry,words:passWords,driven:await evaluate('navigator.webdriver')}),'The pass names what the entry showed: '+JSON.stringify(body));
   const request_=(await serverGet(api+'/comments/'+home.checkpoint)).data,settle=request_.replies?.at(-1);
@@ -383,9 +431,12 @@ try{
   const recorded=(await serverGet(api+'/todo')).data.checkpoints?.entries?.find(c=>c.comment===home.checkpoint);seen.recorded=recorded;
   assert(recorded?.commit==='a'.repeat(40)&&recorded.entry===shown.entry&&recorded.words===passWords&&recorded.driven===body.driven&&recorded.state==='passed','The server holds what the pass named: '+JSON.stringify(recorded));
   assert(await evaluate(`localStorage.getItem(${JSON.stringify('nexus0.2:'+project+':pass:'+home.checkpoint)})`)===null,'The passed words leave the browser');
-  // A checkpoint asked for on a part that the snapshot no longer holds: the request in the talk instead.
-  await press(button(home.gonePart,'pass'));seen.gonePart=await answered(home.gonePart);
-  assert(seen.gonePart.msg?.text===codeMessage('part_not_found',lang)&&seen.gonePart.msg.links[0]?.text===labels("A checkpoint request's buttons",lang)[0]&&seen.gonePart.msg.links[0].href===stagePath(project,'gone','05-erd')+'#talk='+home.gonePart&&seen.gonePart.buttons.map(b=>b.act).join()==='pass,words','Part not found: '+JSON.stringify(seen.gonePart));
+  // A checkpoint asked for on a part that the snapshot no longer holds (BUG-610): its stage has no
+  // page, so the entry links to no talk and offers no pass; it says why, and offers Mark answered.
+  seen.gonePart=await entry(home.gonePart);
+  seen.goneWhy=await evaluate(`(()=>{const e=document.querySelector('[data-nx-entry="${home.gonePart}"]');return{why:e.querySelector(':scope > .rqf')?.textContent||null,links:e.querySelectorAll('a').length,text:e.querySelector(':scope > .txt')?.textContent||null};})()`);
+  assert(seen.goneWhy.why===codeMessage('part_not_found',lang)&&seen.goneWhy.links===0&&seen.goneWhy.text&&JSON.stringify(seen.gonePart.buttons.map(b=>[b.act,b.text,b.disabled]))===JSON.stringify([['answered',labels("The talk's entries",lang)[0],false]])&&!seen.gonePart.msg,'Part not found: why, no link, Mark answered: '+JSON.stringify({entry:seen.gonePart,why:seen.goneWhy}));
+  const goneShot=await entryShot('gone-part-1440',home.gonePart);
   // Every entry stays where it was; my turn and the agent to-do read again.
   const after=await ids(),now=await todo();seen.headingAfter=await heading();seen.todo={before,after:now};
   assert(JSON.stringify(after)===JSON.stringify(first),'The entries moved or left: '+JSON.stringify({first,after}));
@@ -396,11 +447,21 @@ try{
   const fullAnswered=await fullShot('answered-1440');
   const server=await serverGet(api+'/proposals/'+home.accept);
   assert(server.status===200&&server.data.state==='accepted','The server holds the accepted proposal: '+JSON.stringify(server.data?.state));
+  // The passed entry's Stage record opens the stage's record (BUG-607), where the checkpoint waits
+  // with its words and Withdraw; closing the record takes #record out of the address.
+  await click(`[data-nx-entry="${home.checkpoint}"] .res a`);
+  const recordAt=origin+stagePath(project,'sample','05-erd')+'#record';
+  await waitFor(`location.href===${JSON.stringify(recordAt)}&&document.documentElement.dataset.nxCode==='ready'&&document.querySelector('.ws')?.dataset.nxOpen==='record'&&!!document.querySelector('.side .rec .cpl')`);await paint();
+  seen.record=await evaluate(`[...document.querySelectorAll('.side .rec .cpl .wbox')].map(w=>({text:w.textContent,withdraw:!!w.querySelector('[data-nx-act="withdraw"]')}))`);
+  assert(seen.record.some(b=>b.withdraw&&b.text.includes(passWords)),'The record shows the checkpoint with Withdraw: '+JSON.stringify(seen.record));
+  const recordShot=await shot('record-from-the-first-page-1440');
+  await click('.side .rec [data-nx-act="close"]');await waitFor(`!document.querySelector('.ws').dataset.nxOpen&&location.hash===''`);
+  seen.closedAt=await evaluate('location.href');
   // Loaded again, the entries that no longer wait are gone; the others stay.
   await open('/?lang='+lang);const reloaded=await ids();seen.reloaded=reloaded;
   for(const key of['stale','taken','closed','accept','dismiss','recommended','checkpoint'])assert(!reloaded.includes(home[key]),key+' is still in my turn after a reload');
   for(const key of['gonePart','question','retry','reused','sending'])assert(reloaded.includes(home[key]),key+' left my turn');
-  return{evidence:'fixture server (real writes); the other tab\'s writes through /api',seen,screenshot:fullAnswered,writes:report.posts.slice(-8)};
+  return{evidence:'fixture server (real writes); the other tab\'s writes through /api; the pass held until its second press (mocked delay)',seen,screenshot:fullAnswered,screenshots:[sendingShot,goneShot,recordShot],writes:report.posts.slice(-8)};
  });
 
  // Rule 4: Sending… while an answer is sent, one write ID for every try of the same answer,
@@ -434,19 +495,32 @@ try{
   await press(retry(home.reused));await waitFor(`!!document.querySelector('[data-nx-entry="${home.reused}"] .res')`);await settled();
   const reusedKeys=writesTo(accept(home.reused));
   assert(reusedKeys.length===2&&reusedKeys[0]!==reusedKeys[1],'A new write ID after write_id_reused: '+JSON.stringify(reusedKeys));
+  // Mark answered on the request whose part the snapshot no longer holds (BUG-610), refused
+  // because the sign-in is of no kind that may write: its message, without Try again, as in the
+  // talk (SCR-110#permission).
+  const close=api+'/comments/'+home.gonePart+'/answered';
+  responses=[{method:'POST',pattern:new RegExp(close+'$'),once:true,...problem(403,'no_kind')}];
+  await press(button(home.gonePart,'answered'));seen.noKind=await answered(home.gonePart);
+  assert(seen.noKind.msg?.tone==='warn'&&seen.noKind.msg.text===codeMessage('no_kind',lang)&&!seen.noKind.msg.retry&&!seen.noKind.answered&&seen.noKind.buttons.map(b=>b.act).join()==='answered','no_kind on Mark answered: '+JSON.stringify(seen.noKind));
   // A sign-in that expired while answering: the bar, and Sign in again loads the page.
-  responses=[{method:'POST',pattern:new RegExp(api+'/checkpoints$'),status:302,headers:[{name:'Location',value:origin+'/cdn-cgi/access/login/qa'}],body:''}];
-  await press(button(home.gonePart,'pass'));await waitFor(`!!document.querySelector('.home > .notes .bar.warn')`);await settled();
+  responses=[{method:'POST',pattern:new RegExp(close+'$'),once:true,status:302,headers:[{name:'Location',value:origin+'/cdn-cgi/access/login/qa'}],body:''}];
+  await press(button(home.gonePart,'answered'));await waitFor(`!!document.querySelector('.home > .notes .bar.warn')`);await settled();
   seen.signIn={notice:await notice(),entry:await entry(home.gonePart)};
-  assert(seen.signIn.notice?.text===codeMessage('Sign-in expired',lang)&&!seen.signIn.entry.msg&&seen.signIn.entry.buttons.map(b=>b.act).join()==='pass,words','Sign-in on a pass: '+JSON.stringify(seen.signIn));
+  assert(seen.signIn.notice?.text===codeMessage('Sign-in expired',lang)&&!seen.signIn.entry.msg&&seen.signIn.entry.buttons.map(b=>b.act).join()==='answered','Sign-in on Mark answered: '+JSON.stringify(seen.signIn));
   const signIn=await shot('sign-in-answer-390-ko-dark'),loaded=loads;
   await click('.home > .notes button[data-nx-act="sign-in"]');
   for(const stop=Date.now()+10000;loads===loaded&&Date.now()<stop;)await sleep(25);
   assert(loads>loaded,'Sign in again loads the page');
   await waitFor(`document.documentElement.dataset.nxCode==='ready'`);await settled();
   assert((await ids()).includes(home.gonePart)&&!(await notice()),'The page comes back with the entry');
+  // Then Mark answered closes the request as answered, in place, and the server holds it closed.
+  await press(button(home.gonePart,'answered'));seen.closedGone=await answered(home.gonePart);
+  const closedGone=(await serverGet(api+'/comments/'+home.gonePart)).data;seen.closedOnServer={state:closedGone.state,closed_as:closedGone.closed_as};
+  assert(seen.closedGone.res===labels("The talk's entries",lang)[2]&&!seen.closedGone.buttons.length&&!seen.closedGone.msg&&closedGone.state==='closed'&&closedGone.closed_as==='answered','Mark answered on a part that left the snapshot: '+JSON.stringify({entry:seen.closedGone,server:seen.closedOnServer}));
+  const closedShot=await entryShot('gone-part-answered-390-ko-dark',home.gonePart);
   await noSideways('390');
-  return{evidence:'mocked failures, then the fixture server; write IDs as sent',seen,keys,reusedKeys,screenshots:[sending,signIn]};
+  await open('/?lang='+lang);assert(!(await ids()).includes(home.gonePart),'Loaded again, the closed request leaves my turn');
+  return{evidence:'mocked failures, then the fixture server; write IDs as sent',seen,keys,reusedKeys,screenshots:[sending,signIn,closedShot]};
  });
 
  // Reading again (rule 6): Updating… while it runs, a card pushed again, a reading that
@@ -495,25 +569,6 @@ try{
    before.forEach((t,i)=>{assert(t.text===clock(t.datetime),'Before the code, UTC: '+JSON.stringify(t));assert(after[i].text===seoul(t.datetime),'After, Seoul: '+JSON.stringify(after[i]));assert(after[i].box[2]===t.box[2]&&after[i].box[3]===t.box[3],'A time changed size: '+JSON.stringify([t,after[i]]));});
    return{evidence:'fixture page',first:{utc:before[0].text,seoul:after[0].text},count:after.length};
   }finally{await command('Emulation.setTimezoneOverride',{timezoneId:''});}
- });
-
- // Rule 14 at 390 pixels: a finger hits each control 22 pixels around its centre.
- await test('hit-areas-at-390',async()=>{
-  await setting({width:390,touch:true});await open('/?lang=ko');
-  await waitFor(`!!document.querySelector('link[data-nexus-css="fonts"]')?.sheet&&document.fonts.status==='loaded'`);await paint();
-  const coarse=await evaluate(`matchMedia('(pointer:coarse)').matches`);
-  const probe=`((scope)=>{const controls=[...document.querySelectorAll(scope)].filter(e=>e.checkVisibility({visibilityProperty:true}));
-   return controls.map(e=>{e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;
-    const misses=[[0,-21],[0,21],[-21,0],[21,0]].filter(([dx,dy])=>{const hit=document.elementFromPoint(x+dx,y+dy);return!hit||!(hit===e||e.contains(hit));});
-    return{name:(e.textContent.trim()||e.className).slice(0,40),box:[r.x,r.y,r.width,r.height].map(Math.round),misses};});})`;
-  const checked=[];
-  for(const [name,scope]of[['answers','.home .acts button,.home .acts a'],['places','.home .where > a'],['look at first','.home .rqf a'],['agent to-do','.home .todo a'],['order','.home .seg button'],['cards','.home .pcard footer a,.home .thumb']]){
-   const found=await evaluate(probe+'('+JSON.stringify(scope)+')');checked.push({name,found:found.length});
-   assert(found.length>0,'No '+name);for(const c of found)assert(!c.misses.length,`${name}: ${c.name} misses ${JSON.stringify(c.misses)} at ${JSON.stringify(c.box)}`);
-  }
-  const heights=await evaluate(`[...document.querySelectorAll('.home .acts > *')].map(e=>Math.round(e.getBoundingClientRect().height))`);
-  assert(heights.every(h=>h===44),'Under 1,024 pixels the answers are drawn 44 pixels high: '+heights.join());
-  return{evidence:'fixture page, touch emulation',coarse,checked,screenshot:await shot('hit-areas-390')};
  });
 
  // SPEC-154: 0.2's fragments on / lead to their places; the words of #q=, and an ID that the

@@ -5,7 +5,7 @@
 // reading again, the cards' order and the cards pushed again. Every element that the code
 // compares when it draws again has data-nx-key; data-nx-sub marks one whose children it
 // compares one by one, and data-nx-live one whose text it changes in place.
-import {esc,path,count,time,timed} from "./html.js";
+import {esc,path,count,time,timed,keepWidth} from "./html.js";
 import {icon,shapeIcon} from "./icons.js";
 import {label,labels,oldLabels,legendWord,codeMessage,notCurrentWhy,STATES} from "./words.js";
 import {STAGE_KEYS,stageName,stageNumber,stagePath} from "./stages.js";
@@ -49,6 +49,12 @@ export function wholeRequest(entry,card){
   const shown=typeof look.url==="string"&&look.url.startsWith("https://")||Boolean(look.held&&typeof look.stage==="string"&&STAGE_KEYS.includes(look.stage)&&typeof look.item==="string");
   return shown&&(typeof card.commit==="string"&&card.commit!==""||Number.isInteger(card.revision));
 }
+// An entry on a part that the project's snapshot no longer holds, which its card does not list
+// (BUG-610): its stage has no page (SCR-111#error), so the entry links to no talk and offers no
+// pass; it says why, and a comment closes as answered in place (API-120).
+export function partGone(entry,card){
+  return Boolean(card&&Array.isArray(card.parts)&&!card.parts.some(part=>part?.name===entry?.part));
+}
 const number=value=>Number.isFinite(Number(value))?Math.round(Number(value)):0;
 const backticks=text=>esc(text).replace(/`([^`]+)`/g,"<code>$1</code>");
 
@@ -77,8 +83,11 @@ function notes(view,lang){
 function after(entry,state,lang){
   const id=esc(entry.id),parts=[];
   if(Number.isInteger(state.mark)){
-    const record=state.mark===3?` <a class="lnk" href="${esc(stagePath(entry.project,entry.part,entry.stage))}">${esc(label("The head",4,lang))}</a>`:"";
-    parts.push(`<p class="res">${icon("i-check")}<span>${esc(label("Answered",state.mark,lang))}${record}</span></p>`);
+    // After a pass, the link opens the stage's record, where the checkpoint can be withdrawn
+    // until it is recorded (BUG-607).
+    const record=state.mark===3?` <a class="lnk" href="${esc(stagePath(entry.project,entry.part,entry.stage)+"#record")}">${esc(label("The head",4,lang))}</a>`:"";
+    const mark=state.mark===4?labels("The talk's entries",lang)[2]:label("Answered",state.mark,lang);
+    parts.push(`<p class="res">${icon("i-check")}<span>${esc(mark)}${record}</span></p>`);
   }
   // A refusal by the pass's words shows by the words' box (wordsBox).
   const note=state.note&&!(state.note.box&&state.words)?state.note:null;
@@ -142,7 +151,7 @@ function requestActs(entry,state,lang,code,whole,talk,where){
   const open=`<a class="btn sm pri answer" href="${talk}" data-nx-focus="${id}:talk" aria-describedby="${where}">${esc(buttons[0])}</a>`;
   if(!whole)return open;
   const sending=state.sending==="pass",wait=code?(state.over?" disabled":sending||state.reread?' aria-disabled="true"':""):` disabled data-nx-wait="answer"`;
-  const pass=`<button class="btn sm answer" type="button" data-nx-act="pass" data-nx-focus="${id}:pass" aria-describedby="${where}"${wait}>${esc(sending?codeMessage("Sending",lang):label("The pass",0,lang,{n:String(entry.stage).slice(0,2)}))}</button>`;
+  const pass=`<button class="btn sm answer" type="button" data-nx-act="pass" data-nx-focus="${id}:pass" aria-describedby="${where}"${wait}>${keepWidth(label("The pass",0,lang,{n:String(entry.stage).slice(0,2)}),sending&&codeMessage("Sending",lang))}</button>`;
   const add=state.words?"":`<button class="btn sm quiet answer" type="button" data-nx-act="words" data-nx-focus="${id}:add" aria-describedby="${where}"${code?"":` disabled data-nx-wait="answer"`}>${esc(buttons[1])}</button>`;
   return open+pass+add;
 }
@@ -155,10 +164,20 @@ function entryItem(entry,titles,lang,state={},code=false,card=null){
   const talk=esc(talkPath(entry.project,entry.part,entry.stage,entry.id));
   // While an answer is sent, its buttons keep the focus and are announced as disabled.
   const wait=code?(state.sending?' aria-disabled="true"':""):` disabled data-nx-wait="answer"`;
-  const writes=ANSWERS[kind].map(([act,index],n)=>`<button class="btn sm answer${n===0?" pri":""}" type="button" data-nx-act="${act}" data-nx-focus="${id}:${act}" aria-describedby="${where}"${wait}>${esc(state.sending===act?codeMessage("Sending",lang):answers[index])}</button>`);
+  const gone=partGone(entry,card),button=(act,text,n)=>`<button class="btn sm answer${n===0?" pri":""}" type="button" data-nx-act="${act}" data-nx-focus="${id}:${act}" aria-describedby="${where}"${wait}>${keepWidth(text,state.sending===act&&codeMessage("Sending",lang))}</button>`;
+  const writes=ANSWERS[kind].map(([act,index],n)=>button(act,answers[index],n));
   const link=LINKS[kind]===null?[]:[`<a class="btn sm answer" href="${talk}" data-nx-focus="${id}:talk" aria-describedby="${where}">${esc(answers[LINKS[kind]])}</a>`];
-  const head=`<span class="kind acc" data-nx-key="k">${esc(labels("An entry's kind",lang)[kind])}</span><span class="where" id="${where}" data-nx-key="w">${place}<a class="lnk clip" href="${talk}" data-nx-focus="${id}:place">${item}</a></span>`;
+  const head=`<span class="kind acc" data-nx-key="k">${esc(labels("An entry's kind",lang)[kind])}</span><span class="where" id="${where}" data-nx-key="w">${place}${gone?`<span class="clip">${item}</span>`:`<a class="lnk clip" href="${talk}" data-nx-focus="${id}:place">${item}</a>`}</span>`;
   const when=`<span class="when mu cap" data-nx-key="n">${esc(labels("Author and time",lang)[0])} · ${time(entry.at)}</span>`;
+  // An entry on a part that the snapshot no longer holds (BUG-610): its text, why it links
+  // nowhere, and its answers in place: a proposal's Accept and Dismiss, a recommendation's As
+  // recommended, and Mark answered for a comment, which closes it as answered (API-120).
+  if(gone){
+    const request=kind===3?entry.request:null,closes=kind===0?[]:[button("answered",labels("The talk's entries",lang)[0],writes.length)];
+    const why=`<p class="rqf" data-nx-key="f">${esc(codeMessage("part_not_found",lang))}</p>`;
+    const acts=state.done?"":`<span class="acts rqa" data-nx-key="a">${[...writes,...closes].join("")}</span>`;
+    return`<li class="ent req gone${state.done?" answered":""}" data-nx-key="e:${id}" data-nx-entry="${id}" data-nx-sub>${head}<p class="txt${request?" rq":""}" data-nx-key="t">${esc(request?request.text:entry.text)}</p>${why}${when}${acts}${after(entry,state,lang)}</li>`;
+  }
   // A checkpoint request (SCR-110's revision): in form, its last entry's whole text and its lines;
   // its words' box while it is open; and its buttons. Its parts keep their places when the code
   // draws again, so that the words and the focus stay.

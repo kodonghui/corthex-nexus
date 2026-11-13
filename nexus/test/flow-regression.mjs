@@ -74,11 +74,12 @@ async function setting({width,theme,lang}){
 const cookie=(name,value)=>value===null?command('Network.deleteCookies',{name,url:origin}):command('Network.setCookie',{name,value,url:origin,path:'/'});
 // The page has settled: no reading runs, nothing is being sent, a picture shown is drawn and the
 // fonts that the code adds are in.
+// The words of a button that is sent, which show over its own words kept unseen (BUG-606).
 const SENDING=JSON.stringify([codeMessage('Sending','en'),codeMessage('Sending','ko')]);
 const SETTLED=`(()=>{const q=s=>document.querySelector(s),shown=e=>!!e&&e.checkVisibility({visibilityProperty:true});
  if(['.stage .upd','.side .tupd','.home .upd'].some(s=>(q(s)?.textContent||'')!==''))return false;
  if(q('.side .sk')&&shown(q('.side .sk')))return false;
- if([...document.querySelectorAll('button')].some(b=>${SENDING}.includes(b.textContent.trim())))return false;
+ if([...document.querySelectorAll('button')].some(b=>${SENDING}.includes((b.querySelector('.keep > :not(.was)')||b).textContent.trim())))return false;
  const pf=q('.pf');if(shown(pf)&&!q('.pf > .cv.drawn, .pf .empty-p, .pf .fnote .msg.warn'))return false;
  const fonts=q('link[data-nexus-css="fonts"]');if(fonts&&(!fonts.sheet||document.fonts.status!=='loaded'))return false;
  return true;})()`;
@@ -143,8 +144,9 @@ async function firstPage(home){
  // BUG-602: from 1,024 pixels the place stood on one line, and the project's title and the item
  // shrank together, so that an item lost its ID ("SCR-…"). Each entry's place now wraps: the
  // stage and the item's ID are whole, the item's own title is cut only when the line cannot hold
- // it, and the project's title only past two fifths of the line.
- const PLACES=`[...document.querySelectorAll('.home .ent')].map(e=>{const w=e.querySelector('.where'),spans=[...w.children].filter(c=>c.tagName==='SPAN'&&!c.hasAttribute('aria-hidden')),title=spans[0],a=w.querySelector('a.clip'),id=a.querySelector('.mono'),box=x=>x.getBoundingClientRect(),cut=x=>x.scrollWidth>x.clientWidth+1;
+ // it, and the project's title only past two fifths of the line. An entry on a part that the
+ // snapshot no longer holds names its item without a link (BUG-610), and is measured the same.
+ const PLACES=`[...document.querySelectorAll('.home .ent')].map(e=>{const w=e.querySelector('.where'),spans=[...w.children].filter(c=>c.tagName==='SPAN'&&!c.hasAttribute('aria-hidden')&&!c.classList.contains('clip')),title=spans[0],a=w.querySelector(':scope > .clip'),id=a.querySelector('.mono'),box=x=>x.getBoundingClientRect(),cut=x=>x.scrollWidth>x.clientWidth+1;
   return{entry:e.dataset.nxEntry,line:Math.round(box(w).width),lines:new Set([...w.children].map(c=>Math.round(box(c).top))).size,
    title:{cut:cut(title),share:title.clientWidth/w.clientWidth},others:spans.slice(1).filter(cut).map(s=>s.textContent),
    id:id?.textContent||null,idWhole:!id||box(id).left>=box(a).left-0.5&&box(id).right<=box(a).right+0.5,itemCut:cut(a),

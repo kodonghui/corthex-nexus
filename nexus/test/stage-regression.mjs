@@ -126,9 +126,11 @@ async function otherTab(pathname,body={}){
 }
 async function serverGet(pathname){const response=await fetch(origin+pathname,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(10000)});return{status:response.status,data:await response.json()};}
 
-// What the stage shows: its head, filters, list, notes and bars, and the record in the side.
+// What the stage shows: its head, filters, list, notes and bars, and the record in the side. A
+// button's text is the words that show: while it is sent, "Sending…" over its own words, which
+// keep its width unseen (BUG-606).
 const STATE=`(()=>{const q=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)],txt=e=>e?e.textContent.replace(/\\s+/g,' ').trim():null,tone=(e,base)=>[...e.classList].find(c=>c!==base)||null;
- const head=q('.stage .shd'),bar=q('.stage .notes .bar'),more=q('.stage .more'),nolist=q('.stage .nolist'),rec=q('.side .rec'),button=b=>b&&{text:txt(b),disabled:b.disabled,wait:b.dataset.nxWait||null,aria:b.getAttribute('aria-disabled'),expanded:b.getAttribute('aria-expanded')};
+ const head=q('.stage .shd'),bar=q('.stage .notes .bar'),more=q('.stage .more'),nolist=q('.stage .nolist'),rec=q('.side .rec'),button=b=>b&&{text:txt(b.querySelector('.keep > :not(.was)')||b),disabled:b.disabled,wait:b.dataset.nxWait||null,aria:b.getAttribute('aria-disabled'),expanded:b.getAttribute('aria-expanded')};
  const msg=m=>m&&{tone:tone(m,'msg'),role:m.getAttribute('role'),text:txt(m.querySelector('.t')),trace:txt(m.querySelector('.tid')),retry:m.querySelector('[data-nx-act=pass],[data-nx-act=withdraw]')?.dataset.nxAct||null,signIn:!!m.querySelector('[data-nx-act=sign-in]')};
  return{code:document.documentElement.dataset.nxCode||null,
   head:head?{h1:txt(head.querySelector('h1')),state:txt(head.querySelector('.st')),meta:[...head.querySelectorAll('.meta > span')].map(txt),waiting:txt(head.querySelector('.meta > .wait')),counts:txt(head.querySelector('.cn')),record:button(head.querySelector('[data-nx-act=record]')),talk:txt(head.querySelector('[data-nx-act=talk] > span:not(.mt)')),talkMine:txt(head.querySelector('[data-nx-act=talk] > .mt'))}:null,
@@ -545,6 +547,13 @@ try{
   responses=[{method:'POST',pattern:/\/checkpoints$/,once:true,...problem(403,'user_only')}];
   await pass();seen.userOnly=await passed();
   assert(seen.userOnly.record.pass?.tone==='warn'&&seen.userOnly.record.pass.text===codeMessage('user_only',lang)&&!seen.userOnly.record.pass.retry&&seen.userOnly.record.words===words,'user_only: '+JSON.stringify(seen.userOnly.record.pass));
+  // Access did not check the request, or checked it for another app: as user_only, with the
+  // words kept and no Try again (the group 4 walk's rows G4/B5 and G4/C6).
+  for(const code of['access_missing','access_other_app']){
+   responses=[{method:'POST',pattern:/\/checkpoints$/,once:true,...problem(403,code)}];
+   await pass();seen[code]=await passed();
+   assert(seen[code].record.pass?.tone==='warn'&&seen[code].record.pass.text===codeMessage(code,lang)&&!seen[code].record.pass.retry&&seen[code].record.words===words,code+': '+JSON.stringify(seen[code].record.pass));
+  }
   // The server's error, with Try again; Sending… meanwhile; then write_id_reused.
   responses=[{method:'POST',pattern:/\/checkpoints$/,once:true,...problem(500,'internal')}];
   await pass();seen.internal=await passed();
@@ -567,7 +576,7 @@ try{
   await release();await waitFor(`document.querySelector('.side .rec #cp-words')?.value===''`);await settled();
   await waitFor(`document.querySelectorAll('.side .rec .wbox').length===2`);seen.passed=await state();
   const keys=postsTo(checkpoints,since).map(post=>post.write);
-  assert(keys.length===5&&new Set(keys.slice(0,3)).size===1&&keys[3]===keys[4]&&keys[3]!==keys[0]&&keys.every(k=>/^"nw_[0-9a-z]{12}"$/.test(k)),'One write ID for every try, and a new one after write_id_reused: '+JSON.stringify(keys));
+  assert(keys.length===7&&new Set(keys.slice(0,5)).size===1&&keys[5]===keys[6]&&keys[5]!==keys[0]&&keys.every(k=>/^"nw_[0-9a-z]{12}"$/.test(k)),'One write ID for every try, and a new one after write_id_reused: '+JSON.stringify(keys));
   // The pass names the commit that the page showed and, with no request open on 02, no request
   // (TASK-301, SPEC-194); the record's line names that commit.
   const body=JSON.parse(postsTo(checkpoints,since).at(-1).body),shownCommit=first.project.commit;
