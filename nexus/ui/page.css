@@ -709,13 +709,14 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .idg{display:grid;gap:var(--nx-space-xs);min-width:0;align-content:start}
 .nx .idg h4{display:flex;gap:var(--pg-gap);align-items:baseline;margin:0;font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
 .nx .idl{font-size:var(--nx-font-size-caption);overflow-wrap:anywhere}
+.nx .idl > .mu{white-space:nowrap}
 .nx .idl .mono{font-size:inherit}
 .nx .xf{display:flex}
 .nx .rmft{flex:none;display:grid;gap:var(--nx-space-sm);padding:var(--nx-space-md) var(--nx-space-lg);border-top:var(--nx-border-thin) solid var(--nx-color-line);background:var(--nx-color-surface)}
 .nx .rmft .lab{font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
 .nx .rmft .rnote:empty{display:none}
 .nx .rma{display:flex;justify-content:flex-end;align-items:flex-start;gap:var(--nx-space-sm)}
-.nx .rma .btn{flex:none;height:auto;min-height:var(--nx-size-button-small);padding-block:var(--nx-space-xs);white-space:normal}
+.nx .rma .btn{flex:none;height:auto;min-height:var(--nx-size-button-small);padding-block:var(--nx-space-sm);white-space:normal}
 .nx .rma .btn.danger{flex:0 1 auto;min-width:0}
 .nx .rma .btn :is(.bw,.keep){min-width:0;overflow-wrap:anywhere;text-align:center}
 @media (min-width:1024px){

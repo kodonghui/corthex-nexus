@@ -63,8 +63,19 @@ export function createData({api,lang,project,base,state,part,render,address,hold
     render(["data"]);
     if(!state.open)return;
     const element=target&&part.querySelector(target);
-    if(element)element.focus({preventScroll:true});
+    if(element){element.focus({preventScroll:true});reveal(element);}
     else if(!part.contains(document.activeElement))part.querySelector("#dp-h")?.focus({preventScroll:true});
+  }
+  // The focused control in sight in the panel's body, which scrolls alone: the confirmation, in
+  // the data's place, opens at its heading wherever the data was scrolled, and Cancel shows
+  // "Remove this project" again (BUG-612). Only the body moves, never the page behind it.
+  function reveal(element){
+    const body=part.querySelector(".dpb");
+    if(!body?.contains(element))return;
+    const inner=element.getBoundingClientRect(),outer=body.getBoundingClientRect(),style=getComputedStyle(body);
+    const top=outer.top+parseFloat(style.paddingTop),bottom=outer.bottom-parseFloat(style.paddingBottom);
+    if(inner.top<top)body.scrollTop-=top-inner.top;
+    else if(inner.bottom>bottom)body.scrollTop+=Math.min(inner.bottom-bottom,inner.top-top);
   }
   // The panel opens over the stage with its head at once, and reads its data (SCR-130#loading).
   function show(){
@@ -75,9 +86,10 @@ export function createData({api,lang,project,base,state,part,render,address,hold
   }
   // Closed: the confirmation and its typed name go with it, a read on its way is not shown, and
   // the focus returns to the control that opened it, "Project data" where that one is not in
-  // sight, then the stage's name in the phone's top bar. The back button's step ends with the
-  // browser's own move of the focus to the address's target, as to the phone's sheet of stages
-  // after the panel opened from it (#stages): the focus returns again once that is done.
+  // sight, then the stage's name in the phone's top bar, which opens the sheet of stages that
+  // closed when the panel opened from it (BUG-611). The back button's step ends with the
+  // browser's own move of the focus to the address's target, such as the side's #talk: the
+  // focus returns again once that is done.
   function hide(){
     closing=false;reads.invalidate("data");
     Object.assign(state,{open:false,confirm:false,stale:false,ready:false,note:null,exportNote:null,removeNote:null});

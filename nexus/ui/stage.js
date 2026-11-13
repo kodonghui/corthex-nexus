@@ -705,19 +705,25 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   itemPanel=createItem({payload,view,api,base,project,part:partName,stage,entries,render,refreshPage:()=>refresh().catch(()=>{}),onGone:itemGone});
   // The project's data (SCR-130): opening it is a step of the browser's history, which Close and
   // Escape take back; an address that came with data loses it in its place. location.hash, not
-  // pushState, so that the phone's sheet of stages, which follows #stages, closes.
+  // pushState, so that the phone's sheet of stages, which follows #stages, closes. Chosen in that
+  // sheet, the panel closes the sheet as a stage chosen there does: its address takes the sheet's
+  // place in the history, so that Close and the back button come back to the stage with the rest
+  // of its address, not to the sheet (BUG-611), and Close takes data out in place, since the step
+  // before the sheet may be another page's.
   dataPanel=parts.data?createData({api,lang,project,base,state:view.data,part:parts.data,render,hold:holdPage,
     pushed:at=>{if(typeof at==="string"&&at!==data().project.pushed_at&&view.pushed!==at){view.pushed=at;render(["bars"]);}},
     address:{
       open(){
-        const params=hash();params.set("data","");location.hash=fragment(params);
+        const params=hash();params.set("data","");
+        const sheet=location.hash==="#stages",next="#"+fragment(params);
+        if(sheet)location.replace(next);else location.hash=next;
         const kept=history.state&&typeof history.state==="object"?history.state:{};
-        history.replaceState({...kept,nexusData:location.hash},"",location.href);
+        history.replaceState({...kept,nexusData:location.hash,...(sheet?{nexusSheet:true}:{})},"",location.href);
       },
-      back(){if(history.state?.nexusData!==location.hash)return false;history.back();return true;},
+      back(){if(history.state?.nexusData!==location.hash||history.state.nexusSheet)return false;history.back();return true;},
       drop(){
         const params=hash();params.delete("data");const rest=fragment(params);
-        const {nexusData,...kept}=history.state&&typeof history.state==="object"?history.state:{};
+        const {nexusData,nexusSheet,...kept}=history.state&&typeof history.state==="object"?history.state:{};
         history.replaceState(Object.keys(kept).length?kept:null,"",location.pathname+location.search+(rest?"#"+rest:""));
         applied=location.hash;
       },

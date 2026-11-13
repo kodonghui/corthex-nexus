@@ -161,12 +161,18 @@ function dataView(){
  // line by line, inside the button's box, since its hit area and its screen-reader words reach
  // outside it on purpose.
  const fits=e=>{const b=e.getBoundingClientRect(),walk=document.createTreeWalker(e,NodeFilter.SHOW_TEXT);let n,ok=true;while((n=walk.nextNode())){if(!n.textContent.trim()||n.parentElement.closest('.sr,.was'))continue;const range=document.createRange();range.selectNodeContents(n);for(const q of range.getClientRects())if(q.width&&(q.left<b.left-0.5||q.right>b.right+0.5||q.top<b.top-0.5||q.bottom>b.bottom+0.5))ok=false;}return ok;};
- const button=e=>e?{words:words(e),sr:txt(e.querySelector(':scope > .sr')),off:e.getAttribute('aria-disabled')==='true'||e.disabled,box:rect(e),shown:shown(e),fits:fits(e)}:null;
+ // How much room the shown words keep above their first line and below their last inside the
+ // button's box (BUG-613), in pixels.
+ const room=e=>{const b=e.getBoundingClientRect(),walk=document.createTreeWalker(e,NodeFilter.SHOW_TEXT),lines=[];let n;while((n=walk.nextNode())){if(!n.textContent.trim()||n.parentElement.closest('.sr,.was'))continue;const range=document.createRange();range.selectNodeContents(n);for(const q of range.getClientRects())if(q.width)lines.push(q);}if(!lines.length)return null;return Math.round(Math.min(Math.min(...lines.map(q=>q.top))-b.top,b.bottom-Math.max(...lines.map(q=>q.bottom)))*10)/10;};
+ const button=e=>e?{words:words(e),sr:txt(e.querySelector(':scope > .sr')),off:e.getAttribute('aria-disabled')==='true'||e.disabled,box:rect(e),shown:shown(e),fits:fits(e),room:room(e)}:null;
  const message=m=>({tone:['info','warn','err'].find(c=>m.classList.contains(c))||null,role:m.getAttribute('role'),icon:m.querySelector('svg use')?.getAttribute('href')||null,text:txt(m.querySelector('.t')),trace:txt(m.querySelector('.tid')),
   controls:[...m.querySelectorAll('.row > button, .row > a')].map(b=>({words:txt(b),act:b.dataset.nxAct||null,href:b.getAttribute('href'),box:rect(b)}))});
  const ws=q('.ws'),dp=q('.dpw .dp'),active=document.activeElement;
+ // The focused control inside the panel's body, which scrolls alone, in sight there (BUG-612).
+ const inSight=e=>{const body=e?.closest?.('.dp .dpb');if(!body)return null;const r=e.getBoundingClientRect(),o=body.getBoundingClientRect();return r.top>=o.top-0.5&&r.bottom<=o.bottom+0.5;};
  const out={href:location.href,path:location.pathname,hash:location.hash,state:history.state,open:ws?.dataset.nxData||null,
-  focus:active?(active.id||active.dataset?.nxFocus||(typeof active.className==='string'?active.className:'')||active.tagName):null,
+  focus:active?(active.id||active.dataset?.nxFocus||(typeof active.className==='string'?active.className:'')||active.tagName):null,focusInSight:inSight(active),
+  sheet:innerWidth<1024?shown(q('.rail')):null,
   inert:Object.fromEntries(['.tb','.bars','.rail','.tabs','.stage','.side'].map(s=>[s,Boolean(q(s)?.inert)])),
   bars:[...document.querySelectorAll('.bars .bar')].filter(shown).map(b=>({text:txt(b.querySelector('.t')),act:b.querySelector('button')?.dataset.nxAct||null})),
   item:q('.side #item-h')?txt(q('.side #item-h')):null,
@@ -191,7 +197,7 @@ function dataView(){
   const li=[...dp.querySelectorAll('.rml > li')];
   out.panel.confirm={heading:txt(q('#rm-h')),headingWhole:q('#rm-h').scrollWidth<=q('#rm-h').clientWidth+1,deletes:txt(dp.querySelector('[data-nx-key="del"]')),
    list:li.map(e=>({text:txt(e.firstChild),kinds:txt(e.querySelector('.rmc'))})),
-   groups:[...dp.querySelectorAll('.idgs .idg')].map(g=>({title:txt(g.querySelector('h4')),ids:[...g.querySelectorAll('.idl > .mono')].map(txt),more:txt(g.querySelector('.idl > .mu')),box:rect(g)})),
+   groups:[...dp.querySelectorAll('.idgs .idg')].map(g=>({title:txt(g.querySelector('h4')),ids:[...g.querySelectorAll('.idl > .mono')].map(txt),more:txt(g.querySelector('.idl > .mu')),moreLines:g.querySelector('.idl > .mu')?.getClientRects().length??null,box:rect(g)})),
    first:button(dp.querySelector('[data-nx-focus="data-export-first"]')),back:txt(dp.querySelector('[data-nx-key="back"]')),
    label:txt(dp.querySelector('label[for="dp-name"]')),labelWhole:dp.querySelector('label[for="dp-name"]').scrollWidth<=dp.querySelector('label[for="dp-name"]').clientWidth+1,
    field:field?{value:field.value,autocomplete:field.getAttribute('autocomplete'),autocapitalize:field.getAttribute('autocapitalize'),autocorrect:field.getAttribute('autocorrect'),spellcheck:field.getAttribute('spellcheck'),box:rect(field.closest('.rmf')||field)}:null,
@@ -342,6 +348,8 @@ async function savedExport(since,project,lang,what){
 
 const SETTINGS=[[390,'light','en'],[390,'dark','ko'],[390,'dark','en'],[390,'light','ko'],[1440,'light','en'],[1440,'dark','ko'],[1440,'dark','en'],[1440,'light','ko']].map(([width,theme,lang])=>({width,theme,lang,tag:`${width}-${theme}-${lang}`}));
 const TWO=[SETTINGS[4],SETTINGS[1]];
+// The limits also in dark Korean at 1,440, where "23개 중 20개" broke across lines (BUG-613).
+const LIMITS=[...TWO,SETTINGS[5]];
 
 try{
  const fixture=await (await fetch(origin+'/__qa/receipts',{signal:AbortSignal.timeout(10000)})).json();qa=fixture.data;
@@ -426,11 +434,14 @@ try{
   assert(JSON.stringify(['comments','replies','decisions','proposals','edits','checkpoints'].map(k=>head.counts[k]))===JSON.stringify(KINDS.map(([k])=>d[k]))&&head.comments.length===12&&head.proposals.length===2&&head.checkpoints.length===3,'TC-1463: the file holds what the panel counts: '+JSON.stringify(head.counts));
   v=await view();normalHolds(v,await api(`/api/spaces/${name}/data`),lang,from,Date.now(),'After the export',{file:file.name});
   const exported=await checked(s,'After the export',{},since);const exportedShot=await shot(`exported-${s.tag}`);
-  // Close: the address loses data, the focus returns to "Project data"; again, with Escape.
+  // Close: the address loses data, the focus returns to "Project data"; again, with Escape. Under
+  // 1,024 pixels the sheet of stages closed when the panel opened from it, and stays closed: the
+  // focus goes to the stage's name in the top bar, which opens it (BUG-611).
+  const back=s.width<1024?'ttl only-ph':'data';
   await closeWith('close',s);v=await view();
-  assert(v.hash===(s.width<1024?'#stages':'')&&v.focus==='data'&&Object.values(v.inert).every(i=>!i),'Close: the address loses data, the page behind works again, and the focus returns to "Project data": '+JSON.stringify({hash:v.hash,focus:v.focus,inert:v.inert}));
+  assert(v.hash===''&&!v.sheet&&v.focus===back&&Object.values(v.inert).every(i=>!i),'Close: the address loses data, the page behind works again, and the focus returns to "Project data", or under 1,024 pixels to the stage\'s name: '+JSON.stringify({hash:v.hash,sheet:v.sheet,focus:v.focus,inert:v.inert}));
   await openPanel(s);await closeWith('escape',s);v=await view();
-  assert(v.hash===(s.width<1024?'#stages':'')&&v.focus==='data','Escape closes the panel as Close does: '+JSON.stringify({hash:v.hash,focus:v.focus}));
+  assert(v.hash===''&&!v.sheet&&v.focus===back,'Escape closes the panel as Close does: '+JSON.stringify({hash:v.hash,sheet:v.sheet,focus:v.focus}));
   return{evidence:'fixture page and reads; the read and the export held by the suite (held); the saved file compared with the bytes of the page\'s own reply',file:{name:file.name,bytes:file.bytes,sha256:file.sha256},checks:{loading,normal,exported},screenshots:[loadingShot,normalShot,exportingShot,exportedShot]};
  });
 
@@ -684,15 +695,24 @@ try{
 
  // The limits (rule 1, rule 12): a long name breaks rather than widen the panel, and the
  // confirmation lists 20 of the 23 open comments with "20 of 23".
- for(const s of TWO)await test(`limits@${s.tag}`,async()=>{
+ for(const s of LIMITS)await test(`limits@${s.tag}`,async()=>{
   const since=report.console.length;await setting(s);const lang=s.lang,name=qa.long;
   await open(page(name,lang));await openPanel(s);
+  // "Remove this project" sits under the 23 counts and the acts' lines: pressed, it scrolls the
+  // panel's body down to it, and the confirmation then opens at its heading (BUG-612).
   await click('.dp [data-nx-act="data-remove"]');await waitFor(`document.activeElement?.id==='rm-h'`);await idle();
-  const answer=await api(`/api/spaces/${name}/data`),v=await view();confirmationHolds(v,answer,name,lang,'The confirmation\'s limits');
+  const answer=await api(`/api/spaces/${name}/data`);let v=await view();confirmationHolds(v,answer,name,lang,'The confirmation\'s limits');
   const comments=v.panel.confirm.groups[0];
-  assert(comments.ids.length===20&&comments.more===label('The list',9,lang,{n:count(20),total:count(23)})&&v.panel.confirm.headingWhole&&v.panel.confirm.labelWhole,'20 IDs with "20 of 23", and the long name wraps: '+JSON.stringify({comments,heading:v.panel.confirm.headingWhole,label:v.panel.confirm.labelWhole}));
-  const checks=await checked(s,'The confirmation\'s limits',{},since);
-  return{evidence:'fixture page and reads',checks,screenshots:[await shot(`limits-${s.tag}`)]};
+  assert(comments.ids.length===20&&comments.more===label('The list',9,lang,{n:count(20),total:count(23)})&&comments.moreLines===1&&v.panel.confirm.headingWhole&&v.panel.confirm.labelWhole,'20 IDs with "20 of 23" on one line (BUG-613), and the long name wraps: '+JSON.stringify({comments,heading:v.panel.confirm.headingWhole,label:v.panel.confirm.labelWhole}));
+  assert(v.focusInSight===true,'The confirmation opens with its focused heading in sight (BUG-612): '+JSON.stringify({focus:v.focus,inSight:v.focusInSight}));
+  assert(v.panel.confirm.go.room>=6&&v.panel.confirm.cancel.room>=6,'The removal\'s button keeps room around its wrapped words (BUG-613): '+JSON.stringify({go:v.panel.confirm.go,cancel:v.panel.confirm.cancel}));
+  const opened=await shot(`limits-${s.tag}`),checks=await checked(s,'The confirmation\'s limits',{},since);
+  // Cancel returns the focus to "Remove this project", in sight again (BUG-612).
+  await evaluate(`document.querySelector('.dp .dpb').scrollTop=0`);await paint();
+  await click('.dp [data-nx-act="data-cancel"]');await waitFor(`document.activeElement?.dataset.nxFocus==='data-remove'`);await idle();
+  v=await view();
+  assert(v.focusInSight===true,'Cancel returns the focus to "Remove this project", in sight: '+JSON.stringify({focus:v.focus,inSight:v.focusInSight}));
+  return{evidence:'fixture page and reads',checks,screenshots:[opened,await shot(`limits-cancel-${s.tag}`)]};
  });
 
  // TC-1764: the panel's addresses. /p/{project}#data leads to the current stage with the panel;
@@ -714,10 +734,15 @@ try{
   assert(v.hash==='#item=TBL-001'&&(s.width<1024||v.item),'Escape: the address loses data and keeps the item: '+JSON.stringify({hash:v.hash,item:v.item}));
   await openPanel(s);v=await view();
   assert(v.hash==='#item=TBL-001&data','"Project data" beside the item: '+v.hash);
+  // BUG-611: Close keeps the rest of the address, also where the phone's sheet of stages opened the
+  // panel: the sheet closed with the choice and stays closed, and the item is still open.
+  await closeWith('close',s);v=await view();
+  assert(v.hash==='#item=TBL-001'&&!v.sheet&&Boolean(v.item)&&v.focus===(s.width<1024?'ttl only-ph':'data'),'Close keeps the item in the address, and the sheet of stages stays closed: '+JSON.stringify({hash:v.hash,sheet:v.sheet,item:v.item,focus:v.focus}));
+  await openPanel(s);
   const history=await command('Page.getNavigationHistory');
   await command('Page.navigateToHistoryEntry',{entryId:history.entries[history.currentIndex-1].id});
   await waitFor(`!document.querySelector('.ws[data-nx-data]')`);await idle();v=await view();
-  assert(v.hash===(s.width<1024?'#stages':'#item=TBL-001')&&!v.panel,'The browser\'s back button closes the panel and keeps the rest: '+v.hash);
+  assert(v.hash==='#item=TBL-001'&&!v.panel&&!v.sheet,'The browser\'s back button closes the panel and keeps the rest, without the sheet of stages: '+JSON.stringify({hash:v.hash,sheet:v.sheet}));
   const checks=await checked(s,'The addresses',{},since);
   // TC-1473: a project that the server does not hold, opened with #data: the server's 404, the
   // message page of SCR-111#error with a link to the first page, and no panel.
@@ -736,7 +761,7 @@ try{
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
  const writes=report.requests.filter(r=>!['GET','HEAD','DELETE'].includes(r.method));
  assert(!writes.length,'The page wrote: '+JSON.stringify(writes));
- const expectedTests=SETTINGS.length*7+TWO.length*5;
+ const expectedTests=SETTINGS.length*7+TWO.length*4+LIMITS.length;
  report.summary={runs:report.tests.length,expected:expectedTests,works:report.tests.filter(t=>t.verdict==='works').length};
  report.status=report.tests.length===expectedTests&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}

@@ -44,5 +44,5 @@ export const HITS=`(()=>{const sel='button,a[href],[role=tab],input:not([type=hi
    .map(([dx,dy])=>[dx,dy,tag(document.elementFromPoint(x+dx,y+dy))]);
   if(misses.length)found.push({control:e.tagName.toLowerCase()+(typeof e.className==='string'&&e.className?'.'+e.className.trim().split(/\\s+/).join('.'):''),name:name(e),box:[r.x,r.y,r.width,r.height].map(Math.round),inline:inline(e),misses});
  }
- scrollTo(0,0);for(const s of document.querySelectorAll('.list,.side,.rail,.turns'))s.scrollTop=0;
+ scrollTo(0,0);for(const s of document.querySelectorAll('.list,.side,.rail,.turns,.dp .dpb'))s.scrollTop=0;
  return{probed:total,covered,alike,missed:found};})()`;
