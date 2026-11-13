@@ -10,9 +10,9 @@ const path = (route) => route.path.replace(/\{(\w+)\}/g, (_, name) => values[nam
 const code = (value) => (error) => error.code === value;
 const headers = { "Idempotency-Key": '"nw_' + ID + '"', "Nexus-Session": "agent-one" };
 
-test("all 41 contracted operations dispatch, and every GET also takes HEAD", () => {
-  assert.equal(ROUTES.length, 41);
-  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 41);
+test("all 43 contracted operations dispatch, and every GET also takes HEAD", () => {
+  assert.equal(ROUTES.length, 43);
+  assert.equal(new Set(ROUTES.map((route) => route.operation)).size, 43);
   // The first page holds the root since TASK-271, and the hub page moved to /hub.
   assert.equal(pathRoute(request("GET", "/")).operation, "getHomePage");
   assert.equal(pathRoute(request("GET", "/hub")).operation, "getHubPage");
@@ -64,8 +64,24 @@ test("every write role and header policy agrees with the request-name table", ()
   }
 });
 
-test("reads, pushes and removals accept a checked identity with neither kind", () => {
-  for (const route of ROUTES.filter((route) => !route.role)) assert.doesNotThrow(() => requestHeaders(request(route.method, path(route)), route, null));
+test("reads, pushes and removals accept a checked identity with neither kind, all but the export", () => {
+  for (const route of ROUTES.filter((route) => !route.role && route.operation !== "exportProject")) assert.doesNotThrow(() => requestHeaders(request(route.method, path(route)), route, null));
+});
+
+test("the export is the user's own read, which a page of another site cannot ask for (API-178)", () => {
+  const route = pathRoute(request("GET", "/api/spaces/acme/export"));
+  assert.equal(route.operation, "exportProject");
+  for (const method of ["GET", "HEAD"]) {
+    const asked = (kind, site) => requestHeaders(request(method, "/api/spaces/acme/export", site ? { "Sec-Fetch-Site": site } : {}), route, kind);
+    for (const site of [null, "same-origin", "none"]) assert.doesNotThrow(() => asked("user", site), method + " " + site);
+    // The service token and an identity of neither kind get user_only, never no_kind.
+    for (const kind of ["agent", null]) assert.throws(() => asked(kind, null), (error) => error.code === "user_only" && error.fields.needs === "user", method + " " + kind);
+    // Another site comes first, at 3 in the order, before the kind at 4.
+    for (const site of ["same-site", "cross-site"]) for (const kind of ["user", "agent", null]) assert.throws(() => asked(kind, site), code("cross_site"), method + " " + site + " " + kind);
+  }
+  // Every other read still takes a request from another site, under either kind or neither.
+  const data = pathRoute(request("GET", "/api/spaces/acme/data"));
+  for (const kind of ["user", "agent", null]) assert.doesNotThrow(() => requestHeaders(request("GET", "/api/spaces/acme/data", { "Sec-Fetch-Site": "cross-site" }), data, kind));
 });
 
 test("session labels are required only where specified and user's session header is ignored", () => {

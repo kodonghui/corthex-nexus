@@ -126,7 +126,7 @@ NEXUS가 단계의 기본값과 다른 곳: `401`은 서버가 아니라 Access�
 | `invalid_request` | 400 | This could not be sent: check the marked field. | 보내지 못했습니다. 표시한 칸을 확인해 주세요. |
 | `access_missing` | 403 | Cloudflare Access did not check this request. Protect the server with Access first. | Cloudflare Access가 이 요청을 확인하지 않았습니다. 먼저 서버를 Access로 보호해 주세요. |
 | `access_other_app` | 403 | This request was checked for another Access application. Check the server's Access settings. | 이 요청은 다른 Access 애플리케이션용으로 확인되었습니다. 서버의 Access 설정을 확인해 주세요. |
-| `cross_site` | 403 | A change from another site is refused. Open this page at the server's own address. | 다른 사이트에서 보낸 변경은 받지 않습니다. 서버 주소에서 이 페이지를 열어 주세요. |
+| `cross_site` | 403 | A request from another site is refused. Open this page at the server's own address. | 다른 사이트에서 보낸 요청은 받지 않습니다. 서버 주소에서 이 페이지를 열어 주세요. |
 | `user_only` | 403 | Only you can do this, signed in yourself. | 본인이 직접 로그인해야 할 수 있습니다. |
 | `no_kind` | 403 | This sign-in cannot write here. Check the Access policy. | 이 로그인으로는 여기에 쓸 수 없습니다. Access 정책을 확인해 주세요. |
 | `not_found` | 404 | Not found. | 찾을 수 없습니다. |
@@ -281,7 +281,7 @@ NEXUS 0.2.3은 지금 화면의 틀은 그대로 두고 고칩니다. 이 말들
 
 ### 설계 수정이 계획한 말
 
-설계 수정의 행에는 [revision-words.ko.md](revision-words.ko.md)의 말이 필요하며, 영어와 한국어로 있고 만든 것은 없습니다. 그 파일의 표에는 다섯째 칸, 곧 줄마다의 진행이 있어서, 이 파일과 [redesign-words.ko.md](redesign-words.ko.md)의 네 칸짜리 표를 모두 읽는 `nexus/tools/messages.mjs`가 그것을 건드리지 않고, 보기의 말은 만든 그대로 남습니다. 줄을 만드는 작업은 같은 변경에서 그 말을 진행 없이 [redesign-words.ko.md](redesign-words.ko.md)로 옮기고, 만든 말이 그것을 따릅니다. 그때 물러나는 만든 말: "2단계"가 붙은 "편집", 그리고 [오류 코드](#오류-코드)에 있는 `cross_site`의 말이며, 그 새 말은 내보내기처럼 아무것도 바꾸지 않는 요청에도 맞습니다. D17에 따라 "추천대로 통과"와 `not_recommended`의 말은 2026-11-13에 TASK-302와 함께 물러났습니다.
+설계 수정의 행에는 [revision-words.ko.md](revision-words.ko.md)의 말이 필요하며, 영어와 한국어로 있고 만든 것은 없습니다. 그 파일의 표에는 다섯째 칸, 곧 줄마다의 진행이 있어서, 이 파일과 [redesign-words.ko.md](redesign-words.ko.md)의 네 칸짜리 표를 모두 읽는 `nexus/tools/messages.mjs`가 그것을 건드리지 않고, 보기의 말은 만든 그대로 남습니다. 줄을 만드는 작업은 같은 변경에서 그 말을 진행 없이 [redesign-words.ko.md](redesign-words.ko.md)로 옮기고, 만든 말이 그것을 따릅니다. 그때 물러나는 만든 말: "2단계"가 붙은 "편집". D17에 따라 "추천대로 통과"와 `not_recommended`의 말은 2026-11-13에 TASK-302와 함께 물러났고, [오류 코드](#오류-코드)에 있는 `cross_site`의 말은 2026-11-14에 TASK-310과 함께 물러났습니다. 그 새 말은 내보내기처럼 아무것도 바꾸지 않는 요청에도 맞기 때문입니다.
 
 ## 이 단계가 고른 것
 

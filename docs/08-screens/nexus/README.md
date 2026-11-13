@@ -126,7 +126,7 @@ The final words of the messages of stage 06's [error codes](../../06-api/nexus.m
 | `invalid_request` | 400 | This could not be sent: check the marked field. | 보내지 못했습니다. 표시한 칸을 확인해 주세요. |
 | `access_missing` | 403 | Cloudflare Access did not check this request. Protect the server with Access first. | Cloudflare Access가 이 요청을 확인하지 않았습니다. 먼저 서버를 Access로 보호해 주세요. |
 | `access_other_app` | 403 | This request was checked for another Access application. Check the server's Access settings. | 이 요청은 다른 Access 애플리케이션용으로 확인되었습니다. 서버의 Access 설정을 확인해 주세요. |
-| `cross_site` | 403 | A change from another site is refused. Open this page at the server's own address. | 다른 사이트에서 보낸 변경은 받지 않습니다. 서버 주소에서 이 페이지를 열어 주세요. |
+| `cross_site` | 403 | A request from another site is refused. Open this page at the server's own address. | 다른 사이트에서 보낸 요청은 받지 않습니다. 서버 주소에서 이 페이지를 열어 주세요. |
 | `user_only` | 403 | Only you can do this, signed in yourself. | 본인이 직접 로그인해야 할 수 있습니다. |
 | `no_kind` | 403 | This sign-in cannot write here. Check the Access policy. | 이 로그인으로는 여기에 쓸 수 없습니다. Access 정책을 확인해 주세요. |
 | `not_found` | 404 | Not found. | 찾을 수 없습니다. |
@@ -281,7 +281,7 @@ The redesign's definitions, SCR-110 to SCR-117, need the words in [redesign-word
 
 ### Words the design revision plans
 
-The design revision's rows need the words in [revision-words.md](revision-words.md), in English and Korean, none of them built. That file's table has a fifth column, each row's status, so `nexus/tools/messages.mjs`, which reads every table of four columns in this file and in [redesign-words.md](redesign-words.md), leaves it alone, and the views' words stay as they are built. A task that builds a row moves its words into [redesign-words.md](redesign-words.md) in the same change, without the status, and the generated words follow. These built words give way then: "Edit" with "Phase ②"; and the words of `cross_site` in [Error codes](#error-codes), whose new words also fit a request that changes nothing, as the export is. Under D17, "Pass as recommended" and the words of `not_recommended` gave way with TASK-302 on 2026-11-13.
+The design revision's rows need the words in [revision-words.md](revision-words.md), in English and Korean, none of them built. That file's table has a fifth column, each row's status, so `nexus/tools/messages.mjs`, which reads every table of four columns in this file and in [redesign-words.md](redesign-words.md), leaves it alone, and the views' words stay as they are built. A task that builds a row moves its words into [redesign-words.md](redesign-words.md) in the same change, without the status, and the generated words follow. These built words give way then: "Edit" with "Phase ②". Under D17, "Pass as recommended" and the words of `not_recommended` gave way with TASK-302 on 2026-11-13, and the words of `cross_site` in [Error codes](#error-codes) with TASK-310 on 2026-11-14, since their new words also fit a request that changes nothing, as the export is.
 
 ## Choices this stage made
 

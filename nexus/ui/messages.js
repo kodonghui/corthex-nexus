@@ -13,8 +13,8 @@ export const messages={
     "이 요청은 다른 Access 애플리케이션용으로 확인되었습니다. 서버의 Access 설정을 확인해 주세요."
   ],
   "cross_site": [
-    "A change from another site is refused. Open this page at the server's own address.",
-    "다른 사이트에서 보낸 변경은 받지 않습니다. 서버 주소에서 이 페이지를 열어 주세요."
+    "A request from another site is refused. Open this page at the server's own address.",
+    "다른 사이트에서 보낸 요청은 받지 않습니다. 서버 주소에서 이 페이지를 열어 주세요."
   ],
   "user_only": [
     "Only you can do this, signed in yourself.",

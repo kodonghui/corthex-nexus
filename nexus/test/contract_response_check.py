@@ -54,4 +54,5 @@ print("offline response contracts: " + str(fitted["namedJsonExamples"]) + " name
       "the user's comment, two checkpoint requests, the user's reply and a reply that asks again, "
       "a pass that answers a request with its kind of browser and device, the request that it settled and its "
       "withdrawal, a pass that names a snapshot's revision, three refusals of a pass that name what changed, "
-      "a checkpoint request refused as not_recommended, and 501-proposal history passed")
+      "a checkpoint request refused as not_recommended, a project's data and its export with a space and without one, "
+      "and 501-proposal history passed")

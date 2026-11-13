@@ -6,7 +6,6 @@
 
 | 말 | 나오는 곳 | 영어 | 한국어 | 진행 |
 | --- | --- | --- | --- | --- |
-| `cross_site`, 403, 새 말 | 이 코드를 보이는 모든 화면에서 만든 말을 대신합니다. 아무것도 바꾸지 않는 내보내기도 이 코드를 받기 때문입니다(API-178, SCR-130#error) | A request from another site is refused. Open this page at the server's own address. | 다른 사이트에서 보낸 요청은 받지 않습니다. 서버 주소에서 이 페이지를 열어 주세요. | planned |
 | 작업 공간의 머리 | SCR-111: 프로젝트 자료로 가는 길(SPEC-146) | Project data | 프로젝트 자료 | planned |
 | 프로젝트 자료 | SCR-130: 제목, 두 때의 이름, 마지막 읽음의 세션 이름표, 수의 제목과 그 여섯 종류, 그리고 자료를 불러오는 동안 화면 낭독기를 위한 말(SPEC-203) | Project data · Last push · Last read by the agent · Session {label} · No session label · Not read yet · On this server, and not in Git · Comments · Replies · Recorded decisions · Proposals · Reflections · Checkpoints passed in NEXUS · Loading the project's data… | 프로젝트 자료 · 마지막 올림 · AI의 마지막 읽음 · 세션 {label} · 세션 이름표 없음 · 아직 읽지 않음 · 이 서버에만 있고 Git에는 없는 것 · 의견 · 답글 · 기록된 결정 · 제안 · 반영 · NEXUS에서 통과시킨 확인 지점 · 프로젝트 자료를 불러오는 중… | planned |
 | 공간 없음 | SCR-130#empty | This project has no space yet: nothing here is missing from Git. | 이 프로젝트에는 아직 공간이 없습니다. Git에 없는 것이 여기에는 없습니다. | planned |
@@ -18,4 +17,4 @@
 | 지울 것 없음 | SCR-130#gone, 0.2에 이미 있는 `project_not_found`의 메시지와 함께 | There is nothing to remove. | 지울 것이 없습니다. | planned |
 | 프로젝트를 지움 | SCR-110#removed, 위 막대에 이미 있는 닫기와 함께(SPEC-202) | {project} was removed from this server. Its sources stay in Git, and the files on your devices stay. | {project} 프로젝트를 이 서버에서 지웠습니다. 원본은 Git에 남고, 기기의 파일도 남습니다. | planned |
 
-작업이 위의 줄을 만들 때, 같은 변경에서 다음 말이 [redesign-words.ko.md](redesign-words.ko.md)에서 빠집니다: 머리 줄의 "편집"과 "2단계"([규칙 23](README.ko.md#설계-수정의-화면)). 그리고 [README.ko.md](README.ko.md#오류-코드)에 있는 `cross_site`의 말은 위의 새 말에 자리를 내줍니다. TASK-301이 2026-11-13에 단계 기록의 통과와 그 거절과 그 기록을 만들었고, 그 줄은 옮겨 갔습니다. TASK-302가 같은 날 첫 화면의 통과를 만들어 그 두 줄도 옮겨 갔습니다: 답 줄에서 "추천대로 통과"와 "열기"가 빠졌고, `not_recommended`의 새 말이 만든 말을 대신했습니다.
+작업이 위의 줄을 만들 때, 같은 변경에서 다음 말이 [redesign-words.ko.md](redesign-words.ko.md)에서 빠집니다: 머리 줄의 "편집"과 "2단계"([규칙 23](README.ko.md#설계-수정의-화면)). TASK-301이 2026-11-13에 단계 기록의 통과와 그 거절과 그 기록을 만들었고, 그 줄은 옮겨 갔습니다. TASK-302가 같은 날 첫 화면의 통과를 만들어 그 두 줄도 옮겨 갔습니다: 답 줄에서 "추천대로 통과"와 "열기"가 빠졌고, `not_recommended`의 새 말이 만든 말을 대신했습니다. TASK-310이 2026-11-14에 내보내기를 만들었고, 이 코드를 보이는 모든 화면이 주는 `cross_site`의 새 말이 [README.ko.md](README.ko.md#오류-코드)에서 만든 말을 대신했습니다.

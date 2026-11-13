@@ -7,6 +7,7 @@ import { talkData, CLOSED } from "./stage-talk.js";
 import { itemData } from "./item-data.js";
 import { searchData } from "./search.js";
 import { homeData, currentPlace, TURN } from "./home-data.js";
+import { projectData, projectExport, removal } from "./project-data.js";
 import { STAGES, defaultQuery } from "./preflight.js";
 // Everything that touches the database is in this file. The SQL is the part
 // SQLite (D1) and Postgres share, apart from the `?` placeholders, so moving
@@ -178,8 +179,9 @@ const WAITING = [
 // each the time of the read.
 const UNREAD = `(SELECT json_object('unread',COUNT(*),'since',MIN(since)) FROM (${WAITING.map(([table, where, since]) =>
   `SELECT ${since} AS since FROM ${table} AS x WHERE x.project=ps.project AND ${where} AND ${notRead("x", since)}`).join("\n    UNION ALL ")}))`;
-// One space's last read and what the agent has not read (API-158's project).
-const SPACE_READ = `SELECT ps.read_at,${UNREAD} AS unread_json FROM project_spaces AS ps WHERE ps.project=?`;
+// One space's last read, with its session label, and what the agent has not
+// read (API-158's project, API-177).
+const SPACE_READ = `SELECT ps.read_at,ps.read_session,${UNREAD} AS unread_json FROM project_spaces AS ps WHERE ps.project=?`;
 const STAGE_LIST = STAGES.map((stage) => `'${stage}'`).join(",");
 // The first page (API-151). My turn across the spaces in SPEC-143's order: the
 // comments that ask for a checkpoint, the open proposals, then the other
@@ -251,8 +253,9 @@ const AGENT_COUNTS = `SELECT ps.project,${TODO_LISTS.map(([list, table, where, s
 // the stored body, so the server never parses the items or the checks. The
 // snapshot's revision is what a pass from the first page names where the
 // snapshot names no commit (SPEC-194, SPEC-196).
-const CARDS = `SELECT name,default_commit,revision,generated_at,received_at,json_extract(body,'$.project') AS project,
-  json_extract(body,'$.repos."."') AS repo,json_extract(body,'$.stages') AS stages,
+const SNAPSHOT_HEAD = `name,default_commit,revision,generated_at,received_at,json_extract(body,'$.project') AS project,
+  json_extract(body,'$.repos."."') AS repo`;
+const CARDS = `SELECT ${SNAPSHOT_HEAD},json_extract(body,'$.stages') AS stages,
   (SELECT json_group_object(stage,n) FROM (SELECT json_extract(value,'$.stage') AS stage,COUNT(*) AS n
     FROM json_each(snapshots.body,'$.items') WHERE json_extract(value,'$.stage') IN (${STAGE_LIST}) GROUP BY 1)) AS counts,
   (SELECT COUNT(*) FROM json_each(snapshots.body,'$.checks') WHERE json_extract(value,'$.level')='warn') AS warnings
@@ -272,6 +275,31 @@ const CLOSED_TALK = `talk AS (SELECT 'comment' AS kind,id,last_at AS at FROM com
       WHERE project=? AND part=? AND stage=? AND state='closed' AND (? IS NULL OR item=?)
     UNION ALL SELECT 'proposal',id,COALESCE(closed_at,made_at) FROM proposals
       WHERE project=? AND part=? AND stage=? AND state<>'open' AND (? IS NULL OR EXISTS(SELECT 1 FROM json_each(items) WHERE value=?)))`;
+
+// What a removal deletes with the snapshot (API-110, SPEC-115): the count of
+// each kind of the space's rows and, by ID, the open entries that the user may
+// finish first, up to 20 of each with their totals, in the order of
+// project-data.js's removal(). A project's data (API-177) and the export's head
+// (API-178) count the same rows in the same way, so the three cannot differ.
+const REMOVAL = [
+  ...["pictures", "discrepancies", "comments", "proposals", "edits", "checkpoints"].map((table) => `SELECT COUNT(*) AS n FROM ${table} WHERE project=?`),
+  "SELECT COUNT(*) AS n FROM replies AS r JOIN comments AS c ON c.id=r.comment WHERE c.project=?",
+  "SELECT COUNT(*) AS n FROM decisions AS d JOIN comments AS c ON c.id=d.comment WHERE c.project=?",
+  ...[["comments", "state='open'"], ["proposals", "state='open'"], ["edits", "state NOT IN ('closed','dismissed')"], ["checkpoints", "state='passed' AND recorded_commit IS NULL"]]
+    .map(([table, where]) => `SELECT id,COUNT(*) OVER() AS _total FROM ${table} WHERE project=? AND ${where} ORDER BY id LIMIT 20`),
+];
+// The export's lists (API-178, SPEC-201), each in the file's order: every
+// comment, its replies and its decisions, every proposal with its stage source
+// text and its edit, every edit and every checkpoint of the space. An edit's
+// content and report stay out, as no answer gives them.
+const EXPORT = [
+  "SELECT * FROM comments WHERE project=? ORDER BY made_at,id",
+  "SELECT r.* FROM replies AS r JOIN comments AS c ON c.id=r.comment WHERE c.project=? ORDER BY r.comment,r.seq",
+  "SELECT d.* FROM decisions AS d JOIN comments AS c ON c.id=d.comment WHERE c.project=? ORDER BY d.comment,d.seq",
+  "SELECT p.*,e.id AS edit FROM proposals AS p LEFT JOIN edits AS e ON e.proposal=p.id WHERE p.project=? ORDER BY p.made_at,p.id",
+  "SELECT id,part,stage,commit_id,proposal,state,pull_request,closed_commit,made_at,changed_at FROM edits WHERE project=? ORDER BY made_at,id",
+  "SELECT * FROM checkpoints WHERE project=? ORDER BY passed_at,id",
+];
 
 // Engine operations also stay here. The standalone adapter never owns product
 // SQL, and uses these fixed statements only for connection/transaction upkeep.
@@ -761,20 +789,48 @@ export class Store {
     throw new Error("unimplemented entry kind");
   }
 
+  // API-110: what a removal deletes, from one batch with the snapshot and the space.
   async removalDryRun(project) {
-    const {space}=await this.readContext(project);
-    const tables=["pictures","discrepancies","comments","proposals","edits","checkpoints"];
-    const statements=tables.map((table)=>this.db.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE project=?`).bind(project));
-    statements.push(this.db.prepare("SELECT COUNT(*) AS n FROM replies AS r JOIN comments AS c ON c.id=r.comment WHERE c.project=?").bind(project));
-    statements.push(this.db.prepare("SELECT COUNT(*) AS n FROM decisions AS d JOIN comments AS c ON c.id=d.comment WHERE c.project=?").bind(project));
-    const open=[ ["comments","state='open'"],["proposals","state='open'"],["edits","state NOT IN ('closed','dismissed')"],["checkpoints","state='passed' AND recorded_commit IS NULL"] ];
-    for(const [table,where] of open)statements.push(this.db.prepare(`SELECT id,COUNT(*) OVER() AS _total FROM ${table} WHERE project=? AND ${where} ORDER BY id LIMIT 20`).bind(project));
-    const rows=await this.db.batch(statements);
-    const deletes={snapshot:true,space:Boolean(space)};
-    tables.forEach((table,i)=>{deletes[table]=rows[i].results[0].n;});
-    deletes.replies=rows[6].results[0].n;deletes.decisions=rows[7].results[0].n;
-    const lists={}; ["comments","proposals","reflections","checkpoints"].forEach((name,i)=>{const entries=rows[i+8].results;lists[name]={total:entries[0]?._total||0,ids:entries.map((row)=>row.id)};});
-    return {project,deletes,open:lists};
+    await this.ensure();
+    const rows = await this.db.batch([
+      this.db.prepare("SELECT name FROM snapshots WHERE name=?").bind(project),
+      this.db.prepare("SELECT project FROM project_spaces WHERE project=?").bind(project),
+      ...REMOVAL.map((sql) => this.db.prepare(sql).bind(project)),
+    ]);
+    if (!rows[0].results[0]) throw new Problem("project_not_found", "no such project");
+    return removal(project, Boolean(rows[1].results[0]), rows.slice(2));
+  }
+
+  // API-177: what the server holds of a project (SPEC-203), from one batch: the
+  // stored snapshot as its card gives it, the space's last read with what the
+  // agent has not read as of now, the time of the read, and the removal's dry
+  // run at the same moment. The read records nothing.
+  async projectData(project, now = new Date().toISOString()) {
+    await this.ensure();
+    const rows = await this.db.batch([
+      this.db.prepare(`SELECT ${SNAPSHOT_HEAD} FROM snapshots WHERE name=?`).bind(project),
+      this.db.prepare(SPACE_READ).bind(now, now, now, now, project),
+      ...REMOVAL.map((sql) => this.db.prepare(sql).bind(project)),
+    ]);
+    const head = rows[0].results[0];
+    if (!head) throw new Problem("project_not_found", "no such project");
+    const read = rows[1].results[0] || null;
+    return projectData(head, read, removal(project, Boolean(read), rows.slice(2)));
+  }
+
+  // API-178: the export (SPEC-201), built as the server answers from one batch
+  // and kept nowhere: the commit that the project shows, the agent's last read
+  // and every entry of the space that Git does not hold. now is exported_at.
+  async exportProject(project, now = new Date().toISOString()) {
+    await this.ensure();
+    const rows = await this.db.batch([
+      this.db.prepare("SELECT default_commit FROM snapshots WHERE name=?").bind(project),
+      this.db.prepare("SELECT read_at FROM project_spaces WHERE project=?").bind(project),
+      ...EXPORT.map((sql) => this.db.prepare(sql).bind(project)),
+    ]);
+    const head = rows[0].results[0];
+    if (!head) throw new Problem("project_not_found", "no such project");
+    return projectExport(project, now, head, rows[1].results[0] || null, rows.slice(2).map((row) => row.results));
   }
 
   // Read only the target rows and counters needed by this transition. The

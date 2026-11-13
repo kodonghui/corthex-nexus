@@ -95,6 +95,14 @@ export function currentPlace(snapshot) {
   return { part, stage: cardPart({ project, stages: fields(snapshot.stages) }, part).current || STAGES[0] };
 }
 
+// What a project's card and its data (API-177) say of its stored snapshot.
+export function snapshotHead(row) {
+  const project = fields(parse(row.project));
+  return { title: typeof project.title === "string" ? cut(project.title, 120) : null,
+    repository: repositoryOf(fields(parse(row.repo))), commit: row.default_commit || null,
+    generated_at: row.generated_at, pushed_at: row.received_at };
+}
+
 function card(row, pictures) {
   const project = fields(parse(row.project));
   const snapshot = { project, stages: fields(parse(row.stages)) };
@@ -102,9 +110,7 @@ function card(row, pictures) {
   const parts = cardParts(project);
   const place = new Map(parts.map((part, index) => [part, index]));
   const stages = STAGES.map((key) => ({ key, items: Number.isInteger(counts[key]) ? counts[key] : 0 }));
-  return { name: row.name, title: typeof project.title === "string" ? cut(project.title, 120) : null,
-    repository: repositoryOf(fields(parse(row.repo))), commit: row.default_commit || null,
-    generated_at: row.generated_at, pushed_at: row.received_at,
+  return { name: row.name, ...snapshotHead(row),
     items: stages.reduce((sum, stage) => sum + stage.items, 0), warnings: row.warnings,
     parts: parts.map((part) => cardPart(snapshot, part)), stages,
     // The space's pictures of the parts that the snapshot names, in their

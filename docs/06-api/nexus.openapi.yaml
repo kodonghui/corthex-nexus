@@ -19,8 +19,8 @@ info:
     the redesign's stages draw what they showed, the picture view and the stage overview answer
     302 to the stage's page (SPEC-154). The design revision of
     2026-11-11 adds what stage 04's rows SPEC-187 to SPEC-203 ask of the server, as planned
-    forms that the server does not answer yet. Its new operations, API-177 and API-178, are in
-    paths with the status planned. The planned form of each operation that it changes is a
+    forms that the server does not answer yet. Its new operations, API-177 and API-178, were in
+    paths with the status planned until TASK-310 built them on 2026-11-14. The planned form of each operation that it changes is a
     whole path item under components.pathItems, by the operation's code name, which the
     release that builds it puts into paths in place of the built operation. The fields that
     it adds to built answers are optional properties marked planned under x-corthex, which
@@ -2143,12 +2143,11 @@ paths:
         unread; and removal, the answer of getRemovalDryRun at the same moment, whose counts are
         the panel's counts and those of the export's head, so that the three cannot differ. A
         project with a snapshot and no space answers with space false, no read and counts of 0.
-        The read records nothing, under either sign-in. Planned by the design revision of
-        2026-11-11: the server does not answer it yet.
+        The read records nothing, under either sign-in.
       x-corthex:
         id: API-177
         spec: [SPEC-113, SPEC-188, SPEC-202, SPEC-203]
-        status: planned
+        status: active
         omit:
           "400": the request has no input; a name in another form gets 404
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
@@ -2206,14 +2205,13 @@ paths:
         differ only in exported_at. It holds no snapshot, picture or discrepancy, no claim, write
         ID or session label, and no identity. A project with a snapshot and no space answers
         with space false and empty lists. The panel asks with fetch and saves the body under
-        the name that Content-Disposition gives, so that it can show a refusal. Planned by the
-        design revision of 2026-11-11: the server does not answer it yet.
+        the name that Content-Disposition gives, so that it can show a refusal.
       security:
         - accessUser: []
       x-corthex:
         id: API-178
         spec: [SPEC-113, SPEC-116, SPEC-201]
-        status: planned
+        status: active
         omit:
           "400": the request has no input; a name in another form gets 404
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
@@ -2815,7 +2813,7 @@ components:
       value: {title: Checked for another application, status: 403, detail: another Access application than ACCESS_AUD names checked this request, code: access_other_app, traceId: 8f6c3b2a1d0e9f89-ICN, error: another Access application than ACCESS_AUD names checked this request}
     cross_site:
       summary: A change from another site
-      value: {title: A change from another site, status: 403, detail: a request from another site cannot change the hub, code: cross_site, traceId: 8f6c3b2a1d0e9f8a-ICN, error: a request from another site cannot change the hub}
+      value: {title: A request from another site, status: 403, detail: a request from another site cannot change the hub, code: cross_site, traceId: 8f6c3b2a1d0e9f8a-ICN, error: a request from another site cannot change the hub}
     user_only:
       summary: Sent with the service token
       value: {title: Only the user does this, status: 403, detail: "this needs a person's own sign-in, not the service token", code: user_only, traceId: 8f6c3b2a1d0e9f8b-ICN, error: "this needs a person's own sign-in, not the service token", needs: user}
@@ -5859,7 +5857,7 @@ components:
       unknown_item: {status: 400, meaning: "a proposal names items that its picture does not hold and that adds does not name; items names them", message: "The proposal names items that are not in the picture", client: "the hub reports the items, and the agent checks the stage source"}
       access_missing: {status: 403, meaning: "Cloudflare Access did not check the request", message: "Cloudflare Access did not check this request. Protect the server with Access first", client: "the hub reports a refused token; the view says that the sign-in is missing and offers to load again"}
       access_other_app: {status: 403, meaning: "another Access application than ACCESS_AUD names checked the request", message: "This request was checked for another Access application", client: "as for access_missing"}
-      cross_site: {status: 403, meaning: "a browser sent a change from another site", message: "A change from another site is refused", client: "the view offers to open the page at the server's own address"}
+      cross_site: {status: 403, meaning: "a browser sent a change, or asked for a project's export, from another site", message: "A request from another site is refused", client: "the view offers to open the page at the server's own address"}
       user_only: {status: 403, meaning: "the request needs a person's own sign-in; needs is user", message: "Only you can do this, signed in yourself", client: "the hub reports that the user does this in the view"}
       agent_only: {status: 403, meaning: "the request needs the service token; needs is agent", message: "Only the agent does this, through the hub", client: "the view never sends it; the hub reports a missing or refused service token"}
       no_kind: {status: 403, meaning: "Access let the request in, but its identity is neither a person's sign-in nor the service token", message: "This sign-in cannot write here", client: "the view and the hub report it, and the user checks the Access policy"}
@@ -5905,5 +5903,3 @@ components:
       text_too_long: {status: 413, meaning: "a text is longer than its limit; field and limit name them", message: "This text is too long", client: "the view counts down by the field; the hub reports the field"}
       json_required: {status: 415, meaning: "a body that is not sent as application/json", message: "This could not be sent", client: "the hub reports it as a fault of its own"}
       internal: {status: 500, meaning: "an error inside the server; its log holds only the kind of error and the trace ID", message: "Something went wrong. Try again", client: "the view keeps what it holds and offers to send again; the hub keeps the write in its outbox"}
-    planned_errors:
-      cross_site: {status: 403, meaning: "a browser sent a change, or asked for a project's export, from another site. Replaces the entry of errors when API-178 is built, and the code's title becomes A request from another site", message: "A request from another site is refused", client: "the view offers to open the page at the server's own address"}

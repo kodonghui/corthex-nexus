@@ -8,7 +8,7 @@ export const ERRORS = Object.freeze({
   unknown_item: [400, "An item is not in the picture"],
   access_missing: [403, "Not checked by Cloudflare Access"],
   access_other_app: [403, "Checked for another application"],
-  cross_site: [403, "A change from another site"],
+  cross_site: [403, "A request from another site"],
   user_only: [403, "Only the user does this"],
   agent_only: [403, "Only the agent does this"],
   no_kind: [403, "This sign-in cannot write here"],

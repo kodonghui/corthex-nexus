@@ -22,7 +22,8 @@ const records=[],originalError=console.error;
 try {
   for(const selected of manifest) {
     const route=ROUTES.find(row=>row.operation===selected.operation);assert.ok(route);
-    const kind=route.role==="user"?"user":"agent",trace="1234567890abcdef-ICN";
+    // The export is the one read that only the user makes (API-178).
+    const kind=route.role==="user"||selected.operation==="exportProject"?"user":"agent",trace="1234567890abcdef-ICN";
     const path=selected.path.replace(/\{(\w+)\}/g,(_,name)=>values[name])+(queries[selected.operation]||"");
     const method=selected.status===405?"PATCH":selected.method.toUpperCase();
     const headers={...access.headers(kind),Accept:selected.media,"Cf-Ray":trace,

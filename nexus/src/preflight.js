@@ -23,6 +23,8 @@ const rules = [
   ["getPicture", "GET", "/api/spaces/{project}/pictures/{part}/{pictureStage}"],
   ["getStageOverview", "GET", "/api/spaces/{project}/overview/{part}/{stage}"],
   ["getAgentTodo", "GET", "/api/spaces/{project}/todo"],
+  ["getProjectData", "GET", "/api/spaces/{project}/data"],
+  ["exportProject", "GET", "/api/spaces/{project}/export"],
   ["getStage", "GET", "/api/spaces/{project}/stages/{part}/{stage}"],
   ["getStageTalk", "GET", "/api/spaces/{project}/talk/{part}/{stage}"],
   ["getItem", "GET", "/api/spaces/{project}/items/{id}"],
@@ -136,10 +138,19 @@ export function queryValues(request, route) {
   return values;
 }
 
+// The one read that only the user makes, the export (API-178, SPEC-201): the
+// server checks it for another site, as a change, and answers user_only to any
+// other identity, since no_kind is a write's refusal.
+const USER_READS = new Set(["exportProject"]);
+
 export function requestHeaders(request, route, kind) {
   const change = request.method !== "GET" && request.method !== "HEAD";
+  const userRead = USER_READS.has(route.operation);
   const site = request.headers.get("Sec-Fetch-Site");
-  if (change && site && site !== "same-origin" && site !== "none") throw new Problem("cross_site", "a request from another site cannot change NEXUS");
+  if ((change || userRead) && site && site !== "same-origin" && site !== "none") {
+    throw new Problem("cross_site", userRead ? "a page of another site cannot ask for a project's export" : "a request from another site cannot change NEXUS");
+  }
+  if (userRead && kind !== "user") throw new Problem("user_only", "only the user exports a project, under their own sign-in", { needs: "user" });
   if (route.role) requireKind(kind, route.role);
   let write = null;
   if (route.writeName) {

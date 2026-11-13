@@ -51,6 +51,12 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
       }
       case "getHeldCommit": return json(await store.heldCommit(p.project),200,head);
       case "getRemovalDryRun": return json(await store.removalDryRun(p.project),200,head);
+      case "getProjectData": return json(await store.projectData(p.project),200,head);
+      // The export (API-178) is a download, named by the project and the date of exported_at in UTC.
+      case "exportProject": {
+        const file=await store.exportProject(p.project);
+        return new Response(head?null:JSON.stringify(file),{headers:{...jsonHeaders(),"Content-Disposition":`attachment; filename="nexus-${p.project}-${file.exported_at.slice(0,10)}.json"`}});
+      }
       case "getPicture": return json(await store.readPicture(p.project,p.part,p.stage),200,head);
       case "getStageOverview": return json(await store.readOverview(p.project,p.part,p.stage),200,head);
       case "getStage": return json(await store.readStage(p.project,p.part,p.stage,route.query),200,head);

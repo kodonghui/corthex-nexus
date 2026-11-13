@@ -190,4 +190,12 @@ await call("POST","/api/snapshots",{schema:"corthex-hub/0.1",generated_at:"2026-
 const legacy=pageData(await call("GET","/p/legacy-shop/_/02-prd"));
 if(legacy.talk||legacy.problem?.code!=="space_not_found")throw new Error("the page of a project without a space lacks what its case needs");
 cases.push({name:"stage page without a space",schema:"StagePageData",value:legacy});
+// A project's data and its export (API-177, API-178), of the space above, whose agent to-do the
+// agent read, and of the project without a space.
+const projectData=await call("GET","/api/spaces/corthex/data"),projectExport=await call("GET","/api/spaces/corthex/export",undefined,"user");
+const bareData=await call("GET","/api/spaces/legacy-shop/data",undefined,"user"),bareExport=await call("GET","/api/spaces/legacy-shop/export",undefined,"user");
+if(!projectData.space||!projectData.read_at||!projectExport.comments.length||projectData.removal.deletes.comments!==projectExport.counts.comments
+  ||bareData.space||bareExport.space||bareExport.comments.length)throw new Error("a project's data or its export lacks what its case needs");
+cases.push({name:"project data with a space",schema:"ProjectData",value:projectData},{name:"export with a space",schema:"ProjectExport",value:projectExport},
+  {name:"project data without a space",schema:"ProjectData",value:bareData},{name:"export without a space",schema:"ProjectExport",value:bareExport});
 process.stdout.write(JSON.stringify(cases));
