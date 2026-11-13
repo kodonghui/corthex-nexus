@@ -471,7 +471,8 @@ try{
    const before=await view(),served=Date.now();
    assert(before.code===null,'The code waits: '+before.code);
    // Under 1,024 pixels the head is in the sheet of stages, which #stages opens only once the code
-   // ran, since Chrome sets the fragment's target when the page's module code has run (BUG-606):
+   // ran, since Chrome sets the fragment's target when the page's module code has run, as TASK-278's
+   // walk found for #talk:
    // the server's head is checked as drawn there, and as shown once the code ran.
    const sheet=s.width<1024?{shown:Boolean(before.head?.shown)}:null;
    const drawn=workspaceHolds(before,{project:shop,lang:s.lang,from,to:served,inZone:'UTC',head:s.width<1024?'drawn':true,flag:false,talkShown:s.width>=1440,what:'SCR-111#loading, the server\'s drawing'});
