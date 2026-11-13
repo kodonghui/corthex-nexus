@@ -5,6 +5,7 @@ plugin's standard-library runtime. Node 22.13 or later supplies its own SQLite.
 """
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -39,6 +40,26 @@ fitted = check_named_examples_fit_schemas(api)
 if fitted["findings"]:
     print(json.dumps(fitted["findings"][:10]))
     raise SystemExit("named response examples do not match their schemas")
+# Who may send each operation: the kinds of sign-in that the server's preflight takes are those of the operation's
+# security, a person's own sign-in (accessUser), the service token (accessClientId with accessClientSecret) or either,
+# which is the contract's default. Since TASK-311 a removal takes only the first, as the export does since TASK-310.
+schemes = {("user",): [{"accessUser": []}], ("agent",): [{"accessClientId": [], "accessClientSecret": []}],
+           ("user", "agent"): api["security"]}
+run = subprocess.run([program, str(Path(__file__).with_name("kinds-corpus.mjs"))], cwd=str(root), capture_output=True, timeout=90)
+if run.returncode:
+    raise SystemExit("the server's kinds of sign-in could not be read; run kinds-corpus.mjs locally")
+kinds = json.loads(run.stdout.decode("utf8"))
+template = lambda path: re.sub(r"\{\w+\}", "{}", path)
+contracted = {operation["operationId"]: (method, path, operation.get("security", api["security"]))
+              for path, item in api["paths"].items() for method, operation in item.items()
+              if method in ("get", "post", "delete", "put", "patch")}
+if set(contracted) != set(kinds):
+    raise SystemExit("the server's operations and the contract's differ: " + ", ".join(sorted(set(contracted) ^ set(kinds))))
+for name, (method, path, security) in sorted(contracted.items()):
+    taken = kinds[name]
+    if (taken["method"], template(taken["path"])) != (method, template(path)) or schemes.get(tuple(taken["kinds"])) != security:
+        raise SystemExit(f"{name}: the server takes {taken['kinds']} at {taken['method']} {taken['path']}, "
+                         f"where the contract's security is {security} at {method} {path}")
 for case in cases:
     validator = jsonschema.Draft202012Validator(api["components"]["schemas"][case["schema"]],
         resolver=jsonschema.RefResolver.from_schema(api), format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER)
@@ -55,4 +76,5 @@ print("offline response contracts: " + str(fitted["namedJsonExamples"]) + " name
       "a pass that answers a request with its kind of browser and device, the request that it settled and its "
       "withdrawal, a pass that names a snapshot's revision, three refusals of a pass that name what changed, "
       "a checkpoint request refused as not_recommended, a project's data and its export with a space and without one, "
-      "and 501-proposal history passed")
+      "and 501-proposal history passed; the kinds of sign-in that the server takes for each of " + str(len(kinds)) +
+      " operations are those of its security")

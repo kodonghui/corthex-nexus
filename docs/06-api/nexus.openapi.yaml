@@ -18,15 +18,16 @@ info:
     cover them. With the redesign's first page at /, the hub page moved to /hub (SPEC-153); since
     the redesign's stages draw what they showed, the picture view and the stage overview answer
     302 to the stage's page (SPEC-154). The design revision of
-    2026-11-11 adds what stage 04's rows SPEC-187 to SPEC-203 ask of the server, as planned
-    forms that the server does not answer yet. Its new operations, API-177 and API-178, were in
-    paths with the status planned until TASK-310 built them on 2026-11-13. The planned form of each operation that it changes is a
-    whole path item under components.pathItems, by the operation's code name, which the
-    release that builds it puts into paths in place of the built operation. The fields that
-    it adds to built answers are optional properties marked planned under x-corthex, which
-    the built server does not send and which become required when their rows are built. Until
-    then the built operations stay as the server answers them, and version stays 0.2.0 until
-    a release first serves a changed contract (The design revision's interfaces in nexus.md).
+    2026-11-11 added what stage 04's rows SPEC-187 to SPEC-203 ask of the server, first as
+    planned forms that the server did not answer yet. Its new operations, API-177 and API-178,
+    were in paths with the status planned until TASK-310 built them on 2026-11-13. The planned
+    form of each operation that it changed was a whole path item under components.pathItems,
+    by the operation's code name, which the task that built it put into paths in place of the
+    built operation, the last of them removeProject, which TASK-311 built on 2026-11-14. The
+    fields that it added to built answers were optional properties marked planned under
+    x-corthex, which became required when their rows were built. None remains planned, and
+    version stays 0.2.0 until a release first serves the changed contract (The design
+    revision's interfaces in nexus.md).
 servers:
   - url: https://nexus.example.com
     description: >-
@@ -414,19 +415,27 @@ paths:
     delete:
       operationId: removeProject
       tags: [Snapshots]
-      summary: Remove a project
+      summary: Remove a project, under the user's own sign-in
       description: >-
-        Deletes the project's snapshot and, with it, its space and everything in the space. The
-        hub sends it only after the user confirmed the dry run of getRemovalDryRun. Either kind of
-        sign-in may remove; a browser's removal from another site is refused.
+        Only the user removes a project (SPEC-202, REQ-293), from the panel of the project's data
+        (SCR-130), where the page shows what the removal deletes, as getProjectData gives it,
+        offers the export and has the user type the project's name. The typed name is the page's
+        check, and the request takes no body. The server deletes the snapshot and, with it, the
+        space and everything in it, in one transaction. A removal that carries the service token
+        is 403 user_only, whose detail says where the user removes, so that no session, push job
+        or hub can delete a space; the hub's remove only shows the dry run and that address
+        (TASK-292). A project that the server does not hold, as when the removal is sent twice, is
+        404. Until TASK-311 built this form on 2026-11-14, either kind of sign-in could remove.
+      security:
+        - accessUser: []
       x-corthex:
         id: API-108
-        spec: [SPEC-113, SPEC-115]
+        spec: [SPEC-113, SPEC-115, SPEC-116, SPEC-202]
         status: active
         omit:
           "400": the request has no body; a name in another form gets 404
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
-          "409": no state holds a removal back, since the user confirmed the dry run
+          "409": no state holds a removal back, since the user typed the project's name
       responses:
         "200":
           description: Removed
@@ -435,7 +444,17 @@ paths:
               schema: {$ref: "#/components/schemas/Removed"}
               examples:
                 removed: {value: {name: corthex, removed: true}}
-        "403": {$ref: "#/components/responses/WriteRefused"}
+        "403":
+          description: Refused by the access checks, or not a person's own sign-in
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/Problem"}
+              examples:
+                user-only: {$ref: "#/components/examples/user_only_removal"}
+                access-missing: {$ref: "#/components/examples/access_missing"}
+                access-other-app: {$ref: "#/components/examples/access_other_app"}
+                cross-site: {$ref: "#/components/examples/cross_site"}
+                no-kind: {$ref: "#/components/examples/no_kind"}
         "404": {$ref: "#/components/responses/ProjectNotFound"}
         default: {$ref: "#/components/responses/Unexpected"}
 
@@ -5798,56 +5817,6 @@ components:
             discrepancies: {type: integer, minimum: 0}
             comments: {type: integer, minimum: 0}
             reflections: {type: integer, minimum: 0}
-
-  pathItems:
-    removeProject:
-      parameters:
-        - $ref: "#/components/parameters/Project"
-      delete:
-        tags: [Snapshots]
-        summary: Remove a project, under the user's own sign-in
-        description: >-
-          The planned form of removeProject (SPEC-202, REQ-293): only the user removes a project,
-          from the panel of the project's data (SCR-130), where the page shows what the removal
-          deletes, as getProjectData gives it, offers the export and has the user type the
-          project's name. The typed name is the page's check, and the request takes no body. The
-          server deletes the snapshot and, with it, the space and everything in it, in one
-          transaction. A removal that carries the service token is 403 user_only, whose detail
-          says where the user removes, so that no session, push job or hub can delete a space;
-          the hub's remove only shows the dry run and that address. A project that the server
-          does not hold, as when the removal is sent twice, is 404.
-        security:
-          - accessUser: []
-        x-corthex:
-          id: API-108
-          replaces: removeProject
-          spec: [SPEC-113, SPEC-115, SPEC-116, SPEC-202]
-          status: planned
-          omit:
-            "400": the request has no body; a name in another form gets 404
-            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
-            "409": no state holds a removal back, since the user typed the project's name
-        responses:
-          "200":
-            description: Removed
-            content:
-              application/json:
-                schema: {$ref: "#/components/schemas/Removed"}
-                examples:
-                  removed: {value: {name: corthex, removed: true}}
-          "403":
-            description: Refused by the access checks, or not a person's own sign-in
-            content:
-              application/problem+json:
-                schema: {$ref: "#/components/schemas/Problem"}
-                examples:
-                  user-only: {$ref: "#/components/examples/user_only_removal"}
-                  access-missing: {$ref: "#/components/examples/access_missing"}
-                  access-other-app: {$ref: "#/components/examples/access_other_app"}
-                  cross-site: {$ref: "#/components/examples/cross_site"}
-                  no-kind: {$ref: "#/components/examples/no_kind"}
-          "404": {$ref: "#/components/responses/ProjectNotFound"}
-          default: {$ref: "#/components/responses/Unexpected"}
 
   x-corthex:
     errors:

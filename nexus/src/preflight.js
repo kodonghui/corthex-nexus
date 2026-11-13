@@ -17,7 +17,7 @@ const rules = [
   ["pushSnapshot", "POST", "/api/snapshots"],
   ["listSnapshots", "GET", "/api/snapshots"],
   ["getSnapshot", "GET", "/api/snapshots/{project}"],
-  ["removeProject", "DELETE", "/api/snapshots/{project}"],
+  ["removeProject", "DELETE", "/api/snapshots/{project}", "user"],
   ["getHeldCommit", "GET", "/api/snapshots/{project}/held"],
   ["getRemovalDryRun", "GET", "/api/snapshots/{project}/removal"],
   ["getPicture", "GET", "/api/spaces/{project}/pictures/{part}/{pictureStage}"],
@@ -151,6 +151,12 @@ export function requestHeaders(request, route, kind) {
     throw new Problem("cross_site", userRead ? "a page of another site cannot ask for a project's export" : "a request from another site cannot change NEXUS");
   }
   if (userRead && kind !== "user") throw new Problem("user_only", "only the user exports a project, under their own sign-in", { needs: "user" });
+  // Only the user removes a project (API-108, SPEC-202). The service token is told
+  // where the user does it, the panel of the project's data, so that no session,
+  // push job or hub deletes a space; an identity of neither kind is no_kind.
+  if (route.operation === "removeProject" && kind === "agent") {
+    throw new Problem("user_only", `only the user removes a project, in NEXUS: open the project's data at /p/${route.params.project}#data`, { needs: "user" });
+  }
   if (route.role) requireKind(kind, route.role);
   let write = null;
   if (route.writeName) {

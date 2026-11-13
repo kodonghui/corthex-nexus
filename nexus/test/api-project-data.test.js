@@ -3,8 +3,11 @@
 // two requests (TC-1647 to TC-1662), the export asked for from another site
 // and with the service token (TC-1751, TC-1752), twice in a row (TC-1753) and
 // compared with what the space holds (TC-1754), and the project's data beside
-// the dry run and the export (TC-1756). Synthetic projects only; the Access
-// keys are generated here and every database is in memory.
+// the dry run and the export (TC-1756). API-108 removeProject under the user's
+// own sign-in only (TASK-311, SPEC-202): its criterion (TC-1469), each response
+// (TC-1612 to TC-1620) and the removal on the standalone server (TC-1755).
+// Synthetic projects only; the Access keys are generated here and every
+// database is in memory.
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -41,6 +44,12 @@ function shape(db) {
   const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all().map((row) => row.name);
   return createHash("sha256").update(JSON.stringify(tables.map((name) => [name, db.prepare(`SELECT * FROM "${name}"`).all().map((row) => JSON.stringify(row)).sort()]))).digest("hex");
 }
+// The tables that hold a row, with how many, leaving out the record of migrations.
+function held(db) {
+  const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name<>'migrations' ORDER BY name").all().map((row) => row.name);
+  return Object.fromEntries(tables.map((name) => [name, db.prepare(`SELECT COUNT(*) AS n FROM "${name}"`).get().n]).filter(([, n]) => n));
+}
+const REMOVAL_DETAIL = "only the user removes a project, in NEXUS: open the project's data at /p/acme#data";
 const lastRead = (db, project) => {
   const row = db.prepare("SELECT read_at, read_session FROM project_spaces WHERE project = ?").get(project);
   return row ? { ...row } : null;
@@ -62,6 +71,14 @@ function inProcess() {
   let failing = false;
   const batch = binding.batch.bind(binding);
   binding.batch = async (statements) => { if (failing) throw new Error("synthetic failure"); return batch(statements); };
+  // A statement run on its own, as a removal is, fails the same way.
+  const prepare = binding.prepare;
+  const failable = (statement) => new Proxy(statement, { get(target, name) {
+    if (name === "bind") return (...values) => failable(target.bind(...values));
+    if (["run", "all", "first"].includes(name)) return async (...values) => { if (failing) throw new Error("synthetic failure"); return target[name](...values); };
+    return Reflect.get(target, name);
+  } });
+  binding.prepare = (sql) => failable(prepare(sql));
   const env = { ...access.env, DB: binding, NEXUS_LANGUAGE: "en" };
   let serial = 0;
   async function call(method, path, { body, kind = "agent", session = SESSION, ctx = access.ctx, headers = {} } = {}) {
@@ -424,4 +441,59 @@ test("TC-1756: the project's data counts what a removal deletes and what the exp
   assert.deepEqual([unknown.status, unknown.data.code], [404, "project_not_found"], "an unknown project");
   assert.equal(shape(memory), before, "the reads record nothing");
   assert.deepEqual(lastRead(memory, "acme"), read, "read_at is as before");
+});
+
+test("TC-1469, TC-1612 to TC-1620: each response of API-108, which only the user's own sign-in removes", async () => {
+  const { db, call, fail } = inProcess();
+  await seed(call);
+  assert.equal((await call("POST", "/api/snapshots", { body: legacy("legacy-shop") })).status, 200);
+  const before = shape(db), rows = held(db);
+  assert.ok(Object.keys(rows).length > 8, "the space holds rows in many tables: " + JSON.stringify(rows));
+  // TC-1613 and TC-1469: the service token, told where the user removes.
+  const token = await call("DELETE", "/api/snapshots/acme");
+  refused(token, 403, "user_only", "TC-1613");
+  assert.deepEqual([token.data.needs, token.data.detail], ["user", REMOVAL_DETAIL], "TC-1613: the detail names the project's data");
+  // TC-1617: an identity of neither kind.
+  refused(await call("DELETE", "/api/snapshots/acme", { kind: "neither" }), 403, "no_kind", "TC-1617");
+  // TC-1614, TC-1615: Access did not check the request, or checked it for another application.
+  refused(await call("DELETE", "/api/snapshots/acme", { kind: "user", session: null, ctx: {} }), 403, "access_missing", "TC-1614");
+  refused(await call("DELETE", "/api/snapshots/acme", { kind: "user", session: null, ctx: { access: { aud: "unrelated-synthetic-audience" } } }), 403, "access_other_app", "TC-1615");
+  // TC-1616: a removal from another site.
+  refused(await call("DELETE", "/api/snapshots/acme", { kind: "user", session: null, headers: { "Sec-Fetch-Site": "cross-site" } }), 403, "cross_site", "TC-1616");
+  // TC-1618: a project that the server does not hold.
+  refused(await call("DELETE", "/api/snapshots/unknown", { kind: "user", session: null }), 404, "project_not_found", "TC-1618");
+  // TC-1619: the server cannot delete.
+  fail();
+  const broken = await call("DELETE", "/api/snapshots/acme", { kind: "user", session: null });
+  fail(false);
+  refused(broken, 500, "internal", "TC-1619");
+  // TC-1620: a method that the path does not take.
+  const post = await call("POST", "/api/snapshots/acme", { kind: "user", session: null, body: {} });
+  refused(post, 405, "method_not_allowed", "TC-1620");
+  assert.equal(post.headers.get("Allow"), "GET, HEAD, DELETE", "TC-1620");
+  assert.equal(shape(db), before, "TC-1469, TC-1613 to TC-1620: nothing is deleted");
+  // TC-1612: the user's removal leaves no row of the project in any table; the other project's snapshot stays.
+  const removed = await call("DELETE", "/api/snapshots/acme", { kind: "user", session: null });
+  answered(removed, "TC-1612");
+  assert.deepEqual(removed.data, { name: "acme", removed: true }, "TC-1612");
+  assert.deepEqual(held(db), { snapshots: 1 }, "TC-1612: no table holds a row of the project");
+  assert.equal(db.prepare("SELECT name FROM snapshots").get().name, "legacy-shop", "TC-1612: the other project stays");
+  refused(await call("GET", "/api/spaces/acme/data"), 404, "project_not_found", "TC-1612: the project's data is gone with it");
+});
+
+test("TC-1755: a removal with the service token is refused, and the user's leaves no row, on the standalone server", async (t) => {
+  const { call, memory } = await standalone(t);
+  await seed(call);
+  assert.equal((await call("POST", "/api/snapshots", { body: legacy("legacy-shop") })).status, 200);
+  const before = shape(memory);
+  const token = await call("DELETE", "/api/snapshots/acme");
+  refused(token, 403, "user_only", "TC-1755 the service token");
+  assert.deepEqual([token.data.needs, token.data.detail], ["user", REMOVAL_DETAIL], "TC-1755: the detail names the project's data");
+  refused(await call("DELETE", "/api/snapshots/acme", { kind: "neither" }), 403, "no_kind", "TC-1755 an identity of neither kind");
+  assert.equal(shape(memory), before, "TC-1755: every row kept");
+  const removed = await call("DELETE", "/api/snapshots/acme", { kind: "user", session: null });
+  answered(removed, "TC-1755 the user's removal");
+  assert.deepEqual(removed.data, { name: "acme", removed: true }, "TC-1755");
+  assert.deepEqual(held(memory), { snapshots: 1 }, "TC-1755: no table holds a row of the project, the revision's columns gone with their rows");
+  refused(await call("DELETE", "/api/snapshots/acme", { kind: "user", session: null }), 404, "project_not_found", "TC-1755 again");
 });

@@ -54,7 +54,8 @@ test("cross-site refusal precedes kind, then write ID precedes the agent session
 });
 
 test("every write role and header policy agrees with the request-name table", () => {
-  for (const route of ROUTES.filter((route) => route.role)) {
+  // Each route as pathRoute gives it, with its path's values.
+  for (const route of ROUTES.filter((route) => route.role).map((route) => pathRoute(request(route.method, path(route))))) {
     const kind = route.role === "either" ? "agent" : route.role;
     const result = requestHeaders(request(route.method, path(route), headers), route, kind);
     assert.equal(result.write, route.writeName ? "nw_" + ID : null);
@@ -64,8 +65,20 @@ test("every write role and header policy agrees with the request-name table", ()
   }
 });
 
-test("reads, pushes and removals accept a checked identity with neither kind, all but the export", () => {
+test("reads and pushes accept a checked identity with neither kind, all but the export", () => {
   for (const route of ROUTES.filter((route) => !route.role && route.operation !== "exportProject")) assert.doesNotThrow(() => requestHeaders(request(route.method, path(route)), route, null));
+});
+
+test("only the user removes a project, and the service token is told where (API-108, SPEC-202)", () => {
+  const route = pathRoute(request("DELETE", "/api/snapshots/acme-shop"));
+  assert.deepEqual([route.operation, route.role], ["removeProject", "user"]);
+  const removal = (kind, site) => requestHeaders(request("DELETE", "/api/snapshots/acme-shop", site ? { "Sec-Fetch-Site": site } : {}), route, kind);
+  assert.deepEqual(removal("user", null), { write: null, session: null, query: {} });
+  assert.throws(() => removal("agent", null), (error) => error.code === "user_only" && error.fields.needs === "user"
+    && error.message === "only the user removes a project, in NEXUS: open the project's data at /p/acme-shop#data");
+  assert.throws(() => removal(null, null), code("no_kind"));
+  // Another site comes first, at 3 in the order, before the kind at 4.
+  for (const kind of ["user", "agent", null]) assert.throws(() => removal(kind, "cross-site"), code("cross_site"), String(kind));
 });
 
 test("the export is the user's own read, which a page of another site cannot ask for (API-178)", () => {

@@ -220,7 +220,18 @@ def check(api):
 def self_test(api):
     """A planned example that stops fitting, and an example that breaks a rule that no schema states, fail the check."""
     broken = copy.deepcopy(api)
-    form = next(iter(broken["components"]["pathItems"].values()))
+    items = broken["components"].setdefault("pathItems", {})
+    if not items:
+        # Since TASK-311 built removeProject on 2026-11-14 nothing remains planned: the built removal, planned again
+        # as the path item that it was, stands in for a form, so that the check still shows that it holds one.
+        path, method, operation = next((path, method, operation) for path, item in broken["paths"].items()
+                                       for method, operation in item.items()
+                                       if method in METHODS and operation["operationId"] == "removeProject")
+        form = copy.deepcopy(operation)
+        replaces = form.pop("operationId")
+        form["x-corthex"] = {**form["x-corthex"], "replaces": replaces, "status": "planned"}
+        items[replaces] = {"parameters": copy.deepcopy(broken["paths"][path].get("parameters", [])), method: form}
+    form = next(iter(items.values()))
     operation = next(operation for method, operation in form.items() if method in METHODS)
     resolve = resolver(broken)
     example = next(resolve(example) for response in operation["responses"].values()
