@@ -127,7 +127,8 @@ const STATE=`(()=>{const q=s=>document.querySelector(s),all=s=>[...document.quer
   updating:txt(q('.stage .upd')),open:q('.ws')?.dataset.nxOpen||null,hash:location.hash,
   record:rec?{note:msg(rec.querySelector('.rnote .msg')),pass:msg(rec.querySelector('.pnote .msg')),words:rec.querySelector('#cp-words')?.value??null,invalid:rec.querySelector('#cp-words')?.getAttribute('aria-invalid')||null,
    left:txt(rec.querySelector('.left')),passButton:button(rec.querySelector('.r2 [data-nx-act=pass]')),list:[...rec.querySelectorAll('dl > dd')].map(txt),
-   boxes:[...rec.querySelectorAll('.wbox')].map(w=>({warn:w.classList.contains('warn'),text:txt(w.querySelector('b')),words:txt(w.querySelector('.mu')),withdraw:w.querySelector('button')?.dataset.nxCheckpoint||null,button:button(w.querySelector('button'))}))}:null,
+   boxes:[...rec.querySelectorAll('.wbox')].map(w=>({warn:w.classList.contains('warn'),text:txt(w.querySelector('b')),words:txt(w.querySelector('.mu')),withdraw:w.querySelector('button')?.dataset.nxCheckpoint||null,button:button(w.querySelector('button')),
+    kind:[...w.querySelectorAll('.cpk>span:not(.sep)')].map(txt),kindTops:[...w.querySelectorAll('.cpk>span:not(.sep)')].map(e=>Math.round(e.getBoundingClientRect().top))}))}:null,
   focus:document.activeElement?.dataset?.nxFocus||document.activeElement?.id||null};})()`;
 const state=()=>evaluate(STATE);
 // Where the workspace's regions are (rule 16) and how tall its rows and chips are.
@@ -467,6 +468,25 @@ try{
   assert(body.part===part&&body.stage==='02-prd'&&body.words===words,'The pass sends the words: '+JSON.stringify(body));
   const newer=seen.passed.record.boxes.find(b=>b.withdraw!==qa.checkpoint)?.withdraw,newerData=newer?(await serverGet(api+'/checkpoints/'+newer)).data:null;
   assert(newer&&newerData?.state==='passed'&&newerData.words===words&&seen.passed.record.boxes.every(b=>!b.warn)&&seen.passed.head.waiting===codeMessage('Waiting for its record',lang,{date:day(newerData.passed_at)})&&!seen.passed.record.pass,'The new checkpoint waits for its record too: '+JSON.stringify({boxes:seen.passed.record.boxes,waiting:seen.passed.head.waiting}));
+  // The kind of browser and device of the real pass (TASK-299, SPEC-195, TC-1741): the page
+  // sends what navigator.webdriver says, the server reads this browser's own headers, and the
+  // record shows the kind under the date, a line each under 1,024 pixels and one line from
+  // 1,024. The fixture's pass sent no User-Agent, so the record says so.
+  const webdriver=await evaluate('navigator.webdriver'),kindWords=labels('The kind of browser and device',lang);
+  const kindOf=(boxes,id)=>boxes.find(b=>b.withdraw===id)||{},newBox=kindOf(seen.passed.record.boxes,newer),oldBox=kindOf(seen.passed.record.boxes,qa.checkpoint);
+  seen.kind={webdriver,sent:body.driven,stored:[newerData.browser,newerData.device,newerData.driven],shown:newBox.kind,tops:newBox.kindTops,fixture:oldBox.kind};
+  assert(typeof webdriver==='boolean'&&body.driven===webdriver&&newerData.driven===webdriver&&newerData.browser==='chrome'&&newerData.device==='desktop','The pass records the kind of this browser: '+JSON.stringify(seen.kind));
+  const shownKind=[kindWords[0]+', '+kindWords[8],...(webdriver?[kindWords[10]]:[])];
+  assert(JSON.stringify(newBox.kind)===JSON.stringify(shownKind)&&new Set(newBox.kindTops).size===newBox.kindTops.length,'Its record shows the kind, a line each at 390 pixels: '+JSON.stringify(seen.kind));
+  assert(JSON.stringify(oldBox.kind)===JSON.stringify([kindWords[5]+', '+kindWords[9]]),'The fixture\'s pass, without a User-Agent, is unknown: '+JSON.stringify(oldBox));
+  shots.push(await shot('passed-kind-390-ko'));
+  await setting({width:1440,theme:'dark'});await open(page('02-prd',lang));
+  await click('.shd [data-nx-act="record"]');await waitFor(`document.querySelectorAll('.side .rec .wbox').length===2`);await paint();
+  const wide=kindOf((await state()).record.boxes,newer);seen.kindWide={shown:wide.kind,tops:wide.kindTops};
+  assert(JSON.stringify(wide.kind)===JSON.stringify(shownKind)&&new Set(wide.kindTops).size===1,'From 1,024 pixels, one line: '+JSON.stringify(seen.kindWide));
+  shots.push(await shot('passed-kind-1440-ko'));
+  await setting({width:390,theme:'dark'});await open(page('02-prd',lang));
+  await click('.shd [data-nx-act="record"]');await waitFor(`document.querySelectorAll('.side .rec .wbox').length===2`);await settled();
   // Withdraw the fixture's checkpoint: Withdrawn on {date}; read again, the record no longer
   // holds it, since no stage record names it (API-158's record).
   await click(`.side .rec .wbox [data-nx-checkpoint="${qa.checkpoint}"]`);
@@ -485,7 +505,7 @@ try{
   const withdrawKeys=postsTo(withdrawOf(newer),since).map(post=>post.write);
   assert(withdrawKeys.length===2&&withdrawKeys[0]===withdrawKeys[1],'Each try of one withdrawal sends its write ID: '+JSON.stringify(withdrawKeys));
   await noSideways('390');
-  return{evidence:'mocked refusals and failures, then the fixture server (real passes and withdrawals); write IDs as sent',seen:{keys,withdrawKeys,checkpoints:held2},screenshots:shots};
+  return{evidence:'mocked refusals and failures, then the fixture server (real passes and withdrawals); write IDs as sent',seen:{keys,withdrawKeys,checkpoints:held2,kind:seen.kind,kindWide:seen.kindWide},screenshots:shots};
  });
 
  // Rule 14 at 390 pixels: a finger hits each control 21 pixels around its centre.

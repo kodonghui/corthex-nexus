@@ -152,6 +152,49 @@ class ServerTest(ServerCase):
         self.assertEqual(self.get(SNAPSHOTS), (200, '{"projects":[]}'))
 
 
+class StageRecordOfAPassTest(ServerCase):
+    """TC-1445 (TASK-299, SPEC-195): the server records the kind of browser and device of a pass and names it
+    in the agent to-do, and the stage record that the agent writes for that checkpoint in Git with the pinned
+    hub holds none of it: what was approved, by whom, where and when."""
+
+    SAFARI_PHONE = ("Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
+                    "Version/17.5 Mobile/15E148 Safari/604.1")
+
+    def send(self, method, path, body=None, headers=None):
+        """The status and JSON body of a request, as the server's test stand-in signs in the person."""
+        data = None if body is None else json.dumps(body).encode("utf-8")
+        request = urllib.request.Request(self.url + path, data=data, method=method, headers=dict(headers or {}))
+        if data is not None:
+            request.add_header("Content-Type", "application/json")
+        try:
+            with self.opener.open(request, timeout=30) as response:
+                return response.getcode(), json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as error:
+            return error.code, error.read().decode("utf-8")
+
+    def test_the_record_in_git_holds_none_of_the_kind(self):
+        self.save()
+        hub.push(self.home, env={})
+        code, passed = self.send("POST", "/api/spaces/acme-shop/checkpoints", {"part": "", "stage": "02-prd", "driven": False},
+                                 {"Idempotency-Key": '"nw_000000000001"', "User-Agent": self.SAFARI_PHONE})
+        self.assertEqual(code, 201, passed)
+        self.assertEqual([passed["browser"], passed["device"], passed["driven"]], ["safari", "phone", False])
+        code, todo = self.send("GET", "/api/spaces/acme-shop/todo")
+        listed = [[entry["browser"], entry["device"], entry["driven"]] for entry in todo["checkpoints"]["entries"] if entry["id"] == passed["id"]]
+        self.assertEqual((code, listed), (200, [["safari", "phone", False]]))
+        # The agent records the checkpoint in Git with the pinned hub, by its ID, as the rules of the core plugin have it.
+        args = hub.parser().parse_args(["status", "acme-shop", "02-prd", "--repository", "--state", "done", "--checkpoint", "The PRD as drafted",
+                                        "--by", "the maintainer", "--date", passed["passed_at"][:10], "--nexus", passed["id"],
+                                        "--where", "https://nexus.example.com/p/acme-shop/_/02-prd"])
+        project = hub.select_projects(self.home, ["acme-shop"])[0][1]
+        _, target = hub.companion("records").write(project, self.home, args, vars(hub), hub_tests.NOW)
+        text = target.read_text(encoding="utf-8")
+        checkpoint = json.loads(text)["stages"]["02-prd"]["checkpoints"][-1]
+        self.assertEqual((sorted(checkpoint), checkpoint["nexus"]), (["approved", "by", "date", "nexus", "where"], passed["id"]))
+        for word in ("safari", "phone", "iphone", "browser", "device", "driven", "applewebkit", "mozilla"):
+            self.assertNotIn(word, text.lower())
+
+
 class WithoutAccessTest(ServerCase):
     access = False
 

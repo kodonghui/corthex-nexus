@@ -439,6 +439,18 @@ On 2026-11-13, for TASK-298, which shows the last push, the agent's last read an
 - The stage's checks: [test_screen_states.py](../../../tests/test_screen_states.py) passes, and [screen_states_check.py](../../../nexus/test/screen_states_check.py) reads 13 definitions on 5 pages and the 5 records: 194 responses with 351 codes, where the run after TASK-287 read 223 with 405, since the planned forms of API-118 and API-119 with TASK-297, and of API-151, API-152 and API-158 with TASK-298, left `components.pathItems` for `paths`, where each response is read once.
 - The repository's checks pass: `python -m unittest discover -s tests` with the pinned hub (40 tests), `node --test nexus/test/*.test.js` (412 tests, Node 24), the Worker's dry-run build and `git diff --check`.
 
+On 2026-11-13, for TASK-299, which records the kind of browser and device of a pass, SCR-112's and SCR-113's sections tell the kind as built, and their revisions keep the rows that the grey page draws, with statuses that say which of them are built:
+
+- SCR-112's revision: its row of data on what each checkpoint passed in NEXUS recorded and its action on such a checkpoint in the record are `built in part (TASK-299)`, for the kind of browser and device alone, and SCR-112#normal is `built in part (TASK-275, TASK-276, TASK-299)`. The commit or the snapshot's revision and the request that a pass answered, which the record is to show beside each checkpoint, stay `planned` for TASK-301, and the open request in the record for TASK-300.
+- SCR-113's revision: its row of data for the record and its action Stage record, Pass are `built in part (TASK-299)`, and SCR-113#normal is `built in part (TASK-276, TASK-277, TASK-299)`.
+- Each status comes from the code and from the cases that ran it, TC-1442 to TC-1445 and TC-1741.
+- The record shows the kind under a recorded checkpoint too, as the grey page and stage 09 draw it under Checkpoints, while stage 06 gave the record no checkpoint that a stored record names: API-112 and API-158 now hold those too, after the ones that wait ([stage 06](../../06-api/nexus.md)).
+- The sections above: SCR-112's and SCR-113's data and data exposure, and SCR-112#stale's checkpoint that waits for its record, name the kind.
+- The words: the kind of browser and device left the row of a passed checkpoint's record in [revision-words.md](revision-words.md), which keeps the request that a pass answered and the snapshot's revision, for a row of its own, "The kind of browser and device", in [redesign-words.md](redesign-words.md), from which the views' words are made.
+- The grey wireframes were drawn again for the statuses of SCR-112#normal and SCR-113#normal. Only their captions changed, and the page keeps its 64 frames and 205 labels, now 1,010,521 bytes; [measure.mjs](../../../tools/grey_pages/measure.mjs) finds no problem in 16 runs and 128 measurements of frames.
+- The stage's checks: [test_screen_states.py](../../../tests/test_screen_states.py) passes, and [screen_states_check.py](../../../nexus/test/screen_states_check.py) reads, as after TASK-298, 13 definitions on 5 pages and the 5 records: 194 responses with 351 codes, since a pass keeps its codes.
+- The repository's checks pass: `python -m unittest discover -s tests` with the pinned hub (41 tests), `node --test nexus/test/*.test.js` (421 tests, Node 24), the Worker's dry-run build and `git diff --check`.
+
 ## For the checkpoint
 
 The design revision of 2026-11-11 passed its checkpoint on 2026-11-12, in the maintainer's own words ([the review's map](../../reviews/2026-11-11-design-review.md)). What this stage puts to it, one line for each thing that changes for the maintainer:

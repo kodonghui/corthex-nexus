@@ -5,6 +5,7 @@ import { readSnapshot02 } from "./snapshot02.js";
 import { Store } from "./store.js";
 import { preflight } from "./preflight.js";
 import { jsonBody } from "./body.js";
+import { clientKind } from "./client-kind.js";
 import { COMMON_HEADERS, Problem, problemDocument, problemResponse } from "./problem.js";
 import {words} from "../ui/messages.js";
 
@@ -107,7 +108,10 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
         if(!route.writeName)throw new Error("unhandled operation");
         const body=INPUTS[route.writeName]?(await jsonBody(request,INPUTS[route.writeName])).data:{};
         const id=p.comment||p.proposal||p.edit||p.checkpoint||null;
-        const result=await store.writeEntry(route.writeName,p.project,id,body,{kind:route.kind,session:route.session,write:route.write,language:lang(env)});
+        // A pass records the kind of browser and device that its request names, as
+        // words of a fixed vocabulary and never the request's text (SPEC-195).
+        const client=route.writeName==="checkpoint"||route.writeName==="recommended"?clientKind(request.headers):undefined;
+        const result=await store.writeEntry(route.writeName,p.project,id,body,{kind:route.kind,session:route.session,write:route.write,language:lang(env),client});
         return json(result.body,result.status);
       }
     }

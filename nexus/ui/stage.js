@@ -447,7 +447,9 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   async function pass(){
     const state=view.recordState,box=textarea();
     if(!box||state.sending||writes.has(passScope)||characters(box.value)>WORDS_LIMIT)return;
-    const draft=drafts.update(passScope,{text:box.value}),body={part:partName,stage,...(draft.text.trim()?{words:draft.text}:{})};
+    // driven is what navigator.webdriver says, left out where the browser does not say (SPEC-195).
+    const draft=drafts.update(passScope,{text:box.value}),driven=typeof navigator.webdriver==="boolean"?{driven:navigator.webdriver}:{};
+    const body={part:partName,stage,...(draft.text.trim()?{words:draft.text}:{}),...driven};
     state.sending="pass";state.passNote=null;state.note=null;box.readOnly=true;render(["side"]);
     let again=false;
     try{

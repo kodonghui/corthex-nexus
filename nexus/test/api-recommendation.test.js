@@ -95,7 +95,10 @@ test("API-159 passes the checkpoint that the agent asks for with the reply, nami
   assert.deepEqual([comment.waits, comment.asks, comment.settled, reply.seq, reply.text, reply.settles], ["agent", null, true, 2, "As recommended", true]);
   assert.match(checkpoint.id, /^nk_[0-9a-hjkmnp-tv-z]{12}$/);
   assert.deepEqual(checkpoint, { id: checkpoint.id, part: "nexus", stage: "04-functional-spec", words: "As recommended", state: "passed",
-    passed_at: reply.made_at, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, commit: COMMIT, comment: id });
+    passed_at: reply.made_at, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, commit: COMMIT, comment: id,
+    // Until TASK-302 the press passes the checkpoint and records the kind of browser and device as
+    // a pass does (SPEC-195): this request names none, and the press sends no driven.
+    browser: "unknown", device: "unknown", driven: null });
   assert.deepEqual([comment.last_at, count("checkpoints"), count("replies")], [reply.made_at, 1, 2]);
   // Every read of the checkpoint names the comment, and so does its withdrawal.
   assert.deepEqual((await call("GET", SPACE + "/checkpoints/" + checkpoint.id)).data, checkpoint);

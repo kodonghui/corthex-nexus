@@ -627,6 +627,10 @@ export const redesign={
     "Next action · Checkpoints · Checks · Pass the checkpoint · Pass · Withdraw",
     "다음 행동 · 확인 지점 · 점검 · 확인 지점 통과 · 통과 · 철회"
   ],
+  "The kind of browser and device": [
+    "Chrome · Safari · Firefox · Edge · another browser · unknown browser · phone · tablet · desktop · unknown device · Software drove the browser",
+    "Chrome · Safari · Firefox · Edge · 다른 브라우저 · 알 수 없는 브라우저 · 휴대폰 · 태블릿 · 데스크톱 · 알 수 없는 기기 · 소프트웨어가 브라우저를 조작함"
+  ],
   "The picture's tools": [
     "Zoom out · Zoom in · Fit · Go to · Map of the whole picture · {stage}, read-only",
     "축소 · 확대 · 맞추기 · 바로 가기 · 전체 그림 지도 · {stage}, 읽기 전용"

@@ -482,6 +482,11 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .rec .cpl{display:grid;gap:var(--nx-space-sm)}
 .nx .rec .wbox{display:grid;justify-items:start;gap:var(--nx-space-sm);padding:var(--nx-space-md);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-bg)}
 .nx .rec .wbox.warn{border-color:var(--nx-color-warn);background:var(--nx-color-warn-bg)}
+/* A checkpoint's kind of browser and device (SPEC-195), under its date: each on a line of its own
+   under 1,024 pixels, and from 1,024 one line that wraps (SCR-112's layout of the revision) */
+.nx .rec .cpk{display:grid;justify-items:start;gap:var(--nx-space-2xs);margin:0;color:var(--nx-color-muted)}
+.nx .rec .cpk .sep{display:none}
+@media (min-width:1024px){.nx .rec .cpk{display:flex;flex-wrap:wrap;gap:0 var(--nx-space-xs)}.nx .rec .cpk .sep{display:inline}}
 .nx .rec .lab{font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
 .nx .rec .ta{display:block;width:100%;min-height:calc(var(--nx-size-box) - var(--nx-space-sm));padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);color:var(--nx-color-text);font-size:var(--nx-font-size-small);line-height:var(--nx-font-line-height-body);resize:vertical}
 .nx .rec .ta[aria-invalid="true"]{border-color:var(--nx-color-error)}

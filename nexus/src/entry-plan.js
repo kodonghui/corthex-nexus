@@ -60,7 +60,11 @@ function sameReport(a, b) {
   return a && a.event === b.event && (a.pull_request || null) === (b.pull_request || null) && (a.commit || null) === (b.commit || null);
 }
 
-export function planEntryWrite(name, body, state, { project, kind, session, now, language = "en" }) {
+// client is the kind of browser and device that the request named, which a
+// pass records (SPEC-195); a call without a request names none it can tell.
+const UNTOLD = Object.freeze({ browser: "unknown", device: "unknown" });
+
+export function planEntryWrite(name, body, state, { project, kind, session, now, language = "en", client = UNTOLD }) {
   if (!state.held) fail("project_not_found");
   if (!state.space) fail("space_not_found");
   const changes = [];
@@ -180,8 +184,12 @@ export function planEntryWrite(name, body, state, { project, kind, session, now,
       const row = { comment: comment.id, seq: state.replyCount + 1, author: "user", text: words, settles: 1, made_at: eventAt };
       put("replies", row, true);
       touchComment("user", { state: "open", closed_as: null, settled: 1 });
+      // Until TASK-302 this press passes the checkpoint that the agent asked for:
+      // it records the kind of browser and device as a pass does, and driven as
+      // not reported, since the press sends no body.
       const passed = asksCheckpoint ? { id: entryId("nk_"), project, part: comment.part, stage: comment.stage, commit_id: state.held.default_commit,
-        words, state: "passed", passed_at: eventAt, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: comment.id } : null;
+        words, state: "passed", passed_at: eventAt, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: comment.id,
+        browser: client.browser, device: client.device, driven: null } : null;
       if (passed) put("checkpoints", passed, true);
       textBytes = bytes(words);
       answer = { comment: E.commentState(comment), reply: E.reply(row), checkpoint: passed && E.checkpoint(passed), changed: true }; break;
@@ -282,8 +290,11 @@ export function planEntryWrite(name, body, state, { project, kind, session, now,
     }
     case "checkpoint": {
       if (body.part && !(state.parts || []).includes(body.part)) fail("part_not_found");
+      // driven is what the page read from navigator.webdriver, null when the page
+      // sent nothing, as a page of before the revision does (SPEC-195).
       const row = { id: entryId("nk_"), project, part: body.part, stage: body.stage, commit_id: state.held.default_commit,
-        words: body.words || null, state: "passed", passed_at: now, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null };
+        words: body.words || null, state: "passed", passed_at: now, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null,
+        browser: client.browser, device: client.device, driven: typeof body.driven === "boolean" ? Number(body.driven) : null };
       put("checkpoints", row, true); status = 201; answer = E.checkpoint(row); break;
     }
     case "withdraw-checkpoint": {

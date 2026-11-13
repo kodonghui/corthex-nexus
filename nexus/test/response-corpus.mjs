@@ -8,8 +8,8 @@ import { testAccess } from "./access-fixture.js";
 const access=await testAccess(),env={...access.env,DB:fakeD1(),NEXUS_LANGUAGE:"en"};
 const template=readFileSync(new URL("../src/hub.html",import.meta.url),"utf8");
 let serial=0;
-async function call(method,path,body,kind="agent") {
-  const headers={...access.headers(kind),"Nexus-Session":"qa-offline-contract"};
+async function call(method,path,body,kind="agent",extra={}) {
+  const headers={...extra,...access.headers(kind),"Nexus-Session":"qa-offline-contract"};
   if(method==="POST")headers["Idempotency-Key"]='"nw_'+(++serial).toString().padStart(12,"0")+'"';
   if(body!==undefined)headers["Content-Type"]="application/json";
   const response=await handle(new Request("https://nexus.example.com"+path,{method,headers,...(body===undefined?{}:{body:JSON.stringify(body)})}),env,access.ctx,template);
@@ -132,6 +132,17 @@ if(asking.look_first!=="TBL-111"||linked.look_first!=="https://mockups.example.c
 cases.push({name:"the user's comment",schema:"Comment",value:question},{name:"checkpoint request that names an item",schema:"Comment",value:asking},
   {name:"checkpoint request that names an address",schema:"Comment",value:linked},{name:"the user's reply",schema:"ReplyAnswer",value:userReply},
   {name:"reply that asks for the checkpoint again",schema:"ReplyAnswer",value:askedAgain});
+// The kind of browser and device of a pass (TASK-299, SPEC-195): a pass from Safari on a phone
+// whose page says that no software drives the browser, the stage whose record holds it, and its
+// withdrawal, each with the three.
+const kindPass=await call("POST","/api/spaces/corthex/checkpoints",{part:"nexus",stage:"05-erd",driven:false},"user",
+  {"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"});
+const kindStage=await call("GET","/api/spaces/corthex/stages/nexus/05-erd");
+const kindWithdrawn=await call("POST","/api/spaces/corthex/checkpoints/"+kindPass.id+"/withdraw",{},"user");
+if(kindPass.browser!=="safari"||kindPass.device!=="phone"||kindPass.driven!==false||!kindStage.record.checkpoints.some((entry)=>entry.id===kindPass.id&&entry.browser==="safari")
+  ||kindWithdrawn.checkpoint.device!=="phone")throw new Error("a pass's kind of browser and device lacks what its case needs");
+cases.push({name:"pass from Safari on a phone",schema:"Checkpoint",value:kindPass},{name:"stage whose record holds a pass's kind",schema:"StageData",value:kindStage},
+  {name:"withdrawal that names the pass's kind",schema:"CheckpointAnswer",value:kindWithdrawn});
 // The stage page of a project that only a hub of 0.1 pushed, which has no space.
 await call("POST","/api/snapshots",{schema:"corthex-hub/0.1",generated_at:"2026-01-12T10:00:00+09:00",project:{name:"legacy-shop",title:"Legacy shop"},
   stages:{"02-prd":{source_state:"found",read:true,state:"in_progress",next:"Write the PRD"}},summary:{items:1},

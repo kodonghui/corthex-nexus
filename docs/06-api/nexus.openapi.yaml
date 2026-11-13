@@ -586,8 +586,10 @@ paths:
         The stage's record and checks from the stored snapshot, together with its open
         discrepancies, open comments and pending reflections, up to 50 of each with their totals,
         and its checkpoints passed in NEXUS that no record names yet or that a record names after
-        their withdrawal. A project without a space, pushed by a hub of 0.1, has only the record
-        and the checks.
+        their withdrawal, oldest first, then, since TASK-299, those that a stored record names,
+        newest first, so that the stage's record shows each one's kind of browser and device
+        beside the record's entry that names it (SPEC-195). A project without a space, pushed by
+        a hub of 0.1, has only the record and the checks.
       x-corthex:
         id: API-112
         spec: [SPEC-113, SPEC-138]
@@ -1406,12 +1408,15 @@ paths:
       description: >-
         The user passes one part's stage checkpoint from its overview, with their own words if
         they give some. The server records it on the default branch commit of the stored snapshot
-        and lists it in the agent to-do until a stored stage record names it.
+        and lists it in the agent to-do until a stored stage record names it. With it the server
+        records the kind of browser and device that it reads from the request's User-Agent and
+        client hints, in a fixed vocabulary and never as text, and driven as the page sent it
+        (SPEC-195); none of the three refuses a pass.
       security:
         - accessUser: []
       x-corthex:
         id: API-128
-        spec: [SPEC-113, SPEC-116, SPEC-139]
+        spec: [SPEC-113, SPEC-116, SPEC-139, SPEC-195]
         status: active
         omit:
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
@@ -1421,8 +1426,11 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/NewCheckpoint"}
             examples:
-              with-words: {value: {part: nexus, stage: 04-functional-spec, words: "The rows as drafted, with the four points as recommended."}}
-              without-words: {value: {part: nexus, stage: 03-user-flow}}
+              with-words: {value: {part: nexus, stage: 04-functional-spec, words: "The rows as drafted, with the four points as recommended.", driven: false}}
+              without-words: {value: {part: nexus, stage: 03-user-flow, driven: false}}
+              from-an-older-page:
+                summary: A pass from a page that does not say whether software drives the browser
+                value: {part: nexus, stage: 03-user-flow}
       responses:
         "201":
           description: Passed
@@ -1513,12 +1521,12 @@ paths:
               examples:
                 withdrawn:
                   value:
-                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: withdrawn, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: "2026-11-03T09:20:00.000Z", pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null}
+                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: withdrawn, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: "2026-11-03T09:20:00.000Z", pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null, browser: null, device: null, driven: null}
                     changed: true
                 already-withdrawn:
                   summary: Sent again from a second tab after the first withdrawal
                   value:
-                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: withdrawn, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: "2026-11-03T09:20:00.000Z", pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null}
+                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: withdrawn, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: "2026-11-03T09:20:00.000Z", pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null, browser: null, device: null, driven: null}
                     changed: false
         "400": {$ref: "#/components/responses/InvalidUserAction"}
         "403": {$ref: "#/components/responses/UserWriteRefused"}
@@ -1573,7 +1581,7 @@ paths:
               examples:
                 opened:
                   value:
-                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null}
+                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null, browser: null, device: null, driven: null}
                     changed: true
         "400": {$ref: "#/components/responses/InvalidReport"}
         "403": {$ref: "#/components/responses/AgentWriteRefused"}
@@ -1883,8 +1891,9 @@ paths:
         pushed_at and commit, which the head shows as the last push. Under D17 of stage 02,
         decided on 2026-11-12, project is also to name the snapshot's revision, which a pass names
         where the snapshot names no commit (SPEC-194), and the record's checkpoints passed in
-        NEXUS are to hold what was seen and the kind of browser and device (SPEC-194, SPEC-195):
-        those members stay planned until the pass that names them is built. The stage's record
+        NEXUS are to hold what was seen (SPEC-194): those members stay planned until the pass
+        that names them is built. They hold the kind of browser and device since TASK-299
+        (SPEC-195), which the stage's record shows. The stage's record
         shows the stage's open checkpoint request whole above the pass (SPEC-139): the page takes
         it from the talk's my turn (getStageTalk), the open comment on the stage as a whole whose
         asks is checkpoint, with its last entry's text and look_first.
@@ -2970,7 +2979,7 @@ components:
         proposal: {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The comment asks for the glossary's word.", change: "Rename the table claims to entry_claims.", source_text: "CREATE TABLE entry_claims (", comment: nc_8k1n4q7s0v3y, discrepancy: null, state: accepted, made_at: "2026-11-03T06:40:00.000Z", closed_at: "2026-11-03T07:30:41.882Z", edit: ne_9c3f6h2k5n8q}
     checkpoint_passed:
       summary: A checkpoint passed in NEXUS, waiting for its record
-      value: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null}
+      value: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, browser: chrome, device: desktop, driven: false}
     todo:
       summary: The read's recorded time, with a comment, a reflection and two checkpoints that wait, one of them passed before the revision
       value:
@@ -3058,7 +3067,7 @@ components:
         comments: {total: 0, entries: []}
         reflections: {total: 0, entries: []}
         checkpoints:
-          - {id: nk_7f3k2m9q4x1v, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null}
+          - {id: nk_7f3k2m9q4x1v, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, browser: null, device: null, driven: null}
         warnings: []
         not_opened: 0
     snapshot_01:
@@ -3448,7 +3457,7 @@ components:
       value:
         comment: {id: nc_7d1g4k8n2q5t, state: open, closed_as: null, waits: agent, asks: null, settled: true, dismissed: false, last_at: "2026-11-08T08:31:12.204Z"}
         reply: {seq: 2, author: user, text: As recommended, settles: true, made_at: "2026-11-08T08:31:12.204Z", look_first: null}
-        checkpoint: {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: As recommended, state: passed, passed_at: "2026-11-08T08:31:12.204Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t}
+        checkpoint: {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: As recommended, state: passed, passed_at: "2026-11-08T08:31:12.204Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, browser: safari, device: phone, driven: null}
         changed: true
 
     cross_site_export:
@@ -4494,7 +4503,7 @@ components:
         claim: {anyOf: [{$ref: "#/components/schemas/ClaimMark"}, {type: "null"}]}
     Checkpoint:
       type: object
-      required: [id, part, stage, commit, words, state, passed_at, withdrawn_at, pull_request, pr_state, recorded_commit]
+      required: [id, part, stage, commit, words, state, passed_at, withdrawn_at, pull_request, pr_state, recorded_commit, browser, device, driven]
       properties:
         id: {$ref: "#/components/schemas/CheckpointId"}
         part: {$ref: "#/components/schemas/PartName"}
@@ -4535,13 +4544,13 @@ components:
         browser:
           description: >-
             The family of the browser that sent the pass, as the server read it from the
-            request and never the request's own text (SPEC-195); null only for a checkpoint
-            passed before the revision, which is not the same as unknown
-          x-corthex: {status: planned, spec: [SPEC-195]}
+            request's User-Agent and client hints and never the request's own text (SPEC-195):
+            other for a browser outside the four, and unknown where the request names none that
+            the server can tell; null only for a checkpoint passed before the revision, which is
+            not the same as unknown
           enum: [chrome, safari, firefox, edge, other, unknown, null]
         device:
           description: The class of the device, read in the same way (SPEC-195); null as for browser
-          x-corthex: {status: planned, spec: [SPEC-195]}
           enum: [phone, tablet, desktop, unknown, null]
         driven:
           description: >-
@@ -4549,7 +4558,6 @@ components:
             says (SPEC-195); null when the page reported nothing, as an older page does, and
             for a checkpoint passed before the revision. A record to look at afterwards, never
             a check
-          x-corthex: {status: planned, spec: [SPEC-195]}
           type: [boolean, "null"]
     CheckpointEntry:
       description: A checkpoint as the agent to-do holds it, with why it is listed
@@ -4715,7 +4723,7 @@ components:
             total: {type: integer, minimum: 0}
             entries: {type: array, maxItems: 50, items: {$ref: "#/components/schemas/EditEntry"}}
         checkpoints:
-          description: The checkpoints passed in NEXUS for the part and stage that no stored record names, and the withdrawn ones that a stored record names
+          description: The checkpoints passed in NEXUS for the part and stage that no stored record names, and the withdrawn ones that a stored record names, oldest first; then, since TASK-299, the passed ones that a stored record names, newest first, whose kind of browser and device the stage's record shows (SPEC-195). The 50 hold the first two kinds first
           type: array
           maxItems: 50
           items: {$ref: "#/components/schemas/Checkpoint"}
@@ -5522,6 +5530,11 @@ components:
         edit: {$ref: "#/components/schemas/Edit"}
         changed: {type: boolean}
     NewCheckpoint:
+      description: >-
+        A pass. driven is what the page read from navigator.webdriver, left out when the page
+        cannot tell, as a page of before the design revision does; the server records it as
+        sent, with the kind of browser and device that it reads from the request, and refuses
+        no pass for any of them (SPEC-195)
       type: object
       required: [part, stage]
       additionalProperties: false
@@ -5529,6 +5542,7 @@ components:
         part: {$ref: "#/components/schemas/PartName"}
         stage: {$ref: "#/components/schemas/StageKey"}
         words: {type: string, minLength: 1, maxLength: 2000, pattern: '\S'}
+        driven: {type: boolean}
     CheckpointReport:
       type: object
       required: [event, pull_request]
@@ -5738,9 +5752,9 @@ components:
 
     PlannedNewCheckpoint:
       description: >-
-        The planned body of passCheckpoint (SPEC-194 to SPEC-196): NewCheckpoint with what the
-        page showed, under D17 of stage 02, decided on 2026-11-12, and with driven, which did
-        not depend on D17.
+        The planned body of passCheckpoint (SPEC-194 to SPEC-196): NewCheckpoint, which takes
+        driven since TASK-299, with what the page showed, under D17 of stage 02, decided on
+        2026-11-12.
         A pass names commit, the default branch commit of the project's snapshot as the page's
         data gave it, or revision, the snapshot's revision, where that snapshot names no commit:
         one of the two, never both and never neither. A pass that answers a checkpoint request

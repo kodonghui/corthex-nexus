@@ -137,7 +137,7 @@ const ENTRY_COLUMNS = Object.freeze({
   decisions: "comment seq link text made_at".split(" "),
   proposals: "id project part stage commit_id items reason change source_text comment discrepancy state made_at closed_at".split(" "),
   edits: "id project part stage commit_id proposal content state pull_request closed_commit made_at changed_at last_report".split(" "),
-  checkpoints: "id project part stage commit_id words state passed_at withdrawn_at pull_request pr_state recorded_commit comment".split(" "),
+  checkpoints: "id project part stage commit_id words state passed_at withdrawn_at pull_request pr_state recorded_commit comment browser device driven".split(" "),
   discrepancies: "id project part compares term item reasons level state waiting opened_commit opened_at resolved_commit resolved_at earlier".split(" "),
   claims: "entry project session claimed_at ends_at".split(" "),
 });
@@ -565,9 +565,15 @@ export class Store {
     return [
       this.commentStatement(project,"overview",part,stage,50,null,now), this.editStatement(project,"overview",part,stage,50,now),
       this.discrepancyStatement(project,part,stage,50),
+      // The checkpoints passed in NEXUS that wait for their records and the withdrawn ones that a
+      // stored record names, oldest first; then, from TASK-299, those that a stored record names,
+      // newest first, so that the record shows each one's kind of browser and device beside its
+      // entry (SPEC-195). The 50 keep the first two kinds first.
       this.db.prepare(`SELECT * FROM checkpoints WHERE project=? AND part=? AND stage=?
-        AND ((state='passed' AND recorded_commit IS NULL) OR (state='withdrawn' AND recorded_commit IS NOT NULL))
-        ORDER BY passed_at,id LIMIT 50`).bind(project,part,stage),
+        AND (state='passed' OR (state='withdrawn' AND recorded_commit IS NOT NULL))
+        ORDER BY state='passed' AND recorded_commit IS NOT NULL,
+          CASE WHEN state='passed' AND recorded_commit IS NOT NULL THEN passed_at END DESC, passed_at, id
+        LIMIT 50`).bind(project,part,stage),
       this.db.prepare("SELECT stage,commit_id,not_current FROM pictures WHERE project=? AND part=? ORDER BY stage").bind(project,part),
     ];
   }
@@ -787,7 +793,7 @@ export class Store {
       body.asks === "checkpoint" ? 1 : 0,lookedUp(body)] };
   }
 
-  async writeEntry(name, project, id, body, { kind, session = null, write, now: given, language = "en" }) {
+  async writeEntry(name, project, id, body, { kind, session = null, write, now: given, language = "en", client }) {
     checkWriteBody(name, body, kind);
     await this.ensure();
     const cutoff = new Date(Date.parse(given ?? new Date().toISOString())-7*86400000).toISOString();
@@ -804,7 +810,7 @@ export class Store {
         const { status,body: answer }=JSON.parse(state.prior.result);
         return { status,body:answer };
       }
-      const plan=planEntryWrite(name,body,state,{project,kind,session,now,language});
+      const plan=planEntryWrite(name,body,state,{project,kind,session,now,language,client});
       const nonce=crypto.randomUUID();
       const result=JSON.stringify({status:plan.status,body:plan.body,nonce});
       const gate="EXISTS(SELECT 1 FROM writes WHERE project=? AND id=? AND json_extract(result,'$.nonce')=?)";

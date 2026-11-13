@@ -134,10 +134,12 @@ test("TC-1504: the agent's read with a comment, a reflection and two checkpoints
   assert.deepEqual([read.data.comments.total, read.data.reflections.total, read.data.checkpoints.total], [1, 1, 2]);
   assert.equal(read.data.comments.entries[0].id, comment.data.id);
   assert.equal(read.data.reflections.entries[0].id, accepted.data.edit.id);
-  // Both checkpoints were passed without the revision's columns, which TASK-299
-  // and TASK-301 write: as one passed before the revision is stored.
+  // Both checkpoints were passed without the columns that TASK-301 writes, and
+  // with the kind of browser and device that TASK-299 records: these requests
+  // name none, and their bodies send no driven (SPEC-195).
   for (const checkpoint of db.prepare("SELECT snapshot_revision, entry, browser, device, driven FROM checkpoints").all())
-    assert.deepEqual({ ...checkpoint }, { snapshot_revision: null, entry: null, browser: null, device: null, driven: null });
+    assert.deepEqual({ ...checkpoint }, { snapshot_revision: null, entry: null, browser: "unknown", device: "unknown", driven: null });
+  assert.deepEqual(read.data.checkpoints.entries.map((entry) => [entry.browser, entry.device, entry.driven]), [["unknown", "unknown", null], ["unknown", "unknown", null]]);
   const after = db.prepare("SELECT * FROM project_spaces").all().map((row) => ({ ...row }));
   assert.deepEqual(after, before.map((row) => ({ ...row, read_at: read.data.read_at, read_session: "claude-code-4f2a91" })), "only the space's last read changes");
   db.prepare("UPDATE project_spaces SET read_at = NULL, read_session = NULL").run();
