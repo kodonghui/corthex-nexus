@@ -29,7 +29,7 @@ const ENTRIES=()=>[
   {id:"TBL-003",kind:"table",title:"notes",context:null,comments:1000,mine:false,discrepancies:0,reflections:0},
 ];
 function stageData({stage="05-erd",part="sample",parts=["sample"],rows,head={},items={},record={}}={}){
-  return{project:{name:"qa/shop #1",title:TITLE,repository:"https://github.com/example/qa-shop",commit:"0123456789abcdef0123456789abcdef01234567",generated_at:AT,pushed_at:"2026-11-08T08:00:00.000Z",parts},part,stage,
+  return{project:{name:"qa/shop #1",title:TITLE,repository:"https://github.com/example/qa-shop",commit:"0123456789abcdef0123456789abcdef01234567",generated_at:AT,pushed_at:"2026-11-08T08:00:00.000Z",space:true,read_at:null,unread_since:null,parts},part,stage,
     head:{key:stage,state:"in_progress",checkpoint:null,commit:"0123456789abcdef0123456789abcdef01234567",time:AT,reads:true,source_state:"found",counts:{items:3,kinds:[{kind:"table",count:3}],priorities:[],hotspots:null},picture:false,...head},
     record:{project:"qa/shop #1",part,stage,record:{state:"in_progress",checkpoints:[],next:null,from:"snapshot"},source_state:"found",read:true,checks:[],pictures:[],discrepancies:{total:0,entries:[]},comments:{total:0,entries:[]},reflections:{total:0,entries:[]},checkpoints:[],warnings:[],not_opened:0,...record},
     stages:rows??STAGE_KEYS.map((key,i)=>({key,state:STATES[i%STATES.length],items:[0,3,1500][i%3],picture:["01-domain","05-erd","07-sitemap"].includes(key),not_current:null,mine:[0,2,1000][i%3]})),

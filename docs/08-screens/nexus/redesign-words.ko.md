@@ -16,6 +16,12 @@
 | 답함 | SCR-110([고른 것 19](README.ko.md#이-단계가-고른-것)) | Accepted · Dismissed · Answered as recommended · Checkpoint passed. You can withdraw it in the stage record until it is recorded. | 받음 · 버림 · 추천대로 답함 · 확인 지점을 통과시켰습니다. 기록되기 전까지는 단계 기록에서 철회할 수 있습니다. |
 | 차례 | SCR-110(규칙 18) | When you answer, it becomes the agent's turn. The agent reads it at its next work on the project. | 답하면 AI 차례가 됩니다. AI는 그 프로젝트의 다음 작업 때 읽습니다. |
 | AI 할 일 | SCR-110(규칙 18). 마지막 이름표는 AI를 기다리는 것이 없을 때(SPEC-144) | Agent to-do ({n}) · Comments that wait for the agent · Open discrepancies · Pending reflections · Checkpoints that wait for their records · {n} taken by a session · The agent reads these when its work on the project next starts. The NEXUS server runs no AI. · Nothing waits for the agent now. | AI 할 일 ({n}) · AI를 기다리는 의견 · 열린 어긋남 · 반영 대기 · 기록을 기다리는 확인 지점 · 세션이 맡은 것 {n} · AI는 그 프로젝트의 다음 작업을 시작할 때 이것을 읽습니다. NEXUS 서버는 AI를 돌리지 않습니다. · 지금은 AI를 기다리는 것이 없습니다. |
+| 고리의 때 | SCR-110, SCR-111, SCR-130([규칙 19](README.ko.md#설계-수정의-화면)): 아래 줄의 `{time}`은 모든 페이지가 때를 보이는 대로의 날짜와 시각, 그 뒤 괄호 안에 얼마나 지났는지입니다 | {date} ({ago}) | {date} ({ago}) |
+| 얼마나 지났는지 | 고리의 때의 `{ago}`(규칙 19): 1분이 안 될 때, 그다음 1시간이 안 될 때의 분, 24시간이 안 될 때의 시간, 그 뒤의 날. 저마다 내림합니다 | just now · {n} min ago · {n} h ago · {n} d ago | 방금 · {n}분 전 · {n}시간 전 · {n}일 전 |
+| 마지막 올림 | SCR-110의 카드와 AI 할 일의 프로젝트별 줄, 그리고 SCR-111의 머리에서, 커밋의 첫 7자 뒤에. 둘째 이름표는 커밋을 적지 않은 스냅샷에서 커밋의 자리에(SPEC-188) | Pushed {time} · No commit | 올림: {time} · 커밋 없음 |
+| AI의 마지막 읽음 | SCR-110과 SCR-111의 머리. 둘째 이름표는 처음 읽기 전에, 셋째는 공간이 없는 프로젝트에(SPEC-188) | Read by the agent {time} · Not read by the agent yet · No agent to-do yet | AI가 읽음: {time} · AI가 아직 읽지 않음 · 아직 AI 할 일 없음 |
+| 오래 기다린다는 표시 | SCR-110, SCR-111, SCR-130([규칙 20](README.ko.md#설계-수정의-화면)): 모양 옆에 두는 표시의 말, 그다음 그 한 줄 | Unread for more than 24 hours · Either no session is at work on this project, or its session cannot reach this server. | 24시간 넘게 읽지 않음 · 이 프로젝트에서 일하는 세션이 없거나, 세션이 이 서버에 닿지 못하고 있습니다. |
+| 안 읽음, AI 할 일에서 | SCR-110: 프로젝트의 AI 할 일 수 옆에(SPEC-189) | {n} not read yet | 아직 안 읽은 것 {n} |
 | 기다리는 것 없음 | SCR-110#nothing-waits | Nothing waits for your answer now. · When the agent asks or proposes something, it gathers here. | 지금은 답을 기다리는 것이 없습니다. · AI가 묻거나 제안하면 여기에 모입니다. |
 | `not_recommended`, 409 | SCR-110#stale | This no longer waits for your answer. It was answered or closed meanwhile. | 이 일은 이제 답을 기다리지 않습니다. 그사이 답했거나 닫혔습니다. |
 | 이미 함 | SCR-110#stale | Done already, in another tab. | 다른 탭에서 이미 했습니다. |
@@ -39,6 +45,7 @@
 | 맞는 것 없음 | SCR-113#no-match | Nothing waits for you in this stage. · No item of this stage has talk yet. · Nothing in this stage matches “{q}”. | 이 단계에는 내 답을 기다리는 것이 없습니다. · 이 단계에는 아직 대화가 있는 항목이 없습니다. · 이 단계에서 “{q}”에 맞는 항목이 없습니다. |
 | 대화 | SCR-114 | Talk · My turn {n} · The agent's turn {n} · The agent's turn ({n}) · Apart: comments whose item is gone ({n}) · Closed ({n}) · Show more | 대화 · 내 차례 {n} · AI 차례 {n} · AI 차례 ({n}) · 따로: 항목이 없어진 의견 ({n}) · 닫힌 대화 ({n}) · 더 보기 |
 | 기다림 | SCR-114 | Waiting for the agent since {time} · Taken by the agent at {time} | {time}부터 AI를 기다림 · {time}에 AI가 맡음 |
+| 안 읽음, 줄에서 | SCR-114: AI 차례의 줄에서, 그 기다림 뒤에(SPEC-189) | Not read by the agent yet | AI가 아직 읽지 않음 |
 | 칸 | SCR-114(규칙 18) | Comment on the stage as a whole · Leave · The agent reads this at its next work on the project. · Leave a new comment | 단계 전체에 의견 남기기 · 남기기 · AI는 그 프로젝트의 다음 작업 때 이것을 읽습니다. · 새 의견으로 남기기 |
 | 좁힘 | SCR-114#narrowed | Talk on {id} · All talk of the stage | {id}의 대화 · 단계의 대화 모두 |
 | 대화 없음 | SCR-114#empty | No talk on this stage yet. Select an item to talk about it, or write about the stage as a whole. · No comments on {id} yet. | 이 단계에는 아직 대화가 없습니다. 항목을 골라 그 항목에 대해 말하거나, 단계 전체에 대해 써 주세요. · {id}에는 아직 의견이 없습니다. |

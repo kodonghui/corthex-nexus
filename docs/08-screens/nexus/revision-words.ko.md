@@ -6,13 +6,6 @@
 
 | 말 | 나오는 곳 | 영어 | 한국어 | 진행 |
 | --- | --- | --- | --- | --- |
-| 고리의 때 | SCR-110, SCR-111, SCR-130([규칙 19](README.ko.md#설계-수정의-화면)): 아래 줄의 `{time}`은 모든 페이지가 때를 보이는 대로의 날짜와 시각, 그 뒤 괄호 안에 얼마나 지났는지입니다 | {date} ({ago}) | {date} ({ago}) | planned |
-| 얼마나 지났는지 | 고리의 때의 `{ago}`(규칙 19): 1분이 안 될 때, 그다음 1시간이 안 될 때의 분, 24시간이 안 될 때의 시간, 그 뒤의 날. 저마다 내림합니다 | just now · {n} min ago · {n} h ago · {n} d ago | 방금 · {n}분 전 · {n}시간 전 · {n}일 전 | planned |
-| 마지막 올림 | SCR-110의 카드와 AI 할 일의 프로젝트별 줄, 그리고 SCR-111의 머리에서, 커밋의 첫 7자 뒤에. 둘째 이름표는 커밋을 적지 않은 스냅샷에서 커밋의 자리에(SPEC-188) | Pushed {time} · No commit | 올림: {time} · 커밋 없음 | planned |
-| AI의 마지막 읽음 | SCR-110과 SCR-111의 머리. 둘째 이름표는 처음 읽기 전에, 셋째는 공간이 없는 프로젝트에(SPEC-188) | Read by the agent {time} · Not read by the agent yet · No agent to-do yet | AI가 읽음: {time} · AI가 아직 읽지 않음 · 아직 AI 할 일 없음 | planned |
-| 오래 기다린다는 표시 | SCR-110, SCR-111, SCR-130([규칙 20](README.ko.md#설계-수정의-화면)): 모양 옆에 두는 표시의 말, 그다음 그 한 줄 | Unread for more than 24 hours · Either no session is at work on this project, or its session cannot reach this server. | 24시간 넘게 읽지 않음 · 이 프로젝트에서 일하는 세션이 없거나, 세션이 이 서버에 닿지 못하고 있습니다. | planned |
-| 안 읽음, AI 할 일에서 | SCR-110: 프로젝트의 AI 할 일 수 옆에(SPEC-189) | {n} not read yet | 아직 안 읽은 것 {n} | planned |
-| 안 읽음, 줄에서 | SCR-114: AI 차례의 줄에서, 그 기다림 뒤에(SPEC-189) | Not read by the agent yet | AI가 아직 읽지 않음 | planned |
 | 통째로 본 확인 요청 | SCR-110의 줄과 SCR-112·SCR-113의 기록에서, 머리에 이미 있는 "커밋 {commit}"과 함께. SCR-114는 요청의 줄에 첫째 이름표를 보입니다([규칙 22](README.ko.md#설계-수정의-화면), SPEC-196) | Look at first · Left in this stage · {n} open discrepancies · {n} other open comments · {n} pending reflections | 먼저 볼 것 · 이 단계에 남은 것 · 열린 어긋남 {n} · 다른 열린 의견 {n} · 반영 대기 {n} | planned |
 | 확인 요청의 단추 | SCR-110: 줄의 첫째 단추, 그리고 통과에 남길 말의 칸으로 가는 길. SCR-114의 줄은 머리에 이미 있는 "단계 기록"을 보입니다(SPEC-196) | Open the request · Add your words | 요청 열기 · 남길 말 더하기 | planned |
 | 통과 | SCR-110, 그리고 단계에 열린 요청이 있는 동안 SCR-112·SCR-113의 기록([규칙 21](README.ko.md#설계-수정의-화면)). {n}은 04 같은 단계의 번호입니다. 사용자가 말을 더하지 않으면 요청을 정하는 답글의 글이기도 합니다(SPEC-196) | Pass the stage {n} checkpoint | {n}단계 확인 지점 통과 | planned |

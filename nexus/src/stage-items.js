@@ -82,7 +82,7 @@ function counted(values, limit) {
   return [...tally].slice(0, limit);
 }
 
-export function stageData({ held, snapshot, record, project, part, stage, query, comments, proposals, discrepancies, reflections, pictures }) {
+export function stageData({ held, snapshot, record, project, part, stage, query, comments, proposals, discrepancies, reflections, pictures, read }) {
   const items = Array.isArray(snapshot.items) ? snapshot.items : [];
   const ofStage = items.filter((item) => item.stage === stage);
 
@@ -173,7 +173,9 @@ export function stageData({ held, snapshot, record, project, part, stage, query,
   return {
     project: { name: held.name, title: typeof snapshot.project?.title === "string" ? cut(snapshot.project.title, 120) : null,
       repository: repositoryOf(repo), commit: held.default_commit || null,
-      generated_at: held.generated_at, pushed_at: held.received_at, parts },
+      generated_at: held.generated_at, pushed_at: held.received_at,
+      // The head's last read (SPEC-188): read is null for a project without a space.
+      space: Boolean(read), read_at: read?.read_at ?? null, unread_since: read?.unread_since ?? null, parts },
     part, stage, head, record,
     stages: STAGES.map((key) => ({ key, state: stageRecord(snapshot, part, key).state, items: items.filter((item) => item.stage === key).length,
       picture: drawn.has(key), not_current: NOT_CURRENT.has(drawn.get(key)?.not_current) ? drawn.get(key).not_current : null, mine: mine.get(key) || 0 })),

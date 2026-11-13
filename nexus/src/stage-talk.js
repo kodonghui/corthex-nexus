@@ -37,6 +37,6 @@ export function talkData({ snapshot, project, part, stage, item, now, open, prop
   return { project, part, stage, item,
     mine: first(mine), agent: first(agent.map(comment)), apart: first(apart.map(comment)),
     closed: { total: closedTotal, entries: [...closedRows].sort(by("_at", true)).slice(0, CLOSED).map(entry) },
-    reflections: reflections.map((row) => E.editListRow(row)).filter((edit) => named(edit.proposal))
+    reflections: reflections.map((row) => E.editListEntry(row)).filter((edit) => named(edit.proposal))
       .map((edit) => E.withClaimStart(edit, claims, null, now)) };
 }

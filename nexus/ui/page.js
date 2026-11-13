@@ -7,6 +7,7 @@
 // talk, the item and the search join with their screens (TASK-275 to TASK-277).
 import {drawParts,pageKind} from "../src/draw/page.js";
 import {clock,day} from "../src/draw/html.js";
+import {localizeLoop} from "../src/draw/loop.js";
 import {startHome} from "./home.js";
 import {startStage} from "./stage.js";
 import {markup} from "./reconcile.js";
@@ -24,22 +25,27 @@ function drawPage(payload){
 }
 // The server wrote each time in UTC; the code writes it in the browser's time zone
 // (rule 2), in the same digits, so that nothing moves: a time, or a day where only its
-// date shows, such as a checkpoint's.
-function localTimes(scope){
+// date shows, such as a checkpoint's. The loop's times say how long ago, and the mark of a
+// long wait shows, as of the browser's clock (rules 19 and 20).
+function localTimes(scope,lang){
   for(const element of scope.querySelectorAll("time[datetime]")){
     const value=element.getAttribute("datetime"),text=element.hasAttribute("data-nx-day")?day(value,true):clock(value,true);
     if(element.textContent!==text)element.textContent=text;
   }
+  localizeLoop(scope,lang);
 }
 // data-nx-code ends the wait of the bar of rule 15 (page.css): running and ready keep it
 // hidden, and failed shows it, since the page then stays as the server drew it.
 root.dataset.nxCode="running";
 try{
-  const payload=JSON.parse(document.getElementById("view-data").textContent);
+  const payload=JSON.parse(document.getElementById("view-data").textContent),localize=scope=>localTimes(scope,payload.lang);
   root.dataset.nxRedrawn=String(drawPage(payload));
-  if(pageKind(payload)==="home")startHome(document.querySelector('[data-nx-part="home"]'),payload,{localize:localTimes});
-  else startStage(payload,{localize:localTimes});
-  localTimes(document.body);
+  if(pageKind(payload)==="home")startHome(document.querySelector('[data-nx-part="home"]'),payload,{localize});
+  else startStage(payload,{localize});
+  localize(document.body);
+  // A page that comes back into view works out how long ago again (rule 19), whether or not
+  // it reads its data again.
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")localize(document.body);});
   // IBM Plex (font-display: swap) joins after the first paint, as on 0.2's views.
   const fonts=document.getElementById("nexus-font-assets");
   if(fonts){fonts.remove();requestAnimationFrame(()=>requestAnimationFrame(()=>document.head.append(fonts.content.cloneNode(true))));}

@@ -37,7 +37,7 @@ export function drawParts(payload,view={}){
   return{
     top:topBar({kind:"stage",project:data.project.name,title:data.project.title,part:data.part,stage:data.stage},lang),
     bars:codeBar(lang)+stageBars(view,lang),
-    rail:stageRail(data,lang),
+    rail:stageRail(data,lang,payload.generated_at),
     tabs:tabs({picture:Boolean(payload.picture),talk,item:Boolean(view.item),mine},lang),
     stage:PICTURE_STAGES.includes(data.stage)?drawPictureStage(payload,lang,{...view,talk,mine}):drawStage(data,lang,{...view,talk,mine}),
     side:drawSide(data,payload.problem,lang,view,payload.talk),

@@ -166,8 +166,8 @@
           "date": "2026-11-12"
         }
       ],
-      "next": "The revision's planned forms move into paths as stage 10's tasks build them: TASK-296 moved getAgentTodo and TASK-297 leaveComment and replyToComment on 2026-11-13, and six remain, with 16 planned properties and two planned codes; the guide's rows of the revision stay planned until the release (TASK-314)",
-      "updated": "2026-11-13T03:04:08+00:00"
+      "next": "The revision's planned forms move into paths as stage 10's tasks build them: on 2026-11-13 TASK-296 moved getAgentTodo, TASK-297 leaveComment and replyToComment, and TASK-298 getHome, getStage and getStageTalk, and three remain, with 8 planned properties and two planned codes; the guide's rows of the revision stay planned until the release (TASK-314)",
+      "updated": "2026-11-13T05:20:49+00:00"
     },
     "07-sitemap": {
       "state": "in_progress",
@@ -220,8 +220,8 @@
           "date": "2026-11-12"
         }
       ],
-      "next": "Build SCR-130 and the revision's rows on SCR-110 to SCR-115 as stage 10 orders them; then phase ②'s screen states, after the redesign's build and phase ②'s sitemap",
-      "updated": "2026-11-12T05:12:24+00:00"
+      "next": "Build SCR-130 and the revision's rows on SCR-110 to SCR-115 as stage 10 orders them, after TASK-298 built the loop's two times and marks on SCR-110, SCR-111 and SCR-114 on 2026-11-13; then phase ②'s screen states, after the redesign's build and phase ②'s sitemap",
+      "updated": "2026-11-13T05:20:49+00:00"
     },
     "09-mockup": {
       "state": "in_progress",
@@ -293,14 +293,14 @@
           "date": "2026-11-05"
         }
       ],
-      "next": "TASK-275 to TASK-278 and TASK-287 end group 2, and group 4 began with the revision's migration, TASK-295, the record of the agent's read, TASK-296, and the checkpoint request taken only in its form, TASK-297, on the draft pull request kodonghui/corthex-nexus#53; next TASK-298 to TASK-302, then groups 7, 3 and 8 as stage 10 orders them. The 0.2.3 release stopped before its switch",
-      "updated": "2026-11-13T03:04:08+00:00"
+      "next": "TASK-275 to TASK-278 and TASK-287 end group 2, and group 4 began with the revision's migration, TASK-295, the record of the agent's read, TASK-296, the checkpoint request taken only in its form, TASK-297, and the last push, the agent's last read and what it has not read, TASK-298, on the draft pull request kodonghui/corthex-nexus#53; next TASK-299 to TASK-302, then groups 7, 3 and 8 as stage 10 orders them. The 0.2.3 release stopped before its switch",
+      "updated": "2026-11-13T05:20:49+00:00"
     },
     "12-qa": {
       "state": "in_progress",
       "checkpoints": [],
-      "next": "The revision's 387 planned cases, TC-1408 to TC-1794: 102 pass, 6 in part and 279 not run, each to run with the task that builds its row; TC-1795 to TC-1878, the cases of TASK-276 to TASK-278, pass. BUG-604, what a stage's my turn counts, waits for the maintainer's choice, and so do the impressions of the walks of the flows and of the folds (TC-1785). The stage's own checkpoint is the release's go or no-go (D19) and has not passed; the walk of production after the release, with ego lite where it is installed, stays to do",
-      "updated": "2026-11-13T03:04:08+00:00"
+      "next": "The revision's 387 planned cases, TC-1408 to TC-1794: 136 pass, 11 in part and 240 not run, each to run with the task that builds its row; TC-1795 to TC-1878, the cases of TASK-276 to TASK-278, pass. BUG-604, what a stage's my turn counts, waits for the maintainer's choice, and so do the impressions of the walks of the flows and of the folds (TC-1785). The stage's own checkpoint is the release's go or no-go (D19) and has not passed; the walk of production after the release, with ego lite where it is installed, stays to do",
+      "updated": "2026-11-13T05:20:49+00:00"
     }
   }
 }

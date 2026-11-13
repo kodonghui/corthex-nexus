@@ -17,7 +17,7 @@ const entries=()=>[
   {id:"TBL-003",kind:"table",title:"notes",context:null,comments:1000,mine:false,discrepancies:0,reflections:0},
 ];
 function stageData({stage="05-erd",head={},items={},record={},rows}={}){
-  return{project:{name:"qa-shop",title:TITLE,repository:null,commit:null,generated_at:AT,pushed_at:"2026-11-08T08:00:00.000Z",parts:["sample"]},part:"sample",stage,
+  return{project:{name:"qa-shop",title:TITLE,repository:null,commit:null,generated_at:AT,pushed_at:"2026-11-08T08:00:00.000Z",space:true,read_at:null,unread_since:null,parts:["sample"]},part:"sample",stage,
     head:{key:stage,state:"in_progress",checkpoint:null,commit:"0123456789abcdef0123456789abcdef01234567",time:AT,reads:true,source_state:"found",counts:{items:3,kinds:[{kind:"table",count:3}],priorities:[],hotspots:null},picture:false,...head},
     record:{project:"qa-shop",part:"sample",stage,record:{state:"in_progress",checkpoints:[],next:null,from:"snapshot"},source_state:"found",read:true,checks:[],pictures:[],discrepancies:{total:0,entries:[]},comments:{total:0,entries:[]},reflections:{total:0,entries:[]},checkpoints:[],warnings:[],not_opened:0,...record},
     stages:rows??STAGE_KEYS.map(key=>({key,state:"done",items:1,picture:false,not_current:null,mine:0})),

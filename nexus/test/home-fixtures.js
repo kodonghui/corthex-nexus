@@ -1,9 +1,14 @@
 // API-151's answer (HomeData) for the first page's drawing (TASK-273): two synthetic
 // projects, my turn's four kinds of entry and the agent to-do, with a title and texts that
-// try markup and the page's data marker. Only the members that the drawing reads.
+// try markup and the page's data marker. Only the members that the drawing reads. The
+// answer comes a day after the entries, so that the loop's times say how long ago (TASK-298):
+// the agent never read qa-second, and read qa-shop before its oldest unread entry, which
+// has waited more than 24 hours.
 import {STAGE_KEYS} from "../src/draw/stages.js";
 
 export const AT="2026-11-08T08:30:00.000Z";
+export const NOW="2026-11-09T09:30:00.000Z";
+export const SHOP_READ={read_at:"2026-11-08T07:00:00.000Z",unread:4,unread_since:"2026-11-08T08:00:00.000Z"};
 export const HOME_TITLE=`<b>QA</b> "home" & '__CORTHEX_VIEW_DATA__' 합성 가게`;
 const STATES=["done","in_progress","not_started","skipped","unknown"];
 
@@ -34,11 +39,11 @@ export function homeData({entries=turnEntries(),total=73,agent,projects}={}){
   const second={name:"qa-second",title:null,repository:null,commit:null,generated_at:AT,pushed_at:"2026-11-07T09:00:00.000Z",items:0,warnings:0,
     parts:[{name:"",recorded:true,current:null,next:null,states:STAGE_KEYS.map(()=>"done")}],stages:STAGE_KEYS.map(key=>({key,items:0})),pictures:[]};
   const none={total:0,oldest:null};
-  return{generated_at:AT,my_turn:{total:entries.length?total:0,entries},
+  return{generated_at:NOW,my_turn:{total:entries.length?total:0,entries},
     agent:agent??[
-      {project:"qa-second",comments:none,discrepancies:none,reflections:none,checkpoints:none,taken:0},
+      {project:"qa-second",comments:none,discrepancies:none,reflections:none,checkpoints:none,taken:0,read_at:null,unread:0,unread_since:null},
       {project:"qa-shop",comments:{total:3,oldest:{part:"sample",stage:"05-erd",entry:"nc_9"}},discrepancies:{total:1500,oldest:{part:"sample",stage:"07-sitemap",entry:"nd_1"}},
-        reflections:none,checkpoints:{total:1,oldest:{part:"sample",stage:"12-qa",entry:"nk_1"}},taken:2},
+        reflections:none,checkpoints:{total:1,oldest:{part:"sample",stage:"12-qa",entry:"nk_1"}},taken:2,...SHOP_READ},
     ],
     // The server's order: by name.
     projects:projects??[second,shop]};

@@ -67,8 +67,12 @@ async function open(route,{ready=true}={}){
 async function settled(){await waitFor(`!document.querySelector('[data-nx-entry] button[aria-disabled="true"]')&&(document.querySelector('.home .upd')?.textContent||'')===''`);}
 async function shot(name){const image=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});await fs.writeFile(path.join(folder,name+'.png'),Buffer.from(image.data,'base64'));return name+'.png';}
 async function fullShot(name){
+ // Beyond the viewport the whole page fits, so Chrome lays it out again without its scrollbar, at the
+ // window's width; the content's width, measured beside the scrollbar, is narrower, and a clip of
+ // it would cut the page's right edge.
  const {cssContentSize}=await command('Page.getLayoutMetrics');
- const image=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:true,clip:{x:0,y:0,width:Math.ceil(cssContentSize.width),height:Math.min(6000,Math.ceil(cssContentSize.height)),scale:1}});
+ const width=Math.max(Math.ceil(cssContentSize.width),await evaluate('innerWidth'));
+ const image=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:true,clip:{x:0,y:0,width,height:Math.min(6000,Math.ceil(cssContentSize.height)),scale:1}});
  await fs.writeFile(path.join(folder,name+'.png'),Buffer.from(image.data,'base64'));return name+'.png';
 }
 async function test(name,fn){
@@ -118,7 +122,8 @@ const ids=()=>evaluate(`[...document.querySelectorAll('[data-nx-entry]')].map(e=
 const heading=()=>evaluate(`document.getElementById('mine-h')?.textContent||null`);
 const cards=()=>evaluate(`[...document.querySelectorAll('.pcard footer a')].map(a=>a.getAttribute('href').slice(3))`);
 const notice=()=>evaluate(`(()=>{const b=document.querySelector('.home > .notes .bar');return b?{tone:[...b.classList].find(c=>c!=='bar'),text:b.querySelector('.t').textContent,button:b.querySelector('button')?.textContent||null,act:b.querySelector('button')?.dataset.nxAct||null}:null;})()`);
-const todo=()=>evaluate(`Object.fromEntries([...document.querySelectorAll('.todo .pj')].map(p=>[p.querySelector('h3').textContent,Object.fromEntries([...p.querySelectorAll('a')].map(a=>[a.querySelector('span').textContent,a.querySelector('b').textContent]))]))`);
+// Each project of the agent to-do by its title, beside which "{n} not read yet" shows since TASK-298.
+const todo=()=>evaluate(`Object.fromEntries([...document.querySelectorAll('.todo .pj')].map(p=>[p.querySelector('h3 > span:first-child').textContent,Object.fromEntries([...p.querySelectorAll('a')].map(a=>[a.querySelector('span').textContent,a.querySelector('b').textContent]))]))`);
 const sideways=()=>evaluate(`({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth})`);
 async function noSideways(where){const s=await sideways();assert(s.scrollWidth<=s.width&&s.bodyWidth<=s.width,'The page scrolls sideways '+where+': '+JSON.stringify(s));return s;}
 // A control by the keyboard: the focus on it, then Enter, as a person who tabs to it does.

@@ -12,7 +12,7 @@ import {stageName} from "../src/draw/stages.js";
 import {PALETTE,DARK_FILTER} from "../src/draw/palette.js";
 import {picturePreview} from "../src/preview.js";
 import {followFragment} from "../ui/home.js";
-import {homeData,turnEntries,AT,HOME_TITLE} from "./home-fixtures.js";
+import {homeData,turnEntries,AT,NOW,SHOP_READ,HOME_TITLE} from "./home-fixtures.js";
 import {viewSnapshot} from "./view-fixtures.js";
 
 const tags=(html,pattern)=>html.match(pattern)||[];
@@ -20,6 +20,11 @@ const SITEMAP=viewSnapshot("qa-home").pictures.find(picture=>picture.stage==="07
 const section=(html,key)=>{const start=html.indexOf(`data-nx-key="${key}"`);assert.ok(start>=0,key);return html.slice(start,html.indexOf("</section>",start));};
 const entry=(html,id)=>{const start=html.indexOf(`data-nx-entry="${esc(id)}"`);assert.ok(start>=0,id);return html.slice(start,html.indexOf("</li>",start));};
 const card=(html,index)=>{const start=html.indexOf(`<article class="pcard" aria-labelledby="pc-${index}">`);assert.ok(start>=0,"card "+index);return html.slice(start,html.indexOf("</article>",start));};
+// A time of the loop as the server draws it (rule 19): the time in UTC and how long ago as of
+// the answer, each in the element that the code writes again; words holds its place.
+const loopTime=(value,ago)=>`<time datetime="${value}">${clock(value)}</time> (<span data-nx-ago="${value}">${esc(ago)}</span>)`;
+const placed=(words,value,ago)=>esc(words).replace(/\{time\}/,loopTime(value,ago));
+const longWait=(since,lang,hidden=false)=>{const [mark,meaning]=labels("The mark of a long wait",lang);return`<div class="m24w" data-nx-since="${since}"${hidden?" hidden":""}><span class="m24"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-warn"/></svg><span>${esc(mark)}</span></span><span class="m24l">${esc(meaning)}</span></div>`;};
 
 test("SCR-110#normal: my turn with each kind's answers, the agent to-do and the cards, as the server draws them",()=>{
   for(const lang of["en","ko"]){
@@ -50,16 +55,20 @@ test("SCR-110#normal: my turn with each kind's answers, the agent to-do and the 
       [["/p/qa-shop/sample/05-erd#talk=nc&#95;9",esc(words[1]),"3"],["/p/qa-shop/sample/07-sitemap#filter=left",esc(words[2]),"999+"],["/p/qa-shop/sample/12-qa",esc(words[4]),"1"]]);
     assert.equal(tags(todo,/<div class="pj">/g).length,1,"a project with nothing for the agent has no counts");
     assert.ok(todo.includes(`<span class="taken">${esc(label("Agent to-do",5,lang,{n:"2"}))}</span>`)&&todo.includes(esc(words[6])),"taken by a session; the server runs no AI (rule 18)");
+    // Under the project's name its last push and the agent's last read, with how long ago, and
+    // the mark of a long wait; beside it how many entries the agent has not read (TASK-298).
+    const days=n=>label("How long ago",3,lang,{n});
+    assert.ok(todo.includes(`<div class="pj"><h3><span>${esc(HOME_TITLE)}</span><span class="nr">${esc(label("Not read, in the agent to-do",0,lang,{n:"4"}))}</span></h3><div class="loop"><span>${placed(label("The last push",0,lang),"2026-11-08T09:00:00.000Z",days(1))}</span><span>${placed(label("The agent's last read",0,lang),SHOP_READ.read_at,days(1))}</span></div>${longWait(SHOP_READ.unread_since,lang)}<ul>`),"the loop's times and the mark in the agent to-do");
     // The cards in the server's order, by name, with the order that waits for the code.
     const projs=section(html,"projs"),order=labels("Projects",lang);
     assert.ok(projs.includes(`<h2 id="projs-h">${esc(label("Projects",0,lang,{n:"2"}))}</h2>`));
     assert.deepEqual(tags(projs,/<button [^>]*>[^<]+<\/button>/g).map(b=>[b.match(/data-nx-order="(\w+)"/)[1],b.match(/aria-pressed="(\w+)"/)[1],b.includes(' disabled data-nx-wait="order"'),b.replace(/<[^>]+>/g,"")]),[["name","true",true,esc(order[1])],["push","false",true,esc(order[2])]]);
     const second=card(html,0),shop=card(html,1);
     assert.ok(second.includes('<h3 id="pc-0">qa-second</h3>')&&!second.includes('class="now"')&&!second.includes('class="lbl"'),"one part without a name, all stages done: no current stage");
-    assert.ok(second.includes(`<p class="mu cap mono"><time datetime="${AT}">2026-11-08 08:30</time></p>`),"no commit: the time alone");
+    assert.ok(second.includes(`</header><div class="ptimes"><div class="loop"><span>${esc(label("The last push",1,lang))} · ${placed(label("The last push",0,lang),"2026-11-07T09:00:00.000Z",days(2))}</span><span>${esc(label("The agent's last read",1,lang))}</span></div></div><div class="thumbs">`),"no commit, and not read by the agent yet: the card says both, and nothing waits unread");
     assert.deepEqual(tags(second,/<a class="thumb" href="[^"]+">/g).map(a=>a.match(/href="([^"]+)"/)[1]),PICTURED.map(stage=>"/p/qa-second/&#95;/"+stage));
     assert.equal(tags(second,/<span class="pic none"><span>[^<]+<\/span><\/span>/g).length,3,"No picture yet");
-    assert.ok(shop.includes(`<h3 id="pc-1">${esc(HOME_TITLE)}</h3><span class="mu sm clip">example/qa-shop</span>`)&&shop.includes(`<p class="mu cap mono">0123456 · <time datetime="${AT}">2026-11-08 08:30</time></p>`));
+    assert.ok(shop.includes(`<h3 id="pc-1">${esc(HOME_TITLE)}</h3><span class="mu sm clip">example/qa-shop</span>`)&&shop.includes(`<div class="ptimes"><div class="loop"><span><span class="mono">0123456</span> · ${placed(label("The last push",0,lang),"2026-11-08T09:00:00.000Z",days(1))}</span><span>${placed(label("The agent's last read",0,lang),SHOP_READ.read_at,days(1))}</span></div>${longWait(SHOP_READ.unread_since,lang)}</div><div class="now">`),"the commit's first 7 characters, the last push and read, and the mark, in the place of the snapshot's commit and time");
     assert.ok(shop.includes(`<p class="np"><b>sample</b><span>${esc(label("Projects",3,lang,{stage:"02 "+stageName("02-prd",lang),state:legendWord("in_progress",lang)}))}</span><span class="mu">${esc(label("Projects",4,lang,{"next action":"Write the <PRD> again"}))}</span></p>`),"Now and Next");
     assert.ok(shop.includes(`<p class="np"><b>second</b><span class="mu">${esc(label("No progress",0,lang))}</span></p>`),"REQ-103's words for a part without records");
     const thumbs=tags(shop,/<a class="thumb" href="[^"]+">.*?<\/a>/g);

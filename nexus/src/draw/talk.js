@@ -134,6 +134,11 @@ function thread(entry,lang,state){
   const list=replies.map(row=>reply(row,lang,row.author==="agent"&&!seen.has(row.seq))).join("")+decisions.map(row=>{const link=https(row.link);return`<div class="rep dec"><span class="who">${who("agent",row.made_at,lang)}</span><p>${esc(row.text)}</p>${link?`<a class="lnk clip" href="${esc(link)}" rel="noreferrer">${esc(link)}</a>`:""}</div>`;}).join("");
   return`<div class="reps" data-nx-key="reps" id="th-${id}">${list||`<p class="mu">${esc(words("No replies",lang))}</p>`}</div>`;
 }
+// An entry of the agent's turn that the agent has not read yet says so (SPEC-189), as the server
+// works it out: one that a session took never does.
+const notRead=(row,lang)=>row?.unread&&!row.claim?.claimed_at?` <span class="nrd">${esc(label("Not read, on an entry",0,lang))}</span>`:"";
+// How a reflection stands, with the mark of SPEC-189 while it waits unread.
+const reflectionLine=(edit,lang)=>`<p class="rst" data-nx-key="rst">${icon("i-info")}<span>${esc(reflectionWords(edit,lang))}${notRead(edit,lang)}</span></p>`;
 // An opened proposal or reflection: its change, reason and stage source text in its own box
 // (SCR-108's content), and how its reflection stands.
 function change(entry,lang,state){
@@ -141,7 +146,7 @@ function change(entry,lang,state){
   if(view.state==="failed")return`<div class="tload" data-nx-key="chg">${message({tone:"err",text:version("Could not load",lang,1),trace:view.trace,retry:"reload-entry"},lang,entry.id+":load")}</div>`;
   const full=view.state==="ready"?view.data||{}:{},source=typeof full.source_text==="string"?`<pre class="stx">${esc(full.source_text)}</pre>`:skeleton;
   const edit=entry.edit||view.edit||null,commit=p.commit?`<span class="mu cap">${esc(heads[3].replace("{commit}",String(p.commit).slice(0,7)))}</span>`:"";
-  const reflected=edit?`<p class="rst" data-nx-key="rst">${icon("i-info")}<span>${esc(reflectionWords(edit,lang))}</span></p>`:"";
+  const reflected=edit?reflectionLine(edit,lang):"";
   return`<div class="chg" data-nx-key="chg"><b>${esc(heads[0])}</b><p>${esc(p.change||"")}</p><b>${esc(heads[1])}</b><p>${esc(p.reason||"")}</p><b>${esc(heads[2])}</b>${source}${commit}${view.state==="ready"?"":sr(codeMessage("Updating",lang))}</div>${reflected}`;
 }
 // An opened comment's reply box (SPEC-127): the reply, "This settles it", and Reply, or on a
@@ -157,11 +162,12 @@ function replyBox(entry,lang,state){
   const answered=closed?"":`<button class="btn sm" type="button" data-nx-key="ans" data-nx-act="answered" data-nx-focus="${id}:answered"${sending?' aria-disabled="true"':""}>${esc(sending==="answered"?codeMessage("Sending",lang):label("The talk's entries",0,lang))}</button>`;
   return`<div class="rbox" data-nx-key="rbox" data-nx-sub><div class="rnote" data-nx-key="rnote">${message(box.note,lang,entry.id+":reply")}</div><label class="lab" for="rp-${id}" data-nx-key="rlab">${esc(labels("Answers",lang)[4])}</label><textarea class="ta" id="rp-${id}" name="reply" rows="2" data-nx-key="rta" data-nx-focus="${id}:text" aria-describedby="rp-left-${id}"></textarea><p class="left" id="rp-left-${id}" data-nx-key="rleft" data-nx-live>${left}</p><div class="r2" data-nx-key="rr2" data-nx-sub><label class="chk" data-nx-key="chk"><input type="checkbox" name="settles" data-nx-focus="${id}:settles"><span>${esc(words("Settles it",lang))}</span></label><span class="sp" data-nx-key="sp"></span>${answered}<button class="btn sm pri" type="button" data-nx-key="rep" data-nx-act="reply" data-nx-focus="${id}:reply"${off}>${esc(send)}</button></div></div>`;
 }
-// The line of an entry that waits for the agent (SPEC-136): since when, or when a session took it.
-// A reflection says how it stands instead of since when (SCR-114#normal), and when a session took it.
+// The line of an entry that waits for the agent (SPEC-136): since when, with "Not read by the agent
+// yet" while it waits unread (SPEC-189), or when a session took it. A reflection says how it stands
+// instead of since when (SCR-114#normal), and when a session took it.
 function waitLine(row,since,lang){
   if(row?.claim?.claimed_at)return`<p class="wt" data-nx-key="wt">${icon("i-lock")}<span>${timed(label("Waiting",1,lang),row.claim.claimed_at)}</span></p>`;
-  return since?`<p class="wt" data-nx-key="wt">${icon("i-dot")}<span>${timed(label("Waiting",0,lang),since)}</span></p>`:"";
+  return since?`<p class="wt" data-nx-key="wt">${icon("i-dot")}<span>${timed(label("Waiting",0,lang),since)}${notRead(row,lang)}</span></p>`:"";
 }
 
 // One entry of the talk: its kind on my turn, the thing that it is on, which opens it, its author
@@ -178,7 +184,7 @@ export function drawEntry(entry,group,lang,state={},code=false,copy=false){
   let body="";
   if(open)body=c?thread(entry,lang,state):change(entry,lang,state);
   else if(c?.last_reply)body=`<div class="reps" data-nx-key="last">${reply(c.last_reply,lang,false)}</div>`;
-  else if(entry.type==="reflection")body=`<p class="rst" data-nx-key="rst">${icon("i-info")}<span>${esc(reflectionWords(entry.edit,lang))}</span></p>`;
+  else if(entry.type==="reflection")body=reflectionLine(entry.edit,lang);
   // Opened, an entry whose item the stage no longer holds says so, and selects nothing (SPEC-209).
   const gone=open&&group==="apart"&&itemsOf(entry).length?`<div data-nx-key="gone-item">${message({tone:"info",text:label("An item that the talk selects",0,lang,{id:itemsOf(entry)[0]})},lang,entry.id+":gone")}</div>`:"";
   const waits=group!=="agent"?"":c?waitLine(c,c.last_at,lang)+(c.settled?`<p class="wt" data-nx-key="settled">${icon("i-check")}<span>${esc(label("The talk's entries",1,lang))}</span></p>`:""):waitLine(entry.edit,null,lang);

@@ -551,6 +551,30 @@ export const redesign={
     "Agent to-do ({n}) · Comments that wait for the agent · Open discrepancies · Pending reflections · Checkpoints that wait for their records · {n} taken by a session · The agent reads these when its work on the project next starts. The NEXUS server runs no AI. · Nothing waits for the agent now.",
     "AI 할 일 ({n}) · AI를 기다리는 의견 · 열린 어긋남 · 반영 대기 · 기록을 기다리는 확인 지점 · 세션이 맡은 것 {n} · AI는 그 프로젝트의 다음 작업을 시작할 때 이것을 읽습니다. NEXUS 서버는 AI를 돌리지 않습니다. · 지금은 AI를 기다리는 것이 없습니다."
   ],
+  "A time of the loop": [
+    "{date} ({ago})",
+    "{date} ({ago})"
+  ],
+  "How long ago": [
+    "just now · {n} min ago · {n} h ago · {n} d ago",
+    "방금 · {n}분 전 · {n}시간 전 · {n}일 전"
+  ],
+  "The last push": [
+    "Pushed {time} · No commit",
+    "올림: {time} · 커밋 없음"
+  ],
+  "The agent's last read": [
+    "Read by the agent {time} · Not read by the agent yet · No agent to-do yet",
+    "AI가 읽음: {time} · AI가 아직 읽지 않음 · 아직 AI 할 일 없음"
+  ],
+  "The mark of a long wait": [
+    "Unread for more than 24 hours · Either no session is at work on this project, or its session cannot reach this server.",
+    "24시간 넘게 읽지 않음 · 이 프로젝트에서 일하는 세션이 없거나, 세션이 이 서버에 닿지 못하고 있습니다."
+  ],
+  "Not read, in the agent to-do": [
+    "{n} not read yet",
+    "아직 안 읽은 것 {n}"
+  ],
   "Nothing waits": [
     "Nothing waits for your answer now. · When the agent asks or proposes something, it gathers here.",
     "지금은 답을 기다리는 것이 없습니다. · AI가 묻거나 제안하면 여기에 모입니다."
@@ -638,6 +662,10 @@ export const redesign={
   "Waiting": [
     "Waiting for the agent since {time} · Taken by the agent at {time}",
     "{time}부터 AI를 기다림 · {time}에 AI가 맡음"
+  ],
+  "Not read, on an entry": [
+    "Not read by the agent yet",
+    "AI가 아직 읽지 않음"
   ],
   "The box": [
     "Comment on the stage as a whole · Leave · The agent reads this at its next work on the project. · Leave a new comment",

@@ -28,13 +28,11 @@ PLANNED_BODIES = {"PlannedNewCheckpoint"}
 # stop fitting until the release that builds those properties adds them. A change that alters this list changes
 # it here in the same commit, with the examples that it adds the members to.
 GAINING = {
-    ("API-111", "200", "erd-with-a-comment"),
     ("API-112", "200", "erd-of-nexus"),
     ("API-117", "200", "passed"),
     ("API-129", "200", "withdrawn"),
     ("API-129", "200", "already-withdrawn"),
     ("API-130", "200", "opened"),
-    ("API-157", "200", "table"),
 }
 
 

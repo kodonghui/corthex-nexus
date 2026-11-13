@@ -137,9 +137,12 @@ const backInView=()=>evaluate(`document.dispatchEvent(new Event('visibilitychang
 // What the talk shows: its head, turns, notes, groups and entries, and the box.
 function talkState(){
  const q=s=>document.querySelector(s),all=(s,root=document)=>[...root.querySelectorAll(s)],txt=e=>e?e.textContent.replace(/\s+/g,' ').trim():null;
+ // A line's own words, without the mark of what the agent has not read, which nrd lists
+ // (SPEC-189, TASK-298).
+ const bare=e=>{if(!e)return null;const c=e.cloneNode(true);c.querySelectorAll('.nrd').forEach(n=>n.remove());return txt(c);};
  const entry=li=>({id:li.dataset.nxEntry,cls:li.className,chip:txt(li.querySelector(':scope > .hd .kind')),place:txt(li.querySelector(':scope > .hd .ref')),open:li.querySelector(':scope > .hd .ref')?.getAttribute('aria-expanded')==='true',
-  acts:all(':scope > .acts > button',li).map(b=>({act:b.dataset.nxAct,text:txt(b)})),waits:all(':scope > .wt',li).map(txt),after:txt(li.querySelector(':scope > .after')),record:!!li.querySelector(':scope > .after [data-nx-act="record"]'),
-  reps:txt(li.querySelector(':scope > .reps')),change:txt(li.querySelector(':scope > .chg')),rst:txt(li.querySelector(':scope > .rst')),msgs:all(':scope .msg',li).map(m=>({tone:m.classList[1],text:txt(m.querySelector('.t')),act:m.querySelector('button')?.dataset.nxAct||null})),
+  acts:all(':scope > .acts > button',li).map(b=>({act:b.dataset.nxAct,text:txt(b)})),waits:all(':scope > .wt',li).map(bare),nrd:all(':scope > :is(.wt,.rst) .nrd',li).map(txt),after:txt(li.querySelector(':scope > .after')),record:!!li.querySelector(':scope > .after [data-nx-act="record"]'),
+  reps:txt(li.querySelector(':scope > .reps')),change:txt(li.querySelector(':scope > .chg')),rst:bare(li.querySelector(':scope > .rst')),msgs:all(':scope .msg',li).map(m=>({tone:m.classList[1],text:txt(m.querySelector('.t')),act:m.querySelector('button')?.dataset.nxAct||null})),
   box:!!li.querySelector(':scope > .rbox'),reply:li.querySelector(':scope > .rbox textarea')?.value??null});
  const active=document.activeElement,side=q('.side'),sideBox=side?.getBoundingClientRect();
  return{hash:location.hash,path:location.pathname,tab:q('.ws')?.dataset.nxTab||null,open:q('.ws')?.dataset.nxOpen||null,redrawn:document.documentElement.dataset.nxRedrawn||null,
@@ -527,7 +530,7 @@ try{
   await setting({width:1440});
   await open(page('05-erd','en'));
   let s=await state(),reflection=one(s.lists.agent,qa.edit);
-  assert(s.lists.mine.length===3&&reflection&&reflection.rst===words('Reflection needs user','en')&&!reflection.waits.length&&reflection.acts[0]?.act==='dismiss-edit','Three proposals, and the reflection with how it stands and Dismiss: '+JSON.stringify(reflection));
+  assert(s.lists.mine.length===3&&reflection&&reflection.rst===words('Reflection needs user','en')&&!reflection.nrd.length&&!reflection.waits.length&&reflection.acts[0]?.act==='dismiss-edit','Three proposals, and the reflection with how it stands and Dismiss: '+JSON.stringify(reflection));
   // Only a person's own sign-in answers a proposal: user_only keeps the entry and its answers
   // (SCR-114#permission).
   responses.push({method:'POST',pattern:new RegExp('^/api/spaces/'+project+'/proposals/'+qa.accept+'/accept$'),...problem(403,'user_only')});
@@ -548,7 +551,8 @@ try{
   await click(`li[data-nx-entry="${qa.accept}"] [data-nx-act="accept"]`);
   await posted(before,new RegExp('/proposals/'+qa.accept+'/accept$'));
   s=await state();entry=one(s.lists.mine,qa.accept);
-  assert(entry.after===label('Answered',0,'en')&&entry.rst===words('Reflection pending','en')&&s.active===qa.accept+':after','Accept, in place, with its reflection pending: '+JSON.stringify({entry,active:s.active}));
+  // The reflection it starts waits for the agent, which has not read it yet (SPEC-189, TC-1719).
+  assert(entry.after===label('Answered',0,'en')&&entry.rst===words('Reflection pending','en')&&JSON.stringify(entry.nrd)===JSON.stringify([label('Not read, on an entry',0,'en')])&&s.active===qa.accept+':after','Accept, in place, with its reflection pending and not read by the agent yet: '+JSON.stringify({entry,active:s.active}));
   await click('.side [data-nx-act="whole"]');await settled();
   before=report.posts.length;
   await click(`li[data-nx-entry="${qa.dismiss}"] [data-nx-act="dismiss"]`);

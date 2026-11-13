@@ -590,8 +590,10 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   const linkButton=target=>Boolean(target?.matches?.('a[role="button"]'));
   document.addEventListener("keydown",event=>{if(event.key===" "&&linkButton(event.target))event.preventDefault();});
   document.addEventListener("keyup",event=>{if(event.key===" "&&linkButton(event.target)){event.preventDefault();event.target.click();}});
-  // The talk reads again when the page comes back into view (SPEC-150).
-  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")talk?.readAgain();});
+  // The talk reads again when the page comes back into view (SPEC-150), and so does the stage,
+  // whose answer holds the head's last read and the mark of a long wait, so that the head
+  // follows an agent's read that the talk shows (SPEC-188, SPEC-189; SCR-111's state changes).
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){talk?.readAgain();refresh();}});
   // The back button and a link's address (rule 9).
   window.addEventListener("hashchange",()=>applyAddress().catch(()=>{}));
   window.addEventListener("popstate",()=>applyAddress().catch(()=>{}));

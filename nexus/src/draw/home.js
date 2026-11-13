@@ -10,6 +10,7 @@ import {icon,shapeIcon} from "./icons.js";
 import {label,labels,legendWord,codeMessage,notCurrentWhy,STATES} from "./words.js";
 import {STAGE_KEYS,stageName,stageNumber,stagePath} from "./stages.js";
 import {PALETTE} from "./palette.js";
+import {lastPush,lastRead,longWait,pushed as pushedAt} from "./loop.js";
 
 export const PICTURED=Object.freeze(["01-domain","05-erd","07-sitemap"]);
 const sr=text=>`<span class="sr">${esc(text)}</span>`;
@@ -97,8 +98,11 @@ function myTurn(data,view,titles,lang){
   return`<section class="sec mine" aria-labelledby="mine-h" data-nx-key="mine" data-nx-sub><div class="sech" data-nx-key="mine-head" data-nx-sub><h2 id="mine-h" data-nx-key="mine-h">${esc(label("My turn",0,lang,{n}))}</h2><span class="upd mu cap" role="status" data-nx-key="upd" data-nx-live>${view.updating?esc(codeMessage("Updating",lang)):""}</span><span class="sub" data-nx-key="mine-sub">${esc(head[1])}</span></div>${body}<p class="note" data-nx-key="mine-note">${esc(label("The turn",0,lang))}</p></section>`;
 }
 
+// The agent to-do (SCR-110): under each project's name its last push and the agent's last read
+// of it, with how long ago, the mark of a long wait, and beside the name how many entries the
+// agent has not read (rules 19 and 20, SPEC-189); then its counts.
 function agentTodo(data,titles,lang){
-  const words=labels("Agent to-do",lang);
+  const words=labels("Agent to-do",lang),base=data.generated_at,cards=new Map(data.projects.map(item=>[item.name,item]));
   let total=0;
   const projects=data.agent.map(counts=>{
     const rows=AGENT_LISTS.filter(([list])=>Number(counts[list]?.total)>0).map(([list,index])=>{
@@ -107,7 +111,9 @@ function agentTodo(data,titles,lang){
     });
     if(!rows.length)return"";
     const taken=Number(counts.taken)>0?`<span class="taken">${esc(label("Agent to-do",5,lang,{n:count(counts.taken)}))}</span>`:"";
-    return`<div class="pj"><h3>${esc(titles.get(counts.project)||counts.project)}</h3><ul>${rows.join("")}</ul>${taken}</div>`;
+    const unread=Number(counts.unread)>0?`<span class="nr">${esc(label("Not read, in the agent to-do",0,lang,{n:count(counts.unread)}))}</span>`:"";
+    const card=cards.get(counts.project),push=card?`<span>${pushedAt(card.pushed_at,base,lang)}</span>`:"";
+    return`<div class="pj"><h3><span>${esc(titles.get(counts.project)||counts.project)}</span>${unread}</h3><div class="loop">${push}<span>${lastRead(true,counts.read_at,base,lang)}</span></div>${longWait(counts.unread_since,base,lang)}<ul>${rows.join("")}</ul>${taken}</div>`;
   }).join("");
   const body=projects?`<div class="pjs">${projects}</div>`:`<p class="none">${esc(words[7])}</p>`;
   return`<section class="sec todo" aria-labelledby="todo-h" data-nx-key="todo"><div class="sech"><h2 id="todo-h">${esc(label("Agent to-do",0,lang,{n:count(total)}))}</h2></div>${body}<p class="note">${esc(words[6])}</p></section>`;
@@ -150,20 +156,24 @@ function strips(card,lang){
   }).join("");
 }
 
-function card(item,index,view,lang){
+// A project's card: in the place of the snapshot's commit and time, the last push with its
+// commit and the agent's last read of the project, or "No agent to-do yet" without a space, with
+// the mark of a long wait (rules 19 and 20). agent is the project's row of API-151's agent, if any.
+function card(item,index,view,lang,agent,base){
   const words=labels("Projects",lang),id=`pc-${index}`,title=item.title||item.name;
   const repository=item.repository?String(item.repository).replace(/^https:\/\/github\.com\//,""):"";
   const pushed=view.pushed?.[item.name];
-  const commit=[item.commit?esc(String(item.commit).slice(0,7)):"",time(item.generated_at)].filter(Boolean).join(" · ");
-  return`<article class="pcard" aria-labelledby="${id}"><header><h3 id="${id}">${esc(title)}</h3>${repository?`<span class="mu sm clip">${esc(repository)}</span>`:""}${pushed?`<span class="kind acc">${timed(words[7],pushed)}</span>`:""}</header><p class="mu cap mono">${commit}</p>${now(item,lang)}${thumbs(item,lang)}${strips(item,lang)}<footer><span>${esc(label("Projects",8,lang,{n:count(item.items)}))} · ${esc(label("Projects",9,lang,{n:count(item.warnings)}))}</span><a class="btn sm" id="${id}-open" href="${esc(path("p",item.name))}" aria-labelledby="${id}-open ${id}" data-nx-focus="open:${esc(item.name)}">${esc(words[10])}</a></footer></article>`;
+  const times=`<div class="ptimes"><div class="loop"><span>${lastPush(item.commit,item.pushed_at,base,lang)}</span><span>${lastRead(Boolean(agent),agent?.read_at,base,lang)}</span></div>${longWait(agent?.unread_since,base,lang)}</div>`;
+  return`<article class="pcard" aria-labelledby="${id}"><header><h3 id="${id}">${esc(title)}</h3>${repository?`<span class="mu sm clip">${esc(repository)}</span>`:""}${pushed?`<span class="kind acc">${timed(words[7],pushed)}</span>`:""}</header>${times}${now(item,lang)}${thumbs(item,lang)}${strips(item,lang)}<footer><span>${esc(label("Projects",8,lang,{n:count(item.items)}))} · ${esc(label("Projects",9,lang,{n:count(item.warnings)}))}</span><a class="btn sm" id="${id}-open" href="${esc(path("p",item.name))}" aria-labelledby="${id}-open ${id}" data-nx-focus="open:${esc(item.name)}">${esc(words[10])}</a></footer></article>`;
 }
 
 function projects(data,view,lang){
   const words=labels("Projects",lang),byPush=view.order==="push";
   const list=byPush?[...data.projects].sort((a,b)=>String(b.pushed_at).localeCompare(String(a.pushed_at))||a.name.localeCompare(b.name)):data.projects;
+  const agents=new Map(data.agent.map(row=>[row.project,row]));
   const wait=view.code?"":` disabled data-nx-wait="order"`;
   const order=[["name",1],["push",2]].map(([value,index])=>`<button type="button" data-nx-act="order" data-nx-order="${value}" data-nx-focus="order:${value}" aria-pressed="${(value==="push")===byPush}"${wait}>${esc(words[index])}</button>`).join("");
-  return`<section class="full projs" aria-labelledby="projs-h" data-nx-key="projs"><div class="sech flat"><h2 id="projs-h">${esc(label("Projects",0,lang,{n:count(data.projects.length)}))}</h2><span class="seg">${order}</span></div><div class="cards">${list.map((item,index)=>card(item,index,view,lang)).join("")}</div></section>`;
+  return`<section class="full projs" aria-labelledby="projs-h" data-nx-key="projs"><div class="sech flat"><h2 id="projs-h">${esc(label("Projects",0,lang,{n:count(data.projects.length)}))}</h2><span class="seg">${order}</span></div><div class="cards">${list.map((item,index)=>card(item,index,view,lang,agents.get(item.name),data.generated_at)).join("")}</div></section>`;
 }
 
 // A server without a snapshot: SCR-101#empty's words and the four steps (REQ-223).

@@ -44,15 +44,28 @@ export function commentEntry(row, replies, proposals, claims = [], session = nul
     proposals: proposals.filter((entry) => entry.comment === row.id).map((entry) => entry.id) }, claims, session, now);
 }
 
+// A comment as a list holds it. unread is whether the agent has not read it
+// (SPEC-189), which the list's statement works out; a row of closed talk does
+// not ask, and a closed comment is never unread.
 export function commentListRow(row, claims = [], session = null, now = "") {
   return withClaim({ ...comment(row), replies: row.reply_count,
     last_reply: row.last_reply_json ? reply(json(row.last_reply_json, null)) : null,
-    proposals: json(row.proposal_ids_json, []) }, claims, session, now);
+    proposals: json(row.proposal_ids_json, []), unread: Boolean(row.unread) }, claims, session, now);
 }
 
 export function editListRow(row, full = false) {
   const source = json(row.proposal_json, null);
   return { ...edit(row), proposal: source?.id ? proposal(source, full) : null };
+}
+
+// A reflection as a list holds it, with whether the agent has not read it.
+export const editListEntry = (row) => ({ ...editListRow(row), unread: Boolean(row.unread) });
+
+// A space's last read and what the agent has not read since (SPEC-188,
+// SPEC-189), from the read_at and unread_json of store.js's statements.
+export function spaceRead(row) {
+  const unread = json(row.unread_json, {});
+  return { read_at: row.read_at ?? null, unread: Number(unread.unread) || 0, unread_since: unread.since ?? null };
 }
 
 export function editEntry(row, proposals, full = false) {

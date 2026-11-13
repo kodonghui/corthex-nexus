@@ -2,9 +2,10 @@
 
 Since TASK-278 no address serves 0.2's picture view or stage overview (SPEC-154), so their suites are retired; the
 page suite opens their addresses and sees where they lead (TC-1767). The folds of the workspace's columns (TASK-287)
-run on the talk's fixture, with their own page checks. The walk of the redesign's 53 states (TASK-278)
-runs after them, one group of screens per fixture server, and the paths that browser agents walked through the flows
-(TC-1785) last. Names given as arguments run only those suites, such as `page`, `walk`, `walk:talk` or `flows`."""
+run on the talk's fixture, with their own page checks, and the loop's times and marks (TASK-298) on their own
+fixture. The walk of the redesign's 53 states (TASK-278) runs after them, one group of screens per fixture server,
+and the paths that browser agents walked through the flows (TC-1785) last. Names given as arguments run only those
+suites, such as `page`, `walk`, `walk:talk` or `flows`."""
 import json
 import os
 import shutil
@@ -41,7 +42,7 @@ def run_suite(executable, clean, script, arguments=(), timeout=180):
 
 
 FLAGS = ("NEXUS_QA_PAGES", "NEXUS_QA_HOME", "NEXUS_QA_STAGE", "NEXUS_QA_PICTURE", "NEXUS_QA_TALK", "NEXUS_QA_ITEM",
-         "NEXUS_QA_HUB_VIEWS")
+         "NEXUS_QA_HUB_VIEWS", "NEXUS_QA_LOOP")
 SUITES = (
     # The redesign's pages (TASK-272), with their own opt-in synthetic project, and 0.2's addresses (TASK-278).
     ("page", "page-regression.mjs", ("NEXUS_QA_PAGES",), ()),
@@ -61,6 +62,9 @@ SUITES = (
     # The folds of the workspace's columns (TASK-287): by width, kept, with items and addresses, on a
     # phone and without storage, by keyboard, and SCR-111#folded with the page checks, on the talk's fixture.
     ("folds", "folds-regression.mjs", ("NEXUS_QA_TALK",), ()),
+    # The loop's two times and the marks of what the agent has not read (TASK-298): on the first page and in
+    # the workspace, before and after the code runs, shown again later and after the agent's read, with its own projects.
+    ("loop", "loop-regression.mjs", ("NEXUS_QA_LOOP",), ()),
     # The walk of the 53 states (TASK-278): each group of screens on the fixture of the suites above that
     # holds its states, at its widths, in both themes and languages, with the page checks.
     ("walk:home", "walk-regression.mjs", ("NEXUS_QA_HOME",), ("home",)),
@@ -97,7 +101,7 @@ def main(names=()):
         suite = clean.copy()
         for flag in flags:
             suite[flag] = "1"
-        result = run_suite(executable, suite, script, arguments, timeout=360 if name.startswith("walk:") or name == "folds" else 180)
+        result = run_suite(executable, suite, script, arguments, timeout=360 if name.startswith("walk:") or name in ("folds", "loop") else 180)
         if result:
             return result
     return 0

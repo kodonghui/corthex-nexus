@@ -157,12 +157,27 @@ body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-f
 
 /* The agent to-do: each project's counts as links that open what they count */
 .nx .home .pj{display:grid;gap:var(--nx-space-sm);padding:var(--nx-space-md) var(--nx-space-lg);border-top:var(--nx-border-thin) solid var(--nx-color-line)}
-.nx .home .pj h3{font-size:var(--nx-font-size-small)}
+.nx .home .pj h3{display:flex;align-items:center;gap:var(--nx-space-sm);min-width:0;font-size:var(--nx-font-size-small)}
+.nx .home .pj h3 > span:first-child{min-width:0}
+.nx .home .pj h3 .nr{margin-left:auto;font-weight:var(--nx-font-weight-regular);color:var(--nx-color-muted);white-space:nowrap}
 .nx .home .pj ul{display:grid;gap:var(--nx-space-xs)}
 .nx .home .pj a{display:flex;align-items:center;justify-content:space-between;gap:var(--nx-space-md);font-size:var(--nx-font-size-small);color:var(--nx-color-text);text-decoration:none}
 .nx .home .pj a span{color:var(--nx-color-accent);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:var(--nx-border-thin)}
 .nx .home .pj a b{font-variant-numeric:tabular-nums}
 .nx .home .pj .taken{color:var(--nx-color-muted);font-size:var(--nx-font-size-caption)}
+
+/* The loop's two times (rule 19) and the mark of a long wait (rule 20), on the cards, in the
+   agent to-do and in the workspace's head: a time's digits keep their widths when the code
+   writes it again, and a line that wraps, as in the list's column, breaks before the date and
+   before how long ago, never inside them */
+.nx .loop{display:grid;min-width:0;font-size:var(--nx-font-size-small);color:var(--nx-color-muted);font-variant-numeric:tabular-nums}
+.nx .loop > span{min-width:0}
+.nx .loop :is(time,[data-nx-ago]){white-space:nowrap}
+.nx .m24w{display:grid;gap:var(--nx-space-xs);justify-items:start;min-width:0}
+.nx .m24{display:inline-flex;align-items:flex-start;gap:var(--pg-gap);padding:var(--nx-space-2xs) var(--nx-space-sm);border-radius:var(--nx-radius-pill);background:var(--nx-color-warn-bg);color:var(--nx-color-warn);font-size:var(--nx-font-size-caption);font-weight:var(--nx-font-weight-medium);line-height:var(--nx-font-line-height-tight)}
+.nx .m24 svg.i{flex:none;width:var(--pg-lg);height:var(--pg-lg);margin-top:calc(var(--nx-space-2xs) / 2)}
+.nx .m24l{font-size:var(--nx-font-size-caption);color:var(--nx-color-muted);text-wrap:pretty}
+.nx .home .pcard .ptimes{display:grid;gap:var(--pg-gap)}
 
 /* The projects' cards: two in a row, each with its pictures' small views three in a row */
 .nx .home .seg{margin-left:auto;display:inline-flex;flex:none;border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md)}
@@ -233,6 +248,9 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .rail-in{display:flex;flex-direction:column;flex:1}
 .nx .rail .proj{display:grid;gap:var(--nx-space-2xs);padding:var(--nx-space-lg) var(--nx-space-lg) var(--nx-space-md);border-bottom:var(--nx-border-thin) solid var(--nx-color-line);min-width:0}
 .nx .rail .proj b{font-size:var(--nx-font-size-title);line-height:var(--nx-font-line-height-heading)}
+.nx .rail .proj .loop,.nx .rail .proj .m24w{margin-top:var(--pg-gap)}
+/* The mark that the folded list keeps at its top (SCR-111#folded) */
+.nx .rail .fmk{display:none}
 .nx .partsw{margin-top:var(--nx-space-sm)}
 .nx .partsw summary{list-style:none;justify-content:space-between;width:100%}.nx .partsw summary::-webkit-details-marker{display:none}
 .nx .partsw ul{display:grid;margin-top:var(--nx-space-sm)} /* clear of the switch's hit area */
@@ -271,6 +289,8 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
  .nx .ws[data-nx-stages="folded"] .fold-s .f-off{display:inline}
  .nx .ws[data-nx-stages="folded"] .rail > .ftop{position:static;flex:none;display:grid;justify-items:center;padding:var(--nx-space-sm) 0;border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
  .nx .ws[data-nx-stages="folded"] .rail :is(.proj,.unrec,.key,.gname){display:none}
+ .nx .ws[data-nx-stages="folded"] .rail .fmk{flex:none;display:grid;grid-template-rows:var(--nx-size-button-small);place-items:center;padding-bottom:var(--nx-space-sm);border-bottom:var(--nx-border-thin) solid var(--nx-color-line);color:var(--nx-color-warn)}
+ .nx .ws[data-nx-stages="folded"] .rail:has(.fmk:not([hidden])) > .ftop{padding-bottom:var(--nx-space-xs);border-bottom:0}
  .nx .ws[data-nx-stages="folded"] .rail .stl{padding:var(--nx-space-xs) 0}
  /* The rail: each stage 44 pixels high, its shape over its number, its name and state in words
     for screen readers, and its count in my turn at the top right */
@@ -515,6 +535,11 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .te > .qt{padding-left:var(--nx-space-sm);border-left:var(--nx-border-strong) solid var(--nx-color-line);color:var(--nx-color-muted)}
 .nx .te > .tx,.nx .te .rep p,.nx .te .chg p{white-space:pre-wrap;text-wrap:pretty}
 .nx .te .wt,.nx .te .rst{display:flex;align-items:center;gap:var(--pg-gap);color:var(--nx-color-muted);font-size:var(--nx-font-size-caption)}
+/* "Not read by the agent yet" after the wait or how a reflection stands, on a line of its own when
+   both do not fit; the icon stays by the first line (SPEC-189) */
+.nx .te .nrd{display:inline-flex;align-items:center;height:var(--pg-count);padding:0 var(--pg-gap);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-pill);color:var(--nx-color-muted);font-weight:var(--nx-font-weight-medium);line-height:var(--nx-font-line-height-tight);white-space:nowrap;vertical-align:middle}
+.nx .te :is(.wt,.rst):has(.nrd){align-items:flex-start}
+.nx .te :is(.wt,.rst):has(.nrd) > svg.i{margin-top:var(--nx-space-2xs)}
 .nx .te > .acts{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:var(--nx-space-sm)}
 .nx .te > .after{display:grid;justify-items:start;gap:var(--nx-space-sm)}
 .nx .te .res .btn{margin-left:var(--nx-space-xs)}

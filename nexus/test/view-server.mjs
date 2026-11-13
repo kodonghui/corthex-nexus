@@ -254,11 +254,46 @@ if(process.env.NEXUS_QA_ITEM==="1"){
  await call("POST","/api/snapshots",two,"agent");
  Object.assign(itemQa,{project,part:"sample",bare:"bare",second:two.project.name,discrepancies:pushed.discrepancies});
 }
+// The loop's two times and the marks of what the agent has not read (TASK-298), in hours before
+// the fixture starts: qa-loop, pushed from abc1234 at 27, with a comment of the user's and a
+// question of the agent's at 26.5, read by the agent at 26, then the user's comment at 25, which
+// has waited unread for more than 24 hours since, a proposal accepted at 24.5, whose reflection
+// waits unread, and now the user's reply to the question and a comment that a session takes;
+// qa-loop-new, pushed at 2 and commented on at 1, never read; and qa-loop-old, which only a hub
+// of 0.1 pushed, without a space. The earlier writes run with Date set back to their time.
+// Only the loop suite opts in; /__qa/agent-read reads the agent to-do as a session would.
+const loopQa={};
+if(process.env.NEXUS_QA_LOOP==="1"){
+ const RealDate=Date,start=RealDate.now(),HOUR=3600000;
+ const at=async(hours,write)=>{const ms=start-hours*HOUR;globalThis.Date=class extends RealDate{constructor(...a){super(...(a.length?a:[ms]));}static now(){return ms;}};try{return await write();}finally{globalThis.Date=RealDate;}};
+ const shop=name=>{const snapshot=JSON.parse(JSON.stringify(viewSnapshot(name)).replaceAll("a".repeat(40),"abc1234"+"0".repeat(33)));snapshot.project.title=name==="qa-loop"?"QA loop":"QA loop new";
+  snapshot.items=[{id:"TBL-001",kind:"table",stage:"05-erd",where:"docs/qa.sql:3",title:"orders"},{id:"TBL-002",kind:"table",stage:"05-erd",where:"docs/qa.sql:9",title:"payments"}];snapshot.summary={...snapshot.summary,items:2};return snapshot;};
+ const project="qa-loop",base="/api/spaces/"+project;
+ const said=(item,text,kind="user",extra={},where=base)=>call("POST",where+"/comments",{part:"sample",stage:"05-erd",item,text,...extra},kind);
+ await at(27,()=>call("POST","/api/snapshots",shop(project),"agent"));
+ loopQa.read=(await at(26.5,()=>said("TBL-001","Synthetic comment that the agent read"))).id;
+ loopQa.question=(await at(26.5,()=>said("TBL-002","Synthetic question of the agent's that the user answers later","agent",{asks:"answer"}))).id;
+ loopQa.readAt=(await at(26,()=>call("GET",base+"/todo",undefined,"agent"))).read_at;
+ loopQa.unread=(await at(25,()=>said("TBL-001","Synthetic comment that has waited unread for more than a day"))).id;
+ const proposal=await at(24.6,()=>call("POST",base+"/proposals",{part:"sample",stage:"05-erd",items:["TBL-002"],reason:"Synthetic reflection that waits unread",change:"Describe the synthetic payment table.",source_text:"CREATE TABLE payments (id INTEGER);"},"agent"));
+ loopQa.edit=(await at(24.5,()=>call("POST",base+"/proposals/"+proposal.id+"/accept",{}))).edit.id;
+ await call("POST",base+"/comments/"+loopQa.question+"/replies",{text:"Synthetic answer of the user's, after the agent's read"});
+ loopQa.taken=(await said("TBL-002","Synthetic comment that a session took")).id;
+ await call("POST",base+"/claims/"+loopQa.taken,undefined,"agent");
+ await at(2,()=>call("POST","/api/snapshots",shop("qa-loop-new"),"agent"));
+ loopQa.fresh=(await at(1,()=>said("TBL-001","Synthetic comment that waits for a first read","user",{},"/api/spaces/qa-loop-new"))).id;
+ await at(48,()=>call("POST","/api/snapshots",{schema:"corthex-hub/0.1",generated_at:new Date().toISOString(),project:{name:"qa-loop-old",title:"QA loop old"},stages:{"02-prd":{source_state:"found",read:true,state:"in_progress",next:"Write the PRD"}},summary:{items:1},items:[{id:"REQ-001",kind:"requirement",stage:"02-prd",title:"Send an order confirmation",priority:"Must"}],checks:[]},"agent"));
+ loopQa.agentRead=(name=project)=>call("GET","/api/spaces/"+name+"/todo",undefined,"agent");
+ Object.assign(loopQa,{project,part:"sample",fresh_project:"qa-loop-new",old:"qa-loop-old",start:new RealDate(start).toISOString()});
+}
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);
  if(!/(?:^|;\s*)nexus-qa-access=none(?:;|$)/.test(incoming.headers.cookie||""))headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_ITEM==="1"?{item:itemQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{})}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_ITEM==="1"?{item:itemQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{}),...(process.env.NEXUS_QA_LOOP==="1"?{loop:loopQa}:{})}));return;}
+ // The agent's read of a loop project, qa-loop unless ?project= names qa-loop-new, as a session's
+ // start reads its agent to-do (TASK-298).
+ if(url.pathname==="/__qa/agent-read"&&incoming.method==="POST"&&loopQa.project){const name=url.searchParams.get("project")||loopQa.project;if(![loopQa.project,loopQa.fresh_project].includes(name))throw new Error("Not a loop project");const read=await loopQa.agentRead(name);outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({read_at:read.read_at}));return;}
  const pushAgain=home.pushAgain||stageQa.pushAgain;
  if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&pushAgain){const pushed=await pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
  // The agent's reply to a comment of the talk's project, as a session would send it (TASK-276).

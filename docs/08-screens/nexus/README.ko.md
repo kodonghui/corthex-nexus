@@ -427,6 +427,18 @@ SPEC-155와 SPEC-210은 대화 탭과 접힌 대화의 단추가 내 차례의 �
 - 단계의 검사: [test_screen_states.py](../../../tests/test_screen_states.py)가 통과하고, [screen_states_check.py](../../../nexus/test/screen_states_check.py)는 TASK-278 뒤와 같이 페이지 5개의 정의서 13개와 기록 5개를 읽음: 응답 223개와 코드 405개이며, 접기는 요청을 부르지 않음.
 - 저장소의 검사가 통과함: 고정한 허브로 `python -m unittest discover -s tests`(테스트 39개), `node --test nexus/test/*.test.js`(테스트 376개, Node 24), Worker의 dry-run 빌드, `git diff --check`.
 
+2026-11-13, 마지막으로 올린 때, AI가 마지막으로 읽은 때, AI가 읽지 않은 것을 보이는 TASK-298에서, SCR-110, SCR-111, SCR-114는 만든 대로 두 때와 그 표시를 말하고, 설계 수정은 회색 페이지가 그리는 행들을 남기되 어느 것을 만들었는지 진행으로 말합니다:
+
+- SCR-110의 설계 수정: 카드의 마지막으로 올린 때, 그리고 AI의 마지막 읽음과 `unread`, `unread_since`의 자료 행이 `built (TASK-298)`임. SCR-110#loading과 SCR-110#normal은 두 때, "아직 안 읽은 것 {n}", 오래 기다린다는 표시에 대해서만 `built in part (TASK-298)`임. 통째로 보이는 확인 요청과 그 통과는 TASK-301과 TASK-302를 위해, 지운 뒤의 막대는 TASK-312를 위해 `planned`로 남음.
+- SCR-111의 설계 수정: 머리의 자료 행이 `built (TASK-298)`임. SCR-111#loading은 `built (TASK-287, TASK-298)`이고, SCR-111#normal과 SCR-111#folded는 프로젝트 자료 말고는 `built in part (TASK-287, TASK-298)`임. 프로젝트 자료는 TASK-312가 만들고 띠의 표시도 그것을 열게 됨. 그때까지 띠의 표시는 화면 낭독기를 위한 말을 단 모양이고, 아무것도 하지 않음([규칙 23](#설계-수정의-화면)).
+- SCR-114의 설계 수정: `unread`의 행이 `built (TASK-298)`이고, SCR-114#normal은 `built in part (TASK-276, TASK-298)`임.
+- 진행마다 코드와, 그것을 돌린 케이스 TC-1413부터 TC-1420까지, TC-1704, TC-1710, TC-1711, TC-1719, TC-1750, 그리고 띠의 표시는 TC-1712에서 정함.
+- 위의 절들: SCR-110과 SCR-111의 자료, 상태, 경우의 수, 배치가 두 줄의 두 때, AI 할 일에서 프로젝트 이름 옆의 "아직 안 읽은 것 {n}", 표시와 그 한 줄을 적음. SCR-111의 배치에 작업 공간의 머리가 더해지고, 그 상태 변화는 작업 공간이 다시 보일 때마다 대화처럼 단계도 다시 읽어, 대화가 보이는 AI의 읽음을 머리가 따른다고 말함. SCR-114의 AI 차례가 그 표시를 적음.
+- 말: 두 때와 표시의 말 일곱 행은 [revision-words.md](revision-words.ko.md)를 떠나, 보기의 말을 만드는 [redesign-words.md](redesign-words.ko.md)로 옮김.
+- 회색 와이어프레임은 상태 행 여섯, 곧 SCR-110의 둘, SCR-111의 셋, SCR-114의 하나의 진행 때문에 다시 그림. 그 설명만 바뀌었고, 페이지는 틀 64개와 라벨 205개를 그대로 지니며 이제 1,010,481바이트임. [measure.mjs](../../../tools/grey_pages/measure.mjs)는 16번 돌리고 틀을 128번 재어 문제를 찾지 못함.
+- 단계의 검사: [test_screen_states.py](../../../tests/test_screen_states.py)가 통과하고, [screen_states_check.py](../../../nexus/test/screen_states_check.py)는 페이지 5개의 정의서 13개와 기록 5개를 읽음: 응답 194개와 코드 351개. TASK-287 뒤에는 응답 223개와 코드 405개였는데, TASK-297과 함께 API-118과 API-119의, TASK-298과 함께 API-151, API-152, API-158의 계획한 꼴이 `components.pathItems`를 떠나 `paths`로 들어가, 응답마다 한 번만 읽히기 때문임.
+- 저장소의 검사가 통과함: 고정한 허브로 `python -m unittest discover -s tests`(테스트 40개), `node --test nexus/test/*.test.js`(테스트 412개, Node 24), Worker의 dry-run 빌드, `git diff --check`.
+
 ## 확인할 것
 
 2026-11-11의 설계 수정은 2026-11-12에 관리자 자신의 말로 확인 지점을 통과했습니다([검토 지도](../../reviews/2026-11-11-design-review.ko.md)). 이 단계가 거기에 내는 것을, 관리자에게 달라지는 일 하나에 한 줄씩 적습니다:

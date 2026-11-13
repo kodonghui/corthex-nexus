@@ -106,6 +106,18 @@ await call("POST","/api/spaces/corthex/checkpoints",{part:"nexus",stage:"02-prd"
 const agentRead=await call("GET","/api/spaces/corthex/todo"),userRead=await call("GET","/api/spaces/corthex/todo",undefined,"user");
 if(!agentRead.read_at||userRead.read_at!==null||!agentRead.comments.total||!agentRead.reflections.total||agentRead.checkpoints.total<2)throw new Error("an answer to API-113 lacks what its case needs");
 cases.push({name:"agent to-do read by the agent",schema:"Todo",value:agentRead},{name:"agent to-do read by the user",schema:"Todo",value:userRead});
+// The agent's last read and what it has not read since (TASK-298, SPEC-188,
+// SPEC-189): the user's comment after the read waits for the agent, not read
+// yet, in the first page's counts, the stage's head and the talk, where the
+// claimed question shows as taken without the mark.
+const unreadComment=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic: written after the read"},"user");
+const homeRead=await call("GET","/api/home"),stageRead=await call("GET","/api/spaces/corthex/stages/nexus/05-erd"),talkRead=await call("GET","/api/spaces/corthex/talk/nexus/05-erd");
+if(homeRead.agent[0].read_at!==agentRead.read_at||!homeRead.agent[0].unread||!(homeRead.agent[0].unread_since>=agentRead.read_at)
+  ||stageRead.project.read_at!==agentRead.read_at||stageRead.project.unread_since!==homeRead.agent[0].unread_since
+  ||!talkRead.agent.entries.some((entry)=>entry.id===unreadComment.id&&entry.unread)||!talkRead.agent.entries.some((entry)=>entry.claim&&!entry.unread))
+  throw new Error("the agent's last read lacks what its case needs");
+cases.push({name:"/api/home after the agent's read",schema:"Home",value:homeRead},{name:"stage after the agent's read",schema:"StageData",value:stageRead},
+  {name:"talk with an entry that the agent has not read",schema:"StageTalk",value:talkRead});
 // Checkpoint requests in their form (TASK-297, SPEC-197): the request that
 // names an item of the stored snapshot, one that names an https address on
 // another part's stage, and the agent's reply that asks again on the first

@@ -3,7 +3,7 @@
 // from the rows that store.js reads. Nothing here reads the database or the
 // request.
 import { STAGES } from "./preflight.js";
-import { stageRecord } from "./entries.js";
+import { spaceRead, stageRecord } from "./entries.js";
 import { pictureLayout } from "./layout.js";
 import { cut, partsOf, repositoryOf } from "./stage-items.js";
 
@@ -44,10 +44,12 @@ function turnEntry(row) {
     at: row.at, asks: row.asks ?? null };
 }
 
+// A space's agent to-do in counts, with the agent's last read and what it has
+// not read yet (SPEC-188, SPEC-189).
 function agentCounts(row) {
   const count = (list) => ({ total: row[list], oldest: row[list + "_oldest"] === null ? null : parse(row[list + "_oldest"]) });
   return { project: row.project, comments: count("comments"), discrepancies: count("discrepancies"),
-    reflections: count("reflections"), checkpoints: count("checkpoints"), taken: row.taken };
+    reflections: count("reflections"), checkpoints: count("checkpoints"), taken: row.taken, ...spaceRead(row) };
 }
 
 // The settings' parts, or the project as a whole; a phase 1 snapshot keeps

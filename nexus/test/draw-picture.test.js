@@ -23,7 +23,7 @@ const code=Object.fromEntries(metadata.files.map(f=>[f.name,{type:f.type,body:re
 const SOURCES=Object.fromEntries(viewSnapshot().pictures.map(picture=>[picture.stage,picture.source]));
 const where={path:"docs/qa-sample.md",line:1};
 function stageData(stage){
-  return{project:{name:"qa-shop",title:`<b>QA</b> "picture" & '__CORTHEX_VIEW_DATA__'`,repository:null,commit:null,generated_at:AT,pushed_at:"2026-11-08T08:00:00.000Z",parts:["sample"]},part:"sample",stage,
+  return{project:{name:"qa-shop",title:`<b>QA</b> "picture" & '__CORTHEX_VIEW_DATA__'`,repository:null,commit:null,generated_at:AT,pushed_at:"2026-11-08T08:00:00.000Z",space:true,read_at:null,unread_since:null,parts:["sample"]},part:"sample",stage,
     head:{key:stage,state:"in_progress",checkpoint:null,commit:"0123456789abcdef0123456789abcdef01234567",time:AT,reads:true,source_state:"found",counts:{items:2,kinds:[{kind:"table",count:2}],priorities:[],hotspots:null},picture:true},
     record:{project:"qa-shop",part:"sample",stage,record:{state:"in_progress",checkpoints:[],next:null,from:"snapshot"},source_state:"found",read:true,checks:[],pictures:[],discrepancies:{total:0,entries:[]},comments:{total:0,entries:[]},reflections:{total:0,entries:[]},checkpoints:[],warnings:[],not_opened:0},
     stages:STAGE_KEYS.map(key=>({key,state:"done",items:1,picture:["01-domain","05-erd","07-sitemap"].includes(key),not_current:null,mine:0})),

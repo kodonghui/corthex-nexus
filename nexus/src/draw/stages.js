@@ -5,6 +5,7 @@
 import {esc,path,count} from "./html.js";
 import {icon,shapeIcon} from "./icons.js";
 import {label,legendWord,STATES} from "./words.js";
+import {lastPush,lastRead,longWait,longWaitShape} from "./loop.js";
 export const STAGE_KEYS=Object.freeze(["01-domain","02-prd","03-user-flow","04-functional-spec","05-erd","06-api","07-sitemap","08-screen-states","09-mockup","10-wbs","11-development","12-qa","13-presentation"]);
 // Discovery (01), Definition (02 to 04), Contracts (05 and 06), Screens (07 to 09),
 // Building (10 to 12) and Presentation (13): the index of each stage's group.
@@ -35,10 +36,14 @@ function parts(data,lang){
   const name=part=>part||"_";
   return `<details class="partsw"><summary class="btn sm">${esc(name(data.part))}${icon("i-down")}</summary><ul>${list.map(part=>`<li><a class="lnk" href="${esc(stagePath(data.project.name,part,data.stage))}"${part===data.part?' aria-current="page"':""}>${esc(name(part))}</a></li>`).join("")}</ul></details>`;
 }
-// The inside of the list of stages; data is the answer of API-158 (StageData).
-export function stageRail(data,lang){
+// The inside of the list of stages; data is the answer of API-158 (StageData). The workspace's
+// head, under the project's name and repository: the last push with its commit and the agent's
+// last read, each with how long ago as of base, the time of the page's data, and the mark of a
+// long wait (rules 19 and 20), which the folded list keeps at its top (SCR-111#folded).
+export function stageRail(data,lang,base){
   const project=data.project,rows=STAGE_KEYS.map(key=>data.stages.find(stage=>stage.key===key)||{key,state:"unknown",items:0,picture:false,mine:0});
-  const head=`<div class="proj"><b id="rail-name">${esc(project.title||project.name)}</b>${project.repository?`<span class="mu sm clip">${esc(String(project.repository).replace(/^https:\/\/github\.com\//,""))}</span>`:""}${project.commit?`<span class="mu cap mono">${esc(String(project.commit).slice(0,7))}</span>`:""}${parts(data,lang)}</div>`;
+  const loop=`<div class="loop"><span>${lastPush(project.commit,project.pushed_at,base,lang)}</span><span>${lastRead(project.space,project.read_at,base,lang)}</span></div>${longWait(project.unread_since,base,lang)}`;
+  const head=`${longWaitShape(project.unread_since,base,lang)}<div class="proj"><b id="rail-name">${esc(project.title||project.name)}</b>${project.repository?`<span class="mu sm clip">${esc(String(project.repository).replace(/^https:\/\/github\.com\//,""))}</span>`:""}${loop}${parts(data,lang)}</div>`;
   let group=-1,list="";
   rows.forEach((stage,index)=>{
     if(GROUP_OF[index]!==group){if(group>=0)list+="</ul></li>";group=GROUP_OF[index];list+=`<li class="grp"><span class="gname" id="grp-${group}">${esc(label("Stage groups",group,lang))}</span><ul aria-labelledby="grp-${group}">`;}

@@ -214,14 +214,19 @@ test("API-151 counts each space's agent to-do by list, with the place of its old
   const home = (await call("GET", "/api/home")).data;
   // Each push opened one discrepancy as well: corthex's board names an
   // aggregate without a table, and the shop's a read model without a screen.
-  const shopDiscrepancy = db.prepare("SELECT id FROM discrepancies WHERE project='qa-shop'").get().id;
+  const shopDiscrepancy = db.prepare("SELECT id, opened_at FROM discrepancies WHERE project='qa-shop'").get();
+  // Neither space was read (SPEC-189): every entry that waits for the agent and
+  // that no session holds is not read yet, here two comments, three
+  // discrepancies and the checkpoint, since the oldest discrepancy opened.
   assert.deepEqual(home.agent, [
     { project: "corthex", comments: { total: 3, oldest: { part: "memory", stage: "02-prd", entry: ids.oldest } },
       discrepancies: { total: 3, oldest: { part: "memory", stage: "07-sitemap", entry: "nd_bbbbbbbbbbbb" } },
       reflections: { total: 1, oldest: { part: "nexus", stage: "05-erd", entry: edit } },
-      checkpoints: { total: 1, oldest: { part: "nexus", stage: "05-erd", entry: checkpoint } }, taken: 2 },
-    { project: "qa-shop", comments: { total: 0, oldest: null }, discrepancies: { total: 1, oldest: { part: "sample", stage: "07-sitemap", entry: shopDiscrepancy } },
-      reflections: { total: 0, oldest: null }, checkpoints: { total: 0, oldest: null }, taken: 0 },
+      checkpoints: { total: 1, oldest: { part: "nexus", stage: "05-erd", entry: checkpoint } }, taken: 2,
+      read_at: null, unread: 6, unread_since: "2026-11-03T01:00:00.000Z" },
+    { project: "qa-shop", comments: { total: 0, oldest: null }, discrepancies: { total: 1, oldest: { part: "sample", stage: "07-sitemap", entry: shopDiscrepancy.id } },
+      reflections: { total: 0, oldest: null }, checkpoints: { total: 0, oldest: null }, taken: 0,
+      read_at: null, unread: 1, unread_since: shopDiscrepancy.opened_at },
   ]);
   // The counts are the lists of API-113 read without a session.
   const todo = (await call("GET", "/api/spaces/corthex/todo", { session: null })).data;

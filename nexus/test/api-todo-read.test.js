@@ -1,8 +1,9 @@
 // API-113 getAgentTodo with the agent's read recorded (TASK-296, SPEC-187):
 // SPEC-187's criteria (TC-1408 to TC-1412), each response of API-113 (TC-1504
 // to TC-1512), the reads under each sign-in on the standalone server (TC-1748)
-// and a read while a comment is written (TC-1749). Synthetic projects only;
-// the Access keys are generated here and every database is in memory.
+// and a read while a comment is written, with the talk's mark of TASK-298
+// (TC-1749). Synthetic projects only; the Access keys are generated here and
+// every database is in memory.
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -357,6 +358,12 @@ test("TC-1749: a comment and a read of the agent to-do sent at once, 200 times, 
     assert.ok(listed || comment.data.last_at >= read.data.read_at,
       `run ${run}: the comment is in the read's lists or counts as not yet read (${comment.data.last_at}, ${read.data.read_at})`);
     seen[listed ? "listed" : "later"]++;
+    // The talk marks it as not yet read exactly when it waits since the read
+    // or later (TASK-298, SPEC-189): always when the read's lists do not hold it.
+    const talk = (await call("GET", "/api/spaces/acme/talk/sample/05-erd")).data;
+    const entry = [...talk.agent.entries, ...talk.apart.entries].find((row) => row.id === comment.data.id);
+    assert.equal(entry.unread, comment.data.last_at >= read.data.read_at, `run ${run}: the talk's mark follows the two times`);
+    if (!listed) assert.equal(entry.unread, true, `run ${run}: a comment that the read did not list is not read yet`);
     // The agent answers it, so that the agent's list stays under its 50 entries.
     assert.equal((await call("POST", `/api/spaces/acme/comments/${comment.data.id}/answered`, { session: "s-1" })).status, 200);
   }

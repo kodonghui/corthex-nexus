@@ -1769,16 +1769,29 @@ paths:
     get:
       operationId: getHome
       tags: [Workspace]
-      summary: The first page's data
+      summary: The first page's data, with the agent's last reads
       description: >-
         What the first page shows, in one read: my turn across every project space, up to 50
         entries with their total, in SPEC-143's order; the agent to-do's counts for each project
         with a space, each with the place of its oldest entry, and how many a session has taken;
         and a card for each stored snapshot, by name, with the order of the last push as the
-        page's other choice. A server without snapshots answers with no card.
+        page's other choice. A server without snapshots answers with no card. Each project's entry
+        of agent names read_at, when the agent last read its agent to-do with the service token,
+        null before the first read (SPEC-187, SPEC-188); unread, how many entries of its four
+        lists the agent has not read yet, those that no claim holds and that wait since read_at or
+        later, or every one that no claim holds while read_at is null (SPEC-189); and
+        unread_since, the oldest time since which one of those waits, null when unread is 0, from
+        which the page tells a wait of more than 24 hours. A card holds pushed_at, when the server
+        stored the snapshot, and commit, which the page shows as the last push; a card whose
+        project has no entry in agent is of a project without a space, which has no agent to-do
+        yet. Under D17 of stage 02, decided on 2026-11-12, each card is to name the snapshot's
+        revision, and an entry of my turn that is a checkpoint request in form is to hold request,
+        the request whole, so that the entry may offer the pass as its second action, with
+        passCheckpoint (SPEC-196); request is null for any other entry. Both members stay planned
+        until the pass that names them is built.
       x-corthex:
         id: API-151
-        spec: [SPEC-113, SPEC-143, SPEC-144, SPEC-145]
+        spec: [SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-188, SPEC-189, SPEC-196]
         status: active
         omit:
           "400": the request has no input
@@ -1795,7 +1808,7 @@ paths:
                 waiting: {$ref: "#/components/examples/home"}
                 empty-server:
                   summary: No snapshot on the server
-                  value: {generated_at: "2026-11-08T08:30:00.000Z", my_turn: {total: 0, entries: []}, agent: [], projects: []}
+                  value: {generated_at: "2026-11-11T08:30:00.000Z", my_turn: {total: 0, entries: []}, agent: [], projects: []}
         "403": {$ref: "#/components/responses/ReadRefused"}
         default: {$ref: "#/components/responses/Unexpected"}
 
@@ -1854,7 +1867,7 @@ paths:
     get:
       operationId: getStage
       tags: [Workspace]
-      summary: One part's stage, with its head, record and items
+      summary: One part's stage, with the project's last push and the agent's last read
       description: >-
         What the workspace shows of a part's stage (SPEC-146 to SPEC-148): the stage's head, with
         whether the project reads it and why not; its record as getStageOverview gives it; the
@@ -1864,9 +1877,20 @@ paths:
         filter and the words q and ordered by group, each with its context and its marks for the
         part. A project without a space, pushed only by a hub of 0.1, has no talk, so its marks
         and the counts of my turn are 0, as its stage overview has only the record and the checks.
+        project names space, whether the project has a space; read_at, when the agent last read
+        its agent to-do, null before the first read and for a project without a space; and
+        unread_since, as getHome gives it, for the head of the workspace (SPEC-188); with
+        pushed_at and commit, which the head shows as the last push. Under D17 of stage 02,
+        decided on 2026-11-12, project is also to name the snapshot's revision, which a pass names
+        where the snapshot names no commit (SPEC-194), and the record's checkpoints passed in
+        NEXUS are to hold what was seen and the kind of browser and device (SPEC-194, SPEC-195):
+        those members stay planned until the pass that names them is built. The stage's record
+        shows the stage's open checkpoint request whole above the pass (SPEC-139): the page takes
+        it from the talk's my turn (getStageTalk), the open comment on the stage as a whole whose
+        asks is checkpoint, with its last entry's text and look_first.
       x-corthex:
         id: API-158
-        spec: [SPEC-113, SPEC-146, SPEC-147, SPEC-148]
+        spec: [SPEC-113, SPEC-139, SPEC-146, SPEC-147, SPEC-148, SPEC-188, SPEC-194, SPEC-195]
         status: active
         omit:
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
@@ -1878,7 +1902,7 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/StageData"}
               examples:
-                prd-by-context: {$ref: "#/components/examples/stage_data"}
+                spec-with-a-request: {$ref: "#/components/examples/stage_data"}
         "400": {$ref: "#/components/responses/InvalidQuery"}
         "403": {$ref: "#/components/responses/ReadRefused"}
         "404": {$ref: "#/components/responses/OverviewNotFound"}
@@ -1895,7 +1919,7 @@ paths:
     get:
       operationId: getStageTalk
       tags: [Discussion]
-      summary: One part's stage talk, by turn
+      summary: One part's stage talk, by turn, with what the agent has not read
       description: >-
         The talk of a part's stage (SPEC-150): my turn, the open proposals and the open comments
         that wait for the user, in SPEC-143's order; the agent's turn, the open comments that wait
@@ -1904,10 +1928,19 @@ paths:
         count of the closed comments and proposals, and with closed 1 those, newest first, 50 at a
         time after the first after; and the stage's pending reflections. item narrows every list
         to the entries on that item (REQ-230). The view reads a comment's replies with getComment
-        and a proposal's stage source text with getProposal.
+        and a proposal's stage source text with getProposal. Each comment and each pending
+        reflection names unread, whether the agent has not read it yet (SPEC-189): true while it
+        waits for the agent, no claim holds it, and the time since which it waits, a comment's
+        last_at or a reflection's made_at, is at or after the space's last read, or the space was
+        never read. A claimed entry shows as taken, without the mark; an entry that waits for the
+        user or is closed is never unread, and neither is a reflection in review or one that needs
+        the user. Each comment and reply names look_first, so that the talk and the stage's record
+        show a checkpoint request whole (SPEC-197, SPEC-139). The marks come with the read; the
+        page does not update them by itself. The item's talk of getItem, the picture's and the
+        stage overview's lists and the pages' data hold the same fields.
       x-corthex:
         id: API-152
-        spec: [SPEC-113, SPEC-136, SPEC-150]
+        spec: [SPEC-113, SPEC-136, SPEC-150, SPEC-189, SPEC-197]
         status: active
         omit:
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
@@ -2993,7 +3026,7 @@ components:
         comments:
           total: 1
           entries:
-            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Use the glossary's word for this table.", state: open, closed_as: null, waits: user, asks: null, settled: false, dismissed: false, made_at: "2026-11-03T06:00:00.000Z", last_at: "2026-11-03T06:40:00.000Z", look_first: null, replies: 0, last_reply: null, proposals: [np_2b5e8g1j4m7p]}
+            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Use the glossary's word for this table.", state: open, closed_as: null, waits: user, asks: null, settled: false, dismissed: false, made_at: "2026-11-03T06:00:00.000Z", last_at: "2026-11-03T06:40:00.000Z", look_first: null, replies: 0, last_reply: null, proposals: [np_2b5e8g1j4m7p], unread: false}
         closed_comments: {total: 0, entries: []}
         proposals:
           - {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The comment asks for the glossary's word.", change: "Rename the table claims to entry_claims.", source_text_chars: 27, comment: nc_8k1n4q7s0v3y, discrepancy: null, state: open, made_at: "2026-11-03T06:40:00.000Z", closed_at: null, edit: null}
@@ -3234,15 +3267,29 @@ components:
         reflections: []
         discrepancies: []
     home:
-      summary: A checkpoint, a proposal and a question wait for the user in one project
+      summary: A checkpoint request shown whole and a question, with the agent's last read and what it has not read
       value:
-        generated_at: "2026-11-08T08:30:00.000Z"
+        generated_at: "2026-11-11T08:30:00.000Z"
         my_turn:
-          total: 3
+          total: 2
           entries:
-            - {kind: comment, id: nc_7d1g4k8n2q5t, project: corthex, part: nexus, stage: 04-functional-spec, item: "", title: null, quote: null, text: "The rows of stage 04 are drafted. The recommendation is to pass its checkpoint with the rows as drafted.", at: "2026-11-08T07:10:00.000Z", asks: checkpoint}
-            - {kind: proposal, id: np_2b5e8g1j4m7p, project: corthex, part: nexus, stage: 05-erd, item: TBL-111, title: claims, quote: null, text: "Rename the table claims to entry_claims.", at: "2026-11-08T06:40:00.000Z", asks: null}
-            - {kind: comment, id: nc_9m2p5s8v1y4b, project: corthex, part: nexus, stage: 02-prd, item: REQ-107, title: "Before the first push of a project, the hub skill shall have the agent ask the user.", quote: null, text: "Should the agent also ask before a push of a project that was removed and is pushed again?", at: "2026-11-08T07:40:00.000Z", asks: answer}
+            - kind: comment
+              id: nc_7d1g4k8n2q5t
+              project: corthex
+              part: nexus
+              stage: 04-functional-spec
+              item: ""
+              title: null
+              quote: null
+              text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself."
+              at: "2026-11-11T07:10:00.000Z"
+              asks: checkpoint
+              request:
+                entry: 0
+                text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself."
+                look_first: {item: SPEC-139, url: null, stage: 04-functional-spec, held: true, title: Pass a checkpoint in NEXUS}
+                left: {discrepancies: 0, comments: 1, reflections: 0}
+            - {kind: comment, id: nc_9m2p5s8v1y4b, project: corthex, part: nexus, stage: 02-prd, item: REQ-107, title: "Before the first push of a project, the hub skill shall have the agent ask the user.", quote: null, text: "Should the agent also ask before a push of a project that was removed and is pushed again?", at: "2026-11-11T07:40:00.000Z", asks: answer, request: null}
         agent:
           - project: corthex
             comments: {total: 2, oldest: {part: nexus, stage: 01-domain, entry: nc_3a6d9g2j5m8r}}
@@ -3250,59 +3297,61 @@ components:
             reflections: {total: 0, oldest: null}
             checkpoints: {total: 0, oldest: null}
             taken: 1
+            read_at: "2026-11-10T01:00:00.000Z"
+            unread: 1
+            unread_since: "2026-11-10T02:14:09.120Z"
         projects:
           - name: corthex
             title: CORTHEX
             repository: "https://github.com/kodonghui/corthex"
             commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
-            generated_at: "2026-11-08T16:20:00+09:00"
-            pushed_at: "2026-11-08T07:20:03.410Z"
-            items: 1260
-            warnings: 630
+            revision: 31
+            generated_at: "2026-11-11T16:20:00+09:00"
+            pushed_at: "2026-11-11T07:20:03.410Z"
+            items: 1406
+            warnings: 601
             parts:
-              - {name: nexus, recorded: true, current: 10-wbs, next: "Build the redesign's screens, TASK-265 to TASK-278", states: [done, done, done, done, done, done, done, done, done, in_progress, in_progress, not_started, not_started]}
+              - {name: nexus, recorded: true, current: 04-functional-spec, next: "Stage 04 waits for its checkpoint", states: [done, done, done, in_progress, not_started, not_started, not_started, not_started, not_started, not_started, not_started, not_started, not_started]}
             stages:
-              - {key: 01-domain, items: 160}
-              - {key: 02-prd, items: 270}
-              - {key: 03-user-flow, items: 26}
-              - {key: 04-functional-spec, items: 186}
+              - {key: 01-domain, items: 165}
+              - {key: 02-prd, items: 296}
+              - {key: 03-user-flow, items: 27}
+              - {key: 04-functional-spec, items: 210}
               - {key: 05-erd, items: 25}
-              - {key: 06-api, items: 176}
+              - {key: 06-api, items: 179}
               - {key: 07-sitemap, items: 30}
               - {key: 08-screen-states, items: 0}
               - {key: 09-mockup, items: 0}
               - {key: 10-wbs, items: 278}
               - {key: 11-development, items: 0}
-              - {key: 12-qa, items: 109}
+              - {key: 12-qa, items: 196}
               - {key: 13-presentation, items: 0}
             pictures:
-              - {part: nexus, stage: 01-domain, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, committed_at: "2026-11-08T16:01:00+09:00", not_current: null, comments: 1, drawing: {bounds: [0, 0, 1240, 520], boxes: [[context, 0, 0, 600, 520], [event, 40, 80, 160, 96], [command, 240, 80, 160, 96], [context, 640, 0, 600, 520], [aggregate, 680, 80, 160, 96]], lines: [[200, 128, 240, 128], [400, 128, 680, 128]]}}
-              - {part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, committed_at: "2026-11-08T16:01:00+09:00", not_current: null, comments: 1, drawing: {bounds: [0, 0, 880, 400], boxes: [[table, 0, 0, 280, 240], [table, 600, 0, 280, 400]], lines: [[280, 120, 600, 120]]}}
-              - {part: nexus, stage: 07-sitemap, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, committed_at: "2026-11-08T16:01:00+09:00", not_current: size, comments: 0, drawing: null}
+              - {part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, committed_at: "2026-11-11T16:01:00+09:00", not_current: null, comments: 1, drawing: {bounds: [0, 0, 880, 400], boxes: [[table, 0, 0, 280, 240], [table, 600, 0, 280, 400]], lines: [[280, 120, 600, 120]]}}
     search_answer:
       summary: An ID that one project holds
       value: {q: REQ-107, total: 1, matches: [{project: corthex, part: nexus, stage: 02-prd, id: REQ-107, title: "Before the first push of a project, the hub skill shall have the agent ask the user."}]}
     stage_data:
-      summary: Stage 02 of nexus by context, shortened to two items and one group
+      summary: Stage 04 of nexus while its checkpoint request is open, shortened to one item
       value:
-        project: {name: corthex, title: CORTHEX, repository: "https://github.com/kodonghui/corthex", commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, generated_at: "2026-11-08T16:20:00+09:00", pushed_at: "2026-11-08T07:20:03.410Z", parts: [nexus]}
+        project: {name: corthex, title: CORTHEX, repository: "https://github.com/kodonghui/corthex", commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, revision: 31, generated_at: "2026-11-11T16:20:00+09:00", pushed_at: "2026-11-11T07:20:03.410Z", space: true, read_at: "2026-11-10T01:00:00.000Z", unread_since: "2026-11-10T02:14:09.120Z", parts: [nexus]}
         part: nexus
-        stage: 02-prd
+        stage: 04-functional-spec
         head:
-          key: 02-prd
-          state: done
-          checkpoint: {approved: "The requirements as drafted, with the three points as recommended", by: the maintainer, date: "2026-11-07"}
+          key: 04-functional-spec
+          state: in_progress
+          checkpoint: null
           commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
-          time: "2026-11-08T16:20:00+09:00"
+          time: "2026-11-11T16:20:00+09:00"
           reads: true
           source_state: found
-          counts: {items: 270, kinds: [{kind: requirement, count: 270}], priorities: [{priority: Must, count: 151}, {priority: Should, count: 98}, {priority: Could, count: 21}], hotspots: null}
+          counts: {items: 210, kinds: [{kind: spec, count: 210}], priorities: [], hotspots: null}
           picture: false
         record:
           project: corthex
           part: nexus
-          stage: 02-prd
-          record: {state: done, checkpoints: [{approved: "The requirements as drafted, with the three points as recommended", by: the maintainer, date: "2026-11-07"}], next: "", updated: "2026-11-07T23:27:00+09:00", from: repository}
+          stage: 04-functional-spec
+          record: {state: in_progress, checkpoints: [], next: "Stage 04 waits for its checkpoint", updated: "2026-11-11T16:05:00+09:00", from: repository}
           source_state: found
           read: true
           checks: []
@@ -3311,59 +3360,55 @@ components:
           comments:
             total: 1
             entries:
-              - {id: nc_9m2p5s8v1y4b, part: nexus, stage: 02-prd, item: REQ-107, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: agent, text: "Should the agent also ask before a push of a project that was removed and is pushed again?", state: open, closed_as: null, waits: user, asks: answer, settled: false, dismissed: false, made_at: "2026-11-08T07:40:00.000Z", last_at: "2026-11-08T07:40:00.000Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: null}
+              - {id: nc_7d1g4k8n2q5t, part: nexus, stage: 04-functional-spec, item: "", quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: agent, text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself.", state: open, closed_as: null, waits: user, asks: checkpoint, settled: false, dismissed: false, made_at: "2026-11-11T07:10:00.000Z", last_at: "2026-11-11T07:10:00.000Z", look_first: SPEC-139, replies: 0, last_reply: null, proposals: [], claim: null, unread: false}
           reflections: {total: 0, entries: []}
           checkpoints: []
           warnings: []
           not_opened: 0
         stages:
-          - {key: 01-domain, state: done, items: 160, picture: true, not_current: null, mine: 0}
-          - {key: 02-prd, state: done, items: 270, picture: false, not_current: null, mine: 1}
-          - {key: 03-user-flow, state: done, items: 26, picture: false, not_current: null, mine: 0}
-          - {key: 04-functional-spec, state: done, items: 186, picture: false, not_current: null, mine: 1}
-          - {key: 05-erd, state: done, items: 25, picture: true, not_current: null, mine: 1}
-          - {key: 06-api, state: done, items: 176, picture: false, not_current: null, mine: 0}
-          - {key: 07-sitemap, state: done, items: 30, picture: true, not_current: size, mine: 0}
-          - {key: 08-screen-states, state: done, items: 0, picture: false, not_current: null, mine: 0}
-          - {key: 09-mockup, state: done, items: 0, picture: false, not_current: null, mine: 0}
-          - {key: 10-wbs, state: in_progress, items: 278, picture: false, not_current: null, mine: 0}
-          - {key: 11-development, state: in_progress, items: 0, picture: false, not_current: null, mine: 0}
-          - {key: 12-qa, state: not_started, items: 109, picture: false, not_current: null, mine: 0}
+          - {key: 01-domain, state: done, items: 165, picture: true, not_current: null, mine: 0}
+          - {key: 02-prd, state: done, items: 296, picture: false, not_current: null, mine: 1}
+          - {key: 03-user-flow, state: done, items: 27, picture: false, not_current: null, mine: 0}
+          - {key: 04-functional-spec, state: in_progress, items: 210, picture: false, not_current: null, mine: 1}
+          - {key: 05-erd, state: not_started, items: 25, picture: true, not_current: null, mine: 0}
+          - {key: 06-api, state: not_started, items: 179, picture: false, not_current: null, mine: 0}
+          - {key: 07-sitemap, state: not_started, items: 30, picture: true, not_current: size, mine: 0}
+          - {key: 08-screen-states, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
+          - {key: 09-mockup, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
+          - {key: 10-wbs, state: not_started, items: 278, picture: false, not_current: null, mine: 0}
+          - {key: 11-development, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
+          - {key: 12-qa, state: not_started, items: 196, picture: false, not_current: null, mine: 0}
           - {key: 13-presentation, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
         items:
-          group: context
+          group: source
           filter: all
           q: null
-          total: 270
+          total: 210
           after: 0
-          counts: {all: 270, talk: 3, mine: 1, left: 1}
-          groups:
-            - {context: CTX-009, title: Snapshots, count: 52}
+          counts: {all: 210, talk: 1, mine: 1, left: 0}
+          groups: []
           entries:
-            - {id: REQ-107, kind: requirement, stage: 02-prd, where: "docs/02-prd/nexus.md:139", title: "Before the first push of a project, the hub skill shall have the agent ask the user.", type: functional, priority: Must, status: built, links: [CTX-009], context: CTX-009, comments: 1, mine: true, discrepancies: 0, reflections: 0}
-            - {id: REQ-108, kind: requirement, stage: 02-prd, where: "docs/02-prd/nexus.md:140", title: "Before a push, the hub skill shall have the agent show a dry run.", type: functional, priority: Should, status: built, links: [CTX-009], context: CTX-009, comments: 0, mine: false, discrepancies: 0, reflections: 0}
+            - {id: SPEC-139, kind: spec, stage: 04-functional-spec, where: "docs/04-functional-spec/nexus.md:187", title: Pass a checkpoint in NEXUS, status: active, links: [REQ-117, REQ-178], context: CTX-007, comments: 0, mine: false, discrepancies: 0, reflections: 0}
     stage_talk:
-      summary: The talk of nexus's ERD, with my turn, the agent's turn and a comment apart
+      summary: The talk of stage 04 with its open checkpoint request in my turn, and an entry that the agent has not read
       value:
         project: corthex
         part: nexus
-        stage: 05-erd
+        stage: 04-functional-spec
         item: null
         mine:
           total: 1
           entries:
-            - kind: proposal
-              comment: null
-              proposal: {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The glossary names it entry claims.", change: "Rename the table claims to entry_claims.", source_text_chars: 27, comment: null, discrepancy: null, state: open, made_at: "2026-11-08T06:40:00.000Z", closed_at: null, edit: null}
+            - kind: comment
+              comment: {id: nc_7d1g4k8n2q5t, part: nexus, stage: 04-functional-spec, item: "", quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: agent, text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself.", state: open, closed_as: null, waits: user, asks: checkpoint, settled: false, dismissed: false, made_at: "2026-11-11T07:10:00.000Z", last_at: "2026-11-11T07:10:00.000Z", look_first: SPEC-139, replies: 0, last_reply: null, proposals: [], claim: null, unread: false}
+              proposal: null
         agent:
-          total: 1
+          total: 2
           entries:
-            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a claim end when the session releases it early?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-08T07:00:00.000Z", last_at: "2026-11-08T07:00:00.000Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: {claimed_at: "2026-11-08T08:05:00.000Z", ends_at: "2026-11-08T09:05:00.000Z", mine: false}}
-        apart:
-          total: 1
-          entries:
-            - {id: nc_6r9v2x5a8d1g, part: nexus, stage: 05-erd, item: TBL-109, quote: null, discrepancy: null, commit: c0ffee5e7a1b2c3d4e5f60718293a4b5c6d7e8f9, author: user, text: "Does this table need its own index on the proposal?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-06T02:00:00.000Z", last_at: "2026-11-06T02:00:00.000Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: null}
-        closed: {total: 4, entries: []}
+            - {id: nc_2f5h8k1n4q7s, part: nexus, stage: 04-functional-spec, item: SPEC-194, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Say what the page shows after a refused pass.", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-10T02:14:09.120Z", last_at: "2026-11-10T02:14:09.120Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: null, unread: true}
+            - {id: nc_6r9v2x5a8d1g, part: nexus, stage: 04-functional-spec, item: SPEC-197, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Is ten lines enough for a stage of screens?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-09T05:00:00.000Z", last_at: "2026-11-11T08:10:00.000Z", look_first: null, replies: 2, last_reply: {seq: 2, author: user, text: "Then say so in the row.", settles: false, made_at: "2026-11-11T08:10:00.000Z", look_first: null}, proposals: [], claim: {claimed_at: "2026-11-11T08:20:00.000Z", ends_at: "2026-11-11T09:20:00.000Z", mine: false}, unread: false}
+        apart: {total: 0, entries: []}
+        closed: {total: 3, entries: []}
         reflections: []
     item_data:
       summary: A table of nexus with its links and its talk
@@ -3394,7 +3439,7 @@ components:
           agent:
             total: 1
             entries:
-              - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a claim end when the session releases it early?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-08T07:00:00.000Z", last_at: "2026-11-08T07:00:00.000Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: {claimed_at: "2026-11-08T08:05:00.000Z", ends_at: "2026-11-08T09:05:00.000Z", mine: false}}
+              - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a claim end when the session releases it early?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-08T07:00:00.000Z", last_at: "2026-11-08T07:00:00.000Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: {claimed_at: "2026-11-08T08:05:00.000Z", ends_at: "2026-11-08T09:05:00.000Z", mine: false}, unread: false}
           apart: {total: 0, entries: []}
           closed: {total: 1, entries: []}
           reflections: []
@@ -3553,147 +3598,6 @@ components:
     checkpoint_passed_without_request:
       summary: A checkpoint passed in the stage's record with no request, on a snapshot that names no commit, from a page that reported nothing of software driving the browser
       value: {id: nk_9b2e5h8k1n4q, part: "", stage: 02-prd, commit: null, words: "The requirements as drafted.", state: passed, passed_at: "2026-11-11T08:40:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: null, revision: 3, entry: null, browser: firefox, device: desktop, driven: null}
-    home_planned:
-      summary: "The planned form: a checkpoint request shown whole and a question, with the agent's last read and what it has not read"
-      value:
-        generated_at: "2026-11-11T08:30:00.000Z"
-        my_turn:
-          total: 2
-          entries:
-            - kind: comment
-              id: nc_7d1g4k8n2q5t
-              project: corthex
-              part: nexus
-              stage: 04-functional-spec
-              item: ""
-              title: null
-              quote: null
-              text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself."
-              at: "2026-11-11T07:10:00.000Z"
-              asks: checkpoint
-              request:
-                entry: 0
-                text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself."
-                look_first: {item: SPEC-139, url: null, stage: 04-functional-spec, held: true, title: Pass a checkpoint in NEXUS}
-                left: {discrepancies: 0, comments: 1, reflections: 0}
-            - {kind: comment, id: nc_9m2p5s8v1y4b, project: corthex, part: nexus, stage: 02-prd, item: REQ-107, title: "Before the first push of a project, the hub skill shall have the agent ask the user.", quote: null, text: "Should the agent also ask before a push of a project that was removed and is pushed again?", at: "2026-11-11T07:40:00.000Z", asks: answer, request: null}
-        agent:
-          - project: corthex
-            comments: {total: 2, oldest: {part: nexus, stage: 01-domain, entry: nc_3a6d9g2j5m8r}}
-            discrepancies: {total: 1, oldest: {part: nexus, stage: 05-erd, entry: nd_4h8r2t6w9z3c}}
-            reflections: {total: 0, oldest: null}
-            checkpoints: {total: 0, oldest: null}
-            taken: 1
-            read_at: "2026-11-10T01:00:00.000Z"
-            unread: 1
-            unread_since: "2026-11-10T02:14:09.120Z"
-        projects:
-          - name: corthex
-            title: CORTHEX
-            repository: "https://github.com/kodonghui/corthex"
-            commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
-            revision: 31
-            generated_at: "2026-11-11T16:20:00+09:00"
-            pushed_at: "2026-11-11T07:20:03.410Z"
-            items: 1406
-            warnings: 601
-            parts:
-              - {name: nexus, recorded: true, current: 04-functional-spec, next: "Stage 04 waits for its checkpoint", states: [done, done, done, in_progress, not_started, not_started, not_started, not_started, not_started, not_started, not_started, not_started, not_started]}
-            stages:
-              - {key: 01-domain, items: 165}
-              - {key: 02-prd, items: 296}
-              - {key: 03-user-flow, items: 27}
-              - {key: 04-functional-spec, items: 210}
-              - {key: 05-erd, items: 25}
-              - {key: 06-api, items: 179}
-              - {key: 07-sitemap, items: 30}
-              - {key: 08-screen-states, items: 0}
-              - {key: 09-mockup, items: 0}
-              - {key: 10-wbs, items: 278}
-              - {key: 11-development, items: 0}
-              - {key: 12-qa, items: 196}
-              - {key: 13-presentation, items: 0}
-            pictures:
-              - {part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, committed_at: "2026-11-11T16:01:00+09:00", not_current: null, comments: 1, drawing: {bounds: [0, 0, 880, 400], boxes: [[table, 0, 0, 280, 240], [table, 600, 0, 280, 400]], lines: [[280, 120, 600, 120]]}}
-    stage_data_planned:
-      summary: "The planned form: stage 04 of nexus while its checkpoint request is open, shortened to one item"
-      value:
-        project: {name: corthex, title: CORTHEX, repository: "https://github.com/kodonghui/corthex", commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, revision: 31, generated_at: "2026-11-11T16:20:00+09:00", pushed_at: "2026-11-11T07:20:03.410Z", space: true, read_at: "2026-11-10T01:00:00.000Z", unread_since: "2026-11-10T02:14:09.120Z", parts: [nexus]}
-        part: nexus
-        stage: 04-functional-spec
-        head:
-          key: 04-functional-spec
-          state: in_progress
-          checkpoint: null
-          commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
-          time: "2026-11-11T16:20:00+09:00"
-          reads: true
-          source_state: found
-          counts: {items: 210, kinds: [{kind: spec, count: 210}], priorities: [], hotspots: null}
-          picture: false
-        record:
-          project: corthex
-          part: nexus
-          stage: 04-functional-spec
-          record: {state: in_progress, checkpoints: [], next: "Stage 04 waits for its checkpoint", updated: "2026-11-11T16:05:00+09:00", from: repository}
-          source_state: found
-          read: true
-          checks: []
-          pictures: []
-          discrepancies: {total: 0, entries: []}
-          comments:
-            total: 1
-            entries:
-              - {id: nc_7d1g4k8n2q5t, part: nexus, stage: 04-functional-spec, item: "", quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: agent, text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself.", state: open, closed_as: null, waits: user, asks: checkpoint, settled: false, dismissed: false, made_at: "2026-11-11T07:10:00.000Z", last_at: "2026-11-11T07:10:00.000Z", look_first: SPEC-139, replies: 0, last_reply: null, proposals: [], claim: null, unread: false}
-          reflections: {total: 0, entries: []}
-          checkpoints: []
-          warnings: []
-          not_opened: 0
-        stages:
-          - {key: 01-domain, state: done, items: 165, picture: true, not_current: null, mine: 0}
-          - {key: 02-prd, state: done, items: 296, picture: false, not_current: null, mine: 1}
-          - {key: 03-user-flow, state: done, items: 27, picture: false, not_current: null, mine: 0}
-          - {key: 04-functional-spec, state: in_progress, items: 210, picture: false, not_current: null, mine: 1}
-          - {key: 05-erd, state: not_started, items: 25, picture: true, not_current: null, mine: 0}
-          - {key: 06-api, state: not_started, items: 179, picture: false, not_current: null, mine: 0}
-          - {key: 07-sitemap, state: not_started, items: 30, picture: true, not_current: size, mine: 0}
-          - {key: 08-screen-states, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
-          - {key: 09-mockup, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
-          - {key: 10-wbs, state: not_started, items: 278, picture: false, not_current: null, mine: 0}
-          - {key: 11-development, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
-          - {key: 12-qa, state: not_started, items: 196, picture: false, not_current: null, mine: 0}
-          - {key: 13-presentation, state: not_started, items: 0, picture: false, not_current: null, mine: 0}
-        items:
-          group: source
-          filter: all
-          q: null
-          total: 210
-          after: 0
-          counts: {all: 210, talk: 1, mine: 1, left: 0}
-          groups: []
-          entries:
-            - {id: SPEC-139, kind: spec, stage: 04-functional-spec, where: "docs/04-functional-spec/nexus.md:187", title: Pass a checkpoint in NEXUS, status: active, links: [REQ-117, REQ-178], context: CTX-007, comments: 0, mine: false, discrepancies: 0, reflections: 0}
-    stage_talk_planned:
-      summary: "The planned form: the talk of stage 04 with its open checkpoint request in my turn, and an entry that the agent has not read"
-      value:
-        project: corthex
-        part: nexus
-        stage: 04-functional-spec
-        item: null
-        mine:
-          total: 1
-          entries:
-            - kind: comment
-              comment: {id: nc_7d1g4k8n2q5t, part: nexus, stage: 04-functional-spec, item: "", quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: agent, text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself.", state: open, closed_as: null, waits: user, asks: checkpoint, settled: false, dismissed: false, made_at: "2026-11-11T07:10:00.000Z", last_at: "2026-11-11T07:10:00.000Z", look_first: SPEC-139, replies: 0, last_reply: null, proposals: [], claim: null, unread: false}
-              proposal: null
-        agent:
-          total: 2
-          entries:
-            - {id: nc_2f5h8k1n4q7s, part: nexus, stage: 04-functional-spec, item: SPEC-194, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Say what the page shows after a refused pass.", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-10T02:14:09.120Z", last_at: "2026-11-10T02:14:09.120Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: null, unread: true}
-            - {id: nc_6r9v2x5a8d1g, part: nexus, stage: 04-functional-spec, item: SPEC-197, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Is ten lines enough for a stage of screens?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-09T05:00:00.000Z", last_at: "2026-11-11T08:10:00.000Z", look_first: null, replies: 2, last_reply: {seq: 2, author: user, text: "Then say so in the row.", settles: false, made_at: "2026-11-11T08:10:00.000Z", look_first: null}, proposals: [], claim: {claimed_at: "2026-11-11T08:20:00.000Z", ends_at: "2026-11-11T09:20:00.000Z", mine: false}, unread: false}
-        apart: {total: 0, entries: []}
-        closed: {total: 3, entries: []}
-        reflections: []
     recommendation_taken_planned:
       summary: "The planned form: a recommendation taken, which settles the comment and passes no checkpoint"
       value:
@@ -4410,7 +4314,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/Comment"
         - type: object
-          required: [replies, last_reply, proposals]
+          required: [replies, last_reply, proposals, unread]
           properties:
             replies: {type: integer, minimum: 0, maximum: 200}
             last_reply: {anyOf: [{$ref: "#/components/schemas/Reply"}, {type: "null"}]}
@@ -4421,7 +4325,6 @@ components:
                 Whether the agent has not read the comment yet (SPEC-189): true while it waits
                 for the agent, no claim holds it, and its last_at is at or after the space's
                 last read or the space was never read
-              x-corthex: {status: planned, spec: [SPEC-189]}
               type: boolean
     Reply:
       type: object
@@ -4513,7 +4416,7 @@ components:
     EditEntry:
       description: An edit as a list holds it, with its proposal
       type: object
-      required: [id, part, stage, commit, proposal, state, pull_request, closed_commit, made_at, changed_at]
+      required: [id, part, stage, commit, proposal, state, pull_request, closed_commit, made_at, changed_at, unread]
       additionalProperties: false
       properties:
         id: {$ref: "#/components/schemas/EditId"}
@@ -4532,7 +4435,6 @@ components:
             Whether the agent has not read the edit yet (SPEC-189): true while it is pending,
             no claim holds it, and its made_at is at or after the space's last read or the
             space was never read
-          x-corthex: {status: planned, spec: [SPEC-189]}
           type: boolean
     EditWithProposal:
       type: object
@@ -4988,7 +4890,7 @@ components:
     AgentCounts:
       description: One project's agent to-do in counts, by the lists of getAgentTodo read without a session
       type: object
-      required: [project, comments, discrepancies, reflections, checkpoints, taken]
+      required: [project, comments, discrepancies, reflections, checkpoints, taken, read_at, unread, unread_since]
       additionalProperties: false
       properties:
         project: {$ref: "#/components/schemas/ProjectName"}
@@ -5002,21 +4904,18 @@ components:
             When the agent last read the project's agent to-do with the service token
             (SPEC-187, SPEC-188); null before the first read, which the page shows as not read
             yet
-          x-corthex: {status: planned, spec: [SPEC-188]}
           anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]
         unread:
           description: >-
             How many entries of the four lists the agent has not read yet (SPEC-189): those
             that no claim holds and that wait since read_at or later, or every one that no
             claim holds while read_at is null
-          x-corthex: {status: planned, spec: [SPEC-189]}
           type: integer
           minimum: 0
         unread_since:
           description: >-
             The oldest time since which one of those entries waits, from which the page tells
             a wait of more than 24 hours (SPEC-188); null when unread is 0
-          x-corthex: {status: planned, spec: [SPEC-188, SPEC-189]}
           anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]
     ProjectCard:
       description: >-
@@ -5153,7 +5052,7 @@ components:
     StageProject:
       description: The project of a stage, as its card names it, with its parts in the settings' order, or "" for the project as a whole
       type: object
-      required: [name, title, repository, commit, generated_at, pushed_at, parts]
+      required: [name, title, repository, commit, generated_at, pushed_at, space, read_at, unread_since, parts]
       additionalProperties: false
       properties:
         name: {$ref: "#/components/schemas/ProjectName"}
@@ -5172,15 +5071,12 @@ components:
           minimum: 1
         space:
           description: Whether the project has a space; without one the head says that the project has no agent to-do yet (SPEC-188)
-          x-corthex: {status: planned, spec: [SPEC-188]}
           type: boolean
         read_at:
           description: When the agent last read the project's agent to-do with the service token (SPEC-187, SPEC-188); null before the first read and for a project without a space
-          x-corthex: {status: planned, spec: [SPEC-188]}
           anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]
         unread_since:
           description: The oldest time since which an entry that the agent has not read waits, as getHome gives it (SPEC-188, SPEC-189); null when there is none
-          x-corthex: {status: planned, spec: [SPEC-188, SPEC-189]}
           anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]
     StageHead:
       description: >-
@@ -6125,136 +6021,6 @@ components:
                   cross-site: {$ref: "#/components/examples/cross_site"}
                   no-kind: {$ref: "#/components/examples/no_kind"}
           "404": {$ref: "#/components/responses/ProjectNotFound"}
-          default: {$ref: "#/components/responses/Unexpected"}
-    getHome:
-      get:
-        tags: [Workspace]
-        summary: The first page's data, with the last reads and the checkpoint requests whole
-        description: >-
-          The planned form of getHome: as now, with what the design revision of 2026-11-11 adds.
-          Each project's entry of agent names read_at, when the agent last read its agent to-do
-          (SPEC-187, SPEC-188); unread, how many of its entries the agent has not read yet
-          (SPEC-189); and unread_since, the oldest time since which one of those waits, from
-          which the page tells a wait of more than 24 hours. A card already holds pushed_at, when
-          the server stored the snapshot, and commit, which the page shows as the last push; a
-          card whose project has no entry in agent is of a project without a space, which has no
-          agent to-do yet. Under D17 of stage 02, decided on 2026-11-12: each card names the
-          snapshot's revision, and an entry of my turn that is a checkpoint request in form holds
-          request, the request
-          whole, so that the entry may offer the pass as its second action, with passCheckpoint
-          (SPEC-196); request is null for any other entry.
-        x-corthex:
-          id: API-151
-          replaces: getHome
-          spec: [SPEC-113, SPEC-143, SPEC-144, SPEC-145, SPEC-188, SPEC-189, SPEC-196]
-          status: planned
-          omit:
-            "400": the request has no input
-            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
-            "404": the path names no resource
-            "409": a read clashes with no state
-        responses:
-          "200":
-            description: The first page's data
-            content:
-              application/json:
-                schema: {$ref: "#/components/schemas/Home"}
-                examples:
-                  waiting: {$ref: "#/components/examples/home_planned"}
-                  empty-server:
-                    summary: No snapshot on the server
-                    value: {generated_at: "2026-11-11T08:30:00.000Z", my_turn: {total: 0, entries: []}, agent: [], projects: []}
-          "403": {$ref: "#/components/responses/ReadRefused"}
-          default: {$ref: "#/components/responses/Unexpected"}
-    getStage:
-      parameters:
-        - $ref: "#/components/parameters/Project"
-        - $ref: "#/components/parameters/Part"
-        - $ref: "#/components/parameters/Stage"
-        - $ref: "#/components/parameters/After"
-        - $ref: "#/components/parameters/StageFilter"
-        - $ref: "#/components/parameters/StageWords"
-        - $ref: "#/components/parameters/Group"
-      get:
-        tags: [Workspace]
-        summary: One part's stage, with the project's last push and the agent's last read
-        description: >-
-          The planned form of getStage: as now, with what the design revision of 2026-11-11 adds.
-          project names space, whether the project has a space; read_at, when the agent last
-          read its agent to-do; and unread_since, as getHome gives it, for the head of the
-          workspace (SPEC-188); with pushed_at and commit, which it holds already. Under D17 of
-          stage 02, decided on 2026-11-12, it also names the snapshot's revision, which a pass
-          names where the
-          snapshot names no commit (SPEC-194). The stage's record shows the stage's open
-          checkpoint request whole above the pass (SPEC-139): the page takes it from the talk's
-          my turn (getStageTalk), the open comment on the stage as a whole whose asks is
-          checkpoint, with its last entry's text and look_first, and names in the pass the
-          comment and the place of that entry, the last reply's seq or 0. The record's
-          checkpoints passed in NEXUS hold what was seen and the kind of browser and device
-          (SPEC-194, SPEC-195).
-        x-corthex:
-          id: API-158
-          replaces: getStage
-          spec: [SPEC-113, SPEC-139, SPEC-146, SPEC-147, SPEC-148, SPEC-188, SPEC-194, SPEC-195]
-          status: planned
-          omit:
-            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
-            "409": a read clashes with no state
-        responses:
-          "200":
-            description: The stage
-            content:
-              application/json:
-                schema: {$ref: "#/components/schemas/StageData"}
-                examples:
-                  spec-with-a-request: {$ref: "#/components/examples/stage_data_planned"}
-          "400": {$ref: "#/components/responses/InvalidQuery"}
-          "403": {$ref: "#/components/responses/ReadRefused"}
-          "404": {$ref: "#/components/responses/OverviewNotFound"}
-          default: {$ref: "#/components/responses/Unexpected"}
-    getStageTalk:
-      parameters:
-        - $ref: "#/components/parameters/Project"
-        - $ref: "#/components/parameters/Part"
-        - $ref: "#/components/parameters/Stage"
-        - $ref: "#/components/parameters/TalkItem"
-        - $ref: "#/components/parameters/Closed"
-        - $ref: "#/components/parameters/After"
-      get:
-        tags: [Discussion]
-        summary: One part's stage talk, by turn, with what the agent has not read
-        description: >-
-          The planned form of getStageTalk: as now, with what the design revision of 2026-11-11
-          adds. Each comment and each pending reflection names unread, whether the agent has not
-          read it yet (SPEC-189): true while it waits for the agent, no claim holds it, and the
-          time since which it waits is at or after the space's last read, or the space was never
-          read. A claimed entry shows as taken, without the mark, and an entry that waits for the
-          user or is closed is never unread. Each comment and reply names look_first, so that the
-          talk and the stage's record show a checkpoint request whole (SPEC-197, SPEC-139). The
-          marks come with the read; the page does not update them by itself. The item's talk of
-          getItem and the pages' data hold the same fields.
-        x-corthex:
-          id: API-152
-          replaces: getStageTalk
-          spec: [SPEC-113, SPEC-136, SPEC-150, SPEC-189, SPEC-197]
-          status: planned
-          omit:
-            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
-            "409": a read clashes with no state
-        responses:
-          "200":
-            description: The talk
-            content:
-              application/json:
-                schema: {$ref: "#/components/schemas/StageTalk"}
-                examples:
-                  by-turn: {$ref: "#/components/examples/stage_talk_planned"}
-                  nothing-yet:
-                    summary: No talk on the stage yet
-                    value: {project: corthex, part: nexus, stage: 13-presentation, item: null, mine: {total: 0, entries: []}, agent: {total: 0, entries: []}, apart: {total: 0, entries: []}, closed: {total: 0, entries: []}, reflections: []}
-          "400": {$ref: "#/components/responses/InvalidQuery"}
-          "403": {$ref: "#/components/responses/ReadRefused"}
-          "404": {$ref: "#/components/responses/TalkNotFound"}
           default: {$ref: "#/components/responses/Unexpected"}
 
   x-corthex:
