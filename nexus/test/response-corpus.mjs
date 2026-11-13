@@ -58,7 +58,7 @@ cases.push({name:"stage with talk",schema:"StageData",value:await call("GET","/a
 // claimed reflection and the closed talk, whole and narrowed to the item.
 const question=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic question"},"user");
 await call("POST","/api/spaces/corthex/claims/"+question.id,{});
-const asking=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"",text:"Synthetic checkpoint",asks:"checkpoint"});
+const asking=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"",text:"Synthetic checkpoint",asks:"checkpoint",look_first:"TBL-111"});
 await call("POST","/api/spaces/corthex/proposals",{part:"nexus",stage:"05-erd",items:["TBL-111"],reason:"Synthetic",change:"Synthetic"});
 await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-109",text:"Synthetic gone item"},"user");
 const answered=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic answered"},"user");
@@ -106,6 +106,20 @@ await call("POST","/api/spaces/corthex/checkpoints",{part:"nexus",stage:"02-prd"
 const agentRead=await call("GET","/api/spaces/corthex/todo"),userRead=await call("GET","/api/spaces/corthex/todo",undefined,"user");
 if(!agentRead.read_at||userRead.read_at!==null||!agentRead.comments.total||!agentRead.reflections.total||agentRead.checkpoints.total<2)throw new Error("an answer to API-113 lacks what its case needs");
 cases.push({name:"agent to-do read by the agent",schema:"Todo",value:agentRead},{name:"agent to-do read by the user",schema:"Todo",value:userRead});
+// Checkpoint requests in their form (TASK-297, SPEC-197): the request that
+// names an item of the stored snapshot, one that names an https address on
+// another part's stage, and the agent's reply that asks again on the first
+// once the user took it, which names what to look at first. The user's
+// comment and the user's reply name nothing to look at first.
+const linked=await call("POST","/api/spaces/corthex/comments",{part:"memory",stage:"09-mockup",item:"",text:"Synthetic request\nOpen the address first.",asks:"checkpoint",look_first:"https://mockups.example.com/memory"});
+const askedAgain=await call("POST","/api/spaces/corthex/comments/"+asking.id+"/replies",{text:"Synthetic: the rows changed since; pass again?",asks:"checkpoint",look_first:"SPEC-136"});
+const userReply=await call("POST","/api/spaces/corthex/comments/"+linked.id+"/replies",{text:"Synthetic: not yet."},"user");
+if(asking.look_first!=="TBL-111"||linked.look_first!=="https://mockups.example.com/memory"||askedAgain.reply.look_first!=="SPEC-136"||askedAgain.comment.asks!=="checkpoint"
+  ||question.author!=="user"||question.look_first!==null||userReply.reply.author!=="user"||userReply.reply.look_first!==null||userReply.comment.asks!==null)
+  throw new Error("a checkpoint request lacks what its case needs");
+cases.push({name:"the user's comment",schema:"Comment",value:question},{name:"checkpoint request that names an item",schema:"Comment",value:asking},
+  {name:"checkpoint request that names an address",schema:"Comment",value:linked},{name:"the user's reply",schema:"ReplyAnswer",value:userReply},
+  {name:"reply that asks for the checkpoint again",schema:"ReplyAnswer",value:askedAgain});
 // The stage page of a project that only a hub of 0.1 pushed, which has no space.
 await call("POST","/api/snapshots",{schema:"corthex-hub/0.1",generated_at:"2026-01-12T10:00:00+09:00",project:{name:"legacy-shop",title:"Legacy shop"},
   stages:{"02-prd":{source_state:"found",read:true,state:"in_progress",next:"Write the PRD"}},summary:{items:1},

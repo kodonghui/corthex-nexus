@@ -139,7 +139,7 @@ test("API-158 marks the part's talk and narrows by filter and words", async () =
   await call("POST", space + "/comments", { body: { part: "nexus", stage: "02-prd", item: "REQ-002", text: "Who refunds?" }, kind: "user" });
   const answered = (await call("POST", space + "/comments", { body: { part: "nexus", stage: "02-prd", item: "REQ-003", text: "Which page?" }, kind: "user" })).data;
   await call("POST", space + "/comments/" + answered.id + "/answered", { body: {} });
-  await call("POST", space + "/comments", { body: { part: "nexus", stage: "02-prd", item: "", text: "Pass this stage?", asks: "checkpoint" } });
+  await call("POST", space + "/comments", { body: { part: "nexus", stage: "02-prd", item: "", text: "Pass this stage?", asks: "checkpoint", look_first: "REQ-001" } });
   await call("POST", space + "/comments", { body: { part: "memory", stage: "02-prd", item: "REQ-004", text: "Elsewhere" } });
   let prd = (await call("GET", space + "/stages/nexus/02-prd?group=source")).data;
   assert.deepEqual(prd.items.entries.map((entry) => [entry.id, entry.comments, entry.mine]), [["REQ-001", 1, true], ["REQ-002", 1, false], ["REQ-003", 1, false], ["REQ-004", 0, false]]);

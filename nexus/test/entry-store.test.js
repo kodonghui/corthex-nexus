@@ -221,7 +221,7 @@ test("SPEC-151, SPEC-143: a comment takes any stage of a held part, and asks las
   const prd=(await comment({stage:"02-prd",item:"REQ-101"})).body;
   assert.deepEqual([prd.stage,prd.commit,prd.asks,prd.waits],["02-prd",held,null,"agent"]);
   // The agent's comment on the stage as a whole needs no quote and says what it asks.
-  const whole=(await write("comment",null,{part:"nexus",stage:"04-functional-spec",item:"",text:"Pass stage 04 as recommended?",asks:"checkpoint"})).body;
+  const whole=(await write("comment",null,{part:"nexus",stage:"04-functional-spec",item:"",text:"Pass stage 04 as recommended?",asks:"checkpoint",look_first:"TBL-111"})).body;
   assert.deepEqual([whole.item,whole.quote,whole.waits,whole.asks],["",null,"user","checkpoint"]);
   assert.equal((await store.readEntry("corthex","comment",whole.id)).asks,"checkpoint");
   // A pictured stage takes the picture's commit, and a stage of the memory part without a picture the held one.

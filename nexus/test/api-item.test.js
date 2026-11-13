@@ -133,7 +133,7 @@ test("API-157 holds the item's talk in the part as API-152 gives it narrowed to 
   const asked = (await comment("nexus", "TBL-111", "Keep the claims?", { asks: "answer" })).data.id;
   const question = (await call("POST", space + "/comments", { body: { part: "nexus", stage: "05-erd", item: "TBL-111", text: "Who claims?" }, kind: "user" })).data.id;
   await comment("nexus", "TBL-112", "Which currency?");
-  await comment("nexus", "", "Pass the ERD?", { asks: "checkpoint" });
+  await comment("nexus", "", "Pass the ERD?", { asks: "checkpoint", look_first: "TBL-111" });
   const other = (await comment("memory", "TBL-111", "Keep it here?", { asks: "answer" })).data.id;
   const offered = (await call("POST", space + "/proposals", { body: { part: "nexus", stage: "05-erd", items: ["TBL-111"], reason: "Plain words", change: "Rename it" } })).data.id;
   assert.ok(asked && question && other && offered);

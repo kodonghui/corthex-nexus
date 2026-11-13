@@ -51,9 +51,12 @@ async function server(language, ...snapshots) {
     .map(({ name }) => [name, db.prepare(`SELECT * FROM "${name}"`).all().map((row) => JSON.stringify(row)).sort()]))).digest("hex");
   const count = (table) => db.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get().n;
   const bytes = () => db.prepare("SELECT text_bytes FROM project_spaces WHERE project='corthex'").get().text_bytes;
-  // The agent's comment that asks something of the user, and its ID.
-  const ask = async (asks, part = "nexus", stage = "05-erd", item = "TBL-111") =>
-    (await call("POST", SPACE + "/comments", { body: { part, stage, item, text: "Rename the table claims to entry_claims?", ...(asks ? { asks } : {}) } })).data.id;
+  // The agent's comment that asks something of the user, and its ID. A
+  // checkpoint request is on the stage as a whole and names what to look at
+  // first (SPEC-197).
+  const ask = async (asks, part = "nexus", stage = "05-erd", item = asks === "checkpoint" ? "" : "TBL-111") =>
+    (await call("POST", SPACE + "/comments", { body: { part, stage, item, text: "Rename the table claims to entry_claims?", ...(asks ? { asks } : {}),
+      ...(asks === "checkpoint" ? { look_first: "TBL-111" } : {}) } })).data.id;
   const take = (id, options = {}) => call("POST", SPACE + "/comments/" + id + "/recommended", { kind: "user", ...options });
   return { db, call, shape, count, bytes, ask, take };
 }
@@ -69,7 +72,7 @@ test("API-159 takes a recommendation: the user's reply in the server's words set
     assert.equal(taken.status, 200, taken.text);
     const at = taken.data.reply.made_at;
     assert.deepEqual(taken.data, { comment: { id, state: "open", closed_as: null, waits: "agent", asks: null, last_at: at, settled: true, dismissed: false },
-      reply: { seq: 1, author: "user", text: words, made_at: at, settles: true }, checkpoint: null, changed: true });
+      reply: { seq: 1, author: "user", text: words, made_at: at, settles: true, look_first: null }, checkpoint: null, changed: true });
     assert.equal(bytes() - before, Buffer.byteLength(words), "the reply's words count in the space's text");
     assert.equal(count("checkpoints"), 0);
     const thread = (await call("GET", SPACE + "/comments/" + id)).data;
@@ -84,7 +87,7 @@ test("API-159 passes the checkpoint that the agent asks for with the reply, nami
   const { call, count, ask, take } = await server("en", corthex());
   // The user's question, answered by the agent's reply that asks for the checkpoint.
   const id = (await call("POST", SPACE + "/comments", { kind: "user", body: { part: "nexus", stage: "04-functional-spec", item: "", text: "Can we pass stage 04?" } })).data.id;
-  assert.equal((await call("POST", SPACE + "/comments/" + id + "/replies", { body: { text: "The rows stand as written; pass it as recommended?", asks: "checkpoint" } })).status, 201);
+  assert.equal((await call("POST", SPACE + "/comments/" + id + "/replies", { body: { text: "The rows stand as written; pass it as recommended?", asks: "checkpoint", look_first: "https://example.com/nexus/04-functional-spec" } })).status, 201);
   const taken = await take(id);
   assert.equal(taken.status, 200, taken.text);
   const { comment, reply, checkpoint, changed } = taken.data;

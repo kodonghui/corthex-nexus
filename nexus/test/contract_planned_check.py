@@ -11,7 +11,6 @@ task moves into paths leaves the planned list by itself.
 """
 import copy
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -22,21 +21,21 @@ from openapi_spec_validator import validate
 from contract_example_check import check_response_example_applicability
 
 METHODS = ("get", "post", "put", "patch", "delete", "head")
-PLANNED_BODIES = {"PlannedNewComment", "PlannedNewReply", "PlannedNewCheckpoint"}
+# TASK-297 built the bodies of leaveComment and replyToComment into NewComment and NewReply on 2026-11-13, and the
+# server checks their rules of a checkpoint request in code (nexus/src/entry-plan.js), which its tests hold.
+PLANNED_BODIES = {"PlannedNewCheckpoint"}
 # The examples of built operations whose schemas gain the planned properties as required members, so that they
 # stop fitting until the release that builds those properties adds them. A change that alters this list changes
 # it here in the same commit, with the examples that it adds the members to.
 GAINING = {
     ("API-111", "200", "erd-with-a-comment"),
     ("API-112", "200", "erd-of-nexus"),
-    ("API-114", "200", "settled"),
     ("API-117", "200", "passed"),
     ("API-129", "200", "withdrawn"),
     ("API-129", "200", "already-withdrawn"),
     ("API-130", "200", "opened"),
     ("API-157", "200", "table"),
 }
-TRACE_ID = re.compile(r"^[A-Z]{2,5}-[0-9]{3,4}$")
 
 
 def resolver(api):
@@ -112,26 +111,9 @@ def planned_view(api):
     return view, forms
 
 
-def lines(text):
-    return text.count("\n") + 1
-
-
 def body_rules(schema_name, value):
     """The rules of a planned body that its schema does not state, as the planned forms' descriptions give them."""
     found = []
-    if schema_name in ("PlannedNewComment", "PlannedNewReply"):
-        if value.get("asks") == "checkpoint":
-            if schema_name == "PlannedNewComment" and value.get("item") != "":
-                found.append("a checkpoint request is on the stage as a whole, with an empty item")
-            if len(value.get("text", "")) > 1200 or lines(value.get("text", "")) > 10:
-                found.append("a checkpoint request holds at most 1,200 characters and 10 lines")
-            if "look_first" not in value:
-                found.append("a checkpoint request names the thing to look at first")
-        elif "look_first" in value:
-            found.append("only a checkpoint request sends look_first")
-        look = value.get("look_first")
-        if look is not None and not (TRACE_ID.match(look) or look.startswith("https://")):
-            found.append("look_first is a trace ID or an https address")
     if schema_name == "PlannedNewCheckpoint":
         if ("commit" in value) == ("revision" in value):
             found.append("a pass names commit or revision, one of the two")
@@ -250,13 +232,15 @@ def self_test(api):
                    for example in content.get("examples", {}).values()
                    if isinstance(resolve(example).get("value"), dict))
     # The example keeps none of its members and holds one that no schema names, so that it fails whether or not its
-    # schema takes other members: the first path item's first answer is no longer a closed object since TASK-296.
+    # schema takes other members, whichever path item is the first.
     example["value"] = {"unknown_member": True}
-    comment = broken["components"]["pathItems"]["leaveComment"]["post"]["requestBody"]["content"]["application/json"]
-    comment["examples"]["a-checkpoint-request"]["value"].pop("look_first")
+    # The planned pass that answers a request names its comment and no entry. Since TASK-297 it is the one planned
+    # body, as the bodies of leaveComment and replyToComment are built.
+    passing = broken["components"]["pathItems"]["passCheckpoint"]["post"]["requestBody"]["content"]["application/json"]
+    passing["examples"]["on-a-request"]["value"].pop("entry")
     found = check(broken)["findings"]
     rules = {finding["rule"] for finding in found}
-    if "a checkpoint request names the thing to look at first" not in rules or not any("example" in finding for finding in found):
+    if "a pass names a request's comment and entry together" not in rules or not any("example" in finding for finding in found):
         raise SystemExit("the planned check let a broken example or body pass")
 
 

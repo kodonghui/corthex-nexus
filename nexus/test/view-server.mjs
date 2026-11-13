@@ -70,10 +70,10 @@ if(process.env.NEXUS_QA_HOME==="1"){
  snapshot.summary={...snapshot.summary,items:snapshot.items.length};
  await call("POST","/api/snapshots",snapshot,"agent");
  const proposal=async n=>(await call("POST",base+"/proposals",{part:"sample",stage:"05-erd",items:["TBL-001"],reason:"Synthetic proposal "+n,change:"Describe the reference constraint "+n+".",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);"},"agent")).id;
- const asks=async(asks,{part="sample",stage="07-sitemap",item="SCR-001",quote}={})=>(await call("POST",base+"/comments",{part,stage,item,...(quote?{quote}:{}),text:`Synthetic ${asks}: keep SCR-105's address as a redirect, so that links from 0.2 keep working.`,asks},"agent")).id;
+ const asks=async(asks,{part="sample",stage="07-sitemap",item="SCR-001",quote,look_first}={})=>(await call("POST",base+"/comments",{part,stage,item,...(quote?{quote}:{}),...(look_first?{look_first}:{}),text:`Synthetic ${asks}: keep SCR-105's address as a redirect, so that links from 0.2 keep working.`,asks},"agent")).id;
  for(const name of["accept","dismiss","stale","retry","reused","sending"])home[name]=await proposal(name);
  home.recommended=await asks("recommended");home.taken=await asks("recommended");home.closed=await asks("recommended");
- home.checkpoint=await asks("checkpoint",{stage:"05-erd",item:""});home.gonePart=await asks("checkpoint",{part:"gone",stage:"05-erd",item:""});
+ home.checkpoint=await asks("checkpoint",{stage:"05-erd",item:"",look_first:"TBL-001"});home.gonePart=await asks("checkpoint",{part:"gone",stage:"05-erd",item:"",look_first:"TBL-001"});
  home.question=await asks("answer",{stage:"01-domain",item:"",quote:"Ordering"});
  // The agent's to-do: a comment of the user's that waits for it.
  home.forAgent=(await call("POST",base+"/comments",{part:"sample",stage:"07-sitemap",item:"SCR-001",text:"Synthetic comment that waits for the agent"})).id;
@@ -193,7 +193,7 @@ if(process.env.NEXUS_QA_TALK==="1"){
  talkQa.question=await said("REQ-002","Synthetic question for the user: may a payment be retried twice?","agent",{asks:"answer"});
  await reply(talkQa.question,"Synthetic detail: the provider allows two retries.","agent",{asks:"answer"});
  talkQa.recommended=await said("","Synthetic recommendation: keep the requirements in one context.","agent",{asks:"recommended"});
- talkQa.checkpoint=await said("","Synthetic request: pass the PRD's checkpoint.","agent",{asks:"checkpoint"});
+ talkQa.checkpoint=await said("","Synthetic request: pass the PRD's checkpoint.","agent",{asks:"checkpoint",look_first:"REQ-001"});
  talkQa.claimed=await said("REQ-003","Synthetic comment that a session works on");
  await call("POST",base+"/claims/"+talkQa.claimed,undefined,"agent");
  talkQa.settled=await said("REQ-004","Synthetic comment that the user settled");

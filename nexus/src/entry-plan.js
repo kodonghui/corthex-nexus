@@ -16,11 +16,34 @@ const PICTURE_STAGES = ["01-domain", "05-erd", "07-sitemap"];
 export const AS_RECOMMENDED = Object.freeze({ en: "As recommended", ko: "추천대로" });
 const RECOMMENDED_WORDS = Object.values(AS_RECOMMENDED);
 
+const refuse = (field, detail) => { throw new Problem("invalid_request", detail, { field }); };
+const lineFeeds = (text) => (String(text).match(/\n/g) || []).length;
+// A checkpoint request's thing to look at first is a trace ID or an https
+// address, as the body's schema holds it; a trace ID is found in the stored
+// snapshot (SPEC-197, SPEC-198).
+export const lookedUp = (body) => body.asks === "checkpoint" && typeof body.look_first === "string" && !body.look_first.startsWith("https://") ? body.look_first : null;
+// The refusal of a second open checkpoint request on a part's stage, which
+// names the open one (SPEC-197): the hub then asks again as a reply on it.
+export function requestOpen(project, part, stage, comment) {
+  return new Problem("checkpoint_requested", `stage ${stage} of ${part || project} has an open checkpoint request, ${comment}; ask again as a reply on it`, { comment });
+}
+
 // Shape checks that need no stored data run before the write-ID lookup too.
 export function checkWriteBody(name, body, kind) {
   // The redesign: an empty item is the stage as a whole and needs no quote
   // (SPEC-151), and only the agent says what it asks of the user (SPEC-143).
   if ((name === "comment" || name === "reply") && body.asks && kind !== "agent") fail("invalid_request", { field: "asks" });
+  // The design revision (SPEC-197, SPEC-198): the agent's comment or reply whose
+  // asks is checkpoint is its stage's checkpoint request, taken only in form, and
+  // no other entry names a thing to look at first. A hub from before the revision
+  // sends no look_first, so that refusal comes first and says to update the hub.
+  if ((name === "comment" || name === "reply") && body.asks === "checkpoint") {
+    if (!Object.hasOwn(body, "look_first")) refuse("look_first", "look_first: a checkpoint request names one thing to look at first, an item's ID or an https address; update the hub");
+    if (name === "comment" && body.item !== "") refuse("item", "item: a checkpoint request is on the stage as a whole, with an empty item");
+    if (Array.from(body.text).length > 1200 || lineFeeds(body.text) > 9) refuse("text", "text: a checkpoint request holds at most 10 lines and 1,200 characters");
+  } else if ((name === "comment" || name === "reply") && Object.hasOwn(body, "look_first")) {
+    refuse("look_first", "look_first: only a checkpoint request names a thing to look at first");
+  }
   if ((name === "reply" && body.settles || name === "recommended") && kind !== "user") fail("user_only", { needs: "user" });
   if (name === "proposal") {
     if (body.comment && body.discrepancy) fail("invalid_request", { field: "discrepancy" });
@@ -84,31 +107,53 @@ export function planEntryWrite(name, body, state, { project, kind, session, now,
     need(proposal, "proposal");
     if (proposal.state !== "open") fail("proposal_not_open", { state: proposal.state });
   }
+  // A checkpoint request's trace ID must be held by a stage of the stored
+  // snapshot, found where unknown_item is (SPEC-197); the basis looked it up.
+  function heldLook() {
+    const look = lookedUp(body);
+    if (look && !state.lookHeld) refuse("look_first", `look_first: no stage of the stored snapshot of ${project} holds ${look}`);
+  }
+  // A part's stage holds one open checkpoint request at a time (SPEC-197): the
+  // basis read the stage's open one, which the receipt's check reads again.
+  function oneRequest(stage, part, own = null) {
+    if (body.asks === "checkpoint" && state.request && state.request !== own) throw requestOpen(project, part, stage, state.request);
+  }
   switch (name) {
     case "comment": {
       // Any of the 13 stages of a part that the snapshot holds, with or without
       // a picture: the version seen is the picture's, else the held commit.
       part();
-      if (body.discrepancy) { discrepancy(); claim(body.discrepancy); }
+      if (body.discrepancy) discrepancy();
+      heldLook();
+      if (body.discrepancy) claim(body.discrepancy);
+      oneRequest(body.stage, body.part);
       if (state.counts.comments >= 2000) fail("comment_limit", { limit: 2000 });
       const commit = body.commit || state.picture?.commit_id || state.held.default_commit;
       if (!commit) fail("invalid_request", { field: "commit" });
       const row = { id: entryId("nc_"), project, part: body.part, stage: body.stage, item: body.item,
         quote: body.quote || null, discrepancy: body.discrepancy || null, commit_id: commit,
         author: kind, text: body.text, state: "open", closed_as: null, waits: opposite(kind),
-        asks: kind === "agent" ? body.asks || null : null, settled: 0, dismissed: 0, made_at: now, last_at: now };
-      put("comments", row, true); textBytes = bytes(body.text, body.quote);
+        asks: kind === "agent" ? body.asks || null : null, settled: 0, dismissed: 0, made_at: now, last_at: now,
+        look_first: body.look_first ?? null };
+      // The thing to look at first counts in the space's text with the entry's own.
+      put("comments", row, true); textBytes = bytes(body.text, body.quote, body.look_first);
       status = 201; answer = E.comment(row); break;
     }
     case "reply": {
-      need(comment, "comment"); claim(comment.id);
+      need(comment, "comment");
+      // The agent's reply that asks for the checkpoint again does so on a comment
+      // on the stage as a whole, which is then the stage's open request (SPEC-197).
+      if (body.asks === "checkpoint" && comment.item !== "") refuse("asks", "asks: a reply asks for a checkpoint only on a comment on the stage as a whole");
+      heldLook();
+      claim(comment.id);
       if (comment.state === "closed" && kind === "agent") fail("comment_closed");
+      oneRequest(comment.stage, comment.part, comment.id);
       if (state.replyCount >= 200) fail("reply_limit", { limit: 200 });
       const row = { comment: comment.id, seq: state.replyCount + 1, author: kind, text: body.text,
-        settles: body.settles ? 1 : 0, made_at: eventAt };
+        settles: body.settles ? 1 : 0, made_at: eventAt, look_first: body.look_first ?? null };
       put("replies", row, true);
       touchComment(kind, { state: "open", closed_as: null, ...(kind === "user" ? { settled: row.settles } : { asks: body.asks || null }) });
-      textBytes = bytes(body.text); status = 201; answer = { comment: E.commentState(comment), reply: E.reply(row) }; break;
+      textBytes = bytes(body.text, body.look_first); status = 201; answer = { comment: E.commentState(comment), reply: E.reply(row) }; break;
     }
     case "recommended": {
       // API-159: the user takes what the agent's last entry asks, as API-119

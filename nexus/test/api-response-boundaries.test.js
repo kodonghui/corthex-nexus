@@ -38,8 +38,8 @@ test('actual handler boundaries preserve rows and receipts on quota, state, clai
   else readSnapshot02(snapshot,Date.now());retainSchema(legacy?'Snapshot01':'Snapshot02',snapshot);
   function hash(){const names=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all().map(row=>row.name);return digest(JSON.stringify(names.map(table=>[table,db.prepare('SELECT * FROM '+table).all().map(row=>JSON.stringify(row)).sort()])));}
   function bytes(){return db.prepare(`SELECT
-   COALESCE((SELECT SUM(length(CAST(text AS BLOB))+length(CAST(COALESCE(quote,'') AS BLOB))) FROM comments),0)+
-   COALESCE((SELECT SUM(length(CAST(text AS BLOB))) FROM replies),0)+
+   COALESCE((SELECT SUM(length(CAST(text AS BLOB))+length(CAST(COALESCE(quote,'') AS BLOB))+length(CAST(COALESCE(look_first,'') AS BLOB))) FROM comments),0)+
+   COALESCE((SELECT SUM(length(CAST(text AS BLOB))+length(CAST(COALESCE(look_first,'') AS BLOB))) FROM replies),0)+
    COALESCE((SELECT SUM(length(CAST(link AS BLOB))+length(CAST(COALESCE(text,'') AS BLOB))) FROM decisions),0)+
    COALESCE((SELECT SUM(length(CAST(reason AS BLOB))+length(CAST(change AS BLOB))+length(CAST(COALESCE(source_text,'') AS BLOB))) FROM proposals),0) AS total`).get().total;}
   function recount(){db.prepare('UPDATE project_spaces SET text_bytes=? WHERE project=?').run(bytes(),name);}

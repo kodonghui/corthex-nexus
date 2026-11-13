@@ -1,7 +1,7 @@
 import { Problem } from "./problem.js";
 import { planPush, checkCommit } from "./push-plan.js";
 import * as E from "./entries.js";
-import { checkWriteBody, planEntryWrite, entryDisposition } from "./entry-plan.js";
+import { checkWriteBody, planEntryWrite, entryDisposition, lookedUp, requestOpen } from "./entry-plan.js";
 import { stageData, heldItem, partsOf } from "./stage-items.js";
 import { talkData, CLOSED } from "./stage-talk.js";
 import { itemData } from "./item-data.js";
@@ -132,8 +132,8 @@ const CHECKPOINT_BASIS = `SELECT json_group_array(json_object('id',id,'state',st
 
 // Identifiers below are fixed by the schema, never taken from a request.
 const ENTRY_COLUMNS = Object.freeze({
-  comments: "id project part stage item quote discrepancy commit_id author text state closed_as waits asks settled dismissed made_at last_at".split(" "),
-  replies: "comment seq author text settles made_at".split(" "),
+  comments: "id project part stage item quote discrepancy commit_id author text state closed_as waits asks settled dismissed made_at last_at look_first".split(" "),
+  replies: "comment seq author text settles made_at look_first".split(" "),
   decisions: "comment seq link text made_at".split(" "),
   proposals: "id project part stage commit_id items reason change source_text comment discrepancy state made_at closed_at".split(" "),
   edits: "id project part stage commit_id proposal content state pull_request closed_commit made_at changed_at last_report".split(" "),
@@ -207,7 +207,7 @@ const CARD_PICTURES = `SELECT p.project,p.part,p.stage,p.commit_id,p.committed_a
 // A comment as a list holds it: its count of replies, its last reply and its
 // proposals' IDs, newest first.
 const COMMENT_EXTRAS = `(SELECT COUNT(*) FROM replies AS r WHERE r.comment=c.id) AS reply_count,
-      (SELECT json_object('seq',r.seq,'author',r.author,'text',r.text,'settles',r.settles,'made_at',r.made_at)
+      (SELECT json_object('seq',r.seq,'author',r.author,'text',r.text,'settles',r.settles,'made_at',r.made_at,'look_first',r.look_first)
        FROM replies AS r WHERE r.comment=c.id ORDER BY r.seq DESC LIMIT 1) AS last_reply_json,
       (SELECT json_group_array(id) FROM (SELECT id FROM proposals WHERE comment=c.id ORDER BY made_at DESC,id LIMIT 500)) AS proposal_ids_json`;
 // A stage's closed talk (API-152): its closed comments, by their last entry,
@@ -707,9 +707,12 @@ export class Store {
   // Read only the target rows and counters needed by this transition. The
   // exact same SQL is evaluated inside the receipt INSERT, so a concurrent
   // push, claim or write invalidates the plan before any business row changes.
+  // A checkpoint request also reads its part's stage's open request, so that
+  // the receipt records the write ID only while the stage has no other, and
+  // whether a stage of the stored snapshot holds its trace ID (SPEC-197).
   entryBasis(project, id, body, write, cutoff) {
     const sql = `WITH q AS (SELECT ? AS project,? AS target,? AS body_comment,? AS body_discrepancy,
-      ? AS part,? AS stage,? AS write,? AS cutoff),
+      ? AS part,? AS stage,? AS write,? AS cutoff,? AS request,? AS look),
       t AS (SELECT q.*,COALESCE(body_comment,(SELECT comment FROM proposals WHERE id=q.target AND project=q.project),target) AS thread,
         COALESCE(body_discrepancy,(SELECT discrepancy FROM proposals WHERE id=q.target AND project=q.project),target) AS diff FROM q)
       SELECT json_object(
@@ -728,13 +731,19 @@ export class Store {
           'edits',(SELECT COUNT(*) FROM edits WHERE project=t.project AND state NOT IN ('closed','dismissed'))),
         'replyCount',(SELECT COUNT(*) FROM replies WHERE comment=t.thread),
         'decisionCount',(SELECT COUNT(*) FROM decisions WHERE comment=t.thread),
-        'lastReply',json((SELECT json_object('seq',seq,'author',author,'text',text,'settles',settles,'made_at',made_at) FROM replies WHERE comment=t.thread ORDER BY seq DESC LIMIT 1)),
+        'lastReply',json((SELECT json_object('seq',seq,'author',author,'text',text,'settles',settles,'made_at',made_at,'look_first',look_first) FROM replies WHERE comment=t.thread ORDER BY seq DESC LIMIT 1)),
+        'request',CASE WHEN t.request=1 THEN (SELECT r.id FROM comments AS r WHERE r.project=t.project AND r.state='open' AND r.asks='checkpoint'
+          AND r.part=COALESCE(t.part,(SELECT part FROM comments WHERE project=t.project AND id=t.thread))
+          AND r.stage=COALESCE(t.stage,(SELECT stage FROM comments WHERE project=t.project AND id=t.thread)) ORDER BY r.id LIMIT 1) END,
+        'lookHeld',CASE WHEN t.look IS NULL THEN NULL ELSE EXISTS(SELECT 1 FROM snapshots AS s,json_each(s.body,'$.items') AS j
+          WHERE s.name=t.project AND json_extract(j.value,'$.id')=t.look AND json_extract(j.value,'$.stage') IN (${STAGE_LIST})) END,
         'commentCheckpoint',json(${rowJSON("checkpoints", "project=t.project AND comment=t.thread ORDER BY passed_at DESC,id DESC LIMIT 1")}),
         'threadProposals',json((SELECT json_group_array(json_object('id',id,'state',state,'made_at',made_at,'closed_at',closed_at)) FROM proposals WHERE project=t.project AND comment=t.thread)),
         'claims',json((SELECT json_group_array(json_object('entry',entry,'session',session,'claimed_at',claimed_at,'ends_at',ends_at)) FROM claims WHERE project=t.project AND entry IN(t.target,t.thread,t.diff))),
         'prior',(SELECT json_object('request',request,'result',result) FROM writes WHERE project=t.project AND id=t.write AND received_at>t.cutoff)
       ) AS basis FROM t`;
-    return { sql, params: [project,id || null,body.comment || null,body.discrepancy || null,body.part ?? null,body.stage || null,write || null,cutoff] };
+    return { sql, params: [project,id || null,body.comment || null,body.discrepancy || null,body.part ?? null,body.stage || null,write || null,cutoff,
+      body.asks === "checkpoint" ? 1 : 0,lookedUp(body)] };
   }
 
   async writeEntry(name, project, id, body, { kind, session = null, write, now: given, language = "en" }) {
@@ -780,7 +789,18 @@ export class Store {
         .bind(new Date(Date.parse(now)+3600000).toISOString(),project,plan.on,session,...guard));
       statements.push(this.db.prepare(`DELETE FROM claims WHERE project=? AND (ends_at<=? OR NOT (${activeEntry})) AND ${gate}`).bind(project,now,...guard));
       statements.push(this.db.prepare("SELECT request,result FROM writes WHERE project=? AND id=?").bind(project,write));
-      const results=await this.db.batch(statements);
+      let results;
+      try { results=await this.db.batch(statements); }
+      catch(error) {
+        // The index comments_request is the guard beneath the receipt's check: a
+        // batch that would leave a part's stage two open checkpoint requests fails
+        // whole, and the request is answered with the one that is open (SPEC-197).
+        if(!/UNIQUE constraint failed: comments\.project, comments\.part, comments\.stage/.test(String(error?.message)))throw error;
+        const [part,stage]=name==="comment"?[body.part,body.stage]:[state.comment?.part,state.comment?.stage];
+        const open=await this.db.prepare("SELECT id FROM comments WHERE project=? AND part=? AND stage=? AND state='open' AND asks='checkpoint'").bind(project,part,stage).first("id");
+        if(open)throw requestOpen(project,part,stage,open);
+        continue;
+      }
       const receipt=results[results.length-1].results[0];
       if(!receipt)continue; // another write changed the basis; plan afresh
       if(receipt.request!==name)throw new Problem("write_id_reused","this ID was used for another request");

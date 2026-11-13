@@ -1,13 +1,15 @@
 const only = (row, names) => Object.fromEntries(names.map((name) => [name, row[name] ?? null]));
 const json = (value, fallback) => value == null ? fallback : typeof value === "string" ? JSON.parse(value) : value;
 
+// look_first is the thing to look at first of a checkpoint request's entry,
+// null for any other entry and for a request stored before the revision (SPEC-197).
 export function comment(row) {
-  return { ...only(row, ["id", "part", "stage", "item", "quote", "discrepancy", "author", "text", "state", "closed_as", "waits", "asks", "made_at", "last_at"]), commit: row.commit_id, settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
+  return { ...only(row, ["id", "part", "stage", "item", "quote", "discrepancy", "author", "text", "state", "closed_as", "waits", "asks", "made_at", "last_at"]), commit: row.commit_id, settled: Boolean(row.settled), dismissed: Boolean(row.dismissed), look_first: row.look_first ?? null };
 }
 export function commentState(row) {
   return { ...only(row, ["id", "state", "closed_as", "waits", "asks", "last_at"]), settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
 }
-export const reply = (row) => ({ ...only(row, ["seq", "author", "text", "made_at"]), settles: Boolean(row.settles) });
+export const reply = (row) => ({ ...only(row, ["seq", "author", "text", "made_at"]), settles: Boolean(row.settles), look_first: row.look_first ?? null });
 export const decision = (row) => only(row, ["seq", "link", "text", "made_at"]);
 
 export function proposal(row, full = false) {

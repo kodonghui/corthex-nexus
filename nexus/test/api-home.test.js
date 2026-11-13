@@ -108,8 +108,8 @@ test("API-151 gathers my turn across the spaces in SPEC-143's order, each group 
   const { call, at } = await server(corthex(), shop());
   const ids = {};
   const post = async (name, sent, kind = "agent") => { ids[name] = await say(call, kind, sent); };
-  await post("shopCheckpoint", comment("qa-shop", "sample", "01-domain", "", "Pass the board?", { asks: "checkpoint" }));
-  await post("checkpoint", comment("corthex", "nexus", "05-erd", "", "Pass the ERD with the rows as drafted?", { asks: "checkpoint" }));
+  await post("shopCheckpoint", comment("qa-shop", "sample", "01-domain", "", "Pass the board?", { asks: "checkpoint", look_first: "https://example.com/qa-shop/board" }));
+  await post("checkpoint", comment("corthex", "nexus", "05-erd", "", "Pass the ERD with the rows as drafted?", { asks: "checkpoint", look_first: "TBL-111" }));
   await post("question", comment("corthex", "nexus", "02-prd", "REQ-107", "Should the agent also ask before a push again?", { asks: "answer" }));
   await post("gone", comment("corthex", "nexus", "05-erd", "TBL-109", "Drop the table?", { asks: "answer", quote: "CREATE TABLE claims_old (" }));
   await post("asked", comment("corthex", "nexus", "05-erd", "TBL-111", "Should a claim end early?"), "user");
@@ -195,7 +195,7 @@ test("API-151 counts each space's agent to-do by list, with the place of its old
     at("comments", ids[name], { last_at: time(minute) });
   }
   // A comment that waits for the user is my turn, not the agent's.
-  const mine = await say(call, "agent", comment("corthex", "nexus", "05-erd", "", "Pass it?", { asks: "checkpoint" }));
+  const mine = await say(call, "agent", comment("corthex", "nexus", "05-erd", "", "Pass it?", { asks: "checkpoint", look_first: "TBL-111" }));
   // Two open discrepancies, the older one at a screen's stage, and one resolved.
   db.prepare(`INSERT INTO discrepancies (id,project,part,compares,term,item,reasons,level,state,opened_commit,opened_at) VALUES
     ('nd_aaaaaaaaaaaa','corthex','nexus','aggregate-table','TERM-001','TBL-112','[]','warn','open',?,'2026-11-03T02:00:00.000Z'),

@@ -58,7 +58,7 @@ async function talk({ call, at }) {
   const ids = {};
   ids.question = (await call("POST", space + "/comments", { ...comment("TBL-111", "Should a claim end early?"), kind: "user" })).data.id;
   ids.answer = (await call("POST", space + "/comments", comment("TBL-112", "Which currency?", { asks: "answer" }))).data.id;
-  ids.checkpoint = (await call("POST", space + "/comments", comment("", "Pass the ERD?", { asks: "checkpoint" }))).data.id;
+  ids.checkpoint = (await call("POST", space + "/comments", comment("", "Pass the ERD?", { asks: "checkpoint", look_first: "TBL-111" }))).data.id;
   ids.recommended = (await call("POST", space + "/comments", comment("TBL-113", "Keep refunds apart?", { asks: "recommended" }))).data.id;
   ids.gone = (await call("POST", space + "/comments", { ...comment("TBL-109", "Does this table need an index?"), kind: "user" })).data.id;
   ids.goneMine = (await call("POST", space + "/comments", comment("TBL-109", "Drop it?", { asks: "answer" }))).data.id;

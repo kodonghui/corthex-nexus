@@ -100,7 +100,7 @@ try {
  await call('report checkpoint closed','POST',space+'/checkpoints/'+checkpoint.id+'/report',{kind:'agent',body:{event:'closed',pull_request:'https://example.com/repo/pull/2'}});
  await call('withdraw checkpoint','POST',space+'/checkpoints/'+checkpoint.id+'/withdraw');
  const again=await call('already withdrawn checkpoint','POST',space+'/checkpoints/'+checkpoint.id+'/withdraw');assert.equal(again.changed,false);
- const asking=await call('agent comment asking for the checkpoint','POST',space+'/comments',{body:{part:'nexus',stage:'05-erd',item:'',text:'Synthetic checkpoint as recommended?',asks:'checkpoint'},kind:'agent',status:201});
+ const asking=await call('agent comment asking for the checkpoint','POST',space+'/comments',{body:{part:'nexus',stage:'05-erd',item:'',text:'Synthetic checkpoint as recommended?',asks:'checkpoint',look_first:'TBL-111'},kind:'agent',status:201});
  const taken=await call('take recommendation','POST',space+'/comments/'+asking.id+'/recommended');assert.equal(taken.checkpoint.comment,asking.id);
  const retaken=await call('recommendation already taken','POST',space+'/comments/'+asking.id+'/recommended');assert.equal(retaken.changed,false);
  const claimedComment=await call('comment for claim','POST',space+'/comments',{body:commentBody,status:201});
