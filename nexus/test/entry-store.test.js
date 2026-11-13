@@ -132,11 +132,11 @@ test("checkpoint withdrawal while a PR is open stays in the to-do until it close
   for(const event of ["merged","closed"])await assert.rejects(write("report-checkpoint",c.id,{event,pull_request:PR}),code("checkpoint_state"));
   await write("report-checkpoint",c.id,{event:"opened",pull_request:PR});
   await write("withdraw-checkpoint",c.id,{}, {kind:"user"});
-  const todo=await store.readTodo("corthex","session-b",NOW);
+  const todo=await store.readTodo("corthex","session-b",{now:NOW});
   assert.equal(todo.checkpoints.entries[0].why,"withdrawn-in-review");
   await assert.rejects(write("report-checkpoint",c.id,{event:"opened",pull_request:PR+"2"}),code("checkpoint_withdrawn"));
   await write("report-checkpoint",c.id,{event:"closed",pull_request:PR});
-  assert.equal((await store.readTodo("corthex",null,NOW)).checkpoints.total,0);
+  assert.equal((await store.readTodo("corthex",null,{now:NOW})).checkpoints.total,0);
 });
 
 test("concurrent same-ID writes with the same clock commit once, and a failed batch leaves no receipt",async()=>{
@@ -319,11 +319,11 @@ test("a passed checkpoint omitted by a later record returns to the to-do and may
   const record=data.stages["05-erd"].parts.memory;
   data.stages["05-erd"].parts.nexus={...record,checkpoints:[{...record.checkpoints[0],nexus:k.id}]};
   await store.push(readSnapshot02(data,Date.parse(NOW)),NOW);
-  assert.equal((await store.readTodo("corthex",null,NOW)).checkpoints.total,0);
+  assert.equal((await store.readTodo("corthex",null,{now:NOW})).checkpoints.total,0);
   assert.equal((await store.readEntry("corthex","checkpoint",k.id)).recorded_commit,data.repos["."].default.commit);
   data.stages["05-erd"].parts.nexus.checkpoints=[];
   await store.push(readSnapshot02(data,Date.parse(NOW)),NOW);
   assert.equal((await store.readEntry("corthex","checkpoint",k.id)).recorded_commit,null);
-  assert.equal((await store.readTodo("corthex",null,NOW)).checkpoints.entries[0].id,k.id);
+  assert.equal((await store.readTodo("corthex",null,{now:NOW})).checkpoints.entries[0].id,k.id);
   assert.equal((await write("withdraw-checkpoint",k.id,{}, {kind:"user"})).body.checkpoint.state,"withdrawn");
 });

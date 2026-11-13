@@ -249,7 +249,9 @@ def self_test(api):
                    for content in resolve(response).get("content", {}).values()
                    for example in content.get("examples", {}).values()
                    if isinstance(resolve(example).get("value"), dict))
-    example["value"] = {**example["value"], "unknown_member": True}
+    # The example keeps none of its members and holds one that no schema names, so that it fails whether or not its
+    # schema takes other members: the first path item's first answer is no longer a closed object since TASK-296.
+    example["value"] = {"unknown_member": True}
     comment = broken["components"]["pathItems"]["leaveComment"]["post"]["requestBody"]["content"]["application/json"]
     comment["examples"]["a-checkpoint-request"]["value"].pop("look_first")
     found = check(broken)["findings"]

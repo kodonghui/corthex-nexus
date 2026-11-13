@@ -615,7 +615,7 @@ paths:
     get:
       operationId: getAgentTodo
       tags: [Stage progress]
-      summary: The agent to-do
+      summary: The agent to-do, with the read recorded
       description: >-
         What waits for the agent, in its order: the open comments that wait for the agent, oldest
         first; the open discrepancies, warn before info; the pending reflections, those without a
@@ -623,10 +623,19 @@ paths:
         the withdrawn ones that an open pull request or a stored record still names. Each list
         holds up to 50 entries with its total. An entry that a session claims carries the claim's
         end, marked as this session's when Nexus-Session names it; without the header every claim
-        counts as another session's.
+        counts as another session's. A read that carries the service token records the time of
+        the read for the project's space, by the server's clock, with the session label that
+        Nexus-Session names or with none, before the lists are gathered, and the answer names that
+        time in read_at; the record replaces the one before it, and nothing else of the request is
+        stored (SPEC-187). A read under a person's own sign-in gets the same lists, records nothing
+        and names null, so that no page can move the last read; a HEAD records nothing either. A
+        project without a space is 404 and a label in another form is 400, and neither records
+        anything. When the record cannot be written, the answer is 500 and holds no list, so that
+        an answered read is always a recorded one. The hub knows a server of the revision by
+        read_at in the answer.
       x-corthex:
         id: API-113
-        spec: [SPEC-113, SPEC-135, SPEC-136]
+        spec: [SPEC-113, SPEC-135, SPEC-136, SPEC-187, SPEC-189, SPEC-191]
         status: active
         omit:
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
@@ -638,13 +647,14 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/Todo"}
               examples:
-                waiting: {$ref: "#/components/examples/todo"}
-                nothing:
-                  summary: Nothing waits
+                read-by-the-agent: {$ref: "#/components/examples/todo"}
+                read-by-the-user:
+                  summary: Nothing waits, read under a person's own sign-in, which records no read
                   value:
                     project: corthex
                     default_commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
-                    session: claude-code-4f2a91
+                    session: null
+                    read_at: null
                     comments: {total: 0, entries: []}
                     discrepancies: {total: 0, entries: []}
                     reflections: {total: 0, entries: []}
@@ -2872,27 +2882,28 @@ components:
       summary: A checkpoint passed in NEXUS, waiting for its record
       value: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null}
     todo:
-      summary: Two comments, a discrepancy and a reflection wait
+      summary: The read's recorded time, with a comment, a reflection and two checkpoints that wait, one of them passed before the revision
       value:
         project: corthex
         default_commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
         session: claude-code-4f2a91
+        read_at: "2026-11-11T09:00:00.000Z"
         comments:
-          total: 2
-          entries:
-            - {id: nc_3a6d9g2j5m8r, part: nexus, stage: 01-domain, item: CTX-014, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a reply be able to settle a comment on its own?", state: open, closed_as: null, waits: agent, asks: null, settled: true, dismissed: false, made_at: "2026-11-03T01:00:10.000Z", last_at: "2026-11-03T02:14:09.120Z", replies: 2, last_reply: {seq: 2, author: user, text: "Yes, as recommended: a reply settles it.", settles: true, made_at: "2026-11-03T02:14:09.120Z"}, proposals: [], claim: {ends_at: "2026-11-03T03:05:00.000Z", mine: true}}
-            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Use the glossary's word for this table.", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: true, made_at: "2026-11-03T06:00:00.000Z", last_at: "2026-11-03T07:31:05.090Z", replies: 0, last_reply: null, proposals: [], claim: null}
-        discrepancies:
           total: 1
           entries:
-            - {id: nd_4h8r2t6w9z3c, part: nexus, compares: aggregate-table, term: TERM-122, item: "", reasons: [{kind: no-table}], level: info, state: open, waiting: false, opened_commit: c0ffee5e7a1b2c3d4e5f60718293a4b5c6d7e8f9, opened_at: "2026-11-02T14:20:01.950Z", resolved_commit: null, resolved_at: null, earlier: null, claim: {ends_at: "2026-11-03T02:40:00.000Z", mine: false}}
+            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Use the glossary's word for this table.", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-11T06:00:00.000Z", last_at: "2026-11-11T06:00:00.000Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: null, unread: false}
+        discrepancies: {total: 0, entries: []}
         reflections:
           total: 1
           entries:
-            - {id: ne_9c3f6h2k5n8q, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, state: in-review, pull_request: "https://github.com/kodonghui/corthex/pull/124", closed_commit: null, made_at: "2026-11-03T07:30:41.882Z", changed_at: "2026-11-03T08:12:00.250Z", proposal: {id: np_6t9w2z5c8f1j, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The comment asks for the glossary's word.", change: "Rename the table claims to entry_claims.", source_text_chars: 27, comment: nc_5s8v1y4b7e0h, discrepancy: null, state: accepted, made_at: "2026-11-03T06:40:00.000Z", closed_at: "2026-11-03T07:30:41.882Z", edit: ne_9c3f6h2k5n8q}, claim: null}
-        checkpoints: {total: 0, entries: []}
-        waiting_for_user: 3
-        taken: 1
+            - {id: ne_9c3f6h2k5n8q, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, state: pending, pull_request: null, closed_commit: null, made_at: "2026-11-10T07:30:41.882Z", changed_at: "2026-11-10T07:30:41.882Z", proposal: {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The glossary names it entry claims.", change: "Rename the table claims to entry_claims.", source_text_chars: 27, comment: null, discrepancy: null, state: accepted, made_at: "2026-11-10T06:40:00.000Z", closed_at: "2026-11-10T07:30:41.882Z", edit: ne_9c3f6h2k5n8q}, claim: null, unread: false}
+        checkpoints:
+          total: 2
+          entries:
+            - {id: nk_7f3k2m9q4x1v, part: nexus, stage: 03-user-flow, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The flows as drafted.", state: passed, passed_at: "2026-11-09T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: null, revision: null, entry: null, browser: null, device: null, driven: null, why: not-recorded, claim: null}
+            - {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-11T08:02:11.300Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, revision: null, entry: 0, browser: safari, device: phone, driven: false, why: not-recorded, claim: null}
+        waiting_for_user: 0
+        taken: 0
     picture_data:
       summary: The ERD of nexus with one open comment, shortened to one table
       value:
@@ -3476,30 +3487,6 @@ components:
           - {id: ne_9c3f6h2k5n8q, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, proposal: np_2b5e8g1j4m7p, state: pending, pull_request: null, closed_commit: null, made_at: "2026-11-10T07:30:41.882Z", changed_at: "2026-11-10T07:30:41.882Z"}
         checkpoints:
           - {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-11T08:02:11.300Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, revision: null, entry: 0, browser: safari, device: phone, driven: false}
-
-    todo_planned:
-      summary: "The planned form: the read's recorded time, with a comment, a reflection and two checkpoints that wait, one of them passed before the revision"
-      value:
-        project: corthex
-        default_commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
-        session: claude-code-4f2a91
-        read_at: "2026-11-11T09:00:00.000Z"
-        comments:
-          total: 1
-          entries:
-            - {id: nc_8k1n4q7s0v3y, part: nexus, stage: 05-erd, item: TBL-111, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Use the glossary's word for this table.", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-11T06:00:00.000Z", last_at: "2026-11-11T06:00:00.000Z", look_first: null, replies: 0, last_reply: null, proposals: [], claim: null, unread: false}
-        discrepancies: {total: 0, entries: []}
-        reflections:
-          total: 1
-          entries:
-            - {id: ne_9c3f6h2k5n8q, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, state: pending, pull_request: null, closed_commit: null, made_at: "2026-11-10T07:30:41.882Z", changed_at: "2026-11-10T07:30:41.882Z", proposal: {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The glossary names it entry claims.", change: "Rename the table claims to entry_claims.", source_text_chars: 27, comment: null, discrepancy: null, state: accepted, made_at: "2026-11-10T06:40:00.000Z", closed_at: "2026-11-10T07:30:41.882Z", edit: ne_9c3f6h2k5n8q}, claim: null, unread: false}
-        checkpoints:
-          total: 2
-          entries:
-            - {id: nk_7f3k2m9q4x1v, part: nexus, stage: 03-user-flow, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The flows as drafted.", state: passed, passed_at: "2026-11-09T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: null, revision: null, entry: null, browser: null, device: null, driven: null, why: not-recorded, claim: null}
-            - {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-11T08:02:11.300Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, revision: null, entry: 0, browser: safari, device: phone, driven: false, why: not-recorded, claim: null}
-        waiting_for_user: 0
-        taken: 0
     comment_left_planned:
       summary: "The planned form: the user's comment, which names no thing to look at first"
       value: {id: nc_3a6d9g2j5m8r, part: nexus, stage: 01-domain, item: CTX-014, quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: user, text: "Should a reply be able to settle a comment on its own?", state: open, closed_as: null, waits: agent, asks: null, settled: false, dismissed: false, made_at: "2026-11-11T01:00:10.000Z", last_at: "2026-11-11T01:00:10.000Z", look_first: null}
@@ -4637,7 +4624,7 @@ components:
 
     Todo:
       type: object
-      required: [project, default_commit, session, comments, discrepancies, reflections, checkpoints, waiting_for_user, taken]
+      required: [project, default_commit, session, read_at, comments, discrepancies, reflections, checkpoints, waiting_for_user, taken]
       additionalProperties: false
       properties:
         project: {$ref: "#/components/schemas/ProjectName"}
@@ -4648,7 +4635,6 @@ components:
             The time that this read recorded for the project's space, by the server's clock
             (SPEC-187); null for a read under a person's own sign-in, which records nothing.
             The hub knows a server of the revision by this member
-          x-corthex: {status: planned, spec: [SPEC-187]}
           anyOf: [{$ref: "#/components/schemas/Time"}, {type: "null"}]
         comments:
           type: object
@@ -5896,65 +5882,6 @@ components:
         revision: {type: integer, minimum: 1}
 
   pathItems:
-    getAgentTodo:
-      parameters:
-        - $ref: "#/components/parameters/Project"
-        - $ref: "#/components/parameters/SessionOptional"
-      get:
-        tags: [Stage progress]
-        summary: The agent to-do, with the read recorded
-        description: >-
-          The planned form of getAgentTodo (SPEC-187). A read that carries the service token
-          records the time of the read for the project's space, by the server's clock, with the
-          session label that Nexus-Session names or with none, before the lists are gathered, and
-          the answer names that time in read_at; the record replaces the one before it, and
-          nothing else of the request is stored. A read under a person's own sign-in is answered
-          as now, records nothing and names null, so that no page can move the last read; a HEAD
-          records nothing either. A project without a space is 404 and a label in another form is
-          400, and neither records anything. When the record cannot be written, the answer is 500
-          and holds no list, so that an answered read is always a recorded one. The lists, their
-          order and their limits stay as they are; their comments, reflections and checkpoints
-          hold the fields that the revision adds. The hub knows a server of the revision by
-          read_at in the answer.
-        x-corthex:
-          id: API-113
-          replaces: getAgentTodo
-          spec: [SPEC-113, SPEC-135, SPEC-136, SPEC-187, SPEC-189, SPEC-191]
-          status: planned
-          omit:
-            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
-            "409": a read clashes with no state
-        responses:
-          "200":
-            description: The agent to-do
-            content:
-              application/json:
-                schema: {$ref: "#/components/schemas/Todo"}
-                examples:
-                  read-by-the-agent: {$ref: "#/components/examples/todo_planned"}
-                  read-by-the-user:
-                    summary: Nothing waits, read under a person's own sign-in, which records no read
-                    value:
-                      project: corthex
-                      default_commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a
-                      session: null
-                      read_at: null
-                      comments: {total: 0, entries: []}
-                      discrepancies: {total: 0, entries: []}
-                      reflections: {total: 0, entries: []}
-                      checkpoints: {total: 0, entries: []}
-                      waiting_for_user: 0
-                      taken: 0
-          "400":
-            description: The session label is not in its form
-            content:
-              application/problem+json:
-                schema: {$ref: "#/components/schemas/Problem"}
-                examples:
-                  bad-session: {$ref: "#/components/examples/invalid_session"}
-          "403": {$ref: "#/components/responses/ReadRefused"}
-          "404": {$ref: "#/components/responses/SpaceNotFound"}
-          default: {$ref: "#/components/responses/Unexpected"}
     leaveComment:
       parameters:
         - $ref: "#/components/parameters/Project"

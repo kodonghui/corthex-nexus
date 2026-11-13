@@ -331,12 +331,16 @@ export class Store {
     };
   }
 
-  async push(sent, now = new Date().toISOString(), retry = 0) {
+  async push(sent, given = undefined, retry = 0) {
     const state = await this.pushState(sent.name);
     checkCommit(sent, state.held);
     if (!state.held && state.projectCount >= 30) throw new Problem("too_many_projects", "remove a stored project before adding another", { limit: 30 });
     const phase2 = sent.data?.schema === "corthex-hub/0.2";
-    const plan = phase2 ? await planPush(sent, state, now) : null;
+    const plan = phase2 ? await planPush(sent, state, given ?? new Date().toISOString()) : null;
+    // The push's time is taken in its batch's turn, as a write's is (writeEntry),
+    // so that a discrepancy that it opens after the agent's read counts as not
+    // yet read; the pictures that it draws take the same time.
+    const now = given ?? new Date().toISOString();
     const token = crypto.randomUUID();
     const held = state.held;
     const revision = (held?.revision || 0) + 1;
@@ -365,7 +369,7 @@ export class Store {
         SELECT ?, ?, ? WHERE ${gate}
         ON CONFLICT (project) DO UPDATE SET repo_url = excluded.repo_url
         WHERE project_spaces.repo_url IS NULL AND excluded.repo_url IS NOT NULL`, sent.name, plan.repository, now));
-      const drawn = plan.pictures.filter((row) => row.source !== undefined).map((row) => ({ ...row, commit_id: row.commit, committed_at: row.time }));
+      const drawn = plan.pictures.filter((row) => row.source !== undefined).map((row) => ({ ...row, commit_id: row.commit, committed_at: row.time, drawn_at: now }));
       const marks = plan.pictures.filter((row) => row.source === undefined);
       statements.push(gated(`INSERT INTO pictures (project, part, stage, commit_id, committed_at, source, digest, drawn_at, not_current)
         SELECT ?, json_extract(value,'$.part'), json_extract(value,'$.stage'), json_extract(value,'$.commit_id'),
@@ -409,7 +413,7 @@ export class Store {
       // A checkpoint may be withdrawn after planning but before this batch.
       // Replan against it when no other snapshot overtook the push. Never
       // acknowledge the old checkpoint state or hide its withdrawal warning.
-      if (retry < 1 && latest.held?.push_id === held?.push_id && latest.held?.revision === held?.revision && latest.checkpointBasis !== state.checkpointBasis) return this.push(sent,now,retry+1);
+      if (retry < 1 && latest.held?.push_id === held?.push_id && latest.held?.revision === held?.revision && latest.checkpointBasis !== state.checkpointBasis) return this.push(sent,given,retry+1);
       if (!latest.held && latest.projectCount >= 30) throw new Problem("too_many_projects", "remove a stored project before adding another", { limit: 30 });
       if (latest.held?.default_commit) throw new Problem("commit_not_replaced", "another push stored first; fetch the held commit and push again", { held_commit: latest.held.default_commit });
       if (latest.held) throw new Problem("older_snapshot", "another push stored first; build a fresh snapshot and push again", { stored_at: latest.held.generated_at });
@@ -733,13 +737,17 @@ export class Store {
     return { sql, params: [project,id || null,body.comment || null,body.discrepancy || null,body.part ?? null,body.stage || null,write || null,cutoff] };
   }
 
-  async writeEntry(name, project, id, body, { kind, session = null, write, now = new Date().toISOString(), language = "en" }) {
+  async writeEntry(name, project, id, body, { kind, session = null, write, now: given, language = "en" }) {
     checkWriteBody(name, body, kind);
     await this.ensure();
-    const cutoff = new Date(Date.parse(now)-7*86400000).toISOString();
+    const cutoff = new Date(Date.parse(given ?? new Date().toISOString())-7*86400000).toISOString();
     const basisQuery = this.entryBasis(project,id,body,write,cutoff);
     for (let attempt=0; attempt<8; attempt++) {
       const basis = await this.db.prepare(basisQuery.sql).bind(...basisQuery.params).first("basis");
+      // The write's time is taken in its batch's turn, with nothing awaited in
+      // between, so that on the standalone server the order of the times is
+      // the order of the writes, as the agent's read needs (SPEC-187, SPEC-189).
+      const now = given ?? new Date().toISOString();
       const state = JSON.parse(basis);
       if (state.prior) {
         if (state.prior.request!==name) throw new Problem("write_id_reused","this ID was used for another request");
@@ -816,9 +824,18 @@ export class Store {
     throw new Error("the claim kept changing");
   }
 
-  async readTodo(project,session=null,now=new Date().toISOString()) {
+  // API-113. With record, for a read with the service token (SPEC-187), the
+  // batch's first statement records the read's time and the session's label
+  // for the space, before the lists are gathered, and the answer names that
+  // time; a person's read and a HEAD record nothing and answer null. The time
+  // is taken in the batch's turn, with nothing awaited in between, as each
+  // write takes its own: on the standalone server an entry that the lists do
+  // not hold then carries a time at or after the read's (SPEC-189).
+  async readTodo(project,session=null,{record=false,now:given}={}) {
     const {held}=await this.readContext(project,true);
-    const [comments,discrepancies,edits,checkpoints,claims,counts]=await this.db.batch([
+    const now=given??new Date().toISOString();
+    const recorded=record?[this.db.prepare("UPDATE project_spaces SET read_at=?,read_session=? WHERE project=?").bind(now,session,project)]:[];
+    const results=await this.db.batch([...recorded,
       this.commentStatement(project,"todo",undefined,undefined,50),this.discrepancyStatement(project,undefined,undefined,50),this.editStatement(project,"todo",undefined,undefined,50),
       this.db.prepare(`SELECT *,COUNT(*) OVER() AS _total FROM checkpoints WHERE project=? AND ${TODO_CHECKPOINT}
         ORDER BY CASE WHEN state='passed' THEN 0 ELSE 1 END,passed_at,id LIMIT 50`).bind(project),
@@ -826,9 +843,13 @@ export class Store {
       this.db.prepare(`SELECT (SELECT COUNT(*) FROM comments WHERE project=? AND state='open' AND waits='user') AS waiting,
         (SELECT COUNT(*) FROM claims WHERE project=? AND ends_at>? AND session IS NOT ? AND ${TAKEN}) AS taken`).bind(project,project,now,session),
     ]);
+    // A space removed after readContext leaves the record nothing to change:
+    // that read is the 404 of a project without a space, and records nothing.
+    if(record&&!results[0].meta.changes)throw new Problem("space_not_found","this project has no space; push a 0.2 snapshot first");
+    const [comments,discrepancies,edits,checkpoints,claims,counts]=results.slice(recorded.length);
     const rows=claims.results;
     const wrap=(result,mapper)=>({total:result.results[0]?._total||0,entries:result.results.map(mapper)});
-    return {project,default_commit:held.default_commit,session,
+    return {project,default_commit:held.default_commit,session,read_at:record?now:null,
       comments:wrap(comments,(row)=>E.commentListRow(row,rows,session,now)),
       discrepancies:wrap(discrepancies,(row)=>E.withClaim(E.discrepancy(row),rows,session,now)),
       reflections:wrap(edits,(row)=>E.withClaim(E.editListRow(row),rows,session,now)),

@@ -57,7 +57,8 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
       case "getItem": return json(await store.readItem(p.project,p.id,route.query.part),200,head);
       case "getHome": return json(await store.readHome(),200,head);
       case "searchItems": return json(await store.searchItems(route.query.q),200,head);
-      case "getAgentTodo": return json(await store.readTodo(p.project,route.session),200,head);
+      // A read with the service token records itself (SPEC-187); a person's read and a HEAD do not.
+      case "getAgentTodo": return json(await store.readTodo(p.project,route.session,{record:route.kind==="agent"&&!head}),200,head);
       case "getComment": return json(await store.readEntry(p.project,"comment",p.comment),200,head);
       case "getProposal": return json(await store.readEntry(p.project,"proposal",p.proposal),200,head);
       case "getEdit": return json(await store.readEntry(p.project,"edit",p.edit),200,head);

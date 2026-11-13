@@ -99,6 +99,13 @@ if(!taken.checkpoint?.comment||again.changed||replied.checkpoint)throw new Error
 for(const [name,value] of [["checkpoint taken as recommended",taken],["recommendation taken already",again],["recommendation taken",replied]])
   cases.push({name,schema:"RecommendationAnswer",value});
 cases.push({name:"checkpoint that names its comment",schema:"Checkpoint",value:await call("GET","/api/spaces/corthex/checkpoints/"+taken.checkpoint.id)});
+// The agent to-do read with the service token, which records the read and names
+// its time, and under the user's own sign-in, which records nothing and names
+// null (API-113, SPEC-187): comments, a reflection and two checkpoints wait.
+await call("POST","/api/spaces/corthex/checkpoints",{part:"nexus",stage:"02-prd"},"user");
+const agentRead=await call("GET","/api/spaces/corthex/todo"),userRead=await call("GET","/api/spaces/corthex/todo",undefined,"user");
+if(!agentRead.read_at||userRead.read_at!==null||!agentRead.comments.total||!agentRead.reflections.total||agentRead.checkpoints.total<2)throw new Error("an answer to API-113 lacks what its case needs");
+cases.push({name:"agent to-do read by the agent",schema:"Todo",value:agentRead},{name:"agent to-do read by the user",schema:"Todo",value:userRead});
 // The stage page of a project that only a hub of 0.1 pushed, which has no space.
 await call("POST","/api/snapshots",{schema:"corthex-hub/0.1",generated_at:"2026-01-12T10:00:00+09:00",project:{name:"legacy-shop",title:"Legacy shop"},
   stages:{"02-prd":{source_state:"found",read:true,state:"in_progress",next:"Write the PRD"}},summary:{items:1},
