@@ -11,7 +11,7 @@ import {esc,count,time,timed,dated,dayTime} from "./html.js";
 import {icon,shapeIcon} from "./icons.js";
 import {label,labels,codeMessage,oldLabels,legendWord,capital,STATES} from "./words.js";
 import {stageName,stageNumber} from "./stages.js";
-import {drawTalk} from "./talk.js";
+import {drawTalk,stageRequest,lookFirst} from "./talk.js";
 import {drawItem} from "./item.js";
 import {BROWSERS,DEVICES} from "../client-kind.js";
 
@@ -202,7 +202,22 @@ export function drawKind(cp,lang){
   const lines=[kind,cp?.driven===true?words[BROWSERS.length+DEVICES.length]:""].filter(Boolean).map(line=>`<span>${esc(line)}</span>`);
   return lines.length?`<p class="cpk">${lines.join('<span class="sep" aria-hidden="true">·</span>')}</p>`:"";
 }
-export function drawRecord(data,lang,state={}){
+// The stage's open checkpoint request whole, above the words box (SCR-112, SCR-113, SPEC-139):
+// "Checkpoint", the agent and the time of the request's last entry, that entry's whole text, the
+// thing to look at first, the commit that the project shows, which a pass is to name (SPEC-194,
+// TASK-301), and what is left in the stage, its open discrepancies, its other open comments,
+// without the request, and its pending reflections (REQ-176), each on a line of its own. talk is
+// the stage's whole talk that the page holds (API-152) and the counts are the record's
+// (API-158). A request stored without the form shows as it is, without the thing to look at
+// first; a project whose snapshot names no commit shows none.
+function drawRequest(data,lang,talk){
+  const request=stageRequest(talk);if(!request)return"";
+  const overview=data.record||{},total=key=>Math.max(0,Number(overview[key]?.total)||0),words=labels("A checkpoint request, whole",lang);
+  const commit=typeof data.project?.commit==="string"&&data.project.commit?`<p class="rqc" data-nx-key="commit">${esc(label("The head",2,lang,{commit:data.project.commit.slice(0,7)}))}</p>`:"";
+  const left=[label("A checkpoint request, whole",2,lang,{n:count(total("discrepancies"))}),label("A checkpoint request, whole",3,lang,{n:count(Math.max(0,total("comments")-1))}),label("A checkpoint request, whole",4,lang,{n:count(total("reflections"))})];
+  return`<div class="rq" data-nx-key="rq" data-nx-sub><div class="hd" data-nx-key="rqh"><span class="kind acc">${esc(labels("An entry's kind",lang)[3])}</span><span class="who">${esc(labels("Author and time",lang)[0])} · ${time(request.made_at)}</span></div><p class="tx" data-nx-key="rqt">${esc(request.text)}</p>${lookFirst(request.look_first,lang,"rec-look")}${commit}<p class="rql" data-nx-key="rql"><span class="mu">${esc(words[1])}</span> ${left.map((part,index)=>`<span class="c">${esc(part)}${index<left.length-1?" ·":""}</span>`).join(" ")}</p></div>`;
+}
+export function drawRecord(data,lang,state={},talk=null){
   const words=labels("The stage record",lang),head=labels("The head",lang),headings=oldLabels("Overview's headings",lang),none=oldLabels("Item values",lang)[0];
   const overview=data.record||{},recorded=overview.record||null,checks=Array.isArray(overview.checks)?overview.checks:[];
   // A recorded checkpoint that names its checkpoint passed in NEXUS shows that one's kind of
@@ -235,7 +250,7 @@ export function drawRecord(data,lang,state={}){
   // Past the limit, the limit itself, since nothing is left (rule 5).
   const left=state.over?esc(codeMessage("text_too_long",lang,{limit:WORDS_LIMIT.toLocaleString("en-US")})):state.left===null||state.left===undefined?"":esc(codeMessage("Characters left",lang,{n:state.left}));
   const off=state.over?" disabled":sending?' aria-disabled="true"':"";
-  return`<section class="rec" aria-labelledby="rec-h" data-nx-key="rec" data-nx-sub><span class="handle only-ph" data-nx-key="hd" aria-hidden="true"></span><div class="th" data-nx-key="th"><h2 id="rec-h" tabindex="-1" data-nx-focus="rec-h">${esc(head[4])}</h2><span class="mu sm">${esc(stageNumber(data.stage)+" "+stageName(data.stage,lang))}</span><span class="sp"></span><button class="btn quiet sm" type="button" data-nx-act="close" data-nx-focus="close">${icon("i-back")}${esc(head[5])}</button></div><div class="rb" data-nx-key="rb" data-nx-sub><div class="rnote" data-nx-key="rnote">${message(state.note,lang,"record")}</div>${list}${notOpened?`<div data-nx-key="not-opened">${notOpened}</div>`:""}${passedList?`<div class="cpl" data-nx-key="cpl" data-nx-sub>${passedList}</div>`:""}<h3 data-nx-key="ph">${esc(words[3])}</h3><div class="pnote" data-nx-key="pnote">${message(state.passNote,lang,"pass")}</div><label class="lab" for="cp-words" data-nx-key="pl">${esc(headings[5])}</label><textarea class="ta" id="cp-words" name="words" rows="4" data-nx-key="ta" data-nx-focus="words" aria-describedby="cp-left"></textarea><p class="left" id="cp-left" data-nx-key="left" data-nx-live>${left}</p><div class="r2" data-nx-key="r2"><span class="sp"></span><button class="btn pri" type="button" data-nx-act="pass" data-nx-focus="pass"${off}>${esc(pass)}</button></div></div></section>`;
+  return`<section class="rec" aria-labelledby="rec-h" data-nx-key="rec" data-nx-sub><span class="handle only-ph" data-nx-key="hd" aria-hidden="true"></span><div class="th" data-nx-key="th"><h2 id="rec-h" tabindex="-1" data-nx-focus="rec-h">${esc(head[4])}</h2><span class="mu sm">${esc(stageNumber(data.stage)+" "+stageName(data.stage,lang))}</span><span class="sp"></span><button class="btn quiet sm" type="button" data-nx-act="close" data-nx-focus="close">${icon("i-back")}${esc(head[5])}</button></div><div class="rb" data-nx-key="rb" data-nx-sub><div class="rnote" data-nx-key="rnote">${message(state.note,lang,"record")}</div>${list}${notOpened?`<div data-nx-key="not-opened">${notOpened}</div>`:""}${passedList?`<div class="cpl" data-nx-key="cpl" data-nx-sub>${passedList}</div>`:""}<h3 data-nx-key="ph">${esc(words[3])}</h3>${drawRequest(data,lang,talk)}<div class="pnote" data-nx-key="pnote">${message(state.passNote,lang,"pass")}</div><label class="lab" for="cp-words" data-nx-key="pl">${esc(headings[5])}</label><textarea class="ta" id="cp-words" name="words" rows="4" data-nx-key="ta" data-nx-focus="words" aria-describedby="cp-left"></textarea><p class="left" id="cp-left" data-nx-key="left" data-nx-live>${left}</p><div class="r2" data-nx-key="r2"><span class="sp"></span><button class="btn pri" type="button" data-nx-act="pass" data-nx-focus="pass"${off}>${esc(pass)}</button></div></div></section>`;
 }
 
 // The inside of the side (SCR-111): the stage record while it is open, else what the page could
@@ -245,7 +260,7 @@ export function drawRecord(data,lang,state={}){
 // the view's code selects an item (view.item, ../../ui/item.js), and view.shownSide says which of
 // the two the side shows.
 export function drawSide(data,problem,lang,view={},talk=null){
-  if(view.record)return drawRecord(data,lang,view.recordState);
+  if(view.record)return drawRecord(data,lang,view.recordState,talk);
   if(problem?.code==="space_not_found")return`<div class="sidemsg" data-nx-key="problem">${message({tone:"warn",text:codeMessage(problem.code,lang),trace:problem.traceId},lang,"problem")}</div>`;
   if(!talk)return"";
   const shown=view.talkState?.shown||talk,state=view.talkState||{};

@@ -143,7 +143,8 @@ function talkState(){
  const entry=li=>({id:li.dataset.nxEntry,cls:li.className,chip:txt(li.querySelector(':scope > .hd .kind')),place:txt(li.querySelector(':scope > .hd .ref')),open:li.querySelector(':scope > .hd .ref')?.getAttribute('aria-expanded')==='true',
   acts:all(':scope > .acts > button',li).map(b=>({act:b.dataset.nxAct,text:txt(b)})),waits:all(':scope > .wt',li).map(bare),nrd:all(':scope > :is(.wt,.rst) .nrd',li).map(txt),after:txt(li.querySelector(':scope > .after')),record:!!li.querySelector(':scope > .after [data-nx-act="record"]'),
   reps:txt(li.querySelector(':scope > .reps')),change:txt(li.querySelector(':scope > .chg')),rst:bare(li.querySelector(':scope > .rst')),msgs:all(':scope .msg',li).map(m=>({tone:m.classList[1],text:txt(m.querySelector('.t')),act:m.querySelector('button')?.dataset.nxAct||null})),
-  box:!!li.querySelector(':scope > .rbox'),reply:li.querySelector(':scope > .rbox textarea')?.value??null});
+  box:!!li.querySelector(':scope > .rbox'),reply:li.querySelector(':scope > .rbox textarea')?.value??null,
+  look:(a=>a&&{label:txt(li.querySelector(':scope > .look > .mu')),href:a.getAttribute('href'),text:txt(a),act:a.dataset.nxAct||null,item:a.dataset.nxItem||null,target:a.getAttribute('target'),rel:a.getAttribute('rel')})(li.querySelector(':scope > .look a'))});
  const active=document.activeElement,side=q('.side'),sideBox=side?.getBoundingClientRect();
  return{hash:location.hash,path:location.pathname,tab:q('.ws')?.dataset.nxTab||null,open:q('.ws')?.dataset.nxOpen||null,redrawn:document.documentElement.dataset.nxRedrawn||null,
   side:side&&side.checkVisibility()?[sideBox.left,sideBox.width].map(Math.round):null,talk:!!q('.side .talk'),item:!!q('.side .item'),record:!!q('.side .rec'),
@@ -185,8 +186,10 @@ try{
   await test(`loading-and-normal-1440-${lang}-${theme}`,async()=>{
    await setting({width:1440,theme});
    held={pattern:/^\/code\/page\./,requests:[]};await open(page('02-prd',lang),{ready:false});
-   const before=await state();
+   const before=await state(),lookFirst=JSON.stringify({label:labels('A checkpoint request, whole',lang)[0],href:'#item=REQ-001',text:'REQ-001',act:'look',item:'REQ-001',target:null,rel:null});
    assert(before.talk&&before.waits>=14&&before.waits===before.disabled&&before.lists.mine.length===3,'#loading: the server\'s talk, its controls waiting: '+JSON.stringify({waits:before.waits,disabled:before.disabled,mine:before.lists.mine.length}));
+   // The thing to look at first is in the page as the server draws it (SCR-114's revision, TASK-300).
+   assert(JSON.stringify(one(before.lists.mine,qa.checkpoint)?.look)===lookFirst,'#loading: the request\'s Look at first as the server drew it: '+JSON.stringify(one(before.lists.mine,qa.checkpoint)?.look));
    const loadingShot=await shot(`loading-1440-${lang}-${theme}`);
    await release();await waitFor(`document.documentElement.dataset.nxCode==='ready'`);await settled();
    const s=await state(),kinds=labels("An entry's kind",lang),answers=labels('Answers',lang),turns=labels('The talk',lang);
@@ -195,6 +198,7 @@ try{
    assert(JSON.stringify(s.groups)===JSON.stringify([label('My turn',0,lang,{n:'3'}),label('The talk',3,lang,{n:'3'}),label('The talk',4,lang,{n:'1'}),label('The talk',5,lang,{n:'2'})])&&s.closed==='false','The groups in order, the closed talk folded: '+JSON.stringify(s.groups));
    const [checkpoint,question,recommended]=s.lists.mine,whole=label("An entry's place",0,lang);
    assert(checkpoint.id===qa.checkpoint&&checkpoint.chip===kinds[3]&&checkpoint.place===whole&&JSON.stringify(checkpoint.acts.map(a=>[a.act,a.text]))===JSON.stringify([['recommended',answers[3]],['entry',answers[5]]]),'A checkpoint request first, with Pass as recommended and Open: '+JSON.stringify(checkpoint));
+   assert(JSON.stringify(checkpoint.look)===lookFirst&&!question.look&&!recommended.look,'Look at first, a link to the item\'s place, on the request alone: '+JSON.stringify({checkpoint:checkpoint.look,question:question.look,recommended:recommended.look}));
    assert(question.id===qa.question&&question.chip===kinds[1]&&question.place==='REQ-002'&&question.reps.includes('Synthetic detail: the provider allows two retries.')&&JSON.stringify(question.acts.map(a=>a.act))==='["reply-open"]','A question with its last reply and Reply: '+JSON.stringify(question));
    assert(recommended.id===qa.recommended&&recommended.chip===kinds[2]&&JSON.stringify(recommended.acts.map(a=>[a.act,a.text]))===JSON.stringify([['recommended',answers[2]],['reply-open',answers[4]]]),'A recommendation with As recommended and Reply: '+JSON.stringify(recommended));
    const [claimed,settledOne,waiting]=s.lists.agent,taken=label('Waiting',1,lang,{time:'\u0000'}).split('\u0000'),since=label('Waiting',0,lang,{time:'\u0000'}).split('\u0000');
@@ -466,6 +470,33 @@ try{
   return{evidence:'fixture page and writes',screenshots:[pickedShot,await shot('box-1440-en')]};
  });
 
+ // Rule 22's item, pressed on the request's entry and in the stage's record (TASK-300): the item
+ // that this stage holds opens in its panel beside the stage as a step of the browser's history,
+ // #item=, its row selected and the focus on the panel's heading; the browser's Back closes it.
+ // In the record the link is the same, and the record gives way to the item's panel.
+ await test('look-at-first-1440-en',async()=>{
+  const lang='en',seen={};await setting({width:1440,theme:'light'});await open(page('02-prd',lang));
+  await click(`li[data-nx-entry="${qa.checkpoint}"] > .look a`);
+  await waitFor(`location.hash==='#item=REQ-001'&&document.activeElement?.id==='item-h'`);await settled();
+  let s=await state();seen.entry={hash:s.hash,item:s.item,selected:s.selected,active:s.active};
+  assert(s.item&&s.selected==='REQ-001'&&s.active==='item-h'&&s.overflow===0,'The entry\'s link opens the item\'s panel, its row selected: '+JSON.stringify(seen.entry));
+  const itemShot=await shot('look-item-1440-en');
+  await evaluate('history.back()');await waitFor(`location.hash===''&&!document.querySelector('.side .item')`);await settled();
+  s=await state();seen.back={hash:s.hash,item:s.item,talk:s.talk};
+  assert(!s.item&&s.talk,'Back closes the item: '+JSON.stringify(seen.back));
+  // In the record, by the keyboard: the record gives way to the item's panel.
+  await click('.stage [data-nx-act="record"]');await waitFor(`!!document.querySelector('.side .rec .rq .look a')`);await settled();
+  seen.record=await evaluate(`(()=>{const a=document.querySelector('.side .rec .rq .look a');return{href:a.getAttribute('href'),act:a.dataset.nxAct,text:a.textContent};})()`);
+  assert(seen.record.href==='#item=REQ-001'&&seen.record.act==='look'&&seen.record.text==='REQ-001','The record shows the same link: '+JSON.stringify(seen.record));
+  await evaluate(`document.querySelector('.side .rec .rq .look a').focus()`);
+  for(const type of['keyDown','keyUp'])await command('Input.dispatchKeyEvent',{type,key:'Enter',code:'Enter',windowsVirtualKeyCode:13,nativeVirtualKeyCode:13,...(type==='keyDown'?{text:'\r'}:{})});
+  await waitFor(`location.hash==='#item=REQ-001'&&document.activeElement?.id==='item-h'`);await settled();
+  s=await state();seen.fromRecord={hash:s.hash,record:s.record,open:s.open,item:s.item,active:s.active};
+  assert(!s.record&&s.open!=='record'&&s.item&&s.selected==='REQ-001'&&s.active==='item-h','The record gives way to the item\'s panel: '+JSON.stringify(seen.fromRecord));
+  await evaluate('history.back()');await waitFor(`location.hash===''&&!document.querySelector('.side .item')`);await settled();
+  return{evidence:'fixture page and reads',seen,screenshot:itemShot};
+ });
+
  // As recommended and Pass as recommended answer in place, the focus on the answer; the
  // checkpoint's Stage record opens the record; Reply opens the question with the focus in its
  // box and Escape folds it (API-159, choice 19, rule 10, TC-1804).
@@ -620,7 +651,7 @@ try{
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=2+1+1+2+1+1+1+8+1+1+1+1+1;
+ const expected=2+1+1+2+1+1+1+8+1+1+1+1+1+1;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{

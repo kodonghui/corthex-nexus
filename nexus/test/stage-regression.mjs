@@ -19,7 +19,8 @@ import {tmpdir} from 'node:os';
 import {createHash} from 'node:crypto';
 import {label,labels,codeMessage} from '../src/draw/words.js';
 import {stagePath} from '../src/draw/stages.js';
-import {clock,day} from '../src/draw/html.js';
+import {clock,day,count} from '../src/draw/html.js';
+import {FOLD_KEYS} from '../ui/folds.js';
 import {notReadWhy} from '../src/draw/stage.js';
 
 if(Number(process.versions.node.split('.')[0])<24)throw Error('Node 24 or newer is required');
@@ -46,7 +47,7 @@ function assert(ok,message){if(!ok)throw new CheckFailure(message);}
 function command(method,params={},scoped=true,timeout=10000){
  if(!closing&&Date.now()>softDeadline)return Promise.reject(Error('165s work budget reached; preserving time for owned cleanup'));
  const id=++seq;
- return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{pending.delete(id);reject(Error('CDP timeout: '+method));},timeout);pending.set(id,{resolve:value=>{clearTimeout(timer);resolve(value);},reject:error=>{clearTimeout(timer);reject(error);}});ws.send(JSON.stringify({id,method,params,...(scoped?{sessionId:session}:{})}));});
+ return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{pending.delete(id);reject(Error('CDP timeout: '+method));},timeout);pending.set(id,{resolve:value=>{clearTimeout(timer);resolve(value);},reject:error=>{clearTimeout(timer);reject(error);}});ws.send(JSON.stringify({id,method,params,...(scoped?{sessionId:typeof scoped==='string'?scoped:session}:{})}));});
 }
 async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description||r.exceptionDetails.text);return r.result?.value;}
 async function waitFor(expression,timeout=10000){const stop=Date.now()+timeout;while(Date.now()<stop){if(await evaluate(expression))return;await sleep(25);}throw Error('Page wait timed out: '+expression);}
@@ -98,6 +99,22 @@ async function onPaused(event){
  // to continue: Chrome answers "Invalid InterceptionId", which is recorded, not a failure.
  try{await command('Fetch.continueRequest',{requestId:event.requestId});}
  catch(error){if(!String(error).includes('Invalid InterceptionId'))throw error;report.interceptions.push({path:where,method,action:'dropped by the page',at:new Date().toISOString()});}
+}
+// A tab that the page opens, as an address to look at first does (rule 22). While a test
+// watches, the browser attaches the suite to each new tab paused, before the tab sends anything:
+// the suite records the tab's requests with their headers and fails them, so that the address is
+// never loaded, then lets it run. The tabs that were there already are left as they were.
+let tabId=null,watching=false,opened=null;
+async function onAttached({sessionId,targetInfo,waitingForDebugger}){
+ if(!watching||!waitingForDebugger||targetInfo.type!=='page'){await command('Target.detachFromTarget',{sessionId},false);return;}
+ opened={session:sessionId,target:targetInfo.targetId,opener:targetInfo.openerId??null,canAccessOpener:targetInfo.canAccessOpener??null,requests:[]};
+ await command('Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Request'}]},sessionId);
+ await command('Runtime.runIfWaitingForDebugger',{},sessionId);
+}
+async function onOpenedPaused(event){
+ const headers=Object.fromEntries(Object.entries(event.request.headers||{}).map(([k,v])=>[k.toLowerCase(),v]));
+ opened.requests.push({url:event.request.url,method:event.request.method,referer:headers.referer??null,headers:Object.keys(headers).sort(),at:new Date().toISOString()});
+ await command('Fetch.failRequest',{requestId:event.requestId,errorReason:'BlockedByClient'},opened.session);
 }
 // A write of another tab or the agent's, to the fixture server through /api, as the page's go.
 let otherSerial=0;
@@ -157,6 +174,13 @@ async function click(selector){
  for(const type of['mousePressed','mouseReleased'])await command('Input.dispatchMouseEvent',{type,x:at.x,y:at.y,button:'left',clickCount:1});
 }
 async function clickAt(x,y){for(const type of['mousePressed','mouseReleased'])await command('Input.dispatchMouseEvent',{type,x,y,button:'left',clickCount:1});}
+// A control that shows, by the mouse at its centre: a pictured stage draws Stage record twice, in
+// the head for the phone and in the picture's bar from 1,024 pixels (SCR-112).
+async function clickShown(selector){
+ const at=await evaluate(`(()=>{const e=[...document.querySelectorAll(${JSON.stringify(selector)})].find(e=>e.checkVisibility({visibilityProperty:true}));if(!e)return null;e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()`);
+ assert(at,'No control that shows: '+selector);await clickAt(at.x,at.y);
+}
+const RECORD='[data-nx-act="record"][data-nx-key="rec"]';
 // Words typed into a field, as a person types them.
 async function type(selector,text){
  await evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});e.scrollIntoView({block:'nearest'});e.focus();e.select?.();return true;})()`);
@@ -171,7 +195,7 @@ const postsTo=(pathname,since=0)=>report.posts.slice(since).filter(post=>post.pa
 
 try{
  const fixture=await (await fetch(origin+'/__qa/receipts',{signal:AbortSignal.timeout(10000)})).json(),qa=fixture.stage;
- assert(qa?.project===project&&qa.part===part&&qa.unrecorded==='qa-stage-unrecorded'&&/^nk_/.test(qa.checkpoint||'')&&['talk','asks','last','erd'].every(k=>/^nc_/.test(qa[k]||''))&&/^np_/.test(qa.proposal||''),'The origin is not the opt-in synthetic stage fixture');
+ assert(qa?.project===project&&qa.part===part&&qa.unrecorded==='qa-stage-unrecorded'&&/^nk_/.test(qa.checkpoint||'')&&['talk','asks','last','erd','request','erdRequest'].every(k=>/^nc_/.test(qa[k]||''))&&/^np_/.test(qa.proposal||'')&&/^https:\/\/preview\.example\.com\//.test(qa.address||'')&&qa.texts?.request&&qa.texts.erdRequest,'The origin is not the opt-in synthetic stage fixture');
  const metadataBytes=await fs.readFile(new URL('../src/view-code/sizes.json',import.meta.url)),entries=JSON.parse(metadataBytes).entries;
  assert(/^\/code\/page\.[a-f0-9]{8}\.js$/.test(entries['page-js']||''),'Content-hashed page code is required');
  report.preflight={fixture:qa,build:{entries:{'page-js':entries['page-js'],'page-css':entries['page-css']},sizesSHA256:createHash('sha256').update(metadataBytes).digest('hex')}};
@@ -187,10 +211,12 @@ try{
  browser.launch(chrome,['--headless=new','--remote-debugging-port=0','--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-component-update','--disable-sync','--disable-extensions','--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1','about:blank'],browserEnv);
  const endpoint=await browser.endpoint();
  ws=new WebSocket('ws://127.0.0.1:'+endpoint[0]+endpoint[1]);await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
- ws.onmessage=message=>{const m=JSON.parse(message.data);if(m.id){const call=pending.get(m.id);pending.delete(m.id);if(call)m.error?call.reject(Error(JSON.stringify(m.error))):call.resolve(m.result);}else if(m.sessionId===session){if(m.method==='Page.loadEventFired')loads++;if(m.method==='Fetch.requestPaused')onPaused(m.params).catch(error=>{report.eventError=String(error)+' ('+m.params.request.method+' '+new URL(m.params.request.url).pathname+')';});if(m.method==='Runtime.exceptionThrown')report.runtimeExceptions.push({at:new Date().toISOString(),text:m.params.exceptionDetails?.exception?.description||m.params.exceptionDetails?.text});}};
+ ws.onmessage=message=>{const m=JSON.parse(message.data);if(m.id){const call=pending.get(m.id);pending.delete(m.id);if(call)m.error?call.reject(Error(JSON.stringify(m.error))):call.resolve(m.result);}else if(m.sessionId===session){if(m.method==='Page.loadEventFired')loads++;if(m.method==='Fetch.requestPaused')onPaused(m.params).catch(error=>{report.eventError=String(error)+' ('+m.params.request.method+' '+new URL(m.params.request.url).pathname+')';});if(m.method==='Runtime.exceptionThrown')report.runtimeExceptions.push({at:new Date().toISOString(),text:m.params.exceptionDetails?.exception?.description||m.params.exceptionDetails?.text});}
+  else if(!m.sessionId&&m.method==='Target.attachedToTarget')onAttached(m.params).catch(error=>{report.eventError=String(error)+' (a tab attached)';});
+  else if(m.sessionId&&m.sessionId===opened?.session&&m.method==='Fetch.requestPaused')onOpenedPaused(m.params).catch(error=>{report.eventError=String(error)+' (the opened tab)';});};
  ws.onclose=()=>{for(const call of pending.values())call.reject(Error('Owned CDP connection closed'));pending.clear();};
  report.nodePid=process.pid;report.browser=await command('Browser.getVersion',{},false);
- const tab=await command('Target.createTarget',{url:'about:blank'},false);session=(await command('Target.attachToTarget',{targetId:tab.targetId,flatten:true},false)).sessionId;
+ const tab=await command('Target.createTarget',{url:'about:blank'},false);tabId=tab.targetId;session=(await command('Target.attachToTarget',{targetId:tab.targetId,flatten:true},false)).sessionId;
  await command('Page.enable');await command('Runtime.enable');await command('Network.enable');await command('Network.setCacheDisabled',{cacheDisabled:true});await command('Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Request'}]});
  // The times stay in the server's UTC here; one test shows them in another zone.
  await command('Emulation.setTimezoneOverride',{timezoneId:'UTC'});
@@ -396,6 +422,83 @@ try{
   return{evidence:'fixture pages',seen,screenshots:shots};
  });
 
+ // The stage's open checkpoint request in the record (TASK-300, SPEC-139, SPEC-197, TC-1502, and
+ // the record's part of TC-1713 and TC-1716): above the words box, under the pass's heading, the
+ // request's last entry whole, "Look at first", "Commit {commit}" and what is left in the stage,
+ // each on a line of its own, inside the side and with nothing cut; on the pictured 05 (SCR-112)
+ // with an address of another origin, shown cut after 120 characters, and on 04 (SCR-113) with
+ // a requirement of 02. At 390 pixels in the sheet; at 1,152 in the panel, with the list of
+ // stages shown and folded; at 1,280 with the talk folded, as a first visit leaves it, and shown
+ // with the list folded; at 1,440 in the side; each in light English, dark Korean, dark English
+ // and light Korean, 24 settings on each of the two stages. Where the talk is
+ // shown, the request's entry shows the same link (SCR-114). The counts and the commit are the
+ // server's answers; the request's text is the one that the fixture sent.
+ const REQUEST=`(()=>{const rq=document.querySelector('.side .rec .rq');if(!rq)return null;const q=s=>rq.querySelector(s),txt=e=>e?e.textContent.replace(/\\s+/g,' ').trim():null;
+  const a=q('.look a'),words=document.querySelector('.side .rec #cp-words'),side=document.querySelector('.side'),tx=q('.tx'),r=rq.getBoundingClientRect(),b=side.getBoundingClientRect();
+  return{chip:txt(q('.hd .kind')),who:txt(q('.hd .who')),text:tx?.textContent??null,textFits:!!tx&&tx.scrollHeight<=tx.clientHeight+1&&tx.scrollWidth<=tx.clientWidth+1,
+   look:a&&{label:txt(q('.look > .mu')),href:a.getAttribute('href'),text:a.textContent,act:a.dataset.nxAct||null,item:a.dataset.nxItem||null,target:a.getAttribute('target'),rel:a.getAttribute('rel')},
+   commit:txt(q('.rqc')),left:txt(q('.rql')),lines:[...rq.children].map(e=>e.dataset.nxKey),tops:[...rq.children].map(e=>Math.round(e.getBoundingClientRect().top)),
+   above:!!words&&!!(rq.compareDocumentPosition(words)&Node.DOCUMENT_POSITION_FOLLOWING)&&r.bottom<=words.getBoundingClientRect().top,
+   heading:!!(document.querySelector('.side .rec h3[data-nx-key="ph"]')?.compareDocumentPosition(rq)&Node.DOCUMENT_POSITION_FOLLOWING),
+   box:[r.x,r.y,r.width,r.height].map(Math.round),inside:r.left>=b.left-1&&r.right<=b.right+1,
+   cut:[...rq.querySelectorAll('*')].filter(e=>e.clientWidth>0&&e.scrollWidth>e.clientWidth+1).map(e=>e.className||e.tagName)};})()`;
+ const shownAddress=value=>{const rest=Array.from(value.slice('https://'.length));return rest.length>120?rest.slice(0,120).join('')+'…':rest.join('');};
+ const lookOf=o=>o&&[o.label,o.href,o.text,o.act,o.item,o.target,o.rel].join('|');
+ // The folds kept in the browser's storage (SPEC-210), which the next page applies.
+ const keep=kept=>evaluate(`(()=>{const keys=${JSON.stringify(FOLD_KEYS)},kept=${JSON.stringify(kept)};for(const [name,key]of Object.entries(keys)){if(kept[name])localStorage.setItem(key,kept[name]);else localStorage.removeItem(key);}return location.origin;})()`);
+ await test('the-request-whole-in-the-record',async()=>{
+  const seen={},shots=[],requests={'05-erd':{id:qa.erdRequest,text:qa.texts.erdRequest,look:qa.address},'04-functional-spec':{id:qa.request,text:qa.texts.request,look:'REQ-001'}};
+  const answers={'05-erd':await server('05-erd'),'04-functional-spec':await server('04-functional-spec')};
+  try{
+   for(const stage of['05-erd','04-functional-spec'])for(const [width,kept]of[[390,{}],[1152,{}],[1152,{stages:'folded'}],[1280,{}],[1280,{stages:'folded',talk:'shown'}],[1440,{}]])for(const [lang,theme]of[['en','light'],['ko','dark'],['en','dark'],['ko','light']]){
+    const tag=`${stage.slice(0,2)}-${width}-${lang}-${theme}${Object.entries(kept).map(([name,value])=>`-${name}-${value}`).join('')}`,request=requests[stage],data=answers[stage],words=labels('A checkpoint request, whole',lang);
+    assert(await keep(kept)===origin,'The folds are kept at the fixture\'s origin');
+    await setting({width,theme});await open(stagePath(project,part,stage)+'?lang='+lang);
+    const made=await evaluate(`(JSON.parse(document.getElementById('view-data').textContent).talk?.mine?.entries||[]).find(e=>e.comment?.id===${JSON.stringify(request.id)})?.comment?.made_at||null`);
+    assert(made,'The page holds the request in its talk\'s my turn: '+request.id);
+    const look=stage==='05-erd'?{label:words[0],href:request.look,text:shownAddress(request.look),act:null,item:null,target:'_blank',rel:'noopener noreferrer'}:{label:words[0],href:'#item=REQ-001',text:'REQ-001',act:'look',item:'REQ-001',target:null,rel:null};
+    seen[tag]={};
+    if(width>=1440||width>=1280&&kept.talk==='shown'){
+     seen[tag].entry=await evaluate(`(()=>{const li=document.querySelector('.side li[data-nx-entry="${request.id}"]'),a=li?.querySelector(':scope > .look a');return a&&{label:li.querySelector(':scope > .look > .mu').textContent.trim(),href:a.getAttribute('href'),text:a.textContent,act:a.dataset.nxAct||null,item:a.dataset.nxItem||null,target:a.getAttribute('target'),rel:a.getAttribute('rel')};})()`);
+     assert(lookOf(seen[tag].entry)===lookOf(look),'The request\'s entry in the talk shows the link: '+JSON.stringify({entry:seen[tag].entry,look}));
+    }
+    await clickShown(RECORD);await waitFor(`!!document.querySelector('.side .rec .rq')`);await paint();
+    const r=await evaluate(REQUEST);seen[tag].request=r;
+    const left=[label('A checkpoint request, whole',2,lang,{n:count(data.record.discrepancies.total)}),label('A checkpoint request, whole',3,lang,{n:count(Math.max(0,data.record.comments.total-1))}),label('A checkpoint request, whole',4,lang,{n:count(data.record.reflections.total)})].join(' · ');
+    assert(r.chip===labels("An entry's kind",lang)[3]&&r.who===labels('Author and time',lang)[0]+' · '+clock(made),'The request\'s kind, the agent and the time: '+JSON.stringify({chip:r.chip,who:r.who}));
+    assert(r.text===request.text&&r.textFits,'Its last entry whole, in its lines: '+JSON.stringify({text:r.text,fits:r.textFits}));
+    assert(lookOf(r.look)===lookOf(look),'Look at first: '+JSON.stringify({shown:r.look,look}));
+    assert(typeof data.project.commit==='string'&&r.commit===label('The head',2,lang,{commit:data.project.commit.slice(0,7)}),'The commit that a pass names: '+JSON.stringify({shown:r.commit,commit:data.project.commit}));
+    assert(r.left===words[1]+' '+left,'What is left in the stage, the request left out of the comments: '+JSON.stringify({shown:r.left,record:{discrepancies:data.record.discrepancies.total,comments:data.record.comments.total,reflections:data.record.reflections.total}}));
+    assert(r.lines.join()==='rqh,rqt,look,commit,rql'&&r.tops.every((top,i)=>!i||top>r.tops[i-1]),'Each on a line of its own: '+JSON.stringify({lines:r.lines,tops:r.tops}));
+    assert(r.above&&r.heading&&r.inside&&!r.cut.length,'Under the pass\'s heading, above the words box, inside the side, nothing cut: '+JSON.stringify(r));
+    await noSideways('with the request '+tag);shots.push(await shot('request-'+tag));
+   }
+  }finally{await keep({});}
+  return{evidence:'fixture pages; the counts and the commit as the server answers them',seen,screenshots:shots};
+ });
+
+ // Rule 22's item, pressed by the keyboard in the record of 04, which does not hold it: the record
+ // gives way, the item's address is a step of the browser's history, and the item's panel leads
+ // to 02, which holds it (SCR-115's Target), with its row selected and its panel open; the
+ // browser's Back returns to 04.
+ await test('look-at-first-an-item-of-another-stage-1440-en',async()=>{
+  const lang='en',at=stagePath(project,part,'04-functional-spec'),prd=stagePath(project,part,'02-prd');
+  await setting({width:1440,theme:'dark'});await open(at+'?lang='+lang);
+  const mark=report.reads.length;
+  await clickShown(RECORD);await waitFor(`!!document.querySelector('.side .rec .rq .look a')`);
+  await press('.side .rec .rq .look a');
+  await waitFor(`location.pathname===${JSON.stringify(prd)}&&location.hash==='#item=REQ-001'&&document.documentElement?.dataset.nxCode==='ready'`,15000);await settled();
+  await waitFor(`document.querySelector('.stage .li[aria-current=true]')?.dataset.nxItem==='REQ-001'&&document.querySelector('.side #item-h .id')?.textContent==='REQ-001'`);await paint();
+  const s=await state(),reads=report.reads.slice(mark).map(r=>r.path).filter(p=>p.includes('/items/REQ-001'));
+  assert(s.selected.join()==='REQ-001'&&!s.record&&reads.length>=1,'02 holds the item: its row selected, its panel open, the record closed: '+JSON.stringify({selected:s.selected,record:!!s.record,reads}));
+  const itemShot=await shot('look-item-1440-en');
+  await evaluate('history.back()');await waitFor(`location.pathname===${JSON.stringify(at)}&&location.hash===''&&document.documentElement?.dataset.nxCode==='ready'`,15000);await settled();
+  const back=await state();
+  assert(back.nolist?.key==='empty'&&!back.record&&!back.selected.length,'Back returns to 04: '+JSON.stringify({nolist:back.nolist,record:!!back.record}));
+  return{evidence:'fixture pages and reads',seen:{selected:s.selected,reads,back:{path:at,nolist:back.nolist?.key}},screenshot:itemShot};
+ });
+
  // Rule 2: the server writes UTC; the code writes the same elements in the browser's time
  // zone, here Asia/Seoul, and nothing moves. It runs while the fixture's checkpoint waits, so
  // that the head holds a day as well as a time.
@@ -526,13 +629,57 @@ try{
   const sheet=await evaluate(probe+'('+JSON.stringify('.side .rec button')+')');checked.push({name:'record',found:sheet.length});
   for(const c of sheet)assert(!c.misses.length,`record: ${c.name} misses ${JSON.stringify(c.misses)} at ${JSON.stringify(c.box)}`);
   const heights=await evaluate(`[...document.querySelectorAll('.side .rec button')].map(e=>Math.round(e.getBoundingClientRect().height))`);
-  return{evidence:'fixture page, touch emulation',checked,heights,screenshot:await shot('hit-areas-390')};
+  const sheetShot=await shot('hit-areas-390'),lookShots=[];
+  // The link to look at first in the request's sheet, an item's ID on 04 and an address of three
+  // lines on 05 (TASK-300).
+  for(const stage of['04-functional-spec','05-erd']){
+   await open(stagePath(project,part,stage)+'?lang=ko');await waitFor(`!!document.querySelector('link[data-nexus-css="fonts"]')?.sheet&&document.fonts.status==='loaded'`);
+   await clickShown(RECORD);await waitFor(`!!document.querySelector('.side .rec .rq .look a')`);await paint();
+   const looks=await evaluate(probe+'('+JSON.stringify('.side .rec .rq .look a')+')');checked.push({name:'look at first on '+stage,found:looks.length,box:looks[0]?.box});
+   assert(looks.length===1,'No link to look at first on '+stage);for(const c of looks)assert(!c.misses.length,`look at first on ${stage}: ${c.name} misses ${JSON.stringify(c.misses)} at ${JSON.stringify(c.box)}`);
+   lookShots.push(await shot('hit-areas-look-'+stage.slice(0,2)+'-390'));
+  }
+  return{evidence:'fixture pages, touch emulation',checked,heights,screenshots:[sheetShot,...lookShots]};
+ });
+
+ // Rule 22's address, pressed (TASK-300; the suite's evidence for TC-1780, which stays a case by
+ // hand): before the press no request of the page went to the address's origin; the press opens
+ // a new tab that cannot reach the page, whose one request is the address itself, without a
+ // Referer, and which the suite fails, so that the address is never loaded; the page stays where
+ // it was, with its record open, and asks that origin nothing. The link's rel, noopener
+ // noreferrer, which the record's test reads, is a second guard: the page's own Referrer-Policy is
+ // no-referrer, and Chrome opens a link to a new tab without an opener.
+ await test('look-at-first-an-address-in-a-new-tab-1440-ko',async()=>{
+  const lang='ko',host=new URL(qa.address).origin,seen={};await setting({width:1440,theme:'light'});
+  await open(stagePath(project,part,'05-erd')+'?lang='+lang);
+  await clickShown(RECORD);await waitFor(`!!document.querySelector('.side .rec .rq .look a')`);await paint();
+  const where=await evaluate('location.href');
+  seen.before={blocked:[...report.blockedExternalOrigins]};
+  assert(!report.blockedExternalOrigins.includes(host),'Before the press, no request to the address\'s origin: '+JSON.stringify(seen.before));
+  watching=true;opened=null;
+  try{
+   await command('Target.setAutoAttach',{autoAttach:true,waitForDebuggerOnStart:true,flatten:true},false);
+   await click('.side .rec .rq .look a');
+   for(const stop=Date.now()+10000;!opened?.requests.length&&Date.now()<stop;)await sleep(25);
+   seen.opened=opened&&{opener:opened.opener===tabId?'the page':opened.opener,canAccessOpener:opened.canAccessOpener,requests:opened.requests};
+   assert(opened?.requests.length===1&&opened.requests[0].url===qa.address&&opened.requests[0].method==='GET'&&opened.requests[0].referer===null,'The press opens the whole address in a new tab, without a Referer: '+JSON.stringify(seen.opened));
+   assert(opened.canAccessOpener!==true,'The new tab cannot reach the page (noopener): '+JSON.stringify(seen.opened));
+  }finally{
+   watching=false;
+   await command('Target.setAutoAttach',{autoAttach:false,waitForDebuggerOnStart:false,flatten:true},false).catch(()=>{});
+   if(opened?.target)await command('Target.closeTarget',{targetId:opened.target},false).catch(()=>{});
+   await command('Target.activateTarget',{targetId:tabId},false).catch(()=>{});
+  }
+  await paint();
+  seen.after=await evaluate(`({href:location.href,open:document.querySelector('.ws')?.dataset.nxOpen||null})`);
+  assert(seen.after.href===where&&seen.after.open==='record'&&!report.blockedExternalOrigins.includes(host),'The page stays, with its record, and asks the address\'s origin nothing: '+JSON.stringify({after:seen.after,blocked:report.blockedExternalOrigins}));
+  return{evidence:'fixture page; the new tab\'s one request recorded by the suite and failed (BlockedByClient), so that the address was never loaded',seen,screenshot:await shot('look-address-1440-ko')};
  });
 
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=6+1+1+1+1+1+1+1;
+ const expected=6+1+1+1+1+1+1+1+1+1+1;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{

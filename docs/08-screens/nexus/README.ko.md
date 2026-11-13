@@ -451,6 +451,18 @@ SPEC-155와 SPEC-210은 대화 탭과 접힌 대화의 단추가 내 차례의 �
 - 단계의 검사: [test_screen_states.py](../../../tests/test_screen_states.py)가 통과하고, [screen_states_check.py](../../../nexus/test/screen_states_check.py)는 TASK-298 뒤와 같이 페이지 5개의 정의서 13개와 기록 5개를 읽음: 응답 194개와 코드 351개이며, 통과는 그 코드를 그대로 지님.
 - 저장소의 검사가 통과함: 고정한 허브로 `python -m unittest discover -s tests`(테스트 41개), `node --test nexus/test/*.test.js`(테스트 421개, Node 24), Worker의 dry-run 빌드, `git diff --check`.
 
+2026-11-13, 단계의 열린 확인 요청을 그 기록에 통째로 보이고 먼저 볼 것을 기록과 대화에 보이는 TASK-300에서, SCR-112, SCR-113, SCR-114의 절들은 만든 대로 그 요청을 말하고, 설계 수정은 회색 페이지가 그리는 행들을 남기되 어느 것을 만들었는지 진행으로 말합니다:
+
+- SCR-112의 설계 수정: 단계의 열린 확인 요청의 자료 행은 `built (TASK-300)`이고, 단계에 열린 확인 요청이 있는 동안의 단계 기록 동작은 남길 말 칸 위에 통째로 보이는 요청에 대해 `built in part (TASK-300)`이며, SCR-112#normal은 `built in part (TASK-275, TASK-276, TASK-299, TASK-300)`임. 통과의 단추 "{n}단계 확인 지점 통과"와 통과가 적는 것은 TASK-301을 위해 `planned`로 남음.
+- SCR-113의 설계 수정: 기록의 자료 행과 단계 기록, 통과의 동작은 `built in part (TASK-299, TASK-300)`이고, SCR-113#normal은 `built in part (TASK-276, TASK-277, TASK-299, TASK-300)`임.
+- SCR-114의 설계 수정: 먼저 볼 것의 자료 행과 그것을 여는 동작은 `built (TASK-300)`이고, SCR-114#normal은 `built in part (TASK-276, TASK-298, TASK-300)`임. 요청의 첫째 단추인 "단계 기록"은 TASK-302를 위해 `planned`로 남음.
+- 진행마다 코드와, 그것을 돌린 케이스 TC-1502, TC-1713, TC-1716, 그리고 대화의 링크는 TC-1719에서 정함. TC-1780은 손으로 하는 케이스로 남고, 단계의 스위트는 누르기가 연 새 탭의 하나뿐인 요청을 기록함.
+- 위의 절들: SCR-112와 SCR-113의 단계 기록 자료는 API-158의 `project`와 대화의 내 차례에서 열린 요청, 프로젝트 스냅샷의 커밋, 그 단계에 남은 것을 적고, SCR-114의 자료는 먼저 볼 것을, 그 외부 서비스는 누를 때만 referrer 없이 새 탭에 열리는 주소를 적음.
+- 말: "통째로 본 확인 요청" 행이 [revision-words.md](revision-words.ko.md)에서 보기의 말을 만드는 [redesign-words.md](redesign-words.ko.md)로 옮김.
+- 회색 와이어프레임은 SCR-112#normal, SCR-113#normal, SCR-114#normal의 진행 때문에 다시 그림. 그 설명만 바뀌었고, 페이지는 틀 64개와 라벨 205개를 그대로 지니며 이제 1,010,581바이트임. [measure.mjs](../../../tools/grey_pages/measure.mjs)는 16번 돌리고 틀을 128번 재어 문제를 찾지 못함.
+- 단계의 검사: [test_screen_states.py](../../../tests/test_screen_states.py)가 통과하고, [screen_states_check.py](../../../nexus/test/screen_states_check.py)는 TASK-299 뒤와 같이 페이지 5개의 정의서 13개와 기록 5개를 읽음: 응답 194개와 코드 351개이며, 기록은 보이는 것을 이미 지닌 응답에서 읽음.
+- 저장소의 검사가 통과함: 고정한 허브로 `python -m unittest discover -s tests`(테스트 41개), `node --test nexus/test/*.test.js`(테스트 425개, Node 24), Worker의 dry-run 빌드, `git diff --check`.
+
 ## 확인할 것
 
 2026-11-11의 설계 수정은 2026-11-12에 관리자 자신의 말로 확인 지점을 통과했습니다([검토 지도](../../reviews/2026-11-11-design-review.ko.md)). 이 단계가 거기에 내는 것을, 관리자에게 달라지는 일 하나에 한 줄씩 적습니다:

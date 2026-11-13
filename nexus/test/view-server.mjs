@@ -126,6 +126,14 @@ if(process.env.NEXUS_QA_STAGE==="1"){
  const reflected=await proposal(["TBL-002","reflection"]);
  stageQa.edit=(await call("POST",base+"/proposals/"+reflected.id+"/accept",{})).edit.id;
  stageQa.checkpoint=(await call("POST",base+"/checkpoints",{part:"sample",stage:"02-prd",words:"Synthetic checkpoint that waits for its record"})).id;
+ // Open checkpoint requests on the stage as a whole, which the record shows whole (TASK-300): on
+ // 04, without items, with a requirement of 02 to look at first, which leads to that stage; and
+ // on the pictured 05, in three lines, with an address of another origin to look at first, longer
+ // than the 120 characters that the page shows of it, which the page never loads.
+ stageQa.address="https://preview.example.com/qa/erd/orders?screen=1&view=synthetic-preview-of-the-orders-table-with-its-unique-reference&lang=en&from=nexus-stage-suite";
+ stageQa.texts={request:"Synthetic request: pass the functional spec's checkpoint.\nIt holds no items yet, so look at the PRD's first requirement first.",erdRequest:"Synthetic request: pass the ERD's checkpoint.\nThe orders table keeps a unique reference now.\nLook at the preview of the orders screen first."};
+ stageQa.request=await said("",stageQa.texts.request,"agent",{asks:"checkpoint",look_first:"REQ-001"},"04-functional-spec");
+ stageQa.erdRequest=await said("",stageQa.texts.erdRequest,"agent",{asks:"checkpoint",look_first:stageQa.address},"05-erd");
  stageQa.pushAgain=async()=>{snapshot.generated_at=new Date(Math.max(Date.now(),Date.parse(snapshot.generated_at)+1000)).toISOString();return call("POST","/api/snapshots",snapshot,"agent");};
  const quiet=viewSnapshot("qa-stage-unrecorded");
  for(const stage of Object.values(quiet.stages))stage.parts.sample.state="unknown";

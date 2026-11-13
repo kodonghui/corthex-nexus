@@ -434,6 +434,9 @@ try{
    await click('.stage [data-nx-act="record"]');await waitFor(`document.activeElement?.id==='rec-h'`);await settled();
    v=await view();layoutIs(v,expected(width,{talk:kept,open:true}),'Stage record shows the column');
    assert(v.ws.open==='record'&&v.kept.talk===kept,'The record in the side, the kept fold unchanged: '+JSON.stringify({ws:v.ws,kept:v.kept}));
+   // The stage's open checkpoint request whole, above the words box, in the column (TASK-300).
+   const request=await evaluate(`(()=>{const rq=document.querySelector('.side .rec .rq'),a=rq?.querySelector('.look a'),r=rq?.getBoundingClientRect(),s=document.querySelector('.side')?.getBoundingClientRect(),w=document.querySelector('.side .rec #cp-words')?.getBoundingClientRect();return rq&&{look:a?.getAttribute('href')||null,inside:r.left>=s.left-1&&r.right<=s.right+1,above:!!w&&r.bottom<=w.top};})()`);
+   assert(request?.look==='#item=REQ-001'&&request.inside&&request.above,'The request whole in the column, above the words box: '+JSON.stringify(request));
    const recordShot=await shot(`record-${width}-${lang}-${theme}`);
    await key('Escape');await waitFor(`!document.querySelector('.ws').dataset.nxOpen`);await settled();
    v=await view();layoutIs(v,expected(width,{talk:kept}),'Escape folds it again');

@@ -631,6 +631,10 @@ export const redesign={
     "Chrome · Safari · Firefox · Edge · another browser · unknown browser · phone · tablet · desktop · unknown device · Software drove the browser",
     "Chrome · Safari · Firefox · Edge · 다른 브라우저 · 알 수 없는 브라우저 · 휴대폰 · 태블릿 · 데스크톱 · 알 수 없는 기기 · 소프트웨어가 브라우저를 조작함"
   ],
+  "A checkpoint request, whole": [
+    "Look at first · Left in this stage · {n} open discrepancies · {n} other open comments · {n} pending reflections",
+    "먼저 볼 것 · 이 단계에 남은 것 · 열린 어긋남 {n} · 다른 열린 의견 {n} · 반영 대기 {n}"
+  ],
   "The picture's tools": [
     "Zoom out · Zoom in · Fit · Go to · Map of the whole picture · {stage}, read-only",
     "축소 · 확대 · 맞추기 · 바로 가기 · 전체 그림 지도 · {stage}, 읽기 전용"

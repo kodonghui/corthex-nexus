@@ -20,6 +20,37 @@ export const TALK_LIMIT=4000;
 export const leftOf=n=>n>=TALK_LIMIT*.9&&n<=TALK_LIMIT?TALK_LIMIT-n:null;
 const sr=text=>`<span class="sr">${esc(text)}</span>`;
 const https=value=>typeof value==="string"&&/^https:\/\/[^\s"'<>]+$/.test(value)&&value.length<=2000?value:null;
+const TRACE=/^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
+
+// A part's stage's checkpoint request (SPEC-197): its open comment on the stage as a whole whose
+// last entry, the agent's, asks for the checkpoint. That entry is the agent's last reply where
+// the comment has one, else the comment's own text; place is 0 for the comment's own text and
+// otherwise the reply's seq, which a pass is to name (SPEC-194, TASK-301). look_first is null for
+// a request stored before the design revision, which shows as it is (SCR-112, SCR-114).
+export function requestOf(comment){
+  if(!comment||comment.asks!=="checkpoint"||comment.state!=="open"||comment.item)return null;
+  const last=comment.last_reply?.author==="agent"?comment.last_reply:null;
+  return last?{place:Number(last.seq)||0,text:String(last.text??""),made_at:last.made_at,look_first:last.look_first??null}
+    :{place:0,text:String(comment.text??""),made_at:comment.made_at,look_first:comment.look_first??null};
+}
+// The stage's checkpoint request in the talk that the page holds, the stage's whole talk: the
+// first of my turn, as API-152 orders it (SPEC-143), with its comment.
+export function stageRequest(talk){
+  const row=(Array.isArray(talk?.mine?.entries)?talk.mine.entries:[]).find(entry=>entry?.kind==="comment"&&requestOf(entry.comment));
+  return row?{comment:row.comment,...requestOf(row.comment)}:null;
+}
+// The thing to look at first (rule 22), on a line of its own after "Look at first": an item's ID,
+// a link to the item's panel at #item=, which the stage that holds the item opens (SCR-115); or
+// an https address as text, its host and what follows cut after 120 characters, which opens only
+// when pressed, in a new tab without a referrer, and which the page never loads. A stage's page
+// names no title: it holds titles only for the rows that its list read, which each filter
+// changes. Anything else shows nothing. focus names the link for the focus that the code keeps.
+export function lookFirst(value,lang,focus){
+  let link="";
+  if(typeof value==="string"&&value.length<=30&&TRACE.test(value))link=`<a class="lnk" href="#item=${encodeURIComponent(value)}" data-nx-act="look" data-nx-item="${esc(value)}" data-nx-focus="${esc(focus)}"><span class="mono">${esc(value)}</span></a>`;
+  else if(https(value)){const shown=Array.from(value.slice(8)),text=shown.length>120?shown.slice(0,120).join("")+"…":shown.join("");link=`<a class="lnk" href="${esc(value)}" target="_blank" rel="noopener noreferrer" data-nx-focus="${esc(focus)}">${esc(text)}</a>`;}
+  return link?`<p class="look" data-nx-key="look"><span class="mu">${esc(label("A checkpoint request, whole",0,lang))}</span> ${link}</p>`:"";
+}
 
 // An entry as the talk draws it: a comment, a proposal or a pending reflection, by its ID. My turn
 // and the closed talk hold API-152's TalkEntry, {kind, comment, proposal}; the agent's turn and
@@ -188,8 +219,11 @@ export function drawEntry(entry,group,lang,state={},code=false,copy=false){
   // Opened, an entry whose item the stage no longer holds says so, and selects nothing (SPEC-209).
   const gone=open&&group==="apart"&&itemsOf(entry).length?`<div data-nx-key="gone-item">${message({tone:"info",text:label("An item that the talk selects",0,lang,{id:itemsOf(entry)[0]})},lang,entry.id+":gone")}</div>`:"";
   const waits=group!=="agent"?"":c?waitLine(c,c.last_at,lang)+(c.settled?`<p class="wt" data-nx-key="settled">${icon("i-check")}<span>${esc(label("The talk's entries",1,lang))}</span></p>`:""):waitLine(entry.edit,null,lang);
+  // A checkpoint request of my turn: the thing to look at first of its last entry, after its text
+  // and its last reply (SCR-114#normal, rule 22); a request stored without the form has none.
+  const request=group==="mine"&&c?requestOf(c):null,look=request?lookFirst(request.look_first,lang,`${entry.id}:look${copy?":2":""}`):"";
   const box=open&&c?replyBox(entry,lang,state):"";
-  return`<li class="${cls}" data-nx-key="e:${id}" data-nx-entry="${id}" data-nx-sub>${head}${quote}${text}${body}${gone}${waits}${copy?"":acts(entry,group,lang,state,code,tx)+after(entry,lang,state)}${box}</li>`;
+  return`<li class="${cls}" data-nx-key="e:${id}" data-nx-entry="${id}" data-nx-sub>${head}${quote}${text}${body}${look}${gone}${waits}${copy?"":acts(entry,group,lang,state,code,tx)+after(entry,lang,state)}${box}</li>`;
 }
 
 // The switch between the talk and the item's panel (SCR-115's head), from 1,024 pixels while an

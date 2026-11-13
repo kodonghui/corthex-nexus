@@ -487,6 +487,15 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .rec .cpk{display:grid;justify-items:start;gap:var(--nx-space-2xs);margin:0;color:var(--nx-color-muted)}
 .nx .rec .cpk .sep{display:none}
 @media (min-width:1024px){.nx .rec .cpk{display:flex;flex-wrap:wrap;gap:0 var(--nx-space-xs)}.nx .rec .cpk .sep{display:inline}}
+/* The stage's open checkpoint request whole, above the words box (SCR-112, SCR-113): a card with
+   the accent's line on its left, as an entry of my turn in the talk has; the agent and the time of
+   its last entry, that entry's text whole, then the thing to look at first, the commit and what is
+   left in the stage, each on a line of its own (stage 08's layouts) */
+.nx .rec .rq{display:grid;gap:var(--pg-gap);min-width:0;padding:var(--pg-gap-wide) var(--nx-space-md);border:var(--nx-border-thin) solid var(--nx-color-line);border-left:calc(var(--nx-border-thin) + var(--nx-border-strong)) solid var(--nx-color-accent);border-radius:var(--nx-radius-lg);background:var(--nx-color-surface)}
+.nx .rec .rq > .hd{display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--nx-space-sm);min-width:0}
+.nx .rec .rq > .hd .who{margin-left:auto;color:var(--nx-color-muted);font-size:var(--nx-font-size-caption);white-space:nowrap}
+.nx .rec .rq > .tx{white-space:pre-wrap;text-wrap:pretty;overflow-wrap:anywhere}
+.nx .rec .rq > .rql .c{white-space:nowrap}
 .nx .rec .lab{font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
 .nx .rec .ta{display:block;width:100%;min-height:calc(var(--nx-size-box) - var(--nx-space-sm));padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);color:var(--nx-color-text);font-size:var(--nx-font-size-small);line-height:var(--nx-font-line-height-body);resize:vertical}
 .nx .rec .ta[aria-invalid="true"]{border-color:var(--nx-color-error)}
@@ -539,6 +548,12 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .te .ref:disabled{cursor:default}
 .nx .te > .qt{padding-left:var(--nx-space-sm);border-left:var(--nx-border-strong) solid var(--nx-color-line);color:var(--nx-color-muted)}
 .nx .te > .tx,.nx .te .rep p,.nx .te .chg p{white-space:pre-wrap;text-wrap:pretty}
+/* "Look at first" and its link on a line of their own, in the talk's entry and in the record's
+   request (rule 22): an address breaks anywhere rather than leave its card; on a touch screen the
+   link is size.target high and wide at least, so that a finger takes it (rule 14) */
+.nx .look{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 var(--nx-space-sm);min-width:0}
+.nx .look > .lnk{min-width:0;overflow-wrap:anywhere}
+@media (pointer:coarse){.nx .look > .lnk{display:inline-flex;align-items:center;min-width:var(--nx-size-target);min-height:var(--nx-size-target)}}
 .nx .te .wt,.nx .te .rst{display:flex;align-items:center;gap:var(--pg-gap);color:var(--nx-color-muted);font-size:var(--nx-font-size-caption)}
 /* "Not read by the agent yet" after the wait or how a reflection stands, on a line of its own when
    both do not fit; the icon stays by the first line (SPEC-189) */

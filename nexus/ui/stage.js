@@ -422,12 +422,24 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     counter();render(["side"]);holdPage();
     parts.side.querySelector("#rec-h")?.focus();
   }
-  function closeRecord(to=before){
+  function closeRecord(to=before,focus=true){
     if(!view.record)return;
     view.record=false;view.recordState={...view.recordState,note:null,passNote:null};
     if(ws){if(to)ws.dataset.nxOpen=to;else delete ws.dataset.nxOpen;}
     before=null;holdPage();render(["stage","side"]);
-    document.querySelector(`[data-nx-focus="${CSS.escape(opener)}"]`)?.focus();
+    if(focus)document.querySelector(`[data-nx-focus="${CSS.escape(opener)}"]`)?.focus();
+  }
+  // An item to look at first (rule 22), in the record or on a request's entry in the talk: the
+  // record gives way to the item's panel, which its address opens as a step of the browser's
+  // history, whichever stage holds the item (SCR-115), with the focus on the panel's heading. An
+  // address to look at first is the browser's own link, which opens in a new tab.
+  function lookAt(id){
+    if(!TRACE.test(id||""))return;
+    if(view.record)closeRecord(undefined,false);
+    // A pictured stage keeps the view that it shows, the picture or its list.
+    const hash=(pictured&&view.mode==="list"?"#view=list&item=":"#item=")+encodeURIComponent(id);
+    if(location.hash!==hash)history.pushState(history.state,"",location.pathname+location.search+hash);
+    applyAddress().then(()=>{if(view.item?.id===id)parts.side.querySelector("#item-h")?.focus({preventScroll:true});}).catch(()=>{});
   }
 
   // A write that failed (SCR-112#error, #permission and #stale): its message above the words box,
@@ -488,6 +500,8 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     if(!control&&view.record&&event.target.closest?.(".scrim")){event.preventDefault();closeRecord(null);return;}
     if(!inside||control.disabled||control.getAttribute("aria-disabled")==="true")return;
     const act=control.dataset.nxAct;
+    // A press with a key held, or with another button, opens the link where the browser opens it.
+    if(act==="look"){if(!control.dataset.nxItem||event.button||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();lookAt(control.dataset.nxItem);return;}
     // "All talk of the stage" from the item's panel on the phone: the talk's tab, in front.
     if(act==="whole"&&ws?.dataset.nxTab==="item"){ws.dataset.nxTab="talk";tabBefore=null;}
     if(act==="fold-talk"){talk?.click(act,control,event);foldTalk();return;}

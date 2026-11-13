@@ -6,7 +6,6 @@
 
 | 말 | 나오는 곳 | 영어 | 한국어 | 진행 |
 | --- | --- | --- | --- | --- |
-| 통째로 본 확인 요청 | SCR-110의 줄과 SCR-112·SCR-113의 기록에서, 머리에 이미 있는 "커밋 {commit}"과 함께. SCR-114는 요청의 줄에 첫째 이름표를 보입니다([규칙 22](README.ko.md#설계-수정의-화면), SPEC-196) | Look at first · Left in this stage · {n} open discrepancies · {n} other open comments · {n} pending reflections | 먼저 볼 것 · 이 단계에 남은 것 · 열린 어긋남 {n} · 다른 열린 의견 {n} · 반영 대기 {n} | planned |
 | 확인 요청의 단추 | SCR-110: 줄의 첫째 단추, 그리고 통과에 남길 말의 칸으로 가는 길. SCR-114의 줄은 머리에 이미 있는 "단계 기록"을 보입니다(SPEC-196) | Open the request · Add your words | 요청 열기 · 남길 말 더하기 | planned |
 | 통과 | SCR-110, 그리고 단계에 열린 요청이 있는 동안 SCR-112·SCR-113의 기록([규칙 21](README.ko.md#설계-수정의-화면)). {n}은 04 같은 단계의 번호입니다. 사용자가 말을 더하지 않으면 요청을 정하는 답글의 글이기도 합니다(SPEC-196) | Pass the stage {n} checkpoint | {n}단계 확인 지점 통과 | planned |
 | `snapshot_changed`, 409 | SCR-110#stale, SCR-112#stale, SCR-113#stale. 둘째는 커밋을 적지 않은 스냅샷에(SPEC-194) | The project now shows another commit: {commit}. Look again before you pass. · The project now shows a newer snapshot. Look again before you pass. | 프로젝트가 이제 다른 커밋을 보여 줍니다: {commit}. 다시 보고 통과시켜 주세요. · 프로젝트가 이제 더 새 스냅샷을 보여 줍니다. 다시 보고 통과시켜 주세요. | planned |

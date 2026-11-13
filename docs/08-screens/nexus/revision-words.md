@@ -6,7 +6,6 @@ The words that the design revision of 2026-11-11 plans for SCR-110 to SCR-115 an
 
 | Words | Where | English | Korean | Status |
 | --- | --- | --- | --- | --- |
-| A checkpoint request, whole | SCR-110's entry and the record of SCR-112 and SCR-113, with "Commit {commit}", which the head has; SCR-114 shows the first label on a request's entry ([rule 22](README.md#the-design-revisions-screens), SPEC-196) | Look at first · Left in this stage · {n} open discrepancies · {n} other open comments · {n} pending reflections | 먼저 볼 것 · 이 단계에 남은 것 · 열린 어긋남 {n} · 다른 열린 의견 {n} · 반영 대기 {n} | planned |
 | A checkpoint request's buttons | SCR-110: the entry's first button, and the way to the box for the pass's words; SCR-114's entry shows "Stage record", which the head has (SPEC-196) | Open the request · Add your words | 요청 열기 · 남길 말 더하기 | planned |
 | The pass | SCR-110, and the record of SCR-112 and SCR-113 while the stage has an open request ([rule 21](README.md#the-design-revisions-screens)); {n} is the stage's number, as 04. It is also the text of the reply that settles the request when the user adds no words (SPEC-196) | Pass the stage {n} checkpoint | {n}단계 확인 지점 통과 | planned |
 | `snapshot_changed`, 409 | SCR-110#stale, SCR-112#stale, SCR-113#stale; the second for a snapshot that names no commit (SPEC-194) | The project now shows another commit: {commit}. Look again before you pass. · The project now shows a newer snapshot. Look again before you pass. | 프로젝트가 이제 다른 커밋을 보여 줍니다: {commit}. 다시 보고 통과시켜 주세요. · 프로젝트가 이제 더 새 스냅샷을 보여 줍니다. 다시 보고 통과시켜 주세요. | planned |
