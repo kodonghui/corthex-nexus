@@ -99,7 +99,7 @@
           access: anyone Cloudflare Access lets in, on the server
           flows: [FL-114, FL-118, FL-127]
           terms: none
-          status: planned
+          status: active
 - id: SCR-101
   name: Hub page
   path: /

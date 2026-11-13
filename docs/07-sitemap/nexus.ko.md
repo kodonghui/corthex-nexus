@@ -98,7 +98,7 @@ flowchart TD
 | SCR-113 | 문서 단계 | SCR-111 | `/p/{project}/{part}/{document stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-113, FL-118, FL-119 | CTX-007, TERM-120 | active |
 | SCR-114 | 대화 | SCR-111 | `/p/{project}/{part}/{stage}#talk={comment}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-107, FL-109, FL-110, FL-117, FL-119 | CTX-014, TERM-111 | active |
 | SCR-115 | 항목 | SCR-111 | `/p/{project}/{part}/{stage}#item={id}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-107, FL-118, FL-119 | CTX-014, TERM-111 | active |
-| SCR-130 | 프로젝트 자료 | SCR-111 | `/p/{project}#data` | Cloudflare Access가 들인 사람, 서버에서 | FL-114, FL-118, FL-127 | `none` | planned |
+| SCR-130 | 프로젝트 자료 | SCR-111 | `/p/{project}#data` | Cloudflare Access가 들인 사람, 서버에서 | FL-114, FL-118, FL-127 | `none` | active |
 | SCR-101 | 허브 페이지 | 없음 | `/` | Cloudflare Access가 들인 사람, 또는 기기의 사용자 | FL-105, FL-113 | `none` | removed |
 | SCR-105 | 그림 보기 | 없음 | `/pictures/{project}/{part}/{stage}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-110 | `none` | removed |
 | SCR-106 | 항목 | 없음 | `/pictures/{project}/{part}/{stage}#item={id}` | Cloudflare Access가 들인 사람, 서버에서 | FL-106, FL-107 | `none` | removed |
@@ -147,7 +147,7 @@ flowchart TD
 - 그림에 없는 항목, 의견, 제안의 주소는 그림 보기를 열고 그렇다고 알립니다. 그 상태는 08단계가 그립니다.
 - 경로에서 `{part}`는, 계약의 요청처럼, 프로젝트 전체이면 `_`입니다.
 
-다시 디자인을 만든 뒤의 주소. TASK-271부터 서버는 그 페이지를 이 주소에서 답합니다: `/`와 단계의 주소는 TASK-272가 그리는 틀과 함께, `/p/{project}`는 그 넘겨주기로, `/hub`는 허브 페이지로 답하므로 SCR-117은 active입니다. TASK-273부터 `/`는 첫 화면이므로 SCR-110도 active입니다. TASK-274부터 단계의 주소는 단계의 목록과 함께 작업 공간을 보이므로 SCR-111과 SCR-113도 active이고, 그림 단계는 TASK-275가 그림을 그릴 때까지 그 목록을 보였습니다. TASK-275\~TASK-277부터 그림 단계, 대화, 항목, 찾기를 만들었으므로 SCR-112, SCR-114, SCR-115, SCR-116도 active이며, TASK-278부터 서버가 0.2의 두 경로에 아래의 넘겨주기로 답하므로 SCR-105\~SCR-109는 `removed`입니다:
+다시 디자인을 만든 뒤의 주소. TASK-271부터 서버는 그 페이지를 이 주소에서 답합니다: `/`와 단계의 주소는 TASK-272가 그리는 틀과 함께, `/p/{project}`는 그 넘겨주기로, `/hub`는 허브 페이지로 답하므로 SCR-117은 active입니다. TASK-273부터 `/`는 첫 화면이므로 SCR-110도 active입니다. TASK-274부터 단계의 주소는 단계의 목록과 함께 작업 공간을 보이므로 SCR-111과 SCR-113도 active이고, 그림 단계는 TASK-275가 그림을 그릴 때까지 그 목록을 보였습니다. TASK-275\~TASK-277부터 그림 단계, 대화, 항목, 찾기를 만들었으므로 SCR-112, SCR-114, SCR-115, SCR-116도 active이며, TASK-278부터 서버가 0.2의 두 경로에 아래의 넘겨주기로 답하므로 SCR-105\~SCR-109는 `removed`이고, TASK-312부터 `data`가 단계 위에 프로젝트 자료를 열므로 SCR-130도 active입니다:
 
 - 페이지는 첫 화면 `/`(API-155), 지금 단계로 이어 주는 프로젝트 `/p/{project}`(API-153), 단계 `/p/{project}/{part}/{stage}`(API-154), 이제 `/hub`에 있는 허브 페이지(API-101)입니다. `{stage}`는 `02-prd` 같은 단계의 키입니다. SCR-112와 SCR-113은 같은 꼴을 나눠 쓰고, 단계에 그림이 있는지로 갈립니다.
 - `#` 뒤는 0.2와 같은 꼴입니다: `talk`만 있으면 단계의 대화를, `nc_`나 `np_` ID와 함께면 그 의견이나 제안을 엽니다. `item`과 추적 ID는 항목을, `view=list`는 그림 단계에서 그림 대신 목록을 보여 줍니다. `step`은 0.2처럼 DDD 보드의 스텝을 지니고, `q`는 어느 페이지에서나 찾는 말을 지닙니다.

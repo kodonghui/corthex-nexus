@@ -10,7 +10,7 @@ import {icon,shapeIcon} from "./icons.js";
 import {label,labels,oldLabels,legendWord,codeMessage,notCurrentWhy,STATES} from "./words.js";
 import {STAGE_KEYS,stageName,stageNumber,stagePath} from "./stages.js";
 import {PALETTE} from "./palette.js";
-import {lastPush,lastRead,longWait,pushed as pushedAt} from "./loop.js";
+import {lastPush,lastRead,longWait,placed,pushed as pushedAt} from "./loop.js";
 
 export const PICTURED=Object.freeze(["01-domain","05-erd","07-sitemap"]);
 const sr=text=>`<span class="sr">${esc(text)}</span>`;
@@ -69,10 +69,12 @@ export function drawingSVG(drawing){
   return`<svg viewBox="${x} ${y} ${Math.max(1,width)} ${Math.max(1,height)}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">${lines?`<path d="${lines}" fill="none" stroke="${PALETTE.context[0]}"/>`:""}${boxes}</svg>`;
 }
 
-// The notes above my turn: the sign-in that expired (rule 7) and a reading again that
-// failed (rule 6), each with its button.
+// The notes above my turn: the project removed a moment ago in its data (SCR-110#removed),
+// with Close; the sign-in that expired (rule 7) and a reading again that failed (rule 6), each
+// with its button.
 function notes(view,lang){
   const buttons=labels("Page buttons",lang),out=[];
+  if(view.removed)out.push(`<div class="bar info" role="status">${icon("i-info")}<span class="t">${placed(label("A project was removed",0,lang),{project:`<span class="pn">${esc(view.removed)}</span>`})}</span><button class="btn sm" type="button" data-nx-act="removed-close" data-nx-focus="removed-close">${esc(label("Top bar",5,lang))}</button></div>`);
   if(view.notice==="sign-in")out.push(`<div class="bar warn" role="status">${icon("i-warn")}<span class="t">${esc(codeMessage("Sign-in expired",lang))}</span><button class="btn sm pri" type="button" data-nx-act="sign-in" data-nx-focus="sign-in">${esc(buttons[2])}</button></div>`);
   if(view.notice==="unread")out.push(`<div class="bar err" role="alert">${icon("i-err")}<span class="t">${esc(codeMessage("Could not update",lang))}</span><button class="btn sm" type="button" data-nx-act="read" data-nx-focus="read">${icon("i-reload")}${esc(buttons[0])}</button></div>`);
   return`<div class="full notes" data-nx-key="notes">${out.join("")}</div>`;

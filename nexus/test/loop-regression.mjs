@@ -4,9 +4,10 @@
  * card's last push with its commit or "No commit" and the agent's last read, "Not read by the
  * agent yet" or "No agent to-do yet", each time with how long ago, and the mark of a long wait
  * with its line; the agent to-do's lines and "{n} not read yet". In the workspace (SCR-111#normal
- * and #folded, SCR-114#normal): the head's two times and the mark, the folded rail's mark, which
- * does nothing, and the talk's "Not read by the agent yet" on the entries that wait unread, not on
- * those read or taken. Each at its widths, in both themes and languages, with stage 12's page
+ * and #folded, SCR-114#normal): the head's two times and the mark, the folded rail's mark, a
+ * button that opens the project's data since TASK-312 (SCR-130), and the talk's "Not read by the
+ * agent yet" on the entries that wait unread, not on those read or taken. Each at its widths, in
+ * both themes and languages, with stage 12's page
  * checks (./page-checks.mjs) and a frame of each. Then the server's drawing before the code runs,
  * in Seoul's time zone, and the code's, with the same boxes (SCR-110#loading, SCR-111#loading);
  * the page shown again an hour and a day later, by a clock that the suite moves (TC-1416); and
@@ -23,6 +24,8 @@ import {createBrowserRun} from './owned-browser.mjs';
 import {tmpdir} from 'node:os';
 import {createHash} from 'node:crypto';
 import {label,labels} from '../src/draw/words.js';
+// The folded rail's mark: its shape, with its words and where it leads for screen readers (TASK-312).
+const markName=lang=>`${labels('The mark of a long wait',lang)[0]}, ${label("The workspace's head",0,lang)}`;
 import {stagePath} from '../src/draw/stages.js';
 import {clock,day,count} from '../src/draw/html.js';
 import {agoWords,waitedLong} from '../src/draw/loop.js';
@@ -313,7 +316,7 @@ try{
   if(flag!==undefined){
    const long=project.unread_since&&waitedLong(project.unread_since,to);
    assert(v.flag?.shown===Boolean(flag&&long),what+': the folded rail\'s mark '+(flag&&long?'shows':'does not show')+': '+JSON.stringify(v.flag));
-   if(v.flag?.shown)assert(v.flag.name===labels('The mark of a long wait',lang)[0]&&v.flag.tag==='span'&&v.flag.tabIndex<0&&!v.flag.role&&!v.flag.interactive&&v.flag.color&&v.flag.order&&v.flag.inside,what+': the rail\'s mark, words for screen readers, in the warning\'s colour, above the stages, which does nothing (rule 23): '+JSON.stringify(v.flag));
+   if(v.flag?.shown)assert(v.flag.name===markName(lang)&&v.flag.tag==='button'&&v.flag.tabIndex===0&&!v.flag.role&&v.flag.interactive&&v.flag.color&&v.flag.order&&v.flag.inside,what+': the rail\'s mark, a button whose words say the mark and where it leads, in the warning\'s colour, above the stages (TASK-312): '+JSON.stringify(v.flag));
    out.flag=v.flag?.shown?'shown':'none';
   }
   if(talkShown){
@@ -410,7 +413,7 @@ try{
   const folded=workspaceHolds(v,{project:fresh_,lang,from,to:Date.now()+23.5*HOUR,inZone:'UTC',head:false,flag:true,talkShown:true,unread,what:'The list folded'});
   assert(folded.flag==='shown','The folded rail shows the mark: '+JSON.stringify(folded));
   const flagAx=await ax('.rail .fmk');
-  assert(flagAx.every(n=>!['button','link'].includes(n.role)&&!n.focusable),'The rail\'s mark is no control: '+JSON.stringify(flagAx));
+  assert(flagAx.length===1&&flagAx[0].role==='button'&&flagAx[0].focusable&&flagAx[0].name===markName(lang),'The rail\'s mark is a button that names the mark and the project\'s data: '+JSON.stringify(flagAx));
   return{evidence:'fixture page and reads; the page\'s clock moved by the suite and visibilitychange dispatched (mocked clock, dispatched event); Chrome\'s accessibility tree, not a screen reader',opened,shown,folded,flagAx,screenshots:[headShot,await shot('shown-again-workspace-folded-1440-dark-ko')]};
  });
 
@@ -445,10 +448,15 @@ try{
     seen.place=workspaceHolds(v,{project:shop,lang,from,to,inZone:'UTC',head:!folded,flag:folded,talkShown:true,what:'SCR-111 at '+s.name});
     assert(!folded||seen.place.flag==='shown','The folded rail shows the mark: '+JSON.stringify(seen.place));
     if(folded){
-     // The rail's mark does nothing when pressed: the page stays where it is and asks for nothing.
-     const where=await evaluate('location.href'),asked=requests;
-     await click('.rail .fmk');await sleep(150);
-     assert(await evaluate('location.href')===where&&requests===asked,'A press on the rail\'s mark does nothing: '+JSON.stringify({where,asked,requests}));
+     // The rail's mark opens the project's data (TASK-312, SCR-130), and Escape takes it back to
+     // the same address, with the focus on the mark.
+     const where=await evaluate('location.href');
+     await click('.rail .fmk');
+     await waitFor(`new URLSearchParams(location.hash.slice(1)).has('data')&&!!document.querySelector('.ws[data-nx-data] .dp')&&document.activeElement?.id==='dp-h'`);
+     await waitFor(`!!document.querySelector('.dp .dact')`);
+     await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+     await waitFor(`location.href===${JSON.stringify(where)}&&!document.querySelector('.ws[data-nx-data]')&&document.activeElement?.matches('.rail .fmk')`);
+     seen.opens='the project\'s data, closed by Escape, with the focus on the mark';
     }
     const checks=await pageChecks(s.width);checksPass(checks,consoleErrors(since),'SCR-111 at '+s.name);seen.checks=summary(checks);
     screenshots.push(await shot(`workspace-${s.name}-${theme}-${lang}`));

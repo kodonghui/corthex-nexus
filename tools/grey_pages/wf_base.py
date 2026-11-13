@@ -209,6 +209,8 @@ def read_def(name, lang):
     L = path.read_text(encoding="utf8").split("\n")
     title = L[0][2:].split(" ", 1)[1]
     purpose = next(l for l in L if l.startswith("Purpose:" if lang == "en" else "목적:"))
+    # SCR-130, which the revision adds, holds its rows without a status column: planned whole, and
+    # built whole by TASK-312 on 2026-11-14, so each of its frames gives that status.
     new = name.startswith("SCR-130")
     if new:
         head = "## States" if lang == "en" else "## 상태"
@@ -224,7 +226,7 @@ def read_def(name, lang):
             want = 3 if new else 4
             if len(c) != want:
                 raise ValueError("%s: a state row of %d cells: %s" % (path.name, len(c), c[0]))
-            rows.append({"id": c[0], "text": c[1], "from": c[2], "status": c[3] if not new else "planned"})
+            rows.append({"id": c[0], "text": c[1], "from": c[2], "status": c[3] if not new else "built (TASK-312)"})
         elif l.strip() and not l.startswith("|") and rows and not note:
             note = l.strip()
     return {"title": title, "purpose": purpose, "rows": rows, "note": note}

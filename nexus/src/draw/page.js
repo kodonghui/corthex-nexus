@@ -11,6 +11,7 @@ import {drawHome} from "./home.js";
 import {drawStage,drawSide,stageBars,PICTURE_STAGES} from "./stage.js";
 import {drawPictureStage} from "./picture.js";
 import {agentCount} from "./talk.js";
+import {drawData} from "./data.js";
 export const PAGE_SCHEMAS=Object.freeze({home:"corthex-home-page/0.3",stage:"corthex-stage-page/0.3"});
 export function pageKind(payload){
   const kind=Object.keys(PAGE_SCHEMAS).find(key=>PAGE_SCHEMAS[key]===payload?.schema);
@@ -27,7 +28,8 @@ export const stageMine=data=>Number((data.stages||[]).find(stage=>stage.key===da
 // The inside of every part of the page, by the part's name, from the page's data: the
 // first page's sections (SCR-110, TASK-273), and a stage's frame, middle and side (SCR-111
 // and SCR-113, TASK-274), with a pictured stage's picture (SCR-112, TASK-275), the
-// talk in the side (SCR-114, TASK-276) and the selected item there (SCR-115, TASK-277).
+// talk in the side (SCR-114, TASK-276), the selected item there (SCR-115, TASK-277) and
+// the project's data over the stage (SCR-130, TASK-312), which only the code opens.
 // view is what the stage page's code adds when it draws again (./stage.js); the server
 // draws with none.
 export function drawParts(payload,view={}){
@@ -37,10 +39,11 @@ export function drawParts(payload,view={}){
   return{
     top:topBar({kind:"stage",project:data.project.name,title:data.project.title,part:data.part,stage:data.stage},lang),
     bars:codeBar(lang)+stageBars(view,lang),
-    rail:stageRail(data,lang,payload.generated_at),
+    rail:stageRail(data,lang,payload.generated_at,Boolean(view.code)),
     tabs:tabs({picture:Boolean(payload.picture),talk,item:Boolean(view.item),mine},lang),
     stage:PICTURE_STAGES.includes(data.stage)?drawPictureStage(payload,lang,{...view,talk,mine}):drawStage(data,lang,{...view,talk,mine}),
     side:drawSide(data,payload.problem,lang,view,payload.talk),
+    data:drawData(view.data,lang),
   };
 }
 export function pageTitle(payload){
@@ -62,5 +65,5 @@ export function drawBody(payload){
   const kind=pageKind(payload),parts=drawParts(payload),close=labels("Top bar",payload.lang)[5];
   const head=`${SPRITE}<header class="tb" data-nx-part="top">${parts.top}</header><div class="bars" data-nx-part="bars">${parts.bars}</div>`;
   if(kind==="home")return `${head}<main class="home" id="main" data-nx-part="home">${parts.home}</main>`;
-  return `${head}<div class="ws"><a class="scrim" href="#stage" tabindex="-1" aria-hidden="true"></a><nav class="rail" id="stages" aria-labelledby="rail-name"><a class="ib close only-ph" href="#stage">${icon("i-close")}<span class="sr">${esc(close)}</span></a>${foldStages(payload.lang)}<div class="rail-in" data-nx-part="rail">${parts.rail}</div></nav><nav class="tabs only-ph" data-nx-part="tabs">${parts.tabs}</nav><main class="stage" id="stage" data-nx-part="stage">${parts.stage}</main><aside class="side" id="talk" data-nx-part="side">${parts.side}</aside></div>`;
+  return `${head}<div class="ws"><a class="scrim" href="#stage" tabindex="-1" aria-hidden="true"></a><nav class="rail" id="stages" aria-labelledby="rail-name"><a class="ib close only-ph" href="#stage">${icon("i-close")}<span class="sr">${esc(close)}</span></a>${foldStages(payload.lang)}<div class="rail-in" data-nx-part="rail">${parts.rail}</div></nav><nav class="tabs only-ph" data-nx-part="tabs">${parts.tabs}</nav><main class="stage" id="stage" data-nx-part="stage">${parts.stage}</main><aside class="side" id="talk" data-nx-part="side">${parts.side}</aside><div class="dpw" data-nx-part="data">${parts.data}</div></div>`;
 }

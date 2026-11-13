@@ -14,6 +14,7 @@ import {stagePath} from "../src/draw/stages.js";
 import {label,labels,codeMessage} from "../src/draw/words.js";
 import {words} from "./messages.js";
 import {LatestReads,PendingWrites,characters} from "./state.js";
+import {fragment} from "./data.js";
 
 const PERMISSION=Object.freeze(["user_only","access_missing","access_other_app","no_kind"]);
 const CONNECTION=Object.freeze({network:"No connection",timeout:"No answer in time",busy:"Busy"});
@@ -57,7 +58,7 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   // A new address that the page then follows: a step of the browser's history with push, else
   // in the place of this one.
   function go(params,push=false){
-    const rest=params.toString();
+    const rest=fragment(params);
     history[push?"pushState":"replaceState"](history.state,"",location.pathname+location.search+(rest?"#"+rest:""));
     return applyAddress();
   }
@@ -302,7 +303,7 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
     const items=itemsOf(found.entry),chosen=st.item||selected();
     if(found.group!=="apart"&&items.length){if(!st.item)back=id;params.set("item",items.includes(chosen)?chosen:items[0]);}
     if(answer)reply=id;
-    const rest=params.toString();
+    const rest=fragment(params);
     history.pushState(history.state,"",location.pathname+location.search+"#"+rest);
     history.replaceState({...(history.state||{}),nexusTalk:location.hash},"",location.href);
     applyAddress().catch(()=>{});

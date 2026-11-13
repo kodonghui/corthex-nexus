@@ -11,6 +11,7 @@ import {label,labels,oldLabels,codeMessage} from "../src/draw/words.js";
 import {ApiClient,Drafts,LatestReads,PendingWrites,characters,writeId} from "./state.js";
 import {reconcile} from "./reconcile.js";
 import {createSearch} from "./search.js";
+import {REMOVED_KEY} from "./data.js";
 
 const ORDER_KEY="nexus0.3:order";
 const STATES=Object.freeze(["open","accepted","dismissed","withdrawn"]);
@@ -24,6 +25,15 @@ const CONNECTION=Object.freeze({network:"No connection",timeout:"No answer in ti
 const SHOWN=Object.freeze(["commit","revision","comment","entry"]);
 const PROJECT=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+// The project that the project's data removed a moment ago (SCR-130), read once and emptied, so
+// that a page loaded again does not say it (SCR-110#removed).
+export function takeRemoved(storage=()=>globalThis.sessionStorage){
+  try{
+    const store=storage(),value=store?.getItem(REMOVED_KEY)??null;
+    if(value!==null)store.removeItem(REMOVED_KEY);
+    return typeof value==="string"&&value.length<=100&&PROJECT.test(value)?value:null;
+  }catch{return null;}
+}
 function storedOrder(){try{return globalThis.localStorage?.getItem(ORDER_KEY)==="push"?"push":"name";}catch{return"name";}}
 function storeOrder(order){try{globalThis.localStorage?.setItem(ORDER_KEY,order);}catch{/* The order stays for this page only. */}}
 
@@ -51,7 +61,7 @@ export async function followFragment(hash,data,api,go=target=>location.replace(t
 
 export function startHome(root,payload,{api=new ApiClient(location.origin),drafts=new Drafts(),localize=()=>{}}={}){
   const lang=payload.lang,writes=new PendingWrites(),reads=new LatestReads(),entries=new Map(),kept=new Map();
-  let data=payload.data,list=data.my_turn.entries.slice(),notice=null,reading=0,order=storedOrder();
+  let data=payload.data,list=data.my_turn.entries.slice(),notice=null,reading=0,order=storedOrder(),removed=takeRemoved();
   const pushed={};
   const stateOf=id=>{if(!entries.has(id))entries.set(id,{writes:{}});return entries.get(id);};
   const cardOf=entry=>data.projects.find(item=>item.name===entry?.project)||null;
@@ -67,7 +77,7 @@ export function startHome(root,payload,{api=new ApiClient(location.origin),draft
       if(drafts.has(scope)&&drafts.read(scope).text)state.words=true;
     }
     const template=document.createElement("template");
-    template.innerHTML=drawHome(data,lang,{code:true,list,entries:Object.fromEntries(entries),pushed,notice,updating:reading>0,order});
+    template.innerHTML=drawHome(data,lang,{code:true,list,entries:Object.fromEntries(entries),pushed,notice,updating:reading>0,order,removed});
     reconcile(root,template.content);
     localize(root);
     for(const box of root.querySelectorAll('textarea[name="words"]')){
@@ -223,6 +233,8 @@ export function startHome(root,payload,{api=new ApiClient(location.origin),draft
     else if(act==="read")readAgain();
     else if(act==="sign-in"||act==="load")location.reload();
     else if(act==="order"){order=button.dataset.nxOrder==="push"?"push":"name";storeOrder(order);render();}
+    // Close on the bar after a removal: the bar goes, and the focus goes to the page under it.
+    else if(act==="removed-close"){removed=null;render();root.tabIndex=-1;root.focus({preventScroll:true});}
     else answer(id,act);
   });
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")readAgain();});

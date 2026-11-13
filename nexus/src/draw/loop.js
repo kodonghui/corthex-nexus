@@ -30,7 +30,7 @@ export function waitedLong(since,now){
   return Number.isFinite(then)&&Number.isFinite(at)&&at-then>DAY;
 }
 // Words with places for HTML, such as "Pushed {time}": the words escaped, each place filled.
-function placed(text,fills){
+export function placed(text,fills){
   return String(text).split(/(\{[a-z]+\})/).map(part=>Object.hasOwn(fills,part.slice(1,-1))&&/^\{[a-z]+\}$/.test(part)?fills[part.slice(1,-1)]:esc(part)).join("");
 }
 // A time of the loop: the date and time, which the code writes in the browser's time zone,
@@ -61,10 +61,12 @@ export function longWait(since,base,lang){
   return`<div class="m24w" data-nx-since="${esc(since)}"${waitedLong(since,base)?"":" hidden"}><span class="m24">${icon("i-warn")}<span>${esc(mark)}</span></span><span class="m24l">${esc(meaning)}</span></div>`;
 }
 // The mark alone, a shape with its words for screen readers, where the folded list of stages
-// keeps it. It does nothing: opening the project's data comes with SCR-130.
-export function longWaitShape(since,base,lang){
+// keeps it (SCR-111#folded): a button that opens the project's data (SCR-130), whose name
+// says the mark and where it leads. It waits for the code, which opens the panel (rule 15).
+export function longWaitShape(since,base,lang,code=false){
   if(!since)return"";
-  return`<span class="fmk" data-nx-since="${esc(since)}"${waitedLong(since,base)?"":" hidden"}>${icon("i-warn")}<span class="sr">${esc(labels("The mark of a long wait",lang)[0])}</span></span>`;
+  const name=`${labels("The mark of a long wait",lang)[0]}, ${label("The workspace's head",0,lang)}`;
+  return`<button class="fmk" type="button" data-nx-act="data" data-nx-focus="fmk" aria-haspopup="dialog" data-nx-since="${esc(since)}"${waitedLong(since,base)?"":" hidden"}${code?"":' disabled data-nx-wait="data"'}>${icon("i-warn")}<span class="sr">${esc(name)}</span></button>`;
 }
 // The code's step: how long ago and the marks, as of now, in a part of the page.
 export function localizeLoop(scope,lang,now=Date.now()){

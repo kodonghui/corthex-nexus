@@ -11,7 +11,8 @@ import {label,labels,oldLabels,legendWord,codeMessage,notCurrentWhy} from "../sr
 import {stageName} from "../src/draw/stages.js";
 import {PALETTE,DARK_FILTER} from "../src/draw/palette.js";
 import {picturePreview} from "../src/preview.js";
-import {followFragment} from "../ui/home.js";
+import {followFragment,takeRemoved} from "../ui/home.js";
+import {REMOVED_KEY} from "../ui/data.js";
 import {homeData,turnEntries,REQUEST,AT,NOW,SHOP_READ,HOME_TITLE} from "./home-fixtures.js";
 import {viewSnapshot} from "./view-fixtures.js";
 
@@ -111,6 +112,27 @@ test("SCR-110#nothing-waits and SCR-110#empty: an empty my turn, an agent with n
     if(lang==="ko")assert.ok(empty.includes("AI")&&!empty.includes("에이전트"),"the agent is called AI in Korean (choice 17)");
   }
   for(const bad of[null,{},{projects:[],agent:[]},{projects:[],agent:[],my_turn:{}}])assert.throws(()=>drawHome(bad,"en"),/Unreadable page data/);
+});
+
+test("SCR-110#removed: the bar after a removal in the project's data, once, over the page as its data says (TASK-312, TC-1707)",()=>{
+  for(const lang of["en","ko"]){
+    const bar=`<div class="bar info" role="status"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-info"/></svg><span class="t">${esc(label("A project was removed",0,lang)).replace("{project}",'<span class="pn">qa-gone</span>')}</span><button class="btn sm" type="button" data-nx-act="removed-close" data-nx-focus="removed-close">${esc(labels("Top bar",lang)[5])}</button></div>`;
+    for(const data of[homeData(),homeData({entries:[]}),homeData({projects:[],entries:[],agent:[]})]){
+      const html=drawHome(data,lang,{code:true,removed:"qa-gone"});
+      assert.ok(html.startsWith(`<div class="full notes" data-nx-key="notes">${bar}`),"under the top bar, with Close, over #normal, #nothing-waits or #empty");
+      assert.ok(!drawHome(data,lang,{code:true}).includes("removed-close"),"only the code that read the name draws it");
+    }
+    assert.ok(drawHome(homeData(),lang,{code:true,removed:"a<b>"}).includes('<span class="pn">a&lt;b&gt;</span>'),"the name is text");
+  }
+  // Read once and emptied, so that a page loaded again does not say it; a name that no project can
+  // have, or a browser that keeps no session storage, shows no bar.
+  const store=()=>{const map=new Map();return{map,getItem:key=>map.get(key)??null,setItem:(key,value)=>map.set(key,value),removeItem:key=>map.delete(key)};};
+  const kept=store();kept.setItem(REMOVED_KEY,"qa-gone");
+  assert.equal(takeRemoved(()=>kept),"qa-gone");assert.equal(kept.map.size,0);assert.equal(takeRemoved(()=>kept),null);
+  for(const bad of["QA-Gone","qa_gone","-qa","a".repeat(101),"<b>x</b>",""]){const other=store();other.setItem(REMOVED_KEY,bad);assert.equal(takeRemoved(()=>other),null,bad);assert.equal(other.map.size,0);}
+  assert.equal(takeRemoved(()=>{throw new Error("blocked");}),null);
+  assert.equal(takeRemoved(()=>({getItem(){throw new Error("blocked");}})),null);
+  assert.equal(takeRemoved(()=>undefined),null);
 });
 
 test("what the view's code adds: answers in place, their messages, the notices, the order and a card pushed again",()=>{

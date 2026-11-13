@@ -6,12 +6,14 @@
 // (./talk.js), with the address's talk=, the phone's tabs and the panel from 1,024 to 1,279
 // pixels; the selected item's panel there (./item.js, SCR-115), with the switch back to the
 // talk and the phone's Item tab; the top bar's search (./search.js, SCR-116), whose words
-// the address holds as q=; and the folds of the list of stages and of the talk (./folds.js,
-// SPEC-210). It draws with the server's own functions (../src/draw/page.js): the stage's middle
+// the address holds as q=; the folds of the list of stages and of the talk (./folds.js,
+// SPEC-210); and the project's data over the stage (./data.js, SCR-130), with the address's
+// data. It draws with the server's own functions (../src/draw/page.js): the stage's middle
 // and the side are compared element by element (./reconcile.js), so that the focus, the words and
 // the messages stay where they are, and the list of stages, the bars and the tabs are replaced
 // when their drawing changes.
 import {drawParts} from "../src/draw/page.js";
+import {stageRail} from "../src/draw/stages.js";
 import {FILTERS,GROUPS,WORDS_LIMIT,PICTURE_STAGES} from "../src/draw/stage.js";
 import {STEPS} from "../src/layout.js";
 import {createBoard} from "./board.js";
@@ -22,6 +24,7 @@ import {day} from "../src/draw/html.js";
 import {codeMessage,labels,oldLabels} from "../src/draw/words.js";
 import {stageRequest} from "../src/draw/talk.js";
 import {createFolds} from "./folds.js";
+import {createData,fragment} from "./data.js";
 import {ApiClient,Drafts,LatestReads,PendingWrites,characters} from "./state.js";
 import {reconcile} from "./reconcile.js";
 
@@ -39,14 +42,18 @@ const TRACE=/^[A-Z][A-Z0-9]*-[0-9]{1,6}$/,TALK_KEYS=Object.freeze(["talk","comme
 // The parts that the code replaces when their drawing changes; it compares the others.
 const REPLACED=Object.freeze(["rail","bars","tabs"]);
 // A fragment without a value, such as the phone's #stages and #stage or the panel's #talk, which
-// the stylesheet follows before the code runs (rule 15), names no state of the page.
-const plain=value=>/^#[^=&]+$/.test(value);
+// the stylesheet follows before the code runs (rule 15), names no state of the page; #data, the
+// project's data alone, does (stage 07).
+const plain=value=>/^#[^=&]+$/.test(value)&&value!=="#data";
+const keysOf=value=>new URLSearchParams(String(value||"").replace(/^#/,""));
+const hasData=value=>!plain(value)&&keysOf(value).has("data");
+const withoutData=value=>{const params=keysOf(value);params.delete("data");const rest=fragment(params);return rest?"#"+rest:"";};
 const readable=answer=>Boolean(answer?.project&&answer.head&&answer.record&&Array.isArray(answer.stages)&&answer.items&&Array.isArray(answer.items.entries));
 
 export function startStage(payload,{api=new ApiClient(location.origin),drafts=new Drafts(),localize=()=>{}}={}){
   const lang=payload.lang,reads=new LatestReads(),writes=new PendingWrites();
   const part=name=>document.querySelector(`[data-nx-part="${name}"]`);
-  const parts={stage:part("stage"),side:part("side"),rail:part("rail"),bars:part("bars"),tabs:part("tabs")},ws=document.querySelector(".ws");
+  const parts={stage:part("stage"),side:part("side"),rail:part("rail"),bars:part("bars"),tabs:part("tabs"),data:part("data")},ws=document.querySelector(".ws");
   const first=payload.data,project=first.project.name,stage=first.stage,partName=first.part,place=[project,partName||"_",stage].map(encodeURIComponent).join("/");
   const base=`/api/spaces/${encodeURIComponent(project)}`;
   // The drafts of 0.2's stage overview, so that its words and write IDs carry over (rule 5).
@@ -57,13 +64,17 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   // item is the selected item's panel (./item.js); side is what the side shows of it from 1,024
   // pixels, the item or, by its switch, the stage's whole talk; shownSide is what the side shows
   // when it draws, under 1,024 pixels by the tab in front.
-  const view={code:true,query:{filter:first.items.filter,group:first.items.group,q:first.items.q??""},entries:null,selected:null,more:null,updating:false,notice:null,pushed:null,signIn:false,record:false,recordState:{sending:null,reading:false,note:null,passNote:null,left:null,over:false,stale:false},mode:"picture",step:undefined,newer:null,editor:null,item:null,side:"item",shownSide:"item"};
-  // What the list of stages, the bars and the tabs show, which the code replaces when it changes.
+  // data is the project's data (./data.js), which the address's data opens.
+  const view={code:true,data:{},query:{filter:first.items.filter,group:first.items.group,q:first.items.q??""},entries:null,selected:null,more:null,updating:false,notice:null,pushed:null,signIn:false,record:false,recordState:{sending:null,reading:false,note:null,passNote:null,left:null,over:false,stale:false},mode:"picture",step:undefined,newer:null,editor:null,item:null,side:"item",shownSide:"item"};
+  // What the list of stages, the bars and the tabs show, which the code replaces when it changes:
+  // the list of stages as the code draws it, with "Project data" and the mark working, since the
+  // step that wakes the controls that wait for the code (rule 15) makes it so in place.
   const shown=new Map(Object.entries(drawParts(payload)).filter(([name])=>REPLACED.includes(name)));
+  shown.set("rail",stageRail(first,lang,payload.generated_at,true));
   // tabBefore is the phone's tab in front before the item's took its place, panelBy says that
   // the item opened the panel from 1,024 to 1,279 pixels, and pictureWhy why the list, not the
   // picture, shows the selected item.
-  let reading=0,searchTimer=0,opener="record",before=null,picked=null,applied=null,talk=null,runs=0,itemPanel=null,search=null,tabBefore=null,panelBy=null,pictureWhy=null,sideWas=null,focusInSide=false;
+  let reading=0,searchTimer=0,opener="record",before=null,picked=null,applied=null,talk=null,runs=0,itemPanel=null,search=null,tabBefore=null,panelBy=null,pictureWhy=null,sideWas=null,focusInSide=false,dataPanel=null;
   // Under 1,024 pixels the phone's tabs, and from 1,024 to 1,279 the side's panel (rule 16);
   // from 1,280 the talk's column, which a first visit folds under 1,440 (SPEC-210).
   const small=matchMedia("(max-width:1023.98px)"),mid=matchMedia("(min-width:1024px) and (max-width:1279.98px)"),wide=matchMedia("(min-width:1280px)"),narrowWide=matchMedia("(min-width:1280px) and (max-width:1439.98px)");
@@ -84,7 +95,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     return `${base}/stages/${encodeURIComponent(partName||"_")}/${encodeURIComponent(stage)}?${params}`;
   }
 
-  function render(names=["stage","side","rail","bars","tabs"]){
+  function render(names=["stage","side","rail","bars","tabs","data"]){
     const active=document.activeElement,focus=active?.closest?.("[data-nx-focus]")?.dataset.nxFocus??null,inSide=Boolean(parts.side?.contains(active));
     view.shownSide=small.matches?(ws?.dataset.nxTab==="item"?"item":"talk"):view.side;
     talk?.sync();itemPanel?.sync();
@@ -230,7 +241,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   // A new address: a new entry for the back button with push, else in the place of this one,
   // which the page has already followed.
   function setHash(params,push=false){
-    const rest=params.toString();
+    const rest=fragment(params);
     history[push?"pushState":"replaceState"](history.state,"",location.pathname+location.search+(rest?"#"+rest:""));
     if(!push)applied=location.hash;
   }
@@ -310,7 +321,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     if(stage!=="01-domain"||!STEPS.includes(key))return;
     const params=hash();
     if(key===STEPS.at(-1))params.delete("step");else params.set("step",key);
-    const rest=params.toString();
+    const rest=fragment(params);
     history.replaceState(history.state,"",location.pathname+location.search+(rest?"#"+rest:""));
     applyAddress().catch(()=>{});
   }
@@ -324,8 +335,16 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   // picture, also for #view=edit and #view=board until a release includes editing (SPEC-147);
   // #filter= alone opens the list too, as the first page's links expect; a DDD board's #step=,
   // a key that it does not have giving the whole board; then #filter= and #item=.
+  // The project's data follows the address's data first: a plain fragment, such as the phone's
+  // #stages, closes it, and the address that the page follows loses it too; an address that
+  // differs only by data changes nothing else.
   async function applyAddress(stay=false){
-    const now=location.hash;if(plain(now)||now===applied)return;applied=now;
+    const now=location.hash;
+    dataPanel?.follow(hasData(now));
+    if(plain(now)){if(applied&&keysOf(applied).has("data"))applied=withoutData(applied);return;}
+    if(now===applied)return;
+    const was=applied;applied=now;
+    if(was!==null&&withoutData(was)===withoutData(now))return;
     const run=++runs;
     const params=hash(),shown=params.get("view"),filter=params.get("filter"),id=params.get("item"),key=params.get("step");
     const valid=Boolean(id)&&id.length<=30&&TRACE.test(id),fromTalk=TALK_KEYS.some(name=>params.get(name));
@@ -356,7 +375,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   // A filter that the user picks takes the place of the address's (SCR-113's data).
   function dropHashFilter(){
     const params=hash();if(!params.has("filter"))return;
-    params.delete("filter");const rest=params.toString();
+    params.delete("filter");const rest=fragment(params);
     history.replaceState(history.state,"",location.pathname+location.search+(rest?"#"+rest:""));
   }
 
@@ -406,10 +425,13 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   }
 
   // The stage record: in the side, in the talk's place; a panel from 1,024 to 1,279 pixels and a
-  // sheet under 1,024, which the page behind waits for (rule 10's focus and Escape).
+  // sheet under 1,024, which the page behind waits for (rule 10's focus and Escape). The
+  // project's data waits for nothing behind it either, the side included, behind the scrim.
   function holdPage(){
-    const hold=view.record&&small.matches;
+    const data=Boolean(view.data.open),hold=data||view.record&&small.matches;
     for(const element of [document.querySelector(".tb"),parts.bars,document.querySelector(".rail"),document.querySelector(".tabs"),parts.stage])element?.toggleAttribute("inert",hold);
+    parts.side?.toggleAttribute("inert",data);
+    if(ws){if(data)ws.dataset.nxData="open";else delete ws.dataset.nxData;}
   }
   // Crossing 1,024 pixels, the side shows what its new layout shows: the tab in front, or the
   // item and its switch.
@@ -457,7 +479,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     if(!/^nc_[0-9a-hjkmnp-tv-z]{12}$/.test(id||""))return;
     if(view.record)closeRecord(undefined,false);
     const params=hash();for(const key of TALK_KEYS)params.delete(key);params.set("talk",id);
-    history.pushState(history.state,"",location.pathname+location.search+"#"+params.toString());
+    history.pushState(history.state,"",location.pathname+location.search+"#"+fragment(params));
     applyAddress().catch(()=>{});
   }
 
@@ -536,6 +558,8 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   }
 
   document.addEventListener("click",event=>{
+    // The project's data: "Project data" and the mark of a long wait, and the panel's controls.
+    if(dataPanel?.click(event))return;
     // The phone's tabs (SPEC-155): the stage or the talk, without a step of the history.
     const tab=event.target.closest?.(".tab[data-nx-tab]");
     if(tab&&ws&&parts.tabs?.contains(tab)){event.preventDefault();ws.dataset.nxTab=tab.dataset.nxTab;render(["side","tabs"]);return;}
@@ -630,7 +654,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     counter();render(["side"]);
   });
   parts.stage.addEventListener("scroll",nearEnd,true);
-  // Escape closes the record, else folds the talk's opened entry where the focus is in the talk
+  // Escape closes the project's data, else the record, else folds the talk's opened entry where the focus is in the talk
   // (SCR-114's actions), else closes the selected item where the focus is not in a field
   // (SCR-115's actions), else folds the talk that Talk ({n}) opened (SCR-111's actions). The
   // search's Escape is its own.
@@ -639,7 +663,8 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   document.addEventListener("focusin",event=>{focusInSide=Boolean(parts.side?.contains(event.target));});
   document.addEventListener("keydown",event=>{
     if(event.key!=="Escape"||event.defaultPrevented)return;
-    if(view.record){event.preventDefault();closeRecord();}
+    if(dataPanel?.escape())event.preventDefault();
+    else if(view.record){event.preventDefault();closeRecord();}
     else if(parts.side.contains(document.activeElement)&&talk?.escape())event.preventDefault();
     else if(view.item&&!typing(event.target)){event.preventDefault();closeItem();}
     else if(ws?.dataset.nxOpen==="talk"){
@@ -655,14 +680,15 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   document.addEventListener("keyup",event=>{if(event.key===" "&&linkButton(event.target)){event.preventDefault();event.target.click();}});
   // The talk reads again when the page comes back into view (SPEC-150), and so does the stage,
   // whose answer holds the head's last read and the mark of a long wait, so that the head
-  // follows an agent's read that the talk shows (SPEC-188, SPEC-189; SCR-111's state changes).
-  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){talk?.readAgain();refresh();}});
+  // follows an agent's read that the talk shows (SPEC-188, SPEC-189; SCR-111's state changes),
+  // and the project's data while it is open (SCR-130).
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){talk?.readAgain();refresh();dataPanel?.visible();}});
   // The back button and a link's address (rule 9).
   window.addEventListener("hashchange",()=>applyAddress().catch(()=>{}));
   window.addEventListener("popstate",()=>applyAddress().catch(()=>{}));
 
   // The controls that wait for the code (rule 15) work from here on.
-  for(const control of document.querySelectorAll('[data-nx-wait="list"],[data-nx-wait="record"],[data-nx-wait="picture"],[data-nx-wait="talk"],[data-nx-wait="folds"]')){control.disabled=false;control.removeAttribute("data-nx-wait");}
+  for(const control of document.querySelectorAll('[data-nx-wait="list"],[data-nx-wait="record"],[data-nx-wait="picture"],[data-nx-wait="talk"],[data-nx-wait="folds"],[data-nx-wait="data"]')){control.disabled=false;control.removeAttribute("data-nx-wait");}
   // The address: the view and the step first, so that the first drawing of the code shows them,
   // then #filter=left from the first page's agent to-do (SCR-110) and #item=.
   if(pictured){
@@ -677,6 +703,25 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     whole:()=>!small.matches&&view.side==="talk"&&Boolean(view.item),selected:()=>view.item?.id??null,
     onDiscrepancyGone:()=>itemPanel.read()});
   itemPanel=createItem({payload,view,api,base,project,part:partName,stage,entries,render,refreshPage:()=>refresh().catch(()=>{}),onGone:itemGone});
+  // The project's data (SCR-130): opening it is a step of the browser's history, which Close and
+  // Escape take back; an address that came with data loses it in its place. location.hash, not
+  // pushState, so that the phone's sheet of stages, which follows #stages, closes.
+  dataPanel=parts.data?createData({api,lang,project,base,state:view.data,part:parts.data,render,hold:holdPage,
+    pushed:at=>{if(typeof at==="string"&&at!==data().project.pushed_at&&view.pushed!==at){view.pushed=at;render(["bars"]);}},
+    address:{
+      open(){
+        const params=hash();params.set("data","");location.hash=fragment(params);
+        const kept=history.state&&typeof history.state==="object"?history.state:{};
+        history.replaceState({...kept,nexusData:location.hash},"",location.href);
+      },
+      back(){if(history.state?.nexusData!==location.hash)return false;history.back();return true;},
+      drop(){
+        const params=hash();params.delete("data");const rest=fragment(params);
+        const {nexusData,...kept}=history.state&&typeof history.state==="object"?history.state:{};
+        history.replaceState(Object.keys(kept).length?kept:null,"",location.pathname+location.search+(rest?"#"+rest:""));
+        applied=location.hash;
+      },
+    }}):null;
   // The top bar's search (SCR-116): its words in the address as q=, in the place of this one.
   search=createSearch({lang,api,address:q=>{const params=hash();if(q)params.set("q",q);else params.delete("q");setHash(params);}});
   if(ws){
@@ -699,5 +744,5 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   };
   recordAsked();
   window.addEventListener("hashchange",recordAsked);
-  return{render,readQuery,readAgain,readPicture,loadMore,select,selectItem,openRecord,closeRecord,pass,withdraw,view,board,talk,item:itemPanel,search};
+  return{render,readQuery,readAgain,readPicture,loadMore,select,selectItem,openRecord,closeRecord,pass,withdraw,view,board,talk,item:itemPanel,search,data:dataPanel};
 }

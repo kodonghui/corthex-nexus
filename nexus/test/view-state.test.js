@@ -26,6 +26,30 @@ test("an expired login and public errors never expose the server detail",async()
   for(const other of["B".repeat(40),"b".repeat(39),"<b>x</b>",40])
     await assert.rejects(new ApiClient("https://nexus.example.com",{fetcher:async()=>Response.json({code:"snapshot_changed",held_commit:other},{status:409})}).call("GET","/api/view"),error=>!Object.hasOwn(error,"held_commit"));
 });
+test("the removal goes once, without a write ID or a body, and every other write still needs its ID (API-108, SCR-130)",async()=>{
+  const calls=[],client=new ApiClient("https://nexus.example.com",{fetcher:async(...args)=>{calls.push(args);return Response.json({name:"demo",removed:true});}});
+  assert.deepEqual(await client.call("DELETE","/api/snapshots/demo",{once:true}),{name:"demo",removed:true});
+  const [,options]=calls[0];
+  assert.equal(options.method,"DELETE");assert.equal(options.body,undefined);
+  assert.ok(!Object.hasOwn(options.headers,"Idempotency-Key")&&!Object.hasOwn(options.headers,"Content-Type"),"no write ID and no body");
+  assert.equal(options.redirect,"manual");assert.equal(options.credentials,"same-origin");
+  await assert.rejects(client.call("DELETE","/api/snapshots/demo"),/original ID/);
+  await assert.rejects(client.call("POST","/api/spaces/demo/comments",{once:true,body:{}}),/original ID/,"once is the removal's only");
+  await assert.rejects(client.call("DELETE","https://other.example/api/snapshots/demo",{once:true}),error=>error.code==="cross_site");
+  assert.equal(calls.length,1);
+});
+test("the export comes whole, as the server wrote it, with its Content-Disposition (API-178, SCR-130)",async()=>{
+  const text='{"format":1,"project":"demo","counts":{}}',disposition='attachment; filename="nexus-demo-2026-11-14.json"';
+  const client=new ApiClient("https://nexus.example.com",{fetcher:async()=>new Response(text,{headers:{"Content-Type":"application/json","Content-Disposition":disposition}})});
+  const reply=await client.file("/api/spaces/demo/export");
+  assert.equal(reply.text,text);assert.deepEqual(reply.data,JSON.parse(text));assert.equal(reply.disposition,disposition);
+  // A reply cut on its way is no JSON: no file.
+  const cut=new ApiClient("https://nexus.example.com",{fetcher:async()=>new Response(text.slice(0,-3),{headers:{"Content-Disposition":disposition}})});
+  await assert.rejects(cut.file("/api/spaces/demo/export"),error=>error.code==="internal");
+  // A refusal keeps its code and trace ID, as a read's does.
+  const refused=new ApiClient("https://nexus.example.com",{fetcher:async()=>Response.json({code:"user_only",traceId:"fixture-trace",detail:"private"},{status:403})});
+  await assert.rejects(refused.file("/api/spaces/demo/export"),error=>error.code==="user_only"&&error.traceId==="fixture-trace"&&!Object.hasOwn(error,"detail"));
+});
 test("the deadline covers a stalled response body and a late result cannot become success",async()=>{
   const body=deferred();let signal;
   const client=new ApiClient("https://nexus.example.com",{deadline:10,fetcher:async(_,options)=>{signal=options.signal;return{ok:true,status:200,json:()=>body.promise};}});

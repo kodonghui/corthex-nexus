@@ -5,7 +5,7 @@
    step of space (checkpoint 3). The sizes below are stage 08's layout tables and
    stage 09's frames, which no token names. 1,024 is breakpoint.side-panel and 1,280
    rule 16's; a media query cannot read a custom property, so they are written out. */
-:root{--pg-gap:6px;--pg-gap-wide:10px;--pg-map-w:188px;--pg-map-h:120px;--pg-map-w-ph:120px;--pg-map-h-ph:78px;--pg-fnote:560px;--pg-cover:440px;--pg-lg:14px;--pg-pop:420px;--pg-top:56px;--pg-rail:248px;--pg-frail:56px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s;--pg-id:112px;--pg-find:280px;--pg-fields:120px;--pg-comments:36px;--pg-marks:144px;--pg-term:120px;--pg-note:480px;--pg-search-h:70vh}
+:root{--pg-gap:6px;--pg-gap-wide:10px;--pg-map-w:188px;--pg-map-h:120px;--pg-map-w-ph:120px;--pg-map-h-ph:78px;--pg-fnote:560px;--pg-cover:440px;--pg-lg:14px;--pg-pop:420px;--pg-top:56px;--pg-rail:248px;--pg-frail:56px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s;--pg-id:112px;--pg-find:280px;--pg-fields:120px;--pg-comments:36px;--pg-marks:144px;--pg-term:120px;--pg-note:480px;--pg-search-h:70vh;--pg-data:640px;--pg-dkey:176px;--pg-dval:250px}
 *,*::before,*::after{box-sizing:border-box}
 html{color-scheme:light dark;-webkit-text-size-adjust:100%}
 body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-family:var(--nx-font-family-sans);font-size:var(--nx-font-size-body);line-height:var(--nx-font-line-height-body);font-weight:var(--nx-font-weight-regular);word-break:keep-all;overflow-wrap:anywhere}
@@ -264,8 +264,12 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .rail .proj{display:grid;gap:var(--nx-space-2xs);padding:var(--nx-space-lg) var(--nx-space-lg) var(--nx-space-md);border-bottom:var(--nx-border-thin) solid var(--nx-color-line);min-width:0}
 .nx .rail .proj b{font-size:var(--nx-font-size-title);line-height:var(--nx-font-line-height-heading)}
 .nx .rail .proj .loop,.nx .rail .proj .m24w{margin-top:var(--pg-gap)}
-/* The mark that the folded list keeps at its top (SCR-111#folded) */
-.nx .rail .fmk{display:none}
+/* The mark that the folded list keeps at its top (SCR-111#folded), a button that opens the
+   project's data, as "Project data" in the head does (SCR-130), which reads as a link */
+.nx .rail .fmk{display:none;margin:0;padding:0;border:0;background:none;color:inherit;cursor:pointer}
+.nx .rail .pdl{justify-self:start;display:inline-flex;align-items:center;min-height:var(--nx-size-button-small);margin-top:var(--nx-space-2xs);padding:0;border:0;background:none;color:var(--nx-color-accent);font-size:var(--nx-font-size-small);text-align:start;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:var(--nx-border-thin);cursor:pointer}
+.nx .rail :is(.pdl,.fmk):disabled{opacity:var(--nx-opacity-disabled);cursor:default}
+@media (pointer:coarse){.nx .rail .pdl{min-height:var(--nx-size-target)}}
 .nx .partsw{margin-top:var(--nx-space-sm)}
 .nx .partsw summary{list-style:none;justify-content:space-between;width:100%}.nx .partsw summary::-webkit-details-marker{display:none}
 .nx .partsw ul{display:grid;margin-top:var(--nx-space-sm)} /* clear of the switch's hit area */
@@ -591,7 +595,7 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .te .chg{display:grid;gap:var(--nx-space-xs);min-width:0;padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-sunken)}
 .nx .te .stx,.nx .item .det .stx{max-height:var(--nx-size-source);overflow:auto;margin:0;padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);font-family:var(--nx-font-family-mono);font-size:var(--nx-font-size-caption);line-height:var(--nx-font-line-height-body);white-space:pre-wrap}
 .nx :is(.talk,.item) .sk{display:grid;gap:var(--nx-space-sm);padding:var(--nx-space-xs) 0}
-.nx :is(.talk,.item) .skel{display:block;height:var(--pg-gap-wide);border-radius:var(--nx-radius-sm);background:var(--nx-color-sunken)}
+.nx :is(.talk,.item,.dp) .skel{display:block;height:var(--pg-gap-wide);border-radius:var(--nx-radius-sm);background:var(--nx-color-sunken)}
 .nx :is(.talk,.item) .skel.short{width:60%}
 .nx .te .rbox{display:grid;gap:var(--nx-space-sm);padding-top:var(--nx-space-sm);border-top:var(--nx-border-thin) solid var(--nx-color-line)}
 .nx .empty-t{display:grid;justify-items:center;gap:var(--nx-space-sm);padding:calc(var(--nx-space-xl) + var(--nx-space-xs)) var(--nx-space-md);color:var(--nx-color-muted);font-size:var(--nx-font-size-small);text-align:center}
@@ -662,6 +666,66 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 /* Where a finger selects, the trace's links and a stage's More take the target's height, so More's
    hit area keeps clear of the link above it (rule 14) */
 @media (pointer:coarse){.nx .item .trace .a{align-items:center;min-height:var(--nx-size-target)}.nx .item .trace .btn{min-height:var(--nx-size-target)}.nx .item .trace .btn::after{inset:0}}
+
+/* The project's data (SCR-130): a panel over the stage's column from 1,024 pixels, as wide as
+   the column up to 640 pixels and centred in it, from the column's top, and a sheet over the
+   tabs under 1,024, up to 85 per cent of the height; it scrolls inside, and the page behind it
+   waits behind the scrim while it is open (the code sets data-nx-data on .ws and inert on the
+   rest). The two times' names take a column of 176 pixels; the acts are rows, their line left
+   and their button right; the confirmation's lists go two by two, and its field and buttons
+   stay at the panel's bottom, Cancel left of the removal's button, whose words a long name
+   wraps (rule 1) */
+.nx .dpw{display:none}
+.nx .ws[data-nx-data] .dpw{display:flex;flex-direction:column;align-items:center;position:relative;z-index:6;min-width:0;min-height:0;pointer-events:none}
+.nx .ws[data-nx-data] .scrim{display:block;position:fixed;inset:0;z-index:5;background:var(--nx-color-scrim)}
+.nx .dp{pointer-events:auto;flex:1;min-height:0;width:100%;max-width:var(--pg-data);display:flex;flex-direction:column;overflow:hidden;background:var(--nx-color-surface);border:var(--nx-border-thin) solid var(--nx-color-line);border-top:0}
+.nx .dph{flex:none;display:flex;align-items:center;gap:var(--pg-gap-wide);min-width:0;padding:var(--nx-space-xs) var(--nx-space-xs) var(--nx-space-xs) var(--nx-space-lg);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .dph h2{font-size:var(--nx-font-size-title);white-space:nowrap}
+.nx .dpb{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:var(--nx-space-md);padding:var(--nx-space-md) var(--nx-space-lg) var(--nx-space-lg);font-size:var(--nx-font-size-small)}
+.nx .dpb > h3{font-size:var(--nx-font-size-small);margin-top:var(--pg-gap)}
+.nx .dpb > h3.rmh{margin-top:0;font-size:var(--nx-font-size-title)}
+.nx .dpb > .b{font-weight:var(--nx-font-weight-bold)}
+.nx .drow{display:grid;grid-template-columns:var(--pg-dkey) minmax(0,1fr);gap:var(--nx-space-md);align-items:baseline}
+.nx .drow .dk{color:var(--nx-color-muted)}
+.nx .drow .dv{min-width:0;font-variant-numeric:tabular-nums}
+.nx .drow .dv2{color:var(--nx-color-muted)}
+.nx .dmark{padding-left:calc(var(--pg-dkey) + var(--nx-space-md))}
+.nx .dcnts{display:grid;border-top:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .dcnt{display:flex;align-items:center;justify-content:space-between;gap:var(--nx-space-md);min-height:var(--nx-size-row);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
+.nx .dcnt b{font-variant-numeric:tabular-nums}
+.nx .dact{display:flex;align-items:center;justify-content:space-between;gap:var(--nx-space-lg);padding-top:var(--pg-gap-wide)}
+.nx .dact .dl{flex:1;min-width:0;text-wrap:pretty}
+.nx .dact .btn{flex:none}
+.nx .btn.danger{border-color:var(--nx-color-error);color:var(--nx-color-error);background:var(--nx-color-surface)}
+.nx .dsk{display:grid;gap:var(--nx-space-xs)}
+.nx .dsk .skr{display:flex;align-items:center;gap:var(--nx-space-md);min-height:var(--nx-size-row)}
+.nx .dp .skel.k{width:min(var(--pg-dkey),40%)}
+.nx .dp .skel.v{width:min(var(--pg-dval),45%)}
+.nx .dp .skel.n{width:var(--pg-count)}
+.nx .dsk .dcnt:nth-child(even) .skel.k{width:min(var(--pg-dkey),30%)}
+.nx .rml{display:grid;gap:var(--pg-gap);padding-left:var(--nx-space-lg);list-style:disc}
+.nx .rml .rmc{display:block}
+.nx .idgs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--nx-space-md) var(--nx-space-lg)}
+.nx .idg{display:grid;gap:var(--nx-space-xs);min-width:0;align-content:start}
+.nx .idg h4{display:flex;gap:var(--pg-gap);align-items:baseline;margin:0;font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
+.nx .idl{font-size:var(--nx-font-size-caption);overflow-wrap:anywhere}
+.nx .idl .mono{font-size:inherit}
+.nx .xf{display:flex}
+.nx .rmft{flex:none;display:grid;gap:var(--nx-space-sm);padding:var(--nx-space-md) var(--nx-space-lg);border-top:var(--nx-border-thin) solid var(--nx-color-line);background:var(--nx-color-surface)}
+.nx .rmft .lab{font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
+.nx .rmft .rnote:empty{display:none}
+.nx .rma{display:flex;justify-content:flex-end;align-items:flex-start;gap:var(--nx-space-sm)}
+.nx .rma .btn{flex:none;height:auto;min-height:var(--nx-size-button-small);padding-block:var(--nx-space-xs);white-space:normal}
+.nx .rma .btn.danger{flex:0 1 auto;min-width:0}
+.nx .rma .btn :is(.bw,.keep){min-width:0;overflow-wrap:anywhere;text-align:center}
+@media (min-width:1024px){
+ .nx .ws > .rail{grid-row:1;grid-column:1}
+ .nx .ws > .stage,.nx .ws > .dpw{grid-row:1;grid-column:2}
+}
+/* Where a finger selects, the panel's buttons and its field take the target's height (rule 14) */
+@media (pointer:coarse){.nx .dp :is(.btn,.ib){min-height:var(--nx-size-target)}.nx .dp .rmf{height:var(--nx-size-target)}.nx .dp .msg .row .lnk{display:inline-flex;align-items:center;min-height:var(--nx-size-target)}}
+/* The first page after Close on the bar of a removal takes the focus without a ring */
+.nx .home[tabindex="-1"]:focus-visible{outline:0}
 
 /* From 1,024 to 1,279 pixels the talk folds into "Talk ({n})" in the stage's head,
    which opens it as a panel over the stage's right edge (rule 16, choice 14) */
@@ -749,6 +813,26 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
  .nx .nolist{padding:calc(var(--nx-space-2xl) + var(--nx-space-xl)) var(--nx-space-lg)}
  .nx .ws[data-nx-open="record"] .side{display:flex;position:fixed;z-index:6;left:0;right:0;bottom:0;max-height:calc(100dvh * var(--nx-layout-sheet-height));border-radius:var(--nx-radius-sheet) var(--nx-radius-sheet) 0 0;box-shadow:var(--nx-shadow-sheet)}
  .nx .ws[data-nx-open="record"] .scrim{display:block;position:fixed;inset:0;z-index:5;background:var(--nx-color-scrim)}
+ /* The project's data as a sheet: its two times and acts each a block, its buttons across the
+    width, 44 pixels high, and the confirmation's lists one under the other */
+ .nx .ws[data-nx-data] .dpw{position:fixed;left:0;right:0;bottom:0;max-height:calc(100dvh * var(--nx-layout-sheet-height));align-items:stretch}
+ .nx .dp{flex:0 1 auto;max-width:none;border:0;border-radius:var(--nx-radius-sheet) var(--nx-radius-sheet) 0 0;box-shadow:var(--nx-shadow-sheet)}
+ .nx .dp > .handle{display:block;flex:none;width:var(--nx-size-handle-width);height:var(--nx-size-handle-height);margin:var(--nx-space-sm) auto var(--nx-space-xs);border-radius:var(--nx-radius-round);background:var(--nx-color-control-line)}
+ .nx .dph{padding:0 var(--nx-space-xs) var(--nx-space-xs) var(--nx-space-md)}
+ .nx .dpb{padding:var(--nx-space-md)}
+ .nx .drow{grid-template-columns:minmax(0,1fr);gap:0}
+ .nx .drow .dv,.nx .drow .dv2{display:block}
+ .nx .drow .sep{display:none}
+ .nx .dmark{padding-left:0}
+ .nx .dact{display:grid;gap:var(--nx-space-sm)}
+ .nx .dp :is(.dact,.xf) .btn{width:100%;height:var(--nx-size-target)}
+ .nx .dp .rma .btn{width:100%;min-height:var(--nx-size-target)}
+ .nx .dp .msg .row .btn{height:var(--nx-size-target)}
+ .nx .idgs{grid-template-columns:minmax(0,1fr)}
+ .nx .rmft{padding:var(--nx-space-md)}
+ .nx .rma{display:grid;grid-template-columns:minmax(0,1fr)}
+ .nx .rmft .rmf{height:var(--nx-size-target)}
+ .nx .rail .pdl{min-height:var(--nx-size-target)}
  .nx .rec .handle{display:block;flex:none;width:var(--nx-size-handle-width);height:var(--nx-size-handle-height);margin:var(--nx-space-sm) auto var(--nx-space-xs);border-radius:var(--nx-radius-round);background:var(--nx-color-control-line)}
  .nx .rec .th{padding:var(--nx-space-sm) var(--nx-space-md) var(--nx-space-md)}
  .nx .rec .rb{padding:var(--nx-space-md)}

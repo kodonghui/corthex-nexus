@@ -2,10 +2,11 @@
 
 Since TASK-278 no address serves 0.2's picture view or stage overview (SPEC-154), so their suites are retired; the
 page suite opens their addresses and sees where they lead (TC-1767). The folds of the workspace's columns (TASK-287)
-run on the talk's fixture, with their own page checks, and the loop's times and marks (TASK-298) and a pass bound to
-what the page showed (TASK-301) each on their own fixture. The walk of the redesign's 53 states (TASK-278) runs after them, one group of screens per fixture server,
-and the paths that browser agents walked through the flows (TC-1785) last. Names given as arguments run only those
-suites, such as `page`, `walk`, `walk:talk` or `flows`."""
+run on the talk's fixture, with their own page checks, and the loop's times and marks (TASK-298), a pass bound to
+what the page showed (TASK-301) and the project's data (TASK-312) each on their own fixture. The walk of the
+redesign's 53 states (TASK-278) runs after them, one group of screens per fixture server, and the paths that browser
+agents walked through the flows (TC-1785) last. Names given as arguments run only those suites, such as `page`,
+`walk`, `walk:talk` or `flows`; CI runs `data` in a job of its own."""
 import json
 import os
 import shutil
@@ -42,7 +43,7 @@ def run_suite(executable, clean, script, arguments=(), timeout=180):
 
 
 FLAGS = ("NEXUS_QA_PAGES", "NEXUS_QA_HOME", "NEXUS_QA_STAGE", "NEXUS_QA_PICTURE", "NEXUS_QA_TALK", "NEXUS_QA_ITEM",
-         "NEXUS_QA_HUB_VIEWS", "NEXUS_QA_LOOP", "NEXUS_QA_PASS")
+         "NEXUS_QA_HUB_VIEWS", "NEXUS_QA_LOOP", "NEXUS_QA_PASS", "NEXUS_QA_DATA")
 SUITES = (
     # The redesign's pages (TASK-272), with their own opt-in synthetic project, and 0.2's addresses (TASK-278).
     ("page", "page-regression.mjs", ("NEXUS_QA_PAGES",), ()),
@@ -69,6 +70,10 @@ SUITES = (
     # stage 12's 24 settings, and the passes that a push, the agent's newer entry or a full comment
     # refuse and that Load again or the talk then lets through, with their own projects.
     ("pass", "pass-regression.mjs", ("NEXUS_QA_PASS",), ()),
+    # The project's data (TASK-312): SCR-130's nine states in stage 12's eight settings, the export saved by the
+    # browser, the removal and the first page's bar after it, the other codes, the limits and the addresses,
+    # with their own projects.
+    ("data", "data-regression.mjs", ("NEXUS_QA_DATA",), ()),
     # The walk of the 53 states (TASK-278): each group of screens on the fixture of the suites above that
     # holds its states, at its widths, in both themes and languages, with the page checks.
     ("walk:home", "walk-regression.mjs", ("NEXUS_QA_HOME",), ("home",)),
@@ -105,7 +110,8 @@ def main(names=()):
         suite = clean.copy()
         for flag in flags:
             suite[flag] = "1"
-        result = run_suite(executable, suite, script, arguments, timeout=360 if name.startswith("walk:") or name in ("folds", "loop", "pass") else 180)
+        timeout = 600 if name == "data" else 360 if name.startswith("walk:") or name in ("folds", "loop", "pass") else 180
+        result = run_suite(executable, suite, script, arguments, timeout=timeout)
         if result:
             return result
     return 0

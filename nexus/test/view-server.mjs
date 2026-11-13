@@ -350,11 +350,87 @@ if(process.env.NEXUS_QA_PASS==="1"){
    bareCheckpoints:(await env.DB.prepare("SELECT COUNT(*) AS n FROM checkpoints WHERE project=?").bind(bare).first()).n};};
  Object.assign(passQa,{project,bare,part:"sample",texts,looks,commit:snapshot.repos["."].default.commit});
 }
+// The project's data (TASK-312, SCR-130): qa-data with what SPEC-203's first criterion names, 12
+// comments, one of them with 2 replies and a recorded decision, 2 proposals, one of them accepted
+// with its reflection waiting, and 3 checkpoints passed in NEXUS, pushed 30 hours ago and read by
+// the agent's session 28 hours ago, after which a comment has waited unread for more than a day;
+// qa-data-bare, which only a hub of 0.1 pushed, without a space; and a project with a long name
+// and 23 open comments, more than the confirmation lists. The earlier writes run with Date set
+// back to their time. /__qa/data seeds a project to remove, with SPEC-202's first criterion, 3
+// open comments and a pending reflection; does what the agent, its hub and another tab do while
+// the panel is open, a comment, a push at another commit and a removal; and counts what the
+// server holds of a project. Only the data suite opts in.
+const dataQa={};
+if(process.env.NEXUS_QA_DATA==="1"){
+ const RealDate=Date,start=RealDate.now(),HOUR=3600000;
+ const at=async(hours,write)=>{const ms=start-hours*HOUR;globalThis.Date=class extends RealDate{constructor(...a){super(...(a.length?a:[ms]));}static now(){return ms;}};try{return await write();}finally{globalThis.Date=RealDate;}};
+ const project="qa-data",bare="qa-data-bare",long="qa-data-with-a-long-name-that-wraps-in-the-sheet-of-a-phone",where="docs/qa-data.md:1";
+ const snapshots=new Map();
+ const shop=(name,title)=>{const snapshot=viewSnapshot(name);snapshot.project.title=title;
+  snapshot.items=[{id:"CTX-001",kind:"context",stage:"01-domain",where,title:"Ordering"},{id:"TBL-001",kind:"table",stage:"05-erd",where,title:"orders"},{id:"TBL-002",kind:"table",stage:"05-erd",where,title:"payments"},{id:"SCR-001",kind:"screen",stage:"07-sitemap",where,title:"Home"}];
+  snapshot.summary={...snapshot.summary,items:snapshot.items.length};snapshots.set(name,snapshot);return snapshot;};
+ const said=(name,item,text,kind="user",stage="05-erd")=>call("POST","/api/spaces/"+name+"/comments",{part:"sample",stage,item,text},kind);
+ await at(30,()=>call("POST","/api/snapshots",shop(project,"QA data"),"agent"));
+ const asked=await at(29,()=>said(project,"TBL-001","Synthetic question with two replies and a decision"));
+ await at(29,()=>call("POST",`/api/spaces/${project}/comments/${asked.id}/replies`,{text:"Synthetic reply of the agent's"},"agent"));
+ await at(29,()=>call("POST",`/api/spaces/${project}/comments/${asked.id}/replies`,{text:"Synthetic reply of the user's"}));
+ await at(29,()=>call("POST",`/api/spaces/${project}/comments/${asked.id}/decisions`,{link:"https://github.com/example/qa-shop/pull/1",text:"Synthetic decision"},"agent"));
+ await at(29,()=>said(project,"TBL-002","Synthetic comment of the agent's","agent"));
+ dataQa.readAt=(await at(28,()=>call("GET",`/api/spaces/${project}/todo`,undefined,"agent"))).read_at;
+ dataQa.unread=(await at(26,()=>said(project,"TBL-001","Synthetic comment that has waited unread for more than a day"))).id;
+ for(let n=4;n<=12;n++)await said(project,n%2?"TBL-002":"CTX-001","Synthetic comment "+n,n%3?"user":"agent",n%2?"05-erd":"01-domain");
+ const open=await call("POST",`/api/spaces/${project}/proposals`,{part:"sample",stage:"05-erd",items:["TBL-001"],reason:"Synthetic open proposal",change:"Keep the reference unique.",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);"},"agent");
+ const taken=await call("POST",`/api/spaces/${project}/proposals`,{part:"sample",stage:"05-erd",items:["TBL-002"],reason:"Synthetic accepted proposal",change:"Name the column order_id.",source_text:"CREATE TABLE payments (order_id INTEGER);"},"agent");
+ dataQa.edit=(await call("POST",`/api/spaces/${project}/proposals/${taken.id}/accept`,{})).edit.id;
+ dataQa.checkpoints=[];
+ for(const stage of["01-domain","04-functional-spec","07-sitemap"])dataQa.checkpoints.push((await call("POST",`/api/spaces/${project}/checkpoints`,{part:"sample",stage,commit:"a".repeat(40)})).id);
+ dataQa.proposals=[open.id,taken.id];
+ await at(48,()=>call("POST","/api/snapshots",{schema:"corthex-hub/0.1",generated_at:new Date().toISOString(),project:{name:bare,title:"QA data without a space"},stages:{"02-prd":{source_state:"found",read:true,state:"in_progress",next:"Write the PRD"}},summary:{items:1},items:[{id:"REQ-001",kind:"requirement",stage:"02-prd",title:"Send an order confirmation",priority:"Must"}],checks:[]},"agent"));
+ await call("POST","/api/snapshots",shop(long,"QA data with a long name"),"agent");
+ for(let n=1;n<=23;n++)await said(long,n%2?"TBL-001":"TBL-002","Synthetic open comment "+n);
+ // A project to remove: SPEC-202's first criterion, 3 open comments and a pending reflection.
+ const seed=async name=>{
+  await call("POST","/api/snapshots",shop(name,"QA data to remove"),"agent");
+  const comments=[];for(let n=1;n<=3;n++)comments.push((await said(name,n===2?"TBL-002":"TBL-001","Synthetic open comment "+n+" of a project to remove")).id);
+  const proposal=await call("POST",`/api/spaces/${name}/proposals`,{part:"sample",stage:"05-erd",items:["TBL-002"],reason:"Synthetic proposal to accept",change:"Name the column order_id.",source_text:"CREATE TABLE payments (order_id INTEGER);"},"agent");
+  const edit=(await call("POST",`/api/spaces/${name}/proposals/${proposal.id}/accept`,{})).edit.id;
+  return{name,comments,edit};
+ };
+ const one=async(sql,name)=>(await env.DB.prepare(sql).bind(name).first()).n;
+ dataQa.act=async({act,name}={})=>{
+  if(act==="seed"){if(!/^qa-data-r-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(name))||String(name).length>60)throw new Error("Not a name to seed");return seed(name);}
+  if(![project,bare,long].includes(name)&&!/^qa-data-r-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(name)))throw new Error("Not a project of the data's fixture");
+  // The agent's comment, which changes what a removal deletes.
+  if(act==="comment")return{id:(await said(name,"TBL-002","Synthetic comment that the agent wrote while the panel was open","agent")).id};
+  // A push at another commit, newer than the last.
+  if(act==="push"){
+   const snapshot=structuredClone(snapshots.get(name)),held=snapshot.repos["."].default.commit,next=createHash("sha1").update(name+" pushed again "+Date.now()).digest("hex");
+   snapshot.replaces=held;snapshot.repos["."].commit=next;snapshot.repos["."].default.commit=next;snapshot.records.commit=next;for(const picture of snapshot.pictures)picture.commit=next;
+   snapshot.generated_at=new Date(Math.max(Date.now(),Date.parse(snapshots.get(name).generated_at)+1000)).toISOString();snapshots.set(name,snapshot);
+   const pushed=await call("POST","/api/snapshots",snapshot,"agent");return{commit:next,revision:pushed.revision};
+  }
+  // Another tab's removal, under the user's own sign-in.
+  if(act==="remove")return callIn(env,"DELETE","/api/snapshots/"+name,undefined,"user");
+  if(act==="held")return{snapshots:await one("SELECT COUNT(*) AS n FROM snapshots WHERE name=?",name),spaces:await one("SELECT COUNT(*) AS n FROM project_spaces WHERE project=?",name),
+   pictures:await one("SELECT COUNT(*) AS n FROM pictures WHERE project=?",name),comments:await one("SELECT COUNT(*) AS n FROM comments WHERE project=?",name),
+   replies:await one("SELECT COUNT(*) AS n FROM replies AS r JOIN comments AS c ON c.id=r.comment WHERE c.project=?",name),proposals:await one("SELECT COUNT(*) AS n FROM proposals WHERE project=?",name),
+   edits:await one("SELECT COUNT(*) AS n FROM edits WHERE project=?",name),checkpoints:await one("SELECT COUNT(*) AS n FROM checkpoints WHERE project=?",name)};
+  throw new Error("Unknown act of the data's fixture");
+ };
+ Object.assign(dataQa,{project,bare,long,part:"sample",asked:asked.id,start:new RealDate(start).toISOString()});
+}
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);
- if(!/(?:^|;\s*)nexus-qa-access=none(?:;|$)/.test(incoming.headers.cookie||""))headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_ITEM==="1"?{item:itemQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{}),...(process.env.NEXUS_QA_LOOP==="1"?{loop:loopQa}:{}),...(process.env.NEXUS_QA_PASS==="1"?{pass:passQa}:{})}));return;}
+ // The sign-in that Access gives the request: the person's, none (nexus-qa-access=none), the
+ // service token's (agent), one of neither kind (neither) or a person's for another Access
+ // application (other), each of which the server checks as it would Access's own (TASK-312).
+ const signIn=/(?:^|;\s*)nexus-qa-access=(none|agent|neither|other)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1]||"user";
+ if(signIn!=="none")headers.set("Cf-Access-Jwt-Assertion",access.headers(signIn)["Cf-Access-Jwt-Assertion"]);
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_ITEM==="1"?{item:itemQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{}),...(process.env.NEXUS_QA_LOOP==="1"?{loop:loopQa}:{}),...(process.env.NEXUS_QA_PASS==="1"?{pass:passQa}:{}),...(process.env.NEXUS_QA_DATA==="1"?{data:dataQa}:{})}));return;}
+ // What the agent, its hub and another tab do while the panel of a project's data is open, a
+ // project to remove, and what the server holds of a project (TASK-312).
+ if(url.pathname==="/__qa/data"&&incoming.method==="POST"&&dataQa.act){const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const result=await dataQa.act(JSON.parse(Buffer.concat(chunks).toString("utf8")||"{}"));outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify(result));return;}
  // The agent's read of a loop project, qa-loop unless ?project= names qa-loop-new, as a session's
  // start reads its agent to-do (TASK-298).
  if(url.pathname==="/__qa/agent-read"&&incoming.method==="POST"&&loopQa.project){const name=url.searchParams.get("project")||loopQa.project;if(![loopQa.project,loopQa.fresh_project].includes(name))throw new Error("Not a loop project");const read=await loopQa.agentRead(name);outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({read_at:read.read_at}));return;}
@@ -369,7 +445,11 @@ const server=createServer(async(incoming,outgoing)=>{try{
  const space=/(?:^|;\s*)nexus-qa-space=(quiet|empty|broken)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];
  // The page's language: ?lang=, or the cookie nexus-qa-lang where a redirect leaves no query (TASK-278).
  const lang=url.searchParams.get("lang")??/(?:^|;\s*)nexus-qa-lang=(ko|en)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];
- const currentEnv={...(space&&spaces[space]?spaces[space]:env),NEXUS_LANGUAGE:lang==="ko"?"ko":"en"};
+ // A database that fails the removal (nexus-qa-fail=delete) or the export (export) alone, so that
+ // the read of the project's data before each still answers (TASK-312).
+ const fail=/(?:^|;\s*)nexus-qa-fail=(delete|export)(?:;|$)/.exec(incoming.headers.cookie||"")?.[1];
+ const failing=fail==="delete"&&incoming.method==="DELETE"||fail==="export"&&/^\/api\/spaces\/[^/]+\/export$/.test(url.pathname);
+ const currentEnv={...(failing?spaces.broken:space&&spaces[space]?spaces[space]:env),NEXUS_LANGUAGE:lang==="ko"?"ko":"en"};
  const response=await handle(new Request("http://"+incoming.headers.host+incoming.url,{method:incoming.method,headers,...(["GET","HEAD"].includes(incoming.method)?{}:{body:bytes})}),currentEnv,access.ctx,template,views);
  outgoing.writeHead(response.status,Object.fromEntries(response.headers));outgoing.end(Buffer.from(await response.arrayBuffer()));
  }catch{outgoing.writeHead(500);outgoing.end("Synthetic fixture failed");}});

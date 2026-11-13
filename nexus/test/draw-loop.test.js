@@ -43,8 +43,13 @@ test("the mark of a long wait holds after more than 24 hours, and the server dra
     assert.equal(longWait(since,iso(s+25*HOUR),lang),shown,"words and a shape, with the line on what it means");
     assert.equal(longWait(since,iso(s+23*HOUR),lang),shown.replace(`data-nx-since="${since}">`,`data-nx-since="${since}" hidden>`),"drawn hidden, for the code to show once 24 hours have passed");
     assert.equal(longWait(null,iso(s+25*HOUR),lang),"","nothing waits unread: no mark");
-    assert.equal(longWaitShape(since,iso(s+25*HOUR),lang),`<span class="fmk" data-nx-since="${since}">${WARN}<span class="sr">${esc(mark)}</span></span>`,"the folded list's mark: a shape, its words for screen readers, and nothing to press");
-    assert.ok(!/<a |<button/.test(longWait(since,iso(s+25*HOUR),lang)+longWaitShape(since,iso(s+25*HOUR),lang)),"nothing that cannot be used yet (rule 23)");
+    // The folded list's mark opens the project's data (SCR-111#folded, SCR-130): a button with the
+    // shape, whose name says the mark and where it leads, and which waits for the code (rule 15).
+    const shape=`<button class="fmk" type="button" data-nx-act="data" data-nx-focus="fmk" aria-haspopup="dialog" data-nx-since="${since}">${WARN}<span class="sr">${esc(mark)}, ${esc(label("The workspace's head",0,lang))}</span></button>`;
+    assert.equal(longWaitShape(since,iso(s+25*HOUR),lang,true),shape,"the folded list's mark: a button to the project's data, as the code draws it");
+    assert.equal(longWaitShape(since,iso(s+25*HOUR),lang),shape.replace('">'+WARN,'" disabled data-nx-wait="data">'+WARN),"the server draws it waiting for the code");
+    assert.equal(longWaitShape(since,iso(s+23*HOUR),lang,true),shape.replace(`data-nx-since="${since}">`,`data-nx-since="${since}" hidden>`),"drawn hidden, for the code to show once 24 hours have passed");
+    assert.ok(!/<a |<button/.test(longWait(since,iso(s+25*HOUR),lang)),"the head's mark is words, not a control");
   }
 });
 
@@ -111,13 +116,14 @@ test("the workspace's head and the folded list: the last push, the last read and
   for(const lang of["en","ko"]){
     const read=labels("The agent's last read",lang),push=labels("The last push",lang),base="2026-11-20T09:00:00.000Z",[mark]=labels("The mark of a long wait",lang);
     const head=stageRail(data(),lang,base);
-    assert.ok(head.startsWith(`<div class="proj"><b id="rail-name">Acme</b><span class="mu sm clip">example/acme</span><div class="loop"><span><span class="mono">abc1234</span> · ${esc(push[0]).replace("{time}",timeOf("2026-11-20T08:30:00.000Z",label("How long ago",1,lang,{n:30})))}</span><span>${esc(read[0]).replace("{time}",timeOf("2026-11-20T08:35:00.000Z",label("How long ago",1,lang,{n:25})))}</span></div></div>`),"TC-1413 in the head, in the place of the snapshot's own time");
+    assert.ok(head.startsWith(`<div class="proj"><b id="rail-name">Acme</b><span class="mu sm clip">example/acme</span><div class="loop"><span><span class="mono">abc1234</span> · ${esc(push[0]).replace("{time}",timeOf("2026-11-20T08:30:00.000Z",label("How long ago",1,lang,{n:30})))}</span><span>${esc(read[0]).replace("{time}",timeOf("2026-11-20T08:35:00.000Z",label("How long ago",1,lang,{n:25})))}</span></div><button class="pdl" type="button" data-nx-act="data" data-nx-focus="data" aria-haspopup="dialog" disabled data-nx-wait="data">${esc(label("The workspace's head",0,lang))}</button></div>`),"TC-1413 in the head, in the place of the snapshot's own time, then Project data (SCR-130)");
+    assert.ok(stageRail(data(),lang,base,true).includes(`<button class="pdl" type="button" data-nx-act="data" data-nx-focus="data" aria-haspopup="dialog">`),"the code's drawing: Project data works");
     assert.ok(stageRail(data({read_at:null,commit:null}),lang,base).includes(`<span>${esc(push[1])} · `)&&stageRail(data({read_at:null}),lang,base).includes(`<span>${esc(read[1])}</span>`),"No commit; not read by the agent yet (TC-1414)");
     assert.ok(stageRail(data({space:false,read_at:null}),lang,base).includes(`<span>${esc(read[2])}</span>`),"no agent to-do yet, without a space (SCR-111's Target)");
     const late=stageRail(data({read_at:"2026-11-19T07:00:00.000Z",unread_since:"2026-11-19T08:00:00.000Z"}),lang,base);
-    assert.ok(late.startsWith(`<span class="fmk" data-nx-since="2026-11-19T08:00:00.000Z">${WARN}<span class="sr">${esc(mark)}</span></span><div class="proj">`),"the folded list keeps the mark at its top (SCR-111#folded)");
+    assert.ok(late.startsWith(`<button class="fmk" type="button" data-nx-act="data" data-nx-focus="fmk" aria-haspopup="dialog" data-nx-since="2026-11-19T08:00:00.000Z" disabled data-nx-wait="data">${WARN}<span class="sr">${esc(mark)}, ${esc(label("The workspace's head",0,lang))}</span></button><div class="proj">`),"the folded list keeps the mark at its top, which opens the project's data (SCR-111#folded)");
     assert.ok(late.includes(`</div><div class="m24w" data-nx-since="2026-11-19T08:00:00.000Z"><span class="m24">${WARN}<span>${esc(mark)}</span></span>`),"the head carries the mark (TC-1415)");
-    assert.ok(stageRail(data({unread_since:"2026-11-20T08:00:00.000Z"}),lang,base).startsWith('<span class="fmk" data-nx-since="2026-11-20T08:00:00.000Z" hidden>'),"an hour's wait: drawn hidden");
+    assert.ok(stageRail(data({unread_since:"2026-11-20T08:00:00.000Z"}),lang,base).startsWith('<button class="fmk" type="button" data-nx-act="data" data-nx-focus="fmk" aria-haspopup="dialog" data-nx-since="2026-11-20T08:00:00.000Z" hidden disabled data-nx-wait="data">'),"an hour's wait: drawn hidden");
   }
   // The page draws the head as of the page's own time, so that the code draws it the same.
   const payload={schema:PAGE_SCHEMAS.stage,generated_at:"2026-11-20T09:00:00.000Z",lang:"en",data:{...data(),head:{key:"05-erd",state:"in_progress",checkpoint:null,commit:null,time:"2026-11-20T08:00:00.000Z",reads:true,source_state:"found",counts:{items:0,kinds:[],priorities:[],hotspots:null},picture:false},

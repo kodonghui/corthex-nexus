@@ -595,6 +595,10 @@ export const redesign={
     "Done already, in another tab.",
     "다른 탭에서 이미 했습니다."
   ],
+  "A project was removed": [
+    "{project} was removed from this server. Its sources stay in Git, and the files on your devices stay.",
+    "{project} 프로젝트를 이 서버에서 지웠습니다. 원본은 Git에 남고, 기기의 파일도 남습니다."
+  ],
   "Projects": [
     "Projects ({n}) · By name · By last push · Now: {stage} {state} · Next: {next action} · No picture yet · Not current · Pushed again at {time} · {n} items · {n} warnings · Open · {n} open comments",
     "프로젝트 ({n}) · 이름순 · 올린 순 · 지금: {stage} {state} · 다음: {next action} · 아직 그림 없음 · 최신 아님 · {time}에 다시 올라옴 · 항목 {n} · 경고 {n} · 열기 · 열린 의견 {n}"
@@ -622,6 +626,10 @@ export const redesign={
   "The folds": [
     "Fold the list of stages · Show the list of stages · Fold the talk · Show the talk",
     "단계 목록 접기 · 단계 목록 펴기 · 대화 접기 · 대화 펴기"
+  ],
+  "The workspace's head": [
+    "Project data",
+    "프로젝트 자료"
   ],
   "The head": [
     "Last checkpoint {date} · No checkpoint yet · Commit {commit} · drawn {time} · Stage record · Back to the talk",
@@ -722,6 +730,38 @@ export const redesign={
   "The search": [
     "Searching… · {n} matches for “{q}” · The first 20. Add a word to narrow it. · Type at least two characters. · Nothing matches “{q}”. · Look in the full checks",
     "찾는 중… · “{q}” 검색 결과 {n}개 · 처음 20개입니다. 낱말을 더하면 좁혀집니다. · 두 글자 이상 넣어 주세요. · “{q}”에 맞는 항목이 없습니다. · 전체 점검에서 보기"
+  ],
+  "The project's data": [
+    "Project data · Last push · Last read by the agent · Session {label} · No session label · Not read yet · On this server, and not in Git · Comments · Replies · Recorded decisions · Proposals · Reflections · Checkpoints passed in NEXUS · Loading the project's data…",
+    "프로젝트 자료 · 마지막 올림 · AI의 마지막 읽음 · 세션 {label} · 세션 이름표 없음 · 아직 읽지 않음 · 이 서버에만 있고 Git에는 없는 것 · 의견 · 답글 · 기록된 결정 · 제안 · 반영 · NEXUS에서 통과시킨 확인 지점 · 프로젝트 자료를 불러오는 중…"
+  ],
+  "No space": [
+    "This project has no space yet: nothing here is missing from Git.",
+    "이 프로젝트에는 아직 공간이 없습니다. Git에 없는 것이 여기에는 없습니다."
+  ],
+  "The export": [
+    "Export · One JSON file with this project's comments, proposals, reflections and checkpoints. It is your own copy: the server keeps none, and NEXUS reads no export back in. · Preparing the file… · Your browser has the file {file}.",
+    "내보내기 · 이 프로젝트의 의견, 제안, 반영, 확인 지점을 담은 JSON 파일 하나입니다. 내가 가지는 사본이며, 서버는 사본을 남기지 않고 NEXUS는 내보낸 파일을 다시 읽어 들이지 않습니다. · 파일을 만드는 중… · 브라우저가 {file} 파일을 받았습니다."
+  ],
+  "The export failed": [
+    "No file was made. · There is nothing to export.",
+    "파일을 만들지 못했습니다. · 내보낼 것이 없습니다."
+  ],
+  "The removal": [
+    "Remove this project · Deletes this project's snapshot and space from this server. Its sources stay in Git, and the files on your devices stay.",
+    "이 프로젝트 지우기 · 이 서버에서 이 프로젝트의 스냅샷과 공간을 지웁니다. 원본은 Git에 남고, 기기의 파일도 남습니다."
+  ],
+  "The removal's confirmation": [
+    "Remove {project} from this server · This deletes: · The snapshot, with {n} pictures and {m} discrepancies. A push makes these again. · The project space, with what Git does not hold: · Open comments · Open proposals · Pending reflections · Checkpoints not yet recorded · Export first · A removed project comes back only by a first push that you agree to in a session, with an empty space. · Type the project's name to confirm: {project} · The name does not match yet. · Cancel · Removing…",
+    "이 서버에서 {project} 지우기 · 지워지는 것: · 스냅샷과 그림 {n}개, 어긋남 {m}개. 다시 올리면 다시 생깁니다. · 프로젝트 공간과 Git에 없는 것: · 열린 의견 · 열린 제안 · 반영 대기 · 아직 기록하지 않은 확인 지점 · 먼저 내보내기 · 지운 프로젝트는 세션에서 내가 동의해 처음부터 다시 올릴 때만, 빈 공간으로 돌아옵니다. · 확인하려면 프로젝트 이름을 입력해 주세요: {project} · 이름이 아직 맞지 않습니다. · 취소 · 지우는 중…"
+  ],
+  "The removal changed": [
+    "What this removal deletes changed while this was open. Check it again.",
+    "이 창이 열려 있는 동안 지워지는 것이 바뀌었습니다. 다시 확인해 주세요."
+  ],
+  "Nothing to remove": [
+    "There is nothing to remove.",
+    "지울 것이 없습니다."
   ],
   "List marks": [
     "Discrepancy · Pending reflection · {n} comments",

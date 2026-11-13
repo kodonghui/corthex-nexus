@@ -174,7 +174,8 @@ test("the server's page holds each part exactly as the view's code draws it (rul
   const css=code[metadata.entries["page-css"].slice(6)].body.toString();
   for(const payload of[homePage("en"),homePage("ko"),homePage("en",{entries:[]}),homePage("ko",{projects:[],entries:[],agent:[]}),stagePage("en"),stagePage("ko",{parts:["sample","second"]}),{...stagePage("en"),picture:{}}]){
     const html=views.page(payload),parts=drawParts(payload),names=Object.keys(parts);
-    assert.deepEqual(names,pageKind(payload)==="home"?["top","bars","home"]:["top","bars","rail","tabs","stage","side"]);
+    assert.deepEqual(names,pageKind(payload)==="home"?["top","bars","home"]:["top","bars","rail","tabs","stage","side","data"]);
+    if(pageKind(payload)==="stage")assert.equal(parts.data,"","the server draws the project's data closed: only the code opens it (SCR-130)");
     assert.equal(tags(html,/data-nx-part="/g).length,names.length);
     for(const name of names)assert.ok(html.includes(`data-nx-part="${name}">${parts[name]}</`),name+" is the view's drawing");
     assert.equal(html.split(MARKER).length,2,"one data marker, filled by the server");
@@ -211,9 +212,9 @@ test("a page whose code does not run stays readable, with the bar of rule 15, an
   assert.match(css,/\.nx \.field input::-webkit-search-cancel-button\{[^}]*display:none/,"a search field draws no clear button of the browser's, whose hit area falls short of rule 14");
   assert.doesNotMatch(readFileSync(new URL("../ui/page.css",import.meta.url),"utf8"),/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i,"colours come from the frozen tokens");
   // A pictured stage without a picture (05), a document stage (02) and the first page.
-  for(const [payload,waits]of[[stagePage("en"),["folds","picture","record","search","talk"]],[stagePage("ko",{stage:"02-prd"}),["folds","list","record","search","talk"]],[homePage("ko"),["answer","order","search"]]]){
+  for(const [payload,waits]of[[stagePage("en"),["data","folds","picture","record","search","talk"]],[stagePage("ko",{stage:"02-prd"}),["data","folds","list","record","search","talk"]],[homePage("ko"),["answer","order","search"]]]){
     const html=views.page(payload),controls=tags(html,/<(?:button|input|select|textarea)\b[^>]*>/g);
-    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order|list|record|picture|talk|folds)"/,"a control that needs the code waits for it");
+    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order|list|record|picture|talk|folds|data)"/,"a control that needs the code waits for it");
     // The talk's turns lead to their groups, each a heading of the page (SCR-114).
     for(const link of tags(html,/<a\b[^>]*>/g))assert.match(link,/href="(?:\/|#stage|#stages|#talk|#t-mine|#t-agent|#item=|#view=list&amp;item=)[^"]*"/,"every link works without the code");
     for(const turn of html.matchAll(/href="#(t-mine|t-agent)"/g))assert.ok(html.includes(`id="${turn[1]}"`),"a turn's link leads to its group");
