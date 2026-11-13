@@ -161,7 +161,7 @@ CORTHEX 자신의 프로젝트에서 NEXUS 0.2의 06단계입니다: OpenAPI 계
 4. API-119 `replyToComment`: 에이전트의 답글은 `asks`를 지닐 수 있고, 사용자의 답글은 의견의 `asks`를 비웁니다.
 5. 허브의 `comment`(API-139)는 그림이 있는 단계만이 아니라 13단계 어느 것이든 `--stage`로 받고, 단계 전체에는 `--item`을 뺍니다. `comment`와 `reply`(API-140)는 `--asks answer|recommended|checkpoint`를 받습니다. 이것은 `kodonghui/corthex`에 있는 허브의 변경이므로 허브 페이지 템플릿의 새 토큰(09단계)과 함께 그곳의 풀 리퀘스트로 들어오고, 이 저장소의 규칙대로 이 저장소의 `hub-ref.json`은 제품 검사와 함께 그 정확한 커밋으로 옮깁니다.
 
-변경 1은 TASK-271부터, 변경 2는 TASK-278부터 만들어졌습니다(아래 API-153\~API-155). 변경 3\~5는 만들어졌습니다: 계약과 서버는 kodonghui/corthex-nexus#50에서 05단계의 변환 4와 함께, 허브 0.3.0은 kodonghui/corthex#172에서 만들었고, `hub-ref.json`은 그 커밋 `318035d`을 적습니다. 그것을 쓰면서 정한 두 가지: 무엇을 묻는지는 에이전트만 말하므로 사용자의 `asks`는 `asks` 칸의 `400` `invalid_request`로 거절합니다. 그리고 `commit`을 뺀 의견은 그림의 문서 판을, 그림이 없는 단계에서는 간직한 기본 브랜치 커밋을 받고, 저장된 스냅샷에 그것이 없으면 `commit` 칸으로 거절합니다.
+변경 1은 TASK-271부터, 변경 2는 TASK-278부터 만들어졌습니다(아래 API-153\~API-155). 변경 3\~5는 만들어졌습니다: 계약과 서버는 kodonghui/corthex-nexus#50에서 05단계의 변환 4와 함께, 허브 0.3.0은 kodonghui/corthex#172에서 만들었고, `hub-ref.json`은 kodonghui/corthex#211의 허브 0.4.0으로 옮기기 전까지 그 커밋 `318035d`을 적었습니다(TASK-294). 그것을 쓰면서 정한 두 가지: 무엇을 묻는지는 에이전트만 말하므로 사용자의 `asks`는 `asks` 칸의 `400` `invalid_request`로 거절합니다. 그리고 `commit`을 뺀 의견은 그림의 문서 판을, 그림이 없는 단계에서는 간직한 기본 브랜치 커밋을 받고, 저장된 스냅샷에 그것이 없으면 `commit` 칸으로 거절합니다.
 
 계약은 TASK-265부터 API-151\~API-154와 API-156\~API-159를 `x-corthex.status: planned`로 표시해 지니며, 계약 검사는 서버가 답하기 전까지 그것을 뺍니다. API-155는 TASK-271에서 API-101을 옮길 때 함께 왔습니다. 그것을 쓰면서 정한 것:
 
