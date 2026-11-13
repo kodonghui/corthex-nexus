@@ -285,14 +285,17 @@ test("TC-1741: the kind of browser and device never refuses a pass, on the stand
       passes.push([passed.data.id, [...kind, driven ?? null]]);
     }
   }
-  // As recommended, the press passes the checkpoint that the agent asked for until TASK-302,
-  // with the kind of browser and device and driven as not reported, since it sends no body.
+  // Since TASK-302 the press as recommended passes no checkpoint (D17): the request that the
+  // agent asked for is passed with its comment and last entry, with the kind and driven as sent.
   const asked = await call("POST", "/api/spaces/acme/comments", { body: REQUEST, session: "s-1" });
   assert.equal(asked.status, 201, asked.text);
   const taken = await call("POST", `/api/spaces/acme/comments/${asked.data.id}/recommended`, { kind: "user", headers: SAFARI_PHONE });
-  assert.equal(taken.status, 200, taken.text);
-  assert.deepEqual(kindOf(taken.data.checkpoint), ["safari", "phone", null]);
-  passes.push([taken.data.checkpoint.id, ["safari", "phone", null]]);
+  assert.deepEqual([taken.status, taken.data.code], [409, "not_recommended"]);
+  const answered = await call("POST", "/api/spaces/acme/checkpoints", { kind: "user", headers: SAFARI_PHONE,
+    body: { part: "sample", stage: "04-functional-spec", commit: COMMIT, comment: asked.data.id, entry: 0, driven: false } });
+  assert.equal(answered.status, 201, answered.text);
+  assert.deepEqual(kindOf(answered.data), ["safari", "phone", false]);
+  passes.push([answered.data.id, ["safari", "phone", false]]);
 
   // Every answer that holds a checkpoint names the three, and the one passed before the
   // revision holds them null, not unknown.

@@ -2076,22 +2076,23 @@ paths:
     post:
       operationId: takeRecommendation
       tags: [Discussion]
-      summary: Take the agent's recommendation on a comment
+      summary: Take the agent's recommendation on a comment, which passes no checkpoint
       description: >-
-        The user takes what the agent's last entry on an open comment that waits for the user asks
-        (SPEC-143). With asks recommended, the server adds the user's reply that settles the
-        comment, in the words for "as recommended" of the server's language, as replyToComment
-        with settles does. With asks checkpoint, it also passes the checkpoint of the comment's
-        part and stage with those words, with the comment in the checkpoint's comment, which holds
-        what was approved, as passCheckpoint does. Both are one transaction with the write ID, and
-        the comment then waits for the agent's record. A comment whose recommendation was taken
-        already, so that its last entry is that reply and, for a checkpoint, a passed checkpoint
-        names it, changes nothing. It takes no body.
+        The user takes the recommendation of the agent's last entry on an open comment that
+        waits for the user and asks recommended (SPEC-143): the server adds the user's reply that
+        settles the comment, in the words for "as recommended" of the server's language, as
+        replyToComment with settles does, in one transaction with the write ID, and the comment
+        then waits for the agent's record. Under D17 of stage 02, decided on 2026-11-12, taking a
+        recommendation passes no checkpoint (SPEC-196): a comment whose last entry asks for a
+        checkpoint is 409 not_recommended, since a checkpoint request is opened and passed with
+        passCheckpoint, on what the user saw. checkpoint stays in the answer, for a page that was
+        loaded before the release, and is always null. A comment whose recommendation was taken
+        already, so that its last entry is that reply, changes nothing. It takes no body.
       security:
         - accessUser: []
       x-corthex:
         id: API-159
-        spec: [SPEC-113, SPEC-116, SPEC-139, SPEC-143]
+        spec: [SPEC-113, SPEC-116, SPEC-143, SPEC-196]
         status: active
         omit:
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
@@ -2104,11 +2105,11 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/RecommendationAnswer"}
               examples:
-                checkpoint-passed: {$ref: "#/components/examples/recommendation_taken"}
+                taken: {$ref: "#/components/examples/recommendation_taken"}
         "400": {$ref: "#/components/responses/InvalidUserAction"}
         "403": {$ref: "#/components/responses/UserWriteRefused"}
         "404":
-          description: No such project, space or comment, or a checkpoint asked for on a part that the stored snapshot no longer holds
+          description: No such project, space or comment
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/Problem"}
@@ -2116,9 +2117,8 @@ paths:
                 comment-not-found: {$ref: "#/components/examples/comment_not_found"}
                 project-not-found: {$ref: "#/components/examples/project_not_found"}
                 space-not-found: {$ref: "#/components/examples/space_not_found"}
-                part-not-found: {$ref: "#/components/examples/part_not_found"}
         "409":
-          description: Nothing to take, at a limit, or the write ID was taken
+          description: Nothing to take, as for a checkpoint request, at a limit, or the write ID was taken
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/Problem"}
@@ -2952,8 +2952,8 @@ components:
       summary: No stage of the project holds the item
       value: {title: No such item, status: 404, detail: no stage of the stored snapshot of corthex holds TBL-109, code: item_not_found, traceId: 8f6c3b2a1d0e9fb6-ICN, error: no stage of the stored snapshot of corthex holds TBL-109}
     not_recommended:
-      summary: The comment no longer waits for a recommendation to be taken
-      value: {title: No recommendation to take, status: 409, detail: the comment no longer waits for the user with a recommendation or a checkpoint, code: not_recommended, traceId: 8f6c3b2a1d0e9fb7-ICN, error: the comment no longer waits for the user with a recommendation or a checkpoint}
+      summary: The comment no longer waits with a recommendation, or its last entry asks for a checkpoint, which is passed and not taken
+      value: {title: No recommendation to take, status: 409, detail: the comment does not wait for the user with a recommendation to take, code: not_recommended, traceId: 8f6c3b2a1d0e9fd1-ICN, error: the comment does not wait for the user with a recommendation to take}
     access_missing_page:
       summary: The page of access_missing, for a browser
       value: '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>NEXUS</title></head><body><main><p>Cloudflare Access did not check this request. Protect the server with Access first.</p><p>Trace ID 8f6c3b2a1d0e9f88-ICN</p><p><a href="">Load again</a> <a href="/">Hub page</a></p></main></body></html>'
@@ -3497,11 +3497,11 @@ components:
           closed: {total: 1, entries: []}
           reflections: []
     recommendation_taken:
-      summary: A checkpoint passed as the agent recommended
+      summary: A recommendation taken, which settles the comment and passes no checkpoint
       value:
-        comment: {id: nc_7d1g4k8n2q5t, state: open, closed_as: null, waits: agent, asks: null, settled: true, dismissed: false, last_at: "2026-11-08T08:31:12.204Z"}
-        reply: {seq: 2, author: user, text: As recommended, settles: true, made_at: "2026-11-08T08:31:12.204Z", look_first: null}
-        checkpoint: {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: As recommended, state: passed, passed_at: "2026-11-08T08:31:12.204Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, revision: null, entry: null, browser: safari, device: phone, driven: null}
+        comment: {id: nc_9m2p5s8v1y4b, state: open, closed_as: null, waits: agent, asks: null, settled: true, dismissed: false, last_at: "2026-11-11T08:31:12.204Z"}
+        reply: {seq: 2, author: user, text: As recommended, settles: true, made_at: "2026-11-11T08:31:12.204Z", look_first: null}
+        checkpoint: null
         changed: true
 
     cross_site_export:
@@ -3555,9 +3555,6 @@ components:
     request_no_longer_open:
       summary: The request that the pass names is closed, settled or no longer asks for the checkpoint, and the stage has no open one
       value: {title: The checkpoint request changed, status: 409, detail: "the checkpoint request nc_7d1g4k8n2q5t no longer asks for the checkpoint; read the stage again", code: request_changed, traceId: 8f6c3b2a1d0e9fd0-ICN, error: "the checkpoint request nc_7d1g4k8n2q5t no longer asks for the checkpoint; read the stage again"}
-    not_recommended_planned:
-      summary: The comment no longer waits with a recommendation, or its last entry asks for a checkpoint, which is passed and not taken
-      value: {title: No recommendation to take, status: 409, detail: the comment does not wait for the user with a recommendation to take, code: not_recommended, traceId: 8f6c3b2a1d0e9fd1-ICN, error: the comment does not wait for the user with a recommendation to take}
 
     project_data:
       summary: A project with a space, pushed and read on the same day
@@ -3651,13 +3648,6 @@ components:
     checkpoint_passed_without_request:
       summary: A checkpoint passed in the stage's record with no request, on a snapshot that names no commit, from a page that reported nothing of software driving the browser
       value: {id: nk_9b2e5h8k1n4q, part: "", stage: 02-prd, commit: null, words: "The requirements as drafted.", state: passed, passed_at: "2026-11-11T08:40:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: null, revision: 3, entry: null, browser: firefox, device: desktop, driven: null}
-    recommendation_taken_planned:
-      summary: "The planned form: a recommendation taken, which settles the comment and passes no checkpoint"
-      value:
-        comment: {id: nc_9m2p5s8v1y4b, state: open, closed_as: null, waits: agent, asks: null, settled: true, dismissed: false, last_at: "2026-11-11T08:31:12.204Z"}
-        reply: {seq: 2, author: user, text: As recommended, settles: true, made_at: "2026-11-11T08:31:12.204Z", look_first: null}
-        checkpoint: null
-        changed: true
     reply_asks_again:
       summary: "The agent's reply that asks for the checkpoint again on the stage's open request, whose last entry it now is"
       value:
@@ -4917,7 +4907,7 @@ components:
         the agent's comment or reply or the change of an open proposal that answers it, and at is
         when it began to wait; for a proposal, its change and when it was made, with its first item.
       type: object
-      required: [kind, id, project, part, stage, item, title, quote, text, at, asks]
+      required: [kind, id, project, part, stage, item, title, quote, text, at, asks, request]
       additionalProperties: false
       properties:
         kind: {type: string, enum: [comment, proposal]}
@@ -4937,7 +4927,6 @@ components:
             the pass as its second action (SPEC-196); null for any other entry, for a request
             stored without its thing to look at first and, in phase ②, for a workshop's
             request, which offer only to open
-          x-corthex: {status: planned, decision: D17, spec: [SPEC-196]}
           anyOf: [{$ref: "#/components/schemas/RequestShown"}, {type: "null"}]
     AgentCount:
       type: object
@@ -4983,7 +4972,7 @@ components:
         for the project's own repository; commit the snapshot's held commit; pushed_at when the
         server stored it.
       type: object
-      required: [name, title, repository, commit, generated_at, pushed_at, items, warnings, parts, stages, pictures]
+      required: [name, title, repository, commit, generated_at, pushed_at, items, warnings, parts, stages, pictures, revision]
       additionalProperties: false
       properties:
         name: {$ref: "#/components/schemas/ProjectName"}
@@ -5021,7 +5010,6 @@ components:
           description: >-
             The stored snapshot's revision, which a pass from the first page names where the
             snapshot names no commit (SPEC-194, SPEC-196)
-          x-corthex: {status: planned, decision: D17, spec: [SPEC-194, SPEC-196]}
           type: integer
           minimum: 1
     CardPart:
@@ -5401,16 +5389,20 @@ components:
 
     RecommendationAnswer:
       description: >-
-        The comment after the user took the recommendation, the reply that settles it and, with
-        asks checkpoint, the checkpoint passed; changed is false when the recommendation was taken
-        already, and the answer then holds that reply and that checkpoint
+        The comment after the user took the recommendation and the reply that settles it;
+        changed is false when the recommendation was taken already, and the answer then holds
+        that reply
       type: object
       required: [comment, reply, checkpoint, changed]
       additionalProperties: false
       properties:
         comment: {$ref: "#/components/schemas/CommentState"}
         reply: {$ref: "#/components/schemas/Reply"}
-        checkpoint: {anyOf: [{$ref: "#/components/schemas/Checkpoint"}, {type: "null"}]}
+        checkpoint:
+          description: >-
+            Always null since D17 of stage 02 (SPEC-196): taking a recommendation passes no
+            checkpoint. It stays for a page that was loaded before the release
+          type: "null"
         changed: {type: boolean}
     HomePageData:
       description: >-
@@ -5810,65 +5802,6 @@ components:
             reflections: {type: integer, minimum: 0}
 
   pathItems:
-    takeRecommendation:
-      parameters:
-        - $ref: "#/components/parameters/Project"
-        - $ref: "#/components/parameters/Comment"
-        - $ref: "#/components/parameters/IdempotencyKey"
-      post:
-        tags: [Discussion]
-        summary: Take the agent's recommendation on a comment, which passes no checkpoint
-        description: >-
-          The planned form of takeRecommendation, under D17 of stage 02, decided on 2026-11-12:
-          taking a recommendation passes no checkpoint any more (SPEC-143, SPEC-196). With asks
-          recommended, the server adds the user's reply that settles the comment, in the words
-          for "as recommended" of the server's language, as now. A comment whose last entry asks
-          for a checkpoint is 409 not_recommended: a checkpoint request is opened and passed with
-          passCheckpoint, on what the user saw. checkpoint stays in the answer, for a page that
-          was loaded before the release, and is always null. A comment whose recommendation was
-          taken already changes nothing. It takes no body.
-        security:
-          - accessUser: []
-        x-corthex:
-          id: API-159
-          replaces: takeRecommendation
-          spec: [SPEC-113, SPEC-116, SPEC-143, SPEC-196]
-          status: planned
-          decision: D17
-          omit:
-            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
-            "413": the request takes no body
-            "415": the request takes no body
-        responses:
-          "200":
-            description: Taken
-            content:
-              application/json:
-                schema: {$ref: "#/components/schemas/RecommendationAnswer"}
-                examples:
-                  taken: {$ref: "#/components/examples/recommendation_taken_planned"}
-          "400": {$ref: "#/components/responses/InvalidUserAction"}
-          "403": {$ref: "#/components/responses/UserWriteRefused"}
-          "404":
-            description: No such project, space or comment
-            content:
-              application/problem+json:
-                schema: {$ref: "#/components/schemas/Problem"}
-                examples:
-                  comment-not-found: {$ref: "#/components/examples/comment_not_found"}
-                  project-not-found: {$ref: "#/components/examples/project_not_found"}
-                  space-not-found: {$ref: "#/components/examples/space_not_found"}
-          "409":
-            description: Nothing to take, as for a checkpoint request, at a limit, or the write ID was taken
-            content:
-              application/problem+json:
-                schema: {$ref: "#/components/schemas/Problem"}
-                examples:
-                  not-recommended: {$ref: "#/components/examples/not_recommended_planned"}
-                  reply-limit: {$ref: "#/components/examples/reply_limit"}
-                  space-full: {$ref: "#/components/examples/space_full"}
-                  write-id-reused: {$ref: "#/components/examples/write_id_reused"}
-          default: {$ref: "#/components/responses/Unexpected"}
     removeProject:
       parameters:
         - $ref: "#/components/parameters/Project"
@@ -5965,7 +5898,7 @@ components:
       checkpoint_requested: {status: 409, meaning: "the part's stage has an open checkpoint request already; comment names it", message: "This stage has an open checkpoint request", client: "the hub sends the request as a reply on the named comment; the view never sends a request"}
       snapshot_changed: {status: 409, meaning: "the stored snapshot has another commit than the pass named, or another revision where it names no commit; held_commit names the commit, or revision the revision", message: "The project now shows another commit. Look again before you pass", client: "the view keeps the user's words, reads the stage again and shows it as it is now"}
       request_changed: {status: 409, meaning: "the checkpoint request that the pass named is closed, has a newer last entry, no longer asks for the checkpoint or is on another part or stage, or the stage has an open request that the pass did not name; comment and entry name the stage's open request and its last entry, when there is one", message: "The checkpoint request changed. Read it again before you pass", client: "the view keeps the user's words and shows the request as it is now"}
-      not_recommended: {status: 409, meaning: "the comment no longer waits for the user, or its last entry asks for no recommendation or checkpoint to take", message: "This no longer waits for your answer", client: "the view marks the entry as answered or closed meanwhile and reads my turn again"}
+      not_recommended: {status: 409, meaning: "the comment no longer waits for the user, or its last entry asks for no recommendation to take; a checkpoint request is passed and not taken", message: "This can no longer be answered as recommended", client: "the view marks the entry as answered or closed meanwhile and reads my turn again"}
       write_id_reused: {status: 409, meaning: "the write ID was taken by another request", message: "This write could not be sent. Try again", client: "the view makes a new ID; the hub reports it as a fault of its own"}
       snapshot_too_large: {status: 413, meaning: "the snapshot is larger than 1 MiB", message: "The snapshot is larger than the server takes", client: "the hub reports it; its own limits keep snapshots smaller"}
       body_too_large: {status: 413, meaning: "a write's body is larger than 256 KiB", message: "This is larger than the server takes", client: "the view and the hub report it"}
@@ -5973,5 +5906,4 @@ components:
       json_required: {status: 415, meaning: "a body that is not sent as application/json", message: "This could not be sent", client: "the hub reports it as a fault of its own"}
       internal: {status: 500, meaning: "an error inside the server; its log holds only the kind of error and the trace ID", message: "Something went wrong. Try again", client: "the view keeps what it holds and offers to send again; the hub keeps the write in its outbox"}
     planned_errors:
-      not_recommended: {status: 409, meaning: "the comment no longer waits for the user, or its last entry asks for no recommendation to take; a checkpoint request is passed and not taken. Replaces the entry of errors when API-159's planned form is built", message: "This no longer waits for your answer", client: "the view marks the entry as answered or closed meanwhile and reads my turn again"}
       cross_site: {status: 403, meaning: "a browser sent a change, or asked for a project's export, from another site. Replaces the entry of errors when API-178 is built, and the code's title becomes A request from another site", message: "A request from another site is refused", client: "the view offers to open the page at the server's own address"}

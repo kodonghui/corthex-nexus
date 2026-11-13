@@ -71,10 +71,12 @@ if(process.env.NEXUS_QA_HOME==="1"){
  snapshot.summary={...snapshot.summary,items:snapshot.items.length};
  await call("POST","/api/snapshots",snapshot,"agent");
  const proposal=async n=>(await call("POST",base+"/proposals",{part:"sample",stage:"05-erd",items:["TBL-001"],reason:"Synthetic proposal "+n,change:"Describe the reference constraint "+n+".",source_text:"CREATE UNIQUE INDEX orders_reference ON orders(reference);"},"agent")).id;
- const asks=async(asks,{part="sample",stage="07-sitemap",item="SCR-001",quote,look_first}={})=>(await call("POST",base+"/comments",{part,stage,item,...(quote?{quote}:{}),...(look_first?{look_first}:{}),text:`Synthetic ${asks}: keep SCR-105's address as a redirect, so that links from 0.2 keep working.`,asks},"agent")).id;
+ const asks=async(asks,{part="sample",stage="07-sitemap",item="SCR-001",quote,look_first,text=`Synthetic ${asks}: keep SCR-105's address as a redirect, so that links from 0.2 keep working.`}={})=>(await call("POST",base+"/comments",{part,stage,item,...(quote?{quote}:{}),...(look_first?{look_first}:{}),text,asks},"agent")).id;
+ // The checkpoint request at its limits, ten lines and 1,200 characters (SPEC-197, TC-1773).
+ home.requestText=Array.from({length:10},(_,i)=>(`Synthetic checkpoint, line ${i+1} of 10: the orders table keeps a unique reference, and `+"its screens show it ".repeat(8)).slice(0,i===9?120:119)).join("\n");
  for(const name of["accept","dismiss","stale","retry","reused","sending"])home[name]=await proposal(name);
  home.recommended=await asks("recommended");home.taken=await asks("recommended");home.closed=await asks("recommended");
- home.checkpoint=await asks("checkpoint",{stage:"05-erd",item:"",look_first:"TBL-001"});home.gonePart=await asks("checkpoint",{part:"gone",stage:"05-erd",item:"",look_first:"TBL-001"});
+ home.checkpoint=await asks("checkpoint",{stage:"05-erd",item:"",look_first:"TBL-001",text:home.requestText});home.gonePart=await asks("checkpoint",{part:"gone",stage:"05-erd",item:"",look_first:"TBL-001"});
  home.question=await asks("answer",{stage:"01-domain",item:"",quote:"Ordering"});
  // The agent's to-do: a comment of the user's that waits for it.
  home.forAgent=(await call("POST",base+"/comments",{part:"sample",stage:"07-sitemap",item:"SCR-001",text:"Synthetic comment that waits for the agent"})).id;

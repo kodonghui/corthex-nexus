@@ -7,7 +7,7 @@
 // compares one by one, and data-nx-live one whose text it changes in place.
 import {esc,path,count,time,timed} from "./html.js";
 import {icon,shapeIcon} from "./icons.js";
-import {label,labels,legendWord,codeMessage,notCurrentWhy,STATES} from "./words.js";
+import {label,labels,oldLabels,legendWord,codeMessage,notCurrentWhy,STATES} from "./words.js";
 import {STAGE_KEYS,stageName,stageNumber,stagePath} from "./stages.js";
 import {PALETTE} from "./palette.js";
 import {lastPush,lastRead,longWait,pushed as pushedAt} from "./loop.js";
@@ -29,9 +29,26 @@ export function countPath(project,list,oldest){
 }
 // An entry's kind: a proposal, or a comment by what its last entry asks of the user.
 export const entryKind=entry=>entry.kind==="proposal"?0:entry.asks==="recommended"?2:entry.asks==="checkpoint"?3:1;
-// The answers that each kind offers: the writes, then the links to the talk.
-const ANSWERS=Object.freeze([[["accept",0],["dismiss",1]],[],[["recommended",2]],[["recommended",3]]]);
-const LINKS=Object.freeze([null,4,4,5]);
+// The answers that each kind offers: the writes, then Reply, the link to the talk. A checkpoint
+// request has buttons of its own (requestActs), and API-159 passes no checkpoint (TASK-302).
+const ANSWERS=Object.freeze([[["accept",0],["dismiss",1]],[],[["recommended",2]],[]]);
+const LINKS=Object.freeze([null,3,3,null]);
+// The pass's words, up to 2,000 characters (SPEC-196), as the stage record's (./stage.js).
+export const PASS_WORDS=2000;
+// The scope of the pass's words and write ID in the browser's storage: the request's comment
+// (SCR-110's revision, rule 5).
+export const passScope=entry=>`${entry.project}:pass:${entry.id}`;
+// A checkpoint request in form shows whole (SPEC-196, TASK-302): its last entry's whole text, the
+// thing to look at first, the commit and the stage. Only then does its entry offer the pass, which
+// names what the entry shows (SPEC-194): so an item to look at first that no stage holds now, a
+// request stored without the form or a workshop's, and a project without its card, offer only
+// "Open the request".
+export function wholeRequest(entry,card){
+  const request=entry?.request,look=request?.look_first;
+  if(entry?.kind!=="comment"||entry.asks!=="checkpoint"||!request||!look||!card)return false;
+  const shown=typeof look.url==="string"&&look.url.startsWith("https://")||Boolean(look.held&&typeof look.stage==="string"&&STAGE_KEYS.includes(look.stage)&&typeof look.item==="string");
+  return shown&&(typeof card.commit==="string"&&card.commit!==""||Number.isInteger(card.revision));
+}
 const number=value=>Number.isFinite(Number(value))?Math.round(Number(value)):0;
 const backticks=text=>esc(text).replace(/`([^`]+)`/g,"<code>$1</code>");
 
@@ -63,18 +80,74 @@ function after(entry,state,lang){
     const record=state.mark===3?` <a class="lnk" href="${esc(stagePath(entry.project,entry.part,entry.stage))}">${esc(label("The head",4,lang))}</a>`:"";
     parts.push(`<p class="res">${icon("i-check")}<span>${esc(label("Answered",state.mark,lang))}${record}</span></p>`);
   }
-  const note=state.note;
+  // A refusal by the pass's words shows by the words' box (wordsBox).
+  const note=state.note&&!(state.note.box&&state.words)?state.note:null;
   if(note){
     const tone=["info","warn","err"].includes(note.tone)?note.tone:"err",buttons=labels("Page buttons",lang),row=[];
     if(note.retry)row.push(`<button class="btn sm" type="button" data-nx-act="retry" data-nx-retry="${esc(note.retry)}" data-nx-focus="${id}:retry">${icon("i-reload")}${esc(buttons[0])}</button>`);
-    if(note.open)row.push(`<a class="btn sm" href="${esc(note.open)}">${esc(label("Answers",5,lang))}</a>`);
+    if(note.load)row.push(`<button class="btn sm" type="button" data-nx-act="load" data-nx-focus="${id}:load">${icon("i-reload")}${esc(buttons[1])}</button>`);
+    if(note.open)row.push(`<a class="btn sm" href="${esc(note.open)}">${esc(label("A checkpoint request's buttons",0,lang))}</a>`);
     if(note.here)row.push(`<a class="lnk" href="${esc(note.here)}">${esc(buttons[3])}</a>`);
     parts.push(`<div class="msg ${tone}" role="${tone==="err"?"alert":"status"}">${icon(tone==="err"?"i-err":tone==="warn"?"i-warn":"i-info")}<div><span class="t">${esc(note.text)}</span>${note.trace?`<span class="tid">${esc(codeMessage("Trace ID",lang,{traceId:note.trace}))}</span>`:""}${row.length?`<div class="row">${row.join("")}</div>`:""}</div></div>`);
   }
-  return parts.length?`<div class="after" tabindex="-1" data-nx-focus="${id}:after">${parts.join("")}</div>`:"";
+  return parts.length?`<div class="after" tabindex="-1" data-nx-key="x" data-nx-focus="${id}:after">${parts.join("")}</div>`:"";
+}
+// A message under an entry or by its words' box (rule 3).
+function noteHtml(note,id,lang){
+  const tone=["info","warn","err"].includes(note.tone)?note.tone:"err",buttons=labels("Page buttons",lang);
+  const retry=note.retry?`<div class="row"><button class="btn sm" type="button" data-nx-act="retry" data-nx-retry="${esc(note.retry)}" data-nx-focus="${id}:retry-box">${icon("i-reload")}${esc(buttons[0])}</button></div>`:"";
+  return`<div class="msg ${tone}" role="${tone==="err"?"alert":"status"}">${icon(tone==="err"?"i-err":tone==="warn"?"i-warn":"i-info")}<div><span class="t">${esc(note.text)}</span>${note.trace?`<span class="tid">${esc(codeMessage("Trace ID",lang,{traceId:note.trace}))}</span>`:""}${retry}</div></div>`;
 }
 
-function entryItem(entry,titles,lang,state={},code=false){
+// A checkpoint request whole (SCR-110's revision, rule 22): after its text, "Look at first", the
+// commit that the project's card shows, and what is left in its stage. An item to look at first
+// that a stage holds is a link to that stage's page at #item= with its ID and title; an address,
+// its host and what follows cut after 120 characters, opens only when pressed, in a new tab
+// without a referrer, and the page never loads it; an item that no stage holds now is its ID as
+// text. A snapshot that names no commit shows no commit, as the stage record (TASK-300).
+function requestLines(entry,card,lang){
+  const request=entry.request,look=request.look_first||{},words=labels("A checkpoint request, whole",lang),left=request.left||{};
+  let what="";
+  if(typeof look.url==="string"&&look.url.startsWith("https://")&&look.url.length<=2000){
+    const shown=Array.from(look.url.slice(8)),text=shown.length>120?shown.slice(0,120).join("")+"…":shown.join("");
+    what=`<a class="lnk" href="${esc(look.url)}" target="_blank" rel="noopener noreferrer" data-nx-focus="${esc(entry.id)}:look">${esc(text)}</a>`;
+  }else if(typeof look.item==="string"&&look.item){
+    const named=`<span class="mono">${esc(look.item)}</span>${look.title?" "+esc(look.title):""}`;
+    what=look.held&&STAGE_KEYS.includes(look.stage)?`<a class="lnk" href="${esc(stagePath(entry.project,entry.part,look.stage)+"#item="+encodeURIComponent(look.item))}" data-nx-focus="${esc(entry.id)}:look">${named}</a>`:`<span>${named}</span>`;
+  }
+  const n=key=>count(Math.max(0,Number(left[key])||0));
+  const lines=[
+    what?`<span class="lf"><span class="rk">${esc(words[0])}</span>${what}</span>`:"",
+    typeof card?.commit==="string"&&card.commit?`<span class="cm">${esc(label("The head",2,lang,{commit:card.commit.slice(0,7)}))}</span>`:"",
+    `<span class="lt"><span class="rk">${esc(words[1])}</span>${["discrepancies","comments","reflections"].map((key,index)=>`<span class="c">${esc(label("A checkpoint request, whole",index+2,lang,{n:n(key)}))}${index<2?" ·":""}</span>`).join(" ")}</span>`];
+  return`<div class="rqf" data-nx-key="f">${lines.join("")}</div>`;
+}
+// The pass's words (SCR-110's revision): a box of up to 2,000 characters, which the code keeps
+// in the browser's storage for the request's comment with the write ID (rule 5) and fills after it
+// draws; the characters left show from 90 per cent of the limit, and a refusal by the words shows
+// above them.
+function wordsBox(entry,state,lang){
+  const id=esc(entry.id);
+  const left=state.over?esc(codeMessage("text_too_long",lang,{limit:PASS_WORDS.toLocaleString("en-US")})):Number.isInteger(state.left)?esc(codeMessage("Characters left",lang,{n:state.left})):"";
+  const note=state.note?.box?noteHtml(state.note,id,lang):"";
+  return`<div class="wb" data-nx-key="b" data-nx-sub><div class="bn" data-nx-key="bn">${note}</div><label class="lab" for="pw-${id}" data-nx-key="bl">${esc(oldLabels("Overview's headings",lang)[5])}</label><textarea class="ta" id="pw-${id}" name="words" rows="3" data-nx-key="bt" data-nx-focus="${id}:words" aria-describedby="pw-left-${id}"></textarea><p class="left" id="pw-left-${id}" data-nx-key="bf" data-nx-live>${left}</p></div>`;
+}
+// A checkpoint request's buttons (SCR-110's revision): "Open the request", the first and filled,
+// a link to the talk at the request that works before the code runs; and, while the entry shows
+// the request whole, "Pass the stage {n} checkpoint" and "Add your words", which wait for the code.
+// The pass is off while it is sent and while my turn reads again after a refusal, and disabled
+// over the words' limit.
+function requestActs(entry,state,lang,code,whole,talk,where){
+  const id=esc(entry.id),buttons=labels("A checkpoint request's buttons",lang);
+  const open=`<a class="btn sm pri answer" href="${talk}" data-nx-focus="${id}:talk" aria-describedby="${where}">${esc(buttons[0])}</a>`;
+  if(!whole)return open;
+  const sending=state.sending==="pass",wait=code?(state.over?" disabled":sending||state.reread?' aria-disabled="true"':""):` disabled data-nx-wait="answer"`;
+  const pass=`<button class="btn sm answer" type="button" data-nx-act="pass" data-nx-focus="${id}:pass" aria-describedby="${where}"${wait}>${esc(sending?codeMessage("Sending",lang):label("The pass",0,lang,{n:String(entry.stage).slice(0,2)}))}</button>`;
+  const add=state.words?"":`<button class="btn sm quiet answer" type="button" data-nx-act="words" data-nx-focus="${id}:add" aria-describedby="${where}"${code?"":` disabled data-nx-wait="answer"`}>${esc(buttons[1])}</button>`;
+  return open+pass+add;
+}
+
+function entryItem(entry,titles,lang,state={},code=false,card=null){
   const id=esc(entry.id),kind=entryKind(entry),answers=labels("Answers",lang),where=`w-${id}`;
   const quote=entry.quote?`<q>${esc(entry.quote)}</q>`:"";
   const item=entry.item?`<span class="mono">${esc(entry.item)}</span>${entry.title?" "+esc(entry.title):""}${quote?" "+quote:""}`:quote||esc(label("An entry's place",0,lang));
@@ -84,16 +157,28 @@ function entryItem(entry,titles,lang,state={},code=false){
   const wait=code?(state.sending?' aria-disabled="true"':""):` disabled data-nx-wait="answer"`;
   const writes=ANSWERS[kind].map(([act,index],n)=>`<button class="btn sm answer${n===0?" pri":""}" type="button" data-nx-act="${act}" data-nx-focus="${id}:${act}" aria-describedby="${where}"${wait}>${esc(state.sending===act?codeMessage("Sending",lang):answers[index])}</button>`);
   const link=LINKS[kind]===null?[]:[`<a class="btn sm answer" href="${talk}" data-nx-focus="${id}:talk" aria-describedby="${where}">${esc(answers[LINKS[kind]])}</a>`];
+  const head=`<span class="kind acc" data-nx-key="k">${esc(labels("An entry's kind",lang)[kind])}</span><span class="where" id="${where}" data-nx-key="w">${place}<a class="lnk clip" href="${talk}" data-nx-focus="${id}:place">${item}</a></span>`;
+  const when=`<span class="when mu cap" data-nx-key="n">${esc(labels("Author and time",lang)[0])} · ${time(entry.at)}</span>`;
+  // A checkpoint request (SCR-110's revision): in form, its last entry's whole text and its lines;
+  // its words' box while it is open; and its buttons. Its parts keep their places when the code
+  // draws again, so that the words and the focus stay.
+  if(kind===3){
+    const whole=wholeRequest(entry,card),request=entry.request;
+    const text=`<p class="txt${request?" rq":""}" data-nx-key="t">${esc(request?request.text:entry.text)}</p>`;
+    const box=code&&whole&&state.words&&!state.done?wordsBox(entry,state,lang):"";
+    const acts=state.done?"":`<span class="acts rqa" data-nx-key="a">${requestActs(entry,state,lang,code,whole,talk,where)}</span>`;
+    return`<li class="ent req${state.done?" answered":""}" data-nx-key="e:${id}" data-nx-entry="${id}" data-nx-sub>${head}${text}${request?requestLines(entry,card,lang):""}${when}${box}${acts}${after(entry,state,lang)}</li>`;
+  }
   const acts=state.done?"":`<span class="acts">${[...writes,...link].join("")}</span>`;
-  return`<li class="ent${state.done?" answered":""}" data-nx-key="e:${id}" data-nx-entry="${id}"><span class="kind acc">${esc(labels("An entry's kind",lang)[kind])}</span><span class="where" id="${where}">${place}<a class="lnk clip" href="${talk}" data-nx-focus="${id}:place">${item}</a></span><p class="txt">${esc(entry.text)}</p><span class="when mu cap">${esc(labels("Author and time",lang)[0])} · ${time(entry.at)}</span>${acts}${after(entry,state,lang)}</li>`;
+  return`<li class="ent${state.done?" answered":""}" data-nx-key="e:${id}" data-nx-entry="${id}">${head}<p class="txt">${esc(entry.text)}</p>${when}${acts}${after(entry,state,lang)}</li>`;
 }
 
 function myTurn(data,view,titles,lang){
   const list=view.list||data.my_turn.entries,total=Number(data.my_turn.total)||0,shown=data.my_turn.entries.length,head=labels("My turn",lang);
   const n=shown<total?label("The list",9,lang,{n:count(shown),total:count(total)}):count(total);
-  const entries=view.entries||{},none=labels("Nothing waits",lang);
+  const entries=view.entries||{},none=labels("Nothing waits",lang),cards=new Map(data.projects.map(item=>[item.name,item]));
   const body=list.length
-    ?`<ol data-nx-key="mine-list" data-nx-sub>${list.map(entry=>entryItem(entry,titles,lang,entries[entry.id],view.code)).join("")}</ol>`
+    ?`<ol data-nx-key="mine-list" data-nx-sub>${list.map(entry=>entryItem(entry,titles,lang,entries[entry.id],view.code,cards.get(entry.project))).join("")}</ol>`
     :`<div class="empty-l" data-nx-key="mine-none"><b>${esc(none[0])}</b><span class="mu sm">${esc(none[1])}</span></div>`;
   return`<section class="sec mine" aria-labelledby="mine-h" data-nx-key="mine" data-nx-sub><div class="sech" data-nx-key="mine-head" data-nx-sub><h2 id="mine-h" data-nx-key="mine-h">${esc(label("My turn",0,lang,{n}))}</h2><span class="upd mu cap" role="status" data-nx-key="upd" data-nx-live>${view.updating?esc(codeMessage("Updating",lang)):""}</span><span class="sub" data-nx-key="mine-sub">${esc(head[1])}</span></div>${body}<p class="note" data-nx-key="mine-note">${esc(label("The turn",0,lang))}</p></section>`;
 }

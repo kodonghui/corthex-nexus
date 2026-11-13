@@ -34,14 +34,30 @@ export function drawingOf(source, stage) {
     boxes: scene.nodes.filter((node) => KINDS.has(node.kind)).map((node) => [node.kind, ...whole([node.x, node.y, node.width, node.height])]), lines };
 }
 
+// A checkpoint request in form, whole (SPEC-196, TASK-302): the place of its
+// last entry, that entry's text, the thing to look at first and what is left
+// in its stage. An item that no stage of the stored snapshot holds now has no
+// stage and no title, and an address neither; null for any other entry.
+const HTTPS = "https://";
+function requestShown(text) {
+  const row = text === null || text === undefined ? null : parse(text);
+  if (!row || typeof row.look !== "string") return null;
+  const address = row.look.startsWith(HTTPS), held = !address && typeof row.look_stage === "string";
+  const count = (value) => Number.isInteger(value) && value > 0 ? value : 0;
+  return { entry: count(row.entry), text: cut(String(row.text ?? ""), 1200),
+    look_first: { item: address ? null : row.look, url: address ? row.look : null, stage: held ? row.look_stage : null, held,
+      title: held && typeof row.look_title === "string" ? cut(row.look_title, 120) : null },
+    left: { discrepancies: count(row.discrepancies), comments: count(row.comments), reflections: count(row.reflections) } };
+}
+
 // My turn's rows come in SPEC-143's order with their total; a comment brings
 // the text of its last entry, the agent's, and an item the title that the
-// stored snapshot gives it.
+// stored snapshot gives it; a checkpoint request in form comes whole.
 function turnEntry(row) {
   return { kind: row.kind, id: row.id, project: row.project, part: row.part, stage: row.stage, item: row.item,
     title: row.item && typeof row.title === "string" ? cut(row.title, 120) : null,
     quote: typeof row.quote === "string" ? cut(row.quote, 300) : null, text: cut(String(row.last_text ?? ""), 300),
-    at: row.at, asks: row.asks ?? null };
+    at: row.at, asks: row.asks ?? null, request: row.kind === "comment" && row.asks === "checkpoint" ? requestShown(row.request_json) : null };
 }
 
 // A space's agent to-do in counts, with the agent's last read and what it has
@@ -96,7 +112,9 @@ function card(row, pictures) {
     pictures: pictures.filter((picture) => place.has(picture.part))
       .sort((a, b) => place.get(a.part) - place.get(b.part) || (a.stage < b.stage ? -1 : a.stage > b.stage ? 1 : 0))
       .map((picture) => ({ part: picture.part, stage: picture.stage, commit: picture.commit_id, committed_at: picture.committed_at,
-        not_current: picture.not_current, comments: picture.comments, drawing: drawingOf(JSON.parse(picture.source), picture.stage) })) };
+        not_current: picture.not_current, comments: picture.comments, drawing: drawingOf(JSON.parse(picture.source), picture.stage) })),
+    // What a pass from the first page names where the snapshot names no commit (SPEC-194).
+    revision: row.revision };
 }
 
 export function homeData({ now, turn, agent, cards, pictures }) {

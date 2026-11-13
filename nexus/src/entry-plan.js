@@ -13,7 +13,8 @@ const need = (row, kind) => { if (!row) fail(kind + "_not_found"); return row; }
 const PICTURE_STAGES = ["01-domain", "05-erd", "07-sitemap"];
 // The words of "as recommended" in the server's language (stage 08's words of
 // the redesign, Answers): the user's reply that takes the agent's
-// recommendation, and the words of a checkpoint passed with it (API-159).
+// recommendation (API-159). A checkpoint passed with it before TASK-302 holds
+// them too.
 export const AS_RECOMMENDED = Object.freeze({ en: "As recommended", ko: "추천대로" });
 const RECOMMENDED_WORDS = Object.values(AS_RECOMMENDED);
 // The words of the pass's button in the server's language (stage 08's words of
@@ -176,39 +177,30 @@ export function planEntryWrite(name, body, state, { project, kind, session, now,
       textBytes = bytes(body.text, body.look_first); status = 201; answer = { comment: E.commentState(comment), reply: E.reply(row) }; break;
     }
     case "recommended": {
-      // API-159: the user takes what the agent's last entry asks, as API-119
-      // with settles and, for a checkpoint, API-128 would. The reply, the
-      // comment's last entry and the checkpoint take one time, so that a
-      // second take finds them: the comment then waits for the agent after
-      // the user's reply in the words for "as recommended", and a checkpoint
-      // passed with that reply still stands.
+      // API-159 (D17, TASK-302): the user takes the agent's recommendation, as
+      // API-119 with settles would, and passes no checkpoint (SPEC-143,
+      // SPEC-196): a checkpoint request is passed with API-128, on what the user
+      // saw. The reply and the comment's last entry take one time, so that a
+      // second take finds them: the comment then waits for the agent after the
+      // user's reply in the words for "as recommended". checkpoint stays in the
+      // answer for a page loaded before the release, and is always null.
       need(comment, "comment"); claim(comment.id);
-      const last = state.lastReply, named = state.commentCheckpoint;
+      const last = state.lastReply;
       if (comment.state === "open" && comment.waits === "agent" && last?.author === "user" && last.settles
           && last.made_at === comment.last_at && RECOMMENDED_WORDS.includes(last.text)) {
-        const passed = named?.passed_at === last.made_at ? named : null;
-        if (!passed || passed.state === "passed") {
-          answer = { comment: E.commentState(comment), reply: E.reply(last), checkpoint: passed && E.checkpoint(passed), changed: false };
-          break;
-        }
+        answer = { comment: E.commentState(comment), reply: E.reply(last), checkpoint: null, changed: false };
+        break;
       }
-      if (comment.state !== "open" || comment.waits !== "user" || !["recommended", "checkpoint"].includes(comment.asks)) fail("not_recommended");
-      const asksCheckpoint = comment.asks === "checkpoint";
-      if (asksCheckpoint && comment.part && !(state.parts || []).includes(comment.part)) fail("part_not_found");
+      if (comment.state !== "open" || comment.waits !== "user" || comment.asks !== "recommended") {
+        throw new Problem("not_recommended", "the comment does not wait for the user with a recommendation to take");
+      }
       if (state.replyCount >= 200) fail("reply_limit", { limit: 200 });
       const words = AS_RECOMMENDED[language] || AS_RECOMMENDED.en;
       const row = { comment: comment.id, seq: state.replyCount + 1, author: "user", text: words, settles: 1, made_at: eventAt };
       put("replies", row, true);
       touchComment("user", { state: "open", closed_as: null, settled: 1 });
-      // Until TASK-302 this press passes the checkpoint that the agent asked for:
-      // it records the kind of browser and device as a pass does, and driven as
-      // not reported, since the press sends no body.
-      const passed = asksCheckpoint ? { id: entryId("nk_"), project, part: comment.part, stage: comment.stage, commit_id: state.held.default_commit,
-        words, state: "passed", passed_at: eventAt, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: comment.id,
-        browser: client.browser, device: client.device, driven: null } : null;
-      if (passed) put("checkpoints", passed, true);
       textBytes = bytes(words);
-      answer = { comment: E.commentState(comment), reply: E.reply(row), checkpoint: passed && E.checkpoint(passed), changed: true }; break;
+      answer = { comment: E.commentState(comment), reply: E.reply(row), checkpoint: null, changed: true }; break;
     }
     case "answered": {
       need(comment, "comment"); claim(comment.id);

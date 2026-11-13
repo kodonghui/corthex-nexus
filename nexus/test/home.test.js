@@ -5,14 +5,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {drawHome,talkPath,countPath,entryKind,drawingSVG,PICTURED,AGENT_LISTS} from "../src/draw/home.js";
+import {drawHome,talkPath,countPath,entryKind,drawingSVG,wholeRequest,passScope,PASS_WORDS,PICTURED,AGENT_LISTS} from "../src/draw/home.js";
 import {esc,count,clock,time,timed} from "../src/draw/html.js";
-import {label,labels,legendWord,codeMessage,notCurrentWhy} from "../src/draw/words.js";
+import {label,labels,oldLabels,legendWord,codeMessage,notCurrentWhy} from "../src/draw/words.js";
 import {stageName} from "../src/draw/stages.js";
 import {PALETTE,DARK_FILTER} from "../src/draw/palette.js";
 import {picturePreview} from "../src/preview.js";
 import {followFragment} from "../ui/home.js";
-import {homeData,turnEntries,AT,NOW,SHOP_READ,HOME_TITLE} from "./home-fixtures.js";
+import {homeData,turnEntries,REQUEST,AT,NOW,SHOP_READ,HOME_TITLE} from "./home-fixtures.js";
 import {viewSnapshot} from "./view-fixtures.js";
 
 const tags=(html,pattern)=>html.match(pattern)||[];
@@ -31,23 +31,36 @@ test("SCR-110#normal: my turn with each kind's answers, the agent to-do and the 
     const html=drawHome(homeData(),lang),answers=labels("Answers",lang),kinds=labels("An entry's kind",lang),mine=section(html,"mine");
     assert.ok(mine.includes(`<h2 id="mine-h" data-nx-key="mine-h">${esc(label("My turn",0,lang,{n:label("The list",9,lang,{n:"4",total:"73"})}))}</h2>`),"50 of 73 (rule 12)");
     assert.ok(mine.includes(esc(labels("My turn",lang)[1]))&&mine.includes(esc(label("The turn",0,lang))),"what my turn holds and when the agent reads it (rule 18)");
-    assert.deepEqual(tags(mine,/<span class="kind acc">[^<]+<\/span>/g).map(k=>k.replace(/<[^>]+>/g,"")),[kinds[0],kinds[2],kinds[3],kinds[1]]);
+    assert.deepEqual(tags(mine,/<span class="kind acc"[^>]*>[^<]+<\/span>/g).map(k=>k.replace(/<[^>]+>/g,"")),[kinds[0],kinds[2],kinds[3],kinds[1]]);
     // The answers that each kind offers: the writes wait for the code (rule 15), the links do not.
     const proposal=entry(html,"np_1"),recommended=entry(html,"nc_2"),checkpoint=entry(html,"nc_3"),question=entry(html,"nc_4");
     assert.deepEqual(tags(proposal,/<button [^>]*>[^<]+<\/button>/g).map(b=>[b.match(/data-nx-act="(\w+)"/)[1],b.includes(" pri"),b.replace(/<[^>]+>/g,"")]),[["accept",true,answers[0]],["dismiss",false,answers[1]]]);
     assert.ok(!proposal.includes("<a class=\"btn"),"a proposal is answered in place only");
-    assert.ok(recommended.includes(`data-nx-act="recommended"`)&&recommended.includes(`>${esc(answers[2])}</button>`)&&recommended.includes(`<a class="btn sm answer" href="/p/qa-shop/sample/07-sitemap#talk=nc&#95;2" data-nx-focus="nc&#95;2:talk" aria-describedby="w-nc&#95;2">${esc(answers[4])}</a>`));
-    assert.ok(checkpoint.includes(`>${esc(answers[3])}</button>`)&&checkpoint.includes(`href="/p/qa-shop/sample/12-qa#talk=nc&#95;3" data-nx-focus="nc&#95;3:talk" aria-describedby="w-nc&#95;3">${esc(answers[5])}</a>`));
-    assert.ok(!question.includes("<button")&&question.includes(`>${esc(answers[4])}</a>`),"a question is answered in words, in the talk");
+    assert.deepEqual(answers,lang==="en"?["Accept","Dismiss","As recommended","Reply"]:["받기","버리기","추천대로","답하기"],"no answer passes a checkpoint (TASK-302)");
+    assert.ok(recommended.includes(`data-nx-act="recommended"`)&&recommended.includes(`>${esc(answers[2])}</button>`)&&recommended.includes(`<a class="btn sm answer" href="/p/qa-shop/sample/07-sitemap#talk=nc&#95;2" data-nx-focus="nc&#95;2:talk" aria-describedby="w-nc&#95;2">${esc(answers[3])}</a>`));
+    // A checkpoint request whole (SCR-110's revision): "Open the request", the first and filled,
+    // a link that works at once; then the pass and "Add your words", which wait for the code.
+    const request=labels("A checkpoint request's buttons",lang);
+    assert.deepEqual(tags(checkpoint,/<(?:a|button) class="btn[^"]*"[^>]*>[^<]+<\/(?:a|button)>/g).map(b=>[b.slice(1,b.indexOf(" ")),b.match(/class="([^"]+)"/)[1],b.replace(/<[^>]+>/g,"")]),
+      [["a","btn sm pri answer",esc(request[0])],["button","btn sm answer",esc(label("The pass",0,lang,{n:"12"}))],["button","btn sm quiet answer",esc(request[1])]]);
+    assert.ok(checkpoint.includes(`<a class="btn sm pri answer" href="/p/qa-shop/sample/12-qa#talk=nc&#95;3" data-nx-focus="nc&#95;3:talk" aria-describedby="w-nc&#95;3">`)&&!checkpoint.includes('data-nx-act="recommended"'),"no pass as recommended");
+    assert.ok(!question.includes("<button")&&question.includes(`>${esc(answers[3])}</a>`),"a question is answered in words, in the talk");
     for(const button of tags(mine,/<button [^>]*>/g))assert.match(button,/ aria-describedby="w-[^"]+" disabled data-nx-wait="answer">$/,"the answers wait for the code and name their entry");
-    assert.equal(tags(mine,/<button /g).length,4);
+    assert.equal(tags(mine,/<button /g).length,5);
     // Each entry's place, its text as text, its author and time.
     assert.ok(proposal.includes(`<span>${esc(HOME_TITLE)}</span><span aria-hidden="true">·</span><span>sample</span><span aria-hidden="true">·</span><span>05 ${esc(stageName("05-erd",lang))}</span>`));
     assert.ok(proposal.includes(`<a class="lnk clip" href="/p/qa-shop/sample/05-erd#talk=np&#95;1" data-nx-focus="np&#95;1:place"><span class="mono">TBL-020</span> index&#95;items</a>`));
     assert.ok(checkpoint.includes(`>${esc(label("An entry's place",0,lang))}</a>`),"the stage as a whole");
     assert.ok(question.includes('href="/p/qa-second/&#95;/01-domain#talk=nc&#95;4"')&&question.includes("><q>Payment table</q></a>")&&!question.includes(esc(label("An entry's place",0,lang))),"a part without an ID shows its quote");
     assert.ok(proposal.includes("<p class=\"txt\">Add &lt;b&gt;embedded&#95;at&lt;/b&gt; to index&#95;items.</p>"),"the agent's text is text (rule 1)");
-    assert.ok(proposal.includes(`<span class="when mu cap">${esc(labels("Author and time",lang)[0])} · <time datetime="${AT}">2026-11-08 08:30</time></span>`),"the server writes the time in UTC");
+    assert.ok(proposal.includes(`<span class="when mu cap" data-nx-key="n">${esc(labels("Author and time",lang)[0])} · <time datetime="${AT}">2026-11-08 08:30</time></span>`),"the server writes the time in UTC");
+    // The request whole: its last entry's whole text with its lines, as text; "Look at first", a
+    // link to the item at its stage with its ID and title; the commit; and what is left.
+    const whole=labels("A checkpoint request, whole",lang);
+    assert.ok(html.includes(`<li class="ent req" data-nx-key="e:nc&#95;3" data-nx-entry="nc&#95;3" data-nx-sub><span class="kind acc" data-nx-key="k">`),"the request's parts keep their places when the code draws again");
+    assert.ok(checkpoint.includes(`<p class="txt rq" data-nx-key="t">Stage 12 is ready for its checkpoint.\nThe &lt;b&gt;cases&lt;/b&gt; pass; look at TC-120 first.</p>`),"the whole text, not its first 300 characters");
+    assert.ok(checkpoint.includes(`<div class="rqf" data-nx-key="f"><span class="lf"><span class="rk">${esc(whole[0])}</span><a class="lnk" href="/p/qa-shop/sample/12-qa#item=TC-120" data-nx-focus="nc&#95;3:look"><span class="mono">TC-120</span> Pay &lt;twice&gt;</a></span><span class="cm">${esc(label("The head",2,lang,{commit:"0123456"}))}</span><span class="lt"><span class="rk">${esc(whole[1])}</span><span class="c">${esc(label("A checkpoint request, whole",2,lang,{n:"0"}))} ·</span> <span class="c">${esc(label("A checkpoint request, whole",3,lang,{n:"3"}))} ·</span> <span class="c">${esc(label("A checkpoint request, whole",4,lang,{n:"999+"}))}</span></span></div>`),"Look at first, the commit and what is left");
+    assert.ok(!checkpoint.includes('class="wb"'),"no words' box before the code");
     // The agent to-do: each count opens what it counts; a list without entries has no row.
     const todo=section(html,"todo"),words=labels("Agent to-do",lang);
     assert.ok(todo.includes(`<h2 id="todo-h">${esc(label("Agent to-do",0,lang,{n:"999+"}))}</h2>`),"3 + 1,500 + 1 shows as 999+");
@@ -110,7 +123,7 @@ test("what the view's code adds: answers in place, their messages, the notices, 
   // Answered (choice 19): marked in place, without its buttons, until the page loads again.
   const answered=drawHome(data,lang,{code:true,entries:{np_1:{done:true,mark:0},nc_3:{done:true,mark:3}}});
   assert.ok(entry(answered,"np_1").startsWith('data-nx-entry="np&#95;1"')&&answered.includes('<li class="ent answered" data-nx-key="e:np&#95;1"'));
-  assert.ok(!entry(answered,"np_1").includes('class="acts"')&&entry(answered,"np_1").includes(`<div class="after" tabindex="-1" data-nx-focus="np&#95;1:after"><p class="res"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>${label("Answered",0,lang)}</span></p></div>`));
+  assert.ok(!entry(answered,"np_1").includes('class="acts"')&&entry(answered,"np_1").includes(`<div class="after" tabindex="-1" data-nx-key="x" data-nx-focus="np&#95;1:after"><p class="res"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>${label("Answered",0,lang)}</span></p></div>`));
   assert.ok(entry(answered,"nc_3").includes(`<span>${esc(label("Answered",3,lang))} <a class="lnk" href="/p/qa-shop/sample/12-qa">${esc(label("The head",4,lang))}</a></span>`),"a passed checkpoint links its stage's record");
   // Messages under an entry (rule 3), with Try again, Open, or the page at its own address.
   const failed=drawHome(data,lang,{code:true,entries:{
@@ -121,7 +134,7 @@ test("what the view's code adds: answers in place, their messages, the notices, 
   assert.ok(entry(failed,"np_1").includes(`<div class="msg err" role="alert"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-err"/></svg><div><span class="t">${esc(codeMessage("internal",lang))}</span><span class="tid">${esc(codeMessage("Trace ID",lang,{traceId:"tr_<1>"}))}</span><div class="row"><button class="btn sm" type="button" data-nx-act="retry" data-nx-retry="accept" data-nx-focus="np&#95;1:retry">`));
   assert.ok(entry(failed,"np_1").includes('class="acts"'),"a failed answer keeps its entry and buttons");
   assert.ok(entry(failed,"nc_2").includes('<div class="msg info" role="status">')&&!entry(failed,"nc_2").includes("tid"));
-  assert.ok(entry(failed,"nc_3").includes(`<a class="btn sm" href="/p/qa-shop/sample/12-qa#talk=nc&#95;3">${esc(labels("Answers",lang)[5])}</a>`));
+  assert.ok(entry(failed,"nc_3").includes(`<a class="btn sm" href="/p/qa-shop/sample/12-qa#talk=nc&#95;3">${esc(label("A checkpoint request's buttons",0,lang))}</a>`),"part_not_found: Open the request");
   assert.ok(entry(failed,"nc_4").includes(`<div class="msg warn" role="status">`)&&entry(failed,"nc_4").includes(`<a class="lnk" href="https://nexus.example.com/">${esc(buttons[3])}</a>`));
   // The notices of reading again (rule 6) and of a sign-in that expired (rule 7).
   const signIn=drawHome(data,lang,{code:true,notice:"sign-in"}),unread=drawHome(data,lang,{code:true,notice:"unread",updating:true});
@@ -138,6 +151,89 @@ test("what the view's code adds: answers in place, their messages, the notices, 
   // The entries that the code keeps drawn after reading again stay in its list.
   const kept=drawHome(homeData({entries:turnEntries().slice(1),total:72}),lang,{code:true,list:turnEntries(),entries:{np_1:{done:true,mark:1}}});
   assert.ok(kept.includes(`>${esc(label("My turn",0,lang,{n:label("The list",9,lang,{n:"3",total:"72"})}))}</h2>`)&&entry(kept,"np_1").includes(`<span>${label("Answered",1,lang)}</span>`),"the count reads again; the answered entry stays");
+});
+
+test("SCR-110's revision: a checkpoint request's pass, its words and their messages as the code draws them (TASK-302)",()=>{
+  for(const lang of["en","ko"]){
+    const data=homeData(),buttons=labels("A checkpoint request's buttons",lang),pass=label("The pass",0,lang,{n:"12"});
+    const acts=html=>tags(entry(html,"nc_3"),/<(?:a|button) class="btn[^"]*"[^>]*>[^<]+<\/(?:a|button)>/g);
+    // The code's drawing: the pass and "Add your words" work; "Open the request" stays first.
+    const code=drawHome(data,lang,{code:true});
+    assert.deepEqual(acts(code).map(b=>b.replace(/<[^>]+>/g,"")),[esc(buttons[0]),esc(pass),esc(buttons[1])]);
+    assert.ok(acts(code)[1].includes('data-nx-act="pass" data-nx-focus="nc&#95;3:pass" aria-describedby="w-nc&#95;3">')&&acts(code)[2].includes('data-nx-act="words" data-nx-focus="nc&#95;3:add" aria-describedby="w-nc&#95;3">'));
+    // "Add your words": the box for the pass's words, labelled, with its counter, in the place of
+    // the button; its words come from the browser's storage, so the drawing holds none.
+    const box=entry(drawHome(data,lang,{code:true,entries:{nc_3:{words:true}}}),"nc_3");
+    assert.ok(box.includes(`<div class="wb" data-nx-key="b" data-nx-sub><div class="bn" data-nx-key="bn"></div><label class="lab" for="pw-nc&#95;3" data-nx-key="bl">${esc(oldLabels("Overview's headings",lang)[5])}</label><textarea class="ta" id="pw-nc&#95;3" name="words" rows="3" data-nx-key="bt" data-nx-focus="nc&#95;3:words" aria-describedby="pw-left-nc&#95;3"></textarea><p class="left" id="pw-left-nc&#95;3" data-nx-key="bf" data-nx-live></p></div><span class="acts rqa" data-nx-key="a">`),"the box between the lines and the buttons");
+    assert.ok(!box.includes('data-nx-act="words"')&&box.indexOf('class="rqf"')<box.indexOf('class="wb"'),"the box stays open, so no words that the pass sends are hidden");
+    // The characters left from 90 per cent of the limit; over it, the limit, and the pass disabled.
+    const near=entry(drawHome(data,lang,{code:true,entries:{nc_3:{words:true,left:150}}}),"nc_3"),over=entry(drawHome(data,lang,{code:true,entries:{nc_3:{words:true,over:true}}}),"nc_3");
+    assert.ok(near.includes(`data-nx-live>${esc(codeMessage("Characters left",lang,{n:150}))}</p>`));
+    assert.ok(over.includes(`data-nx-live>${esc(codeMessage("text_too_long",lang,{limit:"2,000"}))}</p>`)&&over.includes('data-nx-act="pass" data-nx-focus="nc&#95;3:pass" aria-describedby="w-nc&#95;3" disabled>'));
+    // While the pass is sent, and while my turn reads again after a refusal, it stays off but
+    // keeps the focus (rule 4).
+    const sending=entry(drawHome(data,lang,{code:true,entries:{nc_3:{sending:"pass"}}}),"nc_3"),reread=entry(drawHome(data,lang,{code:true,entries:{nc_3:{reread:true}}}),"nc_3");
+    assert.ok(sending.includes(`aria-describedby="w-nc&#95;3" aria-disabled="true">${esc(codeMessage("Sending",lang))}</button>`));
+    assert.ok(reread.includes(`aria-describedby="w-nc&#95;3" aria-disabled="true">${esc(pass)}</button>`));
+    // Passed (choice 19): marked in place with the stage's record, without its buttons or box.
+    const passed=entry(drawHome(data,lang,{code:true,entries:{nc_3:{done:true,mark:3,words:true}}}),"nc_3");
+    assert.ok(!passed.includes('class="acts')&&!passed.includes('class="wb"')&&passed.includes(`<span>${esc(label("Answered",3,lang))} <a class="lnk" href="/p/qa-shop/sample/12-qa">${esc(label("The head",4,lang))}</a></span>`));
+    assert.ok(drawHome(data,lang,{code:true,entries:{nc_3:{done:true,mark:3}}}).includes('<li class="ent req answered" data-nx-key="e:nc&#95;3"'));
+    // A refusal by the words shows by their box, with the words' Try again; any other under the
+    // entry, such as Load again for a pass that names no commit (SCR-110#error).
+    const words={tone:"err",box:true,text:codeMessage("invalid_request",lang),trace:"tr_1",retry:"pass"};
+    const byBox=entry(drawHome(data,lang,{code:true,entries:{nc_3:{words:true,note:words}}}),"nc_3");
+    assert.ok(byBox.includes(`<div class="bn" data-nx-key="bn"><div class="msg err" role="alert">`)&&byBox.includes('data-nx-act="retry" data-nx-retry="pass" data-nx-focus="nc&#95;3:retry-box"')&&!byBox.includes('class="after"'));
+    const load=entry(drawHome(data,lang,{code:true,entries:{nc_3:{note:{tone:"err",text:codeMessage("invalid_request",lang),load:true}}}}),"nc_3");
+    assert.ok(load.includes(`<button class="btn sm" type="button" data-nx-act="load" data-nx-focus="nc&#95;3:load"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-reload"/></svg>${esc(labels("Page buttons",lang)[1])}</button>`));
+    // SCR-110#stale's words under the entry.
+    const stale=entry(drawHome(data,lang,{code:true,entries:{nc_3:{reread:true,note:{tone:"warn",text:codeMessage("snapshot_changed",lang,{commit:"89abcde"})}}}}),"nc_3");
+    assert.ok(stale.includes(`<div class="msg warn" role="status">`)&&stale.includes(esc(codeMessage("snapshot_changed",lang,{commit:"89abcde"}))));
+  }
+});
+
+test("SCR-110's revision: a request that does not show whole offers only Open the request (SPEC-196, TASK-302)",()=>{
+  const lang="en",[open,add]=labels("A checkpoint request's buttons",lang),whole=labels("A checkpoint request, whole",lang);
+  const only=(entries,projects)=>{const html=drawHome(homeData({entries,projects}),lang,{code:true}),item=entry(html,entries[0].id);return[item,tags(item,/<(?:a|button) class="btn[^"]*"[^>]*>[^<]+<\/(?:a|button)>/g).map(b=>b.replace(/<[^>]+>/g,""))];};
+  const request=(look,more={})=>[{...turnEntries()[2],request:{...structuredClone(REQUEST),look_first:{item:null,url:null,stage:null,held:false,title:null,...look}},...more}];
+  // An item that no stage holds now: its ID as text, and no pass (rule 22).
+  const [gone,goneActs]=only(request({item:"TC-999"}));
+  assert.deepEqual(goneActs,[open]);
+  assert.ok(gone.includes(`<span class="lf"><span class="rk">${whole[0]}</span><span><span class="mono">TC-999</span></span></span>`)&&!gone.includes("#item="));
+  // An address: its host and what follows, cut after 120 characters, in a new tab without a
+  // referrer, which the page never loads (REQ-147).
+  const long="https://example.com/"+"a".repeat(200);
+  const [address,addressActs]=only(request({url:long}));
+  assert.deepEqual(addressActs,[open,label("The pass",0,lang,{n:"12"}),add]);
+  assert.ok(address.includes(`<a class="lnk" href="${long}" target="_blank" rel="noopener noreferrer" data-nx-focus="nc&#95;3:look">example.com/${"a".repeat(108)}…</a>`));
+  assert.ok(!/<(?:img|iframe|link|script)[^>]+example\.com/.test(address),"the page loads nothing from the address");
+  // A request stored without the form, or a workshop's: its first 300 characters as now.
+  const [old,oldActs]=only([{...turnEntries()[2],request:null}]);
+  assert.deepEqual(oldActs,[open]);
+  assert.ok(old.includes('<p class="txt" data-nx-key="t">Stage 12 is ready for its checkpoint.</p>')&&!old.includes('class="rqf"'));
+  // A project without its card has nothing for a pass to name.
+  const [,cardless]=only(request({item:"TC-120",stage:"12-qa",held:true}),[homeData().projects[0]]);
+  assert.deepEqual(cardless,[open]);
+  // A snapshot without a commit: no commit line, and the pass names the revision (SPEC-194).
+  const second=homeData().projects[0];
+  const [plain,plainActs]=only(request({item:"TC-120",stage:"12-qa",held:true},{project:"qa-second",part:""}),[second]);
+  assert.deepEqual(plainActs,[open,label("The pass",0,lang,{n:"12"}),add]);
+  assert.ok(!plain.includes('class="cm"')&&plain.includes('href="/p/qa-second/&#95;/12-qa#item=TC-120"'));
+});
+
+test("which requests show whole, and where the pass's words are kept (SPEC-194, SPEC-196, rule 5)",()=>{
+  const [card]=homeData().projects.filter(item=>item.name==="qa-shop"),entry_=turnEntries()[2];
+  assert.equal(wholeRequest(entry_,card),true);
+  assert.equal(PASS_WORDS,2000);
+  assert.equal(passScope(entry_),"qa-shop:pass:nc_3","the request's comment");
+  for(const [why,changed]of[
+    ["not a checkpoint",{asks:"recommended"}],["a proposal",{kind:"proposal"}],["stored without the form",{request:null}],
+    ["no thing to look at first",{request:{...REQUEST,look_first:null}}],["an item that no stage holds",{request:{...REQUEST,look_first:{...REQUEST.look_first,held:false}}}],
+    ["a stage outside the 13",{request:{...REQUEST,look_first:{...REQUEST.look_first,stage:"99-x"}}}],["an address that is not https",{request:{...REQUEST,look_first:{item:null,url:"http://example.com/",stage:null,held:false,title:null}}}]])
+    assert.equal(wholeRequest({...entry_,...changed},card),false,why);
+  assert.equal(wholeRequest(entry_,null),false,"no card");
+  assert.equal(wholeRequest(entry_,{...card,commit:null,revision:null}),false,"neither a commit nor a revision to name");
+  assert.equal(wholeRequest(entry_,{...card,commit:null}),true,"the revision where no commit");
 });
 
 test("where an entry and each count of the agent to-do open (SPEC-144, SCR-114)",()=>{

@@ -153,6 +153,19 @@ body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-f
 .nx .home .ent > .acts{grid-area:acts;justify-self:end;align-self:start;display:flex;gap:var(--nx-space-sm)}
 .nx .home .ent > .after{grid-area:after;display:grid;gap:var(--nx-space-sm);justify-items:start;padding-top:var(--nx-space-xs)}
 .nx .home .ent.answered > .txt{color:var(--nx-color-muted)}
+/* A checkpoint request's entry (SCR-110's revision): the whole text in the entry's width; "Look
+   at first", the commit and what is left on one line that wraps; the words' box under it while it
+   is open; then its buttons at the entry's end, "Open the request" first */
+.nx .home .ent.req{grid-template-areas:"kind where when" "txt txt txt" "rqf rqf rqf" "words words words" "acts acts acts" "after after after"}
+.nx .home .ent > .txt.rq{white-space:pre-wrap;text-wrap:pretty;overflow-wrap:anywhere}
+.nx .home .ent > .rqf{grid-area:rqf;display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--nx-space-2xs) var(--nx-space-lg);min-width:0;font-size:var(--nx-font-size-small);color:var(--nx-color-muted)}
+.nx .home .rqf > span{min-width:0}
+.nx .home .rqf .rk{margin-right:var(--nx-space-sm)}
+.nx .home .rqf .lnk{overflow-wrap:anywhere}
+.nx .home .rqf .lf .mono{font-weight:var(--nx-font-weight-medium)}
+.nx .home .rqf .c{white-space:nowrap}
+.nx .home .ent > .wb{grid-area:words;display:grid;gap:var(--nx-space-xs);min-width:0}
+.nx .home .ent > .rqa{flex-wrap:wrap;justify-content:flex-end}
 .nx .home .empty-l{display:grid;gap:var(--nx-space-xs);padding:var(--nx-space-xl) var(--nx-space-lg);border-top:var(--nx-border-thin) solid var(--nx-color-line);text-align:center}
 
 /* The agent to-do: each project's counts as links that open what they count */
@@ -235,7 +248,7 @@ body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-f
 .nx .home .hsteps li > span{text-wrap:pretty}
 /* Where a finger selects them (rule 14): the counts' links, and an entry's place and the
    links of its answer, whose line takes the target's height; the text keeps its line */
-@media (pointer:coarse){.nx .home .pj a{min-height:var(--nx-size-target)}.nx .home .where > .lnk,.nx .home .after .lnk{line-height:var(--nx-size-target)}.nx .home .after .lnk{display:inline-block}}
+@media (pointer:coarse){.nx .home .pj a{min-height:var(--nx-size-target)}.nx .home .where > .lnk,.nx .home .after .lnk{line-height:var(--nx-size-target)}.nx .home .after .lnk{display:inline-block}.nx .home .rqf .lnk{display:inline-flex;flex-wrap:wrap;align-items:center;column-gap:var(--nx-space-xs);min-height:var(--nx-size-target);max-width:100%}}
 /* The editors' dark filter (palette.js), which turns the pictures' palette into the dark
    theme's, as on the pictures themselves */
 @media (prefers-color-scheme:dark){.nx .home .thumb .pic > svg{filter:invert(93%) hue-rotate(180deg)}}
@@ -498,11 +511,11 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .rec .rq > .hd .who{margin-left:auto;color:var(--nx-color-muted);font-size:var(--nx-font-size-caption);white-space:nowrap}
 .nx .rec .rq > .tx{white-space:pre-wrap;text-wrap:pretty;overflow-wrap:anywhere}
 .nx .rec .rq > .rql .c{white-space:nowrap}
-.nx .rec .lab{font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
-.nx .rec .ta{display:block;width:100%;min-height:calc(var(--nx-size-box) - var(--nx-space-sm));padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);color:var(--nx-color-text);font-size:var(--nx-font-size-small);line-height:var(--nx-font-line-height-body);resize:vertical}
-.nx .rec .ta[aria-invalid="true"]{border-color:var(--nx-color-error)}
-.nx .rec .left{font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
-.nx .rec .rnote:empty,.nx .rec .pnote:empty,.nx .rec .left:empty{display:none}
+.nx .rec .lab,.nx .home .wb .lab{font-size:var(--nx-font-size-small);font-weight:var(--nx-font-weight-bold)}
+.nx .rec .ta,.nx .home .wb .ta{display:block;width:100%;min-height:calc(var(--nx-size-box) - var(--nx-space-sm));padding:var(--nx-space-sm);border:var(--nx-border-thin) solid var(--nx-color-control-line);border-radius:var(--nx-radius-md);background:var(--nx-color-surface);color:var(--nx-color-text);font-size:var(--nx-font-size-small);line-height:var(--nx-font-line-height-body);resize:vertical}
+.nx .rec .ta[aria-invalid="true"],.nx .home .wb .ta[aria-invalid="true"]{border-color:var(--nx-color-error)}
+.nx .rec .left,.nx .home .wb .left{font-size:var(--nx-font-size-caption);color:var(--nx-color-muted)}
+.nx .rec .rnote:empty,.nx .rec .pnote:empty,.nx .rec .left:empty,.nx .home .wb .left:empty,.nx .home .wb .bn:empty{display:none}
 .nx .rec .r2{display:flex;align-items:center;gap:var(--nx-space-sm)}
 .nx .sidemsg{padding:var(--nx-space-lg)}
 
@@ -690,6 +703,11 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
  .nx .home .where > span:first-child{max-width:100%}
  .nx .home .ent > .acts{justify-self:stretch;padding-top:var(--nx-space-xs)}
  .nx .home .ent > .acts > *{flex:1}
+ /* A checkpoint request's entry: its lines each on a line of its own, and its buttons one under
+    the other across the width, 44 pixels high, "Open the request" first */
+ .nx .home .ent.req{grid-template-areas:"kind when" "where where" "txt txt" "rqf rqf" "words words" "acts acts" "after after"}
+ .nx .home .ent > .rqf{display:grid;gap:var(--nx-space-2xs)}
+ .nx .home .ent > .rqa{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--nx-space-sm)}
  .nx .home .cards{grid-template-columns:minmax(0,1fr)}
  .nx .ws{display:flex;flex-direction:column}
  .nx .tabs{flex:none;display:flex;background:var(--nx-color-surface);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}

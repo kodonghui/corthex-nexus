@@ -190,20 +190,44 @@ const STAGE_LIST = STAGES.map((stage) => `'${stage}'`).join(",");
 // look their item up in the stored snapshot, the first with the ID on one of
 // the 13 stages, as API-157 finds it. A comment's entries take strictly later
 // times, so the proposal and the reply never tie.
+// A checkpoint request among them shows whole (SPEC-196, TASK-302): the place
+// of its last entry, the agent's last reply, else 0 for the comment's own, as a
+// pass names it (API-128); that entry's text and thing to look at first, an
+// item looked up as above, with its stage, or an address; and what is left in
+// its part's stage as the stage's record counts it (API-158): the open
+// discrepancies that the stage compares, the other open comments and the
+// pending reflections. A request stored without the thing to look at first
+// shows its first 300 characters only.
 const MY_TURN = `WITH mine AS (
-    SELECT CASE WHEN asks='checkpoint' THEN 0 ELSE 2 END AS rank,'comment' AS kind,id,project,part,stage,item,quote,text AS own,last_at AS at,asks
+    SELECT CASE WHEN asks='checkpoint' THEN 0 ELSE 2 END AS rank,'comment' AS kind,id,project,part,stage,item,quote,text AS own,last_at AS at,asks,look_first AS look
       FROM comments WHERE state='open' AND waits='user'
-    UNION ALL SELECT 1,'proposal',id,project,part,stage,COALESCE(json_extract(items,'$[0]'),''),NULL,change,made_at,NULL
+    UNION ALL SELECT 1,'proposal',id,project,part,stage,COALESCE(json_extract(items,'$[0]'),''),NULL,change,made_at,NULL,NULL
       FROM proposals WHERE state='open'),
   top AS MATERIALIZED (SELECT *,COUNT(*) OVER() AS _total FROM mine ORDER BY rank,at,id LIMIT ${TURN}),
-  titles AS MATERIALIZED (SELECT s.name AS project,json_extract(j.value,'$.id') AS item,json_extract(j.value,'$.title') AS title,j.key AS place
+  asked AS MATERIALIZED (SELECT id,project,part,stage,own,look,(SELECT json_object('seq',r.seq,'text',r.text,'look',r.look_first)
+      FROM replies AS r WHERE r.comment=top.id ORDER BY r.seq DESC LIMIT 1) AS last
+    FROM top WHERE kind='comment' AND asks='checkpoint'),
+  req AS MATERIALIZED (SELECT id,project,part,stage,CASE WHEN last IS NULL THEN 0 ELSE json_extract(last,'$.seq') END AS entry,
+      CASE WHEN last IS NULL THEN own ELSE json_extract(last,'$.text') END AS text,CASE WHEN last IS NULL THEN look ELSE json_extract(last,'$.look') END AS look
+    FROM asked),
+  sought AS MATERIALIZED (SELECT project,item FROM top WHERE item<>'' UNION SELECT project,look FROM req WHERE look IS NOT NULL AND substr(look,1,8)<>'https://'),
+  titles AS MATERIALIZED (SELECT s.name AS project,json_extract(j.value,'$.id') AS item,json_extract(j.value,'$.title') AS title,
+      json_extract(j.value,'$.stage') AS stage,j.key AS place
     FROM snapshots AS s JOIN json_each(s.body,'$.items') AS j
-    WHERE s.name IN (SELECT project FROM top WHERE item<>'') AND json_extract(j.value,'$.stage') IN (${STAGE_LIST})
-      AND json_extract(j.value,'$.id') IN (SELECT item FROM top WHERE top.project=s.name AND item<>''))
+    WHERE s.name IN (SELECT project FROM sought) AND json_extract(j.value,'$.stage') IN (${STAGE_LIST})
+      AND json_extract(j.value,'$.id') IN (SELECT item FROM sought WHERE sought.project=s.name))
   SELECT top.*,CASE WHEN kind='comment' THEN COALESCE((SELECT p.change FROM proposals AS p WHERE p.comment=top.id AND p.state='open'
       AND p.made_at>COALESCE((SELECT r.made_at FROM replies AS r WHERE r.comment=top.id ORDER BY r.seq DESC LIMIT 1),'') ORDER BY p.made_at DESC,p.id DESC LIMIT 1),
     (SELECT r.text FROM replies AS r WHERE r.comment=top.id ORDER BY r.seq DESC LIMIT 1),own) ELSE own END AS last_text,
-    (SELECT title FROM titles AS t WHERE t.project=top.project AND t.item=top.item ORDER BY t.place LIMIT 1) AS title
+    (SELECT title FROM titles AS t WHERE t.project=top.project AND t.item=top.item ORDER BY t.place LIMIT 1) AS title,
+    (SELECT json_object('entry',q.entry,'text',q.text,'look',q.look,
+        'look_stage',(SELECT t.stage FROM titles AS t WHERE t.project=q.project AND t.item=q.look ORDER BY t.place LIMIT 1),
+        'look_title',(SELECT t.title FROM titles AS t WHERE t.project=q.project AND t.item=q.look ORDER BY t.place LIMIT 1),
+        'discrepancies',(SELECT COUNT(*) FROM discrepancies AS d WHERE d.project=q.project AND d.part=q.part AND d.state='open'
+          AND CASE q.stage WHEN '01-domain' THEN 1 WHEN '05-erd' THEN d.compares='aggregate-table' WHEN '07-sitemap' THEN d.compares='read-model-screen' ELSE 0 END),
+        'comments',(SELECT COUNT(*) FROM comments AS c WHERE c.project=q.project AND c.part=q.part AND c.stage=q.stage AND c.state='open' AND c.id<>q.id),
+        'reflections',(SELECT COUNT(*) FROM edits AS e WHERE e.project=q.project AND e.part=q.part AND e.stage=q.stage AND e.state NOT IN ('closed','dismissed')))
+      FROM req AS q WHERE q.id=top.id AND q.look IS NOT NULL) AS request_json
   FROM top ORDER BY rank,at,id`;
 // Each space's agent to-do in counts, by the lists of API-113 read without a
 // session, with the place of each list's oldest entry: a discrepancy opens at
@@ -224,8 +248,10 @@ const AGENT_COUNTS = `SELECT ps.project,${TODO_LISTS.map(([list, table, where, s
   FROM project_spaces AS ps ORDER BY ps.project`;
 // A card for each stored snapshot, by name: SQLite takes the settings, the
 // stage records, each stage's count of items and the count of warnings out of
-// the stored body, so the server never parses the items or the checks.
-const CARDS = `SELECT name,default_commit,generated_at,received_at,json_extract(body,'$.project') AS project,
+// the stored body, so the server never parses the items or the checks. The
+// snapshot's revision is what a pass from the first page names where the
+// snapshot names no commit (SPEC-194, SPEC-196).
+const CARDS = `SELECT name,default_commit,revision,generated_at,received_at,json_extract(body,'$.project') AS project,
   json_extract(body,'$.repos."."') AS repo,json_extract(body,'$.stages') AS stages,
   (SELECT json_group_object(stage,n) FROM (SELECT json_extract(value,'$.stage') AS stage,COUNT(*) AS n
     FROM json_each(snapshots.body,'$.items') WHERE json_extract(value,'$.stage') IN (${STAGE_LIST}) GROUP BY 1)) AS counts,
@@ -789,7 +815,6 @@ export class Store {
         'requestEntry',CASE WHEN t.open_request IS NULL THEN NULL ELSE (SELECT COALESCE(MAX(seq),0) FROM replies WHERE comment=t.open_request) END,
         'lookHeld',CASE WHEN t.look IS NULL THEN NULL ELSE EXISTS(SELECT 1 FROM snapshots AS s,json_each(s.body,'$.items') AS j
           WHERE s.name=t.project AND json_extract(j.value,'$.id')=t.look AND json_extract(j.value,'$.stage') IN (${STAGE_LIST})) END,
-        'commentCheckpoint',json(${rowJSON("checkpoints", "project=t.project AND comment=t.thread ORDER BY passed_at DESC,id DESC LIMIT 1")}),
         'threadProposals',json((SELECT json_group_array(json_object('id',id,'state',state,'made_at',made_at,'closed_at',closed_at)) FROM proposals WHERE project=t.project AND comment=t.thread)),
         'claims',json((SELECT json_group_array(json_object('entry',entry,'session',session,'claimed_at',claimed_at,'ends_at',ends_at)) FROM claims WHERE project=t.project AND entry IN(t.target,t.thread,t.diff))),
         'prior',(SELECT json_object('request',request,'result',result) FROM writes WHERE project=t.project AND id=t.write AND received_at>t.cutoff)

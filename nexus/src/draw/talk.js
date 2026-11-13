@@ -122,10 +122,12 @@ function place(entry,lang){
   return items.length>3?`${shown} <span class="mu">${esc(label("More",0,lang,{n:count(items.length-3)}))}</span>`:shown;
 }
 // The answers of an entry of my turn, as on SCR-110: a proposal's Accept and Dismiss; a
-// recommendation's As recommended, a checkpoint's Pass as recommended; then Reply, or Open on a
-// checkpoint, which open the entry here, and which an opened entry no longer needs.
-const ANSWERS=Object.freeze([[["accept",0],["dismiss",1]],[],[["recommended",2]],[["recommended",3]]]);
-const OPENS=Object.freeze([null,["reply-open",4],["reply-open",4],["entry",5]]);
+// recommendation's As recommended; a checkpoint request's Stage record, its first and filled
+// button, which opens the stage's record that passes it, since the talk itself passes no
+// checkpoint (SCR-114's revision, TASK-302); then Reply, which opens the entry here and which an
+// opened entry no longer needs.
+const ANSWERS=Object.freeze([[["accept",0],["dismiss",1]],[],[["recommended",2]],[]]);
+const OPENS=Object.freeze([null,["reply-open",3],["reply-open",3],["reply-open",3]]);
 function acts(entry,group,lang,state,code,tx){
   const id=esc(entry.id),es=state.entries?.[entry.id]||{},answers=labels("Answers",lang),wait=code?(es.sending?' aria-disabled="true"':""):' disabled data-nx-wait="talk"';
   const button=(act,text,primary)=>`<button class="btn sm${primary?" pri":""}" type="button" data-nx-act="${act}" data-nx-focus="${id}:${act}" aria-describedby="${tx}"${wait}>${esc(es.sending===act?codeMessage("Sending",lang):text)}</button>`;
@@ -133,6 +135,7 @@ function acts(entry,group,lang,state,code,tx){
   const out=[];
   if(group==="mine"){
     const kind=kindOf(entry);
+    if(kind===3)out.push(`<button class="btn sm pri" type="button" data-nx-act="record" data-nx-focus="${id}:record" aria-describedby="${tx}"${code?"":' disabled data-nx-wait="talk"'}>${icon("i-record")}${esc(labels("The head",lang)[4])}</button>`);
     ANSWERS[kind].forEach(([act,index],n)=>out.push(button(act,answers[index],n===0)));
     if(OPENS[kind]&&state.open!==entry.id)out.push(button(OPENS[kind][0],answers[OPENS[kind][1]],false));
   }else if(entry.type==="reflection"&&entry.edit.state==="needs-user")out.push(button("dismiss-edit",answers[1],false));
@@ -141,10 +144,7 @@ function acts(entry,group,lang,state,code,tx){
 // An entry's answer in place and its message (choice 19, rule 3).
 function after(entry,lang,state){
   const id=esc(entry.id),es=state.entries?.[entry.id]||{},parts=[];
-  if(Number.isInteger(es.mark)){
-    const record=es.mark===3?` <button class="btn quiet sm" type="button" data-nx-act="record" data-nx-focus="${id}:record">${icon("i-record")}${esc(labels("The head",lang)[4])}</button>`:"";
-    parts.push(`<p class="res">${icon("i-check")}<span>${esc(label("Answered",es.mark,lang))}${record}</span></p>`);
-  }
+  if(Number.isInteger(es.mark))parts.push(`<p class="res">${icon("i-check")}<span>${esc(label("Answered",es.mark,lang))}</span></p>`);
   if(es.note)parts.push(message(es.note,lang,entry.id));
   return parts.length?`<div class="after" data-nx-key="after" tabindex="-1" data-nx-focus="${id}:after">${parts.join("")}</div>`:"";
 }
@@ -189,9 +189,9 @@ function replyBox(entry,lang,state){
   // An empty box's button stays where the focus can reach it, unavailable, so that the focus
   // stays on it after a send empties the box; over the limit it is disabled.
   const off=box.over?" disabled":box.empty!==false||sending?' aria-disabled="true"':"";
-  const send=sending==="reply"?codeMessage("Sending",lang):closed?words("Open again",lang):labels("Answers",lang)[4];
+  const send=sending==="reply"?codeMessage("Sending",lang):closed?words("Open again",lang):labels("Answers",lang)[3];
   const answered=closed?"":`<button class="btn sm" type="button" data-nx-key="ans" data-nx-act="answered" data-nx-focus="${id}:answered"${sending?' aria-disabled="true"':""}>${esc(sending==="answered"?codeMessage("Sending",lang):label("The talk's entries",0,lang))}</button>`;
-  return`<div class="rbox" data-nx-key="rbox" data-nx-sub><div class="rnote" data-nx-key="rnote">${message(box.note,lang,entry.id+":reply")}</div><label class="lab" for="rp-${id}" data-nx-key="rlab">${esc(labels("Answers",lang)[4])}</label><textarea class="ta" id="rp-${id}" name="reply" rows="2" data-nx-key="rta" data-nx-focus="${id}:text" aria-describedby="rp-left-${id}"></textarea><p class="left" id="rp-left-${id}" data-nx-key="rleft" data-nx-live>${left}</p><div class="r2" data-nx-key="rr2" data-nx-sub><label class="chk" data-nx-key="chk"><input type="checkbox" name="settles" data-nx-focus="${id}:settles"><span>${esc(words("Settles it",lang))}</span></label><span class="sp" data-nx-key="sp"></span>${answered}<button class="btn sm pri" type="button" data-nx-key="rep" data-nx-act="reply" data-nx-focus="${id}:reply"${off}>${esc(send)}</button></div></div>`;
+  return`<div class="rbox" data-nx-key="rbox" data-nx-sub><div class="rnote" data-nx-key="rnote">${message(box.note,lang,entry.id+":reply")}</div><label class="lab" for="rp-${id}" data-nx-key="rlab">${esc(labels("Answers",lang)[3])}</label><textarea class="ta" id="rp-${id}" name="reply" rows="2" data-nx-key="rta" data-nx-focus="${id}:text" aria-describedby="rp-left-${id}"></textarea><p class="left" id="rp-left-${id}" data-nx-key="rleft" data-nx-live>${left}</p><div class="r2" data-nx-key="rr2" data-nx-sub><label class="chk" data-nx-key="chk"><input type="checkbox" name="settles" data-nx-focus="${id}:settles"><span>${esc(words("Settles it",lang))}</span></label><span class="sp" data-nx-key="sp"></span>${answered}<button class="btn sm pri" type="button" data-nx-key="rep" data-nx-act="reply" data-nx-focus="${id}:reply"${off}>${esc(send)}</button></div></div>`;
 }
 // The line of an entry that waits for the agent (SPEC-136): since when, with "Not read by the agent
 // yet" while it waits unread (SPEC-189), or when a session took it. A reflection says how it stands

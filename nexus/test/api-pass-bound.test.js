@@ -5,10 +5,12 @@
 // (TC-1732 to TC-1734, also with the other write landing between a pass's plan
 // and its batch), one write ID across a push (TC-1735), a snapshot that names no
 // commit (TC-1736), a pass out of form and the server's half of a page of
-// before the release (TC-1737, TC-1760), the order of the refusals (TC-1738),
-// the request that a pass settles (TC-1739) and the limits of the reply that
-// settles it (TC-1740). Synthetic projects only; the Access keys are generated
-// here and every database is in memory.
+// before the release (TC-1737, TC-1760), a request stored before the revision on
+// a database migrated from it (TC-1746), the order of the refusals (TC-1738),
+// the request that a pass settles (TC-1739), the limits of the reply that
+// settles it (TC-1740) and "As recommended", which passes no checkpoint
+// (TC-1747). Synthetic projects only; the Access keys are generated here and
+// every database is in memory.
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -16,12 +18,14 @@ import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
 import { AccessVerifier } from "../src/access.js";
 import { handle } from "../src/app.js";
+import { drawHome } from "../src/draw/home.js";
 import { createNodeServer } from "../src/node-server.js";
 import { readSnapshot02 } from "../src/snapshot02.js";
 import { SQLiteD1 } from "../src/sqlite.js";
 import { Store } from "../src/store.js";
 import { testAccess } from "./access-fixture.js";
 import { fakeD1 } from "./fake-d1.js";
+import { schema4 } from "./revision-fixture.js";
 import { viewSnapshot } from "./view-fixtures.js";
 
 const template = readFileSync(new URL("../src/hub.html", import.meta.url), "utf8");
@@ -297,7 +301,7 @@ test("TC-1570 to TC-1596: each response of API-128 passCheckpoint that the contr
 // The standalone server: real TCP, RSA signatures checked, SQLite through
 // sqlite.js on an in-memory database, in the language that a test names. It
 // keeps the SQL of each batch, one transaction each.
-async function standalone(t, { language = "en" } = {}) {
+async function standalone(t, { language = "en", seed } = {}) {
   const pair = await crypto.subtle.generateKey({ name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["sign", "verify"]);
   const jwk = { ...await crypto.subtle.exportKey("jwk", pair.publicKey), kid: "synthetic", alg: "RS256" };
   const env = { ACCESS_AUD: "synthetic-audience", ACCESS_TEAM_DOMAIN: "access.example.com", NEXUS_LANGUAGE: language };
@@ -308,6 +312,7 @@ async function standalone(t, { language = "en" } = {}) {
   };
   const tokens = { user: await sign({ sub: "synthetic-person" }), agent: await sign({ sub: "", common_name: "synthetic-client" }) };
   const db = new SQLiteD1(":memory:");
+  if (seed) seed(db.connection);
   const batches = [], batch = db.batch.bind(db);
   db.batch = async (statements) => { batches.push(statements.map((statement) => statement.sql)); return batch(statements); };
   const verifier = new AccessVerifier({ requireContext: false, fetcher: async (url) => {
@@ -325,9 +330,9 @@ async function standalone(t, { language = "en" } = {}) {
     if (body !== undefined) sent["Content-Type"] = "application/json";
     const response = await httpFetch(base + path, { method, headers: sent, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
     const text = await response.text();
-    return { status: response.status, headers: response.headers, text, data: text ? JSON.parse(text) : null };
+    return { status: response.status, headers: response.headers, text, data: text && /json/.test(response.headers.get("Content-Type") || "") ? JSON.parse(text) : null };
   }
-  assert.equal((await call("POST", "/api/snapshots", { body: acme() })).status, 200);
+  if (!seed) assert.equal((await call("POST", "/api/snapshots", { body: acme() })).status, 200);
   return { call, memory: db.connection, batches };
 }
 
@@ -446,6 +451,66 @@ test("TC-1737 and the server's half of TC-1760: a pass out of form, as from a pa
     if (field === "commit") assert.equal(result.data.detail, "commit: a pass names the commit that the page showed, or the snapshot's revision; load the page again", label);
   }
   assert.equal(shape(memory), before, "nothing is recorded");
+});
+
+// A server of before the revision, at schema 4: acme pushed at commit A, its space, and the agent's open
+// checkpoint request on 04, stored without the form, since schema 4 has no column for the thing to look at
+// first. The standalone server migrates the database at its first answer (TC-1746).
+const STORED_BEFORE = "nc_" + "r".repeat(12), STORED_TEXT = "Stage 04 is ready for its checkpoint.";
+function beforeTheRevision(db) {
+  db.exec("PRAGMA foreign_keys = ON");
+  db.exec(schema4);
+  for (const version of [1, 2, 3, 4]) db.prepare("INSERT INTO migrations (version, applied_at) VALUES (?, ?)").run(version, `2026-11-0${version}T00:00:00.000Z`);
+  const sent = readSnapshot02(acme(), Date.now());
+  db.prepare("INSERT INTO snapshots (name, revision, generated_ms, generated_at, received_at, bytes, body, default_commit) VALUES (?, 1, ?, ?, '2026-11-11T01:00:00.000Z', ?, ?, ?)")
+    .run(sent.name, sent.generatedMs, sent.generatedAt, utf8(sent.body), sent.body, sent.defaultCommit);
+  db.prepare("INSERT INTO project_spaces (project, created_at, text_bytes) VALUES ('acme', '2026-11-11T01:00:00.000Z', ?)").run(utf8(STORED_TEXT));
+  db.prepare(`INSERT INTO comments (id, project, part, stage, item, commit_id, author, text, state, waits, asks, made_at, last_at)
+    VALUES (?, 'acme', 'sample', '04-functional-spec', '', ?, 'agent', ?, 'open', 'user', 'checkpoint', '2026-11-11T01:01:00.000Z', '2026-11-11T01:01:00.000Z')`).run(STORED_BEFORE, A, STORED_TEXT);
+}
+
+test("TC-1746: a request stored before the revision, on a database migrated from it: my turn offers only to open it, the record shows it as it is, and its pass names it, on the standalone server", async (t) => {
+  const { call, memory } = await standalone(t, { seed: beforeTheRevision });
+  // The first page's data: the request in my turn, without `request`, since it does not show whole.
+  const home = await call("GET", "/api/home", { kind: "user" });
+  assert.equal(home.status, 200, home.text);
+  assert.deepEqual(memory.prepare("SELECT version FROM migrations ORDER BY version").all().map((item) => item.version), [1, 2, 3, 4, 5], "the server migrated the database");
+  const mine = home.data.my_turn.entries.find((item) => item.id === STORED_BEFORE);
+  assert.deepEqual([mine?.asks, mine?.request, mine?.text], ["checkpoint", null, STORED_TEXT], "my turn holds the request without its whole form");
+  // The first page drawn from that data: the request's entry offers only "Open the request".
+  const page = drawHome(home.data, "en"), at = page.indexOf('data-nx-entry="nc&#95;' + "r".repeat(12) + '"'), item = page.slice(at, page.indexOf("</li>", at));
+  assert.ok(at > 0 && item.includes('href="/p/acme/sample/04-functional-spec#talk=nc&#95;' + "r".repeat(12) + '"') && item.includes(">Open the request</a>"), "Open the request: " + item);
+  assert.ok(!item.includes('data-nx-act="pass"') && !item.includes('data-nx-act="words"') && !item.includes('data-nx-act="recommended"'), "and nothing else: " + item);
+  // The stage's record reads the request from the talk, as it is: its text and nothing to look at first.
+  const talk = await call("GET", SPACE + "/talk/sample/04-functional-spec", { kind: "user" });
+  assert.equal(talk.status, 200, talk.text);
+  const comment = talk.data.mine.entries.find((item) => item.comment?.id === STORED_BEFORE)?.comment;
+  assert.deepEqual([comment?.text, comment?.asks, comment?.look_first, comment?.replies], [STORED_TEXT, "checkpoint", null, 0], "the talk holds the request as it was stored: " + JSON.stringify(talk.data.mine));
+  const record = await call("GET", SPACE + "/stages/sample/04-functional-spec", { kind: "user" });
+  assert.deepEqual([record.status, record.data.project.commit], [200, A], record.text);
+  // The pass from the record names the request and its last entry, the comment's own text, and settles it.
+  const passed = await call("POST", SPACE + "/checkpoints", { kind: "user", body: pass("04-functional-spec", { comment: STORED_BEFORE, entry: 0, words: "Pass it as drafted." }) });
+  assert.deepEqual([passed.status, passed.data.commit, passed.data.comment, passed.data.entry], [201, A, STORED_BEFORE, 0], passed.text);
+  assert.deepEqual(row(memory, "SELECT waits, asks, settled FROM comments WHERE id = ?", STORED_BEFORE), { waits: "agent", asks: null, settled: 1 }, "the request is settled and waits for the agent");
+  assert.equal((await call("GET", "/api/home", { kind: "user" })).data.my_turn.entries.some((item) => item.id === STORED_BEFORE), false, "and leaves my turn");
+});
+
+// API-159 under D17 (TASK-302): a checkpoint request is passed with API-128 on what the user saw,
+// and "As recommended" takes only a recommendation.
+test("TC-1747: As recommended passes no checkpoint: a checkpoint request is not_recommended, and a recommendation is taken without one, on the standalone server", async (t) => {
+  const { call, memory } = await standalone(t);
+  const asked = (await call("POST", SPACE + "/comments", { body: request("04-functional-spec") })).data.id;
+  const before = shape(memory);
+  const refused = await call("POST", SPACE + "/comments/" + asked + "/recommended", { kind: "user" });
+  assert.deepEqual([refused.status, refused.data.code, refused.headers.get("Content-Type")], [409, "not_recommended", "application/problem+json"], refused.text);
+  assert.equal(shape(memory), before, "nothing is passed or recorded");
+  const offered = (await call("POST", SPACE + "/comments", { body: { ...USER_COMMENT, text: "Name the table orders as the glossary does?", asks: "recommended" } })).data.id;
+  const taken = await call("POST", SPACE + "/comments/" + offered + "/recommended", { kind: "user" });
+  assert.equal(taken.status, 200, taken.text);
+  assert.deepEqual([taken.data.checkpoint, taken.data.changed, taken.data.comment.settled, taken.data.comment.waits, taken.data.reply.text],
+    [null, true, true, "agent", "As recommended"], "the comment is settled as before, and no checkpoint passes");
+  assert.equal(count(memory, "checkpoints"), 0);
+  assert.deepEqual(row(memory, "SELECT waits, asks, settled FROM comments WHERE id = ?", asked), { waits: "user", asks: "checkpoint", settled: 0 }, "the request still waits for the user");
 });
 
 test("TC-1738: a pass's 404s come before snapshot_changed, and snapshot_changed before request_changed, on the standalone server", async (t) => {

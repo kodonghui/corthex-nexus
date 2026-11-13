@@ -88,23 +88,22 @@ if(!home.my_turn.entries.some((entry)=>entry.kind==="proposal")||!home.my_turn.e
   ||!home.agent[0].taken||!home.projects[0]?.pictures[0]?.drawing?.boxes.length)throw new Error("the first page lacks an entry that its case needs");
 cases.push({name:"/api/home",schema:"Home",value:home});
 cases.push({name:"first page",schema:"HomePageData",value:pageData(await call("GET","/"))});
-// Taking the agent's recommendation: a checkpoint passed with the reply, the
-// same taken again, a recommendation without a checkpoint, and the checkpoint
-// that names its comment.
-const taken=await call("POST","/api/spaces/corthex/comments/"+asking.id+"/recommended",{},"user");
-const again=await call("POST","/api/spaces/corthex/comments/"+asking.id+"/recommended",{},"user");
+// Taking the agent's recommendation, which passes no checkpoint under D17 (TASK-302): a
+// recommendation taken and the same taken again. A checkpoint request is refused as
+// not_recommended, below with the pass's refusals, and passed with API-128.
 const offered=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Synthetic recommendation",asks:"recommended"});
 const replied=await call("POST","/api/spaces/corthex/comments/"+offered.id+"/recommended",{},"user");
-if(!taken.checkpoint?.comment||again.changed||replied.checkpoint)throw new Error("an answer to API-159 lacks what its case needs");
-for(const [name,value] of [["checkpoint taken as recommended",taken],["recommendation taken already",again],["recommendation taken",replied]])
+const again=await call("POST","/api/spaces/corthex/comments/"+offered.id+"/recommended",{},"user");
+if(!replied.changed||replied.checkpoint!==null||again.changed||again.checkpoint!==null||again.reply.seq!==replied.reply.seq)throw new Error("an answer to API-159 lacks what its case needs");
+for(const [name,value] of [["recommendation taken",replied],["recommendation taken already",again]])
   cases.push({name,schema:"RecommendationAnswer",value});
-cases.push({name:"checkpoint that names its comment",schema:"Checkpoint",value:await call("GET","/api/spaces/corthex/checkpoints/"+taken.checkpoint.id)});
 // The agent to-do read with the service token, which records the read and names
 // its time, and under the user's own sign-in, which records nothing and names
 // null (API-113, SPEC-187): comments, a reflection and two checkpoints wait.
 // A pass names the commit that the page showed (TASK-301, SPEC-194).
 const heldCommit=snapshot.repos["."].default.commit;
 await call("POST","/api/spaces/corthex/checkpoints",{part:"nexus",stage:"02-prd",commit:heldCommit},"user");
+await call("POST","/api/spaces/corthex/checkpoints",{part:"nexus",stage:"03-user-flow",commit:heldCommit},"user");
 const agentRead=await call("GET","/api/spaces/corthex/todo"),userRead=await call("GET","/api/spaces/corthex/todo",undefined,"user");
 if(!agentRead.read_at||userRead.read_at!==null||!agentRead.comments.total||!agentRead.reflections.total||agentRead.checkpoints.total<2)throw new Error("an answer to API-113 lacks what its case needs");
 cases.push({name:"agent to-do read by the agent",schema:"Todo",value:agentRead},{name:"agent to-do read by the user",schema:"Todo",value:userRead});
@@ -122,8 +121,8 @@ cases.push({name:"/api/home after the agent's read",schema:"Home",value:homeRead
   {name:"talk with an entry that the agent has not read",schema:"StageTalk",value:talkRead});
 // Checkpoint requests in their form (TASK-297, SPEC-197): the request that
 // names an item of the stored snapshot, one that names an https address on
-// another part's stage, and the agent's reply that asks again on the first
-// once the user took it, which names what to look at first. The user's
+// another part's stage, and the agent's reply that asks again on the first,
+// which names what to look at first. The user's
 // comment and the user's reply name nothing to look at first.
 const linked=await call("POST","/api/spaces/corthex/comments",{part:"memory",stage:"09-mockup",item:"",text:"Synthetic request\nOpen the address first.",asks:"checkpoint",look_first:"https://mockups.example.com/memory"});
 const askedAgain=await call("POST","/api/spaces/corthex/comments/"+asking.id+"/replies",{text:"Synthetic: the rows changed since; pass again?",asks:"checkpoint",look_first:"SPEC-136"});
@@ -177,10 +176,13 @@ const apiRequest=await call("POST","/api/spaces/corthex/comments",{part:"nexus",
 const afterPush=await refusal("/api/spaces/corthex/checkpoints",{part:"nexus",stage:"02-prd",commit:"b".repeat(40)},409,"snapshot_changed");
 const afterRevision=await refusal("/api/spaces/acme-shop/checkpoints",{part:"",stage:"03-user-flow",revision:2},409,"snapshot_changed");
 const unnamed=await refusal("/api/spaces/corthex/checkpoints",{part:"nexus",stage:"06-api",commit:heldCommit},409,"request_changed");
-if(afterPush.held_commit!==heldCommit||afterRevision.revision!==1||unnamed.comment!==apiRequest.id||unnamed.entry!==0)
+// A checkpoint request answered as recommended, as from a page loaded before the release: refused.
+const notTaken=await refusal("/api/spaces/corthex/comments/"+apiRequest.id+"/recommended",{},409,"not_recommended");
+if(afterPush.held_commit!==heldCommit||afterRevision.revision!==1||unnamed.comment!==apiRequest.id||unnamed.entry!==0
+  ||notTaken.detail!=="the comment does not wait for the user with a recommendation to take")
   throw new Error("a pass's refusal lacks what its case needs");
 cases.push({name:"pass after a push",schema:"Problem",value:afterPush},{name:"pass after a newer snapshot without a commit",schema:"Problem",value:afterRevision},
-  {name:"pass that names no request while one is open",schema:"Problem",value:unnamed});
+  {name:"pass that names no request while one is open",schema:"Problem",value:unnamed},{name:"checkpoint request refused as not_recommended",schema:"Problem",value:notTaken});
 // The stage page of a project that only a hub of 0.1 pushed, which has no space.
 await call("POST","/api/snapshots",{schema:"corthex-hub/0.1",generated_at:"2026-01-12T10:00:00+09:00",project:{name:"legacy-shop",title:"Legacy shop"},
   stages:{"02-prd":{source_state:"found",read:true,state:"in_progress",next:"Write the PRD"}},summary:{items:1},

@@ -56,16 +56,20 @@ test("the talk by turn: my turn, the agent's turn with its wait, apart and close
     assert.ok(html.includes(`<h3 class="tg" id="t-mine" data-nx-key="h-mine">${esc(label("My turn",0,lang,{n:"4"}))}</h3>`));
     assert.ok(html.includes(`<h3 class="tg" id="t-agent" data-nx-key="h-agent">${esc(label("The talk",3,lang,{n:"3"}))}</h3>`));
     assert.ok(html.includes(`<h3 class="tg" id="t-apart" data-nx-key="h-apart">${esc(label("The talk",4,lang,{n:"1"}))}</h3>`));
-    // My turn: each kind with its answers as on SCR-110, and Reply or Open.
+    // My turn: each kind with its answers as on SCR-110, and Reply; a checkpoint request's Stage
+    // record, its first and filled button, since the talk passes no checkpoint (TASK-302).
     const a=entryHtml(html,id("np","a")),b=entryHtml(html,id("nc","b")),c=entryHtml(html,id("nc","c")),d=entryHtml(html,id("nc","d"));
     assert.ok(a.startsWith('<li class="te my" data-nx-key="e:np&#95;aaaaaaaaaaaa"')&&a.includes(`<span class="kind acc">${esc(kinds[0])}</span>`)&&a.includes(`>${esc(answers[0])}</button>`)&&a.includes(`>${esc(answers[1])}</button>`));
     assert.ok(a.includes('<span class="clip"><span class="mono">TBL-001</span></span>'),"the item's ID opens the entry");
     assert.ok(a.includes(`<p class="tx" id="tx-np&#95;aaaaaaaaaaaa" data-nx-key="tx">Add an index</p>`),"a proposal's change is its text");
-    assert.ok(b.includes(`<span class="kind acc">${esc(kinds[1])}</span>`)&&b.includes(`data-nx-act="reply-open"`)&&b.includes(`>${esc(answers[4])}</button>`)&&!b.includes('data-nx-act="accept"'));
+    assert.ok(b.includes(`<span class="kind acc">${esc(kinds[1])}</span>`)&&b.includes(`data-nx-act="reply-open"`)&&b.includes(`>${esc(answers[3])}</button>`)&&!b.includes('data-nx-act="accept"'));
     assert.ok(b.includes(`<div class="reps" data-nx-key="last"><div class="rep"><span class="who">${esc(labels("Author and time",lang)[0])} · <time datetime="${AT}">2026-11-08 07:00</time></span><p>Which one?</p></div></div>`),"a folded comment shows its last reply");
     assert.ok(b.includes("Text &lt;b&gt;b&lt;/b&gt;"),"the text is escaped");
-    assert.ok(c.includes(`<span class="clip"><span class="mu">${esc(label("An entry's place",0,lang))}</span></span>`)&&c.includes(`data-nx-act="recommended"`)&&c.includes(`>${esc(answers[2])}</button>`)&&c.includes(`>${esc(answers[4])}</button>`));
-    assert.ok(d.includes(`<span class="kind acc">${esc(kinds[3])}</span>`)&&d.includes(`>${esc(answers[3])}</button>`)&&d.includes(`data-nx-act="entry" data-nx-focus="np&#95;dddddddddddd:entry"`.replace("np","nc"))&&d.includes(`>${esc(answers[5])}</button>`),"a checkpoint's Pass as recommended, then Open");
+    assert.ok(c.includes(`<span class="clip"><span class="mu">${esc(label("An entry's place",0,lang))}</span></span>`)&&c.includes(`data-nx-act="recommended"`)&&c.includes(`>${esc(answers[2])}</button>`)&&c.includes(`>${esc(answers[3])}</button>`));
+    const dCode=entryHtml(drawTalk(talk(),DATA,lang,{},true),id("nc","d")),dActs=dCode.slice(dCode.indexOf('<div class="acts" data-nx-key="acts">'));
+    assert.ok(d.includes(`<span class="kind acc">${esc(kinds[3])}</span>`)&&dActs.startsWith(`<div class="acts" data-nx-key="acts"><button class="btn sm pri" type="button" data-nx-act="record" data-nx-focus="nc&#95;dddddddddddd:record" aria-describedby="tx-nc&#95;dddddddddddd"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-record"/></svg>${esc(labels("The head",lang)[4])}</button><button class="btn sm" type="button" data-nx-act="reply-open" data-nx-focus="nc&#95;dddddddddddd:reply-open" aria-describedby="tx-nc&#95;dddddddddddd">${esc(answers[3])}</button></div>`),"a checkpoint request's Stage record, then Reply");
+    assert.ok(!d.includes('data-nx-act="recommended"')&&!d.includes('data-nx-act="entry" data-nx-focus="nc&#95;dddddddddddd:entry"'),"no pass as recommended, and no Open");
+    assert.ok(drawTalk(talk(),DATA,lang).includes('data-nx-act="record" data-nx-focus="nc&#95;dddddddddddd:record" aria-describedby="tx-nc&#95;dddddddddddd" disabled data-nx-wait="talk"'),"Stage record waits for the code");
     // The agent's turn: taken, waiting and settled; the reflection with its state.
     const e=entryHtml(html,id("nc","e")),f=entryHtml(html,id("nc","f")),h=entryHtml(html,id("ne","h"));
     assert.ok(e.startsWith('<li class="te" ')&&e.includes(`<use href="#i-lock"/>`)&&e.includes(esc(label("Waiting",1,lang,{time:"\u0000"})).split("\u0000")[0]),"taken by the agent, with the time");
@@ -134,7 +138,7 @@ test("an opened comment: its replies loading, read or failed, and its reply box 
     assert.ok(ready.includes(`<textarea class="ta" id="rp-nc&#95;bbbbbbbbbbbb" name="reply" rows="2" data-nx-key="rta" data-nx-focus="nc&#95;bbbbbbbbbbbb:text"`)&&ready.includes(`<input type="checkbox" name="settles"`));
     assert.ok(!ready.includes('data-nx-act="reply-open"'),"an opened entry needs no Reply to open it");
     assert.ok(ready.includes(`data-nx-act="answered" data-nx-focus="nc&#95;bbbbbbbbbbbb:answered">${esc(label("The talk's entries",0,lang))}</button>`),"Mark answered on an open comment");
-    assert.ok(ready.includes(`data-nx-act="reply" data-nx-focus="nc&#95;bbbbbbbbbbbb:reply">${esc(answers(lang)[4])}</button>`)&&ready.includes(esc(codeMessage("Characters left",lang,{n:12}))));
+    assert.ok(ready.includes(`data-nx-act="reply" data-nx-focus="nc&#95;bbbbbbbbbbbb:reply">${esc(answers(lang)[3])}</button>`)&&ready.includes(esc(codeMessage("Characters left",lang,{n:12}))));
     const failed=entryHtml(drawTalk(talk(),DATA,lang,{open,threads:{[open]:{state:"failed",trace:"7a1-ICN"}}},true),open);
     assert.ok(failed.includes(esc(words("Could not load",lang).split(lang==="ko"?" 또는: ":" Or: ")[0]))&&failed.includes("7a1-ICN")&&failed.includes('data-nx-act="reload-entry"'));
     const closed=drawEntry(entryOf({kind:"comment",comment:comment("z",{state:"closed",closed_as:"answered"}),proposal:null}),"closed",lang,{open:id("nc","z"),threads:{}},true);
@@ -164,10 +168,10 @@ test("an opened proposal: its change, reason and stage source text in its own bo
 test("an answer in place, its message, and the closed talk read 50 at a time (choice 19, SCR-114#error)",()=>{
   for(const lang of["en","ko"]){
     const a=id("np","a"),d=id("nc","d");
-    const html=drawTalk(talk(),DATA,lang,{entries:{[a]:{done:true,mark:0,note:{tone:"info",text:label("Done already",0,lang)}},[d]:{done:true,mark:3}}},true);
-    const accepted=entryHtml(html,a),passed=entryHtml(html,d);
+    const html=drawTalk(talk(),DATA,lang,{entries:{[a]:{done:true,mark:0,note:{tone:"info",text:label("Done already",0,lang)}},[id("nc","c")]:{done:true,mark:2}}},true);
+    const accepted=entryHtml(html,a),recommended=entryHtml(html,id("nc","c"));
     assert.ok(accepted.startsWith('<li class="te answered"')&&!accepted.includes('class="acts"')&&accepted.includes(`<div class="after" data-nx-key="after" tabindex="-1" data-nx-focus="np&#95;aaaaaaaaaaaa:after"><p class="res"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>${esc(label("Answered",0,lang))}</span></p>`)&&accepted.includes(esc(label("Done already",0,lang))));
-    assert.ok(passed.includes(esc(label("Answered",3,lang)))&&passed.includes(`data-nx-act="record" data-nx-focus="nc&#95;dddddddddddd:record">`)&&passed.includes(esc(labels("The head",lang)[4])),"a passed checkpoint leads to the stage record");
+    assert.ok(recommended.includes(`<span>${esc(label("Answered",2,lang))}</span>`)&&!recommended.includes('data-nx-act="record"'),"answered as recommended, which passes no checkpoint (TASK-302)");
     const sending=entryHtml(drawTalk(talk(),DATA,lang,{entries:{[a]:{sending:"accept"}}},true),a);
     assert.ok(sending.includes(`data-nx-act="accept" data-nx-focus="np&#95;aaaaaaaaaaaa:accept" aria-describedby="tx-np&#95;aaaaaaaaaaaa" aria-disabled="true">${esc(codeMessage("Sending",lang))}</button>`),"a write's button says Sending… and does not send twice");
     const failed=entryHtml(drawTalk(talk(),DATA,lang,{entries:{[a]:{note:{tone:"err",text:codeMessage("No connection",lang),trace:"9-ICN",retry:"accept"}}}},true),a);

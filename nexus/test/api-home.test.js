@@ -135,18 +135,87 @@ test("API-151 gathers my turn across the spaces in SPEC-143's order, each group 
   assert.deepEqual(home.my_turn.entries.map((entry) => entry.id),
     [ids.checkpoint, ids.shopCheckpoint, ids.shopOffered, ids.offered, ids.question, ids.asked, ids.gone]);
   const [checkpoint, shopCheckpoint, shopOffered, offered, question, asked, gone] = home.my_turn.entries;
+  // A checkpoint request shows whole (SPEC-196, TASK-302): the comment's own text is its last
+  // entry, and what is left in nexus's ERD is the board's discrepancy between an aggregate and a
+  // table, the three other open comments and the accepted proposal's pending reflection.
   assert.deepEqual(checkpoint, { kind: "comment", id: ids.checkpoint, project: "corthex", part: "nexus", stage: "05-erd", item: "", title: null,
-    quote: null, text: "Pass the ERD with the rows as drafted?", at: time(2), asks: "checkpoint" });
+    quote: null, text: "Pass the ERD with the rows as drafted?", at: time(2), asks: "checkpoint",
+    request: { entry: 0, text: "Pass the ERD with the rows as drafted?", look_first: { item: "TBL-111", url: null, stage: "05-erd", held: true, title: "claims" },
+      left: { discrepancies: 1, comments: 3, reflections: 1 } } });
+  // An address to look at first has no stage, title or hold; the shop's board counts every open
+  // discrepancy of its part, here the sitemap's read model without a screen.
   assert.deepEqual([shopCheckpoint.project, shopCheckpoint.part, shopCheckpoint.stage, shopCheckpoint.asks], ["qa-shop", "sample", "01-domain", "checkpoint"]);
+  assert.deepEqual(shopCheckpoint.request, { entry: 0, text: "Pass the board?",
+    look_first: { item: null, url: "https://example.com/qa-shop/board", stage: null, held: false, title: null }, left: { discrepancies: 1, comments: 0, reflections: 0 } });
+  assert.deepEqual([shopOffered, offered, question, asked, gone].map((entry) => entry.request), [null, null, null, null, null]);
   // A proposal shows its first item, its change and when it was made; the shop's
   // snapshot holds no items, so its item has no title.
   assert.deepEqual(offered, { kind: "proposal", id: ids.offered, project: "corthex", part: "nexus", stage: "05-erd", item: "TBL-112", title: "payments",
-    quote: null, text: "Rename the table payments to settlements.", at: time(9), asks: null });
+    quote: null, text: "Rename the table payments to settlements.", at: time(9), asks: null, request: null });
   assert.deepEqual([shopOffered.item, shopOffered.title, shopOffered.at], ["TBL-002", null, time(8)]);
   assert.deepEqual([question.item, question.title, question.asks], ["REQ-107", TITLE, "answer"]);
   // A comment shows the last reply, cut at 300 characters, and what it asks.
   assert.deepEqual([asked.text, Array.from(asked.text).length, asked.asks, asked.title, asked.at], [Array.from(reply).slice(0, 300).join(""), 300, "recommended", "claims", time(3)]);
   assert.deepEqual([gone.item, gone.title, gone.quote], ["TBL-109", null, "CREATE TABLE claims_old ("]);
+});
+
+test("API-151 shows a checkpoint request whole: its last entry's place, text and thing to look at first, and what is left in its stage", async () => {
+  const { db, call, at } = await server(corthex());
+  const reply = (id, kind, body) => call("POST", "/api/spaces/corthex/comments/" + id + "/replies", { body, kind });
+  // nexus's ERD: the user asks, the agent asks for the checkpoint, the user answers and the
+  // agent asks again in ten lines that name REQ-107 of the PRD, which is the request's last entry.
+  const erd = await say(call, "user", comment("corthex", "nexus", "05-erd", "", "Can we pass the ERD?"));
+  assert.equal((await reply(erd, "agent", { text: "The rows stand as drafted.", asks: "checkpoint", look_first: "TBL-112" })).status, 201);
+  assert.equal((await reply(erd, "user", { text: "And the refunds?" })).status, 201);
+  const long = Array.from({ length: 10 }, (_, n) => "Line " + n + " " + "x".repeat(100)).join("\n");
+  assert.equal((await reply(erd, "agent", { text: long, asks: "checkpoint", look_first: "REQ-107" })).status, 201);
+  // What is left in nexus's ERD: an open comment on a table counts; a closed one, one of the PRD
+  // and one of memory's ERD do not.
+  await say(call, "user", comment("corthex", "nexus", "05-erd", "TBL-111", "Should a claim end early?"));
+  const closed = await say(call, "user", comment("corthex", "nexus", "05-erd", "TBL-112", "Done?"));
+  await call("POST", "/api/spaces/corthex/comments/" + closed + "/answered", { body: {}, kind: "user" });
+  await say(call, "user", comment("corthex", "nexus", "02-prd", "REQ-107", "Is this right?"));
+  await say(call, "user", comment("corthex", "memory", "05-erd", "", "Is this right?"));
+  // The ERD counts the open discrepancies between an aggregate and a table of its part, the
+  // board's from the push here; the board counts every open one of its part; a resolved one, one
+  // between a read model and a screen and one of memory do not count for the ERD.
+  db.prepare(`INSERT INTO discrepancies (id,project,part,compares,term,item,reasons,level,state,opened_commit,opened_at) VALUES
+    ('nd_aaaaaaaaaaaa','corthex','nexus','read-model-screen','TERM-002','SCR-001','[]','info','open',?,'2026-11-03T01:00:00.000Z'),
+    ('nd_bbbbbbbbbbbb','corthex','memory','aggregate-table','TERM-003','TBL-113','[]','warn','open',?,'2026-11-03T01:00:00.000Z')`).run(COMMIT, COMMIT);
+  db.prepare(`INSERT INTO discrepancies (id,project,part,compares,term,item,reasons,level,state,opened_commit,opened_at,resolved_commit,resolved_at) VALUES
+    ('nd_cccccccccccc','corthex','nexus','aggregate-table','TERM-004','TBL-113','[]','warn','resolved',?,'2026-11-03T00:00:00.000Z',?,'2026-11-03T03:00:00.000Z')`).run(COMMIT, COMMIT);
+  // Two accepted proposals of nexus's ERD, one of whose reflections is dismissed.
+  const edits = [];
+  for (const change of ["Rename it", "Drop it"]) {
+    const proposal = (await call("POST", "/api/spaces/corthex/proposals", { body: { part: "nexus", stage: "05-erd", items: ["TBL-111"], reason: "Plainly", change } })).data.id;
+    edits.push((await call("POST", "/api/spaces/corthex/proposals/" + proposal + "/accept", { body: {}, kind: "user" })).data.edit.id);
+  }
+  db.prepare("UPDATE edits SET state='dismissed' WHERE id=?").run(edits[1]);
+  // nexus's board, with an address to look at first; the PRD, whose item a later push no longer
+  // holds; and memory's PRD, a request stored before the revision without the thing to look at first.
+  const board = await say(call, "agent", comment("corthex", "nexus", "01-domain", "", "Pass the board?", { asks: "checkpoint", look_first: "https://example.com/nexus/board?view=all" }));
+  const prd = await say(call, "agent", comment("corthex", "nexus", "02-prd", "", "Pass the PRD?", { asks: "checkpoint", look_first: "CTX-001" }));
+  const old = "y".repeat(400);
+  db.prepare(`INSERT INTO comments (id,project,part,stage,item,quote,discrepancy,commit_id,author,text,state,closed_as,waits,asks,settled,dismissed,made_at,last_at,look_first)
+    VALUES ('nc_dddddddddddd','corthex','memory','02-prd','',NULL,NULL,?,'agent',?,'open',NULL,'user','checkpoint',0,0,?,?,NULL)`).run(COMMIT, old, time(4), time(4));
+  const later = corthex(false);
+  later.items = later.items.filter((item) => item.id !== "CTX-001");
+  assert.equal((await call("POST", "/api/snapshots", { body: later })).status, 200);
+  for (const [id, minute] of [[erd, 1], [board, 2], [prd, 3]]) at("comments", id, { last_at: time(minute) });
+
+  const home = (await call("GET", "/api/home")).data;
+  const requests = home.my_turn.entries.filter((entry) => entry.asks === "checkpoint");
+  assert.deepEqual(requests.map((entry) => entry.id), [erd, board, prd, "nc_dddddddddddd"]);
+  const [whole, address, gone, before] = requests;
+  // The entry shows the first 300 characters of the last entry, and its request all of it.
+  assert.deepEqual([whole.text, whole.request], [Array.from(long).slice(0, 300).join(""), { entry: 3, text: long,
+    look_first: { item: "REQ-107", url: null, stage: "02-prd", held: true, title: TITLE }, left: { discrepancies: 1, comments: 1, reflections: 1 } }]);
+  assert.deepEqual(address.request, { entry: 0, text: "Pass the board?",
+    look_first: { item: null, url: "https://example.com/nexus/board?view=all", stage: null, held: false, title: null }, left: { discrepancies: 2, comments: 0, reflections: 0 } });
+  // An item that no stage holds now keeps its ID, without a stage or a title.
+  assert.deepEqual(gone.request, { entry: 0, text: "Pass the PRD?",
+    look_first: { item: "CTX-001", url: null, stage: null, held: false, title: null }, left: { discrepancies: 0, comments: 1, reflections: 0 } });
+  assert.deepEqual([before.request, before.text], [null, old.slice(0, 300)]);
 });
 
 test("API-151 gives 50 entries of my turn with the total of them all", async () => {
@@ -250,7 +319,10 @@ test("API-151 gives a card for each stored snapshot by name, with its parts, sta
   assert.deepEqual(acme, { name: "acme-shop", title: "Acme Shop ".repeat(13).slice(0, 120), repository: null, commit: null,
     generated_at: "2026-01-12T10:00:00+09:00", pushed_at: acme.pushed_at, items: 1, warnings: 0,
     parts: [{ name: "", recorded: true, current: "02-prd", next: LONG_NEXT.slice(0, 300), states: ["unknown", "in_progress", ...Array(11).fill("unknown")] }],
-    stages: acme.stages, pictures: [] });
+    stages: acme.stages, pictures: [], revision: 1 });
+  // The snapshot's revision, which a pass from the first page names where the snapshot names no
+  // commit (SPEC-194, TASK-302): corthex was pushed twice.
+  assert.deepEqual(projects.map((project) => project.revision), [1, 2, 1]);
   assert.deepEqual(acme.stages.filter((row) => row.items).map((row) => [row.key, row.items]), [["02-prd", 1]]);
 
   assert.deepEqual([card.title, card.repository, card.commit, card.generated_at, card.items, card.warnings],

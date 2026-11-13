@@ -6,8 +6,9 @@
  * in the picture, and back with the browser's back button or All talk of the stage, at 390,
  * 1,152, 1,280 and 1,440 pixels (SPEC-209); the closed talk, an entry whose item is gone and a
  * comment that is not on the server; a stage and an item without talk; a reply, Mark answered,
- * As recommended, Pass as recommended, Accept, Dismiss and dismissing a reflection, each answer
- * in its place (choice 19) with the focus where the press was (rule 3); the box on the stage as
+ * As recommended, Accept, Dismiss and dismissing a reflection, each answer in its place
+ * (choice 19) with the focus where the press was (rule 3), and since TASK-302 a checkpoint
+ * request's Stage record, which opens the record and passes nothing itself; the box on the stage as
  * a whole and on the selected item; an entry that fails to open, a reply that fails and is tried
  * again with the same write ID, a reading again that fails, and checkpoint_requested (rules 4
  * to 6); refusals and a sign-in that expired, with the words kept (rule 7); a reply of the agent
@@ -197,10 +198,11 @@ try{
    assert(s.heading===turns[0]&&JSON.stringify(s.turns)===JSON.stringify([{text:label('The talk',1,lang,{n:'3'}),link:true},{text:label('The talk',2,lang,{n:'3'}),link:true}]),'The head and the turns\' counts: '+JSON.stringify({heading:s.heading,turns:s.turns}));
    assert(JSON.stringify(s.groups)===JSON.stringify([label('My turn',0,lang,{n:'3'}),label('The talk',3,lang,{n:'3'}),label('The talk',4,lang,{n:'1'}),label('The talk',5,lang,{n:'2'})])&&s.closed==='false','The groups in order, the closed talk folded: '+JSON.stringify(s.groups));
    const [checkpoint,question,recommended]=s.lists.mine,whole=label("An entry's place",0,lang);
-   assert(checkpoint.id===qa.checkpoint&&checkpoint.chip===kinds[3]&&checkpoint.place===whole&&JSON.stringify(checkpoint.acts.map(a=>[a.act,a.text]))===JSON.stringify([['recommended',answers[3]],['entry',answers[5]]]),'A checkpoint request first, with Pass as recommended and Open: '+JSON.stringify(checkpoint));
+   // The talk passes no checkpoint: a request's entry offers the stage record, first (TASK-302).
+   assert(checkpoint.id===qa.checkpoint&&checkpoint.chip===kinds[3]&&checkpoint.place===whole&&JSON.stringify(checkpoint.acts.map(a=>[a.act,a.text]))===JSON.stringify([['record',labels('The head',lang)[4]],['reply-open',answers[3]]]),'A checkpoint request first, with Stage record and Reply: '+JSON.stringify(checkpoint));
    assert(JSON.stringify(checkpoint.look)===lookFirst&&!question.look&&!recommended.look,'Look at first, a link to the item\'s place, on the request alone: '+JSON.stringify({checkpoint:checkpoint.look,question:question.look,recommended:recommended.look}));
    assert(question.id===qa.question&&question.chip===kinds[1]&&question.place==='REQ-002'&&question.reps.includes('Synthetic detail: the provider allows two retries.')&&JSON.stringify(question.acts.map(a=>a.act))==='["reply-open"]','A question with its last reply and Reply: '+JSON.stringify(question));
-   assert(recommended.id===qa.recommended&&recommended.chip===kinds[2]&&JSON.stringify(recommended.acts.map(a=>[a.act,a.text]))===JSON.stringify([['recommended',answers[2]],['reply-open',answers[4]]]),'A recommendation with As recommended and Reply: '+JSON.stringify(recommended));
+   assert(recommended.id===qa.recommended&&recommended.chip===kinds[2]&&JSON.stringify(recommended.acts.map(a=>[a.act,a.text]))===JSON.stringify([['recommended',answers[2]],['reply-open',answers[3]]]),'A recommendation with As recommended and Reply: '+JSON.stringify(recommended));
    const [claimed,settledOne,waiting]=s.lists.agent,taken=label('Waiting',1,lang,{time:'\u0000'}).split('\u0000'),since=label('Waiting',0,lang,{time:'\u0000'}).split('\u0000');
    assert(claimed.id===qa.claimed&&claimed.waits.length===1&&claimed.waits[0].startsWith(taken[0])&&claimed.waits[0].endsWith(taken[1])&&!claimed.acts.length,'Taken by the agent, with its time and no answers: '+JSON.stringify(claimed));
    assert(settledOne.id===qa.settled&&settledOne.waits[0].startsWith(since[0])&&settledOne.waits[1]===label("The talk's entries",1,lang),'Waiting since, and settled: '+JSON.stringify(settledOne));
@@ -497,9 +499,9 @@ try{
   return{evidence:'fixture page and reads',seen,screenshot:itemShot};
  });
 
- // As recommended and Pass as recommended answer in place, the focus on the answer; the
- // checkpoint's Stage record opens the record; Reply opens the question with the focus in its
- // box and Escape folds it (API-159, choice 19, rule 10, TC-1804).
+ // As recommended answers in place, the focus on the answer; a checkpoint request's Stage record
+ // opens the record, where the pass is, and the request stays open (TASK-302); Reply opens the
+ // question with the focus in its box and Escape folds it (API-159, choice 19, rule 10, TC-1804).
  await test('answers-in-place-1440-ko-dark',async()=>{
   await setting({width:1440,theme:'dark'});
   await open(page('02-prd','ko'));
@@ -508,15 +510,11 @@ try{
   await posted(before,new RegExp('/comments/'+qa.recommended+'/recommended$'));
   let s=await state(),entry=one(s.lists.mine,qa.recommended);
   assert(entry.after===label('Answered',2,'ko')&&!entry.acts.length&&s.active===qa.recommended+':after','As recommended, answered in its place: '+JSON.stringify({entry,active:s.active}));
-  before=report.posts.length;
-  await click(`li[data-nx-entry="${qa.checkpoint}"] [data-nx-act="recommended"]`);
-  await posted(before,new RegExp('/comments/'+qa.checkpoint+'/recommended$'));
-  s=await state();entry=one(s.lists.mine,qa.checkpoint);
-  assert(entry.after.startsWith(label('Answered',3,'ko'))&&entry.record,'Pass as recommended, with Stage record: '+JSON.stringify(entry));
   const answeredShot=await shot('answers-1440-ko-dark');
+  before=report.posts.length;
   await click(`li[data-nx-entry="${qa.checkpoint}"] [data-nx-act="record"]`);await settled();
   s=await state();
-  assert(s.record&&!s.talk,'Stage record opens the record in the side: '+JSON.stringify({record:s.record,talk:s.talk}));
+  assert(s.record&&!s.talk&&report.posts.length===before,'Stage record opens the record in the side and sends nothing: '+JSON.stringify({record:s.record,talk:s.talk,posts:report.posts.slice(before)}));
   await click('.side .rec [data-nx-act="close"]');await settled();
   await click(`li[data-nx-entry="${qa.question}"] [data-nx-act="reply-open"]`);await settled();
   s=await state();

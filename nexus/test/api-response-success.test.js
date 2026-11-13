@@ -100,9 +100,12 @@ try {
  await call('report checkpoint closed','POST',space+'/checkpoints/'+checkpoint.id+'/report',{kind:'agent',body:{event:'closed',pull_request:'https://example.com/repo/pull/2'}});
  await call('withdraw checkpoint','POST',space+'/checkpoints/'+checkpoint.id+'/withdraw');
  const again=await call('already withdrawn checkpoint','POST',space+'/checkpoints/'+checkpoint.id+'/withdraw');assert.equal(again.changed,false);
+ // API-159 passes no checkpoint under D17 (TASK-302): a checkpoint request is refused, and a recommendation is taken once.
  const asking=await call('agent comment asking for the checkpoint','POST',space+'/comments',{body:{part:'nexus',stage:'05-erd',item:'',text:'Synthetic checkpoint as recommended?',asks:'checkpoint',look_first:'TBL-111'},kind:'agent',status:201});
- const taken=await call('take recommendation','POST',space+'/comments/'+asking.id+'/recommended');assert.equal(taken.checkpoint.comment,asking.id);
- const retaken=await call('recommendation already taken','POST',space+'/comments/'+asking.id+'/recommended');assert.equal(retaken.changed,false);
+ await call('checkpoint request not taken as recommended','POST',space+'/comments/'+asking.id+'/recommended',{status:409,expectedCode:'not_recommended'});
+ const recommending=await call('agent comment with a recommendation','POST',space+'/comments',{body:{part:'nexus',stage:'05-erd',item:'TBL-111',text:'Synthetic: rename it as recommended?',asks:'recommended'},kind:'agent',status:201});
+ const taken=await call('take recommendation','POST',space+'/comments/'+recommending.id+'/recommended');assert.deepEqual([taken.changed,taken.checkpoint],[true,null]);
+ const retaken=await call('recommendation already taken','POST',space+'/comments/'+recommending.id+'/recommended');assert.deepEqual([retaken.changed,retaken.checkpoint],[false,null]);
  const claimedComment=await call('comment for claim','POST',space+'/comments',{body:commentBody,status:201});
  await call('claim comment','POST',space+'/claims/'+claimedComment.id,{kind:'agent'});
  await call('release claim','DELETE',space+'/claims/'+claimedComment.id,{kind:'agent'});
@@ -113,7 +116,7 @@ try {
  if(process.env.NEXUS_SUCCESS_RESULTS)writeFileSync(process.env.NEXUS_SUCCESS_RESULTS,JSON.stringify({requests:records},null,2)+'\n');
  db.close();
 }
-assert.equal(records.length,58);
+assert.equal(records.length,60);
 assert.equal(exercised.size,41);
 assert.equal(records.filter(row=>row.method==='GET').length,25);
 

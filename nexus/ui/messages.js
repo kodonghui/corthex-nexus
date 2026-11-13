@@ -497,8 +497,8 @@ export const messages={
     "지움"
   ],
   "not_recommended": [
-    "This no longer waits for your answer. It was answered or closed meanwhile.",
-    "이 일은 이제 답을 기다리지 않습니다. 그사이 답했거나 닫혔습니다."
+    "This can no longer be answered as recommended: it was answered or closed, or it now asks something else.",
+    "이 일은 이제 추천대로 답할 수 없습니다. 그사이 답했거나 닫혔거나, 지금은 다른 것을 묻고 있습니다."
   ],
   "checkpoint_requested": [
     "This stage has an open checkpoint request.",
@@ -544,8 +544,12 @@ export const redesign={
     "AI · {time} · 사용자 · {time}"
   ],
   "Answers": [
-    "Accept · Dismiss · As recommended · Pass as recommended · Reply · Open",
-    "받기 · 버리기 · 추천대로 · 추천대로 통과 · 답하기 · 열기"
+    "Accept · Dismiss · As recommended · Reply",
+    "받기 · 버리기 · 추천대로 · 답하기"
+  ],
+  "A checkpoint request's buttons": [
+    "Open the request · Add your words",
+    "요청 열기 · 남길 말 더하기"
   ],
   "Answered": [
     "Accepted · Dismissed · Answered as recommended · Checkpoint passed. You can withdraw it in the stage record until it is recorded.",

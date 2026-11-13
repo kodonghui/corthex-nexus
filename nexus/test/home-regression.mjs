@@ -4,7 +4,10 @@
  * (choice 19); a try after a lost reply with the same write ID (rule 4); reading again, the
  * notices and the cards' order (rules 6 and 7); times in the browser's time zone (rule 2);
  * hit areas (rule 14); and 0.2's fragments on / (SPEC-154), whose words open the top bar's
- * search there (SCR-116). Node 24 built-ins only; an owned
+ * search there (SCR-116). Since TASK-302 a checkpoint request's entry shows the request whole,
+ * with "Open the request" first, then its pass and "Add your words" (SPEC-194, SPEC-196): the pass
+ * names what the entry showed, its words stay in the browser, and its refusals show in place.
+ * Node 24 built-ins only; an owned
  * headless Chrome over CDP. Requires NEXUS_QA_HOME=1, the opt-in view-server, NEXUS_CHROME
  * and NEXUS_QA_ORIGIN. Synthetic loopback fixture only. The page's writes reach the fixture
  * server, except those that a test answers itself, which the report lists as mocked; the
@@ -15,7 +18,7 @@ import path from 'node:path';
 import {createBrowserRun} from './owned-browser.mjs';
 import {tmpdir} from 'node:os';
 import {createHash} from 'node:crypto';
-import {label,labels,codeMessage} from '../src/draw/words.js';
+import {label,labels,oldLabels,codeMessage} from '../src/draw/words.js';
 import {stagePath} from '../src/draw/stages.js';
 import {clock} from '../src/draw/html.js';
 
@@ -87,7 +90,8 @@ const problem=(status,code,extra={})=>({status,headers:[{name:'Content-Type',val
 async function onPaused(event){
  const url=new URL(event.request.url),method=event.request.method,headers=Object.fromEntries(Object.entries(event.request.headers||{}).map(([k,v])=>[k.toLowerCase(),v]));
  if(url.origin!==origin&&!['about:','data:'].includes(url.protocol)){report.blockedExternalOrigins.push(url.origin);await command('Fetch.failRequest',{requestId:event.requestId,errorReason:'BlockedByClient'});return;}
- if(method==='POST')report.posts.push({path:url.pathname,write:headers['idempotency-key']||null,at:new Date().toISOString()});
+ // A pass's body too, which names what its entry showed (TASK-302).
+ if(method==='POST')report.posts.push({path:url.pathname,write:headers['idempotency-key']||null,at:new Date().toISOString(),...(url.pathname.endsWith('/checkpoints')?{body:event.request.postData??null}:{})});
  if(failing.some(pattern=>pattern.test(url.pathname))){report.interceptions.push({path:url.pathname,method,action:'failed',at:new Date().toISOString()});await command('Fetch.failRequest',{requestId:event.requestId,errorReason:'ConnectionRefused'});return;}
  const rule=responses.find(r=>r.method===method&&r.pattern.test(url.pathname));
  if(rule){
@@ -118,6 +122,35 @@ const ENTRY=`((id)=>{const e=document.querySelector('[data-nx-entry="'+CSS.escap
   msg:msg?{tone:[...msg.classList].find(c=>c!=='msg'),role:msg.getAttribute('role'),text:msg.querySelector('.t')?.textContent,trace:msg.querySelector('.tid')?.textContent||null,retry:msg.querySelector('[data-nx-act=retry]')?.textContent||null,links:[...msg.querySelectorAll('a')].map(a=>({text:a.textContent,href:a.getAttribute('href')}))}:null,
   focus:document.activeElement?.dataset?.nxFocus||null};})`;
 const entry=id=>evaluate(ENTRY+'('+JSON.stringify(id)+')');
+// A checkpoint request's entry as the page shows it (TASK-302): its text, its lines, its controls
+// in their order with their boxes, the words' box and the message under the entry.
+const REQUEST=`((id)=>{const e=document.querySelector('[data-nx-entry="'+CSS.escape(id)+'"]');if(!e)return null;
+ const f=e.querySelector(':scope > .rqf'),look=f?.querySelector('.lf > :not(.rk)'),box=e.querySelector(':scope > .wb textarea'),t=e.querySelector(':scope > .txt'),m=e.querySelector(':scope > .after .msg'),bn=e.querySelector(':scope > .wb .bn .msg');
+ const r=x=>{const b=x.getBoundingClientRect();return[b.x,b.y,b.width,b.height].map(Math.round);};
+ // A control's words are whole when they stand inside its box (a pseudo-element that widens its hit area is no part of them).
+ const inside=x=>{const range=document.createRange();range.selectNodeContents(x);const t=range.getBoundingClientRect(),b=x.getBoundingClientRect(),cut=getComputedStyle(x).textOverflow==='ellipsis'&&[...x.childNodes].some(n=>n.nodeType===3)&&x.scrollWidth>x.clientWidth+1&&getComputedStyle(x).overflow!=='visible';return t.left>=b.left-0.5&&t.right<=b.right+0.5&&!cut;};
+ const msg=x=>x?{tone:[...x.classList].find(c=>c!=='msg'),text:x.querySelector('.t')?.textContent,acts:[...x.querySelectorAll('button,a')].map(c=>c.tagName==='A'?{link:c.textContent,href:c.getAttribute('href')}:{act:c.dataset.nxAct,retry:c.dataset.nxRetry||null,text:c.textContent})}:null;
+ // The text is whole when nothing clamps it, nothing overflows its box, its lines stand inside
+ // it from top to bottom and the box inside the entry (TC-1773). The spaces that pre-wrap leaves
+ // hanging at a line's end count in a range's width, so the width is the box's scrollWidth.
+ const whole=x=>{if(!x)return null;const range=document.createRange();range.selectNodeContents(x);const t=range.getBoundingClientRect(),b=x.getBoundingClientRect(),c=getComputedStyle(x),o=e.getBoundingClientRect();
+  return c.webkitLineClamp==='none'&&c.maxHeight==='none'&&c.textOverflow!=='ellipsis'&&x.scrollWidth<=x.clientWidth+1&&x.scrollHeight<=x.clientHeight+1&&t.top>=b.top-0.5&&t.bottom<=b.bottom+0.5&&b.left>=o.left-0.5&&b.right<=o.right+0.5;};
+ return{text:t?.textContent,pre:t&&getComputedStyle(t).whiteSpace,textWhole:whole(t),lookHead:f?.querySelector('.lf .rk')?.textContent||null,
+  look:look?{tag:look.tagName,text:look.textContent,href:look.getAttribute('href'),target:look.getAttribute('target'),rel:look.getAttribute('rel')}:null,
+  commit:f?.querySelector('.cm')?.textContent||null,left:f?.querySelector('.lt')?.textContent||null,
+  acts:[...e.querySelectorAll(':scope > .acts > *')].map(x=>({act:x.tagName==='A'?'link':x.dataset.nxAct,text:x.textContent,pri:x.classList.contains('pri'),href:x.getAttribute('href'),disabled:x.tagName==='A'?null:x.disabled,aria:x.getAttribute('aria-disabled'),box:r(x),whole:inside(x)})),
+  entry:r(e),answered:e.classList.contains('answered'),res:e.querySelector('.res')?.textContent||null,msg:msg(m),
+  box:box?{value:box.value,label:e.querySelector(':scope > .wb label')?.textContent,focused:document.activeElement===box,invalid:box.getAttribute('aria-invalid'),readOnly:box.readOnly,left:e.querySelector(':scope > .wb .left')?.textContent,note:msg(bn),rect:r(box)}:null,
+  focus:document.activeElement?.dataset?.nxFocus||null};})`;
+const request=id=>evaluate(REQUEST+'('+JSON.stringify(id)+')');
+// Words typed into the focused box, in the place of what it holds, as one input.
+async function insert(text){await evaluate(`(()=>{const a=document.activeElement;if(a?.tagName==='TEXTAREA')a.select();})()`);await command('Input.insertText',{text});await paint();}
+// One entry, whole, wherever it is on the page.
+async function entryShot(name,id){
+ const box=await evaluate(`(()=>{const e=document.querySelector('[data-nx-entry="${id}"]');e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect();return{x:Math.max(0,r.x-8+scrollX),y:Math.max(0,r.y-8+scrollY),width:r.width+16,height:r.height+16};})()`);
+ await paint();const image=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:true,clip:{...box,scale:1}});
+ await fs.writeFile(path.join(folder,name+'.png'),Buffer.from(image.data,'base64'));return name+'.png';
+}
 const ids=()=>evaluate(`[...document.querySelectorAll('[data-nx-entry]')].map(e=>e.dataset.nxEntry)`);
 const heading=()=>evaluate(`document.getElementById('mine-h')?.textContent||null`);
 const cards=()=>evaluate(`[...document.querySelectorAll('.pcard footer a')].map(a=>a.getAttribute('href').slice(3))`);
@@ -178,8 +211,21 @@ try{
    await release();await waitFor(`document.documentElement.dataset.nxCode==='ready'`);await settled();await paint();
    seen.normal=await entry(home.accept);
    assert(seen.normal.buttons.map(b=>[b.act,b.text,b.disabled,b.wait]).join()===[['accept',answers[0],false,null],['dismiss',answers[1],false,null]].join(),'#normal: Accept and Dismiss work: '+JSON.stringify(seen.normal));
-   assert((await entry(home.checkpoint)).links[0]?.text===answers[5]&&(await entry(home.question)).buttons.length===0,'#normal: each kind with its answers');
+   assert((await entry(home.question)).buttons.length===0,'#normal: a question takes its answer in the talk');
    assert(seen.normal.kind===labels("An entry's kind",lang)[0],'The entry speaks the page\'s language');
+   // A checkpoint request whole (SCR-110's revision, TASK-302): its last entry's text as it was
+   // written, Look at first with its item's ID and title, the commit of the card and what is left
+   // in its stage; then "Open the request", first and filled, the pass and "Add your words", in
+   // this order and whole: on one line from 1,024 pixels, else one under another.
+   const shown=(await serverGet('/api/home')).data.my_turn.entries.find(e=>e.id===home.checkpoint)?.request,whole=labels('A checkpoint request, whole',lang),rq=labels("A checkpoint request's buttons",lang);
+   seen.request=await request(home.checkpoint);
+   const leftWords=whole[1]+['discrepancies','comments','reflections'].map((key,i)=>label('A checkpoint request, whole',i+2,lang,{n:String(shown.left[key])})+(i<2?' ·':'')).join(' ');
+   assert(seen.request.text===shown.text&&seen.request.text.split('\n').length===10&&[...seen.request.text].length===1200&&seen.request.textWhole===true&&seen.request.pre==='pre-wrap'&&seen.request.lookHead===whole[0]&&seen.request.look?.tag==='A'&&seen.request.look.text==='TBL-001 orders'&&seen.request.look.href===stagePath(project,'sample','05-erd')+'#item=TBL-001'&&seen.request.commit===label('The head',2,lang,{commit:'a'.repeat(7)})&&seen.request.left===leftWords,'#normal: the request whole: '+JSON.stringify({request:seen.request,shown}));
+   const acts=seen.request.acts;
+   assert(JSON.stringify(acts.map(a=>[a.act,a.text,a.pri]))===JSON.stringify([['link',rq[0],true],['pass',label('The pass',0,lang,{n:'05'}),false],['words',rq[1],false]])&&acts[0].href===stagePath(project,'sample','05-erd')+'#talk='+home.checkpoint&&acts.every(a=>a.whole&&!a.disabled&&!a.aria),'#normal: Open the request first, then the pass and Add your words: '+JSON.stringify(acts));
+   const lineUp=width>=1024?acts.every((a,i)=>Math.abs(a.box[1]-acts[0].box[1])<=1&&(!i||a.box[0]>=acts[i-1].box[0]+acts[i-1].box[2])):acts.every((a,i)=>a.box[2]===acts[0].box[2]&&(!i||a.box[1]>=acts[i-1].box[1]+acts[i-1].box[3]));
+   assert(lineUp,'#normal: the request\'s buttons '+(width>=1024?'on one line, in order':'one under another, as wide as each other')+': '+JSON.stringify(acts.map(a=>a.box)));
+   const requestShot=await entryShot('request-'+tag,home.checkpoint);
    // A picture that is not current: its flag shows the icon beside the whole word on one
    // line, inside its small view and clear of the count of comments.
    seen.flag=await evaluate(`(()=>{const f=document.querySelector('.home .thumb .flag');if(!f)return null;const pic=f.closest('.pic'),count=pic.querySelector('.cnt'),word=f.querySelector(':scope > span');
@@ -218,7 +264,89 @@ try{
    seen.empty=await evaluate(`({lead:document.querySelector('.emp .lead')?.textContent||null,steps:document.querySelectorAll('.hsteps li').length,code:document.querySelectorAll('.hsteps code').length,mine:!!document.getElementById('mine-h'),hub:document.querySelector('header.tb a[href="/hub"]')?.getAttribute('href')||null})`);
    assert(seen.empty.lead===labels('Nothing pushed',lang)[0]&&seen.empty.steps===4&&seen.empty.code>=3&&!seen.empty.mine,'#empty: '+JSON.stringify(seen.empty));
    await noSideways('#empty');const empty=await fullShot('empty-'+tag);
-   return{evidence:'fixture pages; the stale, error and permission answers are mocked',seen,screenshots:[loading,normal,messages,signIn,quiet,empty]};
+   return{evidence:'fixture pages; the stale, error and permission answers are mocked',seen,screenshots:[loading,normal,requestShot,messages,signIn,quiet,empty]};
+  });
+ }
+
+ // A checkpoint request's words and its pass's refusals (SCR-110's revision, TASK-302) at both
+ // widths: "Add your words" opens the box with the focus in it; the words stay in the browser with
+ // a write ID and come back in the open box after a reload (rule 5); the characters left show from
+ // 90 per cent of 2,000, and past it the pass is off. Each refusal, answered by the suite (mocked),
+ // shows in place, and every try names what the entry showed: the card's commit, the request, the
+ // place of its last entry and the words, with one write ID until write_id_reused.
+ for(const [width,lang,theme]of[[1440,'en','light'],[390,'ko','dark']]){
+  await test(`request-words-and-refusals-${width}-${lang}-${theme}`,async()=>{
+   const tag=`${width}-${lang}-${theme}`,id=home.checkpoint,scope='nexus0.2:'+project+':pass:'+id,checkpoints=api+'/checkpoints',mark=report.posts.length,seen={},shots=[];
+   const passes=()=>report.posts.slice(mark).filter(p=>p.path===checkpoints);
+   await setting({width,theme});await open('/?lang='+lang);
+   await evaluate(`localStorage.removeItem(${JSON.stringify(scope)})`);
+   const shown=(await serverGet('/api/home')).data.my_turn.entries.find(e=>e.id===id).request,rq=labels("A checkpoint request's buttons",lang),buttons=labels('Page buttons',lang);
+   await press(button(id,'words'));await waitFor(`document.activeElement?.id===${JSON.stringify('pw-'+id)}`);await paint();
+   seen.opened=await request(id);
+   assert(seen.opened.box?.focused&&seen.opened.box.label===oldLabels("Overview's headings",lang)[5]&&seen.opened.box.value===''&&seen.opened.acts.map(a=>a.act).join()==='link,pass','Add your words opens the box with the focus in it, and leaves: '+JSON.stringify(seen.opened));
+   const words=lang==='ko'?'합성 말: 주문 표가 잘 읽힙니다.\n두 번째 줄도 함께 보냅니다.':'Synthetic words: the orders table reads well.\nA second line goes with them.';
+   await insert(words);
+   seen.kept=JSON.parse(await evaluate(`localStorage.getItem(${JSON.stringify(scope)})`)||'null');
+   assert(seen.kept?.text===words&&/^nw_[0-9a-z]{12}$/.test(seen.kept.write||''),'The words stay in the browser with a write ID: '+JSON.stringify(seen.kept));
+   await open('/?lang='+lang);seen.reloaded=await request(id);
+   assert(seen.reloaded.box?.value===words&&seen.reloaded.acts.map(a=>a.act).join()==='link,pass','Loaded again, the box is open with the words: '+JSON.stringify(seen.reloaded.box));
+   // The characters left from 1,800; over 2,000 the pass is off until the words are shorter again.
+   await evaluate(`document.getElementById(${JSON.stringify('pw-'+id)}).focus()`);
+   await insert('가'.repeat(1850));seen.near=await request(id);
+   assert(seen.near.box.left===codeMessage('Characters left',lang,{n:150})&&!seen.near.box.invalid&&seen.near.acts[1].disabled===false,'150 characters left: '+JSON.stringify(seen.near.box));
+   await insert('가'.repeat(2001));seen.over=await request(id);
+   assert(seen.over.box.left===codeMessage('text_too_long',lang,{limit:'2,000'})&&seen.over.box.invalid==='true'&&seen.over.acts[1].disabled===true,'Over the limit, the pass is off: '+JSON.stringify({box:seen.over.box,pass:seen.over.acts[1]}));
+   await noSideways('with the words over the limit');shots.push(await entryShot('request-over-'+tag,id));
+   await insert(words);seen.back=await request(id);
+   assert(seen.back.box.left===''&&!seen.back.box.invalid&&seen.back.acts[1].disabled===false,'Shorter again, the pass works: '+JSON.stringify(seen.back.box));
+   shots.push(await entryShot('request-words-'+tag,id));
+   // A refusal answered once by the suite, after the pass's press and its answer.
+   const refused=async(status,code,extra={},press_=()=>press(button(id,'pass')))=>{
+    responses=[{method:'POST',pattern:new RegExp(checkpoints+'$'),once:true,...problem(status,code,extra)}];
+    const before=passes().length;await press_();
+    for(const stop=Date.now()+10000;passes().length===before&&Date.now()<stop;)await sleep(25);
+    assert(passes().length===before+1,'The pass was not sent: '+code);
+    await settled();return request(id);
+   };
+   // snapshot_changed: the commit that the project shows now, and the pass off while my turn reads again.
+   held={pattern:/^\/api\/home$/,method:'GET',requests:[]};responses=[{method:'POST',pattern:new RegExp(checkpoints+'$'),once:true,...problem(409,'snapshot_changed',{held_commit:'b'.repeat(40)})}];
+   await press(button(id,'pass'));
+   for(const stop=Date.now()+10000;!held.requests.length&&Date.now()<stop;)await sleep(25);
+   seen.stale=await request(id);
+   assert(held.requests.length===1&&seen.stale.msg?.tone==='warn'&&seen.stale.msg.text===codeMessage('snapshot_changed',lang,{commit:'b'.repeat(7)})&&!seen.stale.msg.acts.length&&seen.stale.acts[1].aria==='true','snapshot_changed, the pass off while my turn reads again: '+JSON.stringify(seen.stale));
+   shots.push(await entryShot('request-snapshot-changed-'+tag,id));
+   await release();await settled();seen.reread=await request(id);
+   assert(!seen.reread.acts[1].aria&&seen.reread.msg?.text===seen.stale.msg.text&&seen.reread.box?.value===words,'Read again, the pass works and the words stay: '+JSON.stringify(seen.reread));
+   seen.changed=await refused(409,'request_changed',{comment:id,entry:1});
+   assert(seen.changed.msg?.tone==='warn'&&seen.changed.msg.text===codeMessage('request_changed',lang)&&!seen.changed.msg.acts.length&&!seen.changed.acts[1].aria,'request_changed: '+JSON.stringify(seen.changed.msg));
+   // A pass that does not name what the entry showed comes from a page of before the release.
+   seen.old=await refused(400,'invalid_request',{field:'entry'});
+   assert(seen.old.msg?.tone==='err'&&seen.old.msg.text===codeMessage('invalid_request',lang)&&JSON.stringify(seen.old.msg.acts)===JSON.stringify([{act:'load',retry:null,text:buttons[1]}]),'invalid_request on entry, with Load again: '+JSON.stringify(seen.old.msg));
+   // A full comment: the request opens in the talk, and trying again cannot help.
+   seen.full=await refused(409,'reply_limit',{limit:200});
+   assert(seen.full.msg?.tone==='err'&&seen.full.msg.text===codeMessage('reply_limit',lang,{limit:200})&&JSON.stringify(seen.full.msg.acts)===JSON.stringify([{link:rq[0],href:stagePath(project,'sample','05-erd')+'#talk='+id}]),'reply_limit, with Open the request: '+JSON.stringify(seen.full.msg));
+   shots.push(await entryShot('request-reply-limit-'+tag,id));
+   // The words refused: by the box, marked; Try again only where it can help.
+   seen.long=await refused(413,'text_too_long',{field:'words',limit:2000});
+   assert(!seen.long.msg&&seen.long.box?.note?.tone==='err'&&seen.long.box.note.text===codeMessage('text_too_long',lang,{limit:'2,000'})&&!seen.long.box.note.acts.length&&seen.long.box.invalid==='true','text_too_long by the box: '+JSON.stringify(seen.long.box));
+   shots.push(await entryShot('request-words-refused-'+tag,id));
+   seen.field=await refused(400,'invalid_request',{field:'words'});
+   assert(!seen.field.msg&&seen.field.box?.note?.text===codeMessage('invalid_request',lang)&&JSON.stringify(seen.field.box.note.acts)===JSON.stringify([{act:'retry',retry:'pass',text:buttons[0]}]),'invalid_request on words, by the box with Try again: '+JSON.stringify(seen.field.box));
+   // Try again by the box, refused by the server's error; then Try again under the entry.
+   seen.internal=await refused(500,'internal',{},()=>press(`[data-nx-entry="${id}"] .wb button[data-nx-act="retry"]`));
+   assert(seen.internal.msg?.tone==='err'&&seen.internal.msg.text===codeMessage('internal',lang)&&JSON.stringify(seen.internal.msg.acts)===JSON.stringify([{act:'retry',retry:'pass',text:buttons[0]}])&&!seen.internal.box.note,'internal, with Try again: '+JSON.stringify(seen.internal.msg));
+   seen.reused=await refused(409,'write_id_reused',{},()=>press(retry(id)));
+   assert(seen.reused.msg?.text===codeMessage('write_id_reused',lang)&&seen.reused.msg.acts[0]?.retry==='pass','write_id_reused: '+JSON.stringify(seen.reused.msg));
+   seen.permission=await refused(403,'user_only',{},()=>press(retry(id)));
+   assert(seen.permission.msg?.tone==='warn'&&seen.permission.msg.text===codeMessage('user_only',lang)&&!seen.permission.msg.acts.length&&seen.permission.acts.map(a=>a.act).join()==='link,pass','user_only: '+JSON.stringify(seen.permission));
+   // Every try named what the entry showed; one write ID until write_id_reused, then a new one.
+   const sent=passes(),bodies=sent.map(p=>JSON.parse(p.body)),keys=sent.map(p=>p.write),driven=await evaluate('navigator.webdriver');
+   const expected=JSON.stringify({part:'sample',stage:'05-erd',commit:'a'.repeat(40),comment:id,entry:shown.entry,words,driven});
+   assert(bodies.length===9&&bodies.every(b=>JSON.stringify(b)===expected),'Each pass names what the entry showed: '+JSON.stringify({bodies,expected}));
+   assert(new Set(keys.slice(0,8)).size===1&&keys[8]!==keys[0]&&keys.every(k=>/^"nw_[0-9a-z]{12}"$/.test(k)),'One write ID until write_id_reused: '+JSON.stringify(keys));
+   await noSideways('with the words and a message');
+   await evaluate(`localStorage.removeItem(${JSON.stringify(scope)})`);
+   return{evidence:'fixture page; every refusal answered by the suite (mocked); the bodies as the page sent them',seen:{opened:seen.opened.acts,kept:{text:seen.kept.text},near:seen.near.box,over:seen.over.box,stale:seen.stale.msg,changed:seen.changed.msg,old:seen.old.msg,full:seen.full.msg,long:seen.long.box.note,field:seen.field.box.note,internal:seen.internal.msg,reused:seen.reused.msg,permission:seen.permission.msg},bodies:bodies.length,keys,screenshots:shots};
   });
  }
 
@@ -242,11 +370,22 @@ try{
   assert(seen.accept.focus===home.accept+':after','The focus moves to the answer\'s mark: '+seen.accept.focus);
   await press(button(home.dismiss,'dismiss'));seen.dismiss=await answered(home.dismiss);assert(seen.dismiss.res==='Dismissed','Dismiss: '+JSON.stringify(seen.dismiss));
   await press(button(home.recommended,'recommended'));seen.recommended=await answered(home.recommended);assert(seen.recommended.res===label('Answered',2,lang),'As recommended: '+JSON.stringify(seen.recommended));
-  await press(button(home.checkpoint,'recommended'));seen.checkpoint=await answered(home.checkpoint);
-  assert(seen.checkpoint.res===label('Answered',3,lang)+' '+label('The head',4,lang)&&seen.checkpoint.record===stagePath(project,'sample','05-erd'),'Checkpoint: '+JSON.stringify(seen.checkpoint));
-  // A checkpoint asked for on a part that the snapshot no longer holds: the talk instead.
-  await press(button(home.gonePart,'recommended'));seen.gonePart=await answered(home.gonePart);
-  assert(seen.gonePart.msg?.text===codeMessage('part_not_found',lang)&&seen.gonePart.msg.links[0]?.href===stagePath(project,'gone','05-erd')+'#talk='+home.gonePart&&seen.gonePart.buttons.length===1,'Part not found: '+JSON.stringify(seen.gonePart));
+  // The checkpoint request's pass with words (TASK-302): it names the card's commit, the request
+  // and the place of its last entry; the words settle the request, and the server holds them.
+  const shown=(await serverGet('/api/home')).data.my_turn.entries.find(e=>e.id===home.checkpoint).request,passWords='Synthetic words: the orders table reads well.';
+  await press(button(home.checkpoint,'words'));await waitFor(`document.activeElement?.id===${JSON.stringify('pw-'+home.checkpoint)}`);await insert(passWords);
+  await press(button(home.checkpoint,'pass'));seen.checkpoint=await answered(home.checkpoint);
+  assert(seen.checkpoint.res===label('Answered',3,lang)+' '+label('The head',4,lang)&&seen.checkpoint.record===stagePath(project,'sample','05-erd')&&!seen.checkpoint.buttons.length&&!seen.checkpoint.links.length,'Checkpoint passed, with Stage record: '+JSON.stringify(seen.checkpoint));
+  const body=JSON.parse(report.posts.filter(p=>p.path===api+'/checkpoints').at(-1)?.body||'null');seen.passed=body;
+  assert(JSON.stringify(body)===JSON.stringify({part:'sample',stage:'05-erd',commit:'a'.repeat(40),comment:home.checkpoint,entry:shown.entry,words:passWords,driven:await evaluate('navigator.webdriver')}),'The pass names what the entry showed: '+JSON.stringify(body));
+  const request_=(await serverGet(api+'/comments/'+home.checkpoint)).data,settle=request_.replies?.at(-1);
+  assert(request_.settled&&request_.waits==='agent'&&settle?.author==='user'&&settle.text===passWords&&settle.settles,'The words settle the request, which waits for the agent: '+JSON.stringify({settled:request_.settled,waits:request_.waits,settle}));
+  const recorded=(await serverGet(api+'/todo')).data.checkpoints?.entries?.find(c=>c.comment===home.checkpoint);seen.recorded=recorded;
+  assert(recorded?.commit==='a'.repeat(40)&&recorded.entry===shown.entry&&recorded.words===passWords&&recorded.driven===body.driven&&recorded.state==='passed','The server holds what the pass named: '+JSON.stringify(recorded));
+  assert(await evaluate(`localStorage.getItem(${JSON.stringify('nexus0.2:'+project+':pass:'+home.checkpoint)})`)===null,'The passed words leave the browser');
+  // A checkpoint asked for on a part that the snapshot no longer holds: the request in the talk instead.
+  await press(button(home.gonePart,'pass'));seen.gonePart=await answered(home.gonePart);
+  assert(seen.gonePart.msg?.text===codeMessage('part_not_found',lang)&&seen.gonePart.msg.links[0]?.text===labels("A checkpoint request's buttons",lang)[0]&&seen.gonePart.msg.links[0].href===stagePath(project,'gone','05-erd')+'#talk='+home.gonePart&&seen.gonePart.buttons.map(b=>b.act).join()==='pass,words','Part not found: '+JSON.stringify(seen.gonePart));
   // Every entry stays where it was; my turn and the agent to-do read again.
   const after=await ids(),now=await todo();seen.headingAfter=await heading();seen.todo={before,after:now};
   assert(JSON.stringify(after)===JSON.stringify(first),'The entries moved or left: '+JSON.stringify({first,after}));
@@ -296,10 +435,10 @@ try{
   const reusedKeys=writesTo(accept(home.reused));
   assert(reusedKeys.length===2&&reusedKeys[0]!==reusedKeys[1],'A new write ID after write_id_reused: '+JSON.stringify(reusedKeys));
   // A sign-in that expired while answering: the bar, and Sign in again loads the page.
-  responses=[{method:'POST',pattern:new RegExp(take(home.gonePart)+'$'),status:302,headers:[{name:'Location',value:origin+'/cdn-cgi/access/login/qa'}],body:''}];
-  await press(button(home.gonePart,'recommended'));await waitFor(`!!document.querySelector('.home > .notes .bar.warn')`);await settled();
+  responses=[{method:'POST',pattern:new RegExp(api+'/checkpoints$'),status:302,headers:[{name:'Location',value:origin+'/cdn-cgi/access/login/qa'}],body:''}];
+  await press(button(home.gonePart,'pass'));await waitFor(`!!document.querySelector('.home > .notes .bar.warn')`);await settled();
   seen.signIn={notice:await notice(),entry:await entry(home.gonePart)};
-  assert(seen.signIn.notice?.text===codeMessage('Sign-in expired',lang)&&!seen.signIn.entry.msg&&seen.signIn.entry.buttons.length===1,'Sign-in on an answer: '+JSON.stringify(seen.signIn));
+  assert(seen.signIn.notice?.text===codeMessage('Sign-in expired',lang)&&!seen.signIn.entry.msg&&seen.signIn.entry.buttons.map(b=>b.act).join()==='pass,words','Sign-in on a pass: '+JSON.stringify(seen.signIn));
   const signIn=await shot('sign-in-answer-390-ko-dark'),loaded=loads;
   await click('.home > .notes button[data-nx-act="sign-in"]');
   for(const stop=Date.now()+10000;loads===loaded&&Date.now()<stop;)await sleep(25);
@@ -368,7 +507,7 @@ try{
     const misses=[[0,-21],[0,21],[-21,0],[21,0]].filter(([dx,dy])=>{const hit=document.elementFromPoint(x+dx,y+dy);return!hit||!(hit===e||e.contains(hit));});
     return{name:(e.textContent.trim()||e.className).slice(0,40),box:[r.x,r.y,r.width,r.height].map(Math.round),misses};});})`;
   const checked=[];
-  for(const [name,scope]of[['answers','.home .acts button,.home .acts a'],['places','.home .where > a'],['agent to-do','.home .todo a'],['order','.home .seg button'],['cards','.home .pcard footer a,.home .thumb']]){
+  for(const [name,scope]of[['answers','.home .acts button,.home .acts a'],['places','.home .where > a'],['look at first','.home .rqf a'],['agent to-do','.home .todo a'],['order','.home .seg button'],['cards','.home .pcard footer a,.home .thumb']]){
    const found=await evaluate(probe+'('+JSON.stringify(scope)+')');checked.push({name,found:found.length});
    assert(found.length>0,'No '+name);for(const c of found)assert(!c.misses.length,`${name}: ${c.name} misses ${JSON.stringify(c.misses)} at ${JSON.stringify(c.box)}`);
   }
@@ -408,7 +547,7 @@ try{
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=8+1+1+1+1+1+1;
+ const expected=8+2+1+1+1+1+1+1;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{

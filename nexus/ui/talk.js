@@ -9,7 +9,7 @@
 // takes it (rules 4 and 5); in the selected item's panel (SCR-115) its talk, whose box may name
 // one of the item's discrepancies. The stage page (./stage.js) draws, follows the address and
 // calls in.
-import {TALK_LIMIT,leftOf,entryOf,talkGroups,itemsOf,kindOf,narrowTalk} from "../src/draw/talk.js";
+import {TALK_LIMIT,leftOf,entryOf,talkGroups,itemsOf,narrowTalk} from "../src/draw/talk.js";
 import {stagePath} from "../src/draw/stages.js";
 import {label,labels,codeMessage} from "../src/draw/words.js";
 import {words} from "./messages.js";
@@ -337,8 +337,8 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   // A write's follow-up: the talk reads again, and the stage, whose items and marks show the talk.
   const after=()=>Promise.all([readAgain(),refresh()]);
 
-  // Accept, Dismiss, As recommended or Pass as recommended, and dismissing a reflection: the
-  // answer in place, kept among the talk's entries (choice 19).
+  // Accept, Dismiss or As recommended, and dismissing a reflection: the answer in place, kept
+  // among the talk's entries (choice 19). A checkpoint request passes in the stage record.
   async function answer(id,act){
     const found=locate(id);if(!found)return;
     const es=st.entries[id]||(st.entries[id]={}),scope=actScope(act,id);
@@ -355,7 +355,7 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
       // the talk says what became of it.
       if(act==="dismiss-edit")st.notes=[...st.notes.filter(n=>n.kind!=="write"),{kind:"write",tone:"info",text:words(result?.changed===false?"Already dismissed":"Reflection dismissed",lang)}];
       else{
-        es.done=true;es.mark=act==="accept"?0:act==="dismiss"?1:kindOf(found.entry)===3?3:2;keep(found);
+        es.done=true;es.mark=act==="accept"?0:act==="dismiss"?1:2;keep(found);
         if(result?.changed===false)es.note={tone:"info",text:label("Done already",0,lang)};
       }
     }catch(error){

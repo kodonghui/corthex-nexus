@@ -281,7 +281,7 @@ NEXUS 0.2.3은 지금 화면의 틀은 그대로 두고 고칩니다. 이 말들
 
 ### 설계 수정이 계획한 말
 
-설계 수정의 행에는 [revision-words.ko.md](revision-words.ko.md)의 말이 필요하며, 영어와 한국어로 있고 만든 것은 없습니다. 그 파일의 표에는 다섯째 칸, 곧 줄마다의 진행이 있어서, 이 파일과 [redesign-words.ko.md](redesign-words.ko.md)의 네 칸짜리 표를 모두 읽는 `nexus/tools/messages.mjs`가 그것을 건드리지 않고, 보기의 말은 만든 그대로 남습니다. 줄을 만드는 작업은 같은 변경에서 그 말을 진행 없이 [redesign-words.ko.md](redesign-words.ko.md)로 옮기고, 만든 말이 그것을 따릅니다. 그때 물러나는 만든 말: D17에 따라 "추천대로 통과"와 `not_recommended`의 말, "2단계"가 붙은 "편집", 그리고 [오류 코드](#오류-코드)에 있는 `cross_site`의 말이며, 그 새 말은 내보내기처럼 아무것도 바꾸지 않는 요청에도 맞습니다.
+설계 수정의 행에는 [revision-words.ko.md](revision-words.ko.md)의 말이 필요하며, 영어와 한국어로 있고 만든 것은 없습니다. 그 파일의 표에는 다섯째 칸, 곧 줄마다의 진행이 있어서, 이 파일과 [redesign-words.ko.md](redesign-words.ko.md)의 네 칸짜리 표를 모두 읽는 `nexus/tools/messages.mjs`가 그것을 건드리지 않고, 보기의 말은 만든 그대로 남습니다. 줄을 만드는 작업은 같은 변경에서 그 말을 진행 없이 [redesign-words.ko.md](redesign-words.ko.md)로 옮기고, 만든 말이 그것을 따릅니다. 그때 물러나는 만든 말: "2단계"가 붙은 "편집", 그리고 [오류 코드](#오류-코드)에 있는 `cross_site`의 말이며, 그 새 말은 내보내기처럼 아무것도 바꾸지 않는 요청에도 맞습니다. D17에 따라 "추천대로 통과"와 `not_recommended`의 말은 2026-11-13에 TASK-302와 함께 물러났습니다.
 
 ## 이 단계가 고른 것
 
@@ -473,6 +473,17 @@ SPEC-155와 SPEC-210은 대화 탭과 접힌 대화의 단추가 내 차례의 �
 - 회색 와이어프레임은 SCR-112와 SCR-113의 진행 때문에 다시 그림. 그 설명만 바뀌었고, 페이지는 틀 64개와 라벨 205개를 그대로 지니며 이제 1,010,661바이트임. [measure.mjs](../../../tools/grey_pages/measure.mjs)는 16번 돌리고 틀을 128번 재어 문제를 찾지 못함.
 - 단계의 검사: [test_screen_states.py](../../../tests/test_screen_states.py)가 통과하고, [screen_states_check.py](../../../nexus/test/screen_states_check.py)는 페이지 5개의 정의서 13개와 기록 5개를 읽음: 응답 178개와 코드 325개이며, API-128의 계획한 꼴이 만든 꼴이 되어 그 응답을 한 번만 세므로 TASK-300 뒤보다 적음.
 - 저장소의 검사가 통과함: 고정한 허브로 `python -m unittest discover -s tests`(테스트 41개), `node --test nexus/test/*.test.js`(테스트 437개, Node 24), Worker의 dry-run 빌드, `git diff --check`.
+
+2026-11-13, 첫 페이지에서 확인 요청을 먼저 두고 그 통과를 항목이 보인 것에 묶는 TASK-302에서, SCR-110과 SCR-114의 절들은 만든 대로 요청과 그 통과를 말합니다:
+
+- SCR-110의 설계 수정: 통째로 보이는 요청, 통과가 적는 것, 통과에 남길 사용자의 말의 자료 행과, 요청 열기, {n}단계 확인 지점 통과, 남길 말 더하기, 먼저 볼 것 열기 동작은 `built (TASK-302)`이고, SCR-110#loading과 SCR-110#normal은 `built (TASK-298, TASK-302)`, SCR-110#stale, SCR-110#error, SCR-110#permission은 `built (TASK-302)`임. 지운 뒤의 막대는 그 자료 행, 닫기 동작, SCR-110#removed와 함께 TASK-312를 위해 `planned`로 남음.
+- SCR-114의 설계 수정: 내 차례의 확인 요청 줄에 있는 단계 기록 동작은 `built (TASK-302)`이고, SCR-114#normal은 `built (TASK-276, TASK-298, TASK-300, TASK-302)`이어서, 그 설계 수정의 행은 이제 모두 만들어졌음.
+- 진행마다 코드와, 그것을 돌린 케이스 TC-1446–TC-1449, TC-1503, TC-1597–TC-1611, TC-1621, TC-1704–TC-1706, TC-1708, TC-1709, TC-1719, TC-1746, TC-1747, TC-1773, 그리고 TC-1760의 첫 페이지 쪽에서 정함.
+- 위의 절들: SCR-110의 내 차례는 형식을 갖춘 확인 요청을 통째로 보이며, 첫째이자 채운 단추로 "요청 열기", 둘째로 통과, 그리고 "남길 말 더하기"를 둠. 통째로 보이지 않는 요청은 "요청 열기"만 내놓고, 그 stale, error, permission 상태는 통과의 거절을 적음. API-159는 확인 지점을 통과시키지 않으므로 요청은 추천대로 답하기를 내놓지 않음. SCR-114의 내 차례는 요청의 첫째 단추로 "단계 기록"을 보임. "남길 말 더하기"는 두 폭 모두에서 마지막에 와서 포커스가 화면이 보이는 차례로 움직이며, 09단계는 1,440픽셀에서 그것을 줄의 처음에 그림.
+- 말: "확인 요청의 단추" 행과 `not_recommended`의 새 말이 [revision-words.md](revision-words.ko.md)에서 보기의 말을 만드는 [redesign-words.md](redesign-words.ko.md)로 옮김. "추천대로 통과"와 열기는 답 행을 떠남.
+- 회색 와이어프레임은 SCR-110과 SCR-114의 진행 때문에 다시 그림. 그 설명만 바뀌었고, 페이지는 틀 64개와 라벨 205개를 그대로 지니며 이제 1,010,718바이트임. [measure.mjs](../../../tools/grey_pages/measure.mjs)는 16번 돌리고 틀을 128번 재어 문제를 찾지 못함.
+- 단계의 검사: [test_screen_states.py](../../../tests/test_screen_states.py)가 통과하고, [screen_states_check.py](../../../nexus/test/screen_states_check.py)는 페이지 5개의 정의서 13개와 기록 5개를 읽음: 응답 172개와 코드 310개이며, API-159의 계획한 꼴이 만든 꼴이 되어 그 응답을 한 번만 세고 API-159가 더는 `part_not_found`로 답하지 않으므로 TASK-301 뒤보다 적음.
+- 저장소의 검사가 통과함: 고정한 허브로 `python -m unittest discover -s tests`(테스트 41개), `node --test nexus/test/*.test.js`(테스트 444개, Node 24), Worker의 dry-run 빌드, `git diff --check`.
 
 ## 확인할 것
 
