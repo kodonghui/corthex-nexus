@@ -230,6 +230,29 @@ test("TC-1420: in a space that was never read every entry that waits for the age
   assert.equal(agentOf(await home(call), "acme").unread, 3);
 });
 
+test("SPEC-189: a checkpoint withdrawn after the agent's read waits since its withdrawal while its open pull request keeps it in the to-do", async (t) => {
+  const { call } = inProcess();
+  t.mock.timers.enable({ apis: ["Date"], now: at("2026-11-20T09:00:00.000Z") });
+  assert.equal((await call("POST", "/api/snapshots", { body: shop("acme") })).status, 200);
+  const checkpoint = await say(call, "user", "/api/spaces/acme/checkpoints", { part: "sample", stage: "01-domain" });
+  assert.equal(checkpoint.passed_at, "2026-11-20T09:00:00.000Z");
+  let counts = agentOf(await home(call), "acme");
+  assert.deepEqual([counts.unread, counts.unread_since], [1, "2026-11-20T09:00:00.000Z"], "passed, it waits since its pass");
+  t.mock.timers.tick(30 * 60000);
+  await say(call, "agent", `/api/spaces/acme/checkpoints/${checkpoint.id}/report`, { event: "opened", pull_request: "https://github.com/example/qa-shop/pull/2" });
+  t.mock.timers.tick(30 * 60000);
+  assert.equal((await call("GET", "/api/spaces/acme/todo")).data.read_at, "2026-11-20T10:00:00.000Z");
+  counts = agentOf(await home(call), "acme");
+  assert.deepEqual([counts.checkpoints.total, counts.unread, counts.unread_since], [1, 0, null], "read at 10:00");
+  t.mock.timers.tick(60 * 60000);
+  const withdrawn = (await say(call, "user", `/api/spaces/acme/checkpoints/${checkpoint.id}/withdraw`, {})).checkpoint;
+  assert.deepEqual([withdrawn.state, withdrawn.withdrawn_at, withdrawn.pr_state], ["withdrawn", "2026-11-20T11:00:00.000Z", "open"]);
+  counts = agentOf(await home(call), "acme");
+  assert.deepEqual([counts.checkpoints.total, counts.unread, counts.unread_since], [1, 1, "2026-11-20T11:00:00.000Z"],
+    "withdrawn after the read, it is not read yet since its withdrawal, though it passed before the read");
+  assert.equal((await stageOf(call, "acme")).project.unread_since, "2026-11-20T11:00:00.000Z", "API-158 alike");
+});
+
 test("TC-1621 to TC-1626: each response of API-151", async () => {
   const empty = inProcess();
   // TC-1622: a server without snapshots.
