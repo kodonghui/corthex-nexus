@@ -85,6 +85,27 @@ MIGRATIONS.push({ version: 4, statements: [
   "ALTER TABLE checkpoints ADD COLUMN comment TEXT REFERENCES comments (id) ON DELETE SET NULL"
 ] });
 
+// The design revision of 2026-11-11 (stage 05, "The revision's migrations"; TASK-295): the agent's last read on the
+// space (SPEC-187), the thing to look at first of a checkpoint request (SPEC-197), what a pass names and the browser
+// and device that sent it (SPEC-194, SPEC-195), and one open request for each part's stage. Every new column may be
+// empty, so no table is made again. A database of before may hold several open requests on a stage, since nothing
+// refused them: the statement before the index keeps the newest of each stage as its request and turns the older
+// ones into entries that ask for an answer, still open and waiting for the user. The statements are the guide's,
+// word for word, and nexus/test/migrations.test.js holds them to it.
+MIGRATIONS.push({ version: 5, statements: [
+  "ALTER TABLE project_spaces ADD COLUMN read_at TEXT",
+  "ALTER TABLE project_spaces ADD COLUMN read_session TEXT",
+  "ALTER TABLE checkpoints ADD COLUMN browser TEXT CHECK (browser IN ('chrome', 'safari', 'firefox', 'edge', 'other', 'unknown'))",
+  "ALTER TABLE checkpoints ADD COLUMN device TEXT CHECK (device IN ('phone', 'tablet', 'desktop', 'unknown'))",
+  "ALTER TABLE checkpoints ADD COLUMN driven INTEGER CHECK (driven IN (0, 1))",
+  "ALTER TABLE checkpoints ADD COLUMN snapshot_revision INTEGER",
+  "ALTER TABLE checkpoints ADD COLUMN entry INTEGER CHECK (entry >= 0)",
+  "ALTER TABLE comments ADD COLUMN look_first TEXT",
+  "ALTER TABLE replies ADD COLUMN look_first TEXT",
+  "UPDATE comments SET asks = 'answer'\n WHERE state = 'open' AND asks = 'checkpoint'\n   AND EXISTS (SELECT 1 FROM comments AS newer\n                WHERE newer.project = comments.project AND newer.part = comments.part AND newer.stage = comments.stage\n                  AND newer.state = 'open' AND newer.asks = 'checkpoint'\n                  AND (newer.last_at > comments.last_at OR (newer.last_at = comments.last_at AND newer.id > comments.id)))",
+  "CREATE UNIQUE INDEX comments_request ON comments (project, part, stage) WHERE state = 'open' AND asks = 'checkpoint'"
+] });
+
 const MIGRATION_TABLE = "CREATE TABLE IF NOT EXISTS migrations (\n  version    INTEGER PRIMARY KEY,\n  applied_at TEXT    NOT NULL\n)";
 
 // The newer of two snapshots of a project wins: the update runs only when

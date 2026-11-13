@@ -1,6 +1,6 @@
 // TASK-280 (TC-1781, TC-1782): the statements that stage 05 plans for the design revision of 2026-11-11, run on
-// node:sqlite as the ERD guide gives them, on a database built from nexus.sql. tests/test_revision_statements.py runs
-// the same on Python's sqlite3.
+// node:sqlite as the ERD guide gives them, on a database of schema 4, as nexus.sql was before migration 5 took them
+// (TASK-295). tests/test_revision_statements.py runs the same on Python's sqlite3.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 

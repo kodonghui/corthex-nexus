@@ -1,10 +1,12 @@
 // TASK-280: the database of the revision's cases (TC-1781 to TC-1784), and the statements that stage 05 plans for the
 // design revision of 2026-11-11, read from the ERD guide. TASK-295 runs the same database through the server's migration.
+// The database has schema 4, as a server of before the revision holds it: since TASK-295, nexus.sql is schema 5, so the
+// fixture builds from schema-4.sql, which nexus/test/migrations.test.js holds equal to migrations 1 to 4.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 
-export const schema = readFileSync(new URL("../../docs/05-erd/nexus.sql", import.meta.url), "utf8");
+export const schema4 = readFileSync(new URL("./schema-4.sql", import.meta.url), "utf8");
 const guide = readFileSync(new URL("../../docs/05-erd/nexus.md", import.meta.url), "utf8");
 
 // The SQL block of "The revision's migrations", split into its statements.
@@ -24,10 +26,9 @@ export const COMMENT = "INSERT INTO comments (id, project, part, stage, item, co
 // A snapshot, a space, six comments of which three open ones ask for a checkpoint on one stage, a reply and a checkpoint;
 // with a picture, a discrepancy, a proposal, an edit, a decision, a claim and a write, so that a removal has every table to
 // clear; and a second project that a removal must leave alone, and a snapshot without a space.
-export function seeded() {
-  const db = new DatabaseSync(":memory:");
+export function seeded(db = new DatabaseSync(":memory:")) {
   db.exec("PRAGMA foreign_keys = ON");
-  db.exec(schema);
+  db.exec(schema4);
   for (const name of ["synthetic", "neighbour", "bare"]) db.prepare(SNAPSHOT).run(name, COMMIT);
   for (const name of ["synthetic", "neighbour"]) db.prepare("INSERT INTO project_spaces (project, created_at) VALUES (?, '2026-11-11T01:00:00Z')").run(name);
   const comment = (id, project, stage, state, closedAs, waits, asks, at) =>

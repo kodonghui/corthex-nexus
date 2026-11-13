@@ -190,9 +190,12 @@ test("migration 4 keeps a schema 3 comment with its replies, decisions, proposal
   const after=rows();
   assert.equal(after[0][0].asks,null);delete after[0][0].asks;
   assert.equal(after[4][0].comment,null);delete after[4][0].comment;
+  // Migration 5, the design revision's (TASK-295), runs after it and only adds empty columns.
+  for(const [table,columns] of [[0,["look_first"]],[1,["look_first"]],[4,["browser","device","driven","snapshot_revision","entry"]]])
+    for(const row of after[table])for(const column of columns){assert.equal(row[column],null);delete row[column];}
   assert.deepEqual(after,before);
   assert.deepEqual(db.prepare("PRAGMA foreign_key_check").all(),[]);
-  assert.deepEqual(db.prepare("SELECT version FROM migrations ORDER BY version").all().map((row)=>row.version),[1,2,3,4]);
+  assert.deepEqual(db.prepare("SELECT version FROM migrations ORDER BY version").all().map((row)=>row.version),[1,2,3,4,5]);
   assert.deepEqual(db.prepare("SELECT name FROM sqlite_master WHERE name LIKE '%_keep' OR name='comments_new'").all(),[]);
   // A comment needs no picture now, takes one of the 13 stages and keeps asks only while it waits for the user.
   const insert=db.prepare("INSERT INTO comments(id,project,part,stage,item,commit_id,author,text,state,waits,asks,made_at,last_at) VALUES(?,'synthetic','',?,'',?,'agent','Pass it?','open',?,?,?,?)");

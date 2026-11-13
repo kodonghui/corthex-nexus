@@ -1,6 +1,7 @@
 """TASK-280 (TC-1781, TC-1782): the statements that stage 05 plans for the design revision of 2026-11-11, run on
-Python's sqlite3 as the ERD guide gives them, on a database built from nexus.sql. nexus/test/revision-statements.test.js
-runs the same on node:sqlite."""
+Python's sqlite3 as the ERD guide gives them, on a database of schema 4, as nexus.sql was before migration 5 took them
+(TASK-295). nexus/test/revision-statements.test.js runs the same on node:sqlite, and nexus/test/migrations.test.js holds
+schema-4.sql equal to the server's migrations 1 to 4. TASK-295 (TC-1784): schema 4 and the statements make nexus.sql."""
 
 import re
 import sqlite3
@@ -9,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = (ROOT / "docs/05-erd/nexus.sql").read_text(encoding="utf8")
+SCHEMA_4 = (ROOT / "nexus/test/schema-4.sql").read_text(encoding="utf8")
 GUIDE = (ROOT / "docs/05-erd/nexus.md").read_text(encoding="utf8")
 STAGE = "04-functional-spec"
 COMMIT = "3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a"
@@ -31,7 +33,7 @@ def seeded():
     """The database of nexus/test/revision-fixture.js, row for row."""
     db = sqlite3.connect(":memory:", isolation_level=None)
     db.execute("PRAGMA foreign_keys = ON")
-    db.executescript(SCHEMA)
+    db.executescript(SCHEMA_4)
     for name in ("synthetic", "neighbour", "bare"):
         db.execute(SNAPSHOT, (name, COMMIT))
     for name in ("synthetic", "neighbour"):
@@ -57,6 +59,45 @@ def seeded():
     db.execute("INSERT INTO claims (entry, project, session, claimed_at, ends_at) VALUES ('nc_waits_agent', 'synthetic', 'session-a', '2026-11-11T01:10:00Z', '2026-11-11T02:10:00Z')")
     db.execute("INSERT INTO writes (project, id, request, result, received_at) VALUES ('synthetic', 'w_one', 'POST /comments', '{}', '2026-11-11T01:10:00Z')")
     return db
+
+
+def checks(sql):
+    """The CHECK expressions of a table's statement, each on one line, sorted."""
+    found, at = [], 0
+    for match in re.finditer(r"\bCHECK\s*\(", sql, re.I):
+        if match.start() < at:
+            continue
+        depth, end, quote = 1, match.end(), ""
+        while end < len(sql) and depth:
+            ch = sql[end]
+            if quote:
+                if ch == quote:
+                    quote = ""
+            elif ch in "'\"":
+                quote = ch
+            elif ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+            end += 1
+        found.append(re.sub(r"\s+", " ", sql[match.end():end - 1]).strip())
+        at = end
+    return sorted(found)
+
+
+def describe(db):
+    """Tables, columns, keys, indexes and CHECKs, as nexus/test/migrations.test.js compares them."""
+    tables = []
+    for name, sql in db.execute("SELECT name, sql FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name"):
+        indexes = []
+        for row in db.execute('PRAGMA index_list("%s")' % name):
+            index_sql = (db.execute("SELECT sql FROM sqlite_master WHERE name = ?", (row[1],)).fetchone() or ("",))[0] or ""
+            where = re.search(r"\bWHERE\s+(.+)$", index_sql, re.I | re.S)
+            indexes.append((row[1], row[2], row[3], row[4], db.execute('PRAGMA index_info("%s")' % row[1]).fetchall(),
+                            where.group(1) if where else ""))
+        tables.append((name, db.execute('PRAGMA table_info("%s")' % name).fetchall(),
+                       db.execute('PRAGMA foreign_key_list("%s")' % name).fetchall(), sorted(indexes), checks(sql)))
+    return tables
 
 
 def counts(db):
@@ -141,6 +182,18 @@ class RevisionStatementsTest(unittest.TestCase):
         self.assertEqual(db.execute("SELECT COUNT(*) FROM comments WHERE project = 'neighbour'").fetchone()[0], neighbour)
         self.assertEqual(db.execute("PRAGMA foreign_key_check").fetchall(), [])
         db.close()
+
+
+    def test_TC_1784_schema_4_and_the_statements_make_nexus_sql(self):
+        migrated = sqlite3.connect(":memory:", isolation_level=None)
+        migrated.executescript(SCHEMA_4)
+        for statement in planned_statements():
+            migrated.execute(statement)
+        expected = sqlite3.connect(":memory:", isolation_level=None)
+        expected.executescript(SCHEMA)
+        self.assertEqual(describe(migrated), describe(expected))
+        migrated.close()
+        expected.close()
 
 
 if __name__ == "__main__":
