@@ -42,8 +42,77 @@ The dashboard names follow Cloudflare's documentation as of October 2026: [Cloud
 ## Use
 
 - `hub.py push` sends the projects in `nexus.push`; name projects to send only those. The server keeps the newer snapshot of a project: one generated earlier than the stored one is refused, so build again and push.
-- `hub.py remove <project>` deletes a project from the server. Taking a project out of `nexus.push` stops further pushes but leaves what the server holds.
+- `hub.py remove <project>` sends no removal: it shows what removing the project deletes and the address of the project's data in NEXUS, where you remove it under your own sign-in. Taking a project out of `nexus.push` stops further pushes but leaves what the server holds.
 - When signed in, `/api/snapshots` lists what the server holds.
+
+## Push from the repository on each merge
+
+A project's repository can send its snapshot itself each time a commit reaches its default branch, without a session: a job of the repository's own CI runs `hub.py push --job`. The agent's pushes stay as the second way. Whichever comes first stores the commit, and the other finds it held and sends nothing.
+
+The job sends only for a project that the server already holds, so a project's first push is still `hub.py push <project> --first` in a session, after your yes. It never replaces a held commit: after the default branch was rewritten, it fails and names both commits. It reads no agent to-do and sends no pending writes.
+
+To add it to a project's repository on GitHub:
+
+1. Add the file below to the repository as `.github/workflows/corthex-nexus-push.yml`, by pull request. If the default branch is not `main`, write its name under `branches`.
+2. In the repository's **Settings** › **Secrets and variables** › **Actions**, add three repository secrets: `CORTHEX_NEXUS_URL`, the server's `https` address, and `CORTHEX_NEXUS_CLIENT_ID` and `CORTHEX_NEXUS_CLIENT_SECRET`, the service token of step 6.
+3. Merge the pull request. From then on, each commit that reaches the default branch runs the job.
+
+```yaml
+name: NEXUS push
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: corthex-nexus-push
+  cancel-in-progress: false
+
+jobs:
+  push:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the default branch with its history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: project
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check out the hub at its pinned commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: kodonghui/corthex
+          ref: 318035daeaeb561027b2c37aa5a8e729a1c2baee
+          path: hub
+          persist-credentials: false
+      - name: Push the snapshot
+        working-directory: project
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          CORTHEX_NEXUS_URL: ${{ secrets.CORTHEX_NEXUS_URL }}
+          CORTHEX_NEXUS_CLIENT_ID: ${{ secrets.CORTHEX_NEXUS_CLIENT_ID }}
+          CORTHEX_NEXUS_CLIENT_SECRET: ${{ secrets.CORTHEX_NEXUS_CLIENT_SECRET }}
+        run: |
+          git symbolic-ref refs/remotes/origin/HEAD "refs/remotes/origin/$DEFAULT_BRANCH"
+          python3 ../hub/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py push --job --json
+```
+
+The job runs only on a push to the default branch, never for a pull request, so a fork's change never runs with the secrets; a fork has none, and there the job sends nothing and names the missing secrets. It checks out the repository with its full history and, beside it, the hub at the commit that this repository's [`hub-ref.json`](../hub-ref.json) names, and runs nothing from the repository itself. Anyone who can change the workflows on the default branch can use the secrets, so add them only to a repository that only you can push to. When you update the server, take the file again, so that the job's hub moves with it.
+
+The job's log is the one line of `hub.py push --job --json`, which never holds a secret's value:
+
+| The line says | The job | What it means |
+| --- | --- | --- |
+| `"sent": true` | passes | The commit's snapshot is stored, with the server's answer in `pushed`. |
+| `"why": "already-held"` | passes | The server holds this commit or a newer one. |
+| `"why": "first-push-waits"` | passes | The server does not hold the project: push it first in a session with `--first`. |
+| `"why": "not-set"` | passes | A secret is not set, and `missing` names it. |
+| `refused` or `failed` | fails | The server refused the push or did not answer, or the held commit is not in the pushed commit's history; the line says why. |
 
 ## Limits
 

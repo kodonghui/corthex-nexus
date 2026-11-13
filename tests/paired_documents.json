@@ -209,7 +209,7 @@
   {"file": "docs/12-qa/runs/2026-11-06-patch-022-editor.md", "check": "ids", "english": ["BUG-562"], "korean": [], "lines": 1, "why": "record"},
   {"file": "docs/12-qa/runs/2026-11-06-patch-022-editor.md", "check": "ids", "english": ["TC-1242", "TC-1248", "TC-1254", "TC-1261", "TC-1272"], "korean": [], "lines": 1, "why": "record"},
   {"file": "docs/reviews/2026-11-11-design-review.md", "check": "code", "english": ["`fixed`", "`open (Dn)`", "`operations`", "`recorded`", "`recorded`", "`trial`"], "korean": ["`Dn이 열림`", "`고침`", "`기록함`", "`기록함`", "`시범에서 답함`", "`운영 작업`"], "lines": 1, "why": "words"},
-  {"file": "nexus/README.md", "check": "lines", "english": [164], "korean": [151], "lines": 1, "why": "rewrapped"},
+  {"file": "nexus/README.md", "check": "lines", "english": [233], "korean": [220], "lines": 1, "why": "rewrapped"},
   {"file": "nexus/ui/README.md", "check": "code", "english": ["`node nexus/tools/build-ui.mjs --dependencies <absolute-browser-node_modules> --tool <absolute-scratch-node_modules/esbuild/lib/main.js>`"], "korean": ["`node nexus/tools/build-ui.mjs --dependencies <브라우저-node_modules-절대경로> --tool <임시-node_modules/esbuild/lib/main.js-절대경로>`"], "lines": 1, "why": "words"}
  ]
 }

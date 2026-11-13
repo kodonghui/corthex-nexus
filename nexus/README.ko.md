@@ -42,8 +42,77 @@ NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기�
 ## 쓰기
 
 - `hub.py push`는 `nexus.push`의 프로젝트를 보냅니다. 프로젝트 이름을 주면 그것만 보냅니다. 서버는 프로젝트마다 더 새 스냅샷을 둡니다. 저장된 것보다 먼저 만든 스냅샷은 거절하니, 다시 만들어 보내세요.
-- `hub.py remove <프로젝트>`는 서버에서 프로젝트를 지웁니다. `nexus.push`에서 프로젝트를 빼면 그 뒤로 보내지 않을 뿐, 서버에 둔 것은 남습니다.
+- `hub.py remove <프로젝트>`는 삭제 요청을 보내지 않습니다. 프로젝트를 삭제하면 지워지는 것과 NEXUS에서 그 프로젝트 데이터의 주소를 보여 주며, 삭제는 그 주소에서 내 로그인으로 합니다. `nexus.push`에서 프로젝트를 빼면 그 뒤로 보내지 않을 뿐, 서버에 둔 것은 남습니다.
 - 로그인한 상태에서 `/api/snapshots`를 열면 서버에 둔 목록이 보입니다.
+
+## 병합마다 저장소에서 보내기
+
+프로젝트 저장소는 기본 브랜치에 커밋이 들어올 때마다 세션 없이 스냅샷을 직접 보낼 수 있습니다. 저장소 자체 CI의 작업이 `hub.py push --job`을 실행합니다. 에이전트의 push는 두 번째 방법으로 남습니다. 먼저 보낸 쪽이 커밋을 저장하고, 다른 쪽은 이미 저장된 것을 보고 아무것도 보내지 않습니다.
+
+이 작업은 서버가 이미 가진 프로젝트만 보냅니다. 그래서 프로젝트의 첫 push는 여전히 내가 승인한 뒤 세션에서 `hub.py push <project> --first`로 합니다. 저장된 커밋을 바꾸지도 않습니다. 기본 브랜치의 이력을 다시 쓴 뒤라면 두 커밋을 밝히며 실패합니다. 에이전트 to-do를 읽지 않고, 아직 보내지 못한 쓰기도 보내지 않습니다.
+
+GitHub의 프로젝트 저장소에 더하는 방법:
+
+1. 아래 파일을 pull request로 저장소의 `.github/workflows/corthex-nexus-push.yml`에 더합니다. 기본 브랜치가 `main`이 아니면 `branches`에 그 이름을 적습니다.
+2. 저장소의 **Settings** › **Secrets and variables** › **Actions**에서 저장소 시크릿 세 개를 더합니다. `CORTHEX_NEXUS_URL`에는 서버의 `https` 주소를, `CORTHEX_NEXUS_CLIENT_ID`와 `CORTHEX_NEXUS_CLIENT_SECRET`에는 6단계의 서비스 토큰을 넣습니다.
+3. pull request를 병합합니다. 그 뒤로 기본 브랜치에 커밋이 들어올 때마다 작업이 실행됩니다.
+
+```yaml
+name: NEXUS push
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: corthex-nexus-push
+  cancel-in-progress: false
+
+jobs:
+  push:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the default branch with its history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: project
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check out the hub at its pinned commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: kodonghui/corthex
+          ref: 318035daeaeb561027b2c37aa5a8e729a1c2baee
+          path: hub
+          persist-credentials: false
+      - name: Push the snapshot
+        working-directory: project
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          CORTHEX_NEXUS_URL: ${{ secrets.CORTHEX_NEXUS_URL }}
+          CORTHEX_NEXUS_CLIENT_ID: ${{ secrets.CORTHEX_NEXUS_CLIENT_ID }}
+          CORTHEX_NEXUS_CLIENT_SECRET: ${{ secrets.CORTHEX_NEXUS_CLIENT_SECRET }}
+        run: |
+          git symbolic-ref refs/remotes/origin/HEAD "refs/remotes/origin/$DEFAULT_BRANCH"
+          python3 ../hub/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py push --job --json
+```
+
+작업은 기본 브랜치에 push될 때만 실행되고 pull request에서는 실행되지 않으므로, 포크의 변경이 시크릿을 가지고 실행되는 일은 없습니다. 포크에는 시크릿이 없어서, 거기서는 작업이 아무것도 보내지 않고 빠진 시크릿의 이름을 밝힙니다. 작업은 저장소를 전체 이력과 함께 체크아웃하고, 그 옆에 이 저장소의 [`hub-ref.json`](../hub-ref.json)이 가리키는 커밋의 허브를 체크아웃하며, 저장소 자체의 코드는 실행하지 않습니다. 기본 브랜치의 워크플로를 바꿀 수 있는 사람은 누구나 시크릿을 쓸 수 있으니, 나만 push할 수 있는 저장소에만 더합니다. 서버를 업데이트할 때 이 파일도 다시 가져와 작업의 허브를 함께 옮깁니다.
+
+작업의 로그는 `hub.py push --job --json`의 결과 한 줄이며, 시크릿의 값은 담지 않습니다.
+
+| 결과 줄 | 작업 | 뜻 |
+| --- | --- | --- |
+| `"sent": true` | 통과 | 그 커밋의 스냅샷을 저장했습니다. 서버의 답은 `pushed`에 있습니다. |
+| `"why": "already-held"` | 통과 | 서버가 이 커밋이나 더 새 커밋을 이미 가지고 있습니다. |
+| `"why": "first-push-waits"` | 통과 | 서버에 이 프로젝트가 없습니다. 세션에서 `--first`로 먼저 보냅니다. |
+| `"why": "not-set"` | 통과 | 시크릿이 빠졌으며, `missing`이 그 이름을 밝힙니다. |
+| `refused`나 `failed` | 실패 | 서버가 거절했거나 답하지 않았거나, 저장된 커밋이 보낸 커밋의 이력에 없습니다. 결과 줄에 이유가 있습니다. |
 
 ## 한도
 
