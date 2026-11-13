@@ -1,14 +1,16 @@
 // TASK-300: the stage's open checkpoint request shown whole in the stage's record (SCR-112,
 // SCR-113, SPEC-139), and the thing to look at first in the record and on the request's entry
 // in the talk (SCR-114#normal, rule 22), drawn by the functions that the server and the view
-// share. These tests read the drawing as text; the browser suites stage-regression.mjs and
-// talk-regression.mjs run the view's code.
+// share. TASK-301: the pass named for the stage while a request is open, the pass off after a
+// refusal because the project shows another commit, with its own Load again (SCR-112#stale),
+// and what a passed checkpoint's line names (SPEC-194). These tests read the drawing as text;
+// the browser suites stage-regression.mjs and talk-regression.mjs run the view's code.
 import test from "node:test";
 import assert from "node:assert/strict";
 import {esc} from "../src/draw/html.js";
-import {label,labels} from "../src/draw/words.js";
+import {codeMessage,label,labels} from "../src/draw/words.js";
 import {drawEntry,drawTalk,entryOf,requestOf,stageRequest,lookFirst} from "../src/draw/talk.js";
-import {drawRecord,drawSide} from "../src/draw/stage.js";
+import {drawPassed,drawRecord,drawSide} from "../src/draw/stage.js";
 
 const AT="2026-11-11T13:40:00.000Z",LATER="2026-11-12T09:05:00.000Z",COMMIT="5b7c2e90123456789abcdef0123456789abcdef0";
 const ADDRESS="https://preview.example.com/qa/screens/orders?state=empty&width=390";
@@ -122,5 +124,52 @@ test("the stage's record shows the open checkpoint request whole above the words
     assert.equal(drawRecord(data(),lang,{},talk(question())),drawRecord(data(),lang),"the record without a request is the record of before");
     // The side passes the page's whole talk to the record.
     assert.equal(drawSide(data(),null,lang,{record:true,recordState:{}},talk(request())),drawRecord(data(),lang,{},talk(request())));
+  }
+});
+
+test("the pass names the stage while its request is open, and after a refusal because the project shows another commit it stays off with a Load again of its own (SCR-112#stale, SPEC-196)",()=>{
+  const pass=html=>/<button class="btn pri" type="button" data-nx-act="pass" data-nx-focus="pass"([^>]*)>([^<]*)<\/button>/.exec(html)?.slice(1);
+  for(const lang of["en","ko"]){
+    const named=esc(label("The pass",0,lang,{n:"04"}));
+    assert.deepEqual(pass(drawRecord(data(),lang,{},talk(request()))),["",named],"Pass the stage 04 checkpoint");
+    assert.deepEqual(pass(drawRecord(data(),lang,{},talk(question()))),["",esc(labels("The stage record",lang)[4])],"without a request, as before");
+    assert.deepEqual(pass(drawRecord(data(),lang,{sending:"pass"},talk(request()))),[' aria-disabled="true"',esc(codeMessage("Sending",lang))],"while it sends");
+    const note={tone:"warn",text:codeMessage("snapshot_changed",lang,{commit:"bbbbbbb"}),trace:"0123456789abcdef-ICN",load:true};
+    const stale=drawRecord(data(),lang,{stale:true,passNote:note},talk(request()));
+    assert.deepEqual(pass(stale),[' aria-disabled="true"',named],"off until the page is loaded again, still named, never removed");
+    const message=between(stale,'<div class="pnote"','<label');
+    assert.ok(message.startsWith('<div class="pnote" data-nx-key="pnote"><div class="msg warn" role="status">'),"a warning above the words box");
+    assert.ok(message.includes(esc(note.text))&&note.text.includes("bbbbbbb"),"the commit that the project now shows, its first 7 characters");
+    assert.ok(message.includes(`<button class="btn sm" type="button" data-nx-act="load" data-nx-focus="pass:load">`)&&message.includes(`${esc(labels("Page buttons",lang)[1])}</button>`),"Load again of its own, since under 1,024 pixels the sheet covers the bar");
+    assert.ok(!message.includes('data-nx-act="pass"')&&!message.includes(":retry"),"no Try again: the same pass would be refused again");
+    assert.ok(message.includes(esc(codeMessage("Trace ID",lang,{traceId:note.trace}))),"its trace ID");
+    assert.equal(pass(drawRecord(data(),lang,{stale:true,over:true},talk(request())))[0],' disabled',"past the limit, disabled as before");
+    assertKeyed(stale,"stale "+lang);
+  }
+});
+
+test("a passed checkpoint's line: the commit that it passed or the snapshot's revision, the request that it answered as a link into the talk, then its kind (SCR-112, SCR-113, SPEC-194)",()=>{
+  const sep='<span class="sep" aria-hidden="true">·</span>',comment="nc_"+"r".repeat(12);
+  const cp=(extra={})=>({id:"nk_"+"a".repeat(12),part:"sample",stage:"04-functional-spec",commit:COMMIT,revision:null,comment:null,entry:null,words:null,state:"passed",
+    passed_at:AT,withdrawn_at:null,pull_request:null,pr_state:null,recorded_commit:null,browser:"safari",device:"phone",driven:false,...extra});
+  for(const lang of["en","ko"]){
+    const words=labels("The kind of browser and device",lang),kind=`<span>${esc(words[1]+", "+words[6])}</span>`;
+    const seen=`<span class="cpc">${esc(label("The head",2,lang,{commit:"5b7c2e9"}))}</span>`;
+    const asked=`<span class="cpq"><a class="lnk" href="#talk=${comment}" data-nx-act="answers" data-nx-comment="${comment}" data-nx-focus="answers:${esc("nk_"+"a".repeat(12))}">${esc(label("A passed checkpoint's record",0,lang))}</a></span>`;
+    assert.equal(drawPassed(cp(),lang),`<p class="cpk">${seen}${sep}${kind}</p>`,"a pass from the record without a request: the commit, then the kind");
+    assert.equal(drawPassed(cp({comment,entry:2}),lang),`<p class="cpk">${seen}${sep}${asked}${sep}${kind}</p>`,"one that answered a request links to it, in the order of stage 08's layouts");
+    assert.equal(drawPassed(cp({commit:null,revision:3}),lang),`<p class="cpk"><span class="cpc">${esc(label("A passed checkpoint's record",1,lang,{n:"3"}))}</span>${sep}${kind}</p>`,"Snapshot {n} where the snapshot named no commit");
+    // Values out of their form show nothing, and nothing of the text that was sent.
+    for(const bad of[{commit:"5B7C2E9"+"0".repeat(33)},{commit:"<b>x</b>"},{commit:null,revision:0},{commit:null,revision:"3"},{commit:null,revision:-1}])
+      assert.equal(drawPassed(cp(bad),lang),`<p class="cpk">${kind}</p>`,"no commit line for "+JSON.stringify(bad));
+    for(const bad of["nc_RRRRRRRRRRRR","nc_rrrr",'nc_"onclick','<a href="x">',42])
+      assert.ok(!drawPassed(cp({comment:bad}),lang).includes("cpq"),"no link for "+JSON.stringify(bad));
+    assert.equal(drawPassed(cp({browser:null,device:null,driven:null,comment}),lang),"","a checkpoint passed before the revision shows none of these");
+    // In the record, the line follows the date of one that waits for its record and of a withdrawn one.
+    const shown={...data(),record:{...data().record,checkpoints:[cp({comment,entry:0}),cp({id:"nk_"+"b".repeat(12),state:"withdrawn",withdrawn_at:LATER})]}};
+    const record=drawRecord(shown,lang,{},talk());
+    assert.ok(record.includes(`</b><p class="cpk">${seen}${sep}${asked}${sep}${kind}</p>`),"under the date of the one that waits");
+    assert.ok(record.includes(`</b><p class="cpk">${seen}${sep}${kind}</p>`),"and of the withdrawn one");
+    assertKeyed(record,"record lines "+lang);
   }
 });

@@ -76,7 +76,7 @@ test("real TCP adapter preserves the snapshot, discussion, checkpoint and cross-
   assert.equal(comment.status, 201, comment.text);
   const reply = await call("POST", `/api/spaces/corthex/comments/${comment.data.id}/replies`, { text: "답변입니다", settles: true });
   assert.equal(reply.status, 201, reply.text);
-  const checkpoint = await call("POST", "/api/spaces/corthex/checkpoints", { part: "nexus", stage: "05-erd", words: "확인했습니다" });
+  const checkpoint = await call("POST", "/api/spaces/corthex/checkpoints", { part: "nexus", stage: "05-erd", words: "확인했습니다", commit: snapshot.repos["."].default.commit });
   assert.equal(checkpoint.status, 201, checkpoint.text);
   assert.equal((await call("HEAD", "/")).text, "");
   assert.equal((await call("PATCH", "/api/snapshots")).status, 405);

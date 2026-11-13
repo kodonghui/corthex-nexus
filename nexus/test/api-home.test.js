@@ -205,7 +205,9 @@ test("API-151 counts each space's agent to-do by list, with the place of its old
   const proposal = { part: "nexus", stage: "05-erd", items: ["TBL-111"], reason: "Name it plainly", change: "Rename it" };
   const accepted = (await call("POST", "/api/spaces/corthex/proposals", { body: proposal })).data.id;
   const edit = (await call("POST", "/api/spaces/corthex/proposals/" + accepted + "/accept", { body: {}, kind: "user" })).data.edit.id;
-  const checkpoint = (await call("POST", "/api/spaces/corthex/checkpoints", { body: { part: "nexus", stage: "05-erd", words: "As drafted" }, kind: "user" })).data.id;
+  // The ERD has a checkpoint request open (mine), so the user passes the PRD:
+  // a pass that names no request at a stage with one is refused (SPEC-194).
+  const checkpoint = (await call("POST", "/api/spaces/corthex/checkpoints", { body: { part: "nexus", stage: "02-prd", words: "As drafted", commit: COMMIT }, kind: "user" })).data.id;
   // Two sessions take the comment and the reflection; a claim on my turn's
   // comment is no entry of the to-do.
   for (const [entry, session] of [[claimed, "agent-one"], [edit, "agent-two"], [mine, "agent-two"]])
@@ -222,7 +224,7 @@ test("API-151 counts each space's agent to-do by list, with the place of its old
     { project: "corthex", comments: { total: 3, oldest: { part: "memory", stage: "02-prd", entry: ids.oldest } },
       discrepancies: { total: 3, oldest: { part: "memory", stage: "07-sitemap", entry: "nd_bbbbbbbbbbbb" } },
       reflections: { total: 1, oldest: { part: "nexus", stage: "05-erd", entry: edit } },
-      checkpoints: { total: 1, oldest: { part: "nexus", stage: "05-erd", entry: checkpoint } }, taken: 2,
+      checkpoints: { total: 1, oldest: { part: "nexus", stage: "02-prd", entry: checkpoint } }, taken: 2,
       read_at: null, unread: 6, unread_since: "2026-11-03T01:00:00.000Z" },
     { project: "qa-shop", comments: { total: 0, oldest: null }, discrepancies: { total: 1, oldest: { part: "sample", stage: "07-sitemap", entry: shopDiscrepancy.id } },
       reflections: { total: 0, oldest: null }, checkpoints: { total: 0, oldest: null }, taken: 0,

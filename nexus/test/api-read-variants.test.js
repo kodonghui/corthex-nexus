@@ -230,7 +230,7 @@ test('eight named API read variants preserve their exact state, policy and whole
 
     const overview = await fixture('qa-read-overview');
     await push(overview, oneDiscrepancySnapshot(overview.name));
-    const checkpoint = await post(overview, '/checkpoints', { part: 'sample', stage: '05-erd' }, { schema: 'NewCheckpoint' });
+    const checkpoint = await post(overview, '/checkpoints', { part: 'sample', stage: '05-erd', commit: 'a'.repeat(40) }, { schema: 'NewCheckpoint' });
     await readCase('TC-840', overview, overview.base + '/overview/sample/05-erd', (data) => {
       assert.equal(data.stage, '05-erd');
       assert.equal(data.discrepancies.total, 1);

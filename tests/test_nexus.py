@@ -175,7 +175,13 @@ class StageRecordOfAPassTest(ServerCase):
     def test_the_record_in_git_holds_none_of_the_kind(self):
         self.save()
         hub.push(self.home, env={})
-        code, passed = self.send("POST", "/api/spaces/acme-shop/checkpoints", {"part": "", "stage": "02-prd", "driven": False},
+        # Since TASK-301 a pass names what the stage's page showed (SPEC-194), as API-158 gives it: the commit,
+        # or the snapshot's revision where the snapshot names no commit, as the page does.
+        code, stage = self.send("GET", "/api/spaces/acme-shop/stages/_/02-prd")
+        self.assertEqual(code, 200, stage)
+        shown = stage["project"]
+        seen = {"commit": shown["commit"]} if shown["commit"] else {"revision": shown["revision"]}
+        code, passed = self.send("POST", "/api/spaces/acme-shop/checkpoints", dict({"part": "", "stage": "02-prd", "driven": False}, **seen),
                                  {"Idempotency-Key": '"nw_000000000001"', "User-Agent": self.SAFARI_PHONE})
         self.assertEqual(code, 201, passed)
         self.assertEqual([passed["browser"], passed["device"], passed["driven"]], ["safari", "phone", False])

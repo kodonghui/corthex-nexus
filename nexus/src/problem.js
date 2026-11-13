@@ -45,6 +45,8 @@ export const ERRORS = Object.freeze({
   checkpoint_withdrawn: [409, "The checkpoint is withdrawn"],
   checkpoint_state: [409, "The checkpoint has no matching open record"],
   checkpoint_requested: [409, "A checkpoint request is open"],
+  snapshot_changed: [409, "The project shows another commit"],
+  request_changed: [409, "The checkpoint request changed"],
   not_recommended: [409, "No recommendation to take"],
   write_id_reused: [409, "The write ID is taken"],
   snapshot_too_large: [413, "The snapshot is too large"],
@@ -65,7 +67,7 @@ export const COMMON_HEADERS = Object.freeze({
 
 const EXTRA_FIELDS = new Set([
   "field", "limit", "items", "held_commit", "stored_at", "bound", "state",
-  "pull_request", "ends_at", "why", "needs", "comment",
+  "pull_request", "ends_at", "why", "needs", "comment", "entry", "revision",
 ]);
 const shorten = (text, length) => Array.from(String(text)).slice(0, length).join("");
 

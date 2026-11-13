@@ -487,6 +487,8 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .rec .cpk{display:grid;justify-items:start;gap:var(--nx-space-2xs);margin:0;color:var(--nx-color-muted)}
 .nx .rec .cpk .sep{display:none}
 @media (min-width:1024px){.nx .rec .cpk{display:flex;flex-wrap:wrap;gap:0 var(--nx-space-xs)}.nx .rec .cpk .sep{display:inline}}
+/* "Answers the request" in a checkpoint's line (TASK-301): a finger's target, as the link to look at first is. */
+@media (pointer:coarse){.nx .rec .cpq > .lnk{display:inline-flex;align-items:center;min-height:var(--nx-size-target)}}
 /* The stage's open checkpoint request whole, above the words box (SCR-112, SCR-113): a card with
    the accent's line on its left, as an entry of my turn in the talk has; the agent and the time of
    its last entry, that entry's text whole, then the thing to look at first, the commit and what is

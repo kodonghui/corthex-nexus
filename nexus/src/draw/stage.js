@@ -184,22 +184,32 @@ export function drawStage(data,lang,view={}){
 function message(note,lang,focus){
   if(!note)return"";
   const tone=["info","warn","err"].includes(note.tone)?note.tone:"err",buttons=labels("Page buttons",lang),row=[];
+  // A refusal that Load again answers shows its icon (SCR-112#stale, SCR-112#error).
+  const mark=note.load?"i-reload":tone==="err"?"i-err":tone==="warn"?"i-warn":"i-info";
+  if(note.load)row.push(`<button class="btn sm" type="button" data-nx-act="load" data-nx-focus="${esc(focus)}:load">${icon("i-reload")}${esc(buttons[1])}</button>`);
   if(note.retry)row.push(`<button class="btn sm" type="button" data-nx-act="${esc(note.retry)}"${note.checkpoint?` data-nx-checkpoint="${esc(note.checkpoint)}"`:""} data-nx-focus="${esc(focus)}:retry">${icon("i-reload")}${esc(buttons[0])}</button>`);
   if(note.signIn)row.push(`<button class="btn sm pri" type="button" data-nx-act="sign-in" data-nx-focus="${esc(focus)}:sign-in">${esc(buttons[2])}</button>`);
   if(note.here)row.push(`<a class="lnk" href="${esc(note.here)}">${esc(buttons[3])}</a>`);
-  return`<div class="msg ${tone}" role="${tone==="err"?"alert":"status"}">${icon(tone==="err"?"i-err":tone==="warn"?"i-warn":"i-info")}<div><span class="t">${esc(note.text)}</span>${note.trace?`<span class="tid">${esc(codeMessage("Trace ID",lang,{traceId:note.trace}))}</span>`:""}${row.length?`<div class="row">${row.join("")}</div>`:""}</div></div>`;
+  return`<div class="msg ${tone}" role="${tone==="err"?"alert":"status"}">${icon(mark)}<div><span class="t">${esc(note.text)}</span>${note.trace?`<span class="tid">${esc(codeMessage("Trace ID",lang,{traceId:note.trace}))}</span>`:""}${row.length?`<div class="row">${row.join("")}</div>`:""}</div></div>`;
 }
 const https=value=>typeof value==="string"&&/^https:\/\/[^\s"'<>]+$/.test(value)&&value.length<=2000?value:null;
-// The kind of browser and device of a checkpoint passed in NEXUS (SPEC-195), under its date: the
-// browser's family and the device's class joined by a comma, as "Safari, phone", and "Software
-// drove the browser" only where the page reported it. Words outside the server's vocabulary show
-// nothing, and so does a checkpoint passed before the revision, whose three are null: it never
-// says unknown for what was not recorded. The words are a record, not a check. Under 1,024
-// pixels each is on a line of its own, and from 1,024 they share a line that wraps (page.css).
-export function drawKind(cp,lang){
-  const words=labels("The kind of browser and device",lang),browser=BROWSERS.indexOf(cp?.browser),device=DEVICES.indexOf(cp?.device);
+// What a checkpoint passed in NEXUS recorded, under its date (SCR-112, SCR-113): what the page
+// showed, "Commit {commit}" or, for a snapshot that names no commit, "Snapshot {n}"
+// (SPEC-194); "Answers the request", a link to the request that it answered in the stage's
+// talk; and the kind of browser and device (SPEC-195), the browser's family and the device's
+// class joined by a comma, as "Safari, phone", with "Software drove the browser" only where the
+// page reported it. Words outside the server's vocabulary show nothing. A checkpoint passed
+// before the revision, whose kind is null, shows none of these: it never says unknown for what
+// was not recorded. The words are a record, not a check. Under 1,024 pixels each is on a line
+// of its own, and from 1,024 they share a line that wraps (page.css).
+export function drawPassed(cp,lang){
+  if(cp?.browser==null)return"";
+  const words=labels("The kind of browser and device",lang),browser=BROWSERS.indexOf(cp.browser),device=DEVICES.indexOf(cp.device);
+  const seen=typeof cp.commit==="string"&&/^[0-9a-f]{40}$/.test(cp.commit)?label("The head",2,lang,{commit:cp.commit.slice(0,7)})
+    :Number.isInteger(cp.revision)&&cp.revision>0?label("A passed checkpoint's record",1,lang,{n:String(cp.revision)}):"";
+  const asked=typeof cp.comment==="string"&&/^nc_[0-9a-hjkmnp-tv-z]{12}$/.test(cp.comment)?`<a class="lnk" href="#talk=${cp.comment}" data-nx-act="answers" data-nx-comment="${cp.comment}" data-nx-focus="answers:${esc(cp.id)}">${esc(label("A passed checkpoint's record",0,lang))}</a>`:"";
   const kind=[browser>=0?words[browser]:"",device>=0?words[BROWSERS.length+device]:""].filter(Boolean).join(", ");
-  const lines=[kind,cp?.driven===true?words[BROWSERS.length+DEVICES.length]:""].filter(Boolean).map(line=>`<span>${esc(line)}</span>`);
+  const lines=[seen&&`<span class="cpc">${esc(seen)}</span>`,asked&&`<span class="cpq">${asked}</span>`,...[kind,cp.driven===true?words[BROWSERS.length+DEVICES.length]:""].filter(Boolean).map(line=>`<span>${esc(line)}</span>`)].filter(Boolean);
   return lines.length?`<p class="cpk">${lines.join('<span class="sep" aria-hidden="true">·</span>')}</p>`:"";
 }
 // The stage's open checkpoint request whole, above the words box (SCR-112, SCR-113, SPEC-139):
@@ -226,7 +236,7 @@ export function drawRecord(data,lang,state={},talk=null){
   const passedInNexus=new Map((overview.checkpoints||[]).map(cp=>[cp.id,cp]));
   const ownCheckpoints=(recorded?.checkpoints||[]).map(cp=>{
     const where=https(cp.where),meta=[cp.by?esc(cp.by):"",cp.date?dayTime(cp.date):""].filter(Boolean).join(" · ");
-    const kind=typeof cp.nexus==="string"&&passedInNexus.has(cp.nexus)?drawKind(passedInNexus.get(cp.nexus),lang):"";
+    const kind=typeof cp.nexus==="string"&&passedInNexus.has(cp.nexus)?drawPassed(passedInNexus.get(cp.nexus),lang):"";
     return`<li><span>${esc(cp.approved||"")}</span>${meta?` <span class="mu cap">${meta}</span>`:""}${where?` <a class="lnk clip" href="${esc(where)}" rel="noreferrer">${esc(where)}</a>`:""}${kind}</li>`;
   }).join("");
   const warnings=checks.filter(check=>check.level==="warn").length;
@@ -239,17 +249,20 @@ export function drawRecord(data,lang,state={},talk=null){
     const id=esc(cp.id),sending=state.sending==="withdraw:"+cp.id,quote=cp.words?`<span class="mu">“${esc(cp.words)}”</span>`:"";
     if(cp.state==="passed"&&!cp.recorded_commit){
       const button=`<button class="btn sm" type="button" data-nx-act="withdraw" data-nx-checkpoint="${id}" data-nx-focus="withdraw:${id}"${sending?' aria-disabled="true"':""}>${esc(sending?codeMessage("Sending",lang):words[5])}</button>`;
-      return`<div class="wbox" data-nx-key="cp:${id}"><b>${dated(codeMessage("Waiting for its record",lang),cp.passed_at)}</b>${drawKind(cp,lang)}${quote}${button}</div>`;
+      return`<div class="wbox" data-nx-key="cp:${id}"><b>${dated(codeMessage("Waiting for its record",lang),cp.passed_at)}</b>${drawPassed(cp,lang)}${quote}${button}</div>`;
     }
-    if(cp.state==="withdrawn")return`<div class="wbox warn" data-nx-key="cp:${id}"><b>${dated(codeMessage("Withdrawn",lang),cp.withdrawn_at)}</b>${drawKind(cp,lang)}${quote}${named.has(cp.id)?`<span>${esc(codeMessage("Withdrawn, recorded",lang))}</span>`:""}</div>`;
+    if(cp.state==="withdrawn")return`<div class="wbox warn" data-nx-key="cp:${id}"><b>${dated(codeMessage("Withdrawn",lang),cp.withdrawn_at)}</b>${drawPassed(cp,lang)}${quote}${named.has(cp.id)?`<span>${esc(codeMessage("Withdrawn, recorded",lang))}</span>`:""}</div>`;
     return"";
   }).join("");
   const notOpened=Number(overview.not_opened)>0?message({tone:"warn",text:codeMessage("Not opened",lang,{n:count(overview.not_opened)})},lang,"not-opened"):"";
+  // While the stage has an open checkpoint request, the pass names the pass and the stage, as
+  // "Pass the stage 04 checkpoint" (SPEC-196). After a refusal because the project shows another
+  // commit, the pass is off until the page is loaded again (SCR-112#stale).
   const again=(overview.checkpoints||[]).some(cp=>cp.state==="passed"&&!cp.recorded_commit),sending=state.sending==="pass";
-  const pass=sending?codeMessage("Sending",lang):again?codeMessage("Pass again",lang):words[4];
+  const pass=sending?codeMessage("Sending",lang):stageRequest(talk)?label("The pass",0,lang,{n:String(data.stage).slice(0,2)}):again?codeMessage("Pass again",lang):words[4];
   // Past the limit, the limit itself, since nothing is left (rule 5).
   const left=state.over?esc(codeMessage("text_too_long",lang,{limit:WORDS_LIMIT.toLocaleString("en-US")})):state.left===null||state.left===undefined?"":esc(codeMessage("Characters left",lang,{n:state.left}));
-  const off=state.over?" disabled":sending?' aria-disabled="true"':"";
+  const off=state.over?" disabled":sending||state.stale?' aria-disabled="true"':"";
   return`<section class="rec" aria-labelledby="rec-h" data-nx-key="rec" data-nx-sub><span class="handle only-ph" data-nx-key="hd" aria-hidden="true"></span><div class="th" data-nx-key="th"><h2 id="rec-h" tabindex="-1" data-nx-focus="rec-h">${esc(head[4])}</h2><span class="mu sm">${esc(stageNumber(data.stage)+" "+stageName(data.stage,lang))}</span><span class="sp"></span><button class="btn quiet sm" type="button" data-nx-act="close" data-nx-focus="close">${icon("i-back")}${esc(head[5])}</button></div><div class="rb" data-nx-key="rb" data-nx-sub><div class="rnote" data-nx-key="rnote">${message(state.note,lang,"record")}</div>${list}${notOpened?`<div data-nx-key="not-opened">${notOpened}</div>`:""}${passedList?`<div class="cpl" data-nx-key="cpl" data-nx-sub>${passedList}</div>`:""}<h3 data-nx-key="ph">${esc(words[3])}</h3>${drawRequest(data,lang,talk)}<div class="pnote" data-nx-key="pnote">${message(state.passNote,lang,"pass")}</div><label class="lab" for="cp-words" data-nx-key="pl">${esc(headings[5])}</label><textarea class="ta" id="cp-words" name="words" rows="4" data-nx-key="ta" data-nx-focus="words" aria-describedby="cp-left"></textarea><p class="left" id="cp-left" data-nx-key="left" data-nx-live>${left}</p><div class="r2" data-nx-key="r2"><span class="sp"></span><button class="btn pri" type="button" data-nx-act="pass" data-nx-focus="pass"${off}>${esc(pass)}</button></div></div></section>`;
 }
 

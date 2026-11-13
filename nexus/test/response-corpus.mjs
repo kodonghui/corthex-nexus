@@ -102,7 +102,9 @@ cases.push({name:"checkpoint that names its comment",schema:"Checkpoint",value:a
 // The agent to-do read with the service token, which records the read and names
 // its time, and under the user's own sign-in, which records nothing and names
 // null (API-113, SPEC-187): comments, a reflection and two checkpoints wait.
-await call("POST","/api/spaces/corthex/checkpoints",{part:"nexus",stage:"02-prd"},"user");
+// A pass names the commit that the page showed (TASK-301, SPEC-194).
+const heldCommit=snapshot.repos["."].default.commit;
+await call("POST","/api/spaces/corthex/checkpoints",{part:"nexus",stage:"02-prd",commit:heldCommit},"user");
 const agentRead=await call("GET","/api/spaces/corthex/todo"),userRead=await call("GET","/api/spaces/corthex/todo",undefined,"user");
 if(!agentRead.read_at||userRead.read_at!==null||!agentRead.comments.total||!agentRead.reflections.total||agentRead.checkpoints.total<2)throw new Error("an answer to API-113 lacks what its case needs");
 cases.push({name:"agent to-do read by the agent",schema:"Todo",value:agentRead},{name:"agent to-do read by the user",schema:"Todo",value:userRead});
@@ -134,15 +136,51 @@ cases.push({name:"the user's comment",schema:"Comment",value:question},{name:"ch
   {name:"reply that asks for the checkpoint again",schema:"ReplyAnswer",value:askedAgain});
 // The kind of browser and device of a pass (TASK-299, SPEC-195): a pass from Safari on a phone
 // whose page says that no software drives the browser, the stage whose record holds it, and its
-// withdrawal, each with the three.
-const kindPass=await call("POST","/api/spaces/corthex/checkpoints",{part:"nexus",stage:"05-erd",driven:false},"user",
+// withdrawal, each with the three. The pass answers the stage's open request, which the agent
+// asked again, with the commit, the request and the place of its last entry (TASK-301,
+// SPEC-194), and settles it.
+const kindPass=await call("POST","/api/spaces/corthex/checkpoints",{part:"nexus",stage:"05-erd",commit:heldCommit,comment:asking.id,entry:askedAgain.reply.seq,driven:false},"user",
   {"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"});
 const kindStage=await call("GET","/api/spaces/corthex/stages/nexus/05-erd");
+const settled=await call("GET","/api/spaces/corthex/comments/"+asking.id);
 const kindWithdrawn=await call("POST","/api/spaces/corthex/checkpoints/"+kindPass.id+"/withdraw",{},"user");
 if(kindPass.browser!=="safari"||kindPass.device!=="phone"||kindPass.driven!==false||!kindStage.record.checkpoints.some((entry)=>entry.id===kindPass.id&&entry.browser==="safari")
   ||kindWithdrawn.checkpoint.device!=="phone")throw new Error("a pass's kind of browser and device lacks what its case needs");
-cases.push({name:"pass from Safari on a phone",schema:"Checkpoint",value:kindPass},{name:"stage whose record holds a pass's kind",schema:"StageData",value:kindStage},
-  {name:"withdrawal that names the pass's kind",schema:"CheckpointAnswer",value:kindWithdrawn});
+if(kindPass.commit!==heldCommit||kindPass.revision!==null||kindPass.comment!==asking.id||kindPass.entry!==askedAgain.reply.seq||settled.asks!==null||settled.waits!=="agent"||!settled.settled)
+  throw new Error("a pass that answers a request lacks what its case needs");
+cases.push({name:"pass from Safari on a phone that answers a request",schema:"Checkpoint",value:kindPass},{name:"stage whose record holds a pass's kind",schema:"StageData",value:kindStage},
+  {name:"request settled by the pass",schema:"CommentThread",value:settled},{name:"withdrawal that names the pass's kind",schema:"CheckpointAnswer",value:kindWithdrawn});
+// A project whose snapshot names no commit, as from a device without Git: its stage names the
+// snapshot's revision, and a pass names that revision in the commit's place (SPEC-194).
+await call("POST","/api/snapshots",{...snapshot,project:{...snapshot.project,name:"acme-shop",title:"Acme shop"},repos:{},replaces:undefined,
+  records:{from:"status-file"},pictures:[],left_out:[]});
+const noCommit=await call("GET","/api/spaces/acme-shop/stages/_/02-prd");
+const revisionPass=await call("POST","/api/spaces/acme-shop/checkpoints",{part:"",stage:"02-prd",words:"Synthetic: the requirements as drafted.",revision:noCommit.project.revision},"user");
+if(noCommit.project.commit!==null||noCommit.project.revision!==1||revisionPass.commit!==null||revisionPass.revision!==1||revisionPass.comment!==null||revisionPass.entry!==null)
+  throw new Error("a pass on a snapshot that names no commit lacks what its case needs");
+cases.push({name:"stage of a snapshot that names no commit",schema:"StageData",value:noCommit},{name:"pass that names the revision",schema:"Checkpoint",value:revisionPass});
+// The pass's refusals that name what changed (SPEC-194), as Problem documents with their
+// members: another commit, a newer snapshot of a project without one, and the stage's
+// open checkpoint request with the place of its last entry.
+async function refusal(path,body,status,code){
+  const headers={...access.headers("user"),"Idempotency-Key":'"nw_'+(++serial).toString().padStart(12,"0")+'"',"Content-Type":"application/json"};
+  const original=console.error;
+  console.error=()=>{};
+  try{
+    const response=await handle(new Request("https://nexus.example.com"+path,{method:"POST",headers,body:JSON.stringify(body)}),env,access.ctx,template);
+    const value=JSON.parse(await response.text());
+    if(response.status!==status||value.code!==code)throw new Error("offline corpus refusal differs: "+response.status+" "+path);
+    return value;
+  }finally{console.error=original;}
+}
+const apiRequest=await call("POST","/api/spaces/corthex/comments",{part:"nexus",stage:"06-api",item:"",text:"Synthetic: the contract is ready for its checkpoint.",asks:"checkpoint",look_first:"TBL-111"});
+const afterPush=await refusal("/api/spaces/corthex/checkpoints",{part:"nexus",stage:"02-prd",commit:"b".repeat(40)},409,"snapshot_changed");
+const afterRevision=await refusal("/api/spaces/acme-shop/checkpoints",{part:"",stage:"03-user-flow",revision:2},409,"snapshot_changed");
+const unnamed=await refusal("/api/spaces/corthex/checkpoints",{part:"nexus",stage:"06-api",commit:heldCommit},409,"request_changed");
+if(afterPush.held_commit!==heldCommit||afterRevision.revision!==1||unnamed.comment!==apiRequest.id||unnamed.entry!==0)
+  throw new Error("a pass's refusal lacks what its case needs");
+cases.push({name:"pass after a push",schema:"Problem",value:afterPush},{name:"pass after a newer snapshot without a commit",schema:"Problem",value:afterRevision},
+  {name:"pass that names no request while one is open",schema:"Problem",value:unnamed});
 // The stage page of a project that only a hub of 0.1 pushed, which has no space.
 await call("POST","/api/snapshots",{schema:"corthex-hub/0.1",generated_at:"2026-01-12T10:00:00+09:00",project:{name:"legacy-shop",title:"Legacy shop"},
   stages:{"02-prd":{source_state:"found",read:true,state:"in_progress",next:"Write the PRD"}},summary:{items:1},

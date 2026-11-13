@@ -102,15 +102,15 @@
       "/code/erd.a3f16bb2.js",
       "/code/erd-chunk-1.a59343d7.js"
     ],
-    "view-js": "/code/view.bc308feb.js",
-    "view-css": "/code/view.8e4b340a.css",
+    "view-js": "/code/view.dd4f5d2c.js",
+    "view-css": "/code/view.db7d796e.css",
     "view-preload": [
-      "/code/view.bc308feb.js"
+      "/code/view.dd4f5d2c.js"
     ],
-    "page-js": "/code/page.2f0c3328.js",
-    "page-css": "/code/page.05b0b63a.css",
+    "page-js": "/code/page.cc909680.js",
+    "page-css": "/code/page.2cb7cd00.css",
     "page-preload": [
-      "/code/page.2f0c3328.js"
+      "/code/page.cc909680.js"
     ],
     "font-preload": [
       "/code/editor-font-2.76945f09.woff2",
@@ -4090,40 +4090,40 @@
       "graphDigest": "4587f1de68d1d393e372ace966d16d160ce452bb25dd9318832ca12f92d855a4"
     },
     {
-      "name": "view.8e4b340a.css",
-      "path": "view.8e4b340a.css.txt",
+      "name": "view.db7d796e.css",
+      "path": "view.db7d796e.css.txt",
       "type": "text/css; charset=utf-8",
       "raw": 13691,
       "gzip": 3437,
       "payloadSha256": "bab06befc997b17ccd24c45c9761a3a5853659df358cdbe89fbdbfb13080e79b",
-      "graphDigest": "104ca029ec028732244f59266c3e93106fcae041e3d99690a0abf934baf5d1f9"
+      "graphDigest": "72abb317c10acd93c2b21f83a8eef32b7f7432fd161f8b0c7084b9b55741bccd"
     },
     {
-      "name": "view.bc308feb.js",
-      "path": "view.bc308feb.js.txt",
+      "name": "view.dd4f5d2c.js",
+      "path": "view.dd4f5d2c.js.txt",
       "type": "text/javascript; charset=utf-8",
-      "raw": 88850,
-      "gzip": 29782,
-      "payloadSha256": "a19aa7394597b4bad5a44d6051bef9697701d0b5c3d90f8cedec05680d398625",
-      "graphDigest": "104ca029ec028732244f59266c3e93106fcae041e3d99690a0abf934baf5d1f9"
+      "raw": 89965,
+      "gzip": 30028,
+      "payloadSha256": "77138de1c4b1bd2a39a0e2390ae1d44fe09860277184c98d9d22f4bdcd7c1bf4",
+      "graphDigest": "72abb317c10acd93c2b21f83a8eef32b7f7432fd161f8b0c7084b9b55741bccd"
     },
     {
-      "name": "page.05b0b63a.css",
-      "path": "page.05b0b63a.css.txt",
+      "name": "page.2cb7cd00.css",
+      "path": "page.2cb7cd00.css.txt",
       "type": "text/css; charset=utf-8",
-      "raw": 72469,
-      "gzip": 11080,
-      "payloadSha256": "4385ce2b3a8de83ef87e005bdcb99468e85ddfe09eeb35c4a92f18b1fcdd964b",
-      "graphDigest": "e70aa86ff723eaad94d5426003f1611cd92715aca2eebbbff198425fd42a5f84"
+      "raw": 72584,
+      "gzip": 11091,
+      "payloadSha256": "94c699087a94326148b3419b0db6c491518a8c173e1604de2ce0cd56c9c1df86",
+      "graphDigest": "d6d5d5d8fe494acdbd71e35bf9467cab06dec891aac994a72b216d69c817cd43"
     },
     {
-      "name": "page.2f0c3328.js",
-      "path": "page.2f0c3328.js.txt",
+      "name": "page.cc909680.js",
+      "path": "page.cc909680.js.txt",
       "type": "text/javascript; charset=utf-8",
-      "raw": 201189,
-      "gzip": 62214,
-      "payloadSha256": "18412001fd3183142169a9999750e0444989b603c647bde76ae952a502c81fdd",
-      "graphDigest": "e70aa86ff723eaad94d5426003f1611cd92715aca2eebbbff198425fd42a5f84"
+      "raw": 204640,
+      "gzip": 63054,
+      "payloadSha256": "30c671bd73396bfe8ac263de62666868c755befe87c5b2bf1fe569c04ef591d7",
+      "graphDigest": "d6d5d5d8fe494acdbd71e35bf9467cab06dec891aac994a72b216d69c817cd43"
     },
     {
       "name": "ibm-plex-sans-kr-0-400-normal.c61d2369.woff2",
@@ -6762,8 +6762,8 @@
       "payloadSha256": "0856e28ca1e42c7247c5edeaf006d5385f46f7d4b10af881e20593174308a33d"
     }
   ],
-  "totalRaw": 27536892,
-  "totalGzip": 20091540,
+  "totalRaw": 27541573,
+  "totalGzip": 20092637,
   "inputs": {
     "excalidraw": {
       "node_modules/react/cjs/react.production.min.js": {
@@ -28095,8 +28095,8 @@
     },
     "view": {
       "nexus/ui/state.js": {
-        "bytes": 6375,
-        "sha256": "308c2f4e89820fcc786c1be9eb62ab63a48c1938a42b8f10340fabcc0c1dabd1"
+        "bytes": 6605,
+        "sha256": "24c87ac6b3f7252686f2c9a6905038cf8d9d8d1d4f8b892a013c070de569f896"
       },
       "nexus/src/layout.js": {
         "bytes": 13876,
@@ -28107,8 +28107,8 @@
         "sha256": "b7f45c2ff5649466d4e70fa7a076956d69443da550bf5a2a089cdd7d5573a680"
       },
       "nexus/ui/messages.js": {
-        "bytes": 37498,
-        "sha256": "c5e1c8cee795afdaed688292ee7b4ca63861de92c512daeeb1e38d3f0a176318"
+        "bytes": 38446,
+        "sha256": "135764151d75a373eec144033c9db1f83a4c41f9b760e15075ba200a519b8434"
       },
       "nexus/src/draw/palette.js": {
         "bytes": 1031,
@@ -28161,8 +28161,8 @@
         "sha256": "b611aa3687669a79bcbf5d3376d4afa8947d6629fd48fd6fdb237ee53d5f6b20"
       },
       "nexus/ui/messages.js": {
-        "bytes": 37498,
-        "sha256": "c5e1c8cee795afdaed688292ee7b4ca63861de92c512daeeb1e38d3f0a176318"
+        "bytes": 38446,
+        "sha256": "135764151d75a373eec144033c9db1f83a4c41f9b760e15075ba200a519b8434"
       },
       "nexus/src/draw/words.js": {
         "bytes": 2329,
@@ -28205,8 +28205,8 @@
         "sha256": "3e9cbde097e155e81e2cf292ab159d5c7226d8dff4ca5a435df202cbc1c3da59"
       },
       "nexus/src/draw/stage.js": {
-        "bytes": 28287,
-        "sha256": "0301f5a471a69cd6702c08a67822211fdb0008310c0417ccb46128f277b430eb"
+        "bytes": 29872,
+        "sha256": "e50ccdfd6a6a1fe385a4ac2d337baae81f8728ecef85e2d05621e587895daa24"
       },
       "nexus/src/layout.js": {
         "bytes": 13876,
@@ -28225,8 +28225,8 @@
         "sha256": "750d2f3284174c579d57f4b42f71fc90a899d48e09f61d32c20e9929e12173f6"
       },
       "nexus/ui/state.js": {
-        "bytes": 6375,
-        "sha256": "308c2f4e89820fcc786c1be9eb62ab63a48c1938a42b8f10340fabcc0c1dabd1"
+        "bytes": 6605,
+        "sha256": "24c87ac6b3f7252686f2c9a6905038cf8d9d8d1d4f8b892a013c070de569f896"
       },
       "nexus/ui/reconcile.js": {
         "bytes": 2633,
@@ -28269,16 +28269,16 @@
         "sha256": "ca569bef3f487b174263f1e95eaf6aad41f33b7a2a5e7ecd27bc53569590e2f0"
       },
       "nexus/ui/stage.js": {
-        "bytes": 41250,
-        "sha256": "262e648326e7bb36fe10c2f4db7fdb69c5ffd4a3cc739017f4a69a0fcefaf78d"
+        "bytes": 44771,
+        "sha256": "557b839587279c563ff0c1ff4530d42c11f303bca0de50ca46be357c85ff3b68"
       },
       "nexus/ui/tokens.css": {
         "bytes": 3979,
         "sha256": "447a29636db00122b420d99b5b99c6ca516b6384a6d091785621df80f91ee603"
       },
       "nexus/ui/page.css": {
-        "bytes": 80750,
-        "sha256": "c991d56d1795b184d979d9b70f4d9a305f2b337be311da51742929b3bbecc18c"
+        "bytes": 80984,
+        "sha256": "bb33fa49b98ec9b1516c36973a15fb106fee420e96e9651bd2e52f802b3baebb"
       },
       "nexus/ui/page.js": {
         "bytes": 3162,

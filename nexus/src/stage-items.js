@@ -174,6 +174,8 @@ export function stageData({ held, snapshot, record, project, part, stage, query,
     project: { name: held.name, title: typeof snapshot.project?.title === "string" ? cut(snapshot.project.title, 120) : null,
       repository: repositoryOf(repo), commit: held.default_commit || null,
       generated_at: held.generated_at, pushed_at: held.received_at,
+      // The snapshot's revision, which a pass names where the snapshot names no commit (SPEC-194).
+      revision: held.revision,
       // The head's last read (SPEC-188): read is null for a project without a space.
       space: Boolean(read), read_at: read?.read_at ?? null, unread_since: read?.unread_since ?? null, parts },
     part, stage, head, record,

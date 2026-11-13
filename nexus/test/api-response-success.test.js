@@ -94,7 +94,7 @@ try {
  await call('report edit needs user','POST',space+'/edits/'+edit.id+'/report',{kind:'agent',body:{event:'needs-user'}});
  await call('dismiss edit','POST',space+'/edits/'+edit.id+'/dismiss');
  const dismissed=await call('already dismissed edit','POST',space+'/edits/'+edit.id+'/dismiss');assert.equal(dismissed.changed,false);
- const checkpoint=await call('pass checkpoint','POST',space+'/checkpoints',{body:{part:'nexus',stage:'05-erd'},status:201});
+ const checkpoint=await call('pass checkpoint','POST',space+'/checkpoints',{body:{part:'nexus',stage:'05-erd',commit:snapshot.repos['.'].default.commit},status:201});
  await call('get passed checkpoint','GET',space+'/checkpoints/'+checkpoint.id);
  await call('report checkpoint opened','POST',space+'/checkpoints/'+checkpoint.id+'/report',{kind:'agent',body:{event:'opened',pull_request:'https://example.com/repo/pull/2'}});
  await call('report checkpoint closed','POST',space+'/checkpoints/'+checkpoint.id+'/report',{kind:'agent',body:{event:'closed',pull_request:'https://example.com/repo/pull/2'}});

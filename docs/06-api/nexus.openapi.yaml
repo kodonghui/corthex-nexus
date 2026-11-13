@@ -1404,19 +1404,38 @@ paths:
     post:
       operationId: passCheckpoint
       tags: [Stage progress]
-      summary: Pass a stage's checkpoint in NEXUS
+      summary: Pass a stage's checkpoint in NEXUS, on what the user saw
       description: >-
-        The user passes one part's stage checkpoint from its overview, with their own words if
-        they give some. The server records it on the default branch commit of the stored snapshot
-        and lists it in the agent to-do until a stored stage record names it. With it the server
-        records the kind of browser and device that it reads from the request's User-Agent and
-        client hints, in a fixed vocabulary and never as text, and driven as the page sent it
-        (SPEC-195); none of the three refuses a pass.
+        The user passes one part's stage checkpoint, from the stage's record (SPEC-139, SPEC-147),
+        with their own words if they give some, and the page sends with the pass what it showed
+        (SPEC-194): commit, the default branch commit of the project's snapshot as the page's data
+        gave it, or revision, the snapshot's revision, where that snapshot names no commit; and,
+        where the pass answers the stage's checkpoint request, the request's comment with entry,
+        the place of its last entry, 0 for the comment's own text and otherwise its reply's seq. A
+        pass names one of commit and revision, never both and never neither, and comment and
+        entry together, or else 400 by the field: a pass without either, as from a page loaded
+        before the release, is 400 by commit, whose detail says to load the page again. The
+        server takes the pass only while what it names holds. The stored snapshot has that
+        commit, or that revision where it names no commit, or else 409 snapshot_changed, with
+        held_commit or revision. The comment is open, on the pass's part and stage, asks for the
+        checkpoint and has that entry as its last, and a pass that names no request finds no open
+        request on the part's stage, or else 409 request_changed, with the stage's open request
+        and its last entry in comment and entry when there is one. A comment that the space does
+        not hold is 404. A pass with a request also adds, in the same transaction, the user's reply
+        that settles the comment, in the user's words or else those of the pass's button in the
+        server's language, so that the comment waits for the agent's record (SPEC-196, SPEC-140);
+        the reply's limits can refuse the pass. The server records the checkpoint with the commit
+        or the revision, the comment and the entry, which hold what was approved, and lists it in
+        the agent to-do until a stored stage record names it. With it the server records the kind
+        of browser and device that it reads from the request's User-Agent and client hints, in a
+        fixed vocabulary and never as text, and driven as the page sent it (SPEC-195); none of the
+        three refuses a pass. A write ID sent again gets the first answer, even when the commit
+        changed in between. In phase ②, a workshop's pass keeps its own binding, the board version.
       security:
         - accessUser: []
       x-corthex:
         id: API-128
-        spec: [SPEC-113, SPEC-116, SPEC-139, SPEC-195]
+        spec: [SPEC-113, SPEC-116, SPEC-139, SPEC-140, SPEC-194, SPEC-195, SPEC-196]
         status: active
         omit:
           "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
@@ -1426,11 +1445,15 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/NewCheckpoint"}
             examples:
-              with-words: {value: {part: nexus, stage: 04-functional-spec, words: "The rows as drafted, with the four points as recommended.", driven: false}}
-              without-words: {value: {part: nexus, stage: 03-user-flow, driven: false}}
-              from-an-older-page:
-                summary: A pass from a page that does not say whether software drives the browser
-                value: {part: nexus, stage: 03-user-flow}
+              on-a-request:
+                summary: A pass that answers the stage's checkpoint request, from the first page or the stage's record
+                value: {part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, comment: nc_7d1g4k8n2q5t, entry: 0, driven: false}
+              with-words-and-no-request:
+                summary: A pass from the stage's record when the agent did not ask
+                value: {part: nexus, stage: 03-user-flow, words: "The flows as drafted.", commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, driven: false}
+              without-a-commit:
+                summary: A pass on a snapshot that names no commit, from a page that cannot tell whether software drives the browser
+                value: {part: "", stage: 02-prd, words: "The requirements as drafted.", revision: 3}
       responses:
         "201":
           description: Passed
@@ -1438,25 +1461,46 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/Checkpoint"}
               examples:
-                passed: {$ref: "#/components/examples/checkpoint_passed"}
-        "400": {$ref: "#/components/responses/InvalidCheckpoint"}
+                passed-on-a-request: {$ref: "#/components/examples/checkpoint_passed_on_request"}
+                passed-without-a-request: {$ref: "#/components/examples/checkpoint_passed_without_request"}
+        "400":
+          description: The body or the write ID is not in its required form, or the pass does not name what the page showed
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/Problem"}
+              examples:
+                invalid-body: {$ref: "#/components/examples/invalid_request_body"}
+                missing-write-id: {$ref: "#/components/examples/missing_write_id"}
+                neither-commit-nor-revision: {$ref: "#/components/examples/pass_without_what_was_seen"}
+                commit-and-revision: {$ref: "#/components/examples/pass_with_commit_and_revision"}
+                half-a-request: {$ref: "#/components/examples/pass_with_half_a_request"}
         "403": {$ref: "#/components/responses/UserWriteRefused"}
         "404":
-          description: No such project, space or part
+          description: No such project, space or part, or no such comment in the space
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/Problem"}
               examples:
                 part-not-found: {$ref: "#/components/examples/part_not_found"}
                 space-not-found: {$ref: "#/components/examples/space_not_found"}
+                comment-not-found: {$ref: "#/components/examples/comment_not_found"}
         "409":
           description: >-
-            The write ID was taken by another request. A checkpoint passed again with another
-            write ID is a second checkpoint, so nothing else clashes.
+            What the page showed has changed, the commit or the checkpoint request; the reply
+            that settles the request finds its comment or the space at a limit; or the write ID
+            was taken by another request. A checkpoint passed again with another write ID is a
+            second checkpoint.
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/Problem"}
               examples:
+                snapshot-changed: {$ref: "#/components/examples/snapshot_changed"}
+                snapshot-changed-without-commit: {$ref: "#/components/examples/snapshot_changed_without_commit"}
+                request-changed: {$ref: "#/components/examples/request_changed"}
+                request-not-named: {$ref: "#/components/examples/request_not_named"}
+                request-no-longer-open: {$ref: "#/components/examples/request_no_longer_open"}
+                reply-limit: {$ref: "#/components/examples/reply_limit"}
+                space-full: {$ref: "#/components/examples/space_full"}
                 write-id-reused: {$ref: "#/components/examples/write_id_reused"}
         "413": {$ref: "#/components/responses/CheckpointTooLarge"}
         "415": {$ref: "#/components/responses/NeedsJson"}
@@ -1521,12 +1565,12 @@ paths:
               examples:
                 withdrawn:
                   value:
-                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: withdrawn, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: "2026-11-03T09:20:00.000Z", pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null, browser: null, device: null, driven: null}
+                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: withdrawn, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: "2026-11-03T09:20:00.000Z", pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null, comment: null, revision: null, entry: null, browser: null, device: null, driven: null}
                     changed: true
                 already-withdrawn:
                   summary: Sent again from a second tab after the first withdrawal
                   value:
-                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: withdrawn, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: "2026-11-03T09:20:00.000Z", pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null, browser: null, device: null, driven: null}
+                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: withdrawn, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: "2026-11-03T09:20:00.000Z", pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null, comment: null, revision: null, entry: null, browser: null, device: null, driven: null}
                     changed: false
         "400": {$ref: "#/components/responses/InvalidUserAction"}
         "403": {$ref: "#/components/responses/UserWriteRefused"}
@@ -1581,7 +1625,7 @@ paths:
               examples:
                 opened:
                   value:
-                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null, browser: null, device: null, driven: null}
+                    checkpoint: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: "https://github.com/kodonghui/corthex/pull/125", pr_state: open, recorded_commit: null, comment: null, revision: null, entry: null, browser: null, device: null, driven: null}
                     changed: true
         "400": {$ref: "#/components/responses/InvalidReport"}
         "403": {$ref: "#/components/responses/AgentWriteRefused"}
@@ -2979,7 +3023,7 @@ components:
         proposal: {id: np_2b5e8g1j4m7p, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, items: [TBL-111], reason: "The comment asks for the glossary's word.", change: "Rename the table claims to entry_claims.", source_text: "CREATE TABLE entry_claims (", comment: nc_8k1n4q7s0v3y, discrepancy: null, state: accepted, made_at: "2026-11-03T06:40:00.000Z", closed_at: "2026-11-03T07:30:41.882Z", edit: ne_9c3f6h2k5n8q}
     checkpoint_passed:
       summary: A checkpoint passed in NEXUS, waiting for its record
-      value: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, browser: chrome, device: desktop, driven: false}
+      value: {id: nk_7f3k2m9q4x1v, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: "The rows as drafted, with the four points as recommended.", state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: null, revision: null, entry: null, browser: chrome, device: desktop, driven: false}
     todo:
       summary: The read's recorded time, with a comment, a reflection and two checkpoints that wait, one of them passed before the revision
       value:
@@ -3067,7 +3111,7 @@ components:
         comments: {total: 0, entries: []}
         reflections: {total: 0, entries: []}
         checkpoints:
-          - {id: nk_7f3k2m9q4x1v, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, browser: null, device: null, driven: null}
+          - {id: nk_7f3k2m9q4x1v, part: nexus, stage: 05-erd, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-03T09:00:00.000Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: null, revision: null, entry: null, browser: null, device: null, driven: null}
         warnings: []
         not_opened: 0
     snapshot_01:
@@ -3457,7 +3501,7 @@ components:
       value:
         comment: {id: nc_7d1g4k8n2q5t, state: open, closed_as: null, waits: agent, asks: null, settled: true, dismissed: false, last_at: "2026-11-08T08:31:12.204Z"}
         reply: {seq: 2, author: user, text: As recommended, settles: true, made_at: "2026-11-08T08:31:12.204Z", look_first: null}
-        checkpoint: {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: As recommended, state: passed, passed_at: "2026-11-08T08:31:12.204Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, browser: safari, device: phone, driven: null}
+        checkpoint: {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: As recommended, state: passed, passed_at: "2026-11-08T08:31:12.204Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, revision: null, entry: null, browser: safari, device: phone, driven: null}
         changed: true
 
     cross_site_export:
@@ -3601,8 +3645,8 @@ components:
     checkpoint_request_left:
       summary: The agent's checkpoint request for a stage, which waits for the user
       value: {id: nc_7d1g4k8n2q5t, part: nexus, stage: 04-functional-spec, item: "", quote: null, discrepancy: null, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, author: agent, text: "Stage 04's rows are ready for their checkpoint.\n- 24 new rows and 20 changed ones, for the loop with the agent.\n- A pass names what you saw and is refused when that changed.\nLook at SPEC-139 first: it is the pass itself.", state: open, closed_as: null, waits: user, asks: checkpoint, settled: false, dismissed: false, made_at: "2026-11-11T07:10:00.000Z", last_at: "2026-11-11T07:10:00.000Z", look_first: SPEC-139}
-    checkpoint_passed_planned:
-      summary: "The planned form: a checkpoint passed on a request, with what the user saw and the kind of browser and device"
+    checkpoint_passed_on_request:
+      summary: A checkpoint passed on a request, with what the user saw and the kind of browser and device
       value: {id: nk_5q8t1w4z7c2f, part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, words: null, state: passed, passed_at: "2026-11-11T08:02:11.300Z", withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, comment: nc_7d1g4k8n2q5t, revision: null, entry: 0, browser: safari, device: phone, driven: false}
     checkpoint_passed_without_request:
       summary: A checkpoint passed in the stage's record with no request, on a snapshot that names no commit, from a page that reported nothing of software driving the browser
@@ -3700,7 +3744,7 @@ components:
 
     ErrorCode:
       type: string
-      enum: [invalid_request, invalid_snapshot, clock_ahead, unknown_item, access_missing, access_other_app, cross_site, user_only, agent_only, no_kind, not_found, project_not_found, space_not_found, part_not_found, picture_not_found, comment_not_found, discrepancy_not_found, proposal_not_found, edit_not_found, checkpoint_not_found, entry_not_found, item_not_found, method_not_allowed, older_snapshot, commit_not_replaced, too_many_projects, repository_mismatch, comment_limit, reply_limit, proposal_limit, reflection_limit, space_full, comment_closed, proposal_not_open, edit_state, pull_request_reported, pull_request_mismatch, claimed, entry_closed, checkpoint_recorded, checkpoint_withdrawn, checkpoint_state, checkpoint_requested, not_recommended, write_id_reused, snapshot_too_large, body_too_large, text_too_long, json_required, internal]
+      enum: [invalid_request, invalid_snapshot, clock_ahead, unknown_item, access_missing, access_other_app, cross_site, user_only, agent_only, no_kind, not_found, project_not_found, space_not_found, part_not_found, picture_not_found, comment_not_found, discrepancy_not_found, proposal_not_found, edit_not_found, checkpoint_not_found, entry_not_found, item_not_found, method_not_allowed, older_snapshot, commit_not_replaced, too_many_projects, repository_mismatch, comment_limit, reply_limit, proposal_limit, reflection_limit, space_full, comment_closed, proposal_not_open, edit_state, pull_request_reported, pull_request_mismatch, claimed, entry_closed, checkpoint_recorded, checkpoint_withdrawn, checkpoint_state, checkpoint_requested, snapshot_changed, request_changed, not_recommended, write_id_reused, snapshot_too_large, body_too_large, text_too_long, json_required, internal]
     Problem:
       description: >-
         Problem Details (RFC 9457), sent as application/problem+json. NEXUS sends no type, which
@@ -3734,6 +3778,15 @@ components:
         why: {type: string, enum: [not-drawn, size, other-repository]}
         needs: {$ref: "#/components/schemas/Author"}
         comment: {$ref: "#/components/schemas/CommentId"}
+        entry:
+          description: The place of the stage's open checkpoint request's last entry, 0 for the comment's own text and otherwise its reply's seq (request_changed)
+          type: integer
+          minimum: 0
+          maximum: 200
+        revision:
+          description: The stored snapshot's revision, where it names no commit (snapshot_changed)
+          type: integer
+          minimum: 1
 
     Item:
       type: object
@@ -4503,7 +4556,7 @@ components:
         claim: {anyOf: [{$ref: "#/components/schemas/ClaimMark"}, {type: "null"}]}
     Checkpoint:
       type: object
-      required: [id, part, stage, commit, words, state, passed_at, withdrawn_at, pull_request, pr_state, recorded_commit, browser, device, driven]
+      required: [id, part, stage, commit, words, state, passed_at, withdrawn_at, pull_request, pr_state, recorded_commit, comment, revision, entry, browser, device, driven]
       properties:
         id: {$ref: "#/components/schemas/CheckpointId"}
         part: {$ref: "#/components/schemas/PartName"}
@@ -4528,7 +4581,6 @@ components:
             The stored snapshot's revision that the pass named in place of a commit, for a
             project whose snapshot names none (SPEC-194); null when the pass named a commit,
             and for a checkpoint passed before the revision
-          x-corthex: {status: planned, decision: D17, spec: [SPEC-194]}
           type: [integer, "null"]
           minimum: 1
         entry:
@@ -4537,7 +4589,6 @@ components:
             own text and otherwise its reply's seq, so that comment and entry hold what was
             approved (SPEC-194); null for a pass without a request, and for a checkpoint
             passed before the revision
-          x-corthex: {status: planned, decision: D17, spec: [SPEC-194]}
           type: [integer, "null"]
           minimum: 0
           maximum: 200
@@ -5060,7 +5111,7 @@ components:
     StageProject:
       description: The project of a stage, as its card names it, with its parts in the settings' order, or "" for the project as a whole
       type: object
-      required: [name, title, repository, commit, generated_at, pushed_at, space, read_at, unread_since, parts]
+      required: [name, title, repository, commit, revision, generated_at, pushed_at, space, read_at, unread_since, parts]
       additionalProperties: false
       properties:
         name: {$ref: "#/components/schemas/ProjectName"}
@@ -5074,7 +5125,6 @@ components:
           description: >-
             The stored snapshot's revision, which a pass from the stage's record names where
             the snapshot names no commit (SPEC-194)
-          x-corthex: {status: planned, decision: D17, spec: [SPEC-194]}
           type: integer
           minimum: 1
         space:
@@ -5531,10 +5581,15 @@ components:
         changed: {type: boolean}
     NewCheckpoint:
       description: >-
-        A pass. driven is what the page read from navigator.webdriver, left out when the page
-        cannot tell, as a page of before the design revision does; the server records it as
-        sent, with the kind of browser and device that it reads from the request, and refuses
-        no pass for any of them (SPEC-195)
+        A pass, with what the page showed (SPEC-194). It names commit, the default branch commit
+        of the project's snapshot as the page's data gave it, or revision, the snapshot's revision,
+        where that snapshot names no commit: one of the two, never both and never neither. A pass
+        that answers a checkpoint request names its comment and entry together: the place of the
+        request's last entry as the page showed it, 0 for the comment's own text and otherwise its
+        reply's seq. driven is what the page read from navigator.webdriver, left out when the page
+        cannot tell; the server records it as sent, with the kind of browser and device that it
+        reads from the request, and refuses no pass for any of them (SPEC-195). The server checks
+        the rules that this schema does not state in code and answers 400 by the field.
       type: object
       required: [part, stage]
       additionalProperties: false
@@ -5542,6 +5597,10 @@ components:
         part: {$ref: "#/components/schemas/PartName"}
         stage: {$ref: "#/components/schemas/StageKey"}
         words: {type: string, minLength: 1, maxLength: 2000, pattern: '\S'}
+        commit: {$ref: "#/components/schemas/Commit"}
+        revision: {type: integer, minimum: 1}
+        comment: {$ref: "#/components/schemas/CommentId"}
+        entry: {type: integer, minimum: 0, maximum: 200}
         driven: {type: boolean}
     CheckpointReport:
       type: object
@@ -5750,185 +5809,7 @@ components:
             comments: {type: integer, minimum: 0}
             reflections: {type: integer, minimum: 0}
 
-    PlannedNewCheckpoint:
-      description: >-
-        The planned body of passCheckpoint (SPEC-194 to SPEC-196): NewCheckpoint, which takes
-        driven since TASK-299, with what the page showed, under D17 of stage 02, decided on
-        2026-11-12.
-        A pass names commit, the default branch commit of the project's snapshot as the page's
-        data gave it, or revision, the snapshot's revision, where that snapshot names no commit:
-        one of the two, never both and never neither. A pass that answers a checkpoint request
-        names its comment and entry together: the place of the request's last entry as the page
-        showed it, 0 for the comment's own text and otherwise its reply's seq. driven is what
-        the page read from navigator.webdriver, left out when the page cannot tell. The server
-        checks these rules in code and answers 400 by the field. When built, it replaces
-        NewCheckpoint.
-      type: object
-      required: [part, stage]
-      additionalProperties: false
-      properties:
-        part: {$ref: "#/components/schemas/PartName"}
-        stage: {$ref: "#/components/schemas/StageKey"}
-        words: {type: string, minLength: 1, maxLength: 2000, pattern: '\S'}
-        commit: {$ref: "#/components/schemas/Commit"}
-        revision: {type: integer, minimum: 1}
-        comment: {$ref: "#/components/schemas/CommentId"}
-        entry: {type: integer, minimum: 0, maximum: 200}
-        driven: {type: boolean}
-    PlannedErrorCode:
-      description: >-
-        ErrorCode with the two codes that the design revision of 2026-11-11 plans and no release
-        holds yet (planned_errors under x-corthex). Each joins ErrorCode, and its entry errors, when
-        the first form that answers it is built, as checkpoint_requested did with TASK-297, and
-        this schema goes with the last.
-      anyOf:
-        - $ref: "#/components/schemas/ErrorCode"
-        - type: string
-          enum: [snapshot_changed, request_changed]
-    PlannedProblem:
-      description: >-
-        Problem with the planned codes and the two members that they add beside comment, which
-        Problem holds since TASK-297: entry, the place of the stage's open request's last entry,
-        and revision, the stored snapshot's revision where it names no commit. The planned forms
-        use it for the answers that can hold them. When built, the members join Problem and this
-        schema goes.
-      type: object
-      required: [title, status, detail, code, traceId, error]
-      additionalProperties: false
-      properties:
-        type: {type: string, format: uri-reference}
-        title: {type: string, maxLength: 120}
-        status: {type: integer, minimum: 400, maximum: 599}
-        detail: {type: string, maxLength: 300}
-        instance: {type: string, format: uri-reference}
-        code: {$ref: "#/components/schemas/PlannedErrorCode"}
-        traceId:
-          description: As in Problem
-          type: string
-          pattern: '^[0-9a-f]{16}(?:-[A-Z]{3})?$'
-        error: {type: string, maxLength: 300}
-        field: {type: string, maxLength: 120}
-        limit: {type: integer, minimum: 1}
-        items: {type: array, minItems: 1, maxItems: 50, items: {$ref: "#/components/schemas/TraceId"}}
-        held_commit: {$ref: "#/components/schemas/Commit"}
-        stored_at: {$ref: "#/components/schemas/ZonedTime"}
-        bound: {$ref: "#/components/schemas/Link"}
-        state: {type: string, enum: [accepted, dismissed, withdrawn, pending, in-review, needs-user, closed]}
-        pull_request: {$ref: "#/components/schemas/Link"}
-        ends_at: {$ref: "#/components/schemas/Time"}
-        why: {type: string, enum: [not-drawn, size, other-repository]}
-        needs: {$ref: "#/components/schemas/Author"}
-        comment: {$ref: "#/components/schemas/CommentId"}
-        entry: {type: integer, minimum: 0, maximum: 200}
-        revision: {type: integer, minimum: 1}
-
   pathItems:
-    passCheckpoint:
-      parameters:
-        - $ref: "#/components/parameters/Project"
-        - $ref: "#/components/parameters/IdempotencyKey"
-      post:
-        tags: [Stage progress]
-        summary: Pass a stage's checkpoint in NEXUS, on what the user saw
-        description: >-
-          The planned form of passCheckpoint, under D17 of stage 02, decided on 2026-11-12;
-          driven and the kind of browser and device did not depend on D17 (SPEC-195). The page
-          sends with the pass what it showed (SPEC-194): commit, the default branch commit of the
-          project's snapshot as the page's data gave it, or revision, the snapshot's revision,
-          where that snapshot names no commit; and, where the pass answers a checkpoint request,
-          the request's comment with entry, the place of its last entry, 0 for the comment's own
-          text and otherwise its reply's seq. The server takes the pass only while these hold.
-          The stored snapshot has that commit, or that revision where it names no commit, or else
-          409 snapshot_changed, with held_commit or revision. The comment is open, on the pass's
-          part and stage, asks for the checkpoint and has that entry as its last, and a pass that
-          names no request finds no open request on the part's stage, or else 409
-          request_changed, with the stage's open request and its last entry in comment and entry
-          when there is one. A comment that the space does not hold is 404. A pass with a request
-          also adds, in the same transaction, the user's reply that settles the comment, in the
-          user's words or else those of the pass's button in the server's language, so that the
-          comment waits for the agent's record (SPEC-196); the reply's limits can refuse the
-          pass. The server records the checkpoint with the commit or the revision, the comment
-          and the entry, with the kind of browser and device that it reads from the request's
-          User-Agent and client hints, in a fixed vocabulary and never as text, and with driven
-          as the page sent it (SPEC-195); none of the three refuses a pass. A write ID sent again
-          gets the first answer, even when the commit changed in between. In phase ②, a
-          workshop's pass keeps its own binding, the board version.
-        security:
-          - accessUser: []
-        x-corthex:
-          id: API-128
-          replaces: passCheckpoint
-          spec: [SPEC-113, SPEC-116, SPEC-139, SPEC-194, SPEC-195, SPEC-196]
-          status: planned
-          decision: D17
-          omit:
-            "401": answered by Cloudflare Access before the server sees the request (Sign-in in nexus.md)
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema: {$ref: "#/components/schemas/PlannedNewCheckpoint"}
-              examples:
-                on-a-request:
-                  summary: A pass that answers the stage's checkpoint request, from the first page or the stage's record
-                  value: {part: nexus, stage: 04-functional-spec, commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, comment: nc_7d1g4k8n2q5t, entry: 0, driven: false}
-                with-words-and-no-request:
-                  summary: A pass from the stage's record when the agent did not ask
-                  value: {part: nexus, stage: 03-user-flow, words: "The flows as drafted.", commit: 3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a, driven: false}
-                without-a-commit:
-                  summary: A pass on a snapshot that names no commit, from a page that cannot tell whether software drives the browser
-                  value: {part: "", stage: 02-prd, words: "The requirements as drafted.", revision: 3}
-        responses:
-          "201":
-            description: Passed
-            content:
-              application/json:
-                schema: {$ref: "#/components/schemas/Checkpoint"}
-                examples:
-                  passed-on-a-request: {$ref: "#/components/examples/checkpoint_passed_planned"}
-                  passed-without-a-request: {$ref: "#/components/examples/checkpoint_passed_without_request"}
-          "400":
-            description: The body or the write ID is not in its required form, or the pass does not name what the page showed
-            content:
-              application/problem+json:
-                schema: {$ref: "#/components/schemas/Problem"}
-                examples:
-                  invalid-body: {$ref: "#/components/examples/invalid_request_body"}
-                  missing-write-id: {$ref: "#/components/examples/missing_write_id"}
-                  neither-commit-nor-revision: {$ref: "#/components/examples/pass_without_what_was_seen"}
-                  commit-and-revision: {$ref: "#/components/examples/pass_with_commit_and_revision"}
-                  half-a-request: {$ref: "#/components/examples/pass_with_half_a_request"}
-          "403": {$ref: "#/components/responses/UserWriteRefused"}
-          "404":
-            description: No such project, space or part, or no such comment in the space
-            content:
-              application/problem+json:
-                schema: {$ref: "#/components/schemas/Problem"}
-                examples:
-                  part-not-found: {$ref: "#/components/examples/part_not_found"}
-                  space-not-found: {$ref: "#/components/examples/space_not_found"}
-                  comment-not-found: {$ref: "#/components/examples/comment_not_found"}
-          "409":
-            description: >-
-              What the page showed has changed, the commit or the checkpoint request; the reply
-              that settles the request finds its comment or the space at a limit; or the write ID
-              was taken by another request. A checkpoint passed again with another write ID is a
-              second checkpoint.
-            content:
-              application/problem+json:
-                schema: {$ref: "#/components/schemas/PlannedProblem"}
-                examples:
-                  snapshot-changed: {$ref: "#/components/examples/snapshot_changed"}
-                  snapshot-changed-without-commit: {$ref: "#/components/examples/snapshot_changed_without_commit"}
-                  request-changed: {$ref: "#/components/examples/request_changed"}
-                  request-not-named: {$ref: "#/components/examples/request_not_named"}
-                  request-no-longer-open: {$ref: "#/components/examples/request_no_longer_open"}
-                  reply-limit: {$ref: "#/components/examples/reply_limit"}
-                  space-full: {$ref: "#/components/examples/space_full"}
-                  write-id-reused: {$ref: "#/components/examples/write_id_reused"}
-          "413": {$ref: "#/components/responses/CheckpointTooLarge"}
-          "415": {$ref: "#/components/responses/NeedsJson"}
-          default: {$ref: "#/components/responses/Unexpected"}
     takeRecommendation:
       parameters:
         - $ref: "#/components/parameters/Project"
@@ -6082,6 +5963,8 @@ components:
       checkpoint_withdrawn: {status: 409, meaning: "the checkpoint was withdrawn, so no new record pull request may write it", message: "This checkpoint was withdrawn", client: "the hub reports it, and the agent writes no record"}
       checkpoint_state: {status: 409, meaning: "the checkpoint has no reported open record pull request for merged or closed, or is already recorded for opened", message: "Read the checkpoint's current record state before reporting", client: "the hub reports it, and the agent reads the checkpoint again"}
       checkpoint_requested: {status: 409, meaning: "the part's stage has an open checkpoint request already; comment names it", message: "This stage has an open checkpoint request", client: "the hub sends the request as a reply on the named comment; the view never sends a request"}
+      snapshot_changed: {status: 409, meaning: "the stored snapshot has another commit than the pass named, or another revision where it names no commit; held_commit names the commit, or revision the revision", message: "The project now shows another commit. Look again before you pass", client: "the view keeps the user's words, reads the stage again and shows it as it is now"}
+      request_changed: {status: 409, meaning: "the checkpoint request that the pass named is closed, has a newer last entry, no longer asks for the checkpoint or is on another part or stage, or the stage has an open request that the pass did not name; comment and entry name the stage's open request and its last entry, when there is one", message: "The checkpoint request changed. Read it again before you pass", client: "the view keeps the user's words and shows the request as it is now"}
       not_recommended: {status: 409, meaning: "the comment no longer waits for the user, or its last entry asks for no recommendation or checkpoint to take", message: "This no longer waits for your answer", client: "the view marks the entry as answered or closed meanwhile and reads my turn again"}
       write_id_reused: {status: 409, meaning: "the write ID was taken by another request", message: "This write could not be sent. Try again", client: "the view makes a new ID; the hub reports it as a fault of its own"}
       snapshot_too_large: {status: 413, meaning: "the snapshot is larger than 1 MiB", message: "The snapshot is larger than the server takes", client: "the hub reports it; its own limits keep snapshots smaller"}
@@ -6090,7 +5973,5 @@ components:
       json_required: {status: 415, meaning: "a body that is not sent as application/json", message: "This could not be sent", client: "the hub reports it as a fault of its own"}
       internal: {status: 500, meaning: "an error inside the server; its log holds only the kind of error and the trace ID", message: "Something went wrong. Try again", client: "the view keeps what it holds and offers to send again; the hub keeps the write in its outbox"}
     planned_errors:
-      snapshot_changed: {status: 409, meaning: "the stored snapshot has another commit than the pass named, or another revision where it names no commit; held_commit names the commit, or revision the revision", message: "The project now shows another commit. Look again before you pass", client: "the view keeps the user's words, reads the stage again and shows it as it is now"}
-      request_changed: {status: 409, meaning: "the checkpoint request that the pass named is closed, has a newer last entry, no longer asks for the checkpoint or is on another part or stage, or the stage has an open request that the pass did not name; comment and entry name the stage's open request and its last entry, when there is one", message: "The checkpoint request changed. Read it again before you pass", client: "the view keeps the user's words and shows the request as it is now"}
       not_recommended: {status: 409, meaning: "the comment no longer waits for the user, or its last entry asks for no recommendation to take; a checkpoint request is passed and not taken. Replaces the entry of errors when API-159's planned form is built", message: "This no longer waits for your answer", client: "the view marks the entry as answered or closed meanwhile and reads my turn again"}
       cross_site: {status: 403, meaning: "a browser sent a change, or asked for a project's export, from another site. Replaces the entry of errors when API-178 is built, and the code's title becomes A request from another site", message: "A request from another site is refused", client: "the view offers to open the page at the server's own address"}

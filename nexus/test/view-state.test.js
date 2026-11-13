@@ -19,6 +19,12 @@ test("an expired login and public errors never expose the server detail",async()
   await assert.rejects(client.call("GET","/api/view"),error=>error.code==="sign_in_expired");
   client=new ApiClient("https://nexus.example.com",{fetcher:async()=>Response.json({code:"comment_limit",detail:"untrusted private text",traceId:"fixture-trace",limit:2000},{status:409})});
   await assert.rejects(client.call("GET","/api/view"),error=>error instanceof NexusProblem&&error.code==="comment_limit"&&error.traceId==="fixture-trace"&&error.limit===2000&&!Object.hasOwn(error,"detail"));
+  // A pass refused by snapshot_changed keeps the commit that the project now shows (SPEC-194), only in its form.
+  const held="b".repeat(40);
+  client=new ApiClient("https://nexus.example.com",{fetcher:async()=>Response.json({code:"snapshot_changed",detail:"untrusted private text",traceId:"fixture-trace",held_commit:held},{status:409})});
+  await assert.rejects(client.call("GET","/api/view"),error=>error.code==="snapshot_changed"&&error.held_commit===held&&!Object.hasOwn(error,"detail"));
+  for(const other of["B".repeat(40),"b".repeat(39),"<b>x</b>",40])
+    await assert.rejects(new ApiClient("https://nexus.example.com",{fetcher:async()=>Response.json({code:"snapshot_changed",held_commit:other},{status:409})}).call("GET","/api/view"),error=>!Object.hasOwn(error,"held_commit"));
 });
 test("the deadline covers a stalled response body and a late result cannot become success",async()=>{
   const body=deferred();let signal;

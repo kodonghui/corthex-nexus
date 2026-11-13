@@ -76,7 +76,7 @@ test("API-158 gives the head, record and the part's 13 stages", async () => {
   const prd = (await call("GET", "/api/spaces/corthex/stages/nexus/02-prd")).data;
   // The space was never read and nothing waits for the agent (SPEC-188).
   assert.deepEqual(prd.project, { name: "corthex", title: "CORTHEX", repository: "https://github.com/kodonghui/corthex", commit: COMMIT,
-    generated_at: "2026-11-03T10:00:00+09:00", pushed_at: prd.project.pushed_at, space: true, read_at: null, unread_since: null, parts: ["memory", "nexus"] });
+    generated_at: "2026-11-03T10:00:00+09:00", pushed_at: prd.project.pushed_at, revision: 1, space: true, read_at: null, unread_since: null, parts: ["memory", "nexus"] });
   assert.match(prd.project.pushed_at, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/);
   assert.deepEqual([prd.part, prd.stage], ["nexus", "02-prd"]);
   // The last checkpoint of the part's record, the held commit and its time,
@@ -210,7 +210,7 @@ test("API-158 reads a project pushed only by a hub of 0.1, with no talk", async 
   assert.equal((await call("POST", "/api/snapshots", { body: legacy })).status, 200);
   const answer = (await call("GET", "/api/spaces/acme-shop/stages/_/02-prd")).data;
   assert.deepEqual(answer.project, { name: "acme-shop", title: "Acme Shop", repository: null, commit: null, generated_at: "2026-01-12T10:00:00+09:00", pushed_at: answer.project.pushed_at,
-    space: false, read_at: null, unread_since: null, parts: [""] });
+    revision: 1, space: false, read_at: null, unread_since: null, parts: [""] });
   assert.deepEqual([answer.head.state, answer.head.commit, answer.head.time, answer.head.picture, answer.head.counts.items], ["in_progress", null, null, false, 1]);
   assert.deepEqual(answer.items.entries.map((entry) => [entry.id, entry.context, entry.comments, entry.mine]), [["REQ-001", null, 0, false]]);
   assert.ok(answer.stages.every((row) => row.mine === 0 && !row.picture));

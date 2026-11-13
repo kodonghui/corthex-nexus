@@ -124,7 +124,7 @@ test("TC-1504: the agent's read with a comment, a reflection and two checkpoints
   const accepted = await call("POST", `/api/spaces/acme/proposals/${proposal.data.id}/accept`, { kind: "user", session: null });
   assert.equal(accepted.status, 200);
   for (const stage of ["01-domain", "04-functional-spec"])
-    assert.equal((await call("POST", "/api/spaces/acme/checkpoints", { kind: "user", session: null, body: { part: "sample", stage } })).status, 201);
+    assert.equal((await call("POST", "/api/spaces/acme/checkpoints", { kind: "user", session: null, body: { part: "sample", stage, commit: "a".repeat(40) } })).status, 201);
   const before = db.prepare("SELECT * FROM project_spaces").all().map((row) => ({ ...row }));
   const others = shape(db);
   const read = await call("GET", "/api/spaces/acme/todo", { session: "claude-code-4f2a91" });

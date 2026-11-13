@@ -504,6 +504,14 @@ export const messages={
     "This stage has an open checkpoint request.",
     "이 단계에는 열린 확인 요청이 있습니다."
   ],
+  "snapshot_changed": [
+    "The project now shows another commit: {commit}. Look again before you pass. · The project now shows a newer snapshot. Look again before you pass.",
+    "프로젝트가 이제 다른 커밋을 보여 줍니다: {commit}. 다시 보고 통과시켜 주세요. · 프로젝트가 이제 더 새 스냅샷을 보여 줍니다. 다시 보고 통과시켜 주세요."
+  ],
+  "request_changed": [
+    "The checkpoint request changed. Read it again before you pass. · This stage now has a checkpoint request. Read it before you pass.",
+    "확인 요청이 바뀌었습니다. 다시 읽고 통과시켜 주세요. · 이 단계에 이제 확인 요청이 있습니다. 읽고 통과시켜 주세요."
+  ],
   "item_not_found": [
     "{id} is not in this project's stages now. · Search all projects for {id}",
     "{id} 항목은 지금 이 프로젝트의 단계에 없습니다. · 모든 프로젝트에서 {id} 찾기"
@@ -634,6 +642,14 @@ export const redesign={
   "A checkpoint request, whole": [
     "Look at first · Left in this stage · {n} open discrepancies · {n} other open comments · {n} pending reflections",
     "먼저 볼 것 · 이 단계에 남은 것 · 열린 어긋남 {n} · 다른 열린 의견 {n} · 반영 대기 {n}"
+  ],
+  "The pass": [
+    "Pass the stage {n} checkpoint",
+    "{n}단계 확인 지점 통과"
+  ],
+  "A passed checkpoint's record": [
+    "Answers the request · Snapshot {n}",
+    "답한 요청 · 스냅샷 {n}"
   ],
   "The picture's tools": [
     "Zoom out · Zoom in · Fit · Go to · Map of the whole picture · {stage}, read-only",

@@ -8,6 +8,8 @@ import { fakeD1 } from "./fake-d1.js";
 
 const NOW="2026-11-03T12:00:00.000Z";
 const PR="https://example.com/repo/pull/1";
+// The default branch commit of the example snapshot, which a pass names (SPEC-194).
+const HELD="3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a";
 async function fixture() {
   const db=new DatabaseSync(":memory:");const binding=fakeD1(db),store=new Store(binding);
   const data=JSON.parse(readFileSync(new URL("./snapshot-02-example.json",import.meta.url)));
@@ -128,7 +130,7 @@ test("claims exclude other agents, allow user writes, extend and end on closure 
 
 test("checkpoint withdrawal while a PR is open stays in the to-do until it closes",async()=>{
   const {store,write}=await fixture();
-  const c=(await write("checkpoint",null,{part:"nexus",stage:"04-functional-spec",words:"Approved"},{kind:"user"})).body;
+  const c=(await write("checkpoint",null,{part:"nexus",stage:"04-functional-spec",words:"Approved",commit:HELD},{kind:"user"})).body;
   for(const event of ["merged","closed"])await assert.rejects(write("report-checkpoint",c.id,{event,pull_request:PR}),code("checkpoint_state"));
   await write("report-checkpoint",c.id,{event:"opened",pull_request:PR});
   await write("withdraw-checkpoint",c.id,{}, {kind:"user"});
@@ -250,7 +252,7 @@ test("SPEC-151, SPEC-143: a comment takes any stage of a held part, and asks las
 
 test("a checkpoint withdrawal racing a push is replanned before acknowledging the record",async()=>{
   const {store,binding,write,data}=await fixture();
-  const k=(await write("checkpoint",null,{part:"nexus",stage:"05-erd"},{kind:"user"})).body;
+  const k=(await write("checkpoint",null,{part:"nexus",stage:"05-erd",commit:HELD},{kind:"user"})).body;
   const record=data.stages["05-erd"].parts.memory;
   data.stages["05-erd"].parts.nexus={...record,checkpoints:[{...record.checkpoints[0],nexus:k.id}]};
   const batch=binding.batch;let withdraw=true;
@@ -315,7 +317,7 @@ test("two sessions racing a claim give one owner and releasing an absent own cla
 
 test("a passed checkpoint omitted by a later record returns to the to-do and may be withdrawn",async()=>{
   const {store,write,data}=await fixture();
-  const k=(await write("checkpoint",null,{part:"nexus",stage:"05-erd"},{kind:"user"})).body;
+  const k=(await write("checkpoint",null,{part:"nexus",stage:"05-erd",commit:HELD},{kind:"user"})).body;
   const record=data.stages["05-erd"].parts.memory;
   data.stages["05-erd"].parts.nexus={...record,checkpoints:[{...record.checkpoints[0],nexus:k.id}]};
   await store.push(readSnapshot02(data,Date.parse(NOW)),NOW);

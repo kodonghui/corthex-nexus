@@ -3,6 +3,7 @@
 import { Problem } from "./problem.js";
 import { entryId } from "./push-plan.js";
 import * as E from "./entries.js";
+import { label } from "./draw/words.js";
 
 const opposite = (author) => author === "user" ? "agent" : "user";
 const millis = (now, amount) => new Date(Date.parse(now) + amount).toISOString();
@@ -15,6 +16,10 @@ const PICTURE_STAGES = ["01-domain", "05-erd", "07-sitemap"];
 // recommendation, and the words of a checkpoint passed with it (API-159).
 export const AS_RECOMMENDED = Object.freeze({ en: "As recommended", ko: "추천대로" });
 const RECOMMENDED_WORDS = Object.values(AS_RECOMMENDED);
+// The words of the pass's button in the server's language (stage 08's words of
+// the revision, The pass), as "Pass the stage 04 checkpoint": the text of the
+// user's reply that settles a checkpoint request when the user adds none (SPEC-196).
+export const passWords = (stage, language) => label("The pass", 0, language, { n: String(stage).slice(0, 2) });
 
 const refuse = (field, detail) => { throw new Problem("invalid_request", detail, { field }); };
 const lineFeeds = (text) => (String(text).match(/\n/g) || []).length;
@@ -45,6 +50,17 @@ export function checkWriteBody(name, body, kind) {
     refuse("look_first", "look_first: only a checkpoint request names a thing to look at first");
   }
   if ((name === "reply" && body.settles || name === "recommended") && kind !== "user") fail("user_only", { needs: "user" });
+  // The design revision (SPEC-194): a pass names what the page showed, the commit or,
+  // where the snapshot names none, its revision, and the request's comment with the
+  // place of its last entry where it answers one. A page loaded before the release
+  // sends neither, so that refusal says to load the page again.
+  if (name === "checkpoint") {
+    const commit = Object.hasOwn(body, "commit"), revision = Object.hasOwn(body, "revision");
+    if (!commit && !revision) refuse("commit", "commit: a pass names the commit that the page showed, or the snapshot's revision; load the page again");
+    if (commit && revision) refuse("revision", "revision: a pass names the commit or, where the snapshot names none, the revision, not both");
+    if (Object.hasOwn(body, "comment") && !Object.hasOwn(body, "entry")) refuse("entry", "entry: a pass that names a checkpoint request names its last entry too");
+    if (Object.hasOwn(body, "entry") && !Object.hasOwn(body, "comment")) refuse("comment", "comment: a pass that names a last entry names its checkpoint request too");
+  }
   if (name === "proposal") {
     if (body.comment && body.discrepancy) fail("invalid_request", { field: "discrepancy" });
     if ((body.adds || []).some((id) => !body.items.includes(id))) fail("invalid_request", { field: "adds" });
@@ -289,11 +305,44 @@ export function planEntryWrite(name, body, state, { project, kind, session, now,
       answer = { edit: E.edit(edit), changed }; break;
     }
     case "checkpoint": {
-      if (body.part && !(state.parts || []).includes(body.part)) fail("part_not_found");
-      // driven is what the page read from navigator.webdriver, null when the page
-      // sent nothing, as a page of before the revision does (SPEC-195).
-      const row = { id: entryId("nk_"), project, part: body.part, stage: body.stage, commit_id: state.held.default_commit,
-        words: body.words || null, state: "passed", passed_at: now, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null,
+      // SPEC-194: the pass is taken only while what the page showed still holds,
+      // in the order of Which refusal comes first: the 404s, then the snapshot,
+      // then the request, then the limits of the reply that settles it.
+      part();
+      const asked = Object.hasOwn(body, "comment");
+      if (asked) need(comment, "comment");
+      const heldCommit = state.held.default_commit || null, heldRevision = state.held.revision;
+      if (heldCommit ? body.commit !== heldCommit : body.revision !== heldRevision) {
+        if (heldCommit) throw new Problem("snapshot_changed", `${project} now shows commit ${heldCommit.slice(0, 7)}, not the one that the page showed; read the stage again before passing`, { held_commit: heldCommit });
+        throw new Problem("snapshot_changed", `${project} now shows a newer snapshot than the page showed; read the stage again before passing`, { revision: heldRevision });
+      }
+      // The stage's open request and the place of its last entry, which the basis
+      // read and the receipt's check reads again: 0 for the comment's own text,
+      // and otherwise its last reply's seq.
+      const open = state.request, openEntry = { comment: open, entry: state.requestEntry };
+      if (asked && comment.id === open) {
+        if (body.entry !== (state.lastReply?.seq ?? 0)) throw new Problem("request_changed", `the checkpoint request ${open} has a newer entry than the page showed; read it again before passing`, openEntry);
+      } else if (open) {
+        throw new Problem("request_changed", `stage ${body.stage} of ${body.part || project} now has a checkpoint request, ${open}; read it before passing`, openEntry);
+      } else if (asked) {
+        throw new Problem("request_changed", `the checkpoint request ${comment.id} no longer asks for the checkpoint; read the stage again`);
+      }
+      // A pass with a request adds the user's reply that settles its comment, in
+      // the user's words or else the button's, so that the comment waits for the
+      // agent's record (SPEC-196, SPEC-140); the reply and the checkpoint take one time.
+      if (asked) {
+        if (state.replyCount >= 200) fail("reply_limit", { limit: 200 });
+        const text = body.words || passWords(body.stage, language);
+        put("replies", { comment: comment.id, seq: state.replyCount + 1, author: "user", text, settles: 1, made_at: eventAt, look_first: null }, true);
+        touchComment("user", { state: "open", closed_as: null, settled: 1 });
+        textBytes = bytes(text);
+      }
+      // The checkpoint names what was approved: the commit or the revision, and
+      // the request's comment with its entry. driven is what the page read from
+      // navigator.webdriver, null when the page sent nothing (SPEC-195).
+      const row = { id: entryId("nk_"), project, part: body.part, stage: body.stage, commit_id: body.commit ?? null,
+        words: body.words || null, state: "passed", passed_at: eventAt, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null,
+        comment: asked ? comment.id : null, snapshot_revision: body.revision ?? null, entry: asked ? body.entry : null,
         browser: client.browser, device: client.device, driven: typeof body.driven === "boolean" ? Number(body.driven) : null };
       put("checkpoints", row, true); status = 201; answer = E.checkpoint(row); break;
     }

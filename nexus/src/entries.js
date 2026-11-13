@@ -20,13 +20,15 @@ export function proposal(row, full = false) {
 }
 export const proposalState = (row) => only(row, ["id", "state", "closed_at"]);
 export const edit = (row) => ({ ...only(row, ["id", "part", "stage", "proposal", "state", "pull_request", "closed_commit", "made_at", "changed_at"]), commit: row.commit_id });
-// A checkpoint passed by taking a comment's recommendation names the comment,
-// which holds what was approved (API-159); any other leaves `comment` out.
+// A checkpoint names what was approved (SPEC-194): its commit or, where the
+// snapshot named none, the snapshot's revision; and the checkpoint request that
+// the pass answered with the place of its last entry, or the comment whose
+// recommendation was taken (API-159), comment and entry null for any other.
 // Every checkpoint names the kind of browser and device of its pass and
 // whether the page reported that software drives the browser (SPEC-195), all
 // three null for a checkpoint passed before the design revision.
-export const checkpoint = (row) => ({ ...only(row, ["id", "part", "stage", "words", "state", "passed_at", "withdrawn_at", "pull_request", "pr_state", "recorded_commit"]),
-  commit: row.commit_id ?? null, ...(row.comment ? { comment: row.comment } : {}),
+export const checkpoint = (row) => ({ ...only(row, ["id", "part", "stage", "words", "state", "passed_at", "withdrawn_at", "pull_request", "pr_state", "recorded_commit", "comment"]),
+  commit: row.commit_id ?? null, revision: row.snapshot_revision ?? null, entry: row.entry ?? null,
   browser: row.browser ?? null, device: row.device ?? null, driven: row.driven == null ? null : Boolean(row.driven) });
 export const discrepancy = (row) => ({ ...only(row, ["id", "part", "compares", "term", "item", "level", "state", "opened_commit", "opened_at", "resolved_commit", "resolved_at", "earlier"]), reasons: json(row.reasons, []), waiting: Boolean(row.waiting) });
 export const claim = (row) => only(row, ["entry", "session", "claimed_at", "ends_at"]);

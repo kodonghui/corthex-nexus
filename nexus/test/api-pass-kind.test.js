@@ -16,7 +16,7 @@ import { handle } from "../src/app.js";
 import { BROWSERS, DEVICES, clientKind } from "../src/client-kind.js";
 import { drawRecord } from "../src/draw/stage.js";
 import { esc } from "../src/draw/html.js";
-import { codeMessage, labels } from "../src/draw/words.js";
+import { codeMessage, label, labels } from "../src/draw/words.js";
 import { createNodeServer } from "../src/node-server.js";
 import { SQLiteD1 } from "../src/sqlite.js";
 import { testAccess } from "./access-fixture.js";
@@ -66,7 +66,7 @@ function inProcess() {
   }
   return { db, call };
 }
-const pass = (call, headers, body = { part: "sample", stage: "05-erd" }) => call("POST", "/api/spaces/acme/checkpoints", { kind: "user", body, headers });
+const pass = (call, headers, body = { part: "sample", stage: "05-erd", commit: COMMIT }) => call("POST", "/api/spaces/acme/checkpoints", { kind: "user", body, headers });
 
 // Every answer that holds the checkpoint, read after the pass: the pass's own, the checkpoint,
 // the agent to-do, the stage's record and 0.2's overview, which the stage's record holds.
@@ -143,7 +143,7 @@ test("TASK-299: the code that reads the kind returns only the contract's words, 
 test("TC-1442: a pass from Safari on a phone is recorded as Safari, phone, and that no software was reported to drive the browser", async () => {
   const { db, call } = inProcess();
   assert.equal((await call("POST", "/api/snapshots", { body: shop() })).status, 200);
-  const passed = await pass(call, SAFARI_PHONE, { part: "sample", stage: "05-erd", driven: false });
+  const passed = await pass(call, SAFARI_PHONE, { part: "sample", stage: "05-erd", commit: COMMIT, driven: false });
   assert.equal(passed.status, 201, passed.text);
   assert.deepEqual(kindOf(passed.data), ["safari", "phone", false]);
   const answers = await everyAnswer(call, passed.data.id);
@@ -155,7 +155,7 @@ test("TC-1442: a pass from Safari on a phone is recorded as Safari, phone, and t
 test("TC-1443: a pass from a browser under WebDriver is recorded as driven by software, and the pass is still taken", async () => {
   const { db, call } = inProcess();
   assert.equal((await call("POST", "/api/snapshots", { body: shop() })).status, 200);
-  const passed = await pass(call, CHROME_DESKTOP, { part: "sample", stage: "05-erd", words: "Under WebDriver", driven: true });
+  const passed = await pass(call, CHROME_DESKTOP, { part: "sample", stage: "05-erd", commit: COMMIT, words: "Under WebDriver", driven: true });
   assert.equal(passed.status, 201, passed.text);
   assert.deepEqual([passed.data.state, passed.data.words, ...kindOf(passed.data)], ["passed", "Under WebDriver", "chrome", "desktop", true]);
   for (const [name, checkpoint] of Object.entries(await everyAnswer(call, passed.data.id))) assert.deepEqual(kindOf(checkpoint), ["chrome", "desktop", true], name);
@@ -180,7 +180,7 @@ test("TC-1444: a pass whose User-Agent is 2,000 characters of text stores none o
 test("TC-1445, the server's half: the agent to-do names the kind with the checkpoint, so that the agent reads it, while the record that the agent writes takes none of it", async () => {
   const { call } = inProcess();
   assert.equal((await call("POST", "/api/snapshots", { body: shop() })).status, 200);
-  const passed = await pass(call, SAFARI_PHONE, { part: "sample", stage: "05-erd", driven: false });
+  const passed = await pass(call, SAFARI_PHONE, { part: "sample", stage: "05-erd", commit: COMMIT, driven: false });
   const listed = (await call("GET", "/api/spaces/acme/todo", { session: "s-1" })).data.checkpoints.entries[0];
   assert.deepEqual([listed.id, listed.why, ...kindOf(listed)], [passed.data.id, "not-recorded", "safari", "phone", false]);
   // A stage record pushed with the checkpoint's ID records it: the stored record is the hub's,
@@ -199,7 +199,7 @@ test("TC-1445, the server's half: the agent to-do names the kind with the checkp
 test("TC-1741, a recorded checkpoint: the stage's record keeps showing its kind under the record's entry, and its 50 keep those that wait first", async () => {
   const { db, call } = inProcess();
   assert.equal((await call("POST", "/api/snapshots", { body: shop() })).status, 200);
-  const passed = await pass(call, SAFARI_PHONE, { part: "sample", stage: "05-erd", driven: true });
+  const passed = await pass(call, SAFARI_PHONE, { part: "sample", stage: "05-erd", commit: COMMIT, driven: true });
   const recorded = shop();
   recorded.stages["05-erd"].parts.sample.checkpoints = [{ approved: "The tables as drafted", by: "the maintainer", date: "2026-11-13", nexus: passed.data.id }];
   recorded.generated_at = new Date(Date.parse(recorded.generated_at) + 60000).toISOString();
@@ -218,8 +218,8 @@ test("TC-1741, a recorded checkpoint: the stage's record keeps showing its kind 
     const words = labels("The kind of browser and device", lang), html = drawRecord(stage, lang);
     const list = html.slice(html.indexOf('<ul class="cps">'), html.indexOf("</ul>"));
     assert.ok(list.includes("The tables as drafted"), lang + ": the record's entry");
-    const sep = '<span class="sep" aria-hidden="true">·</span>';
-    assert.ok(list.includes(`<p class="cpk"><span>${esc(words[1] + ", " + words[6])}</span>${sep}<span>${esc(words[10])}</span></p></li>`), lang + ": its kind under the entry's date");
+    const sep = '<span class="sep" aria-hidden="true">·</span>', seen = `<span class="cpc">${esc(label("The head", 2, lang, { commit: COMMIT.slice(0, 7) }))}</span>${sep}`;
+    assert.ok(list.includes(`<p class="cpk">${seen}<span>${esc(words[1] + ", " + words[6])}</span>${sep}<span>${esc(words[10])}</span></p></li>`), lang + ": the commit that it passed, then its kind, under the entry's date");
     assert.ok(!html.includes(`data-nx-key="cp:${esc(passed.data.id)}"`), lang + ": no box that waits for its record, nor Withdraw");
     assert.ok(!html.includes(esc(codeMessage("Pass again", lang))), lang + ": and the pass is not a pass again");
   }
@@ -228,7 +228,7 @@ test("TC-1741, a recorded checkpoint: the stage's record keeps showing its kind 
   const insert = db.prepare(`INSERT INTO checkpoints (id, project, part, stage, commit_id, words, state, passed_at, recorded_commit, browser, device, driven)
     VALUES (?, 'acme', 'sample', '05-erd', ?, NULL, 'passed', ?, ?, 'chrome', 'desktop', 0)`);
   for (let i = 0; i < 60; i++) insert.run("nk_r0000000" + String(i).padStart(3, "0"), COMMIT, new Date(Date.UTC(2026, 9, 1, 0, i)).toISOString(), COMMIT);
-  const waiting = await pass(call, CHROME_DESKTOP, { part: "sample", stage: "05-erd" });
+  const waiting = await pass(call, CHROME_DESKTOP, { part: "sample", stage: "05-erd", commit: COMMIT });
   assert.equal(waiting.status, 201, waiting.text);
   const held = (await call("GET", "/api/spaces/acme/stages/sample/05-erd")).data.record.checkpoints;
   assert.equal(held.length, 50);
@@ -278,7 +278,7 @@ test("TC-1741: the kind of browser and device never refuses a pass, on the stand
   const passes = [];
   for (const [name, headers, kind] of senders) {
     for (const driven of [true, false, undefined]) {
-      const body = { part: "sample", stage: "05-erd", ...(driven === undefined ? {} : { driven }) };
+      const body = { part: "sample", stage: "05-erd", commit: COMMIT, ...(driven === undefined ? {} : { driven }) };
       const passed = await call("POST", "/api/spaces/acme/checkpoints", { kind: "user", body, headers: { ...headers, ...ADDRESSED } });
       assert.equal(passed.status, 201, `${name}, driven ${driven}: ${passed.text}`);
       assert.deepEqual(kindOf(passed.data), [...kind, driven ?? null], `${name}, driven ${driven}`);
@@ -343,13 +343,14 @@ test("TC-1741, the record: the stage's record shows the kind under a checkpoint'
     const words = labels("The kind of browser and device", lang), html = drawRecord(data, lang);
     const box = (id) => { const at = html.indexOf(`data-nx-key="cp:${esc(id)}"`); assert.ok(at > 0, id); return html.slice(at, html.indexOf("</div>", at)); };
     const kind = (id) => [...box(id).matchAll(/<p class="cpk">(.*?)<\/p>/g)].map((match) => match[1]);
-    const sep = '<span class="sep" aria-hidden="true">·</span>';
-    assert.deepEqual(kind("nk_000000000001"), [`<span>${esc(words[1] + ", " + words[6])}</span>`], lang + ": Safari, phone, with no word of software");
-    assert.deepEqual(kind("nk_000000000002"), [`<span>${esc(words[0] + ", " + words[8])}</span>${sep}<span>${esc(words[10])}</span>`], lang + ": and that software drove it");
-    assert.deepEqual(kind("nk_000000000003"), [`<span>${esc(words[5] + ", " + words[9])}</span>`], lang + ": unknown, as recorded");
-    assert.deepEqual(kind("nk_000000000004"), [`<span>${esc(words[4] + ", " + words[7])}</span>`], lang);
+    // Each line follows "Commit {commit}", the commit that the pass named (TASK-301).
+    const sep = '<span class="sep" aria-hidden="true">·</span>', seen = `<span class="cpc">${esc(label("The head", 2, lang, { commit: COMMIT.slice(0, 7) }))}</span>${sep}`;
+    assert.deepEqual(kind("nk_000000000001"), [`${seen}<span>${esc(words[1] + ", " + words[6])}</span>`], lang + ": Safari, phone, with no word of software");
+    assert.deepEqual(kind("nk_000000000002"), [`${seen}<span>${esc(words[0] + ", " + words[8])}</span>${sep}<span>${esc(words[10])}</span>`], lang + ": and that software drove it");
+    assert.deepEqual(kind("nk_000000000003"), [`${seen}<span>${esc(words[5] + ", " + words[9])}</span>`], lang + ": unknown, as recorded");
+    assert.deepEqual(kind("nk_000000000004"), [`${seen}<span>${esc(words[4] + ", " + words[7])}</span>`], lang);
     assert.deepEqual(kind("nk_000000000005"), [], lang + ": nothing for a checkpoint passed before the revision");
-    assert.deepEqual(kind("nk_000000000006"), [`<span>${esc(words[2] + ", " + words[8])}</span>`], lang + ": a withdrawn one keeps its record");
+    assert.deepEqual(kind("nk_000000000006"), [`${seen}<span>${esc(words[2] + ", " + words[8])}</span>`], lang + ": a withdrawn one keeps its record");
     // The kind follows the date, as a record: no Withdraw or other control depends on it.
     assert.ok(box("nk_000000000001").indexOf('<p class="cpk">') > box("nk_000000000001").indexOf("</b>"), lang + ": under the date");
     assert.equal((html.match(/data-nx-act="withdraw"/g) || []).length, 5, lang + ": Withdraw on each that waits, whatever its kind");

@@ -21,19 +21,15 @@ from openapi_spec_validator import validate
 from contract_example_check import check_response_example_applicability
 
 METHODS = ("get", "post", "put", "patch", "delete", "head")
-# TASK-297 built the bodies of leaveComment and replyToComment into NewComment and NewReply on 2026-11-13, and the
-# server checks their rules of a checkpoint request in code (nexus/src/entry-plan.js), which its tests hold.
-PLANNED_BODIES = {"PlannedNewCheckpoint"}
+# TASK-297 built the bodies of leaveComment and replyToComment into NewComment and NewReply on 2026-11-13, and
+# TASK-301 that of passCheckpoint into NewCheckpoint the same day; the server checks the rules that their schemas do
+# not state in code (nexus/src/entry-plan.js), which its tests hold. No planned body remains.
+PLANNED_BODIES = set()
 # The examples of built operations whose schemas gain the planned properties as required members, so that they
 # stop fitting until the release that builds those properties adds them. A change that alters this list changes
-# it here in the same commit, with the examples that it adds the members to.
-GAINING = {
-    ("API-112", "200", "erd-of-nexus"),
-    ("API-117", "200", "passed"),
-    ("API-129", "200", "withdrawn"),
-    ("API-129", "200", "already-withdrawn"),
-    ("API-130", "200", "opened"),
-}
+# it here in the same commit, with the examples that it adds the members to. TASK-301 added the checkpoint's
+# revision and entry, and comment with them, to the five that it held.
+GAINING = set()
 
 
 def resolver(api):
@@ -110,18 +106,18 @@ def planned_view(api):
 
 
 def body_rules(schema_name, value):
-    """The rules of a planned body that its schema does not state, as the planned forms' descriptions give them."""
-    found = []
-    if schema_name == "PlannedNewCheckpoint":
-        if ("commit" in value) == ("revision" in value):
-            found.append("a pass names commit or revision, one of the two")
-        if ("comment" in value) != ("entry" in value):
-            found.append("a pass names a request's comment and entry together")
-    return found
+    """The rules of a planned body that its schema does not state, as the planned forms' descriptions give them.
+
+    The pass's rules, one of commit and revision and a request's comment with its entry, left with its planned
+    body when TASK-301 built it: the server answers them 400 by the field, and its tests hold each one."""
+    return []
 
 
 def answer_rules(api, value, where=()):
-    """The rules of an answer that no schema states, for every object of a planned example."""
+    """The rules of an answer that no schema states, for every object of a response example.
+
+    They held the planned examples only, until TASK-301 built the pass and its two codes: since then they hold the
+    built examples too, so that the examples that moved into paths keep their rules."""
     found = []
     errors = api["components"].get("x-corthex", {}).get("errors", {})
     planned = api["components"].get("x-corthex", {}).get("planned_errors", {})
@@ -165,7 +161,7 @@ def check(api):
     except Exception as error:  # the validator's own error types differ between its versions
         findings.append({"rule": "the planned view is valid OpenAPI 3.1", "error": str(error)[:300]})
     planned = {(item["path"], item["method"]) for item in forms["pathItems"] + forms["operations"]}
-    validators, examples, bodies, gaining = {}, 0, 0, set()
+    validators, examples, built, bodies, gaining = {}, 0, 0, 0, set()
 
     def validator(schema):
         key = json.dumps(schema, sort_keys=True)
@@ -197,7 +193,11 @@ def check(api):
                     for name, reference in content.get("examples", {}).items():
                         value = resolve(reference)["value"]
                         errors = list(validator(content["schema"]).iter_errors(value))
+                        for where, rule in answer_rules(view, value):
+                            findings.append({"api": api_id, "status": str(status), "example": name,
+                                             "path": list(where), "rule": rule})
                         if not is_planned:
+                            built += 1
                             if errors:
                                 gaining.add((api_id, str(status), name))
                             continue
@@ -205,9 +205,6 @@ def check(api):
                         for error in errors[:5]:
                             findings.append({"api": api_id, "status": str(status), "example": name,
                                              "path": list(error.absolute_path), "rule": error.validator})
-                        for where, rule in answer_rules(view, value):
-                            findings.append({"api": api_id, "status": str(status), "example": name,
-                                             "path": list(where), "rule": rule})
     if gaining != GAINING:
         findings.append({"rule": "the examples of built operations that gain members are the known list",
                          "unexpected": sorted(gaining - GAINING), "missing": sorted(GAINING - gaining)})
@@ -216,11 +213,12 @@ def check(api):
                                    for path, item in view["paths"].items()}}
     for finding in check_response_example_applicability({**view, **planned_view_only})["findings"]:
         findings.append({**finding, "rule": "a planned example names the planned form's inputs"})
-    return {"forms": forms, "examples": examples, "bodies": bodies, "gaining": sorted(gaining), "findings": findings}
+    return {"forms": forms, "examples": examples, "built": built, "bodies": bodies, "gaining": sorted(gaining),
+            "findings": findings}
 
 
 def self_test(api):
-    """A planned example or body that stops fitting fails the check."""
+    """A planned example that stops fitting, and an example that breaks a rule that no schema states, fail the check."""
     broken = copy.deepcopy(api)
     form = next(iter(broken["components"]["pathItems"].values()))
     operation = next(operation for method, operation in form.items() if method in METHODS)
@@ -232,14 +230,14 @@ def self_test(api):
     # The example keeps none of its members and holds one that no schema names, so that it fails whether or not its
     # schema takes other members, whichever path item is the first.
     example["value"] = {"unknown_member": True}
-    # The planned pass that answers a request names its comment and no entry. Since TASK-297 it is the one planned
-    # body, as the bodies of leaveComment and replyToComment are built.
-    passing = broken["components"]["pathItems"]["passCheckpoint"]["post"]["requestBody"]["content"]["application/json"]
-    passing["examples"]["on-a-request"]["value"].pop("entry")
+    # The pass's refusal after a push names the revision beside the held commit, which its schema takes and the
+    # rule refuses. Since TASK-301 the pass is built, and no planned body remains to break.
+    broken["components"]["examples"]["snapshot_changed"]["value"]["revision"] = 4
     found = check(broken)["findings"]
-    rules = {finding["rule"] for finding in found}
-    if "a pass names a request's comment and entry together" not in rules or not any("example" in finding for finding in found):
-        raise SystemExit("the planned check let a broken example or body pass")
+    texts = {finding["rule"] for finding in found if "example" in finding}
+    planned = {finding["example"] for finding in found if finding.get("api") == operation["x-corthex"]["id"]}
+    if "snapshot_changed names the held commit or the revision" not in texts or not planned:
+        raise SystemExit("the planned check let a broken example pass")
 
 
 if __name__ == "__main__":
@@ -256,5 +254,6 @@ if __name__ == "__main__":
           f"{len(forms['properties'])} properties, {len(forms['bodies'])} bodies, {len(forms['codes'])} codes and "
           f"{len(forms['meanings'])} changed meanings of codes remain planned; "
           f"the planned view is valid OpenAPI 3.1; {result['examples']} planned response examples and {result['bodies']} planned "
-          f"bodies fit their schemas and rules; {len(result['gaining'])} examples of "
-          f"{len({api_id for api_id, _, _ in result['gaining']})} built operations gain members; a broken example and body fail")
+          f"bodies fit their schemas and rules, and {result['built']} built response examples the rules; "
+          f"{len(result['gaining'])} examples of {len({api_id for api_id, _, _ in result['gaining']})} built operations "
+          f"gain members; a broken example and a broken rule fail")

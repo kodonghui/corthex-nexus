@@ -95,7 +95,7 @@ test("API-159 passes the checkpoint that the agent asks for with the reply, nami
   assert.deepEqual([comment.waits, comment.asks, comment.settled, reply.seq, reply.text, reply.settles], ["agent", null, true, 2, "As recommended", true]);
   assert.match(checkpoint.id, /^nk_[0-9a-hjkmnp-tv-z]{12}$/);
   assert.deepEqual(checkpoint, { id: checkpoint.id, part: "nexus", stage: "04-functional-spec", words: "As recommended", state: "passed",
-    passed_at: reply.made_at, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, commit: COMMIT, comment: id,
+    passed_at: reply.made_at, withdrawn_at: null, pull_request: null, pr_state: null, recorded_commit: null, commit: COMMIT, comment: id, revision: null, entry: null,
     // Until TASK-302 the press passes the checkpoint and records the kind of browser and device as
     // a pass does (SPEC-195): this request names none, and the press sends no driven.
     browser: "unknown", device: "unknown", driven: null });
@@ -106,10 +106,10 @@ test("API-159 passes the checkpoint that the agent asks for with the reply, nami
   assert.deepEqual(todo.checkpoints.entries.map((entry) => [entry.id, entry.comment, entry.why]), [[checkpoint.id, id, "not-recorded"]]);
   const withdrawn = await call("POST", SPACE + "/checkpoints/" + checkpoint.id + "/withdraw", { kind: "user" });
   assert.deepEqual([withdrawn.status, withdrawn.data.checkpoint.state, withdrawn.data.checkpoint.comment], [200, "withdrawn", id]);
-  // A checkpoint passed any other way names no comment.
-  const plain = await call("POST", SPACE + "/checkpoints", { kind: "user", body: { part: "nexus", stage: "05-erd" } });
+  // A checkpoint passed without a request names no comment and no entry (SPEC-194).
+  const plain = await call("POST", SPACE + "/checkpoints", { kind: "user", body: { part: "nexus", stage: "05-erd", commit: COMMIT } });
   assert.equal(plain.status, 201);
-  assert.equal("comment" in plain.data, false);
+  assert.deepEqual([plain.data.comment, plain.data.revision, plain.data.entry], [null, null, null]);
   // Asked for the project as a whole, it passes the project's checkpoint.
   const whole = await take(await ask("checkpoint", "", "02-prd", ""));
   assert.deepEqual([whole.status, whole.data.checkpoint.part, whole.data.checkpoint.stage], [200, "", "02-prd"]);

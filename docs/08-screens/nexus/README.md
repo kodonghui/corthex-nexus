@@ -463,6 +463,17 @@ On 2026-11-13, for TASK-300, which shows the stage's open checkpoint request who
 - The stage's checks: [test_screen_states.py](../../../tests/test_screen_states.py) passes, and [screen_states_check.py](../../../nexus/test/screen_states_check.py) reads, as after TASK-299, 13 definitions on 5 pages and the 5 records: 194 responses with 351 codes, since the record reads what it shows from answers that it already had.
 - The repository's checks pass: `python -m unittest discover -s tests` with the pinned hub (41 tests), `node --test nexus/test/*.test.js` (425 tests, Node 24), the Worker's dry-run build and `git diff --check`.
 
+On 2026-11-13, for TASK-301, which binds a pass to what the user saw, SCR-112's and SCR-113's sections tell the pass as built, and every row of their revisions is now built:
+
+- SCR-112's revision: What a pass names is `built (TASK-301)`; its row of data on what each checkpoint passed in NEXUS recorded and its action on such a checkpoint in the record are `built (TASK-299, TASK-301)`; its action Stage record, while the stage has an open checkpoint request, is `built (TASK-300, TASK-301)`; SCR-112#normal is `built (TASK-275, TASK-276, TASK-299, TASK-300, TASK-301)`; and SCR-112#stale and SCR-112#error are `built (TASK-301)`.
+- SCR-113's revision: its row of data for the record and its action Stage record, Pass are `built (TASK-299, TASK-300, TASK-301)`, SCR-113#normal is `built (TASK-276, TASK-277, TASK-299, TASK-300, TASK-301)`, and SCR-113#stale and SCR-113#error are `built (TASK-301)`.
+- Each status comes from the code and from the cases that ran it, TC-1437 to TC-1441, TC-1570 to TC-1596, TC-1713 to TC-1718 and TC-1732 to TC-1740, with the page's half of TC-1760. SCR-110's pass from the first page stays `planned` for TASK-302.
+- The sections above: SCR-112's data names, beside each checkpoint passed in NEXUS, the commit or the snapshot's revision that it approved and the request that it answered, and its action Pass names a refusal because the project or the request changed, SCR-112#stale.
+- The words: the rows "The pass" and "A passed checkpoint's record" and the words of `snapshot_changed` and `request_changed` moved from [revision-words.md](revision-words.md) to [redesign-words.md](redesign-words.md), from which the views' words are made; "Pass as recommended" leaves its row Answers with TASK-302.
+- The grey wireframes were drawn again for the statuses of SCR-112 and SCR-113. Only their captions changed, and the page keeps its 64 frames and 205 labels, now 1,010,661 bytes; [measure.mjs](../../../tools/grey_pages/measure.mjs) finds no problem in 16 runs and 128 measurements of frames.
+- The stage's checks: [test_screen_states.py](../../../tests/test_screen_states.py) passes, and [screen_states_check.py](../../../nexus/test/screen_states_check.py) reads 13 definitions on 5 pages and the 5 records: 178 responses with 325 codes, fewer than after TASK-300 because API-128's planned form became its built one, whose responses count once.
+- The repository's checks pass: `python -m unittest discover -s tests` with the pinned hub (41 tests), `node --test nexus/test/*.test.js` (437 tests, Node 24), the Worker's dry-run build and `git diff --check`.
+
 ## For the checkpoint
 
 The design revision of 2026-11-11 passed its checkpoint on 2026-11-12, in the maintainer's own words ([the review's map](../../reviews/2026-11-11-design-review.md)). What this stage puts to it, one line for each thing that changes for the maintainer:

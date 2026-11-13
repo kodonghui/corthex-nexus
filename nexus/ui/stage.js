@@ -19,7 +19,8 @@ import {createTalk} from "./talk.js";
 import {createItem} from "./item.js";
 import {createSearch} from "./search.js";
 import {day} from "../src/draw/html.js";
-import {codeMessage,labels} from "../src/draw/words.js";
+import {codeMessage,labels,oldLabels} from "../src/draw/words.js";
+import {stageRequest} from "../src/draw/talk.js";
 import {createFolds} from "./folds.js";
 import {ApiClient,Drafts,LatestReads,PendingWrites,characters} from "./state.js";
 import {reconcile} from "./reconcile.js";
@@ -28,6 +29,11 @@ const PERMISSION=Object.freeze(["user_only","access_missing","access_other_app"]
 const CONNECTION=Object.freeze({network:"No connection",timeout:"No answer in time",busy:"Busy"});
 // After these the record reads again (SCR-112#error and #stale).
 const GONE=Object.freeze(["part_not_found","space_not_found","checkpoint_not_found","project_not_found"]);
+// A pass refused for the request that it named or did not name reads the talk again too (SPEC-194).
+const ASKED=Object.freeze(["request_changed","comment_not_found"]);
+// The fields of a pass that names what the page showed: a refusal by one of them is a page of
+// before the release, which Load again answers (SCR-112#error).
+const SHOWN=Object.freeze(["commit","revision","comment","entry"]);
 const SEARCH_WAIT=250,MAX_PAGES=25;
 const TRACE=/^[A-Z][A-Z0-9]*-[0-9]{1,6}$/,TALK_KEYS=Object.freeze(["talk","comment","proposal"]);
 // The parts that the code replaces when their drawing changes; it compares the others.
@@ -51,7 +57,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   // item is the selected item's panel (./item.js); side is what the side shows of it from 1,024
   // pixels, the item or, by its switch, the stage's whole talk; shownSide is what the side shows
   // when it draws, under 1,024 pixels by the tab in front.
-  const view={code:true,query:{filter:first.items.filter,group:first.items.group,q:first.items.q??""},entries:null,selected:null,more:null,updating:false,notice:null,pushed:null,signIn:false,record:false,recordState:{sending:null,note:null,passNote:null,left:null,over:false},mode:"picture",step:undefined,newer:null,editor:null,item:null,side:"item",shownSide:"item"};
+  const view={code:true,query:{filter:first.items.filter,group:first.items.group,q:first.items.q??""},entries:null,selected:null,more:null,updating:false,notice:null,pushed:null,signIn:false,record:false,recordState:{sending:null,note:null,passNote:null,left:null,over:false,stale:false},mode:"picture",step:undefined,newer:null,editor:null,item:null,side:"item",shownSide:"item"};
   // What the list of stages, the bars and the tabs show, which the code replaces when it changes.
   const shown=new Map(Object.entries(drawParts(payload)).filter(([name])=>REPLACED.includes(name)));
   // tabBefore is the phone's tab in front before the item's took its place, panelBy says that
@@ -442,36 +448,70 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     applyAddress().then(()=>{if(view.item?.id===id)parts.side.querySelector("#item-h")?.focus({preventScroll:true});}).catch(()=>{});
   }
 
+  // "Answers the request" of a checkpoint in the record (SCR-112, SCR-113): the record gives way to
+  // the talk with the request's entry open, its address a step of the browser's history (SCR-114).
+  function answers(id){
+    if(!/^nc_[0-9a-hjkmnp-tv-z]{12}$/.test(id||""))return;
+    if(view.record)closeRecord(undefined,false);
+    const params=hash();for(const key of TALK_KEYS)params.delete(key);params.set("talk",id);
+    history.pushState(history.state,"",location.pathname+location.search+"#"+params.toString());
+    applyAddress().catch(()=>{});
+  }
+
   // A write that failed (SCR-112#error, #permission and #stale): its message above the words box,
   // with the words kept, and Try again where trying again can help, with the same write ID.
-  function writeFailed(act,error,scope,checkpoint){
+  function writeFailed(act,error,scope,checkpoint,named=false){
     const code=error?.code||"internal",trace=error?.traceId,state=view.recordState,retry={retry:act,checkpoint};
     if(code==="sign_in_expired"){state.passNote={tone:"warn",text:codeMessage("Sign-in expired",lang),signIn:true};return false;}
+    // What the page showed changed (SCR-112#stale, SPEC-194), and nothing was recorded. Another
+    // commit or a newer snapshot: the page reads again, which shows SCR-111#stale's bar with Load
+    // again, the refusal has a Load again of its own, since under 1,024 pixels the record's sheet
+    // covers the bar, and the pass stays off until the page is loaded again; the words wait in
+    // the browser's storage (rule 5). The request: the talk and the record read again and show it
+    // as it is now, and the pass then names it.
+    if(code==="snapshot_changed"){
+      const held=typeof error?.held_commit==="string"&&error.held_commit?error.held_commit.slice(0,7):null;
+      state.stale=true;state.passNote={tone:"warn",text:held?codeMessage(code,lang,{commit:held}):oldLabels(code,lang)[1],trace,load:true};
+      return true;
+    }
+    if(code==="request_changed"){state.passNote={tone:"warn",text:named?codeMessage(code,lang):oldLabels(code,lang)[1],trace};return true;}
+    if(code==="comment_not_found"){state.passNote={tone:"err",text:codeMessage(code,lang),trace};return true;}
+    // A pass that does not name what the page showed comes from a page of before the release.
+    if(act==="pass"&&code==="invalid_request"&&SHOWN.includes(error?.field)){state.passNote={tone:"err",text:codeMessage(code,lang),trace,load:true};return false;}
     if(code==="checkpoint_recorded"){state.note={tone:"warn",text:codeMessage(code,lang),trace};return true;}
     if(GONE.includes(code)){state.passNote={tone:"err",text:codeMessage(code,lang),trace};return true;}
     if(PERMISSION.includes(code)){state.passNote={tone:"warn",text:codeMessage(code,lang),trace};return false;}
     if(code==="cross_site"){state.passNote={tone:"err",text:codeMessage(code,lang),trace,here:location.origin+location.pathname+location.hash};return false;}
     if(code==="write_id_reused")drafts.renew(scope);
     if(act==="pass"&&(code==="text_too_long"||code==="invalid_request"&&error?.field==="words"))textarea()?.setAttribute("aria-invalid","true");
-    state.passNote={tone:"err",text:codeMessage(CONNECTION[code]||code,lang,{limit:Number(error?.limit??WORDS_LIMIT).toLocaleString("en-US")}),trace,...(code==="text_too_long"?{}:retry)};
+    // A full comment takes no reply until the request is marked answered in the talk, so trying
+    // again cannot help (SCR-112#error).
+    state.passNote={tone:"err",text:codeMessage(CONNECTION[code]||code,lang,{limit:Number(error?.limit??WORDS_LIMIT).toLocaleString("en-US")}),trace,...(code==="text_too_long"||code==="reply_limit"?{}:retry)};
     return false;
   }
   async function pass(){
     const state=view.recordState,box=textarea();
-    if(!box||state.sending||writes.has(passScope)||characters(box.value)>WORDS_LIMIT)return;
+    if(!box||state.sending||state.stale||writes.has(passScope)||characters(box.value)>WORDS_LIMIT)return;
+    // The pass names what the page showed (SPEC-194): the commit of the project's snapshot as the
+    // page's data gave it, or its revision where it names no commit, and the stage's open
+    // checkpoint request that the record shows whole, with the place of its last entry.
+    const shown=data().project,request=stageRequest(payload.talk);
+    const seen=typeof shown.commit==="string"&&shown.commit?{commit:shown.commit}:{revision:shown.revision};
+    const asked=request?{comment:request.comment.id,entry:request.place}:{};
     // driven is what navigator.webdriver says, left out where the browser does not say (SPEC-195).
     const draft=drafts.update(passScope,{text:box.value}),driven=typeof navigator.webdriver==="boolean"?{driven:navigator.webdriver}:{};
-    const body={part:partName,stage,...(draft.text.trim()?{words:draft.text}:{}),...driven};
+    const body={part:partName,stage,...seen,...asked,...(draft.text.trim()?{words:draft.text}:{}),...driven};
     state.sending="pass";state.passNote=null;state.note=null;box.readOnly=true;render(["side"]);
-    let again=false;
+    let again=false,talkToo=Boolean(request);
     try{
       await writes.run(passScope,()=>api.call("POST",`${base}/checkpoints`,{body,write:draft.write}));
       drafts.clear(passScope,draft.write);
       if(box.value===draft.text)box.value="";
       box.removeAttribute("aria-invalid");counter();again=true;
-    }catch(error){again=writeFailed("pass",error,passScope);}
+    }catch(error){again=writeFailed("pass",error,passScope,undefined,Boolean(request));talkToo=ASKED.includes(error?.code);}
     finally{state.sending=null;box.readOnly=false;render(["side"]);}
-    if(again)await refresh();
+    // A pass with a request settled it, which the talk then shows waiting for the agent.
+    if(again)await Promise.all([refresh(),talkToo?talk?.readAgain():null]);
   }
   async function withdraw(id){
     const state=view.recordState,scope=withdrawScope(id);
@@ -502,6 +542,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     const act=control.dataset.nxAct;
     // A press with a key held, or with another button, opens the link where the browser opens it.
     if(act==="look"){if(!control.dataset.nxItem||event.button||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();lookAt(control.dataset.nxItem);return;}
+    if(act==="answers"){if(event.button||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();answers(control.dataset.nxComment);return;}
     // "All talk of the stage" from the item's panel on the phone: the talk's tab, in front.
     if(act==="whole"&&ws?.dataset.nxTab==="item"){ws.dataset.nxTab="talk";tabBefore=null;}
     if(act==="fold-talk"){talk?.click(act,control,event);foldTalk();return;}

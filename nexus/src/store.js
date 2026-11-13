@@ -137,7 +137,7 @@ const ENTRY_COLUMNS = Object.freeze({
   decisions: "comment seq link text made_at".split(" "),
   proposals: "id project part stage commit_id items reason change source_text comment discrepancy state made_at closed_at".split(" "),
   edits: "id project part stage commit_id proposal content state pull_request closed_commit made_at changed_at last_report".split(" "),
-  checkpoints: "id project part stage commit_id words state passed_at withdrawn_at pull_request pr_state recorded_commit comment browser device driven".split(" "),
+  checkpoints: "id project part stage commit_id words state passed_at withdrawn_at pull_request pr_state recorded_commit comment snapshot_revision entry browser device driven".split(" "),
   discrepancies: "id project part compares term item reasons level state waiting opened_commit opened_at resolved_commit resolved_at earlier".split(" "),
   claims: "entry project session claimed_at ends_at".split(" "),
 });
@@ -756,12 +756,18 @@ export class Store {
   // push, claim or write invalidates the plan before any business row changes.
   // A checkpoint request also reads its part's stage's open request, so that
   // the receipt records the write ID only while the stage has no other, and
-  // whether a stage of the stored snapshot holds its trace ID (SPEC-197).
-  entryBasis(project, id, body, write, cutoff) {
+  // whether a stage of the stored snapshot holds its trace ID (SPEC-197). So
+  // does a pass, with the place of that request's last entry, so that the
+  // receipt records it only while the request that the page showed is still
+  // the stage's open one and has no newer entry (SPEC-194).
+  entryBasis(project, id, body, write, cutoff, pass = false) {
     const sql = `WITH q AS (SELECT ? AS project,? AS target,? AS body_comment,? AS body_discrepancy,
       ? AS part,? AS stage,? AS write,? AS cutoff,? AS request,? AS look),
-      t AS (SELECT q.*,COALESCE(body_comment,(SELECT comment FROM proposals WHERE id=q.target AND project=q.project),target) AS thread,
-        COALESCE(body_discrepancy,(SELECT discrepancy FROM proposals WHERE id=q.target AND project=q.project),target) AS diff FROM q)
+      p AS (SELECT q.*,COALESCE(body_comment,(SELECT comment FROM proposals WHERE id=q.target AND project=q.project),target) AS thread,
+        COALESCE(body_discrepancy,(SELECT discrepancy FROM proposals WHERE id=q.target AND project=q.project),target) AS diff FROM q),
+      t AS (SELECT p.*,CASE WHEN p.request=1 THEN (SELECT r.id FROM comments AS r WHERE r.project=p.project AND r.state='open' AND r.asks='checkpoint'
+          AND r.part=COALESCE(p.part,(SELECT part FROM comments WHERE project=p.project AND id=p.thread))
+          AND r.stage=COALESCE(p.stage,(SELECT stage FROM comments WHERE project=p.project AND id=p.thread)) ORDER BY r.id LIMIT 1) END AS open_request FROM p)
       SELECT json_object(
         'held',(SELECT json_object('revision',revision,'default_commit',default_commit) FROM snapshots WHERE name=t.project),
         'parts',json(COALESCE((SELECT json_extract(body,'$.project.parts') FROM snapshots WHERE name=t.project),'[]')),
@@ -779,9 +785,8 @@ export class Store {
         'replyCount',(SELECT COUNT(*) FROM replies WHERE comment=t.thread),
         'decisionCount',(SELECT COUNT(*) FROM decisions WHERE comment=t.thread),
         'lastReply',json((SELECT json_object('seq',seq,'author',author,'text',text,'settles',settles,'made_at',made_at,'look_first',look_first) FROM replies WHERE comment=t.thread ORDER BY seq DESC LIMIT 1)),
-        'request',CASE WHEN t.request=1 THEN (SELECT r.id FROM comments AS r WHERE r.project=t.project AND r.state='open' AND r.asks='checkpoint'
-          AND r.part=COALESCE(t.part,(SELECT part FROM comments WHERE project=t.project AND id=t.thread))
-          AND r.stage=COALESCE(t.stage,(SELECT stage FROM comments WHERE project=t.project AND id=t.thread)) ORDER BY r.id LIMIT 1) END,
+        'request',t.open_request,
+        'requestEntry',CASE WHEN t.open_request IS NULL THEN NULL ELSE (SELECT COALESCE(MAX(seq),0) FROM replies WHERE comment=t.open_request) END,
         'lookHeld',CASE WHEN t.look IS NULL THEN NULL ELSE EXISTS(SELECT 1 FROM snapshots AS s,json_each(s.body,'$.items') AS j
           WHERE s.name=t.project AND json_extract(j.value,'$.id')=t.look AND json_extract(j.value,'$.stage') IN (${STAGE_LIST})) END,
         'commentCheckpoint',json(${rowJSON("checkpoints", "project=t.project AND comment=t.thread ORDER BY passed_at DESC,id DESC LIMIT 1")}),
@@ -790,14 +795,14 @@ export class Store {
         'prior',(SELECT json_object('request',request,'result',result) FROM writes WHERE project=t.project AND id=t.write AND received_at>t.cutoff)
       ) AS basis FROM t`;
     return { sql, params: [project,id || null,body.comment || null,body.discrepancy || null,body.part ?? null,body.stage || null,write || null,cutoff,
-      body.asks === "checkpoint" ? 1 : 0,lookedUp(body)] };
+      pass || body.asks === "checkpoint" ? 1 : 0,lookedUp(body)] };
   }
 
   async writeEntry(name, project, id, body, { kind, session = null, write, now: given, language = "en", client }) {
     checkWriteBody(name, body, kind);
     await this.ensure();
     const cutoff = new Date(Date.parse(given ?? new Date().toISOString())-7*86400000).toISOString();
-    const basisQuery = this.entryBasis(project,id,body,write,cutoff);
+    const basisQuery = this.entryBasis(project,id,body,write,cutoff,name === "checkpoint");
     for (let attempt=0; attempt<8; attempt++) {
       const basis = await this.db.prepare(basisQuery.sql).bind(...basisQuery.params).first("basis");
       // The write's time is taken in its batch's turn, with nothing awaited in

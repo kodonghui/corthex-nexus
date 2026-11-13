@@ -209,7 +209,7 @@ test("TC-1420: in a space that was never read every entry that waits for the age
   const asked = await say(call, "agent", "/api/spaces/acme/comments", USER_COMMENT("Should the column be unique?"));
   const proposal = await say(call, "agent", "/api/spaces/acme/proposals", { part: "sample", stage: "05-erd", items: ["TBL-001"], reason: "The glossary names it orders.", change: "Rename the table." });
   const edit = (await say(call, "user", `/api/spaces/acme/proposals/${proposal.id}/accept`, {})).edit;
-  const checkpoint = await say(call, "user", "/api/spaces/acme/checkpoints", { part: "sample", stage: "01-domain" });
+  const checkpoint = await say(call, "user", "/api/spaces/acme/checkpoints", { part: "sample", stage: "01-domain", commit: COMMIT });
   const talk = await talkOf(call, "acme");
   assert.deepEqual(talk.agent.entries.map((entry) => [entry.id, entry.unread]), [[comment.id, true]]);
   assert.deepEqual(talk.mine.entries.map((entry) => [entry.comment.id, entry.comment.unread]), [[asked.id, false]], "the agent's question waits for the user");
@@ -234,7 +234,7 @@ test("SPEC-189: a checkpoint withdrawn after the agent's read waits since its wi
   const { call } = inProcess();
   t.mock.timers.enable({ apis: ["Date"], now: at("2026-11-20T09:00:00.000Z") });
   assert.equal((await call("POST", "/api/snapshots", { body: shop("acme") })).status, 200);
-  const checkpoint = await say(call, "user", "/api/spaces/acme/checkpoints", { part: "sample", stage: "01-domain" });
+  const checkpoint = await say(call, "user", "/api/spaces/acme/checkpoints", { part: "sample", stage: "01-domain", commit: COMMIT });
   assert.equal(checkpoint.passed_at, "2026-11-20T09:00:00.000Z");
   let counts = agentOf(await home(call), "acme");
   assert.deepEqual([counts.unread, counts.unread_since], [1, "2026-11-20T09:00:00.000Z"], "passed, it waits since its pass");
@@ -304,7 +304,7 @@ test("TC-1627 to TC-1635: each response of API-158", async () => {
   // last read and the oldest entry that the agent has not read.
   const stage = await answered(call, path, "TC-1627 spec-with-a-request");
   assert.equal(shape(db), before, "TC-1627: GET and HEAD change nothing");
-  assert.deepEqual(Object.keys(stage.project), ["name", "title", "repository", "commit", "generated_at", "pushed_at", "space", "read_at", "unread_since", "parts"]);
+  assert.deepEqual(Object.keys(stage.project), ["name", "title", "repository", "commit", "generated_at", "pushed_at", "revision", "space", "read_at", "unread_since", "parts"]);
   assert.deepEqual([stage.project.space, stage.project.unread_since], [true, question.last_at]);
   assert.ok(stage.project.read_at < request.last_at);
   assert.deepEqual(stage.record.comments.entries.map((entry) => [entry.id, entry.asks, entry.unread]),

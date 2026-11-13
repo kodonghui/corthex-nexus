@@ -145,7 +145,8 @@ const STATE=`(()=>{const q=s=>document.querySelector(s),all=s=>[...document.quer
   record:rec?{note:msg(rec.querySelector('.rnote .msg')),pass:msg(rec.querySelector('.pnote .msg')),words:rec.querySelector('#cp-words')?.value??null,invalid:rec.querySelector('#cp-words')?.getAttribute('aria-invalid')||null,
    left:txt(rec.querySelector('.left')),passButton:button(rec.querySelector('.r2 [data-nx-act=pass]')),list:[...rec.querySelectorAll('dl > dd')].map(txt),
    boxes:[...rec.querySelectorAll('.wbox')].map(w=>({warn:w.classList.contains('warn'),text:txt(w.querySelector('b')),words:txt(w.querySelector('.mu')),withdraw:w.querySelector('button')?.dataset.nxCheckpoint||null,button:button(w.querySelector('button')),
-    kind:[...w.querySelectorAll('.cpk>span:not(.sep)')].map(txt),kindTops:[...w.querySelectorAll('.cpk>span:not(.sep)')].map(e=>Math.round(e.getBoundingClientRect().top))}))}:null,
+    seen:txt(w.querySelector('.cpk>.cpc')),answers:w.querySelector('.cpk>.cpq a')?.getAttribute('href')||null,
+    kind:[...w.querySelectorAll('.cpk>span:not(.sep):not(.cpc):not(.cpq)')].map(txt),lineTops:[...w.querySelectorAll('.cpk>span:not(.sep)')].map(e=>Math.round(e.getBoundingClientRect().top))}))}:null,
   focus:document.activeElement?.dataset?.nxFocus||document.activeElement?.id||null};})()`;
 const state=()=>evaluate(STATE);
 // Where the workspace's regions are (rule 16) and how tall its rows and chips are.
@@ -567,8 +568,10 @@ try{
   await waitFor(`document.querySelectorAll('.side .rec .wbox').length===2`);seen.passed=await state();
   const keys=postsTo(checkpoints,since).map(post=>post.write);
   assert(keys.length===5&&new Set(keys.slice(0,3)).size===1&&keys[3]===keys[4]&&keys[3]!==keys[0]&&keys.every(k=>/^"nw_[0-9a-z]{12}"$/.test(k)),'One write ID for every try, and a new one after write_id_reused: '+JSON.stringify(keys));
-  const body=JSON.parse(postsTo(checkpoints,since).at(-1).body);
-  assert(body.part===part&&body.stage==='02-prd'&&body.words===words,'The pass sends the words: '+JSON.stringify(body));
+  // The pass names the commit that the page showed and, with no request open on 02, no request
+  // (TASK-301, SPEC-194); the record's line names that commit.
+  const body=JSON.parse(postsTo(checkpoints,since).at(-1).body),shownCommit=first.project.commit;
+  assert(body.part===part&&body.stage==='02-prd'&&body.words===words&&body.commit===shownCommit&&!('revision' in body)&&!('comment' in body)&&!('entry' in body),'The pass sends the words and the commit that the page showed: '+JSON.stringify(body));
   const newer=seen.passed.record.boxes.find(b=>b.withdraw!==qa.checkpoint)?.withdraw,newerData=newer?(await serverGet(api+'/checkpoints/'+newer)).data:null;
   assert(newer&&newerData?.state==='passed'&&newerData.words===words&&seen.passed.record.boxes.every(b=>!b.warn)&&seen.passed.head.waiting===codeMessage('Waiting for its record',lang,{date:day(newerData.passed_at)})&&!seen.passed.record.pass,'The new checkpoint waits for its record too: '+JSON.stringify({boxes:seen.passed.record.boxes,waiting:seen.passed.head.waiting}));
   // The kind of browser and device of the real pass (TASK-299, SPEC-195, TC-1741): the page
@@ -577,16 +580,18 @@ try{
   // 1,024. The fixture's pass sent no User-Agent, so the record says so.
   const webdriver=await evaluate('navigator.webdriver'),kindWords=labels('The kind of browser and device',lang);
   const kindOf=(boxes,id)=>boxes.find(b=>b.withdraw===id)||{},newBox=kindOf(seen.passed.record.boxes,newer),oldBox=kindOf(seen.passed.record.boxes,qa.checkpoint);
-  seen.kind={webdriver,sent:body.driven,stored:[newerData.browser,newerData.device,newerData.driven],shown:newBox.kind,tops:newBox.kindTops,fixture:oldBox.kind};
+  seen.kind={webdriver,sent:body.driven,stored:[newerData.browser,newerData.device,newerData.driven],seen:newBox.seen,shown:newBox.kind,tops:newBox.lineTops,fixture:oldBox.kind};
   assert(typeof webdriver==='boolean'&&body.driven===webdriver&&newerData.driven===webdriver&&newerData.browser==='chrome'&&newerData.device==='desktop','The pass records the kind of this browser: '+JSON.stringify(seen.kind));
   const shownKind=[kindWords[0]+', '+kindWords[8],...(webdriver?[kindWords[10]]:[])];
-  assert(JSON.stringify(newBox.kind)===JSON.stringify(shownKind)&&new Set(newBox.kindTops).size===newBox.kindTops.length,'Its record shows the kind, a line each at 390 pixels: '+JSON.stringify(seen.kind));
+  assert(JSON.stringify(newBox.kind)===JSON.stringify(shownKind)&&newBox.lineTops.length===1+shownKind.length&&new Set(newBox.lineTops).size===newBox.lineTops.length,'Its record shows the commit and the kind, a line each at 390 pixels: '+JSON.stringify(seen.kind));
   assert(JSON.stringify(oldBox.kind)===JSON.stringify([kindWords[5]+', '+kindWords[9]]),'The fixture\'s pass, without a User-Agent, is unknown: '+JSON.stringify(oldBox));
+  const commitLine=label('The head',2,lang,{commit:shownCommit.slice(0,7)});
+  assert(newBox.seen===commitLine&&oldBox.seen===commitLine&&!newBox.answers&&!oldBox.answers,'Each line names the commit that it passed, and no request: '+JSON.stringify({commitLine,newBox,oldBox}));
   shots.push(await shot('passed-kind-390-ko'));
   await setting({width:1440,theme:'dark'});await open(page('02-prd',lang));
   await click('.shd [data-nx-act="record"]');await waitFor(`document.querySelectorAll('.side .rec .wbox').length===2`);await paint();
-  const wide=kindOf((await state()).record.boxes,newer);seen.kindWide={shown:wide.kind,tops:wide.kindTops};
-  assert(JSON.stringify(wide.kind)===JSON.stringify(shownKind)&&new Set(wide.kindTops).size===1,'From 1,024 pixels, one line: '+JSON.stringify(seen.kindWide));
+  const wide=kindOf((await state()).record.boxes,newer);seen.kindWide={seen:wide.seen,shown:wide.kind,tops:wide.lineTops};
+  assert(wide.seen===newBox.seen&&JSON.stringify(wide.kind)===JSON.stringify(shownKind)&&wide.lineTops[0]===wide.lineTops[1]&&wide.lineTops.every((top,i)=>!i||top>=wide.lineTops[i-1]),'From 1,024 pixels, one line that wraps: '+JSON.stringify(seen.kindWide));
   shots.push(await shot('passed-kind-1440-ko'));
   await setting({width:390,theme:'dark'});await open(page('02-prd',lang));
   await click('.shd [data-nx-act="record"]');await waitFor(`document.querySelectorAll('.side .rec .wbox').length===2`);await settled();

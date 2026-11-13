@@ -41,7 +41,7 @@ test("the actual handler provides a complete discussion, reflection and checkpoi
   const decision=await call("POST",base+"/comments/"+id+"/decisions",{kind:"agent",body:{link:"https://example.com/record"}});
   assert.equal(decision.status,201,decision.text);
   const thread=await call("GET",base+"/comments/"+id);assert.equal(thread.data.replies.length,1);assert.equal(thread.data.decisions.length,1);
-  const checkpoint=await call("POST",base+"/checkpoints",{body:{part:"nexus",stage:"05-erd"}});assert.equal(checkpoint.status,201,checkpoint.text);
+  const checkpoint=await call("POST",base+"/checkpoints",{body:{part:"nexus",stage:"05-erd",commit:snapshot.repos["."].default.commit}});assert.equal(checkpoint.status,201,checkpoint.text);
   const kid=checkpoint.data.id;
   assert.equal((await call("GET",base+"/checkpoints/"+kid)).data.state,"passed");
   assert.equal((await call("GET",base+"/overview/nexus/05-erd")).data.checkpoints.length,1);

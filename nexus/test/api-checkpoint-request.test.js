@@ -398,7 +398,7 @@ test("TC-1742: two checkpoint requests at once on the standalone server, and at 
   const basis = store.entryBasis.bind(store);
   store.entryBasis = (...args) => {
     const query = basis(...args);
-    const sql = query.sql.replace(/'request',CASE WHEN t\.request=1 THEN \(SELECT r\.id[\s\S]*?ORDER BY r\.id LIMIT 1\) END,/, "'request',NULL,");
+    const sql = query.sql.replace(/CASE WHEN p\.request=1 THEN \(SELECT r\.id[\s\S]*?ORDER BY r\.id LIMIT 1\) END AS open_request/, "NULL AS open_request");
     assert.notEqual(sql, query.sql, "the basis leaves out the open request");
     return { ...query, sql };
   };

@@ -13,6 +13,8 @@ export class NexusProblem extends Error {
     this.status=status;
     for(const key of ["traceId","field","state","why"])if(typeof source?.[key]==="string"&&source[key].length<=120)this[key]=source[key];
     if(Number.isSafeInteger(source?.limit)&&source.limit>=0)this.limit=source.limit;
+    // The commit that the project now shows, which a pass refused by snapshot_changed names (SPEC-194).
+    if(typeof source?.held_commit==="string"&&/^[0-9a-f]{40}$/.test(source.held_commit))this.held_commit=source.held_commit;
   }
 }
 export class ApiClient {

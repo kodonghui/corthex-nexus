@@ -1,4 +1,5 @@
 // Local QA server with synthetic Access and in-memory SQLite. Never deploy.
+import {createHash}from"node:crypto";
 import {readFileSync,statSync}from"node:fs";
 import {createServer}from"node:http";
 import {handle}from"../src/app.js";
@@ -125,7 +126,7 @@ if(process.env.NEXUS_QA_STAGE==="1"){
  stageQa.proposal=(await proposal(["TBL-001","proposal"])).id;
  const reflected=await proposal(["TBL-002","reflection"]);
  stageQa.edit=(await call("POST",base+"/proposals/"+reflected.id+"/accept",{})).edit.id;
- stageQa.checkpoint=(await call("POST",base+"/checkpoints",{part:"sample",stage:"02-prd",words:"Synthetic checkpoint that waits for its record"})).id;
+ stageQa.checkpoint=(await call("POST",base+"/checkpoints",{part:"sample",stage:"02-prd",commit:snapshot.repos["."].default.commit,words:"Synthetic checkpoint that waits for its record"})).id;
  // Open checkpoint requests on the stage as a whole, which the record shows whole (TASK-300): on
  // 04, without items, with a requirement of 02 to look at first, which leads to that stage; and
  // on the pictured 05, in three lines, with an address of another origin to look at first, longer
@@ -294,14 +295,69 @@ if(process.env.NEXUS_QA_LOOP==="1"){
  loopQa.agentRead=(name=project)=>call("GET","/api/spaces/"+name+"/todo",undefined,"agent");
  Object.assign(loopQa,{project,part:"sample",fresh_project:"qa-loop-new",old:"qa-loop-old",start:new RealDate(start).toISOString()});
 }
+// The pass bound to what the page showed (TASK-301): qa-pass at commit A, with the agent's open
+// checkpoint requests on 04 (SCR-113) and on the pictured 05 (SCR-112) and none on the pictured 07
+// and 01; and qa-pass-bare, whose snapshot names no commit, as a hub on a device without Git
+// pushes it. Only the pass suite opts in; /__qa/pass does what the agent and its hub do while a
+// page is open: push again at another commit or revision, ask again on a request, open one, and
+// fill a request's comment to its 200 replies; and it counts what the server holds.
+const passQa={};
+if(process.env.NEXUS_QA_PASS==="1"){
+ const project="qa-pass",bare="qa-pass-bare",where="docs/qa-pass.md:1";
+ const shop=name=>{const snapshot=viewSnapshot(name);snapshot.project.title=name===project?"QA pass":"QA pass without a commit";snapshot.ids={...snapshot.ids,SPEC:"spec"};
+  snapshot.items=[{id:"SPEC-001",kind:"spec",stage:"04-functional-spec",where,title:"Say what the page shows after a refused pass"},{id:"SPEC-002",kind:"spec",stage:"04-functional-spec",where,title:"Name the commit that the page showed"},
+   {id:"CTX-001",kind:"context",stage:"01-domain",where,title:"Ordering"},{id:"TBL-001",kind:"table",stage:"05-erd",where,title:"orders"},{id:"TBL-002",kind:"table",stage:"05-erd",where,title:"payments"},
+   {id:"SCR-001",kind:"screen",stage:"07-sitemap",where,title:"Home"},{id:"SCR-002",kind:"screen",stage:"07-sitemap",where,title:"Orders"}];
+  // A stage that the project does not read (SCR-113#not-read), which passes in the same way.
+  snapshot.stages["03-user-flow"]={name:"User flow",human:"notion",truth:"source",source:"docs/qa-flow/",source_state:"missing",read:false,files:0,items:0,parts:{sample:{state:"not_started",checkpoints:[],next:"",updated:snapshot.generated_at}}};
+  snapshot.summary={...snapshot.summary,items:snapshot.items.length};return snapshot;};
+ let snapshot=shop(project),commits=0,asked=0;
+ await call("POST","/api/snapshots",snapshot,"agent");
+ const bareSnapshot={...shop(bare),repos:{},records:{from:"status-file"},pictures:[],left_out:[]};
+ await call("POST","/api/snapshots",bareSnapshot,"agent");
+ const newer=data=>{data.generated_at=new Date(Math.max(Date.now(),Date.parse(data.generated_at)+1000)).toISOString();};
+ const texts={"01-domain":"Synthetic request: pass the domain's checkpoint.\nIts comment holds as many replies as it may.","04-functional-spec":"Synthetic request: pass the functional spec's checkpoint.\nLook at SPEC-001 first.",
+  "05-erd":"Synthetic request: pass the ERD's checkpoint.\nThe orders table keeps a unique reference now.","07-sitemap":"Synthetic request: pass the sitemap's checkpoint.\nAsked after the page was drawn."};
+ const looks={"01-domain":"CTX-001","04-functional-spec":"SPEC-001","05-erd":"TBL-001","07-sitemap":"SCR-001"};
+ const ask=stage=>call("POST","/api/spaces/"+project+"/comments",{part:"sample",stage,item:"",text:texts[stage],asks:"checkpoint",look_first:looks[stage]},"agent");
+ const askAgain=stage=>call("POST","/api/spaces/"+project+"/comments/"+passQa.requests[stage]+"/replies",{text:"Synthetic: asked again after change "+(++asked)+".\nLook at "+looks[stage]+" first.",asks:"checkpoint",look_first:looks[stage]},"agent");
+ passQa.requests={"04-functional-spec":(await ask("04-functional-spec")).id,"05-erd":(await ask("05-erd")).id};
+ passQa.act=async({act,stage}={})=>{
+  if(act==="push"){
+   // Another commit, which names the one that it replaces, as the hub sends it.
+   const held=snapshot.repos["."].default.commit,next=createHash("sha1").update("qa-pass commit "+(++commits)).digest("hex");
+   snapshot=structuredClone(snapshot);snapshot.repos["."].commit=next;snapshot.repos["."].default.commit=next;snapshot.records.commit=next;
+   for(const picture of snapshot.pictures)picture.commit=next;snapshot.replaces=held;newer(snapshot);
+   const pushed=await call("POST","/api/snapshots",snapshot,"agent");return{commit:next,revision:pushed.revision};
+  }
+  if(act==="bare"){newer(bareSnapshot);const pushed=await call("POST","/api/snapshots",bareSnapshot,"agent");return{revision:pushed.revision};}
+  if(!Object.hasOwn(texts,stage))throw new Error("Not a stage of the pass's fixture");
+  if(act==="ask-again"){const made=await askAgain(stage);return{comment:passQa.requests[stage],seq:made.reply.seq,text:made.reply.text};}
+  if(act==="request"){passQa.requests[stage]=(await ask(stage)).id;return{comment:passQa.requests[stage],text:texts[stage]};}
+  // The request's comment to its 200 replies, each the agent's asking again, so that the last
+  // entry still asks for the checkpoint and a pass's reply finds no room (reply_limit).
+  if(act==="fill"){
+   let last=null;
+   for(;;){try{last=await askAgain(stage);}catch(error){if(String(error.message).includes("reply_limit"))break;throw error;}}
+   return{comment:passQa.requests[stage],seq:last?.reply.seq??null};
+  }
+  throw new Error("Unknown act of the pass's fixture");
+ };
+ passQa.count=async()=>{const one=async sql=>(await env.DB.prepare(sql).bind(project).first()).n;
+  return{checkpoints:await one("SELECT COUNT(*) AS n FROM checkpoints WHERE project=?"),replies:await one("SELECT COUNT(*) AS n FROM replies AS r JOIN comments AS c ON c.id=r.comment WHERE c.project=?"),
+   bareCheckpoints:(await env.DB.prepare("SELECT COUNT(*) AS n FROM checkpoints WHERE project=?").bind(bare).first()).n};};
+ Object.assign(passQa,{project,bare,part:"sample",texts,looks,commit:snapshot.repos["."].default.commit});
+}
 const server=createServer(async(incoming,outgoing)=>{try{
  reloadBuild();
  const url=new URL(incoming.url,"http://127.0.0.1"),headers=new Headers(incoming.headers);
  if(!/(?:^|;\s*)nexus-qa-access=none(?:;|$)/.test(incoming.headers.cookie||""))headers.set("Cf-Access-Jwt-Assertion",access.headers()["Cf-Access-Jwt-Assertion"]);
- if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_ITEM==="1"?{item:itemQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{}),...(process.env.NEXUS_QA_LOOP==="1"?{loop:loopQa}:{})}));return;}
+ if(url.pathname==="/__qa/receipts"){outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({writes,comment:comment.id,proposal:proposal.id,erdComment:erdComment.id,erdProposal:erdProposal.id,edit:accepted.edit.id,...(process.env.NEXUS_QA_PAGES==="1"?{pages}:{}),...(process.env.NEXUS_QA_HOME==="1"?{home}:{}),...(process.env.NEXUS_QA_STAGE==="1"?{stage:stageQa}:{}),...(process.env.NEXUS_QA_PICTURE==="1"?{picture:pictureQa}:{}),...(process.env.NEXUS_QA_TALK==="1"?{talk:talkQa}:{}),...(process.env.NEXUS_QA_ITEM==="1"?{item:itemQa}:{}),...(process.env.NEXUS_QA_HUB_VIEWS==="1"?{hubViews}:{}),...(process.env.NEXUS_QA_LOOP==="1"?{loop:loopQa}:{}),...(process.env.NEXUS_QA_PASS==="1"?{pass:passQa}:{})}));return;}
  // The agent's read of a loop project, qa-loop unless ?project= names qa-loop-new, as a session's
  // start reads its agent to-do (TASK-298).
  if(url.pathname==="/__qa/agent-read"&&incoming.method==="POST"&&loopQa.project){const name=url.searchParams.get("project")||loopQa.project;if(![loopQa.project,loopQa.fresh_project].includes(name))throw new Error("Not a loop project");const read=await loopQa.agentRead(name);outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({read_at:read.read_at}));return;}
+ // What the agent and its hub do while the pass's page is open, and what the server holds (TASK-301).
+ if(url.pathname==="/__qa/pass"&&incoming.method==="POST"&&passQa.act){const chunks=[];for await(const chunk of incoming)chunks.push(chunk);const asked=JSON.parse(Buffer.concat(chunks).toString("utf8")||"{}");const result=asked.act==="count"?await passQa.count():await passQa.act(asked);outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify(result));return;}
  const pushAgain=home.pushAgain||stageQa.pushAgain;
  if(url.pathname==="/__qa/push-again"&&incoming.method==="POST"&&pushAgain){const pushed=await pushAgain();outgoing.writeHead(200,{"Content-Type":"application/json"});outgoing.end(JSON.stringify({name:pushed.name,revision:pushed.revision}));return;}
  // The agent's reply to a comment of the talk's project, as a session would send it (TASK-276).
