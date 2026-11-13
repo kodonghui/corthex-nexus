@@ -293,14 +293,14 @@
           "date": "2026-11-05"
         }
       ],
-      "next": "TASK-275 to TASK-278 are built on the draft pull request kodonghui/corthex-nexus#53; next TASK-287, the folds of the workspace, then the revision's tasks as stage 10 orders them. The 0.2.3 release stopped before its switch",
-      "updated": "2026-11-12T22:15:43+00:00"
+      "next": "TASK-275 to TASK-278 and TASK-287 are built on the draft pull request kodonghui/corthex-nexus#53, which ends group 2; next group 2's notice with its screens to press, then groups 4, 7, 3 and 8 as stage 10 orders them. The 0.2.3 release stopped before its switch",
+      "updated": "2026-11-13T00:19:01+00:00"
     },
     "12-qa": {
       "state": "in_progress",
       "checkpoints": [],
-      "next": "The revision's 387 planned cases, TC-1408 to TC-1794: 15 pass, 4 in part and 368 not run, each to run with the task that builds its row; TC-1795 to TC-1878, the cases of TASK-276 to TASK-278, pass. The flows walk's 34 impressions wait for the maintainer's choice (TC-1785). The stage's own checkpoint is the release's go or no-go (D19) and has not passed; the walk of production after the release, with ego lite where it is installed, stays to do",
-      "updated": "2026-11-12T22:15:43+00:00"
+      "next": "The revision's 387 planned cases, TC-1408 to TC-1794: 22 pass, 4 in part and 361 not run, each to run with the task that builds its row; TC-1795 to TC-1878, the cases of TASK-276 to TASK-278, pass. BUG-604, what a stage's my turn counts, waits for the maintainer's choice, and so do the impressions of the walks of the flows and of the folds (TC-1785). The stage's own checkpoint is the release's go or no-go (D19) and has not passed; the walk of production after the release, with ego lite where it is installed, stays to do",
+      "updated": "2026-11-13T00:19:01+00:00"
     }
   }
 }
