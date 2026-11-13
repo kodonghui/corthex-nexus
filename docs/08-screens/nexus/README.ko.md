@@ -281,7 +281,7 @@ NEXUS 0.2.3은 지금 화면의 틀은 그대로 두고 고칩니다. 이 말들
 
 ### 설계 수정이 계획한 말
 
-설계 수정의 행에는 [revision-words.ko.md](revision-words.ko.md)의 말이 필요하며, 영어와 한국어로 있고 만든 것은 없습니다. 그 파일의 표에는 다섯째 칸, 곧 줄마다의 진행이 있어서, 이 파일과 [redesign-words.ko.md](redesign-words.ko.md)의 네 칸짜리 표를 모두 읽는 `nexus/tools/messages.mjs`가 그것을 건드리지 않고, 보기의 말은 만든 그대로 남습니다. 줄을 만드는 작업은 같은 변경에서 그 말을 진행 없이 [redesign-words.ko.md](redesign-words.ko.md)로 옮기고, 만든 말이 그것을 따릅니다. 그때 물러나는 만든 말: "2단계"가 붙은 "편집". D17에 따라 "추천대로 통과"와 `not_recommended`의 말은 2026-11-13에 TASK-302와 함께 물러났고, [오류 코드](#오류-코드)에 있는 `cross_site`의 말은 2026-11-14에 TASK-310과 함께 물러났습니다. 그 새 말은 내보내기처럼 아무것도 바꾸지 않는 요청에도 맞기 때문입니다.
+설계 수정의 행에는 [revision-words.ko.md](revision-words.ko.md)의 말이 필요하며, 영어와 한국어로 있고 만든 것은 없습니다. 그 파일의 표에는 다섯째 칸, 곧 줄마다의 진행이 있어서, 이 파일과 [redesign-words.ko.md](redesign-words.ko.md)의 네 칸짜리 표를 모두 읽는 `nexus/tools/messages.mjs`가 그것을 건드리지 않고, 보기의 말은 만든 그대로 남습니다. 줄을 만드는 작업은 같은 변경에서 그 말을 진행 없이 [redesign-words.ko.md](redesign-words.ko.md)로 옮기고, 만든 말이 그것을 따릅니다. 그때 물러나는 만든 말: "2단계"가 붙은 "편집". D17에 따라 "추천대로 통과"와 `not_recommended`의 말은 2026-11-13에 TASK-302와 함께 물러났고, [오류 코드](#오류-코드)에 있는 `cross_site`의 말은 같은 날 TASK-310과 함께 물러났습니다. 그 새 말은 내보내기처럼 아무것도 바꾸지 않는 요청에도 맞기 때문입니다.
 
 ## 이 단계가 고른 것
 

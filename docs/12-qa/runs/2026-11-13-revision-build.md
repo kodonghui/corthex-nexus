@@ -1,4 +1,4 @@
-# Runs of the revision's build, 2026-11-12 to 2026-11-14
+# Runs of the revision's build, 2026-11-12 to 2026-11-13
 
 The runs of TASK-276 to TASK-310 in kodonghui/corthex-nexus#53, which builds the rest of the redesign and the design revision of 2026-11-11: for each task its suites and settings, the faults that writing and running its cases found, and its deliberate breaks. Those of TASK-276 to TASK-302 stood in [the QA plan](../nexus.md#the-redesigns-build-2026-11-08-kst) until 2026-11-13, when they moved here so that the plan, stage 12's source, stays within the 1 MiB that the pinned hub reads of a source file; later tasks write theirs here first. Each case's row in the plan keeps its result. Each paragraph is as it was written, with its links set from this folder.
 

@@ -20,7 +20,7 @@ info:
     302 to the stage's page (SPEC-154). The design revision of
     2026-11-11 adds what stage 04's rows SPEC-187 to SPEC-203 ask of the server, as planned
     forms that the server does not answer yet. Its new operations, API-177 and API-178, were in
-    paths with the status planned until TASK-310 built them on 2026-11-14. The planned form of each operation that it changes is a
+    paths with the status planned until TASK-310 built them on 2026-11-13. The planned form of each operation that it changes is a
     whole path item under components.pathItems, by the operation's code name, which the
     release that builds it puts into paths in place of the built operation. The fields that
     it adds to built answers are optional properties marked planned under x-corthex, which
