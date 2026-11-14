@@ -7,7 +7,8 @@
  * 1,152, 1,280 and 1,440 pixels (SPEC-209); the closed talk, an entry whose item is gone and a
  * comment that is not on the server; a page of the closed talk on its way when an item is
  * selected (BUG-620); an open entry whose project was removed, which the page reads once
- * (BUG-619); a stage and an item without talk; a reply, Mark answered,
+ * (BUG-619); a comment on its way while another item and then its own are selected (BUG-623);
+ * a stage and an item without talk; a reply, Mark answered,
  * As recommended, Accept, Dismiss and dismissing a reflection, each answer in its place
  * (choice 19) with the focus where the press was (rule 3), and since TASK-302 a checkpoint
  * request's Stage record, which opens the record and passes nothing itself; the box on the stage as
@@ -527,6 +528,42 @@ try{
   return{evidence:'fixture page and writes',screenshots:[pickedShot,await shot('box-1440-en')]};
  });
 
+ // A comment on its way when the target changes (BUG-623): a comment on REQ-005 is held (a delay
+ // that the suite makes) while REQ-007 is selected and then REQ-005 again, and let go. REQ-007's
+ // box is its own, with Leave as ever; back on REQ-005 the box says Sending, its words on their
+ // way and fixed, and once the server takes them it is empty. A comment on REQ-007 then goes.
+ await test('a-comment-on-its-way-across-items-1440-en',async()=>{
+  await setting({width:1440});
+  await open(page('02-prd','en'));
+  const narrowed=async id=>{await waitFor(`(${talkState})().heading===${JSON.stringify(label('Narrowed',0,'en',{id}))}&&!!document.getElementById('talk-text')`);await paint();};
+  // The box as it stands: its words, whether they can change, and Leave's words and state.
+  const box=()=>evaluate(`(()=>{const t=document.getElementById('talk-text'),b=document.querySelector('.side [data-nx-act="leave"]');return{text:t?.value??null,readOnly:t?.readOnly??null,leave:b?(b.querySelector('.keep > :not(.was)')||b).textContent.trim():null,off:b?.getAttribute('aria-disabled')??null};})()`);
+  const sending=codeMessage('Sending','en'),comments=new RegExp('^/api/spaces/'+project+'/comments$'),text='Synthetic comment on its way';
+  await click('.stage .li[data-nx-item="REQ-005"]');await narrowed('REQ-005');await settled();
+  await type('#talk-text',text);
+  held={pattern:comments,requests:[]};
+  const before=report.posts.length;
+  await click('.side [data-nx-act="leave"]');
+  for(const stop=Date.now()+10000;!held.requests.length&&Date.now()<stop;)await sleep(25);
+  assert(held.requests.length===1,'The comment on REQ-005 is sent, and held');
+  await click('.stage .li[data-nx-item="REQ-007"]');await narrowed('REQ-007');
+  const away=await box();
+  assert(away.leave!==sending&&away.text===''&&away.readOnly===false,'REQ-007\'s box is its own, not sending: '+JSON.stringify(away));
+  await click('.stage .li[data-nx-item="REQ-005"]');await narrowed('REQ-005');
+  const back=await box();
+  assert(back.leave===sending&&back.text===text&&back.readOnly===true,'Back on REQ-005, its comment still on its way: '+JSON.stringify(back));
+  await release();await settled();
+  const taken=await box(),sent=report.posts.slice(before).filter(p=>comments.test(p.path));
+  assert(sent.length===1&&JSON.parse(sent[0].body).item==='REQ-005'&&taken.text===''&&taken.leave!==sending&&taken.off==='true'&&taken.readOnly===false,'Taken, REQ-005\'s box is empty and Leave waits for words: '+JSON.stringify({taken,sent:sent.length}));
+  await click('.stage .li[data-nx-item="REQ-007"]');await narrowed('REQ-007');await settled();
+  await type('#talk-text','Synthetic comment after it');
+  const mark=report.posts.length;
+  await click('.side [data-nx-act="leave"]');
+  const next=await posted(mark,comments),left=await box();
+  assert(JSON.parse(next.body).item==='REQ-007'&&left.text===''&&left.leave!==sending,'A comment on REQ-007 then goes: '+JSON.stringify({body:next.body,left}));
+  return{evidence:'fixture page and writes; the comment on REQ-005 held by the suite (a delay that it makes)',seen:{away,back,taken,left},screenshot:await shot('comment-across-items-1440-en')};
+ });
+
  // Rule 22's item, pressed on the request's entry and in the stage's record (TASK-300): the item
  // that this stage holds opens in its panel beside the stage as a step of the browser's history,
  // #item=, its row selected and the focus on the panel's heading; the browser's Back closes it.
@@ -715,7 +752,7 @@ try{
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=2+1+1+1+1+2+1+1+1+8+1+1+1+1+1+1;
+ const expected=2+1+1+1+1+2+1+1+1+8+1+1+1+1+1+1+1;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{

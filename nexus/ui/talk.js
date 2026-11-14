@@ -33,8 +33,11 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   const reads=new LatestReads(),writes=new PendingWrites();
   // shown is what the side draws: the talk as read, narrowed or not, with the answered entries
   // kept in their places (choice 19); the rest is each part's state.
-  const st=view.talkState={shown:null,narrow:null,item:null,open:null,threads:{},entries:{},replies:{},box:{sending:false,note:null,left:null,over:false,empty:true,discrepancy:null},closed:{open:false,entries:null,total:null,more:null},notes:[],updating:false};
-  const kept=new Map(),filled=new WeakSet();
+  const newBox=()=>({sending:false,note:null,left:null,over:false,empty:true,discrepancy:null});
+  const st=view.talkState={shown:null,narrow:null,item:null,open:null,threads:{},entries:{},replies:{},box:newBox(),closed:{open:false,entries:null,total:null,more:null},notes:[],updating:false};
+  // The box's state of each target, the selected item or the stage as a whole, so that a comment
+  // on its way stays with the target that it was left on (BUG-623).
+  const kept=new Map(),filled=new WeakSet(),boxes=new Map();
   // back is the entry picked in the stage's whole talk, to return to; shownBy says that an
   // entry opened the folded talk, which folds again when the entry closes; reply is an entry
   // whose reply box takes the focus once it opens.
@@ -43,6 +46,8 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   const whole=()=>payload.talk;
   const current=()=>st.item?st.narrow||narrowTalk(whole()||{},st.item):whole();
   const boxScope=()=>`${project}:comment:${place}:${st.item||""}`;
+  boxes.set(boxScope(),st.box);
+  const boxOf=scope=>{if(!boxes.has(scope))boxes.set(scope,newBox());return boxes.get(scope);};
   const replyScope=id=>`${project}:reply:${id}`;
   const actScope=(act,id)=>`${project}:${act==="dismiss"?"dismiss-proposal":act}:${id}`;
   function talkUrl({item=st.item,closed=false,after=0}={}){
@@ -82,7 +87,7 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   function fill(){
     let changed=false;
     const box=side.querySelector("#talk-text");
-    if(box&&!filled.has(box)){filled.add(box);const draft=drafts.read(boxScope());if(draft.text&&!box.value)box.value=draft.text;changed=measure(box.value,st.box)||changed;}
+    if(box&&!filled.has(box)){filled.add(box);const draft=drafts.read(boxScope());if(draft.text&&!box.value)box.value=draft.text;box.readOnly=Boolean(st.box.sending);changed=measure(box.value,st.box)||changed;}
     for(const li of side.querySelectorAll("li[data-nx-entry]")){
       const id=li.dataset.nxEntry,area=li.querySelector(':scope > .rbox textarea[name="reply"]'),check=li.querySelector(':scope > .rbox input[name="settles"]');
       if(area&&!filled.has(area)){filled.add(area);const draft=drafts.read(replyScope(id));if(draft.text&&!area.value)area.value=draft.text;changed=measure(area.value,st.replies[id]||(st.replies[id]={}))||changed;}
@@ -157,7 +162,9 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
     st.item=item;st.narrow=null;kept.clear();
     // A page of the closed talk still on its way is the item's before: it is dropped (BUG-620).
     reads.invalidate("closed");
-    st.closed={open:false,entries:null,total:null,more:null};st.box={...st.box,note:null,discrepancy:null};
+    st.closed={open:false,entries:null,total:null,more:null};
+    // The target's own box: one whose comment is still on its way keeps it (BUG-623).
+    st.box=boxOf(boxScope());if(!st.box.sending){st.box.note=null;st.box.discrepancy=null;}
     if(!item){draw();return;}
     st.updating=true;draw();
     try{
@@ -380,20 +387,24 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
     if(state.sending||state.over||state.empty||writes.has(scope)){draw();return;}
     const draft=drafts.update(scope,{text:box.value}),item=st.item||"",discrepancy=item&&state.discrepancy;
     state.sending=true;state.note=null;box.readOnly=true;draw();
+    // The box of this target as the side shows it now: a new one once the user went to another
+    // target and back while the comment was on its way (BUG-623), else the box that sent it.
+    const shown=()=>boxScope()===scope&&side.querySelector("#talk-text")||box;
     let again=false;
     try{
       await writes.run(scope,()=>api.call("POST",`${base}/comments`,{body:{part,stage,item,...(discrepancy?{discrepancy}:{}),text:draft.text},write:draft.write}));
       drafts.clear(scope,draft.write);
-      if(box.value===draft.text)box.value="";
-      box.removeAttribute("aria-invalid");measure(box.value,state);state.discrepancy=null;again=true;
+      const now=shown();
+      if(now.value===draft.text)now.value="";
+      now.removeAttribute("aria-invalid");measure(now.value,state);state.discrepancy=null;again=true;
     }catch(error){
-      if(error?.code==="text_too_long"||error?.code==="invalid_request"&&error?.field==="text")box.setAttribute("aria-invalid","true");
+      if(error?.code==="text_too_long"||error?.code==="invalid_request"&&error?.field==="text")shown().setAttribute("aria-invalid","true");
       again=failed(error,scope,"leave",state,null);
       // A discrepancy resolved meanwhile (SCR-115's state changes): the box names the item again,
       // with a new write ID for the comment without it, and the item reads again.
       if(error?.code==="discrepancy_not_found"){state.discrepancy=null;drafts.renew(scope);onDiscrepancyGone();}
     }
-    finally{state.sending=false;box.readOnly=false;draw();}
+    finally{state.sending=false;box.readOnly=false;shown().readOnly=false;draw();}
     if(again)await after();
   }
   // Reply (API-119), with or without "This settles it", which on a closed comment opens it again.
