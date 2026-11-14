@@ -5,7 +5,9 @@
  * (SPEC-154), selecting its item in the list, read on 200 at a time until its row is drawn, or
  * in the picture, and back with the browser's back button or All talk of the stage, at 390,
  * 1,152, 1,280 and 1,440 pixels (SPEC-209); the closed talk, an entry whose item is gone and a
- * comment that is not on the server; a stage and an item without talk; a reply, Mark answered,
+ * comment that is not on the server; a page of the closed talk on its way when an item is
+ * selected (BUG-620); an open entry whose project was removed, which the page reads once
+ * (BUG-619); a stage and an item without talk; a reply, Mark answered,
  * As recommended, Accept, Dismiss and dismissing a reflection, each answer in its place
  * (choice 19) with the focus where the press was (rule 3), and since TASK-302 a checkpoint
  * request's Stage record, which opens the record and passes nothing itself; the box on the stage as
@@ -250,6 +252,58 @@ try{
   s=await state();
   assert(s.hash==='#talk='+qa.accept&&one(s.lists.mine,qa.accept)?.open&&one(s.lists.mine,qa.accept).change.includes('CREATE UNIQUE INDEX orders_reference ON orders(reference);'),'Another stage\'s proposal opens in that stage\'s talk, with its change: '+JSON.stringify({path:s.path,hash:s.hash}));
   return{evidence:'fixture pages and reads',screenshot:goneShot};
+ });
+
+ // A page of the closed talk on its way when an item is selected (BUG-620): the stage's closed
+ // talk, unfolded, is held (a delay that the suite makes) while REQ-001 is selected in the list,
+ // then let go. The item's closed talk keeps its own count, and unfolded, it reads and lists the
+ // item's own closed entry, not the stage's.
+ await test('closed-talk-on-its-way-across-items-1440-en',async()=>{
+  await setting({width:1440});
+  await open(page('02-prd','en'));
+  held={pattern:new RegExp('^/api/spaces/'+project+'/talk/'+part+'/02-prd\\?closed=1$'),requests:[]};
+  await click('.side [data-nx-act="closed"]');
+  for(const stop=Date.now()+10000;!held.requests.length&&Date.now()<stop;)await sleep(25);
+  assert(held.requests.length===1,'The stage\'s closed talk is read, and held');
+  await click('.stage .li[data-nx-item="REQ-001"]');
+  await waitFor(`(${talkState})().heading===${JSON.stringify(label('Narrowed',0,'en',{id:'REQ-001'}))}`);await settled();
+  await release();await sleep(500);await settled();
+  let s=await state();
+  const folded={closed:s.closed,groups:s.groups};
+  assert(s.closed==='false'&&s.groups.includes(label('The talk',5,'en',{n:'1'})),'The item\'s closed talk, folded, with its own count: '+JSON.stringify(folded));
+  const mark=report.reads.length;
+  await click('.side [data-nx-act="closed"]');await settled();
+  s=await state();
+  const read=report.reads.slice(mark).filter(r=>/[?&]item=REQ-001(?:&|$)/.test(r)&&/[?&]closed=1(?:&|$)/.test(r)),shown=s.lists.closed.map(e=>e.id);
+  assert(read.length===1&&s.closed==='true'&&JSON.stringify(shown)===JSON.stringify([qa.answered]),'Unfolded, the item\'s own closed talk is read and listed: '+JSON.stringify({read,closed:s.closed,shown}));
+  return{evidence:'fixture page and reads; the stage\'s closed talk held by the suite (a delay that it makes)',seen:{folded,read,shown},screenshot:await shot('closed-across-items-1440-en')};
+ });
+
+ // An open entry whose project another tab removed (BUG-619): back in view, the talk and the
+ // entry read again and the server answers space_not_found (mocked, each time the page asks).
+ // The entry says so in its place, and the page asks for it once and for the talk twice, then
+ // no more; a press that opens it again asks once more, and again no more.
+ await test('an-entry-whose-project-was-removed-1440-en',async()=>{
+  await setting({width:1440});
+  await open(page('02-prd','en'));
+  const ref=`li[data-nx-entry="${qa.recommended}"] > .hd .ref`,expanded=on=>waitFor(`document.querySelector(${JSON.stringify(ref)})?.getAttribute('aria-expanded')==='${on}'`);
+  await click(ref);await expanded(true);await settled();
+  const talkRead=new RegExp('^/api/spaces/'+project+'/talk/'+part+'/02-prd(?:\\?|$)'),threadRead=new RegExp('^/api/spaces/'+project+'/comments/'+qa.recommended+'$');
+  for(let n=0;n<40;n++)responses.push({method:'GET',pattern:talkRead,...problem(404,'space_not_found')},{method:'GET',pattern:threadRead,...problem(404,'space_not_found')});
+  const asked=since=>{const reads=report.reads.slice(since);return{talk:reads.filter(r=>talkRead.test(r)).length,thread:reads.filter(r=>threadRead.test(r)).length};};
+  let mark=report.reads.length;
+  await backInView();await sleep(2000);
+  const back=asked(mark);
+  assert(back.thread===1&&back.talk===2,'Back in view, the page asks for the entry once and for the talk twice, then no more: '+JSON.stringify(back));
+  await settled();
+  const s=await state(),entry=anywhere(s,qa.recommended);
+  assert(entry?.open&&entry.msgs.some(m=>m.tone==='warn'&&m.text===codeMessage('space_not_found','en')),'The entry says so in its place: '+JSON.stringify(entry?.msgs));
+  const goneShot=await shot('removed-1440-en');
+  mark=report.reads.length;
+  await click(ref);await expanded(false);await click(ref);await expanded(true);await sleep(1000);
+  const pressed=asked(mark);
+  assert(pressed.thread===1&&pressed.talk===1,'A press that opens it again asks once more, then no more: '+JSON.stringify(pressed));
+  return{evidence:'fixture page; the talk\'s and the entry\'s readings answered space_not_found by the suite (mocked)',seen:{back,pressed,notes:s.notes},screenshot:goneShot};
  });
 
  // From 1,024 to 1,279 pixels the talk is a panel: Talk ({n}) opens it with the focus on its
@@ -661,7 +715,7 @@ try{
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=2+1+1+2+1+1+1+8+1+1+1+1+1+1;
+ const expected=2+1+1+1+1+2+1+1+1+8+1+1+1+1+1+1;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{

@@ -146,13 +146,17 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
       if(failure)readFailed(failure.reason);else st.notes=st.notes.filter(n=>n.kind!=="read");
     }catch(error){readFailed(error);}
     finally{st.updating=false;draw(["stage","side","tabs"]);}
-    if(st.open&&locate(st.open))await openThread(st.open,true);
+    // An entry that the server answered gone is not read again by itself (BUG-619): only a
+    // press opens it again, so that a removed project's page does not ask without end.
+    if(st.open&&locate(st.open)&&!st.threads[st.open]?.gone)await openThread(st.open,true);
   }
   // The talk of the selected item (SCR-114#narrowed): at once from the page's talk, then as the
   // server reads it; no item, the stage's whole talk.
   async function narrow(item){
     if(item===st.item)return;
     st.item=item;st.narrow=null;kept.clear();
+    // A page of the closed talk still on its way is the item's before: it is dropped (BUG-620).
+    reads.invalidate("closed");
     st.closed={open:false,entries:null,total:null,more:null};st.box={...st.box,note:null,discrepancy:null};
     if(!item){draw();return;}
     st.updating=true;draw();
@@ -205,7 +209,7 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
     }catch(error){
       const code=error?.code||"internal";
       // An entry removed while open: the same words in its place, and the talk reads again.
-      if(GONE.includes(code)){st.threads[id]={state:"ready",data:{},seen:was?.seen};st.entries[id]={...st.entries[id],note:{tone:"warn",text:codeMessage(code,lang),trace:error?.traceId}};keep(found);draw();readAgain();return;}
+      if(GONE.includes(code)){st.threads[id]={state:"ready",data:{},seen:was?.seen,gone:true};st.entries[id]={...st.entries[id],note:{tone:"warn",text:codeMessage(code,lang),trace:error?.traceId}};keep(found);draw();readAgain();return;}
       st.threads[id]={state:"failed",trace:error?.traceId,seen:was?.seen};
     }
     draw();

@@ -455,7 +455,8 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     // An address that opened the record (#record) loses it in its place, so that loading the
     // page again shows the stage (BUG-607).
     if(location.hash==="#record")history.replaceState(history.state,"",location.pathname+location.search);
-    view.record=false;view.recordState={...view.recordState,note:null,passNote:null};
+    // The same state object, which a pass or a withdrawal still on its way holds (BUG-622).
+    view.record=false;view.recordState.note=null;view.recordState.passNote=null;
     if(ws){if(to)ws.dataset.nxOpen=to;else delete ws.dataset.nxOpen;}
     before=null;holdPage();render(["stage","side"]);
     if(focus)document.querySelector(`[data-nx-focus="${CSS.escape(opener)}"]`)?.focus();

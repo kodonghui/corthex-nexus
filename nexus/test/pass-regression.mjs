@@ -23,8 +23,10 @@
  * until Load again, after which the pass names the new commit; a request asked after the page was
  * drawn; a snapshot without a commit, whose pass names its revision; a request whose comment is
  * full, which the user marks answered in the talk before passing without it; a stage that the
- * project does not read, which passes with the project's commit (SCR-113#not-read); and a second
- * press of the pass while the record reads again after the first, which sends nothing (BUG-608).
+ * project does not read, which passes with the project's commit (SCR-113#not-read); a second
+ * press of the pass while the record reads again after the first, which sends nothing (BUG-608);
+ * and a pass and a withdrawal on their way when the record closes, after which the record opened
+ * again has its pass and Withdraw on (BUG-622).
  *
  * Node 24 built-ins only; an owned headless Chrome over CDP. Requires NEXUS_QA_PASS=1, the opt-in
  * view-server, NEXUS_CHROME and NEXUS_QA_ORIGIN. Synthetic loopback fixture only: the page's reads
@@ -524,10 +526,59 @@ try{
   return{evidence:'fixture server (a real request and two real passes); the record\'s reading again held by the suite (a delay that it makes); touch emulation',seen,screenshots:shots};
  });
 
+ // A pass and a withdrawal on their way when the record closes (BUG-622): the record keeps the
+ // state that the write holds, so that, opened again once the write is answered, its pass and
+ // Withdraw are on, and a press of the pass sends it. The suite holds each write (a delay that it
+ // makes) and closes the record with Escape at 1,440 pixels.
+ await test('a-write-on-its-way-when-the-record-closes-1440-en',async()=>{
+  const lang='en',stage='03-user-flow',seen={},shots=[],since=report.console.length;
+  const read=new RegExp('^/api/spaces/'+project+'/stages/'+part+'/'+stage+'(?:\\?|$)');
+  const on=()=>evaluate(`({pass:document.querySelector(${JSON.stringify(PASS)})?.getAttribute('aria-disabled')||null,withdraw:[...document.querySelectorAll('.side .rec [data-nx-act="withdraw"]')].map(b=>b.getAttribute('aria-disabled'))})`);
+  // The write on its way, the record closed, the write let go and the record's reading again
+  // done, then the record opened again.
+  async function closeWhileSent(what,pattern,send){
+   held={pattern,method:'POST',requests:[]};
+   await send();
+   for(const stop=Date.now()+10000;!held.requests.length&&Date.now()<stop;)await sleep(25);
+   assert(held.requests.length===1,what+': the write is on its way');
+   seen[what]={during:await on()};
+   await key('Escape','Escape',27);await waitFor(`!document.querySelector('.ws').dataset.nxOpen&&!document.querySelector('.side .rec')`);
+   const mark=report.reads.length;
+   await release();
+   for(const stop=Date.now()+10000;!report.reads.slice(mark).some(r=>read.test(r.path))&&Date.now()<stop;)await sleep(25);
+   await quiet();await sleep(200);await quiet();
+   await openRecord(false);seen[what].after=await on();
+   const after=(await state()).record;seen[what].note=after.note;seen[what].refused=after.pass;
+   assert(seen[what].after.pass!=='true'&&seen[what].after.withdraw.length>=1&&seen[what].after.withdraw.every(a=>a!=='true')&&!after.pass,what+': opened again, the pass and Withdraw are on: '+JSON.stringify(seen[what]));
+  }
+  // A pass that the record's press sends, and its reading again done.
+  async function passes(words){
+   await type('#cp-words',words);
+   const mark=report.posts.length;
+   await click(PASS);
+   for(const stop=Date.now()+5000;!postsTo(passPath,mark).length&&Date.now()<stop;)await sleep(25);
+   return postsTo(passPath,mark).length;
+  }
+  await setting({width:1440,theme:'light'});await open(page(stage,lang));await openRecord(false);
+  const before=await counts();
+  await closeWhileSent('pass',new RegExp('^'+passPath+'$'),()=>passes('Synthetic: a pass sent as the record closes.'));
+  assert(seen.pass.during.pass==='true'&&(await counts()).checkpoints===before.checkpoints+1,'The pass was off while on its way, and is recorded once: '+JSON.stringify(seen.pass.during));
+  shots.push(await shot('closed-while-passed-1440-en'));
+  await closeWhileSent('withdraw',new RegExp('^'+passPath+'/nk_[0-9a-hjkmnp-tv-z]{12}/withdraw$'),()=>click('.side .rec [data-nx-act="withdraw"]'));
+  assert(seen.withdraw.during.withdraw[0]==='true','Withdraw was off while on its way: '+JSON.stringify(seen.withdraw.during));
+  seen.sent=await passes('Synthetic: a pass after a withdrawal sent as the record closed.');
+  assert(seen.sent===1,'Opened again, a press of the pass sends it: '+JSON.stringify(seen.sent));
+  await waitFor(`document.querySelector('.side .rec #cp-words')?.value===''`);await quiet();await paint();
+  assert((await counts()).checkpoints===before.checkpoints+2,'Two passes recorded');
+  shots.push(await shot('closed-while-withdrawn-1440-en'));
+  judge('closed while sent',await pageChecks(1440),since);
+  return{evidence:'fixture server (two real passes and a real withdrawal); a pass and the withdrawal held by the suite (a delay that it makes) while the record closed',seen,screenshots:shots};
+ });
+
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=2+2+8;
+ const expected=2+2+9;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{
