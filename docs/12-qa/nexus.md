@@ -1913,7 +1913,7 @@ Found while four browser agents walked every screen that the release adds or cha
 
 ## The code review's findings after the go (2026-11-15 KST)
 
-Codex's review of PR #50 and PR #53 after the go found four, its review of `056fff6` a fifth and that of `03bb4f1` a sixth, each reproduced in a browser or in the code. Five are fixed, in `1ec8e08`, `9c69d3f` and `95f0dea`, each kept by a test of its own that fails with its fix taken back; BUG-621 is as SPEC-156 says and is left for 0.3.1. The details are in [the release record](runs/2026-11-14-release.md).
+Codex's review of PR #50 and PR #53 after the go found four, and its reviews of `056fff6`, `03bb4f1` and `85dfb81` one more each, each reproduced in a browser or in the code; looking for the last one's gap elsewhere found BUG-626. Seven are fixed, in `1ec8e08`, `9c69d3f`, `95f0dea` and `65f9dc1`, each kept by a test of its own that fails with its fix taken back; BUG-621 is as SPEC-156 says and is left for 0.3.1. The details are in [the release record](runs/2026-11-14-release.md).
 
 | ID | Title | Trace | Evidence and state |
 | --- | --- | --- | --- |
@@ -1923,3 +1923,5 @@ Codex's review of PR #50 and PR #53 after the go found four, its review of `056f
 | BUG-622 | A write on its way when the record closed left the pass off | SCR-112, SCR-113, SPEC-194 | Closing the record replaced the state that the pass or the withdrawal held. Fixed in `1ec8e08`; the suite `pass` keeps it. |
 | BUG-623 | A comment on its way when the target changed left the box sending | SCR-114#narrowed, SPEC-151 | Selecting another item while a comment was sent left that item's box saying Sending…, and it took no comment until the page loaded again. Fixed in `9c69d3f`; the suite `talk` keeps it. |
 | BUG-624 | An older address closed the entry that a newer one opened | SCR-114#narrowed, SPEC-154 | A comment opened by its address while the talk of an item selected just before was on its way closed when that talk came, though the address still named it; and an item selected while an address's entry was looked up gave way to that entry's item once it was found. Fixed in `95f0dea`; the suite `talk` keeps it. |
+| BUG-625 | A reply taken while its entry folded and opened again stayed in the box | SCR-114#normal, SPEC-127 | Folded and opened again while its reply was on its way, an entry drew a new box with the reply's words, and the page emptied only the old one: the box that showed kept the words and This settles it, and Reply waited for words. Fixed in `65f9dc1`; the suite `talk` keeps it. |
+| BUG-626 | An answer taken after another item was selected joined that item's talk | SCR-114#narrowed, SPEC-209 | An answer that the server took after another item was selected kept its entry in its place (choice 19) in that item's talk. Found with BUG-625; fixed in `65f9dc1`; the suite `talk` keeps it. |
