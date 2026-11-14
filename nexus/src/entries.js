@@ -1,13 +1,15 @@
 const only = (row, names) => Object.fromEntries(names.map((name) => [name, row[name] ?? null]));
 const json = (value, fallback) => value == null ? fallback : typeof value === "string" ? JSON.parse(value) : value;
 
+// look_first is the thing to look at first of a checkpoint request's entry,
+// null for any other entry and for a request stored before the revision (SPEC-197).
 export function comment(row) {
-  return { ...only(row, ["id", "part", "stage", "item", "quote", "discrepancy", "author", "text", "state", "closed_as", "waits", "made_at", "last_at"]), commit: row.commit_id, settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
+  return { ...only(row, ["id", "part", "stage", "item", "quote", "discrepancy", "author", "text", "state", "closed_as", "waits", "asks", "made_at", "last_at"]), commit: row.commit_id, settled: Boolean(row.settled), dismissed: Boolean(row.dismissed), look_first: row.look_first ?? null };
 }
 export function commentState(row) {
-  return { ...only(row, ["id", "state", "closed_as", "waits", "last_at"]), settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
+  return { ...only(row, ["id", "state", "closed_as", "waits", "asks", "last_at"]), settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
 }
-export const reply = (row) => ({ ...only(row, ["seq", "author", "text", "made_at"]), settles: Boolean(row.settles) });
+export const reply = (row) => ({ ...only(row, ["seq", "author", "text", "made_at"]), settles: Boolean(row.settles), look_first: row.look_first ?? null });
 export const decision = (row) => only(row, ["seq", "link", "text", "made_at"]);
 
 export function proposal(row, full = false) {
@@ -18,7 +20,16 @@ export function proposal(row, full = false) {
 }
 export const proposalState = (row) => only(row, ["id", "state", "closed_at"]);
 export const edit = (row) => ({ ...only(row, ["id", "part", "stage", "proposal", "state", "pull_request", "closed_commit", "made_at", "changed_at"]), commit: row.commit_id });
-export const checkpoint = (row) => ({ ...only(row, ["id", "part", "stage", "words", "state", "passed_at", "withdrawn_at", "pull_request", "pr_state", "recorded_commit"]), commit: row.commit_id ?? null });
+// A checkpoint names what was approved (SPEC-194): its commit or, where the
+// snapshot named none, the snapshot's revision; and the checkpoint request that
+// the pass answered with the place of its last entry, or the comment whose
+// recommendation was taken (API-159), comment and entry null for any other.
+// Every checkpoint names the kind of browser and device of its pass and
+// whether the page reported that software drives the browser (SPEC-195), all
+// three null for a checkpoint passed before the design revision.
+export const checkpoint = (row) => ({ ...only(row, ["id", "part", "stage", "words", "state", "passed_at", "withdrawn_at", "pull_request", "pr_state", "recorded_commit", "comment"]),
+  commit: row.commit_id ?? null, revision: row.snapshot_revision ?? null, entry: row.entry ?? null,
+  browser: row.browser ?? null, device: row.device ?? null, driven: row.driven == null ? null : Boolean(row.driven) });
 export const discrepancy = (row) => ({ ...only(row, ["id", "part", "compares", "term", "item", "level", "state", "opened_commit", "opened_at", "resolved_commit", "resolved_at", "earlier"]), reasons: json(row.reasons, []), waiting: Boolean(row.waiting) });
 export const claim = (row) => only(row, ["entry", "session", "claimed_at", "ends_at"]);
 
@@ -27,21 +38,40 @@ export function withClaim(entry, claims, session, now) {
   return held ? { ...entry, claim: { ends_at: held.ends_at, mine: held.session === session } } : entry;
 }
 
+// The talk's claim (API-152): its start too, and null while none lasts.
+export function withClaimStart(entry, claims, session, now) {
+  const held = claims.find((row) => row.entry === entry.id && row.ends_at > now);
+  return { ...entry, claim: held ? { claimed_at: held.claimed_at, ends_at: held.ends_at, mine: held.session === session } : null };
+}
+
 export function commentEntry(row, replies, proposals, claims = [], session = null, now = "") {
   const thread = replies.filter((entry) => entry.comment === row.id).sort((a, b) => a.seq - b.seq);
   return withClaim({ ...comment(row), replies: thread.length, last_reply: thread.length ? reply(thread[thread.length - 1]) : null,
     proposals: proposals.filter((entry) => entry.comment === row.id).map((entry) => entry.id) }, claims, session, now);
 }
 
+// A comment as a list holds it. unread is whether the agent has not read it
+// (SPEC-189), which the list's statement works out; a row of closed talk does
+// not ask, and a closed comment is never unread.
 export function commentListRow(row, claims = [], session = null, now = "") {
   return withClaim({ ...comment(row), replies: row.reply_count,
     last_reply: row.last_reply_json ? reply(json(row.last_reply_json, null)) : null,
-    proposals: json(row.proposal_ids_json, []) }, claims, session, now);
+    proposals: json(row.proposal_ids_json, []), unread: Boolean(row.unread) }, claims, session, now);
 }
 
 export function editListRow(row, full = false) {
   const source = json(row.proposal_json, null);
   return { ...edit(row), proposal: source?.id ? proposal(source, full) : null };
+}
+
+// A reflection as a list holds it, with whether the agent has not read it.
+export const editListEntry = (row) => ({ ...editListRow(row), unread: Boolean(row.unread) });
+
+// A space's last read and what the agent has not read since (SPEC-188,
+// SPEC-189), from the read_at and unread_json of store.js's statements.
+export function spaceRead(row) {
+  const unread = json(row.unread_json, {});
+  return { read_at: row.read_at ?? null, unread: Number(unread.unread) || 0, unread_since: unread.since ?? null };
 }
 
 export function editEntry(row, proposals, full = false) {

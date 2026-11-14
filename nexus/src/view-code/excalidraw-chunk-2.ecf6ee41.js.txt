@@ -1,0 +1,1 @@
+import{a as e,b as r}from"/code/excalidraw-chunk-55.f18263f9.js";import"/code/excalidraw-chunk-37.b1ead34f.js";import"/code/excalidraw-chunk-13.50df5631.js";export{e as ArchitectureModule,r as createArchitectureServices};

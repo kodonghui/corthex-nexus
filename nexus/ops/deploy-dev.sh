@@ -32,6 +32,8 @@ fi
 install -m 0644 "$release/nexus/ops/nexus@.service" /etc/systemd/system/nexus@.service
 install -m 0644 "$release/nexus/ops/nexus-backup@.service" /etc/systemd/system/nexus-backup@.service
 install -m 0644 "$release/nexus/ops/nexus-backup@.timer" /etc/systemd/system/nexus-backup@.timer
+install -m 0644 "$release/nexus/ops/nexus-backup-copy@.service" /etc/systemd/system/nexus-backup-copy@.service
+install -m 0644 "$release/nexus/ops/nexus-backup-copy@.timer" /etc/systemd/system/nexus-backup-copy@.timer
 ln -s "$release" "$base/current.next"
 mv -Tf "$base/current.next" "$base/current"
 systemctl daemon-reload
@@ -56,4 +58,11 @@ if [ "$code" != 403 ] || ! systemctl is-active --quiet nexus@dev.service; then
 fi
 systemctl enable nexus@dev.service nexus-backup@dev.timer >/dev/null
 systemctl start nexus-backup@dev.timer
+# The backup's copy on another machine runs once its remote is set and rclone is installed (REQ-291).
+if grep -q '^NEXUS_BACKUP_REMOTE=' /etc/nexus/dev.env && [ -x /usr/bin/rclone ]; then
+  install -d -m 0700 -o nexus-dev -g nexus-dev "$state/rclone"
+  systemctl enable --now nexus-backup-copy@dev.timer >/dev/null
+else
+  echo 'the backup has no copy on another machine yet: see the guide' >&2
+fi
 printf 'development deployment ready: %s\n' "$revision"

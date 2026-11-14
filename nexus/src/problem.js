@@ -8,7 +8,7 @@ export const ERRORS = Object.freeze({
   unknown_item: [400, "An item is not in the picture"],
   access_missing: [403, "Not checked by Cloudflare Access"],
   access_other_app: [403, "Checked for another application"],
-  cross_site: [403, "A change from another site"],
+  cross_site: [403, "A request from another site"],
   user_only: [403, "Only the user does this"],
   agent_only: [403, "Only the agent does this"],
   no_kind: [403, "This sign-in cannot write here"],
@@ -23,6 +23,7 @@ export const ERRORS = Object.freeze({
   edit_not_found: [404, "No such reflection"],
   checkpoint_not_found: [404, "No such checkpoint"],
   entry_not_found: [404, "No such entry"],
+  item_not_found: [404, "No such item"],
   method_not_allowed: [405, "Method not allowed"],
   older_snapshot: [409, "The server holds a newer snapshot"],
   commit_not_replaced: [409, "The server holds another commit"],
@@ -43,6 +44,10 @@ export const ERRORS = Object.freeze({
   checkpoint_recorded: [409, "The checkpoint is recorded"],
   checkpoint_withdrawn: [409, "The checkpoint is withdrawn"],
   checkpoint_state: [409, "The checkpoint has no matching open record"],
+  checkpoint_requested: [409, "A checkpoint request is open"],
+  snapshot_changed: [409, "The project shows another commit"],
+  request_changed: [409, "The checkpoint request changed"],
+  not_recommended: [409, "No recommendation to take"],
   write_id_reused: [409, "The write ID is taken"],
   snapshot_too_large: [413, "The snapshot is too large"],
   body_too_large: [413, "The request is too large"],
@@ -62,7 +67,7 @@ export const COMMON_HEADERS = Object.freeze({
 
 const EXTRA_FIELDS = new Set([
   "field", "limit", "items", "held_commit", "stored_at", "bound", "state",
-  "pull_request", "ends_at", "why", "needs",
+  "pull_request", "ends_at", "why", "needs", "comment", "entry", "revision",
 ]);
 const shorten = (text, length) => Array.from(String(text)).slice(0, length).join("");
 

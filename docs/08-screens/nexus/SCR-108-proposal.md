@@ -4,7 +4,7 @@
 
 Purpose: the user reads one proposal, with its reason and the stage source text that it changes, and accepts or dismisses it; once it is accepted, the user follows its reflection and dismisses the reflection when it needs them. (FL-110)
 
-Path `/pictures/{project}/{part}/{stage}#proposal={proposal}`, a panel of the picture view (SCR-105), on the NEXUS server only, opened from its mark, from an item's or a comment's panel, from the stage overview or from a link in a session. Who can see it: anyone Cloudflare Access lets in; accepting and dismissing need a person's own sign-in. New in NEXUS 0.2 (SPEC-131, SPEC-133). The rules of [every screen](README.md#every-screen) apply.
+Path `/pictures/{project}/{part}/{stage}#proposal={proposal}`, a panel of the picture view (SCR-105), on the NEXUS server only, opened from its mark, from an item's or a comment's panel, from the stage overview or from a link in a session. Who can see it: anyone Cloudflare Access lets in; accepting and dismissing need a person's own sign-in. New in NEXUS 0.2 (SPEC-131, SPEC-133). Since TASK-278 this screen is `removed`: its address leads to the stage's page, which reads `#proposal=` as `#talk=` (SPEC-154), so the proposal opens in the talk (SCR-114), and this definition stays as the record of 0.2's proposal panel. The rules of [every screen](README.md#every-screen) apply.
 
 ## Data
 

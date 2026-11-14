@@ -76,7 +76,7 @@ test("real TCP adapter preserves the snapshot, discussion, checkpoint and cross-
   assert.equal(comment.status, 201, comment.text);
   const reply = await call("POST", `/api/spaces/corthex/comments/${comment.data.id}/replies`, { text: "답변입니다", settles: true });
   assert.equal(reply.status, 201, reply.text);
-  const checkpoint = await call("POST", "/api/spaces/corthex/checkpoints", { part: "nexus", stage: "05-erd", words: "확인했습니다" });
+  const checkpoint = await call("POST", "/api/spaces/corthex/checkpoints", { part: "nexus", stage: "05-erd", words: "확인했습니다", commit: snapshot.repos["."].default.commit });
   assert.equal(checkpoint.status, 201, checkpoint.text);
   assert.equal((await call("HEAD", "/")).text, "");
   assert.equal((await call("PATCH", "/api/snapshots")).status, 405);
@@ -190,7 +190,7 @@ test("actual TCP HTML is compressed before transport while Access, no-store, CSP
   assert.equal((await call("POST", "/api/snapshots", example())).status, 200);
   const jwt=await token();
   const wire=(encoding,method="GET",authorized=true)=>new Promise((resolve,reject)=>{
-    const req=httpRequest({host:"127.0.0.1",port:server.address().port,path:"/",method,headers:{...(authorized?{"Cf-Access-Jwt-Assertion":jwt}:{}),"Accept-Encoding":encoding}},res=>{
+    const req=httpRequest({host:"127.0.0.1",port:server.address().port,path:"/hub",method,headers:{...(authorized?{"Cf-Access-Jwt-Assertion":jwt}:{}),"Accept-Encoding":encoding}},res=>{
       const chunks=[];res.on("data",chunk=>chunks.push(chunk));res.on("end",()=>resolve({status:res.statusCode,headers:res.headers,bytes:Buffer.concat(chunks)}));
     });req.on("error",reject);req.end();
   });

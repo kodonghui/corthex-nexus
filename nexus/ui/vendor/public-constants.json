@@ -119,6 +119,18 @@
       ]
     },
     {
+      "rule": "AWS key id",
+      "value_sha256": "417287c4c951ecbff5cc14d946d6ca4dfe82f71deaa31301f3593f04b6e31996",
+      "file": "nexus/src/view-code/excalidraw-chunk-28.f9b9f816.js.txt",
+      "kind": "substring of embedded compiled WASM base64",
+      "provenance": [
+        {
+          "source": "node_modules/@excalidraw/excalidraw/dist/prod/chunk-EIO257PC.js",
+          "source_sha256": "6ca0a6b4a49be83ed6beb32f845648ca4927c592cc0f4ba43a909624f5659493"
+        }
+      ]
+    },
+    {
       "rule": "email address",
       "value_sha256": "bbe1b3c4cbd39d0949345be2abc335dc34975dc0f46df89cb61ccd2be873cd24",
       "file": "nexus/src/view-code/legal-comments.txt",

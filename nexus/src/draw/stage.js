@@ -1,0 +1,292 @@
+// The stage in the workspace's middle (SCR-113, and SCR-112's list, whose picture ./picture.js
+// draws): its head, the filters, the search in the stage, the grouping and the items, 200
+// at a time; and the stage record in the side, in the talk's place (SCR-112's and SCR-113's
+// "Stage record"). The server draws them from API-158's answer and the view's code draws
+// them again. view is what the code adds, and the server draws with none: the query that
+// the user picked, the items read so far, the selected item, the notes of reading again and
+// the record's state. Every element that the code compares when it draws again has
+// data-nx-key; data-nx-sub marks one whose children it compares one by one, and
+// data-nx-live one whose text it changes in place (../../ui/reconcile.js).
+import {esc,count,time,timed,dated,dayTime,keepWidth} from "./html.js";
+import {icon,shapeIcon} from "./icons.js";
+import {label,labels,codeMessage,oldLabels,legendWord,capital,STATES} from "./words.js";
+import {stageName,stageNumber} from "./stages.js";
+import {drawTalk,stageRequest,lookFirst} from "./talk.js";
+import {drawItem} from "./item.js";
+import {BROWSERS,DEVICES} from "../client-kind.js";
+
+export const FILTERS=Object.freeze(["all","talk","mine","left"]);
+export const GROUPS=Object.freeze(["context","source"]);
+export const PICTURE_STAGES=Object.freeze(["01-domain","05-erd","07-sitemap"]);
+export const WORDS_LIMIT=2000;
+const sr=text=>`<span class="sr">${esc(text)}</span>`;
+const stateOf=state=>STATES.includes(state)?state:"unknown";
+const stateWord=(state,lang)=>`<span class="stw">${shapeIcon(stateOf(state))}<span>${esc(capital(legendWord(stateOf(state),lang),lang))}</span></span>`;
+
+// Where a row of the list leads: the item, selected in the list with its panel in the side
+// (SCR-115), and on a pictured stage the list's tab too, so that the address keeps the list
+// (SCR-111's `#`).
+export const itemHash=(stage,id)=>(PICTURE_STAGES.includes(stage)?"#view=list&item=":"#item=")+encodeURIComponent(id);
+
+// The head's counts (REQ-226): the kinds that a stage defines, and the items of the others;
+// stage 01's open hotspots, and stage 02's requirements by priority, MoSCoW's order first.
+const COUNTED=Object.freeze({"01-domain":[["context",0],["term",1]],"02-prd":[["requirement",5]],"05-erd":[["table",3]],"07-sitemap":[["screen",4]],"12-qa":[["test",6]]});
+const MOSCOW=Object.freeze(["must","should","could","won't","wont"]);
+export function headCountParts(head,lang){
+  const counts=head.counts||{},kinds=new Map((counts.kinds||[]).map(kind=>[kind.kind,Number(kind.count)||0]));
+  const named=COUNTED[head.key];
+  const parts=named?named.map(([kind,index])=>label("The head's counts",index,lang,{n:count(kinds.get(kind)||0)})):[label("Projects",8,lang,{n:count(counts.items)})];
+  if(head.key==="01-domain"&&Number.isFinite(counts.hotspots))parts.push(label("The head's counts",2,lang,{n:count(counts.hotspots)}));
+  if(head.key==="02-prd"){
+    const rank=priority=>{const at=MOSCOW.indexOf(String(priority).toLowerCase().replace("’","'"));return at<0?MOSCOW.length:at;};
+    const priorities=(counts.priorities||[]).map((entry,index)=>({...entry,index})).sort((a,b)=>rank(a.priority)-rank(b.priority)||a.index-b.index);
+    for(const entry of priorities)parts.push(`${entry.priority} ${count(entry.count)}`);
+  }
+  return parts;
+}
+export const headCounts=(head,lang)=>headCountParts(head,lang).join(" · ");
+// Why the project does not read the stage, from the state of its text source.
+const NOT_READ=Object.freeze({missing:1,none:2,skipped:3,"no-checkout":4,invalid:5});
+export const notReadWhy=(state,lang)=>label("Not read",NOT_READ[state]??1,lang);
+// The newest checkpoint passed in NEXUS that no stage record names yet (SPEC-138).
+export const waiting=record=>(record?.checkpoints||[]).filter(cp=>cp.state==="passed"&&!cp.recorded_commit).sort((a,b)=>String(b.passed_at).localeCompare(String(a.passed_at)))[0]||null;
+
+export function drawHead(data,lang,view){
+  const head=data.head,words=labels("The head",lang),checkpoint=head.checkpoint,meta=[];
+  if(checkpoint)meta.push(`<span>${checkpoint.date?dated(words[0],checkpoint.date):esc(words[0].replace(/\s*\{date\}\s*/,""))}</span>`);
+  else meta.push(`<span>${esc(words[1])}</span>`);
+  if(head.reads===false)meta.push(`<span>${esc(label("Not read",0,lang,{why:notReadWhy(head.source_state,lang)}))}</span>`);
+  else if(head.commit){
+    const when=head.time?` · ${head.picture?timed(words[3],head.time):time(head.time)}`:"";
+    meta.push(`<span>${esc(label("The head",2,lang,{commit:String(head.commit).slice(0,7)}))}${when}</span>`);
+  }
+  const passed=waiting(data.record);
+  if(passed)meta.push(`<span class="wait">${icon("i-warn")}<span>${dated(codeMessage("Waiting for its record",lang),passed.passed_at)}</span></span>`);
+  const wait=view.code?"":' disabled data-nx-wait="record"';
+  // On a pictured stage (SCR-112's layout) Stage record is in the head under 1,024 pixels and
+  // at the right end of the tools' line from 1,024. The head shows no Edit until a release
+  // includes editing, so that its counts reach its right end (stage 08's rule 23, SPEC-147).
+  const record=`<button class="btn sm${view.pictured?" only-ph":""}" type="button" data-nx-key="rec" data-nx-act="record" data-nx-focus="record" aria-expanded="${Boolean(view.record)}"${wait}>${icon("i-record")}<span>${esc(words[4])}</span></button>`;
+  // The folded talk's button, "Talk ({n})" (SCR-111, rule 16, SPEC-210): from 1,024 to 1,279
+  // pixels always, and from 1,280 while the talk is folded, which the stylesheet decides; its link
+  // opens the talk without the code, and it is a button to the keyboard and to screen readers,
+  // which Space presses once the code runs. While entries of the stage wait for the user it says
+  // "My turn {n}" too (SCR-111#folded). The code says whether the talk shows (aria-expanded).
+  const mine=Number(view.mine)||0,turn=mine?`<span class="mt">${esc(label("The talk",1,lang,{n:count(mine)}))}</span>`:"";
+  const talk=`<a class="btn sm tbtn" href="#talk" data-nx-key="talk" data-nx-act="talk" data-nx-focus="talk" data-nx-fold="talk" role="button" aria-controls="talk" title="${esc(label("The folds",3,lang))}">${icon("i-talk")}<span>${esc(label("Tabs",4,lang,{n:count(view.talk)}))}</span>${turn}</a>`;
+  // Each count whole on its line, so that a line that breaks ends with "·" (REQ-226).
+  const counts=head.reads===false?"":headCountParts(head,lang).map((part,index,all)=>`<span class="c">${esc(part)}${index<all.length-1?" ·":""}</span>`).join(" ");
+  return`<div class="shd" data-nx-key="head" data-nx-sub><h1 data-nx-key="h"><span class="num">${esc(stageNumber(head.key))}</span> ${esc(stageName(head.key,lang))}</h1><span class="st" data-nx-key="st">${stateWord(head.state,lang)}</span><span class="meta" data-nx-key="meta">${meta.join("")}</span><span class="counts" data-nx-key="counts" data-nx-sub><span class="cn" data-nx-key="cn">${counts}</span>${record}${talk}</span></div>`;
+}
+
+// The notes of reading again, between the head and the filters (SCR-113#error and #permission):
+// a read that failed, with Try again (rule 6), or a refusal's message with its trace ID.
+export function drawNotes(view,lang){
+  const note=view.notice;let html="";
+  if(note?.kind==="unread")html=`<div class="bar err" role="alert">${icon("i-err")}<span class="t">${esc(codeMessage("Could not update",lang))}</span><button class="btn sm" type="button" data-nx-act="read" data-nx-focus="read">${icon("i-reload")}${esc(labels("Page buttons",lang)[0])}</button></div>`;
+  else if(note?.kind==="refused")html=`<div class="bar warn" role="status">${icon("i-warn")}<span class="t">${esc(codeMessage(note.code,lang))}${note.trace?` <span class="tid">${esc(codeMessage("Trace ID",lang,{traceId:note.trace}))}</span>`:""}</span></div>`;
+  return`<div class="notes" data-nx-key="notes">${html}</div>`;
+}
+
+// What the list is asked for: the user's pick while the code runs, else what was read.
+const queryOf=(items,view)=>({filter:FILTERS.includes(view.query?.filter)?view.query.filter:items.filter,group:GROUPS.includes(view.query?.group)?view.query.group:items.group,q:view.query?.q??items.q??""});
+
+export function drawFilters(data,lang,view){
+  const items=data.items,words=labels("The list",lang),counts=items.counts||{},query=queryOf(items,view);
+  // A stage that holds no items has nothing to narrow: its filters stay off (SCR-113#empty).
+  const none=!Number(data.head.counts?.items),wait=none?" disabled":view.code?"":' disabled data-nx-wait="list"';
+  const chips=FILTERS.map((name,index)=>`<button class="chip" type="button" data-nx-key="f:${name}" data-nx-act="filter" data-nx-filter="${name}" data-nx-focus="filter:${name}" aria-pressed="${query.filter===name}"${wait}><span>${esc(words[index])}</span><span class="n">${esc(count(counts[name]))}</span></button>`).join("");
+  const find=`<label class="field find" data-nx-key="find">${icon("i-search")}<input type="search" name="q" maxlength="200" autocomplete="off" placeholder="${esc(words[4])}" aria-label="${esc(words[4])}" data-nx-focus="find"${wait}></label>`;
+  const current=esc(words[query.group==="source"?6:5]);
+  const group=none
+    ?`<button class="btn sm gm" type="button" data-nx-key="group" disabled>${icon("i-group")}<span>${current}</span>${icon("i-down")}</button>`
+    :`<details class="menu gm" data-nx-key="group"><summary class="btn sm" data-nx-focus="group">${icon("i-group")}<span>${current}</span>${icon("i-down")}</summary><div class="pop">${GROUPS.map((name,index)=>`<button class="btn quiet sm" type="button" data-nx-act="group" data-nx-group="${name}" data-nx-focus="group:${name}" aria-pressed="${query.group===name}"${wait}>${esc(words[5+index])}</button>`).join("")}</div></details>`;
+  // The search and the grouping keep together: on the filters' line while it holds them, else
+  // on a line of their own (SCR-113's layout).
+  return`<div class="filters" data-nx-key="filters" data-nx-sub>${chips}<span class="tools" data-nx-key="tools" data-nx-sub>${find}${group}</span></div>`;
+}
+
+// One item of the list (SCR-113#normal): its ID, its text as the source has it, its main fields
+// with their names for screen readers, its comments and its marks, each a word (rule 13).
+const FIELDS=Object.freeze(["priority","status","type","parent"]);
+function itemRow(entry,stage,lang,selected,key){
+  const id=String(entry.id),names=labels("List fields",lang),marks=labels("List marks",lang),on=selected===id;
+  const fields=FIELDS.map((name,index)=>typeof entry[name]==="string"&&entry[name]?`<span${name==="parent"?' class="mono"':""}>${sr(names[index])} ${esc(entry[name])}</span>`:"").filter(Boolean).join(" ");
+  const n=Number(entry.comments)||0;
+  const comments=n?`${icon("i-talk")}<span aria-hidden="true">${esc(count(n))}</span>${sr(label("List marks",2,lang,{n:count(n)}))}`:"";
+  const tags=[entry.mine?`<span class="tagm my">${esc(label("The list",2,lang))}</span>`:"",Number(entry.discrepancies)>0?`<span class="tagm disc">${esc(marks[0])}</span>`:"",Number(entry.reflections)>0?`<span class="tagm refl">${esc(marks[1])}</span>`:""].filter(Boolean).join(" ");
+  return`<li data-nx-key="${esc(key)}"><a class="li${on?" on":""}" href="${esc(itemHash(stage,id))}" data-nx-item="${esc(id)}" data-nx-focus="item:${esc(id)}"${on?' aria-current="true"':""}><span class="id">${esc(id)}</span> <span class="tt">${esc(entry.title||"")}</span> <span class="flds">${fields}</span> <span class="cm">${comments}</span> <span class="mks">${tags}</span></a></li>`;
+}
+
+// A list without rows: its icon, its words and what the user can do there.
+const noList=(key,name,text,action="")=>`<div class="nolist" data-nx-key="${key}"><div>${icon(name,"big")}<p>${esc(text)}</p>${action}</div></div>`;
+function emptyList(data,lang,view){
+  const items=data.items,query=queryOf(items,view),words=labels("The list",lang);
+  const wait=view.code?"":' disabled data-nx-wait="list"';
+  if(data.head.reads===false){
+    const record=`<button class="btn" type="button" data-nx-act="record" data-nx-focus="record-2"${view.code?"":' disabled data-nx-wait="record"'}>${icon("i-record")}<span>${esc(labels("The head",lang)[4])}</span></button>`;
+    return noList("not-read","i-info",codeMessage("Not read",lang,{why:notReadWhy(data.head.source_state,lang)}),record);
+  }
+  if(!Number(data.head.counts?.items))return noList("empty","i-list",label("No items",0,lang));
+  const text=items.q?label("No match",2,lang,{q:items.q}):items.filter==="mine"?label("No match",0,lang):items.filter==="talk"?label("No match",1,lang):codeMessage("Nothing left",lang);
+  // Show all clears the filter and the search (SCR-113#no-match).
+  const all=query.filter==="all"&&!query.q&&!items.q&&items.filter==="all"?"":`<button class="btn" type="button" data-nx-act="show-all" data-nx-focus="show-all"${wait}>${esc(words[7])}</button>`;
+  return noList("no-match","i-search",text,all);
+}
+
+// The items read so far, in groups by context or in the source's order (REQ-227), and the last
+// row while more remain: "{n} of {total}", "Loading more…", or "Could not load more." with Try
+// again. view.entries holds the pages that the code read after the first.
+export function drawList(data,lang,view){
+  const items=data.items,entries=view.entries||items.entries,words=labels("The list",lang),stage=data.stage;
+  if(!entries.length)return`<section class="list" data-nx-key="list" data-nx-sub>${emptyList(data,lang,view)}</section>`;
+  // Each row's key: its ID, and a count after it for a second item with the same ID, so that
+  // no two rows share one.
+  const seen=new Map(),row=entry=>{const id=String(entry.id),n=seen.get(id)||0;seen.set(id,n+1);return itemRow(entry,stage,lang,view.selected,n?`i:${id}#${n}`:`i:${id}`);};
+  let body="";
+  if(items.group==="context"){
+    const byContext=new Map();
+    for(const entry of entries){const key=entry.context??null;if(!byContext.has(key))byContext.set(key,[]);byContext.get(key).push(entry);}
+    const known=new Map((items.groups||[]).map(group=>[group.context??null,group]));
+    // The groups in the answer's order, then any that only a later page named.
+    const order=[...known.keys(),...[...byContext.keys()].filter(key=>!known.has(key))].filter(key=>byContext.has(key));
+    body=order.map(key=>{
+      const group=known.get(key)||{context:key,title:null,count:byContext.get(key).length},slug=key===null?"_":key,id=`gh-${esc(slug)}`;
+      const title=key===null?esc(words[8]):`<span class="mono">${esc(key)}</span> ${esc(group.title||"")}`;
+      return`<section class="grp-l" data-nx-key="g:${esc(slug)}" data-nx-sub aria-labelledby="${id}"><h2 class="gh" id="${id}" data-nx-key="h">${title} <span class="mono n">${esc(count(group.count))}</span></h2><ul data-nx-key="u" data-nx-sub>${byContext.get(key).map(row).join("")}</ul></section>`;
+    }).join("");
+  }else body=`<ul data-nx-key="u" data-nx-sub>${entries.map(row).join("")}</ul>`;
+  const total=Number(items.total)||0;
+  let more="";
+  if(entries.length<total){
+    const inside=view.more==="loading"?esc(words[10]):view.more==="failed"?`${esc(words[11])} <button class="btn sm" type="button" data-nx-act="more" data-nx-focus="more">${icon("i-reload")}${esc(labels("Page buttons",lang)[0])}</button>`:esc(label("The list",9,lang,{n:count(entries.length),total:count(total)}));
+    more=`<p class="more" data-nx-key="more" data-nx-live${view.more==="failed"?' role="alert"':""}>${inside}</p>`;
+  }
+  return`<section class="list" data-nx-key="list" data-nx-sub>${body}${more}</section>`;
+}
+
+// "Updating…" while the code reads again (rule 6), over the list or the picture.
+export const drawUpdating=(view,lang)=>`<p class="upd" role="status" data-nx-key="upd" data-nx-live>${view.updating?esc(codeMessage("Updating",lang)):""}</p>`;
+// The inside of the stage's middle (the stage part): data is API-158's answer.
+export function drawStage(data,lang,view={}){
+  if(!data?.head||!data.items||!Array.isArray(data.items.entries))throw new Error("Unreadable page data");
+  const filters=data.head.reads===false?"":drawFilters(data,lang,view);
+  return drawHead(data,lang,view)+drawNotes(view,lang)+filters+`<div class="lw" data-nx-key="lw" data-nx-sub>${drawUpdating(view,lang)}${drawList(data,lang,view)}</div>`;
+}
+
+// The stage record (SPEC-138, SPEC-139): the recorded state, next action, checkpoints and checks,
+// each checkpoint passed in NEXUS with Withdraw, and passing the checkpoint with the words.
+// state is the code's {sending, note, passNote, left, over}: what is being sent; the record's
+// message at its top, such as that of a checkpoint recorded meanwhile; the message of a pass or
+// a withdrawal that failed, above the words box as SCR-112#error draws it; the characters left
+// from 90 per cent of the limit (rule 5); and whether the words are over their limit, which
+// stops Pass and says the limit.
+function message(note,lang,focus){
+  if(!note)return"";
+  const tone=["info","warn","err"].includes(note.tone)?note.tone:"err",buttons=labels("Page buttons",lang),row=[];
+  // A refusal that Load again answers shows its icon (SCR-112#stale, SCR-112#error).
+  const mark=note.load?"i-reload":tone==="err"?"i-err":tone==="warn"?"i-warn":"i-info";
+  if(note.load)row.push(`<button class="btn sm" type="button" data-nx-act="load" data-nx-focus="${esc(focus)}:load">${icon("i-reload")}${esc(buttons[1])}</button>`);
+  if(note.retry)row.push(`<button class="btn sm" type="button" data-nx-act="${esc(note.retry)}"${note.checkpoint?` data-nx-checkpoint="${esc(note.checkpoint)}"`:""} data-nx-focus="${esc(focus)}:retry">${icon("i-reload")}${esc(buttons[0])}</button>`);
+  if(note.signIn)row.push(`<button class="btn sm pri" type="button" data-nx-act="sign-in" data-nx-focus="${esc(focus)}:sign-in">${esc(buttons[2])}</button>`);
+  if(note.here)row.push(`<a class="lnk" href="${esc(note.here)}">${esc(buttons[3])}</a>`);
+  return`<div class="msg ${tone}" role="${tone==="err"?"alert":"status"}">${icon(mark)}<div><span class="t">${esc(note.text)}</span>${note.trace?`<span class="tid">${esc(codeMessage("Trace ID",lang,{traceId:note.trace}))}</span>`:""}${row.length?`<div class="row">${row.join("")}</div>`:""}</div></div>`;
+}
+const https=value=>typeof value==="string"&&/^https:\/\/[^\s"'<>]+$/.test(value)&&value.length<=2000?value:null;
+// What a checkpoint passed in NEXUS recorded, under its date (SCR-112, SCR-113): what the page
+// showed, "Commit {commit}" or, for a snapshot that names no commit, "Snapshot {n}"
+// (SPEC-194); "Answers the request", a link to the request that it answered in the stage's
+// talk; and the kind of browser and device (SPEC-195), the browser's family and the device's
+// class joined by a comma, as "Safari, phone", with "Software drove the browser" only where the
+// page reported it. Words outside the server's vocabulary show nothing. A checkpoint passed
+// before the revision, whose kind is null, shows none of these: it never says unknown for what
+// was not recorded. The words are a record, not a check. Under 1,024 pixels each is on a line
+// of its own, and from 1,024 they share a line that wraps (page.css).
+export function drawPassed(cp,lang){
+  if(cp?.browser==null)return"";
+  const words=labels("The kind of browser and device",lang),browser=BROWSERS.indexOf(cp.browser),device=DEVICES.indexOf(cp.device);
+  const seen=typeof cp.commit==="string"&&/^[0-9a-f]{40}$/.test(cp.commit)?label("The head",2,lang,{commit:cp.commit.slice(0,7)})
+    :Number.isInteger(cp.revision)&&cp.revision>0?label("A passed checkpoint's record",1,lang,{n:String(cp.revision)}):"";
+  const asked=typeof cp.comment==="string"&&/^nc_[0-9a-hjkmnp-tv-z]{12}$/.test(cp.comment)?`<a class="lnk" href="#talk=${cp.comment}" data-nx-act="answers" data-nx-comment="${cp.comment}" data-nx-focus="answers:${esc(cp.id)}">${esc(label("A passed checkpoint's record",0,lang))}</a>`:"";
+  const kind=[browser>=0?words[browser]:"",device>=0?words[BROWSERS.length+device]:""].filter(Boolean).join(", ");
+  const lines=[seen&&`<span class="cpc">${esc(seen)}</span>`,asked&&`<span class="cpq">${asked}</span>`,...[kind,cp.driven===true?words[BROWSERS.length+DEVICES.length]:""].filter(Boolean).map(line=>`<span>${esc(line)}</span>`)].filter(Boolean);
+  return lines.length?`<p class="cpk">${lines.join('<span class="sep" aria-hidden="true">·</span>')}</p>`:"";
+}
+// The stage's open checkpoint request whole, above the words box (SCR-112, SCR-113, SPEC-139):
+// "Checkpoint", the agent and the time of the request's last entry, that entry's whole text, the
+// thing to look at first, the commit that the project shows, which a pass is to name (SPEC-194,
+// TASK-301), and what is left in the stage, its open discrepancies, its other open comments,
+// without the request, and its pending reflections (REQ-176), each on a line of its own. talk is
+// the stage's whole talk that the page holds (API-152) and the counts are the record's
+// (API-158). A request stored without the form shows as it is, without the thing to look at
+// first; a project whose snapshot names no commit shows none.
+function drawRequest(data,lang,talk){
+  const request=stageRequest(talk);if(!request)return"";
+  const overview=data.record||{},total=key=>Math.max(0,Number(overview[key]?.total)||0),words=labels("A checkpoint request, whole",lang);
+  const commit=typeof data.project?.commit==="string"&&data.project.commit?`<p class="rqc" data-nx-key="commit">${esc(label("The head",2,lang,{commit:data.project.commit.slice(0,7)}))}</p>`:"";
+  const left=[label("A checkpoint request, whole",2,lang,{n:count(total("discrepancies"))}),label("A checkpoint request, whole",3,lang,{n:count(Math.max(0,total("comments")-1))}),label("A checkpoint request, whole",4,lang,{n:count(total("reflections"))})];
+  return`<div class="rq" data-nx-key="rq" data-nx-sub><div class="hd" data-nx-key="rqh"><span class="kind acc">${esc(labels("An entry's kind",lang)[3])}</span><span class="who">${esc(labels("Author and time",lang)[0])} · ${time(request.made_at)}</span></div><p class="tx" data-nx-key="rqt">${esc(request.text)}</p>${lookFirst(request.look_first,lang,"rec-look")}${commit}<p class="rql" data-nx-key="rql"><span class="mu">${esc(words[1])}</span> ${left.map((part,index)=>`<span class="c">${esc(part)}${index<left.length-1?" ·":""}</span>`).join(" ")}</p></div>`;
+}
+export function drawRecord(data,lang,state={},talk=null){
+  const words=labels("The stage record",lang),head=labels("The head",lang),headings=oldLabels("Overview's headings",lang),none=oldLabels("Item values",lang)[0];
+  const overview=data.record||{},recorded=overview.record||null,checks=Array.isArray(overview.checks)?overview.checks:[];
+  // A recorded checkpoint that names its checkpoint passed in NEXUS shows that one's kind of
+  // browser and device under its date, from the server's checkpoints (SPEC-195); the record in
+  // Git holds none of it.
+  const passedInNexus=new Map((overview.checkpoints||[]).map(cp=>[cp.id,cp]));
+  const ownCheckpoints=(recorded?.checkpoints||[]).map(cp=>{
+    const where=https(cp.where),meta=[cp.by?esc(cp.by):"",cp.date?dayTime(cp.date):""].filter(Boolean).join(" · ");
+    const kind=typeof cp.nexus==="string"&&passedInNexus.has(cp.nexus)?drawPassed(passedInNexus.get(cp.nexus),lang):"";
+    return`<li><span>${esc(cp.approved||"")}</span>${meta?` <span class="mu cap">${meta}</span>`:""}${where?` <a class="lnk clip" href="${esc(where)}" rel="noreferrer">${esc(where)}</a>`:""}${kind}</li>`;
+  }).join("");
+  const warnings=checks.filter(check=>check.level==="warn").length;
+  const checkText=checks.length?[warnings?label("Projects",9,lang,{n:count(warnings)}):"",checks[0].message||checks[0].rule||"",checks.length>1?label("More",0,lang,{n:count(checks.length-1)}):""].filter(Boolean).map(esc).join(" · "):esc(codeMessage("No checks",lang));
+  const list=`<dl data-nx-key="dl"><dt>${esc(headings[0])}</dt><dd>${stateWord(recorded?.state??data.head.state,lang)}</dd><dt>${esc(words[0])}</dt><dd${recorded?.next?"":' class="mu"'}>${esc(recorded?.next||none)}</dd><dt>${esc(words[1])}</dt><dd${ownCheckpoints?"":' class="mu"'}>${ownCheckpoints?`<ul class="cps">${ownCheckpoints}</ul>`:esc(none)}</dd><dt>${esc(words[2])}</dt><dd>${checkText}</dd></dl>`;
+  // The checkpoints passed in NEXUS that wait for their records, and those withdrawn that a
+  // record names (SCR-112#stale), each with its words.
+  const named=new Set((overview.warnings||[]).filter(w=>w.rule==="checkpoint-withdrawn").map(w=>w.checkpoint));
+  const passedList=(overview.checkpoints||[]).map(cp=>{
+    const id=esc(cp.id),sending=state.sending==="withdraw:"+cp.id,quote=cp.words?`<span class="mu">“${esc(cp.words)}”</span>`:"";
+    if(cp.state==="passed"&&!cp.recorded_commit){
+      const button=`<button class="btn sm" type="button" data-nx-act="withdraw" data-nx-checkpoint="${id}" data-nx-focus="withdraw:${id}"${sending||state.reading?' aria-disabled="true"':""}>${keepWidth(words[5],sending&&codeMessage("Sending",lang))}</button>`;
+      return`<div class="wbox" data-nx-key="cp:${id}"><b>${dated(codeMessage("Waiting for its record",lang),cp.passed_at)}</b>${drawPassed(cp,lang)}${quote}${button}</div>`;
+    }
+    if(cp.state==="withdrawn")return`<div class="wbox warn" data-nx-key="cp:${id}"><b>${dated(codeMessage("Withdrawn",lang),cp.withdrawn_at)}</b>${drawPassed(cp,lang)}${quote}${named.has(cp.id)?`<span>${esc(codeMessage("Withdrawn, recorded",lang))}</span>`:""}</div>`;
+    return"";
+  }).join("");
+  const notOpened=Number(overview.not_opened)>0?message({tone:"warn",text:codeMessage("Not opened",lang,{n:count(overview.not_opened)})},lang,"not-opened"):"";
+  // While the stage has an open checkpoint request, the pass names the pass and the stage, as
+  // "Pass the stage 04 checkpoint" (SPEC-196). After a refusal because the project shows another
+  // commit, the pass is off until the page is loaded again (SCR-112#stale).
+  const again=(overview.checkpoints||[]).some(cp=>cp.state==="passed"&&!cp.recorded_commit),sending=state.sending==="pass";
+  const pass=stageRequest(talk)?label("The pass",0,lang,{n:String(data.stage).slice(0,2)}):again?codeMessage("Pass again",lang):words[4];
+  // Past the limit, the limit itself, since nothing is left (rule 5).
+  const left=state.over?esc(codeMessage("text_too_long",lang,{limit:WORDS_LIMIT.toLocaleString("en-US")})):state.left===null||state.left===undefined?"":esc(codeMessage("Characters left",lang,{n:state.left}));
+  // While the record reads again after a pass or a withdrawal, the pass stays off too (BUG-608).
+  const off=state.over?" disabled":sending||state.stale||state.reading?' aria-disabled="true"':"";
+  return`<section class="rec" aria-labelledby="rec-h" data-nx-key="rec" data-nx-sub><span class="handle only-ph" data-nx-key="hd" aria-hidden="true"></span><div class="th" data-nx-key="th"><h2 id="rec-h" tabindex="-1" data-nx-focus="rec-h">${esc(head[4])}</h2><span class="mu sm">${esc(stageNumber(data.stage)+" "+stageName(data.stage,lang))}</span><span class="sp"></span><button class="btn quiet sm" type="button" data-nx-act="close" data-nx-focus="close">${icon("i-back")}${esc(head[5])}</button></div><div class="rb" data-nx-key="rb" data-nx-sub><div class="rnote" data-nx-key="rnote">${message(state.note,lang,"record")}</div>${list}${notOpened?`<div data-nx-key="not-opened">${notOpened}</div>`:""}${passedList?`<div class="cpl" data-nx-key="cpl" data-nx-sub>${passedList}</div>`:""}<h3 data-nx-key="ph">${esc(words[3])}</h3>${drawRequest(data,lang,talk)}<div class="pnote" data-nx-key="pnote">${message(state.passNote,lang,"pass")}</div><label class="lab" for="cp-words" data-nx-key="pl">${esc(headings[5])}</label><textarea class="ta" id="cp-words" name="words" rows="4" data-nx-key="ta" data-nx-focus="words" aria-describedby="cp-left"></textarea><p class="left" id="cp-left" data-nx-key="left" data-nx-live>${left}</p><div class="r2" data-nx-key="r2"><span class="sp"></span><button class="btn pri" type="button" data-nx-act="pass" data-nx-focus="pass"${off}>${keepWidth(pass,sending&&codeMessage("Sending",lang))}</button></div></div></section>`;
+}
+
+// The inside of the side (SCR-111): the stage record while it is open, else what the page could
+// not hold, such as a project without a space (SCR-111's Target), else the selected item's panel
+// (SCR-115), whose talk is narrowed to it, unless its switch or the Talk tab shows the talk; else
+// the talk (SCR-114): the page's talk, or what the view's code shows of it, with its state. Only
+// the view's code selects an item (view.item, ../../ui/item.js), and view.shownSide says which of
+// the two the side shows.
+export function drawSide(data,problem,lang,view={},talk=null){
+  if(view.record)return drawRecord(data,lang,view.recordState,talk);
+  if(problem?.code==="space_not_found")return`<div class="sidemsg" data-nx-key="problem">${message({tone:"warn",text:codeMessage(problem.code,lang),trace:problem.traceId},lang,"problem")}</div>`;
+  if(!talk)return"";
+  const shown=view.talkState?.shown||talk,state=view.talkState||{};
+  if(view.item&&view.shownSide!=="talk")return drawItem(view.item,shown,data,lang,state);
+  return drawTalk(shown,data,lang,state,Boolean(view.code),{sw:Boolean(view.item)});
+}
+
+// The bars under the top bar (SCR-111#stale and rule 7): a newer push, with Load again, and a
+// sign-in that expired, with Sign in again.
+export function stageBars(view,lang){
+  const buttons=labels("Page buttons",lang),out=[];
+  if(view.pushed)out.push(`<div class="bar info" role="status">${icon("i-info")}<span class="t">${timed(label("Pushed again",0,lang),view.pushed)}</span><button class="btn sm" type="button" data-nx-act="load" data-nx-focus="load">${icon("i-reload")}${esc(buttons[1])}</button></div>`);
+  if(view.signIn)out.push(`<div class="bar warn" role="status">${icon("i-warn")}<span class="t">${esc(codeMessage("Sign-in expired",lang))}</span><button class="btn sm pri" type="button" data-nx-act="sign-in" data-nx-focus="sign-in">${esc(buttons[2])}</button></div>`);
+  return out.join("");
+}

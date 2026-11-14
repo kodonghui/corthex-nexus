@@ -13,8 +13,8 @@ export const messages={
     "이 요청은 다른 Access 애플리케이션용으로 확인되었습니다. 서버의 Access 설정을 확인해 주세요."
   ],
   "cross_site": [
-    "A change from another site is refused. Open this page at the server's own address.",
-    "다른 사이트에서 보낸 변경은 받지 않습니다. 서버 주소에서 이 페이지를 열어 주세요."
+    "A request from another site is refused. Open this page at the server's own address.",
+    "다른 사이트에서 보낸 요청은 받지 않습니다. 서버 주소에서 이 페이지를 열어 주세요."
   ],
   "user_only": [
     "Only you can do this, signed in yourself.",
@@ -495,6 +495,309 @@ export const messages={
   "Removed mark": [
     "removed",
     "지움"
+  ],
+  "not_recommended": [
+    "This can no longer be answered as recommended: it was answered or closed, or it now asks something else.",
+    "이 일은 이제 추천대로 답할 수 없습니다. 그사이 답했거나 닫혔거나, 지금은 다른 것을 묻고 있습니다."
+  ],
+  "checkpoint_requested": [
+    "This stage has an open checkpoint request.",
+    "이 단계에는 열린 확인 요청이 있습니다."
+  ],
+  "snapshot_changed": [
+    "The project now shows another commit: {commit}. Look again before you pass. · The project now shows a newer snapshot. Look again before you pass.",
+    "프로젝트가 이제 다른 커밋을 보여 줍니다: {commit}. 다시 보고 통과시켜 주세요. · 프로젝트가 이제 더 새 스냅샷을 보여 줍니다. 다시 보고 통과시켜 주세요."
+  ],
+  "request_changed": [
+    "The checkpoint request changed. Read it again before you pass. · This stage now has a checkpoint request. Read it before you pass.",
+    "확인 요청이 바뀌었습니다. 다시 읽고 통과시켜 주세요. · 이 단계에 이제 확인 요청이 있습니다. 읽고 통과시켜 주세요."
+  ],
+  "item_not_found": [
+    "{id} is not in this project's stages now. · Search all projects for {id}",
+    "{id} 항목은 지금 이 프로젝트의 단계에 없습니다. · 모든 프로젝트에서 {id} 찾기"
+  ]
+};
+// The redesign's words, from stage 08's redesign-words.md: one row's labels, between " · ".
+export const redesign={
+  "Top bar": [
+    "NEXUS · All projects · Search · Full checks · Menu · Close",
+    "NEXUS · 모든 프로젝트 · 찾기 · 전체 점검 · 메뉴 · 닫기"
+  ],
+  "Search hint": [
+    "Find by ID or words · e.g. REQ-107",
+    "ID나 낱말로 찾기 · 예: REQ-107"
+  ],
+  "My turn": [
+    "My turn ({n}) · What the agent asked or proposed and waits for your answer",
+    "내 차례 ({n}) · AI가 묻거나 제안해서 내 답을 기다리는 것"
+  ],
+  "An entry's kind": [
+    "Proposal · Question · Recommendation · Checkpoint",
+    "제안 · 질문 · 추천 · 확인 지점"
+  ],
+  "An entry's place": [
+    "the stage as a whole",
+    "단계 전체"
+  ],
+  "Author and time": [
+    "Agent · {time} · User · {time}",
+    "AI · {time} · 사용자 · {time}"
+  ],
+  "Answers": [
+    "Accept · Dismiss · As recommended · Reply",
+    "받기 · 버리기 · 추천대로 · 답하기"
+  ],
+  "A checkpoint request's buttons": [
+    "Open the request · Add your words",
+    "요청 열기 · 남길 말 더하기"
+  ],
+  "Answered": [
+    "Accepted · Dismissed · Answered as recommended · Checkpoint passed. You can withdraw it in the stage record until it is recorded.",
+    "받음 · 버림 · 추천대로 답함 · 확인 지점을 통과시켰습니다. 기록되기 전까지는 단계 기록에서 철회할 수 있습니다."
+  ],
+  "The turn": [
+    "When you answer, it becomes the agent's turn. The agent reads it at its next work on the project.",
+    "답하면 AI 차례가 됩니다. AI는 그 프로젝트의 다음 작업 때 읽습니다."
+  ],
+  "Agent to-do": [
+    "Agent to-do ({n}) · Comments that wait for the agent · Open discrepancies · Pending reflections · Checkpoints that wait for their records · {n} taken by a session · The agent reads these when its work on the project next starts. The NEXUS server runs no AI. · Nothing waits for the agent now.",
+    "AI 할 일 ({n}) · AI를 기다리는 의견 · 열린 어긋남 · 반영 대기 · 기록을 기다리는 확인 지점 · 세션이 맡은 것 {n} · AI는 그 프로젝트의 다음 작업을 시작할 때 이것을 읽습니다. NEXUS 서버는 AI를 돌리지 않습니다. · 지금은 AI를 기다리는 것이 없습니다."
+  ],
+  "A time of the loop": [
+    "{date} ({ago})",
+    "{date} ({ago})"
+  ],
+  "How long ago": [
+    "just now · {n} min ago · {n} h ago · {n} d ago",
+    "방금 · {n}분 전 · {n}시간 전 · {n}일 전"
+  ],
+  "The last push": [
+    "Pushed {time} · No commit",
+    "올림: {time} · 커밋 없음"
+  ],
+  "The agent's last read": [
+    "Read by the agent {time} · Not read by the agent yet · No agent to-do yet",
+    "AI가 읽음: {time} · AI가 아직 읽지 않음 · 아직 AI 할 일 없음"
+  ],
+  "The mark of a long wait": [
+    "Unread for more than 24 hours · Either no session is at work on this project, or its session cannot reach this server.",
+    "24시간 넘게 읽지 않음 · 이 프로젝트에서 일하는 세션이 없거나, 세션이 이 서버에 닿지 못하고 있습니다."
+  ],
+  "Not read, in the agent to-do": [
+    "{n} not read yet",
+    "아직 안 읽은 것 {n}"
+  ],
+  "Nothing waits": [
+    "Nothing waits for your answer now. · When the agent asks or proposes something, it gathers here.",
+    "지금은 답을 기다리는 것이 없습니다. · AI가 묻거나 제안하면 여기에 모입니다."
+  ],
+  "Done already": [
+    "Done already, in another tab.",
+    "다른 탭에서 이미 했습니다."
+  ],
+  "A project was removed": [
+    "{project} was removed from this server. Its sources stay in Git, and the files on your devices stay.",
+    "{project} 프로젝트를 이 서버에서 지웠습니다. 원본은 Git에 남고, 기기의 파일도 남습니다."
+  ],
+  "Projects": [
+    "Projects ({n}) · By name · By last push · Now: {stage} {state} · Next: {next action} · No picture yet · Not current · Pushed again at {time} · {n} items · {n} warnings · Open · {n} open comments",
+    "프로젝트 ({n}) · 이름순 · 올린 순 · 지금: {stage} {state} · 다음: {next action} · 아직 그림 없음 · 최신 아님 · {time}에 다시 올라옴 · 항목 {n} · 경고 {n} · 열기 · 열린 의견 {n}"
+  ],
+  "Buttons not loaded": [
+    "The page's buttons could not load. Load the page again to answer here.",
+    "페이지의 단추를 불러오지 못했습니다. 여기서 답하려면 페이지를 다시 불러와 주세요."
+  ],
+  "Stage groups": [
+    "Discovery · Definition · Contracts · Screens · Building · Presentation",
+    "발견 · 정의 · 계약 · 화면 · 만들기 · 발표"
+  ],
+  "Legend": [
+    "✓ done · ◐ in progress · ○ not started · – skipped · ? not recorded · picture",
+    "✓ 완료 · ◐ 진행 중 · ○ 시작 전 · – 건너뜀 · ? 기록 없음 · 그림"
+  ],
+  "Pushed again": [
+    "This project was pushed again at {time}. Load again to see it.",
+    "이 프로젝트가 {time}에 다시 올라왔습니다. 보려면 다시 불러와 주세요."
+  ],
+  "Tabs": [
+    "Picture · List · Talk {n} · Item · Talk ({n})",
+    "그림 · 목록 · 대화 {n} · 항목 · 대화 ({n})"
+  ],
+  "The folds": [
+    "Fold the list of stages · Show the list of stages · Fold the talk · Show the talk",
+    "단계 목록 접기 · 단계 목록 펴기 · 대화 접기 · 대화 펴기"
+  ],
+  "The workspace's head": [
+    "Project data",
+    "프로젝트 자료"
+  ],
+  "The head": [
+    "Last checkpoint {date} · No checkpoint yet · Commit {commit} · drawn {time} · Stage record · Back to the talk",
+    "마지막 확인 지점 {date} · 아직 확인 지점 없음 · 커밋 {commit} · {time}에 그림 · 단계 기록 · 대화로 돌아가기"
+  ],
+  "The head's counts": [
+    "{n} contexts · {n} terms · {n} open hotspots · {n} tables · {n} screens · {n} requirements · {n} cases",
+    "컨텍스트 {n} · 용어 {n} · 열린 핫스팟 {n} · 표 {n} · 화면 {n} · 요구사항 {n} · 사례 {n}"
+  ],
+  "Not read": [
+    "Not read: {why} · the source is missing · no text source is set · the project skips this stage · its repository was not on the machine that made the snapshot · its setting needs a fix",
+    "읽지 않음: {why} · 원본이 없음 · 텍스트 원본이 정해지지 않음 · 프로젝트가 이 단계를 건너뜀 · 스냅샷을 만든 기기에 저장소가 없었음 · 설정을 고쳐야 함"
+  ],
+  "The stage record": [
+    "Next action · Checkpoints · Checks · Pass the checkpoint · Pass · Withdraw",
+    "다음 행동 · 확인 지점 · 점검 · 확인 지점 통과 · 통과 · 철회"
+  ],
+  "The kind of browser and device": [
+    "Chrome · Safari · Firefox · Edge · another browser · unknown browser · phone · tablet · desktop · unknown device · Software drove the browser",
+    "Chrome · Safari · Firefox · Edge · 다른 브라우저 · 알 수 없는 브라우저 · 휴대폰 · 태블릿 · 데스크톱 · 알 수 없는 기기 · 소프트웨어가 브라우저를 조작함"
+  ],
+  "A checkpoint request, whole": [
+    "Look at first · Left in this stage · {n} open discrepancies · {n} other open comments · {n} pending reflections",
+    "먼저 볼 것 · 이 단계에 남은 것 · 열린 어긋남 {n} · 다른 열린 의견 {n} · 반영 대기 {n}"
+  ],
+  "The pass": [
+    "Pass the stage {n} checkpoint",
+    "{n}단계 확인 지점 통과"
+  ],
+  "A passed checkpoint's record": [
+    "Answers the request · Snapshot {n}",
+    "답한 요청 · 스냅샷 {n}"
+  ],
+  "The picture's tools": [
+    "Zoom out · Zoom in · Fit · Go to · Map of the whole picture · {stage}, read-only",
+    "축소 · 확대 · 맞추기 · 바로 가기 · 전체 그림 지도 · {stage}, 읽기 전용"
+  ],
+  "The editor": [
+    "The editor is loading. You can already read and move the picture. · The editor could not load. The picture and item list remain available.",
+    "편집기를 불러오는 중입니다. 그림은 바로 읽고 이동할 수 있습니다. · 편집기를 불러오지 못했습니다. 그림과 항목 목록은 계속 사용할 수 있습니다."
+  ],
+  "The marks": [
+    "Open comments · Open proposals · Open discrepancies · Accepted, not yet reflected · Legend of the marks · {label}: {n}",
+    "열린 의견 · 열린 제안 · 열린 어긋남 · 받음, 아직 반영 전 · 표시 범례 · {label}: {n}"
+  ],
+  "A newer picture": [
+    "A newer version of this picture is on the server. · Show it",
+    "서버에 이 다이어그램의 새 버전이 있습니다. · 보기"
+  ],
+  "The list": [
+    "All · With talk · My turn · What is left · Search in this stage · By context · In the source's order · Show all · No context · {n} of {total} · Loading more… · Could not load more.",
+    "모두 · 대화 있음 · 내 차례 · 남은 것 · 이 단계에서 찾기 · 컨텍스트별 · 원문 순서 · 모두 보기 · 컨텍스트 없음 · {total}개 중 {n}개 · 더 불러오는 중… · 더 불러오지 못했습니다."
+  ],
+  "No items": [
+    "This stage holds no items yet.",
+    "이 단계에는 아직 항목이 없습니다."
+  ],
+  "No match": [
+    "Nothing waits for you in this stage. · No item of this stage has talk yet. · Nothing in this stage matches “{q}”.",
+    "이 단계에는 내 답을 기다리는 것이 없습니다. · 이 단계에는 아직 대화가 있는 항목이 없습니다. · 이 단계에서 “{q}”에 맞는 항목이 없습니다."
+  ],
+  "The talk": [
+    "Talk · My turn {n} · The agent's turn {n} · The agent's turn ({n}) · Apart: comments whose item is gone ({n}) · Closed ({n}) · Show more",
+    "대화 · 내 차례 {n} · AI 차례 {n} · AI 차례 ({n}) · 따로: 항목이 없어진 의견 ({n}) · 닫힌 대화 ({n}) · 더 보기"
+  ],
+  "Waiting": [
+    "Waiting for the agent since {time} · Taken by the agent at {time}",
+    "{time}부터 AI를 기다림 · {time}에 AI가 맡음"
+  ],
+  "Not read, on an entry": [
+    "Not read by the agent yet",
+    "AI가 아직 읽지 않음"
+  ],
+  "The box": [
+    "Comment on the stage as a whole · Leave · The agent reads this at its next work on the project. · Leave a new comment",
+    "단계 전체에 의견 남기기 · 남기기 · AI는 그 프로젝트의 다음 작업 때 이것을 읽습니다. · 새 의견으로 남기기"
+  ],
+  "Narrowed": [
+    "Talk on {id} · All talk of the stage",
+    "{id}의 대화 · 단계의 대화 모두"
+  ],
+  "No talk": [
+    "No talk on this stage yet. Select an item to talk about it, or write about the stage as a whole. · No comments on {id} yet.",
+    "이 단계에는 아직 대화가 없습니다. 항목을 골라 그 항목에 대해 말하거나, 단계 전체에 대해 써 주세요. · {id}에는 아직 의견이 없습니다."
+  ],
+  "The talk's entries": [
+    "Mark answered · Settled, waiting for the agent's record · Closed as answered · Closed with a decision",
+    "답변 완료로 표시 · 결정됨, AI의 기록을 기다림 · 답변 완료로 닫힘 · 결정으로 닫힘"
+  ],
+  "An item that the talk selects": [
+    "{id} is no longer in this stage. · The picture is not current, so the list shows this item. · The picture is not drawn yet, so the list shows this item. · This item is not in the list as you narrowed it.",
+    "{id} 항목은 이제 이 단계에 없습니다. · 그림이 최신이 아니어서 목록에서 이 항목을 보여 줍니다. · 그림을 아직 그리지 않아 목록에서 이 항목을 보여 줍니다. · 좁혀 놓은 목록에는 이 항목이 없습니다."
+  ],
+  "The item": [
+    "Context: {id} {name} · Source: {path}, line {n} · Comes from · Leads to · Discrepancies ({n}) · Comment on this discrepancy · Loading {id}… · Source: {path}",
+    "컨텍스트: {id} {name} · 원문: {path}, {n}번째 줄 · 나온 곳 · 이어지는 곳 · 어긋남 ({n}) · 이 어긋남에 의견 남기기 · {id} 불러오는 중… · 원문: {path}"
+  ],
+  "The search": [
+    "Searching… · {n} matches for “{q}” · The first 20. Add a word to narrow it. · Type at least two characters. · Nothing matches “{q}”. · Look in the full checks",
+    "찾는 중… · “{q}” 검색 결과 {n}개 · 처음 20개입니다. 낱말을 더하면 좁혀집니다. · 두 글자 이상 넣어 주세요. · “{q}”에 맞는 항목이 없습니다. · 전체 점검에서 보기"
+  ],
+  "The project's data": [
+    "Project data · Last push · Last read by the agent · Session {label} · No session label · Not read yet · On this server, and not in Git · Comments · Replies · Recorded decisions · Proposals · Reflections · Checkpoints passed in NEXUS · Loading the project's data…",
+    "프로젝트 자료 · 마지막 올림 · AI의 마지막 읽음 · 세션 {label} · 세션 이름표 없음 · 아직 읽지 않음 · 이 서버에만 있고 Git에는 없는 것 · 의견 · 답글 · 기록된 결정 · 제안 · 반영 · NEXUS에서 통과시킨 확인 지점 · 프로젝트 자료를 불러오는 중…"
+  ],
+  "No space": [
+    "This project has no space yet: nothing here is missing from Git.",
+    "이 프로젝트에는 아직 공간이 없습니다. Git에 없는 것이 여기에는 없습니다."
+  ],
+  "The export": [
+    "Export · One JSON file with this project's comments, proposals, reflections and checkpoints. It is your own copy: the server keeps none, and NEXUS reads no export back in. · Preparing the file… · Your browser has the file {file}.",
+    "내보내기 · 이 프로젝트의 의견, 제안, 반영, 확인 지점을 담은 JSON 파일 하나입니다. 내가 가지는 사본이며, 서버는 사본을 남기지 않고 NEXUS는 내보낸 파일을 다시 읽어 들이지 않습니다. · 파일을 만드는 중… · 브라우저가 {file} 파일을 받았습니다."
+  ],
+  "The export failed": [
+    "No file was made. · There is nothing to export.",
+    "파일을 만들지 못했습니다. · 내보낼 것이 없습니다."
+  ],
+  "The removal": [
+    "Remove this project · Deletes this project's snapshot and space from this server. Its sources stay in Git, and the files on your devices stay.",
+    "이 프로젝트 지우기 · 이 서버에서 이 프로젝트의 스냅샷과 공간을 지웁니다. 원본은 Git에 남고, 기기의 파일도 남습니다."
+  ],
+  "The removal's confirmation": [
+    "Remove {project} from this server · This deletes: · The snapshot, with {n} pictures and {m} discrepancies. A push makes these again. · The project space, with what Git does not hold: · Open comments · Open proposals · Pending reflections · Checkpoints not yet recorded · Export first · A removed project comes back only by a first push that you agree to in a session, with an empty space. · Type the project's name to confirm: {project} · The name does not match yet. · Cancel · Removing…",
+    "이 서버에서 {project} 지우기 · 지워지는 것: · 스냅샷과 그림 {n}개, 어긋남 {m}개. 다시 올리면 다시 생깁니다. · 프로젝트 공간과 Git에 없는 것: · 열린 의견 · 열린 제안 · 반영 대기 · 아직 기록하지 않은 확인 지점 · 먼저 내보내기 · 지운 프로젝트는 세션에서 내가 동의해 처음부터 다시 올릴 때만, 빈 공간으로 돌아옵니다. · 확인하려면 프로젝트 이름을 입력해 주세요: {project} · 이름이 아직 맞지 않습니다. · 취소 · 지우는 중…"
+  ],
+  "The removal changed": [
+    "What this removal deletes changed while this was open. Check it again.",
+    "이 창이 열려 있는 동안 지워지는 것이 바뀌었습니다. 다시 확인해 주세요."
+  ],
+  "Nothing to remove": [
+    "There is nothing to remove.",
+    "지울 것이 없습니다."
+  ],
+  "List marks": [
+    "Discrepancy · Pending reflection · {n} comments",
+    "어긋남 · 반영 대기 · 의견 {n}"
+  ],
+  "List fields": [
+    "Priority · Status · Type · Part of",
+    "우선순위 · 상태 · 유형 · 속한 곳"
+  ],
+  "More": [
+    "and {n} more",
+    "외 {n}개"
+  ],
+  "An item's kind": [
+    "context · term · requirement · user flow · spec · table · API · screen · task · test case · bug · decision · scene",
+    "컨텍스트 · 용어 · 요구사항 · 유저 플로우 · 기능 명세 · 표 · API · 화면 · 작업 · 테스트 · 버그 · 결정 · 장면"
+  ],
+  "Stage names": [
+    "Domain discovery · PRD · User flow · Functional spec · ERD · API · Sitemap · Screen states · Mockup · WBS · Development · QA · Presentation",
+    "도메인 탐색 · PRD · 유저 플로우 · 기능 명세 · ERD · API · 사이트맵 · 화면 상태 · 목업 · WBS · 개발 · QA · 발표"
+  ],
+  "Page buttons": [
+    "Try again · Load again · Sign in again · Open this page",
+    "다시 시도 · 다시 불러오기 · 다시 로그인 · 이 페이지 열기"
+  ],
+  "Proposal states": [
+    "open · accepted · dismissed · withdrawn",
+    "열림 · 받음 · 버림 · 철회됨"
+  ],
+  "No progress": [
+    "No progress recorded yet. Ask your AI to record each stage with the corthex-hub skill.",
+    "아직 단계별 진행 상태를 기록하지 않았습니다. AI에게 corthex-hub 스킬로 기록해 달라고 하세요."
+  ],
+  "Nothing pushed": [
+    "Nothing has been pushed to this server yet. It shows each pushed project's stages, checks and pictures. · To push a project: · register it with the corthex skill; · list it in `nexus.push` with this server's address in `nexus.url`; · set the service token's two environment variables, `CORTHEX_NEXUS_CLIENT_ID` and `CORTHEX_NEXUS_CLIENT_SECRET`; · then have the agent show a dry run and push.",
+    "아직 이 서버에 올라온 프로젝트가 없습니다. 이 서버는 올라온 프로젝트마다 단계, 점검, 그림을 보여 줍니다. · 프로젝트를 올리려면: · corthex 스킬로 등록하고, · `nexus.push`에 넣고 `nexus.url`에 이 서버의 주소를 적고, · 서비스 토큰의 환경 변수 두 개 `CORTHEX_NEXUS_CLIENT_ID`와 `CORTHEX_NEXUS_CLIENT_SECRET`을 설정한 뒤, · AI에게 미리 보기를 보이고 올려 달라고 하세요."
   ]
 };
 export function words(key,lang="en",values={}) {

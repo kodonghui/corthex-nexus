@@ -41,7 +41,7 @@ test("the actual handler provides a complete discussion, reflection and checkpoi
   const decision=await call("POST",base+"/comments/"+id+"/decisions",{kind:"agent",body:{link:"https://example.com/record"}});
   assert.equal(decision.status,201,decision.text);
   const thread=await call("GET",base+"/comments/"+id);assert.equal(thread.data.replies.length,1);assert.equal(thread.data.decisions.length,1);
-  const checkpoint=await call("POST",base+"/checkpoints",{body:{part:"nexus",stage:"05-erd"}});assert.equal(checkpoint.status,201,checkpoint.text);
+  const checkpoint=await call("POST",base+"/checkpoints",{body:{part:"nexus",stage:"05-erd",commit:snapshot.repos["."].default.commit}});assert.equal(checkpoint.status,201,checkpoint.text);
   const kid=checkpoint.data.id;
   assert.equal((await call("GET",base+"/checkpoints/"+kid)).data.state,"passed");
   assert.equal((await call("GET",base+"/overview/nexus/05-erd")).data.checkpoints.length,1);
@@ -94,28 +94,31 @@ test("HEAD, the protected code endpoint and browser refusals keep their distinct
   const codeHead=await call("HEAD","/code/"+code,{views});assert.equal(codeHead.text,"");assert.equal(codeHead.headers.get("Cache-Control"),file.headers.get("Cache-Control"));
   const unknown=await call("GET","/code/view.ffffffff.js",{views});assert.equal(unknown.data.code,"not_found");assert.equal(unknown.headers.get("Cache-Control"),"no-store");
   const denied=await call("GET","/code/"+code,{views,ctx:{}});assert.equal(denied.status,403);assert.equal(denied.headers.get("Cache-Control"),"no-store");
-  const browser=await call("GET","/pictures/missing/_/05-erd",{headers:{Accept:"text/html"}});
+  // 0.2's picture view leads to the stage's page (TASK-278), which refuses an unknown project.
+  const led=await call("GET","/pictures/missing/_/05-erd",{headers:{Accept:"text/html"}});
+  assert.deepEqual([led.status,led.headers.get("Location"),led.text],[302,"/p/missing/_/05-erd",""]);
+  const browser=await call("GET","/p/missing/_/05-erd",{headers:{Accept:"text/html"}});
   assert.equal(browser.status,404);assert.equal(browser.headers.get("Content-Type"),"text/html; charset=utf-8");assert.match(browser.text,/이 프로젝트는 서버에 없습니다/);assert.match(browser.text,/추적 ID/);
   const api=await call("GET","/api/spaces/missing/todo",{headers:{Accept:"text/html"}});assert.equal(api.headers.get("Content-Type"),"application/problem+json");
 });
 
-test("picture and overview bootstrap JSON preserve literal replacement characters and inert HTML",async()=>{
+test("the stage's page, where 0.2's picture view and stage overview lead, keeps literal replacement characters and inert HTML in its data",async()=>{
   const call=server(),data=structuredClone(snapshot);
   const literal="literal $' $` $$ </script><script>unsafe</script> & tail";
   data.pictures[0].source.tables[0].name=literal;
   await call("POST","/api/snapshots",{body:data});
   await call("POST","/api/spaces/corthex/comments",{body:{part:"nexus",stage:"05-erd",item:"TBL-111",text:literal}});
-  for(const path of ["/pictures/corthex/nexus/05-erd","/overview/corthex/nexus/05-erd"]) {
-    const response=await call("GET",path);
-    assert.equal(response.status,200,response.text);
-    assert.equal(response.text.split("</script>").length,2);
-    const payload=JSON.parse(response.text.match(/<script id="view-data" type="application\/json">(.*?)<\/script>/s)[1]);
-    assert.deepEqual(Object.keys(payload).sort(),["schema","generated_at","lang","view","data","problem"].sort());
-    assert.match(payload.generated_at,/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
-    assert.ok(Number.isFinite(Date.parse(payload.generated_at)));
-    assert.equal(payload.data.comments.entries[0].text,literal);
-    if(payload.view==="picture")assert.equal(payload.data.picture.source.tables[0].name,literal);
-  }
+  for(const [path,location] of [["/pictures/corthex/nexus/05-erd","/p/corthex/nexus/05-erd"],["/overview/corthex/nexus/05-erd","/p/corthex/nexus/05-erd#view=list"]])
+    assert.deepEqual([(await call("GET",path)).headers.get("Location")],[location],path);
+  const response=await call("GET","/p/corthex/nexus/05-erd");
+  assert.equal(response.status,200,response.text);
+  assert.equal(response.text.split("</script>").length,2);
+  const payload=JSON.parse(response.text.match(/<script id="view-data" type="application\/json">(.*?)<\/script>/s)[1]);
+  assert.deepEqual(Object.keys(payload),["schema","generated_at","lang","data","talk","picture","problem"]);
+  assert.match(payload.generated_at,/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+  assert.ok(Number.isFinite(Date.parse(payload.generated_at)));
+  assert.equal(payload.talk.agent.entries[0].text,literal);
+  assert.equal(payload.picture.picture.source.tables[0].name,literal);
   assert.throws(()=>renderView("no marker",{}),/placeholder/);
   assert.throws(()=>renderView("__CORTHEX_VIEW_DATA____CORTHEX_VIEW_DATA__",{}),/placeholder/);
 });
@@ -128,18 +131,25 @@ test("an inherited-looking part name still serializes an explicit numeric not_op
   assert.ok(Object.hasOwn(response.data,"not_opened"));assert.equal(response.data.not_opened,0);
 });
 
-test("a known space without a picture serves its problem in the view shell",async()=>{
+test("a known space without a picture: 0.2's picture view leads to the stage's page, which says why",async()=>{
   const call=server();await call("POST","/api/snapshots",{body:snapshot});
   const api=await call("GET","/api/spaces/corthex/pictures/memory/05-erd");
   assert.equal(api.status,404);assert.equal(api.data.code,"picture_not_found");
-  for(const method of ["GET","HEAD"]){
-    const response=await call(method,"/pictures/corthex/memory/05-erd");
-    assert.equal(response.status,200);assert.match(response.headers.get("Content-Type"),/text\/html/);
-    if(method==="HEAD")assert.equal(response.text,"");
-    else {
-      const payload=JSON.parse(response.text.match(/<script id="view-data" type="application\/json">(.*?)<\/script>/s)[1]);
-      assert.equal(payload.data,null);assert.equal(payload.problem.code,"picture_not_found");assert.equal(payload.problem.why,"not-drawn");
+  const original=console.error;console.error=()=>{};
+  try {
+    for(const method of ["GET","HEAD"]){
+      const led=await call(method,"/pictures/corthex/memory/05-erd");
+      assert.deepEqual([led.status,led.headers.get("Location"),led.text],[302,"/p/corthex/memory/05-erd",""]);
+      const response=await call(method,"/p/corthex/memory/05-erd");
+      assert.equal(response.status,200);assert.match(response.headers.get("Content-Type"),/text\/html/);
+      if(method==="HEAD")assert.equal(response.text,"");
+      else {
+        const payload=JSON.parse(response.text.match(/<script id="view-data" type="application\/json">(.*?)<\/script>/s)[1]);
+        assert.equal(payload.picture,null);assert.equal(payload.problem.code,"picture_not_found");assert.equal(payload.problem.why,"not-drawn");
+      }
     }
-  }
-  assert.equal((await call("GET","/pictures/corthex/unknown/05-erd")).status,404);
+    // An unknown part leads on too, and the stage's page refuses it.
+    assert.equal((await call("GET","/pictures/corthex/unknown/05-erd")).headers.get("Location"),"/p/corthex/unknown/05-erd");
+    assert.deepEqual([(await call("GET","/p/corthex/unknown/05-erd")).status,(await call("GET","/p/corthex/unknown/05-erd")).data.code],[404,"part_not_found"]);
+  } finally {console.error=original;}
 });

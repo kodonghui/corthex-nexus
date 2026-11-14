@@ -25,10 +25,18 @@ const JSON_HEADERS = {
 };
 const digest = (text) => createHash('sha256').update(text).digest('hex');
 
-function databaseShape(db) {
+// Since TASK-296 the agent's read of the to-do records its time and session
+// label for its space (SPEC-187). Without lastRead the shape leaves out those
+// two columns of TBL-102, so that the read is shown to change nothing else.
+function databaseShape(db, { lastRead = true } = {}) {
   const tables = db.prepare("SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all();
+  const kept = (name, row) => {
+    if (lastRead || name !== 'project_spaces') return row;
+    const { read_at, read_session, ...rest } = row;
+    return rest;
+  };
   const values = tables.map(({ name, sql }) => [name, sql,
-    db.prepare('SELECT * FROM "' + name.replaceAll('"', '""') + '"').all().map((row) => JSON.stringify(row)).sort()]);
+    db.prepare('SELECT * FROM "' + name.replaceAll('"', '""') + '"').all().map((row) => JSON.stringify(kept(name, row))).sort()]);
   return { hash: digest(JSON.stringify(values)), counts: Object.fromEntries(values.map(([name, , rows]) => [name, rows.length])) };
 }
 
@@ -64,7 +72,8 @@ test('eight named API read variants preserve their exact state, policy and whole
       if (method === 'POST') headers['Idempotency-Key'] = '"nw_' + String(++serial).padStart(12, '0') + '"';
       if (kind === 'agent') headers['Nexus-Session'] = 'qa-read-variants-agent';
       if (body !== undefined) headers['Content-Type'] = 'application/json';
-      const before = databaseShape(f.db);
+      const records = method === 'GET' && kind === 'agent' && path === f.base + '/todo';
+      const before = databaseShape(f.db, { lastRead: !records });
       const errors = [];
       const originalError = console.error;
       let response;
@@ -78,7 +87,7 @@ test('eight named API read variants preserve their exact state, policy and whole
       }
       const text = await response.text();
       const data = JSON.parse(text);
-      const after = databaseShape(f.db);
+      const after = databaseShape(f.db, { lastRead: !records });
       const row = { method, status: response.status, media: response.headers.get('Content-Type'),
         bodySha256: digest(text), databaseUnchanged: before.hash === after.hash,
         beforeDatabaseSha256: before.hash, afterDatabaseSha256: after.hash,
@@ -94,6 +103,11 @@ test('eight named API read variants preserve their exact state, policy and whole
         // Stage06 requires matching Problem.traceId/error logs on errors.
         // These named 200 success schemas do not acquire a Problem field.
         assert.equal(errors.length, 0, 'a successful GET emits no error trace');
+        if (records) {
+          const space = f.db.prepare('SELECT read_at, read_session FROM project_spaces WHERE project = ?').get(f.name);
+          assert.deepEqual({ ...space }, { read_at: data.read_at, read_session: 'qa-read-variants-agent' }, 'the agent\'s read records its time and label');
+          row.lastRead = 'recorded: read_at and read_session of TBL-102 alone changed (SPEC-187, TASK-296)';
+        }
         row.headers = Object.fromEntries(Object.keys(JSON_HEADERS).map((name) => [name, response.headers.get(name)]));
         row.traceRule = 'success response; Problem/error-log trace coupling is conditional on errors';
       }
@@ -216,7 +230,7 @@ test('eight named API read variants preserve their exact state, policy and whole
 
     const overview = await fixture('qa-read-overview');
     await push(overview, oneDiscrepancySnapshot(overview.name));
-    const checkpoint = await post(overview, '/checkpoints', { part: 'sample', stage: '05-erd' }, { schema: 'NewCheckpoint' });
+    const checkpoint = await post(overview, '/checkpoints', { part: 'sample', stage: '05-erd', commit: 'a'.repeat(40) }, { schema: 'NewCheckpoint' });
     await readCase('TC-840', overview, overview.base + '/overview/sample/05-erd', (data) => {
       assert.equal(data.stage, '05-erd');
       assert.equal(data.discrepancies.total, 1);

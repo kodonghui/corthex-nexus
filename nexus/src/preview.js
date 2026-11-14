@@ -1,16 +1,19 @@
 // Shared, dependency-free SVG. Only checked geometry and escaped text enter HTML.
 import {pictureLayout,itemMarks,sceneItems,itemIdentity,STEPS} from "./layout.js";
 import {words} from "../ui/messages.js";
+import {PALETTE} from "./draw/palette.js";
 export const escapePreview=value=>String(value??"").replace(/[&<>"'_]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","_":"&#95;"}[ch]));
 export function pictureLimitMessage(scene,lang){return lang==="ko"?`반복 배치가 너무 복잡해 이 그림을 표시하지 못했습니다. 원본은 그대로 보관되어 있으며 아래에 원본 항목 ${scene.nodes.length}개${scene.listLimited?"까지":""}를 표시합니다.`:`Repeated layout is too complex to display this picture. The original source is unchanged; ${scene.listLimited?"up to ":""}${scene.nodes.length} source items are listed below.`;}
 const number=value=>Number.isFinite(Number(value))?Number(value):0;
-const palette={context:["#64748b","none"],lane:["#64748b","none"],event:["#9a3412","#ffedd5"],command:["#1e40af","#dbeafe"],actor:["#854d0e","#fef9c3"],aggregate:["#854d0e","#fef08a"],"read-model":["#166534","#dcfce7"],policy:["#6b21a8","#f3e8ff"],external:["#86198f","#fae8ff"],hotspot:["#991b1b","#fee2e2"],screen:["#334155","#e2e8f0"],table:["#334155","#e2e8f0"]};
+const palette=PALETTE;
 const fragment=id=>{try{return "#item="+encodeURIComponent(id);}catch{return "#items";}};
-function labelLines(node){
+// A box's lines, and their width in a font's em units: the picture stage's board
+// (./draw/picture.js) sizes its labels the same way.
+export function labelLines(node){
  if(node.kind!=="table")return String(node.label||node.text).split("\n");
  const table=node.raw;return [table.name,...table.columns.map(column=>[table.primary_key.includes(column.name)?"PK":"",table.foreign_keys.some(fk=>fk.columns.includes(column.name))?"FK":"",column.name,column.type,column.null?"":"NOT NULL"].filter(Boolean).join(" "))];
 }
-const widthUnits=text=>Array.from(text).reduce((n,ch)=>n+(ch.codePointAt(0)>255?1:.62),0);
+export const widthUnits=text=>Array.from(text).reduce((n,ch)=>n+(ch.codePointAt(0)>255?1:.62),0);
 export function firstPictureNode(scene,data){
  if(scene.step!==undefined&&scene.step<8)return scene.nodes.find(node=>node.kind==="event")||scene.nodes[0];
  const groups=new Map();for(const node of scene.nodes){const key=node.context||node.key;if(!groups.has(key))groups.set(key,{nodes:[],marks:0});groups.get(key).nodes.push(node);groups.get(key).marks+=itemMarks(node,data||{}).total;}
@@ -56,7 +59,7 @@ export function picturePreview(data,lang="en"){
  const controls=`<div class="controls">${scene.limited?"":button(ko?"축소":"Zoom out")+button(ko?"확대":"Zoom in")+button(ko?"그림 전체":"Whole picture")}<a class="control" href="#items">${ko?"항목 목록":"Items as a list"}</a>${button(ko?"새로 읽기":"Refresh")}</div>`;
  if(!scene.limited&&scene.nodes.length>300)before+=notice(t("Large",{n:scene.nodes.length}));
  const date=new Date(data.picture.committed_at),time=Number.isNaN(date.valueOf())?String(data.picture.committed_at||""):new Intl.DateTimeFormat(lang,{dateStyle:"medium",timeStyle:"short"}).format(date);
- const header=`<header class="topbar"><a class="control" href="/">${ko?"허브 페이지":"Hub page"}</a><h1>${escapePreview(name)}</h1><a class="control" href="/overview/${escapePreview(place)}">${ko?"단계 현황":"Stage overview"}</a></header>`;
+ const header=`<header class="topbar"><a class="control" href="/hub">${ko?"허브 페이지":"Hub page"}</a><h1>${escapePreview(name)}</h1><a class="control" href="/overview/${escapePreview(place)}">${ko?"단계 현황":"Stage overview"}</a></header>`;
  const meta=`<div class="subbar"><span>${ko?"커밋 ":"Commit "}${escapePreview(data.picture.commit)}</span><time>${escapePreview(time)}</time></div>`;
  const picture=scene.limited?`<div class="notice warn" data-preview-limited>${escapePreview(pictureLimitMessage(scene,lang))}</div>`:`<div class="picture-shell preview-container" aria-label="${ko?"읽기 전용 그림":"Read-only picture"}" data-preview-ready="true" data-editor-ready="false">${previewSVG(scene,data,lang)}</div>`;
  const list=`<div class="after-picture"><details id="items" class="items"><summary>${ko?"항목 목록":"Items as a list"} (${items.length})</summary><ul>${items.map(node=>`<li><a href="${escapePreview(node.id?fragment(node.id):"#items")}">${escapePreview([node.id,node.text].filter(Boolean).join(" · "))}</a></li>`).join("")}</ul></details></div>`;
