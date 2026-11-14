@@ -13,6 +13,8 @@ export class NexusProblem extends Error {
     this.status=status;
     for(const key of ["traceId","field","state","why"])if(typeof source?.[key]==="string"&&source[key].length<=120)this[key]=source[key];
     if(Number.isSafeInteger(source?.limit)&&source.limit>=0)this.limit=source.limit;
+    // The commit that the project now shows, which a pass refused by snapshot_changed names (SPEC-194).
+    if(typeof source?.held_commit==="string"&&/^[0-9a-f]{40}$/.test(source.held_commit))this.held_commit=source.held_commit;
   }
 }
 export class ApiClient {
@@ -21,11 +23,25 @@ export class ApiClient {
     if(url.pathname!=="/"||url.search||url.hash||url.username||url.password)throw new Error("Use the page's origin");
     this.origin=url.origin;this.fetcher=fetcher;this.deadline=deadline;
   }
-  async call(method,path,{body,write}={}) {
+  // A request's JSON answer. A write sends its body with its original ID, but for once: the
+  // removal of a project (API-108), which the server does once and answers 404 the second time,
+  // goes with neither.
+  async call(method,path,{body,write,once=false}={}) {
+    return (await this.send(method,path,{body,write,once},response=>response.json())).data;
+  }
+  // The export (API-178): the file whole, its text as the server wrote it and what it holds,
+  // with the reply's Content-Disposition, which the page checks before the browser saves the
+  // text (SCR-130). A reply cut on its way is no JSON, and no file is made.
+  async file(path) {
+    let text="";
+    const {data,response}=await this.send("GET",path,{},async response=>{text=await response.text();return JSON.parse(text);});
+    return {data,text,disposition:response.headers?.get?.("Content-Disposition")||""};
+  }
+  async send(method,path,{body,write,once=false},parse) {
     const url=new URL(path,this.origin);
     if(!path.startsWith("/")||path.startsWith("//")||url.origin!==this.origin||url.username||url.password||url.hash)throw new NexusProblem("cross_site",403);
     const headers={Accept:"application/json"},options={method,headers,redirect:"manual",credentials:"same-origin",cache:"no-store"};
-    if(method!=="GET"&&method!=="HEAD") {
+    if(method!=="GET"&&method!=="HEAD"&&!(once&&method==="DELETE")) {
       if(!WRITE.test(write||""))throw new Error("A write needs its original ID");
       headers["Content-Type"]="application/json";headers["Idempotency-Key"]=JSON.stringify(write);
       options.body=JSON.stringify(body??{});
@@ -40,11 +56,11 @@ export class ApiClient {
       if(response.type==="opaqueredirect"||response.status===401)throw new NexusProblem("sign_in_expired",401);
       if(response.status===429||response.status===503)throw new NexusProblem("busy",response.status);
       let data;
-      try {data=method==="HEAD"&&response.ok?null:await response.json();}
+      try {data=method==="HEAD"&&response.ok?null:await parse(response);}
       catch {throw new NexusProblem("internal",response.status);}
       if(!response.ok)throw new NexusProblem(typeof data?.code==="string"?data.code:"internal",response.status,data);
       if(method!=="HEAD"&&(!data||typeof data!=="object"||Array.isArray(data)))throw new NexusProblem("internal",response.status);
-      return data;
+      return {data,response};
     })();
     try{return await Promise.race([operation,timeout]);}
     finally{clearTimeout(timer);}

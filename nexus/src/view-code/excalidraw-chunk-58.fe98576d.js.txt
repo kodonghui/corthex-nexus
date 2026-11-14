@@ -1,0 +1,1 @@
+import{_ as s}from"/code/excalidraw-chunk-10.780e0346.js";import{d as e}from"/code/excalidraw-chunk-21.207699a5.js";import{a as n}from"/code/excalidraw-chunk-29.6f134819.js";var a=n(t=>{let{securityLevel:c}=s(),o=e("body");if(c==="sandbox"){let m=e(`#i${t}`).node()?.contentDocument??document;o=e(m.body)}return o.select(`#${t}`)},"selectSvgElement");export{a};

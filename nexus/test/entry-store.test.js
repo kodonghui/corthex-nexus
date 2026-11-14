@@ -8,6 +8,8 @@ import { fakeD1 } from "./fake-d1.js";
 
 const NOW="2026-11-03T12:00:00.000Z";
 const PR="https://example.com/repo/pull/1";
+// The default branch commit of the example snapshot, which a pass names (SPEC-194).
+const HELD="3f1c9a7e5b2d4c6a8e0f1b3d5c7a9e1f2b4d6c8a";
 async function fixture() {
   const db=new DatabaseSync(":memory:");const binding=fakeD1(db),store=new Store(binding);
   const data=JSON.parse(readFileSync(new URL("./snapshot-02-example.json",import.meta.url)));
@@ -128,15 +130,15 @@ test("claims exclude other agents, allow user writes, extend and end on closure 
 
 test("checkpoint withdrawal while a PR is open stays in the to-do until it closes",async()=>{
   const {store,write}=await fixture();
-  const c=(await write("checkpoint",null,{part:"nexus",stage:"04-functional-spec",words:"Approved"},{kind:"user"})).body;
+  const c=(await write("checkpoint",null,{part:"nexus",stage:"04-functional-spec",words:"Approved",commit:HELD},{kind:"user"})).body;
   for(const event of ["merged","closed"])await assert.rejects(write("report-checkpoint",c.id,{event,pull_request:PR}),code("checkpoint_state"));
   await write("report-checkpoint",c.id,{event:"opened",pull_request:PR});
   await write("withdraw-checkpoint",c.id,{}, {kind:"user"});
-  const todo=await store.readTodo("corthex","session-b",NOW);
+  const todo=await store.readTodo("corthex","session-b",{now:NOW});
   assert.equal(todo.checkpoints.entries[0].why,"withdrawn-in-review");
   await assert.rejects(write("report-checkpoint",c.id,{event:"opened",pull_request:PR+"2"}),code("checkpoint_withdrawn"));
   await write("report-checkpoint",c.id,{event:"closed",pull_request:PR});
-  assert.equal((await store.readTodo("corthex",null,NOW)).checkpoints.total,0);
+  assert.equal((await store.readTodo("corthex",null,{now:NOW})).checkpoints.total,0);
 });
 
 test("concurrent same-ID writes with the same clock commit once, and a failed batch leaves no receipt",async()=>{
@@ -171,9 +173,86 @@ test("migration 3 preserves a populated schema 2 reflection and adds no public f
   assert.equal(after.last_report,null);delete after.last_report;assert.deepEqual(after,before);
 });
 
+test("migration 4 keeps a schema 3 comment with its replies, decisions, proposal and checkpoint, and then a comment needs only its space",async()=>{
+  const db=new DatabaseSync(":memory:");db.exec("PRAGMA foreign_keys=ON");
+  db.exec("CREATE TABLE migrations(version INTEGER PRIMARY KEY,applied_at TEXT NOT NULL)");
+  for(const m of MIGRATIONS.slice(0,3)){for(const sql of m.statements)db.exec(sql);db.prepare("INSERT INTO migrations VALUES(?,?)").run(m.version,NOW);}
+  const commit="a".repeat(40),id="nc_aaaaaaaaaaaa";
+  db.prepare("INSERT INTO snapshots VALUES(?,1,1,?,?,1,'{}',?,NULL)").run("synthetic",NOW,NOW,commit);
+  db.prepare("INSERT INTO project_spaces(project,created_at) VALUES(?,?)").run("synthetic",NOW);
+  db.prepare("INSERT INTO pictures VALUES('synthetic','','05-erd',?,?,'{}','digest',?,NULL)").run(commit,NOW,NOW);
+  db.prepare("INSERT INTO comments(id,project,part,stage,item,quote,discrepancy,commit_id,author,text,state,closed_as,waits,settled,dismissed,made_at,last_at) VALUES(?,'synthetic','','05-erd','TBL-111','표',NULL,?,'user','保つ','open',NULL,'agent',1,0,?,?)").run(id,commit,NOW,NOW);
+  db.prepare("INSERT INTO replies VALUES(?,1,'user','Yes',1,?)").run(id,NOW);
+  db.prepare("INSERT INTO decisions VALUES(?,1,'https://example.com/decision','Decision',?)").run(id,NOW);
+  db.prepare("INSERT INTO proposals(id,project,part,stage,commit_id,items,reason,change,comment,state,made_at) VALUES('np_aaaaaaaaaaaa','synthetic','','05-erd',?,'[\"TBL-111\"]','Reason','Change',?,'open',?)").run(commit,id,NOW);
+  db.prepare("INSERT INTO checkpoints(id,project,part,stage,commit_id,state,passed_at) VALUES('nk_aaaaaaaaaaaa','synthetic','','05-erd',?,'passed',?)").run(commit,NOW);
+  const rows=()=>["comments","replies","decisions","proposals","checkpoints"].map((table)=>db.prepare("SELECT * FROM "+table).all().map((row)=>({...row})));
+  const before=rows();
+  await new Store(fakeD1(db)).ensure();
+  const after=rows();
+  assert.equal(after[0][0].asks,null);delete after[0][0].asks;
+  assert.equal(after[4][0].comment,null);delete after[4][0].comment;
+  // Migration 5, the design revision's (TASK-295), runs after it and only adds empty columns.
+  for(const [table,columns] of [[0,["look_first"]],[1,["look_first"]],[4,["browser","device","driven","snapshot_revision","entry"]]])
+    for(const row of after[table])for(const column of columns){assert.equal(row[column],null);delete row[column];}
+  assert.deepEqual(after,before);
+  assert.deepEqual(db.prepare("PRAGMA foreign_key_check").all(),[]);
+  assert.deepEqual(db.prepare("SELECT version FROM migrations ORDER BY version").all().map((row)=>row.version),[1,2,3,4,5]);
+  assert.deepEqual(db.prepare("SELECT name FROM sqlite_master WHERE name LIKE '%_keep' OR name='comments_new'").all(),[]);
+  // A comment needs no picture now, takes one of the 13 stages and keeps asks only while it waits for the user.
+  const insert=db.prepare("INSERT INTO comments(id,project,part,stage,item,commit_id,author,text,state,waits,asks,made_at,last_at) VALUES(?,'synthetic','',?,'',?,'agent','Pass it?','open',?,?,?,?)");
+  insert.run("nc_bbbbbbbbbbbb","04-functional-spec",commit,"user","checkpoint",NOW,NOW);
+  assert.throws(()=>insert.run("nc_cccccccccccc","99-x",commit,"user",null,NOW,NOW),/CHECK constraint failed/);
+  assert.throws(()=>insert.run("nc_cccccccccccc","02-prd",commit,"agent","answer",NOW,NOW),/CHECK constraint failed/);
+  assert.throws(()=>insert.run("nc_cccccccccccc","02-prd",commit,"user","approve",NOW,NOW),/CHECK constraint failed/);
+  // A checkpoint keeps its comment until the comment goes; the comment's replies and decisions go with it.
+  db.prepare("UPDATE checkpoints SET comment=?").run(id);
+  db.prepare("DELETE FROM comments WHERE id=?").run(id);
+  assert.equal(db.prepare("SELECT comment FROM checkpoints").get().comment,null);
+  assert.equal(db.prepare("SELECT comment FROM proposals").get().comment,null);
+  assert.equal(db.prepare("SELECT (SELECT COUNT(*) FROM replies)+(SELECT COUNT(*) FROM decisions) AS n").get().n,0);
+  // Removing the project removes its comments through the space.
+  db.prepare("DELETE FROM snapshots").run();
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM comments").get().n,0);
+});
+
+test("SPEC-151, SPEC-143: a comment takes any stage of a held part, and asks lasts while the comment waits for the user",async()=>{
+  const {db,store,write,comment,data}=await fixture();
+  const held=data.repos["."].default.commit;
+  // The user's comment on a stage without a picture takes the held commit.
+  const prd=(await comment({stage:"02-prd",item:"REQ-101"})).body;
+  assert.deepEqual([prd.stage,prd.commit,prd.asks,prd.waits],["02-prd",held,null,"agent"]);
+  // The agent's comment on the stage as a whole needs no quote and says what it asks.
+  const whole=(await write("comment",null,{part:"nexus",stage:"04-functional-spec",item:"",text:"Pass stage 04 as recommended?",asks:"checkpoint",look_first:"TBL-111"})).body;
+  assert.deepEqual([whole.item,whole.quote,whole.waits,whole.asks],["",null,"user","checkpoint"]);
+  assert.equal((await store.readEntry("corthex","comment",whole.id)).asks,"checkpoint");
+  // A pictured stage takes the picture's commit, and a stage of the memory part without a picture the held one.
+  assert.equal((await comment({stage:"05-erd",item:""})).body.commit,data.pictures[0].commit);
+  assert.equal((await comment({part:"memory",stage:"07-sitemap",item:""})).body.commit,held);
+  // The user's entry empties asks; the agent's reply sets it again, or empties it without asks.
+  assert.equal((await write("reply",whole.id,{text:"Why?"},{kind:"user"})).body.comment.asks,null);
+  assert.equal((await write("reply",whole.id,{text:"Because the rows settle it.",asks:"recommended"})).body.comment.asks,"recommended");
+  assert.equal((await write("reply",whole.id,{text:"One more point."})).body.comment.asks,null);
+  await write("reply",whole.id,{text:"Which do you choose?",asks:"answer"});
+  const closed=(await write("answered",whole.id)).body.comment;
+  assert.deepEqual([closed.state,closed.asks],["closed",null]);
+  // The agent's proposal on a comment is an entry that asks nothing.
+  const asking=(await write("comment",null,{part:"nexus",stage:"05-erd",item:"TBL-111",text:"Keep it?",asks:"answer"})).body;
+  await write("proposal",null,{part:"nexus",stage:"05-erd",items:["TBL-111"],reason:"Reason",change:"A synthetic change",comment:asking.id});
+  assert.equal((await store.readEntry("corthex","comment",asking.id)).asks,null);
+  // Only the agent sends asks; a part must be held; the stage must be one of the 13.
+  const field=(name)=>(e)=>e.code==="invalid_request"&&e.fields.field===name;
+  await assert.rejects(comment({asks:"answer"}),field("asks"));
+  await assert.rejects(write("reply",prd.id,{text:"Me too",asks:"answer"},{kind:"user"}),field("asks"));
+  await assert.rejects(comment({part:"other",stage:"02-prd"}),code("part_not_found"));
+  await assert.rejects(write("proposal",null,{part:"nexus",stage:"07-sitemap",items:["SCR-101"],reason:"Reason",change:"Change"}),code("picture_not_found"));
+  assert.deepEqual(db.prepare("PRAGMA foreign_key_check").all(),[]);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM comments WHERE asks IS NOT NULL AND NOT (state='open' AND waits='user')").get().n,0);
+});
+
 test("a checkpoint withdrawal racing a push is replanned before acknowledging the record",async()=>{
   const {store,binding,write,data}=await fixture();
-  const k=(await write("checkpoint",null,{part:"nexus",stage:"05-erd"},{kind:"user"})).body;
+  const k=(await write("checkpoint",null,{part:"nexus",stage:"05-erd",commit:HELD},{kind:"user"})).body;
   const record=data.stages["05-erd"].parts.memory;
   data.stages["05-erd"].parts.nexus={...record,checkpoints:[{...record.checkpoints[0],nexus:k.id}]};
   const batch=binding.batch;let withdraw=true;
@@ -238,15 +317,15 @@ test("two sessions racing a claim give one owner and releasing an absent own cla
 
 test("a passed checkpoint omitted by a later record returns to the to-do and may be withdrawn",async()=>{
   const {store,write,data}=await fixture();
-  const k=(await write("checkpoint",null,{part:"nexus",stage:"05-erd"},{kind:"user"})).body;
+  const k=(await write("checkpoint",null,{part:"nexus",stage:"05-erd",commit:HELD},{kind:"user"})).body;
   const record=data.stages["05-erd"].parts.memory;
   data.stages["05-erd"].parts.nexus={...record,checkpoints:[{...record.checkpoints[0],nexus:k.id}]};
   await store.push(readSnapshot02(data,Date.parse(NOW)),NOW);
-  assert.equal((await store.readTodo("corthex",null,NOW)).checkpoints.total,0);
+  assert.equal((await store.readTodo("corthex",null,{now:NOW})).checkpoints.total,0);
   assert.equal((await store.readEntry("corthex","checkpoint",k.id)).recorded_commit,data.repos["."].default.commit);
   data.stages["05-erd"].parts.nexus.checkpoints=[];
   await store.push(readSnapshot02(data,Date.parse(NOW)),NOW);
   assert.equal((await store.readEntry("corthex","checkpoint",k.id)).recorded_commit,null);
-  assert.equal((await store.readTodo("corthex",null,NOW)).checkpoints.entries[0].id,k.id);
+  assert.equal((await store.readTodo("corthex",null,{now:NOW})).checkpoints.entries[0].id,k.id);
   assert.equal((await write("withdraw-checkpoint",k.id,{}, {kind:"user"})).body.checkpoint.state,"withdrawn");
 });

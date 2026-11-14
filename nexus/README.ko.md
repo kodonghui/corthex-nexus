@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기기에서든 열 수 있게 합니다. 승인된 단독 실행부는 Cloudflare Access·Tunnel 뒤에서 Node HTTP와 SQLite로 돌며 Worker/D1 호환 실행도 유지합니다. 둘 다 `hub.py push`가 보낸 스냅샷과 허브 페이지를 제공합니다. 단독 실행부의 배포·복구 절차는 아래에 있습니다.
+NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기기에서든 열 수 있게 합니다. 승인된 단독 실행부는 Cloudflare Access·Tunnel 뒤에서 Node HTTP와 SQLite로 돌며 Worker/D1 호환 실행도 유지합니다. 둘 다 `hub.py push`가 보낸 스냅샷을 지니고, 주소에서 첫 화면을, `/hub`에서 허브 페이지를 제공합니다. 단독 실행부의 배포·복구 절차는 아래에 있습니다.
 
 이 폴더는 플러그인이 아닙니다. 이 저장소를 내려받은 사본에서 배포합니다.
 
@@ -25,7 +25,7 @@ NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기�
 2. 내 설정 파일 만들기: `wrangler.jsonc`를 `wrangler.local.jsonc`로 복사합니다. 이 사본은 git이 무시합니다. 사본의 `routes`에 내 계정에 있는 도메인의 주소, 예를 들어 `nexus.example.com`을 적고, 한국어 페이지를 원하면 `NEXUS_LANGUAGE`를 `ko`로 바꿉니다.
 3. 배포: `npx wrangler login`을 실행한 뒤 `npm run deploy`를 실행합니다. 첫 배포 때 D1 데이터베이스 `corthex-nexus`가 만들어져 Worker에 연결됩니다. 터미널에서 실행하면 그 ID가 내 설정 파일에도 적히고, 적히지 않아도 다음 배포는 같은 데이터베이스를 씁니다. 이어서 Cloudflare가 주소의 DNS 레코드와 인증서를 더합니다. 예전 서비스 등이 남긴 DNS 레코드가 주소에 이미 있으면 Cloudflare가 그 위에 Worker의 레코드를 만들지 않습니다. 필요하면 그 값을 적어 두고, 대시보드의 내 도메인 **DNS** › **Records**에서 지운 뒤 다시 배포합니다. 다음 단계를 마칠 때까지 주소는 `403`으로 답합니다.
 4. Access로 보호하기: Cloudflare 대시보드에서 **Workers & Pages**로 가서 `corthex-nexus`를 고르고, **Access** 탭에서 **Protect this Worker behind Access**를 누릅니다. **All traffic**을 고르고, 로그인할 수 있는 사람을 정한 뒤(나 혼자라면 **Cloudflare account**) **Apply Access**를 누릅니다. **Zero Trust** › **Access controls** › **Applications**에 이 주소의 Access 애플리케이션이 이미 있으면, 그것이 Worker 단위 Access보다 먼저 적용되어 이미 허브를 보호합니다. 그 정책이 원하는 사람만 들이는지 확인하고 이 단계는 건너뜁니다.
-5. 확인 전에 애플리케이션을 고정합니다. 로컬 `vars`에서 빈 `ACCESS_AUD` 자리를 지운 뒤 `npx wrangler secret put ACCESS_AUD -c wrangler.local.jsonc`를 실행해 입력 프롬프트에 그 애플리케이션의 **Application Audience (AUD) Tag**를 넣습니다. 로컬 파일의 `vars`에는 `ACCESS_TEAM_DOMAIN`으로 팀 호스트(예: `your-team.cloudflareaccess.com`)를 적고 다시 배포합니다. 시크릿 창에서 열면 Access 로그인이 먼저 나오고 빈 허브 페이지가 나옵니다.
+5. 확인 전에 애플리케이션을 고정합니다. 로컬 `vars`에서 빈 `ACCESS_AUD` 자리를 지운 뒤 `npx wrangler secret put ACCESS_AUD -c wrangler.local.jsonc`를 실행해 입력 프롬프트에 그 애플리케이션의 **Application Audience (AUD) Tag**를 넣습니다. 로컬 파일의 `vars`에는 `ACCESS_TEAM_DOMAIN`으로 팀 호스트(예: `your-team.cloudflareaccess.com`)를 적고 다시 배포합니다. 시크릿 창에서 열면 Access 로그인이 먼저 나오고, 빈 첫 화면이 나옵니다. 그 전체 검사는 `/hub`의 허브 페이지를 엽니다.
 6. `hub.py`용 서비스 토큰 만들기: **Zero Trust** › **Access controls** › **Service credentials** › **Service Tokens**에서 토큰을 만들고 Client ID와 Client Secret을 복사합니다. Secret은 이때 한 번만 보입니다. 그다음 **Zero Trust** › **Access controls** › **Applications**에서 허브를 보호하는 Access 애플리케이션, 곧 4단계에서 만든 것이나 주소에 이미 있던 것을 열고, 동작이 **Service Auth**이고 이 토큰을 포함하는 정책을 더합니다. 같은 Worker에 애플리케이션을 하나 더 만들면 서로 부딪칠 수 있으니, 기존 애플리케이션에 더합니다.
 7. 스냅샷을 보내는 컴퓨터마다 `~/.corthex/profile.json`에 주소와 보내도 되는 프로젝트를 적습니다.
 
@@ -42,8 +42,77 @@ NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기�
 ## 쓰기
 
 - `hub.py push`는 `nexus.push`의 프로젝트를 보냅니다. 프로젝트 이름을 주면 그것만 보냅니다. 서버는 프로젝트마다 더 새 스냅샷을 둡니다. 저장된 것보다 먼저 만든 스냅샷은 거절하니, 다시 만들어 보내세요.
-- `hub.py remove <프로젝트>`는 서버에서 프로젝트를 지웁니다. `nexus.push`에서 프로젝트를 빼면 그 뒤로 보내지 않을 뿐, 서버에 둔 것은 남습니다.
+- `hub.py remove <프로젝트>`는 삭제 요청을 보내지 않습니다. 프로젝트를 삭제하면 지워지는 것과 NEXUS에서 그 프로젝트 데이터의 주소를 보여 주며, 삭제는 그 주소에서 내 로그인으로 합니다. `nexus.push`에서 프로젝트를 빼면 그 뒤로 보내지 않을 뿐, 서버에 둔 것은 남습니다.
 - 로그인한 상태에서 `/api/snapshots`를 열면 서버에 둔 목록이 보입니다.
+
+## 병합마다 저장소에서 보내기
+
+프로젝트 저장소는 기본 브랜치에 커밋이 들어올 때마다 세션 없이 스냅샷을 직접 보낼 수 있습니다. 저장소 자체 CI의 작업이 `hub.py push --job`을 실행합니다. 에이전트의 push는 두 번째 방법으로 남습니다. 먼저 보낸 쪽이 커밋을 저장하고, 다른 쪽은 이미 저장된 것을 보고 아무것도 보내지 않습니다.
+
+이 작업은 서버가 이미 가진 프로젝트만 보냅니다. 그래서 프로젝트의 첫 push는 여전히 내가 승인한 뒤 세션에서 `hub.py push <project> --first`로 합니다. 저장된 커밋을 바꾸지도 않습니다. 기본 브랜치의 이력을 다시 쓴 뒤라면 두 커밋을 밝히며 실패합니다. 에이전트 to-do를 읽지 않고, 아직 보내지 못한 쓰기도 보내지 않습니다.
+
+GitHub의 프로젝트 저장소에 더하는 방법:
+
+1. 아래 파일을 pull request로 저장소의 `.github/workflows/corthex-nexus-push.yml`에 더합니다. 기본 브랜치가 `main`이 아니면 `branches`에 그 이름을 적습니다.
+2. 저장소의 **Settings** › **Secrets and variables** › **Actions**에서 저장소 시크릿 세 개를 더합니다. `CORTHEX_NEXUS_URL`에는 서버의 `https` 주소를, `CORTHEX_NEXUS_CLIENT_ID`와 `CORTHEX_NEXUS_CLIENT_SECRET`에는 6단계의 서비스 토큰을 넣습니다.
+3. pull request를 병합합니다. 그 뒤로 기본 브랜치에 커밋이 들어올 때마다 작업이 실행됩니다.
+
+```yaml
+name: NEXUS push
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: corthex-nexus-push
+  cancel-in-progress: false
+
+jobs:
+  push:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the default branch with its history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: project
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check out the hub at its pinned commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: kodonghui/corthex
+          ref: c6095b40c71bc74d207b13b5b08aeeb078c7d0c5
+          path: hub
+          persist-credentials: false
+      - name: Push the snapshot
+        working-directory: project
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          CORTHEX_NEXUS_URL: ${{ secrets.CORTHEX_NEXUS_URL }}
+          CORTHEX_NEXUS_CLIENT_ID: ${{ secrets.CORTHEX_NEXUS_CLIENT_ID }}
+          CORTHEX_NEXUS_CLIENT_SECRET: ${{ secrets.CORTHEX_NEXUS_CLIENT_SECRET }}
+        run: |
+          git symbolic-ref refs/remotes/origin/HEAD "refs/remotes/origin/$DEFAULT_BRANCH"
+          python3 ../hub/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py push --job --json
+```
+
+작업은 기본 브랜치에 push될 때만 실행되고 pull request에서는 실행되지 않으므로, 포크의 변경이 시크릿을 가지고 실행되는 일은 없습니다. 포크에는 시크릿이 없어서, 거기서는 작업이 아무것도 보내지 않고 빠진 시크릿의 이름을 밝힙니다. 작업은 저장소를 전체 이력과 함께 체크아웃하고, 그 옆에 이 저장소의 [`hub-ref.json`](../hub-ref.json)이 가리키는 커밋의 허브를 체크아웃하며, 저장소 자체의 코드는 실행하지 않습니다. 기본 브랜치의 워크플로를 바꿀 수 있는 사람은 누구나 시크릿을 쓸 수 있으니, 나만 push할 수 있는 저장소에만 더합니다. 서버를 업데이트할 때 이 파일도 다시 가져와 작업의 허브를 함께 옮깁니다.
+
+작업의 로그는 `hub.py push --job --json`의 결과 한 줄이며, 시크릿의 값은 담지 않습니다.
+
+| 결과 줄 | 작업 | 뜻 |
+| --- | --- | --- |
+| `"sent": true` | 통과 | 그 커밋의 스냅샷을 저장했습니다. 서버의 답은 `pushed`에 있습니다. |
+| `"why": "already-held"` | 통과 | 서버가 이 커밋이나 더 새 커밋을 이미 가지고 있습니다. |
+| `"why": "first-push-waits"` | 통과 | 서버에 이 프로젝트가 없습니다. 세션에서 `--first`로 먼저 보냅니다. |
+| `"why": "not-set"` | 통과 | 시크릿이 빠졌으며, `missing`이 그 이름을 밝힙니다. |
+| `refused`나 `failed` | 실패 | 서버가 거절했거나 답하지 않았거나, 저장된 커밋이 보낸 커밋의 이력에 없습니다. 결과 줄에 이유가 있습니다. |
 
 ## 한도
 
@@ -109,6 +178,68 @@ node nexus/tools/database.js restore --backup /private/backups/<archive>.sqlite 
 복구 DB를 선택하고 재시작합니다. 실행 중인 DB를 덮거나 WAL과 떼지 않습니다.
 실행부만 되돌리는 것으로 DB 이주까지 취소되지는 않습니다.
 
+가장 최근 백업의 사본은 다른 머신인 Google Drive에도 둡니다. 그래서 서버의
+디스크를 잃어도 잃는 것은 하루를 넘지 않습니다(REQ-291).
+`nexus-backup-copy@dev.timer`는 백업 뒤 매일 04:00 UTC부터 최대 15분을 분산해
+실행하며, 중단 중 놓친 실행도 처리합니다. 첫 단계 `backup-copy.js copy`는
+영수증이 이름을 적은 가장 최근 백업을 rclone으로 보냅니다. 아카이브를 먼저,
+영수증을 그다음에 보내며, 가장 최근 사본이 하루가 안 되었을 때만 30일이 지난
+사본을 지웁니다. 둘째 단계 `backup-copy.js age`는 사본의 이름만 읽고 내용은
+읽지 않으며, 가장 최근 사본이 얼마나 되었는지 "The newest copy of the backup
+is 3 hours old."처럼 말합니다. 하루가 지났거나 사본이 없으면 그렇게 말하고
+서비스가 실패하며, `systemctl --failed`에 나옵니다. 보내기가 실패해도 그것만으로
+서비스가 실패하지는 않고, 뒤따르는 나이 확인이 그 뜻을 말합니다. 출력에는
+아카이브 이름·크기·나이만 있고 경로·원격 저장소·로그인은 없습니다.
+
+한 번만 설정합니다. 로그인은 서버에서 만들어 서버에만 두며 Git·메시지·기록에
+남기지 않고, 키나 로그인 파일을 머신 사이로 옮기지 않습니다.
+
+1. 시스템 패키지나 rclone.org에서 rclone을 `/usr/bin/rclone`에 설치합니다.
+2. rclone의 공용 클라이언트는 2026년 중 동작을 멈추므로, Google Cloud 콘솔에서
+   로그인에 쓸 자기 클라이언트를 만듭니다. Google Drive API를 켠 프로젝트,
+   `drive.file` 범위만 둔 External 유형의 OAuth 동의 화면(테스트 중인 앱의
+   로그인은 일주일 뒤 끝나므로 게시 상태로), 데스크톱 앱 유형의 OAuth
+   클라이언트입니다. 그 ID와 비밀값은 다음 단계에서 서버의 rclone 질문에만
+   넣습니다.
+3. 노트북에서 `ssh -L 53682:127.0.0.1:53682 <configured-origin-alias>`로
+   접속합니다. 서버에서 `sudo install -d -m 0700 -o nexus-dev -g nexus-dev /var/lib/nexus-dev/rclone`
+   다음 `sudo runuser -u nexus-dev -- env RCLONE_CONFIG=/var/lib/nexus-dev/rclone/rclone.conf rclone config`를
+   실행해 `drive` 유형의 새 원격 저장소 `<remote>`를 만듭니다. 그 클라이언트의
+   ID와 비밀값을 넣고, 범위는 `drive.file`로 하여 로그인이 rclone이 만든
+   파일에만 닿게 하며, 자동 설정을 씁니다. rclone이 보여 주는 주소
+   `http://127.0.0.1:53682/auth?...`를 노트북의 브라우저에서 열고, 사본을 둘
+   Google 계정으로 로그인해 허용합니다.
+4. `/etc/nexus/dev.env`에 `NEXUS_BACKUP_REMOTE=<remote>:nexus-backups`를
+   더합니다. 폴더는 첫 사본 때 rclone이 만듭니다.
+5. 다음 배포가 `nexus-backup-copy@.service`와 그 타이머를 설치하고, 원격
+   저장소가 설정되어 있고 rclone이 설치되어 있으므로 타이머를 켭니다.
+6. `systemctl start nexus-backup-copy@dev.service`를 실행한 뒤
+   `journalctl -u nexus-backup-copy@dev -n 4`로 사본과 그 나이를 확인합니다.
+
+나이는 아무 날이나 `journalctl -u nexus-backup-copy@dev -n 2`로 읽습니다. 사본
+만들기는 `systemctl disable --now nexus-backup-copy@dev.timer`로 멈추며, 원격
+저장소의 사본은 남습니다. 로그인을 끝내려면 Google 계정의 보안 설정에서 그 앱의
+접근을 없애고 `/var/lib/nexus-dev/rclone/rclone.conf`를 지웁니다.
+
+사본 하나를 다른 머신에서 복구해 서버의 데이터와 비교합니다. 가장 최근
+`<archive>.sqlite`와 그 `<archive>.sqlite.json`을 rclone이나 Google Drive의
+다운로드로 그 머신의 한 폴더에 받은 뒤, Node 24와 이 저장소로 실행합니다.
+
+```sh
+node nexus/tools/database.js restore --backup <absolute-folder>/<archive>.sqlite --destination <absolute-folder>/restore-check.sqlite
+node nexus/tools/database.js counts --database <absolute-folder>/restore-check.sqlite
+```
+
+서버에서는 서비스의 사용자로 실행합니다.
+
+```sh
+sudo runuser -u nexus-dev -- /usr/bin/node /opt/nexus/dev/current/nexus/tools/database.js counts --database /var/lib/nexus-dev/backups/<archive>.sqlite
+```
+
+복구는 서버가 쓴 영수증의 SHA-256과 DB 무결성을 확인합니다. `counts`는 각
+테이블의 행 수와, 프로젝트를 적는 테이블에서는 프로젝트마다의 행 수를 주며, 두
+답은 같습니다. 복구한 파일에는 프로젝트 공간의 글이 있으므로 확인 뒤 지웁니다.
+
 출시 전 운영 D1은 **읽기 전용으로** 서버에 내보내 별도 리허설 DB에 넣습니다.
 행 수를 기록하고 백업·이주·동작 확인·사본 복구를 검증합니다. 승인 후 운영을
 전환하더라도 기존 Worker·D1은14일 보존하고 삭제 전에 묻습니다. main 병합·운영
@@ -131,7 +262,7 @@ API를 검사하는 Schemathesis를 돌립니다. 이 로컬 시험과 실제 �
 
 신뢰한 JS/CSS의 Brotli/gzip 변형은 시작할 때 한 번 만듭니다. 원 서버에서는 인증·역할·경로를 먼저 확인한 뒤 Accept-Encoding에 맞춰 제공하고, HEAD와 코드 캐시·CSP를 유지합니다. 같은 origin의 거점 HIT도 전체 호스트 Access를 먼저 통과해야 합니다. 글꼴과 거절 응답에는 이 압축 변형을 적용하지 않습니다. NEXUS_METRICS=1은 숫자만 남기며 processing_ms는 본문 도착과 I/O를 포함합니다. body_receive_ms·after_body_ms를 따로 읽고 cpu_user_ms/cpu_system_ms는 같은 구간의 프로세스 CPU 차이로 봅니다. 병렬 요청의 CPU 구간은 겹치며 RSS는 응답 뒤 표본이지 peak가 아닙니다.
 
-서버의 비공개 설정 `NEXUS_EARLY_HINTS=1`을 켜면 성공한 그림 HTML에 `Link: rel=preload` 힌트를 붙입니다. 기본값은 꺼짐입니다. 힌트에는 해당 편집기의 고정된 같은 origin 파일 이름·두 지원 언어·글꼴만 있고 스냅숏이나 신원은 없습니다. 각 파일 요청도 인증을 거칩니다. 기존 프록시의 Early Hints 지원이 별도로 필요하며 Link 헤더만으로103 응답이나 속도 개선을 입증하지 않습니다. 본문은 계속 비공개입니다. 배포 파일 이름을 바꿀 때는 개발 그림 응답을 먼저 갱신한 뒤 측정해 이전 힌트가 낡은 파일을 고르지 않도록 합니다.
+서버의 비공개 설정 `NEXUS_EARLY_HINTS=1`은 0.2 그림 보기에 `Link: rel=preload` 힌트를 붙였습니다. TASK-278부터 그 주소는 힌트를 보내지 않는 단계의 페이지로 `302`를 답하므로 이 설정은 효과가 없고, 아직 이 설정을 둔 서버는 그것을 무시합니다.
 
 공개 내용 해시 /code/만 거점에 보관할 수 있습니다(public,max-age31536000,immutable). HTML/API/자료는 no-store이고 전체 호스트 Access를 유지합니다. Edge HIT/Age와 캐시된 주소의 미인증 GET/HEAD 거절을 출시 전에 확인합니다. REQ-124 처리1초는 본문 수신 뒤부터 응답 처리 완료까지입니다. 이전 Worker/D1의 출시 뒤 보존 기간은14일이며 삭제는 별도 확인합니다.
 

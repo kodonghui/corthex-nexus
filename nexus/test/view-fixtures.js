@@ -20,3 +20,20 @@ export function viewSnapshot(name="qa-views"){
  const stages={};for(const [key,title]of[["01-domain","Domain"],["05-erd","ERD"],["07-sitemap","Sitemap"],["04-functional-spec","Specification"]])stages[key]={name:title,human:"notion",truth:"source",source:"docs/qa/",source_state:"found",read:true,files:1,items:1,parts:{sample:{state:"in_progress",checkpoints:[],next:"Review the synthetic sample",updated:time}}};
  return{schema:"corthex-hub/0.2",generator:"corthex-nexus 0.2.0",generated_at:time,project:{name,title:"QA synthetic shop",team:false,language:"en",records:{kind:"notion"},parts:["sample"]},ids:{CTX:"context",TERM:"term",TBL:"table",SCR:"screen",FL:"flow"},repos:{".":{commit,branch:"main",dirty:false,web:"https://github.com/example/qa-shop",url:"https://github.com/example/qa-shop",default:{branch:"main",commit,time}}},records:{from:"repository",commit,time},stages,items:[],checks:[],summary:{items:0,kinds:{},checks:{error:0,warn:0,info:0},states:{in_progress:4}},truncated:false,pictures:[["01-domain",domain],["05-erd",erd],["07-sitemap",sitemap]].map(([stage,source])=>({part:"sample",stage,commit,time,source})),left_out:[],ask_before:{entries:["external messages","deploys","payments","deletions","publishing"],source:"default",left_out:[]}};
 }
+// TC-1766 (TASK-281): the hub page's three views need items to find, trace and list. The same
+// synthetic snapshot goes to the server and into the file that the pinned hub builds on a device.
+export function hubSnapshot(name="qa-hub"){
+ const snapshot=viewSnapshot(name),where="docs/qa-prd.md:1";
+ snapshot.project.title="QA hub views";
+ snapshot.ids.REQ="requirement";
+ snapshot.stages["02-prd"]={name:"PRD",human:"notion",truth:"source",source:"docs/qa-prd.md",source_state:"found",read:true,files:1,items:2,parts:{sample:{state:"in_progress",checkpoints:[],next:"Review the synthetic requirements",updated:snapshot.generated_at}}};
+ snapshot.items=[
+  {id:"CTX-001",kind:"context",stage:"01-domain",where,title:"Ordering"},
+  {id:"REQ-001",kind:"requirement",stage:"02-prd",where,title:"Record each synthetic order",links:["CTX-001"]},
+  {id:"REQ-002",kind:"requirement",stage:"02-prd",where,title:"Retry the payment of a synthetic order",links:["CTX-001"]},
+  {id:"TBL-001",kind:"table",stage:"05-erd",where,title:"orders",links:["REQ-001"]},
+  {id:"SCR-001",kind:"screen",stage:"07-sitemap",where,title:"Orders",links:["REQ-001","TBL-001"]},
+ ];
+ snapshot.summary={...snapshot.summary,items:snapshot.items.length,kinds:{context:1,requirement:2,table:1,screen:1},states:{in_progress:5}};
+ return snapshot;
+}

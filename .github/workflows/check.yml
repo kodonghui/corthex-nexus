@@ -86,6 +86,8 @@ jobs:
           "$RUNNER_TEMP/nexus-contract-env/bin/python" -m pip install -r .github/requirements-qa.txt
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" -m openapi_spec_validator docs/06-api/nexus.openapi.yaml'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/contract_response_check.py'
+      - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/contract_planned_check.py'
+      - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/screen_states_check.py'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/default_response_check.py'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/hub_contract_check.py'
       - run: '"$RUNNER_TEMP/nexus-contract-env/bin/python" nexus/test/contract_hooks_check.py'
@@ -115,6 +117,51 @@ jobs:
   browser-ui:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      CORTHEX_HUB_CHECKOUT: ${{ github.workspace }}/../corthex-hub-reference
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.12'
+      # The hub suite builds the device's file with the pinned hub (TASK-281, TC-1766).
+      - run: python tools/fetch_hub_ref.py --destination "$CORTHEX_HUB_CHECKOUT"
+      - name: Locate the runner's installed Chrome
+        run: |
+          chrome=$(command -v google-chrome || command -v google-chrome-stable)
+          test -n "$chrome"
+          printf 'NEXUS_CHROME=%s\n' "$chrome" >> "$GITHUB_ENV"
+          printf 'NEXUS_QA_ARTIFACTS=%s/nexus-browser-artifacts\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      # The walk of the 53 states runs in its own job, browser-walk.
+      - run: python nexus/test/browser_check.py page home stage picture talk item hub
+      - name: Keep synthetic regression receipts and captures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: nexus-browser-regression
+          path: |
+            ${{ env.NEXUS_QA_ARTIFACTS }}/pages-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/pages-*/*.png
+            ${{ env.NEXUS_QA_ARTIFACTS }}/hub-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/hub-*/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # TASK-278: each of the redesign's 53 states at its widths, in both themes and languages, with the
+  # page checks, and the paths that browser agents walked through the flows (TC-1785) that no suite
+  # of browser-ui repeats; TASK-287's folds of the workspace's columns, whose first visits draw
+  # Korean before the page's code adds its fonts; and TASK-298's times and marks of the loop, drawn
+  # by the server and again by the code in both languages; and TASK-301's pass of a checkpoint that
+  # the server refuses because the project or the request changed, in 24 settings each. Their
+  # screenshots are kept for a person to look at.
+  browser-walk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -131,23 +178,77 @@ jobs:
           test -n "$chrome"
           printf 'NEXUS_CHROME=%s\n' "$chrome" >> "$GITHUB_ENV"
           printf 'NEXUS_QA_ARTIFACTS=%s/nexus-browser-artifacts\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
-      - run: python nexus/test/browser_check.py
-      - name: Keep synthetic regression receipts and captures
+      # The pages that wait for their code show the system's fonts, since the code adds the
+      # page's own. The runner has no Korean font and drew Korean as empty boxes, narrower
+      # than any phone's letters; Noto Sans CJK is the one the font list names.
+      - name: Install a Korean font
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends fonts-noto-cjk
+      - run: python nexus/test/browser_check.py walk flows folds loop pass
+      - name: Keep the walk's receipts and screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: nexus-browser-regression
+          name: nexus-browser-walk
           path: |
-            ${{ env.NEXUS_QA_ARTIFACTS }}/run-*/*.json
-            ${{ env.NEXUS_QA_ARTIFACTS }}/run-*/*.png
-            ${{ env.NEXUS_QA_ARTIFACTS }}/late-screen-*/*.json
-            ${{ env.NEXUS_QA_ARTIFACTS }}/late-screen-*/*.png
+            ${{ env.NEXUS_QA_ARTIFACTS }}/walk-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/walk-*/*.png
+            ${{ env.NEXUS_QA_ARTIFACTS }}/flows-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/flows-*/*.png
+            ${{ env.NEXUS_QA_ARTIFACTS }}/folds-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/folds-*/*.png
+            ${{ env.NEXUS_QA_ARTIFACTS }}/loop-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/loop-*/*.png
+            ${{ env.NEXUS_QA_ARTIFACTS }}/pass-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/pass-*/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # TASK-312: the project's data, SCR-130, with its nine states in stage 12's eight settings, the
+  # file that the browser saves from the export, the removal and the first page's bar after it,
+  # and the other codes, the limits and the addresses at two settings. Its screenshots are kept for
+  # a person to look at.
+  browser-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.12'
+      - name: Locate the runner's installed Chrome
+        run: |
+          chrome=$(command -v google-chrome || command -v google-chrome-stable)
+          test -n "$chrome"
+          printf 'NEXUS_CHROME=%s\n' "$chrome" >> "$GITHUB_ENV"
+          printf 'NEXUS_QA_ARTIFACTS=%s/nexus-browser-artifacts\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      # As in browser-walk: Korean shows in the system's font where a refused sign-in keeps the
+      # page's own fonts out, and the runner has none.
+      - name: Install a Korean font
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends fonts-noto-cjk
+      - run: python nexus/test/browser_check.py data
+      - name: Keep the project data's receipts and screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: nexus-browser-data
+          path: |
+            ${{ env.NEXUS_QA_ARTIFACTS }}/data-*/*.json
+            ${{ env.NEXUS_QA_ARTIFACTS }}/data-*/*.png
           if-no-files-found: ignore
           retention-days: 7
 
   all-checks:
     if: ${{ always() }}
-    needs: [server-tests, nexus-build, hub-bridge, nexus-contracts, public-safety, browser-ui]
+    needs: [server-tests, nexus-build, hub-bridge, nexus-contracts, public-safety, browser-ui, browser-walk, browser-data]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

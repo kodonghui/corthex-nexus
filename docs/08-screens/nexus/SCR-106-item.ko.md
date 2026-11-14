@@ -4,7 +4,7 @@
 
 목적: 사용자는 휴대폰이나 PC에서 그림의 한 항목을 그 의견, 제안, 어긋남과 함께 보고, 거기에 의견을 남깁니다. (FL-106, FL-107)
 
-경로 `/pictures/{project}/{part}/{stage}#item={id}`. 그림 보기(SCR-105)의 패널이고 NEXUS 서버에만 있습니다. 볼 수 있는 사람: Cloudflare Access가 들여보낸 누구나. NEXUS 0.2에서 새로 생깁니다(SPEC-119, SPEC-126). ID 없이 그린 표나 화면처럼 어느 항목도 담지 않는 부분은 자기 주소 없이 그림 자체에 대한 이 패널을 엽니다([고른 것 12](README.ko.md#이-단계가-고른-것)). [모든 화면](README.ko.md#모든-화면)의 규칙을 따릅니다.
+경로 `/pictures/{project}/{part}/{stage}#item={id}`. 그림 보기(SCR-105)의 패널이고 NEXUS 서버에만 있습니다. 볼 수 있는 사람: Cloudflare Access가 들여보낸 누구나. NEXUS 0.2에서 새로 생깁니다(SPEC-119, SPEC-126). TASK-278부터 이 화면은 `removed`입니다: 그 주소는 같은 `#item=`을 단 단계 페이지로 이어지고(SPEC-154) 거기서 항목(SCR-115)이 열리며, 이 정의는 0.2 항목 패널의 기록으로 남습니다. ID 없이 그린 표나 화면처럼 어느 항목도 담지 않는 부분은 자기 주소 없이 그림 자체에 대한 이 패널을 엽니다([고른 것 12](README.ko.md#이-단계가-고른-것)). [모든 화면](README.ko.md#모든-화면)의 규칙을 따릅니다.
 
 ## 자료
 
@@ -24,7 +24,7 @@
 | 동작 | 결과 | 실패 |
 | --- | --- | --- |
 | 항목에 의견 남기기 | "사용자"가 쓴 열린 의견이 그 의견들의 맨 위에 보이고, 그림의 표시가 그것을 세며, AI 할 일에서 기다립니다(SPEC-126) | 저장되지 않음: 글은 그대로 두고 SCR-106#error나 SCR-106#permission |
-| 항목이 담고 있는 부분에 의견 남기기 | 담은 항목의 선언된 ID에 최대300자의 고른 부분 인용을 붙여 저장. 이름이 같아도 담은 항목이 다르면 열린 의견·표시·보내지 않은 글을 구분하며, 담은 항목을 고르면 그 의견들이 보임(SPEC-126). ID가 선언되지 않은 맥락 이름을 항목 ID로 만들지 않음 | 위와 같음 |
+| 항목이 담고 있는 부분에 의견 남기기 | 담은 항목의 선언된 ID에 최대 300자의 고른 부분 인용을 붙여 저장. 이름이 같아도 담은 항목이 다르면 열린 의견·표시·보내지 않은 글을 구분하며, 담은 항목을 고르면 그 의견들이 보임(SPEC-126). ID가 선언되지 않은 맥락 이름을 항목 ID로 만들지 않음 | 위와 같음 |
 | 어긋남에 의견 남기기 | 어긋남의 첫 항목에 그 어긋남을 적은 의견 | 위와 같음 |
 | 어느 항목도 담지 않는 부분에 의견 남기기 | 그 부분의 이름을 인용으로 단 그림 자체의 의견(SPEC-126)이 패널의 의견들 맨 위에 보임 | 위와 같음 |
 | 의견이나 제안 열기 | 그 패널 SCR-107이나 SCR-108 | SCR-107#gone, SCR-108#gone |
@@ -37,7 +37,7 @@
 | SCR-106#normal | 제목으로 항목의 ID와 제목이 포커스를 받고 닫기가 함께 있습니다. 고른 부분의 인용, 말로 쓴 원본 필드와 '자세히' 안의 원본 글, 까닭마다 한 문장으로 쓰고 코드는 '자세히' 안에 둔 그 어긋남, 열기가 달린 열린 제안, 최근에 움직인 것부터의 열린 의견(저마다 쓴 쪽 "사용자"나 "에이전트", 시각, 글, 답글 수, 마지막 답글), "답이 나서 닫힘"이나 "결정으로 닫힘"인 닫힌 의견, 그 아래 "{id}에 의견 달기" 칸과 한도 가까이에서 보이는 남은 글자 수, 보내기. 의견을 보내면 맨 위에 보이고 칸은 빕니다. 어느 항목도 담지 않는 부분: 제목으로 그 이름과 닫기, "ID가 없어, 의견은 이 이름을 인용으로 붙여 그림에 남습니다.", 그것을 인용한 열린 의견, 그리고 "{name}에 의견 달기" 칸 | 그림의 자료(API-111#200), API-118#201 |
 | SCR-106#empty | 쓸 수 있는 칸 위에 "{id}에는 아직 의견이 없습니다." 어느 항목도 담지 않는 부분이면 {id} 자리에 그 이름이 들어갑니다. 제안도 어긋남도 보이지 않습니다 | 항목에 걸린 것이 없는 그림의 자료(API-111#200) |
 | SCR-106#loading | 의견을 보내는 동안: 보내기가 "보내는 중…"으로 막히고, 글은 칸에 그대로 있으며, 패널의 나머지는 쓸 수 있습니다 | API-118을 보낸 뒤, 그 답이 오기 전 |
-| SCR-106#error | 칸 위에 메시지, 글은 그대로 두고 같은 쓰기 ID로 보내는 다시 보내기: 가리킨 칸 옆의 `invalid_request`, 서버 자체 주소의 이 페이지로 가는 링크를 단 `cross_site`, 보기가 그림을 다시 읽게 하는 `picture_not_found`, `discrepancy_not_found`, `project_not_found`, `space_not_found`, 글을 나중을 위해 남기는 `comment_limit`과 `space_full`, 다시 보내기가 새 쓰기 ID를 만드는 `write_id_reused`, 칸 옆에 한도를 보이는 `text_too_long`과 `body_too_large`, 그리고 `json_required`, `internal`, `method_not_allowed`. `claimed`는 에이전트의 쓰기만 거절하므로 패널에 오지 않습니다. 연결 없음, 30초 안에 답 없음, `429`나 `503`: 규칙 8 | API-118#400(`invalid_request`), API-118#403(`cross_site`), API-118#404(`picture_not_found`, `discrepancy_not_found`, `project_not_found`, `space_not_found`), API-118#409(`comment_limit`, `space_full`, `write_id_reused`, `claimed`), API-118#413(`text_too_long`, `body_too_large`), API-118#415(`json_required`), API-118#default(`internal`, `method_not_allowed`) |
+| SCR-106#error | 칸 위에 메시지, 글은 그대로 두고 같은 쓰기 ID로 보내는 다시 보내기: 가리킨 칸 옆의 `invalid_request`, 서버 자체 주소의 이 페이지로 가는 링크를 단 `cross_site`, 보기가 그림을 다시 읽게 하는 `part_not_found`, `discrepancy_not_found`, `project_not_found`, `space_not_found`, 글을 나중을 위해 남기는 `comment_limit`과 `space_full`, 다시 보내기가 새 쓰기 ID를 만드는 `write_id_reused`, 칸 옆에 한도를 보이는 `text_too_long`과 `body_too_large`, 그리고 `json_required`, `internal`, `method_not_allowed`. `claimed`는 에이전트의 쓰기만 거절하므로 패널에 오지 않습니다. 연결 없음, 30초 안에 답 없음, `429`나 `503`: 규칙 8 | API-118#400(`invalid_request`), API-118#403(`cross_site`), API-118#404(`part_not_found`, `discrepancy_not_found`, `project_not_found`, `space_not_found`), API-118#409(`comment_limit`, `space_full`, `write_id_reused`, `claimed`), API-118#413(`text_too_long`, `body_too_large`), API-118#415(`json_required`), API-118#default(`internal`, `method_not_allowed`) |
 | SCR-106#permission | 글은 그대로 두고 칸 위에 코드의 메시지: `access_missing`, `access_other_app`, 또는 `no_kind`의 "이 로그인으로는 여기에 쓸 수 없습니다. Access 정책을 확인해 주세요." 끝난 로그인: [규칙 7](README.ko.md#모든-화면). 다시 로그인하면 글이 그 쓰기 ID와 함께 브라우저 저장소에서 돌아옵니다 | API-118#403(`access_missing`, `access_other_app`, `no_kind`), `opaqueredirect` 응답이나 `401` |
 | SCR-106#gone | 그림에 이제 없는 항목, 또는 그것을 가리키는 주소: "{id} 항목은 이 그림에 없습니다." 그 항목에 열린 의견이 아직 있으면, 의견은 항목의 ID에 저장되어 따로 보이므로(SPEC-126) 그 의견들과 칸이 보입니다. 브라우저 저장소가 그 항목에 보내지 않은 의견을 두고 있을 때도 칸이 그 글과 쓰기 ID와 함께 보입니다([규칙 5](README.ko.md#모든-화면)). 둘 다 없으면 그림으로 돌아가는 길만 있습니다. 어느 항목도 담지 않는 부분은 주소가 없어 여기서 없어지는 일이 없습니다: 그림이 그것을 더 그리지 않으면 그 열린 의견은 그림 보기에 따로 보입니다 | 그 항목이 없는 그림의 자료(API-111#200) |
 

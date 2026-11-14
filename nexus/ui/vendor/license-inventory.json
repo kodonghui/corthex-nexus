@@ -130,6 +130,26 @@
     ]
   },
   {
+    "package": "@fontsource/ibm-plex-mono@5.3.0",
+    "declaredLicense": "OFL-1.1",
+    "notices": [
+      {
+        "source": "LICENSE",
+        "sha256": "23b0a9d0c6d3f140a0b77e483c5cfa6bba574325ef5cb189ed9f2fec4884533f"
+      }
+    ]
+  },
+  {
+    "package": "@fontsource/ibm-plex-sans-kr@5.3.0",
+    "declaredLicense": "OFL-1.1",
+    "notices": [
+      {
+        "source": "LICENSE",
+        "sha256": "ac79862d95040358b197a7326fb0f94cbe1104fbdd3a65c735e29a7cfd3eabcb"
+      }
+    ]
+  },
+  {
     "package": "@iconify/utils@3.1.7",
     "declaredLicense": "MIT",
     "notices": [

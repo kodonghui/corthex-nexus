@@ -4,7 +4,7 @@
 
 Purpose: the user sees what is left in one part's stage, its open discrepancies, comments and pending reflections together, with its recorded state, checkpoints and checks, and passes the stage's checkpoint, or withdraws one passed in NEXUS before it is recorded. (FL-113)
 
-Path `/overview/{project}/{part}/{stage}`, on the NEXUS server only (API-103), linked from the stage detail (SCR-104), the hub page (SCR-101) and the picture view (SCR-105). Who can see it: anyone Cloudflare Access lets in; passing and withdrawing need a person's own sign-in. New in NEXUS 0.2 (SPEC-138, SPEC-139). The rules of [every screen](README.md#every-screen) apply.
+Path `/overview/{project}/{part}/{stage}`, on the NEXUS server only (API-103), linked from the stage detail (SCR-104), the hub page (SCR-101) and the picture view (SCR-105). Who can see it: anyone Cloudflare Access lets in; passing and withdrawing need a person's own sign-in. New in NEXUS 0.2 (SPEC-138, SPEC-139). Since TASK-278 this screen is `removed`: its address answers `302` to the stage's page with `#view=list` (API-103, SPEC-154), whose list and record (SCR-112, SCR-113) show what it showed, and this definition stays as the record of 0.2's stage overview. The rules of [every screen](README.md#every-screen) apply.
 
 ## Data
 

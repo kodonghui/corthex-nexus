@@ -4,7 +4,7 @@
 
 Purpose: the user finds the items that match an ID or the words of a title, across every project on the page, and opens one. (FL-105)
 
-Path `/#q={words}`, a view of the hub page (SCR-101), on the server and on a device. Who can see it: anyone Cloudflare Access lets in, or the device's user. Built in phase 1, and NEXUS 0.2 leaves it as it is (SPEC-122). The rules of [every screen](README.md#every-screen) apply.
+Path `/hub#q={words}` on the server, and after the same `#` in the file that the hub builds on a device: a view of the hub page (SCR-117). Who can see it: anyone Cloudflare Access lets in, or the device's user. Built in phase 1, and NEXUS 0.2 leaves it as it is (SPEC-122). From the design revision of 2026-11-11: the path was `/#q={words}` and the hub page SCR-101 until the hub page left `/` (stage 07, [choice 15](../../07-sitemap/nexus.md#choices-this-stage-made)); where this definition names SCR-101 or its states below, it names the hub page and its states, which SCR-117's states name. On `/`, the old address now leads to the redesign's search (SCR-116) (SPEC-154). The rules of [every screen](README.md#every-screen) apply.
 
 ## Data
 

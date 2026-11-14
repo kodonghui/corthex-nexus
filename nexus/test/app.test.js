@@ -190,11 +190,11 @@ test("removes a project", async () => {
   assert.equal((await call("DELETE", "/api/snapshots/acme-shop")).status, 404);
 });
 
-test("serves the hub page with the stored snapshots", async () => {
+test("serves the hub page at /hub with the stored snapshots", async () => {
   const call = server();
   await call("POST", "/api/snapshots", { body: snapshot({ project: { name: "zoo", title: "Zoo" } }) });
   await call("POST", "/api/snapshots", { body: snapshot() });
-  const reply = await call("GET", "/");
+  const reply = await call("GET", "/hub");
   assert.equal(reply.status, 200);
   assert.equal(reply.headers.get("Content-Type"), "text/html; charset=utf-8");
   assert.equal(reply.headers.get("Cache-Control"), "no-store");
@@ -207,14 +207,14 @@ test("serves the hub page with the stored snapshots", async () => {
   assert.deepEqual(data.projects.map((p) => p.project.name), ["acme-shop", "zoo"]);
   assert.deepEqual(data.projects[0], snapshot());
   assert.deepEqual(data.missing, []);
-  assert.equal(pageData((await server({ NEXUS_LANGUAGE: "ko" })("GET", "/")).text).lang, "ko");
-  const head = await call("HEAD", "/");
+  assert.equal(pageData((await server({ NEXUS_LANGUAGE: "ko" })("GET", "/hub")).text).lang, "ko");
+  const head = await call("HEAD", "/hub");
   assert.equal(head.status, 200);
   assert.equal(head.text, "");
 });
 
 test("the page allows only its own script and cannot be framed", async () => {
-  const reply = await server()("GET", "/");
+  const reply = await server()("GET", "/hub");
   const policy = reply.headers.get("Content-Security-Policy");
   const start = reply.text.lastIndexOf("<script>") + "<script>".length;
   const script = reply.text.slice(start, reply.text.indexOf("</script>", start));
@@ -230,7 +230,7 @@ test("stored text cannot close the page's data block", async () => {
   const call = server();
   const title = "Shop </script><script>alert(1)</script> & <b>";
   await call("POST", "/api/snapshots", { body: snapshot({ project: { name: "acme-shop", title } }) });
-  const html = (await call("GET", "/")).text;
+  const html = (await call("GET", "/hub")).text;
   assert.equal(html.split("</script>").length, template.split("</script>").length);
   assert.equal(pageData(html).projects[0].project.title, title);
   assert.throws(() => render("<html></html>", "{}"), /placeholder/);

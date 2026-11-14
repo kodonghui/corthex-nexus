@@ -4,7 +4,7 @@
 
 Purpose: the user sees what one item comes from and what it leads to, through all stages, and follows the chain item by item. (FL-105)
 
-Path `/#p={project}&id={id}`, a view of the hub page (SCR-101), on the server and on a device. Who can see it: anyone Cloudflare Access lets in, or the device's user. Built in phase 1; NEXUS 0.2 adds the note for a project that the page does not hold (SPEC-122). The rules of [every screen](README.md#every-screen) apply.
+Path `/hub#p={project}&id={id}` on the server, and after the same `#` in the file that the hub builds on a device: a view of the hub page (SCR-117). Who can see it: anyone Cloudflare Access lets in, or the device's user. Built in phase 1; NEXUS 0.2 adds the note for a project that the page does not hold (SPEC-122). From the design revision of 2026-11-11: the path was `/#p={project}&id={id}` and the hub page SCR-101 until the hub page left `/` (stage 07, [choice 15](../../07-sitemap/nexus.md#choices-this-stage-made)); where this definition names SCR-101 or its states below, it names the hub page and its states, which SCR-117's states name. On `/`, the old address now leads to the item in its stage (SCR-115) (SPEC-154). The rules of [every screen](README.md#every-screen) apply.
 
 ## Data
 

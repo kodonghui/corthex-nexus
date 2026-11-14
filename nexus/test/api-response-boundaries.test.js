@@ -38,8 +38,8 @@ test('actual handler boundaries preserve rows and receipts on quota, state, clai
   else readSnapshot02(snapshot,Date.now());retainSchema(legacy?'Snapshot01':'Snapshot02',snapshot);
   function hash(){const names=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all().map(row=>row.name);return digest(JSON.stringify(names.map(table=>[table,db.prepare('SELECT * FROM '+table).all().map(row=>JSON.stringify(row)).sort()])));}
   function bytes(){return db.prepare(`SELECT
-   COALESCE((SELECT SUM(length(CAST(text AS BLOB))+length(CAST(COALESCE(quote,'') AS BLOB))) FROM comments),0)+
-   COALESCE((SELECT SUM(length(CAST(text AS BLOB))) FROM replies),0)+
+   COALESCE((SELECT SUM(length(CAST(text AS BLOB))+length(CAST(COALESCE(quote,'') AS BLOB))+length(CAST(COALESCE(look_first,'') AS BLOB))) FROM comments),0)+
+   COALESCE((SELECT SUM(length(CAST(text AS BLOB))+length(CAST(COALESCE(look_first,'') AS BLOB))) FROM replies),0)+
    COALESCE((SELECT SUM(length(CAST(link AS BLOB))+length(CAST(COALESCE(text,'') AS BLOB))) FROM decisions),0)+
    COALESCE((SELECT SUM(length(CAST(reason AS BLOB))+length(CAST(change AS BLOB))+length(CAST(COALESCE(source_text,'') AS BLOB))) FROM proposals),0) AS total`).get().total;}
   function recount(){db.prepare('UPDATE project_spaces SET text_bytes=? WHERE project=?').run(bytes(),name);}
@@ -75,14 +75,18 @@ test('actual handler boundaries preserve rows and receipts on quota, state, clai
   const f={db,name,base,snapshot,call,hash,bytes,recount,integrity,commentBody,proposalBody,
    comment:()=>call('create comment','POST',base+'/comments',{body:commentBody,kind:'user',status:201,inputSchema:'NewComment'}),
    proposal:(extra={})=>call('create proposal','POST',base+'/proposals',{body:{...proposalBody,...extra},status:201,inputSchema:'NewProposal'}),
-   checkpoint:()=>call('pass checkpoint','POST',base+'/checkpoints',{body:{part:'sample',stage:'05-erd'},kind:'user',status:201,inputSchema:'NewCheckpoint'})};
+   // A pass names the commit that the stage's page showed, the one held now (SPEC-194).
+   checkpoint:()=>call('pass checkpoint','POST',base+'/checkpoints',{body:{part:'sample',stage:'05-erd',commit:db.prepare('SELECT default_commit FROM snapshots WHERE name=?').get(name).default_commit},kind:'user',status:201,inputSchema:'NewCheckpoint'})};
   fixtures.push(f);await call('initial synthetic snapshot','POST','/api/snapshots',{body:snapshot,status:200});integrity('initial fixture');return f;
  }
  try {
   // Read/target/media conditions, including a genuine phase-1 snapshot-only space.
   const f=await fixture(),legacy=await fixture({legacy:true});
-  for(const prefix of ['/pictures/','/overview/'])for(const [suffix,expected]of [['missing/sample/05-erd','project_not_found'],[f.name+'/other/05-erd','part_not_found'],[f.name+'/sample/02-wrong','not_found']])for(const accept of ['text/html','application/problem+json'])await f.call('page target '+expected,'GET',prefix+suffix,{status:404,code:expected,headers:{Accept:accept}});
-  for(const accept of ['text/html','application/problem+json'])await legacy.call('legacy page has no space','GET','/pictures/'+legacy.name+'/sample/05-erd',{status:404,code:'space_not_found',headers:{Accept:accept}});
+  // 0.2's picture view and stage overview lead to the stage's page (TASK-278, SPEC-154), which
+  // answers an unknown project or part; a stage outside their forms is still refused at theirs.
+  for(const [prefix,targets]of [['/p/',[['missing/sample/05-erd','project_not_found'],[f.name+'/other/05-erd','part_not_found'],[f.name+'/sample/02-wrong','not_found']]],['/pictures/',[[f.name+'/sample/02-wrong','not_found']]],['/overview/',[[f.name+'/sample/02-wrong','not_found']]]])for(const [suffix,expected]of targets)for(const accept of ['text/html','application/problem+json'])await f.call('page target '+expected,'GET',prefix+suffix,{status:404,code:expected,headers:{Accept:accept}});
+  // A project that only a hub of 0.1 pushed has its stage's page, which says that it has no space.
+  for(const accept of ['text/html','application/problem+json'])await legacy.call('legacy page has no space','GET','/p/'+legacy.name+'/sample/05-erd',{status:200,headers:{Accept:accept}});
   for(const path of ['/pictures/sample/05-erd','/todo'])await legacy.call('legacy API has no space','GET',legacy.base+path,{status:404,code:'space_not_found'});
   await legacy.call('legacy held has no default commit','GET','/api/snapshots/'+legacy.name+'/held');await legacy.call('legacy removal is snapshot-only','GET','/api/snapshots/'+legacy.name+'/removal');
   // One database with exactly two projects for the named two-project list.
@@ -91,7 +95,13 @@ test('actual handler boundaries preserve rows and receipts on quota, state, clai
   for(const [path,code]of [['/pictures/other/05-erd','part_not_found'],['/pictures/sample/02-wrong','not_found'],['/overview/other/05-erd','part_not_found'],['/overview/sample/02-wrong','not_found']])await f.call('API target '+code,'GET',f.base+path,{status:404,code});
   const omitted=await fixture({change:s=>{s.pictures=s.pictures.filter(p=>p.stage!=='05-erd');s.left_out=[{part:'sample',stage:'05-erd',why:'size'}];}});await omitted.call('picture omitted for size','GET',omitted.base+'/pictures/sample/05-erd',{status:404,code:'picture_not_found',fields:{why:'size'}});
   const absent=await fixture({change:s=>{s.pictures=s.pictures.filter(p=>p.stage!=='05-erd');}});
-  for(const [suffix,body,schema]of [['comments',absent.commentBody,'NewComment'],['proposals',absent.proposalBody,'NewProposal']])await absent.call('write to undrawn picture','POST',absent.base+'/'+suffix,{body,status:404,code:'picture_not_found',fields:{why:'not-drawn'},inputSchema:schema});
+  await absent.call('proposal on undrawn picture','POST',absent.base+'/proposals',{body:absent.proposalBody,status:404,code:'picture_not_found',fields:{why:'not-drawn'},inputSchema:'NewProposal'});
+  // The redesign (SPEC-151): a comment needs no picture and takes the held commit, but a held part and one of the 13 stages; only the agent sends asks (SPEC-143).
+  const undrawn=await absent.call('comment on a stage without its picture','POST',absent.base+'/comments',{body:absent.commentBody,kind:'user',status:201,inputSchema:'NewComment'});
+  assert.equal(undrawn.commit,absent.db.prepare('SELECT default_commit FROM snapshots').get().default_commit);
+  await absent.call('comment on a part the snapshot does not hold','POST',absent.base+'/comments',{body:{...absent.commentBody,part:'other'},status:404,code:'part_not_found',inputSchema:'NewComment'});
+  await absent.call('comment on a stage outside the 13','POST',absent.base+'/comments',{body:{...absent.commentBody,stage:'99-x'},status:400,code:'invalid_request',fields:{field:'stage'},inputSchema:'NewComment',allowInvalidInput:true});
+  await absent.call('user comment with asks','POST',absent.base+'/comments',{body:{...absent.commentBody,asks:'answer'},kind:'user',status:400,code:'invalid_request',fields:{field:'asks'},inputSchema:'NewComment'});
   // Snapshot cross-field and held-commit/address refusals.
   const badCommit=structuredClone(f.snapshot);badCommit.pictures[0].commit='b'.repeat(40);await f.call('snapshot picture commit mismatch','POST','/api/snapshots',{body:badCommit,status:400,code:'invalid_snapshot',fields:{field:'pictures[0].commit'}});
   const replacement=structuredClone(f.snapshot);replacement.repos['.'].default.commit='b'.repeat(40);replacement.records.commit='b'.repeat(40);for(const p of replacement.pictures)p.commit='b'.repeat(40);delete replacement.replaces;readSnapshot02(replacement,Date.now());await f.call('held commit not replaced','POST','/api/snapshots',{body:replacement,status:409,code:'commit_not_replaced'});
@@ -106,7 +116,7 @@ test('actual handler boundaries preserve rows and receipts on quota, state, clai
    ['comments/'+c.id+'/decisions',{link:'https://example.com/record',text:'Decision'},'NewDecision','text',4000,'agent'],
    ['proposals',inputs.proposalBody,'NewProposal','reason',2000,'agent'],
    ['edits/'+accepted.edit.id+'/report',{event:'opened',pull_request:'https://example.com/repo/pull/1'},'EditReport','pull_request',2000,'agent'],
-   ['checkpoints',{part:'sample',stage:'05-erd'},'NewCheckpoint','words',2000,'user'],
+   ['checkpoints',{part:'sample',stage:'05-erd',commit:inputs.snapshot.repos['.'].default.commit},'NewCheckpoint','words',2000,'user'],
    ['checkpoints/'+cp.id+'/report',{event:'opened',pull_request:'https://example.com/repo/pull/2'},'CheckpointReport','pull_request',2000,'agent']
   ];
   for(const [suffix,body,schema,longField,limit,kind]of routes){
@@ -120,8 +130,8 @@ test('actual handler boundaries preserve rows and receipts on quota, state, clai
   // Actual nonexistent targets and genuine legacy no-space writes.
   const targets=[['comments/nc_000000000001','GET',undefined,'comment_not_found'],['comments/nc_000000000001/replies','POST',{text:'Reply'},'comment_not_found'],['comments/nc_000000000001/answered','POST',undefined,'comment_not_found'],['comments/nc_000000000001/decisions','POST',{link:'https://example.com/record'},'comment_not_found'],['proposals/np_000000000001','GET',undefined,'proposal_not_found'],['proposals/np_000000000001/withdraw','POST',undefined,'proposal_not_found'],['proposals/np_000000000001/accept','POST',undefined,'proposal_not_found','user'],['proposals/np_000000000001/dismiss','POST',undefined,'proposal_not_found','user'],['edits/ne_000000000001','GET',undefined,'edit_not_found'],['edits/ne_000000000001/report','POST',{event:'needs-user'},'edit_not_found'],['edits/ne_000000000001/dismiss','POST',undefined,'edit_not_found','user'],['checkpoints/nk_000000000001','GET',undefined,'checkpoint_not_found'],['checkpoints/nk_000000000001/withdraw','POST',undefined,'checkpoint_not_found','user'],['checkpoints/nk_000000000001/report','POST',{event:'opened',pull_request:'https://example.com/repo/pull/1'},'checkpoint_not_found'],['claims/nc_000000000001','POST',undefined,'entry_not_found'],['claims/nc_000000000001','DELETE',undefined,'entry_not_found']];
   for(const [suffix,method,body,code,kind='agent']of targets){await f.call('missing target '+suffix,method,f.base+'/'+suffix,{body,kind,status:404,code});if(['/accept','/dismiss','/withdraw'].some(x=>suffix.endsWith(x))&&kind==='user')await f.call('missing project '+suffix,method,'/api/spaces/missing/'+suffix,{body,kind,status:404,code:'project_not_found'});}
-  for(const [suffix,body,schema]of [['comments',legacy.commentBody,'NewComment'],['comments/nc_000000000001/replies',{text:'Reply'},'NewReply'],['comments/nc_000000000001/answered',undefined,null],['comments/nc_000000000001/decisions',{link:'https://example.com/record'},'NewDecision'],['checkpoints',{part:'sample',stage:'05-erd'},'NewCheckpoint']])await legacy.call('legacy no-space '+suffix,'POST',legacy.base+'/'+suffix,{body,kind:suffix==='checkpoints'?'user':'agent',status:404,code:'space_not_found',inputSchema:schema});
-  await f.call('checkpoint unknown part','POST',f.base+'/checkpoints',{body:{part:'other',stage:'05-erd'},kind:'user',status:404,code:'part_not_found',inputSchema:'NewCheckpoint'});
+  for(const [suffix,body,schema]of [['comments',legacy.commentBody,'NewComment'],['comments/nc_000000000001/replies',{text:'Reply'},'NewReply'],['comments/nc_000000000001/answered',undefined,null],['comments/nc_000000000001/decisions',{link:'https://example.com/record'},'NewDecision'],['checkpoints',{part:'sample',stage:'05-erd',commit:'a'.repeat(40)},'NewCheckpoint']])await legacy.call('legacy no-space '+suffix,'POST',legacy.base+'/'+suffix,{body,kind:suffix==='checkpoints'?'user':'agent',status:404,code:'space_not_found',inputSchema:schema});
+  await f.call('checkpoint unknown part','POST',f.base+'/checkpoints',{body:{part:'other',stage:'05-erd',commit:f.snapshot.repos['.'].default.commit},kind:'user',status:404,code:'part_not_found',inputSchema:'NewCheckpoint'});
   for(const [suffix,body,schema]of [['comments',{...f.commentBody,discrepancy:'nd_000000000001'},'NewComment'],['proposals',{...f.proposalBody,discrepancy:'nd_000000000001'},'NewProposal'],['proposals',{...f.proposalBody,comment:'nc_000000000001'},'NewProposal']])await f.call('missing linked target '+suffix,'POST',f.base+'/'+suffix,{body,status:404,code:body.discrepancy?'discrepancy_not_found':'comment_not_found',inputSchema:schema});
 
   // Claims, closed state, proposal and report transitions through handle.
@@ -156,7 +166,7 @@ test('actual handler boundaries preserve rows and receipts on quota, state, clai
   // A real stored receipt of another request name must reject every applicable
   // write operation before it touches the target or adds another receipt.
   const replay=await fixture(),writeId='"nw_aaaaaaaaaaaa"';await replay.call('original receipt','POST',replay.base+'/comments',{body:replay.commentBody,status:201,writeId});
-  const reused=[['comments',replay.commentBody],['comments/nc_000000000001/replies',{text:'Reply'}],['comments/nc_000000000001/answered'],['comments/nc_000000000001/decisions',{link:'https://example.com/record'}],['proposals',replay.proposalBody],['proposals/np_000000000001/withdraw'],['proposals/np_000000000001/accept',undefined,'user'],['proposals/np_000000000001/dismiss',undefined,'user'],['edits/ne_000000000001/report',{event:'needs-user'}],['edits/ne_000000000001/dismiss',undefined,'user'],['checkpoints',{part:'sample',stage:'05-erd'},'user'],['checkpoints/nk_000000000001/withdraw',undefined,'user'],['checkpoints/nk_000000000001/report',{event:'opened',pull_request:'https://example.com/repo/pull/1'}]];
+  const reused=[['comments',replay.commentBody],['comments/nc_000000000001/replies',{text:'Reply'}],['comments/nc_000000000001/answered'],['comments/nc_000000000001/decisions',{link:'https://example.com/record'}],['proposals',replay.proposalBody],['proposals/np_000000000001/withdraw'],['proposals/np_000000000001/accept',undefined,'user'],['proposals/np_000000000001/dismiss',undefined,'user'],['edits/ne_000000000001/report',{event:'needs-user'}],['edits/ne_000000000001/dismiss',undefined,'user'],['checkpoints',{part:'sample',stage:'05-erd',commit:replay.snapshot.repos['.'].default.commit},'user'],['checkpoints/nk_000000000001/withdraw',undefined,'user'],['checkpoints/nk_000000000001/report',{event:'opened',pull_request:'https://example.com/repo/pull/1'}]];
   for(const [suffix,body,kind='agent']of reused){
    // leaveComment needs a different-name receipt, not its own idempotent replay.
    if(suffix==='comments')continue;

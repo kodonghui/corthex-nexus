@@ -34,7 +34,7 @@ def checked_text(path, text, label):
     if label == "email address" and relative in {
         "nexus/ops/deploy-dev.sh", "nexus/README.md", "nexus/README.ko.md",
     }:
-        text = re.sub(r"\bnexus(?:-backup)?@dev\.(?:service|timer)\b", "SYSTEMD_UNIT", text)
+        text = re.sub(r"\bnexus(?:-backup(?:-copy)?)?@dev\.(?:service|timer)\b", "SYSTEMD_UNIT", text)
     allowed = {entry["value_sha256"] for entry in PUBLIC_CONSTANTS
                if entry["file"] == relative and entry["rule"] == label}
     if allowed:

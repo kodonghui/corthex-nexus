@@ -27,6 +27,9 @@ export function mount(target,scene,{lang,onView,theme}){
       if(!target.isConnected||performance.now()>deadline){done=true;root.unmount();reject(new Error("Excalidraw scene unavailable"));return;}
       readyFrame=requestAnimationFrame(ready);
     }
-    try{root.render(React.createElement(Excalidraw,{initialData:{elements,appState:{viewBackgroundColor:theme==="dark"?"#111827":"#ffffff",theme}},viewModeEnabled:true,zenModeEnabled:true,gridModeEnabled:false,aiEnabled:false,detectScroll:false,langCode:lang==="ko"?"ko-KR":"en",UIOptions:{canvasActions:{changeViewBackgroundColor:false,clearCanvas:false,loadScene:false,saveToActiveFile:false,toggleTheme:false,saveAsImage:false,export:false},tools:{image:false}},excalidrawAPI:value=>{api=value;readyFrame=requestAnimationFrame(ready);},onChange:()=>{if(api&&!destroyed)onView(controller.view());},onLinkOpen:(_,event)=>event.preventDefault()},React.createElement(MainMenu,null)));}catch(error){root.unmount();reject(error);}
+    // The ground stays white in both themes: Excalidraw's dark theme draws the canvas through
+    // invert(93%) hue-rotate(180deg), which turns it into the dark token color.picture-ground,
+    // #121212, as the page's own picture under the same filter (BUG-595).
+    try{root.render(React.createElement(Excalidraw,{initialData:{elements,appState:{viewBackgroundColor:"#ffffff",theme}},viewModeEnabled:true,zenModeEnabled:true,gridModeEnabled:false,aiEnabled:false,detectScroll:false,langCode:lang==="ko"?"ko-KR":"en",UIOptions:{canvasActions:{changeViewBackgroundColor:false,clearCanvas:false,loadScene:false,saveToActiveFile:false,toggleTheme:false,saveAsImage:false,export:false},tools:{image:false}},excalidrawAPI:value=>{api=value;readyFrame=requestAnimationFrame(ready);},onChange:()=>{if(api&&!destroyed)onView(controller.view());},onLinkOpen:(_,event)=>event.preventDefault()},React.createElement(MainMenu,null)));}catch(error){root.unmount();reject(error);}
   });
 }

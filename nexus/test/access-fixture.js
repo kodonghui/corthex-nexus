@@ -10,7 +10,9 @@ export async function testAccess() {
     const signature=await crypto.subtle.sign("RSASSA-PKCS1-v1_5",keys.privateKey,new TextEncoder().encode(content));
     return content+"."+Buffer.from(signature).toString("base64url");
   }
-  const tokens={user:await sign({sub:"synthetic-person"}),agent:await sign({sub:"",common_name:"synthetic-client"}),neither:await sign({})};
+  // other: a person's sign-in for another Access application, which the server refuses with
+  // access_other_app.
+  const tokens={user:await sign({sub:"synthetic-person"}),agent:await sign({sub:"",common_name:"synthetic-client"}),neither:await sign({}),other:await sign({sub:"synthetic-person",aud:["other-aud"]})};
   globalThis.fetch=async(url)=>{
     if(String(url)!==origin+"/cdn-cgi/access/certs")throw new Error("a test attempted an unexpected network request");
     return new Response(JSON.stringify({keys:[jwk]}),{headers:{"Content-Type":"application/json"}});

@@ -15,13 +15,20 @@ export function erdDocument(scene,removedMark="removed"){
   }
   return{version:"3.0.0",settings:{zoomLevel:1,originX:0,originY:0,lockSettings:0,show:1|4|32|128|256,nameViewMode:"physical"},doc:{tableIds,relationshipIds},collections:{tableEntities,tableColumnEntities,relationshipEntities}};
 }
-export function mount(target,scene,{lang,onView,theme,removedMark}){
+// bare: the stage page's board (SCR-112), which keeps the camera itself: the viewer draws on
+// the page's picture ground, color.picture-ground, the colour that the caller reads from its
+// stylesheet, and without its scroll bars, which nothing could move (BUG-595, TC-1793).
+export function mount(target,scene,{lang,onView,theme,removedMark,bare=false,ground=""}){
   return new Promise((resolve,reject)=>{
     const viewer=document.createElement("erd-viewer");let destroyed=false,frame;
     viewer.style.cssText="display:block;width:100%;height:100%";viewer.minimap=false;viewer.controls=false;
-    viewer.setPresetTheme({appearance:theme});viewer.setLocale(lang==="ko"?"ko-KR":"en");
+    const paint=(appearance,colour)=>{
+      viewer.setPresetTheme({appearance});
+      if(bare)viewer.setTheme({scrollbarThumb:"transparent",scrollbarThumbHover:"transparent",...(colour?{canvasBackground:colour,canvasBoundaryBackground:colour}:{})});
+    };
+    paint(theme,ground);viewer.setLocale(lang==="ko"?"ko-KR":"en");
     const view=()=>{const v=viewer.nexusView();if(!v)return null;return{...v,rects:v.rects.map(r=>({...r,key:r.id}))};};
-    const controller={view,navigate:v=>viewer.nexusNavigate(v),theme:value=>viewer.setPresetTheme({appearance:value}),destroy:()=>{destroyed=true;cancelAnimationFrame(frame);viewer.destroy();viewer.remove();}};
+    const controller={view,navigate:v=>viewer.nexusNavigate(v),theme:(value,colour)=>paint(value,colour),destroy:()=>{destroyed=true;cancelAnimationFrame(frame);viewer.destroy();viewer.remove();}};
     const update=()=>{const v=view();if(v)onView(v);};viewer.addEventListener("nexus-viewport",update);
     try{target.append(viewer);viewer.value=JSON.stringify(erdDocument(scene,removedMark));let tries=0;
       function ready(){if(destroyed)return;const v=view();if(v?.rects.length===scene.nodes.length&&viewer.clientWidth>0){resolve(controller);update();}else if(++tries<180)frame=requestAnimationFrame(ready);else{controller.destroy();reject(new Error("ERD scene unavailable"));}}

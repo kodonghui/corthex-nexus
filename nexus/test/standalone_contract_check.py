@@ -14,13 +14,23 @@ from urllib.parse import urlsplit
 
 from click.testing import CliRunner
 import schemathesis
+import yaml
 from schemathesis.cli import schemathesis as command
 
 root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(root))
 from nexus.test import contract_hooks  # noqa: E402 - registers existing checks
 
+def planned_operations():
+    """Operations that the contract plans and the server does not answer yet, left out until it does."""
+    api = yaml.safe_load((root / "docs/06-api/nexus.openapi.yaml").read_text(encoding="utf8"))
+    return sorted(operation["operationId"] for item in api["paths"].values() for method, operation in item.items()
+                  if method in ("get", "post", "put", "patch", "delete")
+                  and operation.get("x-corthex", {}).get("status") == "planned")
+
+
 def main():
+    planned = planned_operations()
     node = shutil.which("node")
     if not node:
         raise RuntimeError("Node must be installed")
@@ -49,13 +59,14 @@ def main():
             result = CliRunner().invoke(command, ["run", str(root / "docs/06-api/nexus.openapi.yaml"),
                 "--base-url", fixture["url"], "--experimental=openapi-3.1", "--hypothesis-max-examples=3",
                 "--hypothesis-deadline=10000", "--request-timeout=10000",
-                "--checks=not_a_server_error,status_code_conformance,content_type_conformance,response_schema_by_media_type,response_headers_conformance"],
+                "--checks=not_a_server_error,status_code_conformance,content_type_conformance,response_schema_by_media_type,response_headers_conformance",
+                *["--exclude-operation-id=" + name for name in planned]],
                 catch_exceptions=True)
             # Only counts/check names are reportable; raw generated examples,
             # assertions and runner traceback are deliberately not printed.
             summary = [line.strip() for line in result.output.splitlines() if any(word in line for word in (" passed", " failed", " errored", " skipped", "API operations", "Total API"))]
             print(json.dumps({"tool": "Schemathesis 3.39.16", "runtime": "Node HTTP/SQLite", "max_examples": 3,
-                              "exit_code": result.exit_code, "summary": summary[-8:]}))
+                              "planned_left_out": planned, "exit_code": result.exit_code, "summary": summary[-8:]}))
             return result.exit_code
         finally:
             server.stdin.close()

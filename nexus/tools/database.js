@@ -76,6 +76,22 @@ export async function restoreDatabase(sourcePath, destination) {
   finally { source.close(); }
 }
 
+// Each table's row count and, in the tables that name a project, each project's, which compare a restored copy with
+// the server's database: counts and project names only, never a row.
+export function countRows(database) {
+  const db = new SQLiteD1(absolute(database), { readOnly: true });
+  try {
+    const all = (sql) => db.connection.prepare(sql).all();
+    const tables = {}, projects = {};
+    for (const { name: table } of all(SQLITE.tables)) {
+      tables[table] = Number(db.connection.prepare(SQLITE.rows(table)).get().n);
+      if (!all(SQLITE.columns(table)).some((column) => column.name === "project")) continue;
+      for (const row of all(SQLITE.projectRows(table))) (projects[row.project] ??= {})[table] = Number(row.n);
+    }
+    return { tables, projects };
+  } finally { db.close(); }
+}
+
 async function main() {
   const [command, ...args] = process.argv.slice(2);
   const options = {};
@@ -88,11 +104,12 @@ async function main() {
     const retention = retainBackups(options.directory);
     console.log(JSON.stringify({ ...receipt, ...retention }));
   } else if (command === "restore") console.log(JSON.stringify(await restoreDatabase(options.backup, options.destination)));
+  else if (command === "counts") console.log(JSON.stringify(countRows(options.database)));
   else if (command === "migrate") {
     await backupDatabase(options.database, options.directory, "premigrate");
     const db = new SQLiteD1(absolute(options.database));
     try { await new Store(db).ensure(); db.check(); console.log(JSON.stringify({ migrated: true })); }
     finally { db.close(); }
-  } else throw new Error("choose backup, restore or migrate");
+  } else throw new Error("choose backup, restore, counts or migrate");
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(resolve(process.argv[1]))).href) main().catch(() => { console.error(JSON.stringify({ kind: "database_operation_failed" })); process.exitCode = 1; });

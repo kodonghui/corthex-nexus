@@ -4,7 +4,7 @@
 
 Purpose: the user sees where every project stands, each part's current stage and next action first, and from there searches, traces an item, opens a stage or goes on to a picture view or a stage overview. (FL-105, FL-113)
 
-Path `/`, served by the NEXUS server (API-101) and built on a device as a file by the hub's `build` (API-135). Who can see it: anyone Cloudflare Access lets in, or the device's user. Built in phase 1; NEXUS 0.2 adds the parts, the picture marks, the counts of what is open, the checkpoints that wait for their records, the actions to ask about first and the explanation on an empty server (SPEC-122 to SPEC-125). The rules of [every screen](README.md#every-screen) apply.
+Path `/`, served by the NEXUS server (API-101) and built on a device as a file by the hub's `build` (API-135). Who can see it: anyone Cloudflare Access lets in, or the device's user. Built in phase 1; NEXUS 0.2 adds the parts, the picture marks, the counts of what is open, the checkpoints that wait for their records, the actions to ask about first and the explanation on an empty server (SPEC-122 to SPEC-125). From the design revision of 2026-11-11 this screen is `removed` (the review, finding 18; stage 07's [choice 15](../../07-sitemap/nexus.md#choices-this-stage-made)): the hub page left `/`, which is the first page (SCR-110), with TASK-271 and TASK-273, and SCR-117 stands for it wherever it is built, on the server at `/hub` and on a device as the file that the hub's `build` makes. This definition stays as the text of the hub page's states, which SCR-117's states name. The rules of [every screen](README.md#every-screen) apply.
 
 ## Data
 

@@ -4,7 +4,7 @@
 
 Purpose: the user sees one stage of a project, for each part its state, last checkpoint and next action, with its checks and items, and opens its human view, and on the server its picture views and its stage overviews. (FL-105, FL-113)
 
-Path `/#p={project}&s={stage}`, a view of the hub page (SCR-101) inside the project's card, on the server and on a device. Who can see it: anyone Cloudflare Access lets in, or the device's user. Built in phase 1; NEXUS 0.2 shows it for each part and, on the server, links each part's picture view and stage overview (SPEC-123, SPEC-138). The rules of [every screen](README.md#every-screen) apply.
+Path `/hub#p={project}&s={stage}` on the server, and after the same `#` in the file that the hub builds on a device: a view of the hub page (SCR-117) inside the project's card. Who can see it: anyone Cloudflare Access lets in, or the device's user. Built in phase 1; NEXUS 0.2 shows it for each part and, on the server, links each part's picture view and stage overview (SPEC-123, SPEC-138). From the design revision of 2026-11-11: the path was `/#p={project}&s={stage}` and the hub page SCR-101 until the hub page left `/` (stage 07, [choice 15](../../07-sitemap/nexus.md#choices-this-stage-made)); where this definition names SCR-101 or its states below, it names the hub page and its states, which SCR-117's states name. On `/`, the old address now leads to that stage of the project's first part (SCR-112 or SCR-113) (SPEC-154). The rules of [every screen](README.md#every-screen) apply.
 
 ## Data
 

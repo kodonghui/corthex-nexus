@@ -13,6 +13,7 @@ import {INPUT_SCHEMAS} from "../src/input-schemas.js";
 import * as browserLayout from "../ui/layout.js";
 import {picturePreview} from "../src/preview.js";
 import {words} from "../ui/messages.js";
+import {PALETTE} from "../src/draw/palette.js";
 import {itemFields,reasonText} from "../ui/fields.js";
 import {cameraZoom} from "../ui/camera.js";
 import {NexusProblem,Drafts,PendingWrites,LatestReads,characters} from "../ui/state.js";
@@ -30,6 +31,13 @@ const domainOf=s=>s.pictures.find(p=>p.stage==="01-domain").source;
 const staticHTML=html=>html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,"");
 const listItems=html=>{const list=html.match(/<details\b[^>]*\bid="items"[^>]*>([\s\S]*?)<\/details>/)?.[1];assert.ok(list,"the fallback keeps a real source-item list");return(list.match(/<li\b/g)||[]).length;};
 function limitedHTML(html,{allowEmpty=false}={}){const body=staticHTML(html);assert.match(body,/data-preview-limited\b/);assert.doesNotMatch(body,/data-preview-complete\b|data-nexus-node=|<svg\b[^>]*data-nexus-preview/);assert.doesNotMatch(body,/data-(?:preview-ready|editor-ready|ready)="true"/,"a source list is never advertised as a complete picture");assert.ok(listItems(body)>=(allowEmpty?0:1));assert.ok(listItems(body)<=3000);return body;}
+
+// The stage's page, where 0.2's picture view leads since TASK-278 (SPEC-154), and where the server
+// draws the picture with the same layout and its bounds (./draw/picture.js): past a bound its frame
+// says why, with List, and holds no board and no box.
+const stagePath=(name,stage="01-domain")=>"/p/"+name+"/sample/"+stage;
+function limitedFrame(html){const body=staticHTML(html);assert.match(body,/<div class="empty-p" data-nx-key="empty">/);assert.doesNotMatch(body,/<svg class="board"|data-nx-node=/);assert.doesNotMatch(body,/data-(?:preview-ready|editor-ready|ready)="true"/);return body;}
+async function leadsToStage(f){const led=await f.call("GET","/pictures/"+f.name+"/sample/01-domain");assert.deepEqual([led.status,led.headers.get("Location")],[302,stagePath(f.name)]);}
 
 function repeatedSnapshot(name="qa-preview-limit",counts=Array(20).fill(2000)){
  const snapshot=viewSnapshot(name),source=domainOf(snapshot),context=source.contexts[0],where=context.where;
@@ -66,18 +74,18 @@ async function server(t,snapshot){
 test("schema-valid repeated timeline remains available through real GET/HEAD and retains the exact source",async t=>{
  const snapshot=repeatedSnapshot(),source=domainOf(snapshot),events=source.timeline.reduce((sum,lane)=>sum+lane.places.reduce((n,p)=>n+p.length,0),0);
  assert.equal(events,40000);assert.equal(events*4+source.timeline.length+source.contexts.length,160021,"historical unbounded expansion size, calculated without constructing it");
- const f=await server(t,snapshot),path="/pictures/"+f.name+"/sample/01-domain",api="/api/spaces/"+f.name+"/pictures/sample/01-domain";
+ const f=await server(t,snapshot),path=stagePath(f.name),api="/api/spaces/"+f.name+"/pictures/sample/01-domain";
  const stored=()=>f.db.prepare("SELECT source,digest FROM pictures WHERE project=? AND part='sample' AND stage='01-domain'").get(f.name),before=stored();
- assert.deepEqual(JSON.parse(before.source),source);
- for(const lang of["en","ko"]){const response=await f.call("GET",path,{lang}),html=await response.text();assert.equal(response.status,200);assert.equal(response.headers.get("Cache-Control"),"no-store");assert.equal(response.headers.get("Content-Security-Policy"),VIEW_POLICY);const body=limitedHTML(html);assert.match(body,lang==="en"?/Repeated layout is too complex[\s\S]*original source is unchanged/:/반복 배치가 너무 복잡해[\s\S]*원본은 그대로 보관/);}
+ assert.deepEqual(JSON.parse(before.source),source);await leadsToStage(f);
+ for(const lang of["en","ko"]){const response=await f.call("GET",path,{lang}),html=await response.text();assert.equal(response.status,200);assert.equal(response.headers.get("Cache-Control"),"no-store");assert.equal(response.headers.get("Content-Security-Policy"),VIEW_POLICY);const body=limitedFrame(html);assert.match(body,lang==="en"?/Repeated layout is too complex[\s\S]*original source is unchanged/:/반복 배치가 너무 복잡해[\s\S]*원본은 그대로 보관/);}
  const head=await f.call("HEAD",path);assert.equal(head.status,200);assert.equal(head.body,null);assert.equal(await head.text(),"");assert.equal(head.headers.get("Cache-Control"),"no-store");assert.equal(head.headers.get("Content-Security-Policy"),VIEW_POLICY);
  const raw=await f.call("GET",api);assert.equal(raw.status,200);assert.equal(raw.headers.get("Cache-Control"),"no-store");assert.deepEqual((await raw.json()).picture.source,source,"fallback rendering never truncates the stored/API source");
  assert.deepEqual(stored(),before,"GET and HEAD preserve the complete source and digest");assert.equal(f.db.prepare("SELECT COUNT(*) AS n FROM writes").get().n,0,"reads create no write receipt");
 });
 
-test("normal300-node DDD, ERD and sitemap still receive complete initial SVGs from the real handler",async t=>{
+test("normal300-node DDD, ERD and sitemap still receive complete initial SVGs on the stage's page from the real handler",async t=>{
  const snapshot=normalSnapshot(),f=await server(t,snapshot);
- for(const picture of snapshot.pictures){const scene=pictureLayout(picture.source,picture.stage);assert.equal(scene.nodes.length,300);assert.notEqual(scene.limited,true);const response=await f.call("GET","/pictures/"+f.name+"/sample/"+picture.stage),html=staticHTML(await response.text());assert.equal(response.status,200);assert.match(html,/data-preview-complete\b/);assert.match(html,/data-preview-ready="true"/);assert.doesNotMatch(html,/data-preview-limited\b/);assert.equal((html.match(/data-nexus-node=/g)||[]).length,300,picture.stage+" retains every initial node");}
+ for(const picture of snapshot.pictures){const scene=pictureLayout(picture.source,picture.stage);assert.equal(scene.nodes.length,300);assert.notEqual(scene.limited,true);const response=await f.call("GET",stagePath(f.name,picture.stage)),html=staticHTML(await response.text());assert.equal(response.status,200);assert.match(html,/<svg class="board"/);assert.doesNotMatch(html,/class="empty-p"/);assert.equal((html.match(/data-nx-node=/g)||[]).length,300,picture.stage+" retains every initial node");}
 });
 
 test("node budget includes context frames and permits exactly20000 without silently weakening normal layouts",()=>{
@@ -144,8 +152,9 @@ test("duplicate contexts and terms cannot bypass the work budget in actual GET/H
  const count=source.timeline.reduce((n,l)=>n+l.places.reduce((sum,p)=>sum+p.length,0),0),initial=count*2+source.timeline.length;
  assert.equal(count,9900);assert.equal(initial,19805);assert.equal(initial+(200*500-1)*(initial+1),1980599999,"historical bypass size is calculated, never executed");
  const direct=await sceneSomeCounter(()=>pictureLayout(source,"01-domain"));limitedWork(direct.value,"work");assert.equal(direct.value.nodes.length,4);assert.equal(direct.stats.trapped,false);assert.ok(direct.stats.predicateVisits<=MAX_PICTURE_WORK);
- const f=await server(t,snapshot),path="/pictures/"+f.name+"/sample/01-domain",stored=()=>f.db.prepare("SELECT source,digest FROM pictures WHERE project=? AND part='sample' AND stage='01-domain'").get(f.name),before=stored();
- for(const [method,lang]of[["GET","en"],["GET","ko"],["HEAD","en"]]){const measured=await sceneSomeCounter(()=>f.call(method,path,{lang})),response=measured.value;assert.equal(measured.stats.trapped,false);assert.ok(measured.stats.predicateVisits<=MAX_PICTURE_WORK);assert.equal(response.status,200);assert.equal(response.headers.get("Cache-Control"),"no-store");assert.equal(response.headers.get("Content-Security-Policy"),VIEW_POLICY);if(method==="HEAD"){assert.equal(response.body,null);assert.equal(await response.text(),"");}else assert.equal(listItems(limitedHTML(await response.text())),4);}
+ const f=await server(t,snapshot),path=stagePath(f.name),stored=()=>f.db.prepare("SELECT source,digest FROM pictures WHERE project=? AND part='sample' AND stage='01-domain'").get(f.name),before=stored();
+ await leadsToStage(f);
+ for(const [method,lang]of[["GET","en"],["GET","ko"],["HEAD","en"]]){const measured=await sceneSomeCounter(()=>f.call(method,path,{lang})),response=measured.value;assert.equal(measured.stats.trapped,false);assert.ok(measured.stats.predicateVisits<=MAX_PICTURE_WORK);assert.equal(response.status,200);assert.equal(response.headers.get("Cache-Control"),"no-store");assert.equal(response.headers.get("Content-Security-Policy"),VIEW_POLICY);if(method==="HEAD"){assert.equal(response.body,null);assert.equal(await response.text(),"");}else limitedFrame(await response.text());}
  const api=await f.call("GET","/api/spaces/"+f.name+"/pictures/sample/01-domain");assert.equal(api.status,200);assert.deepEqual((await api.json()).picture.source,source);assert.deepEqual(stored(),before);assert.equal(f.db.prepare("SELECT COUNT(*) AS n FROM writes").get().n,0);assert.equal(JSON.stringify(source),beforeSource);
 });
 
@@ -183,7 +192,7 @@ test("limited source list includes unique timeline-only events without expanding
 test("mocked zero-item limited scene retains the real SSR warning and no readiness claim",()=>{
  const scene={nodes:[],edges:[],bounds:{x:0,y:0,width:220,height:100},contexts:[],step:8,limited:true,limit:20000,workLimit:200000,reason:"work",work:200000,listLimited:false};
  const preview=readFileSync(new URL("../src/preview.js",import.meta.url),"utf8").replace(/^import[^\n]*\r?\n/gm,"").replace(/^export /gm,"");
- const sandbox={pictureLayout:()=>scene,itemMarks:browserLayout.itemMarks,sceneItems,STEPS:browserLayout.STEPS,words};runInNewContext(preview+"\nglobalThis.checkedPicturePreview=picturePreview;",sandbox,{timeout:1000});
+ const sandbox={pictureLayout:()=>scene,itemMarks:browserLayout.itemMarks,sceneItems,STEPS:browserLayout.STEPS,words,PALETTE};runInNewContext(preview+"\nglobalThis.checkedPicturePreview=picturePreview;",sandbox,{timeout:1000});
  for(const lang of["en","ko"]){const body=limitedHTML(sandbox.checkedPicturePreview(pageData({}).data,lang),{allowEmpty:true});assert.equal(listItems(body),0);assert.match(body,lang==="en"?/Repeated layout is too complex/:/반복 배치가 너무 복잡해/);}
 });
 
@@ -197,8 +206,10 @@ async function assertTextBudget(t,kind){
  assert.equal(MAX_PICTURE_TEXT_WORK,1000000);const snapshot=textSnapshot(kind),source=domainOf(snapshot),text=kind==="hotspot"?source.hotspots[0].text:source.contexts[0].purpose;
  assert.equal(Array.from(text).length,INPUT_SCHEMAS.Words.maxLength);assert.equal(text.split("\n").length,INPUT_SCHEMAS.Words.maxLength);readSnapshot02(snapshot,Date.now());const bytes=Buffer.byteLength(JSON.stringify(snapshot));assert.ok(bytes<1000000);
  const original=JSON.stringify(source),scene=pictureLayout(source,"01-domain");limitedWork(scene,"text");assert.equal(scene.textLimit,MAX_PICTURE_TEXT_WORK);assert.ok(Number.isSafeInteger(scene.textWork)&&scene.textWork>0&&scene.textWork<=MAX_PICTURE_TEXT_WORK);assert.ok(scene.work<MAX_PICTURE_WORK,"text amplification is stopped before the general work limit");assert.equal(scene.nodes.length,kind==="hotspot"?2:1);
- const f=await server(t,snapshot),path="/pictures/"+f.name+"/sample/01-domain",stored=()=>f.db.prepare("SELECT source,digest FROM pictures WHERE project=? AND part='sample' AND stage='01-domain'").get(f.name),before=stored();
- for(const [method,lang]of[["GET","en"],["GET","ko"],["HEAD","en"]]){const response=await f.call(method,path,{lang});assert.equal(response.status,200);assert.equal(response.headers.get("Cache-Control"),"no-store");assert.equal(response.headers.get("Content-Security-Policy"),VIEW_POLICY);if(method==="HEAD"){assert.equal(response.body,null);assert.equal(await response.text(),"");}else assert.equal(listItems(limitedHTML(await response.text())),scene.nodes.length);}
+ const f=await server(t,snapshot),path=stagePath(f.name),stored=()=>f.db.prepare("SELECT source,digest FROM pictures WHERE project=? AND part='sample' AND stage='01-domain'").get(f.name),before=stored();
+ await leadsToStage(f);
+ for(const [method,lang]of[["GET","en"],["GET","ko"],["HEAD","en"]]){const response=await f.call(method,path,{lang});assert.equal(response.status,200);assert.equal(response.headers.get("Cache-Control"),"no-store");assert.equal(response.headers.get("Content-Security-Policy"),VIEW_POLICY);if(method==="HEAD"){assert.equal(response.body,null);assert.equal(await response.text(),"");}else limitedFrame(await response.text());}
+ assert.equal(listItems(limitedHTML(picturePreview(pageData(source).data,"en"))),scene.nodes.length);
  const api=await f.call("GET","/api/spaces/"+f.name+"/pictures/sample/01-domain");assert.equal(api.status,200);assert.deepEqual((await api.json()).picture.source,source);assert.deepEqual(stored(),before);assert.equal(JSON.stringify(source),original);assert.equal(f.db.prepare("SELECT COUNT(*) AS n FROM writes").get().n,0);
  t.diagnostic(JSON.stringify({scope:"synthetic text amplification, not a timing assertion",kind,snapshotBytes:bytes,wordsLimit:INPUT_SCHEMAS.Words.maxLength,contexts:200,reason:scene.reason,textWork:scene.textWork,textLimit:scene.textLimit,work:scene.work,sourceItems:scene.nodes.length}));
 }
@@ -212,7 +223,8 @@ test("literal timeline text cannot hide an equal stable term ID in fallback, SSR
  limitedWork(scene,"work");assert.equal(direct.stats.trapped,false);assert.equal(scene.listLimited,false);assert.equal(scene.nodes.length,5);
  for(const nodes of[scene.nodes,sceneItems(scene)]){assert.ok(nodes.some(n=>!n.id&&n.text==="TERM-001"),"unidentified literal event remains");assert.ok(nodes.some(n=>n.id==="TERM-001"&&n.kind==="aggregate"&&n.text==="G"),"stable-ID aggregate remains");}
  const f=await server(t,snapshot),stored=()=>f.db.prepare("SELECT source,digest FROM pictures WHERE project=? AND part='sample' AND stage='01-domain'").get(f.name),before=stored();
- const measured=await sceneSomeCounter(()=>f.call("GET","/pictures/"+f.name+"/sample/01-domain"));assert.equal(measured.stats.trapped,false);assert.equal(measured.value.status,200);const body=limitedHTML(await measured.value.text()),entries=[...body.matchAll(/<li>\s*<a\b[^>]*href="([^"]+)"[^>]*>([^<]*)<\/a>\s*<\/li>/g)].map(match=>({href:match[1],text:match[2]}));
+ await leadsToStage(f);const measured=await sceneSomeCounter(()=>f.call("GET",stagePath(f.name)));assert.equal(measured.stats.trapped,false);assert.equal(measured.value.status,200);limitedFrame(await measured.value.text());
+ const body=limitedHTML(picturePreview(pageData(source).data,"en")),entries=[...body.matchAll(/<li>\s*<a\b[^>]*href="([^"]+)"[^>]*>([^<]*)<\/a>\s*<\/li>/g)].map(match=>({href:match[1],text:match[2]}));
  assert.equal(entries.length,5);assert.ok(entries.some(e=>e.href==="#items"&&e.text==="TERM-001"));assert.ok(entries.some(e=>e.href==="#item=TERM-001"&&e.text==="TERM-001 · G"));
  const api=await f.call("GET","/api/spaces/"+f.name+"/pictures/sample/01-domain");assert.equal(api.status,200);assert.deepEqual((await api.json()).picture.source,source);assert.deepEqual(stored(),before);assert.equal(JSON.stringify(source),original);assert.equal(f.db.prepare("SELECT COUNT(*) AS n FROM writes").get().n,0);
  const mocked=await sceneSomeCounter(async()=>{const d=clientDouble(source,{hash:"#item=TERM-001"});await new Promise(resolve=>queueMicrotask(resolve));return d;}),d=mocked.value;assert.equal(mocked.stats.trapped,false);

@@ -1,0 +1,21 @@
+[Unit]
+Description=Copy of the NEXUS %i backup on another machine, and the copy's age
+After=nexus-backup@%i.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=nexus-%i
+Group=nexus-%i
+EnvironmentFile=/etc/nexus/%i.env
+# rclone keeps the remote's login here, in a file that it must be able to write, since it updates the token there.
+Environment=RCLONE_CONFIG=/var/lib/nexus-%i/rclone/rclone.conf
+# A failed copy fails nothing by itself: the age check that follows says how old the newest copy is.
+ExecStart=-/usr/bin/node /opt/nexus/%i/current/nexus/tools/backup-copy.js copy --directory /var/lib/nexus-%i/backups --remote ${NEXUS_BACKUP_REMOTE} --rclone /usr/bin/rclone
+ExecStart=/usr/bin/node /opt/nexus/%i/current/nexus/tools/backup-copy.js age --remote ${NEXUS_BACKUP_REMOTE} --rclone /usr/bin/rclone
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/nexus-%i

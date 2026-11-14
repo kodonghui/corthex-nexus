@@ -2,7 +2,7 @@
 
 [한국어](README.ko.md)
 
-The NEXUS server puts the CORTHEX project hub on an address of your own, so you can open it from any device. The approved standalone runtime uses Node HTTP and SQLite behind Cloudflare Access and a Tunnel; the compatible Worker/D1 runtime remains available. Both keep snapshots sent by `hub.py push` and serve the hub page. The standalone deployment and recovery procedure is below.
+The NEXUS server puts the CORTHEX project hub on an address of your own, so you can open it from any device. The approved standalone runtime uses Node HTTP and SQLite behind Cloudflare Access and a Tunnel; the compatible Worker/D1 runtime remains available. Both keep snapshots sent by `hub.py push` and serve the first page at the address and the hub page at `/hub`. The standalone deployment and recovery procedure is below.
 
 This folder is not a plugin. Deploy it from a clone of this repository.
 
@@ -25,7 +25,7 @@ This folder is not a plugin. Deploy it from a clone of this repository.
 2. Make your own settings file: copy `wrangler.jsonc` to `wrangler.local.jsonc`, which git ignores. In the copy, set the address in `routes`, such as `nexus.example.com` on a domain in your account, and set `NEXUS_LANGUAGE` to `ko` for a Korean page.
 3. Deploy: run `npx wrangler login`, then `npm run deploy`. The first deploy creates the D1 database `corthex-nexus` and links it to the Worker; run in a terminal, it also writes the database's ID into your settings file, and later deploys keep using the database either way. Cloudflare then adds the address's DNS record and certificate. If the address already has a DNS record, for example from an earlier service, Cloudflare does not put the Worker's record over it: note its value if you may need it, delete it in the dashboard under your domain's **DNS** › **Records**, and deploy again. Until the next step, the address answers `403`.
 4. Protect the Worker with Access. In the Cloudflare dashboard, go to **Workers & Pages**, select `corthex-nexus`, open the **Access** tab and select **Protect this Worker behind Access**. Choose **All traffic**, choose who can sign in (for yourself alone, **Cloudflare account**) and select **Apply Access**. If an Access application for this address already exists under **Zero Trust** › **Access controls** › **Applications**, it applies before Worker-level Access and already protects the hub: check that its policies let in only the people you want, and skip this step.
-5. Pin the application before checking it. Remove the empty `ACCESS_AUD` placeholder from your local `vars`, then run `npx wrangler secret put ACCESS_AUD -c wrangler.local.jsonc` and enter that application's **Application Audience (AUD) Tag** at the prompt. Set `ACCESS_TEAM_DOMAIN` in your local file's `vars` to your team host, such as `your-team.cloudflareaccess.com`, and deploy again. Open the address in a private window: the Access sign-in comes first, then the empty hub page.
+5. Pin the application before checking it. Remove the empty `ACCESS_AUD` placeholder from your local `vars`, then run `npx wrangler secret put ACCESS_AUD -c wrangler.local.jsonc` and enter that application's **Application Audience (AUD) Tag** at the prompt. Set `ACCESS_TEAM_DOMAIN` in your local file's `vars` to your team host, such as `your-team.cloudflareaccess.com`, and deploy again. Open the address in a private window: the Access sign-in comes first, then the empty first page, whose Full checks open the hub page at `/hub`.
 6. Create a service token for `hub.py`. In **Zero Trust** › **Access controls** › **Service credentials** › **Service Tokens**, create one and copy its Client ID and Client Secret; the secret is shown only once. Then open the Access application that protects the hub, the one from step 4 or the one the address already had, under **Zero Trust** › **Access controls** › **Applications**, and add a policy with the action **Service Auth** that includes this token. Add it to that application rather than creating a second one for the same Worker, which can conflict with it.
 7. On each machine that sends snapshots, set the address and the projects that may be sent in `~/.corthex/profile.json`:
 
@@ -42,8 +42,77 @@ The dashboard names follow Cloudflare's documentation as of October 2026: [Cloud
 ## Use
 
 - `hub.py push` sends the projects in `nexus.push`; name projects to send only those. The server keeps the newer snapshot of a project: one generated earlier than the stored one is refused, so build again and push.
-- `hub.py remove <project>` deletes a project from the server. Taking a project out of `nexus.push` stops further pushes but leaves what the server holds.
+- `hub.py remove <project>` sends no removal: it shows what removing the project deletes and the address of the project's data in NEXUS, where you remove it under your own sign-in. Taking a project out of `nexus.push` stops further pushes but leaves what the server holds.
 - When signed in, `/api/snapshots` lists what the server holds.
+
+## Push from the repository on each merge
+
+A project's repository can send its snapshot itself each time a commit reaches its default branch, without a session: a job of the repository's own CI runs `hub.py push --job`. The agent's pushes stay as the second way. Whichever comes first stores the commit, and the other finds it held and sends nothing.
+
+The job sends only for a project that the server already holds, so a project's first push is still `hub.py push <project> --first` in a session, after your yes. It never replaces a held commit: after the default branch was rewritten, it fails and names both commits. It reads no agent to-do and sends no pending writes.
+
+To add it to a project's repository on GitHub:
+
+1. Add the file below to the repository as `.github/workflows/corthex-nexus-push.yml`, by pull request. If the default branch is not `main`, write its name under `branches`.
+2. In the repository's **Settings** › **Secrets and variables** › **Actions**, add three repository secrets: `CORTHEX_NEXUS_URL`, the server's `https` address, and `CORTHEX_NEXUS_CLIENT_ID` and `CORTHEX_NEXUS_CLIENT_SECRET`, the service token of step 6.
+3. Merge the pull request. From then on, each commit that reaches the default branch runs the job.
+
+```yaml
+name: NEXUS push
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: corthex-nexus-push
+  cancel-in-progress: false
+
+jobs:
+  push:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the default branch with its history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: project
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check out the hub at its pinned commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: kodonghui/corthex
+          ref: c6095b40c71bc74d207b13b5b08aeeb078c7d0c5
+          path: hub
+          persist-credentials: false
+      - name: Push the snapshot
+        working-directory: project
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          CORTHEX_NEXUS_URL: ${{ secrets.CORTHEX_NEXUS_URL }}
+          CORTHEX_NEXUS_CLIENT_ID: ${{ secrets.CORTHEX_NEXUS_CLIENT_ID }}
+          CORTHEX_NEXUS_CLIENT_SECRET: ${{ secrets.CORTHEX_NEXUS_CLIENT_SECRET }}
+        run: |
+          git symbolic-ref refs/remotes/origin/HEAD "refs/remotes/origin/$DEFAULT_BRANCH"
+          python3 ../hub/plugins/corthex-nexus/skills/corthex-hub/scripts/hub.py push --job --json
+```
+
+The job runs only on a push to the default branch, never for a pull request, so a fork's change never runs with the secrets; a fork has none, and there the job sends nothing and names the missing secrets. It checks out the repository with its full history and, beside it, the hub at the commit that this repository's [`hub-ref.json`](../hub-ref.json) names, and runs nothing from the repository itself. Anyone who can change the workflows on the default branch can use the secrets, so add them only to a repository that only you can push to. When you update the server, take the file again, so that the job's hub moves with it.
+
+The job's log is the one line of `hub.py push --job --json`, which never holds a secret's value:
+
+| The line says | The job | What it means |
+| --- | --- | --- |
+| `"sent": true` | passes | The commit's snapshot is stored, with the server's answer in `pushed`. |
+| `"why": "already-held"` | passes | The server holds this commit or a newer one. |
+| `"why": "first-push-waits"` | passes | The server does not hold the project: push it first in a session with `--first`. |
+| `"why": "not-set"` | passes | A secret is not set, and `missing` names it. |
+| `refused` or `failed` | fails | The server refused the push or did not answer, or the held commit is not in the pushed commit's history; the line says why. |
 
 ## Limits
 
@@ -118,6 +187,70 @@ the verified restored file in its private environment and restart. Never replace
 a live database or detach it from its WAL. A runtime rollback alone does not
 undo database migrations.
 
+A copy of the newest backup also goes to another machine, Google Drive, so that
+losing the server's disk loses at most a day (REQ-291). `nexus-backup-copy@dev.timer`
+runs daily at 04:00 UTC, after the backup, with up to 15 minutes of jitter,
+including a missed run after downtime. Its first step, `backup-copy.js copy`,
+sends with rclone the newest backup whose receipt names it, the archive before
+its receipt, and removes copies older than 30 days only while the newest copy is
+less than a day old. Its second step, `backup-copy.js age`, reads the names of the
+copies, never their contents, and says how old the newest one is, such as "The
+newest copy of the backup is 3 hours old." Past a day, or with no copy, it says
+so and the service fails, which `systemctl --failed` lists. A failed send fails
+nothing by itself: the age that follows says what it means. The output holds
+archive names, sizes and ages only, with no path, remote or login.
+
+Set it up once. The login is made on the server and stays there, never in Git,
+a message or a record, and no key or login file moves between machines:
+
+1. Install rclone at `/usr/bin/rclone`, from the system's packages or rclone.org.
+2. In the Google Cloud console, make the login's own client, since rclone's shared
+   one stops working during 2026: a project with the Google Drive API enabled; an
+   OAuth consent screen of the type External, with the scope `drive.file` alone,
+   published, since an app's login in testing ends after a week; and an OAuth
+   client of the type Desktop app. Its ID and secret go only into rclone's prompts
+   on the server, in the next step.
+3. From the laptop, `ssh -L 53682:127.0.0.1:53682 <configured-origin-alias>`. On
+   the server, `sudo install -d -m 0700 -o nexus-dev -g nexus-dev /var/lib/nexus-dev/rclone`,
+   then `sudo runuser -u nexus-dev -- env RCLONE_CONFIG=/var/lib/nexus-dev/rclone/rclone.conf rclone config`:
+   a new remote `<remote>` of the type `drive`, with that client's ID and secret,
+   the scope `drive.file`, so that the login reaches only the files that rclone
+   made, and auto config. Open the address that rclone shows,
+   `http://127.0.0.1:53682/auth?...`, in the laptop's browser, sign in to the
+   Google account that keeps the copies, and allow it.
+4. Add `NEXUS_BACKUP_REMOTE=<remote>:nexus-backups` to `/etc/nexus/dev.env`.
+   rclone makes the folder at the first copy.
+5. The next deployment installs `nexus-backup-copy@.service` and its timer and,
+   since the remote is set and rclone is installed, enables the timer.
+6. `systemctl start nexus-backup-copy@dev.service`, then
+   `journalctl -u nexus-backup-copy@dev -n 4` shows the copy and its age.
+
+Read the age on any day with `journalctl -u nexus-backup-copy@dev -n 2`. Stop the
+copies with `systemctl disable --now nexus-backup-copy@dev.timer`; those on the
+remote stay. To end the login, remove the app's access in the Google account's
+security settings and delete `/var/lib/nexus-dev/rclone/rclone.conf`.
+
+Restore one copy on the other machine and compare it with the server's data.
+Download the newest `<archive>.sqlite` and its `<archive>.sqlite.json` from the
+folder into one folder there, with rclone or Google Drive's own download, and,
+with Node 24 and this repository:
+
+```sh
+node nexus/tools/database.js restore --backup <absolute-folder>/<archive>.sqlite --destination <absolute-folder>/restore-check.sqlite
+node nexus/tools/database.js counts --database <absolute-folder>/restore-check.sqlite
+```
+
+On the server, as the service's user:
+
+```sh
+sudo runuser -u nexus-dev -- /usr/bin/node /opt/nexus/dev/current/nexus/tools/database.js counts --database /var/lib/nexus-dev/backups/<archive>.sqlite
+```
+
+The restore checks the receipt's SHA-256, which the server wrote, and the
+database's integrity. `counts` gives each table's number of rows and, in the
+tables that name a project, each project's, and the two answers are the same.
+Delete the restored file afterwards, since it holds the project spaces' text.
+
 Before release, export production D1 **read-only** to the origin, import it into
 a separate rehearsal database, record table counts, back it up, apply migrations
 and verify both forward behavior and a restored copy. Keep the old production
@@ -144,7 +277,7 @@ zone administrator certificate.
 
 Trusted JS/CSS Brotli/gzip variants are made once at startup. At the origin, Access, role and route checks precede Accept-Encoding selection; HEAD and code-cache/CSP policies remain intact. Same-origin edge HITs still require whole-host Access first. Fonts and refusals do not use these compression variants. NEXUS_METRICS=1 emits numbers only: processing_ms includes body arrival and I/O; body_receive_ms and after_body_ms distinguish the phases. cpu_user_ms/cpu_system_ms are process CPU deltas over that window, which overlap for concurrent requests. RSS is a post-response sample, not peak.
 
-The optional private setting `NEXUS_EARLY_HINTS=1` adds `Link: rel=preload` hints to successful picture HTML. It is off by default. Hints contain only the current editor's immutable same-origin bundle names, both supported locales and its fonts; they contain no snapshot or identity data. Access still checks every asset request. The existing proxy must separately support Early Hints; a Link header alone does not prove a 103 response or a faster page. Keep response bodies private. When changing those bundle names, refresh the development picture responses before measuring so cached hint metadata cannot select an older bundle.
+The private setting `NEXUS_EARLY_HINTS=1` added `Link: rel=preload` hints to 0.2's picture view. Since TASK-278 that address answers `302` to the stage's page, which sends no hints, so the setting has no effect and a server that still sets it ignores it.
 
 Only public content-hashed /code/ files may be edge-cached (public,max-age31536000,immutable). HTML/API/data remain no-store behind whole-host Access. Verify HIT/Age and unauthenticated GET/HEAD refusal at cached URLs before release. REQ-124 processing1s starts after body receipt and ends at response handling completion. Keep the old Worker/D1 for14days after switching and ask separately before removal.
 

@@ -1,8 +1,11 @@
-"""TC-612/613/615: exact template picture-source data, not browser drawing.
+"""TC-612/613/615: exact template picture-source data, not browser drawing;
+TC-1790: the board of this repository's own stage 01 document.
 
 test_nexus verifies the separately prepared exact hub-ref checkout before any
-hub import. These tests only call its real parsers with in-memory template text.
+hub import. These tests only call its real parsers with in-memory template text,
+or with the text of the stage 01 document as this checkout holds it.
 """
+from pathlib import Path
 from types import SimpleNamespace
 import unittest
 
@@ -106,6 +109,30 @@ class OriginalPictureAcceptanceTest(unittest.TestCase):
                  for screen in screens if "parent" in screen]
         self.assertEqual(edges, [("SCR-001", "SCR-002")])
         self.assertTrue(all(screen["removed"] is False for screen in screens))
+
+    def test_TC_1790_the_seven_lane_document(self):
+        name = "docs/01-domain/nexus.md"
+        text = (Path(__file__).resolve().parents[1] / name).read_text(encoding="utf8")
+        # The document's own timeline, read here without the hub: a lane a row, its
+        # events in places joined by "→", and the outcomes of one place by ", or".
+        lines = text.splitlines()
+        start = lines.index("| Lane | What happens | Events |") + 2
+        expected = []
+        for line in lines[start:]:
+            if not line.startswith("| "):
+                break
+            lane, _, events = [cell.strip() for cell in line.strip().strip("|").split(" | ")]
+            expected.append((lane, [place.split(", or ") for place in events.split(" → ")]))
+        checks = []
+        helper = SimpleNamespace(**vars(hub), picture_ids=hub.IdFormat({}))
+        board = hub.companion("domain").parse([(name, text)], checks, helper, "nexus")
+        self.assertEqual(checks, [])
+        timeline = [(lane["lane"], lane["places"]) for lane in board["timeline"]]
+        # Seven lanes since phase ②'s checkpoint 1, in the document's order.
+        self.assertEqual(len(expected), 7)
+        self.assertEqual(timeline, expected)
+        editing = dict(timeline)["Editing directly"]
+        self.assertIn(["Picture edited", "Edit conflict found"], editing)
 
 
 if __name__ == "__main__":
