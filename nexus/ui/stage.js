@@ -460,7 +460,8 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     opener=button?.dataset.nxFocus||"record";before=ws?.dataset.nxOpen??null;
     view.record=true;if(ws)ws.dataset.nxOpen="record";
     render(["stage","side"]);
-    const box=textarea();if(box)box.value=drafts.read(passScope).text;
+    // A pass still on its way (BUG-622) shows its words fixed in the box drawn again (BUG-629).
+    const box=textarea();if(box){box.value=drafts.read(passScope).text;box.readOnly=view.recordState.sending==="pass";}
     counter();render(["side"]);holdPage();
     parts.side.querySelector("#rec-h")?.focus();
   }
@@ -546,10 +547,12 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     try{
       await writes.run(passScope,()=>api.call("POST",`${base}/checkpoints`,{body,write:draft.write}));
       drafts.clear(passScope,draft.write);
-      if(box.value===draft.text)box.value="";
-      box.removeAttribute("aria-invalid");counter();again=true;
+      // The box that the record shows now, drawn again if the record closed and opened while the
+      // pass was on its way, as well as the one that sent it (BUG-629).
+      for(const shown of new Set([box,textarea()]))if(shown){if(shown.value===draft.text)shown.value="";shown.removeAttribute("aria-invalid");}
+      counter();again=true;
     }catch(error){again=writeFailed("pass",error,passScope,undefined,Boolean(request));talkToo=ASKED.includes(error?.code);}
-    finally{state.sending=null;state.reading=again;box.readOnly=false;render(["side"]);}
+    finally{state.sending=null;state.reading=again;box.readOnly=false;const now=textarea();if(now)now.readOnly=false;render(["side"]);}
     // A pass with a request settled it, which the talk then shows waiting for the agent. Until
     // the page has read again, the pass and Withdraw stay off, so that a second press sends
     // nothing and the next pass names what the record then shows (SCR-112's repeats, rule 21,

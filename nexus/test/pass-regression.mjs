@@ -25,8 +25,10 @@
  * full, which the user marks answered in the talk before passing without it; a stage that the
  * project does not read, which passes with the project's commit (SCR-113#not-read); a second
  * press of the pass while the record reads again after the first, which sends nothing (BUG-608);
- * and a pass and a withdrawal on their way when the record closes, after which the record opened
- * again has its pass and Withdraw on (BUG-622).
+ * a pass and a withdrawal on their way when the record closes, after which the record opened
+ * again has its pass and Withdraw on (BUG-622); and a pass on its way when the record closes and
+ * opens again, whose words the box that shows then holds fixed, and empties once the server takes
+ * the pass, or keeps, open to words, once it refuses (BUG-629).
  *
  * Node 24 built-ins only; an owned headless Chrome over CDP. Requires NEXUS_QA_PASS=1, the opt-in
  * view-server, NEXUS_CHROME and NEXUS_QA_ORIGIN. Synthetic loopback fixture only: the page's reads
@@ -575,10 +577,62 @@ try{
   return{evidence:'fixture server (two real passes and a real withdrawal); a pass and the withdrawal held by the suite (a delay that it makes) while the record closed',seen,screenshots:shots};
  });
 
+ // A pass on its way when the record closes and opens again (BUG-629): the record opened again
+ // draws a new words box, which shows the pass's words fixed. Once the server takes the pass, the
+ // box that shows is empty and open to words, so that no later pass sends those words again;
+ // once the server refuses it, the box that shows keeps the words, open to words again. The suite
+ // holds each pass (a delay that it makes), closes the record with Escape at 1,440 pixels and
+ // opens it again, then lets the first pass go on and answers the second itself (mocked).
+ await test('a-pass-on-its-way-when-the-record-opens-again-1440-en',async()=>{
+  const lang='en',stage='03-user-flow',seen={},shots=[],since=report.console.length;
+  const read=new RegExp('^/api/spaces/'+project+'/stages/'+part+'/'+stage+'(?:\\?|$)');
+  const box=()=>evaluate(`(()=>{const w=document.querySelector('.side .rec #cp-words');return w&&{words:w.value,readOnly:w.readOnly,invalid:w.getAttribute('aria-invalid')}})()`);
+  // A pass sent with its words, held on its way while the record closes and opens again.
+  async function reopened(what,words){
+   await type('#cp-words',words);
+   held={pattern:new RegExp('^'+passPath+'$'),method:'POST',requests:[]};
+   const mark=report.posts.length;
+   await click(PASS);
+   for(const stop=Date.now()+10000;!held.requests.length&&Date.now()<stop;)await sleep(25);
+   assert(held.requests.length===1&&postsTo(passPath,mark).length===1,what+': the pass is on its way');
+   await key('Escape','Escape',27);await waitFor(`!document.querySelector('.ws').dataset.nxOpen&&!document.querySelector('.side .rec')`);
+   await openRecord(false);
+   seen[what]={during:await box()};
+   assert(seen[what].during?.words===words&&seen[what].during.readOnly===true,what+': opened again while the pass is on its way, the box shows its words fixed: '+JSON.stringify(seen[what].during));
+   return mark;
+  }
+  await setting({width:1440,theme:'light'});await open(page(stage,lang));await openRecord(false);
+  const before=await counts(),taken='Synthetic: a pass on its way as the record opens again.';
+  await reopened('taken',taken);
+  shots.push(await shot('reopened-while-passed-1440-en'));
+  const reads=report.reads.length;
+  await release();
+  for(const stop=Date.now()+10000;!report.reads.slice(reads).some(r=>read.test(r.path))&&Date.now()<stop;)await sleep(25);
+  await quiet();await waitFor(`document.querySelector(${JSON.stringify(PASS)})?.getAttribute('aria-disabled')!=='true'`);await paint();
+  seen.taken.after=await box();seen.taken.checkpoints=(await counts()).checkpoints-before.checkpoints;
+  assert(seen.taken.after?.words===''&&seen.taken.after.readOnly===false&&seen.taken.checkpoints===1,'Once the server takes the pass, the box that shows is empty and open to words: '+JSON.stringify(seen.taken));
+  // The next pass, with words of its own, held as the record closes and opens again, which the
+  // suite then answers with a refusal (mocked): it sent only its own words.
+  const refused='Synthetic: a pass refused as the record opens again.';
+  const mark=await reopened('refused',refused);
+  seen.sent=sentBody(postsTo(passPath,mark)[0]).words??null;
+  const active=held;held=null;
+  const answer=problem(409,'space_full');
+  report.interceptions.push({path:passPath,method:'POST',action:'mocked 409',at:new Date().toISOString()});
+  await command('Fetch.fulfillRequest',{requestId:active.requests[0],responseCode:answer.status,responseHeaders:answer.headers,body:Buffer.from(answer.body).toString('base64')});
+  await waitFor(`!!document.querySelector('.side .rec .pnote .msg')&&document.querySelector(${JSON.stringify(PASS)})?.getAttribute('aria-disabled')!=='true'`);await paint();
+  seen.refused.after=await box();seen.refused.note=(await state()).record?.pass?.text??null;
+  assert(seen.sent===refused&&seen.refused.after?.words===refused&&seen.refused.after.readOnly===false&&seen.refused.note===codeMessage('space_full',lang),'Once the server refuses the pass, the box that shows keeps its words, open to words: '+JSON.stringify({sent:seen.sent,refused:seen.refused}));
+  assert((await counts()).checkpoints===before.checkpoints+1,'Only the pass that the server took is recorded');
+  shots.push(await shot('reopened-while-refused-1440-en'));
+  judge('opened again while passed',await pageChecks(1440),since);
+  return{evidence:'fixture server (a real pass); two passes held by the suite (a delay that it makes) while the record closed and opened again, the second answered by the suite (mocked)',seen,screenshots:shots};
+ });
+
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=2+2+9;
+ const expected=2+2+10;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{
