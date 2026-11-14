@@ -250,7 +250,7 @@ try{
   const goneShot=await shot('apart-1440-en');
   // The page leads to the proposal's stage at once, so that the suite waits for that page only.
   await command('Page.navigate',{url:'about:blank'});await command('Page.navigate',{url:origin+page('02-prd','en','#proposal='+qa.accept)});
-  await waitFor(`location.pathname.endsWith('/05-erd')&&document.documentElement.dataset.nxCode==='ready'`);await settled();
+  await waitFor(`location.pathname.endsWith('/05-erd')&&document.readyState==='complete'&&document.documentElement.dataset.nxCode==='ready'`);await settled();
   s=await state();
   assert(s.hash==='#talk='+qa.accept&&one(s.lists.mine,qa.accept)?.open&&one(s.lists.mine,qa.accept).change.includes('CREATE UNIQUE INDEX orders_reference ON orders(reference);'),'Another stage\'s proposal opens in that stage\'s talk, with its change: '+JSON.stringify({path:s.path,hash:s.hash}));
   return{evidence:'fixture pages and reads',screenshot:goneShot};
