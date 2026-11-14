@@ -90,25 +90,28 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
     if(box&&!filled.has(box)){filled.add(box);const draft=drafts.read(boxScope());if(draft.text&&!box.value)box.value=draft.text;box.readOnly=Boolean(st.box.sending);changed=measure(box.value,st.box)||changed;}
     for(const li of side.querySelectorAll("li[data-nx-entry]")){
       const id=li.dataset.nxEntry,area=li.querySelector(':scope > .rbox textarea[name="reply"]'),check=li.querySelector(':scope > .rbox input[name="settles"]');
-      if(area&&!filled.has(area)){filled.add(area);const draft=drafts.read(replyScope(id));if(draft.text&&!area.value)area.value=draft.text;changed=measure(area.value,st.replies[id]||(st.replies[id]={}))||changed;}
+      // A box drawn again while its reply is on its way shows the words, fixed (BUG-625).
+      if(area&&!filled.has(area)){filled.add(area);const draft=drafts.read(replyScope(id)),into=st.replies[id]||(st.replies[id]={});if(draft.text&&!area.value)area.value=draft.text;area.readOnly=into.sending==="reply";changed=measure(area.value,into)||changed;}
       if(check&&!filled.has(check)){filled.add(check);check.checked=drafts.read(replyScope(id)).settles;}
     }
     if(reply){const area=element(reply)?.querySelector('textarea[name="reply"]');if(area){reply=null;area.focus({preventScroll:true});}}
     return changed;
   }
 
-  // An entry in what the talk shows, with its group.
+  // An entry in what the talk shows, with its group and the item whose talk it is in.
   function locate(id){
     const talk=st.shown||current();
     if(!talk||!id)return null;
-    const groups=talkGroups(talk);
-    for(const key of["mine","agent","apart"]){const entry=groups[key].find(e=>e.id===id);if(entry)return{entry,group:key};}
+    const groups=talkGroups(talk),item=st.item;
+    for(const key of["mine","agent","apart"]){const entry=groups[key].find(e=>e.id===id);if(entry)return{entry,group:key,item};}
     const closed=(st.closed.entries||[]).map(row=>entryOf(row)).find(e=>e.id===id);
-    return closed?{entry:closed,group:"closed"}:null;
+    return closed?{entry:closed,group:"closed",item}:null;
   }
   const rowOf=entry=>entry.type==="proposal"?{kind:"proposal",comment:null,proposal:entry.proposal}:{kind:"comment",comment:entry.comment,proposal:null};
-  function keep({entry,group}){
-    if(group!=="mine"||kept.has(entry.id))return;
+  // An entry answered in its place stays there, in the talk that it was answered in: a write
+  // that the server took after another item was selected keeps nothing in that item's talk.
+  function keep({entry,group,item}){
+    if(group!=="mine"||kept.has(entry.id)||item!==st.item)return;
     const index=(st.shown?.mine?.entries||[]).findIndex(row=>entryOf(row).id===entry.id);
     kept.set(entry.id,{index:index<0?Infinity:index,row:rowOf(entry)});
   }
@@ -417,26 +420,32 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
     finally{state.sending=false;box.readOnly=false;shown().readOnly=false;draw();}
     if(again)await after();
   }
+  // An opened comment's reply box and its "This settles it", as the side shows them now.
+  const replyControls=id=>{const li=element(id),box=li?.querySelector(':scope > .rbox textarea[name="reply"]');return box?{box,check:li.querySelector(':scope > .rbox input[name="settles"]')}:null;};
   // Reply (API-119), with or without "This settles it", which on a closed comment opens it again.
   async function sendReply(id){
-    const found=locate(id),li=element(id),box=li?.querySelector('textarea[name="reply"]'),check=li?.querySelector('input[name="settles"]');
-    if(!found||found.entry.type!=="comment"||!box)return;
-    const state=st.replies[id]||(st.replies[id]={}),scope=replyScope(id);
+    const found=locate(id),sent=replyControls(id);
+    if(!found||found.entry.type!=="comment"||!sent)return;
+    const {box,check}=sent,state=st.replies[id]||(st.replies[id]={}),scope=replyScope(id);
     measure(box.value,state);
     if(state.sending||state.over||state.empty||writes.has(scope)){draw();return;}
     const draft=drafts.update(scope,{text:box.value,settles:Boolean(check?.checked)});
     state.sending="reply";state.note=null;box.readOnly=true;draw();
+    // The entry's reply box as the side shows it now: a new one once the user folded the entry
+    // and opened it again while the reply was on its way (BUG-625), else the box that sent it.
+    const shown=()=>replyControls(id)||sent;
     let again=false;
     try{
       await writes.run(scope,()=>api.call("POST",`${base}/comments/${encodeURIComponent(id)}/replies`,{body:{text:draft.text,...(draft.settles?{settles:true}:{})},write:draft.write}));
       drafts.clear(scope,draft.write);
-      if(box.value===draft.text){box.value="";if(check)check.checked=false;}
-      box.removeAttribute("aria-invalid");measure(box.value,state);again=true;
+      const now=shown();
+      if(now.box.value===draft.text){now.box.value="";if(now.check)now.check.checked=false;}
+      now.box.removeAttribute("aria-invalid");measure(now.box.value,state);again=true;
     }catch(error){
-      if(error?.code==="text_too_long"||error?.code==="invalid_request"&&error?.field==="text")box.setAttribute("aria-invalid","true");
+      if(error?.code==="text_too_long"||error?.code==="invalid_request"&&error?.field==="text")shown().box.setAttribute("aria-invalid","true");
       again=failed(error,scope,"reply",state,null);
     }
-    finally{state.sending=null;box.readOnly=false;draw();}
+    finally{state.sending=null;box.readOnly=false;shown().box.readOnly=false;draw();}
     if(again)await after();
   }
   // Mark answered (API-120): the comment closes as answered and folds into the closed talk. One

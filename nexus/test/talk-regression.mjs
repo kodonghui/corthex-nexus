@@ -8,7 +8,8 @@
  * comment that is not on the server; a page of the closed talk on its way when an item is
  * selected (BUG-620); an open entry whose project was removed, which the page reads once
  * (BUG-619); a comment on its way while another item and then its own are selected (BUG-623);
- * an older address that a newer one takes the place of (BUG-624);
+ * an older address that a newer one takes the place of (BUG-624); a reply on its way while its
+ * entry folds and opens again (BUG-625), and an answer on its way while another item is selected;
  * a stage and an item without talk; a reply, Mark answered,
  * As recommended, Accept, Dismiss and dismissing a reflection, each answer in its place
  * (choice 19) with the focus where the press was (rule 3), and since TASK-302 a checkpoint
@@ -594,6 +595,73 @@ try{
   return{evidence:'fixture page and reads; REQ-005\'s talk and the question\'s reading held by the suite (a delay that it makes)',seen:{kept,stayed},screenshot:await shot('older-address-1440-en')};
  });
 
+ // A reply on its way when its entry folds and opens again (BUG-625): a reply on the comment
+ // apart, with This settles it, is held (a delay that the suite makes) while the entry folds and
+ // opens again. The box that opens shows the reply's words, fixed, This settles it as it was sent
+ // and Reply saying Sending; let go, that box is empty, This settles it off, Reply waits for
+ // words and the reply is in the thread. Another reply then goes.
+ await test('a-reply-on-its-way-folded-and-opened-1440-en',async()=>{
+  await setting({width:1440});
+  await open(page('02-prd','en'));
+  const id=qa.apart,entry=`li[data-nx-entry="${id}"]`,text='Synthetic reply on its way',replies=new RegExp('^/api/spaces/'+project+'/comments/'+id+'/replies$'),sending=codeMessage('Sending','en');
+  // The entry's reply box as it stands: its words, whether they can change, This settles it, and
+  // Reply's words and state.
+  const box=()=>evaluate(`(()=>{const li=document.querySelector(${JSON.stringify(entry)}),q=s=>li?.querySelector(':scope > .rbox '+s),t=q('textarea[name="reply"]'),c=q('input[name="settles"]'),b=q('[data-nx-act="reply"]');return{open:li?.querySelector(':scope > .hd .ref')?.getAttribute('aria-expanded')==='true',text:t?.value??null,readOnly:t?.readOnly??null,settles:c?.checked??null,reply:b?(b.querySelector('.keep > :not(.was)')||b).textContent.trim():null,off:b?.getAttribute('aria-disabled')??null};})()`);
+  // The entry open with its thread read, while its reply may still be on its way.
+  const opened=()=>waitFor(`!!document.querySelector(${JSON.stringify(entry+' > .rbox textarea')})&&!document.querySelector('.side .sk')&&(document.querySelector('.side .tupd')?.textContent||'')===''`).then(paint);
+  await click(entry+' .ref');await opened();await settled();
+  await type('#rp-'+id,text);
+  await click(entry+' input[name="settles"]');
+  held={pattern:replies,requests:[]};
+  const before=report.posts.length;
+  await click(entry+' [data-nx-act="reply"]');
+  for(const stop=Date.now()+10000;!held.requests.length&&Date.now()<stop;)await sleep(25);
+  assert(held.requests.length===1,'The reply is sent, and held');
+  await click(entry+' .ref');await waitFor(`!document.querySelector(${JSON.stringify(entry+' > .rbox')})`);await paint();
+  await click(entry+' .ref');await opened();
+  const back=await box();
+  assert(back.open&&back.text===text&&back.readOnly===true&&back.settles===true&&back.reply===sending,'Opened again, the reply still on its way: '+JSON.stringify(back));
+  await release();await settled();
+  const taken=await box(),sent=report.posts.slice(before).filter(p=>replies.test(p.path)),thread=anywhere(await state(),id);
+  assert(sent.length===1&&JSON.parse(sent[0].body).settles===true&&taken.open&&taken.text===''&&taken.settles===false&&taken.readOnly===false&&taken.reply!==sending&&taken.off==='true'&&thread?.reps?.includes(text),'Taken, the box that shows is empty, This settles it off and Reply waits for words: '+JSON.stringify({taken,sent:sent.length,reps:thread?.reps}));
+  await type('#rp-'+id,'Synthetic reply after it');
+  const ready=await box(),mark=report.posts.length;
+  await click(entry+' [data-nx-act="reply"]');
+  const next=await posted(mark,replies),left=await box();
+  assert(ready.off===null&&JSON.parse(next.body).text==='Synthetic reply after it'&&!JSON.parse(next.body).settles&&left.text===''&&left.reply!==sending,'Another reply then goes: '+JSON.stringify({ready,body:next.body,left}));
+  return{evidence:'fixture page and writes; the first reply held by the suite (a delay that it makes)',seen:{back,taken,left},screenshot:await shot('reply-folded-and-opened-1440-en')};
+ });
+
+ // An answer on its way when another item is selected (the sweep after BUG-625): Dismiss on a
+ // proposal on TBL-002 is held while TBL-001 is selected, and answered by the suite. The answer
+ // stays where it was given: TBL-001's talk lists no entry of TBL-002's.
+ await test('an-answer-on-its-way-across-items-1440-en',async()=>{
+  await setting({width:1440});
+  await open(page('05-erd','en','#item=TBL-002'));
+  const heading=id=>JSON.stringify(label('Narrowed',0,'en',{id}));
+  await waitFor(`(${talkState})().heading===${heading('TBL-002')}`);await settled();
+  let s=await state();
+  const listed=one(s.lists.mine,qa.dismiss);
+  assert(listed&&listed.acts.some(a=>a.act==='dismiss'),'TBL-002\'s talk lists the proposal to dismiss: '+JSON.stringify(s.lists.mine.map(e=>e.id)));
+  held={pattern:new RegExp('^/api/spaces/'+project+'/proposals/'+qa.dismiss+'/dismiss$'),requests:[]};
+  await click(`li[data-nx-entry="${qa.dismiss}"] [data-nx-act="dismiss"]`);
+  for(const stop=Date.now()+10000;!held.requests.length&&Date.now()<stop;)await sleep(25);
+  assert(held.requests.length===1,'The dismissal is sent, and held');
+  await evaluate(`location.hash='#item=TBL-001'`);await waitFor(`(${talkState})().heading===${heading('TBL-001')}`);await settled();
+  // The server's answer, as the suite gives it, so that the proposal stays open for the tests
+  // after this one.
+  const active=held;held=null;
+  for(const requestId of active.requests){
+   report.interceptions.push({path:'/api/spaces/'+project+'/proposals/'+qa.dismiss+'/dismiss',method:'POST',action:'mocked 200 after it was held',at:new Date().toISOString()});
+   await command('Fetch.fulfillRequest',{requestId,responseCode:200,responseHeaders:[{name:'Content-Type',value:'application/json'}],body:Buffer.from(JSON.stringify({changed:true})).toString('base64')});
+  }
+  await sleep(500);await settled();
+  s=await state();
+  const seen={hash:s.hash,heading:s.heading,mine:s.lists.mine.map(e=>e.id),agent:s.lists.agent.map(e=>e.id),closed:s.lists.closed.map(e=>e.id)};
+  assert(s.hash==='#item=TBL-001'&&s.heading===label('Narrowed',0,'en',{id:'TBL-001'})&&!anywhere(s,qa.dismiss),'TBL-001\'s talk lists no entry of TBL-002\'s: '+JSON.stringify(seen));
+  return{evidence:'fixture page and reads; the dismissal held by the suite (a delay that it makes) and then answered by it (mocked)',seen,screenshot:await shot('answer-across-items-1440-en')};
+ });
+
  // Rule 22's item, pressed on the request's entry and in the stage's record (TASK-300): the item
  // that this stage holds opens in its panel beside the stage as a step of the browser's history,
  // #item=, its row selected and the focus on the panel's heading; the browser's Back closes it.
@@ -782,7 +850,7 @@ try{
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=2+1+1+1+1+2+1+1+1+8+1+1+1+1+1+1+1+1;
+ const expected=2+1+1+1+1+2+1+1+1+8+1+1+1+1+1+1+1+1+1+1;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{
