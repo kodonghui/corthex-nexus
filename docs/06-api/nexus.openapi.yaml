@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: NEXUS server
-  version: 0.2.0
-  summary: The requests that the NEXUS server of corthex-nexus 0.2 answers
+  version: 0.3.0
+  summary: The requests that the NEXUS server of corthex-nexus 0.3 answers
   description: >-
     Stage 06 of CORTHEX's own project, for NEXUS: the requests of the NEXUS server, for the hub on
     a device, the picture view in a browser and the hub page. Drafted on 2026-11-02, while the
@@ -29,9 +29,10 @@ info:
     planned. Phase ②'s requests, API-161 to API-173, are in paths with the status planned, and its
     changes to built requests are path items under components.pathItems, both marked phase 2
     under x-corthex, with their properties, bodies and codes planned as the revision's were
-    (TASK-320); the server answers none of them until phase ② is built. version stays 0.2.0
-    until a release first serves the changed contract (The design revision's interfaces in
-    nexus.md).
+    (TASK-320); the server answers none of them until phase ② is built. version stayed 0.2.0
+    until the release that first serves the changed contract: TASK-314 made it 0.3.0 on
+    2026-11-14, with the server's own version, for NEXUS 0.3.0 (The design revision's
+    interfaces in nexus.md).
 servers:
   - url: https://nexus.example.com
     description: >-

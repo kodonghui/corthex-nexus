@@ -18,6 +18,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -144,6 +146,10 @@ class PushJobFileTest(unittest.TestCase):
 SKILL = "plugins/corthex-nexus/skills/corthex-hub"
 SECRETS = ("CORTHEX_NEXUS_URL", "CORTHEX_NEXUS_CLIENT_ID", "CORTHEX_NEXUS_CLIENT_SECRET")
 DUMMY = {"CORTHEX_NEXUS_CLIENT_ID": "dummy-id.access", "CORTHEX_NEXUS_CLIENT_SECRET": "dummy-secret-value"}
+# An ERD source at the stage's default place, db/schema.sql, in the form of the core plugin's template.
+ORDERS = "-- TBL-001 orders\nCREATE TABLE orders (\n  id     BIGINT PRIMARY KEY,\n  status VARCHAR(20) NOT NULL\n);\n"
+PAYMENTS = ("-- TBL-002 payments\nCREATE TABLE payments (\n  id       BIGINT PRIMARY KEY,\n"
+            "  order_id BIGINT NOT NULL REFERENCES orders (id)\n);\n")
 
 
 def program(name):
@@ -228,8 +234,11 @@ class PushJobRunTest(unittest.TestCase):
         self.run_git(seed, "remote", "add", "origin", str(origin))
         return origin, seed
 
-    def commit(self, seed, message, force=False):
+    def commit(self, seed, message, force=False, files=None):
         (seed / "notes.md").write_text(message + "\n", encoding="utf8")
+        for name, text in (files or {}).items():
+            (seed / name).parent.mkdir(parents=True, exist_ok=True)
+            (seed / name).write_text(text, encoding="utf8")
         self.run_git(seed, "add", ".")
         self.run_git(seed, "commit", "--no-verify", "-q", "-m", message)
         self.run_git(seed, "push", "-q", "--force" if force else "--no-force", "origin", "main")
@@ -288,6 +297,39 @@ class PushJobRunTest(unittest.TestCase):
         for output in self.outputs:
             for value in DUMMY.values():
                 self.assertNotIn(value, output)
+
+    def read(self, path):
+        """A GET as the stand-in signs in the person: no service token and no `Nexus-Session`."""
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        try:
+            with opener.open(self.address + path, timeout=30) as response:
+                return response.getcode(), json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as error:
+            return error.code, error.read().decode("utf-8")
+
+    def test_the_pictures_show_the_job_s_commit_without_a_session(self):
+        """TC-1432 (SPEC-193 acceptance 1): the server holds `acme-erd` at commit A, and commit B, a child of A that
+        adds a table to the ERD's source, reaches the default branch. The job pushes B's snapshot, and the stage's
+        picture (API-111) and its head's last push (API-158) show B to the person, with no session anywhere."""
+        origin, seed = self.repository("acme-erd")
+        first = self.commit(seed, "orders", files={"db/schema.sql": ORDERS})
+        code, line, err = self.session_first(origin, "acme-erd")
+        self.assertEqual((code, line["outcome"]), (0, "done"), err)
+        code, shown = self.read("/api/spaces/acme-erd/pictures/_/05-erd")
+        self.assertEqual((code, shown["picture"]["commit"]), (200, first), shown)
+        self.assertEqual([table["name"] for table in shown["picture"]["source"]["tables"]], ["orders"])
+        second = self.commit(seed, "payments", files={"db/schema.sql": ORDERS + PAYMENTS})
+        self.assertEqual(self.run_git(seed, "rev-parse", second + "^"), first)
+        code, line, err = self.job(origin)
+        self.assertEqual((code, line["outcome"]), (0, "done"), line["failure"] or err)
+        pushed = line["answer"]["pushed"]
+        self.assertEqual((line["answer"]["sent"], pushed["default_commit"], pushed["replaced"]), (True, second, first))
+        code, shown = self.read("/api/spaces/acme-erd/pictures/_/05-erd")
+        self.assertEqual((code, shown["picture"]["commit"], shown["picture"]["not_current"]), (200, second, None), shown)
+        self.assertEqual([table["name"] for table in shown["picture"]["source"]["tables"]], ["orders", "payments"])
+        code, stage = self.read("/api/spaces/acme-erd/stages/_/05-erd")
+        self.assertEqual((code, stage["project"]["commit"]), (200, second), stage)
+        self.no_secret_in_any_output()
 
     def test_each_newer_commit_is_sent_once_after_the_first_push(self):
         origin, seed = self.repository("acme")

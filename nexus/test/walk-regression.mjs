@@ -12,6 +12,14 @@
  * (rule 15). The suite reads and answers; it sends no write to the fixture but the push of
  * SCR-111#stale, which the fixture makes as the agent would.
  *
+ * TC-1771 (TASK-286): at 1,440 pixels, the 22 states that the passed frames of redesign.html
+ * draw with the switched-off "Edit" also check the stage's head: it holds no "Edit" and no
+ * mark "Phase ②", and nothing leaves room at its right end. The counts reach it, or, in a
+ * document stage, the head's Stage record after them does, as revision.html's SCR-113#normal
+ * draws it. SCR-112#error is walked as the page's request failing, a message page without the
+ * head, so the picture group adds the error that keeps the page, which redesign.html's frame
+ * draws: a pass that the suite refuses with 409 reply_limit (mocked), at 1,440 pixels only.
+ *
  * One group per run, named by the first argument, on the opt-in view-server with the group's
  * fixture: home (NEXUS_QA_HOME=1), hub (NEXUS_QA_HOME=1 and NEXUS_QA_STAGE=1), workspace and
  * document (NEXUS_QA_STAGE=1), picture (NEXUS_QA_PICTURE=1), talk (NEXUS_QA_TALK=1), item and
@@ -114,6 +122,18 @@ const SETTLED=`(()=>{const q=s=>document.querySelector(s),shown=e=>!!e&&e.checkV
  return true;})()`;
 
 const COMBOS=[['light','en'],['dark','ko'],['dark','en'],['light','ko']];
+// TC-1771: the states that redesign.html drew with the switched-off "Edit", and the stage's head.
+const WITHOUT_EDIT=new Set(['SCR-111#unrecorded',...['loading','normal','large','empty','stale','error','code-failed','permission'].map(n=>'SCR-112#'+n),
+ ...['loading','normal','narrowed','empty','stale','error','permission','gone'].map(n=>'SCR-114#'+n),...['loading','normal','gone','error','permission'].map(n=>'SCR-115#'+n)]);
+// What stands on the counts' line after them is measured too, by its action.
+const HEAD=`(()=>{const shd=document.querySelector('.stage .shd'),shown=e=>e.checkVisibility({visibilityProperty:true});if(!shd||!shown(shd))return{present:false};
+ const cn=shd.querySelector('.cn'),pad=parseFloat(getComputedStyle(shd).paddingRight),words=shd.textContent.replace(/\\s+/g,' ').trim();
+ const c=cn&&cn.textContent.trim()&&shown(cn)?cn.getBoundingClientRect():null;
+ const after=c?[...shd.querySelectorAll('button,a')].filter(e=>shown(e)&&!cn.contains(e)).map(e=>({e,r:e.getBoundingClientRect()}))
+  .filter(({r})=>r.left>=c.right-1&&r.top<c.bottom&&r.bottom>c.top)
+  .map(({e,r})=>({act:e.dataset.nxAct||null,words:e.textContent.replace(/\\s+/g,' ').trim(),right:Math.round(r.right)})):[];
+ return{present:true,words,edit:/\\bEdit\\b|편집/.test(words),phase:words.includes('②'),headRight:Math.round(shd.getBoundingClientRect().right-pad),
+  countsRight:c?Math.round(c.right):null,after};})()`;
 const consoleSince=()=>report.console.length;
 async function fresh(lang,cookies={}){
  await command('Page.navigate',{url:'about:blank'});
@@ -123,7 +143,7 @@ async function fresh(lang,cookies={}){
 
 // One state in one setting: reach it, wait for what it shows, then the page checks and the frame.
 async function walk(state,width,theme,lang){
- const file=`${state.id.replace('#','-')}-${width}-${theme}-${lang}`,name=`${state.id}@${width}-${theme}-${lang}`;
+ const id=state.id+(state.variant?'-'+state.variant:''),file=`${id.replace('#','-')}-${width}-${theme}-${lang}`,name=`${id}@${width}-${theme}-${lang}`;
  const startedAt=new Date().toISOString(),since={console:consoleSince(),interceptions:report.interceptions.length,exceptions:report.runtimeExceptions.length};
  let shotName=null;
  try{
@@ -131,6 +151,7 @@ async function walk(state,width,theme,lang){
   const c=context({width,theme,lang});
   const seen=await state.run(c);
   await paint();
+  const head=width===1440&&WITHOUT_EDIT.has(state.id)?await evaluate(HEAD):null;
   const sideways=await evaluate(SIDEWAYS),outside=await evaluate(OUTSIDE);
   shotName=await shot(file);
   const hits=width===390?await evaluate(HITS):null;
@@ -142,17 +163,25 @@ async function walk(state,width,theme,lang){
   const entries=report.console.slice(since.console);
   const own=entry=>entry.kind==='log'&&entry.source==='network'&&entry.url&&(()=>{const u=new URL(entry.url);return induced.includes(u.pathname)||expected.some(p=>p.test(u.pathname+u.search));})();
   const errors=entries.filter(entry=>entry.level==='error'&&!own(entry)&&!(state.exception&&entry.kind==='exception'&&state.exception.test(entry.text)));
-  const result={sideways,outside,console:{entries:entries.length,errors,own:entries.filter(own).map(e=>e.text.slice(0,120))},hits};
+  const result={sideways,outside,console:{entries:entries.length,errors,own:entries.filter(own).map(e=>e.text.slice(0,120))},hits,...(head?{head}:{})};
+  if(head){
+   assert(!head.edit&&!head.phase,'TC-1771: the head holds "Edit" or the mark "Phase ②": '+head.words);
+   if(head.present&&head.countsRight!==null){
+    const end=Math.max(head.countsRight,...head.after.map(a=>a.right));
+    assert(Math.abs(end-head.headRight)<=1,'TC-1771: the head leaves room at its right end: '+JSON.stringify(head));
+    assert(head.after.every(a=>a.act==='record'&&a.words===label('The head',4,lang)),'TC-1771: after the counts stands more than the stage record: '+JSON.stringify(head.after));
+   }
+  }
   assert(sideways.scrollWidth<=sideways.width&&sideways.bodyWidth<=sideways.width,'The page scrolls sideways: '+JSON.stringify(sideways));
   assert(!outside.length,'Elements outside the page: '+JSON.stringify(outside));
   assert(!errors.length,'Console errors that the state did not cause: '+JSON.stringify(errors));
   assert(!hits||!hits.missed.some(m=>!m.inline),'Hit areas under 44 pixels (rule 14): '+JSON.stringify(hits&&hits.missed.filter(m=>!m.inline)));
-  report.tests.push({name,state:state.id,width,theme,lang,verdict:'works',startedAt,finishedAt:new Date().toISOString(),reached:state.reached,seen,checks:result,screenshot:shotName});
+  report.tests.push({name,state:state.id,...(state.variant?{variant:state.variant}:{}),width,theme,lang,verdict:'works',startedAt,finishedAt:new Date().toISOString(),reached:state.reached,seen,checks:result,screenshot:shotName});
   console.log('PASS '+name);
  }catch(error){
   try{shotName=shotName||await shot(file+'-failure');}catch{}
   try{await release();}catch{}
-  report.tests.push({name,state:state.id,width,theme,lang,verdict:error instanceof CheckFailure?'fails':'blocked',startedAt,finishedAt:new Date().toISOString(),reached:state.reached,error:String(error),screenshot:shotName});
+  report.tests.push({name,state:state.id,...(state.variant?{variant:state.variant}:{}),width,theme,lang,verdict:error instanceof CheckFailure?'fails':'blocked',startedAt,finishedAt:new Date().toISOString(),reached:state.reached,error:String(error),screenshot:shotName});
   console.error('FAIL '+name+': '+error);
  }finally{held=null;failing=[];responses=[];}
  await out('results.json',report);
@@ -492,7 +521,19 @@ function states(){
  const extra={
   home:[codeFails('SCR-110',()=>'/','the first page')],
   document:[codeFails('SCR-113',()=>stagePath(stage.project,stage.part,'02-prd'),'the document stage')],
-  picture:[codeFails('SCR-112',()=>stagePath(picture.project,picture.part,'05-erd'),'the picture stage')],
+  picture:[codeFails('SCR-112',()=>stagePath(picture.project,picture.part,'05-erd'),'the picture stage'),
+   // TC-1771: the error that keeps the page, as redesign.html's SCR-112#error draws it with the head.
+   S('SCR-112','error','the fixture\'s page; the pass answered 409 reply_limit by the suite (mocked)',async c=>{
+    await c.go(stagePath(picture.project,picture.part,'05-erd'));
+    await click('.ptools [data-nx-act="record"]');
+    await c.mark(`document.querySelector('.ws')?.dataset.nxOpen==='record'&&${has('#cp-words')}`,'the stage record');
+    const said=c.lang==='ko'?'합성 확인: 그림을 봤습니다':'Synthetic pass: the picture is seen',full=codeMessage('reply_limit',c.lang,{limit:'200'});
+    await type('#cp-words',said);
+    c.mock('POST',new RegExp('^/api/spaces/'+picture.project+'/checkpoints$'),problem(409,'reply_limit',{limit:200}));
+    await click('.side .rec .r2 [data-nx-act="pass"]');
+    await c.mark(`${is('.side .rec .pnote .msg .t',full)}&&document.getElementById('cp-words').value===${JSON.stringify(said)}`,'the comment full, the words kept');await c.settle();
+    return{message:full};
+   },{variant:'pass-refused',settings:COMBOS.map(([theme,lang])=>[1440,theme,lang])})],
  };
  return{states:pages[group],extra:extra[group]||[]};
 }
@@ -528,8 +569,9 @@ try{
 
  const {states:list,extra}=states();
  for(const state of list)for(const width of state.screen==='SCR-111'?[390,1152,1440]:[390,1440])for(const [theme,lang]of COMBOS)await walk(state,width,theme,lang);
- for(const state of extra)for(const [width,theme,lang]of[[390,'light','en'],[1440,'dark','ko']])await walk(state,width,theme,lang);
- const expected=list.reduce((n,state)=>n+(state.screen==='SCR-111'?3:2)*COMBOS.length,0)+extra.length*2;
+ const EXTRA=[[390,'light','en'],[1440,'dark','ko']];
+ for(const state of extra)for(const [width,theme,lang]of state.settings||EXTRA)await walk(state,width,theme,lang);
+ const expected=list.reduce((n,state)=>n+(state.screen==='SCR-111'?3:2)*COMBOS.length,0)+extra.reduce((n,state)=>n+(state.settings||EXTRA).length,0);
  report.summary={states:list.map(s=>s.id),runs:report.tests.length,expected,works:report.tests.filter(t=>t.verdict==='works').length,
   hits:report.tests.filter(t=>t.checks?.hits).reduce((sum,t)=>({probed:sum.probed+t.checks.hits.probed,covered:sum.covered+t.checks.hits.covered,alike:sum.alike+t.checks.hits.alike,missed:sum.missed+t.checks.hits.missed.length}),{probed:0,covered:0,alike:0,missed:0})};
  assert(!report.eventError,'CDP interception error: '+report.eventError);
