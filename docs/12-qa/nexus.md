@@ -1913,11 +1913,12 @@ Found while four browser agents walked every screen that the release adds or cha
 
 ## The code review's findings after the go (2026-11-15 KST)
 
-Codex's review of PR #50 and PR #53 after the go found four, each reproduced in a browser or in the code. Three are fixed in `1ec8e08`, each kept by a test of its own that fails with its fix taken back; BUG-621 is as SPEC-156 says and waits for the maintainer's decision. The details are in [the release record](runs/2026-11-14-release.md).
+Codex's review of PR #50 and PR #53 after the go found four, and its review of `056fff6` a fifth, each reproduced in a browser or in the code. Four are fixed, in `1ec8e08` and `9c69d3f`, each kept by a test of its own that fails with its fix taken back; BUG-621 is as SPEC-156 says and is left for 0.3.1. The details are in [the release record](runs/2026-11-14-release.md).
 
 | ID | Title | Trace | Evidence and state |
 | --- | --- | --- | --- |
 | BUG-619 | An open entry answered gone was read again without end | SCR-114#gone, SPEC-150 | After its project was removed in another tab, the talk's reading again opened the entry again, which read the talk again. Fixed in `1ec8e08`; the suite `talk` keeps it. |
 | BUG-620 | A closed talk on its way filled the selected item's | SCR-114#narrowed, SPEC-209 | The stage's closed talk, answered after an item was selected, gave the item the stage's count and entries. Fixed in `1ec8e08`; the suite `talk` keeps it. |
-| BUG-621 | The map of a sitemap or an ERD of more than 300 elements is empty | SCR-112, SPEC-156 | These pictures have no frames, and the map of a large picture draws its frames only. Open: the maintainer decides. |
+| BUG-621 | The map of a sitemap or an ERD of more than 300 elements is empty | SCR-112, SPEC-156 | These pictures have no frames, and the map of a large picture draws its frames only. Open: to be fixed in 0.3.1, as the maintainer chose on 2026-11-15. |
 | BUG-622 | A write on its way when the record closed left the pass off | SCR-112, SCR-113, SPEC-194 | Closing the record replaced the state that the pass or the withdrawal held. Fixed in `1ec8e08`; the suite `pass` keeps it. |
+| BUG-623 | A comment on its way when the target changed left the box sending | SCR-114#narrowed, SPEC-151 | Selecting another item while a comment was sent left that item's box saying Sending…, and it took no comment until the page loaded again. Fixed in `9c69d3f`; the suite `talk` keeps it. |
