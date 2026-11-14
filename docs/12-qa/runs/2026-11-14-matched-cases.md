@@ -7,7 +7,7 @@ TASK-319 of [the work breakdown](../../10-wbs/nexus.md) settles TASK-243 and TAS
 - A case moves when cases of those three tasks test its state on the redesign's screen. It keeps its verdict in the plan, with the cases that it moved to, and its whole result moved here, as the plan held it, so that the plan stays under the pinned hub's 1 MiB limit.
 - A case stays when its screen stays: the hub page's three views, SCR-102 to SCR-104, which the redesign keeps under the full checks (SCR-117). TC-1273 of TASK-243 stays too.
 - What the cases that a case moved to do not name is in the match's last column. The redesign's state cases test one response for each state, where 0.2's cases named each response of the state; the refusals and failures of a write are tested by TASK-274's and TASK-276's cases, as the table names them.
-- Seven cases were partial, each for the same reason, and their partial part stays: [What stays partial](#what-stays-partial). Under D19 a case stays partial only on the maintainer's word for that case.
+- Seven cases were partial, each for the same reason, and their partial part stays: [What stays partial](#what-stays-partial). Under D19 a case stays partial only on the maintainer's word for that case, which the maintainer gave for each of the seven on 2026-11-14, so TASK-243 and TASK-251 are `done`.
 
 ## The match
 
@@ -71,15 +71,17 @@ TASK-319 of [the work breakdown](../../10-wbs/nexus.md) settles TASK-243 and TAS
 
 In 0.2's walk each of these seven was partial for one reason: no person's Access session expired while a view was open, so a genuine expiry, Access's own page and signing in again were not run, while the controlled `401` and the sign-in's redirect, read as `opaqueredirect`, were. The redesign's cases run the same controlled answers (TC-1801, TC-1405), so the genuine part stays partial in each. Running it takes a person's own sign-in through Access and a change of the Access application's session duration, which the maintainer is asked about before it is made, with the setting, the duration and the way back.
 
+The maintainer confirmed the seven as partial at 15:57 KST on 2026-11-14, on a decision card in the project's thread ("7건 부분 통과 확정", confirm the seven partial passes), in answer to the request of 12:05 KST that named the seven cases and what stays of them. What stays partial is written for each case below; none of it was run, and no Access setting was changed. TASK-243 and TASK-251 are `done` since then, with these cases named in their rows of [the work breakdown](../../10-wbs/nexus.md).
+
 | Case | What moved, to which cases | What stays partial | The maintainer's word |
 | --- | --- | --- | --- |
-| TC-1221 | The message page for a request that Access did not check: TC-1877, TC-1831 | Access's own page for a person whom Access refuses, and a `401` from Access itself, with the real provider | asked on 2026-11-14 |
-| TC-1237 | The message page and the bar of a refused reading: TC-1837, TC-1853; Sign in again with what the side holds kept: TC-1801 | A person's sign-in that expires while the picture is open | asked on 2026-11-14 |
-| TC-1242 | `no_kind`'s message with the words kept: TC-1860; Sign in again, and the words back after a reload: TC-1801 | A person's sign-in that expires while a comment is written, and the words back with their write ID after signing in again | asked on 2026-11-14 |
-| TC-1248 | The refusals with the words kept, and Sign in again: TC-1801, TC-1860 | A person's sign-in that expires while a reply is written | asked on 2026-11-14 |
-| TC-1254 | `user_only`'s message with the answers kept: TC-1806 | A person's sign-in that expires while a proposal is answered | asked on 2026-11-14 |
-| TC-1261 | The message page, the bar, `user_only` on a pass, and Sign in again with the words kept: TC-1837, TC-1853, TC-1845, TC-1405 | A person's sign-in that expires while a checkpoint is passed or withdrawn | asked on 2026-11-14 |
-| TC-1272 | The words and one write ID across a reload, the controlled `401` and sign-in, and Try again with the same write ID: TC-1807, TC-1801, TC-1405, TC-1800 | The whole procedure in a real session: Access expires, the person signs in again, and a write whose answer was lost is sent again once with its write ID | asked on 2026-11-14 |
+| TC-1221 | The message page for a request that Access did not check: TC-1877, TC-1831 | Access's own page for a person whom Access refuses, and a `401` from Access itself, with the real provider | confirmed partial at 15:57 KST on 2026-11-14 |
+| TC-1237 | The message page and the bar of a refused reading: TC-1837, TC-1853; Sign in again with what the side holds kept: TC-1801 | A person's sign-in that expires while the picture is open | confirmed partial at 15:57 KST on 2026-11-14 |
+| TC-1242 | `no_kind`'s message with the words kept: TC-1860; Sign in again, and the words back after a reload: TC-1801 | A person's sign-in that expires while a comment is written, and the words back with their write ID after signing in again | confirmed partial at 15:57 KST on 2026-11-14 |
+| TC-1248 | The refusals with the words kept, and Sign in again: TC-1801, TC-1860 | A person's sign-in that expires while a reply is written | confirmed partial at 15:57 KST on 2026-11-14 |
+| TC-1254 | `user_only`'s message with the answers kept: TC-1806 | A person's sign-in that expires while a proposal is answered | confirmed partial at 15:57 KST on 2026-11-14 |
+| TC-1261 | The message page, the bar, `user_only` on a pass, and Sign in again with the words kept: TC-1837, TC-1853, TC-1845, TC-1405 | A person's sign-in that expires while a checkpoint is passed or withdrawn | confirmed partial at 15:57 KST on 2026-11-14 |
+| TC-1272 | The words and one write ID across a reload, the controlled `401` and sign-in, and Try again with the same write ID: TC-1807, TC-1801, TC-1405, TC-1800 | The whole procedure in a real session: Access expires, the person signs in again, and a write whose answer was lost is sent again once with its write ID | confirmed partial at 15:57 KST on 2026-11-14 |
 
 ## The whole results
 
