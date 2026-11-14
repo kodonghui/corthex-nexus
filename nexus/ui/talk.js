@@ -239,22 +239,26 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   function gone(code,trace){st.notes=[...st.notes.filter(n=>n.kind!=="gone"),{kind:"gone",tone:"warn",text:codeMessage(code,lang),trace}];}
   // The entry that an address names when the talk does not show it: not on the server, gone; on
   // another stage, that stage's talk; closed, unfolded in the closed talk (SPEC-154); open on
-  // another item than the selected one, with its own item.
-  async function find(id){
+  // another item than the selected one, with its own item. An address that a newer one took the
+  // place of while the entry was read changes nothing more (stale, BUG-624).
+  async function find(id,stale=()=>false){
     const kind=id.startsWith("nc_")?"comments":id.startsWith("np_")?"proposals":null;
     if(!kind){gone("edit_not_found");return;}
     let data;
     try{data=await api.call("GET",`${base}/${kind}/${encodeURIComponent(id)}`);}
     catch(error){
+      if(stale())return "stale";
       const code=error?.code||"internal";
       if(GONE.includes(code))gone(code,error?.traceId);else st.notes=[...st.notes.filter(n=>n.kind!=="gone"),{kind:"gone",tone:"err",text:words("Could not load",lang).split(lang==="ko"?" 또는: ":" Or: ")[kind==="comments"?0:1],trace:error?.traceId}];
       return;
     }
+    if(stale())return "stale";
     if((data.part??"")!==(part??"")||data.stage!==stage){location.replace(stagePath(project,data.part,data.stage)+"#talk="+encodeURIComponent(id));return;}
     if(data.state!=="open"){
       st.closed.open=true;
       if(!st.closed.entries)await readClosed(0);
-      for(let page=0;!locate(id)&&(st.closed.entries?.length||0)<(st.closed.total||0)&&page<MAX_PAGES;page++)if(!await readClosed(st.closed.entries.length))break;
+      for(let page=0;!stale()&&!locate(id)&&(st.closed.entries?.length||0)<(st.closed.total||0)&&page<MAX_PAGES;page++)if(!await readClosed(st.closed.entries.length))break;
+      if(stale())return "stale";
       if(!locate(id)){st.closed.entries=[kind==="comments"?{kind:"comment",comment:data,proposal:null}:{kind:"proposal",comment:null,proposal:data},...(st.closed.entries||[])];draw();}
       return;
     }
@@ -266,6 +270,7 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
     // Not in the talk as the page read it, such as one left since: the talk reads again, and an
     // entry that it still does not list shows on its own.
     await readAgain();
+    if(stale())return "stale";
     if(locate(id))return;
     kept.set(id,{index:Infinity,row:kind==="comments"?{kind:"comment",comment:{...data,replies:(data.replies||[]).length,last_reply:null,proposals:[],claim:null},proposal:null}:{kind:"proposal",comment:null,proposal:data}});
     draw();
@@ -275,20 +280,25 @@ export function createTalk({payload,view,api,drafts,lang,base,project,part,stage
   const narrowedTo=params=>{const raw=params.get("item");return raw&&raw.length<=30&&TRACE.test(raw)&&!wholeShown()?raw:null;};
   // The address, after the stage followed its view, filter and item (./stage.js): the talk of
   // the address's item, and the entry that talk=, comment= or proposal= names, open and in sight.
+  // An address that came while an older one was still followed takes its place: the older one
+  // then changes neither the open entry nor the address (BUG-624).
+  let following=0;
   async function follow(params){
+    const run=++following,stale=()=>run!==following;
     const item=narrowedTo(params);
     const target=TARGETS.map(key=>params.get(key)).find(Boolean)||null;
     st.notes=st.notes.filter(n=>n.kind!=="gone"&&n.kind!=="write");
     await narrow(item);
+    if(stale())return;
     if(target&&ENTRY.test(target)){
       // Reply opens the entry with the focus in its reply box, which fill() gives it.
       const answering=reply===target;
       showTalk(true);
-      if(!locate(target)&&await find(target)==="moved")return;
+      if(!locate(target)&&["moved","stale"].includes(await find(target,stale)))return;
       if(!locate(target)){st.open=null;draw();return;}
       const was=st.open;st.open=target;
       if(was!==target||!st.threads[target]||st.threads[target].state==="failed")await openThread(target);else draw();
-      reveal(target,!answering);
+      if(!stale())reveal(target,!answering);
       return;
     }
     if(target)gone(target.startsWith("np_")?"proposal_not_found":"comment_not_found");

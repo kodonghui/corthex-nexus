@@ -8,6 +8,7 @@
  * comment that is not on the server; a page of the closed talk on its way when an item is
  * selected (BUG-620); an open entry whose project was removed, which the page reads once
  * (BUG-619); a comment on its way while another item and then its own are selected (BUG-623);
+ * an older address that a newer one takes the place of (BUG-624);
  * a stage and an item without talk; a reply, Mark answered,
  * As recommended, Accept, Dismiss and dismissing a reflection, each answer in its place
  * (choice 19) with the focus where the press was (rule 3), and since TASK-302 a checkpoint
@@ -564,6 +565,35 @@ try{
   return{evidence:'fixture page and writes; the comment on REQ-005 held by the suite (a delay that it makes)',seen:{away,back,taken,left},screenshot:await shot('comment-across-items-1440-en')};
  });
 
+ // An older address that a newer one takes the place of (BUG-624): REQ-005's talk is held (a
+ // delay that the suite makes) while an address opens the question on REQ-002, and let go; the
+ // question stays open, as the address says. Then an address names the question with REQ-005,
+ // whose talk does not list it, and the question's own reading is held while REQ-007 is
+ // selected; let go, the page and the address stay on REQ-007.
+ await test('an-older-address-across-items-1440-en',async()=>{
+  await setting({width:1440});
+  await open(page('02-prd','en'));
+  const heading=id=>JSON.stringify(label('Narrowed',0,'en',{id}));
+  const waitHeld=async()=>{for(const stop=Date.now()+10000;!held.requests.length&&Date.now()<stop;)await sleep(25);assert(held.requests.length===1,'The reading is held: '+held.pattern);};
+  held={pattern:new RegExp('^/api/spaces/'+project+'/talk/'+part+'/02-prd\\?item=REQ-005$'),requests:[]};
+  await click('.stage .li[data-nx-item="REQ-005"]');await waitHeld();
+  const opened=`#talk=${qa.question}&item=REQ-002`;
+  await evaluate(`location.hash=${JSON.stringify(opened)}`);
+  await waitFor(`(()=>{const s=(${talkState})();return s.heading===${heading('REQ-002')}&&!document.querySelector('.side .sk')&&s.lists.mine.some(e=>e.id===${JSON.stringify(qa.question)}&&e.open);})()`);
+  await release();await sleep(500);await settled();
+  let s=await state();
+  const kept={hash:s.hash,heading:s.heading,open:one(s.lists.mine,qa.question)?.open??null};
+  assert(s.hash===opened&&s.heading===label('Narrowed',0,'en',{id:'REQ-002'})&&kept.open===true,'The question stays open, as the address says: '+JSON.stringify(kept));
+  held={pattern:new RegExp('^/api/spaces/'+project+'/comments/'+qa.question+'$'),requests:[]};
+  await evaluate(`location.hash=${JSON.stringify('#talk='+qa.question+'&item=REQ-005')}`);await waitHeld();
+  await click('.stage .li[data-nx-item="REQ-007"]');await waitFor(`(${talkState})().heading===${heading('REQ-007')}`);await settled();
+  await release();await sleep(500);await settled();
+  s=await state();
+  const stayed={hash:s.hash,heading:s.heading,selected:s.selected,notes:s.notes};
+  assert(s.hash==='#item=REQ-007'&&s.heading===label('Narrowed',0,'en',{id:'REQ-007'})&&s.selected==='REQ-007'&&!s.notes.length,'The page and the address stay on REQ-007: '+JSON.stringify(stayed));
+  return{evidence:'fixture page and reads; REQ-005\'s talk and the question\'s reading held by the suite (a delay that it makes)',seen:{kept,stayed},screenshot:await shot('older-address-1440-en')};
+ });
+
  // Rule 22's item, pressed on the request's entry and in the stage's record (TASK-300): the item
  // that this stage holds opens in its panel beside the stage as a step of the browser's history,
  // #item=, its row selected and the focus on the panel's heading; the browser's Back closes it.
@@ -752,7 +782,7 @@ try{
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=2+1+1+1+1+2+1+1+1+8+1+1+1+1+1+1+1;
+ const expected=2+1+1+1+1+2+1+1+1+8+1+1+1+1+1+1+1+1;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{
