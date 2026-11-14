@@ -187,6 +187,70 @@ the verified restored file in its private environment and restart. Never replace
 a live database or detach it from its WAL. A runtime rollback alone does not
 undo database migrations.
 
+A copy of the newest backup also goes to another machine, Google Drive, so that
+losing the server's disk loses at most a day (REQ-291). `nexus-backup-copy@dev.timer`
+runs daily at 04:00 UTC, after the backup, with up to 15 minutes of jitter,
+including a missed run after downtime. Its first step, `backup-copy.js copy`,
+sends with rclone the newest backup whose receipt names it, the archive before
+its receipt, and removes copies older than 30 days only while the newest copy is
+less than a day old. Its second step, `backup-copy.js age`, reads the names of the
+copies, never their contents, and says how old the newest one is, such as "The
+newest copy of the backup is 3 hours old." Past a day, or with no copy, it says
+so and the service fails, which `systemctl --failed` lists. A failed send fails
+nothing by itself: the age that follows says what it means. The output holds
+archive names, sizes and ages only, with no path, remote or login.
+
+Set it up once. The login is made on the server and stays there, never in Git,
+a message or a record, and no key or login file moves between machines:
+
+1. Install rclone at `/usr/bin/rclone`, from the system's packages or rclone.org.
+2. In the Google Cloud console, make the login's own client, since rclone's shared
+   one stops working during 2026: a project with the Google Drive API enabled; an
+   OAuth consent screen of the type External, with the scope `drive.file` alone,
+   published, since an app's login in testing ends after a week; and an OAuth
+   client of the type Desktop app. Its ID and secret go only into rclone's prompts
+   on the server, in the next step.
+3. From the laptop, `ssh -L 53682:127.0.0.1:53682 <configured-origin-alias>`. On
+   the server, `sudo install -d -m 0700 -o nexus-dev -g nexus-dev /var/lib/nexus-dev/rclone`,
+   then `sudo runuser -u nexus-dev -- env RCLONE_CONFIG=/var/lib/nexus-dev/rclone/rclone.conf rclone config`:
+   a new remote `<remote>` of the type `drive`, with that client's ID and secret,
+   the scope `drive.file`, so that the login reaches only the files that rclone
+   made, and auto config. Open the address that rclone shows,
+   `http://127.0.0.1:53682/auth?...`, in the laptop's browser, sign in to the
+   Google account that keeps the copies, and allow it.
+4. Add `NEXUS_BACKUP_REMOTE=<remote>:nexus-backups` to `/etc/nexus/dev.env`.
+   rclone makes the folder at the first copy.
+5. The next deployment installs `nexus-backup-copy@.service` and its timer and,
+   since the remote is set and rclone is installed, enables the timer.
+6. `systemctl start nexus-backup-copy@dev.service`, then
+   `journalctl -u nexus-backup-copy@dev -n 4` shows the copy and its age.
+
+Read the age on any day with `journalctl -u nexus-backup-copy@dev -n 2`. Stop the
+copies with `systemctl disable --now nexus-backup-copy@dev.timer`; those on the
+remote stay. To end the login, remove the app's access in the Google account's
+security settings and delete `/var/lib/nexus-dev/rclone/rclone.conf`.
+
+Restore one copy on the other machine and compare it with the server's data.
+Download the newest `<archive>.sqlite` and its `<archive>.sqlite.json` from the
+folder into one folder there, with rclone or Google Drive's own download, and,
+with Node 24 and this repository:
+
+```sh
+node nexus/tools/database.js restore --backup <absolute-folder>/<archive>.sqlite --destination <absolute-folder>/restore-check.sqlite
+node nexus/tools/database.js counts --database <absolute-folder>/restore-check.sqlite
+```
+
+On the server, as the service's user:
+
+```sh
+sudo runuser -u nexus-dev -- /usr/bin/node /opt/nexus/dev/current/nexus/tools/database.js counts --database /var/lib/nexus-dev/backups/<archive>.sqlite
+```
+
+The restore checks the receipt's SHA-256, which the server wrote, and the
+database's integrity. `counts` gives each table's number of rows and, in the
+tables that name a project, each project's, and the two answers are the same.
+Delete the restored file afterwards, since it holds the project spaces' text.
+
 Before release, export production D1 **read-only** to the origin, import it into
 a separate rehearsal database, record table counts, back it up, apply migrations
 and verify both forward behavior and a restored copy. Keep the old production

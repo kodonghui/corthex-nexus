@@ -308,6 +308,11 @@ export const SQLITE = Object.freeze({
   begin: "BEGIN IMMEDIATE", commit: "COMMIT", rollback: "ROLLBACK",
   changes: "SELECT total_changes() AS n", integrity: "PRAGMA integrity_check",
   foreignKeys: "PRAGMA foreign_key_check", archive: "PRAGMA journal_mode=DELETE",
+  // A database's tables and their row counts, which compare a restored copy with the server's (TASK-313).
+  tables: "SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' ORDER BY name",
+  rows: (table) => `SELECT COUNT(*) AS n FROM "${table.replaceAll('"', '""')}"`,
+  columns: (table) => `SELECT name FROM pragma_table_info('${table.replaceAll("'", "''")}')`,
+  projectRows: (table) => `SELECT project, COUNT(*) AS n FROM "${table.replaceAll('"', '""')}" GROUP BY project ORDER BY project`,
 });
 
 export class Store {

@@ -178,6 +178,68 @@ node nexus/tools/database.js restore --backup /private/backups/<archive>.sqlite 
 복구 DB를 선택하고 재시작합니다. 실행 중인 DB를 덮거나 WAL과 떼지 않습니다.
 실행부만 되돌리는 것으로 DB 이주까지 취소되지는 않습니다.
 
+가장 최근 백업의 사본은 다른 머신인 Google Drive에도 둡니다. 그래서 서버의
+디스크를 잃어도 잃는 것은 하루를 넘지 않습니다(REQ-291).
+`nexus-backup-copy@dev.timer`는 백업 뒤 매일 04:00 UTC부터 최대 15분을 분산해
+실행하며, 중단 중 놓친 실행도 처리합니다. 첫 단계 `backup-copy.js copy`는
+영수증이 이름을 적은 가장 최근 백업을 rclone으로 보냅니다. 아카이브를 먼저,
+영수증을 그다음에 보내며, 가장 최근 사본이 하루가 안 되었을 때만 30일이 지난
+사본을 지웁니다. 둘째 단계 `backup-copy.js age`는 사본의 이름만 읽고 내용은
+읽지 않으며, 가장 최근 사본이 얼마나 되었는지 "The newest copy of the backup
+is 3 hours old."처럼 말합니다. 하루가 지났거나 사본이 없으면 그렇게 말하고
+서비스가 실패하며, `systemctl --failed`에 나옵니다. 보내기가 실패해도 그것만으로
+서비스가 실패하지는 않고, 뒤따르는 나이 확인이 그 뜻을 말합니다. 출력에는
+아카이브 이름·크기·나이만 있고 경로·원격 저장소·로그인은 없습니다.
+
+한 번만 설정합니다. 로그인은 서버에서 만들어 서버에만 두며 Git·메시지·기록에
+남기지 않고, 키나 로그인 파일을 머신 사이로 옮기지 않습니다.
+
+1. 시스템 패키지나 rclone.org에서 rclone을 `/usr/bin/rclone`에 설치합니다.
+2. rclone의 공용 클라이언트는 2026년 중 동작을 멈추므로, Google Cloud 콘솔에서
+   로그인에 쓸 자기 클라이언트를 만듭니다. Google Drive API를 켠 프로젝트,
+   `drive.file` 범위만 둔 External 유형의 OAuth 동의 화면(테스트 중인 앱의
+   로그인은 일주일 뒤 끝나므로 게시 상태로), 데스크톱 앱 유형의 OAuth
+   클라이언트입니다. 그 ID와 비밀값은 다음 단계에서 서버의 rclone 질문에만
+   넣습니다.
+3. 노트북에서 `ssh -L 53682:127.0.0.1:53682 <configured-origin-alias>`로
+   접속합니다. 서버에서 `sudo install -d -m 0700 -o nexus-dev -g nexus-dev /var/lib/nexus-dev/rclone`
+   다음 `sudo runuser -u nexus-dev -- env RCLONE_CONFIG=/var/lib/nexus-dev/rclone/rclone.conf rclone config`를
+   실행해 `drive` 유형의 새 원격 저장소 `<remote>`를 만듭니다. 그 클라이언트의
+   ID와 비밀값을 넣고, 범위는 `drive.file`로 하여 로그인이 rclone이 만든
+   파일에만 닿게 하며, 자동 설정을 씁니다. rclone이 보여 주는 주소
+   `http://127.0.0.1:53682/auth?...`를 노트북의 브라우저에서 열고, 사본을 둘
+   Google 계정으로 로그인해 허용합니다.
+4. `/etc/nexus/dev.env`에 `NEXUS_BACKUP_REMOTE=<remote>:nexus-backups`를
+   더합니다. 폴더는 첫 사본 때 rclone이 만듭니다.
+5. 다음 배포가 `nexus-backup-copy@.service`와 그 타이머를 설치하고, 원격
+   저장소가 설정되어 있고 rclone이 설치되어 있으므로 타이머를 켭니다.
+6. `systemctl start nexus-backup-copy@dev.service`를 실행한 뒤
+   `journalctl -u nexus-backup-copy@dev -n 4`로 사본과 그 나이를 확인합니다.
+
+나이는 아무 날이나 `journalctl -u nexus-backup-copy@dev -n 2`로 읽습니다. 사본
+만들기는 `systemctl disable --now nexus-backup-copy@dev.timer`로 멈추며, 원격
+저장소의 사본은 남습니다. 로그인을 끝내려면 Google 계정의 보안 설정에서 그 앱의
+접근을 없애고 `/var/lib/nexus-dev/rclone/rclone.conf`를 지웁니다.
+
+사본 하나를 다른 머신에서 복구해 서버의 데이터와 비교합니다. 가장 최근
+`<archive>.sqlite`와 그 `<archive>.sqlite.json`을 rclone이나 Google Drive의
+다운로드로 그 머신의 한 폴더에 받은 뒤, Node 24와 이 저장소로 실행합니다.
+
+```sh
+node nexus/tools/database.js restore --backup <absolute-folder>/<archive>.sqlite --destination <absolute-folder>/restore-check.sqlite
+node nexus/tools/database.js counts --database <absolute-folder>/restore-check.sqlite
+```
+
+서버에서는 서비스의 사용자로 실행합니다.
+
+```sh
+sudo runuser -u nexus-dev -- /usr/bin/node /opt/nexus/dev/current/nexus/tools/database.js counts --database /var/lib/nexus-dev/backups/<archive>.sqlite
+```
+
+복구는 서버가 쓴 영수증의 SHA-256과 DB 무결성을 확인합니다. `counts`는 각
+테이블의 행 수와, 프로젝트를 적는 테이블에서는 프로젝트마다의 행 수를 주며, 두
+답은 같습니다. 복구한 파일에는 프로젝트 공간의 글이 있으므로 확인 뒤 지웁니다.
+
 출시 전 운영 D1은 **읽기 전용으로** 서버에 내보내 별도 리허설 DB에 넣습니다.
 행 수를 기록하고 백업·이주·동작 확인·사본 복구를 검증합니다. 승인 후 운영을
 전환하더라도 기존 Worker·D1은14일 보존하고 삭제 전에 묻습니다. main 병합·운영
