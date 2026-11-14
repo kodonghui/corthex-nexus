@@ -2,7 +2,7 @@
 
 [한국어](2026-11-14-moved-results.ko.md)
 
-The whole "Last result" of 32 cases of [the QA plan](../nexus.md) moved here to keep the plan under the pinned hub's 1 MiB limit in kodonghui/corthex-nexus#53. On 2026-11-14 six moved as they stood before TASK-312's results, TC-1712, TC-1713, TC-1716, TC-1719, TC-1720 and TC-1722; nine as they stood before the release walk's results were recorded, TC-1463, TC-1471, TC-1472, TC-1724, TC-1726, TC-1728, TC-1729, TC-1730 and TC-1764; and 15 as they stood before the results of group 7's walk. On 2026-11-15 two moved as they stood before BUG-624 was recorded, TC-1766 and TC-1769. Each case keeps its verdict in the plan, with where it ran and a link here; its links now lead from this folder.
+The whole "Last result" of 33 cases of [the QA plan](../nexus.md) moved here to keep the plan under the pinned hub's 1 MiB limit in kodonghui/corthex-nexus#53. On 2026-11-14 six moved as they stood before TASK-312's results, TC-1712, TC-1713, TC-1716, TC-1719, TC-1720 and TC-1722; nine as they stood before the release walk's results were recorded, TC-1463, TC-1471, TC-1472, TC-1724, TC-1726, TC-1728, TC-1729, TC-1730 and TC-1764; and 15 as they stood before the results of group 7's walk. On 2026-11-15 two moved as they stood before BUG-624 was recorded, TC-1766 and TC-1769, and one as it stood before BUG-627 was recorded, TC-1750. Each case keeps its verdict in the plan, with where it ran and a link here; its links now lead from this folder.
 
 ## TC-1413
 
@@ -103,6 +103,10 @@ pass (local, `nexus/test/api-checkpoint-request.test.js` on Node 24.22.1 / SQLit
 ## TC-1749
 
 pass (the same file, 2026-11-13): with TASK-298, in each of the 200 runs the talk's `unread` on the comment was true exactly when its `last_at` was at or after the read's `read_at`, so true in every run whose read did not list it; in three runs, 100 and 100 each time. Before it, pass for TASK-296's part (the same file, 2026-11-13): on the standalone server over loopback HTTP, the user's comment and the agent's read were sent at once 200 times, the read a millisecond later in every other run. In each run the comment was in the read's lists or its `last_at` was at or after `read_at`: in three runs, 100 and 100, 101 and 99, and 100 and 100. At the store, the comment's batch just after the read's gives a `last_at` at or after `read_at`, and just before puts it in the lists; a discrepancy that a push opens just after a read gets an `opened_at` at or after it. With the comment's or the push's time taken at its call, before its waits, the test fails. The talk's `unread` is TASK-298's, which runs this case again with it.
+
+## TC-1750
+
+pass (local, `nexus/test/api-unread.test.js` on Node 24.22.1 / SQLite 3.53.4, 2026-11-13; the standalone server over loopback HTTP, Access's signatures checked against a generated key, SQLite in memory): in `acme`, read by the agent, and in `beta`, never read, before the read the talk gave `unread` true to the comment that waits for the agent and that no session holds, and false to the one that the session `s-2` claimed and to the agent's question that waits for the user; the closed comment, read with `closed=1`, was false; the first page's row counted 2, that comment and the discrepancy that the second push opened, with `unread_since` the older of their two times, and the stage's `project` the same; `beta`'s `read_at` was null. After the agent's read, the count was 0 and `unread_since` null in API-151 and API-158, and the talk marked nothing. The row's members end with `read_at`, `unread` and `unread_since`: no answer holds a mark for 24 hours.
 
 ## TC-1764
 
