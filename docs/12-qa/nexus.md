@@ -1913,7 +1913,7 @@ Found while four browser agents walked every screen that the release adds or cha
 
 ## The code review's findings after the go (2026-11-15 KST)
 
-Codex's review of PR #50 and PR #53 after the go found four, and its reviews of `056fff6`, `03bb4f1`, `85dfb81` and `9bfcf86` one more each, each reproduced in a browser or in the code; looking for the gaps of BUG-625 and BUG-627 elsewhere found BUG-626 and BUG-628. Nine are fixed, in `1ec8e08`, `9c69d3f`, `95f0dea`, `65f9dc1` and `6b34095`, each kept by a test of its own that fails with its fix taken back; BUG-621 is as SPEC-156 says and is left for 0.3.1. The details are in [the release record](runs/2026-11-14-release.md).
+Codex's review of PR #50 and PR #53 after the go found four, and its reviews of `056fff6`, `03bb4f1`, `85dfb81`, `9bfcf86` and `92e29b1` one more each, each reproduced in a browser or in the code; looking for the gaps of BUG-625 and BUG-627 elsewhere found BUG-626 and BUG-628. Ten are fixed, in `1ec8e08`, `9c69d3f`, `95f0dea`, `65f9dc1`, `6b34095` and `ce24040`, each kept by a test of its own that fails with its fix taken back; BUG-621 is as SPEC-156 says and is left for 0.3.1. The details are in [the release record](runs/2026-11-14-release.md).
 
 | ID | Title | Trace | Evidence and state |
 | --- | --- | --- | --- |
@@ -1927,3 +1927,4 @@ Codex's review of PR #50 and PR #53 after the go found four, and its reviews of 
 | BUG-626 | An answer taken after another item was selected joined that item's talk | SCR-114#narrowed, SPEC-209 | An answer that the server took after another item was selected kept its entry in its place (choice 19) in that item's talk. Found with BUG-625; fixed in `65f9dc1`; the suite `talk` keeps it. |
 | BUG-627 | An older address's item opened over the one picked while its list was read | SCR-113, SCR-115, SPEC-149 | An address that changed the list's filter, whose list came after another row was picked, opened its own item over the picked one while the address named the picked one. Fixed in `6b34095`; the suite `item` keeps it. |
 | BUG-628 | An older address went on looking for its row after another item was selected | SCR-113, SPEC-148 | Its search read the list's further pages and scrolled the list to its row, away from the selected one. Found with BUG-627; fixed in `6b34095`; the suite `stage` keeps it. |
+| BUG-629 | A pass taken while the record closed and opened again left its words in the box | SCR-112, SCR-113, SPEC-194 | Closed and opened again while its pass was on its way, the record drew a new box with the pass's words, and the page emptied only the old one: the box that showed kept the words, which a later pass could send again. Fixed in `ce24040`; the suite `pass` keeps it. |
