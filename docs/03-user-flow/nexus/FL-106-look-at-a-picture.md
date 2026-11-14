@@ -4,7 +4,7 @@
 
 Serves: REQ-113, REQ-139, REQ-143, REQ-144, REQ-145, REQ-146, REQ-147, REQ-148, REQ-149, REQ-150, REQ-162, REQ-192, REQ-209, REQ-211
 
-Context: CTX-012 Pictures, with the discussion of CTX-014 on them. Starts when the user opens a stage's picture from the hub page on the NEXUS server (FL-105), on a phone or a PC. New in NEXUS 0.2; the step view of a DDD board came with the maintainer's choice of 2026-11-03.
+Context: CTX-012 Pictures, with the discussion of CTX-014 on them. Starts when the user opens a stage's picture from the hub page on the NEXUS server (FL-105), on a phone or a PC. New in NEXUS 0.2; the step view of a DDD board came with the maintainer's choice of 2026-11-03. Once the redesign's picture stage is built (SCR-112), FL-118 draws the way to a picture and FL-119 the talk on it, and this flow's addresses lead there ([stage 07](../../07-sitemap/nexus.md#addresses)); until then its steps name the picture view of NEXUS 0.2.
 
 ```mermaid
 flowchart TD

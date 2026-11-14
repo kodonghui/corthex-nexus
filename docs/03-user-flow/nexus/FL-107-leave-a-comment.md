@@ -4,7 +4,7 @@
 
 Serves: REQ-117, REQ-145, REQ-158, REQ-160, REQ-161, REQ-163, REQ-166, REQ-182, REQ-202, REQ-203
 
-Context: CTX-014 Discussion. Starts when the user selects a part of a picture in the picture view (FL-106) to comment on it, on a phone or a PC. The agent leaves its comments through the hub (FL-109). New in NEXUS 0.2.
+Context: CTX-014 Discussion. Starts when the user selects a part of a picture in the picture view (FL-106) to comment on it, on a phone or a PC. The agent leaves its comments through the hub (FL-109). New in NEXUS 0.2. Once the redesign's talk is built (SCR-114), FL-119 takes over this flow's steps in the browser, with comments on the items of every stage; until then they name the picture view of NEXUS 0.2.
 
 ```mermaid
 flowchart TD

@@ -136,7 +136,8 @@ class ServerTest(ServerCase):
         code, text = self.get(SNAPSHOTS + "/acme-shop")
         stored = {key: value for key, value in sent.items() if key != "pictures"}
         self.assertEqual((code, json.loads(text)), (200, stored))
-        code, page = self.get("/")
+        # The hub page moved to /hub with the redesign (API-101, TASK-271); / is the first page.
+        code, page = self.get("/hub")
         start = page.index(DATA_BLOCK) + len(DATA_BLOCK)
         data = json.loads(page[start:page.index("</script>", start)])
         self.assertEqual((code, data["origin"], data["projects"]), (200, "server", [stored]))
@@ -159,7 +160,7 @@ class WithoutAccessTest(ServerCase):
         with self.assertRaises(RuntimeError) as caught:
             hub.push(self.home, env={})
         self.assertEqual(str(caught.exception), "the server refused it (HTTP 403): Cloudflare Access did not check this request; protect this Worker with Access first")
-        for path in ("/", SNAPSHOTS, SNAPSHOTS + "/acme-shop"):
+        for path in ("/", "/hub", SNAPSHOTS, SNAPSHOTS + "/acme-shop"):
             with self.subTest(path=path):
                 self.assertEqual(self.get(path)[0], 403)
 

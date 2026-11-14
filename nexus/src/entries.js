@@ -2,10 +2,10 @@ const only = (row, names) => Object.fromEntries(names.map((name) => [name, row[n
 const json = (value, fallback) => value == null ? fallback : typeof value === "string" ? JSON.parse(value) : value;
 
 export function comment(row) {
-  return { ...only(row, ["id", "part", "stage", "item", "quote", "discrepancy", "author", "text", "state", "closed_as", "waits", "made_at", "last_at"]), commit: row.commit_id, settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
+  return { ...only(row, ["id", "part", "stage", "item", "quote", "discrepancy", "author", "text", "state", "closed_as", "waits", "asks", "made_at", "last_at"]), commit: row.commit_id, settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
 }
 export function commentState(row) {
-  return { ...only(row, ["id", "state", "closed_as", "waits", "last_at"]), settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
+  return { ...only(row, ["id", "state", "closed_as", "waits", "asks", "last_at"]), settled: Boolean(row.settled), dismissed: Boolean(row.dismissed) };
 }
 export const reply = (row) => ({ ...only(row, ["seq", "author", "text", "made_at"]), settles: Boolean(row.settles) });
 export const decision = (row) => only(row, ["seq", "link", "text", "made_at"]);
@@ -18,13 +18,22 @@ export function proposal(row, full = false) {
 }
 export const proposalState = (row) => only(row, ["id", "state", "closed_at"]);
 export const edit = (row) => ({ ...only(row, ["id", "part", "stage", "proposal", "state", "pull_request", "closed_commit", "made_at", "changed_at"]), commit: row.commit_id });
-export const checkpoint = (row) => ({ ...only(row, ["id", "part", "stage", "words", "state", "passed_at", "withdrawn_at", "pull_request", "pr_state", "recorded_commit"]), commit: row.commit_id ?? null });
+// A checkpoint passed by taking a comment's recommendation names the comment,
+// which holds what was approved (API-159); any other leaves `comment` out.
+export const checkpoint = (row) => ({ ...only(row, ["id", "part", "stage", "words", "state", "passed_at", "withdrawn_at", "pull_request", "pr_state", "recorded_commit"]),
+  commit: row.commit_id ?? null, ...(row.comment ? { comment: row.comment } : {}) });
 export const discrepancy = (row) => ({ ...only(row, ["id", "part", "compares", "term", "item", "level", "state", "opened_commit", "opened_at", "resolved_commit", "resolved_at", "earlier"]), reasons: json(row.reasons, []), waiting: Boolean(row.waiting) });
 export const claim = (row) => only(row, ["entry", "session", "claimed_at", "ends_at"]);
 
 export function withClaim(entry, claims, session, now) {
   const held = claims.find((row) => row.entry === entry.id && row.ends_at > now);
   return held ? { ...entry, claim: { ends_at: held.ends_at, mine: held.session === session } } : entry;
+}
+
+// The talk's claim (API-152): its start too, and null while none lasts.
+export function withClaimStart(entry, claims, session, now) {
+  const held = claims.find((row) => row.entry === entry.id && row.ends_at > now);
+  return { ...entry, claim: held ? { claimed_at: held.claimed_at, ends_at: held.ends_at, mine: held.session === session } : null };
 }
 
 export function commentEntry(row, replies, proposals, claims = [], session = null, now = "") {

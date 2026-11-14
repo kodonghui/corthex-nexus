@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기기에서든 열 수 있게 합니다. 승인된 단독 실행부는 Cloudflare Access·Tunnel 뒤에서 Node HTTP와 SQLite로 돌며 Worker/D1 호환 실행도 유지합니다. 둘 다 `hub.py push`가 보낸 스냅샷과 허브 페이지를 제공합니다. 단독 실행부의 배포·복구 절차는 아래에 있습니다.
+NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기기에서든 열 수 있게 합니다. 승인된 단독 실행부는 Cloudflare Access·Tunnel 뒤에서 Node HTTP와 SQLite로 돌며 Worker/D1 호환 실행도 유지합니다. 둘 다 `hub.py push`가 보낸 스냅샷을 지니고, 주소에서 첫 화면을, `/hub`에서 허브 페이지를 제공합니다. 단독 실행부의 배포·복구 절차는 아래에 있습니다.
 
 이 폴더는 플러그인이 아닙니다. 이 저장소를 내려받은 사본에서 배포합니다.
 
@@ -25,7 +25,7 @@ NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기�
 2. 내 설정 파일 만들기: `wrangler.jsonc`를 `wrangler.local.jsonc`로 복사합니다. 이 사본은 git이 무시합니다. 사본의 `routes`에 내 계정에 있는 도메인의 주소, 예를 들어 `nexus.example.com`을 적고, 한국어 페이지를 원하면 `NEXUS_LANGUAGE`를 `ko`로 바꿉니다.
 3. 배포: `npx wrangler login`을 실행한 뒤 `npm run deploy`를 실행합니다. 첫 배포 때 D1 데이터베이스 `corthex-nexus`가 만들어져 Worker에 연결됩니다. 터미널에서 실행하면 그 ID가 내 설정 파일에도 적히고, 적히지 않아도 다음 배포는 같은 데이터베이스를 씁니다. 이어서 Cloudflare가 주소의 DNS 레코드와 인증서를 더합니다. 예전 서비스 등이 남긴 DNS 레코드가 주소에 이미 있으면 Cloudflare가 그 위에 Worker의 레코드를 만들지 않습니다. 필요하면 그 값을 적어 두고, 대시보드의 내 도메인 **DNS** › **Records**에서 지운 뒤 다시 배포합니다. 다음 단계를 마칠 때까지 주소는 `403`으로 답합니다.
 4. Access로 보호하기: Cloudflare 대시보드에서 **Workers & Pages**로 가서 `corthex-nexus`를 고르고, **Access** 탭에서 **Protect this Worker behind Access**를 누릅니다. **All traffic**을 고르고, 로그인할 수 있는 사람을 정한 뒤(나 혼자라면 **Cloudflare account**) **Apply Access**를 누릅니다. **Zero Trust** › **Access controls** › **Applications**에 이 주소의 Access 애플리케이션이 이미 있으면, 그것이 Worker 단위 Access보다 먼저 적용되어 이미 허브를 보호합니다. 그 정책이 원하는 사람만 들이는지 확인하고 이 단계는 건너뜁니다.
-5. 확인 전에 애플리케이션을 고정합니다. 로컬 `vars`에서 빈 `ACCESS_AUD` 자리를 지운 뒤 `npx wrangler secret put ACCESS_AUD -c wrangler.local.jsonc`를 실행해 입력 프롬프트에 그 애플리케이션의 **Application Audience (AUD) Tag**를 넣습니다. 로컬 파일의 `vars`에는 `ACCESS_TEAM_DOMAIN`으로 팀 호스트(예: `your-team.cloudflareaccess.com`)를 적고 다시 배포합니다. 시크릿 창에서 열면 Access 로그인이 먼저 나오고 빈 허브 페이지가 나옵니다.
+5. 확인 전에 애플리케이션을 고정합니다. 로컬 `vars`에서 빈 `ACCESS_AUD` 자리를 지운 뒤 `npx wrangler secret put ACCESS_AUD -c wrangler.local.jsonc`를 실행해 입력 프롬프트에 그 애플리케이션의 **Application Audience (AUD) Tag**를 넣습니다. 로컬 파일의 `vars`에는 `ACCESS_TEAM_DOMAIN`으로 팀 호스트(예: `your-team.cloudflareaccess.com`)를 적고 다시 배포합니다. 시크릿 창에서 열면 Access 로그인이 먼저 나오고, 빈 첫 화면이 나옵니다. 그 전체 검사는 `/hub`의 허브 페이지를 엽니다.
 6. `hub.py`용 서비스 토큰 만들기: **Zero Trust** › **Access controls** › **Service credentials** › **Service Tokens**에서 토큰을 만들고 Client ID와 Client Secret을 복사합니다. Secret은 이때 한 번만 보입니다. 그다음 **Zero Trust** › **Access controls** › **Applications**에서 허브를 보호하는 Access 애플리케이션, 곧 4단계에서 만든 것이나 주소에 이미 있던 것을 열고, 동작이 **Service Auth**이고 이 토큰을 포함하는 정책을 더합니다. 같은 Worker에 애플리케이션을 하나 더 만들면 서로 부딪칠 수 있으니, 기존 애플리케이션에 더합니다.
 7. 스냅샷을 보내는 컴퓨터마다 `~/.corthex/profile.json`에 주소와 보내도 되는 프로젝트를 적습니다.
 

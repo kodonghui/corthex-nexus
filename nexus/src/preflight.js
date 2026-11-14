@@ -3,12 +3,16 @@ import { Problem } from "./problem.js";
 
 export const STAGES = Object.freeze(["01-domain", "02-prd", "03-user-flow", "04-functional-spec", "05-erd", "06-api", "07-sitemap", "08-screen-states", "09-mockup", "10-wbs", "11-development", "12-qa", "13-presentation"]);
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const TRACE = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
 const ID = /^[0-9a-hjkmnp-tv-z]{12}$/;
 const SESSION = /^[A-Za-z0-9._:-]{1,100}$/;
 const rules = [
-  ["getHubPage", "GET", "/"],
+  ["getHomePage", "GET", "/"],
+  ["getHubPage", "GET", "/hub"],
   ["getPictureViewPage", "GET", "/pictures/{project}/{part}/{pictureStage}"],
   ["getStageOverviewPage", "GET", "/overview/{project}/{part}/{stage}"],
+  ["getProjectPage", "GET", "/p/{project}"],
+  ["getStagePage", "GET", "/p/{project}/{part}/{stage}"],
   ["getViewCode", "GET", "/code/{file}"],
   ["pushSnapshot", "POST", "/api/snapshots"],
   ["listSnapshots", "GET", "/api/snapshots"],
@@ -19,11 +23,17 @@ const rules = [
   ["getPicture", "GET", "/api/spaces/{project}/pictures/{part}/{pictureStage}"],
   ["getStageOverview", "GET", "/api/spaces/{project}/overview/{part}/{stage}"],
   ["getAgentTodo", "GET", "/api/spaces/{project}/todo"],
+  ["getStage", "GET", "/api/spaces/{project}/stages/{part}/{stage}"],
+  ["getStageTalk", "GET", "/api/spaces/{project}/talk/{part}/{stage}"],
+  ["getItem", "GET", "/api/spaces/{project}/items/{id}"],
+  ["getHome", "GET", "/api/home"],
+  ["searchItems", "GET", "/api/search"],
   ["leaveComment", "POST", "/api/spaces/{project}/comments", "either", "comment"],
   ["getComment", "GET", "/api/spaces/{project}/comments/{comment}"],
   ["replyToComment", "POST", "/api/spaces/{project}/comments/{comment}/replies", "either", "reply"],
   ["markAnswered", "POST", "/api/spaces/{project}/comments/{comment}/answered", "either", "answered"],
   ["recordDecision", "POST", "/api/spaces/{project}/comments/{comment}/decisions", "agent", "decision"],
+  ["takeRecommendation", "POST", "/api/spaces/{project}/comments/{comment}/recommended", "user", "recommended"],
   ["makeProposal", "POST", "/api/spaces/{project}/proposals", "agent", "proposal"],
   ["getProposal", "GET", "/api/spaces/{project}/proposals/{proposal}"],
   ["withdrawProposal", "POST", "/api/spaces/{project}/proposals/{proposal}/withdraw", "agent", "withdraw-proposal"],
@@ -54,6 +64,7 @@ function validate(name, value) {
   const prefix = { comment: "nc_", proposal: "np_", edit: "ne_", checkpoint: "nk_" }[name];
   if (prefix && (!value.startsWith(prefix) || !ID.test(value.slice(3)))) return name + "_not_found";
   if (name === "entry" && (!/^n[cdek]_/.test(value) || !ID.test(value.slice(3)))) return "entry_not_found";
+  if (name === "id" && (value.length > 30 || !TRACE.test(value))) return "item_not_found";
   return null;
 }
 
@@ -80,6 +91,51 @@ export function pathRoute(request) {
   return { ...selected.route, params: parsed };
 }
 
+// The query values that a read takes, each with its default, how it is read
+// and the words of its refusal (stage 06, Addresses and paths). A value that
+// is not in its form, or given twice, is refused by its field, never ignored.
+const AFTER = Object.freeze([0, (value) => /^[0-9]{1,6}$/.test(value) && Number(value) <= 100000 ? Number(value) : undefined, "write a whole number from 0 to 100000"]);
+// Characters are counted as code points, as the contract's lengths count them.
+const length = (value) => Array.from(value).length;
+const QUERIES = Object.freeze({
+  getStage: {
+    after: AFTER,
+    filter: ["all", (value) => ["all", "talk", "mine", "left"].includes(value) ? value : undefined, "write all, talk, mine or left"],
+    q: [null, (value) => length(value) <= 200 ? value : undefined, "write at most 200 characters"],
+    group: ["context", (value) => ["context", "source"].includes(value) ? value : undefined, "write context or source"],
+  },
+  getStageTalk: {
+    item: [null, (value) => value.length <= 30 && TRACE.test(value) ? value : undefined, "write a trace ID, such as TBL-111"],
+    closed: [0, (value) => value === "0" || value === "1" ? Number(value) : undefined, "write 0 or 1"],
+    after: AFTER,
+  },
+  // null is the project's first part, and _ the project as a whole.
+  getItem: {
+    part: [null, (value) => value === "_" ? "" : NAME.test(value) && value.length <= 100 ? value : undefined, "write a part's name, or _ for the project as a whole"],
+  },
+  // The words are required, and counted once their outer spaces are cut.
+  searchItems: {
+    q: [undefined, (value) => { const words = value.trim(); return length(words) >= 2 && length(words) <= 200 ? words : undefined; }, "write 2 to 200 characters"],
+  },
+});
+
+// The values that a read takes when a request names none, which a page uses
+// for the reads that it holds (stage 06's Page data).
+export const defaultQuery = (operation) => Object.fromEntries(Object.entries(QUERIES[operation]).map(([name, [fallback]]) => [name, fallback]));
+
+export function queryValues(request, route) {
+  const rules = QUERIES[route.operation];
+  if (!rules) return {};
+  const params = new URL(request.url).searchParams, values = {};
+  for (const [name, [fallback, read, words]] of Object.entries(rules)) {
+    const given = params.getAll(name);
+    const value = given.length === 1 ? read(given[0]) : given.length ? undefined : fallback;
+    if (value === undefined) throw new Problem("invalid_request", name + ": " + words, { field: name });
+    values[name] = value;
+  }
+  return values;
+}
+
 export function requestHeaders(request, route, kind) {
   const change = request.method !== "GET" && request.method !== "HEAD";
   const site = request.headers.get("Sec-Fetch-Site");
@@ -96,7 +152,7 @@ export function requestHeaders(request, route, kind) {
     session = request.headers.get("Nexus-Session");
     if ((route.role && !session) || (session !== null && !SESSION.test(session))) throw new Problem("invalid_request", "send a session label of 1 to 100 ASCII letters, digits, dot, underscore, colon or hyphen", { field: "Nexus-Session" });
   }
-  return { write, session };
+  return { write, session, query: queryValues(request, route) };
 }
 
 const verifier = new AccessVerifier();

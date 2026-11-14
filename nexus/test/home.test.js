@@ -1,0 +1,203 @@
+// TASK-273: the first page (SCR-110) as the server draws it from API-151's answer and the
+// view's code draws it again with what it adds: answers in place, their messages, the
+// notices of reading again, the cards' order and 0.2's fragments on `/` (SPEC-143 to
+// SPEC-145, SPEC-154). The browser suite home-regression.mjs runs the code on a page.
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {drawHome,talkPath,countPath,entryKind,drawingSVG,PICTURED,AGENT_LISTS} from "../src/draw/home.js";
+import {esc,count,clock,time,timed} from "../src/draw/html.js";
+import {label,labels,legendWord,codeMessage,notCurrentWhy} from "../src/draw/words.js";
+import {stageName} from "../src/draw/stages.js";
+import {PALETTE,DARK_FILTER} from "../src/draw/palette.js";
+import {picturePreview} from "../src/preview.js";
+import {followFragment} from "../ui/home.js";
+import {homeData,turnEntries,AT,HOME_TITLE} from "./home-fixtures.js";
+import {viewSnapshot} from "./view-fixtures.js";
+
+const tags=(html,pattern)=>html.match(pattern)||[];
+const SITEMAP=viewSnapshot("qa-home").pictures.find(picture=>picture.stage==="07-sitemap").source;
+const section=(html,key)=>{const start=html.indexOf(`data-nx-key="${key}"`);assert.ok(start>=0,key);return html.slice(start,html.indexOf("</section>",start));};
+const entry=(html,id)=>{const start=html.indexOf(`data-nx-entry="${esc(id)}"`);assert.ok(start>=0,id);return html.slice(start,html.indexOf("</li>",start));};
+const card=(html,index)=>{const start=html.indexOf(`<article class="pcard" aria-labelledby="pc-${index}">`);assert.ok(start>=0,"card "+index);return html.slice(start,html.indexOf("</article>",start));};
+
+test("SCR-110#normal: my turn with each kind's answers, the agent to-do and the cards, as the server draws them",()=>{
+  for(const lang of["en","ko"]){
+    const html=drawHome(homeData(),lang),answers=labels("Answers",lang),kinds=labels("An entry's kind",lang),mine=section(html,"mine");
+    assert.ok(mine.includes(`<h2 id="mine-h" data-nx-key="mine-h">${esc(label("My turn",0,lang,{n:label("The list",9,lang,{n:"4",total:"73"})}))}</h2>`),"50 of 73 (rule 12)");
+    assert.ok(mine.includes(esc(labels("My turn",lang)[1]))&&mine.includes(esc(label("The turn",0,lang))),"what my turn holds and when the agent reads it (rule 18)");
+    assert.deepEqual(tags(mine,/<span class="kind acc">[^<]+<\/span>/g).map(k=>k.replace(/<[^>]+>/g,"")),[kinds[0],kinds[2],kinds[3],kinds[1]]);
+    // The answers that each kind offers: the writes wait for the code (rule 15), the links do not.
+    const proposal=entry(html,"np_1"),recommended=entry(html,"nc_2"),checkpoint=entry(html,"nc_3"),question=entry(html,"nc_4");
+    assert.deepEqual(tags(proposal,/<button [^>]*>[^<]+<\/button>/g).map(b=>[b.match(/data-nx-act="(\w+)"/)[1],b.includes(" pri"),b.replace(/<[^>]+>/g,"")]),[["accept",true,answers[0]],["dismiss",false,answers[1]]]);
+    assert.ok(!proposal.includes("<a class=\"btn"),"a proposal is answered in place only");
+    assert.ok(recommended.includes(`data-nx-act="recommended"`)&&recommended.includes(`>${esc(answers[2])}</button>`)&&recommended.includes(`<a class="btn sm answer" href="/p/qa-shop/sample/07-sitemap#talk=nc&#95;2" data-nx-focus="nc&#95;2:talk" aria-describedby="w-nc&#95;2">${esc(answers[4])}</a>`));
+    assert.ok(checkpoint.includes(`>${esc(answers[3])}</button>`)&&checkpoint.includes(`href="/p/qa-shop/sample/12-qa#talk=nc&#95;3" data-nx-focus="nc&#95;3:talk" aria-describedby="w-nc&#95;3">${esc(answers[5])}</a>`));
+    assert.ok(!question.includes("<button")&&question.includes(`>${esc(answers[4])}</a>`),"a question is answered in words, in the talk");
+    for(const button of tags(mine,/<button [^>]*>/g))assert.match(button,/ aria-describedby="w-[^"]+" disabled data-nx-wait="answer">$/,"the answers wait for the code and name their entry");
+    assert.equal(tags(mine,/<button /g).length,4);
+    // Each entry's place, its text as text, its author and time.
+    assert.ok(proposal.includes(`<span>${esc(HOME_TITLE)}</span><span aria-hidden="true">·</span><span>sample</span><span aria-hidden="true">·</span><span>05 ${esc(stageName("05-erd",lang))}</span>`));
+    assert.ok(proposal.includes(`<a class="lnk clip" href="/p/qa-shop/sample/05-erd#talk=np&#95;1" data-nx-focus="np&#95;1:place"><span class="mono">TBL-020</span> index&#95;items</a>`));
+    assert.ok(checkpoint.includes(`>${esc(label("An entry's place",0,lang))}</a>`),"the stage as a whole");
+    assert.ok(question.includes('href="/p/qa-second/&#95;/01-domain#talk=nc&#95;4"')&&question.includes("><q>Payment table</q></a>")&&!question.includes(esc(label("An entry's place",0,lang))),"a part without an ID shows its quote");
+    assert.ok(proposal.includes("<p class=\"txt\">Add &lt;b&gt;embedded&#95;at&lt;/b&gt; to index&#95;items.</p>"),"the agent's text is text (rule 1)");
+    assert.ok(proposal.includes(`<span class="when mu cap">${esc(labels("Author and time",lang)[0])} · <time datetime="${AT}">2026-11-08 08:30</time></span>`),"the server writes the time in UTC");
+    // The agent to-do: each count opens what it counts; a list without entries has no row.
+    const todo=section(html,"todo"),words=labels("Agent to-do",lang);
+    assert.ok(todo.includes(`<h2 id="todo-h">${esc(label("Agent to-do",0,lang,{n:"999+"}))}</h2>`),"3 + 1,500 + 1 shows as 999+");
+    assert.deepEqual(tags(todo,/<a href="[^"]+"[^>]*><span>[^<]+<\/span><b>[^<]+<\/b><\/a>/g).map(a=>[a.match(/href="([^"]+)"/)[1],a.match(/<span>([^<]+)/)[1],a.match(/<b>([^<]+)/)[1]]),
+      [["/p/qa-shop/sample/05-erd#talk=nc&#95;9",esc(words[1]),"3"],["/p/qa-shop/sample/07-sitemap#filter=left",esc(words[2]),"999+"],["/p/qa-shop/sample/12-qa",esc(words[4]),"1"]]);
+    assert.equal(tags(todo,/<div class="pj">/g).length,1,"a project with nothing for the agent has no counts");
+    assert.ok(todo.includes(`<span class="taken">${esc(label("Agent to-do",5,lang,{n:"2"}))}</span>`)&&todo.includes(esc(words[6])),"taken by a session; the server runs no AI (rule 18)");
+    // The cards in the server's order, by name, with the order that waits for the code.
+    const projs=section(html,"projs"),order=labels("Projects",lang);
+    assert.ok(projs.includes(`<h2 id="projs-h">${esc(label("Projects",0,lang,{n:"2"}))}</h2>`));
+    assert.deepEqual(tags(projs,/<button [^>]*>[^<]+<\/button>/g).map(b=>[b.match(/data-nx-order="(\w+)"/)[1],b.match(/aria-pressed="(\w+)"/)[1],b.includes(' disabled data-nx-wait="order"'),b.replace(/<[^>]+>/g,"")]),[["name","true",true,esc(order[1])],["push","false",true,esc(order[2])]]);
+    const second=card(html,0),shop=card(html,1);
+    assert.ok(second.includes('<h3 id="pc-0">qa-second</h3>')&&!second.includes('class="now"')&&!second.includes('class="lbl"'),"one part without a name, all stages done: no current stage");
+    assert.ok(second.includes(`<p class="mu cap mono"><time datetime="${AT}">2026-11-08 08:30</time></p>`),"no commit: the time alone");
+    assert.deepEqual(tags(second,/<a class="thumb" href="[^"]+">/g).map(a=>a.match(/href="([^"]+)"/)[1]),PICTURED.map(stage=>"/p/qa-second/&#95;/"+stage));
+    assert.equal(tags(second,/<span class="pic none"><span>[^<]+<\/span><\/span>/g).length,3,"No picture yet");
+    assert.ok(shop.includes(`<h3 id="pc-1">${esc(HOME_TITLE)}</h3><span class="mu sm clip">example/qa-shop</span>`)&&shop.includes(`<p class="mu cap mono">0123456 · <time datetime="${AT}">2026-11-08 08:30</time></p>`));
+    assert.ok(shop.includes(`<p class="np"><b>sample</b><span>${esc(label("Projects",3,lang,{stage:"02 "+stageName("02-prd",lang),state:legendWord("in_progress",lang)}))}</span><span class="mu">${esc(label("Projects",4,lang,{"next action":"Write the <PRD> again"}))}</span></p>`),"Now and Next");
+    assert.ok(shop.includes(`<p class="np"><b>second</b><span class="mu">${esc(label("No progress",0,lang))}</span></p>`),"REQ-103's words for a part without records");
+    const thumbs=tags(shop,/<a class="thumb" href="[^"]+">.*?<\/a>/g);
+    assert.equal(thumbs.length,6,"three pictured stages for each part");
+    assert.ok(thumbs[0].includes("<svg viewBox=\"0 0 200 100\"")&&thumbs[0].includes(`<span class="cnt"><span aria-hidden="true">2</span><span class="sr">${esc(label("Projects",11,lang,{n:"2"}))}</span></span>`)&&thumbs[0].endsWith(`<span class="cap">sample · 01 ${esc(stageName("01-domain",lang))}</span></a>`));
+    assert.ok(thumbs[1].includes(`<span class="flag"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-warn"/></svg><span>${esc(order[6])}</span><span class="sr">${esc(notCurrentWhy("source-gone","abc1234",lang))}</span></span>`)&&thumbs[1].includes('<span aria-hidden="true">999+</span>'),"a picture that is not current says so and why");
+    assert.deepEqual(tags(shop,/<div class="strip">/g).length,2);assert.equal(tags(shop,/<span class="mk" /g).length,26,"13 stages for each part");
+    assert.ok(shop.includes(`<footer><span>${esc(label("Projects",8,lang,{n:"999+"}))} · ${esc(label("Projects",9,lang,{n:"3"}))}</span><a class="btn sm" id="pc-1-open" href="/p/qa-shop" aria-labelledby="pc-1-open pc-1" data-nx-focus="open:qa-shop">${esc(order[10])}</a></footer>`));
+    assert.doesNotMatch(html,/<b>QA|__CORTHEX_VIEW_DATA__|\son[a-z]+=|javascript:|\sstyle=/i,"text stays text, and nothing runs without the code");
+  }
+});
+
+test("SCR-110#nothing-waits and SCR-110#empty: an empty my turn, an agent with nothing to do, a server without a snapshot",()=>{
+  for(const lang of["en","ko"]){
+    const none={total:0,oldest:null},quiet=drawHome(homeData({entries:[],agent:[{project:"qa-shop",comments:none,discrepancies:none,reflections:none,checkpoints:none,taken:0}]}),lang);
+    const [lead,line]=labels("Nothing waits",lang);
+    assert.ok(section(quiet,"mine").includes(`<h2 id="mine-h" data-nx-key="mine-h">${esc(label("My turn",0,lang,{n:"0"}))}</h2>`));
+    assert.ok(quiet.includes(`<div class="empty-l" data-nx-key="mine-none"><b>${esc(lead)}</b><span class="mu sm">${esc(line)}</span></div>`)&&!quiet.includes("<ol"));
+    assert.ok(section(quiet,"todo").includes(`<p class="none">${esc(labels("Agent to-do",lang)[7])}</p>`)&&section(quiet,"todo").includes(esc(label("Agent to-do",0,lang,{n:"0"}))));
+    assert.equal(tags(quiet,/<article class="pcard"/g).length,2,"the cards show as in #normal");
+    const empty=drawHome(homeData({projects:[],entries:[],agent:[]}),lang),[first,second,...steps]=labels("Nothing pushed",lang);
+    assert.ok(!empty.includes('data-nx-key="mine"')&&!empty.includes('data-nx-key="todo"')&&!empty.includes('data-nx-key="projs"'),"in place of my turn, the agent to-do and the cards");
+    assert.ok(empty.includes(`<p class="lead">${esc(first)}</p><p class="mu">${esc(second)}</p>`));
+    assert.equal(steps.length,4);assert.equal(tags(empty,/<li><span>/g).length,4,"the four steps (REQ-223)");
+    assert.ok(empty.includes("<code>nexus.push</code>")&&empty.includes("<code>CORTHEX&#95;NEXUS&#95;CLIENT&#95;SECRET</code>"),"names in backticks are code");
+    assert.doesNotMatch(empty,/[A-Za-z]:\\|\/home\/|\/Users\//,"no path");
+    if(lang==="ko")assert.ok(empty.includes("AI")&&!empty.includes("에이전트"),"the agent is called AI in Korean (choice 17)");
+  }
+  for(const bad of[null,{},{projects:[],agent:[]},{projects:[],agent:[],my_turn:{}}])assert.throws(()=>drawHome(bad,"en"),/Unreadable page data/);
+});
+
+test("what the view's code adds: answers in place, their messages, the notices, the order and a card pushed again",()=>{
+  const data=homeData(),lang="en",buttons=labels("Page buttons",lang);
+  const code=drawHome(data,lang,{code:true});
+  assert.ok(!/disabled|data-nx-wait="(?:answer|order)"/.test(code),"the code's drawing has the answers and the order working");
+  // While an answer is sent: its buttons say so and are disabled, yet keep the focus (rule 4).
+  const sending=entry(drawHome(data,lang,{code:true,entries:{np_1:{sending:"accept"}}}),"np_1");
+  assert.deepEqual(tags(sending,/<button [^>]*>[^<]+<\/button>/g).map(b=>[b.includes(' aria-disabled="true"'),b.replace(/<[^>]+>/g,"")]),[[true,codeMessage("Sending",lang)],[true,"Dismiss"]]);
+  // Answered (choice 19): marked in place, without its buttons, until the page loads again.
+  const answered=drawHome(data,lang,{code:true,entries:{np_1:{done:true,mark:0},nc_3:{done:true,mark:3}}});
+  assert.ok(entry(answered,"np_1").startsWith('data-nx-entry="np&#95;1"')&&answered.includes('<li class="ent answered" data-nx-key="e:np&#95;1"'));
+  assert.ok(!entry(answered,"np_1").includes('class="acts"')&&entry(answered,"np_1").includes(`<div class="after" tabindex="-1" data-nx-focus="np&#95;1:after"><p class="res"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>${label("Answered",0,lang)}</span></p></div>`));
+  assert.ok(entry(answered,"nc_3").includes(`<span>${esc(label("Answered",3,lang))} <a class="lnk" href="/p/qa-shop/sample/12-qa">${esc(label("The head",4,lang))}</a></span>`),"a passed checkpoint links its stage's record");
+  // Messages under an entry (rule 3), with Try again, Open, or the page at its own address.
+  const failed=drawHome(data,lang,{code:true,entries:{
+    np_1:{note:{tone:"err",text:codeMessage("internal",lang),trace:"tr_<1>",retry:"accept"}},
+    nc_2:{done:true,note:{tone:"info",text:codeMessage("not_recommended",lang)}},
+    nc_3:{note:{tone:"err",text:codeMessage("part_not_found",lang),open:talkPath("qa-shop","sample","12-qa","nc_3")}},
+    nc_4:{note:{tone:"warn",text:codeMessage("user_only",lang),here:"https://nexus.example.com/"}}}});
+  assert.ok(entry(failed,"np_1").includes(`<div class="msg err" role="alert"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-err"/></svg><div><span class="t">${esc(codeMessage("internal",lang))}</span><span class="tid">${esc(codeMessage("Trace ID",lang,{traceId:"tr_<1>"}))}</span><div class="row"><button class="btn sm" type="button" data-nx-act="retry" data-nx-retry="accept" data-nx-focus="np&#95;1:retry">`));
+  assert.ok(entry(failed,"np_1").includes('class="acts"'),"a failed answer keeps its entry and buttons");
+  assert.ok(entry(failed,"nc_2").includes('<div class="msg info" role="status">')&&!entry(failed,"nc_2").includes("tid"));
+  assert.ok(entry(failed,"nc_3").includes(`<a class="btn sm" href="/p/qa-shop/sample/12-qa#talk=nc&#95;3">${esc(labels("Answers",lang)[5])}</a>`));
+  assert.ok(entry(failed,"nc_4").includes(`<div class="msg warn" role="status">`)&&entry(failed,"nc_4").includes(`<a class="lnk" href="https://nexus.example.com/">${esc(buttons[3])}</a>`));
+  // The notices of reading again (rule 6) and of a sign-in that expired (rule 7).
+  const signIn=drawHome(data,lang,{code:true,notice:"sign-in"}),unread=drawHome(data,lang,{code:true,notice:"unread",updating:true});
+  assert.ok(signIn.startsWith(`<div class="full notes" data-nx-key="notes"><div class="bar warn" role="status">`)&&signIn.includes(`<span class="t">${esc(codeMessage("Sign-in expired",lang))}</span><button class="btn sm pri" type="button" data-nx-act="sign-in" data-nx-focus="sign-in">${esc(buttons[2])}</button>`));
+  assert.ok(unread.includes(`<div class="bar err" role="alert">`)&&unread.includes(`<span class="t">${esc(codeMessage("Could not update",lang))}</span><button class="btn sm" type="button" data-nx-act="read" data-nx-focus="read">`));
+  assert.ok(unread.includes(`<span class="upd mu cap" role="status" data-nx-key="upd" data-nx-live>${esc(codeMessage("Updating",lang))}</span>`),"Updating… while reading again");
+  assert.ok(drawHome(data,lang).startsWith('<div class="full notes" data-nx-key="notes"></div>'),"no notice, no bar");
+  // The order by the last push, and a card that the reading found pushed again.
+  const byPush=drawHome(data,lang,{code:true,order:"push",pushed:{"qa-shop":"2026-11-08T10:00:00.000Z"}});
+  assert.ok(card(byPush,0).includes('<h3 id="pc-0">&lt;b&gt;')&&card(byPush,1).includes('<h3 id="pc-1">qa-second</h3>'),"the last push first");
+  assert.ok(byPush.includes('data-nx-order="push" data-nx-focus="order:push" aria-pressed="true"'));
+  assert.ok(card(byPush,0).includes(`<span class="kind acc">${timed(labels("Projects",lang)[7],"2026-11-08T10:00:00.000Z")}</span>`)&&!card(byPush,1).includes('class="kind'));
+  assert.equal(timed("Pushed again at {time}","2026-11-08T10:00:00.000Z"),'Pushed again at <time datetime="2026-11-08T10:00:00.000Z">2026-11-08 10:00</time>');
+  // The entries that the code keeps drawn after reading again stay in its list.
+  const kept=drawHome(homeData({entries:turnEntries().slice(1),total:72}),lang,{code:true,list:turnEntries(),entries:{np_1:{done:true,mark:1}}});
+  assert.ok(kept.includes(`>${esc(label("My turn",0,lang,{n:label("The list",9,lang,{n:"3",total:"72"})}))}</h2>`)&&entry(kept,"np_1").includes(`<span>${label("Answered",1,lang)}</span>`),"the count reads again; the answered entry stays");
+});
+
+test("where an entry and each count of the agent to-do open (SPEC-144, SCR-114)",()=>{
+  assert.equal(talkPath("qa-shop","sample","05-erd","nc_1"),"/p/qa-shop/sample/05-erd#talk=nc_1");
+  assert.equal(talkPath("qa-shop","","05-erd","nc 1/2"),"/p/qa-shop/_/05-erd#talk=nc%201%2F2");
+  assert.deepEqual(AGENT_LISTS.map(([list])=>list),["comments","discrepancies","reflections","checkpoints"]);
+  const oldest={part:"sample",stage:"07-sitemap",entry:"nx_1"};
+  assert.deepEqual(AGENT_LISTS.map(([list])=>countPath("qa-shop",list,oldest)),["/p/qa-shop/sample/07-sitemap#talk=nx_1","/p/qa-shop/sample/07-sitemap#filter=left","/p/qa-shop/sample/07-sitemap#filter=left","/p/qa-shop/sample/07-sitemap"]);
+  assert.equal(countPath("qa-shop","comments",null),"/p/qa-shop","without an oldest entry, the project");
+  assert.deepEqual(turnEntries().map(entryKind),[0,2,3,1]);
+  assert.equal(entryKind({kind:"comment",asks:null}),1,"a comment that asks nothing named is a question");
+});
+
+test("a picture's small view: the server's first layout without labels, in the editors' palette and its dark filter",()=>{
+  const svg=drawingSVG({bounds:[-10,-20,0,50],boxes:[["context",0,0,10,10],["table",1,2,3,4],["unknown-kind",5,5,-1,"x"]],lines:[[1,2,3,4],["a",null,5,6]]});
+  assert.ok(svg.startsWith('<svg viewBox="-10 -20 1 50" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">'),"no zero width");
+  assert.ok(svg.includes(`<path d="M1 2L3 4M0 0L5 6" fill="none" stroke="${PALETTE.context[0]}"/>`),"lines in whole numbers");
+  assert.ok(svg.includes(`<rect x="0" y="0" width="10" height="10" fill="none" stroke="${PALETTE.context[0]}" class="dash"/>`));
+  assert.ok(svg.includes(`<rect x="1" y="2" width="3" height="4" fill="${PALETTE.table[1]}" stroke="${PALETTE.table[0]}"/>`));
+  assert.ok(svg.includes(`<rect x="5" y="5" width="0" height="0" fill="${PALETTE.screen[1]}" stroke="${PALETTE.screen[0]}"/>`),"an unknown kind as a screen; no negative size");
+  assert.equal(drawingSVG({}),'<svg viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"></svg>');
+  // The picture view's first SVG draws with the same palette (one copy, palette.js).
+  const preview=picturePreview({project:"qa",part:"sample",stage:"07-sitemap",picture:{commit:"abc1234",source:SITEMAP},items:[]},"en");
+  assert.ok(preview.includes(`fill="${PALETTE.screen[1]}"`)&&preview.includes(`stroke="${PALETTE.screen[0]}"`),"0.2's picture view keeps its colours");
+  // The dark filter, as the Filter Effects spec composes it, turns the light picture ground,
+  // white, into the dark one, color.picture-ground #121212 (stage 09's tokens).
+  const css=readFileSync(new URL("../ui/page.css",import.meta.url),"utf8"),tokens=readFileSync(new URL("../ui/tokens.css",import.meta.url),"utf8");
+  assert.ok(css.includes(`filter:${DARK_FILTER}`),"page.css draws the small views through the editors' dark filter");
+  const filtered=hex=>{const rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255).map(c=>c*(1-0.93)+(1-c)*0.93);
+    const a=Math.PI,cos=Math.cos(a),sin=Math.sin(a),m=[[0.213+cos*0.787-sin*0.213,0.715-cos*0.715-sin*0.715,0.072-cos*0.072+sin*0.928],[0.213-cos*0.213+sin*0.143,0.715+cos*0.285+sin*0.140,0.072-cos*0.072-sin*0.283],[0.213-cos*0.213-sin*0.787,0.715-cos*0.715+sin*0.715,0.072+cos*0.928+sin*0.072]];
+    return"#"+m.map(row=>Math.round(Math.min(1,Math.max(0,row[0]*rgb[0]+row[1]*rgb[1]+row[2]*rgb[2]))*255).toString(16).padStart(2,"0")).join("");};
+  assert.equal(filtered("#ffffff"),"#121212");
+  assert.match(tokens,/@media \(prefers-color-scheme: dark\) \{[^]*--nx-color-picture-ground: #121212;/);
+  for(const [stroke,fill]of Object.values(PALETTE))for(const colour of[stroke,fill].filter(c=>c!=="none"))assert.match(filtered(colour),/^#[0-9a-f]{6}$/);
+});
+
+test("times: the server writes UTC, and the view writes the same element in the browser's time zone (rule 2)",()=>{
+  assert.equal(clock("2026-11-08T23:05:00.000Z"),"2026-11-08 23:05");
+  assert.equal(clock("not a time"),"not a time");assert.equal(clock(null),"");
+  assert.equal(time("2026-11-08T23:05:00.000Z"),'<time datetime="2026-11-08T23:05:00.000Z">2026-11-08 23:05</time>');
+  assert.equal(time('"><b>'),'<time datetime="&quot;&gt;&lt;b&gt;">&quot;&gt;&lt;b&gt;</time>',"an unreadable time stays text");
+  const local=new Date("2026-11-08T23:05:00.000Z"),pad=n=>String(n).padStart(2,"0");
+  assert.equal(clock("2026-11-08T23:05:00.000Z",true),`${local.getFullYear()}-${pad(local.getMonth()+1)}-${pad(local.getDate())} ${pad(local.getHours())}:${pad(local.getMinutes())}`);
+  assert.equal(clock("2026-11-08T23:05:00.000Z",true).length,clock("2026-11-08T23:05:00.000Z").length,"the same digits, so that nothing moves");
+});
+
+test("why a picture is not current, in the words of 0.2's picture view",()=>{
+  for(const lang of["en","ko"]){
+    const sentence=reason=>picturePreview({project:"qa",part:"sample",stage:"07-sitemap",picture:{commit:"abc1234",not_current:reason,source:SITEMAP},items:[]},lang).match(/data-preview-stale>([^<]+)</)[1];
+    for(const reason of["size","source-gone","other-repository"])assert.equal(esc(notCurrentWhy(reason,"abc1234",lang)),sentence(reason),lang+" "+reason);
+    assert.equal(notCurrentWhy("weird","abc1234",lang),notCurrentWhy("size","abc1234",lang));
+  }
+});
+
+test("0.2's fragments on / lead to their places (SPEC-154)",async()=>{
+  const data=homeData(),asked=[];
+  const api=answer=>({call:async(method,url)=>{asked.push([method,url]);if(answer instanceof Error)throw answer;return answer;}});
+  const follow=async(hash,answer={part:"sample",item:{id:"REQ-107",stage:"02-prd"}})=>{const went=[];const handled=await followFragment(hash,data,api(answer),target=>went.push(target));return[handled,went];};
+  assert.deepEqual(await follow("#q=retry%20payment"),[true,["/hub#q=retry%20payment"]],"the search, until SCR-116 (TASK-277), is the hub page's");
+  assert.deepEqual(await follow("#p=qa-shop&id=REQ-107"),[true,["/p/qa-shop/sample/02-prd#item=REQ-107"]],"the item in its stage");
+  assert.deepEqual(asked.at(-1),["GET","/api/spaces/qa-shop/items/REQ-107"]);
+  const gone=Object.assign(new Error("item_not_found"),{code:"item_not_found"});
+  assert.deepEqual(await follow("#p=qa-shop&id=REQ-999",gone),[true,["/hub#q=REQ-999"]],"an item that the project no longer holds: the search with its ID");
+  assert.deepEqual(await follow("#p=qa-shop&id=REQ-1",{part:"sample",item:{stage:"14-later"}}),[true,["/hub#q=REQ-1"]]);
+  assert.deepEqual(await follow("#p=qa-shop&s=05-erd"),[true,["/p/qa-shop/sample/05-erd"]],"that stage of the project's first part");
+  assert.deepEqual(await follow("#p=qa-second&s=12-qa"),[true,["/p/qa-second/_/12-qa"]]);
+  assert.deepEqual(await follow("#p=qa-unknown&s=12-qa"),[true,["/p/qa-unknown/_/12-qa"]],"an unknown project: the new page's 404");
+  assert.deepEqual(await follow("#p=qa-shop&s=99-weird"),[true,["/p/qa-shop"]]);
+  assert.deepEqual(await follow("#p=qa-shop"),[true,["/p/qa-shop"]]);
+  for(const hash of["","#","#talk=nc_1","#p=Not%20a%20name","#p="+"a".repeat(101),"#p=../hub"])assert.deepEqual(await follow(hash),[false,[]],hash);
+  assert.equal(asked.length,3,"only an item asks the server");
+});

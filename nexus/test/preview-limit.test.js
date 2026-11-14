@@ -13,6 +13,7 @@ import {INPUT_SCHEMAS} from "../src/input-schemas.js";
 import * as browserLayout from "../ui/layout.js";
 import {picturePreview} from "../src/preview.js";
 import {words} from "../ui/messages.js";
+import {PALETTE} from "../src/draw/palette.js";
 import {itemFields,reasonText} from "../ui/fields.js";
 import {cameraZoom} from "../ui/camera.js";
 import {NexusProblem,Drafts,PendingWrites,LatestReads,characters} from "../ui/state.js";
@@ -183,7 +184,7 @@ test("limited source list includes unique timeline-only events without expanding
 test("mocked zero-item limited scene retains the real SSR warning and no readiness claim",()=>{
  const scene={nodes:[],edges:[],bounds:{x:0,y:0,width:220,height:100},contexts:[],step:8,limited:true,limit:20000,workLimit:200000,reason:"work",work:200000,listLimited:false};
  const preview=readFileSync(new URL("../src/preview.js",import.meta.url),"utf8").replace(/^import[^\n]*\r?\n/gm,"").replace(/^export /gm,"");
- const sandbox={pictureLayout:()=>scene,itemMarks:browserLayout.itemMarks,sceneItems,STEPS:browserLayout.STEPS,words};runInNewContext(preview+"\nglobalThis.checkedPicturePreview=picturePreview;",sandbox,{timeout:1000});
+ const sandbox={pictureLayout:()=>scene,itemMarks:browserLayout.itemMarks,sceneItems,STEPS:browserLayout.STEPS,words,PALETTE};runInNewContext(preview+"\nglobalThis.checkedPicturePreview=picturePreview;",sandbox,{timeout:1000});
  for(const lang of["en","ko"]){const body=limitedHTML(sandbox.checkedPicturePreview(pageData({}).data,lang),{allowEmpty:true});assert.equal(listItems(body),0);assert.match(body,lang==="en"?/Repeated layout is too complex/:/반복 배치가 너무 복잡해/);}
 });
 

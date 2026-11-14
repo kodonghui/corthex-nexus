@@ -46,6 +46,9 @@ def main():
     clean.pop("NEXUS_QA_HUB", None)
     clean.pop("NEXUS_QA_LATE_SCREEN", None)
     clean.pop("NEXUS_QA_TALL_SITEMAP", None)
+    clean.pop("NEXUS_QA_PAGES", None)
+    clean.pop("NEXUS_QA_HOME", None)
+    clean.pop("NEXUS_QA_STAGE", None)
     clean["NEXUS_QA_PYTHON"] = sys.executable
     for script, arguments in [("browser-regression.mjs", ()), ("discussion-regression.mjs", ()),
                               ("discussion-regression.mjs", ("--dismiss",)), ("error-regression.mjs", ()),
@@ -56,7 +59,25 @@ def main():
             return result
     late_screen = clean.copy()
     late_screen["NEXUS_QA_LATE_SCREEN"] = "1"
-    return run_suite(executable, late_screen, "late-screen-regression.mjs")
+    result = run_suite(executable, late_screen, "late-screen-regression.mjs")
+    if result:
+        return result
+    # The redesign's pages (TASK-272), with their own opt-in synthetic project.
+    pages = clean.copy()
+    pages["NEXUS_QA_PAGES"] = "1"
+    result = run_suite(executable, pages, "page-regression.mjs")
+    if result:
+        return result
+    # The first page's answers, reading again and fragments (TASK-273), with its own spaces.
+    home = clean.copy()
+    home["NEXUS_QA_HOME"] = "1"
+    result = run_suite(executable, home, "home-regression.mjs")
+    if result:
+        return result
+    # A stage in the workspace (TASK-274): the document stage's list, addresses and stage record.
+    stage = clean.copy()
+    stage["NEXUS_QA_STAGE"] = "1"
+    return run_suite(executable, stage, "stage-regression.mjs")
 
 
 if __name__ == "__main__":

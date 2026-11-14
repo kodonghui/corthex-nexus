@@ -14,7 +14,7 @@ if(!args.includes("--dependencies")||!args.includes("--tool"))throw new Error("U
 const dependencies=option("--dependencies"),tool=option("--tool");
 if(!isAbsolute(dependencies)||!isAbsolute(tool))throw new Error("Use absolute installed tool/dependency paths");
 const {build,version}=await import(pathToFileURL(tool));if(version!=="0.28.2")throw new Error("Use pinned external esbuild 0.28.2");
-const expected={"@excalidraw/excalidraw":"0.18.1","@dineug/erd-editor":"5.1.0",react:"18.3.1","react-dom":"18.3.1"};
+const expected={"@excalidraw/excalidraw":"0.18.1","@dineug/erd-editor":"5.1.0",react:"18.3.1","react-dom":"18.3.1","@fontsource/ibm-plex-sans-kr":"5.3.0","@fontsource/ibm-plex-mono":"5.3.0"};
 for(const [name,version]of Object.entries(expected))if(JSON.parse(readFileSync(resolve(dependencies,name,"package.json"))).version!==version)throw new Error("Browser dependency differs: "+name);
 const sha=bytes=>createHash("sha256").update(bytes).digest("hex"),short=bytes=>sha(bytes).slice(0,8),walk=folder=>readdirSync(folder,{withFileTypes:true}).sort((a,b)=>a.name<b.name?-1:a.name>b.name?1:0).flatMap(row=>row.isDirectory()?walk(resolve(folder,row.name)):[resolve(folder,row.name)]);
 mkdirSync(out,{recursive:true});
@@ -78,12 +78,33 @@ async function bundle(name,entry,define={}){
   entries[name+"-preload"]=[...preload].map(p=>"/code/"+made.get(p).name);
   for(const [lang,paths]of Object.entries(locale)){const graph=new Set(preload);for(const p of paths)staticGraph(p,graph);entries[name+"-"+lang+"-preload"]=[...graph].map(p=>"/code/"+made.get(p).name);}
  }
- const inputs={};for(const [path,value]of Object.entries(result.metafile.inputs)){const absolute=resolve(root,path);let label=relative(dependencies,absolute).replaceAll("\\","/");if(label.startsWith(".."))label=relative(root,absolute).replaceAll("\\","/");else label="node_modules/"+label;inputs[label]={bytes:value.bytes,sha256:sha(readFileSync(absolute))};}metafiles[name]=inputs;
+ const inputs={};for(const [path,value]of Object.entries(result.metafile.inputs)){const absolute=resolve(root,path);let label=relative(dependencies,absolute).replaceAll("\\","/");if(label.startsWith("..")){label=relative(root,absolute).replaceAll("\\","/");if(/(?:^|\/)node_modules\//.test(label))throw new Error("A package was resolved outside --dependencies: "+label);}else label="node_modules/"+label;inputs[label]={bytes:value.bytes,sha256:sha(readFileSync(absolute))};}metafiles[name]=inputs;
  for(const file of result.outputFiles.filter(f=>f.path.endsWith(".LEGAL.txt")))legal.push({name:name+"-"+basename(file.path),text:file.text,sha256:sha(file.contents)});
 }
 await bundle("excalidraw",resolve(ui,"editor-excalidraw.js"));await bundle("erd",resolve(ui,"editor-erd.js"));
 await bundle("view",resolve(ui,"core.js"),{__NEXUS_ERD__:JSON.stringify(entries["erd-js"]),__NEXUS_EXCALIDRAW__:JSON.stringify(entries["excalidraw-js"]),__NEXUS_EXCALIDRAW_CSS__:JSON.stringify(entries["excalidraw-css"]||"")});
+// The redesign's pages (TASK-272): their code and stylesheet, apart from 0.2's views.
+await bundle("page",resolve(ui,"page.js"));
 entries["font-preload"]=["fonts/Assistant/Assistant-Regular.woff2","fonts/Assistant/Assistant-Medium.woff2","fonts/Assistant/Assistant-Bold.woff2"].map(p=>fontMap.get(p)).filter(Boolean);
+// IBM Plex Sans KR and IBM Plex Mono for the views (stage 09, the redesign's checkpoint 3
+// of 2026-11-08): each package's own Unicode-range slices, unmodified, at same-origin
+// hashed URLs and without the WOFF fallback. One cacheable stylesheet holds the faces.
+const plex=[["@fontsource/ibm-plex-sans-kr","IBM Plex Sans KR",[400,500,600]],["@fontsource/ibm-plex-mono","IBM Plex Mono",[400,500]]],faces=[],fontInputs={},editorNotices=readFileSync(resolve(ui,"vendor/EDITOR-NOTICES.txt"),"utf8");
+for(const [pkg,family,weights]of plex){
+ if(!editorNotices.includes(readFileSync(resolve(dependencies,pkg,"LICENSE"),"utf8").trim()))throw new Error("vendor/EDITOR-NOTICES.txt lacks the license of "+pkg);
+ for(const weight of weights){
+  const css=readFileSync(resolve(dependencies,pkg,weight+".css"),"utf8"),blocks=css.match(/@font-face\s*\{[^}]*\}/g)||[];fontInputs["node_modules/"+pkg+"/"+weight+".css"]={bytes:Buffer.byteLength(css),sha256:sha(css)};
+  if(!blocks.length||blocks.length!==css.split("@font-face").length-1)throw new Error("Unexpected font faces in "+pkg+"/"+weight+".css");
+  for(const block of blocks){
+   const field=key=>{const found=[...block.matchAll(new RegExp("[{;\\s]"+key+":\\s*([^;]+);","g"))];if(found.length!==1)throw new Error("A font face needs one "+key);return found[0][1].trim();};
+   const file=field("src").match(/^url\(\.\/files\/([a-z0-9-]+)\.woff2\) format\('woff2'\), url\(\.\/files\/\1\.woff\) format\('woff'\)$/),range=field("unicode-range");
+   if(field("font-family")!==`'${family}'`||field("font-style")!=="normal"||field("font-display")!=="swap"||field("font-weight")!==String(weight)||!file||!/^U\+[0-9a-f]{1,6}(?:-[0-9a-f]{1,6})?(?:,U\+[0-9a-f]{1,6}(?:-[0-9a-f]{1,6})?)*$/i.test(range))throw new Error("Unexpected font face in "+pkg+"/"+weight+".css");
+   const bytes=readFileSync(resolve(dependencies,pkg,"files",file[1]+".woff2")),name=`${file[1]}.${short(bytes)}.woff2`;emit(name,name,"font/woff2",bytes,{binary:true});
+   faces.push(`@font-face{font-family:"${family}";font-style:normal;font-display:swap;font-weight:${weight};src:url(/code/${name}) format("woff2");unicode-range:${range}}`);
+  }
+ }
+}
+const faceCSS=Buffer.from(faces.join("\n")+"\n"),faceName=`fonts.${short(faceCSS)}.css`;emit(faceName,faceName+".txt","text/css; charset=utf-8",faceCSS);entries["fonts-css"]="/code/"+faceName;metafiles.fonts=fontInputs;
 if(patches.filter(p=>p.name==="erd-viewport-bridge").length!==1||patches.filter(p=>p.name==="erd-high-level-label-fit").length!==1||patches.filter(p=>p.name==="excalidraw-no-hosted-firebase").length!==1||patches.filter(p=>p.name==="excalidraw-whole-picture-zoom").length!==1)throw new Error("Expected browser patches not applied exactly once");
 const imports=files.map((f,i)=>`import f${i} from ${JSON.stringify("./"+f.path)};`).join("\n");writeFileSync(resolve(out,"manifest.js"),imports+"\nexport const code={\n"+files.map((f,i)=>JSON.stringify(f.name)+`:{type:${JSON.stringify(f.type)},body:f${i}}`).join(",\n")+"\n};\nexport const entries="+JSON.stringify(entries)+";\n");
 const buildInputs=Object.fromEntries(["nexus/tools/build-ui.mjs","nexus/tools/tokens.mjs","nexus/tools/messages.mjs","nexus/ui/editor-patches.mjs","nexus/ui/package-lock.json","nexus/ui/vendor/liberation-2.1.5.json"].map(path=>[path,sha(readFileSync(resolve(root,path)))]));
