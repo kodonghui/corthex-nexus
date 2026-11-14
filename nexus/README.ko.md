@@ -87,7 +87,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: kodonghui/corthex
-          ref: 187ce7e8b2ba6601647f32828ea2e185ca8916c0
+          ref: c6095b40c71bc74d207b13b5b08aeeb078c7d0c5
           path: hub
           persist-credentials: false
       - name: Push the snapshot

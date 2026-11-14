@@ -48,7 +48,7 @@ TC-1674부터 TC-1679까지가 TASK-290의 케이스입니다. kodonghui/corthex
 
 TC-1697부터 TC-1703까지와 TC-1427, TC-1452가 TASK-291의 케이스입니다. kodonghui/corthex#211의 `tests/test_hub_revision.py`에서 `CheckpointRequestTest` 테스트 14개로 TASK-288과 같은 방식으로 돌며, 서버는 에이전트 할 일 목록을 만들어진 계약대로 답하고 요청과 답글을 받습니다. outbox에서 기다리는 요청은 계약의 `OutboxFile` 형식으로 넣습니다. 전체 테스트 2,556개 가운데 1개가 실패했습니다. `test_public_safety`가 TC-1699의 마스킹 후 길이 케이스에서 지어낸 메일 주소를 찾았습니다. 이제 이 케이스는 토큰 값을 붙여 넣고, 허브가 이를 `[redacted]`로 마스킹하면서 본문이 1,196자에서 1,201자로 늘어납니다. 그 뒤 `test_public_safety`와 `CheckpointRequestTest`가 통과했습니다. 검증 네 가지는 통과했습니다.
 
-돌리지 않은 것: macOS와 Windows. `7455a48`의 전체 실행이 이를 다룹니다([TASK-294](#task-294)).
+돌리지 않은 것: macOS와 Windows. `7455a48`의 전체 실행이 이를 다룹니다([TASK-294](#task-294)). TC-1701과 TC-1702의 케이스는 Codex의 7455a48 검토 뒤 187ce7e에서 늘었고, 187ce7e의 실행 753이 이를 다룹니다([TASK-294](#task-294)).
 
 결함 주입은 저마다 허브의 사본에서 하고 되돌렸습니다: 새 항목이 있는데도 보내는 요청은 TC-1700과 그 안내 문구 테스트를, `sent-as-reply` remark가 없는 것은 TC-1701을, 마스킹 전에 센 길이는 TC-1699를, 이전 서버에 새 형식을 보내는 것은 이전 형식 테스트를, `--look-first` 없는 요청을 받는 것은 TC-1699와 TASK-294의 TC-1762를 실패시켰습니다.
 
@@ -78,7 +78,9 @@ TC-1758과 TC-1762가 TASK-294의 케이스입니다. kodonghui/corthex#211의 `
 
 kodonghui/corthex-nexus#53은 `hub-ref.json`과 안내의 작업 파일, 허브 템플릿의 바이트 사본인 `nexus/src/hub.html`을 kodonghui/corthex#211의 헤드 7455a48로 옮깁니다: bda49eb가 셋을 9f1892c로 옮겼고, 7dee691이 앞의 둘을 템플릿이 같은 7455a48로 다시 옮겼습니다. kodonghui/corthex는 병합 커밋으로 병합하므로 7455a48은 그 main에 남습니다. 제품의 검사는 그 고정 커밋으로 통과했습니다: Python 테스트, 서버 테스트, Worker의 dry run, 계약 검사, 브라우저 스위트 `page`, `home`, `stage`, `picture`, `talk`, `item`, `hub`. 이제 `tests/test_push_job_file.py`의 `PushJobRunTest`가 작업 파일의 줄들을 작업이 돌리는 대로, 고정한 허브로 로컬 테스트 서버를 상대로 돌립니다. 첫 push는 기다리고, 세션의 `push --first` 뒤에는 그 커밋의 작업이 already-held이며, 자식 커밋의 작업은 보내고, 같은 작업을 다시 돌리거나 더 오래된 커밋의 작업이 나중에 끝나도 already-held이고, 비밀 값이 없는 포크의 작업은 `not-set`과 세 이름으로 통과하며, 다시 쓴 기본 브랜치는 두 커밋을 적은 `refused`, 종료 코드 1입니다. 어느 출력에도 비밀 값은 없습니다. 결함 주입 네 가지가 그것을 실패시켰습니다: `--job` 없는 실행 줄, 원격의 HEAD를 적는 줄이 없는 것, 커밋 하나만 가져오는 fetch, 그리고 `push --job`이 없는 이전 고정 커밋 318035d.
 
-돌리지 않은 것: 태그. 유지 관리자의 말을 기다립니다.
+Codex의 7455a48 검토가 아웃박스의 체크포인트 요청에서 지적 두 건을 남겼고, 프로브가 7455a48에서 둘 다 재현했습니다. 아웃박스에서 기다리던 체크포인트 요청은 서버의 버전과 상관없이 나중에 `look_first`를 달고 갔으므로, 수정 전의 서버가 `invalid_request`로 거절해 아웃박스가 그 요청을 버렸습니다. 또 잠금(lease)을 잃은 뒤의 복구가 그 요청을 대신한 답글 곁에 요청을 되살려, 다음에 닿을 때 두 번째 답글이 갔습니다. 187ce7e에서 기다리는 요청은 그 세션으로 할 일 목록을 읽은 뒤, 그 읽기의 답이 보여 주는 서버가 받는 형식으로 가며, 수정 전의 서버에는 remark `server-older`를 붙입니다. 답이 없는 읽기는 요청을 남기고, 거절된 읽기는 그 까닭으로 요청을 버리며, 그 읽기는 세션의 읽음을 남기지 않습니다. 복구는 아웃박스가 쓴 기록, 곧 답글의 ID와 답이 있으면 그 답, remark `sent-as-reply`를 따릅니다. `tests/test_hub_revision.py`의 새 테스트 다섯 개(TC-1701, TC-1702, TC-1758의 테스트 포함)가 둘을 지키고, TC-1701의 아웃박스 케이스는 이제 요청 전에 읽기를 기대합니다. 이 수정에 대한 결함 주입 아홉 가지가 저마다 그 테스트 가운데 하나 이상을 실패시켰습니다. 전체 테스트 2,580개가 통과했고(19개 건너뜀), 검증 네 가지도 통과했습니다. kodonghui/corthex#211의 187ce7e 실행인 `check` 실행 753은 Linux·macOS·Windows와 Python 3.8·3.15에서 통과했습니다: 시스템마다의 `hub-compatibility`와 `all-checks`를 포함한 작업 35개 모두. a64af6d는 `hub-ref.json`과 안내의 작업 파일을 템플릿이 같은 187ce7e로 옮겼고, 제품의 검사는 7455a48에서처럼 그 고정 커밋으로 통과했으며, 계약 검사 모음의 Schemathesis는 응답 205개 가운데 205개가 맞는다고 보았습니다.
+
+유지 관리자가 2026-11-14에 전체 검사 통과 뒤의 병합과 태그를 승인했습니다. kodonghui/corthex#211은 트리가 187ce7e와 같은 c6095b4로 병합되었고, main의 push 실행인 `check` 실행 754가 작업 35개 모두 통과했습니다. c6095b4에서 `claude plugin tag plugins/corthex-nexus`가 매니페스트와 마켓플레이스 항목이 맞는 것을 확인하고 태그 `corthex-nexus--v0.4.0`을 만들었지만, 그 태그는 아직 GitHub에 없습니다: 태그를 만든 세션은 태그를 푸시할 수 없어 유지 관리자의 기기에서 푸시하기를 기다리고, TASK-294는 그 태그가 GitHub에 오르면 끝납니다. 그 뒤 kodonghui/corthex-nexus#53이 `hub-ref.json`과 안내의 작업 파일을 c6095b4로 옮겼고, 제품의 검사는 그 고정 커밋으로 통과했습니다: `PushJobRunTest`를 포함한 Python 테스트, 서버 테스트, Worker의 dry run, 계약 검사, 브라우저 스위트 `page`, `home`, `stage`, `picture`, `talk`, `item`, `hub`.
 
 결함 주입은 저마다 허브의 사본에서 하고 되돌렸습니다: 이전 서버에서 dry run을 보여 주지 않는 것은 TC-1758과 TASK-292의 이전 서버 테스트를, `--look-first` 없는 요청을 받는 것은 TC-1762와 TASK-291의 TC-1699를 실패시켰습니다.
 
