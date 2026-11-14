@@ -2,7 +2,8 @@
  * TASK-274: a stage in the workspace (SCR-111, SCR-113, and SCR-112's list until TASK-275
  * draws its picture) in a browser. Its states at 390, 1,152 and 1,440 pixels (rule 16) in
  * both themes and languages; the filters, the search in the stage, the grouping and the next
- * 200 (API-158); the addresses' #filter=left, on a pictured stage too, and #item=; reading
+ * 200 (API-158); the addresses' #filter=left, on a pictured stage too, and #item=, whose
+ * search for its row through the pages ends once another item is selected (BUG-628); reading
  * again and a newer push (rule 6); the stage record in the side, as a panel and as a sheet,
  * with the focus and Escape of rule 10; passing and withdrawing a checkpoint, with the words
  * kept and one write ID for every try (rules 4 and 5); times in the browser's time zone
@@ -371,6 +372,26 @@ try{
   return{evidence:'fixture server',seen:{left:seen.left.rows,erd:seen.erd.rows,erdLinks:seen.erdLinks,erdMarks:seen.erdMarks,item:seen.item.selected,itemReads},screenshots:[leftShot,erdShot,itemShot]};
  });
 
+ // BUG-628: an address's search for its row through the list's pages ends once another item is
+ // selected: the list reads no further page for the older row and keeps the newer one in view.
+ await test('an-older-search-for-a-row-1440-en',async()=>{
+  const seen={};await setting({width:1440});
+  const mark=report.reads.length;
+  held={pattern:new RegExp(stageApi('02-prd').source+'(?:.*&)?after=200(?:&|$)'),method:'GET',requests:[]};
+  await open(page('02-prd','en','#item=REQ-450'),{ready:false});
+  const stop=Date.now()+5000;while(!held.requests.length&&Date.now()<stop)await sleep(25);
+  assert(held.requests.length===1,'The address reads the list\'s second page once, and the suite holds it');
+  await click('.stage .li[data-nx-item="REQ-001"]');
+  await waitFor(`location.hash==='#item=REQ-001'&&document.querySelector('.stage .li[aria-current=true]')?.dataset.nxItem==='REQ-001'`);
+  await release();
+  await waitFor(`document.querySelectorAll('.stage .li').length>=400`);await settled();await paint();
+  seen.state=await state();
+  seen.inView=await evaluate(`(()=>{const a=document.querySelector('.stage .li[aria-current=true]'),l=document.querySelector('.stage .lw > .list');if(!a||!l)return false;const r=a.getBoundingClientRect(),b=l.getBoundingClientRect();return r.top>=b.top-1&&r.bottom<=b.bottom+1;})()`);
+  const reads=readsOf('02-prd',mark);
+  assert(seen.state.selected.join()==='REQ-001'&&seen.inView&&seen.state.rows.length===400&&!reads.some(p=>/[?&]after=400(?:&|$)/.test(p)),'The newer row stays selected and in view, and the older search reads no further page: '+JSON.stringify({selected:seen.state.selected,inView:seen.inView,rows:seen.state.rows.length,reads}));
+  return{evidence:'fixture server; the list\'s second page held by the suite, then released (held)',seen:{selected:seen.state.selected,inView:seen.inView,rows:seen.state.rows.length,reads},screenshot:await shot('older-search-1440-en')};
+ });
+
  // SCR-113#stale: a newer push found when the list reads again keeps the list as it is drawn,
  // with the bar and Load again (SCR-111#stale), against the fixture server.
  await test('a-newer-push-keeps-the-list-until-load-again-1440-ko',async()=>{
@@ -693,7 +714,7 @@ try{
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=6+1+1+1+1+1+1+1+1+1+1;
+ const expected=6+1+1+1+1+1+1+1+1+1+1+1;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{

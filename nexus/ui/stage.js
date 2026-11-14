@@ -230,7 +230,12 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   async function select(id){
     if(typeof id!=="string"||!id||id.length>200)return null;
     view.selected=id;render(["stage"]);
-    for(let page=0;!rowOf(id)&&page<MAX_PAGES;page++)if(!await loadMore())break;
+    for(let page=0;!rowOf(id)&&page<MAX_PAGES;page++){
+      if(!await loadMore())break;
+      // Another item selected meanwhile ends this search, which then neither reads on nor
+      // scrolls the list to this row (BUG-628).
+      if(view.selected!==id)return null;
+    }
     const row=rowOf(id);
     if(row){row.scrollIntoView({block:"nearest"});return null;}
     const query=asked();
@@ -352,7 +357,16 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
       const mode=shown==="list"||!shown&&params.has("filter")?"list":"picture",step=stage==="01-domain"&&STEPS.includes(key)?key:undefined;
       if(mode!==view.mode||step!==view.step){view.mode=mode;view.step=step;render(["stage"]);}
     }
-    if(FILTERS.includes(filter)&&filter!==view.query.filter&&(!pictured||view.mode==="list")){view.query={...view.query,filter};await readQuery();}
+    if(FILTERS.includes(filter)&&filter!==view.query.filter&&(!pictured||view.mode==="list")){
+      view.query={...view.query,filter};await readQuery();
+      // A newer address came while the list was read: this address's item opens nothing, and the
+      // newer one's item takes its place in the list that came, as after the list (BUG-627).
+      if(run!==runs){
+        const open=view.item?.id;
+        if(open&&open===view.selected&&!reading&&(!pictured||view.mode==="list"))itemPanel.setWhy(open,await select(open)||pictureWhy);
+        return;
+      }
+    }
     // The item: its panel at once (SCR-115#loading), then its place in the stage and why the stage
     // does not show it there; an ID that no stage can hold is gone at once.
     if(id&&id.length<=200){

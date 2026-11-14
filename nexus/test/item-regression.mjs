@@ -8,7 +8,8 @@
  * which leads there; #gone with its talk and the search for its ID; a reading that fails or is
  * refused, with the row's ID and text kept; and the revision's line on
  * why the stage does not show the item: a list narrowed past its row, with Show all, a picture
- * that is not current and one not drawn (rule 24); an entry of the talk picked on the DDD board's
+ * that is not current and one not drawn (rule 24), and an address that filters the list, whose
+ * list comes after another row was picked, which opens nothing over that row's item (BUG-627); an entry of the talk picked on the DDD board's
  * context, which comes into sight, outlined, with its panel, and one on an item that left the
  * stage, which selects nothing (SPEC-209). Under 1,024 pixels the Item tab, which comes
  * forward for an item picked in the stage and stays behind the Talk tab for one picked in the
@@ -431,6 +432,26 @@ try{
   return{evidence:'fixture pages and reads',screenshots:[narrowedShot,staleShot,await shot('why-none-1440-ko-dark')]};
  });
 
+ // BUG-627: an address that filters the list, whose list the page holds while the user picks
+ // another row, opens nothing once its list comes: the picked item keeps its panel and its talk,
+ // and takes its place in the list that came, which, narrowed past its row, says so (rule 24).
+ await test('an-older-address-while-the-list-reads-1440-en',async()=>{
+  await setting({width:1440});
+  await open(page('02-prd','en'));
+  const mark=report.reads.length,talkOn=label('Narrowed',0,'en',{id:'REQ-002'});
+  held={pattern:new RegExp('^/api/spaces/'+project+'/stages/'+part+'/02-prd\\?filter=talk&'),requests:[]};
+  await evaluate(`location.hash='#filter=talk&item=REQ-001'`);
+  const stop=Date.now()+5000;while(!held.requests.length&&Date.now()<stop)await sleep(25);
+  assert(held.requests.length===1,'The address asks for the list of the filter With talk once, and the suite holds it');
+  await click('.stage .li[data-nx-item="REQ-002"]');
+  await waitFor(`location.hash==='#item=REQ-002'&&document.querySelector('.side .item .ih .id')?.textContent==='REQ-002'&&!document.querySelector('.side .item .sk')&&(document.querySelector('#itk-h')?.textContent||'').replace(/\\s+/g,' ').trim()===${JSON.stringify(talkOn)}`);
+  await release();await settled();
+  const s=await state();
+  assert(s.hash==='#item=REQ-002'&&s.id==='REQ-002'&&s.itk===talkOn&&s.label===words('Comment on','en',{id:'REQ-002'})&&!report.reads.slice(mark).some(p=>p.startsWith('/api/spaces/'+project+'/items/REQ-001')),'The picked item keeps its panel and its talk, and the older address opens nothing: '+JSON.stringify({hash:s.hash,id:s.id,itk:s.itk,label:s.label,reads:report.reads.slice(mark)}));
+  assert(JSON.stringify(s.rows)==='["REQ-001"]'&&!s.selected&&s.why?.text===label('An item that the talk selects',3,'en')&&JSON.stringify(s.why.acts)==='["item-show-all"]','The list that came, narrowed past the picked row, says so: '+JSON.stringify({rows:s.rows,selected:s.selected,why:s.why}));
+  return{evidence:'fixture page and reads; the list of the filter With talk held by the suite, then released (held)',screenshots:[await shot('older-address-1440-en')]};
+ });
+
  // Under 1,024 pixels: a row brings the Item tab forward, whose controls are 44 pixels; All talk
  // of the stage leads to the Talk tab; Close returns to the tab in front before; an entry of the
  // talk keeps the Talk tab in front, with the Item tab beside it; nothing wider than the page at
@@ -672,7 +693,7 @@ try{
  assert(!report.eventError,'CDP interception error: '+report.eventError);
  assert(!report.blockedExternalOrigins.length,'The page asked another origin: '+report.blockedExternalOrigins.join());
  assert(!report.runtimeExceptions.length,'The page threw: '+JSON.stringify(report.runtimeExceptions));
- const expected=2+1+1+1+1+1+1+2+1+1+2+1+1+1;
+ const expected=2+1+1+1+1+1+1+1+2+1+1+2+1+1+1;
  report.status=report.tests.length===expected&&report.tests.every(t=>t.verdict==='works')?'works':'fails';
 }catch(error){report.status='blocked';report.fatal=String(error);console.error(error);}
 finally{
