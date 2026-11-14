@@ -9,7 +9,8 @@ components.pathItems, leads to a state of one of the page's screens, and each co
 for that response is named with it there, apart from the codes that the README says no screen shows. A code named with
 a response whose examples, built or planned, do not give it is one of the known places that stage 08 recorded on
 2026-11-12. The definitions are read with tests/test_screen_states.py's reader, and each run also breaks a state's row
-and sees the check fail.
+and sees the check fail. Phase ②'s forms, marked x-corthex.phase 2 since TASK-320, are left out until phase ②'s stage 08
+names their responses.
 """
 import collections
 import copy
@@ -77,11 +78,11 @@ def contract_forms(api):
     forms = collections.defaultdict(dict)
     for item in api["paths"].values():
         for method, operation in item.items():
-            if method in METHODS:
+            if method in METHODS and operation["x-corthex"].get("phase") != 2:
                 forms[operation["x-corthex"]["id"]]["built"] = responses(operation)
     for item in api["components"].get("pathItems", {}).values():
         for method, operation in item.items():
-            if method in METHODS:
+            if method in METHODS and operation["x-corthex"].get("phase") != 2:
                 forms[operation["x-corthex"]["id"]]["planned"] = responses(operation)
     return forms
 

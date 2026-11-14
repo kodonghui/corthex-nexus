@@ -3,9 +3,13 @@
 Uses the existing pinned PyYAML environment, never the server/plugin runtime.
 This checks applicability separately from response-schema validity: a valid
 Problem document can still name a field, query value or agent header that the
-operation ignores. A query value is refused only as invalid_request.
+operation ignores. A query value is refused only as invalid_request. A field may
+name a member inside the body, as operations[0].text does, and a refusal may name
+a stored field that x-corthex.stored_fields lists, as API-164 names its draft's
+changes (TASK-320).
 """
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -24,13 +28,26 @@ def check_response_example_applicability(api):
                 value = value[key.replace("~1", "/").replace("~0", "~")]
         return value
 
-    def properties(schema):
+    def reach(schema, segments):
+        """The schemas that a field's segments reach in schema, through every branch of allOf, oneOf and anyOf."""
         schema = resolve(schema)
-        found = dict(schema.get("properties", {}))
+        found = []
         for key in ("allOf", "oneOf", "anyOf"):
             for branch in schema.get(key, []):
-                found.update(properties(branch))
+                found.extend(reach(branch, segments))
+        if not segments:
+            return [schema] + found
+        head, rest = segments[0], segments[1:]
+        if isinstance(head, int):
+            if isinstance(schema.get("items"), dict):
+                found.extend(reach(schema["items"], rest))
+        elif head in schema.get("properties", {}):
+            found.extend(reach(schema["properties"][head], rest))
         return found
+
+    def segments(field):
+        """operations[0].text as ["operations", 0, "text"]."""
+        return [int(index) if index else name for index, name in re.findall(r"\[(\d+)\]|([^.\[\]]+)", field)]
 
     findings = []
     named = 0
@@ -39,7 +56,8 @@ def check_response_example_applicability(api):
             if method not in ("get", "post", "delete", "put", "patch", "head"):
                 continue
             body = resolve(operation["requestBody"]) if "requestBody" in operation else None
-            fields = properties(body["content"]["application/json"]["schema"]) if body else {}
+            body_schema = body["content"]["application/json"]["schema"] if body else None
+            stored = operation.get("x-corthex", {}).get("stored_fields", [])
             queries = {parameter["name"] for parameter in map(resolve, item.get("parameters", []) + operation.get("parameters", []))
                        if parameter.get("in") == "query"}
             security = operation.get("security", api.get("security", []))
@@ -66,11 +84,15 @@ def check_response_example_applicability(api):
                         elif field in queries:
                             if code != "invalid_request":
                                 reason = "a query value is refused only as invalid_request"
-                        elif field not in fields:
-                            reason = "example names no declared request field"
-                        elif code == "text_too_long":
-                            bound = resolve(fields[field]).get("maxLength")
-                            if bound is None or value.get("limit") != bound:
+                        elif field in stored:
+                            if code != "invalid_request":
+                                reason = "a stored field is refused only as invalid_request"
+                        else:
+                            reached = reach(body_schema, segments(field)) if body else []
+                            bounds = {schema.get("maxLength") for schema in reached} - {None}
+                            if not reached:
+                                reason = "example names no declared request field"
+                            elif code == "text_too_long" and value.get("limit") not in bounds:
                                 reason = "example limit differs from the declared field bound"
                         if reason:
                             findings.append({"api": operation["x-corthex"]["id"], "method": method,
@@ -96,6 +118,8 @@ def check_named_examples_fit_schemas(api):
         for method, operation in item.items():
             if method not in ("get", "post", "delete", "put", "patch", "head"):
                 continue
+            if operation.get("x-corthex", {}).get("status") == "planned":
+                continue  # its examples fit the planned view, which contract_planned_check.py holds them to
             for status, response in operation["responses"].items():
                 for media, content in resolve(response).get("content", {}).items():
                     if "json" not in media:

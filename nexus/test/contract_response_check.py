@@ -50,9 +50,11 @@ if run.returncode:
     raise SystemExit("the server's kinds of sign-in could not be read; run kinds-corpus.mjs locally")
 kinds = json.loads(run.stdout.decode("utf8"))
 template = lambda path: re.sub(r"\{\w+\}", "{}", path)
+# The operations that the contract plans, phase ②'s since TASK-320, have no handler until they are built.
 contracted = {operation["operationId"]: (method, path, operation.get("security", api["security"]))
               for path, item in api["paths"].items() for method, operation in item.items()
-              if method in ("get", "post", "delete", "put", "patch")}
+              if method in ("get", "post", "delete", "put", "patch")
+              and operation.get("x-corthex", {}).get("status") != "planned"}
 if set(contracted) != set(kinds):
     raise SystemExit("the server's operations and the contract's differ: " + ", ".join(sorted(set(contracted) ^ set(kinds))))
 for name, (method, path, security) in sorted(contracted.items()):
