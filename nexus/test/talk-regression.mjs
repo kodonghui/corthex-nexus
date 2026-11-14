@@ -485,8 +485,8 @@ try{
   assert(s.item&&s.selected==='REQ-001'&&s.active==='item-h'&&s.overflow===0,'The entry\'s link opens the item\'s panel, its row selected: '+JSON.stringify(seen.entry));
   const itemShot=await shot('look-item-1440-en');
   await evaluate('history.back()');await waitFor(`location.hash===''&&!document.querySelector('.side .item')`);await settled();
-  s=await state();seen.back={hash:s.hash,item:s.item,talk:s.talk};
-  assert(!s.item&&s.talk,'Back closes the item: '+JSON.stringify(seen.back));
+  s=await state();seen.back={hash:s.hash,item:s.item,talk:s.talk,active:s.active};
+  assert(!s.item&&s.talk&&s.active==='item:REQ-001','Back closes the item, the focus on its row (SCR-115\'s actions, BUG-616): '+JSON.stringify(seen.back));
   // In the record, by the keyboard: the record gives way to the item's panel.
   await click('.stage [data-nx-act="record"]');await waitFor(`!!document.querySelector('.side .rec .rq .look a')`);await settled();
   seen.record=await evaluate(`(()=>{const a=document.querySelector('.side .rec .rq .look a');return{href:a.getAttribute('href'),act:a.dataset.nxAct,text:a.textContent};})()`);
@@ -497,6 +497,17 @@ try{
   s=await state();seen.fromRecord={hash:s.hash,record:s.record,open:s.open,item:s.item,active:s.active};
   assert(!s.record&&s.open!=='record'&&s.item&&s.selected==='REQ-001'&&s.active==='item-h','The record gives way to the item\'s panel: '+JSON.stringify(seen.fromRecord));
   await evaluate('history.back()');await waitFor(`location.hash===''&&!document.querySelector('.side .item')`);await settled();
+  s=await state();seen.backFromRecord={hash:s.hash,item:s.item,active:s.active};
+  assert(!s.item&&s.active==='item:REQ-001','Back from the item that the record opened: the focus on its row (BUG-616): '+JSON.stringify(seen.backFromRecord));
+  // On a phone the item came over the Talk tab, which comes back to the front with Back: its
+  // heading takes the focus, as the item's row is not in sight there (BUG-616).
+  await setting({width:390,touch:true});await open(page('02-prd',lang));
+  await click('.tabs .tab[data-nx-tab="talk"]');await waitFor(`!!document.querySelector('li[data-nx-entry="${qa.checkpoint}"] > .look a')?.checkVisibility()`);await settled();
+  await click(`li[data-nx-entry="${qa.checkpoint}"] > .look a`);
+  await waitFor(`location.hash==='#item=REQ-001'&&document.activeElement?.id==='item-h'`);await settled();
+  await evaluate('history.back()');await waitFor(`location.hash===''&&!document.querySelector('.side .item')`);await settled();
+  s=await state();seen.phone={hash:s.hash,item:s.item,active:s.active};
+  assert(!s.item&&s.active==='talk-h','Back on a phone: the focus on the talk\'s heading, not on the page (BUG-616): '+JSON.stringify(seen.phone));
   return{evidence:'fixture page and reads',seen,screenshot:itemShot};
  });
 

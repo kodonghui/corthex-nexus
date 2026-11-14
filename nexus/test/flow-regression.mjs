@@ -236,14 +236,18 @@ async function workspace(stage){
   await back();
   await waitFor(`location.pathname===${JSON.stringify(at('05-erd'))}`,'Back to 05',15000);await arrived();
   const first=await evaluate(`({hash:location.hash,sheet:!!document.querySelector('nav#stages')?.checkVisibility(),h1:document.querySelector('main h1')?.textContent.trim()})`);
-  // On a phone the sheet was the last place before the pick: Back opens it again, and a second
-  // Back closes it.
-  assert(first.h1?.startsWith('05')&&(c.phone?first.hash==='#stages'&&first.sheet:first.hash===''),'Back returns to 05: '+JSON.stringify(first));
+  // On a phone a stage chosen in the sheet takes the sheet's place in the history (BUG-617), so
+  // that Back returns to 05 as it was, without the sheet, as from the list at 1,440 pixels, and a
+  // second Back to 01, where the walk started; until BUG-617, Back opened the sheet again.
+  assert(first.h1?.startsWith('05')&&first.hash===''&&!(c.phone&&first.sheet),'Back returns to 05: '+JSON.stringify(first));
+  let second=null;
   if(c.phone){
    await back();
-   await waitFor(`location.hash===''&&!document.querySelector('nav#stages')?.checkVisibility()`,'a second Back closes the sheet');
+   await waitFor(`location.pathname===${JSON.stringify(at('01-domain'))}`,'a second Back to 01',15000);await arrived();
+   second=await evaluate(`({hash:location.hash,sheet:!!document.querySelector('nav#stages')?.checkVisibility(),h1:document.querySelector('main h1')?.textContent.trim()})`);
+   assert(second.h1?.startsWith('01')&&second.hash===''&&!second.sheet,'A second Back returns to 01, without the sheet: '+JSON.stringify(second));
   }
-  return{seen,back:first};
+  return{seen,back:first,...(second?{second}:{})};
  });
 }
 

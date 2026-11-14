@@ -557,9 +557,44 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     if(again){try{await refresh();}finally{state.reading=false;render(["side"]);}}
   }
 
+  // The phone's sheet of stages (SCR-111, BUG-617): the stage's name in the top bar opens it at
+  // #stages, which the stylesheet follows before the code runs, as a step of the history over the
+  // address that it leaves; the page keeps that address, which hash() reads, and what it shows.
+  // Close, the scrim and Escape (BUG-618) take the step back, so that the address comes back
+  // whole, with the focus on the stage's name; a stage or a part chosen in the sheet takes the
+  // sheet's place in the history, so that the back button comes back to the stage with the rest
+  // of its address, not to the sheet, as from the project's data (BUG-611); the stage or the part
+  // shown closes the sheet. An address that came with #stages has no step of this page to take
+  // back: Close puts the address that the page shows in its place.
+  const sheetOpen=()=>small.matches&&location.hash==="#stages";
+  function closeSheet(){
+    if(!sheetOpen())return false;
+    if(typeof history.state?.nexusSheetOver==="string")history.back();
+    else{const rest=fragment(hash());location.replace("#"+(rest||"stage"));}
+    document.querySelector(".tb .ttl")?.focus({preventScroll:true});
+    return true;
+  }
+  function sheetClick(event){
+    if(!small.matches||event.button||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return false;
+    const link=event.target.closest?.("a[href]");
+    if(!link)return false;
+    if(!sheetOpen()){
+      if(!link.matches(".tb .ttl"))return false;
+      event.preventDefault();
+      const over=location.hash;location.hash="#stages";
+      history.replaceState({nexusSheetOver:over},"",location.href);
+      return true;
+    }
+    if(link.matches(".rail .close,.ws > .scrim,.rail [aria-current=\"page\"]")){event.preventDefault();closeSheet();return true;}
+    if(link.closest(".rail")&&!link.getAttribute("href").startsWith("#")&&!link.target){event.preventDefault();location.replace(link.href);return true;}
+    return false;
+  }
+
   document.addEventListener("click",event=>{
     // The project's data: "Project data" and the mark of a long wait, and the panel's controls.
     if(dataPanel?.click(event))return;
+    // The phone's sheet of stages: the stage's name, the sheet's Close and scrim, and its links.
+    if(sheetClick(event))return;
     // The phone's tabs (SPEC-155): the stage or the talk, without a step of the history.
     const tab=event.target.closest?.(".tab[data-nx-tab]");
     if(tab&&ws&&parts.tabs?.contains(tab)){event.preventDefault();ws.dataset.nxTab=tab.dataset.nxTab;render(["side","tabs"]);return;}
@@ -654,7 +689,8 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
     counter();render(["side"]);
   });
   parts.stage.addEventListener("scroll",nearEnd,true);
-  // Escape closes the project's data, else the record, else folds the talk's opened entry where the focus is in the talk
+  // Escape closes the project's data, else the phone's sheet of stages, which covers the stage and
+  // its item (BUG-618), else the record, else folds the talk's opened entry where the focus is in the talk
   // (SCR-114's actions), else closes the selected item where the focus is not in a field
   // (SCR-115's actions), else folds the talk that Talk ({n}) opened (SCR-111's actions). The
   // search's Escape is its own.
@@ -664,6 +700,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   document.addEventListener("keydown",event=>{
     if(event.key!=="Escape"||event.defaultPrevented)return;
     if(dataPanel?.escape())event.preventDefault();
+    else if(closeSheet())event.preventDefault();
     else if(view.record){event.preventDefault();closeRecord();}
     else if(parts.side.contains(document.activeElement)&&talk?.escape())event.preventDefault();
     else if(view.item&&!typing(event.target)){event.preventDefault();closeItem();}
@@ -683,9 +720,22 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
   // follows an agent's read that the talk shows (SPEC-188, SPEC-189; SCR-111's state changes),
   // and the project's data while it is open (SCR-130).
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){talk?.readAgain();refresh();dataPanel?.visible();}});
-  // The back button and a link's address (rule 9).
+  // The back button and a link's address (rule 9). Back from an item that no entry of the talk
+  // selected (SCR-115's actions, BUG-616): the focus goes to the item's row or the picture, as
+  // Close and Escape put it, not to the talk's heading that the side's drawing gives it, unless
+  // something outside the side holds it; with neither in sight, as behind the phone's Talk tab, to
+  // the talk's heading.
   window.addEventListener("hashchange",()=>applyAddress().catch(()=>{}));
-  window.addEventListener("popstate",()=>applyAddress().catch(()=>{}));
+  window.addEventListener("popstate",()=>{
+    const was=view.item?.id;
+    applyAddress().then(()=>{
+      if(!was||view.item||TALK_KEYS.some(name=>hash().get(name)))return;
+      const active=document.activeElement;
+      if(active&&active!==document.body&&!parts.side.contains(active))return;
+      const usable=element=>Boolean(element&&element.getClientRects().length);
+      [rowOf(was),parts.stage.querySelector(".cv"),parts.side.querySelector("#talk-h")].find(usable)?.focus({preventScroll:true});
+    }).catch(()=>{});
+  });
 
   // The controls that wait for the code (rule 15) work from here on.
   for(const control of document.querySelectorAll('[data-nx-wait="list"],[data-nx-wait="record"],[data-nx-wait="picture"],[data-nx-wait="talk"],[data-nx-wait="folds"],[data-nx-wait="data"]')){control.disabled=false;control.removeAttribute("data-nx-wait");}
@@ -717,7 +767,7 @@ export function startStage(payload,{api=new ApiClient(location.origin),drafts=ne
         const params=hash();params.set("data","");
         const sheet=location.hash==="#stages",next="#"+fragment(params);
         if(sheet)location.replace(next);else location.hash=next;
-        const kept=history.state&&typeof history.state==="object"?history.state:{};
+        const {nexusSheetOver,...kept}=history.state&&typeof history.state==="object"?history.state:{};
         history.replaceState({...kept,nexusData:location.hash,...(sheet?{nexusSheet:true}:{})},"",location.href);
       },
       back(){if(history.state?.nexusData!==location.hash||history.state.nexusSheet)return false;history.back();return true;},

@@ -131,10 +131,12 @@ function confirmation(state,lang){
 // works once the typed name is the project's (SCR-130#removal-ready) and says "Removing…" while
 // the removal runs, when Cancel is off too. Its words are one piece, which a long name wraps
 // inside the button (rule 1). The field turns off capitals, corrections and
-// suggestions, and its markup never changes, so that what the user typed stays.
+// suggestions, and its markup never changes, so that what the user typed stays. Its box is a
+// label, as every field's is, so that a press on its padding, its border or the hit area that
+// page.css widens it to puts the focus in it (rule 14, BUG-614); the label above names it.
 function foot(state,lang){
   const words=labels("The removal's confirmation",lang),removing=Boolean(state.removing),on=Boolean(state.ready)&&!state.reading&&!removing;
-  const field=`<label class="lab" for="dp-name" data-nx-key="lab">${placed(words[10],{project:name(state.project)})}</label><div class="field rmf" data-nx-key="fld"><input id="dp-name" name="confirm" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" maxlength="200" data-nx-focus="data-name"></div>`;
+  const field=`<label class="lab" for="dp-name" data-nx-key="lab">${placed(words[10],{project:name(state.project)})}</label><label class="field rmf" data-nx-key="fld"><input id="dp-name" name="confirm" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" maxlength="200" data-nx-focus="data-name"></label>`;
   const button=`<button class="btn sm danger" type="button" data-nx-key="go" data-nx-act="data-confirm" data-nx-focus="data-confirm"${on?"":' aria-disabled="true"'}>${keepWords(`<span class="bw">${placed(words[0],{project:name(state.project)})}</span>`,removing&&words[13])}${state.ready?"":sr(words[11])}</button>`;
   return`<div class="rmft" data-nx-key="rmft" data-nx-sub>${field}<div class="rnote" data-nx-key="rnote">${dataMessage(state.removeNote,lang,"remove")}</div><div class="rma" data-nx-key="rma" data-nx-sub><button class="btn sm" type="button" data-nx-key="cancel" data-nx-act="data-cancel" data-nx-focus="data-cancel"${removing?' aria-disabled="true"':""}>${esc(words[12])}</button>${button}</div></div>`;
 }

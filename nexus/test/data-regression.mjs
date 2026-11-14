@@ -134,6 +134,8 @@ async function key(name,code,keyCode){for(const type of['keyDown','keyUp'])await
 // typed over it; no request goes while the user types.
 async function type(text){
  await click('#dp-name');
+ // The press itself puts the focus in the field, as select() below would too (BUG-614).
+ assert(await evaluate(`document.activeElement?.id==='dp-name'`),'A press on the field puts the focus in it (BUG-614): '+await evaluate(`document.activeElement?.id||document.activeElement?.tagName`));
  await evaluate(`document.getElementById('dp-name').select()`);
  const before=report.requests.length;
  await command('Input.insertText',{text});
@@ -484,6 +486,23 @@ try{
   const groups=v.panel.confirm.groups;
   assert(JSON.stringify(groups[0].ids)===JSON.stringify([...seeded.comments].sort())&&groups.at(-1).ids.join()===seeded.edit,'TC-1467: the 3 comments and the reflection by ID: '+JSON.stringify(groups));
   const removal=await checked(s,'SCR-130#removal',{},since);const removalShot=await shot(`removal-${s.tag}`);
+  // BUG-615: half a pixel inside each side of the field, Cancel and the removal's button, a press
+  // is the control's own, so that no hit area reaches over a neighbour's box: the field's bottom
+  // edge was Cancel's, and under 1,024 pixels Cancel's bottom edge was the removal's button's.
+  const edges=await evaluate(`(()=>{const out={};for(const [key,e] of [['field',document.getElementById('dp-name')],['cancel',document.querySelector('.dp [data-nx-act=data-cancel]')],['go',document.querySelector('.dp [data-nx-act=data-confirm]')]]){const b=key==='field'?e.closest('.field'):e,r=b.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;out[key]={};for(const [side,px,py] of [['top',x,r.top+0.5],['bottom',x,r.bottom-0.5],['left',r.left+0.5,y],['right',r.right-0.5,y]]){const hit=document.elementFromPoint(px,py);out[key][side]=hit&&(b.contains(hit)||hit.closest('label')?.control===e)?'own':hit?(hit.getAttribute('data-nx-act')||hit.id||hit.className||hit.tagName):'none';}}return out;})()`);
+  assert(Object.values(edges).every(sides=>Object.values(sides).every(hit=>hit==='own')),'BUG-615: half a pixel inside each side, the field and the confirmation\'s buttons take their own presses: '+JSON.stringify(edges));
+  // BUG-614: a press on the field's text, its padding, its border, or the hit area that page.css
+  // widens it to puts the focus in the field, with a finger under 1,024 pixels and the mouse from
+  // 1,024; presses half a second apart, so that no two make a double tap.
+  const box=await evaluate(`(()=>{const r=document.getElementById('dp-name').closest('.field').getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom};})()`);
+  const spots={text:[(box.left+box.right)/2,(box.top+box.bottom)/2],padding:[box.left+3,(box.top+box.bottom)/2],border:[(box.left+box.right)/2,box.bottom-0.5],widened:[(box.left+box.right)/2,box.top-2]},pressed={};
+  for(const [spot,[x,y]] of Object.entries(spots)){
+   if(!await evaluate(`!!document.getElementById('rm-h')`)){pressed[spot]='closed';continue;}
+   await evaluate(`document.getElementById('rm-h').focus()`);await sleep(500);
+   if(s.width<1024){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}else await clickAt(x,y);
+   await paint();pressed[spot]=await evaluate(`document.getElementById('rm-h')?(document.activeElement?.id||document.activeElement?.tagName):'closed'`);
+  }
+  assert(Object.values(pressed).every(id=>id==='dp-name'),'BUG-614: a press on the field\'s box or its hit area puts the focus in it: '+JSON.stringify(pressed));
   // TC-1470 and TC-1776's first two: another letter case, then a letter short, leave it off.
   await type(name.toUpperCase());v=await view();assert(v.panel.confirm.go.off&&v.panel.confirm.field.value===name.toUpperCase(),'Another letter case leaves the button off: '+JSON.stringify(v.panel.confirm.go));
   await type(name.slice(0,-1));v=await view();assert(v.panel.confirm.go.off,'A letter short leaves the button off');
@@ -744,6 +763,33 @@ try{
   await waitFor(`!document.querySelector('.ws[data-nx-data]')`);await idle();v=await view();
   assert(v.hash==='#item=TBL-001'&&!v.panel&&!v.sheet,'The browser\'s back button closes the panel and keeps the rest, without the sheet of stages: '+JSON.stringify({hash:v.hash,sheet:v.sheet}));
   const checks=await checked(s,'The addresses',{},since);
+  // BUG-617 and BUG-618: under 1,024 pixels the stage's name opens the sheet of stages over the
+  // item as a step of the history; Escape and then the sheet's Close take that step back, the
+  // address whole, the item still open and the focus on the stage's name; a stage chosen in the
+  // sheet takes its place in the history, so that the back button comes back to the item.
+  let sheet=null;
+  if(s.width<1024){
+   const at=async()=>(await command('Page.getNavigationHistory')).currentIndex,start=await at(),seen={};
+   const openSheet=async()=>{await click('.tb .ttl');await waitFor(`location.hash==='#stages'&&!!document.querySelector('.rail .pdl')?.checkVisibility()`);await paint();};
+   const closed=async how=>{await waitFor(`location.hash==='#item=TBL-001'`,5000).catch(()=>{});await idle();v=await view();seen[how]={hash:v.hash,sheet:v.sheet,item:v.item,focus:v.focus,step:await at()-start};
+    assert(!v.sheet&&Boolean(v.item)&&v.focus==='ttl only-ph'&&seen[how].step===0,how+' closes the sheet of stages with its step of the history, the item still open (BUG-617, BUG-618): '+JSON.stringify(seen[how]));};
+   await openSheet();seen.opened={hash:await evaluate('location.hash'),item:(await view()).item,step:await at()-start};
+   assert(seen.opened.step===1&&Boolean(seen.opened.item),'The stage\'s name opens the sheet as a step of the history, the item behind it: '+JSON.stringify(seen.opened));
+   await key('Escape','Escape',27);await closed('Escape');
+   await openSheet();await click('.rail .close');await closed('Close');
+   await openSheet();
+   const other=await evaluate(`[...document.querySelectorAll('.rail a.row:not([aria-current])')].find(a=>a.checkVisibility())?.getAttribute('href')`);
+   await click(`.rail a.row[href=${JSON.stringify(other)}]`);
+   await waitFor(`location.pathname===${JSON.stringify(other)}&&document.documentElement?.dataset.nxCode==='ready'`,15000);await idle();
+   seen.chosen={path:other,step:await at()-start};
+   assert(seen.chosen.step===1,'A stage chosen in the sheet takes the sheet\'s place in the history: '+JSON.stringify(seen.chosen));
+   const steps=await command('Page.getNavigationHistory');
+   await command('Page.navigateToHistoryEntry',{entryId:steps.entries[steps.currentIndex-1].id});
+   await waitFor(`location.hash==='#item=TBL-001'&&document.documentElement?.dataset.nxCode==='ready'&&!!document.querySelector('.side #item-h')`,15000);await idle();v=await view();
+   seen.back={path:v.path,hash:v.hash,sheet:v.sheet,item:v.item};
+   assert(seen.back.path.endsWith('/05-erd')&&!v.sheet&&Boolean(v.item),'The back button comes back to the stage with its item, not to the sheet: '+JSON.stringify(seen.back));
+   sheet=seen;
+  }
   // TC-1473: a project that the server does not hold, opened with #data: the server's 404, the
   // message page of SCR-111#error with a link to the first page, and no panel.
   const unknown=`/p/qa-data-unknown-${s.tag}`,before=report.console.length,reply=await data(unknown,{redirect:'manual',headers:{Accept:'text/html'}});
@@ -753,7 +799,7 @@ try{
   const missing=await evaluate(`(()=>({home:[...document.querySelectorAll('a[href="/"]')].filter(a=>a.checkVisibility({visibilityProperty:true})).map(a=>a.textContent.replace(/\\s+/g,' ').trim()),panel:!!document.querySelector('.dp'),hash:location.hash,said:document.body.innerText.includes(${JSON.stringify(lang==='ko'?'이 프로젝트는 서버에 없습니다.':'This project is not on the server.')})}))()`);
   assert(missing.home.length>0&&!missing.panel&&missing.hash==='#data'&&missing.said,'TC-1473: the message page says so and links to the first page, with no panel: '+JSON.stringify(missing));
   const unknownChecks=await checked(s,'TC-1473',{allowed:REFUSED},before);const unknownShot=await shot(`address-unknown-${s.tag}`);
-  return{evidence:'fixture page and reads; the browser\'s back button through CDP\'s history; the server\'s own 404 for a project that it does not hold',checks:{...checks,unknown:unknownChecks},screenshots:[itemShot,unknownShot]};
+  return{evidence:'fixture page and reads; the browser\'s back button through CDP\'s history; the server\'s own 404 for a project that it does not hold',checks:{...checks,unknown:unknownChecks},...(sheet?{sheet}:{}),screenshots:[itemShot,unknownShot]};
  });
 
  assert(!report.eventError,'CDP interception error: '+report.eventError);

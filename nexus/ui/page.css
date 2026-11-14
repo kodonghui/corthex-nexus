@@ -719,12 +719,17 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .rma .btn{flex:none;height:auto;min-height:var(--nx-size-button-small);padding-block:var(--nx-space-sm);white-space:normal}
 .nx .rma .btn.danger{flex:0 1 auto;min-width:0}
 .nx .rma .btn :is(.bw,.keep){min-width:0;overflow-wrap:anywhere;text-align:center}
+/* They grow with their words, so their hit area reaches the target's height from what they draw,
+   and not past it into the field above (BUG-615) */
+.nx .rma .btn::after{inset:min(0px,calc((100% - var(--nx-size-target)) / 2)) calc(var(--nx-space-xs) * -1)}
 @media (min-width:1024px){
  .nx .ws > .rail{grid-row:1;grid-column:1}
  .nx .ws > .stage,.nx .ws > .dpw{grid-row:1;grid-column:2}
 }
-/* Where a finger selects, the panel's buttons and its field take the target's height (rule 14) */
-@media (pointer:coarse){.nx .dp :is(.btn,.ib){min-height:var(--nx-size-target)}.nx .dp .rmf{height:var(--nx-size-target)}.nx .dp .msg .row .lnk{display:inline-flex;align-items:center;min-height:var(--nx-size-target)}}
+/* Where a finger selects, the panel's buttons and its field take the target's height (rule 14),
+   so that a button's hit area is what it draws, and reaches into neither the field above it nor
+   the button below it (BUG-615) */
+@media (pointer:coarse){.nx .dp :is(.btn,.ib){min-height:var(--nx-size-target)}.nx .dp .btn::after{inset:0 calc(var(--nx-space-xs) * -1)}.nx .dp .rmf{height:var(--nx-size-target)}.nx .dp .msg .row .lnk{display:inline-flex;align-items:center;min-height:var(--nx-size-target)}}
 /* The first page after Close on the bar of a removal takes the focus without a ring */
 .nx .home[tabindex="-1"]:focus-visible{outline:0}
 

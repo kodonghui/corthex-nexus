@@ -168,7 +168,7 @@ test("SCR-130#removal: what the removal deletes, by ID up to 20 of each, Export 
 
 test("SCR-130#removal-ready and #stale: the removal works once the name is typed, says Removing… and keeps the field (TC-1727, TC-1728)",()=>{
   for(const lang of["en","ko"]){
-    const words=labels("The removal's confirmation",lang),field=html=>between(html,'<div class="field rmf" data-nx-key="fld">','</div>');
+    const words=labels("The removal's confirmation",lang),field=html=>between(html,'<label class="field rmf" data-nx-key="fld">','</label>');
     const typed=drawData(state({confirm:true,ready:true}),lang),go=button(typed,"data-confirm");
     assert.ok(!off(go)&&!between(typed,'data-nx-act="data-confirm"','</button>').includes('class="sr"'),"the name matches: it works");
     assert.ok(off(button(drawData(state({confirm:true,ready:true,reading:true}),lang),"data-confirm")),"off while the panel reads again, so that the user confirms what it then shows");
