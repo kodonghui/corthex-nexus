@@ -306,8 +306,8 @@
           "date": "2026-11-14"
         }
       ],
-      "next": "Go given on 2026-11-14 with 18 cases passed by name; the hub's tag is on GitHub. Next: main, the switch of the maintainer's server and the tag v0.3.0 by the release's runbook; then the read of production (TC-1786), TC-1760, TC-1763 and TC-1757, and the core skills' release (TASK-306)",
-      "updated": "2026-11-14T14:38:51+00:00"
+      "next": "Released on 2026-11-15: v0.3.0 on 953fbec, switched at 20:01 KST after a premigrate backup with a rollback prepared, and its GitHub release. Next: the maintainer's read of production (TC-1786), TC-1760, the core skills' release (TASK-306, TC-1763), the Google Drive sign-in for the backup's copy (TASK-313, TC-1757) and BUG-621 in 0.3.1",
+      "updated": "2026-11-15T11:06:17+00:00"
     }
   }
 }
