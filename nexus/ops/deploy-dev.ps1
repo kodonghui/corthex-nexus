@@ -11,7 +11,8 @@ if ($LASTEXITCODE -ne 0 -or $revision -notmatch '^[0-9a-f]{40}$') { throw 'Choos
 $temp = Join-Path ([IO.Path]::GetTempPath()) ('nexus-dev-' + [Guid]::NewGuid().ToString('N') + '.tar')
 $remote = '/tmp/nexus-dev-' + $revision + '.tar'
 try {
-  & git -C $repo archive --format=tar "--output=$temp" $revision nexus/src nexus/ui/messages.js nexus/ops nexus/tools/database.js nexus/tools/backup-copy.js nexus/package.json nexus/LICENSE nexus/NOTICE
+  # The server's code imports these two of the page's files (BUG-630); nexus/test/release-files.test.js keeps the list.
+  & git -C $repo archive --format=tar "--output=$temp" $revision nexus/src nexus/ui/messages.js nexus/ui/fields.js nexus/ops nexus/tools/database.js nexus/tools/backup-copy.js nexus/package.json nexus/LICENSE nexus/NOTICE
   if ($LASTEXITCODE -ne 0) { throw 'Git archive failed.' }
   & scp -- $temp "${SshAlias}:$remote"
   if ($LASTEXITCODE -ne 0) { throw 'Runtime upload failed.' }
