@@ -74,7 +74,7 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
       case "releaseEntry": return json(await store.claimEntry(p.project,p.entry,route.session,true));
       case "getHomePage": {
         // The first page (API-155, SCR-110), with the answer of API-151 as it is now.
-        return page(views,{schema:"corthex-home-page/0.3",generated_at:new Date().toISOString(),lang:lang(env),data:await store.readHome()},head);
+        return page(views,{schema:"corthex-home-page/0.3",generated_at:new Date().toISOString(),lang:lang(env),data:await store.readHome()},head,themeOf(request));
       }
       case "getProjectPage": {
         // A project leads to its current stage (API-153, SPEC-146); browsers keep no 302,
@@ -88,7 +88,7 @@ export async function handle(request,env,ctx,template,views={},accessVerifier) {
         const {data,talk,picture,problem:missing}=await store.readStagePage(p.project,p.part,p.stage);
         let problem=null;
         if(missing){problem=problemDocument(request,missing);console.error("nexus",{kind:problem.code,traceId:problem.traceId});}
-        return page(views,{schema:"corthex-stage-page/0.3",generated_at:new Date().toISOString(),lang:lang(env),data,talk,picture,problem},head);
+        return page(views,{schema:"corthex-stage-page/0.3",generated_at:new Date().toISOString(),lang:lang(env),data,talk,picture,problem},head,themeOf(request));
       }
       case "getHubPage": {
         const [bodies,spaces]=await Promise.all([store.bodies(),store.readSpaces()]);
@@ -174,8 +174,14 @@ export async function pagePolicy(template) {
 }
 // The redesign's pages: drawn by the views from their data, or, for a server
 // without the view's build, an empty page that holds the data alone.
-function page(views,payload,head) {
-  const template=typeof views.page==="function"?views.page(payload):`<!doctype html><html lang="${payload.lang}"><head><meta charset="utf-8"><title>NEXUS</title></head><body><script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script></body></html>`;
+// The theme that the user picked in the top bar (../ui/page.js): the dark one only on their word,
+// the light one otherwise, whatever the system prefers (2026-11-17).
+export function themeOf(request) {
+  return /(?:^|;\s*)nx-theme=dark(?:;|$)/.test(request?.headers?.get("Cookie")||"")?"dark":null;
+}
+function page(views,payload,head,theme=null) {
+  let template=typeof views.page==="function"?views.page(payload):`<!doctype html><html lang="${payload.lang}"><head><meta charset="utf-8"><title>NEXUS</title></head><body><script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script></body></html>`;
+  if(theme==="dark")template=template.replace(/^<!doctype html><html /,'$&data-theme="dark" ');
   return html(renderView(template,payload),VIEW_POLICY,head);
 }
 function redirect(location) {return new Response(null,{status:302,headers:{...COMMON_HEADERS,Location:location,"Content-Security-Policy":"default-src 'none'; frame-ancestors 'none'"}});}

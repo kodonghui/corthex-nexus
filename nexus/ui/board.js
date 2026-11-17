@@ -21,6 +21,7 @@ import {esc,count} from "../src/draw/html.js";
 import {words} from "./messages.js";
 import {cameraZoom,zoomCamera,fitCamera} from "./camera.js";
 import {stylesheetReady} from "./styles.js";
+import {themeQuery} from "./theme.js";
 
 // One step of the zoom buttons and keys; how far an arrow key moves the view, and with Shift;
 // how far a pointer moves before it drags rather than selects; and the room that an item in
@@ -105,7 +106,7 @@ export const mapView=bounds=>{const room=Math.max(bounds.width,bounds.height)*.0
 // part is the stage's middle; state() gives the page's data and the view's state; pick(id) opens
 // an item's address; editor(state) tells the page that the editor loads or failed.
 export function createBoard(part,{state,lang,pick,editor:told}){
-  const dark=matchMedia("(prefers-color-scheme: dark)");
+  const dark=themeQuery();
   let cv=null,board=null,world=null,scene=null,version="",cam=null,stage="",editor=null,token=0,frame=0,selected=null,rects=null,lastZoom=1,unseen=null;
   // The view of each drawing, so that the picture keeps it when the list was shown between.
   const views=new Map();

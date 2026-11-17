@@ -11,6 +11,7 @@ import {localizeLoop} from "../src/draw/loop.js";
 import {startHome} from "./home.js";
 import {startStage} from "./stage.js";
 import {markup} from "./reconcile.js";
+import {startTheme} from "./theme.js";
 import "./page.css";
 
 const root=document.documentElement;
@@ -40,6 +41,7 @@ root.dataset.nxCode="running";
 try{
   const payload=JSON.parse(document.getElementById("view-data").textContent),localize=scope=>localTimes(scope,payload.lang);
   root.dataset.nxRedrawn=String(drawPage(payload));
+  startTheme();
   if(pageKind(payload)==="home")startHome(document.querySelector('[data-nx-part="home"]'),payload,{localize});
   else startStage(payload,{localize});
   localize(document.body);

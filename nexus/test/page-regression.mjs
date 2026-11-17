@@ -45,6 +45,8 @@ async function paint(){await evaluate('new Promise(resolve=>requestAnimationFram
 async function setting({width,height=844,theme='light'}){
  await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
  await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme},{name:'prefers-reduced-motion',value:'no-preference'}]});
+ // The pages show the dark theme only on the user's choice, a cookie that the server reads (2026-11-17).
+ await command('Network.setCookie',{name:'nx-theme',value:theme,url:origin});
 }
 // Navigation returns once the page is parsed; its held code may not have run yet.
 async function open(route){const url=origin+route;await command('Page.navigate',{url});await waitFor(`location.href===${JSON.stringify(url)}&&document.readyState!=='loading'&&!!document.getElementById('view-data')`);await paint();}
@@ -142,8 +144,9 @@ try{
    // record (TASK-274), its picture's tools (TASK-275), its talk (TASK-276), the top bar's
    // search (TASK-277) and the workspace head's way to the project's data (TASK-312): those
    // controls lose their wait, and nothing else changes but the picture's layers (READ).
-   const waits=kind==='home'?/ disabled="" data-nx-wait="(?:answer|order|search)"/g:/ disabled="" data-nx-wait="(?:list|record|picture|talk|search|data)"/g;
-   const working=parts=>Object.fromEntries(Object.entries(parts).map(([key,html])=>[key,html.replace(waits,"")]));
+   // The theme's switch (2026-11-17) works too, pressed in the dark theme that the cookie chose.
+   const waits=kind==='home'?/ disabled="" data-nx-wait="(?:answer|order|search|theme)"/g:/ disabled="" data-nx-wait="(?:list|record|picture|talk|search|data|theme)"/g;
+   const working=parts=>Object.fromEntries(Object.entries(parts).map(([key,html])=>[key,html.replace(waits,"").replace('class="ib thm" type="button" aria-pressed="false"',`class="ib thm" type="button" aria-pressed="${theme==='dark'}"`)]));
    assert(JSON.stringify(after.parts)===JSON.stringify(working(before.parts)),'A part differs after the code ran');
    const named=kind==='home'?[/data-nx-wait="(?:answer|order)"/,/data-nx-wait="search"/]:[/data-nx-wait="(?:list|record)"/,/data-nx-wait="picture"/,/data-nx-wait="talk"/,/data-nx-wait="search"/,/data-nx-wait="data"/],where=kind==='home'?['home','top']:['stage','side','top','rail'];
    assert(named.every(wait=>where.some(key=>wait.test(before.parts[key]||''))&&!where.some(key=>wait.test(after.parts[key]||''))),kind==='home'?'The first page\'s answers, order and search did not start to work':'The stage\'s list, record, picture, talk, search and Project data did not start to work');

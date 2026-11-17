@@ -9,7 +9,7 @@ import {renderView} from "../src/app.js";
 import {redesign} from "../ui/messages.js";
 import {checkLabels} from "../tools/messages.mjs";
 import {esc,path,count} from "../src/draw/html.js";
-import {icon,shapeIcon,SPRITE,SYMBOLS} from "../src/draw/icons.js";
+import {icon,shapeIcon,SPRITE,SYMBOLS,MARK} from "../src/draw/icons.js";
 import {labels,label,legendWord,STATES} from "../src/draw/words.js";
 import {STAGE_KEYS,stageName,stageRail} from "../src/draw/stages.js";
 import {topBar,codeBar,tabs} from "../src/draw/frame.js";
@@ -114,9 +114,9 @@ test("the list of stages keeps the six groups, marks the current stage and switc
 test("one top bar: NEXUS, where the user is, the search and Full checks, with the phone's own controls (rule 17)",()=>{
   for(const lang of["en","ko"]){
     const words=labels("Top bar",lang),home=topBar({kind:"home"},lang),stage=topBar({kind:"stage",project:"qa/shop #1",title:TITLE,part:"sample",stage:"05-erd"},lang);
-    assert.ok(home.includes(`<a class="logo" href="/">NEXUS</a>`)&&home.includes(`<b aria-current="page">${esc(words[1])}</b>`));
+    assert.ok(home.includes(`<a class="logo" href="/">${MARK}NEXUS</a>`)&&home.includes(`<b aria-current="page">${esc(words[1])}</b>`));
     assert.ok(home.includes('<details class="menu only-ph">')&&!home.includes("i-back"),"the first page has the menu and no back link");
-    assert.ok(stage.includes(`<a class="ib only-ph" href="/">`)&&stage.includes('<a class="logo only-pc" href="/">NEXUS</a>')&&!stage.includes("menu"));
+    assert.ok(stage.includes(`<a class="ib only-ph" href="/">`)&&stage.includes(`<a class="logo only-pc" href="/">${MARK}NEXUS</a>`)&&!stage.includes("menu"));
     assert.ok(stage.includes(`<a class="lnk clip" href="/p/qa%2Fshop%20%231">${esc(TITLE)}</a>`)&&stage.includes(`<b class="clip" aria-current="page">05 ${esc(stageName("05-erd",lang))}</b>`));
     assert.ok(stage.includes('<a class="ttl only-ph" href="#stages">'),"the phone's title opens the list of stages without code");
     assert.equal(tags(stage,/<svg class="i sep" aria-hidden="true" focusable="false"><use href="#i-next"\/><\/svg>/g).length,2,"the separators are icons (BUG-596)");
@@ -126,6 +126,7 @@ test("one top bar: NEXUS, where the user is, the search and Full checks, with th
       assert.equal(tags(bar,/<input [^>]*disabled data-nx-wait="search">/g).length,1);assert.equal(tags(bar,/<button [^>]*disabled data-nx-wait="search">/g).length,2);
       assert.ok(bar.includes(`placeholder="${esc(labels("Search hint",lang).join(" · "))}"`)&&bar.includes('maxlength="200"'));
       assert.ok(bar.includes(`<a class="btn only-pc" href="/hub">${esc(words[3])}</a>`),"Full checks");
+      assert.ok(bar.includes(`<button class="ib thm" type="button" aria-pressed="false" title="${esc(label("Theme",0,lang))}" disabled data-nx-wait="theme">${icon("i-moon","tm")}${icon("i-sun","ts")}<span class="sr">${esc(label("Theme",0,lang))}</span></button><a class="btn only-pc" href="/hub">`),"the theme's switch, before Full checks, which the code presses (2026-11-17)");
       assert.match(bar,/<div class="fw only-pc"><label class="field"><svg [^>]*><use href="#i-search"\/><\/svg><input [^>]*><\/label><div class="spanel" id="search-panel" hidden>.*?<\/div><\/div>/,"the field in its own place, with the panel of its matches under it, hidden until the code fills it (SCR-116)");
       assert.ok(bar.includes('role="combobox" aria-autocomplete="list" aria-controls="search-list" aria-expanded="false"')&&bar.includes(`<ul class="ms" id="search-list" role="listbox" aria-label="${esc(words[2])}"></ul>`),"the field controls the list of matches");
       assert.ok(bar.includes(`<button class="ib only-ph sclose" type="button" disabled data-nx-wait="search">${icon("i-close")}<span class="sr">${esc(words[5])}</span></button>`)&&bar.endsWith('<div class="sdim" hidden></div>'),"Close for the phone's field, and the page behind the matches");
@@ -212,9 +213,9 @@ test("a page whose code does not run stays readable, with the bar of rule 15, an
   assert.match(css,/\.nx \.field input::-webkit-search-cancel-button\{[^}]*display:none/,"a search field draws no clear button of the browser's, whose hit area falls short of rule 14");
   assert.doesNotMatch(readFileSync(new URL("../ui/page.css",import.meta.url),"utf8"),/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i,"colours come from the frozen tokens");
   // A pictured stage without a picture (05), a document stage (02) and the first page.
-  for(const [payload,waits]of[[stagePage("en"),["data","folds","picture","record","search","talk"]],[stagePage("ko",{stage:"02-prd"}),["data","folds","list","record","search","talk"]],[homePage("ko"),["answer","order","search"]]]){
+  for(const [payload,waits]of[[stagePage("en"),["data","folds","picture","record","search","talk","theme"]],[stagePage("ko",{stage:"02-prd"}),["data","folds","list","record","search","talk","theme"]],[homePage("ko"),["answer","order","search","theme"]]]){
     const html=views.page(payload),controls=tags(html,/<(?:button|input|select|textarea)\b[^>]*>/g);
-    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order|list|record|picture|talk|folds|data)"/,"a control that needs the code waits for it");
+    for(const control of controls)assert.match(control,/ disabled data-nx-wait="(?:search|answer|order|list|record|picture|talk|folds|data|theme)"/,"a control that needs the code waits for it");
     // The talk's turns lead to their groups, each a heading of the page (SCR-114).
     for(const link of tags(html,/<a\b[^>]*>/g))assert.match(link,/href="(?:\/|#stage|#stages|#talk|#t-mine|#t-agent|#item=|#view=list&amp;item=)[^"]*"/,"every link works without the code");
     for(const turn of html.matchAll(/href="#(t-mine|t-agent)"/g))assert.ok(html.includes(`id="${turn[1]}"`),"a turn's link leads to its group");

@@ -1,5 +1,6 @@
 /* Generated from design/nexus/tokens.resolver.json. Edit no token values here. */
 :root {
+  color-scheme: light;
   --nx-font-family-sans: "IBM Plex Sans KR", system-ui, -apple-system, "Segoe UI", "Roboto", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --nx-font-family-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
   --nx-font-size-caption: 0.8rem;
@@ -84,8 +85,8 @@
   --nx-color-picture-ground: #ffffff;
   --nx-shadow-sheet: 0px -4px 16px 0px rgb(29 27 23 / 0.18);
 }
-@media (prefers-color-scheme: dark) {
-:root {
+:root[data-theme="dark"] {
+  color-scheme: dark;
   --nx-color-bg: #161512;
   --nx-color-surface: #1e1d19;
   --nx-color-sunken: #292720;
@@ -119,5 +120,4 @@
   --nx-color-scrim: rgb(0 0 0 / 0.55);
   --nx-color-picture-ground: #121212;
   --nx-shadow-sheet: 0px -4px 16px 0px rgb(0 0 0 / 0.6);
-}
 }

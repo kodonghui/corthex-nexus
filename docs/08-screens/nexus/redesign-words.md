@@ -7,6 +7,7 @@ The words that the redesign's definitions, SCR-110 to SCR-117, need, drafted on 
 | Words | Where | English | Korean |
 | --- | --- | --- | --- |
 | Top bar | SCR-110 to SCR-116 (rule 17) | NEXUS · All projects · Search · Full checks · Menu · Close | NEXUS · 모든 프로젝트 · 찾기 · 전체 점검 · 메뉴 · 닫기 |
+| Theme | SCR-110 to SCR-116, the top bar's switch between the light theme, the default, and the dark one (2026-11-17) | Dark mode | 다크 모드 |
 | Search hint | SCR-116 | Find by ID or words · e.g. REQ-107 | ID나 낱말로 찾기 · 예: REQ-107 |
 | My turn | SCR-110 | My turn ({n}) · What the agent asked or proposed and waits for your answer | 내 차례 ({n}) · AI가 묻거나 제안해서 내 답을 기다리는 것 |
 | An entry's kind | SCR-110, SCR-114 | Proposal · Question · Recommendation · Checkpoint | 제안 · 질문 · 추천 · 확인 지점 |
