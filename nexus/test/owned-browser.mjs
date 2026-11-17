@@ -38,11 +38,16 @@ export async function createBrowserRun(artifactBase, prefix = "run-") {
   async function endpoint(ms = 30000) {
     for (const end = Date.now() + ms; ;) {
       try {
-        return (await fs.readFile(path.join(profile, "DevToolsActivePort"), "utf8")).trim().split("\n");
-      } catch {
-        if (spawnError || (child && !running()) || Date.now() >= end) break;
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
+        const address = (await fs.readFile(path.join(profile, "DevToolsActivePort"), "utf8")).trim().split(/\r?\n/);
+        // Chrome creates this file before both lines are necessarily readable. Only a complete
+        // valid endpoint may reach WebSocket; retry partial writes just like a missing file.
+        if (/^[0-9]{1,5}$/.test(address[0] || "") && Number(address[0]) > 0 &&
+            Number(address[0]) <= 65535 && /^\/devtools\/browser\/[A-Za-z0-9-]+$/.test(address[1] || "")) {
+          return address.slice(0, 2);
+        }
+      } catch {}
+      if (spawnError || (child && !running()) || Date.now() >= end) break;
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
     const state = spawnError ? "it could not start: " + spawnError.message
       : running() ? `it still runs after ${ms / 1000} seconds` : `it ended with ${child?.exitCode ?? child?.signalCode}`;
