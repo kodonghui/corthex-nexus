@@ -27,3 +27,7 @@ Stage sources are configured for the new part as each stage starts. Existing fil
 Production remains unchanged by this planning cycle until the new product passes QA and is deployed. Snapshot republication alone is insufficient for server-only comments, replies and checkpoints: preserve those through a compatible migration/recovery path. Do not remove real project data or pass checkpoints through browser automation. First uploads need the maintainer's separate consent; CI never supplies it.
 
 Current state: stage 01's [timeline checkpoint and recommendation answers](../01-domain/rebuild.md) passed in NEXUS and are recorded in `.corthex/stages/rebuild.json`. The maintainer explicitly requested preparation of stage 02 next; this specific sequencing instruction supersedes the earlier default wait before preparing that stage. Context boundaries, CTX/TERM IDs, context tables and the map remain missing inputs, so stage 01 stays `in_progress`. Every later stage is `not_started` until its own work starts. Existing stage records remain in `.corthex/stages/nexus.json`. No runtime, token or legacy design is selected by this record.
+
+## Stage 02 scope draft
+
+The new [PRD](../02-prd/rebuild.md) contains REQ-301 through REQ-350. It proposes scope, public delivery and content-version thresholds; no PRD checkpoint has passed. Missing CTX/TERM inputs remain explicit. Publish and request scope freeze first, then resolve inputs and request version freeze before stage 03.
