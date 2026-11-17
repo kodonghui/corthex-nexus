@@ -8460,7 +8460,7 @@
       "get": {
         "operationId": "getIsolatedPreview",
         "summary": "getIsolatedPreview",
-        "description": "Owner-authorized fetch returns self-contained HTML. Render in srcdoc sandbox=allow-scripts with an opaque origin; no allow-same-origin, forms, popups, top navigation, network, storage, credentials or trusted parent messages. Apply returned CSP and constrain content size; unsupported external assets remain blocked.",
+        "description": "Owner-authorized fetch returns self-contained HTML. Render in srcdoc sandbox=allow-scripts with an opaque origin; no allow-same-origin, forms, popups, top navigation, network, storage, credentials or trusted parent messages. Apply returned CSP and constrain content size; unsupported external assets remain blocked. The trusted parent HTML response must enforce frame-src none and embed only srcdoc, so child self-navigation cannot make network requests. Prepend the trusted child CSP and retain opaque sandbox allow-scripts, with no other allowances. The csp field is a fixed host policy, never artifact-supplied.",
         "x-corthex": {
           "id": "API-231",
           "spec": [
@@ -8529,7 +8529,7 @@
                       "content_version": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
                       "html": "<!doctype html><html lang=\"en\"><title>Sample preview</title><body>Sample</body></html>",
                       "sandbox": "allow-scripts",
-                      "csp": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'"
+                      "csp": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'"
                     }
                   }
                 }
@@ -12037,9 +12037,7 @@
             "const": "allow-scripts"
           },
           "csp": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 1000
+            "const": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'"
           }
         },
         "required": [
@@ -12391,6 +12389,14 @@
           "status": 405,
           "message": "This HTTP method is not allowed for the requested route."
         }
+      },
+      "html_preview": {
+        "embedding": "srcdoc",
+        "parent_response_csp": "frame-src 'none'",
+        "child_csp": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'",
+        "sandbox": "allow-scripts",
+        "policy_source": "trusted host, never artifact HTML",
+        "navigation_failure": "Keep the parent workspace; offer reload or source when the child is blocked."
       }
     },
     "responses": {
