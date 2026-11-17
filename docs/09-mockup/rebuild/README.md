@@ -55,3 +55,5 @@ Diagram and keyboard list expose matching items for each of the thirteen stages.
 When prerequisites are blocked, disable passage with a stated reason and refuse it again in the action guard. This remains synthetic verification and grants no real human-checkpoint authority.
 
 Historical item discussions and decision evidence display their selected sample version. The empty state of `SCR-135` retains and focuses the question composer, and the first send invents no unrelated prior messages. Every empty screen preserves its applicable first action; issued credential role and revocation remain in project-scoped memory.
+
+Changing the project or repository clears first-publication consent; submission also compares the acknowledged binding. Project restoration uses its saved checkpoint and credential status. Entering an empty discussion never recreates synthetic prior messages; entered data remains scoped to its original thread.
