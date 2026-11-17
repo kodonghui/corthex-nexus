@@ -1,5 +1,5 @@
 ---
-synced_at: 2026-11-17T07:33:49.678Z
+synced_at: 2026-11-17T07:57:32.339Z
 ---
 
 # NEXUS rebuild: domain discovery
@@ -50,9 +50,9 @@ Provisional vocabulary: project, stage, artifact, snapshot, item discussion, che
 
 1. Coverage: use the maintainer's independent checklist of thirteen stages, item-level AI discussion, user-only checkpoints, multiple projects and existing-data preservation. Recommended A: start from the five lanes and decide direct editing, team collaboration and external-tool integration in stage 02. Alternative B: add one of them as a required lane now. The checklist is not a market survey.
 2. Changed artifacts after approval: recommended A preserves the previous approval as history and requests a new checkpoint for a new content version. Alternative B carries the previous approval forward. The two `[guess]` events depend on this answer. The change threshold remains a stage-02 question.
-3. Public scope: recommended A designs a product in which each user manages their own projects, leaving account and hosting options for stage 02. Alternative B prioritizes source publication of a maintainer-only deployment. The current brief supports the public product; no hosted signup, subscription or multitenant architecture is assumed approved.
+3. Public scope is settled by the maintainer's brief: build a general-purpose public product in which each user can manage their own projects. Do not request approval of that direction again. Account, hosting and signup options remain stage-02 work; no subscription or multitenant architecture is assumed approved.
 
-These are open questions with recommendations. No recommendation is a decision or a checkpoint pass. The checkpoint request asks only for the timeline; answers to the open choices should be recorded separately.
+The first two items are open questions with recommendations; the third records the existing brief. No recommendation is a decision or a checkpoint pass. The checkpoint request asks only for the timeline; answers to the open choices should be recorded separately.
 
 ## 6. Reference decisions and supersession
 
