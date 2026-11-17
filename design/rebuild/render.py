@@ -21,7 +21,8 @@ def token_css(value, prefix=''):
         elif kind in ('dimension', 'duration'):
             item = str(item['value']) + item['unit']
         elif kind == 'fontFamily':
-            item = ','.join(json.dumps(x) for x in item)
+            generics = {'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'system-ui', 'ui-serif', 'ui-sans-serif', 'ui-monospace', 'ui-rounded', 'math', 'fangsong'}
+            item = ','.join(x if x in generics else json.dumps(x) for x in item)
         elif kind == 'cubicBezier':
             item = 'cubic-bezier(' + ','.join(str(x) for x in item) + ')'
         result.append('--' + name + ':' + str(item) + ';')

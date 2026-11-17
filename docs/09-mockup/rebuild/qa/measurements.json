@@ -1,10 +1,10 @@
 {
   "scope": "Synthetic static HTML only; not stage-12 product QA",
-  "htmlSha256": "1b3f28f9534702c88c3b39e164a91ca66ed1d5351ee14bb65d528c70d39f6696",
+  "htmlSha256": "7d8bdcb217022ec84ce255a827731850ef18aeca175269fbb31e3dad0ec03cf1",
   "browser": "156.0.8078.79",
   "renders": 816,
   "errors": 0,
-  "warnings": 188,
+  "warnings": 174,
   "pageErrors": [],
   "externalNetworkRequests": 0,
   "syntheticAssertions": [
@@ -16,6 +16,21 @@
     "stage switch",
     "project change resets stage",
     "project restores stage",
+    "generic font families remain CSS keywords",
+    "keyboard list matches selected stage 1",
+    "keyboard list matches selected stage 2",
+    "keyboard list matches selected stage 3",
+    "keyboard list matches selected stage 4",
+    "keyboard list matches selected stage 5",
+    "keyboard list matches selected stage 6",
+    "keyboard list matches selected stage 7",
+    "keyboard list matches selected stage 8",
+    "keyboard list matches selected stage 9",
+    "keyboard list matches selected stage 10",
+    "keyboard list matches selected stage 11",
+    "keyboard list matches selected stage 12",
+    "keyboard list matches selected stage 13",
+    "keyboard item selection retains item focus",
     "item selection opens matching detail",
     "discussion retains selected item",
     "question durable demo state",
@@ -26,14 +41,26 @@
     "another item never receives the previous item messages or decisions",
     "returning to the original item restores its own thread",
     "proposal acceptance does not mean reflection",
+    "unmet prerequisites disable checkpoint passage",
+    "blocked action guard never creates a decision",
     "pass requires explicit confirmation",
     "synthetic checkpoint pass",
+    "checkpoint pass survives navigation",
     "synthetic withdrawal",
+    "checkpoint withdrawal and history survive navigation",
+    "historical decision link selects its exact row version",
+    "history labels retain their own versions",
     "historical artifact retains chosen version",
+    "theme preserves the original review note",
     "old-version pass refused as stale",
+    "stale refusal preserves the original review draft",
+    "stale recovery returns to current version and recorded state",
+    "recovered decision still requires separate confirmation",
     "one-time sample credential state",
     "credential cannot be redisplayed",
     "revoke state",
+    "theme preserves connection form values",
+    "candidate preserves connection form values",
     "repository validation",
     "consented sample connection",
     "green CI does not imply delivery",
@@ -637,7 +664,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -679,7 +706,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -707,7 +734,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -721,7 +748,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -735,7 +762,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -749,7 +776,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -5733,7 +5760,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -5775,7 +5802,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -5803,7 +5830,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -5817,7 +5844,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -5831,7 +5858,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -5845,7 +5872,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -10325,7 +10352,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -10941,7 +10968,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 1,
+        "warn": 0,
         "info": 2
       },
       "truncated": false
@@ -11480,7 +11507,7 @@
     }
   ],
   "warningKinds": {
-    "orphan": 184,
+    "orphan": 170,
     "contrast-image": 4
   },
   "notMeasured": [
