@@ -1,0 +1,85 @@
+{
+  "format": 1,
+  "project": "corthex-nexus",
+  "part": "rebuild",
+  "stages": {
+    "01-domain": {
+      "state": "in_progress",
+      "checkpoints": [],
+      "next": "Await the maintainer’s NEXUS pass of rebuild checkpoint 1 (Step 1-b); then draft Steps 2–7. Stages 02–13 have not started.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "02-prd": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "03-user-flow": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "04-functional-spec": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "05-erd": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "06-api": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "07-sitemap": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "08-screen-states": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "09-mockup": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "10-wbs": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "11-development": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "12-qa": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    },
+    "13-presentation": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
+      "updated": "2026-11-17T16:36:22+09:00"
+    }
+  }
+}

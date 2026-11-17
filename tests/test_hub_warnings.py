@@ -123,6 +123,10 @@ class HubWarningsTest(unittest.TestCase):
         self.assertGreater(self.snapshot["summary"]["items"], 0, "the hub read the stage sources")
 
     def test_the_warnings_are_those_of_the_list(self):
+        pending = [check for check in self.snapshot["checks"] if check["rule"] == "picture-partial"]
+        self.assertEqual([(check.get("part"), check.get("stage"), check["message"]) for check in pending],
+                         [("rebuild", "01-domain", "docs/01-domain/rebuild.md:1: document has no context heading")],
+                         "only the unapproved timeline draft lacks contexts; legacy pictures stay complete")
         _, held = known()
         standing = warnings(self.snapshot)
         new = ["%s %s" % key for key in sorted(standing, key=lambda key: (key[0], order(key[1]))) if key not in held]

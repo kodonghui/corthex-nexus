@@ -194,6 +194,7 @@ class SitemapCrosscheckTest(GitSourcesFixture):
         self.write(self.repo / ".corthex/project.json", settings)
         self.register(name=settings["name"])
         (self.repo / ".corthex/stages.json").unlink()  # Only the owned fixture's seed.
+        (self.repo / "docs/01-domain/domain.md").unlink()  # Not a product source.
         self.write(self.repo / ".corthex/stages/nexus.json", {"format": 1, "project": settings["name"], "part": "nexus", "stages": {}})
         for relative in ("docs/01-domain/nexus.md", "docs/07-sitemap/nexus.yaml"):
             destination = self.repo / relative
