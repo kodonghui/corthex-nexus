@@ -2,6 +2,7 @@
 import copy
 import json
 import shutil
+import subprocess
 import sys
 
 from test_nexus import ROOT, _hub_tests_path
@@ -46,6 +47,23 @@ class PictureRegistrationTest(GitSourcesFixture):
         self.assertEqual(rebuild[0]['stage'], '01-domain')
         self.assertTrue(rebuild[0]['source']['contexts'])
         self.assertTrue(all(c['id'] in {'CTX-032', 'CTX-033', 'CTX-034', 'CTX-035', 'CTX-036'} for c in rebuild[0]['source']['contexts']))
+        # Exercise the live server comparison against the real registered
+        # sources, so glossary edits alone cannot hide an inconsistent
+        # aggregate inventory or a table assigned to another context.
+        script = """
+          import {pairPictures} from './nexus/src/crosscheck.js';
+          let input='';for await (const chunk of process.stdin) input+=chunk;
+          const pictures=JSON.parse(input),board=pictures.find(p=>p.stage==='01-domain').source;
+          const findings=pictures.filter(p=>['05-erd','07-sitemap'].includes(p.stage)).flatMap(({stage})=>pairPictures(
+            'rebuild',board,pictures.find(p=>p.stage===stage).source,
+            stage==='05-erd'?'aggregate-table':'read-model-screen'));
+          process.stdout.write(JSON.stringify(findings));
+        """
+        compared = subprocess.run(['node', '--input-type=module', '-e', script],
+                                  input=json.dumps(rebuild), text=True, capture_output=True,
+                                  cwd=ROOT, timeout=30)
+        self.assertEqual(compared.returncode, 0, compared.stderr)
+        self.assertEqual(json.loads(compared.stdout), [], 'new source pictures must agree across stages')
         for stage, value in snapshot['stages'].items():
             record = value['parts']['rebuild']
             self.assertEqual(record['state'], 'in_progress' if stage in ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api') else 'not_started')

@@ -2,29 +2,29 @@
 
 [English](rebuild.md)
 
-상태: 2026-11-18 설계 기준 버전 1.0입니다. 사용자님이 현재 추천안과 설계 완료까지의 진행을 승인하셨습니다. [승인 기록](../decisions/rebuild-authorization.md)에 따라 50개 요구사항을 설계 입력으로 확정합니다. 버전에 연결된 NEXUS 통과는 별개이며 AI가 만들지 않았습니다.
+상태: 2026-11-18의 설계 기준 버전 1.0입니다. 사용자님은 현재 추천안을 승인하고 설계 완료까지 계속 진행하라고 지시하셨습니다. [승인 기록](../decisions/rebuild-authorization.md)에 따라 요구사항 50개를 설계 입력으로 확정합니다. 버전에 연결된 NEXUS 통과는 별개이며 AI가 통과 기록을 만들지 않았습니다.
 
-## 1. Product and evidence
+## 1. 제품과 근거
 
-NEXUS는 한 사람이 여러 프로젝트를 진행하면서 각 프로젝트의 13단계 산출물을 그림으로 보고, 항목에 대해 AI와 대화하고, 직접 체크포인트를 통과시키는 공개 범용 도구입니다. 승인된 다섯 이벤트 흐름은 프로젝트 연결, 단계 검토, 항목 대화, 버전 재검토, 마이그레이션과 배포입니다. 제품 목표를 정한 것이며 기존 구현 재사용을 결정한 것은 아닙니다.
+NEXUS는 한 사람이 여러 프로젝트를 진행하고, 프로젝트별 13단계 산출물을 시각적으로 검토하며, 개별 항목에 대해 AI와 대화하고 직접 체크포인트를 통과시키는 공개 범용 제품입니다. 승인한 이벤트 흐름은 프로젝트 연결·단계 검토·항목 대화·버전 재검토·이전과 배포의 다섯 개입니다. 제품 목표이며 기존 구현을 재사용한다는 결정은 아닙니다.
 
-출처: B1은 2026-11-17 사용자님의 재설계 지시입니다. C1은 [01단계](../01-domain/rebuild.ko.md)의 타임라인 통과와 두 추천안 승인입니다. F1은 같은 날의 후속 지시(PRD 진행, 검토 전 병합·push, CI 수정·설정 자동화)입니다. P1은 이 PRD에서 새로 제안하며 범위 검토가 필요한 내용입니다. 출처는 근거를 나타내며, 파생 요구사항 전체의 승인을 의미하지 않습니다.
+출처: B1은 사용자님의 2026-11-17 재설계 지시, C1은 [01단계](../01-domain/rebuild.md)의 타임라인 통과와 추천안 승인 두 개, F1은 같은 날짜의 후속 지시(PRD 진행, 검토 전 병합·push, CI 수정과 설정 자동화)입니다. P1은 이번 PRD에서 제시했고 현재 추천안 승인과 설계 위임에 따라 선택한 안입니다. 출처 표시는 근거를 구분하며 파생 요구사항의 모든 내용을 개별 검토했다는 뜻은 아닙니다.
 
-01에서 새 컨텍스트 다섯 개·명령·애그리게이트 규칙·컨텍스트 맵·용어를 작성했습니다. 아래 행은 새 컨텍스트에 연결됩니다. 첫 버전은 하나의 서비스 안에 논리 모듈을 둡니다. 과거 경계를 승인 근거로 물려받지 않습니다. 프로젝트·스냅샷·항목·대화·체크포인트·콘텐츠 버전은 새 용어 표를 따릅니다.
+01에서 새 컨텍스트 다섯 개·명령·애그리게이트 규칙·컨텍스트 맵·용어를 작성했습니다. 아래 행을 새 컨텍스트에 연결합니다. 첫 버전은 하나로 배포하는 서비스 안에 논리 모듈을 둡니다. 과거 경계를 승인 근거로 물려받지 않습니다. 프로젝트·스냅샷·항목·대화·체크포인트·콘텐츠 버전은 새 용어 표를 따릅니다.
 
-Legacy sources, code, and PRs [50](https://github.com/kodonghui/corthex-nexus/pull/50), [53](https://github.com/kodonghui/corthex-nexus/pull/53), [56](https://github.com/kodonghui/corthex-nexus/pull/56) are reference evidence only. The new batch starts at REQ-301, after the existing maximum REQ-295; unused numbers are not reused definitions. Part `rebuild` records this cycle. Legacy `nexus` approvals are preserved and do not approve these rows.
+기존 소스·코드와 PR [50](https://github.com/kodonghui/corthex-nexus/pull/50)·[53](https://github.com/kodonghui/corthex-nexus/pull/53)·[56](https://github.com/kodonghui/corthex-nexus/pull/56)은 참고 자료입니다. 새 요구사항은 기존 최대 REQ-295 이후인 REQ-301부터 시작하며 사용하지 않은 번호를 재사용하지 않습니다. 이번 주기는 `rebuild` 부분에 기록합니다. 기존 `nexus` 승인 이력은 보존하며 새 행의 승인으로 간주하지 않습니다.
 
-## 2. Release scope
+## 2. 출시 범위
 
-첫 릴리스 범위는 다섯 흐름, 13단계 검토 화면, 소스와 연결된 대화, 버전에 연결된 사용자 전용 체크포인트, 안전한 동기화, 계정·프로젝트 격리, 라이트·다크 테마, 검증된 마이그레이션·복구입니다. 개인 계정이 있는 공개 서비스를 제공 방식으로 추천하며, 인증 제공자·요금제·서버 아키텍처를 확정한 것은 아닙니다.
+첫 버전은 다섯 흐름·13단계 검토 화면·소스와 연결된 대화·사용자만 결정하는 버전별 체크포인트·안전한 동기화·계정과 프로젝트 격리·라이트와 다크·검증한 이전과 복구를 포함합니다. 개인 계정과 비공개 프로젝트를 제공하는 공개 호스팅 서비스를 선택했습니다. 사용자 인증은 설정 가능한 OIDC 어댑터와 소유자별 서버 세션을 사용하며, 하나로 배포하는 서비스와 SQLite로 시작합니다. 결제 기능이나 유료 요금제를 도입하지 않습니다.
 
-단계 화면의 대상은 도메인 이벤트·컨텍스트 맵, PRD 항목, 유저 플로우 다이어그램, 기능 명세 항목, ERD, OpenAPI 검토, 사이트맵, 모든 화면 상태, 커밋된 대화형 HTML 목업, WBS, 개발·PR 근거, 브라우저 QA 근거, 발표 자료입니다. 지원하지 않거나 없는 표현은 빈 성공 표시 대신 명시적인 상태로 보여야 합니다. 도메인 보드와 다이어그램 작성 도구는 해당 단계에서 정합니다.
+단계 화면은 도메인 이벤트·컨텍스트 맵, PRD 행, 유저 플로우 다이어그램, 기능 명세 행, ERD, OpenAPI 검토, 사이트맵, 모든 화면 상태, 커밋한 HTML 목업, WBS, 개발·PR 증거, 브라우저 QA 증거, 발표를 포함합니다. 미지원 표현과 누락 산출물을 빈 성공 표시로 처리하지 않고 명시적인 상태로 안내합니다. 도메인 보드·다이어그램 작성 도구는 해당 단계에서 정합니다.
 
-NEXUS 안에서 산출물을 직접 편집하는 기능, 팀·공유 프로젝트 권한, 추가 외부 도구 연결은 이후 릴리스로 미루는 안을 제안합니다. 첫 릴리스에도 한 사람의 프로젝트에서 여러 AI 세션을 쓰는 기능, 버전 관리된 소스 변경, 기존 hub, 필수 단계 도구의 소스 링크는 포함합니다. 다섯 흐름의 승인은 이 세 가지 범위 선택까지 확정한 것이 아닙니다.
+NEXUS 안에서의 직접 산출물 편집·팀과 공유 프로젝트 권한·추가 외부 도구 연동은 후속 버전으로 정했습니다. 첫 버전에서도 개인 프로젝트의 여러 AI 세션, Git 소스 변경, 기존 hub, 필수 단계 도구의 소스 링크를 지원합니다. 현재의 명시적인 추천안 승인으로 이 세 범위 결정을 확정했습니다.
 
-## 3. Requirements
+## 3. 요구사항
 
-All rows are `active` for the design baseline. Must is required for the first release; Should is a measured target with any shortfall adjudicated before release. Priority does not automatically pass a checkpoint. Each row contains one EARS response and an explicit context.
+모든 행은 설계 기준의 `active` 상태입니다. Must는 첫 버전 필수이며 Should는 출시 전 미달 여부를 결정할 측정 목표입니다. 우선순위는 체크포인트를 자동 통과시키지 않습니다. 각 행은 EARS 응답 하나와 명시적인 컨텍스트를 포함합니다.
 
 | ID | Requirement | Type | Priority | Context | Source | Status |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -79,41 +79,41 @@ All rows are `active` for the design baseline. Must is required for the first re
 | REQ-349 | 소스 산출물에 실행 코드나 지시문 형태의 신뢰할 수 없는 콘텐츠가 포함되면 시스템은 영향 범위를 승인된 산출물 표시 경계로 제한해야 합니다. | non-functional | Must | CTX-033 | P1 | active |
 | REQ-350 | CORTHEX 설치 이력이 없는 사용자가 시작하면 시스템은 예시 프로젝트를 게시하고 검토하는 문서화된 절차를 제공해야 합니다. | functional | Must | CTX-032 | P1 | active |
 
-## 4. Acceptance boundaries and measurement
+## 4. 인수 범위와 측정
 
-REQ-305 includes domain, flow, ERD and sitemap diagrams. REQ-306 covers PRD/spec/WBS lists, an OpenAPI view, screen-state review, QA evidence and presentation review. REQ-307 requires repository HTML for both themes; candidate selection and every-state coverage belong to stage 09. A browser preview must follow the content-isolation boundary of REQ-349; serving arbitrary active HTML with account/session authority is not approved.
+REQ-305는 도메인·플로우·ERD·사이트맵 다이어그램을 포함합니다. REQ-306은 PRD·명세·WBS 목록, OpenAPI 화면, 화면 상태 검토, QA 증거, 발표 검토를 포함합니다. REQ-307은 두 테마의 HTML을 레포에 요구합니다. 후보 선택과 모든 상태 구현은 09단계에서 수행합니다. 브라우저 미리보기는 REQ-349의 콘텐츠 격리 경계를 따라야 하며, 임의의 실행 가능한 HTML에 계정·세션 권한을 부여하지 않습니다.
 
-REQ-308 shows source repository/path/commit and the artifact's content version. REQ-309's address remains meaningful after later uploads, including a clear removed-item state. REQ-311 preserves comments on removed or revised items. REQ-314 distinguishes a proposal, verified PR merge and actual NEXUS reflection. REQ-320 permits parallel preparation explicitly authorized by the user, while keeping dependent stage completion gated; it never grants an agent the checkpoint action.
+REQ-308은 소스 레포·경로·커밋과 산출물 콘텐츠 버전을 표시합니다. REQ-309 주소는 후속 업로드 뒤에도 의미를 유지하고 제거된 항목을 명확히 표시합니다. REQ-311은 제거·수정된 항목의 코멘트를 보존합니다. REQ-314는 제안·검증한 PR 병합·실제 NEXUS 반영을 구분합니다. REQ-320은 사용자가 명시적으로 허용한 병렬 준비를 허용하되 종속 단계 완료에는 체크포인트를 적용합니다. 에이전트에게 통과 권한을 주지 않습니다.
 
-The selected REQ-324 threshold excludes theme preference, read receipts and visual layout from artifact content; reviewable text, semantic relationships, schema, attachments and mockup changes create a new content version under REQ-322. Compute SHA-256 over canonical normalized source content, ordered artifact manifest and parser/render-contract version; exclude only the enumerated display metadata. Unknown changes invalidate conservatively. Stage 06 fixes the canonical envelope and examples. Checkpoint history identifies version, user decision and time; migration must not reinterpret it as current-version approval.
+선택한 REQ-324 기준은 테마·읽음 표시·화면 배치를 산출물 콘텐츠에서 제외합니다. 검토할 텍스트·의미 있는 관계·스키마·첨부 파일·목업 변경은 REQ-322에 따라 새 콘텐츠 버전을 만듭니다. 정규화한 소스·정렬한 산출물 목록·파서와 렌더링 계약 버전의 SHA-256을 계산하며 열거한 표시 메타데이터만 제외합니다. 분류가 불명확하면 보수적으로 새 버전으로 처리합니다. 06에서 정규화 형식과 예시를 확정합니다. 체크포인트 이력은 버전·사용자 결정·시간을 식별하며, 이전 과정에서 이를 현재 버전의 승인으로 해석하지 않습니다.
 
-REQ-330 is checked with synthetic credentials against stdout/stderr, subprocess argv, local files and CI logs. GitHub Actions' encrypted secret store is the intended destination of CI setup, not a local plaintext copy. Actual configuration needs installed/authenticated gh; unavailable gh skips with one line. Workflow creation uses a PR and cannot pass a human checkpoint. The current harness task implements this integration independently of approval of the rebuilt product.
+REQ-330은 합성 자격 증명을 사용해 stdout·stderr·하위 프로세스 argv·로컬 파일·CI 로그를 검사합니다. CI 설정의 목적지는 GitHub Actions 암호화 시크릿 저장소이며 로컬 평문 사본이 아닙니다. 실제 설정에는 설치·로그인된 gh가 필요하며 사용할 수 없으면 한 줄로 건너뛰기를 알립니다. 워크플로는 PR로 추가하고 사용자 체크포인트를 통과시키지 않습니다. 현재 하네스 작업은 새 제품 승인과 별개로 이 연동을 구현합니다.
 
-REQ-336 is measured at widths 320, 768 and 1440 in both themes, checking text, focus and controls; diagrams may pan/zoom within their own view. REQ-338 uses automated checks plus keyboard, focus, contrast and screen-reader review of every first-release flow. These are design acceptance targets, not measured product outcomes.
+REQ-336은 라이트·다크에서 너비 320·768·1440으로 텍스트·포커스·컨트롤을 측정합니다. 다이어그램 내부에는 이동·확대를 허용합니다. REQ-338은 자동 검사와 함께 모든 첫 버전 플로우의 키보드·포커스·대비·스크린 리더 검토를 요구합니다. 설계 인수 목표이며 제품에서 측정한 결과가 아닙니다.
 
-REQ-339's review-load profile is an isolated staging service behind the intended authentication boundary, with 100 projects, up to 3,000 items per project and 20 concurrent authenticated sessions. Measure browser navigation start to usable content across at least 200 warmed navigations, excluding neither authentication checks nor ordinary network time; record region/device/network and cold-start observations separately. REQ-340 uses the same staging boundary and 20 concurrent sessions, at least 200 comment submissions, measuring submit to durable-save acknowledgement; AI generation time is excluded and reported separately. These targets require a recorded environment and raw results, not a local fixture timing.
+REQ-339는 예정한 인증 경계 뒤의 격리된 스테이징에서 프로젝트 100개·프로젝트당 최대 항목 3,000개·동시 인증 세션 20개로 측정합니다. 준비된 브라우저 탐색 200회 이상에서 탐색 시작부터 콘텐츠 사용 가능까지를 측정하며 인증 검사·일반 네트워크 시간을 제외하지 않습니다. 지역·장치·네트워크와 콜드 스타트 관찰을 별도로 기록합니다. REQ-340은 같은 경계에서 동시 세션 20개·코멘트 제출 200회 이상으로 제출부터 영구 저장 확인 응답까지를 측정합니다. AI 생성 시간은 제외하고 따로 보고합니다. 목표에는 측정 환경과 원본 결과가 필요하며 로컬 fixture 시간으로 대체하지 않습니다.
 
-REQ-341~343은 기존 프로젝트 세 개를 포함한 보존 대상 전체의 프로젝트, 항목 ID, 콘텐츠 버전, 코멘트·답글, 작성 주체, 체크포인트 통과·철회 목록을 요구합니다. 스냅샷 재전송만으로 서버 전용 대화와 승인을 복구할 수 없습니다. 운영 전환 전에 개수·고정 ID를 대조하고 버전·상위 참조를 검사하며 보호된 서버 기준 데이터와 보존된 내용을 비교합니다. 실제 데이터와 자격 증명을 Git에 복사하지 않습니다.
+REQ-341–343은 기존 세 프로젝트 컬렉션을 포함해 보존할 모든 프로젝트, 항목 ID, 콘텐츠 버전, 코멘트·답변, 작성자, 체크포인트·통과·철회 이력의 목록을 요구합니다. 스냅샷 재전송만으로 서버 전용 대화와 승인을 복원할 수 없습니다. 운영 교체 전에 개수·안정적인 ID를 대조하고 버전·부모 참조를 검증하며 보호된 서버 기준과 기록 내용을 비교합니다. 실제 데이터·자격 증명은 Git에 복사하지 않습니다.
 
-REQ-344 and REQ-346 require a consistent backup, restore into an isolated environment, write reconciliation during a controlled switch window, rollback procedure and a recorded rehearsal. A pre-switch backup alone does not account for writes accepted after the switch. REQ-345 keeps the current service unchanged until release QA passes. No new production access-control change is authorized by this draft.
+REQ-344와 REQ-346은 일관된 백업, 격리 환경 복원, 통제한 교체 구간의 쓰기 대조, 롤백 절차와 리허설 기록을 요구합니다. 교체 전 백업만으로 교체 후 확인 응답한 쓰기를 보존할 수 없습니다. REQ-345는 출시 QA를 통과할 때까지 현재 운영을 유지합니다. 이 설계로 새 운영 접근 제어 변경을 승인하지 않습니다.
 
-REQ-347 means executing every first-release flow and its states in browser-agent QA, with light/dark, desktop/mobile and supported-browser coverage defined at stages 08/12. Fixtures and real-service observations are labeled separately. Human checkpoint tests use isolated synthetic data and never pass a real user's checkpoint. REQ-349 is measured by malicious text/link/HTML fixtures showing no execution outside the permitted preview, no credential access and no writes beyond the artifact boundary.
+REQ-347은 첫 버전의 모든 플로우와 상태를 브라우저 에이전트로 실행한다는 뜻입니다. 라이트·다크, 데스크톱·모바일, 지원 브라우저 범위는 08·12에서 정의합니다. fixture와 실제 서비스 관찰을 구분합니다. 사용자 체크포인트 검사는 격리된 합성 데이터에서 수행하고 실제 사용자의 체크포인트는 통과시키지 않습니다. REQ-349는 악성 텍스트·링크·HTML fixture로 미리보기 밖 실행·자격 증명 접근·경계 밖 쓰기가 없음을 측정합니다.
 
-## 5. Scope decisions
+## 5. 범위 결정
 
-- Q1, selected A on 2026-11-18: delivery is a public service with individual accounts and private projects (REQ-332/333/350). B is public source plus self-hosted individual installations for the first release, with hosted signup deferred. Either keeps the mandated public, general-purpose vision. Authentication provider, payment and infrastructure are later design decisions.
-- Q2, selected A on 2026-11-18: defer direct artifact editing, shared-team projects and extra tool integrations for the first release, retaining source-controlled updates and required stage-tool links. B adds named capabilities now; their requirements and impact must be drafted before scope freeze.
-- Q3, selected A on 2026-11-18: apply REQ-321/322 to content/semantic changes and REQ-324 to display-only metadata. B requires a new checkpoint for every source commit, including display-only changes. The earlier decision to preserve history and freshly review changed content stays in force.
+- Q1, 2026-11-18에 A 선택: 개인 계정·비공개 프로젝트가 있는 공개 서비스를 제공합니다(REQ-332/333/350). B는 공개 소스와 개인 자체 호스팅을 먼저 제공하고 호스팅 가입을 미루는 대안이었습니다. 두 안 모두 공개 범용 제품이라는 방향을 유지합니다. 인증 공급자·결제·인프라 세부사항은 후속 설계에서 정합니다.
+- Q2, 2026-11-18에 A 선택: 직접 편집·팀 공유 프로젝트·추가 연동은 후속 버전으로 정하고 소스 변경·필수 단계 도구 링크를 유지합니다. B는 특정 기능을 첫 버전에 추가하는 대안이며 선택했다면 범위 확정 전 요구사항과 영향을 작성해야 했습니다.
+- Q3, 2026-11-18에 A 선택: REQ-321/322는 콘텐츠·의미 변경에, REQ-324는 표시 전용 메타데이터에 적용합니다. B는 표시 변경을 포함한 모든 소스 커밋에 새 체크포인트를 요구하는 대안이었습니다. 과거 이력 보존·변경 콘텐츠 재검토라는 기존 결정은 유지합니다.
 
-## 6. Independent coverage check and supersession
+## 6. 독립적인 누락 검사와 대체 결정
 
-독립 점검표는 13단계 산출물, 다섯 이벤트 흐름, 사용자·AI·권한 없는 주체, 로딩·빈 상태·오류·접근 거부, 여러 프로젝트 동시 진행, 마이그레이션·복구를 조합한 목록입니다. 기존 구현과 별도의 요구사항 점검이며 시장 조사는 아닙니다. 계정 격리, 산출물 부재 상태, 오래된 업로드, 삭제된 항목의 대화, 전환 후 쓰기 복구를 발견해 위 행에 반영했습니다. 남은 질문은 Q1~Q3와 새 도메인 입력입니다. 범위 확정 때 누락 여부를 한 번 요청합니다.
+독립적인 체크리스트는 13단계 산출물·다섯 이벤트 흐름·사용자와 AI와 무권한 역할·로딩과 비어 있음과 오류와 거부 상태·여러 프로젝트 동시 진행·이전과 복구의 조합입니다. 기존 구현과 별도로 만든 요구사항 체크리스트이며 시장 조사는 아닙니다. 계정 격리·산출물 없음·오래된 업로드·제거 항목 대화·교체 후 쓰기 복구를 발견해 위 행에 반영했습니다. Q1–Q3은 해결했고 새 도메인 입력도 있습니다. 50개 행을 다시 대조해 Must 누락이 없음을 확인했습니다. 실제 출시 증거는 후속 작업입니다.
 
-기존 개인 기기·Access 전용 제품 범위는 새 지시의 공개 제품 방향으로 대체합니다. 운영 서비스의 접근 제어는 검증된 릴리스까지 유지합니다. 기존 편집기 검토, 확정된 목업 토큰, 서버 선택, 이전 단계 승인을 재설계의 승인으로 사용하지 않습니다. GitHub CI 설정 작업은 F1으로 별도 허용되었으며 앱 아키텍처를 선택하지 않습니다. 과거 `nexus.md`의 요구사항은 삭제하거나 대체 처리하지 않으며 새 행은 별도 작업의 초안입니다.
+이전의 개인 장치·Access 전용 제품 범위는 새 지시의 공개 제품 방향으로 대체합니다. 운영 서비스는 검증한 출시까지 기존 제어를 유지합니다. 과거 편집기 실험·동결 목업 토큰·서버 선택·단계 승인을 새 설계 승인으로 재사용하지 않습니다. 현재 GitHub CI 설정은 F1에서 별도로 허용한 작업이며 앱 구조를 결정하지 않습니다. 과거 `nexus.md`의 기존 요구사항을 삭제하거나 대체 표시하지 않습니다. 위 행은 새 주기의 설계 기준입니다.
 
-## 7. Checks and next checkpoint
+## 7. 검사와 다음 체크포인트
 
-게시 전에 ID 중복, 영한 문서 일치, 행마다 EARS 응답 하나, 유형·우선순위·출처·상태, 측정 가능한 NFR, 고정된 hub 스냅샷의 새 행 50개, 알 수 없는 새 ID 부재, 기존 산출물 보존을 확인합니다. Must 기능 요구사항 38개에는 아직 04단계 명세가 없습니다. 완전한 추적성이 있다고 표시하지 않고 정확한 req-without-spec 경고 ID와 이유를 기록합니다. 누락된 컨텍스트 연결은 별도 미완성 항목으로 직접 검사합니다. 자동 검사는 공개 가입·마이그레이션·제품 QA의 실행 근거가 아닙니다.
+게시 전에 ID 고유성·영한 대조·행당 EARS 응답 하나·유형과 우선순위와 출처와 상태·측정 가능한 NFR·고정 hub 스냅샷의 새 행 50개·미정의 신규 ID 없음·과거 산출물 보존을 검사합니다. 이 단계에서는 Must 기능 요구사항 38개의 04 명세가 아직 없으므로 정확한 req-without-spec 경고와 이유를 남기며 추적 완료라고 주장하지 않습니다. 컨텍스트 연결은 새 도메인 소스와 대조했습니다. 자동 검사는 공개 가입·이전·제품 QA의 실행 증거가 아닙니다.
 
-Publish this main-merged baseline through the hub, verify the held commit and fifty active requirements, and leave a version-review request in NEXUS. Its current project-wide list also contains legacy rows: search the new batch using `REQ`, a hyphen and `3`. The Korean copy is the review translation; English remains the repository source. Continue stage 03 under the current explicit design instruction, while retaining the actual NEXUS checkpoint state. No agent acts as the human approver.
+main에 병합한 설계 기준을 hub로 게시하고 보유 커밋·active 요구사항 50개를 확인한 뒤 NEXUS에 버전 검토를 요청합니다. 현재 프로젝트 전체 목록에는 과거 행도 나오므로 `REQ`, 하이픈, `3`을 조합해 새 요구사항을 검색합니다. 한국어는 검토용 번역이고 영문이 레포 원본입니다. 현재 설계 진행 지시에 따라 03으로 계속 진행하며 실제 NEXUS 체크포인트 상태는 보존합니다. AI가 사용자 승인자로 행동하지 않습니다.
 
