@@ -213,6 +213,8 @@ Read models: project list (ownership and latest activity); stage overview (all t
 | TERM-187 | QA and recovery readiness | Read model used before the corresponding command; a projection of the owner-scoped source records. | CTX-036 | `qa_and_recovery_readiness` | independent source of truth |
 | TERM-188 | Reconciliation report | Read model used before the corresponding command; a projection of the owner-scoped source records. | CTX-036 | `reconciliation_report` | independent source of truth |
 
+<a id="8-checkpoint-1-and-decisions"></a>
+
 ## 8. Verified checkpoint history and next action
 
 Timeline checkpoint `nk_n9aja7yrtm1q` passed at 2026-11-17T08:19:16.314Z for commit `5a19cd264b73fd2b02d8ff371e391ff5e0660bdf`. The recorded original wording remains `01단계 확인 지점 통과`. Coverage comment `nc_hvjv377v757w` and version comment `nc_ayya1yv8g3bc` approved the recommendations at 08:19:46.997Z and 08:19:50.363Z respectively; the latter repeated at 08:19:55.036Z is one decision.
