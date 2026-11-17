@@ -1,13 +1,31 @@
 {
   "scope": "Synthetic static HTML only; not stage-12 product QA",
-  "htmlSha256": "7d8bdcb217022ec84ce255a827731850ef18aeca175269fbb31e3dad0ec03cf1",
+  "htmlSha256": "8f66fcf661af86b320406d8ec58ef031918d354dd154882d985fe16d4710e6c4",
   "browser": "156.0.8078.79",
   "renders": 816,
   "errors": 0,
-  "warnings": 174,
+  "warnings": 176,
   "pageErrors": [],
   "externalNetworkRequests": 0,
   "syntheticAssertions": [
+    "empty screen retains its first action SCR-131",
+    "empty screen retains its first action SCR-132",
+    "empty screen retains its first action SCR-133",
+    "empty screen retains its first action SCR-134",
+    "empty screen retains its first action SCR-135",
+    "empty screen retains its first action SCR-136",
+    "empty screen retains its first action SCR-137",
+    "empty screen retains its first action SCR-138",
+    "empty screen retains its first action SCR-139",
+    "empty screen retains its first action SCR-140",
+    "empty screen retains its first action SCR-141",
+    "issued credential metadata uses the chosen role",
+    "credential revocation survives navigation without redisplaying a secret",
+    "empty discussion focuses its labelled composer",
+    "first question leaves empty state without invented prior messages",
+    "historical discussion labels its actual original version",
+    "historical decision source matches the original version",
+    "recorded historical evidence remains on its original version",
     "public welcome omits private project selector",
     "welcome to projects",
     "empty search",
@@ -553,7 +571,7 @@
       "counts": {
         "error": 0,
         "warn": 0,
-        "info": 2
+        "info": 3
       },
       "truncated": false
     },
@@ -1182,7 +1200,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 0,
+        "warn": 1,
         "info": 2
       },
       "truncated": false
@@ -2093,7 +2111,7 @@
       "counts": {
         "error": 0,
         "warn": 0,
-        "info": 2
+        "info": 3
       },
       "truncated": false
     },
@@ -5649,7 +5667,7 @@
       "counts": {
         "error": 0,
         "warn": 0,
-        "info": 2
+        "info": 3
       },
       "truncated": false
     },
@@ -6278,7 +6296,7 @@
       "pass": true,
       "counts": {
         "error": 0,
-        "warn": 0,
+        "warn": 1,
         "info": 2
       },
       "truncated": false
@@ -7189,7 +7207,7 @@
       "counts": {
         "error": 0,
         "warn": 0,
-        "info": 2
+        "info": 3
       },
       "truncated": false
     },
@@ -11507,7 +11525,7 @@
     }
   ],
   "warningKinds": {
-    "orphan": 170,
+    "orphan": 172,
     "contrast-image": 4
   },
   "notMeasured": [

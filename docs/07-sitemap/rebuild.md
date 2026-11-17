@@ -46,3 +46,7 @@ flowchart TD
 Checkpoint, item discussion and preview are children of the workspace; deep links preserve project, stage and version. Project switching restores only this owner’s choices. Sign-in returns to a validated original address, otherwise to the project list. HTML execution remains confined to the preview. Operator migration/recovery FL-134 has no public screen and uses protected API-237 through API-240 commands.
 
 Every screen is reachable from the root and paths are unique. Visible flow steps now name their SCR IDs. The registered historical YAML copy is identical to its original and preserves old screen IDs/status. Full product browser QA, focus and accessibility verification remain later work; sitemap generation does not pass them.
+
+## Read-model annotation correction
+
+The first draft mixed aggregate identity terms into screen projection annotations. The live crosscheck compares read models, so the YAML now names the actual read model and its owning context for each screen. A screen may display related fields from other contexts without declaring that it owns their aggregate. Public sample review belongs to CTX-033; operator-only projections remain explicitly without a public screen. Routes, visible data and permissions are unchanged. This replaces the inconsistent annotations and is checked with the real board/sitemap comparison.

@@ -1,12 +1,12 @@
 # Rebuild navigation, not deployed routes.
-# without a screen: TERM-164, TERM-168, TERM-184, TERM-185, TERM-186, TERM-187, TERM-188
+# without a screen: TERM-184, TERM-185, TERM-186, TERM-187, TERM-188
 - id: SCR-131
   name: Welcome
   path: /
   access: everyone; private project data requires owner session
   status: active
   flows: [FL-128, FL-129, FL-130, FL-131, FL-132, FL-133, FL-135, FL-136]
-  terms: [CTX-035, TERM-162, TERM-165, TERM-181]
+  terms: [CTX-035, TERM-181]
   children:
     - id: SCR-132
       name: Projects
@@ -14,7 +14,7 @@
       access: authenticated owner; own projects only
       status: active
       flows: [FL-128, FL-129, FL-130, FL-135]
-      terms: [CTX-032, TERM-155, TERM-170]
+      terms: [CTX-032, TERM-170]
       children:
         - id: SCR-133
           name: Connect project
@@ -22,14 +22,14 @@
           access: authenticated owner
           status: active
           flows: [FL-129, FL-135]
-          terms: [CTX-032, CTX-035, TERM-155, TERM-163, TERM-171, TERM-182]
+          terms: [CTX-032, TERM-170, TERM-171]
         - id: SCR-134
           name: Stage workspace
           path: /p/:projectId/:part/:stage
           access: authenticated project owner
           status: active
           flows: [FL-130, FL-131, FL-132, FL-133, FL-136]
-          terms: [CTX-033, CTX-034, TERM-157, TERM-158, TERM-173, TERM-176, TERM-177]
+          terms: [CTX-033, TERM-173, TERM-176]
           children:
             - id: SCR-135
               name: Item discussion
@@ -37,46 +37,46 @@
               access: authenticated project owner; exact item/version scope
               status: active
               flows: [FL-130, FL-131]
-              terms: [CTX-033, TERM-158, TERM-159, TERM-167, TERM-174, TERM-175]
+              terms: [CTX-033, TERM-173, TERM-174, TERM-175]
             - id: SCR-136
               name: Checkpoint review
               path: /p/:projectId/:part/:stage/checkpoints/:checkpointId
               access: authenticated owning human session; never machine role
               status: active
               flows: [FL-132, FL-133]
-              terms: [CTX-034, TERM-160, TERM-161, TERM-177, TERM-178, TERM-179, TERM-180]
+              terms: [CTX-034, TERM-177, TERM-178, TERM-179, TERM-180]
             - id: SCR-141
               name: Isolated mockup preview
               path: /p/:projectId/preview/:artifactId
               access: owner-authorized parent; opaque credential-free child sandbox
               status: active
               flows: [FL-130, FL-136]
-              terms: [CTX-033, TERM-157, TERM-169]
+              terms: [CTX-033, TERM-173, TERM-176]
         - id: SCR-137
           name: Publication status
           path: /p/:projectId/publications
           access: authenticated project owner
           status: active
           flows: [FL-129, FL-133, FL-135]
-          terms: [CTX-032, CTX-033, TERM-156, TERM-163, TERM-172, TERM-176]
+          terms: [CTX-032, TERM-172]
         - id: SCR-138
           name: Publication credentials
           path: /p/:projectId/settings/credentials
           access: authenticated project owner; credential value only at issuance
           status: active
           flows: [FL-129, FL-135]
-          terms: [CTX-035, TERM-166, TERM-183]
+          terms: [CTX-035, TERM-182, TERM-183]
         - id: SCR-139
           name: Version history
           path: /p/:projectId/versions
           access: authenticated project owner
           status: active
           flows: [FL-130, FL-132, FL-133]
-          terms: [CTX-033, CTX-034, TERM-156, TERM-161, TERM-176, TERM-180]
+          terms: [CTX-033, TERM-176]
     - id: SCR-140
       name: Sample guide
       path: /learn/sample
       access: everyone for synthetic sample; owner session to create private copy
       status: active
       flows: [FL-128, FL-129, FL-136]
-      terms: [CTX-032, CTX-033, TERM-155, TERM-169]
+      terms: [CTX-033, TERM-173]

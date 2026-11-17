@@ -53,3 +53,5 @@ Per-item discussion is scoped by project, item and content version and restored 
 Diagram and keyboard list expose matching items for each of the thirteen stages. Item activation restores focus; sample pass/withdrawal/reason records stay in memory by project/stage/version. Historical decision links open their own row version; stale recovery returns to the current version and still needs a separate decision. Theme/candidate changes preserve non-secret form input, and generated CSS leaves generic font families unquoted.
 
 When prerequisites are blocked, disable passage with a stated reason and refuse it again in the action guard. This remains synthetic verification and grants no real human-checkpoint authority.
+
+Historical item discussions and decision evidence display their selected sample version. The empty state of `SCR-135` retains and focuses the question composer, and the first send invents no unrelated prior messages. Every empty screen preserves its applicable first action; issued credential role and revocation remain in project-scoped memory.

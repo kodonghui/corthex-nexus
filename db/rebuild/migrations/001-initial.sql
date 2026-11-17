@@ -70,6 +70,7 @@ id TEXT PRIMARY KEY,
   received_at TEXT NOT NULL,
   UNIQUE(project_id,revision),
   UNIQUE(project_id,id),
+  UNIQUE(project_id,id,commit_sha),
   UNIQUE(project_id,commit_sha,snapshot_digest),
   FOREIGN KEY(project_id,parent_publication_id) REFERENCES publications(project_id,id) ON DELETE RESTRICT
 );
@@ -150,6 +151,7 @@ id TEXT PRIMARY KEY,
   reply_message_id TEXT,
   row_revision INTEGER NOT NULL DEFAULT 0 CHECK(row_revision >= 0),
   created_at TEXT NOT NULL,
+  UNIQUE(project_id,id),
   UNIQUE(project_id,question_message_id),
   FOREIGN KEY(project_id,question_message_id) REFERENCES messages(project_id,id) ON DELETE RESTRICT,
   FOREIGN KEY(project_id,reply_message_id) REFERENCES messages(project_id,id) ON DELETE RESTRICT,
@@ -162,6 +164,8 @@ CREATE TABLE proposals (
 id TEXT PRIMARY KEY,
   project_id TEXT NOT NULL,
   discussion_id TEXT NOT NULL,
+  work_id TEXT,
+  body TEXT NOT NULL CHECK(length(body) BETWEEN 1 AND 8000 AND length(CAST(body AS BLOB)) <= 32768),
   state TEXT NOT NULL CHECK(state IN ('proposed','accepted','rejected','in_review','reflected')),
   source_commit TEXT,
   pull_request_url TEXT CHECK(length(pull_request_url) <= 2048),
@@ -169,11 +173,12 @@ id TEXT PRIMARY KEY,
   row_revision INTEGER NOT NULL DEFAULT 0 CHECK(row_revision >= 0),
   created_at TEXT NOT NULL,
   FOREIGN KEY(project_id,discussion_id) REFERENCES discussions(project_id,id) ON DELETE RESTRICT,
+  FOREIGN KEY(project_id,work_id) REFERENCES agent_work(project_id,id) ON DELETE RESTRICT,
   FOREIGN KEY(project_id,reflected_publication_id) REFERENCES publications(project_id,id) ON DELETE RESTRICT,
   CHECK(state <> 'reflected' OR (source_commit IS NOT NULL AND reflected_publication_id IS NOT NULL))
 );
 
--- TBL-137 checkpoint_requests (CTX-034) | terms: TERM-160, TERM-161 | SPEC-317, SPEC-318, SPEC-319, SPEC-320, SPEC-321, SPEC-322, SPEC-324, SPEC-343
+-- TBL-137 checkpoint_requests (CTX-034) | terms: TERM-160 | SPEC-317, SPEC-318, SPEC-319, SPEC-320, SPEC-321, SPEC-322, SPEC-324, SPEC-343
 CREATE TABLE checkpoint_requests (
 id TEXT PRIMARY KEY,
   project_id TEXT NOT NULL,
@@ -283,6 +288,28 @@ state_hash TEXT PRIMARY KEY,
   created_at TEXT NOT NULL,
   expires_at TEXT NOT NULL,
   used_at TEXT
+);
+
+-- TBL-145 discussion_decisions (CTX-033) | terms: TERM-159 | SPEC-314, SPEC-316, SPEC-342
+CREATE TABLE discussion_decisions (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  discussion_id TEXT NOT NULL,
+  sequence INTEGER NOT NULL CHECK(sequence > 0),
+  actor_owner_id TEXT NOT NULL,
+  content_version TEXT NOT NULL CHECK(length(content_version)=64),
+  body TEXT NOT NULL CHECK(length(body) BETWEEN 1 AND 8000 AND length(CAST(body AS BLOB)) <= 32768),
+  source_publication_id TEXT,
+  source_commit TEXT,
+  pull_request_url TEXT CHECK(length(pull_request_url) <= 2048),
+  decided_at TEXT NOT NULL,
+  legacy_actor_json TEXT CHECK(legacy_actor_json IS NULL OR json_valid(legacy_actor_json)),
+  UNIQUE(project_id,id),
+  UNIQUE(discussion_id,sequence),
+  FOREIGN KEY(project_id,discussion_id) REFERENCES discussions(project_id,id) ON DELETE RESTRICT,
+  FOREIGN KEY(actor_owner_id,project_id) REFERENCES projects(owner_id,id) ON DELETE RESTRICT,
+  FOREIGN KEY(project_id,source_publication_id,source_commit) REFERENCES publications(project_id,id,commit_sha) ON DELETE RESTRICT,
+  CHECK((source_publication_id IS NULL AND source_commit IS NULL) OR (source_publication_id IS NOT NULL AND source_commit IS NOT NULL))
 );
 
 CREATE INDEX owner_projects ON projects(owner_id,archived_at,created_at);
