@@ -1,0 +1,3314 @@
+[
+  {
+    "id": "SCR-131",
+    "name": "Welcome",
+    "ko": "시작",
+    "path": "/",
+    "access": "everyone; private project data requires owner session",
+    "flows": [
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      135,
+      136
+    ],
+    "terms": [
+      "CTX-035",
+      "TERM-181"
+    ],
+    "parent": null,
+    "apis": [
+      201,
+      202,
+      203,
+      204
+    ],
+    "purpose": "처음 방문한 사용자가 제품을 이해하고 공개 샘플을 살펴본 뒤 로그인합니다.",
+    "normal": "제품의 목적, 산출물 검토·항목 대화·체크포인트의 세 단계 안내와 샘플·로그인 링크를 표시합니다.",
+    "empty": "비공개 프로젝트를 조회하지 않습니다. 공개 소개는 프로젝트가 없는 계정과 구분합니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Product purpose, three-step review explanation, sample link and sign-in; an existing owner can continue to projects.",
+        "ko": "제품의 목적, 산출물 검토·항목 대화·체크포인트의 세 단계 안내와 샘플·로그인 링크를 표시합니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "No private project is fetched; the public introduction is not an empty account.",
+        "ko": "비공개 프로젝트를 조회하지 않습니다. 공개 소개는 프로젝트가 없는 계정과 구분합니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      },
+      {
+        "id": "auth-pending",
+        "en": "Signing in; keep the return path and prevent duplicate starts.",
+        "ko": "로그인 중입니다. 복귀 경로를 유지하고 중복 시작을 막습니다."
+      },
+      {
+        "id": "expired",
+        "en": "Sign-in expired; restart safely without echoing provider diagnostics.",
+        "ko": "로그인이 만료되었습니다. 제공자 진단을 노출하지 않고 다시 시작합니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 202,
+        "en": "Sign in",
+        "ko": "로그인",
+        "result": "Validate return address; navigate to the returned provider URL.",
+        "result_ko": "복귀 주소를 확인하고 반환된 인증 제공자 주소로 이동합니다."
+      },
+      {
+        "api": 204,
+        "en": "Sign out",
+        "ko": "로그아웃",
+        "result": "Invalidate session; clear account caches and private drafts.",
+        "result_ko": "세션을 폐기하고 계정 캐시와 비공개 초안을 삭제합니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-131#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-131#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-131#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-202#200",
+        "SCR-131#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-202#400",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-202#413",
+        "SCR-131#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-202#429",
+        "SCR-131#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-202#503",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-202#504",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-202#default",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-203#303",
+        "SCR-131#normal",
+        "Validated same-origin return after successful provider callback.",
+        "제공자 콜백 성공 후 검증된 동일 출처 주소로 복귀합니다."
+      ],
+      [
+        "API-203#400",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-203#401",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-203#429",
+        "SCR-131#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-203#503",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-203#504",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-203#default",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#204",
+        "SCR-131#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-204#400",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#401",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#403",
+        "SCR-131#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#429",
+        "SCR-131#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-204#default",
+        "SCR-131#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  },
+  {
+    "id": "SCR-132",
+    "name": "Projects",
+    "ko": "프로젝트",
+    "path": "/projects",
+    "access": "authenticated owner; own projects only",
+    "flows": [
+      128,
+      129,
+      130,
+      135
+    ],
+    "terms": [
+      "CTX-032",
+      "TERM-170"
+    ],
+    "parent": "SCR-131",
+    "apis": [
+      201,
+      204,
+      205,
+      233
+    ],
+    "purpose": "사용자가 마지막 단계와 검토 상태를 확인하며 자신의 프로젝트를 찾고 전환합니다.",
+    "normal": "검색 가능한 프로젝트 목록, 현재 단계, 대기 중인 대화, 최근 게시와 체크포인트 상태를 표시합니다.",
+    "empty": "프로젝트 연결 또는 샘플 복사를 안내합니다. 검색 결과가 없으면 필터 초기화를 제공합니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Searchable project list, current stage, waiting discussions, latest publication and checkpoint status.",
+        "ko": "검색 가능한 프로젝트 목록, 현재 단계, 대기 중인 대화, 최근 게시와 체크포인트 상태를 표시합니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "Create a project or copy the labelled sample; a filter with no matches offers clear-filter.",
+        "ko": "프로젝트 연결 또는 샘플 복사를 안내합니다. 검색 결과가 없으면 필터 초기화를 제공합니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 233,
+        "en": "Create private sample",
+        "ko": "비공개 샘플 만들기",
+        "result": "Create one labelled owner-scoped sample and open its workspace.",
+        "result_ko": "사용자 소유의 샘플 하나를 만들고 작업 화면을 엽니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-132#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-132#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-132#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-132#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-132#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-132#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#204",
+        "SCR-132#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-204#400",
+        "SCR-132#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#401",
+        "SCR-132#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#403",
+        "SCR-132#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#429",
+        "SCR-132#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-204#default",
+        "SCR-132#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-205#200",
+        "SCR-132#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-205#400",
+        "SCR-132#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-205#401",
+        "SCR-132#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-205#403",
+        "SCR-132#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-205#429",
+        "SCR-132#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-205#default",
+        "SCR-132#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-233#201",
+        "SCR-132#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-233#400",
+        "SCR-132#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-233#401",
+        "SCR-132#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-233#403",
+        "SCR-132#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-233#409",
+        "SCR-132#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-233#413",
+        "SCR-132#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-233#429",
+        "SCR-132#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-233#default",
+        "SCR-132#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  },
+  {
+    "id": "SCR-133",
+    "name": "Connect project",
+    "ko": "프로젝트 연결",
+    "path": "/projects/new",
+    "access": "authenticated owner",
+    "flows": [
+      129,
+      135
+    ],
+    "terms": [
+      "CTX-032",
+      "TERM-170",
+      "TERM-171"
+    ],
+    "parent": "SCR-132",
+    "apis": [
+      201,
+      204,
+      206,
+      227
+    ],
+    "purpose": "사용자가 저장소를 연결하고 첫 게시에 명시적으로 동의합니다.",
+    "normal": "프로젝트 이름, HTTPS 저장소, 기본 브랜치와 첫 게시 안내를 표시합니다. 동의는 기본 선택하지 않습니다.",
+    "empty": "연결된 프로젝트가 없으면 입력 폼을 유지하고 샘플 가이드를 제공합니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Project name, HTTPS repository, default branch and first-publication disclosure; values are not pre-consented.",
+        "ko": "프로젝트 이름, HTTPS 저장소, 기본 브랜치와 첫 게시 안내를 표시합니다. 동의는 기본 선택하지 않습니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "No connected project yet; keep the form and offer a synthetic sample guide.",
+        "ko": "연결된 프로젝트가 없으면 입력 폼을 유지하고 샘플 가이드를 제공합니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      },
+      {
+        "id": "consent-required",
+        "en": "Explain exactly what repository data is published; unchecked consent and back action.",
+        "ko": "게시할 저장소 데이터 범위를 설명합니다. 선택하지 않은 동의와 돌아가기를 제공합니다."
+      },
+      {
+        "id": "connected",
+        "en": "Metadata is connected; no publication received yet.",
+        "ko": "메타데이터가 연결되었습니다. 게시 수신은 아직 없습니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 206,
+        "en": "Connect project",
+        "ko": "프로젝트 연결",
+        "result": "Persist owner-scoped metadata; do not claim any snapshot has arrived.",
+        "result_ko": "사용자 소유 메타데이터를 저장합니다. 스냅샷 수신으로 표시하지 않습니다."
+      },
+      {
+        "api": 227,
+        "en": "Consent to first publication",
+        "ko": "첫 게시 동의",
+        "result": "Bind consent to this repository and project; open publication guidance.",
+        "result_ko": "이 저장소와 프로젝트에 동의를 연결하고 게시 안내를 엽니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-133#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-133#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-133#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-133#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-133#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-133#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#204",
+        "SCR-133#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-204#400",
+        "SCR-133#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#401",
+        "SCR-133#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#403",
+        "SCR-133#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#429",
+        "SCR-133#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-204#default",
+        "SCR-133#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-206#201",
+        "SCR-133#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-206#400",
+        "SCR-133#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-206#401",
+        "SCR-133#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-206#403",
+        "SCR-133#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-206#409",
+        "SCR-133#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-206#413",
+        "SCR-133#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-206#429",
+        "SCR-133#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-206#default",
+        "SCR-133#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-227#201",
+        "SCR-133#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-227#400",
+        "SCR-133#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-227#401",
+        "SCR-133#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-227#403",
+        "SCR-133#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-227#404",
+        "SCR-133#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-227#409",
+        "SCR-133#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-227#413",
+        "SCR-133#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-227#429",
+        "SCR-133#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-227#default",
+        "SCR-133#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  },
+  {
+    "id": "SCR-134",
+    "name": "Stage workspace",
+    "ko": "단계 작업 화면",
+    "path": "/p/:projectId/:part/:stage",
+    "access": "authenticated project owner",
+    "flows": [
+      130,
+      131,
+      132,
+      133,
+      136
+    ],
+    "terms": [
+      "CTX-033",
+      "TERM-173",
+      "TERM-176"
+    ],
+    "parent": "SCR-132",
+    "apis": [
+      201,
+      204,
+      207,
+      208,
+      210,
+      234
+    ],
+    "purpose": "사용자가 13단계 산출물을 그림으로 검토하고 대화 또는 체크포인트의 항목을 선택합니다.",
+    "normal": "프로젝트 전환, 13단계 탐색, 원본 기반 그림·목록, 원본 정보, 항목 상세와 체크포인트 상태를 표시합니다.",
+    "empty": "13단계 위치를 유지하고 게시되지 않은 산출물의 이유와 게시 상태 링크를 표시합니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Project switcher, thirteen-stage navigation, source-backed diagram/list, provenance, item inspector and checkpoint status.",
+        "ko": "프로젝트 전환, 13단계 탐색, 원본 기반 그림·목록, 원본 정보, 항목 상세와 체크포인트 상태를 표시합니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "Keep all thirteen slots; explain missing publication and link to publication status.",
+        "ko": "13단계 위치를 유지하고 게시되지 않은 산출물의 이유와 게시 상태 링크를 표시합니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      },
+      {
+        "id": "unsupported",
+        "en": "Keep diagnostics and source link; offer the keyboard item list without invented diagram content.",
+        "ko": "진단과 원본 링크를 유지하고 키보드 항목 목록을 제공합니다. 그림 내용을 꾸미지 않습니다."
+      },
+      {
+        "id": "missing",
+        "en": "This stage has no artifact; keep its place and publication guide.",
+        "ko": "이 단계의 산출물이 없습니다. 단계 위치와 게시 안내를 유지합니다."
+      },
+      {
+        "id": "blocked",
+        "en": "Preparation can continue; explain the exact prerequisite for completion.",
+        "ko": "준비는 계속할 수 있습니다. 완료에 필요한 선행 조건을 설명합니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 208,
+        "en": "Choose stage or version",
+        "ko": "단계·버전 선택",
+        "result": "Load only the selected project/part/stage/version; restore selection when valid.",
+        "result_ko": "선택한 프로젝트·파트·단계·버전만 조회하고 유효한 선택을 복원합니다."
+      },
+      {
+        "api": 210,
+        "en": "Open item discussions",
+        "ko": "항목 대화 열기",
+        "result": "Open the selected stable item with its original version context.",
+        "result_ko": "선택한 고정 항목과 원래 버전의 대화를 엽니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-134#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-134#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#204",
+        "SCR-134#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-204#400",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#401",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#403",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#429",
+        "SCR-134#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-204#default",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-207#200",
+        "SCR-134#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-207#400",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-207#401",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-207#403",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-207#404",
+        "SCR-134#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-207#429",
+        "SCR-134#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-207#default",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-208#200",
+        "SCR-134#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-208#400",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-208#401",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-208#403",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-208#404",
+        "SCR-134#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-208#429",
+        "SCR-134#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-208#default",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-210#200",
+        "SCR-134#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-210#400",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-210#401",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-210#403",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-210#404",
+        "SCR-134#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-210#429",
+        "SCR-134#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-210#default",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#200",
+        "SCR-134#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-234#400",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#401",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#403",
+        "SCR-134#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#404",
+        "SCR-134#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-234#429",
+        "SCR-134#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-234#default",
+        "SCR-134#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  },
+  {
+    "id": "SCR-135",
+    "name": "Item discussion",
+    "ko": "항목 대화",
+    "path": "/p/:projectId/:part/:stage/items/:itemId",
+    "access": "authenticated project owner; exact item/version scope",
+    "flows": [
+      130,
+      131
+    ],
+    "terms": [
+      "CTX-033",
+      "TERM-173",
+      "TERM-174",
+      "TERM-175"
+    ],
+    "parent": "SCR-134",
+    "apis": [
+      201,
+      204,
+      209,
+      210,
+      211,
+      212,
+      213,
+      218,
+      234
+    ],
+    "purpose": "사용자가 선택한 산출물 항목을 질문하고 AI 제안과 검증된 원본 변경을 구분합니다.",
+    "normal": "항목 제목·버전과 원문, 시간순 사용자·에이전트 메시지, 작업 대기 상태, 제안·기록한 결정과 반영 근거를 표시합니다.",
+    "empty": "질문이 없음을 안내하고 이름이 있는 질문 입력에 포커스를 제공합니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Item title and version, original content, chronological human/agent messages, queue status, proposal, recorded decisions and reflection evidence.",
+        "ko": "항목 제목·버전과 원문, 시간순 사용자·에이전트 메시지, 작업 대기 상태, 제안·기록한 결정과 반영 근거를 표시합니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "Explain that no question exists; focus the labelled question field.",
+        "ko": "질문이 없음을 안내하고 이름이 있는 질문 입력에 포커스를 제공합니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      },
+      {
+        "id": "queued",
+        "en": "Question saved; show waiting/claimed agent status and allow another separate question.",
+        "ko": "질문이 저장되었습니다. 에이전트 대기·처리 상태를 표시하고 별도 질문을 허용합니다."
+      },
+      {
+        "id": "answered",
+        "en": "Show the agent reply, its source/version and human decision actions.",
+        "ko": "에이전트 답변과 원본·버전, 사용자 결정 동작을 표시합니다."
+      },
+      {
+        "id": "proposal-unreflected",
+        "en": "Accepted proposal is awaiting merged-source evidence; original artifact remains unchanged.",
+        "ko": "수락한 제안의 병합 원본 근거를 기다립니다. 원래 산출물은 유지합니다."
+      },
+      {
+        "id": "source-changed",
+        "en": "A newer artifact exists; keep this original conversation and offer a deliberate version switch.",
+        "ko": "새 산출물이 있습니다. 원래 대화를 유지하고 명시적인 버전 전환을 제공합니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 211,
+        "en": "Send question",
+        "ko": "질문 보내기",
+        "result": "Show durable acknowledgement and queued work; retain original item/version.",
+        "result_ko": "저장 확인과 작업 대기를 표시하고 원래 항목·버전을 유지합니다."
+      },
+      {
+        "api": 213,
+        "en": "Record decision",
+        "ko": "결정 기록",
+        "result": "Record the decision and cited merged-source evidence, not a fabricated reflection.",
+        "result_ko": "결정과 병합된 원본 근거를 기록합니다. 반영 결과를 꾸미지 않습니다."
+      },
+      {
+        "api": 218,
+        "en": "Accept or reject proposal",
+        "ko": "제안 수락·거절",
+        "result": "Record human intent; accepted still waits for a merged and published reflection.",
+        "result_ko": "사용자 의사를 기록합니다. 수락 후에도 병합·게시된 반영 결과를 기다립니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-135#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-135#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#204",
+        "SCR-135#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-204#400",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#401",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#403",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#429",
+        "SCR-135#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-204#default",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-209#200",
+        "SCR-135#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-209#400",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-209#401",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-209#403",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-209#404",
+        "SCR-135#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-209#429",
+        "SCR-135#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-209#default",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-210#200",
+        "SCR-135#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-210#400",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-210#401",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-210#403",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-210#404",
+        "SCR-135#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-210#429",
+        "SCR-135#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-210#default",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-211#201",
+        "SCR-135#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-211#400",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-211#401",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-211#403",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-211#404",
+        "SCR-135#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-211#409",
+        "SCR-135#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-211#413",
+        "SCR-135#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-211#429",
+        "SCR-135#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-211#default",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-212#200",
+        "SCR-135#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-212#400",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-212#401",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-212#403",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-212#404",
+        "SCR-135#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-212#429",
+        "SCR-135#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-212#default",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-213#201",
+        "SCR-135#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-213#400",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-213#401",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-213#403",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-213#404",
+        "SCR-135#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-213#409",
+        "SCR-135#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-213#413",
+        "SCR-135#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-213#429",
+        "SCR-135#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-213#default",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-218#200",
+        "SCR-135#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-218#400",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-218#401",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-218#403",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-218#404",
+        "SCR-135#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-218#409",
+        "SCR-135#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-218#413",
+        "SCR-135#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-218#429",
+        "SCR-135#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-218#default",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#200",
+        "SCR-135#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-234#400",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#401",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#403",
+        "SCR-135#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#404",
+        "SCR-135#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-234#429",
+        "SCR-135#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-234#default",
+        "SCR-135#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  },
+  {
+    "id": "SCR-136",
+    "name": "Checkpoint review",
+    "ko": "체크포인트 검토",
+    "path": "/p/:projectId/:part/:stage/checkpoints/:checkpointId",
+    "access": "authenticated owning human session; never machine role",
+    "flows": [
+      132,
+      133
+    ],
+    "terms": [
+      "CTX-034",
+      "TERM-177",
+      "TERM-178",
+      "TERM-179",
+      "TERM-180"
+    ],
+    "parent": "SCR-134",
+    "apis": [
+      201,
+      204,
+      220,
+      221,
+      222,
+      223
+    ],
+    "purpose": "프로젝트 소유자가 게시된 정확한 콘텐츠를 검토하고 체크포인트를 통과시키거나 철회합니다.",
+    "normal": "요청 범위, 고정 콘텐츠 버전, 기본 브랜치 커밋, 차단 사유, 이전 결정과 선택적 사유를 표시합니다.",
+    "empty": "요청이 없으면 요청 방법을 안내하고 통과로 표시하지 않습니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Requested scope, immutable content version, default-branch commit, blockers, previous decisions and optional reason.",
+        "ko": "요청 범위, 고정 콘텐츠 버전, 기본 브랜치 커밋, 차단 사유, 이전 결정과 선택적 사유를 표시합니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "No request exists; explain how to request one without implying approval.",
+        "ko": "요청이 없으면 요청 방법을 안내하고 통과로 표시하지 않습니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      },
+      {
+        "id": "passed",
+        "en": "Show who passed which content version and when; offer withdrawal, never a second accidental pass.",
+        "ko": "누가 어떤 콘텐츠 버전을 언제 통과시켰는지 표시합니다. 중복 통과 대신 철회를 제공합니다."
+      },
+      {
+        "id": "withdrawn",
+        "en": "Keep the pass and withdrawal reason/time, and show dependent completion blockers.",
+        "ko": "통과와 철회 사유·시각을 유지하고 이후 완료의 차단 사유를 표시합니다."
+      },
+      {
+        "id": "blocked",
+        "en": "List unmet dependencies or missing publication and disable pass with a reason.",
+        "ko": "충족하지 않은 의존성 또는 누락된 게시를 표시하고 사유와 함께 통과를 비활성화합니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 220,
+        "en": "Request review",
+        "ko": "검토 요청",
+        "result": "Create a version-bound request with scope and review address.",
+        "result_ko": "범위와 검토 주소를 포함한 버전별 요청을 만듭니다."
+      },
+      {
+        "api": 222,
+        "en": "Pass checkpoint",
+        "ko": "체크포인트 통과",
+        "result": "Require the current owner session and expected revision/version; show one durable decision.",
+        "result_ko": "현재 소유자 세션과 예상 리비전·버전을 확인하고 저장된 결정 하나를 표시합니다."
+      },
+      {
+        "api": 223,
+        "en": "Withdraw checkpoint",
+        "ko": "체크포인트 철회",
+        "result": "Confirm consequence and preserve the original pass and withdrawal history.",
+        "result_ko": "영향을 확인하고 원래 통과와 철회 이력을 유지합니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-136#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-136#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#204",
+        "SCR-136#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-204#400",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#401",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#403",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#429",
+        "SCR-136#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-204#default",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-220#201",
+        "SCR-136#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-220#400",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-220#401",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-220#403",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-220#404",
+        "SCR-136#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-220#409",
+        "SCR-136#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-220#413",
+        "SCR-136#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-220#429",
+        "SCR-136#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-220#default",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-221#200",
+        "SCR-136#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-221#400",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-221#401",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-221#403",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-221#404",
+        "SCR-136#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-221#429",
+        "SCR-136#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-221#default",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-222#201",
+        "SCR-136#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-222#400",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-222#401",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-222#403",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-222#404",
+        "SCR-136#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-222#409",
+        "SCR-136#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-222#413",
+        "SCR-136#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-222#429",
+        "SCR-136#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-222#default",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-223#201",
+        "SCR-136#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-223#400",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-223#401",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-223#403",
+        "SCR-136#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-223#404",
+        "SCR-136#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-223#409",
+        "SCR-136#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-223#413",
+        "SCR-136#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-223#429",
+        "SCR-136#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-223#default",
+        "SCR-136#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  },
+  {
+    "id": "SCR-137",
+    "name": "Publication status",
+    "ko": "게시 상태",
+    "path": "/p/:projectId/publications",
+    "access": "authenticated project owner",
+    "flows": [
+      129,
+      133,
+      135
+    ],
+    "terms": [
+      "CTX-032",
+      "TERM-172"
+    ],
+    "parent": "SCR-132",
+    "apis": [
+      201,
+      204,
+      207,
+      224,
+      226,
+      234
+    ],
+    "purpose": "사용자가 실제 수신된 게시와 대기·건너뜀·실패한 CI 시도를 구분합니다.",
+    "normal": "수신 커밋·리비전, 저장소 기본 브랜치, 수신 시각과 명시적 시도 상태를 표시합니다. CI 성공만으로 수신 처리하지 않습니다.",
+    "empty": "수신 기록이 없으면 설정 안내와 상태 새로고침을 제공합니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Received commit and revision, repository default branch, receipt time and explicit attempt status; no green CI implies delivery.",
+        "ko": "수신 커밋·리비전, 저장소 기본 브랜치, 수신 시각과 명시적 시도 상태를 표시합니다. CI 성공만으로 수신 처리하지 않습니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "No receipt yet; show setup guidance and a status refresh action.",
+        "ko": "수신 기록이 없으면 설정 안내와 상태 새로고침을 제공합니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      },
+      {
+        "id": "queued",
+        "en": "Attempt is waiting; no received commit is claimed.",
+        "ko": "시도가 대기 중입니다. 커밋 수신으로 표시하지 않습니다."
+      },
+      {
+        "id": "retryable-failure",
+        "en": "Show safe failure and retry guidance; preserve last successful receipt.",
+        "ko": "안전한 실패 정보와 재시도 안내를 표시하고 마지막 성공 수신을 유지합니다."
+      },
+      {
+        "id": "skipped",
+        "en": "Missing setup means not sent; show missing setting names only.",
+        "ko": "설정 누락으로 전송되지 않았습니다. 누락된 설정 이름만 표시합니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 226,
+        "en": "Refresh receipt",
+        "ko": "수신 기록 새로고침",
+        "result": "Show the server-held commit; compare with the expected default-branch commit.",
+        "result_ko": "서버가 보유한 커밋을 표시하고 예상 기본 브랜치 커밋과 비교합니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-137#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-137#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#204",
+        "SCR-137#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-204#400",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#401",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#403",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#429",
+        "SCR-137#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-204#default",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-207#200",
+        "SCR-137#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-207#400",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-207#401",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-207#403",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-207#404",
+        "SCR-137#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-207#429",
+        "SCR-137#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-207#default",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-224#200",
+        "SCR-137#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-224#400",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-224#401",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-224#403",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-224#404",
+        "SCR-137#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-224#429",
+        "SCR-137#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-224#default",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-226#200",
+        "SCR-137#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-226#400",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-226#401",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-226#403",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-226#404",
+        "SCR-137#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-226#429",
+        "SCR-137#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-226#default",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#200",
+        "SCR-137#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-234#400",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#401",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#403",
+        "SCR-137#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-234#404",
+        "SCR-137#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-234#429",
+        "SCR-137#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-234#default",
+        "SCR-137#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  },
+  {
+    "id": "SCR-138",
+    "name": "Publication credentials",
+    "ko": "게시·에이전트 권한",
+    "path": "/p/:projectId/settings/credentials",
+    "access": "authenticated project owner; credential value only at issuance",
+    "flows": [
+      129,
+      135
+    ],
+    "terms": [
+      "CTX-035",
+      "TERM-182",
+      "TERM-183"
+    ],
+    "parent": "SCR-132",
+    "apis": [
+      201,
+      204,
+      228,
+      229,
+      230
+    ],
+    "purpose": "사용자가 범위가 제한된 게시·에이전트 자격 증명을 한 번 발급하고 기존 비밀값 노출 없이 폐기합니다.",
+    "normal": "자격 증명 이름·역할·범위·마지막 사용·폐기 상태를 표시합니다. 저장된 비밀값은 다시 조회할 수 없습니다.",
+    "empty": "자격 증명이 없으면 발급 전에 역할과 범위를 설명합니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Credential name, role, scope, last use and revoked status; stored values are not retrievable.",
+        "ko": "자격 증명 이름·역할·범위·마지막 사용·폐기 상태를 표시합니다. 저장된 비밀값은 다시 조회할 수 없습니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "No credential exists; explain role and scope before issuing.",
+        "ko": "자격 증명이 없으면 발급 전에 역할과 범위를 설명합니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      },
+      {
+        "id": "issued",
+        "en": "One-time response is visible until closed; copy requires an explicit action.",
+        "ko": "닫기 전까지 일회 응답을 표시합니다. 복사는 명시적인 동작이 필요합니다."
+      },
+      {
+        "id": "secret-unavailable",
+        "en": "Replay metadata only; revoke and issue a new credential to recover.",
+        "ko": "재시도는 메타데이터만 표시합니다. 복구하려면 폐기 후 새로 발급합니다."
+      },
+      {
+        "id": "revoked",
+        "en": "Credential can no longer publish or read agent work; show retained metadata only.",
+        "ko": "더 이상 게시하거나 에이전트 작업을 조회할 수 없습니다. 유지된 메타데이터만 표시합니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 229,
+        "en": "Issue credential",
+        "ko": "자격 증명 발급",
+        "result": "Show the real value once only in this response; never place it in URL, logs or persistent client storage.",
+        "result_ko": "응답에서만 실제 값을 한 번 표시합니다. URL·로그·영구 클라이언트 저장소에는 넣지 않습니다."
+      },
+      {
+        "api": 230,
+        "en": "Revoke credential",
+        "ko": "자격 증명 폐기",
+        "result": "Confirm the selected scope and immediately invalidate that credential.",
+        "result_ko": "선택한 범위를 확인하고 해당 자격 증명을 즉시 폐기합니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-138#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-138#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-138#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-138#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-138#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-138#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#204",
+        "SCR-138#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-204#400",
+        "SCR-138#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#401",
+        "SCR-138#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#403",
+        "SCR-138#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#429",
+        "SCR-138#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-204#default",
+        "SCR-138#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-228#200",
+        "SCR-138#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-228#400",
+        "SCR-138#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-228#401",
+        "SCR-138#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-228#403",
+        "SCR-138#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-228#404",
+        "SCR-138#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-228#429",
+        "SCR-138#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-228#default",
+        "SCR-138#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-229#201",
+        "SCR-138#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-229#400",
+        "SCR-138#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-229#401",
+        "SCR-138#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-229#403",
+        "SCR-138#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-229#404",
+        "SCR-138#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-229#409",
+        "SCR-138#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-229#413",
+        "SCR-138#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-229#429",
+        "SCR-138#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-229#default",
+        "SCR-138#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-229#200",
+        "SCR-138#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-230#200",
+        "SCR-138#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-230#400",
+        "SCR-138#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-230#401",
+        "SCR-138#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-230#403",
+        "SCR-138#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-230#404",
+        "SCR-138#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-230#409",
+        "SCR-138#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-230#413",
+        "SCR-138#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-230#429",
+        "SCR-138#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-230#default",
+        "SCR-138#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  },
+  {
+    "id": "SCR-139",
+    "name": "Version history",
+    "ko": "버전 이력",
+    "path": "/p/:projectId/versions",
+    "access": "authenticated project owner",
+    "flows": [
+      130,
+      132,
+      133
+    ],
+    "terms": [
+      "CTX-033",
+      "TERM-176"
+    ],
+    "parent": "SCR-132",
+    "apis": [
+      201,
+      204,
+      224,
+      208,
+      221
+    ],
+    "purpose": "사용자가 게시 버전을 비교하고 각 원래 버전에 연결된 결정을 확인합니다.",
+    "normal": "원본 커밋·게시 리비전·콘텐츠 버전과 실제 체크포인트 이력을 표시하고 최신 버전을 구분합니다.",
+    "empty": "게시된 버전이 없으면 게시 안내로 연결합니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Version list with source commit, publication revision, content version and actual checkpoint history; newest is labelled.",
+        "ko": "원본 커밋·게시 리비전·콘텐츠 버전과 실제 체크포인트 이력을 표시하고 최신 버전을 구분합니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "No published version exists; link to publication guidance.",
+        "ko": "게시된 버전이 없으면 게시 안내로 연결합니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      },
+      {
+        "id": "outdated",
+        "en": "Label the older version and keep its actual past approval separate from the latest version.",
+        "ko": "과거 버전을 표시하고 당시의 실제 통과를 최신 버전과 구분합니다."
+      },
+      {
+        "id": "withdrawn",
+        "en": "Show historical pass and withdrawal as two retained events.",
+        "ko": "과거 통과와 철회를 유지된 두 이벤트로 표시합니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 224,
+        "en": "Select versions",
+        "ko": "버전 선택",
+        "result": "Show both immutable versions and changed items with original decision bindings.",
+        "result_ko": "두 고정 버전과 변경된 항목, 원래 결정의 연결을 표시합니다."
+      },
+      {
+        "api": 208,
+        "en": "Open original artifact",
+        "ko": "원래 산출물 열기",
+        "result": "Read the selected historical artifact instead of silently replacing it with latest.",
+        "result_ko": "선택한 과거 산출물을 읽고 최신 버전으로 몰래 바꾸지 않습니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-139#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-139#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-139#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-139#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-139#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-139#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#204",
+        "SCR-139#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-204#400",
+        "SCR-139#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#401",
+        "SCR-139#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#403",
+        "SCR-139#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#429",
+        "SCR-139#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-204#default",
+        "SCR-139#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-224#200",
+        "SCR-139#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-224#400",
+        "SCR-139#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-224#401",
+        "SCR-139#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-224#403",
+        "SCR-139#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-224#404",
+        "SCR-139#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-224#429",
+        "SCR-139#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-224#default",
+        "SCR-139#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-208#200",
+        "SCR-139#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-208#400",
+        "SCR-139#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-208#401",
+        "SCR-139#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-208#403",
+        "SCR-139#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-208#404",
+        "SCR-139#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-208#429",
+        "SCR-139#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-208#default",
+        "SCR-139#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-221#200",
+        "SCR-139#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-221#400",
+        "SCR-139#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-221#401",
+        "SCR-139#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-221#403",
+        "SCR-139#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-221#404",
+        "SCR-139#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-221#429",
+        "SCR-139#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-221#default",
+        "SCR-139#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  },
+  {
+    "id": "SCR-140",
+    "name": "Sample guide",
+    "ko": "샘플 가이드",
+    "path": "/learn/sample",
+    "access": "everyone for synthetic sample; owner session to create private copy",
+    "flows": [
+      128,
+      129,
+      136
+    ],
+    "terms": [
+      "CTX-033",
+      "TERM-173"
+    ],
+    "parent": "SCR-131",
+    "apis": [
+      201,
+      202,
+      232,
+      233
+    ],
+    "purpose": "방문자가 샘플로 표시된 데이터로 산출물 검토를 익히고 자신의 비공개 샘플을 만들 수 있습니다.",
+    "normal": "샘플 예제, 세 단계 안내와 내려받을 샘플 원본을 표시합니다. 비공개 복사는 로그인이 필요합니다.",
+    "empty": "샘플을 불러오지 못하면 안내를 유지하고 재시도를 제공합니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Synthetic example, three guided actions and downloadable sample source; private mode requires sign-in.",
+        "ko": "샘플 예제, 세 단계 안내와 내려받을 샘플 원본을 표시합니다. 비공개 복사는 로그인이 필요합니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "If the sample is unavailable, retain the explanation and offer retry.",
+        "ko": "샘플을 불러오지 못하면 안내를 유지하고 재시도를 제공합니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      },
+      {
+        "id": "sample-readonly",
+        "en": "Public sample actions demonstrate behavior without writing any real checkpoint or discussion.",
+        "ko": "공개 샘플의 동작은 실제 체크포인트나 대화를 쓰지 않고 시연합니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 232,
+        "en": "Review sample",
+        "ko": "샘플 검토",
+        "result": "Read only labelled synthetic public data.",
+        "result_ko": "샘플로 표시된 공개 데이터만 읽습니다."
+      },
+      {
+        "api": 233,
+        "en": "Copy to my projects",
+        "ko": "내 프로젝트로 복사",
+        "result": "After sign-in create an isolated private copy; never change real project data.",
+        "result_ko": "로그인 후 격리된 비공개 사본을 만듭니다. 실제 프로젝트 데이터는 변경하지 않습니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-140#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-140#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-140#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-140#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-140#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-140#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-202#200",
+        "SCR-140#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-202#400",
+        "SCR-140#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-202#413",
+        "SCR-140#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-202#429",
+        "SCR-140#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-202#503",
+        "SCR-140#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-202#504",
+        "SCR-140#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-202#default",
+        "SCR-140#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-232#200",
+        "SCR-140#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-232#400",
+        "SCR-140#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-232#429",
+        "SCR-140#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-232#default",
+        "SCR-140#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-233#201",
+        "SCR-140#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-233#400",
+        "SCR-140#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-233#401",
+        "SCR-140#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-233#403",
+        "SCR-140#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-233#409",
+        "SCR-140#stale",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-233#413",
+        "SCR-140#error",
+        "Explain the size limit near input; do not truncate or echo a secret.",
+        "입력 옆에서 크기 제한을 설명합니다. 입력을 자르거나 비밀값을 다시 표시하지 않습니다."
+      ],
+      [
+        "API-233#429",
+        "SCR-140#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-233#default",
+        "SCR-140#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  },
+  {
+    "id": "SCR-141",
+    "name": "Isolated mockup preview",
+    "ko": "격리된 목업 미리보기",
+    "path": "/p/:projectId/preview/:artifactId",
+    "access": "owner-authorized parent; opaque credential-free child sandbox",
+    "flows": [
+      130,
+      136
+    ],
+    "terms": [
+      "CTX-033",
+      "TERM-173",
+      "TERM-176"
+    ],
+    "parent": "SCR-134",
+    "apis": [
+      201,
+      204,
+      231
+    ],
+    "purpose": "사용자가 원본 정보를 유지하며 자격 증명이 없는 격리된 미리보기에서 커밋된 HTML을 봅니다.",
+    "normal": "권한을 확인한 상위 화면의 제목·원본 커밋과 테마·화면 너비 제어를 표시합니다. 격리된 샌드박스는 자체 포함 HTML만 실행합니다.",
+    "empty": "HTML 첨부가 없으면 이유를 안내하고 단계 원본으로 돌아갑니다.",
+    "states": [
+      {
+        "id": "normal",
+        "en": "Authorized parent title, source commit and theme/viewport controls; opaque sandbox contains self-contained HTML only.",
+        "ko": "권한을 확인한 상위 화면의 제목·원본 커밋과 테마·화면 너비 제어를 표시합니다. 격리된 샌드박스는 자체 포함 HTML만 실행합니다."
+      },
+      {
+        "id": "loading",
+        "en": "Keep the normal layout and focus; use inert placeholders only on initial load. Retain prior content during refresh.",
+        "ko": "일반 화면의 레이아웃과 포커스를 유지합니다. 최초 로딩에만 비활성 플레이스홀더를 사용하고 새로고침 중에는 이전 내용을 유지합니다."
+      },
+      {
+        "id": "empty",
+        "en": "No HTML attachment exists; explain and return to the stage source.",
+        "ko": "HTML 첨부가 없으면 이유를 안내하고 단계 원본으로 돌아갑니다."
+      },
+      {
+        "id": "error",
+        "en": "Show safe problem code and trace ID; keep non-secret input. Retry the same idempotency key/body until the result is known. Missing target offers a list/source link.",
+        "ko": "안전한 오류 코드와 추적 ID를 표시하고 비밀값이 아닌 입력을 유지합니다. 결과를 확인할 때까지 같은 멱등성 키·본문으로 재시도합니다. 대상이 없으면 목록·원본 링크를 제공합니다."
+      },
+      {
+        "id": "permission",
+        "en": "Clear private content when the session expires. Sign in and restore the validated address; forbidden role explains why and offers back. An absent/foreign target is indistinguishable.",
+        "ko": "세션이 만료되면 비공개 내용을 지웁니다. 로그인 후 검증된 주소로 복귀합니다. 허용되지 않은 역할은 사유와 돌아가기를 제공합니다. 없는 대상과 다른 사용자 대상은 구분하지 않습니다."
+      },
+      {
+        "id": "stale",
+        "en": "Keep the reviewed version and draft; explain changed revision or conflicting operation. Reload and require a deliberate new action, never auto-submit a human decision.",
+        "ko": "검토한 버전과 초안을 유지하고 변경된 리비전 또는 충돌 동작을 설명합니다. 새로고침 후 명시적인 새 동작을 요구하고 사용자 결정을 자동 재전송하지 않습니다."
+      },
+      {
+        "id": "refused",
+        "en": "Blocked network/navigation/storage action stays inside the sandbox; parent authority is unaffected.",
+        "ko": "차단된 네트워크·탐색·저장 동작은 샌드박스 안에 머뭅니다. 상위 화면 권한에는 영향이 없습니다."
+      },
+      {
+        "id": "unsupported",
+        "en": "External assets or unsupported packaging are blocked with a source/back action.",
+        "ko": "외부 리소스나 지원하지 않는 형식은 차단하고 원본·돌아가기 동작을 제공합니다."
+      }
+    ],
+    "actions": [
+      {
+        "api": 231,
+        "en": "Open preview",
+        "ko": "미리보기 열기",
+        "result": "Fetch via owner authorization, then render with sandbox isolation and restrictive content policy.",
+        "result_ko": "사용자 권한으로 조회한 뒤 샌드박스 격리와 제한된 콘텐츠 정책으로 표시합니다."
+      }
+    ],
+    "responses": [
+      [
+        "API-201#200",
+        "SCR-141#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-201#400",
+        "SCR-141#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#401",
+        "SCR-141#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#403",
+        "SCR-141#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-201#429",
+        "SCR-141#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-201#default",
+        "SCR-141#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#204",
+        "SCR-141#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-204#400",
+        "SCR-141#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#401",
+        "SCR-141#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#403",
+        "SCR-141#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-204#429",
+        "SCR-141#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-204#default",
+        "SCR-141#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-231#200",
+        "SCR-141#normal",
+        "Success with an empty collection → empty; otherwise normal.",
+        "빈 컬렉션 성공은 empty, 나머지는 normal입니다."
+      ],
+      [
+        "API-231#400",
+        "SCR-141#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-231#401",
+        "SCR-141#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-231#403",
+        "SCR-141#permission",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ],
+      [
+        "API-231#404",
+        "SCR-141#error",
+        "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
+        "사용할 수 없는 대상입니다. 다른 사용자 대상의 존재를 드러내지 않고 소유자 목록으로 돌아갑니다."
+      ],
+      [
+        "API-231#429",
+        "SCR-141#error",
+        "Show Retry-After; keep drafts and last successful data, no rapid automatic retry.",
+        "Retry-After를 표시하고 초안과 마지막 성공 데이터를 유지합니다. 빠른 자동 재시도는 하지 않습니다."
+      ],
+      [
+        "API-231#default",
+        "SCR-141#error",
+        "Retain safe context and use the state recovery rule.",
+        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+      ]
+    ]
+  }
+]

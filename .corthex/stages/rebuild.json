@@ -7,14 +7,14 @@
       "state": "in_progress",
       "checkpoints": [
         {
-          "approved": "Step 1-b timeline passed in NEXUS; original wording: 01단계 확인 지점 통과. Context boundaries, tables and map were not presented or approved.",
+          "approved": "Step 1-b timeline passed in NEXUS; original wording: 01\ub2e8\uacc4 \ud655\uc778 \uc9c0\uc810 \ud1b5\uacfc. Context boundaries, tables and map were not presented or approved.",
           "by": "the maintainer",
           "nexus": "nk_n9aja7yrtm1q",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/01-domain/rebuild.md#8-checkpoint-1-and-decisions",
           "date": "2026-11-17"
         }
       ],
-      "next": "Domain design authored through Step 9; version-bound NEXUS review remains pending. Continue stages 02–10 under docs/decisions/rebuild-authorization.md without impersonating a human pass.",
+      "next": "Domain design authored through Step 9; version-bound NEXUS review remains pending. Continue stages 02\u201310 under docs/decisions/rebuild-authorization.md without impersonating a human pass.",
       "updated": "2026-11-18T02:30:00+09:00"
     },
     "02-prd": {
@@ -54,10 +54,10 @@
       "updated": "2026-11-18T04:40:00+09:00"
     },
     "08-screen-states": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
-      "updated": "2026-11-17T16:36:22+09:00"
+      "next": "All eleven screens and their state/response maps authored. Continue visual candidates under the explicit design instruction. Real NEXUS review remains pending.",
+      "updated": "2026-11-18T03:45:00+09:00"
     },
     "09-mockup": {
       "state": "not_started",
