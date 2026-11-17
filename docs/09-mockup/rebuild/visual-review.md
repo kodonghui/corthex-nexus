@@ -28,7 +28,7 @@ Visually inspected A workspace at 1440px light and 320px dark, A welcome at 1440
 
 ## Control verification
 
-All 39 synthetic assertions passed: search, project context restoration, selected-item discussion, queued question, proposal versus reflection, confirmed sample pass/withdrawal, stale historical decision, one-time credential loss/revoke, repository validation/consent, skipped CI, isolated iframe action and parent-document refusal and child self-navigation network blocking, stable loading geometry/inert controls, saved theme, Enter/Escape/focus restoration, sign-out clearing, opaque-sandbox storage denial and reduced-motion rendering. The HTML digest remained unchanged throughout the run.
+All 44 synthetic assertions passed: search, project context restoration, selected-item discussion, queued question, proposal versus reflection, decision body/source/PR validation and per-item discussion restoration, confirmed sample pass/withdrawal, stale historical decision, one-time credential loss/revoke, repository validation/consent, skipped CI, isolated iframe action and parent-document refusal and child self-navigation network blocking, stable loading geometry/inert controls, saved theme, Enter/Escape/focus restoration, sign-out clearing, opaque-sandbox storage denial and reduced-motion rendering. The HTML digest remained unchanged throughout the run.
 
 ## Not measured yet
 

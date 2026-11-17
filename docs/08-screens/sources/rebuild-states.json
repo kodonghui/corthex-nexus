@@ -1097,13 +1097,13 @@
       234
     ],
     "purpose": "사용자가 선택한 산출물 항목을 질문하고 AI 제안과 검증된 원본 변경을 구분합니다.",
-    "normal": "항목 제목·버전과 원문, 시간순 사용자·에이전트 메시지, 작업 대기 상태, 제안과 반영 근거를 표시합니다.",
+    "normal": "항목 제목·버전과 원문, 시간순 사용자·에이전트 메시지, 작업 대기 상태, 제안·기록한 결정과 반영 근거를 표시합니다.",
     "empty": "질문이 없음을 안내하고 이름이 있는 질문 입력에 포커스를 제공합니다.",
     "states": [
       {
         "id": "normal",
-        "en": "Item title and version, original content, chronological human/agent messages, queue status, proposal and reflection evidence.",
-        "ko": "항목 제목·버전과 원문, 시간순 사용자·에이전트 메시지, 작업 대기 상태, 제안과 반영 근거를 표시합니다."
+        "en": "Item title and version, original content, chronological human/agent messages, queue status, proposal, recorded decisions and reflection evidence.",
+        "ko": "항목 제목·버전과 원문, 시간순 사용자·에이전트 메시지, 작업 대기 상태, 제안·기록한 결정과 반영 근거를 표시합니다."
       },
       {
         "id": "loading",
