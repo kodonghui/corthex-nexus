@@ -60,10 +60,10 @@
       "updated": "2026-11-18T03:45:00+09:00"
     },
     "09-mockup": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
-      "updated": "2026-11-17T16:36:22+09:00"
+      "next": "A selected and its light/dark tokens fixed as the design baseline under delegated design authority. Interactive HTML and measured synthetic review authored; actual version-bound NEXUS human review and real product QA remain pending.",
+      "updated": "2026-11-18T04:25:00+09:00"
     },
     "10-wbs": {
       "state": "not_started",
