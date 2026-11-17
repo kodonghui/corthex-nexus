@@ -70,6 +70,8 @@ async function paint(){await evaluate('new Promise(resolve=>requestAnimationFram
 async function setting({width,height=width<1024?844:900,theme='light',touch=false}){
  await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
  await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme},{name:'prefers-reduced-motion',value:'no-preference'}]});
+ // The pages show the dark theme only on the user's choice, a cookie that the server reads (2026-11-17).
+ await command('Network.setCookie',{name:'nx-theme',value:theme,url:origin});
  await command('Emulation.setTouchEmulationEnabled',touch?{enabled:true,maxTouchPoints:1}:{enabled:false});
 }
 // No reading runs in the side or the stage, the item is not loading and nothing is being sent.
@@ -575,7 +577,8 @@ try{
    await press('ArrowDown');
    v=await search();
    assert(v.panel&&v.rows.length===20&&v.current==='sm-0','Down opens them again with the first marked: '+JSON.stringify({panel:v.panel,current:v.current}));
-   await clickAt(700,600);await paint();
+   // Left of the panel, which the theme's switch (2026-11-17) moved 60 pixels to the left.
+   await clickAt(200,600);await paint();
    v=await search();
    assert(!v.panel&&v.words==='refund','A press outside closes them: '+v.panel);
    await evaluate(`document.querySelector(${JSON.stringify(FIELD)}).focus()`);await paint();

@@ -3,6 +3,9 @@ import {picturePreview} from "./preview.js";
 import {drawBody,pageKind,pageTitle} from "./draw/page.js";
 import {esc} from "./draw/html.js";
 import {PICTURE_STAGES} from "./draw/stage.js";
+import {MARK_ICON} from "./draw/icons.js";
+// The tab's icon: NEXUS's mark, inline, since the pages' policy takes images from data: URLs.
+const ICON=`<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,${encodeURIComponent(MARK_ICON)}">`;
 const URL_PATTERN=/^\/code\/[a-z0-9][a-z0-9-]{0,63}\.[0-9a-f]{8}\.(?:js|css|woff2)$/;
 export function createViews(code,entries){
   for(const value of Object.values(entries).flat())if(!URL_PATTERN.test(value))throw new Error("Invalid bundled view URL");
@@ -28,7 +31,7 @@ export function createViews(code,entries){
     const lang=payload.lang==="ko"?"ko":"en",picture=payload.view==="picture",editor=picture&&payload.data?.picture?(payload.data.stage==="05-erd"?"erd":"excalidraw"):null;
     const loading=words(picture?"Loading the view":"Loading the overview",lang),reload=lang==="ko"?"다시 불러오기":"Load again";
     const initial=picture?picturePreview(payload.data,lang):"";
-    return`<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"><title>NEXUS</title>${css?`<style data-nexus-css="view">${css}</style>`:""}${entries["fonts-css"]?`<template id="nexus-font-assets">${link("stylesheet",entries["fonts-css"],' data-nexus-css="fonts"')}</template>`:""}${entries["view-js"]?link("modulepreload",entries["view-js"]):""}${editorAssets(editor,lang)}</head><body><div id="view" class="view">${initial||`<main class="content"><p>${loading}</p><a href="">${reload}</a></main>`}</div><script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script><script type="module" src="${entries["view-js"]}"></script></body></html>`;
+    return`<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${ICON}<title>NEXUS</title>${css?`<style data-nexus-css="view">${css}</style>`:""}${entries["fonts-css"]?`<template id="nexus-font-assets">${link("stylesheet",entries["fonts-css"],' data-nexus-css="fonts"')}</template>`:""}${entries["view-js"]?link("modulepreload",entries["view-js"]):""}${editorAssets(editor,lang)}</head><body><div id="view" class="view">${initial||`<main class="content"><p>${loading}</p><a href="">${reload}</a></main>`}</div><script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script><script type="module" src="${entries["view-js"]}"></script></body></html>`;
   },page(payload){
     // The redesign's pages (stage 08's rule 15): the server draws their reading parts
     // with the view's own functions, so that a page reads before its code runs and
@@ -36,6 +39,6 @@ export function createViews(code,entries){
     const kind=pageKind(payload),lang=payload.lang,script=entries["page-js"];
     const stage=kind==="stage"?payload.data?.stage:"",editor=PICTURE_STAGES.includes(stage)&&payload.picture?.picture?(stage==="05-erd"?"erd":"excalidraw"):null;
     const fonts=entries["fonts-css"]?`<template id="nexus-font-assets">${link("stylesheet",entries["fonts-css"],' data-nexus-css="fonts"')}</template>`:"";
-    return`<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"><title>${esc(pageTitle(payload))}</title>${pageCSS?`<style data-nexus-css="page">${pageCSS}</style>`:""}${fonts}${(entries["page-preload"]||[]).map(h=>link("modulepreload",h)).join("")}${editorAssets(editor,lang)}</head><body class="nx" data-nx-page="${kind}">${drawBody(payload)}<script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script>${script?`<script type="module" src="${script}"></script>`:""}</body></html>`;
+    return`<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${ICON}<title>${esc(pageTitle(payload))}</title>${pageCSS?`<style data-nexus-css="page">${pageCSS}</style>`:""}${fonts}${(entries["page-preload"]||[]).map(h=>link("modulepreload",h)).join("")}${editorAssets(editor,lang)}</head><body class="nx" data-nx-page="${kind}">${drawBody(payload)}<script id="view-data" type="application/json">__CORTHEX_VIEW_DATA__</script>${script?`<script type="module" src="${script}"></script>`:""}</body></html>`;
   }};
 }

@@ -7,7 +7,7 @@
    rule 16's; a media query cannot read a custom property, so they are written out. */
 :root{--pg-gap:6px;--pg-gap-wide:10px;--pg-map-w:188px;--pg-map-h:120px;--pg-map-w-ph:120px;--pg-map-h-ph:78px;--pg-fnote:560px;--pg-cover:440px;--pg-lg:14px;--pg-pop:420px;--pg-top:56px;--pg-rail:248px;--pg-frail:56px;--pg-search:560px;--pg-bar:48px;--pg-count:20px;--pg-chip:22px;--pg-step:24px;--pg-measure:760px;--pg-codebar-wait:6s;--pg-id:112px;--pg-find:280px;--pg-fields:120px;--pg-comments:36px;--pg-marks:144px;--pg-term:120px;--pg-note:480px;--pg-search-h:70vh;--pg-data:640px;--pg-dkey:176px;--pg-dval:250px}
 *,*::before,*::after{box-sizing:border-box}
-html{color-scheme:light dark;-webkit-text-size-adjust:100%}
+html{color-scheme:light;-webkit-text-size-adjust:100%}
 body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-family:var(--nx-font-family-sans);font-size:var(--nx-font-size-body);line-height:var(--nx-font-line-height-body);font-weight:var(--nx-font-weight-regular);word-break:keep-all;overflow-wrap:anywhere}
 .nx h1,.nx h2,.nx h3,.nx p,.nx ul,.nx ol{margin:0;padding:0}
 .nx ul,.nx ol{list-style:none}
@@ -80,6 +80,9 @@ body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-f
 /* The top bar (rule 17): one line from 1,024 pixels; under it, the phone's own */
 .nx .tb{flex:none;position:relative;z-index:3;display:flex;align-items:center;gap:var(--nx-space-lg);height:var(--pg-top);padding:0 var(--nx-space-xl);background:var(--nx-color-surface);border-bottom:var(--nx-border-thin) solid var(--nx-color-line)}
 .nx .logo{display:inline-flex;align-items:center;min-height:var(--nx-size-target);color:var(--nx-color-text);font-weight:var(--nx-font-weight-bold);letter-spacing:.14em;font-size:var(--nx-font-size-small);white-space:nowrap;text-decoration:none}
+.nx .logo .lm{flex:none;width:var(--nx-size-pin);height:var(--nx-size-pin);margin-right:var(--nx-space-sm)}
+.nx .lm-g{fill:var(--nx-color-accent)}.nx .lm-l{fill:none;stroke:var(--nx-color-on-accent)}.nx .lm-d{fill:var(--nx-color-on-accent)}
+:root[data-theme="dark"] .nx .thm .tm,:root:not([data-theme="dark"]) .nx .thm .ts{display:none}
 .nx .place{display:flex;align-items:center;gap:var(--nx-space-sm);min-width:0;font-size:var(--nx-font-size-small);color:var(--nx-color-muted);white-space:nowrap}
 .nx .place b{color:var(--nx-color-text)}
 .nx .place svg.sep{width:calc(var(--nx-size-icon) * .75);height:calc(var(--nx-size-icon) * .75)}
@@ -253,7 +256,7 @@ body.nx{margin:0;background:var(--nx-color-bg);color:var(--nx-color-text);font-f
 @media (pointer:coarse){.nx .home .pj a{min-height:var(--nx-size-target)}.nx .home .where > .lnk,.nx .home .after .lnk{line-height:var(--nx-size-target)}.nx .home .after .lnk{display:inline-block}.nx .home .rqf .lnk{display:inline-flex;flex-wrap:wrap;align-items:center;column-gap:var(--nx-space-xs);min-height:var(--nx-size-target);max-width:100%}}
 /* The editors' dark filter (palette.js), which turns the pictures' palette into the dark
    theme's, as on the pictures themselves */
-@media (prefers-color-scheme:dark){.nx .home .thumb .pic > svg{filter:invert(93%) hue-rotate(180deg)}}
+:root[data-theme="dark"] .nx .home .thumb .pic > svg{filter:invert(93%) hue-rotate(180deg)}
 
 /* The workspace (SCR-111): three columns from 1,280 pixels (rule 16) */
 body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
@@ -464,7 +467,7 @@ body.nx[data-nx-page="stage"]{height:100vh;height:100dvh;display:flex;flex-direc
 .nx .mk-view{fill:none;stroke:var(--nx-color-accent);stroke-width:var(--nx-border-strong)}
 /* The editors' dark filter (palette.js) on the picture and the map's boxes, as on the first
    page's small views; the marks keep the dark theme's own colours */
-@media (prefers-color-scheme:dark){.nx .pf svg.board,.nx .pf svg.mpn{filter:invert(93%) hue-rotate(180deg)}}
+:root[data-theme="dark"] .nx .pf svg.board,:root[data-theme="dark"] .nx .pf svg.mpn{filter:invert(93%) hue-rotate(180deg)}
 /* Under 1,024 pixels: the view's buttons and the steps at the target's size, Fit and Go to as
    icons at the line's end, the map above the zoom buttons, and the note clear of both */
 @media (max-width:1023.98px){

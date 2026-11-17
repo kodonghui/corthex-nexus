@@ -3,7 +3,7 @@
 // Before the view's code runs the controls that need it are disabled, with
 // data-nx-wait naming what the code adds to them (rule 15); links work without it.
 import {esc,count} from "./html.js";
-import {icon} from "./icons.js";
+import {icon,MARK} from "./icons.js";
 import {label,labels} from "./words.js";
 import {stageName,stageNumber} from "./stages.js";
 const sr=text=>`<span class="sr">${esc(text)}</span>`;
@@ -21,7 +21,7 @@ export function topBar(place,lang){
   const hint=labels("Search hint",lang).join(" · ");
   return [
     stage?`<a class="ib only-ph" href="/">${icon("i-back")}${sr(words[1])}</a>`:"",
-    `<a class="logo${stage?" only-pc":""}" href="/">${esc(words[0])}</a>`,
+    `<a class="logo${stage?" only-pc":""}" href="/">${MARK}${esc(words[0])}</a>`,
     `<nav class="place only-pc">${where}</nav>`,
     stage?`<a class="ttl only-ph" href="#stages"><span class="num">${esc(stageNumber(place.stage))}</span> <span class="clip">${esc(stageName(place.stage,lang))}</span>${icon("i-down")}</a>`:`<span class="sp only-ph"></span>`,
     // The search (SCR-116): its field, with the panel of its matches under it, which the code
@@ -30,6 +30,9 @@ export function topBar(place,lang){
     `<div class="fw only-pc"><label class="field">${icon("i-search")}<input type="search" name="q" maxlength="200" autocomplete="off" placeholder="${esc(hint)}" aria-label="${esc(words[2])}" role="combobox" aria-autocomplete="list" aria-controls="search-list" aria-expanded="false" disabled data-nx-wait="search"></label>${searchPanel(words)}</div>`,
     `<button class="ib only-ph sclose" type="button" disabled data-nx-wait="search">${icon("i-close")}${sr(words[5])}</button>`,
     `<button class="ib only-ph sbtn" type="button" disabled data-nx-wait="search">${icon("i-search")}${sr(words[2])}</button>`,
+    // The theme's switch (2026-11-17): the light theme by default, the dark one when pressed. The
+    // server marks the page with the user's choice (data-theme), and the code presses it.
+    `<button class="ib thm" type="button" aria-pressed="false" title="${esc(label("Theme",0,lang))}" disabled data-nx-wait="theme">${icon("i-moon","tm")}${icon("i-sun","ts")}${sr(label("Theme",0,lang))}</button>`,
     `<a class="btn only-pc" href="/hub">${esc(words[3])}</a>`,
     stage?"":`<details class="menu only-ph"><summary class="ib">${icon("i-menu")}${sr(words[4])}</summary><div class="pop"><a class="btn" href="/hub">${esc(words[3])}</a></div></details>`,
     `<div class="sdim" hidden></div>`,

@@ -70,6 +70,8 @@ async function paint(){await evaluate('new Promise(resolve=>requestAnimationFram
 async function setting({width,theme}){
  await command('Emulation.setDeviceMetricsOverride',{width,height:width<1024?844:900,deviceScaleFactor:1,mobile:false});
  await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme},{name:'prefers-reduced-motion',value:'no-preference'}]});
+ // The pages show the dark theme only on the user's choice, a cookie that the server reads (2026-11-17).
+ await command('Network.setCookie',{name:'nx-theme',value:theme,url:origin});
  // A phone is touched: the hit areas of rule 14 are measured with touch, as a finger selects.
  await command('Emulation.setTouchEmulationEnabled',width<1024?{enabled:true,maxTouchPoints:1}:{enabled:false});
 }

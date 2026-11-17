@@ -330,7 +330,7 @@ test("a picture's small view: the server's first layout without labels, in the e
     const a=Math.PI,cos=Math.cos(a),sin=Math.sin(a),m=[[0.213+cos*0.787-sin*0.213,0.715-cos*0.715-sin*0.715,0.072-cos*0.072+sin*0.928],[0.213-cos*0.213+sin*0.143,0.715+cos*0.285+sin*0.140,0.072-cos*0.072-sin*0.283],[0.213-cos*0.213-sin*0.787,0.715-cos*0.715+sin*0.715,0.072+cos*0.928+sin*0.072]];
     return"#"+m.map(row=>Math.round(Math.min(1,Math.max(0,row[0]*rgb[0]+row[1]*rgb[1]+row[2]*rgb[2]))*255).toString(16).padStart(2,"0")).join("");};
   assert.equal(filtered("#ffffff"),"#121212");
-  assert.match(tokens,/@media \(prefers-color-scheme: dark\) \{[^]*--nx-color-picture-ground: #121212;/);
+  assert.match(tokens,/:root\[data-theme="dark"\] \{[^]*--nx-color-picture-ground: #121212;/);
   for(const [stroke,fill]of Object.values(PALETTE))for(const colour of[stroke,fill].filter(c=>c!=="none"))assert.match(filtered(colour),/^#[0-9a-f]{6}$/);
 });
 

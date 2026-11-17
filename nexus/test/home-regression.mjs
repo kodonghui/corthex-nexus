@@ -58,6 +58,8 @@ async function paint(){await evaluate('new Promise(resolve=>requestAnimationFram
 async function setting({width,height=844,theme='light',touch=false}){
  await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
  await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme},{name:'prefers-reduced-motion',value:'no-preference'}]});
+ // The pages show the dark theme only on the user's choice, a cookie that the server reads (2026-11-17).
+ await command('Network.setCookie',{name:'nx-theme',value:theme,url:origin});
  await command('Emulation.setTouchEmulationEnabled',touch?{enabled:true,maxTouchPoints:1}:{enabled:false});
 }
 async function space(name){

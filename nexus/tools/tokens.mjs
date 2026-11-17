@@ -66,9 +66,16 @@ export function compileTokens(projectRoot=root) {
   if(JSON.stringify([...themes.light.keys()])!==JSON.stringify([...themes.dark.keys()]))throw new Error("Theme token names differ");
   const declarations=(entries,all)=>[...entries].map(([name,token])=>`  ${variable(name)}: ${cssValue(token,all)};`).join("\n");
   const light=new Map([...base,...themes.light]),dark=new Map([...base,...themes.dark]);
+  // The light theme is the default, whatever the system prefers; the dark theme shows only when the
+  // user picks it in the top bar, which sets data-theme on the page (2026-11-17: the dark theme that
+  // followed the system read as gloomy).
   const css="/* Generated from design/nexus/tokens.resolver.json. Edit no token values here. */\n"+
+    ":root {\n  color-scheme: light;\n"+declarations(light,light)+"\n}\n:root[data-theme=\"dark\"] {\n  color-scheme: dark;\n"+declarations(themes.dark,dark)+"\n}\n";
+  // The hub page's copy of the upstream template (../src/hub.html) keeps the system's theme until
+  // the upstream template changes with it, since the copy must equal its source byte for byte.
+  const hubCss="/* Generated from design/nexus/tokens.resolver.json. Edit no token values here. */\n"+
     ":root {\n"+declarations(light,light)+"\n}\n@media (prefers-color-scheme: dark) {\n:root {\n"+declarations(themes.dark,dark)+"\n}\n}\n";
-  return {css,base,light,dark,breakpoint:dimension(base.get("breakpoint.side-panel").value)};
+  return {css,hubCss,base,light,dark,breakpoint:dimension(base.get("breakpoint.side-panel").value)};
 }
 
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {

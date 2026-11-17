@@ -523,6 +523,10 @@ export const redesign={
     "NEXUS · All projects · Search · Full checks · Menu · Close",
     "NEXUS · 모든 프로젝트 · 찾기 · 전체 점검 · 메뉴 · 닫기"
   ],
+  "Theme": [
+    "Dark mode",
+    "다크 모드"
+  ],
   "Search hint": [
     "Find by ID or words · e.g. REQ-107",
     "ID나 낱말로 찾기 · 예: REQ-107"

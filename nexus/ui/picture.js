@@ -2,6 +2,7 @@ import {itemMarks,itemIdentity} from "./layout.js";
 import {initialPictureView} from "../src/preview.js";
 import {stylesheetReady} from "./styles.js";
 import {zoomCamera,fitCamera} from "./camera.js";
+import {themeQuery} from "./theme.js";
 const union=rects=>{const x=Math.min(...rects.map(r=>r.x)),y=Math.min(...rects.map(r=>r.y));return{x,y,width:Math.max(...rects.map(r=>r.x+r.width))-x,height:Math.max(...rects.map(r=>r.y+r.height))-y};};
 const paint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
 export async function drawPicture(target,scene,{stage,data,lang,removedMark,onSelect,onReady,initialView,signal}){
@@ -13,7 +14,7 @@ export async function drawPicture(target,scene,{stage,data,lang,removedMark,onSe
   const canvas=document.createElement("div"),marks=document.createElement("div");canvas.className="picture-canvas";marks.className="markers";marks.setAttribute("aria-hidden","true");target.append(canvas,marks);
   canvas.style.visibility="hidden";marks.style.visibility="hidden";
   let current=data,controller,destroyed=false,renderFrame,observer,down=null,moved=false,pointers=new Set();
-  const dark=matchMedia("(prefers-color-scheme: dark)"),theme=dark.matches?"dark":"light";
+  const dark=themeQuery(),theme=dark.matches?"dark":"light";
   const changeTheme=()=>{controller?.theme(dark.matches?"dark":"light");schedule();};
   function destroy(){if(destroyed)return;destroyed=true;cancelAnimationFrame(renderFrame);observer?.disconnect();dark.removeEventListener("change",changeTheme);signal?.removeEventListener("abort",destroy);controller?.destroy();canvas.remove();marks.remove();}
   signal?.addEventListener("abort",destroy,{once:true});

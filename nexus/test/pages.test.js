@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
-import { VIEW_POLICY, handle, renderView } from "../src/app.js";
+import { VIEW_POLICY, handle, renderView, themeOf } from "../src/app.js";
 import { createViews } from "../src/views.js";
 import { words } from "../ui/messages.js";
 import { fakeD1 } from "./fake-d1.js";
@@ -28,8 +28,8 @@ async function server(snapshots, { lang = "en", withViews = true } = {}) {
   const db = new DatabaseSync(":memory:");
   const env = { ...access.env, DB: fakeD1(db), NEXUS_LANGUAGE: lang };
   let serial = 0;
-  async function call(method, path, { body, kind = "agent", accept } = {}) {
-    const headers = { ...access.headers(kind), "Nexus-Session": "pages-test", ...(accept ? { Accept: accept } : {}) };
+  async function call(method, path, { body, kind = "agent", accept, cookie } = {}) {
+    const headers = { ...access.headers(kind), "Nexus-Session": "pages-test", ...(accept ? { Accept: accept } : {}), ...(cookie ? { Cookie: cookie } : {}) };
     if (method === "POST") headers["Idempotency-Key"] = '"nw_' + (++serial).toString().padStart(12, "0") + '"';
     if (body !== undefined) headers["Content-Type"] = "application/json";
     const request = new Request("https://nexus.example.com" + path, { method, headers, redirect: "manual", ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
@@ -278,4 +278,18 @@ test("without the view's build, each page holds its data alone", async () => {
     assert.deepEqual([page.status, page.headers.get("Content-Security-Policy"), viewData(page.text).schema], [200, VIEW_POLICY, schema]);
     assert.doesNotMatch(page.text, /<script type="module"/);
   }
+});
+
+test("the pages show the light theme unless the user chose the dark one, and carry NEXUS's mark as the tab's icon (2026-11-17)", async () => {
+  const { call } = await server([viewSnapshot("qa-shop")]);
+  assert.equal(themeOf(new Request("https://nexus.example.com/", { headers: { Cookie: "a=1; nx-theme=dark" } })), "dark");
+  for (const cookie of [null, "nx-theme=light", "nx-theme=darker", "xnx-theme=dark"]) assert.equal(themeOf(new Request("https://nexus.example.com/", { headers: cookie ? { Cookie: cookie } : {} })), null, String(cookie));
+  const light = await call("GET", "/", { accept: "text/html" });
+  assert.equal(light.status, 200);
+  assert.match(light.text, /^<!doctype html><html lang="en"><head>/, "no theme: the stylesheet's light one, whatever the system prefers");
+  assert.match(light.text, /<link rel="icon" type="image\/svg\+xml" href="data:image\/svg\+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww\.w3\.org%2F2000%2Fsvg%22[^"]*%23f3f0e8[^"]*">/, "the mark, inline");
+  const { status, text: dark } = await call("GET", "/", { accept: "text/html", cookie: "nx-theme=dark" });
+  assert.equal(status, 200, dark.slice(0, 300));
+  assert.match(dark, /^<!doctype html><html data-theme="dark" lang="en"><head>/, "the user's choice, before the page's first paint");
+  assert.ok(dark.includes('class="ib thm"'), "the switch in the top bar");
 });

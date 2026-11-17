@@ -54,6 +54,8 @@ async function paint(){await evaluate('new Promise(resolve=>requestAnimationFram
 async function setting({width,height=width<1024?844:900,theme='light'}){
  await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
  await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme},{name:'prefers-reduced-motion',value:'no-preference'}]});
+ // The pages show the dark theme only on the user's choice, a cookie that the server reads (2026-11-17).
+ await command('Network.setCookie',{name:'nx-theme',value:theme,url:origin});
 }
 // The page's code has run and, unless asked otherwise, the editor has drawn over the SVG.
 async function open(route,{drawn=true}={}){

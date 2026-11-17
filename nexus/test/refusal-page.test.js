@@ -30,7 +30,7 @@ test("all six refused pages reuse complete localized messages and frozen critica
     assert.equal(response.status,status);assert.equal(response.headers.get("Content-Type"),"text/html; charset=utf-8");assert.match(response.headers.get("Cache-Control"),/no-store/);assert.match(response.headers.get("Content-Security-Policy"),/default-src 'none'/);
     const body=await response.text();if(method==="HEAD"){assert.equal(body,"");continue;}
     assert.ok(body.includes("<h1>"+escape(words(problem,lang))+"</h1>"),lang+" "+problem);
-    assert.ok(body.includes(views.refusalCSS));assert.match(body,/prefers-color-scheme:dark/);assert.match(body,/word-break:keep-all/);assert.match(body,/class="content refusal"/);
+    assert.ok(body.includes(views.refusalCSS));assert.match(body,/:root\[data-theme=dark\]\{color-scheme:dark;/);assert.match(body,/word-break:keep-all/);assert.match(body,/class="content refusal"/);
     const links=[...body.matchAll(/<a class="control" href="([^"]*)">([^<]*)<\/a>/g)].map(([,href,text])=>[href,text]);
     assert.deepEqual(links[0],["",lang==="ko"?"다시 불러오기":"Load again"],path);
     assert.deepEqual(links.slice(1),WAY_OUT[path]===null?[]:[[WAY_OUT[path],WAY_OUT[path]==="/"?escape(words("All projects",lang)):lang==="ko"?"허브로":"Hub"]],path);

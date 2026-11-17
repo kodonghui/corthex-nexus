@@ -29,6 +29,8 @@ export const SYMBOLS=Object.freeze({
  "i-picture":"<rect x=\"2\" y=\"2.5\" width=\"12\" height=\"11\" rx=\"1\"/><path d=\"M4.5 6h3v2h-3zM9 9h3v2H9z\"/><path d=\"M7.5 7h3v2\"/>",
  "i-reply":"<path d=\"M6.5 4 2.5 8l4 4\"/><path d=\"M2.5 8h7a4 4 0 0 1 4 4v1\"/>",
  "i-dot":"<circle cx=\"8\" cy=\"8\" r=\"2.5\"/>",
+ "i-moon":"<path d=\"M13.5 9.6A5.8 5.8 0 1 1 6.4 2.5a4.6 4.6 0 0 0 7.1 7.1z\"/>",
+ "i-sun":"<circle cx=\"8\" cy=\"8\" r=\"2.8\"/><path d=\"M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1\"/>",
  "s-done":"<circle class=\"c-done-bg\" cx=\"8\" cy=\"8\" r=\"7\"/><path class=\"c-done-fg\" d=\"M4.8 8.2 7 10.4l4.2-4.6\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
  "s-prog":"<circle class=\"c-prog\" cx=\"8\" cy=\"8\" r=\"6.2\" stroke-width=\"1.6\"/><path class=\"c-prog-f\" d=\"M8 1.8a6.2 6.2 0 0 0 0 12.4z\"/>",
  "s-todo":"<circle class=\"c-todo\" cx=\"8\" cy=\"8\" r=\"6.2\" stroke-width=\"1.6\"/>",
@@ -40,3 +42,9 @@ export const SPRITE=`<svg class="sprite" width="0" height="0" aria-hidden="true"
 export const SHAPES=Object.freeze({done:"s-done",in_progress:"s-prog",not_started:"s-todo",skipped:"s-skip",unknown:"s-unk"});
 export const icon=(name,extra="")=>{if(!Object.hasOwn(SYMBOLS,name)||!name.startsWith("i-"))throw new Error("No such icon: "+name);return`<svg class="i${extra?" "+extra:""}" aria-hidden="true" focusable="false"><use href="#${name}"/></svg>`;};
 export const shapeIcon=state=>`<svg class="st" aria-hidden="true" focusable="false"><use href="#${SHAPES[state]||SHAPES.unknown}"/></svg>`;
+// NEXUS's mark (2026-11-17): four documents joined at one hub, which also reads as the X of its
+// name. The top bar draws it in the theme's accent; the tab's icon (../views.js) in the light
+// theme's accent and paper.
+const MARK_DOCS="M6 7.2C6 6.5 6.5 6 7.2 6h3.6c.7 0 1.2.5 1.2 1.2v3.6c0 .7-.5 1.2-1.2 1.2H7.2C6.5 12 6 11.5 6 10.8zM20 7.2c0-.7.5-1.2 1.2-1.2h3.6c.7 0 1.2.5 1.2 1.2v3.6c0 .7-.5 1.2-1.2 1.2h-3.6c-.7 0-1.2-.5-1.2-1.2zM6 21.2c0-.7.5-1.2 1.2-1.2h3.6c.7 0 1.2.5 1.2 1.2v3.6c0 .7-.5 1.2-1.2 1.2H7.2C6.5 26 6 25.5 6 24.8zM20 21.2c0-.7.5-1.2 1.2-1.2h3.6c.7 0 1.2.5 1.2 1.2v3.6c0 .7-.5 1.2-1.2 1.2h-3.6c-.7 0-1.2-.5-1.2-1.2z",MARK_LINKS="M10.6 10.6 13.4 13.4M21.4 10.6 18.6 13.4M10.6 21.4 13.4 18.6M21.4 21.4 18.6 18.6";
+export const MARK=`<svg class="lm" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect class="lm-g" width="32" height="32" rx="7"/><path class="lm-l" d="${MARK_LINKS}" stroke-width="2.2" stroke-linecap="round"/><circle class="lm-l" cx="16" cy="16" r="3.4" stroke-width="2.2"/><path class="lm-d" d="${MARK_DOCS}"/></svg>`;
+export const MARK_ICON=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#1f4f7f"/><path d="${MARK_LINKS}" stroke="#f3f0e8" stroke-width="2.2" stroke-linecap="round"/><circle cx="16" cy="16" r="3.4" fill="none" stroke="#f3f0e8" stroke-width="2.2"/><path d="${MARK_DOCS}" fill="#f3f0e8"/></svg>`;

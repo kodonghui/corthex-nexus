@@ -65,6 +65,8 @@ async function paint(){await evaluate('new Promise(resolve=>requestAnimationFram
 async function setting({width,theme='light',touch=width<1024}){
  await command('Emulation.setDeviceMetricsOverride',{width,height:width<1024?844:900,deviceScaleFactor:1,mobile:false});
  await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme},{name:'prefers-reduced-motion',value:'no-preference'}]});
+ // The pages show the dark theme only on the user's choice, a cookie that the server reads (2026-11-17).
+ await command('Network.setCookie',{name:'nx-theme',value:theme,url:origin});
  await command('Emulation.setTouchEmulationEnabled',touch?{enabled:true,maxTouchPoints:1}:{enabled:false});
 }
 // The page's own requests to the API that have not ended, which the suite waits out.

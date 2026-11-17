@@ -14,7 +14,9 @@ test("the generated stylesheet follows the frozen base/theme order without theme
   assert.equal(tokens.breakpoint,"1024px");
   assert.equal(readFileSync(resolve(root,"nexus/ui/tokens.css"),"utf8"),tokens.css);
   assert.match(tokens.css,/--nx-color-scrim: rgb\(29 27 23 \/ 0\.32\)/);
-  assert.match(tokens.css,/@media \(prefers-color-scheme: dark\)/);
+  // The light theme is the default; the dark one only on the user's choice (2026-11-17).
+  assert.doesNotMatch(tokens.css,/prefers-color-scheme/);
+  assert.match(tokens.css,/:root \{\n  color-scheme: light;\n/);assert.match(tokens.css,/:root\[data-theme="dark"\] \{\n  color-scheme: dark;\n/);
   assert.equal((tokens.css.match(/--nx-size-target:/g)||[]).length,1,"shared dimensions precede the theme override once");
   assert.equal((tokens.css.match(/--nx-color-bg:/g)||[]).length,2,"each color belongs to both explicit themes");
 });
