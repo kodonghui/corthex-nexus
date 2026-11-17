@@ -42,10 +42,10 @@
       "updated": "2026-11-18T04:00:00+09:00"
     },
     "06-api": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
-      "updated": "2026-11-17T16:36:22+09:00"
+      "next": "Contract authored and statically validated; continue sitemap under the design instruction. Real v2 runtime/provider/compatibility tests and NEXUS review remain pending.",
+      "updated": "2026-11-18T04:20:00+09:00"
     },
     "07-sitemap": {
       "state": "not_started",
