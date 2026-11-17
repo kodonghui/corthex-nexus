@@ -33,13 +33,17 @@ class PictureRegistrationTest(GitSourcesFixture):
         snapshot = self.snapshot()
         pictures = snapshot['pictures']
         self.assertEqual({p['stage'] for p in pictures}, {'01-domain', '05-erd', '07-sitemap'})
-        self.assertTrue(all(p['part'] == 'nexus' and p['commit'] == head for p in pictures))
+        self.assertTrue(all(p['commit'] == head for p in pictures))
+        self.assertEqual({p['stage'] for p in pictures if p['part'] == 'nexus'}, {'01-domain', '05-erd', '07-sitemap'})
         erd = next(p for p in pictures if p['stage'] == '05-erd')
         self.assertTrue(erd['source']['tables'])
 
         # A new cycle cannot inherit the old cycle's contexts or approvals.
         rebuild = [p for p in snapshot['pictures'] if p['part'] == 'rebuild']
-        self.assertEqual(rebuild, [], 'timeline-only draft must not inherit a legacy domain picture')
+        self.assertEqual(len(rebuild), 1)
+        self.assertEqual(rebuild[0]['stage'], '01-domain')
+        self.assertTrue(rebuild[0]['source']['contexts'])
+        self.assertTrue(all(c['id'] in {'CTX-032', 'CTX-033', 'CTX-034', 'CTX-035', 'CTX-036'} for c in rebuild[0]['source']['contexts']))
         for stage, value in snapshot['stages'].items():
             record = value['parts']['rebuild']
             self.assertEqual(record['state'], 'in_progress' if stage in ('01-domain', '02-prd') else 'not_started')
