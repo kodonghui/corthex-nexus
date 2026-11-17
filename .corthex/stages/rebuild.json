@@ -20,8 +20,8 @@
     "02-prd": {
       "state": "in_progress",
       "checkpoints": [],
-      "next": "Scope review of REQ-301 through REQ-350; obtain NEXUS scope pass, resolve pending domain inputs, then request separate version freeze before stage 03.",
-      "updated": "2026-11-17T18:46:21+09:00"
+      "next": "Baseline 1.0 authored with all fifty active requirements and domain inputs. Continue stage 03 under the explicit design instruction; version-bound NEXUS review remains pending.",
+      "updated": "2026-11-18T03:00:00+09:00"
     },
     "03-user-flow": {
       "state": "not_started",
