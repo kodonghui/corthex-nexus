@@ -43,7 +43,12 @@ class PictureRegistrationTest(GitSourcesFixture):
         for stage, value in snapshot['stages'].items():
             record = value['parts']['rebuild']
             self.assertEqual(record['state'], 'in_progress' if stage == '01-domain' else 'not_started')
-            self.assertEqual(record['checkpoints'], [])
+            if stage == '01-domain':
+                self.assertEqual(len(record['checkpoints']), 1)
+                self.assertEqual(record['checkpoints'][0]['nexus'], 'nk_n9aja7yrtm1q')
+                self.assertIn('Step 1-b timeline', record['checkpoints'][0]['approved'])
+            else:
+                self.assertEqual(record['checkpoints'], [])
 
         # The previous registration points at a present explanatory Markdown
         # file, which does not provide SQL picture input to the real parser.

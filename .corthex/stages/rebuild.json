@@ -5,9 +5,17 @@
   "stages": {
     "01-domain": {
       "state": "in_progress",
-      "checkpoints": [],
-      "next": "Await the maintainer’s NEXUS pass of rebuild checkpoint 1 (Step 1-b); then draft Steps 2–7. Stages 02–13 have not started.",
-      "updated": "2026-11-17T16:36:22+09:00"
+      "checkpoints": [
+        {
+          "approved": "Step 1-b timeline passed in NEXUS; original wording: 01단계 확인 지점 통과. Context boundaries, tables and map were not presented or approved.",
+          "by": "the maintainer",
+          "nexus": "nk_n9aja7yrtm1q",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/01-domain/rebuild.md#8-checkpoint-1-and-decisions",
+          "date": "2026-11-17"
+        }
+      ],
+      "next": "Prepare stage 02 as explicitly requested after the timeline pass; disclose pending context/glossary inputs. Do not mark the remaining domain work approved.",
+      "updated": "2026-11-17T18:16:42+09:00"
     },
     "02-prd": {
       "state": "not_started",
