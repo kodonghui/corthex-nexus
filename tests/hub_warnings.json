@@ -8,7 +8,8 @@
   "files": "A file of the hub, the snapshot, the stage records, the status file, the outbox or the session reads (TBL-114 to TBL-117, TBL-125), or a table that phase ② plans (TBL-118 to TBL-124). The ERD guide defines them in its table of records beside nexus.sql, and the hub reads nexus.sql alone as stage 05's source.",
   "sample": "An ID of an example or of a synthetic fixture: the contract's table of the forms that a source takes, and results that name their fixture's items, kept as written.",
   "bug": "A bug that an earlier run found. The plan's evidence names it in its text and in tables whose first column is headed Bug, which the hub reads as mentions; the plan has no table of bugs with an ID column.",
-  "rebuild-timeline": "The rebuild's stage-01 checkpoint-1 draft deliberately has no agreed CTX headings. Its timeline is reviewed in Miro before Step 7 assigns context IDs. The pinned renderer cannot draw that draft yet; the checkpoint request names this limit. Remove this warning when agreed contexts are added."
+  "rebuild-timeline": "The rebuild's stage-01 checkpoint-1 draft deliberately has no agreed CTX headings. Its timeline is reviewed in Miro before Step 7 assigns context IDs. The pinned renderer cannot draw that draft yet; the checkpoint request names this limit. Remove this warning when agreed contexts are added.",
+  "rebuild-prd-draft": "The rebuild scope-review draft has 38 Must functional requirements but no stage-04 specification yet. Stage 04 follows scope/version approval and stage 03; these exact req-without-spec warnings remain visible until linked specifications are authored. No legacy warning or requirement is waived."
  },
  "warnings": {
   "picture-partial": {
@@ -76,6 +77,14 @@
    ],
    "example": [
     "TC-1311", "TC-1312", "TC-1313", "TC-1314", "TC-1315", "TC-1316", "TC-1317"
+   ]
+  },
+  "req-without-spec": {
+   "rebuild-prd-draft": [
+    "REQ-301", "REQ-302", "REQ-303", "REQ-304", "REQ-305", "REQ-306", "REQ-307", "REQ-308", "REQ-309", "REQ-311",
+    "REQ-312", "REQ-313", "REQ-314", "REQ-316", "REQ-317", "REQ-318", "REQ-319", "REQ-320", "REQ-321", "REQ-322",
+    "REQ-323", "REQ-325", "REQ-326", "REQ-327", "REQ-328", "REQ-329", "REQ-331", "REQ-332", "REQ-333", "REQ-334",
+    "REQ-335", "REQ-337", "REQ-341", "REQ-342", "REQ-343", "REQ-344", "REQ-345", "REQ-350"
    ]
   },
   "unknown-ref": {

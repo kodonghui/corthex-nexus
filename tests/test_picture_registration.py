@@ -42,7 +42,7 @@ class PictureRegistrationTest(GitSourcesFixture):
         self.assertEqual(rebuild, [], 'timeline-only draft must not inherit a legacy domain picture')
         for stage, value in snapshot['stages'].items():
             record = value['parts']['rebuild']
-            self.assertEqual(record['state'], 'in_progress' if stage == '01-domain' else 'not_started')
+            self.assertEqual(record['state'], 'in_progress' if stage in ('01-domain', '02-prd') else 'not_started')
             if stage == '01-domain':
                 self.assertEqual(len(record['checkpoints']), 1)
                 self.assertEqual(record['checkpoints'][0]['nexus'], 'nk_n9aja7yrtm1q')
