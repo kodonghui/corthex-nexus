@@ -19,20 +19,31 @@ class PictureRegistrationTest(GitSourcesFixture):
         self.write(self.repo / '.corthex/project.json', settings)
         self.register(name=settings['name'])
         (self.repo / '.corthex/stages.json').unlink()  # Only the owned fixture's seed.
+        (self.repo / 'docs/01-domain/domain.md').unlink()  # Not a product source.
         self.write(self.repo / '.corthex/stages/nexus.json', {
             'format': 1, 'project': settings['name'], 'part': 'nexus', 'stages': {}})
-        for relative in ('docs/01-domain/nexus.md', 'docs/05-erd/nexus.md',
+        for relative in ('docs/01-domain/nexus.md', 'docs/01-domain/rebuild.md',
+                         '.corthex/stages/rebuild.json', 'docs/05-erd/nexus.md',
                          'docs/05-erd/nexus.sql', 'docs/07-sitemap/nexus.yaml'):
             destination = self.repo / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / relative, destination)
         head = self.commit('product picture registration')
         self.git('update-ref', 'refs/remotes/origin/main', head)
-        pictures = self.snapshot()['pictures']
+        snapshot = self.snapshot()
+        pictures = snapshot['pictures']
         self.assertEqual({p['stage'] for p in pictures}, {'01-domain', '05-erd', '07-sitemap'})
         self.assertTrue(all(p['part'] == 'nexus' and p['commit'] == head for p in pictures))
         erd = next(p for p in pictures if p['stage'] == '05-erd')
         self.assertTrue(erd['source']['tables'])
+
+        # A new cycle cannot inherit the old cycle's contexts or approvals.
+        rebuild = [p for p in snapshot['pictures'] if p['part'] == 'rebuild']
+        self.assertEqual(rebuild, [], 'timeline-only draft must not inherit a legacy domain picture')
+        for stage, value in snapshot['stages'].items():
+            record = value['parts']['rebuild']
+            self.assertEqual(record['state'], 'in_progress' if stage == '01-domain' else 'not_started')
+            self.assertEqual(record['checkpoints'], [])
 
         # The previous registration points at a present explanatory Markdown
         # file, which does not provide SQL picture input to the real parser.

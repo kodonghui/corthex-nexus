@@ -7,9 +7,13 @@
   "memory": "An ID of the memory part, which kodonghui/corthex defines. Stages 01 and 03 name memory's terms and contexts beside a word of NEXUS that means the same or differs, and stages 01, 03 and 04 say that their own numbers start after memory's.",
   "files": "A file of the hub, the snapshot, the stage records, the status file, the outbox or the session reads (TBL-114 to TBL-117, TBL-125), or a table that phase ② plans (TBL-118 to TBL-124). The ERD guide defines them in its table of records beside nexus.sql, and the hub reads nexus.sql alone as stage 05's source.",
   "sample": "An ID of an example or of a synthetic fixture: the contract's table of the forms that a source takes, and results that name their fixture's items, kept as written.",
-  "bug": "A bug that an earlier run found. The plan's evidence names it in its text and in tables whose first column is headed Bug, which the hub reads as mentions; the plan has no table of bugs with an ID column."
+  "bug": "A bug that an earlier run found. The plan's evidence names it in its text and in tables whose first column is headed Bug, which the hub reads as mentions; the plan has no table of bugs with an ID column.",
+  "rebuild-timeline": "The rebuild's stage-01 checkpoint-1 draft deliberately has no agreed CTX headings. Its timeline is reviewed in Miro before Step 7 assigns context IDs. The pinned renderer cannot draw that draft yet; the checkpoint request names this limit. Remove this warning when agreed contexts are added."
  },
  "warnings": {
+  "picture-partial": {
+   "rebuild-timeline": ["01-domain"]
+  },
   "missing-upstream": {
    "response": [
     "TC-729", "TC-730", "TC-731", "TC-732", "TC-733", "TC-734", "TC-735", "TC-736", "TC-737", "TC-738",

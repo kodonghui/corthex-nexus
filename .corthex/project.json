@@ -4,6 +4,7 @@
   "team": false,
   "language": "en",
   "parts": [
+    "rebuild",
     "nexus"
   ],
   "records": {
@@ -15,9 +16,9 @@
   "stages": {
     "01-domain": {
       "human": "miro",
-      "source": "docs/01-domain/nexus.md",
+      "source": "docs/01-domain/",
       "truth": "source",
-      "note": "NEXUS in nexus.md (2026-10-24, from an event storming board). The maintainer chose on 2026-10-24 to try event storming for NEXUS on one private Miro board: the AI drafted each step, the maintainer answered at the checkpoints, and checkpoints 1 to 3 passed the same day. The board's link is in the project's records. Translations beside them, such as memory.ko.md, are not read as sources. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained."
+      "note": "NEXUS in nexus.md (2026-10-24, from an event storming board). The maintainer chose on 2026-10-24 to try event storming for NEXUS on one private Miro board: the AI drafted each step, the maintainer answered at the checkpoints, and checkpoints 1 to 3 passed the same day. The board's link is in the project's records. Translations beside them, such as memory.ko.md, are not read as sources. Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained. The maintainer requested a complete new 01–13 cycle on 2026-11-17. Part rebuild starts from that brief, with a new column on the existing Miro board (private links in project records); part nexus and its sources/checkpoints remain historical reference material. Draft and correct; stop after Steps 1-b, 7 and 9. NEXUS is the review/checkpoint surface. Rebuild contexts receive IDs only after their boundary checkpoint."
     },
     "02-prd": {
       "human": "notion",
@@ -84,6 +85,12 @@
       "source": "docs/12-qa/nexus.md",
       "truth": "source",
       "note": "NEXUS in nexus.md (planned on 2026-11-03, covering active acceptance criteria, named API responses, hub outcomes and screen states; release decision pending). Ownership moved to this product repository on 2026-11-04; original decisions remain traceable. The approved runtime is the existing VPS, with Worker compatibility retained. Current plan:710 cases, distinguishing pass/partial/blocked/unexecuted scope and preserving original receipts. Browser walks: 3 sessions at once worked on 2026-11-13; the next walk starts from 3."
+    },
+    "13-presentation": {
+      "human": "nexus",
+      "truth": "source",
+      "note": "The 2026-11-17 rebuild explicitly includes stage 13. No presentation is authored before its inputs and preceding checkpoints. Its source is configured when that stage starts."
     }
-  }
+  },
+  "on_nexus": true
 }
