@@ -44,8 +44,8 @@ Boundaries follow consistency rules, rather than splitting each screen or timeli
 | Context | Type | Aggregates | Responsibility |
 | --- | --- | --- | --- |
 | CTX-032 Publishing | core | Project, Snapshot, Publish receipt | Publication consistency |
-| CTX-033 Review | core | Stage artifact, Item, Discussion, Agent claim | Versioned review |
-| CTX-034 Checkpoint governance | core | Checkpoint, Content version | Human-only decisions |
+| CTX-033 Review | core | Stage artifact, Content version, Item, Discussion, Agent claim | Versioned review |
+| CTX-034 Checkpoint governance | core | Checkpoint | Human-only decisions |
 | CTX-035 Identity and ownership | generic | Owner, Session, Publisher credential | Private ownership |
 | CTX-036 Continuity | supporting | Migration run, Release decision | Preserved records |
 
