@@ -33,6 +33,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from hub_ref import git_program  # noqa: E402
 
 SCREENS = ROOT / "docs/08-screens/nexus"
+REBUILD = ROOT / "docs/08-screens/rebuild"
 WIREFRAMES = SCREENS / "revision-wireframes.html"
 WORDS = ("README.md", "redesign-words.md", "revision-words.md")
 REVISION = "The design revision of 2026-11-11"
@@ -52,9 +53,9 @@ TEXT = (".md", ".html", ".yaml", ".json", ".js", ".mjs", ".py", ".sql", ".css")
 Row = collections.namedtuple("Row", "line section revision header cells")
 
 
-def definitions():
+def definitions(folder=SCREENS):
     """Stage 08's definitions in English, {screen: path}."""
-    return {re.match(r"SCR-\d{3}", path.name).group(0): path for path in sorted(SCREENS.glob("SCR-*.md"))
+    return {re.match(r"SCR-\d{3}", path.name).group(0): path for path in sorted(folder.glob("SCR-*.md"))
             if not path.name.endswith(".ko.md")}
 
 
@@ -82,9 +83,9 @@ def table_rows(path):
     return found
 
 
-def state_rows():
+def state_rows(folder=SCREENS):
     """[(screen, row)] for the rows of every definition's states, the revision's among them."""
-    return [(screen, row) for screen, path in definitions().items() for row in table_rows(path)
+    return [(screen, row) for screen, path in definitions(folder).items() for row in table_rows(path)
             if row.header[0] == "State" and "From responses" in row.header]
 
 
@@ -161,10 +162,10 @@ def listed_states(readme):
     return found
 
 
-def frames():
+def frames(path=WIREFRAMES):
     """{state: {width: count}} of the frames of the grey wireframes."""
     found = collections.defaultdict(collections.Counter)
-    for tag in re.findall(r'<[a-z]+\b[^>]*\bdata-state="[^"]*"[^>]*>', WIREFRAMES.read_text(encoding="utf8")):
+    for tag in re.findall(r'<[a-z]+\b[^>]*\bdata-state="[^"]*"[^>]*>', path.read_text(encoding="utf8")):
         width = re.search(r'\bdata-width="([^"]*)"', tag)
         found[re.search(r'\bdata-state="([^"]*)"', tag).group(1)][width.group(1) if width else None] += 1
     return found
@@ -181,31 +182,35 @@ class ScreenStatesTest(unittest.TestCase):
         self.assertTrue(in_words("Load again", [["Load again"]]))
 
     def test_each_state_row_names_a_state_of_its_screen(self):
-        rows = state_rows()
-        self.assertEqual(len(definitions()), len({screen for screen, _ in rows}), "each definition has its states")
+        rows = state_rows() + state_rows(REBUILD)
+        self.assertEqual(len(definitions()) + len(definitions(REBUILD)), len({screen for screen, _ in rows}), "each definition has its states")
         wrong = ["%s:%d %s" % (screen, row.line, row.cells[0]) for screen, row in rows
                  if not NAMED.fullmatch(row.cells[0]) or not row.cells[0].startswith(screen + "#")]
         self.assertEqual(wrong, [])
 
     def test_the_korean_copies_hold_the_same_states_responses_and_statuses(self):
         differences = []
-        for english in sorted(SCREENS.glob("*.md")):
+        for english in sorted(SCREENS.glob("*.md")) + sorted(REBUILD.glob("*.md")):
             if not english.name.endswith(".ko.md"):
                 korean = english.with_name(english.name[:-3] + ".ko.md")
                 differences += ["%s:%s" % (english.name, found) for found in compare(english, korean)]
         self.assertEqual(differences, [])
 
     def test_every_state_that_a_file_names_is_defined(self):
-        defined = {row.cells[0] for _, row in state_rows()}
+        defined = {row.cells[0] for _, row in state_rows() + state_rows(REBUILD)}
         undefined = ["%s in %s" % (state, ", ".join(files[:3])) for state, files in sorted(named_states().items())
                      if state not in defined]
         self.assertEqual(undefined, [])
 
     def test_the_readme_lists_the_states_of_each_definition(self):
+        self.check_readme_states(SCREENS)
+        self.check_readme_states(REBUILD)
+
+    def check_readme_states(self, folder):
         states = collections.defaultdict(set)
-        for screen, row in state_rows():
+        for screen, row in state_rows(folder):
             states[screen].add(row.cells[0].split("#", 1)[1])
-        for readme in (SCREENS / "README.md", SCREENS / "README.ko.md"):
+        for readme in (folder / "README.md", folder / "README.ko.md"):
             listed = listed_states(readme)
             self.assertEqual(sorted(listed), sorted(states), "%s lists every definition once" % readme.name)
             wrong = ["%s: %s, not %s" % (screen, ", ".join(listed[screen]), ", ".join(sorted(states[screen])))
@@ -234,6 +239,12 @@ class ScreenStatesTest(unittest.TestCase):
                     if set(drawn.get(state, {})) != {"390", "1440"} or drawn[state]["390"] != drawn[state]["1440"]]
         self.assertEqual(unframed, [], "state rows of the revision without as many frames at 390 as at 1,440 pixels")
         self.assertEqual(sorted(set(drawn) - rows), [], "frames of the grey page for a state that no row of the revision tells")
+        rebuild_rows = {row.cells[0] for _, row in state_rows(REBUILD)}
+        rebuild_frames = frames(REBUILD / "wireframes.html")
+        self.assertTrue(rebuild_rows)
+        self.assertEqual(set(rebuild_frames), rebuild_rows)
+        for state in rebuild_rows:
+            self.assertEqual(dict(rebuild_frames[state]), {"320": 1, "1440": 1})
 
 
 def count():

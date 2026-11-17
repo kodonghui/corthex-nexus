@@ -51,7 +51,7 @@ class PictureRegistrationTest(GitSourcesFixture):
         self.assertTrue(all(c['id'] in {'CTX-032', 'CTX-033', 'CTX-034', 'CTX-035', 'CTX-036'} for c in rebuild[0]['source']['contexts']))
         for stage, value in snapshot['stages'].items():
             record = value['parts']['rebuild']
-            self.assertEqual(record['state'], 'in_progress' if stage in ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap') else 'not_started')
+            self.assertEqual(record['state'], 'in_progress' if stage in ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap', '08-screen-states') else 'not_started')
             if stage == '01-domain':
                 self.assertEqual(len(record['checkpoints']), 1)
                 self.assertEqual(record['checkpoints'][0]['nexus'], 'nk_n9aja7yrtm1q')
