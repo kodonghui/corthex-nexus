@@ -173,7 +173,7 @@ id TEXT PRIMARY KEY,
   CHECK(state <> 'reflected' OR (source_commit IS NOT NULL AND reflected_publication_id IS NOT NULL))
 );
 
--- TBL-137 checkpoint_requests (CTX-034) | terms: TERM-160, TERM-161 | SPEC-317, SPEC-318, SPEC-319, SPEC-320, SPEC-321, SPEC-322, SPEC-324, SPEC-343
+-- TBL-137 checkpoint_requests (CTX-034) | terms: TERM-160 | SPEC-317, SPEC-318, SPEC-319, SPEC-320, SPEC-321, SPEC-322, SPEC-324, SPEC-343
 CREATE TABLE checkpoint_requests (
 id TEXT PRIMARY KEY,
   project_id TEXT NOT NULL,
