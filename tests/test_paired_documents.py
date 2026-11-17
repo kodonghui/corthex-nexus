@@ -19,6 +19,7 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -137,6 +138,9 @@ def broken_links(relative):
             if link.startswith(("http://", "https://", "mailto:")):
                 continue
             target, _, place = link.partition("#")
+            # A preview query selects its screen/state; it is not part of the
+            # on-disk filename. Still validate the target and its fragment.
+            target = target.split("?", 1)[0]
             file = (path.parent / target).resolve() if target else path
             if not file.exists() or (place and file.suffix in (".md", ".html") and place not in anchors(file)):
                 found.append((number, link))
@@ -193,6 +197,14 @@ class PairedDocumentsTest(unittest.TestCase):
                          [("kind", ["row of 2 cells"], ["row of 3 cells"], 3)])
         self.assertEqual(compare(english, english.replace("run TASK-101", "run TASK-102")), [], "code is not compared")
         self.assertEqual(compare(english, english + "\n"), [("lines", [8], [9], 0)])
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'doc.md'
+            (path.parent / 'screen.html').write_text('<h1 id="content">Screen</h1>', encoding='utf8')
+            path.write_text('[valid](screen.html?screen=sample#content)\n'
+                            '[missing](absent.html?screen=sample)\n'
+                            '[fragment](screen.html?screen=sample#absent)', encoding='utf8')
+            self.assertEqual(broken_links(str(path)), [(2, 'absent.html?screen=sample'),
+                                                       (3, 'screen.html?screen=sample#absent')])
 
     def test_each_document_has_its_korean_copy(self):
         value, _ = known()
