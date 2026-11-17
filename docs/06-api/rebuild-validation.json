@@ -1,0 +1,24 @@
+{
+  "scope": "Static contract discovery and in-memory initial DDL; no real v2 server",
+  "contractSha256": "0e9a4d33b1105c0f3ceb1a030be993bb1fe61ff1ae6ef5905347b259b1f1f6a5",
+  "passed": [
+    "claimed work identifies its original question and discussion",
+    "work identifies a resolvable original source",
+    "agent may resolve only cited stage/item source",
+    "publisher cannot read discussion",
+    "proposal has reviewable intent and compare token",
+    "discussion exposes owner compare-and-swap revision",
+    "never-published artifact has no invented provenance",
+    "present artifact cannot omit provenance",
+    "HTML preview identifier is discoverable",
+    "one publication can identify distinct stage histories",
+    "review checkpoint identifier is discoverable",
+    "405 routing refusal retains Allow",
+    "DDL and initial migration match",
+    "proposal body and original work persist",
+    "foreign project work reference is refused by SQL",
+    "in-memory FK check is clean"
+  ],
+  "real_service_tested": false,
+  "production_data_used": false
+}
