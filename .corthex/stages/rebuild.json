@@ -66,28 +66,28 @@
       "updated": "2026-11-18T04:25:00+09:00"
     },
     "10-wbs": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
-      "updated": "2026-11-17T16:36:22+09:00"
+      "next": "Design through stage 10 authored: 92 todo tasks with no dependency cycle and full behavior/API/screen coverage. Publish and request version-bound NEXUS review; stage 11 development is later work.",
+      "updated": "2026-11-18T04:52:34+09:00"
     },
     "11-development": {
       "state": "not_started",
       "checkpoints": [],
-      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
-      "updated": "2026-11-17T16:36:22+09:00"
+      "next": "Design cycle through stage 10 is authored under the explicit continuation instruction. Await the next authorized execution scope and actual human checkpoint gates; legacy approvals never substitute.",
+      "updated": "2026-11-18T04:52:34+09:00"
     },
     "12-qa": {
       "state": "not_started",
       "checkpoints": [],
-      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
-      "updated": "2026-11-17T16:36:22+09:00"
+      "next": "Design cycle through stage 10 is authored under the explicit continuation instruction. Await the next authorized execution scope and actual human checkpoint gates; legacy approvals never substitute.",
+      "updated": "2026-11-18T04:52:34+09:00"
     },
     "13-presentation": {
       "state": "not_started",
       "checkpoints": [],
-      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
-      "updated": "2026-11-17T16:36:22+09:00"
+      "next": "Design cycle through stage 10 is authored under the explicit continuation instruction. Await the next authorized execution scope and actual human checkpoint gates; legacy approvals never substitute.",
+      "updated": "2026-11-18T04:52:34+09:00"
     }
   }
 }

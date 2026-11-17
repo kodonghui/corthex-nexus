@@ -1328,7 +1328,10 @@
                           "artifact_state": "present",
                           "checkpoint_state": "pending",
                           "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                          "blockers": []
+                          "blockers": [],
+                          "checkpoint_ids": [
+                            "cp_demo"
+                          ]
                         }
                       ],
                       "held_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
@@ -1494,7 +1497,7 @@
       "get": {
         "operationId": "getStageArtifact",
         "summary": "getStageArtifact",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Agent credentials may read only the original part/stage/item/content_version cited by project-scoped work visible to that credential; absent or uncited targets return 404. Owner sessions may read their own artifacts. Return provenance and stable keys from that exact version. Agents must supply the cited version query; an omitted version is invalid input rather than an implicit read of latest content. Historical selection uses publication_id plus part/stage and optional content digest; identical content may have different provenance. Agents must supply both the work publication_id and cited version, otherwise 400.",
         "x-corthex": {
           "id": "API-208",
           "spec": [
@@ -1514,6 +1517,9 @@
         "security": [
           {
             "ownerSession": []
+          },
+          {
+            "agentToken": []
           }
         ],
         "parameters": [
@@ -1592,6 +1598,18 @@
               "maxLength": 64,
               "pattern": "^[a-f0-9]{64}$"
             }
+          },
+          {
+            "name": "publication_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+            },
+            "description": "Pin the selected historical publication within this project. With a version digest, both must identify the same artifact; absent/mismatched pairs return 404. Without selectors use latest; digest-only reads choose the most recent matching publication."
           }
         ],
         "responses": {
@@ -1612,15 +1630,21 @@
                         "artifact_state": "present",
                         "checkpoint_state": "pending",
                         "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                        "blockers": []
+                        "blockers": [],
+                        "checkpoint_ids": [
+                          "cp_demo"
+                        ]
                       },
                       "representation": "list",
                       "source": {
                         "repository_url": "https://github.com/example/sample",
                         "path": "docs/02-prd/sample.md",
                         "line": 1,
-                        "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        "commit": "dddddddddddddddddddddddddddddddddddddddd",
+                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "publication_id": "pub_meta_demo",
+                        "publication_revision": 2,
+                        "published_at": "2026-11-18T01:00:00Z"
                       },
                       "items": [],
                       "next_cursor": null,
@@ -1628,7 +1652,111 @@
                       "graph": {
                         "nodes": [],
                         "edges": []
-                      }
+                      },
+                      "artifact_id": "artifact_prd_demo_meta",
+                      "checkpoint_ids": [
+                        "cp_demo"
+                      ]
+                    }
+                  },
+                  "missingBeforeFirstPublication": {
+                    "value": {
+                      "stage": {
+                        "part": "rebuild",
+                        "stage": "02-prd",
+                        "work_state": "not_started",
+                        "artifact_state": "missing",
+                        "checkpoint_state": "none",
+                        "content_version": null,
+                        "blockers": [],
+                        "checkpoint_ids": []
+                      },
+                      "representation": "missing",
+                      "source": null,
+                      "items": [],
+                      "next_cursor": null,
+                      "diagnostics": [
+                        "Publish the first default-branch snapshot to review this stage."
+                      ],
+                      "graph": {
+                        "nodes": [],
+                        "edges": []
+                      },
+                      "artifact_id": null,
+                      "checkpoint_ids": []
+                    }
+                  },
+                  "htmlPreviewSource": {
+                    "value": {
+                      "stage": {
+                        "part": "rebuild",
+                        "stage": "09-mockup",
+                        "work_state": "in_progress",
+                        "artifact_state": "present",
+                        "checkpoint_state": "none",
+                        "content_version": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                        "blockers": [],
+                        "checkpoint_ids": []
+                      },
+                      "representation": "html",
+                      "source": {
+                        "repository_url": "https://github.com/example/sample",
+                        "path": "design/rebuild/index.html",
+                        "line": 1,
+                        "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                        "content_version": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                        "publication_id": "pub_demo",
+                        "publication_revision": 1,
+                        "published_at": "2026-11-18T00:00:00Z"
+                      },
+                      "items": [],
+                      "next_cursor": null,
+                      "diagnostics": [],
+                      "graph": {
+                        "nodes": [],
+                        "edges": []
+                      },
+                      "artifact_id": "art_demo",
+                      "checkpoint_ids": []
+                    },
+                    "summary": "HTML from a pinned historical publication"
+                  },
+                  "originalPublication": {
+                    "value": {
+                      "stage": {
+                        "part": "rebuild",
+                        "stage": "02-prd",
+                        "work_state": "in_progress",
+                        "artifact_state": "present",
+                        "checkpoint_state": "pending",
+                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "blockers": [],
+                        "checkpoint_ids": [
+                          "cp_demo"
+                        ]
+                      },
+                      "representation": "list",
+                      "source": {
+                        "repository_url": "https://github.com/example/sample",
+                        "path": "docs/02-prd/sample.md",
+                        "line": 1,
+                        "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "publication_id": "pub_demo",
+                        "publication_revision": 1,
+                        "published_at": "2026-11-18T00:00:00Z"
+                      },
+                      "items": [],
+                      "next_cursor": null,
+                      "diagnostics": [],
+                      "graph": {
+                        "nodes": [],
+                        "edges": []
+                      },
+                      "artifact_id": "artifact_prd_demo",
+                      "checkpoint_ids": [
+                        "cp_demo"
+                      ]
                     }
                   }
                 }
@@ -1791,7 +1919,7 @@
       "get": {
         "operationId": "getArtifactItem",
         "summary": "getArtifactItem",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Agent credentials may read only the original part/stage/item/content_version cited by project-scoped work visible to that credential; absent or uncited targets return 404. Owner sessions may read their own artifacts. Return provenance and stable keys from that exact version. Agents must supply the cited version query; an omitted version is invalid input rather than an implicit read of latest content. Historical selection uses publication_id plus part/stage and optional content digest; identical content may have different provenance. Agents must supply both the work publication_id and cited version, otherwise 400.",
         "x-corthex": {
           "id": "API-209",
           "spec": [
@@ -1809,6 +1937,9 @@
         "security": [
           {
             "ownerSession": []
+          },
+          {
+            "agentToken": []
           }
         ],
         "parameters": [
@@ -1876,6 +2007,18 @@
               "maxLength": 64,
               "pattern": "^[a-f0-9]{64}$"
             }
+          },
+          {
+            "name": "publication_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+            },
+            "description": "Pin the selected historical publication within this project. With a version digest, both must identify the same artifact; absent/mismatched pairs return 404. Without selectors use latest; digest-only reads choose the most recent matching publication."
           }
         ],
         "responses": {
@@ -1900,8 +2043,32 @@
                         "repository_url": "https://github.com/example/sample",
                         "path": "docs/02-prd/sample.md",
                         "line": 1,
+                        "commit": "dddddddddddddddddddddddddddddddddddddddd",
+                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "publication_id": "pub_meta_demo",
+                        "publication_revision": 2,
+                        "published_at": "2026-11-18T01:00:00Z"
+                      }
+                    }
+                  },
+                  "originalPublication": {
+                    "value": {
+                      "id": "REQ-301",
+                      "title": "Private project access",
+                      "kind": "requirement",
+                      "removed": false,
+                      "fields": {
+                        "priority": "Must"
+                      },
+                      "source": {
+                        "repository_url": "https://github.com/example/sample",
+                        "path": "docs/02-prd/sample.md",
+                        "line": 1,
                         "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "publication_id": "pub_demo",
+                        "publication_revision": 1,
+                        "published_at": "2026-11-18T00:00:00Z"
                       }
                     }
                   }
@@ -2187,11 +2354,44 @@
                               "sequence": 1,
                               "author": "owner",
                               "body": "Please review this requirement.",
-                              "created_at": "2026-11-18T00:00:00Z"
+                              "created_at": "2026-11-18T00:00:00Z",
+                              "author_ref": "owner_demo"
                             }
                           ],
                           "next_cursor": null,
-                          "agent_work": []
+                          "agent_work": [],
+                          "revision": 1,
+                          "part": "rebuild",
+                          "stage": "02-prd",
+                          "proposals": [
+                            {
+                              "id": "proposal_demo",
+                              "state": "proposed",
+                              "revision": 1,
+                              "discussion_id": "dis_demo",
+                              "work_id": "work_demo",
+                              "body": "Separate accepted proposals from verified source reflection.",
+                              "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                              "reflection": null
+                            }
+                          ],
+                          "next_proposal_cursor": null,
+                          "publication_id": "pub_demo",
+                          "decisions": [
+                            {
+                              "id": "dec_demo",
+                              "discussion_id": "dis_demo",
+                              "sequence": 1,
+                              "body": "Keep proposal acceptance separate from verified source reflection.",
+                              "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                              "publication_id": "pub_demo",
+                              "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                              "pull_request_url": "https://github.com/example/sample/pull/1",
+                              "decided_by": "owner_demo",
+                              "decided_at": "2026-11-18T00:00:00Z"
+                            }
+                          ],
+                          "next_decision_cursor": null
                         }
                       ],
                       "next_cursor": null
@@ -2355,7 +2555,7 @@
       "post": {
         "operationId": "askAboutArtifact",
         "summary": "askAboutArtifact",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Bind the discussion to the specified publication/part/stage/item and exact content version, including historical publications with the same digest. Reject mismatched pairs; never guess an origin from a digest shared by multiple publications.",
         "x-corthex": {
           "id": "API-211",
           "spec": [
@@ -2464,11 +2664,44 @@
                           "sequence": 1,
                           "author": "owner",
                           "body": "Please review this requirement.",
-                          "created_at": "2026-11-18T00:00:00Z"
+                          "created_at": "2026-11-18T00:00:00Z",
+                          "author_ref": "owner_demo"
                         }
                       ],
                       "next_cursor": null,
-                      "agent_work": []
+                      "agent_work": [],
+                      "revision": 1,
+                      "part": "rebuild",
+                      "stage": "02-prd",
+                      "proposals": [
+                        {
+                          "id": "proposal_demo",
+                          "state": "proposed",
+                          "revision": 1,
+                          "discussion_id": "dis_demo",
+                          "work_id": "work_demo",
+                          "body": "Separate accepted proposals from verified source reflection.",
+                          "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "reflection": null
+                        }
+                      ],
+                      "next_proposal_cursor": null,
+                      "publication_id": "pub_demo",
+                      "decisions": [
+                        {
+                          "id": "dec_demo",
+                          "discussion_id": "dis_demo",
+                          "sequence": 1,
+                          "body": "Keep proposal acceptance separate from verified source reflection.",
+                          "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "publication_id": "pub_demo",
+                          "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                          "pull_request_url": "https://github.com/example/sample/pull/1",
+                          "decided_by": "owner_demo",
+                          "decided_at": "2026-11-18T00:00:00Z"
+                        }
+                      ],
+                      "next_decision_cursor": null
                     }
                   }
                 }
@@ -2709,7 +2942,7 @@
       "get": {
         "operationId": "getDiscussion",
         "summary": "getDiscussion",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Owner reads include proposal body/version/revision and independently paginated proposals via proposal_cursor; agent access is limited to discussions cited by visible scoped work. Publisher credentials cannot read discussions. Return immutable recorded decisions and their source/PR references, with independent decision pagination.",
         "x-corthex": {
           "id": "API-212",
           "spec": [
@@ -2727,9 +2960,6 @@
         "security": [
           {
             "ownerSession": []
-          },
-          {
-            "publisherToken": []
           },
           {
             "agentToken": []
@@ -2778,6 +3008,28 @@
               "maximum": 100,
               "default": 50
             }
+          },
+          {
+            "name": "proposal_cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "description": "Opaque proposal page cursor, independent of the message cursor."
+          },
+          {
+            "name": "decision_cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "description": "Opaque decision-history page cursor, independent of message/proposal cursors."
           }
         ],
         "responses": {
@@ -2803,11 +3055,44 @@
                           "sequence": 1,
                           "author": "owner",
                           "body": "Please review this requirement.",
-                          "created_at": "2026-11-18T00:00:00Z"
+                          "created_at": "2026-11-18T00:00:00Z",
+                          "author_ref": "owner_demo"
                         }
                       ],
                       "next_cursor": null,
-                      "agent_work": []
+                      "agent_work": [],
+                      "revision": 1,
+                      "part": "rebuild",
+                      "stage": "02-prd",
+                      "proposals": [
+                        {
+                          "id": "proposal_demo",
+                          "state": "proposed",
+                          "revision": 1,
+                          "discussion_id": "dis_demo",
+                          "work_id": "work_demo",
+                          "body": "Separate accepted proposals from verified source reflection.",
+                          "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "reflection": null
+                        }
+                      ],
+                      "next_proposal_cursor": null,
+                      "publication_id": "pub_demo",
+                      "decisions": [
+                        {
+                          "id": "dec_demo",
+                          "discussion_id": "dis_demo",
+                          "sequence": 1,
+                          "body": "Keep proposal acceptance separate from verified source reflection.",
+                          "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "publication_id": "pub_demo",
+                          "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                          "pull_request_url": "https://github.com/example/sample/pull/1",
+                          "decided_by": "owner_demo",
+                          "decided_at": "2026-11-18T00:00:00Z"
+                        }
+                      ],
+                      "next_decision_cursor": null
                     }
                   }
                 }
@@ -2970,7 +3255,7 @@
       "post": {
         "operationId": "recordDiscussionDecision",
         "summary": "recordDiscussionDecision",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Persist an append-only discussion decision in TBL-145 and advance the discussion revision atomically. publication_id/source_commit must identify one accepted publication of this project; unknown targets return 404 and a mismatched pair returns 409. An optional PR URL is a validated reference, not an assertion of remote merge status. A legacy decision may retain null source evidence, explicitly unverified.",
         "x-corthex": {
           "id": "API-213",
           "spec": [
@@ -3288,7 +3573,7 @@
       "get": {
         "operationId": "listAgentWork",
         "summary": "listAgentWork",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Each work entry embeds the original owner question and supplies discussion, part, stage, optional item and version so an independent agent can claim work, read cited source and address proposal/reply operations without guessing identifiers. No browser cookie or lease token is embedded.",
         "x-corthex": {
           "id": "API-214",
           "spec": [
@@ -3359,7 +3644,21 @@
                           "state": "queued",
                           "session_label": null,
                           "lease_expires_at": null,
-                          "revision": 1
+                          "revision": 1,
+                          "discussion_id": "dis_demo",
+                          "part": "rebuild",
+                          "stage": "02-prd",
+                          "item_id": "REQ-301",
+                          "question": {
+                            "id": "msg_demo",
+                            "discussion_id": "dis_demo",
+                            "sequence": 1,
+                            "author": "owner",
+                            "body": "How is this item version preserved?",
+                            "created_at": "2026-11-18T00:00:00Z",
+                            "author_ref": "owner_demo"
+                          },
+                          "publication_id": "pub_demo"
                         }
                       ],
                       "next_cursor": null
@@ -3594,7 +3893,21 @@
                         "state": "claimed",
                         "session_label": "design-agent",
                         "lease_expires_at": "2026-11-18T00:00:00Z",
-                        "revision": 1
+                        "revision": 1,
+                        "discussion_id": "dis_demo",
+                        "part": "rebuild",
+                        "stage": "02-prd",
+                        "item_id": "REQ-301",
+                        "question": {
+                          "id": "msg_demo",
+                          "discussion_id": "dis_demo",
+                          "sequence": 1,
+                          "author": "owner",
+                          "body": "How is this item version preserved?",
+                          "created_at": "2026-11-18T00:00:00Z",
+                          "author_ref": "owner_demo"
+                        },
+                        "publication_id": "pub_demo"
                       },
                       "lease_token": "synthetic-lease-placeholder-not-a-secret"
                     }
@@ -3905,7 +4218,8 @@
                       "sequence": 1,
                       "author": "owner",
                       "body": "Please review this requirement.",
-                      "created_at": "2026-11-18T00:00:00Z"
+                      "created_at": "2026-11-18T00:00:00Z",
+                      "author_ref": "owner_demo"
                     }
                   }
                 }
@@ -4146,7 +4460,7 @@
       "post": {
         "operationId": "proposeArtifactChange",
         "summary": "proposeArtifactChange",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. In the same guarded lease transaction require work.question_message.discussion_id to equal the requested discussion and content_version to equal its immutable origin artifact. Native work_id and body are required; store both. Historical imported proposals may lack a corresponding work ID and remain read-only history.",
         "x-corthex": {
           "id": "API-217",
           "spec": [
@@ -4210,7 +4524,12 @@
                     "value": {
                       "id": "prop_demo",
                       "state": "proposed",
-                      "revision": 1
+                      "revision": 1,
+                      "discussion_id": "dis_demo",
+                      "work_id": "work_demo",
+                      "body": "Separate accepted proposals from verified source reflection.",
+                      "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "reflection": null
                     }
                   }
                 }
@@ -4527,7 +4846,12 @@
                     "value": {
                       "id": "prop_demo",
                       "state": "proposed",
-                      "revision": 1
+                      "revision": 1,
+                      "discussion_id": "dis_demo",
+                      "work_id": "work_demo",
+                      "body": "Separate accepted proposals from verified source reflection.",
+                      "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "reflection": null
                     }
                   }
                 }
@@ -4833,7 +5157,12 @@
                     "value": {
                       "id": "prop_demo",
                       "state": "proposed",
-                      "revision": 1
+                      "revision": 1,
+                      "discussion_id": "dis_demo",
+                      "work_id": "work_demo",
+                      "body": "Separate accepted proposals from verified source reflection.",
+                      "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "reflection": null
                     }
                   }
                 }
@@ -5074,7 +5403,7 @@
       "post": {
         "operationId": "requestCheckpoint",
         "summary": "requestCheckpoint",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. A new request binds the current held publication transactionally; response publication_id identifies the precise review origin. A metadata-only later publication may retain content approval, not rewrite this origin.",
         "x-corthex": {
           "id": "API-220",
           "spec": [
@@ -5150,7 +5479,8 @@
                       "state": "pending",
                       "revision": 1,
                       "blockers": [],
-                      "history": []
+                      "history": [],
+                      "publication_id": "pub_demo"
                     }
                   }
                 }
@@ -5454,7 +5784,8 @@
                       "state": "pending",
                       "revision": 1,
                       "blockers": [],
-                      "history": []
+                      "history": [],
+                      "publication_id": "pub_demo"
                     }
                   }
                 }
@@ -6277,7 +6608,7 @@
       "get": {
         "operationId": "listProjectVersions",
         "summary": "listProjectVersions",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Return one entry per stage artifact, not one lossy summary per publication. Include part/stage/artifact and checkpoint IDs for exact historical reads; multiple stages may share a publication ID and have different content digests and decisions. Sort by publication revision descending, then part and stage catalog order with a stable artifact-ID tie breaker; the opaque cursor binds this project and ordering.",
         "x-corthex": {
           "id": "API-224",
           "spec": [
@@ -6343,10 +6674,56 @@
                     "value": {
                       "versions": [
                         {
+                          "publication_id": "pub_meta_demo",
+                          "commit": "dddddddddddddddddddddddddddddddddddddddd",
+                          "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "checkpoint_state": "pending",
+                          "part": "rebuild",
+                          "stage": "02-prd",
+                          "artifact_id": "artifact_prd_demo_meta",
+                          "checkpoint_ids": [
+                            "cp_demo"
+                          ],
+                          "publication_revision": 2,
+                          "published_at": "2026-11-18T01:00:00Z"
+                        },
+                        {
+                          "publication_id": "pub_meta_demo",
+                          "commit": "dddddddddddddddddddddddddddddddddddddddd",
+                          "content_version": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                          "checkpoint_state": "none",
+                          "part": "rebuild",
+                          "stage": "09-mockup",
+                          "artifact_id": "art_demo_meta",
+                          "checkpoint_ids": [],
+                          "publication_revision": 2,
+                          "published_at": "2026-11-18T01:00:00Z"
+                        },
+                        {
                           "publication_id": "pub_demo",
                           "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
                           "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                          "checkpoint_state": "pending"
+                          "checkpoint_state": "pending",
+                          "part": "rebuild",
+                          "stage": "02-prd",
+                          "artifact_id": "artifact_prd_demo",
+                          "checkpoint_ids": [
+                            "cp_demo"
+                          ],
+                          "publication_revision": 1,
+                          "published_at": "2026-11-18T00:00:00Z"
+                        },
+                        {
+                          "publication_id": "pub_demo",
+                          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                          "content_version": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                          "checkpoint_state": "none",
+                          "part": "rebuild",
+                          "stage": "09-mockup",
+                          "artifact_id": "art_demo",
+                          "checkpoint_ids": [],
+                          "publication_revision": 1,
+                          "published_at": "2026-11-18T00:00:00Z"
                         }
                       ],
                       "next_cursor": null
@@ -8256,7 +8633,7 @@
       "get": {
         "operationId": "getIsolatedPreview",
         "summary": "getIsolatedPreview",
-        "description": "Owner-authorized fetch returns self-contained HTML. Render in srcdoc sandbox=allow-scripts with an opaque origin; no allow-same-origin, forms, popups, top navigation, network, storage, credentials or trusted parent messages. Apply returned CSP and constrain content size; unsupported external assets remain blocked.",
+        "description": "Owner-authorized fetch returns self-contained HTML. Render in srcdoc sandbox=allow-scripts with an opaque origin; no allow-same-origin, forms, popups, top navigation, network, storage, credentials or trusted parent messages. Apply returned CSP and constrain content size; unsupported external assets remain blocked. The trusted parent HTML response must enforce frame-src none and embed only srcdoc, so child self-navigation cannot make network requests. Prepend the trusted child CSP and retain opaque sandbox allow-scripts, with no other allowances. The csp field is a fixed host policy, never artifact-supplied.",
         "x-corthex": {
           "id": "API-231",
           "spec": [
@@ -8322,10 +8699,10 @@
                   "success": {
                     "value": {
                       "artifact_id": "art_demo",
-                      "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "content_version": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
                       "html": "<!doctype html><html lang=\"en\"><title>Sample preview</title><body>Sample</body></html>",
                       "sandbox": "allow-scripts",
-                      "csp": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'"
+                      "csp": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'"
                     }
                   }
                 }
@@ -8519,14 +8896,7 @@
                     "value": {
                       "synthetic": true,
                       "title": "Sample project",
-                      "source_files": [
-                        {
-                          "path": "docs/02-prd/sample.md",
-                          "media_type": "text/markdown",
-                          "content_utf8": "# Sample requirements\n\n| ID | Requirement |\n| --- | --- |\n| REQ-301 | A sample requirement for a first review. |\n",
-                          "sha256": "d18cc832ecc55b7b9bb327efb2fbeb8071ba29ebbd777a8e26d5af5107c9e6ec"
-                        }
-                      ]
+                      "source_files": []
                     }
                   }
                 }
@@ -8620,7 +8990,7 @@
       "post": {
         "operationId": "createPrivateSampleProject",
         "summary": "createPrivateSampleProject",
-        "description": "Create a clearly synthetic private demonstration from the sample bundle pinned to the application release commit. It is not evidence of a real repository upload or working CI. A later real repository connection and first publication still need consent and verified default-branch source.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
         "x-corthex": {
           "id": "API-233",
           "spec": [
@@ -8678,9 +9048,9 @@
                       "title": "Sample project",
                       "synthetic": true,
                       "revision": 1,
-                      "repository_url": null,
-                      "default_branch": null,
-                      "verification_state": "not_connected"
+                      "repository_url": "https://github.com/example/sample",
+                      "default_branch": "main",
+                      "verification_state": "ready"
                     }
                   }
                 }
@@ -9192,7 +9562,21 @@
                         "state": "claimed",
                         "session_label": "design-agent",
                         "lease_expires_at": "2026-11-18T00:00:00Z",
-                        "revision": 1
+                        "revision": 1,
+                        "discussion_id": "dis_demo",
+                        "part": "rebuild",
+                        "stage": "02-prd",
+                        "item_id": "REQ-301",
+                        "question": {
+                          "id": "msg_demo",
+                          "discussion_id": "dis_demo",
+                          "sequence": 1,
+                          "author": "owner",
+                          "body": "How is this item version preserved?",
+                          "created_at": "2026-11-18T00:00:00Z",
+                          "author_ref": "owner_demo"
+                        },
+                        "publication_id": "pub_demo"
                       },
                       "lease_token": "synthetic-lease-placeholder-not-a-secret"
                     }
@@ -9503,7 +9887,21 @@
                       "state": "queued",
                       "session_label": null,
                       "lease_expires_at": null,
-                      "revision": 1
+                      "revision": 1,
+                      "discussion_id": "dis_demo",
+                      "part": "rebuild",
+                      "stage": "02-prd",
+                      "item_id": "REQ-301",
+                      "question": {
+                        "id": "msg_demo",
+                        "discussion_id": "dis_demo",
+                        "sequence": 1,
+                        "author": "owner",
+                        "body": "How is this item version preserved?",
+                        "created_at": "2026-11-18T00:00:00Z",
+                        "author_ref": "owner_demo"
+                      },
+                      "publication_id": "pub_demo"
                     }
                   }
                 }
@@ -9851,18 +10249,12 @@
             "maximum": 9007199254740991
           },
           "repository_url": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": "string",
             "maxLength": 2048,
             "format": "uri"
           },
           "default_branch": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": "string",
             "minLength": 1,
             "maxLength": 255
           },
@@ -9870,8 +10262,7 @@
             "enum": [
               "ready",
               "authorization_required",
-              "unavailable",
-              "not_connected"
+              "unavailable"
             ]
           }
         },
@@ -9983,6 +10374,16 @@
               "maxLength": 255
             },
             "maxItems": 20
+          },
+          "checkpoint_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+            },
+            "maxItems": 100
           }
         },
         "required": [
@@ -9992,7 +10393,8 @@
           "artifact_state",
           "checkpoint_state",
           "content_version",
-          "blockers"
+          "blockers",
+          "checkpoint_ids"
         ]
       },
       "Overview": {
@@ -10061,6 +10463,21 @@
             "minLength": 64,
             "maxLength": 64,
             "pattern": "^[a-f0-9]{64}$"
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+          },
+          "publication_revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "maxLength": 40
           }
         },
         "required": [
@@ -10068,7 +10485,10 @@
           "path",
           "line",
           "commit",
-          "content_version"
+          "content_version",
+          "publication_id",
+          "publication_revision",
+          "published_at"
         ]
       },
       "Item": {
@@ -10135,7 +10555,14 @@
             ]
           },
           "source": {
-            "$ref": "#/components/schemas/Provenance"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Provenance"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "items": {
             "type": "array",
@@ -10257,6 +10684,29 @@
                 }
               }
             }
+          },
+          "artifact_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "checkpoint_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+            },
+            "maxItems": 100
           }
         },
         "required": [
@@ -10266,7 +10716,38 @@
           "items",
           "next_cursor",
           "diagnostics",
-          "graph"
+          "graph",
+          "artifact_id",
+          "checkpoint_ids"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "representation": {
+                  "not": {
+                    "const": "missing"
+                  }
+                }
+              },
+              "required": [
+                "representation"
+              ]
+            },
+            "then": {
+              "properties": {
+                "source": {
+                  "$ref": "#/components/schemas/Provenance"
+                },
+                "artifact_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+                }
+              }
+            }
+          }
         ]
       },
       "QuestionInput": {
@@ -10300,13 +10781,20 @@
           },
           "ask_ai": {
             "type": "boolean"
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
           }
         },
         "required": [
           "item_id",
           "content_version",
           "body",
-          "ask_ai"
+          "ask_ai",
+          "publication_id"
         ]
       },
       "Message": {
@@ -10346,6 +10834,11 @@
             "type": "string",
             "format": "date-time",
             "maxLength": 40
+          },
+          "author_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
           }
         },
         "required": [
@@ -10354,7 +10847,8 @@
           "sequence",
           "author",
           "body",
-          "created_at"
+          "created_at",
+          "author_ref"
         ]
       },
       "Discussion": {
@@ -10409,6 +10903,68 @@
             "items": {
               "$ref": "#/components/schemas/Work"
             }
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "part": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "01-domain",
+              "02-prd",
+              "03-user-flow",
+              "04-functional-spec",
+              "05-erd",
+              "06-api",
+              "07-sitemap",
+              "08-screen-states",
+              "09-mockup",
+              "10-wbs",
+              "11-development",
+              "12-qa",
+              "13-presentation"
+            ]
+          },
+          "proposals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Proposal"
+            },
+            "maxItems": 100
+          },
+          "next_proposal_cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 256
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+          },
+          "decisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiscussionDecision"
+            },
+            "maxItems": 100
+          },
+          "next_decision_cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 256
           }
         },
         "required": [
@@ -10419,7 +10975,15 @@
           "state",
           "messages",
           "next_cursor",
-          "agent_work"
+          "agent_work",
+          "revision",
+          "part",
+          "stage",
+          "proposals",
+          "next_proposal_cursor",
+          "publication_id",
+          "decisions",
+          "next_decision_cursor"
         ]
       },
       "DiscussionList": {
@@ -10472,13 +11036,19 @@
             "minLength": 1,
             "maxLength": 2048,
             "pattern": "^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+$"
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
           }
         },
         "required": [
           "expected_revision",
           "body",
           "source_commit",
-          "pull_request_url"
+          "publication_id"
         ]
       },
       "Work": {
@@ -10534,6 +11104,51 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 9007199254740991
+          },
+          "discussion_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+          },
+          "part": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "01-domain",
+              "02-prd",
+              "03-user-flow",
+              "04-functional-spec",
+              "05-erd",
+              "06-api",
+              "07-sitemap",
+              "08-screen-states",
+              "09-mockup",
+              "10-wbs",
+              "11-development",
+              "12-qa",
+              "13-presentation"
+            ]
+          },
+          "item_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 80
+          },
+          "question": {
+            "$ref": "#/components/schemas/Message"
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
           }
         },
         "required": [
@@ -10543,7 +11158,13 @@
           "state",
           "session_label",
           "lease_expires_at",
-          "revision"
+          "revision",
+          "discussion_id",
+          "part",
+          "stage",
+          "item_id",
+          "question",
+          "publication_id"
         ]
       },
       "WorkList": {
@@ -10720,12 +11341,126 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 9007199254740991
+          },
+          "discussion_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+          },
+          "work_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 80,
+            "description": "Native proposals require a live matching work ID; imported legacy proposals may retain null when no equivalent work record exists."
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000,
+            "x-maxUtf8Bytes": 32768
+          },
+          "content_version": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "reflection": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "publication_id",
+                  "source_commit",
+                  "content_version"
+                ],
+                "properties": {
+                  "publication_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+                  },
+                  "source_commit": {
+                    "type": "string",
+                    "minLength": 40,
+                    "maxLength": 64,
+                    "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+                  },
+                  "content_version": {
+                    "type": "string",
+                    "minLength": 64,
+                    "maxLength": 64,
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
           "id",
           "state",
-          "revision"
+          "revision",
+          "discussion_id",
+          "work_id",
+          "body",
+          "content_version",
+          "reflection"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "reflected"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "properties": {
+                "reflection": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "publication_id",
+                    "source_commit",
+                    "content_version"
+                  ],
+                  "properties": {
+                    "publication_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+                    },
+                    "source_commit": {
+                      "type": "string",
+                      "minLength": 40,
+                      "maxLength": 64,
+                      "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+                    },
+                    "content_version": {
+                      "type": "string",
+                      "minLength": 64,
+                      "maxLength": 64,
+                      "pattern": "^[a-f0-9]{64}$"
+                    }
+                  }
+                }
+              }
+            }
+          }
         ]
       },
       "ProposalDecisionInput": {
@@ -10913,16 +11648,36 @@
                   "type": "string",
                   "format": "date-time",
                   "maxLength": 40
+                },
+                "decided_by": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 8000
                 }
               },
               "required": [
                 "id",
                 "decision",
                 "content_version",
-                "decided_at"
+                "decided_at",
+                "decided_by",
+                "reason"
               ]
             },
             "maxItems": 100
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
           }
         },
         "required": [
@@ -10933,7 +11688,8 @@
           "state",
           "revision",
           "blockers",
-          "history"
+          "history",
+          "publication_id"
         ]
       },
       "CheckpointDecisionInput": {
@@ -11078,13 +11834,67 @@
                     "withdrawn",
                     "historical"
                   ]
+                },
+                "part": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "stage": {
+                  "type": "string",
+                  "enum": [
+                    "01-domain",
+                    "02-prd",
+                    "03-user-flow",
+                    "04-functional-spec",
+                    "05-erd",
+                    "06-api",
+                    "07-sitemap",
+                    "08-screen-states",
+                    "09-mockup",
+                    "10-wbs",
+                    "11-development",
+                    "12-qa",
+                    "13-presentation"
+                  ]
+                },
+                "artifact_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+                },
+                "checkpoint_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+                  },
+                  "maxItems": 100
+                },
+                "publication_revision": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "published_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "maxLength": 40
                 }
               },
               "required": [
                 "publication_id",
                 "commit",
                 "content_version",
-                "checkpoint_state"
+                "checkpoint_state",
+                "part",
+                "stage",
+                "artifact_id",
+                "checkpoint_ids",
+                "publication_revision",
+                "published_at"
               ]
             },
             "maxItems": 100
@@ -11452,9 +12262,7 @@
             "const": "allow-scripts"
           },
           "csp": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 1000
+            "const": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'"
           }
         },
         "required": [
@@ -11482,8 +12290,7 @@
             "items": {
               "$ref": "#/components/schemas/SourceFile"
             },
-            "maxItems": 20,
-            "minItems": 1
+            "maxItems": 20
           }
         },
         "required": [
@@ -11569,6 +12376,7 @@
               401,
               403,
               404,
+              405,
               409,
               413,
               429,
@@ -11606,7 +12414,8 @@
               "internal_error",
               "authentication_unavailable",
               "source_verification_unavailable",
-              "upstream_timeout"
+              "upstream_timeout",
+              "method_not_allowed"
             ]
           },
           "traceId": {
@@ -11688,6 +12497,123 @@
         },
         "required": [
           "title"
+        ]
+      },
+      "DiscussionDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "discussion_id",
+          "sequence",
+          "body",
+          "content_version",
+          "publication_id",
+          "source_commit",
+          "pull_request_url",
+          "decided_by",
+          "decided_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+          },
+          "discussion_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000,
+            "x-maxUtf8Bytes": 32768
+          },
+          "content_version": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "publication_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_commit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 40,
+                "maxLength": 64,
+                "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pull_request_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2048
+          },
+          "decided_by": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "decided_at": {
+            "type": "string",
+            "format": "date-time",
+            "maxLength": 40
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "publication_id": {
+                "type": "null"
+              },
+              "source_commit": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "properties": {
+              "publication_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+              },
+              "source_commit": {
+                "type": "string",
+                "minLength": 40,
+                "maxLength": 64,
+                "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+              }
+            }
+          }
         ]
       }
     },
@@ -11800,6 +12726,54 @@
           "meaning": "The outside service took too long; retry safely.",
           "message": "The outside service took too long; retry safely.",
           "client_action": "The outside service took too long; retry safely."
+        },
+        "method_not_allowed": {
+          "status": 405,
+          "message": "This HTTP method is not allowed for the requested route."
+        }
+      },
+      "html_preview": {
+        "embedding": "srcdoc",
+        "parent_response_csp": "frame-src 'none'",
+        "child_csp": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'",
+        "sandbox": "allow-scripts",
+        "policy_source": "trusted host, never artifact HTML",
+        "navigation_failure": "Keep the parent workspace; offer reload or source when the child is blocked."
+      }
+    },
+    "responses": {
+      "MethodNotAllowed": {
+        "description": "Router-level refusal for an unsupported method; preserve Allow.",
+        "headers": {
+          "Allow": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "example": "GET, POST"
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            },
+            "examples": {
+              "methodNotAllowed": {
+                "value": {
+                  "type": "https://example.test/problems/method_not_allowed",
+                  "title": "Method not allowed",
+                  "status": 405,
+                  "detail": "This HTTP method is not allowed for the requested route.",
+                  "instance": "/api/v2/projects",
+                  "code": "method_not_allowed",
+                  "traceId": "trace_demo"
+                }
+              }
+            }
+          }
         }
       }
     }

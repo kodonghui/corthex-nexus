@@ -1,0 +1,23 @@
+{
+  "scope": "Synthetic local Chromium concept fixture; not production QA",
+  "results": [
+    {
+      "parent": "loose",
+      "childRenders": true,
+      "probeRequests": 1,
+      "childURL": [
+        "http"
+      ]
+    },
+    {
+      "parent": "strict",
+      "childRenders": true,
+      "probeRequests": 0,
+      "childURL": [
+        "chrome-error"
+      ]
+    }
+  ],
+  "real_service_tested": false,
+  "production_data_used": false
+}

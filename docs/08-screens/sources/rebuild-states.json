@@ -17,8 +17,6 @@
     ],
     "terms": [
       "CTX-035",
-      "TERM-162",
-      "TERM-165",
       "TERM-181"
     ],
     "parent": null,
@@ -262,7 +260,6 @@
     ],
     "terms": [
       "CTX-032",
-      "TERM-155",
       "TERM-170"
     ],
     "parent": "SCR-131",
@@ -487,11 +484,8 @@
     ],
     "terms": [
       "CTX-032",
-      "CTX-035",
-      "TERM-155",
-      "TERM-163",
-      "TERM-171",
-      "TERM-182"
+      "TERM-170",
+      "TERM-171"
     ],
     "parent": "SCR-132",
     "apis": [
@@ -753,12 +747,8 @@
     ],
     "terms": [
       "CTX-033",
-      "CTX-034",
-      "TERM-157",
-      "TERM-158",
       "TERM-173",
-      "TERM-176",
-      "TERM-177"
+      "TERM-176"
     ],
     "parent": "SCR-132",
     "apis": [
@@ -1090,9 +1080,7 @@
     ],
     "terms": [
       "CTX-033",
-      "TERM-158",
-      "TERM-159",
-      "TERM-167",
+      "TERM-173",
       "TERM-174",
       "TERM-175"
     ],
@@ -1109,13 +1097,13 @@
       234
     ],
     "purpose": "사용자가 선택한 산출물 항목을 질문하고 AI 제안과 검증된 원본 변경을 구분합니다.",
-    "normal": "항목 제목·버전과 원문, 시간순 사용자·에이전트 메시지, 작업 대기 상태, 제안과 반영 근거를 표시합니다.",
+    "normal": "항목 제목·버전과 원문, 시간순 사용자·에이전트 메시지, 작업 대기 상태, 제안·기록한 결정과 반영 근거를 표시합니다.",
     "empty": "질문이 없음을 안내하고 이름이 있는 질문 입력에 포커스를 제공합니다.",
     "states": [
       {
         "id": "normal",
-        "en": "Item title and version, original content, chronological human/agent messages, queue status, proposal and reflection evidence.",
-        "ko": "항목 제목·버전과 원문, 시간순 사용자·에이전트 메시지, 작업 대기 상태, 제안과 반영 근거를 표시합니다."
+        "en": "Item title and version, original content, chronological human/agent messages, queue status, proposal, recorded decisions and reflection evidence.",
+        "ko": "항목 제목·버전과 원문, 시간순 사용자·에이전트 메시지, 작업 대기 상태, 제안·기록한 결정과 반영 근거를 표시합니다."
       },
       {
         "id": "loading",
@@ -1603,8 +1591,6 @@
     ],
     "terms": [
       "CTX-034",
-      "TERM-160",
-      "TERM-161",
       "TERM-177",
       "TERM-178",
       "TERM-179",
@@ -1984,11 +1970,7 @@
     ],
     "terms": [
       "CTX-032",
-      "CTX-033",
-      "TERM-156",
-      "TERM-163",
-      "TERM-172",
-      "TERM-176"
+      "TERM-172"
     ],
     "parent": "SCR-132",
     "apis": [
@@ -2313,7 +2295,7 @@
     ],
     "terms": [
       "CTX-035",
-      "TERM-166",
+      "TERM-182",
       "TERM-183"
     ],
     "parent": "SCR-132",
@@ -2634,11 +2616,7 @@
     ],
     "terms": [
       "CTX-033",
-      "CTX-034",
-      "TERM-156",
-      "TERM-161",
-      "TERM-176",
-      "TERM-180"
+      "TERM-176"
     ],
     "parent": "SCR-132",
     "apis": [
@@ -2922,10 +2900,8 @@
       136
     ],
     "terms": [
-      "CTX-032",
       "CTX-033",
-      "TERM-155",
-      "TERM-169"
+      "TERM-173"
     ],
     "parent": "SCR-131",
     "apis": [
@@ -3155,8 +3131,8 @@
     ],
     "terms": [
       "CTX-033",
-      "TERM-157",
-      "TERM-169"
+      "TERM-173",
+      "TERM-176"
     ],
     "parent": "SCR-134",
     "apis": [

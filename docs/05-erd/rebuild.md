@@ -17,7 +17,7 @@ Status: design for a new empty database, not applied to production. The [DDL](so
 | TBL-134 messages | CTX-033, TERM-159 | SPEC-311, SPEC-312, SPEC-313, SPEC-314, SPEC-342 |
 | TBL-135 agent_work | CTX-033, TERM-167 | SPEC-312, SPEC-313, SPEC-315 |
 | TBL-136 proposals | CTX-033, TERM-159 | SPEC-314, SPEC-316 |
-| TBL-137 checkpoint_requests | CTX-034, TERM-160, TERM-161 | SPEC-317, SPEC-318, SPEC-319, SPEC-320, SPEC-321, SPEC-322, SPEC-324, SPEC-343 |
+| TBL-137 checkpoint_requests | CTX-034, TERM-160 | SPEC-317, SPEC-318, SPEC-319, SPEC-320, SPEC-321, SPEC-322, SPEC-324, SPEC-343 |
 | TBL-138 checkpoint_decisions | CTX-034, TERM-160 | SPEC-318, SPEC-319, SPEC-321, SPEC-323, SPEC-343 |
 | TBL-139 idempotency_receipts | CTX-032, TERM-163 | SPEC-311, SPEC-313, SPEC-318, SPEC-323, SPEC-327, SPEC-328, SPEC-329 |
 | TBL-140 migration_runs | CTX-036, TERM-164, TERM-168 | SPEC-341, SPEC-342, SPEC-343, SPEC-344, SPEC-345 |
@@ -25,6 +25,7 @@ Status: design for a new empty database, not applied to production. The [DDL](so
 | TBL-142 write_journal | CTX-036, TERM-164 | SPEC-311, SPEC-313, SPEC-318, SPEC-323, SPEC-344 |
 | TBL-143 publication_consents | CTX-032, TERM-155 | SPEC-326, SPEC-350 |
 | TBL-144 auth_attempts | CTX-035, TERM-162 | SPEC-333 |
+| TBL-145 discussion_decisions | CTX-033, TERM-159 | SPEC-314, SPEC-316, SPEC-342 |
 
 ## Consistency and data boundaries
 
@@ -47,3 +48,9 @@ Read models TERM-170 through TERM-188 and preview TERM-169 are derived views, ex
 ## Schema verification and handoff
 
 Validate the initial migration in an empty SQLite database, compare its sqlite_master tables/indexes with the canonical DDL, run foreign_key_check and exercise cross-project FK, duplicate idempotency and invalid-state refusals. These are schema design checks, not proof of a real legacy import or production restore. Stage 06 uses these column limits; stage 10 schedules application enforcement and protected migration/recovery evidence.
+
+## Proposal persistence correction
+
+Stage-06 client discovery exposed missing proposal body/work storage. TBL-136 now stores its body and a project-scoped work reference; TBL-135 has the supporting project/id unique key. Native requests must also match the work question to the same discussion inside the lease transaction. Original content version is derived through the immutable discussion-origin artifact. A legacy proposal may retain null work_id without inventing agent work; native creation still requires a real live work ID. Unknown or invalid legacy records remain protected in the import inventory and block release until reconciled. DDL and the initial migration remain byte-identical and have not run on production.
+
+TBL-145 adds durable, append-only discussion decisions with original body, actor, version and source/PR references. A composite foreign key binds verified source evidence to one accepted project publication and commit. Native writes require that evidence; legacy records can retain null evidence without claiming verification. The schema now has twenty tables.
