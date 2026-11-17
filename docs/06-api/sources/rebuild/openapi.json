@@ -1624,7 +1624,11 @@
                       },
                       "items": [],
                       "next_cursor": null,
-                      "diagnostics": []
+                      "diagnostics": [],
+                      "graph": {
+                        "nodes": [],
+                        "edges": []
+                      }
                     }
                   }
                 }
@@ -2186,7 +2190,8 @@
                               "created_at": "2026-11-18T00:00:00Z"
                             }
                           ],
-                          "next_cursor": null
+                          "next_cursor": null,
+                          "agent_work": []
                         }
                       ],
                       "next_cursor": null
@@ -2462,7 +2467,8 @@
                           "created_at": "2026-11-18T00:00:00Z"
                         }
                       ],
-                      "next_cursor": null
+                      "next_cursor": null,
+                      "agent_work": []
                     }
                   }
                 }
@@ -2800,7 +2806,8 @@
                           "created_at": "2026-11-18T00:00:00Z"
                         }
                       ],
-                      "next_cursor": null
+                      "next_cursor": null,
+                      "agent_work": []
                     }
                   }
                 }
@@ -10058,7 +10065,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 80,
-            "pattern": "^[A-Z]+-[0-9]{3,7}$"
+            "pattern": "^[A-Z]+-[0-9]{3,7}(?:#[A-Za-z0-9_-]{1,64})?$"
           },
           "title": {
             "type": "string",
@@ -10138,6 +10145,104 @@
               "maxLength": 500
             },
             "maxItems": 50
+          },
+          "graph": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "nodes",
+              "edges"
+            ],
+            "properties": {
+              "nodes": {
+                "type": "array",
+                "maxItems": 10000,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "label",
+                    "kind",
+                    "item_id",
+                    "properties"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    },
+                    "kind": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 40
+                    },
+                    "item_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "maxLength": 80
+                    },
+                    "properties": {
+                      "type": "array",
+                      "maxItems": 200,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "label",
+                          "value"
+                        ],
+                        "properties": {
+                          "label": {
+                            "type": "string",
+                            "maxLength": 200
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 1000
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "edges": {
+                "type": "array",
+                "maxItems": 20000,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "from",
+                    "to",
+                    "label"
+                  ],
+                  "properties": {
+                    "from": {
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "to": {
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 300
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "required": [
@@ -10146,7 +10251,8 @@
           "source",
           "items",
           "next_cursor",
-          "diagnostics"
+          "diagnostics",
+          "graph"
         ]
       },
       "QuestionInput": {
@@ -10158,7 +10264,8 @@
               {
                 "type": "string",
                 "minLength": 1,
-                "maxLength": 80
+                "maxLength": 80,
+                "pattern": "^[A-Z]+-[0-9]{3,7}(?:#[A-Za-z0-9_-]{1,64})?$"
               },
               {
                 "type": "null"
@@ -10281,6 +10388,13 @@
               "null"
             ],
             "maxLength": 256
+          },
+          "agent_work": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/Work"
+            }
           }
         },
         "required": [
@@ -10290,7 +10404,8 @@
           "removed_item",
           "state",
           "messages",
-          "next_cursor"
+          "next_cursor",
+          "agent_work"
         ]
       },
       "DiscussionList": {
