@@ -24,10 +24,10 @@
       "updated": "2026-11-18T03:00:00+09:00"
     },
     "03-user-flow": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
-      "updated": "2026-11-17T16:36:22+09:00"
+      "next": "Nine rebuild flows authored; continue functional specification under the design instruction. Actual NEXUS review remains pending.",
+      "updated": "2026-11-18T03:10:00+09:00"
     },
     "04-functional-spec": {
       "state": "not_started",
