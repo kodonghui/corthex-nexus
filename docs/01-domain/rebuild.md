@@ -184,7 +184,7 @@ Read models: project list (ownership and latest activity); stage overview (all t
 | TERM-158 | Item | Stable trace ID within project, part and stage, bound to a source version. | CTX-033 | `item` | row number as identity |
 | TERM-159 | Discussion | Ordered human and agent messages with their original item/version. | CTX-033 | `discussion` | mutable source |
 | TERM-160 | Checkpoint | Human decision requested for a particular content version. | CTX-034 | `checkpoint` | read receipt |
-| TERM-161 | Content version | Digest of reviewable source and attachments, independent of display metadata. | CTX-034 | `content_version` | every Git commit |
+| TERM-161 | Content version | Digest of reviewable source and attachments, independent of display metadata. | CTX-033 | `content_version` | every Git commit |
 | TERM-162 | Session | Opaque, expiring human browser authentication session; agent session labels are separate. | CTX-035 | `owner_session` | service token |
 | TERM-163 | Publish receipt | Durable result naming the accepted commit, digest and server revision. | CTX-032 | `publish_receipt` | green CI job |
 | TERM-164 | Migration run | Manifested backup, mapping, restore and reconciliation evidence. | CTX-036 | `migration_run` | repush only |
@@ -218,3 +218,7 @@ Read models: project list (ownership and latest activity); stage overview (all t
 Timeline checkpoint `nk_n9aja7yrtm1q` passed at 2026-11-17T08:19:16.314Z for commit `5a19cd264b73fd2b02d8ff371e391ff5e0660bdf`. The recorded original wording remains `01단계 확인 지점 통과`. Coverage comment `nc_hvjv377v757w` and version comment `nc_ayya1yv8g3bc` approved the recommendations at 08:19:46.997Z and 08:19:50.363Z respectively; the latter repeated at 08:19:55.036Z is one decision.
 
 The 2026-11-18 continuation instruction permits completing boundaries and tables without waiting again; it is not an actual NEXUS pass of those new artifacts. Request final domain review after main merge/push, then continue the approved design sequence. Real migration, provider setup and full product QA have not run. The Korean source and workshop text receive term-check before publication. Live Miro synchronization details are recorded after the write/reread, never inferred from a local file.
+
+## Content-version ownership correction
+
+The live stage-05 comparison exposed a context mismatch. TERM-161 is owned by artifact review (CTX-033), which computes and stores the content digest. Checkpoint governance (CTX-034) references that immutable version; it does not own a second version aggregate. This replaces the original glossary ownership without changing human-only decision or content invalidation rules.
