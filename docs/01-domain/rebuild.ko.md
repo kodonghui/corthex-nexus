@@ -1,76 +1,220 @@
 ---
-synced_at: 2026-11-17T09:14:13.274Z
+synced_at: 2026-11-17T17:38:01Z
 ---
 
 # NEXUS 재설계: 도메인 탐색
 
-[한국어](rebuild.ko.md)
+[English](rebuild.md)
 
-상태: 새 타임라인의 체크포인트 1을 사용자님이 2026-11-17에 NEXUS에서 통과시키셨습니다. Step 2–9는 작성·승인하지 않았습니다. 사용자님이 통과 후 02단계로 진행하도록 명시하셨으며, 컨텍스트·용어집 입력이 없는 점을 표시합니다. 기존 체크포인트는 이번 재설계의 승인이 아닙니다.
+상태: [설계 진행 승인](../decisions/rebuild-authorization.ko.md)에 따라 Step 9까지 작성했습니다. 실제 NEXUS 통과는 체크포인트 1만 있습니다. 새 경계와 표는 위임된 권한으로 작성한 AI 설계 결정입니다. 사용자님이 개별 검토하셨다고 기록하지 않으며 별도 단계 검토를 요청합니다.
 
 ## 1. 서비스 개요
 
-2026-11-17 사용자님의 인계 메시지는 한 사람이 여러 프로젝트를 진행하면서 13단계 산출물을 그림으로 보고, 개별 항목을 AI와 논의하고, 체크포인트를 직접 통과시키는 공개 범용 제품을 요구합니다. 기존 코드와 결정은 참고 자료입니다. 이번 재설계는 이 목적에서 시작합니다.
+NEXUS는 공개 서비스에서 개인이 여러 비공개 프로젝트를 관리하고 13단계 산출물을 시각적으로 검토하며, 특정 버전의 항목에 대해 외부 AI 에이전트와 대화하고 직접 체크포인트를 결정하는 제품입니다. Git 소스를 기준으로 삼습니다. 직접 그림 편집·팀·추가 연동은 후속 버전으로 정했습니다. 새 제품 QA와 데이터 복구 리허설을 통과할 때까지 기존 운영을 유지합니다.
 
-새 버전의 QA와 배포가 끝날 때까지 기존 운영 서비스를 유지합니다. 기존 프로젝트 스냅샷·댓글·체크포인트는 마이그레이션 또는 허용된 재게시로 보존해야 합니다. 소스 스냅샷 재게시만으로는 서버에만 있는 대화·승인 기록을 복원할 수 없습니다.
+입력: 사용자님의 2026-11-17 지시, 확인한 타임라인과 추천안 답변 두 개, 2026-11-18의 02 추천안 승인·설계 완료 지시입니다. 기존 구현과 PR 50·53·56은 참고 자료로 읽었습니다.
 
 ## 2. 이벤트 스토밍
 
-- 사용자 검토 화면: 기존 Miro 보드의 새 재설계 열입니다. 비공개 보드·프레임 링크는 공개 레포 밖의 프로젝트 Notion 기록에 둡니다.
-- 작성한 프레임: Step 0 목적과 범위, Step 1-a 이벤트 수집, Step 1-b 타임라인과 체크포인트 질문입니다. 이전 열은 보존했습니다.
-- 진행 방식: 스킬 기본 방식인 AI 초안 후 사용자 수정입니다. Step 1-b·7·9 뒤에 멈춥니다. 첫 중단 시점의 단계 체크포인트 요청은 01단계 완료를 뜻하지 않습니다.
-- 동기화: 워크숍에서는 보드가 기준입니다. 이 문서는 다시 읽은 타임라인을 옮깁니다. 마지막 체크포인트 뒤에는 소스를 먼저 수정하고 보드를 맞춥니다.
-- 사용자 참여: 사용자님이 NEXUS에서 타임라인을 통과시키고 추천안 두 개를 승인하셨습니다. 원문과 시각은 아래에 기록합니다. 사용자님의 보드 수정·댓글 수는 독립적으로 집계하지 않았습니다.
-- 확신 수준: 최초 초안은 `[sure]`·`[inferred]`·`[guess]`를 사용했습니다. 사용자님 통과 후 승인한 타임라인의 레이블을 제거했고, Step 1-a와 Git 이력은 초안을 보존합니다. 버전 재검토 이벤트 두 개는 별도 추천안 승인으로 근거를 얻었습니다.
-- NEXUS: `rebuild` 부분이 이번 작업을 기록합니다. `nexus` 부분은 기존 산출물과 승인 이력을 보존합니다. 현재 렌더러는 합의한 CTX 제목이 있어야 도메인 그림을 그릴 수 있어, 경계 체크포인트 전에 이를 만들지 않습니다. 체크포인트 요청은 Miro 타임라인을 먼저 열고 새 재설계 그림이 아직 없음을 명시해야 합니다.
+기존 비공개 Miro 보드의 이전 프레임을 보존합니다. Step 2–9는 직전 프레임을 복사하고 외부 시스템·명령·쟁점·역할·애그리게이트·경계·정책·읽기 모델·최종 맵과 표를 추가합니다. 프레임 주소와 실제 동기화 결과는 기존 비공개 프로젝트 기록에 남깁니다. 추론한 새 메모에는 근거 수준을 표시합니다. AI는 사용자 체크포인트를 누르지 않습니다.
+
+Legend: orange past-tense event; pink external system; blue imperative command; red open hotspot; green answered hotspot; light-yellow actor; yellow aggregate; violet policy; light-green read model. The workshop order and alternatives are preserved below. Reads and authentication are not invented as business events in those lanes; supporting identity events are explicitly separate.
 
 ## 3. 이벤트 타임라인
 
-아래 순서와 대안은 Step 1-b에서 옮겼습니다. 각 행은 독립 플로우이며 아직 유저 플로우나 API 계약은 아닙니다. 보드의 이벤트 후보 21개를 Step 1-a에서 이 타임라인으로 복사했습니다.
+The order and alternatives below are transcribed from Step 1-b. Rows are independent lanes; this is not yet a user-flow or API contract. The board has 21 event candidates, copied from Step 1-a into this timeline.
 
 | Lane | Events |
 | --- | --- |
-| 프로젝트 연결 | 프로젝트 연결이 등록됨 → 최초 게시 동의가 기록됨 → 스냅샷이 게시됨 → 후속 스냅샷으로 갱신됨 |
-| 단계 검토 | 단계 초안이 작성됨 → 기본 브랜치에 병합됨 → 단계 산출물이 게시됨 → 체크포인트가 요청됨 → 체크포인트가 통과됨 또는 수정 요청이 기록됨 |
-| 항목 대화 | 항목 질문이 등록됨 → AI 응답이 등록됨 → 결정이 기록됨 → 산출물 수정본이 게시됨 |
-| 버전 재검토 | 승인 후 새 버전이 게시됨 → 새 버전 재검토가 요청됨 → 새 버전 체크포인트가 통과됨 |
-| 데이터 이전과 배포 | 기존 데이터 백업이 생성됨 → 이전 데이터가 복원됨 → QA 결과가 기록됨 → 새 버전이 배포됨 또는 기존 운영이 유지됨 → 검증 실패 후 이전 버전으로 복구됨 |
+| Project connection | Project connected → First upload consent recorded → Snapshot published → Snapshot updated |
+| Stage review | Stage draft written → Draft merged → Stage artifact published → Checkpoint requested → Checkpoint passed or changes requested |
+| Item discussion | Item question recorded → AI response recorded → Decision recorded → Revised artifact published |
+| Version review | New version published after approval → New version review requested → New version checkpoint passed |
+| Data migration and release | Existing data backed up → Existing data restored → QA result recorded → New version deployed or current version kept → Previous version restored after failed validation |
 
-배포 플로우의 마지막 이벤트는 운영 교체 후 검증에 실패했을 때 발생합니다. 기존 운영 유지는 의도적인 출시 결과이며 새 배포가 아닙니다. 어떤 결과에 영구 감사 기록이 필요한지는 02단계에서 정의해야 합니다.
+The last event of the release lane is conditional on failed validation after a switch. Keeping the current production version is a deliberate release outcome, not a new deployment. Stage 02 must define which outcomes need durable audit records.
 
-제외한 조회: 프로젝트 목록·그림 보기, 검색, 프로젝트 전환입니다. 이것만으로 도메인 데이터가 바뀌지 않습니다. 인증·권한·실패 응답은 02단계에서 요구사항으로 정의해야 하며, 이벤트 타임라인에서 제외했다고 제품에서 제외한 것은 아닙니다.
+Excluded reads: opening a project list or picture, searching, and switching projects. These change no domain data by themselves. Authentication, authorization and failure responses still need requirements in stage 02; exclusion from the event timeline does not remove them from the product.
 
-## 4. 컨텍스트·명령·용어집
 
-체크포인트 1 초안에는 CTX·TERM ID를 부여하지 않습니다. 컨텍스트 경계는 타임라인 검토 뒤 Step 7에서 정합니다. 명령·애그리거트·정책·읽기 모델·컨텍스트 표·컨텍스트 맵은 아직 작성하거나 승인하지 않았습니다. 새 ID는 프로젝트의 기존 최댓값 다음부터 사용하며, 기존 ID를 재사용하거나 재번호화하지 않습니다.
+## 4. 컨텍스트와 명령 표
 
-임시 용어는 프로젝트·단계·산출물·스냅샷·항목 대화·체크포인트·버전·세션·마이그레이션입니다. 이후 단계에서 사용하기 전에 도메인 용어집에서 정의를 합의합니다. 화면·필드 이름·의존성·구현 아키텍처는 미정입니다.
+경계는 화면이나 타임라인 행의 개수가 아닌 일관성 규칙을 기준으로 정합니다. 첫 버전에서는 하나로 배포하는 논리 모듈이며 마이크로서비스 요구가 아닙니다. ID는 기존 컨텍스트 최대 ID·TERM-154 다음부터 이어갑니다. 기존 ID의 의미는 보존합니다.
 
-## 5. 정해진 타임라인 질문
+| Context | Type | Aggregates | Responsibility |
+| --- | --- | --- | --- |
+| CTX-032 Publishing | core | Project, Snapshot, Publish receipt | Publication consistency |
+| CTX-033 Review | core | Stage artifact, Item, Discussion, Agent claim | Versioned review |
+| CTX-034 Checkpoint governance | core | Checkpoint, Content version | Human-only decisions |
+| CTX-035 Identity and ownership | generic | Owner, Session, Publisher credential | Private ownership |
+| CTX-036 Continuity | supporting | Migration run, Release decision | Preserved records |
 
-1. 누락 검토: 사용자님이 추천 A를 승인하셨습니다. 다섯 플로우로 시작하고 직접 편집·팀 협업·외부 도구 연결의 범위는 02단계에서 정합니다. 독립 체크리스트는 주신 13단계·항목별 AI 대화·사용자 전용 체크포인트·여러 프로젝트·데이터 보존이며 시장 조사가 아닙니다.
-2. 승인 후 산출물 변경: 사용자님이 추천 A를 승인하셨습니다. 이전 승인은 이력으로 보존하고 새 콘텐츠 버전에 새 체크포인트를 요청합니다. `[guess]` 이벤트 두 개는 이 결정으로 근거를 얻었습니다. 재검토할 변경 기준은 02단계에서 정합니다.
-3. 공개 범위는 사용자님의 인계 메시지로 정해졌습니다. 각 사용자가 자신의 프로젝트를 관리할 수 있는 공개 범용 제품을 만듭니다. 이 방향의 재승인을 요청하지 않습니다. 계정·호스팅·가입 방식은 02단계에서 정하며 구독·멀티테넌트 아키텍처는 승인된 것으로 전제하지 않습니다.
+### CTX-032 Publishing (core)
 
-첫 두 추천안은 이제 사용자 결정이며 세 번째는 기존 제품 방향입니다. 타임라인 통과는 제시하지 않은 컨텍스트·표·구현 선택의 승인을 뜻하지 않습니다.
+| Given by | Read model | Command | Aggregate | Events |
+| --- | --- | --- | --- | --- |
+| Publisher | Connection status | Connect project | Project | Project connected |
+| Owner | First upload preview | Record first upload consent | Project | First upload consent recorded |
+| Publisher | Held commit and receipt | Publish merged snapshot | Snapshot | Snapshot published or Snapshot updated |
 
-## 6. 참고 결정과 대체 관계
+규칙: 프로젝트는 소유자에게 속합니다. 검증한 기본 브랜치의 후속 커밋만 보유 스냅샷을 교체합니다. 최초 게시에는 프로젝트별 동의가 필요합니다. 결과에는 실제 보유 커밋을 기록합니다. 같은 키·내용의 재전송은 같은 결과를 반환하며 다른 내용은 충돌합니다.
 
-- 2026-11-17 인계 메시지는 기존 구현·승인을 새 설계의 근거로 재사용하는 접근을 대체합니다. 이전 소스와 `.corthex/stages/nexus.json`은 과거 근거로 남기고, `.corthex/stages/rebuild.json`은 비어 있는 상태에서 시작했고 이제 검증한 타임라인 통과만 기록합니다.
-- 기존 개인 기기 전용 범위는 현재 운영 서비스의 배경입니다. 공개 제품 범위는 지금 운영 접근 제어를 변경하지 않고 02단계에서 새로 결정해야 합니다.
-- 기존 고정 토큰과 개발 순서는 이번 재설계의 09단계 방향을 정하지 않습니다. 09단계는 `corthex-uxui`를 사용하고, 여러 후보를 비교해 하나를 선택하고, 라이트·다크 테마와 실제 동작하는 HTML을 레포에 커밋한 뒤 체크포인트를 요청해야 합니다.
-- 기존 목업 HTML은 `docs/09-mockup/nexus/mockup.html`에 있습니다. 인계 메시지는 미완성 회색 Artifact 경험을 지적합니다. 파일 존재나 과거 승인은 재설계의 완성도·승인을 입증하지 않으며, 실제 커버리지는 09단계에서 검토합니다.
-- [PR 50](https://github.com/kodonghui/corthex-nexus/pull/50)·[PR 53](https://github.com/kodonghui/corthex-nexus/pull/53)·[PR 56](https://github.com/kodonghui/corthex-nexus/pull/56)을 배경 자료로 읽었습니다. 이 작업은 PR 56을 변경하지 않으며 그 배포를 맡지 않습니다.
+Rule source: the public-product brief and approved stage-02 choices; transaction and authentication mechanisms are inferred design choices under the continuation instruction.
 
-## 7. 확인 사항과 다음 행동
+Example: Given a consented project and a held ancestor, when the publisher sends its verified main descendant twice with the same key, then one snapshot and one receipt exist, both responses name the same held commit.
 
-각 프레임을 작성한 뒤 보드를 다시 읽었습니다. 이벤트 후보 21개·다섯 플로우의 순서·대안·확신 수준·미확정 질문을 소스와 대조했습니다. 한국어 보드 텍스트와 문서 사본은 코어 스킬의 `term-check.py`를 통과했습니다. 레포 검사 결과는 PR에 기록하며, 이 검사는 실제 마이그레이션 리허설이나 제품 전체 QA가 아닙니다.
+### CTX-033 Review (core)
 
-다음 행동은 검증한 통과와 추천안 답변을 PR로 기록하고 push하는 것입니다. 이번 후속 지시의 `그다음 02 PRD로 넘어가고`에 따라 02단계를 준비하되, 새 컨텍스트 경계·CTX/TERM ID·컨텍스트 표·맵이 입력에 없는 점을 명시합니다. 01단계는 진행 중으로 유지하고 누락 산출물의 승인을 추정하지 않습니다. 이 구체적인 진행 지시는 02단계 준비 전 대기하던 기본 순서를 대체합니다.
+| Given by | Read model | Command | Aggregate | Events |
+| --- | --- | --- | --- | --- |
+| Owner | Versioned stage picture or list | Ask about item | Discussion | Item question recorded |
+| Agent | Assigned project queue | Reply to item | Discussion | AI response recorded |
+| Owner | Discussion and source change | Record decision | Discussion | Decision recorded |
+| Publisher | Published source version | Publish revised artifact | Stage artifact | Revised artifact published |
 
-## 8. 체크포인트 1과 결정
+규칙: 항목 주소는 프로젝트·부분·단계·안정적인 추적 ID·콘텐츠 버전을 포함합니다. 항목이 사라져도 답변은 원래 대화와 버전에 남습니다. 에이전트 claim에는 만료 시간이 있으며 같은 작업의 동시 처리를 막습니다. 제안만으로 소스나 사용자 승인을 바꾸지 않습니다.
 
-- 타임라인 체크포인트 `nk_n9aja7yrtm1q`: 2026-11-17 17:19:16.314 KST에 커밋 `5a19cd264b73fd2b02d8ff371e391ff5e0660bdf`를 대상으로 통과했습니다. 사용자님의 원문은 `01단계 확인 지점 통과`입니다. 새 용어로 사용하지 않고 인용 근거로 보존합니다.
-- 범위 의견 `nc_hvjv377v757w`: 17:19:46.997 KST에 `추천 모두 승인`으로 추천 A를 승인하셨습니다.
-- 버전 의견 `nc_ayya1yv8g3bc`: 17:19:50.363 KST에 `추천 모두 승인`으로 추천 A를 승인하고 17:19:55.036 KST에 반복하셨습니다. 반복 답변은 하나의 결정입니다.
-- 소스 수정 전에 NEXUS 체크포인트와 의견 전체를 읽었습니다. 비공개 승인 주소는 프로젝트 기록에 두고, 레포 기록은 이 문서와 NEXUS 체크포인트 ID를 보존합니다. 병합 직전에도 통과 상태를 확인해야 합니다.
+Rule source: the public-product brief and approved stage-02 choices; transaction and authentication mechanisms are inferred design choices under the continuation instruction.
+
+Example: Given an item discussion at version A and a published version B, when the agent replies to the original question, then the reply remains attached to A and never silently claims to answer B.
+
+### CTX-034 Checkpoint governance (core)
+
+| Given by | Read model | Command | Aggregate | Events |
+| --- | --- | --- | --- | --- |
+| Agent or owner | Stage readiness and content version | Request checkpoint | Checkpoint | Checkpoint requested or New version review requested |
+| Owner | Exact requested content and blockers | Pass checkpoint | Checkpoint | Checkpoint passed or New version checkpoint passed |
+| Owner | Exact request and history | Request changes | Checkpoint | Changes requested |
+| Owner | Prior approval history | Withdraw approval | Checkpoint | Approval withdrawn |
+
+규칙: 소유자의 사용자 세션만 결정합니다. 게시·에이전트 자격 증명은 통과·철회할 수 없습니다. 요청 콘텐츠 버전을 비교해 오래된 결정은 충돌로 처리합니다. 새 콘텐츠는 이전 승인을 이력으로 보존하며 새 요청이 필요합니다. 필수 선행 체크포인트는 완료를 막고 병렬 준비는 허용합니다.
+
+Rule source: the public-product brief and approved stage-02 choices; transaction and authentication mechanisms are inferred design choices under the continuation instruction.
+
+Example: Given a checkpoint requested for version A and current version B, when the owner submits a pass for A, then the service returns a stale-version conflict and creates no approval.
+
+### CTX-035 Identity and ownership (generic)
+
+| Given by | Read model | Command | Aggregate | Events |
+| --- | --- | --- | --- | --- |
+| Visitor | Sign-in result | Create owner session | Session | Owner session created |
+| Owner | Project connection guide | Issue scoped credential | Publisher credential | Scoped credential issued |
+| Owner | Credential list | Revoke scoped credential | Publisher credential | Scoped credential revoked |
+
+규칙: 사용자 인증에는 OIDC authorization code와 PKCE, 서버의 불투명 세션을 사용합니다. 자격 증명은 해시로 보관하고 소유자·프로젝트별 권한을 제한합니다. 다른 소유자의 읽기는 거부합니다. 공급자는 설정으로 선택하며 실제 설정은 후속 작업입니다. 기존 Access 인증은 호환 어댑터로 분리합니다.
+
+Rule source: the public-product brief and approved stage-02 choices; transaction and authentication mechanisms are inferred design choices under the continuation instruction.
+
+### CTX-036 Continuity (supporting)
+
+| Given by | Read model | Command | Aggregate | Events |
+| --- | --- | --- | --- | --- |
+| Operator | Consistent backup manifest | Back up existing data | Migration run | Existing data backed up |
+| Operator | Isolated restore report | Restore existing data | Migration run | Existing data restored |
+| Operator | Acceptance evidence | Record QA result | Migration run | QA result recorded |
+| Operator | QA and recovery readiness | Switch validated release | Release decision | New version deployed or Current version kept |
+| Operator | Reconciliation report | Restore previous version | Release decision | Previous version restored after failed validation |
+
+규칙: 프로젝트·항목 ID, 작성자·순서·버전, 원래 체크포인트 결정을 보존합니다. 스냅샷 재전송은 서버 전용 대화 백업을 대체하지 않습니다. 리허설과 QA 뒤 교체하며 복구 시 확인 응답한 모든 쓰기를 대조합니다. 공개 화면의 삭제 명령이 아닌 운영 절차입니다.
+
+Rule source: the public-product brief and approved stage-02 choices; transaction and authentication mechanisms are inferred design choices under the continuation instruction.
+
+## 5. 정책·읽기 모델·컨텍스트 맵
+
+| Policy | Boundary | Consequence |
+| --- | --- | --- |
+| When Snapshot published, Build stage review representations | CTX-032 to CTX-033 | Idempotent projection keyed by snapshot; failed render is explicit and the previous version stays identifiable |
+| When Item question recorded, Queue agent work | inside CTX-033 | No model API is called by NEXUS; the configured agent claims and answers asynchronously |
+| When content changes after approval, Require new checkpoint | CTX-033 to CTX-034 | Keep historical decision; a source commit changing display metadata alone retains the content digest |
+| When project access is revoked, Refuse subsequent protected work | CTX-035 to all | Check ownership and credential validity at every request, including queued work |
+| When QA result fails, Keep current production | inside CTX-036 | No release switch; retain rehearsal evidence |
+
+| From | To | Kind | Pattern | Why | Data |
+| --- | --- | --- | --- | --- | --- |
+| Git host / hub | CTX-032 | call | anticorruption layer | Verify default-branch ancestry and normalize the existing upload contract | merged commit, snapshot, consent |
+| CTX-032 | CTX-033 | event | published language | Render and review exactly the held publication | snapshot ID, content digest, item IDs |
+| CTX-033 | CTX-034 | event | customer and supplier | Approval follows content, not a mutable picture | stage, content version, blockers |
+| CTX-034 | CTX-033 | call | open host service | Show current versus historical approvals | checkpoint ID, decision, content version |
+| CTX-035 | CTX-032 | call | shared ownership contract | Authorize machine publication | owner/project identity, allowed operations |
+| CTX-035 | CTX-033 | call | shared ownership contract | Protect private review and discussion | owner/project identity, allowed operations |
+| CTX-035 | CTX-034 | call | shared ownership contract | Human-only decisions | verified owner session |
+| OIDC provider | CTX-035 | call | anticorruption layer | Identity claims never become unchecked project authority | issuer, subject, nonce, verified claims |
+| External agent | CTX-033 | call | open host service | Bounded reads, claims and replies without approval power | scoped queue, lease, versioned reply |
+| CTX-036 | CTX-032 | call | anticorruption layer | Preserve original records during import, not invent a new publication | identity mappings, held revisions |
+| CTX-036 | CTX-033 | call | anticorruption layer | Restore server-only discussions and attachments | original authors/order/versions |
+| CTX-036 | CTX-034 | call | anticorruption layer | Restore decisions without impersonating a new human pass | original checkpoint history |
+
+```mermaid
+flowchart LR
+  Git[Git host / hub] -->|ACL: merged snapshot| P[CTX-032 Publishing]
+  P -.->|snapshot and digest| R[CTX-033 Review]
+  R -.->|content changed| C[CTX-034 Checkpoint governance]
+  C -->|decision history| R
+  O[OIDC provider] -->|ACL: verified identity| I[CTX-035 Identity and ownership]
+  I -->|owner/project scope| P
+  I -->|owner/project scope| R
+  I -->|human owner session| C
+  A[External agent] -->|OHS: claim and reply| R
+  M[CTX-036 Continuity] -->|ACL: restore| P
+  M -->|ACL: original discussions| R
+  M -->|ACL: original approvals| C
+```
+
+Read models: project list (ownership and latest activity); stage overview (all thirteen stages, readiness and actual approvals); versioned picture/list (source locations and stable items); discussion thread (original version and removed-item marker); agent queue (open work and leases); publication status (held commit and retry result); migration report (record counts, mappings, checksums and acknowledged-write reconciliation). They are projections, never alternate sources of truth.
+
+## 6. 쟁점과 대체 결정
+
+| Hotspot | Resolution or remaining evidence |
+| --- | --- |
+| Public service versus the old private Access-only product | Hosted service with personal private projects selected by the maintainer's current approval. Keep production access unchanged until release. Authentication/tenant design is new work, not copied approval. |
+| Direct editing, teams and more integrations | Defer after the first release. Do not carry legacy editor/workshop commitments into the new scope. |
+| What invalidates approval? | Reviewable text, diagram relationships, attachments, schemas and mockup content affect the content digest. Layout positions, collapsed panels, theme and navigation state do not. Parser/render-contract changes that change meaning also invalidate. Ambiguous changes conservatively require review. |
+| AI provider, key and cost | NEXUS queues work for an external configured agent; no model provider credential or server-side model call in first release. Agent absence is a visible pending state. |
+| Existing push credentials and wire compatibility | Preserve the existing snapshot format and Access upload adapter; new account-scoped credentials are separately versioned. Stage 06 defines the boundary and WBS requires linked upstream changes if needed. |
+| Server-only data preservation | Design requires consistent backup, isolated restore and reconciliation. Actual counts, compatibility, recovery duration and browser QA remain unverified until stages 11–12. |
+| OIDC provider registration and GitHub Secrets access | External setup is not complete; account-scoped session and credential contracts can still be designed. Existing Actions Secrets 403 does not block manual hub publication. |
+
+## 7. 용어
+
+| ID | Term | Definition | Context | Code name | Avoid |
+| --- | --- | --- | --- | --- | --- |
+| TERM-155 | Project | Owner-scoped collection of parts and thirteen stages. | CTX-032 | `project` | workspace as a synonym |
+| TERM-156 | Snapshot | Immutable published representation of one verified Git commit. | CTX-032 | `snapshot` | backup |
+| TERM-157 | Stage artifact | Versioned source and its rendered review representation. | CTX-033 | `stage_artifact` | approved just because published |
+| TERM-158 | Item | Stable trace ID within project, part and stage, bound to a source version. | CTX-033 | `item` | row number as identity |
+| TERM-159 | Discussion | Ordered human and agent messages with their original item/version. | CTX-033 | `discussion` | mutable source |
+| TERM-160 | Checkpoint | Human decision requested for a particular content version. | CTX-034 | `checkpoint` | read receipt |
+| TERM-161 | Content version | Digest of reviewable source and attachments, independent of display metadata. | CTX-034 | `content_version` | every Git commit |
+| TERM-162 | Session | Opaque, expiring human browser authentication session; agent session labels are separate. | CTX-035 | `owner_session` | service token |
+| TERM-163 | Publish receipt | Durable result naming the accepted commit, digest and server revision. | CTX-032 | `publish_receipt` | green CI job |
+| TERM-164 | Migration run | Manifested backup, mapping, restore and reconciliation evidence. | CTX-036 | `migration_run` | repush only |
+| TERM-165 | Owner | Authenticated person who owns the private project and its decisions. | CTX-035 | `owner` | operator or agent |
+| TERM-166 | Publisher credential | Revocable project-scoped machine credential; never grants human decisions. | CTX-035 | `publisher_credential` | owner session |
+| TERM-167 | Agent claim | Time-limited exclusive processing lease on one queued discussion item. | CTX-033 | `agent_claim` | approval |
+| TERM-168 | Release decision | Audited operator outcome after QA and restore evidence. | CTX-036 | `release_decision` | checkpoint pass alone |
+| TERM-169 | Preview | Isolated representation of untrusted HTML without owner credentials. | CTX-033 | `preview` | trusted same-origin app |
+| TERM-170 | Connection status | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-032 | `connection_status` | 독립적인 원본 |
+| TERM-171 | First upload preview | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-032 | `first_upload_preview` | 독립적인 원본 |
+| TERM-172 | Held commit and receipt | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-032 | `held_commit_and_receipt` | 독립적인 원본 |
+| TERM-173 | Versioned stage picture or list | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-033 | `versioned_stage_picture_or_list` | 독립적인 원본 |
+| TERM-174 | Assigned project queue | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-033 | `assigned_project_queue` | 독립적인 원본 |
+| TERM-175 | Discussion and source change | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-033 | `discussion_and_source_change` | 독립적인 원본 |
+| TERM-176 | Published source version | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-033 | `published_source_version` | 독립적인 원본 |
+| TERM-177 | Stage readiness and content version | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-034 | `stage_readiness_and_content_version` | 독립적인 원본 |
+| TERM-178 | Exact requested content and blockers | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-034 | `exact_requested_content_and_blockers` | 독립적인 원본 |
+| TERM-179 | Exact request and history | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-034 | `exact_request_and_history` | 독립적인 원본 |
+| TERM-180 | Prior approval history | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-034 | `prior_approval_history` | 독립적인 원본 |
+| TERM-181 | Sign-in result | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-035 | `sign_in_result` | 독립적인 원본 |
+| TERM-182 | Project connection guide | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-035 | `project_connection_guide` | 독립적인 원본 |
+| TERM-183 | Credential list | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-035 | `credential_list` | 독립적인 원본 |
+| TERM-184 | Consistent backup manifest | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-036 | `consistent_backup_manifest` | 독립적인 원본 |
+| TERM-185 | Isolated restore report | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-036 | `isolated_restore_report` | 독립적인 원본 |
+| TERM-186 | Acceptance evidence | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-036 | `acceptance_evidence` | 독립적인 원본 |
+| TERM-187 | QA and recovery readiness | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-036 | `qa_and_recovery_readiness` | 독립적인 원본 |
+| TERM-188 | Reconciliation report | 해당 명령 전에 읽는 모델이며 소유자별 원본 기록에서 생성한 표현입니다. | CTX-036 | `reconciliation_report` | 독립적인 원본 |
+
+## 8. 실제 체크포인트 이력과 다음 행동
+
+Timeline checkpoint `nk_n9aja7yrtm1q` passed at 2026-11-17T08:19:16.314Z for commit `5a19cd264b73fd2b02d8ff371e391ff5e0660bdf`. The recorded original wording remains `01단계 확인 지점 통과`. Coverage comment `nc_hvjv377v757w` and version comment `nc_ayya1yv8g3bc` approved the recommendations at 08:19:46.997Z and 08:19:50.363Z respectively; the latter repeated at 08:19:55.036Z is one decision.
+
+The 2026-11-18 continuation instruction permits completing boundaries and tables without waiting again; it is not an actual NEXUS pass of those new artifacts. Request final domain review after main merge/push, then continue the approved design sequence. Real migration, provider setup and full product QA have not run. The Korean source and workshop text receive term-check before publication. Live Miro synchronization details are recorded after the write/reread, never inferred from a local file.
