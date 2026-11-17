@@ -45,3 +45,5 @@ The running NEXUS currently publishes source records and supports drawings for d
 ## Verification scope
 
 The visual report gives exact rendered widths/themes/states, measured contrast, warning reasons and synthetic control results. Real OIDC configuration, Git verification, v2 persistence, service performance, complete product accessibility, operating-data migration/recovery and stage-12 browser-agent QA remain later work.
+
+The preview parent enforces `frame-src 'none'` and uses only `srcdoc`. The trusted child policy and opaque `allow-scripts` sandbox permit internal prototype controls while blocking network/navigation authority. A local browser fixture proves that the parent policy blocks the child self-navigation probe; real-server and cross-browser isolation remain stage-12 checks.

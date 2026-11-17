@@ -1,6 +1,6 @@
 {
   "scope": "Synthetic static HTML only; not stage-12 product QA",
-  "htmlSha256": "642b47f6bbcc10f3e2ef87b0f7bf42f58b02a250066b12868174bb16bff05fec",
+  "htmlSha256": "6331c8ebbacf4e0589e2233d00ec6eb4f26a2635c0d8687e950f7dc63559787b",
   "browser": "156.0.8078.79",
   "renders": 816,
   "errors": 0,
@@ -34,6 +34,8 @@
     "green CI does not imply delivery",
     "sandbox HTML executes internally",
     "sandbox cannot access parent session",
+    "parent CSP blocks child self-navigation network",
+    "parent workspace survives child navigation refusal",
     "loading keeps geometry",
     "loading controls inert",
     "theme toggle persisted",
