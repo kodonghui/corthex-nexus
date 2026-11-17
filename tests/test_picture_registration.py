@@ -25,7 +25,8 @@ class PictureRegistrationTest(GitSourcesFixture):
         for relative in ('docs/01-domain/nexus.md', 'docs/01-domain/rebuild.md',
                          '.corthex/stages/rebuild.json', 'docs/05-erd/nexus.md',
                          'docs/05-erd/nexus.sql', 'docs/05-erd/sources/nexus.sql',
-                         'docs/05-erd/sources/rebuild.sql', 'docs/07-sitemap/nexus.yaml'):
+                         'docs/05-erd/sources/rebuild.sql', 'docs/07-sitemap/nexus.yaml',
+                         'docs/07-sitemap/sources/nexus.yaml', 'docs/07-sitemap/sources/rebuild.yaml'):
             destination = self.repo / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / relative, destination)
@@ -41,14 +42,16 @@ class PictureRegistrationTest(GitSourcesFixture):
 
         # A new cycle cannot inherit the old cycle's contexts or approvals.
         rebuild = [p for p in snapshot['pictures'] if p['part'] == 'rebuild']
-        self.assertEqual({p['stage'] for p in rebuild}, {'01-domain', '05-erd'})
+        self.assertEqual({p['stage'] for p in rebuild}, {'01-domain', '05-erd', '07-sitemap'})
         rebuild.sort(key=lambda p: p['stage'])
+        self.assertEqual(len(next(p for p in rebuild if p['stage'] == '05-erd')['source']['tables']), 19)
+        self.assertEqual(len(next(p for p in rebuild if p['stage'] == '07-sitemap')['source']['screens']), 11)
         self.assertEqual(rebuild[0]['stage'], '01-domain')
         self.assertTrue(rebuild[0]['source']['contexts'])
         self.assertTrue(all(c['id'] in {'CTX-032', 'CTX-033', 'CTX-034', 'CTX-035', 'CTX-036'} for c in rebuild[0]['source']['contexts']))
         for stage, value in snapshot['stages'].items():
             record = value['parts']['rebuild']
-            self.assertEqual(record['state'], 'in_progress' if stage in ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api') else 'not_started')
+            self.assertEqual(record['state'], 'in_progress' if stage in ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap') else 'not_started')
             if stage == '01-domain':
                 self.assertEqual(len(record['checkpoints']), 1)
                 self.assertEqual(record['checkpoints'][0]['nexus'], 'nk_n9aja7yrtm1q')

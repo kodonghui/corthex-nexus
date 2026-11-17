@@ -8519,7 +8519,14 @@
                     "value": {
                       "synthetic": true,
                       "title": "Sample project",
-                      "source_files": []
+                      "source_files": [
+                        {
+                          "path": "docs/02-prd/sample.md",
+                          "media_type": "text/markdown",
+                          "content_utf8": "# Sample requirements\n\n| ID | Requirement |\n| --- | --- |\n| REQ-301 | A sample requirement for a first review. |\n",
+                          "sha256": "d18cc832ecc55b7b9bb327efb2fbeb8071ba29ebbd777a8e26d5af5107c9e6ec"
+                        }
+                      ]
                     }
                   }
                 }
@@ -8613,7 +8620,7 @@
       "post": {
         "operationId": "createPrivateSampleProject",
         "summary": "createPrivateSampleProject",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Create a clearly synthetic private demonstration from the sample bundle pinned to the application release commit. It is not evidence of a real repository upload or working CI. A later real repository connection and first publication still need consent and verified default-branch source.",
         "x-corthex": {
           "id": "API-233",
           "spec": [
@@ -8671,9 +8678,9 @@
                       "title": "Sample project",
                       "synthetic": true,
                       "revision": 1,
-                      "repository_url": "https://github.com/example/sample",
-                      "default_branch": "main",
-                      "verification_state": "ready"
+                      "repository_url": null,
+                      "default_branch": null,
+                      "verification_state": "not_connected"
                     }
                   }
                 }
@@ -9844,12 +9851,18 @@
             "maximum": 9007199254740991
           },
           "repository_url": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "maxLength": 2048,
             "format": "uri"
           },
           "default_branch": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "minLength": 1,
             "maxLength": 255
           },
@@ -9857,7 +9870,8 @@
             "enum": [
               "ready",
               "authorization_required",
-              "unavailable"
+              "unavailable",
+              "not_connected"
             ]
           }
         },
@@ -11468,7 +11482,8 @@
             "items": {
               "$ref": "#/components/schemas/SourceFile"
             },
-            "maxItems": 20
+            "maxItems": 20,
+            "minItems": 1
           }
         },
         "required": [
