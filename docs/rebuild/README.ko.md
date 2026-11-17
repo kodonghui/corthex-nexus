@@ -10,7 +10,7 @@
 | [02 PRD](../02-prd/rebuild.ko.md) | corthex-define | 활성 요구사항 50개·설계 기준·측정 가능한 완료 조건 |
 | [03 유저 플로우](../03-user-flow/rebuild/README.ko.md) | corthex-define | 성공·실패·복구 유저 플로우 9개 |
 | [04 기능 명세](../04-functional-spec/rebuild.ko.md) | corthex-define | 권한·예외 조건을 포함한 동작 42개 |
-| [05 ERD](../05-erd/rebuild.ko.md) | corthex-contract | 테이블 19개·제약·이전/복구 계약 |
+| [05 ERD](../05-erd/rebuild.ko.md) | corthex-contract | 테이블 20개·제약·이전/복구 계약 |
 | [06 API](../06-api/rebuild.ko.md) | corthex-contract | HTTP 동작 36개·운영 인터페이스 5개 |
 | [07 사이트맵](../07-sitemap/rebuild.ko.md) | corthex-screen | 생성한 보드·목록·슬라이드와 경로 11개 |
 | [08 화면 정의](../08-screens/rebuild/README.ko.md) | corthex-screen + corthex-uxui | 화면 11개·상태 91개·응답 매핑 389개 |
@@ -28,4 +28,4 @@
 
 ## 실제로 검증한 범위와 후속 작업
 
-원본 검사·계약 예시·목업 측정·샘플 동작 근거는 각 단계에 기록합니다. 09의 816개 렌더·44개 assertion을 실제 서비스 QA로 바꾸어 부르지 않습니다. 공개 인증 설정·새 v2 서버·전체 접근성/성능·세 프로젝트 이전·서버 전용 대화/체크포인트 보존·전환 후 쓰기 복구는 11~12 작업입니다. 새 버전 QA를 통과해 배포할 때까지 기존 운영을 유지합니다. 삭제는 계획하지 않습니다.
+원본 검사·계약 예시·목업 측정·샘플 동작 근거는 각 단계에 기록합니다. 09의 816개 렌더·71개 assertion을 실제 서비스 QA로 바꾸어 부르지 않습니다. 공개 인증 설정·새 v2 서버·전체 접근성/성능·세 프로젝트 이전·서버 전용 대화/체크포인트 보존·전환 후 쓰기 복구는 11~12 작업입니다. 새 버전 QA를 통과해 배포할 때까지 기존 운영을 유지합니다. 삭제는 계획하지 않습니다.

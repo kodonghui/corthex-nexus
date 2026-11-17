@@ -34,8 +34,10 @@ All applicable states and called API responses for eleven screens. This does not
 
 ## Shared rules
 
-Map common API failures on each screen. A mutation becomes successful only after durable acknowledgement. External agents call API-214–API-219 and API-235–API-236 directly; the browser receives no lease token. Operator migration API-237–API-240 and compatibility API-241 have no public screen. Publication API-225 is invoked by CLI/CI; the screen reads its receipt.
+Map common API failures on each screen. A mutation becomes successful only after durable acknowledgement. External agents call API-214–API-217, API-219 and API-235–API-236 directly; the browser receives no lease token. Operator migration API-237–API-240 and compatibility API-241 have no public screen. Publication API-225 is invoked by CLI/CI; the screen reads its receipt.
 
 [All wireframes](wireframes.html)
 
 Access, input, missing targets, state changes, repeats, concurrency, limits, outside services, exposure, empty data and AI responses map to the named states and shared rules. HTML structure is generated here; real mockup contrast, keyboard and responsive measurements are recorded in stage 09. Real API/authentication/migration verification remains stage 11/12 work.
+
+Only the owner browser session accepts or rejects proposals through API-218. Structural wireframes show each screen’s actual input, discussion, decision and recovery regions instead of shared placeholders; check reproducibility with `python tools/rebuild_wireframes.py --check`. They do not claim to be working product screens.

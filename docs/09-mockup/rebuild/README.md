@@ -49,3 +49,7 @@ The visual report gives exact rendered widths/themes/states, measured contrast, 
 The preview parent enforces `frame-src 'none'` and uses only `srcdoc`. The trusted child policy and opaque `allow-scripts` sandbox permit internal prototype controls while blocking network/navigation authority. A local browser fixture proves that the parent policy blocks the child self-navigation probe; real-server and cross-browser isolation remain stage-12 checks.
 
 Per-item discussion is scoped by project, item and content version and restored when returning to the original item. Recording a decision preserves its body and published source and validates an optional PR URL. Invalid input keeps the dialog and draft. These are in-memory controls, not proof of real-server persistence.
+
+Diagram and keyboard list expose matching items for each of the thirteen stages. Item activation restores focus; sample pass/withdrawal/reason records stay in memory by project/stage/version. Historical decision links open their own row version; stale recovery returns to the current version and still needs a separate decision. Theme/candidate changes preserve non-secret form input, and generated CSS leaves generic font families unquoted.
+
+When prerequisites are blocked, disable passage with a stated reason and refuse it again in the action guard. This remains synthetic verification and grants no real human-checkpoint authority.

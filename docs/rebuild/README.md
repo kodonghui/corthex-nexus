@@ -28,4 +28,4 @@ Keep English sources and Korean reading copies together; run the absolute term-c
 
 ## Verified scope and later execution
 
-Each stage records source checks, contract examples, mockup measurements and synthetic control evidence. The 816 mockup renders/44 assertions are not real-service QA. Public authentication provisioning, new v2 runtime, complete accessibility/performance, all-project migration, server-only discussion/checkpoint preservation and post-switch acknowledged-write recovery remain stages 11–12. Keep current production until the rebuilt product passes QA and is deployed. No deletion is planned.
+Each stage records source checks, contract examples, mockup measurements and synthetic control evidence. The 816 mockup renders/71 assertions are not real-service QA. Public authentication provisioning, new v2 runtime, complete accessibility/performance, all-project migration, server-only discussion/checkpoint preservation and post-switch acknowledged-write recovery remain stages 11–12. Keep current production until the rebuilt product passes QA and is deployed. No deletion is planned.
