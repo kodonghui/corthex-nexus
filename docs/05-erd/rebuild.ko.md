@@ -25,6 +25,7 @@
 | TBL-142 write_journal | CTX-036, TERM-164 | SPEC-311, SPEC-313, SPEC-318, SPEC-323, SPEC-344 |
 | TBL-143 publication_consents | CTX-032, TERM-155 | SPEC-326, SPEC-350 |
 | TBL-144 auth_attempts | CTX-035, TERM-162 | SPEC-333 |
+| TBL-145 discussion_decisions | CTX-033, TERM-159 | SPEC-314, SPEC-316, SPEC-342 |
 
 ## 일관성과 데이터 경계
 
@@ -51,3 +52,5 @@ Validate the initial migration in an empty SQLite database, compare its sqlite_m
 ## 제안 저장 구조 수정
 
 06 클라이언트 조회를 검토하며 제안 본문·작업 참조 저장이 누락된 것을 발견했습니다. TBL-136에 본문과 프로젝트별 작업 참조를 저장하고 TBL-135에 프로젝트/ID 고유 키를 추가했습니다. 새 요청은 claim 트랜잭션 안에서 작업의 원래 질문과 같은 대화인지도 확인합니다. 원래 콘텐츠 버전은 대화가 참조하는 고정 산출물에서 조회합니다. 기존 제안에 대응 작업이 없다면 work_id를 null로 유지해 에이전트 작업을 꾸미지 않으며 새 생성에는 실제 유효한 작업 ID가 필요합니다. 알 수 없거나 유효하지 않은 기존 기록은 보호된 가져오기 목록에 남겨 대조 전까지 배포를 막습니다. DDL·초기 마이그레이션은 동일하며 운영에는 실행하지 않았습니다.
+
+TBL-145에 원래 본문·수행자·버전·원본/PR 참조를 가진 추가 전용 대화 결정을 저장합니다. 복합 외래 키는 검증한 근거를 해당 프로젝트의 게시본·커밋 한 쌍에 연결합니다. 새 쓰기는 근거가 필요하고 기존 기록은 검증한 것으로 꾸미지 않고 null 근거를 유지할 수 있습니다. 스키마는 이제 테이블 20개입니다.

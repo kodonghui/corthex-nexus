@@ -1497,7 +1497,7 @@
       "get": {
         "operationId": "getStageArtifact",
         "summary": "getStageArtifact",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Agent credentials may read only the original part/stage/item/content_version cited by project-scoped work visible to that credential; absent or uncited targets return 404. Owner sessions may read their own artifacts. Return provenance and stable keys from that exact version. Agents must supply the cited version query; an omitted version is invalid input rather than an implicit read of latest content.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Agent credentials may read only the original part/stage/item/content_version cited by project-scoped work visible to that credential; absent or uncited targets return 404. Owner sessions may read their own artifacts. Return provenance and stable keys from that exact version. Agents must supply the cited version query; an omitted version is invalid input rather than an implicit read of latest content. Historical selection uses publication_id plus part/stage and optional content digest; identical content may have different provenance. Agents must supply both the work publication_id and cited version, otherwise 400.",
         "x-corthex": {
           "id": "API-208",
           "spec": [
@@ -1598,6 +1598,18 @@
               "maxLength": 64,
               "pattern": "^[a-f0-9]{64}$"
             }
+          },
+          {
+            "name": "publication_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+            },
+            "description": "Pin the selected historical publication within this project. With a version digest, both must identify the same artifact; absent/mismatched pairs return 404. Without selectors use latest; digest-only reads choose the most recent matching publication."
           }
         ],
         "responses": {
@@ -1628,11 +1640,11 @@
                         "repository_url": "https://github.com/example/sample",
                         "path": "docs/02-prd/sample.md",
                         "line": 1,
-                        "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                        "commit": "dddddddddddddddddddddddddddddddddddddddd",
                         "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                        "publication_id": "pub_demo",
-                        "publication_revision": 1,
-                        "published_at": "2026-11-18T00:00:00Z"
+                        "publication_id": "pub_meta_demo",
+                        "publication_revision": 2,
+                        "published_at": "2026-11-18T01:00:00Z"
                       },
                       "items": [],
                       "next_cursor": null,
@@ -1641,7 +1653,7 @@
                         "nodes": [],
                         "edges": []
                       },
-                      "artifact_id": "artifact_prd_demo",
+                      "artifact_id": "artifact_prd_demo_meta",
                       "checkpoint_ids": [
                         "cp_demo"
                       ]
@@ -1706,6 +1718,45 @@
                       },
                       "artifact_id": "art_demo",
                       "checkpoint_ids": []
+                    },
+                    "summary": "HTML from a pinned historical publication"
+                  },
+                  "originalPublication": {
+                    "value": {
+                      "stage": {
+                        "part": "rebuild",
+                        "stage": "02-prd",
+                        "work_state": "in_progress",
+                        "artifact_state": "present",
+                        "checkpoint_state": "pending",
+                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "blockers": [],
+                        "checkpoint_ids": [
+                          "cp_demo"
+                        ]
+                      },
+                      "representation": "list",
+                      "source": {
+                        "repository_url": "https://github.com/example/sample",
+                        "path": "docs/02-prd/sample.md",
+                        "line": 1,
+                        "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "publication_id": "pub_demo",
+                        "publication_revision": 1,
+                        "published_at": "2026-11-18T00:00:00Z"
+                      },
+                      "items": [],
+                      "next_cursor": null,
+                      "diagnostics": [],
+                      "graph": {
+                        "nodes": [],
+                        "edges": []
+                      },
+                      "artifact_id": "artifact_prd_demo",
+                      "checkpoint_ids": [
+                        "cp_demo"
+                      ]
                     }
                   }
                 }
@@ -1868,7 +1919,7 @@
       "get": {
         "operationId": "getArtifactItem",
         "summary": "getArtifactItem",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Agent credentials may read only the original part/stage/item/content_version cited by project-scoped work visible to that credential; absent or uncited targets return 404. Owner sessions may read their own artifacts. Return provenance and stable keys from that exact version. Agents must supply the cited version query; an omitted version is invalid input rather than an implicit read of latest content.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Agent credentials may read only the original part/stage/item/content_version cited by project-scoped work visible to that credential; absent or uncited targets return 404. Owner sessions may read their own artifacts. Return provenance and stable keys from that exact version. Agents must supply the cited version query; an omitted version is invalid input rather than an implicit read of latest content. Historical selection uses publication_id plus part/stage and optional content digest; identical content may have different provenance. Agents must supply both the work publication_id and cited version, otherwise 400.",
         "x-corthex": {
           "id": "API-209",
           "spec": [
@@ -1956,6 +2007,18 @@
               "maxLength": 64,
               "pattern": "^[a-f0-9]{64}$"
             }
+          },
+          {
+            "name": "publication_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+            },
+            "description": "Pin the selected historical publication within this project. With a version digest, both must identify the same artifact; absent/mismatched pairs return 404. Without selectors use latest; digest-only reads choose the most recent matching publication."
           }
         ],
         "responses": {
@@ -1968,6 +2031,27 @@
                 },
                 "examples": {
                   "success": {
+                    "value": {
+                      "id": "REQ-301",
+                      "title": "Private project access",
+                      "kind": "requirement",
+                      "removed": false,
+                      "fields": {
+                        "priority": "Must"
+                      },
+                      "source": {
+                        "repository_url": "https://github.com/example/sample",
+                        "path": "docs/02-prd/sample.md",
+                        "line": 1,
+                        "commit": "dddddddddddddddddddddddddddddddddddddddd",
+                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "publication_id": "pub_meta_demo",
+                        "publication_revision": 2,
+                        "published_at": "2026-11-18T01:00:00Z"
+                      }
+                    }
+                  },
+                  "originalPublication": {
                     "value": {
                       "id": "REQ-301",
                       "title": "Private project access",
@@ -2291,7 +2375,23 @@
                               "reflection": null
                             }
                           ],
-                          "next_proposal_cursor": null
+                          "next_proposal_cursor": null,
+                          "publication_id": "pub_demo",
+                          "decisions": [
+                            {
+                              "id": "dec_demo",
+                              "discussion_id": "dis_demo",
+                              "sequence": 1,
+                              "body": "Keep proposal acceptance separate from verified source reflection.",
+                              "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                              "publication_id": "pub_demo",
+                              "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                              "pull_request_url": "https://github.com/example/sample/pull/1",
+                              "decided_by": "owner_demo",
+                              "decided_at": "2026-11-18T00:00:00Z"
+                            }
+                          ],
+                          "next_decision_cursor": null
                         }
                       ],
                       "next_cursor": null
@@ -2455,7 +2555,7 @@
       "post": {
         "operationId": "askAboutArtifact",
         "summary": "askAboutArtifact",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Bind the discussion to the specified publication/part/stage/item and exact content version, including historical publications with the same digest. Reject mismatched pairs; never guess an origin from a digest shared by multiple publications.",
         "x-corthex": {
           "id": "API-211",
           "spec": [
@@ -2585,7 +2685,23 @@
                           "reflection": null
                         }
                       ],
-                      "next_proposal_cursor": null
+                      "next_proposal_cursor": null,
+                      "publication_id": "pub_demo",
+                      "decisions": [
+                        {
+                          "id": "dec_demo",
+                          "discussion_id": "dis_demo",
+                          "sequence": 1,
+                          "body": "Keep proposal acceptance separate from verified source reflection.",
+                          "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "publication_id": "pub_demo",
+                          "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                          "pull_request_url": "https://github.com/example/sample/pull/1",
+                          "decided_by": "owner_demo",
+                          "decided_at": "2026-11-18T00:00:00Z"
+                        }
+                      ],
+                      "next_decision_cursor": null
                     }
                   }
                 }
@@ -2826,7 +2942,7 @@
       "get": {
         "operationId": "getDiscussion",
         "summary": "getDiscussion",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Owner reads include proposal body/version/revision and independently paginated proposals via proposal_cursor; agent access is limited to discussions cited by visible scoped work. Publisher credentials cannot read discussions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Owner reads include proposal body/version/revision and independently paginated proposals via proposal_cursor; agent access is limited to discussions cited by visible scoped work. Publisher credentials cannot read discussions. Return immutable recorded decisions and their source/PR references, with independent decision pagination.",
         "x-corthex": {
           "id": "API-212",
           "spec": [
@@ -2903,6 +3019,17 @@
               "maxLength": 256
             },
             "description": "Opaque proposal page cursor, independent of the message cursor."
+          },
+          {
+            "name": "decision_cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "description": "Opaque decision-history page cursor, independent of message/proposal cursors."
           }
         ],
         "responses": {
@@ -2949,7 +3076,23 @@
                           "reflection": null
                         }
                       ],
-                      "next_proposal_cursor": null
+                      "next_proposal_cursor": null,
+                      "publication_id": "pub_demo",
+                      "decisions": [
+                        {
+                          "id": "dec_demo",
+                          "discussion_id": "dis_demo",
+                          "sequence": 1,
+                          "body": "Keep proposal acceptance separate from verified source reflection.",
+                          "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "publication_id": "pub_demo",
+                          "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                          "pull_request_url": "https://github.com/example/sample/pull/1",
+                          "decided_by": "owner_demo",
+                          "decided_at": "2026-11-18T00:00:00Z"
+                        }
+                      ],
+                      "next_decision_cursor": null
                     }
                   }
                 }
@@ -3112,7 +3255,7 @@
       "post": {
         "operationId": "recordDiscussionDecision",
         "summary": "recordDiscussionDecision",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Persist an append-only discussion decision in TBL-145 and advance the discussion revision atomically. publication_id/source_commit must identify one accepted publication of this project; unknown targets return 404 and a mismatched pair returns 409. An optional PR URL is a validated reference, not an assertion of remote merge status. A legacy decision may retain null source evidence, explicitly unverified.",
         "x-corthex": {
           "id": "API-213",
           "spec": [
@@ -3514,7 +3657,8 @@
                             "body": "How is this item version preserved?",
                             "created_at": "2026-11-18T00:00:00Z",
                             "author_ref": "owner_demo"
-                          }
+                          },
+                          "publication_id": "pub_demo"
                         }
                       ],
                       "next_cursor": null
@@ -3762,7 +3906,8 @@
                           "body": "How is this item version preserved?",
                           "created_at": "2026-11-18T00:00:00Z",
                           "author_ref": "owner_demo"
-                        }
+                        },
+                        "publication_id": "pub_demo"
                       },
                       "lease_token": "synthetic-lease-placeholder-not-a-secret"
                     }
@@ -5258,7 +5403,7 @@
       "post": {
         "operationId": "requestCheckpoint",
         "summary": "requestCheckpoint",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. A new request binds the current held publication transactionally; response publication_id identifies the precise review origin. A metadata-only later publication may retain content approval, not rewrite this origin.",
         "x-corthex": {
           "id": "API-220",
           "spec": [
@@ -5334,7 +5479,8 @@
                       "state": "pending",
                       "revision": 1,
                       "blockers": [],
-                      "history": []
+                      "history": [],
+                      "publication_id": "pub_demo"
                     }
                   }
                 }
@@ -5638,7 +5784,8 @@
                       "state": "pending",
                       "revision": 1,
                       "blockers": [],
-                      "history": []
+                      "history": [],
+                      "publication_id": "pub_demo"
                     }
                   }
                 }
@@ -6526,6 +6673,32 @@
                   "success": {
                     "value": {
                       "versions": [
+                        {
+                          "publication_id": "pub_meta_demo",
+                          "commit": "dddddddddddddddddddddddddddddddddddddddd",
+                          "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "checkpoint_state": "pending",
+                          "part": "rebuild",
+                          "stage": "02-prd",
+                          "artifact_id": "artifact_prd_demo_meta",
+                          "checkpoint_ids": [
+                            "cp_demo"
+                          ],
+                          "publication_revision": 2,
+                          "published_at": "2026-11-18T01:00:00Z"
+                        },
+                        {
+                          "publication_id": "pub_meta_demo",
+                          "commit": "dddddddddddddddddddddddddddddddddddddddd",
+                          "content_version": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                          "checkpoint_state": "none",
+                          "part": "rebuild",
+                          "stage": "09-mockup",
+                          "artifact_id": "art_demo_meta",
+                          "checkpoint_ids": [],
+                          "publication_revision": 2,
+                          "published_at": "2026-11-18T01:00:00Z"
+                        },
                         {
                           "publication_id": "pub_demo",
                           "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -9402,7 +9575,8 @@
                           "body": "How is this item version preserved?",
                           "created_at": "2026-11-18T00:00:00Z",
                           "author_ref": "owner_demo"
-                        }
+                        },
+                        "publication_id": "pub_demo"
                       },
                       "lease_token": "synthetic-lease-placeholder-not-a-secret"
                     }
@@ -9726,7 +9900,8 @@
                         "body": "How is this item version preserved?",
                         "created_at": "2026-11-18T00:00:00Z",
                         "author_ref": "owner_demo"
-                      }
+                      },
+                      "publication_id": "pub_demo"
                     }
                   }
                 }
@@ -10606,13 +10781,20 @@
           },
           "ask_ai": {
             "type": "boolean"
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
           }
         },
         "required": [
           "item_id",
           "content_version",
           "body",
-          "ask_ai"
+          "ask_ai",
+          "publication_id"
         ]
       },
       "Message": {
@@ -10763,6 +10945,26 @@
               "null"
             ],
             "maxLength": 256
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+          },
+          "decisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiscussionDecision"
+            },
+            "maxItems": 100
+          },
+          "next_decision_cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 256
           }
         },
         "required": [
@@ -10778,7 +10980,10 @@
           "part",
           "stage",
           "proposals",
-          "next_proposal_cursor"
+          "next_proposal_cursor",
+          "publication_id",
+          "decisions",
+          "next_decision_cursor"
         ]
       },
       "DiscussionList": {
@@ -10831,13 +11036,19 @@
             "minLength": 1,
             "maxLength": 2048,
             "pattern": "^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+$"
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
           }
         },
         "required": [
           "expected_revision",
           "body",
           "source_commit",
-          "pull_request_url"
+          "publication_id"
         ]
       },
       "Work": {
@@ -10932,6 +11143,12 @@
           },
           "question": {
             "$ref": "#/components/schemas/Message"
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
           }
         },
         "required": [
@@ -10946,7 +11163,8 @@
           "part",
           "stage",
           "item_id",
-          "question"
+          "question",
+          "publication_id"
         ]
       },
       "WorkList": {
@@ -11454,6 +11672,12 @@
               ]
             },
             "maxItems": 100
+          },
+          "publication_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
           }
         },
         "required": [
@@ -11464,7 +11688,8 @@
           "state",
           "revision",
           "blockers",
-          "history"
+          "history",
+          "publication_id"
         ]
       },
       "CheckpointDecisionInput": {
@@ -12272,6 +12497,123 @@
         },
         "required": [
           "title"
+        ]
+      },
+      "DiscussionDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "discussion_id",
+          "sequence",
+          "body",
+          "content_version",
+          "publication_id",
+          "source_commit",
+          "pull_request_url",
+          "decided_by",
+          "decided_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+          },
+          "discussion_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000,
+            "x-maxUtf8Bytes": 32768
+          },
+          "content_version": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "publication_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_commit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 40,
+                "maxLength": 64,
+                "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pull_request_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2048
+          },
+          "decided_by": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "decided_at": {
+            "type": "string",
+            "format": "date-time",
+            "maxLength": 40
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "publication_id": {
+                "type": "null"
+              },
+              "source_commit": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "properties": {
+              "publication_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+              },
+              "source_commit": {
+                "type": "string",
+                "minLength": 40,
+                "maxLength": 64,
+                "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+              }
+            }
+          }
         ]
       }
     },

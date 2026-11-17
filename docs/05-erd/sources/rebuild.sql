@@ -70,6 +70,7 @@ id TEXT PRIMARY KEY,
   received_at TEXT NOT NULL,
   UNIQUE(project_id,revision),
   UNIQUE(project_id,id),
+  UNIQUE(project_id,id,commit_sha),
   UNIQUE(project_id,commit_sha,snapshot_digest),
   FOREIGN KEY(project_id,parent_publication_id) REFERENCES publications(project_id,id) ON DELETE RESTRICT
 );
@@ -287,6 +288,28 @@ state_hash TEXT PRIMARY KEY,
   created_at TEXT NOT NULL,
   expires_at TEXT NOT NULL,
   used_at TEXT
+);
+
+-- TBL-145 discussion_decisions (CTX-033) | terms: TERM-159 | SPEC-314, SPEC-316, SPEC-342
+CREATE TABLE discussion_decisions (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  discussion_id TEXT NOT NULL,
+  sequence INTEGER NOT NULL CHECK(sequence > 0),
+  actor_owner_id TEXT NOT NULL,
+  content_version TEXT NOT NULL CHECK(length(content_version)=64),
+  body TEXT NOT NULL CHECK(length(body) BETWEEN 1 AND 8000 AND length(CAST(body AS BLOB)) <= 32768),
+  source_publication_id TEXT,
+  source_commit TEXT,
+  pull_request_url TEXT CHECK(length(pull_request_url) <= 2048),
+  decided_at TEXT NOT NULL,
+  legacy_actor_json TEXT CHECK(legacy_actor_json IS NULL OR json_valid(legacy_actor_json)),
+  UNIQUE(project_id,id),
+  UNIQUE(discussion_id,sequence),
+  FOREIGN KEY(project_id,discussion_id) REFERENCES discussions(project_id,id) ON DELETE RESTRICT,
+  FOREIGN KEY(actor_owner_id,project_id) REFERENCES projects(owner_id,id) ON DELETE RESTRICT,
+  FOREIGN KEY(project_id,source_publication_id,source_commit) REFERENCES publications(project_id,id,commit_sha) ON DELETE RESTRICT,
+  CHECK((source_publication_id IS NULL AND source_commit IS NULL) OR (source_publication_id IS NOT NULL AND source_commit IS NOT NULL))
 );
 
 CREATE INDEX owner_projects ON projects(owner_id,archived_at,created_at);
