@@ -45,7 +45,7 @@ class PictureRegistrationTest(GitSourcesFixture):
         rebuild = [p for p in snapshot['pictures'] if p['part'] == 'rebuild']
         self.assertEqual({p['stage'] for p in rebuild}, {'01-domain', '05-erd', '07-sitemap'})
         rebuild.sort(key=lambda p: p['stage'])
-        self.assertEqual(len(next(p for p in rebuild if p['stage'] == '05-erd')['source']['tables']), 19)
+        self.assertEqual(len(next(p for p in rebuild if p['stage'] == '05-erd')['source']['tables']), 20)
         self.assertEqual(len(next(p for p in rebuild if p['stage'] == '07-sitemap')['source']['screens']), 11)
         self.assertEqual(rebuild[0]['stage'], '01-domain')
         self.assertTrue(rebuild[0]['source']['contexts'])
