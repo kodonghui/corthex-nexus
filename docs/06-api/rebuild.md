@@ -74,3 +74,9 @@ The HTML host must set `frame-src 'none'` on the trusted parent HTML response an
 Historical reads accept publication_id in addition to content version so identical content in different commits retains exact provenance. Work/discussion origins carry that selector. Reloaded discussions expose separately paginated decisions with body, actor and immutable source/PR evidence, backed by the append-only decision table. A PR link is optional; an accepted publication/commit is the verified source, and unverified legacy evidence stays explicit.
 
 Question creation also requires the selected publication_id, so shared content digests cannot silently change a discussion origin. Checkpoint reads expose their precise original publication; creation uses the held publication in its guarded transaction.
+
+## Response caching and first-publication consent
+
+Every v2 success, redirect, empty response, refusal and router 404/405 returns required `Cache-Control: no-store`. This includes session, CSRF, project, credential and sample APIs; only content-hashed static assets outside the API have a separate cache policy.
+
+The first-consent `preview_digest` is UTF-8 SHA-256 of RFC 8785 canonical JSON wrapping `nexus.preview/1`, the project ID and the final publication input with only top-level `consent_id` removed. Preserve array order, commit and original source content; omit consent IDs, authentication and server time. OpenAPI retains the precise definition, canonical bytes and digest fixture. On first publication the server recomputes it and atomically consumes single-use owner/project/digest consent with the publication. Changed input requires fresh consent; an idempotent retry returns the original receipt. Existing projects use a null consent ID.

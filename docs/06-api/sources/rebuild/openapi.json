@@ -55,6 +55,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -77,6 +82,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -101,6 +111,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -123,6 +138,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -157,6 +177,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -180,6 +203,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -224,6 +252,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -247,6 +280,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -269,6 +307,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -303,6 +346,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -338,6 +384,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "504": {
@@ -361,6 +412,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "default": {
@@ -383,6 +439,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -454,6 +515,9 @@
                   "pattern": "^/[^/].*"
                 },
                 "example": "/projects"
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -478,6 +542,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "401": {
@@ -500,6 +569,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -534,6 +608,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -569,6 +646,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "504": {
@@ -592,6 +674,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "default": {
@@ -614,6 +701,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -657,7 +749,12 @@
         ],
         "responses": {
           "204": {
-            "description": "Signed out; session invalidated and cookie cleared."
+            "description": "Signed out; session invalidated and cookie cleared.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            }
           },
           "400": {
             "description": "Request refused without a partial write.",
@@ -679,6 +776,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -703,6 +805,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -725,6 +832,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -759,6 +871,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -782,6 +897,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -863,6 +983,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -885,6 +1010,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -909,6 +1039,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -931,6 +1066,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -965,6 +1105,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -988,6 +1131,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -1062,6 +1210,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -1084,6 +1237,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -1108,6 +1266,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -1130,6 +1293,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -1165,6 +1333,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -1187,6 +1360,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -1221,6 +1399,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -1244,6 +1425,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -1339,6 +1525,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -1361,6 +1552,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -1385,6 +1581,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -1408,6 +1609,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -1430,6 +1636,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -1464,6 +1675,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -1487,6 +1701,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -1761,6 +1980,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -1783,6 +2007,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -1807,6 +2036,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -1830,6 +2064,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -1852,6 +2091,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -1886,6 +2130,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -1909,6 +2156,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -2074,6 +2326,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -2096,6 +2353,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -2120,6 +2382,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -2143,6 +2410,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -2165,6 +2437,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -2199,6 +2476,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -2222,6 +2502,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -2399,6 +2684,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -2421,6 +2711,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -2445,6 +2740,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -2468,6 +2768,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -2490,6 +2795,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -2524,6 +2834,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -2547,6 +2860,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -2706,6 +3024,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -2728,6 +3051,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -2752,6 +3080,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -2775,6 +3108,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -2797,6 +3135,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -2843,6 +3186,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -2865,6 +3213,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -2899,6 +3252,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -2922,6 +3278,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -3097,6 +3458,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -3119,6 +3485,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3143,6 +3514,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -3166,6 +3542,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -3188,6 +3569,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3222,6 +3608,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3245,6 +3634,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -3337,6 +3731,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -3359,6 +3758,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3383,6 +3787,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -3406,6 +3815,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -3428,6 +3842,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3474,6 +3893,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -3496,6 +3920,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3530,6 +3959,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3553,6 +3985,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -3666,6 +4103,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -3688,6 +4130,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3712,6 +4159,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -3735,6 +4187,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -3757,6 +4214,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3791,6 +4253,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3814,6 +4279,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -3914,6 +4384,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -3936,6 +4411,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -3960,6 +4440,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -3983,6 +4468,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -4005,6 +4495,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4051,6 +4546,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -4073,6 +4573,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4107,6 +4612,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4130,6 +4638,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -4224,6 +4737,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -4246,6 +4764,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4270,6 +4793,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -4293,6 +4821,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -4315,6 +4848,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4361,6 +4899,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -4383,6 +4926,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4417,6 +4965,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4440,6 +4991,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -4534,6 +5090,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -4556,6 +5117,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4580,6 +5146,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -4603,6 +5174,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -4625,6 +5201,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4671,6 +5252,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -4693,6 +5279,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4727,6 +5318,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4750,6 +5344,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -4856,6 +5455,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -4878,6 +5482,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4902,6 +5511,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -4925,6 +5539,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -4947,6 +5566,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -4993,6 +5617,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -5015,6 +5644,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5049,6 +5683,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5072,6 +5709,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -5167,6 +5809,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -5189,6 +5836,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5213,6 +5865,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -5236,6 +5893,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -5258,6 +5920,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5304,6 +5971,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -5326,6 +5998,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5360,6 +6037,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5383,6 +6063,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -5485,6 +6170,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -5507,6 +6197,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5531,6 +6226,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -5554,6 +6254,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -5576,6 +6281,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5622,6 +6332,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -5644,6 +6359,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5678,6 +6398,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5701,6 +6424,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -5790,6 +6518,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -5812,6 +6545,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5836,6 +6574,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -5859,6 +6602,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -5881,6 +6629,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5915,6 +6668,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -5938,6 +6694,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -6031,6 +6792,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -6054,6 +6820,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "401": {
@@ -6076,6 +6847,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6111,6 +6887,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -6133,6 +6914,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6179,6 +6965,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -6201,6 +6992,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6235,6 +7031,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6258,6 +7057,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -6361,6 +7165,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -6384,6 +7193,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "401": {
@@ -6406,6 +7220,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6441,6 +7260,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -6463,6 +7287,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6509,6 +7338,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -6531,6 +7365,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6565,6 +7404,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6588,6 +7430,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -6731,6 +7578,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -6753,6 +7605,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6777,6 +7634,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -6800,6 +7662,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -6822,6 +7689,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6856,6 +7728,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6880,6 +7755,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           }
         }
@@ -6889,7 +7769,7 @@
       "post": {
         "operationId": "publishSnapshot",
         "summary": "publishSnapshot",
-        "description": "Verify configured GitHub repository/default branch and ancestry through a read-only repository connection; never fetch a caller-supplied network host. Missing authorization or unverifiable ancestry fails closed. First publication requires matching consent; 20 MiB body, 1000 files and 10000 parsed items are aggregate limits. Existing legacy hub endpoints remain separately unchanged.",
+        "description": "Verify configured GitHub repository/default branch and ancestry through a read-only repository connection; never fetch a caller-supplied network host. Missing authorization or unverifiable ancestry fails closed. First publication requires matching consent; 20 MiB body, 1000 files and 10000 parsed items are aggregate limits. Existing legacy hub endpoints remain separately unchanged. SHA-256 lowercase hexadecimal of UTF-8 RFC 8785 canonical JSON for {\"format\":\"nexus.preview/1\",\"project_id\":projectId,\"snapshot\":S}. S is the exact final SnapshotInput object with only the top-level consent_id property removed. Preserve array order and every remaining field/value, including commit, base_commit, raw source strings, paths, media types and file digests. Do not normalize Unicode, newlines or source content. This pre-consent envelope contains no session, bearer credential, idempotency key, consent ID or server timestamp. The publisher shows its preview and digest before consent, then sends the same S plus the issued consent_id. The owner sends this digest to API-227; the server recomputes it from the received API-225 body, project ID and this versioned algorithm before accepting the first publication. A changed field, array order, source or commit requires fresh consent. A project-scoped owner consent is single-use, bound to the digest and consumed atomically with the first durable publication; an idempotent retry returns its original receipt. Existing projects send consent_id:null and do not bypass ownership, source verification or ancestry checks.",
         "x-corthex": {
           "id": "API-225",
           "spec": [
@@ -6953,6 +7833,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -6975,6 +7860,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -6999,6 +7889,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -7022,6 +7917,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -7044,6 +7944,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7112,6 +8017,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -7134,6 +8044,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7168,6 +8083,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7203,6 +8121,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "504": {
@@ -7226,6 +8149,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "default": {
@@ -7248,6 +8176,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -7337,6 +8270,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -7359,6 +8297,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7383,6 +8326,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -7406,6 +8354,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -7428,6 +8381,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7462,6 +8420,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7486,6 +8447,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           }
         }
@@ -7495,7 +8461,7 @@
       "post": {
         "operationId": "consentFirstPublication",
         "summary": "consentFirstPublication",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. SHA-256 lowercase hexadecimal of UTF-8 RFC 8785 canonical JSON for {\"format\":\"nexus.preview/1\",\"project_id\":projectId,\"snapshot\":S}. S is the exact final SnapshotInput object with only the top-level consent_id property removed. Preserve array order and every remaining field/value, including commit, base_commit, raw source strings, paths, media types and file digests. Do not normalize Unicode, newlines or source content. This pre-consent envelope contains no session, bearer credential, idempotency key, consent ID or server timestamp. The publisher shows its preview and digest before consent, then sends the same S plus the issued consent_id. The owner sends this digest to API-227; the server recomputes it from the received API-225 body, project ID and this versioned algorithm before accepting the first publication. A changed field, array order, source or commit requires fresh consent. A project-scoped owner consent is single-use, bound to the digest and consumed atomically with the first durable publication; an idempotent retry returns its original receipt. Existing projects send consent_id:null and do not bypass ownership, source verification or ancestry checks.",
         "x-corthex": {
           "id": "API-227",
           "spec": [
@@ -7564,6 +8530,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -7586,6 +8557,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7610,6 +8586,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -7633,6 +8614,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -7655,6 +8641,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7690,6 +8681,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -7712,6 +8708,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7746,6 +8747,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7769,6 +8773,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -7844,6 +8853,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -7866,6 +8880,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7890,6 +8909,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -7913,6 +8937,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -7935,6 +8964,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7969,6 +9003,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -7992,6 +9029,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -8076,6 +9118,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -8098,6 +9145,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8122,6 +9174,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -8145,6 +9202,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -8167,6 +9229,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8202,6 +9269,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -8224,6 +9296,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8258,6 +9335,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8282,6 +9362,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "200": {
@@ -8305,6 +9390,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -8408,6 +9498,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -8430,6 +9525,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8454,6 +9554,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -8477,6 +9582,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -8499,6 +9609,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8534,6 +9649,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -8556,6 +9676,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8590,6 +9715,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8613,6 +9741,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -8707,6 +9840,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -8729,6 +9867,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8753,6 +9896,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -8776,6 +9924,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -8798,6 +9951,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8832,6 +9990,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8855,6 +10016,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -8901,6 +10067,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -8923,6 +10094,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8957,6 +10133,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -8980,6 +10159,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -9055,6 +10239,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -9077,6 +10266,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9101,6 +10295,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -9123,6 +10322,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9158,6 +10362,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -9180,6 +10389,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9214,6 +10428,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9237,6 +10454,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -9335,6 +10557,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -9357,6 +10584,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9381,6 +10613,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -9404,6 +10641,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -9426,6 +10668,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9460,6 +10707,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9483,6 +10733,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -9583,6 +10838,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -9605,6 +10865,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9629,6 +10894,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -9652,6 +10922,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -9674,6 +10949,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9720,6 +11000,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -9742,6 +11027,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9776,6 +11066,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9799,6 +11092,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -9906,6 +11204,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "400": {
@@ -9928,6 +11231,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -9952,6 +11260,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "403": {
@@ -9975,6 +11288,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "404": {
@@ -9997,6 +11315,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -10043,6 +11366,11 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
             }
           },
           "413": {
@@ -10065,6 +11393,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -10099,6 +11432,9 @@
                   "maximum": 3600
                 },
                 "example": 30
+              },
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           },
@@ -10122,6 +11458,11 @@
                     }
                   }
                 }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
               }
             }
           }
@@ -11979,10 +13320,18 @@
             ]
           },
           "consent_id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 80,
-            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Issued consent ID required only for the first publication; null for an existing project. Never included in the pre-consent digest."
           },
           "artifacts": {
             "type": "array",
@@ -12084,7 +13433,8 @@
             "type": "string",
             "minLength": 64,
             "maxLength": 64,
-            "pattern": "^[a-f0-9]{64}$"
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "SHA-256 lowercase hexadecimal of UTF-8 RFC 8785 canonical JSON for {\"format\":\"nexus.preview/1\",\"project_id\":projectId,\"snapshot\":S}. S is the exact final SnapshotInput object with only the top-level consent_id property removed. Preserve array order and every remaining field/value, including commit, base_commit, raw source strings, paths, media types and file digests. Do not normalize Unicode, newlines or source content. This pre-consent envelope contains no session, bearer credential, idempotency key, consent ID or server timestamp. The publisher shows its preview and digest before consent, then sends the same S plus the issued consent_id. The owner sends this digest to API-227; the server recomputes it from the received API-225 body, project ID and this versioned algorithm before accepting the first publication. A changed field, array order, source or commit requires fresh consent. A project-scoped owner consent is single-use, bound to the digest and consumed atomically with the first durable publication; an idempotent retry returns its original receipt. Existing projects send consent_id:null and do not bypass ownership, source verification or ancestry checks."
           },
           "consent": {
             "const": true
@@ -12739,6 +14089,48 @@
         "sandbox": "allow-scripts",
         "policy_source": "trusted host, never artifact HTML",
         "navigation_failure": "Keep the parent workspace; offer reload or source when the child is blocked."
+      },
+      "cache_policy": {
+        "all_v2_responses": "Cache-Control: no-store",
+        "includes": [
+          "success",
+          "redirect",
+          "empty",
+          "refusal",
+          "router 404/405",
+          "limit/body/parser errors"
+        ],
+        "exception": "Only immutable content-hashed static assets outside /api/v2 may use the separate static-asset cache policy."
+      },
+      "first_publication_preview": {
+        "definition": "SHA-256 lowercase hexadecimal of UTF-8 RFC 8785 canonical JSON for {\"format\":\"nexus.preview/1\",\"project_id\":projectId,\"snapshot\":S}. S is the exact final SnapshotInput object with only the top-level consent_id property removed. Preserve array order and every remaining field/value, including commit, base_commit, raw source strings, paths, media types and file digests. Do not normalize Unicode, newlines or source content. This pre-consent envelope contains no session, bearer credential, idempotency key, consent ID or server timestamp. The publisher shows its preview and digest before consent, then sends the same S plus the issued consent_id. The owner sends this digest to API-227; the server recomputes it from the received API-225 body, project ID and this versioned algorithm before accepting the first publication. A changed field, array order, source or commit requires fresh consent. A project-scoped owner consent is single-use, bound to the digest and consumed atomically with the first durable publication; an idempotent retry returns its original receipt. Existing projects send consent_id:null and do not bypass ownership, source verification or ancestry checks.",
+        "example": {
+          "envelope": {
+            "format": "nexus.preview/1",
+            "project_id": "project_demo",
+            "snapshot": {
+              "format": "nexus.publish/1",
+              "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "base_commit": null,
+              "artifacts": [
+                {
+                  "part": "rebuild",
+                  "stage": "02-prd",
+                  "source_files": [
+                    {
+                      "path": "docs/example.md",
+                      "media_type": "text/markdown",
+                      "content_utf8": "# Synthetic preview\n",
+                      "sha256": "44d4a53693f5421c3d51046d8c4db2fec8b30abdc0d78da21d4c29100c0b242f"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "canonical_utf8": "{\"format\":\"nexus.preview/1\",\"project_id\":\"project_demo\",\"snapshot\":{\"artifacts\":[{\"part\":\"rebuild\",\"source_files\":[{\"content_utf8\":\"# Synthetic preview\\n\",\"media_type\":\"text/markdown\",\"path\":\"docs/example.md\",\"sha256\":\"44d4a53693f5421c3d51046d8c4db2fec8b30abdc0d78da21d4c29100c0b242f\"}],\"stage\":\"02-prd\"}],\"base_commit\":null,\"commit\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"format\":\"nexus.publish/1\"}}",
+          "sha256": "c8b7b333ea7987d2574e57bb6bd2e793aa46954de26c3b8d350e45333f3c1cb0"
+        }
       }
     },
     "responses": {
@@ -12753,6 +14145,9 @@
               "maxLength": 200
             },
             "example": "GET, POST"
+          },
+          "Cache-Control": {
+            "$ref": "#/components/headers/NoStore"
           }
         },
         "content": {
@@ -12775,6 +14170,17 @@
             }
           }
         }
+      }
+    },
+    "headers": {
+      "NoStore": {
+        "description": "Required for every v2 success, redirect, empty response and refusal; never cache session, CSRF, project, credential or sample API responses. Immutable content-hashed static assets outside the API are the only separate cache policy.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "const": "no-store"
+        },
+        "example": "no-store"
       }
     }
   }
