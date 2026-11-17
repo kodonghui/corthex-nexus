@@ -48,10 +48,10 @@
       "updated": "2026-11-18T04:20:00+09:00"
     },
     "07-sitemap": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "Await the preceding rebuild stage and its human checkpoints. Legacy nexus artifacts are reference material only.",
-      "updated": "2026-11-17T16:36:22+09:00"
+      "next": "Eleven-screen navigation and generated views authored; continue all-state definitions under the design instruction. Actual NEXUS review remains pending.",
+      "updated": "2026-11-18T04:40:00+09:00"
     },
     "08-screen-states": {
       "state": "not_started",
