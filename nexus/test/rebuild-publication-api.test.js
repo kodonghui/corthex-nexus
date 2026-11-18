@@ -144,7 +144,10 @@ test("approved preview digest and parsed source evidence are stable across trans
   assert.equal(artifacts[5].items.length, 36);
   assert.equal(artifacts[6].graph.nodes.length, 11);
   assert.ok(artifacts[5].items.find(({ id }) => id === "API-225").fields["HTTP 201"]);
-  assert.equal(artifacts[1].contentVersion, sha256(canonicalJSON({ stage: artifacts[1].stage, parser: parserVersion, manifest: artifacts[1].manifest })));
+  const { stage, files, manifest, contentVersion } = artifacts[1];
+  const envelope = { version: "nexus.content/1", parser_contract: `${parserVersion}:${stage}`,
+    source_files: files.map(({ path, media_type, sha256 }) => ({ path, media_type, sha256 })), attachments: manifest };
+  assert.equal(contentVersion, sha256(canonicalJSON(envelope)));
 });
 
 test("API-225/227 confirms consent and Git blobs, preserves retry receipts/history and rejects an older base", async (t) => {

@@ -207,6 +207,9 @@ export function prepareArtifacts(artifacts) {
     const parsed = parseArtifact(stage, files);
     itemCount += parsed.items.length;
     if (itemCount > 10000) throw new RebuildProblem("payload_too_large");
-    return { part, stage, files, manifest, ...parsed, contentVersion: sha256(canonicalJSON({ stage, parser: parserVersion, manifest })) };
+    const attachments = parsed.representation === "html"
+      ? manifest.filter(({ path }) => path !== parsed.sourcePath).map(({ path, sha256 }) => ({ path, sha256 })) : [];
+    const envelope = { version: "nexus.content/1", parser_contract: `${parserVersion}:${stage}`, source_files: manifest, attachments };
+    return { part, stage, files, manifest: attachments, ...parsed, contentVersion: sha256(canonicalJSON(envelope)) };
   });
 }
