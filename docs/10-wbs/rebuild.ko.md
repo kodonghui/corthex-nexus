@@ -24,7 +24,7 @@ API를 변경하는 작업은 성공 응답뿐 아니라 해당 동작이 명시
 | TASK-328 | 정규화 원본 버전·후속 커밋 검증 | SPEC-308, SPEC-322, SPEC-324, SPEC-325, SPEC-329 | API-225, TBL-130, TBL-131 | TASK-321, TASK-327 | backend | L | RFC 8785 버전 형식·원본 바이트 해시·첨부/파서 변경·기본 브랜치 후속 커밋을 검증하고 표시 메타데이터만 바뀌면 콘텐츠 버전을 유지합니다. | in_progress |
 | TASK-329 | 보호된 기존 데이터 목록 확인 | SPEC-341, SPEC-342, SPEC-343 | API-237 | none | QA | M | 실제 세 프로젝트의 프로젝트·항목·대화·체크포인트 ID·작성자·버전 연결을 보호된 목록으로 세고 내용을 Git에 복사하지 않습니다. | todo |
 | TASK-330 | 공유 화면과 범위별 탐색 구현 | SPEC-302, SPEC-303, SPEC-334, SPEC-335 | SCR-131, SCR-132, SCR-134 | TASK-321 | frontend | M | 선택한 A 토큰·반응형 구조·프로젝트/파트/단계/항목/버전 주소·테마가 동작하고 로그아웃 시 비공개 상태를 제거합니다. | in_progress |
-| TASK-331 | 연결된 upstream v2 전송 구현 범위 확정 | SPEC-325, SPEC-327, SPEC-331 | API-225, API-241 | TASK-321, TASK-328 | harness | S | 새 범위별 자격 증명과 호환성 검사를 명시한 upstream·제품 PR 계획을 연결하고 hub-ref를 몰래 바꾸지 않습니다. | todo |
+| TASK-331 | 연결된 upstream v2 전송 구현 범위 확정 | SPEC-325, SPEC-327, SPEC-331 | API-225, API-241 | TASK-321, TASK-328 | harness | S | 새 범위별 자격 증명과 호환성 검사를 명시한 upstream·제품 PR 계획을 연결하고 hub-ref를 몰래 바꾸지 않습니다. | in_progress |
 | TASK-332 | 소유자 세션 조회 | SPEC-301, SPEC-332, SPEC-333 | API-201 | TASK-326, TASK-324 | backend | S | 명시한 모든 응답(200, 400, 401, 403, 429, default)의 엔드포인트별 계약 검사를 통과합니다. 실제 핸들러의 소유자·범위·제한·저장 결과와 명시된 빈 응답·충돌을 확인합니다. | in_progress |
 | TASK-333 | 사용자 로그인 시작 | SPEC-333 | API-202 | TASK-326, TASK-324, TASK-325 | backend | M | 명시한 모든 응답(200, 400, 413, 429, 503, 504, default)의 엔드포인트별 계약 검사를 통과합니다. 실제 핸들러의 소유자·범위·제한·저장 결과와 명시된 빈 응답·충돌을 확인합니다. | in_progress |
 | TASK-334 | 인증 제공자 콜백 검증 | SPEC-333 | API-203 | TASK-326, TASK-333 | backend | L | 명시한 모든 응답(303, 400, 401, 429, 503, 504, default)의 엔드포인트별 계약 검사를 통과합니다. OIDC state·nonce·서명·발급자·대상·PKCE와 콜백 일회 처리를 실제 제공자 근거로 검증합니다. | in_progress |
@@ -91,7 +91,7 @@ API를 변경하는 작업은 성공 응답뿐 아니라 해당 동작이 명시
 | TASK-395 | 샘플 가이드 화면 | SPEC-301, SPEC-332, SPEC-333, SPEC-348, SPEC-350 | SCR-140, API-201, API-202, API-232, API-233 | TASK-330, TASK-332, TASK-333, TASK-363, TASK-364 | frontend | M | 정의한 모든 상태와 호출한 모든 API 응답의 문구·복구를 두 테마의 320/390/768/1440에서 확인하고 모든 동작의 키보드·포커스를 검증합니다. | in_progress |
 | TASK-396 | 격리된 목업 미리보기 화면 | SPEC-301, SPEC-307, SPEC-308, SPEC-332, SPEC-333, SPEC-337 | SCR-141, API-201, API-204, API-231 | TASK-330, TASK-332, TASK-335, TASK-362 | frontend | M | 정의한 모든 상태와 호출한 모든 API 응답의 문구·복구를 두 테마의 320/390/768/1440에서 확인하고 모든 동작의 키보드·포커스를 검증합니다. | in_progress |
 | TASK-397 | 반응형·테마 동작 | SPEC-334, SPEC-335, REQ-336 | SCR-131, SCR-141 | TASK-330, TASK-386, TASK-387, TASK-388, TASK-389, TASK-390, TASK-391, TASK-392, TASK-393, TASK-394, TASK-395, TASK-396 | frontend | M | 라이트 기본·테마 저장·한국어 줄바꿈·동작/문구 보존·reduced-motion이 모든 상태에서 통과합니다. | todo |
-| TASK-398 | 연결된 hub v2 전송 구현 | SPEC-325, SPEC-327, SPEC-328, SPEC-329 | API-225, API-226 | TASK-331, TASK-356, TASK-357 | harness | M | upstream·제품 PR과 제안한 정확한 버전이 기존/새 전송 계약·과거/분기/재시도·보유 커밋 검증을 통과한 뒤 고정 버전을 갱신합니다. | todo |
+| TASK-398 | 연결된 hub v2 전송 구현 | SPEC-325, SPEC-327, SPEC-328, SPEC-329 | API-225, API-226 | TASK-331, TASK-356, TASK-357 | harness | M | upstream·제품 PR과 제안한 정확한 버전이 기존/새 전송 계약·과거/분기/재시도·보유 커밋 검증을 통과한 뒤 고정 버전을 갱신합니다. | in_progress |
 | TASK-399 | Actions Secrets 쓰기 권한 설정 | SPEC-331 | API-241 | none | maintainer | S | 허용된 GitHub 자격 증명이 세 레포의 시크릿 공개 키·설정 API를 사용하며 비밀값은 출력·저장하지 않습니다. | done |
 | TASK-400 | 기존 전송 어댑터 보존 | SPEC-325, SPEC-341, SPEC-342, SPEC-343 | API-225, API-238 | TASK-356, TASK-369 | backend | M | 고정한 기존 hub 스냅샷·Access 자격 증명은 기존 어댑터에서만 유효하며 원래 보호된 ID를 공개 노출 없이 연결합니다. | in_progress |
 | TASK-401 | 전체 프로젝트 이전·재게시 리허설 | SPEC-341, SPEC-342, SPEC-343, REQ-346 | API-237, API-238 | TASK-369, TASK-400 | QA | L | corthex·corthex-nexus·marong의 스냅샷/항목/대화/체크포인트 ID·내용·작성자·순서·버전 연결과 반복 가능한 재게시를 보호된 보고서로 검증합니다. | todo |
@@ -126,6 +126,10 @@ API를 변경하는 작업은 성공 응답뿐 아니라 해당 동작이 명시
 ### 보호 백업, 이전과 복구
 
 격리된 도구로 레거시 샘플 프로젝트 3개의 인벤토리를 만들고 복원했습니다. 예전 질문과 응답의 작성자, 체크포인트 통과·철회와 버전 참조를 유지했습니다. 백업 이후 승인된 트랜잭션 2건을 호환 데이터베이스에 복구했습니다. 수신 결과가 일치하지 않으면 재생 전체를 롤백했고, 배포 근거가 누락되면 유지 결정을 반환했습니다. 보호된 운영 데이터의 이전과 실제 전환은 진행 전입니다.
+
+### hub v2 원본 선택
+
+v2 원본 인덱스에 rebuild 부분의 정확한 Git 파일과 게시 전인 QA·발표 슬롯을 기록했습니다. 연결된 hub 변경에는 전송 없는 미리 보기와 범위가 제한된 HTTPS 게시 명령이 있습니다. 보호된 v2 종단 간 검증을 진행하는 동안 기존 Access 기반 CI 경로를 유지합니다.
 
 ## 외부 선행 조건과 배포 조건
 

@@ -1,0 +1,122 @@
+{
+  "format": "nexus.sources/1",
+  "artifacts": [
+    {
+      "part": "rebuild",
+      "stage": "01-domain",
+      "files": [
+        "docs/01-domain/rebuild.md"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "02-prd",
+      "files": [
+        "docs/02-prd/rebuild.md"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "03-user-flow",
+      "files": [
+        "docs/03-user-flow/rebuild/FL-128.md",
+        "docs/03-user-flow/rebuild/FL-129.md",
+        "docs/03-user-flow/rebuild/FL-130.md",
+        "docs/03-user-flow/rebuild/FL-131.md",
+        "docs/03-user-flow/rebuild/FL-132.md",
+        "docs/03-user-flow/rebuild/FL-133.md",
+        "docs/03-user-flow/rebuild/FL-134.md",
+        "docs/03-user-flow/rebuild/FL-135.md",
+        "docs/03-user-flow/rebuild/FL-136.md"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "04-functional-spec",
+      "files": [
+        "docs/04-functional-spec/rebuild.md"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "05-erd",
+      "files": [
+        "db/rebuild/migrations/001-initial.sql",
+        "docs/05-erd/rebuild.md"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "06-api",
+      "files": [
+        "docs/06-api/sources/rebuild/openapi.json",
+        "docs/06-api/sources/rebuild/operator.md"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "07-sitemap",
+      "files": [
+        "docs/07-sitemap/sources/rebuild.yaml"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "08-screen-states",
+      "files": [
+        "docs/08-screens/rebuild/SCR-131.md",
+        "docs/08-screens/rebuild/SCR-132.md",
+        "docs/08-screens/rebuild/SCR-133.md",
+        "docs/08-screens/rebuild/SCR-134.md",
+        "docs/08-screens/rebuild/SCR-135.md",
+        "docs/08-screens/rebuild/SCR-136.md",
+        "docs/08-screens/rebuild/SCR-137.md",
+        "docs/08-screens/rebuild/SCR-138.md",
+        "docs/08-screens/rebuild/SCR-139.md",
+        "docs/08-screens/rebuild/SCR-140.md",
+        "docs/08-screens/rebuild/SCR-141.md"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "09-mockup",
+      "files": [
+        "design/rebuild/index.html",
+        "design/rebuild/base.tokens.json",
+        "design/rebuild/theme/light.tokens.json",
+        "design/rebuild/theme/dark.tokens.json"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "10-wbs",
+      "files": [
+        "docs/10-wbs/rebuild.md"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "11-development",
+      "files": [
+        "nexus/src/rebuild-app.js",
+        "nexus/src/rebuild-contract.js",
+        "nexus/src/rebuild-source.js",
+        "nexus/src/rebuild-publications.js",
+        "nexus/src/rebuild-review.js",
+        "nexus/src/rebuild-operator.js",
+        "nexus/src/rebuild-assets/shell.js",
+        "nexus/src/rebuild-assets/shell.css"
+      ]
+    },
+    {
+      "part": "rebuild",
+      "stage": "12-qa",
+      "files": []
+    },
+    {
+      "part": "rebuild",
+      "stage": "13-presentation",
+      "files": []
+    }
+  ]
+}

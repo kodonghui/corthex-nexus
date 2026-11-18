@@ -8,7 +8,7 @@ NEXUS 서버는 CORTHEX 프로젝트 허브를 내 주소에 올려, 어느 기�
 
 ## 무엇을 두고 누가 보는가
 
-- **스냅샷과 대화 공간을 둡니다.** 스냅샷에는 ID, 제목, 상태, 점검 결과, 상대 파일 위치, 커밋과 해석한 그림·단계 기록이 들어갑니다([형식](https://github.com/kodonghui/corthex/blob/010ccaa4e596676095b802e1283f1efac562377d/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)). 같은 프로젝트를 다시 보내면 그 줄을 바꿉니다. 그림·의견·답글·제안·반영·어긋남·확인 지점은 대화 공간에 따로 둡니다. 작성자 종류만 보존하며 계정 신원이나 저장된 글을 로그에 남기지 않습니다.
+- **스냅샷과 대화 공간을 둡니다.** 스냅샷에는 ID, 제목, 상태, 점검 결과, 상대 파일 위치, 커밋과 해석한 그림·단계 기록이 들어갑니다([형식](https://github.com/kodonghui/corthex/blob/010ccaa4e596676095b802e1283f1efac562377d/plugins/corthex-nexus/skills/corthex-hub/references/snapshot.md)). 같은 프로젝트를 다시 보내면 그 줄을 바꿉니다. 그림·의견·답글·제안·반영·어긋남·체크포인트는 대화 공간에 따로 둡니다. 작성자 종류만 보존하며 계정 신원이나 저장된 글을 로그에 남기지 않습니다.
 - **Access가 먼저입니다.** Worker는 Cloudflare Access가 확인한 요청에만 답합니다. 다른 요청은 모두 `403`을 받고 데이터를 보지 못하므로, Access를 설정하기 전에 배포해도 아무것도 보이지 않습니다.
 - **주소는 하나입니다.** 내가 정한 주소에서만 열립니다. `workers.dev` 주소나 미리보기 주소가 없고, 정적 자산도 쓰지 않습니다. 정적 자산을 쓰면 Worker가 Access 확인 결과를 받지 못합니다.
 - **허브는 독립적이고 그림 코드는 같은 주소에서 옵니다.** 허브는 데이터와 해시로 허용한 스크립트를 안에 담습니다. 그림·현황 화면의 고정 코드·스타일·글꼴은 Access를 확인하는 `/code/` 연산으로만 받으며 CDN이나 정적 자산 우회는 없습니다. [브라우저 빌드](ui/README.ko.md)를 참고하세요. 다른 사이트는 페이지를 틀에 넣거나 저장된 내용을 바꾸지 못합니다.
@@ -87,7 +87,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: kodonghui/corthex
-          ref: c6095b40c71bc74d207b13b5b08aeeb078c7d0c5
+          ref: 31c158edd9be15c708b89c964e814acb6befaf82
           path: hub
           persist-credentials: false
       - name: Push the snapshot
@@ -123,7 +123,7 @@ jobs:
 ## 이 컴퓨터에서 먼저 해 보기
 
 - `npm test`는 메모리 안의 데이터베이스로 서버 검사를 Node 자체 테스트 도구로 돌립니다.
-- 로컬 HTTP 대역은 `node test/serve.js`로 실행합니다. 가상 토큰에 서명하고 메모리 SQLite를 쓰며, 출력한 `127.0.0.1` 주소로 허브를 연결할 수 있습니다. `npm run dev`는 서명된 Access 토큰을 만들지 않습니다. 0.2에서 `ctx.access`의 audience 대역만으로 인증되지 않습니다. Workers 실행 환경은 별도 Access·D1·서비스 토큰을 갖춘 개발 Worker에서 확인합니다.
+- 로컬 HTTP 스텁은 `node test/serve.js`로 실행합니다. 가상 토큰에 서명하고 메모리 SQLite를 쓰며, 출력한 `127.0.0.1` 주소로 허브를 연결할 수 있습니다. `npm run dev`는 서명된 Access 토큰을 만들지 않습니다. 0.2에서 `ctx.access`의 audience 대역만으로 인증되지 않습니다. Workers 실행 환경은 별도 Access·D1·서비스 토큰을 갖춘 개발 Worker에서 확인합니다.
 
 ## 갱신과 제거
 
