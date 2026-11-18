@@ -142,7 +142,7 @@ const ENTRY_COLUMNS = Object.freeze({
   discrepancies: "id project part compares term item reasons level state waiting opened_commit opened_at resolved_commit resolved_at earlier".split(" "),
   claims: "entry project session claimed_at ends_at".split(" "),
 });
-const rowJSON = (table, where) => `(SELECT json_object(${ENTRY_COLUMNS[table].map((name) => `'${name}',${name}`).join(",")}) FROM ${table} WHERE ${where})`;
+const rowJSON = (table, where) => `json((SELECT json_object(${ENTRY_COLUMNS[table].map((name) => `'${name}',${name}`).join(",")}) FROM ${table} WHERE ${where}))`;
 const activeEntry = `EXISTS(SELECT 1 FROM comments WHERE id=entry AND project=claims.project AND state='open')
  OR EXISTS(SELECT 1 FROM discrepancies WHERE id=entry AND project=claims.project AND state='open')
  OR EXISTS(SELECT 1 FROM edits WHERE id=entry AND project=claims.project AND state IN ('pending','needs-user'))
@@ -1641,6 +1641,7 @@ export class Store {
   // does a pass, with the place of that request's last entry, so that the
   // receipt records it only while the request that the page showed is still
   // the stage's open one and has no newer entry (SPEC-194).
+  // Scalar subqueries return JSON text. Mark it as JSON in the outer object.
   entryBasis(project, id, body, write, cutoff, pass = false) {
     const sql = `WITH q AS (SELECT ? AS project,? AS target,? AS body_comment,? AS body_discrepancy,
       ? AS part,? AS stage,? AS write,? AS cutoff,? AS request,? AS look),
@@ -1650,11 +1651,11 @@ export class Store {
           AND r.part=COALESCE(p.part,(SELECT part FROM comments WHERE project=p.project AND id=p.thread))
           AND r.stage=COALESCE(p.stage,(SELECT stage FROM comments WHERE project=p.project AND id=p.thread)) ORDER BY r.id LIMIT 1) END AS open_request FROM p)
       SELECT json_object(
-        'held',(SELECT json_object('revision',revision,'default_commit',default_commit) FROM snapshots WHERE name=t.project),
+        'held',json((SELECT json_object('revision',revision,'default_commit',default_commit) FROM snapshots WHERE name=t.project)),
         'parts',json(COALESCE((SELECT json_extract(body,'$.project.parts') FROM snapshots WHERE name=t.project),'[]')),
         'leftOut',json(COALESCE((SELECT json_extract(body,'$.left_out') FROM snapshots WHERE name=t.project),'[]')),
-        'space',(SELECT json_object('text_bytes',text_bytes,'repo_url',repo_url) FROM project_spaces WHERE project=t.project),
-        'picture',(SELECT json_object('commit_id',commit_id,'source',source) FROM pictures WHERE project=t.project AND part=t.part AND stage=t.stage),
+        'space',json((SELECT json_object('text_bytes',text_bytes,'repo_url',repo_url) FROM project_spaces WHERE project=t.project)),
+        'picture',json((SELECT json_object('commit_id',commit_id,'source',source) FROM pictures WHERE project=t.project AND part=t.part AND stage=t.stage)),
         'comment',${rowJSON("comments", "project=t.project AND id=t.thread")},
         'proposal',${rowJSON("proposals", "project=t.project AND id=t.target")},
         'edit',${rowJSON("edits", "project=t.project AND id=t.target")},
@@ -1672,7 +1673,7 @@ export class Store {
           WHERE s.name=t.project AND json_extract(j.value,'$.id')=t.look AND json_extract(j.value,'$.stage') IN (${STAGE_LIST})) END,
         'threadProposals',json((SELECT json_group_array(json_object('id',id,'state',state,'made_at',made_at,'closed_at',closed_at)) FROM proposals WHERE project=t.project AND comment=t.thread)),
         'claims',json((SELECT json_group_array(json_object('entry',entry,'session',session,'claimed_at',claimed_at,'ends_at',ends_at)) FROM claims WHERE project=t.project AND entry IN(t.target,t.thread,t.diff))),
-        'prior',(SELECT json_object('request',request,'result',result) FROM writes WHERE project=t.project AND id=t.write AND received_at>t.cutoff)
+        'prior',json((SELECT json_object('request',request,'result',result) FROM writes WHERE project=t.project AND id=t.write AND received_at>t.cutoff))
       ) AS basis FROM t`;
     return { sql, params: [project,id || null,body.comment || null,body.discrepancy || null,body.part ?? null,body.stage || null,write || null,cutoff,
       pass || body.asks === "checkpoint" ? 1 : 0,lookedUp(body)] };
