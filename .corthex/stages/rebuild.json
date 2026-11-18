@@ -141,10 +141,25 @@
       "updated": "2026-11-18T09:45:31+09:00"
     },
     "11-development": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Implement the approved WBS. The source-derived fixture and transactional schema are available. Verify the remaining invariants and connect owner authentication and the projects screen.",
-      "updated": "2026-11-18T13:27:49+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Passed stage 11 development at main commit befa9804bdcf721971f8fd27c65759764b904813 in NEXUS.",
+          "by": "the maintainer",
+          "nexus": "nk_ph2rz73zeq0f",
+          "where": "https://nexus.corthex-hq.com/p/corthex-nexus/rebuild/11-development",
+          "date": "2026-11-19"
+        }
+      ],
+      "next": "Run the stage 12 release QA against the reviewed development candidate.",
+      "checks": [
+        {
+          "level": "info",
+          "message": "Verified actual Google sign-in, immutable main publication, and all three legacy projects in an isolated restore and replay.",
+          "at": "2026-11-19"
+        }
+      ],
+      "updated": "2026-11-19T01:23:10+09:00"
     },
     "12-qa": {
       "state": "not_started",
