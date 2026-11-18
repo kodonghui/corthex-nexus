@@ -164,15 +164,20 @@
     "12-qa": {
       "state": "in_progress",
       "checkpoints": [],
-      "next": "Finish exact-candidate browser retests, authenticated staging latency and private publication before the human QA checkpoint.",
+      "next": "Review the authenticated staging evidence and pass the stage 12 QA checkpoint for the exact release candidate.",
       "checks": [
         {
           "level": "info",
-          "message": "All 281 active response cases across 36 HTTP operations were exercised; the protected backup replay restored all acknowledged rehearsal writes.",
+          "message": "Verified 282 active HTTP response cases, 422 browser cases, all three retained projects, and two recovered writes.",
+          "at": "2026-11-19"
+        },
+        {
+          "level": "info",
+          "message": "Authenticated development review P95 was 1487.06 ms and durable question acknowledgement P95 was 599.12 ms over 200 samples each.",
           "at": "2026-11-19"
         }
       ],
-      "updated": "2026-11-19T02:11:26+09:00"
+      "updated": "2026-11-19T05:20:19+09:00"
     },
     "13-presentation": {
       "state": "not_started",
