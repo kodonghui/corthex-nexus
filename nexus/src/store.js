@@ -345,6 +345,138 @@ export function applyRebuildSchema(connection, initialSchema) {
   }
 }
 
+const REBUILD_PROJECT_COLUMNS = "id,slug,title,repository_url,default_branch,synthetic,row_revision,held_publication_id";
+
+function rebuildProject(row) {
+  if (!row) return null;
+  return { id: row.id, slug: row.slug, title: row.title, synthetic: Boolean(row.synthetic), revision: row.row_revision,
+    repository_url: row.repository_url, default_branch: row.default_branch,
+    verification_state: row.repository_url === null ? "not_connected" : row.held_publication_id ? "ready" : "authorization_required" };
+}
+
+// The rebuild uses native SQLite. Each write callback is synchronous so a
+// transaction cannot be kept open during a provider request.
+export class RebuildStore {
+  constructor(connection) {
+    this.connection = connection;
+  }
+
+  transaction(write) {
+    this.connection.exec(SQLITE.begin);
+    try {
+      const result = write();
+      this.connection.exec(SQLITE.commit);
+      return result;
+    } catch (error) {
+      this.connection.exec(SQLITE.rollback);
+      throw error;
+    }
+  }
+
+  saveAuthAttempt(attempt) {
+    this.connection.prepare(`INSERT INTO auth_attempts(state_hash,nonce_hash,protected_pkce_verifier,safe_return_path,created_at,expires_at)
+      VALUES (?,?,?,?,?,?)`).run(attempt.stateHash, attempt.nonceHash, attempt.verifier, attempt.returnPath, attempt.now, attempt.expires);
+  }
+
+  consumeAuthAttempt(stateHash, now) {
+    return this.connection.prepare(`UPDATE auth_attempts SET used_at=?
+      WHERE state_hash=? AND used_at IS NULL AND expires_at>?
+      RETURNING state_hash,nonce_hash,protected_pkce_verifier,safe_return_path`).get(now, stateHash, now) ?? null;
+  }
+
+  issueSession({ issuer, subject, ownerId, idHash, csrfHash, now, idleExpires, absoluteExpires, previousHash }) {
+    return this.transaction(() => {
+      this.connection.prepare("INSERT INTO owners(id,issuer,subject,created_at) VALUES(?,?,?,?) ON CONFLICT(issuer,subject) DO NOTHING")
+        .run(ownerId, issuer, subject, now);
+      const { id } = this.connection.prepare("SELECT id FROM owners WHERE issuer=? AND subject=?").get(issuer, subject);
+      if (previousHash) this.revokeSession(previousHash, now);
+      this.connection.prepare(`INSERT INTO owner_sessions(id_hash,owner_id,csrf_hash,created_at,last_seen_at,idle_expires_at,absolute_expires_at)
+        VALUES (?,?,?,?,?,?,?)`).run(idHash, id, csrfHash, now, now, idleExpires, absoluteExpires);
+      return id;
+    });
+  }
+
+  session(idHash, time) {
+    return this.connection.prepare(`SELECT owner_id,csrf_hash,idle_expires_at,absolute_expires_at FROM owner_sessions
+      WHERE id_hash=? AND revoked_at IS NULL AND idle_expires_at>? AND absolute_expires_at>?`).get(idHash, time, time) ?? null;
+  }
+
+  touchSession(idHash, now, idleExpires) {
+    return this.connection.prepare(`UPDATE owner_sessions SET last_seen_at=?,idle_expires_at=min(?,absolute_expires_at)
+      WHERE id_hash=? AND revoked_at IS NULL AND idle_expires_at>? AND absolute_expires_at>?
+      RETURNING owner_id,csrf_hash,idle_expires_at,absolute_expires_at`).get(now, idleExpires, idHash, now, now) ?? null;
+  }
+
+  revokeSession(idHash, now) {
+    return this.connection.prepare(`UPDATE owner_sessions SET revoked_at=? WHERE id_hash=? AND revoked_at IS NULL
+      AND idle_expires_at>? AND absolute_expires_at>?`).run(now, idHash, now, now).changes === 1;
+  }
+
+  credential(secretHash, now) {
+    return this.connection.prepare(`SELECT c.id,c.owner_id,c.project_id,c.role FROM project_credentials c
+      JOIN projects p ON p.id=c.project_id AND p.owner_id=c.owner_id
+      WHERE c.secret_hash=? AND c.revoked_at IS NULL AND (c.expires_at IS NULL OR c.expires_at>?) AND p.archived_at IS NULL`)
+      .get(secretHash, now) ?? null;
+  }
+
+  listProjects(owner, after, limit) {
+    return this.connection.prepare(`SELECT ${REBUILD_PROJECT_COLUMNS} FROM projects
+      WHERE owner_id=? AND archived_at IS NULL AND id>? ORDER BY id LIMIT ?`).all(owner, after, limit).map(rebuildProject);
+  }
+
+  project(owner, id) {
+    return rebuildProject(this.connection.prepare(`SELECT ${REBUILD_PROJECT_COLUMNS} FROM projects
+      WHERE owner_id=? AND id=? AND archived_at IS NULL`).get(owner, id));
+  }
+
+  overview(owner, id) {
+    const row = this.connection.prepare(`SELECT p.*,v.commit_sha FROM projects p
+      LEFT JOIN publications v ON v.project_id=p.id AND v.id=p.held_publication_id
+      WHERE p.owner_id=? AND p.id=? AND p.archived_at IS NULL`).get(owner, id);
+    if (!row) return null;
+    const artifacts = this.connection.prepare(`SELECT a.id,a.part,a.stage,a.content_version,a.representation FROM stage_artifacts a
+      JOIN projects p ON p.id=a.project_id AND p.held_publication_id=a.publication_id WHERE p.owner_id=? AND p.id=?
+      ORDER BY a.part,a.stage`).all(owner, id);
+    const checkpoints = this.connection.prepare(`SELECT c.id,c.content_version,c.state,a.part,a.stage FROM checkpoint_requests c
+      JOIN stage_artifacts a ON a.project_id=c.project_id AND a.id=c.artifact_id
+      JOIN publications v ON v.project_id=a.project_id AND v.id=a.publication_id
+      JOIN projects p ON p.id=c.project_id WHERE p.owner_id=? AND p.id=?
+      ORDER BY v.revision DESC,c.requested_at DESC,c.id`).all(owner, id);
+    return { project: rebuildProject(row), heldCommit: row.commit_sha, artifacts, checkpoints };
+  }
+
+  writeWithReceipt({ owner, scope, operation, keyHash, bodyDigest, receipt, now, expires, digest }, input, write) {
+    return this.transaction(() => {
+      const before = this.connection.prepare(`SELECT id,body_digest,http_status,safe_result_json,expires_at FROM idempotency_receipts
+        WHERE owner_id=? AND scope_key=? AND operation=? AND key_hash=?`).get(owner, scope, operation, keyHash);
+      if (before?.expires_at > now) return before.body_digest === bodyDigest
+        ? { body: JSON.parse(before.safe_result_json), status: before.http_status, replay: true } : { conflict: "idempotency_conflict" };
+      const result = write();
+      if (result.conflict) return result;
+      // Preserve the original receipt and journal link after its key expires.
+      if (before) this.connection.prepare("UPDATE idempotency_receipts SET scope_key=? WHERE id=?").run(`expired:${before.id}`, before.id);
+      const response = JSON.stringify(result.safeBody ?? result.body);
+      this.connection.prepare(`INSERT INTO idempotency_receipts(id,owner_id,project_id,scope_key,operation,key_hash,body_digest,
+        http_status,safe_result_json,created_at,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`)
+        .run(receipt, owner, result.projectId, scope, operation, keyHash, bodyDigest, result.status, response, now, expires);
+      this.connection.prepare(`INSERT INTO write_journal(project_id,operation,receipt_id,protected_payload_json,result_digest,acknowledged_at)
+        VALUES(?,?,?,?,?,?)`).run(result.projectId, operation, receipt,
+          JSON.stringify({ owner, scope, keyHash, bodyDigest, input, result: JSON.parse(response), ...result.journal }), digest(response), now);
+      return result;
+    });
+  }
+
+  connectProject({ id, input, ...write }) {
+    const { owner, now } = write;
+    return this.writeWithReceipt({ ...write, scope: "owner", operation: "connectProject" }, input, () => {
+      if (this.connection.prepare("SELECT 1 FROM projects WHERE owner_id=? AND slug=?").get(owner, input.slug)) return { conflict: "state_conflict" };
+      this.connection.prepare(`INSERT INTO projects(id,owner_id,slug,title,repository_url,default_branch,created_at) VALUES(?,?,?,?,?,?,?)`)
+        .run(id, owner, input.slug, input.title, input.repository_url, input.default_branch, now);
+      return { projectId: id, body: this.project(owner, id), status: 201 };
+    });
+  }
+}
+
 export class Store {
   constructor(db) {
     this.db = db;
