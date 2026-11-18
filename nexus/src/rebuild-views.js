@@ -32,6 +32,7 @@ const copy = {
     features: [["산출물을 그림으로 검토", "도메인, 플로우, ERD, 사이트맵을 원본과 함께 봅니다."], ["항목에 질문", "어떤 항목의 어떤 버전을 두고 대화했는지 확인합니다."], ["체크포인트 결정", "검토할 버전을 확인한 사용자가 직접 통과시킵니다."]],
     projects: "프로젝트", connect: "프로젝트 연결", search: "프로젝트 검색", createIntro: "검토할 GitHub 저장소를 연결합니다.",
     projectsIntro: "각 프로젝트에서 검토하던 단계를 이어서 확인하세요.", name: "프로젝트 이름", slug: "프로젝트 ID", repo: "GitHub 저장소 주소", branch: "기본 브랜치", more: "더 보기",
+    versions: "버전 이력", publications: "게시 상태", credentials: "게시 자격 증명", preview: "목업 미리 보기",
     cancel: "취소", sampleTitle: "공개 샘플", sampleIntro: "샘플 원본과 항목을 확인하세요.", workspace: "단계 검토", stage: "단계", skip: "본문으로 이동", theme: "다크 테마", loading: "불러오는 중입니다.",
   },
   en: {
@@ -41,6 +42,7 @@ const copy = {
     features: [["Review work visually", "See the domain, flows, ERD and sitemap alongside the source."], ["Ask about an item", "Keep each conversation with the item and version it concerns."], ["Decide on a checkpoint", "Pass a checkpoint yourself after reviewing its version."]],
     projects: "Projects", connect: "Connect project", search: "Search projects", createIntro: "Connect the GitHub repository you want to review.",
     projectsIntro: "Pick up where you left off in each project.", name: "Project title", slug: "Project ID", repo: "GitHub repository URL", branch: "Default branch", more: "Load more",
+    versions: "Version history", publications: "Publications", credentials: "Publication credentials", preview: "Preview mockup",
     cancel: "Cancel", sampleTitle: "Public sample", sampleIntro: "Review the sample source and its items.", workspace: "Review stage", stage: "Stage", skip: "Skip to content", theme: "Dark theme", loading: "Loading…",
   },
 };
@@ -72,8 +74,20 @@ function connect(t) {
 }
 
 function workspace(t) {
-  return `<div class="page-heading"><h1 id="workspace-title">${t.workspace}</h1></div><div id="private-content" class="workspace" hidden>
-    <nav aria-label="${t.stage}"><ul class="stage-list" id="stage-list"></ul></nav><section class="panel stack"><h2 id="stage-title"></h2><p id="stage-state"></p><ul id="stage-blockers"></ul></section></div>`;
+  return `<div class="page-heading"><h1 id="workspace-title">${t.workspace}</h1>
+    <nav class="row workspace-actions" aria-label="${t.workspace}"><a id="versions-link" hidden>${t.versions}</a>
+      <a id="publications-link" hidden>${t.publications}</a><a id="credentials-link" hidden>${t.credentials}</a></nav></div>
+    <div id="private-content" class="workspace" hidden>
+    <nav aria-label="${t.stage}"><select id="part-picker" aria-label="Part" hidden></select><ul class="stage-list" id="stage-list"></ul></nav>
+    <section class="panel stack"><h2 id="stage-title"></h2><p id="stage-state" role="status"></p><ul id="stage-blockers"></ul>
+      <div class="row"><a class="button" id="provenance-link" hidden></a><a class="button" id="preview-link" hidden>${t.preview}</a></div>
+      <div id="artifact-graph" class="artifact-graph" hidden></div><ul id="artifact-items" class="review-items"></ul>
+      <button type="button" id="more-items" hidden>${t.more}</button><section id="artifact-detail" hidden></section></section></div>`;
+}
+
+function reviewPage(t, page) {
+  return `<div class="page-heading row between"><h1>${t[page]}</h1><a id="back-project" href="/projects" class="button">${t.projects}</a></div>
+    <section id="private-content" class="panel stack" hidden></section>`;
 }
 
 function sample(t) {
@@ -82,6 +96,13 @@ function sample(t) {
 
 const pages = new Map([["/", ["welcome", welcome]], ["/projects", ["projects", projects]], ["/projects/new", ["connect", connect]],
   ["/learn/sample", ["sample", sample]]]);
+const projectPages = [
+  [/^\/p\/[A-Za-z0-9_-]{3,80}\/versions$/, "versions"],
+  [/^\/p\/[A-Za-z0-9_-]{3,80}\/publications$/, "publications"],
+  [/^\/p\/[A-Za-z0-9_-]{3,80}\/settings\/credentials$/, "credentials"],
+  [/^\/p\/[A-Za-z0-9_-]{3,80}\/preview\/[A-Za-z0-9_-]{3,80}$/, "preview"],
+];
+const workspacePath = /^\/p\/[A-Za-z0-9_-]{3,80}\/[^/]+\/[0-9]{2}-[a-z-]+(?:\/items\/[^/]+)?$/;
 const csp = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; base-uri 'none'";
 
 export function rebuildView(request, language) {
@@ -93,7 +114,9 @@ export function rebuildView(request, language) {
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
     return new Response(request.method === "HEAD" ? null : asset[1], { headers });
   }
-  const selected = pages.get(url.pathname) || (/^\/p\/[A-Za-z0-9_-]{3,80}\/[^/]+\/[0-9]{2}-[a-z-]+$/.test(url.pathname) ? ["workspace", workspace] : null);
+  const projectPage = projectPages.find(([match]) => match.test(url.pathname))?.[1];
+  const selected = pages.get(url.pathname) || (projectPage && [projectPage, (t) => reviewPage(t, projectPage)]) ||
+    (workspacePath.test(url.pathname) ? ["workspace", workspace] : null);
   if (!selected) return null;
   const lang = language === "en" ? "en" : "ko";
   const t = copy[lang];

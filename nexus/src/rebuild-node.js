@@ -6,6 +6,7 @@ import { RebuildStore } from "./store.js";
 import { createNodeServer, publicOrigin } from "./node-server.js";
 import { createRebuildHandler } from "./rebuild-app.js";
 import { RebuildOIDC } from "./rebuild-oidc.js";
+import { RebuildGitHub } from "./rebuild-github.js";
 import { rebuildView } from "./rebuild-views.js";
 
 export async function startRebuild(settings = process.env) {
@@ -24,7 +25,8 @@ export async function startRebuild(settings = process.env) {
   process.umask(0o077);
   const connection = openRebuildDatabase(settings.NEXUS_REBUILD_DATABASE);
   try {
-    const handler = createRebuildHandler({ store: new RebuildStore(connection), origin, oidc, attemptKey,
+    const github = new RebuildGitHub({ token: settings.NEXUS_GITHUB_READ_TOKEN });
+    const handler = createRebuildHandler({ store: new RebuildStore(connection), origin, oidc, attemptKey, github,
       onTrace: (record) => console.error("nexus-rebuild", record) });
     const server = createNodeServer({ origin, handleRequest: (request, context) =>
       rebuildView(request, settings.NEXUS_LANGUAGE) ?? handler(request, context) });

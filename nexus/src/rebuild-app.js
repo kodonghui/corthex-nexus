@@ -1,35 +1,17 @@
-import { readFileSync } from "node:fs";
-import { createHmac } from "node:crypto";
 import { AUTH_COOKIE, AUTH_LIFETIME, OWNER_COOKIE, OWNER_IDLE, OWNER_LIFETIME, bearerToken, cookieToken, csrfToken,
   iso, protectVerifier, randomToken, requireCSRF, requireOrigin, resourceId, safeEqual, safeReturnPath, sessionCookie,
   unprotectVerifier } from "./rebuild-auth.js";
 import { canonicalJSON, rebuildBody, rebuildHeaders, rebuildJSON, rebuildProblemResponse, RebuildProblem,
   RebuildRateLimit, sha256, strictQuery } from "./rebuild-http.js";
 
-const contract = JSON.parse(readFileSync(new URL("../../docs/06-api/sources/rebuild/openapi.json", import.meta.url), "utf8"));
-const schemas = contract.components.schemas;
-const stageKeys = schemas.StageSummary.properties.stage.enum;
-const publicSample = contract.paths["/api/v2/sample"].get.responses["200"].content["application/json"].examples.success.value;
-const projectId = /^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$/;
+import { idPattern, publicSample, rebuildRoutes, routeRequest, schemas, stageKeys } from "./rebuild-contract.js";
+import { repositoryNames } from "./rebuild-github.js";
+import { pageCursor, pageInput, publicationHandlers, writeResult } from "./rebuild-publications.js";
+
 const SPACE = /[\s\p{C}]/u;
 
-function cursorSignature(session, id) {
-  return createHmac("sha256", Buffer.from(session, "base64url")).update(`nexus.owner.projects/1\0${id}`).digest("base64url");
-}
-
-function pagination(params, session) {
-  const count = params.get("limit") ?? "50";
-  const cursor = params.get("cursor") || "";
-  if (!/^[1-9][0-9]{0,2}$/.test(count) || Number(count) > 100 || cursor.length > 256) throw new RebuildProblem("invalid_input");
-  if (!cursor) return { limit: Number(count), after: "" };
-  const [id, signature, extra] = cursor.split(".");
-  if (extra !== undefined || !projectId.test(id) || !safeEqual(cursorSignature(session, id), signature)) throw new RebuildProblem("invalid_input");
-  return { limit: Number(count), after: id };
-}
-
 function checkRepository(input) {
-  const names = input.repository_url.slice("https://github.com/".length).split("/");
-  if (names.length !== 2 || names.some((name) => name === "." || name === "..")) throw new RebuildProblem("invalid_input");
+  if (!repositoryNames(input.repository_url)) throw new RebuildProblem("invalid_input");
   const branch = input.default_branch;
   if (SPACE.test(branch) || /[\\~^:?*\[]/.test(branch) || branch.startsWith("-") || branch === "HEAD" || branch === "@" ||
       branch.includes("..") || branch.includes("@{") || branch.endsWith(".") || branch.split("/").some((part) => !part || part.startsWith(".") || part.endsWith(".lock"))) {
@@ -38,7 +20,7 @@ function checkRepository(input) {
   if (!input.title.trim() || !input.title.isWellFormed()) throw new RebuildProblem("invalid_input");
 }
 
-function catalog(artifacts, checkpoints) {
+export function stageCatalog(artifacts, checkpoints) {
   const parts = [...new Set(artifacts.map(({ part }) => part))];
   return (parts.length ? parts : ["main"]).flatMap((part) => {
     let blockedBy = null;
@@ -61,7 +43,7 @@ function catalog(artifacts, checkpoints) {
 // TASK-323/324/326, TASK-332–337. The v2 handler is mounted by the rebuild
 // process only. Tests can supply a fake upstream, but the live entry point must
 // use the configured, signature-verifying OIDC client.
-export function createRebuildHandler({ store, origin, oidc = null, attemptKey, clock = Date.now, onTrace, limiter = new RebuildRateLimit() }) {
+export function createRebuildHandler({ store, origin, oidc = null, attemptKey, clock = Date.now, onTrace, limiter = new RebuildRateLimit(), github = null }) {
   const canonical = new URL(origin);
   if (canonical.protocol !== "https:" || canonical.origin !== origin || (oidc && !(Buffer.isBuffer(attemptKey) && attemptKey.length === 32))) {
     throw new Error("Invalid rebuild origin or OIDC state configuration");
@@ -78,7 +60,7 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
     const hash = sha256(token);
     const session = store.session(hash, iso(now));
     if (!session) throw new RebuildProblem("sign_in_required");
-    limiter.require(`owner:${session.owner_id}`, now, 240);
+    limiter.require(`owner:${session.owner_id}`, now, 120);
     return { token, hash, session };
   }
 
@@ -86,6 +68,37 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
     const fresh = store.touchSession(identity.hash, iso(now), iso(now + OWNER_IDLE));
     if (!fresh) throw new RebuildProblem("sign_in_required");
     return fresh;
+  }
+
+  function access(request, now, projectId, roles) {
+    const token = bearerToken(request);
+    if (token) {
+      const hash = sha256(token);
+      const credential = store.credential(hash, iso(now));
+      if (!credential) throw new RebuildProblem("sign_in_required");
+      if (credential.project_id !== projectId) throw new RebuildProblem("not_found");
+      if (!roles.includes(credential.role)) throw new RebuildProblem("operation_forbidden");
+      limiter.require(`credential:${credential.id}`, now, 120);
+      return { token, hash, role: credential.role, credential, owner: credential.owner_id, project: store.projectState(credential.owner_id, projectId) };
+    }
+    const identity = owner(request, now);
+    if (!roles.includes("owner")) throw new RebuildProblem("operation_forbidden");
+    const project = store.projectState(identity.session.owner_id, projectId);
+    if (!project) throw new RebuildProblem("not_found");
+    if (request.method === "GET") touch(identity, now);
+    else requireCSRF(request, identity.session, origin);
+    return { ...identity, role: "owner", owner: identity.session.owner_id, project };
+  }
+
+  function writeContext(request, actor, operation, body, scope = actor.project?.id || "owner") {
+    const key = request.headers.get("Idempotency-Key");
+    if (!key || !/^[\x21-\x7e]{16,128}$/.test(key)) throw new RebuildProblem("invalid_input");
+    const at = clock();
+    const now = iso(at);
+    if (actor.role === "owner") touch(actor, at);
+    else if (store.credential(actor.hash, now)?.id !== actor.credential.id) throw new RebuildProblem("sign_in_required");
+    return { owner: actor.owner, scope, operation, keyHash: sha256(key), bodyDigest: sha256(canonicalJSON(body)),
+      receipt: resourceId("ir"), now, expires: iso(at + 86400000), digest: sha256 };
   }
 
   async function startSignIn(request, url, now) {
@@ -145,14 +158,14 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
   function listProjects(request, url, now) {
     strictQuery(url.searchParams, ["cursor", "limit"]);
     const identity = owner(request, now);
-    const { after, limit } = pagination(url.searchParams, identity.token);
+    const { after, limit } = pageInput(url.searchParams, identity.token, "projects", idPattern);
     const session = touch(identity, now);
     const projects = store.listProjects(session.owner_id, after, limit + 1);
     let next_cursor = null;
     if (projects.length > limit) {
       projects.pop();
       const { id } = projects.at(-1);
-      next_cursor = `${id}.${cursorSignature(identity.token, id)}`;
+      next_cursor = pageCursor(identity.token, "projects", id);
     }
     return rebuildJSON({ projects, next_cursor });
   }
@@ -161,26 +174,19 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
     strictQuery(url.searchParams);
     const identity = owner(request, now);
     requireCSRF(request, identity.session, origin);
-    const key = request.headers.get("Idempotency-Key");
-    if (!key || !/^[\x21-\x7e]{16,128}$/.test(key)) throw new RebuildProblem("invalid_input");
     const input = await rebuildBody(request, schemas.ProjectInput);
     checkRepository(input);
-    const at = clock();
-    const session = touch(identity, at);
-    const result = store.connectProject({ owner: session.owner_id, id: resourceId("prj"), input,
-      keyHash: sha256(key), bodyDigest: sha256(canonicalJSON(input)), receipt: resourceId("ir"), now: iso(at), expires: iso(at + 86400000), digest: sha256 });
-    if (result.conflict) throw new RebuildProblem(result.conflict);
-    return rebuildJSON(result.body, result.status);
+    const write = writeContext(request, { ...identity, owner: identity.session.owner_id, role: "owner" }, "connectProject", input);
+    return writeResult(store.connectProject({ ...write, id: resourceId("prj"), input }));
   }
 
-  function getOverview(request, url, now, id) {
+  function getOverview(request, url, now, { projectId: id }) {
     strictQuery(url.searchParams);
-    if (!projectId.test(id)) throw new RebuildProblem("invalid_input");
     const identity = owner(request, now);
     const result = store.overview(identity.session.owner_id, id);
     if (!result) throw new RebuildProblem("not_found");
     touch(identity, now);
-    return rebuildJSON({ project: result.project, stages: catalog(result.artifacts, result.checkpoints), held_commit: result.heldCommit });
+    return rebuildJSON({ project: result.project, stages: stageCatalog(result.artifacts, result.checkpoints), held_commit: result.heldCommit });
   }
 
   function getSample(request, url) {
@@ -188,27 +194,20 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
     return rebuildJSON(publicSample);
   }
 
-  const routes = new Map([
-    ["/api/v2/session", { GET: getSession }],
-    ["/api/v2/auth/start", { POST: startSignIn }],
-    ["/api/v2/auth/callback", { GET: completeSignIn }],
-    ["/api/v2/session/logout", { POST: logOut }],
-    ["/api/v2/projects", { GET: listProjects, POST: connectProject }],
-    ["/api/v2/sample", { GET: getSample }],
-  ]);
+  const routes = rebuildRoutes({ getOwnerSession: getSession, startOwnerSignIn: startSignIn, completeOwnerSignIn: completeSignIn,
+    signOut: logOut, listOwnerProjects: listProjects, connectProject, getProjectOverview: getOverview, getPublicSample: getSample,
+    ...publicationHandlers({ store, github, access, writeContext, limiter, stageCatalog }),
+  });
 
   return async (request, { clientScope = "local" } = {}) => {
     const url = new URL(request.url);
     try {
       if (url.origin !== origin) throw new RebuildProblem("invalid_input");
-      const match = /^\/api\/v2\/projects\/([^/]+)$/.exec(url.pathname);
-      const route = routes.get(url.pathname) || (match ? { GET: getOverview } : null);
-      if (!route) throw new RebuildProblem("not_found");
-      if (!Object.hasOwn(route, request.method)) throw new RebuildProblem("method_not_allowed", { Allow: Object.keys(route).join(", ") });
+      const { op, ids } = routeRequest(routes, request, url);
       const now = clock();
       const login = url.pathname.startsWith("/api/v2/auth/");
       limiter.require(`${login ? url.pathname : "transport"}:${clientScope}`, now, login ? 30 : 3000);
-      return await route[request.method](request, url, now, match?.[1]);
+      return await op.handle(request, url, now, ids);
     } catch (error) { return rebuildProblemResponse(error, url, onTrace); }
   };
 }
