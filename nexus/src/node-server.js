@@ -56,7 +56,7 @@ export function publicOrigin(value) {
   } catch { throw new Error("NEXUS_ORIGIN must be the public HTTPS origin"); }
 }
 
-export function createNodeServer({ env, origin, template, views = {}, verifier = new AccessVerifier({ requireContext: false }), onMetric } = {}) {
+export function createNodeServer({ env, origin, template, views = {}, verifier = new AccessVerifier({ requireContext: false }), onMetric, handleRequest } = {}) {
   const canonical = publicOrigin(origin);
   const variants = codeVariants(views.code);
   const server = createServer({ maxHeaderSize: 32768, requestTimeout: RECEIVE_DEADLINE, headersTimeout: 15000 }, async (incoming, outgoing) => {
@@ -73,7 +73,9 @@ export function createNodeServer({ env, origin, template, views = {}, verifier =
       if (!target?.startsWith("/") || target.startsWith("//")) throw new Error("invalid request target");
       const reads = incoming.method !== "GET" && incoming.method !== "HEAD";
       request = new Request(canonical + target, { method: incoming.method, headers, ...(reads ? { body: bodyStream(incoming, (size) => { receivedBytes += size; }, () => { bodyEnded = performance.now(); }), duplex: "half" } : {}) });
-      const response = await handle(request, env, {}, template, views, verifier);
+      const response = handleRequest
+        ? await handleRequest(request, { clientScope: incoming.socket.remoteAddress || "loopback" })
+        : await handle(request, env, {}, template, views, verifier);
       if (request.body && !request.body.locked) await request.body.cancel();
       const encoded = compressedCode(request, response, variants) || await compressedHTML(request, response);
       const responseHeaders = new Headers(response.headers);
@@ -92,7 +94,10 @@ export function createNodeServer({ env, origin, template, views = {}, verifier =
       const earlyRefusal=reads&&response.status>=400&&!incoming.complete;
       const refusalBody=earlyRefusal?(encoded?.body||Buffer.from(await response.arrayBuffer())):null;
       if(earlyRefusal){responseHeaders.set("Content-Length",String(refusalBody.length));responseHeaders.set("Connection","close");responseHeaders.delete("Transfer-Encoding");}
-      outgoing.writeHead(response.status, Object.fromEntries(responseHeaders));
+      const headersToSend = Object.fromEntries(responseHeaders);
+      const cookies = responseHeaders.getSetCookie();
+      if (cookies.length) headersToSend["set-cookie"] = cookies;
+      outgoing.writeHead(response.status, headersToSend);
       if(earlyRefusal){
         outgoing.write(refusalBody);
         const timeout=server.requestTimeout>0?server.requestTimeout:RECEIVE_DEADLINE;
