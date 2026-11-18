@@ -565,7 +565,7 @@ export class RebuildStore {
   }
 
   projectState(owner, id) {
-    return this.connection.prepare(`SELECT p.*,v.commit_sha,v.revision as publication_revision,v.snapshot_digest
+    return this.connection.prepare(`SELECT p.*,v.commit_sha,v.revision as publication_revision,v.snapshot_digest,v.format_version AS publication_format
       FROM projects p LEFT JOIN publications v ON v.project_id=p.id AND v.id=p.held_publication_id
       WHERE p.owner_id=? AND p.id=? AND p.archived_at IS NULL`).get(owner, id) ?? null;
   }
@@ -625,7 +625,9 @@ export class RebuildStore {
       if (!current) return { conflict: "not_found" };
       if (current.held_publication_id !== verified.priorId || current.commit_sha !== input.base_commit ||
           current.repository_url !== verified.repository || current.synthetic) return { conflict: "older_publication" };
-      if (current.commit_sha === input.commit) {
+      // Import preserves the old publication as history. Verified source can
+      // replace its format at the same commit exactly once.
+      if (current.commit_sha === input.commit && current.publication_format !== 1) {
         const body = this.publication(project, current.held_publication_id);
         return body.snapshot_digest === verified.digest ? { projectId: project, body, status: 201 } : { conflict: "older_publication" };
       }
@@ -1035,12 +1037,12 @@ export class RebuildStore {
     return this.connection.prepare("SELECT coalesce(max(sequence),0) AS boundary FROM write_journal").get().boundary;
   }
 
-  recoveryRows(after) {
+  recoveryRows(after, through) {
     return this.connection.prepare(`SELECT sequence,project_id,operation,receipt_id,protected_payload_json,result_digest,acknowledged_at
-      FROM write_journal WHERE sequence>? ORDER BY sequence`).iterate(after);
+      FROM write_journal WHERE sequence>? AND sequence<=? ORDER BY sequence`).iterate(after, through);
   }
 
-  restoreJournal(rows, after, through, digest, abortConflict) {
+  restoreJournal(rows, after, through, digest, abortConflict, recoveredAt) {
     return this.transaction(() => {
       if (this.journalBoundary() !== after) throw new Error("The target does not match the expected write boundary");
       this.connection.exec("PRAGMA defer_foreign_keys=ON");
@@ -1068,6 +1070,10 @@ export class RebuildStore {
         applied += 1;
       }
       if (boundary !== through || this.connection.prepare(SQLITE.foreignKeys).get()) throw new Error("Journal replay is incomplete");
+      // Owner authentication is transient and is not covered by project
+      // receipts. A recovered copy must require fresh sign-in.
+      this.connection.prepare("UPDATE owner_sessions SET revoked_at=? WHERE revoked_at IS NULL").run(recoveredAt);
+      this.connection.prepare("UPDATE auth_attempts SET used_at=? WHERE used_at IS NULL").run(recoveredAt);
       return { after, through, applied };
     });
   }

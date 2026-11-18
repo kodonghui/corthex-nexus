@@ -4,6 +4,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
+import { createRebuildHandler } from "../src/rebuild-app.js";
+import { randomToken } from "../src/rebuild-auth.js";
 import { backupLegacy, backupRebuild, checkRelease, importLegacy, recoverAcknowledged } from "../src/rebuild-operator.js";
 import { sha256 } from "../src/rebuild-http.js";
 import { openRebuildDatabase } from "../src/rebuild-sqlite.js";
@@ -14,6 +16,7 @@ import { insertFixtureRow, seedRebuildFixture } from "./rebuild-fixture.js";
 const time = "2026-11-18T04:00:00.000Z";
 const commit = "a".repeat(40);
 const old = "b".repeat(40);
+const aliasCommit = "c".repeat(40);
 const issuer = "https://issuer.example.test";
 
 async function workspace(t) {
@@ -28,8 +31,13 @@ async function seededLegacy(path) {
     await new Store(native).ensure();
     for (const name of ["sample-one", "sample-two", "sample-three"]) {
       const commitId = name.endsWith("one") ? commit : old;
-      const body = JSON.stringify({ project: { name, title: name, parts: ["main"] }, items: [
-        { id: "REQ-301", stage: "02-prd", kind: "requirement", title: "Synthetic source", where: "docs/prd.md:5" },
+      const body = JSON.stringify({ project: { name, title: name, parts: ["main"] }, repos: {
+        harness: { web: "https://github.com/example/harness", commit: aliasCommit },
+        alternate: { web: "https://git.example.test/alternate", commit: aliasCommit },
+      }, items: [
+        { id: "REQ-301", stage: "02-prd", kind: "requirement", title: "Synthetic source", where: "harness:docs/prd.md:5" },
+        { id: "REQ-302", stage: "02-prd", kind: "requirement", title: "Project source", where: "docs/local.md:7" },
+        { id: "REQ-303", stage: "02-prd", kind: "requirement", title: "Archived source", where: "alternate:docs/prd.md:5" },
       ] });
       insertFixtureRow(native.connection, "snapshots", { name, revision: 3, generated_ms: Date.parse(time),
         generated_at: time, received_at: time, bytes: Buffer.byteLength(body), body, default_commit: commitId });
@@ -41,6 +49,8 @@ async function seededLegacy(path) {
         text: "Old decision", made_at: time });
       insertFixtureRow(native.connection, "checkpoints", { id: "nk_" + name, project: name, part: "main", stage: "02-prd",
         commit_id: old, words: "Reviewed at that commit", state: "withdrawn", passed_at: time, withdrawn_at: time });
+      if (name === "sample-one") insertFixtureRow(native.connection, "checkpoints", { id: "nk_reapproval", project: name, part: "main", stage: "02-prd",
+        commit_id: old, words: "Reviewed again", state: "passed", passed_at: "2026-11-18T04:05:00.000Z" });
       insertFixtureRow(native.connection, "writes", { project: name, id: "old-write-" + name, request: "{}", result: "{}", received_at: time });
     }
     native.check();
@@ -84,9 +94,55 @@ test("API-237/238 back up and import three legacy fixture projects without chang
     assert.equal(checks[0].body, "Preserve the exact old note for sample-one");
     assert.equal(checks[0].author_ref, "user");
     for (const row of checks) assert.equal(reopened.prepare("SELECT commit_sha FROM publications WHERE id=?").get(row.publication_id).commit_sha, old);
-    assert.deepEqual(reopened.prepare("SELECT decision FROM checkpoint_decisions WHERE request_id='nk_sample-one' ORDER BY sequence").all().map((row) => row.decision),
-      ["pass", "withdraw"]);
+    const history = reopened.prepare(`SELECT id,decision,prior_decision_id FROM checkpoint_decisions
+      WHERE request_id='nk_sample-one' ORDER BY sequence`).all();
+    assert.deepEqual(history.map((row) => row.decision), ["pass", "withdraw", "pass"]);
+    assert.equal(history[0].id, "nk_sample-one");
+    assert.equal(history[1].prior_decision_id, history[0].id);
+    assert.equal(history[2].id, "nk_reapproval");
+    assert.equal(reopened.prepare("SELECT state FROM checkpoint_requests WHERE id='nk_sample-one'").get().state, "passed");
+    assert.equal(reopened.prepare("SELECT target_id FROM legacy_mappings WHERE legacy_id='nk_reapproval'").get().target_id, history[2].id);
     assert.equal(reopened.prepare("SELECT count(*) AS n FROM discussion_decisions").get().n, 3);
+
+    const store = new RebuildStore(reopened);
+    const project = store.listProjects("own_fixture", "", 3).find(({ slug }) => slug === "sample-one");
+    const artifact = store.artifact(project.id, "main", "02-prd", { version: null, publication: null });
+    const locations = store.artifactItems(project.id, artifact.id, "", 3, null).map(({ source }) =>
+      [source.repository_url, source.path, source.line, source.commit]);
+    assert.deepEqual(locations, [
+      ["https://github.com/example/harness", "docs/prd.md", 5, aliasCommit],
+      ["https://github.com/example/sample-one", "docs/local.md", 7, commit],
+      ["https://github.com/example/sample-one", "legacy-source", null, commit],
+    ]);
+
+    const origin = "https://rebuild.example.test";
+    const token = randomToken();
+    insertFixtureRow(reopened, "project_credentials", { id: "cred_fixture", owner_id: "own_fixture", project_id: project.id,
+      role: "publisher", label: "Fixture", secret_hash: sha256(token), created_at: time });
+    const verified = [];
+    const handle = createRebuildHandler({ origin, store, clock: () => Date.parse(time), github: {
+      async verify(repo, publication, held) { verified.push([repo.id, publication.commit, held]); },
+    } });
+    const source = "| ID | Title |\n| --- | --- |\n| REQ-301 | Verified source |\n";
+    const input = { format: "nexus.publish/1", commit, base_commit: commit, consent_id: null, artifacts: [
+      { part: "main", stage: "02-prd", source_files: [{ path: "docs/prd.md", media_type: "text/markdown", content_utf8: source, sha256: sha256(source) }] },
+    ] };
+    const publish = (body, key) => handle(new Request(`${origin}/api/v2/projects/${project.id}/publications`, { method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "Idempotency-Key": key }, body: JSON.stringify(body) }));
+    const upgraded = await publish(input, "fixture-format-upgrade");
+    assert.equal(upgraded.status, 201, await upgraded.clone().text());
+    const published = await upgraded.json();
+    assert.equal(published.held_commit, commit);
+    assert.equal(published.revision, artifact.publication_revision + 1);
+    assert.deepEqual(verified, [[project.id, commit, commit]]);
+    const held = reopened.prepare("SELECT parent_publication_id,format_version FROM publications WHERE id=?").get(published.id);
+    assert.equal(held.parent_publication_id, artifact.publication_id);
+    assert.equal(held.format_version, 2);
+    const retry = await publish(input, "fixture-format-upgrade");
+    assert.deepEqual(await retry.json(), published);
+    const replaced = await publish({ ...input, artifacts: [{ ...input.artifacts[0], part: "other" }] }, "fixture-other-envelope");
+    assert.equal(replaced.status, 409);
+    assert.equal((await replaced.json()).code, "older_publication");
   } finally { reopened.close(); }
 });
 
@@ -103,10 +159,18 @@ test("API-240 restores every acknowledged write after a baseline and rolls back 
   await chmod(file, 0o600);
   const store = new RebuildStore(connection);
   addOwner(connection, "own_first");
+  const session = sha256("fixture-before-logout");
+  store.issueSession({ issuer, subject: "own_first", ownerId: "own_first", idHash: session, csrfHash: sha256("fixture-csrf"),
+    now: time, idleExpires: "2026-11-19T04:00:00.000Z", absoluteExpires: "2026-11-19T04:00:00.000Z" });
+  const state = sha256("fixture-pending-login");
+  store.saveAuthAttempt({ stateHash: state, nonceHash: sha256("fixture-nonce"), verifier: "fixture-verifier",
+    returnPath: "/", now: time, expires: "2026-11-19T04:00:00.000Z" });
   assert.equal(connect(store, "own_first", "prj_baseline", "baseline").status, 201);
   const base = join(folder, "first"), frozen = join(folder, "frozen");
   const baseline = await backupRebuild(file, base);
   assert.equal(baseline.boundary, 1);
+  assert.ok(store.session(session, time));
+  assert.equal(store.revokeSession(session, time), true);
   addOwner(connection, "own_after_switch");
   assert.equal(connect(store, "own_after_switch", "prj_after_switch", "after-switch").status, 201);
   assert.equal(connect(store, "own_first", "prj_next_write", "next-write").status, 201);
@@ -118,7 +182,10 @@ test("API-240 restores every acknowledged write after a baseline and rolls back 
   assert.deepEqual([recovered.after, recovered.through, recovered.applied], [1, 3, 2]);
   const verified = new DatabaseSync(join(output, "recovered.sqlite"), { readOnly: true });
   try {
-    assert.equal(new RebuildStore(verified).journalBoundary(), 3);
+    const restored = new RebuildStore(verified);
+    assert.equal(restored.journalBoundary(), 3);
+    assert.equal(restored.session(session, time), null);
+    assert.ok(verified.prepare("SELECT used_at FROM auth_attempts WHERE state_hash=?").get(state).used_at);
     assert.equal(verified.prepare("SELECT count(*) n FROM projects").get().n, 3);
     assert.equal(verified.prepare("SELECT subject FROM owners WHERE id='own_after_switch'").get().subject, "own_after_switch");
   } finally { verified.close(); }
@@ -132,6 +199,26 @@ test("API-240 restores every acknowledged write after a baseline and rolls back 
     assert.equal(new RebuildStore(reverted).journalBoundary(), 1);
     assert.equal(reverted.prepare("SELECT count(*) n FROM projects").get().n, 1);
   } finally { reverted.close(); }
+});
+
+test("recovery rejects a frozen database with a different acknowledged prefix at the same write boundary", async (t) => {
+  const folder = await workspace(t);
+  for (const name of ["baseline", "unrelated"]) {
+    const file = join(folder, `${name}.sqlite`);
+    const db = openRebuildDatabase(file);
+    try {
+      await chmod(file, 0o600);
+      addOwner(db, "own_fixture");
+      const store = new RebuildStore(db);
+      assert.equal(connect(store, "own_fixture", `prj_${name}`, name).status, 201);
+      if (name === "unrelated") assert.equal(connect(store, "own_fixture", "prj_additional", "additional").status, 201);
+      await backupRebuild(file, join(folder, name));
+    } finally { db.close(); }
+  }
+  const output = join(folder, "rejected");
+  await assert.rejects(recoverAcknowledged({ baseline: join(folder, "baseline", "rebuild.sqlite"),
+    inventory: join(folder, "baseline", "baseline.json"), frozen: join(folder, "unrelated", "rebuild.sqlite"), output }), /journal prefixes differ/);
+  await assert.rejects(readFile(join(output, "recovery.json")), { code: "ENOENT" });
 });
 
 test("the compatible recovery retains acknowledged question and checkpoint transaction links", async (t) => {
