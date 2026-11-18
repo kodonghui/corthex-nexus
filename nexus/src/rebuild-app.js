@@ -4,9 +4,11 @@ import { AUTH_COOKIE, AUTH_LIFETIME, OWNER_COOKIE, OWNER_IDLE, OWNER_LIFETIME, b
 import { canonicalJSON, rebuildBody, rebuildHeaders, rebuildJSON, rebuildProblemResponse, RebuildProblem,
   RebuildRateLimit, sha256, strictQuery } from "./rebuild-http.js";
 
-import { idPattern, publicSample, rebuildRoutes, routeRequest, schemas, stageKeys } from "./rebuild-contract.js";
+import { commitPattern, idPattern, publicSample, rebuildRoutes, routeRequest, schemas, stageKeys } from "./rebuild-contract.js";
 import { repositoryNames } from "./rebuild-github.js";
 import { pageCursor, pageInput, publicationHandlers, writeResult } from "./rebuild-publications.js";
+import { parserVersion, prepareArtifacts } from "./rebuild-source.js";
+import { reviewHandlers } from "./rebuild-review.js";
 
 const SPACE = /[\s\p{C}]/u;
 
@@ -43,7 +45,7 @@ export function stageCatalog(artifacts, checkpoints) {
 // TASK-323/324/326, TASK-332–337. The v2 handler is mounted by the rebuild
 // process only. Tests can supply a fake upstream, but the live entry point must
 // use the configured, signature-verifying OIDC client.
-export function createRebuildHandler({ store, origin, oidc = null, attemptKey, clock = Date.now, onTrace, limiter = new RebuildRateLimit(), github = null }) {
+export function createRebuildHandler({ store, origin, oidc = null, attemptKey, clock = Date.now, onTrace, limiter = new RebuildRateLimit(), github = null, releaseCommit = null }) {
   const canonical = new URL(origin);
   if (canonical.protocol !== "https:" || canonical.origin !== origin || (oidc && !(Buffer.isBuffer(attemptKey) && attemptKey.length === 32))) {
     throw new Error("Invalid rebuild origin or OIDC state configuration");
@@ -70,14 +72,14 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
     return fresh;
   }
 
-  function access(request, now, projectId, roles) {
+  function access(request, now, projectId, roles, forbidden = "operation_forbidden") {
     const token = bearerToken(request);
     if (token) {
       const hash = sha256(token);
       const credential = store.credential(hash, iso(now));
       if (!credential) throw new RebuildProblem("sign_in_required");
       if (credential.project_id !== projectId) throw new RebuildProblem("not_found");
-      if (!roles.includes(credential.role)) throw new RebuildProblem("operation_forbidden");
+      if (!roles.includes(credential.role)) throw new RebuildProblem(forbidden);
       limiter.require(`credential:${credential.id}`, now, 120);
       return { token, hash, role: credential.role, credential, owner: credential.owner_id, project: store.projectState(credential.owner_id, projectId) };
     }
@@ -97,7 +99,8 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
     const now = iso(at);
     if (actor.role === "owner") touch(actor, at);
     else if (store.credential(actor.hash, now)?.id !== actor.credential.id) throw new RebuildProblem("sign_in_required");
-    return { owner: actor.owner, scope, operation, keyHash: sha256(key), bodyDigest: sha256(canonicalJSON(body)),
+    const receiptScope = actor.role === "owner" ? scope : `${scope}:credential:${actor.credential.id}`;
+    return { owner: actor.owner, scope: receiptScope, operation, keyHash: sha256(key), bodyDigest: sha256(canonicalJSON({ target: new URL(request.url).pathname, body })),
       receipt: resourceId("ir"), now, expires: iso(at + 86400000), digest: sha256 };
   }
 
@@ -194,9 +197,27 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
     return rebuildJSON(publicSample);
   }
 
+  async function createPrivateSampleProject(request, _url, now) {
+    const identity = owner(request, now);
+    requireCSRF(request, identity.session, origin);
+    const input = await rebuildBody(request, schemas.SampleProjectInput);
+    if (!input.title.trim() || !input.title.isWellFormed()) throw new RebuildProblem("invalid_input");
+    if (typeof releaseCommit !== "string" || !commitPattern.test(releaseCommit)) throw new RebuildProblem("internal_error");
+    const write = writeContext(request, { ...identity, owner: identity.session.owner_id, role: "owner" }, "createPrivateSampleProject", input);
+    const id = resourceId("prj");
+    const snapshot = { format: "nexus.publish/1", commit: releaseCommit, base_commit: null, consent_id: null,
+      artifacts: [{ part: "main", stage: "02-prd", source_files: publicSample.source_files.map((file) => ({ ...file, path: "nexus/sample/" + file.path })) }] };
+    const snapshotText = canonicalJSON(snapshot);
+    const verified = { id: resourceId("pub"), digest: sha256(snapshotText), parser: parserVersion,
+      repository: "https://github.com/kodonghui/corthex-nexus", snapshotText,
+      artifacts: prepareArtifacts(snapshot.artifacts).map((artifact) => ({ ...artifact, id: resourceId("art") })) };
+    return writeResult(store.createSample(write, input, id, "sample-" + sha256(id).slice(0, 16), verified, snapshot));
+  }
+
   const routes = rebuildRoutes({ getOwnerSession: getSession, startOwnerSignIn: startSignIn, completeOwnerSignIn: completeSignIn,
-    signOut: logOut, listOwnerProjects: listProjects, connectProject, getProjectOverview: getOverview, getPublicSample: getSample,
+    signOut: logOut, listOwnerProjects: listProjects, connectProject, getProjectOverview: getOverview, getPublicSample: getSample, createPrivateSampleProject,
     ...publicationHandlers({ store, github, access, writeContext, limiter, stageCatalog }),
+    ...reviewHandlers({ store, access, writeContext, limiter, stageCatalog }),
   });
 
   return async (request, { clientScope = "local" } = {}) => {

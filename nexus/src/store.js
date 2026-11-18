@@ -362,6 +362,50 @@ function rebuildPublication(row) {
   return { id: row.id, sent: true, held_commit: row.commit_sha, revision: row.revision, snapshot_digest: row.snapshot_digest };
 }
 
+const DISCUSSION_COLUMNS = `d.id,a.content_version,d.item_trace_id AS item_id,d.state,d.row_revision AS revision,a.part,a.stage,a.publication_id,
+  CASE WHEN d.item_trace_id IS NULL THEN 0 ELSE NOT EXISTS(
+    SELECT 1 FROM stage_artifacts newest JOIN artifact_items t ON t.project_id=newest.project_id AND t.artifact_id=newest.id
+    WHERE newest.project_id=d.project_id AND newest.publication_id=p.held_publication_id AND newest.part=a.part AND newest.stage=a.stage
+      AND t.trace_id=d.item_trace_id AND t.removed=0) END AS removed_item`;
+const WORK_COLUMNS = `w.*,m.id AS question_id,m.discussion_id,m.sequence,m.author_kind AS author,m.author_ref,m.body,m.created_at AS question_date,
+  d.item_trace_id,a.content_version,a.part,a.stage,a.publication_id`;
+const WORK_JOINS = `FROM agent_work w JOIN messages m ON m.project_id=w.project_id AND m.id=w.question_message_id
+  JOIN discussions d ON d.project_id=m.project_id AND d.id=m.discussion_id JOIN stage_artifacts a ON a.project_id=d.project_id AND a.id=d.origin_artifact_id`;
+const PROPOSAL_COLUMNS = `p.id,p.state,p.row_revision,p.discussion_id,p.work_id,p.body,p.reflected_publication_id,p.source_commit,
+  a.content_version,r.content_version AS reflected_version`;
+
+function claimant(value) {
+  if (!value) return null;
+  try { return JSON.parse(value); } catch { return { credential: value, label: value.slice(0, 80) }; }
+}
+
+function rebuildVisibleWork(row, now, credential) {
+  return row.state === "queued" || (row.state === "claimed" && row.lease_expires_at <= now) || claimant(row.claimed_by)?.credential === credential;
+}
+
+function rebuildWork(row, now) {
+  const expired = row.state === "claimed" && row.lease_expires_at <= now;
+  return { id: row.id, question_id: row.question_id, content_version: row.content_version, state: expired ? "queued" : row.state,
+    session_label: expired ? null : claimant(row.claimed_by)?.label ?? null, lease_expires_at: expired ? null : row.lease_expires_at,
+    revision: row.row_revision, discussion_id: row.discussion_id, part: row.part, stage: row.stage, item_id: row.item_trace_id,
+    question: { id: row.question_id, discussion_id: row.discussion_id, sequence: row.sequence, author: row.author,
+      author_ref: row.author_ref, body: row.body, created_at: row.question_date }, publication_id: row.publication_id };
+}
+
+function checkRebuildLease(row, actor, hash, now) {
+  if (!row) return "not_found";
+  if (row.state !== "claimed" || row.lease_expires_at <= now) return "lease_expired";
+  if (claimant(row.claimed_by)?.credential !== actor || row.lease_token_hash !== hash) return "state_conflict";
+  return null;
+}
+
+function rebuildProposal(row) {
+  return { id: row.id, state: row.state, revision: row.row_revision, discussion_id: row.discussion_id, work_id: row.work_id,
+    body: row.body, content_version: row.content_version, reflection: row.state === "reflected" ? {
+      publication_id: row.reflected_publication_id, source_commit: row.source_commit, content_version: row.reflected_version || row.content_version,
+    } : null };
+}
+
 // The rebuild uses native SQLite. Each write callback is synchronous so a
 // transaction cannot be kept open during a provider request.
 export class RebuildStore {
@@ -632,12 +676,14 @@ export class RebuildStore {
       .all(project, artifact, after, only, only, limit).map(({ item_json }) => JSON.parse(item_json));
   }
 
-  citedWork(project, artifact, credential) {
+  citedWork(project, artifact, credential, now) {
     return this.connection.prepare(`SELECT DISTINCT d.item_trace_id FROM agent_work w
       JOIN messages m ON m.project_id=w.project_id AND m.id=w.question_message_id
       JOIN discussions d ON d.project_id=w.project_id AND d.id=m.discussion_id
       WHERE w.project_id=? AND d.origin_artifact_id=? AND
-        (w.state='queued' OR w.claimed_by=?) ORDER BY d.item_trace_id LIMIT 101`).all(project, artifact, credential).map((row) => row.item_trace_id);
+        (w.state='queued' OR (w.state='claimed' AND w.lease_expires_at<=?) OR
+          (CASE WHEN json_valid(w.claimed_by) THEN json_extract(w.claimed_by,'$.credential') ELSE w.claimed_by END=?))
+      ORDER BY d.item_trace_id LIMIT 101`).all(project, artifact, now, credential).map((row) => row.item_trace_id);
   }
 
   versionPosition(project, artifact) {
@@ -660,6 +706,273 @@ export class RebuildStore {
       JOIN stage_artifacts a ON a.project_id=c.project_id AND a.id=c.artifact_id
       WHERE c.project_id=? AND a.part=? AND a.stage=?
       ORDER BY c.content_version=? DESC,c.requested_at DESC,c.id LIMIT 100`).all(project, part, stage, version);
+  }
+
+  discussionRecord(project, id) {
+    return this.connection.prepare(`SELECT ${DISCUSSION_COLUMNS} FROM discussions d
+      JOIN stage_artifacts a ON a.project_id=d.project_id AND a.id=d.origin_artifact_id
+      JOIN projects p ON p.id=d.project_id WHERE d.project_id=? AND d.id=?`).get(project, id) ?? null;
+  }
+
+  stageDiscussions(project, part, stage, version, after, limit) {
+    return this.connection.prepare(`SELECT ${DISCUSSION_COLUMNS} FROM discussions d
+      JOIN stage_artifacts a ON a.project_id=d.project_id AND a.id=d.origin_artifact_id JOIN projects p ON p.id=d.project_id
+      WHERE d.project_id=? AND a.part=? AND a.stage=? AND d.id>? AND (? IS NULL OR a.content_version=?)
+      ORDER BY d.id LIMIT ?`).all(project, part, stage, after, version, version, limit);
+  }
+
+  discussionRows(project, id, { messages, proposals, decisions }, now, credentialId) {
+    const bySequence = (value) => Number(value.after || 0);
+    const notes = this.connection.prepare(`SELECT id,discussion_id,sequence,author_kind AS author,body,created_at,author_ref FROM messages
+      WHERE project_id=? AND discussion_id=? AND sequence>? ORDER BY sequence LIMIT ?`)
+      .all(project, id, bySequence(messages), messages.limit + 1);
+    const resolution = this.connection.prepare(`SELECT id,discussion_id,sequence,body,content_version,source_publication_id AS publication_id,
+      source_commit,pull_request_url,actor_owner_id AS decided_by,decided_at FROM discussion_decisions
+      WHERE project_id=? AND discussion_id=? AND sequence>? ORDER BY sequence LIMIT ?`)
+      .all(project, id, bySequence(decisions), decisions.limit + 1);
+    const changes = this.connection.prepare(`SELECT ${PROPOSAL_COLUMNS} FROM proposals p
+      JOIN discussions d ON d.project_id=p.project_id AND d.id=p.discussion_id
+      JOIN stage_artifacts a ON a.project_id=d.project_id AND a.id=d.origin_artifact_id
+      LEFT JOIN stage_artifacts r ON r.project_id=p.project_id AND r.publication_id=p.reflected_publication_id AND r.part=a.part AND r.stage=a.stage
+      WHERE p.project_id=? AND p.discussion_id=? AND p.id>? ORDER BY p.id LIMIT ?`).all(project, id, proposals.after, proposals.limit + 1);
+    const work = this.connection.prepare(`SELECT ${WORK_COLUMNS} ${WORK_JOINS}
+      WHERE w.project_id=? AND d.id=? ORDER BY m.sequence LIMIT 100`).all(project, id);
+    const visible = work.filter((row) => !credentialId || rebuildVisibleWork(row, now, credentialId));
+    if (credentialId && !visible.length) return null;
+    return { notes, changes: changes.map(rebuildProposal), resolution, work: visible.map((row) => rebuildWork(row, now)) };
+  }
+
+  askAboutArtifact(write, project, part, stage, input, ids) {
+    return this.writeWithReceipt(write, input, () => {
+      const artifact = this.artifact(project, part, stage, { version: null, publication: input.publication_id });
+      if (!artifact || ["missing", "unsupported"].includes(artifact.representation)) return { conflict: "not_found" };
+      if (artifact.content_version !== input.content_version) return { conflict: "stale_version" };
+      if (input.item_id !== null) {
+        const item = this.connection.prepare(`SELECT removed FROM artifact_items WHERE project_id=? AND artifact_id=? AND trace_id=?`)
+          .get(project, artifact.id, input.item_id);
+        if (!item || item.removed) return { conflict: "not_found" };
+      }
+      this.connection.prepare(`INSERT INTO discussions(id,project_id,origin_artifact_id,item_trace_id,state,created_at) VALUES(?,?,?,?,'open',?)`)
+        .run(ids.discussion, project, artifact.id, input.item_id, write.now);
+      const question = this.insertRebuildMessage(project, ids.discussion, ids.message, "owner", write.owner, input.body, write.now);
+      let queue = [];
+      if (input.ask_ai) {
+        this.connection.prepare(`INSERT INTO agent_work(id,project_id,question_message_id,state,created_at) VALUES(?,?,?,'queued',?)`)
+          .run(ids.work, project, ids.message, write.now);
+        queue = [rebuildWork(this.workRecord(project, ids.work), write.now)];
+      }
+      return { projectId: project, status: 201, body: { ...this.discussionRecord(project, ids.discussion), removed_item: false,
+        messages: [question], next_cursor: null, agent_work: queue, proposals: [], next_proposal_cursor: null, decisions: [], next_decision_cursor: null },
+        journal: { event: { kind: "discussion", target_id: ids.discussion, content_version: input.content_version } } };
+    });
+  }
+
+  insertRebuildMessage(project, discussion, message, kind, actor, input, now, parent = null) {
+    return this.connection.prepare(`INSERT INTO messages(id,project_id,discussion_id,sequence,parent_message_id,author_kind,author_ref,body,created_at)
+      VALUES(?,?,?,(SELECT coalesce(max(sequence),0)+1 FROM messages WHERE project_id=? AND discussion_id=?),?,?,?,?,?)
+      RETURNING id,discussion_id,sequence,author_kind AS author,body,created_at,author_ref`)
+      .get(message, project, discussion, project, discussion, parent, kind, actor, input, now);
+  }
+
+  recordDiscussionDecision(write, project, id, input, decision) {
+    return this.writeWithReceipt(write, input, () => {
+      const row = this.discussionRecord(project, id);
+      const publication = this.publication(project, input.publication_id);
+      if (!row || !publication) return { conflict: "not_found" };
+      if (row.revision !== input.expected_revision || publication.held_commit !== input.source_commit) return { conflict: "stale_version" };
+      this.connection.prepare(`INSERT INTO discussion_decisions(id,project_id,discussion_id,sequence,actor_owner_id,content_version,
+        body,source_publication_id,source_commit,pull_request_url,decided_at)
+        VALUES(?,?,?,(SELECT coalesce(max(sequence),0)+1 FROM discussion_decisions WHERE project_id=? AND discussion_id=?),?,?,?,?,?,?,?)`)
+        .run(decision, project, id, project, id, write.owner, row.content_version, input.body, input.publication_id, input.source_commit,
+          input.pull_request_url ?? null, write.now);
+      this.connection.prepare("UPDATE discussions SET state='resolved',row_revision=row_revision+1 WHERE project_id=? AND id=?").run(project, id);
+      return { projectId: project, status: 201, body: { id: decision, state: "recorded", content_version: row.content_version, revision: row.revision + 1 },
+        journal: { event: { kind: "discussion", target_id: id, content_version: row.content_version } } };
+    });
+  }
+
+  workRecord(project, id) {
+    return this.connection.prepare(`SELECT ${WORK_COLUMNS} ${WORK_JOINS} WHERE w.project_id=? AND w.id=?`).get(project, id) ?? null;
+  }
+
+  agentQueue(project, credential, now, after, limit) {
+    return this.connection.prepare(`SELECT ${WORK_COLUMNS} ${WORK_JOINS} WHERE w.project_id=? AND w.id>? AND
+      (w.state='queued' OR (w.state='claimed' AND w.lease_expires_at<=?) OR
+        (CASE WHEN json_valid(w.claimed_by) THEN json_extract(w.claimed_by,'$.credential') ELSE w.claimed_by END=?))
+      ORDER BY w.id LIMIT ?`).all(project, after, now, credential, limit).map((row) => rebuildWork(row, now));
+  }
+
+  claim(work, project, id, input, actor, leaseHash, expires) {
+    return this.writeWithReceipt(work, input, () => {
+      const row = this.workRecord(project, id);
+      if (!row) return { conflict: "not_found" };
+      if (row.row_revision !== input.expected_revision ||
+          !(row.state === "queued" || (row.state === "claimed" && row.lease_expires_at <= work.now))) return { conflict: "state_conflict" };
+      const claimed = JSON.stringify({ credential: actor, label: input.session_label });
+      this.connection.prepare(`UPDATE agent_work SET state='claimed',claimed_by=?,lease_token_hash=?,lease_expires_at=?,row_revision=row_revision+1
+        WHERE project_id=? AND id=?`).run(claimed, leaseHash, expires, project, id);
+      return { projectId: project, status: 200, body: rebuildWork(this.workRecord(project, id), work.now),
+        journal: { event: { kind: "claim", target_id: id, content_version: row.content_version }, lease_hash: leaseHash } };
+    });
+  }
+
+  changeLease(write, project, id, input, actor, expires, messageId = null) {
+    return this.writeWithReceipt(write, input, () => {
+      const row = this.workRecord(project, id);
+      const failure = checkRebuildLease(row, actor, input.lease_hash, write.now);
+      if (failure) return { conflict: failure };
+      if (row.row_revision !== input.expected_revision || (input.content_version && input.content_version !== row.content_version)) {
+        return { conflict: "stale_version" };
+      }
+      const event = { kind: "claim", target_id: id, content_version: row.content_version };
+      if (messageId) {
+        const message = this.insertRebuildMessage(project, row.discussion_id, messageId, "agent", actor, input.body, write.now, row.question_id);
+        this.connection.prepare(`UPDATE agent_work SET state='answered',lease_token_hash=NULL,lease_expires_at=NULL,
+          reply_message_id=?,row_revision=row_revision+1 WHERE project_id=? AND id=?`).run(messageId, project, id);
+        this.connection.prepare("UPDATE discussions SET row_revision=row_revision+1 WHERE project_id=? AND id=?").run(project, row.discussion_id);
+        return { projectId: project, status: 201, body: message,
+          journal: { event: { ...event, kind: "discussion", target_id: row.discussion_id } } };
+      }
+      if (expires) this.connection.prepare("UPDATE agent_work SET lease_expires_at=?,row_revision=row_revision+1 WHERE project_id=? AND id=?")
+        .run(expires, project, id);
+      else this.connection.prepare(`UPDATE agent_work SET state='queued',claimed_by=NULL,lease_token_hash=NULL,lease_expires_at=NULL,
+        row_revision=row_revision+1 WHERE project_id=? AND id=?`).run(project, id);
+      return { projectId: project, status: 200, body: rebuildWork(this.workRecord(project, id), write.now), journal: { event } };
+    });
+  }
+
+  proposalRecord(project, id) {
+    return this.connection.prepare(`SELECT ${PROPOSAL_COLUMNS},a.part,a.stage,a.publication_id AS original_publication_id
+      FROM proposals p JOIN discussions d ON d.project_id=p.project_id AND d.id=p.discussion_id
+      JOIN stage_artifacts a ON a.project_id=d.project_id AND a.id=d.origin_artifact_id
+      LEFT JOIN stage_artifacts r ON r.project_id=p.project_id AND r.publication_id=p.reflected_publication_id AND r.part=a.part AND r.stage=a.stage
+      WHERE p.project_id=? AND p.id=?`).get(project, id) ?? null;
+  }
+
+  proposeChange(write, project, discussion, input, actor, proposal) {
+    return this.writeWithReceipt(write, input, () => {
+      const row = this.workRecord(project, input.work_id);
+      if (!row || row.discussion_id !== discussion) return { conflict: "not_found" };
+      const failure = checkRebuildLease(row, actor, input.lease_hash, write.now);
+      if (failure) return { conflict: failure };
+      if (row.content_version !== input.content_version) return { conflict: "stale_version" };
+      this.connection.prepare(`INSERT INTO proposals(id,project_id,discussion_id,work_id,body,state,created_at) VALUES(?,?,?,?,?,'proposed',?)`)
+        .run(proposal, project, discussion, input.work_id, input.body, write.now);
+      this.connection.prepare("UPDATE discussions SET row_revision=row_revision+1 WHERE project_id=? AND id=?").run(project, discussion);
+      return { projectId: project, status: 201, body: rebuildProposal(this.proposalRecord(project, proposal)),
+        journal: { event: { kind: "discussion", target_id: discussion, content_version: row.content_version } } };
+    });
+  }
+
+  decideProposal(write, project, proposal, input) {
+    return this.writeWithReceipt(write, input, () => {
+      const row = this.proposalRecord(project, proposal);
+      if (!row) return { conflict: "not_found" };
+      if (row.row_revision !== input.expected_revision) return { conflict: "stale_version" };
+      if (row.state !== "proposed" || !row.work_id) return { conflict: "state_conflict" };
+      this.connection.prepare("UPDATE proposals SET state=?,row_revision=row_revision+1 WHERE project_id=? AND id=?")
+        .run(input.decision === "accept" ? "accepted" : "rejected", project, proposal);
+      this.connection.prepare("UPDATE discussions SET row_revision=row_revision+1 WHERE project_id=? AND id=?").run(project, row.discussion_id);
+      return { projectId: project, status: 200, body: rebuildProposal(this.proposalRecord(project, proposal)),
+        journal: { event: { kind: "discussion", target_id: row.discussion_id, content_version: row.content_version } } };
+    });
+  }
+
+  reflectProposal(write, project, proposal, input, actor) {
+    return this.writeWithReceipt(write, input, () => {
+      const row = this.proposalRecord(project, proposal);
+      const work = row?.work_id && this.workRecord(project, row.work_id);
+      if (!row || !work || claimant(work.claimed_by)?.credential !== actor) return { conflict: "not_found" };
+      if (row.row_revision !== input.expected_revision) return { conflict: "stale_version" };
+      if (!["accepted", "in_review"].includes(row.state)) return { conflict: "state_conflict" };
+      const reflected = this.artifact(project, row.part, row.stage, { publication: input.publication_id, version: null });
+      const origin = this.artifact(project, row.part, row.stage, { publication: row.original_publication_id, version: null });
+      if (!reflected || !origin) return { conflict: "not_found" };
+      if (reflected.commit_sha !== input.source_commit || reflected.publication_revision <= origin.publication_revision ||
+          reflected.content_version === origin.content_version || ["missing", "unsupported"].includes(reflected.representation)) return { conflict: "stale_version" };
+      this.connection.prepare(`UPDATE proposals SET state='reflected',source_commit=?,reflected_publication_id=?,row_revision=row_revision+1
+        WHERE project_id=? AND id=?`).run(input.source_commit, input.publication_id, project, proposal);
+      this.connection.prepare("UPDATE discussions SET row_revision=row_revision+1 WHERE project_id=? AND id=?").run(project, row.discussion_id);
+      return { projectId: project, status: 200, body: rebuildProposal(this.proposalRecord(project, proposal)),
+        journal: { event: { kind: "discussion", target_id: row.discussion_id, content_version: reflected.content_version } } };
+    });
+  }
+
+  checkpointRecord(project, id) {
+    return this.connection.prepare(`SELECT c.id,c.state,c.content_version,c.row_revision AS revision,a.part,a.stage,a.publication_id
+      FROM checkpoint_requests c JOIN stage_artifacts a ON a.project_id=c.project_id AND a.id=c.artifact_id
+      WHERE c.project_id=? AND c.id=?`).get(project, id) ?? null;
+  }
+
+  checkpointHistory(project, id) {
+    return this.connection.prepare(`SELECT id,decision,content_version,decided_at,coalesce(json_extract(legacy_actor_json,'$.label'),actor_owner_id) AS decided_by,reason
+      FROM checkpoint_decisions WHERE project_id=? AND request_id=? ORDER BY sequence DESC LIMIT 100`).all(project, id).reverse();
+  }
+
+  requestCheckpoint(write, project, input, id, blockers) {
+    return this.writeWithReceipt(write, input, () => {
+      const held = this.artifact(project, input.part, input.stage, { publication: null, version: null });
+      if (!held || ["missing", "unsupported"].includes(held.representation)) return { conflict: "not_found" };
+      if (input.publication_id !== held.publication_id || input.content_version !== held.content_version) return { conflict: "stale_version" };
+      const existing = this.artifactCheckpoints(project, input.part, input.stage, held.content_version)
+        .find((row) => row.content_version === held.content_version && row.state !== "superseded");
+      if (existing) return { conflict: "state_conflict" };
+      this.connection.prepare(`INSERT INTO checkpoint_requests(id,project_id,artifact_id,content_version,state,requested_at) VALUES(?,?,?,?,'pending',?)`)
+        .run(id, project, held.id, held.content_version, write.now);
+      return { projectId: project, status: 201, body: { ...this.checkpointRecord(project, id), blockers: blockers(input.part, input.stage), history: [] },
+        journal: { event: { kind: "checkpoint", target_id: id, content_version: held.content_version } } };
+    });
+  }
+
+  decideRebuildCheckpoint(write, project, checkpoint, input, decision, blockers, withdraw) {
+    return this.writeWithReceipt(write, input, () => {
+      const row = this.checkpointRecord(project, checkpoint);
+      if (!row) return { conflict: "not_found" };
+      if (row.revision !== input.expected_revision || row.content_version !== input.content_version) return { conflict: "stale_version" };
+      const held = this.artifact(project, row.part, row.stage, { publication: null, version: null });
+      if (row.content_version !== held?.content_version) return { conflict: "stale_version" };
+      const prior = this.connection.prepare("SELECT id,decision FROM checkpoint_decisions WHERE project_id=? AND request_id=? ORDER BY sequence DESC LIMIT 1")
+        .get(project, checkpoint);
+      let action, state;
+      if (withdraw) {
+        if (!prior || prior.id !== input.prior_decision_id) return { conflict: "stale_version" };
+        if (!["passed", "changes_requested"].includes(row.state)) return { conflict: "state_conflict" };
+        action = "withdraw";
+        state = "withdrawn";
+      } else {
+        if (row.state !== "pending" || blockers(row.part, row.stage).length) return { conflict: "state_conflict" };
+        action = input.decision;
+        state = action === "pass" ? "passed" : "changes_requested";
+      }
+      this.connection.prepare(`INSERT INTO checkpoint_decisions(id,project_id,request_id,sequence,actor_owner_id,decision,prior_decision_id,
+        content_version,reason,decided_at) VALUES(?,?,?,(SELECT coalesce(max(sequence),0)+1 FROM checkpoint_decisions
+          WHERE project_id=? AND request_id=?),?,?,?,?,?,?)`).run(decision, project, checkpoint, project, checkpoint, write.owner,
+        action, withdraw ? prior.id : null, row.content_version, input.reason || null, write.now);
+      this.connection.prepare("UPDATE checkpoint_requests SET state=?,row_revision=row_revision+1 WHERE project_id=? AND id=?")
+        .run(state, project, checkpoint);
+      return { projectId: project, status: 201, body: { id: decision, state, content_version: row.content_version, revision: row.revision + 1 },
+        journal: { event: { kind: "checkpoint", target_id: checkpoint, content_version: row.content_version } } };
+    });
+  }
+
+  projectEvents(project, after, limit, publisher) {
+    return this.connection.prepare(`SELECT sequence,
+      CASE WHEN operation='publishSnapshot' THEN json_object('kind','publication','target_id',json_extract(protected_payload_json,'$.result.id'),
+        'content_version',json_extract(protected_payload_json,'$.result.snapshot_digest'))
+        ELSE json_extract(protected_payload_json,'$.event') END AS payload
+      FROM write_journal WHERE project_id=? AND sequence>? AND (operation='publishSnapshot' OR (?=0 AND json_type(protected_payload_json,'$.event')='object'))
+      ORDER BY sequence LIMIT ?`).all(project, after, Number(publisher), limit).map(({ sequence, payload }) => ({ sequence, ...JSON.parse(payload) }));
+  }
+
+  createSample(write, input, id, slug, verified, snapshot) {
+    return this.writeWithReceipt(write, input, () => {
+      this.connection.prepare("INSERT INTO projects(id,owner_id,slug,title,synthetic,created_at) VALUES(?,?,?,?,1,?)")
+        .run(id, write.owner, slug, input.title, write.now);
+      const row = this.projectState(write.owner, id);
+      this.insertPublication(row, verified, snapshot, write.now);
+      return { projectId: id, status: 201, body: this.project(write.owner, id),
+        journal: { snapshot, parser_version: verified.parser } };
+    });
   }
 
   connectProject({ id, input, ...write }) {

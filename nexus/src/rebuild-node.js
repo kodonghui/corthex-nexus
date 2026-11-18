@@ -26,7 +26,7 @@ export async function startRebuild(settings = process.env) {
   const connection = openRebuildDatabase(settings.NEXUS_REBUILD_DATABASE);
   try {
     const github = new RebuildGitHub({ token: settings.NEXUS_GITHUB_READ_TOKEN });
-    const handler = createRebuildHandler({ store: new RebuildStore(connection), origin, oidc, attemptKey, github,
+    const handler = createRebuildHandler({ store: new RebuildStore(connection), origin, oidc, attemptKey, github, releaseCommit: settings.NEXUS_REBUILD_RELEASE_COMMIT,
       onTrace: (record) => console.error("nexus-rebuild", record) });
     const server = createNodeServer({ origin, handleRequest: (request, context) =>
       rebuildView(request, settings.NEXUS_LANGUAGE) ?? handler(request, context) });

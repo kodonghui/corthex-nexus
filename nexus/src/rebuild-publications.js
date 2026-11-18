@@ -1,5 +1,5 @@
 import { createHmac } from "node:crypto";
-import { randomToken, resourceId, safeEqual } from "./rebuild-auth.js";
+import { iso, randomToken, resourceId, safeEqual } from "./rebuild-auth.js";
 import { digestPattern, idPattern, previewPolicy, schemas, tracePattern } from "./rebuild-contract.js";
 import { canonicalJSON, rebuildBody, rebuildJSON, RebuildProblem, sha256 } from "./rebuild-http.js";
 import { parserVersion, prepareArtifacts, previewDigest, snapshotLimit } from "./rebuild-source.js";
@@ -58,7 +58,7 @@ export function publicationHandlers({ store, github, access, writeContext, limit
     if (!artifact && (itemId || selection.version || selection.publication)) throw new RebuildProblem("not_found");
     const scope = `items:${projectId}:${artifact?.id || part + "/" + stage}`;
     const { limit, after } = pageInput(url.searchParams, actor.token, scope, tracePattern);
-    const cites = machine ? store.citedWork(projectId, artifact.id, actor.credential.id) : null;
+    const cites = machine ? store.citedWork(projectId, artifact.id, actor.credential.id, iso(now)) : null;
     const permitted = !cites || cites.includes(null);
     if (!permitted && (!cites.length || (itemId && !cites.includes(itemId)))) throw new RebuildProblem("not_found");
     if (itemId) {

@@ -28,7 +28,7 @@ export async function jsonBody(request, schema, snapshot = false, options = {}) 
   if (schema) {
     const failure = inputFailure(data, schema, "body", options.registry);
     const field = failure?.path.replace(/^body\./, "");
-    if (failure?.reason === "maxLength" && !snapshot && ["text", "quote", "reason", "change", "source_text", "words", "link", "pull_request"].includes(field)) throw new Problem("text_too_long", "a text is too long", { field, limit: failure.limit });
+    if (failure?.reason === "maxLength" && !snapshot && (["text", "quote", "reason", "change", "source_text", "words", "link", "pull_request"].includes(field) || options.oversizeText?.test(field))) throw new Problem("text_too_long", "a text is too long", { field, limit: failure.limit });
     if (failure) throw invalid("the body is not in its required form", field);
   }
   return { data, text, size };
