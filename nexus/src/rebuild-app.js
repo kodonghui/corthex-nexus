@@ -45,10 +45,21 @@ export function stageCatalog(artifacts, checkpoints) {
 // TASK-323/324/326, TASK-332–337. The v2 handler is mounted by the rebuild
 // process only. Tests can supply a fake upstream, but the live entry point must
 // use the configured, signature-verifying OIDC client.
-export function createRebuildHandler({ store, origin, oidc = null, attemptKey, clock = Date.now, onTrace, limiter = new RebuildRateLimit(), github = null, releaseCommit = null }) {
+export function createRebuildHandler({ store, origin, oidc = null, attemptKey, clock = Date.now, onTrace, onOutcome, limiter = new RebuildRateLimit(), github = null, releaseCommit = null }) {
   const canonical = new URL(origin);
   if (canonical.protocol !== "https:" || canonical.origin !== origin || (oidc && !(Buffer.isBuffer(attemptKey) && attemptKey.length === 32))) {
     throw new Error("Invalid rebuild origin or OIDC state configuration");
+  }
+
+  function reportOutcome(outcome, traceId) {
+    try { onOutcome?.({ outcome, traceId }); }
+    catch { /* Logging cannot change a durable write's response. */ }
+  }
+
+  function traceFailure(record) {
+    onTrace?.(record);
+    const outcome = record.code === "lease_expired" ? "lease_expired" : record.status >= 500 ? "failed" : "refused";
+    reportOutcome(outcome, record.traceId);
   }
 
   function owner(request, now) {
@@ -216,8 +227,8 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
 
   const routes = rebuildRoutes({ getOwnerSession: getSession, startOwnerSignIn: startSignIn, completeOwnerSignIn: completeSignIn,
     signOut: logOut, listOwnerProjects: listProjects, connectProject, getProjectOverview: getOverview, getPublicSample: getSample, createPrivateSampleProject,
-    ...publicationHandlers({ store, github, access, writeContext, limiter, stageCatalog }),
-    ...reviewHandlers({ store, access, writeContext, limiter, stageCatalog }),
+    ...publicationHandlers({ store, github, access, writeContext, limiter, stageCatalog, reportOutcome }),
+    ...reviewHandlers({ store, access, writeContext, limiter, stageCatalog, reportOutcome }),
   });
 
   return async (request, { clientScope = "local" } = {}) => {
@@ -229,6 +240,6 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
       const login = url.pathname.startsWith("/api/v2/auth/");
       limiter.require(`${login ? url.pathname : "transport"}:${clientScope}`, now, login ? 30 : 3000);
       return await op.handle(request, url, now, ids);
-    } catch (error) { return rebuildProblemResponse(error, url, onTrace); }
+    } catch (error) { return rebuildProblemResponse(error, url, traceFailure); }
   };
 }

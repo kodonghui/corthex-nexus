@@ -33,7 +33,7 @@ function hashLease(input) {
   return { ...safe, lease_hash: sha256(lease_token) };
 }
 
-export function reviewHandlers({ store, access, writeContext, limiter, stageCatalog }) {
+export function reviewHandlers({ store, access, writeContext, limiter, stageCatalog, reportOutcome }) {
   function discussion(row, actor, pages, now) {
     const data = store.discussionRows(actor.project.id, row.id, pages, iso(now), actor.credential?.id);
     if (!data) throw new RebuildProblem("not_found");
@@ -66,8 +66,11 @@ export function reviewHandlers({ store, access, writeContext, limiter, stageCata
     limiter.require(`discussion-write:${projectId}`, now, 30);
     const input = await rebuildBody(request, schemas.QuestionInput);
     validText(input.body);
-    return writeResult(store.askAboutArtifact(writeContext(request, actor, "askAboutArtifact", input), projectId, part, stage, input,
-      { discussion: resourceId("dis"), message: resourceId("msg"), work: resourceId("work") }));
+    const result = store.askAboutArtifact(writeContext(request, actor, "askAboutArtifact", input), projectId, part, stage, input,
+      { discussion: resourceId("dis"), message: resourceId("msg"), work: resourceId("work") });
+    const response = writeResult(result);
+    reportOutcome(result.replay ? "skipped" : input.ask_ai ? "queued" : "received");
+    return response;
   }
 
   async function recordDiscussionDecision(request, _url, now, { projectId, discussionId }) {

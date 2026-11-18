@@ -27,7 +27,8 @@ async function fixture(t) {
     return token;
   };
   const owner = ownerToken(seed.owner), other = ownerToken(seed.otherOwner);
-  const handle = createRebuildHandler({ store, origin, clock: () => time, releaseCommit });
+  const outcomes = [];
+  const handle = createRebuildHandler({ store, origin, clock: () => time, releaseCommit, onOutcome: (event) => outcomes.push(event) });
   const server = createNodeServer({ origin, handleRequest: handle });
   const address = await server.start();
   t.after(async () => {
@@ -50,7 +51,7 @@ async function fixture(t) {
     body: "Could we clarify this requirement?", ask_ai: true, ...edits,
   });
   const issue = async (role = "agent") => expect(await call("/credentials", { body: { role, label: "Test runner" } }), 201);
-  return { call, issue, db, seed, store, part, review, question, other, owner, advance: (ms) => { time += ms; } };
+  return { call, issue, db, seed, store, part, review, question, other, owner, outcomes, advance: (ms) => { time += ms; } };
 }
 
 async function expect(response, status, code) {
@@ -68,6 +69,7 @@ test("versioned question, exclusive claim, renewal, reply, proposal reflection a
   const create = { body: f.question(), key: resourceId("repeat") };
   const [question, replay] = await Promise.all([f.call(askPath, create), f.call(askPath, create)]).then((results) => Promise.all(results.map((r) => expect(r, 201))));
   assert.deepEqual(question, replay);
+  assert.deepEqual(f.outcomes, [{ outcome: "queued", traceId: undefined }, { outcome: "skipped", traceId: undefined }]);
   assert.equal(question.publication_id, f.seed.original.publication_id);
   assert.equal(question.messages[0].author, "owner");
   assert.equal(question.agent_work[0].state, "queued");
@@ -135,8 +137,9 @@ test("expired and released work returns to the queue and stale leases cannot ack
   const lease = await expect(await f.call(route + "/claim", { agent: true, token: a.secret,
     body: { session_label: "First", expected_revision: 0 } }), 200);
   f.advance(600001);
-  await expect(await f.call(route + "/renew", { agent: true, token: a.secret,
+  const expired = await expect(await f.call(route + "/renew", { agent: true, token: a.secret,
     body: { lease_token: lease.lease_token, expected_revision: lease.work.revision } }), 409, "lease_expired");
+  assert.deepEqual(f.outcomes.at(-1), { outcome: "lease_expired", traceId: expired.traceId });
   const queue = await expect(await f.call("/agent/work", { agent: true, token: b.secret }), 200);
   assert.equal(queue.work[0].state, "queued");
   const reclaimed = await expect(await f.call(route + "/claim", { agent: true, token: b.secret,
