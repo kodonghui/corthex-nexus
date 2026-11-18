@@ -1,5 +1,5 @@
 import { realpathSync } from "node:fs";
-import { isAbsolute, resolve } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { openRebuildDatabase } from "./rebuild-sqlite.js";
 import { RebuildStore } from "./store.js";
@@ -7,6 +7,7 @@ import { createNodeServer, publicOrigin } from "./node-server.js";
 import { createRebuildHandler } from "./rebuild-app.js";
 import { RebuildOIDC } from "./rebuild-oidc.js";
 import { RebuildGitHub } from "./rebuild-github.js";
+import { RebuildGitHubSSH } from "./rebuild-github-ssh.js";
 import { rebuildView } from "./rebuild-views.js";
 
 export async function startRebuild(settings = process.env) {
@@ -25,7 +26,15 @@ export async function startRebuild(settings = process.env) {
   process.umask(0o077);
   const connection = openRebuildDatabase(settings.NEXUS_REBUILD_DATABASE);
   try {
-    const github = new RebuildGitHub({ token: settings.NEXUS_GITHUB_READ_TOKEN });
+    const { NEXUS_GITHUB_SSH_PROJECT_ID: githubProject, NEXUS_GITHUB_SSH_REPOSITORY: repository,
+      CREDENTIALS_DIRECTORY: credentials } = settings;
+    let privateSource;
+    if (githubProject || repository) {
+      if (!credentials || !isAbsolute(credentials)) throw new Error("NEXUS private GitHub source needs systemd credentials");
+      privateSource = new RebuildGitHubSSH({ projectId: githubProject, repository, keyFile: join(credentials, "github-deploy-key"),
+        knownHostsFile: join(credentials, "github-known-hosts"), cache: join(dirname(settings.NEXUS_REBUILD_DATABASE), `private-github-${githubProject}.git`) });
+    }
+    const github = new RebuildGitHub({ token: settings.NEXUS_GITHUB_READ_TOKEN, privateSource });
     const metrics = settings.NEXUS_METRICS === "1";
     const counts = new Map();
     const onMetric = metrics ? (sample) => console.log(JSON.stringify({ kind: "request_metrics", ...sample })) : undefined;
