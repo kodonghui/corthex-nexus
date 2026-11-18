@@ -1,0 +1,146 @@
+import assert from "node:assert/strict";
+import { chmod, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
+import { test } from "node:test";
+import { backupLegacy, backupRebuild, checkRelease, importLegacy, recoverAcknowledged } from "../src/rebuild-operator.js";
+import { sha256 } from "../src/rebuild-http.js";
+import { openRebuildDatabase } from "../src/rebuild-sqlite.js";
+import { SQLiteD1 } from "../src/sqlite.js";
+import { RebuildStore, Store } from "../src/store.js";
+import { insertFixtureRow } from "./rebuild-fixture.js";
+
+const time = "2026-11-18T04:00:00.000Z";
+const commit = "a".repeat(40);
+const old = "b".repeat(40);
+const issuer = "https://issuer.example.test";
+
+async function workspace(t) {
+  const folder = await mkdtemp(join(tmpdir(), "nexus-rebuild-operator-"));
+  t.after(() => rm(folder, { recursive: true, force: true }));
+  return folder;
+}
+
+async function seededLegacy(path) {
+  const native = new SQLiteD1(path);
+  try {
+    await new Store(native).ensure();
+    for (const name of ["sample-one", "sample-two", "sample-three"]) {
+      const commitId = name.endsWith("one") ? commit : old;
+      const body = JSON.stringify({ project: { name, title: name, parts: ["main"] }, items: [
+        { id: "REQ-301", stage: "02-prd", kind: "requirement", title: "Synthetic source", where: "docs/prd.md:5" },
+      ] });
+      insertFixtureRow(native.connection, "snapshots", { name, revision: 3, generated_ms: Date.parse(time),
+        generated_at: time, received_at: time, bytes: Buffer.byteLength(body), body, default_commit: commitId });
+      insertFixtureRow(native.connection, "project_spaces", { project: name, repo_url: "https://github.com/example/" + name, created_at: time });
+      insertFixtureRow(native.connection, "comments", { id: "nc_" + name, project: name, part: "main", stage: "02-prd", item: "REQ-301",
+        commit_id: old, author: "user", text: "Preserve the exact old note for " + name, state: "closed", closed_as: "decided", made_at: time, last_at: time });
+      insertFixtureRow(native.connection, "replies", { comment: "nc_" + name, seq: 1, author: "agent", text: "Old reply", made_at: time });
+      insertFixtureRow(native.connection, "decisions", { comment: "nc_" + name, seq: 1, link: "https://github.com/example/" + name + "/pull/1",
+        text: "Old decision", made_at: time });
+      insertFixtureRow(native.connection, "checkpoints", { id: "nk_" + name, project: name, part: "main", stage: "02-prd",
+        commit_id: old, words: "Reviewed at that commit", state: "withdrawn", passed_at: time, withdrawn_at: time });
+      insertFixtureRow(native.connection, "writes", { project: name, id: "old-write-" + name, request: "{}", result: "{}", received_at: time });
+    }
+    native.check();
+  } finally { native.close(); }
+  await chmod(path, 0o600);
+}
+
+function addOwner(db, id) {
+  insertFixtureRow(db, "owners", { id, issuer, subject: id, created_at: time });
+}
+
+test("API-237/238 back up and import three legacy fixture projects without changing the source", async (t) => {
+  const folder = await workspace(t);
+  const legacy = join(folder, "legacy.sqlite");
+  await seededLegacy(legacy);
+  const before = sha256(await readFile(legacy));
+  const snapshot = join(folder, "safe-backup");
+  const backup = await backupLegacy(legacy, snapshot);
+  assert.equal(backup.projects, 3);
+  assert.equal(backup.accepted_write_boundary, 3);
+  const target = join(folder, "candidate.sqlite"), config = join(folder, "owners.json");
+  const ownerDB = openRebuildDatabase(target);
+  addOwner(ownerDB, "own_fixture");
+  ownerDB.close();
+  await chmod(target, 0o600);
+  const projects = ["sample-one", "sample-two", "sample-three"];
+  await writeFile(config, JSON.stringify(Object.fromEntries(projects.map((name) => [name, { owner_id: "own_fixture",
+    repository_url: `https://github.com/example/${name}`, default_branch: "main" }]))), { mode: 0o600 });
+  const args = [join(snapshot, "legacy.sqlite"), join(snapshot, "inventory.json"), config, target];
+  const imported = await importLegacy(...args);
+  assert.equal(imported.projects, 3);
+  assert.equal(imported.archives.writes, 3);
+  assert.equal(imported.inventory_digest, backup.inventory_digest);
+  assert.equal((await importLegacy(...args)).replay, true);
+  assert.equal(sha256(await readFile(legacy)), before);
+  const reopened = openRebuildDatabase(target);
+  try {
+    const checks = reopened.prepare(`SELECT d.id,m.body,m.author_ref,a.publication_id FROM discussions d JOIN messages m ON m.discussion_id=d.id
+      JOIN stage_artifacts a ON a.id=d.origin_artifact_id WHERE m.sequence=1 ORDER BY d.id`).all();
+    assert.deepEqual(checks.map((row) => row.id), ["nc_sample-one", "nc_sample-three", "nc_sample-two"]);
+    assert.equal(checks[0].body, "Preserve the exact old note for sample-one");
+    assert.equal(checks[0].author_ref, "user");
+    for (const row of checks) assert.equal(reopened.prepare("SELECT commit_sha FROM publications WHERE id=?").get(row.publication_id).commit_sha, old);
+    assert.deepEqual(reopened.prepare("SELECT decision FROM checkpoint_decisions WHERE request_id='nk_sample-one' ORDER BY sequence").all().map((row) => row.decision),
+      ["pass", "withdraw"]);
+    assert.equal(reopened.prepare("SELECT count(*) AS n FROM discussion_decisions").get().n, 3);
+  } finally { reopened.close(); }
+});
+
+function connect(store, owner, id, label) {
+  const input = { slug: label, title: label, repository_url: "https://github.com/example/" + label, default_branch: "main" };
+  return store.connectProject({ owner, id, input, keyHash: sha256(label), bodyDigest: sha256(JSON.stringify(input)),
+    receipt: "receipt_" + label, now: time, expires: "2026-11-19T04:00:00.000Z", digest: sha256 });
+}
+
+test("API-240 restores every acknowledged write after a baseline and rolls back a conflicting tail", async (t) => {
+  const folder = await workspace(t);
+  const file = join(folder, "source.sqlite");
+  const connection = openRebuildDatabase(file);
+  await chmod(file, 0o600);
+  const store = new RebuildStore(connection);
+  addOwner(connection, "own_first");
+  assert.equal(connect(store, "own_first", "prj_baseline", "baseline").status, 201);
+  const base = join(folder, "first"), frozen = join(folder, "frozen");
+  const baseline = await backupRebuild(file, base);
+  assert.equal(baseline.boundary, 1);
+  addOwner(connection, "own_after_switch");
+  assert.equal(connect(store, "own_after_switch", "prj_after_switch", "after-switch").status, 201);
+  assert.equal(connect(store, "own_first", "prj_next_write", "next-write").status, 201);
+  await backupRebuild(file, frozen);
+  connection.close();
+  const args = { baseline: join(base, "rebuild.sqlite"), inventory: join(base, "baseline.json"), frozen: join(frozen, "rebuild.sqlite") };
+  const output = join(folder, "recovered");
+  const recovered = await recoverAcknowledged({ ...args, output });
+  assert.deepEqual([recovered.after, recovered.through, recovered.applied], [1, 3, 2]);
+  const verified = new DatabaseSync(join(output, "recovered.sqlite"), { readOnly: true });
+  try {
+    assert.equal(new RebuildStore(verified).journalBoundary(), 3);
+    assert.equal(verified.prepare("SELECT count(*) n FROM projects").get().n, 3);
+    assert.equal(verified.prepare("SELECT subject FROM owners WHERE id='own_after_switch'").get().subject, "own_after_switch");
+  } finally { verified.close(); }
+  const broken = openRebuildDatabase(args.frozen);
+  broken.prepare("UPDATE write_journal SET result_digest=? WHERE sequence=3").run("f".repeat(64));
+  broken.close();
+  const rejected = join(folder, "rejected");
+  await assert.rejects(recoverAcknowledged({ ...args, output: rejected }), /Acknowledged write result differs/);
+  const reverted = new DatabaseSync(join(rejected, "recovered.sqlite"), { readOnly: true });
+  try {
+    assert.equal(new RebuildStore(reverted).journalBoundary(), 1);
+    assert.equal(reverted.prepare("SELECT count(*) n FROM projects").get().n, 1);
+  } finally { reverted.close(); }
+});
+
+test("API-239 keeps the existing runtime when exact release evidence is missing", async (t) => {
+  const folder = await workspace(t);
+  const evidence = join(folder, "evidence.json");
+  const report = { format: "nexus.release-evidence/1", release_commit: commit, reports: {} };
+  await writeFile(evidence, JSON.stringify(report), { mode: 0o600 });
+  const state = await checkRelease(evidence, commit);
+  assert.equal(state.decision, "keep");
+  assert.equal(state.blocked.length, 10);
+  await assert.rejects(checkRelease(evidence, old), /another candidate/);
+});

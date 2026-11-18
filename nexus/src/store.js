@@ -315,6 +315,38 @@ export const SQLITE = Object.freeze({
   projectRows: (table) => `SELECT project, COUNT(*) AS n FROM "${table.replaceAll('"', '""')}" GROUP BY project ORDER BY project`,
 });
 
+
+// API-237. The manifest records closed, ordered rows from a consistent
+// SQLite backup. Unknown tables are kept in that backup and block automatic
+// native import until the operator has accounted for their contents.
+const LEGACY_KEYS = Object.freeze({
+  snapshots: ["name"], project_spaces: ["project"], pictures: ["project", "part", "stage"], discrepancies: ["id"],
+  comments: ["id"], replies: ["comment", "seq"], decisions: ["comment", "seq"], proposals: ["id"], edits: ["id"],
+  checkpoints: ["id"], claims: ["entry"], writes: ["project", "id"], migrations: ["version"],
+});
+
+export function readLegacyCollections(connection) {
+  const metadata = connection.prepare(`SELECT name,sql FROM sqlite_schema
+    WHERE type='table' AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' ORDER BY name`).all();
+  const names = new Set(metadata.map(({ name }) => name));
+  if (!["snapshots", "project_spaces", "comments", "checkpoints", "writes", "migrations"].every((name) => names.has(name))) {
+    throw new Error("Expected a legacy NEXUS database");
+  }
+  if (connection.prepare(SQLITE.integrity).get()?.integrity_check !== "ok" || connection.prepare(SQLITE.foreignKeys).get()) {
+    throw new Error("Legacy database integrity failed");
+  }
+  const records = {};
+  const unknown = [];
+  for (const { name } of metadata) {
+    if (!Object.hasOwn(LEGACY_KEYS, name)) { unknown.push(name); continue; }
+    const order = LEGACY_KEYS[name].map((key) => `"${key}"`).join(",");
+    records[name] = connection.prepare(`SELECT * FROM "${name}" ORDER BY ${order}`).all().map((row) => ({ ...row }));
+  }
+  const boundary = connection.prepare("SELECT coalesce(max(rowid),0) AS boundary FROM writes").get().boundary;
+  return { schema: metadata.map((item) => ({ ...item })), records, usedKeys: LEGACY_KEYS, unknown, boundary };
+}
+
+
 // TASK-322 (SPEC-341, SPEC-343): the rebuild owns a different database.
 // Its application ID and schema version are committed with the first schema.
 const REBUILD_APPLICATION_ID = 0x4e585332;
@@ -511,18 +543,24 @@ export class RebuildStore {
         WHERE owner_id=? AND scope_key=? AND operation=? AND key_hash=?`).get(owner, scope, operation, keyHash);
       if (before?.expires_at > now) return before.body_digest === bodyDigest
         ? { body: JSON.parse(before.safe_result_json), status: before.http_status, replay: true } : { conflict: "idempotency_conflict" };
-      const result = write();
-      if (result.conflict) return result;
-      // Preserve the original receipt and journal link after its key expires.
-      if (before) this.connection.prepare("UPDATE idempotency_receipts SET scope_key=? WHERE id=?").run(`expired:${before.id}`, before.id);
-      const response = JSON.stringify(result.safeBody ?? result.body);
-      this.connection.prepare(`INSERT INTO idempotency_receipts(id,owner_id,project_id,scope_key,operation,key_hash,body_digest,
-        http_status,safe_result_json,created_at,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`)
-        .run(receipt, owner, result.projectId, scope, operation, keyHash, bodyDigest, result.status, response, now, expires);
-      this.connection.prepare(`INSERT INTO write_journal(project_id,operation,receipt_id,protected_payload_json,result_digest,acknowledged_at)
-        VALUES(?,?,?,?,?,?)`).run(result.projectId, operation, receipt,
-          JSON.stringify({ owner, scope, keyHash, bodyDigest, input, result: JSON.parse(response), ...result.journal }), digest(response), now);
-      return result;
+      const capture = this.connection.createSession();
+      try {
+        const result = write();
+        if (result.conflict) return result;
+        // Preserve the original receipt and journal link after its key expires.
+        if (before) this.connection.prepare("UPDATE idempotency_receipts SET scope_key=? WHERE id=?").run(`expired:${before.id}`, before.id);
+        const response = JSON.stringify(result.safeBody ?? result.body);
+        this.connection.prepare(`INSERT INTO idempotency_receipts(id,owner_id,project_id,scope_key,operation,key_hash,body_digest,
+          http_status,safe_result_json,created_at,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`)
+          .run(receipt, owner, result.projectId, scope, operation, keyHash, bodyDigest, result.status, response, now, expires);
+        const identity = this.connection.prepare("SELECT id,issuer,subject,created_at FROM owners WHERE id=?").get(owner);
+        const changes = Buffer.from(capture.changeset());
+        this.connection.prepare(`INSERT INTO write_journal(project_id,operation,receipt_id,protected_payload_json,result_digest,acknowledged_at)
+          VALUES(?,?,?,?,?,?)`).run(result.projectId, operation, receipt,
+            JSON.stringify({ owner, scope, keyHash, bodyDigest, input, result: JSON.parse(response), ...result.journal,
+              identity, changeset: changes.toString("base64"), changeset_sha256: digest(changes) }), digest(response), now);
+        return result;
+      } finally { capture.close(); }
     });
   }
 
@@ -727,7 +765,7 @@ export class RebuildStore {
       WHERE project_id=? AND discussion_id=? AND sequence>? ORDER BY sequence LIMIT ?`)
       .all(project, id, bySequence(messages), messages.limit + 1);
     const resolution = this.connection.prepare(`SELECT id,discussion_id,sequence,body,content_version,source_publication_id AS publication_id,
-      source_commit,pull_request_url,actor_owner_id AS decided_by,decided_at FROM discussion_decisions
+      source_commit,pull_request_url,coalesce(json_extract(legacy_actor_json,'$.label'),actor_owner_id) AS decided_by,decided_at FROM discussion_decisions
       WHERE project_id=? AND discussion_id=? AND sequence>? ORDER BY sequence LIMIT ?`)
       .all(project, id, bySequence(decisions), decisions.limit + 1);
     const changes = this.connection.prepare(`SELECT ${PROPOSAL_COLUMNS} FROM proposals p
@@ -952,6 +990,84 @@ export class RebuildStore {
         .run(state, project, checkpoint);
       return { projectId: project, status: 201, body: { id: decision, state, content_version: row.content_version, revision: row.revision + 1 },
         journal: { event: { kind: "checkpoint", target_id: checkpoint, content_version: row.content_version } } };
+    });
+  }
+
+  verifiedOwner(id) {
+    return this.connection.prepare("SELECT id FROM owners WHERE id=?").get(id)?.id ?? null;
+  }
+
+  importLegacy(plan) {
+    return this.transaction(() => {
+      const { id, digest, archive, counts, boundary, at, rows, mappings, report } = plan;
+      const prior = this.connection.prepare("SELECT state,baseline_digest,reconciliation_json FROM migration_runs WHERE id=?").get(id);
+      if (prior) {
+        if (prior.baseline_digest !== digest) throw new Error("The migration ID belongs to another baseline");
+        return { replay: true, ...JSON.parse(prior.reconciliation_json) };
+      }
+      this.connection.prepare(`INSERT INTO migration_runs(id,state,protected_manifest_ref,baseline_digest,counts_json,accepted_write_boundary,
+        reconciliation_json,created_at) VALUES(?,'restored',?,?,?,?,?,?)`).run(id, archive, digest, JSON.stringify(counts), boundary, JSON.stringify(report), at);
+      const tables = ["projects", "publications", "stage_artifacts", "artifact_items", "discussions", "messages",
+        "discussion_decisions", "checkpoint_requests", "checkpoint_decisions"];
+      for (const name of tables) {
+        // All fields are constructed by the legacy mapper. Validate columns
+        // against the dedicated target schema before constructing a statement.
+        const columns = new Set(this.connection.prepare(SQLITE.columns(name)).all().map((column) => column.name));
+        for (const row of rows[name]) {
+          const keys = Object.keys(row);
+          if (keys.some((key) => !columns.has(key))) throw new Error("Unexpected migration column");
+          this.connection.prepare(`INSERT INTO "${name}" (${keys.map((key) => `"${key}"`).join(",")})
+            VALUES (${keys.map(() => "?").join(",")})`).run(...Object.values(row));
+        }
+      }
+      const link = this.connection.prepare(`INSERT INTO legacy_mappings(migration_run_id,legacy_project,record_kind,legacy_id,target_project_id,target_id,original_digest)
+        VALUES(?,?,?,?,?,?,?)`);
+      for (const mapping of mappings) link.run(id, mapping.project, mapping.kind, mapping.legacy, mapping.targetProject, mapping.target, mapping.digest);
+      if (this.connection.prepare(SQLITE.foreignKeys).get()) throw new Error("Legacy migration contains broken references");
+      const mapped = this.connection.prepare("SELECT count(*) AS n FROM legacy_mappings WHERE migration_run_id=?").get(id).n;
+      if (mapped !== mappings.length) throw new Error("Legacy migration count differs");
+      return { replay: false, ...report };
+    });
+  }
+
+  journalBoundary() {
+    return this.connection.prepare("SELECT coalesce(max(sequence),0) AS boundary FROM write_journal").get().boundary;
+  }
+
+  recoveryRows(after) {
+    return this.connection.prepare(`SELECT sequence,project_id,operation,receipt_id,protected_payload_json,result_digest,acknowledged_at
+      FROM write_journal WHERE sequence>? ORDER BY sequence`).iterate(after);
+  }
+
+  restoreJournal(rows, after, through, digest, abortConflict) {
+    return this.transaction(() => {
+      if (this.journalBoundary() !== after) throw new Error("The target does not match the expected write boundary");
+      this.connection.exec("PRAGMA defer_foreign_keys=ON");
+      let boundary = after, applied = 0;
+      const identities = this.connection.prepare("INSERT INTO owners(id,issuer,subject,created_at) VALUES(?,?,?,?) ON CONFLICT(id) DO NOTHING");
+      const findOwner = this.connection.prepare("SELECT id,issuer,subject,created_at FROM owners WHERE id=?");
+      const insert = this.connection.prepare(`INSERT INTO write_journal(sequence,project_id,operation,receipt_id,protected_payload_json,
+        result_digest,acknowledged_at) VALUES(?,?,?,?,?,?,?)`);
+      const receipt = this.connection.prepare("SELECT project_id,operation,safe_result_json FROM idempotency_receipts WHERE id=?");
+      for (const row of rows) {
+        const box = JSON.parse(row.protected_payload_json);
+        if (row.sequence !== boundary + 1 || row.sequence > through || !box.identity || !box.changeset) throw new Error("Journal continuity failure");
+        const { id, issuer, subject, created_at: date } = box.identity;
+        identities.run(id, issuer, subject, date);
+        const found = findOwner.get(id);
+        if (found.issuer !== issuer || found.subject !== subject || found.created_at !== date) throw new Error("Journal owner differs");
+        const changes = Buffer.from(box.changeset, "base64");
+        if (digest(changes) !== box.changeset_sha256 ||
+            !this.connection.applyChangeset(changes, { onConflict: abortConflict })) throw new Error("Journal transaction could not be applied");
+        const acknowledged = receipt.get(row.receipt_id);
+        if (acknowledged?.project_id !== row.project_id || acknowledged.operation !== row.operation ||
+            digest(acknowledged.safe_result_json) !== row.result_digest) throw new Error("Acknowledged write result differs");
+        insert.run(row.sequence, row.project_id, row.operation, row.receipt_id, row.protected_payload_json, row.result_digest, row.acknowledged_at);
+        boundary = row.sequence;
+        applied += 1;
+      }
+      if (boundary !== through || this.connection.prepare(SQLITE.foreignKeys).get()) throw new Error("Journal replay is incomplete");
+      return { after, through, applied };
     });
   }
 
