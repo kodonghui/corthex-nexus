@@ -206,7 +206,9 @@
     if (!result.ok) { failure(result); return; }
     const rows = result.value.stages;
     const selected = rows.find((item) => item.part === part && item.stage === stage);
-    if (!selected) {
+    const selection = new URL(location.href).searchParams;
+    const history = selection.has("version") || selection.has("publication_id");
+    if (!selected && !history) {
       if (rows.length) location.replace(route(project, rows[0].part, rows[0].stage));
       else statusMessage(words.gone, true);
       return;
@@ -214,7 +216,7 @@
     $("workspace-title").textContent = result.value.project.title;
     publishLinks(project);
     const picker = $("part-picker");
-    const parts = [...new Set(rows.map(({ part }) => part))];
+    const parts = [...new Set([...rows.map((row) => row.part), part])];
     picker.replaceChildren(...parts.map((name) => {
       const option = label("option", name);
       option.value = name;
@@ -223,11 +225,10 @@
     picker.value = part;
     visible(picker, parts.length > 1);
     picker.onchange = () => location.assign(route(project, picker.value, stage));
-    $("stage-title").textContent = `${selected.stage.slice(0, 2)} ${stageTitle(selected.stage)}`;
-    $("stage-state").textContent = selected.artifact_state === "missing" ? words.noSource
-      : selected.artifact_state === "unsupported" ? words.unsupported : words.present;
-    $("stage-blockers").replaceChildren(...selected.blockers.map((blocker) => label("li", blocker)));
-    $("stage-list").replaceChildren(...rows.filter((item) => item.part === part).map((item) => {
+    $("stage-title").textContent = `${stage.slice(0, 2)} ${stageTitle(stage)}`;
+    $("stage-state").textContent = words.loading;
+    const navigation = selected ? rows.filter((item) => item.part === part) : [{ stage }];
+    $("stage-list").replaceChildren(...navigation.map((item) => {
       const entry = label("li", "");
       const link = label("a", `${item.stage.slice(0, 2)} ${stageTitle(item.stage)}`);
       link.href = route(project, part, item.stage);
@@ -345,10 +346,8 @@
     const missing = data.representation === "missing", unsupported = data.representation === "unsupported";
     $("stage-state").textContent = missing ? words.noSource : unsupported ? words.unsupported : words.present;
     sourceLink(data.source);
-    if (data.diagnostics.length && !cursor) {
-      $("stage-blockers").append(...data.diagnostics.map((diagnostic) => label("li", diagnostic)));
-    }
     if (!cursor) {
+      $("stage-blockers").replaceChildren(...[...data.stage.blockers, ...data.diagnostics].map((message) => label("li", message)));
       buildDiagram(data.graph);
       renderCheckpointLinks(project, part, stage, data, exact);
       $("artifact-items").replaceChildren();

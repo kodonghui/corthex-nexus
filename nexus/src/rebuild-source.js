@@ -54,6 +54,8 @@ function parseArtifact(stage, files) {
     graph.edges.push({ from, to, label: short(label, 300) });
   }
 
+  const tables = new Map();
+  const relations = [];
   for (const file of files) {
     const { path, media_type, content_utf8: source } = file;
     if (stage === "06-api" && media_type === "application/json") {
@@ -82,8 +84,6 @@ function parseArtifact(stage, files) {
     const flowNodes = new Map();
     const flowEdges = [];
     const sitemapParents = [];
-    const tables = new Map();
-    const relations = [];
     let table = null;
     let diagram = false;
     let screenItem = fileId;
@@ -167,11 +167,11 @@ function parseArtifact(stage, files) {
     const flowId = (id) => `flow_${sha256(`${path}:\0${id}`).slice(0, 28)}`;
     for (const [key, text] of flowNodes) node(flowId(key), text, "step", fileId || null);
     for (const [from, to, label] of flowEdges) edge(flowId(from), flowId(to), label);
-    for (const value of tables.values()) node(value.id, value.name, "table", value.item);
-    for (const [from, to, label] of relations) {
-      if (tables.has(from) && tables.has(to)) edge(tables.get(from).id, tables.get(to).id, label);
-      else warn(`Missing table in relationship ${from} → ${to}`);
-    }
+  }
+  for (const value of tables.values()) node(value.id, value.name, "table", value.item);
+  for (const [from, to, label] of relations) {
+    if (tables.has(from) && tables.has(to)) edge(tables.get(from).id, tables.get(to).id, label);
+    else warn(`Missing table in relationship ${from} → ${to}`);
   }
   graph.edges = graph.edges.filter(({ from, to }) => nodeKeys.has(from) && nodeKeys.has(to));
   const mode = representation[stage];

@@ -534,7 +534,7 @@ export class RebuildStore {
 
   listCredentials(project) {
     return this.connection.prepare(`SELECT id,role,label,created_at,revoked_at FROM project_credentials
-      WHERE project_id=? ORDER BY created_at DESC,id LIMIT 100`).all(project).map(rebuildCredential);
+      WHERE project_id=? ORDER BY revoked_at IS NOT NULL,created_at DESC,id LIMIT 100`).all(project).map(rebuildCredential);
   }
 
   issueCredential(write, project, input, id, secret, secretHash) {

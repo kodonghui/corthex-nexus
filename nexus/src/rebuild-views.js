@@ -105,6 +105,11 @@ const projectPages = [
 ];
 const workspacePath = /^\/p\/[A-Za-z0-9_-]{3,80}\/[^/]+\/[0-9]{2}-[a-z-]+(?:\/items\/[^/]+)?$/;
 const csp = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; base-uri 'none'";
+// srcdoc inherits this policy. The child also receives the stricter fixed
+// meta policy and opaque sandbox, while the parent denies frame navigation.
+const previewCSP = csp.replace("script-src 'self'", "script-src 'self' 'unsafe-inline'")
+  .replace("style-src 'self'", "style-src 'self' 'unsafe-inline'").replace("img-src 'self'", "img-src 'self' data:; font-src data:");
+
 
 export function rebuildView(request, language) {
   if (request.method !== "GET" && request.method !== "HEAD") return null;
@@ -128,5 +133,5 @@ export function rebuildView(request, language) {
     <nav class="row"><a href="/projects" id="project-nav" hidden>${t.projects}</a><button id="theme" type="button" aria-pressed="false">${t.theme}</button>
     <button id="sign-out" type="button" hidden>${t.signOut}</button></nav></header><main id="main"><p id="status" role="status" class="notice" hidden></p>
     <div id="recover" class="row" hidden><a class="button" id="return-to-sign-in" href="/">${t.signIn}</a></div>${render(t)}</main></body></html>`;
-  return new Response(request.method === "HEAD" ? null : html, { headers: rebuildHeaders({ "Content-Type": "text/html; charset=utf-8", "Content-Security-Policy": csp }) });
+  return new Response(request.method === "HEAD" ? null : html, { headers: rebuildHeaders({ "Content-Type": "text/html; charset=utf-8", "Content-Security-Policy": page === "preview" ? previewCSP : csp }) });
 }
