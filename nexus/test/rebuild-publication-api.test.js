@@ -234,6 +234,8 @@ test("API-225/227 confirms consent and Git blobs, preserves retry receipts/histo
   const preview = await expect(await f.get("/stages/main/09-mockup"), 200);
   const content = await expect(await f.get("/previews/" + preview.artifact_id), 200);
   assert.equal(content.sandbox, "allow-scripts");
+  assert.equal(content.part, preview.stage.part);
+  assert.deepEqual(content.source, preview.source);
   assert.equal(content.html, html);
   await expect(await f.get("/previews/" + preview.artifact_id, f.foreign), 404, "not_found");
   assert.equal(f.db.prepare("SELECT count(*) n FROM publications WHERE project_id=?").get(f.project).n, 3);

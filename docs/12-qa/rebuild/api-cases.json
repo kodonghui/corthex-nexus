@@ -1,0 +1,4425 @@
+{
+  "format": "nexus.qa-cases/1",
+  "scope": "planned real HTTP response checks",
+  "cases": [
+    {
+      "id": "TC-2000",
+      "api": "API-201",
+      "spec": [
+        "SPEC-301",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "getOwnerSession",
+      "method": "GET",
+      "path": "/api/v2/session",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2001",
+      "api": "API-201",
+      "spec": [
+        "SPEC-301",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "getOwnerSession",
+      "method": "GET",
+      "path": "/api/v2/session",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2002",
+      "api": "API-201",
+      "spec": [
+        "SPEC-301",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "getOwnerSession",
+      "method": "GET",
+      "path": "/api/v2/session",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2003",
+      "api": "API-201",
+      "spec": [
+        "SPEC-301",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "getOwnerSession",
+      "method": "GET",
+      "path": "/api/v2/session",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2004",
+      "api": "API-201",
+      "spec": [
+        "SPEC-301",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "getOwnerSession",
+      "method": "GET",
+      "path": "/api/v2/session",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2005",
+      "api": "API-201",
+      "spec": [
+        "SPEC-301",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "getOwnerSession",
+      "method": "GET",
+      "path": "/api/v2/session",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2006",
+      "api": "API-202",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "startOwnerSignIn",
+      "method": "POST",
+      "path": "/api/v2/auth/start",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2007",
+      "api": "API-202",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "startOwnerSignIn",
+      "method": "POST",
+      "path": "/api/v2/auth/start",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2008",
+      "api": "API-202",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "startOwnerSignIn",
+      "method": "POST",
+      "path": "/api/v2/auth/start",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2009",
+      "api": "API-202",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "startOwnerSignIn",
+      "method": "POST",
+      "path": "/api/v2/auth/start",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2010",
+      "api": "API-202",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "startOwnerSignIn",
+      "method": "POST",
+      "path": "/api/v2/auth/start",
+      "response": "503",
+      "problem_examples": [
+        "authentication_unavailable",
+        "source_verification_unavailable"
+      ]
+    },
+    {
+      "id": "TC-2011",
+      "api": "API-202",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "startOwnerSignIn",
+      "method": "POST",
+      "path": "/api/v2/auth/start",
+      "response": "504",
+      "problem_examples": [
+        "upstream_timeout"
+      ]
+    },
+    {
+      "id": "TC-2012",
+      "api": "API-202",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "startOwnerSignIn",
+      "method": "POST",
+      "path": "/api/v2/auth/start",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2013",
+      "api": "API-203",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "completeOwnerSignIn",
+      "method": "GET",
+      "path": "/api/v2/auth/callback",
+      "response": "303",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2014",
+      "api": "API-203",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "completeOwnerSignIn",
+      "method": "GET",
+      "path": "/api/v2/auth/callback",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2015",
+      "api": "API-203",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "completeOwnerSignIn",
+      "method": "GET",
+      "path": "/api/v2/auth/callback",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2016",
+      "api": "API-203",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "completeOwnerSignIn",
+      "method": "GET",
+      "path": "/api/v2/auth/callback",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2017",
+      "api": "API-203",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "completeOwnerSignIn",
+      "method": "GET",
+      "path": "/api/v2/auth/callback",
+      "response": "503",
+      "problem_examples": [
+        "authentication_unavailable",
+        "source_verification_unavailable"
+      ]
+    },
+    {
+      "id": "TC-2018",
+      "api": "API-203",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "completeOwnerSignIn",
+      "method": "GET",
+      "path": "/api/v2/auth/callback",
+      "response": "504",
+      "problem_examples": [
+        "upstream_timeout"
+      ]
+    },
+    {
+      "id": "TC-2019",
+      "api": "API-203",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "completeOwnerSignIn",
+      "method": "GET",
+      "path": "/api/v2/auth/callback",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2020",
+      "api": "API-204",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "signOut",
+      "method": "POST",
+      "path": "/api/v2/session/logout",
+      "response": "204",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2021",
+      "api": "API-204",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "signOut",
+      "method": "POST",
+      "path": "/api/v2/session/logout",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2022",
+      "api": "API-204",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "signOut",
+      "method": "POST",
+      "path": "/api/v2/session/logout",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2023",
+      "api": "API-204",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "signOut",
+      "method": "POST",
+      "path": "/api/v2/session/logout",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2024",
+      "api": "API-204",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "signOut",
+      "method": "POST",
+      "path": "/api/v2/session/logout",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2025",
+      "api": "API-204",
+      "spec": [
+        "SPEC-333"
+      ],
+      "operation": "signOut",
+      "method": "POST",
+      "path": "/api/v2/session/logout",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2026",
+      "api": "API-205",
+      "spec": [
+        "SPEC-301",
+        "SPEC-302",
+        "SPEC-332"
+      ],
+      "operation": "listOwnerProjects",
+      "method": "GET",
+      "path": "/api/v2/projects",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2027",
+      "api": "API-205",
+      "spec": [
+        "SPEC-301",
+        "SPEC-302",
+        "SPEC-332"
+      ],
+      "operation": "listOwnerProjects",
+      "method": "GET",
+      "path": "/api/v2/projects",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2028",
+      "api": "API-205",
+      "spec": [
+        "SPEC-301",
+        "SPEC-302",
+        "SPEC-332"
+      ],
+      "operation": "listOwnerProjects",
+      "method": "GET",
+      "path": "/api/v2/projects",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2029",
+      "api": "API-205",
+      "spec": [
+        "SPEC-301",
+        "SPEC-302",
+        "SPEC-332"
+      ],
+      "operation": "listOwnerProjects",
+      "method": "GET",
+      "path": "/api/v2/projects",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2030",
+      "api": "API-205",
+      "spec": [
+        "SPEC-301",
+        "SPEC-302",
+        "SPEC-332"
+      ],
+      "operation": "listOwnerProjects",
+      "method": "GET",
+      "path": "/api/v2/projects",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2031",
+      "api": "API-205",
+      "spec": [
+        "SPEC-301",
+        "SPEC-302",
+        "SPEC-332"
+      ],
+      "operation": "listOwnerProjects",
+      "method": "GET",
+      "path": "/api/v2/projects",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2032",
+      "api": "API-206",
+      "spec": [
+        "SPEC-326",
+        "SPEC-333",
+        "SPEC-350"
+      ],
+      "operation": "connectProject",
+      "method": "POST",
+      "path": "/api/v2/projects",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2033",
+      "api": "API-206",
+      "spec": [
+        "SPEC-326",
+        "SPEC-333",
+        "SPEC-350"
+      ],
+      "operation": "connectProject",
+      "method": "POST",
+      "path": "/api/v2/projects",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2034",
+      "api": "API-206",
+      "spec": [
+        "SPEC-326",
+        "SPEC-333",
+        "SPEC-350"
+      ],
+      "operation": "connectProject",
+      "method": "POST",
+      "path": "/api/v2/projects",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2035",
+      "api": "API-206",
+      "spec": [
+        "SPEC-326",
+        "SPEC-333",
+        "SPEC-350"
+      ],
+      "operation": "connectProject",
+      "method": "POST",
+      "path": "/api/v2/projects",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2036",
+      "api": "API-206",
+      "spec": [
+        "SPEC-326",
+        "SPEC-333",
+        "SPEC-350"
+      ],
+      "operation": "connectProject",
+      "method": "POST",
+      "path": "/api/v2/projects",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2037",
+      "api": "API-206",
+      "spec": [
+        "SPEC-326",
+        "SPEC-333",
+        "SPEC-350"
+      ],
+      "operation": "connectProject",
+      "method": "POST",
+      "path": "/api/v2/projects",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2038",
+      "api": "API-206",
+      "spec": [
+        "SPEC-326",
+        "SPEC-333",
+        "SPEC-350"
+      ],
+      "operation": "connectProject",
+      "method": "POST",
+      "path": "/api/v2/projects",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2039",
+      "api": "API-206",
+      "spec": [
+        "SPEC-326",
+        "SPEC-333",
+        "SPEC-350"
+      ],
+      "operation": "connectProject",
+      "method": "POST",
+      "path": "/api/v2/projects",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2040",
+      "api": "API-207",
+      "spec": [
+        "SPEC-302",
+        "SPEC-303",
+        "SPEC-304",
+        "SPEC-320",
+        "SPEC-332",
+        "SPEC-337"
+      ],
+      "operation": "getProjectOverview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2041",
+      "api": "API-207",
+      "spec": [
+        "SPEC-302",
+        "SPEC-303",
+        "SPEC-304",
+        "SPEC-320",
+        "SPEC-332",
+        "SPEC-337"
+      ],
+      "operation": "getProjectOverview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2042",
+      "api": "API-207",
+      "spec": [
+        "SPEC-302",
+        "SPEC-303",
+        "SPEC-304",
+        "SPEC-320",
+        "SPEC-332",
+        "SPEC-337"
+      ],
+      "operation": "getProjectOverview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2043",
+      "api": "API-207",
+      "spec": [
+        "SPEC-302",
+        "SPEC-303",
+        "SPEC-304",
+        "SPEC-320",
+        "SPEC-332",
+        "SPEC-337"
+      ],
+      "operation": "getProjectOverview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2044",
+      "api": "API-207",
+      "spec": [
+        "SPEC-302",
+        "SPEC-303",
+        "SPEC-304",
+        "SPEC-320",
+        "SPEC-332",
+        "SPEC-337"
+      ],
+      "operation": "getProjectOverview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2045",
+      "api": "API-207",
+      "spec": [
+        "SPEC-302",
+        "SPEC-303",
+        "SPEC-304",
+        "SPEC-320",
+        "SPEC-332",
+        "SPEC-337"
+      ],
+      "operation": "getProjectOverview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2046",
+      "api": "API-207",
+      "spec": [
+        "SPEC-302",
+        "SPEC-303",
+        "SPEC-304",
+        "SPEC-320",
+        "SPEC-332",
+        "SPEC-337"
+      ],
+      "operation": "getProjectOverview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2047",
+      "api": "API-208",
+      "spec": [
+        "SPEC-304",
+        "SPEC-305",
+        "SPEC-306",
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getStageArtifact",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2048",
+      "api": "API-208",
+      "spec": [
+        "SPEC-304",
+        "SPEC-305",
+        "SPEC-306",
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getStageArtifact",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2049",
+      "api": "API-208",
+      "spec": [
+        "SPEC-304",
+        "SPEC-305",
+        "SPEC-306",
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getStageArtifact",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2050",
+      "api": "API-208",
+      "spec": [
+        "SPEC-304",
+        "SPEC-305",
+        "SPEC-306",
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getStageArtifact",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2051",
+      "api": "API-208",
+      "spec": [
+        "SPEC-304",
+        "SPEC-305",
+        "SPEC-306",
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getStageArtifact",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2052",
+      "api": "API-208",
+      "spec": [
+        "SPEC-304",
+        "SPEC-305",
+        "SPEC-306",
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getStageArtifact",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2053",
+      "api": "API-208",
+      "spec": [
+        "SPEC-304",
+        "SPEC-305",
+        "SPEC-306",
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getStageArtifact",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2054",
+      "api": "API-209",
+      "spec": [
+        "SPEC-308",
+        "SPEC-309",
+        "SPEC-310",
+        "SPEC-341"
+      ],
+      "operation": "getArtifactItem",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/items/{itemId}",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2055",
+      "api": "API-209",
+      "spec": [
+        "SPEC-308",
+        "SPEC-309",
+        "SPEC-310",
+        "SPEC-341"
+      ],
+      "operation": "getArtifactItem",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/items/{itemId}",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2056",
+      "api": "API-209",
+      "spec": [
+        "SPEC-308",
+        "SPEC-309",
+        "SPEC-310",
+        "SPEC-341"
+      ],
+      "operation": "getArtifactItem",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/items/{itemId}",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2057",
+      "api": "API-209",
+      "spec": [
+        "SPEC-308",
+        "SPEC-309",
+        "SPEC-310",
+        "SPEC-341"
+      ],
+      "operation": "getArtifactItem",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/items/{itemId}",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2058",
+      "api": "API-209",
+      "spec": [
+        "SPEC-308",
+        "SPEC-309",
+        "SPEC-310",
+        "SPEC-341"
+      ],
+      "operation": "getArtifactItem",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/items/{itemId}",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2059",
+      "api": "API-209",
+      "spec": [
+        "SPEC-308",
+        "SPEC-309",
+        "SPEC-310",
+        "SPEC-341"
+      ],
+      "operation": "getArtifactItem",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/items/{itemId}",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2060",
+      "api": "API-209",
+      "spec": [
+        "SPEC-308",
+        "SPEC-309",
+        "SPEC-310",
+        "SPEC-341"
+      ],
+      "operation": "getArtifactItem",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/items/{itemId}",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2061",
+      "api": "API-210",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-342"
+      ],
+      "operation": "listStageDiscussions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2062",
+      "api": "API-210",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-342"
+      ],
+      "operation": "listStageDiscussions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2063",
+      "api": "API-210",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-342"
+      ],
+      "operation": "listStageDiscussions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2064",
+      "api": "API-210",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-342"
+      ],
+      "operation": "listStageDiscussions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2065",
+      "api": "API-210",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-342"
+      ],
+      "operation": "listStageDiscussions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2066",
+      "api": "API-210",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-342"
+      ],
+      "operation": "listStageDiscussions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2067",
+      "api": "API-210",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-342"
+      ],
+      "operation": "listStageDiscussions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2068",
+      "api": "API-211",
+      "spec": [
+        "SPEC-311",
+        "SPEC-312",
+        "SPEC-337"
+      ],
+      "operation": "askAboutArtifact",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2069",
+      "api": "API-211",
+      "spec": [
+        "SPEC-311",
+        "SPEC-312",
+        "SPEC-337"
+      ],
+      "operation": "askAboutArtifact",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2070",
+      "api": "API-211",
+      "spec": [
+        "SPEC-311",
+        "SPEC-312",
+        "SPEC-337"
+      ],
+      "operation": "askAboutArtifact",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2071",
+      "api": "API-211",
+      "spec": [
+        "SPEC-311",
+        "SPEC-312",
+        "SPEC-337"
+      ],
+      "operation": "askAboutArtifact",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2072",
+      "api": "API-211",
+      "spec": [
+        "SPEC-311",
+        "SPEC-312",
+        "SPEC-337"
+      ],
+      "operation": "askAboutArtifact",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2073",
+      "api": "API-211",
+      "spec": [
+        "SPEC-311",
+        "SPEC-312",
+        "SPEC-337"
+      ],
+      "operation": "askAboutArtifact",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "409",
+      "problem_examples": [
+        "stale_version",
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2074",
+      "api": "API-211",
+      "spec": [
+        "SPEC-311",
+        "SPEC-312",
+        "SPEC-337"
+      ],
+      "operation": "askAboutArtifact",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2075",
+      "api": "API-211",
+      "spec": [
+        "SPEC-311",
+        "SPEC-312",
+        "SPEC-337"
+      ],
+      "operation": "askAboutArtifact",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2076",
+      "api": "API-211",
+      "spec": [
+        "SPEC-311",
+        "SPEC-312",
+        "SPEC-337"
+      ],
+      "operation": "askAboutArtifact",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/stages/{part}/{stage}/discussions",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2077",
+      "api": "API-212",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-314",
+        "SPEC-342"
+      ],
+      "operation": "getDiscussion",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2078",
+      "api": "API-212",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-314",
+        "SPEC-342"
+      ],
+      "operation": "getDiscussion",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2079",
+      "api": "API-212",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-314",
+        "SPEC-342"
+      ],
+      "operation": "getDiscussion",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2080",
+      "api": "API-212",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-314",
+        "SPEC-342"
+      ],
+      "operation": "getDiscussion",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2081",
+      "api": "API-212",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-314",
+        "SPEC-342"
+      ],
+      "operation": "getDiscussion",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2082",
+      "api": "API-212",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-314",
+        "SPEC-342"
+      ],
+      "operation": "getDiscussion",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2083",
+      "api": "API-212",
+      "spec": [
+        "SPEC-311",
+        "SPEC-313",
+        "SPEC-314",
+        "SPEC-342"
+      ],
+      "operation": "getDiscussion",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2084",
+      "api": "API-213",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordDiscussionDecision",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/decisions",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2085",
+      "api": "API-213",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordDiscussionDecision",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/decisions",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2086",
+      "api": "API-213",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordDiscussionDecision",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/decisions",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2087",
+      "api": "API-213",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordDiscussionDecision",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/decisions",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2088",
+      "api": "API-213",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordDiscussionDecision",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/decisions",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2089",
+      "api": "API-213",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordDiscussionDecision",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/decisions",
+      "response": "409",
+      "problem_examples": [
+        "stale_version",
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2090",
+      "api": "API-213",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordDiscussionDecision",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/decisions",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2091",
+      "api": "API-213",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordDiscussionDecision",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/decisions",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2092",
+      "api": "API-213",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordDiscussionDecision",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/decisions",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2093",
+      "api": "API-214",
+      "spec": [
+        "SPEC-312",
+        "SPEC-315"
+      ],
+      "operation": "listAgentWork",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/agent/work",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2094",
+      "api": "API-214",
+      "spec": [
+        "SPEC-312",
+        "SPEC-315"
+      ],
+      "operation": "listAgentWork",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/agent/work",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2095",
+      "api": "API-214",
+      "spec": [
+        "SPEC-312",
+        "SPEC-315"
+      ],
+      "operation": "listAgentWork",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/agent/work",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2096",
+      "api": "API-214",
+      "spec": [
+        "SPEC-312",
+        "SPEC-315"
+      ],
+      "operation": "listAgentWork",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/agent/work",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2097",
+      "api": "API-214",
+      "spec": [
+        "SPEC-312",
+        "SPEC-315"
+      ],
+      "operation": "listAgentWork",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/agent/work",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2098",
+      "api": "API-214",
+      "spec": [
+        "SPEC-312",
+        "SPEC-315"
+      ],
+      "operation": "listAgentWork",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/agent/work",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2099",
+      "api": "API-214",
+      "spec": [
+        "SPEC-312",
+        "SPEC-315"
+      ],
+      "operation": "listAgentWork",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/agent/work",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2100",
+      "api": "API-215",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "claimAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/claim",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2101",
+      "api": "API-215",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "claimAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/claim",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2102",
+      "api": "API-215",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "claimAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/claim",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2103",
+      "api": "API-215",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "claimAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/claim",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2104",
+      "api": "API-215",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "claimAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/claim",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2105",
+      "api": "API-215",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "claimAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/claim",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict",
+        "lease_expired"
+      ]
+    },
+    {
+      "id": "TC-2106",
+      "api": "API-215",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "claimAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/claim",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2107",
+      "api": "API-215",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "claimAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/claim",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2108",
+      "api": "API-215",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "claimAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/claim",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2109",
+      "api": "API-216",
+      "spec": [
+        "SPEC-313",
+        "SPEC-315"
+      ],
+      "operation": "replyToAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/reply",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2110",
+      "api": "API-216",
+      "spec": [
+        "SPEC-313",
+        "SPEC-315"
+      ],
+      "operation": "replyToAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/reply",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2111",
+      "api": "API-216",
+      "spec": [
+        "SPEC-313",
+        "SPEC-315"
+      ],
+      "operation": "replyToAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/reply",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2112",
+      "api": "API-216",
+      "spec": [
+        "SPEC-313",
+        "SPEC-315"
+      ],
+      "operation": "replyToAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/reply",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2113",
+      "api": "API-216",
+      "spec": [
+        "SPEC-313",
+        "SPEC-315"
+      ],
+      "operation": "replyToAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/reply",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2114",
+      "api": "API-216",
+      "spec": [
+        "SPEC-313",
+        "SPEC-315"
+      ],
+      "operation": "replyToAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/reply",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict",
+        "lease_expired"
+      ]
+    },
+    {
+      "id": "TC-2115",
+      "api": "API-216",
+      "spec": [
+        "SPEC-313",
+        "SPEC-315"
+      ],
+      "operation": "replyToAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/reply",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2116",
+      "api": "API-216",
+      "spec": [
+        "SPEC-313",
+        "SPEC-315"
+      ],
+      "operation": "replyToAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/reply",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2117",
+      "api": "API-216",
+      "spec": [
+        "SPEC-313",
+        "SPEC-315"
+      ],
+      "operation": "replyToAgentWork",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/reply",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2118",
+      "api": "API-217",
+      "spec": [
+        "SPEC-316"
+      ],
+      "operation": "proposeArtifactChange",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/proposals",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2119",
+      "api": "API-217",
+      "spec": [
+        "SPEC-316"
+      ],
+      "operation": "proposeArtifactChange",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/proposals",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2120",
+      "api": "API-217",
+      "spec": [
+        "SPEC-316"
+      ],
+      "operation": "proposeArtifactChange",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/proposals",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2121",
+      "api": "API-217",
+      "spec": [
+        "SPEC-316"
+      ],
+      "operation": "proposeArtifactChange",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/proposals",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2122",
+      "api": "API-217",
+      "spec": [
+        "SPEC-316"
+      ],
+      "operation": "proposeArtifactChange",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/proposals",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2123",
+      "api": "API-217",
+      "spec": [
+        "SPEC-316"
+      ],
+      "operation": "proposeArtifactChange",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/proposals",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict",
+        "lease_expired"
+      ]
+    },
+    {
+      "id": "TC-2124",
+      "api": "API-217",
+      "spec": [
+        "SPEC-316"
+      ],
+      "operation": "proposeArtifactChange",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/proposals",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2125",
+      "api": "API-217",
+      "spec": [
+        "SPEC-316"
+      ],
+      "operation": "proposeArtifactChange",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/proposals",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2126",
+      "api": "API-217",
+      "spec": [
+        "SPEC-316"
+      ],
+      "operation": "proposeArtifactChange",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/discussions/{discussionId}/proposals",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2127",
+      "api": "API-218",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "decideProposal",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/decision",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2128",
+      "api": "API-218",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "decideProposal",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/decision",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2129",
+      "api": "API-218",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "decideProposal",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/decision",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2130",
+      "api": "API-218",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "decideProposal",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/decision",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2131",
+      "api": "API-218",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "decideProposal",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/decision",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2132",
+      "api": "API-218",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "decideProposal",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/decision",
+      "response": "409",
+      "problem_examples": [
+        "stale_version",
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2133",
+      "api": "API-218",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "decideProposal",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/decision",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2134",
+      "api": "API-218",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "decideProposal",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/decision",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2135",
+      "api": "API-218",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "decideProposal",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/decision",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2136",
+      "api": "API-219",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordProposalReflection",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/reflection",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2137",
+      "api": "API-219",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordProposalReflection",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/reflection",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2138",
+      "api": "API-219",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordProposalReflection",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/reflection",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2139",
+      "api": "API-219",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordProposalReflection",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/reflection",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2140",
+      "api": "API-219",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordProposalReflection",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/reflection",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2141",
+      "api": "API-219",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordProposalReflection",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/reflection",
+      "response": "409",
+      "problem_examples": [
+        "stale_version",
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2142",
+      "api": "API-219",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordProposalReflection",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/reflection",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2143",
+      "api": "API-219",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordProposalReflection",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/reflection",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2144",
+      "api": "API-219",
+      "spec": [
+        "SPEC-314",
+        "SPEC-316"
+      ],
+      "operation": "recordProposalReflection",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/proposals/{proposalId}/reflection",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2145",
+      "api": "API-220",
+      "spec": [
+        "SPEC-317",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "requestCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2146",
+      "api": "API-220",
+      "spec": [
+        "SPEC-317",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "requestCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2147",
+      "api": "API-220",
+      "spec": [
+        "SPEC-317",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "requestCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2148",
+      "api": "API-220",
+      "spec": [
+        "SPEC-317",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "requestCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2149",
+      "api": "API-220",
+      "spec": [
+        "SPEC-317",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "requestCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2150",
+      "api": "API-220",
+      "spec": [
+        "SPEC-317",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "requestCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints",
+      "response": "409",
+      "problem_examples": [
+        "stale_version",
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2151",
+      "api": "API-220",
+      "spec": [
+        "SPEC-317",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "requestCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2152",
+      "api": "API-220",
+      "spec": [
+        "SPEC-317",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "requestCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2153",
+      "api": "API-220",
+      "spec": [
+        "SPEC-317",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "requestCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2154",
+      "api": "API-221",
+      "spec": [
+        "SPEC-317",
+        "SPEC-318",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-343"
+      ],
+      "operation": "getCheckpointReview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2155",
+      "api": "API-221",
+      "spec": [
+        "SPEC-317",
+        "SPEC-318",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-343"
+      ],
+      "operation": "getCheckpointReview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2156",
+      "api": "API-221",
+      "spec": [
+        "SPEC-317",
+        "SPEC-318",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-343"
+      ],
+      "operation": "getCheckpointReview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2157",
+      "api": "API-221",
+      "spec": [
+        "SPEC-317",
+        "SPEC-318",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-343"
+      ],
+      "operation": "getCheckpointReview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2158",
+      "api": "API-221",
+      "spec": [
+        "SPEC-317",
+        "SPEC-318",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-343"
+      ],
+      "operation": "getCheckpointReview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2159",
+      "api": "API-221",
+      "spec": [
+        "SPEC-317",
+        "SPEC-318",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-343"
+      ],
+      "operation": "getCheckpointReview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2160",
+      "api": "API-221",
+      "spec": [
+        "SPEC-317",
+        "SPEC-318",
+        "SPEC-320",
+        "SPEC-321",
+        "SPEC-343"
+      ],
+      "operation": "getCheckpointReview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2161",
+      "api": "API-222",
+      "spec": [
+        "SPEC-318",
+        "SPEC-319",
+        "SPEC-320"
+      ],
+      "operation": "decideCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/decisions",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2162",
+      "api": "API-222",
+      "spec": [
+        "SPEC-318",
+        "SPEC-319",
+        "SPEC-320"
+      ],
+      "operation": "decideCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/decisions",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2163",
+      "api": "API-222",
+      "spec": [
+        "SPEC-318",
+        "SPEC-319",
+        "SPEC-320"
+      ],
+      "operation": "decideCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/decisions",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2164",
+      "api": "API-222",
+      "spec": [
+        "SPEC-318",
+        "SPEC-319",
+        "SPEC-320"
+      ],
+      "operation": "decideCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/decisions",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden",
+        "human_session_required"
+      ]
+    },
+    {
+      "id": "TC-2165",
+      "api": "API-222",
+      "spec": [
+        "SPEC-318",
+        "SPEC-319",
+        "SPEC-320"
+      ],
+      "operation": "decideCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/decisions",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2166",
+      "api": "API-222",
+      "spec": [
+        "SPEC-318",
+        "SPEC-319",
+        "SPEC-320"
+      ],
+      "operation": "decideCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/decisions",
+      "response": "409",
+      "problem_examples": [
+        "stale_version",
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2167",
+      "api": "API-222",
+      "spec": [
+        "SPEC-318",
+        "SPEC-319",
+        "SPEC-320"
+      ],
+      "operation": "decideCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/decisions",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2168",
+      "api": "API-222",
+      "spec": [
+        "SPEC-318",
+        "SPEC-319",
+        "SPEC-320"
+      ],
+      "operation": "decideCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/decisions",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2169",
+      "api": "API-222",
+      "spec": [
+        "SPEC-318",
+        "SPEC-319",
+        "SPEC-320"
+      ],
+      "operation": "decideCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/decisions",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2170",
+      "api": "API-223",
+      "spec": [
+        "SPEC-319",
+        "SPEC-321",
+        "SPEC-323"
+      ],
+      "operation": "withdrawCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/withdrawals",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2171",
+      "api": "API-223",
+      "spec": [
+        "SPEC-319",
+        "SPEC-321",
+        "SPEC-323"
+      ],
+      "operation": "withdrawCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/withdrawals",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2172",
+      "api": "API-223",
+      "spec": [
+        "SPEC-319",
+        "SPEC-321",
+        "SPEC-323"
+      ],
+      "operation": "withdrawCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/withdrawals",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2173",
+      "api": "API-223",
+      "spec": [
+        "SPEC-319",
+        "SPEC-321",
+        "SPEC-323"
+      ],
+      "operation": "withdrawCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/withdrawals",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden",
+        "human_session_required"
+      ]
+    },
+    {
+      "id": "TC-2174",
+      "api": "API-223",
+      "spec": [
+        "SPEC-319",
+        "SPEC-321",
+        "SPEC-323"
+      ],
+      "operation": "withdrawCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/withdrawals",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2175",
+      "api": "API-223",
+      "spec": [
+        "SPEC-319",
+        "SPEC-321",
+        "SPEC-323"
+      ],
+      "operation": "withdrawCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/withdrawals",
+      "response": "409",
+      "problem_examples": [
+        "stale_version",
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2176",
+      "api": "API-223",
+      "spec": [
+        "SPEC-319",
+        "SPEC-321",
+        "SPEC-323"
+      ],
+      "operation": "withdrawCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/withdrawals",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2177",
+      "api": "API-223",
+      "spec": [
+        "SPEC-319",
+        "SPEC-321",
+        "SPEC-323"
+      ],
+      "operation": "withdrawCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/withdrawals",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2178",
+      "api": "API-223",
+      "spec": [
+        "SPEC-319",
+        "SPEC-321",
+        "SPEC-323"
+      ],
+      "operation": "withdrawCheckpoint",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/checkpoints/{checkpointId}/withdrawals",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2179",
+      "api": "API-224",
+      "spec": [
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "listProjectVersions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/versions",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2180",
+      "api": "API-224",
+      "spec": [
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "listProjectVersions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/versions",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2181",
+      "api": "API-224",
+      "spec": [
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "listProjectVersions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/versions",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2182",
+      "api": "API-224",
+      "spec": [
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "listProjectVersions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/versions",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2183",
+      "api": "API-224",
+      "spec": [
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "listProjectVersions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/versions",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2184",
+      "api": "API-224",
+      "spec": [
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "listProjectVersions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/versions",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2185",
+      "api": "API-224",
+      "spec": [
+        "SPEC-321",
+        "SPEC-322",
+        "SPEC-324"
+      ],
+      "operation": "listProjectVersions",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/versions",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2186",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2187",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2188",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2189",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2190",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2191",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict",
+        "unmerged_commit",
+        "older_publication",
+        "consent_required"
+      ]
+    },
+    {
+      "id": "TC-2192",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2193",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2194",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "503",
+      "problem_examples": [
+        "authentication_unavailable",
+        "source_verification_unavailable"
+      ]
+    },
+    {
+      "id": "TC-2195",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "504",
+      "problem_examples": [
+        "upstream_timeout"
+      ]
+    },
+    {
+      "id": "TC-2196",
+      "api": "API-225",
+      "spec": [
+        "SPEC-325",
+        "SPEC-326",
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "publishSnapshot",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publications",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2197",
+      "api": "API-226",
+      "spec": [
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "getPublicationReceipt",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/publications/{publicationId}",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2198",
+      "api": "API-226",
+      "spec": [
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "getPublicationReceipt",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/publications/{publicationId}",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2199",
+      "api": "API-226",
+      "spec": [
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "getPublicationReceipt",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/publications/{publicationId}",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2200",
+      "api": "API-226",
+      "spec": [
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "getPublicationReceipt",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/publications/{publicationId}",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ],
+      "state": "removed",
+      "reason": "All authenticated project roles have scoped read access. The contract retains 401 and project-scoped 404."
+    },
+    {
+      "id": "TC-2201",
+      "api": "API-226",
+      "spec": [
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "getPublicationReceipt",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/publications/{publicationId}",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2202",
+      "api": "API-226",
+      "spec": [
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "getPublicationReceipt",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/publications/{publicationId}",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2203",
+      "api": "API-226",
+      "spec": [
+        "SPEC-327",
+        "SPEC-328",
+        "SPEC-329"
+      ],
+      "operation": "getPublicationReceipt",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/publications/{publicationId}",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2204",
+      "api": "API-227",
+      "spec": [
+        "SPEC-326"
+      ],
+      "operation": "consentFirstPublication",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publication-consents",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2205",
+      "api": "API-227",
+      "spec": [
+        "SPEC-326"
+      ],
+      "operation": "consentFirstPublication",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publication-consents",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2206",
+      "api": "API-227",
+      "spec": [
+        "SPEC-326"
+      ],
+      "operation": "consentFirstPublication",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publication-consents",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2207",
+      "api": "API-227",
+      "spec": [
+        "SPEC-326"
+      ],
+      "operation": "consentFirstPublication",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publication-consents",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2208",
+      "api": "API-227",
+      "spec": [
+        "SPEC-326"
+      ],
+      "operation": "consentFirstPublication",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publication-consents",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2209",
+      "api": "API-227",
+      "spec": [
+        "SPEC-326"
+      ],
+      "operation": "consentFirstPublication",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publication-consents",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2210",
+      "api": "API-227",
+      "spec": [
+        "SPEC-326"
+      ],
+      "operation": "consentFirstPublication",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publication-consents",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2211",
+      "api": "API-227",
+      "spec": [
+        "SPEC-326"
+      ],
+      "operation": "consentFirstPublication",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publication-consents",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2212",
+      "api": "API-227",
+      "spec": [
+        "SPEC-326"
+      ],
+      "operation": "consentFirstPublication",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/publication-consents",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2213",
+      "api": "API-228",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "listProjectCredentials",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2214",
+      "api": "API-228",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "listProjectCredentials",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2215",
+      "api": "API-228",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "listProjectCredentials",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2216",
+      "api": "API-228",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "listProjectCredentials",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2217",
+      "api": "API-228",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "listProjectCredentials",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2218",
+      "api": "API-228",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "listProjectCredentials",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2219",
+      "api": "API-228",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "listProjectCredentials",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2220",
+      "api": "API-229",
+      "spec": [
+        "SPEC-319",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "issueProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2221",
+      "api": "API-229",
+      "spec": [
+        "SPEC-319",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "issueProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2222",
+      "api": "API-229",
+      "spec": [
+        "SPEC-319",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "issueProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2223",
+      "api": "API-229",
+      "spec": [
+        "SPEC-319",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "issueProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2224",
+      "api": "API-229",
+      "spec": [
+        "SPEC-319",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "issueProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2225",
+      "api": "API-229",
+      "spec": [
+        "SPEC-319",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "issueProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2226",
+      "api": "API-229",
+      "spec": [
+        "SPEC-319",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "issueProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2227",
+      "api": "API-229",
+      "spec": [
+        "SPEC-319",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "issueProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2228",
+      "api": "API-229",
+      "spec": [
+        "SPEC-319",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "issueProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2229",
+      "api": "API-229",
+      "spec": [
+        "SPEC-319",
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "issueProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2230",
+      "api": "API-230",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "revokeProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials/{credentialId}/revoke",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2231",
+      "api": "API-230",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "revokeProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials/{credentialId}/revoke",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2232",
+      "api": "API-230",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "revokeProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials/{credentialId}/revoke",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2233",
+      "api": "API-230",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "revokeProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials/{credentialId}/revoke",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2234",
+      "api": "API-230",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "revokeProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials/{credentialId}/revoke",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2235",
+      "api": "API-230",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "revokeProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials/{credentialId}/revoke",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2236",
+      "api": "API-230",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "revokeProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials/{credentialId}/revoke",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2237",
+      "api": "API-230",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "revokeProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials/{credentialId}/revoke",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2238",
+      "api": "API-230",
+      "spec": [
+        "SPEC-332",
+        "SPEC-333"
+      ],
+      "operation": "revokeProjectCredential",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/credentials/{credentialId}/revoke",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2239",
+      "api": "API-231",
+      "spec": [
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getIsolatedPreview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/previews/{artifactId}",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2240",
+      "api": "API-231",
+      "spec": [
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getIsolatedPreview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/previews/{artifactId}",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2241",
+      "api": "API-231",
+      "spec": [
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getIsolatedPreview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/previews/{artifactId}",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2242",
+      "api": "API-231",
+      "spec": [
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getIsolatedPreview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/previews/{artifactId}",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2243",
+      "api": "API-231",
+      "spec": [
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getIsolatedPreview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/previews/{artifactId}",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2244",
+      "api": "API-231",
+      "spec": [
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getIsolatedPreview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/previews/{artifactId}",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2245",
+      "api": "API-231",
+      "spec": [
+        "SPEC-307",
+        "SPEC-308",
+        "SPEC-337"
+      ],
+      "operation": "getIsolatedPreview",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/previews/{artifactId}",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2246",
+      "api": "API-232",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "getPublicSample",
+      "method": "GET",
+      "path": "/api/v2/sample",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2247",
+      "api": "API-232",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "getPublicSample",
+      "method": "GET",
+      "path": "/api/v2/sample",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2248",
+      "api": "API-232",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "getPublicSample",
+      "method": "GET",
+      "path": "/api/v2/sample",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2249",
+      "api": "API-232",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "getPublicSample",
+      "method": "GET",
+      "path": "/api/v2/sample",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2250",
+      "api": "API-233",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "createPrivateSampleProject",
+      "method": "POST",
+      "path": "/api/v2/sample-projects",
+      "response": "201",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2251",
+      "api": "API-233",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "createPrivateSampleProject",
+      "method": "POST",
+      "path": "/api/v2/sample-projects",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2252",
+      "api": "API-233",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "createPrivateSampleProject",
+      "method": "POST",
+      "path": "/api/v2/sample-projects",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2253",
+      "api": "API-233",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "createPrivateSampleProject",
+      "method": "POST",
+      "path": "/api/v2/sample-projects",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2254",
+      "api": "API-233",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "createPrivateSampleProject",
+      "method": "POST",
+      "path": "/api/v2/sample-projects",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict"
+      ]
+    },
+    {
+      "id": "TC-2255",
+      "api": "API-233",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "createPrivateSampleProject",
+      "method": "POST",
+      "path": "/api/v2/sample-projects",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2256",
+      "api": "API-233",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "createPrivateSampleProject",
+      "method": "POST",
+      "path": "/api/v2/sample-projects",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2257",
+      "api": "API-233",
+      "spec": [
+        "SPEC-348",
+        "SPEC-350"
+      ],
+      "operation": "createPrivateSampleProject",
+      "method": "POST",
+      "path": "/api/v2/sample-projects",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2258",
+      "api": "API-234",
+      "spec": [
+        "SPEC-303",
+        "SPEC-312",
+        "SPEC-313",
+        "SPEC-315",
+        "SPEC-337"
+      ],
+      "operation": "pollProjectEvents",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/events",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2259",
+      "api": "API-234",
+      "spec": [
+        "SPEC-303",
+        "SPEC-312",
+        "SPEC-313",
+        "SPEC-315",
+        "SPEC-337"
+      ],
+      "operation": "pollProjectEvents",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/events",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2260",
+      "api": "API-234",
+      "spec": [
+        "SPEC-303",
+        "SPEC-312",
+        "SPEC-313",
+        "SPEC-315",
+        "SPEC-337"
+      ],
+      "operation": "pollProjectEvents",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/events",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2261",
+      "api": "API-234",
+      "spec": [
+        "SPEC-303",
+        "SPEC-312",
+        "SPEC-313",
+        "SPEC-315",
+        "SPEC-337"
+      ],
+      "operation": "pollProjectEvents",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/events",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ],
+      "state": "removed",
+      "reason": "All authenticated project roles have scoped read access. The contract retains 401 and project-scoped 404."
+    },
+    {
+      "id": "TC-2262",
+      "api": "API-234",
+      "spec": [
+        "SPEC-303",
+        "SPEC-312",
+        "SPEC-313",
+        "SPEC-315",
+        "SPEC-337"
+      ],
+      "operation": "pollProjectEvents",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/events",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2263",
+      "api": "API-234",
+      "spec": [
+        "SPEC-303",
+        "SPEC-312",
+        "SPEC-313",
+        "SPEC-315",
+        "SPEC-337"
+      ],
+      "operation": "pollProjectEvents",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/events",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2264",
+      "api": "API-234",
+      "spec": [
+        "SPEC-303",
+        "SPEC-312",
+        "SPEC-313",
+        "SPEC-315",
+        "SPEC-337"
+      ],
+      "operation": "pollProjectEvents",
+      "method": "GET",
+      "path": "/api/v2/projects/{projectId}/events",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2265",
+      "api": "API-235",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "renewAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/renew",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2266",
+      "api": "API-235",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "renewAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/renew",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2267",
+      "api": "API-235",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "renewAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/renew",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2268",
+      "api": "API-235",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "renewAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/renew",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2269",
+      "api": "API-235",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "renewAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/renew",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2270",
+      "api": "API-235",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "renewAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/renew",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict",
+        "lease_expired"
+      ]
+    },
+    {
+      "id": "TC-2271",
+      "api": "API-235",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "renewAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/renew",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2272",
+      "api": "API-235",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "renewAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/renew",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2273",
+      "api": "API-235",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "renewAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/renew",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    },
+    {
+      "id": "TC-2274",
+      "api": "API-236",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "releaseAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/release",
+      "response": "200",
+      "problem_examples": []
+    },
+    {
+      "id": "TC-2275",
+      "api": "API-236",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "releaseAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/release",
+      "response": "400",
+      "problem_examples": [
+        "invalid_input"
+      ]
+    },
+    {
+      "id": "TC-2276",
+      "api": "API-236",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "releaseAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/release",
+      "response": "401",
+      "problem_examples": [
+        "sign_in_required"
+      ]
+    },
+    {
+      "id": "TC-2277",
+      "api": "API-236",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "releaseAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/release",
+      "response": "403",
+      "problem_examples": [
+        "operation_forbidden"
+      ]
+    },
+    {
+      "id": "TC-2278",
+      "api": "API-236",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "releaseAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/release",
+      "response": "404",
+      "problem_examples": [
+        "not_found"
+      ]
+    },
+    {
+      "id": "TC-2279",
+      "api": "API-236",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "releaseAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/release",
+      "response": "409",
+      "problem_examples": [
+        "state_conflict",
+        "idempotency_conflict",
+        "lease_expired"
+      ]
+    },
+    {
+      "id": "TC-2280",
+      "api": "API-236",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "releaseAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/release",
+      "response": "413",
+      "problem_examples": [
+        "payload_too_large"
+      ]
+    },
+    {
+      "id": "TC-2281",
+      "api": "API-236",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "releaseAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/release",
+      "response": "429",
+      "problem_examples": [
+        "rate_limited"
+      ]
+    },
+    {
+      "id": "TC-2282",
+      "api": "API-236",
+      "spec": [
+        "SPEC-315"
+      ],
+      "operation": "releaseAgentClaim",
+      "method": "POST",
+      "path": "/api/v2/projects/{projectId}/agent/work/{workId}/release",
+      "response": "default",
+      "problem_examples": [
+        "internal_error"
+      ]
+    }
+  ]
+}

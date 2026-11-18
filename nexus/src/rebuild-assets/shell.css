@@ -43,10 +43,21 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--space-xxl); }
 .narrow { max-width: 650px; }
 .notice { border: 1px solid var(--color-control); border-radius: var(--radius-control); background: var(--color-surface); padding: var(--space-lg); }
 .notice.error { background: var(--color-dangerBg); color: var(--color-danger); }
+.confirmation-dialog { width: min(32rem, calc(100% - 2 * var(--space-xl))); color: var(--color-ink); }
+.confirmation-dialog > * + * { margin-top: var(--space-md); }
+.confirmation-dialog .error { color: var(--color-danger); }
+.confirmation-dialog .error:empty { display: none; }
+.confirmation-dialog::backdrop { background: color-mix(in srgb, var(--color-ink) 60%, transparent); }
 .workspace { display: grid; grid-template-columns: minmax(0, var(--size-sidebar)) minmax(0, 1fr); gap: var(--space-xl); }
 .stage-list { list-style: none; margin: 0; padding: 0; }
 .stage-list a { display: flex; align-items: center; gap: var(--space-sm); min-height: var(--size-target); padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-control); }
 .stage-list a[aria-current="page"] { background: var(--color-selected); font-weight: 650; }
+.stage-list .stage-summary { display: block; font-weight: 400; overflow-wrap: anywhere; }
+.preview-viewport { overflow: auto; max-width: 100%; }
+.preview-frame[data-width="320"] { width: 320px; }
+.preview-frame[data-width="390"] { width: 390px; }
+.preview-frame[data-width="768"] { width: 768px; }
+.preview-frame[data-width="1440"] { width: 1440px; }
 @media (max-width: 900px) { .features, .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero { gap: var(--space-xl); } }
 @media (max-width: 680px) {
   main { padding: var(--space-lg); }
@@ -87,4 +98,8 @@ input[type=checkbox] { display: inline-block; width: 1.1rem; min-height: 1.1rem;
 .thread-text { white-space: pre-wrap; overflow-wrap: anywhere; }
 .checkpoint-history { list-style: none; padding: 0; }
 .checkpoint-history li { border-top: 1px solid var(--color-line); padding: var(--space-md) 0; }
+.checkpoint-confirm { display: flex; gap: var(--space-sm); min-height: var(--size-target); align-items: center; }
+.checkpoint-confirm input { flex: 0 0 24px; width: 24px; height: 24px; margin: 0; }
+.version-entry { padding: var(--space-md) 0; }
+.version-entry .row a { display: inline-flex; align-items: center; min-height: var(--size-target); }
 #checkpoint-links:empty { display: none; }

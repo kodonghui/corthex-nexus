@@ -35,6 +35,7 @@ async function problem(response, status, code, op) {
 test("each approved v2 HTTP operation is reachable and shares the declared refusals", async (t) => {
   const normal = await fixture(t);
   const limited = await fixture(t, { require: () => { throw new RebuildProblem("rate_limited", { "Retry-After": "20" }); } });
+  const failed = await fixture(t, { require: () => { throw new Error("Synthetic internal detail"); } });
   let operations = 0;
   for (const [template, pathOperations] of Object.entries(contract.paths)) {
     const route = template.replace(/\{(\w+)\}/g, (_, name) => sampleParams[name] || "fixture_id");
@@ -52,6 +53,9 @@ test("each approved v2 HTTP operation is reachable and shares the declared refus
       }
       if (definition.security.length && definition.responses["401"]) {
         await problem(await normal(route, action), 401, "sign_in_required", op);
+      }
+      if (definition.responses.default) {
+        await problem(await failed(route, action), 500, "internal_error", op);
       }
     }
   }

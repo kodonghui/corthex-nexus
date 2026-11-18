@@ -1,6 +1,6 @@
 {
   "scope": "Static contract discovery and in-memory initial DDL; no real v2 server",
-  "contractSha256": "0d743dd8a140de41a9ef93c36929015f2b1faf671e2658b26bc8f14fd075be8f",
+  "contractSha256": "23f8bec898872545d15ed1451c210a5bb1b93a238e80cd2e10531c2260f879b6",
   "passed": [
     "claimed work identifies its original question and discussion",
     "work identifies a resolvable original source",

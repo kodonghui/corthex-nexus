@@ -162,10 +162,17 @@
       "updated": "2026-11-19T01:23:10+09:00"
     },
     "12-qa": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "Design cycle through stage 10 is authored under the explicit continuation instruction. Await the next authorized execution scope and actual human checkpoint gates; legacy approvals never substitute.",
-      "updated": "2026-11-18T04:52:34+09:00"
+      "next": "Finish exact-candidate browser retests, authenticated staging latency and private publication before the human QA checkpoint.",
+      "checks": [
+        {
+          "level": "info",
+          "message": "All 281 active response cases across 36 HTTP operations were exercised; the protected backup replay restored all acknowledged rehearsal writes.",
+          "at": "2026-11-19"
+        }
+      ],
+      "updated": "2026-11-19T02:11:26+09:00"
     },
     "13-presentation": {
       "state": "not_started",

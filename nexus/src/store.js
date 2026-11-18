@@ -378,6 +378,10 @@ export function applyRebuildSchema(connection, initialSchema) {
 }
 
 const REBUILD_PROJECT_COLUMNS = "id,slug,title,repository_url,default_branch,synthetic,row_revision,held_publication_id";
+const REBUILD_ARTIFACT_SOURCE = `SELECT a.*,p.repository_url,p.held_publication_id,p.synthetic,v.commit_sha,
+  v.revision AS publication_revision,v.received_at AS published_at
+  FROM stage_artifacts a JOIN projects p ON p.id=a.project_id
+  JOIN publications v ON a.publication_id=v.id AND a.project_id=v.project_id`;
 
 function rebuildProject(row) {
   if (!row) return null;
@@ -506,6 +510,21 @@ export class RebuildStore {
   listProjects(owner, after, limit) {
     return this.connection.prepare(`SELECT ${REBUILD_PROJECT_COLUMNS} FROM projects
       WHERE owner_id=? AND archived_at IS NULL AND id>? ORDER BY id LIMIT ?`).all(owner, after, limit).map(rebuildProject);
+  }
+
+  projectReviews(owner, ids) {
+    return this.connection.prepare(`SELECT p.id,v.received_at AS published_at,
+        (SELECT count(*) FROM discussions d WHERE d.project_id=p.id AND d.state='open') AS waiting_discussions,
+        (SELECT json_group_array(json_object('id',a.id,'part',a.part,'stage',a.stage,
+          'content_version',a.content_version,'representation',a.representation) ORDER BY a.part,a.stage)
+          FROM stage_artifacts a WHERE a.project_id=p.id AND a.publication_id=p.held_publication_id) AS artifacts,
+        (SELECT json_group_array(json_object('id',c.id,'part',a.part,'stage',a.stage,
+          'content_version',c.content_version,'state',c.state) ORDER BY h.revision DESC,c.requested_at DESC,c.id)
+          FROM checkpoint_requests c JOIN stage_artifacts a ON a.project_id=c.project_id AND a.id=c.artifact_id
+          JOIN publications h ON h.project_id=a.project_id AND h.id=a.publication_id WHERE c.project_id=p.id) AS checkpoints
+      FROM projects p LEFT JOIN publications v ON v.project_id=p.id AND v.id=p.held_publication_id
+      WHERE p.owner_id=? AND p.archived_at IS NULL AND p.id IN (SELECT value FROM json_each(?)) ORDER BY p.id`)
+      .all(owner, JSON.stringify(ids)).map((row) => ({ ...row, artifacts: JSON.parse(row.artifacts), checkpoints: JSON.parse(row.checkpoints) }));
   }
 
   project(owner, id) {
@@ -695,10 +714,7 @@ export class RebuildStore {
 
   artifact(project, part, stage, selection) {
     const { version, publication } = selection;
-    return this.connection.prepare(`SELECT a.*,p.repository_url,p.held_publication_id,p.synthetic,v.commit_sha,
-        v.revision AS publication_revision,v.received_at AS published_at
-      FROM stage_artifacts a JOIN projects p ON p.id=a.project_id
-      JOIN publications v ON a.publication_id=v.id AND a.project_id=v.project_id
+    return this.connection.prepare(`${REBUILD_ARTIFACT_SOURCE}
       WHERE p.id=? AND a.part=? AND a.stage=?
         AND (? IS NULL OR a.content_version=?) AND (? IS NULL OR a.publication_id=?)
         AND (? IS NOT NULL OR ? IS NOT NULL OR a.publication_id=p.held_publication_id)
@@ -706,8 +722,8 @@ export class RebuildStore {
   }
 
   artifactById(project, id, version) {
-    return this.connection.prepare(`SELECT id,content_version,representation,source_path,source_json FROM stage_artifacts
-      WHERE project_id=? AND id=? AND (? IS NULL OR content_version=?)`).get(project, id, version, version) ?? null;
+    return this.connection.prepare(`${REBUILD_ARTIFACT_SOURCE}
+      WHERE a.project_id=? AND a.id=? AND (? IS NULL OR a.content_version=?)`).get(project, id, version, version) ?? null;
   }
 
   artifactItems(project, artifact, after, limit, only) {
@@ -735,8 +751,9 @@ export class RebuildStore {
 
   versions(project, prior, limit) {
     return this.connection.prepare(`SELECT v.id AS publication_id,v.commit_sha AS "commit",v.revision AS publication_revision,
-      v.received_at AS published_at,a.part,a.stage,a.id AS artifact_id,a.content_version
+      v.received_at AS published_at,a.part,a.stage,a.id AS artifact_id,a.content_version,(v.id=p.held_publication_id) AS held
       FROM stage_artifacts a JOIN publications v ON v.project_id=a.project_id AND v.id=a.publication_id
+      JOIN projects p ON p.id=a.project_id
       WHERE a.project_id=? AND (v.revision<? OR (v.revision=? AND (a.part,a.stage,a.id)>(?,?,?)))
       ORDER BY v.revision DESC,a.part,a.stage,a.id LIMIT ?`)
       .all(project, prior.revision, prior.revision, prior.part, prior.stage, prior.id, limit);
@@ -940,13 +957,16 @@ export class RebuildStore {
   }
 
   checkpointRecord(project, id) {
-    return this.connection.prepare(`SELECT c.id,c.state,c.content_version,c.row_revision AS revision,a.part,a.stage,a.publication_id
+    return this.connection.prepare(`SELECT c.id,c.state,c.content_version,c.row_revision AS revision,a.part,a.stage,a.publication_id,
+      v.commit_sha AS source_commit
       FROM checkpoint_requests c JOIN stage_artifacts a ON a.project_id=c.project_id AND a.id=c.artifact_id
+      JOIN publications v ON v.project_id=a.project_id AND v.id=a.publication_id
       WHERE c.project_id=? AND c.id=?`).get(project, id) ?? null;
   }
 
   checkpointHistory(project, id) {
-    return this.connection.prepare(`SELECT id,decision,content_version,decided_at,coalesce(json_extract(legacy_actor_json,'$.label'),actor_owner_id) AS decided_by,reason
+    return this.connection.prepare(`SELECT id,decision,content_version,decided_at,prior_decision_id,
+      coalesce(json_extract(legacy_actor_json,'$.label'),actor_owner_id) AS decided_by,reason
       FROM checkpoint_decisions WHERE project_id=? AND request_id=? ORDER BY sequence DESC LIMIT 100`).all(project, id).reverse();
   }
 

@@ -71,7 +71,7 @@ class PictureRegistrationTest(GitSourcesFixture):
             record = value['parts']['rebuild']
             approved_design = stage in ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap', '08-screen-states', '09-mockup', '10-wbs')
             approved_development = stage == '11-development'
-            expected_state = 'done' if approved_design or approved_development else 'not_started'
+            expected_state = 'done' if approved_design or approved_development else 'in_progress' if stage == '12-qa' else 'not_started'
             self.assertEqual(record['state'], expected_state)
             if stage == '01-domain':
                 self.assertEqual(len(record['checkpoints']), 2)

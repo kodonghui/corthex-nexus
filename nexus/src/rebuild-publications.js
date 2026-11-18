@@ -102,8 +102,11 @@ export function publicationHandlers({ store, github, access, writeContext, limit
       versions.pop();
       next_cursor = pageCursor(actor.token, scope, versions.at(-1).artifact_id);
     }
-    return rebuildJSON({ versions: versions.map((version) => ({ ...version,
-      ...checkpointSummary(store.artifactCheckpoints(projectId, version.part, version.stage, version.content_version), version.content_version) })), next_cursor });
+    return rebuildJSON({ versions: versions.map((version) => {
+      const checkpoints = store.artifactCheckpoints(projectId, version.part, version.stage, version.content_version);
+      return { ...version, held: Boolean(version.held), ...checkpointSummary(checkpoints, version.content_version),
+        matching_checkpoint_ids: checkpoints.filter((row) => row.content_version === version.content_version).map(({ id }) => id) };
+    }), next_cursor });
   }
 
   function getPublicationReceipt(request, _url, now, { projectId, publicationId }) {
@@ -176,9 +179,10 @@ export function publicationHandlers({ store, github, access, writeContext, limit
     const artifact = store.artifactById(projectId, artifactId, version);
     if (artifact?.representation !== "html") throw new RebuildProblem("not_found");
     const file = JSON.parse(artifact.source_json).source_files?.find((source) => source.path === artifact.source_path && source.media_type === "text/html");
-    if (!file?.content_utf8) throw new RebuildProblem("not_found");
-    return rebuildJSON({ artifact_id: artifact.id, content_version: artifact.content_version,
-      html: file.content_utf8, sandbox: "allow-scripts", csp: previewPolicy });
+    const source = provenance(artifact);
+    if (!file?.content_utf8 || !source) throw new RebuildProblem("not_found");
+    return rebuildJSON({ artifact_id: artifact.id, content_version: artifact.content_version, part: artifact.part,
+      source, html: file.content_utf8, sandbox: "allow-scripts", csp: previewPolicy });
   }
 
   return { getStageArtifact: readArtifact, getArtifactItem: readArtifact, listProjectVersions,
