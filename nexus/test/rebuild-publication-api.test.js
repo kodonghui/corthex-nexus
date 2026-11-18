@@ -169,6 +169,19 @@ test("schema and rendering keep multi-file relations, routable parts and preview
   assert.ok(!source.headers.get("Content-Security-Policy").includes("unsafe-inline"));
 });
 
+test("a committed translation preserves the original review item and contributes to the content digest", () => {
+  const original = inputFile("docs/prd.md", "| REQ-301 | Canonical requirement |\n");
+  const translation = inputFile("docs/prd.ko.md", "| REQ-301 | 번역 요구사항 |\n");
+  const stage = { part: "main", stage: "02-prd" };
+  const [dual] = prepareArtifacts([{ ...stage, source_files: [translation, original] }]);
+  const [single] = prepareArtifacts([{ ...stage, source_files: [original] }]);
+  assert.equal(dual.items[0].title, "Canonical requirement");
+  assert.equal(dual.items[0].path, original.path);
+  assert.notEqual(dual.contentVersion, single.contentVersion);
+  const [koreanOnly] = prepareArtifacts([{ ...stage, source_files: [translation] }]);
+  assert.equal(koreanOnly.items[0].title, "번역 요구사항");
+});
+
 test("API-225/227 confirms consent and Git blobs, preserves retry receipts/history and rejects an older base", async (t) => {
   const initial = snapshot(), metadata = snapshot("2", initial.commit), changed = snapshot("3", metadata.commit, "REQ-303");
   const upstream = gitFixture([initial, metadata, changed]);
