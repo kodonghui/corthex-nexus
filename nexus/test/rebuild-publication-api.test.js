@@ -6,11 +6,12 @@ import { createNodeServer } from "../src/node-server.js";
 import { createRebuildHandler } from "../src/rebuild-app.js";
 import { csrfToken, iso, OWNER_COOKIE, randomToken, resourceId } from "../src/rebuild-auth.js";
 import { canonicalJSON, sha256 } from "../src/rebuild-http.js";
+import { rebuildView } from "../src/rebuild-views.js";
 import { RebuildGitHub } from "../src/rebuild-github.js";
 import { openRebuildDatabase } from "../src/rebuild-sqlite.js";
 import { parserVersion, prepareArtifacts, previewDigest } from "../src/rebuild-source.js";
 import { RebuildStore } from "../src/store.js";
-import { seedRebuildFixture } from "./rebuild-fixture.js";
+import { insertFixtureRow, seedRebuildFixture } from "./rebuild-fixture.js";
 
 const origin = "https://rebuild.example.test";
 const now = Date.parse("2026-11-18T04:00:00Z");
@@ -150,6 +151,24 @@ test("approved preview digest and parsed source evidence are stable across trans
   assert.equal(contentVersion, sha256(canonicalJSON(envelope)));
 });
 
+test("schema and rendering keep multi-file relations, routable parts and preview policy", () => {
+  const artifact = { part: "main", stage: "05-erd", source_files: [
+    inputFile("db/child.sql", "-- TBL-127 Child\nCREATE TABLE child (parent_id TEXT REFERENCES parent(id));\n", "application/sql"),
+    inputFile("db/parent.sql", "-- TBL-126 Parent\nCREATE TABLE parent (id TEXT PRIMARY KEY);\n", "application/sql"),
+  ] };
+  const [result] = prepareArtifacts([artifact]);
+  assert.deepEqual(result.graph.edges, [{ from: "TBL-127", to: "TBL-126", label: "foreign key" }]);
+  assert.deepEqual(result.diagnostics, []);
+  for (const part of [".", ".."]) assert.throws(() => prepareArtifacts([{ ...artifact, part }]), { code: "invalid_input" });
+  const preview = rebuildView(new Request(origin + "/p/prj_test/preview/art_test"), "en");
+  const source = rebuildView(new Request(origin + "/p/prj_test/main/02-prd"), "en");
+  const header = preview.headers.get("Content-Security-Policy");
+  assert.match(header, /script-src 'self' 'unsafe-inline'/);
+  assert.match(header, /style-src 'self' 'unsafe-inline'/);
+  assert.match(header, /frame-src 'none'/);
+  assert.ok(!source.headers.get("Content-Security-Policy").includes("unsafe-inline"));
+});
+
 test("API-225/227 confirms consent and Git blobs, preserves retry receipts/history and rejects an older base", async (t) => {
   const initial = snapshot(), metadata = snapshot("2", initial.commit), changed = snapshot("3", metadata.commit, "REQ-303");
   const upstream = gitFixture([initial, metadata, changed]);
@@ -216,6 +235,12 @@ test("API-228–230 issues one project-scoped secret and grants access only unti
   await expect(await f.get("/credentials", f.foreign), 404, "not_found");
   await expect(await f.call(`/projects/${f.project}/credentials`, secret, "GET", undefined, undefined, true), 403, "operation_forbidden");
   await expect(await f.call(`/projects/${f.seed.projectId}/publications/pub_demo`, secret, "GET", undefined, undefined, true), 404, "not_found");
+  for (let i = 0; i < 105; i++) insertFixtureRow(f.db, "project_credentials", { id: "cred_past_" + i, owner_id: f.seed.owner,
+    project_id: f.project, role: "publisher", label: "Revoked fixture", secret_hash: sha256("past:" + i),
+    created_at: "2026-11-18T04:01:00.000Z", revoked_at: "2026-11-18T04:01:01.000Z" });
+  const listing = await expect(await f.get("/credentials"), 200);
+  assert.equal(listing.credentials.length, 100);
+  assert.equal(listing.credentials[0].id, credential.id);
   const revoked = await expect(await f.post(`/credentials/${credential.id}/revoke`, { credential_id: credential.id }), 200);
   assert.equal(revoked.revoked, true);
   await expect(await f.publish(snapshot(), secret), 401, "sign_in_required");

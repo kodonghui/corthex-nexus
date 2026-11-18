@@ -9,7 +9,7 @@ export const idPattern = /^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$/;
 export const tracePattern = /^[A-Z]+-[0-9]{3,7}(?:#[A-Za-z0-9_-]{1,64})?$/;
 export const digestPattern = /^[a-f0-9]{64}$/;
 export const commitPattern = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/;
-export const partPattern = /^[^/\\?#%\p{C}]{1,80}$/u;
+export const partPattern = /^(?!\.{1,2}$)[^/\\?#%\p{C}]{1,80}$/u;
 export const previewPolicy = schemas.Preview.properties.csp.const;
 
 // Compile exact path and method registrations from the approved contract.
