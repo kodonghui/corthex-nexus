@@ -29,3 +29,5 @@ The inventory records schema and counts, original IDs and row digests, snapshot 
 The release evidence index names the exact candidate and each protected report with its SHA-256 digest. The check validates API, browser, performance, migration, recovery, compatibility, preview, OIDC, publication and owner checkpoint results. It returns a keep decision until all reports meet their acceptance conditions. The separately configured service unit and environment example are in `nexus/ops/`.
 
 The development rehearsal used three synthetic legacy projects and restored two writes acknowledged after backup. The production inventory, actual owner mapping, live migration and routing switch require protected server access.
+
+Set `NEXUS_METRICS=1` in the protected runtime environment to measure request processing and after-body duration. The same setting enables process-local outcome counters for received publications or notes, queued questions, skipped retries, failures, expired claims and refusals. An error counter uses the trace ID from its problem response. Metrics contain numeric timings, sizes and counts, fixed outcomes, and generated trace IDs.

@@ -40,7 +40,8 @@ async function fixture(t, github = null) {
   };
   const owner = issue(seed.owner);
   const foreign = issue(seed.otherOwner);
-  const handler = createRebuildHandler({ origin, store, github, clock: () => now });
+  const outcomes = [];
+  const handler = createRebuildHandler({ origin, store, github, clock: () => now, onOutcome: (event) => outcomes.push(event) });
   const server = createNodeServer({ origin, handleRequest: handler });
   const address = await server.start();
   t.after(async () => {
@@ -71,7 +72,7 @@ async function fixture(t, github = null) {
     assert.equal(response.status, 201);
     return { ...input, consent_id: (await response.json()).id };
   };
-  return { db, seed, owner, foreign, call, post, get, credential, project, consent,
+  return { db, seed, owner, foreign, call, post, get, credential, project, consent, outcomes,
     publish: (input, secret, key) => call(start + "/publications", secret, "POST", input, key, true) };
 }
 async function expect(response, status, code) {
@@ -187,7 +188,8 @@ test("API-225/227 confirms consent and Git blobs, preserves retry receipts/histo
   const upstream = gitFixture([initial, metadata, changed]);
   const f = await fixture(t, upstream.github);
   const { secret } = await f.credential();
-  await expect(await f.publish(initial, secret), 409, "consent_required");
+  const refused = await expect(await f.publish(initial, secret), 409, "consent_required");
+  assert.deepEqual(f.outcomes.at(-1), { outcome: "refused", traceId: refused.traceId });
   const accepted = await f.consent(initial);
   await expect(await f.publish({ ...accepted, commit: sha("4") }, secret), 409, "consent_required");
   upstream.denied = initial.commit;
@@ -200,9 +202,11 @@ test("API-225/227 confirms consent and Git blobs, preserves retry receipts/histo
   const key = resourceId("repeat");
   const first = await expect(await f.publish(ready, secret, key), 201);
   assert.equal(first.revision, 1);
+  assert.deepEqual(f.outcomes.at(-1), { outcome: "received", traceId: undefined });
   assert.deepEqual(await expect(await f.get("/publications/" + first.id), 200), first);
   upstream.error = "denied";
   assert.deepEqual(await expect(await f.publish(ready, secret, key), 201), first);
+  assert.deepEqual(f.outcomes.at(-1), { outcome: "skipped", traceId: undefined });
   await expect(await f.publish({ ...ready, commit: sha("4") }, secret, key), 409, "idempotency_conflict");
   upstream.error = null;
   const part = "/stages/main/02-prd";
@@ -234,6 +238,17 @@ test("API-225/227 confirms consent and Git blobs, preserves retry receipts/histo
   await expect(await f.get("/previews/" + preview.artifact_id, f.foreign), 404, "not_found");
   assert.equal(f.db.prepare("SELECT count(*) n FROM publications WHERE project_id=?").get(f.project).n, 3);
   assert.equal(f.db.prepare("SELECT count(*) n FROM write_journal WHERE project_id=? AND operation='publishSnapshot'").get(f.project).n, 3);
+});
+
+test("publication failure metrics correlate with the safe upstream problem", async (t) => {
+  const input = snapshot();
+  const upstream = gitFixture([input]);
+  const f = await fixture(t, upstream.github);
+  const { secret } = await f.credential();
+  const consented = await f.consent(input);
+  upstream.error = "denied";
+  const failure = await expect(await f.publish(consented, secret), 503, "source_verification_unavailable");
+  assert.deepEqual(f.outcomes, [{ outcome: "failed", traceId: failure.traceId }]);
 });
 
 test("API-228–230 issues one project-scoped secret and grants access only until revocation", async (t) => {

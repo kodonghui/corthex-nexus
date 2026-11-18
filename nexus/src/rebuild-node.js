@@ -26,9 +26,17 @@ export async function startRebuild(settings = process.env) {
   const connection = openRebuildDatabase(settings.NEXUS_REBUILD_DATABASE);
   try {
     const github = new RebuildGitHub({ token: settings.NEXUS_GITHUB_READ_TOKEN });
+    const metrics = settings.NEXUS_METRICS === "1";
+    const counts = new Map();
+    const onMetric = metrics ? (sample) => console.log(JSON.stringify({ kind: "request_metrics", ...sample })) : undefined;
+    const onOutcome = metrics ? ({ outcome, traceId }) => {
+      const count = (counts.get(outcome) ?? 0) + 1;
+      counts.set(outcome, count);
+      console.log(JSON.stringify({ kind: "operation_count", outcome, count, traceId }));
+    } : undefined;
     const handler = createRebuildHandler({ store: new RebuildStore(connection), origin, oidc, attemptKey, github, releaseCommit: settings.NEXUS_REBUILD_RELEASE_COMMIT,
-      onTrace: (record) => console.error("nexus-rebuild", record) });
-    const server = createNodeServer({ origin, handleRequest: (request, context) =>
+      onTrace: (record) => console.error("nexus-rebuild", record), onOutcome });
+    const server = createNodeServer({ origin, onMetric, handleRequest: (request, context) =>
       rebuildView(request, settings.NEXUS_LANGUAGE) ?? handler(request, context) });
     await server.start(port);
     const stop = () => { server.close(() => connection.close()); server.closeIdleConnections(); };

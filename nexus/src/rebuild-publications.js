@@ -48,7 +48,7 @@ const emptyGraph = () => ({ nodes: [], edges: [] });
 
 // API-208/209 and API-224–231. Gate first, then resolve all IDs within
 // the authenticated project and the exact selected publication.
-export function publicationHandlers({ store, github, access, writeContext, limiter, stageCatalog }) {
+export function publicationHandlers({ store, github, access, writeContext, limiter, stageCatalog, reportOutcome }) {
   function readArtifact(request, url, now, { projectId, part, stage, itemId }) {
     const actor = access(request, now, projectId, ["owner", "agent"]);
     const selection = readSelection(url.searchParams);
@@ -146,7 +146,11 @@ export function publicationHandlers({ store, github, access, writeContext, limit
     const input = await rebuildBody(request, schemas.SnapshotInput, { limit: snapshotLimit, registry: schemas });
     const write = writeContext(request, actor, "publishSnapshot", input);
     const replay = store.readReceipt(write);
-    if (replay) return writeResult(replay);
+    if (replay) {
+      const response = writeResult(replay);
+      reportOutcome("skipped");
+      return response;
+    }
     const current = store.projectState(actor.owner, projectId);
     if (!current) throw new RebuildProblem("not_found");
     if (current.commit_sha !== input.base_commit) throw new RebuildProblem("older_publication");
@@ -160,7 +164,10 @@ export function publicationHandlers({ store, github, access, writeContext, limit
     const applied = writeContext(request, actor, "publishSnapshot", input);
     const verified = { id: resourceId("pub"), digest: sha256(canonicalJSON(input)), consentDigest: contentDigest, parser: parserVersion,
       repository: current.repository_url, priorId: current.held_publication_id, snapshotText: canonicalJSON(input), artifacts };
-    return writeResult(store.publish(applied, projectId, actor.hash, verified, input));
+    const result = store.publish(applied, projectId, actor.hash, verified, input);
+    const response = writeResult(result);
+    reportOutcome(result.journal ? "received" : "skipped");
+    return response;
   }
 
   function getIsolatedPreview(request, url, now, { projectId, artifactId }) {
