@@ -979,7 +979,7 @@ export class RebuildStore {
         action = "withdraw";
         state = "withdrawn";
       } else {
-        if (row.state !== "pending" || blockers(row.part, row.stage).length) return { conflict: "state_conflict" };
+        if (!["pending", "withdrawn"].includes(row.state) || blockers(row.part, row.stage).length) return { conflict: "state_conflict" };
         action = input.decision;
         state = action === "pass" ? "passed" : "changes_requested";
       }

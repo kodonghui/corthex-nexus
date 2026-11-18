@@ -623,7 +623,7 @@
       history.append(row);
     }
     if (history.children.length) root.append(history);
-    const canDecide = checkpoint.state === "pending" && !checkpoint.blockers.length;
+    const canDecide = ["pending", "withdrawn"].includes(checkpoint.state) && !checkpoint.blockers.length;
     const previous = checkpoint.history.at(-1);
     const canWithdraw = previous && ["passed", "changes_requested"].includes(checkpoint.state);
     if (canDecide || canWithdraw) {
