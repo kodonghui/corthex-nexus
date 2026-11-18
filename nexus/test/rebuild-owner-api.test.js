@@ -115,13 +115,18 @@ async function start(f, returnPath = "/projects") {
     authCookie: `${AUTH_COOKIE}=${state}` };
 }
 
-test("API-202/203 exchanges a bound code once, rotates the session and sends separate secure cookies over HTTP", async (t) => {
+test("API-202/203 accepts provider metadata and exchanges a bound code once over HTTP", async (t) => {
   const f = await fixture(t);
   const previous = f.issue(f.data.owner);
   const { callback, authCookie } = await start(f, "/projects?view=recent");
   await problem(await f.request(callback), 401, "sign_in_required");
   const headers = { Cookie: `${authCookie}; ${cookie(previous)}` };
-  const responses = await Promise.all([f.request(callback, { headers }), f.request(callback, { headers })]);
+  for (const suffix of ["code=duplicate", "state=duplicate", "error=access_denied"]) {
+    await problem(await f.request(`${callback}&${suffix}`, { headers }), 400, "invalid_input");
+  }
+  assert.equal(f.oauth.tokenReads, 0);
+  const providerMetadata = `${callback}&scope=openid&authuser=0&prompt=consent&extension=provider-value`;
+  const responses = await Promise.all([f.request(providerMetadata, { headers }), f.request(providerMetadata, { headers })]);
   const success = responses.find((r) => r.status === 303);
   assert.ok(success);
   await problem(responses.find((r) => r !== success), 401, "sign_in_required");

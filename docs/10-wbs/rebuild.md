@@ -115,6 +115,8 @@ The first unit is an owner session and project list in isolated development: TAS
 
 The isolated Node runtime serves the owner-session, project list/connection and stage overview endpoints along with the public sample. HTTP tests use a locally signed OIDC fixture and two owners, including callback replay, session expiry, CSRF, and duplicate-write journaling. Development Chromium checks covered five views at four widths in each theme, plus signed-out access, search, connection, foreign-project refusal and logout. Remaining states and protected provider setup are pending.
 
+TASK-334 allows optional OAuth provider response parameters on the sign-in callback. The signed HTTP fixture covers Google's `scope`, `authuser` and `prompt` parameters, rejects duplicate `code` or `state` and provider error responses before token exchange, and confirms a single successful exchange. The maintainer's Google session is verified separately on the development candidate.
+
 ### Publication and versioned source
 
 The rebuild accepts versioned source envelopes only after checking scoped publisher authority, the registered default branch, commit ancestry and source bytes against Git blobs. First-publication consent, the held pointer, the receipt and the recovery journal are updated together. Source parsing derives supported diagrams and stable review items. Artifact, version and preview reads retain exact publication provenance. Development checks use a simulated GitHub fixture. A read-only public GitHub check also confirmed the default branch, ancestry from the preceding main commit and the exact WBS document blob. Production configuration and private repository verification remain pending.

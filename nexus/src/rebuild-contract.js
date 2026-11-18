@@ -19,6 +19,7 @@ export function rebuildRoutes(handlers) {
     const expression = new RegExp("^" + path.replace(/\{\w+\}/g, "([^/]+)") + "$");
     const methods = Object.fromEntries(Object.entries(operations).filter(([, op]) => Object.hasOwn(handlers, op.operationId))
       .map(([method, op]) => [method.toUpperCase(), { handle: handlers[op.operationId],
+        ignoreUnknownQuery: op["x-ignore-unknown-query-parameters"] === true,
         queries: op.parameters.filter((param) => param.in === "query").map(({ name }) => name) }]));
     return Object.keys(methods).length ? [{ match: (path) => expression.exec(path), names, methods }] : [];
   });
@@ -40,7 +41,10 @@ export function routeRequest(routes, request, url) {
       if (!valid) throw new RebuildProblem("invalid_input");
       ids[name] = value;
     }
-    strictQuery(url.searchParams, op.queries);
+    const query = op.ignoreUnknownQuery
+      ? new URLSearchParams([...url.searchParams].filter(([name]) => op.queries.includes(name)))
+      : url.searchParams;
+    strictQuery(query, op.queries);
     return { op, ids };
   }
   throw new RebuildProblem("not_found");
