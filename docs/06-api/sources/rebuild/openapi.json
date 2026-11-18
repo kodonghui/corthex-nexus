@@ -8798,7 +8798,7 @@
       "get": {
         "operationId": "listProjectCredentials",
         "summary": "listProjectCredentials",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "List credentials for the owner, with the most recent scoped machine use recorded for each credential.",
         "x-corthex": {
           "id": "API-228",
           "spec": [
@@ -8846,7 +8846,16 @@
                           "role": "publisher",
                           "label": "Sample publisher",
                           "created_at": "2026-11-18T00:00:00Z",
-                          "revoked": false
+                          "revoked": false,
+                          "last_used_at": "2026-11-18T00:15:00Z"
+                        },
+                        {
+                          "id": "cred_agent_demo",
+                          "role": "agent",
+                          "label": "Sample agent",
+                          "created_at": "2026-11-18T00:00:00Z",
+                          "revoked": false,
+                          "last_used_at": null
                         }
                       ]
                     }
@@ -10497,7 +10506,7 @@
       "get": {
         "operationId": "pollProjectEvents",
         "summary": "pollProjectEvents",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Poll the project write journal with the existing cursor, in ascending sequence order. A project owner can select stream=publication-attempts to read server-observed publication outcomes in newest recorded order. The attempt stream uses a separate cursor, returns an empty cursor at the end, and requires the owner session.",
         "x-corthex": {
           "id": "API-234",
           "spec": [
@@ -10505,12 +10514,13 @@
             "SPEC-312",
             "SPEC-313",
             "SPEC-315",
+            "SPEC-327",
+            "SPEC-328",
             "SPEC-337"
           ],
           "omit": {
             "201": "Success uses HTTP 200",
             "204": "Success uses HTTP 200",
-            "403": "The project owner, agent and publisher can read within their granted project scope",
             "409": "Read-only operation has no conflicting state mutation"
           }
         },
@@ -10557,6 +10567,18 @@
               "maximum": 100,
               "default": 50
             }
+          },
+          {
+            "name": "stream",
+            "in": "query",
+            "required": false,
+            "description": "Select owner-only publication outcomes. Omit to poll the existing project write journal.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "publication-attempts"
+              ]
+            }
           }
         ],
         "responses": {
@@ -10565,12 +10587,37 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Events"
+                  "$ref": "#/components/schemas/ProjectEventsResult"
                 },
                 "examples": {
                   "success": {
                     "value": {
                       "events": [],
+                      "next_cursor": ""
+                    }
+                  },
+                  "publicationAttempts": {
+                    "value": {
+                      "attempts": [
+                        {
+                          "sequence": 2,
+                          "attempted_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                          "attempted_at": "2026-11-18T04:00:11Z",
+                          "outcome": "retryable_failure",
+                          "why": "upstream_timeout",
+                          "trace_id": "dfd7f4eb-e18b-4cfa-ae08-1729dc430b92",
+                          "receipt_id": null
+                        },
+                        {
+                          "sequence": 1,
+                          "attempted_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "attempted_at": "2026-11-18T04:00:00Z",
+                          "outcome": "received",
+                          "why": null,
+                          "trace_id": null,
+                          "receipt_id": "pub_fixture"
+                        }
+                      ],
                       "next_cursor": ""
                     }
                   }
@@ -10627,6 +10674,34 @@
                       "detail": "Sign in again and return to this page.",
                       "instance": "/api/v2/request/example",
                       "code": "sign_in_required",
+                      "traceId": "trace_synthetic_example"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            }
+          },
+          "403": {
+            "description": "Request refused without a partial write.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "examples": {
+                  "operation_forbidden": {
+                    "value": {
+                      "type": "https://example.test/problems/operation_forbidden",
+                      "title": "Operation forbidden",
+                      "status": 403,
+                      "detail": "This credential cannot perform this action.",
+                      "instance": "/api/v2/request/example",
+                      "code": "operation_forbidden",
                       "traceId": "trace_synthetic_example"
                     }
                   }
@@ -13628,6 +13703,43 @@
           "revoked"
         ]
       },
+      "CredentialListEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Credential/properties/id"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Credential/properties/role"
+          },
+          "label": {
+            "$ref": "#/components/schemas/Credential/properties/label"
+          },
+          "created_at": {
+            "$ref": "#/components/schemas/Credential/properties/created_at"
+          },
+          "revoked": {
+            "$ref": "#/components/schemas/Credential/properties/revoked"
+          },
+          "last_used_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "maxLength": 40,
+            "description": "Most recent machine request admitted by the credential's project, role and rate limits. Null means the server has yet to record a use."
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "label",
+          "created_at",
+          "revoked"
+        ]
+      },
       "CredentialList": {
         "type": "object",
         "additionalProperties": false,
@@ -13635,7 +13747,7 @@
           "credentials": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Credential"
+              "$ref": "#/components/schemas/CredentialListEntry"
             },
             "maxItems": 100
           }
@@ -13808,6 +13920,138 @@
         "required": [
           "events",
           "next_cursor"
+        ]
+      },
+      "PublicationAttemptPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Completed publication outcomes for the selected project. A retryable failure or refusal has no receipt.",
+        "properties": {
+          "attempts": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "sequence": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "attempted_commit": {
+                  "type": "string",
+                  "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$",
+                  "description": "Commit supplied by the authenticated publisher in the validated request."
+                },
+                "attempted_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Server time when this request reached the application."
+                },
+                "outcome": {
+                  "enum": [
+                    "received",
+                    "replayed",
+                    "retryable_failure",
+                    "refused"
+                  ],
+                  "description": "A new receipt, a repeated receipt, a retryable server error or a request refusal."
+                },
+                "why": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Problem/properties/code"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "The safe Problem code returned for this failed request."
+                },
+                "trace_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid",
+                  "description": "The Problem traceId for a failure or refusal."
+                },
+                "receipt_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$",
+                  "description": "The API-226 receipt of this successful request or replay."
+                }
+              },
+              "required": [
+                "sequence",
+                "attempted_commit",
+                "attempted_at",
+                "outcome",
+                "why",
+                "trace_id",
+                "receipt_id"
+              ],
+              "if": {
+                "properties": {
+                  "outcome": {
+                    "enum": [
+                      "received",
+                      "replayed"
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "why": {
+                    "type": "null"
+                  },
+                  "trace_id": {
+                    "type": "null"
+                  },
+                  "receipt_id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "why": {
+                    "type": "string"
+                  },
+                  "trace_id": {
+                    "type": "string"
+                  },
+                  "receipt_id": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "attempts",
+          "next_cursor"
+        ]
+      },
+      "ProjectEventsResult": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Events"
+          },
+          {
+            "$ref": "#/components/schemas/PublicationAttemptPage"
+          }
         ]
       },
       "Problem": {

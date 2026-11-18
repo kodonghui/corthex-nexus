@@ -4112,8 +4112,7 @@
       "problem_examples": [
         "operation_forbidden"
       ],
-      "state": "removed",
-      "reason": "All authenticated project roles have scoped read access. The contract retains 401 and project-scoped 404."
+      "reason": "The owner-only publication-attempt stream refuses a machine credential."
     },
     {
       "id": "TC-2262",

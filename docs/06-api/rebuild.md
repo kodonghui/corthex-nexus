@@ -39,7 +39,7 @@ Status: 36 HTTP operations in the [OpenAPI 3.1 contract](sources/rebuild/openapi
 | API-231 getIsolatedPreview | GET /api/v2/projects/{projectId}/previews/{artifactId} | SPEC-307, SPEC-308, SPEC-337 |
 | API-232 getPublicSample | GET /api/v2/sample | SPEC-348, SPEC-350 |
 | API-233 createPrivateSampleProject | POST /api/v2/sample-projects | SPEC-348, SPEC-350 |
-| API-234 pollProjectEvents | GET /api/v2/projects/{projectId}/events | SPEC-303, SPEC-312, SPEC-313, SPEC-315, SPEC-337 |
+| API-234 pollProjectEvents | GET /api/v2/projects/{projectId}/events | SPEC-303, SPEC-312, SPEC-313, SPEC-315, SPEC-327, SPEC-328, SPEC-337 |
 | API-235 renewAgentClaim | POST /api/v2/projects/{projectId}/agent/work/{workId}/renew | SPEC-315 |
 | API-236 releaseAgentClaim | POST /api/v2/projects/{projectId}/agent/work/{workId}/release | SPEC-315 |
 
@@ -85,6 +85,20 @@ A repository-free private sample explicitly uses null `repository_url` and `defa
 
 ## Stage 12 contract corrections
 
-The initial response lists included 403 for receipt reads (API-226) and event polling (API-234). The role matrix confirms that an owner, agent or publisher can use both routes within the granted project. The active contract records the 403 omission and retains 401 for invalid credentials and 404 for missing or foreign project data. The two earlier case IDs remain in the QA history. [Rebuild QA](../12-qa/rebuild.md)
+The initial response lists included 403 for receipt reads (API-226) and event polling (API-234). The role matrix confirms that an owner, agent or publisher can use both routes within the granted project. Receipt reads and the default events stream retain 401 for invalid credentials and 404 for missing or foreign project data. The owner-only publication-attempt stream applies the existing API-234 403 case to machine credentials. [Rebuild QA](../12-qa/rebuild.md)
 
 HTML callback navigation uses a same-origin 303 retry with the API problem code and trace ID. JSON clients receive the original refusal. The project list carries owner-scoped review summaries. The preview returns the exact part and original publication metadata for navigation outside the isolated frame. Checkpoint reads and version history carry the source and decisions for the selected content version.
+
+## Publication attempts observed by the server
+
+For SCR-137, the project owner can read API-234 with `stream=publication-attempts`. The result is newest recorded first and uses its own cursor. Each entry includes the requested commit and server request time. A new or replayed receipt links to API-226. A failed attempt carries its original safe Problem code and trace ID. API-207 and API-226 confirm the held snapshot.
+
+The server records outcomes after publisher authentication, rate limiting, and validation of the publication envelope and idempotency key. A retryable failure can be retried under the original key. A consistent backup contains the attempt table as of its backup time. Replay of the successful write journal restores acknowledged project changes. Restoring later diagnostic attempts requires a backup that contains them.
+
+CI jobs queued or skipped before contacting NEXUS require events from the CI provider. An empty attempt list means the server has yet to record an outcome for this project.
+
+## Credential use recorded by the server
+
+The owner credential list in API-228 returns `last_used_at` for SCR-138. It records the latest server time when a machine request passed the credential's project, role and rate limits. The timestamp describes scoped authentication independently of the operation result. Null means the server has yet to record a use, including credentials carried forward from before this feature. Revoked credentials retain any recorded time in the owner list.
+
+Credential usage is diagnostic metadata captured in a consistent database backup. The write journal retains the acknowledged issue and revoke operations for recovery.

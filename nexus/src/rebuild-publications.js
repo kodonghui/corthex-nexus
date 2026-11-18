@@ -1,7 +1,7 @@
 import { createHmac } from "node:crypto";
 import { iso, randomToken, resourceId, safeEqual } from "./rebuild-auth.js";
 import { digestPattern, idPattern, previewPolicy, schemas, tracePattern } from "./rebuild-contract.js";
-import { canonicalJSON, rebuildBody, rebuildJSON, RebuildProblem, sha256 } from "./rebuild-http.js";
+import { canonicalJSON, rebuildBody, rebuildJSON, rebuildProblemResponse, RebuildProblem, sha256 } from "./rebuild-http.js";
 import { parserVersion, prepareArtifacts, previewDigest, snapshotLimit } from "./rebuild-source.js";
 
 export function pageCursor(token, scope, id) {
@@ -48,7 +48,7 @@ const emptyGraph = () => ({ nodes: [], edges: [] });
 
 // API-208/209 and API-224–231. Gate first, then resolve all IDs within
 // the authenticated project and the exact selected publication.
-export function publicationHandlers({ store, github, access, writeContext, limiter, stageCatalog, reportOutcome }) {
+export function publicationHandlers({ store, github, access, writeContext, limiter, stageCatalog, reportOutcome, traceFailure }) {
   function readArtifact(request, url, now, { projectId, part, stage, itemId }) {
     const actor = access(request, now, projectId, ["owner", "agent"]);
     const selection = readSelection(url.searchParams);
@@ -143,34 +143,43 @@ export function publicationHandlers({ store, github, access, writeContext, limit
     return writeResult(store.firstConsent(writeContext(request, actor, "consentFirstPublication", body), projectId, body, resourceId("consent")));
   }
 
-  async function publishSnapshot(request, _url, now, { projectId }) {
+  async function publishSnapshot(request, url, now, { projectId }) {
     const actor = access(request, now, projectId, ["publisher"]);
     limiter.require(`publish:${projectId}`, now, 10);
     const input = await rebuildBody(request, schemas.SnapshotInput, { limit: snapshotLimit, registry: schemas });
     const write = writeContext(request, actor, "publishSnapshot", input);
-    const replay = store.readReceipt(write);
-    if (replay) {
-      const response = writeResult(replay);
-      reportOutcome("skipped");
+    const recordAttempt = (attempt) => {
+      try { store.recordPublicationAttempt(projectId, input.commit, iso(now), attempt); }
+      catch { reportOutcome("telemetry_unavailable", attempt.trace_id); }
+    };
+    try {
+      let result = store.readReceipt(write);
+      if (!result) {
+        const current = store.projectState(actor.owner, projectId);
+        if (!current) throw new RebuildProblem("not_found");
+        if (current.commit_sha !== input.base_commit) throw new RebuildProblem("older_publication");
+        const contentDigest = previewDigest(projectId, input);
+        if (current.held_publication_id ? input.consent_id !== null : !store.liveConsent(actor.owner, projectId, input.consent_id, contentDigest)) {
+          throw new RebuildProblem("consent_required");
+        }
+        const artifacts = prepareArtifacts(input.artifacts).map((artifact) => ({ ...artifact, id: resourceId("art") }));
+        if (!github) throw new RebuildProblem("source_verification_unavailable");
+        await github.verify(current, input, current.commit_sha);
+        const applied = writeContext(request, actor, "publishSnapshot", input);
+        const verified = { id: resourceId("pub"), digest: sha256(canonicalJSON(input)), consentDigest: contentDigest, parser: parserVersion,
+          repository: current.repository_url, priorId: current.held_publication_id, snapshotText: canonicalJSON(input), artifacts };
+        result = store.publish(applied, projectId, actor.hash, verified, input);
+      }
+      const response = writeResult(result);
+      recordAttempt({ outcome: result.journal ? "received" : "replayed", receipt_id: result.body.id });
+      reportOutcome(result.journal ? "received" : "skipped");
       return response;
+    } catch (error) {
+      return rebuildProblemResponse(error, url, (record) => {
+        recordAttempt({ outcome: record.status >= 500 ? "retryable_failure" : "refused", why: record.code, trace_id: record.traceId });
+        traceFailure(record);
+      });
     }
-    const current = store.projectState(actor.owner, projectId);
-    if (!current) throw new RebuildProblem("not_found");
-    if (current.commit_sha !== input.base_commit) throw new RebuildProblem("older_publication");
-    const contentDigest = previewDigest(projectId, input);
-    if (current.held_publication_id ? input.consent_id !== null : !store.liveConsent(actor.owner, projectId, input.consent_id, contentDigest)) {
-      throw new RebuildProblem("consent_required");
-    }
-    const artifacts = prepareArtifacts(input.artifacts).map((artifact) => ({ ...artifact, id: resourceId("art") }));
-    if (!github) throw new RebuildProblem("source_verification_unavailable");
-    await github.verify(current, input, current.commit_sha);
-    const applied = writeContext(request, actor, "publishSnapshot", input);
-    const verified = { id: resourceId("pub"), digest: sha256(canonicalJSON(input)), consentDigest: contentDigest, parser: parserVersion,
-      repository: current.repository_url, priorId: current.held_publication_id, snapshotText: canonicalJSON(input), artifacts };
-    const result = store.publish(applied, projectId, actor.hash, verified, input);
-    const response = writeResult(result);
-    reportOutcome(result.journal ? "received" : "skipped");
-    return response;
   }
 
   function getIsolatedPreview(request, url, now, { projectId, artifactId }) {

@@ -41,7 +41,8 @@ async function fixture(t, github = null) {
   const owner = issue(seed.owner);
   const foreign = issue(seed.otherOwner);
   const outcomes = [];
-  const handler = createRebuildHandler({ origin, store, github, clock: () => now, onOutcome: (event) => outcomes.push(event) });
+  let time = now;
+  const handler = createRebuildHandler({ origin, store, github, clock: () => time, onOutcome: (event) => outcomes.push(event) });
   const server = createNodeServer({ origin, handleRequest: handler });
   const address = await server.start();
   t.after(async () => {
@@ -73,6 +74,7 @@ async function fixture(t, github = null) {
     return { ...input, consent_id: (await response.json()).id };
   };
   return { db, seed, owner, foreign, call, post, get, credential, project, consent, outcomes,
+    setTime: (at) => { time = at; },
     publish: (input, secret, key) => call(start + "/publications", secret, "POST", input, key, true) };
 }
 async function expect(response, status, code) {
@@ -253,6 +255,106 @@ test("publication failure metrics correlate with the safe upstream problem", asy
   assert.deepEqual(f.outcomes, [{ outcome: "failed", traceId: failure.traceId }]);
 });
 
+test("API-234 gives only the owner actual publication outcomes without consuming a failed key", async (t) => {
+  const initial = snapshot(), changed = snapshot("2", initial.commit), unmerged = snapshot("3", changed.commit);
+  const upstream = gitFixture([initial, changed, unmerged]);
+  upstream.head = changed.commit;
+  const f = await fixture(t, upstream.github);
+  const { secret } = await f.credential();
+  const { secret: agent } = await f.credential("agent");
+  const suffix = "/events?stream=publication-attempts";
+  const attempts = async (query = "") => expect(await f.get(suffix + query), 200);
+  const readAsMachine = (path, bearer) => f.call(`/projects/${f.project}${path}`, bearer, "GET", undefined, undefined, true);
+  const count = (table) => f.db.prepare(`SELECT count(*) AS n FROM ${table} WHERE project_id=?`).get(f.project).n;
+  assert.deepEqual(await attempts(), { attempts: [], next_cursor: "" });
+
+  const firstKey = resourceId("first");
+  const ready = await f.consent(initial);
+  const first = await expect(await f.publish(ready, secret, firstKey), 201);
+  const retryKey = resourceId("retry");
+  const before = [count("publications"), count("write_journal"), count("idempotency_receipts")];
+  upstream.error = "denied";
+  const unavailable = await expect(await f.publish(changed, secret, retryKey), 503, "source_verification_unavailable");
+  upstream.error = "timeout";
+  const timeout = await expect(await f.publish(changed, secret, retryKey), 504, "upstream_timeout");
+  assert.deepEqual([count("publications"), count("write_journal"), count("idempotency_receipts")], before);
+  assert.equal((await expect(await f.get(""), 200)).held_commit, initial.commit);
+  assert.deepEqual(await expect(await f.get("/publications/" + first.id), 200), first);
+  const failures = (await attempts()).attempts.slice(0, 2);
+  assert.deepEqual(failures.map(({ outcome, attempted_commit, attempted_at, why, trace_id, receipt_id }) =>
+    [outcome, attempted_commit, attempted_at, why, trace_id, receipt_id]), [timeout, unavailable].map(({ code, traceId }) =>
+    ["retryable_failure", changed.commit, iso(now), code, traceId, null]));
+
+  upstream.error = null;
+  const second = await expect(await f.publish(changed, secret, retryKey), 201);
+  assert.equal(second.held_commit, changed.commit);
+  assert.deepEqual(await expect(await f.publish(changed, secret, retryKey), 201), second);
+  assert.deepEqual(await expect(await f.publish(ready, secret, firstKey), 201), first);
+  const refusal = await expect(await f.publish(unmerged, secret), 409, "unmerged_commit");
+  assert.equal((await expect(await f.get(""), 200)).held_commit, changed.commit);
+  assert.deepEqual([count("publications"), count("write_journal"), count("idempotency_receipts")], before.map((n) => n + 1));
+
+  await expect(await f.publish({ ...changed, commit: "invalid-commit" }, secret), 400, "invalid_input");
+  await expect(await f.publish(changed, secret, "short-key"), 400, "invalid_input");
+  await expect(await f.publish(changed, null), 401, "sign_in_required");
+  await expect(await f.publish(changed, agent), 403, "operation_forbidden");
+  await expect(await f.get(suffix, f.foreign), 404, "not_found");
+  await expect(await readAsMachine(suffix, secret), 403, "operation_forbidden");
+  await expect(await readAsMachine(suffix, agent), 403, "operation_forbidden");
+  await expect(await f.call(`/projects/${f.project}${suffix}`, null), 401, "sign_in_required");
+  await expect(await f.get("/events?stream=unknown"), 400, "invalid_input");
+
+  const expected = [
+    ["refused", unmerged.commit, refusal.code, refusal.traceId, null],
+    ["replayed", initial.commit, null, null, first.id],
+    ["replayed", changed.commit, null, null, second.id],
+    ["received", changed.commit, null, null, second.id],
+    ["retryable_failure", changed.commit, timeout.code, timeout.traceId, null],
+    ["retryable_failure", changed.commit, unavailable.code, unavailable.traceId, null],
+    ["received", initial.commit, null, null, first.id],
+  ];
+  const all = await attempts();
+  assert.deepEqual(all.attempts.map(({ outcome, attempted_commit, why, trace_id, receipt_id }) =>
+    [outcome, attempted_commit, why, trace_id, receipt_id]), expected);
+  assert.equal(all.attempts.length, count("publication_attempts"));
+  assert.equal(all.next_cursor, "");
+  const safeRows = JSON.stringify(f.db.prepare("SELECT * FROM publication_attempts").all());
+  for (const value of [secret, agent, retryKey, firstKey, changed.artifacts[0].source_files[0].path,
+    changed.artifacts[0].source_files[0].content_utf8]) {
+    assert.equal(safeRows.includes(value), false);
+  }
+  const page = await attempts("&limit=4");
+  assert.deepEqual(page.attempts, all.attempts.slice(0, 4));
+  const cursor = encodeURIComponent(page.next_cursor);
+  assert.deepEqual(await attempts("&limit=4&cursor=" + cursor), { attempts: all.attempts.slice(4), next_cursor: "" });
+  await expect(await f.get("/events?cursor=" + cursor), 400, "invalid_input");
+  await expect(await f.call(`/projects/${f.seed.projectId}${suffix}&cursor=${cursor}`, f.owner), 400, "invalid_input");
+  const events = await expect(await f.get("/events"), 200);
+  assert.deepEqual(events.events.map(({ kind, target_id }) => [kind, target_id]), [["publication", first.id], ["publication", second.id]]);
+  assert.deepEqual((await expect(await readAsMachine("/events", secret), 200)).events, events.events);
+  assert.deepEqual((await expect(await readAsMachine("/events", agent), 200)).events, events.events);
+  await expect(await f.get(suffix + "&cursor=" + encodeURIComponent(events.next_cursor)), 400, "invalid_input");
+});
+
+test("attempt storage failure preserves the original upstream refusal and later publication receipt", async (t) => {
+  const input = snapshot(), upstream = gitFixture([input]);
+  const f = await fixture(t, upstream.github);
+  const { secret } = await f.credential();
+  const ready = await f.consent(input);
+  const key = resourceId("telemetry");
+  f.db.exec(`CREATE TRIGGER fixture_diagnostic_failure BEFORE INSERT ON publication_attempts BEGIN
+    SELECT RAISE(ABORT, 'fixture diagnostics unavailable'); END`);
+  upstream.error = "denied";
+  const error = await expect(await f.publish(ready, secret, key), 503, "source_verification_unavailable");
+  assert.deepEqual(f.outcomes, [{ outcome: "telemetry_unavailable", traceId: error.traceId }, { outcome: "failed", traceId: error.traceId }]);
+  assert.equal((await expect(await f.get(""), 200)).held_commit, null);
+  upstream.error = null;
+  const receipt = await expect(await f.publish(ready, secret, key), 201);
+  assert.equal(receipt.held_commit, input.commit);
+  assert.deepEqual(await expect(await f.get("/publications/" + receipt.id), 200), receipt);
+  assert.equal(f.db.prepare("SELECT count(*) AS n FROM publication_attempts").get().n, 0);
+});
+
 test("API-228–230 issues one project-scoped secret and grants access only until revocation", async (t) => {
   const f = await fixture(t);
   const key = resourceId("issue"), input = { role: "publisher", label: "Fixture publisher" };
@@ -276,6 +378,62 @@ test("API-228–230 issues one project-scoped secret and grants access only unti
   await expect(await f.publish(snapshot(), secret), 401, "sign_in_required");
 });
 
+test("API-228 reports the most recent scoped credential use and API-229/230 keep the original receipt shape", async (t) => {
+  const input = snapshot();
+  const f = await fixture(t, gitFixture([input]).github);
+  const key = resourceId("issue");
+  const publisherInput = { role: "publisher", label: "Scoped publisher" };
+  const publisher = await expect(await f.post("/credentials", publisherInput, key), 201);
+  const agent = await f.credential("agent");
+  const publication = await f.consent(input);
+  const lastUses = async () => {
+    const { credentials } = await expect(await f.get("/credentials"), 200);
+    return [publisher, agent].map(({ credential }) => credentials.find(({ id }) => id === credential.id));
+  };
+  const readMachine = (path, machine, project = f.project) => f.call(`/projects/${project}${path}`, machine.secret, "GET", undefined, undefined, true);
+  const receiptBytes = () => f.db.prepare("SELECT safe_result_json FROM idempotency_receipts WHERE key_hash=?").get(sha256(key)).safe_result_json;
+  const issueBytes = receiptBytes();
+  assert.deepEqual(JSON.parse(issueBytes), { credential: publisher.credential, secret_not_replayed: true });
+  assert.deepEqual(await lastUses(), [publisher, agent].map(({ credential }) => ({ ...credential, last_used_at: null })));
+
+  f.setTime(now + 1000);
+  await expect(await readMachine("/events", publisher, f.seed.projectId), 404, "not_found");
+  await expect(await readMachine("/agent/work", publisher), 403, "operation_forbidden");
+  await expect(await f.publish(publication, agent.secret), 403, "operation_forbidden");
+  await expect(await readMachine("/credentials", publisher), 403, "operation_forbidden");
+  await expect(await readMachine("/credentials", agent), 403, "operation_forbidden");
+  await expect(await f.get("/credentials", f.foreign), 404, "not_found");
+  assert.equal(f.db.prepare("SELECT count(*) AS n FROM project_credential_usage").get().n, 0);
+
+  f.setTime(now + 2000);
+  await expect(await f.publish(publication, publisher.secret), 201);
+  f.setTime(now + 3000);
+  await expect(await readMachine("/agent/work", agent), 200);
+  assert.deepEqual((await lastUses()).map(({ last_used_at }) => last_used_at), [iso(now + 2000), iso(now + 3000)]);
+  f.setTime(now + 4000);
+  await expect(await readMachine("/events", publisher), 200);
+  const publisherUsedAt = iso(now + 4000);
+  assert.equal((await lastUses())[0].last_used_at, publisherUsedAt);
+  const replay = await f.post("/credentials", publisherInput, key);
+  assert.equal(replay.status, 200);
+  assert.equal(await replay.text(), issueBytes);
+  assert.equal(receiptBytes(), issueBytes);
+
+  f.setTime(now + 5000);
+  const { id } = publisher.credential;
+  const revoked = await expect(await f.post(`/credentials/${id}/revoke`, { credential_id: id }), 200);
+  assert.deepEqual(revoked, { ...publisher.credential, revoked: true });
+  f.setTime(now + 6000);
+  await expect(await readMachine("/events", publisher), 401, "sign_in_required");
+  await expect(await f.publish(publication, publisher.secret), 401, "sign_in_required");
+  const rows = await lastUses();
+  assert.deepEqual(rows, [{ ...revoked, last_used_at: publisherUsedAt }, { ...agent.credential, last_used_at: iso(now + 3000) }]);
+  const usageRows = f.db.prepare("SELECT * FROM project_credential_usage ORDER BY last_used_at DESC").all();
+  assert.deepEqual(usageRows.map((row) => ({ ...row })), [
+    { credential_id: id, last_used_at: publisherUsedAt },
+    { credential_id: agent.credential.id, last_used_at: iso(now + 3000) },
+  ]);
+});
 
 test("agent citation authorization includes later pages and exact item reads", async (t) => {
   const f = await fixture(t);

@@ -36,8 +36,8 @@ const copy = {
     connectSetup: "기존 Actions 자동 전송을 설정하려면 승인된 환경에서 hub.py setup-ci PROJECT를 실행하세요.",
     projectsIntro: "각 프로젝트에서 검토하던 단계를 이어서 확인하세요.", name: "프로젝트 이름", slug: "프로젝트 ID", repo: "GitHub 저장소 주소", branch: "기본 브랜치", more: "더 보기",
     checkpoint: "체크포인트 검토", versions: "버전 이력", publications: "게시 상태", credentials: "게시 자격 증명", preview: "목업 미리 보기",
-    cancel: "취소", sampleTitle: "공개 샘플", sampleIntro: "샘플 원본과 항목을 확인하세요.", workspace: "단계 검토", stage: "단계", skip: "본문으로 이동", theme: "다크 테마", loading: "불러오는 중입니다.",
-    retry: "다시 시도", latest: "최신 원본 열기",
+    cancel: "취소", sampleTitle: "공개 샘플", sampleIntro: "샘플 원본과 항목을 확인하세요.", workspace: "단계 검토", itemDiscussion: "항목 대화", stage: "단계", skip: "본문으로 이동", theme: "다크 테마", loading: "불러오는 중입니다.",
+    retry: "다시 시도", latest: "최신 원본 열기", diagramRegion: "단계 다이어그램 스크롤 영역",
   },
   en: {
     title: "See the work. Ask together. Decide yourself.", intro: "Thirteen stages from discovery to presentation. See each artifact, ask an AI about its items, and pass the checkpoint for the version you reviewed.",
@@ -50,8 +50,8 @@ const copy = {
     connectSetup: "To configure existing Actions delivery, run hub.py setup-ci PROJECT in your authorized environment.",
     projectsIntro: "Pick up where you left off in each project.", name: "Project title", slug: "Project ID", repo: "GitHub repository URL", branch: "Default branch", more: "Load more",
     checkpoint: "Checkpoint review", versions: "Version history", publications: "Publications", credentials: "Publication credentials", preview: "Preview mockup",
-    cancel: "Cancel", sampleTitle: "Public sample", sampleIntro: "Review the sample source and its items.", workspace: "Review stage", stage: "Stage", skip: "Skip to content", theme: "Dark theme", loading: "Loading…",
-    retry: "Try again", latest: "Open the latest source",
+    cancel: "Cancel", sampleTitle: "Public sample", sampleIntro: "Review the sample source and its items.", workspace: "Review stage", itemDiscussion: "Item discussion", stage: "Stage", skip: "Skip to content", theme: "Dark theme", loading: "Loading…",
+    retry: "Try again", latest: "Open the latest source", diagramRegion: "Stage diagram scroll region",
   },
 };
 
@@ -68,6 +68,7 @@ function projects(t) {
   return `<div class="page-heading row between"><div><h1>${t.projects}</h1><p class="muted">${t.projectsIntro}</p></div>
     <a class="button primary" href="/projects/new">${t.connect}</a></div><div class="stack" id="private-content" hidden>
     <label class="narrow" for="project-search">${t.search}<input id="project-search" type="search" autocomplete="off"></label>
+    <p id="project-search-status" class="visually-hidden" role="status"></p>
     <div class="cards" id="project-list"></div><div class="stack" id="project-empty" hidden>
     <p class="muted" id="project-empty-message"></p><div class="row">
     <button type="button" id="project-copy-sample">${t.copySample}</button>
@@ -96,7 +97,7 @@ function workspace(t) {
       <div class="row"><a class="button" id="provenance-link" hidden></a><a class="button" id="preview-link" hidden>${t.preview}</a>
       <a class="button" id="latest-workspace" hidden>${t.latest}</a><button type="button" id="artifact-retry" hidden>${t.retry}</button></div>
       <div id="artifact-provenance" hidden></div>
-      <div class="row" id="checkpoint-links"></div><div id="artifact-graph" class="artifact-graph" hidden></div><ul id="artifact-items" class="review-items"></ul>
+      <div class="row" id="checkpoint-links"></div><div id="artifact-graph" class="artifact-graph" tabindex="0" role="region" aria-label="${t.diagramRegion}" hidden></div><ul id="artifact-items" class="review-items"></ul>
       <button type="button" id="more-items" hidden>${t.more}</button><section id="artifact-detail" hidden></section><section id="discussions" class="stack" hidden></section></section></div>`;
 }
 
@@ -142,7 +143,10 @@ export function rebuildView(request, language) {
   const lang = language === "en" ? "en" : "ko";
   const t = copy[lang];
   const [page, render] = selected;
-  const html = `<!doctype html><html lang="${lang}" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NEXUS</title>
+  const titleKey = page === "sample" ? "sampleTitle"
+    : page === "workspace" && url.pathname.includes("/items/") ? "itemDiscussion" : page;
+  const title = t[titleKey] ? `${t[titleKey]} · NEXUS` : "NEXUS";
+  const html = `<!doctype html><html lang="${lang}" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>
     <link rel="stylesheet" href="${cssPath}"><script src="${jsPath}" defer></script></head><body data-page="${page}">
     <a class="skip" href="#main">${t.skip}</a><header class="header"><a class="wordmark" href="/">NEXUS</a>
     <nav class="row"><a href="/projects" id="project-nav" hidden>${t.projects}</a><button id="theme" type="button" aria-pressed="false">${t.theme}</button>

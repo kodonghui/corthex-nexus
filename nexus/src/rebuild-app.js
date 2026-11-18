@@ -57,7 +57,8 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
   }
 
   function traceFailure(record) {
-    onTrace?.(record);
+    try { onTrace?.(record); }
+    catch { /* Logging cannot change the original refusal. */ }
     const outcome = record.code === "lease_expired" ? "lease_expired" : record.status >= 500 ? "failed" : "refused";
     reportOutcome(outcome, record.traceId);
   }
@@ -87,11 +88,14 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
     const token = bearerToken(request);
     if (token) {
       const hash = sha256(token);
-      const credential = store.credential(hash, iso(now));
+      const at = iso(now);
+      const credential = store.credential(hash, at);
       if (!credential) throw new RebuildProblem("sign_in_required");
       if (credential.project_id !== projectId) throw new RebuildProblem("not_found");
       if (!roles.includes(credential.role)) throw new RebuildProblem(forbidden);
       limiter.require(`credential:${credential.id}`, now, 120);
+      try { store.recordCredentialUse(credential.id, at); }
+      catch { reportOutcome("credential_usage_unavailable"); }
       return { token, hash, role: credential.role, credential, owner: credential.owner_id, project: store.projectState(credential.owner_id, projectId) };
     }
     const identity = owner(request, now);
@@ -235,7 +239,7 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
 
   const routes = rebuildRoutes({ getOwnerSession: getSession, startOwnerSignIn: startSignIn, completeOwnerSignIn: completeSignIn,
     signOut: logOut, listOwnerProjects: listProjects, connectProject, getProjectOverview: getOverview, getPublicSample: getSample, createPrivateSampleProject,
-    ...publicationHandlers({ store, github, access, writeContext, limiter, stageCatalog, reportOutcome }),
+    ...publicationHandlers({ store, github, access, writeContext, limiter, stageCatalog, reportOutcome, traceFailure }),
     ...reviewHandlers({ store, access, writeContext, limiter, stageCatalog, reportOutcome }),
   });
 
