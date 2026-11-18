@@ -178,6 +178,9 @@ test("checkpoint decisions enforce current stage dependencies and human session,
   const history = (await expect(await f.call(checkpoint), 200)).history;
   assert.deepEqual(history.map((entry) => entry.decision), ["pass", "withdraw"]);
   assert.equal(f.db.prepare("SELECT count(*) n FROM checkpoint_decisions WHERE request_id=?").get(request.id).n, 2);
+  const reviewedAgain = await expect(await f.call(checkpoint + "/decisions", { body: { ...body, expected_revision: 2, reason: "Reviewed again" } }), 201);
+  assert.equal(reviewedAgain.state, "passed");
+  assert.deepEqual((await expect(await f.call(checkpoint), 200)).history.map((entry) => entry.decision), ["pass", "withdraw", "pass"]);
   await expect(await f.call(checkpoint, { token: f.other }), 404, "not_found");
 });
 
