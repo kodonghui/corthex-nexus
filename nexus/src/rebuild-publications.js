@@ -1,5 +1,5 @@
 import { createHmac } from "node:crypto";
-import { randomToken, resourceId, safeEqual } from "./rebuild-auth.js";
+import { iso, randomToken, resourceId, safeEqual } from "./rebuild-auth.js";
 import { digestPattern, idPattern, previewPolicy, schemas, tracePattern } from "./rebuild-contract.js";
 import { canonicalJSON, rebuildBody, rebuildJSON, RebuildProblem, sha256 } from "./rebuild-http.js";
 import { parserVersion, prepareArtifacts, previewDigest, snapshotLimit } from "./rebuild-source.js";
@@ -58,9 +58,11 @@ export function publicationHandlers({ store, github, access, writeContext, limit
     if (!artifact && (itemId || selection.version || selection.publication)) throw new RebuildProblem("not_found");
     const scope = `items:${projectId}:${artifact?.id || part + "/" + stage}`;
     const { limit, after } = pageInput(url.searchParams, actor.token, scope, tracePattern);
-    const cites = machine ? store.citedWork(projectId, artifact.id, actor.credential.id) : null;
-    const permitted = !cites || cites.includes(null);
-    if (!permitted && (!cites.length || (itemId && !cites.includes(itemId)))) throw new RebuildProblem("not_found");
+    const identity = actor.credential?.id;
+    const at = iso(now);
+    const cites = machine ? store.citedWork(projectId, artifact.id, identity, at, { item: itemId ?? null }) : null;
+    const permitted = !machine || cites.includes(null);
+    if (!permitted && !cites.length) throw new RebuildProblem("not_found");
     if (itemId) {
       const [item] = store.artifactItems(projectId, artifact.id, "", 1, itemId);
       if (!item || (item.removed && !selection.publication && !selection.version)) throw new RebuildProblem("not_found");
@@ -75,14 +77,15 @@ export function publicationHandlers({ store, github, access, writeContext, limit
       artifact_state: artifact.representation === "missing" ? "missing" : artifact.representation === "unsupported" ? "unsupported" : "present" };
     const document = artifact ? JSON.parse(artifact.source_json) : {};
     const items = !artifact ? [] : permitted ? store.artifactItems(projectId, artifact.id, after, limit + 1, null)
-      : cites.filter((id) => id > after).slice(0, limit + 1).flatMap((id) => store.artifactItems(projectId, artifact.id, "", 1, id));
+      : store.citedWork(projectId, artifact.id, identity, at, { after, limit: limit + 1 })
+          .flatMap((id) => store.artifactItems(projectId, artifact.id, "", 1, id));
     let next_cursor = null;
     if (items.length > limit) {
       items.pop();
       next_cursor = pageCursor(actor.token, scope, items.at(-1).id);
     }
     return rebuildJSON({ stage: summary, representation: artifact?.representation || "missing",
-      source: permitted ? provenance(artifact) : items[0]?.source || provenance(artifact), items, next_cursor,
+      source: permitted ? provenance(artifact) : items[0]?.source || store.artifactItems(projectId, artifact.id, "", 1, cites[0])[0]?.source, items, next_cursor,
       diagnostics: permitted ? document.diagnostics || [] : [], graph: permitted ? document.graph || emptyGraph() : emptyGraph(),
       artifact_id: artifact?.id ?? null, checkpoint_ids: summary.checkpoint_ids });
   }
