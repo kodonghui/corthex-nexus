@@ -133,10 +133,11 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
   }
 
   async function completeSignIn(request, url, now) {
-    strictQuery(url.searchParams, ["code", "state"]);
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
-    if (!code || code.length > 4096 || !state || state.length < 32 || state.length > 256) throw new RebuildProblem("invalid_input");
+    if (url.searchParams.has("error") || !code || code.length > 4096 || !state || state.length < 32 || state.length > 256) {
+      throw new RebuildProblem("invalid_input");
+    }
     if (!oidc) throw new RebuildProblem("authentication_unavailable");
     if (!safeEqual(state, cookieToken(request, AUTH_COOKIE))) throw new RebuildProblem("sign_in_required");
     const oldSession = cookieToken(request, OWNER_COOKIE);
