@@ -29,21 +29,32 @@ function blobId(source, length) {
   return createHash(length === 40 ? "sha1" : "sha256").update(`blob ${bytes.length}\0`).update(bytes).digest("hex");
 }
 
+export function verifySourceFiles(blobs, input) {
+  for (const { source_files } of input.artifacts) {
+    for (const { path, content_utf8: source } of source_files) {
+      if (blobs.get(path) !== blobId(source, input.commit.length)) throw new RebuildProblem("unmerged_commit");
+    }
+  }
+}
+
 // API-225. The repository and branch are stored project settings. Every
 // request is built under one fixed host and the credential is read-only.
 export class RebuildGitHub {
   #headers;
   #fetch;
   #timeout;
+  #privateSource;
 
-  constructor({ token, fetchImpl = fetch, timeout = 10000 } = {}) {
+  constructor({ token, fetchImpl = fetch, timeout = 10000, privateSource } = {}) {
     this.#headers = { Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28",
       "User-Agent": "CORTHEX-NEXUS", ...(token ? { Authorization: `Bearer ${token}` } : {}) };
     this.#fetch = fetchImpl;
     this.#timeout = timeout;
+    this.#privateSource = privateSource;
   }
 
   async verify(project, input, held) {
+    if (this.#privateSource?.matches(project)) return this.#privateSource.verify(project, input, held);
     const names = repositoryNames(project.repository_url);
     if (!names || !project.default_branch) throw new RebuildProblem("source_verification_unavailable");
     const root = `/repos/${names.map(encodeURIComponent).join("/")}`;
@@ -71,11 +82,7 @@ export class RebuildGitHub {
       if (listing.sha !== tree.sha || listing.truncated !== false || !Array.isArray(listing.tree)) throw new Error("Incomplete Git tree");
       const blobs = new Map(listing.tree.filter((item) => item?.type === "blob" && ["100644", "100755"].includes(item.mode))
         .map((item) => [item.path, item.sha]));
-      for (const { source_files } of input.artifacts) {
-        for (const { path, content_utf8: source } of source_files) {
-          if (blobs.get(path) !== blobId(source, input.commit.length)) throw new RebuildProblem("unmerged_commit");
-        }
-      }
+      verifySourceFiles(blobs, input);
     } catch (error) {
       if (signal.aborted || error?.name === "TimeoutError") throw new RebuildProblem("upstream_timeout");
       if (error instanceof RebuildProblem) throw error;
