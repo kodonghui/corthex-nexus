@@ -22,6 +22,12 @@ async function fingerprint(file) {
   return hash.digest("hex");
 }
 
+function journalFingerprint(rows) {
+  const hash = createHash("sha256");
+  for (const row of rows) hash.update(JSON.stringify(row)).update("\n");
+  return hash.digest("hex");
+}
+
 async function privateFile(file) {
   const supplied = checkedPath(file);
   const stats = await lstat(supplied);
@@ -114,8 +120,12 @@ export async function recoverAcknowledged({ baseline, inventory, frozen, output 
   const restored = openRebuildDatabase(target);
   try {
     const source = new RebuildStore(current), candidate = new RebuildStore(restored);
-    const result = candidate.restoreJournal(source.recoveryRows(record.boundary), record.boundary, source.journalBoundary(),
-      sha256, () => sqliteFlags.SQLITE_CHANGESET_ABORT);
+    const through = source.journalBoundary();
+    if (journalFingerprint(candidate.recoveryRows(0, record.boundary)) !== journalFingerprint(source.recoveryRows(0, record.boundary))) {
+      throw new Error("The baseline and frozen journal prefixes differ");
+    }
+    const result = candidate.restoreJournal(source.recoveryRows(record.boundary, through), record.boundary, through,
+      sha256, () => sqliteFlags.SQLITE_CHANGESET_ABORT, new Date().toISOString());
     restored.exec(SQLITE.archive);
     const proof = { action: "journal_recovery", ...result, recovered_sha256: await fingerprint(target) };
     await receipt(folder, "recovery.json", proof);

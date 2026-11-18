@@ -1,6 +1,7 @@
 import { commitPattern, idPattern, partPattern, stageKeys, tracePattern } from "./rebuild-contract.js";
 import { repositoryNames } from "./rebuild-github.js";
 import { canonicalJSON, sha256 } from "./rebuild-http.js";
+import { legacySourceLocation } from "./item-data.js";
 
 const key = (value) => sha256(canonicalJSON(value));
 const legacyId = (kind, ...values) => `${kind}_${key(values).slice(0, 30)}`;
@@ -29,11 +30,18 @@ function partForItem(item, parts) {
   return inferred.length === 1 ? inferred[0] : parts.length === 1 ? parts[0] : "legacy";
 }
 
-function sourceLocation(where) {
-  const match = /^(.*?):([1-9][0-9]{0,8})(?::[0-9]+)?$/.exec(typeof where === "string" ? where : "");
-  if (!match || match[1].length > 1024 || /[\\\p{C}]/u.test(match[1]) ||
-      match[1].split("/").some((piece) => !piece || piece === "." || piece === "..")) return { path: "legacy-source", line: null };
-  return { path: match[1], line: Number(match[2]) };
+function sourceLocation(snapshot, where, defaultRepository, held) {
+  const location = legacySourceLocation(snapshot, where);
+  if (location && location.path.isWellFormed() && !/[\\\p{C}]/u.test(location.path) &&
+      !location.path.split("/").some((piece) => !piece || piece === "." || piece === "..")) {
+    const repository = location.mapped ? location.web : defaultRepository;
+    const sha = location.mapped ? location.commit : held;
+    if (repositoryNames(repository) && commit(sha)) {
+      return { path: location.path, line: Number.isSafeInteger(location.line) ? location.line : null,
+        repository_url: repository, commit: sha };
+    }
+  }
+  return { path: "legacy-source", line: null, repository_url: defaultRepository, commit: held };
 }
 
 // Preparation and tests run only on the protected backup/candidate pair.
@@ -61,12 +69,21 @@ export function buildLegacyPlan(data, manifest, ownerMap, archive, at) {
     const held = item.default_commit;
     const parts = (Array.isArray(seed.project?.parts) ? seed.project.parts : []).filter((value) => typeof value === "string" && partPattern.test(value));
     if (!parts.length) parts.push("main");
+    const configuredParts = [...parts];
     const resolution = new Map();
     const ensurePart = (p) => { if (!parts.includes(p)) parts.push(p); };
     const selected = (table) => (records[table] || []).filter((record) => record.project === name);
     const archived = (kind) => { preservedArchive[kind] = (preservedArchive[kind] || 0) + 1; };
     const map = (kind, oid, tid, original) => mappings.push({ project: name, kind, legacy: oid, targetProject: project, target: tid, digest: key(original) });
     const comments = selected("comments");
+    const discussionParts = new Map();
+    for (const comment of comments) {
+      if (comment.commit_id !== held || !tracePattern.test(comment.item || "")) continue;
+      const key = `${comment.stage}\0${comment.item}`;
+      const scopes = discussionParts.get(key) ?? new Set();
+      scopes.add(part(comment.part));
+      discussionParts.set(key, scopes);
+    }
     const checkpoints = selected("checkpoints");
     const commits = [...new Set([...comments, ...checkpoints].map((row) => row.commit_id).filter((value) => commit(value) && value !== held)), held];
     const publicationByCommit = new Map();
@@ -104,14 +121,13 @@ export function buildLegacyPlan(data, manifest, ownerMap, archive, at) {
       return artifacts.get(logical);
     }
     function setItem(a, trace, title, kind, location, removed) {
-      const { path, line } = location;
+      const { line } = location;
       if (a.items.has(trace)) return a.items.get(trace);
       const { row, publication } = a;
       const item = { id: trace, title, kind, removed, fields: {},
-        source: { repository_url: owner.repository_url, path, line, commit: publication.commit_sha, content_version: row.content_version,
+        source: { ...location, content_version: row.content_version,
           publication_id: publication.id, publication_revision: publication.revision, published_at: publication.received_at } };
       a.items.set(trace, item);
-      if (line && row.source_path === "legacy-source") row.source_path = path;
       rows.artifact_items.push({ project_id: project, artifact_id: row.id, trace_id: trace, item_json: JSON.stringify(item), source_line: line, removed: Number(removed) });
       return item;
     }
@@ -120,9 +136,15 @@ export function buildLegacyPlan(data, manifest, ownerMap, archive, at) {
           !entry.title || Array.from(entry.title).length > 500 || typeof entry.kind !== "string" || !entry.kind || entry.kind.length > 40) {
         archived("snapshot_item"); continue;
       }
-      const a = artifact(partForItem(entry, parts), entry.stage, held);
+      const a = artifact(partForItem(entry, configuredParts), entry.stage, held);
       if (a.items.has(entry.id)) { archived("snapshot_item"); continue; }
-      setItem(a, entry.id, entry.title, entry.kind, sourceLocation(entry.where), false);
+      const location = sourceLocation(seed, entry.where, owner.repository_url, held);
+      setItem(a, entry.id, entry.title, entry.kind, location, false);
+      // The old stage view shared items across parts. Keep each discussion
+      // attached to the item as it appeared in the explicitly reviewed part.
+      for (const reviewedPart of discussionParts.get(`${entry.stage}\0${entry.id}`) ?? []) {
+        setItem(artifact(reviewedPart, entry.stage, held), entry.id, entry.title, entry.kind, location, false);
+      }
       map("snapshot_item", `${entry.id}:${index}`, a.row.id + ":" + entry.id, entry);
     }
     function targetOf(record) {
@@ -133,7 +155,9 @@ export function buildLegacyPlan(data, manifest, ownerMap, archive, at) {
       const a = targetOf(comment);
       if (!a || !date(comment.made_at) || !idPattern.test(comment.id) || !text(comment.text)) { archived("comments"); continue; }
       const trace = tracePattern.test(comment.item || "") ? comment.item : null;
-      if (trace && !a.items.has(trace)) setItem(a, trace, trace, "legacy", { path: "legacy-source", line: null }, true);
+      if (trace && !a.items.has(trace)) setItem(a, trace, trace, "legacy", {
+        path: "legacy-source", line: null, repository_url: owner.repository_url, commit: a.publication.commit_sha,
+      }, true);
       const id = comment.id;
       rows.discussions.push({ id, project_id: project, origin_artifact_id: a.row.id, item_trace_id: trace,
         state: comment.state === "closed" ? "resolved" : "open", created_at: date(comment.made_at) });
@@ -159,30 +183,38 @@ export function buildLegacyPlan(data, manifest, ownerMap, archive, at) {
         map("discussion_decision", id + ":" + choice.seq, decision, choice);
       }
     }
-    const handledCheckpoints = new Set();
+    const checkpointGroups = new Map();
     for (const decision of checkpoints) {
       const a = targetOf(decision);
-      if (!a || !idPattern.test(decision.id) || !date(decision.passed_at) ||
-          (decision.state === "withdrawn" && !date(decision.withdrawn_at)) || handledCheckpoints.has(a.row.id)) {
+      const passed = date(decision.passed_at), withdrawn = date(decision.withdrawn_at);
+      if (!a || !idPattern.test(decision.id) || !passed ||
+          (decision.state === "withdrawn" && (!withdrawn || withdrawn < passed))) {
         archived("checkpoints");
         continue;
       }
-      handledCheckpoints.add(a.row.id);
-      const request = decision.id, decisionId = legacyId("cpd", name, request);
-      rows.checkpoint_requests.push({ id: request, project_id: project, artifact_id: a.row.id, content_version: a.row.content_version,
-        state: decision.state, row_revision: decision.state === "withdrawn" ? 2 : 1, requested_at: date(decision.passed_at) });
-      const history = { project_id: project, request_id: request, actor_owner_id: owner.owner_id, content_version: a.row.content_version,
+      let group = checkpointGroups.get(a.row.id);
+      if (!group) checkpointGroups.set(a.row.id, group = { artifact: a.row, decisions: [] });
+      group.decisions.push({ original: decision, passed, withdrawn });
+    }
+    for (const { artifact: a, decisions } of checkpointGroups.values()) {
+      const events = decisions.flatMap(({ original, passed, withdrawn }) => {
+        const pass = { id: original.id, decision: "pass", decided_at: passed, reason: text(original.words) ? original.words : null };
+        map("checkpoint", original.id, pass.id, original);
+        return withdrawn ? [pass, { id: legacyId("cpd", name, original.id, "withdraw"), decision: "withdraw",
+          decided_at: withdrawn, prior_decision_id: pass.id }] : [pass];
+      });
+      events.sort((a, b) => a.decided_at.localeCompare(b.decided_at) || a.decision.localeCompare(b.decision) || a.id.localeCompare(b.id));
+      const request = events[0].id;
+      rows.checkpoint_requests.push({ id: request, project_id: project, artifact_id: a.id, content_version: a.content_version,
+        state: decisions.some(({ withdrawn }) => !withdrawn) ? "passed" : "withdrawn", row_revision: events.length, requested_at: events[0].decided_at });
+      const history = { project_id: project, request_id: request, actor_owner_id: owner.owner_id, content_version: a.content_version,
         legacy_actor_json: JSON.stringify({ label: "legacy owner" }) };
-      rows.checkpoint_decisions.push({ ...history, id: decisionId, sequence: 1, decision: "pass",
-        decided_at: date(decision.passed_at), reason: text(decision.words) ? decision.words : null });
-      if (decision.state === "withdrawn") rows.checkpoint_decisions.push({ ...history, id: legacyId("cpd", name, request, "withdraw"),
-        sequence: 2, decision: "withdraw", prior_decision_id: decisionId, decided_at: date(decision.withdrawn_at) });
-      map("checkpoint", decision.id, request, decision);
+      for (const [index, event] of events.entries()) rows.checkpoint_decisions.push({ ...history, ...event, sequence: index + 1 });
     }
     for (const request of comments.filter((row) => row.asks === "checkpoint" && row.state === "open")) {
       const a = resolution.get(request.id);
-      if (!a || handledCheckpoints.has(a.row.id)) { archived("checkpoint_request"); continue; }
-      handledCheckpoints.add(a.row.id);
+      if (!a || checkpointGroups.has(a.row.id)) { archived("checkpoint_request"); continue; }
+      checkpointGroups.set(a.row.id, null);
       rows.checkpoint_requests.push({ id: request.id, project_id: project, artifact_id: a.row.id, content_version: a.row.content_version,
         state: "pending", requested_at: date(request.made_at) });
       map("checkpoint_request", request.id, request.id, request);

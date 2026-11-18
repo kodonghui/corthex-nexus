@@ -38,7 +38,7 @@ function checkpointSummary(rows, version) {
 }
 
 function provenance(artifact) {
-  if (!artifact || artifact.representation === "missing") return null;
+  if (!artifact || artifact.representation === "missing" || artifact.parser_version === "nexus.legacy/1") return null;
   return { repository_url: artifact.repository_url || "https://github.com/kodonghui/corthex-nexus", path: artifact.source_path,
     line: 1, commit: artifact.commit_sha, content_version: artifact.content_version,
     publication_id: artifact.publication_id, publication_revision: artifact.publication_revision, published_at: artifact.published_at };

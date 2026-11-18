@@ -26,6 +26,10 @@ node nexus/src/rebuild-operator.js check-release /protected/release-evidence.jso
 
 The inventory records schema and counts, original IDs and row digests, snapshot item digests and the last legacy write boundary. The owner map lists each legacy project by name with its verified `owner_id`, GitHub `repository_url` and `default_branch`. The candidate import verifies the backup against the complete protected inventory and records native and archived mappings. Replay applies transaction changesets and checks every acknowledged result digest against its receipt. Missing or conflicting rows roll back the replay transaction.
 
+Imported checkpoint decisions keep their original IDs and time order, including repeated passes and withdrawals. Same-commit discussions keep their items in each reviewed part. Named repository references use the original repository and commit from the archived snapshot. The first verified v2 publication may use the imported held commit and adds a new revision to its history.
+
+Recovery compares the complete acknowledged journal prefix in both backups before applying later writes. The recovered database revokes restored owner sessions and consumes pending sign-in attempts. Sign in again after switching to the recovered runtime.
+
 The release evidence index names the exact candidate and each protected report with its SHA-256 digest. The check validates API, browser, performance, migration, recovery, compatibility, preview, OIDC, publication and owner checkpoint results. It returns a keep decision until all reports meet their acceptance conditions. The separately configured service unit and environment example are in `nexus/ops/`.
 
 The development rehearsal used three synthetic legacy projects and restored two writes acknowledged after backup. The production inventory, actual owner mapping, live migration and routing switch require protected server access.

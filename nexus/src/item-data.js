@@ -13,7 +13,7 @@ const PLACE = /^(?:([a-z0-9]+(?:-[a-z0-9]+)*):)?(.+):(\d+)$/;
 // The place of the item's source: a repository of the settings by its name,
 // or the project's own; the link opens the file at that repository's commit,
 // at the line unless it is the first, when the settings give its web address.
-function sourceOf(snapshot, where) {
+export function legacySourceLocation(snapshot, where) {
   if (typeof where !== "string" || !where) return null;
   const repos = snapshot.repos && typeof snapshot.repos === "object" ? snapshot.repos : {};
   const match = PLACE.exec(where);
@@ -25,9 +25,16 @@ function sourceOf(snapshot, where) {
     line = Number(match[3]) >= 1 ? Number(match[3]) : null;
   }
   if (Array.from(path).length > 300) return null;
-  const repo = Object.hasOwn(repos, alias) && repos[alias] && typeof repos[alias] === "object" ? repos[alias] : {};
+  const mapped = Object.hasOwn(repos, alias);
+  const repo = mapped && repos[alias] && typeof repos[alias] === "object" ? repos[alias] : {};
   const commit = typeof repo.commit === "string" && COMMIT.test(repo.commit) ? repo.commit : null;
-  const web = https(repo.web);
+  return { path, line, commit, web: https(repo.web), mapped };
+}
+
+function sourceOf(snapshot, where) {
+  const location = legacySourceLocation(snapshot, where);
+  if (!location) return null;
+  const { path, line, commit, web } = location;
   const link = web && commit ? https(web + "/blob/" + commit + "/" + path.split("/").map(encodeURIComponent).join("/") + (line !== null && line !== 1 ? "#L" + line : "")) : null;
   return { path, line, link, commit };
 }
