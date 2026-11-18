@@ -9,7 +9,7 @@ import { sha256 } from "../src/rebuild-http.js";
 import { openRebuildDatabase } from "../src/rebuild-sqlite.js";
 import { SQLiteD1 } from "../src/sqlite.js";
 import { RebuildStore, Store } from "../src/store.js";
-import { insertFixtureRow } from "./rebuild-fixture.js";
+import { insertFixtureRow, seedRebuildFixture } from "./rebuild-fixture.js";
 
 const time = "2026-11-18T04:00:00.000Z";
 const commit = "a".repeat(40);
@@ -132,6 +132,48 @@ test("API-240 restores every acknowledged write after a baseline and rolls back 
     assert.equal(new RebuildStore(reverted).journalBoundary(), 1);
     assert.equal(reverted.prepare("SELECT count(*) n FROM projects").get().n, 1);
   } finally { reverted.close(); }
+});
+
+test("the compatible recovery retains acknowledged question and checkpoint transaction links", async (t) => {
+  const folder = await workspace(t);
+  const file = join(folder, "source.sqlite");
+  const db = openRebuildDatabase(file);
+  await chmod(file, 0o600);
+  const seed = seedRebuildFixture(db);
+  const store = new RebuildStore(db);
+  const before = join(folder, "base");
+  const frozen = join(folder, "frozen");
+  await backupRebuild(file, before);
+  const context = (op, input) => ({ owner: seed.owner, scope: seed.projectId, operation: op,
+    keyHash: sha256("key:" + op), bodyDigest: sha256(JSON.stringify(input)), receipt: "ir_" + op,
+    now: time, expires: "2026-11-19T04:00:00.000Z", digest: sha256 });
+  const question = { publication_id: seed.current.publication_id, content_version: seed.current.content_version,
+    ask_ai: true, item_id: "REQ-301", body: "Preserve a newly acknowledged question" };
+  const asked = store.askAboutArtifact(context("askAboutArtifact", question), seed.projectId, seed.current.part, seed.current.stage,
+    question, { discussion: "dis_recovery", message: "msg_recovery", work: "work_recovery" });
+  assert.equal(asked.status, 201);
+  const path = seed.pending.id;
+  const decision = { content_version: seed.current.content_version, expected_revision: seed.pending.row_revision,
+    decision: "pass", reason: "A fixture owner reviewed the approved version" };
+  const decided = store.decideRebuildCheckpoint(context("decideCheckpoint", decision), seed.projectId, path, decision,
+    "cpd_recovery", () => [], false);
+  assert.equal(decided.status, 201);
+  await backupRebuild(file, frozen);
+  db.close();
+  const output = join(folder, "recovered");
+  await recoverAcknowledged({ baseline: join(before, "rebuild.sqlite"), inventory: join(before, "baseline.json"),
+    frozen: join(frozen, "rebuild.sqlite"), output });
+  const restored = openRebuildDatabase(join(output, "recovered.sqlite"));
+  try {
+    const candidate = new RebuildStore(restored);
+    const work = candidate.workRecord(seed.projectId, "work_recovery");
+    assert.equal(work.question_id, "msg_recovery");
+    assert.equal(work.body, question.body);
+    assert.equal(work.content_version, question.content_version);
+    assert.equal(candidate.checkpointRecord(seed.projectId, path).state, "passed");
+    assert.equal(candidate.checkpointHistory(seed.projectId, path).at(-1).id, "cpd_recovery");
+    assert.equal(candidate.journalBoundary(), 2);
+  } finally { restored.close(); }
 });
 
 test("API-239 keeps the existing runtime when exact release evidence is missing", async (t) => {
