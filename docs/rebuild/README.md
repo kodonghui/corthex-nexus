@@ -16,13 +16,13 @@ The maintainer requested a new thirteen-stage cycle on 2026-11-17 and explicitly
 | [08 Screen states](../08-screens/rebuild/README.md) | corthex-screen + corthex-uxui | Eleven screens, 91 states and 389 response mappings |
 | [09 Mockup](../09-mockup/rebuild/README.md) | corthex-screen + corthex-uxui | Two retained layouts; selected A light/dark HTML and token baseline |
 | [10 WBS](../10-wbs/rebuild.md) | corthex-build | 92 todo tasks with acyclic dependencies and acceptance |
-| 11 Development | corthex-build | Later: implementation PRs against this design |
+| 11 Development | corthex-build | In progress: implementation PRs tracked in the [WBS](../10-wbs/rebuild.md) |
 | 12 QA | corthex-build | Later: browser agents, every flow, migration/recovery evidence |
 | 13 Presentation | corthex-present + corthex-uxui | Later: verified results and explicit limitations |
 
 ## Publication and review state
 
-Author each source/record PR, pass required checks/reviews, merge main, hub push, then send a separate checkpoint request. Verify merge, upload, held commit and saved request separately. Current publication progress, actual request IDs and private addresses are in the existing project record. The maintainer subsequently [approved all published stages 01–10 in chat](../decisions/rebuild-design-approval-2026-11-18.md), bound to default commit `f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9` and snapshot revision 32. Their states are done; 11–13 remain not_started. The [actual stage record](../../.corthex/stages/rebuild.json) preserves the real timeline event and records the later chat approvals with their provenance, without inventing NEXUS button events.
+Author each source/record PR, pass required checks/reviews, merge main, hub push, then send a separate checkpoint request. Verify merge, upload, held commit and saved request separately. Current publication progress, actual request IDs and private addresses are in the existing project record. The maintainer subsequently [approved all published stages 01–10 in chat](../decisions/rebuild-design-approval-2026-11-18.md), bound to default commit `f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9` and snapshot revision 32. The design stages are done. Development is in progress; QA and the presentation have yet to start. The [actual stage record](../../.corthex/stages/rebuild.json) preserves the real timeline event and records the later chat approvals with their provenance, without inventing NEXUS button events.
 
 Keep English sources and Korean reading copies together; run the absolute term-check on Korean text before publication. Preserve old decisions and state why they are replaced. Public Git contains no personal data, secrets or private Miro/record URLs.
 

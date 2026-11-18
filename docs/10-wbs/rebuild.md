@@ -2,7 +2,7 @@
 
 [한국어](rebuild.ko.md)
 
-Status: implementation plan authored under the design-continuation instruction. Every new TASK is todo; no implementation, real QA or production release is claimed.
+Status: the maintainer approved this WBS and instructed development to begin. The task rows record implementation progress and verified results.
 
 Inputs: 42 new behaviors, 36 HTTP APIs, five operator interfaces, eleven screens/91 states and selected A light/dark mockups. Preserve the former 120 TASK meanings, statuses and approvals; the new range starts at TASK-321.
 
@@ -14,8 +14,8 @@ An API task is done only when every declared response is tested against its real
 
 | ID | Task | From | Touches | Depends on | Owner | Estimate | Done when | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TASK-321 | Lock source-derived contract fixtures | SPEC-308, REQ-349 | API-201, TBL-127 | none | backend | M | Versioned synthetic fixture covers two owners, original/new/removed items, pending and historical decisions; schema examples remain valid. | todo |
-| TASK-322 | Apply new schema transactionally | SPEC-341, SPEC-343 | TBL-126, TBL-144, TBL-145 | TASK-321 | backend | M | Fresh database and rollback tests pass with every FK/unique/check invariant; no production database is modified. | todo |
+| TASK-321 | Lock source-derived contract fixtures | SPEC-308, REQ-349 | API-201, TBL-127 | none | backend | M | Versioned synthetic fixture covers two owners, original/new/removed items, pending and historical decisions; schema examples remain valid. | done |
+| TASK-322 | Apply new schema transactionally | SPEC-341, SPEC-343 | TBL-126, TBL-144, TBL-145 | TASK-321 | backend | M | Fresh database and rollback tests pass with every FK/unique/check invariant; no production database is modified. | in_progress |
 | TASK-323 | Implement owner/project query boundaries | SPEC-301, SPEC-332 | TBL-126, TBL-128, TBL-129 | TASK-322 | backend | L | Two-owner tests prove lists, counts, identifiers, pagination and writes never cross ownership; foreign equals absent. | todo |
 | TASK-324 | Build opaque session, CSRF and origin guards | SPEC-319, SPEC-333 | API-201, API-204, TBL-127 | TASK-323 | backend | L | Expiry/rotation, safe cookie flags, CSRF/origin checks and credential-role separation pass without a production auth bypass. | todo |
 | TASK-325 | Provision the owner OIDC adapter | SPEC-333 | API-202, API-203 | none | maintainer | S | Issuer, client and exact callback are registered through protected configuration; no token/code/state is committed or logged. | todo |
@@ -65,7 +65,7 @@ An API task is done only when every declared response is tested against its real
 | TASK-369 | Restore and reconcile legacy data | SPEC-341, SPEC-342, SPEC-343 | API-238 | TASK-368, TASK-322 | backend | M | Isolated import preserves IDs, content digests, order and original decisions; any mismatch blocks release. | todo |
 | TASK-370 | Validate switch or keep | SPEC-345 | API-239 | TASK-405, TASK-406, TASK-401, TASK-402, TASK-407 | backend | M | Protected command keeps production unless every release gate is evidenced; writes a traceable switch/keep outcome. | todo |
 | TASK-371 | Recover acknowledged writes | SPEC-344 | API-240 | TASK-369, TASK-368 | backend | M | Post-boundary journal tail replays on compatible rollback with zero lost acknowledged writes. | todo |
-| TASK-372 | Verify existing automatic CI setup | SPEC-331, SPEC-327, SPEC-328 | API-241 | TASK-399 | harness | M | Reuse harness 0.5.0; verify environment/stdin privacy, skip/partial/setup cases and actual server-held receipts, not just green CI. | todo |
+| TASK-372 | Verify existing automatic CI setup | SPEC-331, SPEC-327, SPEC-328 | API-241 | TASK-399 | harness | M | Reuse harness 0.5.0; verify environment/stdin privacy, skip/partial/setup cases and actual server-held receipts, not just green CI. | done |
 | TASK-373 | Domain timeline and contexts | SPEC-305, SPEC-308, SPEC-309 | API-208, API-209, SCR-134 | TASK-339, TASK-340, TASK-330 | frontend | M | Source-derived 01-domain items preserve stable keys, provenance and keyboard alternative; malformed/missing/removed fixtures show truthful states. | todo |
 | TASK-374 | PRD requirement review | SPEC-306, SPEC-308, SPEC-309 | API-208, API-209, SCR-134 | TASK-339, TASK-340, TASK-330 | frontend | S | Source-derived 02-prd items preserve stable keys, provenance and keyboard alternative; malformed/missing/removed fixtures show truthful states. | todo |
 | TASK-375 | Flow graph review | SPEC-305, SPEC-308, SPEC-309 | API-208, API-209, SCR-134 | TASK-339, TASK-340, TASK-330 | frontend | M | Source-derived 03-user-flow items preserve stable keys, provenance and keyboard alternative; malformed/missing/removed fixtures show truthful states. | todo |
@@ -92,7 +92,7 @@ An API task is done only when every declared response is tested against its real
 | TASK-396 | Isolated mockup preview screen | SPEC-301, SPEC-307, SPEC-308, SPEC-332, SPEC-333, SPEC-337 | SCR-141, API-201, API-204, API-231 | TASK-330, TASK-332, TASK-335, TASK-362 | frontend | M | Every defined state and every called API response maps to visible copy/recovery at 320/390/768/1440 in both themes; all actions have keyboard/focus behavior. | todo |
 | TASK-397 | Responsive and theme behavior | SPEC-334, SPEC-335, REQ-336 | SCR-131, SCR-141 | TASK-330, TASK-386, TASK-387, TASK-388, TASK-389, TASK-390, TASK-391, TASK-392, TASK-393, TASK-394, TASK-395, TASK-396 | frontend | M | Light default/persisted theme, Korean reflow, no lost action/copy and reduced-motion behavior pass on all states. | todo |
 | TASK-398 | Implement linked hub v2 transport | SPEC-325, SPEC-327, SPEC-328, SPEC-329 | API-225, API-226 | TASK-331, TASK-356, TASK-357 | harness | M | Upstream/product PRs and exact proposed pin pass old/new transport contracts, stale/divergent/retry cases and held-commit verification before repinning. | todo |
-| TASK-399 | Grant Actions Secrets write capability once | SPEC-331 | API-241 | none | maintainer | S | The authorized GitHub credential can use repository secret public-key/set APIs for the three repositories; no secret value is printed or stored. | todo |
+| TASK-399 | Grant Actions Secrets write capability once | SPEC-331 | API-241 | none | maintainer | S | The authorized GitHub credential can use repository secret public-key/set APIs for the three repositories; no secret value is printed or stored. | done |
 | TASK-400 | Preserve the legacy wire adapter | SPEC-325, SPEC-341, SPEC-342, SPEC-343 | API-225, API-238 | TASK-356, TASK-369 | backend | M | Existing pinned hub snapshots and Access credentials remain valid only behind the old adapter; original protected identities map without public exposure. | todo |
 | TASK-401 | Rehearse all-project migration and replay | SPEC-341, SPEC-342, SPEC-343, REQ-346 | API-237, API-238 | TASK-369, TASK-400 | QA | L | Protected reports for corthex, corthex-nexus and marong prove preserved snapshot/item/discussion/checkpoint IDs, content/authors/order/version links and repeatable replay. | todo |
 | TASK-402 | Rehearse rollback and post-switch writes | SPEC-344, REQ-346 | API-240 | TASK-371, TASK-401 | QA | L | Inject failure after new acknowledged writes; recover a compatible runtime, reconcile every accepted write and compare protected manifests with zero loss. | todo |
@@ -113,10 +113,10 @@ The first unit is an owner session and project list in isolated development: TAS
 
 ## External prerequisites and release gates
 
-OIDC and private-repository read access require protected provisioning. GitHub Actions Secrets write remains blocked by HTTP 403: after TASK-399, TASK-372 seeds the three existing repositories automatically and verifies actual NEXUS receipts. Do not replace automation with repeated manual secret entry. New v2 transport and hub-ref changes require linked upstream/product PRs and exact-pin contract validation.
+OIDC and private-repository read access require protected provisioning. TASK-399 and TASK-372 were verified for the three existing repositories after the maintainer reported setting their Actions secrets. Fresh Actions runs returned `sent: true` and their commits and revisions matched the live snapshot: [corthex](https://github.com/kodonghui/corthex/actions/runs/44227154412), [corthex-nexus](https://github.com/kodonghui/corthex-nexus/actions/runs/44214598862), [marong2](https://github.com/kodonghui/marong2/actions/runs/44219402663). The new v2 transport and hub-ref changes require linked upstream/product PRs and exact-pin contract validation.
 
 Switch production only after real API response coverage, every user flow with browser agents, accessibility, performance, malicious HTML isolation, all-project migration, post-switch write recovery and actual human checkpoint checks. Keep current production until then. Source repush alone cannot restore server-only discussions/decisions. No deletion is planned; only the maintainer may perform it.
 
 ## Plan checks and next stage
 
-Tasks cover all 42 SPEC rows, 36 HTTP APIs, five operator interfaces and eleven SCRs; the 92-task dependency graph is acyclic. This is not a claim of executed runtime checks or operating metrics. The current instruction ends with stage-10 design; stage-11 development is later work. Keep the version-bound NEXUS requests and never impersonate a human pass.
+Tasks cover all 42 SPEC rows, 36 HTTP APIs, five operator interfaces and eleven SCRs; the 92-task dependency graph is acyclic. This is not a claim of executed runtime checks or operating metrics. The later maintainer instruction starts stage 11 at the approved WBS. The first change seeds two isolated owners and applies the rebuild schema to a dedicated database using a single transaction. The application records each stage checkpoint when the maintainer passes it.

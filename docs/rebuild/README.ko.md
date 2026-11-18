@@ -16,13 +16,13 @@
 | [08 화면 정의](../08-screens/rebuild/README.ko.md) | corthex-screen + corthex-uxui | 화면 11개·상태 91개·응답 매핑 389개 |
 | [09 목업](../09-mockup/rebuild/README.ko.md) | corthex-screen + corthex-uxui | 보존한 두 후보·선택한 A 라이트/다크 HTML과 토큰 기준 |
 | [10 WBS](../10-wbs/rebuild.ko.md) | corthex-build | 순환 없는 의존성·완료 조건을 갖춘 todo 작업 92개 |
-| 11 개발 | corthex-build | 후속: 이번 설계에 따른 구현 PR |
+| 11 개발 | corthex-build | 진행 중: [WBS](../10-wbs/rebuild.ko.md)의 구현 PR |
 | 12 QA | corthex-build | 후속: 브라우저 에이전트·모든 플로우·이전/복구 근거 |
 | 13 발표 | corthex-present + corthex-uxui | 후속: 검증 결과와 명시적인 제한 |
 
 ## 게시와 검토 상태
 
-단계별 원본·기록을 PR로 작성하고 필수 검사·검토를 통과해 main에 병합한 뒤 hub push와 별도 체크포인트 요청을 보냅니다. 병합·업로드·서버 보유 커밋·검토 요청 저장을 각각 확인합니다. 현재 게시 진행과 실제 요청 ID·주소는 기존 비공개 프로젝트 기록에서 확인합니다. 이후 사용자님은 default commit `f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9`·스냅샷 버전 32의 [게시된 01~10을 대화에서 모두 승인](../decisions/rebuild-design-approval-2026-11-18.ko.md)하셨습니다. 해당 단계는 done이며 11~13은 not_started를 유지합니다. [실제 단계 기록](../../.corthex/stages/rebuild.json)은 기존 타임라인 이벤트와 출처를 명시한 후속 대화 승인을 보존하며 NEXUS 버튼 이벤트를 만들지 않습니다.
+단계별 원본·기록을 PR로 작성하고 필수 검사·검토를 통과해 main에 병합한 뒤 hub push와 별도 체크포인트 요청을 보냅니다. 병합·업로드·서버 보유 커밋·검토 요청 저장을 각각 확인합니다. 현재 게시 진행과 실제 요청 ID·주소는 기존 비공개 프로젝트 기록에서 확인합니다. 이후 사용자님은 default commit `f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9`·스냅샷 버전 32의 [게시된 01~10을 대화에서 모두 승인](../decisions/rebuild-design-approval-2026-11-18.ko.md)하셨습니다. 설계 단계는 done입니다. 개발은 in_progress이며 QA와 발표는 아직 시작 전입니다. [실제 단계 기록](../../.corthex/stages/rebuild.json)은 기존 타임라인 이벤트와 출처를 명시한 후속 대화 승인을 보존하며 NEXUS 버튼 이벤트를 만들지 않습니다.
 
 원본의 영어와 한국어 읽기 문서를 함께 유지하고 한국어는 게시 전에 절대 경로의 term-check로 검사합니다. 새 결정은 이전 결정을 지우지 않고 대체 사유를 남깁니다. 공개 레포에는 개인정보·시크릿·비공개 Miro/기록 주소를 넣지 않습니다.
 
