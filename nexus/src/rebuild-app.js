@@ -182,7 +182,14 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
       const { id } = projects.at(-1);
       next_cursor = pageCursor(identity.token, "projects", id);
     }
-    return rebuildJSON({ projects, next_cursor });
+    const review_summaries = store.projectReviews(session.owner_id, projects.map(({ id }) => id)).map((project) => {
+      const stages = stageCatalog(project.artifacts, project.checkpoints);
+      const current = stages.find((stage) => stage.checkpoint_state === "pending") ??
+        stages.find((stage) => stage.work_state === "in_progress") ?? stages.find((stage) => stage.artifact_state !== "missing");
+      return { project_id: project.id, current_stage: current?.stage ?? null, checkpoint_state: current?.checkpoint_state ?? "none",
+        waiting_discussions: project.waiting_discussions, published_at: project.published_at };
+    });
+    return rebuildJSON({ projects, next_cursor, review_summaries });
   }
 
   async function connectProject(request, url, now) {
@@ -241,6 +248,15 @@ export function createRebuildHandler({ store, origin, oidc = null, attemptKey, c
       const login = url.pathname.startsWith("/api/v2/auth/");
       limiter.require(`${login ? url.pathname : "transport"}:${clientScope}`, now, login ? 30 : 3000);
       return await op.handle(request, url, now, ids);
-    } catch (error) { return rebuildProblemResponse(error, url, traceFailure); }
+    } catch (error) {
+      const response = rebuildProblemResponse(error, url, traceFailure);
+      const acceptsHtml = request.headers.get("Accept")?.split(",").some((type) => type.split(";", 1)[0].trim() === "text/html");
+      if (request.method !== "GET" || url.origin !== origin || url.pathname !== "/api/v2/auth/callback" || !acceptsHtml) return response;
+      const { code, traceId } = await response.json();
+      const query = new URLSearchParams({ sign_in_error: code, trace: traceId });
+      const delay = response.headers.get("Retry-After");
+      if (delay && /^\d+$/.test(delay)) query.set("retry_after", delay);
+      return new Response(null, { status: 303, headers: rebuildHeaders({ Location: `/?${query}` }) });
+    }
   };
 }

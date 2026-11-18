@@ -8,10 +8,11 @@
     loading: ko ? "불러오는 중입니다." : "Loading…",
     signIn: ko ? "로그인하면 이 프로젝트를 볼 수 있습니다." : "Sign in to see this project.",
     signingIn: ko ? "로그인 제공자에 연결하고 있습니다." : "Connecting to the sign-in provider…",
+    signInRetry: ko ? "로그인을 완료하지 못했습니다. 다시 시도해 주세요." : "Sign-in did not complete. Try again.",
     unavailable: ko ? "로그인 제공자에 연결할 수 없습니다. 다시 시도해 주세요." : "The sign-in provider is unavailable. Try again.",
     gone: ko ? "프로젝트를 열 수 없습니다. 프로젝트 목록을 확인하세요." : "This project is unavailable. Check your projects.",
     failed: ko ? "요청을 완료하지 못했습니다. 다시 시도해 주세요." : "The request could not be completed. Try again.",
-    empty: ko ? "프로젝트가 없습니다. 저장소를 연결해 시작하세요." : "You have no projects yet. Connect a repository to start.",
+    empty: ko ? "프로젝트가 없습니다. 저장소를 연결하거나 비공개 샘플을 만들어 보세요." : "You have no projects yet. Connect a repository or create a private sample.",
     filtered: ko ? "현재 불러온 프로젝트에서 일치하는 항목이 없습니다." : "No loaded projects match the search.",
     version: ko ? "버전" : "Version",
     notConnected: ko ? "저장소 연결 안 됨" : "Repository not connected",
@@ -22,6 +23,7 @@
     more: ko ? "더 보기" : "Load more",
     removed: ko ? "현재 버전에서 제거됨" : "Removed in this version",
     preview: ko ? "목업 미리 보기" : "Mockup preview",
+    previewUnavailable: ko ? "이 버전의 목업을 열 수 없습니다. 원본에서 다른 버전을 선택하세요." : "This mockup version is unavailable. Open the source and choose another version.",
     reviewConsent: ko ? "전송할 원본과 커밋을 검토한 뒤 게시 도구에 표시된 다이제스트로 동의하세요." : "Review the source and commit in your publication preview, then confirm its digest.",
     digest: ko ? "게시 미리 보기 다이제스트" : "Publication preview digest",
     consent: ko ? "첫 게시 동의" : "Consent to first publication",
@@ -94,12 +96,20 @@
   const safePath = (input) => {
     try {
       const url = new URL(input || "/projects", location.origin);
-      if (url.origin === location.origin && !url.pathname.startsWith("/api/") && url.pathname !== "/") return url.pathname + url.search;
+      if (url.origin === location.origin && !url.pathname.startsWith("/api/") && url.pathname !== "/") return url.pathname + url.search + url.hash;
     } catch { /* Return to the project list. */ }
     return "/projects";
   };
   const route = (project, part = "main", stage = "01-domain") => `/p/${[project, part, stage].map(encodeURIComponent).join("/")}`;
   const stageTitle = (stage) => stages[Number(stage.slice(0, 2)) - 1] || stage;
+  const stageStates = {
+    not_started: ko ? "시작 전" : "Not started", in_progress: ko ? "진행 중" : "In progress",
+    blocked: ko ? "차단됨" : "Blocked", done: ko ? "완료" : "Done",
+    present: ko ? "산출물 있음" : "Artifact available", missing: ko ? "산출물 없음" : "No artifact",
+    unsupported: ko ? "지원하지 않는 형식" : "Unsupported format", none: ko ? "체크포인트 없음" : "No checkpoint",
+    pending: words.pending, passed: words.passed, changes_requested: words.changesRequested,
+    withdrawn: words.withdrawn, historical: ko ? "이전 체크포인트" : "Historical checkpoint",
+  };
   function blockerText(message) {
     const stage = /^([0-9]{2}-[a-z-]+) checkpoint is required$/.exec(message)?.[1];
     return ko && stage ? `${stage.slice(0, 2)} ${stageTitle(stage)} 체크포인트가 필요합니다.` : message;
@@ -120,18 +130,45 @@
   theme.addEventListener("click", () => {
     const value = root.dataset.theme === "dark" ? "light" : "dark";
     setTheme(value);
+    $("preview-frame")?.contentWindow?.postMessage({ nexusPreviewTheme: value }, "*");
     try { localStorage.setItem("nexus.rebuild.theme", value); } catch { /* Use the current document preference. */ }
   });
 
   let currentSession = null;
   let currentProjects = [];
+  const projectReviews = new Map();
+  let reviewedPaths = {};
   let nextPage = null;
   let pending = null;
   let generation = 0;
+  const reviewedPathKey = "nexus.rebuild.reviewed-paths";
+  const signInPathKey = "nexus.rebuild.sign-in-path";
+  const authSearch = new URLSearchParams(location.search);
+  const callbackCode = page === "welcome" ? authSearch.get("sign_in_error") : null;
+  const callbackMessages = { invalid_input: words.signInRetry, sign_in_required: words.signInRetry,
+    rate_limited: words.rate, authentication_unavailable: words.unavailable, upstream_timeout: words.unavailable,
+    internal_error: words.signInRetry };
+  const recoveringSignIn = Object.hasOwn(callbackMessages, callbackCode);
+
+  function projectHref(project, fallback = route(project)) {
+    const stored = Object.hasOwn(reviewedPaths, project) && reviewedPaths[project];
+    const path = safePath(typeof stored === "string" ? stored : null);
+    return path.startsWith(`/p/${encodeURIComponent(project)}/`) ? path : fallback;
+  }
+
+  function rememberReview(project) {
+    if (!currentSession) return;
+    reviewedPaths[project] = safePath(location.href);
+    try { sessionStorage.setItem(reviewedPathKey, JSON.stringify({ owner: currentSession.owner_id, paths: reviewedPaths })); }
+    catch { /* Keep the current document usable without storage. */ }
+  }
+
   function clearPrivate() {
     generation += 1;
     currentSession = null;
     currentProjects = [];
+    projectReviews.clear();
+    reviewedPaths = {};
     nextPage = null;
     pending = null;
     $("project-list")?.replaceChildren();
@@ -141,7 +178,7 @@
     const content = $("private-content");
     if (content instanceof HTMLFormElement) content.reset();
     if (["versions", "credentials", "preview", "publications", "checkpoint"].includes(page)) content.replaceChildren();
-    for (const id of ["artifact-items", "artifact-detail", "artifact-graph", "discussions", "checkpoint-links", "sample-copy"]) $(id)?.replaceChildren();
+    for (const id of ["artifact-items", "artifact-detail", "artifact-graph", "artifact-provenance", "discussions", "checkpoint-links", "sample-copy"]) $(id)?.replaceChildren();
     visible(content, false);
     visible($("sample-copy"), false);
     for (const id of ["project-nav", "sign-out", "continue", "versions-link", "publications-link", "credentials-link", "provenance-link", "preview-link"]) visible($(id), false);
@@ -174,15 +211,28 @@
     const results = currentProjects.filter((item) => `${item.title} ${item.slug}`.toLowerCase().includes(text));
     const cards = results.map((item) => {
       const link = label("a", "", "card");
-      link.href = route(item.id);
+      link.href = projectHref(item.id);
       link.append(label("p", item.synthetic ? (ko ? "비공개 · 샘플" : "Private · Sample") : (ko ? "비공개" : "Private"), "eyebrow"),
         label("h2", item.title), label("p", `${words.version} ${item.revision}`, "muted"),
         label("span", item.verification_state === "ready" ? words.confirmed : item.verification_state === "not_connected" ? words.notConnected : words.waiting, "badge"));
+      const review = projectReviews.get(item.id);
+      if (review) {
+        if (review.current_stage) link.append(label("p", `${ko ? "현재 단계" : "Current stage"} · ${stageTitle(review.current_stage)}`));
+        const checkpoint = review.checkpoint_state === "none" ? stageStates.none : `${words.checkpoint} · ${stageStates[review.checkpoint_state]}`;
+        const discussions = ko ? `열린 대화 ${review.waiting_discussions}건` : `Open discussions ${review.waiting_discussions}`;
+        link.append(label("p", `${discussions} · ${checkpoint}`, "small muted"));
+        if (review.published_at) {
+          const published = new Date(review.published_at).toLocaleString(ko ? "ko-KR" : "en", { dateStyle: "medium", timeStyle: "short" });
+          link.append(label("p", `${ko ? "최근 게시" : "Latest publication"} · ${published}`, "small muted"));
+        }
+      }
       return link;
     });
     $("project-list").replaceChildren(...cards);
-    $("project-empty").textContent = text ? words.filtered : words.empty;
+    $("project-empty-message").textContent = text ? words.filtered : words.empty;
     visible($("project-empty"), cards.length === 0);
+    visible($("project-copy-sample"), !text && currentProjects.length === 0);
+    visible($("project-clear-search"), Boolean(text));
     visible($("more-projects"), Boolean(nextPage));
   }
 
@@ -195,6 +245,8 @@
     $("more-projects").disabled = false;
     if (!result.ok) { failure(result); return; }
     currentProjects = cursor ? [...currentProjects, ...result.value.projects] : result.value.projects;
+    if (!cursor) projectReviews.clear();
+    for (const summary of result.value.review_summaries ?? []) projectReviews.set(summary.project_id, summary);
     nextPage = result.value.next_cursor;
     statusMessage();
     renderProjects();
@@ -232,10 +284,17 @@
     picker.onchange = () => location.assign(route(project, picker.value, stage));
     $("stage-title").textContent = `${stage.slice(0, 2)} ${stageTitle(stage)}`;
     $("stage-state").textContent = words.loading;
+    const latest = $("latest-workspace");
+    latest.href = route(project, part, stage);
+    visible(latest, history);
     const navigation = selected ? rows.filter((item) => item.part === part) : [{ stage }];
     $("stage-list").replaceChildren(...navigation.map((item) => {
       const entry = label("li", "");
-      const link = label("a", `${item.stage.slice(0, 2)} ${stageTitle(item.stage)}`);
+      const link = label("a", "");
+      const summary = label("span", `${item.stage.slice(0, 2)} ${stageTitle(item.stage)}`);
+      if (item.work_state) summary.append(label("span", [item.work_state, item.artifact_state, item.checkpoint_state]
+        .map((key) => stageStates[key]).filter(Boolean).join(" · "), "stage-summary small muted"));
+      link.append(summary);
       link.href = route(project, part, item.stage);
       if (item.stage === stage) link.setAttribute("aria-current", "page");
       entry.append(link);
@@ -246,22 +305,43 @@
     await workspaceArtifact(project, part, stage, item, read);
   }
 
+  function sourceMetadata(source) {
+    const list = label("dl", "", "review-fields");
+    for (const [name, value] of [[ko ? "원본 저장소" : "Source repository", source.repository_url],
+      [ko ? "원본 경로" : "Source path", source.path], [ko ? "원본 커밋" : "Source commit", source.commit],
+      [ko ? "콘텐츠 버전" : "Content version", source.content_version]]) {
+      list.append(label("dt", name), label("dd", value, "mono"));
+    }
+    return list;
+  }
+
   function sourceLink(source, id = "provenance-link") {
+    const metadata = $("artifact-provenance");
+    if (metadata) {
+      metadata.replaceChildren(...(source ? [sourceMetadata(source)] : []));
+      visible(metadata, Boolean(source));
+    }
     const anchor = $(id);
     if (!anchor) return;
-    visible(anchor, false);
-    if (!source || source.line === null) return;
+    const href = githubSourceURL(source);
+    visible(anchor, Boolean(href));
+    if (!href) return;
+    anchor.href = href;
+    anchor.target = "_blank";
+    anchor.rel = "noopener noreferrer";
+    anchor.textContent = `${source.path} · ${source.commit.slice(0, 8)}`;
+  }
+
+  function githubSourceURL(source) {
+    if (!source) return null;
     try {
       const repository = new URL(source.repository_url);
       if (repository.origin !== "https://github.com" || !/^\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository.pathname) ||
           !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(source.commit) ||
-          source.path.split("/").some((part) => !part || part === "." || part === "..")) return;
-      anchor.href = `${repository.origin}${repository.pathname}/blob/${source.commit}/${source.path.split("/").map(encodeURIComponent).join("/")}#L${source.line}`;
-      anchor.target = "_blank";
-      anchor.rel = "noopener noreferrer";
-      anchor.textContent = `${source.path} · ${source.commit.slice(0, 8)}`;
-      visible(anchor, true);
-    } catch { /* A source with unavailable provenance remains local. */ }
+          source.path.split("/").some((part) => !part || part === "." || part === "..")) return null;
+      const line = Number.isSafeInteger(source.line) && source.line > 0 ? `#L${source.line}` : "";
+      return `${repository.origin}${repository.pathname}/blob/${source.commit}/${source.path.split("/").map(encodeURIComponent).join("/")}${line}`;
+    } catch { return null; }
   }
 
   function buildDiagram(graph) {
@@ -339,15 +419,39 @@
       const param = new URL(location.href).searchParams.get(key);
       if (param !== null) parameters.set(key, param);
     }
-    const exact = parameters.size ? `?${parameters}` : "";
+    let exact = parameters.size ? `?${parameters}` : "";
     const requestPath = `/api/v2/projects/${project}/stages/${encodeURIComponent(part)}/${stage}`;
     if (cursor) parameters.set("cursor", cursor);
     const query = parameters.size ? `?${parameters}` : "";
-    const [artifact, item] = await Promise.all([api(requestPath + query),
-      itemId && !cursor ? api(`${requestPath}/items/${encodeURIComponent(itemId)}${exact}`) : null]);
+    const retry = $("artifact-retry");
+    visible(retry, false);
+    const itemPath = `${requestPath}/items/${encodeURIComponent(itemId)}`;
+    let [artifact, item] = await Promise.all([api(requestPath + query),
+      itemId && !cursor ? api(itemPath + exact) : null]);
     if (read !== generation) return;
-    if (!artifact.ok) { failure(artifact); return; }
+    if (!artifact.ok) {
+      $("stage-state").textContent = "";
+      failure(artifact);
+      if (artifact.status === 0 || artifact.status >= 500) {
+        visible(retry, true);
+        retry.onclick = () => workspaceArtifact(project, part, stage, itemId, read, cursor);
+      }
+      return;
+    }
     const data = artifact.value;
+    if (item?.status === 404 && !exact && data.source) {
+      const pinned = `?${new URLSearchParams({ version: data.source.content_version, publication_id: data.source.publication_id })}`;
+      const removed = await api(itemPath + pinned);
+      if (read !== generation) return;
+      if (removed.ok && removed.value.removed) {
+        exact = pinned;
+        item = removed;
+        window.history.replaceState(null, "", location.pathname + pinned + location.hash);
+        const latest = $("latest-workspace");
+        latest.href = route(project, part, stage);
+        visible(latest, true);
+      }
+    }
     const missing = data.representation === "missing", unsupported = data.representation === "unsupported";
     $("stage-state").textContent = missing ? words.noSource : unsupported ? words.unsupported : words.present;
     sourceLink(data.source);
@@ -382,7 +486,10 @@
       visible(detail, true);
     }
     statusMessage();
-    if (!cursor && (itemId === null || item?.ok) && data.source) await discussionPanel(project, part, stage, item?.value ?? null, data, read);
+    if (!cursor && (itemId === null || item?.ok)) {
+      rememberReview(project);
+      if (data.source) await discussionPanel(project, part, stage, item?.value ?? null, data, read);
+    }
   }
 
   async function reviewProjectPage() {
@@ -394,7 +501,7 @@
     if (!result.ok) { failure(result); return; }
     const { project: data, stages, held_commit } = result.value;
     const entry = stages.find((stage) => stage.work_state === "in_progress") || stages[0];
-    $("back-project").href = entry ? route(project, entry.part, entry.stage) : "/projects";
+    $("back-project").href = projectHref(project, entry ? route(project, entry.part, entry.stage) : "/projects");
     visible(root, true);
     if (page === "versions") await renderVersions(project, root, read);
     if (page === "publications") renderPublications(project, root, data, held_commit);
@@ -537,15 +644,60 @@
     const version = new URL(location.href).searchParams.get("version");
     const response = await api(`/api/v2/projects/${project}/previews/${id}${version ? "?" + new URLSearchParams({ version }) : ""}`);
     if (read !== generation) return;
-    if (!response.ok) { failure(response); return; }
+    if (!response.ok) {
+      if (response.status === 404) statusMessage(words.previewUnavailable, true);
+      else failure(response);
+      if (response.status === 0 || response.status >= 500) {
+        const retry = label("button", ko ? "다시 시도" : "Try again");
+        retry.type = "button";
+        retry.onclick = () => { retry.disabled = true; renderPreview(project, root, read); };
+        root.replaceChildren(retry);
+      }
+      return;
+    }
+    const { source, part, content_version, html } = response.value;
+    $("back-project").href = route(project, part, "09-mockup") + "?" + new URLSearchParams({ version: content_version, publication_id: source.publication_id });
     const frame = document.createElement("iframe");
+    frame.id = "preview-frame";
     frame.className = "preview-frame";
     frame.title = words.preview;
     frame.setAttribute("sandbox", "allow-scripts");
     frame.referrerPolicy = "no-referrer";
     const policy = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'";
-    frame.srcdoc = `<!doctype html><meta http-equiv="Content-Security-Policy" content="${policy}">` + response.value.html.replace(/^\s*<!doctype html>/i, "");
-    root.replaceChildren(frame);
+    // Messages cross into the opaque preview with a theme value only.
+    const themeInput = `<script>addEventListener("message", (event) => {
+      const value = event.data?.nexusPreviewTheme;
+      if (event.source !== parent || event.origin !== ${JSON.stringify(location.origin)} || !["light", "dark"].includes(value)) return;
+      document.documentElement.dataset.theme = value;
+      document.documentElement.style.colorScheme = value;
+    });</script>`;
+    frame.srcdoc = `<!doctype html><meta http-equiv="Content-Security-Policy" content="${policy}">${themeInput}` + html.replace(/^\s*<!doctype html>/i, "");
+    frame.addEventListener("load", () => frame.contentWindow?.postMessage({ nexusPreviewTheme: document.documentElement.dataset.theme }, "*"));
+    const tools = label("div", "", "row preview-tools");
+    tools.setAttribute("role", "group");
+    tools.setAttribute("aria-label", ko ? "미리 보기 화면 폭" : "Preview width");
+    for (const width of [0, 320, 390, 768, 1440]) {
+      const control = label("button", width ? `${width} px` : ko ? "자동" : "Auto");
+      control.type = "button";
+      control.setAttribute("aria-pressed", String(width === 0));
+      control.onclick = () => {
+        for (const button of tools.querySelectorAll("button")) button.setAttribute("aria-pressed", String(button === control));
+        frame.dataset.width = String(width);
+      };
+      tools.append(control);
+    }
+    const viewport = label("div", "", "preview-viewport");
+    viewport.append(frame);
+    const guidance = label("p", ko ? "격리된 미리 보기에서는 외부 리소스가 표시되지 않을 수 있습니다." : "Some external resources may be unavailable in the isolated preview.", "small muted");
+    const href = githubSourceURL(source);
+    if (href) {
+      const openSource = label("a", ko ? "원본 HTML 열기" : "Open source HTML", "button");
+      openSource.href = href;
+      openSource.target = "_blank";
+      openSource.rel = "noopener noreferrer";
+      tools.append(openSource);
+    }
+    root.replaceChildren(sourceMetadata(source), tools, guidance, viewport);
     statusMessage();
   }
 
@@ -808,6 +960,13 @@
     await load(null);
   }
 
+  async function savePrivateSample({ payload, key }) {
+    const response = await mutation("/api/v2/sample-projects", payload, key);
+    if (!response.ok) { failure(response); return false; }
+    location.assign(route(response.value.id, "main", "02-prd"));
+    return true;
+  }
+
   function sampleActions() {
     const section = $("sample-copy");
     if (!section) return;
@@ -818,12 +977,7 @@
       section.append(signIn);
     } else {
       actionForm([field("title", words.sampleProjectName, { value: words.sampleProjectName, maxLength: 120 })],
-        words.saveSample, async ({ payload, key }) => {
-          const response = await mutation("/api/v2/sample-projects", payload, key);
-          if (!response.ok) { failure(response); return false; }
-          location.assign(route(response.value.id, "main", "02-prd"));
-          return true;
-        }, section);
+        words.saveSample, savePrivateSample, section);
     }
     visible(section, true);
   }
@@ -831,11 +985,19 @@
   $("sign-in")?.addEventListener("click", async (event) => {
     event.currentTarget.disabled = true;
     statusMessage(words.signingIn);
-    const return_path = safePath(new URL(location.href).searchParams.get("next"));
+    let next = authSearch.get("next");
+    if (recoveringSignIn) {
+      try { next = sessionStorage.getItem(signInPathKey); } catch { /* Use the project list. */ }
+    }
+    const return_path = safePath(next);
     const result = await api("/api/v2/auth/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ return_path }) });
     if (result.ok) {
       const target = new URL(result.value.authorize_url);
-      if (target.protocol === "https:") { location.assign(target.href); return; }
+      if (target.protocol === "https:") {
+        try { sessionStorage.setItem(signInPathKey, return_path); } catch { /* Use the project list on callback recovery. */ }
+        location.assign(target.href);
+        return;
+      }
     }
     failure(result);
     $("sign-in").disabled = false;
@@ -845,13 +1007,30 @@
     if (!currentSession) return;
     $("sign-out").disabled = true;
     const result = await api("/api/v2/session/logout", { method: "POST", headers: { "X-CSRF-Token": currentSession.csrf_token } });
-    if (result.ok || result.status === 401) { clearPrivate(); location.replace("/"); return; }
+    if (result.ok || result.status === 401) {
+      try { sessionStorage.removeItem(reviewedPathKey); sessionStorage.removeItem(signInPathKey); } catch { /* Storage is optional. */ }
+      clearPrivate();
+      location.replace("/");
+      return;
+    }
     $("sign-out").disabled = false;
     failure(result);
   });
 
   $("project-search")?.addEventListener("input", renderProjects);
   $("more-projects")?.addEventListener("click", () => { if (nextPage) listProjects(nextPage); });
+  $("project-clear-search")?.addEventListener("click", () => {
+    $("project-search").value = "";
+    renderProjects();
+    $("project-search").focus();
+  });
+  let sampleKey = null;
+  $("project-copy-sample")?.addEventListener("click", async (event) => {
+    const control = event.currentTarget;
+    control.disabled = true;
+    sampleKey ??= crypto.randomUUID();
+    if (!await savePrivateSample({ payload: JSON.stringify({ title: words.sampleProjectName }), key: sampleKey })) control.disabled = false;
+  });
   if (page === "connect") $("private-content").addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!currentSession) return;
@@ -870,6 +1049,13 @@
   });
 
   async function start() {
+    if (recoveringSignIn) {
+      const trace = authSearch.get("trace") || "";
+      const metadata = /^[0-9a-f-]{36}$/.test(trace) ? ` (${callbackCode} · ${trace})` : "";
+      const wait = authSearch.get("retry_after") || "";
+      const delay = /^\d{1,5}$/.test(wait) ? ` (${wait}${ko ? "초" : "s"})` : "";
+      statusMessage(callbackMessages[callbackCode] + delay + metadata, true);
+    }
     if (page === "sample") {
       const result = await api("/api/v2/sample");
       $("sample-content").setAttribute("aria-busy", "false");
@@ -884,6 +1070,12 @@
       return;
     }
     currentSession = result.value;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(reviewedPathKey));
+      if (saved?.owner === currentSession.owner_id && saved.paths && typeof saved.paths === "object") reviewedPaths = saved.paths;
+      else sessionStorage.removeItem(reviewedPathKey);
+      if (!recoveringSignIn) sessionStorage.removeItem(signInPathKey);
+    } catch { /* The default project address stays available. */ }
     if (page === "sample") sampleActions();
     visible($("project-nav"), true);
     visible($("sign-out"), true);

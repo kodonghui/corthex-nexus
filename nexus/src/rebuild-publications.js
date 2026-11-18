@@ -176,9 +176,10 @@ export function publicationHandlers({ store, github, access, writeContext, limit
     const artifact = store.artifactById(projectId, artifactId, version);
     if (artifact?.representation !== "html") throw new RebuildProblem("not_found");
     const file = JSON.parse(artifact.source_json).source_files?.find((source) => source.path === artifact.source_path && source.media_type === "text/html");
-    if (!file?.content_utf8) throw new RebuildProblem("not_found");
-    return rebuildJSON({ artifact_id: artifact.id, content_version: artifact.content_version,
-      html: file.content_utf8, sandbox: "allow-scripts", csp: previewPolicy });
+    const source = provenance(artifact);
+    if (!file?.content_utf8 || !source) throw new RebuildProblem("not_found");
+    return rebuildJSON({ artifact_id: artifact.id, content_version: artifact.content_version, part: artifact.part,
+      source, html: file.content_utf8, sandbox: "allow-scripts", csp: previewPolicy });
   }
 
   return { getStageArtifact: readArtifact, getArtifactItem: readArtifact, listProjectVersions,

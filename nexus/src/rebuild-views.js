@@ -31,9 +31,11 @@ const copy = {
     flow: "한 프로젝트의 흐름", steps: [["도메인 탐색", "그림으로 검토"], ["PRD", "항목에 질문"], ["유저 플로우", "사용자가 결정"]],
     features: [["산출물을 그림으로 검토", "도메인, 플로우, ERD, 사이트맵을 원본과 함께 봅니다."], ["항목에 질문", "어떤 항목의 어떤 버전을 두고 대화했는지 확인합니다."], ["체크포인트 결정", "검토할 버전을 확인한 사용자가 직접 통과시킵니다."]],
     projects: "프로젝트", connect: "프로젝트 연결", search: "프로젝트 검색", createIntro: "검토할 GitHub 저장소를 연결합니다.",
+    copySample: "비공개 샘플 만들기", clearSearch: "검색어 지우기",
     projectsIntro: "각 프로젝트에서 검토하던 단계를 이어서 확인하세요.", name: "프로젝트 이름", slug: "프로젝트 ID", repo: "GitHub 저장소 주소", branch: "기본 브랜치", more: "더 보기",
     checkpoint: "체크포인트 검토", versions: "버전 이력", publications: "게시 상태", credentials: "게시 자격 증명", preview: "목업 미리 보기",
     cancel: "취소", sampleTitle: "공개 샘플", sampleIntro: "샘플 원본과 항목을 확인하세요.", workspace: "단계 검토", stage: "단계", skip: "본문으로 이동", theme: "다크 테마", loading: "불러오는 중입니다.",
+    retry: "다시 시도", latest: "최신 원본 열기",
   },
   en: {
     title: "See the work. Ask together. Decide yourself.", intro: "Thirteen stages from discovery to presentation. See each artifact, ask an AI about its items, and pass the checkpoint for the version you reviewed.",
@@ -41,9 +43,11 @@ const copy = {
     flow: "One project, step by step", steps: [["Domain discovery", "Review a diagram"], ["PRD", "Ask about an item"], ["User flow", "Make the decision"]],
     features: [["Review work visually", "See the domain, flows, ERD and sitemap alongside the source."], ["Ask about an item", "Keep each conversation with the item and version it concerns."], ["Decide on a checkpoint", "Pass a checkpoint yourself after reviewing its version."]],
     projects: "Projects", connect: "Connect project", search: "Search projects", createIntro: "Connect the GitHub repository you want to review.",
+    copySample: "Create a private sample", clearSearch: "Clear search",
     projectsIntro: "Pick up where you left off in each project.", name: "Project title", slug: "Project ID", repo: "GitHub repository URL", branch: "Default branch", more: "Load more",
     checkpoint: "Checkpoint review", versions: "Version history", publications: "Publications", credentials: "Publication credentials", preview: "Preview mockup",
     cancel: "Cancel", sampleTitle: "Public sample", sampleIntro: "Review the sample source and its items.", workspace: "Review stage", stage: "Stage", skip: "Skip to content", theme: "Dark theme", loading: "Loading…",
+    retry: "Try again", latest: "Open the latest source",
   },
 };
 
@@ -60,7 +64,10 @@ function projects(t) {
   return `<div class="page-heading row between"><div><h1>${t.projects}</h1><p class="muted">${t.projectsIntro}</p></div>
     <a class="button primary" href="/projects/new">${t.connect}</a></div><div class="stack" id="private-content" hidden>
     <label class="narrow" for="project-search">${t.search}<input id="project-search" type="search" autocomplete="off"></label>
-    <div class="cards" id="project-list"></div><p class="muted" id="project-empty" hidden></p>
+    <div class="cards" id="project-list"></div><div class="stack" id="project-empty" hidden>
+    <p class="muted" id="project-empty-message"></p><div class="row">
+    <button type="button" id="project-copy-sample">${t.copySample}</button>
+    <button type="button" id="project-clear-search">${t.clearSearch}</button></div></div>
     <button type="button" id="more-projects" hidden>${t.more}</button></div>`;
 }
 
@@ -80,7 +87,9 @@ function workspace(t) {
     <div id="private-content" class="workspace" hidden>
     <nav aria-label="${t.stage}"><select id="part-picker" aria-label="Part" hidden></select><ul class="stage-list" id="stage-list"></ul></nav>
     <section class="panel stack"><h2 id="stage-title"></h2><p id="stage-state" role="status"></p><ul id="stage-blockers"></ul>
-      <div class="row"><a class="button" id="provenance-link" hidden></a><a class="button" id="preview-link" hidden>${t.preview}</a></div>
+      <div class="row"><a class="button" id="provenance-link" hidden></a><a class="button" id="preview-link" hidden>${t.preview}</a>
+      <a class="button" id="latest-workspace" hidden>${t.latest}</a><button type="button" id="artifact-retry" hidden>${t.retry}</button></div>
+      <div id="artifact-provenance" hidden></div>
       <div class="row" id="checkpoint-links"></div><div id="artifact-graph" class="artifact-graph" hidden></div><ul id="artifact-items" class="review-items"></ul>
       <button type="button" id="more-items" hidden>${t.more}</button><section id="artifact-detail" hidden></section><section id="discussions" class="stack" hidden></section></section></div>`;
 }

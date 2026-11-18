@@ -464,7 +464,7 @@
       "get": {
         "operationId": "completeOwnerSignIn",
         "summary": "completeOwnerSignIn",
-        "description": "Accept exactly one code and one state. Ignore unrecognized OAuth response parameters and reject provider error responses. Consume state once and exchange code using PKCE. Verify issuer/audience/signature/nonce; rotate the opaque session, set a Secure HttpOnly SameSite=Lax cookie and redirect to a validated same-origin path. Never log code/state/tokens.",
+        "description": "Accept exactly one code and one state. Ignore unrecognized OAuth response parameters and reject provider error responses. Consume state once and exchange code using PKCE. Verify issuer/audience/signature/nonce; rotate the opaque session, set a Secure HttpOnly SameSite=Lax cookie and redirect to a validated same-origin path. For browser navigations accepting HTML, redirect a refused callback to the welcome page with a safe problem code and trace ID so the user can restart sign-in. API clients receive the original problem response. Never log code/state/tokens.",
         "x-ignore-unknown-query-parameters": true,
         "x-corthex": {
           "id": "API-203",
@@ -505,7 +505,7 @@
         ],
         "responses": {
           "303": {
-            "description": "Verified sign-in; redirect to the safe same-origin return path.",
+            "description": "Redirect a verified sign-in to its safe same-origin return path. Redirect a refused HTML navigation to the same-origin sign-in recovery page, without creating a session.",
             "headers": {
               "Location": {
                 "required": true,
@@ -979,7 +979,16 @@
                           "verification_state": "ready"
                         }
                       ],
-                      "next_cursor": null
+                      "next_cursor": null,
+                      "review_summaries": [
+                        {
+                          "project_id": "prj_demo",
+                          "current_stage": "02-prd",
+                          "checkpoint_state": "pending",
+                          "waiting_discussions": 3,
+                          "published_at": "2026-11-18T00:00:00Z"
+                        }
+                      ]
                     }
                   }
                 }
@@ -9834,6 +9843,17 @@
                     "value": {
                       "artifact_id": "art_demo",
                       "content_version": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                      "part": "main",
+                      "source": {
+                        "repository_url": "https://github.com/example/sample",
+                        "path": "design/index.html",
+                        "line": 1,
+                        "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "content_version": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                        "publication_id": "pub_demo",
+                        "publication_revision": 1,
+                        "published_at": "2026-11-18T00:00:00Z"
+                      },
                       "html": "<!doctype html><html lang=\"en\"><title>Sample preview</title><body>Sample</body></html>",
                       "sandbox": "allow-scripts",
                       "csp": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'"
@@ -11650,11 +11670,43 @@
               "null"
             ],
             "maxLength": 256
+          },
+          "review_summaries": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "project_id": {
+                  "$ref": "#/components/schemas/Project/properties/id"
+                },
+                "current_stage": {
+                  "anyOf": [
+                    { "$ref": "#/components/schemas/StageSummary/properties/stage" },
+                    { "type": "null" }
+                  ]
+                },
+                "checkpoint_state": {
+                  "$ref": "#/components/schemas/StageSummary/properties/checkpoint_state"
+                },
+                "waiting_discussions": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "published_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                }
+              },
+              "required": ["project_id", "current_stage", "checkpoint_state", "waiting_discussions", "published_at"]
+            }
           }
         },
         "required": [
           "projects",
-          "next_cursor"
+          "next_cursor",
+          "review_summaries"
         ]
       },
       "StageSummary": {
@@ -13617,6 +13669,12 @@
             "maxLength": 64,
             "pattern": "^[a-f0-9]{64}$"
           },
+          "part": {
+            "$ref": "#/components/schemas/StageSummary/properties/part"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Provenance"
+          },
           "html": {
             "type": "string",
             "minLength": 1,
@@ -13633,6 +13691,8 @@
         "required": [
           "artifact_id",
           "content_version",
+          "part",
+          "source",
           "html",
           "sandbox",
           "csp"

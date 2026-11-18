@@ -111,7 +111,13 @@
     {
       "part": "rebuild",
       "stage": "12-qa",
-      "files": []
+      "files": [
+        "docs/12-qa/rebuild.md",
+        "docs/12-qa/rebuild.ko.md",
+        "docs/12-qa/rebuild/2026-11-19-baseline.md",
+        "docs/12-qa/rebuild/2026-11-19-baseline.ko.md",
+        "docs/12-qa/rebuild/api-cases.json"
+      ]
     },
     {
       "part": "rebuild",

@@ -166,6 +166,31 @@ test("API-203 rejects incorrect nonce, issuer, audience and signature and expire
   assert.equal(f.connection.prepare("SELECT count(*) AS n FROM owners").get().n, 2);
 });
 
+test("API-203 redirects a refused browser callback to a safe retry while retaining API errors", async (t) => {
+  const f = await fixture(t);
+  const browser = { Accept: "text/html,application/xhtml+xml" };
+  const refused = "/api/v2/auth/callback?error=access_denied&error_description=provider-private-detail";
+  await problem(await f.request(refused), 400, "invalid_input");
+  for (const scenario of ["invalid_input", "upstream_timeout"]) {
+    let response;
+    if (scenario === "invalid_input") response = await f.request(refused, { headers: browser });
+    else {
+      const { callback, authCookie } = await start(f, "/projects?view=recent");
+      f.oauth.fault = "timeout";
+      response = await f.request(callback, { headers: { ...browser, Cookie: authCookie } });
+    }
+    assert.equal(response.status, 303);
+    assert.equal(response.headers.get("Cache-Control"), "no-store");
+    assert.deepEqual(response.headers.getSetCookie(), []);
+    const location = new URL(response.headers.get("Location"), origin);
+    assert.equal(location.origin, origin);
+    assert.equal(location.pathname, "/");
+    assert.deepEqual([...location.searchParams.keys()], ["sign_in_error", "trace"]);
+    assert.equal(location.searchParams.get("sign_in_error"), scenario);
+    assert.match(location.searchParams.get("trace"), /^[0-9a-f-]{36}$/);
+  }
+});
+
 test("API-201/204 enforce idle and absolute expiry, CSRF, Origin, revocation and machine separation", async (t) => {
   const f = await fixture(t);
   const token = f.issue(f.data.owner), expired = f.issue(f.data.owner);
@@ -218,6 +243,13 @@ test("API-205/206 scope pagination and repeat writes to one verified owner", asy
   assert.ok(page.next_cursor);
   const pageTwo = await (await list(token, `?cursor=${encodeURIComponent(page.next_cursor)}`)).json();
   assert.deepEqual(new Set([...page.projects, ...pageTwo.projects].map(({ id }) => id)), new Set([f.data.projectId, created.id]));
+  const reviews = new Map([...page.review_summaries, ...pageTwo.review_summaries].map((summary) => [summary.project_id, summary]));
+  const currentReview = reviews.get(f.data.projectId);
+  assert.equal(currentReview.current_stage, "02-prd");
+  assert.equal(currentReview.checkpoint_state, "pending");
+  assert.ok(currentReview.published_at);
+  assert.deepEqual(reviews.get(created.id), { project_id: created.id, current_stage: null,
+    checkpoint_state: "none", waiting_discussions: 0, published_at: null });
   assert.equal(pageTwo.next_cursor, null);
   await problem(await list(other, `?cursor=${encodeURIComponent(page.next_cursor)}`), 400, "invalid_input");
   const otherProjects = (await (await list(other)).json()).projects;
