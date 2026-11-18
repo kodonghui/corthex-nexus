@@ -676,14 +676,15 @@ export class RebuildStore {
       .all(project, artifact, after, only, only, limit).map(({ item_json }) => JSON.parse(item_json));
   }
 
-  citedWork(project, artifact, credential, now) {
+  citedWork(project, artifact, credential, at, { after = "", limit = 1, item = null } = {}) {
     return this.connection.prepare(`SELECT DISTINCT d.item_trace_id FROM agent_work w
       JOIN messages m ON m.project_id=w.project_id AND m.id=w.question_message_id
       JOIN discussions d ON d.project_id=w.project_id AND d.id=m.discussion_id
-      WHERE w.project_id=? AND d.origin_artifact_id=? AND
-        (w.state='queued' OR (w.state='claimed' AND w.lease_expires_at<=?) OR
+      WHERE w.project_id=? AND d.origin_artifact_id=?
+        AND (w.state='queued' OR (w.state='claimed' AND w.lease_expires_at<=?) OR
           (CASE WHEN json_valid(w.claimed_by) THEN json_extract(w.claimed_by,'$.credential') ELSE w.claimed_by END=?))
-      ORDER BY d.item_trace_id LIMIT 101`).all(project, artifact, now, credential).map((row) => row.item_trace_id);
+        AND (d.item_trace_id IS NULL OR (d.item_trace_id>? AND (? IS NULL OR d.item_trace_id=?)))
+      ORDER BY d.item_trace_id LIMIT ?`).all(project, artifact, at, credential, after, item, item, limit).map((row) => row.item_trace_id);
   }
 
   versionPosition(project, artifact) {

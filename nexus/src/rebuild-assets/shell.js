@@ -100,6 +100,11 @@
   };
   const route = (project, part = "main", stage = "01-domain") => `/p/${[project, part, stage].map(encodeURIComponent).join("/")}`;
   const stageTitle = (stage) => stages[Number(stage.slice(0, 2)) - 1] || stage;
+  function blockerText(message) {
+    const stage = /^([0-9]{2}-[a-z-]+) checkpoint is required$/.exec(message)?.[1];
+    return ko && stage ? `${stage.slice(0, 2)} ${stageTitle(stage)} 체크포인트가 필요합니다.` : message;
+  }
+
   const statusMessage = (message = "", error = false) => {
     status.textContent = message;
     status.classList.toggle("error", error);
@@ -347,7 +352,7 @@
     $("stage-state").textContent = missing ? words.noSource : unsupported ? words.unsupported : words.present;
     sourceLink(data.source);
     if (!cursor) {
-      $("stage-blockers").replaceChildren(...[...data.stage.blockers, ...data.diagnostics].map((message) => label("li", message)));
+      $("stage-blockers").replaceChildren(...[...data.stage.blockers.map(blockerText), ...data.diagnostics].map((message) => label("li", message)));
       buildDiagram(data.graph);
       renderCheckpointLinks(project, part, stage, data, exact);
       $("artifact-items").replaceChildren();
@@ -561,8 +566,9 @@
   function renderCheckpointLinks(project, part, stage, artifact, exact) {
     const parent = $("checkpoint-links");
     parent.replaceChildren();
-    for (const id of artifact.checkpoint_ids.slice(0, 10)) {
-      const link = label("a", words.checkpoint, "button");
+    for (const [index, id] of artifact.checkpoint_ids.slice(0, 10).entries()) {
+      const text = index === 0 ? words.checkpoint : `${words.checkpoint} · ${id.slice(-6)}`;
+      const link = label("a", text, "button");
       link.href = decisionURL(project, part, stage, id);
       parent.append(link);
     }
@@ -605,7 +611,7 @@
     root.replaceChildren(heading, status, source, label("p", checkpoint.content_version, "mono muted"));
     if (checkpoint.blockers.length) {
       const errors = label("ul", "");
-      errors.append(...checkpoint.blockers.map((detail) => label("li", detail)));
+      errors.append(...checkpoint.blockers.map((detail) => label("li", blockerText(detail))));
       root.append(errors);
     }
     const history = label("ul", "", "checkpoint-history");

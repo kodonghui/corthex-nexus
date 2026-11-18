@@ -245,3 +245,37 @@ test("API-228–230 issues one project-scoped secret and grants access only unti
   assert.equal(revoked.revoked, true);
   await expect(await f.publish(snapshot(), secret), 401, "sign_in_required");
 });
+
+
+test("agent citation authorization includes later pages and exact item reads", async (t) => {
+  const f = await fixture(t);
+  const root = "/projects/" + f.seed.projectId;
+  const { secret } = await expect(await f.call(root + "/credentials", f.owner, "POST", { role: "agent", label: "Queue fixture" }), 201);
+  for (let i = 0; i < 105; i++) {
+    const trace = "REQ-" + (600 + i);
+    const discussion = "dis_queue_" + i;
+    const question = "msg_queue_" + i;
+    const item = { id: trace, title: "Fixture item " + i, removed: false, kind: "requirement", fields: {},
+      source: { repository_url: "https://github.com/example/sample", path: f.seed.original.source_path, line: 1, commit: "c".repeat(40),
+        content_version: f.seed.original.content_version, publication_id: f.seed.original.publication_id,
+        publication_revision: 1, published_at: f.seed.time } };
+    insertFixtureRow(f.db, "artifact_items", { project_id: f.seed.projectId, artifact_id: f.seed.original.id, trace_id: trace,
+      item_json: JSON.stringify(item), source_line: 1, removed: 0 });
+    insertFixtureRow(f.db, "discussions", { id: discussion, project_id: f.seed.projectId, origin_artifact_id: f.seed.original.id,
+      item_trace_id: trace, state: "open", created_at: f.seed.time });
+    insertFixtureRow(f.db, "messages", { id: question, project_id: f.seed.projectId, discussion_id: discussion, sequence: 1,
+      author_kind: "owner", author_ref: f.seed.owner, body: "Review a cited item", created_at: f.seed.time });
+    insertFixtureRow(f.db, "agent_work", { id: "work_queue_" + i, project_id: f.seed.projectId, question_message_id: question,
+      state: "queued", created_at: f.seed.time });
+  }
+  const target = root + "/stages/" + f.seed.original.part + "/02-prd";
+  const selection = new URLSearchParams({ publication_id: f.seed.original.publication_id, version: f.seed.original.content_version });
+  const call = (path) => f.call(path, secret, "GET", undefined, undefined, true);
+  assert.equal((await expect(await call(target + "/items/REQ-704?" + selection), 200)).id, "REQ-704");
+  await expect(await call(target + "/items/REQ-301?" + selection), 404, "not_found");
+  const first = await expect(await call(target + "?" + selection + "&limit=100"), 200);
+  const second = await expect(await call(target + "?" + selection + "&limit=100&cursor=" + encodeURIComponent(first.next_cursor)), 200);
+  assert.equal(first.items.length, 100);
+  assert.equal(second.items.length, 5);
+  assert.equal(second.items.at(-1).id, "REQ-704");
+});
