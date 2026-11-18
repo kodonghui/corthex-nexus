@@ -60,7 +60,7 @@ export function rebuildJSON(body, status = 200, extra) {
 }
 
 export async function rebuildBody(request, schema, options) {
-  try { return (await jsonBody(request, schema, false, options)).data; }
+  try { return (await jsonBody(request, schema, false, { oversizeText: /(?:^|\.)(?:body|content_utf8)$/, ...options })).data; }
   catch (error) {
     if (!(error instanceof Problem)) throw error;
     throw new RebuildProblem(error.code === "body_too_large" || error.code === "text_too_long" ? "payload_too_large" : "invalid_input");

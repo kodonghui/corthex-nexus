@@ -78,3 +78,13 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--space-xxl); }
 .review-fields dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .preview-frame { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-control); min-height: 34rem; width: 100%; }
 #stage-blockers:empty, .review-items:empty { display: none; }
+
+textarea, select { width: 100%; padding: var(--space-sm) var(--space-md); border: 1px solid var(--color-control); border-radius: var(--radius-control); background: var(--color-surface); color: var(--color-ink); font: inherit; }
+textarea { display: block; min-height: 5.5rem; resize: vertical; margin-top: var(--space-xs); }
+input[type=checkbox] { display: inline-block; width: 1.1rem; min-height: 1.1rem; margin: 0 var(--space-sm) 0 0; vertical-align: middle; }
+.thread { border: 1px solid var(--color-line); border-radius: var(--radius-control); padding: var(--space-lg); }
+.thread article { border-top: 1px solid var(--color-line); padding-top: var(--space-md); }
+.thread-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.checkpoint-history { list-style: none; padding: 0; }
+.checkpoint-history li { border-top: 1px solid var(--color-line); padding: var(--space-md) 0; }
+#checkpoint-links:empty { display: none; }
