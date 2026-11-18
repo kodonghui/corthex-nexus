@@ -116,6 +116,8 @@
         "docs/12-qa/rebuild.ko.md",
         "docs/12-qa/rebuild/2026-11-19-baseline.md",
         "docs/12-qa/rebuild/2026-11-19-baseline.ko.md",
+        "docs/12-qa/rebuild/2026-11-19-rechecks.md",
+        "docs/12-qa/rebuild/2026-11-19-rechecks.ko.md",
         "docs/12-qa/rebuild/api-cases.json"
       ]
     },
