@@ -125,6 +125,8 @@ The rebuild accepts versioned source envelopes only after checking scoped publis
 
 The isolated runtime now registers all 36 v2 HTTP operations. Tests exercise exact discussion origins, one active agent claim, expiry, idempotent replies, proposal decisions and verified reflection. Checkpoint decisions require an owner session and current eligible content, and withdrawals append history. A loopback HTTPS browser runs a fixture question, displays a test agent reply, submits and withdraws a fixture checkpoint, and copies the released sample into a private project. Full response-by-response and release QA remain pending.
 
+The legacy discussion and checkpoint APIs remain available during migration. SQLite 3.54 returns the nested objects from scalar subqueries as text. The shared query now marks those values as JSON explicitly so the initial read and the transactional write guard use the same object structure on SQLite 3.53 and 3.54.
+
 ### Protected backup, import and recovery
 
 The isolated tools inventoried and restored three legacy fixture projects. They preserved the old question and reply actors, checkpoint pass/withdrawal and their version references. Two acknowledged transactions after the backup were recovered into a compatible database. A mismatched receipt rolled back the full replay, and a missing release report returned a keep decision. Protected production data and the actual routing switch are pending.
