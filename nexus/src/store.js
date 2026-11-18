@@ -315,6 +315,36 @@ export const SQLITE = Object.freeze({
   projectRows: (table) => `SELECT project, COUNT(*) AS n FROM "${table.replaceAll('"', '""')}" GROUP BY project ORDER BY project`,
 });
 
+// TASK-322 (SPEC-341, SPEC-343): the rebuild owns a different database.
+// Its application ID and schema version are committed with the first schema.
+const REBUILD_APPLICATION_ID = 0x4e585332;
+const REBUILD_SCHEMA_VERSION = 1;
+
+export function applyRebuildSchema(connection, initialSchema) {
+  connection.exec("PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;");
+  connection.exec(SQLITE.begin);
+  try {
+    const { application_id: application } = connection.prepare("PRAGMA application_id").get();
+    const { user_version: version } = connection.prepare("PRAGMA user_version").get();
+    if (application === 0 && version === 0) {
+      const occupied = connection.prepare("SELECT 1 FROM sqlite_schema WHERE substr(name, 1, 7) <> 'sqlite_' LIMIT 1").get();
+      if (occupied) throw new Error("The rebuild schema requires an empty database");
+      connection.exec(initialSchema);
+      connection.exec(`PRAGMA application_id=${REBUILD_APPLICATION_ID}; PRAGMA user_version=${REBUILD_SCHEMA_VERSION};`);
+    } else if (application !== REBUILD_APPLICATION_ID || version !== REBUILD_SCHEMA_VERSION) {
+      throw new Error("Unsupported rebuild database version");
+    }
+    const integrity = connection.prepare(SQLITE.integrity).all();
+    if (integrity.length !== 1 || integrity[0].integrity_check !== "ok" || connection.prepare(SQLITE.foreignKeys).get()) {
+      throw new Error("Rebuild database integrity check failed");
+    }
+    connection.exec(SQLITE.commit);
+  } catch (error) {
+    connection.exec(SQLITE.rollback);
+    throw error;
+  }
+}
+
 export class Store {
   constructor(db) {
     this.db = db;

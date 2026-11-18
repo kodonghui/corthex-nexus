@@ -141,10 +141,10 @@
       "updated": "2026-11-18T09:45:31+09:00"
     },
     "11-development": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "Design cycle through stage 10 is authored under the explicit continuation instruction. Await the next authorized execution scope and actual human checkpoint gates; legacy approvals never substitute.",
-      "updated": "2026-11-18T04:52:34+09:00"
+      "next": "Implement the approved WBS. The source-derived fixture and transactional schema are available. Verify the remaining invariants and connect owner authentication and the projects screen.",
+      "updated": "2026-11-18T13:27:49+09:00"
     },
     "12-qa": {
       "state": "not_started",
