@@ -69,13 +69,24 @@ class PictureRegistrationTest(GitSourcesFixture):
         self.assertEqual(json.loads(compared.stdout), [], 'new source pictures must agree across stages')
         for stage, value in snapshot['stages'].items():
             record = value['parts']['rebuild']
-            self.assertEqual(record['state'], 'in_progress' if stage in ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap', '08-screen-states', '09-mockup', '10-wbs') else 'not_started')
+            approved_design = stage in ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap', '08-screen-states', '09-mockup', '10-wbs')
+            self.assertEqual(record['state'], 'done' if approved_design else 'not_started')
             if stage == '01-domain':
-                self.assertEqual(len(record['checkpoints']), 1)
+                self.assertEqual(len(record['checkpoints']), 2)
                 self.assertEqual(record['checkpoints'][0]['nexus'], 'nk_n9aja7yrtm1q')
                 self.assertIn('Step 1-b timeline', record['checkpoints'][0]['approved'])
+            elif approved_design:
+                self.assertEqual(len(record['checkpoints']), 1)
             else:
                 self.assertEqual(record['checkpoints'], [])
+            if approved_design:
+                approval = record['checkpoints'][-1]
+                self.assertEqual(approval['by'], 'the maintainer')
+                self.assertEqual(approval['date'], '2026-11-18')
+                self.assertIn('f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9', approval['approved'])
+                self.assertIn('in chat', approval['approved'])
+                self.assertTrue(approval['where'].endswith('/docs/decisions/rebuild-design-approval-2026-11-18.md'))
+                self.assertNotIn('nexus', approval, 'a chat approval must not invent a NEXUS user-button event')
 
         # The previous registration points at a present explanatory Markdown
         # file, which does not provide SQL picture input to the real parser.

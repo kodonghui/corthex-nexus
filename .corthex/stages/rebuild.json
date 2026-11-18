@@ -4,72 +4,141 @@
   "part": "rebuild",
   "stages": {
     "01-domain": {
-      "state": "in_progress",
+      "state": "done",
       "checkpoints": [
         {
-          "approved": "Step 1-b timeline passed in NEXUS; original wording: 01\ub2e8\uacc4 \ud655\uc778 \uc9c0\uc810 \ud1b5\uacfc. Context boundaries, tables and map were not presented or approved.",
+          "approved": "Step 1-b timeline passed in NEXUS; original wording: 01단계 확인 지점 통과. Context boundaries, tables and map were not presented or approved.",
           "by": "the maintainer",
           "nexus": "nk_n9aja7yrtm1q",
           "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/01-domain/rebuild.md#8-checkpoint-1-and-decisions",
           "date": "2026-11-17"
+        },
+        {
+          "approved": "The maintainer approved published rebuild 01-domain artifacts at default commit f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9 (snapshot revision 32) in chat; this is not a new NEXUS button event.",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/decisions/rebuild-design-approval-2026-11-18.md",
+          "date": "2026-11-18"
         }
       ],
-      "next": "Domain design authored through Step 9; version-bound NEXUS review remains pending. Continue stages 02\u201310 under docs/decisions/rebuild-authorization.md without impersonating a human pass.",
-      "updated": "2026-11-18T02:30:00+09:00"
+      "next": "Approved design baseline; implementation and real-service QA remain later work. Semantic content changes require a new human checkpoint.",
+      "updated": "2026-11-18T09:45:30+09:00"
     },
     "02-prd": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Baseline 1.0 authored with all fifty active requirements and domain inputs. Continue stage 03 under the explicit design instruction; version-bound NEXUS review remains pending.",
-      "updated": "2026-11-18T03:00:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "The maintainer approved published rebuild 02-prd artifacts at default commit f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9 (snapshot revision 32) in chat; this is not a new NEXUS button event.",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/decisions/rebuild-design-approval-2026-11-18.md",
+          "date": "2026-11-18"
+        }
+      ],
+      "next": "Approved design baseline; implementation and real-service QA remain later work. Semantic content changes require a new human checkpoint.",
+      "updated": "2026-11-18T09:45:30+09:00"
     },
     "03-user-flow": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Nine rebuild flows authored; continue functional specification under the design instruction. Actual NEXUS review remains pending.",
-      "updated": "2026-11-18T03:10:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "The maintainer approved published rebuild 03-user-flow artifacts at default commit f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9 (snapshot revision 32) in chat; this is not a new NEXUS button event.",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/decisions/rebuild-design-approval-2026-11-18.md",
+          "date": "2026-11-18"
+        }
+      ],
+      "next": "Approved design baseline; implementation and real-service QA remain later work. Semantic content changes require a new human checkpoint.",
+      "updated": "2026-11-18T09:45:30+09:00"
     },
     "04-functional-spec": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Functional baseline authored; continue schema under the explicit design instruction. Actual NEXUS review remains pending.",
-      "updated": "2026-11-18T03:20:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "The maintainer approved published rebuild 04-functional-spec artifacts at default commit f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9 (snapshot revision 32) in chat; this is not a new NEXUS button event.",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/decisions/rebuild-design-approval-2026-11-18.md",
+          "date": "2026-11-18"
+        }
+      ],
+      "next": "Approved design baseline; implementation and real-service QA remain later work. Semantic content changes require a new human checkpoint.",
+      "updated": "2026-11-18T09:45:30+09:00"
     },
     "05-erd": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Schema and migration/recovery contract authored; continue API design under the explicit instruction. Real legacy import and NEXUS review remain pending.",
-      "updated": "2026-11-18T04:00:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "The maintainer approved published rebuild 05-erd artifacts at default commit f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9 (snapshot revision 32) in chat; this is not a new NEXUS button event.",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/decisions/rebuild-design-approval-2026-11-18.md",
+          "date": "2026-11-18"
+        }
+      ],
+      "next": "Approved design baseline; implementation and real-service QA remain later work. Semantic content changes require a new human checkpoint.",
+      "updated": "2026-11-18T09:45:30+09:00"
     },
     "06-api": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Contract authored and statically validated; continue sitemap under the design instruction. Real v2 runtime/provider/compatibility tests and NEXUS review remain pending.",
-      "updated": "2026-11-18T04:20:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "The maintainer approved published rebuild 06-api artifacts at default commit f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9 (snapshot revision 32) in chat; this is not a new NEXUS button event.",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/decisions/rebuild-design-approval-2026-11-18.md",
+          "date": "2026-11-18"
+        }
+      ],
+      "next": "Approved design baseline; implementation and real-service QA remain later work. Semantic content changes require a new human checkpoint.",
+      "updated": "2026-11-18T09:45:30+09:00"
     },
     "07-sitemap": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Eleven-screen navigation and generated views authored; continue all-state definitions under the design instruction. Actual NEXUS review remains pending.",
-      "updated": "2026-11-18T04:40:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "The maintainer approved published rebuild 07-sitemap artifacts at default commit f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9 (snapshot revision 32) in chat; this is not a new NEXUS button event.",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/decisions/rebuild-design-approval-2026-11-18.md",
+          "date": "2026-11-18"
+        }
+      ],
+      "next": "Approved design baseline; implementation and real-service QA remain later work. Semantic content changes require a new human checkpoint.",
+      "updated": "2026-11-18T09:45:30+09:00"
     },
     "08-screen-states": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "All eleven screens and their state/response maps authored. Continue visual candidates under the explicit design instruction. Real NEXUS review remains pending.",
-      "updated": "2026-11-18T03:45:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "The maintainer approved published rebuild 08-screen-states artifacts at default commit f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9 (snapshot revision 32) in chat; this is not a new NEXUS button event.",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/decisions/rebuild-design-approval-2026-11-18.md",
+          "date": "2026-11-18"
+        }
+      ],
+      "next": "Approved design baseline; implementation and real-service QA remain later work. Semantic content changes require a new human checkpoint.",
+      "updated": "2026-11-18T09:45:30+09:00"
     },
     "09-mockup": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "A selected and its light/dark tokens fixed as the design baseline under delegated design authority. Interactive HTML and measured synthetic review authored; actual version-bound NEXUS human review and real product QA remain pending.",
-      "updated": "2026-11-18T04:25:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "The maintainer approved published rebuild 09-mockup artifacts at default commit f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9 (snapshot revision 32) in chat; this is not a new NEXUS button event.",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/decisions/rebuild-design-approval-2026-11-18.md",
+          "date": "2026-11-18"
+        }
+      ],
+      "next": "Approved design baseline; implementation and real-service QA remain later work. Semantic content changes require a new human checkpoint.",
+      "updated": "2026-11-18T09:45:30+09:00"
     },
     "10-wbs": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Design through stage 10 authored: 92 todo tasks with no dependency cycle and full behavior/API/screen coverage. Publish and request version-bound NEXUS review; stage 11 development is later work.",
-      "updated": "2026-11-18T04:52:34+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "The maintainer approved published rebuild 10-wbs artifacts at default commit f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9 (snapshot revision 32) in chat; this is not a new NEXUS button event.",
+          "by": "the maintainer",
+          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/decisions/rebuild-design-approval-2026-11-18.md",
+          "date": "2026-11-18"
+        }
+      ],
+      "next": "Approved design baseline; implementation and real-service QA remain later work. Semantic content changes require a new human checkpoint.",
+      "updated": "2026-11-18T09:45:31+09:00"
     },
     "11-development": {
       "state": "not_started",
