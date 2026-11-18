@@ -204,7 +204,10 @@ export function prepareArtifacts(artifacts) {
       fileDigests.set(file.path, file.sha256);
     }
     const manifest = files.map(({ path, media_type, sha256 }) => ({ path, media_type, sha256 }));
-    const parsed = parseArtifact(stage, files);
+    // A translation remains in the source envelope. When its matching
+    // original is present, review identities and locations come from that file.
+    const canonicalFiles = files.filter(({ path }) => !path.endsWith(".ko.md") || !paths.has(path.slice(0, -6) + ".md"));
+    const parsed = parseArtifact(stage, canonicalFiles);
     itemCount += parsed.items.length;
     if (itemCount > 10000) throw new RebuildProblem("payload_too_large");
     const attachments = parsed.representation === "html"
