@@ -59,3 +59,22 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--space-xxl); }
   .mini-stage .badge { grid-column: 2; justify-self: start; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; } }
+
+.workspace-actions a { min-height: var(--size-target); display: inline-flex; align-items: center; }
+.workspace select { width: 100%; min-height: var(--size-target); background: var(--color-surface); color: var(--color-ink); border: 1px solid var(--color-control); border-radius: var(--radius-control); }
+.workspace > section, .artifact-graph { min-width: 0; }
+.artifact-graph { border: 1px solid var(--color-line); overflow: auto; border-radius: var(--radius-control); background: var(--color-canvas); }
+.artifact-graph svg { display: block; min-width: max(640px, 100%); height: auto; color: var(--color-ink); }
+.artifact-graph .stage-node { fill: var(--color-surface); stroke: var(--color-control); }
+.artifact-graph .node-text { fill: var(--color-ink); }
+.artifact-graph .edge-line { fill: none; stroke: var(--color-muted); stroke-width: 1.1; }
+.artifact-graph marker path { fill: var(--color-muted); }
+.review-items { list-style: none; margin: 0; padding: 0; }
+.review-items li { border-top: 1px solid var(--color-line); }
+.review-items li > a { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-sm); padding: var(--space-md) 0; min-height: var(--size-target); overflow-wrap: anywhere; }
+.review-items .removed { opacity: .72; }
+.review-fields { margin: 0; }
+.review-fields dt { font-weight: 650; margin-top: var(--space-md); }
+.review-fields dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.preview-frame { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-control); min-height: 34rem; width: 100%; }
+#stage-blockers:empty, .review-items:empty { display: none; }

@@ -14,29 +14,29 @@ const types = {
 const normalized = new WeakMap();
 const compiled = new WeakSet();
 const annotations = new Set(["$ref", "description", "title", "default", "example", "examples"]);
-function prepare(schema) {
+function prepare(schema, registry = INPUT_SCHEMAS) {
   if (typeof schema === "string") {
-    if (!own(INPUT_SCHEMAS, schema)) throw new Error("unknown input schema");
-    schema = INPUT_SCHEMAS[schema];
+    if (!own(registry, schema)) throw new Error("unknown input schema");
+    schema = registry[schema];
   }
   if (compiled.has(schema)) return schema;
   if (normalized.has(schema)) return normalized.get(schema);
   if (schema.$ref) {
     const match = schema.$ref.match(/^#\/components\/schemas\/([A-Za-z0-9]+)$/);
     if (!match) throw new Error("non-local input schema");
-    const target = prepare(match[1]);
+    const target = prepare(match[1], registry);
     const siblings = Object.fromEntries(Object.entries(schema).filter(([name]) => !annotations.has(name)));
-    const result = Object.keys(siblings).length ? prepare({ allOf: [target, siblings] }) : target;
+    const result = Object.keys(siblings).length ? prepare({ allOf: [target, siblings] }, registry) : target;
     normalized.set(schema, result);
     return result;
   }
   const result = { ...schema, hasConst: own(schema, "const") };
   normalized.set(schema, result); compiled.add(result);
-  for (const name of ["allOf", "anyOf", "oneOf"]) if (schema[name]) result[name] = schema[name].map(prepare);
-  if (schema.not) result.not = prepare(schema.not);
-  if (schema.items) result.items = prepare(schema.items);
-  if (schema.properties) result.properties = Object.fromEntries(Object.entries(schema.properties).map(([name, child]) => [name, prepare(child)]));
-  if (object(schema.additionalProperties)) result.additionalProperties = prepare(schema.additionalProperties);
+  for (const name of ["allOf", "anyOf", "oneOf"]) if (schema[name]) result[name] = schema[name].map((entry) => prepare(entry, registry));
+  if (schema.not) result.not = prepare(schema.not, registry);
+  if (schema.items) result.items = prepare(schema.items, registry);
+  if (schema.properties) result.properties = Object.fromEntries(Object.entries(schema.properties).map(([name, child]) => [name, prepare(child, registry)]));
+  if (object(schema.additionalProperties)) result.additionalProperties = prepare(schema.additionalProperties, registry);
   if (schema.pattern) result.expression = new RegExp(schema.pattern, "u");
   return result;
 }
@@ -62,8 +62,8 @@ function format(value, name) {
   throw new Error("unimplemented input format");
 }
 
-export function inputFailure(value, schema, path = "body") {
-  const failure = check(value, prepare(schema));
+export function inputFailure(value, schema, path = "body", registry = INPUT_SCHEMAS) {
+  const failure = check(value, prepare(schema, registry));
   return failure ? at(failure, path) : null;
 }
 

@@ -354,6 +354,14 @@ function rebuildProject(row) {
     verification_state: row.repository_url === null ? "not_connected" : row.held_publication_id ? "ready" : "authorization_required" };
 }
 
+function rebuildCredential(row) {
+  return { id: row.id, role: row.role, label: row.label, created_at: row.created_at, revoked: row.revoked_at !== null };
+}
+
+function rebuildPublication(row) {
+  return { id: row.id, sent: true, held_commit: row.commit_sha, revision: row.revision, snapshot_digest: row.snapshot_digest };
+}
+
 // The rebuild uses native SQLite. Each write callback is synchronous so a
 // transaction cannot be kept open during a provider request.
 export class RebuildStore {
@@ -445,6 +453,14 @@ export class RebuildStore {
     return { project: rebuildProject(row), heldCommit: row.commit_sha, artifacts, checkpoints };
   }
 
+  readReceipt({ owner, scope, operation, keyHash, bodyDigest, now }) {
+    const row = this.connection.prepare(`SELECT body_digest,http_status,safe_result_json FROM idempotency_receipts
+      WHERE owner_id=? AND scope_key=? AND operation=? AND key_hash=? AND expires_at>?`).get(owner, scope, operation, keyHash, now);
+    if (!row) return null;
+    return row.body_digest === bodyDigest ? { body: JSON.parse(row.safe_result_json), status: row.http_status, replay: true }
+      : { conflict: "idempotency_conflict" };
+  }
+
   writeWithReceipt({ owner, scope, operation, keyHash, bodyDigest, receipt, now, expires, digest }, input, write) {
     return this.transaction(() => {
       const before = this.connection.prepare(`SELECT id,body_digest,http_status,safe_result_json,expires_at FROM idempotency_receipts
@@ -464,6 +480,189 @@ export class RebuildStore {
           JSON.stringify({ owner, scope, keyHash, bodyDigest, input, result: JSON.parse(response), ...result.journal }), digest(response), now);
       return result;
     });
+  }
+
+  projectState(owner, id) {
+    return this.connection.prepare(`SELECT p.*,v.commit_sha,v.revision as publication_revision,v.snapshot_digest
+      FROM projects p LEFT JOIN publications v ON v.project_id=p.id AND v.id=p.held_publication_id
+      WHERE p.owner_id=? AND p.id=? AND p.archived_at IS NULL`).get(owner, id) ?? null;
+  }
+
+  listCredentials(project) {
+    return this.connection.prepare(`SELECT id,role,label,created_at,revoked_at FROM project_credentials
+      WHERE project_id=? ORDER BY revoked_at IS NOT NULL,created_at DESC,id LIMIT 100`).all(project).map(rebuildCredential);
+  }
+
+  issueCredential(write, project, input, id, secret, secretHash) {
+    return this.writeWithReceipt(write, input, () => {
+      const count = this.connection.prepare("SELECT count(*) AS n FROM project_credentials WHERE project_id=? AND revoked_at IS NULL").get(project).n;
+      if (count >= 100) return { conflict: "state_conflict" };
+      const credential = rebuildCredential(this.connection.prepare(`INSERT INTO project_credentials(id,owner_id,project_id,role,label,secret_hash,created_at)
+        VALUES(?,?,?,?,?,?,?) RETURNING id,role,label,created_at,revoked_at`).get(id, write.owner, project, input.role, input.label, secretHash, write.now));
+      return { projectId: project, status: 201, body: { credential, secret, one_time: true },
+        safeBody: { credential, secret_not_replayed: true }, journal: { credential_hash: secretHash } };
+    });
+  }
+
+  revokeCredential(write, project, id, input) {
+    return this.writeWithReceipt(write, input, () => {
+      const row = this.connection.prepare(`UPDATE project_credentials SET revoked_at=coalesce(revoked_at,?)
+        WHERE owner_id=? AND project_id=? AND id=? RETURNING id,role,label,created_at,revoked_at`).get(write.now, write.owner, project, id);
+      return row ? { projectId: project, status: 200, body: rebuildCredential(row) } : { conflict: "not_found" };
+    });
+  }
+
+  liveConsent(owner, project, id, digest) {
+    return Boolean(this.connection.prepare(`SELECT id FROM publication_consents WHERE id=? AND owner_id=? AND project_id=?
+      AND preview_digest=? AND withdrawn_at IS NULL`).get(id, owner, project, digest));
+  }
+
+  firstConsent(write, project, input, id) {
+    return this.writeWithReceipt(write, input, () => {
+      const row = this.projectState(write.owner, project);
+      if (!row || row.held_publication_id || !row.repository_url || row.synthetic) return { conflict: "state_conflict" };
+      // Only the latest consent remains active before the first publication.
+      this.connection.prepare(`UPDATE publication_consents SET withdrawn_at=?
+        WHERE project_id=? AND withdrawn_at IS NULL`).run(write.now, project);
+      this.connection.prepare("INSERT INTO publication_consents(id,project_id,owner_id,preview_digest,consented_at) VALUES(?,?,?,?,?)")
+        .run(id, project, write.owner, input.preview_digest, write.now);
+      return { projectId: project, status: 201, body: { id, preview_digest: input.preview_digest, consented_at: write.now } };
+    });
+  }
+
+  publication(project, id) {
+    const row = this.connection.prepare(`SELECT id,commit_sha,revision,snapshot_digest FROM publications
+      WHERE project_id=? AND id=?`).get(project, id);
+    return row ? rebuildPublication(row) : null;
+  }
+
+  publish(write, project, credential, verified, input) {
+    return this.writeWithReceipt(write, input, () => {
+      if (this.credential(credential, write.now)?.project_id !== project) return { conflict: "sign_in_required" };
+      const current = this.projectState(write.owner, project);
+      if (!current) return { conflict: "not_found" };
+      if (current.held_publication_id !== verified.priorId || current.commit_sha !== input.base_commit ||
+          current.repository_url !== verified.repository || current.synthetic) return { conflict: "older_publication" };
+      if (current.commit_sha === input.commit) {
+        const body = this.publication(project, current.held_publication_id);
+        return body.snapshot_digest === verified.digest ? { projectId: project, body, status: 201 } : { conflict: "older_publication" };
+      }
+      if (current.held_publication_id) {
+        if (input.consent_id !== null) return { conflict: "consent_required" };
+      } else {
+        const consent = this.connection.prepare(`UPDATE publication_consents SET withdrawn_at=?
+          WHERE id=? AND owner_id=? AND project_id=? AND preview_digest=? AND withdrawn_at IS NULL RETURNING id`)
+          .get(write.now, input.consent_id, write.owner, project, verified.consentDigest);
+        if (!consent) return { conflict: "consent_required" };
+      }
+      const body = this.insertPublication(current, verified, input, write.now);
+      return { projectId: project, body, status: 201, journal: { parser_version: verified.parser } };
+    });
+  }
+
+  insertPublication(current, verified, input, now) {
+    const project = current.id;
+    const revision = Number(current.publication_revision || 0) + 1;
+    const publication = verified.id;
+    this.connection.prepare(`INSERT INTO publications(id,project_id,revision,commit_sha,parent_publication_id,snapshot_digest,
+      format_version,snapshot_json,received_at) VALUES(?,?,?,?,?,?,2,?,?)`)
+      .run(publication, project, revision, input.commit, current.held_publication_id, verified.digest, verified.snapshotText, now);
+    const history = this.connection.prepare(`SELECT id,part,stage,source_path FROM stage_artifacts WHERE project_id=? AND publication_id=?`)
+      .all(project, current.held_publication_id);
+    const previousBySlot = new Map(history.map((artifact) => [`${artifact.part}\0${artifact.stage}`, artifact]));
+    const insert = this.connection.prepare(`INSERT INTO stage_artifacts(id,project_id,publication_id,part,stage,content_version,
+      parser_version,representation,source_path,source_json,attachment_manifest_json,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`);
+    const fetchItems = this.connection.prepare("SELECT trace_id,item_json FROM artifact_items WHERE project_id=? AND artifact_id=?");
+    const insertItem = this.connection.prepare(`INSERT INTO artifact_items(project_id,artifact_id,trace_id,item_json,source_line,removed)
+      VALUES(?,?,?,?,?,?)`);
+    const versionBySlot = new Map();
+    for (const artifact of verified.artifacts) {
+      const { id, part, stage, sourcePath, contentVersion, representation, diagnostics, graph, files, manifest } = artifact;
+      const slot = `${part}\0${stage}`;
+      const previous = previousBySlot.get(slot);
+      versionBySlot.set(slot, contentVersion);
+      const path = sourcePath || previous?.source_path || stage;
+      insert.run(id, project, publication, part, stage, contentVersion, verified.parser, representation, path,
+        JSON.stringify({ graph, diagnostics, source_files: files }), JSON.stringify(manifest), now);
+      const oldItems = previous ? fetchItems.all(project, previous.id) : [];
+      const byId = new Map(artifact.items.map((item) => [item.id, item]));
+      for (const old of oldItems) {
+        if (byId.has(old.trace_id)) continue;
+        const item = JSON.parse(old.item_json);
+        byId.set(old.trace_id, { ...item, path: item.source.path, line: null, removed: true });
+      }
+      for (const value of byId.values()) {
+        const item = { id: value.id, title: value.title, kind: value.kind, removed: value.removed, fields: value.fields,
+          source: { repository_url: verified.repository, path: value.path, line: value.line, commit: input.commit,
+            content_version: contentVersion, publication_id: publication, publication_revision: revision, published_at: now } };
+        insertItem.run(project, id, item.id, JSON.stringify(item), value.line, Number(value.removed));
+      }
+    }
+    const pending = this.connection.prepare(`SELECT c.id,c.content_version,a.part,a.stage FROM checkpoint_requests c
+      JOIN stage_artifacts a ON a.project_id=c.project_id AND a.id=c.artifact_id WHERE c.project_id=? AND c.state='pending'`).all(project);
+    const supersede = this.connection.prepare("UPDATE checkpoint_requests SET state='superseded',row_revision=row_revision+1 WHERE project_id=? AND id=?");
+    for (const row of pending) {
+      if (versionBySlot.get(`${row.part}\0${row.stage}`) !== row.content_version) supersede.run(project, row.id);
+    }
+    this.connection.prepare("UPDATE projects SET held_publication_id=?,row_revision=row_revision+1 WHERE id=? AND owner_id=?")
+      .run(publication, project, current.owner_id);
+    return rebuildPublication({ id: publication, commit_sha: input.commit, revision, snapshot_digest: verified.digest });
+  }
+
+  artifact(project, part, stage, selection) {
+    const { version, publication } = selection;
+    return this.connection.prepare(`SELECT a.*,p.repository_url,p.held_publication_id,p.synthetic,v.commit_sha,
+        v.revision AS publication_revision,v.received_at AS published_at
+      FROM stage_artifacts a JOIN projects p ON p.id=a.project_id
+      JOIN publications v ON a.publication_id=v.id AND a.project_id=v.project_id
+      WHERE p.id=? AND a.part=? AND a.stage=?
+        AND (? IS NULL OR a.content_version=?) AND (? IS NULL OR a.publication_id=?)
+        AND (? IS NOT NULL OR ? IS NOT NULL OR a.publication_id=p.held_publication_id)
+      ORDER BY v.revision DESC LIMIT 1`).get(project, part, stage, version, version, publication, publication, version, publication) ?? null;
+  }
+
+  artifactById(project, id, version) {
+    return this.connection.prepare(`SELECT id,content_version,representation,source_path,source_json FROM stage_artifacts
+      WHERE project_id=? AND id=? AND (? IS NULL OR content_version=?)`).get(project, id, version, version) ?? null;
+  }
+
+  artifactItems(project, artifact, after, limit, only) {
+    return this.connection.prepare(`SELECT item_json FROM artifact_items
+      WHERE project_id=? AND artifact_id=? AND trace_id>? AND (? IS NULL OR trace_id=?) ORDER BY trace_id LIMIT ?`)
+      .all(project, artifact, after, only, only, limit).map(({ item_json }) => JSON.parse(item_json));
+  }
+
+  citedWork(project, artifact, credential, at, { after = "", limit = 1, item = null } = {}) {
+    return this.connection.prepare(`SELECT DISTINCT d.item_trace_id FROM agent_work w
+      JOIN messages m ON m.project_id=w.project_id AND m.id=w.question_message_id
+      JOIN discussions d ON d.project_id=w.project_id AND d.id=m.discussion_id
+      WHERE w.project_id=? AND d.origin_artifact_id=?
+        AND (w.state='queued' OR (w.state='claimed' AND w.lease_expires_at<=?) OR
+          (CASE WHEN json_valid(w.claimed_by) THEN json_extract(w.claimed_by,'$.credential') ELSE w.claimed_by END=?))
+        AND (d.item_trace_id IS NULL OR (d.item_trace_id>? AND (? IS NULL OR d.item_trace_id=?)))
+      ORDER BY d.item_trace_id LIMIT ?`).all(project, artifact, at, credential, after, item, item, limit).map((row) => row.item_trace_id);
+  }
+
+  versionPosition(project, artifact) {
+    return this.connection.prepare(`SELECT a.part,a.stage,a.id,v.revision FROM stage_artifacts a
+      JOIN publications v ON v.project_id=a.project_id AND a.publication_id=v.id
+      WHERE a.project_id=? AND a.id=?`).get(project, artifact);
+  }
+
+  versions(project, prior, limit) {
+    return this.connection.prepare(`SELECT v.id AS publication_id,v.commit_sha AS "commit",v.revision AS publication_revision,
+      v.received_at AS published_at,a.part,a.stage,a.id AS artifact_id,a.content_version
+      FROM stage_artifacts a JOIN publications v ON v.project_id=a.project_id AND v.id=a.publication_id
+      WHERE a.project_id=? AND (v.revision<? OR (v.revision=? AND (a.part,a.stage,a.id)>(?,?,?)))
+      ORDER BY v.revision DESC,a.part,a.stage,a.id LIMIT ?`)
+      .all(project, prior.revision, prior.revision, prior.part, prior.stage, prior.id, limit);
+  }
+
+  artifactCheckpoints(project, part, stage, version) {
+    return this.connection.prepare(`SELECT c.id,c.state,c.content_version FROM checkpoint_requests c
+      JOIN stage_artifacts a ON a.project_id=c.project_id AND a.id=c.artifact_id
+      WHERE c.project_id=? AND a.part=? AND a.stage=?
+      ORDER BY c.content_version=? DESC,c.requested_at DESC,c.id LIMIT 100`).all(project, part, stage, version);
   }
 
   connectProject({ id, input, ...write }) {
