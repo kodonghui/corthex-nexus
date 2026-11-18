@@ -69,12 +69,21 @@ export function buildLegacyPlan(data, manifest, ownerMap, archive, at) {
     const held = item.default_commit;
     const parts = (Array.isArray(seed.project?.parts) ? seed.project.parts : []).filter((value) => typeof value === "string" && partPattern.test(value));
     if (!parts.length) parts.push("main");
+    const configuredParts = [...parts];
     const resolution = new Map();
     const ensurePart = (p) => { if (!parts.includes(p)) parts.push(p); };
     const selected = (table) => (records[table] || []).filter((record) => record.project === name);
     const archived = (kind) => { preservedArchive[kind] = (preservedArchive[kind] || 0) + 1; };
     const map = (kind, oid, tid, original) => mappings.push({ project: name, kind, legacy: oid, targetProject: project, target: tid, digest: key(original) });
     const comments = selected("comments");
+    const discussionParts = new Map();
+    for (const comment of comments) {
+      if (comment.commit_id !== held || !tracePattern.test(comment.item || "")) continue;
+      const key = `${comment.stage}\0${comment.item}`;
+      const scopes = discussionParts.get(key) ?? new Set();
+      scopes.add(part(comment.part));
+      discussionParts.set(key, scopes);
+    }
     const checkpoints = selected("checkpoints");
     const commits = [...new Set([...comments, ...checkpoints].map((row) => row.commit_id).filter((value) => commit(value) && value !== held)), held];
     const publicationByCommit = new Map();
@@ -127,9 +136,15 @@ export function buildLegacyPlan(data, manifest, ownerMap, archive, at) {
           !entry.title || Array.from(entry.title).length > 500 || typeof entry.kind !== "string" || !entry.kind || entry.kind.length > 40) {
         archived("snapshot_item"); continue;
       }
-      const a = artifact(partForItem(entry, parts), entry.stage, held);
+      const a = artifact(partForItem(entry, configuredParts), entry.stage, held);
       if (a.items.has(entry.id)) { archived("snapshot_item"); continue; }
-      setItem(a, entry.id, entry.title, entry.kind, sourceLocation(seed, entry.where, owner.repository_url, held), false);
+      const location = sourceLocation(seed, entry.where, owner.repository_url, held);
+      setItem(a, entry.id, entry.title, entry.kind, location, false);
+      // The old stage view shared items across parts. Keep each discussion
+      // attached to the item as it appeared in the explicitly reviewed part.
+      for (const reviewedPart of discussionParts.get(`${entry.stage}\0${entry.id}`) ?? []) {
+        setItem(artifact(reviewedPart, entry.stage, held), entry.id, entry.title, entry.kind, location, false);
+      }
       map("snapshot_item", `${entry.id}:${index}`, a.row.id + ":" + entry.id, entry);
     }
     function targetOf(record) {

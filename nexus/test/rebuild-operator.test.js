@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
 import { createRebuildHandler } from "../src/rebuild-app.js";
-import { randomToken } from "../src/rebuild-auth.js";
+import { OWNER_COOKIE, csrfToken, randomToken } from "../src/rebuild-auth.js";
 import { backupLegacy, backupRebuild, checkRelease, importLegacy, recoverAcknowledged } from "../src/rebuild-operator.js";
 import { sha256 } from "../src/rebuild-http.js";
 import { openRebuildDatabase } from "../src/rebuild-sqlite.js";
@@ -31,18 +31,20 @@ async function seededLegacy(path) {
     await new Store(native).ensure();
     for (const name of ["sample-one", "sample-two", "sample-three"]) {
       const commitId = name.endsWith("one") ? commit : old;
-      const body = JSON.stringify({ project: { name, title: name, parts: ["main"] }, repos: {
+      const multipart = name === "sample-two";
+      const body = JSON.stringify({ project: { name, title: name, parts: multipart ? ["backend", "frontend"] : ["main"] }, repos: {
         harness: { web: "https://github.com/example/harness", commit: aliasCommit },
         alternate: { web: "https://git.example.test/alternate", commit: aliasCommit },
       }, items: [
-        { id: "REQ-301", stage: "02-prd", kind: "requirement", title: "Synthetic source", where: "harness:docs/prd.md:5" },
+        { id: "REQ-301", stage: "02-prd", kind: "requirement", title: "Synthetic source",
+          where: multipart ? "harness:docs/backend/prd.md:5" : "harness:docs/prd.md:5" },
         { id: "REQ-302", stage: "02-prd", kind: "requirement", title: "Project source", where: "docs/local.md:7" },
         { id: "REQ-303", stage: "02-prd", kind: "requirement", title: "Archived source", where: "alternate:docs/prd.md:5" },
       ] });
       insertFixtureRow(native.connection, "snapshots", { name, revision: 3, generated_ms: Date.parse(time),
         generated_at: time, received_at: time, bytes: Buffer.byteLength(body), body, default_commit: commitId });
       insertFixtureRow(native.connection, "project_spaces", { project: name, repo_url: "https://github.com/example/" + name, created_at: time });
-      insertFixtureRow(native.connection, "comments", { id: "nc_" + name, project: name, part: "main", stage: "02-prd", item: "REQ-301",
+      insertFixtureRow(native.connection, "comments", { id: "nc_" + name, project: name, part: multipart ? "frontend" : "main", stage: "02-prd", item: "REQ-301",
         commit_id: old, author: "user", text: "Preserve the exact old note for " + name, state: "closed", closed_as: "decided", made_at: time, last_at: time });
       insertFixtureRow(native.connection, "replies", { comment: "nc_" + name, seq: 1, author: "agent", text: "Old reply", made_at: time });
       insertFixtureRow(native.connection, "decisions", { comment: "nc_" + name, seq: 1, link: "https://github.com/example/" + name + "/pull/1",
@@ -105,7 +107,8 @@ test("API-237/238 back up and import three legacy fixture projects without chang
     assert.equal(reopened.prepare("SELECT count(*) AS n FROM discussion_decisions").get().n, 3);
 
     const store = new RebuildStore(reopened);
-    const project = store.listProjects("own_fixture", "", 3).find(({ slug }) => slug === "sample-one");
+    const foundProjects = store.listProjects("own_fixture", "", 3);
+    const project = foundProjects.find(({ slug }) => slug === "sample-one");
     const artifact = store.artifact(project.id, "main", "02-prd", { version: null, publication: null });
     const locations = store.artifactItems(project.id, artifact.id, "", 3, null).map(({ source }) =>
       [source.repository_url, source.path, source.line, source.commit]);
@@ -123,6 +126,20 @@ test("API-237/238 back up and import three legacy fixture projects without chang
     const handle = createRebuildHandler({ origin, store, clock: () => Date.parse(time), github: {
       async verify(repo, publication, held) { verified.push([repo.id, publication.commit, held]); },
     } });
+    const multipart = foundProjects.find(({ slug }) => slug === "sample-two");
+    const reviewed = store.discussionRecord(multipart.id, "nc_sample-two");
+    assert.equal(reviewed.part, "frontend");
+    assert.equal(Boolean(reviewed.removed_item), false);
+    const ownerToken = randomToken();
+    store.issueSession({ issuer, subject: "own_fixture", ownerId: "own_fixture", idHash: sha256(ownerToken), csrfHash: sha256(csrfToken(ownerToken)),
+      now: time, idleExpires: "2026-11-19T04:00:00.000Z", absoluteExpires: "2026-11-19T04:00:00.000Z" });
+    for (const part of ["backend", "frontend"]) {
+      const item = await handle(new Request(`${origin}/api/v2/projects/${multipart.id}/stages/${part}/02-prd/items/REQ-301`, {
+        headers: { Cookie: `${OWNER_COOKIE}=${ownerToken}` },
+      }));
+      assert.equal(item.status, 200, await item.clone().text());
+      assert.equal((await item.json()).source.path, "docs/backend/prd.md");
+    }
     const source = "| ID | Title |\n| --- | --- |\n| REQ-301 | Verified source |\n";
     const input = { format: "nexus.publish/1", commit, base_commit: commit, consent_id: null, artifacts: [
       { part: "main", stage: "02-prd", source_files: [{ path: "docs/prd.md", media_type: "text/markdown", content_utf8: source, sha256: sha256(source) }] },
