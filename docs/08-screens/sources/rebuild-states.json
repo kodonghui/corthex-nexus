@@ -1043,12 +1043,6 @@
         "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
       ],
       [
-        "API-234#403",
-        "SCR-134#permission",
-        "Retain safe context and use the state recovery rule.",
-        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
-      ],
-      [
         "API-234#404",
         "SCR-134#error",
         "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
@@ -1549,12 +1543,6 @@
       ],
       [
         "API-234#401",
-        "SCR-135#permission",
-        "Retain safe context and use the state recovery rule.",
-        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
-      ],
-      [
-        "API-234#403",
         "SCR-135#permission",
         "Retain safe context and use the state recovery rule.",
         "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
@@ -2216,12 +2204,6 @@
         "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
       ],
       [
-        "API-226#403",
-        "SCR-137#permission",
-        "Retain safe context and use the state recovery rule.",
-        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
-      ],
-      [
         "API-226#404",
         "SCR-137#error",
         "Unavailable target; return to an owner-scoped list without revealing foreign existence.",
@@ -2260,8 +2242,8 @@
       [
         "API-234#403",
         "SCR-137#permission",
-        "Retain safe context and use the state recovery rule.",
-        "안전한 컨텍스트를 유지하고 해당 상태의 복구 규칙을 적용합니다."
+        "Publication attempts are available to the project owner.",
+        "게시 시도 기록은 프로젝트 소유자에게만 표시합니다."
       ],
       [
         "API-234#404",

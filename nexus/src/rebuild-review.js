@@ -178,6 +178,16 @@ export function reviewHandlers({ store, access, writeContext, limiter, stageCata
   }
 
   function pollProjectEvents(request, url, now, { projectId }) {
+    const stream = url.searchParams.get("stream");
+    if (stream === "publication-attempts") {
+      const actor = access(request, now, projectId, ["owner"]);
+      const scope = `project-events:${projectId}:publication-attempts`;
+      const { after, limit } = pageInput(url.searchParams, actor.token, scope, sequencePattern);
+      const recent = store.publicationAttempts(projectId, after ? Number(after) : Number.MAX_SAFE_INTEGER, limit + 1);
+      const [attempts, next] = take(recent, limit, actor.token, scope, "sequence");
+      return rebuildJSON({ attempts, next_cursor: next ?? "" });
+    }
+    if (stream !== null) throw new RebuildProblem("invalid_input");
     const actor = access(request, now, projectId, ["owner", "publisher", "agent"]);
     const scope = `project-events:${projectId}`;
     const { after, limit } = pageInput(url.searchParams, actor.token, scope, sequencePattern);

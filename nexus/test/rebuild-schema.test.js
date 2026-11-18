@@ -4,11 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
-import { applyRebuildSchema, SQLITE } from "../src/store.js";
+import { applyRebuildSchema, RebuildStore, SQLITE } from "../src/store.js";
 import { openRebuildDatabase } from "../src/rebuild-sqlite.js";
 import { insertFixtureRow, seedRebuildFixture } from "./rebuild-fixture.js";
 
 const schema = readFileSync(new URL("../../db/rebuild/migrations/001-initial.sql", import.meta.url), "utf8");
+const attempts = readFileSync(new URL("../../db/rebuild/migrations/002-publication-attempts.sql", import.meta.url), "utf8");
 const tables = (db) => db.prepare(SQLITE.tables).all().map(({ name }) => name);
 
 test("TASK-321/322 preserves a source-backed two-owner fixture across a real SQLite restart", (t) => {
@@ -19,7 +20,7 @@ test("TASK-321/322 preserves a source-backed two-owner fixture across a real SQL
   {
     using initial = openRebuildDatabase(path);
     fixture = seedRebuildFixture(initial);
-    assert.equal(tables(initial).length, 20);
+    assert.equal(tables(initial).length, 22);
     assert.equal(initial.prepare("PRAGMA foreign_keys").get().foreign_keys, 1);
     assert.deepEqual(initial.prepare(SQLITE.foreignKeys).all(), []);
   }
@@ -48,6 +49,78 @@ test("TASK-322 rolls back all schema objects and version markers after a late DD
   assert.equal(db.prepare("PRAGMA application_id").get().application_id, 0);
   applyRebuildSchema(db, schema);
   assert.equal(tables(db).length, 20);
+});
+
+test("publication attempt migration is additive across restarts and version-1 schema checks", (t) => {
+  const folder = mkdtempSync(join(tmpdir(), "nexus-rebuild-attempts-"));
+  t.after(() => rmSync(folder, { recursive: true, force: true }));
+  const path = join(folder, "rebuild.sqlite");
+  let fixture;
+  {
+    using previous = new DatabaseSync(path);
+    applyRebuildSchema(previous, schema);
+    fixture = seedRebuildFixture(previous);
+    assert.equal(tables(previous).includes("publication_attempts"), false);
+  }
+  const { projectId, owner, time } = fixture;
+  const accepted = fixture.rows.publications[1];
+  {
+    using old = new DatabaseSync(path);
+    assert.throws(() => applyRebuildSchema(old, schema,
+      "CREATE TABLE diagnostic_temp (id TEXT); CREATE INDEX bad ON missing_table(nope);"), /no such table/);
+    assert.equal(tables(old).includes("diagnostic_temp"), false);
+  }
+  {
+    using upgraded = openRebuildDatabase(path);
+    const store = new RebuildStore(upgraded);
+    assert.equal(store.projectState(owner, projectId).held_publication_id, accepted.id);
+    assert.deepEqual(store.publicationAttempts(projectId, 10, 10), []);
+    assert.throws(() => store.recordPublicationAttempt(projectId, "b".repeat(40), time, { outcome: "received", receipt_id: accepted.id }),
+      /FOREIGN KEY/);
+    store.recordPublicationAttempt(projectId, accepted.commit_sha, time, { outcome: "received", receipt_id: accepted.id });
+  }
+  {
+    using previous = new DatabaseSync(path);
+    applyRebuildSchema(previous, schema);
+    assert.equal(previous.prepare("PRAGMA user_version").get().user_version, 1);
+    assert.equal(previous.prepare("SELECT held_publication_id FROM projects WHERE id=?").get(projectId).held_publication_id, accepted.id);
+  }
+  using upgraded = openRebuildDatabase(path);
+  assert.equal(new RebuildStore(upgraded).publicationAttempts(projectId, 10, 10)[0].receipt_id, accepted.id);
+  assert.deepEqual(upgraded.prepare(SQLITE.foreignKeys).all(), []);
+});
+
+test("credential usage migration starts with no recorded use and preserves the latest time across restarts", (t) => {
+  const folder = mkdtempSync(join(tmpdir(), "nexus-rebuild-credential-usage-"));
+  t.after(() => rmSync(folder, { recursive: true, force: true }));
+  const path = join(folder, "rebuild.sqlite");
+  const id = "cred_existing";
+  let fixture;
+  {
+    using previous = new DatabaseSync(path);
+    applyRebuildSchema(previous, schema, attempts);
+    fixture = seedRebuildFixture(previous);
+    insertFixtureRow(previous, "project_credentials", { id, owner_id: fixture.owner, project_id: fixture.projectId,
+      role: "publisher", label: "Fixture", secret_hash: "synthetic-example-digest", created_at: fixture.time });
+    assert.equal(tables(previous).includes("project_credential_usage"), false);
+  }
+  const latest = "2026-11-18T03:00:00.000Z";
+  {
+    using upgraded = openRebuildDatabase(path);
+    const store = new RebuildStore(upgraded);
+    assert.equal(store.listCredentials(fixture.projectId)[0].last_used_at, null);
+    assert.throws(() => store.recordCredentialUse("cred_missing", fixture.time), /FOREIGN KEY/);
+    store.recordCredentialUse(id, latest);
+    store.recordCredentialUse(id, fixture.time);
+  }
+  {
+    using previous = new DatabaseSync(path);
+    applyRebuildSchema(previous, schema, attempts);
+    assert.equal(previous.prepare("PRAGMA user_version").get().user_version, 1);
+  }
+  using upgraded = openRebuildDatabase(path);
+  assert.equal(new RebuildStore(upgraded).listCredentials(fixture.projectId)[0].last_used_at, latest);
+  assert.deepEqual(upgraded.prepare(SQLITE.foreignKeys).all(), []);
 });
 
 test("TASK-322 refuses populated unmarked and unsupported databases", () => {

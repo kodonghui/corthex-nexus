@@ -352,7 +352,7 @@ export function readLegacyCollections(connection) {
 const REBUILD_APPLICATION_ID = 0x4e585332;
 const REBUILD_SCHEMA_VERSION = 1;
 
-export function applyRebuildSchema(connection, initialSchema) {
+export function applyRebuildSchema(connection, initialSchema, additiveSchema = "") {
   connection.exec("PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;");
   connection.exec(SQLITE.begin);
   try {
@@ -366,6 +366,7 @@ export function applyRebuildSchema(connection, initialSchema) {
     } else if (application !== REBUILD_APPLICATION_ID || version !== REBUILD_SCHEMA_VERSION) {
       throw new Error("Unsupported rebuild database version");
     }
+    if (additiveSchema) connection.exec(additiveSchema);
     const integrity = connection.prepare(SQLITE.integrity).all();
     if (integrity.length !== 1 || integrity[0].integrity_check !== "ok" || connection.prepare(SQLITE.foreignKeys).get()) {
       throw new Error("Rebuild database integrity check failed");
@@ -507,6 +508,12 @@ export class RebuildStore {
       .get(secretHash, now) ?? null;
   }
 
+  recordCredentialUse(id, at) {
+    this.connection.prepare(`INSERT INTO project_credential_usage(credential_id,last_used_at) VALUES(?,?)
+      ON CONFLICT(credential_id) DO UPDATE SET last_used_at=excluded.last_used_at
+      WHERE excluded.last_used_at>project_credential_usage.last_used_at`).run(id, at);
+  }
+
   listProjects(owner, after, limit) {
     return this.connection.prepare(`SELECT ${REBUILD_PROJECT_COLUMNS} FROM projects
       WHERE owner_id=? AND archived_at IS NULL AND id>? ORDER BY id LIMIT ?`).all(owner, after, limit).map(rebuildProject);
@@ -590,8 +597,10 @@ export class RebuildStore {
   }
 
   listCredentials(project) {
-    return this.connection.prepare(`SELECT id,role,label,created_at,revoked_at FROM project_credentials
-      WHERE project_id=? ORDER BY revoked_at IS NOT NULL,created_at DESC,id LIMIT 100`).all(project).map(rebuildCredential);
+    return this.connection.prepare(`SELECT c.id,c.role,c.label,c.created_at,c.revoked_at,u.last_used_at FROM project_credentials c
+      LEFT JOIN project_credential_usage u ON u.credential_id=c.id WHERE c.project_id=?
+      ORDER BY c.revoked_at IS NOT NULL,c.created_at DESC,c.id LIMIT 100`).all(project)
+      .map((row) => ({ ...rebuildCredential(row), last_used_at: row.last_used_at }));
   }
 
   issueCredential(write, project, input, id, secret, secretHash) {
@@ -1105,6 +1114,16 @@ export class RebuildStore {
         ELSE json_extract(protected_payload_json,'$.event') END AS payload
       FROM write_journal WHERE project_id=? AND sequence>? AND (operation='publishSnapshot' OR (?=0 AND json_type(protected_payload_json,'$.event')='object'))
       ORDER BY sequence LIMIT ?`).all(project, after, Number(publisher), limit).map(({ sequence, payload }) => ({ sequence, ...JSON.parse(payload) }));
+  }
+
+  recordPublicationAttempt(project, commit, at, { outcome, why = null, trace_id = null, receipt_id = null }) {
+    this.connection.prepare(`INSERT INTO publication_attempts(project_id,attempted_commit,attempted_at,outcome,why,trace_id,receipt_id)
+      VALUES(?,?,?,?,?,?,?)`).run(project, commit, at, outcome, why, trace_id, receipt_id);
+  }
+
+  publicationAttempts(project, before, limit) {
+    return this.connection.prepare(`SELECT sequence,attempted_commit,attempted_at,outcome,why,trace_id,receipt_id
+      FROM publication_attempts WHERE project_id=? AND sequence<? ORDER BY sequence DESC LIMIT ?`).all(project, before, limit);
   }
 
   createSample(write, input, id, slug, verified, snapshot) {

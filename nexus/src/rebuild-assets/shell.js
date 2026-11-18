@@ -37,8 +37,17 @@
     compareCommit: ko ? "수신 커밋 비교" : "Compare with the received commit",
     commitReceived: ko ? "입력한 커밋의 수신을 확인했습니다." : "The server received this commit.",
     commitPending: ko ? "입력한 커밋은 수신 확인 대기 중입니다. 기본 브랜치를 가져온 뒤 게시 명령 결과를 확인하세요." : "Receipt for this commit is pending confirmation. Fetch the default branch and check the publication command result.",
+    attemptHistory: ko ? "최근 게시 시도" : "Recent publication attempts",
+    attemptEmpty: ko ? "서버에 기록된 게시 시도가 없습니다." : "The server has no recorded publication attempts.",
+    attemptUnavailable: ko ? "게시 시도 기록을 불러오지 못했습니다. 새로고침으로 다시 시도하세요." : "Publication attempts could not be loaded. Use refresh to try again.",
+    attemptOutcome: {
+      received: ko ? "수신 완료" : "Received",
+      replayed: ko ? "기존 수신 기록 확인" : "Existing receipt confirmed",
+      retryable_failure: ko ? "재시도 가능" : "Retry available",
+      refused: ko ? "게시 거부" : "Refused",
+    },
     publicationHelp: ko ? "게시 설정과 재시도" : "Publication setup and retry",
-    publicationDiagnostics: ko ? "이 화면은 서버가 기록한 수신을 표시합니다. 대기, 건너뜀, 오류 사유는 게시 명령이나 CI 실행 결과에서 확인하세요." : "This screen shows recorded server receipts. Check the publication command or CI run for queued, skipped or failed attempts.",
+    publicationDiagnostics: ko ? "서버에 도달하기 전 대기하거나 건너뛴 작업은 게시 명령이나 CI 실행 결과에서 확인하세요." : "Check the publication command or CI run for attempts queued or skipped before contacting the server.",
     publicationPrepare: ko ? "기본 브랜치를 가져온 뒤 게시 미리 보기에서 원본과 커밋을 확인하세요." : "Fetch the default branch, then review the source and commit in the publication preview.",
     publicationCredential: ko ? "게시 자격 증명을 발급받아 승인된 실행 환경에서 CORTHEX_NEXUS_PUBLISHER_TOKEN으로 설정하세요." : "Issue a publisher credential and set CORTHEX_NEXUS_PUBLISHER_TOKEN in the authorized publishing environment.",
     sampleGuideLink: ko ? "공개 샘플 안내" : "Public sample guide",
@@ -49,7 +58,8 @@
     credentialScope: ko ? "자격 증명 범위" : "Credential scope",
     credentialRoles: ko ? "게시 역할은 이 프로젝트에 검증된 원본을 게시합니다. 에이전트 역할은 이 프로젝트에 할당된 질문을 확인하고 응답합니다." : "Publishers submit verified source for this project. Agents read and answer assigned questions for this project.",
     credentialEmpty: ko ? "등록된 자격 증명이 없습니다." : "No credentials have been issued.",
-    credentialLastUse: ko ? "최근 사용 시각 · 확인 불가" : "Last used · unavailable",
+    credentialLastUse: ko ? "최근 사용 시각" : "Last used",
+    credentialUnused: ko ? "사용 기록 없음" : "No recorded use",
     credentialCreated: ko ? "발급 시각" : "Issued at",
     revoke: ko ? "폐기" : "Revoke",
     confirmRevoke: ko ? "이 자격 증명 폐기" : "Revoke this credential",
@@ -81,6 +91,7 @@
     currentVersion: ko ? "최신 버전" : "Latest version",
     earlierVersion: ko ? "이전 버전" : "Earlier version",
     latestSource: ko ? "최신 원본 열기" : "Open latest source",
+    publishedVersion: ko ? "게시된 버전 열기" : "Open the published version",
     historicalReview: ko ? "이 버전의 체크포인트는 이력으로 표시됩니다." : "This version’s checkpoint is available as history.",
     originalDecision: ko ? "철회한 결정 보기" : "View the withdrawn decision",
     savedDraft: ko ? "저장되지 않은 사유" : "Unsaved reason",
@@ -283,6 +294,10 @@
     $("project-list").replaceChildren(...cards);
     $("project-empty-message").textContent = text ? words.filtered : words.empty;
     visible($("project-empty"), cards.length === 0);
+    const resultsStatus = $("project-search-status");
+    const resultsMessage = !cards.length ? (text ? words.filtered : words.empty)
+      : (ko ? `프로젝트 ${cards.length}개` : `${cards.length} project${cards.length === 1 ? "" : "s"}`);
+    if (resultsStatus.textContent !== resultsMessage) resultsStatus.textContent = resultsMessage;
     visible($("project-copy-sample"), !text && currentProjects.length === 0);
     visible($("project-clear-search"), Boolean(text));
     visible($("more-projects"), Boolean(nextPage));
@@ -543,7 +558,7 @@
     statusMessage();
     if (!cursor && (itemId === null || item?.ok)) {
       rememberReview(project);
-      if (data.source) await discussionPanel(project, part, stage, item?.value ?? null, data, read);
+      if (data.source) await discussionPanel(project, part, stage, item?.value ?? null, data, Boolean(exact), read);
     }
   }
 
@@ -773,6 +788,14 @@
     const repository = label("p", "", "muted");
     const received = label("section", "", "stack");
     received.setAttribute("aria-label", words.receipt);
+    const attempts = label("section", "", "stack");
+    attempts.setAttribute("aria-labelledby", "publication-attempt-history");
+    const attemptHeading = label("h3", words.attemptHistory);
+    attemptHeading.id = "publication-attempt-history";
+    const attemptNotice = label("p", "", "muted");
+    attemptNotice.setAttribute("role", "status");
+    const attemptList = label("ol", "", "review-items");
+    attempts.append(attemptHeading, attemptNotice, attemptList);
     const refresh = label("button", words.refresh);
     refresh.type = "button";
     const consent = label("section", "", "stack");
@@ -818,7 +841,7 @@
     const related = label("div", "", "row");
     related.append(credentials, samples);
     help.append(related);
-    root.replaceChildren(title, repository, received, refresh, consent, compare, help);
+    root.replaceChildren(title, repository, received, refresh, consent, compare, attempts, help);
 
     function showProject(projectData, held) {
       title.textContent = projectData.title;
@@ -827,6 +850,7 @@
       const canPublish = Boolean(projectData.repository_url && !projectData.synthetic);
       visible(consent, canPublish && !held);
       visible(compare, canPublish);
+      visible(attempts, canPublish);
       visible(help, canPublish);
       const argument = held ? `--base-commit ${held}` : "--consent CONSENT_ID";
       command.textContent = `hub.py publish-v2 PROJECT --project-id ${project} ${argument}`;
@@ -861,9 +885,32 @@
       if (events.ok) statusMessage(); else failure(events);
     }
 
+    async function refreshAttempts() {
+      if (attempts.hidden) return;
+      const result = await api(`${endpoint}/events?stream=publication-attempts&limit=10`);
+      if (read !== generation) return;
+      if (result.status === 401) { failure(result); return; }
+      if (!result.ok) {
+        if ([403, 404].includes(result.status)) attemptList.replaceChildren();
+        attemptNotice.textContent = result.status === 403 ? words.forbidden : result.status === 404 ? words.gone : words.attemptUnavailable;
+        return;
+      }
+      const rows = result.value.attempts.map((entry) => {
+        const row = label("li", "");
+        row.append(label("strong", words.attemptOutcome[entry.outcome]), label("p", entry.attempted_commit, "mono"),
+          label("p", new Date(entry.attempted_at).toLocaleString(rootLanguage()), "muted"));
+        if (entry.receipt_id) row.append(label("p", `${words.receiptId} · ${entry.receipt_id}`, "mono"));
+        if (entry.why) row.append(label("p", `${entry.why} · ${entry.trace_id}`, "mono"));
+        return row;
+      });
+      attemptList.replaceChildren(...rows);
+      attemptNotice.textContent = rows.length ? "" : words.attemptEmpty;
+    }
+
     async function load(initial) {
       refresh.disabled = true;
       received.setAttribute("aria-busy", "true");
+      attempts.setAttribute("aria-busy", "true");
       try {
         if (!initial) {
           const result = await api(endpoint);
@@ -877,9 +924,10 @@
           commit = result.value.held_commit;
         }
         showProject(data, commit);
-        await verifyReceipt(commit);
+        await Promise.all([verifyReceipt(commit), refreshAttempts()]);
       } finally {
         received.setAttribute("aria-busy", "false");
+        attempts.setAttribute("aria-busy", "false");
         refresh.disabled = false;
       }
     }
@@ -958,8 +1006,10 @@
     for (const credential of response.value.credentials) {
       const row = label("li", "");
       const name = credential.role === "publisher" ? words.publisher : words.agent;
+      const lastUsed = credential.last_used_at ? new Date(credential.last_used_at).toLocaleString(rootLanguage()) : words.credentialUnused;
       row.append(label("p", `${credential.label} · ${name}`),
-        label("p", `${words.credentialCreated} · ${new Date(credential.created_at).toLocaleString(rootLanguage())}`, "muted"));
+        label("p", `${words.credentialCreated} · ${new Date(credential.created_at).toLocaleString(rootLanguage())}`, "muted"),
+        label("p", `${words.credentialLastUse} · ${lastUsed}`, "muted"));
       if (credential.revoked) row.append(label("span", words.revoked, "muted"));
       else {
         const revoke = label("button", words.revoke);
@@ -970,7 +1020,7 @@
       }
       list.append(row);
     }
-    if (list.childElementCount) root.append(label("p", words.credentialLastUse, "muted"), list);
+    if (list.childElementCount) root.append(list);
     else root.append(label("p", words.credentialEmpty, "muted"));
     const roleWrapper = label("label", words.role);
     const role = document.createElement("select");
@@ -1029,6 +1079,9 @@
       document.documentElement.style.colorScheme = value;
     });</script>`;
     frame.srcdoc = `<!doctype html><meta http-equiv="Content-Security-Policy" content="${policy}">${themeInput}` + html.replace(/^\s*<!doctype html>/i, "");
+    frame.addEventListener("load", () => {
+      frame.contentWindow?.postMessage({ nexusPreviewTheme: document.documentElement.dataset.theme }, "*");
+    }, { once: true });
     const tools = label("div", "", "row preview-tools");
     tools.setAttribute("role", "group");
     tools.setAttribute("aria-label", ko ? "미리 보기 화면 폭" : "Preview width");
@@ -1385,16 +1438,40 @@
     proposed: words.proposal, accepted: words.accepted, rejected: words.rejected, in_review: words.inReview, reflected: words.reflected,
   })[value] || value;
 
-  async function discussionPanel(project, part, stage, item, artifact, read) {
+  async function discussionPanel(project, part, stage, item, artifact, pinned, read) {
     const root = $("discussions");
-    const endpoint = `/api/v2/projects/${project}/stages/${encodeURIComponent(part)}/${stage}/discussions`;
+    const stageEndpoint = `/api/v2/projects/${project}/stages/${encodeURIComponent(part)}/${stage}`;
+    const endpoint = `${stageEndpoint}/discussions`;
     root.replaceChildren(label("h3", words.discussions));
     const refreshRow = label("div", "", "row");
     const refreshButton = label("button", words.refresh);
     refreshButton.type = "button";
-    refreshRow.append(refreshButton);
+    const sourceUpdate = label("div", "", "row");
+    sourceUpdate.id = "discussion-source-update";
+    sourceUpdate.setAttribute("role", "status");
+    refreshRow.append(refreshButton, sourceUpdate);
     const history = label("div", "", "stack");
     root.append(refreshRow, history);
+    let sourceRead = 0;
+    let announcedPublication = null;
+    const refreshSource = async () => {
+      const request = ++sourceRead;
+      const response = await api(`${stageEndpoint}?limit=1`);
+      if (read !== generation || request !== sourceRead) return;
+      if (response.status === 401) { failure(response); return; }
+      if (!response.ok) return;
+      const current = response.value.source;
+      // A new publication can contain the same content as the reviewed one.
+      const next = current && current.publication_id !== artifact.source.publication_id ? current.publication_id : null;
+      if (next === announcedPublication) return;
+      announcedPublication = next;
+      sourceUpdate.replaceChildren();
+      if (next) {
+        const link = versionLink(project, { part, stage, publication_id: next }, words.publishedVersion);
+        link.className = "button";
+        sourceUpdate.append(label("span", words.superseded, "badge"), link);
+      }
+    };
     let question;
     const load = async (cursor, openingFocus) => {
       const response = await api(endpoint + "?" + new URLSearchParams({ limit: "50", ...(cursor ? { cursor } : {}) }));
@@ -1435,14 +1512,14 @@
         },
       });
     }
-    refreshButton.addEventListener("click", () => load(null));
+    refreshButton.addEventListener("click", () => Promise.all([load(null), refreshSource()]));
     visible(root, true);
     const openingFocus = new AbortController();
     const cancelFocus = () => openingFocus.abort();
     for (const type of ["pointerdown", "keydown"]) {
       document.addEventListener(type, cancelFocus, { capture: true, signal: openingFocus.signal });
     }
-    try { await load(null, openingFocus.signal); }
+    try { await Promise.all([load(null, openingFocus.signal), pinned && refreshSource()]); }
     finally { openingFocus.abort(); }
   }
 
