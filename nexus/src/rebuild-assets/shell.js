@@ -59,6 +59,7 @@
     earlier: ko ? "이전 기록" : "Earlier record",
     queued: ko ? "에이전트 응답 대기" : "Waiting for an agent reply",
     claimed: ko ? "에이전트 처리 중" : "Agent is working",
+    leaseExpires: ko ? "작업 만료" : "Claim expires",
     answered: ko ? "응답 완료" : "Answered",
     cancelled: ko ? "취소됨" : "Cancelled",
     proposal: ko ? "변경 제안" : "Change proposal",
@@ -817,11 +818,64 @@
     withdraw: words.withdraw, withdrawn: words.withdrawn, superseded: words.superseded,
   })[value] || value;
 
+  function discussionForm(root, { fieldLabel, caption, extras, read, submit, saved }) {
+    const field = submissionField("body", fieldLabel);
+    const input = field.querySelector("textarea");
+    input.removeAttribute("maxlength");
+    const error = label("p", "", "notice error");
+    error.id = `discussion-error-${crypto.randomUUID()}`;
+    error.setAttribute("role", "alert");
+    error.hidden = true;
+    input.setAttribute("aria-describedby", error.id);
+    const required = ko ? `${fieldLabel} 내용을 입력해 주세요.` : `Enter text in the ${fieldLabel.toLowerCase()} field.`;
+    const invalid = ko ? `${fieldLabel} 내용을 확인해 주세요.` : `Check the ${fieldLabel.toLowerCase()} text.`;
+    function report(message) {
+      error.textContent = message;
+      visible(error, Boolean(message));
+      if (message) {
+        input.setAttribute("aria-invalid", "true");
+        input.focus();
+      } else input.removeAttribute("aria-invalid");
+    }
+    input.addEventListener("input", () => report(""));
+    const form = actionForm([field, error, ...extras], caption, async ({ payload, key }) => {
+      const content = JSON.parse(payload);
+      const body = content.body;
+      const issue = !body.trim() ? required : !body.isWellFormed() ? invalid
+        : Array.from(body).length > 8000 || new TextEncoder().encode(body).length > 32768 ? words.tooLarge : "";
+      if (issue) { report(issue); return false; }
+      report("");
+      const result = await submit(content, key);
+      if (read !== generation) return false;
+      if (!result.ok) {
+        const problem = result.value;
+        if (result.status === 413 || problem?.code === "invalid_input") {
+          const hint = problem?.traceId ? ` (${problem.code} · ${problem.traceId})` : "";
+          report((result.status === 413 ? words.tooLarge : invalid) + hint);
+        } else failure(result);
+        return false;
+      }
+      await saved();
+      return true;
+    }, root);
+    form.noValidate = true;
+    return input;
+  }
+
+  function discussionVersionLink(project, note, source, caption) {
+    const itemPath = note.item_id ? `/items/${encodeURIComponent(note.item_id)}` : "";
+    const query = new URLSearchParams({ publication_id: source.publication_id, version: source.content_version });
+    const link = label("a", caption);
+    link.href = `${route(project, note.part, note.stage)}${itemPath}?${query}#discussion-${encodeURIComponent(note.id)}`;
+    return link;
+  }
+
   function makeThread(note, project, source, refresh, read) {
     const card = label("article", "", "thread stack");
+    card.id = `discussion-${note.id}`;
+    card.tabIndex = -1;
     const heading = label("h4", note.removed_item ? words.removed : note.state === "resolved" ? words.resolved : words.openDiscussion);
-    const origin = label("a", `${words.version} · ${note.content_version.slice(0, 8)}`);
-    origin.href = route(project, note.part, note.stage) + "?" + new URLSearchParams({ publication_id: note.publication_id });
+    const origin = discussionVersionLink(project, note, note, `${words.version} · ${note.content_version.slice(0, 8)}`);
     card.append(heading, origin);
     const messages = label("div", "", "stack");
     for (const message of note.messages) {
@@ -834,16 +888,25 @@
     for (const work of note.agent_work) {
       const text = work.state === "queued" ? words.queued : work.state === "claimed" ? `${words.claimed} · ${work.session_label || ""}` :
         work.state === "answered" ? words.answered : words.cancelled;
-      card.append(label("p", text, "badge"));
+      const activity = label("div", "");
+      activity.append(label("p", text, "badge"));
+      if (work.state === "claimed" && work.lease_expires_at) {
+        const expiry = new Date(work.lease_expires_at);
+        const time = label("time", expiry.toLocaleString(rootLanguage(), { dateStyle: "medium", timeStyle: "long" }));
+        time.dateTime = work.lease_expires_at;
+        const lease = label("p", `${words.leaseExpires} `, "muted small");
+        lease.append(time);
+        activity.append(lease);
+      }
+      card.append(activity);
     }
     for (const proposal of note.proposals) {
       const row = label("article", "");
       row.append(label("strong", words.proposal), label("p", proposal.body, "thread-text"),
         label("p", proposalState(proposal.state), "muted"));
       if (proposal.reflection) {
-        const reflected = label("a", `${words.openReviewedVersion} · ${proposal.reflection.source_commit.slice(0, 8)}`);
-        reflected.href = route(project, note.part, note.stage) + "?" + new URLSearchParams({ publication_id: proposal.reflection.publication_id });
-        row.append(reflected);
+        row.append(discussionVersionLink(project, note, proposal.reflection,
+          `${words.openReviewedVersion} · ${proposal.reflection.source_commit.slice(0, 8)}`));
       }
       if (proposal.state === "proposed") {
         const actions = label("div", "", "row");
@@ -873,15 +936,12 @@
     if (source) {
       const detail = label("details", "");
       detail.append(label("summary", words.recordDecision));
-      actionForm([submissionField("body", words.decision), label("p", `${words.version} ${source.publication_revision} · ${source.commit}`, "muted mono")],
-        words.recordDecision, async ({ payload, key }) => {
-          const content = { ...JSON.parse(payload), expected_revision: note.revision, publication_id: source.publication_id, source_commit: source.commit };
-          const response = await mutation(`/api/v2/projects/${project}/discussions/${note.id}/decisions`, JSON.stringify(content), key);
-          if (read !== generation) return false;
-          if (!response.ok) { failure(response); return false; }
-          await refresh();
-          return true;
-        }, detail);
+      discussionForm(detail, { fieldLabel: words.decision, caption: words.recordDecision, read,
+        extras: [label("p", `${words.version} ${source.publication_revision} · ${source.commit}`, "muted mono")],
+        submit: ({ body }, key) => mutation(`/api/v2/projects/${project}/discussions/${note.id}/decisions`,
+          JSON.stringify({ body, expected_revision: note.revision, publication_id: source.publication_id, source_commit: source.commit }), key),
+        saved: refresh,
+      });
       card.append(detail);
     }
     if (note.next_cursor || note.next_proposal_cursor || note.next_decision_cursor) {
@@ -920,7 +980,8 @@
     refreshRow.append(refreshButton);
     const history = label("div", "", "stack");
     root.append(refreshRow, history);
-    const load = async (cursor) => {
+    let question;
+    const load = async (cursor, openingFocus) => {
       const response = await api(endpoint + "?" + new URLSearchParams({ limit: "50", ...(cursor ? { cursor } : {}) }));
       if (read !== generation) return;
       if (!response.ok) { failure(response); return; }
@@ -935,6 +996,11 @@
         more.onclick = () => load(response.value.next_cursor);
         refreshRow.append(more);
       }
+      if (openingFocus && !openingFocus.aborted && document.activeElement === document.body) {
+        const thread = document.getElementById(location.hash.slice(1));
+        if (thread?.parentElement === history) thread.focus();
+        else if (!location.hash && item && !notes.length && !response.value.next_cursor) question?.focus({ preventScroll: true });
+      }
     };
     if (!item?.removed && artifact.source && !["missing", "unsupported"].includes(artifact.representation)) {
       const ask = label("label", "");
@@ -943,21 +1009,26 @@
       check.name = "ask_ai";
       check.checked = true;
       ask.append(check, document.createTextNode(words.askAI));
-      actionForm([submissionField("body", words.question), ask], words.sendQuestion, async ({ payload, key }) => {
-        const { body, ask_ai } = JSON.parse(payload);
-        const { content_version, publication_id } = artifact.source;
-        const response = await mutation(endpoint, JSON.stringify({ item_id: item?.id ?? null, body, ask_ai: Boolean(ask_ai),
-          content_version, publication_id }), key);
-        if (read !== generation) return false;
-        if (!response.ok) { failure(response); return false; }
-        await load(null);
-        statusMessage(words.recorded);
-        return true;
-      }, root);
+      const { content_version, publication_id } = artifact.source;
+      question = discussionForm(root, { fieldLabel: words.question, caption: words.sendQuestion, extras: [ask], read,
+        submit: ({ body, ask_ai }, key) => mutation(endpoint, JSON.stringify({
+          item_id: item?.id ?? null, body, ask_ai: Boolean(ask_ai), content_version, publication_id,
+        }), key),
+        saved: async () => {
+          await load(null);
+          statusMessage(words.recorded);
+        },
+      });
     }
     refreshButton.addEventListener("click", () => load(null));
     visible(root, true);
-    await load(null);
+    const openingFocus = new AbortController();
+    const cancelFocus = () => openingFocus.abort();
+    for (const type of ["pointerdown", "keydown"]) {
+      document.addEventListener(type, cancelFocus, { capture: true, signal: openingFocus.signal });
+    }
+    try { await load(null, openingFocus.signal); }
+    finally { openingFocus.abort(); }
   }
 
   async function savePrivateSample({ payload, key }) {
