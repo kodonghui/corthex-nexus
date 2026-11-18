@@ -751,8 +751,9 @@ export class RebuildStore {
 
   versions(project, prior, limit) {
     return this.connection.prepare(`SELECT v.id AS publication_id,v.commit_sha AS "commit",v.revision AS publication_revision,
-      v.received_at AS published_at,a.part,a.stage,a.id AS artifact_id,a.content_version
+      v.received_at AS published_at,a.part,a.stage,a.id AS artifact_id,a.content_version,(v.id=p.held_publication_id) AS held
       FROM stage_artifacts a JOIN publications v ON v.project_id=a.project_id AND v.id=a.publication_id
+      JOIN projects p ON p.id=a.project_id
       WHERE a.project_id=? AND (v.revision<? OR (v.revision=? AND (a.part,a.stage,a.id)>(?,?,?)))
       ORDER BY v.revision DESC,a.part,a.stage,a.id LIMIT ?`)
       .all(project, prior.revision, prior.revision, prior.part, prior.stage, prior.id, limit);
@@ -956,13 +957,16 @@ export class RebuildStore {
   }
 
   checkpointRecord(project, id) {
-    return this.connection.prepare(`SELECT c.id,c.state,c.content_version,c.row_revision AS revision,a.part,a.stage,a.publication_id
+    return this.connection.prepare(`SELECT c.id,c.state,c.content_version,c.row_revision AS revision,a.part,a.stage,a.publication_id,
+      v.commit_sha AS source_commit
       FROM checkpoint_requests c JOIN stage_artifacts a ON a.project_id=c.project_id AND a.id=c.artifact_id
+      JOIN publications v ON v.project_id=a.project_id AND v.id=a.publication_id
       WHERE c.project_id=? AND c.id=?`).get(project, id) ?? null;
   }
 
   checkpointHistory(project, id) {
-    return this.connection.prepare(`SELECT id,decision,content_version,decided_at,coalesce(json_extract(legacy_actor_json,'$.label'),actor_owner_id) AS decided_by,reason
+    return this.connection.prepare(`SELECT id,decision,content_version,decided_at,prior_decision_id,
+      coalesce(json_extract(legacy_actor_json,'$.label'),actor_owner_id) AS decided_by,reason
       FROM checkpoint_decisions WHERE project_id=? AND request_id=? ORDER BY sequence DESC LIMIT 100`).all(project, id).reverse();
   }
 

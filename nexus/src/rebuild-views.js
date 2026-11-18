@@ -32,6 +32,8 @@ const copy = {
     features: [["산출물을 그림으로 검토", "도메인, 플로우, ERD, 사이트맵을 원본과 함께 봅니다."], ["항목에 질문", "어떤 항목의 어떤 버전을 두고 대화했는지 확인합니다."], ["체크포인트 결정", "검토할 버전을 확인한 사용자가 직접 통과시킵니다."]],
     projects: "프로젝트", connect: "프로젝트 연결", search: "프로젝트 검색", createIntro: "검토할 GitHub 저장소를 연결합니다.",
     copySample: "비공개 샘플 만들기", clearSearch: "검색어 지우기",
+    connectGuide: "첫 게시 준비", connectPreview: "연결 후 게시 미리 보기에서 전송할 원본 경로와 기본 브랜치 커밋을 확인하세요. 첫 게시에는 해당 미리 보기에 대한 동의가 필요합니다.",
+    connectSetup: "기존 Actions 자동 전송을 설정하려면 승인된 환경에서 hub.py setup-ci PROJECT를 실행하세요.",
     projectsIntro: "각 프로젝트에서 검토하던 단계를 이어서 확인하세요.", name: "프로젝트 이름", slug: "프로젝트 ID", repo: "GitHub 저장소 주소", branch: "기본 브랜치", more: "더 보기",
     checkpoint: "체크포인트 검토", versions: "버전 이력", publications: "게시 상태", credentials: "게시 자격 증명", preview: "목업 미리 보기",
     cancel: "취소", sampleTitle: "공개 샘플", sampleIntro: "샘플 원본과 항목을 확인하세요.", workspace: "단계 검토", stage: "단계", skip: "본문으로 이동", theme: "다크 테마", loading: "불러오는 중입니다.",
@@ -44,6 +46,8 @@ const copy = {
     features: [["Review work visually", "See the domain, flows, ERD and sitemap alongside the source."], ["Ask about an item", "Keep each conversation with the item and version it concerns."], ["Decide on a checkpoint", "Pass a checkpoint yourself after reviewing its version."]],
     projects: "Projects", connect: "Connect project", search: "Search projects", createIntro: "Connect the GitHub repository you want to review.",
     copySample: "Create a private sample", clearSearch: "Clear search",
+    connectGuide: "Prepare the first publication", connectPreview: "After connecting, preview the source paths and default-branch commit that will be sent. The first publication requires your consent to that preview.",
+    connectSetup: "To configure existing Actions delivery, run hub.py setup-ci PROJECT in your authorized environment.",
     projectsIntro: "Pick up where you left off in each project.", name: "Project title", slug: "Project ID", repo: "GitHub repository URL", branch: "Default branch", more: "Load more",
     checkpoint: "Checkpoint review", versions: "Version history", publications: "Publications", credentials: "Publication credentials", preview: "Preview mockup",
     cancel: "Cancel", sampleTitle: "Public sample", sampleIntro: "Review the sample source and its items.", workspace: "Review stage", stage: "Stage", skip: "Skip to content", theme: "Dark theme", loading: "Loading…",
@@ -77,7 +81,9 @@ function connect(t) {
     <label for="project-slug">${t.slug}<input id="project-slug" name="slug" inputmode="text" required minlength="3" maxlength="64" pattern="[a-z0-9][a-z0-9\\-]{1,62}[a-z0-9]"></label>
     <label for="project-repo">${t.repo}<input id="project-repo" name="repository_url" type="url" required maxlength="2048" placeholder="https://github.com/owner/repository"></label>
     <label for="project-branch">${t.branch}<input id="project-branch" name="default_branch" required maxlength="255" value="main"></label>
-    <div class="row"><button class="primary" type="submit">${t.connect}</button><a class="button" href="/projects">${t.cancel}</a></div></form>`;
+    <div class="row"><button class="primary" type="submit">${t.connect}</button><a class="button" href="/projects">${t.cancel}</a></div>
+    <section class="stack" aria-label="${t.connectGuide}"><h2>${t.connectGuide}</h2><p>${t.connectPreview}</p>
+    <p>${t.connectSetup}</p><div><a class="button" href="/learn/sample">${t.sample}</a></div></section></form>`;
 }
 
 function workspace(t) {

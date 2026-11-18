@@ -28,15 +28,39 @@
     digest: ko ? "게시 미리 보기 다이제스트" : "Publication preview digest",
     consent: ko ? "첫 게시 동의" : "Consent to first publication",
     consentRecorded: ko ? "첫 게시 동의 ID" : "First-publication consent ID",
+    receipt: ko ? "서버 수신 기록" : "Server receipt",
+    receiptId: ko ? "수신 ID" : "Receipt ID",
+    receivedAt: ko ? "수신 시각" : "Received at",
+    receiptEvent: ko ? "수신 이벤트" : "Receipt event",
+    receiptPending: ko ? "서버 수신 기록 확인 대기" : "Waiting for confirmation of the server receipt",
+    verifyCommit: ko ? "게시를 시도한 커밋" : "Attempted commit",
+    compareCommit: ko ? "수신 커밋 비교" : "Compare with the received commit",
+    commitReceived: ko ? "입력한 커밋의 수신을 확인했습니다." : "The server received this commit.",
+    commitPending: ko ? "입력한 커밋은 수신 확인 대기 중입니다. 기본 브랜치를 가져온 뒤 게시 명령 결과를 확인하세요." : "Receipt for this commit is pending confirmation. Fetch the default branch and check the publication command result.",
+    publicationHelp: ko ? "게시 설정과 재시도" : "Publication setup and retry",
+    publicationDiagnostics: ko ? "이 화면은 서버가 기록한 수신을 표시합니다. 대기, 건너뜀, 오류 사유는 게시 명령이나 CI 실행 결과에서 확인하세요." : "This screen shows recorded server receipts. Check the publication command or CI run for queued, skipped or failed attempts.",
+    publicationPrepare: ko ? "기본 브랜치를 가져온 뒤 게시 미리 보기에서 원본과 커밋을 확인하세요." : "Fetch the default branch, then review the source and commit in the publication preview.",
+    publicationCredential: ko ? "게시 자격 증명을 발급받아 승인된 실행 환경에서 CORTHEX_NEXUS_PUBLISHER_TOKEN으로 설정하세요." : "Issue a publisher credential and set CORTHEX_NEXUS_PUBLISHER_TOKEN in the authorized publishing environment.",
+    sampleGuideLink: ko ? "공개 샘플 안내" : "Public sample guide",
     label: ko ? "자격 증명 이름" : "Credential label",
     role: ko ? "역할" : "Role",
     publisher: ko ? "게시" : "Publisher",
     agent: ko ? "에이전트" : "Agent",
+    credentialScope: ko ? "자격 증명 범위" : "Credential scope",
+    credentialRoles: ko ? "게시 역할은 이 프로젝트에 검증된 원본을 게시합니다. 에이전트 역할은 이 프로젝트에 할당된 질문을 확인하고 응답합니다." : "Publishers submit verified source for this project. Agents read and answer assigned questions for this project.",
+    credentialEmpty: ko ? "등록된 자격 증명이 없습니다." : "No credentials have been issued.",
+    credentialLastUse: ko ? "최근 사용 시각 · 확인 불가" : "Last used · unavailable",
+    credentialCreated: ko ? "발급 시각" : "Issued at",
     revoke: ko ? "폐기" : "Revoke",
+    confirmRevoke: ko ? "이 자격 증명 폐기" : "Revoke this credential",
+    revokeScope: ko ? "폐기하면 선택한 자격 증명의 접근이 즉시 중단됩니다." : "Revocation immediately ends access for the selected credential.",
     revoked: ko ? "폐기됨" : "Revoked",
+    cancel: ko ? "취소" : "Cancel",
+    close: ko ? "닫기" : "Close",
     issue: ko ? "자격 증명 발급" : "Issue credential",
     singleSecret: ko ? "한 번 표시되는 비밀값" : "One-time secret",
-    issued: ko ? "같은 요청에서 이미 발급했습니다." : "This request already issued a credential.",
+    copyThenClose: ko ? "사용할 환경에 비밀값을 직접 복사한 뒤 닫으세요." : "Copy the secret to its intended environment, then close it.",
+    issued: ko ? "같은 요청에서 이미 발급했습니다. 비밀값을 잃었다면 해당 자격 증명을 폐기하고 다시 발급하세요." : "This request already issued a credential. If you lost the secret, revoke the credential and issue a replacement.",
     checkpoint: ko ? "체크포인트 검토" : "Review checkpoint",
     requestCheckpoint: ko ? "체크포인트 요청" : "Request checkpoint",
     openReviewedVersion: ko ? "검토 원본 열기" : "Open reviewed version",
@@ -52,6 +76,30 @@
     withdraw: ko ? "결정 철회" : "Withdraw decision",
     withdrawn: ko ? "철회됨" : "Withdrawn",
     superseded: ko ? "새 버전이 게시됨" : "A newer version was published",
+    sourceCommit: ko ? "원본 커밋" : "Source commit",
+    contentVersion: ko ? "내용 버전" : "Content version",
+    currentVersion: ko ? "최신 버전" : "Latest version",
+    earlierVersion: ko ? "이전 버전" : "Earlier version",
+    latestSource: ko ? "최신 원본 열기" : "Open latest source",
+    historicalReview: ko ? "이 버전의 체크포인트는 이력으로 표시됩니다." : "This version’s checkpoint is available as history.",
+    originalDecision: ko ? "철회한 결정 보기" : "View the withdrawn decision",
+    savedDraft: ko ? "저장되지 않은 사유" : "Unsaved reason",
+    withdrawalEffect: ko ? "이 결정은 이력에 남습니다. 이 체크포인트에 의존하는 후속 단계는 선행 조건을 다시 확인합니다." : "This decision stays in history. Dependent stages check their prerequisite again.",
+    confirmWithdrawal: ko ? "철회를 확인합니다" : "Confirm withdrawal",
+    noCheckpoint: ko ? "체크포인트 없음" : "No checkpoint",
+    historicalCheckpoint: ko ? "이전 내용의 체크포인트" : "Checkpoint on earlier content",
+    historyReview: ko ? "체크포인트 이력" : "Checkpoint history",
+    compareVersions: ko ? "버전 비교" : "Compare versions",
+    baseVersion: ko ? "기준 버전" : "Base version",
+    targetVersion: ko ? "비교 버전" : "Comparison version",
+    sameContent: ko ? "내용 버전이 같습니다." : "The content versions match.",
+    differentContent: ko ? "내용 버전이 다릅니다." : "The content versions differ.",
+    compareLimited: ko ? "항목 목록 일부만 제공되는 버전입니다. 두 원본을 열어 전체를 확인하세요." : "One version has more items than this comparison can load. Open both artifacts to review their full contents.",
+    compareUnavailable: ko ? "이 형식의 항목 비교를 제공할 수 없습니다. 두 원본을 열어 확인하세요." : "Item comparison is unavailable for this format. Open both artifacts to review them.",
+    itemChanges: ko ? "검토 항목 변경" : "Review item changes",
+    addedItem: ko ? "추가" : "Added",
+    changedItem: ko ? "수정" : "Changed",
+    removedItem: ko ? "제거" : "Removed",
     discussions: ko ? "대화" : "Discussions",
     openDiscussion: ko ? "검토 중인 대화" : "Open discussion",
     resolved: ko ? "결정된 대화" : "Resolved discussion",
@@ -78,6 +126,9 @@
     saveSample: ko ? "비공개 샘플 만들기" : "Create a private sample",
     signInSample: ko ? "로그인하고 샘플 저장" : "Sign in to save the sample",
     sampleProjectName: ko ? "내 샘플 프로젝트" : "My sample project",
+    sampleDownload: ko ? "샘플 원본 다운로드" : "Download sample source",
+    sampleGuide: ko ? ["공개 샘플에서 원본과 검토 항목을 확인하세요.", "로그인한 뒤 비공개 샘플을 만들어 질문과 체크포인트를 검토하세요.", "원본을 다운로드해 내 저장소에 넣고 프로젝트를 연결한 뒤 첫 게시를 준비하세요."]
+      : ["Read the source and review items in the public sample.", "Sign in and create a private sample to review questions and checkpoints.", "Download the source, add it to your repository and connect the project to prepare its first publication."],
     stale: ko ? "검토 버전이나 요청 상태가 바뀌었습니다. 새로고침하고 다시 확인하세요." : "The reviewed version or request changed. Refresh and review again.",
     tooLarge: ko ? "입력 길이를 확인해 주세요. 본문은 최대 8,000자이고 UTF-8 기준 32 KiB까지 저장할 수 있습니다." : "Check the input length. The text limit is 8,000 characters and 32 KiB of UTF-8.",
     rate: ko ? "요청 한도에 도달했습니다. 잠시 후 다시 시도해 주세요." : "The request limit was reached. Try again shortly.",
@@ -185,10 +236,10 @@
     for (const id of ["project-nav", "sign-out", "continue", "versions-link", "publications-link", "credentials-link", "provenance-link", "preview-link"]) visible($(id), false);
   }
 
-  function failure(result) {
-    const message = result.status === 401 ? words.signIn : result.status === 404 ? words.gone
+  function failure(result, recoveryMessage) {
+    const message = recoveryMessage ?? (result.status === 401 ? words.signIn : result.status === 404 ? words.gone
       : result.status === 403 ? words.forbidden : result.status === 409 ? words.stale : result.status === 429 ? words.rate
-      : result.status === 413 ? words.tooLarge : ["authentication_unavailable", "upstream_timeout"].includes(result.value?.code) ? words.unavailable : words.failed;
+      : result.status === 413 ? words.tooLarge : ["authentication_unavailable", "upstream_timeout"].includes(result.value?.code) ? words.unavailable : words.failed);
     const hint = result.value?.traceId ? ` (${result.value.code} · ${result.value.traceId})` : "";
     const delay = result.status === 429 && Number(result.retryAfter) > 0 ? ` (${Number(result.retryAfter)}${ko ? "초" : "s"})` : "";
     statusMessage(message + delay + hint, true);
@@ -293,8 +344,11 @@
       const entry = label("li", "");
       const link = label("a", "");
       const summary = label("span", `${item.stage.slice(0, 2)} ${stageTitle(item.stage)}`);
-      if (item.work_state) summary.append(label("span", [item.work_state, item.artifact_state, item.checkpoint_state]
-        .map((key) => stageStates[key]).filter(Boolean).join(" · "), "stage-summary small muted"));
+      if (item.work_state) {
+        entry.dataset.state = item.work_state;
+        summary.append(label("span", [item.work_state, item.artifact_state, item.checkpoint_state]
+          .map((key) => stageStates[key]).filter(Boolean).join(" · "), "stage-summary small muted"));
+      }
       link.append(summary);
       link.href = route(project, part, item.stage);
       if (item.stage === stage) link.setAttribute("aria-current", "page");
@@ -505,39 +559,179 @@
     $("back-project").href = projectHref(project, entry ? route(project, entry.part, entry.stage) : "/projects");
     visible(root, true);
     if (page === "versions") await renderVersions(project, root, read);
-    if (page === "publications") renderPublications(project, root, data, held_commit);
-    if (page === "credentials") await renderCredentials(project, root, read);
+    if (page === "publications") await renderPublications(project, root, data, held_commit, read);
+    if (page === "credentials") await renderCredentials(project, root, read, data.title);
     if (page === "preview") await renderPreview(project, root, read);
     if (page === "checkpoint") await renderCheckpoint(project, root, read);
-    if (page === "publications") statusMessage();
   }
 
-  async function renderVersions(project, root, read, cursor) {
-    const response = await api(`/api/v2/projects/${project}/versions${cursor ? "?" + new URLSearchParams({ cursor }) : ""}`);
-    if (read !== generation) return;
-    if (!response.ok) { failure(response); return; }
-    const list = root.querySelector("ul") || label("ul", "", "review-items");
-    if (!cursor) root.replaceChildren(list);
-    root.querySelector("button")?.remove();
-    for (const version of response.value.versions) {
-      const row = label("li", "");
-      const link = label("a", `${words.version} ${version.publication_revision} · ${stageTitle(version.stage)} · ${version.commit.slice(0, 8)}`);
-      link.href = route(project, version.part, version.stage) + "?" + new URLSearchParams({ publication_id: version.publication_id });
-      row.append(link);
-      list.append(row);
+  const versionSlot = ({ part, stage }) => `${part}\0${stage}`;
+  const versionTitle = (version) => `${words.version} ${version.publication_revision} · ${version.part} · ${stageTitle(version.stage)} · ${version.commit.slice(0, 8)}`;
+  const versionAddress = (project, { part, stage, publication_id }) =>
+    route(project, part, stage) + "?" + new URLSearchParams({ publication_id });
+
+  function versionLink(project, version, caption = versionTitle(version)) {
+    const link = label("a", caption);
+    link.href = versionAddress(project, version);
+    return link;
+  }
+
+  function versionEntry(project, version, latest) {
+    const row = label("li", "", "version-entry stack");
+    const state = label("div", "", "row");
+    state.append(label("span", version.held ? words.currentVersion : words.earlierVersion, "badge"),
+      label("span", checkpointLabel(version.checkpoint_state), "badge"));
+    const actions = label("div", "", "row");
+    if (!version.held && latest) actions.append(versionLink(project, latest, words.latestSource));
+    for (const [index, id] of (version.matching_checkpoint_ids ?? []).entries()) {
+      const caption = index === 0 ? words.historyReview : `${words.historyReview} · ${index + 1}`;
+      const link = label("a", caption);
+      link.href = decisionURL(project, version.part, version.stage, id);
+      actions.append(link);
     }
-    if (!list.childElementCount) root.append(label("p", words.waiting, "muted"));
-    if (response.value.next_cursor) {
-      const more = label("button", words.more);
-      more.type = "button";
-      more.addEventListener("click", async () => {
-        more.disabled = true;
-        try { await renderVersions(project, root, read, response.value.next_cursor); }
-        finally { more.disabled = false; }
-      });
-      root.append(more);
+    row.append(versionLink(project, version), state, label("p", `${words.sourceCommit} ${version.commit}`, "mono muted"),
+      label("p", `${words.contentVersion} ${version.content_version}`, "mono muted"));
+    if (actions.childElementCount) row.append(actions);
+    return row;
+  }
+
+  function versionItemChanges(before, after) {
+    const indexed = (data) => new Map(data.items.filter((item) => !item.removed).map((item) => [item.id, item]));
+    const content = ({ title, kind, fields }) => JSON.stringify([title, kind, Object.entries(fields).sort()]);
+    const previous = indexed(before), next = indexed(after);
+    const keys = new Set([...previous.keys(), ...next.keys()]);
+    const changes = [];
+    for (const id of [...keys].sort()) {
+      const old = previous.get(id), item = next.get(id);
+      if (!old) changes.push([words.addedItem, item]);
+      else if (!item) changes.push([words.removedItem, old]);
+      else if (content(old) !== content(item)) changes.push([words.changedItem, item]);
     }
-    statusMessage();
+    return changes;
+  }
+
+  function versionComparison(project, entries, read) {
+    const section = label("section", "", "stack");
+    const result = label("div", "", "stack");
+    result.setAttribute("aria-live", "polite");
+    const form = label("form", "", "stack");
+    const baseLabel = label("label", words.baseVersion), targetLabel = label("label", words.targetVersion);
+    const base = document.createElement("select"), target = document.createElement("select");
+    baseLabel.append(base);
+    targetLabel.append(target);
+    const show = label("button", words.compareVersions, "button");
+    show.type = "submit";
+    form.append(baseLabel, targetLabel, show);
+    section.append(label("h2", words.compareVersions), form, result);
+
+    function fill(select, versions) {
+      const selected = select.value;
+      select.replaceChildren(...versions.map((version) => {
+        const option = label("option", versionTitle(version));
+        option.value = version.artifact_id;
+        return option;
+      }));
+      if (versions.some(({ artifact_id }) => artifact_id === selected)) select.value = selected;
+    }
+    function targets() {
+      const version = entries.get(base.value);
+      fill(target, version ? [...entries.values()].filter((entry) =>
+        entry.artifact_id !== version.artifact_id && versionSlot(entry) === versionSlot(version)) : []);
+    }
+    base.addEventListener("change", () => { targets(); result.replaceChildren(); });
+    target.addEventListener("change", () => result.replaceChildren());
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const left = entries.get(base.value), right = entries.get(target.value);
+      if (show.disabled || !left || !right || versionSlot(left) !== versionSlot(right)) return;
+      const links = label("div", "", "row");
+      links.append(versionLink(project, left), versionLink(project, right));
+      result.replaceChildren(links);
+      statusMessage();
+      if (left.content_version === right.content_version) { result.append(label("p", words.sameContent)); return; }
+      show.disabled = true;
+      result.setAttribute("aria-busy", "true");
+      try {
+        const responses = await Promise.all([left, right].map((version) => api(`/api/v2/projects/${project}/stages/` +
+          `${encodeURIComponent(version.part)}/${version.stage}?` + new URLSearchParams({
+            publication_id: version.publication_id, version: version.content_version, limit: "100",
+          }))));
+        if (read !== generation || base.value !== left.artifact_id || target.value !== right.artifact_id) return;
+        const failed = responses.find((response) => !response.ok);
+        if (failed) { failure(failed); return; }
+        result.append(label("p", words.differentContent));
+        const artifacts = responses.map(({ value }) => value);
+        if (artifacts.some(({ representation, source }) => !source || ["missing", "unsupported", "html"].includes(representation))) {
+          result.append(label("p", words.compareUnavailable, "muted"));
+        } else if (artifacts.some(({ next_cursor }) => next_cursor)) {
+          result.append(label("p", words.compareLimited, "muted"));
+        } else {
+          const changes = versionItemChanges(...artifacts);
+          const list = label("ul", "");
+          for (const [change, item] of changes) list.append(label("li", `${change} · ${item.id} · ${item.title}`));
+          result.append(label("p", `${words.itemChanges} (${changes.length})`));
+          if (changes.length) result.append(list);
+        }
+      } finally {
+        show.disabled = false;
+        result.removeAttribute("aria-busy");
+      }
+    });
+    return { section, update() {
+      const slots = new Map();
+      for (const entry of entries.values()) slots.set(versionSlot(entry), (slots.get(versionSlot(entry)) || 0) + 1);
+      const comparable = [...entries.values()].filter((entry) => slots.get(versionSlot(entry)) > 1);
+      fill(base, comparable);
+      targets();
+      visible(section, Boolean(comparable.length));
+    } };
+  }
+
+  async function renderVersions(project, root, read) {
+    const entries = new Map(), latest = new Map();
+    const comparison = versionComparison(project, entries, read);
+    const list = label("ul", "", "review-items");
+    const empty = label("div", "", "stack");
+    const publish = label("a", ko ? "게시 상태 열기" : "Open publications", "button");
+    publish.href = `/p/${project}/publications`;
+    empty.append(label("p", words.waiting, "muted"), publish);
+    const more = label("button", words.more);
+    more.type = "button";
+    let cursor = null;
+    let loading = false;
+    async function load() {
+      if (loading) return;
+      loading = true;
+      more.disabled = true;
+      try {
+        const response = await api(`/api/v2/projects/${project}/versions${cursor ? "?" + new URLSearchParams({ cursor }) : ""}`);
+        if (read !== generation) return;
+        if (!response.ok) {
+          failure(response);
+          more.textContent = words.refresh;
+          visible(more, response.status !== 401);
+          return;
+        }
+        for (const version of response.value.versions) {
+          entries.set(version.artifact_id, version);
+          if (version.held) latest.set(versionSlot(version), version);
+        }
+        for (const version of response.value.versions) list.append(versionEntry(project, version, latest.get(versionSlot(version))));
+        comparison.update();
+        cursor = response.value.next_cursor;
+        more.textContent = words.more;
+        visible(more, Boolean(cursor));
+        visible(empty, !entries.size);
+        statusMessage();
+      } finally {
+        loading = false;
+        more.disabled = false;
+      }
+    }
+    for (const node of [comparison.section, empty, more]) visible(node, false);
+    more.addEventListener("click", load);
+    root.replaceChildren(comparison.section, list, empty, more);
+    await load();
   }
 
   function actionForm(fields, caption, submitBody, root) {
@@ -573,48 +767,211 @@
       "X-CSRF-Token": currentSession.csrf_token, "Idempotency-Key": key }, body: payload });
   }
 
-  function renderPublications(project, root, data, commit) {
-    root.replaceChildren(label("h2", data.title), label("p", commit ? `${words.version} ${data.revision} · ${commit}` : words.waiting));
-    if (data.repository_url) root.append(label("p", `${data.repository_url} · ${data.default_branch}`, "muted"));
-    if (!commit && data.repository_url && !data.synthetic) {
-      root.append(label("p", words.reviewConsent));
-      actionForm([field("preview_digest", words.digest, { minLength: 64, maxLength: 64, pattern: "[0-9a-f]{64}", autocomplete: "off" })],
-        words.consent, async ({ payload, key }) => {
-          const result = await mutation(`/api/v2/projects/${project}/publication-consents`, JSON.stringify({ ...JSON.parse(payload), consent: true }), key);
-          if (!result.ok) { failure(result); return false; }
-          statusMessage(`${words.consentRecorded} ${result.value.id}`);
-          return true;
-        }, root);
+  async function renderPublications(project, root, data, commit, read) {
+    const endpoint = `/api/v2/projects/${project}`;
+    const title = label("h2", "");
+    const repository = label("p", "", "muted");
+    const received = label("section", "", "stack");
+    received.setAttribute("aria-label", words.receipt);
+    const refresh = label("button", words.refresh);
+    refresh.type = "button";
+    const consent = label("section", "", "stack");
+    consent.append(label("p", words.reviewConsent));
+    actionForm([field("preview_digest", words.digest, { minLength: 64, maxLength: 64, pattern: "[0-9a-f]{64}", autocomplete: "off" })],
+      words.consent, async ({ payload, key }) => {
+        const result = await mutation(`${endpoint}/publication-consents`, JSON.stringify({ ...JSON.parse(payload), consent: true }), key);
+        if (read !== generation) return false;
+        if (!result.ok) { failure(result); return false; }
+        statusMessage(`${words.consentRecorded} ${result.value.id}`);
+        return true;
+      }, consent);
+
+    const compare = label("form", "", "stack");
+    const expected = field("expected_commit", words.verifyCommit, { maxLength: 64, pattern: "(?:[0-9a-f]{40}|[0-9a-f]{64})", autocomplete: "off", spellcheck: false });
+    const compareAction = label("button", words.compareCommit);
+    compareAction.type = "submit";
+    const comparison = label("p", "");
+    comparison.setAttribute("role", "status");
+    compare.append(expected, compareAction, comparison);
+    let confirmed = null, compared = null;
+    const showComparison = () => {
+      visible(comparison, compared !== null);
+      comparison.textContent = compared === confirmed ? words.commitReceived : words.commitPending;
+    };
+    compare.addEventListener("input", () => { compared = null; showComparison(); });
+    compare.addEventListener("submit", (event) => {
+      event.preventDefault();
+      compared = new FormData(compare).get("expected_commit");
+      showComparison();
+    });
+    showComparison();
+
+    const help = label("details", "");
+    const samples = label("a", words.sampleGuideLink, "button");
+    samples.href = "/learn/sample";
+    const credentials = label("a", words.issue, "button");
+    credentials.href = `/p/${project}/settings/credentials`;
+    const command = label("p", "", "mono");
+    help.append(label("summary", words.publicationHelp), label("p", words.publicationPrepare),
+      label("p", `hub.py preview-v2 PROJECT --project-id ${project}`, "mono"), label("p", words.publicationCredential),
+      command, label("p", words.publicationDiagnostics));
+    const related = label("div", "", "row");
+    related.append(credentials, samples);
+    help.append(related);
+    root.replaceChildren(title, repository, received, refresh, consent, compare, help);
+
+    function showProject(projectData, held) {
+      title.textContent = projectData.title;
+      repository.textContent = `${projectData.repository_url} · ${projectData.default_branch}`;
+      visible(repository, Boolean(projectData.repository_url));
+      const canPublish = Boolean(projectData.repository_url && !projectData.synthetic);
+      visible(consent, canPublish && !held);
+      visible(compare, canPublish);
+      visible(help, canPublish);
+      const argument = held ? `--base-commit ${held}` : "--consent CONSENT_ID";
+      command.textContent = `hub.py publish-v2 PROJECT --project-id ${project} ${argument}`;
+      if (!confirmed) received.replaceChildren(label("p", held ? words.receiptPending : words.waiting));
     }
+
+    async function verifyReceipt(held) {
+      if (!held) { statusMessage(); return; }
+      const [versions, events] = await Promise.all([api(`${endpoint}/versions?limit=1`), api(`${endpoint}/events?limit=100`)]);
+      if (read !== generation) return;
+      if (!versions.ok) { failure(versions); return; }
+      if (events.status === 401) { failure(events); return; }
+      const version = versions.value.versions[0];
+      if (version?.commit !== held) { statusMessage(words.receiptPending); return; }
+      const response = await api(`${endpoint}/publications/${encodeURIComponent(version.publication_id)}`);
+      if (read !== generation) return;
+      if (!response.ok) { failure(response); return; }
+      const receipt = response.value;
+      if (!receipt.sent || receipt.id !== version.publication_id || receipt.held_commit !== held || receipt.revision !== version.publication_revision) {
+        statusMessage(words.receiptPending);
+        return;
+      }
+      const source = label("a", words.openReviewedVersion, "button");
+      source.href = route(project, version.part, version.stage) + "?" + new URLSearchParams({ publication_id: receipt.id });
+      received.replaceChildren(label("h3", words.receipt), label("p", `${words.version} ${receipt.revision} · ${receipt.held_commit}`, "mono"),
+        label("p", `${words.receiptId} · ${receipt.id}`, "mono"),
+        label("p", `${words.receivedAt} · ${new Date(version.published_at).toLocaleString(rootLanguage())}`), source);
+      const event = events.value?.events?.find((entry) => entry.kind === "publication" && entry.target_id === receipt.id && entry.content_version === receipt.snapshot_digest);
+      if (event) received.append(label("p", `${words.receiptEvent} · ${event.sequence}`, "muted"));
+      confirmed = receipt.held_commit;
+      showComparison();
+      if (events.ok) statusMessage(); else failure(events);
+    }
+
+    async function load(initial) {
+      refresh.disabled = true;
+      received.setAttribute("aria-busy", "true");
+      try {
+        if (!initial) {
+          const result = await api(endpoint);
+          if (read !== generation) return;
+          if (!result.ok) {
+            if ([403, 404].includes(result.status)) clearPrivate();
+            failure(result);
+            return;
+          }
+          data = result.value.project;
+          commit = result.value.held_commit;
+        }
+        showProject(data, commit);
+        await verifyReceipt(commit);
+      } finally {
+        received.setAttribute("aria-busy", "false");
+        refresh.disabled = false;
+      }
+    }
+    refresh.addEventListener("click", () => load(false));
+    await load(true);
   }
 
-  async function renderCredentials(project, root, read) {
+  function showCredentialSecret(root, secret) {
+    const section = label("section", "", "panel stack");
+    section.setAttribute("aria-label", words.singleSecret);
+    const wrapper = field("", words.singleSecret, { value: secret, readOnly: true, autocomplete: "off", spellcheck: false });
+    const input = wrapper.querySelector("input");
+    const close = label("button", words.close);
+    close.type = "button";
+    function clearSecret() {
+      input.value = "";
+      section.remove();
+      removeEventListener("pagehide", clearSecret);
+    }
+    close.addEventListener("click", () => {
+      clearSecret();
+      root.querySelector('input[name="label"]')?.focus();
+    });
+    addEventListener("pagehide", clearSecret, { once: true });
+    section.append(label("p", words.copyThenClose), wrapper, close);
+    root.prepend(section);
+    input.focus();
+  }
+
+  function confirmCredentialRevocation(project, root, read, title, credential, trigger, key) {
+    const dialog = label("dialog", "", "panel confirmation-dialog");
+    const heading = label("h2", words.confirmRevoke);
+    heading.id = "credential-revoke-heading";
+    dialog.setAttribute("aria-labelledby", heading.id);
+    const error = label("p", "", "error");
+    error.setAttribute("role", "alert");
+    const cancel = label("button", words.cancel);
+    const submit = label("button", words.confirmRevoke, "primary");
+    cancel.type = submit.type = "button";
+    cancel.addEventListener("click", () => dialog.close());
+    const actions = label("div", "", "row");
+    actions.append(cancel, submit);
+    const name = credential.role === "publisher" ? words.publisher : words.agent;
+    dialog.append(heading, label("p", `${title} · ${credential.label} · ${name}`), label("p", words.revokeScope), error, actions);
+    dialog.addEventListener("close", () => { dialog.remove(); if (trigger.isConnected) trigger.focus(); });
+    dialog.addEventListener("cancel", (event) => { if (submit.disabled) event.preventDefault(); });
+    submit.addEventListener("click", async () => {
+      submit.disabled = cancel.disabled = true;
+      const result = await mutation(`/api/v2/projects/${project}/credentials/${encodeURIComponent(credential.id)}/revoke`, JSON.stringify({ credential_id: credential.id }), key);
+      if (read !== generation) return;
+      if (!result.ok) {
+        failure(result);
+        error.textContent = status.textContent;
+        submit.disabled = cancel.disabled = false;
+        return;
+      }
+      dialog.close();
+      trigger.replaceWith(label("span", words.revoked, "muted"));
+      await renderCredentials(project, root, read, title);
+      root.querySelector("h2")?.focus();
+    });
+    root.append(dialog);
+    dialog.showModal();
+    cancel.focus();
+  }
+
+  async function renderCredentials(project, root, read, title) {
     const path = `/api/v2/projects/${project}/credentials`;
     const response = await api(path);
     if (read !== generation) return;
     if (!response.ok) { failure(response); return; }
-    root.replaceChildren();
+    const heading = label("h2", `${words.credentialScope} · ${title}`);
+    heading.tabIndex = -1;
+    root.replaceChildren(heading, label("p", words.credentialRoles));
     const list = label("ul", "", "review-items");
     for (const credential of response.value.credentials) {
       const row = label("li", "");
-      const details = label("p", `${credential.label} · ${credential.role === "publisher" ? words.publisher : words.agent}`);
-      row.append(details);
+      const name = credential.role === "publisher" ? words.publisher : words.agent;
+      row.append(label("p", `${credential.label} · ${name}`),
+        label("p", `${words.credentialCreated} · ${new Date(credential.created_at).toLocaleString(rootLanguage())}`, "muted"));
       if (credential.revoked) row.append(label("span", words.revoked, "muted"));
       else {
         const revoke = label("button", words.revoke);
         revoke.type = "button";
         const key = crypto.randomUUID();
-        revoke.addEventListener("click", async () => {
-          revoke.disabled = true;
-          const result = await mutation(`${path}/${credential.id}/revoke`, JSON.stringify({ credential_id: credential.id }), key);
-          if (result.ok) await renderCredentials(project, root, generation);
-          else { failure(result); revoke.disabled = false; }
-        });
+        revoke.addEventListener("click", () => confirmCredentialRevocation(project, root, read, title, credential, revoke, key));
         row.append(revoke);
       }
       list.append(row);
     }
-    root.append(list);
+    if (list.childElementCount) root.append(label("p", words.credentialLastUse, "muted"), list);
+    else root.append(label("p", words.credentialEmpty, "muted"));
     const roleWrapper = label("label", words.role);
     const role = document.createElement("select");
     role.name = "role";
@@ -626,15 +983,12 @@
     roleWrapper.append(role);
     actionForm([field("label", words.label, { maxLength: 80 }), roleWrapper], words.issue, async ({ payload, key }) => {
       const result = await mutation(path, payload, key);
+      if (read !== generation) return false;
       if (!result.ok) { failure(result); return false; }
+      await renderCredentials(project, root, read, title);
       if (read !== generation) return false;
-      await renderCredentials(project, root, read);
-      if (read !== generation) return false;
-      if (result.value.secret) {
-        const wrapper = field("", words.singleSecret, { value: result.value.secret, readOnly: true, autocomplete: "off" });
-        root.prepend(wrapper);
-        wrapper.querySelector("input").focus();
-      } else statusMessage(words.issued);
+      if (result.value.secret) showCredentialSecret(root, result.value.secret);
+      else statusMessage(words.issued);
       return true;
     }, root);
     statusMessage();
@@ -646,8 +1000,7 @@
     const response = await api(`/api/v2/projects/${project}/previews/${id}${version ? "?" + new URLSearchParams({ version }) : ""}`);
     if (read !== generation) return;
     if (!response.ok) {
-      if (response.status === 404) statusMessage(words.previewUnavailable, true);
-      else failure(response);
+      failure(response, response.status === 404 ? words.previewUnavailable : undefined);
       if (response.status === 0 || response.status >= 500) {
         const retry = label("button", ko ? "다시 시도" : "Try again");
         retry.type = "button";
@@ -669,11 +1022,13 @@
     const themeInput = `<script>addEventListener("message", (event) => {
       const value = event.data?.nexusPreviewTheme;
       if (event.source !== parent || event.origin !== ${JSON.stringify(location.origin)} || !["light", "dark"].includes(value)) return;
+      const button = document.querySelector("button#theme");
+      const action = value === "dark" ? "다크 모드로 전환" : "라이트 모드로 전환";
+      if (button?.getAttribute("aria-label") === action) button.click();
       document.documentElement.dataset.theme = value;
       document.documentElement.style.colorScheme = value;
     });</script>`;
     frame.srcdoc = `<!doctype html><meta http-equiv="Content-Security-Policy" content="${policy}">${themeInput}` + html.replace(/^\s*<!doctype html>/i, "");
-    frame.addEventListener("load", () => frame.contentWindow?.postMessage({ nexusPreviewTheme: document.documentElement.dataset.theme }, "*"));
     const tools = label("div", "", "row preview-tools");
     tools.setAttribute("role", "group");
     tools.setAttribute("aria-label", ko ? "미리 보기 화면 폭" : "Preview width");
@@ -742,7 +1097,6 @@
   }
 
   async function renderCheckpoint(project, root, read, retainDraft = false) {
-    const draft = retainDraft ? root.querySelector("textarea[name=reason]")?.value || "" : "";
     const [, , , part, stage, , id] = location.pathname.split("/");
     const endpoint = `/api/v2/projects/${project}/checkpoints/${id}`;
     const response = await api(endpoint);
@@ -753,37 +1107,64 @@
       location.replace(decisionURL(project, checkpoint.part, checkpoint.stage, checkpoint.id));
       return;
     }
+    const draft = retainDraft ? root.querySelector("textarea[name=reason]")?.value ??
+      root.querySelector("[data-checkpoint-draft]")?.textContent ?? "" : "";
+    const focus = root.contains(document.activeElement) ? document.activeElement.dataset.checkpointFocus : null;
+    const current = checkpoint.current_source;
+    const historical = current?.content_version !== checkpoint.content_version;
     const versionURL = route(project, checkpoint.part, checkpoint.stage) + "?" + new URLSearchParams({
       publication_id: checkpoint.publication_id, version: checkpoint.content_version,
     });
     const source = label("a", words.openReviewedVersion, "button");
     source.href = versionURL;
+    source.dataset.checkpointFocus = "source";
     $("back-project").href = route(project, checkpoint.part, checkpoint.stage);
     const status = label("p", checkpointLabel(checkpoint.state), "badge");
     const heading = label("h2", `${checkpoint.stage.slice(0, 2)} ${stageTitle(checkpoint.stage)}`);
-    root.replaceChildren(heading, status, source, label("p", checkpoint.content_version, "mono muted"));
+    const sources = label("div", "", "row");
+    sources.append(source);
+    if (current && current.publication_id !== checkpoint.publication_id) {
+      const latest = versionLink(project, { part: checkpoint.part, stage: checkpoint.stage, ...current }, words.latestSource);
+      latest.className = "button";
+      latest.dataset.checkpointFocus = "latest";
+      sources.append(latest);
+    }
+    root.replaceChildren(heading, status, sources,
+      label("p", `${words.sourceCommit} ${checkpoint.source_commit || words.unverified}`, "mono muted"),
+      label("p", `${words.contentVersion} ${checkpoint.content_version}`, "mono muted"));
+    if (historical) root.append(label("p", words.historicalReview, "muted"));
     if (checkpoint.blockers.length) {
       const errors = label("ul", "");
       errors.append(...checkpoint.blockers.map((detail) => label("li", blockerText(detail))));
       root.append(errors);
     }
     const history = label("ul", "", "checkpoint-history");
+    const decisionIds = new Set(checkpoint.history.map(({ id }) => id));
     for (const entry of checkpoint.history) {
       const row = label("li", "");
+      row.id = `checkpoint-decision-${entry.id}`;
+      const actor = entry.decided_by === currentSession?.owner_id ? words.owner : entry.decided_by;
       row.append(label("strong", checkpointLabel(entry.decision)),
-        label("p", `${entry.decided_by} · ${new Date(entry.decided_at).toLocaleString(rootLanguage())}`, "muted"));
+        label("p", `${actor} · ${new Date(entry.decided_at).toLocaleString(rootLanguage())}`, "muted"));
       if (entry.reason) row.append(label("p", entry.reason, "thread-text"));
+      if (decisionIds.has(entry.prior_decision_id)) {
+        const prior = label("a", words.originalDecision);
+        prior.href = `#checkpoint-decision-${entry.prior_decision_id}`;
+        prior.dataset.checkpointFocus = `history-${entry.id}`;
+        row.append(prior);
+      }
       history.append(row);
     }
     if (history.children.length) root.append(history);
-    const canDecide = ["pending", "withdrawn"].includes(checkpoint.state) && !checkpoint.blockers.length;
+    const canDecide = !historical && ["pending", "withdrawn"].includes(checkpoint.state) && !checkpoint.blockers.length;
     const previous = checkpoint.history.at(-1);
-    const canWithdraw = previous && ["passed", "changes_requested"].includes(checkpoint.state);
+    const canWithdraw = !historical && previous && ["passed", "changes_requested"].includes(checkpoint.state);
     if (canDecide || canWithdraw) {
       const decisionField = label("label", words.decision);
       const choices = document.createElement("select");
       choices.required = true;
       choices.name = "decision";
+      choices.dataset.checkpointFocus = "choice";
       const blank = label("option", words.chooseDecision);
       blank.value = "";
       choices.append(blank);
@@ -794,8 +1175,24 @@
       }
       decisionField.append(choices);
       const reasonField = submissionField("reason", words.reason, false);
-      reasonField.querySelector("textarea").value = draft;
-      actionForm([decisionField, reasonField], words.recordDecision, async ({ payload, key }) => {
+      const reasonInput = reasonField.querySelector("textarea");
+      reasonInput.value = draft;
+      reasonInput.dataset.checkpointFocus = "reason";
+      const fields = [decisionField, reasonField];
+      if (canWithdraw) {
+        const effect = label("p", words.withdrawalEffect, "muted");
+        effect.id = "checkpoint-withdrawal-effect";
+        const confirmation = label("label", "", "checkpoint-confirm");
+        const checkbox = document.createElement("input");
+        checkbox.name = "confirm_withdrawal";
+        checkbox.type = "checkbox";
+        checkbox.required = true;
+        checkbox.setAttribute("aria-describedby", effect.id);
+        checkbox.dataset.checkpointFocus = "confirm";
+        confirmation.append(checkbox, document.createTextNode(words.confirmWithdrawal));
+        fields.push(effect, confirmation);
+      }
+      const form = actionForm(fields, words.recordDecision, async ({ payload, key }) => {
         const { decision, reason } = JSON.parse(payload);
         const exact = { content_version: checkpoint.content_version, expected_revision: checkpoint.revision, reason };
         const body = canWithdraw ? { ...exact, prior_decision_id: previous.id } : { ...exact, decision };
@@ -804,11 +1201,28 @@
         await renderCheckpoint(project, root, read);
         return true;
       }, root);
+      form.querySelector("button[type=submit]").dataset.checkpointFocus = "submit";
+    } else if (draft) {
+      const note = label("div", "", "stack");
+      const text = label("p", draft, "thread-text");
+      text.dataset.checkpointDraft = "";
+      note.append(label("h3", words.savedDraft), text);
+      root.append(note);
     }
     const refresh = label("button", words.refresh);
     refresh.type = "button";
-    refresh.addEventListener("click", () => renderCheckpoint(project, root, read, true));
+    refresh.dataset.checkpointFocus = "refresh";
+    refresh.addEventListener("click", async () => {
+      if (root.hasAttribute("aria-busy")) return;
+      root.setAttribute("aria-busy", "true");
+      try { await renderCheckpoint(project, root, read, true); }
+      finally { root.removeAttribute("aria-busy"); }
+    });
     root.append(refresh);
+    if (focus) {
+      const target = [...root.querySelectorAll("[data-checkpoint-focus]")].find((node) => node.dataset.checkpointFocus === focus);
+      (target || refresh).focus({ preventScroll: true });
+    }
     statusMessage();
   }
 
@@ -816,6 +1230,7 @@
   const checkpointLabel = (value) => ({
     pending: words.pending, pass: words.pass, passed: words.passed, changes_requested: words.changesRequested,
     withdraw: words.withdraw, withdrawn: words.withdrawn, superseded: words.superseded,
+    none: words.noCheckpoint, historical: words.historicalCheckpoint,
   })[value] || value;
 
   function discussionForm(root, { fieldLabel, caption, extras, read, submit, saved }) {
@@ -1053,6 +1468,32 @@
     visible(section, true);
   }
 
+  async function renderPublicSample() {
+    const content = $("sample-content");
+    const guide = label("ol", "");
+    guide.append(...words.sampleGuide.map((step) => label("li", step)));
+    content.replaceChildren(guide);
+    const result = await api("/api/v2/sample");
+    content.setAttribute("aria-busy", "false");
+    if (!result.ok) {
+      failure(result);
+      const refresh = label("button", words.refresh);
+      refresh.type = "button";
+      refresh.addEventListener("click", () => location.reload());
+      content.append(refresh);
+      return;
+    }
+    for (const source of result.value.source_files) {
+      const download = label("a", words.sampleDownload, "button");
+      const name = source.path.split("/").at(-1);
+      download.download = /^[A-Za-z0-9_-][A-Za-z0-9_.-]*\.md$/.test(name) ? name : "sample.txt";
+      download.href = URL.createObjectURL(new Blob([source.content_utf8], { type: "text/plain; charset=utf-8" }));
+      const url = download.href;
+      addEventListener("pagehide", (event) => { if (!event.persisted) URL.revokeObjectURL(url); });
+      content.append(label("h2", source.path), download, label("pre", source.content_utf8));
+    }
+  }
+
   $("sign-in")?.addEventListener("click", async (event) => {
     event.currentTarget.disabled = true;
     statusMessage(words.signingIn);
@@ -1127,12 +1568,7 @@
       const delay = /^\d{1,5}$/.test(wait) ? ` (${wait}${ko ? "초" : "s"})` : "";
       statusMessage(callbackMessages[callbackCode] + delay + metadata, true);
     }
-    if (page === "sample") {
-      const result = await api("/api/v2/sample");
-      $("sample-content").setAttribute("aria-busy", "false");
-      if (!result.ok) failure(result);
-      else $("sample-content").replaceChildren(...result.value.source_files.flatMap((source) => [label("h2", source.path), label("pre", source.content_utf8)]));
-    }
+    if (page === "sample") await renderPublicSample();
     if (page !== "welcome" && page !== "sample") statusMessage(words.loading);
     const result = await api("/api/v2/session");
     if (!result.ok) {

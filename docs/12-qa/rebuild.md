@@ -19,7 +19,7 @@ The stage 11 NEXUS checkpoint binds development review to `befa9804bdcf721971f8f
 | TC-1890 | REQ-339, REQ-340 | staging, performance | With 100 projects, up to 3,000 items each and 20 authenticated contexts, record at least 200 warmed review navigations and 200 durable question submissions. Review P95 is at most 2 s and acknowledgement P95 is at most 1 s. |
 | TC-1891 | REQ-330, REQ-331, API-241 | CI, operator | Verify credential boundaries, repeatable CI setup and the delivery receipt. Compare each held snapshot, source and main commit. |
 
-The [response cases](rebuild/api-cases.json) map the 36 v2 HTTP operations and all 283 declared responses to test IDs. Run numeric responses and each operation's default response through the real handler. Check the problem code, response body or headers and durable state. Record responses observed without a matching assertion as observations.
+The response cases map the 36 v2 HTTP operations and 281 active responses to test IDs. The original two 403 case IDs remain marked as removed after the scoped read correction for API-226 and API-234. Run numeric responses and each operation's default response through the real handler. Check the problem code, response body or headers and durable state. Record responses observed without a matching assertion as observations. [Response cases](rebuild/api-cases.json)
 
 Run browser roles and recovery paths against one identified candidate. Record the browser, width, theme, trace ID where available and the resulting data. Record the original failure evidence and the exact candidate used for a retest. Compare migration and recovery evidence on protected server copies.
 

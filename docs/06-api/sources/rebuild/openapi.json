@@ -6459,7 +6459,7 @@
       "get": {
         "operationId": "getCheckpointReview",
         "summary": "getCheckpointReview",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Resolve the original source commit and identify the current reviewable artifact separately. Withdrawal history includes the original decision reference.",
         "x-corthex": {
           "id": "API-221",
           "spec": [
@@ -6523,7 +6523,12 @@
                       "revision": 1,
                       "blockers": [],
                       "history": [],
-                      "publication_id": "pub_demo"
+                      "publication_id": "pub_demo",
+                      "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                      "current_source": {
+                        "publication_id": "pub_meta_demo",
+                        "content_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                      }
                     }
                   }
                 }
@@ -7465,7 +7470,7 @@
       "get": {
         "operationId": "listProjectVersions",
         "summary": "listProjectVersions",
-        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Return one entry per stage artifact, not one lossy summary per publication. Include part/stage/artifact and checkpoint IDs for exact historical reads; multiple stages may share a publication ID and have different content digests and decisions. Sort by publication revision descending, then part and stage catalog order with a stable artifact-ID tie breaker; the opaque cursor binds this project and ordering.",
+        "description": "Apply the shared ownership, input, idempotency and version rules in the contract decisions. Return one entry per stage artifact, not one lossy summary per publication. Include part/stage/artifact and checkpoint IDs for exact historical reads; multiple stages may share a publication ID and have different content digests and decisions. Sort by publication revision descending, then part and stage catalog order with a stable artifact-ID tie breaker; the opaque cursor binds this project and ordering. Identify whether each artifact is held and which checkpoint IDs match its content version.",
         "x-corthex": {
           "id": "API-224",
           "spec": [
@@ -7542,7 +7547,11 @@
                             "cp_demo"
                           ],
                           "publication_revision": 2,
-                          "published_at": "2026-11-18T01:00:00Z"
+                          "published_at": "2026-11-18T01:00:00Z",
+                          "held": true,
+                          "matching_checkpoint_ids": [
+                            "cp_demo"
+                          ]
                         },
                         {
                           "publication_id": "pub_meta_demo",
@@ -7554,7 +7563,9 @@
                           "artifact_id": "art_demo_meta",
                           "checkpoint_ids": [],
                           "publication_revision": 2,
-                          "published_at": "2026-11-18T01:00:00Z"
+                          "published_at": "2026-11-18T01:00:00Z",
+                          "held": true,
+                          "matching_checkpoint_ids": []
                         },
                         {
                           "publication_id": "pub_demo",
@@ -7568,7 +7579,11 @@
                             "cp_demo"
                           ],
                           "publication_revision": 1,
-                          "published_at": "2026-11-18T00:00:00Z"
+                          "published_at": "2026-11-18T00:00:00Z",
+                          "held": false,
+                          "matching_checkpoint_ids": [
+                            "cp_demo"
+                          ]
                         },
                         {
                           "publication_id": "pub_demo",
@@ -7580,7 +7595,9 @@
                           "artifact_id": "art_demo",
                           "checkpoint_ids": [],
                           "publication_revision": 1,
-                          "published_at": "2026-11-18T00:00:00Z"
+                          "published_at": "2026-11-18T00:00:00Z",
+                          "held": false,
+                          "matching_checkpoint_ids": []
                         }
                       ],
                       "next_cursor": null
@@ -8222,6 +8239,7 @@
           "omit": {
             "201": "Success uses HTTP 200",
             "204": "Success uses HTTP 200",
+            "403": "The project owner, agent and publisher can read within their granted project scope",
             "409": "Read-only operation has no conflicting state mutation"
           }
         },
@@ -8331,34 +8349,6 @@
                       "detail": "Sign in again and return to this page.",
                       "instance": "/api/v2/request/example",
                       "code": "sign_in_required",
-                      "traceId": "trace_synthetic_example"
-                    }
-                  }
-                }
-              }
-            },
-            "headers": {
-              "Cache-Control": {
-                "$ref": "#/components/headers/NoStore"
-              }
-            }
-          },
-          "403": {
-            "description": "Request refused without a partial write.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                },
-                "examples": {
-                  "operation_forbidden": {
-                    "value": {
-                      "type": "https://example.test/problems/operation_forbidden",
-                      "title": "Operation forbidden",
-                      "status": 403,
-                      "detail": "This credential cannot perform this action.",
-                      "instance": "/api/v2/request/example",
-                      "code": "operation_forbidden",
                       "traceId": "trace_synthetic_example"
                     }
                   }
@@ -10520,6 +10510,7 @@
           "omit": {
             "201": "Success uses HTTP 200",
             "204": "Success uses HTTP 200",
+            "403": "The project owner, agent and publisher can read within their granted project scope",
             "409": "Read-only operation has no conflicting state mutation"
           }
         },
@@ -10636,34 +10627,6 @@
                       "detail": "Sign in again and return to this page.",
                       "instance": "/api/v2/request/example",
                       "code": "sign_in_required",
-                      "traceId": "trace_synthetic_example"
-                    }
-                  }
-                }
-              }
-            },
-            "headers": {
-              "Cache-Control": {
-                "$ref": "#/components/headers/NoStore"
-              }
-            }
-          },
-          "403": {
-            "description": "Request refused without a partial write.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                },
-                "examples": {
-                  "operation_forbidden": {
-                    "value": {
-                      "type": "https://example.test/problems/operation_forbidden",
-                      "title": "Operation forbidden",
-                      "status": 403,
-                      "detail": "This credential cannot perform this action.",
-                      "instance": "/api/v2/request/example",
-                      "code": "operation_forbidden",
                       "traceId": "trace_synthetic_example"
                     }
                   }
@@ -13068,6 +13031,20 @@
                     "null"
                   ],
                   "maxLength": 8000
+                },
+                "prior_decision_id": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Original decision referenced by a withdrawal."
                 }
               },
               "required": [
@@ -13086,6 +13063,43 @@
             "minLength": 1,
             "maxLength": 80,
             "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+          },
+          "source_commit": {
+            "type": "string",
+            "minLength": 40,
+            "maxLength": 64,
+            "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$",
+            "description": "Git commit of the publication originally bound to this checkpoint."
+          },
+          "current_source": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "publication_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+                  },
+                  "content_version": {
+                    "type": "string",
+                    "minLength": 64,
+                    "maxLength": 64,
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "required": [
+                  "publication_id",
+                  "content_version"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Current reviewable artifact for this stage. Null when the stage has no current reviewable artifact."
           }
         },
         "required": [
@@ -13290,6 +13304,21 @@
                   "type": "string",
                   "format": "date-time",
                   "maxLength": 40
+                },
+                "held": {
+                  "type": "boolean",
+                  "description": "Whether the artifact belongs to the currently held publication."
+                },
+                "matching_checkpoint_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,79}$"
+                  },
+                  "maxItems": 100,
+                  "description": "Checkpoint IDs bound to this content version."
                 }
               },
               "required": [

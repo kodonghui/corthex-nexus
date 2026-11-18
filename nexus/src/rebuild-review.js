@@ -159,7 +159,11 @@ export function reviewHandlers({ store, access, writeContext, limiter, stageCata
     const actor = access(request, now, projectId, ["owner"]);
     const row = store.checkpointRecord(projectId, checkpointId);
     if (!row) throw new RebuildProblem("not_found");
-    return rebuildJSON({ ...row, blockers: blockers(actor)(row.part, row.stage), history: store.checkpointHistory(projectId, checkpointId) });
+    const held = store.artifact(projectId, row.part, row.stage, { publication: null, version: null });
+    const current = held && !["missing", "unsupported"].includes(held.representation)
+      ? { publication_id: held.publication_id, content_version: held.content_version } : null;
+    return rebuildJSON({ ...row, current_source: current, blockers: blockers(actor)(row.part, row.stage),
+      history: store.checkpointHistory(projectId, checkpointId) });
   }
 
   function checkpointDecision(operation) {

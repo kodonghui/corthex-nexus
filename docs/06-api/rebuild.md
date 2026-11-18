@@ -82,3 +82,9 @@ Every v2 success, redirect, empty response, refusal and router 404/405 returns r
 The first-consent `preview_digest` is UTF-8 SHA-256 of RFC 8785 canonical JSON wrapping `nexus.preview/1`, the project ID and the final publication input with only top-level `consent_id` removed. Preserve array order, commit and original source content; omit consent IDs, authentication and server time. OpenAPI retains the precise definition, canonical bytes and digest fixture. On first publication the server recomputes it and atomically consumes single-use owner/project/digest consent with the publication. Changed input requires fresh consent; an idempotent retry returns the original receipt. Existing projects use a null consent ID.
 
 A repository-free private sample explicitly uses null `repository_url` and `default_branch`, with `verification_state` set to `not_connected`. The public sample bundle contains nonempty source and matching digests. Preserve this published contract during WBS integration; repository checks retain these sample semantics and bind the review receipt to the exact contract bytes.
+
+## Stage 12 contract corrections
+
+The initial response lists included 403 for receipt reads (API-226) and event polling (API-234). The role matrix confirms that an owner, agent or publisher can use both routes within the granted project. The active contract records the 403 omission and retains 401 for invalid credentials and 404 for missing or foreign project data. The two earlier case IDs remain in the QA history. [Rebuild QA](../12-qa/rebuild.md)
+
+HTML callback navigation uses a same-origin 303 retry with the API problem code and trace ID. JSON clients receive the original refusal. The project list carries owner-scoped review summaries. The preview returns the exact part and original publication metadata for navigation outside the isolated frame. Checkpoint reads and version history carry the source and decisions for the selected content version.

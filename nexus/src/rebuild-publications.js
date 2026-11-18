@@ -102,8 +102,11 @@ export function publicationHandlers({ store, github, access, writeContext, limit
       versions.pop();
       next_cursor = pageCursor(actor.token, scope, versions.at(-1).artifact_id);
     }
-    return rebuildJSON({ versions: versions.map((version) => ({ ...version,
-      ...checkpointSummary(store.artifactCheckpoints(projectId, version.part, version.stage, version.content_version), version.content_version) })), next_cursor });
+    return rebuildJSON({ versions: versions.map((version) => {
+      const checkpoints = store.artifactCheckpoints(projectId, version.part, version.stage, version.content_version);
+      return { ...version, held: Boolean(version.held), ...checkpointSummary(checkpoints, version.content_version),
+        matching_checkpoint_ids: checkpoints.filter((row) => row.content_version === version.content_version).map(({ id }) => id) };
+    }), next_cursor });
   }
 
   function getPublicationReceipt(request, _url, now, { projectId, publicationId }) {

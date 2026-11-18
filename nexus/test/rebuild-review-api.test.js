@@ -171,6 +171,19 @@ test("checkpoint decisions enforce current stage dependencies and human session,
   const review = await expect(await f.call(checkpoint), 200);
   assert.equal(review.history[0].decided_by, f.seed.owner);
   assert.equal(review.publication_id, prd.publication_id);
+  assert.equal(review.source_commit, "e".repeat(40));
+  assert.deepEqual(review.current_source, { publication_id: prd.publication_id, content_version: domainVersion });
+  const original = await expect(await f.call(`/checkpoints/${f.seed.previous.id}`), 200);
+  assert.equal(original.source_commit, "c".repeat(40));
+  assert.equal(original.content_version, f.seed.original.content_version);
+  assert.deepEqual(original.current_source, { publication_id: prd.publication_id, content_version: prd.content_version });
+  const listing = await expect(await f.call("/versions"), 200);
+  const prdVersions = listing.versions.filter(({ stage }) => stage === "02-prd");
+  assert.deepEqual(prdVersions.map(({ held, checkpoint_state, matching_checkpoint_ids }) =>
+    ({ held, checkpoint_state, matching_checkpoint_ids })), [
+    { held: true, checkpoint_state: "pending", matching_checkpoint_ids: [pending.id] },
+    { held: false, checkpoint_state: "passed", matching_checkpoint_ids: [f.seed.previous.id] },
+  ]);
   const prdPassed = await expect(await f.call(`/checkpoints/${pending.id}/decisions`, { body: prdDecision }), 201);
   assert.equal(prdPassed.state, "passed");
   const withdrawal = { expected_revision: 1, content_version: domainVersion, prior_decision_id: decided.id, reason: "Needs a second review." };
@@ -180,6 +193,7 @@ test("checkpoint decisions enforce current stage dependencies and human session,
   assert.deepEqual(await expect(await f.call(checkpoint + "/withdrawals", { body: withdrawal, key }), 201), result);
   const history = (await expect(await f.call(checkpoint), 200)).history;
   assert.deepEqual(history.map((entry) => entry.decision), ["pass", "withdraw"]);
+  assert.deepEqual(history.map((entry) => entry.prior_decision_id), [null, decided.id]);
   assert.equal(f.db.prepare("SELECT count(*) n FROM checkpoint_decisions WHERE request_id=?").get(request.id).n, 2);
   const reviewedAgain = await expect(await f.call(checkpoint + "/decisions", { body: { ...body, expected_revision: 2, reason: "Reviewed again" } }), 201);
   assert.equal(reviewedAgain.state, "passed");
