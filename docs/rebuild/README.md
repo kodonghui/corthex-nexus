@@ -22,7 +22,7 @@ The maintainer requested a new thirteen-stage cycle on 2026-11-17 and explicitly
 
 ## Publication and review state
 
-Author each source/record PR, pass required checks/reviews, merge main, hub push, then send a separate checkpoint request. Verify merge, upload, held commit and saved request separately. Current publication progress, actual request IDs and private addresses are in the existing project record. Stages awaiting individual NEXUS review stay in_progress; 11–13 are not_started. The [actual stage record](../../.corthex/stages/rebuild.json) retains the one real timeline pass and invents no others.
+Author each source/record PR, pass required checks/reviews, merge main, hub push, then send a separate checkpoint request. Verify merge, upload, held commit and saved request separately. Current publication progress, actual request IDs and private addresses are in the existing project record. The maintainer subsequently [approved all published stages 01–10 in chat](../decisions/rebuild-design-approval-2026-11-18.md), bound to default commit `f4f765360a9ffdb32a5e8e5e934be1a7dcea3da9` and snapshot revision 32. Their states are done; 11–13 remain not_started. The [actual stage record](../../.corthex/stages/rebuild.json) preserves the real timeline event and records the later chat approvals with their provenance, without inventing NEXUS button events.
 
 Keep English sources and Korean reading copies together; run the absolute term-check on Korean text before publication. Preserve old decisions and state why they are replaced. Public Git contains no personal data, secrets or private Miro/record URLs.
 
