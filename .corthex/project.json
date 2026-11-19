@@ -88,8 +88,9 @@
     },
     "13-presentation": {
       "human": "nexus",
+      "source": "docs/13-presentation/script.md",
       "truth": "source",
-      "note": "The 2026-11-17 rebuild explicitly includes stage 13. No presentation is authored before its inputs and preceding checkpoints. Its source is configured when that stage starts."
+      "note": "The rebuild presentation is a Korean-captioned usage video recorded with the sample project. The repository scene table links the video and the reviewed stage 12 release."
     }
   },
   "on_nexus": true

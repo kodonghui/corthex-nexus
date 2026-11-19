@@ -124,7 +124,10 @@
     {
       "part": "rebuild",
       "stage": "13-presentation",
-      "files": []
+      "files": [
+        "docs/13-presentation/script.md",
+        "docs/13-presentation/script.ko.md"
+      ]
     }
   ]
 }

@@ -188,10 +188,17 @@
       "updated": "2026-11-19T09:50:55+09:00"
     },
     "13-presentation": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "Design cycle through stage 10 is authored under the explicit continuation instruction. Await the next authorized execution scope and actual human checkpoint gates; legacy approvals never substitute.",
-      "updated": "2026-11-18T04:52:34+09:00"
+      "next": "Review the Korean-captioned usage video in NEXUS and pass the presentation checkpoint.",
+      "checks": [
+        {
+          "level": "info",
+          "message": "Verified six usage scenes, complete video playback and the flash checks on an isolated sample project.",
+          "at": "2026-11-19"
+        }
+      ],
+      "updated": "2026-11-19T10:05:12+09:00"
     }
   }
 }
