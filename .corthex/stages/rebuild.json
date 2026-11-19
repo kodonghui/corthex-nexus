@@ -190,15 +190,15 @@
     "13-presentation": {
       "state": "in_progress",
       "checkpoints": [],
-      "next": "Review the Korean-captioned usage video in NEXUS and pass the presentation checkpoint.",
+      "next": "Review the narrated first-use walkthrough and pass its presentation checkpoint in NEXUS.",
       "checks": [
         {
           "level": "info",
-          "message": "Verified six usage scenes, complete video playback and the flash checks on an isolated sample project.",
+          "message": "The revised 129-second walkthrough includes twelve chapters with Korean narration and captions. Playback and media checks passed on the sample recording.",
           "at": "2026-11-19"
         }
       ],
-      "updated": "2026-11-19T10:05:12+09:00"
+      "updated": "2026-11-19T10:43:20+09:00"
     }
   }
 }
