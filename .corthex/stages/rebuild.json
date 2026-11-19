@@ -162,9 +162,17 @@
       "updated": "2026-11-19T01:23:10+09:00"
     },
     "12-qa": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Review the authenticated staging evidence and pass the stage 12 QA checkpoint for the exact release candidate.",
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Passed stage 12 QA at main commit 2bbe864fd686c5f4c5cee5c7a99a8f0d60f9aa8f in NEXUS.",
+          "by": "the maintainer",
+          "nexus": "nk_mgb3m35zdb37",
+          "where": "https://nexus.corthex-hq.com/p/corthex-nexus/rebuild/12-qa",
+          "date": "2026-11-19"
+        }
+      ],
+      "next": "Use the verified release gate and preserve both application data and the established publication routes during production rollout.",
       "checks": [
         {
           "level": "info",
@@ -177,7 +185,7 @@
           "at": "2026-11-19"
         }
       ],
-      "updated": "2026-11-19T05:20:19+09:00"
+      "updated": "2026-11-19T09:50:55+09:00"
     },
     "13-presentation": {
       "state": "not_started",
