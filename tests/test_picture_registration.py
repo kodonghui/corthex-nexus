@@ -70,14 +70,14 @@ class PictureRegistrationTest(GitSourcesFixture):
         for stage, value in snapshot['stages'].items():
             record = value['parts']['rebuild']
             approved_design = stage in ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap', '08-screen-states', '09-mockup', '10-wbs')
-            approved_development = stage == '11-development'
-            expected_state = 'done' if approved_design or approved_development else 'in_progress' if stage == '12-qa' else 'not_started'
+            approved_release = stage in ('11-development', '12-qa')
+            expected_state = 'done' if approved_design or approved_release else 'not_started'
             self.assertEqual(record['state'], expected_state)
             if stage == '01-domain':
                 self.assertEqual(len(record['checkpoints']), 2)
                 self.assertEqual(record['checkpoints'][0]['nexus'], 'nk_n9aja7yrtm1q')
                 self.assertIn('Step 1-b timeline', record['checkpoints'][0]['approved'])
-            elif approved_design or approved_development:
+            elif approved_design or approved_release:
                 self.assertEqual(len(record['checkpoints']), 1)
             else:
                 self.assertEqual(record['checkpoints'], [])
@@ -89,13 +89,17 @@ class PictureRegistrationTest(GitSourcesFixture):
                 self.assertIn('in chat', approval['approved'])
                 self.assertTrue(approval['where'].endswith('/docs/decisions/rebuild-design-approval-2026-11-18.md'))
                 self.assertNotIn('nexus', approval, 'a chat approval must not invent a NEXUS user-button event')
-            elif approved_development:
+            elif approved_release:
                 approval = record['checkpoints'][0]
                 self.assertEqual(approval['by'], 'the maintainer')
                 self.assertEqual(approval['date'], '2026-11-19')
-                self.assertEqual(approval['nexus'], 'nk_ph2rz73zeq0f')
-                self.assertIn('befa9804bdcf721971f8fd27c65759764b904813', approval['approved'])
-                self.assertTrue(approval['where'].endswith('/p/corthex-nexus/rebuild/11-development'))
+                checkpoint, reviewed_commit = {
+                    '11-development': ('nk_ph2rz73zeq0f', 'befa9804bdcf721971f8fd27c65759764b904813'),
+                    '12-qa': ('nk_mgb3m35zdb37', '2bbe864fd686c5f4c5cee5c7a99a8f0d60f9aa8f'),
+                }[stage]
+                self.assertEqual(approval['nexus'], checkpoint)
+                self.assertIn(reviewed_commit, approval['approved'])
+                self.assertTrue(approval['where'].endswith(f'/p/corthex-nexus/rebuild/{stage}'))
 
         # The previous registration points at a present explanatory Markdown
         # file, which does not provide SQL picture input to the real parser.
