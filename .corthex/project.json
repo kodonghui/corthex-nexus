@@ -90,7 +90,7 @@
       "human": "nexus",
       "source": "docs/13-presentation/",
       "truth": "source",
-      "note": "The rebuild presentation is a Korean-captioned usage video recorded with the sample project. The repository scene table links the video and the reviewed stage 12 release."
+      "note": "The rebuild presentation is a narrated Korean walkthrough for first-time users, with sample screen recordings and twelve navigable video chapters. The scene table links the video and the reviewed stage 12 release."
     }
   },
   "on_nexus": true
