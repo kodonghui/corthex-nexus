@@ -88,7 +88,7 @@
     },
     "13-presentation": {
       "human": "nexus",
-      "source": "docs/13-presentation/script.md",
+      "source": "docs/13-presentation/",
       "truth": "source",
       "note": "The rebuild presentation is a Korean-captioned usage video recorded with the sample project. The repository scene table links the video and the reviewed stage 12 release."
     }

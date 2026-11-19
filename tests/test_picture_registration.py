@@ -27,7 +27,8 @@ class PictureRegistrationTest(GitSourcesFixture):
                          '.corthex/stages/rebuild.json', 'docs/05-erd/nexus.md',
                          'docs/05-erd/nexus.sql', 'docs/05-erd/sources/nexus.sql',
                          'docs/05-erd/sources/rebuild.sql', 'docs/07-sitemap/nexus.yaml',
-                         'docs/07-sitemap/sources/nexus.yaml', 'docs/07-sitemap/sources/rebuild.yaml'):
+                         'docs/07-sitemap/sources/nexus.yaml', 'docs/07-sitemap/sources/rebuild.yaml',
+                         'docs/13-presentation/rebuild/script.md'):
             destination = self.repo / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / relative, destination)
@@ -67,6 +68,9 @@ class PictureRegistrationTest(GitSourcesFixture):
                                   cwd=ROOT, timeout=30)
         self.assertEqual(compared.returncode, 0, compared.stderr)
         self.assertEqual(json.loads(compared.stdout), [], 'new source pictures must agree across stages')
+        demo_scenes = {item['id']: item for item in snapshot['items'] if item['stage'] == '13-presentation'}
+        self.assertEqual(set(demo_scenes), {f'SCENE-{index:03}' for index in range(1, 7)})
+        self.assertTrue(demo_scenes['SCENE-001']['link'].endswith('/docs/13-presentation/rebuild/nexus-usage.mp4'))
         for stage, value in snapshot['stages'].items():
             record = value['parts']['rebuild']
             approved_design = stage in ('01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap', '08-screen-states', '09-mockup', '10-wbs')
