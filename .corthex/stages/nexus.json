@@ -4,310 +4,82 @@
   "part": "nexus",
   "stages": {
     "01-domain": {
-      "state": "done",
-      "checkpoints": [
-        {
-          "approved": "Event storming checkpoints 1 to 3: everything as drawn",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/01-domain/nexus.md",
-          "date": "2026-10-24"
-        },
-        {
-          "approved": "Stage 01's event storming held in NEXUS: the step view in 0.2, the work board in phase 2",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/09-mockup/nexus/README.md",
-          "date": "2026-11-03"
-        },
-        {
-          "approved": "Phase 2's event storming frames, checkpoint 1: Steps 0 to 1-b as drawn",
-          "by": "the maintainer",
-          "date": "2026-11-06"
-        },
-        {
-          "approved": "Phase 2's frames, checkpoint 2: Steps 2 to 7 as recommended, with the work board as its own context, CTX-016",
-          "by": "the maintainer",
-          "date": "2026-11-07"
-        },
-        {
-          "approved": "Phase 2's frames, checkpoint 3: Steps 8 and 9 as recommended, ending stage 01 for phase 2",
-          "by": "the maintainer",
-          "date": "2026-11-07"
-        },
-        {
-          "approved": "The design revision of 2026-11-11, at its checkpoint: the corrected sentences, the notes on four names and TERM-150 to TERM-154. The maintainer's own words, at 13:43 KST in the project's thread, in answer to the checkpoint request of 13:14 KST and its summary of 13:35 KST: \"모두 승인\" (all approved)",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md#decisions-in-force",
-          "date": "2026-11-12"
-        }
-      ],
-      "next": "None: the design revision's changes passed its checkpoint on 2026-11-12. The redesign's my turn may join the read models at the board's next change",
-      "updated": "2026-11-12T05:12:24+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "Start NEXUS v3 domain discovery",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "02-prd": {
-      "state": "in_progress",
-      "checkpoints": [
-        {
-          "approved": "Scope, with D8 to D13 as recommended",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md",
-          "date": "2026-10-25"
-        },
-        {
-          "approved": "REQ-199 to REQ-208, with the joint checkpoint of stages 03 to 08",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md",
-          "date": "2026-11-03"
-        },
-        {
-          "approved": "Phase 2's requirements: REQ-240 to REQ-269 and the changed rows, with D14 and D15 as recommended, together with stages 03 and 04",
-          "by": "the maintainer",
-          "date": "2026-11-07"
-        },
-        {
-          "approved": "The design revision of 2026-11-11, at its checkpoint: problems 15 and 16, REQ-270 to REQ-295 and the new wording of REQ-206, with D16 to D18 as recommended. The maintainer's own words, at 13:43 KST in the project's thread, in answer to the checkpoint request of 13:14 KST and its summary of 13:35 KST: \"모두 승인\" (all approved)",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md#decisions-in-force",
-          "date": "2026-11-12"
-        }
-      ],
-      "next": "Build REQ-219 to REQ-237 with the redesign's screens, and REQ-270 to REQ-295 as stage 10 orders them; the design revision passed its checkpoint on 2026-11-12, with D16 to D18 as recommended",
-      "updated": "2026-11-12T05:12:24+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "03-user-flow": {
-      "state": "in_progress",
-      "checkpoints": [
-        {
-          "approved": "The user flows, with the joint checkpoint of stages 03 to 08",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/03-user-flow/nexus/README.md",
-          "date": "2026-11-03"
-        },
-        {
-          "approved": "Phase 2's flows: FL-115 and FL-116 redrawn, FL-125 and FL-126, the widened flows and points 19 to 23, together with stages 02 and 04",
-          "by": "the maintainer",
-          "date": "2026-11-07"
-        },
-        {
-          "approved": "The design revision of 2026-11-11, at its checkpoint: the 17 changed flows and FL-127. The maintainer's own words, at 13:43 KST in the project's thread, in answer to the checkpoint request of 13:14 KST and its summary of 13:35 KST: \"모두 승인\" (all approved)",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md#decisions-in-force",
-          "date": "2026-11-12"
-        }
-      ],
-      "next": "Build FL-117 to FL-119 with the redesign's screens, and the revision's 17 changed flows and FL-127 as stage 10 orders them; the design revision passed its checkpoint on 2026-11-12",
-      "updated": "2026-11-12T05:12:24+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "04-functional-spec": {
-      "state": "in_progress",
-      "checkpoints": [
-        {
-          "approved": "The functional spec, frozen for 0.2, with the joint checkpoint of stages 03 to 08",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/04-functional-spec/nexus.md",
-          "date": "2026-11-03"
-        },
-        {
-          "approved": "Phase 2's rows: SPEC-134 and SPEC-142 rewritten, SPEC-170 to SPEC-186, with the five points that writing them settled, together with stages 02 and 03",
-          "by": "the maintainer",
-          "date": "2026-11-07"
-        },
-        {
-          "approved": "The design revision of 2026-11-11, at its checkpoint: SPEC-187 to SPEC-210 and the 20 changed rows, with the rows under D16 to D18 as written. The maintainer's own words, at 13:43 KST in the project's thread, in answer to the checkpoint request of 13:14 KST and its summary of 13:35 KST: \"모두 승인\" (all approved)",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md#decisions-in-force",
-          "date": "2026-11-12"
-        }
-      ],
-      "next": "Build SPEC-143 to SPEC-156 with the redesign's screens, and SPEC-187 to SPEC-210 with the 20 changed rows as stage 10 orders them; the design revision passed its checkpoint on 2026-11-12",
-      "updated": "2026-11-12T05:12:24+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "05-erd": {
-      "state": "in_progress",
-      "checkpoints": [
-        {
-          "approved": "The server tables, frozen for 0.2, with the joint checkpoint of stages 03 to 08",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/05-erd/nexus.md",
-          "date": "2026-11-03"
-        },
-        {
-          "approved": "Phase 2's tables: TBL-118 to TBL-124, migration 5 and the changes to six tables, as written, together with stage 06",
-          "by": "the maintainer",
-          "date": "2026-11-08"
-        },
-        {
-          "approved": "The design revision of 2026-11-11, at its checkpoint: the nine columns, the index and TBL-125 as planned, with the columns under D17. The maintainer's own words, at 13:43 KST in the project's thread, in answer to the checkpoint request of 13:14 KST and its summary of 13:35 KST: \"모두 승인\" (all approved)",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md#decisions-in-force",
-          "date": "2026-11-12"
-        }
-      ],
-      "next": "The revision's nine columns and index are in nexus.sql and migration 5 (TASK-295), planned until the release; the server writes read_at and read_session since TASK-296; phase ②'s migration takes the version that is free when phase ② is built",
-      "updated": "2026-11-13T01:58:23+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "06-api": {
-      "state": "in_progress",
-      "checkpoints": [
-        {
-          "approved": "The requests, frozen for 0.2, with the joint checkpoint of stages 03 to 08",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/06-api/nexus.md",
-          "date": "2026-11-03"
-        },
-        {
-          "approved": "Phase 2's interfaces: API-161 to API-176, the thirteen changed interfaces and the nineteen error codes, as written, together with stage 05",
-          "by": "the maintainer",
-          "date": "2026-11-08"
-        },
-        {
-          "approved": "The design revision of 2026-11-11, at its checkpoint: API-177, API-178 and the nine changed operations as planned forms, and the hub's API-179, with the forms under D16 and D17. The maintainer's own words, at 13:43 KST in the project's thread, in answer to the checkpoint request of 13:14 KST and its summary of 13:35 KST: \"모두 승인\" (all approved)",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md#decisions-in-force",
-          "date": "2026-11-12"
-        }
-      ],
-      "next": "The revision's planned forms move into paths as stage 10's tasks build them: on 2026-11-13 TASK-296 moved getAgentTodo, TASK-297 leaveComment and replyToComment, and TASK-298 getHome, getStage and getStageTalk, and three remain, with 8 planned properties and two planned codes; the guide's rows of the revision stay planned until the release (TASK-314)",
-      "updated": "2026-11-13T05:20:49+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "07-sitemap": {
-      "state": "in_progress",
-      "checkpoints": [
-        {
-          "approved": "The sitemap, with the joint checkpoint of stages 03 to 08",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/07-sitemap/nexus.md",
-          "date": "2026-11-03"
-        },
-        {
-          "approved": "Redesign checkpoint 1: the new structure SCR-110 to SCR-117 as drawn",
-          "by": "the maintainer",
-          "date": "2026-11-06"
-        },
-        {
-          "approved": "The design revision of 2026-11-11, at its checkpoint: the one tree of 18 screens, with SCR-101 removed and SCR-130 added. The maintainer's own words, at 13:43 KST in the project's thread, in answer to the checkpoint request of 13:14 KST and its summary of 13:35 KST: \"모두 승인\" (all approved)",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md#decisions-in-force",
-          "date": "2026-11-12"
-        }
-      ],
-      "next": "Phase ②'s sitemap, after the redesign's build (order of 2026-11-08, kept by D20 on 2026-11-12); the revision's tree of 18 screens passed its checkpoint on 2026-11-12",
-      "updated": "2026-11-12T05:12:24+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "08-screen-states": {
-      "state": "in_progress",
-      "checkpoints": [
-        {
-          "approved": "The screen states, with the joint checkpoint of stages 03 to 08",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/08-screens/nexus/README.md",
-          "date": "2026-11-03"
-        },
-        {
-          "approved": "Redesign checkpoint 1: the new structure as drawn, with conversation on document items",
-          "by": "the maintainer",
-          "date": "2026-11-06"
-        },
-        {
-          "approved": "Redesign checkpoint 3: the 53 states of SCR-110 to SCR-117 as defined and drawn",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/08-screens/nexus/README.md",
-          "date": "2026-11-08"
-        },
-        {
-          "approved": "The design revision of 2026-11-11, at its checkpoint: SCR-130's definition, the revision's rows on SCR-110 to SCR-115 and the 64 grey frames. The maintainer's own words, at 13:43 KST in the project's thread, in answer to the checkpoint request of 13:14 KST and its summary of 13:35 KST: \"모두 승인\" (all approved)",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md#decisions-in-force",
-          "date": "2026-11-12"
-        }
-      ],
-      "next": "Build SCR-130 and the revision's rows on SCR-110 to SCR-115 as stage 10 orders them, after TASK-298 built the loop's two times and marks on SCR-110, SCR-111 and SCR-114 on 2026-11-13; then phase ②'s screen states, after the redesign's build and phase ②'s sitemap",
-      "updated": "2026-11-13T05:20:49+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "09-mockup": {
-      "state": "in_progress",
-      "checkpoints": [
-        {
-          "approved": "Direction A with the step view; tokens frozen",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/09-mockup/nexus/README.md",
-          "date": "2026-11-03"
-        },
-        {
-          "approved": "Picture-first redesign reopening the token freeze, and its checkpoint 1: the structure as drawn",
-          "by": "the maintainer",
-          "date": "2026-11-06"
-        },
-        {
-          "approved": "Redesign checkpoint 2: candidate A, Drawing sheet",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/09-mockup/nexus/README.md",
-          "date": "2026-11-07"
-        },
-        {
-          "approved": "Redesign checkpoint 3: the 53 states as drawn and A's tokens frozen again, with the nearest space step for the 6- and 10-pixel gaps, a 44-pixel hit area, the two IBM Plex packages and done-fg counts on a done stage",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/09-mockup/nexus/README.md",
-          "date": "2026-11-08"
-        },
-        {
-          "approved": "The design revision of 2026-11-11, at its checkpoint: the grey sheet of the picture stage's four views, with no token and no passed frame changed. The maintainer's own words, at 13:43 KST in the project's thread, in answer to the checkpoint request of 13:14 KST and its summary of 13:35 KST: \"모두 승인\" (all approved)",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md#decisions-in-force",
-          "date": "2026-11-12"
-        }
-      ],
-      "next": "revision.html draws the revision's states in the redesign's look (TASK-286), now that its checkpoint passed on 2026-11-12; then phase ②'s mockups, after the redesign's build and phase ②'s stages 07 and 08",
-      "updated": "2026-11-12T05:12:24+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "10-wbs": {
-      "state": "done",
-      "checkpoints": [
-        {
-          "approved": "Plan64tasks/710cases: split, standalone server, views and QA; release remains separate.",
-          "by": "the maintainer",
-          "date": "2026-11-04"
-        },
-        {
-          "approved": "The design revision of 2026-11-11, at its checkpoint: the plan of TASK-279 to TASK-320 with the changes to TASK-275 to TASK-278, five tasks taken out by D20, one server release, and with it stage 12's 387 planned cases, none run. The maintainer's own words, at 13:43 KST in the project's thread, in answer to the checkpoint request of 13:14 KST and its summary of 13:35 KST: \"모두 승인\" (all approved)",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/02-prd/nexus.md#decisions-in-force",
-          "date": "2026-11-12"
-        }
-      ],
-      "next": "The builder follows the plan as written, TASK-275 to TASK-278 and TASK-279 to TASK-320; TASK-303 to TASK-305 are draft pull requests of the work rules. Phase ②'s tasks come after its stages 07 to 09",
-      "updated": "2026-11-12T05:12:24+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "11-development": {
-      "state": "in_progress",
-      "checkpoints": [
-        {
-          "approved": "Conditional release of 0.2 once its numbers, QA and reviews hold",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/AGENTS.md",
-          "date": "2026-11-04"
-        },
-        {
-          "approved": "0.2.1 follow-up steps 1 to 4, with its production release",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/AGENTS.md",
-          "date": "2026-11-05"
-        }
-      ],
-      "next": "TASK-275 to TASK-278 and TASK-287 end group 2, and group 4 began with the revision's migration, TASK-295, the record of the agent's read, TASK-296, the checkpoint request taken only in its form, TASK-297, and the last push, the agent's last read and what it has not read, TASK-298, on the draft pull request kodonghui/corthex-nexus#53; next TASK-299 to TASK-302, then groups 7, 3 and 8 as stage 10 orders them. The 0.2.3 release stopped before its switch",
-      "updated": "2026-11-13T05:20:49+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     },
     "12-qa": {
-      "state": "in_progress",
-      "checkpoints": [
-        {
-          "approved": "The release of NEXUS 0.3.0 (TASK-314), at stage 12's checkpoint, its go or no-go (D19): a go, on the cases judged at 1797b73, 526 cases of the release's 38 tasks, of which 507 pass, 17 are in part and 2 are not run, with none failed, partial or blocked. The maintainer passed by name the 17 in part, TC-1424, TC-1425, TC-1448, TC-1501, TC-1708, TC-1721, TC-1760, TC-1763, TC-1774 to TC-1780, TC-1786 and TC-1787, and TC-1794, not run; TC-1788 is this entry. The maintainer's choice, at 23:25 KST in the project's thread, of the option \"지금 출시 (18건 인정)\" (go now, the 18 passed by name), the recommendation, on the decision card of 19:46 KST, whose summary showed these counts, the 18 cases by name with what each lacks, the 27 impressions of the release's walk and the counterarguments",
-          "by": "the maintainer",
-          "where": "https://github.com/kodonghui/corthex-nexus/blob/main/docs/12-qa/runs/2026-11-14-release.md#the-go",
-          "date": "2026-11-14"
-        }
-      ],
-      "next": "Released on 2026-11-15: v0.3.0 on 953fbec, switched at 20:01 KST after a premigrate backup with a rollback prepared, and its GitHub release. Next: the maintainer's read of production (TC-1786), TC-1760, the core skills' release (TASK-306, TC-1763), the Google Drive sign-in for the backup's copy (TASK-313, TC-1757) and BUG-621 in 0.3.1",
-      "updated": "2026-11-15T11:06:17+00:00"
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
+    },
+    "13-presentation": {
+      "state": "not_started",
+      "checkpoints": [],
+      "next": "",
+      "updated": "2026-11-23T00:00:00+09:00"
     }
   }
 }
