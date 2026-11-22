@@ -74,8 +74,8 @@
     "05-erd": {
       "state": "in_progress",
       "checkpoints": [],
-      "next": "Draft the schema; the checkpoint is asked before the documents go to the repository",
-      "updated": "2026-11-23T01:30:36+09:00"
+      "next": "The schema freeze: 26 tables in db/nexus.sql, asked before the documents go to the repository",
+      "updated": "2026-11-23T01:59:58+09:00"
     },
     "06-api": {
       "state": "not_started",

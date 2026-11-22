@@ -36,8 +36,9 @@
     },
     "05-erd": {
       "human": "nexus",
-      "source": "db/schema.sql",
-      "truth": "source"
+      "source": "db/nexus.sql",
+      "truth": "source",
+      "note": "The source is db/nexus.sql rather than the default db/schema.sql, because the hub gives a part only to files whose names start with the part name nexus. The migrations in db/migrations/ rebuild it from an empty database, and NEXUS draws the ERD from it."
     },
     "06-api": {
       "human": "nexus",
