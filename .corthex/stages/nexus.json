@@ -21,16 +21,22 @@
       "updated": "2026-11-23T00:48:22+09:00"
     },
     "02-prd": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Draft the PRD; its checkpoint is asked before the documents go to the repository",
-      "updated": "2026-11-23T00:40:38+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Stage 02 scope freeze and version freeze, asked together: the first release is the 58 Must requirements; the wording of the 80 requirements is frozen, inferred targets included; stage-01 hotspots 3 to 9 and 14 answered with the recommendations. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        }
+      ],
+      "next": "Stage 03: draw the user flows from the requirements",
+      "updated": "2026-11-23T01:05:59+09:00"
     },
     "03-user-flow": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "",
-      "updated": "2026-11-23T00:00:00+09:00"
+      "next": "Draft the user flows; the checkpoint is asked before the documents go to the repository",
+      "updated": "2026-11-23T01:05:59+09:00"
     },
     "04-functional-spec": {
       "state": "not_started",

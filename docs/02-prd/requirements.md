@@ -2,7 +2,7 @@
 
 [한국어](requirements.ko.md)
 
-Status: draft, waiting for the scope freeze and the version freeze. Requirement IDs start at REQ-001 because v3 restarted the project's documents; the archived v2 keeps its own IDs in its tag.
+Status: passed on 2026-11-23. The scope and the wording are frozen; a change goes through the feature-change procedure. Requirement IDs start at REQ-001 because v3 restarted the project's documents; the archived v2 keeps its own IDs in its tag.
 
 Inputs: the stage-01 domain design ([nexus.md](../01-domain/nexus.md)), contexts CTX-037 to CTX-043 and terms TERM-189 to TERM-226, with its hotspots marked "review in stage 02"; the maintainer's briefs and redesign decisions named in its section 1.
 
@@ -34,16 +34,16 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 | REQ-012 | When the owner copies an element, the system shall put the element's trace ID and name on the clipboard. | functional | Must | CTX-037 | Redesign decision on IDs | active |
 | REQ-013 | When the owner moves an element on a PC, the system shall store its new position in the diagram's layout without changing the stage document. | functional | Must | CTX-037 | CTX-037 rule | active |
 | REQ-014 | When a diagram is drawn again, the system shall keep the stored positions of the elements that still exist. | functional | Must | CTX-037 | CTX-037 rule | active |
-| REQ-015 | The system shall keep layouts in NEXUS and never write them to Git. | functional | Must | CTX-037 | Stage-01 hotspot 7 (proposed) | active |
+| REQ-015 | The system shall keep layouts in NEXUS and never write them to Git. | functional | Must | CTX-037 | Stage-01 hotspot 7 (answered 2026-11-23) | active |
 | REQ-016 | When the owner confirms the deletion of a project space after seeing what it removes, the system shall remove the project's snapshots, diagrams, comments, confirmations and layouts. | functional | Must | CTX-037 | CTX-037 rule | active |
 | REQ-017 | If an agent credential asks to delete a project space, then the system shall refuse it. | functional | Must | CTX-037 | CTX-037 rule | active |
-| REQ-018 | The system shall accept the snapshot format and the push, todo, claim, comment, decide, reflect, status and record commands of the corthex-hub version that the projects pin. | functional | Must | CTX-037 | Stage-01 hotspot 4 (proposed) | active |
-| REQ-019 | The system shall start with no data carried over from v2. | functional | Must | CTX-037 | Stage-01 hotspot 8 (proposed) | active |
+| REQ-018 | The system shall accept the snapshot format and the push, todo, claim, comment, decide, reflect, status and record commands of the corthex-hub version that the projects pin. | functional | Must | CTX-037 | Stage-01 hotspot 4 (answered 2026-11-23) | active |
+| REQ-019 | The system shall start with no data carried over from v2. | functional | Must | CTX-037 | Stage-01 hotspot 8 (answered 2026-11-23) | active |
 | REQ-020 | When the owner or an agent adds a comment to a diagram, an element or a table row, the system shall attach the comment to that target and to the document version shown. | functional | Must | CTX-038 | CTX-038 rule | active |
 | REQ-021 | When the owner or an agent replies to a comment, the system shall add the reply to its comment thread. | functional | Must | CTX-038 | CTX-038 table | active |
 | REQ-022 | When an agent posts an AI proposal, the system shall lay the proposed change over the diagram, marked apart from the current diagram. | functional | Must | CTX-038 | Redesign decision on review | active |
 | REQ-023 | When the owner accepts an AI proposal, the system shall add the accepted change set's reflection to the agent's to-do. | functional | Must | CTX-038 | CTX-038 rule | active |
-| REQ-024 | When the owner rejects an AI proposal, the system shall mark the proposal rejected while its comment thread stays open. | functional | Must | CTX-038 | Stage-01 hotspot 14 (proposed) | active |
+| REQ-024 | When the owner rejects an AI proposal, the system shall mark the proposal rejected while its comment thread stays open. | functional | Must | CTX-038 | Stage-01 hotspot 14 (answered 2026-11-23) | active |
 | REQ-025 | If an agent credential asks to accept or reject an AI proposal, then the system shall refuse it. | functional | Must | CTX-038 | CTX-038 rule; CORTHEX principle 5 | active |
 | REQ-026 | When the owner renames an element or connects two elements on a PC, the system shall record the direct edit as an accepted change set. | functional | Must | CTX-038 | Redesign decision on direct edit | active |
 | REQ-027 | While a change set waits for reflection, the system shall show its elements as waiting for reflection. | functional | Must | CTX-038 | CTX-038 example | active |
@@ -51,9 +51,9 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 | REQ-029 | When an agent reports a reflection pull request, the system shall link the pull request to its change sets. | functional | Must | CTX-038 | CTX-038 table | active |
 | REQ-030 | When a drawn snapshot holds the merge commit of a reflection pull request, the system shall mark its change sets reflected. | functional | Must | CTX-038 | CTX-038 rule | active |
 | REQ-031 | When a change set is reflected, the system shall close the comment threads that asked for it. | functional | Must | CTX-038 | CTX-038 table | active |
-| REQ-032 | The system shall give an agent a diagram's accepted change sets together, so that one reflection pull request can carry them. | functional | Should | CTX-038 | Stage-01 hotspot 6 (proposed) | active |
-| REQ-033 | When an element leaves the stage document, the system shall move its open comment threads to the diagram's own comments, marked as from a removed element. | functional | Must | CTX-038 | Stage-01 hotspot 3 (proposed) | active |
-| REQ-034 | When the owner closes a comment thread, the system shall mark it closed. | functional | Must | CTX-038 | Stage-01 hotspot 14 (proposed) | active |
+| REQ-032 | The system shall give an agent a diagram's accepted change sets together, so that one reflection pull request can carry them. | functional | Should | CTX-038 | Stage-01 hotspot 6 (answered 2026-11-23) | active |
+| REQ-033 | When an element leaves the stage document, the system shall move its open comment threads to the diagram's own comments, marked as from a removed element. | functional | Must | CTX-038 | Stage-01 hotspot 3 (answered 2026-11-23) | active |
+| REQ-034 | When the owner closes a comment thread, the system shall mark it closed. | functional | Must | CTX-038 | Stage-01 hotspot 14 (answered 2026-11-23) | active |
 | REQ-035 | When the owner confirms a diagram or an item table on a PC, the system shall record the confirmation with the document version shown. | functional | Must | CTX-039 | Redesign decision on confirmation | active |
 | REQ-036 | If an agent credential asks to confirm or cancel a confirmation, then the system shall refuse it. | functional | Must | CTX-039 | CTX-039 rule; CORTHEX principle 5 | active |
 | REQ-037 | When the owner cancels a confirmation, the system shall put the diagram back in the owner's to-do as not confirmed. | functional | Must | CTX-039 | CTX-039 table | active |
@@ -61,8 +61,8 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 | REQ-039 | When an agent reports the merged record of a confirmation, the system shall mark the confirmation recorded. | functional | Must | CTX-039 | CTX-039 rule | active |
 | REQ-040 | When a drawn snapshot changes the document of a confirmed diagram, the system shall invalidate the confirmation, so that the diagram returns to the owner's to-do. | functional | Must | CTX-039 | Answer 2026-11-23 (stage-01 hotspot 2) | active |
 | REQ-041 | The system shall show the elements that changed in the document since a diagram's last confirmation. | functional | Must | CTX-039 | Redesign decision on confirmation | active |
-| REQ-042 | When every diagram and item table of a stage has a recorded confirmation, the system shall treat the stage's checkpoint as passed. | functional | Must | CTX-039 | Stage-01 hotspot 9 (proposed) | active |
-| REQ-043 | While a workshop is open, the system shall treat the step confirmations at steps 1-b, 7 and 9 as the stage-01 checkpoints. | functional | Should | CTX-040 | Stage-01 hotspot 9 (proposed) | active |
+| REQ-042 | When every diagram and item table of a stage has a recorded confirmation, the system shall treat the stage's checkpoint as passed. | functional | Must | CTX-039 | Stage-01 hotspot 9 (answered 2026-11-23) | active |
+| REQ-043 | While a workshop is open, the system shall treat the step confirmations at steps 1-b, 7 and 9 as the stage-01 checkpoints. | functional | Should | CTX-040 | Stage-01 hotspot 9 (answered 2026-11-23) | active |
 | REQ-044 | When the owner or an agent opens a workshop, the system shall create a workshop board with one frame per event storming step. | functional | Should | CTX-040 | Redesign decision on event storming | active |
 | REQ-045 | When an agent draws a step draft, the system shall place its sticky notes in that step's frame with their confidence labels. | functional | Should | CTX-040 | CTX-040 rule | active |
 | REQ-046 | While a workshop is open, the system shall let the owner add, move, rename, connect and remove sticky notes on a PC. | functional | Should | CTX-040 | Redesign decision on direct edit | active |
@@ -87,7 +87,7 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 | REQ-065 | When the owner revokes an agent credential, the system shall refuse the credential's next request. | functional | Must | CTX-043 | CTX-043 rule | active |
 | REQ-066 | If a request carries neither the owner's sign-in nor a valid agent credential, then the system shall refuse it. | functional | Must | CTX-043 | CTX-043 | active |
 | REQ-067 | While the owner uses a phone, the system shall show diagrams, item tables and comments. | functional | Must | none | Redesign decision on mobile | active |
-| REQ-068 | While the owner uses a phone, the system shall offer no confirmation, no accepting or rejecting of AI proposals and no direct edit. | functional | Must | none | Redesign decision on mobile; stage-01 hotspot 5 (proposed) | active |
+| REQ-068 | While the owner uses a phone, the system shall offer no confirmation, no accepting or rejecting of AI proposals and no direct edit. | functional | Must | none | Redesign decision on mobile; stage-01 hotspot 5 (answered 2026-11-23) | active |
 | REQ-069 | The system shall show its interface in Korean. | non-functional | Must | none | Owner profile | active |
 | REQ-070 | The system shall open a diagram of up to 300 elements within 2 seconds at the 95th percentile (P95), with one user, measured in the browser on a PC against the deployed server. | non-functional | Must | CTX-037 | Inferred | active |
 | REQ-071 | The system shall draw the diagrams of a snapshot of up to 1 MB within 10 seconds at P95 of the push answer, with one push at a time, measured on the deployed server. | non-functional | Should | CTX-037 | Inferred | active |
@@ -103,7 +103,7 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 
 ## 3. Stage-01 hotspots settled here
 
-| Stage-01 hotspot | Proposed answer | Requirements |
+| Stage-01 hotspot | Answer | Requirements |
 | --- | --- | --- |
 | 3. Comments of an element that leaves the document | Move them to the diagram's comments, marked as from a removed element | REQ-033 |
 | 4. The current corthex-hub commands | Accept them as they are | REQ-018 |
@@ -128,4 +128,10 @@ Checked against two independent lists: OWASP ASVS level 1 (authentication, sessi
 
 ## 6. Checkpoint
 
-The scope freeze and the version freeze are asked together, with one question for each stage-01 hotspot settled here. Answers are recorded here and in the stage record.
+The scope freeze and the version freeze were asked together on 2026-11-23, with one question for each stage-01 hotspot settled here. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
+
+- Scope freeze: the first release is the Must requirements; the Should and Could requirements wait.
+- Version freeze: the wording of the eighty requirements, inferred targets included. A change goes through the feature-change procedure.
+- Stage-01 hotspots 3 to 9 and 14: answered as in section 3.
+- Approved items that this stage removes, defers or changes: none. The first release leaves out the workshop and the other Should and Could items, which the scope freeze approved.
+- Deleting the data of the running v2 server is not part of this checkpoint and will be asked on its own when v3 replaces v2.
