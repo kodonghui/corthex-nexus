@@ -9,7 +9,8 @@ names (prepare it with `python tools/fetch_hub_ref.py`); nothing is fetched and 
 - The push step of `.github/workflows/corthex-nexus-push.yml` runs its own lines with the pinned hub beside the
   checkout, as the job lays them out: without its secrets, as in a fork or a pull request, it passes and names
   them; with a loopback address and `--dry-run` it builds the snapshot that it would send, from the default commit.
-- Both workflows pin the hub to `hub-ref.json` and every action to a full commit SHA.
+- The push workflow runs the hub at the commit of `hub-ref.json`, and every workflow pins each action to a full
+  commit SHA with its version in a comment.
 """
 
 import json
