@@ -65,6 +65,7 @@ The first version starts with two pictures, the stage-01 DDD board and the stage
 | Direct edit | Element renamed or Line connected → Edit cancelled or Reflection PR opened → Change reflected |
 | Confirmation | Diagram confirmed → Confirmation recorded → Confirmation cancelled or Confirmation invalidated |
 | Event storming workshop | Workshop opened → Miro board imported → Step draft drawn → Sticky notes changed → Step confirmed → Domain document updated → Workshop closed |
+| Agent claims and credentials | Agent credential issued → To-do claimed → Claim released → Agent credential revoked |
 
 Each lane in one line:
 
@@ -74,6 +75,7 @@ Each lane in one line:
 - Direct edit: the owner renames an element or connects a line, and the edit goes into the document through a pull request.
 - Confirmation: the owner confirms a diagram, an agent records it in the stage record in Git, and a later change to the document lifts the confirmation.
 - Event storming workshop: on the stage-01 board the AI draws a step's draft, the owner changes it freely and confirms each step, and the AI moves it into the domain document.
+- Agent claims and credentials: the owner issues an agent a credential; the agent claims to-dos and a claim is released when left idle; the owner revokes the credential when it is no longer needed.
 
 Left out of the timeline: viewing a diagram, the to-do, the changes or a link's status, and signing in change no data, so they are not events. They are read models in section 4.
 
@@ -127,7 +129,7 @@ Purpose: draw the picture and table that fit each stage from the stage documents
 - Given–When–Then: Given a project space holding commit A, When an agent sends commit C that does not descend from A, Then Snapshot rejected and the diagram stays as it was.
 - Given–When–Then: Given a drawn ERD, When the owner moves one table, Then Element moved, and the document and its confirmation stay as they were.
 - External systems: Git host, through the agent
-- Links: an agent sends snapshots; tells Review, Confirmation and Workshop when a diagram is drawn again; Review and Confirmation ask it for elements and document versions.
+- Links: an agent sends snapshots; tells Review, Confirmation and To-do when a diagram is drawn again; Review and Confirmation ask it for elements and document versions.
 - Hotspots: 3, 4, 7
 
 ### CTX-038 Review
@@ -152,11 +154,12 @@ Purpose: gather comments and replies on a diagram, AI proposals and direct edits
 - Aggregate rules: Change set: the owner's direct edit counts as an accepted change set (inferred). Outside the stage-01 board, only renaming and connecting make a change set; moving is layout (redesign decision on direct edit).
 - Aggregate rules: Change set: a reflection is done only when its pull request is merged and the snapshot of that commit is drawn (inferred: the source is Git).
 - Aggregate rules: Comment thread: attached to an element's trace ID and to the document version of that time (inferred).
+- Aggregate rules: Comment thread: a rejected proposal or a cancelled edit leaves its thread open for the owner to answer or close, and the owner can close a thread at any time (inferred).
 - Given–When–Then: Given an ERD with an AI proposal laid over it, When the owner gives Accept proposal, Then Proposal accepted, and the reflection appears in the agent's to-do.
 - Given–When–Then: Given an accepted change set and an open reflection pull request, When the snapshot of that pull request's commit is drawn, Then Change reflected and Comment closed.
 - Given–When–Then: Given a table in an ERD, When the owner gives Rename element, Then Element renamed, and the diagram shows it as waiting for reflection until it is reflected.
 - External systems: none (the Git host through the agent)
-- Links: asks Diagram for elements; follows Diagram drawn to check reflections; tells To-do about comments and accepted change sets.
+- Links: asks Diagram for elements; follows Diagram drawn to check reflections; tells To-do about comments, AI proposals and accepted change sets.
 - Hotspots: 3, 6
 
 ### CTX-039 Confirmation
@@ -176,7 +179,7 @@ Purpose: the owner passes one picture or table at its document version, and the 
 - Given–When–Then: Given an ERD drawn at document version B, When the owner gives Confirm diagram, Then Diagram confirmed at B, and the record appears in the agent's to-do.
 - Given–When–Then: Given an ERD confirmed at B, When the snapshot of document version C changes the ERD, Then Confirmation invalidated, and a new confirmation appears in the owner's to-do.
 - External systems: none (the Git host through the agent)
-- Links: asks Diagram for document versions; follows Diagram drawn to invalidate; tells To-do about Diagram confirmed.
+- Links: asks Diagram for document versions; follows Diagram drawn to invalidate; tells To-do about Diagram confirmed and Confirmation invalidated.
 - Hotspots: 2, 5, 9
 
 ### CTX-040 Workshop
@@ -196,7 +199,7 @@ Purpose: run stage-01 event storming on a free canvas in NEXUS, and hand each co
 - Aggregate rules: Workshop board: during a workshop the board is the source, and the AI moves each confirmed step into the domain document (document: CORTHEX stage-01 rules; the maintainer's answer of 2026-11-23). The AI's sticky notes carry a confidence label, and the AI never removes a sticky note a person made (document: CORTHEX stage-01 rules). Contexts take IDs only after the boundary checkpoint at step 7 (document: CORTHEX stage-01 rules).
 - Change sticky notes covers adding, moving, renaming, connecting and removing sticky notes.
 - External systems: Miro (import, anticorruption layer)
-- Links: tells To-do about Step confirmed; follows Domain document updated from Diagram to close the workshop.
+- Links: agents draw step drafts and report domain document updates through corthex-hub; tells To-do about Step confirmed; closes itself on its own Domain document updated after the last step.
 - Hotspots: 1, 8
 
 ### CTX-041 To-do
@@ -206,11 +209,11 @@ Purpose: the owner and the agents each see their own to-dos in one place, and ag
 | Given by | Read model | Command | Aggregate | Events |
 | --- | --- | --- | --- | --- |
 | Agent | Agent to-do | Claim to-do | Claim | To-do claimed |
-| Agent; Policy: when a claim has no write for 60 minutes | Agent to-do | Release claim | Claim | Claim released |
+| Agent; Policy: when a claim has no write for 60 minutes and no open pull request | Agent to-do | Release claim | Claim | Claim released |
 
 - Aggregate rules: Claim: one session claims one to-do at a time. Work with an open pull request stays claimed until the pull request closes (document: CORTHEX NEXUS work rules).
 - Read models: Owner to-do, the first screen, with diagrams to confirm and AI proposals and questions to answer; Agent to-do, with open comments, change sets to reflect, confirmations to record and domain documents to write.
-- Links: Review, Confirmation and Workshop tell it about to-dos; agents read and claim them.
+- Links: Diagram, Review, Confirmation and Workshop tell it about to-dos; agents read and claim them.
 
 ### CTX-042 Tool link
 
@@ -228,7 +231,13 @@ Purpose: attach Notion page and Jira project links to a project or a stage, and 
 
 Purpose: check the owner's sign-in and the agents' credentials.
 
+| Given by | Read model | Command | Aggregate | Events |
+| --- | --- | --- | --- | --- |
+| Owner (PC) | Project list | Issue agent credential | Agent credential | Agent credential issued |
+| Owner (PC) | Project list | Revoke agent credential | Agent credential | Agent credential revoked |
+
 - Aggregate rules: Agent credential: an agent credential can never confirm (CORTHEX principle 5).
+- Aggregate rules: Agent credential: only the owner issues and revokes one, and a revoked credential is refused on its next request (inferred).
 - External systems: sign-in gate (conformist)
 - Links: every context calls Access on each request.
 
@@ -239,13 +248,14 @@ Purpose: check the owner's sign-in and the agents' credentials.
 | Agent (corthex-hub) | CTX-037 | call (sync) | open host service, published language | Send a snapshot | commit, stage documents |
 | CTX-037 | CTX-039 | event (async) | customer and supplier | Invalidate a confirmed diagram whose document changed | Diagram drawn: diagram, document version |
 | CTX-037 | CTX-038 | event (async) | customer and supplier | Check whether a reflection pull request went in | Diagram drawn: commits it holds |
-| CTX-037 | CTX-040 | event (async) | customer and supplier | Close the workshop after the last step | Domain document updated |
+| CTX-037 | CTX-041 | event (async) | | Show the owner a drawn diagram to confirm | Diagram drawn |
 | CTX-038 | CTX-037 | call (sync) | conformist | Attach comments and edits to elements | element trace ID, document version |
 | CTX-039 | CTX-037 | call (sync) | conformist | The document version of the diagram to confirm | diagram, document version |
-| CTX-038 | CTX-041 | event (async) |  | Hand work to an agent | Comment added, Proposal accepted, Element renamed, Line connected |
-| CTX-039 | CTX-041 | event (async) |  | Hand over the confirmation record | Diagram confirmed |
+| CTX-038 | CTX-041 | event (async) |  | Hand work to an agent, and AI proposals to the owner | Comment added, AI proposal posted, Proposal accepted, Element renamed, Line connected |
+| CTX-039 | CTX-041 | event (async) |  | Hand over the confirmation record, and ask the owner to confirm again | Diagram confirmed, Confirmation invalidated |
 | CTX-040 | CTX-041 | event (async) |  | Hand over writing the domain document | Step confirmed |
 | Agent (corthex-hub) | CTX-041 | call (sync) | open host service | Read and claim to-dos | to-do list, claim |
+| Agent (corthex-hub) | CTX-040 | call (sync) | open host service | Draw step drafts and report domain document updates | step, sticky notes, pull request address |
 | Agent (corthex-hub) | CTX-038 | call (sync) | open host service | Report replies, AI proposals and reflection pull requests | comment, change set, pull request address |
 | Agent (corthex-hub) | CTX-039 | call (sync) | open host service | Report the confirmation record | confirmation, pull request address |
 | CTX-042 | Notion, Jira | call (sync) | anticorruption layer | Show status | link, status |
@@ -268,13 +278,14 @@ flowchart LR
   agent -->|"replies, AI proposals,<br/>reflection PRs"| review
   agent -->|"confirmation record"| confirm
   agent -->|"read, claim"| todo
+  agent -->|"step drafts,<br/>document updates"| workshop
   review -->|"element, document version"| diagram
   confirm -->|"document version"| diagram
   diagram -.->|"Diagram drawn"| review
   diagram -.->|"Diagram drawn"| confirm
-  diagram -.->|"Domain document updated"| workshop
-  review -.->|"comments, change sets"| todo
-  confirm -.->|"Diagram confirmed"| todo
+  diagram -.->|"Diagram drawn"| todo
+  review -.->|"comments, proposals,<br/>change sets"| todo
+  confirm -.->|"confirmed, invalidated"| todo
   workshop -.->|"Step confirmed"| todo
   toollink -->|"status (ACL)"| tools
   workshop -->|"import (ACL)"| miro
@@ -294,7 +305,7 @@ The Diagram context holds the document version in the middle: Review and Confirm
 | 6. Does each direct edit go out as its own pull request, or several together? | CTX-038 | open | Stage 02. Recommended: several together in one pull request |
 | 7. Is the layout (element positions) kept in NEXUS or in Git? | CTX-037 | open | Stage 05. Recommended: NEXUS, since it is not what the document means |
 | 8. Are the comments and checkpoint records of the running NEXUS moved to v3? | CTX-040, CTX-039 | open | Stage 02. Recommended: do not move them; keep them in the archive tag and the Git records |
-| 9. Is one diagram's confirmation one stage checkpoint (steps 1-b, 7 and 9 on the stage-01 board)? | CTX-039 | review in stage 02 | A guess, passed as drawn without an answer of its own; settle it in stage 02 |
+| 9. Is one diagram's confirmation one stage checkpoint (steps 1-b, 7 and 9 on the stage-01 board)? | CTX-039 | review in stage 02 | A guess, passed as drawn without an answer of its own; settle it in stage 02. On the stage-01 board the step confirmations of CTX-040 at steps 1-b, 7 and 9 are the stage's checkpoints; a CTX-039 confirmation covers the diagram of another stage |
 | 10. Do v2's cross-check between pictures, notifications and version history go into the first version? |  | answered | Later, not in the first version (the maintainer's answer of 2026-11-23) |
 | 11. The direct-edit scope was written two ways in the project's records: move, rename and connect only, or a free canvas on the stage-01 board with move, rename and connect elsewhere | CTX-038, CTX-040 | answered | Follows the redesign decision the maintainer approved on 2026-11-22: a free canvas on the stage-01 board |
 | 12. Diagram and Confirmation rules inferred by the AI: one confirmation per diagram, a diagram from one snapshot, a layout that never changes meaning | CTX-037, CTX-039 | review in stage 02 | Approved as drawn; revisit the rules when writing requirements |
@@ -334,7 +345,7 @@ The Diagram context holds the document version in the middle: Review and Confirm
 | TERM-216 | To-do | The list of things the owner or an agent is to answer or handle | CTX-041 | `Todo` | my turn |
 | TERM-217 | Claim | One agent session taking one to-do alone for a set time | CTX-041 | `Claim` | lock, approval |
 | TERM-218 | Tool link | A Notion or Jira link attached to a project or stage, with its status | CTX-042 | `ToolLink` | integration (sounds as if it writes) |
-| TERM-219 | Owner | The one person who uses NEXUS, the maintainer | CTX-043 | `Owner` | admin, operator |
+| TERM-219 | Owner | The one person who uses NEXUS, the maintainer | CTX-043 | `Owner` | operator |
 | TERM-220 | Agent | A Claude Code or Codex session that works with NEXUS through corthex-hub | CTX-043 | `Agent` | bot, AI user |
 | TERM-221 | Agent credential | A revocable credential an agent uses to reach NEXUS. It cannot confirm | CTX-043 | `AgentCredential` | user session |
 | TERM-222 | Diagram view | The screen that shows one diagram or item table with its comments, AI proposals and changes (read model) | CTX-037 | `DiagramView` | viewer |
@@ -352,6 +363,8 @@ Checkpoints 1 to 3 were asked together and passed on 2026-11-23 in the project's
 1. Left as a guess: one diagram's confirmation is one stage checkpoint (steps 1-b, 7 and 9 on the stage-01 board). Not answered on its own; hotspot 9.
 2. Questions 1 to 3: answered with the recommendations; hotspots 1, 2 and 10.
 3. Core aggregate rules: the Diagram, Review and Confirmation rules in section 4, approved as drawn; hotspots 12 and 13.
+
+Corrections after the pass: the review of the stage's first pull request found ten points, and seven are corrected here (the to-do's inputs, the owner of Domain document updated, the claim release, the agent's route into the workshop, the claim and credential lane, the credential commands and the close path of a comment). They wait for a checkpoint of their own.
 
 Approved items that this stage drops or changes: v2 was archived as a whole by the maintainer's decision of 2026-11-22, and section 3 shows what carries over; this stage has no other approved items.
 
