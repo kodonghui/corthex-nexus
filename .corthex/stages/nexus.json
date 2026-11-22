@@ -83,10 +83,15 @@
           "approved": "The review corrections of pull request 98, before the schema was applied anywhere, so migration 0001 holds them: keys that include the project or the diagram keep drawings, threads, change sets, confirmations, workshop steps, to-dos and claims within one project and one diagram, and a reflected change set and an invalidated confirmation name a drawing of their diagram; a document hash is lowercase hex, only a failed drawing says where it failed, a sticky line joins notes of one workshop and names an agent's credential, a backup's retry is its own row, and every foreign key has an index; a test deletes one of two filled projects and checks the other is whole. Approved items removed, deferred or changed: none. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "The trace correction after the first push of the schema to NEXUS, which opened 22 differences with the DDD board: each table's comment names the aggregate of the domain design it belongs to, or none, rather than every glossary term it holds; the five read models are listed as without a table; a test checks that table terms are aggregates in the table's context and that every aggregate has a table. No table, column or constraint changed. Approved items removed, deferred or changed: none. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-23T02:12:24+09:00"
+      "updated": "2026-11-23T02:28:58+09:00"
     },
     "06-api": {
       "state": "in_progress",
