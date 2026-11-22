@@ -2,7 +2,7 @@
 
 [한국어](spec.ko.md)
 
-Status: draft, waiting for the spec freeze.
+Status: passed on 2026-11-23; the spec is frozen for the first release.
 
 Inputs: the requirements ([requirements.md](../02-prd/requirements.md)) and the user flows ([README.md](../03-user-flow/README.md)), both passed on 2026-11-23, with the stage-01 glossary for names. One row per behaviour. Exceptions follow the kinds of cases: access, input, target, state changes, repeats, concurrency, limits, outside services, data exposure, empty answers and screen states.
 
@@ -135,3 +135,9 @@ None. NEXUS calls no AI model; the agents that propose changes run outside it an
 ## 6. Checkpoint
 
 The spec freeze for the first release. Approved items that this stage removes, defers or changes: none.
+
+Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
+
+- The fifty-two rows are frozen for the first release; a change goes through the feature-change procedure.
+- A confirmation is refused while change sets wait for reflection (SPEC-029).
+- The limits and other choices in section 4 stand; QA measures them.
