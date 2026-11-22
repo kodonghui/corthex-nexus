@@ -4,10 +4,10 @@
   "part": "nexus",
   "stages": {
     "01-domain": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "Start NEXUS v3 domain discovery",
-      "updated": "2026-11-23T00:00:00+09:00"
+      "next": "Wait for the maintainer's answer to checkpoints 1 to 3; on the pass give CTX-037 to CTX-043 and TERM-189 on, merge and push",
+      "updated": "2026-11-23T00:31:00+09:00"
     },
     "02-prd": {
       "state": "not_started",
