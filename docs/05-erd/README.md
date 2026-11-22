@@ -77,7 +77,7 @@ The other rules of the domain design, such as an agent never removing a sticky n
 
 ## 4. Coverage
 
-Every spec row that reads or writes data names its tables, 51 of 52. SPEC-048 (admitting the owner) has none: the sign-in gate keeps the sign-in. Glossary terms without a table: TERM-190, TERM-209, TERM-219, TERM-220, TERM-222, TERM-223, TERM-224 (a stage, a diff, the owner, an agent and the three screens that read the tables).
+Every spec row that reads or writes data names its tables, 51 of 52. SPEC-048 (admitting the owner) has none: the sign-in gate keeps the sign-in. Each table names the aggregate of the domain design it belongs to, or none, and every aggregate has a table, so NEXUS finds no difference between the tables and the DDD board. The read models, the screens that read the tables, have none: TERM-222, TERM-223, TERM-224, TERM-225, TERM-226.
 
 ## 5. Relations
 
@@ -150,3 +150,7 @@ The review of the stage's pull request found rows that could point at another pr
 - A test fills every table for two projects, deletes one and checks that nothing of it is left and the other is whole; the relations above draw a key of two columns as one line.
 
 Approved items that the corrections remove, defer or change: none; the 26 tables, the engine and how snapshots are kept stay as approved.
+
+### Trace correction
+
+The first push of the schema to NEXUS opened 22 differences between the tables and the DDD board: the table comments named every glossary term a table holds, while the stage contract names only the aggregates it represents, and NEXUS compares those with the board. A third checkpoint on 2026-11-23 approved naming each table's aggregate, or none, through the same delegate; a test now checks it. No table, column or constraint changed.

@@ -14,6 +14,8 @@ The tests use only Python's own `sqlite3`, the SQLite that D1 also runs; nothing
 - Deleting a project space deletes every row of it in every table, and nothing of another project.
 - Every foreign key has an index whose first columns are its columns, except the keys to agent credentials, which
   are never deleted.
+- Each table's terms name only aggregates of the domain design in the table's own context, and every aggregate has a
+  table or is listed as without one, so NEXUS finds no difference between the tables and the DDD board.
 """
 
 import re
@@ -25,6 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "db" / "nexus.sql"
 MIGRATIONS = ROOT / "db" / "migrations"
+DOMAIN = ROOT / "docs" / "01-domain" / "nexus.md"
 HEAD = re.compile(r"^-- (TBL-\d{3}) (\w+) \((CTX-\d{3}|operations)\) ← .+ \| terms: (none|TERM-\d{3}(, TERM-\d{3})*)$")
 
 
@@ -84,6 +87,31 @@ class SchemaTest(unittest.TestCase):
         self.assertEqual(heads, list(range(heads[0], heads[0] + len(heads))), "TBL IDs run in order")
         objects, _, _ = shape(SCHEMA)
         self.assertEqual(sorted(tables), sorted(name for name, (kind, _, _) in objects.items() if kind == "table"))
+
+    def test_table_terms_are_the_aggregates_of_the_domain_design(self):
+        domain = DOMAIN.read_text(encoding="utf-8")
+        glossary = {name.strip().lower(): (term, context) for term, name, context in re.findall(
+            r"^\| (TERM-\d{3}) \| ([^|]+) \|[^|]*\| (CTX-\d{3}) \|", domain, re.M)}
+        aggregates = {}
+        for context, names in re.findall(r"^\| (CTX-\d{3}) [^|]+ \| \w+ \| ([^|]+) \| `\w+` \|$", domain, re.M):
+            for name in names.split(","):
+                term, term_context = glossary[name.strip().lower()]
+                self.assertEqual(term_context, context, "%s sits in another context in the glossary" % name)
+                aggregates[term] = context
+        self.assertTrue(aggregates, "no aggregate read from the domain design")
+        sql = SCHEMA.read_text(encoding="utf-8")
+        named = set()
+        for line in sql.splitlines():
+            head = HEAD.match(line)
+            if not head or head.group(4) == "none":
+                continue
+            for term in head.group(4).split(", "):
+                with self.subTest(table=head.group(2), term=term):
+                    self.assertIn(term, aggregates, "not an aggregate of the domain design")
+                    self.assertEqual(aggregates[term], head.group(3), "the aggregate sits in another context")
+                named.add(term)
+        without = set(re.findall(r"TERM-\d{3}", re.search(r"^-- without a table: (.+)$", sql, re.M).group(1)))
+        self.assertEqual(set(aggregates) - named - without, set(), "aggregates without a table")
 
     def test_foreign_keys_point_at_real_columns(self):
         _, columns, keys = shape(SCHEMA)

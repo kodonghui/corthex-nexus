@@ -17,10 +17,14 @@
 --   project or the diagram, so it can never point across projects. Agent credentials are never
 --   deleted, only revoked, so the rows that name one use ON DELETE RESTRICT.
 -- - Each foreign key has an index on its columns, so a delete never reads a whole table.
+-- - Each table's terms name the aggregate of the domain design it belongs to, as the stage contract
+--   asks, so that NEXUS can compare the tables with the DDD board; a table that belongs to no
+--   aggregate says terms: none. Every aggregate has a table; the read models, the screens that
+--   read the tables, have none and are listed below.
 -- - No table holds an agent credential's secret, a sign-in token or a server path (rule 5).
 --   Refused requests are logged in the server's log, not here (rule 8).
 --
--- without a table: TERM-190, TERM-209, TERM-219, TERM-220, TERM-222, TERM-223, TERM-224
+-- without a table: TERM-222, TERM-223, TERM-224, TERM-225, TERM-226
 
 -- TBL-146 agent_credentials (CTX-043) ← SPEC-049, SPEC-050, SPEC-014 | terms: TERM-221
 -- A credential an agent uses to reach NEXUS. Only its digest is kept (REQ-078). Rule: an agent
@@ -48,7 +52,7 @@ CREATE TABLE project_spaces (
   created_by_credential  INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT
 );
 
--- TBL-148 snapshots (CTX-037) ← SPEC-001, SPEC-002, SPEC-014, SPEC-025, SPEC-033 | terms: TERM-192
+-- TBL-148 snapshots (CTX-037) ← SPEC-001, SPEC-002, SPEC-014, SPEC-025, SPEC-033 | terms: TERM-189
 -- The stage documents of one default-branch commit that an agent sent. Rule: the same commit
 -- again is the same revision, so a project holds each commit once.
 CREATE TABLE snapshots (
@@ -66,7 +70,7 @@ CREATE TABLE snapshots (
   UNIQUE (id, project_id)
 );
 
--- TBL-149 document_blobs (CTX-037) ← SPEC-001 | terms: TERM-191
+-- TBL-149 document_blobs (CTX-037) ← SPEC-001 | terms: TERM-189
 -- The text of a stage document, kept once by its SHA-256 in lowercase hex however many
 -- snapshots hold it. A blob that no snapshot file names any more, such as after a project
 -- space is deleted, is removed by the code in the same transaction.
@@ -76,7 +80,7 @@ CREATE TABLE document_blobs (
   bytes   INTEGER NOT NULL CHECK (bytes >= 0)
 );
 
--- TBL-150 snapshot_files (CTX-037) ← SPEC-001, SPEC-033 | terms: TERM-191
+-- TBL-150 snapshot_files (CTX-037) ← SPEC-001, SPEC-033 | terms: TERM-189
 -- The stage documents of a snapshot, by path in the repository.
 CREATE TABLE snapshot_files (
   snapshot_id  INTEGER NOT NULL REFERENCES snapshots (id) ON DELETE CASCADE,
@@ -87,7 +91,7 @@ CREATE TABLE snapshot_files (
 );
 CREATE INDEX snapshot_files_by_blob ON snapshot_files (blob_sha256);
 
--- TBL-151 diagrams (CTX-037) ← SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-013 | terms: TERM-194, TERM-195
+-- TBL-151 diagrams (CTX-037) ← SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-013 | terms: TERM-194
 -- A picture or an item table of one stage, such as the DDD board, the ERD, one user flow or
 -- the table of requirements. source_key names what it is drawn from: the stage, or a flow,
 -- screen or mockup file. removed_at is set when its documents no longer hold it.
@@ -104,7 +108,7 @@ CREATE TABLE diagrams (
   UNIQUE (id, project_id)
 );
 
--- TBL-152 drawings (CTX-037) ← SPEC-001, SPEC-003, SPEC-004, SPEC-006, SPEC-025, SPEC-033, SPEC-034 | terms: TERM-193
+-- TBL-152 drawings (CTX-037) ← SPEC-001, SPEC-003, SPEC-004, SPEC-006, SPEC-025, SPEC-033, SPEC-034 | terms: TERM-194
 -- One drawing of a diagram from one snapshot of the same project: the diagram at a document
 -- version. Rule: a diagram is drawn from the stage documents of one snapshot only. A failed
 -- drawing keeps where it failed, and the diagram shows its last drawn one. source_digest
@@ -131,7 +135,7 @@ CREATE TABLE drawings (
 CREATE INDEX drawings_by_diagram ON drawings (diagram_id, project_id);
 CREATE INDEX drawings_by_snapshot ON drawings (snapshot_id, project_id);
 
--- TBL-153 elements (CTX-037) ← SPEC-003, SPEC-004, SPEC-005, SPEC-010, SPEC-011, SPEC-027, SPEC-034 | terms: TERM-196, TERM-197
+-- TBL-153 elements (CTX-037) ← SPEC-003, SPEC-004, SPEC-005, SPEC-010, SPEC-011, SPEC-027, SPEC-034 | terms: TERM-194
 -- One thing in a drawing: a sticky note, a table, a screen, a line or a table row. element_key
 -- stays the same across drawings (the trace ID when there is one), so comments, positions and
 -- the diff follow it. The screen shows the name; the trace ID only when copied.
@@ -187,7 +191,7 @@ CREATE TABLE comment_threads (
 CREATE INDEX comment_threads_by_diagram ON comment_threads (diagram_id, state);
 CREATE INDEX comment_threads_by_drawing ON comment_threads (drawing_id, diagram_id);
 
--- TBL-156 comments (CTX-038) ← SPEC-016, SPEC-017, SPEC-025, SPEC-051 | terms: TERM-199
+-- TBL-156 comments (CTX-038) ← SPEC-016, SPEC-017, SPEC-025, SPEC-051 | terms: TERM-200
 -- One comment or reply in a thread, in order. Rule: an agent's comment names its credential,
 -- the owner's names none.
 CREATE TABLE comments (
@@ -202,7 +206,7 @@ CREATE TABLE comments (
   UNIQUE (thread_id, seq)
 );
 
--- TBL-157 pull_requests (CTX-038) ← SPEC-024, SPEC-025, SPEC-032, SPEC-040, SPEC-045 | terms: TERM-205
+-- TBL-157 pull_requests (CTX-038) ← SPEC-024, SPEC-025, SPEC-032, SPEC-040, SPEC-045 | terms: none
 -- A pull request an agent reported for its work: a reflection, a confirmation record or a
 -- domain document written from a workshop step. Its state keeps a claim (SPEC-045).
 CREATE TABLE pull_requests (
@@ -221,7 +225,7 @@ CREATE TABLE pull_requests (
   UNIQUE (id, project_id)
 );
 
--- TBL-158 change_sets (CTX-038) ← SPEC-018, SPEC-019, SPEC-020, SPEC-021, SPEC-022, SPEC-023, SPEC-024, SPEC-025, SPEC-026 | terms: TERM-201, TERM-202, TERM-203, TERM-204
+-- TBL-158 change_sets (CTX-038) ← SPEC-018, SPEC-019, SPEC-020, SPEC-021, SPEC-022, SPEC-023, SPEC-024, SPEC-025, SPEC-026 | terms: TERM-203
 -- A change to put into a document: an AI proposal or the owner's direct edit, against a
 -- drawing of its diagram. Rules: only the owner accepts or rejects a proposal; a direct edit
 -- is accepted when it is made; a change set is reflected only when the drawing from the
@@ -272,7 +276,7 @@ CREATE TABLE changes (
   UNIQUE (change_set_id, seq)
 );
 
--- TBL-160 confirmations (CTX-039) ← SPEC-029, SPEC-030, SPEC-031, SPEC-032, SPEC-033, SPEC-034, SPEC-035 | terms: TERM-206, TERM-208
+-- TBL-160 confirmations (CTX-039) ← SPEC-029, SPEC-030, SPEC-031, SPEC-032, SPEC-033, SPEC-034, SPEC-035 | terms: TERM-206
 -- The owner passing one diagram or item table at a drawing of it. Rules: only the owner
 -- confirms, so the row names no credential; bound to its drawing; at most one live
 -- confirmation per diagram; invalidated by a later drawing of the same diagram whose
@@ -304,7 +308,7 @@ CREATE INDEX confirmations_by_drawing ON confirmations (drawing_id, diagram_id);
 CREATE INDEX confirmations_by_invalidation ON confirmations (invalidated_by_drawing, diagram_id);
 CREATE INDEX confirmations_by_record ON confirmations (record_pull_request_id, project_id);
 
--- TBL-161 stage_passes (CTX-039) ← SPEC-035, SPEC-039 | terms: TERM-207
+-- TBL-161 stage_passes (CTX-039) ← SPEC-035, SPEC-039 | terms: TERM-206
 -- A stage checkpoint passed: when every diagram and item table of the stage had a recorded
 -- confirmation, or, during a workshop, at steps 1-b, 7 and 9. A pass stays in the record;
 -- changed_at is set when a confirmation it rests on is invalidated later.
@@ -317,7 +321,7 @@ CREATE TABLE stage_passes (
 );
 CREATE INDEX stage_passes_by_stage ON stage_passes (project_id, stage);
 
--- TBL-162 workshops (CTX-040) ← SPEC-036, SPEC-040 | terms: TERM-210, TERM-211
+-- TBL-162 workshops (CTX-040) ← SPEC-036, SPEC-040 | terms: TERM-211
 -- Stage-01 event storming on a NEXUS board. Rule: the board is the source while the workshop
 -- is open, and a project has at most one open workshop.
 CREATE TABLE workshops (
@@ -332,7 +336,7 @@ CREATE TABLE workshops (
 CREATE UNIQUE INDEX workshops_open ON workshops (project_id) WHERE state = 'open';
 CREATE INDEX workshops_by_project ON workshops (project_id);
 
--- TBL-163 workshop_steps (CTX-040) ← SPEC-037, SPEC-039, SPEC-040 | terms: TERM-212
+-- TBL-163 workshop_steps (CTX-040) ← SPEC-037, SPEC-039, SPEC-040 | terms: TERM-211
 -- One event storming step of a workshop, called a step to keep it apart from a CORTHEX stage.
 -- written_at is set when the agent reports the step written into the domain document.
 CREATE TABLE workshop_steps (
@@ -350,7 +354,7 @@ CREATE TABLE workshop_steps (
 CREATE INDEX workshop_steps_by_project ON workshop_steps (workshop_id, project_id);
 CREATE INDEX workshop_steps_by_pull_request ON workshop_steps (pull_request_id, project_id);
 
--- TBL-164 sticky_notes (CTX-040) ← SPEC-037, SPEC-038, SPEC-041 | terms: TERM-213, TERM-214, TERM-215
+-- TBL-164 sticky_notes (CTX-040) ← SPEC-037, SPEC-038, SPEC-041 | terms: TERM-211
 -- One note on a workshop board; its kind gives its colour, and a hotspot is a kind. Rules: an
 -- agent's note carries a confidence label and names its credential; an agent never removes a
 -- note a person made (the code refuses it, SPEC-038).
@@ -375,7 +379,7 @@ CREATE TABLE sticky_notes (
 );
 CREATE INDEX sticky_notes_by_step ON sticky_notes (workshop_id, step);
 
--- TBL-165 sticky_links (CTX-040) ← SPEC-038, SPEC-041 | terms: none
+-- TBL-165 sticky_links (CTX-040) ← SPEC-038, SPEC-041 | terms: TERM-211
 -- A line between two sticky notes of the same workshop board. Rule: an agent's line names its
 -- credential.
 CREATE TABLE sticky_links (
@@ -395,7 +399,7 @@ CREATE TABLE sticky_links (
 CREATE INDEX sticky_links_by_from ON sticky_links (from_note, workshop_id);
 CREATE INDEX sticky_links_by_to ON sticky_links (to_note, workshop_id);
 
--- TBL-166 todos (CTX-041) ← SPEC-016, SPEC-017, SPEC-019, SPEC-023, SPEC-026, SPEC-029, SPEC-030, SPEC-031, SPEC-032, SPEC-033, SPEC-039, SPEC-042, SPEC-043 | terms: TERM-216, TERM-225, TERM-226
+-- TBL-166 todos (CTX-041) ← SPEC-016, SPEC-017, SPEC-019, SPEC-023, SPEC-026, SPEC-029, SPEC-030, SPEC-031, SPEC-032, SPEC-033, SPEC-039, SPEC-042, SPEC-043 | terms: none
 -- One thing for the owner or an agent to answer or handle, made by the contexts that hand
 -- work over; the owner's to-do and the agent to-do read it. Everything an entry is about
 -- belongs to its project, and a thread, change set or confirmation also to its diagram. A
