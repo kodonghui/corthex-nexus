@@ -32,11 +32,12 @@ CREATE TABLE snapshots (
   received_at      TEXT    NOT NULL,
   credential_id    INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT,
   UNIQUE (project_id, revision),
-  UNIQUE (project_id, commit_sha)
+  UNIQUE (project_id, commit_sha),
+  UNIQUE (id, project_id)
 );
 
 CREATE TABLE document_blobs (
-  sha256  TEXT    PRIMARY KEY CHECK (length(sha256) = 64),
+  sha256  TEXT    PRIMARY KEY CHECK (length(sha256) = 64 AND sha256 NOT GLOB '*[^0-9a-f]*'),
   body    TEXT    NOT NULL,
   bytes   INTEGER NOT NULL CHECK (bytes >= 0)
 );
@@ -48,6 +49,7 @@ CREATE TABLE snapshot_files (
   blob_sha256  TEXT    NOT NULL REFERENCES document_blobs (sha256) ON DELETE RESTRICT,
   PRIMARY KEY (snapshot_id, path)
 );
+CREATE INDEX snapshot_files_by_blob ON snapshot_files (blob_sha256);
 
 CREATE TABLE diagrams (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,22 +60,30 @@ CREATE TABLE diagrams (
   name        TEXT    NOT NULL,
   created_at  TEXT    NOT NULL,
   removed_at  TEXT,
-  UNIQUE (project_id, stage, source_key)
+  UNIQUE (project_id, stage, source_key),
+  UNIQUE (id, project_id)
 );
 
 CREATE TABLE drawings (
   id                INTEGER PRIMARY KEY AUTOINCREMENT,
-  diagram_id        INTEGER NOT NULL REFERENCES diagrams (id) ON DELETE CASCADE,
-  snapshot_id       INTEGER NOT NULL REFERENCES snapshots (id) ON DELETE CASCADE,
+  project_id        INTEGER NOT NULL,
+  diagram_id        INTEGER NOT NULL,
+  snapshot_id       INTEGER NOT NULL,
   document_version  TEXT    NOT NULL,
   status            TEXT    NOT NULL CHECK (status IN ('drawn', 'failed')),
   source_digest     TEXT    NOT NULL,
   failed_path       TEXT,
   failed_line       INTEGER,
   drawn_at          TEXT    NOT NULL,
-  CHECK (status = 'drawn' OR failed_path IS NOT NULL),
-  UNIQUE (diagram_id, snapshot_id)
+  CHECK ((status = 'failed') = (failed_path IS NOT NULL)),
+  CHECK (failed_line IS NULL OR failed_path IS NOT NULL),
+  UNIQUE (diagram_id, snapshot_id),
+  UNIQUE (id, diagram_id),
+  FOREIGN KEY (diagram_id, project_id) REFERENCES diagrams (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (snapshot_id, project_id) REFERENCES snapshots (id, project_id) ON DELETE CASCADE
 );
+CREATE INDEX drawings_by_diagram ON drawings (diagram_id, project_id);
+CREATE INDEX drawings_by_snapshot ON drawings (snapshot_id, project_id);
 
 CREATE TABLE elements (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -100,7 +110,7 @@ CREATE TABLE element_positions (
 CREATE TABLE comment_threads (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   diagram_id    INTEGER NOT NULL REFERENCES diagrams (id) ON DELETE CASCADE,
-  drawing_id    INTEGER NOT NULL REFERENCES drawings (id) ON DELETE CASCADE,
+  drawing_id    INTEGER NOT NULL,
   target_kind   TEXT    NOT NULL CHECK (target_kind IN ('diagram', 'element', 'row')),
   element_key   TEXT,
   removed_name  TEXT,
@@ -111,8 +121,12 @@ CREATE TABLE comment_threads (
   closed_by     TEXT    CHECK (closed_by IN ('owner', 'reflection')),
   CHECK (target_kind = 'diagram' OR element_key IS NOT NULL),
   CHECK ((state = 'open') = (waits_on IS NOT NULL)),
-  CHECK ((state = 'closed') = (closed_at IS NOT NULL AND closed_by IS NOT NULL))
+  CHECK ((state = 'closed') = (closed_at IS NOT NULL AND closed_by IS NOT NULL)),
+  UNIQUE (id, diagram_id),
+  FOREIGN KEY (drawing_id, diagram_id) REFERENCES drawings (id, diagram_id) ON DELETE CASCADE
 );
+CREATE INDEX comment_threads_by_diagram ON comment_threads (diagram_id, state);
+CREATE INDEX comment_threads_by_drawing ON comment_threads (drawing_id, diagram_id);
 
 CREATE TABLE comments (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -138,25 +152,39 @@ CREATE TABLE pull_requests (
   credential_id  INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT,
   CHECK (state <> 'merged' OR merge_commit IS NOT NULL),
   CHECK ((state = 'open') = (closed_at IS NULL)),
-  UNIQUE (project_id, number)
+  UNIQUE (project_id, number),
+  UNIQUE (id, project_id)
 );
 
 CREATE TABLE change_sets (
-  id                     INTEGER PRIMARY KEY AUTOINCREMENT,
-  diagram_id             INTEGER NOT NULL REFERENCES diagrams (id) ON DELETE CASCADE,
-  drawing_id             INTEGER NOT NULL REFERENCES drawings (id) ON DELETE CASCADE,
-  origin                 TEXT    NOT NULL CHECK (origin IN ('proposal', 'direct_edit')),
-  thread_id              INTEGER REFERENCES comment_threads (id) ON DELETE CASCADE,
-  credential_id          INTEGER REFERENCES agent_credentials (id) ON DELETE RESTRICT,
-  state                  TEXT    NOT NULL CHECK (state IN ('proposed', 'accepted', 'rejected', 'cancelled', 'reflected')),
-  created_at             TEXT    NOT NULL,
-  decided_at             TEXT,
-  pull_request_id        INTEGER REFERENCES pull_requests (id) ON DELETE SET NULL,
-  reflected_snapshot_id  INTEGER REFERENCES snapshots (id) ON DELETE CASCADE,
+  id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id            INTEGER NOT NULL,
+  diagram_id            INTEGER NOT NULL,
+  drawing_id            INTEGER NOT NULL,
+  origin                TEXT    NOT NULL CHECK (origin IN ('proposal', 'direct_edit')),
+  thread_id             INTEGER,
+  credential_id         INTEGER REFERENCES agent_credentials (id) ON DELETE RESTRICT,
+  state                 TEXT    NOT NULL CHECK (state IN ('proposed', 'accepted', 'rejected', 'cancelled', 'reflected')),
+  created_at            TEXT    NOT NULL,
+  decided_at            TEXT,
+  pull_request_id       INTEGER,
+  reflected_drawing_id  INTEGER,
   CHECK (origin = 'direct_edit' OR (thread_id IS NOT NULL AND credential_id IS NOT NULL)),
   CHECK (origin = 'proposal' OR (credential_id IS NULL AND state <> 'proposed')),
-  CHECK ((state = 'reflected') = (reflected_snapshot_id IS NOT NULL))
+  CHECK ((state = 'reflected') = (reflected_drawing_id IS NOT NULL)),
+  UNIQUE (id, diagram_id),
+  FOREIGN KEY (diagram_id, project_id) REFERENCES diagrams (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (drawing_id, diagram_id) REFERENCES drawings (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (thread_id, diagram_id) REFERENCES comment_threads (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (pull_request_id, project_id) REFERENCES pull_requests (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (reflected_drawing_id, diagram_id) REFERENCES drawings (id, diagram_id) ON DELETE CASCADE
 );
+CREATE INDEX change_sets_by_diagram ON change_sets (diagram_id, state);
+CREATE INDEX change_sets_by_project ON change_sets (diagram_id, project_id);
+CREATE INDEX change_sets_by_drawing ON change_sets (drawing_id, diagram_id);
+CREATE INDEX change_sets_by_thread ON change_sets (thread_id, diagram_id);
+CREATE INDEX change_sets_by_pull_request ON change_sets (pull_request_id, project_id);
+CREATE INDEX change_sets_by_reflection ON change_sets (reflected_drawing_id, diagram_id);
 
 CREATE TABLE changes (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -173,21 +201,31 @@ CREATE TABLE changes (
 );
 
 CREATE TABLE confirmations (
-  id                        INTEGER PRIMARY KEY AUTOINCREMENT,
-  diagram_id                INTEGER NOT NULL REFERENCES diagrams (id) ON DELETE CASCADE,
-  drawing_id                INTEGER NOT NULL REFERENCES drawings (id) ON DELETE CASCADE,
-  state                     TEXT    NOT NULL CHECK (state IN ('confirmed', 'cancelled', 'invalidated')),
-  confirmed_at              TEXT    NOT NULL,
-  ended_at                  TEXT,
-  invalidated_by_snapshot   INTEGER REFERENCES snapshots (id) ON DELETE CASCADE,
-  recorded_at               TEXT,
-  record_pull_request_id    INTEGER REFERENCES pull_requests (id) ON DELETE SET NULL,
-  cancel_recorded_at        TEXT,
+  id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id              INTEGER NOT NULL,
+  diagram_id              INTEGER NOT NULL,
+  drawing_id              INTEGER NOT NULL,
+  state                   TEXT    NOT NULL CHECK (state IN ('confirmed', 'cancelled', 'invalidated')),
+  confirmed_at            TEXT    NOT NULL,
+  ended_at                TEXT,
+  invalidated_by_drawing  INTEGER,
+  recorded_at             TEXT,
+  record_pull_request_id  INTEGER,
+  cancel_recorded_at      TEXT,
   CHECK ((state = 'confirmed') = (ended_at IS NULL)),
-  CHECK (state <> 'invalidated' OR invalidated_by_snapshot IS NOT NULL),
-  CHECK (cancel_recorded_at IS NULL OR state = 'cancelled')
+  CHECK ((state = 'invalidated') = (invalidated_by_drawing IS NOT NULL)),
+  CHECK (cancel_recorded_at IS NULL OR state = 'cancelled'),
+  UNIQUE (id, diagram_id),
+  FOREIGN KEY (diagram_id, project_id) REFERENCES diagrams (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (drawing_id, diagram_id) REFERENCES drawings (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (invalidated_by_drawing, diagram_id) REFERENCES drawings (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (record_pull_request_id, project_id) REFERENCES pull_requests (id, project_id) ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX confirmations_live ON confirmations (diagram_id) WHERE state = 'confirmed';
+CREATE INDEX confirmations_by_project ON confirmations (diagram_id, project_id);
+CREATE INDEX confirmations_by_drawing ON confirmations (drawing_id, diagram_id);
+CREATE INDEX confirmations_by_invalidation ON confirmations (invalidated_by_drawing, diagram_id);
+CREATE INDEX confirmations_by_record ON confirmations (record_pull_request_id, project_id);
 
 CREATE TABLE stage_passes (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -204,23 +242,30 @@ CREATE TABLE workshops (
   state       TEXT    NOT NULL CHECK (state IN ('open', 'closed')),
   opened_at   TEXT    NOT NULL,
   closed_at   TEXT,
-  CHECK ((state = 'closed') = (closed_at IS NOT NULL))
+  CHECK ((state = 'closed') = (closed_at IS NOT NULL)),
+  UNIQUE (id, project_id)
 );
 CREATE UNIQUE INDEX workshops_open ON workshops (project_id) WHERE state = 'open';
+CREATE INDEX workshops_by_project ON workshops (project_id);
 
 CREATE TABLE workshop_steps (
-  workshop_id      INTEGER NOT NULL REFERENCES workshops (id) ON DELETE CASCADE,
+  project_id       INTEGER NOT NULL,
+  workshop_id      INTEGER NOT NULL,
   step             TEXT    NOT NULL,
   confirmed_at     TEXT,
   written_at       TEXT,
-  pull_request_id  INTEGER REFERENCES pull_requests (id) ON DELETE SET NULL,
+  pull_request_id  INTEGER,
   CHECK (written_at IS NULL OR confirmed_at IS NOT NULL),
-  PRIMARY KEY (workshop_id, step)
+  PRIMARY KEY (workshop_id, step),
+  FOREIGN KEY (workshop_id, project_id) REFERENCES workshops (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (pull_request_id, project_id) REFERENCES pull_requests (id, project_id) ON DELETE CASCADE
 );
+CREATE INDEX workshop_steps_by_project ON workshop_steps (workshop_id, project_id);
+CREATE INDEX workshop_steps_by_pull_request ON workshop_steps (pull_request_id, project_id);
 
 CREATE TABLE sticky_notes (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  workshop_id    INTEGER NOT NULL REFERENCES workshops (id) ON DELETE CASCADE,
+  workshop_id    INTEGER NOT NULL,
   step           TEXT    NOT NULL,
   kind           TEXT    NOT NULL,
   body           TEXT    NOT NULL,
@@ -234,18 +279,27 @@ CREATE TABLE sticky_notes (
   removed_at     TEXT,
   CHECK ((made_by = 'agent') = (credential_id IS NOT NULL)),
   CHECK (made_by = 'owner' OR confidence IS NOT NULL),
+  UNIQUE (id, workshop_id),
   FOREIGN KEY (workshop_id, step) REFERENCES workshop_steps (workshop_id, step) ON DELETE CASCADE
 );
+CREATE INDEX sticky_notes_by_step ON sticky_notes (workshop_id, step);
 
 CREATE TABLE sticky_links (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  from_note   INTEGER NOT NULL REFERENCES sticky_notes (id) ON DELETE CASCADE,
-  to_note     INTEGER NOT NULL REFERENCES sticky_notes (id) ON DELETE CASCADE,
-  made_by     TEXT    NOT NULL CHECK (made_by IN ('owner', 'agent')),
-  created_at  TEXT    NOT NULL,
-  removed_at  TEXT,
-  CHECK (from_note <> to_note)
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  workshop_id    INTEGER NOT NULL,
+  from_note      INTEGER NOT NULL,
+  to_note        INTEGER NOT NULL,
+  made_by        TEXT    NOT NULL CHECK (made_by IN ('owner', 'agent')),
+  credential_id  INTEGER REFERENCES agent_credentials (id) ON DELETE RESTRICT,
+  created_at     TEXT    NOT NULL,
+  removed_at     TEXT,
+  CHECK (from_note <> to_note),
+  CHECK ((made_by = 'agent') = (credential_id IS NOT NULL)),
+  FOREIGN KEY (from_note, workshop_id) REFERENCES sticky_notes (id, workshop_id) ON DELETE CASCADE,
+  FOREIGN KEY (to_note, workshop_id) REFERENCES sticky_notes (id, workshop_id) ON DELETE CASCADE
 );
+CREATE INDEX sticky_links_by_from ON sticky_links (from_note, workshop_id);
+CREATE INDEX sticky_links_by_to ON sticky_links (to_note, workshop_id);
 
 CREATE TABLE todos (
   id               INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -254,10 +308,10 @@ CREATE TABLE todos (
   kind             TEXT    NOT NULL CHECK (kind IN (
                      'confirm', 'proposal', 'question',
                      'comment', 'reflect', 'remove_from_pr', 'record_confirmation', 'record_cancel', 'write_step')),
-  diagram_id       INTEGER REFERENCES diagrams (id) ON DELETE CASCADE,
-  thread_id        INTEGER REFERENCES comment_threads (id) ON DELETE CASCADE,
-  change_set_id    INTEGER REFERENCES change_sets (id) ON DELETE CASCADE,
-  confirmation_id  INTEGER REFERENCES confirmations (id) ON DELETE CASCADE,
+  diagram_id       INTEGER,
+  thread_id        INTEGER,
+  change_set_id    INTEGER,
+  confirmation_id  INTEGER,
   workshop_id      INTEGER,
   step             TEXT,
   created_at       TEXT    NOT NULL,
@@ -270,24 +324,43 @@ CREATE TABLE todos (
   CHECK (kind NOT IN ('proposal', 'remove_from_pr') OR change_set_id IS NOT NULL),
   CHECK (kind NOT IN ('record_confirmation', 'record_cancel') OR confirmation_id IS NOT NULL),
   CHECK (kind <> 'write_step' OR (workshop_id IS NOT NULL AND step IS NOT NULL)),
+  CHECK ((thread_id IS NULL AND change_set_id IS NULL AND confirmation_id IS NULL) OR diagram_id IS NOT NULL),
+  UNIQUE (id, project_id),
+  FOREIGN KEY (diagram_id, project_id) REFERENCES diagrams (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (thread_id, diagram_id) REFERENCES comment_threads (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (change_set_id, diagram_id) REFERENCES change_sets (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (confirmation_id, diagram_id) REFERENCES confirmations (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (workshop_id, project_id) REFERENCES workshops (id, project_id) ON DELETE CASCADE,
   FOREIGN KEY (workshop_id, step) REFERENCES workshop_steps (workshop_id, step) ON DELETE CASCADE
 );
 CREATE INDEX todos_open ON todos (side, project_id, created_at) WHERE closed_at IS NULL;
+CREATE INDEX todos_by_project ON todos (project_id);
+CREATE INDEX todos_by_diagram ON todos (diagram_id, project_id);
+CREATE INDEX todos_by_thread ON todos (thread_id, diagram_id);
+CREATE INDEX todos_by_change_set ON todos (change_set_id, diagram_id);
+CREATE INDEX todos_by_confirmation ON todos (confirmation_id, diagram_id);
+CREATE INDEX todos_by_workshop ON todos (workshop_id, project_id);
+CREATE INDEX todos_by_step ON todos (workshop_id, step);
 
 CREATE TABLE claims (
-  id              INTEGER PRIMARY KEY AUTOINCREMENT,
-  todo_id         INTEGER NOT NULL REFERENCES todos (id) ON DELETE CASCADE,
-  session         TEXT    NOT NULL CHECK (length(session) >= 1),
-  credential_id   INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT,
-  claimed_at      TEXT    NOT NULL,
-  last_write_at   TEXT    NOT NULL,
-  pull_request_id INTEGER REFERENCES pull_requests (id) ON DELETE SET NULL,
-  released_at     TEXT,
-  release_reason  TEXT    CHECK (release_reason IN ('released', 'idle', 'revoked', 'done')),
-  CHECK ((released_at IS NULL) = (release_reason IS NULL))
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id       INTEGER NOT NULL,
+  todo_id          INTEGER NOT NULL,
+  session          TEXT    NOT NULL CHECK (length(session) >= 1),
+  credential_id    INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT,
+  claimed_at       TEXT    NOT NULL,
+  last_write_at    TEXT    NOT NULL,
+  pull_request_id  INTEGER,
+  released_at      TEXT,
+  release_reason   TEXT    CHECK (release_reason IN ('released', 'idle', 'revoked', 'done')),
+  CHECK ((released_at IS NULL) = (release_reason IS NULL)),
+  FOREIGN KEY (todo_id, project_id) REFERENCES todos (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (pull_request_id, project_id) REFERENCES pull_requests (id, project_id) ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX claims_live ON claims (todo_id) WHERE released_at IS NULL;
+CREATE INDEX claims_by_todo ON claims (todo_id, project_id);
 CREATE INDEX claims_by_credential ON claims (credential_id) WHERE released_at IS NULL;
+CREATE INDEX claims_by_pull_request ON claims (pull_request_id, project_id);
 
 CREATE TABLE tool_links (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -301,6 +374,7 @@ CREATE TABLE tool_links (
   removed_at      TEXT
 );
 CREATE UNIQUE INDEX tool_links_live ON tool_links (project_id, scope, url) WHERE removed_at IS NULL;
+CREATE INDEX tool_links_by_project ON tool_links (project_id);
 
 CREATE TABLE request_keys (
   actor        TEXT    NOT NULL,
@@ -315,13 +389,14 @@ CREATE INDEX request_keys_by_time ON request_keys (created_at);
 
 CREATE TABLE backups (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
-  name         TEXT    NOT NULL UNIQUE,
+  name         TEXT    NOT NULL,
   attempt      INTEGER NOT NULL CHECK (attempt IN (1, 2)),
   state        TEXT    NOT NULL CHECK (state IN ('running', 'succeeded', 'failed')),
   bytes        INTEGER,
   started_at   TEXT    NOT NULL,
   finished_at  TEXT,
-  removed_at   TEXT
+  removed_at   TEXT,
+  UNIQUE (name, attempt)
 );
 CREATE INDEX backups_by_time ON backups (started_at);
 
@@ -333,3 +408,4 @@ CREATE TABLE restore_rehearsals (
   rehearsed_at  TEXT    NOT NULL,
   note          TEXT
 );
+CREATE INDEX restore_rehearsals_by_backup ON restore_rehearsals (backup_id);

@@ -45,17 +45,21 @@ The other rules of the domain design, such as an agent never removing a sticky n
 
 - `project_spaces`: A project space's name is 1 to 64 lowercase letters, digits and hyphens, and unique.
 - `snapshots`: A project holds each commit once, so the same commit again is the same revision (SPEC-001).
-- `drawings`: A drawing comes from one snapshot only, and a failed one says where it failed.
+- `drawings`, `comment_threads`, `change_sets`, `confirmations`, `workshop_steps`, `todos`, `claims`: A row that points at other rows of a project points only within that project, and a thread, change set, confirmation or to-do only within its diagram, because each key includes the project or the diagram (SPEC-013).
+- `document_blobs`: A document is kept by its SHA-256 in lowercase hex, once.
+- `drawings`: A drawing comes from one snapshot only, and only a failed one says where it failed.
 - `comment_threads`: An open thread waits on exactly one side; a closed one says when and by whom.
 - `comments`: An agent's comment names its credential; the owner's names none.
-- `change_sets`: A proposal has a thread and an agent; a direct edit has neither an agent nor a proposed state; a reflected change set names the snapshot that reflected it.
+- `change_sets`: A proposal has a thread and an agent; a direct edit has neither an agent nor a proposed state; a reflected change set names the drawing of its diagram that shows it.
 - `changes`: A connection never joins an element to itself.
 - `confirmations`: At most one live confirmation per diagram, and no confirmation names a credential, since only the owner confirms.
 - `workshops`: At most one open workshop per project.
-- `sticky_notes`: An agent's sticky note carries a confidence label.
+- `sticky_notes`: An agent's sticky note carries a confidence label and names its credential.
+- `sticky_links`: A line joins two notes of the same workshop, and an agent's line names its credential.
 - `todos`: Each to-do kind belongs to one side and names what it is about.
 - `claims`: At most one live claim per to-do, and each claim names its credential, so revoking it releases its claims (SPEC-050).
 - `tool_links`: A link is kept once per project or stage while it is not removed.
+- `backups`: A backup and its retry are two rows of one name, attempts 1 and 2.
 
 ## 3. Choices this stage makes
 
@@ -67,7 +71,8 @@ The other rules of the domain design, such as an agent never removing a sticky n
 - To-dos of both sides are rows, so a claim points at one to-do and a cancelled confirmation withdraws its entry.
 - One pull_requests table covers reflections, confirmation records and domain documents, so a claim knows whether its work has an open pull request (SPEC-045).
 - Refused requests go to the server's log, not to the database (rule 8).
-- Deleting a project space cascades to everything in it; agent credentials are only revoked, never deleted.
+- Deleting a project space cascades to everything in it and nothing else; agent credentials are only revoked, never deleted.
+- Every foreign key has an index on its columns, so a delete never reads a whole table; keys to agent credentials need none, since credentials are never deleted.
 - The source is db/nexus.sql rather than db/schema.sql, because the hub gives the part nexus only to files whose names start with it.
 
 ## 4. Coverage
@@ -76,59 +81,58 @@ Every spec row that reads or writes data names its tables, 51 of 52. SPEC-048 (a
 
 ## 5. Relations
 
-Each line is a foreign key, labelled with its column; NEXUS draws the full ERD with columns from the source.
+Each line is a foreign key, labelled with its columns; a key of two columns also keeps the row within one project or diagram. NEXUS draws the full ERD with columns from the source.
 
 ```mermaid
 erDiagram
-  agent_credentials ||--o{ project_spaces : created_by_credential
-  agent_credentials ||--o{ snapshots : credential_id
-  project_spaces ||--o{ snapshots : project_id
-  document_blobs ||--o{ snapshot_files : blob_sha256
-  snapshots ||--o{ snapshot_files : snapshot_id
-  project_spaces ||--o{ diagrams : project_id
-  snapshots ||--o{ drawings : snapshot_id
-  diagrams ||--o{ drawings : diagram_id
-  drawings ||--o{ elements : drawing_id
-  diagrams ||--o{ element_positions : diagram_id
-  drawings ||--o{ comment_threads : drawing_id
-  diagrams ||--o{ comment_threads : diagram_id
-  agent_credentials |o--o{ comments : credential_id
-  comment_threads ||--o{ comments : thread_id
-  agent_credentials ||--o{ pull_requests : credential_id
-  project_spaces ||--o{ pull_requests : project_id
-  snapshots |o--o{ change_sets : reflected_snapshot_id
-  pull_requests |o--o{ change_sets : pull_request_id
-  agent_credentials |o--o{ change_sets : credential_id
-  comment_threads |o--o{ change_sets : thread_id
-  drawings ||--o{ change_sets : drawing_id
-  diagrams ||--o{ change_sets : diagram_id
-  change_sets ||--o{ changes : change_set_id
-  pull_requests |o--o{ confirmations : record_pull_request_id
-  snapshots |o--o{ confirmations : invalidated_by_snapshot
-  drawings ||--o{ confirmations : drawing_id
-  diagrams ||--o{ confirmations : diagram_id
-  project_spaces ||--o{ stage_passes : project_id
-  project_spaces ||--o{ workshops : project_id
-  pull_requests |o--o{ workshop_steps : pull_request_id
-  workshops ||--o{ workshop_steps : workshop_id
-  workshop_steps ||--o{ sticky_notes : workshop_id
-  workshop_steps ||--o{ sticky_notes : step
-  agent_credentials |o--o{ sticky_notes : credential_id
-  workshops ||--o{ sticky_notes : workshop_id
-  sticky_notes ||--o{ sticky_links : to_note
-  sticky_notes ||--o{ sticky_links : from_note
-  workshop_steps |o--o{ todos : workshop_id
-  workshop_steps |o--o{ todos : step
-  confirmations |o--o{ todos : confirmation_id
-  change_sets |o--o{ todos : change_set_id
-  comment_threads |o--o{ todos : thread_id
-  diagrams |o--o{ todos : diagram_id
-  project_spaces ||--o{ todos : project_id
-  pull_requests |o--o{ claims : pull_request_id
-  agent_credentials ||--o{ claims : credential_id
-  todos ||--o{ claims : todo_id
-  project_spaces ||--o{ tool_links : project_id
-  backups ||--o{ restore_rehearsals : backup_id
+  agent_credentials ||--o{ project_spaces : "created_by_credential"
+  project_spaces ||--o{ snapshots : "project_id"
+  agent_credentials ||--o{ snapshots : "credential_id"
+  snapshots ||--o{ snapshot_files : "snapshot_id"
+  document_blobs ||--o{ snapshot_files : "blob_sha256"
+  project_spaces ||--o{ diagrams : "project_id"
+  diagrams ||--o{ drawings : "diagram_id, project_id"
+  snapshots ||--o{ drawings : "snapshot_id, project_id"
+  drawings ||--o{ elements : "drawing_id"
+  diagrams ||--o{ element_positions : "diagram_id"
+  diagrams ||--o{ comment_threads : "diagram_id"
+  drawings ||--o{ comment_threads : "drawing_id, diagram_id"
+  comment_threads ||--o{ comments : "thread_id"
+  agent_credentials |o--o{ comments : "credential_id"
+  project_spaces ||--o{ pull_requests : "project_id"
+  agent_credentials ||--o{ pull_requests : "credential_id"
+  agent_credentials |o--o{ change_sets : "credential_id"
+  diagrams ||--o{ change_sets : "diagram_id, project_id"
+  drawings ||--o{ change_sets : "drawing_id, diagram_id"
+  comment_threads |o--o{ change_sets : "thread_id, diagram_id"
+  pull_requests |o--o{ change_sets : "pull_request_id, project_id"
+  drawings |o--o{ change_sets : "reflected_drawing_id, diagram_id"
+  change_sets ||--o{ changes : "change_set_id"
+  diagrams ||--o{ confirmations : "diagram_id, project_id"
+  drawings ||--o{ confirmations : "drawing_id, diagram_id"
+  drawings |o--o{ confirmations : "invalidated_by_drawing, diagram_id"
+  pull_requests |o--o{ confirmations : "record_pull_request_id, project_id"
+  project_spaces ||--o{ stage_passes : "project_id"
+  project_spaces ||--o{ workshops : "project_id"
+  workshops ||--o{ workshop_steps : "workshop_id, project_id"
+  pull_requests |o--o{ workshop_steps : "pull_request_id, project_id"
+  agent_credentials |o--o{ sticky_notes : "credential_id"
+  workshop_steps ||--o{ sticky_notes : "workshop_id, step"
+  agent_credentials |o--o{ sticky_links : "credential_id"
+  sticky_notes ||--o{ sticky_links : "from_note, workshop_id"
+  sticky_notes ||--o{ sticky_links : "to_note, workshop_id"
+  project_spaces ||--o{ todos : "project_id"
+  diagrams |o--o{ todos : "diagram_id, project_id"
+  comment_threads |o--o{ todos : "thread_id, diagram_id"
+  change_sets |o--o{ todos : "change_set_id, diagram_id"
+  confirmations |o--o{ todos : "confirmation_id, diagram_id"
+  workshops |o--o{ todos : "workshop_id, project_id"
+  workshop_steps |o--o{ todos : "workshop_id, step"
+  agent_credentials ||--o{ claims : "credential_id"
+  todos ||--o{ claims : "todo_id, project_id"
+  pull_requests |o--o{ claims : "pull_request_id, project_id"
+  project_spaces ||--o{ tool_links : "project_id"
+  backups ||--o{ restore_rehearsals : "backup_id"
 ```
 
 ## 6. Checkpoint
@@ -136,3 +140,13 @@ erDiagram
 The schema freeze before the API contract is written. Approved items that this stage removes, defers or changes: none.
 
 Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
+
+### Review corrections
+
+The review of the stage's pull request found rows that could point at another project's rows, small constraints that let wrong rows in and foreign keys without an index. A second checkpoint on 2026-11-23 approved the fixes, through the same delegate, before the schema was applied anywhere, so migration 0001 holds them:
+
+- Keys that include the project or the diagram keep drawings, threads, change sets, confirmations, workshop steps, to-dos and claims within one project and one diagram. A reflected change set and an invalidated confirmation name a drawing of their diagram rather than a snapshot.
+- A document hash is lowercase hex; only a failed drawing says where it failed; a sticky line joins notes of one workshop and an agent's line names its credential; a backup's retry is its own row; every foreign key has an index.
+- A test fills every table for two projects, deletes one and checks that nothing of it is left and the other is whole; the relations above draw a key of two columns as one line.
+
+Approved items that the corrections remove, defer or change: none; the 26 tables, the engine and how snapshots are kept stay as approved.

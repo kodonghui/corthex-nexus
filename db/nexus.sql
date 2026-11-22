@@ -4,16 +4,19 @@
 -- empty database.
 --
 -- Conventions:
--- - Every table has an INTEGER key with AUTOINCREMENT, so an ID is never given out twice,
---   even after a project space is deleted.
+-- - Every table whose rows have their own ID uses an INTEGER key with AUTOINCREMENT, so an ID
+--   is never given out twice, even after a project space is deleted.
 -- - Times are UTC text in ISO 8601 with milliseconds, such as 2026-11-23T01:30:00.000Z.
 -- - The limits of the functional spec (sizes, lengths, the 24 hours of a request key and the
 --   60 minutes of a claim) are checked by the code, not by constraints here, so that changing
 --   a limit needs no migration. Rules of the domain design that the database can hold are
 --   constraints, each named in a comment.
--- - Deleting a project space deletes everything in it (SPEC-013): every table of a project
---   reaches project_spaces through ON DELETE CASCADE. Agent credentials are never deleted,
---   only revoked, so the rows that name one use ON DELETE RESTRICT.
+-- - Deleting a project space deletes everything in it and nothing else (SPEC-013): every table
+--   of a project reaches project_spaces through ON DELETE CASCADE, and a row that points at
+--   another row of the same project or diagram does so through a key that includes the
+--   project or the diagram, so it can never point across projects. Agent credentials are never
+--   deleted, only revoked, so the rows that name one use ON DELETE RESTRICT.
+-- - Each foreign key has an index on its columns, so a delete never reads a whole table.
 -- - No table holds an agent credential's secret, a sign-in token or a server path (rule 5).
 --   Refused requests are logged in the server's log, not here (rule 8).
 --
@@ -59,15 +62,16 @@ CREATE TABLE snapshots (
   received_at      TEXT    NOT NULL,
   credential_id    INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT,
   UNIQUE (project_id, revision),
-  UNIQUE (project_id, commit_sha)
+  UNIQUE (project_id, commit_sha),
+  UNIQUE (id, project_id)
 );
 
 -- TBL-149 document_blobs (CTX-037) ← SPEC-001 | terms: TERM-191
--- The text of a stage document, kept once by its SHA-256 however many snapshots hold it. A blob
--- that no snapshot file names any more, such as after a project space is deleted, is removed
--- by the code in the same transaction.
+-- The text of a stage document, kept once by its SHA-256 in lowercase hex however many
+-- snapshots hold it. A blob that no snapshot file names any more, such as after a project
+-- space is deleted, is removed by the code in the same transaction.
 CREATE TABLE document_blobs (
-  sha256  TEXT    PRIMARY KEY CHECK (length(sha256) = 64),
+  sha256  TEXT    PRIMARY KEY CHECK (length(sha256) = 64 AND sha256 NOT GLOB '*[^0-9a-f]*'),
   body    TEXT    NOT NULL,
   bytes   INTEGER NOT NULL CHECK (bytes >= 0)
 );
@@ -81,6 +85,7 @@ CREATE TABLE snapshot_files (
   blob_sha256  TEXT    NOT NULL REFERENCES document_blobs (sha256) ON DELETE RESTRICT,
   PRIMARY KEY (snapshot_id, path)
 );
+CREATE INDEX snapshot_files_by_blob ON snapshot_files (blob_sha256);
 
 -- TBL-151 diagrams (CTX-037) ← SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-013 | terms: TERM-194, TERM-195
 -- A picture or an item table of one stage, such as the DDD board, the ERD, one user flow or
@@ -95,27 +100,36 @@ CREATE TABLE diagrams (
   name        TEXT    NOT NULL,
   created_at  TEXT    NOT NULL,
   removed_at  TEXT,
-  UNIQUE (project_id, stage, source_key)
+  UNIQUE (project_id, stage, source_key),
+  UNIQUE (id, project_id)
 );
 
--- TBL-152 drawings (CTX-037) ← SPEC-001, SPEC-003, SPEC-004, SPEC-006, SPEC-033, SPEC-034 | terms: TERM-193
--- One drawing of a diagram from one snapshot: the diagram at a document version. Rule: a
--- diagram is drawn from the stage documents of one snapshot only. A failed drawing keeps
--- where it failed, and the diagram shows its last drawn one. source_digest covers the files
--- the drawing read, so a change in another file leaves a confirmation as it is (SPEC-033).
+-- TBL-152 drawings (CTX-037) ← SPEC-001, SPEC-003, SPEC-004, SPEC-006, SPEC-025, SPEC-033, SPEC-034 | terms: TERM-193
+-- One drawing of a diagram from one snapshot of the same project: the diagram at a document
+-- version. Rule: a diagram is drawn from the stage documents of one snapshot only. A failed
+-- drawing keeps where it failed, and the diagram shows its last drawn one. source_digest
+-- covers the files the drawing read, so a change in another file leaves a confirmation as it
+-- is (SPEC-033).
 CREATE TABLE drawings (
   id                INTEGER PRIMARY KEY AUTOINCREMENT,
-  diagram_id        INTEGER NOT NULL REFERENCES diagrams (id) ON DELETE CASCADE,
-  snapshot_id       INTEGER NOT NULL REFERENCES snapshots (id) ON DELETE CASCADE,
+  project_id        INTEGER NOT NULL,
+  diagram_id        INTEGER NOT NULL,
+  snapshot_id       INTEGER NOT NULL,
   document_version  TEXT    NOT NULL,
   status            TEXT    NOT NULL CHECK (status IN ('drawn', 'failed')),
   source_digest     TEXT    NOT NULL,
   failed_path       TEXT,
   failed_line       INTEGER,
   drawn_at          TEXT    NOT NULL,
-  CHECK (status = 'drawn' OR failed_path IS NOT NULL),
-  UNIQUE (diagram_id, snapshot_id)
+  CHECK ((status = 'failed') = (failed_path IS NOT NULL)),
+  CHECK (failed_line IS NULL OR failed_path IS NOT NULL),
+  UNIQUE (diagram_id, snapshot_id),
+  UNIQUE (id, diagram_id),
+  FOREIGN KEY (diagram_id, project_id) REFERENCES diagrams (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (snapshot_id, project_id) REFERENCES snapshots (id, project_id) ON DELETE CASCADE
 );
+CREATE INDEX drawings_by_diagram ON drawings (diagram_id, project_id);
+CREATE INDEX drawings_by_snapshot ON drawings (snapshot_id, project_id);
 
 -- TBL-153 elements (CTX-037) ← SPEC-003, SPEC-004, SPEC-005, SPEC-010, SPEC-011, SPEC-027, SPEC-034 | terms: TERM-196, TERM-197
 -- One thing in a drawing: a sticky note, a table, a screen, a line or a table row. element_key
@@ -148,14 +162,14 @@ CREATE TABLE element_positions (
 );
 
 -- TBL-155 comment_threads (CTX-038) ← SPEC-016, SPEC-017, SPEC-027, SPEC-028, SPEC-042, SPEC-043 | terms: TERM-200
--- A comment and its replies on a diagram, an element or a table row, at the document version
--- shown. Rule: attached to an element's key and a drawing. An open thread waits on the side
--- that did not write last. removed_name marks a thread moved to the diagram because its
--- element left, with the element's last name; the key stays, so it links again if it returns.
+-- A comment and its replies on a diagram, an element or a table row, at the drawing shown,
+-- which is a drawing of the same diagram. An open thread waits on the side that did not write
+-- last. removed_name marks a thread moved to the diagram because its element left, with the
+-- element's last name; the key stays, so it links again if the element returns.
 CREATE TABLE comment_threads (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   diagram_id    INTEGER NOT NULL REFERENCES diagrams (id) ON DELETE CASCADE,
-  drawing_id    INTEGER NOT NULL REFERENCES drawings (id) ON DELETE CASCADE,
+  drawing_id    INTEGER NOT NULL,
   target_kind   TEXT    NOT NULL CHECK (target_kind IN ('diagram', 'element', 'row')),
   element_key   TEXT,
   removed_name  TEXT,
@@ -166,8 +180,12 @@ CREATE TABLE comment_threads (
   closed_by     TEXT    CHECK (closed_by IN ('owner', 'reflection')),
   CHECK (target_kind = 'diagram' OR element_key IS NOT NULL),
   CHECK ((state = 'open') = (waits_on IS NOT NULL)),
-  CHECK ((state = 'closed') = (closed_at IS NOT NULL AND closed_by IS NOT NULL))
+  CHECK ((state = 'closed') = (closed_at IS NOT NULL AND closed_by IS NOT NULL)),
+  UNIQUE (id, diagram_id),
+  FOREIGN KEY (drawing_id, diagram_id) REFERENCES drawings (id, diagram_id) ON DELETE CASCADE
 );
+CREATE INDEX comment_threads_by_diagram ON comment_threads (diagram_id, state);
+CREATE INDEX comment_threads_by_drawing ON comment_threads (drawing_id, diagram_id);
 
 -- TBL-156 comments (CTX-038) ← SPEC-016, SPEC-017, SPEC-025, SPEC-051 | terms: TERM-199
 -- One comment or reply in a thread, in order. Rule: an agent's comment names its credential,
@@ -199,29 +217,44 @@ CREATE TABLE pull_requests (
   credential_id  INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT,
   CHECK (state <> 'merged' OR merge_commit IS NOT NULL),
   CHECK ((state = 'open') = (closed_at IS NULL)),
-  UNIQUE (project_id, number)
+  UNIQUE (project_id, number),
+  UNIQUE (id, project_id)
 );
 
 -- TBL-158 change_sets (CTX-038) ← SPEC-018, SPEC-019, SPEC-020, SPEC-021, SPEC-022, SPEC-023, SPEC-024, SPEC-025, SPEC-026 | terms: TERM-201, TERM-202, TERM-203, TERM-204
--- A change to put into a document: an AI proposal or the owner's direct edit. Rules: only the
--- owner accepts or rejects a proposal; a direct edit is accepted when it is made; a change set
--- is reflected only when the snapshot of its merged pull request is drawn.
+-- A change to put into a document: an AI proposal or the owner's direct edit, against a
+-- drawing of its diagram. Rules: only the owner accepts or rejects a proposal; a direct edit
+-- is accepted when it is made; a change set is reflected only when the drawing from the
+-- snapshot of its merged pull request shows it (reflected_drawing_id).
 CREATE TABLE change_sets (
-  id                     INTEGER PRIMARY KEY AUTOINCREMENT,
-  diagram_id             INTEGER NOT NULL REFERENCES diagrams (id) ON DELETE CASCADE,
-  drawing_id             INTEGER NOT NULL REFERENCES drawings (id) ON DELETE CASCADE,
-  origin                 TEXT    NOT NULL CHECK (origin IN ('proposal', 'direct_edit')),
-  thread_id              INTEGER REFERENCES comment_threads (id) ON DELETE CASCADE,
-  credential_id          INTEGER REFERENCES agent_credentials (id) ON DELETE RESTRICT,
-  state                  TEXT    NOT NULL CHECK (state IN ('proposed', 'accepted', 'rejected', 'cancelled', 'reflected')),
-  created_at             TEXT    NOT NULL,
-  decided_at             TEXT,
-  pull_request_id        INTEGER REFERENCES pull_requests (id) ON DELETE SET NULL,
-  reflected_snapshot_id  INTEGER REFERENCES snapshots (id) ON DELETE CASCADE,
+  id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id            INTEGER NOT NULL,
+  diagram_id            INTEGER NOT NULL,
+  drawing_id            INTEGER NOT NULL,
+  origin                TEXT    NOT NULL CHECK (origin IN ('proposal', 'direct_edit')),
+  thread_id             INTEGER,
+  credential_id         INTEGER REFERENCES agent_credentials (id) ON DELETE RESTRICT,
+  state                 TEXT    NOT NULL CHECK (state IN ('proposed', 'accepted', 'rejected', 'cancelled', 'reflected')),
+  created_at            TEXT    NOT NULL,
+  decided_at            TEXT,
+  pull_request_id       INTEGER,
+  reflected_drawing_id  INTEGER,
   CHECK (origin = 'direct_edit' OR (thread_id IS NOT NULL AND credential_id IS NOT NULL)),
   CHECK (origin = 'proposal' OR (credential_id IS NULL AND state <> 'proposed')),
-  CHECK ((state = 'reflected') = (reflected_snapshot_id IS NOT NULL))
+  CHECK ((state = 'reflected') = (reflected_drawing_id IS NOT NULL)),
+  UNIQUE (id, diagram_id),
+  FOREIGN KEY (diagram_id, project_id) REFERENCES diagrams (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (drawing_id, diagram_id) REFERENCES drawings (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (thread_id, diagram_id) REFERENCES comment_threads (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (pull_request_id, project_id) REFERENCES pull_requests (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (reflected_drawing_id, diagram_id) REFERENCES drawings (id, diagram_id) ON DELETE CASCADE
 );
+CREATE INDEX change_sets_by_diagram ON change_sets (diagram_id, state);
+CREATE INDEX change_sets_by_project ON change_sets (diagram_id, project_id);
+CREATE INDEX change_sets_by_drawing ON change_sets (drawing_id, diagram_id);
+CREATE INDEX change_sets_by_thread ON change_sets (thread_id, diagram_id);
+CREATE INDEX change_sets_by_pull_request ON change_sets (pull_request_id, project_id);
+CREATE INDEX change_sets_by_reflection ON change_sets (reflected_drawing_id, diagram_id);
 
 -- TBL-159 changes (CTX-038) ← SPEC-018, SPEC-021, SPEC-022 | terms: TERM-203
 -- The steps of a change set in order: rename, connect, add or remove an element.
@@ -240,25 +273,36 @@ CREATE TABLE changes (
 );
 
 -- TBL-160 confirmations (CTX-039) ← SPEC-029, SPEC-030, SPEC-031, SPEC-032, SPEC-033, SPEC-034, SPEC-035 | terms: TERM-206, TERM-208
--- The owner passing one diagram or item table at the drawing shown. Rules: only the owner
+-- The owner passing one diagram or item table at a drawing of it. Rules: only the owner
 -- confirms, so the row names no credential; bound to its drawing; at most one live
--- confirmation per diagram; invalidated when its document changes.
+-- confirmation per diagram; invalidated by a later drawing of the same diagram whose
+-- document changed (invalidated_by_drawing).
 CREATE TABLE confirmations (
-  id                        INTEGER PRIMARY KEY AUTOINCREMENT,
-  diagram_id                INTEGER NOT NULL REFERENCES diagrams (id) ON DELETE CASCADE,
-  drawing_id                INTEGER NOT NULL REFERENCES drawings (id) ON DELETE CASCADE,
-  state                     TEXT    NOT NULL CHECK (state IN ('confirmed', 'cancelled', 'invalidated')),
-  confirmed_at              TEXT    NOT NULL,
-  ended_at                  TEXT,
-  invalidated_by_snapshot   INTEGER REFERENCES snapshots (id) ON DELETE CASCADE,
-  recorded_at               TEXT,
-  record_pull_request_id    INTEGER REFERENCES pull_requests (id) ON DELETE SET NULL,
-  cancel_recorded_at        TEXT,
+  id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id              INTEGER NOT NULL,
+  diagram_id              INTEGER NOT NULL,
+  drawing_id              INTEGER NOT NULL,
+  state                   TEXT    NOT NULL CHECK (state IN ('confirmed', 'cancelled', 'invalidated')),
+  confirmed_at            TEXT    NOT NULL,
+  ended_at                TEXT,
+  invalidated_by_drawing  INTEGER,
+  recorded_at             TEXT,
+  record_pull_request_id  INTEGER,
+  cancel_recorded_at      TEXT,
   CHECK ((state = 'confirmed') = (ended_at IS NULL)),
-  CHECK (state <> 'invalidated' OR invalidated_by_snapshot IS NOT NULL),
-  CHECK (cancel_recorded_at IS NULL OR state = 'cancelled')
+  CHECK ((state = 'invalidated') = (invalidated_by_drawing IS NOT NULL)),
+  CHECK (cancel_recorded_at IS NULL OR state = 'cancelled'),
+  UNIQUE (id, diagram_id),
+  FOREIGN KEY (diagram_id, project_id) REFERENCES diagrams (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (drawing_id, diagram_id) REFERENCES drawings (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (invalidated_by_drawing, diagram_id) REFERENCES drawings (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (record_pull_request_id, project_id) REFERENCES pull_requests (id, project_id) ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX confirmations_live ON confirmations (diagram_id) WHERE state = 'confirmed';
+CREATE INDEX confirmations_by_project ON confirmations (diagram_id, project_id);
+CREATE INDEX confirmations_by_drawing ON confirmations (drawing_id, diagram_id);
+CREATE INDEX confirmations_by_invalidation ON confirmations (invalidated_by_drawing, diagram_id);
+CREATE INDEX confirmations_by_record ON confirmations (record_pull_request_id, project_id);
 
 -- TBL-161 stage_passes (CTX-039) ← SPEC-035, SPEC-039 | terms: TERM-207
 -- A stage checkpoint passed: when every diagram and item table of the stage had a recorded
@@ -282,30 +326,37 @@ CREATE TABLE workshops (
   state       TEXT    NOT NULL CHECK (state IN ('open', 'closed')),
   opened_at   TEXT    NOT NULL,
   closed_at   TEXT,
-  CHECK ((state = 'closed') = (closed_at IS NOT NULL))
+  CHECK ((state = 'closed') = (closed_at IS NOT NULL)),
+  UNIQUE (id, project_id)
 );
 CREATE UNIQUE INDEX workshops_open ON workshops (project_id) WHERE state = 'open';
+CREATE INDEX workshops_by_project ON workshops (project_id);
 
 -- TBL-163 workshop_steps (CTX-040) ← SPEC-037, SPEC-039, SPEC-040 | terms: TERM-212
 -- One event storming step of a workshop, called a step to keep it apart from a CORTHEX stage.
 -- written_at is set when the agent reports the step written into the domain document.
 CREATE TABLE workshop_steps (
-  workshop_id      INTEGER NOT NULL REFERENCES workshops (id) ON DELETE CASCADE,
+  project_id       INTEGER NOT NULL,
+  workshop_id      INTEGER NOT NULL,
   step             TEXT    NOT NULL,
   confirmed_at     TEXT,
   written_at       TEXT,
-  pull_request_id  INTEGER REFERENCES pull_requests (id) ON DELETE SET NULL,
+  pull_request_id  INTEGER,
   CHECK (written_at IS NULL OR confirmed_at IS NOT NULL),
-  PRIMARY KEY (workshop_id, step)
+  PRIMARY KEY (workshop_id, step),
+  FOREIGN KEY (workshop_id, project_id) REFERENCES workshops (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (pull_request_id, project_id) REFERENCES pull_requests (id, project_id) ON DELETE CASCADE
 );
+CREATE INDEX workshop_steps_by_project ON workshop_steps (workshop_id, project_id);
+CREATE INDEX workshop_steps_by_pull_request ON workshop_steps (pull_request_id, project_id);
 
 -- TBL-164 sticky_notes (CTX-040) ← SPEC-037, SPEC-038, SPEC-041 | terms: TERM-213, TERM-214, TERM-215
 -- One note on a workshop board; its kind gives its colour, and a hotspot is a kind. Rules: an
--- agent's note carries a confidence label; an agent never removes a note a person made (the
--- code refuses it, SPEC-038).
+-- agent's note carries a confidence label and names its credential; an agent never removes a
+-- note a person made (the code refuses it, SPEC-038).
 CREATE TABLE sticky_notes (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  workshop_id    INTEGER NOT NULL REFERENCES workshops (id) ON DELETE CASCADE,
+  workshop_id    INTEGER NOT NULL,
   step           TEXT    NOT NULL,
   kind           TEXT    NOT NULL,
   body           TEXT    NOT NULL,
@@ -319,25 +370,36 @@ CREATE TABLE sticky_notes (
   removed_at     TEXT,
   CHECK ((made_by = 'agent') = (credential_id IS NOT NULL)),
   CHECK (made_by = 'owner' OR confidence IS NOT NULL),
+  UNIQUE (id, workshop_id),
   FOREIGN KEY (workshop_id, step) REFERENCES workshop_steps (workshop_id, step) ON DELETE CASCADE
 );
+CREATE INDEX sticky_notes_by_step ON sticky_notes (workshop_id, step);
 
 -- TBL-165 sticky_links (CTX-040) ← SPEC-038, SPEC-041 | terms: none
--- A line between two sticky notes of one workshop board.
+-- A line between two sticky notes of the same workshop board. Rule: an agent's line names its
+-- credential.
 CREATE TABLE sticky_links (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  from_note   INTEGER NOT NULL REFERENCES sticky_notes (id) ON DELETE CASCADE,
-  to_note     INTEGER NOT NULL REFERENCES sticky_notes (id) ON DELETE CASCADE,
-  made_by     TEXT    NOT NULL CHECK (made_by IN ('owner', 'agent')),
-  created_at  TEXT    NOT NULL,
-  removed_at  TEXT,
-  CHECK (from_note <> to_note)
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  workshop_id    INTEGER NOT NULL,
+  from_note      INTEGER NOT NULL,
+  to_note        INTEGER NOT NULL,
+  made_by        TEXT    NOT NULL CHECK (made_by IN ('owner', 'agent')),
+  credential_id  INTEGER REFERENCES agent_credentials (id) ON DELETE RESTRICT,
+  created_at     TEXT    NOT NULL,
+  removed_at     TEXT,
+  CHECK (from_note <> to_note),
+  CHECK ((made_by = 'agent') = (credential_id IS NOT NULL)),
+  FOREIGN KEY (from_note, workshop_id) REFERENCES sticky_notes (id, workshop_id) ON DELETE CASCADE,
+  FOREIGN KEY (to_note, workshop_id) REFERENCES sticky_notes (id, workshop_id) ON DELETE CASCADE
 );
+CREATE INDEX sticky_links_by_from ON sticky_links (from_note, workshop_id);
+CREATE INDEX sticky_links_by_to ON sticky_links (to_note, workshop_id);
 
 -- TBL-166 todos (CTX-041) ← SPEC-016, SPEC-017, SPEC-019, SPEC-023, SPEC-026, SPEC-029, SPEC-030, SPEC-031, SPEC-032, SPEC-033, SPEC-039, SPEC-042, SPEC-043 | terms: TERM-216, TERM-225, TERM-226
 -- One thing for the owner or an agent to answer or handle, made by the contexts that hand
--- work over; the owner's to-do and the agent to-do read it. A reflection entry holds every
--- accepted change set of one diagram (SPEC-026) through change_sets' link to it.
+-- work over; the owner's to-do and the agent to-do read it. Everything an entry is about
+-- belongs to its project, and a thread, change set or confirmation also to its diagram. A
+-- reflection entry holds every accepted change set of one diagram (SPEC-026).
 CREATE TABLE todos (
   id               INTEGER PRIMARY KEY AUTOINCREMENT,
   project_id       INTEGER NOT NULL REFERENCES project_spaces (id) ON DELETE CASCADE,
@@ -345,10 +407,10 @@ CREATE TABLE todos (
   kind             TEXT    NOT NULL CHECK (kind IN (
                      'confirm', 'proposal', 'question',
                      'comment', 'reflect', 'remove_from_pr', 'record_confirmation', 'record_cancel', 'write_step')),
-  diagram_id       INTEGER REFERENCES diagrams (id) ON DELETE CASCADE,
-  thread_id        INTEGER REFERENCES comment_threads (id) ON DELETE CASCADE,
-  change_set_id    INTEGER REFERENCES change_sets (id) ON DELETE CASCADE,
-  confirmation_id  INTEGER REFERENCES confirmations (id) ON DELETE CASCADE,
+  diagram_id       INTEGER,
+  thread_id        INTEGER,
+  change_set_id    INTEGER,
+  confirmation_id  INTEGER,
   workshop_id      INTEGER,
   step             TEXT,
   created_at       TEXT    NOT NULL,
@@ -361,27 +423,47 @@ CREATE TABLE todos (
   CHECK (kind NOT IN ('proposal', 'remove_from_pr') OR change_set_id IS NOT NULL),
   CHECK (kind NOT IN ('record_confirmation', 'record_cancel') OR confirmation_id IS NOT NULL),
   CHECK (kind <> 'write_step' OR (workshop_id IS NOT NULL AND step IS NOT NULL)),
+  CHECK ((thread_id IS NULL AND change_set_id IS NULL AND confirmation_id IS NULL) OR diagram_id IS NOT NULL),
+  UNIQUE (id, project_id),
+  FOREIGN KEY (diagram_id, project_id) REFERENCES diagrams (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (thread_id, diagram_id) REFERENCES comment_threads (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (change_set_id, diagram_id) REFERENCES change_sets (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (confirmation_id, diagram_id) REFERENCES confirmations (id, diagram_id) ON DELETE CASCADE,
+  FOREIGN KEY (workshop_id, project_id) REFERENCES workshops (id, project_id) ON DELETE CASCADE,
   FOREIGN KEY (workshop_id, step) REFERENCES workshop_steps (workshop_id, step) ON DELETE CASCADE
 );
 CREATE INDEX todos_open ON todos (side, project_id, created_at) WHERE closed_at IS NULL;
+CREATE INDEX todos_by_project ON todos (project_id);
+CREATE INDEX todos_by_diagram ON todos (diagram_id, project_id);
+CREATE INDEX todos_by_thread ON todos (thread_id, diagram_id);
+CREATE INDEX todos_by_change_set ON todos (change_set_id, diagram_id);
+CREATE INDEX todos_by_confirmation ON todos (confirmation_id, diagram_id);
+CREATE INDEX todos_by_workshop ON todos (workshop_id, project_id);
+CREATE INDEX todos_by_step ON todos (workshop_id, step);
 
 -- TBL-167 claims (CTX-041) ← SPEC-044, SPEC-045, SPEC-050 | terms: TERM-217
 -- One agent session holding one to-do alone. Rules: at most one live claim per to-do; a claim
--- names the credential that made it, so revoking the credential releases its claims.
+-- names the credential that made it, so revoking the credential releases its claims; its
+-- pull request belongs to the to-do's project.
 CREATE TABLE claims (
-  id              INTEGER PRIMARY KEY AUTOINCREMENT,
-  todo_id         INTEGER NOT NULL REFERENCES todos (id) ON DELETE CASCADE,
-  session         TEXT    NOT NULL CHECK (length(session) >= 1),
-  credential_id   INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT,
-  claimed_at      TEXT    NOT NULL,
-  last_write_at   TEXT    NOT NULL,
-  pull_request_id INTEGER REFERENCES pull_requests (id) ON DELETE SET NULL,
-  released_at     TEXT,
-  release_reason  TEXT    CHECK (release_reason IN ('released', 'idle', 'revoked', 'done')),
-  CHECK ((released_at IS NULL) = (release_reason IS NULL))
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id       INTEGER NOT NULL,
+  todo_id          INTEGER NOT NULL,
+  session          TEXT    NOT NULL CHECK (length(session) >= 1),
+  credential_id    INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT,
+  claimed_at       TEXT    NOT NULL,
+  last_write_at    TEXT    NOT NULL,
+  pull_request_id  INTEGER,
+  released_at      TEXT,
+  release_reason   TEXT    CHECK (release_reason IN ('released', 'idle', 'revoked', 'done')),
+  CHECK ((released_at IS NULL) = (release_reason IS NULL)),
+  FOREIGN KEY (todo_id, project_id) REFERENCES todos (id, project_id) ON DELETE CASCADE,
+  FOREIGN KEY (pull_request_id, project_id) REFERENCES pull_requests (id, project_id) ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX claims_live ON claims (todo_id) WHERE released_at IS NULL;
+CREATE INDEX claims_by_todo ON claims (todo_id, project_id);
 CREATE INDEX claims_by_credential ON claims (credential_id) WHERE released_at IS NULL;
+CREATE INDEX claims_by_pull_request ON claims (pull_request_id, project_id);
 
 -- TBL-168 tool_links (CTX-042) ← SPEC-046, SPEC-047 | terms: TERM-218
 -- A Notion page or Jira project linked to a project or one of its stages, with the status last
@@ -399,6 +481,7 @@ CREATE TABLE tool_links (
   removed_at      TEXT
 );
 CREATE UNIQUE INDEX tool_links_live ON tool_links (project_id, scope, url) WHERE removed_at IS NULL;
+CREATE INDEX tool_links_by_project ON tool_links (project_id);
 
 -- TBL-169 request_keys (operations) ← SPEC-001, SPEC-014 | terms: none
 -- The first answer to each write's request key (rule 3 of the spec), so the same key within
@@ -415,16 +498,18 @@ CREATE TABLE request_keys (
 CREATE INDEX request_keys_by_time ON request_keys (created_at);
 
 -- TBL-170 backups (operations) ← SPEC-052, SPEC-042 | terms: none
--- Each daily backup and its retry. name is the backup's file name without a path.
+-- Each daily backup and its retry, which may write the same file name. name is the backup's
+-- file name without a path.
 CREATE TABLE backups (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
-  name         TEXT    NOT NULL UNIQUE,
+  name         TEXT    NOT NULL,
   attempt      INTEGER NOT NULL CHECK (attempt IN (1, 2)),
   state        TEXT    NOT NULL CHECK (state IN ('running', 'succeeded', 'failed')),
   bytes        INTEGER,
   started_at   TEXT    NOT NULL,
   finished_at  TEXT,
-  removed_at   TEXT
+  removed_at   TEXT,
+  UNIQUE (name, attempt)
 );
 CREATE INDEX backups_by_time ON backups (started_at);
 
@@ -438,3 +523,4 @@ CREATE TABLE restore_rehearsals (
   rehearsed_at  TEXT    NOT NULL,
   note          TEXT
 );
+CREATE INDEX restore_rehearsals_by_backup ON restore_rehearsals (backup_id);
