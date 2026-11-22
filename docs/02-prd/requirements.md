@@ -119,12 +119,13 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 
 - No two requirements contradict each other. REQ-026 (rename and connect, Must) and REQ-046 (free canvas in a workshop, Should) both edit diagrams; the first release has only the first.
 - REQ-043 depends on the workshop (Should); until then stage 01's checkpoint is the confirmation of the DDD board drawn from the document (REQ-042).
+- Open for the workshop release, from the review of pull request 96: how the owner ends an open workshop without finishing it, which no requirement covers yet, and how REQ-042 reads for stage 01 while a workshop is open, since REQ-043 then passes it by step confirmations. Both are settled when the workshop is planned.
 - REQ-061, REQ-070 to REQ-072, REQ-074 to REQ-077 and REQ-080 are inferred targets with no source in the maintainer's words; they need the version freeze to keep them.
 - Every requirement has a priority.
 
 ## 5. What might be missing
 
-Checked against two independent lists: OWASP ASVS level 1 (authentication, session, access control, data protection, logging) and WCAG 2.2 level AA. Covered: authentication (REQ-062, REQ-066), agent credentials (REQ-064, REQ-065, REQ-078), access control for human-only acts (REQ-017, REQ-025, REQ-036), data protection (REQ-077), accessibility (REQ-074). Not covered, left for stage 04's exceptions: logging of refused requests and session expiry of the sign-in gate, which the gate provides today.
+Checked against two independent lists: OWASP ASVS level 1 (authentication, session, access control, data protection, logging) and WCAG 2.2 level AA. Covered: authentication (REQ-062, REQ-066), agent credentials (REQ-064, REQ-065, REQ-078), access control for human-only acts (REQ-017, REQ-025, REQ-036), data protection (REQ-077), accessibility (REQ-074). Not covered, left for stage 04's exceptions: logging of refused requests and session expiry of the sign-in gate, which the gate provides today. Stage 04 logs refused requests in its rule 8 and leaves session expiry to the gate.
 
 ## 6. Checkpoint
 
@@ -135,3 +136,4 @@ The scope freeze and the version freeze were asked together on 2026-11-23, with 
 - Stage-01 hotspots 3 to 9 and 14: answered as in section 3.
 - Approved items that this stage removes, defers or changes: none. The first release leaves out the workshop and the other Should and Could items, which the scope freeze approved.
 - Deleting the data of the running v2 server is not part of this checkpoint and will be asked on its own when v3 replaces v2.
+- Review corrections: after the review of pull request 96, section 4 gained the open question for the workshop release and section 5 names where the logging went. They passed their own checkpoint on 2026-11-23; no requirement changed.

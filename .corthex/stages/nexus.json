@@ -51,10 +51,15 @@
           "approved": "Stage 04 spec freeze for the first release: the fifty-two SPEC rows; a confirmation is refused while change sets wait for reflection; the limits and other choices of section 4 stand. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "The review corrections after pull request 96: SPEC-016 and SPEC-017 put an agent's comment or reply in the owner's to-do as a question; SPEC-032 asks the agent to record a cancel that came while the record waited; SPEC-002 clarified; rule 8 logs refused requests; section 4 lists the choices of SPEC-018, SPEC-019 and SPEC-023. With them, the stage-01 hotspot table names its stage-02 answers, and the requirements record an open question for the workshop release. No approved item removed, deferred or changed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
-      "updated": "2026-11-23T01:30:36+09:00"
+      "updated": "2026-11-23T01:42:11+09:00"
     },
     "05-erd": {
       "state": "in_progress",

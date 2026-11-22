@@ -299,18 +299,18 @@ The Diagram context holds the document version in the middle: Review and Confirm
 | --- | --- | --- | --- |
 | 1. During a workshop, is the source the board or the document? | CTX-040 | answered | The board, during a workshop (the maintainer's answer of 2026-11-23) |
 | 2. When the document changes after a confirmation, is the confirmation lifted? | CTX-039 | answered | Lift it and confirm again (the maintainer's answer of 2026-11-23) |
-| 3. When an element leaves the document, where do its comments stay? | CTX-038 | open | Stage 02. Recommended: move them to the diagram's comments, marked as from a removed element |
-| 4. Does v3 accept the current corthex-hub commands (push, todo, claim, comment, decide, reflect, status, record) as they are? | CTX-037, CTX-041 | open | Stage 02. The projects already on NEXUS send with these commands. Recommended: accept them as they are |
-| 5. Can the confirm button work on a phone? | CTX-039 | open | Stage 02. The decision "view and comment only on a phone" says no |
-| 6. Does each direct edit go out as its own pull request, or several together? | CTX-038 | open | Stage 02. Recommended: several together in one pull request |
-| 7. Is the layout (element positions) kept in NEXUS or in Git? | CTX-037 | open | Stage 05. Recommended: NEXUS, since it is not what the document means |
-| 8. Are the comments and checkpoint records of the running NEXUS moved to v3? | CTX-040, CTX-039 | open | Stage 02. Recommended: do not move them; keep them in the archive tag and the Git records |
-| 9. Is one diagram's confirmation one stage checkpoint (steps 1-b, 7 and 9 on the stage-01 board)? | CTX-039 | review in stage 02 | A guess, passed as drawn without an answer of its own; settle it in stage 02. On the stage-01 board the step confirmations of CTX-040 at steps 1-b, 7 and 9 are the stage's checkpoints; a CTX-039 confirmation covers the diagram of another stage |
+| 3. When an element leaves the document, where do its comments stay? | CTX-038 | answered | Move them to the diagram's comments, marked as from a removed element (stage 02, REQ-033) |
+| 4. Does v3 accept the current corthex-hub commands (push, todo, claim, comment, decide, reflect, status, record) as they are? | CTX-037, CTX-041 | answered | Accept them as they are (stage 02, REQ-018) |
+| 5. Can the confirm button work on a phone? | CTX-039 | answered | No: view and comment only (stage 02, REQ-068) |
+| 6. Does each direct edit go out as its own pull request, or several together? | CTX-038 | answered | Several together, per diagram (stage 02, REQ-032) |
+| 7. Is the layout (element positions) kept in NEXUS or in Git? | CTX-037 | answered | In NEXUS (stage 02, REQ-015; stage 05 shows its table) |
+| 8. Are the comments and checkpoint records of the running NEXUS moved to v3? | CTX-040, CTX-039 | answered | No; they stay in the archive tag and the Git records (stage 02, REQ-019) |
+| 9. Is one diagram's confirmation one stage checkpoint (steps 1-b, 7 and 9 on the stage-01 board)? | CTX-039 | answered | A stage passes once every diagram and item table of it has a recorded confirmation; on the stage-01 board the step confirmations at steps 1-b, 7 and 9 do (stage 02, REQ-042, REQ-043) |
 | 10. Do v2's cross-check between pictures, notifications and version history go into the first version? |  | answered | Later, not in the first version (the maintainer's answer of 2026-11-23) |
 | 11. The direct-edit scope was written two ways in the project's records: move, rename and connect only, or a free canvas on the stage-01 board with move, rename and connect elsewhere | CTX-038, CTX-040 | answered | Follows the redesign decision the maintainer approved on 2026-11-22: a free canvas on the stage-01 board |
-| 12. Diagram and Confirmation rules inferred by the AI: one confirmation per diagram, a diagram from one snapshot, a layout that never changes meaning | CTX-037, CTX-039 | review in stage 02 | Approved as drawn; revisit the rules when writing requirements |
-| 13. The command rows of every context | CTX-037, CTX-038, CTX-039, CTX-040, CTX-041, CTX-042 | review in stage 02 | Approved as drawn; revisit the commands when writing requirements |
-| 14. A rejected proposal or a cancelled edit leaves its comment thread open for the owner to close | CTX-038 | review in stage 02 | Inferred in the review corrections; confirm when writing requirements |
+| 12. Diagram and Confirmation rules inferred by the AI: one confirmation per diagram, a diagram from one snapshot, a layout that never changes meaning | CTX-037, CTX-039 | answered | Carried into the requirements as written (stage 02, REQ-001 to REQ-066) |
+| 13. The command rows of every context | CTX-037, CTX-038, CTX-039, CTX-040, CTX-041, CTX-042 | answered | Carried into the requirements as written (stage 02, REQ-001 to REQ-066) |
+| 14. A rejected proposal or a cancelled edit leaves its comment thread open for the owner to close | CTX-038 | answered | The thread stays open until the owner closes it (stage 02, REQ-024, REQ-034) |
 
 ## 7. Glossary
 
@@ -366,6 +366,8 @@ Checkpoints 1 to 3 were asked together and passed on 2026-11-23 in the project's
 3. Core aggregate rules: the Diagram, Review and Confirmation rules in section 4, approved as drawn; hotspots 12 and 13.
 
 Corrections after the pass: the review of the stage's first pull request found ten points, and seven are corrected here (the to-do's inputs, the owner of Domain document updated, the claim release, the agent's route into the workshop, the claim and credential lane, the credential commands and the close path of a comment). They passed a checkpoint of their own on 2026-11-23: the maintainer approved the recommendation through the delegate they named for checkpoints, as recorded in the project's records.
+
+Hotspots 3 to 9 and 12 to 14 were answered at the stage-02 checkpoint, and section 6 names those answers since the review of pull request 96. That correction passed its own checkpoint on 2026-11-23 and changes no approved item.
 
 Approved items that this stage drops or changes: v2 was archived as a whole by the maintainer's decision of 2026-11-22, and section 3 shows what carries over; this stage has no other approved items.
 
