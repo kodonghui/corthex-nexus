@@ -72,16 +72,27 @@
       "updated": "2026-11-23T01:47:37+09:00"
     },
     "05-erd": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Draft the schema; the checkpoint is asked before the documents go to the repository",
-      "updated": "2026-11-23T01:30:36+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Stage 05 schema freeze before the API contract: the 26 tables TBL-146 to TBL-171 in db/nexus.sql; SQL that SQLite 3 runs, where it runs decided in stage 11; every snapshot kept with its documents once by hash and the elements of every drawing. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        },
+        {
+          "approved": "The review corrections of pull request 98, before the schema was applied anywhere, so migration 0001 holds them: keys that include the project or the diagram keep drawings, threads, change sets, confirmations, workshop steps, to-dos and claims within one project and one diagram, and a reflected change set and an invalidated confirmation name a drawing of their diagram; a document hash is lowercase hex, only a failed drawing says where it failed, a sticky line joins notes of one workshop and names an agent's credential, a backup's retry is its own row, and every foreign key has an index; a test deletes one of two filled projects and checks the other is whole. Approved items removed, deferred or changed: none. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        }
+      ],
+      "next": "Stage 06: write the API contract from the spec and the schema",
+      "updated": "2026-11-23T02:12:24+09:00"
     },
     "06-api": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "",
-      "updated": "2026-11-23T00:00:00+09:00"
+      "next": "Draft the API contract; the checkpoint is asked before the documents go to the repository",
+      "updated": "2026-11-23T02:00:54+09:00"
     },
     "07-sitemap": {
       "state": "not_started",
