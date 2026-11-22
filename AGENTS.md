@@ -1,35 +1,34 @@
 # Working on NEXUS
 
-- This public repository owns the NEXUS server, browser views, design tokens and stage 01–12 sources. English is the source; README and docs have matching `.md` and `.ko.md` copies. Use `the maintainer` in repository text. Private records, personal names and private publication/Miro links stay in the conversation or Notion.
-- The hub plugin and core skills remain in `kodonghui/corthex`. `hub-ref.json` pins their exact commit. Changes to their snapshot format or page template require linked upstream/product PRs and the product checks against the proposed pin. Never silently follow a branch tip or fabricate compatibility from an aggregate CI result.
-- `nexus/` is plain JavaScript with no server runtime dependencies. Wrangler is its only development dependency. Prefer `node:http` and `node:sqlite` for the approved standalone runtime. Ask before adding a runtime dependency or a repository build/development dependency. SQL stays in `nexus/src/store.js`; a SQLite batch is one transaction. Keep the Worker build and tests working.
-- Browser-only Excalidraw, ERD Editor, React and React DOM are approved by the stage 02 D11/editor-trial decision, and the IBM Plex Sans KR and IBM Plex Mono font packages (@fontsource 5.3.0, OFL 1.1) by the redesign's checkpoint 3 of 2026-11-08. Their pins, licenses and reproducible prebuilt files belong to the browser build. They add no server dependency, third-party CDN or Access bypass. The2026-11-04 maintainer decision permits public immutable content-hashed code/style/font caching at the same Access-protected origin; HTML/API/project data and refusals remain no-store. Stage 09 tokens are frozen.
-- The maintainer's server runs the approved standalone runtime behind Access and a Tunnel, bound to `127.0.0.1`. Keep real IPs, SSH names/users/ports/paths/keys, Tunnel IDs/credentials/certificates, Access team/AUD values and service tokens outside Git. Never copy keys or authentication files between devices. Database files, backups and logs stay on the server. Examples use placeholders.
-- Scope: one person on their own devices, server behind Access. Test network authentication, cross-site writes, untrusted text/requests, concurrent/repeated writes and recovery. Findings requiring an attacker to have already modified the person's private local settings are recorded without blocking this iteration.
-- Work through PRs. Update stage 10/12 source first; Notion follows. Keep original result history and distinguish fixture, mocked, real server, page measurement and visual evidence. Preserve working changes before moving them. Main merge, production switch and tags follow the conditional release decision below. First real-repository upload and old Worker/D1 deletion still require their separate confirmations.
+NEXUS v3 is rebuilt from stage 01 in this repository, starting on 2026-11-22. v2 is archived at the tag `archive/nexus-v2-2026-11-22`, and the branch `legacy/v2` serves the running production instance until v3 replaces it. These rules hold for v3.
 
-## Checks before every authored commit
+## A public repository
 
-Prepare a clean checkout of the exact hub pin with `python tools/fetch_hub_ref.py --destination <outside-checkout-path>` and set `CORTHEX_HUB_CHECKOUT` to it. Test commands do not fetch.
+- This repository is public. Never put in Git secrets, credentials, tokens, private keys, database files, backups or logs; private records; personal names, email addresses or home paths; or server coordinates such as real addresses, SSH names, users, ports and paths, Tunnel IDs or Access team and AUD values. Examples use placeholders.
+- Refer to the person who owns the project as "the maintainer". Decisions with their exact words, private records and private links stay in the project's records outside Git.
+- Never copy keys or authentication files between devices.
+
+## Sources and documents
+
+- English is the source. Every README and every document under `docs/` has a matching Korean copy beside it, `NAME.md` and `NAME.ko.md`, changed in the same pull request.
+- `.corthex/project.json` declares the project for the hub in the `corthex` skill's project-file format, with one part, `nexus`, and each stage's source. The stage sources are the truth: change the source first, and the human views and records follow. `.corthex/stages/nexus.json` records the part's stage progress; record a checkpoint only after the maintainer passes it, with its date and where it was given.
+- The hub plugin and the core skills stay in `kodonghui/corthex`. `hub-ref.json` pins their exact commit, and `.github/workflows/corthex-nexus-push.yml` runs the hub at the same commit. Change both in one pull request after checking this repository against the new hub; never follow a branch tip.
+- Ask before adding a runtime dependency or a build or development dependency.
+
+## Pull requests
+
+- Work through pull requests to `main`. `main` is protected and requires the `all-checks` status. `legacy/v2` takes only fixes to the running instance.
+- Every pull request gets a Claude review: `/code-review`, plus `/security-review` when the change touches security, such as access, secrets, untrusted input, the network or the push job. Leave the findings and the outcome of each as a PR comment.
+- Just before merge, request a single Codex review with the PR comment `@codex review`. If it fails on a usage limit, decide on the Claude review and note the failure in the PR.
+
+## Checks
+
+Use Python 3.12 or later, Git and Bash. Prepare a clean checkout of the exact hub pin outside this checkout and set `CORTHEX_HUB_CHECKOUT` to it; the tests fetch nothing. Run before every commit:
 
 ```sh
+python tools/fetch_hub_ref.py --destination <path-outside-this-checkout>
 python -m unittest discover -s tests -v
-node --test nexus/test/*.test.js
-node nexus/node_modules/wrangler/bin/wrangler.js deploy --dry-run --config nexus/wrangler.jsonc --outdir <outside-checkout-path>
+python tools/public_history_check.py HEAD
 ```
 
-Use Node 24 LTS or later. Run the pinned external contract suite in `.github/workflows/check.yml` for contract, server or hub-boundary changes, and the full-history secret/public-safety checks before publishing imported history. No test uses real credentials or a paid API. Browser flows use synthetic development data and report actual effects.
-
-Core main-merge gates require C1 0.2.0, PR C and PR D; the latest decision authorizes earlier drafts of TASK-244/245/247. Plan approval/import alone is not release approval; the separate conditional-release decision below governs release.
-
-## Conditional release decision of2026-11-04
-
-The maintainer authorized drafts of upstream TASK-244/245/247 now; TASK-246 follows PR C. Do not merge upstream core to main before the MEMORY0.2.0 tag and PR C. Integrate latest main in the NEXUS integration branch without changing main during MEMORY checks.
-
-Conditional release is preapproved after REQ-149 P95<=3s, REQ-124 after-body processing<1s, all710 QA cases adjudicated with zero Must failures, migration/recovery rehearsal, core main integration after MEMORY/PR C, and required checks plus Code/Security reviews. Then merge product#1/upstream#89, switch/migrate production and tag, reporting remaining issues. First real-repository upload still requires REQ-107 confirmation. Keep Worker/D1 for14days after the switch and ask before deletion. If any condition remains, ask once with numbers and wait for the answer before release. This decision supersedes the earlier separate final-release question; it does not approve new paid plans or other contract changes.
-
-## Patch release authorization of2026-11-05
-
-The maintainer adopted the NEXUS0.2.1 follow-up instruction in this chat and authorized its steps1–4: release the reviewed BUG-563–572 fixes to production with a consistent current backup, runtime switch, read-only checks and a prepared compatible rollback; align both hub manifests, skill metadata and CLI version at0.2.1 and publish the matching hub/server tags; permit installed Python3.13 hub execution only within the isolated synthetic walk; create one private synthetic PR repository; and correct only the18 shared-example applicability cases while preserving old judgments, response codes, schemas and server behavior. Close the43 original screen procedures against their exact criteria and record any newly found fixes. Phase2 remains on hold.
-
-Use the narrowest per-run execution settings and preserve global configuration, credentials and authentication files. Never transfer keys between machines. Ask once before changing Access settings for an isolated expiry test, naming the exact setting, duration and rollback. Collect truly unreproducible provider/Access conditions and their evidence options into one counted question; mocks never silently become real-environment proof. This patch approval supersedes a separate deployment/tag confirmation for0.2.1 only, and does not authorize old Worker/D1 deletion, MEMORY development, new paid plans, new dependencies or phase2.
+The tests check the hub pin, the public-safety rules on the tree, and the pinned hub reading `.corthex/` and running the push job's lines on this tree without a server. `.github/workflows/check.yml` runs them, the history check and Gitleaks over the whole history, and reports `all-checks`. When v3 code arrives, add its tests and build to that workflow and to this list. No test uses real credentials or a paid API.

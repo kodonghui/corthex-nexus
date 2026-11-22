@@ -23,13 +23,15 @@ PATTERNS = {
     "email address": re.compile(r"[A-Za-z0-9._%+-]+@(?!example\.(?:com|org)\b)[A-Za-z0-9.-]+\.[A-Za-z]{2,}"),
     "personal home path": re.compile(r"/home/[a-z][a-z0-9_-]*/|/Users/[A-Za-z][^/\s]*/|[A-Za-z]:\\Users\\[^\\\s%]+"),
 }
-_constants_file = ROOT / "nexus/ui/vendor/public-constants.json"
-PUBLIC_CONSTANTS = json.loads(_constants_file.read_text(encoding="utf8"))["entries"] if _constants_file.is_file() else []
+# Reviewed public constants of v2's vendored files. v2's files are gone from the tree but stay in the history
+# that tools/public_history_check.py reads, so the list and the exceptions below keep their v2 paths.
+_constants_file = ROOT / "tests/public_constants.json"
+PUBLIC_CONSTANTS = json.loads(_constants_file.read_text(encoding="utf8"))["entries"]
 
 
 def checked_text(path, text, label):
-    # These reviewed systemd instance names are executable public syntax, not
-    # mailboxes. Limit the exception to these exact units and owning files.
+    # These reviewed systemd instance names of v2 are executable public syntax,
+    # not mailboxes. Limit the exception to these exact units and owning files.
     relative = Path(path).as_posix()
     if label == "email address" and relative in {
         "nexus/ops/deploy-dev.sh", "nexus/README.md", "nexus/README.ko.md",

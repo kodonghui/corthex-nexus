@@ -2,20 +2,12 @@
 
 [English](README.md)
 
-NEXUS는 프로젝트의 단계·그림·논의를 인증된 브라우저 화면으로 보여 줍니다. 이 공개 저장소에는 서버, 화면, 01–12단계 원본과 확정된 디자인 토큰이 있습니다. 별도로 배포하는 **corthex-nexus 허브 플러그인은 [kodonghui/corthex](https://github.com/kodonghui/corthex/tree/main/plugins/corthex-nexus)에 남고**, 하네스 마켓플레이스로 설치합니다.
+NEXUS는 프로젝트의 단계·그림·논의를 비공개 브라우저 화면으로 보여 줍니다. **NEXUS v3는 2026-11-22부터 이 저장소에서 01단계부터 다시 만들고 있습니다.** 아직 v3 제품은 없으며, 단계 원본과 그다음 코드가 풀 리퀘스트로 이곳에 들어옵니다.
 
-관리자는 2026-11-04에 저장소 분리와 독립 서버 계획을 승인했습니다. `main`에는 이제0.2 독립 서버와 브라우저 구현이 통합되어 있으며 이후 작업은 `codex/nexus-0.2`를 거칩니다. 운영 선택과 출시 태그는 [조건부 출시 결정](AGENTS.md)과 날짜가 있는 QA/WBS 근거를 따릅니다. 실제 선택된 운영 런타임은 출시·복구 기록에서 확인합니다. Workers는 빌드·검사 호환성을 유지합니다.
+- **v2는 태그 [`archive/nexus-v2-2026-11-22`](https://github.com/kodonghui/corthex-nexus/tree/archive/nexus-v2-2026-11-22)에 보관**되어 있습니다. 서버, 브라우저 화면, 디자인 토큰, 단계 원본과 QA 기록이 그대로 있습니다.
+- **브랜치 [`legacy/v2`](https://github.com/kodonghui/corthex-nexus/tree/legacy/v2)가 지금 운영 중인 인스턴스를 맡습니다.** v3가 대신할 때까지 운영 인스턴스의 수정은 이 브랜치로 갑니다.
+- **허브 플러그인과 코어 스킬은 [kodonghui/corthex](https://github.com/kodonghui/corthex)에 남습니다.** `hub-ref.json`은 이 저장소의 검사와 push 작업이 쓰는 허브 커밋을 고정합니다.
 
-## 읽을 곳
+## 작업하기
 
-- [서버 설치](nexus/README.ko.md), [작업 계획](docs/10-wbs/nexus.ko.md), [QA와 실제 결과](docs/12-qa/nexus.ko.md).
-- [OpenAPI 계약](docs/06-api/nexus.openapi.yaml), [도메인](docs/01-domain/nexus.ko.md), [데이터](docs/05-erd/nexus.ko.md), [화면](docs/08-screens/nexus/README.ko.md), [디자인](docs/09-mockup/nexus/README.ko.md).
-- [저장소 규칙](AGENTS.md), [보안 범위](SECURITY.ko.md), [이주와 이력](docs/history/README.ko.md).
-
-`hub-ref.json`은 허브와 서버를 함께 검사하는 원래 저장소의 커밋을 고정합니다. `python tools/fetch_hub_ref.py --destination <저장소-밖-절대경로>`로 준비하고 `CORTHEX_HUB_CHECKOUT`을 설정합니다. 시험은 고정 커밋을 확인하며 네트워크에서 가져오지 않습니다. Node 24 LTS+, Python 3.8+로 AGENTS.md의 검사를 실행하고 외부 계약 도구 버전은 CI에 고정합니다.
-
-## 옮겨 온 이력
-
-**2026-11-04 KST**에 `kodonghui/corthex`에서 옮겼습니다. 원본 main은 `855bc6b463a4a5c57c949d1166b58db3915587c2`, 원본 통합 기준은 `76508243558abaedcc15bb422c454341845fcabd`입니다. 뽑은 머리는 각각 `93adb595f439e07e8a3476f3bd564105d034a5b6`, `23fb72a4a1bc003e18942cb48fb9d97c4f9b30b2`입니다. [커밋 대응표](docs/history/2026-11-04-commit-map.txt)와 [브랜치 대응표](docs/history/2026-11-04-branch-map.json)로 QA·Notion의 예전 SHA를 찾습니다. 예전 PR·이슈는 `kodonghui/corthex#번호`로 구분합니다.
-
-DB·백업·자격과 실제 배포 접속값은 저장소 밖에 둡니다. 실제 프로젝트 스냅샷 첫 보내기와 기존 Worker/D1 삭제는 각각 별도 확인을 받습니다. 전환 뒤 기존 Worker/D1은 최소14일 그대로 보존합니다. 새 origin을 공개한 뒤에는 실제 쓰기 관측과 관계없이13개 전체 테이블 DB가 기준이므로 최신 일관 백업에 검증된 호환0.2 런타임이나 검토한 수정을 사용합니다. 옛 snapshot 전용 D1으로만 돌리는 것은 무손실 복구가 아닙니다. [이주·복구 경계](docs/12-qa/runs/2026-11-05-origin-recovery.ko.md)를 따르며 운영 선택과 태그는 위의 조건부 출시 근거를 따릅니다.
+저장소 규칙과 검사는 [AGENTS.md](AGENTS.md)에, 보안 범위는 [SECURITY.ko.md](SECURITY.ko.md)에 있습니다. `.corthex/project.json`은 허브에 프로젝트와 단계를 알리며 파트는 `nexus` 하나이고, `.corthex/stages/nexus.json`은 그 파트의 진행을 기록합니다. 커밋이 `main`에 들어오면 `NEXUS push` 워크플로가 고정된 허브로 기본 브랜치의 스냅샷을 관리자의 NEXUS 서버에 보냅니다.
