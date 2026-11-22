@@ -14,12 +14,14 @@ The tests use only Python's own `sqlite3`, the SQLite that D1 also runs; nothing
 - Deleting a project space deletes every row of it in every table, and nothing of another project.
 - Every foreign key has an index whose first columns are its columns, except the keys to agent credentials, which
   are never deleted.
-- Each table's terms name only aggregates of the domain design in the table's own context, and every aggregate has a
-  table or is listed as without one, so NEXUS finds no difference between the tables and the DDD board.
+- Each table's terms name only aggregates of the domain design in the table's own context, every aggregate has a
+  table, and the terms listed as without a table are exactly the read models no table names, so NEXUS finds no
+  difference between the tables and the DDD board.
 """
 
 import re
 import sqlite3
+import unicodedata
 import unittest
 from contextlib import closing
 from pathlib import Path
@@ -90,15 +92,28 @@ class SchemaTest(unittest.TestCase):
 
     def test_table_terms_are_the_aggregates_of_the_domain_design(self):
         domain = DOMAIN.read_text(encoding="utf-8")
-        glossary = {name.strip().lower(): (term, context) for term, name, context in re.findall(
-            r"^\| (TERM-\d{3}) \| ([^|]+) \|[^|]*\| (CTX-\d{3}) \|", domain, re.M)}
+        glossary, read_models = {}, set()
+        for row in domain.splitlines():
+            cells = [cell.strip() for cell in row.strip().strip("|").split("|")]
+            if row.startswith("| TERM-") and len(cells) >= 4:
+                # NEXUS matches names ignoring Unicode case and spacing and takes the first of duplicate rows.
+                glossary.setdefault(word(cells[1]), (cells[0], cells[3]))
+                if "(read model)" in cells[2]:
+                    read_models.add(cells[0])
+        contexts = domain.split("## 3.", 1)[1].split("\n## ", 1)[0]
         aggregates = {}
-        for context, names in re.findall(r"^\| (CTX-\d{3}) [^|]+ \| \w+ \| ([^|]+) \| `\w+` \|$", domain, re.M):
-            for name in names.split(","):
-                term, term_context = glossary[name.strip().lower()]
-                self.assertEqual(term_context, context, "%s sits in another context in the glossary" % name)
+        rows = [row for row in contexts.splitlines() if row.startswith("| CTX-")]
+        self.assertTrue(rows, "no context row read from section 3 of the domain design")
+        for row in rows:
+            cells = [cell.strip() for cell in row.strip().strip("|").split("|")]
+            context = cells[0].split()[0]
+            names = [name for name in cells[2].split(",") if name.strip()]
+            self.assertTrue(names, "%s lists no aggregate" % context)
+            for name in names:
+                self.assertIn(word(name), glossary, "aggregate %s has no glossary row" % name.strip())
+                term, term_context = glossary[word(name)]
+                self.assertEqual(term_context, context, "%s sits in another context in the glossary" % name.strip())
                 aggregates[term] = context
-        self.assertTrue(aggregates, "no aggregate read from the domain design")
         sql = SCHEMA.read_text(encoding="utf-8")
         named = set()
         for line in sql.splitlines():
@@ -110,8 +125,11 @@ class SchemaTest(unittest.TestCase):
                     self.assertIn(term, aggregates, "not an aggregate of the domain design")
                     self.assertEqual(aggregates[term], head.group(3), "the aggregate sits in another context")
                 named.add(term)
-        without = set(re.findall(r"TERM-\d{3}", re.search(r"^-- without a table: (.+)$", sql, re.M).group(1)))
-        self.assertEqual(set(aggregates) - named - without, set(), "aggregates without a table")
+        self.assertEqual(set(aggregates) - named, set(), "aggregates without a table")
+        without = re.search(r"^-- without a table: (TERM-\d{3}(?:, TERM-\d{3})*)$", sql, re.M)
+        self.assertIsNotNone(without, "db/nexus.sql has no '-- without a table:' line")
+        self.assertEqual(set(without.group(1).split(", ")), read_models - named,
+                         "the terms without a table are the read models no table names")
 
     def test_foreign_keys_point_at_real_columns(self):
         _, columns, keys = shape(SCHEMA)
@@ -254,6 +272,11 @@ REFUSED = {
     "the same backup attempt twice": (
         "INSERT INTO backups (name, attempt, state, started_at) VALUES (?, 1, 'failed', ?)", (backup_name(1), T)),
 }
+
+
+def word(name):
+    """A glossary name as NEXUS matches it: Unicode NFC, no spacing, lower case."""
+    return re.sub(r"\s+", "", unicodedata.normalize("NFC", name)).lower()
 
 
 def fill_project(db, n, name):
