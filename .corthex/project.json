@@ -16,7 +16,8 @@
     "01-domain": {
       "human": "nexus",
       "source": "docs/01-domain/",
-      "truth": "source"
+      "truth": "source",
+      "note": "The source is docs/01-domain/nexus.md, named after the part nexus because the hub gives a part only to files that start with it. Event storming runs inside NEXUS by the maintainer's decision of 2026-11-22; the v3 draft was reviewed on a private page in the project's records instead of Miro, and NEXUS draws the DDD board from this source. Way of working: one-pass draft, with checkpoints 1 to 3 asked together."
     },
     "02-prd": {
       "human": "nexus",
