@@ -154,6 +154,9 @@ class SchemaTest(unittest.TestCase):
                     db.execute(sql, values)
             db.execute("INSERT INTO backups (name, attempt, state, started_at) VALUES (?, 2, 'running', ?)",
                        (backup_name(1), T))
+            # The hub reports a merge without its commit (stage-06 API corrections).
+            db.execute("INSERT INTO pull_requests (project_id, purpose, number, state, reported_at, closed_at, "
+                       "credential_id) VALUES (1, 'record', 2, 'merged', ?, ?, 1)", (T, T))
 
     def test_deleting_a_project_keeps_only_the_other(self):
         with closing(load(SCHEMA)) as db:
@@ -271,6 +274,12 @@ REFUSED = {
         "failed_path, drawn_at) VALUES (1, 101, 102, 'b', 'drawn', 'd', 'db/nexus.sql', ?)", (T,)),
     "the same backup attempt twice": (
         "INSERT INTO backups (name, attempt, state, started_at) VALUES (?, 1, 'failed', ?)", (backup_name(1), T)),
+    "a comment whose detail is not JSON": (
+        "INSERT INTO comments (thread_id, seq, author, body, detail, created_at) VALUES (101, 2, 'owner', 'Why?', '{', ?)",
+        (T,)),
+    "a change set whose detail is not JSON": (
+        "INSERT INTO change_sets (project_id, diagram_id, drawing_id, origin, state, created_at, detail) "
+        "VALUES (1, 101, 101, 'direct_edit', 'accepted', ?, 'reason')", (T,)),
 }
 
 

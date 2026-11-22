@@ -66,10 +66,15 @@
           "approved": "The review corrections after pull requests 96 and 97, asked in two checkpoints: SPEC-016 and SPEC-017 put an agent's comment or reply in the owner's to-do as a question, and an open thread waits only on the side that did not write last; SPEC-023 cancels an edit already in an open reflection pull request, as REQ-028 says; SPEC-032 accepts the record of a confirmation invalidated while it waited and records a cancel that came meanwhile; SPEC-002 clarified; rule 8 logs refused requests; section 4 lists the choices of SPEC-018, SPEC-019, SPEC-023 and SPEC-032. Approved rows changed, each asked on its own: SPEC-016, SPEC-017, SPEC-023 and SPEC-032; no requirement or flow changed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "The API corrections found by the stage-06 contract against the pinned hub, each asked on its own: rule 3 names the writes the hub queues and every owner write, and a push repeats by its commit and a claim or a release by its session; SPEC-001 leaves the 1 MB file limit to the hub; SPEC-002 creates the space on a first send from a valid agent credential, the owner's confirmation being the hub's push --first, so REQ-003 is kept by that gate; SPEC-006, SPEC-008 and SPEC-009 are left out of the first release as their preconditions allow, and the rows stay active. Approved rows changed: rule 3, SPEC-001 and SPEC-002; no requirement or flow changed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
-      "updated": "2026-11-23T01:47:37+09:00"
+      "updated": "2026-11-23T03:10:00+09:00"
     },
     "05-erd": {
       "state": "done",
@@ -88,22 +93,33 @@
           "approved": "The trace correction after the first push of the schema to NEXUS, which opened 22 differences with the DDD board: each table's comment names the aggregate of the domain design it belongs to, or none, rather than every glossary term it holds; the five read models are listed as without a table; a test checks that table terms are aggregates in the table's context and that every aggregate has a table. No table, column or constraint changed. Approved items removed, deferred or changed: none. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "The API corrections found by the stage-06 contract against the pinned hub, each asked on its own, before the schema was applied anywhere, so migration 0001 holds them: comments.detail and change_sets.detail, JSON objects for the hub's fields without a column; pull_requests may be merged without merge_commit. No table added or removed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-23T02:28:58+09:00"
+      "updated": "2026-11-23T03:10:00+09:00"
     },
     "06-api": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Draft the API contract; the checkpoint is asked before the documents go to the repository",
-      "updated": "2026-11-23T02:00:54+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Stage 06 contract freeze for the first release: the 51 operations API-242 to API-292 in api/openapi.yaml, the agent family taking the pinned hub's wire unchanged and the owner family apart, the 59 error codes and the choices of section 3; the four items of section 6 answered with the recommendations, with the stage-04 spec and the stage-05 schema corrected in the same pull request. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        }
+      ],
+      "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
+      "updated": "2026-11-23T03:10:00+09:00"
     },
     "07-sitemap": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "",
-      "updated": "2026-11-23T00:00:00+09:00"
+      "next": "Draft the sitemap; the checkpoint is asked before the documents go to the repository",
+      "updated": "2026-11-23T03:10:00+09:00"
     },
     "08-screen-states": {
       "state": "not_started",

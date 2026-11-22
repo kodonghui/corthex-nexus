@@ -154,3 +154,13 @@ Approved items that the corrections remove, defer or change: none; the 26 tables
 ### Trace correction
 
 The first push of the schema to NEXUS opened 22 differences between the tables and the DDD board: the table comments named every glossary term a table holds, while the stage contract names only the aggregates it represents, and NEXUS compares those with the board. A third checkpoint on 2026-11-23 approved naming each table's aggregate, or none, through the same delegate; a test now checks it. No table, column or constraint changed.
+
+### API corrections
+
+Writing the API contract against the pinned hub found fields the hub sends that have no column, and a merge the hub reports without its commit. The stage-06 checkpoint on 2026-11-23 approved three changes, each on its own, through the same delegate. The schema has not been applied anywhere, so migration 0001 holds them:
+
+- comments.detail, a JSON object for what the hub sends with an entry and no column holds: its quote, asks, look_first and a decision's link.
+- change_sets.detail, a JSON object for a proposal as the hub sends it: its reason, change text, items, added IDs and proposed document.
+- pull_requests may be merged without merge_commit: the hub reports a commit only with a reflection, and a record's merge needs none.
+
+No table was added or removed, and no other column or constraint changed.

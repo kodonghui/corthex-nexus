@@ -135,6 +135,7 @@ CREATE TABLE comments (
   author         TEXT    NOT NULL CHECK (author IN ('owner', 'agent')),
   credential_id  INTEGER REFERENCES agent_credentials (id) ON DELETE RESTRICT,
   body           TEXT    NOT NULL CHECK (length(body) >= 1),
+  detail         TEXT    NOT NULL DEFAULT '{}' CHECK (json_valid(detail)),
   created_at     TEXT    NOT NULL,
   CHECK ((author = 'agent') = (credential_id IS NOT NULL)),
   UNIQUE (thread_id, seq)
@@ -150,7 +151,6 @@ CREATE TABLE pull_requests (
   reported_at    TEXT    NOT NULL,
   closed_at      TEXT,
   credential_id  INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT,
-  CHECK (state <> 'merged' OR merge_commit IS NOT NULL),
   CHECK ((state = 'open') = (closed_at IS NULL)),
   UNIQUE (project_id, number),
   UNIQUE (id, project_id)
@@ -169,6 +169,7 @@ CREATE TABLE change_sets (
   decided_at            TEXT,
   pull_request_id       INTEGER,
   reflected_drawing_id  INTEGER,
+  detail                TEXT    NOT NULL DEFAULT '{}' CHECK (json_valid(detail)),
   CHECK (origin = 'direct_edit' OR (thread_id IS NOT NULL AND credential_id IS NOT NULL)),
   CHECK (origin = 'proposal' OR (credential_id IS NULL AND state <> 'proposed')),
   CHECK ((state = 'reflected') = (reflected_drawing_id IS NOT NULL)),
