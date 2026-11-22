@@ -2,7 +2,7 @@
 
 [한국어](README.ko.md)
 
-Status: draft, waiting for its checkpoint.
+Status: passed on 2026-11-23.
 
 Inputs: the stage-02 requirements ([requirements.md](../02-prd/requirements.md)), passed on 2026-11-23, and the stage-01 contexts and glossary ([nexus.md](../01-domain/nexus.md)). Each flow is one goal that the owner or an agent comes with; its file holds one Mermaid flowchart, and each step names the requirements it serves.
 
@@ -44,3 +44,9 @@ Every Must requirement appears in a flow except three that hold on every screen;
 ## 4. Checkpoint
 
 Each flow's main path and its failure paths are reviewed. Approved items that this stage removes, defers or changes: none.
+
+Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
+
+- The thirteen flows pass with their main and failure paths.
+- A failed daily backup is not a new requirement: stage 04 writes it as an exception of REQ-076 and shows a warning at the top of the owner's to-do. Messages outside NEXUS stay deferred, as stage 01 decided.
+- REQ-069, REQ-072, REQ-073, REQ-074 and REQ-075 are carried to stages 08, 09 and 12.

@@ -33,16 +33,22 @@
       "updated": "2026-11-23T01:05:59+09:00"
     },
     "03-user-flow": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Draft the user flows; the checkpoint is asked before the documents go to the repository",
-      "updated": "2026-11-23T01:05:59+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Stage 03: the thirteen user flows with their main and failure paths; a failed daily backup becomes an exception of REQ-076 in stage 04 with a warning in the owner's to-do; the five cross-screen requirements go to stages 08, 09 and 12. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        }
+      ],
+      "next": "Stage 04: write the functional spec from the requirements and flows",
+      "updated": "2026-11-23T01:26:43+09:00"
     },
     "04-functional-spec": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "",
-      "updated": "2026-11-23T00:00:00+09:00"
+      "next": "Draft the functional spec; the checkpoint is asked before the documents go to the repository",
+      "updated": "2026-11-23T01:26:43+09:00"
     },
     "05-erd": {
       "state": "not_started",
