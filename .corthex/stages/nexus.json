@@ -4,16 +4,21 @@
   "part": "nexus",
   "stages": {
     "01-domain": {
-      "state": "in_progress",
+      "state": "done",
       "checkpoints": [
         {
           "approved": "Checkpoints 1 to 3 of stage 01, asked together: the timeline, the contexts, the context map and the context tables, approved as drawn. Questions answered with the recommendations: the board is the source during a workshop; a confirmation is lifted when its document changes; cross-check between pictures, notifications and version history come later. The answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "The seven review corrections of the domain design (to-do inputs, the owner of Domain document updated, claim release, the agent route into the workshop, the claim and credential lane, credential commands, the comment close rule). The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
-      "next": "Wait for the checkpoint on the review corrections of the domain design",
-      "updated": "2026-11-23T00:46:14+09:00"
+      "next": "Stage 02: write the PRD from the domain design",
+      "updated": "2026-11-23T00:48:22+09:00"
     },
     "02-prd": {
       "state": "in_progress",

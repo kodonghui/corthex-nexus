@@ -310,6 +310,7 @@ The Diagram context holds the document version in the middle: Review and Confirm
 | 11. The direct-edit scope was written two ways in the project's records: move, rename and connect only, or a free canvas on the stage-01 board with move, rename and connect elsewhere | CTX-038, CTX-040 | answered | Follows the redesign decision the maintainer approved on 2026-11-22: a free canvas on the stage-01 board |
 | 12. Diagram and Confirmation rules inferred by the AI: one confirmation per diagram, a diagram from one snapshot, a layout that never changes meaning | CTX-037, CTX-039 | review in stage 02 | Approved as drawn; revisit the rules when writing requirements |
 | 13. The command rows of every context | CTX-037, CTX-038, CTX-039, CTX-040, CTX-041, CTX-042 | review in stage 02 | Approved as drawn; revisit the commands when writing requirements |
+| 14. A rejected proposal or a cancelled edit leaves its comment thread open for the owner to close | CTX-038 | review in stage 02 | Inferred in the review corrections; confirm when writing requirements |
 
 ## 7. Glossary
 
@@ -364,7 +365,7 @@ Checkpoints 1 to 3 were asked together and passed on 2026-11-23 in the project's
 2. Questions 1 to 3: answered with the recommendations; hotspots 1, 2 and 10.
 3. Core aggregate rules: the Diagram, Review and Confirmation rules in section 4, approved as drawn; hotspots 12 and 13.
 
-Corrections after the pass: the review of the stage's first pull request found ten points, and seven are corrected here (the to-do's inputs, the owner of Domain document updated, the claim release, the agent's route into the workshop, the claim and credential lane, the credential commands and the close path of a comment). They wait for a checkpoint of their own.
+Corrections after the pass: the review of the stage's first pull request found ten points, and seven are corrected here (the to-do's inputs, the owner of Domain document updated, the claim release, the agent's route into the workshop, the claim and credential lane, the credential commands and the close path of a comment). They passed a checkpoint of their own on 2026-11-23: the maintainer approved the recommendation through the delegate they named for checkpoints, as recorded in the project's records.
 
 Approved items that this stage drops or changes: v2 was archived as a whole by the maintainer's decision of 2026-11-22, and section 3 shows what carries over; this stage has no other approved items.
 
