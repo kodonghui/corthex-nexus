@@ -2,7 +2,7 @@
 
 [한국어](README.ko.md)
 
-Status: draft, waiting for the schema freeze.
+Status: passed on 2026-11-23; the schema is frozen before the API contract.
 
 Inputs: the functional spec ([spec.md](../04-functional-spec/spec.md)), passed and corrected on 2026-11-23, the aggregate rules of the domain design and its glossary for names. The source is [db/nexus.sql](../../db/nexus.sql), where each table has its TBL ID, context, spec rows and terms; [db/migrations/](../../db/migrations/) rebuilds it from an empty database, and NEXUS draws the ERD from it.
 
@@ -134,3 +134,5 @@ erDiagram
 ## 6. Checkpoint
 
 The schema freeze before the API contract is written. Approved items that this stage removes, defers or changes: none.
+
+Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.

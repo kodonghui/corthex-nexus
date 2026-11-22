@@ -72,16 +72,22 @@
       "updated": "2026-11-23T01:47:37+09:00"
     },
     "05-erd": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "The schema freeze: 26 tables in db/nexus.sql, asked before the documents go to the repository",
-      "updated": "2026-11-23T01:59:58+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Stage 05 schema freeze before the API contract: the 26 tables TBL-146 to TBL-171 in db/nexus.sql; SQL that SQLite 3 runs, where it runs decided in stage 11; every snapshot kept with its documents once by hash and the elements of every drawing. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        }
+      ],
+      "next": "Stage 06: write the API contract from the spec and the schema",
+      "updated": "2026-11-23T02:00:54+09:00"
     },
     "06-api": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "",
-      "updated": "2026-11-23T00:00:00+09:00"
+      "next": "Draft the API contract; the checkpoint is asked before the documents go to the repository",
+      "updated": "2026-11-23T02:00:54+09:00"
     },
     "07-sitemap": {
       "state": "not_started",
