@@ -202,7 +202,7 @@ CREATE TABLE comments (
   author         TEXT    NOT NULL CHECK (author IN ('owner', 'agent')),
   credential_id  INTEGER REFERENCES agent_credentials (id) ON DELETE RESTRICT,
   body           TEXT    NOT NULL CHECK (length(body) >= 1),
-  detail         TEXT    NOT NULL DEFAULT '{}' CHECK (json_valid(detail)),
+  detail         TEXT    NOT NULL DEFAULT '{}' CHECK (json_valid(detail) AND json_type(detail) = 'object'),
   created_at     TEXT    NOT NULL,
   CHECK ((author = 'agent') = (credential_id IS NOT NULL)),
   UNIQUE (thread_id, seq)
@@ -248,7 +248,7 @@ CREATE TABLE change_sets (
   decided_at            TEXT,
   pull_request_id       INTEGER,
   reflected_drawing_id  INTEGER,
-  detail                TEXT    NOT NULL DEFAULT '{}' CHECK (json_valid(detail)),
+  detail                TEXT    NOT NULL DEFAULT '{}' CHECK (json_valid(detail) AND json_type(detail) = 'object'),
   CHECK (origin = 'direct_edit' OR (thread_id IS NOT NULL AND credential_id IS NOT NULL)),
   CHECK (origin = 'proposal' OR (credential_id IS NULL AND state <> 'proposed')),
   CHECK ((state = 'reflected') = (reflected_drawing_id IS NOT NULL)),

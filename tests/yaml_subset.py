@@ -60,6 +60,8 @@ def scalar(text):
         return float(text) if any(c in text for c in ".eE") else int(text)
     if " #" in text:
         raise ValueError("a comment after a value: %r" % text)
+    if ": " in text or text.endswith(":"):
+        raise ValueError("a colon in a plain value, which YAML reads as a mapping: %r" % text)
     return text
 
 
@@ -92,7 +94,7 @@ def block(lines, index, indent):
             rest = text[2:].strip()
             if not rest:
                 value, index = block(lines, index + 1, indent + 2)
-            elif KEY.match(rest) and not rest.startswith('"') or (rest.startswith('"') and KEY.match(rest)):
+            elif KEY.match(rest):
                 # A mapping that starts on the dash line: read it as if the dash were two spaces.
                 lines[index] = (number, indent + 2, rest)
                 value, index = block(lines, index, indent + 2)

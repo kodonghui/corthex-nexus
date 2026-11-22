@@ -2567,7 +2567,7 @@ paths:
     post:
       operationId: reportEdit
       summary: Report a reflection
-      description: "opened links the pull request to the entry's change sets and keeps the claim while it is open (SPEC-024); reported again, the same link. merged records the merge; reflected with commit names the merge commit, and the change sets are marked reflected when NEXUS draws that commit or a snapshot accepted after the report (SPEC-025). closed unlinks them, they wait again and the claim's 60 minutes start (SPEC-045). For a remove entry, any report of its pull request closes it (SPEC-023). reflected needs a pull request, in the body or reported before. needs-user is refused as invalid_request: ask the owner in the thread instead."
+      description: "opened links the pull request to the entry's change sets and keeps the claim while it is open (SPEC-024); reported again, the same link. merged records the merge; reflected names the merge commit, which the hub always sends with it, and the change sets are marked reflected when NEXUS draws that commit's snapshot, or at once when it already holds one (SPEC-025). A snapshot of another commit marks nothing: when the merge commit is never sent, the entry stays in the to-do until reflected is reported again with a commit NEXUS holds. closed unlinks them, they wait again and the claim's 60 minutes start (SPEC-045). For a remove entry, any report of its pull request closes it (SPEC-023). reflected needs a pull request, in the body or reported before. needs-user is refused as invalid_request: ask the owner in the thread instead."
       tags: [agent]
       x-corthex:
         id: API-258
@@ -6422,7 +6422,7 @@ paths:
     post:
       operationId: issueCredential
       summary: Issue an agent credential
-      description: "Creates a credential and shows its secret once; NEXUS keeps only its digest (SPEC-049, REQ-078). The agent sends the credential's id as CF-Access-Client-Id and the secret as CF-Access-Client-Secret. A repeat with the same request key answers 200 with secret null: the secret is never kept to show again."
+      description: "Creates a credential and shows its secret once; NEXUS keeps only its digest (SPEC-049, REQ-078). The agent sends the credential's id as CF-Access-Client-Id and the secret as CF-Access-Client-Secret. A repeat with the same request key answers 200 with secret null: the secret is never kept to show again, so when the first answer is lost the owner revokes the credential and issues another."
       tags: [owner]
       x-corthex:
         id: API-280
@@ -9209,7 +9209,7 @@ components:
       name: Idempotency-Key
       in: header
       required: true
-      description: "The request key (rule 3): a write ID in double quotes, as the pinned hub sends it. The same key from the same caller within 7 days returns the first status and answer and writes nothing; 7 days because the hub keeps an unsent write that long. A key that another action took gets request_key_reused; a refused request leaves no key behind."
+      description: "The request key (rule 3): a write ID in double quotes, as the pinned hub sends it. The same key from the same caller within 7 days returns the first status and answer and writes nothing, except that a credential's secret is never shown again (API-280); 7 days because the hub keeps an unsent write that long. A key that another action took gets request_key_reused; a refused request leaves no key behind."
       schema:
         type: string
         maxLength: 17
@@ -10447,6 +10447,13 @@ components:
           $ref: "#/components/schemas/Link"
         commit:
           $ref: "#/components/schemas/Commit"
+      if:
+        properties:
+          event:
+            const: reflected
+        required: [event]
+      then:
+        required: [commit]
     CheckpointReport:
       type: object
       required: [event, pull_request]

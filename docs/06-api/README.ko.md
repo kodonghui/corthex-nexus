@@ -144,7 +144,7 @@
 - 에이전트 자격 증명은 hub가 이미 보내는 CF-Access-Client-Id와 CF-Access-Client-Secret 한 쌍이고, NEXUS가 발급해요(SPEC-049). 없거나 모르거나 틀리거나 폐기된 자격 증명은 모두 access_missing(401) 하나로 답해요. hub는 이 코드를 다시 보낼 만한 것으로 여겨, 줄에 선 쓰기를 버리지 않고 자격 증명이 고쳐질 때까지 기다려요.
 - 요청 키는 규칙 3이 요구하는 24시간보다 긴 7일 동안 보관해요. hub가 보내지 못한 쓰기를 7일 동안 같은 키로 다시 보내기 때문이에요.
 - 할 일 항목에 대한 에이전트의 쓰기는 그 세션이 항목을 맡게 하고, 다른 세션이 맡은 항목에 쓰면 claimed로 거절해요. 그래서 댓글에 답하는 제안은 그 댓글을 맡은 상태가 돼요(SPEC-018).
-- 반영 보고의 변경 세트는 NEXUS가 보고된 병합 커밋이나 보고 뒤에 받은 스냅숏을 그릴 때 반영 완료로 표시해요. hub는 보관된 커밋에서 이어지는 기본 브랜치 커밋만 보내고, 서버는 Git 조상 관계를 직접 읽을 수 없기 때문이에요(SPEC-025).
+- 반영 보고의 변경 세트는 reflected가 가리키는 병합 커밋의 스냅숏을 NEXUS가 그릴 때만, 또는 이미 그 스냅숏이 있으면 바로 반영 완료로 표시해요(SPEC-025). 서버는 Git 조상 관계를 읽을 수 없어서 다른 커밋의 스냅숏으로는 표시하지 않아요. push 작업이 병합 커밋을 끝내 보내지 않으면, 에이전트가 NEXUS가 가진 커밋으로 reflected를 다시 보고해요.
 - hub의 reflect 이벤트 needs-user는 invalid_request로 거절해요. 이 이벤트에 뜻을 주는 요구사항이 없고, 에이전트는 대신 댓글 스레드에서 소유자에게 물어요.
 - 에이전트의 결정 보고는 링크가 달린 스레드 항목이에요. 무엇을 묻지 않고 결정이 기록된 곳을 남기는 것이라 닫힌 스레드에도 받아요.
 - 입력 검증 오류는 글자 수 초과(text_too_long, field와 limit 포함)까지 모두 400이에요. 413은 본문이 바이트 한도를 넘을 때만 써요: 스냅숏 8 MiB, Miro 내보내기 5 MiB, 그 밖의 본문 2 MiB(hub가 줄 세우는 가장 큰 쓰기 크기).
@@ -155,6 +155,8 @@
 
 명세 52행 가운데 51행에 오퍼레이션이 있어요. 오퍼레이션이 없는 행: SPEC-052(서버 작업이라 요청이 없음; 실패 경고는 getOwnerTodo로 보여 줌).
 
+SPEC-006, SPEC-008, SPEC-009의 그림은 첫 릴리스에서 빠져요(6절). 행은 active로 남고, API-265가 나중 릴리스에서 그 그림을 보여 줘요.
+
 | 명세 | 오퍼레이션 |
 | --- | --- |
 | SPEC-001 Accept a snapshot | API-242, API-243 |
@@ -162,10 +164,10 @@
 | SPEC-003 Draw the DDD board | API-242, API-265 |
 | SPEC-004 Draw the ERD | API-242, API-265 |
 | SPEC-005 Show an item table | API-265 |
-| SPEC-006 Draw user-flow diagrams | API-265 |
+| SPEC-006 Draw user-flow diagrams | API-265 (나중 릴리스) |
 | SPEC-007 Draw the sitemap tree | API-265 |
-| SPEC-008 Draw screen-state panels | API-265 |
-| SPEC-009 Show mockups with their tokens | API-265 |
+| SPEC-008 Draw screen-state panels | API-265 (나중 릴리스) |
+| SPEC-009 Show mockups with their tokens | API-265 (나중 릴리스) |
 | SPEC-010 Show names, hide trace IDs | API-265 |
 | SPEC-011 Copy an element | API-265 |
 | SPEC-012 Move an element and keep its place | API-265, API-274 |

@@ -144,7 +144,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 - The agent's credential is the pair the hub already sends, CF-Access-Client-Id and CF-Access-Client-Secret, issued by NEXUS (SPEC-049). A missing, unknown, wrong or revoked credential gets one code, access_missing (401), which the hub treats as worth retrying, so a queued write waits for a fixed credential instead of being dropped.
 - Request keys are kept 7 days, not only the 24 hours that rule 3 requires, because the hub keeps an unsent write 7 days and sends it again under the same key.
 - Every agent write on a to-do entry claims it for the session, and a write on an entry another session claims gets claimed; so a proposal answering a comment holds its claim (SPEC-018).
-- A reflection's change sets are marked reflected when NEXUS draws the reported merge commit, or a snapshot accepted after the report: the hub sends only default-branch commits that descend from the held one, and the server cannot read Git ancestry itself (SPEC-025).
+- A reflection's change sets are marked reflected only when NEXUS draws the snapshot of the merge commit that reflected names, or at once when it already holds one (SPEC-025). The server cannot read Git ancestry, so a snapshot of another commit marks nothing; when the push job never sends the merge commit, the agent reports reflected again with a commit NEXUS holds.
 - The hub's reflect event needs-user is refused as invalid_request: no requirement gives NEXUS a meaning for it, and the agent asks the owner in the comment thread instead.
 - An agent decision is an entry of the thread with its link; it is accepted on a closed thread too, since it records where the decision went rather than asking anything.
 - Validation errors are 400 everywhere, including text over its limit (text_too_long with field and limit); 413 is only for a body over its byte limit: 8 MiB for a snapshot, 5 MiB for a Miro export and 2 MiB for any other body, the size of the hub's largest queued write.
@@ -155,6 +155,8 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 
 51 of the 52 spec rows have an operation. Rows without one: SPEC-052 (a server job, not a request; its failure warning reaches the owner through getOwnerTodo).
 
+The pictures of SPEC-006, SPEC-008 and SPEC-009 are left out of the first release (section 6). The rows stay active, and API-265 serves those pictures in a later release.
+
 | Spec | Operations |
 | --- | --- |
 | SPEC-001 Accept a snapshot | API-242, API-243 |
@@ -162,10 +164,10 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 | SPEC-003 Draw the DDD board | API-242, API-265 |
 | SPEC-004 Draw the ERD | API-242, API-265 |
 | SPEC-005 Show an item table | API-265 |
-| SPEC-006 Draw user-flow diagrams | API-265 |
+| SPEC-006 Draw user-flow diagrams | API-265 (later release) |
 | SPEC-007 Draw the sitemap tree | API-265 |
-| SPEC-008 Draw screen-state panels | API-265 |
-| SPEC-009 Show mockups with their tokens | API-265 |
+| SPEC-008 Draw screen-state panels | API-265 (later release) |
+| SPEC-009 Show mockups with their tokens | API-265 (later release) |
 | SPEC-010 Show names, hide trace IDs | API-265 |
 | SPEC-011 Copy an element | API-265 |
 | SPEC-012 Move an element and keep its place | API-265, API-274 |

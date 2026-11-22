@@ -80,6 +80,8 @@ def validate(doc, value, schema, where="$"):
         if not any(not validate(doc, value, branch, where) for branch in schema["anyOf"]):
             errors.append("%s matches no branch of anyOf" % where)
         return errors
+    if "if" in schema and not validate(doc, value, schema["if"], where):
+        errors += validate(doc, value, schema.get("then", {}), where)
     if "const" in schema and (value != schema["const"] or kind_of(value) != kind_of(schema["const"])):
         errors.append("%s is not %r" % (where, schema["const"]))
     if "enum" in schema and value not in schema["enum"]:
@@ -130,8 +132,7 @@ def operations(doc):
 
 
 def params_of(doc, op):
-    return [resolve(doc, p) if "$ref" not in p else
-            doc["components"]["parameters"][p["$ref"].rsplit("/", 1)[1]] for p in op.get("parameters", [])]
+    return [resolve(doc, p) for p in op.get("parameters", [])]
 
 
 def spec_ids():

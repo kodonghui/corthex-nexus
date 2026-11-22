@@ -277,6 +277,9 @@ REFUSED = {
     "a comment whose detail is not JSON": (
         "INSERT INTO comments (thread_id, seq, author, body, detail, created_at) VALUES (101, 2, 'owner', 'Why?', '{', ?)",
         (T,)),
+    "a comment whose detail is a JSON array, not an object": (
+        "INSERT INTO comments (thread_id, seq, author, body, detail, created_at) VALUES (101, 2, 'owner', 'Why?', '[1]', ?)",
+        (T,)),
     "a change set whose detail is not JSON": (
         "INSERT INTO change_sets (project_id, diagram_id, drawing_id, origin, state, created_at, detail) "
         "VALUES (1, 101, 101, 'direct_edit', 'accepted', ?, 'reason')", (T,)),
