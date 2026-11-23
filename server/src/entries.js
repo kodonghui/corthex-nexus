@@ -91,6 +91,10 @@ function statementsOf(store) {
          ORDER BY coalesce(decided_at, created_at), id`,
       ),
       anchorOf: store.prepare('SELECT pull_request_id FROM change_sets WHERE id = ?'),
+      waiting: store.prepare(
+        `SELECT id FROM change_sets WHERE diagram_id = ? AND project_id = ? AND state = 'accepted'
+         ORDER BY coalesce(decided_at, created_at), id LIMIT ?`,
+      ),
     };
     prepared.set(store, statements);
   }
@@ -391,4 +395,14 @@ export function heldChangeSets(store, { project, entry }) {
   if (entry.kind !== 'reflect') throw new TypeError('only a reflection or a removal holds change sets');
   const changeSets = statements.group.all(Number(entry.diagram_id), project, pullRequest).map((row) => Number(row.id));
   return { changeSets, pullRequest };
+}
+
+// The change sets of the diagram that wait for reflection (SPEC-026): accepted and not yet reflected, a direct edit
+// (TASK-445) and an accepted proposal (TASK-444) alike, in the order they were accepted, at most limit of them. A
+// confirmation is refused while any waits (SPEC-029, TASK-446), and the reflection entries above hold the same ones.
+export function waitingChangeSets(store, { project, diagram, limit }) {
+  checkKey(project, 'project');
+  checkKey(diagram, 'diagram');
+  if (!Number.isSafeInteger(limit) || limit < 1) throw new TypeError('limit is a positive integer');
+  return statementsOf(store).waiting.all(diagram, project, limit).map((row) => Number(row.id));
 }
