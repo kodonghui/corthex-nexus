@@ -44,7 +44,7 @@ From the 2026-11-21 mockup: The header's "My turn N" counter stays and now opens
 
 ### SCR-143 Projects
 
-The owner's project spaces with each stage's state and tool links, and the agent credentials: issue one, whose secret shows once, and revoke one. The domain design gives both credential commands from this read model.
+The owner's project spaces with the stages passed and the to-do count, and the agent credentials: issue one, whose secret shows once, and revoke one. The domain design gives both credential commands from this read model.
 
 From the 2026-11-21 mockup: New. The mockup had one project; the project name in its header becomes the way here.
 
@@ -62,7 +62,7 @@ From the 2026-11-21 mockup: Carried over as drawn: the header, the stage tabs, t
 
 ### SCR-146 Changes since the last confirmation
 
-The diff view: every element added, removed or changed since the last confirmed version, before and after (SPEC-034), with the direct edits waiting for reflection, which can be cancelled here, and the confirmation.
+The diff view: every element added, removed or changed since the last confirmed version, with a link to that version (SPEC-034), with the direct edits waiting for reflection, which can be cancelled here, and the confirmation.
 
 From the 2026-11-21 mockup: The work panel's "changed since confirmation" list stays; its "+N more" line opens this screen.
 

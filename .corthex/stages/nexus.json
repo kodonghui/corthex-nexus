@@ -128,16 +128,32 @@
       "updated": "2026-11-23T11:00:00+09:00"
     },
     "08-screen-states": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Draft the screen definitions from the sitemap, the spec and the contract, starting from the 2026-11-21 mockup; the checkpoint is asked before the documents go to the repository",
-      "updated": "2026-11-23T11:00:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Stage 08 screen states at commit 3ceffcd: one definition for each of the five screens SCR-142 to SCR-146 in docs/08-screens/, 37 states with the responses that lead to them, and grey wireframes of every state at 360 and 1440 pixels, starting from the click mockup of 2026-11-21. No approved item removed, deferred or changed; the narrower reading of SPEC-051 in section 6 of the README, asked on its own, answered with the recommendation. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        },
+        {
+          "approved": "Stage 08 review fixes at commit 59a7d38: the screen definitions follow the approved contract, with 38 states, SCR-146 gaining a not-drawn state. The two stage-07 screen texts read more narrowly in section 6 of the README, SCR-143 showing the stages passed and the to-do count and SCR-146 linking to the confirmed version as the before, each asked on its own and answered with the recommendation; the stage-07 README follows them. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        },
+        {
+          "approved": "Stage 08 second review fixes at commit ba58972: each 404 or 409 example leads to one state and the state tables name it where a code splits, SCR-146 gains a confirmed state for 39 states in all, and states that only a PC action leads to are drawn at 360 pixels as a narrow PC window. No approved item removed, deferred or changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        }
+      ],
+      "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
+      "updated": "2026-11-23T12:40:00+09:00"
     },
     "09-mockup": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "",
-      "updated": "2026-11-23T00:00:00+09:00"
+      "next": "Draft the design tokens and the mockup, starting from the 2026-11-21 mockup; the checkpoint is asked before the documents go to the repository",
+      "updated": "2026-11-23T11:40:00+09:00"
     },
     "10-wbs": {
       "state": "not_started",
