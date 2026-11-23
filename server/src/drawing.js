@@ -17,11 +17,12 @@
 // picture drawn of the stage, and comes back when the stage has none again.
 // A diagram the snapshot does not hold gets removed_at, except a picture of a stage whose pictures the snapshot's
 // format does not carry, which stays as last drawn: so a corthex-hub/0.2 snapshot after 0.3 pictures keeps them, each
-// drawing's version naming the commit it comes from (SPEC-005). An item table that makes way gets removed_at and no
-// new drawing: its last drawing keeps its rows, and its threads stay on them (SPEC-005, SPEC-027; madeWay below tells
-// it from an item table removed otherwise). A removed diagram whose document a snapshot draws again comes back, the
-// same row with its threads, an item table that made way among them. A diagram's part is in its source_key for a
-// stage's picture; the store's columns keep none for a file's picture (see the server's README).
+// drawing's version naming the commit it comes from (SPEC-005). An item table that makes way gets removed_at and no new
+// drawing: its last drawing keeps its rows, and its threads stay on them (SPEC-005, SPEC-027). drawSnapshot marks it
+// madeWay in what it returns, so after-drawing.js moves none of its threads, while an item table removed otherwise,
+// whose stage no snapshot reads any more, did not make way. A removed diagram whose document a snapshot draws again
+// comes back, the same row with its threads, an item table that made way among them. A diagram's part is in its
+// source_key for a stage's picture; the store's columns keep none for a file's picture (see the server's README).
 //
 // Drawings. Each diagram the snapshot holds is drawn again. Its drawing is new when its source_digest, which covers
 // every document the drawer read, or what it drew differs from the diagram's last drawing; otherwise the diagram is
@@ -200,12 +201,6 @@ function statementsOf(store) {
       ),
       // Whether a snapshot keeps a document of that path.
       keeps: store.prepare('SELECT 1 FROM snapshot_files WHERE snapshot_id = ? AND path = ?'),
-      // Whether a removed item table's stage has a picture diagram that is not removed.
-      madeWay: store.prepare(
-        `SELECT 1 FROM diagrams t JOIN diagrams p ON p.project_id = t.project_id AND p.stage = t.stage
-         WHERE t.id = ? AND t.kind = 'item_table' AND t.removed_at IS NOT NULL AND p.kind <> 'item_table' AND p.removed_at IS NULL
-         LIMIT 1`,
-      ),
     };
     prepared.set(store, statements);
   }
@@ -391,15 +386,6 @@ function kindOf(document, pictured) {
   return FILE_STAGES.has(document.stage) && !pictured.has(document.stage) ? ITEM_TABLE : null;
 }
 
-// Whether a diagram is an item table that made way for its stage's pictures: removed while its stage has a picture
-// that is not removed (SPEC-005). Its threads stay on its rows, where SPEC-027 moves those of any other removed
-// diagram or element to the diagram's comments (TASK-435). One removed otherwise, when no snapshot holds its stage's
-// items any more, did not make way. It reads the stage as it stands, so it answers for the push that removed the
-// table, after drawSnapshot and in its transaction. diagramId is the diagram's row key (TBL-151).
-export function madeWay(store, diagramId) {
-  return statementsOf(store).madeWay.get(diagramId) !== undefined;
-}
-
 function defaultName(kind, document) {
   if (Object.hasOwn(NAMES, kind)) return NAMES[kind];
   if (document.key !== null) return cut(document.key.split('/').at(-1), MAX_NAME);
@@ -519,8 +505,9 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
     }
     statements.remove.run(time, diagram.id);
     counts.removed += 1;
-    // An item table of a picture stage goes because its format or an earlier snapshot draws the stage's pictures.
-    const madeWay = diagram.kind === ITEM_TABLE && FILE_STAGES.has(diagram.stage) && (carries.has(diagram.stage) || pictured.has(diagram.stage));
+    // An item table makes way when its stage shows a picture after this call (pictured); one removed otherwise, whose
+    // stage no snapshot reads any more, did not, and SPEC-027 moves its threads.
+    const madeWay = diagram.kind === ITEM_TABLE && pictured.has(diagram.stage);
     changed.push({
       id: Number(diagram.id), stage: diagram.stage, kind: diagram.kind, created: false, restored: false, removed: true, madeWay,
       drawing: null, status: null, digest: null,

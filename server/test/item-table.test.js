@@ -13,7 +13,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
-import { DRAWERS, madeWay, SourceFailure } from '../src/drawing.js';
+import { DRAWERS, SourceFailure } from '../src/drawing.js';
 import { idOf } from '../src/ids.js';
 import { isRemoved, itemNames, itemTable } from '../src/item-table.js';
 import { readProject } from '../src/project.js';
@@ -272,8 +272,8 @@ describe('item tables through the push', () => {
       const removed = diagram(name, source);
       assert.deepEqual([removed.id, removed.removed_at], [table.id, at(clock.now)]);
       assert.equal(drawings(table.id).length, 1);
-      assert.deepEqual(threads(table.id), thread);
-      assert.equal(madeWay(db, table.id), true);
+      // It made way: TASK-435's push moves none of its threads (SPEC-027).
+      assert.deepEqual([threads(table.id), answer.threads_moved], [thread, 0]);
       // Listed after the pictures, marked removed, while it has its open thread (SPEC-005, SPEC-027).
       assert.deepEqual(listed(name, FLOWS), [...Array(files).fill(['user_flow', false, 0]), ['item_table', true, 1]]);
     });
@@ -288,8 +288,7 @@ describe('item tables through the push', () => {
       const back = diagram(name, source);
       assert.deepEqual([back.id, back.removed_at], [table.id, null]);
       assert.equal(drawings(table.id).length, 1);
-      assert.deepEqual(threads(table.id), thread);
-      assert.equal(madeWay(db, table.id), false);
+      assert.deepEqual([threads(table.id), answer.threads_moved], [thread, 0]);
       assert.equal(live(name, FLOWS), 0);
       assert.deepEqual(listed(name, FLOWS)[0], ['item_table', false, 1]);
     });
@@ -310,8 +309,7 @@ describe('item tables through the push', () => {
       const answer = await push(pictured, repositorySnapshot(FORMAT_03, { name, commit: e, replaces: d }));
       assert.equal(answer.diagrams.removed, 1);
       assert.equal(diagram(name, source).removed_at, at(clock.now));
-      assert.deepEqual(threads(table.id), thread);
-      assert.equal(madeWay(db, table.id), true);
+      assert.deepEqual([threads(table.id), answer.threads_moved], [thread, 0]);
       assert.deepEqual(listed(name, FLOWS).at(-1), ['item_table', true, 1]);
     });
   });
@@ -334,21 +332,33 @@ describe('item tables through the push', () => {
     for (const stage of [FLOWS, '08-screen-states', '09-mockup']) assert.equal(diagram(name, `/items/${stage}`).removed_at, null);
   });
 
-  test('a table removed because its stage is no longer read did not make way', async () => {
+  test('a table removed because its stage is no longer read did not make way: its threads move to the diagram', async () => {
+    // Under 0.3, a format that carries stage 03's pictures: with no drawer of its files, the stage shows its table.
     const name = 'item-table-not-read';
     const [a, b] = [newCommit(), newCommit()];
-    await push(own, repositorySnapshot(FORMAT_02, { name, commit: a }));
-    const snapshot = repositorySnapshot(FORMAT_02, { name, commit: b, replaces: a });
-    snapshot.items = snapshot.items.filter((entry) => entry.stage !== '04-functional-spec');
-    delete snapshot.stages['04-functional-spec'].read;
-    await push(own, snapshot);
-    const table = diagram(name, '/items/04-functional-spec');
-    assert.equal(table.removed_at, at(clock.now));
-    assert.equal(madeWay(db, table.id), false);
+    await push(own, repositorySnapshot(FORMAT_03, { name, commit: a }));
+    const table = diagram(name, `/items/${FLOWS}`);
+    const [drawing] = drawings(table.id);
+    const row = elements(drawing.id).find((each) => each.element_key === 'FL-001');
+    db.prepare(`INSERT INTO comment_threads (diagram_id, drawing_id, target_kind, element_key, state, waits_on, opened_at)
+                VALUES (?, ?, 'row', 'FL-001', 'open', 'owner', ?)`).run(table.id, drawing.id, at(clock.now));
+    // The hub reads stage 03 no more: no items, no files, no read record.
+    const unread = (snapshot) => {
+      snapshot.items = snapshot.items.filter((entry) => entry.stage !== FLOWS);
+      snapshot.pictures = snapshot.pictures.filter((picture) => picture.stage !== FLOWS);
+      delete snapshot.stages[FLOWS].read;
+      return snapshot;
+    };
+    const answer = await push(own, unread(repositorySnapshot(FORMAT_03, { name, commit: b, replaces: a })));
+    assert.equal(diagram(name, `/items/${FLOWS}`).removed_at, at(clock.now));
+    // SPEC-027 moves its row's thread to the diagram, with the row's last name (TASK-435).
+    assert.equal(answer.threads_moved, 1);
+    assert.deepEqual(threads(table.id).map((each) => [each.target_kind, each.element_key, each.removed_name, each.state]), [
+      ['diagram', 'FL-001', row.name, 'open'],
+    ]);
     // A read stage whose items all go keeps its table, with no rows.
-    const empty = repositorySnapshot(FORMAT_02, { name, commit: newCommit(), replaces: b });
+    const empty = unread(repositorySnapshot(FORMAT_03, { name, commit: newCommit(), replaces: b }));
     empty.items = empty.items.filter((entry) => entry.stage !== '06-api');
-    delete empty.stages['04-functional-spec'].read;
     await push(own, empty);
     const api = diagram(name, '/items/06-api');
     assert.deepEqual([api.removed_at, elements(drawings(api.id).at(-1).id)], [null, []]);
