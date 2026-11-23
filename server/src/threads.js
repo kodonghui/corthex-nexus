@@ -21,7 +21,8 @@
 //   a comment of the agent to-do and leaves the owner's, and a closed one is in neither (SPEC-016, SPEC-017,
 //   SPEC-028). The owner's writes keep no claim: an owner's entry names no credential and no session.
 //
-// The choices that no approved document states (see the server's README, Threads) wait for the maintainer's delegate.
+// The choices that no approved document states (see the server's README, Threads) were approved through the
+// maintainer's delegate.
 // Nothing here logs; a comment's text is in the store and the answers only (rule 5).
 
 import { emptyOf, entryOf, formOf, onlyFields, targetOf, textOf, threadSummary } from './comments.js';

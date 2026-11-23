@@ -5857,7 +5857,7 @@ paths:
       x-corthex:
         id: API-275
         spec: [SPEC-027, SPEC-029, SPEC-031]
-        tables: [TBL-160, TBL-166]
+        tables: [TBL-147, TBL-151, TBL-152, TBL-158, TBL-160, TBL-166]
         release: Must
         family: owner
       security:
@@ -6090,7 +6090,7 @@ paths:
       x-corthex:
         id: API-276
         spec: [SPEC-030, SPEC-031]
-        tables: [TBL-160, TBL-166]
+        tables: [TBL-147, TBL-151, TBL-152, TBL-160, TBL-166]
         release: Must
         family: owner
       security:
@@ -6989,7 +6989,7 @@ paths:
       x-corthex:
         id: API-282
         spec: [SPEC-046]
-        tables: [TBL-168]
+        tables: [TBL-147, TBL-168]
         release: Should
         family: owner
       security:
@@ -7175,7 +7175,7 @@ paths:
       x-corthex:
         id: API-283
         spec: [SPEC-047]
-        tables: [TBL-168]
+        tables: [TBL-147, TBL-168]
         release: Should
         family: owner
       security:
