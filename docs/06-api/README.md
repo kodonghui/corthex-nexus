@@ -8,7 +8,7 @@ Source: [api/openapi.yaml](../../api/openapi.yaml), OpenAPI 3.1. Inputs: the fun
 
 ## 1. Operations
 
-Two families share one error shape. The agent family (20 operations) takes the pinned hub's commands in their format; the owner family (31) serves the pages. An agent credential on an owner path gets owner_only, the owner's sign-in on an agent path agent_only.
+Two families share one error shape. The agent family (20 operations) takes the pinned hub's commands in their format; the owner family (32) serves the pages. An agent credential on an owner path gets owner_only, the owner's sign-in on an agent path agent_only.
 
 ### Agent family
 
@@ -24,7 +24,7 @@ Two families share one error shape. The agent family (20 operations) takes the p
 | API-249 | `GET /api/spaces/{project}/checkpoints/{checkpoint}` | Read a confirmation to record | Must | SPEC-014, SPEC-031 |
 | API-250 | `POST /api/spaces/{project}/claims/{entry}` | Claim a to-do entry | Must | SPEC-014, SPEC-044, SPEC-045 |
 | API-251 | `DELETE /api/spaces/{project}/claims/{entry}` | Release a claim | Must | SPEC-014, SPEC-045 |
-| API-252 | `POST /api/spaces/{project}/comments` | Comment as an agent | Must | SPEC-014, SPEC-016 |
+| API-252 | `POST /api/spaces/{project}/comments` | Comment as an agent | Must | SPEC-014, SPEC-016, SPEC-027 |
 | API-253 | `POST /api/spaces/{project}/comments/{comment}/replies` | Reply as an agent | Must | SPEC-014, SPEC-017 |
 | API-254 | `POST /api/spaces/{project}/comments/{comment}/answered` | Mark a comment answered | Must | SPEC-014, SPEC-017 |
 | API-255 | `POST /api/spaces/{project}/comments/{comment}/decisions` | Report where a decision is recorded | Must | SPEC-014, SPEC-017 |
@@ -41,18 +41,18 @@ Two families share one error shape. The agent family (20 operations) takes the p
 | --- | --- | --- | --- | --- |
 | API-262 | `GET /api/projects` | List the projects | Must | SPEC-015, SPEC-042, SPEC-048 |
 | API-263 | `GET /api/todo` | Open on the owner's to-do | Must | SPEC-042, SPEC-048 |
-| API-264 | `GET /api/projects/{project}` | Read a project | Must | SPEC-035, SPEC-046 |
+| API-264 | `GET /api/projects/{project}` | Read a project | Must | SPEC-005, SPEC-027, SPEC-035, SPEC-046 |
 | API-265 | `GET /api/projects/{project}/diagrams/{diagram}` | Read a diagram | Must | SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-011, SPEC-012, SPEC-022, SPEC-027, SPEC-034, SPEC-051 |
 | API-266 | `GET /api/projects/{project}/threads/{thread}` | Read a thread | Must | SPEC-016, SPEC-017 |
-| API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | Comment as the owner | Must | SPEC-016, SPEC-051 |
+| API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | Comment as the owner | Must | SPEC-016, SPEC-027, SPEC-051 |
 | API-268 | `POST /api/projects/{project}/threads/{thread}/comments` | Reply as the owner | Must | SPEC-017, SPEC-051 |
 | API-269 | `POST /api/projects/{project}/threads/{thread}/close` | Close a thread | Must | SPEC-028 |
-| API-270 | `POST /api/projects/{project}/change-sets/{change_set}/accept` | Accept an AI proposal | Must | SPEC-019 |
+| API-270 | `POST /api/projects/{project}/change-sets/{change_set}/accept` | Accept an AI proposal | Must | SPEC-019, SPEC-027 |
 | API-271 | `POST /api/projects/{project}/change-sets/{change_set}/reject` | Reject an AI proposal | Must | SPEC-020 |
-| API-272 | `POST /api/projects/{project}/diagrams/{diagram}/direct-edits` | Rename or connect directly | Must | SPEC-021 |
+| API-272 | `POST /api/projects/{project}/diagrams/{diagram}/direct-edits` | Rename or connect directly | Must | SPEC-021, SPEC-027 |
 | API-273 | `POST /api/projects/{project}/change-sets/{change_set}/cancel` | Cancel a direct edit | Must | SPEC-023 |
-| API-274 | `POST /api/projects/{project}/diagrams/{diagram}/positions` | Move an element | Must | SPEC-012 |
-| API-275 | `POST /api/projects/{project}/diagrams/{diagram}/confirmation` | Confirm a diagram | Must | SPEC-029, SPEC-031 |
+| API-274 | `POST /api/projects/{project}/diagrams/{diagram}/positions` | Move an element | Must | SPEC-012, SPEC-027 |
+| API-275 | `POST /api/projects/{project}/diagrams/{diagram}/confirmation` | Confirm a diagram | Must | SPEC-027, SPEC-029, SPEC-031 |
 | API-276 | `POST /api/projects/{project}/confirmations/{confirmation}/cancel` | Cancel a confirmation | Must | SPEC-030, SPEC-031 |
 | API-277 | `GET /api/projects/{project}/removal` | Show what deleting removes | Must | SPEC-013 |
 | API-278 | `POST /api/projects/{project}/removal` | Delete a project space | Must | SPEC-013 |
@@ -70,6 +70,7 @@ Two families share one error shape. The agent family (20 operations) takes the p
 | API-290 | `DELETE /api/projects/{project}/workshop/links/{link}` | Remove a link between notes | Should | SPEC-038 |
 | API-291 | `POST /api/projects/{project}/workshop/steps/{step}/confirm` | Confirm a step | Should | SPEC-039 |
 | API-292 | `POST /api/projects/{project}/workshop/imports` | Import a Miro board | Could | SPEC-041 |
+| API-293 | `GET /api/projects/{project}/diagrams/{diagram}/page` | Open a mockup page | Must | SPEC-009 |
 
 ## 2. Error codes
 
@@ -92,7 +93,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 | `comment_not_found` | 404 | No comment thread has that nc_ ID in this project. |
 | `confirmation_not_found` | 404 | No confirmation has that ID in this project. |
 | `credential_not_found` | 404 | No agent credential has that ID. |
-| `diagram_not_found` | 404 | No diagram has that ID, or the stage has nothing drawn yet. |
+| `diagram_not_found` | 404 | No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027). |
 | `discrepancy_not_found` | 404 | NEXUS v3 has no discrepancies, so every nd_ ID is unknown. |
 | `drawing_not_found` | 404 | The drawing the request names is not one of the diagram's. |
 | `edit_not_found` | 404 | No reflection entry has that ne_ ID in this project. |
@@ -115,10 +116,11 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 | `claimed` | 409 | Another session claims the entry (SPEC-044); session and last_write_at name the holder, ends_at when the claim ends, null while its pull request is open. |
 | `commit_not_replaced` | 409 | The project holds a commit and the snapshot does not name it in replaces (REQ-002); held_commit names it, and the held diagrams stay as they were. |
 | `confirmation_cancelled` | 409 | The record of a confirmation cancelled meanwhile (SPEC-032); the agent to-do now has recording the cancel. |
+| `diagram_ambiguous` | 409 | A comment or a proposal without diagram whose item several diagrams of the stage hold (SPEC-016, SPEC-018); diagrams lists them. |
 | `document_changed` | 409 | The request was made against a drawing that is no longer current (rule 4, SPEC-018, SPEC-019, SPEC-029); drawing and version name the current one. |
 | `entry_closed` | 409 | The entry is done, withdrawn or waits on the owner. |
 | `name_taken` | 409 | Another agent credential has this name (SPEC-049). |
-| `not_drawn` | 409 | A confirmation of a diagram whose current drawing failed or that has none. |
+| `not_drawn` | 409 | A confirmation of a diagram whose current drawing failed or that has none, a mockup page that has never drawn, or a proposal for a stage with no drawn picture. |
 | `note_made_by_owner` | 409 | An agent draft that would remove a note the owner made (REQ-047). |
 | `older_snapshot` | 409 | The snapshot's commit is one of an earlier revision; revision names it. |
 | `pull_request_mismatch` | 409 | The entry is linked to another pull request (SPEC-024); pull_request names it. |
@@ -147,6 +149,11 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 - A reflection's change sets are marked reflected only when NEXUS draws the snapshot of the merge commit that reflected names, or at once when it already holds one (SPEC-025). The server cannot read Git ancestry, so a snapshot of another commit marks nothing; when the push job never sends the merge commit, the agent reports reflected again with a commit NEXUS holds.
 - The hub's reflect event needs-user is refused as invalid_request: no requirement gives NEXUS a meaning for it, and the agent asks the owner in the comment thread instead.
 - An agent decision is an entry of the thread with its link; it is accepted on a closed thread too, since it records where the decision went rather than asking anything.
+- NEXUS takes the snapshot formats corthex-hub/0.2 and corthex-hub/0.3. 0.3 adds the picture sources of stages 03, 08 and 09, one picture per file, each with key, the path of its source file. The held commit (API-243) lists the formats in formats, and a hub sends 0.3 only to a server that lists it; so the running v2, which refuses picture stages and formats it does not know, keeps taking 0.2 from the same hub. A project's first push, which reads no held commit, goes as 0.2. The held commit also names the format its commit came in, and the same commit again in a newer format completes that revision instead of being a repeat (API-242): the next push of a 0.3 hub draws the new pictures without waiting for a new commit, and a stage's item table makes way for its pictures (SPEC-005). formats holds any corthex-hub/N.N, so a later server can list a newer one.
+- A stage with one picture per file has several diagrams, listed in API-264. A comment (API-252) or a proposal (API-256) names one with diagram, or its item picks the one diagram that holds it; a comment with no item, such as a checkpoint request, goes on the stage's first diagram, and an item that several diagrams hold gets diagram_ambiguous. The pinned hub sends no diagram, so its comments and proposals there work for items that only one diagram holds, such as FL-002 or SCR-145, and for comments with no item. Proposals go to drawn pictures of stages 01, 03, 05, 07 and 08 (ProposalStage): a mockup takes none, and a stage with no drawn picture answers not_drawn. A stage drawn as pictures keeps its last pictures when a 0.2 snapshot does not carry them, so the pinned hub and a 0.3 hub can push the same project without the pictures coming and going.
+- A mockup's elements are the design tokens its page uses, one per CSS custom property it reads with var() (API-265, SPEC-009), so the token list needs no field of its own and a token can carry a thread.
+- For 0.3 the hub finds the sources of stages 03, 08 and 09 and gives each picture its part; this repository's stage-09 source is its tokens file, so the mockup page is named apart. A 0.3 picture of those stages carries the whole text of its file as source.text, and no translation copy is sent; a 0.2 snapshot with such a picture, or a 0.3 one without key or text, is invalid_snapshot, which the schema also says. The 0.3 snapshot of this repository measures about 625,796 bytes (the 0.2 snapshot's 128,540 and 497,256 of sources as JSON), over half of the pinned hub's 1,000,000-byte budget, which also cannot hold a page at API-293's 1 MiB limit; the 0.3 hub's budget grows within the server's 8 MiB. Both are hub work in stage 10.
+- A mockup page (API-293) is the HTML the hub sent, served with Content-Security-Policy sandbox allow-scripts, no network (default-src 'none'; inline scripts and styles; images and fonts from data: only), frame-ancestors 'self' and X-Content-Type-Options nosniff. The diagram view opens it in an iframe with sandbox allow-scripts, so its scripts run but reach neither NEXUS's origin, its cookies nor its API. A page the mockup navigates its frame to is outside this policy, and text typed into the mockup can leave with that navigation, which no header stops; so a bar above the frame always marks it as a mockup page and NEXUS never asks for a sign-in inside it. The view watches the frame and opens the mockup page again once when a second document loads; a second time it stops with an Open again button. The header also sandboxes the page opened in a tab of its own, and stage 12 checks that every answer of API-293 carries it. A page cannot read a frame's status, so the view first requests the page itself, reads only the status and frames it only on 200. The page is served as text/html; charset=utf-8. Fonts a page loads from the network do not load; how the app loads IBM Plex is decided in development.
 - Validation errors are 400 everywhere, including text over its limit (text_too_long with field and limit); 413 is only for a body over its byte limit: 8 MiB for a snapshot, 5 MiB for a Miro export and 2 MiB for any other body, the size of the hub's largest queued write.
 - A repeat that changes nothing succeeds with changed false; a path ID in a malformed form gets the 404 of what it names, never 400, as the hub expects.
 - The pages that the hub links to stay at their addresses: /p/{project}/{part or _}/{stage} and /p/{project}#data. Stage 07 places them.
@@ -155,7 +162,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 
 51 of the 52 spec rows have an operation. Rows without one: SPEC-052 (a server job, not a request; its failure warning reaches the owner through getOwnerTodo).
 
-The pictures of SPEC-006, SPEC-008 and SPEC-009 are left out of the first release (section 6). The rows stay active, and API-265 serves those pictures in a later release.
+API-265 serves the pictures of SPEC-006, SPEC-008 and SPEC-009 from the first release, by the feature change of 2026-11-23 (section 7), and API-293 serves a mockup page.
 
 | Spec | Operations |
 | --- | --- |
@@ -163,11 +170,11 @@ The pictures of SPEC-006, SPEC-008 and SPEC-009 are left out of the first releas
 | SPEC-002 Create a project space on the first send | API-242, API-243 |
 | SPEC-003 Draw the DDD board | API-242, API-265 |
 | SPEC-004 Draw the ERD | API-242, API-265 |
-| SPEC-005 Show an item table | API-265 |
-| SPEC-006 Draw user-flow diagrams | API-265 (later release) |
-| SPEC-007 Draw the sitemap tree | API-265 |
-| SPEC-008 Draw screen-state panels | API-265 (later release) |
-| SPEC-009 Show mockups with their tokens | API-265 (later release) |
+| SPEC-005 Show an item table | API-242, API-264, API-265 |
+| SPEC-006 Draw user-flow diagrams | API-242, API-265 |
+| SPEC-007 Draw the sitemap tree | API-242, API-265 |
+| SPEC-008 Draw screen-state panels | API-242, API-265 |
+| SPEC-009 Show mockups with their tokens | API-242, API-265, API-293 |
 | SPEC-010 Show names, hide trace IDs | API-265 |
 | SPEC-011 Copy an element | API-265 |
 | SPEC-012 Move an element and keep its place | API-265, API-274 |
@@ -185,7 +192,7 @@ The pictures of SPEC-006, SPEC-008 and SPEC-009 are left out of the first releas
 | SPEC-024 Link a reflection pull request | API-248, API-258 |
 | SPEC-025 Mark changes reflected | API-242, API-258 |
 | SPEC-026 Hand over a diagram's change sets together | API-245, API-248 |
-| SPEC-027 Keep the comments of a removed element | API-242, API-265 |
+| SPEC-027 Keep the comments of a removed element | API-242, API-252, API-264, API-265, API-267, API-270, API-272, API-274, API-275 |
 | SPEC-028 Close a thread | API-269 |
 | SPEC-029 Confirm a diagram or item table | API-275 |
 | SPEC-030 Cancel a confirmation | API-276 |
@@ -214,7 +221,7 @@ The pictures of SPEC-006, SPEC-008 and SPEC-009 are left out of the first releas
 
 ## 5. Breaking changes against the previous contract
 
-The previous contract is the archived v2's. Nothing the pinned hub sends or reads changes. Differences the hub does not see: some v2 codes are gone (clock_ahead, too_many_projects, write_id_reused, comment_limit and others) and v3 codes replace them (request_key_reused, thread_closed and others); discrepancies is always empty; no checkpoint_requested turns a request into a reply; /removal and the v2 publication are not served; the owner's sign-in cannot use agent paths; credentials are issued by NEXUS, not as the gate's service tokens. The owner family is new. Replacing the running v2 with v3 is decided at release, not here.
+The previous contract is the archived v2's. Nothing the pinned hub sends or reads changes; the feature change of 2026-11-23 adds the format corthex-hub/0.3 beside 0.2 and the fields formats and format to the held commit, which the pinned hub does not read, and an optional diagram to comments and proposals, which it does not send. Differences the hub does not see: some v2 codes are gone (clock_ahead, too_many_projects, write_id_reused, comment_limit and others) and v3 codes replace them (request_key_reused, thread_closed and others); discrepancies is always empty; no checkpoint_requested turns a request into a reply; /removal and the v2 publication are not served; the owner's sign-in cannot use agent paths; credentials are issued by NEXUS, not as the gate's service tokens. The owner family is new. Replacing the running v2 with v3 is decided at release, not here.
 
 ## 6. What this stage changes in approved items
 
@@ -222,9 +229,37 @@ Each was asked on its own at the checkpoint and approved as recommended. The sta
 
 - **SPEC-002 and SPEC-001, two checks the pinned hub makes before it sends.** SPEC-002 says: "No first-send confirmation in the snapshot → refused, nothing created, the answer says the owner must confirm the first send." The pinned hub's snapshot has no field for it: the hub holds back the first push of a project until the user's yes, given as push --first, and sends nothing different then. Likewise SPEC-001 refuses "a file over 1 MB", but the snapshot carries no files: the hub leaves such a file out and counts it. Recommended: NEXUS creates the space on a first send from a valid agent credential, the confirmation stays the hub's --first, the 1 MB file limit stays the hub's, and the two exceptions say so (REQ-003 is met by the hub's gate). The other way, the owner allowing each new project in NEXUS first, adds an owner action no requirement has.
 - **Rule 3, request keys on every hub command.** Rule 3 says: "Every hub command and every owner action that writes carries a request key." The pinned hub sends no key with push, claim and release. Recommended: those three are repeated safely by commit and by session (the same commit answers its revision; the same session's claim is the same claim), and rule 3 names the hub's queued writes instead of every hub command.
-- **SPEC-006, SPEC-008 and SPEC-009, pictures the snapshot cannot carry.** The pinned hub sends picture sources only for stages 01, 05 and 07, and items for every stage; it sends no user-flow Mermaid, screen states or mockup images. So user-flow diagrams (SPEC-006, Should), screen-state panels (SPEC-008, Could) and mockups with tokens (SPEC-009, Could) cannot be drawn from what the hub sends. Recommended: leave these pictures out of the first release, as their precondition allows; those stages show item tables (SPEC-005), and the rows stay active for a later hub.
+- **SPEC-006, SPEC-008 and SPEC-009, pictures the snapshot cannot carry.** The pinned hub sends picture sources only for stages 01, 05 and 07, and items for every stage; it sends no user-flow Mermaid, screen states or mockup images. So user-flow diagrams (SPEC-006, Should), screen-state panels (SPEC-008, Could) and mockups with tokens (SPEC-009, Could) cannot be drawn from what the hub sends. Recommended: leave these pictures out of the first release, as their precondition allows; those stages show item tables (SPEC-005), and the rows stay active for a later hub. Changed by the feature change of 2026-11-23 (section 7).
 - **The schema, three changes the hub's fields need.** The hub sends fields the stage-05 schema has no column for, and reports a merge without its commit. Recommended: (1) comments.detail, a JSON column for an entry's quote, asks, look_first and decision link; (2) change_sets.detail, a JSON column for a proposal's reason, change text, items, adds and proposed document; (3) pull_requests may be merged without merge_commit, which the hub sends only with reflected, never with merged, and a record's merge never needs. Each is asked on its own as a change to the passed schema.
 
 ## 7. Checkpoint
 
 Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
+
+### Feature change of 2026-11-23
+
+The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: the snapshot format corthex-hub/0.3 with the sources of stages 03, 08 and 09 and a key per picture (Snapshot, PictureStage), the formats a server takes in the held commit (API-243), API-265 serving those pictures from the first release, and a new operation, API-293, that serves a mockup page in isolation (section 3). The 51 operations before it are otherwise unchanged. This stage's part of the change passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the review of pull request 104
+
+Two approved items changed and four items of the feature change were made exact, each asked on its own and approved through the same delegate: the same commit in a newer format completes its revision (API-242), and the held commit names the format it came in, with formats as any corthex-hub/N.N (API-243); comments and proposals take an optional diagram and refuse an ambiguous target with diagram_ambiguous (API-252, API-256); a mockup's elements are its tokens (API-265); API-293 says what the frame keeps out, how the view reads the status and what happens when the page opens another page. The number of operations is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+After the second review of pull request 104, more items changed, each asked on its own and approved through the same delegate: a comment with no item goes on the stage's first diagram; proposals take ProposalStage and a stage with no drawn picture answers not_drawn; a stage drawn as pictures keeps them under a 0.2 snapshot; API-293 says what the frame cannot stop and reopens once; the 0.3 picture source is the file's text, with the rules in the schema and room for 1,000 pictures; API-242 traces SPEC-005 to SPEC-009. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the third review of pull request 104
+
+The contract now says what the second review approved: every answer of API-293 declares the sandbox header and nosniff; a 0.3 key is never empty; the proposal's diagram describes proposals only; not_drawn tells an agent whose proposal gets it to comment. No approved item changed here. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the sixth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: DiagramSummary gains a required removed, and API-264 passes a stage once every diagram of it that is not removed has a recorded confirmation, listing removed ones with open threads last (SPEC-005, SPEC-027). The operations stay 52. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the eighth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: a removed diagram takes no new thread (API-252, API-267), no direct edit (API-272), no move (API-274) and no confirmation (API-275), each answering 404 diagram_not_found, whose meaning now says so; a proposal on it is refused like one on a drawing that is no longer current (API-270, document_changed). No code, operation or owner message was added or changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the ninth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: the client line of diagram_not_found says that after a write the diagram is read again first, since a removed one still listed opens for its threads only (SPEC-027), and its meaning names a direct edit instead of "a change", which also read as a proposal (API-270 answers document_changed). The code, the status and the owner message are unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+A tenth review of the ninth review's fix found that the error table above still gave the meaning of diagram_not_found from before the eighth review. The row now copies the contract, as the other rows do, and a test checks that both tables copy it. No approved item changed.

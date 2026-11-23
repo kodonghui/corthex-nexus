@@ -164,3 +164,19 @@ Writing the API contract against the pinned hub found fields the hub sends that 
 - pull_requests may be merged without merge_commit: the hub reports a commit only with a reflection, and a record's merge needs none.
 
 No table was added or removed, and no other column or constraint changed.
+
+#### After the third review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: TBL-151 sets removed_at only when a snapshot whose format carries the stage no longer holds the diagram (worded by the stage's pictures after the fourth review, below), so a corthex-hub/0.2 snapshot leaves the pictures of stages 03, 08 and 09 as they are (SPEC-005). No table, column or constraint changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the fourth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: TBL-151 sets removed_at when a snapshot no longer holds the diagram, except that a picture of a stage whose pictures the snapshot's format does not carry stays as last drawn (SPEC-005). corthex-hub/0.2 carries stages 03, 08 and 09, whose items feed the item tables, but not their pictures, so the exception is worded by the pictures. No table, column or constraint changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the fifth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: TBL-151 also sets removed_at on a stage's item table when the stage's pictures are drawn for the first time, since that snapshot still carries the stage's items (SPEC-005), and a removed diagram stays listed while it has open threads (SPEC-027). No table, column or constraint changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the sixth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: TBL-151 clears removed_at when a snapshot holds a removed diagram's source again, which UNIQUE (project_id, stage, source_key) brings back to the same row, except for an item table that made way for its stage's pictures, since corthex-hub/0.2 still carries its items. A removed diagram is not one of its stage's diagrams (SPEC-027). No table, column or constraint changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.

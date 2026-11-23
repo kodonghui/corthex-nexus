@@ -94,7 +94,13 @@ CREATE INDEX snapshot_files_by_blob ON snapshot_files (blob_sha256);
 -- TBL-151 diagrams (CTX-037) ← SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-013 | terms: TERM-194
 -- A picture or an item table of one stage, such as the DDD board, the ERD, one user flow or
 -- the table of requirements. source_key names what it is drawn from: the stage, or a flow,
--- screen or mockup file. removed_at is set when its documents no longer hold it.
+-- screen or mockup file. removed_at is set when a snapshot no longer holds it, except that a
+-- picture of a stage whose pictures the snapshot's format does not carry stays as last drawn
+-- (SPEC-005). An item table also gets removed_at when the stage's pictures are drawn for the
+-- first time (SPEC-005). A snapshot that holds a removed diagram's source again clears
+-- removed_at, except for an item table that made way for its stage's pictures. A removed
+-- diagram is not one of its stage's diagrams; it stays listed while it has open threads
+-- (SPEC-027).
 CREATE TABLE diagrams (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   project_id  INTEGER NOT NULL REFERENCES project_spaces (id) ON DELETE CASCADE,

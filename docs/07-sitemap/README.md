@@ -34,6 +34,8 @@ flowchart TD
 
 Read model without a screen: TERM-226 (Agent to-do: agents read it through the hub, not on a page).
 
+SCR-145 and SCR-146 take the optional `?d={diagram}` of section 5: stages 03, 08 and 09 have one diagram per file, so the address names which one; without it the stage's first diagram by name opens, so the hub's stage links work as before.
+
 ## 2. What each screen shows
 
 ### SCR-142 Owner to-do
@@ -129,7 +131,7 @@ Where stages 01 to 06 decided otherwise than the mockup; each is asked on its ow
 | --- | --- | --- | --- | --- |
 | 1 | The first screen | A project's domain board; "My turn N" jumps to the board's AI proposals. | The owner's to-do across projects is the first screen (REQ-052, SPEC-042). | The to-do at /; "My turn N" stays in the header and opens it, and the board's panel keeps only that diagram's proposals. It is an approved requirement, and with several projects a board as the first screen hides the other projects' confirmations and questions. |
 | 2 | Projects and agent credentials | One project, named in the header; no credentials. | Several project spaces with tool links, data and deletion; credentials issued and revoked from the project list (SPEC-013, SPEC-046, SPEC-049, SPEC-050). | The project name in the header opens a project menu; add Projects (/p, with the credentials) and Project (/p/{project}, with #data). The flows need them, and the domain design gives these commands from the project list. |
-| 3 | The stage tabs | Four tabs: domain board, ERD, and sitemap and screen states marked "coming". | All 13 stages; pictures for 01, 05 and 07, item tables for the rest (SPEC-005). Flow, screen-state and mockup pictures are out of the first release (stage 06). | Keep the mockup's tab row with all 13 stages, scrolling sideways when narrow, and an item table instead of "coming". Every stage has items to read and confirm, even without a picture. |
+| 3 | The stage tabs | Four tabs: domain board, ERD, and sitemap and screen states marked "coming". | All 13 stages; pictures for 01, 03, 05, 07, 08 and 09, item tables for the rest (SPEC-005). | Keep the mockup's tab row with all 13 stages, scrolling sideways when narrow, and an item table instead of "coming". Every stage has items to read and confirm, even without a picture. |
 | 4 | Adding and removing stickies | The domain board adds and removes stickies freely. | A drawn diagram comes from its Git document; the owner's direct edits are renames and connections (SPEC-021). Free sticky editing belongs to a workshop (SPEC-038). | On a drawn board: move, rename, connect and comment. Adding and removing stickies works in workshop mode, which the stage-01 workbench shows while a workshop is open. Adding an element to a drawn board would need a requirement the approved stages do not have; asking an agent in a comment does the same through a proposal. |
 | 5 | Apply means accept, then wait for reflection | "Apply" on an AI proposal, or a rename, goes straight into the diagram as a solid sticky. | An accepted proposal or a direct edit waits for an agent to reflect it into the document through a pull request, and turns solid when that commit is drawn (SPEC-019, 021, 022, 025). Confirmation is refused while anything waits (SPEC-029); only moving is stored at once (SPEC-012). | Keep the mockup's moves; name the button "Accept"; show accepted proposals and edits as "waiting for reflection"; disable confirmation with its reason while anything waits. Git stays the source; the mark tells the owner why a change is not solid yet. |
 | 6 | Undo | "Undo" after applying or rejecting, and "back to the AI's name" on a sticky. | A direct edit can be cancelled before it is reflected (SPEC-023); accepting and rejecting are not undone, and a rejected proposal leaves its thread open for another (SPEC-020). | "Cancel edit" for direct edits only; accept and reject ask once and then record. An accepted change is already in an agent's to-do; undoing it would race the agent's pull request. |
@@ -140,7 +142,7 @@ Where stages 01 to 06 decided otherwise than the mockup; each is asked on its ow
 ## 5. Addresses
 
 - The addresses the hub links to, `/p/{project}/{part or _}/{stage}` and `/p/{project}#data`, stay as stage 06 decided.
-- On the stage workbench, `?d=<diagram ID>` names one diagram and `?thread=<thread ID>` one thread. They are states of the same screen, so they have no screen of their own.
+- On the stage workbench and its changes page, `?d=<diagram ID>` names one diagram; on the workbench, `?thread=<thread ID>` names one thread. They are states of the same screen, so they have no screen of their own.
 - The gate keeps the sign-in, and someone it does not admit sees the gate's page; NEXUS has no sign-in screen (SPEC-048).
 
 ## 6. Checkpoint
@@ -148,3 +150,23 @@ Where stages 01 to 06 decided otherwise than the mockup; each is asked on its ow
 The navigation structure is agreed. Approved items that this stage removes, defers or changes: none; every flow has its screens. Each difference in section 4 is asked on its own; without its own answer, stages 01 to 06 stand as approved.
 
 Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
+
+### Feature change of 2026-11-23
+
+The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: difference 3 in section 4 draws stages 03, 08 and 09 as pictures; the sitemap is unchanged. This stage's part of the change passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: the address of SCR-145, and of SCR-146 under it, takes an optional `?diagram={diagram}` for a stage with several diagrams. The paths and the tree are unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the second review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: the query is the `?d=` that section 5 already names, not a new `?diagram=`, so a diagram opened from the to-do and one opened from the list behave the same. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the third review of pull request 104
+
+Section 5 gives `?thread=` to the workbench only; the changes page has no threads. No approved item changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the seventh review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: the `?d=` of SCR-145 and SCR-146 also takes a removed diagram that is still listed because it has open threads (SPEC-027), so those threads stay reachable. This part passed its own checkpoint on 2026-11-23 through the same delegate.

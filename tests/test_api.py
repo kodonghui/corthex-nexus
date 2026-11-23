@@ -207,7 +207,8 @@ class ApiContract(unittest.TestCase):
         for method, path, op in self.ops:
             for status, response in op["responses"].items():
                 if status[0] not in "45" and status != "default":
-                    self.assertEqual(list(response["content"]), ["application/json"], "%s %s" % (path, status))
+                    media = op["x-corthex"].get("media", "application/json")
+                    self.assertEqual(list(response["content"]), [media], "%s %s" % (path, status))
                     continue
                 self.assertEqual(list(response["content"]), ["application/problem+json"], "%s %s" % (path, status))
                 body = response["content"]["application/problem+json"]
@@ -218,6 +219,15 @@ class ApiContract(unittest.TestCase):
                     self.assertEqual(value["status"], self.errors[value["code"]]["status"], "%s %s" % (path, name))
                     if status != "default":
                         self.assertEqual(str(value["status"]), status, "%s %s %s" % (method, path, name))
+
+    def test_the_readme_error_tables_copy_the_contract(self):
+        row = re.compile(r"^\| `([a-z_]+)` \| (\d{3}) \| (.*) \|$", re.M)
+        for name, field in (("README.md", "meaning"), ("README.ko.md", "message_ko")):
+            with open(os.path.join(ROOT, "docs", "06-api", name), encoding="utf-8") as f:
+                rows = {m.group(1): (m.group(2), m.group(3)) for m in row.finditer(f.read())}
+            self.assertEqual(sorted(rows), sorted(self.errors), name)
+            for code, entry in self.errors.items():
+                self.assertEqual(rows[code], (str(entry["status"]), entry[field]), "%s %s" % (name, code))
 
     def test_every_request_field_has_limits(self):
         def walk(schema, where, seen):

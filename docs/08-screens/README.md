@@ -73,3 +73,27 @@ The screen definitions are approved before implementation. This stage removes, d
 | SCR-146 (stage 07) | The diff view: every element added, removed or changed since the last confirmed version, before and after (SPEC-034). | Each changed element is marked added, removed or changed, with its name; "before" is a link to the document at the confirmed version in the repository, not a value per element. | SPEC-034 asks to mark the changed elements, and the approved contract (API-265) returns their keys and the confirmed commit, not their earlier values. |
 
 Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
+
+### Feature change of 2026-11-23
+
+The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: SCR-145's data gains the mockup page (API-293), its normal state says how the pictures of stages 03, 08 and 09 look, and its not-drawn state gives the failure text of each kind. The number of states is unchanged. This stage's part of the change passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the review of pull request 104
+
+Approved items changed, each asked on its own and approved through the same delegate. Here: SCR-145 and SCR-146 take the optional query ?diagram=, SCR-145's data gains the stage's diagrams and its actions "Open another diagram of the stage"; its normal state says how the diagrams are listed, that a mockup's tokens are its elements, that the view reads the page's status first and what happens when the page opens another page. The number of states is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the second review of pull request 104
+
+More approved items changed, each asked on its own and approved through the same delegate. Here: the query of SCR-145 and SCR-146 is the existing ?d=. SCR-145's normal state says that the bar above the mockup frame marks it as a mockup page and NEXUS never asks for a sign-in inside it, that the view opens the page again only once and then stops with Open again, that a mockup takes no AI proposals, and that elements, state panels and tokens included, are selected by keyboard too. The number of states is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the seventh review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate. Here: SCR-145 lists the stage's diagrams also when a removed one is still listed because it has open threads, and its normal state says that a removed diagram comes last, marked removed, and opens with its threads (SPEC-027). The number of states is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the eighth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate. Here: on SCR-145 a removed diagram opens for its threads only, with no new comment, move, direct edit, proposal answer or confirm button, and SCR-146 shows only its changes, with no confirm button (SPEC-027). The number of states is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the ninth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate. Here: after a 404 for the diagram on a write, SCR-145 reads the diagram again first, and a removed one still listed opens for its threads only; after a confirmation SCR-146 does the same and shows only its changes; otherwise both still say the diagram is not in NEXUS (SPEC-027). The number of states is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.

@@ -37,6 +37,7 @@ The screens mark their states with these tokens:
 [mockup/nexus-mockup.html](mockup/nexus-mockup.html) is one file without a build step: open it in a browser. The bar at the top picks the screen, the state, the width (1440 for a PC, 360 for a phone) and the theme, and an address such as `#SCR-145/waiting/1440/dark` opens one directly. Links and buttons inside a screen go where the definition's actions say, for example Confirm to the confirmed state and "+2 more" to SCR-146. Under the frame, the page shows the state's definition and the responses that lead to it.
 
 - Every state of every screen is drawn at 360 and 1440 pixels: 39 states and 78 frames, each in the light and the dark theme.
+- SCR-145#normal also has three stage views for the pictures of the feature change of 2026-11-23, at both widths in both themes: stage 03 as a flow diagram with the main path down the left, stage 08 as one panel per state with one marked "No description", and stage 09 as the mockup page in an isolated frame with the tokens it uses listed in the panel, a token selected with its thread and comment box. Above the flow and the state panels, the stage's diagrams are a list to choose from. The stage tabs open them, and an address such as `#SCR-145/normal/1440/light/03` opens one directly; 6 frames more.
 - The copy is the Korean the screens will ship with, at its real size. The example project is the 2026-11-21 mockup's book club app (the title 독서 모임 앱, the name `book-club`), with its domain board, AI proposals and comments.
 - At 360 pixels a state shows the phone, except the four states that only a PC action leads to (SCR-143#secret, SCR-144#delete, SCR-146#confirmed and SCR-146#not-drawn), which show a narrow PC window, as section 2 of the stage-08 README says.
 - The fonts load from Google Fonts when the browser is online; otherwise the system fonts that the font tokens list after them are used.
@@ -82,8 +83,8 @@ And one change of this stage: every colour is a token name, where the 2026-11-21
 
 - `tokens.py check` of the `corthex-screen` skill on the mockup: 1158 colour literals, none off the tokens, compared in both themes.
 - `tokens.py verify` on [carbon/](carbon/): 27 Carbon files match [carbon/source.json](carbon/source.json).
-- [tests/test_design.py](../tests/test_design.py) checks that every token file follows the format, that the resolver lists every token file, that the project's tokens are only under `nexus`, that `source.json` names every file in [carbon/](carbon/) and each copy matches its hash, that the mockup has a frame for every state of every screen definition at both widths, and that no colour outside the token CSS appears in the mockup: not in another style block, a style attribute or a style its script sets, whether written as a hex value, a colour function or a CSS colour name.
-- Looked at in Edge: every frame at both widths in both themes, 156 pictures, after the last change.
+- [tests/test_design.py](../tests/test_design.py) checks that every token file follows the format, that the resolver lists every token file, that the project's tokens are only under `nexus`, that `source.json` names every file in [carbon/](carbon/) and each copy matches its hash, that the mockup has a frame for every state of every screen definition at both widths and for each of the three stage views of SCR-145#normal, and that no colour outside the token CSS appears in the mockup: not in another style block, a style attribute or a style its script sets, whether written as a hex value, a colour function or a CSS colour name.
+- Looked at in Edge: every frame at both widths in both themes, 156 pictures, after the last change of stage 09; after the feature change of 2026-11-23, the stage views at both widths in both themes, 12 pictures.
 - Not checked: real phones, screen readers and measured contrast. The colours are Carbon's theme tokens, with the CORTHEX layer's sticky text on the sticky colours.
 
 ## 5. Choices made in this stage
@@ -101,3 +102,27 @@ These are reversible, so they were made here and listed for the checkpoint:
 ## 6. Checkpoint
 
 The maintainer passed stage 09 on 2026-11-23 at 7fff711 through the delegate they named for checkpoints; the answer is in the project's records. The direction is chosen and the tokens are frozen before development uses them. This stage removes, defers or changes no approved item of stages 01 to 08; the variants in section 2 keep their words in the screen definitions.
+
+### Feature change of 2026-11-23
+
+The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: the three stage views of SCR-145#normal in section 2. No token is added or changed. This stage's part of the change passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the review of pull request 104
+
+The stage tabs of the 78 state frames are again exactly as stage 09 approved them; the script opens the view of stage 03, 08 or 09 from a tab, so no state frame changed. The stage-09 view gained the thread and comment box of a selected token, on a phone under the frame's token list; the flow and screen lists above the 03 and 08 views are links. No token is added or changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the second review of pull request 104
+
+The state panels of the 08 view and the tokens of the 09 view are buttons that show which one is selected, like the boxes of the 03 view, so a keyboard selects them too. The bar above the mockup frame says it is a mockup page, that NEXUS never asks for a sign-in inside it and that a page it opens is opened again once; the 09 view's "AI proposals" section says that a mockup takes none. The state frames are still exactly as stage 09 approved them, and no token is added or changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the seventh review of pull request 104
+
+The mockup page's copy of SCR-145's normal state follows stage 08: a removed diagram with open threads comes last, marked removed, and opens with its threads (SPEC-027). The page is generated again; nothing else in it changed and no approved item of this stage changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the eighth review of pull request 104
+
+The mockup page's copy of SCR-145's and SCR-146's normal states follows stage 08: a removed diagram opens for its threads only (SPEC-027). The page is generated again; nothing else in it changed and no approved item of this stage changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the ninth review of pull request 104
+
+The mockup page's copy of SCR-145's and SCR-146's error states follows stage 08: after a 404 for the diagram on a write, the diagram is read again first, and a removed one still listed opens for its threads only (SPEC-027). The page is generated again; nothing else in it changed and no approved item of this stage changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.

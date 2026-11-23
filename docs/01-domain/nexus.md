@@ -14,7 +14,7 @@ The project declares one part, `nexus`, and the hub gives a part only to a file 
 
 Sources: the maintainer's briefs of 2026-10-24, 2026-11-03, 2026-11-06 and 2026-11-21, and their approval on 2026-11-22 of the ten redesign recommendations and the clickable mockup. Their exact words stay in the project's records outside Git.
 
-NEXUS is a workbench where one person sees each project's CORTHEX stage outputs as the picture that fits the stage (DDD board, ERD, sitemap, screen states, mockup) or as a table, talks about them with an AI on the picture, changes them there, and confirms each picture. The source is the stage documents in Git. Pictures are drawn from the documents, and changes go back into the documents through pull requests.
+NEXUS is a workbench where one person sees each project's CORTHEX stage outputs as the picture that fits the stage (DDD board, user flow, ERD, sitemap, screen states, mockup) or as a table, talks about them with an AI on the picture, changes them there, and confirms each picture. The source is the stage documents in Git. Pictures are drawn from the documents, and changes go back into the documents through pull requests.
 
 ### Scope
 
@@ -321,7 +321,7 @@ The Diagram context holds the document version in the middle: Review and Confirm
 | TERM-191 | Stage document | The source of a stage's output on the Git default branch | CTX-037 | `StageDocument` | manuscript |
 | TERM-192 | Snapshot | The stage documents of one default-branch commit that an agent sends to NEXUS | CTX-037 | `Snapshot` | published copy, backup |
 | TERM-193 | Document version | The commit of the stage documents a diagram was drawn from | CTX-037 | `DocumentVersion` | edition |
-| TERM-194 | Diagram | A picture drawn from stage documents: DDD board, ERD, sitemap, screen states, mockup | CTX-037 | `Diagram` | canvas (only for the editing tool) |
+| TERM-194 | Diagram | A picture drawn from stage documents: DDD board, user flow, ERD, sitemap, screen states, mockup | CTX-037 | `Diagram` | canvas (only for the editing tool) |
 | TERM-195 | Item table | The items of a stage without a picture (PRD, functional spec, API, WBS, QA) shown as a table | CTX-037 | `ItemTable` | list screen |
 | TERM-196 | Element | One thing in a diagram: a sticky note, a table, a screen, a line or a table row. It carries a hidden trace ID | CTX-037 | `Element` | node, item |
 | TERM-197 | Trace ID | An ID that links stages, such as CTX-001. Hidden on screen and shown only when copied | CTX-037 | `traceId` | number |
@@ -368,6 +368,8 @@ Checkpoints 1 to 3 were asked together and passed on 2026-11-23 in the project's
 Corrections after the pass: the review of the stage's first pull request found ten points, and seven are corrected here (the to-do's inputs, the owner of Domain document updated, the claim release, the agent's route into the workshop, the claim and credential lane, the credential commands and the close path of a comment). They passed a checkpoint of their own on 2026-11-23: the maintainer approved the recommendation through the delegate they named for checkpoints, as recorded in the project's records.
 
 Hotspots 3 to 9 and 14 were answered at the stage-02 checkpoint, and hotspots 12 and 13 were carried into the requirements its version freeze approved; section 6 names those answers since the reviews of pull requests 96 and 97. That correction passed its own checkpoint on 2026-11-23 and changes no approved item.
+
+Feature change of 2026-11-23, pictures for stages 03, 07, 08 and 09 in the first release. The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: TERM-194 Diagram and section 1 name the user flow among the pictures drawn from stage documents. The document changes, so the DDD board drawn from it shows changes since its confirmation and needs the maintainer's confirmation again. This stage's part of the change passed its own checkpoint on 2026-11-23 through the same delegate.
 
 Approved items that this stage drops or changes: v2 was archived as a whole by the maintainer's decision of 2026-11-22, and section 3 shows what carries over; this stage has no other approved items.
 
