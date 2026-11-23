@@ -103,6 +103,14 @@ function statementsOf(store) {
   return statements;
 }
 
+// A thread's item (the contract's ItemRef): the trace ID of the element or row it is on, or '' for a thread on the
+// diagram as a whole, one an element that left the drawing moved there among them (SPEC-027). The agent to-do and an
+// agent's comment (comments.js) read it alike.
+export function threadItem(targetKind, elementKey) {
+  const key = elementKey ?? '';
+  return targetKind !== 'diagram' && key.length <= TRACE_ID_LENGTH && TRACE_ID.test(key) ? key : '';
+}
+
 // The part of the project a diagram belongs to, '' for the project as a whole (see the server's README, Drawing): a
 // stage's picture names it in its source_key, /pictures/<stage>/<part>; an item table has none; a file's picture of
 // stage 03, 08 or 09 has it only in the /snapshot document of the snapshot its last drawing comes from, beside the
@@ -154,12 +162,10 @@ export function agentTodo(store, { name, session = null, now }) {
 
   const comments = statements.comments.all(projectId).map((row) => {
     const id = idOf('nc', Number(row.thread_id));
-    const key = row.element_key ?? '';
-    const item = row.target_kind !== 'diagram' && key.length <= TRACE_ID_LENGTH && TRACE_ID.test(key) ? key : '';
     return {
       id,
       ...where(row),
-      item,
+      item: threadItem(row.target_kind, row.element_key),
       target: row.target_kind,
       opened_at: row.opened_at,
       last_at: row.last_at,

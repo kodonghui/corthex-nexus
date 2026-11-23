@@ -239,10 +239,15 @@
           "approved": "Owner projects and to-do table correction, pull request 122, at commit 46e19e6: API-262's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-161, TBL-166 and TBL-170 instead of the approved TBL-147, TBL-148 and TBL-170, and API-263's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-158, TBL-160, TBL-166 and TBL-170 instead of the approved TBL-166 and TBL-170: the tables each answer reads. No operation, field, response, code or spec row changed. Each changed item was answered on its own before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Agent comment table correction, pull request 123, at commit 428bb70: API-252's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156 and TBL-166 instead of the approved TBL-155, TBL-156 and TBL-166; API-253, API-254 and API-255 each list TBL-147, TBL-151, TBL-155, TBL-156, TBL-157, TBL-166 and TBL-167 instead of the approved [TBL-156, TBL-166, TBL-167], [TBL-155, TBL-166, TBL-167] and [TBL-156, TBL-166]; and diagram_not_found's client line adds what an agent does on that answer (note 11). No operation, field, response, code or spec row changed. Each changed item was answered on its own before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T02:09:47+09:00"
+      "updated": "2026-11-24T02:44:31+09:00"
     },
     "07-sitemap": {
       "state": "done",

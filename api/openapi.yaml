@@ -1356,7 +1356,7 @@ paths:
       x-corthex:
         id: API-252
         spec: [SPEC-014, SPEC-016, SPEC-027]
-        tables: [TBL-155, TBL-156, TBL-166]
+        tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-166]
         release: Must
         family: agent
       security:
@@ -1576,7 +1576,7 @@ paths:
       x-corthex:
         id: API-253
         spec: [SPEC-014, SPEC-017]
-        tables: [TBL-156, TBL-166, TBL-167]
+        tables: [TBL-147, TBL-151, TBL-155, TBL-156, TBL-157, TBL-166, TBL-167]
         release: Must
         family: agent
       security:
@@ -1772,7 +1772,7 @@ paths:
       x-corthex:
         id: API-254
         spec: [SPEC-014, SPEC-017]
-        tables: [TBL-155, TBL-166, TBL-167]
+        tables: [TBL-147, TBL-151, TBL-155, TBL-156, TBL-157, TBL-166, TBL-167]
         release: Must
         family: agent
       security:
@@ -1947,7 +1947,7 @@ paths:
       x-corthex:
         id: API-255
         spec: [SPEC-014, SPEC-017]
-        tables: [TBL-156, TBL-166]
+        tables: [TBL-147, TBL-151, TBL-155, TBL-156, TBL-157, TBL-166, TBL-167]
         release: Must
         family: agent
       security:
@@ -9018,7 +9018,7 @@ components:
         meaning: No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027).
         message: This diagram is not in NEXUS.
         message_ko: "NEXUS에 없는 다이어그램이에요."
-        client: Link to the project; after a write, read the diagram again first, since a removed one still listed opens for its threads only (SPEC-027).
+        client: "Link to the project; after a write, read the diagram again first, since a removed one still listed opens for its threads only (SPEC-027). An agent does not send the comment again as it is: it pushes the stage so that it draws, or names an item that a drawn diagram of the stage holds; an open thread of a removed diagram still takes replies (API-253)."
       discrepancy_not_found:
         status: 404
         meaning: NEXUS v3 has no discrepancies, so every nd_ ID is unknown.

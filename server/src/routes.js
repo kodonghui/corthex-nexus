@@ -3,6 +3,7 @@
 // touches with the contract (note 23 of the WBS).
 
 import { CLAIM_ROUTES } from './claims.js';
+import { COMMENT_ROUTES } from './comments.js';
 import { CREDENTIAL_ROUTES } from './credentials.js';
 import { OWNER_ROUTES } from './owner.js';
 import { PROJECT_ROUTES } from './project.js';
@@ -22,4 +23,6 @@ export const ROUTES = Object.freeze([
   ...CLAIM_ROUTES,
   // TASK-439: API-262 and API-263.
   ...OWNER_ROUTES,
+  // TASK-437: API-252, API-253, API-254 and API-255.
+  ...COMMENT_ROUTES,
 ]);
