@@ -82,7 +82,10 @@ function statementsOf(store) {
          WHERE w.diagram_id = ? AND w.status = 'drawn' AND s.revision <= ? ORDER BY s.revision DESC, w.id DESC LIMIT 1`,
       ),
       element: store.prepare('SELECT element_key, name FROM elements WHERE drawing_id = ? AND trace_id = ? ORDER BY id LIMIT 1'),
-      holds: store.prepare('SELECT 1 AS held FROM elements WHERE drawing_id = ? AND element_key = ?'),
+      // Whether a drawing holds the element readable: one drawn as unreadable counts as gone (SPEC-027).
+      holds: store.prepare(
+        "SELECT 1 AS held FROM elements WHERE drawing_id = ? AND element_key = ? AND (status IS NULL OR status <> 'unreadable')",
+      ),
       insertThread: store.prepare(
         `INSERT INTO comment_threads (diagram_id, drawing_id, target_kind, element_key, removed_name, state, waits_on, opened_at)
          VALUES (?, ?, ?, ?, ?, 'open', 'owner', ?)`,
@@ -307,12 +310,13 @@ function placeOf(store, statements, project, request) {
 const itemNotFound = (item) => new Problem('item_not_found', undefined, {}, { items: [item] });
 
 // The thread's target (TBL-155): the diagram as a whole without element; an element, or a row of an item table, that
-// the current drawing holds; or else the diagram, keeping the key of the element that left with its last name.
+// the current drawing holds readable; or else the diagram, keeping the key of the element that left with its last name.
+// An element the current drawing draws as unreadable counts as gone, as after-drawing.js counts it (SPEC-027).
 function targetOf(statements, diagram, drawing, element) {
   if (element === null) return { kind: 'diagram', key: null, removedName: null };
   const key = element.element_key;
   const current = statements.current.get(Number(diagram.id));
-  const held = Number(current.id) === Number(drawing.id) || statements.holds.get(Number(current.id), key) !== undefined;
+  const held = statements.holds.get(Number(current.id), key) !== undefined;
   if (held) return { kind: diagram.kind === 'item_table' ? 'row' : 'element', key, removedName: null };
   return { kind: 'diagram', key, removedName: element.name === '' ? key : element.name };
 }

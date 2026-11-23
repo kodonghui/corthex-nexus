@@ -14,10 +14,10 @@
 //     recorded confirmation for every diagram, which SPEC-035's pass rests on. No approved document states this rule;
 //     the coordinator decided it for TASK-435. A removed diagram changes no pass, since it counts for none (SPEC-027).
 // - Reflections (SPEC-025). The accepted change sets of a reflection pull request whose reported merge commit is the
-//   drawn snapshot's commit are reflected, at the diagram's latest drawing after the push, even when that drawing lacks
-//   the change: the comment saying what is missing is TASK-447's (note 26 of the WBS). Only that exact commit marks
-//   them (API-258). The thread of a proposal then closes, by reflection, once none of its change sets is proposed or
-//   accepted.
+//   drawn snapshot's commit are reflected, at the drawing the diagram shows after the push, its latest that drew (a
+//   failed drawing shows the last good one, SPEC-001), even when that drawing lacks the change: the comment saying what
+//   is missing is TASK-447's (note 26 of the WBS). Only that exact commit marks them (API-258). The thread of a
+//   proposal then closes, by reflection, once none of its change sets is proposed or accepted.
 // - Threads (SPEC-027). An element leaves its stage document when a drawing of its diagram that drew no longer has it,
 //   or draws it as unreadable (its part left out as unreadable counts as gone), or when the snapshot removes its
 //   diagram, other than an item table that makes way for the stage's pictures (SPEC-005). Its open threads move to the
@@ -171,12 +171,14 @@ export function afterDrawing(store, { project, commit, changed, time }) {
     }
   }
 
-  // Reflections, at the diagram's latest drawing after the push.
+  // Reflections, at the drawing the diagram shows after the push. A change set is made against a drawing that drew,
+  // so the diagram has one; its latest drawing is only a guard.
   const reflected = new Set();
   const asked = new Set();
   for (const set of statements.reflecting.all(project, commit)) {
     const diagram = Number(set.diagram_id);
-    statements.reflect.run(Number(statements.latestDrawing.get(diagram).id), Number(set.id));
+    const shown = statements.currentDrawn.get(diagram) ?? statements.latestDrawing.get(diagram);
+    statements.reflect.run(Number(shown.id), Number(set.id));
     counts.change_sets_reflected += 1;
     reflected.add(diagram);
     if (set.thread_id !== null) asked.add(Number(set.thread_id));

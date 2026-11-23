@@ -204,6 +204,18 @@ describe('after a drawing', () => {
     assert.equal(open.some((entry) => entry.thread_id === asked), false);
     assert.deepEqual(open.filter((entry) => entry.kind === 'reflect').map((entry) => entry.change_set_id), [other]);
     assert.ok(closedEntries(db, space.id).some((entry) => entry.kind === 'reflect' && entry.reason === 'done'));
+
+    // When the merge commit's snapshot fails to draw the diagram, the change sets are reflected at the drawing it
+    // still shows, its last good one, not at the failed drawing (SPEC-001).
+    const late = rows.changeSet(space, diagram(space, ERD));
+    const second = rows.pullRequest(space, { number: 14, state: 'merged' });
+    rows.setChangeSet(late, { pullRequestId: second });
+    const failing = newCommit();
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(failing, second);
+    const good = diagram(space, ERD).drawing;
+    assert.deepEqual(counts(await space.push({ tables: [...tables, table('TBL-148', 'snapshots', { broken: true })], commit: failing })), [0, 1, 0]);
+    assert.equal(drawingsOf(diagram(space, ERD)).at(-1).status, 'failed');
+    assert.deepEqual(changeSetRow(late), { state: 'reflected', reflected_drawing_id: good });
   });
 
   test('an invalidated confirmation marks the passes it rested on changed since the pass, and the pass stays (SPEC-035)', async () => {
