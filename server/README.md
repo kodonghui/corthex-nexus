@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; and TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-264, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; and TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-262, API-263, API-264, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -300,6 +300,34 @@ Both operations read the project space, the entry and the claim's pull request b
 The answer names what other tables hold, so API-264 lists 12 tables. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
 
 `test/project-read.test.js` checks TASK-440's done condition with rows that `test/seed.js` writes, the stage passes and tool links included, since later tasks write them (note 25): a stage shows passed from its pass record, and changed since the pass once a confirmation it rests on is invalidated and its pass is marked changed; removed diagrams are not counted. It answers every response API-264 lists and checks the tables it touches (note 23).
+
+## Projects and to-do
+
+`src/owner.js` is TASK-439: what the owner sees first, the project list (API-262, `GET /api/projects`; SPEC-015, SCR-143) and the owner's to-do (API-263, `GET /api/todo`; SPEC-042, SCR-142). Both are owner operations, so admission lets only the owner's sign-in from the gate through (SPEC-048). A read writes nothing and logs nothing.
+
+- **The project list.** The project spaces, newest send first (SCR-143): by the time the held snapshot was received, then by name. A space that holds no snapshot yet comes after them, by name. At most 1000 are listed. Each has:
+  - `title`, `revision`, `commit` and `pushed_at` from `projectHead`, as the project read finds them (see Project), so the title falls back to the name in the same way;
+  - `owner_todo`: the project's open entries that wait on the owner (TBL-166), the same entries the to-do lists (note 22 of the WBS);
+  - `stages_passed`: how many of the 13 stages are passed. A stage counts when `stageState` shows its row as `passed`, so a pass marked changed since does not count. `stagesPassed` in `src/project.js` holds this, so "N of 13 stages passed" on SCR-143 cannot differ from the stage rows on SCR-144.
+
+  A new install has no project space, and the store never reads a v2 store (see Store), so it lists none (SPEC-015).
+- **The owner's to-do.** The open owner entries of TBL-166, which `src/entries.js` opens and closes: the diagrams to confirm, the AI proposals to answer and the agent questions. The 5000 newest are listed, grouped by project. Projects come in the order of their newest entry, and each project's entries newest first, by the time each was opened and then by key. So the first entry is the newest of all. Each entry gives:
+  - its project, stage, part, diagram and diagram name. The part is found as the agent to-do finds it (see To-do entries).
+  - `thread`: a question's thread, or the thread a proposal answers.
+  - `change_set`: a proposal's change set.
+  - `reason`: for a confirm entry, why the diagram waits. It is `new` when no confirmation of it ended, and otherwise the state of the last one that ended: `invalidated` by a new document (SPEC-033) or `cancelled` (SPEC-030).
+  - `since`: when the entry was opened.
+
+  An entry of a removed diagram stays as `src/entries.js` leaves it: its questions and proposals still wait on the owner, and its confirm entry is withdrawn (note 4 of the WBS).
+- **The backup warning.** Both answers carry `backup`, the warning of a failed daily backup (SPEC-042, SPEC-052), from TBL-170. `src/backups.js` holds the rule.
+  - The warning comes from the latest backup that ended for good, by the time it started. A backup that succeeded shows none. A retry (attempt 2) that failed shows it.
+  - A first attempt that failed shows nothing while its retry is due, since SPEC-052 retries a failed backup once within the hour before the warning. Rows still running change nothing either.
+  - The warning stays until a later backup succeeds. `failed_at` is when the failed retry ended, and `last_succeeded_at` when the last backup that succeeded ended, or null when none ever did.
+  - The backups themselves are TASK-450's, and so is a retry that never ran.
+
+The two answers name what other tables hold, so API-262 lists 7 tables and API-263 lists 9. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+
+`test/owner.test.js` checks TASK-439's done condition. A new install, with a v2 store beside it in the data folder, lists no project and nothing to do. The test answers every response API-262 and API-263 list, and checks the tables each touches (note 23). Its rows are written with `test/seed.js`, its entries opened by `src/entries.js`, and its TBL-170 rows written as TASK-450's job will write them.
 
 ## Answers
 
