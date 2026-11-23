@@ -150,15 +150,16 @@ export function createBackups({
     if (nowMs >= due && statements.attempts.all(backupName(today)).length === 0) {
       return { at: nowMs, day: today, attempt: 1 };
     }
-    // The retry of the latest backup, when its first attempt failed and it has none.
+    // The retry of the latest backup, when its first attempt failed and it has none, before the next day's time: from
+    // then on, that day's backup runs instead and the retry is dropped, so no backup is named by a day it is not of.
     const latest = statements.latest.get();
     const day = latest === undefined ? null : dayOfName(latest.name);
     if (day !== null) {
       const attempts = statements.attempts.all(latest.name);
       const first = attempts.find((row) => row.attempt === 1);
       if (first?.state === 'failed' && attempts.every((row) => row.attempt !== 2)) {
-        const at = missed.has(latest.name) ? nowMs : Date.parse(endOf(first)) + RETRY_MS;
-        return { at: Math.max(nowMs, at), day, attempt: 2 };
+        const at = Math.max(nowMs, missed.has(latest.name) ? nowMs : Date.parse(endOf(first)) + RETRY_MS);
+        if (at < startOf(day) + DAY_MS + minuteOfDay * 60_000) return { at, day, attempt: 2 };
       }
     }
     return { at: nowMs < due ? due : due + DAY_MS };
@@ -173,11 +174,13 @@ export function createBackups({
     const file = join(directory, name);
     let renamed = false;
     let bytes;
+    // The old backups this attempt removed: for room before the copy, and past 30 days after it.
+    let removed = 0;
     try {
       mkdirSync(directory, { recursive: true, mode: 0o700 });
       const needed = Number(statements.size.get().bytes);
       if (free(directory) < needed) {
-        removeBackups(day, () => free(directory) >= needed);
+        removed += removeBackups(day, () => free(directory) >= needed);
         if (free(directory) < needed) throw new NotEnoughDisk();
       }
       // Made empty and readable by its owner only before SQLite writes into it, so no other user ever reads it; a
@@ -203,10 +206,9 @@ export function createBackups({
       return;
     }
     // The backup succeeded. The backups it ends are removed apart, so a removal that fails never fails the backup.
-    let removed = 0;
     let removal = null;
     try {
-      removed = removeBackups(day, () => false);
+      removed += removeBackups(day, () => false);
     } catch (error) {
       removal = errorKind(error);
     }

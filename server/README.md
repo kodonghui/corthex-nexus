@@ -905,7 +905,7 @@ The answer names what other tables hold, so API-265 lists 15 tables. The correct
 - **What.** Each backup is a copy of the store made with `node:sqlite`'s own `backup()`, named by its day: `nexus-v3-backup-YYYY-MM-DD.sqlite` in the folder `NEXUS_BACKUP_DIR` names.
   - It is written as `<name>.partial`, readable by its owner only like the store, and renamed when it is whole. So a file with a backup's name is always a complete store, and a failed attempt leaves no file.
   - The copy runs as one task of the server's one write queue (see [Requests](#requests)). The store is one connection, which cannot copy itself while a write's transaction is open, so the writes wait for the copy while the reads go on.
-- **The retry.** A first attempt that fails is retried once, under the same name, 15 minutes after it failed. When the retry fails too, the owner's to-do and the project list show the warning (see [Projects and to-do](#projects-and-to-do)) until a backup succeeds.
+- **The retry.** A first attempt that fails is retried once, under the same name, 15 minutes after it failed. A retry that would come after the next day's time is dropped, and that day's backup runs at its time instead, so no backup is named by a day it is not of. When the retry fails too, the owner's to-do and the project list show the warning (see [Projects and to-do](#projects-and-to-do)) until a backup succeeds.
 - **After a crash.** At start, an attempt left running is recorded failed, and its partial file is removed. An attempt whose end the store could not record is recorded failed in the same way when the job next looks.
   - A first attempt's retry then runs at once, even past the hour, and the warning shows only if that retry fails. A retry left running is the end, so the warning shows.
   - A retry that fell due while the server was stopped also runs at start, unless the next day's time has come; that day's backup then runs instead.
@@ -933,7 +933,7 @@ node src/rehearse.js <release>
 - It reads the copy: SQLite's integrity check, its foreign keys, and every row of every table.
 - It removes the folder afterwards.
 
-The result is recorded in the store as it is. The command neither creates the store nor applies a migration to it, so it can run beside a server whose code is older. Its one line names no path.
+The result is recorded in the store as it is. The command neither creates the store nor applies a migration to it, so it can run beside a server whose code is older. A store that a newer server migrated is refused (`store_refused` with `newer_store`, exit 1), as the server refuses it. Its one line names no path.
 
 - **It succeeded.** The row says `succeeded`, with a note of what was read. The line is `rehearsal_recorded`, and the command exits 0.
 - **A check failed.** The row says `failed`, with a note naming the check and the kind of error, never a path. The checks are `copy`, `open`, `integrity`, `foreign_keys` and `read`. The command exits 1, so the release step stops. No screen shows it.

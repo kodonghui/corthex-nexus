@@ -179,9 +179,12 @@ describe('the restore rehearsal', () => {
     const opened = openExistingStore(folder);
     try {
       assert.equal(Number(opened.prepare('PRAGMA user_version').get().user_version), 0);
+      // A store a newer server migrated is refused, as the server refuses it, and left as it is.
+      opened.exec(`PRAGMA user_version = ${VERSION + 1}`);
     } finally {
       opened.close();
     }
+    assert.throws(() => openExistingStore(folder), (error) => error instanceof StoreError && error.reason === 'newer_store');
   });
 });
 

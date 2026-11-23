@@ -480,6 +480,35 @@ describe('the daily backup', () => {
     assert.equal(backupWarning(store), null);
   });
 
+  test('a retry not run before the next day\'s time is dropped, and no backup is named by a day it is not of', async (t) => {
+    const store = testStore(t);
+    store.prepare("INSERT INTO backups (name, attempt, state, started_at, finished_at) VALUES (?, 1, 'failed', ?, ?)")
+      .run(backupName('2026-11-21'), '2026-11-21T03:00:00.000Z', '2026-11-21T03:01:00.000Z');
+    // Started again days later, before the day's time: the retry of 2026-11-21 is not run, and the day's backup is.
+    const job = backupJob(t, store, { start: at('2026-11-24T01:00:00.000Z') });
+    await job.job.start();
+    assert.equal(job.rows().length, 1);
+    await job.until(at('2026-11-24T03:00:00.000Z'));
+    assert.deepEqual(job.rows().map((row) => [row.name, row.attempt, row.state]), [
+      [backupName('2026-11-21'), 1, 'failed'],
+      [backupName('2026-11-24'), 1, 'succeeded'],
+    ]);
+    assert.deepEqual(job.files(), [backupName('2026-11-24')]);
+    // A first attempt that fails so late that its retry would come after the next day's time: the next day's backup
+    // runs at its time, and the retry does not.
+    const late = testStore(t);
+    late.prepare("INSERT INTO backups (name, attempt, state, started_at, finished_at) VALUES (?, 1, 'failed', ?, ?)")
+      .run(backupName('2026-11-24'), '2026-11-24T23:58:00.000Z', '2026-11-24T23:58:00.000Z');
+    const early = backupJob(t, late, { start: at('2026-11-24T23:59:00.000Z'), hour: 0, minute: 5 });
+    await early.job.start();
+    assert.equal(early.next(), at('2026-11-25T00:05:00.000Z'));
+    await early.run();
+    assert.deepEqual(early.rows().map((row) => [row.name, row.attempt, row.state, row.started_at]), [
+      [backupName('2026-11-24'), 1, 'failed', '2026-11-24T23:58:00.000Z'],
+      [backupName('2026-11-25'), 1, 'succeeded', '2026-11-25T00:05:00.000Z'],
+    ]);
+  });
+
   test('a stop that comes while the job waits in the queue starts nothing', async (t) => {
     const store = testStore(t);
     const job = backupJob(t, store, { start: at('2026-11-24T01:00:00.000Z') });

@@ -95,9 +95,13 @@ export function openExistingStore(dataDirectory) {
   if (!existsSync(path)) throw new StoreError('no_store');
   checkHeader(path);
   const db = new DatabaseSync(path, { enableForeignKeyConstraints: true, timeout: BUSY_TIMEOUT_MS });
-  if (pragma(db, 'application_id') !== APPLICATION_ID) {
+  try {
+    if (pragma(db, 'application_id') !== APPLICATION_ID) throw new StoreError('not_a_v3_store');
+    // A store a newer server migrated is left as it is, as openStore leaves it.
+    if (pragma(db, 'user_version') > readMigrations().length) throw new StoreError('newer_store');
+  } catch (error) {
     db.close();
-    throw new StoreError('not_a_v3_store');
+    throw error;
   }
   return db;
 }
