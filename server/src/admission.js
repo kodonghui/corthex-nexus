@@ -71,7 +71,8 @@ async function admitOwner(gate, request, entry) {
   // A sign-in of someone else keeps the sender "unknown": rule 8 names only the owner and credentials.
   if (!gate.isOwner(claims)) throw new Problem('not_owner', 'this sign-in is not the owner\'s');
   entry.sender = 'owner';
-  // Only the gate signs the owner's sign-in, so the gate sent this request and its CF-Ray is the gate's.
+  // Only the gate signs the owner's sign-in, so the gate sent this request and its CF-Ray is the gate's. Another
+  // person's sign-in is a bearer token the gate signed too, but its holder is not trusted to choose a trace ID.
   entry.traceId = rayOf(request.headers) ?? entry.traceId;
   // A browser says where a request comes from; a write of the owner's comes only from NEXUS's own pages.
   const site = request.headers['sec-fetch-site'];

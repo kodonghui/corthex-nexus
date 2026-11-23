@@ -6,6 +6,7 @@
 // own words, which the log may name (rule 5, rule 8).
 
 import { createPublicKey, verify } from 'node:crypto';
+import { performance } from 'node:perf_hooks';
 
 // Where Access publishes the team's signing keys, under the issuer.
 export const CERTS_PATH = '/cdn-cgi/access/certs';
@@ -44,11 +45,12 @@ export class GateKeysError extends Error {
 
 // The gate: { issuer, audience, owner } from the settings, and the keys that sign its tokens.
 export function createGate({ issuer, audience, owner, keys = createGateKeys({ issuer }), now = Date.now }) {
+  const ownerEmail = owner.toLowerCase();
   return Object.freeze({
     // The verified claims of a request's sign-in, or SignInError; GateKeysError when the keys cannot be read.
     signIn: (headers) => verifySignIn(headers['cf-access-jwt-assertion'], { issuer, audience, keys, now }),
     // Whether verified claims are the one owner's: the email the gate checked, matched without case.
-    isOwner: (claims) => typeof claims.email === 'string' && claims.email.toLowerCase() === owner,
+    isOwner: (claims) => typeof claims.email === 'string' && claims.email.toLowerCase() === ownerEmail,
   });
 }
 
@@ -99,8 +101,9 @@ function jsonPart(part) {
 }
 
 // The team's signing keys from its certs endpoint, kept for an hour. key(kid) answers the public key of that kid, or
-// null when the endpoint does not list it; it throws GateKeysError when no current keys can be read.
-export function createGateKeys({ issuer, fetch = globalThis.fetch, now = Date.now }) {
+// null when the endpoint does not list it; it throws GateKeysError when no current keys can be read. The hour and the
+// gap are measured on a monotonic clock, so a step of the system's clock neither keeps old keys nor stops a fetch.
+export function createGateKeys({ issuer, fetch = globalThis.fetch, now = () => performance.now() }) {
   const url = `${issuer}${CERTS_PATH}`;
   let keys = null;
   let fetchedAt = 0;
@@ -116,6 +119,9 @@ export function createGateKeys({ issuer, fetch = globalThis.fetch, now = Date.no
         .then((read) => {
           keys = read;
           fetchedAt = now();
+        }, (error) => {
+          // Whatever failed, the keys could not be read, which the log names as keys_unavailable.
+          throw error instanceof GateKeysError ? error : new GateKeysError();
         })
         .finally(() => {
           pending = null;
@@ -126,7 +132,9 @@ export function createGateKeys({ issuer, fetch = globalThis.fetch, now = Date.no
 
   return Object.freeze({
     async key(kid) {
-      if (pending !== null || ((!fresh() || !keys.has(kid)) && now() - startedAt >= FETCH_GAP_MS)) {
+      // A kid of current keys is answered at once, even while a fetch for another kid runs.
+      if (fresh() && keys.has(kid)) return keys.get(kid);
+      if (pending !== null || now() - startedAt >= FETCH_GAP_MS) {
         try {
           await refresh();
         } catch (error) {
@@ -154,7 +162,8 @@ async function readKeys(url, fetch) {
     throw new GateKeysError(typeof code === 'string' ? code : undefined);
   }
   if (response.status !== 200) {
-    await response.body?.cancel();
+    // A body that fails as it is dropped, such as one the time limit ends, is the same failure.
+    await response.body?.cancel().catch(() => {});
     throw new GateKeysError();
   }
   let document;
@@ -168,8 +177,6 @@ async function readKeys(url, fetch) {
   for (const jwk of document.keys) {
     if (jwk === null || typeof jwk !== 'object' || typeof jwk.kid !== 'string' || jwk.kid === '') continue;
     if (jwk.kty !== 'RSA' || (jwk.alg !== undefined && jwk.alg !== 'RS256') || (jwk.use !== undefined && jwk.use !== 'sig')) continue;
-    // Two keys with one kid would leave the token to choose; the whole set is refused.
-    if (keys.has(jwk.kid)) throw new GateKeysError();
     let key;
     try {
       // Only the public members are read, even from an endpoint that sends more.
@@ -178,6 +185,8 @@ async function readKeys(url, fetch) {
       continue;
     }
     if (key.asymmetricKeyDetails.modulusLength < MIN_MODULUS_BITS) continue;
+    // Two usable keys with one kid would leave the token to choose; the whole set is refused.
+    if (keys.has(jwk.kid)) throw new GateKeysError();
     keys.set(jwk.kid, key);
   }
   if (keys.size === 0) throw new GateKeysError();

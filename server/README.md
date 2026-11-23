@@ -68,7 +68,7 @@ The server writes one JSON line to standard output for each request, when its an
 | Field | Value |
 | --- | --- |
 | `time` | When the request arrived, in UTC. |
-| `traceId` | 16 random hex digits, or the gate's `CF-Ray` once the owner's sign-in is admitted and the ray has the form of the contract's `traceId` (16 hex digits, a hyphen and the data centre's 3 letters). Anyone who reaches the server without the gate can send a `CF-Ray`, but only the gate signs the owner's sign-in. A Problem answer carries the same ID. |
+| `traceId` | 16 random hex digits, or the gate's `CF-Ray` once the owner's sign-in is admitted and the ray has the form of the contract's `traceId` (16 hex digits, a hyphen and the data centre's 3 letters). Anyone who reaches the server without the gate can send a `CF-Ray`, but only the gate signs the owner's sign-in; it is a bearer token, though, so its holder, reaching the loopback server without the gate, could still choose the ray of their own requests. A Problem answer carries the same ID. |
 | `method` | The request's method. |
 | `action` | The `operationId` of the operation, or `null` for a path that is no operation. |
 | `sender` | Who sent the request: `owner` once the owner's sign-in is admitted, otherwise `unknown`, never a name the request gives (rule 8). |

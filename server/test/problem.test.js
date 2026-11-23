@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { traceIdFor } from '../src/log.js';
+import { randomTraceId, rayOf } from '../src/log.js';
 import { AGENT_COMMANDS, internal, methodNotAllowed, notFound, Problem, PROBLEM_CODES } from '../src/problem.js';
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -62,14 +62,14 @@ test('each code the server gives is in the registry with its status', () => {
 
 test('each answer has the Problem schema\'s members and limits', () => {
   for (const problem of answers) {
-    const body = problem.body(traceIdFor({}));
+    const body = problem.body(randomTraceId());
     for (const member of schema.required) assert.ok(member in body, member);
     for (const member of Object.keys(body)) assert.ok(schema.properties.includes(member), member);
     assert.ok(body.title.length <= schema.titleLength, body.title);
     assert.ok(body.detail.length <= schema.detailLength, body.detail);
     assert.match(body.traceId, schema.traceId);
   }
-  assert.match(traceIdFor({ 'cf-ray': '0123456789abcdef-ICN' }), schema.traceId);
+  assert.match(rayOf({ 'cf-ray': '0123456789abcdef-ICN' }), schema.traceId);
   assert.throws(() => new Problem('no_such_code', 'x'), TypeError);
 });
 

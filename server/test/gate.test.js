@@ -87,6 +87,30 @@ test('asks once for requests that arrive together', async () => {
   assert.equal(certs.requests.length, 1);
 });
 
+test('answers a kid it knows at once while it asks about another', async () => {
+  const local = localGate();
+  const certs = endpoint(local.certs());
+  const keys = createGateKeys({ issuer: ISSUER, fetch: certs.fetch, now: certs.now });
+  await keys.key(local.kid);
+  // The endpoint is slow to answer about a kid the server does not know.
+  let release;
+  certs.answer = () => new Promise((resolve) => { release = () => resolve(local.certs()); });
+  certs.time += 10 * 1000;
+  const unknown = keys.key(randomBytes(16).toString('hex'));
+  assert.equal(certs.requests.length, 2);
+  // A request with a known kid does not wait for it.
+  let timer;
+  const known = await Promise.race([
+    keys.key(local.kid),
+    new Promise((resolve) => { timer = setTimeout(resolve, 1000, 'waited'); }),
+  ]);
+  clearTimeout(timer);
+  assert.notEqual(known, 'waited');
+  assert.equal(known.type, 'public');
+  release();
+  assert.equal(await unknown, null);
+});
+
 test('fails with GateKeysError when it has no current keys, and keeps current ones through a failure', async () => {
   const local = localGate();
   const cause = Object.assign(new Error('getaddrinfo'), { code: 'ENOTFOUND' });
@@ -107,6 +131,27 @@ test('fails with GateKeysError when it has no current keys, and keeps current on
   // Once they are an hour old, they are not used.
   certs.time += HOUR;
   await assert.rejects(keys.key(local.kid), GateKeysError);
+});
+
+test('names any failure to read the keys as GateKeysError', async () => {
+  const local = localGate();
+  for (const answer of [
+    // A refusal whose body fails as it is dropped, as one the time limit ends does.
+    { status: 503, body: { cancel: async () => { throw new DOMException('timed out', 'TimeoutError'); } } },
+    // Something that is no answer at all.
+    null,
+  ]) {
+    const keys = createGateKeys({ issuer: ISSUER, fetch: async () => answer });
+    await assert.rejects(keys.key(local.kid), (error) => error instanceof GateKeysError);
+  }
+});
+
+test('matches the owner\'s email without case, however the owner is given', () => {
+  const gate = createGate({ issuer: ISSUER, audience: 'a', owner: OWNER_EMAIL.toUpperCase(), keys: { key: async () => null } });
+  assert.ok(gate.isOwner({ email: OWNER_EMAIL }));
+  assert.ok(gate.isOwner({ email: OWNER_EMAIL.toUpperCase() }));
+  assert.ok(!gate.isOwner({ email: `x${OWNER_EMAIL}` }));
+  assert.ok(!gate.isOwner({}));
 });
 
 test('refuses an answer that is not a set of RS256 keys of at least 2048 bits', async () => {
@@ -136,8 +181,10 @@ test('refuses an answer that is not a set of RS256 keys of at least 2048 bits', 
     const keys = createGateKeys({ issuer: ISSUER, fetch: certs.fetch, now: certs.now });
     await assert.rejects(keys.key(local.kid), GateKeysError, JSON.stringify(answer).slice(0, 80));
   }
-  // Keys the gate does not sign with are left out, and the others kept.
-  const certs = endpoint({ keys: [{ ...ec, kid: 'ec' }, { ...small, kid: 'small' }, jwk] });
+  // Keys the gate does not sign with are left out, and the others kept, even beside an unusable entry of their kid.
+  const certs = endpoint({
+    keys: [{ ...ec, kid: 'ec' }, { ...small, kid: 'small' }, jwk, { ...small, kid: local.kid }, { ...jwk, n: 'not a modulus' }],
+  });
   const keys = createGateKeys({ issuer: ISSUER, fetch: certs.fetch, now: certs.now });
   assert.notEqual(await keys.key(local.kid), null);
   assert.equal(await keys.key('ec'), null);

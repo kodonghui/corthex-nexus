@@ -259,10 +259,12 @@ describe('an owner request', () => {
     const refusal = await refused(write(signedIn(local.token(), { 'Sec-Fetch-Site': 'cross-site', 'CF-Ray': crossSite })),
       { status: 403, code: 'cross_site', sender: 'owner' });
     assert.equal(refusal.answer.json.traceId, crossSite);
-    // Without the owner's sign-in, anyone could have sent it.
+    // Without the owner's current sign-in, anyone could have chosen it: no sign-in, an expired or a foreign one, or
+    // another person's, which is a bearer token its holder could send around the gate.
     for (const [request, expected] of [
       [list({ 'CF-Ray': ray() }), { status: 401, code: 'unauthenticated', reason: 'no_sign_in' }],
       [list(signedIn(local.token({ exp: seconds() - 1 }), { 'CF-Ray': ray() })), { status: 401, code: 'unauthenticated', reason: 'expired' }],
+      [list(signedIn(local.token({ aud: ['another'] }), { 'CF-Ray': ray() })), { status: 401, code: 'unauthenticated', reason: 'wrong_audience' }],
       [list(signedIn(local.token({ email: 'someone@example.org' }), { 'CF-Ray': ray() })), { status: 403, code: 'not_owner' }],
     ]) {
       const { answer: other } = await refused(request, expected);
