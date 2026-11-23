@@ -13,10 +13,12 @@
 // Agent credentials, request keys and backups are no project's rows, so they stay: a backup keeps the project until it
 // ages out after 30 days (SPEC-052).
 //
-// The preview counts every row the deletion removes, removed diagrams and tool links included, and what is still
-// open: the open threads, the change sets still proposed or accepted and waiting for reflection, and the confirmations
-// to record, as entries.js's rules open them (a confirmation not recorded and not cancelled, or a recorded one whose
-// cancel is not recorded). A deletion answers the counts it took in its own transaction just before it deleted.
+// The preview has the 11 counts RemovalPreview names, each of every row of its kind the deletion removes, removed
+// diagrams and tool links included (the rows of the other tables, such as elements, pull requests, stage passes and
+// to-do entries, go too but have no count), and what is still open: the open threads, the change sets still proposed
+// or accepted and waiting for reflection, and the confirmations to record, as entries.js's rules open them (a
+// confirmation not recorded and not cancelled, or a recorded one whose cancel is not recorded). A deletion answers the
+// counts it took in its own transaction just before it deleted.
 //
 // Nothing here logs; the project's name is in the path and the answer only, never in a log line (rule 5).
 
@@ -111,13 +113,6 @@ function removeSpace(store, project) {
   statements.remove.run(projectId);
   for (const blob of blobs) statements.unnamed.run(blob);
   return { project: project.name, removed: true, deleted: deletes };
-}
-
-// Deletes the project space named name as removeSpace does: the contract's RemovalAnswer, or null when no space has the
-// name.
-export function deleteProjectSpace(store, name) {
-  const project = statementsOf(store).project.get(name);
-  return project === undefined ? null : removeSpace(store, project);
 }
 
 // The name of RemovalRequest, the project's name the owner typed. A refusal names the field, never the value.

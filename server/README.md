@@ -533,7 +533,7 @@ The two answers name what other tables hold, so API-262 lists 7 tables and API-2
   - its to-do entries, claims and tool links.
 - **Blobs.** A document's text is kept once by its SHA-256, however many snapshots hold it (TBL-149), so two projects may share a blob. In the same transaction, the deletion also removes the project's blobs that no remaining snapshot file names, as the schema's comment on TBL-149 says. A blob another project still names stays.
 - **What stays.** Agent credentials, request keys and backups are no project's rows. A backup keeps the deleted project until it ages out after 30 days (SPEC-052).
-- **The preview** (RemovalPreview) gives the held commit and its revision, null before the first snapshot. `deletes` counts every row the deletion removes, removed diagrams and removed tool links included. `open` counts what is still open:
+- **The preview** (RemovalPreview) gives the held commit and its revision, null before the first snapshot. `deletes` has the 11 counts the contract names, from snapshots to tool links. Each counts every row of its kind the deletion removes, removed diagrams and removed tool links included. The rows of the other tables, such as elements, pull requests, stage passes and to-do entries, go with them but have no count of their own. `open` counts what is still open:
   - the open threads;
   - the change sets still proposed, or accepted and waiting for reflection;
   - the confirmations to record, as `src/entries.js` opens their entries: one not recorded and not cancelled, or a recorded one whose cancel is not recorded.
