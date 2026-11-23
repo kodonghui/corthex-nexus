@@ -1,0 +1,1033 @@
+{
+ "about": "The pinned hub's stage-01 picture of this repository's domain documents, as its domain.py makes it, with the SHA-256 of each document. tests/test_ddd_board_picture.py checks it against the pinned hub and says how to make it again.",
+ "source": "docs/01-domain/",
+ "part": "nexus",
+ "documents": [
+  {
+   "path": "docs/01-domain/nexus.md",
+   "sha256": "667ad53f180da5b2f369fb9138f01c6a53585bed1f07599d698489dbb352de3b"
+  }
+ ],
+ "checks": [],
+ "picture": {
+  "format": 1,
+  "contexts": [
+   {
+    "id": "CTX-037",
+    "name": "Diagram",
+    "type": "core",
+    "purpose": "draw the picture and table that fit each stage from the stage documents an agent sends, and keep where the elements are.",
+    "removed": false,
+    "external": "Git host, through the agent",
+    "rows": [
+     {
+      "given_by": "Agent",
+      "policy": false,
+      "read_model": "",
+      "command": "Send snapshot",
+      "aggregate": "Project space",
+      "events": [
+       "Snapshot received",
+       "Snapshot rejected",
+       "and Project space created for the first snapshot"
+      ],
+      "where": "docs/01-domain/nexus.md:120"
+     },
+     {
+      "given_by": "Policy: when Snapshot received",
+      "policy": true,
+      "read_model": "",
+      "command": "Draw diagram",
+      "aggregate": "Diagram",
+      "events": [
+       "Diagram drawn"
+      ],
+      "where": "docs/01-domain/nexus.md:121"
+     },
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Diagram view",
+      "command": "Move element",
+      "aggregate": "Layout",
+      "events": [
+       "Element moved"
+      ],
+      "where": "docs/01-domain/nexus.md:122"
+     },
+     {
+      "given_by": "Owner",
+      "policy": false,
+      "read_model": "Project list",
+      "command": "Delete project space",
+      "aggregate": "Project space",
+      "events": [
+       "Project space deleted"
+      ],
+      "where": "docs/01-domain/nexus.md:123"
+     }
+    ],
+    "where": "docs/01-domain/nexus.md:114"
+   },
+   {
+    "id": "CTX-038",
+    "name": "Review",
+    "type": "core",
+    "purpose": "gather comments and replies on a diagram, AI proposals and direct edits into change sets, accept them, and check that a pull request put them into the document.",
+    "removed": false,
+    "external": "none (the Git host through the agent)",
+    "rows": [
+     {
+      "given_by": "Owner, Agent",
+      "policy": false,
+      "read_model": "Diagram view",
+      "command": "Add comment",
+      "aggregate": "Comment thread",
+      "events": [
+       "Comment added"
+      ],
+      "where": "docs/01-domain/nexus.md:141"
+     },
+     {
+      "given_by": "Owner, Agent",
+      "policy": false,
+      "read_model": "Diagram view",
+      "command": "Add reply",
+      "aggregate": "Comment thread",
+      "events": [
+       "Reply added"
+      ],
+      "where": "docs/01-domain/nexus.md:142"
+     },
+     {
+      "given_by": "Agent",
+      "policy": false,
+      "read_model": "Agent to-do",
+      "command": "Post AI proposal",
+      "aggregate": "Change set",
+      "events": [
+       "AI proposal posted"
+      ],
+      "where": "docs/01-domain/nexus.md:143"
+     },
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Diagram view",
+      "command": "Accept proposal",
+      "aggregate": "Change set",
+      "events": [
+       "Proposal accepted"
+      ],
+      "where": "docs/01-domain/nexus.md:144"
+     },
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Diagram view",
+      "command": "Reject proposal",
+      "aggregate": "Change set",
+      "events": [
+       "Proposal rejected"
+      ],
+      "where": "docs/01-domain/nexus.md:145"
+     },
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Diagram view",
+      "command": "Rename element",
+      "aggregate": "Change set",
+      "events": [
+       "Element renamed"
+      ],
+      "where": "docs/01-domain/nexus.md:146"
+     },
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Diagram view",
+      "command": "Connect line",
+      "aggregate": "Change set",
+      "events": [
+       "Line connected"
+      ],
+      "where": "docs/01-domain/nexus.md:147"
+     },
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Diff view",
+      "command": "Cancel edit",
+      "aggregate": "Change set",
+      "events": [
+       "Edit cancelled"
+      ],
+      "where": "docs/01-domain/nexus.md:148"
+     },
+     {
+      "given_by": "Agent",
+      "policy": false,
+      "read_model": "Agent to-do",
+      "command": "Report reflection PR",
+      "aggregate": "Change set",
+      "events": [
+       "Reflection PR opened"
+      ],
+      "where": "docs/01-domain/nexus.md:149"
+     },
+     {
+      "given_by": "Policy: when Diagram drawn holds the reflection PR's commit",
+      "policy": true,
+      "read_model": "",
+      "command": "Check reflection",
+      "aggregate": "Change set",
+      "events": [
+       "Change reflected"
+      ],
+      "where": "docs/01-domain/nexus.md:150"
+     },
+     {
+      "given_by": "Owner; Policy: when Change reflected",
+      "policy": true,
+      "read_model": "Diagram view",
+      "command": "Close comment",
+      "aggregate": "Comment thread",
+      "events": [
+       "Comment closed"
+      ],
+      "where": "docs/01-domain/nexus.md:151"
+     }
+    ],
+    "where": "docs/01-domain/nexus.md:135"
+   },
+   {
+    "id": "CTX-039",
+    "name": "Confirmation",
+    "type": "core",
+    "purpose": "the owner passes one picture or table at its document version, and the confirmation is kept in the stage record in Git.",
+    "removed": false,
+    "external": "none (the Git host through the agent)",
+    "rows": [
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Diagram view, Diff view",
+      "command": "Confirm diagram",
+      "aggregate": "Confirmation",
+      "events": [
+       "Diagram confirmed"
+      ],
+      "where": "docs/01-domain/nexus.md:171"
+     },
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Diagram view",
+      "command": "Cancel confirmation",
+      "aggregate": "Confirmation",
+      "events": [
+       "Confirmation cancelled"
+      ],
+      "where": "docs/01-domain/nexus.md:172"
+     },
+     {
+      "given_by": "Agent",
+      "policy": false,
+      "read_model": "Agent to-do",
+      "command": "Record confirmation",
+      "aggregate": "Confirmation",
+      "events": [
+       "Confirmation recorded"
+      ],
+      "where": "docs/01-domain/nexus.md:173"
+     },
+     {
+      "given_by": "Policy: when Diagram drawn changes the document of a confirmed diagram",
+      "policy": true,
+      "read_model": "",
+      "command": "Invalidate confirmation",
+      "aggregate": "Confirmation",
+      "events": [
+       "Confirmation invalidated"
+      ],
+      "where": "docs/01-domain/nexus.md:174"
+     }
+    ],
+    "where": "docs/01-domain/nexus.md:165"
+   },
+   {
+    "id": "CTX-040",
+    "name": "Workshop",
+    "type": "supporting",
+    "purpose": "run stage-01 event storming on a free canvas in NEXUS, and hand each confirmed step to the domain document.",
+    "removed": false,
+    "external": "Miro (import, anticorruption layer)",
+    "rows": [
+     {
+      "given_by": "Owner, Agent",
+      "policy": false,
+      "read_model": "",
+      "command": "Open workshop",
+      "aggregate": "Workshop board",
+      "events": [
+       "Workshop opened"
+      ],
+      "where": "docs/01-domain/nexus.md:191"
+     },
+     {
+      "given_by": "Owner",
+      "policy": false,
+      "read_model": "",
+      "command": "Import Miro board",
+      "aggregate": "Workshop board",
+      "events": [
+       "Miro board imported"
+      ],
+      "where": "docs/01-domain/nexus.md:192"
+     },
+     {
+      "given_by": "Agent",
+      "policy": false,
+      "read_model": "Agent to-do",
+      "command": "Draw step draft",
+      "aggregate": "Workshop board",
+      "events": [
+       "Step draft drawn"
+      ],
+      "where": "docs/01-domain/nexus.md:193"
+     },
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Diagram view",
+      "command": "Change sticky notes",
+      "aggregate": "Workshop board",
+      "events": [
+       "Sticky notes changed"
+      ],
+      "where": "docs/01-domain/nexus.md:194"
+     },
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Diagram view",
+      "command": "Confirm step",
+      "aggregate": "Workshop board",
+      "events": [
+       "Step confirmed"
+      ],
+      "where": "docs/01-domain/nexus.md:195"
+     },
+     {
+      "given_by": "Agent",
+      "policy": false,
+      "read_model": "Agent to-do",
+      "command": "Report domain document update",
+      "aggregate": "Workshop board",
+      "events": [
+       "Domain document updated"
+      ],
+      "where": "docs/01-domain/nexus.md:196"
+     },
+     {
+      "given_by": "Policy: when Domain document updated after the last step is confirmed",
+      "policy": true,
+      "read_model": "",
+      "command": "Close workshop",
+      "aggregate": "Workshop board",
+      "events": [
+       "Workshop closed"
+      ],
+      "where": "docs/01-domain/nexus.md:197"
+     }
+    ],
+    "where": "docs/01-domain/nexus.md:185"
+   },
+   {
+    "id": "CTX-041",
+    "name": "To-do",
+    "type": "supporting",
+    "purpose": "the owner and the agents each see their own to-dos in one place, and agent sessions never do the same work twice.",
+    "removed": false,
+    "external": "",
+    "rows": [
+     {
+      "given_by": "Agent",
+      "policy": false,
+      "read_model": "Agent to-do",
+      "command": "Claim to-do",
+      "aggregate": "Claim",
+      "events": [
+       "To-do claimed"
+      ],
+      "where": "docs/01-domain/nexus.md:211"
+     },
+     {
+      "given_by": "Agent; Policy: when a claim has no write for 60 minutes and no open pull request",
+      "policy": true,
+      "read_model": "Agent to-do",
+      "command": "Release claim",
+      "aggregate": "Claim",
+      "events": [
+       "Claim released"
+      ],
+      "where": "docs/01-domain/nexus.md:212"
+     }
+    ],
+    "where": "docs/01-domain/nexus.md:205"
+   },
+   {
+    "id": "CTX-042",
+    "name": "Tool link",
+    "type": "generic",
+    "purpose": "attach Notion page and Jira project links to a project or a stage, and show their status. NEXUS never writes to Notion or Jira (redesign decision on other tools).",
+    "removed": false,
+    "external": "Notion, Jira (anticorruption layer)",
+    "rows": [
+     {
+      "given_by": "Owner",
+      "policy": false,
+      "read_model": "Project list",
+      "command": "Add tool link",
+      "aggregate": "Tool link",
+      "events": [
+       "Tool link added"
+      ],
+      "where": "docs/01-domain/nexus.md:224"
+     },
+     {
+      "given_by": "Owner",
+      "policy": false,
+      "read_model": "Project list",
+      "command": "Remove tool link",
+      "aggregate": "Tool link",
+      "events": [
+       "Tool link removed"
+      ],
+      "where": "docs/01-domain/nexus.md:225"
+     }
+    ],
+    "where": "docs/01-domain/nexus.md:218"
+   },
+   {
+    "id": "CTX-043",
+    "name": "Access",
+    "type": "generic",
+    "purpose": "check the owner's sign-in and the agents' credentials.",
+    "removed": false,
+    "external": "sign-in gate (conformist)",
+    "rows": [
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Project list",
+      "command": "Issue agent credential",
+      "aggregate": "Agent credential",
+      "events": [
+       "Agent credential issued"
+      ],
+      "where": "docs/01-domain/nexus.md:236"
+     },
+     {
+      "given_by": "Owner (PC)",
+      "policy": false,
+      "read_model": "Project list",
+      "command": "Revoke agent credential",
+      "aggregate": "Agent credential",
+      "events": [
+       "Agent credential revoked"
+      ],
+      "where": "docs/01-domain/nexus.md:237"
+     }
+    ],
+    "where": "docs/01-domain/nexus.md:230"
+   }
+  ],
+  "aggregates": [
+   {
+    "name": "Project space",
+    "context": "CTX-037",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:86",
+    "term": "TERM-189"
+   },
+   {
+    "name": "Diagram",
+    "context": "CTX-037",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:86",
+    "term": "TERM-194"
+   },
+   {
+    "name": "Layout",
+    "context": "CTX-037",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:86",
+    "term": "TERM-198"
+   },
+   {
+    "name": "Comment thread",
+    "context": "CTX-038",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:87",
+    "term": "TERM-200"
+   },
+   {
+    "name": "Change set",
+    "context": "CTX-038",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:87",
+    "term": "TERM-203"
+   },
+   {
+    "name": "Confirmation",
+    "context": "CTX-039",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:88",
+    "term": "TERM-206"
+   },
+   {
+    "name": "Workshop board",
+    "context": "CTX-040",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:89",
+    "term": "TERM-211"
+   },
+   {
+    "name": "Claim",
+    "context": "CTX-041",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:90",
+    "term": "TERM-217"
+   },
+   {
+    "name": "Tool link",
+    "context": "CTX-042",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:91",
+    "term": "TERM-218"
+   },
+   {
+    "name": "Agent credential",
+    "context": "CTX-043",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:92",
+    "term": "TERM-221"
+   }
+  ],
+  "read_models": [
+   {
+    "name": "Diagram view",
+    "context": "CTX-037",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:122",
+    "term": "TERM-222"
+   },
+   {
+    "name": "Project list",
+    "context": "CTX-037",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:123",
+    "term": "TERM-223"
+   },
+   {
+    "name": "Diagram view",
+    "context": "CTX-038",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:141",
+    "term": "TERM-222"
+   },
+   {
+    "name": "Agent to-do",
+    "context": "CTX-038",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:143",
+    "term": "TERM-226"
+   },
+   {
+    "name": "Diff view",
+    "context": "CTX-038",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:148",
+    "term": "TERM-224"
+   },
+   {
+    "name": "Diagram view",
+    "context": "CTX-039",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:171",
+    "term": "TERM-222"
+   },
+   {
+    "name": "Diff view",
+    "context": "CTX-039",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:171",
+    "term": "TERM-224"
+   },
+   {
+    "name": "Agent to-do",
+    "context": "CTX-039",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:173",
+    "term": "TERM-226"
+   },
+   {
+    "name": "Agent to-do",
+    "context": "CTX-040",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:193",
+    "term": "TERM-226"
+   },
+   {
+    "name": "Diagram view",
+    "context": "CTX-040",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:194",
+    "term": "TERM-222"
+   },
+   {
+    "name": "Agent to-do",
+    "context": "CTX-041",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:211",
+    "term": "TERM-226"
+   },
+   {
+    "name": "Project list",
+    "context": "CTX-042",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:224",
+    "term": "TERM-223"
+   },
+   {
+    "name": "Project list",
+    "context": "CTX-043",
+    "removed": false,
+    "where": "docs/01-domain/nexus.md:236",
+    "term": "TERM-223"
+   }
+  ],
+  "dependencies": [
+   {
+    "from": "Agent (corthex-hub)",
+    "to": "CTX-037",
+    "kind": "call",
+    "why": "Send a snapshot",
+    "data": "commit, stage documents",
+    "where": "docs/01-domain/nexus.md:248"
+   },
+   {
+    "from": "CTX-037",
+    "to": "CTX-039",
+    "kind": "event",
+    "why": "Invalidate a confirmed diagram whose document changed",
+    "data": "Diagram drawn: diagram, document version",
+    "where": "docs/01-domain/nexus.md:249"
+   },
+   {
+    "from": "CTX-037",
+    "to": "CTX-038",
+    "kind": "event",
+    "why": "Check whether a reflection pull request went in",
+    "data": "Diagram drawn: commits it holds",
+    "where": "docs/01-domain/nexus.md:250"
+   },
+   {
+    "from": "CTX-037",
+    "to": "CTX-041",
+    "kind": "event",
+    "why": "Show the owner a drawn diagram to confirm",
+    "data": "Diagram drawn",
+    "where": "docs/01-domain/nexus.md:251"
+   },
+   {
+    "from": "CTX-038",
+    "to": "CTX-037",
+    "kind": "call",
+    "why": "Attach comments and edits to elements",
+    "data": "element trace ID, document version",
+    "where": "docs/01-domain/nexus.md:252"
+   },
+   {
+    "from": "CTX-039",
+    "to": "CTX-037",
+    "kind": "call",
+    "why": "The document version of the diagram to confirm",
+    "data": "diagram, document version",
+    "where": "docs/01-domain/nexus.md:253"
+   },
+   {
+    "from": "CTX-038",
+    "to": "CTX-041",
+    "kind": "event",
+    "why": "Hand work to an agent, and AI proposals to the owner",
+    "data": "Comment added, AI proposal posted, Proposal accepted, Element renamed, Line connected",
+    "where": "docs/01-domain/nexus.md:254"
+   },
+   {
+    "from": "CTX-039",
+    "to": "CTX-041",
+    "kind": "event",
+    "why": "Hand over the confirmation record, and ask the owner to confirm again",
+    "data": "Diagram confirmed, Confirmation invalidated",
+    "where": "docs/01-domain/nexus.md:255"
+   },
+   {
+    "from": "CTX-040",
+    "to": "CTX-041",
+    "kind": "event",
+    "why": "Hand over writing the domain document",
+    "data": "Step confirmed",
+    "where": "docs/01-domain/nexus.md:256"
+   },
+   {
+    "from": "Agent (corthex-hub)",
+    "to": "CTX-041",
+    "kind": "call",
+    "why": "Read and claim to-dos",
+    "data": "to-do list, claim",
+    "where": "docs/01-domain/nexus.md:257"
+   },
+   {
+    "from": "Agent (corthex-hub)",
+    "to": "CTX-040",
+    "kind": "call",
+    "why": "Draw step drafts and report domain document updates",
+    "data": "step, sticky notes, pull request address",
+    "where": "docs/01-domain/nexus.md:258"
+   },
+   {
+    "from": "Agent (corthex-hub)",
+    "to": "CTX-038",
+    "kind": "call",
+    "why": "Report replies, AI proposals and reflection pull requests",
+    "data": "comment, change set, pull request address",
+    "where": "docs/01-domain/nexus.md:259"
+   },
+   {
+    "from": "Agent (corthex-hub)",
+    "to": "CTX-039",
+    "kind": "call",
+    "why": "Report the confirmation record",
+    "data": "confirmation, pull request address",
+    "where": "docs/01-domain/nexus.md:260"
+   },
+   {
+    "from": "CTX-042",
+    "to": "Notion, Jira",
+    "kind": "call",
+    "why": "Show status",
+    "data": "link, status",
+    "where": "docs/01-domain/nexus.md:261"
+   },
+   {
+    "from": "CTX-040",
+    "to": "Miro",
+    "kind": "call",
+    "why": "Import the earlier board",
+    "data": "sticky note text, colour, position",
+    "where": "docs/01-domain/nexus.md:262"
+   },
+   {
+    "from": "Every context",
+    "to": "CTX-043",
+    "kind": "call",
+    "why": "Check the owner and agents",
+    "data": "sign-in, agent credential",
+    "where": "docs/01-domain/nexus.md:263"
+   }
+  ],
+  "hotspots": [
+   {
+    "text": "1. During a workshop, is the source the board or the document?",
+    "contexts": [
+     "CTX-040"
+    ],
+    "state": "answered",
+    "answer": "The board, during a workshop (the maintainer's answer of 2026-11-23)",
+    "where": "docs/01-domain/nexus.md:300",
+    "number": 1
+   },
+   {
+    "text": "2. When the document changes after a confirmation, is the confirmation lifted?",
+    "contexts": [
+     "CTX-039"
+    ],
+    "state": "answered",
+    "answer": "Lift it and confirm again (the maintainer's answer of 2026-11-23)",
+    "where": "docs/01-domain/nexus.md:301",
+    "number": 2
+   },
+   {
+    "text": "3. When an element leaves the document, where do its comments stay?",
+    "contexts": [
+     "CTX-038"
+    ],
+    "state": "answered",
+    "answer": "Move them to the diagram's comments, marked as from a removed element (stage 02, REQ-033)",
+    "where": "docs/01-domain/nexus.md:302",
+    "number": 3
+   },
+   {
+    "text": "4. Does v3 accept the current corthex-hub commands (push, todo, claim, comment, decide, reflect, status, record) as they are?",
+    "contexts": [
+     "CTX-037",
+     "CTX-041"
+    ],
+    "state": "answered",
+    "answer": "Accept them as they are (stage 02, REQ-018)",
+    "where": "docs/01-domain/nexus.md:303",
+    "number": 4
+   },
+   {
+    "text": "5. Can the confirm button work on a phone?",
+    "contexts": [
+     "CTX-039"
+    ],
+    "state": "answered",
+    "answer": "No: view and comment only (stage 02, REQ-068)",
+    "where": "docs/01-domain/nexus.md:304",
+    "number": 5
+   },
+   {
+    "text": "6. Does each direct edit go out as its own pull request, or several together?",
+    "contexts": [
+     "CTX-038"
+    ],
+    "state": "answered",
+    "answer": "Several together, per diagram (stage 02, REQ-032, a Should requirement after the first release; in the first release an agent may still link one pull request to several change sets, SPEC-024)",
+    "where": "docs/01-domain/nexus.md:305",
+    "number": 6
+   },
+   {
+    "text": "7. Is the layout (element positions) kept in NEXUS or in Git?",
+    "contexts": [
+     "CTX-037"
+    ],
+    "state": "answered",
+    "answer": "In NEXUS (stage 02, REQ-015; stage 05 shows its table)",
+    "where": "docs/01-domain/nexus.md:306",
+    "number": 7
+   },
+   {
+    "text": "8. Are the comments and checkpoint records of the running NEXUS moved to v3?",
+    "contexts": [
+     "CTX-040",
+     "CTX-039"
+    ],
+    "state": "answered",
+    "answer": "No; they stay in the archive tag and the Git records (stage 02, REQ-019)",
+    "where": "docs/01-domain/nexus.md:307",
+    "number": 8
+   },
+   {
+    "text": "9. Is one diagram's confirmation one stage checkpoint (steps 1-b, 7 and 9 on the stage-01 board)?",
+    "contexts": [
+     "CTX-039"
+    ],
+    "state": "answered, one open question",
+    "answer": "A stage passes once every diagram and item table of it has a recorded confirmation; on the stage-01 board the step confirmations at steps 1-b, 7 and 9 do (stage 02, REQ-042, REQ-043). How REQ-042 reads for stage 01 while a workshop is open is an open question for the workshop release (requirements,…",
+    "where": "docs/01-domain/nexus.md:308",
+    "number": 9
+   },
+   {
+    "text": "10. Do v2's cross-check between pictures, notifications and version history go into the first version?",
+    "contexts": [],
+    "state": "answered",
+    "answer": "Later, not in the first version (the maintainer's answer of 2026-11-23)",
+    "where": "docs/01-domain/nexus.md:309",
+    "number": 10
+   },
+   {
+    "text": "11. The direct-edit scope was written two ways in the project's records: move, rename and connect only, or a free canvas on the stage-01 board with move, rename and connect elsewhere",
+    "contexts": [
+     "CTX-038",
+     "CTX-040"
+    ],
+    "state": "answered",
+    "answer": "Follows the redesign decision the maintainer approved on 2026-11-22: a free canvas on the stage-01 board",
+    "where": "docs/01-domain/nexus.md:310",
+    "number": 11
+   },
+   {
+    "text": "12. Diagram and Confirmation rules inferred by the AI: one confirmation per diagram, a diagram from one snapshot, a layout that never changes meaning",
+    "contexts": [
+     "CTX-037",
+     "CTX-039"
+    ],
+    "state": "reviewed in stage 02",
+    "answer": "Carried into the requirements as written, which the stage-02 version freeze approved (REQ-001 to REQ-066)",
+    "where": "docs/01-domain/nexus.md:311",
+    "number": 12
+   },
+   {
+    "text": "13. The command rows of every context",
+    "contexts": [
+     "CTX-037",
+     "CTX-038",
+     "CTX-039",
+     "CTX-040",
+     "CTX-041",
+     "CTX-042"
+    ],
+    "state": "reviewed in stage 02",
+    "answer": "Carried into the requirements as written, which the stage-02 version freeze approved (REQ-001 to REQ-066)",
+    "where": "docs/01-domain/nexus.md:312",
+    "number": 13
+   },
+   {
+    "text": "14. A rejected proposal or a cancelled edit leaves its comment thread open for the owner to close",
+    "contexts": [
+     "CTX-038"
+    ],
+    "state": "answered",
+    "answer": "The thread stays open until the owner closes it (stage 02, REQ-024, REQ-034)",
+    "where": "docs/01-domain/nexus.md:313",
+    "number": 14
+   }
+  ],
+  "timeline": [
+   {
+    "lane": "Project",
+    "places": [
+     [
+      "Project space created"
+     ],
+     [
+      "Tool link added",
+      "Tool link removed"
+     ],
+     [
+      "Project space deleted"
+     ]
+    ],
+    "where": "docs/01-domain/nexus.md:62"
+   },
+   {
+    "lane": "From document to diagram",
+    "places": [
+     [
+      "Snapshot received",
+      "Snapshot rejected"
+     ],
+     [
+      "Diagram drawn"
+     ],
+     [
+      "Element moved"
+     ]
+    ],
+    "where": "docs/01-domain/nexus.md:63"
+   },
+   {
+    "lane": "Comments and AI proposals",
+    "places": [
+     [
+      "Comment added"
+     ],
+     [
+      "To-do claimed"
+     ],
+     [
+      "Reply added",
+      "AI proposal posted"
+     ],
+     [
+      "Proposal accepted",
+      "Proposal rejected"
+     ],
+     [
+      "Reflection PR opened"
+     ],
+     [
+      "Change reflected"
+     ],
+     [
+      "Comment closed"
+     ]
+    ],
+    "where": "docs/01-domain/nexus.md:64"
+   },
+   {
+    "lane": "Direct edit",
+    "places": [
+     [
+      "Element renamed",
+      "Line connected"
+     ],
+     [
+      "Edit cancelled",
+      "Reflection PR opened"
+     ],
+     [
+      "Change reflected"
+     ]
+    ],
+    "where": "docs/01-domain/nexus.md:65"
+   },
+   {
+    "lane": "Confirmation",
+    "places": [
+     [
+      "Diagram confirmed"
+     ],
+     [
+      "Confirmation recorded"
+     ],
+     [
+      "Confirmation cancelled",
+      "Confirmation invalidated"
+     ]
+    ],
+    "where": "docs/01-domain/nexus.md:66"
+   },
+   {
+    "lane": "Event storming workshop",
+    "places": [
+     [
+      "Workshop opened"
+     ],
+     [
+      "Miro board imported"
+     ],
+     [
+      "Step draft drawn"
+     ],
+     [
+      "Sticky notes changed"
+     ],
+     [
+      "Step confirmed"
+     ],
+     [
+      "Domain document updated"
+     ],
+     [
+      "Workshop closed"
+     ]
+    ],
+    "where": "docs/01-domain/nexus.md:67"
+   },
+   {
+    "lane": "Agent claims and credentials",
+    "places": [
+     [
+      "Agent credential issued"
+     ],
+     [
+      "To-do claimed"
+     ],
+     [
+      "Claim released"
+     ],
+     [
+      "Agent credential revoked"
+     ]
+    ],
+    "where": "docs/01-domain/nexus.md:68"
+   }
+  ]
+ }
+}

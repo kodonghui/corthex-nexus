@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; and TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-262, API-263, API-264, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; and TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-262, API-263, API-264, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -132,7 +132,7 @@ The schema lists only the fields NEXUS reads and says NEXUS keeps the others as 
 
 ## Drawing
 
-The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-422's [ERD](#erd) drawer so far.
+The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board) and TASK-422's [ERD](#erd) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, and the reading of a picture's entries and warnings. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
 
 **Diagrams.** A diagram is drawn from one document of the snapshot. Its `source_key` is that document's path in `snapshot_files` (see Documents above), so a drawing finds its source from the diagram alone.
 
@@ -169,7 +169,7 @@ The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a draw
 **A drawer** is a function that answers at once, never with a promise:
 
 ```js
-import { SourceFailure } from './drawing.js';
+import { SourceFailure } from './drawer.js';
 
 // A drawer of a stage's picture, as src/erd.js is the ERD's.
 function draw({ stage, part, key, kind, source, text, read, warnings }) {
@@ -204,6 +204,106 @@ function draw({ stage, part, key, kind, source, text, read, warnings }) {
 No log line holds a source's text or where a drawing failed (rule 5). The answer's `where` is a path in the repository, never a server path.
 
 `test/drawing.test.js` draws this repository's snapshots, changed in each test, with the drawers of `test/drawers.js` and others made in the tests. It checks TASK-419's done condition: a failing source keeps the last drawing and is named in failures; a 0.2 snapshot after 0.3 pictures keeps them; an element keeps its key across drawings. It also checks the diagrams of each kind, the item table that makes way, a diagram that is removed and comes back, a document a drawer reads, the drawer's rules and the tables API-242 lists.
+
+## DDD board
+
+`src/ddd-board.js` is TASK-421, the drawer of the `ddd_board` kind. It draws the stage-01 picture as one board of the timeline lanes, the contexts with their command tables, the dependencies between them and the hotspots (SPEC-003). Its source is the pinned hub's parsed picture of the project's domain document, as the contract's `Snapshot` says of stage 01, so NEXUS parses no Markdown. The hub's `domain.py` reads the document. Its picture, format 1, holds:
+
+- the contexts: each with its trace ID, name, type, purpose, external systems and removed mark, and the rows of its command tables (who gives the command, read model, command, aggregate and events);
+- the glossary terms of the aggregates and read models;
+- the dependencies: from, to, call or event, why, and what passes;
+- the hotspots: text, the contexts they name, state, answer and number;
+- the timeline's lanes, each with the events of its places in order.
+
+Each entry carries `where`, the file and line it comes from.
+
+**Board arrangement.** SPEC-003 does not say how the board is arranged. The coordinator chose this arrangement for TASK-421, and the maintainer's delegate has yet to decide on it. `REGIONS` in `src/ddd-board.js` is the one place that orders the regions, and `hotspotFrame` with `HOTSPOT_BAND` is the one place that places hotspots. The board has three regions, top to bottom:
+
+- **The timeline:** a lane for each timeline lane, with its name at the start and its events left to right in the order of their places. Alternatives at one place stand one above another.
+- **The contexts:** a frame for each context, headed by its trace ID, name and type.
+  - Inside a frame, each row of the context's command tables is a column of stickies. The bands run top to bottom as on the stage-09 mockup's board: read model, command, aggregate, event and policy. The rows stand left to right in their order, as time runs on the mockup's board, and the context's hotspots follow them in the aggregate band.
+  - The frames, and a box for each external system the dependencies name, are the boxes of a layered graph whose lines are the dependencies. The caller stands above the context it depends on, so a line runs between boxes and never through a sticky.
+- **The Hotspots lane,** only when some hotspot names no context the board draws.
+
+What it draws, in this order:
+
+| Element | `kind`, `status` | `detail` |
+| --- | --- | --- |
+| Each timeline lane, in its order | `lane` | `where`; `box`, the lane's band across the region |
+| Each event of a lane, its parent the lane | `event` | `place`, its place's number from 1; `box` |
+| Each context, in its order, with its trace ID and name | `context`; `removed` when the hub marks it removed | `type`, `purpose`, `external`, `where`; `box`, the frame |
+| Each sticky of the context's rows, row by row, its parent the context | `read_model`, `command`, `aggregate`, `event` or `policy`; `removed` for a read model or aggregate whose glossary term the hub marks removed | `where`, the row's; `box`; for a command, `actor` too |
+| Each hotspot that stands in the context, after its stickies, its parent the context | `hotspot`; `answered` or `open` | `number`, `state`, `answer`, `contexts`, `where`, `box` |
+| Each external system, a name a dependency gives that is no context, once for each name | `external` | `box` |
+| Each dependency, named by its why, its parent the box it starts from | `dependency` | `from` and `to`, the keys of its two boxes; `kind` (`call`, `event` or `''`), `why`, `data`, `where`; `points` |
+| The Hotspots lane, when it holds any | `hotspot_lane`, named `Hotspots` | `box` |
+| Each hotspot of the Hotspots lane, its parent the lane | `hotspot`; `answered` or `open` | as above |
+| A table or other part of the document the hub left out, one for each of the picture's warnings, named by what the hub says of it | `table`, `left_out` | `where`: its file and line; the file alone when the hub names no line or the two would pass 300 characters; or null |
+
+- **A table that cannot be read.** The hub's `domain.py` names what it leaves out in a `picture-partial` check with its file and line: a document with no context heading, a command table under no context heading, a source file it cannot read, or a list over its limit. The drawer gets each check as a warning and shows it as a `table` element with status `left_out` (SPEC-003).
+- **An entry the drawer cannot read,** one that is not in the picture's form, is left out the same way: it is marked `unreadable`, with its `where` and the kind it would have had.
+  - An unreadable context is an empty frame, and an unreadable row is a `command` sticky of its context.
+  - An unreadable lane is its name alone, and an unreadable hotspot stands in the Hotspots lane.
+  - An unreadable dependency has no line and no box.
+  - A term entry it cannot read is passed over, as the board draws no terms of its own.
+- **Stickies.**
+  - A read-model or aggregate cell that names several things is split at commas and line breaks, as the hub reads its definitions, into a sticky for each name.
+  - Each such sticky carries the trace ID of its glossary term: the term the hub's lists give for that context and name, compared without white space or case.
+  - A TERM ID that those lists give is dropped from a name wherever it stands, with any brackets it leaves empty, as the hub drops it. So "Diagram TERM-5" and "Diagram (TERM-5)" both draw a sticky named "Diagram".
+  - A cell that names nothing, such as `-` or `none`, has no sticky.
+  - A row given by a policy ("Policy: when ...") has a `policy` sticky named by what follows "Policy:", and none when that names nothing. The command's `actor` is what comes before it.
+- **Hotspots.** A hotspot stands in the frame of the first context it names that the board draws, or else in the Hotspots lane; `contexts` lists every context it names. It is `answered` when its state starts with "answered", or with "답함" as a Korean document writes it, and `open` otherwise.
+- **Dependencies.** A dependency names a context by its trace ID at the start of its text, or by the context's name in any case. Any other name, such as "Miro" or "Every context", is an external system's box, one box for each name.
+- **Places.** `layout.js` places each region:
+  - the timeline left to right, a lane to a row and a place to a column;
+  - each frame's inside, a band to a layer;
+  - the frames and external systems as a layered graph;
+  - the Hotspots lane as a row.
+
+  It then places the regions one under another.
+  - `box` is `{ x, y, width, height }`, its top left corner and its size. A dependency's `points`, `[{ x, y }]`, run from the box it starts from to the box it ends at.
+  - Sizes are worked out for 12-pixel IBM Plex Mono. A sticky, an event, an external system and a hotspot are 148 by 80 pixels, as the mockup's stickies are. A lane's name is 96 to 240 pixels wide. A frame has a 32-pixel header with its trace ID, name and type, and 12 pixels of padding round its inside.
+  - A left-out table has no box.
+- **Keys.**
+  - A context: its trace ID, or `context:` and its name.
+  - A lane: `lane:` and its name. An event: its lane's key, `/event:` and its name.
+  - A command: its context's key, `/command:` and its name. The row's other stickies: the command's key, `/`, their kind, `:` and their name, such as `CTX-039/command:Confirm diagram/read_model:Diff view`.
+  - A hotspot: `hotspot:` and its text without its number.
+  - An external system: `external:` and its name.
+  - A dependency: its start's key, `/dependency:`, its end's key and its kind.
+  - A left-out table: `table:` and what the hub says.
+
+  A key another element already has gets `#2`, `#3` and so on.
+- **A picture it cannot draw** fails at its source, the stage's source with no line. That is a picture that:
+  - is not format 1 with a list of contexts;
+  - has a timeline, dependencies, hotspots or term lists that are not lists;
+  - has more than 5000 elements;
+  - or is too large for `layout.js` to place.
+
+  It reads its warnings only once the board is placed. So a picture that fails before then fails again with the same digest and makes no new drawing.
+
+`test/ddd-board.test.js` checks TASK-421's done condition: this repository's stage 01 draws as a stored expected drawing.
+- `test/ddd-board-picture.json` is the pinned hub's picture of the stage source's Markdown files, with each file's SHA-256. The source is `docs/01-domain/nexus.md`; its Korean translation is left out, as the hub leaves it out.
+- `test/ddd-board-expected.json` is its drawing. The test compares it exactly, both alone and through the push with the server's own drawer.
+- The test fails when a stage-01 document changes or is added and the picture does not, and when the drawing changes and its file does not.
+- `tests/test_ddd_board_picture.py` makes the picture again with the pinned hub and fails when it differs from the stored one.
+
+To make both files again, from the repository's root:
+
+```sh
+CORTHEX_HUB_CHECKOUT=<the pinned hub checkout> python tests/test_ddd_board_picture.py --write
+(cd server && node test/ddd-board-expected.js --write)
+```
+
+It also checks, with pictures and checks it makes:
+- SPEC-003's 7 contexts and 7 lanes;
+- a table the hub left out, shown with its file and line, and the warnings in the digest;
+- unreadable entries;
+- where hotspots stand;
+- dependencies by trace ID and by name, and external systems;
+- a row's cells;
+- a picture in the wrong format or with more than 5000 elements;
+- that no log line holds the picture's text (rule 5).
 
 ## ERD
 

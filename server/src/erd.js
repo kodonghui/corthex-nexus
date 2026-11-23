@@ -33,16 +33,11 @@
 // by name, as SQL does: the table of that name, or else the first whose name differs only in case. Nothing here logs
 // (rule 5).
 
-import { elementKey, SourceFailure } from './drawing.js';
+import {
+  characters, elementKey, isName, isObject, isText, isTextList, keyer, leftOut, MAX_ELEMENTS, optional, SourceFailure, traceIdOf,
+  whereText as whereOf,
+} from './drawer.js';
 import { layout, LAYOUT_LIMITS } from './layout.js';
-
-// The contract's limits: a drawing's elements, an element key and a trace ID, and a failure's where.
-const MAX_ELEMENTS = 5000;
-const MAX_KEY = 200;
-const MAX_TRACE_ID = 30;
-const MAX_WHERE = 300;
-const TRACE_ID = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 // A table's box, sized for 12-pixel IBM Plex Mono, whose characters are 0.6 em wide: a header with its name, a row for
 // each column with its name, its type and its key marks, and padding round them.
@@ -55,14 +50,6 @@ const MIN_WIDTH = 120;
 const MAX_WIDTH = 480;
 // The characters a column's row holds besides its name and type: the gap between them and up to three key marks.
 const MARKS = 8;
-
-const isObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
-const isText = (value) => typeof value === 'string';
-const isName = (value) => isText(value) && value.trim() !== '';
-const isTextList = (value) => Array.isArray(value) && value.every(isText);
-// An optional member of the picture: left out, null, or in its form.
-const optional = (value, check) => value === undefined || value === null || check(value);
-const characters = (text) => [...text].length;
 
 const isColumn = (column) => isObject(column) && isName(column.name) && optional(column.type, isText)
   && optional(column.null, (value) => typeof value === 'boolean');
@@ -89,17 +76,6 @@ function readTable(entry) {
   };
 }
 
-// An entry's trace ID, or null when it has none in the contract's form.
-function traceIdOf(entry) {
-  const id = isObject(entry) ? entry.id : undefined;
-  return isText(id) && id.length <= MAX_TRACE_ID && TRACE_ID.test(id) ? id : null;
-}
-
-// A where of the picture, a file and its line, or null when it is not text NEXUS can show as one.
-function whereOf(value) {
-  return isText(value) && value !== '' && characters(value) <= MAX_WHERE && !CONTROL.test(value) ? value : null;
-}
-
 // A column as the drawing shows it: its name, its type, whether it takes null, and its keys.
 function columnsOf(table) {
   const primary = new Set(table.primaryKey);
@@ -119,21 +95,6 @@ function sizeOf(name, rows) {
   return {
     width: Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, Math.ceil(longest * CHARACTER) + 2 * PADDING)),
     height: Math.min(LAYOUT_LIMITS.size, HEADER + Math.max(1, rows.length) * ROW + FOOTER),
-  };
-}
-
-// Hands out the element keys of one drawing: a key another element has gets #2, #3 and so on, within the contract's
-// length, as drawing.js does for the keys it works out.
-function keyer() {
-  const taken = new Set();
-  return (base) => {
-    let key = base;
-    for (let n = 2; taken.has(key); n += 1) {
-      const suffix = `#${n}`;
-      key = characters(base) + suffix.length <= MAX_KEY ? `${base}${suffix}` : `${[...base].slice(0, MAX_KEY - suffix.length).join('').trimEnd()}${suffix}`;
-    }
-    taken.add(key);
-    return key;
   };
 }
 
@@ -205,12 +166,7 @@ export function erd(given) {
   // The statements the hub left out. Their warnings are read only once the tables are placed, so that they join the
   // digest of no drawing that failed without them: a picture that fails before this fails again with the same digest,
   // and makes no new drawing, whatever the hub left out.
-  const statements = (given.warnings ?? []).map(({ path, line, detail }) => ({
-    name: detail,
-    // The file and its line, or the file alone when the two would be too long, as a failure's where.
-    where: path === null ? null : line === null || characters(`${path}:${line}`) > MAX_WHERE ? path : `${path}:${line}`,
-    key: keyOf(elementKey({ kind: 'statement', name: detail })),
-  }));
+  const statements = leftOut(given.warnings, 'statement', keyOf);
   if (tables.length + missing.size + lines.length + statements.length > MAX_ELEMENTS) throw new SourceFailure();
 
   const elements = tables.map(({ entry, read, name, traceId, key }, index) => (read === null
