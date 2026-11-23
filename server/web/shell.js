@@ -6,7 +6,7 @@
 // draws nothing of a project until a read answered it. It keeps nothing an API answered (see storage.js).
 
 import { PROJECTS_HREF, projectHref, stageHref, TODO_HREF } from './address.js';
-import { read } from './api.js';
+import { read, write } from './api.js';
 import { fill, h, icon } from './dom.js';
 import { MESSAGES } from './messages.js';
 import { STAGES } from './stages.js';
@@ -36,6 +36,8 @@ export function isPhone() {
 // Runs screen at address in root, the page's #app, and returns the shell it gives the screen.
 export function startShell(root, screen, address) {
   const states = screen.states ?? SHARED_STATES;
+  // The reads whose failure shows in the screen's own part (shell.missed), not in place of the whole screen.
+  const parts = new Set(screen.parts ?? []);
   const leaving = [];
   let round = new Map();
   let data = null;
@@ -48,6 +50,10 @@ export function startShell(root, screen, address) {
   let tag = null;
   // The times the view shows as how long ago they were (since), each moved on with the read time.
   let clocks = [];
+  // The outcomes of the parts' reads that failed in the last load, by the read's name.
+  let misses = {};
+  // Whether a part's read again failed and the part kept what it showed, so the read time shows (states.js readTag).
+  let partStale = false;
 
   const shell = {
     read: (path) => {
@@ -55,6 +61,9 @@ export function startShell(root, screen, address) {
       return round.get(path);
     },
     reload: () => load(true),
+    write: writeOf,
+    redraw,
+    missed: (name) => misses[name] ?? null,
     onLeave: (keep) => leaving.push(keep),
     keepDraft,
     draftOf,
@@ -110,12 +119,13 @@ export function startShell(root, screen, address) {
     }
   }
 
-  // Shows what a load's reads answered.
+  // Shows what a load's reads answered. A read of one of the screen's parts that fails leaves the rest of the screen
+  // as it is: the part keeps what it showed, or has null on a first load, and the screen shows the failure there.
   function settle(refresh, reads, outcomes) {
     const found = outcomes.map((outcome) => stateOf(outcome, states));
     const denied = found.findIndex(({ state }) => state === 'permission');
     if (denied !== -1) return permission(found[denied].kind, outcomes[denied]);
-    const failed = found.findIndex(({ state }) => state !== 'normal');
+    const failed = found.findIndex(({ state }, index) => state !== 'normal' && !parts.has(reads[index][0]));
     // A read again that fails keeps the data, unless what it read is gone.
     if (failed !== -1 && refresh && data !== null && found[failed].kind !== 'gone') {
       reread = outcomes[failed];
@@ -125,17 +135,45 @@ export function startShell(root, screen, address) {
       data = null;
       return render({ failure: outcomes[failed], kind: found[failed].kind });
     }
-    succeeded();
-    const next = Object.fromEntries(reads.map(([name], index) => [name, outcomes[index].body]));
+    if (found.length === 0 || found.some(({ state }) => state === 'normal')) succeeded();
+    const missed = {};
+    // Whether a part kept what an earlier read showed: the read time then stays that of the earlier read.
+    let kept = false;
+    const next = Object.fromEntries(reads.map(([name], index) => {
+      if (found[index].state === 'normal') return [name, outcomes[index].body];
+      missed[name] = outcomes[index];
+      const before = refresh && data !== null ? data[name] ?? null : null;
+      if (before !== null) kept = true;
+      return [name, before];
+    }));
     // A read again that answers what is shown leaves the view as it is, with what the owner typed, chose or
     // scrolled to; only the read time moves.
-    const same = refresh && reread === null && data !== null && JSON.stringify(next) === JSON.stringify(data);
+    const whole = Object.keys(missed).length === 0 && Object.keys(misses).length === 0;
+    const same = refresh && whole && reread === null && data !== null && JSON.stringify(next) === JSON.stringify(data);
     data = next;
-    readAt = Date.now();
+    misses = missed;
+    if (!kept) readAt = Date.now();
     reread = null;
+    partStale = kept;
     if (same) return showTimes();
     if (refresh) return again(showData);
     showData();
+  }
+
+  // A write of the screen's (api.js write), whose outcome it returns. A 401 or 403 goes through the permission rule,
+  // which ends the page or reloads it through the gate, as a read's does.
+  async function writeOf(method, path, body, key) {
+    const outcome = await write(method, path, body, key);
+    const { state, kind } = stateOf(outcome, states);
+    if (state === 'permission') permission(kind, outcome);
+    else if (state === 'normal') succeeded();
+    return outcome;
+  }
+
+  // Draws the screen again from the data it has, without a read, as after a change of its own state such as a write
+  // that began or ended. It does nothing before the data came or once the page ended.
+  function redraw() {
+    if (data !== null && !ended) again(showData);
   }
 
   // Draws the view again where the page is scrolled to.
@@ -251,7 +289,7 @@ export function startShell(root, screen, address) {
       if (element.textContent !== text) element.textContent = text;
     }
     if (tag === null) return;
-    const text = readTag(readAt, now, reread !== null);
+    const text = readTag(readAt, now, reread !== null || partStale);
     tag.hidden = text === null;
     tag.textContent = text ?? '';
   }

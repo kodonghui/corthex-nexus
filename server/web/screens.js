@@ -1,13 +1,15 @@
 // The screens of the sitemap (docs/07-sitemap) as the shell runs them (see shell.js and the server README's "App
 // shell" section). Each draws its title, its place and its shared states from API-262, API-263 and API-264; its own
 // body in the normal and empty states is the task's that builds the screen (TASK-455 to TASK-462): SCR-142's is
-// todo.js (TASK-455).
+// todo.js (TASK-455), and SCR-143's is projects.js (TASK-456).
 //
 // A screen is an object:
 // - layout: 'list' (one column, main.main) or 'workbench' (the diagram's column and the work panel, div.wb);
 // - tabs: true for the stage tabs under the header;
 // - states: the states it has beyond the shared ones, for the 409s that lead to one (see states.js stateOf);
 // - reads(address): its API reads, { name: path }; the shell reads them and hands their bodies over as data[name];
+// - parts: the names of its reads that fail in their own part of the screen: data[name] keeps what it showed, or is
+//   null, shell.missed(name) gives the failure, and the rest of the screen shows as usual;
 // - fixedTitle: its title before its data came, or null for a title from its data;
 // - title(ctx), crumb(ctx) and description (a text, or a function of ctx): drawn once its data came; without title,
 //   the fixed title stays;
@@ -16,12 +18,13 @@
 //   names nothing, such as an unknown ?d=;
 // - skeleton(ctx): the grey shapes of its loading state;
 // - render(ctx) and panel(ctx): its body and, on the workbench, its work panel, as nodes.
-// ctx is { address, data, shell }: shell gives read, reload, onLeave, keepDraft, draftOf, isPhone, message, staleBar,
-// errorNotice, since and outcome.
+// ctx is { address, data, shell }: shell gives read, reload, write, redraw, missed, onLeave, keepDraft, draftOf,
+// isPhone, message, staleBar, errorNotice, since and outcome.
 
 import { isDiagramId, isThreadId, projectApi, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
 import { h } from './dom.js';
 import { projectBody, projectDescription, projectSkeleton } from './project.js';
+import { projectsBody, projectsSkeleton } from './projects.js';
 import { SHARED_STATES } from './states.js';
 import { stageOf } from './stages.js';
 import { todoBody } from './todo.js';
@@ -82,11 +85,13 @@ export const SCREENS = Object.freeze({
   },
   'SCR-143': {
     layout: 'list',
-    reads: () => ({ projects: '/api/projects' }),
+    // API-262 for the projects and API-279 for the credentials, each a part: a failed read shows in its own table.
+    reads: () => ({ projects: '/api/projects', credentials: '/api/credentials' }),
+    parts: ['projects', 'credentials'],
     fixedTitle: '프로젝트',
     description: '에이전트가 보낸 프로젝트 공간이에요. 최근에 보낸 것부터 보여요.',
-    skeleton: () => [skeletonGroup(2, false)],
-    render: () => [],
+    skeleton: projectsSkeleton,
+    render: projectsBody,
   },
   'SCR-144': {
     layout: 'list',
