@@ -4,6 +4,7 @@ import { createNexusServer } from './app.js';
 import { createBackups } from './backups.js';
 import { createGate } from './gate.js';
 import { errorKind, jsonLines, logCrashes } from './log.js';
+import { createPages } from './pages.js';
 import { ROUTES } from './routes.js';
 import { readSettings, SettingsError } from './settings.js';
 import { openStore, StoreError } from './store.js';
@@ -47,7 +48,7 @@ function start() {
   const gate = createGate(settings.gate);
   // The one queue of store writes: the requests' and the daily backup's (backups.js).
   const queue = createQueue();
-  const server = createNexusServer({ settings, routes: ROUTES, log, store, gate, queue });
+  const server = createNexusServer({ settings, routes: ROUTES, log, store, gate, queue, pages: createPages() });
   const backups = createBackups({ store, settings: settings.backup, queue, log });
   server.once('error', (error) => {
     log({ time: time(), event: 'listen_failed', error: errorKind(error) });

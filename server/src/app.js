@@ -8,6 +8,7 @@ import { BODY_KINDS, BodyAborted, closesConnection, readJson } from './body.js';
 import { requestKeyOf } from './keys.js';
 import { LIMITS } from './limits.js';
 import { errorKind, jsonLines, methodOf, randomTraceId } from './log.js';
+import { isApiPath } from './pages.js';
 import { malformedParameter } from './params.js';
 import { internal, methodNotAllowed, notFound, Problem } from './problem.js';
 import { createRouter } from './router.js';
@@ -30,8 +31,13 @@ import { createQueue, createWrites, isWrite } from './writes.js';
 // then the operation, a write one at a time in the order they arrive with its request key (see writes.js). Once its
 // path and method name an operation, every answer carries the headers its route names, refusals and faults included
 // (see router.js). A route whose media is a page answers its handler's text as that type (see answer.js).
+//
+// pages, when the server serves them (main.js), is pages.js's createPages(): a GET of a path outside /api is answered
+// with a page or a file of the app before anything else, without admission, since none of them holds a project's data
+// (see pages.js). Its log line has the action null, as a path that names no operation.
 export function createApp({
   settings, routes = [], log = jsonLines(), store = null, gate = null, now = Date.now, queue = createQueue(),
+  pages = null,
 }) {
   const find = createRouter(routes);
   // An action's family, from the contract: one action is one operation, so it has one family.
@@ -76,6 +82,10 @@ export function createApp({
     let routeHeaders = null;
     try {
       const pathname = pathOf(request.url);
+      if (pages !== null && pathname !== null && request.method === 'GET' && !isApiPath(pathname)) {
+        send(response, pages(pathname), closesConnection(request, drainLimit), null);
+        return;
+      }
       const match = pathname === null ? null : find(request.method, pathname);
       if (match === null) throw notFound(pathname);
       if (match.allow) throw methodNotAllowed(match.allow);
@@ -135,9 +145,9 @@ function pathOf(target) {
   return end === -1 ? target : target.slice(0, end);
 }
 
-// Sends an answer of answer.js with the headers of its route, which win over the answer's own. The body's type, its
-// length and nosniff are always the server's. close is true when the answer closes the connection, for a body the
-// server will not read to its end.
+// Sends an answer of answer.js or pages.js with the headers of its route, which win over the answer's own. The body's
+// type, its length and nosniff are always the server's; the body is text, or a page's bytes. close is true when the
+// answer closes the connection, for a body the server will not read to its end.
 function send(response, answer, close, routeHeaders) {
   const all = Object.assign(Object.create(null), answer.headers, routeHeaders);
   all['x-content-type-options'] = 'nosniff';
