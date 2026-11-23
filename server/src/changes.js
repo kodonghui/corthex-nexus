@@ -4,7 +4,8 @@
 // one):
 // - rename: element takes the name name; target is null.
 // - connect: a line from element to target, in that direction, as each picture draws its lines (detail.from to
-//   detail.to); name is null, and target is never element.
+//   detail.to); name is the new line's label when it has one (an agent's proposed arrow label), and null on the owner's
+//   direct edit; target is never element.
 // - add: element is added, under the name name when the step gives one.
 // - remove: element is removed.
 // The steps of a change set keep their order, seq from 1, and a reflection applies them in that order. Each step names
@@ -49,9 +50,7 @@ function checkStep(step) {
   }
   if (target !== null && !isElementKey(target)) throw new TypeError("a step's target is an element key, or null");
   if (op === 'rename' && (name === null || target !== null)) throw new TypeError('a rename has a name and no target');
-  if (op === 'connect' && (target === null || target === element || name !== null)) {
-    throw new TypeError('a connect has a target other than its element, and no name');
-  }
+  if (op === 'connect' && (target === null || target === element)) throw new TypeError('a connect has a target other than its element');
   return { op, element, name, target };
 }
 

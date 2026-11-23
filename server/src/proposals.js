@@ -43,6 +43,7 @@
 // Nothing here logs; a proposal's text, its source_text and a session's label are in the store and the answers only
 // (rule 5).
 
+import { writeSteps } from './changes.js';
 import { keepClaim, sessionOf } from './claims.js';
 import { addAgentEntry, boundedText, emptyOf, formOf, onlyFields, openOwnThread, textOf, writeOnThread } from './comments.js';
 import { MAX_TRACE_ID, TRACE_ID } from './drawer.js';
@@ -109,9 +110,6 @@ function statementsOf(store) {
       insertChangeSet: store.prepare(
         `INSERT INTO change_sets (project_id, diagram_id, drawing_id, origin, thread_id, credential_id, state, created_at, detail)
          VALUES (?, ?, ?, 'proposal', ?, ?, 'proposed', ?, ?)`,
-      ),
-      insertChange: store.prepare(
-        'INSERT INTO changes (change_set_id, seq, op, element_key, new_name, target_key) VALUES (?, ?, ?, ?, ?, ?)',
       ),
       proposal: store.prepare('SELECT id, diagram_id, origin, thread_id, state FROM change_sets WHERE id = ? AND project_id = ?'),
       withdraw: store.prepare("UPDATE change_sets SET state = 'cancelled', decided_at = ? WHERE id = ? AND state = 'proposed'"),
@@ -319,9 +317,7 @@ function makeProposal({ store, params, request: incoming, body, credential, now 
       project.id, Number(diagram.id), Number(drawing.id), threadKey, credential.key, time, detail,
     );
     const key = Number(lastInsertRowid);
-    changes.forEach((change, index) => {
-      statements.insertChange.run(key, index + 1, change.op, change.element, change.name, change.target);
-    });
+    writeSteps(store, { changeSet: key, steps: changes });
     addAgentEntry(store, { thread: threadKey, credential: credential.key, text: request.change, detail: {}, time });
     changeSetsChanged(store, { project: project.id, diagram: Number(diagram.id), time });
     return key;

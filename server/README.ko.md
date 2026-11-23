@@ -968,9 +968,9 @@ API-293(`GET /api/projects/{project}/diagrams/{diagram}/page`, `src/mockup-page.
   - 반영된 것, 그리고 수락과 취소 말고 다른 상태인 것은 그 상태와 함께 `change_set_state`로 거절해요. AI 제안도 그래요. 소유자는 AI 제안에 답하지, 취소하지 않아요(API-270, API-271). 화면은 직접 편집에만 편집 취소를 제공해요.
   - 다른 프로젝트의 ID나 어떤 변경 세트도 가리키지 않는 ID는 `change_set_not_found`를 받아요.
 - **지운 다이어그램**(WBS 메모 8). SPEC-027은 지운 다이어그램의 새 직접 편집을 거절하지만, 취소는 변경을 빼기만 해요. 그래서 API-273은 지운 다이어그램의 직접 편집도 다른 것처럼 취소해요. 다이어그램이 열리는 동안, 곧 열린 스레드가 있는 동안에는 작업대(SCR-145)의 반영 대기 목록에서 취소해요. 바뀐 것의 목록(SCR-146)은 바뀐 것만 보여 줘요. 스레드가 모두 닫히면 다이어그램이 열리지 않으므로, 반영 대기 편집은 그 ID로만 취소할 수 있고 그 반영은 에이전트 할 일에 남아요. 이 경우는 TASK-447과 12단계가 다뤄요.
-- **단계**는 `src/changes.js`의 `writeSteps`가 써요. TBL-159를 쓰는 한 곳이고, TASK-438도 에이전트의 제안에 이것을 써요. 단계는 계약의 Change, 곧 요소 키로 된 `{ op, element, name, target }`이에요.
+- **단계**는 `src/changes.js`의 `writeSteps`가 써요. TBL-159를 쓰는 한 곳이고, 직접 편집과 에이전트의 제안(TASK-438)이 함께 써요. 단계는 계약의 Change, 곧 요소 키로 된 `{ op, element, name, target }`이에요.
   - `rename`: 요소가 `name`이라는 이름을 가져요.
-  - `connect`: 요소에서 `target`으로 가는 선이고, 방향은 그대로예요.
+  - `connect`: 요소에서 `target`으로 가는 선이고, 방향은 그대로예요. 단계가 `name`을 주면 새 선의 라벨이 되고, 에이전트가 제안한 화살표가 그래요. 직접 편집의 연결은 `name`을 주지 않아요.
   - `add`: 요소를 더하고, 단계가 `name`을 주면 그 이름으로 더해요.
   - `remove`: 요소를 빼요.
 
@@ -1173,7 +1173,7 @@ python tests/test_tokens_css.py --write
 
 아래 규칙 가운데 승인된 문서에 없는 네 가지는 TASK-438을 위해 코디네이터가 골랐고, 2026-11-24에 메인테이너가 체크포인트용으로 정한 대리인을 통해 승인했어요. `source_text`가 변경이 되는 방식, 제안이 스레드에 쓰는 것, 지운 다이어그램은 제안을 받지 않는다는 것(WBS 메모 6), 그리고 다이어그램이 같은 드로잉을 보여 준 커밋에 대한 `document_changed`의 예외예요. 계약의 글은 그대로이고, 이 예외는 이 서버가 "현재 드로잉의 커밋"을 읽는 방식이에요.
 
-- **제안**은 TBL-158 `change_sets`의 행 하나예요. origin은 `proposal`, 상태는 `proposed`이고, 다이어그램 하나의 현재 드로잉을 기준으로 하며, 에이전트의 자격 증명과 스레드를 적어요. 그 단계는 TBL-159 `changes`의 행이고 순서대로 쌓여요. TBL-158의 `detail`은 요청을 ProposalRequest의 이름 그대로 둬요. [에이전트 읽기](#에이전트-읽기)가 말하는 `items`, `adds`, `reason`, `change`, `source_text`예요. 그래서 API-247, API-265, `heldChangeSets`가 다른 변경 세트처럼 읽어요. 응답은 계약의 ChangeSet이고, API-247도 답하는 `src/reads.js`의 `changeSetOf`가 만들어요.
+- **제안**은 TBL-158 `change_sets`의 행 하나예요. origin은 `proposal`, 상태는 `proposed`이고, 다이어그램 하나의 현재 드로잉을 기준으로 하며, 에이전트의 자격 증명과 스레드를 적어요. 그 단계는 TBL-159 `changes`의 행이고 순서대로 쌓이며, `src/changes.js`의 `writeSteps`가 써요([직접 편집](#직접-편집) 참고). TBL-158의 `detail`은 요청을 ProposalRequest의 이름 그대로 둬요. [에이전트 읽기](#에이전트-읽기)가 말하는 `items`, `adds`, `reason`, `change`, `source_text`예요. 그래서 API-247, API-265, `heldChangeSets`가 다른 변경 세트처럼 읽어요. 응답은 계약의 ChangeSet이고, API-247도 답하는 `src/reads.js`의 `changeSetOf`가 만들어요.
 - **어느 단계인가.** 01, 03, 05, 07, 08단계의 그려진 그림만 제안을 받아요(계약의 ProposalStage). 09단계와 그 밖의 단계는 `stage`에 대한 `invalid_request`를 받아요. 목업 페이지에는 오버레이를 얹지 않으므로, 에이전트는 대신 댓글을 달아요. 가리킨 항목 표, 그려진 적이 없는 다이어그램, 그려진 그림이 없는 단계와 part는 `not_drawn`을 받아요.
 - **어느 다이어그램인가.** 댓글 스레드의 다이어그램, `diagram`이 가리키는 다이어그램, 또는 그 단계와 part에서 item을 모두 가진 그려진 그림 하나예요.
   - item은 다이어그램의 현재 드로잉에서 그 추적 ID를 가진 요소가 가져요. `unreadable`로 그려진 요소는 사라진 것으로 치니(SPEC-027) 아무 item도 갖지 않아요. [그린 뒤](#그린-뒤)와 같아요. 단계의 드로잉에서 어느 요소도 갖지 않으면, 댓글의 item처럼 그 item이 가리키는 파일 다이어그램이 가져요([댓글](#댓글) 참고). 그러면 제안은 그 다이어그램 전체에 얹혀요. item은 그 ID로 남고 어느 요소도 표시하지 않아요. `source_text`가 있으면 변경은 파일 전체의 차이예요.

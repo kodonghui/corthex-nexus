@@ -60,7 +60,7 @@ describe('direct edits', () => {
   const keyOf = (id) => Number(db.prepare('SELECT id FROM change_sets ORDER BY id DESC').all().find((row) => idOf('np', Number(row.id)) === id).id);
   const rows = (table) => db.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all();
   const dump = () => JSON.stringify(['change_sets', 'changes', 'todos'].map(rows));
-  // The owner accepts a proposal at a time, as API-270 will (TASK-438).
+  // The owner accepts a proposal at a time, as API-270 will (TASK-444).
   const accept = (changeSet, at) => db.prepare("UPDATE change_sets SET state = 'accepted', decided_at = ? WHERE id = ?").run(at, changeSet);
 
   // A project with an ERD of three tables and a line from TBL-147 to TBL-146: { space, erd }.
@@ -714,13 +714,19 @@ describe('direct edits', () => {
       { op: 'add', element: 'TBL-171', name: 'restore_rehearsals' },
       { op: 'connect', element: 'TBL-171', target: 'TBL-170' },
     ] }), 2);
-    assert.equal(writeSteps(store, { changeSet: set, steps: [{ op: 'remove', element: 'TBL-169' }, { op: 'rename', element: 'TBL-170', name: 'backups' }] }), 2);
+    // A connect takes the new line's label when it has one, as an agent's proposed arrow does (TASK-438).
+    assert.equal(writeSteps(store, { changeSet: set, steps: [
+      { op: 'remove', element: 'TBL-169' },
+      { op: 'rename', element: 'TBL-170', name: 'backups' },
+      { op: 'connect', element: 'TBL-170', name: 'holds', target: 'TBL-146' },
+    ] }), 3);
     assert.deepEqual(store.prepare('SELECT seq, op, element_key, new_name, target_key FROM changes WHERE change_set_id = ? ORDER BY seq').all(set)
       .map((row) => [row.seq, row.op, row.element_key, row.new_name, row.target_key]), [
       [1, 'add', 'TBL-171', 'restore_rehearsals', null],
       [2, 'connect', 'TBL-171', null, 'TBL-170'],
       [3, 'remove', 'TBL-169', null, null],
       [4, 'rename', 'TBL-170', 'backups', null],
+      [5, 'connect', 'TBL-170', 'holds', 'TBL-146'],
     ]);
     // A step that breaks the contract is a fault, and none of the steps given is written.
     for (const step of [
@@ -730,11 +736,12 @@ describe('direct edits', () => {
       { op: 'rename', element: 'TBL-170', name: 'x', target: 'TBL-171' },
       { op: 'rename', element: 'TBL-170', name: 'x'.repeat(201) },
       { op: 'connect', element: 'TBL-170', target: 'TBL-170' },
-      { op: 'connect', element: 'TBL-170', target: 'TBL-171', name: 'x' },
+      { op: 'connect', element: 'TBL-170' },
+      { op: 'connect', element: 'TBL-170', target: 'TBL-171', name: 'x'.repeat(201) },
     ]) {
       assert.throws(() => writeSteps(store, { changeSet: set, steps: [{ op: 'remove', element: 'TBL-146' }, step] }), TypeError, JSON.stringify(step));
     }
-    assert.equal(store.prepare('SELECT count(*) AS n FROM changes WHERE change_set_id = ?').get(set).n, 4);
+    assert.equal(store.prepare('SELECT count(*) AS n FROM changes WHERE change_set_id = ?').get(set).n, 5);
   });
 
   test('answers every response API-272 and API-273 list', () => {
