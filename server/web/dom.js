@@ -20,9 +20,10 @@ export function h(tag, props = {}, ...children) {
   return element;
 }
 
-// The header's icons, drawn as the mockup draws them.
+// The icons, drawn as the mockup draws them: the header's, and the chevron at the end of a list row.
 const ICONS = Object.freeze({
   chevron: { size: 16, path: 'M4 6 L8 10 L12 6' },
+  next: { size: 16, path: 'M6 4 L10 8 L6 12' },
   moon: { size: 20, path: 'M15.5 12.5A6.5 6.5 0 0 1 7.5 4.5a6.5 6.5 0 1 0 8 8z' },
 });
 

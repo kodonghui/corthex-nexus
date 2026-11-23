@@ -1,6 +1,7 @@
 // The screens of the sitemap (docs/07-sitemap) as the shell runs them (see shell.js and the server README's "App
 // shell" section). Each draws its title, its place and its shared states from API-262, API-263 and API-264; its own
-// body in the normal and empty states is the task's that builds the screen (TASK-455 to TASK-462).
+// body in the normal and empty states is the task's that builds the screen (TASK-455 to TASK-462): SCR-142's is
+// todo.js (TASK-455).
 //
 // A screen is an object:
 // - layout: 'list' (one column, main.main) or 'workbench' (the diagram's column and the work panel, div.wb);
@@ -15,13 +16,14 @@
 //   names nothing, such as an unknown ?d=;
 // - skeleton(ctx): the grey shapes of its loading state;
 // - render(ctx) and panel(ctx): its body and, on the workbench, its work panel, as nodes.
-// ctx is { address, data, shell }: shell gives read, reload, onLeave, keepDraft, draftOf, isPhone, message, staleBar
-// and errorNotice.
+// ctx is { address, data, shell }: shell gives read, reload, onLeave, keepDraft, draftOf, isPhone, message, staleBar,
+// errorNotice and since.
 
 import { isDiagramId, isThreadId, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
 import { h } from './dom.js';
 import { SHARED_STATES } from './states.js';
 import { stageOf } from './stages.js';
+import { todoBody } from './todo.js';
 
 const WORKBENCH_STATES = Object.freeze([...SHARED_STATES, 'waiting', 'confirmed', 'not-drawn', 'workshop']);
 const CHANGES_STATES = Object.freeze([...SHARED_STATES, 'waiting', 'not-drawn', 'confirmed']);
@@ -70,11 +72,12 @@ const stageName = (address) => {
 export const SCREENS = Object.freeze({
   'SCR-142': {
     layout: 'list',
-    reads: () => ({ todo: '/api/todo' }),
+    // API-262 for the projects' titles and the empty state's list; the header reads the same two, in one request each.
+    reads: () => ({ todo: '/api/todo', projects: '/api/projects' }),
     fixedTitle: '내 차례',
     description: '모든 프로젝트에서 나를 기다리는 일이에요. 최근 것부터 보여요.',
     skeleton: () => [skeletonGroup(2), skeletonGroup(2)],
-    render: () => [],
+    render: todoBody,
   },
   'SCR-143': {
     layout: 'list',

@@ -10,7 +10,7 @@ import { read } from './api.js';
 import { fill, h, icon } from './dom.js';
 import { MESSAGES } from './messages.js';
 import { STAGES } from './stages.js';
-import { GATE_KEY, gateStep, readTag, SHARED_STATES, stateOf, switchName, THEME_KEY, themeOf } from './states.js';
+import { ago, GATE_KEY, gateStep, readTag, SHARED_STATES, stateOf, switchName, THEME_KEY, themeOf } from './states.js';
 import { draftOf, keepDraft, store, stored } from './storage.js';
 
 // The header's reads: API-262 for the project menu and API-263 for "내 차례 N".
@@ -46,6 +46,8 @@ export function startShell(root, screen, address) {
   // A load asked for while one runs, such as a reload after a write: null, or whether it reads again (refresh).
   let queued = null;
   let tag = null;
+  // The times the view shows as how long ago they were (since), each moved on with the read time.
+  let clocks = [];
 
   const shell = {
     read: (path) => {
@@ -60,6 +62,7 @@ export function startShell(root, screen, address) {
     message,
     staleBar,
     errorNotice,
+    since,
   };
   const header = createHeader(address);
   const tabs = screen.tabs ? stageTabs(address) : null;
@@ -69,7 +72,7 @@ export function startShell(root, screen, address) {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && data !== null) load(true);
   });
-  setInterval(showTag, TICK_MS);
+  setInterval(showTimes, TICK_MS);
   load(false);
   return shell;
 
@@ -129,7 +132,7 @@ export function startShell(root, screen, address) {
     data = next;
     readAt = Date.now();
     reread = null;
-    if (same) return showTag();
+    if (same) return showTimes();
     if (refresh) return again(showData);
     showData();
   }
@@ -175,6 +178,7 @@ export function startShell(root, screen, address) {
 
   // Draws the view: the loading state, a failed read, a gone thing, or the screen's data.
   function render({ loading = false, failure = null, kind = null, gone = null, ctx = null }) {
+    clocks = [];
     if (gone === null && failure !== null && kind === 'gone') gone = { code: failure.code, ...(GONE[failure.code] ?? {}) };
     if (gone !== null) {
       if (tabs !== null) tabs.hidden = gone.tabs === false;
@@ -212,14 +216,27 @@ export function startShell(root, screen, address) {
     } else {
       fill(view, h('main', { class: 'main' }, top, body));
     }
-    showTag();
+    showTimes();
   }
 
-  function showTag() {
+  // The read time beside the title, and how long ago each time of the view was; the tick runs it every 30 seconds.
+  function showTimes() {
+    const now = Date.now();
+    for (const { element, time, words } of clocks) element.textContent = words(ago(time, now));
     if (tag === null) return;
-    const text = readTag(readAt, Date.now(), reread !== null);
+    const text = readTag(readAt, now, reread !== null);
     tag.hidden = text === null;
     tag.textContent = text ?? '';
+  }
+
+  // A time of the data as how long ago it was, such as "12분 전" (states.js ago), in a <time> that holds the moment
+  // itself. words turns that into the screen's text, such as "12분 전에 보냄". The text moves on with the shell's tick
+  // and with each read, also when a read again leaves the view as it is.
+  function since(time, words = (text) => text) {
+    const element = h('time', { datetime: time });
+    element.textContent = words(ago(time, Date.now()));
+    clocks.push({ element, time, words });
+    return element;
   }
 
   // The permission state, in place of the whole page. A 401 first reloads the page through the gate, keeping unsent
