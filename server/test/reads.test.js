@@ -34,7 +34,7 @@ const ANSWER = 'It is, after the push.';
 const flow = (name) => `docs/03-user-flow/${name}.md`;
 const pull = (number) => `${REPOSITORY}/pull/${number}`;
 // The project's /snapshot document lists its file pictures with their part, so that a diagram's part is found.
-const FILES = ['comment', 'gone', 'proposal', 'edits', 'reflect', 'withdraw', 'remove', 'record', 'early', 'invalid'];
+const FILES = ['comment', 'gone', 'proposal', 'edits', 'reflect', 'withdraw', 'meet', 'remove', 'record', 'early', 'invalid'];
 const PICTURES = FILES.map((name) => ({ stage: '03-user-flow', key: flow(name), part: 'nexus' }));
 const ACTIONS = ['getProjectData', 'getComment', 'getProposal', 'getEdit', 'getCheckpoint'];
 
@@ -382,6 +382,38 @@ describe('agent reads', () => {
     assert.deepEqual(
       [withdrawn.json.state, withdrawn.json.change_sets, withdrawn.json.pull_request, withdrawn.json.closed_at],
       ['withdrawn', [idOf('np', lone)], null, TIME],
+    );
+
+    // Q4: a reflection entry withdrawn when its group met an older entry names no pull request or commit, even once its
+    // anchor joins a pull request after it closed.
+    const meet = fileDiagram('meet');
+    const older = s.changeSet(space, meet);
+    changed(meet);
+    const olderEntry = entryOf('reflect', meet);
+    const pr33 = s.pullRequest(space, { number: 33 });
+    s.setChangeSet(older, { pullRequestId: pr33 });
+    changed(meet);
+    const newer = s.changeSet(space, meet);
+    changed(meet);
+    const newerEntry = entryOf('reflect', meet);
+    assert.notEqual(newerEntry, olderEntry);
+    db.prepare("UPDATE pull_requests SET state = 'closed', closed_at = ? WHERE id = ?").run(TIME, pr33);
+    s.setChangeSet(older, { pullRequestId: null });
+    changed(meet);
+    assert.deepEqual([closeReason(olderEntry), closeReason(newerEntry)], [null, 'withdrawn']);
+    const pr34 = s.pullRequest(space, { number: 34 });
+    for (const key of [older, newer]) s.setChangeSet(key, { pullRequestId: pr34 });
+    merge(pr34, MERGE);
+    changed(meet);
+    const met = await edit(idOf('ne', newerEntry));
+    assert.deepEqual(
+      [met.json.state, met.json.change_sets, met.json.pull_request, met.json.commit],
+      ['withdrawn', [idOf('np', newer)], null, null],
+    );
+    const kept = await edit(idOf('ne', olderEntry));
+    assert.deepEqual(
+      [kept.json.state, kept.json.change_sets, kept.json.pull_request, kept.json.commit],
+      ['reported', [idOf('np', older), idOf('np', newer)], pull(34), MERGE],
     );
 
     // A removal entry lists its anchor, open in its pull request's review and done once reported.

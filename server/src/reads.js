@@ -18,7 +18,8 @@
 //   reflection closed as done lists the diagram's reflected change sets in its anchor's pull request, those it
 //   reflected; one withdrawn, and a removal, list their anchor. Its state is done or withdrawn as it closed, and an
 //   open entry's comes from its pull request, as API-258's reports set it: none waiting, open in_review, merged without
-//   a merge commit merged, and with one reported.
+//   a merge commit merged, and with one reported. A withdrawn entry names no pull request or commit: TBL-166 keeps no
+//   pull request for a closed entry, and its anchor may join one after the entry closed.
 // - API-249 (nk_): any confirmation of the project, which the hub calls a checkpoint. state is withdrawn once it is
 //   cancelled and passed otherwise, an invalidated one included, as the agent to-do reads it. record_state tells how
 //   far the record that is due got: the cancel's once a recorded confirmation is cancelled, the confirmation's own
@@ -195,13 +196,16 @@ const textOf = (value) => (typeof value === 'string' && [...value].length <= LIM
 
 // The change sets a reflection or a removal entry holds (Reflection.change_sets): an open entry's group, as
 // heldChangeSets finds it; a closed reflection's reflected change sets in its anchor's pull request when it closed as
-// done; otherwise, and whenever that finds none, the anchor. Returns { changeSets, pullRequest }, keys.
+// done; otherwise, and whenever that finds none, the anchor. Returns { changeSets, pullRequest }, keys. A withdrawn
+// entry has no pull request: only a reflection entry closes as withdrawn, when its group met an older one or emptied,
+// and its anchor's pull request may be one the anchor joined after that.
 function heldBy(store, statements, project, entry) {
   const anchor = Number(entry.change_set_id);
   if (entry.closed_at === null) {
     const held = heldChangeSets(store, { project: project.id, entry });
     return { changeSets: held.changeSets.length > 0 ? held.changeSets.slice(0, HELD) : [anchor], pullRequest: held.pullRequest };
   }
+  if (entry.close_reason === 'withdrawn') return { changeSets: [anchor], pullRequest: null };
   const pullRequestId = statements.anchorOf.get(anchor)?.pull_request_id ?? null;
   const pullRequest = pullRequestId === null ? null : Number(pullRequestId);
   if (entry.kind === 'reflect' && entry.close_reason === 'done' && pullRequest !== null) {
