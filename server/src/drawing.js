@@ -84,6 +84,7 @@ import {
 } from './drawer.js';
 import { erd } from './erd.js';
 import { idOf } from './ids.js';
+import { sitemap } from './sitemap.js';
 
 // A drawer's failure and the keys it works out are drawer.js's, which the drawers import in place of this file.
 export { elementKey, SourceFailure };
@@ -106,7 +107,7 @@ export const KINDS = Object.freeze([...Object.values(PICTURE_KINDS), ITEM_TABLE]
 // The drawers, by kind of diagram (see the top of this file). Each drawing task adds its own: ddd_board TASK-421, erd
 // TASK-422, item_table TASK-423, user_flow TASK-424, sitemap TASK-425, screen_states TASK-426 and mockup TASK-427.
 // A kind without a drawer is not drawn: its documents make no diagram.
-export const DRAWERS = Object.freeze({ ddd_board: dddBoard, erd });
+export const DRAWERS = Object.freeze({ ddd_board: dddBoard, erd, sitemap });
 
 // The names a diagram has until its drawer names it, such as when its first drawing fails.
 const NAMES = Object.freeze({ ddd_board: 'DDD board', erd: 'ERD', sitemap: 'Sitemap' });

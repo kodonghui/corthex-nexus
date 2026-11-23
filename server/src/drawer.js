@@ -1,10 +1,11 @@
 // What the drawers share (TASK-419's drawer interface; the drawers of TASK-421 to TASK-427): the failure a drawer
-// throws for a source it cannot read, the element keys, the contract's limits, and the reading of a stage picture's
-// entries and of what the hub left out of it. drawing.js runs the drawers and keeps what they draw, and imports each
-// drawer; a drawer imports this file, never drawing.js, so that no two files import each other. Nothing here logs
-// (rule 5).
+// throws for a source it cannot read, the element keys, the contract's limits, the reading of a stage picture's
+// entries and of what the hub left out of it, and the placing of boxes with their text. drawing.js runs the drawers
+// and keeps what they draw, and imports each drawer; a drawer imports this file, never drawing.js, so that no two files
+// import each other. Nothing here logs (rule 5).
 
 import { createHash } from 'node:crypto';
+import { layout } from './layout.js';
 
 // The contract's limits: a drawing's elements, an element key, a trace ID and a failure's where; and a trace ID's form.
 export const MAX_ELEMENTS = 5000;
@@ -84,6 +85,22 @@ export function failureWhere({ path, line }) {
   if (line === null) return path;
   const where = `${path}:${line}`;
   return characters(where) <= MAX_WHERE ? where : path;
+}
+
+// Text in a box, for 12-pixel IBM Plex Mono, whose characters are 0.6 em wide: a character's width and the padding at
+// each side. The drawers work out a box's size from its text with these, for the page that draws it (TASK-458).
+export const CHARACTER = 7.2;
+export const PADDING = 12;
+
+// Places a graph with layout.js (TASK-420). A drawer gives it boxes and lines in layout.js's form, so a RangeError can
+// only be a graph too large to place in time, and the picture fails at its source.
+export function placed(graph, options) {
+  try {
+    return layout(graph, options);
+  } catch (error) {
+    if (error instanceof RangeError) throw new SourceFailure();
+    throw error;
+  }
 }
 
 // What the hub left out of a picture, from the drawer's warnings (see drawing.js): for each, its key, of the given

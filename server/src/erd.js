@@ -34,15 +34,13 @@
 // (rule 5).
 
 import {
-  characters, elementKey, isName, isObject, isText, isTextList, keyer, leftOut, MAX_ELEMENTS, optional, SourceFailure, traceIdOf,
-  whereText as whereOf,
+  CHARACTER, characters, elementKey, isName, isObject, isText, isTextList, keyer, leftOut, MAX_ELEMENTS, optional, PADDING, placed,
+  SourceFailure, traceIdOf, whereText as whereOf,
 } from './drawer.js';
-import { layout, LAYOUT_LIMITS } from './layout.js';
+import { LAYOUT_LIMITS } from './layout.js';
 
-// A table's box, sized for 12-pixel IBM Plex Mono, whose characters are 0.6 em wide: a header with its name, a row for
-// each column with its name, its type and its key marks, and padding round them.
-const CHARACTER = 7.2;
-const PADDING = 12;
+// A table's box, sized with drawer.js's CHARACTER and PADDING: a header with its name, a row for each column with its
+// name, its type and its key marks, and padding round them.
 const HEADER = 32;
 const ROW = 20;
 const FOOTER = 8;
@@ -149,17 +147,10 @@ export function erd(given) {
     }),
     ...[...missing.values()].map(({ name, key }) => ({ id: key, ...sizeOf(name, []) })),
   ];
-  let placed;
-  try {
-    // A line runs from the referenced table down to the table that holds the key, so referenced tables come first.
-    placed = layout({ nodes: boxes, edges: lines.map(({ from, to }) => ({ from: to, to: from })) });
-  } catch (error) {
-    // The boxes and lines are in layout.js's form, so a RangeError can only be a graph too large to place in time.
-    if (error instanceof RangeError) throw new SourceFailure();
-    throw error;
-  }
+  // A line runs from the referenced table down to the table that holds the key, so referenced tables come first.
+  const laid = placed({ nodes: boxes, edges: lines.map(({ from, to }) => ({ from: to, to: from })) });
   const box = (index) => {
-    const { x, y, width, height } = placed.nodes[index];
+    const { x, y, width, height } = laid.nodes[index];
     return { x, y, width, height };
   };
 
@@ -197,7 +188,7 @@ export function erd(given) {
         references: foreign.references ?? [],
         on_delete: foreign.on_delete ?? '',
         where: whereOf(foreign.where),
-        points: placed.edges[index].points.map(({ x, y }) => ({ x, y })).reverse(),
+        points: laid.edges[index].points.map(({ x, y }) => ({ x, y })).reverse(),
       },
     });
   });

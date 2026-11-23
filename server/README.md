@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; and TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; and TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -132,7 +132,7 @@ The schema lists only the fields NEXUS reads and says NEXUS keeps the others as 
 
 ## Drawing
 
-The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board) and TASK-422's [ERD](#erd) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, and the reading of a picture's entries and warnings. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
+The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board), TASK-422's [ERD](#erd) and TASK-425's [sitemap](#sitemap) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, the reading of a picture's entries and warnings, and the placing of boxes sized for their text. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
 
 **Diagrams.** A diagram is drawn from one document of the snapshot. Its `source_key` is that document's path in `snapshot_files` (see Documents above), so a drawing finds its source from the diagram alone.
 
@@ -217,7 +217,7 @@ No log line holds a source's text or where a drawing failed (rule 5). The answer
 
 Each entry carries `where`, the file and line it comes from.
 
-**Board arrangement.** SPEC-003 does not say how the board is arranged. The coordinator chose this arrangement for TASK-421, and the maintainer's delegate has yet to decide on it. `REGIONS` in `src/ddd-board.js` is the one place that orders the regions, and `hotspotFrame` with `HOTSPOT_BAND` is the one place that places hotspots. The board has three regions, top to bottom:
+**Board arrangement.** SPEC-003 does not say how the board is arranged. The coordinator chose this arrangement for TASK-421, and the maintainer approved it through the delegate they named for checkpoints. `REGIONS` in `src/ddd-board.js` is the one place that orders the regions, and `hotspotFrame` with `HOTSPOT_BAND` is the one place that places hotspots. The board has three regions, top to bottom:
 
 - **The timeline:** a lane for each timeline lane, with its name at the start and its events left to right in the order of their places. Alternatives at one place stand one above another.
 - **The contexts:** a frame for each context, headed by its trace ID, name and type.
@@ -333,6 +333,72 @@ CORTHEX_HUB_CHECKOUT=<the pinned hub checkout> python tests/test_erd_picture.py 
 ```
 
 It also checks, with pictures and checks it makes: a statement the hub left out, with its file and line, and the warnings in the digest; an unreadable table entry; a foreign key to a missing table; a picture in the wrong format; SPEC-004's 2 tables joined by 1 line; and no log line holding the picture's text (rule 5).
+
+## Sitemap
+
+`src/sitemap.js` is TASK-425, the drawer of the `sitemap` kind: it draws the stage-07 picture as a tree of the sitemap's screens (SPEC-007). Its source is the pinned hub's parsed picture of the project's sitemap, as the contract's `Snapshot` says of stage 07, so NEXUS parses no YAML. The hub's `sitemap.py` reads the YAML. Its picture, format 1, holds each screen with:
+- its trace ID, name, path, access, flows, context and terms;
+- whether it is removed;
+- `where`, the file and line it comes from;
+- its `parent`: the place in the list of the screen the YAML nests it under. The hub lists a screen after its parent.
+
+What it draws, in this order:
+
+| Element | `kind`, `status` | `detail` |
+| --- | --- | --- |
+| Each screen of the picture, in its order, with its trace ID and name, its parent the screen it stands under | `screen`; `parent_missing` when its parent is missing, or else `removed` when the hub marks it removed | `path`, `access`, `flows`, `context`, `terms`, `removed`, `where` and `box` |
+| A screen entry it cannot read, one that is not in the picture's form: left out, and marked with its trace ID and name when it has them | `screen`, `unreadable` | `where` and `box` |
+| A line from each screen that has a parent to that screen, named by the screen's name, its parent the parent screen | `line` | `from` and `to`, the keys of the two screens; `points` |
+| A part of the sitemap the hub left out, one for each of the picture's warnings, named by what the hub says of it | `source`, `left_out` | `where`, its file and line; the file alone when the hub names no line or the two would pass 300 characters; or null |
+
+The coordinator chose the next three points for TASK-425, and the maintainer's delegate has yet to decide on them.
+
+- **Tree layout.** `layout.js` places the screens top down:
+  - A root stands at the top, and each screen in the layer under its parent's. The screens of one parent stand side by side, in the source's order.
+  - A line runs from the parent's box down to the child's.
+  - A box holds two lines, the screen's name and its path. The page shows the name and hides the trace ID (SPEC-010).
+  - A box is 64 pixels high: 20 pixels a line, with 12 pixels of padding round them. It is as wide as the longer line in 12-pixel IBM Plex Mono, from 120 to 480 pixels.
+  - `box` is `{ x, y, width, height }`, its top left corner and its size. A line's `points`, `[{ x, y }]`, run from the parent to the child. A left-out part has no box.
+- **Missing parent.** A screen whose parent is missing is drawn at the top, marked (SPEC-007).
+  - Its parent is missing when it is not an earlier screen of the list: not a place in the list, the screen itself, or a later one. So no screen stands under itself, however a picture names its parents.
+  - Such a screen stands in the top layer beside the roots, with status `parent_missing`. Its own screens stand under it as usual.
+  - `parent_missing` comes before `removed`, and `detail.removed` keeps the hub's mark.
+  - The picture gives no name for a missing parent, so no box stands for it.
+  - The hub lists a parent before its children, so a picture it makes has no missing parent; another picture can have one.
+- **Terms without a screen.** The picture's `without_screen` lists the glossary terms that the sitemap says have no screen, such as TERM-226. They are not drawn, as the ERD leaves out the tables' `without_table`.
+
+The rest:
+
+- **A part the hub left out.** The hub's `sitemap.py` leaves out of the picture what it cannot read. That can be a whole file whose YAML is outside the stage-07 template form, a screen that is not a mapping, or children that are not a list. For each, it adds a `picture-partial` check naming the file and line. The drawer gets the check as a warning and shows it as a `source` element: a YAML error leaves out a whole file, not one screen.
+- **An entry the drawer cannot read** is left out the same way, as an `unreadable` screen with its `where`. It stays in its place when its parent can be read, so the screens under it keep theirs.
+- **Keys.**
+  - A screen's key is its trace ID. A screen without one is keyed by its parent's key, `/screen:` and its name, so two screens of one name under different parents stay apart; a root without one is keyed by `screen:` and its name.
+  - A line's key is its parent screen's key, `/line:` and its screen's key. A left-out part's is `source:` and what the hub says.
+  - A key another element has gets `#2`, `#3` and so on.
+  - So a screen keeps its key, and the threads on it, while it keeps its trace ID.
+- **A picture it cannot draw** fails at its source, the stage's source file with no line: one that is not format 1 with a list of screens, and one with more than 5000 elements. A tree within that many elements stays within `layout.js`'s limits, however deep or wide. The drawer reads its warnings only once its tree is placed, so a picture that fails before then fails again with the same digest and makes no new drawing, whatever the hub left out.
+
+`test/sitemap.test.js` checks TASK-425's done condition: this repository's 5 screens draw as a stored expected tree.
+- `test/sitemap-picture.json` is the pinned hub's picture of `docs/07-sitemap/nexus.yaml`, with the file's SHA-256.
+- `test/sitemap-expected.json` is its drawing. The test compares it exactly, alone and through the push with the server's own drawer.
+- The test fails when `docs/07-sitemap/nexus.yaml` changes and the picture does not, and when the drawing changes and its file does not.
+- The server's tests run with Node alone, so `tests/test_sitemap_picture.py` makes the picture again with the pinned hub, and fails when it differs from the stored one.
+
+To make both files again, from the repository's root:
+
+```sh
+CORTHEX_HUB_CHECKOUT=<the pinned hub checkout> python tests/test_sitemap_picture.py --write
+(cd server && node test/sitemap-expected.js --write)
+```
+
+It also checks, with pictures and checks it makes:
+- SPEC-007's root with 4 children, which draw 5 screens;
+- screens whose parent is missing, drawn at the top and marked: a parent out of range, the screen itself, later in the list, or not a whole number;
+- an unreadable screen entry;
+- a part the hub left out, with its file and line, and the warnings in the digest;
+- a picture in the wrong format or over 5000 elements;
+- keys;
+- no log line holding the picture's text (rule 5).
 
 ## To-do entries
 

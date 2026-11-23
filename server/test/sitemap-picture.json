@@ -1,0 +1,117 @@
+{
+ "about": "The pinned hub's stage-07 picture of docs/07-sitemap/nexus.yaml, as its sitemap.py makes it, and the SHA-256 of the file. tests/test_sitemap_picture.py checks it against the pinned hub and says how to make it again.",
+ "source": "docs/07-sitemap/nexus.yaml",
+ "sha256": "72b9c7bbffe2a55d9d3d628999261d8b44345ba05b464dfc16cf864dd58a5303",
+ "part": "nexus",
+ "checks": [],
+ "picture": {
+  "format": 1,
+  "screens": [
+   {
+    "id": "SCR-142",
+    "name": "Owner to-do",
+    "path": "/",
+    "access": "the owner, signed in through the gate",
+    "flows": [
+     "FL-001",
+     "FL-002",
+     "FL-003",
+     "FL-006",
+     "FL-007",
+     "FL-008",
+     "FL-011"
+    ],
+    "context": "CTX-041",
+    "removed": false,
+    "where": "docs/07-sitemap/nexus.yaml:5",
+    "terms": [
+     "TERM-225"
+    ]
+   },
+   {
+    "id": "SCR-143",
+    "name": "Projects",
+    "path": "/p",
+    "access": "the owner, signed in through the gate",
+    "flows": [
+     "FL-001",
+     "FL-002",
+     "FL-009",
+     "FL-010"
+    ],
+    "context": "CTX-037",
+    "removed": false,
+    "where": "docs/07-sitemap/nexus.yaml:13",
+    "terms": [
+     "TERM-223"
+    ],
+    "parent": 0
+   },
+   {
+    "id": "SCR-144",
+    "name": "Project",
+    "path": "/p/{project}",
+    "access": "the owner, signed in through the gate",
+    "flows": [
+     "FL-002",
+     "FL-006",
+     "FL-010",
+     "FL-013"
+    ],
+    "context": "CTX-037",
+    "removed": false,
+    "where": "docs/07-sitemap/nexus.yaml:21",
+    "terms": [
+     "TERM-223"
+    ],
+    "parent": 1
+   },
+   {
+    "id": "SCR-145",
+    "name": "Stage workbench",
+    "path": "/p/{project}/{part}/{stage}",
+    "access": "the owner, signed in through the gate",
+    "flows": [
+     "FL-001",
+     "FL-002",
+     "FL-003",
+     "FL-004",
+     "FL-005",
+     "FL-006",
+     "FL-007",
+     "FL-008",
+     "FL-012",
+     "FL-013"
+    ],
+    "context": "CTX-037",
+    "removed": false,
+    "where": "docs/07-sitemap/nexus.yaml:29",
+    "terms": [
+     "TERM-222"
+    ],
+    "parent": 2
+   },
+   {
+    "id": "SCR-146",
+    "name": "Changes since the last confirmation",
+    "path": "/p/{project}/{part}/{stage}/changes",
+    "access": "the owner, signed in through the gate",
+    "flows": [
+     "FL-002",
+     "FL-004",
+     "FL-006"
+    ],
+    "context": "CTX-039",
+    "removed": false,
+    "where": "docs/07-sitemap/nexus.yaml:38",
+    "terms": [
+     "TERM-224"
+    ],
+    "parent": 3
+   }
+  ],
+  "without_screen": [
+   "TERM-226"
+  ]
+ }
+}
