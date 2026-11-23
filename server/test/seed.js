@@ -1,6 +1,7 @@
-// Shared by the tests of the to-do (TASK-433): the fewest rows the store's schema allows for each subject an entry is
-// about, written straight into a store, so that a test sets up a thread, a change set, a confirmation or a step without
-// the operations that later tasks build. node --test also runs this file, which holds no test.
+// Shared by the tests of the to-do (TASK-433) and the project read (TASK-440): the fewest rows the store's schema allows
+// for each subject an entry is about, and for the stage passes and tool links the project read shows, written straight
+// into a store, so that a test sets up a thread, a change set, a confirmation, a step, a pass or a link without the
+// operations that later tasks build. node --test also runs this file, which holds no test.
 
 import { createHash, randomBytes } from 'node:crypto';
 import { idOf } from '../src/ids.js';
@@ -26,28 +27,33 @@ export function seed(db, { time = TIME } = {}) {
   const agent = credential();
 
   // A project space holding one snapshot: { id, name, commit, snapshot }. pictures is what the snapshot's /snapshot
-  // document lists, as the intake keeps it (see src/snapshot.js), so that a file picture's part can be found.
-  function project(name = `demo-${randomBytes(3).toString('hex')}`, { repository = REPOSITORY, pictures = [] } = {}) {
+  // document lists, as the intake keeps it (see src/snapshot.js), so that a file picture's part can be found; title and
+  // parts, when given, are the project's there.
+  function project(name = `demo-${randomBytes(3).toString('hex')}`, { repository = REPOSITORY, pictures = [], title, parts } = {}) {
     const id = insert(
       'INSERT INTO project_spaces (name, repository, held_commit, created_at, created_by_credential) VALUES (?, ?, NULL, ?, ?)',
       name, repository, time, agent.key,
     );
     const space = { id, name };
-    snapshot(space, { pictures });
+    snapshot(space, { pictures, title, parts });
     return space;
   }
 
-  // The project's next snapshot, now held, with its /snapshot document: sets space.commit and space.snapshot.
-  function snapshot(space, { pictures = [] } = {}) {
+  // The project's next snapshot, received at at and now held, with its /snapshot document: sets space.commit and
+  // space.snapshot. title and parts, when given, are the project's in that document.
+  function snapshot(space, { pictures = [], title, parts, at = time } = {}) {
     const held = commit();
     const { revision } = db.prepare('SELECT coalesce(max(revision), 0) + 1 AS revision FROM snapshots WHERE project_id = ?').get(space.id);
     const id = insert(
       `INSERT INTO snapshots (project_id, revision, commit_sha, replaced_commit, format_version, bytes, received_at, credential_id)
        VALUES (?, ?, ?, ?, 'corthex-hub/0.3', 0, ?, ?)`,
-      space.id, revision, held, space.commit ?? null, time, agent.key,
+      space.id, revision, held, space.commit ?? null, at, agent.key,
     );
     db.prepare('UPDATE project_spaces SET held_commit = ? WHERE id = ?').run(held, space.id);
-    const rest = JSON.stringify({ project: { name: space.name }, pictures });
+    const head = { name: space.name };
+    if (title !== undefined) head.title = title;
+    if (parts !== undefined) head.parts = parts;
+    const rest = JSON.stringify({ project: head, pictures });
     db.prepare('INSERT INTO document_blobs (sha256, body, bytes) VALUES (?, ?, ?) ON CONFLICT (sha256) DO NOTHING')
       .run(sha256(rest), rest, Buffer.byteLength(rest));
     db.prepare("INSERT INTO snapshot_files (snapshot_id, path, stage, blob_sha256) VALUES (?, '/snapshot', '', ?)").run(id, sha256(rest));
@@ -163,6 +169,31 @@ export function seed(db, { time = TIME } = {}) {
   function writeStep(workshopId, step) {
     db.prepare('UPDATE workshop_steps SET written_at = ? WHERE workshop_id = ? AND step = ?').run(time, workshopId, step);
   }
+  function closeWorkshop(workshopId) {
+    db.prepare("UPDATE workshops SET state = 'closed', closed_at = ? WHERE id = ?").run(time, workshopId);
+  }
+
+  // A stage pass of the project, as TASK-447 and the workshop tasks will write one, and its mark that a confirmation
+  // it rests on was invalidated, as TASK-435 will set it (TBL-161, SPEC-035).
+  function pass(space, stage, { passedAt = time } = {}) {
+    return insert('INSERT INTO stage_passes (project_id, stage, passed_at) VALUES (?, ?, ?)', space.id, stage, passedAt);
+  }
+  function changePass(id, { at = time } = {}) {
+    db.prepare('UPDATE stage_passes SET changed_at = ? WHERE id = ?').run(at, id);
+  }
+
+  // A tool link of the project or one of its stages, as TASK-451 will add one, with the status last read or none
+  // (TBL-168, SPEC-046); removed sets removed_at.
+  function toolLink(space, {
+    scope = 'project', tool = 'notion', url = `https://www.notion.so/example-${randomBytes(8).toString('hex')}`, status = null,
+    statusReadAt = null, addedAt = time, removed = false,
+  } = {}) {
+    return insert(
+      `INSERT INTO tool_links (project_id, scope, tool, url, status, status_read_at, added_at, removed_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      space.id, scope, tool, url, status, statusReadAt, addedAt, removed ? time : null,
+    );
+  }
 
   // A live claim of an entry by a session, as TASK-434 will make one.
   function claim(space, todo, { session, claimedAt = time, lastWriteAt = time, pullRequestId = null }) {
@@ -175,7 +206,8 @@ export function seed(db, { time = TIME } = {}) {
 
   return {
     agent, credential, project, snapshot, diagram, drawing, thread, comment, closeThread, pullRequest, changeSet, setChangeSet,
-    confirm, cancel, invalidate, record, recordCancel, removeDiagram, workshop, confirmStep, writeStep, claim,
+    confirm, cancel, invalidate, record, recordCancel, removeDiagram, workshop, confirmStep, writeStep, closeWorkshop, claim,
+    pass, changePass, toolLink,
   };
 }
 

@@ -3,6 +3,7 @@
 // touches with the contract (note 23 of the WBS).
 
 import { CREDENTIAL_ROUTES } from './credentials.js';
+import { PROJECT_ROUTES } from './project.js';
 import { SNAPSHOT_ROUTES } from './snapshots.js';
 import { TODO_ROUTES } from './todo.js';
 
@@ -13,4 +14,6 @@ export const ROUTES = Object.freeze([
   ...SNAPSHOT_ROUTES,
   // TASK-433: API-245.
   ...TODO_ROUTES,
+  // TASK-440: API-264.
+  ...PROJECT_ROUTES,
 ]);

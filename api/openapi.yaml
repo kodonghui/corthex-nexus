@@ -3621,7 +3621,7 @@ paths:
       x-corthex:
         id: API-264
         spec: [SPEC-005, SPEC-027, SPEC-035, SPEC-046]
-        tables: [TBL-147, TBL-151, TBL-155, TBL-160, TBL-161, TBL-168]
+        tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-158, TBL-160, TBL-161, TBL-162, TBL-168]
         release: Must
         family: owner
         omit:
