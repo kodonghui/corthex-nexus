@@ -172,3 +172,7 @@ One approved item changed, asked on its own and approved through the same delega
 #### After the fourth review of pull request 104
 
 One approved item changed, asked on its own and approved through the same delegate: TBL-151 sets removed_at when a snapshot no longer holds the diagram, except that a picture of a stage whose pictures the snapshot's format does not carry stays as last drawn (SPEC-005). corthex-hub/0.2 carries stages 03, 08 and 09, whose items feed the item tables, but not their pictures, so the exception is worded by the pictures. No table, column or constraint changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the fifth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: TBL-151 also sets removed_at on a stage's item table when the stage's pictures are drawn for the first time, since that snapshot still carries the stage's items (SPEC-005), and a removed diagram stays listed while it has open threads (SPEC-027). No table, column or constraint changed. This part waits for its own checkpoint.

@@ -96,7 +96,8 @@ CREATE INDEX snapshot_files_by_blob ON snapshot_files (blob_sha256);
 -- the table of requirements. source_key names what it is drawn from: the stage, or a flow,
 -- screen or mockup file. removed_at is set when a snapshot no longer holds it, except that a
 -- picture of a stage whose pictures the snapshot's format does not carry stays as last drawn
--- (SPEC-005).
+-- (SPEC-005). An item table also gets removed_at when the stage's pictures are drawn for the
+-- first time (SPEC-005); a removed diagram stays listed while it has open threads (SPEC-027).
 CREATE TABLE diagrams (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   project_id  INTEGER NOT NULL REFERENCES project_spaces (id) ON DELETE CASCADE,

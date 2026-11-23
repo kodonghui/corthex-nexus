@@ -72,7 +72,7 @@
       ]
     },
     "04-functional-spec": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Stage 04 spec freeze for the first release: the fifty-two SPEC rows; a confirmation is refused while change sets wait for reflection; the limits and other choices of section 4 stand. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -110,11 +110,11 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "Stage 05: write the schema and its ERD from the spec",
-      "updated": "2026-11-23T15:42:06+09:00"
+      "next": "After the fifth review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T15:51:29+09:00"
     },
     "05-erd": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Stage 05 schema freeze before the API contract: the 26 tables TBL-146 to TBL-171 in db/nexus.sql; SQL that SQLite 3 runs, where it runs decided in stage 11; every snapshot kept with its documents once by hash and the elements of every drawing. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -147,8 +147,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-23T15:42:06+09:00",
+      "next": "After the fifth review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T15:51:29+09:00",
       "checks": [
         {
           "level": "info",
