@@ -14,13 +14,15 @@ import { createRouter } from './router.js';
 import { createQueue, createWrites, isWrite } from './writes.js';
 
 // The request listener. routes are the operations the server takes (see router.js and routes.js); a handler gets
-// { request, params, traceId, settings, store, caller, credential, body, now } and returns { status, body, headers }:
-// 200 or 201 (200 when left out), a non-empty JSON object and headers of its own. It refuses by throwing a Problem; any
-// other answer is a fault that answers internal (see answer.js). store is the open store's DatabaseSync (see store.js).
+// { request, params, traceId, settings, store, caller, credential, body, size, now } and returns
+// { status, body, headers }: 200 or 201 (200 when left out), a non-empty JSON object and headers of its own. It refuses
+// by throwing a Problem; any other answer is a fault that answers internal (see answer.js). store is the open store's
+// DatabaseSync (see store.js).
 // Each request is admitted by its operation's family before anything else of it is read (see admission.js): caller is
 // 'owner' or the agent credential's ID, and credential is the agent credential { id, key, name } or null. gate is the
 // gate's sign-in (see gate.js), which owner operations need; agent operations need the store, which holds the agent
-// credentials. now() is the time in milliseconds.
+// credentials. body is the parsed JSON body and size its length in bytes as sent, or null for an operation that takes
+// no body. now() is the time in milliseconds.
 //
 // A request goes through these steps, each of which can refuse it: its path and method; its admission; its path
 // parameters' forms (the 404 of what each names); its request key's form (rule 3); its body, JSON within its limit;
@@ -85,7 +87,8 @@ export function createApp({
       if (malformed !== null) throw new Problem(malformed);
       const key = route.requestKey ? requestKeyOf(request.headers) : null;
       const { value: body, bytes = null } = route.body === undefined ? {} : await readJson(request, route.body);
-      const context = { request, params, traceId, settings, store, caller, credential, body, now };
+      const size = bytes === null ? null : bytes.length;
+      const context = { request, params, traceId, settings, store, caller, credential, body, size, now };
       const answer = isWrite(route)
         ? await write(route, context, { pathname, key, bytes, recheck })
         : answerOf(await route.handle(context));

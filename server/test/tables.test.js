@@ -9,7 +9,7 @@ import { runAs, runningAction } from '../src/operation.js';
 import { createRouter } from '../src/router.js';
 import { ROUTES } from '../src/routes.js';
 import { testStore } from './support.js';
-import { checkLayer, checkTables, listedTables, recordTables, TABLE_IDS } from './tables.js';
+import { checkLayer, checkTables, listedTables, PENDING, recordTables, TABLE_IDS } from './tables.js';
 
 const TIME = '2026-11-23T01:00:00.000Z';
 
@@ -90,11 +90,33 @@ test('fails an operation that touches a table its x-corthex.tables does not list
   assert.throws(() => checkLayer(recorder), /the request layer touched backups/);
 });
 
+test('leaves to a later task only tables its operation lists and the WBS gives that task, and only while untouched', (t) => {
+  const wbs = readFileSync(new URL('../../docs/10-wbs/wbs.md', import.meta.url), 'utf8');
+  for (const [action, { task, tables }] of Object.entries(PENDING)) {
+    const listed = listedTables(action);
+    for (const table of tables) assert.ok(listed.has(table), `${action} does not list ${table}`);
+    const row = new RegExp(`^\\| ${task} \\|.*$`, 'm').exec(wbs);
+    assert.ok(row, `the WBS has no ${task}`);
+    const touches = row[0].split('|')[4];
+    for (const table of tables) assert.ok(touches.includes(table), `${task} does not touch ${table}`);
+  }
+  assert.deepEqual(PENDING.pushSnapshot.tables, ['TBL-151', 'TBL-152', 'TBL-153']);
+  // Touching a pending table fails, so the entry goes with the task that builds it.
+  const recorder = recordTables(testStore(t));
+  const { store } = recorder;
+  for (const table of ['project_spaces', 'snapshots', 'document_blobs', 'snapshot_files']) {
+    runAs('pushSnapshot', () => store.prepare(`SELECT 1 FROM ${table}`).all());
+  }
+  checkTables(recorder, 'pushSnapshot');
+  runAs('pushSnapshot', () => store.prepare('SELECT 1 FROM diagrams').all());
+  assert.throws(() => checkTables(recorder, 'pushSnapshot'), /pushSnapshot touches other tables/);
+});
+
 test('every operation the server takes has its tables checked against the contract in its tests', () => {
   const folder = new URL('./', import.meta.url);
   const text = readdirSync(folder).filter((name) => name.endsWith('.test.js'))
     .map((name) => readFileSync(new URL(name, folder), 'utf8')).join('\n');
-  assert.ok(ROUTES.length >= 3, 'the routes were read');
+  assert.ok(ROUTES.length >= 5, 'the routes were read');
   // Each route's tests end with checkTables for its action, named in the call, so a search finds it.
   for (const { action } of ROUTES) {
     assert.ok(text.includes(`checkTables(recorder, '${action}')`), `the tests of ${action} do not check its tables`);
