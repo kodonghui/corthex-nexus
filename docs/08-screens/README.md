@@ -14,21 +14,21 @@ Inputs: the sitemap (stage 07, five screens), the functional spec (stage 04), th
 | [SCR-143 Projects](SCR-143.md) | normal, loading, empty, error, permission, stale, secret |
 | [SCR-144 Project](SCR-144.md) | normal, loading, empty, error, permission, stale, delete |
 | [SCR-145 Stage workbench](SCR-145.md) | normal, loading, empty, error, permission, stale, waiting, confirmed, not-drawn, workshop |
-| [SCR-146 Changes since the last confirmation](SCR-146.md) | normal, loading, empty, error, permission, stale, waiting, not-drawn |
+| [SCR-146 Changes since the last confirmation](SCR-146.md) | normal, loading, empty, error, permission, stale, waiting, not-drawn, confirmed |
 
 ## 2. What every screen shares
 
 - Header. Every screen has the 2026-11-21 mockup's header: NEXUS, the project menu, "My turn N" and the dark-screen switch. When the count or the menu cannot be read, it is left out and the rest of the screen works.
-- Messages. A screen shows the message of the error code in the contract's list (stage 06), in Korean, with the trace ID under "Something went wrong". A definition says where it shows more.
+- Messages. A screen shows the message of the error code in the contract's list (stage 06), in Korean, with the request's `traceId` under "Something went wrong". A definition says where it shows more.
 - Repeats. A button is off while its request runs, and one result shows. Each new write carries a new request key. A retry after a timeout or a lost connection sends the same key, so a write that went through is not done twice and its first result comes back (rule 3 of the spec); the key changes only when the owner changes the input.
 - Stale. A screen shows when it read its data and reads again when its tab comes back into view. A 409 that says the data changed keeps what the owner typed and offers a reload.
-- Phone. On a phone, a touch screen narrower than 1056 pixels, every screen uses the phone layout: one column, and the work panel becomes a sheet under the diagram with the threads and the comment box. Moving, direct edits (renaming, connecting, cancelling an edit, and a workshop's sticky notes, steps and Miro import), answering proposals, confirming and cancelling a confirmation, credentials, tool links and deletion are not offered there, with a note to use a PC (SPEC-051); comments and replies work. A narrow window on a PC stacks the panel under the diagram and keeps every action. Each state's 360-pixel frame is its phone layout.
+- Phone. On a phone, a touch screen narrower than 1056 pixels, every screen uses the phone layout: one column, and the work panel becomes a sheet under the diagram with the threads and the comment box. Moving, direct edits (renaming, connecting, cancelling an edit, and a workshop's sticky notes, steps and Miro import), answering proposals, confirming and cancelling a confirmation, credentials, tool links and deletion are not offered there, with a note to use a PC (SPEC-051); comments and replies work. A narrow window on a PC stacks the panel under the diagram and keeps every action. Each state's 360-pixel frame is its phone layout, except for a state that only a PC action leads to (SCR-143#secret, SCR-144#delete, SCR-146#confirmed, SCR-146#not-drawn): its 360-pixel frame is a narrow PC window.
 - Widths. Each state is drawn at 360 and 1440 pixels, the phone and the mockup's width. Long names wrap by word (Korean too) and never push the work panel off the screen.
 - Data exposure. Pages load only the owner's data through the owner operations; an agent credential's secret shows once, on the page that issued it, and never again.
 
 ## 3. Responses and states
 
-Every response the contract lists for an operation a screen calls leads to a state. These are the defaults; a definition says where its screen differs. The contract has no 429 or 503.
+Every response the contract lists for an operation a screen calls leads to one state. Where a code leads to more than one, the state tables name the example, as in `API-275#409 (not-drawn)`. These are the defaults; a definition says where its screen differs. The contract has no 429 or 503. The stale state also comes from time: a screen shows when it read its data.
 
 | Response | State | What the owner sees by default |
 | --- | --- | --- |
@@ -37,8 +37,8 @@ Every response the contract lists for an operation a screen calls leads to a sta
 | 400, 413 | error | The message beside the input it concerns; the input is kept |
 | 401 | permission | "Sign in again"; the page goes to the gate and comes back here, keeping an unsent comment (SPEC-048) |
 | 403 | permission | not-owner: "Only the owner of this NEXUS can open it" and nothing else; cross-site: "This change has to come from NEXUS itself" and a reload |
-| 404 | error | That the item is no longer there, and a link to where it was listed |
-| 409 | stale | That it changed: reload, then try again; the screen says where it differs (waiting, not drawn, workshop) |
+| 404 | error | That the item is no longer there, and a link to where it was listed. By example: tool-link-not-found and workshop-not-found lead to normal (the link is gone; no workshop is open) |
+| 409 | stale | That it changed: reload, then try again. By example: request-key-reused and name-taken lead to error; waiting-reflection to waiting, not-drawn to not-drawn and workshop-open and step-empty to workshop where the screen has that state, otherwise to stale |
 | 415, default, a timeout or no network | error | A short message and a retry; the rest of the screen still works |
 
 ## 4. From the 2026-11-21 mockup

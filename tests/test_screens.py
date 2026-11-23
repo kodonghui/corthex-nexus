@@ -8,7 +8,8 @@
   the six kinds of state (normal, loading, empty, error, permission, stale) are each described.
 - The Korean copy has the same states with the same responses, the README lists the same states, and the
   wireframes draw every state, and only those, at 360 and 1440 pixels, each state differently from the
-  others of its screen and width. A state listed twice fails.
+  others of its screen and width. A state listed twice fails, and a response that leads to more than one state
+  names a different example of the contract in each; only a read's success leads to normal or empty by what it holds.
 """
 import os
 import re
@@ -36,14 +37,23 @@ def sitemap_screens():
 
 
 def contract():
-    """API ID -> the response codes the contract lists for it."""
+    """API ID -> {response code: the names of its examples}."""
     doc = load(read("api", "openapi.yaml"))
     found = {}
     for item in doc["paths"].values():
         for op in item.values():
             if isinstance(op, dict) and "responses" in op:
-                found[op["x-corthex"]["id"]] = set(str(code) for code in op["responses"])
+                codes = {}
+                for code, answer in op["responses"].items():
+                    names = set()
+                    for body in (answer.get("content") or {}).values():
+                        names |= set((body.get("examples") or {}).keys())
+                    codes[str(code)] = names
+                found[op["x-corthex"]["id"]] = codes
     return found
+
+
+CITED = re.compile(r"(API-\d+#\w+)(?: \(([a-z0-9-]+)\))?")
 
 
 def section(text, title):
@@ -96,6 +106,25 @@ class ScreensTest(unittest.TestCase):
                     self.assertLessEqual(set(re.findall(r"API-\d+", row[1])), set(self.ops))
                     self.assertTrue(row[2] and row[3], "an action needs a result and a failure: %s" % row[0])
 
+    def test_each_response_and_example_leads_to_one_state(self):
+        for sid in self.screens:
+            rows = section(self.definition(sid), "States")
+            where = {}
+            for row in rows:
+                for response, example in CITED.findall(row[2]):
+                    where.setdefault(response, []).append((example, row[0]))
+            with self.subTest(screen=sid):
+                for response, places in where.items():
+                    api, code = response.split("#")
+                    examples = [x for x, _ in places]
+                    states = {state.split("#")[1] for _, state in places}
+                    if code.startswith("2") and states == {"normal", "empty"} and not any(examples):
+                        continue  # a read with or without something in it
+                    if len(places) > 1:
+                        self.assertTrue(all(examples), "%s leads to several states without naming examples" % response)
+                    self.assertEqual(len(examples), len(set(examples)), "%s names one example twice" % response)
+                    self.assertLessEqual({x for x in examples if x}, self.ops[api][code], response)
+
     def test_every_response_of_every_called_operation_leads_to_a_state(self):
         for sid in self.screens:
             text = self.definition(sid)
@@ -139,11 +168,14 @@ class ScreensTest(unittest.TestCase):
                 self.assertEqual(frames, expected)
 
     def test_each_frame_draws_its_own_state(self):
+        ids = re.compile(r'id="(SCR-\d{3}-[a-z0-9-]+-\d+)"')
         frame = re.compile(r'^<div class="frame w(\d+)" id="(SCR-\d{3})-([a-z0-9-]+)-\d+"><div class="cap">[^<]*</div>'
                            r'<div class="scr">(.*)</div></div>$', re.M)
         for name in ("wireframes.html", "wireframes.ko.html"):
             seen = {}
-            for width, sid, state, body in frame.findall(read("docs", "08-screens", name)):
+            text = read("docs", "08-screens", name)
+            self.assertEqual(len(frame.findall(text)), len(ids.findall(text)), "a frame the check cannot read")
+            for width, sid, state, body in frame.findall(text):
                 seen.setdefault((sid, width), {}).setdefault(body, []).append(state)
             with self.subTest(file=name):
                 self.assertTrue(seen)
