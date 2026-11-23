@@ -123,12 +123,20 @@ test('fails with GateKeysError when it has no current keys, and keeps current on
   certs.answer = local.certs();
   certs.time += 10 * 1000;
   assert.notEqual(await keys.key(local.kid), null);
-  // The endpoint fails while the keys are current: a kid it could not be asked about is unknown, a known one answers.
+  // The endpoint fails while the keys are current: a known kid still answers, but a kid it could not be asked about
+  // is not called unknown, which would send the owner back to the gate for a sign-in with the same key.
   certs.answer = Object.assign(new Error('x'), { code: 'ECONNREFUSED' });
   certs.time += 10 * 1000;
-  assert.equal(await keys.key(randomBytes(16).toString('hex')), null);
+  await assert.rejects(keys.key(randomBytes(16).toString('hex')), (error) => error instanceof GateKeysError && error.code === 'ECONNREFUSED');
   assert.notEqual(await keys.key(local.kid), null);
-  // Once they are an hour old, they are not used.
+  // Within the gap it is still unavailable; once the endpoint answers again, an unlisted kid is unknown.
+  await assert.rejects(keys.key(randomBytes(16).toString('hex')), GateKeysError);
+  certs.answer = local.certs();
+  certs.time += 10 * 1000;
+  assert.equal(await keys.key(randomBytes(16).toString('hex')), null);
+  assert.equal(certs.requests.length, 4);
+  // Once they are an hour old, they are not used, even for a kid they hold, while the endpoint fails.
+  certs.answer = new TypeError('fetch failed');
   certs.time += HOUR;
   await assert.rejects(keys.key(local.kid), GateKeysError);
 });

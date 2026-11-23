@@ -109,6 +109,8 @@ export function createGateKeys({ issuer, fetch = globalThis.fetch, now = () => p
   let fetchedAt = 0;
   let startedAt = -Infinity;
   let pending = null;
+  // The error of the last fetch while it is the last word on the keys, otherwise null.
+  let failure = null;
 
   const fresh = () => keys !== null && now() - fetchedAt < KEYS_MAX_AGE_MS;
 
@@ -119,9 +121,10 @@ export function createGateKeys({ issuer, fetch = globalThis.fetch, now = () => p
         .then((read) => {
           keys = read;
           fetchedAt = now();
+          failure = null;
         }, (error) => {
           // Whatever failed, the keys could not be read, which the log names as keys_unavailable.
-          throw error instanceof GateKeysError ? error : new GateKeysError();
+          failure = error instanceof GateKeysError ? error : new GateKeysError();
         })
         .finally(() => {
           pending = null;
@@ -132,16 +135,12 @@ export function createGateKeys({ issuer, fetch = globalThis.fetch, now = () => p
 
   return Object.freeze({
     async key(kid) {
-      // A kid of current keys is answered at once, even while a fetch for another kid runs.
+      // A kid of current keys is answered at once, even while a fetch for another kid runs or the endpoint fails.
       if (fresh() && keys.has(kid)) return keys.get(kid);
-      if (pending !== null || now() - startedAt >= FETCH_GAP_MS) {
-        try {
-          await refresh();
-        } catch (error) {
-          // Keys that are still current answer a kid the endpoint could not be asked about.
-          if (!fresh()) throw error;
-        }
-      }
+      if (pending !== null || now() - startedAt >= FETCH_GAP_MS) await refresh();
+      // A kid the endpoint could not be asked about is not unknown: the keys are unavailable, a fault of the server's,
+      // so the owner is not sent back to the gate for a sign-in it would sign with the same key.
+      if (failure !== null) throw failure;
       if (!fresh()) throw new GateKeysError();
       return keys.get(kid) ?? null;
     },
