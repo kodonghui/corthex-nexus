@@ -101,16 +101,18 @@ function jsonPart(part) {
 }
 
 // The team's signing keys from its certs endpoint, kept for an hour. key(kid) answers the public key of that kid, or
-// null when the endpoint does not list it; it throws GateKeysError when no current keys can be read. The hour and the
-// gap are measured on a monotonic clock, so a step of the system's clock neither keeps old keys nor stops a fetch.
+// null when the endpoint does not list it. It throws GateKeysError when no current keys can be read, and for a kid the
+// current keys do not hold while the last fetch failed, since the endpoint could not be asked about it. The hour and
+// the gap are measured on a monotonic clock, so a step of the system's clock neither keeps old keys nor stops a fetch.
 export function createGateKeys({ issuer, fetch = globalThis.fetch, now = () => performance.now() }) {
   const url = `${issuer}${CERTS_PATH}`;
   let keys = null;
   let fetchedAt = 0;
   let startedAt = -Infinity;
   let pending = null;
-  // The error of the last fetch while it is the last word on the keys, otherwise null.
-  let failure = null;
+  // Whether the last fetch failed, and its code, until a fetch succeeds. Each request gets an error of its own.
+  let failed = false;
+  let failedCode;
 
   const fresh = () => keys !== null && now() - fetchedAt < KEYS_MAX_AGE_MS;
 
@@ -121,10 +123,11 @@ export function createGateKeys({ issuer, fetch = globalThis.fetch, now = () => p
         .then((read) => {
           keys = read;
           fetchedAt = now();
-          failure = null;
+          failed = false;
         }, (error) => {
           // Whatever failed, the keys could not be read, which the log names as keys_unavailable.
-          failure = error instanceof GateKeysError ? error : new GateKeysError();
+          failed = true;
+          failedCode = error instanceof GateKeysError ? error.code : undefined;
         })
         .finally(() => {
           pending = null;
@@ -140,7 +143,8 @@ export function createGateKeys({ issuer, fetch = globalThis.fetch, now = () => p
       if (pending !== null || now() - startedAt >= FETCH_GAP_MS) await refresh();
       // A kid the endpoint could not be asked about is not unknown: the keys are unavailable, a fault of the server's,
       // so the owner is not sent back to the gate for a sign-in it would sign with the same key.
-      if (failure !== null) throw failure;
+      if (failed) throw new GateKeysError(failedCode);
+      // A guard only: a fetch that succeeded within the gap left current keys.
       if (!fresh()) throw new GateKeysError();
       return keys.get(kid) ?? null;
     },

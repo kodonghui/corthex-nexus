@@ -131,6 +131,10 @@ test('fails with GateKeysError when it has no current keys, and keeps current on
   assert.notEqual(await keys.key(local.kid), null);
   // Within the gap it is still unavailable; once the endpoint answers again, an unlisted kid is unknown.
   await assert.rejects(keys.key(randomBytes(16).toString('hex')), GateKeysError);
+  // Each request gets an error of its own, with the failure's code.
+  const [first, second] = await Promise.allSettled([keys.key('a'), keys.key('b')]);
+  assert.notEqual(first.reason, second.reason);
+  assert.equal(second.reason.code, 'ECONNREFUSED');
   certs.answer = local.certs();
   certs.time += 10 * 1000;
   assert.equal(await keys.key(randomBytes(16).toString('hex')), null);
