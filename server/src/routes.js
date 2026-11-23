@@ -4,6 +4,7 @@
 
 import { CLAIM_ROUTES } from './claims.js';
 import { CREDENTIAL_ROUTES } from './credentials.js';
+import { OWNER_ROUTES } from './owner.js';
 import { PROJECT_ROUTES } from './project.js';
 import { SNAPSHOT_ROUTES } from './snapshots.js';
 import { TODO_ROUTES } from './todo.js';
@@ -19,4 +20,6 @@ export const ROUTES = Object.freeze([
   ...PROJECT_ROUTES,
   // TASK-434: API-250 and API-251.
   ...CLAIM_ROUTES,
+  // TASK-439: API-262 and API-263.
+  ...OWNER_ROUTES,
 ]);

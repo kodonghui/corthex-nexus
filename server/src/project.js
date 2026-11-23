@@ -150,6 +150,20 @@ export function stageState(pass, live) {
   return { state: live ? 'open' : 'not_sent', passed_at: null };
 }
 
+// The latest pass of each stage of the project (TBL-161), by stage: the last of its passes, oldest first.
+export function latestPasses(store, projectId) {
+  const passes = new Map();
+  for (const pass of statementsOf(store).passes.all(projectId)) passes.set(pass.stage, pass);
+  return passes;
+}
+
+// How many of the 13 stages are passed (ProjectSummary.stages_passed for TASK-439, SCR-143's "N of 13 stages
+// passed"): those whose rows stageState shows passed, so not changed since the pass, and the project list and the
+// project read cannot disagree. passes is latestPasses' answer.
+export function stagesPassed(passes) {
+  return STAGES.filter((stage) => stageState(passes.get(stage), false).state === 'passed').length;
+}
+
 const count = (value) => Math.min(Number(value), COUNT);
 
 // The project named name as the contract's Project, or null when no project space has the name.
@@ -184,8 +198,7 @@ export function readProject(store, name) {
     });
   }
 
-  const passes = new Map();
-  for (const pass of statements.passes.all(projectId)) passes.set(pass.stage, pass);
+  const passes = latestPasses(store, projectId);
 
   // The listed diagrams of each row, by part and stage, in their order.
   const rows = new Map();
