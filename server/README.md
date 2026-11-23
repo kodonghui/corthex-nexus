@@ -460,9 +460,9 @@ It also checks:
 `src/screen-states.js` is TASK-426, the drawer of the `screen_states` kind. It draws a stage-08 screen definition as one panel for each state of its state table, with the state's name, its description and the responses that lead to it (SPEC-008). Under corthex-hub/0.3 the pinned hub's `snapshot03.py` sends each screen definition as a picture of its own: the file's path is its `key` and its whole text is `source.text`, with no translation beside it. So one screen file is one diagram. NEXUS reads the file's Markdown itself, with this repository's code and no package. Under 0.2 the stage shows its item table (TASK-423).
 
 **What it reads.**
-- **The state table.** It is the first Markdown table of the file, outside a fenced code block and a front-matter block, any of whose rows starts with a state ID such as `SCR-142#normal`. A state ID is a trace ID, `#`, and a state: a lowercase letter and up to 30 lowercase letters, digits, hyphens and underscores, as the hub reads states. The table has the stage-08 template's three columns: the state, what the user sees and can do, and the responses that lead to it.
+- **The state table.** It is the first Markdown table of the file, outside a fenced code block and a front-matter block, any of whose rows starts with a state ID such as `SCR-142#normal`. A front-matter block is read as the hub reads one: a first line of `---`, closed by a line of `---` or `...` within the file's first 200 lines. A state ID is a trace ID, `#`, and a state: a lowercase letter and up to 30 lowercase letters, digits, hyphens and underscores, as the hub reads states. The table has the stage-08 template's three columns: the state, what the user sees and can do, and the responses that lead to it.
 - **A table** is a line that starts with `|`, a separator line under it, and the lines that start with `|` after them, as the hub reads tables. A cell ends at a `|` that no backslash escapes.
-- **The diagram's name** is the file's first heading of level 1, as written, such as `SCR-142 Owner to-do`. A file with none keeps the file's name.
+- **The diagram's name** is the file's first heading of level 1, as written, such as `SCR-142 Owner to-do`. A file with none is named by its file's name, such as `SCR-142.md`. The drawer gives that name itself, because `drawing.js` keeps a diagram's last name when its drawer gives none, so a heading taken out later would otherwise leave its old name.
 
 What it draws:
 
@@ -494,7 +494,7 @@ The rest:
   - A line of the state table that does not have three cells fails at that line. This includes the header and the separator.
   - A row whose first cell is not a state ID fails at that row's line.
   - A table of more than 5000 states fails at the file.
-- **Warnings and other documents.** A screen file has no `picture-partial` checks, so the drawer reads no warnings. It reads no other document either, so a drawing's digest is its file's.
+- **Warnings and other documents.** `drawing.js` gives a file's picture no warnings. The hub's `picture-partial` checks of stage 08 name screen files it did not send, not parts of a file it sent, so the drawer reads none. It reads no other document either, so a drawing's digest is its file's.
 
 `test/screen-states.test.js` checks TASK-426's done condition: this repository's 5 screens draw 39 panels with name, description and responses.
 - `test/screen-states-pictures.json` holds the pinned hub's corthex-hub/0.3 pictures of `docs/08-screens`, each with its file's SHA-256. It leaves out the commit and time, which the hub takes from Git. The hub sends the pictures with no part, since no part of `.corthex/project.json` starts their names, and adds a `part-unknown` check for each.
@@ -514,7 +514,8 @@ It also checks, with files it makes:
 - states without a description: an empty cell, white space and `-` each draw an empty panel marked `no_description`;
 - a description as written, and responses split at commas;
 - panel heights and the grid;
-- which table is the state table: the first with state rows, outside code fences and front matter;
+- which table is the state table: the first with state rows, outside code fences and front matter, with front matter closed within 200 lines;
+- the diagram's name from the first heading, and the file's name once the heading is taken out, through the push;
 - a state table it cannot read, which fails at its line or at the file, and through the push keeps the last good drawing;
 - keys;
 - that no log line holds the file's text (rule 5).

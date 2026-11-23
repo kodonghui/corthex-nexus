@@ -15,7 +15,7 @@
 //   line that starts with |, a separator line under it, and the lines that start with | after them; a cell ends at a |
 //   that no backslash escapes.
 // - The diagram's name: the file's first heading of level 1, as written, such as "SCR-142 Owner to-do"; with none,
-//   the diagram keeps drawing.js's name, the file's name.
+//   the file's name, such as "SCR-142.md", so a heading taken out later does not leave its old name.
 //
 // It draws each row of the state table, in the table's order, as a panel: kind state, its key and name the state as
 // written (SCR-142#normal is no trace ID, so it has none), and detail { description, responses, where, box }:
@@ -37,9 +37,10 @@
 // - a line of the state table whose cells are not three, the header and the separator included, or a row whose first
 //   cell is not a state ID, fails at that line;
 // - a table of more states than a drawing holds elements fails at the file.
-// A screen file has no picture-partial checks, so the drawer reads no warnings. Nothing here logs (rule 5).
+// drawing.js gives a file's picture no warnings: the hub's picture-partial checks of stage 08 name screen files it did
+// not send, not parts of a file it sent. So the drawer reads none, and no other document. Nothing here logs (rule 5).
 
-import { failureWhere, keyer, MAX_ELEMENTS, SourceFailure } from './drawer.js';
+import { CHARACTER, failureWhere, keyer, MAX_ELEMENTS, SourceFailure } from './drawer.js';
 import { LAYOUT_LIMITS } from './layout.js';
 
 // The grid, as the stage-09 mockup draws the panels of stage 08 at 1440 pixels: three columns of a 1008-pixel board
@@ -52,16 +53,16 @@ const MIN_HEIGHT = 168;
 const PADDING_Y = 12;
 const PADDING_X = 16;
 const SPACE = 8;
-// Text is estimated for 12-pixel type: 7.2 pixels a character, 20-pixel lines, a wide character such as Hangul twice
-// as wide. So a line of the panel holds 41 narrow characters.
-const CHARACTER = 7.2;
+// Text is estimated for 12-pixel type: drawer.js's CHARACTER, 7.2 pixels a character, 20-pixel lines, a wide character
+// such as Hangul twice as wide. So a line of the panel holds 41 narrow characters.
 const LINE = 20;
 const PER_LINE = Math.floor((WIDTH - 2 * PADDING_X) / CHARACTER);
 
 const NEWLINE = /\r\n|\r|\n/;
 const FENCE = /^\s*(?:`{3,}|~{3,})/;
-const FRONT_MATTER = /^---\s*$/;
-const FRONT_MATTER_END = /^(?:---|\.\.\.)\s*$/;
+// A front-matter block, as the hub reads one (its front_matter): a first line of ---, closed by a line of --- or ...
+// within the file's first 200 lines; otherwise the file has none.
+const FRONT_MATTER_LINES = 200;
 const HEADING = /^#\s+(.*?)(?:\s+#+)?\s*$/;
 const TABLE_LINE = /^\s*\|/;
 const SEPARATOR = /^\s*\|?\s*:?-{2,}:?\s*(?:\|\s*:?-{2,}:?\s*)*\|?\s*$/;
@@ -70,7 +71,7 @@ const CELL = /(?<!\\)\|/;
 const STATE_ID = /^[A-Z][A-Z0-9]*-[0-9]{1,6}#[a-z][a-z0-9_-]{0,30}$/;
 const NONE = /^(?:-|)$/;
 // Hangul, CJK and full-width forms, which take about two narrow characters' room.
-const WIDE = /[ᄀ-ᅟ⺀-〾ぁ-㏿㐀-䶿一-鿿ꥠ-꥿가-힣豈-﫿︰-﹏＀-｠￠-￦\u{20000}-\u{3fffd}]/u;
+const WIDE = /[\u1100-\u115f\u2e80-\u303e\u3041-\u33ff\u3400-\u4dbf\u4e00-\u9fff\ua960-\ua97f\uac00-\ud7a3\uf900-\ufaff\ufe30-\ufe4f\uff00-\uff60\uffe0-\uffe6\u{20000}-\u{3fffd}]/u;
 
 // The cells of a table line, as the hub reads them: the line without its outer |, split at each | that no backslash
 // escapes, each cell trimmed.
@@ -139,8 +140,8 @@ function heightOf(name, description, responses) {
 function bodyOf(text) {
   const lines = text.split(NEWLINE);
   let start = 0;
-  if (lines.length > 0 && FRONT_MATTER.test(lines[0])) {
-    const end = lines.findIndex((line, index) => index > 0 && FRONT_MATTER_END.test(line));
+  if (lines[0].trim() === '---') {
+    const end = lines.slice(0, FRONT_MATTER_LINES).findIndex((line, index) => index > 0 && ['---', '...'].includes(line.trim()));
     if (end > 0) start = end + 1;
   }
   const body = [];
@@ -240,6 +241,7 @@ export function screenStates(given) {
     status: described ? null : 'no_description',
     detail: { description, responses, where, box },
   }));
-  const name = nameOf(body);
-  return name === null ? { elements } : { name, elements };
+  // With no heading, the file's name, as drawing.js names a file's diagram until its drawer names it: drawing.js keeps a
+  // diagram's last name when a drawer gives none, so a heading taken out would leave its old name.
+  return { name: nameOf(body) ?? (given.key ?? source).split('/').at(-1), elements };
 }

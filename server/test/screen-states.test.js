@@ -235,11 +235,21 @@ describe('the screen-states drawer', () => {
     // A table line with no separator under it is no table, and a blank line ends a table.
     const loose = draw(screenFile(sixStates().slice(0, 2), { head: ['| SCR-1#loose | Not a table. | - |', ''] }));
     assert.deepEqual(panels(loose).map(({ name }) => name), ['SCR-1#normal', 'SCR-1#loading']);
-    // A heading of level 1 names the diagram, closing marks left out; with none, the diagram keeps drawing.js's name.
+    // A heading of level 1 names the diagram, closing marks left out; with none, the file's name does.
     assert.equal(draw(screenFile(sixStates(), { heading: '# SCR-1 Meeting detail ##' })).name, 'SCR-1 Meeting detail');
     for (const heading of ['## SCR-1 Meeting detail', '#SCR-1', 'SCR-1 Meeting detail', '#   ']) {
-      assert.equal(Object.hasOwn(draw(screenFile(sixStates(), { heading })), 'name'), false, heading);
+      assert.equal(draw(screenFile(sixStates(), { heading })).name, 'SCR-1.md', heading);
     }
+    // A first line of --- with no closing line within the file's first 200 lines opens no front matter, as the hub reads
+    // it: the --- is a thematic break, and the state table under it is read.
+    const breaks = ['---', ...screenFile(sixStates()).split('\n'), ...Array.from({ length: 200 }, () => 'More text.'), '---'].join('\n');
+    assert.deepEqual(panels(draw(breaks)).map(({ name, where }) => [name, where]), sixStates().map(([state], index) => [state, `${FILE}:${index + 6}`]));
+    assert.equal(draw(breaks).name, 'SCR-1 Meeting detail');
+    // Closed on line 200, it is front matter, and its table is not read.
+    const hidden = ['| State | Seen | Responses |', '| --- | --- | --- |', '| SCR-1#front | Hidden. | - |'];
+    const closed = ['---', ...hidden, ...Array.from({ length: 195 }, () => 'key: value'), '---', screenFile(sixStates())].join('\n');
+    assert.deepEqual(panels(draw(closed)).map(({ name }) => name), sixStates().map(([state]) => state));
+    failsAt(['---', screenFile(sixStates()), ...Array.from({ length: 150 }, () => 'More text.'), '---'].join('\n'), null);
   });
 
   test('a file whose state table cannot be read fails at the line it cannot read, or at the file', () => {
@@ -373,6 +383,18 @@ describe('screen states through the push', () => {
       ['SCR-1#normal', null, 'The list.', ['API-1#200']],
       ['SCR-1#empty', 'no_description', '', ['API-1#200']],
     ]);
+  });
+
+  test('a diagram is named by its file\'s first heading, and by the file\'s name once the heading is taken out', async () => {
+    const name = 'screens-named';
+    const [a, b, c] = [newCommit(), newCommit(), newCommit()];
+    const pushed = async (heading, commit, replaces) => (await push(snapshotWith(name, [{ key: FILE, text: screenFile(sixStates(), { heading }) }], { commit, replaces }))).json.diagrams;
+    assert.deepEqual(await pushed('# SCR-1 Meeting detail', a), counted({ drawn: 1 }));
+    assert.equal(diagramsOf(name)[0].name, 'SCR-1 Meeting detail');
+    assert.deepEqual(await pushed('## SCR-1 Meeting detail', b, a), counted({ drawn: 1 }));
+    assert.equal(diagramsOf(name)[0].name, 'SCR-1.md');
+    assert.deepEqual(await pushed('# SCR-1 Meeting', c, b), counted({ drawn: 1 }));
+    assert.equal(diagramsOf(name)[0].name, 'SCR-1 Meeting');
   });
 
   test('a screen file whose state table cannot be read keeps its last good drawing and is named in failures with its line', async () => {
