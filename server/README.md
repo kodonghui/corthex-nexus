@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; and TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; and TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-277, API-278, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -520,6 +520,36 @@ The answer names what other tables hold, so API-264 lists 12 tables. The correct
 The two answers name what other tables hold, so API-262 lists 7 tables and API-263 lists 9. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
 
 `test/owner.test.js` checks TASK-439's done condition. A new install, with a v2 store beside it in the data folder, lists no project and nothing to do. The test answers every response API-262 and API-263 list, and checks the tables each touches (note 23). Its rows are written with `test/seed.js`, its entries opened by `src/entries.js`, and its TBL-170 rows written as TASK-450's job will write them.
+
+## Project removal
+
+`src/removal.js` is TASK-448: deleting a project space (SPEC-013), with what it removes shown first. API-277, `GET /api/projects/{project}/removal`, answers the preview, and API-278, `POST /api/projects/{project}/removal`, deletes once the owner sends the project's name. Both are owner operations, so an agent never deletes (REQ-017). `removalPreview` is the one preview: TASK-436's API-244, the agent's read of the same preview, calls it too.
+
+- **What goes.** Every row of the project, and nothing of another project. Each table of a project reaches `project_spaces` through `ON DELETE CASCADE` (see `db/nexus.sql`), so deleting the space's row deletes the rest with it:
+  - its snapshots and their files;
+  - its diagrams, drawings, elements and positions;
+  - its threads, comments, pull requests, change sets and their changes, and confirmations;
+  - its stage passes, and its workshops with their steps, notes and links;
+  - its to-do entries, claims and tool links.
+- **Blobs.** A document's text is kept once by its SHA-256, however many snapshots hold it (TBL-149), so two projects may share a blob. In the same transaction, the deletion also removes the project's blobs that no remaining snapshot file names, as the schema's comment on TBL-149 says. A blob another project still names stays.
+- **What stays.** Agent credentials, request keys and backups are no project's rows. A backup keeps the deleted project until it ages out after 30 days (SPEC-052).
+- **The preview** (RemovalPreview) gives the held commit and its revision, null before the first snapshot. `deletes` counts every row the deletion removes, removed diagrams and removed tool links included. `open` counts what is still open:
+  - the open threads;
+  - the change sets still proposed, or accepted and waiting for reflection;
+  - the confirmations to record, as `src/entries.js` opens their entries: one not recorded and not cancelled, or a recorded one whose cancel is not recorded.
+- **The deletion** takes `{ "name": ... }`, the project's name the owner typed (SCR-144#delete, TASK-457).
+  - A space already gone is `project_not_found`, before the name is compared.
+  - A name that is not exactly the project's is `invalid_request` on `name`, and nothing is removed.
+  - The answer, RemovalAnswer, gives the counts taken in the same transaction just before the delete.
+  - Like every write, it runs in one transaction with its request key, so a deletion that fails part way removes nothing, and a repeat with the same key answers the first answer again.
+
+The two operations count and read what other tables hold, so API-277 lists 12 tables and API-278 lists 14. TBL-149 gains SPEC-013 in its trace list, so that API-278 changes only tables its spec row feeds. The corrections at the end of the [ERD README](../docs/05-erd/README.md) and the [API README](../docs/06-api/README.md) wait for their own checkpoints.
+
+`test/removal.test.js` checks TASK-448's done condition with two projects that share a blob, each with a row in every table of a project:
+
+- deleting one removes exactly its rows from every table and its blobs, keeps every row of the other and the shared blob, and changes no row it keeps;
+- the tables of no project stay as they were, and the request keys gain the deletion's;
+- every response API-277 and API-278 list is answered, and each operation touches exactly the tables it lists (note 23).
 
 ## Answers
 
