@@ -748,6 +748,8 @@ The two operations count and read what other tables hold, so API-277 lists 12 ta
 
 `src/reads.js` is TASK-436: the reads of the pinned hub's `remove` and `show` commands (API-244, API-246 to API-249; SPEC-013, SPEC-014, SPEC-016, SPEC-018, SPEC-024, SPEC-026, SPEC-031). All five are agent operations with no body and no session. A read writes nothing: it opens and closes no entry and keeps no claim, so a claim it answers is never `mine`.
 
+The rules below that no approved document states, what a closed entry lists, how a confirmation cancelled before its record reads, which entry a change set's `reflection` names, a withdrawn reflection entry's `pull_request` and `commit`, and `reflection` while its entry is open, were chosen by the coordinator for TASK-436, and the maintainer approved them through the delegate they named for checkpoints on 2026-11-24.
+
 - **What deleting the space removes** (API-244, `GET /api/spaces/{project}/data`) is the preview API-277 gives the owner, from `removalPreview`, the one count (see [Project removal](#project-removal)). The hub's `remove` reads it and gives the owner the page that deletes; an agent never deletes (REQ-017).
 - **A thread** (API-246, `nc_`) is any thread of the project, the owner's or an agent's, open or closed, on a diagram removed or not (SPEC-027). It has every entry in order, each made by `entryOf` in `src/comments.js`, which also answers an agent's entry when it is added. `change_sets` are the change sets that answer the thread, by their `thread_id`, oldest first, at most 200.
 - **A change set** (API-247, `np_`) is an AI proposal or a direct edit, with its steps (TBL-159) in order.
@@ -765,7 +767,7 @@ The two operations count and read what other tables hold, so API-277 lists 12 ta
 - **Not found.** A name no project space has gets `project_not_found`. An ID of another project or of no row gets the operation's own code: `comment_not_found`, `proposal_not_found`, `edit_not_found` or `checkpoint_not_found`. An `ne_` ID of an entry of another kind gets `edit_not_found` too.
 - **No log line** holds a comment's text, a session's label or a link (rule 5).
 
-The five reads name what other tables hold, so API-244 lists API-277's 12 tables and API-246 to API-249 list 8 or 9 (notes 18 and 23 of the WBS). The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+The five reads name what other tables hold, so API-244 lists API-277's 12 tables and API-246 to API-249 list 8 or 9 (notes 18 and 23 of the WBS). The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint on 2026-11-24.
 
 `test/reads.test.js` checks TASK-436's done condition with rows that `test/seed.js` writes and entries that `src/entries.js` opens. API-244 answers the owner's preview. A thread, a change set, a reflection entry and a confirmation are read in each state above, and each reflection entry a change set names reads back with that change set in it. The test answers every response the five operations list, and checks that each touches exactly the tables it lists and changes none (note 23).
 

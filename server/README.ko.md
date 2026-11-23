@@ -748,6 +748,8 @@ API-293(`GET /api/projects/{project}/diagrams/{diagram}/page`, `src/mockup-page.
 
 `src/reads.js`는 TASK-436이에요. 고정한 hub의 `remove`와 `show` 명령이 하는 읽기예요(API-244, API-246~API-249; SPEC-013, SPEC-014, SPEC-016, SPEC-018, SPEC-024, SPEC-026, SPEC-031). 다섯 개 모두 본문도 세션도 받지 않는 에이전트 오퍼레이션이에요. 읽기는 아무것도 쓰지 않아요. 항목을 열거나 닫지 않고 claim도 유지하지 않으므로, 답하는 claim은 언제나 `mine`이 아니에요.
 
+아래 규칙 중 승인된 문서가 정하지 않은 것, 곧 닫힌 항목이 보여 주는 것, 기록 전에 취소된 확정을 읽는 방법, 변경안의 `reflection`이 가리키는 항목, 철회된 반영 항목의 `pull_request`와 `commit`, 반영 항목이 열려 있는 동안의 `reflection`은 TASK-436을 위해 코디네이터가 골랐고, 2026-11-24에 메인테이너가 체크포인트용으로 정한 대리인을 통해 승인했어요.
+
 - **공간을 지우면 사라질 것**(API-244, `GET /api/spaces/{project}/data`)은 API-277이 소유자에게 주는 미리 보기와 같아요. 셈은 `removalPreview` 하나예요([프로젝트 지우기](#프로젝트-지우기) 참고). hub의 `remove`가 이것을 읽고 소유자에게 지우는 페이지를 알려 줘요. 에이전트는 지우지 못해요(REQ-017).
 - **스레드**(API-246, `nc_`)는 프로젝트의 어떤 스레드든 돼요. 소유자의 것이든 에이전트의 것이든, 열렸든 닫혔든, 다이어그램이 지워졌든 아니든 읽어요(SPEC-027). 글은 모두 순서대로 답하고, 글마다 `src/comments.js`의 `entryOf`가 만들어요. 에이전트의 글을 더할 때 답하는 것도 이 함수예요. `change_sets`는 `thread_id`로 그 스레드에 답하는 변경 세트이고, 오래된 것부터 200개까지예요.
 - **변경 세트**(API-247, `np_`)는 AI 제안이나 직접 편집이고, 그 단계(TBL-159)를 순서대로 답해요.
@@ -765,7 +767,7 @@ API-293(`GET /api/projects/{project}/diagrams/{diagram}/page`, `src/mockup-page.
 - **찾지 못함.** 어떤 프로젝트 공간도 갖지 않은 이름은 `project_not_found`를 받아요. 다른 프로젝트의 ID나 어떤 행도 가리키지 않는 ID는 오퍼레이션의 코드, 곧 `comment_not_found`, `proposal_not_found`, `edit_not_found`, `checkpoint_not_found`를 받아요. 다른 종류의 항목을 가리키는 `ne_` ID도 `edit_not_found`를 받아요.
 - **로그**에는 댓글의 글, 세션 라벨, link가 남지 않아요(규칙 5).
 
-다섯 읽기는 다른 테이블에만 있는 것도 알려 주므로, API-244는 API-277의 테이블 12개를 적고 API-246~API-249는 8개나 9개를 적어요(WBS 메모 18, 23). [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 기다려요.
+다섯 읽기는 다른 테이블에만 있는 것도 알려 주므로, API-244는 API-277의 테이블 12개를 적고 API-246~API-249는 8개나 9개를 적어요(WBS 메모 18, 23). [API README](../docs/06-api/README.ko.md) 끝의 수정은 2026-11-24에 따로 체크포인트를 통과했어요.
 
 `test/reads.test.js`는 `test/seed.js`가 쓴 행과 `src/entries.js`가 연 항목으로 TASK-436의 완료 조건을 확인해요. API-244는 소유자의 미리 보기와 같게 답해요. 스레드, 변경 세트, 반영이나 빼기 항목, 확정을 위의 상태마다 읽고, 변경 세트가 가리키는 항목마다 그 변경 세트를 담아 다시 읽히는지 확인해요. 다섯 오퍼레이션이 적은 응답을 모두 받고, 오퍼레이션마다 적은 테이블만 정확히 건드리고 아무것도 바꾸지 않는지 확인해요(메모 23).
 
