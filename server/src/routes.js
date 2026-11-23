@@ -8,6 +8,7 @@ import { CREDENTIAL_ROUTES } from './credentials.js';
 import { MOCKUP_PAGE_ROUTES } from './mockup-page.js';
 import { OWNER_ROUTES } from './owner.js';
 import { PROJECT_ROUTES } from './project.js';
+import { READ_ROUTES } from './reads.js';
 import { REMOVAL_ROUTES } from './removal.js';
 import { SNAPSHOT_ROUTES } from './snapshots.js';
 import { TODO_ROUTES } from './todo.js';
@@ -31,4 +32,6 @@ export const ROUTES = Object.freeze([
   ...REMOVAL_ROUTES,
   // TASK-427: API-293.
   ...MOCKUP_PAGE_ROUTES,
+  // TASK-436: API-244, API-246, API-247, API-248 and API-249.
+  ...READ_ROUTES,
 ]);

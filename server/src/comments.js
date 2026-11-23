@@ -158,6 +158,17 @@ function detailOf(fields) {
   return Object.fromEntries(Object.entries(fields).filter(([, value]) => value !== undefined));
 }
 
+// The members of TBL-156's detail that an entry keeps beside its text.
+const ENTRY_DETAIL = Object.freeze(['quote', 'asks', 'look_first', 'link']);
+
+// A comment as the contract's Entry: a decision when it has a link, a comment otherwise, with the members of its
+// detail, parsed, that an entry keeps. An agent's entry is answered through it when it is added, and each entry of a
+// thread when API-246 reads one (TASK-436, reads.js).
+export function entryOf({ seq, author, body, detail, created_at: madeAt }) {
+  const kept = Object.fromEntries(ENTRY_DETAIL.filter((name) => typeof detail[name] === 'string').map((name) => [name, detail[name]]));
+  return { seq: Number(seq), author, kind: kept.link === undefined ? 'comment' : 'decision', text: body, ...kept, made_at: madeAt };
+}
+
 // API-252's CommentRequest. A checkpoint request (asks checkpoint) has no item, at most 10 lines and 1,200 characters,
 // and look_first, which goes with it only.
 function commentOf(body) {
@@ -246,7 +257,7 @@ function summaryOf(statements, thread) {
 function addEntry(statements, { thread, credential, text, detail, time }) {
   const seq = Number(statements.last.get(thread)?.seq ?? 0) + 1;
   statements.insertComment.run(thread, seq, credential, text, JSON.stringify(detail), time);
-  return { seq, author: 'agent', kind: detail.link === undefined ? 'comment' : 'decision', text, ...detail, made_at: time };
+  return entryOf({ seq, author: 'agent', body: text, detail, created_at: time });
 }
 
 const timeNow = (now) => new Date(now()).toISOString();
