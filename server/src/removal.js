@@ -101,18 +101,23 @@ export function removalPreview(store, name) {
   };
 }
 
-// Deletes the project space named name and every row of it, with the blobs only it named, in the caller's
-// transaction: the contract's RemovalAnswer, or null when no space has the name.
-export function deleteProjectSpace(store, name) {
+// Deletes the project space of project, its row of TBL-147 with id and name, and every row of it, with the blobs only
+// it named, in the caller's transaction: the contract's RemovalAnswer.
+function removeSpace(store, project) {
   const statements = statementsOf(store);
-  const project = statements.project.get(name);
-  if (project === undefined) return null;
   const projectId = Number(project.id);
   const { deletes } = countsOf(store, projectId);
   const blobs = statements.blobs.all(projectId).map((row) => row.sha256);
   statements.remove.run(projectId);
   for (const blob of blobs) statements.unnamed.run(blob);
   return { project: project.name, removed: true, deleted: deletes };
+}
+
+// Deletes the project space named name as removeSpace does: the contract's RemovalAnswer, or null when no space has the
+// name.
+export function deleteProjectSpace(store, name) {
+  const project = statementsOf(store).project.get(name);
+  return project === undefined ? null : removeSpace(store, project);
 }
 
 // The name of RemovalRequest, the project's name the owner typed. A refusal names the field, never the value.
@@ -130,13 +135,14 @@ function getRemovalPreview({ store, params }) {
   return { body };
 }
 
-// API-278: deletes {project} once the body names it (SPEC-013). A space already gone is project_not_found, before the
-// name is compared; a name that is not the project's is invalid_request on name, and nothing is removed.
+// API-278: deletes {project} once the body names it (SPEC-013). A space already gone is project_not_found, whatever the
+// body holds, so the space is found before the body is read; a body that does not name it is invalid_request, and
+// nothing is removed.
 function deleteProject({ store, params, body }) {
-  const name = nameOf(body);
-  if (statementsOf(store).project.get(params.project) === undefined) throw new Problem('project_not_found');
-  if (name !== params.project) throw invalidRequest('name', "name must be the project's name");
-  return { body: deleteProjectSpace(store, params.project) };
+  const project = statementsOf(store).project.get(params.project);
+  if (project === undefined) throw new Problem('project_not_found');
+  if (nameOf(body) !== project.name) throw invalidRequest('name', "name must be the project's name");
+  return { body: removeSpace(store, project) };
 }
 
 // The routes of API-277 and API-278 (see router.js), of the owner family.

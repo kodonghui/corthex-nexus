@@ -538,7 +538,7 @@ The two answers name what other tables hold, so API-262 lists 7 tables and API-2
   - the change sets still proposed, or accepted and waiting for reflection;
   - the confirmations to record, as `src/entries.js` opens their entries: one not recorded and not cancelled, or a recorded one whose cancel is not recorded.
 - **The deletion** takes `{ "name": ... }`, the project's name the owner typed (SCR-144#delete, TASK-457).
-  - A space already gone is `project_not_found`, before the name is compared.
+  - A space already gone is `project_not_found`, whatever the body's fields are: the space is found before they are read.
   - A name that is not exactly the project's is `invalid_request` on `name`, and nothing is removed.
   - The answer, RemovalAnswer, gives the counts taken in the same transaction just before the delete.
   - Like every write, it runs in one transaction with its request key, so a deletion that fails part way removes nothing, and a repeat with the same key answers the first answer again.

@@ -299,6 +299,12 @@ describe('deleting a project space', () => {
       const shown = await preview(name);
       assert.deepEqual([shown.status, shown.json.code], [404, 'project_not_found'], name);
     }
+    // A space already gone is project_not_found whatever the body's fields are, since it is found before they are read
+    // (API-278). A body that is not a JSON object is the request layer's, refused before any operation, as 413 and 415.
+    for (const body of ['{}', '{"name":5}', '{"name":"foxtrot","more":1}', '{"name":"other"}']) {
+      const answer = await remove('foxtrot', { body });
+      assert.deepEqual([answer.status, answer.json.code], [404, 'project_not_found'], body);
+    }
     assert.deepEqual(dump(), was);
     // The same request key for another action is refused.
     s.project('golf');
