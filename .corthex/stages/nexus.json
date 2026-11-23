@@ -331,10 +331,10 @@
       "updated": "2026-11-23T16:41:20+09:00"
     },
     "10-wbs": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "",
-      "updated": "2026-11-23T00:00:00+09:00"
+      "next": "Checkpoint: the plan of iteration 1 (TASK-413 to TASK-432) with the answers to questions 1 to 4; stage 11 starts with TASK-413 once it passes",
+      "updated": "2026-11-23T17:55:51+09:00"
     },
     "11-development": {
       "state": "not_started",
