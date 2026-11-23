@@ -197,7 +197,7 @@ CREATE TABLE comment_threads (
 CREATE INDEX comment_threads_by_diagram ON comment_threads (diagram_id, state);
 CREATE INDEX comment_threads_by_drawing ON comment_threads (drawing_id, diagram_id);
 
--- TBL-156 comments (CTX-038) ← SPEC-016, SPEC-017, SPEC-025, SPEC-051 | terms: TERM-200
+-- TBL-156 comments (CTX-038) ← SPEC-016, SPEC-017, SPEC-018, SPEC-025, SPEC-051 | terms: TERM-200
 -- One comment or reply in a thread, in order. Rule: an agent's comment names its credential,
 -- the owner's names none. detail keeps, as a JSON object, what the hub sends with an entry
 -- that has no column of its own: its quote, asks, look_first and a decision's link.

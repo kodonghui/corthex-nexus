@@ -353,6 +353,12 @@ function checksOf(statements, snapshotId) {
   return Array.isArray(checks) ? checks : [];
 }
 
+// What a drawer returns, checked the same way for a push and for a proposal: { name, elements }, name text or none.
+function checkResult(result) {
+  if (!isObject(result) || !Array.isArray(result.elements)) throw new TypeError('a drawer returns { name, elements }');
+  if (result.name !== undefined && result.name !== null && typeof result.name !== 'string') throw new TypeError('a diagram\'s name is text');
+}
+
 // Runs a drawer on a document: { status, digest, name, rows, failure }. The digest covers each document it read, its
 // own included, by path and SHA-256 in the order of their paths, and the warnings when it read them and there are any,
 // so that a drawer that draws no warnings is not drawn again when only they change.
@@ -387,8 +393,7 @@ function drawOne(statements, snapshotId, drawer, document, kind, warnings) {
         return warnings;
       },
     });
-    if (!isObject(result) || !Array.isArray(result.elements)) throw new TypeError('a drawer returns { name, elements }');
-    if (result.name !== undefined && result.name !== null && typeof result.name !== 'string') throw new TypeError('a diagram\'s name is text');
+    checkResult(result);
     // A drawing that fails names nothing: the diagram keeps its name with its last good drawing.
     if (result.elements.length > MAX_ELEMENTS) {
       return { status: 'failed', digest: digest(), name: null, rows: [], failure: { path: source, line: null } };
@@ -399,6 +404,27 @@ function drawOne(statements, snapshotId, drawer, document, kind, warnings) {
     if (!(error instanceof SourceFailure)) throw error;
     return { status: 'failed', digest: digest(), name: null, rows: [], failure: failureOf(error, source) };
   }
+}
+
+// Draws a proposed document as a file diagram's own file (TASK-438, API-256): text in place of the file at the
+// diagram's key, drawn by the drawer of its kind, with no other document to read and no warnings, as a push would draw
+// it. Returns { elements }, each { key, kind, name, detail } in the drawing's order and checked as a push's elements
+// are, or { failure: { line } } when it does not draw, line the line it fails at or null: a SourceFailure, or more
+// elements than a drawing holds. A kind with no drawer draws nothing: null. Anything else a drawer throws is a fault.
+export function drawProposed({ stage, part, kind, key, text, drawers = DRAWERS }) {
+  checkDrawers(drawers);
+  if (!Object.hasOwn(drawers, kind)) return null;
+  let result;
+  try {
+    result = drawers[kind]({ stage, part, key, kind, source: key, text, read: () => null, warnings: NONE });
+  } catch (error) {
+    if (!(error instanceof SourceFailure)) throw error;
+    return { failure: { line: failureOf(error, key).line } };
+  }
+  checkResult(result);
+  if (result.elements.length > MAX_ELEMENTS) return { failure: { line: null } };
+  const elements = elementsOf(result.elements).map((row) => ({ key: row[0], kind: row[2], name: row[3], detail: JSON.parse(row[6]) }));
+  return { elements };
 }
 
 // Whether a drawer's outcome is the diagram's last drawing: the same documents read, and the same elements drawn or

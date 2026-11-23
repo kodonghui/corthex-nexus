@@ -236,39 +236,44 @@ function reflectionOf(store, statements, project, set) {
   return found === undefined ? null : Number(found.id);
 }
 
-// API-247: a change set of {project}, an AI proposal or a direct edit, with its changes and state (SPEC-018).
-function getProposal({ store, params }) {
+// A change set of the project as the contract's ChangeSet, or null when the project has no change set of that key.
+// project is { id, repository }. API-247 answers it, and so do API-256 and API-257 (TASK-438, proposals.js).
+export function changeSetOf(store, project, key) {
   const statements = statementsOf(store);
-  const project = projectOf(statements, params.project);
-  const key = keyFrom('np', params.proposal, 'proposal_not_found');
   const row = statements.changeSet.get(key, project.id);
-  if (row === undefined) throw new Problem('proposal_not_found');
+  if (row === undefined) return null;
   const detail = JSON.parse(row.detail);
   const reflection = reflectionOf(store, statements, project, row);
   const pullRequest = row.pull_request_id === null ? undefined : statements.pullRequest.get(Number(row.pull_request_id));
   return {
-    body: {
-      id: idOf('np', key),
-      ...whereOf(store, row),
-      drawing: idOf('dw', Number(row.drawing_id)),
-      version: row.document_version,
-      origin: row.origin,
-      thread: row.thread_id === null ? null : idOf('nc', Number(row.thread_id)),
-      state: row.state,
-      items: traceIds(detail.items),
-      adds: traceIds(detail.adds),
-      reason: textOf(detail.reason),
-      change: textOf(detail.change),
-      source_text: typeof detail.source_text === 'string' && detail.source_text !== '',
-      changes: statements.changes.all(key).map((step) => ({
-        op: step.op, element: step.element_key, name: step.new_name, target: step.target_key,
-      })),
-      made_at: row.created_at,
-      decided_at: row.decided_at,
-      reflection: reflection === null ? null : idOf('ne', reflection),
-      pull_request: linkOf(project, pullRequest),
-    },
+    id: idOf('np', key),
+    ...whereOf(store, row),
+    drawing: idOf('dw', Number(row.drawing_id)),
+    version: row.document_version,
+    origin: row.origin,
+    thread: row.thread_id === null ? null : idOf('nc', Number(row.thread_id)),
+    state: row.state,
+    items: traceIds(detail.items),
+    adds: traceIds(detail.adds),
+    reason: textOf(detail.reason),
+    change: textOf(detail.change),
+    source_text: typeof detail.source_text === 'string' && detail.source_text !== '',
+    changes: statements.changes.all(key).map((step) => ({
+      op: step.op, element: step.element_key, name: step.new_name, target: step.target_key,
+    })),
+    made_at: row.created_at,
+    decided_at: row.decided_at,
+    reflection: reflection === null ? null : idOf('ne', reflection),
+    pull_request: linkOf(project, pullRequest),
   };
+}
+
+// API-247: a change set of {project}, an AI proposal or a direct edit, with its changes and state (SPEC-018).
+function getProposal({ store, params }) {
+  const project = projectOf(statementsOf(store), params.project);
+  const body = changeSetOf(store, project, keyFrom('np', params.proposal, 'proposal_not_found'));
+  if (body === null) throw new Problem('proposal_not_found');
+  return { body };
 }
 
 // The state of a reflection or removal entry (Reflection.state): as it closed, or else from its pull request.
