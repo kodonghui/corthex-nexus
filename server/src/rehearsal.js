@@ -15,7 +15,7 @@
 
 import { copyFileSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { dayOfName } from './backups.js';
+import { dayOfName, newestBackup } from './backups.js';
 import { errorKind } from './log.js';
 import { openStore, STORE_FILE, StoreError } from './store.js';
 
@@ -50,9 +50,7 @@ class CheckFailed extends Error {
 // the backups' folder unless a test gives another.
 export function rehearse({ store, backupDirectory, release, now = Date.now, workDirectory = backupDirectory }) {
   if (typeof release !== 'string' || !RELEASE.test(release)) throw new RehearsalRefused('release_invalid');
-  const backup = store.prepare(
-    "SELECT id, name FROM backups WHERE state = 'succeeded' AND removed_at IS NULL ORDER BY started_at DESC, id DESC LIMIT 1",
-  ).get();
+  const backup = newestBackup(store);
   if (backup === undefined) throw new RehearsalRefused('no_backup');
   let result = 'succeeded';
   let note;

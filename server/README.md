@@ -818,7 +818,7 @@ The two answers name what other tables hold, so API-262 lists 7 tables and API-2
   - its stage passes, and its workshops with their steps, notes and links;
   - its to-do entries, claims and tool links.
 - **Blobs.** A document's text is kept once by its SHA-256, however many snapshots hold it (TBL-149), so two projects may share a blob. In the same transaction, the deletion also removes the project's blobs that no remaining snapshot file names, as the schema's comment on TBL-149 says. A blob another project still names stays.
-- **What stays.** Agent credentials, request keys and backups are no project's rows. A backup keeps the deleted project until it ages out after 30 days (SPEC-052).
+- **What stays.** Agent credentials, request keys and backups are no project's rows. A backup keeps the deleted project until it ages out after 30 days, or longer when it is the newest that stays while backups fail (SPEC-052, see [Daily backup](#daily-backup)).
 - **The preview** (RemovalPreview) gives the held commit and its revision, null before the first snapshot. `deletes` has the 11 counts the contract names, from snapshots to tool links. Each counts every row of its kind the deletion removes, removed diagrams and removed tool links included. The rows of the other tables, such as elements, pull requests, stage passes and to-do entries, go with them but have no count of their own. `open` counts what is still open:
   - the open threads;
   - the change sets still proposed, or accepted and waiting for reflection;
@@ -901,6 +901,8 @@ The answer names what other tables hold, so API-265 lists 15 tables. The correct
 
 `src/backups.js` is TASK-450 (SPEC-052, FL-011): the server backs up its store once a day, keeps each backup 30 days, retries a failed backup once within the hour and warns the owner when the retry failed too. It runs in the server, not as a request: the contract names no operation for it.
 
+SPEC-052, FL-011 and the stage-08 screens left the rules below open: when the retry runs, what counts as a day's backup, a retry the server missed, what a failed rehearsal shows, and that the newest backup stays. The coordinator chose them for TASK-450, and the maintainer approved them through the delegate they named for checkpoints. The pull request records them with the options not taken.
+
 - **When.** One backup a UTC day, at the time `NEXUS_BACKUP_TIME` gives. A server that starts after that time, on a day with no backup yet, backs up at once, so a restart after that time does not skip the day. The job looks at the clock at least once an hour, so it notices a clock that was set meanwhile.
 - **What.** Each backup is a copy of the store made with `node:sqlite`'s own `backup()`, named by its day: `nexus-v3-backup-YYYY-MM-DD.sqlite` in the folder `NEXUS_BACKUP_DIR` names.
   - It is written as `<name>.partial`, readable by its owner only like the store, and renamed when it is whole. So a file with a backup's name is always a complete store, and a failed attempt leaves no file.
@@ -911,12 +913,15 @@ The answer names what other tables hold, so API-265 lists 15 tables. The correct
   - A first attempt's retry then runs at once, even past the hour, and the warning shows only if that retry fails. A retry left running is the end, so the warning shows.
   - A retry that fell due while the server was stopped also runs at start, unless the next day's time has come; that day's backup then runs instead.
 - **30 days.** After a backup succeeds, the backups whose day is more than 30 days before its day are removed. Of 31 daily backups, the next one removes the oldest, and 30 remain plus the new one.
-  - Nothing is removed after a failure, so the last good backups stay while backups fail.
+  - A failure removes nothing for age. Only the disk rule below removes backups then, and never the newest that succeeded.
   - The backups are found by their files' names in the folder. So a backup the store holds no row of, as after a restore from an older backup, goes too.
   - A removed backup keeps its row, with the time its file was removed (TBL-170's `removed_at`).
   - A removal that fails leaves the backup that succeeded as it is, and the next success removes what is left.
-- **Not enough disk.** Before an attempt, when the folder's free space is less than the store's size, the backups past 30 days are removed first, the oldest first, never a newer one. When the space is still short, the attempt fails without writing (`not_enough_disk`), so a backup never fills the disk.
-- **Deleted projects.** A backup is a copy of the whole store, so a deleted project stays in the backups until they age out (see [Project removal](#project-removal)).
+- **Not enough disk.** Before an attempt, when the folder's free space is less than the store's size, the backups past 30 days are removed first, the oldest first, never a newer one and never the newest that succeeded. When the space is still short, the attempt fails without writing (`not_enough_disk`), so a backup never fills the disk.
+- **The newest backup stays.** No removal takes the newest backup that succeeded, even past 30 days, so a restore stays possible while backups keep failing and the disk stays short. The order stays oldest first.
+  - That backup is the latest row that succeeded whose file is in the folder.
+  - The newest backup file by its day stays too, so no fresher backup the store does not record as succeeded is lost, as after a restore from an older backup.
+- **Deleted projects.** A backup is a copy of the whole store, so a deleted project stays in the backups until they age out, or longer in the newest backup that stays while backups fail (see [Project removal](#project-removal)).
 
 ### The restore rehearsal
 

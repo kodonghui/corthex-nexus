@@ -11,7 +11,7 @@
 // with another project: the deletion also removes, in the same transaction, the project's blobs that no remaining
 // snapshot file names, as the schema's comment on TBL-149 says, and a blob another project still names stays.
 // Agent credentials, request keys and backups are no project's rows, so they stay: a backup keeps the project until it
-// ages out after 30 days (SPEC-052).
+// ages out after 30 days, or longer when it is the newest that succeeded while backups fail (SPEC-052, backups.js).
 //
 // The preview has the 11 counts RemovalPreview names, each of every row of its kind the deletion removes, removed
 // diagrams and tool links included (the rows of the other tables, such as elements, pull requests, stage passes and

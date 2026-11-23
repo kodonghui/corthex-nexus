@@ -13,12 +13,16 @@
 //   that is after the next day's time. A retry that fails is the end: the warning below shows it. An attempt left
 //   running, by a crash or by a store that could not record its end, is recorded at the job's next look: succeeded
 //   when its backup file is whole, as in a store restored from that backup, or failed, and its retry then runs.
-// - After a backup succeeds, the backups whose day is more than 30 days before its day are removed; nothing is removed
-//   after a failure, so the last good backups stay while backups fail. They are found by their files' names in the
-//   folder, so a backup whose row the store does not hold, as after a restore from an older backup, goes too. A
-//   removal that fails leaves the backup that succeeded as it is, and the next success removes them.
+// - After a backup succeeds, the backups whose day is more than 30 days before its day are removed; a failure removes
+//   nothing for age, and only the disk rule below removes backups then. They are found by their files' names in the
+//   folder, so a backup whose row the store does not hold, as after a restore from an older backup, goes too, but
+//   for the newest file (below). A removal that fails leaves the backup that succeeded as it is, and the next success
+//   removes them.
 // - Not enough disk: before an attempt, when the folder's free space is less than the store's size, the backups past
 //   30 days go first, the oldest first, never a newer one; when it is still short, the attempt fails without writing.
+// - The newest backup that succeeded is never removed, even past 30 days, so a restore stays possible while backups
+//   keep failing: the latest row that succeeded whose file is in the folder. Nor is the newest backup file by its day,
+//   so no fresher backup the store does not record as succeeded is lost, as after a restore from an older backup.
 // - An attempt writes name.partial, readable by its owner only like the store, and renames it when it is complete, so
 //   a file of the backup's name is always whole; a failed attempt leaves no file. A row's removed_at is when its file
 //   was removed.
@@ -50,6 +54,8 @@ const DAY_MS = 24 * 60 * 60_000;
 const NAME = /^nexus-v3-backup-(\d{4}-\d{2}-\d{2})\.sqlite$/;
 // A partial file, or the journal SQLite keeps beside it while it writes.
 const PARTIAL = /^nexus-v3-backup-\d{4}-\d{2}-\d{2}\.sqlite\.partial(-journal)?$/;
+// The backups that succeeded and whose files are kept, the newest first.
+const NEWEST = "SELECT id, name FROM backups WHERE state = 'succeeded' AND removed_at IS NULL ORDER BY started_at DESC, id DESC";
 
 // The file name of the backup of a day, YYYY-MM-DD in UTC.
 export const backupName = (day) => `nexus-v3-backup-${day}.sqlite`;
@@ -80,6 +86,7 @@ function statementsOf(store) {
         "SELECT started_at, finished_at FROM backups WHERE state = 'succeeded' ORDER BY started_at DESC, id DESC LIMIT 1",
       ),
       // The job's own.
+      kept: store.prepare(NEWEST),
       latest: store.prepare('SELECT name FROM backups ORDER BY started_at DESC, id DESC LIMIT 1'),
       attempts: store.prepare('SELECT attempt, state, started_at, finished_at FROM backups WHERE name = ? ORDER BY attempt'),
       running: store.prepare("SELECT id, name, attempt FROM backups WHERE state = 'running' ORDER BY id"),
@@ -107,6 +114,12 @@ export function backupWarning(store) {
   if (ended === undefined || ended.state !== 'failed') return null;
   const succeeded = statements.succeeded.get();
   return { failed_at: endOf(ended), last_succeeded_at: succeeded === undefined ? null : endOf(succeeded) };
+}
+
+// The newest backup that succeeded and whose file is kept, { id, name }, or undefined: the one the rehearsal restores.
+// It prepares this one statement only, since the rehearsal opens a store that may be older than this code.
+export function newestBackup(store) {
+  return store.prepare(`${NEWEST} LIMIT 1`).get();
 }
 
 // The free bytes of the folder, for the user the server runs as.
@@ -218,7 +231,8 @@ export function createBackups({
       try {
         rmSync(renamed ? file : partial, { force: true });
       } catch {
-        // A partial file that cannot be removed is removed at the next start.
+        // A partial file that cannot be removed is removed at the next start. A backup file stays, its row failed,
+        // until the day's retry writes its name anew or it ages out.
       }
       statements.fail.run(iso(now()), id);
       const reason = error instanceof NotEnoughDisk ? { reason: 'not_enough_disk' } : { error: errorKind(error) };
@@ -237,16 +251,24 @@ export function createBackups({
   }
 
   // Removes the backups in the folder whose day is more than 30 days before day, the oldest first, until enough() says
-  // there is room, and records when each was removed. Returns how many it removed.
+  // there is room, and records when each was removed. The newest backup that succeeded whose file is here stays,
+  // however old, and so does the newest backup file. Returns how many it removed.
   function removeBackups(day, enough) {
     const oldest = daysBefore(day, KEEP_DAYS);
-    const old = readdirSync(directory, { withFileTypes: true })
-      .filter((entry) => {
-        const kept = entry.isFile() ? dayOfName(entry.name) : null;
-        return kept !== null && kept < oldest;
-      })
+    // Their names share one prefix, so sorting them sorts their days.
+    const files = readdirSync(directory, { withFileTypes: true })
+      .filter((entry) => entry.isFile() && dayOfName(entry.name) !== null)
       .map((entry) => entry.name)
       .sort();
+    const present = new Set(files);
+    // A row's file can be gone, as by hand: the newest that succeeded is the first kept row whose file is here.
+    const keep = new Set([files.at(-1)]);
+    for (const row of statements.kept.iterate()) {
+      if (!present.has(row.name)) continue;
+      keep.add(row.name);
+      break;
+    }
+    const old = files.filter((name) => !keep.has(name) && dayOfName(name) < oldest);
     let count = 0;
     for (const name of old) {
       // The row first: a file whose removal fails is found again by the next removal.

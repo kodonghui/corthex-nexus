@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import { backup as sqliteBackup, DatabaseSync } from 'node:sqlite';
 import { describe, test } from 'node:test';
 import { backupName, backupWarning, createBackups, dayOf, RETRY_MS } from '../src/backups.js';
+import { rehearse } from '../src/rehearsal.js';
 import { ROUTES } from '../src/routes.js';
 import { createQueue } from '../src/writes.js';
 import { seed } from './seed.js';
@@ -378,6 +379,66 @@ describe('the daily backup', () => {
     });
     assert.deepEqual(short.lines, [{ time: '2026-11-24T03:15:00.000Z', event: 'backup_failed', day: '2026-11-24', attempt: 2, reason: 'not_enough_disk' }]);
     assert.deepEqual(backupWarning(store), { failed_at: '2026-11-24T03:15:00.000Z', last_succeeded_at: '2026-11-23T03:01:00.000Z' });
+  });
+
+  test('the newest good backup stays, even past 30 days, while backups fail and the disk is short', async (t) => {
+    const store = testStore(t);
+    const folder = join(dataFolder(t, 'nexus-backups-'), 'backups');
+    // The last backups that succeeded, all past 30 days, and every day since then failed, its retry too.
+    const good = ['2026-10-01', '2026-10-10', '2026-10-20'];
+    for (const day of good) keptBackup(store, folder, day);
+    const failed = store.prepare("INSERT INTO backups (name, attempt, state, started_at, finished_at) VALUES (?, ?, 'failed', ?, ?)");
+    for (const day of days('2026-10-21', '2026-11-23')) {
+      failed.run(backupName(day), 1, `${day}T03:00:00.000Z`, `${day}T03:00:00.000Z`);
+      failed.run(backupName(day), 2, `${day}T03:15:00.000Z`, `${day}T03:15:00.000Z`);
+    }
+    const size = Number(store.prepare('SELECT page_count * page_size AS n FROM pragma_page_count(), pragma_page_size()').get().n);
+    // Never enough room: the backups past 30 days go, the oldest first, but the newest good one stays.
+    const job = backupJob(t, store, { start: at('2026-11-24T03:00:00.000Z'), directory: folder, free: () => size - 1 });
+    await job.job.start();
+    await job.until(at('2026-11-24T03:15:00.000Z'));
+    assert.deepEqual(job.files(), [backupName('2026-10-20')]);
+    assert.deepEqual(
+      job.rows().filter((row) => row.removed_at !== null).map((row) => [row.name, row.removed_at]),
+      [[backupName('2026-10-01'), '2026-11-24T03:00:00.000Z'], [backupName('2026-10-10'), '2026-11-24T03:00:00.000Z']],
+    );
+    assert.deepEqual(job.lines.map((line) => [line.event, line.attempt, line.reason]), [
+      ['backup_failed', 1, 'not_enough_disk'],
+      ['backup_failed', 2, 'not_enough_disk'],
+    ]);
+    // The warning shows, naming the newest good backup, which a restore can still use.
+    assert.deepEqual(backupWarning(store), { failed_at: '2026-11-24T03:15:00.000Z', last_succeeded_at: '2026-10-20T03:01:00.000Z' });
+    // keptBackup's files are no stores, so the rehearsal records that it could not open it; what counts is the backup
+    // it picks, which is the one kept.
+    assert.deepEqual(rehearse({ store, backupDirectory: folder, release: 'v3.0.0' }).backup.day, '2026-10-20');
+    job.job.stop();
+
+    // After a restore from an older backup, the newest that succeeded is the store's, and the newer files it has no row
+    // of go like any backup past 30 days, except the newest of them.
+    const restored = testStore(t);
+    const other = join(dataFolder(t, 'nexus-backups-'), 'backups');
+    keptBackup(restored, other, '2026-10-01');
+    for (const day of ['2026-10-10', '2026-10-20']) writeFileSync(join(other, backupName(day)), 'a backup');
+    const short = backupJob(t, restored, { start: at('2026-11-24T03:00:00.000Z'), directory: other, free: () => 0 });
+    await short.job.start();
+    // The newest file by its day stays too, so no fresher backup is lost to keep the store's.
+    assert.deepEqual(short.files(), [backupName('2026-10-01'), backupName('2026-10-20')]);
+    assert.deepEqual(rehearse({ store: restored, backupDirectory: other, release: 'v3.0.0' }).backup.day, '2026-10-01');
+    short.job.stop();
+
+    // The newest that succeeded is one whose file is in the folder: a row whose file is gone keeps nothing. Here the
+    // newest file by its day is a third one, of no row.
+    const gone = testStore(t);
+    const third = join(dataFolder(t, 'nexus-backups-'), 'backups');
+    for (const day of ['2026-10-01', '2026-10-10']) keptBackup(gone, third, day);
+    writeFileSync(join(third, backupName('2026-10-15')), 'a backup');
+    gone.prepare("INSERT INTO backups (name, attempt, state, bytes, started_at, finished_at) VALUES (?, 1, 'succeeded', 64, ?, ?)")
+      .run(backupName('2026-10-20'), '2026-10-20T03:00:00.000Z', '2026-10-20T03:01:00.000Z');
+    const lost = backupJob(t, gone, { start: at('2026-11-24T03:00:00.000Z'), directory: third, free: () => 0 });
+    await lost.job.start();
+    assert.deepEqual(lost.files(), [backupName('2026-10-10'), backupName('2026-10-15')]);
+    // Only the removed file's row is marked: a row whose file is gone stays as it is.
+    assert.deepEqual(lost.rows().filter((row) => row.removed_at !== null).map((row) => row.name), [backupName('2026-10-01')]);
   });
 
   test('a store that cannot be written is looked at again within the hour, without a loop', async (t) => {
