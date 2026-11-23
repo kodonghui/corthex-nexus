@@ -7,7 +7,7 @@ import { AGENT_COMMANDS, Problem } from '../src/problem.js';
 import { startServer, TRACE_ID, waitFor } from './support.js';
 
 const PROBLEM_KEYS = ['code', 'detail', 'status', 'title', 'traceId'];
-const handle = () => ({ body: {} });
+const handle = () => ({ body: { ok: true } });
 // These routes test the router, not admission (see admission.test.js): their actions are no operations of the
 // contract, so each says it needs no admission.
 const open = (route) => ({ ...route, family: 'none' });
@@ -66,9 +66,28 @@ describe('the routes', () => {
   before(async () => {
     server = await startServer({
       routes: [
-        { method: 'GET', path: '/api/spaces/{project}/todo', action: 'readTodo', handle: ({ params }) => ({ body: params }) },
-        { method: 'GET', path: '/api/projects/{project}', action: 'readProject', handle },
-        { method: 'DELETE', path: '/api/projects/{project}', action: 'removeProject', handle },
+        {
+          method: 'GET',
+          path: '/api/spaces/{project}/todo',
+          action: 'readTodo',
+          params: { project: 'space_not_found' },
+          handle: ({ params }) => ({ body: params }),
+        },
+        { method: 'GET', path: '/api/projects/{project}', action: 'readProject', params: { project: 'project_not_found' }, handle },
+        {
+          method: 'DELETE',
+          path: '/api/projects/{project}/tool-links/{link}',
+          action: 'removeLink',
+          params: { project: 'project_not_found', link: 'tool_link_not_found' },
+          handle: ({ params }) => ({ body: params }),
+        },
+        {
+          method: 'DELETE',
+          path: '/api/projects/{project}',
+          action: 'removeProject',
+          params: { project: 'project_not_found' },
+          handle,
+        },
         { method: 'POST', path: '/api/snapshots', action: 'push', handle: () => ({ status: 201, body: { created: true } }) },
         { method: 'GET', path: '/api/fails', action: 'fails', handle: () => { throw new Error('broken'); } },
         { method: 'GET', path: '/api/empty', action: 'empty', handle: () => ({}) },
@@ -116,13 +135,37 @@ describe('the routes', () => {
 
   test('pass each path parameter percent-decoded and leave out the query', async () => {
     assert.deepEqual((await server.send({ path: '/api/spaces/demo/todo' })).json, { project: 'demo' });
-    assert.deepEqual((await server.send({ path: '/api/spaces/a%20b/todo?x=1' })).json, { project: 'a b' });
+    assert.deepEqual((await server.send({ path: '/api/spaces/%64emo-2/todo?x=1' })).json, { project: 'demo-2' });
+    const link = 'tl_0123456789ab';
+    assert.deepEqual(
+      (await server.send({ method: 'DELETE', path: `/api/projects/demo/tool-links/${link}` })).json,
+      { project: 'demo', link },
+    );
   });
 
-  test('pass a parameter unchecked, for its handler to check against its schema', async () => {
-    // The contract gives a value in another form the 404 of what it names, which only the operation knows.
-    assert.deepEqual((await server.send({ path: '/api/spaces/%E0%A4%A/todo' })).json, { project: '%E0%A4%A' });
-    assert.deepEqual((await server.send({ path: '/api/spaces/%2E%2E%2Fetc/todo' })).json, { project: '../etc' });
+  test('answer a parameter in another form with the 404 of what it names, never repeating it', async () => {
+    // The contract gives a value in another form the 404 of what it names (components.parameters).
+    for (const [path, code] of [
+      ['/api/spaces/%E0%A4%A/todo', 'space_not_found'],
+      ['/api/spaces/%2E%2E%2Fetc/todo', 'space_not_found'],
+      ['/api/spaces/Demo/todo', 'space_not_found'],
+      ['/api/spaces/demo--x/todo', 'space_not_found'],
+      ['/api/spaces/demo%0A/todo', 'space_not_found'],
+      [`/api/spaces/${'a'.repeat(65)}/todo`, 'space_not_found'],
+      ['/api/projects/marker-%2Fx', 'project_not_found'],
+      ['/api/projects/a%20b/tool-links/tl_0123456789ab', 'project_not_found'],
+      ['/api/projects/demo/tool-links/tl_0123456789AB', 'tool_link_not_found'],
+      ['/api/projects/demo/tool-links/sl_0123456789ab', 'tool_link_not_found'],
+      ['/api/projects/demo/tool-links/tl_0123456789ab%2F..', 'tool_link_not_found'],
+    ]) {
+      const method = path.includes('tool-links') ? 'DELETE' : 'GET';
+      const answer = await server.send({ method, path });
+      assert.equal(answer.status, 404, path);
+      assert.equal(answer.json.code, code, path);
+      assert.deepEqual(Object.keys(answer.json).sort(), PROBLEM_KEYS);
+      assert.doesNotMatch(answer.text, /marker|etc|Demo|0123456789/, path);
+    }
+    assert.equal((await server.send({ path: `/api/spaces/${'a'.repeat(64)}/todo` })).status, 200);
   });
 
   test('match no path with an empty or extra segment, or in another case', async () => {
@@ -223,9 +266,10 @@ describe('the routes', () => {
 
 describe('createRouter', () => {
   test('prefers a literal segment to a parameter', () => {
+    const project = 'project_not_found';
     const find = createRouter([
-      { method: 'GET', path: '/api/projects/{project}/{part}', action: 'byParameter', handle },
-      { method: 'GET', path: '/api/projects/{project}/workshop', action: 'byLiteral', handle },
+      { method: 'GET', path: '/api/projects/{project}/{part}', action: 'byParameter', params: { project, part: project }, handle },
+      { method: 'GET', path: '/api/projects/{project}/workshop', action: 'byLiteral', params: { project }, handle },
     ]);
     assert.equal(find('GET', '/api/projects/demo/workshop').route.action, 'byLiteral');
     assert.equal(find('GET', '/api/projects/demo/other').route.action, 'byParameter');
@@ -233,12 +277,13 @@ describe('createRouter', () => {
 
   test('refuses two routes of one method and one template shape', () => {
     assert.throws(() => createRouter([
-      { method: 'GET', path: '/api/projects/{project}', action: 'one', handle },
-      { method: 'GET', path: '/api/projects/{name}', action: 'two', handle },
+      { method: 'GET', path: '/api/projects/{project}', action: 'one', params: { project: 'project_not_found' }, handle },
+      { method: 'GET', path: '/api/projects/{name}', action: 'two', params: { name: 'project_not_found' }, handle },
     ]), /two routes/);
   });
 
   test('refuses a route that is not fully defined', () => {
+    const project = 'project_not_found';
     for (const route of [
       { method: 'TRACE', path: '/a', action: 'a', handle },
       { method: 'GET', path: 'a', action: 'a', handle },
@@ -246,6 +291,17 @@ describe('createRouter', () => {
       { method: 'GET', path: '/a b', action: 'a', handle },
       { method: 'GET', path: '/a', action: '', handle },
       { method: 'GET', path: '/a', action: 'a' },
+      // Each parameter names the 404 code of what it names, from params.js.
+      { method: 'GET', path: '/a/{project}', action: 'a', handle },
+      { method: 'GET', path: '/a/{project}', action: 'a', params: { project: 'not_found' }, handle },
+      { method: 'GET', path: '/a/{project}', action: 'a', params: { project, other: project }, handle },
+      { method: 'GET', path: '/a/{project}', action: 'a', params: null, handle },
+      // A body, a request key and a repeat answer as the contract has them.
+      { method: 'POST', path: '/a', action: 'a', body: 'xml', handle },
+      { method: 'GET', path: '/a', action: 'a', body: 'json', handle },
+      { method: 'GET', path: '/a', action: 'a', requestKey: true, handle },
+      { method: 'POST', path: '/a', action: 'a', requestKey: 'yes', handle },
+      { method: 'POST', path: '/a', action: 'a', repeat: (result) => result, handle },
     ]) {
       assert.throws(() => createRouter([route]), Error, JSON.stringify(route));
     }

@@ -4,14 +4,13 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
-import { chmodSync, copyFileSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { chmodSync, copyFileSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { DatabaseSync } from 'node:sqlite';
 import { describe, test } from 'node:test';
 import { APPLICATION_ID, migrate, openStore, readMigrations, STORE_FILE, StoreError } from '../src/store.js';
-import { localGate, startServer } from './support.js';
+import { dataFolder as newDataFolder, localGate, startServer } from './support.js';
 
 const SCHEMA = new URL('../../db/nexus.sql', import.meta.url);
 const STORE_MODULE = new URL('../src/store.js', import.meta.url).href;
@@ -19,13 +18,7 @@ const MIGRATIONS = readMigrations();
 const T = '2026-11-23T00:00:00.000Z';
 // v2's application ID of its rebuild store, "NXS2"; its first store has none.
 const V2_REBUILD_APPLICATION_ID = 0x4e585332;
-
-// A new data folder for one test, removed after it.
-function dataFolder(t) {
-  const folder = mkdtempSync(join(tmpdir(), 'nexus-store-'));
-  t.after(() => rmSync(folder, { recursive: true, force: true }));
-  return folder;
-}
+const dataFolder = (t) => newDataFolder(t, 'nexus-store-');
 
 function schemaDatabase() {
   const db = new DatabaseSync(':memory:');
