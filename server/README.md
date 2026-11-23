@@ -470,7 +470,7 @@ What it draws:
 | --- | --- | --- |
 | Each row of the state table, in the table's order; its key and name are the state as written | `state`; `no_description` when it has no description | `description`, `responses`, `where` and `box` |
 
-The coordinator chose the next five points for TASK-426. The pull request records them with the options not taken.
+The coordinator chose the next five points for TASK-426, and the maintainer approved them through the delegate they named for checkpoints. The pull request records them with the options not taken.
 
 - **Order.** The panels follow the rows of the state table, in their order.
 - **Grid.** The drawer works out a grid of three columns itself, as the stage-09 mockup draws the panels of stage 08 at 1440 pixels. `layout.js` puts boxes that no line joins in one row, so it makes no grid.
