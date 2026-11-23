@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; and TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request. It takes no operation yet, so every path answers the `not_found` Problem until the tasks that build the operations add them.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; and TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request. It takes no operation yet, so every path answers the `not_found` Problem until the tasks that build the operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -113,6 +113,44 @@ It also writes a line when it starts listening (with its host and port), when it
 So every refused request is logged with its time, its action, its sender and its reason, the Problem's `code` (rule 8).
 
 Rule 5 of the [functional spec](../docs/04-functional-spec/spec.md) keeps an agent credential's secret, a credential digest, a sign-in token, a server path and the text of a refused file out of every log line. So no field is copied from the request, its path, query, headers or body, or from an error's message or stack; `test/logs.test.js`, `test/main.test.js` and `test/admission.test.js` check this, the data folder, the owner's sign-in and the emails included, with values made at run time. No line names a gate setting or a request key's digest either (`test/keys.test.js` checks the digest).
+
+## Picture layout
+
+`src/layout.js` is TASK-420: a layered layout, top to bottom, that places the boxes and lines of the DDD board, the ERD, the user flows and the sitemap tree (SPEC-003, SPEC-004, SPEC-006, SPEC-007). The drawing tasks, TASK-421 to TASK-425, give it their boxes and lines and draw what it returns; it draws nothing itself. Question 3 of the [WBS](../docs/10-wbs/wbs.md) chose to write it in this repository rather than take a layout library such as ELK or dagre. It imports nothing, so a page can load the same file.
+
+```js
+import { layout } from './layout.js';
+
+const { bounds, nodes, edges } = layout({
+  nodes: [
+    { id: 'TBL-146', width: 200, height: 120 },
+    { id: 'TBL-167', width: 200, height: 80 },
+  ],
+  edges: [{ from: 'TBL-167', to: 'TBL-146', label: { width: 40, height: 16 } }],
+});
+```
+
+| Input | Meaning |
+| --- | --- |
+| `nodes[].id` | The box's key, a text no other box has, such as an element's key. |
+| `nodes[].width`, `nodes[].height` | The box's size, from 1 to 100000. |
+| `nodes[].layer` | Optional. Pins the box to a layer, from 0 to 1000, such as the rows of a board by kind of note. Without it the box goes one layer below every box that points to it. |
+| `nodes[].position` | Optional. `{ x, y }`, where the owner put the box (SPEC-012). The box stays there and the other boxes keep clear of it. TASK-442 fills it; this task builds no moving. |
+| `edges[].from`, `edges[].to` | The ids of the two boxes a line joins. |
+| `edges[].label` | Optional. `{ width, height }`, the room the line's label needs. |
+| `direction` | Option: `TB`, layers top to bottom (the default), or `LR`, left to right, as a Mermaid `flowchart LR`. |
+| `nodeGap`, `layerGap`, `edgeGap` | Options: the space between two boxes of a row (32), the least space between two rows (48), and between two lines side by side and from a line to its label (12). |
+
+It returns `nodes` and `edges` in the order of the input. A node has its `id`, `x` and `y` (the top left corner), `width`, `height`, the `layer` it got and `fixed` (whether it kept a position). An edge has `from`, `to`, its `points` from the edge of the first box to the edge of the second, and its `label` box or `null`. `bounds` is the box that holds them all, for an SVG `viewBox`; its corner need not be at 0.
+
+- The same input gives the same output: every tie is broken by input order, nothing depends on the clock or on chance, and numbers are rounded to two decimal places.
+- No two boxes overlap, labels included. A box the layout places also keeps clear of a fixed one; two fixed boxes may overlap, since the owner put them there.
+- A line leaves the bottom of its box and enters the top of the next (the right and the left in `LR`), runs only across and down, and turns on its own track in the gap between two rows, so it passes through no box or label. A label sits beside its line. A line to its own box, or between two boxes pinned to one layer, dips under their row. A line that closes a cycle, such as a flow's way back, points up. A drawing task that draws another shape than a rectangle, such as a decision's diamond, moves the first and last point along their segment to the shape's outline.
+- A line to a fixed box runs straight from the box's edge to the line's next point, and may cross other boxes.
+- Boxes that no line joins stand side by side in input order, such as the columns of a board in time order, and share the rows.
+- An invalid input throws a `TypeError` or `RangeError` that names the field and its rule, never the value.
+- A graph that needs more than 200000 boxes and points where lines cross rows is refused with a `RangeError`, so that no input holds the caller for long; the densest test graph of 300 elements needs about 23500.
+- `test/layout.test.js` places 300 elements in each shape in under 1 second on the check runner, half of REQ-070's 2 seconds, which stage 12 measures in the browser.
 
 ## Tests
 
