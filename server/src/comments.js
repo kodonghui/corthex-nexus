@@ -109,11 +109,12 @@ function statementsOf(store) {
   return statements;
 }
 
-// The request's fields. Each refusal names the field and never repeats its value (rule 5).
+// The request's fields. Each refusal names the field and never repeats its value (rule 5). proposals.js (TASK-438)
+// reads its request with the same functions.
 
 const characters = (text) => [...text].length;
 
-function onlyFields(body, fields) {
+export function onlyFields(body, fields) {
   if (Object.keys(body).some((field) => !fields.has(field))) {
     throw invalidRequest('body', `the body takes ${[...fields].join(', ')} only`);
   }
@@ -121,7 +122,7 @@ function onlyFields(body, fields) {
 
 // A string field in the contract's form: refused with invalid_request on field when it is not. A lone surrogate is
 // refused too, as in boundedText: a link can become an entry's text, which the store would keep as another text.
-function formOf(body, field, { pattern, length, required = false }) {
+export function formOf(body, field, { pattern, length, required = false }) {
   if (!Object.hasOwn(body, field)) {
     if (required) throw invalidRequest(field, `${field} is required`);
     return undefined;
@@ -135,18 +136,19 @@ function formOf(body, field, { pattern, length, required = false }) {
 
 // A text of 1 to 4,000 characters that is not only white space (the contract's Text, SPEC-016): an empty one is
 // refused, "write a comment", and a longer one with its limit.
-function textOf(body, field = 'text') {
+export function textOf(body, field = 'text') {
   if (!Object.hasOwn(body, field)) throw invalidRequest(field, `${field} is required`);
   return boundedText(body[field], field, TEXT_LIMIT, { empty: false });
 }
 
 // Text of at most limit characters; empty allows an empty one, or one of only white space.
-function boundedText(value, field, limit, { empty }) {
+export function boundedText(value, field, limit, { empty }) {
   if (typeof value !== 'string') throw invalidRequest(field, `${field} must be text`);
   // A lone surrogate cannot be stored as UTF-8: the store would keep another text than the one given.
   if (!value.isWellFormed()) throw invalidRequest(field, `${field} must be Unicode text`);
   if (!empty && !/\S/u.test(value)) throw invalidRequest(field, `${field} must not be empty`);
-  if (characters(value) > limit) {
+  // A text of no more UTF-16 units than the limit has no more characters, so only a longer one is counted.
+  if (value.length > limit && characters(value) > limit) {
     throw new Problem('text_too_long', `${field} is over ${limit} characters`, {}, { field, limit });
   }
   return value;
@@ -229,7 +231,7 @@ function decisionOf(body) {
   return { link, text: /\S/u.test(text) ? text : link };
 }
 
-function emptyOf(body) {
+export function emptyOf(body) {
   if (Object.keys(body).length > 0) throw invalidRequest('body', 'the body is the empty object {}');
 }
 
@@ -403,6 +405,25 @@ function onOwner(store, statements, { project, thread, session, credential, time
   threadChanged(store, { project: project.id, thread: thread.id, time });
   if (entry !== null) finishClaim(store, { project: project.id, entry, session, time });
   return { written, thread: { ...thread, waitsOn: 'owner' } };
+}
+
+// What a proposal writes on its thread (TASK-438, API-256, proposals.js), through the same statements and rules as a
+// comment and a reply:
+// - openOwnThread opens an agent's own thread on the diagram as a whole at drawing, waiting on the owner, and returns its
+//   key; the caller adds its first entry in the same transaction and calls threadChanged.
+// - writeOnThread is an agent's write on an open thread, as a reply's (onOwner above), and returns what write returns.
+// - addAgentEntry adds an agent's entry at the end of a thread and returns it as the contract's Entry.
+export function openOwnThread(store, { diagram, drawing, time }) {
+  const { lastInsertRowid } = statementsOf(store).insertThread.run(diagram, drawing, 'diagram', null, null, time);
+  return Number(lastInsertRowid);
+}
+
+export function writeOnThread(store, { project, thread, session, credential, time }, write) {
+  return onOwner(store, statementsOf(store), { project, thread, session, credential, time }, write).written;
+}
+
+export function addAgentEntry(store, { thread, credential, text, detail, time }) {
+  return addEntry(statementsOf(store), { thread, credential, text, detail, time });
 }
 
 // API-253: an agent's reply, added in order; the thread then waits on the owner and leaves the agent to-do (SPEC-017).

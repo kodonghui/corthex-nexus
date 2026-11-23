@@ -9,6 +9,7 @@ import { DIAGRAM_ROUTES } from './diagram.js';
 import { MOCKUP_PAGE_ROUTES } from './mockup-page.js';
 import { OWNER_ROUTES } from './owner.js';
 import { PROJECT_ROUTES } from './project.js';
+import { PROPOSAL_ROUTES } from './proposals.js';
 import { READ_ROUTES } from './reads.js';
 import { REMOVAL_ROUTES } from './removal.js';
 import { SNAPSHOT_ROUTES } from './snapshots.js';
@@ -37,4 +38,6 @@ export const ROUTES = Object.freeze([
   ...READ_ROUTES,
   // TASK-441: API-265.
   ...DIAGRAM_ROUTES,
+  // TASK-438: API-256 and API-257.
+  ...PROPOSAL_ROUTES,
 ]);

@@ -165,10 +165,15 @@
           "approved": "Blobs of a deleted project, pull request 124, at commit c07bd88: TBL-149's trace line names SPEC-013 beside SPEC-001, since deleting a project space removes the project's blobs that no remaining snapshot file names; no table, column or constraint changed. The approved item it changes was answered on its own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "A proposal's entry in its thread, pull request 137, at commit 4255159: TBL-156's trace line names SPEC-018 beside SPEC-016, SPEC-017, SPEC-025 and SPEC-051, since a proposal adds its change text to its thread as an agent entry; no table, column or constraint changed, and the ERD drawing is as it was. The approved item it changes was answered on its own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-24T03:33:07+09:00",
+      "updated": "2026-11-24T06:44:03+09:00",
       "checks": [
         {
           "level": "info",
@@ -274,10 +279,15 @@
           "approved": "Diagram read table correction, pull request 133, at commit 2903853: API-265's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-160 and TBL-166 instead of the approved TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-158, TBL-159 and TBL-160 (note 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed item was answered on its own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Proposal table correction, pull request 137, at commit 4255159: API-256's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-166 and TBL-167 instead of the approved TBL-158, TBL-159, TBL-155, TBL-166 and TBL-167, and API-257's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-159, TBL-166 and TBL-167 instead of the approved TBL-158 and TBL-166 (note 23). No operation, field, response, code or spec row changed; db/nexus.sql changes only TBL-156's trace line, passed at stage 05. The changed items were answered on their own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T05:21:09+09:00"
+      "updated": "2026-11-24T06:44:03+09:00"
     },
     "07-sitemap": {
       "state": "done",
