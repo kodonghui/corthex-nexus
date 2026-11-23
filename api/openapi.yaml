@@ -6989,7 +6989,7 @@ paths:
       x-corthex:
         id: API-282
         spec: [SPEC-046]
-        tables: [TBL-168]
+        tables: [TBL-147, TBL-168]
         release: Should
         family: owner
       security:
@@ -7175,7 +7175,7 @@ paths:
       x-corthex:
         id: API-283
         spec: [SPEC-047]
-        tables: [TBL-168]
+        tables: [TBL-147, TBL-168]
         release: Should
         family: owner
       security:
