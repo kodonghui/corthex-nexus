@@ -82,7 +82,7 @@ And one change of this stage: every colour is a token name, where the 2026-11-21
 
 - `tokens.py check` of the `corthex-screen` skill on the mockup: 1158 colour literals, none off the tokens, compared in both themes.
 - `tokens.py verify` on [carbon/](carbon/): 27 Carbon files match [carbon/source.json](carbon/source.json).
-- [tests/test_design.py](../tests/test_design.py) checks that every token file follows the format, that the resolver lists every token file, that the project's tokens are only under `nexus`, that the Carbon copies match `source.json`, that the mockup has a frame for every state of every screen definition at both widths, and that no colour outside the token CSS appears in the mockup's styles.
+- [tests/test_design.py](../tests/test_design.py) checks that every token file follows the format, that the resolver lists every token file, that the project's tokens are only under `nexus`, that `source.json` names every file in [carbon/](carbon/) and each copy matches its hash, that the mockup has a frame for every state of every screen definition at both widths, and that no colour outside the token CSS appears in the mockup: not in another style block, a style attribute or a style its script sets, whether written as a hex value, a colour function or a CSS colour name.
 - Looked at in Edge: every frame at both widths in both themes, 156 pictures, after the last change.
 - Not checked: real phones, screen readers and measured contrast. The colours are Carbon's theme tokens, with the CORTHEX layer's sticky text on the sticky colours.
 

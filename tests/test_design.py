@@ -4,11 +4,12 @@
   `$type`, its own or its group's.
 - The resolver names only files that exist and every token file in `design/` but those of the Carbon themes it does
   not use, two themes whole, and the project's own tokens are only under `nexus`.
-- The Carbon copies are unchanged: each file's SHA-256, taken with LF line endings, is the one `carbon/source.json`
-  names.
+- The Carbon copies are unchanged: `carbon/source.json` names every file in `carbon/`, and each file's SHA-256, taken
+  with LF line endings, is the one it names.
 - The mockup has one frame for every state of every screen definition in `docs/08-screens/`, at 360 and 1440
   pixels, and no other. Its styles name only custom properties that its token CSS defines, and no colour appears
-  outside that token CSS.
+  outside that token CSS: not in another style block, a style attribute or a style the script sets, whether written
+  as a hex value, a colour function or a CSS colour name.
 """
 import hashlib
 import json
@@ -20,8 +21,25 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DESIGN = os.path.join(ROOT, "design")
 MOCKUP = os.path.join(DESIGN, "mockup", "nexus-mockup.html")
 WIDTHS = (360, 1440)
-COLOUR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|lab|lch|hwb|color)\(|"
-                    r":\s*(?:white|black|red|green|blue|gray|grey|yellow|orange|purple)\b")
+COLOUR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab|lab|lch|hwb|color|color-mix|light-dark)\(")
+# The named colours of CSS Color Module Level 4, and the system colours of level 4 that set a colour by themselves.
+NAMED = set("""
+aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue
+chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen
+darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue
+darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick
+floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink
+indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan
+lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray
+lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid
+mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream
+mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen
+paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red rosybrown
+royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow
+springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen
+accentcolor accentcolortext activetext buttonborder buttonface buttontext canvas canvastext field fieldtext graytext
+highlight highlighttext linktext mark marktext selecteditem selecteditemtext visitedtext
+""".split())
 
 
 def read(path):
@@ -55,14 +73,25 @@ def walk(node, path, inherited, problems):
 
 
 def mockup_styles():
-    """(the token CSS, every other style of the mockup)."""
+    """(the token CSS, every other style of the mockup as declarations, one per line)."""
     text = read(MOCKUP)
-    blocks = re.findall(r"<style>(.*?)</style>", text, re.S)
+    blocks = re.findall(r"<style\b[^>]*>(.*?)</style>", text, re.S | re.I)
     styles = "\n".join(blocks)
     start, end = styles.index("/* tokens:"), styles.index("/* end of tokens */")
     tokens, rest = styles[start:end], styles[:start] + styles[end:]
-    rest += "\n" + "\n".join(re.findall(r'style="([^"]*)"', text))
-    return tokens, rest
+    rest = re.sub(r"/\*.*?\*/", "", rest, flags=re.S)
+    attrs = [a or b for a, b in re.findall(r"""\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')""", text)]
+    scripts = "\n".join(re.findall(r"<script\b[^>]*>(.*?)</script>", text, re.S | re.I))
+    # Styles the script sets: el.style.prop = "value", el.style.setProperty("prop", "value") and el.style.cssText.
+    js = ["%s:%s" % m for m in re.findall(r"""\.style\.([A-Za-z]+)\s*=\s*["']([^"']*)["']""", scripts)]
+    js += ["%s:%s" % m for m in re.findall(r"""\.setProperty\(\s*["']([^"']+)["']\s*,\s*["']([^"']*)["']""", scripts)]
+    return tokens, "\n".join([rest] + attrs + js)
+
+
+def declarations(css):
+    """(property, value) for every declaration in some CSS, a selector's pseudo-classes left out."""
+    body = re.sub(r"[^{};]*\{", ";", css)
+    return [(k.strip().lower(), v.strip()) for k, v in re.findall(r"([A-Za-z-]+)\s*:\s*([^;{}\n]+)", body)]
 
 
 class DesignTokens(unittest.TestCase):
@@ -95,15 +124,21 @@ class DesignTokens(unittest.TestCase):
         self.assertEqual([k for k in base if not k.startswith("$")], ["nexus"])
 
     def test_the_carbon_copies_match_their_source(self):
-        source = json.loads(read(os.path.join(DESIGN, "carbon", "source.json")))
-        checked = 0
+        carbon = os.path.join(DESIGN, "carbon")
+        source = json.loads(read(os.path.join(carbon, "source.json")))
+        listed = set()
         for package in source["packages"]:
             for name, entry in package["files"].items():
-                with open(os.path.join(DESIGN, "carbon", name), "rb") as fh:
+                with open(os.path.join(carbon, name), "rb") as fh:
                     digest = hashlib.sha256(fh.read().replace(b"\r\n", b"\n")).hexdigest()
                 self.assertEqual(digest, entry["sha256"], name)
-                checked += 1
-        self.assertGreater(checked, 0)
+                listed.add(name)
+        self.assertGreater(len(listed), 0)
+        on_disk = set()
+        for folder, _, names in os.walk(carbon):
+            for name in names:
+                on_disk.add(os.path.relpath(os.path.join(folder, name), carbon).replace(os.sep, "/"))
+        self.assertEqual(sorted(on_disk - {"source.json"} - listed), [], "files in carbon/ that source.json does not name")
 
 
 class Mockup(unittest.TestCase):
@@ -125,6 +160,23 @@ class Mockup(unittest.TestCase):
         used = set(re.findall(r"var\((--[A-Za-z0-9-]+)", rest))
         self.assertEqual(sorted(used - defined), [], "custom properties the token CSS does not define")
         self.assertEqual(COLOUR.findall(rest), [], "colours outside the tokens")
+        decls = declarations(rest)
+        self.assertGreater(len(decls), 100)
+        named = sorted({"%s: %s" % (k, v) for k, v in decls
+                        if set(re.findall(r"[a-z]+", re.sub(r"var\([^)]*\)", "", v.lower()))) & NAMED})
+        self.assertEqual(named, [], "named colours outside the tokens")
+
+    def test_the_colour_check_finds_colours(self):
+        # The checks above must see colours wherever the mockup could set them.
+        samples = ["a{border:1px solid white}", "b{outline:2px solid Navy}", "c{background:teal}",
+                   "d{color:CanvasText}", "e{box-shadow:0 0 0 1px rgb(0 0 0)}", "f{color:#c00}"]
+        for css in samples:
+            with self.subTest(css=css):
+                found = COLOUR.findall(css) or [v for _, v in declarations(css)
+                                                if set(re.findall(r"[a-z]+", v.lower())) & NAMED]
+                self.assertTrue(found)
+        self.assertEqual([v for _, v in declarations("a:hover{color:var(--link-primary)}")
+                          if set(re.findall(r"[a-z]+", re.sub(r"var\([^)]*\)", "", v.lower()))) & NAMED], [])
 
 
 if __name__ == "__main__":

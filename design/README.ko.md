@@ -82,7 +82,7 @@
 
 - `corthex-screen` 스킬의 `tokens.py check`를 목업에 돌림: 색 값 1158개, 토큰 밖 0개, 두 테마 모두와 비교.
 - `tokens.py verify`를 [carbon/](carbon/)에 돌림: Carbon 파일 27개가 [carbon/source.json](carbon/source.json)과 같음.
-- [tests/test_design.py](../tests/test_design.py)가 확인하는 것: 모든 토큰 파일이 형식을 따르는지, resolver가 모든 토큰 파일을 적는지, 프로젝트 토큰이 `nexus` 아래에만 있는지, Carbon 사본이 `source.json`과 같은지, 목업에 모든 화면 정의의 모든 상태가 두 너비로 있는지, 목업 스타일에 토큰 CSS 밖의 색 값이 없는지.
+- [tests/test_design.py](../tests/test_design.py)가 확인하는 것: 모든 토큰 파일이 형식을 따르는지, resolver가 모든 토큰 파일을 적는지, 프로젝트 토큰이 `nexus` 아래에만 있는지, `source.json`이 [carbon/](carbon/)의 모든 파일을 적고 각 사본이 그 해시와 같은지, 목업에 모든 화면 정의의 모든 상태가 두 너비로 있는지, 목업에 토큰 CSS 밖의 색이 없는지. 다른 스타일 블록, style 속성, 스크립트가 넣는 스타일 모두에서 16진수 값, 색 함수, CSS 색 이름을 찾습니다.
 - Edge로 본 것: 모든 프레임을 두 너비, 두 테마로. 마지막으로 바꾼 뒤의 그림 156장입니다.
 - 확인하지 않은 것: 실제 휴대폰, 화면 읽기 프로그램, 대비 측정. 색은 Carbon 테마 토큰이고, 스티커 색 위의 글은 CORTHEX 층의 스티커 글 색입니다.
 
