@@ -70,7 +70,7 @@ CREATE TABLE snapshots (
   UNIQUE (id, project_id)
 );
 
--- TBL-149 document_blobs (CTX-037) ← SPEC-001 | terms: TERM-189
+-- TBL-149 document_blobs (CTX-037) ← SPEC-001, SPEC-013 | terms: TERM-189
 -- The text of a stage document, kept once by its SHA-256 in lowercase hex however many
 -- snapshots hold it. A blob that no snapshot file names any more, such as after a project
 -- space is deleted, is removed by the code in the same transaction.

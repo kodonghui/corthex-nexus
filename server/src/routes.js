@@ -7,6 +7,7 @@ import { COMMENT_ROUTES } from './comments.js';
 import { CREDENTIAL_ROUTES } from './credentials.js';
 import { OWNER_ROUTES } from './owner.js';
 import { PROJECT_ROUTES } from './project.js';
+import { REMOVAL_ROUTES } from './removal.js';
 import { SNAPSHOT_ROUTES } from './snapshots.js';
 import { TODO_ROUTES } from './todo.js';
 
@@ -25,4 +26,6 @@ export const ROUTES = Object.freeze([
   ...OWNER_ROUTES,
   // TASK-437: API-252, API-253, API-254 and API-255.
   ...COMMENT_ROUTES,
+  // TASK-448: API-277 and API-278.
+  ...REMOVAL_ROUTES,
 ]);
