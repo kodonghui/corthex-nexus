@@ -93,7 +93,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 | `comment_not_found` | 404 | No comment thread has that nc_ ID in this project. |
 | `confirmation_not_found` | 404 | No confirmation has that ID in this project. |
 | `credential_not_found` | 404 | No agent credential has that ID. |
-| `diagram_not_found` | 404 | No diagram has that ID, or the stage has nothing drawn yet. |
+| `diagram_not_found` | 404 | No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027). |
 | `discrepancy_not_found` | 404 | NEXUS v3 has no discrepancies, so every nd_ ID is unknown. |
 | `drawing_not_found` | 404 | The drawing the request names is not one of the diagram's. |
 | `edit_not_found` | 404 | No reflection entry has that ne_ ID in this project. |
@@ -261,3 +261,5 @@ One approved item changed, asked on its own and approved through the same delega
 #### After the ninth review of pull request 104
 
 One approved item changed, asked on its own and approved through the same delegate: the client line of diagram_not_found says that after a write the diagram is read again first, since a removed one still listed opens for its threads only (SPEC-027), and its meaning names a direct edit instead of "a change", which also read as a proposal (API-270 answers document_changed). The code, the status and the owner message are unchanged. This part waits for its own checkpoint.
+
+A tenth review of the ninth review's fix found that the error table above still gave the meaning of diagram_not_found from before the eighth review. The row now copies the contract, as the other rows do, and a test checks that both tables copy it. No approved item changed.

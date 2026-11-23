@@ -220,6 +220,15 @@ class ApiContract(unittest.TestCase):
                     if status != "default":
                         self.assertEqual(str(value["status"]), status, "%s %s %s" % (method, path, name))
 
+    def test_the_readme_error_tables_copy_the_contract(self):
+        row = re.compile(r"^\| `([a-z_]+)` \| (\d{3}) \| (.*) \|$", re.M)
+        for name, field in (("README.md", "meaning"), ("README.ko.md", "message_ko")):
+            with open(os.path.join(ROOT, "docs", "06-api", name), encoding="utf-8") as f:
+                rows = {m.group(1): (m.group(2), m.group(3)) for m in row.finditer(f.read())}
+            self.assertEqual(sorted(rows), sorted(self.errors), name)
+            for code, entry in self.errors.items():
+                self.assertEqual(rows[code], (str(entry["status"]), entry[field]), "%s %s" % (name, code))
+
     def test_every_request_field_has_limits(self):
         def walk(schema, where, seen):
             if "$ref" in schema:
