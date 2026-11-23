@@ -5,6 +5,9 @@ import { validateHeaderName, validateHeaderValue } from 'node:http';
 
 const JSON_TYPE = 'application/json; charset=utf-8';
 const PROBLEM_TYPE = 'application/problem+json';
+// The types of a success other than JSON that a route may name as its media (see router.js), each with the
+// Content-Type it is sent with: a page, which API-293 serves (x-corthex.media of the contract).
+export const MEDIA = Object.freeze({ 'text/html': 'text/html; charset=utf-8' });
 // The statuses of the contract's successes. Every other answer of the contract is a Problem.
 const SUCCESSES = new Set([200, 201]);
 // Headers of every answer, which a handler may replace.
@@ -29,6 +32,16 @@ export function answerOf(result) {
     throw new TypeError('a success is a non-empty JSON object');
   }
   return answer(status, JSON_TYPE, text, result.headers);
+}
+
+// The answer to what the handler of a route whose media is type returns: { status, text, headers }, where status is
+// 200 (when left out too), text the whole body as text, and headers as answerOf's. Anything else is a fault.
+export function mediaAnswer(type, result) {
+  if (!Object.hasOwn(MEDIA, type)) throw new TypeError('the media of a route is a type answer.js sends');
+  if (typeof result !== 'object' || result === null) throw new TypeError('a handler returns { status, text, headers }');
+  if ((result.status ?? 200) !== 200) throw new TypeError('a page answers 200 and refuses with a Problem');
+  if (typeof result.text !== 'string') throw new TypeError('a page is text');
+  return answer(200, MEDIA[type], result.text, result.headers);
 }
 
 // The first answer to a request key, as it was sent: its status and JSON text, which the key keeps (see keys.js).

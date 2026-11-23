@@ -3,7 +3,7 @@
 import { createServer } from 'node:http';
 import { performance } from 'node:perf_hooks';
 import { createAdmission, familyOf } from './admission.js';
-import { answerOf, problemAnswer } from './answer.js';
+import { answerOf, mediaAnswer, problemAnswer } from './answer.js';
 import { BODY_KINDS, BodyAborted, closesConnection, readJson } from './body.js';
 import { requestKeyOf } from './keys.js';
 import { LIMITS } from './limits.js';
@@ -26,7 +26,9 @@ import { createQueue, createWrites, isWrite } from './writes.js';
 //
 // A request goes through these steps, each of which can refuse it: its path and method; its admission; its path
 // parameters' forms (the 404 of what each names); its request key's form (rule 3); its body, JSON within its limit;
-// then the operation, a write one at a time in the order they arrive with its request key (see writes.js).
+// then the operation, a write one at a time in the order they arrive with its request key (see writes.js). Once its
+// path and method name an operation, every answer carries the headers its route names, refusals and faults included
+// (see router.js). A route whose media is a page answers its handler's text as that type (see answer.js).
 export function createApp({
   settings, routes = [], log = jsonLines(), store = null, gate = null, now = Date.now,
 }) {
@@ -69,6 +71,8 @@ export function createApp({
     // The most of an unread body the server reads and drops before answering on the same connection (see body.js):
     // the limit of the operation's body, or of any other body.
     let drainLimit = LIMITS.bodyBytes;
+    // The headers of the operation's every answer, once its route is known.
+    let routeHeaders = null;
     try {
       const pathname = pathOf(request.url);
       const match = pathname === null ? null : find(request.method, pathname);
@@ -76,6 +80,7 @@ export function createApp({
       if (match.allow) throw methodNotAllowed(match.allow);
       const { route, params } = match;
       entry.action = route.action;
+      routeHeaders = route.headers;
       if (route.body !== undefined) drainLimit = BODY_KINDS[route.body].limit;
       // A refused request never reaches its handler, so its answer holds nothing of the store.
       const family = families.get(route.action);
@@ -89,10 +94,11 @@ export function createApp({
       const { value: body, bytes = null } = route.body === undefined ? {} : await readJson(request, route.body);
       const size = bytes === null ? null : bytes.length;
       const context = { request, params, traceId, settings, store, caller, credential, body, size, now };
-      const answer = isWrite(route)
-        ? await write(route, context, { pathname, key, bytes, recheck })
-        : answerOf(await route.handle(context));
-      send(response, answer, closesConnection(request, drainLimit));
+      let answer;
+      if (isWrite(route)) answer = await write(route, context, { pathname, key, bytes, recheck });
+      else if (route.media !== undefined) answer = mediaAnswer(route.media, await route.handle(context));
+      else answer = answerOf(await route.handle(context));
+      send(response, answer, closesConnection(request, drainLimit), routeHeaders);
     } catch (error) {
       // A request whose connection dropped before its body arrived has no one to answer; its log line says aborted.
       if (error instanceof BodyAborted) {
@@ -107,7 +113,7 @@ export function createApp({
         return;
       }
       try {
-        send(response, problemAnswer(problem, entry.traceId), closesConnection(request, drainLimit));
+        send(response, problemAnswer(problem, entry.traceId), closesConnection(request, drainLimit), routeHeaders);
       } catch (sendError) {
         // A refusal that cannot be sent drops the connection; the listener itself never fails.
         entry.error ??= errorKind(sendError);
@@ -128,10 +134,11 @@ function pathOf(target) {
   return end === -1 ? target : target.slice(0, end);
 }
 
-// Sends an answer of answer.js. The body's type, its length and nosniff are always the server's. close is true when
-// the answer closes the connection, for a body the server will not read to its end.
-function send(response, answer, close) {
-  const all = Object.assign(Object.create(null), answer.headers);
+// Sends an answer of answer.js with the headers of its route, which win over the answer's own. The body's type, its
+// length and nosniff are always the server's. close is true when the answer closes the connection, for a body the
+// server will not read to its end.
+function send(response, answer, close, routeHeaders) {
+  const all = Object.assign(Object.create(null), answer.headers, routeHeaders);
   all['x-content-type-options'] = 'nosniff';
   if (close) all.connection = 'close';
   all['content-type'] = answer.type;

@@ -11,9 +11,14 @@
 //   operation takes no body and the server reads none.
 // - requestKey is true when the operation takes an Idempotency-Key (rule 3, see writes.js), and repeat(result), if
 //   given, is what a repeat of the key answers instead of the first result.
+// - media is the type of a success other than JSON, 'text/html' for a page (see answer.js), for a GET only; headers are
+//   headers every answer of the operation carries once its path and method are matched, its refusals and faults
+//   included, such as API-293's Content-Security-Policy.
 // Where two templates match a path, the one with a literal segment where the other has a parameter wins. A handler runs
 // as its operation (see operation.js), and what it waits for with it.
 
+import { validateHeaderName, validateHeaderValue } from 'node:http';
+import { MEDIA } from './answer.js';
 import { BODY_KINDS } from './body.js';
 import { runAs } from './operation.js';
 import { FORMS } from './params.js';
@@ -51,7 +56,9 @@ export function createRouter(routes) {
 }
 
 function compile(route) {
-  const { method, path, action, handle, params = {}, body, requestKey = false, repeat } = route;
+  const {
+    method, path, action, handle, params = {}, body, requestKey = false, repeat, media, headers = {},
+  } = route;
   if (!METHODS.has(method)) throw new Error(`unknown method ${method}`);
   if (typeof path !== 'string' || !path.startsWith('/')) throw new Error(`path ${path} must start with /`);
   if (typeof action !== 'string' || action === '') throw new Error(`${method} ${path} needs its action`);
@@ -63,6 +70,20 @@ function compile(route) {
   }
   if (repeat !== undefined && (typeof repeat !== 'function' || !requestKey)) {
     throw new Error(`${method} ${path}: repeat is a function, for a route with a request key`);
+  }
+  if (media !== undefined && (!Object.hasOwn(MEDIA, media) || method !== 'GET')) {
+    throw new Error(`${method} ${path}: media is a type answer.js sends, for a GET`);
+  }
+  if (typeof headers !== 'object' || headers === null || Array.isArray(headers)) throw new Error(`${method} ${path}: headers is an object`);
+  const own = Object.create(null);
+  for (const [name, value] of Object.entries(headers)) {
+    const key = name.toLowerCase();
+    validateHeaderName(key);
+    validateHeaderValue(key, value);
+    if (typeof value !== 'string' || ['content-type', 'content-length', 'connection', 'x-content-type-options'].includes(key)) {
+      throw new Error(`${method} ${path}: a route's header is text, and not one the server sets`);
+    }
+    own[key] = value;
   }
   const parts = path.slice(1).split('/').map((segment) => {
     const parameter = PARAMETER.exec(segment);
@@ -90,6 +111,8 @@ function compile(route) {
     body,
     requestKey,
     repeat,
+    media,
+    headers: Object.freeze(own),
     literals: parts.map((part) => part.literal !== undefined),
     shape: `/${parts.map((part) => (part.literal !== undefined ? part.literal : '{}')).join('/')}`,
     match(segments) {
