@@ -289,10 +289,15 @@
           "approved": "Owner thread table correction, pull request 139, at commit 51d79ae: API-266's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-156 and TBL-158 instead of the approved TBL-155 and TBL-156; API-267's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156 and TBL-166 instead of the approved TBL-155, TBL-156 and TBL-166; API-268's lists TBL-147, TBL-151, TBL-155, TBL-156 and TBL-166 instead of the approved TBL-156 and TBL-166; and API-269's lists TBL-147, TBL-151, TBL-155, TBL-156 and TBL-166 instead of the approved TBL-155 and TBL-166 (note 23; API-268's TBL-155 is note 16's waits_on). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed items were answered on their own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Direct edit table correction, pull request 138, at commit 5913939: API-272's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-158, TBL-159 and TBL-166 instead of the approved TBL-158, TBL-159 and TBL-166, and API-273's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-159 and TBL-166 instead of the approved TBL-158 and TBL-166 (note 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed items were answered on their own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T07:11:19+09:00"
+      "updated": "2026-11-24T07:23:47+09:00"
     },
     "07-sitemap": {
       "state": "done",

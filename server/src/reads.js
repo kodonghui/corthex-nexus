@@ -12,7 +12,7 @@
 // - API-247 (np_): a change set. TBL-158's detail keeps a proposal as the hub sends it, under ProposalRequest's own
 //   names: items, adds, reason, change and source_text, the proposed document, of which the answer says only whether it
 //   came. A direct edit's detail has none of them: no items or adds, no reason or change, and no source_text. These
-//   names bind the tasks that write the detail, TASK-438 and TASK-444 (see the server's README). changes are TBL-159's
+//   names bind the tasks that write the detail, TASK-438 and TASK-445 (see the server's README). changes are TBL-159's
 //   steps in order. reflection is the reflection entry that reads back with the change set in it (see reflectionOf).
 // - API-248 (ne_): a reflection or a removal entry, open or closed. An open entry holds what entries.js's
 //   heldChangeSets finds. TBL-166 keeps only a closed entry's anchor, so a closed entry lists what it can still name: a
@@ -101,7 +101,7 @@ function statementsOf(store) {
       anchorOf: store.prepare('SELECT pull_request_id FROM change_sets WHERE id = ?'),
       reflectedIn: store.prepare(
         `SELECT id FROM change_sets WHERE diagram_id = ? AND project_id = ? AND state = 'reflected' AND pull_request_id = ?
-         ORDER BY id LIMIT ${HELD}`,
+         ORDER BY coalesce(decided_at, created_at), id LIMIT ${HELD}`,
       ),
       pullRequest: store.prepare('SELECT number, state, merge_commit FROM pull_requests WHERE id = ?'),
       claim: store.prepare(

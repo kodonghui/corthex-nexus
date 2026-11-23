@@ -5230,7 +5230,7 @@ paths:
       x-corthex:
         id: API-272
         spec: [SPEC-021, SPEC-027]
-        tables: [TBL-158, TBL-159, TBL-166]
+        tables: [TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-158, TBL-159, TBL-166]
         release: Must
         family: owner
       security:
@@ -5470,7 +5470,7 @@ paths:
       x-corthex:
         id: API-273
         spec: [SPEC-023]
-        tables: [TBL-158, TBL-166]
+        tables: [TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-159, TBL-166]
         release: Must
         family: owner
       security:

@@ -106,8 +106,8 @@
 import { createHash } from 'node:crypto';
 import { dddBoard } from './ddd-board.js';
 import {
-  characters, CONTROL, elementKey, failureWhere, isObject, leftOutDigest, MAX_ELEMENTS, MAX_KEY, MAX_TRACE_ID, MAX_WHERE, numbered,
-  SourceFailure, TRACE_ID, whereText,
+  characters, CONTROL, ELEMENT_KEY, elementKey, failureWhere, isObject, leftOutDigest, MAX_ELEMENTS, MAX_KEY, MAX_TRACE_ID,
+  MAX_WHERE, numbered, SourceFailure, TRACE_ID, whereText,
 } from './drawer.js';
 import { erd } from './erd.js';
 import { idOf } from './ids.js';
@@ -166,7 +166,6 @@ const MAX_NAME = 200;
 const MAX_KIND = 40;
 const MAX_STATUS = 60;
 const MAX_FAILURES = 500;
-const ELEMENT_KEY = /^\S(?:.*\S)?$/;
 const KIND = /^[a-z][a-z0-9_]*$/;
 // The snapshot's rest, which keeps its checks as they came (see snapshot.js), and the name that the warnings a drawer
 // was given take in its source_digest. No document has that name: NEXUS names none of its own so, and a key never
