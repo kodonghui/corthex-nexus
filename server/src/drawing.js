@@ -24,6 +24,17 @@
 // comes back, the same row with its threads, an item table that made way among them. A diagram's part is in its
 // source_key for a stage's picture; the store's columns keep none for a file's picture (see the server's README).
 //
+// Left-out sources. A diagram whose source the snapshot leaves out is not removed (see snapshot.js): a document left
+// out as REQ-077 asks names its diagram by its path, and a left_out entry names the picture of its part and stage, a
+// file of stage 03, 08 or 09 by its key, or every file of its stage and part when it names none. The diagram keeps its
+// last good drawing and gets a failed drawing at its source, with no line: the file's key, or the stage's source as
+// the snapshot's stage record names it. As for any failed drawing, nothing moves and its confirmation and its stage's
+// pass stay (see after-drawing.js), and the push counts it failed and names it in failures; a picture so kept still
+// shows as its stage's picture, and the next push that sends its source draws it again. A left_out entry names no item
+// table, and an item table that makes way for its stage's pictures still does. What the snapshot names only by a
+// count, such as the files past the hub's limits, is removed as any source the snapshot does not hold. No approved
+// document states this rule; the maintainer approved it through the delegate they named for checkpoints.
+//
 // Drawings. Each diagram the snapshot holds is drawn again. Its drawing is new when its source_digest, which covers
 // every document the drawer read, or what it drew differs from the diagram's last drawing; otherwise the diagram is
 // unchanged and keeps that drawing, so a confirmation of it stays (SPEC-033). A drawing is drawn or failed: a drawer
@@ -49,18 +60,22 @@
 // - documents: the documents kept now, each { path, stage, part, key, kind, sha256, where } (see snapshot.js): kind is
 //   picture, items or snapshot; key is the file's path for a picture of stage 03, 08 or 09, otherwise null; where is
 //   the repository path it comes from. A document left out as REQ-077 asks is not among them.
+// - leftOut: the sources the push leaves out, each { stage, part, key, path, where } (see snapshot.js): a document
+//   left out as REQ-077 asks, with its path, or a left_out entry, path null; none unless given.
 // - earlier: for a completed revision, the push's other documents, which the revision kept before, each in the form of
 //   documents; none otherwise. This call draws again only the items of the stages it draws that the revision keeps.
 // - time: the push's time, for created_at, drawn_at and removed_at.
 // - drawers: the drawers by kind, DRAWERS unless a test gives its own.
 // It returns what the push answer says of the drawing, { diagrams: { drawn, unchanged, failed, removed }, failures },
 // failures as the contract's PushAnswer gives them, and changed, what after-drawing.js needs: each diagram this call
-// drew or removed, as { id, stage, kind, created, restored, removed, madeWay, drawing, status, digest }, drawing the
+// drew, kept as left out or removed, as { id, stage, kind, created, restored, removed, madeWay, drawing, status,
+// digest }, drawing the
 // key of its new drawing, or null when it kept its last one, with that drawing's status and source_digest; removed
 // with madeWay for an item table that makes way for its stage's pictures (SPEC-005). drawn counts the new drawings that drew, failed the diagrams whose
-// source in the push fails, whether it changed or not, removed the diagrams this snapshot removed, and unchanged every
-// other diagram that is not removed, those kept as last drawn included. A diagram this call does not draw again fails
-// when its last drawing failed and earlier holds its source, as drawing it again would. It refuses nothing.
+// source in the push fails or is left out, whether it changed or not, removed the diagrams this snapshot removed, and
+// unchanged every other diagram that is not removed, those kept as last drawn included. A diagram this call does not
+// draw again fails when its last drawing failed and earlier holds its source, or the push leaves it out, as drawing it
+// again would. It refuses nothing.
 //
 // A drawer: drawer({ stage, part, key, kind, source, text, read, warnings }) returns { name, elements }, at once (no
 // promise).
@@ -98,6 +113,7 @@ import { itemTable } from './item-table.js';
 import { mockup } from './mockup.js';
 import { screenStates } from './screen-states.js';
 import { sitemap } from './sitemap.js';
+import { diagramPart } from './todo.js';
 import { userFlow } from './user-flow.js';
 
 // A drawer's failure and the keys it works out are drawer.js's, which the drawers import in place of this file.
@@ -395,6 +411,60 @@ function sameAsLast(statements, diagram, outcome) {
   return JSON.stringify(last) === JSON.stringify(outcome.rows);
 }
 
+// Keeps a drawer's outcome as the diagram's new drawing, with its elements, unless it is the diagram's last drawing
+// again (sameAsLast). Returns the new drawing's key, or null when the diagram keeps its last one.
+function keepDrawing(statements, { project, snapshot, diagram, outcome, time }) {
+  if (sameAsLast(statements, diagram, outcome)) return null;
+  const { lastInsertRowid } = statements.insertDrawing.run(
+    project.id, diagram.id, snapshot.id, snapshot.commit, outcome.status, outcome.digest,
+    outcome.failure?.path ?? null, outcome.failure?.line ?? null, time,
+  );
+  const drawing = Number(lastInsertRowid);
+  for (const row of outcome.rows) statements.insertElement.run(drawing, ...row);
+  return drawing;
+}
+
+// A where the store and the contract keep (up to 300 characters, no control character), or else fallback.
+const whereOr = (text, fallback) => (
+  typeof text === 'string' && text !== '' && characters(text) <= MAX_WHERE && !CONTROL.test(text) ? text : fallback
+);
+
+// Finds the diagrams whose source the push leaves out (see the top of this file). Returns diagram → { part, where } or
+// null: the part the push answer names and where the drawing fails, the file's key for a file and otherwise the
+// source as the push names it.
+function leftOutFinder(store, leftOut) {
+  const byPath = new Map();
+  const byStage = new Map();
+  for (const source of leftOut) {
+    if (source.path !== null) {
+      byPath.set(stageAndPath(source.stage, source.path), source);
+    } else {
+      if (!byStage.has(source.stage)) byStage.set(source.stage, []);
+      byStage.get(source.stage).push(source);
+    }
+  }
+  const parts = new Map();
+  return (diagram) => {
+    const fallback = FILE_STAGES.has(diagram.stage) && diagram.kind !== ITEM_TABLE ? diagram.source_key : diagram.stage;
+    const document = byPath.get(stageAndPath(diagram.stage, diagram.source_key));
+    if (document !== undefined) return { part: document.part, where: whereOr(document.where, fallback) };
+    const entries = byStage.get(diagram.stage);
+    if (entries === undefined || diagram.kind === ITEM_TABLE) return null;
+    const file = FILE_STAGES.has(diagram.stage);
+    const part = diagramPart(store, diagram, parts);
+    const entry = entries.find((each) => each.part === part && (!file || each.key === null || each.key === diagram.source_key));
+    return entry === undefined ? null : { part, where: file ? diagram.source_key : whereOr(entry.where, fallback) };
+  };
+}
+
+// The outcome of a diagram whose source the push leaves out: a failed drawing at where, with no line, that read no
+// document. Its digest names the source's path as absent, which no drawing that read it has.
+function leftOutOutcome(diagram, where) {
+  return {
+    status: 'failed', digest: sha256(JSON.stringify([[diagram.source_key, null]])), name: null, rows: [], failure: { path: where, line: null },
+  };
+}
+
 // The kind of diagram a document is drawn as, or null when it draws none: a picture as its stage's picture, a stage's
 // items as an item table while the stage shows one (SPEC-005): a stage without pictures, or one of 03, 08 and 09 that
 // shows none (pictured, see the top of this file).
@@ -419,23 +489,23 @@ const failureEntry = (diagramId, document, failure) => ({
 });
 
 // Counts a diagram that is not removed and that this call does not draw again: failed, and named in failures, when its
-// last drawing failed and the push holds its source, as drawing it again would find; otherwise unchanged. sent holds
-// the push's documents by stage and path.
-function countNotDrawn(diagram, sent, counts, failures) {
-  const document = sent.get(stageAndPath(diagram.stage, diagram.source_key));
-  if (diagram.status !== 'failed' || document === undefined) {
+// last drawing failed and the push holds its source or leaves it out, as drawing it again would find; otherwise
+// unchanged. sent holds the push's documents by stage and path, and leftOutOf finds a source the push leaves out.
+function countNotDrawn(diagram, sent, leftOutOf, counts, failures) {
+  const document = diagram.status === 'failed' ? sent.get(stageAndPath(diagram.stage, diagram.source_key)) ?? leftOutOf(diagram) : null;
+  if (document === null) {
     counts.unchanged += 1;
     return;
   }
   counts.failed += 1;
   const line = diagram.failed_line === null ? null : Number(diagram.failed_line);
-  failures.push(failureEntry(diagram.id, document, { path: diagram.failed_path, line }));
+  failures.push(failureEntry(diagram.id, { part: document.part, stage: diagram.stage }, { path: diagram.failed_path, line }));
 }
 
 const sentBy = (documents) => new Map(documents.map((document) => [stageAndPath(document.stage, document.path), document]));
 
 // Draws a kept snapshot (see the top of this file).
-export function drawSnapshot({ store, project, snapshot, completed, documents, earlier = [], time, drawers = DRAWERS }) {
+export function drawSnapshot({ store, project, snapshot, completed, documents, earlier = [], leftOut = [], time, drawers = DRAWERS }) {
   checkDrawers(drawers);
   const statements = statementsOf(store);
   const carries = new Set(snapshot.carries);
@@ -445,13 +515,25 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
   const diagrams = statements.diagrams.all(project.id);
   const bySource = new Map(diagrams.map((diagram) => [stageAndPath(diagram.stage, diagram.source_key), diagram]));
   const sent = sentBy(earlier);
-  // The stages of 03, 08 and 09 that show a picture after this call, whose item tables make way (see the top of this
-  // file): a stage this call draws under a format that carries its pictures, when it draws one of its files; any
-  // other, when it has a picture diagram that is not removed, which this call keeps as last drawn.
+  const leftOutOf = leftOutFinder(store, leftOut);
   const drawsPictures = (stage) => inScope(stage) && carries.has(stage);
+  // The pictures this call keeps as left out, by diagram: those not removed of a stage it draws whose source the push
+  // does not send and leaves out (see the top of this file).
+  const sending = new Set(documents.map((document) => stageAndPath(document.stage, document.path)));
+  const keptOut = new Map();
+  for (const diagram of diagrams) {
+    if (diagram.kind === ITEM_TABLE || diagram.removed_at !== null || !drawsPictures(diagram.stage)) continue;
+    if (sending.has(stageAndPath(diagram.stage, diagram.source_key))) continue;
+    const found = leftOutOf(diagram);
+    if (found !== null) keptOut.set(diagram.id, found);
+  }
+  // The stages of 03, 08 and 09 that show a picture after this call, whose item tables make way (see the top of this
+  // file): a stage this call draws under a format that carries its pictures, when it draws one of its files or keeps
+  // one as left out; any other, when it has a picture diagram that is not removed, which this call keeps as last drawn.
   const pictured = new Set([
     ...documents.filter((document) => document.kind === 'picture' && drawsPictures(document.stage)
       && Object.hasOwn(drawers, PICTURE_KINDS[document.stage] ?? '')).map((document) => document.stage),
+    ...diagrams.filter((diagram) => keptOut.has(diagram.id)).map((diagram) => diagram.stage),
     ...diagrams.filter((diagram) => diagram.kind !== ITEM_TABLE && diagram.removed_at === null && !drawsPictures(diagram.stage))
       .map((diagram) => diagram.stage),
   ]);
@@ -493,16 +575,8 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
       if (outcome.name !== null && outcome.name !== diagram.name) statements.rename.run(outcome.name, diagram.id);
     }
     held.add(diagram.id);
-    const unchanged = sameAsLast(statements, diagram, outcome);
-    let drawing = null;
-    if (!unchanged) {
-      const { lastInsertRowid } = statements.insertDrawing.run(
-        project.id, diagram.id, snapshot.id, snapshot.commit, outcome.status, outcome.digest,
-        outcome.failure?.path ?? null, outcome.failure?.line ?? null, time,
-      );
-      drawing = Number(lastInsertRowid);
-      for (const row of outcome.rows) statements.insertElement.run(drawing, ...row);
-    }
+    const drawing = keepDrawing(statements, { project, snapshot, diagram, outcome, time });
+    const unchanged = drawing === null;
     changed.push({
       id: Number(diagram.id), stage: document.stage, kind, created, restored, removed: false, madeWay: false, drawing,
       status: outcome.status, digest: outcome.digest,
@@ -519,14 +593,27 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
     if (held.has(diagram.id) || diagram.removed_at !== null) continue;
     // A diagram this call does not draw, or a picture the format does not carry, kept as last drawn (SPEC-005).
     if (!inScope(diagram.stage) || (diagram.kind !== ITEM_TABLE && !carries.has(diagram.stage))) {
-      countNotDrawn(diagram, sent, counts, failures);
+      countNotDrawn(diagram, sent, leftOutOf, counts, failures);
+      continue;
+    }
+    // An item table makes way when its stage shows a picture after this call (pictured); one removed otherwise, whose
+    // stage no snapshot reads any more, did not, and SPEC-027 moves its threads.
+    const madeWay = diagram.kind === ITEM_TABLE && pictured.has(diagram.stage);
+    // A source the push leaves out keeps its diagram, with a failed drawing at its source (see the top of this file).
+    const left = diagram.kind === ITEM_TABLE ? (madeWay ? null : leftOutOf(diagram)) : keptOut.get(diagram.id) ?? null;
+    if (left !== null) {
+      const outcome = leftOutOutcome(diagram, left.where);
+      const drawing = keepDrawing(statements, { project, snapshot, diagram, outcome, time });
+      changed.push({
+        id: Number(diagram.id), stage: diagram.stage, kind: diagram.kind, created: false, restored: false, removed: false, madeWay: false,
+        drawing, status: outcome.status, digest: outcome.digest,
+      });
+      counts.failed += 1;
+      failures.push(failureEntry(diagram.id, { part: left.part, stage: diagram.stage }, outcome.failure));
       continue;
     }
     statements.remove.run(time, diagram.id);
     counts.removed += 1;
-    // An item table makes way when its stage shows a picture after this call (pictured); one removed otherwise, whose
-    // stage no snapshot reads any more, did not, and SPEC-027 moves its threads.
-    const madeWay = diagram.kind === ITEM_TABLE && pictured.has(diagram.stage);
     changed.push({
       id: Number(diagram.id), stage: diagram.stage, kind: diagram.kind, created: false, restored: false, removed: true, madeWay,
       drawing: null, status: null, digest: null,
@@ -536,14 +623,16 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
 }
 
 // What the push answer says of the drawing when the same commit comes again in the same or an older format, which
-// draws nothing: documents are the push's, each { path, stage, part }. Every diagram that is not removed is unchanged,
-// but one whose last drawing failed and whose source the push holds, which fails as the commit's first answer said.
-export function heldDrawing({ store, project, documents }) {
+// draws nothing: documents are the push's, each { path, stage, part }, and leftOut the sources it leaves out. Every
+// diagram that is not removed is unchanged, but one whose last drawing failed and whose source the push holds or leaves
+// out, which fails as the commit's first answer said.
+export function heldDrawing({ store, project, documents, leftOut = [] }) {
   const counts = { drawn: 0, unchanged: 0, failed: 0, removed: 0 };
   const failures = [];
   const sent = sentBy(documents);
+  const leftOutOf = leftOutFinder(store, leftOut);
   for (const diagram of statementsOf(store).diagrams.all(project.id)) {
-    if (diagram.removed_at === null) countNotDrawn(diagram, sent, counts, failures);
+    if (diagram.removed_at === null) countNotDrawn(diagram, sent, leftOutOf, counts, failures);
   }
   return { diagrams: counts, failures: failures.slice(0, MAX_FAILURES) };
 }

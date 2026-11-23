@@ -28,6 +28,13 @@
 // Every text of the hub's snapshot passed the hub's own redaction of the same patterns, so the rest of a snapshot holds
 // none; a rest that holds one did not come from the hub's format and is refused as invalid_snapshot, since it cannot be
 // named by a stage in refused and keeping it would keep the text.
+//
+// Left-out sources (see drawing.js): the sources a snapshot names as left out keep their diagrams. They are the
+// documents left out as REQ-077 asks, and the entries of left_out, which the hub writes for a picture whose source is
+// in another repository (why other-repository) and for a whole picture it left out for size (why size), naming its
+// part and stage, and the file's key for a file of stage 03, 08 or 09. An entry not in that form names nothing NEXUS
+// can match and is left aside. What the hub names only by a check's count, such as the files past its limits, an
+// object it could not read or the omissions past left_out's 1,000 entries, is not among them.
 
 import { invalidRequest, Problem } from './problem.js';
 import { sensitiveText, sensitiveValue } from './sensitive.js';
@@ -313,9 +320,28 @@ function documentsOf(body, rest) {
   return documents;
 }
 
+// The sources the snapshot leaves out (see the top of this file), each { stage, part, key, path, where }:
+// - a document left out as REQ-077 asks: its stage, part, key and path, and where it is from;
+// - a left_out entry of a picture stage the format carries, with its part: path null, key the file's path for a file
+//   of stage 03, 08 or 09, or null when the entry names none, and where the stage's source as the snapshot's stage
+//   record names it.
+function leftOutOf(body, format, documents) {
+  const sources = documents.filter((document) => document.why !== null)
+    .map(({ stage, part, key, path, where }) => Object.freeze({ stage, part, key, path, where }));
+  for (const entry of Object.hasOwn(body, 'left_out') ? body.left_out : []) {
+    const { stage, part } = entry;
+    if (typeof stage !== 'string' || !CARRIED[format].includes(stage) || typeof part !== 'string' || !PART.test(part)) continue;
+    const keyed = KEYED_STAGES.has(stage) && Object.hasOwn(entry, 'key');
+    if (keyed && typeof entry.key !== 'string') continue;
+    sources.push(Object.freeze({ stage, part, key: keyed ? entry.key : null, path: null, where: sourceOf(body, stage) }));
+  }
+  return Object.freeze(sources);
+}
+
 // Reads a snapshot, the parsed body of API-242. Returns { format, carries, project, commit, replaces, repository,
-// documents }: its format and the picture stages it carries, the project's name, the commit it is of, the commit it
-// replaces or null, the repository's address or null, and its documents. Throws unsupported_format or invalid_snapshot.
+// documents, leftOut }: its format and the picture stages it carries, the project's name, the commit it is of, the
+// commit it replaces or null, the repository's address or null, its documents and the sources it leaves out. Throws
+// unsupported_format or invalid_snapshot.
 export function readSnapshot(body) {
   // The format first: the other rules are the format's.
   if (!Object.hasOwn(body, 'schema')) throw invalid('schema', 'schema is required');
@@ -328,6 +354,7 @@ export function readSnapshot(body) {
   const { commit, repository } = checkKept(body);
   const rest = restOf(body);
   checkRest(rest);
+  const documents = documentsOf(body, rest);
   return {
     format,
     carries: CARRIED[format],
@@ -335,7 +362,8 @@ export function readSnapshot(body) {
     commit,
     replaces: Object.hasOwn(body, 'replaces') ? body.replaces : null,
     repository,
-    documents: documentsOf(body, rest),
+    documents,
+    leftOut: leftOutOf(body, format, documents),
   };
 }
 
