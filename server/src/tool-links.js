@@ -3,7 +3,7 @@
 // or Jira and holds no token; reading a link's status is TASK-467, so until it is built status and status_read_at
 // stay null and the page shows "not read yet" (SPEC-046).
 //
-// An address counts by its host, never by its path (the coordinator's choice for TASK-451, waiting for the
+// An address counts by its host, never by its path (the coordinator's choice for TASK-451, approved through the
 // maintainer's delegate):
 // - Notion: notion.so, notion.site, notion.com and their subdomains, such as www.notion.so and app.notion.com;
 // - Jira: a subdomain of atlassian.net whose path does not start with /wiki, which is Confluence's.

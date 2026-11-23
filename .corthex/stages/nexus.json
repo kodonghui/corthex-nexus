@@ -294,10 +294,15 @@
           "approved": "Direct edit table correction, pull request 138, at commit 5913939: API-272's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-158, TBL-159 and TBL-166 instead of the approved TBL-158, TBL-159 and TBL-166, and API-273's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-159 and TBL-166 instead of the approved TBL-158 and TBL-166 (note 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed items were answered on their own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Tool link table correction, pull request 135, at commit 8a77b99: API-282's x-corthex.tables lists TBL-147 and TBL-168 instead of the approved TBL-168, and API-283's lists TBL-147 and TBL-168 instead of the approved TBL-168 (note 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed items were answered on their own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T07:23:47+09:00"
+      "updated": "2026-11-24T07:40:11+09:00"
     },
     "07-sitemap": {
       "state": "done",

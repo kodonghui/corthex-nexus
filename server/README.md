@@ -1233,9 +1233,9 @@ The two operations read and write more tables than they listed, so API-256 lists
 - **Not found.** A name no project space has gets `project_not_found`. A link of another project, or an ID in no link's form or of no link, gets `tool_link_not_found`. Neither detail repeats the value.
 - **No log line** holds an address or the project's name (rule 5).
 
-The coordinator chose these rules for TASK-451: the check by host, of https addresses only; the same link after the host is put in lower case and the port and fragment are dropped; the 200 links; and links that keep their status null. They wait for the maintainer's delegate.
+The coordinator chose these rules for TASK-451: the check by host, of https addresses only; the same link after the host is put in lower case and the port and fragment are dropped; the 200 links; and links that keep their status null. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24.
 
-`test/tool-links.test.js` checks TASK-451's done condition: every response API-282 and API-283 list. It also tests which addresses count and how each is kept, the same link again, the request key, the 200 links, removing twice, and the log. It checks the tables each touches (note 23). Both find the project space by its name, so API-282 and API-283 list TBL-147 and TBL-168. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+`test/tool-links.test.js` checks TASK-451's done condition: every response API-282 and API-283 list. It also tests which addresses count and how each is kept, the same link again, the request key, the 200 links, removing twice, and the log. It checks the tables each touches (note 23). Both find the project space by its name, so API-282 and API-283 list TBL-147 and TBL-168. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint on 2026-11-24.
 
 ## Answers
 
