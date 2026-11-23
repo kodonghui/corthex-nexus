@@ -43,8 +43,9 @@ OLD, NEW = "corthex-hub/0.2", "corthex-hub/0.3"
 V2_STAGES = {"01-domain", "05-erd", "07-sitemap"}
 TEXT_STAGES = ("03-user-flow", "08-screen-states", "09-mockup")
 # Where the snapshot's items name the file that defines each user flow and each screen: a flow item of stage 03 by
-# its own place, and a screen item of the sitemap by its screen definition in stage 08.
-DEFINED_IN = {"03-user-flow": ("flow", "where"), "08-screen-states": ("screen", "screen_doc")}
+# its own place, and a screen item of the sitemap by its screen definition in stage 08. Apart from the hub's scan,
+# each file of the stage's source folder named with the ID prefix, other than a translation copy, must be one of them.
+DEFINED_IN = {"03-user-flow": ("flow", "where", "FL-"), "08-screen-states": ("screen", "screen_doc", "SCR-")}
 TRACE = "0123456789abcdef"
 NOT_FOUND = {"title": "Not found", "status": 404, "detail": "no such path", "code": "not_found", "traceId": TRACE}
 SERVER_SOURCE = ROOT / "server" / "src"
@@ -309,11 +310,17 @@ class HubCompatibilityTest(HubCheckoutCase):
         """Each user flow, screen definition and the mockup page is one picture with the file's whole text."""
         settings = json.loads((self.project / ".corthex" / "project.json").read_text(encoding="utf8"))["stages"]
         wanted = {}
-        for stage, (kind, field) in DEFINED_IN.items():
+        for stage, (kind, field, prefix) in DEFINED_IN.items():
             wanted[stage] = sorted({item[field].rsplit(":", 1)[0] for item in snapshot["items"]
                                     if item.get("kind") == kind and item.get(field)})
+            source = settings[stage]["source"]
             for key in wanted[stage]:
-                self.assertTrue(key.startswith(settings[stage]["source"]), (stage, key))
+                self.assertTrue(key.startswith(source), (stage, key))
+            named = {path.relative_to(self.project).as_posix() for path in (self.project / source).glob(prefix + "*.md")
+                     if not path.name.endswith(".ko.md")}
+            self.assertTrue(named, stage)
+            self.assertLessEqual(named, set(wanted[stage]),
+                                 "%s: a %s*.md file the hub found nothing in" % (stage, prefix))
         wanted["09-mockup"] = [self.page]
         for stage, keys in wanted.items():
             with self.subTest(stage=stage):
