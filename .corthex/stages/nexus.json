@@ -214,10 +214,15 @@
           "approved": "Example correction, pull request 112, at commit f4b03be: API-292's 413 example gives the Miro export's 5242880 bytes instead of 2097152, and the server's limits test checks every body's 413 example, its code, limit and detail, against the answer the server builds. The approved item it changes was answered on its own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Pinned hub correction, pull request 115, at commit 9b563e7: with the hub corthex-nexus 0.6.0 pinned in the push job, five sentences describe it: the agent family's description in info, API-243's description, the held commit's formats, section 5 and section 3's sentence on the size of the 0.3 snapshot. Sessions keep the published 0.5.x until 0.6.0 is published. No schema, operation, response, code or example changed. Each changed sentence was answered on its own before the stage passed, and the approved text of each is kept in the change's commit message. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-23T21:35:49+09:00"
+      "updated": "2026-11-24T00:03:43+09:00"
     },
     "07-sitemap": {
       "state": "done",
