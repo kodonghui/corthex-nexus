@@ -8,6 +8,8 @@
 
 근거 요구사항: REQ-058, REQ-059, REQ-060, REQ-061
 
+화면(07단계): SCR-144, SCR-145
+
 ```mermaid
 flowchart TD
   A(["사용자가<br/>프로젝트나<br/>단계에 링크를<br/>더함<br/>REQ-058"])

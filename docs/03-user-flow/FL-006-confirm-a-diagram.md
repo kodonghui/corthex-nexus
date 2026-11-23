@@ -6,6 +6,8 @@ Goal: The owner confirms a diagram or an item table on a PC, an agent records it
 
 Serves: REQ-035, REQ-036, REQ-037, REQ-038, REQ-039, REQ-041, REQ-042, REQ-052, REQ-068
 
+Screens (stage 07): SCR-142, SCR-144, SCR-145, SCR-146
+
 ```mermaid
 flowchart TD
   A(["Owner opens a diagram to<br/>confirm<br/>REQ-052"])

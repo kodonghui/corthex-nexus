@@ -116,16 +116,22 @@
       "updated": "2026-11-23T03:10:00+09:00"
     },
     "07-sitemap": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Draft the sitemap; the checkpoint is asked before the documents go to the repository",
-      "updated": "2026-11-23T03:10:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Stage 07 navigation structure: the five screens SCR-142 to SCR-146 in docs/07-sitemap/nexus.yaml, from the owner's to-do at / through the projects, one project and the stage workbench to the changes since the last confirmation, starting from the click mockup of 2026-11-21. No approved item removed, deferred or changed. The nine differences from that mockup, each asked on its own, answered with the recommendations of section 4 of the README. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        }
+      ],
+      "next": "Stage 08: write a screen definition with its states for each of the five screens",
+      "updated": "2026-11-23T11:00:00+09:00"
     },
     "08-screen-states": {
-      "state": "not_started",
+      "state": "in_progress",
       "checkpoints": [],
-      "next": "",
-      "updated": "2026-11-23T00:00:00+09:00"
+      "next": "Draft the screen definitions from the sitemap, the spec and the contract, starting from the 2026-11-21 mockup; the checkpoint is asked before the documents go to the repository",
+      "updated": "2026-11-23T11:00:00+09:00"
     },
     "09-mockup": {
       "state": "not_started",

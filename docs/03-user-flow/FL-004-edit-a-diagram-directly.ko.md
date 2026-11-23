@@ -8,6 +8,8 @@
 
 근거 요구사항: REQ-026, REQ-027, REQ-028, REQ-053, REQ-068
 
+화면(07단계): SCR-145, SCR-146
+
 ```mermaid
 flowchart TD
   A(["사용자가<br/>이름을<br/>바꾸거나 선을<br/>이음<br/>REQ-026"])

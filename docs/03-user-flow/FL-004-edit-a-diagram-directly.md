@@ -6,6 +6,8 @@ Goal: The owner renames an element or connects two on a PC, and the edit waits t
 
 Serves: REQ-026, REQ-027, REQ-028, REQ-053, REQ-068
 
+Screens (stage 07): SCR-145, SCR-146
+
 ```mermaid
 flowchart TD
   A(["Owner renames an element<br/>or connects two<br/>REQ-026"])

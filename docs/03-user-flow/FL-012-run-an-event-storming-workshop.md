@@ -6,6 +6,8 @@ Goal: The owner and an agent build the domain design step by step on a free canv
 
 Serves: REQ-043, REQ-044, REQ-045, REQ-046, REQ-047, REQ-048, REQ-049, REQ-050, REQ-051
 
+Screens (stage 07): SCR-145
+
 ```mermaid
 flowchart TD
   A(["Owner or agent opens a<br/>workshop<br/>REQ-044"])

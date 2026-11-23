@@ -6,6 +6,8 @@ Goal: An agent carries a diagram's accepted change sets into the stage document 
 
 Serves: REQ-001, REQ-029, REQ-030, REQ-031, REQ-032, REQ-053, REQ-054, REQ-056, REQ-057
 
+Screens (stage 07): SCR-145
+
 ```mermaid
 flowchart TD
   A(["Agent claims a change set<br/>to reflect<br/>REQ-053, REQ-054"])

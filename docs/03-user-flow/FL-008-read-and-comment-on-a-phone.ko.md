@@ -8,6 +8,8 @@
 
 근거 요구사항: REQ-020, REQ-021, REQ-062, REQ-067, REQ-068, REQ-079
 
+화면(07단계): SCR-142, SCR-145
+
 ```mermaid
 flowchart TD
   A(["사용자가<br/>휴대폰에서<br/>NEXUS를 엶<br/>REQ-062"])

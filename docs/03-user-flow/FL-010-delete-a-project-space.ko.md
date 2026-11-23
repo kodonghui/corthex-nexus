@@ -8,6 +8,8 @@
 
 근거 요구사항: REQ-016, REQ-017
 
+화면(07단계): SCR-144
+
 ```mermaid
 flowchart TD
   A(["프로젝트 공간<br/>지우기 요청"])

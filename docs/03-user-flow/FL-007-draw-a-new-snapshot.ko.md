@@ -8,6 +8,8 @@
 
 근거 요구사항: REQ-001, REQ-002, REQ-014, REQ-018, REQ-030, REQ-033, REQ-040, REQ-065, REQ-066, REQ-071, REQ-077
 
+화면(07단계): SCR-142, SCR-145
+
 ```mermaid
 flowchart TD
   A(["병합 뒤<br/>에이전트가<br/>스냅숏 push<br/>REQ-018"])

@@ -1,0 +1,43 @@
+# NEXUS v3 sitemap, stage 07 of the project. docs/07-sitemap/README.md explains it.
+# The screens start from the click mockup of 2026-11-21, kept in the project's records: its header,
+# stage tabs and workbench. Each screen names the read model of the domain design it shows.
+# without a screen: TERM-226 (Agent to-do: agents read it through the hub, not on a page)
+- id: SCR-142
+  name: Owner to-do
+  path: "/"
+  access: the owner, signed in through the gate
+  status: active
+  flows: [FL-001, FL-002, FL-003, FL-006, FL-007, FL-008, FL-011]
+  terms: [CTX-041, TERM-225]
+  children:
+    - id: SCR-143
+      name: Projects
+      path: /p
+      access: the owner, signed in through the gate
+      status: active
+      flows: [FL-002, FL-009]
+      terms: [CTX-037, TERM-223]
+      children:
+        - id: SCR-144
+          name: Project
+          path: /p/{project}
+          access: the owner, signed in through the gate
+          status: active
+          flows: [FL-002, FL-006, FL-010, FL-013]
+          terms: [CTX-037, TERM-223]
+          children:
+            - id: SCR-145
+              name: Stage workbench
+              path: /p/{project}/{part}/{stage}
+              access: the owner, signed in through the gate
+              status: active
+              flows: [FL-001, FL-002, FL-003, FL-004, FL-005, FL-006, FL-007, FL-008, FL-012, FL-013]
+              terms: [CTX-037, TERM-222]
+              children:
+                - id: SCR-146
+                  name: Changes since the last confirmation
+                  path: /p/{project}/{part}/{stage}/changes
+                  access: the owner, signed in through the gate
+                  status: active
+                  flows: [FL-002, FL-004, FL-006]
+                  terms: [CTX-039, TERM-224]

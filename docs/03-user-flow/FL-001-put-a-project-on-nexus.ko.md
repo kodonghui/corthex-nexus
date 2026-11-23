@@ -8,6 +8,8 @@
 
 근거 요구사항: REQ-001, REQ-003, REQ-004, REQ-005, REQ-006, REQ-018, REQ-019, REQ-052, REQ-066, REQ-077
 
+화면(07단계): SCR-142, SCR-145
+
 ```mermaid
 flowchart TD
   A(["에이전트가 새<br/>프로젝트를<br/>push<br/>REQ-018"])

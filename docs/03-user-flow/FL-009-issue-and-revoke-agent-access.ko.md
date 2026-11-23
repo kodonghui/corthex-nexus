@@ -8,6 +8,8 @@
 
 근거 요구사항: REQ-018, REQ-064, REQ-065, REQ-078
 
+화면(07단계): SCR-143
+
 ```mermaid
 flowchart TD
   A(["사용자가<br/>에이전트에게<br/>자격 발급<br/>REQ-064"])

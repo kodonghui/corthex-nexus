@@ -6,6 +6,8 @@ Goal: The owner links another tool to a project or a stage and sees its status b
 
 Serves: REQ-058, REQ-059, REQ-060, REQ-061
 
+Screens (stage 07): SCR-144, SCR-145
+
 ```mermaid
 flowchart TD
   A(["Owner adds a link to a<br/>project or stage<br/>REQ-058"])

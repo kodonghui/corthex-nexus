@@ -8,6 +8,8 @@
 
 근거 요구사항: REQ-035, REQ-036, REQ-037, REQ-038, REQ-039, REQ-041, REQ-042, REQ-052, REQ-068
 
+화면(07단계): SCR-142, SCR-144, SCR-145, SCR-146
+
 ```mermaid
 flowchart TD
   A(["사용자가<br/>확정할 그림을<br/>엶<br/>REQ-052"])

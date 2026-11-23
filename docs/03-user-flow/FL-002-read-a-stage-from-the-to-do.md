@@ -6,6 +6,8 @@ Goal: The owner opens NEXUS, picks a stage from the to-do and reads its diagram 
 
 Serves: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-041, REQ-052, REQ-062, REQ-063, REQ-066, REQ-070
 
+Screens (stage 07): SCR-142, SCR-143, SCR-144, SCR-145, SCR-146
+
 ```mermaid
 flowchart TD
   A(["Owner opens NEXUS"])

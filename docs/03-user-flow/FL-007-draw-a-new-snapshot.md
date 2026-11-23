@@ -6,6 +6,8 @@ Goal: After a merge, an agent sends a snapshot and NEXUS redraws the project, ke
 
 Serves: REQ-001, REQ-002, REQ-014, REQ-018, REQ-030, REQ-033, REQ-040, REQ-065, REQ-066, REQ-071, REQ-077
 
+Screens (stage 07): SCR-142, SCR-145
+
 ```mermaid
 flowchart TD
   A(["Agent pushes a snapshot<br/>after a merge<br/>REQ-018"])
