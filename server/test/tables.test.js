@@ -100,16 +100,17 @@ test('leaves to a later task only tables its operation lists and the WBS gives t
     const touches = row[0].split('|')[4];
     for (const table of tables) assert.ok(touches.includes(table), `${task} does not touch ${table}`);
   }
-  assert.deepEqual(PENDING.pushSnapshot.tables, ['TBL-151', 'TBL-152', 'TBL-153']);
-  // Touching a pending table fails, so the entry goes with the task that builds it.
+  // TASK-419 drew the snapshot, whose tables TASK-418 left pending: pushSnapshot is checked against every table it
+  // lists, so touching only the tables that keep the snapshot fails.
+  assert.equal(Object.hasOwn(PENDING, 'pushSnapshot'), false);
   const recorder = recordTables(testStore(t));
   const { store } = recorder;
   for (const table of ['project_spaces', 'snapshots', 'document_blobs', 'snapshot_files']) {
     runAs('pushSnapshot', () => store.prepare(`SELECT 1 FROM ${table}`).all());
   }
-  checkTables(recorder, 'pushSnapshot');
-  runAs('pushSnapshot', () => store.prepare('SELECT 1 FROM diagrams').all());
   assert.throws(() => checkTables(recorder, 'pushSnapshot'), /pushSnapshot touches other tables/);
+  for (const table of ['diagrams', 'drawings', 'elements']) runAs('pushSnapshot', () => store.prepare(`SELECT 1 FROM ${table}`).all());
+  checkTables(recorder, 'pushSnapshot');
 });
 
 test('every operation the server takes has its tables checked against the contract in its tests', () => {

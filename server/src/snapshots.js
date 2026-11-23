@@ -16,15 +16,16 @@
 //   the next revision and the held commit.
 // A refused push changes nothing. A kept snapshot keeps its documents (TBL-149, TBL-150), each text once by its
 // SHA-256; a document whose text looks like a secret or an email address is left out and named in refused (REQ-077).
-// Then drawing.js draws it, TASK-419's place. The answer counts what drew; what a drawing changes after it,
-// confirmations, change sets and threads, is TASK-435's (note 14 of the WBS), so those counts are 0 until it lands.
+// Then drawing.js draws it (TASK-419): its diagrams, drawings and elements. The answer counts what drew and names the
+// sources that failed; what a drawing changes after it, confirmations, change sets and threads, is TASK-435's (note 14
+// of the WBS), so those counts are 0 until it lands.
 //
 // The hub sends push with no request key: a repeat is recognised by its commit (rule 3). A push that carries one is
 // refused, since the same key would not give the first answer as rule 3 says. No log line holds a document's text, a
 // path of the snapshot or what was found in it (rule 5).
 
 import { createHash } from 'node:crypto';
-import { drawSnapshot } from './drawing.js';
+import { checkDrawers, drawSnapshot, DRAWERS, heldDrawing } from './drawing.js';
 import { invalidRequest, Problem } from './problem.js';
 import { carriedBy, FORMATS, isNewer, readSnapshot } from './snapshot.js';
 
@@ -62,7 +63,8 @@ function statementsOf(store) {
 }
 
 // Keeps the documents of a snapshot, each text once by its SHA-256, and leaves out those that look like they hold a
-// secret or an email address. Returns { kept, refused }: what drawing.js gets, and the answer's refused entries.
+// secret or an email address. Returns { kept, refused }: what drawing.js gets, each with where it comes from, and the
+// answer's refused entries.
 function keep(statements, snapshotId, documents) {
   const kept = [];
   const refused = [];
@@ -74,8 +76,8 @@ function keep(statements, snapshotId, documents) {
     const sha256 = createHash('sha256').update(document.text, 'utf8').digest('hex');
     statements.blob.run(sha256, document.text, Buffer.byteLength(document.text, 'utf8'));
     statements.file.run(snapshotId, document.path, document.stage, sha256);
-    const { path, stage, part, key, kind } = document;
-    kept.push(Object.freeze({ path, stage, part, key, kind, sha256 }));
+    const { path, stage, part, key, kind, where } = document;
+    kept.push(Object.freeze({ path, stage, part, key, kind, sha256, where }));
   }
   return { kept, refused: refused.slice(0, REFUSED) };
 }
@@ -101,10 +103,8 @@ function answer({ project, revision, commit, replaced, created, sameCommit, draw
   };
 }
 
-const NOTHING_DRAWN = Object.freeze({ diagrams: Object.freeze({ drawn: 0, unchanged: 0, failed: 0, removed: 0 }), failures: Object.freeze([]) });
-
-// API-242: the hub's push.
-function pushSnapshot({ store, request, body, size, credential, now }) {
+// API-242: the hub's push, drawn by drawers (see drawing.js).
+function pushSnapshot(drawers, { store, request, body, size, credential, now }) {
   if (request.headers['idempotency-key'] !== undefined) {
     throw invalidRequest('Idempotency-Key', 'push takes no request key: the same commit again answers its revision');
   }
@@ -121,7 +121,9 @@ function pushSnapshot({ store, request, body, size, credential, now }) {
   } else {
     if (project.repository !== null && project.repository !== snapshot.repository) throw new Problem('repository_mismatch');
     const earlier = statements.byCommit.get(project.id, snapshot.commit);
-    if (earlier !== undefined && project.held_commit === snapshot.commit) return again(statements, store, project, earlier, snapshot);
+    if (earlier !== undefined && project.held_commit === snapshot.commit) {
+      return again({ statements, store, project, held: earlier, snapshot, time, drawers });
+    }
     if (earlier !== undefined) throw new Problem('older_snapshot', undefined, {}, { revision: Number(earlier.revision) });
     if (project.held_commit !== null && snapshot.replaces !== project.held_commit) {
       throw new Problem('commit_not_replaced', undefined, {}, { held_commit: project.held_commit });
@@ -139,21 +141,25 @@ function pushSnapshot({ store, request, body, size, credential, now }) {
   const drawn = drawSnapshot({
     store,
     project: { id: project.id, name: project.name },
-    snapshot: { id: snapshotId, revision, commit: snapshot.commit, format: snapshot.format, carries: snapshot.carries },
+    snapshot: { id: snapshotId, revision, commit: snapshot.commit, format: snapshot.format, carries: snapshot.carries, carried: [] },
     completed: false,
     documents: kept,
+    time,
+    drawers,
   });
   return answer({ project: project.name, revision, commit: snapshot.commit, replaced, created, sameCommit: false, drawn, refused });
 }
 
 // The held commit again: the same revision. In a newer format than it came in, it completes that revision with the
-// documents of the picture stages the older format did not carry; otherwise nothing is kept again or drawn.
-function again(statements, store, project, held, snapshot) {
+// documents of the picture stages the older format did not carry and draws them; otherwise nothing is kept again or
+// drawn, and every diagram is unchanged.
+function again({ statements, store, project, held, snapshot, time, drawers }) {
   const revision = Number(held.revision);
-  let drawn = NOTHING_DRAWN;
+  let drawn;
   let refused = [];
   if (isNewer(snapshot.format, held.format_version)) {
-    const before = new Set(carriedBy(held.format_version));
+    const carried = carriedBy(held.format_version);
+    const before = new Set(carried);
     const added = snapshot.documents.filter((document) => document.kind === 'picture' && !before.has(document.stage));
     statements.format.run(snapshot.format, held.id);
     const kept = keep(statements, Number(held.id), added);
@@ -161,10 +167,14 @@ function again(statements, store, project, held, snapshot) {
     drawn = drawSnapshot({
       store,
       project: { id: project.id, name: project.name },
-      snapshot: { id: Number(held.id), revision, commit: snapshot.commit, format: snapshot.format, carries: snapshot.carries },
+      snapshot: { id: Number(held.id), revision, commit: snapshot.commit, format: snapshot.format, carries: snapshot.carries, carried },
       completed: true,
       documents: kept.kept,
+      time,
+      drawers,
     });
+  } else {
+    drawn = heldDrawing({ store, project });
   }
   return answer({ project: project.name, revision, commit: snapshot.commit, replaced: null, created: false, sameCommit: true, drawn, refused });
 }
@@ -184,14 +194,20 @@ function getHeldCommit({ store, params }) {
   };
 }
 
-// The routes of API-242 and API-243 (see router.js), both of the agent family.
-export const SNAPSHOT_ROUTES = Object.freeze([
-  { method: 'POST', path: '/api/snapshots', action: 'pushSnapshot', body: 'snapshot', handle: pushSnapshot },
-  {
-    method: 'GET',
-    path: '/api/snapshots/{project}/held',
-    action: 'getHeldCommit',
-    params: { project: 'project_not_found' },
-    handle: getHeldCommit,
-  },
-]);
+// The routes of API-242 and API-243 (see router.js), both of the agent family. The push draws with drawers by kind,
+// drawing.js's DRAWERS unless a test gives its own.
+export function snapshotRoutes({ drawers = DRAWERS } = {}) {
+  checkDrawers(drawers);
+  return Object.freeze([
+    { method: 'POST', path: '/api/snapshots', action: 'pushSnapshot', body: 'snapshot', handle: (context) => pushSnapshot(drawers, context) },
+    {
+      method: 'GET',
+      path: '/api/snapshots/{project}/held',
+      action: 'getHeldCommit',
+      params: { project: 'project_not_found' },
+      handle: getHeldCommit,
+    },
+  ]);
+}
+
+export const SNAPSHOT_ROUTES = snapshotRoutes();
