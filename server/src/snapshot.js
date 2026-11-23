@@ -33,8 +33,11 @@
 // documents left out as REQ-077 asks, and the entries of left_out, which the hub writes for a picture whose source is
 // in another repository (why other-repository) and for a whole picture it left out for size (why size), naming its
 // part and stage, and the file's key for a file of stage 03, 08 or 09. An entry not in that form names nothing NEXUS
-// can match and is left aside. What the hub names only by a check's count, such as the files past its limits, an
-// object it could not read or the omissions past left_out's 1,000 entries, is not among them.
+// can match and is left aside. NEXUS reads an entry's why for one thing: an other-repository entry names every part of
+// its stage, since a stage's source is one setting for all its parts, and the hub writes the entry only for each part
+// the project declares (the maintainer approved this through the delegate they named for checkpoints). What the hub
+// names only by a check's count, such as the files past its limits, an object it could not read or the omissions past
+// left_out's 1,000 entries, is not among them.
 
 import { invalidRequest, Problem } from './problem.js';
 import { sensitiveText, sensitiveValue } from './sensitive.js';
@@ -320,20 +323,21 @@ function documentsOf(body, rest) {
   return documents;
 }
 
-// The sources the snapshot leaves out (see the top of this file), each { stage, part, key, path, where }:
-// - a document left out as REQ-077 asks: its stage, part, key and path, and where it is from;
+// The sources the snapshot leaves out (see the top of this file), each { stage, part, key, path, where, every }:
+// - a document left out as REQ-077 asks: its stage, part, key and path, where it is from, and every false;
 // - a left_out entry of a picture stage the format carries, with its part: path null, key the file's path for a file
-//   of stage 03, 08 or 09, or null when the entry names none, and where the stage's source as the snapshot's stage
-//   record names it.
+//   of stage 03, 08 or 09, or null when the entry names none, where the stage's source as the snapshot's stage record
+//   names it, and every true for an other-repository entry, which names every part of its stage.
 function leftOutOf(body, format, documents) {
   const sources = documents.filter((document) => document.why !== null)
-    .map(({ stage, part, key, path, where }) => Object.freeze({ stage, part, key, path, where }));
+    .map(({ stage, part, key, path, where }) => Object.freeze({ stage, part, key, path, where, every: false }));
   for (const entry of Object.hasOwn(body, 'left_out') ? body.left_out : []) {
     const { stage, part } = entry;
     if (typeof stage !== 'string' || !CARRIED[format].includes(stage) || typeof part !== 'string' || !PART.test(part)) continue;
     const keyed = KEYED_STAGES.has(stage) && Object.hasOwn(entry, 'key');
     if (keyed && typeof entry.key !== 'string') continue;
-    sources.push(Object.freeze({ stage, part, key: keyed ? entry.key : null, path: null, where: sourceOf(body, stage) }));
+    const every = entry.why === 'other-repository';
+    sources.push(Object.freeze({ stage, part, key: keyed ? entry.key : null, path: null, where: sourceOf(body, stage), every }));
   }
   return Object.freeze(sources);
 }

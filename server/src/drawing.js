@@ -27,7 +27,8 @@
 // Left-out sources. A diagram whose source the snapshot leaves out is not removed (see snapshot.js): a document left
 // out as REQ-077 asks names its diagram by its path, and a left_out entry names the picture of its part and stage, a
 // file of stage 03, 08 or 09 by its key, or every file of its stage and part when it names none. A key names its file
-// whatever part NEXUS last read for it, which a revision a newer format completed does not record. The diagram keeps its
+// whatever part NEXUS last read for it, which a revision a newer format completed does not record, and an entry for a
+// source in another repository names every part of its stage, part '' too (see snapshot.js). The diagram keeps its
 // last good drawing and gets a failed drawing at its source, with no line: the file's key, or the stage's source as
 // the snapshot's stage record names it. As for any failed drawing, nothing moves and its confirmation and its stage's
 // pass stay (see after-drawing.js), and the push counts it failed and names it in failures; a picture so kept still
@@ -426,8 +427,9 @@ function keepDrawing(statements, { project, snapshot, diagram, outcome, time }) 
 }
 
 // Finds the diagrams whose source the push leaves out (see the top of this file). Returns diagram → { part, where } or
-// null: the part the push answer names, the push's own, and where the drawing fails, the file's key for a file and
-// otherwise the source as the push names it, or the stage when that is no where the store keeps (whereText).
+// null: the part the push answer names, the document's or the entry's own, or the diagram's for an entry of every part,
+// and where the drawing fails, the file's key for a file and otherwise the source as the push names it, or the stage
+// when that is no where the store keeps (whereText).
 function leftOutFinder(store, leftOut) {
   const byPath = new Map();
   const byStage = new Map();
@@ -451,7 +453,7 @@ function leftOutFinder(store, leftOut) {
     if (keyed !== undefined) return { part: keyed.part, where: diagram.source_key };
     if (!entries.some((each) => each.key === null)) return null;
     const part = diagramPart(store, diagram, parts);
-    const entry = entries.find((each) => each.key === null && each.part === part);
+    const entry = entries.find((each) => each.key === null && (each.every || each.part === part));
     return entry === undefined ? null : { part, where: file ? diagram.source_key : whereText(entry.where) ?? fallback };
   };
 }

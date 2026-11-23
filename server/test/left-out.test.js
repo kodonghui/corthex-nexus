@@ -37,7 +37,7 @@ const PRD_SOURCE = 'docs/02-prd/requirements.md';
 
 const table = (id, name) => ({ id, name, where: `${ERD_SOURCE}:${Number(id.slice(4))}`, removed: false });
 const item = (id, stage, title) => ({ id, kind: 'item', stage, where: `docs/${stage}/source.md:1`, title, links: [] });
-const flow = (key, ...headings) => ({ key, text: headings.map((heading) => `# ${heading}\n`).join('\n') });
+const flow = (key, ...headings) => ({ key, part: 'nexus', text: headings.map((heading) => `# ${heading}\n`).join('\n') });
 const TABLES = [table('TBL-146', 'agent_credentials'), table('TBL-147', 'project_spaces')];
 const FLOW_SET = [flow(FLOW_A, 'FL-001 Put a project on NEXUS'), flow(FLOW_B, 'FL-002 Draw the stages'), flow(FLOW_C, 'FL-003 Pass a stage')];
 const PRD_ITEMS = [item('REQ-001', '02-prd', 'Draw the stages')];
@@ -75,12 +75,14 @@ describe('left-out sources', () => {
   });
 
   // A project's pushes: each push sends the next commit, replacing the one before, in format, with the ERD's tables
-  // (none when tables is null), the flow files (0.3 only), the items, left_out and the checks given, and answers the
-  // push's answer. same sends the held commit again.
+  // (none when tables is null) in erdPart, the flow files (0.3 only), each in its part, the items, left_out and the
+  // checks given, and answers the push's answer. same sends the held commit again.
   function project(name) {
     let held;
     const space = { name };
-    space.push = async ({ format = FORMAT_03, tables = TABLES, flows = [], items = [], left = [], checks = [], same = false } = {}) => {
+    space.push = async ({
+      format = FORMAT_03, tables = TABLES, erdPart = 'nexus', flows = [], items = [], left = [], checks = [], same = false,
+    } = {}) => {
       if (!bases.has(format)) bases.set(format, repositorySnapshot(format, { name: 'base' }));
       const snapshot = structuredClone(bases.get(format));
       const sent = same ? held : newCommit();
@@ -90,8 +92,8 @@ describe('left-out sources', () => {
       snapshot.records.commit = sent;
       if (held !== undefined && !same) snapshot.replaces = held;
       const time = '2026-11-24T10:00:00+09:00';
-      snapshot.pictures = tables === null ? [] : [{ part: 'nexus', stage: '05-erd', commit: sent, time, source: { format: 1, tables } }];
-      for (const { key, text } of flows) snapshot.pictures.push({ part: 'nexus', stage: FLOWS, key, commit: sent, time, source: { text } });
+      snapshot.pictures = tables === null ? [] : [{ part: erdPart, stage: '05-erd', commit: sent, time, source: { format: 1, tables } }];
+      for (const { key, part, text } of flows) snapshot.pictures.push({ part, stage: FLOWS, key, commit: sent, time, source: { text } });
       snapshot.items = items;
       snapshot.left_out = left;
       snapshot.checks = checks;
@@ -184,6 +186,26 @@ describe('left-out sources', () => {
     const answer = await space.push({ left: [leftOut(FLOWS, 'size', FLOW_A)] });
     assert.deepEqual([counted(answer), answer.failures, removedAt(a)], [[0, 1, 0], [failure(a, FLOWS, FLOW_A)], null]);
     assert.deepEqual(drawingsOf(a), [['drawn', null, null], ['failed', FLOW_A, null]]);
+  });
+
+  test('a source in another repository keeps its diagram in every part of its stage, part \'\' too', async () => {
+    const space = project('every-part');
+    // The ERD and flow B in part '', which the project's parts do not name, and flow A in part nexus.
+    const flows = [FLOW_SET[0], { ...FLOW_SET[1], part: '' }];
+    await space.push({ erdPart: '', flows });
+    const [erd, a, b] = [diagram(space, '/pictures/05-erd'), diagram(space, FLOW_A), diagram(space, FLOW_B)];
+    // The hub writes an other-repository entry for each part the project declares, here nexus only; it names every
+    // part of its stage.
+    const answer = await space.push({ tables: null, left: [leftOut('05-erd', 'other-repository'), leftOut(FLOWS, 'other-repository')] });
+    assert.deepEqual(counted(answer), [0, 3, 0]);
+    assert.deepEqual(answer.failures, [
+      { ...failure(erd, '05-erd', ERD_SOURCE), part: '' }, failure(a, FLOWS, FLOW_A), { ...failure(b, FLOWS, FLOW_B), part: '' },
+    ]);
+    assert.deepEqual([erd, a, b].map(removedAt), [null, null, null]);
+    assert.deepEqual(drawingsOf(b), [['drawn', null, null], ['failed', FLOW_B, null]]);
+    // A size entry names its own part only: the ERD of part '' is removed, as a source the snapshot does not hold.
+    const size = await space.push({ tables: null, flows, left: [leftOut('05-erd', 'size')] });
+    assert.deepEqual([size.failures, removedAt(erd) !== null, removedAt(a), removedAt(b)], [[], true, null, null]);
   });
 
   test('a document NEXUS refuses keeps its diagram, failed at where it is from (REQ-077)', async () => {
