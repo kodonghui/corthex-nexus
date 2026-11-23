@@ -1049,7 +1049,7 @@ The header holds:
 - "내 차례 N" (API-263).
 - The dark-screen switch.
 
-When the read of the menu or of the count fails, only that part stays out, and the rest of the page works. The theme follows the system until the switch is pressed; the choice is then kept on this browser.
+When the first read of the menu or of the count fails, only that part stays out, and the rest of the page works. A read again that fails keeps what the header shows, as it keeps the screen's data. The theme follows the system until the switch is pressed; the choice is then kept on this browser.
 
 ### Phone
 

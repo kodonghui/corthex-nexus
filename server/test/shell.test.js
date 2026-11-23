@@ -626,7 +626,8 @@ describe('the shell', () => {
       await page.settle();
       assert.ok(page.calls.length > calls);
       assert.equal(tag().shown, false);
-      // A read again that fails keeps the data, with the error notice and the read time.
+      // A read again that fails keeps the data, with the error notice and the read time, and the header keeps its
+      // project menu, which the same read fills.
       fail = true;
       page.document.dispatch('visibilitychange');
       await page.settle();
@@ -634,6 +635,8 @@ describe('the shell', () => {
       assert.ok(errorShown(page));
       assert.equal(tag().shown, true);
       assert.match(tag().textContent, /^\d\d:\d\d에 읽음$/);
+      assert.equal(headerOf(page).all('button').find((each) => each.getAttribute('aria-haspopup') === 'menu').shown, true);
+      assert.equal(headerOf(page).all('ul', 'menu')[0].all('a').length, 3);
     } finally {
       Date.now = realNow;
       page.close();

@@ -81,9 +81,11 @@ export function startShell(root, screen, address) {
       data = null;
       render({ loading: true });
     }
+    // A header read again that fails keeps what the header shows, as the screen keeps its data.
+    const keep = () => {};
     const headerReads = [
-      headerRead(PROJECTS, (body) => header.projects(body), () => header.noProjects()),
-      headerRead(TODO, (body) => header.todo(body), () => header.noTodo()),
+      headerRead(PROJECTS, (body) => header.projects(body), refresh ? keep : () => header.noProjects()),
+      headerRead(TODO, (body) => header.todo(body), refresh ? keep : () => header.noTodo()),
     ];
     const reads = Object.entries(screen.reads(address));
     const outcomes = await Promise.all(reads.map(([, path]) => shell.read(path)));
