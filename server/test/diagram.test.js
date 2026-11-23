@@ -349,6 +349,40 @@ describe('the diagram read', () => {
     assert.deepEqual([answer.status, answer.json.removed, answer.json.threads[0].state], [200, false, 'closed']);
   });
 
+  test('keeps to the contract\'s form whatever the stored rows hold', async () => {
+    const space = s.project();
+    const erd = s.diagram(space);
+    // An element whose detail is no object, which TBL-153 allows: its detail is {} and it has no position.
+    s.elements(erd.drawing, [{ key: 'TBL-146', trace_id: 'TBL-146', kind: 'table', name: 'agent_credentials', detail: [1, 2] }]);
+    // A change set whose detail holds its members as other JSON types than the request's: read as absent.
+    const odd = s.changeSet(space, erd, { at: at(1), detail: { items: '["TBL-146"]', adds: 7, reason: { text: 'why' }, change: ['how'], source_text: 3 } });
+    // A new name and a removed_name past 200 characters, cut to 200 code points (Change.name, ThreadBrief.removed_name).
+    const long = '😀'.repeat(250);
+    s.change(odd, { op: 'rename', element: 'TBL-146', name: long });
+    // A change set of 501 steps lists its first 500.
+    const big = s.changeSet(space, erd, { at: at(2) });
+    for (let n = 0; n < 501; n += 1) s.change(big, { op: 'remove', element: `TBL-${1000 + n}` });
+    const moved = s.thread(erd, { elementKey: 'TBL-160' });
+    db.prepare("UPDATE comment_threads SET target_kind = 'diagram', removed_name = ? WHERE id = ?").run(long, moved);
+
+    const answer = await read(space.name, erd.id);
+    assert.equal(answer.status, 200);
+    assert.deepEqual([answer.json.elements[0].detail, answer.json.elements[0].position], [{}, null]);
+    const [bigAnswer, oddAnswer] = answer.json.overlays;
+    assert.deepEqual([bigAnswer.id, bigAnswer.changes.length, bigAnswer.changes.at(-1).element], [idOf('np', big), 500, 'TBL-1499']);
+    assert.deepEqual(
+      [oddAnswer.items, oddAnswer.adds, oddAnswer.reason, oddAnswer.change, oddAnswer.source_text],
+      [[], [], null, null, false],
+    );
+    assert.equal(oddAnswer.changes[0].name, '😀'.repeat(200));
+    assert.equal(answer.json.threads.find((thread) => thread.id === idOf('nc', moved)).removed_name, '😀'.repeat(200));
+
+    // A diagram of a stage the contract does not name, which the project read does not list, is not answered.
+    const stray = s.diagram(space, { stage: '99-other', sourceKey: '/pictures/99-other' });
+    const strayAnswer = await read(space.name, stray.id);
+    assert.deepEqual([strayAnswer.status, strayAnswer.json.code], [404, 'diagram_not_found']);
+  });
+
   test('a file picture names the part its last drawing\'s snapshot gives it, as the project read does', async () => {
     const key = 'docs/08-screens/SCR-142.md';
     const space = s.project(undefined, { parts: ['nexus'], pictures: [{ part: 'nexus', stage: '08-screen-states', key }] });
@@ -381,18 +415,25 @@ describe('the diagram read', () => {
     }));
     // Confirmed at a first drawing; the drawing shown renames every table, so all 300 are compared and changed. The
     // rows are written in one transaction, which only makes the setup quicker.
+    let current;
     db.exec('BEGIN');
-    s.elements(erd.drawing, tables('a'));
-    const confirmation = s.confirm(space, erd);
-    s.snapshot(space);
-    const current = s.drawing(space, erd.id);
-    s.elements(current, tables('b'));
-    s.invalidate(confirmation, current);
-    const shown = { id: erd.id, drawing: current };
-    for (let n = 0; n < 300; n += 1) s.position(erd.id, `TBL-${1000 + n}`, { x: n * 10, y: n * 5 });
-    for (let n = 0; n < 100; n += 1) s.comment(s.thread(shown, { elementKey: `TBL-${1000 + n}` }));
-    for (let n = 0; n < 50; n += 1) s.change(s.changeSet(space, shown, { at: at(n) }), { element: `TBL-${1000 + n}`, name: `renamed_${n}` });
-    db.exec('COMMIT');
+    try {
+      s.elements(erd.drawing, tables('a'));
+      const confirmation = s.confirm(space, erd);
+      s.snapshot(space);
+      current = s.drawing(space, erd.id);
+      s.elements(current, tables('b'));
+      s.invalidate(confirmation, current);
+      const shown = { id: erd.id, drawing: current };
+      for (let n = 0; n < 300; n += 1) s.position(erd.id, `TBL-${1000 + n}`, { x: n * 10, y: n * 5 });
+      for (let n = 0; n < 100; n += 1) s.comment(s.thread(shown, { elementKey: `TBL-${1000 + n}` }));
+      for (let n = 0; n < 50; n += 1) s.change(s.changeSet(space, shown, { at: at(n) }), { element: `TBL-${1000 + n}`, name: `renamed_${n}` });
+      db.exec('COMMIT');
+    } catch (error) {
+      // So that the other tests do not run inside a transaction left open.
+      db.exec('ROLLBACK');
+      throw error;
+    }
 
     // A first read warms up the server and the store; then five reads are timed, and the middle one counts, so that
     // one read slowed by another program on a busy machine does not fail the test.

@@ -796,7 +796,7 @@ The five reads name what other tables hold, so API-244 lists API-277's 12 tables
   - A cancelled confirmation is still the latest one, so the list shows what changed since the version last confirmed.
 - **Threads** are all the diagram's threads (TBL-155): open ones first, then closed ones, each oldest first, at most 5000. Each gives how many entries it has and when the last was written (TBL-156), as [Comments](#comments) answers a thread. A thread whose element left the drawing is on the diagram, keeps the element's key and is marked with its last name, `removed_name` (SPEC-027).
 - **A removed diagram** opens while it has an open thread, as the project read lists it, and for its threads only (SPEC-027): the page offers no new thread, move, direct edit, accepting or confirming. Once its threads are all closed it answers `diagram_not_found`, like an ID that no diagram of the project has. So when the owner closes the last thread of a removed diagram, the next read gets 404, and the page links to the project (note 10 of the WBS).
-- **A name** that no project space has gets `project_not_found`, and an ID that names no diagram of the project gets `diagram_not_found`. Neither detail repeats the value.
+- **A name** that no project space has gets `project_not_found`, and an ID that names no diagram of the project gets `diagram_not_found`, as does a diagram of a stage the contract does not name, which the project read does not list. Neither detail repeats the value.
 
 The coordinator chose three rules for TASK-441, which wait for the maintainer's delegate: a removed diagram without an open thread answers `diagram_not_found`; changed means what the document says changed; and the latest confirmation in any state is the one compared with.
 

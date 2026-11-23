@@ -24,33 +24,41 @@
 //
 // A removed diagram is answered only while it has an open thread, as the project read lists it (SPEC-027): it opens
 // for its threads only, which the page holds to. One whose threads are all closed answers diagram_not_found, as an ID
-// no diagram of the project has (note 10 of the WBS).
+// no diagram of the project has (note 10 of the WBS). So does one of a stage the contract does not name, which the
+// project read does not list either.
 
 import { pullRequestLink } from './claims.js';
 import { failureWhere } from './drawer.js';
 import { idOf, keyOf } from './ids.js';
 import { itemNames } from './item-table.js';
 import { Problem } from './problem.js';
+import { STAGES } from './snapshot.js';
 import { diagramPart } from './todo.js';
 
 // The contract's limits: Diagram's elements, overlays and threads; ChangeSet's items, adds and changes; the length of
-// ChangeSet's reason and change; ThreadBrief's entries; and Element's position.
+// ChangeSet's reason and change; Change's name and ThreadBrief's removed_name; ThreadBrief's entries; and Element's
+// position.
 const LISTED_ELEMENTS = 5000;
 const LISTED_OVERLAYS = 500;
 const LISTED_THREADS = 5000;
 const LISTED_IDS = 50;
 const LISTED_CHANGES = 500;
 const TEXT_LENGTH = 4000;
+const NAME_LENGTH = 200;
 const ENTRIES = 100_000;
 const FAR = 1_000_000;
 const TRACE_ID = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
 const TRACE_ID_LENGTH = 30;
+const STAGE_SET = new Set(STAGES);
 // What an element's detail holds that is not what the document says: where it is drawn and its file and line. A
 // change in them alone does not mark the element changed (SPEC-034).
 const PLACING = new Set(['box', 'points', 'where']);
 
 // The statements of each store, prepared on first use (see credentials.js).
 const prepared = new WeakMap();
+
+// The change sets the overlays list, as a condition on change_sets under the alias c.
+const LISTED_SETS = "c.state IN ('proposed', 'accepted')";
 
 const DRAWING = `SELECT w.id, w.status, w.document_version, w.failed_path, w.failed_line, w.drawn_at, s.revision
                  FROM drawings w JOIN snapshots s ON s.id = w.snapshot_id`;
@@ -86,21 +94,28 @@ function statementsOf(store) {
          ORDER BY h.state = 'closed', h.opened_at, h.id LIMIT ${LISTED_THREADS}`,
       ),
       // The proposals and accepted change sets, newest first, without the proposed document itself, which only says
-      // whether it came (source_text).
+      // whether it came (source_text). A member of detail of another JSON type than the request's is read as absent.
       overlays: store.prepare(
         `SELECT c.id, c.drawing_id, w.document_version, c.origin, c.thread_id, c.state, c.created_at, c.decided_at,
                 c.pull_request_id, p.number,
-                json_extract(c.detail, '$.items') AS items, json_extract(c.detail, '$.adds') AS adds,
-                json_extract(c.detail, '$.reason') AS reason, json_extract(c.detail, '$.change') AS change,
+                CASE WHEN json_type(c.detail, '$.items') = 'array' THEN json_extract(c.detail, '$.items') END AS items,
+                CASE WHEN json_type(c.detail, '$.adds') = 'array' THEN json_extract(c.detail, '$.adds') END AS adds,
+                CASE WHEN json_type(c.detail, '$.reason') = 'text' THEN json_extract(c.detail, '$.reason') END AS reason,
+                CASE WHEN json_type(c.detail, '$.change') = 'text' THEN json_extract(c.detail, '$.change') END AS change,
                 json_type(c.detail, '$.source_text') = 'text' AS source_text
          FROM change_sets c JOIN drawings w ON w.id = c.drawing_id LEFT JOIN pull_requests p ON p.id = c.pull_request_id
-         WHERE c.diagram_id = ? AND c.state IN ('proposed', 'accepted')
+         WHERE c.diagram_id = ? AND ${LISTED_SETS}
          ORDER BY c.created_at DESC, c.id DESC LIMIT ${LISTED_OVERLAYS}`,
       ),
+      // The steps of the listed change sets only, at most LISTED_CHANGES of each, in order.
       changes: store.prepare(
-        `SELECT x.change_set_id, x.op, x.element_key, x.new_name, x.target_key FROM changes x
-         JOIN change_sets c ON c.id = x.change_set_id
-         WHERE c.diagram_id = ? AND c.state IN ('proposed', 'accepted') ORDER BY x.change_set_id, x.seq`,
+        `SELECT change_set_id, op, element_key, new_name, target_key FROM (
+           SELECT x.change_set_id, x.seq, x.op, x.element_key, x.new_name, x.target_key,
+                  row_number() OVER (PARTITION BY x.change_set_id ORDER BY x.seq) AS n
+           FROM changes x
+           WHERE x.change_set_id IN (SELECT c.id FROM change_sets c WHERE c.diagram_id = ? AND ${LISTED_SETS}
+                                     ORDER BY c.created_at DESC, c.id DESC LIMIT ${LISTED_OVERLAYS}))
+         WHERE n <= ${LISTED_CHANGES} ORDER BY change_set_id, seq`,
       ),
       // The open reflection entries of the diagram, oldest first, with the pull request of the group each holds: its
       // anchor's (see entries.js).
@@ -119,6 +134,21 @@ function statementsOf(store) {
 }
 
 const isPlainObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
+
+// A text cut to at most length characters (Unicode code points), as JSON Schema's maxLength counts them (see
+// project.js).
+function cut(text, length) {
+  if (text.length <= length) return text;
+  const points = Array.from(text);
+  return points.length <= length ? text : points.slice(0, length).join('');
+}
+
+// An element's detail: the object its drawer wrote, or {} for anything else, as the contract's Element.detail is an
+// object and TBL-153 only holds it to valid JSON.
+function detailOf(row) {
+  const detail = JSON.parse(row.detail);
+  return isPlainObject(detail) ? detail : {};
+}
 
 // A drawing as the contract's Drawing.
 function drawingOf(row) {
@@ -142,7 +172,7 @@ function pointOf(x, y) {
 // An element as the contract's Element. moved holds the owner's positions by key, and names the item names, for the
 // links of an item table's rows.
 function elementOf(row, moved, names) {
-  const detail = JSON.parse(row.detail);
+  const detail = detailOf(row);
   if (names !== null && Array.isArray(detail.links)) {
     detail.links = detail.links.map((id) => ({ id, name: names.get(id) ?? '' }));
   }
@@ -175,8 +205,12 @@ function traceIds(text) {
 
 // A change set's reason or change text, or null.
 function textOf(value) {
-  if (typeof value !== 'string' || value === '') return null;
-  return [...value].length <= TEXT_LENGTH ? value : [...value].slice(0, TEXT_LENGTH).join('');
+  return typeof value === 'string' && value !== '' ? cut(value, TEXT_LENGTH) : null;
+}
+
+// A step's new name or a thread's removed_name, or null.
+function nameOf(value) {
+  return typeof value === 'string' ? cut(value, NAME_LENGTH) : null;
 }
 
 // Text with its objects' members in order of their names, so that two details that say the same compare equal
@@ -192,8 +226,7 @@ function canonical(value) {
 // What an element says, for the comparison of SPEC-034: its trace ID, kind, name, parent, status and detail, without
 // where it is drawn and its file and line (PLACING).
 function meaningOf(row) {
-  const detail = JSON.parse(row.detail);
-  const kept = isPlainObject(detail) ? Object.fromEntries(Object.entries(detail).filter(([name]) => !PLACING.has(name))) : detail;
+  const kept = Object.fromEntries(Object.entries(detailOf(row)).filter(([name]) => !PLACING.has(name)));
   return canonical([row.trace_id, row.kind, row.name, row.parent_key, row.status, kept]);
 }
 
@@ -225,6 +258,7 @@ export function readDiagram(store, name, id) {
   if (diagram === undefined) return 'diagram_not_found';
   const removed = diagram.removed_at !== null;
   if (removed && Number(diagram.open_threads) === 0) return 'diagram_not_found';
+  if (!STAGE_SET.has(diagram.stage)) return 'diagram_not_found';
   const diagramId = Number(diagram.id);
   const part = diagramPart(store, { id: diagramId, stage: diagram.stage, kind: diagram.kind, source_key: diagram.source_key });
 
@@ -250,7 +284,7 @@ export function readDiagram(store, name, id) {
   for (const row of statements.changes.all(diagramId)) {
     const set = Number(row.change_set_id);
     if (!steps.has(set)) steps.set(set, []);
-    steps.get(set).push({ op: row.op, element: row.element_key, name: row.new_name, target: row.target_key });
+    steps.get(set).push({ op: row.op, element: row.element_key, name: nameOf(row.new_name), target: row.target_key });
   }
   const reflections = new Map();
   for (const row of statements.reflections.all(diagramId)) {
@@ -276,7 +310,7 @@ export function readDiagram(store, name, id) {
       reason: textOf(row.reason),
       change: textOf(row.change),
       source_text: Number(row.source_text) === 1,
-      changes: (steps.get(Number(row.id)) ?? []).slice(0, LISTED_CHANGES),
+      changes: steps.get(Number(row.id)) ?? [],
       made_at: row.created_at,
       decided_at: row.decided_at,
       reflection: reflection === null ? null : idOf('ne', reflection),
@@ -296,7 +330,7 @@ export function readDiagram(store, name, id) {
     id: idOf('nc', Number(row.id)),
     target: row.target_kind,
     element: row.element_key,
-    removed_name: row.removed_name,
+    removed_name: nameOf(row.removed_name),
     state: row.state,
     waits_on: row.waits_on,
     last_at: row.last_at ?? row.opened_at,
