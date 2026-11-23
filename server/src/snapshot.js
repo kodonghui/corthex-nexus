@@ -15,7 +15,8 @@
 //   /pictures/<stage>/<part>;
 // - each stage's items: the snapshot's items of that stage as a JSON array, named /items/<stage>, kept for each stage
 //   with items and each stage whose record says the hub read it, an empty list for one with none, which draws an empty
-//   item table (SPEC-005; see drawing.js);
+//   item table (SPEC-005; see drawing.js), unless the snapshot is truncated: the hub cut items from its end to fit, so
+//   a stage with none may have lost them;
 // - the rest of the snapshot as JSON, named /snapshot, with no stage: every other field as it came, less what the
 //   documents above hold: its pictures without their sources, a file's picture keeping the other members of its
 //   source, and its items without those of a stage. The Snapshot schema lists only the fields NEXUS reads and says
@@ -302,7 +303,8 @@ function documentsOf(body, rest) {
   }
   for (const stage of STAGES) {
     const items = body.items.filter((item) => item.stage === stage);
-    if (items.length === 0 && !wasRead(body, stage)) continue;
+    // A truncated snapshot may have lost all of a stage's items, so it claims no read stage empty.
+    if (items.length === 0 && !(wasRead(body, stage) && body.truncated !== true)) continue;
     documents.push({
       path: `/items/${stage}`, stage, part: '', key: null, kind: 'items', text: JSON.stringify(items), where: sourceOf(body, stage), why: sensitiveValue(items),
     });

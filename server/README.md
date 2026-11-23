@@ -119,7 +119,7 @@ A refused push changes nothing, since it runs in its write's transaction.
 | --- | --- | --- |
 | the picture's `key` | 03, 08 or 09 | the file's whole text, `source.text` |
 | `/pictures/<stage>`, or `/pictures/<stage>/<part>` for a part | 01, 05 or 07 | the hub's parsed picture, `source`, as JSON |
-| `/items/<stage>` | that stage | the snapshot's items of that stage, as a JSON array, for each stage with items and each stage whose record says the hub read it (`read` true): an empty list for one with none |
+| `/items/<stage>` | that stage | the snapshot's items of that stage, as a JSON array, for each stage with items and each stage whose record says the hub read it (`read` true): an empty list for one with none, unless the snapshot is truncated |
 | `/snapshot` | none | the rest as it came: every other field, the pictures without their sources (a file's picture keeps the members of its source other than `text`) and the items of no stage |
 
 The schema lists only the fields NEXUS reads and says NEXUS keeps the others as they come; `/snapshot` keeps them, the project's title and parts among them. A key never starts with `/`, so the two kinds of names never meet.
@@ -146,7 +146,7 @@ The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a draw
 - **Removed.** A diagram whose document a snapshot does not hold gets `removed_at`, and is no longer one of its stage's diagrams. The exception is a picture of a stage whose pictures the snapshot's format does not carry. It stays as last drawn, so a corthex-hub/0.2 snapshot after 0.3 pictures keeps them, each drawing's version naming the commit it comes from (SPEC-005).
 - **Back again.** A removed diagram whose document a snapshot draws again comes back as the same row, with its threads. A stage's item table makes way for the first picture drawn of its stage, and comes back when the stage has none again (see [Item table](#item-table)). So a 0.2 snapshot after 0.3 pictures still shows the pictures.
 - **No pictures.** A stage of 03, 08 or 09 that shows no picture shows its item table, under a format that carries its pictures as under one that does not (note 3 of the WBS; see [Item table](#item-table)).
-- **A completed revision**, the same commit in a newer format, draws only the stages the newer format adds: their pictures, and their items again, which the revision kept before, so that each of their item tables makes way for its pictures or stays.
+- **A completed revision**, the same commit in a newer format, draws only the stages the newer format adds: their pictures, and their items again, those the revision kept before, so that each of their item tables makes way for its pictures or stays. An older push may not have kept a stage's items, such as one its hub did not read; that stage draws no table.
 - **A diagram's part** is in its `source_key` for a stage's picture, and an item table has none. The store's columns keep no part for a file's picture. The snapshot's `/snapshot` document names it beside the file's key, except in a revision that a newer format completed, which added only the files.
 
 **Drawings.** Each diagram the snapshot holds is drawn again. Its drawing is new when its `source_digest`, or what it drew, differs from the diagram's last drawing. Otherwise the diagram is unchanged and keeps that drawing, so a confirmation of it stays (SPEC-033).
@@ -415,7 +415,7 @@ What it draws:
 - **Names.** A row is shown by its name, the item's title, and one without a title by its trace ID (SPEC-010).
 - **Keys.** A row's key is its item's trace ID. An item whose ID is not in the contract's form is keyed `row:` and its ID, and one without an ID `row:` and its title. A key another row has gets `#2`, `#3` and so on. So a row keeps its key, and the threads on it, while its item keeps its ID, whatever its title, status or place.
 - **A source it cannot draw** fails at its source: one that is not a list, or one of more than 5000 items. The hub sends at most 3000 items in a snapshot.
-- **A truncated snapshot**, one the hub cut to fit its size limit, draws the rows that came. The hub's `truncated` check is among the snapshot's checks.
+- **A truncated snapshot**, one the hub cut to fit its size limit, draws the rows that came. The hub cuts items from the end, so a read stage none of whose items came may have lost them all: it gets no empty table, and shows no table, as a stage the hub did not read. The hub's `truncated` check is among the snapshot's checks.
 
 The coordinator chose the three rules below, which wait for the maintainer's delegate.
 
@@ -425,7 +425,7 @@ The coordinator chose the three rules below, which wait for the maintainer's del
 
 So the table makes way for the first picture drawn of its stage, and comes back, the same diagram with its threads, when the stage has none again. Until TASK-424, TASK-426 and TASK-427 add their drawers, the server draws no file of 03, 08 or 09, so those stages show their item tables in both formats.
 
-**Stage with no items.** A stage whose record in the snapshot says the hub read its source (`read` true) and that has no items keeps an empty `/items/<stage>`, which draws an empty table: the page says the stage has no items yet (SCR-145). A stage the hub did not read, one with no source or with a missing or skipped one, has no table and shows "Nothing sent yet". A read stage whose items all go keeps its table, with no rows. With a drawer for every kind, as the tests give, this repository's push draws 12 diagrams in corthex-hub/0.2 and 28 in 0.3, where it drew 8 and 26: the empty tables of 08, 09, 12 and 13 in 0.2, and of 12 and 13 in 0.3, where 08 and 09 show their files.
+**Stage with no items.** A stage whose record in the snapshot says the hub read its source (`read` true) and that has no items keeps an empty `/items/<stage>`, which draws an empty table: the page says the stage has no items yet (SCR-145). A truncated snapshot keeps none, as above. A stage the hub did not read, one with no source or with a missing or skipped one, has no table and shows "Nothing sent yet". A read stage whose items all go keeps its table, with no rows. With a drawer for every kind, as the tests give, this repository's push draws 12 diagrams in corthex-hub/0.2 and 28 in 0.3, where it drew 8 and 26: the empty tables of 08, 09, 12 and 13 in 0.2, and of 12 and 13 in 0.3, where 08 and 09 show their files.
 
 **A row's content.** A row keeps the IDs it links to, and the drawing reads only its own stage's items. So a title changed in another stage draws no table again and invalidates no confirmation of it (SPEC-033). The page shows each link by its name, which the read of a diagram gives (TASK-441, API-265) from the project's latest item documents. `itemNames(texts)` in `src/item-table.js` maps IDs to titles from those documents for it. A link it cannot find, or whose item has no title, is shown by its ID, as SPEC-010's exception says.
 
@@ -447,6 +447,8 @@ It also checks:
 - a stage of 03, 08 or 09 that never had a file;
 - the empty tables;
 - a table removed because its stage is no longer read;
+- a completed revision whose older push did not read a stage;
+- a truncated snapshot;
 - unreadable entries and keys;
 - `itemNames`;
 - no log line holding an item's text (rule 5).

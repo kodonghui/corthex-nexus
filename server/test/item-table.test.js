@@ -354,6 +354,36 @@ describe('item tables through the push', () => {
     assert.deepEqual([api.removed_at, elements(drawings(api.id).at(-1).id)], [null, []]);
   });
 
+  test('a completed revision draws again only the items it kept: a stage its older push did not read fails nothing', async () => {
+    const name = 'item-table-completed';
+    const commit = newCommit();
+    // The older push's hub did not read stages 08 and 09, so the revision keeps no items of them.
+    const older = repositorySnapshot(FORMAT_02, { name, commit });
+    for (const stage of ['08-screen-states', '09-mockup']) delete older.stages[stage].read;
+    await push(pictured, older);
+    assert.equal(diagram(name, '/items/08-screen-states'), undefined);
+    // The same commit in 0.3, whose hub read them, without the files of 09.
+    const newer = repositorySnapshot(FORMAT_03, { name, commit });
+    newer.pictures = newer.pictures.filter((picture) => picture.stage !== '09-mockup');
+    const answer = await push(pictured, newer);
+    assert.deepEqual([answer.same_commit, answer.failures], [true, []]);
+    assert.notEqual(diagram(name, `/items/${FLOWS}`).removed_at, null);
+    for (const stage of ['08-screen-states', '09-mockup']) assert.equal(diagram(name, `/items/${stage}`), undefined);
+  });
+
+  test('a truncated snapshot draws the rows that came, and claims no read stage empty', async () => {
+    const name = 'item-table-truncated';
+    // The hub cut items from the end to fit: here all of stage 10's.
+    const snapshot = repositorySnapshot(FORMAT_02, { name });
+    snapshot.truncated = true;
+    snapshot.items = snapshot.items.filter((entry) => entry.stage !== '10-wbs');
+    await push(own, snapshot);
+    assert.equal(elements(drawings(diagram(name, '/items/02-prd').id)[0].id).length, 80);
+    for (const stage of ['08-screen-states', '09-mockup', '10-wbs', '12-qa', '13-presentation']) {
+      assert.equal(diagram(name, `/items/${stage}`), undefined, stage);
+    }
+  });
+
   test('no log line holds an item\'s text (rule 5)', async () => {
     const marker = `item ${randomBytes(8).toString('hex')}`;
     const snapshot = repositorySnapshot(FORMAT_02, { name: 'item-table-logs' });

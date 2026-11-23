@@ -49,7 +49,7 @@
 //   picture, items or snapshot; key is the file's path for a picture of stage 03, 08 or 09, otherwise null; where is
 //   the repository path it comes from. A document left out as REQ-077 asks is not among them.
 // - earlier: for a completed revision, the push's other documents, which the revision kept before, each in the form of
-//   documents; none otherwise. This call draws again only the items of the stages it draws.
+//   documents; none otherwise. This call draws again only the items of the stages it draws that the revision keeps.
 // - time: the push's time, for created_at, drawn_at and removed_at.
 // - drawers: the drawers by kind, DRAWERS unless a test gives its own.
 // It returns what the push answer says of the drawing, { diagrams: { drawn, unchanged, failed, removed }, failures },
@@ -198,6 +198,8 @@ function statementsOf(store) {
       insertElement: store.prepare(
         'INSERT INTO elements (drawing_id, element_key, trace_id, kind, name, parent_key, status, detail) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       ),
+      // Whether a snapshot keeps a document of that path.
+      keeps: store.prepare('SELECT 1 FROM snapshot_files WHERE snapshot_id = ? AND path = ?'),
       // Whether a removed item table's stage has a picture diagram that is not removed.
       madeWay: store.prepare(
         `SELECT 1 FROM diagrams t JOIN diagrams p ON p.project_id = t.project_id AND p.stage = t.stage
@@ -392,7 +394,8 @@ function kindOf(document, pictured) {
 // Whether a diagram is an item table that made way for its stage's pictures: removed while its stage has a picture
 // that is not removed (SPEC-005). Its threads stay on its rows, where SPEC-027 moves those of any other removed
 // diagram or element to the diagram's comments (TASK-435). One removed otherwise, when no snapshot holds its stage's
-// items any more, did not make way. diagramId is the diagram's row key (TBL-151).
+// items any more, did not make way. It reads the stage as it stands, so it answers for the push that removed the
+// table, after drawSnapshot and in its transaction. diagramId is the diagram's row key (TBL-151).
 export function madeWay(store, diagramId) {
   return statementsOf(store).madeWay.get(diagramId) !== undefined;
 }
@@ -460,8 +463,12 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
     return pictureWarnings(checks, document.stage, document.part);
   };
 
-  // A completed revision draws again the items of the stages it draws, which it kept before.
-  const toDraw = completed ? [...documents, ...earlier.filter((document) => document.kind === 'items' && inScope(document.stage))] : documents;
+  // A completed revision draws again the items of the stages it draws, those it kept before: an older push may not
+  // have kept them, such as a stage its hub did not read.
+  const kept = (document) => statements.keeps.get(snapshot.id, document.path) !== undefined;
+  const toDraw = completed
+    ? [...documents, ...earlier.filter((document) => document.kind === 'items' && inScope(document.stage) && kept(document))]
+    : documents;
   for (const document of toDraw) {
     if (!inScope(document.stage)) continue;
     const kind = kindOf(document, pictured);
