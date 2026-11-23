@@ -467,10 +467,15 @@
           "approved": "SCR-142 against the stage-09 mockup, pull request 141, at commit bb521a4: the mockup draws, on each row, the element's name, a proposal's content or a question's text, and how many places changed since an undone confirmation; API-263's OwnerTodoEntry carries none of these, so TASK-455 shows only what API-263 gives. Section 4 records the difference; adding the fields to API-263 is a contract change on stage 06, left as a separate decision, and stage 12's QA looks at it again. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Stages 05 and 07 drawn from several files, pull request 146, at commit da9416e: TASK-466 reads source_text as the one file the current drawing's elements name; when they name several, source_text is kept but makes no change, as on stage 01, so SPEC-018's \"the owner sees Y over X, marked as proposed\" is not met there. Section 4 records the difference beside stage 01's, with the same cause and fix, looked at again at TASK-463. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",
-      "updated": "2026-11-24T08:28:58+09:00"
+      "updated": "2026-11-24T08:37:27+09:00"
     },
     "11-development": {
       "state": "not_started",
