@@ -155,10 +155,15 @@
           "approved": "After the tenth review of pull request 104, at commit eb9c079: TBL-151 also sets removed_at on an item table when the stage's pictures are drawn for the first time, and clears it when a snapshot holds a removed diagram's source again, except for an item table that made way; no table, column or constraint changed. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Table reference correction, pull request 105, at commit ac7475e: nine spec rows join the trace lists of four tables (TBL-155, TBL-163, TBL-166, TBL-167), from the writes that change them; no table, column or constraint changed. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-23T16:41:20+09:00",
+      "updated": "2026-11-23T18:10:49+09:00",
       "checks": [
         {
           "level": "info",
@@ -199,10 +204,15 @@
           "approved": "After the tenth review of pull request 104, at commit eb9c079: DiagramSummary has a required removed; API-264 passes a stage on the diagrams that are not removed; a removed diagram takes no new thread, direct edit, move or confirmation (diagram_not_found) and no accepted proposal (document_changed); after a write the client reads the diagram again first. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Table reference correction, pull request 105, at commit ac7475e: 27 operations name the tables of the schema, 23 two numbers down and API-244, API-261, API-264 and API-291 by what they do, and a test checks that each table a write lists is fed by one of its spec rows. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-23T16:41:20+09:00"
+      "updated": "2026-11-23T18:10:49+09:00"
     },
     "07-sitemap": {
       "state": "done",

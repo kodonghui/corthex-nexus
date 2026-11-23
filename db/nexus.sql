@@ -171,7 +171,7 @@ CREATE TABLE element_positions (
   PRIMARY KEY (diagram_id, element_key)
 );
 
--- TBL-155 comment_threads (CTX-038) ← SPEC-016, SPEC-017, SPEC-027, SPEC-028, SPEC-042, SPEC-043 | terms: TERM-200
+-- TBL-155 comment_threads (CTX-038) ← SPEC-016, SPEC-017, SPEC-018, SPEC-027, SPEC-028, SPEC-042, SPEC-043 | terms: TERM-200
 -- A comment and its replies on a diagram, an element or a table row, at the drawing shown,
 -- which is a drawing of the same diagram. An open thread waits on the side that did not write
 -- last. removed_name marks a thread moved to the diagram because its element left, with the
@@ -348,7 +348,7 @@ CREATE TABLE workshops (
 CREATE UNIQUE INDEX workshops_open ON workshops (project_id) WHERE state = 'open';
 CREATE INDEX workshops_by_project ON workshops (project_id);
 
--- TBL-163 workshop_steps (CTX-040) ← SPEC-037, SPEC-039, SPEC-040 | terms: TERM-211
+-- TBL-163 workshop_steps (CTX-040) ← SPEC-036, SPEC-037, SPEC-039, SPEC-040 | terms: TERM-211
 -- One event storming step of a workshop, called a step to keep it apart from a CORTHEX stage.
 -- written_at is set when the agent reports the step written into the domain document.
 CREATE TABLE workshop_steps (
@@ -411,7 +411,7 @@ CREATE TABLE sticky_links (
 CREATE INDEX sticky_links_by_from ON sticky_links (from_note, workshop_id);
 CREATE INDEX sticky_links_by_to ON sticky_links (to_note, workshop_id);
 
--- TBL-166 todos (CTX-041) ← SPEC-016, SPEC-017, SPEC-019, SPEC-023, SPEC-026, SPEC-029, SPEC-030, SPEC-031, SPEC-032, SPEC-033, SPEC-039, SPEC-042, SPEC-043 | terms: none
+-- TBL-166 todos (CTX-041) ← SPEC-016, SPEC-017, SPEC-018, SPEC-019, SPEC-020, SPEC-021, SPEC-023, SPEC-026, SPEC-028, SPEC-029, SPEC-030, SPEC-031, SPEC-032, SPEC-033, SPEC-039, SPEC-042, SPEC-043 | terms: none
 -- One thing for the owner or an agent to answer or handle, made by the contexts that hand
 -- work over; the owner's to-do and the agent to-do read it. Everything an entry is about
 -- belongs to its project, and a thread, change set or confirmation also to its diagram. A
@@ -457,7 +457,7 @@ CREATE INDEX todos_by_confirmation ON todos (confirmation_id, diagram_id);
 CREATE INDEX todos_by_workshop ON todos (workshop_id, project_id);
 CREATE INDEX todos_by_step ON todos (workshop_id, step);
 
--- TBL-167 claims (CTX-041) ← SPEC-044, SPEC-045, SPEC-050 | terms: TERM-217
+-- TBL-167 claims (CTX-041) ← SPEC-017, SPEC-018, SPEC-032, SPEC-044, SPEC-045, SPEC-050 | terms: TERM-217
 -- One agent session holding one to-do alone. Rules: at most one live claim per to-do; a claim
 -- names the credential that made it, so revoking the credential releases its claims; its
 -- pull request belongs to the to-do's project.
