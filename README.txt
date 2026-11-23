@@ -1,0 +1,1 @@
+Screenshots of the TASK-457 browser walk (pull request for the project screen, SCR-144), taken on a local server with test data only. This branch holds nothing else and can be deleted after the review.
