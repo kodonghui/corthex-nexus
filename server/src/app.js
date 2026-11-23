@@ -14,8 +14,9 @@ const FRAMING_HEADERS = new Set([
 ]);
 
 // The request listener. routes are the operations the server takes (see router.js); a handler gets
-// { request, params, traceId, settings } and returns { status, body, headers }, body being a JSON object.
-export function createApp({ settings, routes = [], log = jsonLines() }) {
+// { request, params, traceId, settings, store } and returns { status, body, headers }, body being a JSON object.
+// store is the open store's DatabaseSync (see store.js).
+export function createApp({ settings, routes = [], log = jsonLines(), store = null }) {
   const find = createRouter(routes);
 
   return async function listener(request, response) {
@@ -49,7 +50,7 @@ export function createApp({ settings, routes = [], log = jsonLines() }) {
       if (match === null) throw notFound(pathname);
       if (match.allow) throw methodNotAllowed(match.allow);
       entry.action = match.route.action;
-      const result = await match.route.handle({ request, params: match.params, traceId, settings });
+      const result = await match.route.handle({ request, params: match.params, traceId, settings, store });
       send(response, result.status ?? 200, 'application/json; charset=utf-8', result.body, result.headers);
     } catch (error) {
       const problem = error instanceof Problem ? error : internal();
