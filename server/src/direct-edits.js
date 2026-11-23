@@ -22,12 +22,15 @@
 //   ERD table that a foreign key names and the schema does not define) or left_out (what a drawer does not draw: an
 //   ERD statement, a sitemap source, a DDD table) has no text a reflection could change, so it is refused as not
 //   there. One drawn as removed is still in its document, and takes edits.
-// - A rename takes every element of the drawing shown but two whose names the drawer makes, not the document
-//   (UNNAMED): the DDD board's Hotspots lane, always named Hotspots, and a sitemap line, named after the screen it leads
-//   to, whose relation is that screen's parent. Either is refused with invalid_request on element.
+// - A rename takes every element of the drawing shown but three whose names the drawer makes, not the document
+//   (UNNAMED): the DDD board's Hotspots lane, always named Hotspots; a sitemap line, named after the screen it leads to,
+//   whose relation is that screen's parent; and an ERD line, named by its foreign key's columns joined with commas,
+//   which is no one name of the schema. Each is refused with invalid_request on element.
 // - A connection joins two elements of the kinds its picture draws its lines between (JOINS). Any other element or
 //   target is refused with invalid_request on its field, and a picture that draws no line, such as screen states,
-//   refuses a connection with invalid_request on op.
+//   refuses a connection with invalid_request on op. On a sitemap, where each screen stands under one parent, a
+//   connection from X to Y means that Y stands under X: the reflection moves Y under X, from any parent it had. A
+//   target that X stands under, directly or not, would make a cycle: invalid_request on target.
 // - Nothing new answers 200 with no change set:
 //   - a rename to the name the element has: that of the waiting rename of it accepted last, or else its name as
 //     drawn;
@@ -39,10 +42,11 @@
 //   direct edit is accepted when it is made, a proposal when the owner accepts it (decided_at). The diagram read lists
 //   accepted change sets on an element newest accepted on top (SPEC-022, diagram.js), and the reflection applies them
 //   in the order they were accepted: within an entry as entries.js's heldChangeSets lists them, and across entries in
-//   the agent to-do's order, a change set accepted while a pull request is open waiting in a later entry. When a pull
-//   request closes unmerged, its change sets wait again in the older entry, which can then hold change sets accepted
-//   before and after those of a newer one; TASK-447's reflection applies the changes to one element by decided_at
-//   then, and names in its comment the change it left. So the page shows the name the reflection will leave.
+//   the agent to-do's order, a change set accepted while a pull request is open waiting in a later entry. Nothing makes
+//   the entries' pull requests merge in that order, and when a pull request closes unmerged its change sets wait again
+//   in the older entry, which can then hold change sets accepted before and after those of a newer one. So TASK-447's
+//   reflection applies the changes to one element by decided_at, the later accepted last, and names in its comment the
+//   change it left. So the page shows the name the reflection will leave.
 // Waiting means accepted and not yet reflected.
 //
 // API-273 cancels a direct edit that is not reflected (SPEC-023): the change set is marked cancelled and leaves the
@@ -89,6 +93,7 @@ const JOINS = new Map([
 const UNNAMED = new Map([
   ['ddd_board', new Set(['hotspot_lane'])],
   ['sitemap', new Set(['line'])],
+  ['erd', new Set(['line'])],
 ]);
 // The statuses of an element whose document does not hold it as drawn (see the top of this file).
 const GONE = new Set(['unreadable', 'missing', 'left_out']);
@@ -110,7 +115,7 @@ function statementsOf(store) {
       lastDrawn: store.prepare(
         "SELECT id, status, document_version FROM drawings WHERE diagram_id = ? AND status = 'drawn' ORDER BY id DESC LIMIT 1",
       ),
-      element: store.prepare('SELECT kind, name, status, detail FROM elements WHERE drawing_id = ? AND element_key = ?'),
+      element: store.prepare('SELECT kind, name, status, parent_key, detail FROM elements WHERE drawing_id = ? AND element_key = ?'),
       line: store.prepare(
         `SELECT 1 AS found FROM elements WHERE drawing_id = ?
          AND json_type(detail, '$.from') = 'text' AND json_extract(detail, '$.from') = ?
@@ -222,6 +227,18 @@ function elementOf(statements, drawing, key) {
   return row;
 }
 
+// Whether the element row stands under key in the drawing, directly or not: key is one of the parents its parent_key
+// leads up to, as a sitemap's screens stand under one another.
+function standsUnder(statements, drawing, row, key) {
+  const seen = new Set();
+  for (let parent = row.parent_key; parent !== null && !seen.has(parent);) {
+    if (parent === key) return true;
+    seen.add(parent);
+    parent = statements.element.get(drawing, parent)?.parent_key ?? null;
+  }
+  return false;
+}
+
 // Whether a row of an item table lists the key among its links (detail.links), as its source gives them.
 function linksTo(row, key) {
   const detail = JSON.parse(row.detail);
@@ -253,6 +270,9 @@ function makeDirectEdit({ store, params, body, now }) {
     const target = elementOf(statements, drawing, edit.target);
     if (!joins.has(drawn.kind)) throw invalidRequest('element', 'this element takes no connection');
     if (!joins.has(target.kind)) throw invalidRequest('target', 'this element takes no connection');
+    if (diagram.kind === 'sitemap' && standsUnder(statements, drawing, drawn, edit.target)) {
+      throw invalidRequest('target', 'a screen cannot stand under its own child');
+    }
   }
   if (changesNothing(statements, diagram, drawing, edit, drawn)) return { body: { change_set: null, created: false } };
   const time = timeOf(now);

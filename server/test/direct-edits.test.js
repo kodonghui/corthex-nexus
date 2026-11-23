@@ -312,7 +312,7 @@ describe('direct edits', () => {
     assert.equal((await edit(space.name, board.id, rename(board.drawing, 'CTX-030', 'Older intake'))).status, 201);
   });
 
-  test('a rename takes every element but the two whose names the drawer makes: the Hotspots lane and a sitemap line', async () => {
+  test('a rename takes every element but the three whose names the drawer makes: the Hotspots lane, a sitemap line and an ERD line', async () => {
     const { space, erd } = erdProject();
     const refused = (answer) => assert.deepEqual([answer.status, answer.json.code, answer.json.field], [400, 'invalid_request', 'element']);
     const board = s.diagram(space, { stage: '01-domain', sourceKey: '/pictures/01-domain', kind: 'ddd_board', name: 'Board' });
@@ -329,11 +329,13 @@ describe('direct edits', () => {
     const was = dump();
     refused(await edit(space.name, board.id, rename(board.drawing, 'hotspot_lane:Hotspots', 'Risks')));
     refused(await edit(space.name, sitemap.id, rename(sitemap.drawing, 'line:SCR-145', 'Open')));
+    // An ERD line is named by its foreign key's columns, joined with commas, which is no one name of the schema.
+    refused(await edit(space.name, erd.id, rename(erd.drawing, 'line:TBL-147>TBL-146', 'credential_id')));
     assert.equal(dump(), was);
-    // A hotspot, a screen and an ERD line, named by its foreign key, have their names in the document.
+    // A hotspot, a screen and a table have their names in the document.
     assert.equal((await edit(space.name, board.id, rename(board.drawing, 'hotspot:slow', 'Slow drawings'))).status, 201);
     assert.equal((await edit(space.name, sitemap.id, rename(sitemap.drawing, 'SCR-145', 'Diagram'))).status, 201);
-    assert.equal((await edit(space.name, erd.id, rename(erd.drawing, 'line:TBL-147>TBL-146', 'credential_id'))).status, 201);
+    assert.equal((await edit(space.name, erd.id, rename(erd.drawing, 'TBL-146', 'credentials'))).status, 201);
   });
 
   test('a connection joins the kinds its picture draws lines between; a picture with no line takes none', async () => {
@@ -342,15 +344,26 @@ describe('direct edits', () => {
     // An ERD joins tables: a line is neither end of a connection.
     refused(await edit(space.name, erd.id, connect(erd.drawing, 'line:TBL-147>TBL-146', 'TBL-148')), 'element');
     refused(await edit(space.name, erd.id, connect(erd.drawing, 'TBL-148', 'line:TBL-147>TBL-146')), 'target');
-    // A sitemap joins screens, and its line from a screen to the next one is a connection that exists.
+    // A sitemap joins screens, and its line from a screen to the one under it is a connection that exists.
     const sitemap = s.diagram(space, { stage: '07-sitemap', sourceKey: '/pictures/07-sitemap', kind: 'sitemap', name: 'Sitemap' });
     s.elements(sitemap.drawing, [
       { key: 'SCR-141', trace_id: 'SCR-141', kind: 'screen', name: 'Projects' },
       { key: 'SCR-145', trace_id: 'SCR-145', kind: 'screen', name: 'Workbench', parent: 'SCR-141' },
-      { key: 'line:SCR-145', kind: 'line', name: 'SCR-145', parent: 'SCR-141', detail: { from: 'SCR-141', to: 'SCR-145', points: [] } },
+      { key: 'SCR-146', trace_id: 'SCR-146', kind: 'screen', name: 'Changes', parent: 'SCR-145' },
+      { key: 'SCR-150', trace_id: 'SCR-150', kind: 'screen', name: 'Settings' },
+      { key: 'line:SCR-145', kind: 'line', name: 'Workbench', parent: 'SCR-141', detail: { from: 'SCR-141', to: 'SCR-145', points: [] } },
+      { key: 'line:SCR-146', kind: 'line', name: 'Changes', parent: 'SCR-145', detail: { from: 'SCR-145', to: 'SCR-146', points: [] } },
     ]);
     assert.equal((await edit(space.name, sitemap.id, connect(sitemap.drawing, 'SCR-141', 'SCR-145'))).status, 200);
-    assert.equal((await edit(space.name, sitemap.id, connect(sitemap.drawing, 'SCR-145', 'SCR-141'))).status, 201);
+    // A connection from X to Y means that Y stands under X: SCR-145 moves from under SCR-141 to under SCR-150.
+    const moved = await edit(space.name, sitemap.id, connect(sitemap.drawing, 'SCR-150', 'SCR-145'));
+    assert.deepEqual([moved.status, moved.json.change_set.changes], [201, [{ op: 'connect', element: 'SCR-150', target: 'SCR-145', name: null }]]);
+    // A screen cannot stand under its own child, nor under a screen under that child, nor under itself.
+    const was = dump();
+    refused(await edit(space.name, sitemap.id, connect(sitemap.drawing, 'SCR-146', 'SCR-145')), 'target');
+    refused(await edit(space.name, sitemap.id, connect(sitemap.drawing, 'SCR-146', 'SCR-141')), 'target');
+    refused(await edit(space.name, sitemap.id, connect(sitemap.drawing, 'SCR-146', 'SCR-146')), 'target');
+    assert.equal(dump(), was);
     // A user flow joins its boxes of every shape, and no lane.
     const flow = s.diagram(space, { stage: '03-user-flow', sourceKey: 'docs/03-user-flow/joins.md', kind: 'user_flow', name: 'Flow' });
     s.elements(flow.drawing, [
