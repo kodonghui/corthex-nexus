@@ -96,7 +96,7 @@ export function seed(db, { time = TIME } = {}) {
     }
   }
 
-  // Where the owner put an element of a diagram, as TASK-442 will keep it (TBL-154, SPEC-012): the last move wins.
+  // Where the owner put an element of a diagram, as API-274 keeps it (TASK-442; TBL-154, SPEC-012): the last move wins.
   function position(diagramId, key, { x, y, at = time }) {
     db.prepare(
       `INSERT INTO element_positions (diagram_id, element_key, x, y, moved_at) VALUES (?, ?, ?, ?, ?)

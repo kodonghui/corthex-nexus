@@ -26,6 +26,12 @@
 //   has the element again, readable, its threads stay on the diagram and link to it again: removed_name is cleared. A
 //   failed drawing moves nothing, and neither does a 0.2 snapshot that keeps a stage's pictures, since it removes none.
 //   A removed diagram stays listed while it has open threads (project.js).
+// - Positions (SPEC-012, TBL-154). Where the owner put an element stays while the drawing the diagram shows places it.
+//   A new drawing that drew drops the positions of the elements it no longer places, as positions.js's placeable
+//   says: an element that left the document, or one that no longer has a box of its own. An element drawn as
+//   unreadable keeps its box, and its position (note 1 of the WBS): it has not left the document. A diagram the
+//   snapshot removes drops all its positions, so an element of it that comes back stands where its drawer puts it. A
+//   failed drawing, a source left out and a diagram drawn as before drop none. No drawing reads a position.
 // - The to-do follows through entries.js, in the same transaction: confirmationsChanged for each diagram drawn for the
 //   first time, back, removed or invalidated; changeSetsChanged for each diagram with reflected change sets; and
 //   threadChanged for each thread a reflection closed.
@@ -34,6 +40,7 @@
 // here logs (rule 5).
 
 import { changeSetsChanged, confirmationsChanged, threadChanged } from './entries.js';
+import { placeable } from './positions.js';
 
 // PushAnswer's counts are at most 1,000,000.
 const COUNT = 1_000_000;
@@ -90,6 +97,15 @@ function statementsOf(store) {
       closeThread: store.prepare(
         "UPDATE comment_threads SET state = 'closed', waits_on = NULL, closed_at = ?, closed_by = 'reflection' WHERE id = ? AND state = 'open'",
       ),
+      // Positions: those of a diagram, an element of a drawing, and dropping one or all of a diagram's.
+      // The diagram's positions, each with its element in the drawing, kind and detail null when it has none.
+      positions: store.prepare(
+        `SELECT p.element_key, e.kind, e.detail FROM element_positions p
+         LEFT JOIN elements e ON e.drawing_id = ? AND e.element_key = p.element_key
+         WHERE p.diagram_id = ?`,
+      ),
+      dropPosition: store.prepare('DELETE FROM element_positions WHERE diagram_id = ? AND element_key = ?'),
+      dropPositions: store.prepare('DELETE FROM element_positions WHERE diagram_id = ?'),
     };
     prepared.set(store, statements);
   }
@@ -135,6 +151,14 @@ function followElements(statements, diagram, keys) {
   return moved;
 }
 
+// Drops the diagram's positions of the elements the drawing does not place (see positions.js's placeable). Unlike the
+// threads, which readableKeys moves off an element drawn as unreadable (SPEC-027), its position stays (note 1).
+function keepPlaced(statements, diagram, drawing) {
+  for (const { element_key: key, kind, detail } of statements.positions.all(drawing, diagram)) {
+    if (kind === null || !placeable({ kind, detail })) statements.dropPosition.run(diagram, key);
+  }
+}
+
 // Marks the stage's latest pass changed since the pass, unless it is already.
 function changeLatestPass(statements, project, stage, time) {
   const pass = statements.latestPass.get(project, stage);
@@ -152,12 +176,14 @@ export function afterDrawing(store, { project, commit, changed, time }) {
     if (diagram.removed) {
       confirming.add(id);
       if (!diagram.madeWay) counts.threads_moved += followElements(statements, id, null);
+      statements.dropPositions.run(id);
       continue;
     }
     const drew = diagram.drawing !== null && diagram.status === 'drawn';
     if (diagram.created || diagram.restored || drew) confirming.add(id);
 
     if (drew) {
+      keepPlaced(statements, id, diagram.drawing);
       const live = statements.live.get(id);
       if (live !== undefined && live.source_digest !== diagram.digest) {
         statements.invalidate.run(time, diagram.drawing, Number(live.id));
