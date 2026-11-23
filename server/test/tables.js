@@ -13,6 +13,12 @@
 // The authorizer gives no mark of which reads are the key's, so a statement's own read of a table keyed to the one it
 // writes is not counted either; a statement that reads such a table, as an INSERT ... SELECT may, reads it as a key
 // check would.
+//
+// The tables an operation changes, those it inserts into, updates or deletes from (a cascade's deletes aside), are
+// also kept apart, and each must be fed by one of the operation's spec rows: the table's trace list in db/nexus.sql
+// names one of them, SPEC-014 aside. The contract's lists hold what an operation reads as well (note 23), so this
+// rule of pull request 105's check runs here, on the tables a write changes when it runs; tests/test_api.py keeps
+// only that a write's list names at least one table its spec rows feed.
 
 import assert from 'node:assert/strict';
 import { constants } from 'node:sqlite';
@@ -31,30 +37,41 @@ const RUNS = new Set(['run', 'get', 'all', 'iterate']);
 export const TABLE_IDS = new Map([...read('db/nexus.sql').matchAll(/^-- (TBL-\d+) ([a-z_]+) /gm)]
   .map(([, id, table]) => [table, id]));
 
+// The spec rows that feed each table, by TBL ID: the trace list in the comment above it in db/nexus.sql, read as
+// tests/test_api.py reads it.
+export const FED_BY = new Map([...read('db/nexus.sql').matchAll(/^-- (TBL-\d+) [^←\n]*← ([^|\n]*?) \| /gm)]
+  .map(([, id, rows]) => [id, new Set(rows.match(/SPEC-\d+/g) ?? [])]));
+
 // The request layer's tables, which no operation lists: request keys (TBL-169, note 21 of the WBS) and the agent
 // credentials that admission checks and marks used (TBL-146).
 export const LAYER_TABLES = Object.freeze(['request_keys', 'agent_credentials']);
 
-// Wraps db: returns { store, tables(action), layer(), runs() }. store is the wrapped store, which the server and its
-// handlers are given in place of db; tables(action) is the set of tables the statements run for that operationId
-// touched, layer() those run outside every handler, and runs() how many statements have run.
+// Wraps db: returns { store, tables(action), changed(action), layer(), runs() }. store is the wrapped store, which the
+// server and its handlers are given in place of db; tables(action) is the set of tables the statements run for that
+// operationId touched, changed(action) those of them it inserted into, updated or deleted from, layer() the tables
+// touched outside every handler, and runs() how many statements have run.
 export function recordTables(db) {
   const keys = keysOf(db);
   const touched = new Map();
+  const changedBy = new Map();
   let runs = 0;
-  const note = (tables) => {
+  const add = (map, action, tables) => {
+    if (!map.has(action)) map.set(action, new Set());
+    for (const table of tables) map.get(action).add(table);
+  };
+  const note = ({ tables, changed }) => {
     runs += 1;
     const action = runningAction();
-    if (!touched.has(action)) touched.set(action, new Set());
-    for (const table of tables) touched.get(action).add(table);
+    add(touched, action, tables);
+    add(changedBy, action, changed);
   };
-  const statementOf = (statement, tables) => new Proxy(statement, {
+  const statementOf = (statement, analysis) => new Proxy(statement, {
     get(target, name) {
       const value = Reflect.get(target, name, target);
       if (typeof value !== 'function') return value;
       if (!RUNS.has(name)) return value.bind(target);
       return (...args) => {
-        note(tables);
+        note(analysis);
         return value.apply(target, args);
       };
     },
@@ -63,15 +80,15 @@ export function recordTables(db) {
     get(target, name) {
       if (name === 'prepare') {
         return (...args) => {
-          const { result, tables } = analysed(target, keys, () => target.prepare(...args));
-          return statementOf(result, tables);
+          const { result, ...analysis } = analysed(target, keys, () => target.prepare(...args));
+          return statementOf(result, analysis);
         };
       }
       if (name === 'exec') {
         // exec prepares and runs at once, so its tables are noted as it runs.
         return (...args) => {
-          const { result, tables } = analysed(target, keys, () => target.exec(...args));
-          note(tables);
+          const { result, ...analysis } = analysed(target, keys, () => target.exec(...args));
+          note(analysis);
           return result;
         };
       }
@@ -82,6 +99,7 @@ export function recordTables(db) {
   return {
     store,
     tables: (action) => new Set(touched.get(action) ?? []),
+    changed: (action) => new Set(changedBy.get(action) ?? []),
     layer: () => new Set(touched.get(null) ?? []),
     runs: () => runs,
   };
@@ -96,12 +114,18 @@ export const PENDING = Object.freeze({});
 
 // Checks that the tables the operation action touched are exactly the TBL IDs its x-corthex.tables lists, less those
 // PENDING leaves to a later task: a table it touched but does not list fails, and so does a listed table it never
-// touched. So it is checked once every response of the operation has run, at the end of the operation's tests.
+// touched. Then checks that each table it changed is fed by one of its spec rows (SPEC-014 aside). So it is checked
+// once every response of the operation has run, at the end of the operation's tests.
 export function checkTables(recorder, action) {
   const pending = Object.hasOwn(PENDING, action) ? PENDING[action].tables : [];
   const listed = [...listedTables(action)].filter((table) => !pending.includes(table)).sort();
   const touched = [...recorder.tables(action)].map((table) => TABLE_IDS.get(table) ?? table).sort();
   assert.deepEqual(touched, listed, `${action} touches other tables than x-corthex.tables lists`);
+  const rows = [...specRows(action)].filter((row) => row !== 'SPEC-014');
+  for (const table of [...recorder.changed(action)].map((name) => TABLE_IDS.get(name) ?? name).sort()) {
+    const fed = FED_BY.get(table) ?? new Set();
+    assert.ok(rows.some((row) => fed.has(row)), `${action} changes ${table}, which none of ${rows.join(', ')} feeds`);
+  }
 }
 
 // Checks that what ran outside every handler touched the request layer's tables only.
@@ -111,13 +135,22 @@ export function checkLayer(recorder) {
 
 // The TBL IDs an operation's x-corthex.tables lists.
 export function listedTables(action) {
-  const found = operations().find(({ operation }) => operation.operationId === action);
-  assert.ok(found, `${action} is no operation of the contract`);
-  return new Set(found.operation['x-corthex'].tables);
+  return new Set(markOf(action).tables);
 }
 
-// What a statement touches, by the authorizer while compile() prepares it: { result, tables }, the tables less those
-// reached only through the schema's keys.
+// The spec rows an operation's x-corthex.spec lists.
+export function specRows(action) {
+  return new Set(markOf(action).spec);
+}
+
+function markOf(action) {
+  const found = operations().find(({ operation }) => operation.operationId === action);
+  assert.ok(found, `${action} is no operation of the contract`);
+  return found.operation['x-corthex'];
+}
+
+// What a statement touches, by the authorizer while compile() prepares it: { result, tables, changed }, tables less
+// those reached only through the schema's keys, and changed those of them it inserts into, updates or deletes from.
 function analysed(db, keys, compile) {
   const reads = new Set();
   const writes = new Map();
@@ -148,12 +181,13 @@ function analysed(db, keys, compile) {
   for (const [table, kinds] of writes) {
     if (!(cascaded.has(table) && kinds.size === 1 && kinds.has('delete'))) tables.add(table);
   }
+  const changed = new Set(tables);
   // The tables keyed to a table the statement writes, which a foreign key's check reads.
   const keyed = new Set([...writes.keys()].flatMap((table) => [...(keys.keyed.get(table) ?? [])]));
   for (const table of reads) {
     if (writes.has(table) ? !cascaded.has(table) : !keyed.has(table)) tables.add(table);
   }
-  return { result, tables };
+  return { result, tables, changed };
 }
 
 // For each table of the store: keyed, the tables its foreign keys name and those whose foreign keys name it; and

@@ -1088,7 +1088,7 @@ paths:
       x-corthex:
         id: API-250
         spec: [SPEC-014, SPEC-044, SPEC-045]
-        tables: [TBL-167]
+        tables: [TBL-147, TBL-157, TBL-166, TBL-167]
         release: Must
         family: agent
       security:
@@ -1220,12 +1220,12 @@ paths:
     delete:
       operationId: releaseEntry
       summary: Release a claim
-      description: Ends the session's claim. A claim the session does not hold answers released false.
+      description: Ends the session's claim. When the session holds no live claim on the entry, it answers released false, unless another session holds one, which answers 409 claimed.
       tags: [agent]
       x-corthex:
         id: API-251
         spec: [SPEC-014, SPEC-045]
-        tables: [TBL-167]
+        tables: [TBL-147, TBL-157, TBL-166, TBL-167]
         release: Must
         family: agent
       security:
