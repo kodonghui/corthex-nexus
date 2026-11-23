@@ -89,8 +89,9 @@ function statementsOf(store) {
          WHERE d.project_id = ? AND d.stage = ? AND d.removed_at IS NULL ORDER BY ${DIAGRAM_ORDER}`,
       ),
       diagram: store.prepare(`SELECT ${DIAGRAM_COLUMNS} FROM diagrams d WHERE d.id = ? AND d.project_id = ?`),
+      // The thread with its diagram's columns; id is the diagram's, as in the statements above.
       thread: store.prepare(
-        `SELECT h.id, h.diagram_id, h.state, h.waits_on, ${DIAGRAM_COLUMNS} FROM comment_threads h JOIN diagrams d ON d.id = h.diagram_id
+        `SELECT h.state, h.waits_on, ${DIAGRAM_COLUMNS} FROM comment_threads h JOIN diagrams d ON d.id = h.diagram_id
          WHERE h.id = ? AND d.project_id = ?`,
       ),
       // The drawing a diagram shows: its last drawn one (SPEC-001). And the one it showed at a revision.
@@ -199,7 +200,7 @@ function threadOf(statements, project, request, inPart) {
   if (row === undefined || row.stage !== request.stage || !inPart(row)) throw new Problem('comment_not_found');
   if (row.removed_at !== null) throw new Problem('diagram_not_found');
   if (row.state === 'closed') throw new Problem('thread_closed');
-  const diagram = Number(row.diagram_id);
+  const diagram = Number(row.id);
   if (request.diagram !== undefined && keyOf('dg', request.diagram) !== diagram) {
     throw invalidRequest('diagram', 'diagram names another diagram than the comment\'s thread is on');
   }

@@ -147,7 +147,8 @@ export function boundedText(value, field, limit, { empty }) {
   // A lone surrogate cannot be stored as UTF-8: the store would keep another text than the one given.
   if (!value.isWellFormed()) throw invalidRequest(field, `${field} must be Unicode text`);
   if (!empty && !/\S/u.test(value)) throw invalidRequest(field, `${field} must not be empty`);
-  if (characters(value) > limit) {
+  // A text of no more UTF-16 units than the limit has no more characters, so only a longer one is counted.
+  if (value.length > limit && characters(value) > limit) {
     throw new Problem('text_too_long', `${field} is over ${limit} characters`, {}, { field, limit });
   }
   return value;

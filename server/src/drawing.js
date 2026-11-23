@@ -353,6 +353,12 @@ function checksOf(statements, snapshotId) {
   return Array.isArray(checks) ? checks : [];
 }
 
+// What a drawer returns, checked the same way for a push and for a proposal: { name, elements }, name text or none.
+function checkResult(result) {
+  if (!isObject(result) || !Array.isArray(result.elements)) throw new TypeError('a drawer returns { name, elements }');
+  if (result.name !== undefined && result.name !== null && typeof result.name !== 'string') throw new TypeError('a diagram\'s name is text');
+}
+
 // Runs a drawer on a document: { status, digest, name, rows, failure }. The digest covers each document it read, its
 // own included, by path and SHA-256 in the order of their paths, and the warnings when it read them and there are any,
 // so that a drawer that draws no warnings is not drawn again when only they change.
@@ -387,8 +393,7 @@ function drawOne(statements, snapshotId, drawer, document, kind, warnings) {
         return warnings;
       },
     });
-    if (!isObject(result) || !Array.isArray(result.elements)) throw new TypeError('a drawer returns { name, elements }');
-    if (result.name !== undefined && result.name !== null && typeof result.name !== 'string') throw new TypeError('a diagram\'s name is text');
+    checkResult(result);
     // A drawing that fails names nothing: the diagram keeps its name with its last good drawing.
     if (result.elements.length > MAX_ELEMENTS) {
       return { status: 'failed', digest: digest(), name: null, rows: [], failure: { path: source, line: null } };
@@ -416,7 +421,7 @@ export function drawProposed({ stage, part, kind, key, text, drawers = DRAWERS }
     if (!(error instanceof SourceFailure)) throw error;
     return { failure: { line: failureOf(error, key).line } };
   }
-  if (!isObject(result) || !Array.isArray(result.elements)) throw new TypeError('a drawer returns { name, elements }');
+  checkResult(result);
   if (result.elements.length > MAX_ELEMENTS) return { failure: { line: null } };
   const elements = elementsOf(result.elements).map((row) => ({ key: row[0], kind: row[2], name: row[3], detail: JSON.parse(row[6]) }));
   return { elements };
