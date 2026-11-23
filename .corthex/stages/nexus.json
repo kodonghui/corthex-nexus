@@ -110,8 +110,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "After the sixth review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T16:04:49+09:00"
+      "next": "After the eighth review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T16:21:22+09:00"
     },
     "05-erd": {
       "state": "in_progress",
@@ -186,8 +186,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "After the sixth review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T16:04:49+09:00"
+      "next": "After the eighth review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T16:21:22+09:00"
     },
     "07-sitemap": {
       "state": "in_progress",
@@ -255,8 +255,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "After the seventh review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T16:13:29+09:00"
+      "next": "After the eighth review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T16:21:22+09:00"
     },
     "09-mockup": {
       "state": "in_progress",
@@ -287,8 +287,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "After the seventh review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T16:14:37+09:00"
+      "next": "After the eighth review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T16:21:22+09:00"
     },
     "10-wbs": {
       "state": "not_started",

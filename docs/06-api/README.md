@@ -24,7 +24,7 @@ Two families share one error shape. The agent family (20 operations) takes the p
 | API-249 | `GET /api/spaces/{project}/checkpoints/{checkpoint}` | Read a confirmation to record | Must | SPEC-014, SPEC-031 |
 | API-250 | `POST /api/spaces/{project}/claims/{entry}` | Claim a to-do entry | Must | SPEC-014, SPEC-044, SPEC-045 |
 | API-251 | `DELETE /api/spaces/{project}/claims/{entry}` | Release a claim | Must | SPEC-014, SPEC-045 |
-| API-252 | `POST /api/spaces/{project}/comments` | Comment as an agent | Must | SPEC-014, SPEC-016 |
+| API-252 | `POST /api/spaces/{project}/comments` | Comment as an agent | Must | SPEC-014, SPEC-016, SPEC-027 |
 | API-253 | `POST /api/spaces/{project}/comments/{comment}/replies` | Reply as an agent | Must | SPEC-014, SPEC-017 |
 | API-254 | `POST /api/spaces/{project}/comments/{comment}/answered` | Mark a comment answered | Must | SPEC-014, SPEC-017 |
 | API-255 | `POST /api/spaces/{project}/comments/{comment}/decisions` | Report where a decision is recorded | Must | SPEC-014, SPEC-017 |
@@ -44,15 +44,15 @@ Two families share one error shape. The agent family (20 operations) takes the p
 | API-264 | `GET /api/projects/{project}` | Read a project | Must | SPEC-005, SPEC-027, SPEC-035, SPEC-046 |
 | API-265 | `GET /api/projects/{project}/diagrams/{diagram}` | Read a diagram | Must | SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-011, SPEC-012, SPEC-022, SPEC-027, SPEC-034, SPEC-051 |
 | API-266 | `GET /api/projects/{project}/threads/{thread}` | Read a thread | Must | SPEC-016, SPEC-017 |
-| API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | Comment as the owner | Must | SPEC-016, SPEC-051 |
+| API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | Comment as the owner | Must | SPEC-016, SPEC-027, SPEC-051 |
 | API-268 | `POST /api/projects/{project}/threads/{thread}/comments` | Reply as the owner | Must | SPEC-017, SPEC-051 |
 | API-269 | `POST /api/projects/{project}/threads/{thread}/close` | Close a thread | Must | SPEC-028 |
-| API-270 | `POST /api/projects/{project}/change-sets/{change_set}/accept` | Accept an AI proposal | Must | SPEC-019 |
+| API-270 | `POST /api/projects/{project}/change-sets/{change_set}/accept` | Accept an AI proposal | Must | SPEC-019, SPEC-027 |
 | API-271 | `POST /api/projects/{project}/change-sets/{change_set}/reject` | Reject an AI proposal | Must | SPEC-020 |
-| API-272 | `POST /api/projects/{project}/diagrams/{diagram}/direct-edits` | Rename or connect directly | Must | SPEC-021 |
+| API-272 | `POST /api/projects/{project}/diagrams/{diagram}/direct-edits` | Rename or connect directly | Must | SPEC-021, SPEC-027 |
 | API-273 | `POST /api/projects/{project}/change-sets/{change_set}/cancel` | Cancel a direct edit | Must | SPEC-023 |
-| API-274 | `POST /api/projects/{project}/diagrams/{diagram}/positions` | Move an element | Must | SPEC-012 |
-| API-275 | `POST /api/projects/{project}/diagrams/{diagram}/confirmation` | Confirm a diagram | Must | SPEC-029, SPEC-031 |
+| API-274 | `POST /api/projects/{project}/diagrams/{diagram}/positions` | Move an element | Must | SPEC-012, SPEC-027 |
+| API-275 | `POST /api/projects/{project}/diagrams/{diagram}/confirmation` | Confirm a diagram | Must | SPEC-027, SPEC-029, SPEC-031 |
 | API-276 | `POST /api/projects/{project}/confirmations/{confirmation}/cancel` | Cancel a confirmation | Must | SPEC-030, SPEC-031 |
 | API-277 | `GET /api/projects/{project}/removal` | Show what deleting removes | Must | SPEC-013 |
 | API-278 | `POST /api/projects/{project}/removal` | Delete a project space | Must | SPEC-013 |
@@ -192,7 +192,7 @@ API-265 serves the pictures of SPEC-006, SPEC-008 and SPEC-009 from the first re
 | SPEC-024 Link a reflection pull request | API-248, API-258 |
 | SPEC-025 Mark changes reflected | API-242, API-258 |
 | SPEC-026 Hand over a diagram's change sets together | API-245, API-248 |
-| SPEC-027 Keep the comments of a removed element | API-242, API-264, API-265 |
+| SPEC-027 Keep the comments of a removed element | API-242, API-252, API-264, API-265, API-267, API-270, API-272, API-274, API-275 |
 | SPEC-028 Close a thread | API-269 |
 | SPEC-029 Confirm a diagram or item table | API-275 |
 | SPEC-030 Cancel a confirmation | API-276 |
@@ -253,3 +253,7 @@ The contract now says what the second review approved: every answer of API-293 d
 #### After the sixth review of pull request 104
 
 One approved item changed, asked on its own and approved through the same delegate: DiagramSummary gains a required removed, and API-264 passes a stage once every diagram of it that is not removed has a recorded confirmation, listing removed ones with open threads last (SPEC-005, SPEC-027). The operations stay 52. This part waits for its own checkpoint.
+
+#### After the eighth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: a removed diagram takes no new thread (API-252, API-267), no direct edit (API-272), no move (API-274) and no confirmation (API-275), each answering 404 diagram_not_found, whose meaning now says so; a proposal on it is refused like one on a drawing that is no longer current (API-270, document_changed). No code, operation or owner message was added or changed. This part waits for its own checkpoint.

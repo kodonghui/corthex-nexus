@@ -118,3 +118,7 @@ The state panels of the 08 view and the tokens of the 09 view are buttons that s
 #### After the seventh review of pull request 104
 
 The mockup page's copy of SCR-145's normal state follows stage 08: a removed diagram with open threads comes last, marked removed, and opens with its threads (SPEC-027). The page is generated again; nothing else in it changed and no approved item of this stage changed. This part waits for its own checkpoint.
+
+#### After the eighth review of pull request 104
+
+The mockup page's copy of SCR-145's and SCR-146's normal states follows stage 08: a removed diagram opens for its threads only (SPEC-027). The page is generated again; nothing else in it changed and no approved item of this stage changed. This part waits for its own checkpoint.

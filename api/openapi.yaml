@@ -1351,11 +1351,11 @@ paths:
     post:
       operationId: leaveComment
       summary: Comment as an agent
-      description: Opens a thread on the stage's diagram of the part, or on the element whose trace ID item names, in the diagram that diagram names or that item picks in a stage with several, or with neither on the stage's first diagram (SPEC-016), at the current drawing or at commit when NEXUS holds it, and puts it in the owner's to-do as a question (SPEC-016). quote, asks and look_first are kept with the comment. A checkpoint request (asks checkpoint) has no item, at most 10 lines and 1,200 characters, and look_first. A discrepancy is never found, since NEXUS v3 has none.
+      description: Opens a thread on the stage's diagram of the part, or on the element whose trace ID item names, in the diagram that diagram names or that item picks in a stage with several, or with neither on the stage's first diagram (SPEC-016), at the current drawing or at commit when NEXUS holds it, and puts it in the owner's to-do as a question (SPEC-016). quote, asks and look_first are kept with the comment. A checkpoint request (asks checkpoint) has no item, at most 10 lines and 1,200 characters, and look_first. A discrepancy is never found, since NEXUS v3 has none. A removed diagram takes no new thread and answers diagram_not_found (SPEC-027).
       tags: [agent]
       x-corthex:
         id: API-252
-        spec: [SPEC-014, SPEC-016]
+        spec: [SPEC-014, SPEC-016, SPEC-027]
         tables: [TBL-157, TBL-158, TBL-166]
         release: Must
         family: agent
@@ -4216,11 +4216,11 @@ paths:
     post:
       operationId: startThread
       summary: Comment as the owner
-      description: Opens a thread on the diagram, an element or a table row at the drawing shown, and puts it in the agent to-do (SPEC-016). An element that left the current drawing gets the thread on the diagram, marked from the removed element. On a PC or a phone (SPEC-051).
+      description: Opens a thread on the diagram, an element or a table row at the drawing shown, and puts it in the agent to-do (SPEC-016). An element that left the current drawing gets the thread on the diagram, marked from the removed element. A removed diagram takes no new thread and answers diagram_not_found (SPEC-027). On a PC or a phone (SPEC-051).
       tags: [owner]
       x-corthex:
         id: API-267
-        spec: [SPEC-016, SPEC-051]
+        spec: [SPEC-016, SPEC-027, SPEC-051]
         tables: [TBL-157, TBL-158, TBL-166]
         release: Must
         family: owner
@@ -4808,11 +4808,11 @@ paths:
     post:
       operationId: acceptProposal
       summary: Accept an AI proposal
-      description: "Marks the proposal accepted and adds its reflection to the agent to-do (SPEC-019). Accepted again: changed false. A proposal made against a drawing that is no longer current is refused, so the owner asks for a new one. A PC action: a phone does not offer it (REQ-068)."
+      description: "Marks the proposal accepted and adds its reflection to the agent to-do (SPEC-019). Accepted again: changed false. A proposal made against a drawing that is no longer current is refused with document_changed, so the owner asks for a new one, and so is a proposal on a removed diagram (SPEC-027). A PC action: a phone does not offer it (REQ-068)."
       tags: [owner]
       x-corthex:
         id: API-270
-        spec: [SPEC-019]
+        spec: [SPEC-019, SPEC-027]
         tables: [TBL-160, TBL-166]
         release: Must
         family: owner
@@ -5225,11 +5225,11 @@ paths:
     post:
       operationId: makeDirectEdit
       summary: Rename or connect directly
-      description: Records a rename or a connection as an accepted change set against the drawing shown (SPEC-021) and adds its reflection to the agent to-do. A connection that already exists answers 200 with no change set. Connecting an element to itself is invalid_request on target.
+      description: Records a rename or a connection as an accepted change set against the drawing shown (SPEC-021) and adds its reflection to the agent to-do. A connection that already exists answers 200 with no change set. Connecting an element to itself is invalid_request on target. A removed diagram takes no direct edit and answers diagram_not_found (SPEC-027).
       tags: [owner]
       x-corthex:
         id: API-272
-        spec: [SPEC-021]
+        spec: [SPEC-021, SPEC-027]
         tables: [TBL-160, TBL-161, TBL-166]
         release: Must
         family: owner
@@ -5669,11 +5669,11 @@ paths:
     post:
       operationId: moveElement
       summary: Move an element
-      description: Saves the position in NEXUS and never in Git (SPEC-012); the last move wins.
+      description: Saves the position in NEXUS and never in Git (SPEC-012); the last move wins. A removed diagram takes no move and answers diagram_not_found (SPEC-027).
       tags: [owner]
       x-corthex:
         id: API-274
-        spec: [SPEC-012]
+        spec: [SPEC-012, SPEC-027]
         tables: [TBL-154]
         release: Must
         family: owner
@@ -5852,11 +5852,11 @@ paths:
     post:
       operationId: confirmDiagram
       summary: Confirm a diagram
-      description: Records the confirmation at the drawing shown and adds recording it to the agent to-do (SPEC-029, SPEC-031). The same drawing again answers 200 with the same confirmation.
+      description: Records the confirmation at the drawing shown and adds recording it to the agent to-do (SPEC-029, SPEC-031). The same drawing again answers 200 with the same confirmation. A removed diagram takes no confirmation and answers diagram_not_found (SPEC-027).
       tags: [owner]
       x-corthex:
         id: API-275
-        spec: [SPEC-029, SPEC-031]
+        spec: [SPEC-027, SPEC-029, SPEC-031]
         tables: [TBL-162, TBL-166]
         release: Must
         family: owner
@@ -9015,7 +9015,7 @@ components:
         client: An agent sends the request again with diagram.
       diagram_not_found:
         status: 404
-        meaning: No diagram has that ID, or the stage has nothing drawn yet.
+        meaning: No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a change, a move, a confirmation or a new thread names was removed (SPEC-027).
         message: This diagram is not in NEXUS.
         message_ko: "NEXUS에 없는 다이어그램이에요."
         client: Link to the project.

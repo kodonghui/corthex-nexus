@@ -24,7 +24,7 @@
 | API-249 | `GET /api/spaces/{project}/checkpoints/{checkpoint}` | 기록할 확정 읽기 | Must | SPEC-014, SPEC-031 |
 | API-250 | `POST /api/spaces/{project}/claims/{entry}` | 할 일 맡기 | Must | SPEC-014, SPEC-044, SPEC-045 |
 | API-251 | `DELETE /api/spaces/{project}/claims/{entry}` | 맡은 일 놓기 | Must | SPEC-014, SPEC-045 |
-| API-252 | `POST /api/spaces/{project}/comments` | 에이전트로 댓글 달기 | Must | SPEC-014, SPEC-016 |
+| API-252 | `POST /api/spaces/{project}/comments` | 에이전트로 댓글 달기 | Must | SPEC-014, SPEC-016, SPEC-027 |
 | API-253 | `POST /api/spaces/{project}/comments/{comment}/replies` | 에이전트로 답하기 | Must | SPEC-014, SPEC-017 |
 | API-254 | `POST /api/spaces/{project}/comments/{comment}/answered` | 댓글에 답했다고 표시 | Must | SPEC-014, SPEC-017 |
 | API-255 | `POST /api/spaces/{project}/comments/{comment}/decisions` | 결정 기록 위치 알리기 | Must | SPEC-014, SPEC-017 |
@@ -44,15 +44,15 @@
 | API-264 | `GET /api/projects/{project}` | 프로젝트 읽기 | Must | SPEC-005, SPEC-027, SPEC-035, SPEC-046 |
 | API-265 | `GET /api/projects/{project}/diagrams/{diagram}` | 다이어그램 읽기 | Must | SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-011, SPEC-012, SPEC-022, SPEC-027, SPEC-034, SPEC-051 |
 | API-266 | `GET /api/projects/{project}/threads/{thread}` | 스레드 읽기 | Must | SPEC-016, SPEC-017 |
-| API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | 소유자로 댓글 달기 | Must | SPEC-016, SPEC-051 |
+| API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | 소유자로 댓글 달기 | Must | SPEC-016, SPEC-027, SPEC-051 |
 | API-268 | `POST /api/projects/{project}/threads/{thread}/comments` | 소유자로 답하기 | Must | SPEC-017, SPEC-051 |
 | API-269 | `POST /api/projects/{project}/threads/{thread}/close` | 스레드 닫기 | Must | SPEC-028 |
-| API-270 | `POST /api/projects/{project}/change-sets/{change_set}/accept` | AI 제안 받아들이기 | Must | SPEC-019 |
+| API-270 | `POST /api/projects/{project}/change-sets/{change_set}/accept` | AI 제안 받아들이기 | Must | SPEC-019, SPEC-027 |
 | API-271 | `POST /api/projects/{project}/change-sets/{change_set}/reject` | AI 제안 거절하기 | Must | SPEC-020 |
-| API-272 | `POST /api/projects/{project}/diagrams/{diagram}/direct-edits` | 직접 이름 바꾸기·연결하기 | Must | SPEC-021 |
+| API-272 | `POST /api/projects/{project}/diagrams/{diagram}/direct-edits` | 직접 이름 바꾸기·연결하기 | Must | SPEC-021, SPEC-027 |
 | API-273 | `POST /api/projects/{project}/change-sets/{change_set}/cancel` | 직접 편집 취소하기 | Must | SPEC-023 |
-| API-274 | `POST /api/projects/{project}/diagrams/{diagram}/positions` | 요소 옮기기 | Must | SPEC-012 |
-| API-275 | `POST /api/projects/{project}/diagrams/{diagram}/confirmation` | 다이어그램 확정하기 | Must | SPEC-029, SPEC-031 |
+| API-274 | `POST /api/projects/{project}/diagrams/{diagram}/positions` | 요소 옮기기 | Must | SPEC-012, SPEC-027 |
+| API-275 | `POST /api/projects/{project}/diagrams/{diagram}/confirmation` | 다이어그램 확정하기 | Must | SPEC-027, SPEC-029, SPEC-031 |
 | API-276 | `POST /api/projects/{project}/confirmations/{confirmation}/cancel` | 확정 취소하기 | Must | SPEC-030, SPEC-031 |
 | API-277 | `GET /api/projects/{project}/removal` | 삭제할 것 보기 | Must | SPEC-013 |
 | API-278 | `POST /api/projects/{project}/removal` | 프로젝트 공간 삭제하기 | Must | SPEC-013 |
@@ -192,7 +192,7 @@
 | SPEC-024 Link a reflection pull request | API-248, API-258 |
 | SPEC-025 Mark changes reflected | API-242, API-258 |
 | SPEC-026 Hand over a diagram's change sets together | API-245, API-248 |
-| SPEC-027 Keep the comments of a removed element | API-242, API-264, API-265 |
+| SPEC-027 Keep the comments of a removed element | API-242, API-252, API-264, API-265, API-267, API-270, API-272, API-274, API-275 |
 | SPEC-028 Close a thread | API-269 |
 | SPEC-029 Confirm a diagram or item table | API-275 |
 | SPEC-030 Cancel a confirmation | API-276 |
@@ -253,3 +253,7 @@ PR 104의 두 번째 리뷰 뒤 항목이 더 바뀌었고, 하나씩 여쭈어 
 #### PR 104 여섯 번째 리뷰 뒤
 
 승인된 항목 1개가 바뀌었고, 하나씩 여쭈어 같은 대리인을 통해 승인했어요. DiagramSummary에 필수 removed가 생겼고, API-264는 지우지 않은 모든 그림에 기록된 확정이 있으면 단계를 통과로 보고, 열린 스레드가 있는 지운 그림은 맨 뒤에 둬요(SPEC-005, SPEC-027). 오퍼레이션은 그대로 52개예요. 이 몫은 따로 체크포인트를 기다려요.
+
+#### PR 104 여덟 번째 리뷰 뒤
+
+승인된 항목 1개가 바뀌었고, 하나씩 여쭈어 같은 대리인을 통해 승인했어요. 지운 그림은 새 스레드(API-252, API-267), 직접 편집(API-272), 옮기기(API-274), 확정(API-275)을 받지 않고 404 diagram_not_found로 답해요. diagram_not_found의 뜻에 그것을 적었어요. 지운 그림의 제안은 지금 그림이 아닌 그림에 대한 제안처럼 거절해요(API-270, document_changed). 더하거나 바꾼 코드, 오퍼레이션, 사용자 화면 글은 없어요. 이 몫은 따로 체크포인트를 기다려요.

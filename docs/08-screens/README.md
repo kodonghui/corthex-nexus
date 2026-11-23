@@ -89,3 +89,7 @@ More approved items changed, each asked on its own and approved through the same
 #### After the seventh review of pull request 104
 
 One approved item changed, asked on its own and approved through the same delegate. Here: SCR-145 lists the stage's diagrams also when a removed one is still listed because it has open threads, and its normal state says that a removed diagram comes last, marked removed, and opens with its threads (SPEC-027). The number of states is unchanged. This part waits for its own checkpoint.
+
+#### After the eighth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate. Here: on SCR-145 a removed diagram opens for its threads only, with no new comment, move, direct edit, proposal answer or confirm button, and SCR-146 shows only its changes, with no confirm button (SPEC-027). The number of states is unchanged. This part waits for its own checkpoint.
