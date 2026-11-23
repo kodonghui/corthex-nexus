@@ -21,7 +21,7 @@ paths:
     post:
       operationId: pushSnapshot
       summary: Accept a snapshot
-      description: "The hub's push. NEXUS stores the snapshot, keeps each picture source and each stage's items as a document (TBL-149, TBL-150), draws the stage diagrams and item tables from them and answers with the revision. A project without a space gets one (SPEC-002): the pinned hub sends a snapshot of a project the server does not hold only after the user's yes, given as push --first. When the project holds a commit, the snapshot must name it in replaces, which the hub sets only for a commit that descends from it or after the user agreed to replace it. The same commit again answers its revision and redraws nothing. A source whose text looks like a secret or an email address is left out and named in refused (REQ-077). A source that cannot be parsed keeps the diagram's last good drawing and is named in failures. The hub sends no request key and no session here; a repeat is recognised by its commit. After drawing, NEXUS invalidates confirmations whose document changed (SPEC-033), marks reflected the change sets of reported reflections (SPEC-025) and moves the threads of removed elements to their diagram (SPEC-027)."
+      description: "The hub's push. NEXUS stores the snapshot, keeps each picture source and each stage's items as a document (TBL-149, TBL-150), draws the stage diagrams and item tables from them and answers with the revision. A corthex-hub/0.3 snapshot also carries the user flows, screen states and mockups, one picture per file with its key (SPEC-006, SPEC-008, SPEC-009). A project without a space gets one (SPEC-002): the pinned hub sends a snapshot of a project the server does not hold only after the user's yes, given as push --first. When the project holds a commit, the snapshot must name it in replaces, which the hub sets only for a commit that descends from it or after the user agreed to replace it. The same commit again answers its revision and redraws nothing. A source whose text looks like a secret or an email address is left out and named in refused (REQ-077). A source that cannot be parsed keeps the diagram's last good drawing and is named in failures. The hub sends no request key and no session here; a repeat is recognised by its commit. After drawing, NEXUS invalidates confirmations whose document changed (SPEC-033), marks reflected the change sets of reported reflections (SPEC-025) and moves the threads of removed elements to their diagram (SPEC-027)."
       tags: [agent]
       x-corthex:
         id: API-242
@@ -140,10 +140,10 @@ paths:
                   value:
                     title: This snapshot format is not known
                     status: 400
-                    detail: NEXUS takes the snapshot formats corthex-hub/0.2
+                    detail: NEXUS takes the snapshot formats corthex-hub/0.2 and corthex-hub/0.3
                     code: unsupported_format
                     traceId: "169bc015ddfa3aab"
-                    versions: [corthex-hub/0.2]
+                    versions: [corthex-hub/0.2, corthex-hub/0.3]
         "401":
           description: "Refused: no valid credential or sign-in"
           content:
@@ -249,7 +249,7 @@ paths:
     get:
       operationId: getHeldCommit
       summary: Read the held commit
-      description: Read before every push. The pinned hub reads only default_commit; a project without a space answers project_not_found, which the hub reads as a first push that waits for --first.
+      description: Read before every push. The answer lists the snapshot formats the server takes. The pinned hub reads only default_commit; a project without a space answers project_not_found, which the hub reads as a first push that waits for --first.
       tags: [agent]
       x-corthex:
         id: API-243
@@ -278,6 +278,7 @@ paths:
                     project: demo
                     default_commit: "5f2c8a1e9b0d4c7a3e6f8b2d1c0a9e8f7b6d5c4a"
                     revision: 4
+                    formats: [corthex-hub/0.2, corthex-hub/0.3]
         "401":
           description: "Refused: no valid credential or sign-in"
           content:
@@ -3877,6 +3878,137 @@ paths:
                     detail: an unexpected error; the trace ID names it
                     code: internal
                     traceId: e1756c56699944d6
+  /api/projects/{project}/diagrams/{diagram}/page:
+    get:
+      operationId: getMockupPage
+      summary: Open a mockup page
+      description: "The HTML of a stage-09 mockup as the hub sent it, from the diagram's current drawing or, when that failed, its last good one (SPEC-009). It is served apart from NEXUS: the Content-Security-Policy makes it a sandbox in which its scripts run but which has no NEXUS origin, cookies or network, and only a NEXUS page may frame it. The diagram view opens it in an iframe with sandbox allow-scripts and lists the tokens from API-265 beside it. Fonts the page loads from the network do not load."
+      tags: [owner]
+      x-corthex:
+        id: API-293
+        spec: [SPEC-009]
+        tables: [TBL-149, TBL-150, TBL-151, TBL-152]
+        release: Must
+        family: owner
+        media: text/html
+        omit:
+          "400": it takes no input but its path, and a malformed path value gets 404
+      security:
+        - ownerSignIn: []
+      parameters:
+        - $ref: "#/components/parameters/project"
+        - $ref: "#/components/parameters/diagram"
+      responses:
+        "200":
+          description: The mockup page
+          headers:
+            Content-Security-Policy:
+              description: The page runs in a sandbox with no network.
+              schema:
+                type: string
+                const: "sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"
+            X-Content-Type-Options:
+              description: The page is read only as HTML.
+              schema:
+                type: string
+                const: nosniff
+            Cache-Control:
+              description: The page is not kept outside the browser's session.
+              schema:
+                type: string
+                const: "private, no-store"
+          content:
+            text/html:
+              schema:
+                type: string
+                maxLength: 1048576
+              examples:
+                page:
+                  value: "<!doctype html><title>NEXUS mockup</title><main>SCR-145</main>"
+        "401":
+          description: "Refused: no valid credential or sign-in"
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthenticated:
+                  value:
+                    title: Sign in to NEXUS
+                    status: 401
+                    detail: this request carries no valid sign-in
+                    code: unauthenticated
+                    traceId: "7b1e0c94d2a35f68"
+        "403":
+          description: "Refused: this caller may not do this"
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                owner-only:
+                  value:
+                    title: Only the owner can do this
+                    status: 403
+                    detail: an agent credential cannot do this; the owner does it in NEXUS
+                    code: owner_only
+                    traceId: "c3f5a7e9b1d20486"
+                not-owner:
+                  value:
+                    title: Only the owner can open NEXUS
+                    status: 403
+                    detail: this sign-in is not the owner's
+                    code: not_owner
+                    traceId: "9d2f4b6a8c0e1357"
+        "404":
+          description: Not found
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                project-not-found:
+                  value:
+                    title: No such project
+                    status: 404
+                    detail: no project space has this name
+                    code: project_not_found
+                    traceId: "5e8a0c2f4b6d7193"
+                diagram-not-found:
+                  value:
+                    title: No such diagram
+                    status: 404
+                    detail: no mockup has this ID in the project
+                    code: diagram_not_found
+                    traceId: "a1c3e5f7092b4d68"
+        "409":
+          description: The mockup has never drawn
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                not-drawn:
+                  value:
+                    title: This mockup has not been drawn
+                    status: 409
+                    detail: the mockup's document has never drawn; fix it and push again
+                    code: not_drawn
+                    traceId: "f0b2d4e6a8c13579"
+        default:
+          description: Any other error
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                internal:
+                  value:
+                    title: Something went wrong
+                    status: 500
+                    detail: an unexpected error; the trace ID names it
+                    code: internal
+                    traceId: "2468ace013579bdf"
   /api/projects/{project}/threads/{thread}:
     get:
       operationId: getThread
@@ -8887,7 +9019,7 @@ components:
         client: Keep the form and mark the name.
       not_drawn:
         status: 409
-        meaning: A confirmation of a diagram whose current drawing failed or that has none.
+        meaning: A confirmation of a diagram whose current drawing failed or that has none, or a mockup page that has never drawn.
         message: Fix the document so that it draws, then confirm.
         message_ko: "문서를 고쳐 그려지게 한 뒤 확정하세요."
         client: Show where the drawing failed.
@@ -9265,8 +9397,8 @@ components:
       description: One of the thirteen CORTHEX stages.
     PictureStage:
       type: string
-      enum: ["01-domain", "05-erd", "07-sitemap"]
-      description: A stage the pinned hub sends a picture source for.
+      enum: ["01-domain", "03-user-flow", "05-erd", "07-sitemap", "08-screen-states", "09-mockup"]
+      description: "A stage the hub sends a picture source for: 01, 05 and 07 in corthex-hub/0.2, and also 03, 08 and 09 in corthex-hub/0.3. A 0.2 snapshot with a picture of stage 03, 08 or 09 is invalid_snapshot."
     Part:
       type: string
       description: A part of the project, or the empty string for the project as a whole.
@@ -9493,8 +9625,8 @@ components:
       properties:
         schema:
           type: string
-          enum: [corthex-hub/0.2]
-          description: The snapshot format; another one gets unsupported_format.
+          enum: [corthex-hub/0.2, corthex-hub/0.3]
+          description: "The snapshot format. corthex-hub/0.3 adds the picture sources of stages 03, 08 and 09, one picture per file, each with key; a hub sends it only to a server whose held commit (API-243) lists it in formats. Another format gets unsupported_format."
         generator:
           type: string
           maxLength: 40
@@ -9570,6 +9702,10 @@ components:
                 $ref: "#/components/schemas/Part"
               stage:
                 $ref: "#/components/schemas/PictureStage"
+              key:
+                type: string
+                maxLength: 300
+                description: "In corthex-hub/0.3, the repository path of the source file of a picture of stage 03, 08 or 09, which has one picture per file. NEXUS keeps it as the diagram's source_key (TBL-151); a picture of those stages without it is invalid_snapshot."
               commit:
                 $ref: "#/components/schemas/Commit"
               source:
@@ -9680,11 +9816,20 @@ components:
           maximum: 1000000
     HeldCommit:
       type: object
-      required: [project, default_commit, revision]
+      required: [project, default_commit, revision, formats]
       additionalProperties: false
       properties:
         project:
           $ref: "#/components/schemas/ProjectName"
+        formats:
+          type: array
+          description: The snapshot formats this server takes. A hub sends corthex-hub/0.3 only when it is listed; the pinned hub reads only default_commit.
+          items:
+            type: string
+            enum: [corthex-hub/0.2, corthex-hub/0.3]
+          minItems: 1
+          maxItems: 10
+          uniqueItems: true
         default_commit:
           anyOf:
             - $ref: "#/components/schemas/Commit"

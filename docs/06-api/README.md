@@ -8,7 +8,7 @@ Source: [api/openapi.yaml](../../api/openapi.yaml), OpenAPI 3.1. Inputs: the fun
 
 ## 1. Operations
 
-Two families share one error shape. The agent family (20 operations) takes the pinned hub's commands in their format; the owner family (31) serves the pages. An agent credential on an owner path gets owner_only, the owner's sign-in on an agent path agent_only.
+Two families share one error shape. The agent family (20 operations) takes the pinned hub's commands in their format; the owner family (32) serves the pages. An agent credential on an owner path gets owner_only, the owner's sign-in on an agent path agent_only.
 
 ### Agent family
 
@@ -70,6 +70,7 @@ Two families share one error shape. The agent family (20 operations) takes the p
 | API-290 | `DELETE /api/projects/{project}/workshop/links/{link}` | Remove a link between notes | Should | SPEC-038 |
 | API-291 | `POST /api/projects/{project}/workshop/steps/{step}/confirm` | Confirm a step | Should | SPEC-039 |
 | API-292 | `POST /api/projects/{project}/workshop/imports` | Import a Miro board | Could | SPEC-041 |
+| API-293 | `GET /api/projects/{project}/diagrams/{diagram}/page` | Open a mockup page | Must | SPEC-009 |
 
 ## 2. Error codes
 
@@ -147,6 +148,8 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 - A reflection's change sets are marked reflected only when NEXUS draws the snapshot of the merge commit that reflected names, or at once when it already holds one (SPEC-025). The server cannot read Git ancestry, so a snapshot of another commit marks nothing; when the push job never sends the merge commit, the agent reports reflected again with a commit NEXUS holds.
 - The hub's reflect event needs-user is refused as invalid_request: no requirement gives NEXUS a meaning for it, and the agent asks the owner in the comment thread instead.
 - An agent decision is an entry of the thread with its link; it is accepted on a closed thread too, since it records where the decision went rather than asking anything.
+- NEXUS takes the snapshot formats corthex-hub/0.2 and corthex-hub/0.3. 0.3 adds the picture sources of stages 03, 08 and 09, one picture per file, each with key, the path of its source file. The held commit (API-243) lists the formats in formats, and a hub sends 0.3 only to a server that lists it; so the running v2, which refuses picture stages and formats it does not know, keeps taking 0.2 from the same hub. A project's first push, which reads no held commit, goes as 0.2.
+- A mockup page (API-293) is the HTML the hub sent, served with Content-Security-Policy sandbox allow-scripts, no network (default-src 'none'; inline scripts and styles; images and fonts from data: only), frame-ancestors 'self' and X-Content-Type-Options nosniff. The diagram view opens it in an iframe with sandbox allow-scripts, so its scripts run but reach neither NEXUS nor its cookies. Fonts a page loads from the network do not load; how the app loads IBM Plex is decided in development.
 - Validation errors are 400 everywhere, including text over its limit (text_too_long with field and limit); 413 is only for a body over its byte limit: 8 MiB for a snapshot, 5 MiB for a Miro export and 2 MiB for any other body, the size of the hub's largest queued write.
 - A repeat that changes nothing succeeds with changed false; a path ID in a malformed form gets the 404 of what it names, never 400, as the hub expects.
 - The pages that the hub links to stay at their addresses: /p/{project}/{part or _}/{stage} and /p/{project}#data. Stage 07 places them.
@@ -155,7 +158,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 
 51 of the 52 spec rows have an operation. Rows without one: SPEC-052 (a server job, not a request; its failure warning reaches the owner through getOwnerTodo).
 
-The pictures of SPEC-006, SPEC-008 and SPEC-009 are left out of the first release (section 6). The rows stay active, and API-265 serves those pictures in a later release.
+API-265 serves the pictures of SPEC-006, SPEC-008 and SPEC-009 from the first release, by the feature change of 2026-11-23 (section 7), and API-293 serves a mockup page.
 
 | Spec | Operations |
 | --- | --- |
@@ -164,10 +167,10 @@ The pictures of SPEC-006, SPEC-008 and SPEC-009 are left out of the first releas
 | SPEC-003 Draw the DDD board | API-242, API-265 |
 | SPEC-004 Draw the ERD | API-242, API-265 |
 | SPEC-005 Show an item table | API-265 |
-| SPEC-006 Draw user-flow diagrams | API-265 (later release) |
+| SPEC-006 Draw user-flow diagrams | API-265 |
 | SPEC-007 Draw the sitemap tree | API-265 |
-| SPEC-008 Draw screen-state panels | API-265 (later release) |
-| SPEC-009 Show mockups with their tokens | API-265 (later release) |
+| SPEC-008 Draw screen-state panels | API-265 |
+| SPEC-009 Show mockups with their tokens | API-265, API-293 |
 | SPEC-010 Show names, hide trace IDs | API-265 |
 | SPEC-011 Copy an element | API-265 |
 | SPEC-012 Move an element and keep its place | API-265, API-274 |
@@ -214,7 +217,7 @@ The pictures of SPEC-006, SPEC-008 and SPEC-009 are left out of the first releas
 
 ## 5. Breaking changes against the previous contract
 
-The previous contract is the archived v2's. Nothing the pinned hub sends or reads changes. Differences the hub does not see: some v2 codes are gone (clock_ahead, too_many_projects, write_id_reused, comment_limit and others) and v3 codes replace them (request_key_reused, thread_closed and others); discrepancies is always empty; no checkpoint_requested turns a request into a reply; /removal and the v2 publication are not served; the owner's sign-in cannot use agent paths; credentials are issued by NEXUS, not as the gate's service tokens. The owner family is new. Replacing the running v2 with v3 is decided at release, not here.
+The previous contract is the archived v2's. Nothing the pinned hub sends or reads changes; the feature change of 2026-11-23 adds the format corthex-hub/0.3 beside 0.2 and the field formats to the held commit, which the pinned hub does not read. Differences the hub does not see: some v2 codes are gone (clock_ahead, too_many_projects, write_id_reused, comment_limit and others) and v3 codes replace them (request_key_reused, thread_closed and others); discrepancies is always empty; no checkpoint_requested turns a request into a reply; /removal and the v2 publication are not served; the owner's sign-in cannot use agent paths; credentials are issued by NEXUS, not as the gate's service tokens. The owner family is new. Replacing the running v2 with v3 is decided at release, not here.
 
 ## 6. What this stage changes in approved items
 
@@ -222,9 +225,13 @@ Each was asked on its own at the checkpoint and approved as recommended. The sta
 
 - **SPEC-002 and SPEC-001, two checks the pinned hub makes before it sends.** SPEC-002 says: "No first-send confirmation in the snapshot → refused, nothing created, the answer says the owner must confirm the first send." The pinned hub's snapshot has no field for it: the hub holds back the first push of a project until the user's yes, given as push --first, and sends nothing different then. Likewise SPEC-001 refuses "a file over 1 MB", but the snapshot carries no files: the hub leaves such a file out and counts it. Recommended: NEXUS creates the space on a first send from a valid agent credential, the confirmation stays the hub's --first, the 1 MB file limit stays the hub's, and the two exceptions say so (REQ-003 is met by the hub's gate). The other way, the owner allowing each new project in NEXUS first, adds an owner action no requirement has.
 - **Rule 3, request keys on every hub command.** Rule 3 says: "Every hub command and every owner action that writes carries a request key." The pinned hub sends no key with push, claim and release. Recommended: those three are repeated safely by commit and by session (the same commit answers its revision; the same session's claim is the same claim), and rule 3 names the hub's queued writes instead of every hub command.
-- **SPEC-006, SPEC-008 and SPEC-009, pictures the snapshot cannot carry.** The pinned hub sends picture sources only for stages 01, 05 and 07, and items for every stage; it sends no user-flow Mermaid, screen states or mockup images. So user-flow diagrams (SPEC-006, Should), screen-state panels (SPEC-008, Could) and mockups with tokens (SPEC-009, Could) cannot be drawn from what the hub sends. Recommended: leave these pictures out of the first release, as their precondition allows; those stages show item tables (SPEC-005), and the rows stay active for a later hub.
+- **SPEC-006, SPEC-008 and SPEC-009, pictures the snapshot cannot carry.** The pinned hub sends picture sources only for stages 01, 05 and 07, and items for every stage; it sends no user-flow Mermaid, screen states or mockup images. So user-flow diagrams (SPEC-006, Should), screen-state panels (SPEC-008, Could) and mockups with tokens (SPEC-009, Could) cannot be drawn from what the hub sends. Recommended: leave these pictures out of the first release, as their precondition allows; those stages show item tables (SPEC-005), and the rows stay active for a later hub. Changed by the feature change of 2026-11-23 (section 7).
 - **The schema, three changes the hub's fields need.** The hub sends fields the stage-05 schema has no column for, and reports a merge without its commit. Recommended: (1) comments.detail, a JSON column for an entry's quote, asks, look_first and decision link; (2) change_sets.detail, a JSON column for a proposal's reason, change text, items, adds and proposed document; (3) pull_requests may be merged without merge_commit, which the hub sends only with reflected, never with merged, and a record's merge never needs. Each is asked on its own as a change to the passed schema.
 
 ## 7. Checkpoint
 
 Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
+
+### Feature change of 2026-11-23
+
+The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: the snapshot format corthex-hub/0.3 with the sources of stages 03, 08 and 09 and a key per picture (Snapshot, PictureStage), the formats a server takes in the held commit (API-243), API-265 serving those pictures from the first release, and a new operation, API-293, that serves a mockup page in isolation (section 3). The 51 operations before it are otherwise unchanged. This stage's part of the change waits for its own checkpoint.

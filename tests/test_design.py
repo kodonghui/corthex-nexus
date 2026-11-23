@@ -154,6 +154,12 @@ class Mockup(unittest.TestCase):
         self.assertGreater(len(wanted), 0)
         self.assertEqual(set(frames), wanted)
 
+    def test_the_stage_views_of_the_workbench_at_both_widths(self):
+        # SCR-145#normal draws the pictures of stages 03, 08 and 09 (SPEC-006, SPEC-008, SPEC-009) as views of its own.
+        views = re.findall(r'<template id="(v-SCR-[^"]+)">', read(MOCKUP))
+        self.assertEqual(len(views), len(set(views)), "a view drawn twice")
+        self.assertEqual(set(views), {"v-SCR-145-normal-%s-%d" % (n, w) for n in ("03", "08", "09") for w in WIDTHS})
+
     def test_styles_use_only_the_tokens(self):
         tokens, rest = mockup_styles()
         defined = set(re.findall(r"(--[A-Za-z0-9-]+):", tokens))

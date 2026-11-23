@@ -73,3 +73,7 @@ The screen definitions are approved before implementation. This stage removes, d
 | SCR-146 (stage 07) | The diff view: every element added, removed or changed since the last confirmed version, before and after (SPEC-034). | Each changed element is marked added, removed or changed, with its name; "before" is a link to the document at the confirmed version in the repository, not a value per element. | SPEC-034 asks to mark the changed elements, and the approved contract (API-265) returns their keys and the confirmed commit, not their earlier values. |
 
 Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
+
+### Feature change of 2026-11-23
+
+The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: SCR-145's data gains the mockup page (API-293), its normal state says how the pictures of stages 03, 08 and 09 look, and its not-drawn state gives the failure text of each kind. The number of states is unchanged. This stage's part of the change waits for its own checkpoint.

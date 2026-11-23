@@ -8,7 +8,7 @@
 
 ## 1. 오퍼레이션
 
-두 계열이 하나의 오류 형식을 써요. 에이전트 계열(20개)은 고정한 hub의 명령을 그 형식 그대로 받고, 소유자 계열(31개)은 화면이 써요. 에이전트 자격 증명으로 소유자 경로를 부르면 owner_only, 소유자 로그인으로 에이전트 경로를 부르면 agent_only로 거절해요.
+두 계열이 하나의 오류 형식을 써요. 에이전트 계열(20개)은 고정한 hub의 명령을 그 형식 그대로 받고, 소유자 계열(32개)은 화면이 써요. 에이전트 자격 증명으로 소유자 경로를 부르면 owner_only, 소유자 로그인으로 에이전트 경로를 부르면 agent_only로 거절해요.
 
 ### 에이전트 계열
 
@@ -70,6 +70,7 @@
 | API-290 | `DELETE /api/projects/{project}/workshop/links/{link}` | 스티커 연결 끊기 | Should | SPEC-038 |
 | API-291 | `POST /api/projects/{project}/workshop/steps/{step}/confirm` | 단계 확정하기 | Should | SPEC-039 |
 | API-292 | `POST /api/projects/{project}/workshop/imports` | Miro 보드 가져오기 | Could | SPEC-041 |
+| API-293 | `GET /api/projects/{project}/diagrams/{diagram}/page` | 목업 페이지 열기 | Must | SPEC-009 |
 
 ## 2. 오류 코드
 
@@ -147,6 +148,8 @@
 - 반영 보고의 변경 세트는 reflected가 가리키는 병합 커밋의 스냅숏을 NEXUS가 그릴 때만, 또는 이미 그 스냅숏이 있으면 바로 반영 완료로 표시해요(SPEC-025). 서버는 Git 조상 관계를 읽을 수 없어서 다른 커밋의 스냅숏으로는 표시하지 않아요. push 작업이 병합 커밋을 끝내 보내지 않으면, 에이전트가 NEXUS가 가진 커밋으로 reflected를 다시 보고해요.
 - hub의 reflect 이벤트 needs-user는 invalid_request로 거절해요. 이 이벤트에 뜻을 주는 요구사항이 없고, 에이전트는 대신 댓글 스레드에서 소유자에게 물어요.
 - 에이전트의 결정 보고는 링크가 달린 스레드 항목이에요. 무엇을 묻지 않고 결정이 기록된 곳을 남기는 것이라 닫힌 스레드에도 받아요.
+- NEXUS는 스냅숏 형식 corthex-hub/0.2와 corthex-hub/0.3을 받아요. 0.3은 03·08·09단계의 그림 원본을 파일마다 그림 하나로 더하고, 그림마다 원본 파일 경로(key)를 붙여요. 서버가 가진 커밋(API-243)의 답에 받는 형식(formats)을 적고, hub는 거기에 0.3이 있을 때만 0.3을 보내요. 그래서 모르는 그림 단계와 형식을 거절하는 운영 중인 v2는 같은 hub에서 계속 0.2를 받아요. 서버에 아직 없는 프로젝트의 첫 push는 가진 커밋이 없으므로 0.2로 가요.
+- 목업 페이지(API-293)는 hub가 보낸 HTML 그대로예요. Content-Security-Policy sandbox allow-scripts, 네트워크 차단(default-src 'none', 인라인 스크립트와 스타일만, 이미지와 글꼴은 data:만), frame-ancestors 'self', X-Content-Type-Options nosniff로 줘요. 다이어그램 화면은 이것을 sandbox allow-scripts인 iframe으로 열어서, 그 안의 스크립트는 돌지만 NEXUS와 쿠키에 닿지 못해요. 페이지가 네트워크에서 불러오는 글꼴은 불러오지 못해요. 앱이 IBM Plex를 어떻게 불러올지는 개발 때 정해요.
 - 입력 검증 오류는 글자 수 초과(text_too_long, field와 limit 포함)까지 모두 400이에요. 413은 본문이 바이트 한도를 넘을 때만 써요: 스냅숏 8 MiB, Miro 내보내기 5 MiB, 그 밖의 본문 2 MiB(hub가 줄 세우는 가장 큰 쓰기 크기).
 - 아무것도 바꾸지 않는 반복 요청은 changed false로 성공해요. 형식이 틀린 경로 ID는 400이 아니라 그것이 가리키는 것의 404를 받아요. hub가 그렇게 읽어요.
 - hub가 링크하는 페이지 주소 /p/{project}/{part 또는 _}/{stage}와 /p/{project}#data는 그대로 둬요. 07단계에서 자리를 정해요.
@@ -155,7 +158,7 @@
 
 명세 52행 가운데 51행에 오퍼레이션이 있어요. 오퍼레이션이 없는 행: SPEC-052(서버 작업이라 요청이 없음; 실패 경고는 getOwnerTodo로 보여 줌).
 
-SPEC-006, SPEC-008, SPEC-009의 그림은 첫 릴리스에서 빠져요(6절). 행은 active로 남고, API-265가 나중 릴리스에서 그 그림을 보여 줘요.
+2026-11-23 기능 변경(7절)으로 API-265가 SPEC-006, SPEC-008, SPEC-009의 그림을 첫 릴리스부터 보여 주고, API-293이 목업 페이지를 줘요.
 
 | 명세 | 오퍼레이션 |
 | --- | --- |
@@ -164,10 +167,10 @@ SPEC-006, SPEC-008, SPEC-009의 그림은 첫 릴리스에서 빠져요(6절). �
 | SPEC-003 Draw the DDD board | API-242, API-265 |
 | SPEC-004 Draw the ERD | API-242, API-265 |
 | SPEC-005 Show an item table | API-265 |
-| SPEC-006 Draw user-flow diagrams | API-265 (나중 릴리스) |
+| SPEC-006 Draw user-flow diagrams | API-265 |
 | SPEC-007 Draw the sitemap tree | API-265 |
-| SPEC-008 Draw screen-state panels | API-265 (나중 릴리스) |
-| SPEC-009 Show mockups with their tokens | API-265 (나중 릴리스) |
+| SPEC-008 Draw screen-state panels | API-265 |
+| SPEC-009 Show mockups with their tokens | API-265, API-293 |
 | SPEC-010 Show names, hide trace IDs | API-265 |
 | SPEC-011 Copy an element | API-265 |
 | SPEC-012 Move an element and keep its place | API-265, API-274 |
@@ -214,7 +217,7 @@ SPEC-006, SPEC-008, SPEC-009의 그림은 첫 릴리스에서 빠져요(6절). �
 
 ## 5. 이전 계약과 달라진 점
 
-이전 계약은 보관한 v2의 것이에요. 고정한 hub가 보내고 읽는 것은 바뀌지 않아요. hub가 보지 않는 차이는 이래요: v2의 오류 코드 일부(clock_ahead, too_many_projects, write_id_reused, comment_limit 따위)를 쓰지 않고 v3 코드(request_key_reused, thread_closed 등)를 써요; discrepancies는 늘 비어 있어요; checkpoint_requested로 기존 요청에 답글을 돌리지 않아요; /removal과 v2 게시는 받지 않아요; 소유자 로그인은 에이전트 경로를 쓸 수 없어요; 자격 증명은 Cloudflare 서비스 토큰이 아니라 NEXUS가 발급해요. 소유자 계열은 모두 새로 만들었어요. 운영 중인 v2를 v3로 바꾸는 일은 이 계약이 아니라 릴리스 때 정해요.
+이전 계약은 보관한 v2의 것이에요. 고정한 hub가 보내고 읽는 것은 바뀌지 않아요. 2026-11-23 기능 변경은 0.2 옆에 형식 corthex-hub/0.3을, 가진 커밋의 답에 formats 필드를 더해요. 고정한 hub는 그 필드를 읽지 않아요. hub가 보지 않는 차이는 이래요: v2의 오류 코드 일부(clock_ahead, too_many_projects, write_id_reused, comment_limit 따위)를 쓰지 않고 v3 코드(request_key_reused, thread_closed 등)를 써요; discrepancies는 늘 비어 있어요; checkpoint_requested로 기존 요청에 답글을 돌리지 않아요; /removal과 v2 게시는 받지 않아요; 소유자 로그인은 에이전트 경로를 쓸 수 없어요; 자격 증명은 Cloudflare 서비스 토큰이 아니라 NEXUS가 발급해요. 소유자 계열은 모두 새로 만들었어요. 운영 중인 v2를 v3로 바꾸는 일은 이 계약이 아니라 릴리스 때 정해요.
 
 ## 6. 승인된 항목에서 바꾸는 것
 
@@ -222,9 +225,13 @@ SPEC-006, SPEC-008, SPEC-009의 그림은 첫 릴리스에서 빠져요(6절). �
 
 - **SPEC-002와 SPEC-001, 고정한 hub가 보내기 전에 하는 두 확인.** SPEC-002는 "스냅숏에 첫 전송 확인이 없으면 거절하고, 아무것도 만들지 않고, 소유자가 첫 전송을 확인해야 한다고 답한다"고 해요. 고정한 hub의 스냅숏에는 그 필드가 없어요. hub는 사용자의 동의(push --first)가 있을 때까지 프로젝트의 첫 push를 보내지 않을 뿐, 보낼 때 다른 표시를 넣지 않아요. SPEC-001의 "1 MB가 넘는 파일은 거절"도 같아요. 스냅숏에는 파일이 실리지 않고, hub가 그런 파일을 빼고 개수만 적어요. 추천: 유효한 에이전트 자격 증명의 첫 전송이면 NEXUS가 공간을 만들고, 첫 전송 확인은 hub의 --first가, 1 MB 파일 한도는 hub가 맡아요. 두 예외 문장을 그렇게 고쳐요(REQ-003은 hub의 확인으로 지켜져요). 다른 방법(소유자가 NEXUS에서 새 프로젝트를 먼저 허락)은 어떤 요구사항에도 없는 소유자 동작을 더해요.
 - **규칙 3, 모든 hub 명령의 요청 키.** 규칙 3은 "모든 hub 명령과 쓰기를 하는 모든 소유자 동작은 요청 키를 싣는다"고 해요. 고정한 hub는 push, claim, release에 키를 보내지 않아요. 추천: 이 셋은 커밋과 세션으로 안전하게 반복되게 하고(같은 커밋은 그 리비전으로 답하고, 같은 세션의 claim은 같은 claim), 규칙 3이 모든 hub 명령 대신 hub가 줄 세우는 쓰기를 가리키게 고쳐요.
-- **SPEC-006, SPEC-008, SPEC-009, 스냅숏에 실리지 않는 그림.** 고정한 hub는 01·05·07단계의 그림 원본과 모든 단계의 항목만 보내요. 사용자 흐름 Mermaid, 화면 상태, 목업 이미지는 보내지 않아요. 그래서 사용자 흐름 다이어그램(SPEC-006, Should), 화면 상태 패널(SPEC-008, Could), 토큰을 단 목업(SPEC-009, Could)은 hub가 보내는 것으로 그릴 수 없어요. 추천: 이 그림들은 선행 조건대로 첫 릴리스에서 빼고, 그 단계들은 항목 표(SPEC-005)로 보여 줘요. 행은 나중 hub를 위해 active로 둬요.
+- **SPEC-006, SPEC-008, SPEC-009, 스냅숏에 실리지 않는 그림.** 고정한 hub는 01·05·07단계의 그림 원본과 모든 단계의 항목만 보내요. 사용자 흐름 Mermaid, 화면 상태, 목업 이미지는 보내지 않아요. 그래서 사용자 흐름 다이어그램(SPEC-006, Should), 화면 상태 패널(SPEC-008, Could), 토큰을 단 목업(SPEC-009, Could)은 hub가 보내는 것으로 그릴 수 없어요. 추천: 이 그림들은 선행 조건대로 첫 릴리스에서 빼고, 그 단계들은 항목 표(SPEC-005)로 보여 줘요. 행은 나중 hub를 위해 active로 둬요. 2026-11-23 기능 변경으로 바뀌었어요(7절).
 - **스키마, hub 필드에 필요한 세 가지 변경.** hub는 05단계 스키마에 열이 없는 필드를 보내고, 병합을 커밋 없이 보고해요. 추천: (1) comments.detail, 항목의 quote·asks·look_first·결정 링크를 담는 JSON 열, (2) change_sets.detail, 제안의 reason·change 글·items·adds·제안 문서를 담는 JSON 열, (3) pull_requests가 merge_commit 없이 merged가 될 수 있게 함(hub는 커밋을 merged가 아니라 reflected에만 보내고, 기록 PR의 병합은 커밋이 필요 없어요). 통과한 스키마를 바꾸는 일이라 하나씩 물어요.
 
 ## 7. 체크포인트
 
 2026-11-23 통과. 관리자가 체크포인트를 맡긴 대리인을 거쳐 추천안을 모두 승인했고, 답은 프로젝트 기록에 있어요.
+
+### 2026-11-23 기능 변경
+
+관리자가 사용자 흐름, 화면 상태, 목업을 첫 릴리스부터 그리기로 정했고, 그 원본은 hub가 보내요. 이 변경이 건드리는 승인 항목은 하나씩 여쭸고, 관리자가 체크포인트용으로 정한 대리인을 통해 승인했어요. 답은 프로젝트 기록에 있어요. 여기서는: 03·08·09단계 원본과 그림마다 key를 싣는 스냅숏 형식 corthex-hub/0.3(Snapshot, PictureStage), 서버가 가진 커밋(API-243)의 답에 받는 형식 목록, 첫 릴리스부터 그 그림을 주는 API-265, 목업 페이지를 떨어진 출처로 주는 새 오퍼레이션 API-293(3절)이에요. 그 앞의 오퍼레이션 51개는 그 밖에는 그대로예요. 이 단계 몫은 따로 체크포인트를 기다려요.

@@ -10,9 +10,9 @@ Inputs: the stage-01 domain design ([nexus.md](../01-domain/nexus.md)), contexts
 
 | Priority | Meaning | What it holds |
 | --- | --- | --- |
-| Must | The first release | Diagrams drawn from Git for stage 01 (DDD board) and stage 05 (ERD), item tables for every other stage, comments and AI proposals, renaming and connecting, confirmation, the to-do, access, viewing and commenting on a phone, daily backups |
-| Should | v3 after the first release has been used | The event storming workshop on a free canvas, pictures for stages 03 and 07, tool links, light and dark themes |
-| Could | Later, when there is time | Pictures for stages 08 and 09, importing a Miro board |
+| Must | The first release | Diagrams drawn from Git for stages 01 (DDD board), 03 (user flows), 05 (ERD), 07 (sitemap), 08 (screen states) and 09 (mockups), item tables for every other stage, comments and AI proposals, renaming and connecting, confirmation, the to-do, access, viewing and commenting on a phone, daily backups |
+| Should | v3 after the first release has been used | The event storming workshop on a free canvas, tool links, light and dark themes |
+| Could | Later, when there is time | Importing a Miro board |
 
 The first release proves one loop end to end: a stage document in Git is drawn, the owner comments, an agent proposes, the change goes back to Git through a pull request, and the owner confirms the diagram.
 
@@ -26,10 +26,10 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 | REQ-004 | The system shall draw stage 01 as a DDD board from the domain document's timeline, contexts, command tables, dependencies and hotspots. | functional | Must | CTX-037 | Redesign recommendations | active |
 | REQ-005 | The system shall draw stage 05 as an ERD from the schema source. | functional | Must | CTX-037 | Redesign recommendations | active |
 | REQ-006 | The system shall show each stage that has no picture in this release as an item table of its items. | functional | Must | CTX-037 | Brief 2026-11-21 | active |
-| REQ-007 | Where user-flow pictures are included, the system shall draw stage 03 as flow diagrams from the user-flow source. | functional | Should | CTX-037 | Redesign recommendations | active |
-| REQ-008 | Where sitemap pictures are included, the system shall draw stage 07 as a sitemap tree from the sitemap source. | functional | Should | CTX-037 | Redesign recommendations | active |
-| REQ-009 | Where screen-state pictures are included, the system shall draw stage 08 as one panel per screen and state. | functional | Could | CTX-037 | Redesign recommendations | active |
-| REQ-010 | Where mockup pictures are included, the system shall show stage 09's mockups with their design tokens. | functional | Could | CTX-037 | Redesign recommendations | active |
+| REQ-007 | Where user-flow pictures are included, the system shall draw stage 03 as flow diagrams from the user-flow source. | functional | Must | CTX-037 | Redesign recommendations | active |
+| REQ-008 | Where sitemap pictures are included, the system shall draw stage 07 as a sitemap tree from the sitemap source. | functional | Must | CTX-037 | Redesign recommendations | active |
+| REQ-009 | Where screen-state pictures are included, the system shall draw stage 08 as one panel per screen and state. | functional | Must | CTX-037 | Redesign recommendations | active |
+| REQ-010 | Where mockup pictures are included, the system shall show stage 09's mockups with their design tokens. | functional | Must | CTX-037 | Redesign recommendations | active |
 | REQ-011 | The system shall show element names on screen and hide their trace IDs. | functional | Must | CTX-037 | Brief 2026-11-21; redesign decision on IDs | active |
 | REQ-012 | When the owner copies an element, the system shall put the element's trace ID and name on the clipboard. | functional | Must | CTX-037 | Redesign decision on IDs | active |
 | REQ-013 | When the owner moves an element on a PC, the system shall store its new position in the diagram's layout without changing the stage document. | functional | Must | CTX-037 | CTX-037 rule | active |
@@ -131,9 +131,13 @@ Checked against two independent lists: OWASP ASVS level 1 (authentication, sessi
 
 The scope freeze and the version freeze were asked together on 2026-11-23, with one question for each stage-01 hotspot settled here. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
 
-- Scope freeze: the first release is the Must requirements; the Should and Could requirements wait.
+- Scope freeze: the first release is the Must requirements; the Should and Could requirements wait. The feature change of 2026-11-23 below made the pictures of stages 03, 07, 08 and 09 Must.
 - Version freeze: the wording of the eighty requirements, inferred targets included. A change goes through the feature-change procedure.
 - Stage-01 hotspots 3 to 9 and 14: answered as in section 3.
 - Approved items that this stage removes, defers or changes: none. The first release leaves out the workshop and the other Should and Could items, which the scope freeze approved.
 - Deleting the data of the running v2 server is not part of this checkpoint and will be asked on its own when v3 replaces v2.
 - Review corrections: after the review of pull request 96, section 4 gained the open question for the workshop release and section 5 names where the logging went. They passed their own checkpoint on 2026-11-23; no requirement changed.
+
+### Feature change of 2026-11-23
+
+The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: the releases table puts the pictures of stages 03, 07, 08 and 09 in the first release, and REQ-007 and REQ-008 (Should) and REQ-009 and REQ-010 (Could) become Must, their wording unchanged. The workshop, tool links, the themes and the Miro import stay Should or Could. This stage's part of the change waits for its own checkpoint.

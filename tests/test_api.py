@@ -207,7 +207,8 @@ class ApiContract(unittest.TestCase):
         for method, path, op in self.ops:
             for status, response in op["responses"].items():
                 if status[0] not in "45" and status != "default":
-                    self.assertEqual(list(response["content"]), ["application/json"], "%s %s" % (path, status))
+                    media = op["x-corthex"].get("media", "application/json")
+                    self.assertEqual(list(response["content"]), [media], "%s %s" % (path, status))
                     continue
                 self.assertEqual(list(response["content"]), ["application/problem+json"], "%s %s" % (path, status))
                 body = response["content"]["application/problem+json"]
