@@ -21,7 +21,7 @@ paths:
     post:
       operationId: pushSnapshot
       summary: Accept a snapshot
-      description: "The hub's push. NEXUS stores the snapshot, keeps each picture source and each stage's items as a document (TBL-149, TBL-150), draws the stage diagrams and item tables from them and answers with the revision. A corthex-hub/0.3 snapshot also carries the user flows, screen states and mockups, one picture per file with its key (SPEC-006, SPEC-008, SPEC-009). A project without a space gets one (SPEC-002): the pinned hub sends a snapshot of a project the server does not hold only after the user's yes, given as push --first. When the project holds a commit, the snapshot must name it in replaces, which the hub sets only for a commit that descends from it or after the user agreed to replace it. The same commit again answers its revision and redraws nothing. A source whose text looks like a secret or an email address is left out and named in refused (REQ-077). A source that cannot be parsed keeps the diagram's last good drawing and is named in failures. The hub sends no request key and no session here; a repeat is recognised by its commit. After drawing, NEXUS invalidates confirmations whose document changed (SPEC-033), marks reflected the change sets of reported reflections (SPEC-025) and moves the threads of removed elements to their diagram (SPEC-027)."
+      description: "The hub's push. NEXUS stores the snapshot, keeps each picture source and each stage's items as a document (TBL-149, TBL-150), draws the stage diagrams and item tables from them and answers with the revision. A corthex-hub/0.3 snapshot also carries the user flows, screen states and mockups, one picture per file with its key (SPEC-006, SPEC-008, SPEC-009). A project without a space gets one (SPEC-002): the pinned hub sends a snapshot of a project the server does not hold only after the user's yes, given as push --first. When the project holds a commit, the snapshot must name it in replaces, which the hub sets only for a commit that descends from it or after the user agreed to replace it. The same commit again answers its revision and redraws nothing, unless it comes in a newer format than the one that commit came in: then it completes that revision, so NEXUS keeps the files the older format did not carry, draws those stages (a stage's item table makes way for its pictures, SPEC-005) and answers the same revision with same_commit true and what it drew. A source whose text looks like a secret or an email address is left out and named in refused (REQ-077). A source that cannot be parsed keeps the diagram's last good drawing and is named in failures. The hub sends no request key and no session here; a repeat is recognised by its commit. After drawing, NEXUS invalidates confirmations whose document changed (SPEC-033), marks reflected the change sets of reported reflections (SPEC-025) and moves the threads of removed elements to their diagram (SPEC-027)."
       tags: [agent]
       x-corthex:
         id: API-242
@@ -249,12 +249,12 @@ paths:
     get:
       operationId: getHeldCommit
       summary: Read the held commit
-      description: Read before every push. The answer lists the snapshot formats the server takes. The pinned hub reads only default_commit; a project without a space answers project_not_found, which the hub reads as a first push that waits for --first.
+      description: Read before every push. The answer lists the snapshot formats the server takes and names the one the held commit came in, so a hub that knows a newer format the server takes sends the same commit again in it (API-242). The pinned hub reads only default_commit; a project without a space answers project_not_found, which the hub reads as a first push that waits for --first.
       tags: [agent]
       x-corthex:
         id: API-243
         spec: [SPEC-001, SPEC-002, SPEC-014]
-        tables: [TBL-147]
+        tables: [TBL-147, TBL-148]
         release: Must
         family: agent
         omit:
@@ -279,6 +279,7 @@ paths:
                     default_commit: "5f2c8a1e9b0d4c7a3e6f8b2d1c0a9e8f7b6d5c4a"
                     revision: 4
                     formats: [corthex-hub/0.2, corthex-hub/0.3]
+                    format: corthex-hub/0.3
         "401":
           description: "Refused: no valid credential or sign-in"
           content:
@@ -1350,7 +1351,7 @@ paths:
     post:
       operationId: leaveComment
       summary: Comment as an agent
-      description: Opens a thread on the stage's diagram of the part, or on the element whose trace ID item names, at the current drawing or at commit when NEXUS holds it, and puts it in the owner's to-do as a question (SPEC-016). quote, asks and look_first are kept with the comment. A checkpoint request (asks checkpoint) has no item, at most 10 lines and 1,200 characters, and look_first. A discrepancy is never found, since NEXUS v3 has none.
+      description: Opens a thread on the stage's diagram of the part, or on the element whose trace ID item names, in the diagram that diagram names or that item picks in a stage with several (SPEC-016), at the current drawing or at commit when NEXUS holds it, and puts it in the owner's to-do as a question (SPEC-016). quote, asks and look_first are kept with the comment. A checkpoint request (asks checkpoint) has no item, at most 10 lines and 1,200 characters, and look_first. A discrepancy is never found, since NEXUS v3 has none.
       tags: [agent]
       x-corthex:
         id: API-252
@@ -1508,6 +1509,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
               examples:
+                diagram-ambiguous:
+                  value:
+                    title: Name the diagram
+                    status: 409
+                    detail: the stage has more than one diagram and the request does not pick one
+                    code: diagram_ambiguous
+                    traceId: "4d6f8a0c2e1b3957"
+                    diagrams: [dg_2b4c6d8e0f1g, dg_3c5d7e9f1g2h]
                 request-key-reused:
                   value:
                     title: The request key was used for another action
@@ -2123,7 +2132,7 @@ paths:
     post:
       operationId: makeProposal
       summary: Post an AI proposal
-      description: Stores the change set against the current drawing and lays it over the diagram (SPEC-018). With source_text, NEXUS draws the proposed document and keeps the differences as changes; without it, the change set marks items with the change text. A proposal answering a comment claims it for the session; one of the agent's own opens a thread for it. A commit other than the current drawing's is refused as document_changed. The owner's sign-in gets agent_only, since the owner edits directly instead.
+      description: Stores the change set against the current drawing and lays it over the diagram, the one that diagram names or that the items pick in a stage with several (SPEC-018). With source_text, NEXUS draws the proposed document and keeps the differences as changes; without it, the change set marks items with the change text. A proposal answering a comment claims it for the session; one of the agent's own opens a thread for it. A commit other than the current drawing's is refused as document_changed. The owner's sign-in gets agent_only, since the owner edits directly instead.
       tags: [agent]
       x-corthex:
         id: API-256
@@ -2287,6 +2296,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
               examples:
+                diagram-ambiguous:
+                  value:
+                    title: Name the diagram
+                    status: 409
+                    detail: the stage has more than one diagram and the request does not pick one
+                    code: diagram_ambiguous
+                    traceId: "6e8a0c2e4b1d3f57"
+                    diagrams: [dg_2b4c6d8e0f1g, dg_3c5d7e9f1g2h]
                 request-key-reused:
                   value:
                     title: The request key was used for another action
@@ -3713,7 +3730,7 @@ paths:
     get:
       operationId: getDiagram
       summary: Read a diagram
-      description: The current drawing with its elements by name and trace ID (SPEC-010, SPEC-011), the owner's positions (SPEC-012), proposals and accepted change sets as overlays (SPEC-022), what changed since the last confirmation (SPEC-034) and the threads, those of removed elements marked (SPEC-027). A failed drawing comes with the last good one. The same answer serves a PC and a phone (SPEC-051).
+      description: The current drawing with its elements by name and trace ID (SPEC-010, SPEC-011), the owner's positions (SPEC-012), proposals and accepted change sets as overlays (SPEC-022), what changed since the last confirmation (SPEC-034) and the threads, those of removed elements marked (SPEC-027). A mockup's elements are the design tokens its page uses, one element of kind token per CSS custom property the page reads with var(), named by it (SPEC-009). A failed drawing comes with the last good one. The same answer serves a PC and a phone (SPEC-051).
       tags: [owner]
       x-corthex:
         id: API-265
@@ -3882,7 +3899,7 @@ paths:
     get:
       operationId: getMockupPage
       summary: Open a mockup page
-      description: "The HTML of a stage-09 mockup as the hub sent it, from the diagram's current drawing or, when that failed, its last good one (SPEC-009). It is served apart from NEXUS: the Content-Security-Policy makes it a sandbox in which its scripts run but which has no NEXUS origin, cookies or network, and only a NEXUS page may frame it. The diagram view opens it in an iframe with sandbox allow-scripts and lists the tokens from API-265 beside it. Fonts the page loads from the network do not load."
+      description: "The HTML of a stage-09 mockup as the hub sent it, from the diagram's current drawing or, when that failed, its last good one (SPEC-009). It is served apart from NEXUS, as text/html; charset=utf-8: the Content-Security-Policy makes it a sandbox in which its scripts run but which has no NEXUS origin, so they reach neither NEXUS's cookies nor its API, and the page itself loads nothing from the network; only a NEXUS page may frame it. The diagram view first requests the page itself and reads only its status, stopping the transfer once the status arrives, because a page cannot read the status of a frame; it opens the page in an iframe with sandbox allow-scripts and nothing more only on 200, and lists the mockup's elements from API-265, its tokens, beside it. A page the mockup navigates its frame to is outside this policy, so the view watches the frame: when it loads a second document, the view opens the mockup page again and says that the mockup tried to open another page. Fonts the page loads from the network do not load."
       tags: [owner]
       x-corthex:
         id: API-293
@@ -8927,6 +8944,12 @@ components:
         message: This change has to come from NEXUS itself.
         message_ko: "이 변경은 NEXUS 화면에서만 할 수 있어요."
         client: Reload the page and try again.
+      diagram_ambiguous:
+        status: 409
+        meaning: A comment or a proposal in a stage with more than one diagram that neither names a diagram nor has an item only one of them holds (SPEC-016, SPEC-018); diagrams lists them.
+        message: Name the diagram.
+        message_ko: "그림을 하나 골라 주세요."
+        client: An agent sends the request again with diagram.
       diagram_not_found:
         status: 404
         meaning: No diagram has that ID, or the stage has nothing drawn yet.
@@ -9551,7 +9574,7 @@ components:
           format: uri-reference
         code:
           type: string
-          enum: [access_missing, agent_only, body_too_large, change_set_not_found, change_set_state, checkpoint_not_found, claimed, comment_not_found, commit_not_replaced, confirmation_cancelled, confirmation_not_found, credential_not_found, cross_site, diagram_not_found, discrepancy_not_found, document_changed, drawing_not_found, edit_not_found, element_not_found, entry_closed, entry_not_found, internal, invalid_request, invalid_snapshot, item_not_found, json_required, method_not_allowed, name_taken, not_drawn, not_found, not_owner, note_link_not_found, note_made_by_owner, note_not_found, older_snapshot, owner_only, part_not_found, project_not_found, proposal_not_found, pull_request_mismatch, pull_request_needed, repository_mismatch, request_key_reused, snapshot_too_large, space_not_found, step_confirmed, step_empty, step_not_found, steps_open, text_too_long, thread_closed, thread_not_found, tool_link_not_found, unauthenticated, unsupported_format, waiting_reflection, workshop_closed, workshop_not_found, workshop_open]
+          enum: [access_missing, agent_only, body_too_large, change_set_not_found, change_set_state, checkpoint_not_found, claimed, comment_not_found, commit_not_replaced, confirmation_cancelled, confirmation_not_found, credential_not_found, cross_site, diagram_ambiguous, diagram_not_found, discrepancy_not_found, document_changed, drawing_not_found, edit_not_found, element_not_found, entry_closed, entry_not_found, internal, invalid_request, invalid_snapshot, item_not_found, json_required, method_not_allowed, name_taken, not_drawn, not_found, not_owner, note_link_not_found, note_made_by_owner, note_not_found, older_snapshot, owner_only, part_not_found, project_not_found, proposal_not_found, pull_request_mismatch, pull_request_needed, repository_mismatch, request_key_reused, snapshot_too_large, space_not_found, step_confirmed, step_empty, step_not_found, steps_open, text_too_long, thread_closed, thread_not_found, tool_link_not_found, unauthenticated, unsupported_format, waiting_reflection, workshop_closed, workshop_not_found, workshop_open]
           description: The error code, listed under components.x-corthex.errors.
         traceId:
           type: string
@@ -9599,6 +9622,12 @@ components:
           anyOf:
             - $ref: "#/components/schemas/Time"
             - type: "null"
+        diagrams:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiagramId"
+          minItems: 2
+          maxItems: 500
         change_sets:
           type: array
           items:
@@ -9744,7 +9773,7 @@ components:
           description: Whether this send created the project space (SPEC-002).
         same_commit:
           type: boolean
-          description: "The same commit again: the same revision, nothing redrawn (SPEC-001)."
+          description: "The same commit again: the same revision; nothing is redrawn unless the commit came in a newer format than before, which completes the revision (SPEC-001, SPEC-005)."
         diagrams:
           type: object
           required: [drawn, unchanged, failed, removed]
@@ -9816,20 +9845,24 @@ components:
           maximum: 1000000
     HeldCommit:
       type: object
-      required: [project, default_commit, revision, formats]
+      required: [project, default_commit, revision, formats, format]
       additionalProperties: false
       properties:
         project:
           $ref: "#/components/schemas/ProjectName"
         formats:
           type: array
-          description: The snapshot formats this server takes. A hub sends corthex-hub/0.3 only when it is listed; the pinned hub reads only default_commit.
+          description: The snapshot formats this server takes. A hub sends corthex-hub/0.3 only when it is listed; the pinned hub reads only default_commit. A later server may list formats this contract does not name, so a hub picks the newest one it knows.
           items:
-            type: string
-            enum: [corthex-hub/0.2, corthex-hub/0.3]
+            $ref: "#/components/schemas/FormatName"
           minItems: 1
           maxItems: 10
           uniqueItems: true
+        format:
+          description: The format the held commit came in, the newest when it came in more than one; null with no held commit.
+          anyOf:
+            - $ref: "#/components/schemas/FormatName"
+            - type: "null"
         default_commit:
           anyOf:
             - $ref: "#/components/schemas/Commit"
@@ -9840,6 +9873,11 @@ components:
               minimum: 1
               maximum: 1000000
             - type: "null"
+    FormatName:
+      type: string
+      description: A snapshot format, such as corthex-hub/0.3.
+      maxLength: 40
+      pattern: "^corthex-hub/[0-9]{1,3}\\.[0-9]{1,3}$"
     RemovalPreview:
       type: object
       description: What deleting the project space removes, with counts (SPEC-013).
@@ -10492,6 +10530,9 @@ components:
           $ref: "#/components/schemas/Part"
         stage:
           $ref: "#/components/schemas/Stage"
+        diagram:
+          $ref: "#/components/schemas/DiagramId"
+          description: "The diagram, for a stage with more than one (stages 03, 08 and 09 have one per file). Without it the item picks the diagram, which works when one diagram of the stage holds it; otherwise the request gets diagram_ambiguous."
         commit:
           $ref: "#/components/schemas/Commit"
         discrepancy:
@@ -10551,6 +10592,9 @@ components:
           $ref: "#/components/schemas/Part"
         stage:
           $ref: "#/components/schemas/PictureStage"
+        diagram:
+          $ref: "#/components/schemas/DiagramId"
+          description: "The diagram, for a stage with more than one (stages 03, 08 and 09 have one per file). Without it the item picks the diagram, which works when one diagram of the stage holds it; otherwise the request gets diagram_ambiguous."
         commit:
           $ref: "#/components/schemas/Commit"
         discrepancy:

@@ -77,3 +77,7 @@ Passed on 2026-11-23. The maintainer approved every recommendation through the d
 ### Feature change of 2026-11-23
 
 The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: SCR-145's data gains the mockup page (API-293), its normal state says how the pictures of stages 03, 08 and 09 look, and its not-drawn state gives the failure text of each kind. The number of states is unchanged. This stage's part of the change passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the review of pull request 104
+
+Approved items changed, each asked on its own and approved through the same delegate. Here: SCR-145 and SCR-146 take the optional query ?diagram=, SCR-145's data gains the stage's diagrams and its actions "Open another diagram of the stage"; its normal state says how the diagrams are listed, that a mockup's tokens are its elements, that the view reads the page's status first and what happens when the page opens another page. The number of states is unchanged. This part waits for its own checkpoint.

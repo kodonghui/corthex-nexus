@@ -159,6 +159,15 @@ class Mockup(unittest.TestCase):
         views = re.findall(r'<template id="(v-SCR-[^"]+)">', read(MOCKUP))
         self.assertEqual(len(views), len(set(views)), "a view drawn twice")
         self.assertEqual(set(views), {"v-SCR-145-normal-%s-%d" % (n, w) for n in ("03", "08", "09") for w in WIDTHS})
+        # The script opens a view for exactly these stages, and every stage tab of a state frame goes where it went at
+        # the stage-09 checkpoint, so the state frames stay as approved.
+        names = json.loads(re.search(r"var VIEWS = (\{.*?\});", read(MOCKUP)).group(1))
+        self.assertEqual(sorted(names), ["03", "08", "09"])
+        tabs = 0
+        for tpl in re.findall(r'<template id="t-SCR-[^"]+">(.*?)</template>', read(MOCKUP), re.S):
+            tabs += len(re.findall(r'<a [^>]*class="tab(?: on)?"', tpl))
+            self.assertEqual(set(re.findall(r'<a [^>]*class="tab(?: on)?"[^>]*data-go="([^"]+)"', tpl)) - {"SCR-145/normal"}, set())
+        self.assertGreater(tabs, 0, "the state frames have stage tabs")
 
     def test_styles_use_only_the_tokens(self):
         tokens, rest = mockup_styles()

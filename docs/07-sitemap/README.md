@@ -34,6 +34,8 @@ flowchart TD
 
 Read model without a screen: TERM-226 (Agent to-do: agents read it through the hub, not on a page).
 
+SCR-145 and SCR-146 take an optional `?diagram={diagram}`: stages 03, 08 and 09 have one diagram per file, so the address names which one; without it the stage's first diagram by name opens, so the hub's stage links work as before.
+
 ## 2. What each screen shows
 
 ### SCR-142 Owner to-do
@@ -152,3 +154,7 @@ Passed on 2026-11-23. The maintainer approved every recommendation through the d
 ### Feature change of 2026-11-23
 
 The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: difference 3 in section 4 draws stages 03, 08 and 09 as pictures; the sitemap is unchanged. This stage's part of the change passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: the address of SCR-145, and of SCR-146 under it, takes an optional `?diagram={diagram}` for a stage with several diagrams. The paths and the tree are unchanged. This part waits for its own checkpoint.
