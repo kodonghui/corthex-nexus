@@ -219,10 +219,15 @@
           "approved": "Pinned hub correction, pull request 115, at commit 9b563e7: with the hub corthex-nexus 0.6.0 pinned in the push job, five sentences describe it: the agent family's description in info, API-243's description, the held commit's formats, section 5 and section 3's sentence on the size of the 0.3 snapshot. Sessions keep the published 0.5.x until 0.6.0 is published. No schema, operation, response, code or example changed. Each changed sentence was answered on its own before the stage passed, and the approved text of each is kept in the change's commit message. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Agent to-do table correction, pull request 118, at commit 56bdf93: API-245's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-156, TBL-157, TBL-158, TBL-160, TBL-163, TBL-166 and TBL-167, the tables its answer reads, instead of the approved TBL-166 and TBL-167. No operation, field, response, code or spec row changed. The changed item was answered on its own before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T00:03:43+09:00"
+      "updated": "2026-11-24T00:43:21+09:00"
     },
     "07-sitemap": {
       "state": "done",
