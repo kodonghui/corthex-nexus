@@ -684,7 +684,7 @@ API-293 (`GET /api/projects/{project}/diagrams/{diagram}/page`, `src/mockup-page
   - `threadChanged` for each thread a reflection closed.
 - **No log line** holds what it found (rule 5).
 
-So API-242 lists 14 tables. The correction at the end of the [API README](../docs/06-api/README.md) that gave it 13 passed its own checkpoint; TASK-442's, which adds TBL-154 and SPEC-012, waits for its own (see [Moving an element](#moving-an-element)).
+So API-242 lists 14 tables. The correction at the end of the [API README](../docs/06-api/README.md) that gave it 13 passed its own checkpoint; TASK-442's, which adds TBL-154 and SPEC-012, passed its own on 2026-11-24 (see [Moving an element](#moving-an-element)).
 
 `test/after-drawing.test.js` checks TASK-435's done condition with pushes of this repository's snapshots, changed in each test, and rows that `test/seed.js` writes. It also checks the push's tables (note 23). `test/snapshots.test.js` answers every response API-242 lists.
 
@@ -1034,9 +1034,9 @@ The two operations read what other tables hold, so API-275 lists 6 tables and AP
 - **Refusals** name the field, never its value: a Move that breaks the contract gets `invalid_request` on `body`, `element`, `x` or `y`.
 - **No log line** holds an element's key, a project's name or a place (rule 5).
 
-No approved document states these rules: that no drawing reads a position, which elements move, that any place within the contract's range is kept, what a push keeps and drops, a move while the latest drawing failed, a move from a page opened before the latest push, a move on a diagram that never drew, a move of an ERD table drawn as `missing`, and note 1. The coordinator chose them for TASK-442, and they wait for the maintainer's delegate with the pull request.
+No approved document states these rules: that no drawing reads a position, which elements move, that any place within the contract's range is kept, what a push keeps and drops, a move while the latest drawing failed, a move from a page opened before the latest push, a move on a diagram that never drew, a move of an ERD table drawn as `missing`, and note 1. The coordinator chose them for TASK-442, and the maintainer approved them through the delegate they named for checkpoints on 2026-11-24.
 
-API-274 reads the project space, the diagram, its drawings and the element it moves, besides the position it writes, so it lists TBL-147, TBL-151, TBL-152, TBL-153 and TBL-154. The push drops positions, so API-242 lists TBL-154 and SPEC-012, the spec row that feeds it. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint, as do the rules above. This part waits for its own checkpoint.
+API-274 reads the project space, the diagram, its drawings and the element it moves, besides the position it writes, so it lists TBL-147, TBL-151, TBL-152, TBL-153 and TBL-154. The push drops positions, so API-242 lists TBL-154 and SPEC-012, the spec row that feeds it. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint on 2026-11-24.
 
 `test/positions.test.js` checks TASK-442's done condition with pushes of this repository's files and the server's own drawers. A moved element keeps its place in the next drawing, and that drawing is the same, box for box, as the drawing of a project whose elements never moved. The test also checks what a push keeps and drops: for an element drawn as unreadable, a failed drawing, a source left out, and a diagram removed and back again. It answers every response API-274 lists, and checks the tables it touches (note 23).
 
