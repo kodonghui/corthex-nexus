@@ -405,20 +405,22 @@ function drawOne(statements, snapshotId, drawer, document, kind, warnings) {
   }
 }
 
-// Draws a proposed document as a file diagram's own file (TASK-438, API-256): text in place of the file at the
-// diagram's key, drawn by the drawer of its kind, with no other document to read and no warnings, as a push would draw
-// it. Returns { elements }, each { key, kind, name, detail } in the drawing's order and checked as a push's elements
-// are, or { failure: { line } } when it does not draw, line the line it fails at or null: a SourceFailure, or more
-// elements than a drawing holds. A kind with no drawer draws nothing: null. Anything else a drawer throws is a fault.
-export function drawProposed({ stage, part, kind, key, text, drawers = DRAWERS }) {
+// Draws a proposed document as a push would draw it, with no other document to read (TASK-438, TASK-466, API-256):
+// for a file diagram, text in place of the file at the diagram's key, with no warnings; for a stage's picture (05 and
+// 07), text the picture NEXUS read from a proposal's SQL or YAML, key null, source the file it read and warnings what
+// the reading left out, each { path, line, detail } as pictureWarnings gives them. Drawn by the drawer of its kind, it
+// returns { elements }, each { key, kind, name, detail } in the drawing's order and checked as a push's elements are,
+// or { failure: { line } } when it does not draw, line the line it fails at or null: a SourceFailure, or more elements
+// than a drawing holds. A kind with no drawer draws nothing: null. Anything else a drawer throws is a fault.
+export function drawProposed({ stage, part, kind, key, text, source = key, warnings = NONE, drawers = DRAWERS }) {
   checkDrawers(drawers);
   if (!Object.hasOwn(drawers, kind)) return null;
   let result;
   try {
-    result = drawers[kind]({ stage, part, key, kind, source: key, text, read: () => null, warnings: NONE });
+    result = drawers[kind]({ stage, part, key, kind, source, text, read: () => null, warnings });
   } catch (error) {
     if (!(error instanceof SourceFailure)) throw error;
-    return { failure: { line: failureOf(error, key).line } };
+    return { failure: { line: failureOf(error, source).line } };
   }
   checkResult(result);
   if (result.elements.length > MAX_ELEMENTS) return { failure: { line: null } };

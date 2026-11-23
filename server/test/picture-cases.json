@@ -1,0 +1,1673 @@
+{
+ "about": "The pinned hub's pictures and checks of SQL and YAML texts this repository's own files do not show, which NEXUS's readers must make alike. tests/test_picture_cases.py checks them against the pinned hub and says how to make them again.",
+ "cases": [
+  {
+   "name": "SQL, MySQL: backslash strings, a comment after the columns, keys and a foreign key added later",
+   "stage": "05-erd",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "db/mysql.sql",
+     "-- TBL-1 users of CTX-1, with TERM-1 and TERM-2\nCREATE TABLE IF NOT EXISTS `users` (\n  `id` INT NOT NULL AUTO_INCREMENT,\n  `name` VARCHAR(20) DEFAULT 'it\\'s',\n  `note` TEXT COMMENT 'can\\'t; stop',\n  `kind` ENUM('a', 'ops@example.com') NOT NULL,\n  `price` DECIMAL( 10 , 2 ) UNSIGNED,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `name_unique` (`name`),\n  KEY `kind_index` (`kind`)\n) ENGINE=InnoDB COMMENT='TBL-1 users of CTX-1, with TERM-1, TERM-2 and TERM-1';\n# a MySQL comment\n#not a comment\nCREATE TABLE `orders` (\n  `id` INT PRIMARY KEY,\n  `user_id` INT REFERENCES `users` (`id`) ON DELETE CASCADE,\n  `ref` CHAR(3) UNIQUE\n) COMMENT = 'TBL-2 orders | status: deleted';\nALTER TABLE `orders` ADD CONSTRAINT `fk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "tables": [
+     {
+      "id": "TBL-1",
+      "name": "users",
+      "context": "CTX-1",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "INT",
+        "null": false,
+        "where": "db/mysql.sql:3"
+       },
+       {
+        "name": "name",
+        "type": "VARCHAR(20)",
+        "null": true,
+        "where": "db/mysql.sql:4"
+       },
+       {
+        "name": "note",
+        "type": "TEXT",
+        "null": true,
+        "where": "db/mysql.sql:5"
+       },
+       {
+        "name": "kind",
+        "type": "ENUM('a', '[redacted]')",
+        "null": false,
+        "where": "db/mysql.sql:6"
+       },
+       {
+        "name": "price",
+        "type": "DECIMAL(10, 2) UNSIGNED",
+        "null": true,
+        "where": "db/mysql.sql:7"
+       }
+      ],
+      "primary_key": [
+       "id"
+      ],
+      "unique": [
+       {
+        "columns": [
+         "name"
+        ],
+        "partial": false
+       }
+      ],
+      "foreign_keys": [],
+      "where": "db/mysql.sql:11",
+      "terms": [
+       "TERM-1",
+       "TERM-2"
+      ]
+     }
+    ],
+    "without_table": []
+   }
+  },
+  {
+   "name": "SQL, PostgreSQL: schemas, quoted names, COMMENT ON, unique indexes, dollar and E strings",
+   "stage": "05-erd",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "db/postgres.sql",
+     "CREATE TABLE IF NOT EXISTS public.\"Accounts\" (\n  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  \"display \"\"name\"\"\" text NOT NULL,\n  code text COLLATE \"C\",\n  owner_id bigint,\n  CONSTRAINT accounts_owner_fk FOREIGN KEY (owner_id) REFERENCES app.users (id) ON DELETE RESTRICT,\n  CHECK (code <> ''),\n  EXCLUDE USING gist (code WITH =)\n);\nCOMMENT ON TABLE public.\"Accounts\" IS 'TBL-3 accounts (CTX-2) terms: none';\nCREATE UNIQUE INDEX accounts_code ON ONLY public.\"Accounts\" USING btree (code COLLATE \"C\" DESC NULLS LAST) WHERE code IS NOT NULL;\nCREATE UNIQUE INDEX accounts_lower ON public.\"Accounts\" (lower(code));\nCREATE UNIQUE INDEX accounts_pair ON public.\"Accounts\" (code ASC, owner_id);\nCREATE INDEX accounts_owner ON public.\"Accounts\" (owner_id);\nCREATE TABLE app.users (id bigint PRIMARY KEY, email text);\nCREATE TABLE audit.users (id bigint PRIMARY KEY);\nALTER TABLE ONLY users ADD FOREIGN KEY (id) REFERENCES public.\"Accounts\" (id);\nALTER TABLE IF EXISTS app.users ADD CONSTRAINT users_account FOREIGN KEY (id) REFERENCES public.\"Accounts\" (id) ON DELETE NO ACTION, ADD COLUMN x int;\nCREATE FUNCTION touch() RETURNS trigger AS $body$ BEGIN NEW.at := now(); RETURN NEW; END; $body$ LANGUAGE plpgsql;\nCREATE TABLE notes (body text DEFAULT E'line\\nnext\\\\', tag text DEFAULT $$a;b$$, PRIMARY KEY (body, tag, body));\nCOMMENT ON COLUMN notes.body IS 'TBL-99 not a table comment';\nCREATE TEMPORARY TABLE scratch (x int);\nCREATE TABLE no_columns;\n/* an unclosed comment\nCREATE TABLE hidden (x int);\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "db/postgres.sql:23: CREATE TABLE has no readable column list",
+     "by": "scan",
+     "stage": "05-erd",
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "db/postgres.sql:12: unique index has an unreadable column expression; rule omitted",
+     "by": "scan",
+     "stage": "05-erd",
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "tables": [
+     {
+      "id": "TBL-3",
+      "name": "Accounts",
+      "context": "CTX-2",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "bigint",
+        "null": false,
+        "where": "db/postgres.sql:2"
+       },
+       {
+        "name": "display \"name\"",
+        "type": "text",
+        "null": false,
+        "where": "db/postgres.sql:3"
+       },
+       {
+        "name": "code",
+        "type": "text",
+        "null": true,
+        "where": "db/postgres.sql:4"
+       },
+       {
+        "name": "owner_id",
+        "type": "bigint",
+        "null": true,
+        "where": "db/postgres.sql:5"
+       }
+      ],
+      "primary_key": [
+       "id"
+      ],
+      "unique": [
+       {
+        "columns": [
+         "code"
+        ],
+        "partial": true
+       },
+       {
+        "columns": [
+         "code",
+         "owner_id"
+        ],
+        "partial": false
+       }
+      ],
+      "foreign_keys": [
+       {
+        "columns": [
+         "owner_id"
+        ],
+        "table": "users",
+        "references": [
+         "id"
+        ],
+        "on_delete": "restrict",
+        "where": "db/postgres.sql:6"
+       }
+      ],
+      "where": "db/postgres.sql:10",
+      "terms": []
+     },
+     {
+      "id": "",
+      "name": "users",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "bigint",
+        "null": false,
+        "where": "db/postgres.sql:15"
+       },
+       {
+        "name": "email",
+        "type": "text",
+        "null": true,
+        "where": "db/postgres.sql:15"
+       }
+      ],
+      "primary_key": [
+       "id"
+      ],
+      "unique": [],
+      "foreign_keys": [
+       {
+        "columns": [
+         "id"
+        ],
+        "table": "Accounts",
+        "references": [
+         "id"
+        ],
+        "on_delete": "no action",
+        "where": "db/postgres.sql:18"
+       }
+      ],
+      "where": "db/postgres.sql:15"
+     },
+     {
+      "id": "",
+      "name": "users",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "bigint",
+        "null": false,
+        "where": "db/postgres.sql:16"
+       }
+      ],
+      "primary_key": [
+       "id"
+      ],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/postgres.sql:16"
+     },
+     {
+      "id": "",
+      "name": "notes",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "body",
+        "type": "text",
+        "null": false,
+        "where": "db/postgres.sql:20"
+       },
+       {
+        "name": "tag",
+        "type": "text",
+        "null": false,
+        "where": "db/postgres.sql:20"
+       }
+      ],
+      "primary_key": [
+       "body",
+       "tag"
+      ],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/postgres.sql:20"
+     },
+     {
+      "id": "",
+      "name": "scratch",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "x",
+        "type": "int",
+        "null": true,
+        "where": "db/postgres.sql:22"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/postgres.sql:22"
+     },
+     {
+      "id": "",
+      "name": "no_columns",
+      "context": "",
+      "removed": false,
+      "columns": [],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/postgres.sql:23"
+     }
+    ],
+    "without_table": []
+   }
+  },
+  {
+   "name": "SQL, a backslash before a quote that is a character, as in PostgreSQL",
+   "stage": "05-erd",
+   "ids": null,
+   "part": "",
+   "shape": false,
+   "documents": [
+    [
+     "db/paths.sql",
+     "INSERT INTO settings VALUES ('C:\\');\n-- TBL-4 settings\nCREATE TABLE settings (path text);\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "tables": [
+     {
+      "id": "TBL-4",
+      "name": "settings",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "path",
+        "type": "text",
+        "null": true,
+        "where": "db/paths.sql:3"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/paths.sql:2"
+     }
+    ],
+    "without_table": []
+   }
+  },
+  {
+   "name": "SQL, SQL Server and Oracle: brackets, GO and / lines, MS_Description properties",
+   "stage": "05-erd",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "db/server.sql",
+     "CREATE TABLE [dbo].[Items] (\n  [Id] INT NOT NULL,\n  [Name] NVARCHAR(50) NULL,\n  [Owner Id] INT NULL,\n  CONSTRAINT [PK_Items] PRIMARY KEY CLUSTERED ([Id] ASC),\n  CONSTRAINT [FK_Items_Owner] FOREIGN KEY ([Owner Id]) REFERENCES [dbo].[Owners] ([Id])\n)\nGO\nEXEC sp_addextendedproperty @name = N'MS_Description', @value = N'TBL-5 items (Deprecated)', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'Items';\nGO 2\nEXEC sys.sp_addextendedproperty N'MS_Description', N'TBL-6 item names', N'SCHEMA', N'dbo', N'TABLE', N'Items', N'COLUMN', N'Name'\nGO\nEXECUTE sp_updateextendedproperty @name = N'MS_Description', @value = N'TBL-7 owners', @level1type = N'TABLE', @level1name = N'Owners', @ = N'x'\ngo\nCREATE TABLE dbo.Owners (Id INT PRIMARY KEY) -- TBL-70 owners\nGO\nCREATE UNIQUE NONCLUSTERED INDEX [IX_Name] ON [dbo].[Items] ([Name]) WHERE [Name] IS NOT NULL\nGO\nSELECT [unclosed bracket name\nFROM x [a [b] y;\nCREATE TABLE ledger (\n  id NUMBER(10) NOT NULL,\n  amount NUMBER(12, 2) DEFAULT 0.5\n)\n/\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "tables": [
+     {
+      "id": "TBL-5",
+      "name": "Items",
+      "context": "",
+      "removed": true,
+      "columns": [
+       {
+        "name": "Id",
+        "type": "INT",
+        "null": false,
+        "where": "db/server.sql:2"
+       },
+       {
+        "name": "Name",
+        "type": "NVARCHAR(50)",
+        "null": true,
+        "where": "db/server.sql:3"
+       },
+       {
+        "name": "Owner Id",
+        "type": "INT",
+        "null": true,
+        "where": "db/server.sql:4"
+       }
+      ],
+      "primary_key": [
+       "Id"
+      ],
+      "unique": [
+       {
+        "columns": [
+         "Name"
+        ],
+        "partial": true
+       }
+      ],
+      "foreign_keys": [
+       {
+        "columns": [
+         "Owner Id"
+        ],
+        "table": "Owners",
+        "references": [
+         "Id"
+        ],
+        "on_delete": "",
+        "where": "db/server.sql:6"
+       }
+      ],
+      "where": "db/server.sql:9"
+     },
+     {
+      "id": "TBL-70",
+      "name": "Owners",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "Id",
+        "type": "INT",
+        "null": false,
+        "where": "db/server.sql:15"
+       }
+      ],
+      "primary_key": [
+       "Id"
+      ],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/server.sql:15"
+     },
+     {
+      "id": "",
+      "name": "ledger",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "NUMBER(10)",
+        "null": false,
+        "where": "db/server.sql:22"
+       },
+       {
+        "name": "amount",
+        "type": "NUMBER(12, 2)",
+        "null": true,
+        "where": "db/server.sql:23"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/server.sql:21"
+     }
+    ],
+    "without_table": []
+   }
+  },
+  {
+   "name": "SQL comments: table markers, removed words and the status field",
+   "stage": "05-erd",
+   "ids": null,
+   "part": "",
+   "shape": false,
+   "documents": [
+    [
+     "db/marks.sql",
+     "-- without a table: TERM-9, TERM-10 and CTX-3\n-- WITHOUT A TABLE: TERM-11\n-- w\u0130thout a table: TERM-12\n-- w\u0131thout a table: TERM-14\n-- without a table TERM-13\n-- TBL-8 ledger (Status: 'active', removed)\nCREATE TABLE ledger (x int);\n-- TBL-9 journal | obsolete\nCREATE TABLE journal (x int);\n-- TBL-10 drafts (status: \"removed\")\nCREATE TABLE drafts (x int);\n-- TBL-11 [archived (removed)] entries\nCREATE TABLE entries (x int);\n-- TBL-12 first\n-- TBL-13 second, the last one counts\nCREATE TABLE twice (x int); -- TBL-14 on the line where it ends\nCREATE TABLE trailing (x int); -- TBL-15 trailing\nCREATE TABLE plain (x int, y int REFERENCES trailing, CONSTRAINT u UNIQUE (x, y), UNIQUE (y));\nCOMMENT ON TABLE plain IS 'TBL-16 plain (status:\nremoved)';\nCOMMENT ON TABLE entries IS 'TBL-17 entries (status: removed\n';\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "tables": [
+     {
+      "id": "TBL-8",
+      "name": "ledger",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "x",
+        "type": "int",
+        "null": true,
+        "where": "db/marks.sql:7"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/marks.sql:6"
+     },
+     {
+      "id": "TBL-9",
+      "name": "journal",
+      "context": "",
+      "removed": true,
+      "columns": [
+       {
+        "name": "x",
+        "type": "int",
+        "null": true,
+        "where": "db/marks.sql:9"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/marks.sql:8"
+     },
+     {
+      "id": "TBL-10",
+      "name": "drafts",
+      "context": "",
+      "removed": true,
+      "columns": [
+       {
+        "name": "x",
+        "type": "int",
+        "null": true,
+        "where": "db/marks.sql:11"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/marks.sql:10"
+     },
+     {
+      "id": "TBL-17",
+      "name": "entries",
+      "context": "",
+      "removed": true,
+      "columns": [
+       {
+        "name": "x",
+        "type": "int",
+        "null": true,
+        "where": "db/marks.sql:13"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/marks.sql:21"
+     },
+     {
+      "id": "TBL-14",
+      "name": "twice",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "x",
+        "type": "int",
+        "null": true,
+        "where": "db/marks.sql:16"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/marks.sql:16"
+     },
+     {
+      "id": "TBL-15",
+      "name": "trailing",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "x",
+        "type": "int",
+        "null": true,
+        "where": "db/marks.sql:17"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/marks.sql:17"
+     },
+     {
+      "id": "TBL-16",
+      "name": "plain",
+      "context": "",
+      "removed": true,
+      "columns": [
+       {
+        "name": "x",
+        "type": "int",
+        "null": true,
+        "where": "db/marks.sql:18"
+       },
+       {
+        "name": "y",
+        "type": "int",
+        "null": true,
+        "where": "db/marks.sql:18"
+       }
+      ],
+      "primary_key": [],
+      "unique": [
+       {
+        "columns": [
+         "x",
+         "y"
+        ],
+        "partial": false
+       },
+       {
+        "columns": [
+         "y"
+        ],
+        "partial": false
+       }
+      ],
+      "foreign_keys": [
+       {
+        "columns": [
+         "y"
+        ],
+        "table": "trailing",
+        "references": [],
+        "on_delete": "",
+        "where": "db/marks.sql:18"
+       }
+      ],
+      "where": "db/marks.sql:19"
+     }
+    ],
+    "without_table": [
+     "TERM-9",
+     "TERM-10",
+     "TERM-11",
+     "TERM-12",
+     "TERM-14"
+    ]
+   }
+  },
+  {
+   "name": "SQL, line breaks other than a line feed, Unicode names and case folding",
+   "stage": "05-erd",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "db/unicode.sql",
+     "-- TBL-18 \ud68c\uc6d0\r\nCREATE TABLE \"\ud68c\uc6d0\" (\r\n  \"\uc774\ub984\" TEXT NOT NULL, -- \uc774\ub984\u2028  \ub098\uc774 INT\r\n  \"\uac00\uc785\" DATE\r\n);\r\nCREATE TABLE \"Stra\u00dfe\" (x INT);\u0085ALTER TABLE STRASSE ADD FOREIGN KEY (x) REFERENCES \"\ud68c\uc6d0\" (\"\uc774\ub984\");\rCREATE TABLE \"\u039f\u0394\u039f\u03a3\" (x INT);\u000bALTER TABLE \"\u03bf\u03b4\u03bf\u03c2\" ADD FOREIGN KEY (x) REFERENCES \"\ud68c\uc6d0\";\f-- TBL-19 \u3000wide spaces\u3000\u001c\nCREATE TABLE wide (x INT);\u2029CREATE TABLE \ud68c\uc6d02 (x INT);"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "tables": [
+     {
+      "id": "TBL-18",
+      "name": "\ud68c\uc6d0",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "\uc774\ub984",
+        "type": "TEXT",
+        "null": false,
+        "where": "db/unicode.sql:3"
+       },
+       {
+        "name": "\uac00\uc785",
+        "type": "DATE",
+        "null": true,
+        "where": "db/unicode.sql:5"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/unicode.sql:1"
+     },
+     {
+      "id": "",
+      "name": "Stra\u00dfe",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "x",
+        "type": "INT",
+        "null": true,
+        "where": "db/unicode.sql:7"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [
+       {
+        "columns": [
+         "x"
+        ],
+        "table": "\ud68c\uc6d0",
+        "references": [
+         "\uc774\ub984"
+        ],
+        "on_delete": "",
+        "where": "db/unicode.sql:8"
+       }
+      ],
+      "where": "db/unicode.sql:7"
+     },
+     {
+      "id": "",
+      "name": "\u039f\u0394\u039f\u03a3",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "x",
+        "type": "INT",
+        "null": true,
+        "where": "db/unicode.sql:9"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [
+       {
+        "columns": [
+         "x"
+        ],
+        "table": "\ud68c\uc6d0",
+        "references": [],
+        "on_delete": "",
+        "where": "db/unicode.sql:10"
+       }
+      ],
+      "where": "db/unicode.sql:9"
+     },
+     {
+      "id": "TBL-19",
+      "name": "wide",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "x",
+        "type": "INT",
+        "null": true,
+        "where": "db/unicode.sql:13"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/unicode.sql:11"
+     }
+    ],
+    "without_table": []
+   }
+  },
+  {
+   "name": "SQL, a project's own trace ID prefixes",
+   "stage": "05-erd",
+   "ids": {
+    "table": "T",
+    "context": "C",
+    "term": "G"
+   },
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "db/own.sql",
+     "-- T-1 users of C-2 with G-3\nCREATE TABLE users (id int);\n-- without a table: G-4\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "tables": [
+     {
+      "id": "T-1",
+      "name": "users",
+      "context": "C-2",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "int",
+        "null": true,
+        "where": "db/own.sql:2"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/own.sql:1",
+      "terms": [
+       "G-3"
+      ]
+     }
+    ],
+    "without_table": [
+     "G-4"
+    ]
+   }
+  },
+  {
+   "name": "SQL, more than 500 tables",
+   "stage": "05-erd",
+   "ids": null,
+   "part": "nexus",
+   "shape": true,
+   "documents": [
+    [
+     "db/first.sql",
+     "CREATE TABLE first (x INT);\n"
+    ],
+    [
+     "db/many.sql",
+     "CREATE TABLE t0 (x INT);\nCREATE TABLE t1 (x INT);\nCREATE TABLE t2 (x INT);\nCREATE TABLE t3 (x INT);\nCREATE TABLE t4 (x INT);\nCREATE TABLE t5 (x INT);\nCREATE TABLE t6 (x INT);\nCREATE TABLE t7 (x INT);\nCREATE TABLE t8 (x INT);\nCREATE TABLE t9 (x INT);\nCREATE TABLE t10 (x INT);\nCREATE TABLE t11 (x INT);\nCREATE TABLE t12 (x INT);\nCREATE TABLE t13 (x INT);\nCREATE TABLE t14 (x INT);\nCREATE TABLE t15 (x INT);\nCREATE TABLE t16 (x INT);\nCREATE TABLE t17 (x INT);\nCREATE TABLE t18 (x INT);\nCREATE TABLE t19 (x INT);\nCREATE TABLE t20 (x INT);\nCREATE TABLE t21 (x INT);\nCREATE TABLE t22 (x INT);\nCREATE TABLE t23 (x INT);\nCREATE TABLE t24 (x INT);\nCREATE TABLE t25 (x INT);\nCREATE TABLE t26 (x INT);\nCREATE TABLE t27 (x INT);\nCREATE TABLE t28 (x INT);\nCREATE TABLE t29 (x INT);\nCREATE TABLE t30 (x INT);\nCREATE TABLE t31 (x INT);\nCREATE TABLE t32 (x INT);\nCREATE TABLE t33 (x INT);\nCREATE TABLE t34 (x INT);\nCREATE TABLE t35 (x INT);\nCREATE TABLE t36 (x INT);\nCREATE TABLE t37 (x INT);\nCREATE TABLE t38 (x INT);\nCREATE TABLE t39 (x INT);\nCREATE TABLE t40 (x INT);\nCREATE TABLE t41 (x INT);\nCREATE TABLE t42 (x INT);\nCREATE TABLE t43 (x INT);\nCREATE TABLE t44 (x INT);\nCREATE TABLE t45 (x INT);\nCREATE TABLE t46 (x INT);\nCREATE TABLE t47 (x INT);\nCREATE TABLE t48 (x INT);\nCREATE TABLE t49 (x INT);\nCREATE TABLE t50 (x INT);\nCREATE TABLE t51 (x INT);\nCREATE TABLE t52 (x INT);\nCREATE TABLE t53 (x INT);\nCREATE TABLE t54 (x INT);\nCREATE TABLE t55 (x INT);\nCREATE TABLE t56 (x INT);\nCREATE TABLE t57 (x INT);\nCREATE TABLE t58 (x INT);\nCREATE TABLE t59 (x INT);\nCREATE TABLE t60 (x INT);\nCREATE TABLE t61 (x INT);\nCREATE TABLE t62 (x INT);\nCREATE TABLE t63 (x INT);\nCREATE TABLE t64 (x INT);\nCREATE TABLE t65 (x INT);\nCREATE TABLE t66 (x INT);\nCREATE TABLE t67 (x INT);\nCREATE TABLE t68 (x INT);\nCREATE TABLE t69 (x INT);\nCREATE TABLE t70 (x INT);\nCREATE TABLE t71 (x INT);\nCREATE TABLE t72 (x INT);\nCREATE TABLE t73 (x INT);\nCREATE TABLE t74 (x INT);\nCREATE TABLE t75 (x INT);\nCREATE TABLE t76 (x INT);\nCREATE TABLE t77 (x INT);\nCREATE TABLE t78 (x INT);\nCREATE TABLE t79 (x INT);\nCREATE TABLE t80 (x INT);\nCREATE TABLE t81 (x INT);\nCREATE TABLE t82 (x INT);\nCREATE TABLE t83 (x INT);\nCREATE TABLE t84 (x INT);\nCREATE TABLE t85 (x INT);\nCREATE TABLE t86 (x INT);\nCREATE TABLE t87 (x INT);\nCREATE TABLE t88 (x INT);\nCREATE TABLE t89 (x INT);\nCREATE TABLE t90 (x INT);\nCREATE TABLE t91 (x INT);\nCREATE TABLE t92 (x INT);\nCREATE TABLE t93 (x INT);\nCREATE TABLE t94 (x INT);\nCREATE TABLE t95 (x INT);\nCREATE TABLE t96 (x INT);\nCREATE TABLE t97 (x INT);\nCREATE TABLE t98 (x INT);\nCREATE TABLE t99 (x INT);\nCREATE TABLE t100 (x INT);\nCREATE TABLE t101 (x INT);\nCREATE TABLE t102 (x INT);\nCREATE TABLE t103 (x INT);\nCREATE TABLE t104 (x INT);\nCREATE TABLE t105 (x INT);\nCREATE TABLE t106 (x INT);\nCREATE TABLE t107 (x INT);\nCREATE TABLE t108 (x INT);\nCREATE TABLE t109 (x INT);\nCREATE TABLE t110 (x INT);\nCREATE TABLE t111 (x INT);\nCREATE TABLE t112 (x INT);\nCREATE TABLE t113 (x INT);\nCREATE TABLE t114 (x INT);\nCREATE TABLE t115 (x INT);\nCREATE TABLE t116 (x INT);\nCREATE TABLE t117 (x INT);\nCREATE TABLE t118 (x INT);\nCREATE TABLE t119 (x INT);\nCREATE TABLE t120 (x INT);\nCREATE TABLE t121 (x INT);\nCREATE TABLE t122 (x INT);\nCREATE TABLE t123 (x INT);\nCREATE TABLE t124 (x INT);\nCREATE TABLE t125 (x INT);\nCREATE TABLE t126 (x INT);\nCREATE TABLE t127 (x INT);\nCREATE TABLE t128 (x INT);\nCREATE TABLE t129 (x INT);\nCREATE TABLE t130 (x INT);\nCREATE TABLE t131 (x INT);\nCREATE TABLE t132 (x INT);\nCREATE TABLE t133 (x INT);\nCREATE TABLE t134 (x INT);\nCREATE TABLE t135 (x INT);\nCREATE TABLE t136 (x INT);\nCREATE TABLE t137 (x INT);\nCREATE TABLE t138 (x INT);\nCREATE TABLE t139 (x INT);\nCREATE TABLE t140 (x INT);\nCREATE TABLE t141 (x INT);\nCREATE TABLE t142 (x INT);\nCREATE TABLE t143 (x INT);\nCREATE TABLE t144 (x INT);\nCREATE TABLE t145 (x INT);\nCREATE TABLE t146 (x INT);\nCREATE TABLE t147 (x INT);\nCREATE TABLE t148 (x INT);\nCREATE TABLE t149 (x INT);\nCREATE TABLE t150 (x INT);\nCREATE TABLE t151 (x INT);\nCREATE TABLE t152 (x INT);\nCREATE TABLE t153 (x INT);\nCREATE TABLE t154 (x INT);\nCREATE TABLE t155 (x INT);\nCREATE TABLE t156 (x INT);\nCREATE TABLE t157 (x INT);\nCREATE TABLE t158 (x INT);\nCREATE TABLE t159 (x INT);\nCREATE TABLE t160 (x INT);\nCREATE TABLE t161 (x INT);\nCREATE TABLE t162 (x INT);\nCREATE TABLE t163 (x INT);\nCREATE TABLE t164 (x INT);\nCREATE TABLE t165 (x INT);\nCREATE TABLE t166 (x INT);\nCREATE TABLE t167 (x INT);\nCREATE TABLE t168 (x INT);\nCREATE TABLE t169 (x INT);\nCREATE TABLE t170 (x INT);\nCREATE TABLE t171 (x INT);\nCREATE TABLE t172 (x INT);\nCREATE TABLE t173 (x INT);\nCREATE TABLE t174 (x INT);\nCREATE TABLE t175 (x INT);\nCREATE TABLE t176 (x INT);\nCREATE TABLE t177 (x INT);\nCREATE TABLE t178 (x INT);\nCREATE TABLE t179 (x INT);\nCREATE TABLE t180 (x INT);\nCREATE TABLE t181 (x INT);\nCREATE TABLE t182 (x INT);\nCREATE TABLE t183 (x INT);\nCREATE TABLE t184 (x INT);\nCREATE TABLE t185 (x INT);\nCREATE TABLE t186 (x INT);\nCREATE TABLE t187 (x INT);\nCREATE TABLE t188 (x INT);\nCREATE TABLE t189 (x INT);\nCREATE TABLE t190 (x INT);\nCREATE TABLE t191 (x INT);\nCREATE TABLE t192 (x INT);\nCREATE TABLE t193 (x INT);\nCREATE TABLE t194 (x INT);\nCREATE TABLE t195 (x INT);\nCREATE TABLE t196 (x INT);\nCREATE TABLE t197 (x INT);\nCREATE TABLE t198 (x INT);\nCREATE TABLE t199 (x INT);\nCREATE TABLE t200 (x INT);\nCREATE TABLE t201 (x INT);\nCREATE TABLE t202 (x INT);\nCREATE TABLE t203 (x INT);\nCREATE TABLE t204 (x INT);\nCREATE TABLE t205 (x INT);\nCREATE TABLE t206 (x INT);\nCREATE TABLE t207 (x INT);\nCREATE TABLE t208 (x INT);\nCREATE TABLE t209 (x INT);\nCREATE TABLE t210 (x INT);\nCREATE TABLE t211 (x INT);\nCREATE TABLE t212 (x INT);\nCREATE TABLE t213 (x INT);\nCREATE TABLE t214 (x INT);\nCREATE TABLE t215 (x INT);\nCREATE TABLE t216 (x INT);\nCREATE TABLE t217 (x INT);\nCREATE TABLE t218 (x INT);\nCREATE TABLE t219 (x INT);\nCREATE TABLE t220 (x INT);\nCREATE TABLE t221 (x INT);\nCREATE TABLE t222 (x INT);\nCREATE TABLE t223 (x INT);\nCREATE TABLE t224 (x INT);\nCREATE TABLE t225 (x INT);\nCREATE TABLE t226 (x INT);\nCREATE TABLE t227 (x INT);\nCREATE TABLE t228 (x INT);\nCREATE TABLE t229 (x INT);\nCREATE TABLE t230 (x INT);\nCREATE TABLE t231 (x INT);\nCREATE TABLE t232 (x INT);\nCREATE TABLE t233 (x INT);\nCREATE TABLE t234 (x INT);\nCREATE TABLE t235 (x INT);\nCREATE TABLE t236 (x INT);\nCREATE TABLE t237 (x INT);\nCREATE TABLE t238 (x INT);\nCREATE TABLE t239 (x INT);\nCREATE TABLE t240 (x INT);\nCREATE TABLE t241 (x INT);\nCREATE TABLE t242 (x INT);\nCREATE TABLE t243 (x INT);\nCREATE TABLE t244 (x INT);\nCREATE TABLE t245 (x INT);\nCREATE TABLE t246 (x INT);\nCREATE TABLE t247 (x INT);\nCREATE TABLE t248 (x INT);\nCREATE TABLE t249 (x INT);\nCREATE TABLE t250 (x INT);\nCREATE TABLE t251 (x INT);\nCREATE TABLE t252 (x INT);\nCREATE TABLE t253 (x INT);\nCREATE TABLE t254 (x INT);\nCREATE TABLE t255 (x INT);\nCREATE TABLE t256 (x INT);\nCREATE TABLE t257 (x INT);\nCREATE TABLE t258 (x INT);\nCREATE TABLE t259 (x INT);\nCREATE TABLE t260 (x INT);\nCREATE TABLE t261 (x INT);\nCREATE TABLE t262 (x INT);\nCREATE TABLE t263 (x INT);\nCREATE TABLE t264 (x INT);\nCREATE TABLE t265 (x INT);\nCREATE TABLE t266 (x INT);\nCREATE TABLE t267 (x INT);\nCREATE TABLE t268 (x INT);\nCREATE TABLE t269 (x INT);\nCREATE TABLE t270 (x INT);\nCREATE TABLE t271 (x INT);\nCREATE TABLE t272 (x INT);\nCREATE TABLE t273 (x INT);\nCREATE TABLE t274 (x INT);\nCREATE TABLE t275 (x INT);\nCREATE TABLE t276 (x INT);\nCREATE TABLE t277 (x INT);\nCREATE TABLE t278 (x INT);\nCREATE TABLE t279 (x INT);\nCREATE TABLE t280 (x INT);\nCREATE TABLE t281 (x INT);\nCREATE TABLE t282 (x INT);\nCREATE TABLE t283 (x INT);\nCREATE TABLE t284 (x INT);\nCREATE TABLE t285 (x INT);\nCREATE TABLE t286 (x INT);\nCREATE TABLE t287 (x INT);\nCREATE TABLE t288 (x INT);\nCREATE TABLE t289 (x INT);\nCREATE TABLE t290 (x INT);\nCREATE TABLE t291 (x INT);\nCREATE TABLE t292 (x INT);\nCREATE TABLE t293 (x INT);\nCREATE TABLE t294 (x INT);\nCREATE TABLE t295 (x INT);\nCREATE TABLE t296 (x INT);\nCREATE TABLE t297 (x INT);\nCREATE TABLE t298 (x INT);\nCREATE TABLE t299 (x INT);\nCREATE TABLE t300 (x INT);\nCREATE TABLE t301 (x INT);\nCREATE TABLE t302 (x INT);\nCREATE TABLE t303 (x INT);\nCREATE TABLE t304 (x INT);\nCREATE TABLE t305 (x INT);\nCREATE TABLE t306 (x INT);\nCREATE TABLE t307 (x INT);\nCREATE TABLE t308 (x INT);\nCREATE TABLE t309 (x INT);\nCREATE TABLE t310 (x INT);\nCREATE TABLE t311 (x INT);\nCREATE TABLE t312 (x INT);\nCREATE TABLE t313 (x INT);\nCREATE TABLE t314 (x INT);\nCREATE TABLE t315 (x INT);\nCREATE TABLE t316 (x INT);\nCREATE TABLE t317 (x INT);\nCREATE TABLE t318 (x INT);\nCREATE TABLE t319 (x INT);\nCREATE TABLE t320 (x INT);\nCREATE TABLE t321 (x INT);\nCREATE TABLE t322 (x INT);\nCREATE TABLE t323 (x INT);\nCREATE TABLE t324 (x INT);\nCREATE TABLE t325 (x INT);\nCREATE TABLE t326 (x INT);\nCREATE TABLE t327 (x INT);\nCREATE TABLE t328 (x INT);\nCREATE TABLE t329 (x INT);\nCREATE TABLE t330 (x INT);\nCREATE TABLE t331 (x INT);\nCREATE TABLE t332 (x INT);\nCREATE TABLE t333 (x INT);\nCREATE TABLE t334 (x INT);\nCREATE TABLE t335 (x INT);\nCREATE TABLE t336 (x INT);\nCREATE TABLE t337 (x INT);\nCREATE TABLE t338 (x INT);\nCREATE TABLE t339 (x INT);\nCREATE TABLE t340 (x INT);\nCREATE TABLE t341 (x INT);\nCREATE TABLE t342 (x INT);\nCREATE TABLE t343 (x INT);\nCREATE TABLE t344 (x INT);\nCREATE TABLE t345 (x INT);\nCREATE TABLE t346 (x INT);\nCREATE TABLE t347 (x INT);\nCREATE TABLE t348 (x INT);\nCREATE TABLE t349 (x INT);\nCREATE TABLE t350 (x INT);\nCREATE TABLE t351 (x INT);\nCREATE TABLE t352 (x INT);\nCREATE TABLE t353 (x INT);\nCREATE TABLE t354 (x INT);\nCREATE TABLE t355 (x INT);\nCREATE TABLE t356 (x INT);\nCREATE TABLE t357 (x INT);\nCREATE TABLE t358 (x INT);\nCREATE TABLE t359 (x INT);\nCREATE TABLE t360 (x INT);\nCREATE TABLE t361 (x INT);\nCREATE TABLE t362 (x INT);\nCREATE TABLE t363 (x INT);\nCREATE TABLE t364 (x INT);\nCREATE TABLE t365 (x INT);\nCREATE TABLE t366 (x INT);\nCREATE TABLE t367 (x INT);\nCREATE TABLE t368 (x INT);\nCREATE TABLE t369 (x INT);\nCREATE TABLE t370 (x INT);\nCREATE TABLE t371 (x INT);\nCREATE TABLE t372 (x INT);\nCREATE TABLE t373 (x INT);\nCREATE TABLE t374 (x INT);\nCREATE TABLE t375 (x INT);\nCREATE TABLE t376 (x INT);\nCREATE TABLE t377 (x INT);\nCREATE TABLE t378 (x INT);\nCREATE TABLE t379 (x INT);\nCREATE TABLE t380 (x INT);\nCREATE TABLE t381 (x INT);\nCREATE TABLE t382 (x INT);\nCREATE TABLE t383 (x INT);\nCREATE TABLE t384 (x INT);\nCREATE TABLE t385 (x INT);\nCREATE TABLE t386 (x INT);\nCREATE TABLE t387 (x INT);\nCREATE TABLE t388 (x INT);\nCREATE TABLE t389 (x INT);\nCREATE TABLE t390 (x INT);\nCREATE TABLE t391 (x INT);\nCREATE TABLE t392 (x INT);\nCREATE TABLE t393 (x INT);\nCREATE TABLE t394 (x INT);\nCREATE TABLE t395 (x INT);\nCREATE TABLE t396 (x INT);\nCREATE TABLE t397 (x INT);\nCREATE TABLE t398 (x INT);\nCREATE TABLE t399 (x INT);\nCREATE TABLE t400 (x INT);\nCREATE TABLE t401 (x INT);\nCREATE TABLE t402 (x INT);\nCREATE TABLE t403 (x INT);\nCREATE TABLE t404 (x INT);\nCREATE TABLE t405 (x INT);\nCREATE TABLE t406 (x INT);\nCREATE TABLE t407 (x INT);\nCREATE TABLE t408 (x INT);\nCREATE TABLE t409 (x INT);\nCREATE TABLE t410 (x INT);\nCREATE TABLE t411 (x INT);\nCREATE TABLE t412 (x INT);\nCREATE TABLE t413 (x INT);\nCREATE TABLE t414 (x INT);\nCREATE TABLE t415 (x INT);\nCREATE TABLE t416 (x INT);\nCREATE TABLE t417 (x INT);\nCREATE TABLE t418 (x INT);\nCREATE TABLE t419 (x INT);\nCREATE TABLE t420 (x INT);\nCREATE TABLE t421 (x INT);\nCREATE TABLE t422 (x INT);\nCREATE TABLE t423 (x INT);\nCREATE TABLE t424 (x INT);\nCREATE TABLE t425 (x INT);\nCREATE TABLE t426 (x INT);\nCREATE TABLE t427 (x INT);\nCREATE TABLE t428 (x INT);\nCREATE TABLE t429 (x INT);\nCREATE TABLE t430 (x INT);\nCREATE TABLE t431 (x INT);\nCREATE TABLE t432 (x INT);\nCREATE TABLE t433 (x INT);\nCREATE TABLE t434 (x INT);\nCREATE TABLE t435 (x INT);\nCREATE TABLE t436 (x INT);\nCREATE TABLE t437 (x INT);\nCREATE TABLE t438 (x INT);\nCREATE TABLE t439 (x INT);\nCREATE TABLE t440 (x INT);\nCREATE TABLE t441 (x INT);\nCREATE TABLE t442 (x INT);\nCREATE TABLE t443 (x INT);\nCREATE TABLE t444 (x INT);\nCREATE TABLE t445 (x INT);\nCREATE TABLE t446 (x INT);\nCREATE TABLE t447 (x INT);\nCREATE TABLE t448 (x INT);\nCREATE TABLE t449 (x INT);\nCREATE TABLE t450 (x INT);\nCREATE TABLE t451 (x INT);\nCREATE TABLE t452 (x INT);\nCREATE TABLE t453 (x INT);\nCREATE TABLE t454 (x INT);\nCREATE TABLE t455 (x INT);\nCREATE TABLE t456 (x INT);\nCREATE TABLE t457 (x INT);\nCREATE TABLE t458 (x INT);\nCREATE TABLE t459 (x INT);\nCREATE TABLE t460 (x INT);\nCREATE TABLE t461 (x INT);\nCREATE TABLE t462 (x INT);\nCREATE TABLE t463 (x INT);\nCREATE TABLE t464 (x INT);\nCREATE TABLE t465 (x INT);\nCREATE TABLE t466 (x INT);\nCREATE TABLE t467 (x INT);\nCREATE TABLE t468 (x INT);\nCREATE TABLE t469 (x INT);\nCREATE TABLE t470 (x INT);\nCREATE TABLE t471 (x INT);\nCREATE TABLE t472 (x INT);\nCREATE TABLE t473 (x INT);\nCREATE TABLE t474 (x INT);\nCREATE TABLE t475 (x INT);\nCREATE TABLE t476 (x INT);\nCREATE TABLE t477 (x INT);\nCREATE TABLE t478 (x INT);\nCREATE TABLE t479 (x INT);\nCREATE TABLE t480 (x INT);\nCREATE TABLE t481 (x INT);\nCREATE TABLE t482 (x INT);\nCREATE TABLE t483 (x INT);\nCREATE TABLE t484 (x INT);\nCREATE TABLE t485 (x INT);\nCREATE TABLE t486 (x INT);\nCREATE TABLE t487 (x INT);\nCREATE TABLE t488 (x INT);\nCREATE TABLE t489 (x INT);\nCREATE TABLE t490 (x INT);\nCREATE TABLE t491 (x INT);\nCREATE TABLE t492 (x INT);\nCREATE TABLE t493 (x INT);\nCREATE TABLE t494 (x INT);\nCREATE TABLE t495 (x INT);\nCREATE TABLE t496 (x INT);\nCREATE TABLE t497 (x INT);\nCREATE TABLE t498 (x INT);\nCREATE TABLE t499 (x INT);\nCREATE TABLE t500 (x INT);\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "db/many.sql:1: more than 500 tables; later tables are omitted",
+     "by": "scan",
+     "stage": "05-erd",
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "tables": {
+     "count": 500,
+     "first": {
+      "id": "",
+      "name": "first",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "x",
+        "type": "INT",
+        "null": true,
+        "where": "db/first.sql:1"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/first.sql:1"
+     },
+     "last": {
+      "id": "",
+      "name": "t498",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "x",
+        "type": "INT",
+        "null": true,
+        "where": "db/many.sql:499"
+       }
+      ],
+      "primary_key": [],
+      "unique": [],
+      "foreign_keys": [],
+      "where": "db/many.sql:499"
+     }
+    },
+    "without_table": []
+   }
+  },
+  {
+   "name": "SQL, a table over its limits of columns, unique rules and foreign keys",
+   "stage": "05-erd",
+   "ids": null,
+   "part": "nexus",
+   "shape": true,
+   "documents": [
+    [
+     "db/wide.sql",
+     "CREATE TABLE wide (\n  c0 INT UNIQUE REFERENCES other (id),\n  c1 INT UNIQUE REFERENCES other (id),\n  c2 INT UNIQUE REFERENCES other (id),\n  c3 INT UNIQUE REFERENCES other (id),\n  c4 INT UNIQUE REFERENCES other (id),\n  c5 INT UNIQUE REFERENCES other (id),\n  c6 INT UNIQUE REFERENCES other (id),\n  c7 INT UNIQUE REFERENCES other (id),\n  c8 INT UNIQUE REFERENCES other (id),\n  c9 INT UNIQUE REFERENCES other (id),\n  c10 INT UNIQUE REFERENCES other (id),\n  c11 INT UNIQUE REFERENCES other (id),\n  c12 INT UNIQUE REFERENCES other (id),\n  c13 INT UNIQUE REFERENCES other (id),\n  c14 INT UNIQUE REFERENCES other (id),\n  c15 INT UNIQUE REFERENCES other (id),\n  c16 INT UNIQUE REFERENCES other (id),\n  c17 INT UNIQUE REFERENCES other (id),\n  c18 INT UNIQUE REFERENCES other (id),\n  c19 INT UNIQUE REFERENCES other (id),\n  c20 INT UNIQUE REFERENCES other (id),\n  c21 INT UNIQUE REFERENCES other (id),\n  c22 INT UNIQUE REFERENCES other (id),\n  c23 INT UNIQUE REFERENCES other (id),\n  c24 INT UNIQUE REFERENCES other (id),\n  c25 INT UNIQUE REFERENCES other (id),\n  c26 INT UNIQUE REFERENCES other (id),\n  c27 INT UNIQUE REFERENCES other (id),\n  c28 INT UNIQUE REFERENCES other (id),\n  c29 INT UNIQUE REFERENCES other (id),\n  c30 INT UNIQUE REFERENCES other (id),\n  c31 INT UNIQUE REFERENCES other (id),\n  c32 INT UNIQUE REFERENCES other (id),\n  c33 INT UNIQUE REFERENCES other (id),\n  c34 INT UNIQUE REFERENCES other (id),\n  c35 INT UNIQUE REFERENCES other (id),\n  c36 INT UNIQUE REFERENCES other (id),\n  c37 INT UNIQUE REFERENCES other (id),\n  c38 INT UNIQUE REFERENCES other (id),\n  c39 INT UNIQUE REFERENCES other (id),\n  c40 INT UNIQUE REFERENCES other (id),\n  c41 INT UNIQUE REFERENCES other (id),\n  c42 INT UNIQUE REFERENCES other (id),\n  c43 INT UNIQUE REFERENCES other (id),\n  c44 INT UNIQUE REFERENCES other (id),\n  c45 INT UNIQUE REFERENCES other (id),\n  c46 INT UNIQUE REFERENCES other (id),\n  c47 INT UNIQUE REFERENCES other (id),\n  c48 INT UNIQUE REFERENCES other (id),\n  c49 INT UNIQUE REFERENCES other (id),\n  c50 INT UNIQUE REFERENCES other (id),\n  c51 INT REFERENCES other (id),\n  c52 INT REFERENCES other (id),\n  c53 INT REFERENCES other (id),\n  c54 INT REFERENCES other (id),\n  c55 INT REFERENCES other (id),\n  c56 INT REFERENCES other (id),\n  c57 INT REFERENCES other (id),\n  c58 INT REFERENCES other (id),\n  c59 INT REFERENCES other (id),\n  c60 INT REFERENCES other (id),\n  c61 INT REFERENCES other (id),\n  c62 INT REFERENCES other (id),\n  c63 INT REFERENCES other (id),\n  c64 INT REFERENCES other (id),\n  c65 INT REFERENCES other (id),\n  c66 INT REFERENCES other (id),\n  c67 INT REFERENCES other (id),\n  c68 INT REFERENCES other (id),\n  c69 INT REFERENCES other (id),\n  c70 INT REFERENCES other (id),\n  c71 INT REFERENCES other (id),\n  c72 INT REFERENCES other (id),\n  c73 INT REFERENCES other (id),\n  c74 INT REFERENCES other (id),\n  c75 INT REFERENCES other (id),\n  c76 INT REFERENCES other (id),\n  c77 INT REFERENCES other (id),\n  c78 INT REFERENCES other (id),\n  c79 INT REFERENCES other (id),\n  c80 INT REFERENCES other (id),\n  c81 INT REFERENCES other (id),\n  c82 INT REFERENCES other (id),\n  c83 INT REFERENCES other (id),\n  c84 INT REFERENCES other (id),\n  c85 INT REFERENCES other (id),\n  c86 INT REFERENCES other (id),\n  c87 INT REFERENCES other (id),\n  c88 INT REFERENCES other (id),\n  c89 INT REFERENCES other (id),\n  c90 INT REFERENCES other (id),\n  c91 INT REFERENCES other (id),\n  c92 INT REFERENCES other (id),\n  c93 INT REFERENCES other (id),\n  c94 INT REFERENCES other (id),\n  c95 INT REFERENCES other (id),\n  c96 INT REFERENCES other (id),\n  c97 INT REFERENCES other (id),\n  c98 INT REFERENCES other (id),\n  c99 INT REFERENCES other (id),\n  c100 INT REFERENCES other (id),\n  c101 INT,\n  c102 INT,\n  c103 INT,\n  c104 INT,\n  c105 INT,\n  c106 INT,\n  c107 INT,\n  c108 INT,\n  c109 INT,\n  c110 INT,\n  c111 INT,\n  c112 INT,\n  c113 INT,\n  c114 INT,\n  c115 INT,\n  c116 INT,\n  c117 INT,\n  c118 INT,\n  c119 INT,\n  c120 INT,\n  c121 INT,\n  c122 INT,\n  c123 INT,\n  c124 INT,\n  c125 INT,\n  c126 INT,\n  c127 INT,\n  c128 INT,\n  c129 INT,\n  c130 INT,\n  c131 INT,\n  c132 INT,\n  c133 INT,\n  c134 INT,\n  c135 INT,\n  c136 INT,\n  c137 INT,\n  c138 INT,\n  c139 INT,\n  c140 INT,\n  c141 INT,\n  c142 INT,\n  c143 INT,\n  c144 INT,\n  c145 INT,\n  c146 INT,\n  c147 INT,\n  c148 INT,\n  c149 INT,\n  c150 INT,\n  c151 INT,\n  c152 INT,\n  c153 INT,\n  c154 INT,\n  c155 INT,\n  c156 INT,\n  c157 INT,\n  c158 INT,\n  c159 INT,\n  c160 INT,\n  c161 INT,\n  c162 INT,\n  c163 INT,\n  c164 INT,\n  c165 INT,\n  c166 INT,\n  c167 INT,\n  c168 INT,\n  c169 INT,\n  c170 INT,\n  c171 INT,\n  c172 INT,\n  c173 INT,\n  c174 INT,\n  c175 INT,\n  c176 INT,\n  c177 INT,\n  c178 INT,\n  c179 INT,\n  c180 INT,\n  c181 INT,\n  c182 INT,\n  c183 INT,\n  c184 INT,\n  c185 INT,\n  c186 INT,\n  c187 INT,\n  c188 INT,\n  c189 INT,\n  c190 INT,\n  c191 INT,\n  c192 INT,\n  c193 INT,\n  c194 INT,\n  c195 INT,\n  c196 INT,\n  c197 INT,\n  c198 INT,\n  c199 INT,\n  c200 INT,\n  c201 INT,\n  c202 INT,\n  c203 INT,\n  c204 INT,\n  c205 INT,\n  c206 INT,\n  c207 INT,\n  c208 INT,\n  c209 INT,\n  c210 INT,\n  c211 INT,\n  c212 INT,\n  c213 INT,\n  c214 INT,\n  c215 INT,\n  c216 INT,\n  c217 INT,\n  c218 INT,\n  c219 INT,\n  c220 INT,\n  c221 INT,\n  c222 INT,\n  c223 INT,\n  c224 INT,\n  c225 INT,\n  c226 INT,\n  c227 INT,\n  c228 INT,\n  c229 INT,\n  c230 INT,\n  c231 INT,\n  c232 INT,\n  c233 INT,\n  c234 INT,\n  c235 INT,\n  c236 INT,\n  c237 INT,\n  c238 INT,\n  c239 INT,\n  c240 INT,\n  c241 INT,\n  c242 INT,\n  c243 INT,\n  c244 INT,\n  c245 INT,\n  c246 INT,\n  c247 INT,\n  c248 INT,\n  c249 INT,\n  c250 INT,\n  c251 INT,\n  c252 INT,\n  c253 INT,\n  c254 INT,\n  c255 INT,\n  c256 INT,\n  c257 INT,\n  c258 INT,\n  c259 INT,\n  c260 INT,\n  c261 INT,\n  c262 INT,\n  c263 INT,\n  c264 INT,\n  c265 INT,\n  c266 INT,\n  c267 INT,\n  c268 INT,\n  c269 INT,\n  c270 INT,\n  c271 INT,\n  c272 INT,\n  c273 INT,\n  c274 INT,\n  c275 INT,\n  c276 INT,\n  c277 INT,\n  c278 INT,\n  c279 INT,\n  c280 INT,\n  c281 INT,\n  c282 INT,\n  c283 INT,\n  c284 INT,\n  c285 INT,\n  c286 INT,\n  c287 INT,\n  c288 INT,\n  c289 INT,\n  c290 INT,\n  c291 INT,\n  c292 INT,\n  c293 INT,\n  c294 INT,\n  c295 INT,\n  c296 INT,\n  c297 INT,\n  c298 INT,\n  c299 INT,\n  c300 INT,\n  c301 INT\n);\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "db/wide.sql:1: columns exceeds its picture limit",
+     "by": "scan",
+     "stage": "05-erd",
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "db/wide.sql:1: unique exceeds its picture limit",
+     "by": "scan",
+     "stage": "05-erd",
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "db/wide.sql:1: foreign_keys exceeds its picture limit",
+     "by": "scan",
+     "stage": "05-erd",
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "tables": [
+     {
+      "id": "",
+      "name": "wide",
+      "context": "",
+      "removed": false,
+      "columns": {
+       "count": 300,
+       "first": {
+        "name": "c0",
+        "type": "INT",
+        "null": true,
+        "where": "db/wide.sql:2"
+       },
+       "last": {
+        "name": "c299",
+        "type": "INT",
+        "null": true,
+        "where": "db/wide.sql:301"
+       }
+      },
+      "primary_key": [],
+      "unique": {
+       "count": 50,
+       "first": {
+        "columns": [
+         "c0"
+        ],
+        "partial": false
+       },
+       "last": {
+        "columns": [
+         "c49"
+        ],
+        "partial": false
+       }
+      },
+      "foreign_keys": {
+       "count": 100,
+       "first": {
+        "columns": [
+         "c0"
+        ],
+        "table": "other",
+        "references": [
+         "id"
+        ],
+        "on_delete": "",
+        "where": "db/wide.sql:2"
+       },
+       "last": {
+        "columns": [
+         "c99"
+        ],
+        "table": "other",
+        "references": [
+         "id"
+        ],
+        "on_delete": "",
+        "where": "db/wide.sql:101"
+       }
+      },
+      "where": "db/wide.sql:1"
+     }
+    ],
+    "without_table": []
+   }
+  },
+  {
+   "name": "YAML, the sitemap template: values, lists, children, removed screens and markers",
+   "stage": "07-sitemap",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/07-sitemap/case.yaml",
+     "# The sitemap\n# without a screen: TERM-20 TERM-21\n#WITHOUT A SCREEN: TERM-22\n  #   w\u0130thout a screen  :  TERM-23\n---\n- id: SCR-1\n  name: Home # a comment\n  path: \"/home?tab=#top\"\n  access: 'owner''s'\n  flows: [FL-1, \"FL-2\", 'FL-3 FL-1', [FL-4], other, , ]\n  terms: [CTX-1, TERM-1, TERM-2, 5]\n  children:\n    - id: SCR-2\n      name: Settings\n      path: /settings\n      status: Removed\n      flows:\n        - FL-5\n        - not a flow\n      terms: none\n      children:\n        - id: SCR-3 and SCR-4\n          name: \"Deep \\\"quoted\\\" name \\u00e9\"\n          terms: NONE\n          status: deleted now\n    - id: not an id\n      name: ops@example.com\n      flows: FL-6\n      children: SCR-9\n      terms: [CTX-2]\n- just text\n- name: no id\n  terms:\n  flows:\n  children:\n- id: SCR-5\n  name: x\n  terms: maybe\n  children: []\n  other:\n    nested: value\n    list:\n      - a\n...\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/case.yaml:26: flows must be a list",
+     "by": "scan",
+     "stage": "07-sitemap",
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/case.yaml:26: children must be a list",
+     "by": "scan",
+     "stage": "07-sitemap",
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/case.yaml:1: a screen must be a mapping",
+     "by": "scan",
+     "stage": "07-sitemap",
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/case.yaml:32: terms must be a list or none",
+     "by": "scan",
+     "stage": "07-sitemap",
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/case.yaml:36: terms must be a list or none",
+     "by": "scan",
+     "stage": "07-sitemap",
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "screens": [
+     {
+      "id": "SCR-1",
+      "name": "Home",
+      "path": "/home?tab=#top",
+      "access": "owner's",
+      "flows": [
+       "FL-1",
+       "FL-2",
+       "FL-3"
+      ],
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/07-sitemap/case.yaml:6",
+      "terms": [
+       "TERM-1",
+       "TERM-2"
+      ]
+     },
+     {
+      "id": "SCR-2",
+      "name": "Settings",
+      "path": "/settings",
+      "access": "",
+      "flows": [
+       "FL-5"
+      ],
+      "context": "",
+      "removed": true,
+      "where": "docs/07-sitemap/case.yaml:13",
+      "terms": [],
+      "parent": 0
+     },
+     {
+      "id": "SCR-3",
+      "name": "Deep \"quoted\" name \u00e9",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/case.yaml:22",
+      "terms": [],
+      "parent": 1
+     },
+     {
+      "id": "",
+      "name": "[redacted]",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "CTX-2",
+      "removed": false,
+      "where": "docs/07-sitemap/case.yaml:26",
+      "terms": [],
+      "parent": 0
+     },
+     {
+      "id": "",
+      "name": "no id",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/case.yaml:32"
+     },
+     {
+      "id": "SCR-5",
+      "name": "x",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/case.yaml:36"
+     }
+    ],
+    "without_screen": [
+     "TERM-20",
+     "TERM-21",
+     "TERM-22",
+     "TERM-23"
+    ]
+   }
+  },
+  {
+   "name": "YAML the template does not take, one file each",
+   "stage": "07-sitemap",
+   "ids": null,
+   "part": "",
+   "shape": false,
+   "documents": [
+    [
+     "docs/07-sitemap/tab.yaml",
+     "- id: SCR-1\n\tname: x\n"
+    ],
+    [
+     "docs/07-sitemap/colon.yaml",
+     "- name: a : b\n"
+    ],
+    [
+     "docs/07-sitemap/duplicate.yaml",
+     "- name: a\n  name: b\n"
+    ],
+    [
+     "docs/07-sitemap/anchor.yaml",
+     "- name: &x a\n"
+    ],
+    [
+     "docs/07-sitemap/alias.yaml",
+     "- name: *x\n"
+    ],
+    [
+     "docs/07-sitemap/tag.yaml",
+     "- name: !str a\n"
+    ],
+    [
+     "docs/07-sitemap/mapping.yaml",
+     "- name: {a: 1}\n"
+    ],
+    [
+     "docs/07-sitemap/block.yaml",
+     "- name: |\n    text\n"
+    ],
+    [
+     "docs/07-sitemap/folded.yaml",
+     "- name: >\n    text\n"
+    ],
+    [
+     "docs/07-sitemap/merge.yaml",
+     "- <<: *base\n"
+    ],
+    [
+     "docs/07-sitemap/single.yaml",
+     "- name: 'abc\n"
+    ],
+    [
+     "docs/07-sitemap/inline.yaml",
+     "- flows: [a, b\n"
+    ],
+    [
+     "docs/07-sitemap/quoted.yaml",
+     "- flows: [\"a, b]\n"
+    ],
+    [
+     "docs/07-sitemap/escape.yaml",
+     "- name: \"a\\q\"\n"
+    ],
+    [
+     "docs/07-sitemap/after.yaml",
+     "- name: \"a\" b\n"
+    ],
+    [
+     "docs/07-sitemap/mixed.yaml",
+     "- name: a\nkey: b\n"
+    ],
+    [
+     "docs/07-sitemap/indent.yaml",
+     "- name: a\n    extra: b\n"
+    ],
+    [
+     "docs/07-sitemap/root.yaml",
+     "name: a\n"
+    ],
+    [
+     "docs/07-sitemap/key.yaml",
+     "- name: a\n  just text\n"
+    ],
+    [
+     "docs/07-sitemap/dash.yaml",
+     "-\n"
+    ],
+    [
+     "docs/07-sitemap/dedent.yaml",
+     "  - name: a\n- name: b\n"
+    ],
+    [
+     "docs/07-sitemap/proto.yaml",
+     "- __proto__: a\n  __proto__: b\n"
+    ],
+    [
+     "docs/07-sitemap/line.yaml",
+     "- __line__: 9\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/tab.yaml:2: tabs cannot indent the template",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/colon.yaml:1: a colon in a scalar needs quotes",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/duplicate.yaml:2: duplicate YAML key",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/anchor.yaml:1: YAML is outside the stage-07 template form",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/alias.yaml:1: YAML is outside the stage-07 template form",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/tag.yaml:1: YAML is outside the stage-07 template form",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/mapping.yaml:1: YAML is outside the stage-07 template form",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/block.yaml:1: YAML is outside the stage-07 template form",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/folded.yaml:1: YAML is outside the stage-07 template form",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/merge.yaml:1: YAML is outside the stage-07 template form",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/single.yaml:1: unterminated single-quoted YAML scalar",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/inline.yaml:1: unterminated inline YAML list",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/quoted.yaml:1: unterminated quoted list value",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/escape.yaml:1: invalid double-quoted YAML scalar",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/after.yaml:1: invalid double-quoted YAML scalar",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/mixed.yaml:2: mixed sequence and mapping",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/indent.yaml:2: unexpected YAML indentation",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/root.yaml:1: the sitemap template is a list of screens",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/key.yaml:2: expected a template key and colon",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/dash.yaml:1: mixed sequence and mapping",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/dedent.yaml:2: unexpected YAML indentation",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/proto.yaml:2: duplicate YAML key",
+     "by": "scan",
+     "stage": "07-sitemap"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/line.yaml:1: duplicate YAML key",
+     "by": "scan",
+     "stage": "07-sitemap"
+    }
+   ],
+   "picture": null
+  },
+  {
+   "name": "YAML that reads as no screen, and a file after one that does not read",
+   "stage": "07-sitemap",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/07-sitemap/empty.yaml",
+     "# nothing\n---\n"
+    ],
+    [
+     "docs/07-sitemap/bad.yaml",
+     "- name: a : b\n"
+    ],
+    [
+     "docs/07-sitemap/good.yaml",
+     "- id: SCR-6\n  name: after\n  constructor: x\n  __proto__: y\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/bad.yaml:1: a colon in a scalar needs quotes",
+     "by": "scan",
+     "stage": "07-sitemap",
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "screens": [
+     {
+      "id": "SCR-6",
+      "name": "after",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/good.yaml:1"
+     }
+    ],
+    "without_screen": []
+   }
+  },
+  {
+   "name": "YAML, line breaks other than a line feed, wide spaces and Unicode text",
+   "stage": "07-sitemap",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/07-sitemap/unicode.yaml",
+     "- id: SCR-7\r\n  name: \ud68c\uc6d0 \ubaa9\ub85d\r\n  path: /\ud68c\uc6d0\u2028- id: SCR-8\u0085  name: \u3000\uc804\uac01 \uacf5\ubc31\u3000\r- id: SCR-9\n\u3000\u3000name: wide\u000b- id: SCR-10\u001c  name: \"\\u2028\"\u001d"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "screens": [
+     {
+      "id": "SCR-7",
+      "name": "\ud68c\uc6d0 \ubaa9\ub85d",
+      "path": "/\ud68c\uc6d0",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/unicode.yaml:1"
+     },
+     {
+      "id": "SCR-8",
+      "name": "\uc804\uac01 \uacf5\ubc31",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/unicode.yaml:4"
+     },
+     {
+      "id": "SCR-9",
+      "name": "wide",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/unicode.yaml:6"
+     },
+     {
+      "id": "SCR-10",
+      "name": "",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/unicode.yaml:8"
+     }
+    ],
+    "without_screen": []
+   }
+  },
+  {
+   "name": "YAML, a project's own trace ID prefixes",
+   "stage": "07-sitemap",
+   "ids": {
+    "screen": "S",
+    "flow": "F",
+    "term": "G",
+    "context": "C"
+   },
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/07-sitemap/own.yaml",
+     "# without a screen: G-9\n- id: S-1\n  flows: [F-2, F-3]\n  terms: [C-4, G-5]\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "screens": [
+     {
+      "id": "S-1",
+      "name": "",
+      "path": "",
+      "access": "",
+      "flows": [
+       "F-2",
+       "F-3"
+      ],
+      "context": "C-4",
+      "removed": false,
+      "where": "docs/07-sitemap/own.yaml:2",
+      "terms": [
+       "G-5"
+      ]
+     }
+    ],
+    "without_screen": [
+     "G-9"
+    ]
+   }
+  },
+  {
+   "name": "YAML, more than 500 screens",
+   "stage": "07-sitemap",
+   "ids": null,
+   "part": "nexus",
+   "shape": true,
+   "documents": [
+    [
+     "docs/07-sitemap/many.yaml",
+     "- id: SCR-1\n  name: s1\n- id: SCR-2\n  name: s2\n- id: SCR-3\n  name: s3\n- id: SCR-4\n  name: s4\n- id: SCR-5\n  name: s5\n- id: SCR-6\n  name: s6\n- id: SCR-7\n  name: s7\n- id: SCR-8\n  name: s8\n- id: SCR-9\n  name: s9\n- id: SCR-10\n  name: s10\n- id: SCR-11\n  name: s11\n- id: SCR-12\n  name: s12\n- id: SCR-13\n  name: s13\n- id: SCR-14\n  name: s14\n- id: SCR-15\n  name: s15\n- id: SCR-16\n  name: s16\n- id: SCR-17\n  name: s17\n- id: SCR-18\n  name: s18\n- id: SCR-19\n  name: s19\n- id: SCR-20\n  name: s20\n- id: SCR-21\n  name: s21\n- id: SCR-22\n  name: s22\n- id: SCR-23\n  name: s23\n- id: SCR-24\n  name: s24\n- id: SCR-25\n  name: s25\n- id: SCR-26\n  name: s26\n- id: SCR-27\n  name: s27\n- id: SCR-28\n  name: s28\n- id: SCR-29\n  name: s29\n- id: SCR-30\n  name: s30\n- id: SCR-31\n  name: s31\n- id: SCR-32\n  name: s32\n- id: SCR-33\n  name: s33\n- id: SCR-34\n  name: s34\n- id: SCR-35\n  name: s35\n- id: SCR-36\n  name: s36\n- id: SCR-37\n  name: s37\n- id: SCR-38\n  name: s38\n- id: SCR-39\n  name: s39\n- id: SCR-40\n  name: s40\n- id: SCR-41\n  name: s41\n- id: SCR-42\n  name: s42\n- id: SCR-43\n  name: s43\n- id: SCR-44\n  name: s44\n- id: SCR-45\n  name: s45\n- id: SCR-46\n  name: s46\n- id: SCR-47\n  name: s47\n- id: SCR-48\n  name: s48\n- id: SCR-49\n  name: s49\n- id: SCR-50\n  name: s50\n- id: SCR-51\n  name: s51\n- id: SCR-52\n  name: s52\n- id: SCR-53\n  name: s53\n- id: SCR-54\n  name: s54\n- id: SCR-55\n  name: s55\n- id: SCR-56\n  name: s56\n- id: SCR-57\n  name: s57\n- id: SCR-58\n  name: s58\n- id: SCR-59\n  name: s59\n- id: SCR-60\n  name: s60\n- id: SCR-61\n  name: s61\n- id: SCR-62\n  name: s62\n- id: SCR-63\n  name: s63\n- id: SCR-64\n  name: s64\n- id: SCR-65\n  name: s65\n- id: SCR-66\n  name: s66\n- id: SCR-67\n  name: s67\n- id: SCR-68\n  name: s68\n- id: SCR-69\n  name: s69\n- id: SCR-70\n  name: s70\n- id: SCR-71\n  name: s71\n- id: SCR-72\n  name: s72\n- id: SCR-73\n  name: s73\n- id: SCR-74\n  name: s74\n- id: SCR-75\n  name: s75\n- id: SCR-76\n  name: s76\n- id: SCR-77\n  name: s77\n- id: SCR-78\n  name: s78\n- id: SCR-79\n  name: s79\n- id: SCR-80\n  name: s80\n- id: SCR-81\n  name: s81\n- id: SCR-82\n  name: s82\n- id: SCR-83\n  name: s83\n- id: SCR-84\n  name: s84\n- id: SCR-85\n  name: s85\n- id: SCR-86\n  name: s86\n- id: SCR-87\n  name: s87\n- id: SCR-88\n  name: s88\n- id: SCR-89\n  name: s89\n- id: SCR-90\n  name: s90\n- id: SCR-91\n  name: s91\n- id: SCR-92\n  name: s92\n- id: SCR-93\n  name: s93\n- id: SCR-94\n  name: s94\n- id: SCR-95\n  name: s95\n- id: SCR-96\n  name: s96\n- id: SCR-97\n  name: s97\n- id: SCR-98\n  name: s98\n- id: SCR-99\n  name: s99\n- id: SCR-100\n  name: s100\n- id: SCR-101\n  name: s101\n- id: SCR-102\n  name: s102\n- id: SCR-103\n  name: s103\n- id: SCR-104\n  name: s104\n- id: SCR-105\n  name: s105\n- id: SCR-106\n  name: s106\n- id: SCR-107\n  name: s107\n- id: SCR-108\n  name: s108\n- id: SCR-109\n  name: s109\n- id: SCR-110\n  name: s110\n- id: SCR-111\n  name: s111\n- id: SCR-112\n  name: s112\n- id: SCR-113\n  name: s113\n- id: SCR-114\n  name: s114\n- id: SCR-115\n  name: s115\n- id: SCR-116\n  name: s116\n- id: SCR-117\n  name: s117\n- id: SCR-118\n  name: s118\n- id: SCR-119\n  name: s119\n- id: SCR-120\n  name: s120\n- id: SCR-121\n  name: s121\n- id: SCR-122\n  name: s122\n- id: SCR-123\n  name: s123\n- id: SCR-124\n  name: s124\n- id: SCR-125\n  name: s125\n- id: SCR-126\n  name: s126\n- id: SCR-127\n  name: s127\n- id: SCR-128\n  name: s128\n- id: SCR-129\n  name: s129\n- id: SCR-130\n  name: s130\n- id: SCR-131\n  name: s131\n- id: SCR-132\n  name: s132\n- id: SCR-133\n  name: s133\n- id: SCR-134\n  name: s134\n- id: SCR-135\n  name: s135\n- id: SCR-136\n  name: s136\n- id: SCR-137\n  name: s137\n- id: SCR-138\n  name: s138\n- id: SCR-139\n  name: s139\n- id: SCR-140\n  name: s140\n- id: SCR-141\n  name: s141\n- id: SCR-142\n  name: s142\n- id: SCR-143\n  name: s143\n- id: SCR-144\n  name: s144\n- id: SCR-145\n  name: s145\n- id: SCR-146\n  name: s146\n- id: SCR-147\n  name: s147\n- id: SCR-148\n  name: s148\n- id: SCR-149\n  name: s149\n- id: SCR-150\n  name: s150\n- id: SCR-151\n  name: s151\n- id: SCR-152\n  name: s152\n- id: SCR-153\n  name: s153\n- id: SCR-154\n  name: s154\n- id: SCR-155\n  name: s155\n- id: SCR-156\n  name: s156\n- id: SCR-157\n  name: s157\n- id: SCR-158\n  name: s158\n- id: SCR-159\n  name: s159\n- id: SCR-160\n  name: s160\n- id: SCR-161\n  name: s161\n- id: SCR-162\n  name: s162\n- id: SCR-163\n  name: s163\n- id: SCR-164\n  name: s164\n- id: SCR-165\n  name: s165\n- id: SCR-166\n  name: s166\n- id: SCR-167\n  name: s167\n- id: SCR-168\n  name: s168\n- id: SCR-169\n  name: s169\n- id: SCR-170\n  name: s170\n- id: SCR-171\n  name: s171\n- id: SCR-172\n  name: s172\n- id: SCR-173\n  name: s173\n- id: SCR-174\n  name: s174\n- id: SCR-175\n  name: s175\n- id: SCR-176\n  name: s176\n- id: SCR-177\n  name: s177\n- id: SCR-178\n  name: s178\n- id: SCR-179\n  name: s179\n- id: SCR-180\n  name: s180\n- id: SCR-181\n  name: s181\n- id: SCR-182\n  name: s182\n- id: SCR-183\n  name: s183\n- id: SCR-184\n  name: s184\n- id: SCR-185\n  name: s185\n- id: SCR-186\n  name: s186\n- id: SCR-187\n  name: s187\n- id: SCR-188\n  name: s188\n- id: SCR-189\n  name: s189\n- id: SCR-190\n  name: s190\n- id: SCR-191\n  name: s191\n- id: SCR-192\n  name: s192\n- id: SCR-193\n  name: s193\n- id: SCR-194\n  name: s194\n- id: SCR-195\n  name: s195\n- id: SCR-196\n  name: s196\n- id: SCR-197\n  name: s197\n- id: SCR-198\n  name: s198\n- id: SCR-199\n  name: s199\n- id: SCR-200\n  name: s200\n- id: SCR-201\n  name: s201\n- id: SCR-202\n  name: s202\n- id: SCR-203\n  name: s203\n- id: SCR-204\n  name: s204\n- id: SCR-205\n  name: s205\n- id: SCR-206\n  name: s206\n- id: SCR-207\n  name: s207\n- id: SCR-208\n  name: s208\n- id: SCR-209\n  name: s209\n- id: SCR-210\n  name: s210\n- id: SCR-211\n  name: s211\n- id: SCR-212\n  name: s212\n- id: SCR-213\n  name: s213\n- id: SCR-214\n  name: s214\n- id: SCR-215\n  name: s215\n- id: SCR-216\n  name: s216\n- id: SCR-217\n  name: s217\n- id: SCR-218\n  name: s218\n- id: SCR-219\n  name: s219\n- id: SCR-220\n  name: s220\n- id: SCR-221\n  name: s221\n- id: SCR-222\n  name: s222\n- id: SCR-223\n  name: s223\n- id: SCR-224\n  name: s224\n- id: SCR-225\n  name: s225\n- id: SCR-226\n  name: s226\n- id: SCR-227\n  name: s227\n- id: SCR-228\n  name: s228\n- id: SCR-229\n  name: s229\n- id: SCR-230\n  name: s230\n- id: SCR-231\n  name: s231\n- id: SCR-232\n  name: s232\n- id: SCR-233\n  name: s233\n- id: SCR-234\n  name: s234\n- id: SCR-235\n  name: s235\n- id: SCR-236\n  name: s236\n- id: SCR-237\n  name: s237\n- id: SCR-238\n  name: s238\n- id: SCR-239\n  name: s239\n- id: SCR-240\n  name: s240\n- id: SCR-241\n  name: s241\n- id: SCR-242\n  name: s242\n- id: SCR-243\n  name: s243\n- id: SCR-244\n  name: s244\n- id: SCR-245\n  name: s245\n- id: SCR-246\n  name: s246\n- id: SCR-247\n  name: s247\n- id: SCR-248\n  name: s248\n- id: SCR-249\n  name: s249\n- id: SCR-250\n  name: s250\n- id: SCR-251\n  name: s251\n- id: SCR-252\n  name: s252\n- id: SCR-253\n  name: s253\n- id: SCR-254\n  name: s254\n- id: SCR-255\n  name: s255\n- id: SCR-256\n  name: s256\n- id: SCR-257\n  name: s257\n- id: SCR-258\n  name: s258\n- id: SCR-259\n  name: s259\n- id: SCR-260\n  name: s260\n- id: SCR-261\n  name: s261\n- id: SCR-262\n  name: s262\n- id: SCR-263\n  name: s263\n- id: SCR-264\n  name: s264\n- id: SCR-265\n  name: s265\n- id: SCR-266\n  name: s266\n- id: SCR-267\n  name: s267\n- id: SCR-268\n  name: s268\n- id: SCR-269\n  name: s269\n- id: SCR-270\n  name: s270\n- id: SCR-271\n  name: s271\n- id: SCR-272\n  name: s272\n- id: SCR-273\n  name: s273\n- id: SCR-274\n  name: s274\n- id: SCR-275\n  name: s275\n- id: SCR-276\n  name: s276\n- id: SCR-277\n  name: s277\n- id: SCR-278\n  name: s278\n- id: SCR-279\n  name: s279\n- id: SCR-280\n  name: s280\n- id: SCR-281\n  name: s281\n- id: SCR-282\n  name: s282\n- id: SCR-283\n  name: s283\n- id: SCR-284\n  name: s284\n- id: SCR-285\n  name: s285\n- id: SCR-286\n  name: s286\n- id: SCR-287\n  name: s287\n- id: SCR-288\n  name: s288\n- id: SCR-289\n  name: s289\n- id: SCR-290\n  name: s290\n- id: SCR-291\n  name: s291\n- id: SCR-292\n  name: s292\n- id: SCR-293\n  name: s293\n- id: SCR-294\n  name: s294\n- id: SCR-295\n  name: s295\n- id: SCR-296\n  name: s296\n- id: SCR-297\n  name: s297\n- id: SCR-298\n  name: s298\n- id: SCR-299\n  name: s299\n- id: SCR-300\n  name: s300\n- id: SCR-301\n  name: s301\n- id: SCR-302\n  name: s302\n- id: SCR-303\n  name: s303\n- id: SCR-304\n  name: s304\n- id: SCR-305\n  name: s305\n- id: SCR-306\n  name: s306\n- id: SCR-307\n  name: s307\n- id: SCR-308\n  name: s308\n- id: SCR-309\n  name: s309\n- id: SCR-310\n  name: s310\n- id: SCR-311\n  name: s311\n- id: SCR-312\n  name: s312\n- id: SCR-313\n  name: s313\n- id: SCR-314\n  name: s314\n- id: SCR-315\n  name: s315\n- id: SCR-316\n  name: s316\n- id: SCR-317\n  name: s317\n- id: SCR-318\n  name: s318\n- id: SCR-319\n  name: s319\n- id: SCR-320\n  name: s320\n- id: SCR-321\n  name: s321\n- id: SCR-322\n  name: s322\n- id: SCR-323\n  name: s323\n- id: SCR-324\n  name: s324\n- id: SCR-325\n  name: s325\n- id: SCR-326\n  name: s326\n- id: SCR-327\n  name: s327\n- id: SCR-328\n  name: s328\n- id: SCR-329\n  name: s329\n- id: SCR-330\n  name: s330\n- id: SCR-331\n  name: s331\n- id: SCR-332\n  name: s332\n- id: SCR-333\n  name: s333\n- id: SCR-334\n  name: s334\n- id: SCR-335\n  name: s335\n- id: SCR-336\n  name: s336\n- id: SCR-337\n  name: s337\n- id: SCR-338\n  name: s338\n- id: SCR-339\n  name: s339\n- id: SCR-340\n  name: s340\n- id: SCR-341\n  name: s341\n- id: SCR-342\n  name: s342\n- id: SCR-343\n  name: s343\n- id: SCR-344\n  name: s344\n- id: SCR-345\n  name: s345\n- id: SCR-346\n  name: s346\n- id: SCR-347\n  name: s347\n- id: SCR-348\n  name: s348\n- id: SCR-349\n  name: s349\n- id: SCR-350\n  name: s350\n- id: SCR-351\n  name: s351\n- id: SCR-352\n  name: s352\n- id: SCR-353\n  name: s353\n- id: SCR-354\n  name: s354\n- id: SCR-355\n  name: s355\n- id: SCR-356\n  name: s356\n- id: SCR-357\n  name: s357\n- id: SCR-358\n  name: s358\n- id: SCR-359\n  name: s359\n- id: SCR-360\n  name: s360\n- id: SCR-361\n  name: s361\n- id: SCR-362\n  name: s362\n- id: SCR-363\n  name: s363\n- id: SCR-364\n  name: s364\n- id: SCR-365\n  name: s365\n- id: SCR-366\n  name: s366\n- id: SCR-367\n  name: s367\n- id: SCR-368\n  name: s368\n- id: SCR-369\n  name: s369\n- id: SCR-370\n  name: s370\n- id: SCR-371\n  name: s371\n- id: SCR-372\n  name: s372\n- id: SCR-373\n  name: s373\n- id: SCR-374\n  name: s374\n- id: SCR-375\n  name: s375\n- id: SCR-376\n  name: s376\n- id: SCR-377\n  name: s377\n- id: SCR-378\n  name: s378\n- id: SCR-379\n  name: s379\n- id: SCR-380\n  name: s380\n- id: SCR-381\n  name: s381\n- id: SCR-382\n  name: s382\n- id: SCR-383\n  name: s383\n- id: SCR-384\n  name: s384\n- id: SCR-385\n  name: s385\n- id: SCR-386\n  name: s386\n- id: SCR-387\n  name: s387\n- id: SCR-388\n  name: s388\n- id: SCR-389\n  name: s389\n- id: SCR-390\n  name: s390\n- id: SCR-391\n  name: s391\n- id: SCR-392\n  name: s392\n- id: SCR-393\n  name: s393\n- id: SCR-394\n  name: s394\n- id: SCR-395\n  name: s395\n- id: SCR-396\n  name: s396\n- id: SCR-397\n  name: s397\n- id: SCR-398\n  name: s398\n- id: SCR-399\n  name: s399\n- id: SCR-400\n  name: s400\n- id: SCR-401\n  name: s401\n- id: SCR-402\n  name: s402\n- id: SCR-403\n  name: s403\n- id: SCR-404\n  name: s404\n- id: SCR-405\n  name: s405\n- id: SCR-406\n  name: s406\n- id: SCR-407\n  name: s407\n- id: SCR-408\n  name: s408\n- id: SCR-409\n  name: s409\n- id: SCR-410\n  name: s410\n- id: SCR-411\n  name: s411\n- id: SCR-412\n  name: s412\n- id: SCR-413\n  name: s413\n- id: SCR-414\n  name: s414\n- id: SCR-415\n  name: s415\n- id: SCR-416\n  name: s416\n- id: SCR-417\n  name: s417\n- id: SCR-418\n  name: s418\n- id: SCR-419\n  name: s419\n- id: SCR-420\n  name: s420\n- id: SCR-421\n  name: s421\n- id: SCR-422\n  name: s422\n- id: SCR-423\n  name: s423\n- id: SCR-424\n  name: s424\n- id: SCR-425\n  name: s425\n- id: SCR-426\n  name: s426\n- id: SCR-427\n  name: s427\n- id: SCR-428\n  name: s428\n- id: SCR-429\n  name: s429\n- id: SCR-430\n  name: s430\n- id: SCR-431\n  name: s431\n- id: SCR-432\n  name: s432\n- id: SCR-433\n  name: s433\n- id: SCR-434\n  name: s434\n- id: SCR-435\n  name: s435\n- id: SCR-436\n  name: s436\n- id: SCR-437\n  name: s437\n- id: SCR-438\n  name: s438\n- id: SCR-439\n  name: s439\n- id: SCR-440\n  name: s440\n- id: SCR-441\n  name: s441\n- id: SCR-442\n  name: s442\n- id: SCR-443\n  name: s443\n- id: SCR-444\n  name: s444\n- id: SCR-445\n  name: s445\n- id: SCR-446\n  name: s446\n- id: SCR-447\n  name: s447\n- id: SCR-448\n  name: s448\n- id: SCR-449\n  name: s449\n- id: SCR-450\n  name: s450\n- id: SCR-451\n  name: s451\n- id: SCR-452\n  name: s452\n- id: SCR-453\n  name: s453\n- id: SCR-454\n  name: s454\n- id: SCR-455\n  name: s455\n- id: SCR-456\n  name: s456\n- id: SCR-457\n  name: s457\n- id: SCR-458\n  name: s458\n- id: SCR-459\n  name: s459\n- id: SCR-460\n  name: s460\n- id: SCR-461\n  name: s461\n- id: SCR-462\n  name: s462\n- id: SCR-463\n  name: s463\n- id: SCR-464\n  name: s464\n- id: SCR-465\n  name: s465\n- id: SCR-466\n  name: s466\n- id: SCR-467\n  name: s467\n- id: SCR-468\n  name: s468\n- id: SCR-469\n  name: s469\n- id: SCR-470\n  name: s470\n- id: SCR-471\n  name: s471\n- id: SCR-472\n  name: s472\n- id: SCR-473\n  name: s473\n- id: SCR-474\n  name: s474\n- id: SCR-475\n  name: s475\n- id: SCR-476\n  name: s476\n- id: SCR-477\n  name: s477\n- id: SCR-478\n  name: s478\n- id: SCR-479\n  name: s479\n- id: SCR-480\n  name: s480\n- id: SCR-481\n  name: s481\n- id: SCR-482\n  name: s482\n- id: SCR-483\n  name: s483\n- id: SCR-484\n  name: s484\n- id: SCR-485\n  name: s485\n- id: SCR-486\n  name: s486\n- id: SCR-487\n  name: s487\n- id: SCR-488\n  name: s488\n- id: SCR-489\n  name: s489\n- id: SCR-490\n  name: s490\n- id: SCR-491\n  name: s491\n- id: SCR-492\n  name: s492\n- id: SCR-493\n  name: s493\n- id: SCR-494\n  name: s494\n- id: SCR-495\n  name: s495\n- id: SCR-496\n  name: s496\n- id: SCR-497\n  name: s497\n- id: SCR-498\n  name: s498\n- id: SCR-499\n  name: s499\n- id: SCR-500\n  name: s500\n- id: SCR-501\n  name: s501\n- id: SCR-502\n  name: s502\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/many.yaml:1: more than 500 screens; later screens are omitted",
+     "by": "scan",
+     "stage": "07-sitemap",
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "screens": {
+     "count": 500,
+     "first": {
+      "id": "SCR-1",
+      "name": "s1",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/many.yaml:1"
+     },
+     "last": {
+      "id": "SCR-500",
+      "name": "s500",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/many.yaml:999"
+     }
+    },
+    "without_screen": []
+   }
+  },
+  {
+   "name": "YAML, screens nested more than 100 levels",
+   "stage": "07-sitemap",
+   "ids": null,
+   "part": "nexus",
+   "shape": true,
+   "documents": [
+    [
+     "docs/07-sitemap/deep.yaml",
+     "- name: d0\n  children:\n    - name: d1\n      children:\n        - name: d2\n          children:\n            - name: d3\n              children:\n                - name: d4\n                  children:\n                    - name: d5\n                      children:\n                        - name: d6\n                          children:\n                            - name: d7\n                              children:\n                                - name: d8\n                                  children:\n                                    - name: d9\n                                      children:\n                                        - name: d10\n                                          children:\n                                            - name: d11\n                                              children:\n                                                - name: d12\n                                                  children:\n                                                    - name: d13\n                                                      children:\n                                                        - name: d14\n                                                          children:\n                                                            - name: d15\n                                                              children:\n                                                                - name: d16\n                                                                  children:\n                                                                    - name: d17\n                                                                      children:\n                                                                        - name: d18\n                                                                          children:\n                                                                            - name: d19\n                                                                              children:\n                                                                                - name: d20\n                                                                                  children:\n                                                                                    - name: d21\n                                                                                      children:\n                                                                                        - name: d22\n                                                                                          children:\n                                                                                            - name: d23\n                                                                                              children:\n                                                                                                - name: d24\n                                                                                                  children:\n                                                                                                    - name: d25\n                                                                                                      children:\n                                                                                                        - name: d26\n                                                                                                          children:\n                                                                                                            - name: d27\n                                                                                                              children:\n                                                                                                                - name: d28\n                                                                                                                  children:\n                                                                                                                    - name: d29\n                                                                                                                      children:\n                                                                                                                        - name: d30\n                                                                                                                          children:\n                                                                                                                            - name: d31\n                                                                                                                              children:\n                                                                                                                                - name: d32\n                                                                                                                                  children:\n                                                                                                                                    - name: d33\n                                                                                                                                      children:\n                                                                                                                                        - name: d34\n                                                                                                                                          children:\n                                                                                                                                            - name: d35\n                                                                                                                                              children:\n                                                                                                                                                - name: d36\n                                                                                                                                                  children:\n                                                                                                                                                    - name: d37\n                                                                                                                                                      children:\n                                                                                                                                                        - name: d38\n                                                                                                                                                          children:\n                                                                                                                                                            - name: d39\n                                                                                                                                                              children:\n                                                                                                                                                                - name: d40\n                                                                                                                                                                  children:\n                                                                                                                                                                    - name: d41\n                                                                                                                                                                      children:\n                                                                                                                                                                        - name: d42\n                                                                                                                                                                          children:\n                                                                                                                                                                            - name: d43\n                                                                                                                                                                              children:\n                                                                                                                                                                                - name: d44\n                                                                                                                                                                                  children:\n                                                                                                                                                                                    - name: d45\n                                                                                                                                                                                      children:\n                                                                                                                                                                                        - name: d46\n                                                                                                                                                                                          children:\n                                                                                                                                                                                            - name: d47\n                                                                                                                                                                                              children:\n                                                                                                                                                                                                - name: d48\n                                                                                                                                                                                                  children:\n                                                                                                                                                                                                    - name: d49\n                                                                                                                                                                                                      children:\n                                                                                                                                                                                                        - name: d50\n                                                                                                                                                                                                          children:\n                                                                                                                                                                                                            - name: d51\n                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                - name: d52\n                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                    - name: d53\n                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                        - name: d54\n                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                            - name: d55\n                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                - name: d56\n                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                    - name: d57\n                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                        - name: d58\n                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                            - name: d59\n                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                - name: d60\n                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                    - name: d61\n                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                        - name: d62\n                                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                                            - name: d63\n                                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                                - name: d64\n                                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                                    - name: d65\n                                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                                        - name: d66\n                                                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                                                            - name: d67\n                                                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                                                - name: d68\n                                                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                                                    - name: d69\n                                                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                                                        - name: d70\n                                                                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                                                                            - name: d71\n                                                                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                                                                - name: d72\n                                                                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                                                                    - name: d73\n                                                                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                                                                        - name: d74\n                                                                                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                                                                                            - name: d75\n                                                                                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                                                                                - name: d76\n                                                                                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                                                                                    - name: d77\n                                                                                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                                                                                        - name: d78\n                                                                                                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                                                                                                            - name: d79\n                                                                                                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                                                                                                - name: d80\n                                                                                                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                                                                                                    - name: d81\n                                                                                                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                                                                                                        - name: d82\n                                                                                                                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                                                                                                                            - name: d83\n                                                                                                                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                                                                                                                - name: d84\n                                                                                                                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                                                                                                                    - name: d85\n                                                                                                                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                                                                                                                        - name: d86\n                                                                                                                                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                                                                                                                                            - name: d87\n                                                                                                                                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                                                                                                                                - name: d88\n                                                                                                                                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                                                                                                                                    - name: d89\n                                                                                                                                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                                                                                                                                        - name: d90\n                                                                                                                                                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                                                                                                                                                            - name: d91\n                                                                                                                                                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                                                                                                                                                - name: d92\n                                                                                                                                                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                                                                                                                                                    - name: d93\n                                                                                                                                                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                                                                                                                                                        - name: d94\n                                                                                                                                                                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                                                                                                                                                                            - name: d95\n                                                                                                                                                                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                                                                                                                                                                - name: d96\n                                                                                                                                                                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                                                                                                                                                                    - name: d97\n                                                                                                                                                                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                                                                                                                                                                        - name: d98\n                                                                                                                                                                                                                                                                                                                                                                                                          children:\n                                                                                                                                                                                                                                                                                                                                                                                                            - name: d99\n                                                                                                                                                                                                                                                                                                                                                                                                              children:\n                                                                                                                                                                                                                                                                                                                                                                                                                - name: d100\n                                                                                                                                                                                                                                                                                                                                                                                                                  children:\n                                                                                                                                                                                                                                                                                                                                                                                                                    - name: d101\n                                                                                                                                                                                                                                                                                                                                                                                                                      children:\n                                                                                                                                                                                                                                                                                                                                                                                                                        - name: d102\n                                                                                                                                                                                                                                                                                                                                                                                                                          children:\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/07-sitemap/deep.yaml:1: screen nesting exceeds 100 levels",
+     "by": "scan",
+     "stage": "07-sitemap",
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "screens": {
+     "count": 101,
+     "first": {
+      "id": "",
+      "name": "d0",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/deep.yaml:1"
+     },
+     "last": {
+      "id": "",
+      "name": "d100",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/deep.yaml:201",
+      "parent": 99
+     }
+    },
+    "without_screen": []
+   }
+  },
+  {
+   "name": "YAML, more than 50 flows and 20 terms",
+   "stage": "07-sitemap",
+   "ids": null,
+   "part": "nexus",
+   "shape": true,
+   "documents": [
+    [
+     "docs/07-sitemap/long.yaml",
+     "- id: SCR-11\n  flows: [FL-1, FL-2, FL-3, FL-4, FL-5, FL-6, FL-7, FL-8, FL-9, FL-10, FL-11, FL-12, FL-13, FL-14, FL-15, FL-16, FL-17, FL-18, FL-19, FL-20, FL-21, FL-22, FL-23, FL-24, FL-25, FL-26, FL-27, FL-28, FL-29, FL-30, FL-31, FL-32, FL-33, FL-34, FL-35, FL-36, FL-37, FL-38, FL-39, FL-40, FL-41, FL-42, FL-43, FL-44, FL-45, FL-46, FL-47, FL-48, FL-49, FL-50, FL-51, FL-52, FL-53, FL-54, FL-55, FL-56, FL-57, FL-58, FL-59, FL-60]\n  terms: [TERM-1, TERM-2, TERM-3, TERM-4, TERM-5, TERM-6, TERM-7, TERM-8, TERM-9, TERM-10, TERM-11, TERM-12, TERM-13, TERM-14, TERM-15, TERM-16, TERM-17, TERM-18, TERM-19, TERM-20, TERM-21, TERM-22, TERM-23, TERM-24, TERM-25]\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "screens": [
+     {
+      "id": "SCR-11",
+      "name": "",
+      "path": "",
+      "access": "",
+      "flows": {
+       "count": 50,
+       "first": "FL-1",
+       "last": "FL-50"
+      },
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/long.yaml:1",
+      "terms": {
+       "count": 20,
+       "first": "TERM-1",
+       "last": "TERM-20"
+      }
+     }
+    ],
+    "without_screen": []
+   }
+  }
+ ]
+}
