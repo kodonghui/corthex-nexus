@@ -1,0 +1,97 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
+  "version": "2025.10",
+  "sets": {
+    "carbon": {
+      "sources": [
+        {
+          "$ref": "carbon/colors.tokens.json"
+        },
+        {
+          "$ref": "carbon/layout.tokens.json"
+        }
+      ]
+    },
+    "corthex": {
+      "sources": [
+        {
+          "$ref": "corthex/base.tokens.json"
+        }
+      ]
+    },
+    "base": {
+      "sources": [
+        {
+          "$ref": "base.tokens.json"
+        }
+      ]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "contexts": {
+        "light": [
+          {
+            "$ref": "carbon/themes/g10/theme.tokens.json"
+          },
+          {
+            "$ref": "carbon/themes/g10/button.tokens.json"
+          },
+          {
+            "$ref": "carbon/themes/g10/tag.tokens.json"
+          },
+          {
+            "$ref": "carbon/themes/g10/notification.tokens.json"
+          },
+          {
+            "$ref": "carbon/themes/g10/status.tokens.json"
+          },
+          {
+            "$ref": "carbon/themes/g10/content-switcher.tokens.json"
+          },
+          {
+            "$ref": "corthex/light.tokens.json"
+          }
+        ],
+        "dark": [
+          {
+            "$ref": "carbon/themes/g100/theme.tokens.json"
+          },
+          {
+            "$ref": "carbon/themes/g100/button.tokens.json"
+          },
+          {
+            "$ref": "carbon/themes/g100/tag.tokens.json"
+          },
+          {
+            "$ref": "carbon/themes/g100/notification.tokens.json"
+          },
+          {
+            "$ref": "carbon/themes/g100/status.tokens.json"
+          },
+          {
+            "$ref": "carbon/themes/g100/content-switcher.tokens.json"
+          },
+          {
+            "$ref": "corthex/dark.tokens.json"
+          }
+        ]
+      },
+      "default": "light"
+    }
+  },
+  "resolutionOrder": [
+    {
+      "$ref": "#/sets/carbon"
+    },
+    {
+      "$ref": "#/sets/corthex"
+    },
+    {
+      "$ref": "#/modifiers/theme"
+    },
+    {
+      "$ref": "#/sets/base"
+    }
+  ]
+}

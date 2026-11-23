@@ -1,0 +1,34 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "NEXUS's own tokens over IBM Carbon and the CORTHEX layer. Only what the mockup uses and the base lacks; a token here would replace a Carbon or CORTHEX token of the same name.",
+  "nexus": {
+    "shell": {
+      "$type": "color",
+      "$description": "The header above every screen. Like Carbon's UI shell, it stays Gray 100 in the light and the dark theme, as in the click mockup of 2026-11-21, so these values are the same in every mode.",
+      "background": {
+        "$value": "{gray.100}",
+        "$description": "The header's background."
+      },
+      "background-hover": {
+        "$value": "{gray.100Hover}",
+        "$description": "A header button under the pointer."
+      },
+      "border": {
+        "$value": "{gray.80}",
+        "$description": "The line under the header."
+      },
+      "text": {
+        "$value": "{gray.10}",
+        "$description": "The header's text and icons."
+      },
+      "text-secondary": {
+        "$value": "{gray.30}",
+        "$description": "The project's name in the project menu."
+      },
+      "focus": {
+        "$value": "{white}",
+        "$description": "The focus ring of a header button."
+      }
+    }
+  }
+}
