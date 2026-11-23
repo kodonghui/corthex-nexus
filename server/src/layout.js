@@ -1002,7 +1002,8 @@ function trackY(model, turn) {
 
 function route(model, line, index) {
   const { count } = model;
-  const bottomOf = (node) => model.top[node] + model.nodeHeight[node];
+  // A line's end on a box's side rounds away from the box, so that it never starts inside the box.
+  const bottomOf = (node) => roundUp(model.top[node] + model.nodeHeight[node]);
   let points;
   if (line.kind === 'self' || line.kind === 'flat') {
     const turn = model.turns[model.lineTurn[index]];
@@ -1029,17 +1030,16 @@ function route(model, line, index) {
     points.push({ x: model.entryX[last], y: model.top[lower] });
     if (line.kind === 'up') points.reverse();
   }
-  // A fixed box: a line to itself moves with it; any other line runs straight from its edge to the line's next point.
+  // A fixed box: a line to itself moves with it; a line between two fixed boxes runs straight from one to the other,
+  // since the layout's tracks belong to neither; any other line runs straight from its edge to the line's next point.
   const fromFixed = line.from < count ? model.fixed[line.from] : null;
   const toFixed = line.to < count ? model.fixed[line.to] : null;
   if (line.kind === 'self' && fromFixed !== null) {
-    const dx = fromFixed.x - round(model.anchor[line.from] - model.width[line.from] / 2);
-    const dy = fromFixed.y - model.top[line.from];
-    points = points.map((point) => ({ x: point.x + dx, y: point.y + dy }));
-  } else if (fromFixed !== null && toFixed !== null && points.length === 2) {
-    const a = fixedBox(model, line.from);
-    const b = fixedBox(model, line.to);
-    points = [clip(a, middleOf(b)), clip(b, middleOf(a))];
+    const { dx, dy } = shiftOf(model, line.from);
+    const bottom = roundUp(fromFixed.y + model.nodeHeight[line.from]);
+    points = points.map((point, at) => ({ x: point.x + dx, y: at === 0 || at === points.length - 1 ? bottom : point.y + dy }));
+  } else if (fromFixed !== null && toFixed !== null) {
+    points = straightBetween(model, line);
   } else {
     // Points of the line that the fixed box covers are dropped first.
     if (fromFixed !== null) {
@@ -1053,12 +1053,61 @@ function route(model, line, index) {
       points[points.length - 1] = clip(box, points[points.length - 2]);
     }
   }
-  return simplify(points);
+  const rounded = points.map((point) => ({ x: round(point.x), y: round(point.y) }));
+  const kept = simplify(rounded);
+  // Two fixed boxes on top of each other still give a line of two points, one on each.
+  return kept.length >= 2 ? kept : [rounded[0], rounded[rounded.length - 1]];
 }
 
 function fixedBox(model, node) {
   const { x, y } = model.fixed[node];
   return { x, y, width: model.width[node], height: model.nodeHeight[node] };
+}
+
+// How far a fixed box is from its place in the layout. A line from it to itself, and that line's label, move as far.
+function shiftOf(model, node) {
+  return {
+    dx: model.fixed[node].x - round(model.anchor[node] - model.width[node] / 2),
+    dy: model.fixed[node].y - model.top[node],
+  };
+}
+
+// A line both of whose ends are fixed boxes, the same one or two, is drawn with them, not where the layout put it.
+const movesWithFixed = (model, line) => model.fixed[line.from] !== null && model.fixed[line.to] !== null;
+
+// The straight line between two fixed boxes, from the edge of one to the edge of the other.
+function straightBetween(model, line) {
+  const a = fixedBox(model, line.from);
+  const b = fixedBox(model, line.to);
+  return [clip(a, middleOf(b)), clip(b, middleOf(a))];
+}
+
+// A line's label box, top to bottom. The label of a line from a fixed box to itself moves with the box; the label of
+// a line between two fixed boxes sits beside the middle of the straight line, as far from it as the line leans, so
+// that the line never runs through it.
+function labelBox(model, line) {
+  const item = line.labelItem;
+  const { width, height } = model.label[item];
+  let x = model.anchor[item] + model.labelOffset;
+  let y = model.top[item];
+  if (line.kind === 'self' && model.fixed[line.from] !== null) {
+    const { dx, dy } = shiftOf(model, line.from);
+    x += dx;
+    y += dy;
+  } else if (movesWithFixed(model, line)) {
+    const [start, end] = straightBetween(model, line);
+    const across = Math.abs(end.x - start.x);
+    const down = Math.abs(end.y - start.y);
+    const middle = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
+    if (down >= across) {
+      x = middle.x + model.labelOffset + (down === 0 ? 0 : (height / 2) * (across / down));
+      y = middle.y - height / 2;
+    } else {
+      x = middle.x - width / 2;
+      y = middle.y + model.labelOffset + (width / 2) * (down / across);
+    }
+  }
+  return { x: round(x), y: round(y), width, height };
 }
 
 const middleOf = (box) => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 });
@@ -1067,6 +1116,7 @@ const inside = (box, point) => point.x > box.x && point.x < box.x + box.width
   && point.y > box.y && point.y < box.y + box.height;
 
 // Where the line from the middle of a box towards a point leaves the box; straight down from a point at the middle.
+// The side it leaves by rounds away from the box.
 function clip(box, point) {
   const middle = middleOf(box);
   const dx = point.x - middle.x;
@@ -1075,10 +1125,10 @@ function clip(box, point) {
   const h = box.height / 2;
   if (Math.abs(dy) * w > Math.abs(dx) * h) {
     const sy = dy < 0 ? -h : h;
-    return { x: round(middle.x + (sy * dx) / dy), y: dy < 0 ? box.y : box.y + box.height };
+    return { x: round(middle.x + (sy * dx) / dy), y: dy < 0 ? roundDown(box.y) : roundUp(box.y + box.height) };
   }
   const sx = dx < 0 ? -w : w;
-  return { x: dx < 0 ? box.x : box.x + box.width, y: round(middle.y + (sx * dy) / dx) };
+  return { x: dx < 0 ? roundDown(box.x) : roundUp(box.x + box.width), y: round(middle.y + (sx * dy) / dx) };
 }
 
 // Drops repeated points and the middle of three in a straight run.
@@ -1100,46 +1150,71 @@ function simplify(points) {
 
 // Fixed boxes.
 
-// Moves the items of each row right, in order, until none comes within its gap of a fixed box; the rows' heights and
-// the gaps stay as they are.
+// Moves the items of each row right, in order, until none comes within its gap of a fixed box, or of a label drawn
+// with fixed boxes; the rows' heights and the gaps stay as they are. An item keeps clear of every such box that
+// reaches into its row, over the row's whole height. The boxes are sorted once by where their gap starts on the left:
+// the items' right sides only grow along a row, so one pointer passes the boxes that start before an item ends, and
+// the item moves past the furthest right of those that reach into the row. A row takes steps in proportion to its
+// items and the boxes the pointer passes, at most all of them.
 function keepClearOfFixed(model) {
   const { count, anchor, settings } = model;
+  // Each box keeps the gap of what it is: half the node gap for a fixed box, half the line gap for a label.
   const boxes = [];
   for (let node = 0; node < count; node += 1) {
-    if (model.fixed[node] !== null) boxes.push(fixedBox(model, node));
+    if (model.fixed[node] !== null) boxes.push({ ...fixedBox(model, node), half: settings.nodeGap / 2 });
   }
+  // The points of a line drawn with its fixed boxes keep their places, since the line is drawn elsewhere; its label
+  // is drawn with it, and the other items keep clear of it there.
+  const drawnElsewhere = new Set();
+  for (const line of model.lines) {
+    if (!movesWithFixed(model, line)) continue;
+    for (const segment of line.segments) {
+      if (model.segmentTo[segment] >= count) drawnElsewhere.add(model.segmentTo[segment]);
+    }
+    if (line.labelItem >= 0) boxes.push({ ...labelBox(model, line), half: settings.edgeGap / 2 });
+  }
+  boxes.sort((a, b) => a.x - a.half - (b.x - b.half));
+  // Arrays of numbers, since a picture with many fixed boxes reads them for every row.
+  const total = boxes.length;
+  const start = new Float64Array(total);
+  const end = new Float64Array(total);
+  const top = new Float64Array(total);
+  const bottom = new Float64Array(total);
+  boxes.forEach((box, index) => {
+    start[index] = box.x - box.half;
+    end[index] = box.x + box.width + box.half;
+    top[index] = box.y;
+    bottom[index] = box.y + box.height;
+  });
   model.columnOrder.forEach((row, rank) => {
     const bandTop = model.rowTop[rank];
     const bandBottom = bandTop + model.rowHeight[rank];
-    const near = boxes.filter((box) => box.y <= bandBottom && box.y + box.height >= bandTop);
+    // A row of points only, with no height, takes the boxes that touch its line.
+    const flat = model.rowHeight[rank] === 0;
     let previous = -1;
+    let next = 0;
+    let furthest = -Infinity;
     for (const item of row) {
-      if (item < count && model.fixed[item] !== null) continue;
+      if ((item < count && model.fixed[item] !== null) || drawnElsewhere.has(item)) continue;
       if (previous >= 0) {
         const least = anchor[previous] + model.right[previous] + model.left[item] + model.half(previous) + model.half(item);
         if (anchor[item] < least) anchor[item] = least;
       }
-      if (near.length > 0) {
-        const height = item < count ? model.nodeHeight[item] : model.height[item];
-        const top = item < count || model.label[item] !== null ? model.top[item] : bandTop;
-        const bottom = item < count || model.label[item] !== null ? top + height : bandBottom;
-        const gap = model.half(item) + settings.nodeGap / 2;
-        for (let moved = true; moved;) {
-          moved = false;
-          for (const box of near) {
-            const itemLeft = anchor[item] - model.left[item];
-            const itemRight = anchor[item] + model.right[item];
-            const across = itemLeft < box.x + box.width + gap && itemRight > box.x - gap;
-            const down = (top < box.y + box.height && bottom > box.y)
-              || (top === bottom && top >= box.y && top <= box.y + box.height);
-            if (across && down) {
-              anchor[item] += box.x + box.width + gap - itemLeft;
-              moved = true;
-            }
-          }
+      const half = model.half(item);
+      // Each round passes at least one more box, so the loop ends; a move past every box passed is clear of them by
+      // construction, which no float sum is asked to confirm.
+      for (;;) {
+        if (furthest + half > anchor[item] - model.left[item]) anchor[item] = furthest + half + model.left[item];
+        const reach = anchor[item] + model.right[item] + half;
+        if (next >= total || start[next] >= reach) break;
+        for (; next < total && start[next] < reach; next += 1) {
+          const inRow = flat
+            ? top[next] <= bandTop && bottom[next] >= bandTop
+            : top[next] < bandBottom && bottom[next] > bandTop;
+          if (inRow && end[next] > furthest) furthest = end[next];
         }
       }
-      anchor[item] = round(anchor[item]);
+      anchor[item] = roundUp(anchor[item]);
       previous = item;
     }
   });
@@ -1163,7 +1238,7 @@ function output(model, input, across) {
     const line = model.lines[index];
     let label = null;
     if (line.labelItem >= 0) {
-      const { x, y } = flip({ x: round(model.anchor[line.labelItem] + model.labelOffset), y: model.top[line.labelItem] });
+      const { x, y } = flip(labelBox(model, line));
       label = { x, y, width: edge.label.width, height: edge.label.height };
     }
     return {
@@ -1184,9 +1259,12 @@ function output(model, input, across) {
     for (const point of edge.points) take(point.x, point.y);
     if (edge.label !== null) take(edge.label.x, edge.label.y, edge.label.width, edge.label.height);
   }
+  // The bounds round outwards, so that they hold boxes whose size or fixed position has more decimal places.
+  const left = roundDown(low.x);
+  const top = roundDown(low.y);
   const bounds = count === 0
     ? { x: 0, y: 0, width: 0, height: 0 }
-    : { x: low.x, y: low.y, width: high.x - low.x, height: high.y - low.y };
+    : { x: left, y: top, width: round(roundUp(high.x) - left), height: round(roundUp(high.y) - top) };
   return { bounds, nodes, edges };
 }
 
@@ -1194,3 +1272,19 @@ function output(model, input, across) {
 function round(value) {
   return Math.round(value * 100) / 100 + 0;
 }
+
+// Two decimal places, never above or never below the value: at most 0.01 from it. A value within float error of a
+// hundredth, such as 4.23 + 50 = 54.230000000000004, is that hundredth.
+function roundDown(value) {
+  const near = round(value);
+  return near <= value + floatError(value) ? near : round(near - 0.01);
+}
+
+function roundUp(value) {
+  const near = round(value);
+  return near >= value - floatError(value) ? near : round(near + 0.01);
+}
+
+// A few units in the last place of the value: the error of adding two numbers that were each written with two
+// decimal places.
+const floatError = (value) => 4 * Number.EPSILON * Math.max(1, Math.abs(value));

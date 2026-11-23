@@ -140,11 +140,14 @@ function deepFreeze(value) {
   return value;
 }
 
-// The boxes of a result: its nodes and its labels. Two fixed boxes may overlap, since the owner put them there.
+// The boxes of a result: its nodes and its labels. Two fixed boxes may overlap, since the owner put them there; the
+// label of a line whose ends are both fixed is drawn with them.
 function boxesOf(result) {
   const boxes = result.nodes.map((node) => ({ ...node, what: `node ${node.id}` }));
+  const fixed = new Set(result.nodes.filter((node) => node.fixed).map((node) => node.id));
   result.edges.forEach((edge, index) => {
-    if (edge.label !== null) boxes.push({ ...edge.label, fixed: false, what: `label of edge ${index}` });
+    if (edge.label === null) return;
+    boxes.push({ ...edge.label, fixed: fixed.has(edge.from) && fixed.has(edge.to), what: `label of edge ${index}` });
   });
   return boxes;
 }
@@ -161,17 +164,22 @@ function assertNoOverlap(result, context = '') {
   }
 }
 
-const onBoundary = (point, box) => {
-  const inX = point.x >= box.x && point.x <= box.x + box.width;
-  const inY = point.y >= box.y && point.y <= box.y + box.height;
-  const near = (a, b) => Math.abs(a - b) <= 0.01;
+// Float error: 54.23 is on the edge of a box at y 4.23 with height 50, which floating point puts at 54.230000000000004.
+const FLOAT_ERROR = 1e-6;
+
+// On the box's edge. With sizes and positions of two decimal places or fewer, a line's end is on it exactly; with
+// more, rounding moves the end out by less than 0.01.
+const onBoundary = (point, box, slack = FLOAT_ERROR) => {
+  const inX = point.x >= box.x - slack && point.x <= box.x + box.width + slack;
+  const inY = point.y >= box.y - slack && point.y <= box.y + box.height + slack;
+  const near = (a, b) => Math.abs(a - b) <= slack;
   return (inX && (near(point.y, box.y) || near(point.y, box.y + box.height)))
     || (inY && (near(point.x, box.x) || near(point.x, box.x + box.width)));
 };
 
 // Each line starts on its source box and ends on its target box. A line between laid-out boxes runs only across
 // and down, and passes through no box and no label; when no box is fixed, no two lines run on top of each other.
-function assertLines(result, context = '') {
+function assertLines(result, context = '', slack = FLOAT_ERROR) {
   const byId = new Map(result.nodes.map((node) => [node.id, node]));
   const boxes = boxesOf(result);
   const runs = [];
@@ -181,8 +189,8 @@ function assertLines(result, context = '') {
     const to = byId.get(edge.to);
     assert.ok(edge.points.length >= 2, `${where} has two points or more`);
     for (const point of edge.points) assert.ok(Number.isFinite(point.x) && Number.isFinite(point.y), `${where} is finite`);
-    assert.ok(onBoundary(edge.points[0], from), `${where} starts on its source`);
-    assert.ok(onBoundary(edge.points.at(-1), to), `${where} ends on its target`);
+    assert.ok(onBoundary(edge.points[0], from, slack), `${where} starts on its source`);
+    assert.ok(onBoundary(edge.points.at(-1), to, slack), `${where} ends on its target`);
     if (from.fixed || to.fixed) return;
     for (let at = 1; at < edge.points.length; at += 1) {
       const a = edge.points[at - 1];
@@ -193,11 +201,12 @@ function assertLines(result, context = '') {
         : { index, upright: false, at: a.y, low: Math.min(a.x, b.x), high: Math.max(a.x, b.x) });
       for (const box of boxes) {
         if (box.fixed) continue;
+        const e = FLOAT_ERROR;
         const crosses = a.x === b.x
-          ? a.x > box.x && a.x < box.x + box.width
-            && Math.max(a.y, b.y) > box.y && Math.min(a.y, b.y) < box.y + box.height
-          : a.y > box.y && a.y < box.y + box.height
-            && Math.max(a.x, b.x) > box.x && Math.min(a.x, b.x) < box.x + box.width;
+          ? a.x > box.x + e && a.x < box.x + box.width - e
+            && Math.max(a.y, b.y) > box.y + e && Math.min(a.y, b.y) < box.y + box.height - e
+          : a.y > box.y + e && a.y < box.y + box.height - e
+            && Math.max(a.x, b.x) > box.x + e && Math.min(a.x, b.x) < box.x + box.width - e;
         assert.ok(!crosses, `${where} passes through ${box.what}`);
       }
     }
@@ -442,6 +451,145 @@ test('a box with a position stays there, the others keep clear of it, and the re
   assert.deepEqual({ x: moved.nodes[4].x, y: moved.nodes[4].y }, onTop.nodes[4].position);
   assertNoOverlap(moved);
   assert.ok(moved.nodes[3].x > before.nodes[3].x);
+});
+
+test('a line from a fixed box to itself moves with it, label included, and a line between two fixed boxes runs straight', () => {
+  const loop = { nodes: [{ id: 'a', width: 100, height: 50 }], edges: [{ from: 'a', to: 'a', label: { width: 40, height: 16 } }] };
+  const before = layout(loop);
+  for (const position of [{ x: 1000, y: 2000 }, { x: 1000.25, y: 4.23 }]) {
+    const moved = structuredClone(loop);
+    moved.nodes[0].position = position;
+    const after = layout(moved);
+    const shift = (box) => ({ x: Math.round((box.x + position.x) * 100) / 100, y: Math.round((box.y + position.y) * 100) / 100 });
+    assert.deepEqual(after.edges[0].points, before.edges[0].points.map(shift));
+    assert.deepEqual(after.edges[0].label, { ...before.edges[0].label, ...shift(before.edges[0].label) });
+  }
+  const moved = structuredClone(loop);
+  moved.nodes[0].position = { x: 1000, y: 2000 };
+  // The boxes the layout places keep clear of the moved label: here it lands in the row of b1, at x 132.
+  const crowd = structuredClone(moved);
+  for (let index = 0; index < 6; index += 1) crowd.nodes.push({ id: `b${index}`, width: 100, height: 50 });
+  crowd.edges.push(...[0, 1, 2, 3, 4].map((index) => ({ from: `b${index}`, to: `b${index + 1}` })));
+  crowd.nodes[0].position = { x: 86, y: 45 };
+  const crowded = layout(crowd);
+  assert.deepEqual(crowded.edges[0].label, { x: 142, y: 119, width: 40, height: 16 });
+  assertNoOverlap(crowded);
+  assertLines(crowded);
+
+  const same = layout({
+    nodes: [{ id: 'a', width: 100, height: 50, position: { x: 0, y: 0 } }, { id: 'b', width: 100, height: 50, position: { x: 0, y: 0 } }],
+    edges: [{ from: 'a', to: 'b' }],
+  });
+  assert.equal(same.edges[0].points.length, 2);
+  assertLines(same);
+  // The layout's tracks for a→b run below a, but a and b are both fixed: the line goes straight up from a to b,
+  // never back through a.
+  const apart = layout({
+    nodes: [
+      { id: 'a', width: 800, height: 220, position: { x: -300, y: -100 } },
+      { id: 'b', width: 100, height: 50, position: { x: 0, y: -1000 } },
+      { id: 'c', width: 100, height: 50 },
+    ],
+    edges: [{ from: 'a', to: 'b' }, { from: 'a', to: 'c' }],
+  });
+  assert.equal(apart.edges[0].points.length, 2);
+  assert.equal(apart.edges[0].points[0].y, -100);
+  assertLines(apart);
+  // Its label sits beside the middle of the straight line, clear of it, and the bounds hold no stale place.
+  for (const [b, label] of [[{ x: 900, y: 900 }, { x: 764, y: 717 }], [{ x: 900, y: 520 }, { x: 730, y: 542 }]]) {
+    const pair = layout({
+      nodes: [{ id: 'a', width: 100, height: 50, position: { x: 500, y: 500 } }, { id: 'b', width: 100, height: 50, position: b }],
+      edges: [{ from: 'a', to: 'b', label: { width: 40, height: 16 } }],
+    });
+    assert.deepEqual(pair.edges[0].label, { ...label, width: 40, height: 16 });
+    assert.deepEqual([pair.bounds.x, pair.bounds.y], [500, 500]);
+  }
+});
+
+test('a box fixed where the layout put it changes nothing else', () => {
+  const graph = {
+    nodes: ['a', 'p', 'q'].map((id) => ({ id, width: 100, height: 50 })),
+    edges: [{ from: 'a', to: 'a', label: { width: 40, height: 16 } }, { from: 'a', to: 'p' }, { from: 'p', to: 'q' }, { from: 'a', to: 'q' }],
+  };
+  const before = layout(graph);
+  const pinned = structuredClone(graph);
+  pinned.nodes[0].position = { x: before.nodes[0].x, y: before.nodes[0].y };
+  const after = layout(pinned);
+  assert.deepEqual(after.nodes.slice(1), before.nodes.slice(1));
+  assert.deepEqual([after.edges[0], after.edges[2]], [before.edges[0], before.edges[2]]);
+});
+
+test('the numbers the layout works out have two decimal places, also with sizes that have more', () => {
+  const twoPlaces = (value) => Math.round(value * 100) / 100 === value;
+  for (let seed = 1; seed <= 100; seed += 1) {
+    const random = generator(seed);
+    const { graph, options } = smallGraph(seed);
+    for (const node of graph.nodes) {
+      node.width += random();
+      node.height += random();
+      if (node.position !== undefined) node.position = { x: node.position.x + random(), y: node.position.y + random() };
+    }
+    for (const edge of graph.edges) {
+      if (edge.label !== null) edge.label = { width: edge.label.width + random(), height: edge.label.height + random() };
+    }
+    const result = layout(graph, options);
+    const { bounds } = result;
+    const numbers = [bounds.x, bounds.y, bounds.width, bounds.height];
+    for (const node of result.nodes) if (!node.fixed) numbers.push(node.x, node.y);
+    for (const edge of result.edges) {
+      for (const point of edge.points) numbers.push(point.x, point.y);
+      if (edge.label !== null) numbers.push(edge.label.x, edge.label.y);
+    }
+    assert.ok(numbers.every(twoPlaces), `small graph ${seed}: ${numbers.find((value) => !twoPlaces(value))}`);
+    const holds = (x, y, width = 0, height = 0) => x >= bounds.x && y >= bounds.y
+      && x + width <= bounds.x + bounds.width + 1e-9 && y + height <= bounds.y + bounds.height + 1e-9;
+    assert.ok(boxesOf(result).every((box) => holds(box.x, box.y, box.width, box.height)), `small graph ${seed}: bounds`);
+    assert.ok(result.edges.every((edge) => edge.points.every((point) => holds(point.x, point.y))), `small graph ${seed}: bounds`);
+    assertNoOverlap(result, `small graph ${seed}`);
+    assertLines(result, `small graph ${seed}`, 0.01);
+  }
+  // Far out, where float error is larger, a line's end still never falls inside its box.
+  const far = layout({ nodes: [{ id: 'a', width: 100, height: 50, position: { x: 0, y: 999949.0005 } }], edges: [{ from: 'a', to: 'a' }] });
+  assert.deepEqual([far.edges[0].points[0].y, far.edges[0].points.at(-1).y], [999999.01, 999999.01]);
+});
+
+test('with two decimal places or fewer, lines end exactly on their boxes and the bounds fit exactly', () => {
+  const result = layout({
+    nodes: [
+      { id: 'a', width: 80, height: 50, position: { x: 4.23, y: 4.23 } },
+      { id: 'b', width: 80.5, height: 40.25 },
+      { id: 'c', width: 50, height: 30, position: { x: 300.1, y: 200.07 } },
+    ],
+    edges: [{ from: 'a', to: 'b' }, { from: 'a', to: 'a' }, { from: 'b', to: 'c' }],
+  });
+  const hundredths = (value) => Math.round(value * 100) / 100;
+  const b = result.nodes[1];
+  assert.equal(result.edges[0].points[0].y, 54.23);
+  assert.deepEqual(result.edges[1].points.map((point) => point.y).filter((y) => y < 60), [54.23, 54.23]);
+  assert.equal(result.edges[2].points[0].y, hundredths(b.y + b.height));
+  const boxes = boxesOf(result);
+  const points = result.edges.flatMap((edge) => edge.points);
+  const left = Math.min(...boxes.map((box) => box.x), ...points.map((point) => point.x));
+  const top = Math.min(...boxes.map((box) => box.y), ...points.map((point) => point.y));
+  const right = Math.max(...boxes.map((box) => box.x + box.width), ...points.map((point) => point.x));
+  const bottom = Math.max(...boxes.map((box) => box.y + box.height), ...points.map((point) => point.y));
+  assert.deepEqual(result.bounds, { x: left, y: top, width: hundredths(right - left), height: hundredths(bottom - top) });
+  assertLines(result);
+});
+
+test('keeping clear of many fixed boxes takes one sweep a row', () => {
+  // Laid-out boxes first, so that they start left of every fixed box; tall fixed boxes listed right to left, which
+  // reach into every row of the chain.
+  const nodes = Array.from({ length: 20 }, (_, index) => ({ id: `n${index}`, width: 40, height: 30 }));
+  for (let index = 0; index < 9800; index += 1) {
+    nodes.push({ id: `f${index}`, width: 40, height: 30000, layer: 1000, position: { x: (9799 - index) * 41, y: -100 } });
+  }
+  const edges = nodes.slice(1, 20).map((node, index) => ({ from: `n${index}`, to: node.id }));
+  const start = performance.now();
+  const result = layout({ nodes, edges });
+  assert.ok(performance.now() - start < 1000);
+  assertNoOverlap({ ...result, nodes: result.nodes.filter((node) => !node.fixed || node.id === 'f0') });
+  assert.ok(result.nodes.slice(0, 20).every((node) => node.x >= 9799 * 41 + 40));
 });
 
 test('a box with 1500 children packs the lines of its one gap by where they start, quickly', () => {
