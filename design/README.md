@@ -109,4 +109,4 @@ The maintainer chose to draw user flows, screen states and mockups from the firs
 
 #### After the review of pull request 104
 
-The stage tabs of the 78 state frames are again exactly as stage 09 approved them; the script opens the view of stage 03, 08 or 09 from a tab, so no state frame changed. The stage-09 view gained the thread and comment box of a selected token, on a phone under the frame's token list; the flow and screen lists above the 03 and 08 views are links. No token is added or changed. This part waits for its own checkpoint.
+The stage tabs of the 78 state frames are again exactly as stage 09 approved them; the script opens the view of stage 03, 08 or 09 from a tab, so no state frame changed. The stage-09 view gained the thread and comment box of a selected token, on a phone under the frame's token list; the flow and screen lists above the 03 and 08 views are links. No token is added or changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.

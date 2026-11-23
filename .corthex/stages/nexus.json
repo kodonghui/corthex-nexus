@@ -89,10 +89,15 @@
           "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: SPEC-006 to SPEC-009 become Must, SPEC-009 shows the mockup page in an isolated frame with its tokens listed, and the stage-06 exclusion of SPEC-006, SPEC-008 and SPEC-009 is marked as changed by this decision. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "After the review of pull request 104, at commit 16d28c7: SPEC-005 keeps the item tables of stages 03, 08 and 09 for a corthex-hub/0.2 snapshot; SPEC-009 names what the frame keeps out, the tokens as the mockup's elements and a page that leaves; SPEC-016 and SPEC-018 refuse a target that names no single diagram. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
-      "updated": "2026-11-23T14:30:00+09:00"
+      "updated": "2026-11-23T16:30:00+09:00"
     },
     "05-erd": {
       "state": "done",
@@ -136,10 +141,15 @@
           "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: snapshot format corthex-hub/0.3 with the pictures of stages 03, 08 and 09 and their key, formats in the held commit of API-243, and API-293 for the mockup page with a sandbox Content-Security-Policy. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "After the review of pull request 104, at commit 16d28c7: the same commit in a newer format completes its revision; the held commit names its format and formats is any corthex-hub/N.N; comments and proposals take an optional diagram and refuse with diagram_ambiguous; a mockup's elements are its tokens; API-293 reads the status first, watches the frame and is UTF-8. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-23T14:30:00+09:00"
+      "updated": "2026-11-23T16:30:00+09:00"
     },
     "07-sitemap": {
       "state": "done",
@@ -153,10 +163,15 @@
           "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: difference 3 names the pictures of stages 01, 03, 05, 07, 08 and 09. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "After the review of pull request 104, at commit 16d28c7: SCR-145 and SCR-146 take the optional query ?diagram={diagram}. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 08: write a screen definition with its states for each of the five screens",
-      "updated": "2026-11-23T14:30:00+09:00"
+      "updated": "2026-11-23T16:30:00+09:00"
     },
     "08-screen-states": {
       "state": "done",
@@ -180,10 +195,15 @@
           "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: SCR-145 gains API-293 and its normal and not-drawn states describe the new pictures; the 39 states are unchanged. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "After the review of pull request 104, at commit 16d28c7: SCR-145 lists the stage's diagrams and opens another one, and its normal state describes the tokens as elements, the status read first and a page that leaves; the 39 states are unchanged. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-23T14:30:00+09:00"
+      "updated": "2026-11-23T16:30:00+09:00"
     },
     "09-mockup": {
       "state": "done",
@@ -202,10 +222,15 @@
           "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: three stage views of SCR-145#normal at both widths in both themes, 84 frames with the 78 state frames unchanged; no token added or changed. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "After the review of pull request 104, at commit 16d28c7: the 78 state frames are again identical to the stage-09 approval, which the record of the feature change said and was not yet true at 8dac12f, where their stage tabs pointed at the views; the views gain a token's thread and comment box and links between diagrams; no token added or changed. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 10: plan the work of the first release from the approved design of stages 01 to 09",
-      "updated": "2026-11-23T14:30:00+09:00"
+      "updated": "2026-11-23T16:30:00+09:00"
     },
     "10-wbs": {
       "state": "not_started",

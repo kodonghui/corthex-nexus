@@ -157,4 +157,4 @@ The maintainer chose to draw user flows, screen states and mockups from the firs
 
 #### After the review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate: the address of SCR-145, and of SCR-146 under it, takes an optional `?diagram={diagram}` for a stage with several diagrams. The paths and the tree are unchanged. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate: the address of SCR-145, and of SCR-146 under it, takes an optional `?diagram={diagram}` for a stage with several diagrams. The paths and the tree are unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
