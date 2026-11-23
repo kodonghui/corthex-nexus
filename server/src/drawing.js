@@ -126,6 +126,22 @@ export const DRAWERS = Object.freeze({ ddd_board: dddBoard, erd, mockup, sitemap
 // The names a diagram has until its drawer names it, such as when its first drawing fails.
 const NAMES = Object.freeze({ ddd_board: 'DDD board', erd: 'ERD', sitemap: 'Sitemap', item_table: 'Item table' });
 
+// A trace ID at the start of a name, as the hub reads the ID that leads a heading (its IdIndex.lead): after any white
+// space, *, _, `, ~, [ or (, an ID of the contract's form that no letter, digit or _ follows.
+const LEADING_TRACE_ID = /^[\s*_`~[(]*([A-Z][A-Z0-9]*-[0-9]{1,6})(?![0-9A-Za-z_])/;
+
+// The trace ID a file diagram holds as a whole, the one it is named by, or null (SPEC-016; see the server's README): a
+// diagram of stage 03, 08 or 09 that is a file's, not the stage's item table, holds the trace ID its name starts with.
+// Its name is its drawer's: the file's first heading for a user flow or a screen, such as "FL-005 Reflect accepted
+// changes into Git" or "SCR-143 Projects", or the file's name until a drawer names it, such as "SCR-143.md", which
+// starts with the same ID. The name is the one the page shows and what an agent reads, and the diagram row keeps it, so
+// no source is read again; a failed drawing leaves it as it was. A name with no ID at its start, such as the mockup's
+// "nexus-mockup.html", holds none.
+export function diagramTraceId({ stage, kind, name }) {
+  if (!FILE_STAGES.has(stage) || kind === ITEM_TABLE || typeof name !== 'string') return null;
+  return LEADING_TRACE_ID.exec(name)?.[1] ?? null;
+}
+
 // The contract's limits besides drawer.js's: Diagram's name, Element's kind and status, and PushAnswer's failures; and
 // ElementKey's form.
 const MAX_NAME = 200;

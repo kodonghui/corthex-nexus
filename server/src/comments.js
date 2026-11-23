@@ -11,7 +11,13 @@
 //   current drawing). Its diagram is the one diagram names, or the one diagram of the stage and part whose drawing holds
 //   item, or with neither the stage's first diagram, the one its address opens (project.js's DIAGRAM_ORDER). A removed
 //   diagram is none of its stage's diagrams and takes no new thread; a diagram that never drew takes none either, and
-//   the comment never moves to another diagram (SPEC-016, SPEC-027). An element that the drawing at commit holds and the
+//   the comment never moves to another diagram (SPEC-016, SPEC-027).
+// - A file diagram holds its own trace ID as a whole (drawing.js's diagramTraceId): an item that no element of the
+//   stage's drawings holds, but that names a file diagram of the stage and part, such as FL-005 for the flow named
+//   "FL-005 Reflect accepted changes into Git", picks that diagram, and the thread goes on the diagram as a whole, as a
+//   comment with diagram and no item does. An element that holds the item still wins, and two diagrams named by it get
+//   diagram_ambiguous. With diagram, the item may be the one that diagram is named by. So an agent reaches each file of
+//   stages 03, 08 and 09 through the hub's comment command, which sends item and never diagram. An element that the drawing at commit holds and the
 //   current drawing no longer does gets the thread on the diagram, its key kept and marked with its last name, as an
 //   element that left would (SPEC-016, SPEC-027).
 // - An open thread waits only on the side that did not write last (SPEC-017): an agent's comment, reply or decision
@@ -31,6 +37,7 @@ import { LIMITS } from './limits.js';
 import { invalidRequest, Problem } from './problem.js';
 import { DIAGRAM_ORDER, projectHead } from './project.js';
 import { STAGES } from './snapshot.js';
+import { diagramTraceId } from './drawing.js';
 import { diagramPart, threadItem } from './todo.js';
 
 // The contract's limits and forms: Text, CommentRequest's quote and look_first, Link, Problem.diagrams, and a
@@ -71,10 +78,10 @@ function statementsOf(store) {
       held: store.prepare('SELECT revision FROM snapshots WHERE project_id = ? AND commit_sha = ?'),
       // The stage's diagrams that are not removed, in DIAGRAM_ORDER; their parts are found after (see todo.js).
       stage: store.prepare(
-        `SELECT d.id, d.stage, d.source_key, d.kind FROM diagrams d
+        `SELECT d.id, d.stage, d.source_key, d.kind, d.name FROM diagrams d
          WHERE d.project_id = ? AND d.stage = ? AND d.removed_at IS NULL ORDER BY ${DIAGRAM_ORDER}`,
       ),
-      diagram: store.prepare('SELECT id, stage, source_key, kind, removed_at FROM diagrams WHERE id = ? AND project_id = ?'),
+      diagram: store.prepare('SELECT id, stage, source_key, kind, name, removed_at FROM diagrams WHERE id = ? AND project_id = ?'),
       // The drawing a diagram shows: its last drawn one (SPEC-001). And the one it showed at a revision.
       current: store.prepare("SELECT id, document_version FROM drawings WHERE diagram_id = ? AND status = 'drawn' ORDER BY id DESC LIMIT 1"),
       shownAt: store.prepare(
@@ -270,7 +277,7 @@ function drawingOf(statements, diagram, revision) {
 }
 
 // The thread's diagram and drawing, and the element item names in that drawing (SPEC-016): { diagram, drawing,
-// element }, element null without item.
+// element }, element null without item or for an item that names the file diagram itself (see the top of this file).
 function placeOf(store, statements, project, request) {
   const held = request.commit === undefined ? undefined : statements.held.get(project.id, request.commit);
   const revision = held === undefined ? null : Number(held.revision);
@@ -291,7 +298,7 @@ function placeOf(store, statements, project, request) {
     const drawing = drawingOf(statements, key, revision);
     if (drawing === null) throw new Problem('diagram_not_found');
     const element = elementOf(drawing);
-    if (request.item !== '' && element === null) throw itemNotFound(request.item);
+    if (request.item !== '' && element === null && diagramTraceId(row) !== request.item) throw itemNotFound(request.item);
     return { diagram: row, drawing, element };
   }
 
@@ -309,14 +316,23 @@ function placeOf(store, statements, project, request) {
     .filter(({ drawing }) => drawing !== null);
   if (drawn.length === 0) throw new Problem('diagram_not_found');
   const holding = drawn.map((each) => ({ ...each, element: elementOf(each.drawing) })).filter(({ element }) => element !== null);
-  if (holding.length === 0) throw itemNotFound(request.item);
-  if (holding.length > 1) {
-    const listed = holding.slice(0, AMBIGUOUS_LISTED).map(({ row }) => idOf('dg', Number(row.id)));
-    throw new Problem('diagram_ambiguous', undefined, {}, { diagrams: listed });
+  if (holding.length > 1) throw ambiguous(holding);
+  if (holding.length === 1) {
+    const [{ row, drawing, element }] = holding;
+    return { diagram: row, drawing, element };
   }
-  const [{ row, drawing, element }] = holding;
-  return { diagram: row, drawing, element };
+  // No element holds it: the file diagram it names holds it as a whole.
+  const named = drawn.filter(({ row }) => diagramTraceId(row) === request.item);
+  if (named.length === 0) throw itemNotFound(request.item);
+  if (named.length > 1) throw ambiguous(named);
+  const [{ row, drawing }] = named;
+  return { diagram: row, drawing, element: null };
 }
+
+// diagram_ambiguous, naming the diagrams in the stage's order.
+const ambiguous = (found) => new Problem('diagram_ambiguous', undefined, {}, {
+  diagrams: found.slice(0, AMBIGUOUS_LISTED).map(({ row }) => idOf('dg', Number(row.id))),
+});
 
 const itemNotFound = (item) => new Problem('item_not_found', undefined, {}, { items: [item] });
 

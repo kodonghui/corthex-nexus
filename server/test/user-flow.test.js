@@ -17,7 +17,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
-import { DRAWERS, SourceFailure } from '../src/drawing.js';
+import { diagramTraceId, DRAWERS, SourceFailure } from '../src/drawing.js';
 import { idOf } from '../src/ids.js';
 import { readProject } from '../src/project.js';
 import { snapshotRoutes } from '../src/snapshots.js';
@@ -635,10 +635,21 @@ describe('user flows through the push', () => {
       assert.deepEqual(elements(drawing.id), rowsOf(expected[picture.key].elements));
       // The drawing reads its own file and nothing else.
       assert.equal(drawing.source_digest, sha256(JSON.stringify([[picture.key, sha256(picture.source.text)]])));
+      // The flow is named by its file's trace ID, which an agent's comment reaches as its item (comments.js; SPEC-016).
+      assert.equal(diagramTraceId(diagram), /^FL-[0-9]+/.exec(picture.key.split('/').at(-1))[0]);
     }
     // Stage 03 lists its 13 flows by name, and no item table: its files draw from the first push (SPEC-005).
     assert.deepEqual(listed(name), Object.values(expected).map((drawing) => ['user_flow', drawing.name, false]));
     assert.equal(diagramOf(name, `/items/${STAGE}`), undefined);
+    // So is each screen of stage 08; the mockup page of 09 is named by its file's name and holds no trace ID.
+    const others = db.prepare(
+      `SELECT d.stage, d.kind, d.name, d.source_key FROM diagrams d JOIN project_spaces p ON p.id = d.project_id
+       WHERE p.name = ? AND d.stage IN ('08-screen-states', '09-mockup') ORDER BY d.source_key`,
+    ).all(name);
+    assert.deepEqual(others.map((row) => [row.source_key, diagramTraceId(row)]), [
+      ['design/mockup/nexus-mockup.html', null],
+      ...['SCR-142', 'SCR-143', 'SCR-144', 'SCR-145', 'SCR-146'].map((id) => [`docs/08-screens/${id}.md`, id]),
+    ]);
   });
 
   test('stage 03\'s item table of a 0.2 snapshot makes way for the flows of the next 0.3 snapshot', async () => {
