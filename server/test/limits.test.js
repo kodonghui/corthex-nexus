@@ -40,10 +40,7 @@ test('every body of the contract is a JSON object of one of the three kinds, wit
     assert.deepEqual(Object.keys(operation.requestBody.content), ['application/json'], where);
     assert.equal(operation.requestBody.description, `At most ${kind.limit} bytes.`, where);
     for (const { value } of Object.values(operation.responses['413'].content['application/problem+json'].examples)) {
-      // API-292's example copies the 2 MiB limit of the other bodies, while its body, the limits and SPEC-041's
-      // row give a Miro export 5 MiB; the server follows those. This test fails once the example is corrected.
-      const limit = operation.operationId === 'importMiroBoard' ? LIMITS.bodyBytes : kind.limit;
-      assert.deepEqual([value.code, value.limit], [kind.tooLarge, limit], where);
+      assert.deepEqual([value.code, value.limit], [kind.tooLarge, kind.limit], where);
     }
     for (const { value } of Object.values(operation.responses['415'].content['application/problem+json'].examples)) {
       assert.equal(value.code, 'json_required', where);
