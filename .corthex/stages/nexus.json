@@ -259,10 +259,15 @@
           "approved": "Push table and spec correction, pull request 126, at commit b40e60d: API-242's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-157, TBL-158, TBL-160, TBL-161 and TBL-166 instead of the approved TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152 and TBL-153; and its spec rows add SPEC-035 to the approved SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-014, SPEC-025, SPEC-027 and SPEC-033 (note 14). No operation, field, response or code changed, and db/nexus.sql is as it was. Each changed item was answered on its own before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Mockup page table correction, pull request 129, at commit fbe4cce: API-293's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151 and TBL-152 instead of the approved TBL-149, TBL-150, TBL-151 and TBL-152 (note 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed item was answered on its own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T03:41:38+09:00"
+      "updated": "2026-11-24T04:52:45+09:00"
     },
     "07-sitemap": {
       "state": "done",

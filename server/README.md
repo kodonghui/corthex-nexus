@@ -524,7 +524,7 @@ It also checks, with files it makes:
 
 `src/mockup.js` is TASK-427, the drawer of the `mockup` kind: it lists the design tokens a stage-09 mockup page uses, one element of kind `token` for each CSS custom property the page reads with `var()` (SPEC-009, API-265). Its source is the page itself: in corthex-hub/0.3 the pinned hub sends the whole text of the HTML file that the project's stage 09 names as `page`, one picture per file, and NEXUS reads it. `src/mockup-page.js` serves the page, as [the mockup page](#the-mockup-page) below says.
 
-SPEC-009, API-265, API-293 and the stage-09 mockup left the rules below open. The coordinator chose them for TASK-427, and they wait for the maintainer's delegate with the pull request.
+SPEC-009, API-265, API-293 and the stage-09 mockup left the rules below open. The coordinator chose them for TASK-427, and the maintainer approved them through the delegate they named for checkpoints.
 
 | Question | Rule | Not taken |
 | --- | --- | --- |
@@ -565,7 +565,7 @@ API-293 (`GET /api/projects/{project}/diagrams/{diagram}/page`, `src/mockup-page
 - **The page** is the document of the diagram's last drawing that drew: its current drawing, or when that failed, its last good one, read from that drawing's snapshot by the diagram's `source_key`. It is sent whole, as `text/html; charset=utf-8`, with `Cache-Control: private, no-store`.
 - **The sandbox.** Every answer, its refusals and faults included, carries the contract's `Content-Security-Policy` as its route's header (see [Answers](#answers)), and `X-Content-Type-Options: nosniff`. The policy makes the page a sandbox in which its scripts run but which has no NEXUS origin, so they reach neither NEXUS's cookies nor its API. The page loads nothing from the network, its fonts included, and only a NEXUS page may frame it; opened in a tab of its own, it is a sandbox too.
 - **Refusals.** A name no project space has gets `project_not_found`. An ID that names no diagram of the project, or a diagram of another kind, gets `diagram_not_found`. A mockup that has never drawn gets `not_drawn` (409), which names the reason, while the push's `failures` name where its drawing failed.
-- **Tables.** It also finds the project space by its name (TBL-147), so API-293 lists 5 tables. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+- **Tables.** It also finds the project space by its name (TBL-147), so API-293 lists 5 tables. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint on 2026-11-24.
 - **Not here.** The frame, the bar above it, reading the page's status before framing it, and opening the page again once when it opens another page are TASK-458's screen work.
 
 `test/mockup.test.js` answers every response API-293 lists, checks that each answer carried the sandbox header and nosniff, and checks the tables it touches (note 23) and its log lines (rule 5).
