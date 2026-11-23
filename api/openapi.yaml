@@ -3616,11 +3616,11 @@ paths:
     get:
       operationId: getProject
       summary: Read a project
-      description: The stages with their diagrams and states, a stage passed once every diagram of it has a recorded confirmation (SPEC-035), and the tool links with their last status (SPEC-046).
+      description: The stages with their diagrams and states, a stage passed once every diagram of it that is not removed has a recorded confirmation (SPEC-035), removed ones with open threads listed last (SPEC-005, SPEC-027), and the tool links with their last status (SPEC-046).
       tags: [owner]
       x-corthex:
         id: API-264
-        spec: [SPEC-035, SPEC-046]
+        spec: [SPEC-005, SPEC-027, SPEC-035, SPEC-046]
         tables: [TBL-147, TBL-151, TBL-155, TBL-162, TBL-168]
         release: Must
         family: owner
@@ -3657,6 +3657,7 @@ paths:
                           - id: dg_2b4c6d8e0f1g
                             kind: erd
                             name: ERD
+                            removed: false
                             drawn: true
                             confirmation: none
                             waiting: 1
@@ -10979,7 +10980,7 @@ components:
             - type: "null"
     DiagramSummary:
       type: object
-      required: [id, kind, name, drawn, confirmation, waiting, open_threads]
+      required: [id, kind, name, removed, drawn, confirmation, waiting, open_threads]
       additionalProperties: false
       properties:
         id:
@@ -10990,6 +10991,9 @@ components:
         name:
           type: string
           maxLength: 200
+        removed:
+          type: boolean
+          description: A removed diagram is listed after the others only while it has open threads; it counts for no stage pass and is never the stage's first diagram (SPEC-005, SPEC-027).
         drawn:
           type: boolean
         confirmation:

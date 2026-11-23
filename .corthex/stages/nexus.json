@@ -110,8 +110,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "After the fifth review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T15:51:29+09:00"
+      "next": "After the sixth review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T16:04:49+09:00"
     },
     "05-erd": {
       "state": "in_progress",
@@ -147,8 +147,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "After the fifth review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T15:51:29+09:00",
+      "next": "After the sixth review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T16:04:49+09:00",
       "checks": [
         {
           "level": "info",
@@ -158,7 +158,7 @@
       ]
     },
     "06-api": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Stage 06 contract freeze for the first release: the 51 operations API-242 to API-292 in api/openapi.yaml, the agent family taking the pinned hub's wire unchanged and the owner family apart, the 59 error codes and the choices of section 3; the four items of section 6 answered with the recommendations, with the stage-04 spec and the stage-05 schema corrected in the same pull request. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -186,8 +186,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-23T15:30:54+09:00"
+      "next": "After the sixth review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T16:04:49+09:00"
     },
     "07-sitemap": {
       "state": "done",

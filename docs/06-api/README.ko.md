@@ -41,7 +41,7 @@
 | --- | --- | --- | --- | --- |
 | API-262 | `GET /api/projects` | 프로젝트 목록 | Must | SPEC-015, SPEC-042, SPEC-048 |
 | API-263 | `GET /api/todo` | 소유자 할 일 | Must | SPEC-042, SPEC-048 |
-| API-264 | `GET /api/projects/{project}` | 프로젝트 읽기 | Must | SPEC-035, SPEC-046 |
+| API-264 | `GET /api/projects/{project}` | 프로젝트 읽기 | Must | SPEC-005, SPEC-027, SPEC-035, SPEC-046 |
 | API-265 | `GET /api/projects/{project}/diagrams/{diagram}` | 다이어그램 읽기 | Must | SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-011, SPEC-012, SPEC-022, SPEC-027, SPEC-034, SPEC-051 |
 | API-266 | `GET /api/projects/{project}/threads/{thread}` | 스레드 읽기 | Must | SPEC-016, SPEC-017 |
 | API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | 소유자로 댓글 달기 | Must | SPEC-016, SPEC-051 |
@@ -170,7 +170,7 @@
 | SPEC-002 Create a project space on the first send | API-242, API-243 |
 | SPEC-003 Draw the DDD board | API-242, API-265 |
 | SPEC-004 Draw the ERD | API-242, API-265 |
-| SPEC-005 Show an item table | API-242, API-265 |
+| SPEC-005 Show an item table | API-242, API-264, API-265 |
 | SPEC-006 Draw user-flow diagrams | API-242, API-265 |
 | SPEC-007 Draw the sitemap tree | API-242, API-265 |
 | SPEC-008 Draw screen-state panels | API-242, API-265 |
@@ -192,7 +192,7 @@
 | SPEC-024 Link a reflection pull request | API-248, API-258 |
 | SPEC-025 Mark changes reflected | API-242, API-258 |
 | SPEC-026 Hand over a diagram's change sets together | API-245, API-248 |
-| SPEC-027 Keep the comments of a removed element | API-242, API-265 |
+| SPEC-027 Keep the comments of a removed element | API-242, API-264, API-265 |
 | SPEC-028 Close a thread | API-269 |
 | SPEC-029 Confirm a diagram or item table | API-275 |
 | SPEC-030 Cancel a confirmation | API-276 |
@@ -249,3 +249,7 @@ PR 104의 두 번째 리뷰 뒤 항목이 더 바뀌었고, 하나씩 여쭈어 
 #### PR 104 세 번째 리뷰 뒤
 
 계약이 두 번째 리뷰에서 승인한 것을 그대로 적어요. API-293의 모든 응답에 sandbox 헤더와 nosniff를 적었고, 0.3의 key는 비어 있을 수 없고, 제안의 diagram 설명은 제안만 말하고, not_drawn은 제안에서 받은 에이전트에게 댓글을 달라고 알려요. 여기서 바뀐 승인 항목은 없어요. 이 몫은 2026-11-23에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+#### PR 104 여섯 번째 리뷰 뒤
+
+승인된 항목 1개가 바뀌었고, 하나씩 여쭈어 같은 대리인을 통해 승인했어요. DiagramSummary에 필수 removed가 생겼고, API-264는 지우지 않은 모든 그림에 기록된 확정이 있으면 단계를 통과로 보고, 열린 스레드가 있는 지운 그림은 맨 뒤에 둬요(SPEC-005, SPEC-027). 오퍼레이션은 그대로 52개예요. 이 몫은 따로 체크포인트를 기다려요.

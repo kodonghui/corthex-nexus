@@ -41,7 +41,7 @@ Two families share one error shape. The agent family (20 operations) takes the p
 | --- | --- | --- | --- | --- |
 | API-262 | `GET /api/projects` | List the projects | Must | SPEC-015, SPEC-042, SPEC-048 |
 | API-263 | `GET /api/todo` | Open on the owner's to-do | Must | SPEC-042, SPEC-048 |
-| API-264 | `GET /api/projects/{project}` | Read a project | Must | SPEC-035, SPEC-046 |
+| API-264 | `GET /api/projects/{project}` | Read a project | Must | SPEC-005, SPEC-027, SPEC-035, SPEC-046 |
 | API-265 | `GET /api/projects/{project}/diagrams/{diagram}` | Read a diagram | Must | SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-011, SPEC-012, SPEC-022, SPEC-027, SPEC-034, SPEC-051 |
 | API-266 | `GET /api/projects/{project}/threads/{thread}` | Read a thread | Must | SPEC-016, SPEC-017 |
 | API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | Comment as the owner | Must | SPEC-016, SPEC-051 |
@@ -170,7 +170,7 @@ API-265 serves the pictures of SPEC-006, SPEC-008 and SPEC-009 from the first re
 | SPEC-002 Create a project space on the first send | API-242, API-243 |
 | SPEC-003 Draw the DDD board | API-242, API-265 |
 | SPEC-004 Draw the ERD | API-242, API-265 |
-| SPEC-005 Show an item table | API-242, API-265 |
+| SPEC-005 Show an item table | API-242, API-264, API-265 |
 | SPEC-006 Draw user-flow diagrams | API-242, API-265 |
 | SPEC-007 Draw the sitemap tree | API-242, API-265 |
 | SPEC-008 Draw screen-state panels | API-242, API-265 |
@@ -192,7 +192,7 @@ API-265 serves the pictures of SPEC-006, SPEC-008 and SPEC-009 from the first re
 | SPEC-024 Link a reflection pull request | API-248, API-258 |
 | SPEC-025 Mark changes reflected | API-242, API-258 |
 | SPEC-026 Hand over a diagram's change sets together | API-245, API-248 |
-| SPEC-027 Keep the comments of a removed element | API-242, API-265 |
+| SPEC-027 Keep the comments of a removed element | API-242, API-264, API-265 |
 | SPEC-028 Close a thread | API-269 |
 | SPEC-029 Confirm a diagram or item table | API-275 |
 | SPEC-030 Cancel a confirmation | API-276 |
@@ -249,3 +249,7 @@ After the second review of pull request 104, more items changed, each asked on i
 #### After the third review of pull request 104
 
 The contract now says what the second review approved: every answer of API-293 declares the sandbox header and nosniff; a 0.3 key is never empty; the proposal's diagram describes proposals only; not_drawn tells an agent whose proposal gets it to comment. No approved item changed here. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the sixth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: DiagramSummary gains a required removed, and API-264 passes a stage once every diagram of it that is not removed has a recorded confirmation, listing removed ones with open threads last (SPEC-005, SPEC-027). The operations stay 52. This part waits for its own checkpoint.
