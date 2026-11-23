@@ -1,5 +1,6 @@
-// Shared by the tests of the to-do (TASK-433) and the project read (TASK-440): the fewest rows the store's schema allows
-// for each subject an entry is about, and for the stage passes and tool links the project read shows, written straight
+// Shared by the tests of the to-do (TASK-433), the project read (TASK-440) and the diagram read (TASK-441): the fewest
+// rows the store's schema allows for each subject an entry is about, for the stage passes and tool links the project
+// read shows, and for the elements, positions, documents and change-set steps the diagram read shows, written straight
 // into a store, so that a test sets up a thread, a change set, a confirmation, a step, a pass or a link without the
 // operations that later tasks build. node --test also runs this file, which holds no test.
 
@@ -71,13 +72,43 @@ export function seed(db, { time = TIME } = {}) {
     return { id, drawing: drawing(space, id, { status }) };
   }
 
-  // A drawing of the diagram from the project's last snapshot.
-  function drawing(space, diagramId, { status = 'drawn' } = {}) {
+  // A drawing of the diagram from the project's last snapshot. A failed one failed at failedPath and failedLine.
+  function drawing(space, diagramId, { status = 'drawn', failedPath = 'db/nexus.sql', failedLine = null, at = time } = {}) {
+    const failed = status === 'failed';
     return insert(
       `INSERT INTO drawings (project_id, diagram_id, snapshot_id, document_version, status, source_digest, failed_path, failed_line, drawn_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)`,
-      space.id, diagramId, space.snapshot, space.commit, status, sha256(`${diagramId}`), status === 'failed' ? 'db/nexus.sql' : null, time,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      space.id, diagramId, space.snapshot, space.commit, status, sha256(`${diagramId}`), failed ? failedPath : null, failed ? failedLine : null, at,
     );
+  }
+
+  // The elements of a drawing, in order, each { key, trace_id, kind, name, parent, status, detail } as a drawer
+  // returns it, with its key given.
+  function elements(drawingId, rows) {
+    const statement = db.prepare(
+      'INSERT INTO elements (drawing_id, element_key, trace_id, kind, name, parent_key, status, detail) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    );
+    for (const row of rows) {
+      statement.run(
+        drawingId, row.key, row.trace_id ?? null, row.kind ?? 'table', row.name ?? '', row.parent ?? null, row.status ?? null,
+        JSON.stringify(row.detail ?? {}),
+      );
+    }
+  }
+
+  // Where the owner put an element of a diagram, as TASK-442 will keep it (TBL-154, SPEC-012): the last move wins.
+  function position(diagramId, key, { x, y, at = time }) {
+    db.prepare(
+      `INSERT INTO element_positions (diagram_id, element_key, x, y, moved_at) VALUES (?, ?, ?, ?, ?)
+       ON CONFLICT (diagram_id, element_key) DO UPDATE SET x = excluded.x, y = excluded.y, moved_at = excluded.moved_at`,
+    ).run(diagramId, key, x, y, at);
+  }
+
+  // A document of the project's last snapshot by its path, such as /items/<stage>, as the intake keeps one.
+  function document(space, path, stage, body) {
+    db.prepare('INSERT INTO document_blobs (sha256, body, bytes) VALUES (?, ?, ?) ON CONFLICT (sha256) DO NOTHING')
+      .run(sha256(body), body, Buffer.byteLength(body));
+    db.prepare('INSERT INTO snapshot_files (snapshot_id, path, stage, blob_sha256) VALUES (?, ?, ?, ?)').run(space.snapshot, path, stage, sha256(body));
   }
 
   // An open thread with its first comment, waiting on the side that did not write it: { id }.
@@ -113,12 +144,27 @@ export function seed(db, { time = TIME } = {}) {
     );
   }
 
-  // A change set of the diagram: a direct edit, accepted unless told otherwise, or a proposal on threadId.
-  function changeSet(space, where, { origin = 'direct_edit', state = origin === 'proposal' ? 'proposed' : 'accepted', threadId = null, pullRequestId = null } = {}) {
+  // A change set of the diagram: a direct edit, accepted unless told otherwise, or a proposal on threadId. detail is
+  // what TBL-158 keeps of a proposal as the hub sends it, made at at and decided at decidedAt.
+  function changeSet(space, where, {
+    origin = 'direct_edit', state = origin === 'proposal' ? 'proposed' : 'accepted', threadId = null, pullRequestId = null, detail = {},
+    at = time, decidedAt = null,
+  } = {}) {
     return insert(
-      `INSERT INTO change_sets (project_id, diagram_id, drawing_id, origin, thread_id, credential_id, state, created_at, pull_request_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      space.id, where.id, where.drawing, origin, threadId, origin === 'proposal' ? agent.key : null, state, time, pullRequestId,
+      `INSERT INTO change_sets (project_id, diagram_id, drawing_id, origin, thread_id, credential_id, state, created_at, decided_at,
+                                pull_request_id, detail)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      space.id, where.id, where.drawing, origin, threadId, origin === 'proposal' ? agent.key : null, state, at, decidedAt, pullRequestId,
+      JSON.stringify(detail),
+    );
+  }
+
+  // The next step of a change set (TBL-159): rename, connect, add or remove an element.
+  function change(changeSetId, { op = 'rename', element, name = null, target = null }) {
+    const { seq } = db.prepare('SELECT coalesce(max(seq), 0) + 1 AS seq FROM changes WHERE change_set_id = ?').get(changeSetId);
+    return insert(
+      'INSERT INTO changes (change_set_id, seq, op, element_key, new_name, target_key) VALUES (?, ?, ?, ?, ?, ?)',
+      changeSetId, seq, op, element, name, target,
     );
   }
 
@@ -205,9 +251,9 @@ export function seed(db, { time = TIME } = {}) {
   }
 
   return {
-    agent, credential, project, snapshot, diagram, drawing, thread, comment, closeThread, pullRequest, changeSet, setChangeSet,
-    confirm, cancel, invalidate, record, recordCancel, removeDiagram, workshop, confirmStep, writeStep, closeWorkshop, claim,
-    pass, changePass, toolLink,
+    agent, credential, project, snapshot, diagram, drawing, elements, position, document, thread, comment, closeThread, pullRequest,
+    changeSet, change, setChangeSet, confirm, cancel, invalidate, record, recordCancel, removeDiagram, workshop, confirmStep, writeStep,
+    closeWorkshop, claim, pass, changePass, toolLink,
   };
 }
 
