@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; and TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-277, API-278, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; and TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-277, API-278, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -119,7 +119,7 @@ A refused push changes nothing, since it runs in its write's transaction.
 | --- | --- | --- |
 | the picture's `key` | 03, 08 or 09 | the file's whole text, `source.text` |
 | `/pictures/<stage>`, or `/pictures/<stage>/<part>` for a part | 01, 05 or 07 | the hub's parsed picture, `source`, as JSON |
-| `/items/<stage>` | that stage | the snapshot's items of that stage, as a JSON array |
+| `/items/<stage>` | that stage | the snapshot's items of that stage, as a JSON array, for each stage with items and each stage whose record says the hub read it (`read` true): an empty list for one with none, unless the snapshot is truncated |
 | `/snapshot` | none | the rest as it came: every other field, the pictures without their sources (a file's picture keeps the members of its source other than `text`) and the items of no stage |
 
 The schema lists only the fields NEXUS reads and says NEXUS keeps the others as they come; `/snapshot` keeps them, the project's title and parts among them. A key never starts with `/`, so the two kinds of names never meet.
@@ -132,7 +132,7 @@ The schema lists only the fields NEXUS reads and says NEXUS keeps the others as 
 
 ## Drawing
 
-The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board), TASK-422's [ERD](#erd) and TASK-425's [sitemap](#sitemap) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, the reading of a picture's entries and warnings, and the placing of boxes sized for their text. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
+The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board), TASK-422's [ERD](#erd), TASK-423's [item table](#item-table) and TASK-425's [sitemap](#sitemap) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, the reading of a picture's entries and warnings, and the placing of boxes sized for their text. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
 
 **Diagrams.** A diagram is drawn from one document of the snapshot. Its `source_key` is that document's path in `snapshot_files` (see Documents above), so a drawing finds its source from the diagram alone.
 
@@ -140,13 +140,13 @@ The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a draw
 | --- | --- | --- | --- |
 | 01, 05, 07 | one per stage and part | `/pictures/<stage>` or `/pictures/<stage>/<part>` | `ddd_board`, `erd`, `sitemap` |
 | 03, 08, 09 | one per file | the file's key, its path in the repository | `user_flow`, `screen_states`, `mockup` |
-| any other stage with items | one | `/items/<stage>` | `item_table` |
-| 03, 08, 09 while no snapshot drew their pictures and the format does not carry them | one | `/items/<stage>` | `item_table` |
+| any other stage with items, or that the hub read | one | `/items/<stage>` | `item_table` |
+| 03, 08, 09 while they show no picture (see [Item table](#item-table)) | one | `/items/<stage>` | `item_table` |
 
 - **Removed.** A diagram whose document a snapshot does not hold gets `removed_at`, and is no longer one of its stage's diagrams. The exception is a picture of a stage whose pictures the snapshot's format does not carry. It stays as last drawn, so a corthex-hub/0.2 snapshot after 0.3 pictures keeps them, each drawing's version naming the commit it comes from (SPEC-005).
-- **Back again.** A removed diagram whose document a snapshot holds again comes back as the same row, with its threads. A stage's item table is the exception: the first drawing of a stage's pictures removes it, and while the stage has pictures it never comes back. So a 0.2 snapshot after them still shows the pictures.
-- **No pictures yet.** A stage of 03, 08 or 09 whose format carries its pictures, but that has none and never had any, shows no diagram. Note 3 of the WBS leaves what it shows to TASK-423.
-- **A completed revision**, the same commit in a newer format, draws only the stages the newer format adds. Stage 03's item table makes way for its pictures there.
+- **Back again.** A removed diagram whose document a snapshot draws again comes back as the same row, with its threads. A stage's item table makes way for the first picture drawn of its stage, and comes back when the stage has none again (see [Item table](#item-table)). So a 0.2 snapshot after 0.3 pictures still shows the pictures.
+- **No pictures.** A stage of 03, 08 or 09 that shows no picture shows its item table, under a format that carries its pictures as under one that does not (note 3 of the WBS; see [Item table](#item-table)).
+- **A completed revision**, the same commit in a newer format, draws only the stages the newer format adds: their pictures, and their items again, those the revision kept before, so that each of their item tables makes way for its pictures or stays. An older push may not have kept a stage's items, such as one its hub did not read; that stage draws no table.
 - **A diagram's part** is in its `source_key` for a stage's picture, and an item table has none. The store's columns keep no part for a file's picture. The snapshot's `/snapshot` document names it beside the file's key, except in a revision that a newer format completed, which added only the files.
 
 **Drawings.** Each diagram the snapshot holds is drawn again. Its drawing is new when its `source_digest`, or what it drew, differs from the diagram's last drawing. Otherwise the diagram is unchanged and keeps that drawing, so a confirmation of it stays (SPEC-033).
@@ -190,7 +190,7 @@ function draw({ stage, part, key, kind, source, text, read, warnings }) {
 
 | It returns | Meaning |
 | --- | --- |
-| `name` | Optional: the diagram's name, cut to 200 characters. Until a drawer names it, a diagram is named `DDD board`, `ERD` or `Sitemap`, by its file's name, or by its stage. A drawing that fails leaves the name as it was. |
+| `name` | Optional: the diagram's name, cut to 200 characters. Until a drawer names it, a diagram is named `DDD board`, `ERD`, `Sitemap` or `Item table`, or by its file's name. A drawing that fails leaves the name as it was. |
 | `elements` | Up to 5000. More fail the drawing at its source. |
 | `elements[].kind` | A lowercase word of up to 40 characters, such as `table`, `line` or `token`. |
 | `elements[].name` | Text, cut to 200 characters; `''` when it has none (SPEC-010). |
@@ -203,7 +203,7 @@ function draw({ stage, part, key, kind, source, text, read, warnings }) {
 
 No log line holds a source's text or where a drawing failed (rule 5). The answer's `where` is a path in the repository, never a server path.
 
-`test/drawing.test.js` draws this repository's snapshots, changed in each test, with the drawers of `test/drawers.js` and others made in the tests. It checks TASK-419's done condition: a failing source keeps the last drawing and is named in failures; a 0.2 snapshot after 0.3 pictures keeps them; an element keeps its key across drawings. It also checks the diagrams of each kind, the item table that makes way, a diagram that is removed and comes back, a document a drawer reads, the drawer's rules and the tables API-242 lists.
+`test/drawing.test.js` draws this repository's snapshots, changed in each test, with the drawers of `test/drawers.js` and others made in the tests. It checks TASK-419's done condition: a failing source keeps the last drawing and is named in failures; a 0.2 snapshot after 0.3 pictures keeps them; an element keeps its key across drawings. It also checks the diagrams of each kind, the item tables that make way, the empty item tables, a diagram that is removed and comes back, a document a drawer reads, the drawer's rules and the tables API-242 lists.
 
 ## DDD board
 
@@ -399,6 +399,61 @@ It also checks, with pictures and checks it makes:
 - a picture in the wrong format or over 5000 elements;
 - keys;
 - no log line holding the picture's text (rule 5).
+
+## Item table
+
+`src/item-table.js` is TASK-423, the drawer of the `item_table` kind: it draws a stage's items as a table, one row for each item (SPEC-005). Its source is the snapshot's items of the stage, `/items/<stage>`: the pinned hub's items as its `build_items` makes them, in its order, by ID. Each has its trace ID, its title, which the hub cuts to 120 characters, the status its source gives it, the IDs it links to, up to 60, and `where`, its file and line. So NEXUS reads no requirement table or other stage document itself.
+
+What it draws:
+
+| Element | `kind`, `status` | `detail` |
+| --- | --- | --- |
+| Each item, with its trace ID, named by its title | `row`; `removed` for a removed item, none otherwise | `status`, the status as its source gives it (`''` for none); `links`, the IDs it links to; `where` |
+| An entry it cannot read, one that is not in the hub's form, in its place, with its trace ID and title when it has them | `row`, `unreadable` | `status` `''`, `links` `[]` and `where` |
+
+- **Order.** The rows are in the hub's order, and the removed items come after the others, in their order (SPEC-005). An item is removed as the hub's `is_removed` says: its status, in lowercase words as the hub's `norm` makes them, holds one of the hub's removed words (removed, deleted, dropped, cancelled, canceled, deprecated, obsolete, and their Korean words). A deferred item stays in its place. `tests/test_item_table_items.py` checks that the drawer's words are the pinned hub's.
+- **Names.** A row is shown by its name, the item's title, and one without a title by its trace ID (SPEC-010).
+- **Keys.** A row's key is its item's trace ID. An item whose ID is not in the contract's form is keyed `row:` and its ID, and one without an ID `row:` and its title. A key another row has gets `#2`, `#3` and so on. So a row keeps its key, and the threads on it, while its item keeps its ID, whatever its title, status or place.
+- **A source it cannot draw** fails at its source: one that is not a list, or one of more than 5000 items. The hub sends at most 3000 items in a snapshot.
+- **A truncated snapshot**, one the hub cut to fit its size limit, draws the rows that came. The hub cuts items from the end, so a read stage none of whose items came may have lost them all: it gets no empty table, and shows no table, as a stage the hub did not read. The hub's `truncated` check is among the snapshot's checks.
+
+The coordinator chose the rules below for TASK-423, and the maintainer approved them through the delegate they named for checkpoints.
+
+**Stage without pictures** (note 3 of the WBS). A stage of 03, 08 or 09 shows its item table while it has no picture that is not removed:
+- under a format that carries its pictures, while the snapshot holds none of its files that a drawer draws;
+- under one that does not, while every picture last drawn of it is removed.
+
+So the table makes way for the first picture drawn of its stage, and comes back, the same diagram with its threads, when the stage has none again. Until TASK-424, TASK-426 and TASK-427 add their drawers, the server draws no file of 03, 08 or 09, so those stages show their item tables in both formats.
+
+**Stage with no items.** A stage whose record in the snapshot says the hub read its source (`read` true) and that has no items keeps an empty `/items/<stage>`, which draws an empty table: the page says the stage has no items yet (SCR-145). A truncated snapshot keeps none, as above. A stage the hub did not read, one with no source or with a missing or skipped one, has no table and shows "Nothing sent yet". A read stage whose items all go keeps its table, with no rows. With a drawer for every kind, as the tests give, this repository's push draws 12 diagrams in corthex-hub/0.2 and 28 in 0.3, where it drew 8 and 26: the empty tables of 08, 09, 12 and 13 in 0.2, and of 12 and 13 in 0.3, where 08 and 09 show their files.
+
+**An empty table can be confirmed.** An empty table is a drawn item table, so the owner can confirm it (SPEC-029), and a stage whose only table is empty passes once that confirmation is recorded (SPEC-035). SPEC-035's "a stage with nothing to confirm" is one with no diagram or table at all, which shows "Nothing sent yet". The page shows what such a confirmation confirms (TASK-461).
+
+**A row's content.** A row keeps the IDs it links to, and the drawing reads only its own stage's items. So a title changed in another stage draws no table again and invalidates no confirmation of it (SPEC-033). The page shows each link by its name, which the read of a diagram gives (TASK-441, API-265) from the project's latest item documents. `itemNames(texts)` in `src/item-table.js` maps IDs to titles from those documents for it. A link it cannot find, or whose item has no title, is shown by its ID, as SPEC-010's exception says.
+
+**Making way.** An item table that makes way for its stage's pictures gets `removed_at` at that push and no new drawing. Its last drawing keeps its rows, and its threads stay on them: SPEC-027 moves none of them (SPEC-005). While it has open threads, the project read lists it after the pictures, marked removed. `drawSnapshot` marks such a table `madeWay` in the list it returns, so [after a drawing](#after-a-drawing) moves none of its threads: an item table removed while its stage shows a picture after the push. One removed because its stage is no longer read did not make way, and SPEC-027 moves its threads to the diagram. A table that appears, or comes back without a live confirmation, marks its stage's latest pass changed, as any diagram that appears does.
+
+`test/item-table.test.js` checks TASK-423's done condition:
+- **Stage 02 of this repository shows one row per requirement.** `test/item-table-items.json` is the pinned hub's items of stage 02, with the SHA-256 of `docs/02-prd/requirements.md`. The 80 requirements draw 80 rows, alone and through the push with the server's own drawers. The test fails when the file changes and the items do not.
+- **Removed items come last, marked.**
+- **When pictures come, the table is marked removed and keeps its threads on its rows.** A 0.3 push of stage 03's files removes the table with no new drawing, and the thread on its row FL-001 keeps its target and key. The project read lists the table after the pictures.
+
+The server's tests run with Node alone, so `tests/test_item_table_items.py` makes the items again with the pinned hub and fails when they differ from the stored ones. To make the file again, from the repository's root:
+
+```sh
+CORTHEX_HUB_CHECKOUT=<the pinned hub checkout> python tests/test_item_table_items.py --write
+```
+
+It also checks:
+- the table that comes back when the stage's files go, and makes way again when they come back;
+- a stage of 03, 08 or 09 that never had a file;
+- the empty tables;
+- a table removed because its stage is no longer read;
+- a completed revision whose older push did not read a stage;
+- a truncated snapshot;
+- unreadable entries and keys;
+- `itemNames`;
+- no log line holding an item's text (rule 5).
 
 ## After a drawing
 

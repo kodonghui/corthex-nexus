@@ -8,16 +8,21 @@
 // snapshot_files (TBL-150; see snapshot.js), so a drawing finds its source by the diagram alone:
 // - stages 01, 05 and 07: one diagram per stage and part, /pictures/<stage> or /pictures/<stage>/<part>;
 // - stages 03, 08 and 09: one diagram per file, its key, the file's path in the repository;
-// - every other stage, and 03, 08 and 09 while no snapshot drew their pictures and the format does not carry them:
-//   one item table per stage, /items/<stage> (SPEC-005).
+// - every other stage, and 03, 08 and 09 while they show no picture: one item table per stage, /items/<stage>
+//   (SPEC-005), which snapshot.js keeps for each stage with items and each stage the hub read, an empty list for one
+//   with none.
+// A stage of 03, 08 or 09 shows no picture while it has no picture diagram that is not removed: under a format that
+// carries its pictures, while the snapshot holds none of its files that a drawer draws; under one that does not, while
+// every picture last drawn of it is removed (note 3 of the WBS, TASK-423). So its item table makes way for the first
+// picture drawn of the stage, and comes back when the stage has none again.
 // A diagram the snapshot does not hold gets removed_at, except a picture of a stage whose pictures the snapshot's
 // format does not carry, which stays as last drawn: so a corthex-hub/0.2 snapshot after 0.3 pictures keeps them, each
-// drawing's version naming the commit it comes from (SPEC-005). A stage's item table is not drawn once a snapshot drew
-// the stage's pictures, so the first drawing of a stage's pictures removes it, and while the stage has pictures it never
-// comes back. Any other removed diagram whose document a snapshot holds again comes back, the same row with its threads.
-// A stage of 03, 08 or 09 whose format carries its pictures, but that has none and never had any, shows no diagram
-// until TASK-423 says otherwise (note 3 of the WBS). A diagram's part is in its source_key for a stage's picture; the
-// store's columns keep none for a file's picture (see the server's README).
+// drawing's version naming the commit it comes from (SPEC-005). An item table that makes way gets removed_at and no new
+// drawing: its last drawing keeps its rows, and its threads stay on them (SPEC-005, SPEC-027). drawSnapshot marks it
+// madeWay in what it returns, so after-drawing.js moves none of its threads, while an item table removed otherwise,
+// whose stage no snapshot reads any more, did not make way. A removed diagram whose document a snapshot draws again
+// comes back, the same row with its threads, an item table that made way among them. A diagram's part is in its
+// source_key for a stage's picture; the store's columns keep none for a file's picture (see the server's README).
 //
 // Drawings. Each diagram the snapshot holds is drawn again. Its drawing is new when its source_digest, which covers
 // every document the drawer read, or what it drew differs from the diagram's last drawing; otherwise the diagram is
@@ -39,12 +44,13 @@
 //   format it came in, the picture stages that format carries, and those it carried before this call: none for a new
 //   snapshot, the older format's when completed.
 // - completed: false for a new snapshot; true when the same commit came again in a newer format, which completes its
-//   revision (API-242): then only the stages the newer format adds are drawn, from documents, the pictures it adds.
+//   revision (API-242): then only the stages the newer format adds are drawn: from documents, the pictures it adds, and
+//   from earlier, those stages' items again, so that each item table shows or makes way as the pictures say.
 // - documents: the documents kept now, each { path, stage, part, key, kind, sha256, where } (see snapshot.js): kind is
 //   picture, items or snapshot; key is the file's path for a picture of stage 03, 08 or 09, otherwise null; where is
 //   the repository path it comes from. A document left out as REQ-077 asks is not among them.
-// - earlier: for a completed revision, the push's other documents, which the revision kept before and this call does
-//   not draw again, each { path, stage, part }; none otherwise.
+// - earlier: for a completed revision, the push's other documents, which the revision kept before, each in the form of
+//   documents; none otherwise. This call draws again only the items of the stages it draws that the revision keeps.
 // - time: the push's time, for created_at, drawn_at and removed_at.
 // - drawers: the drawers by kind, DRAWERS unless a test gives its own.
 // It returns what the push answer says of the drawing, { diagrams: { drawn, unchanged, failed, removed }, failures },
@@ -88,13 +94,14 @@ import {
 } from './drawer.js';
 import { erd } from './erd.js';
 import { idOf } from './ids.js';
+import { itemTable } from './item-table.js';
 import { sitemap } from './sitemap.js';
 
 // A drawer's failure and the keys it works out are drawer.js's, which the drawers import in place of this file.
 export { elementKey, SourceFailure };
 
 // The kind of diagram each picture stage draws. A stage that is not here shows its items as an item table, and so do
-// 03, 08 and 09 while no snapshot drew their pictures and the format does not carry them (SPEC-005).
+// 03, 08 and 09 while they show no picture (SPEC-005; see the top of this file).
 const PICTURE_KINDS = Object.freeze({
   '01-domain': 'ddd_board',
   '03-user-flow': 'user_flow',
@@ -111,10 +118,10 @@ export const KINDS = Object.freeze([...Object.values(PICTURE_KINDS), ITEM_TABLE]
 // The drawers, by kind of diagram (see the top of this file). Each drawing task adds its own: ddd_board TASK-421, erd
 // TASK-422, item_table TASK-423, user_flow TASK-424, sitemap TASK-425, screen_states TASK-426 and mockup TASK-427.
 // A kind without a drawer is not drawn: its documents make no diagram.
-export const DRAWERS = Object.freeze({ ddd_board: dddBoard, erd, sitemap });
+export const DRAWERS = Object.freeze({ ddd_board: dddBoard, erd, sitemap, item_table: itemTable });
 
 // The names a diagram has until its drawer names it, such as when its first drawing fails.
-const NAMES = Object.freeze({ ddd_board: 'DDD board', erd: 'ERD', sitemap: 'Sitemap' });
+const NAMES = Object.freeze({ ddd_board: 'DDD board', erd: 'ERD', sitemap: 'Sitemap', item_table: 'Item table' });
 
 // The contract's limits besides drawer.js's: Diagram's name, Element's kind and status, and PushAnswer's failures; and
 // ElementKey's form.
@@ -192,6 +199,8 @@ function statementsOf(store) {
       insertElement: store.prepare(
         'INSERT INTO elements (drawing_id, element_key, trace_id, kind, name, parent_key, status, detail) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       ),
+      // Whether a snapshot keeps a document of that path.
+      keeps: store.prepare('SELECT 1 FROM snapshot_files WHERE snapshot_id = ? AND path = ?'),
     };
     prepared.set(store, statements);
   }
@@ -368,12 +377,13 @@ function sameAsLast(statements, diagram, outcome) {
 }
 
 // The kind of diagram a document is drawn as, or null when it draws none: a picture as its stage's picture, a stage's
-// items as an item table while the stage shows one (SPEC-005).
-function kindOf(document, carries, pictured) {
+// items as an item table while the stage shows one (SPEC-005): a stage without pictures, or one of 03, 08 and 09 that
+// shows none (pictured, see the top of this file).
+function kindOf(document, pictured) {
   if (document.kind === 'picture') return PICTURE_KINDS[document.stage] ?? null;
   if (document.kind !== 'items') return null;
   if (!Object.hasOwn(PICTURE_KINDS, document.stage)) return ITEM_TABLE;
-  return FILE_STAGES.has(document.stage) && !carries.has(document.stage) && !pictured.has(document.stage) ? ITEM_TABLE : null;
+  return FILE_STAGES.has(document.stage) && !pictured.has(document.stage) ? ITEM_TABLE : null;
 }
 
 function defaultName(kind, document) {
@@ -416,8 +426,16 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
   const diagrams = statements.diagrams.all(project.id);
   const bySource = new Map(diagrams.map((diagram) => [stageAndPath(diagram.stage, diagram.source_key), diagram]));
   const sent = sentBy(earlier);
-  // The stages a snapshot drew pictures of, whose item tables made way for them.
-  const pictured = new Set(diagrams.filter((diagram) => diagram.kind !== ITEM_TABLE).map((diagram) => diagram.stage));
+  // The stages of 03, 08 and 09 that show a picture after this call, whose item tables make way (see the top of this
+  // file): a stage this call draws under a format that carries its pictures, when it draws one of its files; any
+  // other, when it has a picture diagram that is not removed, which this call keeps as last drawn.
+  const drawsPictures = (stage) => inScope(stage) && carries.has(stage);
+  const pictured = new Set([
+    ...documents.filter((document) => document.kind === 'picture' && drawsPictures(document.stage)
+      && Object.hasOwn(drawers, PICTURE_KINDS[document.stage] ?? '')).map((document) => document.stage),
+    ...diagrams.filter((diagram) => diagram.kind !== ITEM_TABLE && diagram.removed_at === null && !drawsPictures(diagram.stage))
+      .map((diagram) => diagram.stage),
+  ]);
   const counts = { drawn: 0, unchanged: 0, failed: 0, removed: 0 };
   const failures = [];
   const changed = [];
@@ -431,9 +449,15 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
     return pictureWarnings(checks, document.stage, document.part);
   };
 
-  for (const document of documents) {
+  // A completed revision draws again the items of the stages it draws, those it kept before: an older push may not
+  // have kept them, such as a stage its hub did not read.
+  const kept = (document) => statements.keeps.get(snapshot.id, document.path) !== undefined;
+  const toDraw = completed
+    ? [...documents, ...earlier.filter((document) => document.kind === 'items' && inScope(document.stage) && kept(document))]
+    : documents;
+  for (const document of toDraw) {
     if (!inScope(document.stage)) continue;
-    const kind = kindOf(document, carries, pictured);
+    const kind = kindOf(document, pictured);
     const drawer = kind !== null && Object.hasOwn(drawers, kind) ? drawers[kind] : undefined;
     if (drawer === undefined) continue;
     const outcome = drawOne(statements, snapshot.id, drawer, document, kind, warningsOf(document));
@@ -481,8 +505,9 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
     }
     statements.remove.run(time, diagram.id);
     counts.removed += 1;
-    // An item table of a picture stage goes because its format or an earlier snapshot draws the stage's pictures.
-    const madeWay = diagram.kind === ITEM_TABLE && FILE_STAGES.has(diagram.stage) && (carries.has(diagram.stage) || pictured.has(diagram.stage));
+    // An item table makes way when its stage shows a picture after this call (pictured); one removed otherwise, whose
+    // stage no snapshot reads any more, did not, and SPEC-027 moves its threads.
+    const madeWay = diagram.kind === ITEM_TABLE && pictured.has(diagram.stage);
     changed.push({
       id: Number(diagram.id), stage: diagram.stage, kind: diagram.kind, created: false, restored: false, removed: true, madeWay,
       drawing: null, status: null, digest: null,

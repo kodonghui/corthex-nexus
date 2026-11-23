@@ -1,0 +1,1018 @@
+{
+ "about": "The pinned hub's items of this repository's stage 02, as its build_items makes them and its snapshot orders them, and the SHA-256 of the stage's source. tests/test_item_table_items.py checks them against the pinned hub and says how to make them again.",
+ "stage": "02-prd",
+ "source": "docs/02-prd/requirements.md",
+ "sha256": "7a3f267a03e76036e9a1b99251e0b6a1a52b30d6c8fbb3ebad4942e845fdcd3c",
+ "items": [
+  {
+   "id": "REQ-001",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:23",
+   "title": "When an agent sends a snapshot whose commit descends from the held commit, the system shall draw the stage diagrams fro…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-002",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:24",
+   "title": "If a snapshot's commit does not descend from the held commit, then the system shall reject the snapshot, leaving the he…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-003",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:25",
+   "title": "If a snapshot would create a project space without the owner's first-send confirmation, then the system shall reject it.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-004",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:26",
+   "title": "The system shall draw stage 01 as a DDD board from the domain document's timeline, contexts, command tables, dependenci…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-005",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:27",
+   "title": "The system shall draw stage 05 as an ERD from the schema source.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-006",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:28",
+   "title": "The system shall show each stage that has no picture in this release as an item table of its items.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-007",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:29",
+   "title": "Where user-flow pictures are included, the system shall draw stage 03 as flow diagrams from the user-flow source.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-008",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:30",
+   "title": "Where sitemap pictures are included, the system shall draw stage 07 as a sitemap tree from the sitemap source.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-009",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:31",
+   "title": "Where screen-state pictures are included, the system shall draw stage 08 as one panel per screen and state.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-010",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:32",
+   "title": "Where mockup pictures are included, the system shall show stage 09's mockups with their design tokens.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-011",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:33",
+   "title": "The system shall show element names on screen and hide their trace IDs.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-012",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:34",
+   "title": "When the owner copies an element, the system shall put the element's trace ID and name on the clipboard.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-013",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:35",
+   "title": "When the owner moves an element on a PC, the system shall store its new position in the diagram's layout without changi…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-014",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:36",
+   "title": "When a diagram is drawn again, the system shall keep the stored positions of the elements that still exist.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-015",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:37",
+   "title": "The system shall keep layouts in NEXUS and never write them to Git.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-016",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:38",
+   "title": "When the owner confirms the deletion of a project space after seeing what it removes, the system shall remove the proje…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-017",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:39",
+   "title": "If an agent credential asks to delete a project space, then the system shall refuse it.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-018",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:40",
+   "title": "The system shall accept the snapshot format and the push, todo, claim, comment, decide, reflect, status and record comm…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-019",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:41",
+   "title": "The system shall start with no data carried over from v2.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-020",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:42",
+   "title": "When the owner or an agent adds a comment to a diagram, an element or a table row, the system shall attach the comment…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-021",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:43",
+   "title": "When the owner or an agent replies to a comment, the system shall add the reply to its comment thread.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-022",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:44",
+   "title": "When an agent posts an AI proposal, the system shall lay the proposed change over the diagram, marked apart from the cu…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-023",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:45",
+   "title": "When the owner accepts an AI proposal, the system shall add the accepted change set's reflection to the agent's to-do.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-024",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:46",
+   "title": "When the owner rejects an AI proposal, the system shall mark the proposal rejected while its comment thread stays open.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-025",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:47",
+   "title": "If an agent credential asks to accept or reject an AI proposal, then the system shall refuse it.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-026",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:48",
+   "title": "When the owner renames an element or connects two elements on a PC, the system shall record the direct edit as an accep…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-027",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:49",
+   "title": "While a change set waits for reflection, the system shall show its elements as waiting for reflection.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-028",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:50",
+   "title": "When the owner cancels a direct edit that is not yet reflected, the system shall drop its change set and show the diagr…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-029",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:51",
+   "title": "When an agent reports a reflection pull request, the system shall link the pull request to its change sets.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-030",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:52",
+   "title": "When a drawn snapshot holds the merge commit of a reflection pull request, the system shall mark its change sets reflec…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-031",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:53",
+   "title": "When a change set is reflected, the system shall close the comment threads that asked for it.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-032",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:54",
+   "title": "The system shall give an agent a diagram's accepted change sets together, so that one reflection pull request can carry…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-033",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:55",
+   "title": "When an element leaves the stage document, the system shall move its open comment threads to the diagram's own comments…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-034",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:56",
+   "title": "When the owner closes a comment thread, the system shall mark it closed.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-038"
+   ]
+  },
+  {
+   "id": "REQ-035",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:57",
+   "title": "When the owner confirms a diagram or an item table on a PC, the system shall record the confirmation with the document…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-039"
+   ]
+  },
+  {
+   "id": "REQ-036",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:58",
+   "title": "If an agent credential asks to confirm or cancel a confirmation, then the system shall refuse it.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-039"
+   ]
+  },
+  {
+   "id": "REQ-037",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:59",
+   "title": "When the owner cancels a confirmation, the system shall put the diagram back in the owner's to-do as not confirmed.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-039"
+   ]
+  },
+  {
+   "id": "REQ-038",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:60",
+   "title": "When a confirmation is recorded, the system shall add recording it in the stage record to the agent's to-do.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-039"
+   ]
+  },
+  {
+   "id": "REQ-039",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:61",
+   "title": "When an agent reports the merged record of a confirmation, the system shall mark the confirmation recorded.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-039"
+   ]
+  },
+  {
+   "id": "REQ-040",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:62",
+   "title": "When a drawn snapshot changes the document of a confirmed diagram, the system shall invalidate the confirmation, so tha…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-039"
+   ]
+  },
+  {
+   "id": "REQ-041",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:63",
+   "title": "The system shall show the elements that changed in the document since a diagram's last confirmation.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-039"
+   ]
+  },
+  {
+   "id": "REQ-042",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:64",
+   "title": "When every diagram and item table of a stage has a recorded confirmation, the system shall treat the stage's checkpoint…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-039"
+   ]
+  },
+  {
+   "id": "REQ-043",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:65",
+   "title": "While a workshop is open, the system shall treat the step confirmations at steps 1-b, 7 and 9 as the stage-01 checkpoin…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-040"
+   ]
+  },
+  {
+   "id": "REQ-044",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:66",
+   "title": "When the owner or an agent opens a workshop, the system shall create a workshop board with one frame per event storming…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-040"
+   ]
+  },
+  {
+   "id": "REQ-045",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:67",
+   "title": "When an agent draws a step draft, the system shall place its sticky notes in that step's frame with their confidence la…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-040"
+   ]
+  },
+  {
+   "id": "REQ-046",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:68",
+   "title": "While a workshop is open, the system shall let the owner add, move, rename, connect and remove sticky notes on a PC.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-040"
+   ]
+  },
+  {
+   "id": "REQ-047",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:69",
+   "title": "If an agent's change would remove a sticky note that a person made, then the system shall refuse that change.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-040"
+   ]
+  },
+  {
+   "id": "REQ-048",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:70",
+   "title": "While a workshop is open, the system shall treat the workshop board as the source of the domain design.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-040"
+   ]
+  },
+  {
+   "id": "REQ-049",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:71",
+   "title": "When the owner confirms a step, the system shall add writing that step into the domain document to the agent's to-do.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-040"
+   ]
+  },
+  {
+   "id": "REQ-050",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:72",
+   "title": "When an agent reports the domain document updated after the last step is confirmed, the system shall close the workshop.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-040"
+   ]
+  },
+  {
+   "id": "REQ-051",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:73",
+   "title": "When the owner imports a Miro board, the system shall copy its sticky notes' text, colour and position into the worksho…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Could",
+   "links": [
+    "CTX-040"
+   ]
+  },
+  {
+   "id": "REQ-052",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:74",
+   "title": "The system shall open on the owner's to-do, listing diagrams to confirm and AI proposals and questions to answer.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-041"
+   ]
+  },
+  {
+   "id": "REQ-053",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:75",
+   "title": "The system shall give agents an agent to-do of open comments, change sets to reflect, confirmations to record and domai…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-041"
+   ]
+  },
+  {
+   "id": "REQ-054",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:76",
+   "title": "When an agent session claims a to-do, the system shall hold it for that session alone.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-041"
+   ]
+  },
+  {
+   "id": "REQ-055",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:77",
+   "title": "If a session claims a to-do that another session holds, then the system shall refuse the claim.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-041"
+   ]
+  },
+  {
+   "id": "REQ-056",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:78",
+   "title": "When a claim has had no write for 60 minutes and its work has no open pull request, the system shall release the claim.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-041"
+   ]
+  },
+  {
+   "id": "REQ-057",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:79",
+   "title": "While a to-do's work has an open pull request, the system shall keep its claim.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-041"
+   ]
+  },
+  {
+   "id": "REQ-058",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:80",
+   "title": "When the owner adds a Notion page or a Jira project link to a project or a stage, the system shall show the link with t…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-042"
+   ]
+  },
+  {
+   "id": "REQ-059",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:81",
+   "title": "When the owner removes a tool link, the system shall drop the link from the project or stage.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-042"
+   ]
+  },
+  {
+   "id": "REQ-060",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:82",
+   "title": "The system shall never write to Notion or Jira.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-042"
+   ]
+  },
+  {
+   "id": "REQ-061",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:83",
+   "title": "If a linked tool cannot be read, then the system shall show the last known status with the time it was read.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Should",
+   "links": [
+    "CTX-042"
+   ]
+  },
+  {
+   "id": "REQ-062",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:84",
+   "title": "The system shall admit the owner only through the sign-in gate.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-043"
+   ]
+  },
+  {
+   "id": "REQ-063",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:85",
+   "title": "The system shall serve one owner and offer no sign-up.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-043"
+   ]
+  },
+  {
+   "id": "REQ-064",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:86",
+   "title": "When the owner issues an agent credential, the system shall show the credential's secret only once.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-043"
+   ]
+  },
+  {
+   "id": "REQ-065",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:87",
+   "title": "When the owner revokes an agent credential, the system shall refuse the credential's next request.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-043"
+   ]
+  },
+  {
+   "id": "REQ-066",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:88",
+   "title": "If a request carries neither the owner's sign-in nor a valid agent credential, then the system shall refuse it.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-043"
+   ]
+  },
+  {
+   "id": "REQ-067",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:89",
+   "title": "While the owner uses a phone, the system shall show diagrams, item tables and comments.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must"
+  },
+  {
+   "id": "REQ-068",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:90",
+   "title": "While the owner uses a phone, the system shall offer no confirmation, no accepting or rejecting of AI proposals and no…",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must"
+  },
+  {
+   "id": "REQ-069",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:91",
+   "title": "The system shall show its interface in Korean.",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Must"
+  },
+  {
+   "id": "REQ-070",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:92",
+   "title": "The system shall open a diagram of up to 300 elements within 2 seconds at the 95th percentile (P95), with one user, mea…",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-071",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:93",
+   "title": "The system shall draw the diagrams of a snapshot of up to 1 MB within 10 seconds at P95 of the push answer, with one pu…",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Should",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-072",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:94",
+   "title": "The system shall work in the latest two versions of Chrome, Edge and Safari on a PC, and of Chrome and Safari on a phon…",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Must"
+  },
+  {
+   "id": "REQ-073",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:95",
+   "title": "The system shall use IBM Carbon components with 8px corners on controls, 16px corners on panels and pill-shaped tags.",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Must"
+  },
+  {
+   "id": "REQ-074",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:96",
+   "title": "The system shall meet WCAG 2.2 level AA for contrast and keyboard use on the to-do, diagram, comment and confirmation s…",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Should"
+  },
+  {
+   "id": "REQ-075",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:97",
+   "title": "Where themes are included, the system shall offer a light and a dark theme that follow the device setting.",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Should"
+  },
+  {
+   "id": "REQ-076",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:98",
+   "title": "The system shall back up its data daily and keep each backup for 30 days.",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Must"
+  },
+  {
+   "id": "REQ-077",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:99",
+   "title": "If a snapshot file holds text that looks like a secret or an email address, then the system shall refuse that file, nam…",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Should",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-078",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:100",
+   "title": "The system shall store agent credentials only as digests.",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Must",
+   "links": [
+    "CTX-043"
+   ]
+  },
+  {
+   "id": "REQ-079",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:101",
+   "title": "While the owner uses a phone, the system shall let the owner add comments and replies.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must"
+  },
+  {
+   "id": "REQ-080",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:102",
+   "title": "The system shall keep, for each release, the record of a restore from backup rehearsed before it.",
+   "status": "active",
+   "type": "non-functional",
+   "priority": "Should"
+  }
+ ]
+}

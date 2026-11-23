@@ -34,6 +34,7 @@ const JSON_TYPE = { 'Content-Type': 'application/json' };
 const ERD = '/pictures/05-erd/nexus';
 const FLOW_A = 'docs/03-user-flow/FL-001-put-a-project-on-nexus.md';
 const FLOW_B = 'docs/03-user-flow/FL-002-draw-the-stages.md';
+const FLOW_C = 'docs/03-user-flow/FL-003-pass-a-stage.md';
 const at = (ms) => new Date(ms).toISOString();
 
 // The ERD drawer of these tests: each table is an element keyed by its trace ID and named by its name. A table with
@@ -237,22 +238,42 @@ describe('after a drawing', () => {
 
   test('a diagram that appears after the stage\'s pass without a live confirmation marks the pass changed; a removed one does not', async () => {
     const space = project('appears');
-    const flows = [flow(FLOW_A, 'FL-001 Put a project on NEXUS')];
+    // Two flow files, so that the stage keeps a picture when one goes: a stage of 03 with none shows its item table,
+    // which appears too (note 3; see the next test).
+    const flows = [flow(FLOW_A, 'FL-001 Put a project on NEXUS'), flow(FLOW_B, 'FL-002 Draw the stages')];
     await space.push({ flows });
     const first = diagram(space, FLOW_A);
     rows.record(confirm(space, first));
+    rows.record(confirm(space, diagram(space, FLOW_B)));
     const pass = rows.pass(space, '03-user-flow', { passedAt: SEEDED });
 
     // Removing a diagram changes no pass, since a removed diagram counts for none (SPEC-027).
-    await space.push({ flows: [] });
-    assert.deepEqual(passRow(pass).changed_at, null);
+    await space.push({ flows: [flows[1]] });
+    assert.deepEqual([diagram(space, FLOW_A).removed, passRow(pass).changed_at], [true, null]);
     // It comes back with its live confirmation: still nothing to confirm.
     await space.push({ flows });
     assert.deepEqual(passRow(pass).changed_at, null);
     // A new flow file appears without a confirmation: the stage's pass is changed since the pass, and stays.
-    await space.push({ flows: [...flows, flow(FLOW_B, 'FL-002 Draw the stages')] });
+    await space.push({ flows: [...flows, flow(FLOW_C, 'FL-003 Pass a stage')] });
     assert.deepEqual(passRow(pass), { passed_at: SEEDED, changed_at: time() });
     assert.equal(stageRow(space, '03-user-flow').state, 'changed_since_pass');
+  });
+
+  test('when a stage of 03 loses its last picture, its item table appears without a confirmation and marks the pass changed', async () => {
+    // Note 3 of the WBS (TASK-423): a stage of 03, 08 or 09 with no picture that is not removed shows its item table.
+    const space = project('table-appears');
+    const flows = [flow(FLOW_A, 'FL-001 Put a project on NEXUS')];
+    const items = [item('FL-001', '03-user-flow', 'Put a project on NEXUS')];
+    await space.push({ flows, items });
+    rows.record(confirm(space, diagram(space, FLOW_A)));
+    const pass = rows.pass(space, '03-user-flow', { passedAt: SEEDED });
+
+    await space.push({ items });
+    const table = diagram(space, '/items/03-user-flow');
+    assert.deepEqual([diagram(space, FLOW_A).removed, table.removed], [true, false]);
+    assert.deepEqual(passRow(pass), { passed_at: SEEDED, changed_at: time() });
+    assert.equal(stageRow(space, '03-user-flow').state, 'changed_since_pass');
+    assert.ok(openEntries(db, space.id).some((entry) => entry.kind === 'confirm' && entry.diagram_id === table.id));
   });
 
   test('a removed element\'s open threads move to its diagram, readable, marked with its last name, and link again when it returns (SPEC-027)', async () => {

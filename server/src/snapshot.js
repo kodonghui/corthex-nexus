@@ -13,7 +13,10 @@
 //   path in the repository;
 // - a picture source of stage 01, 05 or 07: the hub's parsed picture as JSON, named /pictures/<stage> or, for a part,
 //   /pictures/<stage>/<part>;
-// - each stage's items: the snapshot's items of that stage as a JSON array, named /items/<stage>;
+// - each stage's items: the snapshot's items of that stage as a JSON array, named /items/<stage>, kept for each stage
+//   with items and each stage whose record says the hub read it, an empty list for one with none, which draws an empty
+//   item table (SPEC-005; see drawing.js), unless the snapshot is truncated: the hub cut items from its end to fit, so
+//   a stage with none may have lost them;
 // - the rest of the snapshot as JSON, named /snapshot, with no stage: every other field as it came, less what the
 //   documents above hold: its pictures without their sources, a file's picture keeping the other members of its
 //   source, and its items without those of a stage. The Snapshot schema lists only the fields NEXUS reads and says
@@ -261,6 +264,12 @@ function checkRest(rest) {
   }
 }
 
+// Whether the snapshot's record of a stage says the hub read its source (the hub's read: true).
+function wasRead(body, stage) {
+  const record = body.stages[stage];
+  return isObject(record) && record.read === true;
+}
+
 // The stage's source as the snapshot's stage record names it, which a refusal gives as where it is from, or the stage
 // itself.
 function sourceOf(body, stage) {
@@ -294,7 +303,8 @@ function documentsOf(body, rest) {
   }
   for (const stage of STAGES) {
     const items = body.items.filter((item) => item.stage === stage);
-    if (items.length === 0) continue;
+    // A truncated snapshot may have lost all of a stage's items, so it claims no read stage empty.
+    if (items.length === 0 && !(wasRead(body, stage) && body.truncated !== true)) continue;
     documents.push({
       path: `/items/${stage}`, stage, part: '', key: null, kind: 'items', text: JSON.stringify(items), where: sourceOf(body, stage), why: sensitiveValue(items),
     });
