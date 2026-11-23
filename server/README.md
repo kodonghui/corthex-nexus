@@ -807,7 +807,7 @@ The four operations read and write more tables than they listed, the thread's wa
   - `confirmation`: its latest confirmation (TBL-160), `confirmed` while it is live and not recorded, `recorded` once recorded, `invalidated`, or `none` when it was cancelled or there is none;
   - `waiting`: its accepted change sets, which wait for reflection (TBL-158);
   - `open_threads`: its open threads (TBL-155).
-- **Tool links** (SPEC-046): the project's links that are not removed (TBL-168), oldest first, at most 200, each with the status last read and the time it was read, both null before the first read. TASK-451 adds and removes them (see [Tool links](#tool-links)); it neither calls a tool nor holds a token. No task reads their status yet: the status read is a separate task the WBS does not have yet, proposed to the maintainer's delegate with TASK-451's pull request. So links keep both null, and each shows "not read yet" (SPEC-046's exception).
+- **Tool links** (SPEC-046): the project's links that are not removed (TBL-168), oldest first, at most 200, each with the status last read and the time it was read, both null before the first read. TASK-451 adds and removes them (see [Tool links](#tool-links)); it neither calls a tool nor holds a token. Their status is read by TASK-467 in the WBS (Should). Until it is built, links keep both null, and every link shows "not read yet" (SPEC-046's exception).
 - **The workshop**: the project's latest workshop (TBL-162), the open one or else the last closed one, or null when it never had one.
 - **A name** that no project space has gets `project_not_found`, whose detail never repeats it.
 
@@ -1215,14 +1215,16 @@ The two operations read and write more tables than they listed, so API-256 lists
 `src/tool-links.js` is TASK-451. The owner links a Notion page or a Jira project to the project or one of its stages (API-282, `POST /api/projects/{project}/tool-links`, SPEC-046), and removes the link (API-283, `DELETE /api/projects/{project}/tool-links/{link}`, SPEC-047). Both are owner writes with a request key. The project screen (SCR-144, TASK-457) shows them, and the [project read](#project) lists them.
 
 - **Only a link.** The server keeps the scope, the tool and the address (TBL-168), never what the page or project holds. This task neither calls a tool nor holds a token, so links keep `status` and `status_read_at` null, and each shows "not read yet" (SPEC-046's exception).
-  - Reading the status is approved behaviour (SPEC-046, REQ-058, REQ-061), but no WBS task builds it: TASK-451's row is "link and remove".
-  - The status read is a separate task the WBS does not have yet, proposed to the maintainer's delegate with TASK-451's pull request. It would be designed with its own questions: what the status of a Notion page or a Jira project is, read-only tokens kept in the server's environment and never in the database, and when the server reads.
+  - Reading the status is approved behaviour (SPEC-046, REQ-058, REQ-061), but TASK-451's row is "link and remove".
+  - The status read is TASK-467 in the WBS (Should), designed with its own questions: what the status of a Notion page or a Jira project is, read-only tokens kept in the server's environment and never in the database, and when the server reads. Until it is built, every link shows "not read yet".
 - **Which addresses count.** The check is by host, never by path. So a database, a board or a filter address of the same tool is accepted too: the server reads neither tool and cannot tell them apart.
   - Notion: `notion.so`, `notion.site`, `notion.com` and their subdomains, such as `www.notion.so` and `app.notion.com`.
   - Jira: a subdomain of `atlassian.net`, unless the first segment of its path is `wiki`, which is Confluence. That holds in any case or encoding, after extra slashes and before a `;` parameter.
   - The address must be https; an `http` or any other address is refused. It is at most 2,000 characters, without white space, a control character or a backslash. It must hold no user name or password, and no port but 443.
   - Anything else is `invalid_request` on `url`, and the refusal never repeats the address.
-- **The address kept** is the one given, with its host in lower case and without `:443` or its `#fragment`. The path and query stay as given.
+- **The address kept** is the one given, with its host in lower case and without `:443` or its `#fragment`.
+  - The path and query stay as typed, not in the URL parser's percent-encoded form, so the address kept can hold characters a URI does not, such as Hangul or `"`. This differs from the contract's `format: uri` for `Link`, as the maintainer's delegate approved.
+  - The page (TASK-457) puts the address only in `href` and `textContent`, never into HTML.
 - **The same link** is the same scope and the same address kept. It answers 200 with the link already kept, not a second link.
   - A link with another scope, or with another query, is another link.
   - A link added again after its removal is a new link, with a new ID.
