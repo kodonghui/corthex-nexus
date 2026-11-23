@@ -4,7 +4,7 @@
 // so the particle follows how its end is read aloud:
 // - a final digit as Korean reads it: 0 (영), 1 (일), 3 (삼), 6 (육), 7 (칠) and 8 (팔) take 을; 2, 4, 5 and 9 take 를;
 // - a final ng, l, m or n takes 을, and so does an e after m, n or l, which is silent: home, time, phone, table;
-// - a final b, k, p or t after a vowel takes 을, a doubled letter read once: club, book, app, chat;
+// - a final b, k, p or t after a vowel takes 을, a doubled letter or a final ck read once: club, book, app, chat, stack;
 // - anything else takes 를: demo, nexus, desk, test, note.
 // English spelling does not always say how a word ends aloud, so the rule can miss on other words; a missed particle
 // shows the name with the other particle and nothing else.
@@ -17,11 +17,12 @@ const STOPS = new Set(['b', 'k', 'p', 't']);
 export function objectParticle(name) {
   const last = name.at(-1) ?? '';
   if (/[0-9]/.test(last)) return DIGIT_EUL.has(last) ? '을' : '를';
-  // The letters the name ends with, a doubled last letter read once.
+  // The letters the name ends with, a doubled last letter or a final ck read once.
   let word = /[a-z]+$/.exec(name)?.[0] ?? '';
   if (word.endsWith('ng')) return '을';
   if (word.length >= 2 && word.endsWith('e') && NASAL_OR_L.has(word.at(-2))) return '을';
   if (word.length >= 2 && word.at(-1) === word.at(-2)) word = word.slice(0, -1);
+  word = word.replace(/ck$/, 'k');
   const end = word.at(-1);
   if (NASAL_OR_L.has(end)) return '을';
   if (STOPS.has(end) && word.length >= 2 && VOWELS.has(word.at(-2))) return '을';

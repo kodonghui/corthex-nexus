@@ -166,8 +166,14 @@ function sent(project, shell) {
   return [`리비전 ${project.revision}`, project.pushed_at ? [' · ', shell.since(project.pushed_at)] : null];
 }
 
-function credentialsHead() {
-  return [h('div', { class: 'gh' }, h('h2', { id: 'credentials-heading' }, '에이전트 자격')), h('p', { class: 'sec' }, ABOUT)];
+// The heading takes the focus from a script only: while a revoke runs, its row's buttons are gone.
+function credentialsHead(page = null) {
+  const heading = h('h2', { id: 'credentials-heading', tabindex: '-1' }, '에이전트 자격');
+  if (page !== null) {
+    target(page, 'credentials', heading);
+    target(page, '#credentials-heading', heading);
+  }
+  return [h('div', { class: 'gh' }, heading), h('p', { class: 'sec' }, ABOUT)];
 }
 
 const pcOnlyNote = () => h('div', { class: 'nt info', role: 'status', 'data-phone-only': true }, h('div', { class: 'b' }, h('b', {}, PC_ONLY)));
@@ -182,12 +188,12 @@ function credentialsPart(credentials, missed, page, shell) {
       : [credentialTable(credentials, page, shell), credentialCards(credentials, page, shell)];
   }
   return h('section', { class: 'group', 'aria-labelledby': 'credentials-heading' },
-    credentialsHead(),
+    credentialsHead(page),
     page.issued === null ? null : issuedPanel(page),
     page.revokeRefused === null ? null : refusal(page.revokeRefused, shell),
     missed === null ? null : readFailure('에이전트 자격을 읽지 못했어요.', missed, shell),
     list,
-    issueForm({ name: page.name, off: page.issuing, refused: page.refused, page, shell }),
+    issueForm({ name: page.name, off: page.issuing, busy: page.revoking !== null, refused: page.refused, page, shell }),
     pcOnlyNote());
 }
 
@@ -281,11 +287,12 @@ function issuedPanel(page) {
 function copyField(page, which, label, value) {
   const id = `issued-${which}`;
   const field = h('input', { id, class: 'field mono', readonly: true, value, autocomplete: 'off', spellcheck: 'false' });
+  target(page, `field:${which}`, field);
   const status = h('span', { class: 'small', role: 'status' }, page.copied === which ? COPIED : '');
   page.statuses[which] = status;
   const button = h('button', {
     type: 'button', class: 'btn tertiary sm', id: `${id}-copy`, 'aria-labelledby': `${id}-copy ${id}-label`,
-    on: { click: () => copy(page, which, value, field) },
+    on: { click: () => copy(page, which, value) },
   }, '복사');
   target(page, `#${id}-copy`, button);
   return h('div', {},
@@ -295,7 +302,7 @@ function copyField(page, which, label, value) {
 
 // Puts value on the clipboard and says "복사했어요" by its button until the next copy. When the browser refuses, the
 // field's text shows selected for the owner to copy (SPEC-011's rule, as SCR-145 copies an element).
-async function copy(page, which, value, field) {
+async function copy(page, which, value) {
   let done = true;
   try {
     await globalThis.navigator.clipboard.writeText(value);
@@ -304,18 +311,22 @@ async function copy(page, which, value, field) {
   }
   page.copied = done ? which : null;
   for (const [each, status] of Object.entries(page.statuses)) status.textContent = each === page.copied ? COPIED : '';
-  if (!done) {
+  // The field as the page shows it now: a draw while the clipboard answered replaced the one clicked.
+  const field = page.targets.get(`field:${which}`)?.[0] ?? null;
+  if (!done && field !== null) {
     field.focus();
     field.select?.();
   }
 }
 
 // The issue form: the name and 발급, off while the page loads or an issue runs, with a refusal's message by the name.
-function issueForm({ name, off, refused, page = null, shell = null }) {
+// 발급 is off while a revoke runs too, and the name is marked only when the server refused it (an input error).
+function issueForm({ name, off, busy = false, refused, page = null, shell = null }) {
+  const bad = refused !== null && refused.input;
   const field = h('input', {
-    id: 'credential-name', class: refused === null ? 'field' : 'field bad', placeholder: '예: laptop', value: name,
+    id: 'credential-name', class: bad ? 'field bad' : 'field', placeholder: '예: laptop', value: name,
     autocomplete: 'off', spellcheck: 'false', disabled: off,
-    'aria-invalid': refused === null ? null : 'true', 'aria-describedby': refused === null ? null : 'credential-name-refused',
+    'aria-invalid': bad ? 'true' : null, 'aria-describedby': refused === null ? null : 'credential-name-refused',
     on: page === null ? {} : {
       input: (event) => named(page, shell, event.target.value),
       keydown: (event) => event.key === 'Enter' && !event.isComposing && issue(page, shell),
@@ -328,7 +339,7 @@ function issueForm({ name, off, refused, page = null, shell = null }) {
   return h('div', { 'data-pc-only': true },
     h('div', { class: 'form' },
       h('div', {}, h('label', { class: 'l', for: 'credential-name' }, '새 자격 이름'), field),
-      h('button', { type: 'button', class: 'btn primary', disabled: off, on: page === null ? {} : { click: () => issue(page, shell) } }, '발급')),
+      h('button', { type: 'button', class: 'btn primary', disabled: off || busy, on: page === null ? {} : { click: () => issue(page, shell) } }, '발급')),
     refused === null ? null : [
       h('p', { class: 'err-text', id: 'credential-name-refused', role: 'alert' }, shell.message(refused.code)),
       refused.traceId ? h('span', { class: 'helper mono' }, `traceId ${refused.traceId}`) : null,
@@ -345,14 +356,14 @@ function named(page, shell, value) {
 // API-280 with the name as typed. The server refuses an empty name, one over 64 characters or one in use, and the
 // message shows by the name, which stays. A 201 shows the secret; a 200 is a repeat, without it.
 async function issue(page, shell) {
-  if (page.issuing || shell.isPhone()) return;
+  if (page.issuing || page.revoking !== null || shell.isPhone()) return;
   page.issuing = true;
   page.refused = null;
   page.issueKey ??= newRequestKey();
   shell.redraw();
   const outcome = await shell.write('POST', CREDENTIALS, { name: page.name }, page.issueKey);
   page.issuing = false;
-  const { state } = stateOf(outcome);
+  const { state, kind } = stateOf(outcome);
   // The shell ended the page or reloads it through the gate.
   if (state === 'permission') return;
   if (outcome.failure === undefined) page.issueKey = null;
@@ -365,7 +376,8 @@ async function issue(page, shell) {
     shell.reload();
     return;
   }
-  page.refused = { code: outcome.code ?? 'internal', traceId: outcome.traceId ?? null };
+  // A failure of the request (no answer, 415, 500) says so by the name too, but does not mark the name as wrong.
+  page.refused = { code: outcome.code ?? 'internal', traceId: outcome.traceId ?? null, input: kind === 'input' };
   page.focus = 'name';
   shell.redraw();
 }
@@ -392,6 +404,8 @@ async function revoke(page, shell, credential) {
   page.revoking = credential.id;
   page.revokeRefused = null;
   if (!page.revokeKeys.has(credential.id)) page.revokeKeys.set(credential.id, newRequestKey());
+  // The question and its buttons go, so the focus waits on the heading of the credentials.
+  page.focus = 'credentials';
   shell.redraw();
   const path = `${CREDENTIALS}/${encodeURIComponent(credential.id)}/revoke`;
   const outcome = await shell.write('POST', path, {}, page.revokeKeys.get(credential.id));
@@ -404,6 +418,8 @@ async function revoke(page, shell, credential) {
     if (page.issued?.credential.id === credential.id) page.issued = null;
   } else {
     page.revokeRefused = { code: outcome.code ?? 'internal', traceId: outcome.traceId ?? null };
+    // The row stays unless the credential is gone, so its 폐기 takes the focus back for a retry.
+    if (kind !== 'gone') page.focus = `revoke:${credential.id}`;
   }
   shell.redraw();
   if (state === 'normal' || kind === 'gone') shell.reload();

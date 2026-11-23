@@ -378,6 +378,32 @@ describe('the projects and the credentials (SCR-143)', () => {
     }
   });
 
+  test('a refused clipboard selects the field the page shows now, after a draw while it answered', async () => {
+    let refuse;
+    const before = Object.getOwnPropertyDescriptor(globalThis.navigator, 'clipboard');
+    Object.defineProperty(globalThis.navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: () => new Promise((resolve, reject) => { refuse = () => reject(new Error('refused')); }) },
+    });
+    const page = await open({ writes: { '/api/credentials': json(201, { credential: NEW, secret: SECRET }) } });
+    try {
+      await issue(page, 'laptop-2');
+      const clicked = byId(page, 'issued-secret');
+      button(page, '복사', panel(page).all('div', 'form')[1]).click();
+      // A question in a row draws the page again while the clipboard has not answered.
+      button(page, '폐기', tables(page)[1].all('tr')[1]).click();
+      await page.settle();
+      assert.notEqual(byId(page, 'issued-secret'), clicked);
+      refuse();
+      await page.settle();
+      assert.equal(page.document.activeElement, byId(page, 'issued-secret'));
+    } finally {
+      page.close();
+      if (before === undefined) delete globalThis.navigator.clipboard;
+      else Object.defineProperty(globalThis.navigator, 'clipboard', before);
+    }
+  });
+
   test('another issue replaces the secret, and revoking its credential here takes it away', async () => {
     const second = credential(5, 'desk', { issued_at: new Date().toISOString() });
     let revoked = false;
@@ -421,12 +447,13 @@ describe('the projects and the credentials (SCR-143)', () => {
     let answer = () => timeout();
     const page = await open({ writes: { '/api/credentials': () => answer() } });
     try {
-      // No answer: the message by the name, and the same key once more for the same name.
+      // No answer: the message by the name, which is not marked wrong, and the same key once more for the same name.
       await issue(page, 'ci');
       const field = () => byId(page, 'credential-name');
       assert.equal(field().getAttribute('value'), 'ci');
-      assert.equal(field().getAttribute('aria-invalid'), 'true');
-      assert.equal(field().className, 'field bad');
+      assert.equal(field().getAttribute('aria-invalid'), null);
+      assert.equal(field().className, 'field');
+      assert.equal(field().getAttribute('aria-describedby'), 'credential-name-refused');
       assert.equal(byId(page, 'credential-name-refused').textContent, '문제가 생겼어요. 다시 해 보세요.');
       assert.equal(page.document.activeElement, field());
       assert.equal(page.session.getItem(NAME_DRAFT), 'ci');
@@ -436,6 +463,9 @@ describe('the projects and the credentials (SCR-143)', () => {
       assert.equal(page.sent[1].key, page.sent[0].key);
       assert.equal(byId(page, 'credential-name-refused').textContent, '다른 이름을 고르세요.');
       assert.equal(field().getAttribute('value'), 'ci');
+      // The server refused the name: it is marked.
+      assert.equal(field().getAttribute('aria-invalid'), 'true');
+      assert.equal(field().className, 'field bad');
       // After an answer, a new key; and a new one when the name changes.
       button(page, '발급').click();
       await page.settle();
@@ -447,13 +477,14 @@ describe('the projects and the credentials (SCR-143)', () => {
       button(page, '발급').click();
       await page.settle();
       assert.notEqual(page.sent[4].key, page.sent[3].key);
-      for (const [made, text, trace] of [
-        [problem(400, 'invalid_request'), '표시한 입력을 확인하세요.', true],
-        [problem(409, 'request_key_reused'), '새 요청으로 다시 보내세요.', true],
-        [problem(413, 'body_too_large'), '한 번에 보내는 양을 줄이세요.', true],
-        [problem(415, 'json_required'), '본문을 JSON으로 보내세요.', true],
-        [problem(500, 'internal'), '문제가 생겼어요. 다시 해 보세요.', true],
-        [() => new TypeError('fetch failed'), '문제가 생겼어요. 다시 해 보세요.', false],
+      // The input errors of docs/08-screens section 3 mark the name; the others say so by it.
+      for (const [made, text, trace, marked] of [
+        [problem(400, 'invalid_request'), '표시한 입력을 확인하세요.', true, true],
+        [problem(409, 'request_key_reused'), '새 요청으로 다시 보내세요.', true, true],
+        [problem(413, 'body_too_large'), '한 번에 보내는 양을 줄이세요.', true, true],
+        [problem(415, 'json_required'), '본문을 JSON으로 보내세요.', true, false],
+        [problem(500, 'internal'), '문제가 생겼어요. 다시 해 보세요.', true, false],
+        [() => new TypeError('fetch failed'), '문제가 생겼어요. 다시 해 보세요.', false, false],
       ]) {
         answer = made;
         button(page, '발급').click();
@@ -461,6 +492,7 @@ describe('the projects and the credentials (SCR-143)', () => {
         assert.equal(byId(page, 'credential-name-refused').textContent, text);
         assert.equal(field().getAttribute('value'), 'ci-2');
         assert.equal(texts(page, 'span', 'helper').includes(`traceId ${TRACE}`), trace, text);
+        assert.equal(field().getAttribute('aria-invalid'), marked ? 'true' : null, text);
       }
     } finally {
       page.close();
@@ -484,6 +516,39 @@ describe('the projects and the credentials (SCR-143)', () => {
       assert.equal(page.sent.length, 1);
       assert.equal(page.app.all('section', 'panel').length, 1);
       assert.equal(byId(page, 'credential-name').getAttribute('disabled'), null);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('발급 is off while a revoke runs, and Enter in the name sends nothing', async () => {
+    let finish;
+    const page = await open({
+      writes: {
+        [REVOKE(CI.id)]: () => new Promise((resolve) => { finish = () => resolve(json(200, { credential: { ...CI, revoked_at: new Date().toISOString() }, changed: true, claims_released: 0 })()); }),
+        '/api/credentials': json(201, { credential: NEW, secret: SECRET }),
+      },
+    });
+    try {
+      const row = () => tables(page)[1].all('tr')[1];
+      button(page, '폐기', row()).click();
+      await page.settle();
+      button(page, '폐기', row()).click();
+      await new Promise((resolve) => setImmediate(resolve));
+      // While it runs, the focus waits on the credentials' heading, whose row buttons are off.
+      assert.equal(page.document.activeElement, byId(page, 'credentials-heading'));
+      assert.equal(byId(page, 'credentials-heading').getAttribute('tabindex'), '-1');
+      assert.equal(page.app.all('button').find((each) => each.textContent === '발급').getAttribute('disabled'), '');
+      assert.equal(byId(page, 'credential-name').getAttribute('disabled'), null);
+      typeName(page, 'laptop-2');
+      byId(page, 'credential-name').dispatch('keydown', { key: 'Enter' });
+      page.app.all('button').find((each) => each.textContent === '발급').click();
+      finish();
+      await page.settle();
+      await page.settle();
+      assert.deepEqual(page.sent.map(({ path }) => path), [REVOKE(CI.id)]);
+      assert.equal(page.app.all('button').find((each) => each.textContent === '발급').getAttribute('disabled'), null);
+      assert.equal(page.document.activeElement, byId(page, 'credentials-heading'));
     } finally {
       page.close();
     }
@@ -534,6 +599,8 @@ describe('the projects and the credentials (SCR-143)', () => {
       assert.equal(row.className, 'off');
       assert.deepEqual(cells(row), ['ci', '11월 21일', dayOf(CI.last_used_at), `폐기됨 ${dayOf(at)} ${clockOf(at)}`]);
       assert.equal(errorShown(page), false);
+      // The row's buttons are gone, so the focus stays on the credentials' heading, not on the page's body.
+      assert.equal(page.document.activeElement, byId(page, 'credentials-heading'));
     } finally {
       page.close();
     }
@@ -546,6 +613,7 @@ describe('the projects and the credentials (SCR-143)', () => {
       const reads = page.calls.filter((path) => path === '/api/credentials').length;
       await revoke(page, CI.id);
       assert.deepEqual(page.app.all('div', 'err').map((each) => each.textContent), ['NEXUS에 없는 자격 증명이에요.']);
+      assert.equal(page.document.activeElement, byId(page, 'credentials-heading'));
       assert.ok(page.calls.filter((path) => path === '/api/credentials').length > reads);
       for (const [made, text] of [
         [problem(400, 'invalid_request'), '표시한 입력을 확인하세요.'],
@@ -560,6 +628,7 @@ describe('the projects and the credentials (SCR-143)', () => {
         assert.ok(texts(page, 'span', 'helper').includes(`traceId ${TRACE}`), text);
         // Each answer ends its key.
         assert.notEqual(page.sent.at(-1).key, page.sent.at(-2).key);
+        assert.equal(page.document.activeElement, byId(page, `credential-t-${CI.id}-revoke`), text);
       }
       // No answer keeps the key for the same credential's retry.
       answer = () => timeout();
@@ -608,14 +677,10 @@ describe('the projects and the credentials (SCR-143)', () => {
     assert.deepEqual(where.given, ['/p', '/p', '/p']);
   }
 
-  test('the object particle after a project\'s name is read from its end', () => {
-    for (const name of ['home', 'game', 'name', 'line', 'table', 'book-club', 'app', 'book', 'kit', 'garden', 'long', 'ml',
-      'stage-0', 'v1', 'v3', 'v6', 'v7', 'v8']) {
-      assert.equal(objectParticle(name), '을', name);
-    }
-    for (const name of ['demo', 'nexus', 'desk', 'test', 'chart', 'old-notes', 'v2', 'v4', 'v5', 'v9', 'site', 'b']) {
-      assert.equal(objectParticle(name), '를', name);
-    }
+  // test/project-screen.test.js (TASK-457) checks the rest of the shared rule.
+  test('the object particle reads a final ck as one k, as Korean reads stack', () => {
+    for (const name of ['stack', 'feedback', 'track', 'deck', 'old-stack']) assert.equal(objectParticle(name), '을', name);
+    for (const name of ['desk', 'chart', 'ck']) assert.equal(objectParticle(name), '를', name);
   });
 
   test('a phone offers neither issue nor revoke', async () => {

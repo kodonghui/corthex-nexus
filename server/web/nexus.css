@@ -94,7 +94,7 @@ table.tb{width:100%;border-collapse:separate;border-spacing:0;background:var(--l
 .cards{display:flex;flex-direction:column;gap:8px}
 .card{display:flex;flex-direction:column;gap:6px;padding:12px 16px;background:var(--layer-01);border:1px solid var(--border-subtle-01);border-radius:var(--corthex-radius-box)}
 .card .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-/* the bar of the stages passed, in its 14 steps (0 to 13 of 13): no script sets a width (see shell.js) */
+/* the bar of the stages passed, in its 14 steps (0 to 13 of 13): projects.js sets data-passed, and no script sets a width */
 .bar[data-passed="0"] i{width:0%}
 .bar[data-passed="1"] i{width:7.69%}
 .bar[data-passed="2"] i{width:15.38%}
