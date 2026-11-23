@@ -1,0 +1,244 @@
+{
+ "about": "The pinned hub's corthex-hub/0.3 pictures of this repository's stage 03, as its snapshot03.py makes them from the stage's source, without the commit and time a snapshot gives each, and the SHA-256 of each file. tests/test_user_flow_pictures.py checks them against the pinned hub and says how to make them again.",
+ "stage": "03-user-flow",
+ "source": "docs/03-user-flow/",
+ "checks": [
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-006-confirm-a-diagram.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-010-delete-a-project-space.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  },
+  {
+   "rule": "part-unknown",
+   "level": "info",
+   "message": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md: document belongs to no declared part",
+   "by": "scan",
+   "stage": "03-user-flow"
+  }
+ ],
+ "left_out": [],
+ "pictures": [
+  {
+   "sha256": "2faab8cb7f13e8ceaddf5609ff64674daa7cf03d115e366cf3ec53d790ab4d93",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md",
+    "source": {
+     "text": "# FL-001 Put a project on NEXUS\n\n[한국어](FL-001-put-a-project-on-nexus.ko.md)\n\nGoal: An agent sends a project's first snapshot, and the owner finds the project drawn.\n\nServes: REQ-001, REQ-003, REQ-004, REQ-005, REQ-006, REQ-018, REQ-019, REQ-052, REQ-066, REQ-077\n\n```mermaid\nflowchart TD\n  A([\"Agent pushes a new project<br/>REQ-018\"])\n  B{\"Credential valid?<br/>REQ-066\"}\n  C{\"Owner confirmed the first<br/>send?<br/>REQ-003\"}\n  D{\"A file looks like a secret<br/>or an email?<br/>REQ-077\"}\n  E[\"Create an empty project<br/>space<br/>REQ-001, REQ-019\"]\n  F[\"Draw the stage diagrams<br/>and item tables<br/>REQ-001, REQ-004, REQ-005, REQ-006\"]\n  G[\"List the project in the<br/>owner's to-do<br/>REQ-052\"]\n  R1[\"Refuse the request<br/>REQ-066\"]\n  R2[\"Reject and ask for the<br/>first-send confirmation<br/>REQ-003\"]\n  R3[\"Refuse the file and name<br/>it in the answer<br/>REQ-077\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@-->|no| R1\n  B e3@-->|yes| C\n  C e4@-->|no| R2\n  C e5@-->|yes| D\n  D e6@-->|yes| R3\n  D e7@-->|no| E\n  E e8@--> F\n  F e9@--> G\n  G e10@--> Z\n  R1 e11@--> Z\n  R2 e12@--> Z\n  R3 e13@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z term\n  class E,F,G,R1,R2,R3 proc\n  class B,C,D decide\n  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- Refuse the request (REQ-066)\n- Reject and ask for the first-send confirmation (REQ-003)\n- Refuse the file and name it in the answer (REQ-077)\n"
+    }
+   }
+  },
+  {
+   "sha256": "1fab337dd8c2942e05641e1c6f4b4bcd61169452681dc412ca6ffaf7a3c70ca5",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md",
+    "source": {
+     "text": "# FL-002 Read a stage from the to-do\n\n[한국어](FL-002-read-a-stage-from-the-to-do.ko.md)\n\nGoal: The owner opens NEXUS, picks a stage from the to-do and reads its diagram or item table.\n\nServes: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-041, REQ-052, REQ-062, REQ-063, REQ-066, REQ-070\n\n```mermaid\nflowchart TD\n  A([\"Owner opens NEXUS\"])\n  B{\"Signed in through the<br/>gate?<br/>REQ-062, REQ-063\"}\n  C[\"Show the owner's to-do<br/>REQ-052\"]\n  D[\"Owner picks a project and<br/>a stage\"]\n  E{\"Does the stage have a<br/>picture?<br/>REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010\"}\n  F[\"Open the diagram with<br/>names, IDs hidden<br/>REQ-004, REQ-005, REQ-011, REQ-070\"]\n  G[\"Open the item table<br/>REQ-006, REQ-011\"]\n  H[\"Mark what changed since<br/>the last confirmation<br/>REQ-041\"]\n  I{\"What does the owner do?\"}\n  J[\"Store the new position in<br/>NEXUS only<br/>REQ-013, REQ-015\"]\n  K[\"Put the ID and name on the<br/>clipboard<br/>REQ-012\"]\n  R1[\"Not admitted<br/>REQ-062, REQ-066\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@-->|no| R1\n  B e3@-->|yes| C\n  C e4@--> D\n  D e5@--> E\n  E e6@-->|yes| F\n  E e7@-->|no| G\n  F e8@--> H\n  G e9@--> H\n  H e10@--> I\n  I e11@-->|move an element on a PC| J\n  I e12@-->|copy an element| K\n  I e13@-->|read only| Z\n  J e14@--> Z\n  K e15@--> Z\n  R1 e16@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z term\n  class C,D,F,G,H,J,K,R1 proc\n  class B,E,I decide\n  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- Not admitted (REQ-062, REQ-066)\n"
+    }
+   }
+  },
+  {
+   "sha256": "36ad2e23f68120cd44a9bbff0b748a7af34af263aeee08382f89693c9a10efbf",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md",
+    "source": {
+     "text": "# FL-003 Comment and answer an AI proposal\n\n[한국어](FL-003-comment-and-answer-an-ai-proposal.ko.md)\n\nGoal: The owner comments on a diagram, an agent answers or proposes a change, and the owner accepts or rejects it.\n\nServes: REQ-020, REQ-021, REQ-022, REQ-023, REQ-024, REQ-025, REQ-034, REQ-053, REQ-054, REQ-055, REQ-068\n\n```mermaid\nflowchart TD\n  A([\"Owner comments on a<br/>diagram, element or row<br/>REQ-020\"])\n  B[\"Add the comment to the<br/>agent to-do<br/>REQ-053\"]\n  C{\"Another session holds it?<br/>REQ-054, REQ-055\"}\n  D{\"Answer or change?\"}\n  E[\"Agent replies in the<br/>thread<br/>REQ-021\"]\n  F[\"Agent posts an AI proposal<br/>laid over the diagram<br/>REQ-022\"]\n  G{\"Who answers the proposal?\"}\n  H{\"Accept?\"}\n  I[\"Add the reflection to the<br/>agent to-do<br/>REQ-023\"]\n  J[\"Mark it rejected, thread<br/>stays open<br/>REQ-024\"]\n  K[\"Owner closes the thread<br/>when done<br/>REQ-034\"]\n  R1[\"Refuse the claim<br/>REQ-055\"]\n  R2[\"Not offered on a phone<br/>REQ-068\"]\n  R3[\"Refuse the agent<br/>credential<br/>REQ-025\"]\n  Z([\"End\"])\n  Y([\"Reflect it: FL-005\"])\n  A e1@--> B\n  B e2@-->|agent claims| C\n  C e3@-->|yes| R1\n  C e4@-->|no| D\n  D e5@-->|answer| E\n  D e6@-->|change| F\n  E e7@--> K\n  F e8@--> G\n  G e9@-->|owner on a PC| H\n  G e10@-->|owner on a phone| R2\n  G e11@-->|an agent| R3\n  H e12@-->|yes| I\n  H e13@-->|no| J\n  I e14@--> Y\n  J e15@--> K\n  K e16@--> Z\n  R1 e17@--> Z\n  R2 e18@--> Z\n  R3 e19@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z,Y term\n  class B,E,F,I,J,K,R1,R2,R3 proc\n  class C,D,G,H decide\n  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- Refuse the claim (REQ-055)\n- Not offered on a phone (REQ-068)\n- Refuse the agent credential (REQ-025)\n"
+    }
+   }
+  },
+  {
+   "sha256": "a8065600318252b3bc76d666462c829e2a933e2c9bae3f2fe7475f83e4f053e1",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md",
+    "source": {
+     "text": "# FL-004 Edit a diagram directly\n\n[한국어](FL-004-edit-a-diagram-directly.ko.md)\n\nGoal: The owner renames an element or connects two on a PC, and the edit waits to be reflected into Git.\n\nServes: REQ-026, REQ-027, REQ-028, REQ-053, REQ-068\n\n```mermaid\nflowchart TD\n  A([\"Owner renames an element<br/>or connects two<br/>REQ-026\"])\n  B{\"On a PC?<br/>REQ-068\"}\n  C[\"Record it as an accepted<br/>change set<br/>REQ-026\"]\n  D[\"Show the elements as<br/>waiting for reflection<br/>REQ-027\"]\n  E{\"Owner cancels before<br/>reflection?<br/>REQ-028\"}\n  F[\"Drop the change set and<br/>redraw without it<br/>REQ-028\"]\n  G[\"Add the reflection to the<br/>agent to-do<br/>REQ-053\"]\n  R1[\"No direct edit on a phone<br/>REQ-068\"]\n  Z([\"End\"])\n  Y([\"Reflect it: FL-005\"])\n  A e1@--> B\n  B e2@-->|no| R1\n  B e3@-->|yes| C\n  C e4@--> D\n  D e5@--> E\n  E e6@-->|yes| F\n  E e7@-->|no| G\n  F e8@--> Z\n  G e9@--> Y\n  R1 e10@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z,Y term\n  class C,D,F,G,R1 proc\n  class B,E decide\n  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- No direct edit on a phone (REQ-068)\n"
+    }
+   }
+  },
+  {
+   "sha256": "9a02c4fdcdf70b220bd3082dbd7e4621e4e421b5f27c66d66c92c038b8f9312b",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md",
+    "source": {
+     "text": "# FL-005 Reflect accepted changes into Git\n\n[한국어](FL-005-reflect-accepted-changes-into-git.ko.md)\n\nGoal: An agent carries a diagram's accepted change sets into the stage document through one pull request.\n\nServes: REQ-001, REQ-029, REQ-030, REQ-031, REQ-032, REQ-053, REQ-054, REQ-056, REQ-057\n\n```mermaid\nflowchart TD\n  A([\"Agent claims a change set<br/>to reflect<br/>REQ-053, REQ-054\"])\n  B[\"Agent opens one PR for the<br/>diagram's change sets<br/>REQ-032\"]\n  C[\"Link the reported PR to<br/>its change sets<br/>REQ-029\"]\n  D[\"Keep the claim while the<br/>PR is open<br/>REQ-057\"]\n  E{\"PR merged?\"}\n  F[\"Draw the snapshot with the<br/>merge commit<br/>REQ-001\"]\n  G[\"Mark the change sets<br/>reflected<br/>REQ-030\"]\n  H[\"Close the threads that<br/>asked for them<br/>REQ-031\"]\n  R1[\"Release the claim after 60<br/>idle minutes<br/>REQ-056\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@--> C\n  C e3@--> D\n  D e4@--> E\n  E e5@-->|yes| F\n  E e6@-->|closed without merge| R1\n  F e7@--> G\n  G e8@--> H\n  H e9@--> Z\n  R1 e10@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z term\n  class B,C,D,F,G,H,R1 proc\n  class E decide\n  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- Release the claim after 60 idle minutes (REQ-056)\n"
+    }
+   }
+  },
+  {
+   "sha256": "2be5fe10500c1f1fe658c45757fba7bd74d184eeda910383c5cf7fa0166b175f",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-006-confirm-a-diagram.md",
+    "source": {
+     "text": "# FL-006 Confirm a diagram\n\n[한국어](FL-006-confirm-a-diagram.ko.md)\n\nGoal: The owner confirms a diagram or an item table on a PC, an agent records it, and the stage passes once all are recorded.\n\nServes: REQ-035, REQ-036, REQ-037, REQ-038, REQ-039, REQ-041, REQ-042, REQ-052, REQ-068\n\n```mermaid\nflowchart TD\n  A([\"Owner opens a diagram to<br/>confirm<br/>REQ-052\"])\n  B[\"Show what changed since<br/>the last confirmation<br/>REQ-041\"]\n  C{\"Who asks?\"}\n  D{\"Confirm or cancel?\"}\n  E[\"Record the confirmation<br/>with the version shown<br/>REQ-035\"]\n  F[\"Add recording it to the<br/>agent to-do<br/>REQ-038\"]\n  G[\"Agent reports the merged<br/>record<br/>REQ-039\"]\n  H{\"Every diagram and table of<br/>the stage recorded?<br/>REQ-042\"}\n  I[\"Treat the stage checkpoint<br/>as passed<br/>REQ-042\"]\n  J[\"Put it back in the to-do<br/>as not confirmed<br/>REQ-037\"]\n  R1[\"No confirmation on a phone<br/>REQ-068\"]\n  R2[\"Refuse the agent<br/>credential<br/>REQ-036\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@--> C\n  C e3@-->|owner on a PC| D\n  C e4@-->|owner on a phone| R1\n  C e5@-->|an agent| R2\n  D e6@-->|confirm| E\n  D e7@-->|cancel| J\n  E e8@--> F\n  F e9@--> G\n  G e10@--> H\n  H e11@-->|yes| I\n  H e12@-->|no| Z\n  I e13@--> Z\n  J e14@--> Z\n  R1 e15@--> Z\n  R2 e16@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z term\n  class B,E,F,G,I,J,R1,R2 proc\n  class C,D,H decide\n  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- No confirmation on a phone (REQ-068)\n- Refuse the agent credential (REQ-036)\n"
+    }
+   }
+  },
+  {
+   "sha256": "dd2993aa30b3b9436ace57990dadbbb28cbc9124377230102543625948477763",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md",
+    "source": {
+     "text": "# FL-007 Draw a new snapshot\n\n[한국어](FL-007-draw-a-new-snapshot.ko.md)\n\nGoal: After a merge, an agent sends a snapshot and NEXUS redraws the project, keeping layouts and comments.\n\nServes: REQ-001, REQ-002, REQ-014, REQ-018, REQ-030, REQ-033, REQ-040, REQ-065, REQ-066, REQ-071, REQ-077\n\n```mermaid\nflowchart TD\n  A([\"Agent pushes a snapshot<br/>after a merge<br/>REQ-018\"])\n  B{\"Credential valid and not<br/>revoked?<br/>REQ-065, REQ-066\"}\n  C{\"Commit descends from the<br/>held one?<br/>REQ-001, REQ-002\"}\n  D{\"A file looks like a secret<br/>or an email?<br/>REQ-077\"}\n  E[\"Redraw, keeping stored<br/>positions<br/>REQ-001, REQ-014, REQ-071\"]\n  F[\"Move comments of removed<br/>elements to the diagram<br/>REQ-033\"]\n  G[\"Mark change sets with a<br/>merged PR reflected<br/>REQ-030\"]\n  H{\"Changed a confirmed<br/>diagram's document?<br/>REQ-040\"}\n  I[\"Invalidate the<br/>confirmation, back to the<br/>to-do<br/>REQ-040\"]\n  R1[\"Refuse the request<br/>REQ-065, REQ-066\"]\n  R2[\"Reject and keep the held<br/>diagrams<br/>REQ-002\"]\n  R3[\"Refuse the file and name<br/>it in the answer<br/>REQ-077\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@-->|no| R1\n  B e3@-->|yes| C\n  C e4@-->|no| R2\n  C e5@-->|yes| D\n  D e6@-->|yes| R3\n  D e7@-->|no| E\n  E e8@--> F\n  F e9@--> G\n  G e10@--> H\n  H e11@-->|yes| I\n  H e12@-->|no| Z\n  I e13@--> Z\n  R1 e14@--> Z\n  R2 e15@--> Z\n  R3 e16@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z term\n  class E,F,G,I,R1,R2,R3 proc\n  class B,C,D,H decide\n  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- Refuse the request (REQ-065, REQ-066)\n- Reject and keep the held diagrams (REQ-002)\n- Refuse the file and name it in the answer (REQ-077)\n"
+    }
+   }
+  },
+  {
+   "sha256": "c965e0978a8e8e7b0ef281e726b0d41019f5b2c8ed96deb22f6a77364c4a78cd",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md",
+    "source": {
+     "text": "# FL-008 Read and comment on a phone\n\n[한국어](FL-008-read-and-comment-on-a-phone.ko.md)\n\nGoal: The owner reads diagrams and comments on a phone and leaves comments; deciding waits for a PC.\n\nServes: REQ-020, REQ-021, REQ-062, REQ-067, REQ-068, REQ-079\n\n```mermaid\nflowchart TD\n  A([\"Owner opens NEXUS on a<br/>phone<br/>REQ-062\"])\n  B[\"Show diagrams, item tables<br/>and comments<br/>REQ-067\"]\n  C{\"What does the owner do?\"}\n  D[\"Add the comment or reply<br/>REQ-079, REQ-020, REQ-021\"]\n  R1[\"Not offered on a phone, do<br/>it on a PC<br/>REQ-068\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@--> C\n  C e3@-->|comment or reply| D\n  C e4@-->|confirm, answer a proposal or edit| R1\n  C e5@-->|read only| Z\n  D e6@--> Z\n  R1 e7@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z term\n  class B,D,R1 proc\n  class C decide\n  class e1,e2,e3,e4,e5,e6,e7 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- Not offered on a phone, do it on a PC (REQ-068)\n"
+    }
+   }
+  },
+  {
+   "sha256": "6fe50cea4d13bd3d252d88d4d9e6ba326b6d12b46ca86b3a201d85a4d4071370",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md",
+    "source": {
+     "text": "# FL-009 Issue and revoke an agent credential\n\n[한국어](FL-009-issue-and-revoke-agent-access.ko.md)\n\nGoal: The owner gives an agent a credential for hub commands and can take it back.\n\nServes: REQ-018, REQ-064, REQ-065, REQ-078\n\n```mermaid\nflowchart TD\n  A([\"Owner issues a credential<br/>for an agent<br/>REQ-064\"])\n  B[\"Show the secret once<br/>REQ-064\"]\n  C[\"Store only its digest<br/>REQ-078\"]\n  D[\"Agent sends hub commands<br/>with it<br/>REQ-018\"]\n  E{\"Owner revokes it?<br/>REQ-065\"}\n  F[\"Refuse the credential's<br/>next request<br/>REQ-065\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@--> C\n  C e3@--> D\n  D e4@--> E\n  E e5@-->|yes| F\n  E e6@-->|no| Z\n  F e7@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z term\n  class B,C,D,F proc\n  class E decide\n  class e1,e2,e3,e4,e5,e6,e7 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- Refuse the credential's next request (REQ-065)\n"
+    }
+   }
+  },
+  {
+   "sha256": "f9f5eaef3b201084f11329e865867148e1c3e91d41c6df7d3c7f424e0c3ddde9",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-010-delete-a-project-space.md",
+    "source": {
+     "text": "# FL-010 Delete a project space\n\n[한국어](FL-010-delete-a-project-space.ko.md)\n\nGoal: The owner removes a project from NEXUS after seeing what goes with it.\n\nServes: REQ-016, REQ-017\n\n```mermaid\nflowchart TD\n  A([\"Deletion of a project<br/>space asked\"])\n  B{\"Who asks?\"}\n  C[\"Show what the deletion<br/>removes<br/>REQ-016\"]\n  D{\"Owner confirms?<br/>REQ-016\"}\n  E[\"Remove snapshots,<br/>diagrams, comments,<br/>confirmations, layouts<br/>REQ-016\"]\n  F[\"Keep everything\"]\n  R1[\"Refuse the agent<br/>credential<br/>REQ-017\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@-->|the owner| C\n  B e3@-->|an agent| R1\n  C e4@--> D\n  D e5@-->|yes| E\n  D e6@-->|no| F\n  E e7@--> Z\n  F e8@--> Z\n  R1 e9@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z term\n  class C,E,F,R1 proc\n  class B,D decide\n  class e1,e2,e3,e4,e5,e6,e7,e8,e9 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- Refuse the agent credential (REQ-017)\n"
+    }
+   }
+  },
+  {
+   "sha256": "a854d95d8094693f6e652e98f49036153bd0ab4969bdd444a17922329df08a5b",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md",
+    "source": {
+     "text": "# FL-011 Back up and rehearse a restore\n\n[한국어](FL-011-back-up-and-rehearse-a-restore.ko.md)\n\nGoal: NEXUS backs up its data every day, and a restore is rehearsed before each release.\n\nServes: REQ-076, REQ-080\n\n```mermaid\nflowchart TD\n  A([\"Daily schedule<br/>REQ-076\"])\n  B[\"Back up the data<br/>REQ-076\"]\n  C{\"Backup succeeded?\"}\n  D[\"Drop backups older than 30<br/>days<br/>REQ-076\"]\n  E[\"Tell the owner<br/>(not in the source)\"]\n  P([\"Before a release<br/>REQ-080\"])\n  Q[\"Restore the latest backup<br/>on a test copy<br/>REQ-080\"]\n  S[\"Record the rehearsal for<br/>the release<br/>REQ-080\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@--> C\n  C e3@-->|yes| D\n  C e4@-->|no| E\n  D e5@--> Z\n  E e6@--> Z\n  P e7@--> Q\n  Q e8@--> S\n  S e9@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,P,Z term\n  class B,D,E,Q,S proc\n  class C decide\n  class E gap\n  class e1,e2,e3,e4,e5,e6,e7,e8,e9 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n| Grey dotted box | A step the requirements do not describe, drawn so the flow stays whole |\n\n## Failure paths\n\n- Tell the owner (not in the source)\n"
+    }
+   }
+  },
+  {
+   "sha256": "dab5e97cf852744977c4324db9a8a61d4e97b0d9e79ab1f67e5e2ab1d174a954",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md",
+    "source": {
+     "text": "# FL-012 Run an event storming workshop\n\n[한국어](FL-012-run-an-event-storming-workshop.ko.md)\n\nGoal: The owner and an agent build the domain design step by step on a free canvas, and each confirmed step goes into the domain document.\n\nServes: REQ-043, REQ-044, REQ-045, REQ-046, REQ-047, REQ-048, REQ-049, REQ-050, REQ-051\n\n```mermaid\nflowchart TD\n  A([\"Owner or agent opens a<br/>workshop<br/>REQ-044\"])\n  B[\"Create a board, one frame<br/>per step, as the source<br/>REQ-044, REQ-048\"]\n  M{\"Start from a Miro board?<br/>REQ-051\"}\n  N[\"Copy the sticky notes'<br/>text, colour and position<br/>REQ-051\"]\n  C[\"Agent drafts a step with<br/>confidence labels<br/>REQ-045\"]\n  D{\"Removes a sticky note a<br/>person made?<br/>REQ-047\"}\n  E[\"Owner edits sticky notes<br/>on a PC<br/>REQ-046\"]\n  F{\"Owner confirms the step?<br/>REQ-043\"}\n  G[\"Add writing the step to<br/>the agent to-do<br/>REQ-049\"]\n  H{\"Last step confirmed and<br/>written?<br/>REQ-050\"}\n  I[\"Close the workshop<br/>REQ-050\"]\n  R1[\"Refuse the agent's change<br/>REQ-047\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@--> M\n  M e3@-->|yes| N\n  M e4@-->|no| C\n  N e5@--> C\n  C e6@--> D\n  D e7@-->|yes| R1\n  D e8@-->|no| E\n  R1 e9@--> E\n  E e10@--> F\n  F e11@-->|no| E\n  F e12@-->|yes| G\n  G e13@--> H\n  H e14@-->|no, next step| C\n  H e15@-->|yes| I\n  I e16@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z term\n  class B,N,C,E,G,I,R1 proc\n  class M,D,F,H decide\n  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- Refuse the agent's change (REQ-047)\n"
+    }
+   }
+  },
+  {
+   "sha256": "bdd843f04e08d730eef06baea565b4c4d9f73ffaf8f49c854145b54f2f6389e2",
+   "picture": {
+    "part": "",
+    "stage": "03-user-flow",
+    "key": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md",
+    "source": {
+     "text": "# FL-013 Link a Notion page or a Jira project\n\n[한국어](FL-013-link-a-notion-page-or-jira-project.ko.md)\n\nGoal: The owner links another tool to a project or a stage and sees its status beside the stage, read only.\n\nServes: REQ-058, REQ-059, REQ-060, REQ-061\n\n```mermaid\nflowchart TD\n  A([\"Owner adds a link to a<br/>project or stage<br/>REQ-058\"])\n  B{\"Can the tool be read now?<br/>REQ-061\"}\n  C[\"Show the status read from<br/>it, never writing<br/>REQ-058, REQ-060\"]\n  D[\"Show the last known status<br/>and its time<br/>REQ-061\"]\n  E{\"Owner removes the link?<br/>REQ-059\"}\n  F[\"Drop the link<br/>REQ-059\"]\n  Z([\"End\"])\n  A e1@--> B\n  B e2@-->|yes| C\n  B e3@-->|no| D\n  C e4@--> E\n  D e5@--> E\n  E e6@-->|yes| F\n  E e7@-->|no| Z\n  F e8@--> Z\n  %% legend: below\n  classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529\n  classDef proc fill:#f8f9fa,stroke:#495057,color:#212529\n  classDef decide fill:#f3f0ff,stroke:#7048e8,color:#212529\n  classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057\n  classDef pass stroke:#868e96,stroke-width:1.5px\n  class A,Z term\n  class C,D,F proc\n  class B,E decide\n  class e1,e2,e3,e4,e5,e6,e7,e8 pass\n```\n\n| Shape | Means |\n| --- | --- |\n| Rounded box | Where the flow starts or ends |\n| Rectangle | A step |\n| Diamond | A decision; each branch is labelled |\n\n## Failure paths\n\n- Show the last known status and its time (REQ-061)\n"
+    }
+   }
+  }
+ ]
+}

@@ -92,6 +92,34 @@ export function failureWhere({ path, line }) {
 export const CHARACTER = 7.2;
 export const PADDING = 12;
 
+// Hangul, CJK and full-width forms, which take about two narrow characters' room.
+const WIDE = /[ᄀ-ᅟ⺀-〾ぁ-㏿㐀-䶿一-鿿ꥠ-꥿가-힣豈-﫿︰-﹏＀-｠￠-￦\u{20000}-\u{3fffd}]/u;
+
+// The narrow characters' room a text takes, a wide character counting twice.
+export function columnsOf(text) {
+  let columns = 0;
+  for (const character of text) columns += WIDE.test(character) ? 2 : 1;
+  return columns;
+}
+
+// The lines a text takes where a line holds perLine narrow characters: wrapped at spaces, a word longer than a line
+// broken where it reaches its end; one line at least, as the page shows a placeholder in place of an empty text.
+export function wrappedLines(text, perLine) {
+  let lines = 1;
+  let used = 0;
+  for (const word of text.split(/\s+/).filter((part) => part !== '')) {
+    const size = columnsOf(word);
+    if (used > 0 && used + 1 + size <= perLine) {
+      used += 1 + size;
+      continue;
+    }
+    if (used > 0) lines += 1;
+    lines += Math.ceil(size / perLine) - 1;
+    used = size - (Math.ceil(size / perLine) - 1) * perLine;
+  }
+  return lines;
+}
+
 // Places a graph with layout.js (TASK-420). A drawer gives it boxes and lines in layout.js's form, so a RangeError can
 // only be a graph too large to place in time, and the picture fails at its source.
 export function placed(graph, options) {

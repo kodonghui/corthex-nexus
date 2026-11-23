@@ -339,6 +339,84 @@ describe('agent comments', () => {
     assert.deepEqual([picked.status, picked.json.diagram], [201, idOf('dg', drawnScreen.id)]);
   });
 
+  test('an item that no element holds picks the file diagram it names, as a whole; an element that holds it still wins (SPEC-016)', async () => {
+    clock = START + 55 * MINUTE;
+    // A project whose stages 03 and 08 are drawn one diagram per file, named as the drawers name them: by the file's
+    // first heading, or by the file's name until a drawer names it.
+    const userFlow = (file, name, options = {}) => ({ stage: '03-user-flow', sourceKey: flow(file), kind: 'user_flow', name, ...options });
+    const screenStates = (file, name, options = {}) => ({ stage: '08-screen-states', sourceKey: screen(file), kind: 'screen_states', name, ...options });
+    const files = {
+      'FL-001': userFlow('FL-001-put-a-project-on-nexus', 'FL-001 Put a project on NEXUS'),
+      'FL-003': userFlow('FL-003-comment-and-answer', 'FL-003 Comment and answer an AI proposal'),
+      'FL-005': userFlow('FL-005-reflect-accepted-changes-into-git', 'FL-005 Reflect accepted changes into Git'),
+      'FL-007': userFlow('FL-007-draw-a-new-snapshot', 'FL-007 Draw a new snapshot'),
+      'FL-007 again': userFlow('FL-007-draw-it-again', 'FL-007 Draw it again'),
+      'FL-009': userFlow('FL-009-issue-and-revoke', 'FL-009 Issue and revoke agent access', { removed: true }),
+      'FL-011a': userFlow('FL-011a-a-draft', 'FL-011a A draft'),
+      'SCR-143': screenStates('SCR-143', 'SCR-143 Projects'),
+      'SCR-144': screenStates('SCR-144', 'SCR-144.md'),
+      'SCR-145': screenStates('SCR-145', 'SCR-145.md', { status: 'failed' }),
+    };
+    const pictures = Object.values(files).map(({ stage, sourceKey: key }) => ({ stage, key, part: 'nexus' }));
+    const project = s.project('files', { parts: ['nexus'], pictures });
+    const made = new Map(Object.entries(files).map(([label, file]) => [label, s.diagram(project, file)]));
+    // Flow FL-001 holds an element of trace ID FL-003, such as a box that leads to that flow.
+    element(made.get('FL-001').drawing, 'FL-003', 'Comment and answer', 'flow');
+    // Stage 05's picture is no file's: its name holds no trace ID that a comment can reach.
+    s.diagram(project, { stage: '05-erd', sourceKey: '/pictures/05-erd/nexus', name: 'TBL-151 diagrams' });
+    const send = (body) => comment({ part: 'nexus', text: 'Is this flow done?', ...body }, { project: project.name });
+    const threads = count('comment_threads');
+
+    // The hub's comment command sends item and no diagram: FL-005 lands on its flow's diagram, as a whole.
+    const flowFive = made.get('FL-005');
+    const landed = await send({ stage: '03-user-flow', item: 'FL-005' });
+    assert.equal(landed.status, 201);
+    assert.deepEqual(
+      [landed.json.diagram, landed.json.drawing, landed.json.version, landed.json.target, landed.json.element, landed.json.removed_name, landed.json.item],
+      [idOf('dg', flowFive.id), idOf('dw', flowFive.drawing), project.commit, 'diagram', null, null, ''],
+    );
+    const thread = Number(db.prepare('SELECT id FROM comment_threads ORDER BY id DESC LIMIT 1').get().id);
+    assert.deepEqual({ ...db.prepare('SELECT diagram_id, target_kind, element_key FROM comment_threads WHERE id = ?').get(thread) }, {
+      diagram_id: flowFive.id, target_kind: 'diagram', element_key: null,
+    });
+    // A screen of stage 08, by its first heading or by its file's name.
+    for (const id of ['SCR-143', 'SCR-144']) {
+      const screenComment = await send({ stage: '08-screen-states', item: id });
+      assert.deepEqual([screenComment.status, screenComment.json.diagram, screenComment.json.target], [201, idOf('dg', made.get(id).id), 'diagram'], id);
+    }
+    // Named with its diagram, the item may be the one that diagram is named by.
+    const both = await send({ stage: '03-user-flow', diagram: idOf('dg', flowFive.id), item: 'FL-005' });
+    assert.deepEqual([both.status, both.json.diagram, both.json.target, both.json.element], [201, idOf('dg', flowFive.id), 'diagram', null]);
+    // An element that holds the item wins over the diagram named by it.
+    const held = await send({ stage: '03-user-flow', item: 'FL-003' });
+    assert.deepEqual(
+      [held.status, held.json.diagram, held.json.target, held.json.element, held.json.item],
+      [201, idOf('dg', made.get('FL-001').id), 'element', 'FL-003', 'FL-003'],
+    );
+    assert.equal(count('comment_threads'), threads + 5);
+
+    // Two diagrams named by one ID: diagram_ambiguous, naming them in the stage's order.
+    const twice = await send({ stage: '03-user-flow', item: 'FL-007' });
+    assert.deepEqual([twice.status, twice.json.code], [409, 'diagram_ambiguous']);
+    assert.deepEqual(twice.json.diagrams, [idOf('dg', made.get('FL-007').id), idOf('dg', made.get('FL-007 again').id)]);
+    // An ID no element holds and no drawn file diagram of the stage is named by stays item_not_found: an unknown one, a
+    // removed flow's, a screen that never drew, another diagram's with diagram, a picture that is no file's, and an ID
+    // that a name starts with but goes on past.
+    for (const body of [
+      { stage: '03-user-flow', item: 'FL-404' },
+      { stage: '03-user-flow', item: 'FL-009' },
+      { stage: '08-screen-states', item: 'SCR-145' },
+      { stage: '03-user-flow', diagram: idOf('dg', made.get('FL-001').id), item: 'FL-005' },
+      { stage: '05-erd', item: 'TBL-151' },
+      // A name that starts with more than the ID: "FL-011a A draft" is named by no trace ID.
+      { stage: '03-user-flow', item: 'FL-011' },
+    ]) {
+      const refused = await send(body);
+      assert.deepEqual([refused.status, refused.json.code, refused.json.items], [404, 'item_not_found', [body.item]], JSON.stringify(body));
+    }
+    assert.equal(count('comment_threads'), threads + 5);
+  });
+
   test('a comment refused by what it names gets the 404 of that, and nothing is written', async () => {
     const threads = count('comment_threads');
     const cases = [
