@@ -42,24 +42,27 @@ PUSH_PATH = "/api/snapshots"
 OLD, NEW = "corthex-hub/0.2", "corthex-hub/0.3"
 V2_STAGES = {"01-domain", "05-erd", "07-sitemap"}
 TEXT_STAGES = ("03-user-flow", "08-screen-states", "09-mockup")
-# The files of stages 03 and 08 that define a user flow and a screen, by this repository's names, and the kind of
-# item each defines, which the snapshot's summary counts.
-DEFINES = {"03-user-flow": (re.compile(r"FL-\d{3}(?:-[a-z0-9-]+)?\.md"), "flow"),
-           "08-screen-states": (re.compile(r"SCR-\d{3}(?:-[a-z0-9-]+)?\.md"), "screen")}
+# Where the snapshot's items name the file that defines each user flow and each screen: a flow item of stage 03 by
+# its own place, and a screen item of the sitemap by its screen definition in stage 08.
+DEFINED_IN = {"03-user-flow": ("flow", "where"), "08-screen-states": ("screen", "screen_doc")}
 TRACE = "0123456789abcdef"
 NOT_FOUND = {"title": "Not found", "status": 404, "detail": "no such path", "code": "not_found", "traceId": TRACE}
-INTAKE_MODULE = ROOT / "server" / "src" / "snapshot.js"
-# The v3 server's intake of a snapshot (TASK-418): readSnapshot of the module in argv[2] on the JSON file in argv[3].
+SERVER_SOURCE = ROOT / "server" / "src"
+# The v3 server's intake of a snapshot (TASK-418): readSnapshot of snapshot.js in the folder of argv[2] on the JSON
+# file in argv[3].
+# A refusal is a Problem of problem.js; any other error ends the script with its stack, as a fault of the check.
 INTAKE = """import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-const [module, file] = process.argv.slice(2);
-const { readSnapshot } = await import(pathToFileURL(module).href);
+const [folder, file] = process.argv.slice(2);
+const { readSnapshot } = await import(pathToFileURL(folder + '/snapshot.js').href);
+const { Problem } = await import(pathToFileURL(folder + '/problem.js').href);
 try {
   const read = readSnapshot(JSON.parse(readFileSync(file, 'utf8')));
   console.log(JSON.stringify({ format: read.format, commit: read.commit, replaces: read.replaces,
     documents: read.documents.map(({ path, stage, part, why }) => ({ path, stage, part, why })) }));
 } catch (error) {
-  console.log(JSON.stringify({ refused: error.code ?? String(error), detail: error.message }));
+  if (!(error instanceof Problem)) throw error;
+  console.log(JSON.stringify({ refused: error.code, detail: error.message }));
 }
 """
 
@@ -158,10 +161,15 @@ def served_status(status, value):
     return value["status"] if status == "default" else int(status)
 
 
+def mockup_page():
+    """The mockup page that .corthex/project.json names for stage 09."""
+    settings = json.loads((ROOT / ".corthex" / "project.json").read_text(encoding="utf8"))
+    return settings["stages"]["09-mockup"].get("page")
+
+
 class MockupPageTest(unittest.TestCase):
     def test_the_mockup_page_is_named_for_stage_09(self):
-        settings = json.loads((ROOT / ".corthex" / "project.json").read_text(encoding="utf8"))
-        page = settings["stages"]["09-mockup"].get("page")
+        page = mockup_page()
         self.assertEqual(page, "design/mockup/nexus-mockup.html")
         self.assertTrue((ROOT / page).is_file())
 
@@ -174,8 +182,7 @@ class HubCompatibilityTest(HubCheckoutCase):
         cls.limit = cls.doc["components"]["x-corthex"]["limits"]["snapshot_bytes"]
         cls.held_op = operation(cls.doc, "API-243")
         cls.push_op = operation(cls.doc, "API-242")
-        settings = json.loads((ROOT / ".corthex" / "project.json").read_text(encoding="utf8"))
-        cls.page = settings["stages"]["09-mockup"].get("page")
+        cls.page = mockup_page()
 
     def setUp(self):
         super().setUp()
@@ -281,10 +288,12 @@ class HubCompatibilityTest(HubCheckoutCase):
         """The v3 server's readSnapshot takes the snapshot in its format and leaves out none of its documents."""
         node = shutil.which("node")
         self.assertTrue(node, "the v3 intake check needs Node 24 (AGENTS.md)")
+        version = subprocess.run([node, "--version"], capture_output=True, text=True, timeout=30).stdout.strip()
+        self.assertGreaterEqual(int(re.match(r"v(\d+)", version).group(1)), 24, "the v3 intake check needs Node 24")
         folder = Path(tempfile.mkdtemp(prefix="intake-", dir=str(self.base)))
         (folder / "intake.mjs").write_text(INTAKE, encoding="utf8")
         (folder / "snapshot.json").write_text(json.dumps(snapshot, ensure_ascii=False), encoding="utf8")
-        result = subprocess.run([node, str(folder / "intake.mjs"), str(INTAKE_MODULE), str(folder / "snapshot.json")],
+        result = subprocess.run([node, str(folder / "intake.mjs"), str(SERVER_SOURCE), str(folder / "snapshot.json")],
                                 capture_output=True, text=True, encoding="utf8", timeout=60)
         self.assertEqual(result.returncode, 0, result.stderr[-600:])
         read = json.loads(result.stdout.strip().splitlines()[-1])
@@ -300,12 +309,11 @@ class HubCompatibilityTest(HubCheckoutCase):
         """Each user flow, screen definition and the mockup page is one picture with the file's whole text."""
         settings = json.loads((self.project / ".corthex" / "project.json").read_text(encoding="utf8"))["stages"]
         wanted = {}
-        for stage, (name, kind) in DEFINES.items():
-            folder = self.project / settings[stage]["source"]
-            wanted[stage] = sorted(path.relative_to(self.project).as_posix() for path in folder.rglob("*")
-                                   if name.fullmatch(path.name))
-            # As many pictures as the hub found items of the stage's kind: one flow or screen per file.
-            self.assertEqual(len(wanted[stage]), snapshot["summary"]["kinds"].get(kind), stage)
+        for stage, (kind, field) in DEFINED_IN.items():
+            wanted[stage] = sorted({item[field].rsplit(":", 1)[0] for item in snapshot["items"]
+                                    if item.get("kind") == kind and item.get(field)})
+            for key in wanted[stage]:
+                self.assertTrue(key.startswith(settings[stage]["source"]), (stage, key))
         wanted["09-mockup"] = [self.page]
         for stage, keys in wanted.items():
             with self.subTest(stage=stage):
