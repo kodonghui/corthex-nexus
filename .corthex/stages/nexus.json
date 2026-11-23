@@ -119,7 +119,7 @@
       "updated": "2026-11-23T16:41:20+09:00"
     },
     "05-erd": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Stage 05 schema freeze before the API contract: the 26 tables TBL-146 to TBL-171 in db/nexus.sql; SQL that SQLite 3 runs, where it runs decided in stage 11; every snapshot kept with its documents once by hash and the elements of every drawing. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -157,8 +157,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-23T16:41:20+09:00",
+      "next": "Table reference correction: the trace lists of five tables gain the spec rows of the writes that change them; this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T17:53:27+09:00",
       "checks": [
         {
           "level": "info",
@@ -168,7 +168,7 @@
       ]
     },
     "06-api": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Stage 06 contract freeze for the first release: the 51 operations API-242 to API-292 in api/openapi.yaml, the agent family taking the pinned hub's wire unchanged and the owner family apart, the 59 error codes and the choices of section 3; the four items of section 6 answered with the recommendations, with the stage-04 spec and the stage-05 schema corrected in the same pull request. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -201,8 +201,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-23T16:41:20+09:00"
+      "next": "Table reference correction: 26 operations name the tables of the schema; this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T17:53:27+09:00"
     },
     "07-sitemap": {
       "state": "done",

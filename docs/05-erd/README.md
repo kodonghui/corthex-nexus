@@ -180,3 +180,7 @@ One approved item changed, asked on its own and approved through the same delega
 #### After the sixth review of pull request 104
 
 One approved item changed, asked on its own and approved through the same delegate: TBL-151 clears removed_at when a snapshot holds a removed diagram's source again, which UNIQUE (project_id, stage, source_key) brings back to the same row, except for an item table that made way for its stage's pictures, since corthex-hub/0.2 still carries its items. A removed diagram is not one of its stage's diagrams (SPEC-027). No table, column or constraint changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+### Trace lists of the writes
+
+The table reference correction of stage 06 found writes that change a table whose trace list misses their spec rows. One approved item changed, asked on its own and approved through the same delegate: ten spec rows join the trace lists of five tables. TBL-155 comment_threads gains SPEC-018; TBL-162 workshops gains SPEC-039; TBL-163 workshop_steps gains SPEC-036; TBL-166 todos gains SPEC-018, SPEC-020, SPEC-021 and SPEC-028; TBL-167 claims gains SPEC-017, SPEC-018 and SPEC-032. No table, column or constraint changed. This part waits for its own checkpoint.

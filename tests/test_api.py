@@ -220,6 +220,21 @@ class ApiContract(unittest.TestCase):
                     if status != "default":
                         self.assertEqual(str(value["status"]), status, "%s %s %s" % (method, path, name))
 
+    def test_every_table_a_write_lists_is_fed_by_its_spec_rows(self):
+        # A write changes each table it lists, so one of its spec rows is in that table's trace list in the schema.
+        with open(os.path.join(ROOT, "db", "nexus.sql"), encoding="utf-8") as f:
+            fed = {m.group(1): set(re.findall(r"SPEC-\d+", m.group(2)))
+                   for m in re.finditer(r"^-- (TBL-\d+) [^←\n]*← ([^|\n]*?) \| ", f.read(), flags=re.M)}
+        for method, path, op in self.ops:
+            if method == "get":
+                continue
+            x = op["x-corthex"]
+            specs = set(x.get("spec", [])) - {"SPEC-014"}
+            for table in x["tables"]:
+                self.assertIn(table, fed, "%s %s" % (x["id"], table))
+                self.assertTrue(fed[table] & specs, "%s lists %s, which none of %s feeds"
+                                % (x["id"], table, ", ".join(sorted(specs))))
+
     def test_the_readme_error_tables_copy_the_contract(self):
         row = re.compile(r"^\| `([a-z_]+)` \| (\d{3}) \| (.*) \|$", re.M)
         for name, field in (("README.md", "meaning"), ("README.ko.md", "message_ko")):
