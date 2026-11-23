@@ -120,6 +120,8 @@ class WbsTest(unittest.TestCase):
             self.assertEqual(ko[6], en[6], en[0])
             self.assertIn(ko[5], OWNERS, en[0])
             self.assertEqual(ids(ko[7], "API"), ids(en[7], "API"), en[0])
+            # Each clause of a done condition is a check; a clause added in one language only drops it from the other.
+            self.assertEqual(ko[7].count("; "), en[7].count("; "), "%s: the done conditions differ in clauses" % en[0])
 
 
 if __name__ == "__main__":
