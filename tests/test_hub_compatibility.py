@@ -10,6 +10,8 @@ every request; nothing is fetched and no NEXUS server is contacted.
   Snapshot schema of api/openapi.yaml and fits its snapshot limit. It holds each user flow and screen definition and
   the mockup page that .corthex/project.json names, each with the file's whole text, and no translation copy. The 0.2
   snapshot validates too and holds the pictures of stages 01, 05 and 07 only.
+- Every snapshot the hub makes or sends is also read by the v3 server's own intake, readSnapshot of
+  server/src/snapshot.js, run with Node: it takes the snapshot in its format and leaves out none of its documents.
 - A test server that answers as v2 does, whose held commit lists no formats, gets 0.2 from the push job and from a
   first push, and nothing when it holds the commit already.
 - A v3 test server whose held commit lists corthex-hub/0.3 gets 0.3; a commit it holds in 0.2 goes again in 0.3 once.
@@ -20,6 +22,8 @@ every request; nothing is fetched and no NEXUS server is contacted.
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
 import tempfile
 import threading
@@ -38,10 +42,26 @@ PUSH_PATH = "/api/snapshots"
 OLD, NEW = "corthex-hub/0.2", "corthex-hub/0.3"
 V2_STAGES = {"01-domain", "05-erd", "07-sitemap"}
 TEXT_STAGES = ("03-user-flow", "08-screen-states", "09-mockup")
-# The files of stages 03 and 08 that define a user flow and a screen, by this repository's names.
-DEFINES = {"03-user-flow": re.compile(r"FL-\d{3}-[a-z0-9-]+\.md"), "08-screen-states": re.compile(r"SCR-\d{3}\.md")}
+# The files of stages 03 and 08 that define a user flow and a screen, by this repository's names, and the kind of
+# item each defines, which the snapshot's summary counts.
+DEFINES = {"03-user-flow": (re.compile(r"FL-\d{3}(?:-[a-z0-9-]+)?\.md"), "flow"),
+           "08-screen-states": (re.compile(r"SCR-\d{3}(?:-[a-z0-9-]+)?\.md"), "screen")}
 TRACE = "0123456789abcdef"
 NOT_FOUND = {"title": "Not found", "status": 404, "detail": "no such path", "code": "not_found", "traceId": TRACE}
+INTAKE_MODULE = ROOT / "server" / "src" / "snapshot.js"
+# The v3 server's intake of a snapshot (TASK-418): readSnapshot of the module in argv[2] on the JSON file in argv[3].
+INTAKE = """import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+const [module, file] = process.argv.slice(2);
+const { readSnapshot } = await import(pathToFileURL(module).href);
+try {
+  const read = readSnapshot(JSON.parse(readFileSync(file, 'utf8')));
+  console.log(JSON.stringify({ format: read.format, commit: read.commit, replaces: read.replaces,
+    documents: read.documents.map(({ path, stage, part, why }) => ({ path, stage, part, why })) }));
+} catch (error) {
+  console.log(JSON.stringify({ refused: error.code ?? String(error), detail: error.message }));
+}
+"""
 
 # What the pinned hub makes of each response that API-243 lists, served as the contract's example to a push job:
 # the row's outcome and either the Problem code it reports or, when it sends nothing, why.
@@ -136,6 +156,14 @@ def examples(op):
 
 def served_status(status, value):
     return value["status"] if status == "default" else int(status)
+
+
+class MockupPageTest(unittest.TestCase):
+    def test_the_mockup_page_is_named_for_stage_09(self):
+        settings = json.loads((ROOT / ".corthex" / "project.json").read_text(encoding="utf8"))
+        page = settings["stages"]["09-mockup"].get("page")
+        self.assertEqual(page, "design/mockup/nexus-mockup.html")
+        self.assertTrue((ROOT / page).is_file())
 
 
 class HubCompatibilityTest(HubCheckoutCase):
@@ -247,15 +275,37 @@ class HubCompatibilityTest(HubCheckoutCase):
         if snapshot["schema"] == OLD:
             self.assertEqual({p["stage"] for p in snapshot["pictures"]}, V2_STAGES)
             self.assertFalse(any("key" in p for p in snapshot["pictures"]), "0.2 pictures carry no key")
+        self.assert_taken_by_the_v3_intake(snapshot)
+
+    def assert_taken_by_the_v3_intake(self, snapshot):
+        """The v3 server's readSnapshot takes the snapshot in its format and leaves out none of its documents."""
+        node = shutil.which("node")
+        self.assertTrue(node, "the v3 intake check needs Node 24 (AGENTS.md)")
+        folder = Path(tempfile.mkdtemp(prefix="intake-", dir=str(self.base)))
+        (folder / "intake.mjs").write_text(INTAKE, encoding="utf8")
+        (folder / "snapshot.json").write_text(json.dumps(snapshot, ensure_ascii=False), encoding="utf8")
+        result = subprocess.run([node, str(folder / "intake.mjs"), str(INTAKE_MODULE), str(folder / "snapshot.json")],
+                                capture_output=True, text=True, encoding="utf8", timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr[-600:])
+        read = json.loads(result.stdout.strip().splitlines()[-1])
+        self.assertNotIn("refused", read, read)
+        self.assertEqual((read["format"], read["commit"], read["replaces"]),
+                         (snapshot["schema"], self.commit, snapshot.get("replaces")))
+        self.assertEqual([d["path"] for d in read["documents"] if d["why"] is not None], [], "no document is left out")
+        keys = [p["key"] for p in snapshot["pictures"] if "key" in p]
+        self.assertLessEqual(set(keys), {d["path"] for d in read["documents"]}, "each file's picture is a document")
+        return read
 
     def assert_text_pictures(self, snapshot):
         """Each user flow, screen definition and the mockup page is one picture with the file's whole text."""
         settings = json.loads((self.project / ".corthex" / "project.json").read_text(encoding="utf8"))["stages"]
         wanted = {}
-        for stage in TEXT_STAGES[:2]:
-            folder = settings[stage]["source"].rstrip("/")
-            wanted[stage] = sorted(folder + "/" + p.name for p in (self.project / folder).iterdir()
-                                   if DEFINES[stage].fullmatch(p.name))
+        for stage, (name, kind) in DEFINES.items():
+            folder = self.project / settings[stage]["source"]
+            wanted[stage] = sorted(path.relative_to(self.project).as_posix() for path in folder.rglob("*")
+                                   if name.fullmatch(path.name))
+            # As many pictures as the hub found items of the stage's kind: one flow or screen per file.
+            self.assertEqual(len(wanted[stage]), snapshot["summary"]["kinds"].get(kind), stage)
         wanted["09-mockup"] = [self.page]
         for stage, keys in wanted.items():
             with self.subTest(stage=stage):
@@ -272,34 +322,28 @@ class HubCompatibilityTest(HubCheckoutCase):
 
     # TASK-431: the v3 contract.
 
-    def test_the_mockup_page_is_named_for_stage_09(self):
-        self.assertEqual(self.page, "design/mockup/nexus-mockup.html")
-        self.assertTrue((ROOT / self.page).is_file())
-
     def test_the_03_snapshot_of_this_repository_validates_against_the_contract(self):
         snapshot = self.snapshot(NEW)
         self.assertEqual(snapshot["schema"], NEW)
-        self.assertEqual(contract.validate(self.doc, snapshot, {"$ref": "#/components/schemas/Snapshot"}), [])
+        schema = {"$ref": "#/components/schemas/Snapshot"}
+        self.assertEqual(contract.validate(self.doc, snapshot, schema), [])
         size = len(json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")).encode("utf8"))
         self.assertLessEqual(size, self.limit)
         self.assertEqual({p["stage"] for p in snapshot["pictures"]}, V2_STAGES | set(TEXT_STAGES))
         self.assert_text_pictures(snapshot)
-
-    def test_the_02_snapshot_of_this_repository_validates_against_the_contract(self):
-        snapshot = self.snapshot(OLD)
-        self.assertEqual(snapshot["schema"], OLD)
-        self.assert_snapshot(snapshot)
-
-    def test_the_schema_check_tells_the_formats_apart(self):
-        # The validation above is not empty: the Snapshot schema refuses what each format may not carry.
-        snapshot = self.snapshot(NEW)
-        schema = {"$ref": "#/components/schemas/Snapshot"}
+        self.assert_taken_by_the_v3_intake(snapshot)
+        # The validation is not empty: the Snapshot schema refuses what each format may not carry.
         self.assertTrue(contract.validate(self.doc, dict(snapshot, schema=OLD), schema),
                         "0.2 carries no stage-09 picture")
         keyless = json.loads(json.dumps(snapshot))
         del next(p for p in keyless["pictures"] if p["stage"] == "09-mockup")["key"]
         self.assertTrue(contract.validate(self.doc, keyless, schema), "a stage-09 picture needs its key")
         self.assertTrue(contract.validate(self.doc, dict(snapshot, schema="corthex-hub/0.4"), schema))
+
+    def test_the_02_snapshot_of_this_repository_validates_against_the_contract(self):
+        snapshot = self.snapshot(OLD)
+        self.assertEqual(snapshot["schema"], OLD)
+        self.assert_snapshot(snapshot)
 
     def test_a_v3_server_that_lists_03_gets_03(self):
         # The credential pair goes in the headers that the contract's security schemes name.
@@ -322,15 +366,18 @@ class HubCompatibilityTest(HubCheckoutCase):
     def test_a_server_that_lists_a_newer_format_gets_the_newest_the_hub_knows(self):
         with LoopbackServer({("GET", HELD_PATH): self.v3_held(formats=(OLD, NEW, "corthex-hub/0.9"))}) as server:
             server.answers[("POST", PUSH_PATH)] = (200, self.push_answer("200", "drawn", self.held))
-            self.push_job(server)
+            code, row = self.push_job(server)
         self.assertEqual([s["schema"] for s in server.sent()], [NEW])
+        self.assert_requests_match_the_contract(server)
+        self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
 
     def test_a_server_that_lists_02_only_gets_02(self):
         with LoopbackServer({("GET", HELD_PATH): self.v3_held(fmt=OLD, formats=(OLD,))}) as server:
             server.answers[("POST", PUSH_PATH)] = (200, self.push_answer("200", "drawn", self.held))
-            self.push_job(server)
+            code, row = self.push_job(server)
         self.assertEqual([s["schema"] for s in server.sent()], [OLD])
         self.assert_requests_match_the_contract(server)
+        self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
 
     def test_a_commit_held_in_02_goes_again_in_03_once(self):
         with LoopbackServer({("GET", HELD_PATH): self.v3_held(self.commit, fmt=OLD)}) as server:
