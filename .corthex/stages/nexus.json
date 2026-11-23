@@ -437,10 +437,15 @@
           "approved": "TASK-466 and the stage-01 difference, pull request 140, at commit 4290c0d: TASK-466 (Must; SPEC-018; API-256, TBL-158, TBL-159; after TASK-438; M) has NEXUS read a proposal's SQL and YAML on stages 05 and 07 so that the differences of source_text become changes, checked against the pictures the pinned hub made of this repository's files. Section 4 records that on stage 01 a proposal's source_text makes no changes, so the owner sees X marked with the change text rather than Y over X, until a hub change sends the path; it is looked at again at TASK-463, before the deploy, with the hub change. The approved items this changes, SPEC-018's acceptance and the contract's source_text on stage 01, and on 05 and 07 until TASK-466 lands, were answered on their own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "TASK-467, pull request 143, at commit e65d74f: TASK-467 (Should; SPEC-046; TBL-168; after TASK-451; M) reads the status of each linked Notion page and Jira project with read-only tokens that only the server's environment holds, keeping the last known status and its time when a tool cannot be read (REQ-061); section 3's question 7 asks the maintainer directly for the tokens; section 4 records that no task read SPEC-046's status before. No spec row, operation, table or screen changes. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
-      "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465",
-      "updated": "2026-11-24T06:40:49+09:00"
+      "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",
+      "updated": "2026-11-24T07:35:30+09:00"
     },
     "11-development": {
       "state": "not_started",

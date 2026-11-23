@@ -13,6 +13,7 @@ Sizes: S is about half a day of one Claude worker, M a day and L two days. A Cla
 - Iteration 3, the screens: TASK-454 to TASK-462.
 - Release: TASK-463 to TASK-465; stage-12 QA and its release gate come before the deploy.
 - Added on 2026-11-24 after TASK-438's gap (section 4): TASK-466, a Must task done before the release. TASK-464 waits for it, though the table names only earlier tasks as dependencies.
+- Added on 2026-11-24 after TASK-451's gap (section 4): TASK-467, a Should task.
 - Tasks that serve only Should or Could rows (SPEC-026, SPEC-036 to SPEC-041, SPEC-046 and SPEC-047) come after the Must tasks of their iteration.
 
 The first development task is TASK-413, the server skeleton; questions 1 to 4 were answered at this stage's checkpoint on 2026-11-23.
@@ -75,10 +76,11 @@ The first development task is TASK-413, the server skeleton; questions 1 to 4 we
 | TASK-464 | Deploy v3 and point the push job at it, as the order decision says | SPEC-014, SPEC-015 | none | TASK-432, TASK-449, TASK-463 | Claude worker | M | The stage-12 release gate passed first; the push job's secrets hold a credential v3 issued and v3's address; the owner confirms the first push with push --first (SPEC-002), and a push of this repository then draws on v3 |
 | TASK-465 | Decide whether to delete v2's data once v3 replaces it; if yes, it is deleted as its own step after a backup | SPEC-015 | none | TASK-464 | maintainer | S | The maintainer's answer is in the project's records; nothing is deleted without it, and an approved deletion runs only after a backup of v2 |
 | TASK-466 | Changes from source_text on stages 05 and 07: NEXUS reads a proposal's SQL and YAML itself (TASK-438's gap, section 4) | SPEC-018 | API-256, TBL-158, TBL-159 | TASK-438 | Claude worker | M | With source_text on stage 05 or 07, the differences become changes; NEXUS's reading of this repository's db/nexus.sql and docs/07-sitemap/nexus.yaml matches the pictures the pinned hub made of them, stored in server/test/erd-picture.json and server/test/sitemap-picture.json; every response API-256 lists has a passing test |
+| TASK-467 | Tool status read (Should): read the status of each linked Notion page and Jira project with read-only tokens (TASK-451's gap, section 4) | SPEC-046 | TBL-168 | TASK-451 | Claude worker | M | Each live link's status and the time it was read are kept in TBL-168, read with read-only tokens that only the server's environment holds and never the database; a tool that cannot be read keeps the last known status with the time it was read (REQ-061), and no log line holds a token or a link's address |
 
 ## 3. Open questions
 
-Each has a recommendation. Questions 1 to 4 were asked one by one at this stage's checkpoint and each was answered with its recommendation on 2026-11-23; 5 and 6 are asked of the maintainer directly at their tasks.
+Each has a recommendation. Questions 1 to 4 were asked one by one at this stage's checkpoint and each was answered with its recommendation on 2026-11-23; 5 to 7 are asked of the maintainer directly at their tasks.
 
 1. **Runtime.** Node 24 LTS with its own node:http and node:sqlite and no runtime dependency, behind the gate as v2 ran. The alternative is a Cloudflare Worker with D1, which the schema also fits but which cannot keep backup files beside the server (SPEC-052).
 2. **Screens.** Plain HTML, CSS and JavaScript modules served by the server, with no framework and no build step, as the stage-09 mockup is written. A framework would add build dependencies. A screen task's "matches at both widths" is checked by a browser walk with the agent's own browser tool, recorded in its pull request; a headless browser in the tests would be a development dependency, asked first.
@@ -86,6 +88,7 @@ Each has a recommendation. Questions 1 to 4 were asked one by one at this stage'
 4. **Fonts.** Serve IBM Plex Sans KR and IBM Plex Mono, the two fonts the design tokens use, from the server, from a pinned copy of the font files with their licence (SIL Open Font License 1.1), so that no page loads from another site. The alternative is the system's fonts only.
 5. **Deploy order.** Asked of the maintainer directly at TASK-463, not through the checkpoint delegate, since a production deploy is outside it.
 6. **v2 data.** Asked of the maintainer directly at TASK-465, since a deletion is outside the delegate too.
+7. **Tool tokens.** Asked of the maintainer directly before TASK-467 reads a tool: making read-only Notion and Jira tokens and putting them in the server's environment is outside the delegate.
 
 ## 4. Differences from approved items
 
@@ -93,6 +96,7 @@ Each has a recommendation. Questions 1 to 4 were asked one by one at this stage'
 - SPEC-018's acceptance, "Given a comment asking to rename X, when the agent posts a proposal renaming X to Y, then the owner sees Y over X, marked as proposed", and the contract's `source_text`, "The proposed document, from which NEXUS works out the changes", are met by TASK-438 (pull request 137) on stages 03 and 08 only, where NEXUS draws `source_text` with the diagram's own drawer. The pinned hub's `propose` offers only stages 01, 05 and 07 (`PICTURE_STAGES` in its `commands.py` at e410ce9), so it reaches neither today. On stages 05 and 07 NEXUS draws from the hub's parsed picture and reads no SQL or YAML, so TASK-466 was added for them on 2026-11-24.
 - On stage 01, a proposal's `source_text` is kept but makes no changes, so the owner sees X marked with the change text rather than Y over X. Stage 01's picture comes from several files, and `source_text` names no path; the pinned hub (e410ce9) sends none. This difference stays until a hub change sends the path. It is looked at again at TASK-463, before the deploy, with the hub change and its publication, which are asked of the maintainer directly.
 - The maintainer approved both on 2026-11-24 through the delegate they named for checkpoints, each answered on its own, as this stage's own checkpoint; the answer is in the project's records.
+- SPEC-046 shows "the status last read" from a linked page or project (REQ-058, REQ-061), and no task read it: TASK-451 (pull request 135) links and removes, and every link shows "not read yet", SPEC-046's own exception. TASK-467 was added for the read on 2026-11-24; what the status is for each tool and when the server reads are its own questions. The maintainer approved this on 2026-11-24 through the delegate they named for checkpoints, as this stage's own checkpoint; the answer is in the project's records.
 - This stage removes, defers or changes no other approved item.
 
 ## 5. Notes from the reviews of pull requests 104, 105 and 106
