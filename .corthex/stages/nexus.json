@@ -152,8 +152,8 @@
     "09-mockup": {
       "state": "in_progress",
       "checkpoints": [],
-      "next": "Draft the design tokens and the mockup, starting from the 2026-11-21 mockup; the checkpoint is asked before the documents go to the repository",
-      "updated": "2026-11-23T11:40:00+09:00"
+      "next": "Ask the stage-09 checkpoint: the direction of the 2026-11-21 mockup for the five screens, and freezing the tokens of design/ before development uses them",
+      "updated": "2026-11-23T13:30:00+09:00"
     },
     "10-wbs": {
       "state": "not_started",

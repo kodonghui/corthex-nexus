@@ -60,7 +60,7 @@ As in stage 07, the states start from the mockup's workbench. The work panel's t
 
 ## 5. Wireframes
 
-[wireframes.html](wireframes.html) has one frame per state, at 360 and 1440 pixels, in greys, the system font and placeholder text. The loading frames keep the normal frames' layout. Design tokens come in stage 09.
+[wireframes.html](wireframes.html) has one frame per state, at 360 and 1440 pixels, in greys, the system font and placeholder text. The loading frames keep the normal frames' layout. The design tokens and the mockup with the real copy are stage 09's, in [design/](../../design/README.md).
 
 ## 6. Checkpoint
 
