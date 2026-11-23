@@ -4,11 +4,15 @@
 // value set by mistake can be a secret (rule 5).
 
 import { isIP } from 'node:net';
+import { posix, resolve, win32 } from 'node:path';
 
 const DEFAULTS = Object.freeze({
   // The gate's tunnel reaches the server on the same machine, so it listens on loopback unless told otherwise.
   NEXUS_HOST: '127.0.0.1',
   NEXUS_PORT: '8787',
+  // The data folder has no default: the operator names it, so the server never makes its store in a folder it
+  // guessed (SPEC-015).
+  NEXUS_DATA_DIR: '',
 });
 
 export class SettingsError extends Error {
@@ -30,7 +34,20 @@ export function readSettings(env = process.env) {
   if (!/^[0-9]{1,5}$/.test(port) || Number(port) > 65535) {
     throw new SettingsError('NEXUS_PORT', 'must be a whole number from 0 to 65535');
   }
-  return Object.freeze({ host, port: Number(port) });
+  // The folder of the store, nexus-v3.sqlite (see store.js). An absolute path, so it does not depend on the folder
+  // the server is started from.
+  const dataDirectory = valueOf(env, 'NEXUS_DATA_DIR');
+  if (dataDirectory === '' || dataDirectory.includes('\u0000') || !fullyAbsolute(dataDirectory)) {
+    throw new SettingsError('NEXUS_DATA_DIR', 'must be set to an absolute folder path');
+  }
+  return Object.freeze({ host, port: Number(port), dataDirectory: resolve(dataDirectory) });
+}
+
+// An absolute path that names its drive too: on Windows, \data and /data are absolute but take the drive of the
+// folder the server starts from, so they need a drive letter or a UNC share.
+export function fullyAbsolute(path, platform = process.platform) {
+  const paths = platform === 'win32' ? win32 : posix;
+  return paths.isAbsolute(path) && (platform !== 'win32' || paths.parse(path).root.length > 1);
 }
 
 function valueOf(env, name) {

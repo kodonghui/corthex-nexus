@@ -11,11 +11,11 @@ import { jsonLines } from '../src/log.js';
 
 export const TRACE_ID = /^[0-9a-f]{16}(?:-[A-Z]{3})?$/;
 
-export async function startServer({ routes = [] } = {}) {
+export async function startServer({ routes = [], store = null } = {}) {
   const text = [];
   const stream = { write: (chunk) => text.push(chunk) };
   const settings = Object.freeze({ host: '127.0.0.1', port: 0 });
-  const server = createNexusServer({ settings, routes, log: jsonLines(stream) });
+  const server = createNexusServer({ settings, routes, log: jsonLines(stream), store });
   server.listen(settings.port, settings.host);
   await once(server, 'listening');
   const { port } = server.address();
