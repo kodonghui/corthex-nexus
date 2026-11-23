@@ -14,19 +14,28 @@
 // - The drawing. The diagram shows its latest drawing that drew: the current one, or the last good one when the
 //   current one failed (SPEC-001). The request names that drawing: another drawing of the diagram answers
 //   document_changed with the drawing shown, or the latest when none drew, and its version; a drawing of no drawing of
-//   the diagram answers drawing_not_found.
-// - The element, and a connection's target, are elements of the drawing shown; the one that is not answers
-//   element_not_found with its key.
+//   the diagram answers drawing_not_found. A diagram that never drew shows no element, so an edit of its latest
+//   drawing answers element_not_found.
+// - The element, and a connection's target, are elements of the drawing shown that the document holds; one that is not
+//   answers element_not_found with its key. An element drawn as unreadable (its entry could not be read), missing (an
+//   ERD table that a foreign key names and the schema does not define) or left_out (what a drawer does not draw: an
+//   ERD statement, a sitemap source, a DDD table) has no text a reflection could change, so it is refused as not
+//   there. One drawn as removed is still in its document, and takes edits.
+// - A connection joins two elements of the kinds its picture draws its lines between (JOINS). Any other element or
+//   target is refused with invalid_request on its field, and a picture that draws no line, such as screen states,
+//   refuses a connection with invalid_request on op.
 // - Nothing new answers 200 with no change set:
-//   - a rename to the name the element has: that of the newest waiting rename of it, by when it was made, or else its
-//     name as drawn;
+//   - a rename to the name the element has: that of the waiting rename of it accepted last, or else its name as
+//     drawn;
 //   - a connection that exists: a line of the drawing shown from the element to the target, one whose detail names
 //     them as from and to, as an ERD line, a sitemap line, a user flow's arrow and a DDD dependency do, in the
 //     direction their points run; on an item table, the element's row listing the target's key among its links; or a
 //     step of a waiting change set of the diagram that connects them. The other direction is another connection.
-// - A rename of an element that an open AI proposal also renames is made as any other. Both are listed on the element,
-//   the newer on top (SPEC-022). The reflection applies the waiting change sets oldest first, by when they were made,
-//   so accepting the older proposal later does not undo the direct edit.
+// - A rename of an element that an open AI proposal also renames is made as any other, and the later accepted wins. A
+//   direct edit is accepted when it is made, a proposal when the owner accepts it (decided_at). The diagram read lists
+//   accepted change sets on an element newest accepted on top (SPEC-022, diagram.js), and the reflection applies them
+//   in the order they were accepted, within an entry and across entries (entries.js's heldChangeSets), so the page
+//   shows the name the reflection will leave.
 // Waiting means accepted and not yet reflected.
 //
 // API-273 cancels a direct edit that is not reflected (SPEC-023): the change set is marked cancelled and leaves the
@@ -36,14 +45,16 @@
 //   removeFromPullRequest asks the agent to take it out, and the answer's pull_request names that pull request. In a
 //   pull request that merged before it was reflected, it is cancelled with no removal: the drawing will show the
 //   change, and the owner comments to undo it, as when the pull request merges after the cancel.
-// - Cancelled again, it answers the same with changed false.
-// - Reflected, it is refused: change_set_state with its state. So is an AI proposal, which the owner answers and does
-//   not cancel (API-270, API-271): the page offers Cancel edit on a direct edit only.
+// - Cancelled again, it answers the same with changed false; pull_request names the pull request while it is open.
+// - Reflected, or in any state but accepted and cancelled, it is refused: change_set_state with its state. So is an AI
+//   proposal, which the owner answers and does not cancel (API-270, API-271): the page offers Cancel edit on a direct
+//   edit only.
 // - A removed diagram's direct edit is cancelled like any other (note 8 of the WBS): SPEC-027 refuses a new thread, a
 //   move, a direct edit, accepting a proposal and confirming, and a cancel only takes a change out.
 
 import { isElementKey, writeSteps } from './changes.js';
 import { pullRequestLink } from './claims.js';
+import { characters } from './drawer.js';
 import { changeSetsChanged, removeFromPullRequest } from './entries.js';
 import { idOf, keyOf } from './ids.js';
 import { LIMITS } from './limits.js';
@@ -57,6 +68,18 @@ const MOCKUP_STAGE = '09-mockup';
 const DRAWING_ID = /^dw_[0-9a-hjkmnp-tv-z]{12}$/;
 const OPS = Object.freeze(['rename', 'connect']);
 const FIELDS = new Set(['drawing', 'op', 'element', 'name', 'target']);
+// The kinds each picture draws its lines between, which a connection joins (SPEC-021): an ERD's tables, a sitemap's
+// screens, a user flow's boxes of every shape, a DDD board's contexts and external systems, and an item table's rows.
+// A picture not named draws no line.
+const JOINS = new Map([
+  ['erd', new Set(['table'])],
+  ['sitemap', new Set(['screen'])],
+  ['user_flow', new Set(['terminal', 'step', 'decision', 'document', 'store', 'llm', 'grading'])],
+  ['ddd_board', new Set(['context', 'external'])],
+  ['item_table', new Set(['row'])],
+]);
+// The statuses of an element whose document does not hold it as drawn (see the top of this file).
+const GONE = new Set(['unreadable', 'missing', 'left_out']);
 
 // The statements of each store, prepared on first use (see credentials.js).
 const prepared = new WeakMap();
@@ -75,7 +98,7 @@ function statementsOf(store) {
       lastDrawn: store.prepare(
         "SELECT id, status, document_version FROM drawings WHERE diagram_id = ? AND status = 'drawn' ORDER BY id DESC LIMIT 1",
       ),
-      element: store.prepare('SELECT name, detail FROM elements WHERE drawing_id = ? AND element_key = ?'),
+      element: store.prepare('SELECT kind, name, status, detail FROM elements WHERE drawing_id = ? AND element_key = ?'),
       line: store.prepare(
         `SELECT 1 AS found FROM elements WHERE drawing_id = ?
          AND json_type(detail, '$.from') = 'text' AND json_extract(detail, '$.from') = ?
@@ -87,7 +110,8 @@ function statementsOf(store) {
       ),
       waitingName: store.prepare(
         `SELECT x.new_name FROM changes x JOIN change_sets c ON c.id = x.change_set_id
-         WHERE ${WAITING} AND x.op = 'rename' AND x.element_key = ? ORDER BY c.created_at DESC, c.id DESC, x.seq DESC LIMIT 1`,
+         WHERE ${WAITING} AND x.op = 'rename' AND x.element_key = ?
+         ORDER BY coalesce(c.decided_at, c.created_at) DESC, c.id DESC, x.seq DESC LIMIT 1`,
       ),
       insert: store.prepare(
         `INSERT INTO change_sets (project_id, diagram_id, drawing_id, origin, state, created_at, decided_at)
@@ -104,7 +128,6 @@ function statementsOf(store) {
 }
 
 const timeOf = (now) => new Date(now()).toISOString();
-const characters = (text) => [...text].length;
 
 function projectOf(statements, name) {
   const row = statements.project.get(name);
@@ -164,18 +187,27 @@ function editableDiagram(statements, project, id) {
   return { id: Number(row.id), kind: row.kind };
 }
 
-// The drawing the diagram shows, which the edit names: its key. Another drawing of the diagram is refused with
-// document_changed, naming the drawing shown; one that is not the diagram's, with drawing_not_found.
+// The drawing the diagram shows, which the edit names: its key, or null when the diagram never drew and so shows no
+// element. Another drawing of the diagram is refused with document_changed, naming the drawing shown, or the latest
+// when none drew; one that is not the diagram's, with drawing_not_found.
 function shownDrawing(statements, diagram, id) {
   const key = keyOf('dw', id);
   if (key === null || statements.drawing.get(key, diagram.id) === undefined) throw new Problem('drawing_not_found');
   const current = statements.current.get(diagram.id);
   const shown = current.status === 'drawn' ? current : statements.lastDrawn.get(diagram.id) ?? null;
-  if (shown === null || Number(shown.id) !== key) {
-    const named = shown ?? current;
+  const named = shown ?? current;
+  if (Number(named.id) !== key) {
     throw new Problem('document_changed', undefined, {}, { drawing: idOf('dw', Number(named.id)), version: named.document_version });
   }
-  return key;
+  return shown === null ? null : key;
+}
+
+// An element of the drawing shown, which the document holds (see the top of this file): its row, or element_not_found
+// with its key. drawing is null when the diagram never drew, and shows no element.
+function elementOf(statements, drawing, key) {
+  const row = drawing === null ? undefined : statements.element.get(drawing, key);
+  if (row === undefined || GONE.has(row.status)) throw new Problem('element_not_found', undefined, {}, { element: key });
+  return row;
 }
 
 // Whether a row of an item table lists the key among its links (detail.links), as its source gives them.
@@ -200,11 +232,14 @@ function makeDirectEdit({ store, params, body, now }) {
   const statements = statementsOf(store);
   const project = projectOf(statements, params.project);
   const diagram = editableDiagram(statements, project, params.diagram);
+  const joins = JOINS.get(diagram.kind);
+  if (edit.op === 'connect' && joins === undefined) throw invalidRequest('op', 'this diagram draws no line to connect');
   const drawing = shownDrawing(statements, diagram, edit.drawing);
-  const drawn = statements.element.get(drawing, edit.element);
-  if (drawn === undefined) throw new Problem('element_not_found', undefined, {}, { element: edit.element });
-  if (edit.op === 'connect' && statements.element.get(drawing, edit.target) === undefined) {
-    throw new Problem('element_not_found', undefined, {}, { element: edit.target });
+  const drawn = elementOf(statements, drawing, edit.element);
+  if (edit.op === 'connect') {
+    const target = elementOf(statements, drawing, edit.target);
+    if (!joins.has(drawn.kind)) throw invalidRequest('element', 'this element takes no connection');
+    if (!joins.has(target.kind)) throw invalidRequest('target', 'this element takes no connection');
   }
   if (changesNothing(statements, diagram, drawing, edit, drawn)) return { body: { change_set: null, created: false } };
   const time = timeOf(now);
@@ -225,17 +260,19 @@ function cancelDirectEdit({ store, params, body, now }) {
   if (row.origin !== 'direct_edit') {
     throw new Problem('change_set_state', 'an AI proposal is answered, not cancelled', {}, { state: row.state });
   }
-  if (row.state === 'reflected') throw new Problem('change_set_state', 'the change set is reflected', {}, { state: row.state });
+  if (row.state !== 'accepted' && row.state !== 'cancelled') {
+    throw new Problem('change_set_state', `the change set is ${row.state}`, {}, { state: row.state });
+  }
   const pullRequest = row.pull_request_id === null ? undefined : statements.pullRequest.get(Number(row.pull_request_id));
   const link = pullRequest === undefined ? null : pullRequestLink(project.repository, Number(pullRequest.number));
+  const inOpen = pullRequest?.state === 'open';
   if (row.state === 'cancelled') {
-    const removed = statements.removal.get(key) !== undefined;
+    const removed = inOpen && statements.removal.get(key) !== undefined;
     return { body: { change_set: changeSetOf(store, project, key), changed: false, pull_request: removed ? link : null } };
   }
   const time = timeOf(now);
   const diagram = Number(row.diagram_id);
   statements.cancel.run(key);
-  const inOpen = pullRequest?.state === 'open';
   if (inOpen) removeFromPullRequest(store, { project: project.id, diagram, changeSet: key, time });
   changeSetsChanged(store, { project: project.id, diagram, time });
   return { body: { change_set: changeSetOf(store, project, key), changed: true, pull_request: inOpen ? link : null } };

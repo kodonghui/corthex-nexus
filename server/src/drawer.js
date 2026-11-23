@@ -11,6 +11,8 @@ import { layout } from './layout.js';
 // The contract's limits: a drawing's elements, an element key, a trace ID and a failure's where; and a trace ID's form.
 export const MAX_ELEMENTS = 5000;
 export const MAX_KEY = 200;
+// The form of an element key and a parent key (drawing.js), and of a step's element and target (changes.js).
+export const ELEMENT_KEY = /^\S(?:.*\S)?$/;
 export const MAX_TRACE_ID = 30;
 export const MAX_WHERE = 300;
 export const TRACE_ID = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;

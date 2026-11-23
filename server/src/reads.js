@@ -101,7 +101,7 @@ function statementsOf(store) {
       anchorOf: store.prepare('SELECT pull_request_id FROM change_sets WHERE id = ?'),
       reflectedIn: store.prepare(
         `SELECT id FROM change_sets WHERE diagram_id = ? AND project_id = ? AND state = 'reflected' AND pull_request_id = ?
-         ORDER BY id LIMIT ${HELD}`,
+         ORDER BY coalesce(decided_at, created_at), id LIMIT ${HELD}`,
       ),
       pullRequest: store.prepare('SELECT number, state, merge_commit FROM pull_requests WHERE id = ?'),
       claim: store.prepare(

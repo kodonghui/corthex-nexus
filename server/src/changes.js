@@ -13,17 +13,14 @@
 // removed element. writeSteps holds a step to the contract's Change and the schema's checks; a request is checked
 // before it comes here, so a step that breaks them is a fault, not a refusal.
 
-import { MAX_KEY } from './drawer.js';
+import { characters, ELEMENT_KEY, MAX_KEY } from './drawer.js';
 import { LIMITS } from './limits.js';
 
 // The contract's Change.op.
 export const STEP_KINDS = Object.freeze(['rename', 'connect', 'add', 'remove']);
 
-// The contract's ElementKey: 1 to 200 characters, with no white space at either end and no line break.
-export const ELEMENT_KEY = /^\S(?:.*\S)?$/;
-
-const characters = (text) => [...text].length;
-
+// The contract's ElementKey: 1 to 200 characters, with no white space at either end and no line break, as the drawer
+// keeps an element's key (drawer.js).
 export function isElementKey(value) {
   return typeof value === 'string' && value.isWellFormed() && characters(value) <= MAX_KEY && ELEMENT_KEY.test(value);
 }

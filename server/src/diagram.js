@@ -13,9 +13,10 @@
 //   SPEC-012), else the top left corner of its box, else null, as for a token, a line or an entry left out. A row of an
 //   item table gives each link as { id, name }, its name from the project's latest item documents (item-table.js's
 //   itemNames), '' when none is found, so the page shows its ID (SPEC-010).
-// - overlays: the AI proposals and accepted change sets of the diagram (TBL-158, TBL-159), newest first (SPEC-022),
-//   each with its pull request (TBL-157) and, once accepted, the reflection entry of the agent to-do that holds it
-//   (TBL-166).
+// - overlays: the AI proposals and accepted change sets of the diagram (TBL-158, TBL-159), newest first (SPEC-022): an
+//   accepted one by when it was accepted (decided_at), the order the reflection applies them in (entries.js), so the
+//   later accepted is on top (TASK-445), and a proposal by when it was made. Each comes with its pull request (TBL-157)
+//   and, once accepted, the reflection entry of the agent to-do that holds it (TBL-166).
 // - since_confirmation: what changed from the drawing of the diagram's latest confirmation, whatever its state, to the
 //   drawing it shows (SPEC-034); null when it was never confirmed. confirmation: that latest confirmation (TBL-160).
 // - threads: the diagram's threads (TBL-155), open ones first, then closed, each oldest first, with how many entries
@@ -105,7 +106,7 @@ function statementsOf(store) {
                 json_type(c.detail, '$.source_text') = 'text' AS source_text
          FROM change_sets c JOIN drawings w ON w.id = c.drawing_id LEFT JOIN pull_requests p ON p.id = c.pull_request_id
          WHERE c.diagram_id = ? AND ${LISTED_SETS}
-         ORDER BY c.created_at DESC, c.id DESC LIMIT ${LISTED_OVERLAYS}`,
+         ORDER BY coalesce(c.decided_at, c.created_at) DESC, c.id DESC LIMIT ${LISTED_OVERLAYS}`,
       ),
       // The steps of the listed change sets only, at most LISTED_CHANGES of each, in order.
       changes: store.prepare(
@@ -114,7 +115,7 @@ function statementsOf(store) {
                   row_number() OVER (PARTITION BY x.change_set_id ORDER BY x.seq) AS n
            FROM changes x
            WHERE x.change_set_id IN (SELECT c.id FROM change_sets c WHERE c.diagram_id = ? AND ${LISTED_SETS}
-                                     ORDER BY c.created_at DESC, c.id DESC LIMIT ${LISTED_OVERLAYS}))
+                                     ORDER BY coalesce(c.decided_at, c.created_at) DESC, c.id DESC LIMIT ${LISTED_OVERLAYS}))
          WHERE n <= ${LISTED_CHANGES} ORDER BY change_set_id, seq`,
       ),
       // The open reflection entries of the diagram, oldest first, with the pull request of the group each holds: its

@@ -87,7 +87,8 @@ function statementsOf(store) {
         "SELECT id, kind, diagram_id, thread_id, change_set_id, confirmation_id, created_at FROM todos WHERE confirmation_id = ? AND project_id = ? AND kind IN ('record_confirmation', 'record_cancel') AND closed_at IS NULL",
       ),
       group: store.prepare(
-        "SELECT id FROM change_sets WHERE diagram_id = ? AND project_id = ? AND state = 'accepted' AND pull_request_id IS ? ORDER BY id",
+        `SELECT id FROM change_sets WHERE diagram_id = ? AND project_id = ? AND state = 'accepted' AND pull_request_id IS ?
+         ORDER BY coalesce(decided_at, created_at), id`,
       ),
       anchorOf: store.prepare('SELECT pull_request_id FROM change_sets WHERE id = ?'),
     };
@@ -376,9 +377,10 @@ export function openAgentEntry(store, { project, prefix, key }) {
   return row ?? null;
 }
 
-// The change sets an entry of kind reflect or remove_from_pr holds, oldest first, and the key of their pull request
-// or null: { changeSets, pullRequest } (API-245, API-248, API-258). entry is the entry's row, with its project,
-// diagram_id, kind and change_set_id.
+// The change sets an entry of kind reflect or remove_from_pr holds, in the order they were accepted (decided_at; a
+// direct edit is accepted when it is made), which a reflection applies them in, so the later accepted wins (TASK-445);
+// and the key of their pull request or null: { changeSets, pullRequest } (API-245, API-248, API-258). entry is the
+// entry's row, with its project, diagram_id, kind and change_set_id.
 export function heldChangeSets(store, { project, entry }) {
   checkKey(project, 'project');
   const statements = statementsOf(store);

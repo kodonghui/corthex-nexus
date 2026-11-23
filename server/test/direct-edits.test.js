@@ -26,6 +26,8 @@ const JSON_TYPE = { 'Content-Type': 'application/json' };
 const MiB = 1024 * 1024;
 // The server's clock: every change set it makes is made at NOW, a day after the seeded rows.
 const NOW = '2026-11-24T02:00:00.000Z';
+// When the owner accepts a proposal after the server's direct edits, as API-270 will.
+const LATER = '2026-11-24T03:00:00.000Z';
 // A table of the ERD as its drawer draws one, and a line from one table to the table it references.
 const table = (id, name) => ({ key: id, trace_id: id, kind: 'table', name, detail: { columns: [] } });
 const line = (from, to) => ({ key: `line:${from}>${to}`, kind: 'line', name: 'id', parent: from, detail: { from, to, points: [] } });
@@ -58,6 +60,8 @@ describe('direct edits', () => {
   const keyOf = (id) => Number(db.prepare('SELECT id FROM change_sets ORDER BY id DESC').all().find((row) => idOf('np', Number(row.id)) === id).id);
   const rows = (table) => db.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all();
   const dump = () => JSON.stringify(['change_sets', 'changes', 'todos'].map(rows));
+  // The owner accepts a proposal at a time, as API-270 will (TASK-438).
+  const accept = (changeSet, at) => db.prepare("UPDATE change_sets SET state = 'accepted', decided_at = ? WHERE id = ?").run(at, changeSet);
 
   // A project with an ERD of three tables and a line from TBL-147 to TBL-146: { space, erd }.
   function erdProject(name = `erd-${randomBytes(3).toString('hex')}`) {
@@ -204,9 +208,9 @@ describe('direct edits', () => {
     const space = s.project();
     const items = s.diagram(space, { stage: '04-functional-spec', sourceKey: '/items/04-functional-spec', kind: 'item_table', name: 'Spec' });
     s.elements(items.drawing, [
-      { key: 'SPEC-021', trace_id: 'SPEC-021', kind: 'item', name: 'Rename or connect directly', detail: { status: 'active', links: ['REQ-026', 'SPEC-022'] } },
-      { key: 'SPEC-022', trace_id: 'SPEC-022', kind: 'item', name: 'Show what waits for reflection', detail: { status: 'active', links: [] } },
-      { key: 'SPEC-023', trace_id: 'SPEC-023', kind: 'item', name: 'Cancel a direct edit', detail: { status: 'active', links: ['SPEC-021'] } },
+      { key: 'SPEC-021', trace_id: 'SPEC-021', kind: 'row', name: 'Rename or connect directly', detail: { status: 'active', links: ['REQ-026', 'SPEC-022'] } },
+      { key: 'SPEC-022', trace_id: 'SPEC-022', kind: 'row', name: 'Show what waits for reflection', detail: { status: 'active', links: [] } },
+      { key: 'SPEC-023', trace_id: 'SPEC-023', kind: 'row', name: 'Cancel a direct edit', detail: { status: 'active', links: ['SPEC-021'] } },
     ]);
     // SPEC-021 lists SPEC-022, and SPEC-023 lists SPEC-021.
     assert.equal((await edit(space.name, items.id, connect(items.drawing, 'SPEC-021', 'SPEC-022'))).status, 200);
@@ -219,7 +223,7 @@ describe('direct edits', () => {
     assert.deepEqual([outside.status, outside.json.code, outside.json.element], [404, 'element_not_found', 'REQ-026']);
   });
 
-  test('a rename to the name the element has makes no change set; that name is the newest waiting rename\'s', async () => {
+  test('a rename to the name the element has makes no change set; that name is the waiting rename\'s accepted last', async () => {
     const { space, erd } = erdProject();
     const same = await edit(space.name, erd.id, rename(erd.drawing, 'TBL-146', 'agent_credentials'));
     assert.deepEqual([same.status, same.json], [200, { change_set: null, created: false }]);
@@ -238,7 +242,7 @@ describe('direct edits', () => {
     assert.equal(spaced.json.change_set.changes[0].name, ' snapshot rows ');
   });
 
-  test('a rename of an element an open AI proposal also renames is made as any other; accepting the proposal later does not undo it', async () => {
+  test('a rename of an element an open AI proposal also renames is made as any other; the later accepted wins', async () => {
     const { space, erd } = erdProject();
     const thread = s.thread(erd, { elementKey: 'TBL-146' });
     // The proposal, made a day before the direct edit.
@@ -248,17 +252,104 @@ describe('direct edits', () => {
     const made = await edit(space.name, erd.id, rename(erd.drawing, 'TBL-146', 'agent_keys'));
     assert.equal(made.status, 201);
     // Both lie over the element, the newer on top, and the proposal still waits on the owner (SPEC-022).
-    const overlays = (await read(space.name, erd.id)).overlays;
+    let overlays = (await read(space.name, erd.id)).overlays;
     assert.deepEqual(overlays.map((overlay) => [overlay.id, overlay.state]), [[made.json.change_set.id, 'accepted'], [idOf('np', proposal), 'proposed']]);
     assert.ok(openEntries(db, space.id).some((entry) => entry.kind === 'proposal' && entry.change_set_id === proposal));
-    // The owner accepts the proposal afterwards, as API-270 will: the reflection lists both oldest first, so the
-    // direct edit's name is applied last and is the name the element has.
-    s.setChangeSet(proposal, { state: 'accepted' });
-    changeSetsChanged(db, { project: space.id, diagram: erd.id, time: NOW });
+    // The owner accepts the proposal after the direct edit: the later accepted, it is on top now, and the reflection
+    // entry that holds both lists it last, so its name is the one the reflection leaves.
+    accept(proposal, LATER);
+    changeSetsChanged(db, { project: space.id, diagram: erd.id, time: LATER });
+    overlays = (await read(space.name, erd.id)).overlays;
+    assert.deepEqual(overlays.map((overlay) => [overlay.id, overlay.state]), [[idOf('np', proposal), 'accepted'], [made.json.change_set.id, 'accepted']]);
     const held = await server.send({ path: `/api/spaces/${space.name}/edits/${made.json.change_set.reflection}`, headers: s.agent.headers });
-    assert.deepEqual(held.json.change_sets, [idOf('np', proposal), made.json.change_set.id]);
-    assert.equal((await edit(space.name, erd.id, rename(erd.drawing, 'TBL-146', 'agent_keys'))).status, 200);
-    assert.equal((await edit(space.name, erd.id, rename(erd.drawing, 'TBL-146', 'credentials'))).status, 201);
+    assert.deepEqual(held.json.change_sets, [made.json.change_set.id, idOf('np', proposal)]);
+    // So the name the element has is the proposal's.
+    assert.deepEqual((await edit(space.name, erd.id, rename(erd.drawing, 'TBL-146', 'credentials'))).json, { change_set: null, created: false });
+  });
+
+  test('across reflection entries the later accepted wins too: a proposal accepted while the edit is in a pull request is reflected after it', async () => {
+    const { space, erd } = erdProject();
+    const thread = s.thread(erd, { elementKey: 'TBL-146' });
+    const proposal = s.changeSet(space, erd, { origin: 'proposal', threadId: thread });
+    s.change(proposal, { op: 'rename', element: 'TBL-146', name: 'credentials' });
+    changeSetsChanged(db, { project: space.id, diagram: erd.id, time: '2026-11-23T01:00:00.000Z' });
+    const made = await edit(space.name, erd.id, rename(erd.drawing, 'TBL-146', 'agent_keys'));
+    const set = keyOf(made.json.change_set.id);
+    // The agent opens a reflection pull request with the direct edit.
+    s.setChangeSet(set, { pullRequestId: s.pullRequest(space, { number: 5 }) });
+    changeSetsChanged(db, { project: space.id, diagram: erd.id, time: NOW });
+    // The owner then accepts the proposal. It waits in a later entry, which the agent to-do lists after the one in
+    // the pull request, so it is reflected after it, and it is on top of the element meanwhile.
+    accept(proposal, LATER);
+    changeSetsChanged(db, { project: space.id, diagram: erd.id, time: LATER });
+    const reflections = openEntries(db, space.id).filter((entry) => entry.kind === 'reflect');
+    assert.deepEqual(reflections.map((entry) => entry.change_set_id), [set, proposal]);
+    const overlays = (await read(space.name, erd.id)).overlays;
+    assert.deepEqual(overlays.map((overlay) => overlay.id), [idOf('np', proposal), made.json.change_set.id]);
+    assert.deepEqual((await edit(space.name, erd.id, rename(erd.drawing, 'TBL-146', 'credentials'))).json, { change_set: null, created: false });
+  });
+
+  test('an element drawn as unreadable, missing or left out takes no direct edit; one drawn as removed does', async () => {
+    const space = s.project();
+    const erd = s.diagram(space);
+    s.elements(erd.drawing, [
+      table('TBL-146', 'agent_credentials'),
+      { ...table('TBL-150', 'snapshot_files'), status: 'unreadable' },
+      { ...table('TBL-999', 'gone_rows'), status: 'missing' },
+      { key: 'statement:view', kind: 'statement', name: 'a view', status: 'left_out' },
+    ]);
+    const was = dump();
+    for (const key of ['TBL-150', 'TBL-999', 'statement:view']) {
+      const renamed = await edit(space.name, erd.id, rename(erd.drawing, key, 'x'));
+      assert.deepEqual([renamed.status, renamed.json.code, renamed.json.element], [404, 'element_not_found', key]);
+      const connected = await edit(space.name, erd.id, connect(erd.drawing, 'TBL-146', key));
+      assert.deepEqual([connected.status, connected.json.code, connected.json.element], [404, 'element_not_found', key]);
+    }
+    assert.equal(dump(), was);
+    // A context the domain document marks removed is still in it.
+    const board = s.diagram(space, { stage: '01-domain', sourceKey: '/pictures/01-domain', kind: 'ddd_board', name: 'Board' });
+    s.elements(board.drawing, [{ key: 'CTX-030', trace_id: 'CTX-030', kind: 'context', name: 'Old intake', status: 'removed' }]);
+    assert.equal((await edit(space.name, board.id, rename(board.drawing, 'CTX-030', 'Older intake'))).status, 201);
+  });
+
+  test('a connection joins the kinds its picture draws lines between; a picture with no line takes none', async () => {
+    const { space, erd } = erdProject();
+    const refused = (answer, field) => assert.deepEqual([answer.status, answer.json.code, answer.json.field], [400, 'invalid_request', field]);
+    // An ERD joins tables: a line is neither end of a connection.
+    refused(await edit(space.name, erd.id, connect(erd.drawing, 'line:TBL-147>TBL-146', 'TBL-148')), 'element');
+    refused(await edit(space.name, erd.id, connect(erd.drawing, 'TBL-148', 'line:TBL-147>TBL-146')), 'target');
+    // A sitemap joins screens, and its line from a screen to the next one is a connection that exists.
+    const sitemap = s.diagram(space, { stage: '07-sitemap', sourceKey: '/pictures/07-sitemap', kind: 'sitemap', name: 'Sitemap' });
+    s.elements(sitemap.drawing, [
+      { key: 'SCR-141', trace_id: 'SCR-141', kind: 'screen', name: 'Projects' },
+      { key: 'SCR-145', trace_id: 'SCR-145', kind: 'screen', name: 'Workbench', parent: 'SCR-141' },
+      { key: 'line:SCR-145', kind: 'line', name: 'SCR-145', parent: 'SCR-141', detail: { from: 'SCR-141', to: 'SCR-145', points: [] } },
+    ]);
+    assert.equal((await edit(space.name, sitemap.id, connect(sitemap.drawing, 'SCR-141', 'SCR-145'))).status, 200);
+    assert.equal((await edit(space.name, sitemap.id, connect(sitemap.drawing, 'SCR-145', 'SCR-141'))).status, 201);
+    // A user flow joins its boxes of every shape, and no lane.
+    const flow = s.diagram(space, { stage: '03-user-flow', sourceKey: 'docs/03-user-flow/joins.md', kind: 'user_flow', name: 'Flow' });
+    s.elements(flow.drawing, [
+      { key: 'lane:owner', kind: 'lane', name: 'Owner' },
+      { key: 'start', kind: 'terminal', name: 'Start', parent: 'lane:owner' },
+      { key: 'ask', kind: 'decision', name: 'Signed in?', parent: 'lane:owner' },
+    ]);
+    assert.equal((await edit(space.name, flow.id, connect(flow.drawing, 'start', 'ask'))).status, 201);
+    refused(await edit(space.name, flow.id, connect(flow.drawing, 'lane:owner', 'start')), 'element');
+    // A DDD board joins contexts and external systems, and no event.
+    const board = s.diagram(space, { stage: '01-domain', sourceKey: '/pictures/01-domain', kind: 'ddd_board', name: 'Board' });
+    s.elements(board.drawing, [
+      { key: 'CTX-036', trace_id: 'CTX-036', kind: 'context', name: 'Intake' },
+      { key: 'external:GitHub', kind: 'external', name: 'GitHub' },
+      { key: 'event:pushed', kind: 'event', name: 'Snapshot pushed', parent: 'CTX-036' },
+    ]);
+    assert.equal((await edit(space.name, board.id, connect(board.drawing, 'CTX-036', 'external:GitHub'))).status, 201);
+    refused(await edit(space.name, board.id, connect(board.drawing, 'CTX-036', 'event:pushed')), 'target');
+    // Screen states draw no line: a connection is refused on op, and a rename is taken.
+    const states = s.diagram(space, { stage: '08-screen-states', sourceKey: 'docs/08-screens/SCR-145.md', kind: 'screen_states', name: 'States' });
+    s.elements(states.drawing, [{ key: 'normal', kind: 'state', name: 'Normal' }, { key: 'empty', kind: 'state', name: 'Empty' }]);
+    refused(await edit(space.name, states.id, connect(states.drawing, 'normal', 'empty')), 'op');
+    assert.equal((await edit(space.name, states.id, rename(states.drawing, 'empty', 'No diagrams'))).status, 201);
   });
 
   test('refuses a body that is not a DirectEdit, naming the field and never its value', async () => {
@@ -354,10 +445,16 @@ describe('direct edits', () => {
     assert.deepEqual([refused.status, refused.json.code, refused.json.drawing], [409, 'document_changed', idOf('dw', second)]);
     const made = await edit(space.name, erd.id, rename(second, 'TBL-146', 'x'));
     assert.deepEqual([made.status, made.json.change_set.drawing], [201, idOf('dw', second)]);
-    // A diagram that never drew shows none: its drawing is refused, naming its latest.
+    // A diagram that never drew shows no element: its latest drawing takes no edit, with element_not_found rather than
+    // a document_changed naming the same drawing again, and an older one is refused, naming the latest.
     const never = s.diagram(space, { stage: '07-sitemap', sourceKey: '/pictures/07-sitemap', kind: 'sitemap', name: 'Sitemap', status: 'failed' });
+    s.elements(never.drawing, [{ key: 'SCR-142', trace_id: 'SCR-142', kind: 'screen', name: 'Workbench' }]);
     const none = await edit(space.name, never.id, rename(never.drawing, 'SCR-142', 'x'));
-    assert.deepEqual([none.status, none.json.code, none.json.drawing], [409, 'document_changed', idOf('dw', never.drawing)]);
+    assert.deepEqual([none.status, none.json.code, none.json.element], [404, 'element_not_found', 'SCR-142']);
+    s.snapshot(space);
+    const later = s.drawing(space, never.id, { status: 'failed' });
+    const older = await edit(space.name, never.id, rename(never.drawing, 'SCR-142', 'x'));
+    assert.deepEqual([older.status, older.json.code, older.json.drawing], [409, 'document_changed', idOf('dw', later)]);
   });
 
   test('a direct edit in an open reflection pull request is cancelled all the same, and the agent takes it out (SPEC-023)', async () => {
@@ -383,6 +480,10 @@ describe('direct edits', () => {
     const again = await cancel(space.name, made.json.change_set.id);
     assert.deepEqual(again.json, { ...cancelled.json, changed: false });
     assert.equal(db.prepare("SELECT count(*) AS n FROM todos WHERE kind = 'remove_from_pr'").get().n, 1);
+    // Once that pull request is closed, it is no longer the open one the agent is asked to take it out of.
+    db.prepare("UPDATE pull_requests SET state = 'closed', closed_at = ? WHERE id = ?").run(NOW, pull);
+    const closed = await cancel(space.name, made.json.change_set.id);
+    assert.deepEqual([closed.status, closed.json.changed, closed.json.pull_request], [200, false, null]);
 
     // In a pull request that merged before it was reflected, it is cancelled with no removal: the drawing will show it.
     const merged = await edit(space.name, erd.id, rename(erd.drawing, 'TBL-147', 'spaces'));
@@ -432,6 +533,10 @@ describe('direct edits', () => {
     s.setChangeSet(set, { reflectedDrawing: erd.drawing });
     const reflected = await cancel(space.name, made.json.change_set.id);
     assert.deepEqual([reflected.status, reflected.json.code, reflected.json.state], [409, 'change_set_state', 'reflected']);
+    // A direct edit in any other state is refused with it, as the contract's example of a rejected one is.
+    const rejected = s.changeSet(space, erd, { origin: 'direct_edit', state: 'rejected' });
+    const refused = await cancel(space.name, idOf('np', rejected));
+    assert.deepEqual([refused.status, refused.json.code, refused.json.state, refused.json.detail], [409, 'change_set_state', 'rejected', 'the change set is rejected']);
     // An AI proposal is answered, not cancelled, in whatever state it is.
     const thread = s.thread(erd);
     for (const state of ['proposed', 'accepted', 'rejected', 'cancelled']) {
