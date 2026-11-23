@@ -2,7 +2,7 @@
 
 [한국어](README.ko.md)
 
-Status: a draft for the stage-08 checkpoint.
+Status: passed on 2026-11-23.
 
 Inputs: the sitemap (stage 07, five screens), the functional spec (stage 04), the API contract (stage 06, its responses and error codes), and, as in stage 07, the click mockup of 2026-11-21, kept in the project's records, as the starting point. One definition file per screen; states are written as `SCR-142#empty`.
 
@@ -69,3 +69,5 @@ The screen definitions are approved before implementation. This stage removes, d
 | Item | Approved text | This stage's reading | Why |
 | --- | --- | --- | --- |
 | SPEC-051 | Confirming, answering proposals, direct edits and moving → not offered, with a note to use a PC. | A phone does not offer issuing or revoking agent credentials, linking tools or deleting a project space either. | Stage-01 hotspot 5 was answered "view and comment only" for a phone (REQ-068); SPEC-051 names four actions and leaves these three unnamed. The secret shows only once (SPEC-049) and a deletion cannot be undone, so both stay with the PC. |
+
+Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
