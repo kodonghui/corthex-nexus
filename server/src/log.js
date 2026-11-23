@@ -1,0 +1,55 @@
+// The server's log: one JSON line per request, and a line when the server starts, stops or crashes.
+//
+// Rule 5 of the functional spec: no log line holds an agent credential's secret, a credential digest, a sign-in
+// token, a server path or the text of a refused file. Every field below is built by the server from values it
+// checks, never copied from the request (its path, query, headers or body) or from an error's message or stack.
+
+import { randomBytes } from 'node:crypto';
+
+// The gate's CF-Ray, as the contract's traceId pattern allows: 16 hex digits and the data centre's code.
+const CF_RAY = /^[0-9a-f]{16}-[A-Z]{3}$/;
+const METHOD = /^[A-Z][A-Z-]{0,19}$/;
+const ERROR_NAMES = new Set([
+  'Error', 'AggregateError', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError',
+]);
+// Node's own error codes, such as ENOENT or ERR_INVALID_ARG_TYPE.
+const ERROR_CODE = /^(?:E[A-Z0-9]{1,20}|ERR_[A-Z0-9_]{1,60})$/;
+
+// The ID of one request in the log and in its Problem answer: the gate's CF-Ray when it has the right form,
+// otherwise 16 random hex digits.
+export function traceIdFor(headers) {
+  const ray = headers['cf-ray'];
+  return typeof ray === 'string' && CF_RAY.test(ray) ? ray : randomBytes(8).toString('hex');
+}
+
+export function methodOf(method) {
+  return typeof method === 'string' && METHOD.test(method) ? method : 'OTHER';
+}
+
+// What kind of error it was, from the built-in error types and Node's codes only.
+export function errorKind(error) {
+  const name = error?.constructor?.name;
+  const kind = ERROR_NAMES.has(name) ? name : 'Error';
+  const code = error?.code;
+  return typeof code === 'string' && ERROR_CODE.test(code) ? `${kind} ${code}` : kind;
+}
+
+// Writes each entry as one line of JSON.
+export function jsonLines(stream = process.stdout) {
+  return (entry) => {
+    stream.write(`${JSON.stringify(entry)}\n`);
+  };
+}
+
+// Replaces Node's report of an uncaught error, which prints the stack and so the server's paths, with one line.
+export function logCrashes(target, log, exit = (code) => target.exit(code)) {
+  const crashed = (error) => {
+    try {
+      log({ time: new Date().toISOString(), event: 'crashed', error: errorKind(error) });
+    } finally {
+      exit(1);
+    }
+  };
+  target.on('uncaughtException', crashed);
+  target.on('unhandledRejection', crashed);
+}

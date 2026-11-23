@@ -25,12 +25,13 @@ NEXUS v3 is rebuilt from stage 01 in this repository, starting on 2026-11-22. v2
 
 ## Checks
 
-Use Python 3.12 or later, Git and Bash. Prepare a clean checkout of the exact hub pin outside this checkout and set `CORTHEX_HUB_CHECKOUT` to it; the tests fetch nothing. Run before every commit:
+Use Python 3.12 or later, Node 24, Git and Bash. Prepare a clean checkout of the exact hub pin outside this checkout and set `CORTHEX_HUB_CHECKOUT` to it; the tests fetch nothing. Run before every commit:
 
 ```sh
 python tools/fetch_hub_ref.py --destination <path-outside-this-checkout>
 python -m unittest discover -s tests -v
 python tools/public_history_check.py HEAD
+(cd server && node --test)
 ```
 
-The tests check the hub pin, the public-safety rules on the tree, and the pinned hub reading `.corthex/` and running the push job's lines on this tree without a server. `.github/workflows/check.yml` runs them, the history check and Gitleaks over the whole history, and reports `all-checks`. When v3 code arrives, add its tests and build to that workflow and to this list. No test uses real credentials or a paid API.
+The tests check the hub pin, the public-safety rules on the tree, and the pinned hub reading `.corthex/` and running the push job's lines on this tree without a server. `node --test` runs the v3 server's tests in `server/` with Node's own test runner; the server has no dependency to install. `.github/workflows/check.yml` runs them all, the history check and Gitleaks over the whole history, and reports `all-checks`. When more v3 code arrives, add its tests and build to that workflow and to this list. No test uses real credentials or a paid API.

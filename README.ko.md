@@ -10,4 +10,4 @@ NEXUS는 프로젝트의 단계·그림·논의를 비공개 브라우저 화면
 
 ## 작업하기
 
-저장소 규칙과 검사는 [AGENTS.md](AGENTS.md)에, 보안 범위는 [SECURITY.ko.md](SECURITY.ko.md)에 있습니다. `.corthex/project.json`은 허브에 프로젝트와 단계를 알리며 파트는 `nexus` 하나이고, `.corthex/stages/nexus.json`은 그 파트의 진행을 기록합니다. 커밋이 `main`에 들어오면 `NEXUS push` 워크플로가 고정된 허브로 기본 브랜치의 스냅샷을 관리자의 NEXUS 서버에 보냅니다.
+저장소 규칙과 검사는 [AGENTS.md](AGENTS.md)에, 보안 범위는 [SECURITY.ko.md](SECURITY.ko.md)에 있습니다. [server/](server/README.ko.md)에는 WBS의 태스크 순서대로 만드는 v3 서버가 있습니다. `.corthex/project.json`은 허브에 프로젝트와 단계를 알리며 파트는 `nexus` 하나이고, `.corthex/stages/nexus.json`은 그 파트의 진행을 기록합니다. 커밋이 `main`에 들어오면 `NEXUS push` 워크플로가 고정된 허브로 기본 브랜치의 스냅샷을 관리자의 NEXUS 서버에 보냅니다.
