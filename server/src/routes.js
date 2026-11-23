@@ -9,6 +9,7 @@ import { DIAGRAM_ROUTES } from './diagram.js';
 import { DIRECT_EDIT_ROUTES } from './direct-edits.js';
 import { MOCKUP_PAGE_ROUTES } from './mockup-page.js';
 import { OWNER_ROUTES } from './owner.js';
+import { POSITION_ROUTES } from './positions.js';
 import { PROJECT_ROUTES } from './project.js';
 import { PROPOSAL_ROUTES } from './proposals.js';
 import { READ_ROUTES } from './reads.js';
@@ -46,4 +47,6 @@ export const ROUTES = Object.freeze([
   ...THREAD_ROUTES,
   // TASK-445: API-272 and API-273.
   ...DIRECT_EDIT_ROUTES,
+  // TASK-442: API-274.
+  ...POSITION_ROUTES,
 ]);

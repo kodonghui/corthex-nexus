@@ -142,9 +142,9 @@ test('leaves to a later task only tables its operation lists and the WBS gives t
     const touches = row[0].split('|')[4];
     for (const table of tables) assert.ok(touches.includes(table), `${task} does not touch ${table}`);
   }
-  // TASK-419 drew the snapshot, whose tables TASK-418 left pending, and TASK-435 changes what a drawing calls for:
-  // pushSnapshot is checked against every table it lists, so touching only the tables that keep and draw the snapshot
-  // fails.
+  // TASK-419 drew the snapshot, whose tables TASK-418 left pending, TASK-435 changes what a drawing calls for, and
+  // TASK-442 drops the positions of elements that left: pushSnapshot is checked against every table it lists, so
+  // touching only the tables that keep and draw the snapshot fails.
   assert.equal(Object.hasOwn(PENDING, 'pushSnapshot'), false);
   const recorder = recordTables(testStore(t));
   const { store } = recorder;
@@ -156,6 +156,8 @@ test('leaves to a later task only tables its operation lists and the WBS gives t
   touch(['diagrams', 'drawings', 'elements']);
   assert.throws(() => checkTables(recorder, 'pushSnapshot'), /pushSnapshot touches other tables/);
   touch(['comment_threads', 'pull_requests', 'change_sets', 'confirmations', 'stage_passes', 'todos']);
+  assert.throws(() => checkTables(recorder, 'pushSnapshot'), /pushSnapshot touches other tables/);
+  touch(['element_positions']);
   checkTables(recorder, 'pushSnapshot');
 });
 
