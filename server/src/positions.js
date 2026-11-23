@@ -15,22 +15,24 @@
 // - What moves: an element its drawing gives a box (placeable), other than a box drawn round other elements: the DDD
 //   board's lanes, context frames and the Hotspots lane, which a move would take away from what they hold. A line, a
 //   token, a row of an item table and a part the hub left out have no box; moving one is invalid_request on element.
-//   An element drawn as unreadable keeps its box and moves (note 1 of the WBS): it has not left the document.
+//   An element drawn as unreadable keeps its box and moves (note 1 of the WBS): it has not left the document. So does
+//   an ERD table drawn as missing, which a foreign key names and the schema does not define: SPEC-004 draws it in a
+//   box, marked, while a foreign key names it. A direct edit refuses both, having no text to change (direct-edits.js).
 // - Where: x and y as sent, anywhere within the contract's ±1,000,000, however far from the other boxes.
 //
 // after-drawing.js drops the positions of the elements a new drawing no longer places, and those of a diagram a
 // snapshot removes (SPEC-012), with placeable below. Nothing here logs (rule 5): no line holds an element's key, a
 // project's name or a place.
 
+import { ELEMENT_KEY, isObject } from './drawer.js';
 import { idOf, keyOf } from './ids.js';
 import { invalidRequest, Problem } from './problem.js';
 import { STAGES } from './snapshot.js';
 
-// The contract's Move: an element key of 1 to 200 characters that starts and ends with no white space, and a place
-// within ±1,000,000.
+// The contract's Move: an element key of 1 to 200 characters that starts and ends with no white space (drawer.js's
+// ELEMENT_KEY), and a place within ±1,000,000.
 const FIELDS = new Set(['element', 'x', 'y']);
 const KEY_LENGTH = 200;
-const KEY_FORM = /^\S(?:.*\S)?$/u;
 const FAR = 1_000_000;
 const STAGE_SET = new Set(STAGES);
 // The boxes drawn round other elements: the DDD board's lanes, context frames and Hotspots lane (ddd-board.js). A user
@@ -59,8 +61,6 @@ function statementsOf(store) {
   return statements;
 }
 
-const isObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
-
 // Whether an element as TBL-153 keeps it, { kind, detail } with detail as JSON text, has a place the owner can move:
 // its drawing gives it a box, and it is no box drawn round other elements.
 export function placeable({ kind, detail }) {
@@ -79,7 +79,7 @@ function moveOf(body) {
   if (Object.keys(body).some((field) => !FIELDS.has(field))) throw invalidRequest('body', 'the body takes element, x and y only');
   const { element, x, y } = body;
   if (element === undefined) throw invalidRequest('element', 'element is required');
-  if (typeof element !== 'string' || element.length === 0 || [...element].length > KEY_LENGTH || !KEY_FORM.test(element)) {
+  if (typeof element !== 'string' || element.length === 0 || [...element].length > KEY_LENGTH || !ELEMENT_KEY.test(element)) {
     throw invalidRequest('element', `element must be an element key of 1 to ${KEY_LENGTH} characters`);
   }
   for (const [field, value] of [['x', x], ['y', y]]) {
@@ -92,7 +92,8 @@ function moveOf(body) {
 }
 
 // API-274: moves an element of the diagram {diagram} of the project {project} (SPEC-012). The project and the diagram
-// are found before the body is read, so a removed diagram answers diagram_not_found whatever the body holds.
+// are found before the Move's fields are checked, so a removed diagram answers diagram_not_found whatever fields the
+// body holds. A body that is not a JSON object is refused before, as for every JSON write (body.js).
 function moveElement({ store, params, body, now }) {
   const statements = statementsOf(store);
   const project = statements.project.get(params.project);

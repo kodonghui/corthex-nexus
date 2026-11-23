@@ -98,8 +98,12 @@ function statementsOf(store) {
         "UPDATE comment_threads SET state = 'closed', waits_on = NULL, closed_at = ?, closed_by = 'reflection' WHERE id = ? AND state = 'open'",
       ),
       // Positions: those of a diagram, an element of a drawing, and dropping one or all of a diagram's.
-      positions: store.prepare('SELECT element_key FROM element_positions WHERE diagram_id = ? ORDER BY element_key'),
-      placed: store.prepare('SELECT kind, detail FROM elements WHERE drawing_id = ? AND element_key = ?'),
+      // The diagram's positions, each with its element in the drawing, kind and detail null when it has none.
+      positions: store.prepare(
+        `SELECT p.element_key, e.kind, e.detail FROM element_positions p
+         LEFT JOIN elements e ON e.drawing_id = ? AND e.element_key = p.element_key
+         WHERE p.diagram_id = ?`,
+      ),
       dropPosition: store.prepare('DELETE FROM element_positions WHERE diagram_id = ? AND element_key = ?'),
       dropPositions: store.prepare('DELETE FROM element_positions WHERE diagram_id = ?'),
     };
@@ -147,11 +151,11 @@ function followElements(statements, diagram, keys) {
   return moved;
 }
 
-// Drops the diagram's positions of the elements the drawing does not place (see positions.js's placeable).
+// Drops the diagram's positions of the elements the drawing does not place (see positions.js's placeable). Unlike the
+// threads, which readableKeys moves off an element drawn as unreadable (SPEC-027), its position stays (note 1).
 function keepPlaced(statements, diagram, drawing) {
-  for (const { element_key: key } of statements.positions.all(diagram)) {
-    const element = statements.placed.get(drawing, key);
-    if (element === undefined || !placeable(element)) statements.dropPosition.run(diagram, key);
+  for (const { element_key: key, kind, detail } of statements.positions.all(drawing, diagram)) {
+    if (kind === null || !placeable({ kind, detail })) statements.dropPosition.run(diagram, key);
   }
 }
 

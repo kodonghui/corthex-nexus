@@ -108,21 +108,23 @@ describe('moving an element', () => {
     assert.deepEqual(others(), was);
   });
 
-  test('moves an element of the last good drawing while the latest failed, and one drawn as unreadable (SPEC-001, note 1)', async () => {
+  test('moves an element of the last good drawing while the latest failed, and one drawn as unreadable or missing (SPEC-001, SPEC-004, note 1)', async () => {
     const space = s.project('bravo');
     const erd = s.diagram(space);
     s.elements(erd.drawing, [
       table('TBL-146', 'agent_credentials', { detail: { box: box(40) } }),
       // A table the drawer could not read: it keeps its box and has not left the document.
       table('TBL-147', '', { status: 'unreadable', detail: { where: 'db/nexus.sql:20', box: box(300) } }),
+      // A table a foreign key names and the schema does not define: SPEC-004 draws it in a box, marked.
+      table('archive', 'archive', { status: 'missing', detail: { columns: [], box: box(600) } }),
     ]);
     s.snapshot(space);
     s.drawing(space, erd.id, { status: 'failed' });
-    for (const element of ['TBL-146', 'TBL-147']) {
+    for (const element of ['TBL-146', 'TBL-147', 'archive']) {
       const moved = await move('bravo', erd.id, { element, x: 10, y: 20 });
       assert.equal(moved.status, 200, element);
     }
-    assert.deepEqual(positionsOf(erd.id).map((row) => row.element_key), ['TBL-146', 'TBL-147']);
+    assert.deepEqual(positionsOf(erd.id).map((row) => row.element_key), ['TBL-146', 'TBL-147', 'archive']);
   });
 
   test('an element without a place of its own is invalid_request on element, and nothing is kept', async () => {
@@ -190,7 +192,7 @@ describe('moving an element', () => {
     assert.equal((await read('echo', removed.id)).status, 200);
     const refused = await move('echo', removed.id, { element: 'A', x: 1, y: 2 });
     assert.deepEqual([refused.status, refused.json.code], [404, 'diagram_not_found']);
-    // Its body is not read: a body that breaks Move gets the same answer.
+    // Its Move is not checked: a body whose fields break Move gets the same answer.
     const broken = await move('echo', removed.id, { element: 'A', x: 'far' });
     assert.deepEqual([broken.status, broken.json.code], [404, 'diagram_not_found']);
     assert.deepEqual(positionsOf(removed.id), []);
