@@ -175,8 +175,8 @@ One approved item changed, asked on its own and approved through the same delega
 
 #### After the fifth review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate: TBL-151 also sets removed_at on a stage's item table when the stage's pictures are drawn for the first time, since that snapshot still carries the stage's items (SPEC-005), and a removed diagram stays listed while it has open threads (SPEC-027). No table, column or constraint changed. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate: TBL-151 also sets removed_at on a stage's item table when the stage's pictures are drawn for the first time, since that snapshot still carries the stage's items (SPEC-005), and a removed diagram stays listed while it has open threads (SPEC-027). No table, column or constraint changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
 
 #### After the sixth review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate: TBL-151 clears removed_at when a snapshot holds a removed diagram's source again, which UNIQUE (project_id, stage, source_key) brings back to the same row, except for an item table that made way for its stage's pictures, since corthex-hub/0.2 still carries its items. A removed diagram is not one of its stage's diagrams (SPEC-027). No table, column or constraint changed. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate: TBL-151 clears removed_at when a snapshot holds a removed diagram's source again, which UNIQUE (project_id, stage, source_key) brings back to the same row, except for an item table that made way for its stage's pictures, since corthex-hub/0.2 still carries its items. A removed diagram is not one of its stage's diagrams (SPEC-027). No table, column or constraint changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.

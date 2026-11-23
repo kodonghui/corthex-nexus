@@ -169,4 +169,4 @@ Section 5 gives `?thread=` to the workbench only; the changes page has no thread
 
 #### After the seventh review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate: the `?d=` of SCR-145 and SCR-146 also takes a removed diagram that is still listed because it has open threads (SPEC-027), so those threads stay reachable. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate: the `?d=` of SCR-145 and SCR-146 also takes a removed diagram that is still listed because it has open threads (SPEC-027), so those threads stay reachable. This part passed its own checkpoint on 2026-11-23 through the same delegate.

@@ -88,12 +88,12 @@ More approved items changed, each asked on its own and approved through the same
 
 #### After the seventh review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate. Here: SCR-145 lists the stage's diagrams also when a removed one is still listed because it has open threads, and its normal state says that a removed diagram comes last, marked removed, and opens with its threads (SPEC-027). The number of states is unchanged. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate. Here: SCR-145 lists the stage's diagrams also when a removed one is still listed because it has open threads, and its normal state says that a removed diagram comes last, marked removed, and opens with its threads (SPEC-027). The number of states is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
 
 #### After the eighth review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate. Here: on SCR-145 a removed diagram opens for its threads only, with no new comment, move, direct edit, proposal answer or confirm button, and SCR-146 shows only its changes, with no confirm button (SPEC-027). The number of states is unchanged. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate. Here: on SCR-145 a removed diagram opens for its threads only, with no new comment, move, direct edit, proposal answer or confirm button, and SCR-146 shows only its changes, with no confirm button (SPEC-027). The number of states is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
 
 #### After the ninth review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate. Here: after a 404 for the diagram on a write, SCR-145 reads the diagram again first, and a removed one still listed opens for its threads only; after a confirmation SCR-146 does the same and shows only its changes; otherwise both still say the diagram is not in NEXUS (SPEC-027). The number of states is unchanged. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate. Here: after a 404 for the diagram on a write, SCR-145 reads the diagram again first, and a removed one still listed opens for its threads only; after a confirmation SCR-146 does the same and shows only its changes; otherwise both still say the diagram is not in NEXUS (SPEC-027). The number of states is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.

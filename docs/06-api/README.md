@@ -252,14 +252,14 @@ The contract now says what the second review approved: every answer of API-293 d
 
 #### After the sixth review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate: DiagramSummary gains a required removed, and API-264 passes a stage once every diagram of it that is not removed has a recorded confirmation, listing removed ones with open threads last (SPEC-005, SPEC-027). The operations stay 52. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate: DiagramSummary gains a required removed, and API-264 passes a stage once every diagram of it that is not removed has a recorded confirmation, listing removed ones with open threads last (SPEC-005, SPEC-027). The operations stay 52. This part passed its own checkpoint on 2026-11-23 through the same delegate.
 
 #### After the eighth review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate: a removed diagram takes no new thread (API-252, API-267), no direct edit (API-272), no move (API-274) and no confirmation (API-275), each answering 404 diagram_not_found, whose meaning now says so; a proposal on it is refused like one on a drawing that is no longer current (API-270, document_changed). No code, operation or owner message was added or changed. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate: a removed diagram takes no new thread (API-252, API-267), no direct edit (API-272), no move (API-274) and no confirmation (API-275), each answering 404 diagram_not_found, whose meaning now says so; a proposal on it is refused like one on a drawing that is no longer current (API-270, document_changed). No code, operation or owner message was added or changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
 
 #### After the ninth review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate: the client line of diagram_not_found says that after a write the diagram is read again first, since a removed one still listed opens for its threads only (SPEC-027), and its meaning names a direct edit instead of "a change", which also read as a proposal (API-270 answers document_changed). The code, the status and the owner message are unchanged. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate: the client line of diagram_not_found says that after a write the diagram is read again first, since a removed one still listed opens for its threads only (SPEC-027), and its meaning names a direct edit instead of "a change", which also read as a proposal (API-270 answers document_changed). The code, the status and the owner message are unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
 
 A tenth review of the ninth review's fix found that the error table above still gave the meaning of diagram_not_found from before the eighth review. The row now copies the contract, as the other rows do, and a test checks that both tables copy it. No approved item changed.
