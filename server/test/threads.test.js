@@ -327,10 +327,8 @@ describe('the owner\'s threads', () => {
     assert.deepEqual([state, proposals(), threadRow(asked).state], ['proposed', 1, 'closed']);
   });
 
-  // TASK-444 builds API-270 and API-271: until then this test is a to-do, and that task drops the mark.
-  test('accepting or rejecting a proposal after its thread closed leaves the thread closed', {
-    todo: 'TASK-444 builds accepting and rejecting a proposal (API-270, API-271)',
-  }, async () => {
+  // TASK-444's API-270 and API-271 answer the proposal and write nothing on its thread.
+  test('accepting or rejecting a proposal after its thread closed leaves the thread closed', async () => {
     for (const decision of ['accept', 'reject']) {
       const asked = thread(erd, { author: 'agent', body: `Shall I ${decision} it?` });
       const proposal = s.changeSet(space, erd, { origin: 'proposal', threadId: asked });
