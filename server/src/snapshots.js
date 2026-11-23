@@ -16,7 +16,8 @@
 //   the next revision and the held commit.
 // A refused push changes nothing. A kept snapshot keeps its documents (TBL-149, TBL-150), each text once by its
 // SHA-256; a document whose text looks like a secret or an email address is left out and named in refused (REQ-077).
-// Then drawing.js draws it (TASK-419): its diagrams, drawings and elements. The answer counts what drew and names the
+// Then drawing.js draws it (TASK-419): its diagrams, drawings and elements. A source the snapshot leaves out, by REQ-077
+// or in its left_out, keeps its diagram as a failed drawing (see drawing.js). The answer counts what drew and names the
 // sources that failed. after-drawing.js then changes what the drawing calls for (TASK-435, note 14 of the WBS): it
 // invalidates confirmations whose documents changed, marks stage passes changed, reflects the change sets of a reported
 // merge commit and moves the threads of elements that left, with the to-do; the answer counts them.
@@ -148,6 +149,7 @@ function pushSnapshot(drawers, { store, request, body, size, credential, now }) 
     snapshot: { id: snapshotId, revision, commit: snapshot.commit, format: snapshot.format, carries: snapshot.carries, carried: [] },
     completed: false,
     documents: kept,
+    leftOut: snapshot.leftOut,
     time,
     drawers,
   });
@@ -161,7 +163,7 @@ function pushSnapshot(drawers, { store, request, body, size, credential, now }) 
 function again({ statements, store, project, held, snapshot, time, drawers }) {
   const revision = Number(held.revision);
   // The push's documents, less those left out as REQ-077 asks: a diagram that is not drawn again and whose source is
-  // among them fails as its last drawing did.
+  // among them, or among the sources the push leaves out, fails as its last drawing did.
   const sent = snapshot.documents.filter((document) => document.why === null);
   let drawn;
   let refused = [];
@@ -180,12 +182,13 @@ function again({ statements, store, project, held, snapshot, time, drawers }) {
       completed: true,
       documents: kept.kept,
       earlier: sent.filter((document) => !isAdded(document)),
+      leftOut: snapshot.leftOut,
       time,
       drawers,
     });
     after = afterDrawing(store, { project: project.id, commit: snapshot.commit, changed: drawn.changed, time });
   } else {
-    drawn = heldDrawing({ store, project, documents: sent });
+    drawn = heldDrawing({ store, project, documents: sent, leftOut: snapshot.leftOut });
   }
   return answer({ project: project.name, revision, commit: snapshot.commit, replaced: null, created: false, sameCommit: true, drawn, refused, after });
 }
