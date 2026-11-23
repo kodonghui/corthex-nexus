@@ -1,6 +1,7 @@
 // Owner admission (SPEC-048, rule 1, rule 8; TASK-416): every owner request needs the gate's sign-in of the one owner,
 // a write of the owner's comes only from NEXUS's own pages, and every refusal is logged with its time, action, sender
-// and reason. The sign-ins are signed with a local key; no test reaches a gate or the network.
+// and reason. The sign-ins are signed with a local key; no test reaches a gate or the network. Agent admission, and an
+// agent credential on an owner operation, are tested with the credentials they need in credentials.test.js.
 
 import assert from 'node:assert/strict';
 import { generateKeyPairSync, randomBytes } from 'node:crypto';
@@ -75,6 +76,11 @@ describe('the operation families', () => {
       () => createApp({ settings: {}, routes: [{ method: 'GET', path: '/api/projects', action: 'listProjects', handle }] }),
       /need the gate/,
     );
+    // An agent operation cannot be served without the store, which holds the agent credentials.
+    assert.throws(
+      () => createApp({ settings: {}, routes: [{ method: 'GET', path: '/api/spaces/{project}/todo', action: 'getAgentTodo', params: { project: 'space_not_found' }, handle }] }),
+      /need the store/,
+    );
   });
 });
 
@@ -112,7 +118,6 @@ describe('an owner request', () => {
         answering('DELETE', '/api/projects/{project}/tool-links/{link}', 'removeToolLink', {
           project: 'project_not_found', link: 'tool_link_not_found',
         }),
-        answering('GET', '/api/spaces/{project}/todo', 'getAgentTodo', { project: 'space_not_found' }),
       ],
     });
   });
@@ -284,14 +289,6 @@ describe('an owner request', () => {
       const { line: admittedLine } = await admitted(list(signedIn(local.token(), { 'CF-Ray': other })));
       assert.match(admittedLine.traceId, /^[0-9a-f]{16}$/);
       assert.doesNotMatch(admittedLine.traceId, RAY);
-    }
-  });
-
-  test('on an agent operation is not admitted until TASK-417 checks agent credentials', async () => {
-    const credential = { 'CF-Access-Client-Id': `ac_${randomBytes(8).toString('hex')}`, 'CF-Access-Client-Secret': randomBytes(24).toString('base64url') };
-    for (const headers of [{}, credential, signedIn(local.token())]) {
-      await refused({ method: 'GET', path: '/api/spaces/demo/todo', headers, action: 'getAgentTodo' },
-        { status: 401, code: 'access_missing' });
     }
   });
 

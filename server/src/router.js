@@ -11,9 +11,11 @@
 //   operation takes no body and the server reads none.
 // - requestKey is true when the operation takes an Idempotency-Key (rule 3, see writes.js), and repeat(result), if
 //   given, is what a repeat of the key answers instead of the first result.
-// Where two templates match a path, the one with a literal segment where the other has a parameter wins.
+// Where two templates match a path, the one with a literal segment where the other has a parameter wins. A handler runs
+// as its operation (see operation.js), and what it waits for with it.
 
 import { BODY_KINDS } from './body.js';
+import { runAs } from './operation.js';
 import { FORMS } from './params.js';
 
 const PARAMETER = /^\{([a-z_][a-z0-9_]*)\}$/;
@@ -83,7 +85,7 @@ function compile(route) {
     method,
     path,
     action,
-    handle,
+    handle: (context) => runAs(action, () => handle(context)),
     checks,
     body,
     requestKey,

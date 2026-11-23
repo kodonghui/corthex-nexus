@@ -11,14 +11,16 @@ import { errorKind, jsonLines, methodOf, randomTraceId } from './log.js';
 import { malformedParameter } from './params.js';
 import { internal, methodNotAllowed, notFound, Problem } from './problem.js';
 import { createRouter } from './router.js';
-import { createWrites, isWrite } from './writes.js';
+import { createQueue, createWrites, isWrite } from './writes.js';
 
-// The request listener. routes are the operations the server takes (see router.js); a handler gets
-// { request, params, traceId, settings, store, caller, body } and returns { status, body, headers }: 200 or 201 (200
-// when left out), a non-empty JSON object and headers of its own. It refuses by throwing a Problem; any other answer
-// is a fault that answers internal (see answer.js). store is the open store's DatabaseSync (see store.js). Each
-// request is admitted by its operation's family before anything else of it is read (see admission.js); gate is the
-// gate's sign-in (see gate.js), which owner operations need. now() is the time in milliseconds.
+// The request listener. routes are the operations the server takes (see router.js and routes.js); a handler gets
+// { request, params, traceId, settings, store, caller, credential, body, now } and returns { status, body, headers }:
+// 200 or 201 (200 when left out), a non-empty JSON object and headers of its own. It refuses by throwing a Problem; any
+// other answer is a fault that answers internal (see answer.js). store is the open store's DatabaseSync (see store.js).
+// Each request is admitted by its operation's family before anything else of it is read (see admission.js): caller is
+// 'owner' or the agent credential's ID, and credential is the agent credential { id, key, name } or null. gate is the
+// gate's sign-in (see gate.js), which owner operations need; agent operations need the store, which holds the agent
+// credentials. now() is the time in milliseconds.
 //
 // A request goes through these steps, each of which can refuse it: its path and method; its admission; its path
 // parameters' forms (the 404 of what each names); its request key's form (rule 3); its body, JSON within its limit;
@@ -30,8 +32,11 @@ export function createApp({
   // An action's family, from the contract: one action is one operation, so it has one family.
   const families = new Map(routes.map((route) => [route.action, familyOf(route)]));
   if (gate === null && [...families.values()].includes('owner')) throw new Error('owner operations need the gate');
-  const admit = createAdmission(gate);
-  const write = createWrites({ store, now });
+  if (store === null && [...families.values()].includes('agent')) throw new Error('agent operations need the store');
+  // One queue for every write to the store: the operations' writes and admission's note of a credential's use.
+  const queue = createQueue();
+  const admit = createAdmission({ gate, store, queue, now });
+  const write = createWrites({ store, now, queue });
 
   return async function listener(request, response) {
     const started = performance.now();
@@ -72,18 +77,17 @@ export function createApp({
       if (route.body !== undefined) drainLimit = BODY_KINDS[route.body].limit;
       // A refused request never reaches its handler, so its answer holds nothing of the store.
       const family = families.get(route.action);
-      await admit(family, request, entry);
+      // The caller a request key belongs to (TBL-169's actor): 'owner' for an admitted owner operation, the credential's
+      // ID for an agent operation.
+      const { caller, credential, recheck } = await admit(family, request, entry);
       const { traceId } = entry;
-      // The caller a request key belongs to (TBL-169's actor): an admitted owner operation's is the owner. TASK-417
-      // gives an agent operation its credential's ID; until then no agent request is admitted.
-      const caller = family === 'owner' ? 'owner' : null;
       const malformed = malformedParameter(route.checks, params);
       if (malformed !== null) throw new Problem(malformed);
       const key = route.requestKey ? requestKeyOf(request.headers) : null;
       const { value: body, bytes = null } = route.body === undefined ? {} : await readJson(request, route.body);
-      const context = { request, params, traceId, settings, store, caller, body };
+      const context = { request, params, traceId, settings, store, caller, credential, body, now };
       const answer = isWrite(route)
-        ? await write(route, context, { pathname, key, bytes })
+        ? await write(route, context, { pathname, key, bytes, recheck })
         : answerOf(await route.handle(context));
       send(response, answer, closesConnection(request, drainLimit));
     } catch (error) {
