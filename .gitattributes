@@ -1,1 +1,3 @@
 * text=auto eol=lf
+*.woff2 binary
+server/web/fonts/LICENSE.txt -text

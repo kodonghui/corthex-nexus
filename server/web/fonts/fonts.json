@@ -1,0 +1,59 @@
+{
+  "about": "The fonts the pages use (question 4 of docs/10-wbs/wbs.md): IBM Plex Sans KR and IBM Plex Mono at the two weights the stage-09 mockup loads, 400 and 600, as complete woff2 files, each taken unchanged from the named asset of IBM's own Plex release on GitHub. LICENSE.txt is the releases' licence, the same file in both. server/test/pages.test.js checks each file against its size and SHA-256 here, and that fonts.css names exactly these files.",
+  "licence": {
+    "name": "SIL Open Font License 1.1",
+    "file": "LICENSE.txt",
+    "from": ["ibm-plex-sans-kr/LICENSE.txt", "ibm-plex-mono/LICENSE.txt"],
+    "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da"
+  },
+  "releases": [
+    {
+      "family": "IBM Plex Sans KR",
+      "release": "@ibm/plex-sans-kr@1.1.0",
+      "published": "2024-11-13T08:18:04Z",
+      "page": "https://github.com/IBM/plex/releases/tag/%40ibm/plex-sans-kr%401.1.0",
+      "asset": "https://github.com/IBM/plex/releases/download/%40ibm/plex-sans-kr%401.1.0/ibm-plex-sans-kr.zip",
+      "asset_sha256": "9837800c8e5aedf4123775e1d767afa482c983321bd2fc606c985f405d24562e",
+      "files": [
+        {
+          "file": "plex-sans-kr-1.1.0/IBMPlexSansKR-Regular.woff2",
+          "from": "ibm-plex-sans-kr/fonts/complete/woff2/hinted/IBMPlexSansKR-Regular.woff2",
+          "weight": 400,
+          "bytes": 438540,
+          "sha256": "055a35664c3c3965161c92292504c5633ba9604ec904edc1ed799bf2a436276d"
+        },
+        {
+          "file": "plex-sans-kr-1.1.0/IBMPlexSansKR-SemiBold.woff2",
+          "from": "ibm-plex-sans-kr/fonts/complete/woff2/hinted/IBMPlexSansKR-SemiBold.woff2",
+          "weight": 600,
+          "bytes": 434484,
+          "sha256": "5ad7db28ba74d59fe14c260205c62ddb701320f4f098d8a45ef2757bebc29666"
+        }
+      ]
+    },
+    {
+      "family": "IBM Plex Mono",
+      "release": "@ibm/plex-mono@2.5.0",
+      "published": "2026-06-11T19:24:51Z",
+      "page": "https://github.com/IBM/plex/releases/tag/%40ibm/plex-mono%402.5.0",
+      "asset": "https://github.com/IBM/plex/releases/download/%40ibm/plex-mono%402.5.0/ibm-plex-mono.zip",
+      "asset_sha256": "6d23f01257663d8cc49a0d64c22ced630b79e0e2a0ac08a0da86e9a38bbc481c",
+      "files": [
+        {
+          "file": "plex-mono-2.5.0/IBMPlexMono-Regular.woff2",
+          "from": "ibm-plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2",
+          "weight": 400,
+          "bytes": 49248,
+          "sha256": "ba204497f16b6d334cee9d1e963a831b73e3a56e1d6300a8489d18df7214b350"
+        },
+        {
+          "file": "plex-mono-2.5.0/IBMPlexMono-SemiBold.woff2",
+          "from": "ibm-plex-mono/fonts/complete/woff2/IBMPlexMono-SemiBold.woff2",
+          "weight": 600,
+          "bytes": 50600,
+          "sha256": "6a825b4824c01cbb401e829e5a066a1818411bcb3538b5a5792c5ca9b82343c3"
+        }
+      ]
+    }
+  ]
+}

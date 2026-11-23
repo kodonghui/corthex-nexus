@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-424's [user flow](#user-flow), the drawer of stage 03's flow files; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-426's [screen states](#screen-states), the drawer of stage 08; TASK-427's [mockup](#mockup), the drawer of stage 09, and the [mockup page](#the-mockup-page) it serves in a sandbox; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion; TASK-436's [agent reads](#agent-reads), what deleting the space removes and one thread, change set, reflection entry or confirmation, as the hub's `remove` and `show` commands read them; TASK-441's [diagram read](#diagram), a diagram with its elements by name and their positions, its overlays, its confirmation, what changed since it and its threads; and TASK-450's [daily backup](#daily-backup), which backs up the store once a day, keeps 30 days of backups and rehearses a restore before a release. It takes the operations of `src/routes.js`, so far API-242, API-243, API-244, API-245, API-246, API-247, API-248, API-249, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-265, API-277, API-278, API-279, API-280, API-281 and API-293; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-424's [user flow](#user-flow), the drawer of stage 03's flow files; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-426's [screen states](#screen-states), the drawer of stage 08; TASK-427's [mockup](#mockup), the drawer of stage 09, and the [mockup page](#the-mockup-page) it serves in a sandbox; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion; TASK-436's [agent reads](#agent-reads), what deleting the space removes and one thread, change set, reflection entry or confirmation, as the hub's `remove` and `show` commands read them; TASK-441's [diagram read](#diagram), a diagram with its elements by name and their positions, its overlays, its confirmation, what changed since it and its threads; TASK-450's [daily backup](#daily-backup), which backs up the store once a day, keeps 30 days of backups and rehearses a restore before a release; and TASK-454's [app shell](#app-shell), the pages the owner opens, with their header, stage tabs, addresses and shared states. It takes the operations of `src/routes.js`, so far API-242, API-243, API-244, API-245, API-246, API-247, API-248, API-249, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-265, API-277, API-278, API-279, API-280, API-281 and API-293; every other path under `/api` answers the `not_found` Problem until the tasks that build its operations add them. A GET of a path outside `/api` is a page of the [app shell](#app-shell). It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -62,7 +62,7 @@ Each request reaches its operation's handler only once admission (`src/admission
 
 A route (`src/router.js`) names its operation's `operationId` as `action`, the 404 code of each path parameter as `params`, the kind of body it takes as `body` and whether it takes a request key as `requestKey`. A request goes through these steps in order, and any of them can refuse it:
 
-1. **Path and method.** A path that is no operation answers `not_found`; one that takes other methods only answers `method_not_allowed`.
+1. **Path and method.** A GET of a path outside `/api` is a page of the [app shell](#app-shell), answered before any of these steps. A path that is no operation answers `not_found`; one that takes other methods only answers `method_not_allowed`.
 2. **Admission.** The request is admitted by its operation's family, as above, before its path parameters or its body are read. The caller a request key belongs to is `owner` for an admitted owner operation and the credential's ID for an agent operation. A handler gets `caller`, and for an agent operation `credential`, its `{ id, key, name }`.
 3. **Path parameters.** A path parameter is percent-decoded, and a value that is not in the contract's form of what it names gets the 404 of that thing, such as `project_not_found` for `{project}` (`src/params.js`). So a handler never gets a value holding `/`, `..` or a control character. The detail never repeats the value.
 4. **Request key.** An operation that takes one needs `Idempotency-Key` in the contract's form, a write ID in double quotes; without it the answer is `invalid_request` with `field` `Idempotency-Key`.
@@ -962,10 +962,139 @@ The result is recorded in the store as it is. The command neither creates the st
 
 `test/rehearsal.test.js` restores the latest backup into a fresh store and reads it. It also records each failed check, records nothing without a backup, and runs the command as the release step will.
 
+## App shell
+
+TASK-454 (SPEC-048, SPEC-051) is the frame of the pages the owner opens. One page, the shell, serves every screen of the [sitemap](../docs/07-sitemap/nexus.yaml), and it reads the screen's data from the API once it runs. The shell draws each screen's title, place and shared states from API-262, API-263 and API-264. Each screen's own content comes from its own task, TASK-455 to TASK-462.
+
+The header and its menu, the stage tabs, the stale rule and the 409 bar, an unknown `?d=` or `?thread=`, the theme, a 401, an unknown page address, pages served without admission with no placeholder text, and the label "내 차례 N개" are rules no approved document states. The coordinator chose them for TASK-454, and the maintainer approved them through the delegate they named for checkpoints on 2026-11-24.
+
+### Addresses
+
+| Address | Screen |
+| --- | --- |
+| `/` | SCR-142, 내 차례 |
+| `/p` | SCR-143, the projects |
+| `/p/{project}` | SCR-144, a project |
+| `/p/{project}/{part}/{stage}` | SCR-145, the stage workbench, with `?d={diagram}` and `?thread={thread}`. `_` stands for the project as a whole |
+| `/p/{project}/{part}/{stage}/changes` | SCR-146, the changes since the last confirmation, with `?d={diagram}` |
+
+`parseAddress` in `web/address.js` reads these addresses for both the server and the page, so the two never disagree. A project or a part takes the form of the contract's `ProjectName` and `Part`, and the stage is one of the 13. Any other form names no screen. Any other path answers 404 with the shell, which says "없는 주소예요." with a link to 내 차례. The 404 page is the same shell bytes, so it never holds the path or the query. Every path under `/api` stays the API's, and an unknown one still answers the `not_found` Problem.
+
+The page reads `?d=` and `?thread=` as given, and the screen decides what they name. An unknown or malformed `?d=` shows "NEXUS에 없는 다이어그램이에요." with 프로젝트로, and the stage tabs still open. API-264 lists at most 500 diagrams of a stage, so a `?d=` in its proper form that a stage listed to 500 leaves out is not called gone: the workbench's own read of the diagram (API-265) decides. A malformed `?thread=` reads as a thread that is gone: the panel shows "NEXUS에 더 이상 없는 댓글 스레드예요." with 새로 고침 to the diagram. A thread ID in its proper form goes to the workbench task.
+
+### Parts
+
+| File | What it does |
+| --- | --- |
+| `src/pages.js` | Answers a GET of a path outside `/api` (see [security](#security-of-the-pages)). `pages` of `createApp` turns it on, and `src/main.js` gives it. |
+| `web/shell.html` | The one page, with the styles, `theme.js`, `main.js` and `<div id="app">`. |
+| `web/theme.js` | A classic script that sets `data-theme` before the page is first drawn. It uses the theme stored in `localStorage` `nexus-theme`, or else follows the system. |
+| `web/main.js` | Reads the address and starts the shell with its screen, or with the 404 screen. |
+| `web/shell.js` | The shell: the header, the stage tabs, the shared states and the read time. |
+| `web/screens.js` | The five screens, as below, and the 404 screen. |
+| `web/states.js` | The state of each answer (section 3 of [docs/08-screens](../docs/08-screens/README.md)), the read time, the gate's reload step and the theme. |
+| `web/api.js` | `read(path)`. It reads the API with a GET and returns one outcome: a success, a Problem's status, code and traceId, the gate, or a failure. |
+| `web/storage.js` | The browser storage the pages use, as below. |
+| `web/dom.js` | Builds elements from text only. |
+| `web/stages.js` | The 13 stages, with their numbers and Korean names. |
+| `/web/messages.js` | Made by the server as it starts, from `message_ko` of the error registry, so a refusal shows the contract's own words. |
+| `web/tokens.css` | The tokens of [design/](../design/) as CSS custom properties: light on `:root`, dark on `[data-theme="dark"]`. |
+| `web/fonts.css`, `web/fonts/` | The fonts, as below. |
+| `web/nexus.css` | The components of the stage-09 mockup: header, tabs, panels, controls, tags, notices, skeletons, the board and the workbench. |
+
+### How a screen plugs in
+
+A screen is an object in `SCREENS` of `web/screens.js`, under its SCR ID. The shell runs it at each address for which `parseAddress` gives that ID.
+
+- `layout`: `'list'` (one column) or `'workbench'` (the diagram's column beside the work panel).
+- `tabs`: `true` to show the stage tabs.
+- `states`: the screen's states beyond the shared ones. A 409 that leads to one of them shows it, and any other 409 is stale.
+- `reads(address)`: the screen's API reads, as `{ name: path }`. The shell reads them and passes their bodies on as `data[name]`.
+- `fixedTitle`: the title before the data comes, or `null`.
+- `title(ctx)`, `crumb(ctx)`, `description`: drawn once the data has come. Without `title`, the fixed title stays.
+- `projectTitle(ctx)`: the project's title, for the header's menu button.
+- `check(ctx)`: usually `null`. When the data shows that the address names nothing, it returns `{ code, sub, link, tabs }`.
+- `skeleton(ctx)`: the shapes of the loading state.
+- `render(ctx)`, `panel(ctx)`: the body and the work panel.
+
+`ctx` is `{ address, data, shell }`. `shell` gives:
+- `read`, `reload`, `isPhone`
+- `onLeave(keep)`: run before the page reloads through the gate.
+- `keepDraft`, `draftOf`
+- `message(code)`: the code's Korean message.
+- `staleBar({ text, kept })`: the 409 bar, with 새로 고침.
+- `errorNotice(outcome, retry)`
+
+A screen never draws the shared states itself.
+
+### States
+
+| Answer | What the page shows |
+| --- | --- |
+| Before the reads answer | The loading state: only the screen's skeleton and its fixed title, and no project data. |
+| 401, or the gate's redirect | The page keeps unsent text (through each `onLeave`, in `sessionStorage`) and reloads once through the gate. If a 401 comes again before any read has succeeded, it shows "다시 로그인하세요." with 새로 고침 and reloads no more. A read that succeeds allows one reload again. So the page never loops through the gate. Where this tab's storage is blocked, the page cannot keep the mark of the reload, so it shows the message at once. |
+| 403 `not_owner`, `owner_only` | Only the code's message, in place of the whole page. |
+| 403 `cross_site` | The message with 새로 고침. |
+| 404 `project_not_found` | "NEXUS에 없는 프로젝트예요." with 프로젝트 목록, on a read again too, in place of the old data. |
+| 409 `document_changed` | The screen's `staleBar`: "문서가 바뀌었어요. 새 버전을 보세요." with 새로 고침. |
+| 500, `default`, a network failure or a timeout | "문제가 생겼어요. 다시 해 보세요." with 다시 시도, and the request's traceId when it has one. |
+
+Data that may be out of date is handled this way:
+- The data stays on screen until a new read replaces it. A read again that answers what is shown leaves the view as it is, with what the owner typed, chose or scrolled to. One that answers something new draws the view again at the same scroll position, so a screen that holds typed text keeps it with `keepDraft` as the owner types and fills it back from `draftOf`.
+- A load asked for while a read runs, such as `shell.reload()` after a write, waits for that read and then runs once, so no answer older than the request stays on screen.
+- The page reads again when the tab comes back into view. No timer reads again while the tab stays in view.
+- Once the data is more than 5 minutes old, or a read again has failed, "HH:MM에 읽음" shows beside the title.
+- A read again that fails keeps the data and shows the error notice above it.
+
+The header holds:
+- NEXUS, which goes to 내 차례.
+- The project menu (API-262). It lists the projects, newest send first, and then 프로젝트 목록. Its button shows the current project's title.
+- "내 차례 N" (API-263).
+- The dark-screen switch.
+
+When the first read of the menu or of the count fails, only that part stays out, and the rest of the page works. A read again that fails keeps what the header shows, as it keeps the screen's data. The theme follows the system until the switch is pressed; the choice is then kept on this browser.
+
+### Phone
+
+The page has three widths:
+- Below 672 px, it follows the layout of the mockup's 360 px frames.
+- Below 1056 px, the workbench's panel goes under the diagram.
+- Below 1056 px with a coarse pointer, it is a phone (SPEC-051). `[data-pc-only]` is hidden, `[data-phone-only]` shows, and `shell.isPhone()` is true, so a screen offers no PC-only action.
+
+### Tokens and fonts
+
+`web/tokens.css` has one source, `design/tokens.resolver.json`. `tests/test_tokens_css.py` writes the file with the `tokens.py css` command of the pinned hub, and writes the dark theme with `--input theme=dark --selector '[data-theme="dark"]'`. It checks that the file equals what the command writes now, and that the token block of the stage-09 mockup equals the file. After the tokens change, set `CORTHEX_HUB_CHECKOUT` and run:
+
+```sh
+python tests/test_tokens_css.py --write
+```
+
+The fonts are IBM Plex Sans KR (release `@ibm/plex-sans-kr@1.1.0`) and IBM Plex Mono (`@ibm/plex-mono@2.5.0`). Each file is taken unchanged from IBM's Plex release on GitHub. Only woff2 at the two weights the tokens use, 400 and 600, is kept: 972,872 bytes in all. `web/fonts/fonts.json` records each release with its asset's SHA-256, and each file with its source, size and SHA-256. `LICENSE.txt` is the fonts' SIL Open Font License 1.1. `test/pages.test.js` checks the files against the record.
+
+### Security of the pages
+
+- **Admission.** The pages and their files are answered without admission, while the gate still stands in front of the whole site. None of them holds a project's data, a setting, a server address or anything read from the request. The page asks the API for its data, and every `/api` operation stays admitted. `test/pages.test.js` fetches each page and file without a sign-in, finds no project data in it, and finds that the API answers 401.
+- **Headers.** Every page answer carries:
+  - `Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; require-trusted-types-for 'script'`. It loads nothing from another site and runs no inline script or style.
+  - `X-Content-Type-Options: nosniff`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`.
+  - `Cache-Control: no-store`. The fonts are the one exception: their path names their release, so they get `private, max-age=31536000, immutable`.
+- **Text only.** The scripts build every element from text (`textContent` and attribute values). They never parse markup and never touch an element's `style`; the project menu is placed by CSS alone. A test checks the scripts for both.
+- **Reads.** The page reads the API only:
+  - from its own site, with its own cookies;
+  - with `redirect: 'manual'`, so that the gate's redirect to its sign-in counts as a 401;
+  - with `cache: 'no-store'` and a 30-second timeout.
+- **Browser storage.** The browser keeps three things, and never anything an API answered:
+  - the theme, in `localStorage` `nexus-theme`;
+  - this tab's unsent text, in `sessionStorage` under `nexus-draft:`;
+  - the time of the reload through the gate, in `sessionStorage` `nexus-gate-reload`.
+- **Log.** A page request is logged like a path that names no operation, with the `action` `null`. No line holds the path.
+
+`test/pages.test.js` tests the page layer. `test/shell.test.js` runs the shell on a small stand-in for the browser's DOM (`test/fake-dom.js`), with stubbed answers and against the server, so that every response of API-262, API-263 and API-264 has a test of what the screen shows. These tests lay nothing out. The browser walk of the pull request shows each screen at 360 and 1440 px, in light and dark.
+
 ## Answers
 
 - An operation answers JSON. A refusal is a Problem as `application/problem+json`, with `title`, `status`, `detail`, `code`, `traceId` and the members its code carries, such as `field` or `limit`. Its shape is exactly `components.schemas.Problem` of the contract.
-- The registry (`src/problem.js`) holds every code of `components.x-corthex.errors` with its status, title, members, `message` and `message_ko`. The Problem schema allows no other member, so the two messages are not sent with an answer. They stay in the registry, as `ERRORS` and on each `Problem`, so that the pages can show a refusal in Korean with what to do next, by its code (rule 7). TASK-454, the app shell, serves them.
+- The registry (`src/problem.js`) holds every code of `components.x-corthex.errors` with its status, title, members, `message` and `message_ko`. The Problem schema allows no other member, so the two messages are not sent with an answer. They stay in the registry, as `ERRORS` and on each `Problem`, so that the pages can show a refusal in Korean with what to do next, by its code (rule 7). The [app shell](#app-shell) serves the Korean ones as `/web/messages.js`.
 - A path that is no operation answers `not_found` (404). Under `/api/spaces` its detail names the agent commands NEXUS takes: push, todo, claim, comment, decide, reflect, status and record (SPEC-014). The detail never repeats the path.
 - A path that takes other methods only answers `method_not_allowed` (405) with `Allow`.
 - A request that admission refuses answers `unauthenticated` (401), `not_owner` (403), `cross_site` (403), `owner_only` (403), `access_missing` (401) or `agent_only` (403), as above.
@@ -982,7 +1111,7 @@ The server writes one JSON line to standard output for each request, when its an
 | `time` | When the request arrived, in UTC. |
 | `traceId` | 16 random hex digits, or the gate's `CF-Ray` once the owner's sign-in or a live agent credential is admitted and the ray has the form of the contract's `traceId` (16 hex digits, a hyphen and the data centre's 3 letters). Anyone who reaches the server without the gate can send a `CF-Ray`, but only the gate signs the owner's sign-in and only NEXUS issues a credential. Both are bearer secrets, though, so their holder, reaching the loopback server without the gate, could still choose the ray of their own requests. A Problem answer carries the same ID. |
 | `method` | The request's method. |
-| `action` | The `operationId` of the operation, or `null` for a path that is no operation. |
+| `action` | The `operationId` of the operation, or `null` for a path that is no operation, a page of the [app shell](#app-shell) included. |
 | `sender` | Who sent the request: `owner` once the owner's sign-in is checked, the credential's name once a live agent credential is checked, otherwise `unknown`, never a name the request gives (rule 8). A write refused because its credential was revoked while it waited is `unknown` again. |
 | `status` | The answer's status, or `null` when the connection dropped before the answer started. |
 | `code` | The Problem's code, or `null`. |

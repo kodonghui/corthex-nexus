@@ -46,11 +46,11 @@ export function testStore(t) {
 }
 
 // gate and now are createApp's (see app.js): owner operations need a gate, such as localGate's.
-export async function startServer({ routes = [], store = null, gate = null, now } = {}) {
+export async function startServer({ routes = [], store = null, gate = null, now, pages = null } = {}) {
   const text = [];
   const stream = { write: (chunk) => text.push(chunk) };
   const settings = Object.freeze({ host: '127.0.0.1', port: 0 });
-  const server = createNexusServer({ settings, routes, log: jsonLines(stream), store, gate, now });
+  const server = createNexusServer({ settings, routes, log: jsonLines(stream), store, gate, now, pages });
   server.listen(settings.port, settings.host);
   await once(server, 'listening');
   const { port } = server.address();
@@ -77,8 +77,9 @@ export function send(port, { method = 'GET', path = '/', headers = {}, body } = 
       const chunks = [];
       response.on('data', (chunk) => chunks.push(chunk));
       response.on('end', () => {
-        const text = Buffer.concat(chunks).toString('utf8');
-        resolve({ status: response.statusCode, headers: response.headers, rawHeaders: response.rawHeaders, text, json: parsed(text) });
+        const bytes = Buffer.concat(chunks);
+        const text = bytes.toString('utf8');
+        resolve({ status: response.statusCode, headers: response.headers, rawHeaders: response.rawHeaders, bytes, text, json: parsed(text) });
       });
       response.on('error', reject);
     });
