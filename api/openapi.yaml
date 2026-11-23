@@ -1220,7 +1220,7 @@ paths:
     delete:
       operationId: releaseEntry
       summary: Release a claim
-      description: Ends the session's claim. A claim the session does not hold answers released false.
+      description: Ends the session's claim. When the session holds no live claim on the entry, it answers released false, unless another session holds one, which answers 409 claimed.
       tags: [agent]
       x-corthex:
         id: API-251
