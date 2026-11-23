@@ -224,10 +224,15 @@
           "approved": "Agent to-do table correction, pull request 118, at commit 56bdf93: API-245's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-156, TBL-157, TBL-158, TBL-160, TBL-163, TBL-166 and TBL-167, the tables its answer reads, instead of the approved TBL-166 and TBL-167. No operation, field, response, code or spec row changed. The changed item was answered on its own before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Project table correction, pull request 119, at commit 50678e9: API-264's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-158, TBL-160, TBL-161, TBL-162 and TBL-168, the tables its answer reads, instead of the approved TBL-147, TBL-151, TBL-155, TBL-160, TBL-161 and TBL-168. No operation, field, response, code or spec row changed. The changed item was answered on its own before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T00:43:21+09:00"
+      "updated": "2026-11-24T01:17:43+09:00"
     },
     "07-sitemap": {
       "state": "done",
