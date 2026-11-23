@@ -426,7 +426,7 @@ It also checks, with pictures and checks it makes:
 - **A project without a space** gets `space_not_found`, which the hub reads as an empty to-do.
 - **No log line** holds a comment's text or a session's label (rule 5).
 
-The answer names what other tables hold, so API-245 lists 13 tables. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+The answer names what other tables hold, so API-245 lists 13 tables. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint.
 
 `test/entries.test.js` checks TASK-433's done condition with the fewest rows the store allows, which `test/seed.js` writes: each kind of entry appears and leaves when done; one reflection entry holds every waiting change set of a diagram; and note 4. `test/todo.test.js` answers every response API-245 lists and checks the tables it touches (note 23).
 
@@ -443,7 +443,7 @@ The answer names what other tables hold, so API-245 lists 13 tables. The correct
 - **Entry IDs** name entries as `openAgentEntry` finds them (see [To-do entries](#to-do-entries)). An ID that names nothing of the project, an `nd_` ID and an `ne_` ID of another kind of entry get `entry_not_found`; a project without a space gets `project_not_found`.
 - **No log line** holds a session's label (rule 5).
 
-Both operations read the project space, the entry and the claim's pull request beside the claim they write, so they list TBL-147, TBL-157, TBL-166 and TBL-167. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+Both operations read the project space, the entry and the claim's pull request beside the claim they write, so they list TBL-147, TBL-157, TBL-166 and TBL-167. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint.
 
 `test/claims.test.js` answers every response API-250 and API-251 list, checks their tables (note 23) and TASK-434's done condition, and checks `keepClaim` and `finishClaim` with the fewest rows the store allows.
 
@@ -469,7 +469,7 @@ Both operations read the project space, the entry and the claim's pull request b
 - **`item`** in the answer is found by `threadItem` in `src/todo.js`, which the agent to-do uses too.
 - **No log line** holds a comment's text, a link or a session's label (rule 5).
 
-The four operations read and write more tables than they listed, the thread's waiting side among them (note 15 of the WBS). The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint, as does the agent line of `diagram_not_found` (note 11).
+The four operations read and write more tables than they listed, the thread's waiting side among them (note 15 of the WBS). The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint, as did the agent line of `diagram_not_found` (note 11).
 
 `test/comments.test.js` checks TASK-437's done condition, answers every response API-252 to API-255 list, and checks the tables they touch (note 23).
 
@@ -489,7 +489,7 @@ The four operations read and write more tables than they listed, the thread's wa
 - **The workshop**: the project's latest workshop (TBL-162), the open one or else the last closed one, or null when it never had one.
 - **A name** that no project space has gets `project_not_found`, whose detail never repeats it.
 
-The answer names what other tables hold, so API-264 lists 12 tables. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+The answer names what other tables hold, so API-264 lists 12 tables. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint.
 
 `test/project-read.test.js` checks TASK-440's done condition with rows that `test/seed.js` writes, the stage passes and tool links included, since later tasks write them (note 25): a stage shows passed from its pass record, and changed since the pass once a confirmation it rests on is invalidated and its pass is marked changed; removed diagrams are not counted. It answers every response API-264 lists and checks the tables it touches (note 23).
 
@@ -517,7 +517,7 @@ The answer names what other tables hold, so API-264 lists 12 tables. The correct
   - The warning stays until a later backup succeeds. `failed_at` is when the failed retry ended, and `last_succeeded_at` when the last backup that succeeded ended, or null when none ever did.
   - The backups themselves are TASK-450's, and so is a retry that never ran.
 
-The two answers name what other tables hold, so API-262 lists 7 tables and API-263 lists 9. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+The two answers name what other tables hold, so API-262 lists 7 tables and API-263 lists 9. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint.
 
 `test/owner.test.js` checks TASK-439's done condition. A new install, with a v2 store beside it in the data folder, lists no project and nothing to do. The test answers every response API-262 and API-263 list, and checks the tables each touches (note 23). Its rows are written with `test/seed.js`, its entries opened by `src/entries.js`, and its TBL-170 rows written as TASK-450's job will write them.
 
@@ -543,7 +543,7 @@ The two answers name what other tables hold, so API-262 lists 7 tables and API-2
   - The answer, RemovalAnswer, gives the counts taken in the same transaction just before the delete.
   - Like every write, it runs in one transaction with its request key, so a deletion that fails part way removes nothing, and a repeat with the same key answers the first answer again.
 
-The two operations count and read what other tables hold, so API-277 lists 12 tables and API-278 lists 14. TBL-149 gains SPEC-013 in its trace list, so that API-278 changes only tables its spec row feeds. The corrections at the end of the [ERD README](../docs/05-erd/README.md) and the [API README](../docs/06-api/README.md) wait for their own checkpoints.
+The two operations count and read what other tables hold, so API-277 lists 12 tables and API-278 lists 14. TBL-149 gains SPEC-013 in its trace list, so that API-278 changes only tables its spec row feeds. The corrections at the end of the [ERD README](../docs/05-erd/README.md) and the [API README](../docs/06-api/README.md) passed their own checkpoints.
 
 `test/removal.test.js` checks TASK-448's done condition with two projects that share a blob, each with a row in every table of a project:
 

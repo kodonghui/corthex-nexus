@@ -426,7 +426,7 @@ CORTHEX_HUB_CHECKOUT=<고정한 hub 체크아웃> python tests/test_sitemap_pict
 - **공간이 없는 프로젝트**는 `space_not_found`를 받고, hub는 이것을 빈 할 일로 읽어요.
 - **로그**에는 댓글 내용도, 세션 라벨도 남지 않아요(규칙 5).
 
-응답이 다른 테이블에만 있는 것을 알려 주므로 API-245는 테이블 13개를 적어요. [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 기다려요.
+응답이 다른 테이블에만 있는 것을 알려 주므로 API-245는 테이블 13개를 적어요. [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 통과했어요.
 
 `test/entries.test.js`는 저장소가 허락하는 가장 적은 행을 `test/seed.js`로 써서 TASK-433의 완료 조건을 확인해요. 항목은 종류마다 나타났다가 끝나면 사라지고, 반영 항목 하나가 다이어그램의 기다리는 변경 세트를 모두 담고, 메모 4대로 움직여요. `test/todo.test.js`는 API-245가 적은 응답을 모두 받고, 건드리는 테이블을 확인해요(메모 23).
 
@@ -443,7 +443,7 @@ CORTHEX_HUB_CHECKOUT=<고정한 hub 체크아웃> python tests/test_sitemap_pict
 - **항목 ID**는 `openAgentEntry`가 찾는 대로 항목을 가리켜요([할 일 항목](#할-일-항목) 참고). 프로젝트의 어떤 것도 가리키지 않는 ID, `nd_` ID, 다른 종류의 항목을 가리키는 `ne_` ID는 `entry_not_found`를 받아요. 공간이 없는 프로젝트는 `project_not_found`를 받아요.
 - **로그**에는 세션 라벨이 남지 않아요(규칙 5).
 
-두 오퍼레이션은 자기가 쓰는 claim 말고도 프로젝트 공간, 항목, claim의 PR을 읽어요. 그래서 TBL-147, TBL-157, TBL-166, TBL-167을 적어요. [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 기다려요.
+두 오퍼레이션은 자기가 쓰는 claim 말고도 프로젝트 공간, 항목, claim의 PR을 읽어요. 그래서 TBL-147, TBL-157, TBL-166, TBL-167을 적어요. [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 통과했어요.
 
 `test/claims.test.js`는 API-250과 API-251이 적은 응답을 모두 받고, 두 오퍼레이션의 테이블(메모 23)과 TASK-434의 완료 조건을 확인해요. 저장소가 허락하는 가장 적은 행으로 `keepClaim`과 `finishClaim`도 확인해요.
 
@@ -469,7 +469,7 @@ CORTHEX_HUB_CHECKOUT=<고정한 hub 체크아웃> python tests/test_sitemap_pict
 - 응답의 **`item`**은 `src/todo.js`의 `threadItem`이 정하고, 에이전트 할 일도 같은 함수를 써요.
 - **로그**에는 댓글의 글, link, 세션 라벨이 남지 않아요(규칙 5).
 
-네 오퍼레이션은 적은 것보다 많은 테이블을 읽고 써요. 스레드가 기다리는 쪽을 바꾸는 것도 그래요(WBS 메모 15). [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 기다리고, `diagram_not_found`의 에이전트 안내(메모 11)도 그래요.
+네 오퍼레이션은 적은 것보다 많은 테이블을 읽고 써요. 스레드가 기다리는 쪽을 바꾸는 것도 그래요(WBS 메모 15). [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 통과했고, `diagram_not_found`의 에이전트 안내(메모 11)도 그래요.
 
 `test/comments.test.js`는 TASK-437의 완료 조건을 확인하고, API-252~API-255가 적은 응답을 모두 받고, 건드리는 테이블을 확인해요(메모 23).
 
@@ -489,7 +489,7 @@ CORTHEX_HUB_CHECKOUT=<고정한 hub 체크아웃> python tests/test_sitemap_pict
 - **워크숍**: 프로젝트의 가장 최근 워크숍(TBL-162)이에요. 열린 워크숍이 있으면 그것이고, 없으면 마지막으로 닫힌 워크숍이고, 워크숍이 없었으면 null이에요.
 - **프로젝트 공간이 없는 이름**은 `project_not_found`를 받고, 그 detail은 이름을 되풀이하지 않아요.
 
-응답이 다른 테이블에만 있는 것을 알려 주므로 API-264는 테이블 12개를 적어요. [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 기다려요.
+응답이 다른 테이블에만 있는 것을 알려 주므로 API-264는 테이블 12개를 적어요. [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 통과했어요.
 
 `test/project-read.test.js`는 `test/seed.js`가 쓴 행으로 TASK-440의 완료 조건을 확인해요. 단계 통과와 도구 링크는 뒤 태스크가 쓰므로 이 행도 `test/seed.js`가 써요(메모 25). 단계는 통과 기록에 따라 통과로 보이고, 그 통과가 기대는 확정이 무효가 되어 통과가 바뀌었다고 표시되면 "통과 뒤 바뀜"으로 보여요. 지운 다이어그램은 세지 않아요. API-264가 적은 응답을 모두 받고, 건드리는 테이블을 확인해요(메모 23).
 
@@ -517,7 +517,7 @@ CORTHEX_HUB_CHECKOUT=<고정한 hub 체크아웃> python tests/test_sitemap_pict
   - 경고는 뒤의 백업이 성공할 때까지 남아요. `failed_at`은 실패한 재시도가 끝난 시각이고, `last_succeeded_at`은 마지막으로 성공한 백업이 끝난 시각이며, 성공한 적이 없으면 null이에요.
   - 백업 자체는 TASK-450이 맡고, 돌지 못한 재시도를 적는 것도 TASK-450이에요.
 
-두 응답이 다른 테이블에만 있는 것을 알려 주므로 API-262는 테이블 7개를, API-263은 9개를 적어요. [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 기다려요.
+두 응답이 다른 테이블에만 있는 것을 알려 주므로 API-262는 테이블 7개를, API-263은 9개를 적어요. [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 통과했어요.
 
 `test/owner.test.js`는 TASK-439의 완료 조건을 확인해요. 데이터 폴더에 v2 저장소가 있는 새 설치는 프로젝트도 할 일도 나열하지 않아요. 테스트는 API-262와 API-263이 적은 응답을 모두 받고, 각각 건드리는 테이블을 확인해요(메모 23). 행은 `test/seed.js`로 쓰고, 항목은 `src/entries.js`가 열고, TBL-170 행은 TASK-450의 작업이 쓸 모양대로 써요.
 
@@ -543,7 +543,7 @@ CORTHEX_HUB_CHECKOUT=<고정한 hub 체크아웃> python tests/test_sitemap_pict
   - 응답인 RemovalAnswer는 같은 트랜잭션에서 지우기 바로 전에 센 수를 줘요.
   - 다른 쓰기처럼 요청 키와 함께 한 트랜잭션에서 돌아요. 그래서 중간에 실패한 지우기는 아무것도 지우지 않고, 같은 키로 다시 보내면 첫 응답을 다시 받아요.
 
-두 오퍼레이션은 다른 테이블에만 있는 것을 세고 읽으므로, API-277은 테이블 12개를, API-278은 14개를 적어요. API-278이 그 명세 행이 채우는 테이블만 바꾸도록 TBL-149의 추적 목록에 SPEC-013이 들어가요. [ERD README](../docs/05-erd/README.ko.md)와 [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 기다려요.
+두 오퍼레이션은 다른 테이블에만 있는 것을 세고 읽으므로, API-277은 테이블 12개를, API-278은 14개를 적어요. API-278이 그 명세 행이 채우는 테이블만 바꾸도록 TBL-149의 추적 목록에 SPEC-013이 들어가요. [ERD README](../docs/05-erd/README.ko.md)와 [API README](../docs/06-api/README.ko.md) 끝의 수정은 따로 체크포인트를 통과했어요.
 
 `test/removal.test.js`는 블롭 하나를 함께 가리키는 두 프로젝트로 TASK-448의 완료 조건을 확인해요. 두 프로젝트 모두 프로젝트의 테이블마다 행이 있어요.
 
