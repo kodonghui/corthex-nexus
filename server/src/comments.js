@@ -109,14 +109,15 @@ function onlyFields(body, fields) {
   }
 }
 
-// A string field in the contract's form: refused with invalid_request on field when it is not.
+// A string field in the contract's form: refused with invalid_request on field when it is not. A lone surrogate is
+// refused too, as in boundedText: a link can become an entry's text, which the store would keep as another text.
 function formOf(body, field, { pattern, length, required = false }) {
   if (!Object.hasOwn(body, field)) {
     if (required) throw invalidRequest(field, `${field} is required`);
     return undefined;
   }
   const value = body[field];
-  if (typeof value !== 'string' || characters(value) > length || !pattern.test(value)) {
+  if (typeof value !== 'string' || !value.isWellFormed() || characters(value) > length || !pattern.test(value)) {
     throw invalidRequest(field, `${field} is not in its form`);
   }
   return value;

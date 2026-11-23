@@ -405,6 +405,7 @@ describe('agent comments', () => {
       [comment, erdComment({ item: '', asks: 'checkpoint', look_first: 'TBL-146', text: 'x'.repeat(1201) }), 'text_too_long', 'text', 1200],
       [comment, erdComment({ item: '', asks: 'checkpoint' }), 'invalid_request', 'look_first'],
       [comment, erdComment({ item: '', asks: 'checkpoint', look_first: 'http://example.com' }), 'invalid_request', 'look_first'],
+      [comment, erdComment({ item: '', asks: 'checkpoint', look_first: 'https://example.com/\uD800' }), 'invalid_request', 'look_first'],
       [(body, options) => reply(id, body, options), { text: '' }, 'invalid_request', 'text'],
       [(body, options) => reply(id, body, options), { text: 'x'.repeat(4001) }, 'text_too_long', 'text', 4000],
       [(body, options) => reply(id, body, options), { text: 'x', item: 'TBL-146' }, 'invalid_request', 'body'],
@@ -412,6 +413,9 @@ describe('agent comments', () => {
       [(body, options) => answered(id, { ...options, body }), { text: 'done' }, 'invalid_request', 'body'],
       [(body, options) => decide(id, body, options), { text: 'no link' }, 'invalid_request', 'link'],
       [(body, options) => decide(id, body, options), { link: `http://${secretish}` }, 'invalid_request', 'link'],
+      // A link with a lone surrogate would stand as the entry's text, which the store keeps as another text.
+      [(body, options) => decide(id, body, options), { link: `${LINK}\uD800` }, 'invalid_request', 'link'],
+      [(body, options) => reply(id, body, options), { text: 'x', look_first: 'https://example.com/\uD800' }, 'invalid_request', 'look_first'],
       [(body, options) => decide(id, body, options), { link: LINK, text: 'x'.repeat(4001) }, 'text_too_long', 'text', 4000],
       [(body, options) => decide(id, body, options), { link: LINK, text: 3 }, 'invalid_request', 'text'],
     ];
