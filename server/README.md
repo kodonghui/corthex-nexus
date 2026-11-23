@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; and TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-422's [ERD](#erd), the drawer of stage 05; and TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -132,7 +132,7 @@ The schema lists only the fields NEXUS reads and says NEXUS keeps the others as 
 
 ## Drawing
 
-The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. This task builds what they plug into; the tests draw with drawers of their own.
+The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-422's [ERD](#erd) drawer so far.
 
 **Diagrams.** A diagram is drawn from one document of the snapshot. Its `source_key` is that document's path in `snapshot_files` (see Documents above), so a drawing finds its source from the diagram alone.
 
@@ -150,7 +150,7 @@ The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a draw
 - **A diagram's part** is in its `source_key` for a stage's picture, and an item table has none. The store's columns keep no part for a file's picture. The snapshot's `/snapshot` document names it beside the file's key, except in a revision that a newer format completed, which added only the files.
 
 **Drawings.** Each diagram the snapshot holds is drawn again. Its drawing is new when its `source_digest`, or what it drew, differs from the diagram's last drawing. Otherwise the diagram is unchanged and keeps that drawing, so a confirmation of it stays (SPEC-033).
-- **The digest** is the SHA-256 of the documents the drawer read, its own included, each by path and SHA-256, in the order of their paths. A drawer that draws otherwise from the same source, such as a newer version of it, makes a new drawing with the same digest.
+- **The digest** is the SHA-256 of the documents the drawer read, its own included, each by path and SHA-256, in the order of their paths. When the drawer was given warnings, they join it too, as `/snapshot#picture-partial` and the SHA-256 of their JSON, a name no document has; a drawing given none has the digest it had before warnings were given. A drawer that draws otherwise from the same source, such as a newer version of it, makes a new drawing with the same digest.
 - **A drawing is `drawn` or `failed`.** A drawer that cannot read its source throws `SourceFailure`. Its drawing keeps where it failed, as `failed_path` and `failed_line`, and has no elements; the diagram keeps its last good drawing (SPEC-001). The same source failing again makes no new drawing.
 - **`document_version`** is the snapshot's commit, and `drawn_at` the push's time.
 - **A drawing reads the documents of its own snapshot only.**
@@ -171,10 +171,10 @@ The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a draw
 ```js
 import { SourceFailure } from './drawing.js';
 
-// erd: TASK-422's drawer for the stage-05 picture.
-function erd({ stage, part, key, kind, source, text, read }) {
+// A drawer of a stage's picture, as src/erd.js is the ERD's.
+function draw({ stage, part, key, kind, source, text, read, warnings }) {
   const picture = JSON.parse(text);
-  // ... throw new SourceFailure({ path: 'db/nexus.sql', line: 94 }) for a statement it cannot read.
+  // ... throw new SourceFailure() for a picture it cannot read at all: the drawing fails at its source.
   return { name: 'ERD', elements: [{ trace_id: 'TBL-151', kind: 'table', name: 'diagrams', detail: { columns: [] } }] };
 }
 ```
@@ -186,6 +186,7 @@ function erd({ stage, part, key, kind, source, text, read }) {
 | `source` | The repository path the document comes from: the file's key, or the stage's source as the snapshot's stage record names it. |
 | `text` | The document as kept: a file's whole text, the hub's parsed picture as JSON, or the stage's items as a JSON array. |
 | `read(path)` | Another document of the same snapshot by its path, or null when the snapshot holds none. What it reads joins the digest. |
+| `warnings` | For a stage's picture (01, 05 and 07), what the hub left out of it: the hub's `picture-partial` checks of the picture's stage that name its part or no part, from the snapshot's `checks` that `/snapshot` keeps, in their order, up to 500. The hub adds one for each statement or entry it leaves out of a picture, as `<path>:<line>: <detail>`, and one for a source file it could not read, as `<path>: <detail>` with no part. Each is `{ path, line, detail }`: the repository path and line it starts with, each null when it names none, and the rest. Any other document has none, `[]`. `pictureWarnings(checks, stage, part)` in `src/drawing.js` reads them. |
 
 | It returns | Meaning |
 | --- | --- |
@@ -203,6 +204,35 @@ function erd({ stage, part, key, kind, source, text, read }) {
 No log line holds a source's text or where a drawing failed (rule 5). The answer's `where` is a path in the repository, never a server path.
 
 `test/drawing.test.js` draws this repository's snapshots, changed in each test, with the drawers of `test/drawers.js` and others made in the tests. It checks TASK-419's done condition: a failing source keeps the last drawing and is named in failures; a 0.2 snapshot after 0.3 pictures keeps them; an element keeps its key across drawings. It also checks the diagrams of each kind, the item table that makes way, a diagram that is removed and comes back, a document a drawer reads, the drawer's rules and the tables API-242 lists.
+
+## ERD
+
+`src/erd.js` is TASK-422, the drawer of the `erd` kind: it draws the stage-05 picture as tables with their columns and keys, and a line for each foreign key (SPEC-004). Its source is the pinned hub's parsed picture of the project's schema, as the contract's `Snapshot` says of stage 05, so NEXUS parses no SQL. The hub's `erd.py` reads the schema, and its picture, format 1, holds each table with its trace ID, name, columns (name, type, whether it takes null, and where), primary key, unique rules, foreign keys and where, the file and line it comes from.
+
+What it draws, in this order:
+
+| Element | `kind`, `status` | `detail` |
+| --- | --- | --- |
+| Each table of the picture, in its order, with its trace ID and name | `table`; `removed` when the hub marks it removed | `columns` (each `name`, `type`, `null` and `keys`: `primary`, `foreign` and `unique` for a column that is in the primary key, in a foreign key, or alone a unique rule that is not partial), `primary_key`, `unique`, `where` and `box` |
+| A table entry it cannot read, one that is not in the picture's form: left out, and marked with its trace ID and name when it has them | `table`, `unreadable` | `columns` `[]`, `where` and `box` |
+| A table that a foreign key names and the picture does not hold, once for each name | `table`, `missing` | `columns` `[]` and `box` |
+| A foreign key of a table it read, named by its columns, its parent the table that holds the key | `line` | `from` and `to`, the keys of that table and of the table it references; `columns`, `references`, `on_delete`, `where`; `points` |
+| A statement the hub left out, one for each of the picture's warnings, named by what the hub says of it | `statement`, `left_out` | `where`, its file and line, or the file alone, or null |
+
+- **A statement that cannot be parsed.** The hub's `erd.py` parses the schema. It leaves out of the picture a statement it cannot read, and adds a `picture-partial` check naming its file and line, which the drawer gets as a warning and shows as a `statement` element (SPEC-004). A table entry of the picture that the drawer cannot read is left out the same way, as an `unreadable` table with its `where`; lines still reach its box.
+- **A foreign key to a missing table** goes to a `missing` table of the name it gives. A foreign key names its table as SQL does: the table of that name, or else the first one whose name differs only in case.
+- **Places.** `layout.js` places every table, a referenced table above the tables that reference it. `box` is `{ x, y, width, height }`, its top left corner and its size; a line's `points`, `[{ x, y }]`, run from the table that holds the key to the table it references. A box's size is worked out from its text for 12-pixel IBM Plex Mono: a 32-pixel header with the name, a 20-pixel row for each column, 12 pixels of padding at each side, from 120 to 480 pixels wide. A statement has no box.
+- **Keys.** A table's key is its trace ID, or `table:` and its name; a line's is its table's key, `/line:` and its columns; a statement's is `statement:` and what the hub says. A key another element has gets `#2`, `#3` and so on. So a table keeps its key, and the threads on it, while it keeps its trace ID.
+- **A picture it cannot draw** fails at its source, the stage's source file with no line: one that is not format 1 with a list of tables, one with more than 5000 elements, and one too large a graph for `layout.js` to place.
+
+`test/erd.test.js` checks TASK-422's done condition. This repository's 26 tables draw as a stored expected drawing: `test/erd-picture.json` is the pinned hub's picture of `db/nexus.sql` with the file's SHA-256, and `test/erd-expected.json` its drawing, compared exactly, alone and through the push with the server's own drawer. The test fails when `db/nexus.sql` changes and the picture does not, and when the drawing changes and its file does not. The server's tests run with Node alone, so `tests/test_erd_picture.py` makes the picture again with the pinned hub and fails when it differs from the stored one. To make both files again, from the repository's root:
+
+```sh
+CORTHEX_HUB_CHECKOUT=<the pinned hub checkout> python tests/test_erd_picture.py --write
+(cd server && node test/erd-expected.js --write)
+```
+
+It also checks, with pictures and checks it makes: a statement the hub left out, with its file and line, and the warnings in the digest; an unreadable table entry; a foreign key to a missing table; a picture in the wrong format; SPEC-004's 2 tables joined by 1 line; and no log line holding the picture's text (rule 5).
 
 ## To-do entries
 
