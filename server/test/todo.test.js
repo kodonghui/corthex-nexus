@@ -132,6 +132,27 @@ describe('the agent to-do', () => {
     assert.equal(none.json.taken, 2);
   });
 
+  test('an item is a trace ID of at most 30 characters, and an entry that holds no change set is neither listed nor taken', async () => {
+    const space = s.project();
+    const erd = s.diagram(space);
+    // A key of the trace ID form that is longer than the contract's ItemRef allows names no item.
+    const long = `${'A'.repeat(29)}-1`;
+    assert.equal(long.length, 31);
+    threadChanged(db, { project: space.id, thread: s.thread(erd, { elementKey: long }), time: TIME });
+    // A reflection entry that another session claims, left open with nothing to hold, as by a caller that skipped
+    // changeSetsChanged.
+    const changeSet = s.changeSet(space, erd);
+    changeSetsChanged(db, { project: space.id, diagram: erd.id, time: TIME });
+    const { id: entry } = db.prepare("SELECT id FROM todos WHERE project_id = ? AND kind = 'reflect'").get(space.id);
+    s.claim(space, entry, { session: OTHER, lastWriteAt: at(NOW - MINUTE) });
+    s.setChangeSet(changeSet, { state: 'cancelled' });
+    const answer = await read(space.name, { ...s.agent.headers, 'Nexus-Session': SESSION });
+    assert.equal(answer.status, 200);
+    assert.deepEqual(answer.json.comments.entries.map((each) => [each.target, each.item]), [['element', '']]);
+    assert.deepEqual(answer.json.reflections, { total: 0, entries: [] });
+    assert.equal(answer.json.taken, 0);
+  });
+
   test('a project with nothing to do answers empty lists, and another project\'s entries are not its own', async () => {
     const empty = s.project();
     const answer = await read(empty.name);

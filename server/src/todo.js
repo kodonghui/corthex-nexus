@@ -29,9 +29,10 @@ const LISTED_STEPS = 11;
 const HELD_CHANGE_SETS = 200;
 // A claim ends this long after the session's last write on its entry, or after its pull request closed (SPEC-045).
 const CLAIM_MS = 60 * 60 * 1000;
-// The contract's SessionLabel, TraceId and Part.
+// The contract's SessionLabel, ItemRef and Part.
 const SESSION = /^[A-Za-z0-9._:-]{1,100}$/;
 const TRACE_ID = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
+const TRACE_ID_LENGTH = 30;
 const PART = /^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$/;
 const PART_LENGTH = 100;
 
@@ -194,7 +195,8 @@ export function agentTodo(store, { name, session = null, now }) {
 
   const comments = statements.comments.all(projectId).map((row) => {
     const id = idOf('nc', Number(row.thread_id));
-    const item = row.target_kind !== 'diagram' && TRACE_ID.test(row.element_key ?? '') ? row.element_key : '';
+    const key = row.element_key ?? '';
+    const item = row.target_kind !== 'diagram' && key.length <= TRACE_ID_LENGTH && TRACE_ID.test(key) ? key : '';
     return {
       id,
       ...where(row),
@@ -208,11 +210,16 @@ export function agentTodo(store, { name, session = null, now }) {
     };
   });
 
-  // An entry holds at least one change set while entries.js keeps it open; one that holds none is left out.
+  // An entry holds at least one change set while entries.js keeps it open; one that holds none is left out, before
+  // its claim is counted in taken.
   let empty = 0;
   const reflections = statements.reflections.all(projectId).map((row) => {
-    const id = idOf('ne', Number(row.id));
     const held = heldChangeSets(store, { project: projectId, entry: row });
+    if (held.changeSets.length > 0) return { row, held };
+    empty += 1;
+    return null;
+  }).filter((each) => each !== null).map(({ row, held }) => {
+    const id = idOf('ne', Number(row.id));
     const number = held.pullRequest === null ? null : statements.pullRequest.get(held.pullRequest)?.number ?? null;
     return {
       id,
@@ -223,10 +230,6 @@ export function agentTodo(store, { name, session = null, now }) {
       pull_request: pullRequestLink(repository, number),
       claim: claimed(row.id, id),
     };
-  }).filter((entry) => {
-    if (entry.change_sets.length > 0) return true;
-    empty += 1;
-    return false;
   });
 
   const checkpoints = statements.checkpoints.all(projectId).map((row) => {

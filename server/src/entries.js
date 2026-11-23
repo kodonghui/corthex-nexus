@@ -112,8 +112,13 @@ function checkKey(value, name) {
   if (!Number.isSafeInteger(value) || value < 1) throw new TypeError(`${name} is a row key`);
 }
 
+// An entry's times are answered as they are kept, so a time has the contract's Time form: UTC with milliseconds.
+const TIME = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/;
+
 function checkTime(time) {
-  if (typeof time !== 'string' || Number.isNaN(Date.parse(time))) throw new TypeError('time is a time in ISO 8601');
+  const valid = typeof time === 'string' && TIME.test(time) && !Number.isNaN(Date.parse(time))
+    && new Date(time).toISOString() === time;
+  if (!valid) throw new TypeError('time is a UTC time with milliseconds, such as 2026-11-23T01:00:00.000Z');
 }
 
 // Opens an entry of kind about what subject names, returning its key.

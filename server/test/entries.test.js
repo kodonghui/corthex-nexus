@@ -351,7 +351,10 @@ test('refuses a call that does not name its subject by row keys and a time', (t)
   assert.throws(() => threadChanged(db, { project: space.id, thread: 0, time: TIME }), /thread is a row key/);
   assert.throws(() => threadChanged(db, { project: space.id, thread: 99, time: TIME }), /no thread has this key/);
   assert.throws(() => changeSetsChanged(db, { project: '1', diagram: erd.id, time: TIME }), /project is a row key/);
-  assert.throws(() => confirmationsChanged(db, { project: space.id, diagram: erd.id, time: 'now' }), /time is a time/);
+  // An entry's times are answered as kept, so only the contract's Time form is taken.
+  for (const time of ['now', '2026-11-23', '2026-11-23T01:00:00Z', '2026-11-23T10:00:00.000+09:00', '2026-02-30T01:00:00.000Z', Date.parse(TIME)]) {
+    assert.throws(() => confirmationsChanged(db, { project: space.id, diagram: erd.id, time }), /time is a UTC time with milliseconds/);
+  }
   assert.throws(() => confirmationsChanged(db, { project: space.id + 1, diagram: erd.id, time: TIME }), /no diagram of the project/);
   assert.throws(() => stepsChanged(db, { project: space.id, workshop: 1.5, time: TIME }), /workshop is a row key/);
   assert.equal(db.prepare('SELECT count(*) AS n FROM todos').get().n, 0);
