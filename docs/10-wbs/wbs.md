@@ -12,7 +12,7 @@ Sizes: S is about half a day of one Claude worker, M a day and L two days. A Cla
 - Iteration 2, the agent's and the owner's operations: TASK-433 to TASK-453.
 - Iteration 3, the screens: TASK-454 to TASK-462.
 - Release: TASK-463 to TASK-465; stage-12 QA and its release gate come before the deploy.
-- Added on 2026-11-24 after TASK-438's gap (section 4): TASK-466, a Must task done before the release.
+- Added on 2026-11-24 after TASK-438's gap (section 4): TASK-466, a Must task done before the release. TASK-464 waits for it, though the table names only earlier tasks as dependencies.
 - Tasks that serve only Should or Could rows (SPEC-026, SPEC-036 to SPEC-041, SPEC-046 and SPEC-047) come after the Must tasks of their iteration.
 
 The first development task is TASK-413, the server skeleton; questions 1 to 4 were answered at this stage's checkpoint on 2026-11-23.
@@ -74,7 +74,7 @@ The first development task is TASK-413, the server skeleton; questions 1 to 4 we
 | TASK-463 | Decide the order of v2 and v3 and v3's address | SPEC-015 | none | TASK-450, TASK-461 | maintainer | S | The maintainer's answer is in the project's records outside Git, and this row names the decision |
 | TASK-464 | Deploy v3 and point the push job at it, as the order decision says | SPEC-014, SPEC-015 | none | TASK-432, TASK-449, TASK-463 | Claude worker | M | The stage-12 release gate passed first; the push job's secrets hold a credential v3 issued and v3's address; the owner confirms the first push with push --first (SPEC-002), and a push of this repository then draws on v3 |
 | TASK-465 | Decide whether to delete v2's data once v3 replaces it; if yes, it is deleted as its own step after a backup | SPEC-015 | none | TASK-464 | maintainer | S | The maintainer's answer is in the project's records; nothing is deleted without it, and an approved deletion runs only after a backup of v2 |
-| TASK-466 | Changes from source_text on stages 05 and 07: NEXUS reads a proposal's SQL and YAML itself (TASK-438's gap, section 4) | SPEC-018 | API-256, TBL-158, TBL-159 | TASK-438 | Claude worker | M | With source_text on stage 05 or 07, the differences become changes, and NEXUS's reading of this repository's db/nexus.sql and docs/07-sitemap/nexus.yaml matches the pinned hub's stored pictures, as TASK-424 checked the flows; every response API-256 lists has a passing test |
+| TASK-466 | Changes from source_text on stages 05 and 07: NEXUS reads a proposal's SQL and YAML itself (TASK-438's gap, section 4) | SPEC-018 | API-256, TBL-158, TBL-159 | TASK-438 | Claude worker | L | With source_text on stage 05 or 07, the differences become changes; NEXUS's reading of this repository's db/nexus.sql and docs/07-sitemap/nexus.yaml matches the pictures the pinned hub made of them, stored in server/test/erd-picture.json and server/test/sitemap-picture.json; every response API-256 lists has a passing test |
 
 ## 3. Open questions
 
@@ -90,9 +90,9 @@ Each has a recommendation. Questions 1 to 4 were asked one by one at this stage'
 ## 4. Differences from approved items
 
 - The stage-06 checkpoint of 2026-11-23 left SPEC-006, SPEC-008 and SPEC-009 out of the first release. The feature change of the same day reversed that decision (the maintainer's, in the project's records), and this WBS puts the three rows in the first release (TASK-424, TASK-426, TASK-427, TASK-428, TASK-429, TASK-431).
-- SPEC-018's acceptance, "Given a comment asking to rename X, when the agent posts a proposal renaming X to Y, then the owner sees Y over X, marked as proposed", and the contract's `source_text`, "The proposed document, from which NEXUS works out the changes", are met by TASK-438 (pull request 137) on stages 03 and 08 only, where NEXUS draws `source_text` with the diagram's own drawer. On stages 05 and 07 NEXUS draws from the hub's parsed picture and reads no SQL or YAML, so TASK-466 was added for them on 2026-11-24.
-- On stage 01, a proposal's `source_text` is kept but makes no changes, so the owner sees X marked with the change text rather than Y over X. Stage 01's picture comes from several files, and `source_text` names no path; the pinned hub (e410ce9) sends none. This difference stays until a hub change sends the path, and is looked at again with the hub change at TASK-463's deploy.
-- The maintainer approved both on 2026-11-24 through the delegate they named for checkpoints, as this stage's own checkpoint; the answer is in the project's records.
+- SPEC-018's acceptance, "Given a comment asking to rename X, when the agent posts a proposal renaming X to Y, then the owner sees Y over X, marked as proposed", and the contract's `source_text`, "The proposed document, from which NEXUS works out the changes", are met by TASK-438 (pull request 137) on stages 03 and 08 only, where NEXUS draws `source_text` with the diagram's own drawer. The pinned hub's `propose` offers only stages 01, 05 and 07 (`PICTURE_STAGES` in its `commands.py` at e410ce9), so it reaches neither today. On stages 05 and 07 NEXUS draws from the hub's parsed picture and reads no SQL or YAML, so TASK-466 was added for them on 2026-11-24.
+- On stage 01, a proposal's `source_text` is kept but makes no changes, so the owner sees X marked with the change text rather than Y over X. Stage 01's picture comes from several files, and `source_text` names no path; the pinned hub (e410ce9) sends none. This difference stays until a hub change sends the path. It is looked at again at TASK-463, before the deploy, with the hub change and its publication, which are asked of the maintainer directly.
+- The maintainer approved both on 2026-11-24 through the delegate they named for checkpoints, each answered on its own, as this stage's own checkpoint; the answer is in the project's records.
 - This stage removes, defers or changes no other approved item.
 
 ## 5. Notes from the reviews of pull requests 104, 105 and 106
