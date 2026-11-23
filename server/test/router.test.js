@@ -8,6 +8,9 @@ import { startServer, TRACE_ID, waitFor } from './support.js';
 
 const PROBLEM_KEYS = ['code', 'detail', 'status', 'title', 'traceId'];
 const handle = () => ({ body: {} });
+// These routes test the router, not admission (see admission.test.js): their actions are no operations of the
+// contract, so each says it needs no admission.
+const open = (route) => ({ ...route, family: 'none' });
 
 describe('an unknown path', () => {
   let server;
@@ -63,10 +66,10 @@ describe('the routes', () => {
   before(async () => {
     server = await startServer({
       routes: [
-        { method: 'GET', path: '/api/spaces/{project}/todo', action: 'getAgentTodo', handle: ({ params }) => ({ body: params }) },
-        { method: 'GET', path: '/api/projects/{project}', action: 'getProject', handle },
-        { method: 'DELETE', path: '/api/projects/{project}', action: 'deleteProject', handle },
-        { method: 'POST', path: '/api/snapshots', action: 'pushSnapshot', handle: () => ({ status: 201, body: { created: true } }) },
+        { method: 'GET', path: '/api/spaces/{project}/todo', action: 'readTodo', handle: ({ params }) => ({ body: params }) },
+        { method: 'GET', path: '/api/projects/{project}', action: 'readProject', handle },
+        { method: 'DELETE', path: '/api/projects/{project}', action: 'removeProject', handle },
+        { method: 'POST', path: '/api/snapshots', action: 'push', handle: () => ({ status: 201, body: { created: true } }) },
         { method: 'GET', path: '/api/fails', action: 'fails', handle: () => { throw new Error('broken'); } },
         { method: 'GET', path: '/api/empty', action: 'empty', handle: () => ({}) },
         {
@@ -97,7 +100,7 @@ describe('the routes', () => {
           action: 'unsendable',
           handle: () => { throw new Problem('not_found', 'x', { 'X-Bad': 'a\nb' }); },
         },
-      ],
+      ].map(open),
     });
   });
   after(() => server.close());
@@ -203,13 +206,17 @@ describe('the routes', () => {
     }
   });
 
-  test('take the gate\'s CF-Ray as the trace ID only in its own form', async () => {
-    const ray = '0123456789abcdef-ICN';
-    assert.equal((await server.send({ path: '/x', headers: { 'CF-Ray': ray } })).json.traceId, ray);
-    for (const other of ['0123456789abcdef', '0123456789ABCDEF-ICN', '0123456789abcdef-icn', `${ray}-ICN`, `${ray} x`]) {
-      const answer = await server.send({ path: '/x', headers: { 'CF-Ray': other } });
+  test('take no CF-Ray as the trace ID without the owner\'s sign-in', async () => {
+    // Anyone who reaches the server without the gate can send one; admission.test.js shows when it is taken.
+    const headers = { 'CF-Ray': '0123456789abcdef-ICN' };
+    for (const [method, path, code] of [
+      ['GET', '/x', 'not_found'],
+      ['PUT', '/api/projects/demo', 'method_not_allowed'],
+      ['GET', '/api/fails', 'internal'],
+    ]) {
+      const answer = await server.send({ method, path, headers });
+      assert.equal(answer.json.code, code);
       assert.match(answer.json.traceId, /^[0-9a-f]{16}$/);
-      assert.notEqual(answer.json.traceId, other);
     }
   });
 });

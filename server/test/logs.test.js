@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { after, before, describe, test } from 'node:test';
 import { Writable } from 'node:stream';
 import { errorKind, jsonLines, logCrashes } from '../src/log.js';
-import { assertNoneIn, forbiddenValues, startServer, TRACE_ID } from './support.js';
+import { assertNoneIn, forbiddenValues, localGate, OWNER_EMAIL, startServer, TRACE_ID } from './support.js';
 
 const SERVER_DIRECTORY = fileURLToPath(new URL('..', import.meta.url));
 
@@ -26,14 +26,21 @@ describe('the request log', () => {
   before(async () => {
     dataDirectory = await mkdtemp(join(tmpdir(), 'nexus-logs-'));
     values = forbiddenValues([SERVER_DIRECTORY, process.cwd(), dataDirectory]);
+    // The owner's sign-in that the gate signs is a sign-in token too.
+    const local = localGate();
+    values.ownerSignIn = local.token();
+    values.ownerEmail = OWNER_EMAIL;
     const fileOf = (name) => join(dataDirectory, name);
     server = await startServer({
+      gate: local.gate,
       routes: [
         {
-          // A handler that fails with the request's text, a secret and a server path in its error.
+          // A handler that fails with the request's text, a secret and a server path in its error. Its action is
+          // no operation of the contract, so it says it needs no admission.
           method: 'POST',
           path: '/api/spaces/{project}/comments',
           action: 'postAgentComment',
+          family: 'none',
           async handle({ request }) {
             const chunks = [];
             for await (const chunk of request) chunks.push(chunk);
@@ -72,8 +79,14 @@ describe('the request log', () => {
       { method: 'POST', path: `/api/spaces/${encodeURIComponent(values.refusedText)}/files`, headers: credential, body: refusedFile },
       // A method the path does not take.
       { method: 'PUT', path: `/api/projects/${values.digestBase64url}`, headers: signIn, body: refusedFile },
-      // An operation that answers, with the values in its parameter, query and headers.
-      { method: 'GET', path: `/api/projects/${values.secret}?d=${encodeURIComponent(values.serverPath0)}`, headers: signIn },
+      // An owner operation refused without a valid sign-in, with the values in its headers.
+      { method: 'GET', path: `/api/projects/${values.digestHex}`, headers: { ...credential, ...signIn } },
+      // An owner operation that answers, with the values in its parameter, query and headers.
+      {
+        method: 'GET',
+        path: `/api/projects/${values.secret}?d=${encodeURIComponent(values.serverPath0)}`,
+        headers: { ...signIn, 'Cf-Access-Jwt-Assertion': values.ownerSignIn },
+      },
       // An operation whose handler fails with the values in its error.
       { method: 'POST', path: '/api/spaces/demo/comments', headers: { ...credential, 'Content-Type': 'application/json' }, body: refusedFile },
     ]) {
@@ -106,11 +119,16 @@ describe('the request log', () => {
         ['GET', null, 404, 'not_found'],
         ['POST', null, 404, 'not_found'],
         ['PUT', null, 405, 'method_not_allowed'],
+        ['GET', 'getProject', 401, 'unauthenticated'],
         ['GET', 'getProject', 200, null],
         ['POST', 'postAgentComment', 500, 'internal'],
       ],
     );
-    assert.equal(lines[5].error, 'Error ENOENT');
+    // The sender is the owner once the sign-in is checked, and "unknown" otherwise (rule 8).
+    assert.deepEqual(lines.map((line) => line.sender), ['unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'owner', 'unknown']);
+    // The made-up sign-in token is well formed, but no key of the gate signed it.
+    assert.equal(lines[4].reason, 'unknown_key');
+    assert.equal(lines[6].error, 'Error ENOENT');
   });
 
   test('holds no secret, digest, sign-in token, server path or refused file text (rule 5)', async () => {
@@ -119,7 +137,7 @@ describe('the request log', () => {
   });
 
   test('holds only the fields the server sets', async () => {
-    const fields = new Set(['time', 'traceId', 'method', 'action', 'status', 'code', 'ms', 'error', 'aborted']);
+    const fields = new Set(['time', 'traceId', 'method', 'action', 'sender', 'status', 'code', 'ms', 'reason', 'error', 'aborted']);
     for (const line of await server.logged(answers.length)) {
       for (const field of Object.keys(line)) assert.ok(fields.has(field), field);
     }

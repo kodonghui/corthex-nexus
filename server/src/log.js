@@ -27,11 +27,22 @@ const ignore = () => {};
 // The streams whose write errors are already dropped.
 const guarded = new WeakSet();
 
-// The ID of one request in the log and in its Problem answer: the gate's CF-Ray when it has the right form,
-// otherwise 16 random hex digits.
-export function traceIdFor(headers) {
+// The ID of one request in the log and in its Problem answer. Every request starts with 16 random hex digits; one the
+// gate is known to have sent, because its owner's sign-in verified (admission.js), takes the gate's CF-Ray instead.
+export function randomTraceId() {
+  return randomBytes(8).toString('hex');
+}
+
+// The gate's CF-Ray when it has the right form, or null. Anyone who reaches the server without the gate can send one,
+// so it is taken only for a request the gate sent.
+export function rayOf(headers) {
   const ray = headers['cf-ray'];
-  return typeof ray === 'string' && CF_RAY.test(ray) ? ray : randomBytes(8).toString('hex');
+  return typeof ray === 'string' && CF_RAY.test(ray) ? ray : null;
+}
+
+// A request's trace ID from its headers: the CF-Ray, otherwise a random one.
+export function traceIdFor(headers) {
+  return rayOf(headers) ?? randomTraceId();
 }
 
 export function methodOf(method) {

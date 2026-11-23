@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { randomBytes } from 'node:crypto';
 import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -14,6 +15,12 @@ import { assertNoneIn, forbiddenValues, send, TRACE_ID, waitFor } from './suppor
 const SERVER_DIRECTORY = fileURLToPath(new URL('..', import.meta.url));
 const MAIN = fileURLToPath(new URL('../src/main.js', import.meta.url));
 const MIGRATION_NUMBERS = readMigrations().map((migration) => migration.number);
+// The gate's settings: placeholders, the audience made at run time. No test reaches the gate.
+const GATE_ENV = Object.freeze({
+  NEXUS_ACCESS_ISSUER: 'https://team.example.com',
+  NEXUS_ACCESS_AUD: randomBytes(32).toString('hex'),
+  NEXUS_OWNER_EMAIL: 'owner@example.com',
+});
 
 function run(env) {
   const child = spawn(process.execPath, [MAIN], {
@@ -61,8 +68,9 @@ async function stopped(server) {
 test('starts with the environment\'s settings and logs one line per request', async (t) => {
   const undo = cleanups(t);
   const data = undo.dataFolder();
-  const values = forbiddenValues([SERVER_DIRECTORY, MAIN, data]);
-  const server = undo.run({ NEXUS_HOST: '127.0.0.1', NEXUS_PORT: '0', NEXUS_DATA_DIR: data });
+  // The gate's audience and the owner's email are settings no line names either.
+  const values = { ...forbiddenValues([SERVER_DIRECTORY, MAIN, data]), audience: GATE_ENV.NEXUS_ACCESS_AUD, owner: GATE_ENV.NEXUS_OWNER_EMAIL };
+  const server = undo.run({ ...GATE_ENV, NEXUS_HOST: '127.0.0.1', NEXUS_PORT: '0', NEXUS_DATA_DIR: data });
   await waitFor(() => server.lines().some((line) => line.event === 'listening'), 10_000);
   const [opened, listening] = server.lines();
   // The store opens before the server listens: a new install applies every migration.
@@ -91,7 +99,7 @@ test('starts with the environment\'s settings and logs one line per request', as
 
   // Started again on the same folder, it applies nothing.
   await stopped(server);
-  const again = undo.run({ NEXUS_HOST: '127.0.0.1', NEXUS_PORT: '0', NEXUS_DATA_DIR: data });
+  const again = undo.run({ ...GATE_ENV, NEXUS_HOST: '127.0.0.1', NEXUS_PORT: '0', NEXUS_DATA_DIR: data });
   await waitFor(() => again.lines().some((each) => each.event === 'listening'), 10_000);
   assert.deepEqual(again.lines()[0].applied, []);
   assertNoneIn(again.output.stdout + again.output.stderr, values);
@@ -101,14 +109,18 @@ test('stops on an invalid setting, naming it but not its value', async (t) => {
   const undo = cleanups(t);
   const values = forbiddenValues([SERVER_DIRECTORY]);
   for (const [env, setting] of [
-    [{ NEXUS_PORT: values.secret, NEXUS_DATA_DIR: undo.dataFolder() }, 'NEXUS_PORT'],
-    [{ NEXUS_DATA_DIR: values.secret }, 'NEXUS_DATA_DIR'],
+    [{ ...GATE_ENV, NEXUS_PORT: values.secret, NEXUS_DATA_DIR: undo.dataFolder() }, 'NEXUS_PORT'],
+    [{ ...GATE_ENV, NEXUS_DATA_DIR: values.secret }, 'NEXUS_DATA_DIR'],
+    // The gate's settings have no default, and a value set by mistake is not named either.
+    [{ ...GATE_ENV, NEXUS_DATA_DIR: undo.dataFolder(), NEXUS_ACCESS_ISSUER: '' }, 'NEXUS_ACCESS_ISSUER'],
+    [{ ...GATE_ENV, NEXUS_DATA_DIR: undo.dataFolder(), NEXUS_ACCESS_AUD: values.secret }, 'NEXUS_ACCESS_AUD'],
+    [{ ...GATE_ENV, NEXUS_DATA_DIR: undo.dataFolder(), NEXUS_OWNER_EMAIL: values.secret }, 'NEXUS_OWNER_EMAIL'],
   ]) {
     const server = undo.run(env);
     const [code] = await once(server.child, 'close');
     assert.equal(code, 1);
     assert.deepEqual(server.lines().map((line) => [line.event, line.setting]), [['settings_invalid', setting]]);
-    assertNoneIn(server.output.stdout + server.output.stderr, values);
+    assertNoneIn(server.output.stdout + server.output.stderr, { ...values, audience: GATE_ENV.NEXUS_ACCESS_AUD, owner: GATE_ENV.NEXUS_OWNER_EMAIL });
   }
 });
 
@@ -118,7 +130,7 @@ test('stops before listening when the file at the store\'s name is not a NEXUS v
   const values = forbiddenValues([SERVER_DIRECTORY, data]);
   const text = `not a store ${values.refusedText}\n`;
   writeFileSync(join(data, STORE_FILE), text);
-  const server = undo.run({ NEXUS_PORT: '0', NEXUS_DATA_DIR: data });
+  const server = undo.run({ ...GATE_ENV, NEXUS_PORT: '0', NEXUS_DATA_DIR: data });
   const [code] = await once(server.child, 'close');
   assert.equal(code, 1);
   assert.deepEqual(server.lines().map((line) => [line.event, line.reason]), [['store_refused', 'not_a_v3_store']]);

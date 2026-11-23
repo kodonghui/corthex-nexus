@@ -10,6 +10,11 @@ const ENTRIES = Object.freeze({
   not_found: { status: 404, title: 'No such address' },
   method_not_allowed: { status: 405, title: 'This address does not take that method' },
   internal: { status: 500, title: 'Something went wrong' },
+  // Admission (admission.js, TASK-416).
+  unauthenticated: { status: 401, title: 'Sign in to NEXUS' },
+  not_owner: { status: 403, title: 'Only the owner can open NEXUS' },
+  cross_site: { status: 403, title: 'A request from another site' },
+  access_missing: { status: 401, title: 'No valid agent credential' },
 });
 
 export const PROBLEM_CODES = Object.freeze(Object.keys(ENTRIES));
