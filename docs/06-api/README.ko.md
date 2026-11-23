@@ -221,7 +221,7 @@
 
 ## 5. 이전 계약과 달라진 점
 
-이전 계약은 보관한 v2의 것이에요. 고정한 hub가 보내고 읽는 것은 바뀌지 않아요. 2026-11-23 기능 변경은 0.2 옆에 형식 corthex-hub/0.3을, 가진 커밋의 답에 formats·format 필드를, 댓글과 제안에 선택 필드 diagram을 더해요. 고정한 hub는 그 필드를 읽지도 보내지도 않아요. hub가 보지 않는 차이는 이래요: v2의 오류 코드 일부(clock_ahead, too_many_projects, write_id_reused, comment_limit 따위)를 쓰지 않고 v3 코드(request_key_reused, thread_closed 등)를 써요; discrepancies는 늘 비어 있어요; checkpoint_requested로 기존 요청에 답글을 돌리지 않아요; /removal과 v2 게시는 받지 않아요; 소유자 로그인은 에이전트 경로를 쓸 수 없어요; 자격 증명은 Cloudflare 서비스 토큰이 아니라 NEXUS가 발급해요. 소유자 계열은 모두 새로 만들었어요. 운영 중인 v2를 v3로 바꾸는 일은 이 계약이 아니라 릴리스 때 정해요.
+이전 계약은 보관한 v2의 것이에요. hub가 v2에 보내고 v2에서 읽는 것은 바뀌지 않아요. 2026-11-23 기능 변경은 0.2 옆에 형식 corthex-hub/0.3을, 가진 커밋의 답에 formats·format 필드를, 댓글과 제안에 선택 필드 diagram을 더해요. push 작업이 쓰는 고정한 hub 0.6.0은 formats·format을 읽고, 0.3을 나열한 서버에 0.3을 보내요. 세션이 쓰는 배포된 0.5.x는 둘 다 읽지 않고 0.2를 보내요. diagram은 어느 hub도 보내지 않아요. hub가 보지 않는 차이는 이래요: v2의 오류 코드 일부(clock_ahead, too_many_projects, write_id_reused, comment_limit 따위)를 쓰지 않고 v3 코드(request_key_reused, thread_closed 등)를 써요; discrepancies는 늘 비어 있어요; checkpoint_requested로 기존 요청에 답글을 돌리지 않아요; /removal과 v2 게시는 받지 않아요; 소유자 로그인은 에이전트 경로를 쓸 수 없어요; 자격 증명은 Cloudflare 서비스 토큰이 아니라 NEXUS가 발급해요. 소유자 계열은 모두 새로 만들었어요. 운영 중인 v2를 v3로 바꾸는 일은 이 계약이 아니라 릴리스 때 정해요.
 
 ## 6. 승인된 항목에서 바꾸는 것
 
@@ -271,3 +271,7 @@ PR 104의 두 번째 리뷰 뒤 항목이 더 바뀌었고, 하나씩 여쭈어 
 ### 예시 수정
 
 TASK-415를 만들다가 API-292의 413 예시가 다른 본문의 한도인 2 MiB(2097152바이트)를 적은 것을 찾았어요. 그 본문 설명, SPEC-041, 한도는 Miro 내보내기에 5 MiB를 줘요. 승인된 항목 하나가 바뀌었고, 따로 여쭈어 같은 대리인을 통해 승인받았어요. 이제 예시는 5242880바이트이고, 서버의 한도 테스트는 예외 없이 다른 본문의 예시처럼 이것도 검사해요. 오퍼레이션, 필드, 응답, 코드, 명세 행은 바뀌지 않았어요. 이 몫은 2026-11-23에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+### 고정 hub 수정
+
+TASK-432는 hub-ref.json과 push 작업에 hub corthex-nexus 0.6.0(kodonghui/corthex의 e410ce9)을 고정해요. 그래서 계약이 고정한 hub를 설명한 문장이 틀리게 됐어요. 그 문장은 push 작업에 0.4.0을 적었고, 고정한 hub가 가진 커밋의 답에서 default_commit만 읽는다고 했어요. 세션은 0.6.0이 배포될 때까지 배포된 0.5.x를 써요. 풀 리퀘스트 115에서 네 문장이 바뀌었어요. info의 에이전트 계열 설명은 push 작업의 0.6.0과 세션의 배포된 0.5.x를 적어요. API-243의 설명, 가진 커밋의 formats, 5절은 0.6.0이 formats·format을 읽고 그것을 나열한 서버에 0.3을 보내며, 0.5.x는 default_commit만 읽고 0.2를 보낸다고 적어요. 스키마, 오퍼레이션, 응답, 코드, 예시는 바뀌지 않았어요. 이 몫은 따로 체크포인트를 기다려요.

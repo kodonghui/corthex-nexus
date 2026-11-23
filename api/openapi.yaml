@@ -4,7 +4,7 @@ openapi: "3.1.0"
 info:
   title: NEXUS v3
   version: "3.0.0-design"
-  description: "The HTTP contract of NEXUS v3, stage 06 of the project. Two families of operations share one error shape.\n\nThe agent family serves the pinned corthex-hub (0.4.0 in the push job, 0.5.0 in sessions) as it is (SPEC-014): the same paths, methods, headers and fields, and answers it reads without error. Every success is a non-empty JSON object, since the hub reads an empty answer as a failure. Writes that the hub queues carry Idempotency-Key and Nexus-Session; push and claims carry neither key, and are repeated safely by commit and by session. The hub sends no query strings and reads no ETag, so there are none.\n\nThe owner family serves the pages: the owner's sign-in from the gate on every request, and a request key on every write. An agent credential on an owner path gets owner_only; the owner's sign-in on an agent path gets agent_only.\n\nWrites to one project run one at a time in arrival order (rule 4); a write made invalid by an earlier one is refused with its reason, such as document_changed. Validation errors are 400 in every operation. No answer carries a credential secret after it is issued, a digest, a sign-in token, a server path or the text of a refused source (rule 5). NEXUS calls no AI model and no outside service while answering (rule 6). Refused requests are logged with time, action, sender and code (rule 8)."
+  description: "The HTTP contract of NEXUS v3, stage 06 of the project. Two families of operations share one error shape.\n\nThe agent family serves the pinned corthex-hub (0.6.0 in the push job, which hub-ref.json pins, and the published 0.5.x in sessions until 0.6.0 is published) as it is (SPEC-014): the same paths, methods, headers and fields, and answers it reads without error. Every success is a non-empty JSON object, since the hub reads an empty answer as a failure. Writes that the hub queues carry Idempotency-Key and Nexus-Session; push and claims carry neither key, and are repeated safely by commit and by session. The hub sends no query strings and reads no ETag, so there are none.\n\nThe owner family serves the pages: the owner's sign-in from the gate on every request, and a request key on every write. An agent credential on an owner path gets owner_only; the owner's sign-in on an agent path gets agent_only.\n\nWrites to one project run one at a time in arrival order (rule 4); a write made invalid by an earlier one is refused with its reason, such as document_changed. Validation errors are 400 in every operation. No answer carries a credential secret after it is issued, a digest, a sign-in token, a server path or the text of a refused source (rule 5). NEXUS calls no AI model and no outside service while answering (rule 6). Refused requests are logged with time, action, sender and code (rule 8)."
   license:
     name: See the repository
     identifier: MIT
@@ -249,7 +249,7 @@ paths:
     get:
       operationId: getHeldCommit
       summary: Read the held commit
-      description: Read before every push. The answer lists the snapshot formats the server takes and names the one the held commit came in, so a hub that knows a newer format the server takes sends the same commit again in it (API-242). The pinned hub reads only default_commit; a project without a space answers project_not_found, which the hub reads as a first push that waits for --first.
+      description: Read before every push. The answer lists the snapshot formats the server takes and names the one the held commit came in, so a hub that knows a newer format the server takes sends the same commit again in it (API-242). The pinned hub 0.6.0 of the push job reads default_commit, formats and format; the published 0.5.x of sessions reads only default_commit. A project without a space answers project_not_found, which either hub reads as a first push that waits for --first.
       tags: [agent]
       x-corthex:
         id: API-243
@@ -9946,7 +9946,7 @@ components:
           $ref: "#/components/schemas/ProjectName"
         formats:
           type: array
-          description: The snapshot formats this server takes. A hub sends corthex-hub/0.3 only when it is listed; the pinned hub reads only default_commit. A later server may list formats this contract does not name, so a hub picks the newest one it knows.
+          description: The snapshot formats this server takes. A hub sends corthex-hub/0.3 only when it is listed; the pinned hub 0.6.0 of the push job reads formats and format, and the published 0.5.x of sessions reads only default_commit and sends 0.2. A later server may list formats this contract does not name, so a hub picks the newest one it knows.
           items:
             $ref: "#/components/schemas/FormatName"
           minItems: 1
