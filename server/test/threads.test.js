@@ -230,6 +230,21 @@ describe('the owner\'s threads', () => {
     // The diagram read lists the moved thread on the diagram with its last name.
     const brief = readDiagram(db, space.name, dg(erd)).threads.find((each) => each.id === left.json.id);
     assert.deepEqual([brief.target, brief.element, brief.removed_name], ['diagram', 'TBL-147', 'project_spaces']);
+    // Renamed and then removed: the mark is the element's last readable name, as a thread the push moved is marked
+    // (after-drawing.js), not its name at the drawing the owner saw. Its own space keeps the other tests' snapshots.
+    const renamed = s.project('renamed');
+    const diagram = s.diagram(renamed);
+    element(diagram.drawing, 'TBL-149', 'blobs');
+    s.snapshot(renamed);
+    element(s.drawing(renamed, diagram.id), 'TBL-149', 'document_blobs');
+    s.snapshot(renamed);
+    element(s.drawing(renamed, diagram.id), 'TBL-146', 'agent_credentials');
+    const request = { drawing: dw(diagram.drawing), target: 'element', element: 'TBL-149', text: 'Renamed?' };
+    const marked = await start(dg(diagram), request, { project: renamed.name });
+    assert.deepEqual(
+      [marked.status, marked.json.drawing, marked.json.target, marked.json.element, marked.json.removed_name],
+      [201, dw(diagram.drawing), 'diagram', 'TBL-149', 'document_blobs'],
+    );
   });
 
   test('a drawing that failed takes a comment on the diagram as a whole, at its version; an element there is not found', async () => {

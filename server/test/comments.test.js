@@ -331,6 +331,22 @@ describe('agent comments', () => {
       [unreadable.status, unreadable.json.target, unreadable.json.element, unreadable.json.removed_name, unreadable.json.item],
       [201, 'diagram', 'TBL-149', 'stage_documents', ''],
     );
+    // Renamed and then removed: at a commit before the rename, the mark is the element's last readable name, as a
+    // thread the push moved is marked (after-drawing.js), not its name at that commit (TASK-443). Its own space keeps
+    // the other tests' snapshots.
+    const renamed = s.project('renamed', { parts: ['nexus'] });
+    const first = renamed.commit;
+    const drawn = s.diagram(renamed, { sourceKey: '/pictures/05-erd/nexus' });
+    element(drawn.drawing, 'TBL-150', 'blobs', 'table');
+    s.snapshot(renamed, { parts: ['nexus'] });
+    element(s.drawing(renamed, drawn.id), 'TBL-150', 'document_blobs', 'table');
+    s.snapshot(renamed, { parts: ['nexus'] });
+    element(s.drawing(renamed, drawn.id), 'TBL-146', 'agent_credentials', 'table');
+    const marked = await comment(erdComment({ item: 'TBL-150', commit: first }), { project: renamed.name });
+    assert.deepEqual(
+      [marked.status, marked.json.drawing, marked.json.target, marked.json.element, marked.json.removed_name],
+      [201, idOf('dw', drawn.drawing), 'diagram', 'TBL-150', 'document_blobs'],
+    );
     // An item table's row (stage 02, the project as a whole).
     const row = await comment({ part: '', stage: '02-prd', item: 'REQ-020', text: 'Does this cover a phone?', quote: 'on a diagram' });
     assert.deepEqual([row.status, row.json.target, row.json.element, row.json.part, row.json.entries[0].quote], [201, 'row', 'REQ-020', '', 'on a diagram']);
