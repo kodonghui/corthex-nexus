@@ -234,10 +234,15 @@
           "approved": "Claim table correction, pull request 120: API-250's and API-251's x-corthex.tables list TBL-147, TBL-157, TBL-166 and TBL-167, the tables each reads and writes, instead of the approved TBL-167; and API-251's description, which said \"A claim the session does not hold answers released false.\" while its responses list 409 claimed, says that the session answers released false when it holds no live claim, unless another session holds one, which answers 409 claimed. No field, response, code or spec row changed. Each changed item was answered on its own before the stage passed, with the change to the contract's test that moves the fed-by rule onto the tables a write changes. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Owner projects and to-do table correction, pull request 122, at commit 46e19e6: API-262's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-161, TBL-166 and TBL-170 instead of the approved TBL-147, TBL-148 and TBL-170, and API-263's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-158, TBL-160, TBL-166 and TBL-170 instead of the approved TBL-166 and TBL-170: the tables each answer reads. No operation, field, response, code or spec row changed. Each changed item was answered on its own before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T01:31:13+09:00"
+      "updated": "2026-11-24T02:09:47+09:00"
     },
     "07-sitemap": {
       "state": "done",
