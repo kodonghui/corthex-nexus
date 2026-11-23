@@ -1005,11 +1005,11 @@ The two operations read what other tables hold, so API-272 and API-273 list 9 ta
 - **A removed diagram** (note 9 of the WBS). SPEC-027 refuses confirming there, but a cancel only takes a confirmation out, so API-276 cancels a removed diagram's confirmation like any other. Its record is withdrawn, or its cancel asked for, as above. The owner's to-do gets no confirm entry, since a removed diagram takes no confirmation (see [To-do entries](#to-do-entries)).
 - **A stage pass** is left as it is. Between a cancel and its record, the project page still shows the stage passed (see [Project](#project)). When the agent records the cancel, TASK-447 marks the passes that rest on that confirmation `changed_at`, as [After a drawing](#after-a-drawing) does for an invalidation, since that is when Git's stage record changes.
 
-The coordinator chose six rules for TASK-446 that no approved document states: a removed diagram's confirmation can be cancelled; a live confirmation answers for the drawing the diagram shows and for the drawing it is at; a stage pass stays as it is until the agent records a cancel; a failed latest drawing answers `not_drawn`; a confirmation that ended is not revived; and a proposal that is only proposed does not stop a confirmation. They wait for the maintainer's delegate with the pull request, which records them with the options not taken.
+The coordinator chose six rules for TASK-446 that no approved document states: a removed diagram's confirmation can be cancelled; a live confirmation answers for the drawing the diagram shows and for the drawing it is at; a stage pass stays as it is until the agent records a cancel; a failed latest drawing answers `not_drawn`; a confirmation that ended is not revived; and a proposal that is only proposed does not stop a confirmation. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24; the pull request records them with the options not taken.
 
 `test/confirmations.test.js` checks TASK-446's done condition: confirming while a direct edit and an accepted proposal wait gets `waiting_reflection`, listing both, oldest accepted first, and once neither waits the diagram takes the confirmation. It checks each rule above, answers every response API-275 and API-276 list, and checks the tables each touches (note 23).
 
-The two operations read what other tables hold, so API-275 lists 6 tables and API-276 lists 5. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+The two operations read what other tables hold, so API-275 lists 6 tables and API-276 lists 5. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint on 2026-11-24.
 
 ## Daily backup
 
