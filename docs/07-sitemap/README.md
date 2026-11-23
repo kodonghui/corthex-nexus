@@ -151,4 +151,4 @@ Passed on 2026-11-23. The maintainer approved every recommendation through the d
 
 ### Feature change of 2026-11-23
 
-The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: difference 3 in section 4 draws stages 03, 08 and 09 as pictures; the sitemap is unchanged. This stage's part of the change waits for its own checkpoint.
+The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: difference 3 in section 4 draws stages 03, 08 and 09 as pictures; the sitemap is unchanged. This stage's part of the change passed its own checkpoint on 2026-11-23 through the same delegate.

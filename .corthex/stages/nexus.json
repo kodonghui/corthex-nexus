@@ -20,10 +20,15 @@
           "approved": "After the reviews of pull requests 96 and 97: the hotspot table names the stage-02 answers of hotspots 3 to 9 and 14, and hotspots 12 and 13 as carried into the requirements; hotspot 9 keeps one open question for the workshop release. No approved item changed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: TERM-194 and the list in section 1 name the user flow among the pictures NEXUS draws. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 02: write the PRD from the domain design",
-      "updated": "2026-11-23T01:47:37+09:00"
+      "updated": "2026-11-23T14:30:00+09:00"
     },
     "02-prd": {
       "state": "done",
@@ -37,10 +42,15 @@
           "approved": "After the review of pull request 96: section 4 records an open question for the workshop release (ending a workshop early, and how REQ-042 reads while one is open), and section 5 names where the logging of refused requests went. No requirement changed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: the release table puts the pictures of stages 03, 07, 08 and 09 in the first release and REQ-007 to REQ-010 become Must. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 03: draw the user flows from the requirements",
-      "updated": "2026-11-23T01:47:37+09:00"
+      "updated": "2026-11-23T14:30:00+09:00"
     },
     "03-user-flow": {
       "state": "done",
@@ -52,7 +62,10 @@
         }
       ],
       "next": "Stage 04: write the functional spec from the requirements and flows",
-      "updated": "2026-11-23T01:26:43+09:00"
+      "updated": "2026-11-23T14:30:00+09:00",
+      "changes": [
+        "Feature change of 2026-11-23: no change. FL-002 already branches on whether a stage has a picture, for REQ-004 to REQ-010."
+      ]
     },
     "04-functional-spec": {
       "state": "done",
@@ -71,10 +84,15 @@
           "approved": "The API corrections found by the stage-06 contract against the pinned hub, each asked on its own: rule 3 names the writes the hub queues and every owner write, and a push repeats by its commit and a claim or a release by its session; SPEC-001 leaves the 1 MB file limit to the hub; SPEC-002 creates the space on a first send from a valid agent credential, the owner's confirmation being the hub's push --first, so REQ-003 is kept by that gate; SPEC-006, SPEC-008 and SPEC-009 are left out of the first release as their preconditions allow, and the rows stay active. Approved rows changed: rule 3, SPEC-001 and SPEC-002; no requirement or flow changed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: SPEC-006 to SPEC-009 become Must, SPEC-009 shows the mockup page in an isolated frame with its tokens listed, and the stage-06 exclusion of SPEC-006, SPEC-008 and SPEC-009 is marked as changed by this decision. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
-      "updated": "2026-11-23T03:10:00+09:00"
+      "updated": "2026-11-23T14:30:00+09:00"
     },
     "05-erd": {
       "state": "done",
@@ -101,7 +119,10 @@
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-23T03:10:00+09:00"
+      "updated": "2026-11-23T14:30:00+09:00",
+      "changes": [
+        "Feature change of 2026-11-23: no change. TBL-151 already takes the kinds user_flow, screen_states and mockup, and TBL-149 keeps their sources."
+      ]
     },
     "06-api": {
       "state": "done",
@@ -110,10 +131,15 @@
           "approved": "Stage 06 contract freeze for the first release: the 51 operations API-242 to API-292 in api/openapi.yaml, the agent family taking the pinned hub's wire unchanged and the owner family apart, the 59 error codes and the choices of section 3; the four items of section 6 answered with the recommendations, with the stage-04 spec and the stage-05 schema corrected in the same pull request. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: snapshot format corthex-hub/0.3 with the pictures of stages 03, 08 and 09 and their key, formats in the held commit of API-243, and API-293 for the mockup page with a sandbox Content-Security-Policy. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-23T03:10:00+09:00"
+      "updated": "2026-11-23T14:30:00+09:00"
     },
     "07-sitemap": {
       "state": "done",
@@ -122,10 +148,15 @@
           "approved": "Stage 07 navigation structure: the five screens SCR-142 to SCR-146 in docs/07-sitemap/nexus.yaml, from the owner's to-do at / through the projects, one project and the stage workbench to the changes since the last confirmation, starting from the click mockup of 2026-11-21. No approved item removed, deferred or changed. The nine differences from that mockup, each asked on its own, answered with the recommendations of section 4 of the README. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: difference 3 names the pictures of stages 01, 03, 05, 07, 08 and 09. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 08: write a screen definition with its states for each of the five screens",
-      "updated": "2026-11-23T11:00:00+09:00"
+      "updated": "2026-11-23T14:30:00+09:00"
     },
     "08-screen-states": {
       "state": "done",
@@ -144,10 +175,15 @@
           "approved": "Stage 08 second review fixes at commit ba58972: each 404 or 409 example leads to one state and the state tables name it where a code splits, SCR-146 gains a confirmed state for 39 states in all, and states that only a PC action leads to are drawn at 360 pixels as a narrow PC window. No approved item removed, deferred or changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: SCR-145 gains API-293 and its normal and not-drawn states describe the new pictures; the 39 states are unchanged. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-23T12:40:00+09:00"
+      "updated": "2026-11-23T14:30:00+09:00"
     },
     "09-mockup": {
       "state": "done",
@@ -161,10 +197,15 @@
           "approved": "Stage 09 review fixes at commit 91096a8: the phone header's theme switch names what it does in both themes, every link in the mockup's frames takes focus and Enter, and tests/test_design.py checks that source.json names every Carbon file and finds colours in every style, attribute and script style, colour names included. The direction, the frames' look and the tokens are as approved. No approved item removed, deferred or changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: three stage views of SCR-145#normal at both widths in both themes, 84 frames with the 78 state frames unchanged; no token added or changed. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 10: plan the work of the first release from the approved design of stages 01 to 09",
-      "updated": "2026-11-23T12:52:00+09:00"
+      "updated": "2026-11-23T14:30:00+09:00"
     },
     "10-wbs": {
       "state": "not_started",
