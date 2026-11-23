@@ -20,6 +20,7 @@ import { SNAPSHOT_ROUTES } from './snapshots.js';
 import { THREAD_ROUTES } from './threads.js';
 import { TODO_ROUTES } from './todo.js';
 import { TOOL_LINK_ROUTES } from './tool-links.js';
+import { WORKSHOP_ROUTES } from './workshop.js';
 
 export const ROUTES = Object.freeze([
   // TASK-417: API-279, API-280 and API-281.
@@ -58,4 +59,6 @@ export const ROUTES = Object.freeze([
   ...PROPOSAL_ANSWER_ROUTES,
   // TASK-442: API-274.
   ...POSITION_ROUTES,
+  // TASK-452: API-260, API-261 and API-284 to API-291.
+  ...WORKSHOP_ROUTES,
 ]);
