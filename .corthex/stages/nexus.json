@@ -254,10 +254,15 @@
           "approved": "Project removal table correction, pull request 124, at commit c07bd88: API-277's x-corthex.tables lists TBL-147, TBL-148, TBL-151, TBL-152, TBL-154, TBL-155, TBL-156, TBL-158, TBL-160, TBL-162, TBL-164 and TBL-168 instead of the approved TBL-147; API-278's lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-154, TBL-155, TBL-156, TBL-158, TBL-160, TBL-162, TBL-164 and TBL-168 instead of the approved TBL-147. No operation, field, response, code or spec row changed. Each changed item was answered on its own before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Push table and spec correction, pull request 126, at commit b40e60d: API-242's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-157, TBL-158, TBL-160, TBL-161 and TBL-166 instead of the approved TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152 and TBL-153; and its spec rows add SPEC-035 to the approved SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-014, SPEC-025, SPEC-027 and SPEC-033 (note 14). No operation, field, response or code changed, and db/nexus.sql is as it was. Each changed item was answered on its own before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T03:33:07+09:00"
+      "updated": "2026-11-24T03:41:38+09:00"
     },
     "07-sitemap": {
       "state": "done",
@@ -382,10 +387,15 @@
           "approved": "Stage 10 WBS, pull request 106, at commit 74708c9: 53 tasks, TASK-413 to TASK-465, in three iterations and a release; the plan of iteration 1, TASK-413 to TASK-432 with the hub tasks TASK-428 to TASK-432; and the answers to questions 1 to 4, each its recommendation: Node 24 with node:http and node:sqlite and no runtime dependency, plain HTML, CSS and JavaScript modules, the layered layout written in this repository, and IBM Plex Sans KR and IBM Plex Mono served from a pinned copy. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Note 26, pull request 126, at commit b40e60d: SPEC-025's exception, that a merged document lacking the change is reflected anyway with a comment saying what is missing, is split: TASK-435 marks such change sets reflected anyway and writes no comment, and TASK-447, which already carries SPEC-025, adds the comment once TASK-445 defines the change steps; who writes the comment and its Korean wording are proposed by that task. No task, dependency or done condition changed. The change was answered on its own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465",
-      "updated": "2026-11-23T18:38:33+09:00"
+      "updated": "2026-11-24T03:41:38+09:00"
     },
     "11-development": {
       "state": "not_started",
