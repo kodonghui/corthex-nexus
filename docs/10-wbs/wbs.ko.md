@@ -74,7 +74,7 @@
 | TASK-463 | v2와 v3의 순서, v3의 주소 정하기 | SPEC-015 | 없음 | TASK-450, TASK-461 | 관리자 | S | 관리자의 답이 Git 밖 프로젝트 기록에 있고, 이 줄이 그 결정을 가리킴 |
 | TASK-464 | 순서 결정대로 v3를 배포하고 push 작업이 v3를 가리키게 하기 | SPEC-014, SPEC-015 | 없음 | TASK-432, TASK-449, TASK-463 | Claude worker | M | 먼저 12단계 릴리스 게이트를 통과함; push 작업의 비밀에 v3가 발급한 자격 증명과 v3 주소가 있음; 첫 push는 사용자가 push --first로 확인하고(SPEC-002), 그 뒤 이 저장소의 push가 v3에서 그려짐 |
 | TASK-465 | v3가 v2를 대신한 뒤 v2 데이터를 지울지 정하기; 지운다면 백업한 뒤 따로 지움 | SPEC-015 | 없음 | TASK-464 | 관리자 | S | 관리자의 답이 프로젝트 기록에 있음; 그 답 없이는 아무것도 지우지 않고, 승인한 지우기도 v2를 백업한 뒤에만 함 |
-| TASK-466 | 05·07단계 source_text의 변경: NEXUS가 제안의 SQL과 YAML을 직접 읽음 (TASK-438의 빈틈, 4절) | SPEC-018 | API-256, TBL-158, TBL-159 | TASK-438 | Claude worker | L | 05나 07단계에 source_text가 있으면 차이가 변경이 됨; 이 저장소의 db/nexus.sql과 docs/07-sitemap/nexus.yaml을 NEXUS가 읽은 결과가 고정 hub가 만든 그림(server/test/erd-picture.json, server/test/sitemap-picture.json에 저장)과 같음; API-256의 응답마다 통과하는 테스트가 있음 |
+| TASK-466 | 05·07단계 source_text의 변경: NEXUS가 제안의 SQL과 YAML을 직접 읽음 (TASK-438의 빈틈, 4절) | SPEC-018 | API-256, TBL-158, TBL-159 | TASK-438 | Claude worker | M | 05나 07단계에 source_text가 있으면 차이가 변경이 됨; 이 저장소의 db/nexus.sql과 docs/07-sitemap/nexus.yaml을 NEXUS가 읽은 결과가 고정 hub가 만든 그림(server/test/erd-picture.json, server/test/sitemap-picture.json에 저장)과 같음; API-256의 응답마다 통과하는 테스트가 있음 |
 
 ## 3. 열린 질문
 
