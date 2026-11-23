@@ -1,0 +1,196 @@
+// Shared by the tests of the to-do (TASK-433): the fewest rows the store's schema allows for each subject an entry is
+// about, written straight into a store, so that a test sets up a thread, a change set, a confirmation or a step without
+// the operations that later tasks build. node --test also runs this file, which holds no test.
+
+import { createHash, randomBytes } from 'node:crypto';
+import { idOf } from '../src/ids.js';
+
+export const TIME = '2026-11-23T01:00:00.000Z';
+export const REPOSITORY = 'https://github.com/example/demo';
+
+const sha256 = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
+const commit = () => randomBytes(20).toString('hex');
+
+// Writes rows into db, each at time unless told otherwise. Every function returns the new row's key, or an object of
+// keys.
+export function seed(db, { time = TIME } = {}) {
+  const insert = (sql, ...values) => Number(db.prepare(sql).run(...values).lastInsertRowid);
+
+  // An agent credential as API-280 makes one: { key, name, headers } with the pair an agent sends.
+  function credential(name = `agent-${randomBytes(4).toString('hex')}`) {
+    const secret = randomBytes(32).toString('base64url');
+    const key = insert('INSERT INTO agent_credentials (name, secret_digest, issued_at) VALUES (?, ?, ?)', name, sha256(secret), time);
+    return { key, name, headers: { 'CF-Access-Client-Id': idOf('ac', key), 'CF-Access-Client-Secret': secret } };
+  }
+
+  const agent = credential();
+
+  // A project space holding one snapshot: { id, name, commit, snapshot }. pictures is what the snapshot's /snapshot
+  // document lists, as the intake keeps it (see src/snapshot.js), so that a file picture's part can be found.
+  function project(name = `demo-${randomBytes(3).toString('hex')}`, { repository = REPOSITORY, pictures = [] } = {}) {
+    const id = insert(
+      'INSERT INTO project_spaces (name, repository, held_commit, created_at, created_by_credential) VALUES (?, ?, NULL, ?, ?)',
+      name, repository, time, agent.key,
+    );
+    const space = { id, name };
+    snapshot(space, { pictures });
+    return space;
+  }
+
+  // The project's next snapshot, now held, with its /snapshot document: sets space.commit and space.snapshot.
+  function snapshot(space, { pictures = [] } = {}) {
+    const held = commit();
+    const { revision } = db.prepare('SELECT coalesce(max(revision), 0) + 1 AS revision FROM snapshots WHERE project_id = ?').get(space.id);
+    const id = insert(
+      `INSERT INTO snapshots (project_id, revision, commit_sha, replaced_commit, format_version, bytes, received_at, credential_id)
+       VALUES (?, ?, ?, ?, 'corthex-hub/0.3', 0, ?, ?)`,
+      space.id, revision, held, space.commit ?? null, time, agent.key,
+    );
+    db.prepare('UPDATE project_spaces SET held_commit = ? WHERE id = ?').run(held, space.id);
+    const rest = JSON.stringify({ project: { name: space.name }, pictures });
+    db.prepare('INSERT INTO document_blobs (sha256, body, bytes) VALUES (?, ?, ?) ON CONFLICT (sha256) DO NOTHING')
+      .run(sha256(rest), rest, Buffer.byteLength(rest));
+    db.prepare("INSERT INTO snapshot_files (snapshot_id, path, stage, blob_sha256) VALUES (?, '/snapshot', '', ?)").run(id, sha256(rest));
+    Object.assign(space, { commit: held, snapshot: id });
+    return id;
+  }
+
+  // A diagram of the project with one drawing of the project's snapshot: { id, drawing }. status is the drawing's,
+  // drawn or failed; removed sets removed_at.
+  function diagram(space, { stage = '05-erd', sourceKey = '/pictures/05-erd', kind = 'erd', name = 'ERD', status = 'drawn', removed = false } = {}) {
+    const id = insert(
+      'INSERT INTO diagrams (project_id, stage, source_key, kind, name, created_at, removed_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      space.id, stage, sourceKey, kind, name, time, removed ? time : null,
+    );
+    return { id, drawing: drawing(space, id, { status }) };
+  }
+
+  // A drawing of the diagram from the project's last snapshot.
+  function drawing(space, diagramId, { status = 'drawn' } = {}) {
+    return insert(
+      `INSERT INTO drawings (project_id, diagram_id, snapshot_id, document_version, status, source_digest, failed_path, failed_line, drawn_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)`,
+      space.id, diagramId, space.snapshot, space.commit, status, sha256(`${diagramId}`), status === 'failed' ? 'db/nexus.sql' : null, time,
+    );
+  }
+
+  // An open thread with its first comment, waiting on the side that did not write it: { id }.
+  function thread(where, { target = 'element', elementKey = 'TBL-146', author = 'owner', body = 'Should this table keep its last use?', at = time } = {}) {
+    const id = insert(
+      `INSERT INTO comment_threads (diagram_id, drawing_id, target_kind, element_key, state, waits_on, opened_at)
+       VALUES (?, ?, ?, ?, 'open', ?, ?)`,
+      where.id, where.drawing, target, target === 'diagram' ? null : elementKey, author === 'owner' ? 'agent' : 'owner', at,
+    );
+    comment(id, { author, body, at });
+    return id;
+  }
+
+  // A comment at the end of a thread; the thread then waits on the other side, as SPEC-017 says.
+  function comment(threadId, { author = 'agent', body = 'Yes, it keeps it.', at = time } = {}) {
+    const { seq } = db.prepare('SELECT coalesce(max(seq), 0) + 1 AS seq FROM comments WHERE thread_id = ?').get(threadId);
+    insert(
+      'INSERT INTO comments (thread_id, seq, author, credential_id, body, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+      threadId, seq, author, author === 'agent' ? agent.key : null, body, at,
+    );
+    db.prepare("UPDATE comment_threads SET waits_on = ? WHERE id = ? AND state = 'open'").run(author === 'owner' ? 'agent' : 'owner', threadId);
+  }
+
+  function closeThread(threadId, { by = 'owner' } = {}) {
+    db.prepare("UPDATE comment_threads SET state = 'closed', waits_on = NULL, closed_at = ?, closed_by = ? WHERE id = ?").run(time, by, threadId);
+  }
+
+  function pullRequest(space, { number, state = 'open', purpose = 'reflection' }) {
+    return insert(
+      `INSERT INTO pull_requests (project_id, purpose, number, state, reported_at, closed_at, credential_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      space.id, purpose, number, state, time, state === 'open' ? null : time, agent.key,
+    );
+  }
+
+  // A change set of the diagram: a direct edit, accepted unless told otherwise, or a proposal on threadId.
+  function changeSet(space, where, { origin = 'direct_edit', state = origin === 'proposal' ? 'proposed' : 'accepted', threadId = null, pullRequestId = null } = {}) {
+    return insert(
+      `INSERT INTO change_sets (project_id, diagram_id, drawing_id, origin, thread_id, credential_id, state, created_at, pull_request_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      space.id, where.id, where.drawing, origin, threadId, origin === 'proposal' ? agent.key : null, state, time, pullRequestId,
+    );
+  }
+
+  // Sets a change set's state and pull request, as the operations that decide, link and reflect it will.
+  function setChangeSet(id, { state, pullRequestId, reflectedDrawing } = {}) {
+    if (state !== undefined) db.prepare('UPDATE change_sets SET state = ? WHERE id = ?').run(state, id);
+    if (pullRequestId !== undefined) db.prepare('UPDATE change_sets SET pull_request_id = ? WHERE id = ?').run(pullRequestId, id);
+    if (reflectedDrawing !== undefined) {
+      db.prepare("UPDATE change_sets SET state = 'reflected', reflected_drawing_id = ? WHERE id = ?").run(reflectedDrawing, id);
+    }
+  }
+
+  function confirm(space, where, { at = time } = {}) {
+    return insert(
+      "INSERT INTO confirmations (project_id, diagram_id, drawing_id, state, confirmed_at) VALUES (?, ?, ?, 'confirmed', ?)",
+      space.id, where.id, where.drawing, at,
+    );
+  }
+
+  // Ends or records a confirmation, as API-276, TASK-435 and API-259 will: cancelled, invalidated by a drawing,
+  // recorded, or its cancel recorded.
+  function cancel(id) {
+    db.prepare("UPDATE confirmations SET state = 'cancelled', ended_at = ? WHERE id = ?").run(time, id);
+  }
+  function invalidate(id, byDrawing) {
+    db.prepare("UPDATE confirmations SET state = 'invalidated', ended_at = ?, invalidated_by_drawing = ? WHERE id = ?").run(time, byDrawing, id);
+  }
+  function record(id) {
+    db.prepare('UPDATE confirmations SET recorded_at = ? WHERE id = ?').run(time, id);
+  }
+  function recordCancel(id) {
+    db.prepare('UPDATE confirmations SET cancel_recorded_at = ? WHERE id = ?').run(time, id);
+  }
+
+  function removeDiagram(id, removed = true) {
+    db.prepare('UPDATE diagrams SET removed_at = ? WHERE id = ?').run(removed ? time : null, id);
+  }
+
+  // An open workshop with its steps, none confirmed: { id }.
+  function workshop(space, steps = ['0', '1', '1-b', '2', '3', '4', '5', '6', '7', '8', '9']) {
+    const id = insert("INSERT INTO workshops (project_id, state, opened_at) VALUES (?, 'open', ?)", space.id, time);
+    for (const step of steps) db.prepare('INSERT INTO workshop_steps (project_id, workshop_id, step) VALUES (?, ?, ?)').run(space.id, id, step);
+    return id;
+  }
+  function confirmStep(workshopId, step, { at = time } = {}) {
+    db.prepare('UPDATE workshop_steps SET confirmed_at = ? WHERE workshop_id = ? AND step = ?').run(at, workshopId, step);
+  }
+  function writeStep(workshopId, step) {
+    db.prepare('UPDATE workshop_steps SET written_at = ? WHERE workshop_id = ? AND step = ?').run(time, workshopId, step);
+  }
+
+  // A live claim of an entry by a session, as TASK-434 will make one.
+  function claim(space, todo, { session, claimedAt = time, lastWriteAt = time, pullRequestId = null }) {
+    return insert(
+      `INSERT INTO claims (project_id, todo_id, session, credential_id, claimed_at, last_write_at, pull_request_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      space.id, todo, session, agent.key, claimedAt, lastWriteAt, pullRequestId,
+    );
+  }
+
+  return {
+    agent, credential, project, snapshot, diagram, drawing, thread, comment, closeThread, pullRequest, changeSet, setChangeSet,
+    confirm, cancel, invalidate, record, recordCancel, removeDiagram, workshop, confirmStep, writeStep, claim,
+  };
+}
+
+// The open entries of TBL-166 in a store, each as "side kind" with what it is about, oldest first.
+export function openEntries(db, project) {
+  return db.prepare(
+    `SELECT side, kind, diagram_id, thread_id, change_set_id, confirmation_id, workshop_id, step FROM todos
+     WHERE project_id = ? AND closed_at IS NULL ORDER BY created_at, id`,
+  ).all(project).map((row) => Object.fromEntries(Object.entries(row).filter(([, value]) => value !== null)));
+}
+
+// The closed entries, each as { kind, reason } with what it is about.
+export function closedEntries(db, project) {
+  return db.prepare(
+    `SELECT kind, close_reason AS reason, thread_id, change_set_id, confirmation_id, step FROM todos
+     WHERE project_id = ? AND closed_at IS NOT NULL ORDER BY id`,
+  ).all(project).map((row) => Object.fromEntries(Object.entries(row).filter(([, value]) => value !== null)));
+}
