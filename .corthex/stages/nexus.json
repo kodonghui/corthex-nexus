@@ -209,10 +209,15 @@
           "approved": "Table reference correction, pull request 105, at commit ac7475e: 27 operations name the tables of the schema, 23 two numbers down and API-244, API-261, API-264 and API-291 by what they do, and a test checks that each table a write lists is fed by one of its spec rows. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "Example correction, pull request 112, at commit f4b03be: API-292's 413 example gives the Miro export's 5242880 bytes instead of 2097152, and the server's limits test checks every body's 413 example, its code, limit and detail, against the answer the server builds. The approved item it changes was answered on its own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-23T18:10:49+09:00"
+      "updated": "2026-11-23T21:35:49+09:00"
     },
     "07-sitemap": {
       "state": "done",

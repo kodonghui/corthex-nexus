@@ -8894,10 +8894,10 @@ paths:
                   value:
                     title: The request is too large
                     status: 413
-                    detail: the body is over 2097152 bytes
+                    detail: the body is over 5242880 bytes
                     code: body_too_large
                     traceId: "88f087382aa725d7"
-                    limit: 2097152
+                    limit: 5242880
         "415":
           description: "Refused: not JSON"
           content:
