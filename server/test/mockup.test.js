@@ -171,6 +171,27 @@ describe('the mockup drawer', () => {
     assert.deepEqual(namesOf('<style>a{x:var(--\u0000)}</style>'), ['--�']);
   });
 
+  test('reads a page in time linear in its length: many comments, and a long value with white space', () => {
+    // Each took minutes when a comment's end was searched to the page's end and !important by a pattern over the value.
+    const comments = `${'<!--a-->'.repeat(100_000)}<style>a{x:var(--after)}</style>`;
+    const blank = `<style>:root{--a:"${' '.repeat(500_000)}x"} a{x:var(--a)}</style>`;
+    const started = performance.now();
+    assert.deepEqual(namesOf(comments), ['--after']);
+    assert.deepEqual(tokensOf(blank).map(([name, values]) => [name, values[0].length]), [['--a', 200]]);
+    assert.ok(performance.now() - started < 5000, 'each reads in one pass');
+  });
+
+  test('leaves out a final !important by its tokens, escapes and white space included', () => {
+    const values = (value) => tokensOf(sheet(`:root { --a: ${value} } a { x: var(--a) }`))[0][1];
+    assert.deepEqual(values('red !important'), ['red']);
+    assert.deepEqual(values('red ! IMPORTANT'), ['red']);
+    assert.deepEqual(values('red!imp\\ortant'), ['red']);
+    assert.deepEqual(values('red !important /* note */'), ['red']);
+    assert.deepEqual(values('"!important"'), ['"!important"']);
+    assert.deepEqual(values('red !notimportant'), ['red !notimportant']);
+    assert.deepEqual(values('(!important)'), ['(!important)']);
+  });
+
   test('is the server\'s drawer of the mockup kind', () => {
     assert.equal(DRAWERS.mockup, mockup);
   });
@@ -182,7 +203,8 @@ describe('a route\'s headers and media', () => {
     assert.doesNotThrow(() => createRouter([{ ...route, media: 'text/html', headers: { 'Content-Security-Policy': SANDBOX } }]));
     assert.throws(() => createRouter([{ ...route, media: 'text/plain' }]), /media/);
     assert.throws(() => createRouter([{ ...route, method: 'POST', media: 'text/html' }]), /media/);
-    for (const name of ['Content-Type', 'content-length', 'Connection', 'X-Content-Type-Options']) {
+    const own = ['Content-Type', 'content-length', 'Connection', 'X-Content-Type-Options', 'Transfer-Encoding', 'Keep-Alive', 'TE', 'Trailer', 'Upgrade', 'Proxy-Connection'];
+    for (const name of own) {
       assert.throws(() => createRouter([{ ...route, headers: { [name]: 'x' } }]), /header/);
     }
     assert.throws(() => createRouter([{ ...route, headers: { 'X-Value': 'a\nb' } }]));

@@ -16,6 +16,9 @@ const DEFAULT_HEADERS = Object.freeze({ 'cache-control': 'no-store' });
 const FRAMING_HEADERS = new Set([
   'connection', 'content-length', 'keep-alive', 'proxy-connection', 'te', 'trailer', 'transfer-encoding', 'upgrade',
 ]);
+// The headers the server alone sets on an answer, which a route may not name among its own (see router.js): the framing
+// ones, the type and nosniff.
+export const SERVER_HEADERS = new Set([...FRAMING_HEADERS, 'content-type', 'x-content-type-options']);
 
 // The answer to what an operation's handler returns: { status, body, headers }, where status is 200 or 201 (200 when
 // left out), body a non-empty JSON object, as the contract makes every success, since the hub reads an empty answer as

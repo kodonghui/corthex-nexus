@@ -753,7 +753,7 @@ The two operations count and read what other tables hold, so API-277 lists 12 ta
 - A request that admission refuses answers `unauthenticated` (401), `not_owner` (403), `cross_site` (403), `owner_only` (403), `access_missing` (401) or `agent_only` (403), as above.
 - A handler that fails answers `internal` (500), whose `traceId` finds the request in the log.
 - Every answer carries `X-Content-Type-Options: nosniff`.
-- A route may name `media`, `text/html` for a page, for a GET only: its handler then returns the page's text, sent with that type and `charset=utf-8`. API-293 is the one so far. A route may also name `headers`, which every answer of its operation carries once its path and method match, its refusals and faults included, as API-293's `Content-Security-Policy`; `Content-Type`, `Content-Length`, `Connection` and `X-Content-Type-Options` stay the server's.
+- A route may name `media`, `text/html` for a page, for a GET only: its handler then returns the page's text, sent with that type and `charset=utf-8`. API-293 is the one so far. A route may also name `headers`, which every answer of its operation carries once its path and method match, its refusals and faults included, as API-293's `Content-Security-Policy`; `Content-Type`, `X-Content-Type-Options` and the headers that frame the message, such as `Content-Length`, `Connection` and `Transfer-Encoding`, stay the server's.
 
 ## Log
 

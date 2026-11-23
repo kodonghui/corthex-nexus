@@ -18,7 +18,7 @@
 // as its operation (see operation.js), and what it waits for with it.
 
 import { validateHeaderName, validateHeaderValue } from 'node:http';
-import { MEDIA } from './answer.js';
+import { MEDIA, SERVER_HEADERS } from './answer.js';
 import { BODY_KINDS } from './body.js';
 import { runAs } from './operation.js';
 import { FORMS } from './params.js';
@@ -80,7 +80,7 @@ function compile(route) {
     const key = name.toLowerCase();
     validateHeaderName(key);
     validateHeaderValue(key, value);
-    if (typeof value !== 'string' || ['content-type', 'content-length', 'connection', 'x-content-type-options'].includes(key)) {
+    if (typeof value !== 'string' || SERVER_HEADERS.has(key)) {
       throw new Error(`${method} ${path}: a route's header is text, and not one the server sets`);
     }
     own[key] = value;

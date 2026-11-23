@@ -77,14 +77,17 @@ function decoded(value) {
 
 // HTML.
 
+// The end of a comment, "-->" or "--!>": one search finds the first of either, so a page of many comments is read in
+// one pass.
+const COMMENT_END = /--!?>/g;
+
 // Where a comment that starts at at ends, after "<!--": "-->", "--!>", or the abrupt "<!-->" and "<!--->".
 function commentEnd(html, at) {
   if (html[at] === '>') return at + 1;
   if (html.startsWith('->', at)) return at + 2;
-  const ends = [html.indexOf('-->', at), html.indexOf('--!>', at)].filter((index) => index !== -1);
-  if (ends.length === 0) return html.length;
-  const end = Math.min(...ends);
-  return end + (html.startsWith('-->', end) ? 3 : 4);
+  COMMENT_END.lastIndex = at;
+  const end = COMMENT_END.exec(html);
+  return end === null ? html.length : end.index + end[0].length;
 }
 
 // A tag whose name starts at at: { name, style, end }, its name in lowercase, its first style attribute's value with
@@ -315,10 +318,22 @@ export function readsOf(tokens) {
 }
 
 // A declaration's value: its tokens' text from start to end, white space made single spaces and trimmed, and a final
-// !important left out.
+// !important left out: the delimiter "!" and then the name important, in any case, white space between them allowed.
+// It is found by its tokens, not by searching the text, so a long value costs no more than its length.
 function valueOf(css, tokens, start, end) {
+  const before = (at) => {
+    let index = at;
+    while (index > start && tokens[index - 1].type === 'space') index -= 1;
+    return index;
+  };
+  let last = before(end);
+  const important = tokens[last - 1];
+  if (last > start && important.type === 'name' && asciiLower(important.value) === 'important') {
+    const bang = before(last - 1);
+    if (bang > start && tokens[bang - 1].type === 'other' && tokens[bang - 1].value === '!') last = bang - 1;
+  }
   let text = '';
-  for (let index = start; index < end; index += 1) {
+  for (let index = start; index < last; index += 1) {
     const token = tokens[index];
     if (token.type === 'space') {
       if (!text.endsWith(' ')) text += ' ';
@@ -326,12 +341,13 @@ function valueOf(css, tokens, start, end) {
       text += css.slice(token.start, token.end);
     }
   }
-  return text.trim().replace(/\s*!\s*important$/i, '').trim();
+  return text.trim();
 }
 
-// The custom properties the declarations of tokens set, in their order: each { name, value }. A declaration starts a
-// block's content or follows its ";" or a nested block's "}"; in a list of declarations, as a style attribute holds,
-// the text's start is one too. Its value runs to the ";" or "}" that ends it, brackets inside it kept whole.
+// The custom properties the declarations of tokens set, in their order: each { name, from, to }, its value being the
+// tokens from from to to (see valueOf), read only when it is kept. A declaration starts a block's content or follows
+// its ";" or a nested block's "}"; in a list of declarations, as a style attribute holds, the text's start is one too.
+// Its value runs to the ";" or "}" that ends it, brackets inside it kept whole.
 export function settingsOf(css, tokens, list) {
   const settings = [];
   const open = [];
@@ -351,7 +367,7 @@ export function settingsOf(css, tokens, list) {
           if (Object.hasOwn(OPENS, type)) depth += 1;
           else if (type === ')' || type === ']' || type === '}') depth = Math.max(0, depth - 1);
         }
-        settings.push({ name: token.value, value: valueOf(css, tokens, colon + 1, end) });
+        settings.push({ name: token.value, from: colon + 1, to: end });
         // The ";" or "}" that ends it is read as any other.
         index = end - 1;
         starts = false;
@@ -392,11 +408,12 @@ export function tokensOfPage(html) {
       if (used.size === MAX_ELEMENTS) throw new SourceFailure();
       used.set(name, { name, values: [], uses: 1 });
     }
-    for (const { name, value } of settingsOf(text, tokens, list)) {
+    for (const { name, from, to } of settingsOf(text, tokens, list)) {
       if (!values.has(name)) values.set(name, []);
       const kept = values.get(name);
-      const shown = cut(value, MAX_VALUE);
-      if (kept.length < MAX_VALUES && !kept.includes(shown)) kept.push(shown);
+      if (kept.length === MAX_VALUES) continue;
+      const shown = cut(valueOf(text, tokens, from, to), MAX_VALUE);
+      if (!kept.includes(shown)) kept.push(shown);
     }
   }
   return [...used.values()].map((token) => ({ ...token, values: values.get(token.name) ?? [] }));

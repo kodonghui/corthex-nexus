@@ -753,7 +753,7 @@ API-293(`GET /api/projects/{project}/diagrams/{diagram}/page`, `src/mockup-page.
 - 입장 확인이 거절한 요청은 위에 적은 대로 `unauthenticated`(401), `not_owner`(403), `cross_site`(403), `owner_only`(403), `access_missing`(401), `agent_only`(403) 중 하나로 응답해요.
 - 핸들러가 실패하면 `internal`(500)로 응답하고, 그 `traceId`로 로그에서 요청을 찾아요.
 - 모든 응답에 `X-Content-Type-Options: nosniff`가 있어요.
-- 라우트는 GET에 한해 `media`를 정할 수 있어요. 페이지라면 `text/html`이고, 그러면 핸들러가 페이지의 텍스트를 돌려주고 서버는 그 타입과 `charset=utf-8`로 보내요. 지금은 API-293뿐이에요. 라우트는 `headers`도 정할 수 있어요. 경로와 메서드가 맞으면 그 오퍼레이션의 모든 응답이 거절과 장애까지 이 헤더를 지녀요. API-293의 `Content-Security-Policy`가 그 예예요. `Content-Type`, `Content-Length`, `Connection`, `X-Content-Type-Options`는 계속 서버가 정해요.
+- 라우트는 GET에 한해 `media`를 정할 수 있어요. 페이지라면 `text/html`이고, 그러면 핸들러가 페이지의 텍스트를 돌려주고 서버는 그 타입과 `charset=utf-8`로 보내요. 지금은 API-293뿐이에요. 라우트는 `headers`도 정할 수 있어요. 경로와 메서드가 맞으면 그 오퍼레이션의 모든 응답이 거절과 장애까지 이 헤더를 지녀요. API-293의 `Content-Security-Policy`가 그 예예요. `Content-Type`, `X-Content-Type-Options`, 그리고 `Content-Length`, `Connection`, `Transfer-Encoding`처럼 메시지 프레이밍을 정하는 헤더는 계속 서버가 정해요.
 
 ## 로그
 
