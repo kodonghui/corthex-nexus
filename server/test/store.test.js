@@ -2,15 +2,19 @@
 // changes nothing, and a v2 store beside it is left unread.
 
 import assert from 'node:assert/strict';
+import { spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
 import { chmodSync, copyFileSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { DatabaseSync } from 'node:sqlite';
 import { describe, test } from 'node:test';
 import { APPLICATION_ID, migrate, openStore, readMigrations, STORE_FILE, StoreError } from '../src/store.js';
 import { startServer } from './support.js';
 
 const SCHEMA = new URL('../../db/nexus.sql', import.meta.url);
+const STORE_MODULE = new URL('../src/store.js', import.meta.url).href;
 const MIGRATIONS = readMigrations();
 const T = '2026-11-23T00:00:00.000Z';
 // v2's application ID of its rebuild store, "NXS2"; its first store has none.
@@ -154,6 +158,77 @@ describe('the store of a new install', () => {
     assert.deepEqual(readdirSync(folder), [STORE_FILE]);
     if (process.platform !== 'win32') assert.equal(statSync(folder).mode & 0o777, 0o700);
   });
+
+  test('is readable by its owner only, whatever the folder allows', { skip: process.platform === 'win32' && 'Windows keeps no POSIX mode' }, (t) => {
+    const folder = dataFolder(t);
+    const path = join(folder, STORE_FILE);
+    // A folder the operator made beforehand keeps its mode; the store does not take it.
+    chmodSync(folder, 0o755);
+    openStore(folder).db.close();
+    assert.equal(statSync(path).mode & 0o777, 0o600);
+    chmodSync(path, 0o644);
+    openStore(folder).db.close();
+    assert.equal(statSync(path).mode & 0o777, 0o600);
+    assert.equal(statSync(folder).mode & 0o777, 0o755);
+  });
+
+  test('can be opened again after a crash during the first install', (t) => {
+    const folder = dataFolder(t);
+    const path = join(folder, STORE_FILE);
+    // A one-page cache makes SQLite write pages to the file before the commit, as a large migration would; the last
+    // migration then stops the process in the middle of the transaction.
+    const crashed = spawnSync(process.execPath, ['--input-type=module', '-e', `
+      import { DatabaseSync } from 'node:sqlite';
+      import { migrate, readMigrations } from ${JSON.stringify(STORE_MODULE)};
+      const db = new DatabaseSync(${JSON.stringify(path)});
+      db.exec('PRAGMA cache_size = 1');
+      db.function('crash', () => process.exit(7));
+      const migrations = readMigrations();
+      migrate(db, [...migrations, { number: migrations.length + 1, sql: 'SELECT crash();' }]);
+    `], { encoding: 'utf8' });
+    assert.equal(crashed.status, 7, crashed.stderr);
+    assert.ok(statSync(path).size > 0, 'pages were written before the commit');
+    assert.deepEqual(readdirSync(folder).sort(), [STORE_FILE, `${STORE_FILE}-journal`]);
+
+    const { db, applied } = openStore(folder);
+    const schema = schemaDatabase();
+    try {
+      assert.deepEqual(applied, MIGRATIONS.map((migration) => migration.number));
+      assert.deepEqual(shapeOf(db), shapeOf(schema));
+    } finally {
+      db.close();
+      schema.close();
+    }
+    assert.deepEqual(readdirSync(folder), [STORE_FILE]);
+  });
+
+  test('waits for a lock another connection holds, such as a server still stopping', async (t) => {
+    const folder = dataFolder(t);
+    openStore(folder).db.close();
+    const holder = spawn(process.execPath, ['--input-type=module', '-e', `
+      import { DatabaseSync } from 'node:sqlite';
+      const db = new DatabaseSync(${JSON.stringify(join(folder, STORE_FILE))});
+      db.exec('BEGIN EXCLUSIVE');
+      process.stdout.write('locked\\n');
+      setTimeout(() => {
+        db.exec('COMMIT');
+        db.close();
+      }, 500);
+    `], { stdio: ['ignore', 'pipe', 'inherit'] });
+    const closed = once(holder, 'close');
+    const [chunk] = await once(holder.stdout, 'data');
+    assert.equal(String(chunk), 'locked\n');
+    const started = performance.now();
+    try {
+      const { db, applied } = openStore(folder);
+      db.close();
+      assert.deepEqual(applied, []);
+      assert.ok(performance.now() - started >= 200, 'it waited for the lock');
+    } finally {
+      const [code] = await closed;
+      assert.equal(code, 0);
+    }
+  });
 });
 
 describe('running the migrations twice', () => {
@@ -267,6 +342,8 @@ describe('a v2 store', () => {
       ['a text file', Buffer.from('not a database\n')],
       ['a SQLite database of no application', Buffer.from(anotherApplication)],
       ['a store cut short in its header', ours.subarray(0, 64)],
+      // Zeros are a first install that stopped before its commit only when its journal is beside it.
+      ['zeros with no journal beside them', Buffer.alloc(4096)],
     ]) {
       writeFileSync(path, bytes);
       const before = folderState(folder);
@@ -320,13 +397,19 @@ describe('the migration runner', () => {
       ['a repeat', ['0001_a.sql', '0001_b.sql']],
       ['no 0001', ['0002_b.sql']],
       ['no migration', ['README.md']],
+      // A file that looks like a migration but is not named like one is refused, not skipped, even as the last one.
+      ['a hyphen', ['0001_a.sql', '0002-add-index.sql']],
+      ['capitals', ['0001_a.sql', '0002_AddIndex.sql']],
+      ['another ending case', ['0001_a.sql', '0002_add.SQL']],
+      ['no number', ['0001_a.sql', 'notes.sql']],
+      ['another ending', ['0001_a.sql', '0002_draft.sql.txt']],
     ]) {
       const folder = dataFolder(t);
       for (const name of names) writeFileSync(join(folder, name), 'SELECT 1;');
       assert.throws(() => readMigrations(folder), assertRefused('migrations_invalid'), what);
     }
     const folder = dataFolder(t);
-    for (const name of ['0001_a.sql', '0002_b.sql', 'README.md', '0003_draft.sql.txt']) writeFileSync(join(folder, name), `-- ${name}`);
+    for (const name of ['0001_a.sql', '0002_b.sql', 'README.md', '.gitkeep']) writeFileSync(join(folder, name), `-- ${name}`);
     assert.deepEqual(readMigrations(folder).map((migration) => migration.sql), ['-- 0001_a.sql', '-- 0002_b.sql']);
     assert.throws(() => openStore(dataFolder(t), { migrations: [] }), assertRefused('migrations_invalid'));
   });

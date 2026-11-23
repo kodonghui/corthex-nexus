@@ -11,7 +11,7 @@
 //
 // No error names a path or a value read from a file (rule 5): a StoreError carries its reason only.
 
-import { closeSync, mkdirSync, openSync, readdirSync, readFileSync, readSync } from 'node:fs';
+import { chmodSync, closeSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, readSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +24,9 @@ export const APPLICATION_ID = 0x4e585333;
 export const MIGRATIONS_DIRECTORY = new URL('../../db/migrations/', import.meta.url);
 
 const MIGRATION_FILE = /^(\d{4})_[a-z0-9_]+\.sql$/;
+const MIGRATION_LIKE = /\.sql$|^\d{4}/i;
+// How long opening the store waits for a lock another connection holds, such as a server still stopping.
+const BUSY_TIMEOUT_MS = 5_000;
 const SQLITE_HEADER = 'SQLite format 3\0';
 const HEADER_BYTES = 100;
 const APPLICATION_ID_OFFSET = 68;
@@ -45,13 +48,16 @@ const REASONS = Object.freeze({
   foreign_keys_broken: 'a migration left rows whose foreign keys point at no row; nothing was changed',
 });
 
-// The migrations in order: { number, sql } for each file named like 0001_initial.sql. Other files are not
-// migrations. The numbers run from 1 without a gap or a repeat.
+// The migrations in order: { number, sql } for each file named like 0001_initial.sql. The numbers run from 1 without
+// a gap or a repeat. A file that looks like a migration, by its .sql ending or its four leading digits, but is not
+// named like one is refused rather than skipped, so that no migration is left out without a word.
 export function readMigrations(directory = MIGRATIONS_DIRECTORY) {
   const folder = directory instanceof URL ? fileURLToPath(directory) : directory;
-  const migrations = readdirSync(folder)
-    .map((name) => [name, MIGRATION_FILE.exec(name)])
-    .filter(([, match]) => match !== null)
+  const files = readdirSync(folder)
+    .filter((name) => MIGRATION_LIKE.test(name))
+    .map((name) => [name, MIGRATION_FILE.exec(name)]);
+  if (files.some(([, match]) => match === null)) throw new StoreError('migrations_invalid');
+  const migrations = files
     .map(([name, match]) => ({ number: Number(match[1]), sql: readFileSync(join(folder, name), 'utf8') }))
     .sort((one, other) => one.number - other.number);
   checkNumbers(migrations);
@@ -66,7 +72,11 @@ export function openStore(dataDirectory, { migrations = readMigrations() } = {})
   mkdirSync(dataDirectory, { recursive: true, mode: 0o700 });
   const path = join(dataDirectory, STORE_FILE);
   checkHeader(path);
-  const db = new DatabaseSync(path, { enableForeignKeyConstraints: true });
+  // The store holds credential digests, so only its owner reads it, whatever the folder allows. SQLite gives its
+  // journal the store's mode.
+  closeSync(openSync(path, 'a', 0o600));
+  chmodSync(path, 0o600);
+  const db = new DatabaseSync(path, { enableForeignKeyConstraints: true, timeout: BUSY_TIMEOUT_MS });
   try {
     return { db, ...migrate(db, migrations) };
   } catch (error) {
@@ -109,6 +119,8 @@ function migrateInTransaction(db, migrations) {
   if (application === 0 && version === 0) {
     // A new store: an empty database, with no table, index, view or trigger.
     if (db.prepare('SELECT 1 FROM sqlite_schema LIMIT 1').get() !== undefined) throw new StoreError('not_a_v3_store');
+    // Marked in the same transaction as the migrations, so a failure or a crash undoes the mark with the rest.
+    db.exec(`PRAGMA application_id = ${APPLICATION_ID}`);
   } else if (application !== APPLICATION_ID) {
     throw new StoreError('not_a_v3_store');
   }
@@ -119,9 +131,8 @@ function migrateInTransaction(db, migrations) {
     db.exec(`PRAGMA user_version = ${migration.number}`);
     applied.push(migration.number);
   }
-  if (applied.length > 0) {
-    db.exec(`PRAGMA application_id = ${APPLICATION_ID}`);
-    if (db.prepare('PRAGMA foreign_key_check').get() !== undefined) throw new StoreError('foreign_keys_broken');
+  if (applied.length > 0 && db.prepare('PRAGMA foreign_key_check').get() !== undefined) {
+    throw new StoreError('foreign_keys_broken');
   }
   return applied;
 }
@@ -134,7 +145,9 @@ function checkNumbers(migrations) {
 }
 
 // Refuses a file at the store's path that is not a NEXUS v3 store, reading only its header. A missing or empty file
-// is a new install, which SQLite creates or fills.
+// is a new install, which SQLite creates or fills. So is a first install that stopped before its commit: SQLite keeps
+// page 1 in memory until the commit, so the file's header is still zeros, and its journal beside it lets SQLite roll
+// the file back to empty when it opens it.
 function checkHeader(path) {
   let descriptor;
   try {
@@ -147,6 +160,7 @@ function checkHeader(path) {
     const header = Buffer.alloc(HEADER_BYTES);
     const size = readSync(descriptor, header, 0, HEADER_BYTES, 0);
     if (size === 0) return;
+    if (header.every((byte) => byte === 0) && existsSync(`${path}-journal`)) return;
     const ours = size === HEADER_BYTES
       && header.toString('latin1', 0, SQLITE_HEADER.length) === SQLITE_HEADER
       && header.readUInt32BE(APPLICATION_ID_OFFSET) === APPLICATION_ID;

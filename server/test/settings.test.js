@@ -5,7 +5,7 @@ import { randomBytes } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { readSettings, SettingsError } from '../src/settings.js';
+import { fullyAbsolute, readSettings, SettingsError } from '../src/settings.js';
 
 // An absolute folder on this system; nothing is made there.
 const DATA = join(tmpdir(), 'nexus-settings-data');
@@ -56,5 +56,24 @@ test('an invalid value names the setting and its rule, never the value', () => {
       assert.ok(!error.message.includes(misplaced));
       return true;
     }, JSON.stringify(env));
+  }
+});
+
+test('the data folder names its drive on Windows, so it does not depend on where the server starts', () => {
+  for (const [path, platform, expected] of [
+    ['/var/lib/nexus', 'linux', true],
+    ['relative/data', 'linux', false],
+    ['C:\\nexus-data', 'win32', true],
+    ['C:/nexus-data', 'win32', true],
+    ['\\\\host\\share\\nexus-data', 'win32', true],
+    // Absolute to Node on Windows, but on the drive of the start folder.
+    ['\\nexus-data', 'win32', false],
+    ['/nexus-data', 'win32', false],
+    ['C:nexus-data', 'win32', false],
+  ]) {
+    assert.equal(fullyAbsolute(path, platform), expected, `${platform} ${path}`);
+  }
+  if (process.platform === 'win32') {
+    assert.throws(() => readSettings({ NEXUS_DATA_DIR: '\\nexus-data' }), { setting: 'NEXUS_DATA_DIR' });
   }
 });
