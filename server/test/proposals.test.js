@@ -162,6 +162,8 @@ describe('agent proposals', () => {
     element(erd.drawing, 'TBL-146', 'agent_credentials');
     element(erd.drawing, 'TBL-147', 'project_spaces');
     element(erd.drawing, 'TBL-148', 'snapshots');
+    // A part left out as unreadable: its element counts as gone (SPEC-027).
+    s.elements(erd.drawing, [{ key: 'TBL-160', trace_id: 'TBL-160', kind: 'table', name: 'confirmations', status: 'unreadable' }]);
     // Stage 03: this repository's FL-003, drawn by its drawer; two flows whose boxes hold TERM-300, and a removed flow.
     flow3 = s.diagram(space, { stage: '03-user-flow', sourceKey: FL3, kind: 'user_flow', name: 'FL-003 Comment and answer an AI proposal' });
     drawFile(flow3.drawing, '03-user-flow', 'user_flow', FL3, FL3_TEXT);
@@ -339,6 +341,11 @@ describe('agent proposals', () => {
     assert.deepEqual([notHeld.status, notHeld.json.code, notHeld.json.items], [404, 'item_not_found', ['TERM-300', 'FL-404']]);
     const nowhere = await propose(erdProposal({ items: ['TBL-146', 'TBL-999', 'TBL-998'] }));
     assert.deepEqual([nowhere.status, nowhere.json.code, nowhere.json.items], [404, 'item_not_found', ['TBL-999', 'TBL-998']]);
+    // An element drawn as unreadable holds no item, by the items or by the diagram.
+    const unreadable = await propose(erdProposal({ items: ['TBL-146', 'TBL-160'] }));
+    assert.deepEqual([unreadable.status, unreadable.json.code, unreadable.json.items], [404, 'item_not_found', ['TBL-160']]);
+    const namedUnreadable = await propose(erdProposal({ items: ['TBL-160'], diagram: idOf('dg', erd.id) }));
+    assert.deepEqual([namedUnreadable.status, namedUnreadable.json.code, namedUnreadable.json.items], [404, 'item_not_found', ['TBL-160']]);
   });
 
   test('a removed diagram takes no proposal: named, through its thread, or through its items (SPEC-027, note 6)', async () => {

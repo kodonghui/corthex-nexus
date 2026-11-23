@@ -8,8 +8,9 @@
 //
 // - Where it goes. Only a drawn picture of stage 01, 03, 05, 07 or 08 takes a proposal (the contract's ProposalStage);
 //   stage 09 and any other stage get invalid_request on stage. The diagram is the comment's thread's, the one diagram
-//   names, or the one diagram of the stage and part that holds every item. An item is held by an element of the
-//   diagram's current drawing with that trace ID, or, when no element of the stage's drawings holds it, by the file
+//   names, or the one diagram of the stage and part that holds every item. An item is held by a readable element of
+//   the diagram's current drawing with that trace ID (one drawn as unreadable counts as gone, SPEC-027), or, when no
+//   element of the stage's drawings holds it, by the file
 //   diagram it names (drawing.js's diagramTraceId), as a comment's item is (comments.js): then the proposal lays over
 //   that diagram as a whole, its items keep the ID and mark no element. Items no diagram holds get item_not_found,
 //   naming each; items that no single diagram holds all of, or that several hold, get diagram_ambiguous with those
@@ -100,7 +101,10 @@ function statementsOf(store) {
         `SELECT w.id FROM drawings w JOIN snapshots s ON s.id = w.snapshot_id
          WHERE w.diagram_id = ? AND w.status = 'drawn' AND s.revision <= ? ORDER BY s.revision DESC, w.id DESC LIMIT 1`,
       ),
-      holds: store.prepare('SELECT 1 AS held FROM elements WHERE drawing_id = ? AND trace_id = ? LIMIT 1'),
+      // An element drawn as unreadable holds no item: it counts as gone, as after-drawing.js counts it (SPEC-027).
+      holds: store.prepare(
+        "SELECT 1 AS held FROM elements WHERE drawing_id = ? AND trace_id = ? AND (status IS NULL OR status <> 'unreadable') LIMIT 1",
+      ),
       elements: store.prepare('SELECT element_key, kind, name FROM elements WHERE drawing_id = ? ORDER BY id'),
       insertChangeSet: store.prepare(
         `INSERT INTO change_sets (project_id, diagram_id, drawing_id, origin, thread_id, credential_id, state, created_at, detail)
