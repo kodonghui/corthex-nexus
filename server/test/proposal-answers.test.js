@@ -146,6 +146,24 @@ describe('answering an AI proposal', () => {
     assert.deepEqual([reflected.status, reflected.json.changed, reflected.json.change_set.state], [200, false, 'reflected']);
   });
 
+  test('proposals accepted out of the order they were made wait and show in the order they were accepted (TASK-445)', async () => {
+    const { space, erd } = fresh();
+    clock = START;
+    const first = await propose(space);
+    clock = START + MINUTE;
+    const second = await propose(space, { source_text: 'CREATE TABLE credentials ();' });
+    // The owner accepts the later proposal first, then the earlier one.
+    clock = START + 2 * MINUTE;
+    assert.equal((await accept(space, second.id)).status, 200);
+    clock = START + 3 * MINUTE;
+    assert.equal((await accept(space, first.id)).status, 200);
+    // The reflection applies them in the order they were accepted, so the later accepted wins, and the diagram read
+    // lays it on top.
+    const todo = await agentGet(`/api/spaces/${space.name}/todo`);
+    assert.deepEqual(todo.reflections.entries.map((entry) => entry.change_sets), [[second.id, first.id]]);
+    assert.deepEqual(await overlays(space, erd), [`${first.id} accepted`, `${second.id} accepted`]);
+  });
+
   test('a rejected proposal\'s overlay is gone and its thread stays open, waiting where it did (SPEC-020)', async () => {
     const { space, erd } = fresh();
     // The owner asks on TBL-146; the agent answers with a proposal, so the thread waits on the owner.

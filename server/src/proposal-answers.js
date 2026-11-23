@@ -8,10 +8,10 @@
 //   accepted when it is made and cancelled, not answered (API-273): change_set_state with its state, as a proposal sent
 //   to API-273 is refused.
 // - Accepting (API-270, SPEC-019) marks a proposed proposal accepted at the time of the answer, decided_at, the time
-//   TASK-445 has the readers order accepted change sets by, the later accepted on top. Then entries.js's
-//   changeSetsChanged closes the owner's proposal entry as done and puts the proposal in its diagram's reflection entry
-//   on the agent to-do (SPEC-026), so API-245, API-247's reflection and heldChangeSets read it as any accepted change
-//   set.
+//   readers order accepted change sets by since TASK-445: the later accepted wins in the reflection and is on top in
+//   the diagram read. Then entries.js's changeSetsChanged closes the owner's proposal entry as done and puts the
+//   proposal in its diagram's reflection entry on the agent to-do (SPEC-026), so API-245, API-247's reflection and
+//   heldChangeSets read it as any accepted change set.
 //   - Accepted again, or reflected since, it answers the change set with changed false ("accepted again → the same
 //     result"). Rejected, or withdrawn by its agent (cancelled), it gets change_set_state with its state.
 //   - The document changed since the proposal: the diagram's shown drawing, its latest that drew (SPEC-001), is not the
