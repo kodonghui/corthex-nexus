@@ -18,7 +18,7 @@ import { snapshotRoutes } from '../src/snapshots.js';
 import { openStore } from '../src/store.js';
 import { testDrawers } from './drawers.js';
 import { openEntries, seed } from './seed.js';
-import { FORMAT_03, newCommit, repositorySnapshot } from './snapshots.js';
+import { FORMAT_02, FORMAT_03, newCommit, repositorySnapshot } from './snapshots.js';
 import { startServer } from './support.js';
 import { checkLayer, checkTables, recordTables } from './tables.js';
 
@@ -57,15 +57,14 @@ describe('left-out sources', () => {
   let recorder;
   let server;
   let rows;
-  let base;
   const clock = { now: START };
+  const bases = new Map();
 
   before(async () => {
     folder = mkdtempSync(join(tmpdir(), 'nexus-left-out-'));
     ({ db } = openStore(folder));
     recorder = recordTables(db);
     rows = seed(db, { time: SEEDED });
-    base = repositorySnapshot(FORMAT_03, { name: 'base' });
     server = await startServer({ store: recorder.store, now: () => clock.now, routes: snapshotRoutes({ drawers: testDrawers() }) });
   });
 
@@ -75,14 +74,15 @@ describe('left-out sources', () => {
     rmSync(folder, { recursive: true, force: true, maxRetries: 5 });
   });
 
-  // A project's pushes: each push sends the next commit, replacing the one before, with the ERD's tables (none when
-  // tables is null), the flow files, the items, left_out and the checks given, and answers the push's answer. same
-  // sends the held commit again.
+  // A project's pushes: each push sends the next commit, replacing the one before, in format, with the ERD's tables
+  // (none when tables is null), the flow files (0.3 only), the items, left_out and the checks given, and answers the
+  // push's answer. same sends the held commit again.
   function project(name) {
     let held;
     const space = { name };
-    space.push = async ({ tables = TABLES, flows = [], items = [], left = [], checks = [], same = false } = {}) => {
-      const snapshot = structuredClone(base);
+    space.push = async ({ format = FORMAT_03, tables = TABLES, flows = [], items = [], left = [], checks = [], same = false } = {}) => {
+      if (!bases.has(format)) bases.set(format, repositorySnapshot(format, { name: 'base' }));
+      const snapshot = structuredClone(bases.get(format));
       const sent = same ? held : newCommit();
       snapshot.project.name = name;
       snapshot.repos['.'].commit = sent;
@@ -168,11 +168,22 @@ describe('left-out sources', () => {
     assert.deepEqual(drawingsOf(a), [['drawn', null, null], ['failed', FLOW_A, null]]);
     assert.deepEqual(drawingsOf(b), [['drawn', null, null]]);
     assert.deepEqual(drawingsOf(c), [['drawn', null, null]]);
-    // A left_out entry of another key, part or stage names nothing here.
-    const other = await space.push({
-      flows: [FLOW_SET[1]], left: [leftOut(FLOWS, 'size', FLOW_C), { ...leftOut(FLOWS, 'size', FLOW_A), part: 'other' }, leftOut('08-screen-states', 'size', FLOW_A)],
-    });
+    // A left_out entry of another key, or of another stage, names nothing here.
+    const other = await space.push({ flows: [FLOW_SET[1]], left: [leftOut(FLOWS, 'size', FLOW_C), leftOut('08-screen-states', 'size', FLOW_A)] });
     assert.deepEqual([counted(other), removedAt(a) !== null], [[0, 0, 1], true]);
+  });
+
+  test('a file left out by its key keeps its diagram, whatever part NEXUS last read for it', async () => {
+    const space = project('completed');
+    await space.push({ format: FORMAT_02 });
+    const completed = await space.push({ flows: [FLOW_SET[0]], same: true });
+    assert.equal(completed.same_commit, true);
+    const a = diagram(space, FLOW_A);
+    // A revision a newer format completed records no part for the files it adds (see the server's README, Drawing).
+    assert.deepEqual(listed(space, FLOWS).map(([part]) => part), ['']);
+    const answer = await space.push({ left: [leftOut(FLOWS, 'size', FLOW_A)] });
+    assert.deepEqual([counted(answer), answer.failures, removedAt(a)], [[0, 1, 0], [failure(a, FLOWS, FLOW_A)], null]);
+    assert.deepEqual(drawingsOf(a), [['drawn', null, null], ['failed', FLOW_A, null]]);
   });
 
   test('a document NEXUS refuses keeps its diagram, failed at where it is from (REQ-077)', async () => {

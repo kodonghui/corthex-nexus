@@ -1,6 +1,7 @@
 // What the drawers share (TASK-419's drawer interface; the drawers of TASK-421 to TASK-427): the failure a drawer
 // throws for a source it cannot read, the element keys, the contract's limits, the reading of a stage picture's
-// entries and of what the hub left out of it, and the placing of boxes with their text. drawing.js runs the drawers
+// entries and of what the hub left out of it, and the placing of boxes with their text; and the digest of a drawing
+// kept for a source a push leaves out, which todo.js reads too. drawing.js runs the drawers
 // and keeps what they draw, and imports each drawer; a drawer imports this file, never drawing.js, so that no two files
 // import each other. Nothing here logs (rule 5).
 
@@ -25,6 +26,10 @@ export const isTextList = (value) => Array.isArray(value) && value.every(isText)
 export const optional = (value, check) => value === undefined || value === null || check(value);
 export const characters = (text) => [...text].length;
 const sha256 = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
+
+// The source_digest of a drawing kept for a source a push leaves out (see drawing.js): the source's path as read and
+// absent, which no drawing that read the source has. todo.js passes such a drawing over when it finds a file's part.
+export const leftOutDigest = (sourceKey) => sha256(JSON.stringify([[sourceKey, null]]));
 
 // What a drawer throws for a source it cannot read: where it failed, a path in the repository and a line, or neither
 // for the document's own source. The drawing fails there, and the diagram keeps its last good drawing (SPEC-001).

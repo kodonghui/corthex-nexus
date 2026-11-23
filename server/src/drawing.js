@@ -26,7 +26,8 @@
 //
 // Left-out sources. A diagram whose source the snapshot leaves out is not removed (see snapshot.js): a document left
 // out as REQ-077 asks names its diagram by its path, and a left_out entry names the picture of its part and stage, a
-// file of stage 03, 08 or 09 by its key, or every file of its stage and part when it names none. The diagram keeps its
+// file of stage 03, 08 or 09 by its key, or every file of its stage and part when it names none. A key names its file
+// whatever part NEXUS last read for it, which a revision a newer format completed does not record. The diagram keeps its
 // last good drawing and gets a failed drawing at its source, with no line: the file's key, or the stage's source as
 // the snapshot's stage record names it. As for any failed drawing, nothing moves and its confirmation and its stage's
 // pass stay (see after-drawing.js), and the push counts it failed and names it in failures; a picture so kept still
@@ -104,8 +105,8 @@
 import { createHash } from 'node:crypto';
 import { dddBoard } from './ddd-board.js';
 import {
-  characters, CONTROL, elementKey, failureWhere, isObject, MAX_ELEMENTS, MAX_KEY, MAX_TRACE_ID, MAX_WHERE, numbered, SourceFailure,
-  TRACE_ID,
+  characters, CONTROL, elementKey, failureWhere, isObject, leftOutDigest, MAX_ELEMENTS, MAX_KEY, MAX_TRACE_ID, MAX_WHERE, numbered,
+  SourceFailure, TRACE_ID, whereText,
 } from './drawer.js';
 import { erd } from './erd.js';
 import { idOf } from './ids.js';
@@ -424,14 +425,9 @@ function keepDrawing(statements, { project, snapshot, diagram, outcome, time }) 
   return drawing;
 }
 
-// A where the store and the contract keep (up to 300 characters, no control character), or else fallback.
-const whereOr = (text, fallback) => (
-  typeof text === 'string' && text !== '' && characters(text) <= MAX_WHERE && !CONTROL.test(text) ? text : fallback
-);
-
 // Finds the diagrams whose source the push leaves out (see the top of this file). Returns diagram → { part, where } or
-// null: the part the push answer names and where the drawing fails, the file's key for a file and otherwise the
-// source as the push names it.
+// null: the part the push answer names, the push's own, and where the drawing fails, the file's key for a file and
+// otherwise the source as the push names it, or the stage when that is no where the store keeps (whereText).
 function leftOutFinder(store, leftOut) {
   const byPath = new Map();
   const byStage = new Map();
@@ -447,22 +443,23 @@ function leftOutFinder(store, leftOut) {
   return (diagram) => {
     const fallback = FILE_STAGES.has(diagram.stage) && diagram.kind !== ITEM_TABLE ? diagram.source_key : diagram.stage;
     const document = byPath.get(stageAndPath(diagram.stage, diagram.source_key));
-    if (document !== undefined) return { part: document.part, where: whereOr(document.where, fallback) };
+    if (document !== undefined) return { part: document.part, where: whereText(document.where) ?? fallback };
     const entries = byStage.get(diagram.stage);
     if (entries === undefined || diagram.kind === ITEM_TABLE) return null;
     const file = FILE_STAGES.has(diagram.stage);
+    const keyed = file ? entries.find((each) => each.key === diagram.source_key) : undefined;
+    if (keyed !== undefined) return { part: keyed.part, where: diagram.source_key };
+    if (!entries.some((each) => each.key === null)) return null;
     const part = diagramPart(store, diagram, parts);
-    const entry = entries.find((each) => each.part === part && (!file || each.key === null || each.key === diagram.source_key));
-    return entry === undefined ? null : { part, where: file ? diagram.source_key : whereOr(entry.where, fallback) };
+    const entry = entries.find((each) => each.key === null && each.part === part);
+    return entry === undefined ? null : { part, where: file ? diagram.source_key : whereText(entry.where) ?? fallback };
   };
 }
 
 // The outcome of a diagram whose source the push leaves out: a failed drawing at where, with no line, that read no
-// document. Its digest names the source's path as absent, which no drawing that read it has.
+// document, with leftOutDigest's digest (see drawer.js).
 function leftOutOutcome(diagram, where) {
-  return {
-    status: 'failed', digest: sha256(JSON.stringify([[diagram.source_key, null]])), name: null, rows: [], failure: { path: where, line: null },
-  };
+  return { status: 'failed', digest: leftOutDigest(diagram.source_key), name: null, rows: [], failure: { path: where, line: null } };
 }
 
 // The kind of diagram a document is drawn as, or null when it draws none: a picture as its stage's picture, a stage's

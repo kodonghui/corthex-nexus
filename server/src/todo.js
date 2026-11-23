@@ -20,6 +20,7 @@
 // Nothing here logs; a comment's text is in the answer only, never in a log line (rule 5).
 
 import { claimOf, pullRequestLink, sessionOf } from './claims.js';
+import { leftOutDigest } from './drawer.js';
 import { heldChangeSets, isCheckpointStep } from './entries.js';
 import { idOf } from './ids.js';
 import { Problem } from './problem.js';
@@ -93,7 +94,8 @@ function statementsOf(store) {
          WHERE ${OPEN_AGENT}`,
       ),
       pullRequest: store.prepare('SELECT number FROM pull_requests WHERE id = ?'),
-      drawingSnapshots: store.prepare('SELECT snapshot_id FROM drawings WHERE diagram_id = ? ORDER BY id DESC'),
+      // A diagram's last drawing, passing over one kept for a source left out (see drawing.js).
+      lastDrawing: store.prepare('SELECT snapshot_id FROM drawings WHERE diagram_id = ? AND source_digest <> ? ORDER BY id DESC LIMIT 1'),
       rest: store.prepare(
         "SELECT b.body FROM snapshot_files f JOIN document_blobs b ON b.sha256 = f.blob_sha256 WHERE f.snapshot_id = ? AND f.path = '/snapshot'",
       ),
@@ -113,33 +115,30 @@ export function threadItem(targetKind, elementKey) {
 
 // The part of the project a diagram belongs to, '' for the project as a whole (see the server's README, Drawing): a
 // stage's picture names it in its source_key, /pictures/<stage>/<part>; an item table has none; a file's picture of
-// stage 03, 08 or 09 has it only in the /snapshot document of a snapshot that sent the file, beside the file's key:
-// that of its last drawing whose snapshot names the file, which is its last drawing but when the snapshot left the
-// file out, since such a file keeps its diagram with a failed drawing (see drawing.js). parts caches what a read found,
-// by snapshot.
+// stage 03, 08 or 09 has it only in the /snapshot document of the snapshot its last drawing comes from, beside the
+// file's key. A drawing kept for a source left out is passed over, since its snapshot does not name the file (see
+// drawing.js). parts caches what a read found, by snapshot.
 export function diagramPart(store, diagram, parts = new Map()) {
   const { id, stage, kind, source_key: key } = diagram;
   if (kind === 'item_table') return '';
   if (key.startsWith('/pictures/')) return key.split('/')[3] ?? '';
   const statements = statementsOf(store);
-  for (const drawing of statements.drawingSnapshots.iterate(id)) {
-    const snapshot = Number(drawing.snapshot_id);
-    if (!parts.has(snapshot)) {
-      const found = new Map();
-      const rest = statements.rest.get(snapshot);
-      const pictures = rest === undefined ? [] : JSON.parse(rest.body).pictures;
-      for (const picture of Array.isArray(pictures) ? pictures : []) {
-        const part = picture?.part ?? '';
-        if (typeof picture?.key === 'string' && typeof part === 'string' && part.length <= PART_LENGTH && PART.test(part)) {
-          found.set(`${picture.stage}\n${picture.key}`, part);
-        }
+  const drawing = statements.lastDrawing.get(id, leftOutDigest(key));
+  if (drawing === undefined) return '';
+  const snapshot = Number(drawing.snapshot_id);
+  if (!parts.has(snapshot)) {
+    const found = new Map();
+    const rest = statements.rest.get(snapshot);
+    const pictures = rest === undefined ? [] : JSON.parse(rest.body).pictures;
+    for (const picture of Array.isArray(pictures) ? pictures : []) {
+      const part = picture?.part ?? '';
+      if (typeof picture?.key === 'string' && typeof part === 'string' && part.length <= PART_LENGTH && PART.test(part)) {
+        found.set(`${picture.stage}\n${picture.key}`, part);
       }
-      parts.set(snapshot, found);
     }
-    const part = parts.get(snapshot).get(`${stage}\n${key}`);
-    if (part !== undefined) return part;
+    parts.set(snapshot, found);
   }
-  return '';
+  return parts.get(snapshot).get(`${stage}\n${key}`) ?? '';
 }
 
 // The agent to-do of the project named name, as the contract's AgentTodo, or null when no project space has the
