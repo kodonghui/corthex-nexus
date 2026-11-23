@@ -110,9 +110,8 @@ export function createGateKeys({ issuer, fetch = globalThis.fetch, now = () => p
   let fetchedAt = 0;
   let startedAt = -Infinity;
   let pending = null;
-  // Whether the last fetch failed, and its code, until a fetch succeeds. Each request gets an error of its own.
-  let failed = false;
-  let failedCode;
+  // The error of the last fetch until a fetch succeeds, otherwise null. Each request gets an error of its own.
+  let failure = null;
 
   const fresh = () => keys !== null && now() - fetchedAt < KEYS_MAX_AGE_MS;
 
@@ -123,11 +122,10 @@ export function createGateKeys({ issuer, fetch = globalThis.fetch, now = () => p
         .then((read) => {
           keys = read;
           fetchedAt = now();
-          failed = false;
+          failure = null;
         }, (error) => {
           // Whatever failed, the keys could not be read, which the log names as keys_unavailable.
-          failed = true;
-          failedCode = error instanceof GateKeysError ? error.code : undefined;
+          failure = error instanceof GateKeysError ? error : new GateKeysError();
         })
         .finally(() => {
           pending = null;
@@ -143,7 +141,7 @@ export function createGateKeys({ issuer, fetch = globalThis.fetch, now = () => p
       if (pending !== null || now() - startedAt >= FETCH_GAP_MS) await refresh();
       // A kid the endpoint could not be asked about is not unknown: the keys are unavailable, a fault of the server's,
       // so the owner is not sent back to the gate for a sign-in it would sign with the same key.
-      if (failed) throw new GateKeysError(failedCode);
+      if (failure !== null) throw new GateKeysError(failure.code);
       // A guard only: a fetch that succeeded within the gap left current keys.
       if (!fresh()) throw new GateKeysError();
       return keys.get(kid) ?? null;
