@@ -90,11 +90,9 @@ export function recordTables(db) {
 // Tables an operation lists that a later task of the WBS builds the part of it that touches them, by operation: until
 // that task lands, the operation touches the other tables it lists. The task that lands removes its entry, and then
 // its tables are checked like any other; a table here that the operation touches already fails, so an entry cannot
-// outlive its task. tables.test.js checks that each entry names listed tables and its task.
-export const PENDING = Object.freeze({
-  // TASK-418 keeps the snapshot; TASK-419 draws it, into diagrams, drawings and elements (see src/drawing.js).
-  pushSnapshot: Object.freeze({ task: 'TASK-419', tables: Object.freeze(['TBL-151', 'TBL-152', 'TBL-153']) }),
-});
+// outlive its task. tables.test.js checks that each entry names listed tables and its task. None is left: TASK-419
+// drew the snapshot, so pushSnapshot touches every table it lists.
+export const PENDING = Object.freeze({});
 
 // Checks that the tables the operation action touched are exactly the TBL IDs its x-corthex.tables lists, less those
 // PENDING leaves to a later task: a table it touched but does not list fails, and so does a listed table it never

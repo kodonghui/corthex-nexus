@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; and TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot. It takes the operations of `src/routes.js`, so far API-242, API-243, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; and TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer. It takes the operations of `src/routes.js`, so far API-242, API-243, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -96,7 +96,7 @@ The owner issues, lists and revokes the credentials agents use (`src/credentials
 The tests check the three operations as each later operation is checked:
 - `test/responses.js` checks each answer against the response the contract lists for its status, schema included, and that every listed response was answered, each Problem code its examples give included.
 - `test/tables.js` (note 23 of the WBS) wraps the store. SQLite's authorizer reports each table a statement reads and writes as it is prepared. Each run of the statement is noted for the operation whose handler runs it (`src/operation.js`), or for the request layer outside every handler. The tables the schema's keys reach are left out: those a foreign key's check reads, and those a cascade deletes from. An operation must touch exactly the tables its `x-corthex.tables` lists, and the request layer only TBL-169 and TBL-146. `test/tables.test.js` checks that the tests of every route in `src/routes.js` call this check.
-- `PENDING` in `test/tables.js` names the tables an operation lists that a later task of the WBS builds its part of: API-242 lists TBL-151 to TBL-153, which TASK-419's drawing writes. Until that task lands, the check leaves them out. A pending table that the operation touches still fails the check, so the entry goes with the task that builds it, and `test/tables.test.js` checks that each entry names tables the operation lists and the WBS gives that task.
+- `PENDING` in `test/tables.js` names the tables an operation lists that a later task of the WBS builds its part of. Until that task lands, the check leaves them out. A pending table that the operation touches still fails the check, so the entry goes with the task that builds it, and `test/tables.test.js` checks that each entry names tables the operation lists and the WBS gives that task. None is left: API-242's TBL-151 to TBL-153 were the last entry, which TASK-419's drawing removed.
 
 ## Snapshot intake
 
@@ -126,9 +126,83 @@ The schema lists only the fields NEXUS reads and says NEXUS keeps the others as 
 
 **Secrets and email addresses** (REQ-077, `src/sensitive.js`). A document whose text looks like a secret (an OpenAI-style, GitHub, Slack or AWS key, or a private key's first line) or an email address is left out. The answer's `refused` names it with its part, its stage, where it is from (its key, or the stage's source as the snapshot's stage record names it) and `why`, `secret` or `email`, up to 500 of them. The patterns are the pinned hub's own, which redacts every text before it sends it, so NEXUS leaves out no more than the hub hides. The rest, `/snapshot`, has no stage to name it by, so a snapshot whose other fields hold such text, which the hub never sends, gets `invalid_snapshot` naming the field. No answer or table holds the text of a document left out or what was found in it, and no log line holds its path either (rule 5).
 
-**Drawing.** After it keeps a snapshot, the push calls `drawSnapshot` of `src/drawing.js` once, in the same transaction, with the project, the snapshot, whether it completes a revision and the documents kept. That function is where TASK-419 hooks in the diagrams and drawings (TBL-151 to TBL-153); until then it draws nothing: the answer's `diagrams` counts are 0 and its `failures` empty. What a drawing changes after it, the answer's `confirmations_invalidated`, `change_sets_reflected` and `threads_moved`, is TASK-435's, so those are 0 until it lands.
+**Drawing.** After it keeps a snapshot, the push draws it in the same transaction, as [Drawing](#drawing) says, and the answer's `diagrams` and `failures` say what it drew. The same commit again in the same or an older format draws nothing: every diagram is `unchanged`, except one whose source in the push failed, which is `failed` and named in `failures` again. What a drawing changes after it, the answer's `confirmations_invalidated`, `change_sets_reflected` and `threads_moved`, is TASK-435's, so those are 0 until it lands.
 
-`test/snapshots.test.js` sends 0.2 and 0.3 snapshots of this repository that `test/snapshots.js` builds from its files when the tests run, so no snapshot file is kept in Git. It builds 0.2 from the schema too, rather than with the pinned hub, because the server's tests run with Node alone. It makes every secret-looking and email-looking value at run time from parts.
+`test/snapshots.test.js` sends 0.2 and 0.3 snapshots of this repository that `test/snapshots.js` builds from its files when the tests run, so no snapshot file is kept in Git. It builds 0.2 from the schema too, rather than with the pinned hub, because the server's tests run with Node alone. It makes every secret-looking and email-looking value at run time from parts. Its pushes draw with the test drawers of `test/drawers.js`, so its answers count diagrams.
+
+## Drawing
+
+The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. This task builds what they plug into; the tests draw with drawers of their own.
+
+**Diagrams.** A diagram is drawn from one document of the snapshot. Its `source_key` is that document's path in `snapshot_files` (see Documents above), so a drawing finds its source from the diagram alone.
+
+| Stage | Diagrams | `source_key` | Kind |
+| --- | --- | --- | --- |
+| 01, 05, 07 | one per stage and part | `/pictures/<stage>` or `/pictures/<stage>/<part>` | `ddd_board`, `erd`, `sitemap` |
+| 03, 08, 09 | one per file | the file's key, its path in the repository | `user_flow`, `screen_states`, `mockup` |
+| any other stage with items | one | `/items/<stage>` | `item_table` |
+| 03, 08, 09 while no snapshot drew their pictures and the format does not carry them | one | `/items/<stage>` | `item_table` |
+
+- **Removed.** A diagram whose document a snapshot does not hold gets `removed_at`, and is no longer one of its stage's diagrams. The exception is a picture of a stage whose pictures the snapshot's format does not carry. It stays as last drawn, so a corthex-hub/0.2 snapshot after 0.3 pictures keeps them, each drawing's version naming the commit it comes from (SPEC-005).
+- **Back again.** A removed diagram whose document a snapshot holds again comes back as the same row, with its threads. A stage's item table is the exception: the first drawing of a stage's pictures removes it, and while the stage has pictures it never comes back. So a 0.2 snapshot after them still shows the pictures.
+- **No pictures yet.** A stage of 03, 08 or 09 whose format carries its pictures, but that has none and never had any, shows no diagram. Note 3 of the WBS leaves what it shows to TASK-423.
+- **A completed revision**, the same commit in a newer format, draws only the stages the newer format adds. Stage 03's item table makes way for its pictures there.
+- **A diagram's part** is in its `source_key` for a stage's picture, and an item table has none. The store's columns keep no part for a file's picture. The snapshot's `/snapshot` document names it beside the file's key, except in a revision that a newer format completed, which added only the files.
+
+**Drawings.** Each diagram the snapshot holds is drawn again. Its drawing is new when its `source_digest`, or what it drew, differs from the diagram's last drawing. Otherwise the diagram is unchanged and keeps that drawing, so a confirmation of it stays (SPEC-033).
+- **The digest** is the SHA-256 of the documents the drawer read, its own included, each by path and SHA-256, in the order of their paths. A drawer that draws otherwise from the same source, such as a newer version of it, makes a new drawing with the same digest.
+- **A drawing is `drawn` or `failed`.** A drawer that cannot read its source throws `SourceFailure`. Its drawing keeps where it failed, as `failed_path` and `failed_line`, and has no elements; the diagram keeps its last good drawing (SPEC-001). The same source failing again makes no new drawing.
+- **`document_version`** is the snapshot's commit, and `drawn_at` the push's time.
+- **A drawing reads the documents of its own snapshot only.**
+
+**Elements.** A drawer returns a drawing's elements. Each has a key that stays the same across drawings, so comments, positions and the diff follow an element from one drawing to the next (TBL-153):
+- the key the drawer gives;
+- otherwise `elementKey`'s: its trace ID, or its kind and name under its parent's key, such as `lane:Owner/event:Snapshot accepted`, with white space made single spaces. A key over 200 characters keeps its start and ends with `#` and 16 hex digits of its SHA-256;
+- a worked-out key that another element of the drawing has gets `#2`, `#3` and so on, in the elements' order.
+
+**The answer.** API-242's `diagrams` counts:
+- `drawn`: the new drawings that drew;
+- `failed`: the diagrams whose source in the push fails, whether it changed or not. Each is named in `failures` with its `diagram`, `part`, `stage` and `where`, the path and its line, up to 500. A diagram that is not drawn again, in a completed revision or the same commit again, fails when its last drawing failed and the push holds its source;
+- `removed`: the diagrams the snapshot removed;
+- `unchanged`: every other diagram that is not removed, those kept as last drawn included.
+
+**A drawer** is a function that answers at once, never with a promise:
+
+```js
+import { SourceFailure } from './drawing.js';
+
+// erd: TASK-422's drawer for the stage-05 picture.
+function erd({ stage, part, key, kind, source, text, read }) {
+  const picture = JSON.parse(text);
+  // ... throw new SourceFailure({ path: 'db/nexus.sql', line: 94 }) for a statement it cannot read.
+  return { name: 'ERD', elements: [{ trace_id: 'TBL-151', kind: 'table', name: 'diagrams', detail: { columns: [] } }] };
+}
+```
+
+| It gets | Meaning |
+| --- | --- |
+| `stage`, `part`, `key` | The document's. `key` is null except for a file of stage 03, 08 or 09. |
+| `kind` | The diagram's kind. |
+| `source` | The repository path the document comes from: the file's key, or the stage's source as the snapshot's stage record names it. |
+| `text` | The document as kept: a file's whole text, the hub's parsed picture as JSON, or the stage's items as a JSON array. |
+| `read(path)` | Another document of the same snapshot by its path, or null when the snapshot holds none. What it reads joins the digest. |
+
+| It returns | Meaning |
+| --- | --- |
+| `name` | Optional: the diagram's name, cut to 200 characters. Until a drawer names it, a diagram is named `DDD board`, `ERD` or `Sitemap`, by its file's name, or by its stage. A drawing that fails leaves the name as it was. |
+| `elements` | Up to 5000. More fail the drawing at its source. |
+| `elements[].kind` | A lowercase word of up to 40 characters, such as `table`, `line` or `token`. |
+| `elements[].name` | Text, cut to 200 characters; `''` when it has none (SPEC-010). |
+| `elements[].trace_id`, `key`, `parent`, `status`, `detail` | Optional: a trace ID; the element's key; the key of another element of the drawing; up to 60 characters; a JSON object of what the kind draws, such as a table's columns. Left out or null, each has none, and `detail` is `{}`. |
+
+- **A source it cannot read:** it throws `new SourceFailure({ path, line })`. `path` is a repository path of up to 300 characters, the document's `source` when left out; `line` is a line number or none.
+- **A fault:** any other error, or an answer that breaks the rules above. The push answers `internal` and changes nothing, and the log names only the error's kind.
+- **A kind without a drawer** is not drawn: its documents make no diagram.
+- **Other drawers:** `snapshotRoutes({ drawers })` in `src/snapshots.js` makes the push's routes with them, as the tests do. It checks that each is a function for a kind TBL-151 names.
+
+No log line holds a source's text or where a drawing failed (rule 5). The answer's `where` is a path in the repository, never a server path.
+
+`test/drawing.test.js` draws this repository's snapshots, changed in each test, with the drawers of `test/drawers.js` and others made in the tests. It checks TASK-419's done condition: a failing source keeps the last drawing and is named in failures; a 0.2 snapshot after 0.3 pictures keeps them; an element keeps its key across drawings. It also checks the diagrams of each kind, the item table that makes way, a diagram that is removed and comes back, a document a drawer reads, the drawer's rules and the tables API-242 lists.
 
 ## Answers
 

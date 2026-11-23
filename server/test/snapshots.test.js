@@ -1,6 +1,8 @@
 // Snapshot intake (TASK-418; SPEC-001, SPEC-002, SPEC-014, REQ-077, rule 5): the hub's push (API-242) and the held
 // commit (API-243), with corthex-hub/0.2 and 0.3 snapshots of this repository that test/snapshots.js builds when the
 // tests run. Secret-looking and email-looking values are made at run time from parts; no test holds one as a literal.
+// The push draws with the test drawers of test/drawers.js, so its answers count diagrams; test/drawing.test.js tests
+// the drawing (TASK-419).
 
 import assert from 'node:assert/strict';
 import { createHash, randomBytes } from 'node:crypto';
@@ -10,8 +12,10 @@ import { join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { idOf } from '../src/ids.js';
 import { ROUTES } from '../src/routes.js';
+import { snapshotRoutes } from '../src/snapshots.js';
 import { openStore } from '../src/store.js';
 import { contract, validate } from './contract.js';
+import { testDrawers } from './drawers.js';
 import { responseRecord } from './responses.js';
 import { FORMAT_02, FORMAT_03, newCommit, REPOSITORY, repositorySnapshot } from './snapshots.js';
 import { assertNoneIn, exchange, forbiddenValues, head, localGate, newId, startServer, testStore, TRACE_ID } from './support.js';
@@ -90,13 +94,27 @@ function documentsOf(snapshot) {
   return documents;
 }
 
-const NOTHING_DRAWN = { drawn: 0, unchanged: 0, failed: 0, removed: 0 };
+// The diagrams this repository's snapshot draws, with the test drawers (see src/drawing.js): in corthex-hub/0.2 the
+// pictures of stages 01, 05 and 07 and the item tables of stages 02, 03, 04, 06 and 10; in 0.3 the same pictures, the
+// 19 picture files of stages 03, 08 and 09 and the item tables of stages 02, 04, 06 and 10.
+const DIAGRAMS_02 = 8;
+const DIAGRAMS_03 = 26;
 
-// The answer of a push as the contract's PushAnswer, with what TASK-418 draws: nothing yet.
-function pushAnswer({ project, revision, commit, replaced = null, created = false, sameCommit = false, refused = [] }) {
+// The answer of a push as the contract's PushAnswer, with the counts of what it drew: diagrams, laid over none.
+function pushAnswer({ project, revision, commit, replaced = null, created = false, sameCommit = false, refused = [], diagrams = {} }) {
   return {
-    project, revision, commit, replaced, created, same_commit: sameCommit, diagrams: NOTHING_DRAWN, failures: [], refused,
-    confirmations_invalidated: 0, change_sets_reflected: 0, threads_moved: 0,
+    project,
+    revision,
+    commit,
+    replaced,
+    created,
+    same_commit: sameCommit,
+    diagrams: { drawn: 0, unchanged: 0, failed: 0, removed: 0, ...diagrams },
+    failures: [],
+    refused,
+    confirmations_invalidated: 0,
+    change_sets_reflected: 0,
+    threads_moved: 0,
   };
 }
 
@@ -115,7 +133,9 @@ describe('snapshot intake', () => {
     opened = suiteStore();
     recorder = recordTables(opened.db);
     local = localGate();
-    server = await startServer({ store: recorder.store, gate: local.gate, now: () => clock.now, routes: ROUTES });
+    server = await startServer({
+      store: recorder.store, gate: local.gate, now: () => clock.now, routes: snapshotRoutes({ drawers: testDrawers() }),
+    });
     agent = agentCredential(opened.db, 'push-job');
   });
 
@@ -170,7 +190,7 @@ describe('snapshot intake', () => {
     assert.equal((await held(name)).json.code, 'project_not_found');
     const answer = await push(body);
     assert.equal(answer.status, 201);
-    assert.deepEqual(answer.json, pushAnswer({ project: name, revision: 1, commit, created: true }));
+    assert.deepEqual(answer.json, pushAnswer({ project: name, revision: 1, commit, created: true, diagrams: { drawn: DIAGRAMS_02 } }));
 
     const space = project(name);
     assert.deepEqual([space.repository, space.held_commit, space.created_at, space.created_by_credential],
@@ -198,7 +218,7 @@ describe('snapshot intake', () => {
     const snapshot = repositorySnapshot(FORMAT_03, { name });
     const { commit } = snapshot.repos['.'].default;
     const answer = await push(snapshot);
-    assert.deepEqual([answer.status, answer.json], [201, pushAnswer({ project: name, revision: 1, commit, created: true })]);
+    assert.deepEqual([answer.status, answer.json], [201, pushAnswer({ project: name, revision: 1, commit, created: true, diagrams: { drawn: DIAGRAMS_03 } })]);
     const documents = kept(name, 1);
     assert.deepEqual(documents, documentsOf(snapshot));
     const files = [...documents.keys()].filter((path) => !path.startsWith('/'));
@@ -235,7 +255,9 @@ describe('snapshot intake', () => {
       assert.equal((await push(repositorySnapshot(FORMAT_02, { name, commit: a }))).status, 201);
       clock.now = START + 120_000;
       const answer = await push(repositorySnapshot(FORMAT_02, { name, commit: b, replaces: a }));
-      assert.deepEqual([answer.status, answer.json], [200, pushAnswer({ project: name, revision: 2, commit: b, replaced: a })]);
+      // The same documents: every diagram is unchanged.
+      assert.deepEqual([answer.status, answer.json],
+        [200, pushAnswer({ project: name, revision: 2, commit: b, replaced: a, diagrams: { unchanged: DIAGRAMS_02 } })]);
       const rows = snapshots(name);
       assert.deepEqual(rows.map((row) => [row.revision, row.commit_sha, row.replaced_commit]), [[1, a, null], [2, b, a]]);
       assert.equal(project(name).held_commit, b);
@@ -267,7 +289,8 @@ describe('snapshot intake', () => {
       const before = counts();
       for (const replaces of [undefined, a]) {
         const answer = await push(repositorySnapshot(FORMAT_02, { name, commit: b, replaces }));
-        assert.deepEqual([answer.status, answer.json], [200, pushAnswer({ project: name, revision: 2, commit: b, sameCommit: true })]);
+        assert.deepEqual([answer.status, answer.json],
+          [200, pushAnswer({ project: name, revision: 2, commit: b, sameCommit: true, diagrams: { unchanged: DIAGRAMS_02 } })]);
       }
       assert.deepEqual(counts(), before);
     });
@@ -276,7 +299,10 @@ describe('snapshot intake', () => {
       const before = kept(name, 2);
       const snapshot = repositorySnapshot(FORMAT_03, { name, commit: b, replaces: a });
       const answer = await push(snapshot);
-      assert.deepEqual([answer.status, answer.json], [200, pushAnswer({ project: name, revision: 2, commit: b, sameCommit: true })]);
+      // It draws the 19 files of stages 03, 08 and 09, and stage 03's item table makes way for them (SPEC-005).
+      assert.deepEqual([answer.status, answer.json], [200, pushAnswer({
+        project: name, revision: 2, commit: b, sameCommit: true, diagrams: { drawn: 19, unchanged: DIAGRAMS_02 - 1, removed: 1 },
+      })]);
       const after = kept(name, 2);
       const added = [...after.keys()].filter((path) => !before.has(path)).sort();
       // The files of stages 03, 08 and 09, which corthex-hub/0.2 does not carry; the documents 0.2 carried stay as
@@ -293,7 +319,8 @@ describe('snapshot intake', () => {
       const before = counts();
       for (const format of [FORMAT_03, FORMAT_02]) {
         const answer = await push(repositorySnapshot(format, { name, commit: b }));
-        assert.deepEqual([answer.status, answer.json], [200, pushAnswer({ project: name, revision: 2, commit: b, sameCommit: true })]);
+        assert.deepEqual([answer.status, answer.json],
+          [200, pushAnswer({ project: name, revision: 2, commit: b, sameCommit: true, diagrams: { unchanged: DIAGRAMS_03 } })]);
       }
       assert.deepEqual(counts(), before);
       assert.deepEqual((await held(name)).json, heldAnswer(name, b, 2, FORMAT_03));
@@ -301,10 +328,13 @@ describe('snapshot intake', () => {
 
     test('the next commit in corthex-hub/0.3 keeps every document, and a 0.2 one after it is held as 0.2', async () => {
       const snapshot = repositorySnapshot(FORMAT_03, { name, commit: c, replaces: b });
-      assert.deepEqual((await push(snapshot)).json, pushAnswer({ project: name, revision: 3, commit: c, replaced: b }));
+      assert.deepEqual((await push(snapshot)).json,
+        pushAnswer({ project: name, revision: 3, commit: c, replaced: b, diagrams: { unchanged: DIAGRAMS_03 } }));
       assert.deepEqual(kept(name, 3), documentsOf(snapshot));
       const next = repositorySnapshot(FORMAT_02, { name, commit: d, replaces: c });
-      assert.deepEqual((await push(next)).json, pushAnswer({ project: name, revision: 4, commit: d, replaced: c }));
+      // 0.2 does not carry the pictures of stages 03, 08 and 09, which stay as last drawn (SPEC-005).
+      assert.deepEqual((await push(next)).json,
+        pushAnswer({ project: name, revision: 4, commit: d, replaced: c, diagrams: { unchanged: DIAGRAMS_03 } }));
       assert.deepEqual(kept(name, 4), documentsOf(next));
       assert.deepEqual((await held(name)).json, heldAnswer(name, d, 4, FORMAT_02));
     });
