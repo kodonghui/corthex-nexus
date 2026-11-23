@@ -966,6 +966,8 @@ The result is recorded in the store as it is. The command neither creates the st
 
 TASK-454 (SPEC-048, SPEC-051) is the frame of the pages the owner opens. One page, the shell, serves every screen of the [sitemap](../docs/07-sitemap/nexus.yaml), and it reads the screen's data from the API once it runs. The shell draws each screen's title, place and shared states from API-262, API-263 and API-264. Each screen's own content comes from its own task, TASK-455 to TASK-462.
 
+The header and its menu, the stage tabs, the stale rule and the 409 bar, an unknown `?d=` or `?thread=`, the theme, a 401, an unknown page address, pages served without admission with no placeholder text, and the label "내 차례 N개" are rules no approved document states. The coordinator chose them for TASK-454, and the maintainer approved them through the delegate they named for checkpoints on 2026-11-24.
+
 ### Addresses
 
 | Address | Screen |
