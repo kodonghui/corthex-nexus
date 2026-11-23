@@ -12,6 +12,7 @@
 - 반복 2, 에이전트와 사용자의 오퍼레이션: TASK-433~TASK-453.
 - 반복 3, 화면: TASK-454~TASK-462.
 - 릴리스: TASK-463~TASK-465. 배포 앞에 12단계 QA와 릴리스 게이트가 있습니다.
+- 2026-11-24에 TASK-438의 빈틈(4절) 때문에 더함: TASK-466. Must 작업이고 릴리스 전에 합니다. 표는 앞선 작업만 의존으로 적을 수 있어 적지 않았지만, TASK-464는 이 작업을 기다립니다.
 - Should·Could 줄(SPEC-026, SPEC-036~041, SPEC-046, SPEC-047)만 다루는 작업은 같은 반복의 Must 작업 뒤에 합니다.
 
 첫 개발 작업은 TASK-413(서버 뼈대)입니다. 질문 1~4는 이 단계의 체크포인트에서 2026-11-23에 답을 받았습니다.
@@ -73,6 +74,7 @@
 | TASK-463 | v2와 v3의 순서, v3의 주소 정하기 | SPEC-015 | 없음 | TASK-450, TASK-461 | 관리자 | S | 관리자의 답이 Git 밖 프로젝트 기록에 있고, 이 줄이 그 결정을 가리킴 |
 | TASK-464 | 순서 결정대로 v3를 배포하고 push 작업이 v3를 가리키게 하기 | SPEC-014, SPEC-015 | 없음 | TASK-432, TASK-449, TASK-463 | Claude worker | M | 먼저 12단계 릴리스 게이트를 통과함; push 작업의 비밀에 v3가 발급한 자격 증명과 v3 주소가 있음; 첫 push는 사용자가 push --first로 확인하고(SPEC-002), 그 뒤 이 저장소의 push가 v3에서 그려짐 |
 | TASK-465 | v3가 v2를 대신한 뒤 v2 데이터를 지울지 정하기; 지운다면 백업한 뒤 따로 지움 | SPEC-015 | 없음 | TASK-464 | 관리자 | S | 관리자의 답이 프로젝트 기록에 있음; 그 답 없이는 아무것도 지우지 않고, 승인한 지우기도 v2를 백업한 뒤에만 함 |
+| TASK-466 | 05·07단계 source_text의 변경: NEXUS가 제안의 SQL과 YAML을 직접 읽음 (TASK-438의 빈틈, 4절) | SPEC-018 | API-256, TBL-158, TBL-159 | TASK-438 | Claude worker | M | 05나 07단계에 source_text가 있으면 차이가 변경이 됨; 이 저장소의 db/nexus.sql과 docs/07-sitemap/nexus.yaml을 NEXUS가 읽은 결과가 고정 hub가 만든 그림(server/test/erd-picture.json, server/test/sitemap-picture.json에 저장)과 같음; API-256의 응답마다 통과하는 테스트가 있음 |
 
 ## 3. 열린 질문
 
@@ -88,6 +90,9 @@
 ## 4. 승인된 항목과 다른 점
 
 - 2026-11-23 06단계 체크포인트는 SPEC-006, SPEC-008, SPEC-009를 첫 릴리스에서 뺐습니다. 같은 날 기능 변경이 그 결정을 뒤집었고(관리자 결정, 프로젝트 기록에 있음), 이 WBS는 세 줄을 첫 릴리스에 넣습니다(TASK-424, TASK-426, TASK-427, TASK-428, TASK-429, TASK-431).
+- SPEC-018의 승인 기준 "Given a comment asking to rename X, when the agent posts a proposal renaming X to Y, then the owner sees Y over X, marked as proposed"와 계약의 `source_text` "The proposed document, from which NEXUS works out the changes"는 TASK-438(PR 137)에서 03·08단계에서만 맞습니다. 이 두 단계에서는 NEXUS가 다이어그램의 그리기 함수로 `source_text`를 그립니다. 고정 hub의 `propose`는 01·05·07단계만 받으므로(e410ce9의 `commands.py`에 있는 `PICTURE_STAGES`), 지금은 두 단계 어디에도 닿지 않습니다. 05·07단계는 hub가 읽은 그림으로 그리고 NEXUS가 SQL이나 YAML을 읽지 않으므로, 2026-11-24에 이 두 단계를 위해 TASK-466을 더했습니다.
+- 01단계에서는 제안의 `source_text`를 저장하지만 변경을 만들지 않아서, 사용자는 X 위의 Y가 아니라 변경 설명이 붙은 X를 봅니다. 01단계 그림은 여러 파일로 만들어지는데 `source_text`에는 경로가 없고, 고정 hub(e410ce9)는 경로를 보내지 않습니다. 이 차이는 hub가 경로를 보낼 때까지 남습니다. 배포 전 TASK-463에서 hub 변경과 그 게시와 함께 다시 보며, 이 둘은 관리자에게 직접 여쭙니다.
+- 관리자가 2026-11-24에 체크포인트를 맡긴 대리인을 통해 둘을 하나씩 답해 이 단계의 별도 체크포인트로 승인했고, 그 답은 프로젝트 기록에 있습니다.
 - 그 밖에 이 단계가 없애거나 미루거나 바꾸는 승인 항목은 없습니다.
 
 ## 5. PR 104·105·106 리뷰에서 넘어온 메모
