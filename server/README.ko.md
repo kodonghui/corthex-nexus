@@ -1276,7 +1276,7 @@ python tests/test_tokens_css.py --write
 
 `src/proposal-answers.js`는 TASK-444예요. 소유자는 AI 제안을 수락해 반영을 기다리게 하거나, 거절해 겹친 제안을 걷어요(API-270, `POST /api/projects/{project}/change-sets/{change_set}/accept`, API-271, `POST /api/projects/{project}/change-sets/{change_set}/reject`. SPEC-019, SPEC-020, SPEC-027). 둘 다 본문이 `{}`이고 요청 키가 있는 소유자 오퍼레이션이에요(규칙 3). 에이전트 자격은 `owner_only`를 받고(REQ-025), 휴대폰은 이 기능을 내놓지 않는데, 이것은 페이지의 몫이에요(REQ-068).
 
-지운 그림의 규칙(WBS 메모 7)은 코디네이터가 골랐고, 아래의 나머지는 승인된 문서에서 읽었어요. 이 규칙들은 이 몫과 함께 메인테이너의 대리인을 기다려요.
+지운 그림의 규칙(WBS 메모 7)은 코디네이터가 골랐고, 아래의 나머지는 승인된 문서에서 읽었어요. 이 규칙들은 2026-11-24에 메인테이너가 체크포인트용으로 정한 대리인을 통해 승인했어요.
 
 - **변경 세트.** ID는 프로젝트의 변경 세트를 가리켜요. 아니면 `change_set_not_found`예요. 직접 편집은 만들 때 수락되고, 답하는 게 아니라 취소해요(API-273). 그래서 API-273에 보낸 제안처럼 자기 상태와 함께 `change_set_state`를 받아요.
 - **수락**(API-270, SPEC-019)은 제안 상태인 제안을 수락으로 표시하고, `decided_at`은 답한 시각이에요. `changeSetsChanged`가 소유자의 제안 항목을 done으로 닫고, 제안을 그 다이어그램의 반영 항목에 넣어 에이전트 할 일에 올려요([할 일 항목](#할-일-항목) 참고). 그래서 API-245, API-247의 `reflection`, `heldChangeSets`는 다른 수락된 변경 세트처럼 이를 읽어요. TASK-445에 따라 이 읽기들은 수락된 변경 세트를 `decided_at`으로 줄 세워요. 그래서 나중에 수락한 것이 반영에서 이기고 다이어그램 읽기에서 위에 와요.
@@ -1293,7 +1293,7 @@ python tests/test_tokens_css.py --write
 
 `test/proposal-answers.test.js`는 API-256으로 만든 제안으로 TASK-444의 완료 조건을 확인해요. 수락한 제안은 에이전트 할 일에서 반영을 기다리고, 거절한 제안은 겹친 표시가 사라지고 스레드는 열린 채이며, 이미 답한 제안은 `change_set_state`를 받아요. 만든 순서와 다르게 수락한 제안, 문서가 바뀐 경우, 지운 다이어그램, 닫힌 스레드, claim과 함께 에이전트를 기다리는 스레드, 로그 줄도 다뤄요. API-270과 API-271이 적은 응답마다 답하고, 건드리는 테이블을 확인해요(메모 23).
 
-두 오퍼레이션은 적은 것보다 많은 테이블을 읽어요. 그래서 API-270은 테이블 9개, API-271은 8개를 적어요(WBS 메모 18, 23). [API README](../docs/06-api/README.ko.md) 끝의 수정과 [화면 README](../docs/08-screens/README.ko.md) 끝의 SCR-145 변경은 위의 규칙처럼 각자 따로 체크포인트를 기다려요. 이 몫은 따로 체크포인트를 기다려요.
+두 오퍼레이션은 적은 것보다 많은 테이블을 읽어요. 그래서 API-270은 테이블 9개, API-271은 8개를 적어요(WBS 메모 18, 23). [API README](../docs/06-api/README.ko.md) 끝의 수정과 [화면 README](../docs/08-screens/README.ko.md) 끝의 SCR-145 변경은 2026-11-24에 각자 따로 체크포인트를 통과했어요.
 
 ## 응답
 

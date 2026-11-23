@@ -281,17 +281,17 @@
           "date": "2026-11-24"
         },
         {
-          "approved": "Proposal table correction, pull request 137, at commit 4255159: API-256's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-166 and TBL-167 instead of the approved TBL-158, TBL-159, TBL-155, TBL-166 and TBL-167, and API-257's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-159, TBL-166 and TBL-167 instead of the approved TBL-158 and TBL-166 (note 23). No operation, field, response, code or spec row changed; db/nexus.sql changes only TBL-156's trace line, passed at stage 05. The changed items were answered on their own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "approved": "Proposal table correction, pull request 137, at commit 4255159: API-256's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-166 and TBL-167 instead of the approved TBL-158, TBL-159, TBL-155, TBL-166 and TBL-167, and API-257's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-159, TBL-166 and TBL-167 instead of the approved TBL-158 and TBL-166 (note 23). No operation, field, response, code or spec row changed; db/nexus.sql changes only TBL-156's trace line, passed at stage 05. The changed lists were shown together in one question, answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
         },
         {
-          "approved": "Owner thread table correction, pull request 139, at commit 51d79ae: API-266's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-156 and TBL-158 instead of the approved TBL-155 and TBL-156; API-267's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156 and TBL-166 instead of the approved TBL-155, TBL-156 and TBL-166; API-268's lists TBL-147, TBL-151, TBL-155, TBL-156 and TBL-166 instead of the approved TBL-156 and TBL-166; and API-269's lists TBL-147, TBL-151, TBL-155, TBL-156 and TBL-166 instead of the approved TBL-155 and TBL-166 (note 23; API-268's TBL-155 is note 16's waits_on). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed items were answered on their own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "approved": "Owner thread table correction, pull request 139, at commit 51d79ae: API-266's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-156 and TBL-158 instead of the approved TBL-155 and TBL-156; API-267's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156 and TBL-166 instead of the approved TBL-155, TBL-156 and TBL-166; API-268's lists TBL-147, TBL-151, TBL-155, TBL-156 and TBL-166 instead of the approved TBL-156 and TBL-166; and API-269's lists TBL-147, TBL-151, TBL-155, TBL-156 and TBL-166 instead of the approved TBL-155 and TBL-166 (note 23; API-268's TBL-155 is note 16's waits_on). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed lists were shown together in one question, answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
         },
         {
-          "approved": "Direct edit table correction, pull request 138, at commit 5913939: API-272's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-158, TBL-159 and TBL-166 instead of the approved TBL-158, TBL-159 and TBL-166, and API-273's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-159 and TBL-166 instead of the approved TBL-158 and TBL-166 (note 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed items were answered on their own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "approved": "Direct edit table correction, pull request 138, at commit 5913939: API-272's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-158, TBL-159 and TBL-166 instead of the approved TBL-158, TBL-159 and TBL-166, and API-273's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-159 and TBL-166 instead of the approved TBL-158 and TBL-166 (note 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed lists were shown together in one question, answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
         },
@@ -304,10 +304,15 @@
           "approved": "Confirmation table correction, pull request 145, at commit b37b8ea: API-275's x-corthex.tables lists TBL-147, TBL-151, TBL-152, TBL-158, TBL-160 and TBL-166 instead of the approved TBL-160 and TBL-166, and API-276's lists TBL-147, TBL-151, TBL-152, TBL-160 and TBL-166 instead of the approved TBL-160 and TBL-166 (note 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. Each list was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Proposal answer table correction, pull request 142, at commit 1ae89b0: API-270's x-corthex.tables lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-159 and TBL-166 instead of the approved TBL-158 and TBL-166, and API-271's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-158, TBL-159 and TBL-166 instead of the approved TBL-158 and TBL-166 (note 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. Each list was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T08:05:53+09:00"
+      "updated": "2026-11-24T08:13:36+09:00"
     },
     "07-sitemap": {
       "state": "done",
@@ -383,10 +388,15 @@
           "approved": "After the tenth review of pull request 104, at commit eb9c079: SCR-145 lists a removed diagram last while it has open threads and opens it for its threads only, SCR-146 shows only its changes with no confirm button, and both read the diagram again after a 404 on a write; the 39 states are unchanged. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "SCR-145 on a removed diagram, pull request 142, at commit 1ae89b0: SCR-145#normal says a removed diagram with open threads opens for its threads and its AI proposals only, its proposals showing Reject and never Accept, where it said for its threads only; SCR-145#error says a removed one still listed opens for its threads and its proposals' Reject only. The number of states is unchanged, and the Korean definition changes the same way. SPEC-027 stays as approved: its refusals name accepting a proposal, not rejecting one, as asked on its own. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-23T16:41:20+09:00"
+      "updated": "2026-11-24T08:13:36+09:00"
     },
     "09-mockup": {
       "state": "done",

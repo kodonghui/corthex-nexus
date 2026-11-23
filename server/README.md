@@ -1270,7 +1270,7 @@ The coordinator chose these rules for TASK-451: the check by host, of https addr
 
 `src/proposal-answers.js` is TASK-444: the owner accepts an AI proposal, which then waits for reflection, or rejects it, which takes its overlay off (API-270, `POST /api/projects/{project}/change-sets/{change_set}/accept`, and API-271, `POST /api/projects/{project}/change-sets/{change_set}/reject`; SPEC-019, SPEC-020, SPEC-027). Both are owner operations with the body `{}` and a request key (rule 3). An agent's credential gets `owner_only` (REQ-025), and a phone does not offer them, which is the page's (REQ-068).
 
-The coordinator chose the rules for a removed diagram (note 7 of the WBS) and read the others below from the approved documents. They wait for the maintainer's delegate with this part.
+The coordinator chose the rules for a removed diagram (note 7 of the WBS) and read the others below from the approved documents. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24.
 
 - **The change set.** The ID names a change set of the project; otherwise `change_set_not_found`. A direct edit is accepted when it is made and cancelled, not answered (API-273), so it gets `change_set_state` with its state, as a proposal sent to API-273 does.
 - **Accepting** (API-270, SPEC-019) marks a proposed proposal accepted, with `decided_at` the time of the answer. `changeSetsChanged` closes the owner's proposal entry as done and puts the proposal in its diagram's reflection entry on the agent to-do (see [To-do entries](#to-do-entries)). So API-245, API-247's `reflection` and `heldChangeSets` read it as any accepted change set. They order accepted change sets by `decided_at`, as TASK-445 has them, so the later accepted wins in the reflection and is on top in the diagram read.
@@ -1287,7 +1287,7 @@ The coordinator chose the rules for a removed diagram (note 7 of the WBS) and re
 
 `test/proposal-answers.test.js` checks TASK-444's done condition with proposals made by API-256: an accepted one waits for reflection on the agent to-do, a rejected one's overlay is gone and its thread stays open, and one already answered gets `change_set_state`. It also covers proposals accepted out of the order they were made, the document changed, a removed diagram, a closed thread, a thread that waits on the agent with its claim, and the log lines. It answers every response API-270 and API-271 list, and checks the tables they touch (note 23).
 
-The two operations read more tables than they listed, so API-270 lists 9 tables and API-271 lists 8 (notes 18 and 23 of the WBS). The correction at the end of the [API README](../docs/06-api/README.md) and the change to SCR-145 at the end of the [screens README](../docs/08-screens/README.md) wait for their own checkpoints, as do the rules above. This part waits for its own checkpoint.
+The two operations read more tables than they listed, so API-270 lists 9 tables and API-271 lists 8 (notes 18 and 23 of the WBS). The correction at the end of the [API README](../docs/06-api/README.md) and the change to SCR-145 at the end of the [screens README](../docs/08-screens/README.md) passed their own checkpoints on 2026-11-24.
 
 ## Answers
 
