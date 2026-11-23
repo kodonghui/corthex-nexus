@@ -150,6 +150,11 @@ describe('SCR-142', () => {
         ['old-notes', '프로젝트 보기', '/p/old-notes'],
       ]);
       assert.deepEqual(groups.map((group) => group.all('a', 'li').length), [4, 1, 1]);
+      // Each 프로젝트 보기 is named with its group's heading too.
+      const byId = new Map(mainOf(page).descendants().filter((element) => element.getAttribute('id') !== null).map((element) => [element.getAttribute('id'), element]));
+      assert.deepEqual(groups.map((group) => group.all('a', 'small')[0].getAttribute('aria-labelledby').split(' ').map((id) => byId.get(id).textContent).join(' ')), [
+        '프로젝트 보기 독서 모임 앱', '프로젝트 보기 demo', '프로젝트 보기 old-notes',
+      ]);
       assert.deepEqual(rowsOf(page), [
         { tag: '확정', look: 'tag gray', place: '01 도메인 · 도메인 보드', reason: '새 문서로 확정이 풀렸어요', time: '12분 전', href: `/p/reading-club/_/01-domain?d=${D1}` },
         { tag: 'AI 제안', look: 'ai', place: '01 도메인 · 도메인 보드', reason: null, time: '3시간 전', href: `/p/reading-club/_/01-domain?d=${D1}&thread=${T1}` },
@@ -197,7 +202,7 @@ describe('SCR-142', () => {
     const page = await openTodo({ answers });
     try {
       const shown = () => warningOf(page).map((warning) => [warning.getAttribute('role'), texts(page, 'b').filter((text) => text.includes('백업')), warning.all('span')[0].textContent]);
-      const expected = [['alert', ['11월 22일 백업이 실패했어요.'], '서버 기록을 확인하세요. 다음 백업이 성공하면 이 알림은 사라져요.']];
+      const expected = [['status', ['11월 22일 백업이 실패했어요.'], '서버 기록을 확인하세요. 다음 백업이 성공하면 이 알림은 사라져요.']];
       assert.deepEqual(shown(), expected);
       // On top: before the first group. The last backup that succeeded is not said.
       const body = mainOf(page).children;
@@ -321,6 +326,10 @@ describe('SCR-142', () => {
       const first = mainOf(page).all('h2')[0];
       const readAt = Date.now();
       const realNow = Date.now;
+      // A tick that changes no time writes none of them.
+      const text = mainOf(page).all('time')[0].children[0];
+      for (const tick of page.ticks) tick();
+      assert.equal(mainOf(page).all('time')[0].children[0], text);
       // Three hours later, the tab still in view: the tick moves the times on and shows the read time.
       Date.now = () => realNow() + 3 * 60 * 60_000;
       for (const tick of page.ticks) tick();
@@ -436,6 +445,8 @@ describe('SCR-142 against the server', () => {
       ['reading-club', 'confirm'], ['demo', 'confirm'],
     ]);
     assert.ok(answer.json.backup);
+    // A clock 30 s into its minute, so that no minute, hour or day turns between the drawing and the check.
+    const restore = clockAt(Math.floor(Date.now() / 60_000) * 60_000 + 30_000);
     const page = await openOn(good, owner());
     try {
       assert.deepEqual(mainOf(page).all('section', 'group').map((group) => group.all('h2')[0].textContent), ['독서 모임 앱', 'demo']);
@@ -455,6 +466,7 @@ describe('SCR-142 against the server', () => {
       assert.equal(headerOf(page).all('span', 'cnt')[0].textContent, String(entries.length));
     } finally {
       page.close();
+      restore();
     }
   });
 

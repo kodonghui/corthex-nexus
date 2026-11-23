@@ -13,7 +13,7 @@
 
 import { PROJECTS_HREF, projectHref, stageHref } from './address.js';
 import { h, icon } from './dom.js';
-import { stageOf } from './stages.js';
+import { STAGES, stageOf } from './stages.js';
 import { dayOf, sentWords } from './states.js';
 
 // Each kind's tag, as the mockup draws it.
@@ -28,7 +28,6 @@ export const REASONS = Object.freeze({
   invalidated: '새 문서로 확정이 풀렸어요',
   cancelled: '확정을 취소했어요',
 });
-const STAGE_COUNT = 13;
 
 // The body of SCR-142 from data.todo (API-263) and data.projects (API-262).
 export function todoBody({ data, shell }) {
@@ -37,8 +36,11 @@ export function todoBody({ data, shell }) {
   const warning = data.todo.backup ? backupWarning(data.todo.backup) : null;
   if (entries.length === 0) return [warning, nothingToDo(projects, shell)];
   const titles = new Map(projects.map((project) => [project.name, project.title || project.name]));
-  return [warning, groupsOf(entries).map(([project, items]) => h('section', { class: 'group' },
-    h('div', { class: 'gh' }, h('h2', {}, titles.get(project) ?? project), h('a', { class: 'small', href: projectHref(project) }, '프로젝트 보기')),
+  // Each 프로젝트 보기 is named with its group's heading too, so that a list of the links tells them apart.
+  return [warning, groupsOf(entries).map(([project, items], index) => h('section', { class: 'group' },
+    h('div', { class: 'gh' },
+      h('h2', { id: `todo-group-${index}` }, titles.get(project) ?? project),
+      h('a', { class: 'small', id: `todo-open-${index}`, href: projectHref(project), 'aria-labelledby': `todo-open-${index} todo-group-${index}` }, '프로젝트 보기')),
     h('div', { class: 'list' }, items.map((entry) => entryRow(entry, shell)))))];
 }
 
@@ -64,9 +66,11 @@ function entryRow(entry, shell) {
     icon('next', 'ic chev'));
 }
 
-// The warning of a failed daily backup (BackupWarning): the local date it failed on, as the mockup says it.
+// The warning of a failed daily backup (BackupWarning): the local date it failed on, as the mockup says it. It stays
+// while backups keep failing and is drawn again with each changed answer, so it is a status, not an alert that would
+// break in on a screen reader each time.
 export function backupWarning(backup) {
-  return h('div', { class: 'nt warn', role: 'alert' }, h('div', { class: 'b' },
+  return h('div', { class: 'nt warn', role: 'status' }, h('div', { class: 'b' },
     h('b', {}, `${dayOf(backup.failed_at)} 백업이 실패했어요.`),
     h('span', {}, '서버 기록을 확인하세요. 다음 백업이 성공하면 이 알림은 사라져요.')));
 }
@@ -88,7 +92,7 @@ function nothingToDo(projects, shell) {
       h('div', { class: 'list' }, projects.map((project) => h('a', { class: 'li', href: projectHref(project.name) },
         h('span', { class: 'grow' },
           h('b', {}, project.title || project.name),
-          h('span', { class: 'sec' }, `${STAGE_COUNT}단계 중 ${project.stages_passed} 통과`,
+          h('span', { class: 'sec' }, `${STAGES.length}단계 중 ${project.stages_passed} 통과`,
             project.pushed_at ? [' · ', shell.since(project.pushed_at, sentWords)] : null)),
         icon('next', 'ic chev'))))),
   ];

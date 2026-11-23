@@ -222,7 +222,10 @@ export function startShell(root, screen, address) {
   // The read time beside the title, and how long ago each time of the view was; the tick runs it every 30 seconds.
   function showTimes() {
     const now = Date.now();
-    for (const { element, time, words } of clocks) element.textContent = words(ago(time, now));
+    for (const { element, time, words } of clocks) {
+      const text = words(ago(time, now));
+      if (element.textContent !== text) element.textContent = text;
+    }
     if (tag === null) return;
     const text = readTag(readAt, now, reread !== null);
     tag.hidden = text === null;
