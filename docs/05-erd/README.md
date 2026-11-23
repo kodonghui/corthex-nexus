@@ -164,3 +164,7 @@ Writing the API contract against the pinned hub found fields the hub sends that 
 - pull_requests may be merged without merge_commit: the hub reports a commit only with a reflection, and a record's merge needs none.
 
 No table was added or removed, and no other column or constraint changed.
+
+#### After the third review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: TBL-151 sets removed_at only when a snapshot whose format carries the stage no longer holds the diagram, so a corthex-hub/0.2 snapshot leaves the pictures of stages 03, 08 and 09 as they are (SPEC-005). No table, column or constraint changed. This part waits for its own checkpoint.

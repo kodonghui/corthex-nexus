@@ -3951,6 +3951,17 @@ paths:
                   value: "<!doctype html><title>NEXUS mockup</title><main>SCR-145</main>"
         "401":
           description: "Refused: no valid credential or sign-in"
+          headers:
+            Content-Security-Policy:
+              description: Every answer of this operation is a sandbox, so a page opened in a tab of its own is one too.
+              schema:
+                type: string
+                const: "sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"
+            X-Content-Type-Options:
+              description: The answer is read only as what it says it is.
+              schema:
+                type: string
+                const: nosniff
           content:
             "application/problem+json":
               schema:
@@ -3965,6 +3976,17 @@ paths:
                     traceId: "7b1e0c94d2a35f68"
         "403":
           description: "Refused: this caller may not do this"
+          headers:
+            Content-Security-Policy:
+              description: Every answer of this operation is a sandbox, so a page opened in a tab of its own is one too.
+              schema:
+                type: string
+                const: "sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"
+            X-Content-Type-Options:
+              description: The answer is read only as what it says it is.
+              schema:
+                type: string
+                const: nosniff
           content:
             "application/problem+json":
               schema:
@@ -3986,6 +4008,17 @@ paths:
                     traceId: "9d2f4b6a8c0e1357"
         "404":
           description: Not found
+          headers:
+            Content-Security-Policy:
+              description: Every answer of this operation is a sandbox, so a page opened in a tab of its own is one too.
+              schema:
+                type: string
+                const: "sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"
+            X-Content-Type-Options:
+              description: The answer is read only as what it says it is.
+              schema:
+                type: string
+                const: nosniff
           content:
             "application/problem+json":
               schema:
@@ -4007,6 +4040,17 @@ paths:
                     traceId: "a1c3e5f7092b4d68"
         "409":
           description: The mockup has never drawn
+          headers:
+            Content-Security-Policy:
+              description: Every answer of this operation is a sandbox, so a page opened in a tab of its own is one too.
+              schema:
+                type: string
+                const: "sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"
+            X-Content-Type-Options:
+              description: The answer is read only as what it says it is.
+              schema:
+                type: string
+                const: nosniff
           content:
             "application/problem+json":
               schema:
@@ -4021,6 +4065,17 @@ paths:
                     traceId: "f0b2d4e6a8c13579"
         default:
           description: Any other error
+          headers:
+            Content-Security-Policy:
+              description: Every answer of this operation is a sandbox, so a page opened in a tab of its own is one too.
+              schema:
+                type: string
+                const: "sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"
+            X-Content-Type-Options:
+              description: The answer is read only as what it says it is.
+              schema:
+                type: string
+                const: nosniff
           content:
             "application/problem+json":
               schema:
@@ -9052,7 +9107,7 @@ components:
         meaning: A confirmation of a diagram whose current drawing failed or that has none, a mockup page that has never drawn, or a proposal for a stage with no drawn picture.
         message: Fix the document so that it draws, then confirm.
         message_ko: "문서를 고쳐 그려지게 한 뒤 확정하세요."
-        client: Show where the drawing failed.
+        client: For a confirmation, show where the drawing failed; an agent whose proposal gets it comments instead, since the message is the owner's.
       not_found:
         status: 404
         meaning: A path that is no operation. Under /api/spaces the detail names the agent commands NEXUS takes (SPEC-014).
@@ -9756,6 +9811,7 @@ components:
                 $ref: "#/components/schemas/PictureStage"
               key:
                 type: string
+                minLength: 1
                 maxLength: 300
                 description: "In corthex-hub/0.3, the repository path of the source file of a picture of stage 03, 08 or 09, which has one picture per file. NEXUS keeps it as the diagram's source_key (TBL-151); a picture of those stages without it is invalid_snapshot. Translation copies, such as a .ko.md beside its .md, are not sent."
               commit:
@@ -10631,7 +10687,7 @@ components:
           $ref: "#/components/schemas/ProposalStage"
         diagram:
           $ref: "#/components/schemas/DiagramId"
-          description: "The diagram, for a stage with more than one (stages 03, 08 and 09 have one per file). Without it the item picks the one diagram of the stage that holds it, and a comment with no item goes on the stage's first diagram by name, the one the stage's address opens; an item that several diagrams hold gets diagram_ambiguous."
+          description: "The diagram, for a stage with more than one (stages 03 and 08 have one per file). Without it the items pick the one diagram of the stage that holds them; items that several diagrams hold get diagram_ambiguous."
         commit:
           $ref: "#/components/schemas/Commit"
         discrepancy:

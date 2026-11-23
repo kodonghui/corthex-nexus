@@ -142,7 +142,7 @@ Where stages 01 to 06 decided otherwise than the mockup; each is asked on its ow
 ## 5. Addresses
 
 - The addresses the hub links to, `/p/{project}/{part or _}/{stage}` and `/p/{project}#data`, stay as stage 06 decided.
-- On the stage workbench and its changes page, `?d=<diagram ID>` names one diagram and `?thread=<thread ID>` one thread. They are states of the same screen, so they have no screen of their own.
+- On the stage workbench and its changes page, `?d=<diagram ID>` names one diagram; on the workbench, `?thread=<thread ID>` names one thread. They are states of the same screen, so they have no screen of their own.
 - The gate keeps the sign-in, and someone it does not admit sees the gate's page; NEXUS has no sign-in screen (SPEC-048).
 
 ## 6. Checkpoint
@@ -162,3 +162,7 @@ One approved item changed, asked on its own and approved through the same delega
 #### After the second review of pull request 104
 
 One approved item changed, asked on its own and approved through the same delegate: the query is the `?d=` that section 5 already names, not a new `?diagram=`, so a diagram opened from the to-do and one opened from the list behave the same. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the third review of pull request 104
+
+Section 5 gives `?thread=` to the workbench only; the changes page has no threads. No approved item changed. This part waits for its own checkpoint.
