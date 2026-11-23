@@ -1,0 +1,98 @@
+// What the drawers share (TASK-419's drawer interface; the drawers of TASK-421 to TASK-427): the failure a drawer
+// throws for a source it cannot read, the element keys, the contract's limits, and the reading of a stage picture's
+// entries and of what the hub left out of it. drawing.js runs the drawers and keeps what they draw, and imports each
+// drawer; a drawer imports this file, never drawing.js, so that no two files import each other. Nothing here logs
+// (rule 5).
+
+import { createHash } from 'node:crypto';
+
+// The contract's limits: a drawing's elements, an element key, a trace ID and a failure's where; and a trace ID's form.
+export const MAX_ELEMENTS = 5000;
+export const MAX_KEY = 200;
+export const MAX_TRACE_ID = 30;
+export const MAX_WHERE = 300;
+export const TRACE_ID = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
+export const CONTROL = /[\u0000-\u001f\u007f]/;
+// A derived key longer than the contract allows keeps its start and ends with # and 16 hex digits of its SHA-256.
+const HASHED = 16;
+
+export const isObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
+export const isText = (value) => typeof value === 'string';
+export const isName = (value) => isText(value) && value.trim() !== '';
+export const isTextList = (value) => Array.isArray(value) && value.every(isText);
+// An optional member of a picture: left out, null, or in its form.
+export const optional = (value, check) => value === undefined || value === null || check(value);
+export const characters = (text) => [...text].length;
+const sha256 = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
+
+// What a drawer throws for a source it cannot read: where it failed, a path in the repository and a line, or neither
+// for the document's own source. The drawing fails there, and the diagram keeps its last good drawing (SPEC-001).
+export class SourceFailure extends Error {
+  constructor({ path = null, line = null } = {}) {
+    super('the source cannot be drawn');
+    this.name = 'SourceFailure';
+    this.path = path;
+    this.line = line;
+  }
+}
+
+// The key an element has when its drawer gives none: its trace ID, or else its kind and name, white space made single
+// spaces, under its parent's key, such as "lane:Owner/event:Snapshot accepted". So an element keeps its key across
+// drawings while it keeps its trace ID, or its kind, name and parent, wherever it stands among the others. A key over
+// 200 characters keeps its start and ends with # and part of its SHA-256. A drawer that names an element's parent by
+// such a key works it out here.
+export function elementKey({ trace_id: traceId = null, kind, name = '', parent = null }) {
+  if (traceId !== null) return traceId;
+  const own = `${kind}:${name.replace(/\s+/g, ' ').trim()}`;
+  const key = parent === null ? own : `${parent}/${own}`;
+  if (characters(key) <= MAX_KEY) return key;
+  return `${[...key].slice(0, MAX_KEY - HASHED - 1).join('').trimEnd()}#${sha256(key).slice(0, HASHED)}`;
+}
+
+// key with #n after it, within the contract's length.
+export function numbered(key, n) {
+  const suffix = `#${n}`;
+  return characters(key) + suffix.length <= MAX_KEY ? `${key}${suffix}` : `${[...key].slice(0, MAX_KEY - suffix.length).join('').trimEnd()}${suffix}`;
+}
+
+// Hands out the element keys of one drawing: a key another element has gets #2, #3 and so on, as drawing.js does for
+// the keys it works out.
+export function keyer() {
+  const taken = new Set();
+  return (base) => {
+    let key = base;
+    for (let n = 2; taken.has(key); n += 1) key = numbered(base, n);
+    taken.add(key);
+    return key;
+  };
+}
+
+// An entry's trace ID, or null when it has none in the contract's form.
+export function traceIdOf(entry) {
+  const id = isObject(entry) ? entry.id : undefined;
+  return isText(id) && id.length <= MAX_TRACE_ID && TRACE_ID.test(id) ? id : null;
+}
+
+// A where of a picture, a file and its line such as db/nexus.sql:41, or null when it is not text NEXUS can show as one.
+export function whereText(value) {
+  return isText(value) && value !== '' && characters(value) <= MAX_WHERE && !CONTROL.test(value) ? value : null;
+}
+
+// A failure's where, as the push answer and a drawing's failed_at give it: the path and its line, or the path alone
+// when the two would be too long.
+export function failureWhere({ path, line }) {
+  if (line === null) return path;
+  const where = `${path}:${line}`;
+  return characters(where) <= MAX_WHERE ? where : path;
+}
+
+// What the hub left out of a picture, from the drawer's warnings (see drawing.js): for each, its key, of the given
+// kind and named by what the hub says, and its where, the file and line as a failure's where, or null when the hub
+// names no file.
+export function leftOut(warnings, kind, keyOf) {
+  return (warnings ?? []).map(({ path, line, detail }) => ({
+    key: keyOf(elementKey({ kind, name: detail })),
+    name: detail,
+    where: path === null ? null : failureWhere({ path, line }),
+  }));
+}

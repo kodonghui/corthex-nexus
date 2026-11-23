@@ -1,7 +1,8 @@
 // Drawing a kept snapshot (TASK-419; SPEC-001, SPEC-005): its diagrams (TBL-151), a drawing of each from one
 // snapshot (TBL-152) and each drawing's elements (TBL-153). TASK-418's intake keeps the snapshot and its documents and
 // calls drawSnapshot once, in the push's transaction, before it answers (see snapshots.js). Each stage's drawer,
-// TASK-421 to TASK-427, turns a document into elements and plugs in through DRAWERS below.
+// TASK-421 to TASK-427, turns a document into elements and plugs in through DRAWERS below; what the drawers share,
+// SourceFailure and elementKey among it, is drawer.js's, which they import in place of this file.
 //
 // Diagrams. A diagram is drawn from one document of the snapshot, and its source_key is that document's path in
 // snapshot_files (TBL-150; see snapshot.js), so a drawing finds its source by the diagram alone:
@@ -26,7 +27,7 @@
 // only. What a drawing changes after it, confirmations, change sets and threads, is TASK-435's (note 14 of the WBS).
 //
 // Elements. A drawer returns a drawing's elements, each with a key that stays the same across drawings: the key the
-// drawer gives, or else elementKey's (see below), so comments, positions and the diff follow an element from one
+// drawer gives, or else elementKey's (see drawer.js), so comments, positions and the diff follow an element from one
 // drawing to the next (TBL-153). A drawer that breaks this interface is a fault: the push answers internal and
 // changes nothing. Nothing here logs; no source text, failure place or secret reaches a log line (rule 5).
 //
@@ -76,8 +77,16 @@
 //   source when left out, and line a line number or none. Any other error is a fault.
 
 import { createHash } from 'node:crypto';
+import { dddBoard } from './ddd-board.js';
+import {
+  characters, CONTROL, elementKey, failureWhere, isObject, MAX_ELEMENTS, MAX_KEY, MAX_TRACE_ID, MAX_WHERE, numbered, SourceFailure,
+  TRACE_ID,
+} from './drawer.js';
 import { erd } from './erd.js';
 import { idOf } from './ids.js';
+
+// A drawer's failure and the keys it works out are drawer.js's, which the drawers import in place of this file.
+export { elementKey, SourceFailure };
 
 // The kind of diagram each picture stage draws. A stage that is not here shows its items as an item table, and so do
 // 03, 08 and 09 while no snapshot drew their pictures and the format does not carry them (SPEC-005).
@@ -96,29 +105,20 @@ export const KINDS = Object.freeze([...Object.values(PICTURE_KINDS), ITEM_TABLE]
 
 // The drawers, by kind of diagram (see the top of this file). Each drawing task adds its own: ddd_board TASK-421, erd
 // TASK-422, item_table TASK-423, user_flow TASK-424, sitemap TASK-425, screen_states TASK-426 and mockup TASK-427.
-// A kind without a drawer is not drawn: its documents make no diagram. erd.js imports this file in turn, which works
-// because each drawer is a function declaration, set before either file runs.
-export const DRAWERS = Object.freeze({ erd });
+// A kind without a drawer is not drawn: its documents make no diagram.
+export const DRAWERS = Object.freeze({ ddd_board: dddBoard, erd });
 
 // The names a diagram has until its drawer names it, such as when its first drawing fails.
 const NAMES = Object.freeze({ ddd_board: 'DDD board', erd: 'ERD', sitemap: 'Sitemap' });
 
-// The contract's limits: Diagram's elements and name, Element's key, kind and status, a failure's where, PushAnswer's
-// failures, and TraceId and ElementKey.
-const MAX_ELEMENTS = 5000;
+// The contract's limits besides drawer.js's: Diagram's name, Element's kind and status, and PushAnswer's failures; and
+// ElementKey's form.
 const MAX_NAME = 200;
-const MAX_KEY = 200;
 const MAX_KIND = 40;
 const MAX_STATUS = 60;
-const MAX_WHERE = 300;
 const MAX_FAILURES = 500;
-const MAX_TRACE_ID = 30;
-const TRACE_ID = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
 const ELEMENT_KEY = /^\S(?:.*\S)?$/;
 const KIND = /^[a-z][a-z0-9_]*$/;
-const CONTROL = /[\u0000-\u001f\u007f]/;
-// A derived key longer than the contract allows keeps its start and ends with # and 16 hex digits of its SHA-256.
-const HASHED = 16;
 // The snapshot's rest, which keeps its checks as they came (see snapshot.js), and the name that the warnings a drawer
 // was given take in its source_digest. No document has that name: NEXUS names none of its own so, and a key never
 // starts with /.
@@ -134,44 +134,12 @@ const AT_PATH = /^([^:]+):(?:([1-9][0-9]{0,8}):)? (.*)$/s;
 const FILE_NAME = /(?:^|\/)[^/]*[^/\s]\.(?:md|markdown|sql|ya?ml)$/i;
 const NONE = Object.freeze([]);
 
-// What a drawer throws for a source it cannot read: where it failed, a path in the repository and a line, or neither
-// for the document's own source. The drawing fails there, and the diagram keeps its last good drawing (SPEC-001).
-export class SourceFailure extends Error {
-  constructor({ path = null, line = null } = {}) {
-    super('the source cannot be drawn');
-    this.name = 'SourceFailure';
-    this.path = path;
-    this.line = line;
-  }
-}
-
-const isObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
 const sha256 = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
-const characters = (text) => [...text].length;
 
 // The first max characters of text; a longer text ends with an ellipsis.
 function cut(text, max) {
   const all = [...text];
   return all.length <= max ? text : `${all.slice(0, max - 1).join('')}…`;
-}
-
-// The key an element has when its drawer gives none: its trace ID, or else its kind and name, white space made single
-// spaces, under its parent's key, such as "lane:Owner/event:Snapshot accepted". So an element keeps its key across
-// drawings while it keeps its trace ID, or its kind, name and parent, wherever it stands among the others. A key over
-// 200 characters keeps its start and ends with # and part of its SHA-256. A drawer that names an element's parent by
-// such a key works it out here.
-export function elementKey({ trace_id: traceId = null, kind, name = '', parent = null }) {
-  if (traceId !== null) return traceId;
-  const own = `${kind}:${name.replace(/\s+/g, ' ').trim()}`;
-  const key = parent === null ? own : `${parent}/${own}`;
-  if (characters(key) <= MAX_KEY) return key;
-  return `${[...key].slice(0, MAX_KEY - HASHED - 1).join('').trimEnd()}#${sha256(key).slice(0, HASHED)}`;
-}
-
-// key with #n after it, within the contract's length.
-function numbered(key, n) {
-  const suffix = `#${n}`;
-  return characters(key) + suffix.length <= MAX_KEY ? `${key}${suffix}` : `${[...key].slice(0, MAX_KEY - suffix.length).join('').trimEnd()}${suffix}`;
 }
 
 // Checks the drawers by kind: known kinds, each a function.
@@ -334,14 +302,6 @@ function checksOf(statements, snapshotId) {
   return Array.isArray(checks) ? checks : [];
 }
 
-// A failure's where, as the push answer and a drawing's failed_at give it: the path and its line, or the path alone
-// when the two would be too long.
-function whereOf({ path, line }) {
-  if (line === null) return path;
-  const where = `${path}:${line}`;
-  return characters(where) <= MAX_WHERE ? where : path;
-}
-
 // Runs a drawer on a document: { status, digest, name, rows, failure }. The digest covers each document it read, its
 // own included, by path and SHA-256 in the order of their paths, and the warnings when it read them and there are any,
 // so that a drawer that draws no warnings is not drawn again when only they change.
@@ -421,7 +381,7 @@ const stageAndPath = (stage, path) => `${stage}\n${path}`;
 
 // A failures entry of the push answer: the diagram, the part and stage of its document, and where it failed.
 const failureEntry = (diagramId, document, failure) => ({
-  diagram: idOf('dg', Number(diagramId)), part: document.part, stage: document.stage, where: whereOf(failure),
+  diagram: idOf('dg', Number(diagramId)), part: document.part, stage: document.stage, where: failureWhere(failure),
 });
 
 // Counts a diagram that is not removed and that this call does not draw again: failed, and named in failures, when its

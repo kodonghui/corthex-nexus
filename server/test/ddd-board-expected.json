@@ -1,0 +1,3747 @@
+{
+ "elements": [
+  {
+   "key": "lane:Project",
+   "kind": "lane",
+   "name": "Project",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:62",
+    "box": {
+     "x": 2534,
+     "y": 0,
+     "width": 1478,
+     "height": 176
+    }
+   }
+  },
+  {
+   "key": "lane:Project/event:Project space created",
+   "kind": "event",
+   "name": "Project space created",
+   "parent": "lane:Project",
+   "detail": {
+    "place": 1,
+    "box": {
+     "x": 2796,
+     "y": 48,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Project/event:Tool link added",
+   "kind": "event",
+   "name": "Tool link added",
+   "parent": "lane:Project",
+   "detail": {
+    "place": 2,
+    "box": {
+     "x": 2980,
+     "y": 0,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Project/event:Tool link removed",
+   "kind": "event",
+   "name": "Tool link removed",
+   "parent": "lane:Project",
+   "detail": {
+    "place": 2,
+    "box": {
+     "x": 2980,
+     "y": 96,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Project/event:Project space deleted",
+   "kind": "event",
+   "name": "Project space deleted",
+   "parent": "lane:Project",
+   "detail": {
+    "place": 3,
+    "box": {
+     "x": 3164,
+     "y": 0,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:From document to diagram",
+   "kind": "lane",
+   "name": "From document to diagram",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:63",
+    "box": {
+     "x": 2534,
+     "y": 192,
+     "width": 1478,
+     "height": 176
+    }
+   }
+  },
+  {
+   "key": "lane:From document to diagram/event:Snapshot received",
+   "kind": "event",
+   "name": "Snapshot received",
+   "parent": "lane:From document to diagram",
+   "detail": {
+    "place": 1,
+    "box": {
+     "x": 2796,
+     "y": 192,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:From document to diagram/event:Snapshot rejected",
+   "kind": "event",
+   "name": "Snapshot rejected",
+   "parent": "lane:From document to diagram",
+   "detail": {
+    "place": 1,
+    "box": {
+     "x": 2796,
+     "y": 288,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:From document to diagram/event:Diagram drawn",
+   "kind": "event",
+   "name": "Diagram drawn",
+   "parent": "lane:From document to diagram",
+   "detail": {
+    "place": 2,
+    "box": {
+     "x": 2980,
+     "y": 192,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:From document to diagram/event:Element moved",
+   "kind": "event",
+   "name": "Element moved",
+   "parent": "lane:From document to diagram",
+   "detail": {
+    "place": 3,
+    "box": {
+     "x": 3164,
+     "y": 192,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Comments and AI proposals",
+   "kind": "lane",
+   "name": "Comments and AI proposals",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:64",
+    "box": {
+     "x": 2534,
+     "y": 384,
+     "width": 1478,
+     "height": 224
+    }
+   }
+  },
+  {
+   "key": "lane:Comments and AI proposals/event:Comment added",
+   "kind": "event",
+   "name": "Comment added",
+   "parent": "lane:Comments and AI proposals",
+   "detail": {
+    "place": 1,
+    "box": {
+     "x": 2796,
+     "y": 480,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Comments and AI proposals/event:To-do claimed",
+   "kind": "event",
+   "name": "To-do claimed",
+   "parent": "lane:Comments and AI proposals",
+   "detail": {
+    "place": 2,
+    "box": {
+     "x": 2980,
+     "y": 480,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Comments and AI proposals/event:Reply added",
+   "kind": "event",
+   "name": "Reply added",
+   "parent": "lane:Comments and AI proposals",
+   "detail": {
+    "place": 3,
+    "box": {
+     "x": 3164,
+     "y": 432,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Comments and AI proposals/event:AI proposal posted",
+   "kind": "event",
+   "name": "AI proposal posted",
+   "parent": "lane:Comments and AI proposals",
+   "detail": {
+    "place": 3,
+    "box": {
+     "x": 3164,
+     "y": 528,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Comments and AI proposals/event:Proposal accepted",
+   "kind": "event",
+   "name": "Proposal accepted",
+   "parent": "lane:Comments and AI proposals",
+   "detail": {
+    "place": 4,
+    "box": {
+     "x": 3348,
+     "y": 384,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Comments and AI proposals/event:Proposal rejected",
+   "kind": "event",
+   "name": "Proposal rejected",
+   "parent": "lane:Comments and AI proposals",
+   "detail": {
+    "place": 4,
+    "box": {
+     "x": 3348,
+     "y": 480,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Comments and AI proposals/event:Reflection PR opened",
+   "kind": "event",
+   "name": "Reflection PR opened",
+   "parent": "lane:Comments and AI proposals",
+   "detail": {
+    "place": 5,
+    "box": {
+     "x": 3520,
+     "y": 384,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Comments and AI proposals/event:Change reflected",
+   "kind": "event",
+   "name": "Change reflected",
+   "parent": "lane:Comments and AI proposals",
+   "detail": {
+    "place": 6,
+    "box": {
+     "x": 3692,
+     "y": 384,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Comments and AI proposals/event:Comment closed",
+   "kind": "event",
+   "name": "Comment closed",
+   "parent": "lane:Comments and AI proposals",
+   "detail": {
+    "place": 7,
+    "box": {
+     "x": 3864,
+     "y": 384,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Direct edit",
+   "kind": "lane",
+   "name": "Direct edit",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:65",
+    "box": {
+     "x": 2534,
+     "y": 624,
+     "width": 1478,
+     "height": 224
+    }
+   }
+  },
+  {
+   "key": "lane:Direct edit/event:Element renamed",
+   "kind": "event",
+   "name": "Element renamed",
+   "parent": "lane:Direct edit",
+   "detail": {
+    "place": 1,
+    "box": {
+     "x": 2796,
+     "y": 672,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Direct edit/event:Line connected",
+   "kind": "event",
+   "name": "Line connected",
+   "parent": "lane:Direct edit",
+   "detail": {
+    "place": 1,
+    "box": {
+     "x": 2796,
+     "y": 768,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Direct edit/event:Edit cancelled",
+   "kind": "event",
+   "name": "Edit cancelled",
+   "parent": "lane:Direct edit",
+   "detail": {
+    "place": 2,
+    "box": {
+     "x": 2980,
+     "y": 624,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Direct edit/event:Reflection PR opened",
+   "kind": "event",
+   "name": "Reflection PR opened",
+   "parent": "lane:Direct edit",
+   "detail": {
+    "place": 2,
+    "box": {
+     "x": 2980,
+     "y": 720,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Direct edit/event:Change reflected",
+   "kind": "event",
+   "name": "Change reflected",
+   "parent": "lane:Direct edit",
+   "detail": {
+    "place": 3,
+    "box": {
+     "x": 3164,
+     "y": 624,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Confirmation",
+   "kind": "lane",
+   "name": "Confirmation",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:66",
+    "box": {
+     "x": 2534,
+     "y": 864,
+     "width": 1478,
+     "height": 176
+    }
+   }
+  },
+  {
+   "key": "lane:Confirmation/event:Diagram confirmed",
+   "kind": "event",
+   "name": "Diagram confirmed",
+   "parent": "lane:Confirmation",
+   "detail": {
+    "place": 1,
+    "box": {
+     "x": 2796,
+     "y": 912,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Confirmation/event:Confirmation recorded",
+   "kind": "event",
+   "name": "Confirmation recorded",
+   "parent": "lane:Confirmation",
+   "detail": {
+    "place": 2,
+    "box": {
+     "x": 2980,
+     "y": 912,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Confirmation/event:Confirmation cancelled",
+   "kind": "event",
+   "name": "Confirmation cancelled",
+   "parent": "lane:Confirmation",
+   "detail": {
+    "place": 3,
+    "box": {
+     "x": 3164,
+     "y": 864,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Confirmation/event:Confirmation invalidated",
+   "kind": "event",
+   "name": "Confirmation invalidated",
+   "parent": "lane:Confirmation",
+   "detail": {
+    "place": 3,
+    "box": {
+     "x": 3164,
+     "y": 960,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Event storming workshop",
+   "kind": "lane",
+   "name": "Event storming workshop",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:67",
+    "box": {
+     "x": 2534,
+     "y": 1056,
+     "width": 1478,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Event storming workshop/event:Workshop opened",
+   "kind": "event",
+   "name": "Workshop opened",
+   "parent": "lane:Event storming workshop",
+   "detail": {
+    "place": 1,
+    "box": {
+     "x": 2796,
+     "y": 1056,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Event storming workshop/event:Miro board imported",
+   "kind": "event",
+   "name": "Miro board imported",
+   "parent": "lane:Event storming workshop",
+   "detail": {
+    "place": 2,
+    "box": {
+     "x": 2980,
+     "y": 1056,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Event storming workshop/event:Step draft drawn",
+   "kind": "event",
+   "name": "Step draft drawn",
+   "parent": "lane:Event storming workshop",
+   "detail": {
+    "place": 3,
+    "box": {
+     "x": 3164,
+     "y": 1056,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Event storming workshop/event:Sticky notes changed",
+   "kind": "event",
+   "name": "Sticky notes changed",
+   "parent": "lane:Event storming workshop",
+   "detail": {
+    "place": 4,
+    "box": {
+     "x": 3348,
+     "y": 1056,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Event storming workshop/event:Step confirmed",
+   "kind": "event",
+   "name": "Step confirmed",
+   "parent": "lane:Event storming workshop",
+   "detail": {
+    "place": 5,
+    "box": {
+     "x": 3520,
+     "y": 1056,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Event storming workshop/event:Domain document updated",
+   "kind": "event",
+   "name": "Domain document updated",
+   "parent": "lane:Event storming workshop",
+   "detail": {
+    "place": 6,
+    "box": {
+     "x": 3692,
+     "y": 1056,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Event storming workshop/event:Workshop closed",
+   "kind": "event",
+   "name": "Workshop closed",
+   "parent": "lane:Event storming workshop",
+   "detail": {
+    "place": 7,
+    "box": {
+     "x": 3864,
+     "y": 1056,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Agent claims and credentials",
+   "kind": "lane",
+   "name": "Agent claims and credentials",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:68",
+    "box": {
+     "x": 2534,
+     "y": 1152,
+     "width": 1478,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Agent claims and credentials/event:Agent credential issued",
+   "kind": "event",
+   "name": "Agent credential issued",
+   "parent": "lane:Agent claims and credentials",
+   "detail": {
+    "place": 1,
+    "box": {
+     "x": 2796,
+     "y": 1152,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Agent claims and credentials/event:To-do claimed",
+   "kind": "event",
+   "name": "To-do claimed",
+   "parent": "lane:Agent claims and credentials",
+   "detail": {
+    "place": 2,
+    "box": {
+     "x": 2980,
+     "y": 1152,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Agent claims and credentials/event:Claim released",
+   "kind": "event",
+   "name": "Claim released",
+   "parent": "lane:Agent claims and credentials",
+   "detail": {
+    "place": 3,
+    "box": {
+     "x": 3164,
+     "y": 1152,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "lane:Agent claims and credentials/event:Agent credential revoked",
+   "kind": "event",
+   "name": "Agent credential revoked",
+   "parent": "lane:Agent claims and credentials",
+   "detail": {
+    "place": 4,
+    "box": {
+     "x": 3348,
+     "y": 1152,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037",
+   "trace_id": "CTX-037",
+   "kind": "context",
+   "name": "Diagram",
+   "detail": {
+    "type": "core",
+    "purpose": "draw the picture and table that fit each stage from the stage documents an agent sends, and keep where the elements are.",
+    "external": "Git host, through the agent",
+    "where": "docs/01-domain/nexus.md:114",
+    "box": {
+     "x": 0,
+     "y": 1788,
+     "width": 1720,
+     "height": 564
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Send snapshot",
+   "kind": "command",
+   "name": "Send snapshot",
+   "parent": "CTX-037",
+   "detail": {
+    "actor": "Agent",
+    "where": "docs/01-domain/nexus.md:120",
+    "box": {
+     "x": 184,
+     "y": 1936,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Send snapshot/aggregate:Project space",
+   "trace_id": "TERM-189",
+   "kind": "aggregate",
+   "name": "Project space",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:120",
+    "box": {
+     "x": 184,
+     "y": 2040,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Send snapshot/event:Snapshot received",
+   "kind": "event",
+   "name": "Snapshot received",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:120",
+    "box": {
+     "x": 12,
+     "y": 2156,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Send snapshot/event:Snapshot rejected",
+   "kind": "event",
+   "name": "Snapshot rejected",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:120",
+    "box": {
+     "x": 184,
+     "y": 2156,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Send snapshot/event:and Project space created for the first snapshot",
+   "kind": "event",
+   "name": "and Project space created for the first snapshot",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:120",
+    "box": {
+     "x": 356,
+     "y": 2156,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Draw diagram",
+   "kind": "command",
+   "name": "Draw diagram",
+   "parent": "CTX-037",
+   "detail": {
+    "actor": "",
+    "where": "docs/01-domain/nexus.md:121",
+    "box": {
+     "x": 528,
+     "y": 1936,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Draw diagram/aggregate:Diagram",
+   "trace_id": "TERM-194",
+   "kind": "aggregate",
+   "name": "Diagram",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:121",
+    "box": {
+     "x": 528,
+     "y": 2040,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Draw diagram/event:Diagram drawn",
+   "kind": "event",
+   "name": "Diagram drawn",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:121",
+    "box": {
+     "x": 528,
+     "y": 2156,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Draw diagram/policy:when Snapshot received",
+   "kind": "policy",
+   "name": "when Snapshot received",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:121",
+    "box": {
+     "x": 528,
+     "y": 2260,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Move element/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:122",
+    "box": {
+     "x": 700,
+     "y": 1832,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Move element",
+   "kind": "command",
+   "name": "Move element",
+   "parent": "CTX-037",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:122",
+    "box": {
+     "x": 700,
+     "y": 1936,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Move element/aggregate:Layout",
+   "trace_id": "TERM-198",
+   "kind": "aggregate",
+   "name": "Layout",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:122",
+    "box": {
+     "x": 700,
+     "y": 2040,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Move element/event:Element moved",
+   "kind": "event",
+   "name": "Element moved",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:122",
+    "box": {
+     "x": 700,
+     "y": 2156,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Delete project space/read_model:Project list",
+   "trace_id": "TERM-223",
+   "kind": "read_model",
+   "name": "Project list",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:123",
+    "box": {
+     "x": 872,
+     "y": 1832,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Delete project space",
+   "kind": "command",
+   "name": "Delete project space",
+   "parent": "CTX-037",
+   "detail": {
+    "actor": "Owner",
+    "where": "docs/01-domain/nexus.md:123",
+    "box": {
+     "x": 872,
+     "y": 1936,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Delete project space/aggregate:Project space",
+   "trace_id": "TERM-189",
+   "kind": "aggregate",
+   "name": "Project space",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:123",
+    "box": {
+     "x": 872,
+     "y": 2040,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-037/command:Delete project space/event:Project space deleted",
+   "kind": "event",
+   "name": "Project space deleted",
+   "parent": "CTX-037",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:123",
+    "box": {
+     "x": 872,
+     "y": 2156,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:Does v3 accept the current corthex-hub commands (push, todo, claim, comment, decide, reflect, status, record) as they are?",
+   "kind": "hotspot",
+   "name": "4. Does v3 accept the current corthex-hub commands (push, todo, claim, comment, decide, reflect, status, record) as they are?",
+   "parent": "CTX-037",
+   "status": "answered",
+   "detail": {
+    "number": 4,
+    "state": "answered",
+    "answer": "Accept them as they are (stage 02, REQ-018)",
+    "contexts": [
+     "CTX-037",
+     "CTX-041"
+    ],
+    "where": "docs/01-domain/nexus.md:303",
+    "box": {
+     "x": 1044,
+     "y": 2040,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:Is the layout (element positions) kept in NEXUS or in Git?",
+   "kind": "hotspot",
+   "name": "7. Is the layout (element positions) kept in NEXUS or in Git?",
+   "parent": "CTX-037",
+   "status": "answered",
+   "detail": {
+    "number": 7,
+    "state": "answered",
+    "answer": "In NEXUS (stage 02, REQ-015; stage 05 shows its table)",
+    "contexts": [
+     "CTX-037"
+    ],
+    "where": "docs/01-domain/nexus.md:306",
+    "box": {
+     "x": 1216,
+     "y": 2040,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:Diagram and Confirmation rules inferred by the AI: one confirmation per diagram, a diagram from one snapshot, a layout that never changes meaning",
+   "kind": "hotspot",
+   "name": "12. Diagram and Confirmation rules inferred by the AI: one confirmation per diagram, a diagram from one snapshot, a layout that never changes meaning",
+   "parent": "CTX-037",
+   "status": "open",
+   "detail": {
+    "number": 12,
+    "state": "reviewed in stage 02",
+    "answer": "Carried into the requirements as written, which the stage-02 version freeze approved (REQ-001 to REQ-066)",
+    "contexts": [
+     "CTX-037",
+     "CTX-039"
+    ],
+    "where": "docs/01-domain/nexus.md:311",
+    "box": {
+     "x": 1388,
+     "y": 2040,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:The command rows of every context",
+   "kind": "hotspot",
+   "name": "13. The command rows of every context",
+   "parent": "CTX-037",
+   "status": "open",
+   "detail": {
+    "number": 13,
+    "state": "reviewed in stage 02",
+    "answer": "Carried into the requirements as written, which the stage-02 version freeze approved (REQ-001 to REQ-066)",
+    "contexts": [
+     "CTX-037",
+     "CTX-038",
+     "CTX-039",
+     "CTX-040",
+     "CTX-041",
+     "CTX-042"
+    ],
+    "where": "docs/01-domain/nexus.md:312",
+    "box": {
+     "x": 1560,
+     "y": 2040,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038",
+   "trace_id": "CTX-038",
+   "kind": "context",
+   "name": "Review",
+   "detail": {
+    "type": "core",
+    "purpose": "gather comments and replies on a diagram, AI proposals and direct edits into change sets, accept them, and check that a pull request put them into the document.",
+    "external": "none (the Git host through the agent)",
+    "where": "docs/01-domain/nexus.md:135",
+    "box": {
+     "x": 214,
+     "y": 2430,
+     "width": 2580,
+     "height": 552
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Add comment/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:141",
+    "box": {
+     "x": 226,
+     "y": 2474,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Add comment",
+   "kind": "command",
+   "name": "Add comment",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "Owner, Agent",
+    "where": "docs/01-domain/nexus.md:141",
+    "box": {
+     "x": 226,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Add comment/aggregate:Comment thread",
+   "trace_id": "TERM-200",
+   "kind": "aggregate",
+   "name": "Comment thread",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:141",
+    "box": {
+     "x": 226,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Add comment/event:Comment added",
+   "kind": "event",
+   "name": "Comment added",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:141",
+    "box": {
+     "x": 226,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Add reply/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:142",
+    "box": {
+     "x": 398,
+     "y": 2474,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Add reply",
+   "kind": "command",
+   "name": "Add reply",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "Owner, Agent",
+    "where": "docs/01-domain/nexus.md:142",
+    "box": {
+     "x": 398,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Add reply/aggregate:Comment thread",
+   "trace_id": "TERM-200",
+   "kind": "aggregate",
+   "name": "Comment thread",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:142",
+    "box": {
+     "x": 398,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Add reply/event:Reply added",
+   "kind": "event",
+   "name": "Reply added",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:142",
+    "box": {
+     "x": 398,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Post AI proposal/read_model:Agent to-do",
+   "trace_id": "TERM-226",
+   "kind": "read_model",
+   "name": "Agent to-do",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:143",
+    "box": {
+     "x": 570,
+     "y": 2474,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Post AI proposal",
+   "kind": "command",
+   "name": "Post AI proposal",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "Agent",
+    "where": "docs/01-domain/nexus.md:143",
+    "box": {
+     "x": 570,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Post AI proposal/aggregate:Change set",
+   "trace_id": "TERM-203",
+   "kind": "aggregate",
+   "name": "Change set",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:143",
+    "box": {
+     "x": 570,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Post AI proposal/event:AI proposal posted",
+   "kind": "event",
+   "name": "AI proposal posted",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:143",
+    "box": {
+     "x": 570,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Accept proposal/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:144",
+    "box": {
+     "x": 742,
+     "y": 2474,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Accept proposal",
+   "kind": "command",
+   "name": "Accept proposal",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:144",
+    "box": {
+     "x": 742,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Accept proposal/aggregate:Change set",
+   "trace_id": "TERM-203",
+   "kind": "aggregate",
+   "name": "Change set",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:144",
+    "box": {
+     "x": 742,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Accept proposal/event:Proposal accepted",
+   "kind": "event",
+   "name": "Proposal accepted",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:144",
+    "box": {
+     "x": 742,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Reject proposal/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:145",
+    "box": {
+     "x": 914,
+     "y": 2474,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Reject proposal",
+   "kind": "command",
+   "name": "Reject proposal",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:145",
+    "box": {
+     "x": 914,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Reject proposal/aggregate:Change set",
+   "trace_id": "TERM-203",
+   "kind": "aggregate",
+   "name": "Change set",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:145",
+    "box": {
+     "x": 914,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Reject proposal/event:Proposal rejected",
+   "kind": "event",
+   "name": "Proposal rejected",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:145",
+    "box": {
+     "x": 914,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Rename element/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:146",
+    "box": {
+     "x": 1086,
+     "y": 2474,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Rename element",
+   "kind": "command",
+   "name": "Rename element",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:146",
+    "box": {
+     "x": 1086,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Rename element/aggregate:Change set",
+   "trace_id": "TERM-203",
+   "kind": "aggregate",
+   "name": "Change set",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:146",
+    "box": {
+     "x": 1086,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Rename element/event:Element renamed",
+   "kind": "event",
+   "name": "Element renamed",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:146",
+    "box": {
+     "x": 1086,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Connect line/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:147",
+    "box": {
+     "x": 1258,
+     "y": 2474,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Connect line",
+   "kind": "command",
+   "name": "Connect line",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:147",
+    "box": {
+     "x": 1258,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Connect line/aggregate:Change set",
+   "trace_id": "TERM-203",
+   "kind": "aggregate",
+   "name": "Change set",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:147",
+    "box": {
+     "x": 1258,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Connect line/event:Line connected",
+   "kind": "event",
+   "name": "Line connected",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:147",
+    "box": {
+     "x": 1258,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Cancel edit/read_model:Diff view",
+   "trace_id": "TERM-224",
+   "kind": "read_model",
+   "name": "Diff view",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:148",
+    "box": {
+     "x": 1430,
+     "y": 2474,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Cancel edit",
+   "kind": "command",
+   "name": "Cancel edit",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:148",
+    "box": {
+     "x": 1430,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Cancel edit/aggregate:Change set",
+   "trace_id": "TERM-203",
+   "kind": "aggregate",
+   "name": "Change set",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:148",
+    "box": {
+     "x": 1430,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Cancel edit/event:Edit cancelled",
+   "kind": "event",
+   "name": "Edit cancelled",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:148",
+    "box": {
+     "x": 1430,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Report reflection PR/read_model:Agent to-do",
+   "trace_id": "TERM-226",
+   "kind": "read_model",
+   "name": "Agent to-do",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:149",
+    "box": {
+     "x": 1602,
+     "y": 2474,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Report reflection PR",
+   "kind": "command",
+   "name": "Report reflection PR",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "Agent",
+    "where": "docs/01-domain/nexus.md:149",
+    "box": {
+     "x": 1602,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Report reflection PR/aggregate:Change set",
+   "trace_id": "TERM-203",
+   "kind": "aggregate",
+   "name": "Change set",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:149",
+    "box": {
+     "x": 1602,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Report reflection PR/event:Reflection PR opened",
+   "kind": "event",
+   "name": "Reflection PR opened",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:149",
+    "box": {
+     "x": 1602,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Check reflection",
+   "kind": "command",
+   "name": "Check reflection",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "",
+    "where": "docs/01-domain/nexus.md:150",
+    "box": {
+     "x": 1774,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Check reflection/aggregate:Change set",
+   "trace_id": "TERM-203",
+   "kind": "aggregate",
+   "name": "Change set",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:150",
+    "box": {
+     "x": 1774,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Check reflection/event:Change reflected",
+   "kind": "event",
+   "name": "Change reflected",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:150",
+    "box": {
+     "x": 1774,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Check reflection/policy:when Diagram drawn holds the reflection PR's commit",
+   "kind": "policy",
+   "name": "when Diagram drawn holds the reflection PR's commit",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:150",
+    "box": {
+     "x": 1774,
+     "y": 2890,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Close comment/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:151",
+    "box": {
+     "x": 1946,
+     "y": 2474,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Close comment",
+   "kind": "command",
+   "name": "Close comment",
+   "parent": "CTX-038",
+   "detail": {
+    "actor": "Owner",
+    "where": "docs/01-domain/nexus.md:151",
+    "box": {
+     "x": 1946,
+     "y": 2578,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Close comment/aggregate:Comment thread",
+   "trace_id": "TERM-200",
+   "kind": "aggregate",
+   "name": "Comment thread",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:151",
+    "box": {
+     "x": 1946,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Close comment/event:Comment closed",
+   "kind": "event",
+   "name": "Comment closed",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:151",
+    "box": {
+     "x": 1946,
+     "y": 2786,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-038/command:Close comment/policy:when Change reflected",
+   "kind": "policy",
+   "name": "when Change reflected",
+   "parent": "CTX-038",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:151",
+    "box": {
+     "x": 1946,
+     "y": 2890,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:When an element leaves the document, where do its comments stay?",
+   "kind": "hotspot",
+   "name": "3. When an element leaves the document, where do its comments stay?",
+   "parent": "CTX-038",
+   "status": "answered",
+   "detail": {
+    "number": 3,
+    "state": "answered",
+    "answer": "Move them to the diagram's comments, marked as from a removed element (stage 02, REQ-033)",
+    "contexts": [
+     "CTX-038"
+    ],
+    "where": "docs/01-domain/nexus.md:302",
+    "box": {
+     "x": 2118,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:Does each direct edit go out as its own pull request, or several together?",
+   "kind": "hotspot",
+   "name": "6. Does each direct edit go out as its own pull request, or several together?",
+   "parent": "CTX-038",
+   "status": "answered",
+   "detail": {
+    "number": 6,
+    "state": "answered",
+    "answer": "Several together, per diagram (stage 02, REQ-032, a Should requirement after the first release; in the first release an agent may still link one pull request to several change sets, SPEC-024)",
+    "contexts": [
+     "CTX-038"
+    ],
+    "where": "docs/01-domain/nexus.md:305",
+    "box": {
+     "x": 2290,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:The direct-edit scope was written two ways in the project's records: move, rename and connect only, or a free canvas on the stage-01 board with move, rename and connect elsewhere",
+   "kind": "hotspot",
+   "name": "11. The direct-edit scope was written two ways in the project's records: move, rename and connect only, or a free canvas on the stage-01 board with move, rename and connect elsewhere",
+   "parent": "CTX-038",
+   "status": "answered",
+   "detail": {
+    "number": 11,
+    "state": "answered",
+    "answer": "Follows the redesign decision the maintainer approved on 2026-11-22: a free canvas on the stage-01 board",
+    "contexts": [
+     "CTX-038",
+     "CTX-040"
+    ],
+    "where": "docs/01-domain/nexus.md:310",
+    "box": {
+     "x": 2462,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:A rejected proposal or a cancelled edit leaves its comment thread open for the owner to close",
+   "kind": "hotspot",
+   "name": "14. A rejected proposal or a cancelled edit leaves its comment thread open for the owner to close",
+   "parent": "CTX-038",
+   "status": "answered",
+   "detail": {
+    "number": 14,
+    "state": "answered",
+    "answer": "The thread stays open until the owner closes it (stage 02, REQ-024, REQ-034)",
+    "contexts": [
+     "CTX-038"
+    ],
+    "where": "docs/01-domain/nexus.md:313",
+    "box": {
+     "x": 2634,
+     "y": 2682,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039",
+   "trace_id": "CTX-039",
+   "kind": "context",
+   "name": "Confirmation",
+   "detail": {
+    "type": "core",
+    "purpose": "the owner passes one picture or table at its document version, and the confirmation is kept in the stage record in Git.",
+    "external": "none (the Git host through the agent)",
+    "where": "docs/01-domain/nexus.md:165",
+    "box": {
+     "x": 2826,
+     "y": 2424,
+     "width": 1376,
+     "height": 564
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Confirm diagram/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:171",
+    "box": {
+     "x": 2838,
+     "y": 2468,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Confirm diagram/read_model:Diff view",
+   "trace_id": "TERM-224",
+   "kind": "read_model",
+   "name": "Diff view",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:171",
+    "box": {
+     "x": 3010,
+     "y": 2468,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Confirm diagram",
+   "kind": "command",
+   "name": "Confirm diagram",
+   "parent": "CTX-039",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:171",
+    "box": {
+     "x": 2924,
+     "y": 2584,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Confirm diagram/aggregate:Confirmation",
+   "trace_id": "TERM-206",
+   "kind": "aggregate",
+   "name": "Confirmation",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:171",
+    "box": {
+     "x": 2924,
+     "y": 2688,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Confirm diagram/event:Diagram confirmed",
+   "kind": "event",
+   "name": "Diagram confirmed",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:171",
+    "box": {
+     "x": 2924,
+     "y": 2792,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Cancel confirmation/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:172",
+    "box": {
+     "x": 3182,
+     "y": 2468,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Cancel confirmation",
+   "kind": "command",
+   "name": "Cancel confirmation",
+   "parent": "CTX-039",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:172",
+    "box": {
+     "x": 3182,
+     "y": 2584,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Cancel confirmation/aggregate:Confirmation",
+   "trace_id": "TERM-206",
+   "kind": "aggregate",
+   "name": "Confirmation",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:172",
+    "box": {
+     "x": 3182,
+     "y": 2688,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Cancel confirmation/event:Confirmation cancelled",
+   "kind": "event",
+   "name": "Confirmation cancelled",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:172",
+    "box": {
+     "x": 3182,
+     "y": 2792,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Record confirmation/read_model:Agent to-do",
+   "trace_id": "TERM-226",
+   "kind": "read_model",
+   "name": "Agent to-do",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:173",
+    "box": {
+     "x": 3354,
+     "y": 2468,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Record confirmation",
+   "kind": "command",
+   "name": "Record confirmation",
+   "parent": "CTX-039",
+   "detail": {
+    "actor": "Agent",
+    "where": "docs/01-domain/nexus.md:173",
+    "box": {
+     "x": 3354,
+     "y": 2584,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Record confirmation/aggregate:Confirmation",
+   "trace_id": "TERM-206",
+   "kind": "aggregate",
+   "name": "Confirmation",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:173",
+    "box": {
+     "x": 3354,
+     "y": 2688,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Record confirmation/event:Confirmation recorded",
+   "kind": "event",
+   "name": "Confirmation recorded",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:173",
+    "box": {
+     "x": 3354,
+     "y": 2792,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Invalidate confirmation",
+   "kind": "command",
+   "name": "Invalidate confirmation",
+   "parent": "CTX-039",
+   "detail": {
+    "actor": "",
+    "where": "docs/01-domain/nexus.md:174",
+    "box": {
+     "x": 3526,
+     "y": 2584,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Invalidate confirmation/aggregate:Confirmation",
+   "trace_id": "TERM-206",
+   "kind": "aggregate",
+   "name": "Confirmation",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:174",
+    "box": {
+     "x": 3526,
+     "y": 2688,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Invalidate confirmation/event:Confirmation invalidated",
+   "kind": "event",
+   "name": "Confirmation invalidated",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:174",
+    "box": {
+     "x": 3526,
+     "y": 2792,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-039/command:Invalidate confirmation/policy:when Diagram drawn changes the document of a confirmed diagram",
+   "kind": "policy",
+   "name": "when Diagram drawn changes the document of a confirmed diagram",
+   "parent": "CTX-039",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:174",
+    "box": {
+     "x": 3526,
+     "y": 2896,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:When the document changes after a confirmation, is the confirmation lifted?",
+   "kind": "hotspot",
+   "name": "2. When the document changes after a confirmation, is the confirmation lifted?",
+   "parent": "CTX-039",
+   "status": "answered",
+   "detail": {
+    "number": 2,
+    "state": "answered",
+    "answer": "Lift it and confirm again (the maintainer's answer of 2026-11-23)",
+    "contexts": [
+     "CTX-039"
+    ],
+    "where": "docs/01-domain/nexus.md:301",
+    "box": {
+     "x": 3698,
+     "y": 2688,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:Can the confirm button work on a phone?",
+   "kind": "hotspot",
+   "name": "5. Can the confirm button work on a phone?",
+   "parent": "CTX-039",
+   "status": "answered",
+   "detail": {
+    "number": 5,
+    "state": "answered",
+    "answer": "No: view and comment only (stage 02, REQ-068)",
+    "contexts": [
+     "CTX-039"
+    ],
+    "where": "docs/01-domain/nexus.md:304",
+    "box": {
+     "x": 3870,
+     "y": 2688,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:Is one diagram's confirmation one stage checkpoint (steps 1-b, 7 and 9 on the stage-01 board)?",
+   "kind": "hotspot",
+   "name": "9. Is one diagram's confirmation one stage checkpoint (steps 1-b, 7 and 9 on the stage-01 board)?",
+   "parent": "CTX-039",
+   "status": "answered",
+   "detail": {
+    "number": 9,
+    "state": "answered, one open question",
+    "answer": "A stage passes once every diagram and item table of it has a recorded confirmation; on the stage-01 board the step confirmations at steps 1-b, 7 and 9 do (stage 02, REQ-042, REQ-043). How REQ-042 reads for stage 01 while a workshop is open is an open question for the workshop release (requirements,…",
+    "contexts": [
+     "CTX-039"
+    ],
+    "where": "docs/01-domain/nexus.md:308",
+    "box": {
+     "x": 4042,
+     "y": 2688,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040",
+   "trace_id": "CTX-040",
+   "kind": "context",
+   "name": "Workshop",
+   "detail": {
+    "type": "supporting",
+    "purpose": "run stage-01 event storming on a free canvas in NEXUS, and hand each confirmed step to the domain document.",
+    "external": "Miro (import, anticorruption layer)",
+    "where": "docs/01-domain/nexus.md:185",
+    "box": {
+     "x": 4246,
+     "y": 1794,
+     "width": 1548,
+     "height": 552
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Open workshop",
+   "kind": "command",
+   "name": "Open workshop",
+   "parent": "CTX-040",
+   "detail": {
+    "actor": "Owner, Agent",
+    "where": "docs/01-domain/nexus.md:191",
+    "box": {
+     "x": 4258,
+     "y": 1942,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Open workshop/aggregate:Workshop board",
+   "trace_id": "TERM-211",
+   "kind": "aggregate",
+   "name": "Workshop board",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:191",
+    "box": {
+     "x": 4258,
+     "y": 2046,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Open workshop/event:Workshop opened",
+   "kind": "event",
+   "name": "Workshop opened",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:191",
+    "box": {
+     "x": 4258,
+     "y": 2150,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Import Miro board",
+   "kind": "command",
+   "name": "Import Miro board",
+   "parent": "CTX-040",
+   "detail": {
+    "actor": "Owner",
+    "where": "docs/01-domain/nexus.md:192",
+    "box": {
+     "x": 4430,
+     "y": 1942,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Import Miro board/aggregate:Workshop board",
+   "trace_id": "TERM-211",
+   "kind": "aggregate",
+   "name": "Workshop board",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:192",
+    "box": {
+     "x": 4430,
+     "y": 2046,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Import Miro board/event:Miro board imported",
+   "kind": "event",
+   "name": "Miro board imported",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:192",
+    "box": {
+     "x": 4430,
+     "y": 2150,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Draw step draft/read_model:Agent to-do",
+   "trace_id": "TERM-226",
+   "kind": "read_model",
+   "name": "Agent to-do",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:193",
+    "box": {
+     "x": 4602,
+     "y": 1838,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Draw step draft",
+   "kind": "command",
+   "name": "Draw step draft",
+   "parent": "CTX-040",
+   "detail": {
+    "actor": "Agent",
+    "where": "docs/01-domain/nexus.md:193",
+    "box": {
+     "x": 4602,
+     "y": 1942,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Draw step draft/aggregate:Workshop board",
+   "trace_id": "TERM-211",
+   "kind": "aggregate",
+   "name": "Workshop board",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:193",
+    "box": {
+     "x": 4602,
+     "y": 2046,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Draw step draft/event:Step draft drawn",
+   "kind": "event",
+   "name": "Step draft drawn",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:193",
+    "box": {
+     "x": 4602,
+     "y": 2150,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Change sticky notes/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:194",
+    "box": {
+     "x": 4774,
+     "y": 1838,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Change sticky notes",
+   "kind": "command",
+   "name": "Change sticky notes",
+   "parent": "CTX-040",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:194",
+    "box": {
+     "x": 4774,
+     "y": 1942,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Change sticky notes/aggregate:Workshop board",
+   "trace_id": "TERM-211",
+   "kind": "aggregate",
+   "name": "Workshop board",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:194",
+    "box": {
+     "x": 4774,
+     "y": 2046,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Change sticky notes/event:Sticky notes changed",
+   "kind": "event",
+   "name": "Sticky notes changed",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:194",
+    "box": {
+     "x": 4774,
+     "y": 2150,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Confirm step/read_model:Diagram view",
+   "trace_id": "TERM-222",
+   "kind": "read_model",
+   "name": "Diagram view",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:195",
+    "box": {
+     "x": 4946,
+     "y": 1838,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Confirm step",
+   "kind": "command",
+   "name": "Confirm step",
+   "parent": "CTX-040",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:195",
+    "box": {
+     "x": 4946,
+     "y": 1942,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Confirm step/aggregate:Workshop board",
+   "trace_id": "TERM-211",
+   "kind": "aggregate",
+   "name": "Workshop board",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:195",
+    "box": {
+     "x": 4946,
+     "y": 2046,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Confirm step/event:Step confirmed",
+   "kind": "event",
+   "name": "Step confirmed",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:195",
+    "box": {
+     "x": 4946,
+     "y": 2150,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Report domain document update/read_model:Agent to-do",
+   "trace_id": "TERM-226",
+   "kind": "read_model",
+   "name": "Agent to-do",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:196",
+    "box": {
+     "x": 5118,
+     "y": 1838,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Report domain document update",
+   "kind": "command",
+   "name": "Report domain document update",
+   "parent": "CTX-040",
+   "detail": {
+    "actor": "Agent",
+    "where": "docs/01-domain/nexus.md:196",
+    "box": {
+     "x": 5118,
+     "y": 1942,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Report domain document update/aggregate:Workshop board",
+   "trace_id": "TERM-211",
+   "kind": "aggregate",
+   "name": "Workshop board",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:196",
+    "box": {
+     "x": 5118,
+     "y": 2046,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Report domain document update/event:Domain document updated",
+   "kind": "event",
+   "name": "Domain document updated",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:196",
+    "box": {
+     "x": 5118,
+     "y": 2150,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Close workshop",
+   "kind": "command",
+   "name": "Close workshop",
+   "parent": "CTX-040",
+   "detail": {
+    "actor": "",
+    "where": "docs/01-domain/nexus.md:197",
+    "box": {
+     "x": 5290,
+     "y": 1942,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Close workshop/aggregate:Workshop board",
+   "trace_id": "TERM-211",
+   "kind": "aggregate",
+   "name": "Workshop board",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:197",
+    "box": {
+     "x": 5290,
+     "y": 2046,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Close workshop/event:Workshop closed",
+   "kind": "event",
+   "name": "Workshop closed",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:197",
+    "box": {
+     "x": 5290,
+     "y": 2150,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-040/command:Close workshop/policy:when Domain document updated after the last step is confirmed",
+   "kind": "policy",
+   "name": "when Domain document updated after the last step is confirmed",
+   "parent": "CTX-040",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:197",
+    "box": {
+     "x": 5290,
+     "y": 2254,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:During a workshop, is the source the board or the document?",
+   "kind": "hotspot",
+   "name": "1. During a workshop, is the source the board or the document?",
+   "parent": "CTX-040",
+   "status": "answered",
+   "detail": {
+    "number": 1,
+    "state": "answered",
+    "answer": "The board, during a workshop (the maintainer's answer of 2026-11-23)",
+    "contexts": [
+     "CTX-040"
+    ],
+    "where": "docs/01-domain/nexus.md:300",
+    "box": {
+     "x": 5462,
+     "y": 2046,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:Are the comments and checkpoint records of the running NEXUS moved to v3?",
+   "kind": "hotspot",
+   "name": "8. Are the comments and checkpoint records of the running NEXUS moved to v3?",
+   "parent": "CTX-040",
+   "status": "answered",
+   "detail": {
+    "number": 8,
+    "state": "answered",
+    "answer": "No; they stay in the archive tag and the Git records (stage 02, REQ-019)",
+    "contexts": [
+     "CTX-040",
+     "CTX-039"
+    ],
+    "where": "docs/01-domain/nexus.md:307",
+    "box": {
+     "x": 5634,
+     "y": 2046,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-041",
+   "trace_id": "CTX-041",
+   "kind": "context",
+   "name": "To-do",
+   "detail": {
+    "type": "supporting",
+    "purpose": "the owner and the agents each see their own to-dos in one place, and agent sessions never do the same work twice.",
+    "external": "",
+    "where": "docs/01-domain/nexus.md:205",
+    "box": {
+     "x": 3342,
+     "y": 3048,
+     "width": 344,
+     "height": 552
+    }
+   }
+  },
+  {
+   "key": "CTX-041/command:Claim to-do/read_model:Agent to-do",
+   "trace_id": "TERM-226",
+   "kind": "read_model",
+   "name": "Agent to-do",
+   "parent": "CTX-041",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:211",
+    "box": {
+     "x": 3354,
+     "y": 3092,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-041/command:Claim to-do",
+   "kind": "command",
+   "name": "Claim to-do",
+   "parent": "CTX-041",
+   "detail": {
+    "actor": "Agent",
+    "where": "docs/01-domain/nexus.md:211",
+    "box": {
+     "x": 3354,
+     "y": 3196,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-041/command:Claim to-do/aggregate:Claim",
+   "trace_id": "TERM-217",
+   "kind": "aggregate",
+   "name": "Claim",
+   "parent": "CTX-041",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:211",
+    "box": {
+     "x": 3354,
+     "y": 3300,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-041/command:Claim to-do/event:To-do claimed",
+   "kind": "event",
+   "name": "To-do claimed",
+   "parent": "CTX-041",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:211",
+    "box": {
+     "x": 3354,
+     "y": 3404,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-041/command:Release claim/read_model:Agent to-do",
+   "trace_id": "TERM-226",
+   "kind": "read_model",
+   "name": "Agent to-do",
+   "parent": "CTX-041",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:212",
+    "box": {
+     "x": 3526,
+     "y": 3092,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-041/command:Release claim",
+   "kind": "command",
+   "name": "Release claim",
+   "parent": "CTX-041",
+   "detail": {
+    "actor": "Agent",
+    "where": "docs/01-domain/nexus.md:212",
+    "box": {
+     "x": 3526,
+     "y": 3196,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-041/command:Release claim/aggregate:Claim",
+   "trace_id": "TERM-217",
+   "kind": "aggregate",
+   "name": "Claim",
+   "parent": "CTX-041",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:212",
+    "box": {
+     "x": 3526,
+     "y": 3300,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-041/command:Release claim/event:Claim released",
+   "kind": "event",
+   "name": "Claim released",
+   "parent": "CTX-041",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:212",
+    "box": {
+     "x": 3526,
+     "y": 3404,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-041/command:Release claim/policy:when a claim has no write for 60 minutes and no open pull request",
+   "kind": "policy",
+   "name": "when a claim has no write for 60 minutes and no open pull request",
+   "parent": "CTX-041",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:212",
+    "box": {
+     "x": 3526,
+     "y": 3508,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-042",
+   "trace_id": "CTX-042",
+   "kind": "context",
+   "name": "Tool link",
+   "detail": {
+    "type": "generic",
+    "purpose": "attach Notion page and Jira project links to a project or a stage, and show their status. NEXUS never writes to Notion or Jira (redesign decision on other tools).",
+    "external": "Notion, Jira (anticorruption layer)",
+    "where": "docs/01-domain/nexus.md:218",
+    "box": {
+     "x": 5826,
+     "y": 1280,
+     "width": 344,
+     "height": 448
+    }
+   }
+  },
+  {
+   "key": "CTX-042/command:Add tool link/read_model:Project list",
+   "trace_id": "TERM-223",
+   "kind": "read_model",
+   "name": "Project list",
+   "parent": "CTX-042",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:224",
+    "box": {
+     "x": 5838,
+     "y": 1324,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-042/command:Add tool link",
+   "kind": "command",
+   "name": "Add tool link",
+   "parent": "CTX-042",
+   "detail": {
+    "actor": "Owner",
+    "where": "docs/01-domain/nexus.md:224",
+    "box": {
+     "x": 5838,
+     "y": 1428,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-042/command:Add tool link/aggregate:Tool link",
+   "trace_id": "TERM-218",
+   "kind": "aggregate",
+   "name": "Tool link",
+   "parent": "CTX-042",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:224",
+    "box": {
+     "x": 5838,
+     "y": 1532,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-042/command:Add tool link/event:Tool link added",
+   "kind": "event",
+   "name": "Tool link added",
+   "parent": "CTX-042",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:224",
+    "box": {
+     "x": 5838,
+     "y": 1636,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-042/command:Remove tool link/read_model:Project list",
+   "trace_id": "TERM-223",
+   "kind": "read_model",
+   "name": "Project list",
+   "parent": "CTX-042",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:225",
+    "box": {
+     "x": 6010,
+     "y": 1324,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-042/command:Remove tool link",
+   "kind": "command",
+   "name": "Remove tool link",
+   "parent": "CTX-042",
+   "detail": {
+    "actor": "Owner",
+    "where": "docs/01-domain/nexus.md:225",
+    "box": {
+     "x": 6010,
+     "y": 1428,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-042/command:Remove tool link/aggregate:Tool link",
+   "trace_id": "TERM-218",
+   "kind": "aggregate",
+   "name": "Tool link",
+   "parent": "CTX-042",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:225",
+    "box": {
+     "x": 6010,
+     "y": 1532,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-042/command:Remove tool link/event:Tool link removed",
+   "kind": "event",
+   "name": "Tool link removed",
+   "parent": "CTX-042",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:225",
+    "box": {
+     "x": 6010,
+     "y": 1636,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-043",
+   "trace_id": "CTX-043",
+   "kind": "context",
+   "name": "Access",
+   "detail": {
+    "type": "generic",
+    "purpose": "check the owner's sign-in and the agents' credentials.",
+    "external": "sign-in gate (conformist)",
+    "where": "docs/01-domain/nexus.md:230",
+    "box": {
+     "x": 6202,
+     "y": 1846,
+     "width": 344,
+     "height": 448
+    }
+   }
+  },
+  {
+   "key": "CTX-043/command:Issue agent credential/read_model:Project list",
+   "trace_id": "TERM-223",
+   "kind": "read_model",
+   "name": "Project list",
+   "parent": "CTX-043",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:236",
+    "box": {
+     "x": 6214,
+     "y": 1890,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-043/command:Issue agent credential",
+   "kind": "command",
+   "name": "Issue agent credential",
+   "parent": "CTX-043",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:236",
+    "box": {
+     "x": 6214,
+     "y": 1994,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-043/command:Issue agent credential/aggregate:Agent credential",
+   "trace_id": "TERM-221",
+   "kind": "aggregate",
+   "name": "Agent credential",
+   "parent": "CTX-043",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:236",
+    "box": {
+     "x": 6214,
+     "y": 2098,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-043/command:Issue agent credential/event:Agent credential issued",
+   "kind": "event",
+   "name": "Agent credential issued",
+   "parent": "CTX-043",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:236",
+    "box": {
+     "x": 6214,
+     "y": 2202,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-043/command:Revoke agent credential/read_model:Project list",
+   "trace_id": "TERM-223",
+   "kind": "read_model",
+   "name": "Project list",
+   "parent": "CTX-043",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:237",
+    "box": {
+     "x": 6386,
+     "y": 1890,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-043/command:Revoke agent credential",
+   "kind": "command",
+   "name": "Revoke agent credential",
+   "parent": "CTX-043",
+   "detail": {
+    "actor": "Owner (PC)",
+    "where": "docs/01-domain/nexus.md:237",
+    "box": {
+     "x": 6386,
+     "y": 1994,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-043/command:Revoke agent credential/aggregate:Agent credential",
+   "trace_id": "TERM-221",
+   "kind": "aggregate",
+   "name": "Agent credential",
+   "parent": "CTX-043",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:237",
+    "box": {
+     "x": 6386,
+     "y": 2098,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "CTX-043/command:Revoke agent credential/event:Agent credential revoked",
+   "kind": "event",
+   "name": "Agent credential revoked",
+   "parent": "CTX-043",
+   "detail": {
+    "where": "docs/01-domain/nexus.md:237",
+    "box": {
+     "x": 6386,
+     "y": 2202,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "external:Agent (corthex-hub)",
+   "kind": "external",
+   "name": "Agent (corthex-hub)",
+   "detail": {
+    "box": {
+     "x": 3789,
+     "y": 1464,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "external:Notion, Jira",
+   "kind": "external",
+   "name": "Notion, Jira",
+   "detail": {
+    "box": {
+     "x": 5924,
+     "y": 2030,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "external:Miro",
+   "kind": "external",
+   "name": "Miro",
+   "detail": {
+    "box": {
+     "x": 4994,
+     "y": 2666,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "external:Every context",
+   "kind": "external",
+   "name": "Every context",
+   "detail": {
+    "box": {
+     "x": 6300,
+     "y": 1464,
+     "width": 148,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "external:Agent (corthex-hub)/dependency:CTX-037 call",
+   "kind": "dependency",
+   "name": "Send a snapshot",
+   "parent": "external:Agent (corthex-hub)",
+   "detail": {
+    "from": "external:Agent (corthex-hub)",
+    "to": "CTX-037",
+    "kind": "call",
+    "why": "Send a snapshot",
+    "data": "commit, stage documents",
+    "where": "docs/01-domain/nexus.md:248",
+    "points": [
+     {
+      "x": 3813.67,
+      "y": 1544
+     },
+     {
+      "x": 3813.67,
+      "y": 1740
+     },
+     {
+      "x": 860,
+      "y": 1740
+     },
+     {
+      "x": 860,
+      "y": 1788
+     }
+    ]
+   }
+  },
+  {
+   "key": "CTX-037/dependency:CTX-039 event",
+   "kind": "dependency",
+   "name": "Invalidate a confirmed diagram whose document changed",
+   "parent": "CTX-037",
+   "detail": {
+    "from": "CTX-037",
+    "to": "CTX-039",
+    "kind": "event",
+    "why": "Invalidate a confirmed diagram whose document changed",
+    "data": "Diagram drawn: diagram, document version",
+    "where": "docs/01-domain/nexus.md:249",
+    "points": [
+     {
+      "x": 1146.67,
+      "y": 2352
+     },
+     {
+      "x": 1146.67,
+      "y": 2376
+     },
+     {
+      "x": 2950,
+      "y": 2376
+     },
+     {
+      "x": 2950,
+      "y": 2412
+     },
+     {
+      "x": 3170,
+      "y": 2412
+     },
+     {
+      "x": 3170,
+      "y": 2424
+     }
+    ]
+   }
+  },
+  {
+   "key": "CTX-037/dependency:CTX-038 event",
+   "kind": "dependency",
+   "name": "Check whether a reflection pull request went in",
+   "parent": "CTX-037",
+   "detail": {
+    "from": "CTX-037",
+    "to": "CTX-038",
+    "kind": "event",
+    "why": "Check whether a reflection pull request went in",
+    "data": "Diagram drawn: commits it holds",
+    "where": "docs/01-domain/nexus.md:250",
+    "points": [
+     {
+      "x": 573.33,
+      "y": 2352
+     },
+     {
+      "x": 573.33,
+      "y": 2364
+     },
+     {
+      "x": 848,
+      "y": 2364
+     },
+     {
+      "x": 848,
+      "y": 2412
+     },
+     {
+      "x": 859,
+      "y": 2412
+     },
+     {
+      "x": 859,
+      "y": 2430
+     }
+    ]
+   }
+  },
+  {
+   "key": "CTX-037/dependency:CTX-041 event",
+   "kind": "dependency",
+   "name": "Show the owner a drawn diagram to confirm",
+   "parent": "CTX-037",
+   "detail": {
+    "from": "CTX-037",
+    "to": "CTX-041",
+    "kind": "event",
+    "why": "Show the owner a drawn diagram to confirm",
+    "data": "Diagram drawn",
+    "where": "docs/01-domain/nexus.md:251",
+    "points": [
+     {
+      "x": 286.67,
+      "y": 2352
+     },
+     {
+      "x": 286.67,
+      "y": 2364
+     },
+     {
+      "x": 192,
+      "y": 2364
+     },
+     {
+      "x": 192,
+      "y": 3036
+     },
+     {
+      "x": 3399.33,
+      "y": 3036
+     },
+     {
+      "x": 3399.33,
+      "y": 3048
+     }
+    ]
+   }
+  },
+  {
+   "key": "CTX-038/dependency:CTX-037 call",
+   "kind": "dependency",
+   "name": "Attach comments and edits to elements",
+   "parent": "CTX-038",
+   "detail": {
+    "from": "CTX-038",
+    "to": "CTX-037",
+    "kind": "call",
+    "why": "Attach comments and edits to elements",
+    "data": "element trace ID, document version",
+    "where": "docs/01-domain/nexus.md:252",
+    "points": [
+     {
+      "x": 1504,
+      "y": 2430
+     },
+     {
+      "x": 1504,
+      "y": 2388
+     },
+     {
+      "x": 860,
+      "y": 2388
+     },
+     {
+      "x": 860,
+      "y": 2352
+     }
+    ]
+   }
+  },
+  {
+   "key": "CTX-039/dependency:CTX-037 call",
+   "kind": "dependency",
+   "name": "The document version of the diagram to confirm",
+   "parent": "CTX-039",
+   "detail": {
+    "from": "CTX-039",
+    "to": "CTX-037",
+    "kind": "call",
+    "why": "The document version of the diagram to confirm",
+    "data": "diagram, document version",
+    "where": "docs/01-domain/nexus.md:253",
+    "points": [
+     {
+      "x": 3514,
+      "y": 2424
+     },
+     {
+      "x": 3514,
+      "y": 2364
+     },
+     {
+      "x": 1433.33,
+      "y": 2364
+     },
+     {
+      "x": 1433.33,
+      "y": 2352
+     }
+    ]
+   }
+  },
+  {
+   "key": "CTX-038/dependency:CTX-041 event",
+   "kind": "dependency",
+   "name": "Hand work to an agent, and AI proposals to the owner",
+   "parent": "CTX-038",
+   "detail": {
+    "from": "CTX-038",
+    "to": "CTX-041",
+    "kind": "event",
+    "why": "Hand work to an agent, and AI proposals to the owner",
+    "data": "Comment added, AI proposal posted, Proposal accepted, Element renamed, Line connected",
+    "where": "docs/01-domain/nexus.md:254",
+    "points": [
+     {
+      "x": 1504,
+      "y": 2982
+     },
+     {
+      "x": 1504,
+      "y": 3024
+     },
+     {
+      "x": 3456.67,
+      "y": 3024
+     },
+     {
+      "x": 3456.67,
+      "y": 3048
+     }
+    ]
+   }
+  },
+  {
+   "key": "CTX-039/dependency:CTX-041 event",
+   "kind": "dependency",
+   "name": "Hand over the confirmation record, and ask the owner to confirm again",
+   "parent": "CTX-039",
+   "detail": {
+    "from": "CTX-039",
+    "to": "CTX-041",
+    "kind": "event",
+    "why": "Hand over the confirmation record, and ask the owner to confirm again",
+    "data": "Diagram confirmed, Confirmation invalidated",
+    "where": "docs/01-domain/nexus.md:255",
+    "points": [
+     {
+      "x": 3514,
+      "y": 2988
+     },
+     {
+      "x": 3514,
+      "y": 3048
+     }
+    ]
+   }
+  },
+  {
+   "key": "CTX-040/dependency:CTX-041 event",
+   "kind": "dependency",
+   "name": "Hand over writing the domain document",
+   "parent": "CTX-040",
+   "detail": {
+    "from": "CTX-040",
+    "to": "CTX-041",
+    "kind": "event",
+    "why": "Hand over writing the domain document",
+    "data": "Step confirmed",
+    "where": "docs/01-domain/nexus.md:256",
+    "points": [
+     {
+      "x": 4762,
+      "y": 2346
+     },
+     {
+      "x": 4762,
+      "y": 2364
+     },
+     {
+      "x": 4628,
+      "y": 2364
+     },
+     {
+      "x": 4628,
+      "y": 3036
+     },
+     {
+      "x": 3628.67,
+      "y": 3036
+     },
+     {
+      "x": 3628.67,
+      "y": 3048
+     }
+    ]
+   }
+  },
+  {
+   "key": "external:Agent (corthex-hub)/dependency:CTX-041 call",
+   "kind": "dependency",
+   "name": "Read and claim to-dos",
+   "parent": "external:Agent (corthex-hub)",
+   "detail": {
+    "from": "external:Agent (corthex-hub)",
+    "to": "CTX-041",
+    "kind": "call",
+    "why": "Read and claim to-dos",
+    "data": "to-do list, claim",
+    "where": "docs/01-domain/nexus.md:257",
+    "points": [
+     {
+      "x": 3887.67,
+      "y": 1544
+     },
+     {
+      "x": 3887.67,
+      "y": 1752
+     },
+     {
+      "x": 4224,
+      "y": 1752
+     },
+     {
+      "x": 4224,
+      "y": 3024
+     },
+     {
+      "x": 3571.33,
+      "y": 3024
+     },
+     {
+      "x": 3571.33,
+      "y": 3048
+     }
+    ]
+   }
+  },
+  {
+   "key": "external:Agent (corthex-hub)/dependency:CTX-040 call",
+   "kind": "dependency",
+   "name": "Draw step drafts and report domain document updates",
+   "parent": "external:Agent (corthex-hub)",
+   "detail": {
+    "from": "external:Agent (corthex-hub)",
+    "to": "CTX-040",
+    "kind": "call",
+    "why": "Draw step drafts and report domain document updates",
+    "data": "step, sticky notes, pull request address",
+    "where": "docs/01-domain/nexus.md:258",
+    "points": [
+     {
+      "x": 3912.33,
+      "y": 1544
+     },
+     {
+      "x": 3912.33,
+      "y": 1740
+     },
+     {
+      "x": 5020,
+      "y": 1740
+     },
+     {
+      "x": 5020,
+      "y": 1794
+     }
+    ]
+   }
+  },
+  {
+   "key": "external:Agent (corthex-hub)/dependency:CTX-038 call",
+   "kind": "dependency",
+   "name": "Report replies, AI proposals and reflection pull requests",
+   "parent": "external:Agent (corthex-hub)",
+   "detail": {
+    "from": "external:Agent (corthex-hub)",
+    "to": "CTX-038",
+    "kind": "call",
+    "why": "Report replies, AI proposals and reflection pull requests",
+    "data": "comment, change set, pull request address",
+    "where": "docs/01-domain/nexus.md:259",
+    "points": [
+     {
+      "x": 3838.33,
+      "y": 1544
+     },
+     {
+      "x": 3838.33,
+      "y": 1752
+     },
+     {
+      "x": 2938,
+      "y": 1752
+     },
+     {
+      "x": 2938,
+      "y": 2412
+     },
+     {
+      "x": 2149,
+      "y": 2412
+     },
+     {
+      "x": 2149,
+      "y": 2430
+     }
+    ]
+   }
+  },
+  {
+   "key": "external:Agent (corthex-hub)/dependency:CTX-039 call",
+   "kind": "dependency",
+   "name": "Report the confirmation record",
+   "parent": "external:Agent (corthex-hub)",
+   "detail": {
+    "from": "external:Agent (corthex-hub)",
+    "to": "CTX-039",
+    "kind": "call",
+    "why": "Report the confirmation record",
+    "data": "confirmation, pull request address",
+    "where": "docs/01-domain/nexus.md:260",
+    "points": [
+     {
+      "x": 3863,
+      "y": 1544
+     },
+     {
+      "x": 3863,
+      "y": 1740
+     },
+     {
+      "x": 3869,
+      "y": 1740
+     },
+     {
+      "x": 3869,
+      "y": 2412
+     },
+     {
+      "x": 3858,
+      "y": 2412
+     },
+     {
+      "x": 3858,
+      "y": 2424
+     }
+    ]
+   }
+  },
+  {
+   "key": "CTX-042/dependency:external:Notion, Jira call",
+   "kind": "dependency",
+   "name": "Show status",
+   "parent": "CTX-042",
+   "detail": {
+    "from": "CTX-042",
+    "to": "external:Notion, Jira",
+    "kind": "call",
+    "why": "Show status",
+    "data": "link, status",
+    "where": "docs/01-domain/nexus.md:261",
+    "points": [
+     {
+      "x": 5998,
+      "y": 1728
+     },
+     {
+      "x": 5998,
+      "y": 2030
+     }
+    ]
+   }
+  },
+  {
+   "key": "CTX-040/dependency:external:Miro call",
+   "kind": "dependency",
+   "name": "Import the earlier board",
+   "parent": "CTX-040",
+   "detail": {
+    "from": "CTX-040",
+    "to": "external:Miro",
+    "kind": "call",
+    "why": "Import the earlier board",
+    "data": "sticky note text, colour, position",
+    "where": "docs/01-domain/nexus.md:262",
+    "points": [
+     {
+      "x": 5278,
+      "y": 2346
+     },
+     {
+      "x": 5278,
+      "y": 2364
+     },
+     {
+      "x": 5068,
+      "y": 2364
+     },
+     {
+      "x": 5068,
+      "y": 2666
+     }
+    ]
+   }
+  },
+  {
+   "key": "external:Every context/dependency:CTX-043 call",
+   "kind": "dependency",
+   "name": "Check the owner and agents",
+   "parent": "external:Every context",
+   "detail": {
+    "from": "external:Every context",
+    "to": "CTX-043",
+    "kind": "call",
+    "why": "Check the owner and agents",
+    "data": "sign-in, agent credential",
+    "where": "docs/01-domain/nexus.md:263",
+    "points": [
+     {
+      "x": 6374,
+      "y": 1544
+     },
+     {
+      "x": 6374,
+      "y": 1846
+     }
+    ]
+   }
+  },
+  {
+   "key": "hotspot_lane:Hotspots",
+   "kind": "hotspot_lane",
+   "name": "Hotspots",
+   "detail": {
+    "box": {
+     "x": 3139,
+     "y": 3648,
+     "width": 268,
+     "height": 80
+    }
+   }
+  },
+  {
+   "key": "hotspot:Do v2's cross-check between pictures, notifications and version history go into the first version?",
+   "kind": "hotspot",
+   "name": "10. Do v2's cross-check between pictures, notifications and version history go into the first version?",
+   "parent": "hotspot_lane:Hotspots",
+   "status": "answered",
+   "detail": {
+    "number": 10,
+    "state": "answered",
+    "answer": "Later, not in the first version (the maintainer's answer of 2026-11-23)",
+    "contexts": [],
+    "where": "docs/01-domain/nexus.md:309",
+    "box": {
+     "x": 3259,
+     "y": 3648,
+     "width": 148,
+     "height": 80
+    }
+   }
+  }
+ ]
+}
