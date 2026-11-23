@@ -77,17 +77,16 @@ function decoded(value) {
 
 // HTML.
 
-// The end of a comment, "-->" or "--!>": one search finds the first of either, so a page of many comments is read in
-// one pass.
-const COMMENT_END = /--!?>/g;
-
-// Where a comment that starts at at ends, after "<!--": "-->", "--!>", or the abrupt "<!-->" and "<!--->".
+// Where a comment that starts at at ends, after "<!--": the first "-->" or "--!>", or the abrupt "<!-->" and "<!--->".
+// It reads on from at to that end only, so a page of many comments is read in one pass.
 function commentEnd(html, at) {
   if (html[at] === '>') return at + 1;
   if (html.startsWith('->', at)) return at + 2;
-  COMMENT_END.lastIndex = at;
-  const end = COMMENT_END.exec(html);
-  return end === null ? html.length : end.index + end[0].length;
+  for (let index = html.indexOf('--', at); index !== -1; index = html.indexOf('--', index + 1)) {
+    if (html[index + 2] === '>') return index + 3;
+    if (html.startsWith('!>', index + 2)) return index + 4;
+  }
+  return html.length;
 }
 
 // A tag whose name starts at at: { name, style, end }, its name in lowercase, its first style attribute's value with
@@ -348,7 +347,7 @@ function valueOf(css, tokens, start, end) {
 // tokens from from to to (see valueOf), read only when it is kept. A declaration starts a block's content or follows
 // its ";" or a nested block's "}"; in a list of declarations, as a style attribute holds, the text's start is one too.
 // Its value runs to the ";" or "}" that ends it, brackets inside it kept whole.
-export function settingsOf(css, tokens, list) {
+export function settingsOf(tokens, list) {
   const settings = [];
   const open = [];
   const inBlock = () => (open.length === 0 ? list : open.at(-1) === '}');
@@ -408,7 +407,7 @@ export function tokensOfPage(html) {
       if (used.size === MAX_ELEMENTS) throw new SourceFailure();
       used.set(name, { name, values: [], uses: 1 });
     }
-    for (const { name, from, to } of settingsOf(text, tokens, list)) {
+    for (const { name, from, to } of settingsOf(tokens, list)) {
       if (!values.has(name)) values.set(name, []);
       const kept = values.get(name);
       if (kept.length === MAX_VALUES) continue;

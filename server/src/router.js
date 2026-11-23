@@ -78,11 +78,11 @@ function compile(route) {
   const own = Object.create(null);
   for (const [name, value] of Object.entries(headers)) {
     const key = name.toLowerCase();
-    validateHeaderName(key);
-    validateHeaderValue(key, value);
     if (typeof value !== 'string' || SERVER_HEADERS.has(key)) {
       throw new Error(`${method} ${path}: a route's header is text, and not one the server sets`);
     }
+    validateHeaderName(key);
+    validateHeaderValue(key, value);
     own[key] = value;
   }
   const parts = path.slice(1).split('/').map((segment) => {

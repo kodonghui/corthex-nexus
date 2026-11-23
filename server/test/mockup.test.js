@@ -104,6 +104,19 @@ describe('the mockup drawer', () => {
     assert.deepEqual(namesOf(page), ['--sheet', '--template', '--template-sheet', '--upper', '--svg', '--svg-sheet', '--unquoted']);
   });
 
+  test('an HTML comment ends at its first "-->" or "--!>", or at once as "<!-->" and "<!--->"', () => {
+    const style = (name) => `<p style="color: var(--${name})">`;
+    const page = [
+      `<!-- ${style('hidden-1')} --!>${style('after-bang')}`,
+      `<!-- ${style('hidden-2')} --!> -->${style('after-both')}`,
+      `<!-- ${style('hidden-3')} --> --!>${style('after-arrow')}`,
+      `<!-->${style('abrupt')}<!--->${style('abrupt-dash')}`,
+      `<!-- ${style('hidden-4')} --->${style('after-dashes')}`,
+      `<!-- ${style('hidden-5')} -- ! > -- >${style('unclosed')}`,
+    ].join('\n');
+    assert.deepEqual(namesOf(page), ['--after-bang', '--after-both', '--after-arrow', '--abrupt', '--abrupt-dash', '--after-dashes']);
+  });
+
   test('a fallback\'s var() reads its custom property too (Q2)', () => {
     assert.deepEqual(tokensOf(sheet('a { color: var(--a, var(--b, var(--c))); border: var(--d, 1px solid) }')), [
       ['--a', [], 1], ['--b', [], 1], ['--c', [], 1], ['--d', [], 1],
@@ -175,10 +188,18 @@ describe('the mockup drawer', () => {
     // Each took minutes when a comment's end was searched to the page's end and !important by a pattern over the value.
     const comments = `${'<!--a-->'.repeat(100_000)}<style>a{x:var(--after)}</style>`;
     const blank = `<style>:root{--a:"${' '.repeat(500_000)}x"} a{x:var(--a)}</style>`;
-    const started = performance.now();
-    assert.deepEqual(namesOf(comments), ['--after']);
-    assert.deepEqual(tokensOf(blank).map(([name, values]) => [name, values[0].length]), [['--a', 200]]);
-    assert.ok(performance.now() - started < 5000, 'each reads in one pass');
+    // Read in one pass, each takes milliseconds; the bound leaves a slow machine a wide margin.
+    const timed = (read) => {
+      const started = performance.now();
+      const result = read();
+      return { result, took: performance.now() - started };
+    };
+    const many = timed(() => namesOf(comments));
+    assert.deepEqual(many.result, ['--after']);
+    assert.ok(many.took < 5000, `100,000 comments took ${Math.round(many.took)} ms`);
+    const long = timed(() => tokensOf(blank));
+    assert.deepEqual(long.result.map(([name, values]) => [name, values[0].length]), [['--a', 200]]);
+    assert.ok(long.took < 5000, `a value of 500,000 spaces took ${Math.round(long.took)} ms`);
   });
 
   test('leaves out a final !important by its tokens, escapes and white space included', () => {
