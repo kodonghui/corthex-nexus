@@ -127,8 +127,8 @@ export const DRAWERS = Object.freeze({ ddd_board: dddBoard, erd, mockup, sitemap
 const NAMES = Object.freeze({ ddd_board: 'DDD board', erd: 'ERD', sitemap: 'Sitemap', item_table: 'Item table' });
 
 // A trace ID at the start of a name, as the hub reads the ID that leads a heading (its IdIndex.lead): after any white
-// space, *, _, `, ~, [ or (, an ID of the contract's form that no letter, digit or _ follows.
-const LEADING_TRACE_ID = /^[\s*_`~[(]*([A-Z][A-Z0-9]*-[0-9]{1,6})(?![0-9A-Za-z_])/;
+// space, *, _, `, ~, [ or (, an ID of the contract's form, drawer.js's TRACE_ID, that no letter, digit or _ follows.
+const LEADING_TRACE_ID = new RegExp(String.raw`^[\s*_\x60~[(]*(${TRACE_ID.source.replace(/^\^|\$$/g, '')})(?![0-9A-Za-z_])`);
 
 // The trace ID a file diagram holds as a whole, the one it is named by, or null (SPEC-016; see the server's README): a
 // diagram of stage 03, 08 or 09 that is a file's, not the stage's item table, holds the trace ID its name starts with.

@@ -11,15 +11,15 @@
 //   current drawing). Its diagram is the one diagram names, or the one diagram of the stage and part whose drawing holds
 //   item, or with neither the stage's first diagram, the one its address opens (project.js's DIAGRAM_ORDER). A removed
 //   diagram is none of its stage's diagrams and takes no new thread; a diagram that never drew takes none either, and
-//   the comment never moves to another diagram (SPEC-016, SPEC-027).
+//   the comment never moves to another diagram (SPEC-016, SPEC-027). An element that the drawing at commit holds and the
+//   current drawing no longer does gets the thread on the diagram, its key kept and marked with its last name, as an
+//   element that left would (SPEC-016, SPEC-027).
 // - A file diagram holds its own trace ID as a whole (drawing.js's diagramTraceId): an item that no element of the
 //   stage's drawings holds, but that names a file diagram of the stage and part, such as FL-005 for the flow named
 //   "FL-005 Reflect accepted changes into Git", picks that diagram, and the thread goes on the diagram as a whole, as a
 //   comment with diagram and no item does. An element that holds the item still wins, and two diagrams named by it get
 //   diagram_ambiguous. With diagram, the item may be the one that diagram is named by. So an agent reaches each file of
-//   stages 03, 08 and 09 through the hub's comment command, which sends item and never diagram. An element that the drawing at commit holds and the
-//   current drawing no longer does gets the thread on the diagram, its key kept and marked with its last name, as an
-//   element that left would (SPEC-016, SPEC-027).
+//   stages 03, 08 and 09 through the hub's comment command, which sends item and never diagram.
 // - An open thread waits only on the side that did not write last (SPEC-017): an agent's comment, reply or decision
 //   makes it wait on the owner, and so does marking it answered, without a new entry. A decision on a closed thread is
 //   kept and the thread stays closed: the link is a record, not a question.
