@@ -41,8 +41,9 @@ a.small{color:var(--link-primary)}
 .hb .proj{overflow:hidden;text-overflow:ellipsis;color:var(--nexus-shell-text-secondary)}
 .hb .cnt{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 8px;border-radius:var(--corthex-radius-pill);background:var(--button-primary);color:var(--text-on-color);font:var(--corthex-type-label-01)}
 .hb .theme-icon{display:none}
-/* the project menu, in the header's colours */
-.menu{position:absolute;top:48px;left:var(--menu-left,0px);z-index:10;display:flex;flex-direction:column;min-width:240px;max-width:min(360px,calc(100vw - 16px));max-height:min(480px,calc(100vh - 64px));overflow-y:auto;margin:0;padding:4px 0;list-style:none;background:var(--nexus-shell-background);border:1px solid var(--nexus-shell-border);border-top:0;border-radius:0 0 var(--corthex-radius-box) var(--corthex-radius-box);box-shadow:0 2px 6px var(--shadow)}
+/* the project menu, in the header's colours, under its button (.pm holds both) */
+.pm{position:relative;display:flex;align-items:center;min-width:0}
+.menu{position:absolute;top:48px;left:0;z-index:10;display:flex;flex-direction:column;min-width:240px;max-width:min(360px,calc(100vw - 16px));max-height:min(480px,calc(100vh - 64px));overflow-y:auto;margin:0;padding:4px 0;list-style:none;background:var(--nexus-shell-background);border:1px solid var(--nexus-shell-border);border-top:0;border-radius:0 0 var(--corthex-radius-box) var(--corthex-radius-box);box-shadow:0 2px 6px var(--shadow)}
 .menu a{display:block;min-height:48px;padding:14px 16px;line-height:20px;color:var(--nexus-shell-text);text-decoration:none;overflow-wrap:anywhere}
 .menu a:hover{background:var(--nexus-shell-background-hover)}
 .menu a:focus-visible{outline:2px solid var(--nexus-shell-focus);outline-offset:-2px}
@@ -240,7 +241,8 @@ a.step{color:inherit;text-decoration:none;cursor:pointer}
   .hd .hb.brand{flex:0 0 auto}
   .hb .theme-label{display:none}
   .hb .theme-icon{display:inline}
-  .menu{left:0;right:0;max-width:none;border-radius:0}
+  .pm{position:static;flex:0 1 auto}
+  .menu{top:48px;left:0;right:0;max-width:none;border-radius:0}
   .main{padding:24px 16px 40px;gap:20px}
   .li{flex-wrap:wrap;gap:6px 12px;align-items:flex-start}
   .li .grow{flex:1 1 100%;order:2}

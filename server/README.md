@@ -978,7 +978,7 @@ TASK-454 (SPEC-048, SPEC-051) is the frame of the pages the owner opens. One pag
 
 `parseAddress` in `web/address.js` reads these addresses for both the server and the page, so the two never disagree. A project or a part takes the form of the contract's `ProjectName` and `Part`, and the stage is one of the 13. Any other form names no screen. Any other path answers 404 with the shell, which says "없는 주소예요." with a link to 내 차례. The 404 page is the same shell bytes, so it never holds the path or the query. Every path under `/api` stays the API's, and an unknown one still answers the `not_found` Problem.
 
-The page reads `?d=` and `?thread=` as given, and the screen decides what they name. An unknown or malformed `?d=` shows "NEXUS에 없는 다이어그램이에요." with 프로젝트로, and the stage tabs still open. A malformed `?thread=` reads as a thread that is gone: the panel shows "NEXUS에 더 이상 없는 댓글 스레드예요." with 새로 고침 to the diagram. A thread ID in its proper form goes to the workbench task.
+The page reads `?d=` and `?thread=` as given, and the screen decides what they name. An unknown or malformed `?d=` shows "NEXUS에 없는 다이어그램이에요." with 프로젝트로, and the stage tabs still open. API-264 lists at most 500 diagrams of a stage, so a `?d=` in its proper form that a stage listed to 500 leaves out is not called gone: the workbench's own read of the diagram (API-265) decides. A malformed `?thread=` reads as a thread that is gone: the panel shows "NEXUS에 더 이상 없는 댓글 스레드예요." with 새로 고침 to the diagram. A thread ID in its proper form goes to the workbench task.
 
 ### Parts
 
@@ -1009,7 +1009,7 @@ A screen is an object in `SCREENS` of `web/screens.js`, under its SCR ID. The sh
 - `states`: the screen's states beyond the shared ones. A 409 that leads to one of them shows it, and any other 409 is stale.
 - `reads(address)`: the screen's API reads, as `{ name: path }`. The shell reads them and passes their bodies on as `data[name]`.
 - `fixedTitle`: the title before the data comes, or `null`.
-- `title(ctx)`, `crumb(ctx)`, `description`: drawn once the data has come.
+- `title(ctx)`, `crumb(ctx)`, `description`: drawn once the data has come. Without `title`, the fixed title stays.
 - `projectTitle(ctx)`: the project's title, for the header's menu button.
 - `check(ctx)`: usually `null`. When the data shows that the address names nothing, it returns `{ code, sub, link, tabs }`.
 - `skeleton(ctx)`: the shapes of the loading state.
@@ -1030,15 +1030,16 @@ A screen never draws the shared states itself.
 | Answer | What the page shows |
 | --- | --- |
 | Before the reads answer | The loading state: only the screen's skeleton and its fixed title, and no project data. |
-| 401, or the gate's redirect | The page keeps unsent text (through each `onLeave`, in `sessionStorage`) and reloads once through the gate. If a 401 comes again before any read has succeeded, it shows "다시 로그인하세요." with 새로 고침 and reloads no more. A read that succeeds allows one reload again. So the page never loops through the gate. |
+| 401, or the gate's redirect | The page keeps unsent text (through each `onLeave`, in `sessionStorage`) and reloads once through the gate. If a 401 comes again before any read has succeeded, it shows "다시 로그인하세요." with 새로 고침 and reloads no more. A read that succeeds allows one reload again. So the page never loops through the gate. Where this tab's storage is blocked, the page cannot keep the mark of the reload, so it shows the message at once. |
 | 403 `not_owner`, `owner_only` | Only the code's message, in place of the whole page. |
 | 403 `cross_site` | The message with 새로 고침. |
-| 404 `project_not_found` | "NEXUS에 없는 프로젝트예요." with 프로젝트 목록. |
+| 404 `project_not_found` | "NEXUS에 없는 프로젝트예요." with 프로젝트 목록, on a read again too, in place of the old data. |
 | 409 `document_changed` | The screen's `staleBar`: "문서가 바뀌었어요. 새 버전을 보세요." with 새로 고침. |
 | 500, `default`, a network failure or a timeout | "문제가 생겼어요. 다시 해 보세요." with 다시 시도, and the request's traceId when it has one. |
 
 Data that may be out of date is handled this way:
-- The data stays on screen until a new read replaces it.
+- The data stays on screen until a new read replaces it. A read again that answers what is shown leaves the view as it is, with what the owner typed, chose or scrolled to. One that answers something new draws the view again at the same scroll position, so a screen that holds typed text keeps it with `keepDraft` as the owner types and fills it back from `draftOf`.
+- A load asked for while a read runs, such as `shell.reload()` after a write, waits for that read and then runs once, so no answer older than the request stays on screen.
 - The page reads again when the tab comes back into view. No timer reads again while the tab stays in view.
 - Once the data is more than 5 minutes old, or a read again has failed, "HH:MM에 읽음" shows beside the title.
 - A read again that fails keeps the data and shows the error notice above it.
@@ -1075,7 +1076,7 @@ The fonts are IBM Plex Sans KR (release `@ibm/plex-sans-kr@1.1.0`) and IBM Plex 
   - `Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; require-trusted-types-for 'script'`. It loads nothing from another site and runs no inline script or style.
   - `X-Content-Type-Options: nosniff`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`.
   - `Cache-Control: no-store`. The fonts are the one exception: their path names their release, so they get `private, max-age=31536000, immutable`.
-- **Text only.** The scripts build every element from text (`textContent` and attribute values). They never parse markup and never set a `style` attribute. A test checks the scripts for both.
+- **Text only.** The scripts build every element from text (`textContent` and attribute values). They never parse markup and never touch an element's `style`; the project menu is placed by CSS alone. A test checks the scripts for both.
 - **Reads.** The page reads the API only:
   - from its own site, with its own cookies;
   - with `redirect: 'manual'`, so that the gate's redirect to its sign-in counts as a 401;

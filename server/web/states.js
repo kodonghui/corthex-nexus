@@ -62,10 +62,11 @@ export function clockOf(time) {
 }
 
 // What a 401, or the gate's redirect, does on a page. The page reloads its own address once, through the gate, which
-// signs the owner in and brings them back; before it does, it keeps the time of that reload in this tab
-// (sessionStorage, GATE_KEY), and it forgets it once a read succeeds. So reloadedAt is that time or null, and the step
-// is 'reload' when it is null and otherwise 'message': a 401 that comes again before any read succeeded, within 30
-// seconds of the reload or later, shows "다시 로그인하세요." with a reload button and never reloads by itself again.
+// signs the owner in and brings them back; before it does, it keeps a mark in this tab (sessionStorage, GATE_KEY: the
+// time of that reload), and it drops the mark once a read succeeds. So reloadedAt is the mark or null, and the step is
+// 'reload' when it is null and otherwise 'message', however long ago the reload was: a 401 that comes again before any
+// read succeeded shows "다시 로그인하세요." with a reload button and never reloads by itself again. Where the mark
+// cannot be kept, the page shows the message at once (shell.js).
 export const GATE_KEY = 'nexus-gate-reload';
 
 export function gateStep(reloadedAt) {

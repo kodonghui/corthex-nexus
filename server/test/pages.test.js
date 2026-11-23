@@ -211,7 +211,7 @@ describe('the pages', () => {
       }
       if (extname(path) === '.js') {
         assert.equal(/innerHTML|outerHTML|insertAdjacentHTML|document\.write|\beval\(|new Function|cssText|setAttribute\(\s*['"]style/.test(text), false, path);
-        assert.equal(/\bstyle\s*=|\.style\.(?!setProperty)/.test(text), false, path);
+        assert.equal(/\bstyle\s*=|\.style\b/.test(text), false, path);
       }
     }
   });

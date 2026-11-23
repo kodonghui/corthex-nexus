@@ -20,7 +20,7 @@ import { STAGES } from '../web/stages.js';
 import {
   clockOf, GATE_KEY, gateStep, readTag, SHARED_STATES, STALE_AFTER_MS, stateOf, switchName, THEME_KEY, themeOf,
 } from '../web/states.js';
-import { operations } from './contract.js';
+import { contract, operations } from './contract.js';
 import { fakePage } from './fake-dom.js';
 import { listedResponses, responseRecord } from './responses.js';
 import { seed } from './seed.js';
@@ -36,7 +36,7 @@ registerHooks({
   },
 });
 const { message, startShell } = await import('../web/shell.js');
-const { chosenDiagram, MISSING, SCREENS } = await import('../web/screens.js');
+const { chosenDiagram, LISTED_DIAGRAMS, MISSING, SCREENS } = await import('../web/screens.js');
 
 const ROOT = new URL('../../', import.meta.url);
 const TIME = '2026-11-23T01:00:00.000Z';
@@ -84,8 +84,8 @@ const FINE = { '/api/projects': json(200, PROJECTS), '/api/todo': json(200, TODO
 
 // Runs the screen of pathname and search on a fake page, with answers by path (each a function that makes a Response,
 // or an Error to throw) or a function of the path. The page's globals stay installed until close().
-async function open(pathname, { search = '', answers = FINE, session = {}, local = {} } = {}) {
-  const page = fakePage({ pathname, search, session, local });
+async function open(pathname, { search = '', answers = FINE, session = {}, local = {}, blocked = false } = {}) {
+  const page = fakePage({ pathname, search, session, local, blocked });
   const restore = page.install();
   const realFetch = globalThis.fetch;
   let pending = 0;
@@ -640,6 +640,103 @@ describe('the shell', () => {
     } finally {
       Date.now = realNow;
       page.close();
+    }
+  });
+
+  test('a read again that answers what is shown leaves the view as it is, and a changed answer draws it again', async () => {
+    let title = '독서 모임 앱';
+    const answers = { ...FINE, '/api/projects/reading-club': () => json(200, { ...PROJECT, title })() };
+    const page = await open('/p/reading-club', { answers });
+    try {
+      const shown = page.app.all('h1')[0];
+      page.document.dispatch('visibilitychange');
+      await page.settle();
+      assert.equal(page.app.all('h1')[0], shown);
+      title = '바뀐 이름';
+      page.document.dispatch('visibilitychange');
+      await page.settle();
+      assert.notEqual(page.app.all('h1')[0], shown);
+      assert.deepEqual(texts(page, 'h1'), ['바뀐 이름']);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a reload asked for while a read runs runs once that read ends, so the newest answer shows', async () => {
+    let title = '독서 모임 앱';
+    let wait = null;
+    const answers = async (path) => {
+      if (path !== '/api/projects/reading-club') return FINE[path]();
+      const body = { ...PROJECT, title };
+      if (wait !== null) await wait;
+      return json(200, body)();
+    };
+    const page = await open('/p/reading-club', { answers });
+    try {
+      let release;
+      wait = new Promise((resolve) => { release = resolve; });
+      page.shell.reload();
+      await delay(10);
+      // A write ends while that read is held, and the screen asks for its data again.
+      title = '바뀐 이름';
+      page.shell.reload();
+      wait = null;
+      release();
+      await waitFor(() => texts(page, 'h1')[0] === '바뀐 이름');
+      await page.settle();
+      assert.equal(page.calls.filter((path) => path === '/api/projects/reading-club').length, 3);
+      assert.deepEqual(texts(page, 'h1'), ['바뀐 이름']);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a read again that finds the project gone shows it gone, not its old data', async () => {
+    let gone = false;
+    const answers = { ...FINE, '/api/projects/reading-club': (path) => (gone ? problem(404, 'project_not_found')() : FINE[path]()) };
+    const page = await open('/p/reading-club/_/01-domain', { answers });
+    try {
+      assert.deepEqual(texts(page, 'h1'), ['도메인 보드']);
+      gone = true;
+      page.document.dispatch('visibilitychange');
+      await page.settle();
+      assert.deepEqual(texts(page, 'h1'), ['NEXUS에 없는 프로젝트예요.']);
+      assert.deepEqual(page.app.all('a', 'btn').map((link) => [link.textContent, link.getAttribute('href')]), [['프로젝트 목록', '/p']]);
+      assert.equal(errorShown(page), false);
+      assert.equal(page.app.all('nav', 'tabs')[0].shown, false);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('where this tab\'s storage is blocked, a 401 shows "다시 로그인하세요." at once and never reloads', async () => {
+    const denied = { '/api/projects': problem(401, 'unauthenticated'), '/api/todo': problem(401, 'unauthenticated') };
+    const page = await open('/', { answers: denied, blocked: true });
+    try {
+      assert.equal(page.location.reloads, 0);
+      assert.deepEqual(texts(page, 'h1'), ['다시 로그인하세요.']);
+      assert.deepEqual(texts(page, 'button'), ['새로 고침']);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a ?d= that a stage listed to the most API-264 lists leaves out is not called gone', async () => {
+    assert.equal(LISTED_DIAGRAMS, contract.components.schemas.StageState.properties.diagrams.maxItems);
+    const many = Array.from({ length: LISTED_DIAGRAMS }, (_, index) => diagramOf(`dg_${String(index).padStart(12, '0')}`, `flow-${index}.md`));
+    const full = { ...PROJECT, stages: PROJECT.stages.map((row) => (row.stage === '03-user-flow' ? { ...row, state: 'open', diagrams: many } : row)) };
+    const answers = { ...FINE, '/api/projects/reading-club': json(200, full) };
+    const beyond = await open('/p/reading-club/_/03-user-flow', { search: '?d=dg_00000000zzzz', answers });
+    try {
+      assert.deepEqual(texts(beyond, 'h1'), ['사용자 흐름']);
+    } finally {
+      beyond.close();
+    }
+    const malformed = await open('/p/reading-club/_/03-user-flow', { search: '?d=bad', answers });
+    try {
+      assert.deepEqual(texts(malformed, 'h1'), ['NEXUS에 없는 다이어그램이에요.']);
+    } finally {
+      malformed.close();
     }
   });
 

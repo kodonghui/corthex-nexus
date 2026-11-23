@@ -43,6 +43,8 @@ export function startShell(root, screen, address) {
   let reread = null;
   let ended = false;
   let busy = false;
+  // A load asked for while one runs, such as a reload after a write: null, or whether it reads again (refresh).
+  let queued = null;
   let tag = null;
 
   const shell = {
@@ -73,8 +75,13 @@ export function startShell(root, screen, address) {
 
   // Reads the screen's data and the header's. A first load shows the loading state; a read again (refresh) keeps
   // what is shown until its answer replaces it, and when it fails keeps it with the error notice and the read time.
+  // A load asked for while one runs waits for it and then runs once, so no answer older than the request stays.
   async function load(refresh) {
-    if (ended || busy) return;
+    if (ended) return;
+    if (busy) {
+      queued = queued === false ? false : refresh;
+      return;
+    }
     busy = true;
     round = new Map();
     if (!refresh) {
@@ -91,21 +98,47 @@ export function startShell(root, screen, address) {
     const outcomes = await Promise.all(reads.map(([, path]) => shell.read(path)));
     await Promise.all(headerReads);
     busy = false;
-    if (ended) return;
+    if (!ended) settle(refresh, reads, outcomes);
+    if (queued !== null && !ended) {
+      const next = queued;
+      queued = null;
+      load(next);
+    }
+  }
+
+  // Shows what a load's reads answered.
+  function settle(refresh, reads, outcomes) {
     const found = outcomes.map((outcome) => stateOf(outcome, states));
     const denied = found.findIndex(({ state }) => state === 'permission');
     if (denied !== -1) return permission(found[denied].kind, outcomes[denied]);
     const failed = found.findIndex(({ state }) => state !== 'normal');
-    if (failed !== -1 && refresh && data !== null) {
+    // A read again that fails keeps the data, unless what it read is gone.
+    if (failed !== -1 && refresh && data !== null && found[failed].kind !== 'gone') {
       reread = outcomes[failed];
-      return showData();
+      return again(showData);
     }
-    if (failed !== -1) return render({ failure: outcomes[failed], kind: found[failed].kind });
+    if (failed !== -1) {
+      data = null;
+      return render({ failure: outcomes[failed], kind: found[failed].kind });
+    }
     succeeded();
-    data = Object.fromEntries(reads.map(([name], index) => [name, outcomes[index].body]));
+    const next = Object.fromEntries(reads.map(([name], index) => [name, outcomes[index].body]));
+    // A read again that answers what is shown leaves the view as it is, with what the owner typed, chose or
+    // scrolled to; only the read time moves.
+    const same = refresh && reread === null && data !== null && JSON.stringify(next) === JSON.stringify(data);
+    data = next;
     readAt = Date.now();
     reread = null;
+    if (same) return showTag();
+    if (refresh) return again(showData);
     showData();
+  }
+
+  // Draws the view again where the page is scrolled to.
+  function again(draw) {
+    const y = globalThis.scrollY ?? 0;
+    draw();
+    globalThis.scrollTo?.(0, y);
   }
 
   function headerRead(path, show, hide) {
@@ -157,7 +190,7 @@ export function startShell(root, screen, address) {
     const known = ctx ?? context();
     // What the screen draws from its data only once the data came; until then its fixed title, if it has one.
     const answered = !loading && failure === null;
-    const title = answered ? screen.title(known) : screen.fixedTitle ?? null;
+    const title = answered && screen.title !== undefined ? screen.title(known) : screen.fixedTitle ?? null;
     const description = typeof screen.description === 'function'
       ? (answered ? screen.description(known) : null)
       : screen.description ?? null;
@@ -195,16 +228,20 @@ export function startShell(root, screen, address) {
     if (ended) return;
     ended = true;
     if (kind === 'gate' && gateStep(stored('sessionStorage', GATE_KEY)) === 'reload') {
-      for (const keep of leaving) {
-        try {
-          keep();
-        } catch {
-          // A screen that cannot keep its text does not hold the others.
-        }
-      }
       store('sessionStorage', GATE_KEY, String(Date.now()));
-      globalThis.location.reload();
-      return;
+      // Without the mark the page could not tell the next 401 from this one, so it reloads only once the mark holds:
+      // where this tab's storage is blocked, it shows the message at once.
+      if (stored('sessionStorage', GATE_KEY) !== null) {
+        for (const keep of leaving) {
+          try {
+            keep();
+          } catch {
+            // A screen that cannot keep its text does not hold the others.
+          }
+        }
+        globalThis.location.reload();
+        return;
+      }
     }
     const code = kind === 'gate' ? 'unauthenticated' : outcome.code ?? 'not_owner';
     document.title = 'NEXUS';
@@ -276,8 +313,9 @@ function createHeader(address) {
   const turn = h('a', { class: 'hb', href: TODO_HREF, hidden: true }, '내 차례', count);
   const themeLabel = h('span', { class: 'theme-label' });
   const theme = h('button', { type: 'button', class: 'hb', on: { click: switchTheme } }, themeLabel, icon('moon', 'ic theme-icon'));
+  // The menu opens under its button, which .pm holds with it (nexus.css), so no script places it.
   const element = h('header', { class: 'hd' },
-    h('a', { class: 'brand hb', href: TODO_HREF }, 'NEXUS'), button, list, h('span', { class: 'sp' }), turn, theme);
+    h('a', { class: 'brand hb', href: TODO_HREF }, 'NEXUS'), h('div', { class: 'pm' }, button, list), h('span', { class: 'sp' }), turn, theme);
   let titled = false;
   const all = h('li', { role: 'none', class: 'all' }, h('a', { role: 'menuitem', href: PROJECTS_HREF }, '프로젝트 목록'));
   fill(list, all);
@@ -292,7 +330,6 @@ function createHeader(address) {
   });
 
   function open() {
-    element.style.setProperty('--menu-left', `${button.offsetLeft}px`);
     list.hidden = false;
     button.setAttribute('aria-expanded', 'true');
     list.querySelector('a')?.focus();

@@ -22,8 +22,6 @@ export class FakeElement {
     this.children = [];
     this.parent = null;
     this.listeners = new Map();
-    this.offsetLeft = 0;
-    this.style = { properties: new Map(), setProperty: (name, value) => this.style.properties.set(name, value) };
   }
 
   setAttribute(name, value) {
@@ -146,10 +144,17 @@ class FakeStorage {
   }
 }
 
+// Storage that the browser refuses, as with site data blocked: every call throws.
+const BLOCKED = Object.freeze({
+  getItem() { throw new Error('blocked'); },
+  setItem() { throw new Error('blocked'); },
+  removeItem() { throw new Error('blocked'); },
+});
+
 // A page at pathname and search: { app, document, location, session, local, ticks, install }. install() puts its
 // document, location, storage, matchMedia and setInterval on globalThis and returns a function that takes them away
-// again; the interval functions the page starts are kept in ticks for the test to run.
-export function fakePage({ pathname = '/', search = '', session = {}, local = {}, systemDark = false } = {}) {
+// again; the interval functions the page starts are kept in ticks for the test to run. blocked refuses sessionStorage.
+export function fakePage({ pathname = '/', search = '', session = {}, local = {}, systemDark = false, blocked = false } = {}) {
   const document = {
     listeners: new Map(),
     title: '',
@@ -181,7 +186,7 @@ export function fakePage({ pathname = '/', search = '', session = {}, local = {}
       const values = {
         document,
         location,
-        sessionStorage: page.session,
+        sessionStorage: blocked ? BLOCKED : page.session,
         localStorage: page.local,
         matchMedia: (query) => ({ matches: query.includes('prefers-color-scheme: dark') && systemDark, addEventListener() {} }),
         setInterval: (listener) => page.ticks.push(listener),
