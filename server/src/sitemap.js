@@ -26,12 +26,14 @@
 //   says of it, with detail { where }, its file and line. A YAML error leaves out a whole file, not a screen.
 // A screen's box is from layout.js, { x, y, width, height } with its top left corner: a root, and a screen whose parent
 // is missing, in the top layer, and each other screen in the layer under its parent's. A box holds two lines, the
-// screen's name and its path, and is as wide as the longer one; the page shows the name and hides the trace ID
-// (SPEC-010). A left-out part has no box.
+// screen's name and its path, or for an unreadable entry its where, and is as wide as the longer one; the page shows
+// the name and hides the trace ID (SPEC-010). A left-out part has no box.
 //
 // A picture that is not format 1 with a list of screens fails the drawing at its source (SourceFailure), and so does
-// one with more elements than a drawing holds. A tree within that many elements stays within layout.js's limits,
-// however deep or wide, and placed() fails any other at its source too. Nothing here logs (rule 5).
+// one with more elements than a drawing holds. layout.js places any tree within that many elements, however deep or
+// wide, as a tree's lines cross no layer and its boxes keep to layout.js's sizes; placed() fails any other graph at its
+// source. A very wide tree places its boxes past 1,000,000 pixels, the most layout.js takes as a given position.
+// Nothing here logs (rule 5).
 
 import {
   CHARACTER, characters, elementKey, isObject, isText, isTextList, keyer, leftOut, MAX_ELEMENTS, optional, PADDING, placed, SourceFailure,
@@ -88,11 +90,12 @@ export function sitemap(given) {
   for (const [index, entry] of picture.screens.entries()) {
     const read = readScreen(entry);
     const name = isObject(entry) && isText(entry.name) ? entry.name : '';
+    const where = whereText(isObject(entry) ? entry.where : undefined);
     const traceId = traceIdOf(entry);
     const at = parentOf(entry, index);
     const parent = at === null || at === undefined ? null : screens[at].key;
     screens.push({
-      entry, read, name, traceId, parent, missing: at === undefined, key: keyOf(elementKey({ trace_id: traceId, kind: 'screen', name, parent })),
+      read, name, where, traceId, parent, missing: at === undefined, key: keyOf(elementKey({ trace_id: traceId, kind: 'screen', name, parent })),
     });
   }
   const lines = screens.filter(({ parent }) => parent !== null).map(({ key, name, parent }) => ({
@@ -102,9 +105,7 @@ export function sitemap(given) {
 
   // The tree: each screen's box, and a line from its parent down to it.
   const tree = placed({
-    nodes: screens.map(({ key, read, name, entry }) => ({
-      id: key, width: widthOf(name, read === null ? whereText(entry?.where) ?? '' : read.path), height: HEIGHT,
-    })),
+    nodes: screens.map(({ key, read, name, where }) => ({ id: key, width: widthOf(name, read === null ? where ?? '' : read.path), height: HEIGHT })),
     edges: lines.map(({ from, to }) => ({ from, to })),
   });
   const box = (index) => {
@@ -118,8 +119,7 @@ export function sitemap(given) {
   const left = leftOut(given.warnings, 'source', keyOf);
   if (screens.length + lines.length + left.length > MAX_ELEMENTS) throw new SourceFailure();
 
-  const elements = screens.map(({ entry, read, name, traceId, parent, missing, key }, index) => {
-    const where = whereText(isObject(entry) ? entry.where : undefined);
+  const elements = screens.map(({ read, name, where, traceId, parent, missing, key }, index) => {
     if (read === null) return { key, trace_id: traceId, kind: 'screen', name, parent, status: 'unreadable', detail: { where, box: box(index) } };
     return {
       key,

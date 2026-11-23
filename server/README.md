@@ -356,7 +356,7 @@ The coordinator chose the next three points for TASK-425, and the maintainer's d
 - **Tree layout.** `layout.js` places the screens top down:
   - A root stands at the top, and each screen in the layer under its parent's. The screens of one parent stand side by side, in the source's order.
   - A line runs from the parent's box down to the child's.
-  - A box holds two lines, the screen's name and its path. The page shows the name and hides the trace ID (SPEC-010).
+  - A box holds two lines, the screen's name and its path; an unreadable entry's box holds its name and its `where`. The page shows the name and hides the trace ID (SPEC-010).
   - A box is 64 pixels high: 20 pixels a line, with 12 pixels of padding round them. It is as wide as the longer line in 12-pixel IBM Plex Mono, from 120 to 480 pixels.
   - `box` is `{ x, y, width, height }`, its top left corner and its size. A line's `points`, `[{ x, y }]`, run from the parent to the child. A left-out part has no box.
 - **Missing parent.** A screen whose parent is missing is drawn at the top, marked (SPEC-007).
@@ -376,7 +376,7 @@ The rest:
   - A line's key is its parent screen's key, `/line:` and its screen's key. A left-out part's is `source:` and what the hub says.
   - A key another element has gets `#2`, `#3` and so on.
   - So a screen keeps its key, and the threads on it, while it keeps its trace ID.
-- **A picture it cannot draw** fails at its source, the stage's source file with no line: one that is not format 1 with a list of screens, and one with more than 5000 elements. A tree within that many elements stays within `layout.js`'s limits, however deep or wide. The drawer reads its warnings only once its tree is placed, so a picture that fails before then fails again with the same digest and makes no new drawing, whatever the hub left out.
+- **A picture it cannot draw** fails at its source, the stage's source file with no line: one that is not format 1 with a list of screens, and one with more than 5000 elements. `layout.js` places any tree within that many elements, however deep or wide, as a tree's lines cross no layer and its boxes keep to `layout.js`'s sizes. A very wide tree places its boxes past 1,000,000 pixels, the most `layout.js` takes as a given position. The drawer reads its warnings only once its tree is placed, so a picture that fails before then fails again with the same digest and makes no new drawing, whatever the hub left out.
 
 `test/sitemap.test.js` checks TASK-425's done condition: this repository's 5 screens draw as a stored expected tree.
 - `test/sitemap-picture.json` is the pinned hub's picture of `docs/07-sitemap/nexus.yaml`, with the file's SHA-256.

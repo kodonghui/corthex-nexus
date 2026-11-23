@@ -224,9 +224,14 @@ describe('the sitemap drawer', () => {
     assert.equal(draw(roots(5000)).elements.length, 5000);
     assert.throws(() => draw(roots(5001)), SourceFailure);
     assert.throws(() => draw(roots(5000), [partial(`${FILE}:3: left out`)]), SourceFailure);
-    // A tree within 5000 elements stays within layout.js's limits, however deep: 2500 screens one under another draw.
+    // layout.js places any tree within 5000 elements, however deep or wide: 2500 screens one under another draw, and so
+    // do 2499 long-named screens under one root, whose boxes pass 1,000,000 pixels, the most layout.js takes as a given
+    // position (see the server's README).
     const chain = (count) => pictureOf(Array.from({ length: count }, (_, n) => ({ name: `S${n}`, ...(n === 0 ? {} : { parent: n - 1 }) })));
     assert.equal(draw(chain(2500)).elements.length, 4999);
+    const wide = draw(pictureOf([{ name: 'Root' }, ...Array.from({ length: 2499 }, (_, n) => ({ name: `${'x'.repeat(80)}${n}`, parent: 0 }))]));
+    assert.equal(wide.elements.length, 4999);
+    assert.ok(Math.max(...ofKind(wide.elements, 'screen').map(({ detail }) => detail.box.x + detail.box.width)) > 1000000);
     // An empty sitemap draws an empty tree.
     assert.deepEqual(draw(pictureOf()), { elements: [] });
   });
