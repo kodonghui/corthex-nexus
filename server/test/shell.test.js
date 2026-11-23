@@ -5,13 +5,12 @@
 
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { registerHooks } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { runInNewContext } from 'node:vm';
-import { createPages, messagesModule } from '../src/pages.js';
+import { createPages } from '../src/pages.js';
 import { ROUTES } from '../src/routes.js';
 import { openStore } from '../src/store.js';
 import { changesHref, parseAddress, projectHref, stageHref } from '../web/address.js';
@@ -24,23 +23,13 @@ import { contract, operations } from './contract.js';
 import { fakePage } from './fake-dom.js';
 import { listedResponses, responseRecord } from './responses.js';
 import { seed } from './seed.js';
+import {
+  chosenDiagram, errorShown, GATE, headerOf, json, LISTED_DIAGRAMS, message, openPage, problem, SCREENS, startShell, texts, TRACE,
+} from './screen-page.js';
 import { localGate, startServer, waitFor } from './support.js';
-
-// web/messages.js is made by the server as it starts (src/pages.js); here it is made the same way for the import.
-registerHooks({
-  resolve(specifier, context, next) {
-    if (specifier === './messages.js' && context.parentURL?.endsWith('/web/shell.js')) {
-      return { url: `data:text/javascript;charset=utf-8,${encodeURIComponent(messagesModule())}`, shortCircuit: true };
-    }
-    return next(specifier, context);
-  },
-});
-const { message, startShell } = await import('../web/shell.js');
-const { chosenDiagram, LISTED_DIAGRAMS, MISSING, SCREENS } = await import('../web/screens.js');
 
 const ROOT = new URL('../../', import.meta.url);
 const TIME = '2026-11-23T01:00:00.000Z';
-const TRACE = 'a1b2c3d4e5f60718';
 const DIAGRAM = 'dg_0000000000a1';
 const REMOVED = 'dg_0000000000a2';
 const SCREEN_IDS = ['SCR-142', 'SCR-143', 'SCR-144', 'SCR-145', 'SCR-146'];
@@ -55,7 +44,14 @@ const diagramOf = (id, name, removed = false) => ({
   id, kind: 'ddd_board', name, removed, drawn: true, confirmation: 'none', waiting: 0, open_threads: 0,
 });
 const PROJECTS = { projects: [summary('garden', '텃밭 계획표'), summary('reading-club', '독서 모임 앱')], backup: null };
-const TODO = { entries: [{ kind: 'confirm' }, { kind: 'question' }, { kind: 'proposal' }], backup: null };
+const entry = (kind, fields = {}) => ({
+  kind, project: 'reading-club', part: '', stage: '01-domain', diagram: DIAGRAM, diagram_name: '도메인 보드', thread: null,
+  change_set: null, reason: kind === 'confirm' ? 'new' : null, since: TIME, ...fields,
+});
+const TODO = {
+  entries: [entry('confirm'), entry('question', { thread: 'nc_0000000000b1' }), entry('proposal', { change_set: 'np_0000000000c1' })],
+  backup: null,
+};
 const PROJECT = {
   name: 'reading-club',
   title: '독서 모임 앱',
@@ -76,57 +72,10 @@ const PROJECT = {
   workshop: null,
 };
 
-const json = (status, body) => () => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
-const problem = (status, code) => json(status, { title: 'x', status, detail: 'x', code, traceId: TRACE });
-// The gate sending a read to its sign-in, as fetch with redirect: 'manual' gives it.
-const GATE = () => ({ type: 'opaqueredirect', status: 0, json: async () => { throw new SyntaxError('no body'); } });
 const FINE = { '/api/projects': json(200, PROJECTS), '/api/todo': json(200, TODO), '/api/projects/reading-club': json(200, PROJECT) };
 
-// Runs the screen of pathname and search on a fake page, with answers by path (each a function that makes a Response,
-// or an Error to throw) or a function of the path. The page's globals stay installed until close().
-async function open(pathname, { search = '', answers = FINE, session = {}, local = {}, blocked = false } = {}) {
-  const page = fakePage({ pathname, search, session, local, blocked });
-  const restore = page.install();
-  const realFetch = globalThis.fetch;
-  let pending = 0;
-  page.calls = [];
-  globalThis.fetch = async (path, init) => {
-    page.calls.push(path);
-    pending += 1;
-    try {
-      const answer = typeof answers === 'function' ? answers : answers[path];
-      if (answer === undefined) throw new Error(`no answer for ${path}`);
-      const made = await answer(path, init);
-      if (made instanceof Error) throw made;
-      // A real answer's body comes over the network after fetch resolves: read it here, so that settle() waits for it.
-      if (made instanceof Response) return new Response(await made.arrayBuffer(), { status: made.status, headers: made.headers });
-      return made;
-    } finally {
-      pending -= 1;
-    }
-  };
-  page.settle = async () => {
-    await waitFor(() => pending === 0);
-    await delay(10);
-  };
-  page.close = () => {
-    restore();
-    globalThis.fetch = realFetch;
-  };
-  const address = parseAddress(pathname, search);
-  try {
-    page.shell = startShell(page.app, address === null ? MISSING : SCREENS[address.screen], address ?? {});
-    await page.settle();
-  } catch (error) {
-    page.close();
-    throw error;
-  }
-  return page;
-}
-
-const texts = (page, tag, className = null) => page.app.all(tag, className).filter((element) => element.shown).map((element) => element.textContent);
-const headerOf = (page) => page.app.all('header')[0];
-const errorShown = (page) => page.app.all('div', 'err').some((element) => element.shown);
+// The screen of pathname on a fake page (test/screen-page.js), with the answers of FINE unless others are given.
+const open = (pathname, options = {}) => openPage(pathname, { answers: FINE, ...options });
 
 describe('the addresses', () => {
   test('name the screens of the sitemap, with ?d= and ?thread= as they are given', () => {
@@ -346,11 +295,12 @@ describe('the shell', () => {
   });
 
   test('a header read that fails leaves its part out, and the rest of the page works', async () => {
-    const page = await open('/', { answers: { ...FINE, '/api/projects': problem(500, 'internal') } });
+    // SCR-144 reads no project list of its own (SCR-142 does, and shows its error when that read fails).
+    const page = await open('/p/reading-club', { answers: { ...FINE, '/api/projects': problem(500, 'internal') } });
     try {
       const header = headerOf(page);
       assert.equal(header.all('button').find((each) => each.getAttribute('aria-haspopup') === 'menu').shown, false);
-      assert.deepEqual(texts(page, 'h1'), ['내 차례']);
+      assert.deepEqual(texts(page, 'h1'), ['독서 모임 앱']);
       assert.equal(errorShown(page), false);
     } finally {
       page.close();

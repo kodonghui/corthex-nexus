@@ -61,6 +61,40 @@ export function clockOf(time) {
   return `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
 }
 
+// The local date of a moment as "M월 D일".
+export function dayOf(time) {
+  const at = new Date(time);
+  return `${at.getMonth() + 1}월 ${at.getDate()}일`;
+}
+
+// The local day before, as ago says it and sentWords reads it.
+export const YESTERDAY = '어제';
+
+// How long ago a moment was, as the stage-09 mockup writes it: "N분 전" under an hour (at least 1, also for a moment a
+// little ahead of this clock), "N시간 전" under 24 hours, "어제" on the local day before, and otherwise "N일 전" in
+// local calendar days, so N is at least 2 and the steps never say "1일 전". The shell's since() keeps it current.
+export function ago(time, now) {
+  const at = new Date(time);
+  if (Number.isNaN(at.getTime())) return '';
+  const minutes = Math.floor((now - at.getTime()) / 60_000);
+  const days = calendarDays(at, new Date(now));
+  if (minutes < 60) return `${Math.max(1, minutes)}분 전`;
+  // A day longer than 24 hours, at a change of clocks, can leave the same date 24 hours later.
+  if (minutes < 24 * 60 || days < 1) return `${Math.floor(minutes / 60)}시간 전`;
+  return days === 1 ? YESTERDAY : `${days}일 전`;
+}
+
+// When a project was last sent, from how long ago it was: "12분 전에 보냄", and "어제 보냄".
+export function sentWords(text) {
+  return text === YESTERDAY ? `${YESTERDAY} 보냄` : `${text}에 보냄`;
+}
+
+// The local calendar days from one moment's date to another's.
+function calendarDays(from, to) {
+  const day = (at) => Date.UTC(at.getFullYear(), at.getMonth(), at.getDate());
+  return Math.round((day(to) - day(from)) / 86_400_000);
+}
+
 // What a 401, or the gate's redirect, does on a page. The page reloads its own address once, through the gate, which
 // signs the owner in and brings them back; before it does, it keeps a mark in this tab (sessionStorage, GATE_KEY: the
 // time of that reload), and it drops the mark once a read succeeds. So reloadedAt is the mark or null, and the step is
