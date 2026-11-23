@@ -401,6 +401,27 @@ function drawOne(statements, snapshotId, drawer, document, kind, warnings) {
   }
 }
 
+// Draws a proposed document as a file diagram's own file (TASK-438, API-256): text in place of the file at the
+// diagram's key, drawn by the drawer of its kind, with no other document to read and no warnings, as a push would draw
+// it. Returns { elements }, each { key, kind, name, detail } in the drawing's order and checked as a push's elements
+// are, or { failure: { line } } when it does not draw, line the line it fails at or null: a SourceFailure, or more
+// elements than a drawing holds. A kind with no drawer draws nothing: null. Anything else a drawer throws is a fault.
+export function drawProposed({ stage, part, kind, key, text, drawers = DRAWERS }) {
+  checkDrawers(drawers);
+  if (!Object.hasOwn(drawers, kind)) return null;
+  let result;
+  try {
+    result = drawers[kind]({ stage, part, key, kind, source: key, text, read: () => null, warnings: NONE });
+  } catch (error) {
+    if (!(error instanceof SourceFailure)) throw error;
+    return { failure: { line: failureOf(error, key).line } };
+  }
+  if (!isObject(result) || !Array.isArray(result.elements)) throw new TypeError('a drawer returns { name, elements }');
+  if (result.elements.length > MAX_ELEMENTS) return { failure: { line: null } };
+  const elements = elementsOf(result.elements).map((row) => ({ key: row[0], kind: row[2], name: row[3], detail: JSON.parse(row[6]) }));
+  return { elements };
+}
+
 // Whether a drawer's outcome is the diagram's last drawing: the same documents read, and the same elements drawn or
 // the same failure.
 function sameAsLast(statements, diagram, outcome) {
