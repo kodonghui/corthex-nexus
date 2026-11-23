@@ -10,4 +10,4 @@ NEXUS shows a project's stages, pictures and discussions in a private browser vi
 
 ## Working here
 
-[AGENTS.md](AGENTS.md) has the repository's rules and checks, and [SECURITY.md](SECURITY.md) its security scope. `.corthex/project.json` declares the project and its stages for the hub, with one part, `nexus`, and `.corthex/stages/nexus.json` records that part's progress. After a commit reaches `main`, the `NEXUS push` workflow sends the default branch's snapshot to the maintainer's NEXUS server with the pinned hub.
+[AGENTS.md](AGENTS.md) has the repository's rules and checks, and [SECURITY.md](SECURITY.md) its security scope. [server/](server/README.md) holds the v3 server, built task by task from the WBS. `.corthex/project.json` declares the project and its stages for the hub, with one part, `nexus`, and `.corthex/stages/nexus.json` records that part's progress. After a commit reaches `main`, the `NEXUS push` workflow sends the default branch's snapshot to the maintainer's NEXUS server with the pinned hub.
