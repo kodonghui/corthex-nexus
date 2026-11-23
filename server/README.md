@@ -791,7 +791,7 @@ The four operations read and write more tables than they listed, the thread's wa
 
 **Choices approved through the maintainer's delegate.** No approved document states these rules. The coordinator chose them for TASK-443, and the maintainer approved them through the delegate they named for checkpoints on 2026-11-24: a failed drawing takes a comment on the diagram as a whole; API-266 answers a thread of a removed diagram after the diagram answers 404; closing a thread leaves a proposal that answers it as it is; a reply to a closed thread gets `thread_closed`; nothing reopens a closed thread; a thread with a claim held on it closes all the same; and an element that left is marked with its last readable name in any drawing, else its name in the drawing the comment is at, else its key, which changes TASK-437's rule for an element renamed and then removed.
 
-The four operations read and write more tables than they listed, the thread's waiting side among them (note 16 of the WBS). The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+The four operations read and write more tables than they listed, the thread's waiting side among them (note 16 of the WBS). The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint on 2026-11-24.
 
 `test/threads.test.js` checks TASK-443's done condition. It comments on an element, the diagram, a row and an element of a flow file, at an older drawing and at a failed one, and reads, replies to and closes the threads of a removed diagram. It answers every response API-266 to API-269 list and checks the tables they touch (note 23). Its test that accepting or rejecting a proposal after its thread closed leaves the thread closed is marked `todo` until TASK-444 builds API-270 and API-271, and that task drops the mark.
 
@@ -976,11 +976,11 @@ The answer names what other tables hold, so API-265 lists 15 tables. The correct
 
   The steps of a change set keep their order, and a reflection applies them in that order. Each step says what it does with its own four fields, so TASK-447 can say step by step what a merged document lacks (SPEC-025).
 
-The coordinator chose eight rules for TASK-445 that no approved document states: a removed diagram's direct edit can be cancelled; the later accepted wins, which TASK-447's reflection keeps by `decided_at`; which connection already exists; the mockup page takes no direct edit; an element drawn as unreadable, missing or left out takes none; what a rename takes; what a connection joins; and what a connection means on a sitemap. They wait for the maintainer's delegate with the pull request, which records them with the options not taken.
+The coordinator chose eight rules for TASK-445 that no approved document states: a removed diagram's direct edit can be cancelled; the later accepted wins, which TASK-447's reflection keeps by `decided_at`; which connection already exists; the mockup page takes no direct edit; an element drawn as unreadable, missing or left out takes none; what a rename takes; what a connection joins; and what a connection means on a sitemap. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24; the pull request records them with the options not taken.
 
 `test/direct-edits.test.js` checks TASK-445's done condition: after an unreflected rename of X to Y is cancelled, the diagram read (API-265) shows X again, with no overlay. It checks each rule above on an ERD, a sitemap, a user flow, a DDD board, an item table and screen states, the later accepted winning within one reflection entry and across two, reads each change set back through API-247, answers every response API-272 and API-273 list, and checks the tables each touches (note 23).
 
-The two operations read what other tables hold, so API-272 and API-273 list 9 tables each. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+The two operations read what other tables hold, so API-272 and API-273 list 9 tables each. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint on 2026-11-24.
 
 ## Daily backup
 
@@ -1208,7 +1208,7 @@ The coordinator chose four rules for TASK-438, below, that no approved document 
 
 `test/proposals.test.js` checks TASK-438's done condition. Stage 09 and stages without a drawn picture are refused. `source_text` on this repository's FL-003 and SCR-144, drawn by their own drawers, becomes renames, adds, connects and removes, and on stage 01 and 05 it is kept with no change. The test also covers removed diagrams, claims, withdrawing in each state and the log lines. It answers every response API-256 and API-257 list, and checks the tables they touch (note 23).
 
-The two operations read and write more tables than they listed, so API-256 lists 14 tables and API-257 lists 10 (notes 18 and 23 of the WBS). A proposal's entry is a row of TBL-156, whose trace list gains SPEC-018. The corrections at the end of the [API README](../docs/06-api/README.md) and the [ERD README](../docs/05-erd/README.md) wait for their own checkpoints, as do the three rules above. This part waits for its own checkpoint.
+The two operations read and write more tables than they listed, so API-256 lists 14 tables and API-257 lists 10 (notes 18 and 23 of the WBS). A proposal's entry is a row of TBL-156, whose trace list gains SPEC-018. The corrections at the end of the [API README](../docs/06-api/README.md) and the [ERD README](../docs/05-erd/README.md) passed their own checkpoints on 2026-11-24 through the same delegate as the rules above.
 
 ## Answers
 
