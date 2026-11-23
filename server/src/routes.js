@@ -13,6 +13,7 @@ import { PROPOSAL_ROUTES } from './proposals.js';
 import { READ_ROUTES } from './reads.js';
 import { REMOVAL_ROUTES } from './removal.js';
 import { SNAPSHOT_ROUTES } from './snapshots.js';
+import { THREAD_ROUTES } from './threads.js';
 import { TODO_ROUTES } from './todo.js';
 
 export const ROUTES = Object.freeze([
@@ -40,4 +41,6 @@ export const ROUTES = Object.freeze([
   ...DIAGRAM_ROUTES,
   // TASK-438: API-256 and API-257.
   ...PROPOSAL_ROUTES,
+  // TASK-443: API-266, API-267, API-268 and API-269.
+  ...THREAD_ROUTES,
 ]);

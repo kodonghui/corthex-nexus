@@ -7,7 +7,8 @@
 //   count.
 // - API-246 (nc_): a thread of the project, the owner's or an agent's, on a diagram removed or not (SPEC-027), with
 //   every entry in order, as comments.js's entryOf answers an entry, and the change sets that answer it
-//   (change_sets.thread_id), oldest first, up to 200.
+//   (change_sets.thread_id), oldest first, up to 200. threadBody gives it, and the owner's read of a thread, API-266
+//   (threads.js), answers the same.
 // - API-247 (np_): a change set. TBL-158's detail keeps a proposal as the hub sends it, under ProposalRequest's own
 //   names: items, adds, reason, change and source_text, the proposed document, of which the answer says only whether it
 //   came. A direct edit's detail has none of them: no items or adds, no reason or change, and no source_text. These
@@ -154,34 +155,41 @@ function getProjectData({ store, params }) {
   return { body };
 }
 
+// The thread of the project with the key given, with every entry in order, as the contract's Thread, or null when no
+// thread of the project has the key: any thread, the owner's or an agent's, open or closed, on a diagram removed or
+// not (SPEC-027). API-246 answers it to an agent and API-266 to the owner (threads.js).
+export function threadBody(store, project, key) {
+  const statements = statementsOf(store);
+  const row = statements.thread.get(key, project);
+  if (row === undefined) return null;
+  const entries = statements.entries.all(key).map((entry) => entryOf({ ...entry, detail: JSON.parse(entry.detail) }));
+  return {
+    id: idOf('nc', key),
+    ...whereOf(store, row),
+    drawing: idOf('dw', Number(row.drawing_id)),
+    version: row.document_version,
+    item: threadItem(row.target_kind, row.element_key),
+    target: row.target_kind,
+    element: row.element_key,
+    removed_name: row.removed_name,
+    state: row.state,
+    waits_on: row.waits_on,
+    closed_by: row.closed_by,
+    opened_at: row.opened_at,
+    closed_at: row.closed_at,
+    last_at: entries.at(-1).made_at,
+    entries,
+    change_sets: statements.answering.all(key).map((each) => idOf('np', Number(each.id))),
+  };
+}
+
 // API-246: a thread of {project} with every entry (SPEC-016).
 function getComment({ store, params }) {
   const statements = statementsOf(store);
   const project = projectOf(statements, params.project);
-  const key = keyFrom('nc', params.comment, 'comment_not_found');
-  const row = statements.thread.get(key, project.id);
-  if (row === undefined) throw new Problem('comment_not_found');
-  const entries = statements.entries.all(key).map((entry) => entryOf({ ...entry, detail: JSON.parse(entry.detail) }));
-  return {
-    body: {
-      id: idOf('nc', key),
-      ...whereOf(store, row),
-      drawing: idOf('dw', Number(row.drawing_id)),
-      version: row.document_version,
-      item: threadItem(row.target_kind, row.element_key),
-      target: row.target_kind,
-      element: row.element_key,
-      removed_name: row.removed_name,
-      state: row.state,
-      waits_on: row.waits_on,
-      closed_by: row.closed_by,
-      opened_at: row.opened_at,
-      closed_at: row.closed_at,
-      last_at: entries.at(-1).made_at,
-      entries,
-      change_sets: statements.answering.all(key).map((each) => idOf('np', Number(each.id))),
-    },
-  };
+  const body = threadBody(store, project.id, keyFrom('nc', params.comment, 'comment_not_found'));
+  if (body === null) throw new Problem('comment_not_found');
+  return { body };
 }
 
 // The trace IDs of a detail member, in the contract's form and at most ITEMS, or none.
