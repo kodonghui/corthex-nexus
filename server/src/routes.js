@@ -17,6 +17,7 @@ import { REMOVAL_ROUTES } from './removal.js';
 import { SNAPSHOT_ROUTES } from './snapshots.js';
 import { THREAD_ROUTES } from './threads.js';
 import { TODO_ROUTES } from './todo.js';
+import { TOOL_LINK_ROUTES } from './tool-links.js';
 
 export const ROUTES = Object.freeze([
   // TASK-417: API-279, API-280 and API-281.
@@ -47,6 +48,8 @@ export const ROUTES = Object.freeze([
   ...THREAD_ROUTES,
   // TASK-445: API-272 and API-273.
   ...DIRECT_EDIT_ROUTES,
+  // TASK-451: API-282 and API-283.
+  ...TOOL_LINK_ROUTES,
   // TASK-446: API-275 and API-276.
   ...CONFIRMATION_ROUTES,
 ]);
