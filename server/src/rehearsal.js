@@ -5,9 +5,9 @@
 // The latest backup is the last one that succeeded and whose file is still kept. It is copied into a new folder as the
 // store's file and opened as the server opens its store (store.js), so this code's migrations are applied to the copy:
 // the rehearsal restores the backup into this release. The copy is then read: SQLite's integrity check, its foreign
-// keys, and every row of every table. The folder is removed afterwards, whatever the result. It is made in the backups'
-// folder, which only the server's user opens, never in a folder other users share; and a folder that a rehearsal killed
-// before its end left there, with its copy of the store, is removed before a new one is made.
+// keys, and every row of every table. The folder is removed afterwards, whatever the result. It is made only its owner
+// opens (mkdtemp), inside the backups' folder rather than a folder other users share; and a folder that a rehearsal
+// killed before its end left there, with its copy of the store, is removed before a new one is made.
 //
 // The result is recorded in the store the command opens, as it is (openExistingStore): succeeded, with what was read,
 // or failed, with a note that names the check that failed and the kind of error, never a path. With no backup to
@@ -98,8 +98,17 @@ function restoreAndRead(file, workDirectory) {
     const { tables, rows } = check('read', () => readAll(db));
     return `restored at version ${opened.version}: ${tables} tables, ${rows} rows read`;
   } finally {
-    db?.close();
-    rmSync(folder, { recursive: true, force: true, maxRetries: 5 });
+    // The result stands whatever the clean-up does: a folder that cannot be removed now goes with the next rehearsal.
+    try {
+      db?.close();
+    } catch {
+      // Closed with the process.
+    }
+    try {
+      rmSync(folder, { recursive: true, force: true, maxRetries: 5 });
+    } catch {
+      // Removed by the next rehearsal, before it makes its own.
+    }
   }
 }
 

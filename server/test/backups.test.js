@@ -454,6 +454,63 @@ describe('the daily backup', () => {
     assert.equal(job.lines.at(-1).removed, 1);
   });
 
+  test('an attempt whose end the store could not record is recorded failed at the next look, and its retry runs', async (t) => {
+    const store = testStore(t);
+    let calls = 0;
+    const copy = async (db, path) => {
+      calls += 1;
+      if (calls === 1) throw Object.assign(new Error('the disk said no'), { code: 'EIO' });
+      return sqliteBackup(db, path);
+    };
+    // The copy fails, and so does the record of its failure, as when the store's disk is full.
+    store.exec("CREATE TRIGGER no_failure BEFORE UPDATE OF state ON backups WHEN NEW.state = 'failed' BEGIN SELECT RAISE(ABORT, 'full'); END");
+    const job = backupJob(t, store, { start: at('2026-11-24T03:00:00.000Z'), copy });
+    await job.job.start();
+    assert.deepEqual(job.rows().map((row) => [row.attempt, row.state]), [[1, 'running']]);
+    assert.equal(job.next(), at('2026-11-24T04:00:00.000Z'));
+    store.exec('DROP TRIGGER no_failure');
+    // The next look records it failed and runs its retry at once.
+    await job.run();
+    assert.deepEqual(job.rows().map((row) => [row.attempt, row.state]), [[1, 'failed'], [2, 'succeeded']]);
+    assert.deepEqual(job.lines.map((line) => [line.event, line.attempt, line.reason]), [
+      ['backup_job_failed', undefined, undefined],
+      ['backup_failed', 1, 'interrupted'],
+      ['backup_succeeded', 2, undefined],
+    ]);
+    assert.equal(backupWarning(store), null);
+  });
+
+  test('a stop that comes while the job waits in the queue starts nothing', async (t) => {
+    const store = testStore(t);
+    const job = backupJob(t, store, { start: at('2026-11-24T01:00:00.000Z') });
+    await job.job.start();
+    // A long write holds the queue when the day's time comes.
+    let release;
+    const held = new Promise((resolve) => {
+      release = resolve;
+    });
+    const write = job.queue(() => held);
+    const look = job.run();
+    job.job.stop();
+    release();
+    await write;
+    await look;
+    assert.deepEqual(job.rows(), []);
+    assert.deepEqual(job.files(), []);
+    assert.equal(job.next(), null);
+  });
+
+  test('a partial file and its journal that a crash left are removed at start', async (t) => {
+    const store = testStore(t);
+    const folder = join(dataFolder(t, 'nexus-backups-'), 'backups');
+    mkdirSync(folder);
+    writeFileSync(join(folder, `${backupName('2026-11-23')}.partial`), 'half');
+    writeFileSync(join(folder, `${backupName('2026-11-23')}.partial-journal`), 'its journal');
+    const job = backupJob(t, store, { start: at('2026-11-24T01:00:00.000Z'), directory: folder });
+    await job.job.start();
+    assert.deepEqual(job.files(), []);
+  });
+
   test('stop() ends the schedule', async (t) => {
     const store = testStore(t);
     const job = backupJob(t, store, { start: at('2026-11-24T01:00:00.000Z') });

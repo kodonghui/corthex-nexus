@@ -906,7 +906,7 @@ The answer names what other tables hold, so API-265 lists 15 tables. The correct
   - It is written as `<name>.partial`, readable by its owner only like the store, and renamed when it is whole. So a file with a backup's name is always a complete store, and a failed attempt leaves no file.
   - The copy runs as one task of the server's one write queue (see [Requests](#requests)). The store is one connection, which cannot copy itself while a write's transaction is open, so the writes wait for the copy while the reads go on.
 - **The retry.** A first attempt that fails is retried once, under the same name, 15 minutes after it failed. When the retry fails too, the owner's to-do and the project list show the warning (see [Projects and to-do](#projects-and-to-do)) until a backup succeeds.
-- **After a crash.** At start, an attempt left running is recorded failed, and its partial file is removed.
+- **After a crash.** At start, an attempt left running is recorded failed, and its partial file is removed. An attempt whose end the store could not record is recorded failed in the same way when the job next looks.
   - A first attempt's retry then runs at once, even past the hour, and the warning shows only if that retry fails. A retry left running is the end, so the warning shows.
   - A retry that fell due while the server was stopped also runs at start, unless the next day's time has come; that day's backup then runs instead.
 - **30 days.** After a backup succeeds, the backups whose day is more than 30 days before its day are removed. Of 31 daily backups, the next one removes the oldest, and 30 remain plus the new one.
@@ -928,7 +928,7 @@ NEXUS_BACKUP_DIR=/absolute/path/to/a/backup/folder \
 node src/rehearse.js <release>
 ```
 
-`src/rehearsal.js` takes the latest backup that succeeded and whose file is kept, and copies it into a new folder in the backups' folder, which only the server's user opens. A folder that a rehearsal killed before its end left there, with its copy of the store, is removed first.
+`src/rehearsal.js` takes the latest backup that succeeded and whose file is kept, and copies it into a new folder that only its owner opens, made inside the backups' folder rather than a folder other users share. A folder that a rehearsal killed before its end left there, with its copy of the store, is removed first.
 - It opens the copy as the server opens its store, which applies this code's migrations to the copy.
 - It reads the copy: SQLite's integrity check, its foreign keys, and every row of every table.
 - It removes the folder afterwards.
@@ -978,7 +978,7 @@ The server writes one JSON line to standard output for each request, when its an
 
 It also writes a line when it starts listening (with its host and port), when it stops and when a setting is invalid, and one line in place of Node's report when it crashes. Before it listens it writes one line about the store: `store_opened` with the store's `version` and the migrations it `applied`, `store_refused` with a `reason` (`not_a_v3_store`, `newer_store`, `migrations_invalid` or `foreign_keys_broken`), or `store_failed` with the kind of `error`. None of them names the data folder. The daily backup writes a line for each attempt:
 - `backup_succeeded`, with the backup's `day`, its `attempt`, its `bytes`, how many old backups it `removed` and its `ms`;
-- or `backup_failed`, with the `day` and the `attempt`, and either a `reason` or the kind of `error`. The reason is `not_enough_disk`, or `interrupted` for an attempt a crash left running.
+- or `backup_failed`, with the `day` and the `attempt`, and either a `reason` or the kind of `error`. The reason is `not_enough_disk`, or `interrupted` for an attempt left running by a crash or by a store that could not record its end.
 
 It also writes `backup_removal_failed`, with the `day` and the kind of `error`, after a backup that succeeded when the old backups could not be removed. When the job cannot read or write the store, it writes `backup_job_failed` with the kind of `error`, and looks again within the hour. None of them names a folder or a file's path.
 
