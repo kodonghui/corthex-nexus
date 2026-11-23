@@ -270,4 +270,4 @@ Planning stage 10 found that the contract named the review and confirmation tabl
 
 ### Example correction
 
-Building TASK-415 found that API-292's 413 example gave the 2 MiB limit of the other bodies, 2097152 bytes, while its body description, SPEC-041 and the limits give a Miro export 5 MiB. One approved item changed, asked on its own and approved through the same delegate: the example now says 5242880 bytes, and the server's limits test checks it like every other body's example, without the exception it had. No operation, field, response, code or spec row changed. This part waits for its own checkpoint.
+Building TASK-415 found that API-292's 413 example gave the 2 MiB limit of the other bodies, 2097152 bytes, while its body description, SPEC-041 and the limits give a Miro export 5 MiB. One approved item changed, asked on its own and approved through the same delegate: the example now says 5242880 bytes, and the server's limits test checks it like every other body's example, without the exception it had. No operation, field, response, code or spec row changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
