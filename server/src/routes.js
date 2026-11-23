@@ -5,6 +5,7 @@
 import { CLAIM_ROUTES } from './claims.js';
 import { COMMENT_ROUTES } from './comments.js';
 import { CREDENTIAL_ROUTES } from './credentials.js';
+import { DIAGRAM_ROUTES } from './diagram.js';
 import { MOCKUP_PAGE_ROUTES } from './mockup-page.js';
 import { OWNER_ROUTES } from './owner.js';
 import { PROJECT_ROUTES } from './project.js';
@@ -34,4 +35,6 @@ export const ROUTES = Object.freeze([
   ...MOCKUP_PAGE_ROUTES,
   // TASK-436: API-244, API-246, API-247, API-248 and API-249.
   ...READ_ROUTES,
+  // TASK-441: API-265.
+  ...DIAGRAM_ROUTES,
 ]);

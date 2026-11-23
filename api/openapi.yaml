@@ -3743,7 +3743,7 @@ paths:
       x-corthex:
         id: API-265
         spec: [SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-011, SPEC-012, SPEC-022, SPEC-027, SPEC-034, SPEC-051]
-        tables: [TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-158, TBL-159, TBL-160]
+        tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-160, TBL-166]
         release: Must
         family: owner
         omit:

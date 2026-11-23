@@ -269,10 +269,15 @@
           "approved": "Agent read table correction, pull request 131, at commit 2f71674: API-244's x-corthex.tables lists TBL-147, TBL-148, TBL-151, TBL-152, TBL-154, TBL-155, TBL-156, TBL-158, TBL-160, TBL-162, TBL-164 and TBL-168 instead of the approved TBL-147, TBL-148, TBL-151, TBL-155, TBL-156, TBL-158 and TBL-160; API-246's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-156 and TBL-158 instead of TBL-155 and TBL-156; API-247's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-159 and TBL-166 instead of TBL-158 and TBL-159; API-248's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-158, TBL-166 and TBL-167 instead of TBL-166, TBL-158 and TBL-157; and API-249's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-160, TBL-166 and TBL-167 instead of TBL-160 (notes 18 and 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. Each changed item was answered on its own before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Diagram read table correction, pull request 133, at commit 2903853: API-265's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-160 and TBL-166 instead of the approved TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-158, TBL-159 and TBL-160 (note 23). No operation, field, response, code or spec row changed, and db/nexus.sql is as it was. The changed item was answered on its own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T05:10:58+09:00"
+      "updated": "2026-11-24T05:21:09+09:00"
     },
     "07-sitemap": {
       "state": "done",
