@@ -10,6 +10,7 @@ import { DIRECT_EDIT_ROUTES } from './direct-edits.js';
 import { MOCKUP_PAGE_ROUTES } from './mockup-page.js';
 import { OWNER_ROUTES } from './owner.js';
 import { PROJECT_ROUTES } from './project.js';
+import { PROPOSAL_ANSWER_ROUTES } from './proposal-answers.js';
 import { PROPOSAL_ROUTES } from './proposals.js';
 import { READ_ROUTES } from './reads.js';
 import { REMOVAL_ROUTES } from './removal.js';
@@ -46,4 +47,6 @@ export const ROUTES = Object.freeze([
   ...THREAD_ROUTES,
   // TASK-445: API-272 and API-273.
   ...DIRECT_EDIT_ROUTES,
+  // TASK-444: API-270 and API-271.
+  ...PROPOSAL_ANSWER_ROUTES,
 ]);
