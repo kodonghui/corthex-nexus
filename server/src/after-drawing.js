@@ -12,7 +12,8 @@
 //   - when, after the stage's latest pass, a diagram of the stage appears without a live confirmation: drawn for the
 //     first time, back from removal, or a picture that replaces the stage's item table. The stage then no longer has a
 //     recorded confirmation for every diagram, which SPEC-035's pass rests on. No approved document states this rule;
-//     the coordinator decided it for TASK-435. A removed diagram changes no pass, since it counts for none (SPEC-027).
+//     the coordinator chose it for TASK-435, and the maintainer approved it through the delegate they named for
+//     checkpoints. A removed diagram changes no pass, since it counts for none (SPEC-027).
 // - Reflections (SPEC-025). The accepted change sets of a reflection pull request whose reported merge commit is the
 //   drawn snapshot's commit are reflected, at the drawing the diagram shows after the push, its latest that drew (a
 //   failed drawing shows the last good one, SPEC-001), even when that drawing lacks the change: the comment saying what
