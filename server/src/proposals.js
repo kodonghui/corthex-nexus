@@ -305,8 +305,10 @@ function readProposed(request, diagram, current) {
 function changesOf(statements, request, diagram, drawing) {
   if (request.sourceText === undefined) return [];
   if (!DRAWN_FROM_TEXT.has(diagram.stage) && !READ_FROM_TEXT.has(diagram.stage)) return [];
-  const current = statements.elements.all(Number(drawing.id))
-    .map((element) => ({ ...element, detail: element.detail === null ? {} : JSON.parse(element.detail) }));
+  const current = statements.elements.all(Number(drawing.id)).map((element) => {
+    const detail = element.detail === null ? null : JSON.parse(element.detail);
+    return { ...element, detail: detail !== null && typeof detail === 'object' && !Array.isArray(detail) ? detail : {} };
+  });
   const proposed = DRAWN_FROM_TEXT.has(diagram.stage)
     ? drawProposed({ stage: diagram.stage, part: request.part, kind: diagram.kind, key: diagram.source_key, text: request.sourceText })
     : readProposed(request, diagram, current);

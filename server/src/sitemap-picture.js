@@ -19,10 +19,12 @@
 // aliases, flow mappings, block scalars and merge keys are refused with the line they are on, as the hub refuses them.
 // Mappings are Maps, so that a key such as __proto__ is a key like any other.
 //
-// It differs from the hub's in one way: YAML nested deeper than the hub's Python can read, which stops the hub
-// rather than giving a picture, is refused here with its line. That is block lists and mappings nested more than
-// MAX_BLOCKS deep, and inline lists nested more than MAX_LISTS deep; each inline list is read again for each list
-// around it, so that limit also keeps a line's reading short.
+// It differs from the hub's in two ways, each refused here with its line as YAML that does not read:
+// - YAML nested deeper than the hub's Python can read, which stops the hub rather than giving a picture: block lists
+//   and mappings nested more than MAX_BLOCKS deep, and inline lists nested more than MAX_LISTS deep. Each inline list
+//   is read again for each list around it, so that limit also keeps a line's reading short.
+// - A double-quoted scalar that escapes half of a surrogate pair, such as "\ud800": Python keeps such text, but it is
+//   not Unicode, and NEXUS keeps only Unicode text.
 //
 // Nothing here logs; the text is read and never kept (rule 5).
 
@@ -78,6 +80,8 @@ function scalar(raw, line, lists = 0) {
       throw new Invalid(line, 'invalid double-quoted YAML scalar');
     }
     if (typeof value !== 'string') throw new Invalid(line, 'expected a text scalar');
+    // An escape of half a surrogate pair, such as \ud800, makes text that is not Unicode, which the store cannot keep.
+    if (!value.isWellFormed()) throw new Invalid(line, 'a double-quoted YAML scalar escapes half of a surrogate pair');
     return value;
   }
   if (text.startsWith("'")) {

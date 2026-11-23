@@ -1272,9 +1272,10 @@ The rules the coordinator chose for TASK-466, which wait for the maintainer's de
 - **What changes.** Only tables, screens and lines change. A column, its type, a key or a unique rule is part of its table's element and makes no change. A line that joins other elements under its key is a `remove` and then a `connect`, and a screen under another parent moves its line, as [Proposals](#proposals) says.
 - **What is refused.** A statement the hub passes over makes no change, and one it leaves out is a `left_out` element, so a new one is an `add`. SQL that reads no table and YAML that reads no screen get `invalid_request` on `source_text`, as a text that does not draw does: such a text is almost always the wrong file. A YAML error names its line.
 
-**Where NEXUS reads otherwise than the hub.** For this repository's `db/nexus.sql` and `docs/07-sitemap/nexus.yaml`, and for each case in `test/picture-cases.json`, NEXUS's picture and checks equal the pinned hub's. They can differ in three ways:
+**Where NEXUS reads otherwise than the hub.** For this repository's `db/nexus.sql` and `docs/07-sitemap/nexus.yaml`, and for each case in `test/picture-cases.json`, NEXUS's picture and checks equal the pinned hub's. They can differ in four ways:
 
 - YAML nested more than 400 blocks deep, or with more than 20 inline lists inside each other, is refused with its line as a YAML error. The hub's reader recurses, and Python stops it near 490 levels with no picture.
+- A double-quoted YAML value that escapes half of a surrogate pair, such as `"\ud800"`, is refused with its line as a YAML error. Python keeps such text, but it is not Unicode, and NEXUS keeps only Unicode text.
 - Python's `str.casefold` is JavaScript's upper case then lower case, and Python's white space and word characters are written out as Unicode classes. They agree on every letter the cases test, and may differ on a few rare scripts.
 - The text comes from an agent and holds up to 1,000,000 characters, so every step reads in time that grows with its length. A few of the hub's regular expressions are written out as scans with the same result.
 

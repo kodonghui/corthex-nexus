@@ -75,6 +75,15 @@ test('YAML nested deeper than the hub can read is refused with its line', () => 
   assert.deepEqual(readSitemapPicture([['lists.yaml', fits]]).picture.screens[0].flows, []);
 });
 
+test('a double-quoted YAML value that escapes half of a surrogate pair is refused with its line', () => {
+  for (const value of ['name: "a\\ud800"', 'name: "\\udc00b"', 'flows: ["\\ud83d"]']) {
+    const { picture, failure } = readSitemapPicture([['a.yaml', `- id: SCR-1\n  ${value}\n`]]);
+    assert.deepEqual([picture, failure], [null, { file: 'a.yaml', line: 2 }], value);
+  }
+  const pair = readSitemapPicture([['a.yaml', '- id: SCR-1\n  name: "\\ud83d\\ude00"\n']]);
+  assert.equal(pair.picture.screens[0].name, '\u{1F600}');
+});
+
 test('long texts are read in time that grows with their length', { timeout: 60_000 }, () => {
   const size = 400_000;
   // An SQL line of [ with no ], long runs of white space in a column's type and a table's status, and a long

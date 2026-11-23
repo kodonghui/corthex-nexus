@@ -11,6 +11,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
+import { TRACE_ID as ITEM_ID } from '../src/drawer.js';
 import { drawProposed, pictureWarnings } from '../src/drawing.js';
 import { threadChanged } from '../src/entries.js';
 import { idOf } from '../src/ids.js';
@@ -60,7 +61,6 @@ const FL3_CHANGES = [
 ];
 const SCR_TEXT = read(SCR);
 // TASK-466: the pinned hub's pictures of this repository's schema and sitemap, and their texts.
-const ITEM_ID = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/u;
 const fixture = (name) => JSON.parse(readFileSync(new URL(name, import.meta.url), 'utf8'));
 const ERD_PICTURE = fixture('erd-picture.json');
 const SITEMAP_PICTURE = fixture('sitemap-picture.json');
@@ -410,6 +410,7 @@ describe('agent proposals', () => {
       [sitemapAt('- id: SCR-146\n  name: a : b\n'), 'source_text does not draw at its line 2'],
       [sitemapAt('- id: SCR-146\n\tname: tabbed\n'), 'source_text does not draw at its line 2'],
       [sitemapAt('- id: SCR-146\n  name: &anchor x\n'), 'source_text does not draw at its line 2'],
+      [sitemapAt('- id: SCR-146\n  name: "\\ud800"\n'), 'source_text does not draw at its line 2'],
     ]) {
       const refused = await sourceProposal(body);
       assert.deepEqual([refused.status, refused.json.code, refused.json.field, refused.json.detail], [400, 'invalid_request', 'source_text', detail]);
