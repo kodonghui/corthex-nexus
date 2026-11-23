@@ -1,0 +1,1073 @@
+{
+ "drawings": [
+  {
+   "key": "docs/08-screens/SCR-142.md",
+   "name": "SCR-142 Owner to-do",
+   "elements": [
+    {
+     "key": "SCR-142#normal",
+     "kind": "state",
+     "name": "SCR-142#normal",
+     "status": null,
+     "detail": {
+      "description": "Entries grouped by project, newest first; each shows its kind as a tag (confirm, proposal, question), the stage, the diagram's name, for a confirmation why it waits (never confirmed, lifted by a new document, cancelled), and how long it has waited. A failed backup shows as a warning on top until a backup succeeds. From the mockup: the header's \"My turn N\" is this list's count. On a phone: the same list in one column.",
+      "responses": [
+       "API-262#200",
+       "API-263#200"
+      ],
+      "where": "docs/08-screens/SCR-142.md:30",
+      "box": {
+       "x": 0,
+       "y": 0,
+       "width": 328,
+       "height": 300
+      }
+     }
+    },
+    {
+     "key": "SCR-142#loading",
+     "kind": "state",
+     "name": "SCR-142#loading",
+     "status": null,
+     "detail": {
+      "description": "Grey rows in the list's places, two per project group; no buttons.",
+      "responses": [],
+      "where": "docs/08-screens/SCR-142.md:31",
+      "box": {
+       "x": 340,
+       "y": 0,
+       "width": 328,
+       "height": 300
+      }
+     }
+    },
+    {
+     "key": "SCR-142#empty",
+     "kind": "state",
+     "name": "SCR-142#empty",
+     "status": null,
+     "detail": {
+      "description": "\"Nothing waits for you\" and the project list (SPEC-042). With no project yet: \"A project appears here when an agent sends it for the first time\", and a link to the agent credentials on SCR-143.",
+      "responses": [
+       "API-262#200",
+       "API-263#200"
+      ],
+      "where": "docs/08-screens/SCR-142.md:32",
+      "box": {
+       "x": 680,
+       "y": 0,
+       "width": 328,
+       "height": 300
+      }
+     }
+    },
+    {
+     "key": "SCR-142#error",
+     "kind": "state",
+     "name": "SCR-142#error",
+     "status": null,
+     "detail": {
+      "description": "\"Something went wrong. Try again.\" with a retry and the request's traceId; the header still works.",
+      "responses": [
+       "API-262#default",
+       "API-263#default"
+      ],
+      "where": "docs/08-screens/SCR-142.md:33",
+      "box": {
+       "x": 0,
+       "y": 312,
+       "width": 328,
+       "height": 168
+      }
+     }
+    },
+    {
+     "key": "SCR-142#permission",
+     "kind": "state",
+     "name": "SCR-142#permission",
+     "status": null,
+     "detail": {
+      "description": "401: the gate, then back here. 403: only \"Only the owner of this NEXUS can open it\".",
+      "responses": [
+       "API-262#401",
+       "API-262#403",
+       "API-263#401",
+       "API-263#403"
+      ],
+      "where": "docs/08-screens/SCR-142.md:34",
+      "box": {
+       "x": 340,
+       "y": 312,
+       "width": 328,
+       "height": 168
+      }
+     }
+    },
+    {
+     "key": "SCR-142#stale",
+     "kind": "state",
+     "name": "SCR-142#stale",
+     "status": null,
+     "detail": {
+      "description": "\"Read at 10:42\" beside the title; the list reads again when the tab comes back into view. An entry answered meanwhile opens to its new state on SCR-145.",
+      "responses": [],
+      "where": "docs/08-screens/SCR-142.md:35",
+      "box": {
+       "x": 680,
+       "y": 312,
+       "width": 328,
+       "height": 168
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "docs/08-screens/SCR-143.md",
+   "name": "SCR-143 Projects",
+   "elements": [
+    {
+     "key": "SCR-143#normal",
+     "kind": "state",
+     "name": "SCR-143#normal",
+     "status": null,
+     "detail": {
+      "description": "Projects as rows, newest send first, each with \"N of 13 stages passed\" and its to-do count; a row opens SCR-144, which has each stage's state and the tool links. Under them the credentials table with a revoke button per row and an issue form. After a deletion on SCR-144, \"Deleted demo\" shows on top once. On a phone: projects and credentials read-only; issue and revoke are not offered, with \"Do this on a PC\".",
+      "responses": [
+       "API-262#200",
+       "API-263#200",
+       "API-279#200",
+       "API-280#200",
+       "API-281#200"
+      ],
+      "where": "docs/08-screens/SCR-143.md:30",
+      "box": {
+       "x": 0,
+       "y": 0,
+       "width": 328,
+       "height": 320
+      }
+     }
+    },
+    {
+     "key": "SCR-143#loading",
+     "kind": "state",
+     "name": "SCR-143#loading",
+     "status": null,
+     "detail": {
+      "description": "Grey rows for projects and credentials in their places; the issue form is off.",
+      "responses": [],
+      "where": "docs/08-screens/SCR-143.md:31",
+      "box": {
+       "x": 340,
+       "y": 0,
+       "width": 328,
+       "height": 320
+      }
+     }
+    },
+    {
+     "key": "SCR-143#empty",
+     "kind": "state",
+     "name": "SCR-143#empty",
+     "status": null,
+     "detail": {
+      "description": "No project: \"A project appears here when an agent sends it for the first time: issue a credential below, set it in the hub and push with --first.\" No credential: \"No agent can send yet.\"",
+      "responses": [
+       "API-262#200",
+       "API-279#200"
+      ],
+      "where": "docs/08-screens/SCR-143.md:32",
+      "box": {
+       "x": 680,
+       "y": 0,
+       "width": 328,
+       "height": 320
+      }
+     }
+    },
+    {
+     "key": "SCR-143#error",
+     "kind": "state",
+     "name": "SCR-143#error",
+     "status": null,
+     "detail": {
+      "description": "A failed read: a message and a retry per table, so the other table still shows. A refused issue: the message by the name field, the name kept.",
+      "responses": [
+       "API-262#default",
+       "API-263#default",
+       "API-279#default",
+       "API-280#400",
+       "API-280#409",
+       "API-280#413",
+       "API-280#415",
+       "API-280#default",
+       "API-281#400",
+       "API-281#404",
+       "API-281#409",
+       "API-281#413",
+       "API-281#415",
+       "API-281#default"
+      ],
+      "where": "docs/08-screens/SCR-143.md:33",
+      "box": {
+       "x": 0,
+       "y": 332,
+       "width": 328,
+       "height": 260
+      }
+     }
+    },
+    {
+     "key": "SCR-143#permission",
+     "kind": "state",
+     "name": "SCR-143#permission",
+     "status": null,
+     "detail": {
+      "description": "401: the gate, then back here. 403: only the not-owner message; cross-site: a reload.",
+      "responses": [
+       "API-262#401",
+       "API-262#403",
+       "API-263#401",
+       "API-263#403",
+       "API-279#401",
+       "API-279#403",
+       "API-280#401",
+       "API-280#403",
+       "API-281#401",
+       "API-281#403"
+      ],
+      "where": "docs/08-screens/SCR-143.md:34",
+      "box": {
+       "x": 340,
+       "y": 332,
+       "width": 328,
+       "height": 260
+      }
+     }
+    },
+    {
+     "key": "SCR-143#stale",
+     "kind": "state",
+     "name": "SCR-143#stale",
+     "status": null,
+     "detail": {
+      "description": "\"Read at 10:42\"; read again when the tab comes back into view.",
+      "responses": [],
+      "where": "docs/08-screens/SCR-143.md:35",
+      "box": {
+       "x": 680,
+       "y": 332,
+       "width": 328,
+       "height": 260
+      }
+     }
+    },
+    {
+     "key": "SCR-143#secret",
+     "kind": "state",
+     "name": "SCR-143#secret",
+     "status": null,
+     "detail": {
+      "description": "The new credential's secret in a box with a copy button, \"It shows only now\", and `corthex-hub` setup words. Leaving or reloading the page hides it for good (SPEC-049). A phone never shows it, since issuing is on a PC; its 360-pixel frame is a narrow PC window.",
+      "responses": [
+       "API-280#201"
+      ],
+      "where": "docs/08-screens/SCR-143.md:36",
+      "box": {
+       "x": 0,
+       "y": 604,
+       "width": 328,
+       "height": 220
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "docs/08-screens/SCR-144.md",
+   "name": "SCR-144 Project",
+   "elements": [
+    {
+     "key": "SCR-144#normal",
+     "kind": "state",
+     "name": "SCR-144#normal",
+     "status": null,
+     "detail": {
+      "description": "The stages grouped by part, 13 per part (a project without parts is one group), as rows with a state tag, the date of the last checkpoint and its links; a passed stage whose confirmation was lifted says \"changed since the pass\" (SPEC-035). Tool links show their status and the time it was read, or \"not read yet\". On a phone: stages and links read-only; linking, removing links and deleting are not offered, with \"Do this on a PC\".",
+      "responses": [
+       "API-262#200",
+       "API-263#200",
+       "API-264#200",
+       "API-278#200",
+       "API-282#201",
+       "API-282#200",
+       "API-283#200",
+       "API-283#404 (tool-link-not-found)"
+      ],
+      "where": "docs/08-screens/SCR-144.md:32",
+      "box": {
+       "x": 0,
+       "y": 0,
+       "width": 328,
+       "height": 360
+      }
+     }
+    },
+    {
+     "key": "SCR-144#loading",
+     "kind": "state",
+     "name": "SCR-144#loading",
+     "status": null,
+     "detail": {
+      "description": "Thirteen grey rows per part in the stage list's places; the #data section's counts are grey.",
+      "responses": [],
+      "where": "docs/08-screens/SCR-144.md:33",
+      "box": {
+       "x": 340,
+       "y": 0,
+       "width": 328,
+       "height": 360
+      }
+     }
+    },
+    {
+     "key": "SCR-144#empty",
+     "kind": "state",
+     "name": "SCR-144#empty",
+     "status": null,
+     "detail": {
+      "description": "A space with nothing drawn yet: every stage says \"Nothing sent yet\".",
+      "responses": [
+       "API-264#200"
+      ],
+      "where": "docs/08-screens/SCR-144.md:34",
+      "box": {
+       "x": 680,
+       "y": 0,
+       "width": 328,
+       "height": 360
+      }
+     }
+    },
+    {
+     "key": "SCR-144#error",
+     "kind": "state",
+     "name": "SCR-144#error",
+     "status": null,
+     "detail": {
+      "description": "404: \"This project is not in NEXUS\" and a link to the projects. Others: a message and a retry. A refused link: the message by the address, kept.",
+      "responses": [
+       "API-262#default",
+       "API-263#default",
+       "API-264#404",
+       "API-264#default",
+       "API-277#404",
+       "API-277#default",
+       "API-278#400",
+       "API-278#404",
+       "API-278#409",
+       "API-278#413",
+       "API-278#415",
+       "API-278#default",
+       "API-282#400",
+       "API-282#404",
+       "API-282#409",
+       "API-282#413",
+       "API-282#415",
+       "API-282#default",
+       "API-283#400",
+       "API-283#404 (project-not-found)",
+       "API-283#409",
+       "API-283#default"
+      ],
+      "where": "docs/08-screens/SCR-144.md:35",
+      "box": {
+       "x": 0,
+       "y": 372,
+       "width": 328,
+       "height": 360
+      }
+     }
+    },
+    {
+     "key": "SCR-144#permission",
+     "kind": "state",
+     "name": "SCR-144#permission",
+     "status": null,
+     "detail": {
+      "description": "401: the gate, then back here. 403: only the not-owner message; cross-site: a reload.",
+      "responses": [
+       "API-262#401",
+       "API-262#403",
+       "API-263#401",
+       "API-263#403",
+       "API-264#401",
+       "API-264#403",
+       "API-277#401",
+       "API-277#403",
+       "API-278#401",
+       "API-278#403",
+       "API-282#401",
+       "API-282#403",
+       "API-283#401",
+       "API-283#403"
+      ],
+      "where": "docs/08-screens/SCR-144.md:36",
+      "box": {
+       "x": 340,
+       "y": 372,
+       "width": 328,
+       "height": 360
+      }
+     }
+    },
+    {
+     "key": "SCR-144#stale",
+     "kind": "state",
+     "name": "SCR-144#stale",
+     "status": null,
+     "detail": {
+      "description": "\"Read at 10:42\"; read again when the tab comes back into view.",
+      "responses": [],
+      "where": "docs/08-screens/SCR-144.md:37",
+      "box": {
+       "x": 680,
+       "y": 372,
+       "width": 328,
+       "height": 360
+      }
+     }
+    },
+    {
+     "key": "SCR-144#delete",
+     "kind": "state",
+     "name": "SCR-144#delete",
+     "status": null,
+     "detail": {
+      "description": "At #data: the counts of snapshots, diagrams, comments, confirmations and layouts that go, a field for the project's name and a delete button that turns on when the name matches. After the delete, the projects list opens. Deleting is on a PC; the 360-pixel frame is a narrow PC window.",
+      "responses": [
+       "API-277#200"
+      ],
+      "where": "docs/08-screens/SCR-144.md:38",
+      "box": {
+       "x": 0,
+       "y": 744,
+       "width": 328,
+       "height": 240
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "docs/08-screens/SCR-145.md",
+   "name": "SCR-145 Stage workbench",
+   "elements": [
+    {
+     "key": "SCR-145#normal",
+     "kind": "state",
+     "name": "SCR-145#normal",
+     "status": null,
+     "detail": {
+      "description": "The mockup's workbench: stage tabs under the header; the diagram or item table in the middle with dashed AI proposals and the legend; the work panel on the right with three sections. \"This diagram\": its state (\"not confirmed\", \"confirmed\", \"N places changed since the confirmation\") with up to four changes and \"+N more\" to SCR-146, \"AI proposals left out are not confirmed\", and the confirm button. \"AI proposals\": each with its kind, text, reason and the other way, and Accept and Reject (\"All answered\" when none). \"Selected\": the element's kind, name, its threads and the comment box with AI and owner badges. A never-confirmed diagram says nothing is marked (SPEC-034); a part of the document that cannot be read is left out with its file and line (SPEC-003). By stage: 03 draws each user flow as one diagram of its steps, decisions and labelled arrows, top to bottom as its Mermaid source says (SPEC-006); 08 draws one panel per state of a screen, with the state's name, its description and the responses that lead to it, and a state without a description is an empty panel marked \"No description\" (SPEC-008); 09 shows the mockup page in a frame isolated from NEXUS, its own links and tabs working inside it, and lists the design tokens it uses in the panel under \"This diagram\" (SPEC-009). Those stages have one diagram per file, listed above the diagram; choosing one opens it. A removed diagram with open threads comes last, marked removed, and opens for its threads only: they are read, answered and closed, and no new comment, move, direct edit, proposal answer or confirm button shows (SPEC-027). A mockup's elements are its tokens, so a token is selected and commented on like any element; on a phone the token list follows the frame. The view reads the page's status before it frames it. A bar above the frame always marks it as a mockup page, and NEXUS never asks for a sign-in inside it, since text typed into the page can leave with a page it opens. When the page opens another page in its frame, the view opens the mockup page again once with \"The mockup tried to open another page.\"; when it does so again, it stops with \"The mockup keeps opening other pages\" and Open again. A mockup takes no AI proposals: on stage 09 the \"AI proposals\" section says so, and agents comment on its tokens or on the mockup instead. Every element, a flow's box, a state panel or a token, is selected by keyboard too and shows that it is selected. On a phone: the diagram fills the width and the panel is a sheet under it with the threads and the comment box only; moving, renaming, connecting, cancelling edits, answering proposals, confirming and cancelling a confirmation are not offered, with \"Do this on a PC\" (SPEC-051).",
+      "responses": [
+       "API-262#200",
+       "API-263#200",
+       "API-264#200",
+       "API-265#200",
+       "API-266#200",
+       "API-267#201",
+       "API-268#201",
+       "API-269#200",
+       "API-270#200",
+       "API-271#200",
+       "API-272#201",
+       "API-272#200",
+       "API-273#200",
+       "API-274#200",
+       "API-276#200",
+       "API-285#404 (workshop-not-found)",
+       "API-293#200"
+      ],
+      "where": "docs/08-screens/SCR-145.md:47",
+      "box": {
+       "x": 0,
+       "y": 0,
+       "width": 328,
+       "height": 1600
+      }
+     }
+    },
+    {
+     "key": "SCR-145#loading",
+     "kind": "state",
+     "name": "SCR-145#loading",
+     "status": null,
+     "detail": {
+      "description": "The tab row and the panel's section titles stay; the diagram area and the panel's lists are grey shapes in their places, so nothing moves when the data arrives.",
+      "responses": [],
+      "where": "docs/08-screens/SCR-145.md:48",
+      "box": {
+       "x": 340,
+       "y": 0,
+       "width": 328,
+       "height": 1600
+      }
+     }
+    },
+    {
+     "key": "SCR-145#empty",
+     "kind": "state",
+     "name": "SCR-145#empty",
+     "status": null,
+     "detail": {
+      "description": "Nothing sent for this stage: \"Nothing sent yet. An agent sends it with the next push.\" An item table with no items: \"This stage has no items yet\" (SPEC-005).",
+      "responses": [
+       "API-265#200"
+      ],
+      "where": "docs/08-screens/SCR-145.md:49",
+      "box": {
+       "x": 680,
+       "y": 0,
+       "width": 328,
+       "height": 1600
+      }
+     }
+    },
+    {
+     "key": "SCR-145#error",
+     "kind": "state",
+     "name": "SCR-145#error",
+     "status": null,
+     "detail": {
+      "description": "404 for the diagram: after a write, the diagram is read again first, and a removed one still listed opens for its threads only (SPEC-027); otherwise \"This diagram is not in NEXUS\" and a link to the project. For an element, a thread or a change: \"no longer in NEXUS\" and a reload. A refused input: the message by it, kept. Others: a message and a retry; the rest of the workbench still works.",
+      "responses": [
+       "API-262#default",
+       "API-263#default",
+       "API-264#404",
+       "API-264#default",
+       "API-265#404",
+       "API-265#default",
+       "API-266#404",
+       "API-266#default",
+       "API-267#400",
+       "API-267#404",
+       "API-267#409",
+       "API-267#413",
+       "API-267#415",
+       "API-267#default",
+       "API-268#400",
+       "API-268#404",
+       "API-268#409 (request-key-reused)",
+       "API-268#413",
+       "API-268#415",
+       "API-268#default",
+       "API-269#400",
+       "API-269#404",
+       "API-269#409",
+       "API-269#413",
+       "API-269#415",
+       "API-269#default",
+       "API-270#400",
+       "API-270#404",
+       "API-270#409 (request-key-reused)",
+       "API-270#413",
+       "API-270#415",
+       "API-270#default",
+       "API-271#400",
+       "API-271#404",
+       "API-271#409 (request-key-reused)",
+       "API-271#413",
+       "API-271#415",
+       "API-271#default",
+       "API-272#400",
+       "API-272#404",
+       "API-272#409 (request-key-reused)",
+       "API-272#413",
+       "API-272#415",
+       "API-272#default",
+       "API-273#400",
+       "API-273#404",
+       "API-273#409 (request-key-reused)",
+       "API-273#413",
+       "API-273#415",
+       "API-273#default",
+       "API-274#400",
+       "API-274#404",
+       "API-274#409",
+       "API-274#413",
+       "API-274#415",
+       "API-274#default",
+       "API-275#400",
+       "API-275#404",
+       "API-275#409 (request-key-reused)",
+       "API-275#413",
+       "API-275#415",
+       "API-275#default",
+       "API-276#400",
+       "API-276#404",
+       "API-276#409",
+       "API-276#413",
+       "API-276#415",
+       "API-276#default",
+       "API-284#400",
+       "API-284#404",
+       "API-284#409 (request-key-reused)",
+       "API-284#413",
+       "API-284#415",
+       "API-284#default",
+       "API-285#404 (project-not-found)",
+       "API-285#default",
+       "API-286#400",
+       "API-286#404",
+       "API-286#409 (request-key-reused)",
+       "API-286#413",
+       "API-286#415",
+       "API-286#default",
+       "API-287#400",
+       "API-287#404",
+       "API-287#409 (request-key-reused)",
+       "API-287#413",
+       "API-287#415",
+       "API-287#default",
+       "API-288#400",
+       "API-288#404",
+       "API-288#409 (request-key-reused)",
+       "API-288#default",
+       "API-289#400",
+       "API-289#404",
+       "API-289#409 (request-key-reused)",
+       "API-289#413",
+       "API-289#415",
+       "API-289#default",
+       "API-290#400",
+       "API-290#404",
+       "API-290#409 (request-key-reused)",
+       "API-290#default",
+       "API-291#400",
+       "API-291#404",
+       "API-291#409 (request-key-reused)",
+       "API-291#413",
+       "API-291#415",
+       "API-291#default",
+       "API-292#400",
+       "API-292#404",
+       "API-292#409 (request-key-reused)",
+       "API-292#413",
+       "API-292#415",
+       "API-292#default",
+       "API-293#404",
+       "API-293#default"
+      ],
+      "where": "docs/08-screens/SCR-145.md:50",
+      "box": {
+       "x": 0,
+       "y": 1612,
+       "width": 328,
+       "height": 1420
+      }
+     }
+    },
+    {
+     "key": "SCR-145#permission",
+     "kind": "state",
+     "name": "SCR-145#permission",
+     "status": null,
+     "detail": {
+      "description": "401: the gate, then back here, with an unsent comment kept. 403: only the not-owner message; cross-site: a reload.",
+      "responses": [
+       "API-262#401",
+       "API-262#403",
+       "API-263#401",
+       "API-263#403",
+       "API-264#401",
+       "API-264#403",
+       "API-265#401",
+       "API-265#403",
+       "API-266#401",
+       "API-266#403",
+       "API-267#401",
+       "API-267#403",
+       "API-268#401",
+       "API-268#403",
+       "API-269#401",
+       "API-269#403",
+       "API-270#401",
+       "API-270#403",
+       "API-271#401",
+       "API-271#403",
+       "API-272#401",
+       "API-272#403",
+       "API-273#401",
+       "API-273#403",
+       "API-274#401",
+       "API-274#403",
+       "API-275#401",
+       "API-275#403",
+       "API-276#401",
+       "API-276#403",
+       "API-284#401",
+       "API-284#403",
+       "API-285#401",
+       "API-285#403",
+       "API-286#401",
+       "API-286#403",
+       "API-287#401",
+       "API-287#403",
+       "API-288#401",
+       "API-288#403",
+       "API-289#401",
+       "API-289#403",
+       "API-290#401",
+       "API-290#403",
+       "API-291#401",
+       "API-291#403",
+       "API-292#401",
+       "API-292#403",
+       "API-293#401",
+       "API-293#403"
+      ],
+      "where": "docs/08-screens/SCR-145.md:51",
+      "box": {
+       "x": 340,
+       "y": 1612,
+       "width": 328,
+       "height": 1420
+      }
+     }
+    },
+    {
+     "key": "SCR-145#stale",
+     "kind": "state",
+     "name": "SCR-145#stale",
+     "status": null,
+     "detail": {
+      "description": "A bar over the diagram: \"The document changed. Look at the new version.\" (or \"already decided\", \"this thread is closed\", \"the workshop is closed\") with a reload; typed text is kept.",
+      "responses": [
+       "API-268#409 (thread-closed)",
+       "API-270#409 (change-set-state)",
+       "API-270#409 (document-changed)",
+       "API-271#409 (change-set-state)",
+       "API-272#409 (document-changed)",
+       "API-273#409 (change-set-state)",
+       "API-275#409 (document-changed)",
+       "API-286#409 (workshop-closed)",
+       "API-287#409 (workshop-closed)",
+       "API-288#409 (workshop-closed)",
+       "API-289#409 (workshop-closed)",
+       "API-290#409 (workshop-closed)",
+       "API-291#409 (workshop-closed)",
+       "API-292#409 (workshop-closed)"
+      ],
+      "where": "docs/08-screens/SCR-145.md:52",
+      "box": {
+       "x": 680,
+       "y": 1612,
+       "width": 328,
+       "height": 1420
+      }
+     }
+    },
+    {
+     "key": "SCR-145#waiting",
+     "kind": "state",
+     "name": "SCR-145#waiting",
+     "status": null,
+     "detail": {
+      "description": "Changes waiting for reflection: their elements carry the mark; the confirm button is off with \"Reflect or cancel the waiting changes first\" and a list of them, each with Cancel edit (SPEC-029). On a phone, the marks and the list only, without Cancel edit.",
+      "responses": [
+       "API-275#409 (waiting-reflection)"
+      ],
+      "where": "docs/08-screens/SCR-145.md:53",
+      "box": {
+       "x": 0,
+       "y": 3044,
+       "width": 328,
+       "height": 260
+      }
+     }
+    },
+    {
+     "key": "SCR-145#confirmed",
+     "kind": "state",
+     "name": "SCR-145#confirmed",
+     "status": null,
+     "detail": {
+      "description": "\"Confirmed at this version. The stage passes when the agent records it.\" and Cancel confirmation; after the record, \"Recorded\" with its pull request. On a phone, the message without Cancel confirmation.",
+      "responses": [
+       "API-275#201",
+       "API-275#200"
+      ],
+      "where": "docs/08-screens/SCR-145.md:54",
+      "box": {
+       "x": 340,
+       "y": 3044,
+       "width": 328,
+       "height": 260
+      }
+     }
+    },
+    {
+     "key": "SCR-145#not-drawn",
+     "kind": "state",
+     "name": "SCR-145#not-drawn",
+     "status": null,
+     "detail": {
+      "description": "The document does not draw: \"Fix the document so that it draws, then confirm.\" with where the drawing failed; the confirm button is off. A user flow that does not parse shows its source text with the error line marked (SPEC-006); a mockup that cannot be shown, such as one never drawn, shows its name and the reason in place of the page (SPEC-009).",
+      "responses": [
+       "API-275#409 (not-drawn)",
+       "API-293#409"
+      ],
+      "where": "docs/08-screens/SCR-145.md:55",
+      "box": {
+       "x": 680,
+       "y": 3044,
+       "width": 328,
+       "height": 260
+      }
+     }
+    },
+    {
+     "key": "SCR-145#workshop",
+     "kind": "state",
+     "name": "SCR-145#workshop",
+     "status": null,
+     "detail": {
+      "description": "Stage 01 while a workshop is open: one frame per step, free sticky notes in the six kinds, the step's Confirm, and Import from Miro; a step without notes says \"Add notes before confirming\". On a phone, the board read-only with \"Do this on a PC\": no sticky notes, step confirmation or import (SPEC-051).",
+      "responses": [
+       "API-284#201",
+       "API-284#409 (workshop-open)",
+       "API-285#200",
+       "API-286#201",
+       "API-287#200",
+       "API-288#200",
+       "API-289#201",
+       "API-289#200",
+       "API-290#200",
+       "API-291#200",
+       "API-291#409 (step-empty)",
+       "API-292#201"
+      ],
+      "where": "docs/08-screens/SCR-145.md:56",
+      "box": {
+       "x": 0,
+       "y": 3316,
+       "width": 328,
+       "height": 320
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "docs/08-screens/SCR-146.md",
+   "name": "SCR-146 Changes since the last confirmation",
+   "elements": [
+    {
+     "key": "SCR-146#normal",
+     "kind": "state",
+     "name": "SCR-146#normal",
+     "status": null,
+     "detail": {
+      "description": "One row per changed element: a tag (added, removed, changed) and its name from the current diagram, or its key when it was removed; above the list, a link to the document at the confirmed version in the repository, as the \"before\" (SPEC-034); the confirm button at the end. From the mockup: the work panel's \"changed since the confirmation\" list in full. For a removed diagram only the changes show, with no confirm button (SPEC-027). On a phone: the list read-only; Cancel edit and Confirm are not offered, with \"Do this on a PC\".",
+      "responses": [
+       "API-262#200",
+       "API-263#200",
+       "API-264#200",
+       "API-265#200",
+       "API-273#200"
+      ],
+      "where": "docs/08-screens/SCR-146.md:30",
+      "box": {
+       "x": 0,
+       "y": 0,
+       "width": 328,
+       "height": 380
+      }
+     }
+    },
+    {
+     "key": "SCR-146#loading",
+     "kind": "state",
+     "name": "SCR-146#loading",
+     "status": null,
+     "detail": {
+      "description": "Grey rows in the list's places; the confirm button is off.",
+      "responses": [],
+      "where": "docs/08-screens/SCR-146.md:31",
+      "box": {
+       "x": 340,
+       "y": 0,
+       "width": 328,
+       "height": 380
+      }
+     }
+    },
+    {
+     "key": "SCR-146#empty",
+     "kind": "state",
+     "name": "SCR-146#empty",
+     "status": null,
+     "detail": {
+      "description": "Never confirmed: \"Not confirmed yet, so there is nothing to compare with.\" Nothing changed: \"Nothing changed since the confirmation.\" (SPEC-034)",
+      "responses": [
+       "API-265#200"
+      ],
+      "where": "docs/08-screens/SCR-146.md:32",
+      "box": {
+       "x": 680,
+       "y": 0,
+       "width": 328,
+       "height": 380
+      }
+     }
+    },
+    {
+     "key": "SCR-146#error",
+     "kind": "state",
+     "name": "SCR-146#error",
+     "status": null,
+     "detail": {
+      "description": "404: after a confirmation, the diagram is read again first, and a removed one still listed shows only its changes, with no confirm button (SPEC-027); otherwise the diagram or the change is gone, with a link to the project or a reload; others: a message and a retry.",
+      "responses": [
+       "API-262#default",
+       "API-263#default",
+       "API-264#404",
+       "API-264#default",
+       "API-265#404",
+       "API-265#default",
+       "API-273#400",
+       "API-273#404",
+       "API-273#409 (request-key-reused)",
+       "API-273#413",
+       "API-273#415",
+       "API-273#default",
+       "API-275#400",
+       "API-275#404",
+       "API-275#409 (request-key-reused)",
+       "API-275#413",
+       "API-275#415",
+       "API-275#default"
+      ],
+      "where": "docs/08-screens/SCR-146.md:33",
+      "box": {
+       "x": 0,
+       "y": 392,
+       "width": 328,
+       "height": 380
+      }
+     }
+    },
+    {
+     "key": "SCR-146#permission",
+     "kind": "state",
+     "name": "SCR-146#permission",
+     "status": null,
+     "detail": {
+      "description": "401: the gate, then back here. 403: only the not-owner message; cross-site: a reload.",
+      "responses": [
+       "API-262#401",
+       "API-262#403",
+       "API-263#401",
+       "API-263#403",
+       "API-264#401",
+       "API-264#403",
+       "API-265#401",
+       "API-265#403",
+       "API-273#401",
+       "API-273#403",
+       "API-275#401",
+       "API-275#403"
+      ],
+      "where": "docs/08-screens/SCR-146.md:34",
+      "box": {
+       "x": 340,
+       "y": 392,
+       "width": 328,
+       "height": 380
+      }
+     }
+    },
+    {
+     "key": "SCR-146#stale",
+     "kind": "state",
+     "name": "SCR-146#stale",
+     "status": null,
+     "detail": {
+      "description": "\"The document changed. Look at the new version.\" with a reload.",
+      "responses": [
+       "API-273#409 (change-set-state)",
+       "API-275#409 (document-changed)"
+      ],
+      "where": "docs/08-screens/SCR-146.md:35",
+      "box": {
+       "x": 680,
+       "y": 392,
+       "width": 328,
+       "height": 380
+      }
+     }
+    },
+    {
+     "key": "SCR-146#waiting",
+     "kind": "state",
+     "name": "SCR-146#waiting",
+     "status": null,
+     "detail": {
+      "description": "Direct edits waiting for reflection: they come first, each with Cancel edit (on a phone, without it), and the confirm button is off with \"Reflect or cancel the waiting changes first\".",
+      "responses": [
+       "API-275#409 (waiting-reflection)"
+      ],
+      "where": "docs/08-screens/SCR-146.md:36",
+      "box": {
+       "x": 0,
+       "y": 784,
+       "width": 328,
+       "height": 180
+      }
+     }
+    },
+    {
+     "key": "SCR-146#not-drawn",
+     "kind": "state",
+     "name": "SCR-146#not-drawn",
+     "status": null,
+     "detail": {
+      "description": "The document does not draw: the confirm button is off with \"Fix the document so that it draws, then confirm.\" and a link to the diagram, where the failure shows. Only confirming on a PC leads here.",
+      "responses": [
+       "API-275#409 (not-drawn)"
+      ],
+      "where": "docs/08-screens/SCR-146.md:37",
+      "box": {
+       "x": 340,
+       "y": 784,
+       "width": 328,
+       "height": 180
+      }
+     }
+    },
+    {
+     "key": "SCR-146#confirmed",
+     "kind": "state",
+     "name": "SCR-146#confirmed",
+     "status": null,
+     "detail": {
+      "description": "\"Confirmed at this version. The stage passes when the agent records it.\" over an empty list, with the way back to the diagram. Only confirming on a PC leads here.",
+      "responses": [
+       "API-275#201",
+       "API-275#200"
+      ],
+      "where": "docs/08-screens/SCR-146.md:38",
+      "box": {
+       "x": 680,
+       "y": 784,
+       "width": 328,
+       "height": 180
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
