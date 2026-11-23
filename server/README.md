@@ -1219,7 +1219,7 @@ The two operations read and write more tables than they listed, so API-256 lists
   - The status read is a separate task the WBS does not have yet, proposed to the maintainer's delegate with TASK-451's pull request. It would be designed with its own questions: what the status of a Notion page or a Jira project is, read-only tokens kept in the server's environment and never in the database, and when the server reads.
 - **Which addresses count.** The check is by host, never by path. So a database, a board or a filter address of the same tool is accepted too: the server reads neither tool and cannot tell them apart.
   - Notion: `notion.so`, `notion.site`, `notion.com` and their subdomains, such as `www.notion.so` and `app.notion.com`.
-  - Jira: a subdomain of `atlassian.net`, unless its path starts with `/wiki` in any case or encoding, which is Confluence.
+  - Jira: a subdomain of `atlassian.net`, unless the first segment of its path is `wiki`, which is Confluence. That holds in any case or encoding, after extra slashes and before a `;` parameter.
   - The address must be https; an `http` or any other address is refused. It is at most 2,000 characters, without white space, a control character or a backslash. It must hold no user name or password, and no port but 443.
   - Anything else is `invalid_request` on `url`, and the refusal never repeats the address.
 - **The address kept** is the one given, with its host in lower case and without `:443` or its `#fragment`. The path and query stay as given.

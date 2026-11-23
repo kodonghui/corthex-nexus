@@ -131,6 +131,10 @@ describe('tool links', () => {
       'https://example.atlassian.net/wiki',
       'https://example.atlassian.net/WIKI/spaces/BOOK',
       'https://example.atlassian.net/%77iki/spaces/BOOK',
+      // Confluence however its first segment is reached: extra slashes, a ;parameter or an encoded slash.
+      'https://example.atlassian.net//wiki/spaces/BOOK',
+      'https://example.atlassian.net/wiki;x/spaces/BOOK',
+      'https://example.atlassian.net/wiki%2Fspaces%2FBOOK',
       // A user name and a password before the host, joined at run time so that no text here reads as an e-mail address.
       ['https://user:pass', 'www.notion.so/x'].join(AT),
       ['https://user', 'www.notion.so/x'].join(AT),

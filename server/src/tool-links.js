@@ -75,7 +75,8 @@ function shown(row) {
 
 const under = (host, domain) => host === domain || host.endsWith(`.${domain}`);
 
-// Whether a path of atlassian.net is Confluence's: /wiki, in any case and however it is percent-encoded.
+// Whether a path of atlassian.net is Confluence's: its first segment is wiki, in any case, however it is
+// percent-encoded, after any number of slashes and before a slash, a ;parameter or the end.
 function isWiki(path) {
   let decoded = path;
   try {
@@ -83,7 +84,7 @@ function isWiki(path) {
   } catch {
     // A path that does not decode is read as written.
   }
-  return /^\/wiki(?:\/|$)/iu.test(decoded);
+  return /^\/+wiki(?:[/;]|$)/iu.test(decoded);
 }
 
 // The tool an address belongs to and the address kept, { tool, url }, or an invalid_request Problem on url.
