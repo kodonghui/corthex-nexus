@@ -193,7 +193,8 @@ CREATE INDEX comment_threads_by_drawing ON comment_threads (drawing_id, diagram_
 
 -- TBL-156 comments (CTX-038) ← SPEC-016, SPEC-017, SPEC-025, SPEC-051 | terms: TERM-200
 -- One comment or reply in a thread, in order. Rule: an agent's comment names its credential,
--- the owner's names none.
+-- the owner's names none. detail keeps, as a JSON object, what the hub sends with an entry
+-- that has no column of its own: its quote, asks, look_first and a decision's link.
 CREATE TABLE comments (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
   thread_id      INTEGER NOT NULL REFERENCES comment_threads (id) ON DELETE CASCADE,
@@ -201,6 +202,7 @@ CREATE TABLE comments (
   author         TEXT    NOT NULL CHECK (author IN ('owner', 'agent')),
   credential_id  INTEGER REFERENCES agent_credentials (id) ON DELETE RESTRICT,
   body           TEXT    NOT NULL CHECK (length(body) >= 1),
+  detail         TEXT    NOT NULL DEFAULT '{}' CHECK (json_valid(detail) AND json_type(detail) = 'object'),
   created_at     TEXT    NOT NULL,
   CHECK ((author = 'agent') = (credential_id IS NOT NULL)),
   UNIQUE (thread_id, seq)
@@ -209,6 +211,8 @@ CREATE TABLE comments (
 -- TBL-157 pull_requests (CTX-038) ← SPEC-024, SPEC-025, SPEC-032, SPEC-040, SPEC-045 | terms: none
 -- A pull request an agent reported for its work: a reflection, a confirmation record or a
 -- domain document written from a workshop step. Its state keeps a claim (SPEC-045).
+-- merge_commit may stay empty when merged: the hub reports a commit only with a reflection,
+-- and a record's merge needs none.
 CREATE TABLE pull_requests (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
   project_id     INTEGER NOT NULL REFERENCES project_spaces (id) ON DELETE CASCADE,
@@ -219,7 +223,6 @@ CREATE TABLE pull_requests (
   reported_at    TEXT    NOT NULL,
   closed_at      TEXT,
   credential_id  INTEGER NOT NULL REFERENCES agent_credentials (id) ON DELETE RESTRICT,
-  CHECK (state <> 'merged' OR merge_commit IS NOT NULL),
   CHECK ((state = 'open') = (closed_at IS NULL)),
   UNIQUE (project_id, number),
   UNIQUE (id, project_id)
@@ -229,7 +232,9 @@ CREATE TABLE pull_requests (
 -- A change to put into a document: an AI proposal or the owner's direct edit, against a
 -- drawing of its diagram. Rules: only the owner accepts or rejects a proposal; a direct edit
 -- is accepted when it is made; a change set is reflected only when the drawing from the
--- snapshot of its merged pull request shows it (reflected_drawing_id).
+-- snapshot of its merged pull request shows it (reflected_drawing_id). detail keeps, as a
+-- JSON object, a proposal as the hub sends it: its reason, change text, items, added IDs and
+-- proposed document.
 CREATE TABLE change_sets (
   id                    INTEGER PRIMARY KEY AUTOINCREMENT,
   project_id            INTEGER NOT NULL,
@@ -243,6 +248,7 @@ CREATE TABLE change_sets (
   decided_at            TEXT,
   pull_request_id       INTEGER,
   reflected_drawing_id  INTEGER,
+  detail                TEXT    NOT NULL DEFAULT '{}' CHECK (json_valid(detail) AND json_type(detail) = 'object'),
   CHECK (origin = 'direct_edit' OR (thread_id IS NOT NULL AND credential_id IS NOT NULL)),
   CHECK (origin = 'proposal' OR (credential_id IS NULL AND state <> 'proposed')),
   CHECK ((state = 'reflected') = (reflected_drawing_id IS NOT NULL)),

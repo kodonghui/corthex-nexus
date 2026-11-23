@@ -19,7 +19,8 @@ NEXUS v3 is rebuilt from stage 01 in this repository, starting on 2026-11-22. v2
 
 - Work through pull requests to `main`. `main` is protected and requires the `all-checks` status. `legacy/v2` takes only fixes to the running instance.
 - Every pull request gets a Claude review: `/code-review`, plus `/security-review` when the change touches security, such as access, secrets, untrusted input, the network or the push job. Leave the findings and the outcome of each as a PR comment.
-- Just before merge, request a single Codex review with the PR comment `@codex review`. If it fails on a usage limit, decide on the Claude review and note the failure in the PR.
+- Just before merge, request a single Codex review with the PR comment `@codex review`, and do not request it again. Commits pushed after it are checked by the Claude review at the new head.
+- If the Codex review fails on a usage limit, ends in an error, loses its connector or gives no answer within one hour, do not wait for it: note in the PR that it failed, and decide on the Claude review.
 - Write the Codex mention, the at-sign followed by `codex`, only in the one comment that requests the review. Everywhere else, such as PR descriptions, commit messages and other comments, write "Codex review" without the at-sign, because the Codex connector reads any mention as a request for a task.
 
 ## Checks
