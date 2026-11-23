@@ -26,8 +26,10 @@ const KEYED = new Set(['03-user-flow', '08-screen-states', '09-mockup']);
 const FLOW = 'docs/03-user-flow/FL-001-put-a-project-on-nexus.md';
 const SCREEN = 'docs/08-screens/SCR-143.md';
 // What this repository's snapshot draws (see test/snapshots.test.js).
-const DIAGRAMS_02 = 8;
-const DIAGRAMS_03 = 26;
+const DIAGRAMS_02 = 12;
+const DIAGRAMS_03 = 28;
+// The stages the hub read that have no items, which draw empty item tables in 0.3, where 08 and 09 show pictures.
+const EMPTY_03 = ['12-qa', '13-presentation'];
 
 const sha256 = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
 const at = (ms) => new Date(ms).toISOString();
@@ -39,14 +41,15 @@ function digestOf(reads) {
 }
 
 // The documents of a snapshot that diagrams are drawn from, by their paths (see src/snapshot.js): its pictures and
-// each stage's items.
+// each stage's items, an empty list for a stage the hub read that has none.
 function sourcesOf(snapshot) {
   const sources = new Map();
   for (const picture of snapshot.pictures) {
     if (KEYED.has(picture.stage)) sources.set(picture.key, picture.source.text);
     else sources.set(picture.part === '' ? `/pictures/${picture.stage}` : `/pictures/${picture.stage}/${picture.part}`, JSON.stringify(picture.source));
   }
-  for (const stage of new Set(snapshot.items.map((item) => item.stage))) {
+  const read = Object.keys(snapshot.stages).filter((stage) => snapshot.stages[stage].read === true);
+  for (const stage of new Set([...snapshot.items.map((item) => item.stage), ...read])) {
     sources.set(`/items/${stage}`, JSON.stringify(snapshot.items.filter((item) => item.stage === stage)));
   }
   return sources;
@@ -135,18 +138,21 @@ describe('drawing a snapshot', () => {
     const kinds = { '01-domain': 'ddd_board', '05-erd': 'erd', '07-sitemap': 'sitemap', '03-user-flow': 'user_flow', '08-screen-states': 'screen_states', '09-mockup': 'mockup' };
     const expected = [
       ...snapshot.pictures.map((picture) => [picture.stage, KEYED.has(picture.stage) ? picture.key : `/pictures/${picture.stage}/nexus`, kinds[picture.stage]]),
-      ...['02-prd', '04-functional-spec', '06-api', '10-wbs'].map((stage) => [stage, `/items/${stage}`, 'item_table']),
+      ...['02-prd', '04-functional-spec', '06-api', '10-wbs', ...EMPTY_03].map((stage) => [stage, `/items/${stage}`, 'item_table']),
     ];
     const found = diagrams(name);
     assert.deepEqual(found.map((row) => [row.stage, row.source_key, row.kind]).sort(), expected.sort());
-    // Stages 01, 05 and 07 have pictures in every format, so their items draw no table; nor do 03's in 0.3.
-    for (const stage of ['01-domain', '03-user-flow', '05-erd', '07-sitemap']) assert.equal(diagram(name, `/items/${stage}`), undefined);
+    // Stages 01, 05 and 07 have pictures in every format, so their items draw no table; nor do 03, 08 and 09, whose
+    // files 0.3 draws. 11 has no source, so the hub did not read it: it has no table.
+    for (const stage of ['01-domain', '03-user-flow', '05-erd', '07-sitemap', '08-screen-states', '09-mockup', '11-development']) {
+      assert.equal(diagram(name, `/items/${stage}`), undefined);
+    }
 
     const names = new Map(found.map((row) => [row.source_key, row.name]));
     assert.deepEqual([names.get('/pictures/01-domain/nexus'), names.get('/pictures/05-erd/nexus'), names.get('/pictures/07-sitemap/nexus')],
       ['DDD board', 'ERD', 'Sitemap']);
     assert.equal(names.get(FLOW), 'FL-001 Put a project on NEXUS');
-    assert.equal(names.get('/items/02-prd'), '02-prd');
+    assert.equal(names.get('/items/02-prd'), 'Item table');
     for (const row of found) {
       assert.deepEqual([row.created_at, row.removed_at], [at(clock.now), null]);
       // One drawing each, of this snapshot at its commit, whose digest covers the document it read.
@@ -177,12 +183,29 @@ describe('drawing a snapshot', () => {
     assert.deepEqual(answer.json.diagrams, counted({ drawn: DIAGRAMS_02 }));
     assert.deepEqual(diagrams(name).map((row) => [row.source_key, row.kind]).sort(), [
       ['/items/02-prd', 'item_table'], ['/items/03-user-flow', 'item_table'], ['/items/04-functional-spec', 'item_table'],
-      ['/items/06-api', 'item_table'], ['/items/10-wbs', 'item_table'], ['/pictures/01-domain/nexus', 'ddd_board'],
-      ['/pictures/05-erd/nexus', 'erd'], ['/pictures/07-sitemap/nexus', 'sitemap'],
+      ['/items/06-api', 'item_table'], ['/items/08-screen-states', 'item_table'], ['/items/09-mockup', 'item_table'],
+      ['/items/10-wbs', 'item_table'], ['/items/12-qa', 'item_table'], ['/items/13-presentation', 'item_table'],
+      ['/pictures/01-domain/nexus', 'ddd_board'], ['/pictures/05-erd/nexus', 'erd'], ['/pictures/07-sitemap/nexus', 'sitemap'],
     ]);
     const flows = elements(drawings(diagram(name, '/items/03-user-flow').id)[0].id);
     assert.deepEqual(flows.map((row) => row.element_key), snapshot.items.filter((item) => item.stage === '03-user-flow').map((item) => item.id));
     assert.equal(flows.length, 13);
+  });
+
+  test('a stage the hub read that has no items draws an empty item table; one it did not read has none (SPEC-005)', async () => {
+    const name = 'empty-tables';
+    const snapshot = repositorySnapshot(FORMAT_02, { name });
+    // Stage 12 is read with no items; 13 is not read, its source missing; 11 has no source.
+    delete snapshot.stages['13-presentation'].read;
+    snapshot.stages['13-presentation'].source_state = 'missing';
+    assert.deepEqual((await push(snapshot)).json.diagrams, counted({ drawn: DIAGRAMS_02 - 1 }));
+    for (const stage of ['08-screen-states', '09-mockup', '12-qa']) {
+      const table = diagram(name, `/items/${stage}`);
+      assert.deepEqual([table.kind, table.name, table.removed_at], ['item_table', 'Item table', null]);
+      const [drawing, ...others] = drawings(table.id);
+      assert.deepEqual([drawing.status, elements(drawing.id), others], ['drawn', [], []]);
+    }
+    for (const stage of ['11-development', '13-presentation']) assert.equal(diagram(name, `/items/${stage}`), undefined);
   });
 
   describe('a failing source keeps the last good drawing and is named in failures', () => {
@@ -449,8 +472,9 @@ describe('drawing a snapshot', () => {
       clock.now = START + 6000;
       const snapshot = repositorySnapshot(FORMAT_03, { name, commit: a });
       const answer = await push(snapshot);
-      assert.deepEqual([answer.json.same_commit, answer.json.diagrams], [true, counted({ drawn: 19, unchanged: DIAGRAMS_02 - 1, removed: 1 })]);
-      assert.equal(diagram(name, '/items/03-user-flow').removed_at, at(clock.now));
+      assert.deepEqual([answer.json.same_commit, answer.json.diagrams], [true, counted({ drawn: 19, unchanged: DIAGRAMS_02 - 3, removed: 3 })]);
+      // The tables of 03, 08 and 09 make way: 03's with its 13 rows, and the empty ones of 08 and 09.
+      for (const stage of ['03-user-flow', '08-screen-states', '09-mockup']) assert.equal(diagram(name, `/items/${stage}`).removed_at, at(clock.now));
       // The files are drawn from the revision they complete.
       for (const picture of snapshot.pictures.filter((each) => KEYED.has(each.stage))) {
         assert.deepEqual(drawings(diagram(name, picture.key).id).map((drawing) => [drawing.snapshot_id, drawing.document_version, drawing.status]),
@@ -484,7 +508,7 @@ describe('drawing a snapshot', () => {
       assert.deepEqual([first.json.diagrams, first.json.failures], [counted({ drawn: DIAGRAMS_02 - 1, failed: 1 }), expected]);
       const answer = await push(newer);
       assert.deepEqual([answer.json.same_commit, answer.json.diagrams, answer.json.failures],
-        [true, counted({ drawn: 19, unchanged: DIAGRAMS_02 - 2, failed: 1, removed: 1 }), expected]);
+        [true, counted({ drawn: 19, unchanged: DIAGRAMS_02 - 4, failed: 1, removed: 3 }), expected]);
       assert.deepEqual(drawings(diagram(failing, '/pictures/05-erd/nexus').id).map((drawing) => drawing.status), ['failed']);
     });
   });
@@ -496,7 +520,10 @@ describe('drawing a snapshot', () => {
     clock.now = START + 7000;
     const without = repositorySnapshot(FORMAT_03, { name, commit: b, replaces: a });
     without.pictures = without.pictures.filter((picture) => picture.key !== SCREEN);
+    // Stage 04 is no longer read, so the snapshot holds no items of it.
     without.items = without.items.filter((item) => item.stage !== '04-functional-spec');
+    delete without.stages['04-functional-spec'].read;
+    without.stages['04-functional-spec'].source_state = 'missing';
     assert.deepEqual((await push(without)).json.diagrams, counted({ unchanged: DIAGRAMS_03 - 2, removed: 2 }));
     for (const source of [SCREEN, '/items/04-functional-spec']) assert.equal(diagram(name, source).removed_at, at(clock.now));
     // Removed, a diagram is not one of the project's: the same snapshot again counts it nowhere.
@@ -552,7 +579,9 @@ describe('drawing a snapshot', () => {
     assert.deepEqual([answer.status, answer.json.diagrams], [201, counted({})]);
     assert.deepEqual(diagrams('no-drawers'), []);
     const tables = await serverWith({ item_table: testDrawers().item_table });
-    assert.deepEqual((await push(repositorySnapshot(FORMAT_03, { name: 'tables-only' }), tables)).json.diagrams, counted({ drawn: 4 }));
+    // With no drawer for the files of 03, 08 and 09, those stages show no picture, so they show their item tables, 08's
+    // and 09's empty: the tables of 02, 03, 04, 06, 08, 09, 10, 12 and 13.
+    assert.deepEqual((await push(repositorySnapshot(FORMAT_03, { name: 'tables-only' }), tables)).json.diagrams, counted({ drawn: 9 }));
     assert.deepEqual(new Set(diagrams('tables-only').map((row) => row.kind)), new Set(['item_table']));
   });
 

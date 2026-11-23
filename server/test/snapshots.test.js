@@ -84,7 +84,8 @@ function documentsOf(snapshot) {
   }
   for (const stage of STAGES) {
     const items = snapshot.items.filter((item) => item.stage === stage);
-    if (items.length > 0) documents.set(`/items/${stage}`, { stage, text: JSON.stringify(items) });
+    // A stage the hub read keeps its items, an empty list when it has none.
+    if (items.length > 0 || snapshot.stages[stage]?.read === true) documents.set(`/items/${stage}`, { stage, text: JSON.stringify(items) });
   }
   // A picture file keeps the other members of its source in the rest, which a test below checks on its own.
   const pictures = snapshot.pictures.map(({ source: { text, ...others }, ...picture }) => (
@@ -95,10 +96,11 @@ function documentsOf(snapshot) {
 }
 
 // The diagrams this repository's snapshot draws, with the test drawers (see src/drawing.js): in corthex-hub/0.2 the
-// pictures of stages 01, 05 and 07 and the item tables of stages 02, 03, 04, 06 and 10; in 0.3 the same pictures, the
-// 19 picture files of stages 03, 08 and 09 and the item tables of stages 02, 04, 06 and 10.
-const DIAGRAMS_02 = 8;
-const DIAGRAMS_03 = 26;
+// pictures of stages 01, 05 and 07, the item tables of stages 02, 03, 04, 06 and 10, and the empty item tables of
+// stages 08, 09, 12 and 13, which the hub read and which have no items; in 0.3 the same pictures, the 19 picture files
+// of stages 03, 08 and 09, and the item tables of stages 02, 04, 06, 10, 12 and 13.
+const DIAGRAMS_02 = 12;
+const DIAGRAMS_03 = 28;
 
 // The answer of a push as the contract's PushAnswer, with the counts of what it drew: diagrams, laid over none.
 function pushAnswer({ project, revision, commit, replaced = null, created = false, sameCommit = false, refused = [], diagrams = {} }) {
@@ -299,9 +301,9 @@ describe('snapshot intake', () => {
       const before = kept(name, 2);
       const snapshot = repositorySnapshot(FORMAT_03, { name, commit: b, replaces: a });
       const answer = await push(snapshot);
-      // It draws the 19 files of stages 03, 08 and 09, and stage 03's item table makes way for them (SPEC-005).
+      // It draws the 19 files of stages 03, 08 and 09, and the item tables of those stages make way for them (SPEC-005).
       assert.deepEqual([answer.status, answer.json], [200, pushAnswer({
-        project: name, revision: 2, commit: b, sameCommit: true, diagrams: { drawn: 19, unchanged: DIAGRAMS_02 - 1, removed: 1 },
+        project: name, revision: 2, commit: b, sameCommit: true, diagrams: { drawn: 19, unchanged: DIAGRAMS_02 - 3, removed: 3 },
       })]);
       const after = kept(name, 2);
       const added = [...after.keys()].filter((path) => !before.has(path)).sort();
