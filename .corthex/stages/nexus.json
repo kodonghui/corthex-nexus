@@ -150,10 +150,16 @@
       "updated": "2026-11-23T12:40:00+09:00"
     },
     "09-mockup": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Ask the stage-09 checkpoint: the direction of the 2026-11-21 mockup for the five screens, and freezing the tokens of design/ before development uses them",
-      "updated": "2026-11-23T13:30:00+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Stage 09 mockup at commit 7fff711: the direction of the 2026-11-21 click mockup for the five screens SCR-142 to SCR-146, every one of the 39 states drawn at 360 and 1440 pixels in the light and dark themes, 78 frames in design/mockup/nexus-mockup.html; and the tokens frozen before development: IBM Carbon Gray 10 and Gray 100 with the CORTHEX layer unchanged, and the six nexus.shell tokens of design/base.tokens.json. No approved item removed, deferred or changed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        }
+      ],
+      "next": "Stage 10: plan the work of the first release from the approved design of stages 01 to 09",
+      "updated": "2026-11-23T12:31:00+09:00"
     },
     "10-wbs": {
       "state": "not_started",

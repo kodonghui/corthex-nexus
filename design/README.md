@@ -2,7 +2,7 @@
 
 [한국어](README.ko.md)
 
-Status: a draft for the stage-09 checkpoint.
+Status: passed on 2026-11-23; the tokens are frozen before development.
 
 Inputs: the screen definitions of stage 08 ([docs/08-screens](../docs/08-screens/README.md), five screens and 39 states), REQ-073 (IBM Carbon components with 8 px corners on controls, 16 px corners on panels and pill-shaped tags), and the click mockup of 2026-11-21, kept in the project's records. The maintainer approved that mockup on 2026-11-22 together with the ten redesign recommendations, which chose the direction: this stage draws that one direction for every screen instead of two candidates per screen.
 
@@ -100,4 +100,4 @@ These are reversible, so they were made here and listed for the checkpoint:
 
 ## 6. Checkpoint
 
-The direction is chosen and the tokens are frozen before development uses them. This stage removes, defers or changes no approved item of stages 01 to 08; the variants in section 2 keep their words in the screen definitions.
+The maintainer passed stage 09 on 2026-11-23 at 7fff711 through the delegate they named for checkpoints; the answer is in the project's records. The direction is chosen and the tokens are frozen before development uses them. This stage removes, defers or changes no approved item of stages 01 to 08; the variants in section 2 keep their words in the screen definitions.
