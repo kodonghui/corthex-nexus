@@ -147,7 +147,8 @@ export function stageGroups(declared, diagramParts) {
 
 // The state of a stage's row (SPEC-035, SPEC-027): a stage pass belongs to the stage, since TBL-161 keeps no part, so
 // the stage's latest pass makes every row of the stage passed, or changed_since_pass once a confirmation it rests on
-// was invalidated (changed_at, which TASK-435 sets), with the pass's time; the pass stays in the record. Without a
+// was invalidated or a diagram appeared after it without one (changed_at, which after-drawing.js sets), with the pass's
+// time; the pass stays in the record. Without a
 // pass, a row is open while it holds a diagram that is not removed, and not_sent otherwise: a removed diagram is no
 // longer one of its stage's diagrams.
 export function stageState(pass, live) {

@@ -323,6 +323,14 @@ describe('agent comments', () => {
       [left.status, left.json.target, left.json.element, left.json.removed_name, left.json.item, left.json.drawing],
       [201, 'diagram', 'TBL-148', 'snapshots', '', idOf('dw', erd.drawing)],
     );
+    // An element the current drawing draws as unreadable counts as gone too (SPEC-027): the thread goes on the diagram.
+    db.prepare("INSERT INTO elements (drawing_id, element_key, trace_id, kind, name, status) VALUES (?, ?, ?, 'table', ?, 'unreadable')")
+      .run(erdNow.drawing, 'TBL-149', 'TBL-149', 'stage_documents');
+    const unreadable = await comment(erdComment({ item: 'TBL-149' }));
+    assert.deepEqual(
+      [unreadable.status, unreadable.json.target, unreadable.json.element, unreadable.json.removed_name, unreadable.json.item],
+      [201, 'diagram', 'TBL-149', 'stage_documents', ''],
+    );
     // An item table's row (stage 02, the project as a whole).
     const row = await comment({ part: '', stage: '02-prd', item: 'REQ-020', text: 'Does this cover a phone?', quote: 'on a diagram' });
     assert.deepEqual([row.status, row.json.target, row.json.element, row.json.part, row.json.entries[0].quote], [201, 'row', 'REQ-020', '', 'on a diagram']);

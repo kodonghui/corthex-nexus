@@ -24,7 +24,8 @@
 // unchanged and keeps that drawing, so a confirmation of it stays (SPEC-033). A drawing is drawn or failed: a drawer
 // that cannot read its source throws SourceFailure, and the drawing keeps where, as failed_path and failed_line, with no
 // elements, while the diagram shows its last good drawing (SPEC-001). A drawing reads the documents of its own snapshot
-// only. What a drawing changes after it, confirmations, change sets and threads, is TASK-435's (note 14 of the WBS).
+// only. What a drawing changes after it, confirmations, change sets, threads and stage passes, is after-drawing.js's
+// (TASK-435), which the push calls with what drawSnapshot changed.
 //
 // Elements. A drawer returns a drawing's elements, each with a key that stays the same across drawings: the key the
 // drawer gives, or else elementKey's (see drawer.js), so comments, positions and the diff follow an element from one
@@ -46,8 +47,11 @@
 //   not draw again, each { path, stage, part }; none otherwise.
 // - time: the push's time, for created_at, drawn_at and removed_at.
 // - drawers: the drawers by kind, DRAWERS unless a test gives its own.
-// It returns what the push answer says of the drawing: { diagrams: { drawn, unchanged, failed, removed }, failures },
-// failures as the contract's PushAnswer gives them. drawn counts the new drawings that drew, failed the diagrams whose
+// It returns what the push answer says of the drawing, { diagrams: { drawn, unchanged, failed, removed }, failures },
+// failures as the contract's PushAnswer gives them, and changed, what after-drawing.js needs: each diagram this call
+// drew or removed, as { id, stage, kind, created, restored, removed, madeWay, drawing, status, digest }, drawing the
+// key of its new drawing, or null when it kept its last one, with that drawing's status and source_digest; removed
+// with madeWay for an item table that makes way for its stage's pictures (SPEC-005). drawn counts the new drawings that drew, failed the diagrams whose
 // source in the push fails, whether it changed or not, removed the diagrams this snapshot removed, and unchanged every
 // other diagram that is not removed, those kept as last drawn included. A diagram this call does not draw again fails
 // when its last drawing failed and earlier holds its source, as drawing it again would. It refuses nothing.
@@ -416,6 +420,7 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
   const pictured = new Set(diagrams.filter((diagram) => diagram.kind !== ITEM_TABLE).map((diagram) => diagram.stage));
   const counts = { drawn: 0, unchanged: 0, failed: 0, removed: 0 };
   const failures = [];
+  const changed = [];
   const held = new Set();
   // The warnings of a stage's picture (01, 05 and 07), from the snapshot's checks, read once, when the first such
   // picture is drawn; any other document has none.
@@ -433,7 +438,9 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
     if (drawer === undefined) continue;
     const outcome = drawOne(statements, snapshot.id, drawer, document, kind, warningsOf(document));
     let diagram = bySource.get(stageAndPath(document.stage, document.path));
-    if (diagram === undefined) {
+    const created = diagram === undefined;
+    const restored = !created && diagram.removed_at !== null;
+    if (created) {
       const { lastInsertRowid } = statements.insertDiagram.run(
         project.id, document.stage, document.path, kind, outcome.name ?? defaultName(kind, document), time,
       );
@@ -444,13 +451,19 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
     }
     held.add(diagram.id);
     const unchanged = sameAsLast(statements, diagram, outcome);
+    let drawing = null;
     if (!unchanged) {
       const { lastInsertRowid } = statements.insertDrawing.run(
         project.id, diagram.id, snapshot.id, snapshot.commit, outcome.status, outcome.digest,
         outcome.failure?.path ?? null, outcome.failure?.line ?? null, time,
       );
-      for (const row of outcome.rows) statements.insertElement.run(Number(lastInsertRowid), ...row);
+      drawing = Number(lastInsertRowid);
+      for (const row of outcome.rows) statements.insertElement.run(drawing, ...row);
     }
+    changed.push({
+      id: Number(diagram.id), stage: document.stage, kind, created, restored, removed: false, madeWay: false, drawing,
+      status: outcome.status, digest: outcome.digest,
+    });
     if (outcome.status === 'failed') {
       counts.failed += 1;
       failures.push(failureEntry(diagram.id, document, outcome.failure));
@@ -468,8 +481,14 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
     }
     statements.remove.run(time, diagram.id);
     counts.removed += 1;
+    // An item table of a picture stage goes because its format or an earlier snapshot draws the stage's pictures.
+    const madeWay = diagram.kind === ITEM_TABLE && FILE_STAGES.has(diagram.stage) && (carries.has(diagram.stage) || pictured.has(diagram.stage));
+    changed.push({
+      id: Number(diagram.id), stage: diagram.stage, kind: diagram.kind, created: false, restored: false, removed: true, madeWay,
+      drawing: null, status: null, digest: null,
+    });
   }
-  return { diagrams: counts, failures: failures.slice(0, MAX_FAILURES) };
+  return { diagrams: counts, failures: failures.slice(0, MAX_FAILURES), changed };
 }
 
 // What the push answer says of the drawing when the same commit comes again in the same or an older format, which

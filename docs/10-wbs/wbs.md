@@ -119,6 +119,7 @@ The reviews of the feature change, pull request 104, of the stage-06 table corre
 23. TASK-414: The test of pull request 105 checks only that each table a write lists is fed by one of its spec rows; it does not check reads or tables left out of a list. A check of what each operation actually reads and writes belongs with the code.
 24. TASK-458: Which of TASK-458, TASK-460 and TASK-461 draws the stage-01 frame's dashed proposals and change marks (API-265), which all three name; the first to land draws them and the others reuse it.
 25. TASK-440: TASK-440 reads stage passes and TASK-435 marks them changed before TASK-447 writes them (TBL-161, SPEC-035); their tests seed the rows.
+26. TASK-447: SPEC-025's exception, "the merged document lacks the change → reflected anyway, and a comment says what is missing", has no task yet: TASK-435 marks such change sets reflected anyway and writes no comment. TASK-447, which carries SPEC-025 and comes after TASK-445 defines the change steps, adds the comment. It then needs the comments and the change steps (TBL-156, TBL-159); who writes the comment, since an owner's row names no credential and an agent's needs one; and its wording on the owner's Korean screen, which that task proposes.
 
 ## 6. Checks
 
