@@ -120,7 +120,7 @@ A refused push changes nothing, since it runs in its write's transaction.
 | the picture's `key` | 03, 08 or 09 | the file's whole text, `source.text` |
 | `/pictures/<stage>`, or `/pictures/<stage>/<part>` for a part | 01, 05 or 07 | the hub's parsed picture, `source`, as JSON |
 | `/items/<stage>` | that stage | the snapshot's items of that stage, as a JSON array |
-| `/snapshot` | none | the rest as it came: every other field, the pictures without their sources and the items of no stage |
+| `/snapshot` | none | the rest as it came: every other field, the pictures without their sources (a file's picture keeps the members of its source other than `text`) and the items of no stage |
 
 The schema lists only the fields NEXUS reads and says NEXUS keeps the others as they come; `/snapshot` keeps them, the project's title and parts among them. A key never starts with `/`, so the two kinds of names never meet.
 

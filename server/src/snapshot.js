@@ -14,10 +14,10 @@
 // - a picture source of stage 01, 05 or 07: the hub's parsed picture as JSON, named /pictures/<stage> or, for a part,
 //   /pictures/<stage>/<part>;
 // - each stage's items: the snapshot's items of that stage as a JSON array, named /items/<stage>;
-// - the rest of the snapshot as JSON, named /snapshot, with no stage: every other field as it came, its pictures
-//   without their sources and its items without those of a stage, which the documents above hold. The Snapshot schema
-//   lists only the fields NEXUS reads and says NEXUS keeps the others as they come; the project's title and parts are
-//   among them.
+// - the rest of the snapshot as JSON, named /snapshot, with no stage: every other field as it came, less what the
+//   documents above hold: its pictures without their sources, a file's picture keeping the other members of its
+//   source, and its items without those of a stage. The Snapshot schema lists only the fields NEXUS reads and says
+//   NEXUS keeps the others as they come; the project's title and parts are among them.
 // A key is a path in the repository, which never starts with /, so the names NEXUS gives never meet a key.
 //
 // REQ-077: a document whose text looks like a secret or an email address (see sensitive.js) is left out and named in
@@ -234,13 +234,20 @@ function checkKept(body) {
 }
 
 // The rest of the snapshot: every field as it came, its pictures without their sources and its items without those
-// of a stage. Built as own members, so that a member named __proto__ stays a member.
+// of a stage. A picture of stage 03, 08 or 09 keeps the members of its source other than text, which its document
+// does not hold. Built as own members, so that a member named __proto__ stays a member.
 function restOf(body) {
   return Object.fromEntries(Object.entries(body).map(([name, value]) => {
     if (name === 'items') return [name, value.filter((item) => !STAGE_SET.has(item.stage))];
-    if (name === 'pictures') return [name, value.map(({ source, ...picture }) => picture)];
+    if (name === 'pictures') return [name, value.map(restOfPicture)];
     return [name, value];
   }));
+}
+
+function restOfPicture({ source, ...picture }) {
+  if (!KEYED_STAGES.has(picture.stage)) return picture;
+  const { text, ...others } = source;
+  return Object.keys(others).length === 0 ? picture : { ...picture, source: others };
 }
 
 // Refuses a rest that holds text that looks like a secret or an email address, naming the member that holds it.

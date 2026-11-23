@@ -82,7 +82,10 @@ function documentsOf(snapshot) {
     const items = snapshot.items.filter((item) => item.stage === stage);
     if (items.length > 0) documents.set(`/items/${stage}`, { stage, text: JSON.stringify(items) });
   }
-  const rest = { ...snapshot, items: [], pictures: snapshot.pictures.map(({ source, ...picture }) => picture) };
+  // A picture file keeps the other members of its source in the rest, which a test below checks on its own.
+  const pictures = snapshot.pictures.map(({ source: { text, ...others }, ...picture }) => (
+    KEYED.has(picture.stage) && Object.keys(others).length > 0 ? { ...picture, source: others } : picture));
+  const rest = { ...snapshot, items: [], pictures };
   documents.set('/snapshot', { stage: '', text: JSON.stringify(rest) });
   return documents;
 }
@@ -208,6 +211,20 @@ describe('snapshot intake', () => {
     assert.equal(documents.get('docs/03-user-flow/FL-001-put-a-project-on-nexus.md').stage, '03-user-flow');
     assert.equal(documents.get('design/mockup/nexus-mockup.html').text, readFileSync(new URL('../../design/mockup/nexus-mockup.html', import.meta.url), 'utf8'));
     assert.deepEqual((await held(name)).json, heldAnswer(name, commit, 1, FORMAT_03));
+  });
+
+  test('a picture file\'s source keeps its members other than text, in the rest of the snapshot', async () => {
+    const name = 'file-members';
+    const snapshot = repositorySnapshot(FORMAT_03, { name });
+    const file = snapshot.pictures.find((picture) => picture.stage === '08-screen-states');
+    Object.assign(file.source, { truncated: false, lines: { counted: 12 } });
+    assert.equal((await push(snapshot)).status, 201);
+    const documents = kept(name, 1);
+    assert.equal(documents.get(file.key).text, file.source.text);
+    const rest = JSON.parse(documents.get('/snapshot').text);
+    const sources = rest.pictures.filter((picture) => 'source' in picture);
+    const { source, ...fields } = file;
+    assert.deepEqual(sources, [{ ...fields, source: { truncated: false, lines: { counted: 12 } } }]);
   });
 
   describe('one project, commit by commit', () => {
@@ -388,9 +405,12 @@ describe('snapshot intake', () => {
         ['items', (snapshot) => snapshot.items.push({ id: 'X-1', title: email })],
         ['body', (snapshot) => { snapshot.extra = { note: secrets.gitHub }; }],
         ['body', (snapshot) => { snapshot[email] = true; }],
+        ['pictures', (snapshot) => {
+          snapshot.pictures.find((picture) => KEYED.has(picture.stage)).source.note = `${marker} ${secrets.slack}`;
+        }, FORMAT_03],
       ];
-      for (const [field, change] of cases) {
-        const snapshot = repositorySnapshot(FORMAT_02, { name: 'leaks-whole' });
+      for (const [field, change, format = FORMAT_02] of cases) {
+        const snapshot = repositorySnapshot(format, { name: 'leaks-whole' });
         change(snapshot);
         const answer = await push(snapshot);
         assert.deepEqual([answer.status, answer.json.code, answer.json.field], [400, 'invalid_snapshot', field], field);
