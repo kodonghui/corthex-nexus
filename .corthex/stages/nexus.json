@@ -439,7 +439,7 @@
           "date": "2026-11-24"
         }
       ],
-      "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465",
+      "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",
       "updated": "2026-11-24T07:35:30+09:00"
     },
     "11-development": {

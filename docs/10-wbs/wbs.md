@@ -80,7 +80,7 @@ The first development task is TASK-413, the server skeleton; questions 1 to 4 we
 
 ## 3. Open questions
 
-Each has a recommendation. Questions 1 to 4 were asked one by one at this stage's checkpoint and each was answered with its recommendation on 2026-11-23; 5 and 6 are asked of the maintainer directly at their tasks.
+Each has a recommendation. Questions 1 to 4 were asked one by one at this stage's checkpoint and each was answered with its recommendation on 2026-11-23; 5 to 7 are asked of the maintainer directly at their tasks.
 
 1. **Runtime.** Node 24 LTS with its own node:http and node:sqlite and no runtime dependency, behind the gate as v2 ran. The alternative is a Cloudflare Worker with D1, which the schema also fits but which cannot keep backup files beside the server (SPEC-052).
 2. **Screens.** Plain HTML, CSS and JavaScript modules served by the server, with no framework and no build step, as the stage-09 mockup is written. A framework would add build dependencies. A screen task's "matches at both widths" is checked by a browser walk with the agent's own browser tool, recorded in its pull request; a headless browser in the tests would be a development dependency, asked first.
