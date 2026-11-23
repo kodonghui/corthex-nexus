@@ -345,7 +345,7 @@ paths:
       x-corthex:
         id: API-244
         spec: [SPEC-013, SPEC-014]
-        tables: [TBL-147, TBL-148, TBL-151, TBL-155, TBL-158, TBL-160]
+        tables: [TBL-147, TBL-148, TBL-151, TBL-155, TBL-156, TBL-158, TBL-160]
         release: Must
         family: agent
         omit:
@@ -3621,7 +3621,7 @@ paths:
       x-corthex:
         id: API-264
         spec: [SPEC-005, SPEC-027, SPEC-035, SPEC-046]
-        tables: [TBL-147, TBL-151, TBL-160, TBL-161, TBL-168]
+        tables: [TBL-147, TBL-151, TBL-155, TBL-160, TBL-161, TBL-168]
         release: Must
         family: owner
         omit:
@@ -8574,7 +8574,7 @@ paths:
       x-corthex:
         id: API-291
         spec: [SPEC-039]
-        tables: [TBL-163, TBL-162, TBL-166]
+        tables: [TBL-163, TBL-161, TBL-166]
         release: Should
         family: owner
       security:

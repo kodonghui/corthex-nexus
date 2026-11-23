@@ -333,7 +333,7 @@ CREATE TABLE stage_passes (
 );
 CREATE INDEX stage_passes_by_stage ON stage_passes (project_id, stage);
 
--- TBL-162 workshops (CTX-040) ← SPEC-036, SPEC-039, SPEC-040 | terms: TERM-211
+-- TBL-162 workshops (CTX-040) ← SPEC-036, SPEC-040 | terms: TERM-211
 -- Stage-01 event storming on a NEXUS board. Rule: the board is the source while the workshop
 -- is open, and a project has at most one open workshop.
 CREATE TABLE workshops (
