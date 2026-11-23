@@ -157,7 +157,7 @@ function again({ statements, store, project, held, snapshot, time, drawers }) {
   const revision = Number(held.revision);
   // The push's documents, less those left out as REQ-077 asks: a diagram that is not drawn again and whose source is
   // among them fails as its last drawing did.
-  const sent =snapshot.documents.filter((document) => document.why === null);
+  const sent = snapshot.documents.filter((document) => document.why === null);
   let drawn;
   let refused = [];
   if (isNewer(snapshot.format, held.format_version)) {

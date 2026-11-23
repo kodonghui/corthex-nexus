@@ -340,7 +340,7 @@ function defaultName(kind, document) {
   return document.stage;
 }
 
-const sourceOf = (stage, path) => `${stage}\n${path}`;
+const stageAndPath = (stage, path) => `${stage}\n${path}`;
 
 // A failures entry of the push answer: the diagram, the part and stage of its document, and where it failed.
 const failureEntry = (diagramId, document, failure) => ({
@@ -351,7 +351,7 @@ const failureEntry = (diagramId, document, failure) => ({
 // last drawing failed and the push holds its source, as drawing it again would find; otherwise unchanged. sent holds
 // the push's documents by stage and path.
 function countNotDrawn(diagram, sent, counts, failures) {
-  const document = sent.get(sourceOf(diagram.stage, diagram.source_key));
+  const document = sent.get(stageAndPath(diagram.stage, diagram.source_key));
   if (diagram.status !== 'failed' || document === undefined) {
     counts.unchanged += 1;
     return;
@@ -361,7 +361,7 @@ function countNotDrawn(diagram, sent, counts, failures) {
   failures.push(failureEntry(diagram.id, document, { path: diagram.failed_path, line }));
 }
 
-const sentBy = (documents) => new Map(documents.map((document) => [sourceOf(document.stage, document.path), document]));
+const sentBy = (documents) => new Map(documents.map((document) => [stageAndPath(document.stage, document.path), document]));
 
 // Draws a kept snapshot (see the top of this file).
 export function drawSnapshot({ store, project, snapshot, completed, documents, earlier = [], time, drawers = DRAWERS }) {
@@ -372,7 +372,7 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
   const scope = completed ? new Set(snapshot.carries.filter((stage) => !snapshot.carried.includes(stage))) : null;
   const inScope = (stage) => scope === null || scope.has(stage);
   const diagrams = statements.diagrams.all(project.id);
-  const bySource = new Map(diagrams.map((diagram) => [sourceOf(diagram.stage, diagram.source_key), diagram]));
+  const bySource = new Map(diagrams.map((diagram) => [stageAndPath(diagram.stage, diagram.source_key), diagram]));
   const sent = sentBy(earlier);
   // The stages a snapshot drew pictures of, whose item tables made way for them.
   const pictured = new Set(diagrams.filter((diagram) => diagram.kind !== ITEM_TABLE).map((diagram) => diagram.stage));
@@ -386,7 +386,7 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
     const drawer = kind !== null && Object.hasOwn(drawers, kind) ? drawers[kind] : undefined;
     if (drawer === undefined) continue;
     const outcome = drawOne(statements, snapshot.id, drawer, document, kind);
-    let diagram = bySource.get(sourceOf(document.stage, document.path));
+    let diagram = bySource.get(stageAndPath(document.stage, document.path));
     if (diagram === undefined) {
       const { lastInsertRowid } = statements.insertDiagram.run(
         project.id, document.stage, document.path, kind, outcome.name ?? defaultName(kind, document), time,
