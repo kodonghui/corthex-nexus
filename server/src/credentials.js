@@ -146,21 +146,20 @@ function nameOf(body) {
   return name;
 }
 
-// API-281: marks the credential revoked and releases its live claims. Revoked again, it changes nothing: changed false.
+// API-281: marks the credential revoked and releases its live claims, in one transaction. Revoked again, it changes
+// nothing (SPEC-050, "the same result"): changed false and no claim released. None can be live then: the revoke
+// released them all, and a write of the credential's that waited behind it is refused (rule 4, see admission.js).
 function revokeCredential({ store, params, body, now }) {
   if (Object.keys(body).length > 0) throw invalidRequest('body', 'the body is the empty object {}');
   const statements = statementsOf(store);
   const key = keyOf(PREFIX, params.credential);
   const row = key === null ? undefined : statements.byKey.get(key);
   if (row === undefined) throw new Problem('credential_not_found');
+  if (row.revoked_at !== null) return { body: { credential: shown(row), changed: false, claims_released: 0 } };
   const at = timeOf(now);
-  const changed = row.revoked_at === null;
-  if (changed) statements.revoke.run(at, key);
-  // A revoked credential's claims are released whether it was revoked now or before, so none of its claims stays live.
+  statements.revoke.run(at, key);
   const released = Number(statements.release.run(at, key).changes);
-  return {
-    body: { credential: shown({ ...row, revoked_at: row.revoked_at ?? at }), changed, claims_released: released },
-  };
+  return { body: { credential: shown({ ...row, revoked_at: at }), changed: true, claims_released: released } };
 }
 
 // The routes of API-279, API-280 and API-281 (see router.js), all of the owner family.

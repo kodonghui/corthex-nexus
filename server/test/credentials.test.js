@@ -439,9 +439,13 @@ describe('agent credentials', () => {
     clock.now += MINUTE;
     const repeat = await revoke(credential.id, requestKey);
     assert.deepEqual(repeat.answer.json, answer.json);
+    // Revoked again, nothing changes, not even a claim: this one is seeded behind the rule-4 recheck, which keeps a
+    // revoked credential from taking one, so that a repeat that touched claims would show.
+    const [stray] = seedClaims([[credential, null]]);
     const again = await revoke(credential.id);
     assert.deepEqual(again.answer.json, { credential: answer.json.credential, changed: false, claims_released: 0 });
     assert.equal(row(credential.id).revoked_at, answer.json.credential.revoked_at);
+    assert.deepEqual({ ...released(stray) }, { released_at: null, release_reason: null });
     assert.equal((await agentRead(pair(other.credential, other.secret))).answer.status, 200);
   });
 
