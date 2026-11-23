@@ -1420,7 +1420,7 @@ Every write takes a request key. The workshop's screen is TASK-462's, and the [p
   - A note of another step, or an ID the open workshop does not hold, gets `note_not_found`. A note a person made gets `note_made_by_owner`. Either way the draft writes nothing.
   - A note already removed is passed over and not counted in `removed`.
   - The agent's own notes are every note an agent made, whatever its credential, since credentials are replaced.
-  - A note without `x` or `y` takes it from a grid in its frame: 5 columns 160 apart and rows 120 apart, after the step's live notes, row by row.
+  - A note without `x` or `y` takes it from a grid in its frame, 5 columns 160 apart and rows 120 apart: the first grid place, row by row, that no live note of the step holds, nor a note the draft places. So a draft never places a note on another, and a place a removed note left is taken again.
   - A confirmed step takes no draft: `step_confirmed`.
 - **Confirming a step** (API-291, SPEC-039).
   - It writes the step's `confirmed_at`, in any order of steps, and leaves the step's notes as they are. A step without a live note gets `step_empty`.
@@ -1433,9 +1433,12 @@ Every write takes a request key. The workshop's screen is TASK-462's, and the [p
   - The link must be the project's repository, `/pull/` and a number, as the [agent to-do](#to-do-entries) gives it. Case is ignored. A link of another repository, or any link for a project that names no repository, gets `repository_mismatch`. A link of another form gets `invalid_request` on `pull_request`.
   - Each number is one pull request (TBL-157), with the purpose `domain_document`, and it may write several steps. A number already reported for a reflection or a record gets `invalid_request` on `pull_request`.
   - `opened` links the pull request to the step.
-  - `closed`, without a merge, marks the pull request closed and unlinks the step, which stays confirmed and waiting. Opened again, it is linked again.
-  - `merged` marks the pull request merged and the step written, which closes the step's `write_step` entry. A pull request already merged stays merged, so any step reported on it is written.
+  - `closed`, without a merge, marks the pull request closed and unlinks every step of the workshop linked to it, which stays confirmed and waiting. Opened again, the step reported is linked again.
+  - `merged` links the step too, marks the pull request merged and writes every step of the workshop linked to it, which closes their `write_step` entries.
+  - A pull request already merged stays merged. A step reported `opened` or `merged` on it is written; one reported `closed` on it changes nothing.
+  - A pull request never reported that is reported `closed` links no step, so nothing is kept of it, and the answer's `changed` is false.
   - A written step stays written: a later report answers `changed` false. So does a report that changes nothing, such as the same event again.
+  - Once the workshop closes, a report gets `workshop_closed`, as any change to the board does. A retry with the first request key gets the first answer.
   - The workshop closes when all 11 steps are confirmed and written. The merged report that writes the last step not written closes it, and answers `workshop_state` `closed`. A step needs a note to be confirmed, so every frame, step 0 included, needs one. Nothing else closes a workshop.
 - **No claim.** No workshop write makes or keeps a claim. A step has no entry ID, so it is never claimed (see [To-do entries](#to-do-entries)). `Nexus-Session`, which API-260 and API-261 need, is checked as a session label and kept nowhere.
 - **Not found.** No detail repeats the value.

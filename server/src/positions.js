@@ -84,11 +84,18 @@ function moveOf(body) {
   }
   for (const [field, value] of [['x', x], ['y', y]]) {
     if (value === undefined) throw invalidRequest(field, `${field} is required`);
-    if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > FAR) {
-      throw invalidRequest(field, `${field} must be a number from -${FAR} to ${FAR}`);
-    }
+    coordinateOf(value, field);
   }
   return { element, x, y };
+}
+
+// A place's coordinate, a finite number from -1,000,000 to 1,000,000 (the contract's x and y), or invalid_request on
+// field. The workshop's notes take the same (TASK-452).
+export function coordinateOf(value, field) {
+  if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > FAR) {
+    throw invalidRequest(field, `${field} must be a number from -${FAR} to ${FAR}`);
+  }
+  return value;
 }
 
 // API-274: moves an element of the diagram {diagram} of the project {project} (SPEC-012). The project and the diagram

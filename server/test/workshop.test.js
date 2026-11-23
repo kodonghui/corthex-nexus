@@ -11,9 +11,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { idOf } from '../src/ids.js';
+import { STEPS } from '../src/params.js';
 import { ROUTES } from '../src/routes.js';
 import { openStore } from '../src/store.js';
-import { GRID, pullRequestNumber, STEPS } from '../src/workshop.js';
+import { GRID, pullRequestNumber } from '../src/workshop.js';
 import { responseRecord } from './responses.js';
 import { closedEntries, openEntries, REPOSITORY, seed } from './seed.js';
 import { exchange, head, localGate, newId, startServer, testStore, TRACE_ID } from './support.js';
@@ -202,15 +203,29 @@ describe('workshop', () => {
     assert.deepEqual(frame.notes, answer.json.notes);
     assert.deepEqual(frame.notes.map((each) => [each.text, each.confidence, each.made_by, each.from_miro, each.created_at]), notes.map((each) => [each.text, each.confidence, 'agent', false, at(4)]));
     const grid = (slot) => [(slot % GRID.columns) * GRID.x, Math.floor(slot / GRID.columns) * GRID.y];
+    // A note placed in full holds no grid place; one placed in half takes the next place's other coordinate.
     assert.deepEqual(frame.notes.map((each) => [each.x, each.y]), [
-      grid(0), grid(1), grid(2), grid(3), grid(4), grid(5), [999.5, -3], [grid(7)[0], 77], grid(8), grid(9),
+      grid(0), grid(1), grid(2), grid(3), grid(4), grid(5), [999.5, -3], [grid(6)[0], 77], grid(7), grid(8),
     ]);
-    // The next draft goes on after the step's live notes.
-    const more = await draft(space.name, '2', { notes: [drafted('Event 10')] });
-    assert.deepEqual([more.json.notes[0].x, more.json.notes[0].y], grid(10));
+    // The next draft takes the first place no live note holds: the half-placed note left grid(6) free.
+    const more = await draft(space.name, '2', { notes: [drafted('Event 10'), drafted('Event 11')] });
+    assert.deepEqual(more.json.notes.map((each) => [each.x, each.y]), [grid(6), grid(9)]);
     // Each agent note names its credential.
     const credentials = new Set(db.prepare("SELECT credential_id FROM sticky_notes WHERE made_by = 'agent' AND step = '2'").all().map((row) => Number(row.credential_id)));
     assert.deepEqual([...credentials], [s.agent.key]);
+  });
+
+  test('a draft never places a note on another: removed places are taken again, and those the owner holds are passed over', async () => {
+    const { space } = await opened();
+    const grid = (slot) => [(slot % GRID.columns) * GRID.x, Math.floor(slot / GRID.columns) * GRID.y];
+    const first = (await draft(space.name, '4', { notes: ['A', 'B', 'C', 'D', 'E'].map((text) => drafted(text)) })).json.notes;
+    // The owner puts a note on grid(5) and another off the grid.
+    await add(space.name, { ...note('4', 'Owner on the grid'), x: grid(5)[0], y: grid(5)[1] });
+    await add(space.name, { ...note('4', 'Owner off the grid'), x: 7, y: 9 });
+    const second = await draft(space.name, '4', { notes: [drafted('F'), drafted('G'), drafted('H')], remove: [first[0].id, first[1].id] });
+    assert.deepEqual(second.json.notes.map((each) => [each.x, each.y]), [grid(0), grid(1), grid(6)]);
+    const places = (await read(space.name)).json.steps.find((step) => step.step === '4').notes.map((each) => `${each.x},${each.y}`);
+    assert.equal(new Set(places).size, places.length);
   });
 
   test('a draft removes the agent\'s own notes of its step with their links, and never a note a person made (REQ-047)', async () => {
@@ -313,22 +328,53 @@ describe('workshop', () => {
     assert.deepEqual([stepRow(workshop, '1').pull_request_id, db.prepare('SELECT state, closed_at FROM pull_requests WHERE id = ?').get(pullRequest.id).closed_at], [null, at(9)]);
     await report(space.name, '1', { event: 'opened', pull_request: pull(41) });
     assert.equal(stepRow(workshop, '1').pull_request_id, pullRequest.id);
-    // One pull request writes both steps; merged writes each and closes its entry.
+    // One pull request writes both steps: merged writes every step linked to it and closes their entries.
     await report(space.name, '2', { event: 'opened', pull_request: pull(41) });
     clock.now = Date.parse(at(10));
     const merged = await report(space.name, '1', { event: 'merged', pull_request: pull(41) });
     assert.deepEqual(merged.json, { workshop: id, step: '1', workshop_state: 'open', written_at: at(10), changed: true });
     assert.deepEqual({ ...db.prepare('SELECT state, closed_at FROM pull_requests WHERE id = ?').get(pullRequest.id) }, { state: 'merged', closed_at: at(10) });
-    const second = await report(space.name, '2', { event: 'opened', pull_request: pull(41) });
-    assert.deepEqual([second.json.written_at, second.json.changed], [at(10), true]);
+    assert.equal(stepRow(workshop, '2').written_at, at(10));
     assert.deepEqual(openEntries(db, space.id), []);
     assert.deepEqual(closedEntries(db, space.id), [{ kind: 'write_step', reason: 'done', step: '1' }, { kind: 'write_step', reason: 'done', step: '2' }]);
-    // A written step stays written.
+    // A written step stays written, whatever is reported of it.
+    const second = await report(space.name, '2', { event: 'merged', pull_request: pull(41) });
+    assert.deepEqual(second.json, { ...merged.json, step: '2', changed: false });
     const later = await report(space.name, '1', { event: 'closed', pull_request: pull(42) });
     assert.deepEqual(later.json, { ...merged.json, changed: false });
     assert.equal(stepRow(workshop, '1').written_at, at(10));
     const shown = (await read(space.name)).json.steps.filter((step) => ['1', '2'].includes(step.step)).map((step) => step.written_at);
     assert.deepEqual(shown, [at(10), at(10)]);
+    // A pull request never reported that is reported closed keeps nothing, and the pull request 42 above was not kept.
+    assert.deepEqual(db.prepare('SELECT number FROM pull_requests WHERE project_id = ?').all(space.id).map((row) => row.number), [41]);
+  });
+
+  test('every step linked to a pull request follows it, and a merged pull request stays merged', async () => {
+    const { space, workshop } = await opened();
+    for (const step of ['3', '4', '5']) {
+      await add(space.name, note(step, `Step ${step}`));
+      await confirm(space.name, step);
+    }
+    await report(space.name, '3', { event: 'opened', pull_request: pull(50) });
+    await report(space.name, '4', { event: 'opened', pull_request: pull(50) });
+    // Closed: both steps are unlinked, whichever step the report names.
+    const closed = await report(space.name, '5', { event: 'closed', pull_request: pull(50) });
+    assert.deepEqual([closed.json.changed, closed.json.written_at], [true, null]);
+    assert.deepEqual(['3', '4', '5'].map((step) => stepRow(workshop, step).pull_request_id), [null, null, null]);
+    // Reopened for step 3 alone, then merged: step 3 is written, step 4 waits for a report of its own.
+    await report(space.name, '3', { event: 'opened', pull_request: pull(50) });
+    clock.now = Date.parse(at(12));
+    await report(space.name, '3', { event: 'merged', pull_request: pull(50) });
+    assert.deepEqual(['3', '4'].map((step) => stepRow(workshop, step).written_at), [at(12), null]);
+    // A merged pull request stays merged: reported closed for a step it does not write, nothing changes ...
+    const stale = await report(space.name, '4', { event: 'closed', pull_request: pull(50) });
+    assert.deepEqual([stale.json.changed, stale.json.written_at], [false, null]);
+    assert.equal(stepRow(workshop, '4').written_at, null);
+    assert.equal(db.prepare('SELECT state FROM pull_requests WHERE project_id = ? AND number = 50').get(space.id).state, 'merged');
+    // ... and reported opened for a step, it writes that step.
+    clock.now = Date.parse(at(13));
+    const late = await report(space.name, '4', { event: 'opened', pull_request: pull(50) });
+    assert.deepEqual([late.json.changed, late.json.written_at], [true, at(13)]);
   });
 
   test('a report before its step is confirmed names the open steps, and writing the last step closes the workshop (SPEC-040)', async () => {
@@ -448,6 +494,7 @@ describe('workshop', () => {
       [() => draft(space.name, '1', { notes: [drafted(secret)], remove: ['sn_x'] }), 'remove'],
       [() => report(space.name, '1', { event: 'merged' }), 'pull_request'],
       [() => report(space.name, '1', { event: 'reopened', pull_request: pull(1) }), 'event'],
+      [() => report(space.name, '1', { event: ['merged'], pull_request: pull(1) }), 'event'],
       [() => report(space.name, '1', { event: 'merged', pull_request: pull(1), commit: secret }), 'body'],
       [() => report(space.name, '1', { event: 'merged', pull_request: `${pull(1)} ` }), 'pull_request'],
       [() => draft(space.name, '1', { notes: [drafted(secret)] }, { 'Nexus-Session': undefined }), 'Nexus-Session'],

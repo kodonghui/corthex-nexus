@@ -11,8 +11,9 @@
 //   confirmed yet. A step needs a note to be confirmed (step_empty), so every frame needs one.
 // - A report's link is the project's repository, /pull/ and a number (repository_mismatch otherwise, and for a project
 //   without a repository). One pull request (TBL-157, purpose domain_document) may write several steps; a number
-//   reported for a reflection or a record is invalid_request. opened links the pull request to the step, merged
-//   writes the step, closed unlinks it. A written step stays written: a later report answers changed false.
+//   reported for a reflection or a record is invalid_request. opened links the pull request to the step; merged
+//   writes every step linked to it, the reported one included; closed unlinks every step linked to it. A merged pull
+//   request stays merged. A written step stays written: a later report answers changed false.
 // - No workshop write makes or keeps a claim: a step has no entry ID, so it is never claimed (see entries.js), and
 //   Nexus-Session is only checked as a label.
 // - An owner's rename of an agent's note makes it the owner's (made_by owner, without credential or confidence
@@ -21,7 +22,7 @@
 // - Removing a note, by the owner or the agent, removes its live links too, a person's link included. A removed note
 //   or link keeps its row with removed_at and is no longer listed.
 // - A draft removes only notes of its own step, before it places its notes. A note without x or y takes it from a
-//   grid in the frame: 5 columns 160 apart and rows 120 apart, after the step's live notes.
+//   grid in the frame, 5 columns 160 apart and rows 120 apart: the first place no live note of the step holds.
 // - Confirming a step writes only its confirmed_at, in any order of steps; steps 1-b, 7 and 9 each write one pass of
 //   stage 01 (TBL-161). The owner may still change a confirmed step's notes; an agent's draft gets step_confirmed.
 // - kind is the contract's free text of 1 to 40 characters, kept as sent.
@@ -35,25 +36,24 @@ import { pullRequestLink, sessionOf } from './claims.js';
 import { boundedText, emptyOf, formOf, onlyFields } from './comments.js';
 import { isCheckpointStep, stepsChanged } from './entries.js';
 import { idOf, keyOf } from './ids.js';
+import { STEPS } from './params.js';
+import { coordinateOf } from './positions.js';
 import { invalidRequest, Problem } from './problem.js';
 
-// Event storming's steps in their order (the contract's Step, TERM-212).
-export const STEPS = Object.freeze(['0', '1', '1-b', '2', '3', '4', '5', '6', '7', '8', '9']);
 // The stage whose checkpoints steps 1-b, 7 and 9 pass (REQ-043).
 const DOMAIN_STAGE = '01-domain';
 export const LIMITS = Object.freeze({
   // The contract's Note: text and kind.
   text: 200,
   kind: 40,
-  // A note's place, either way.
-  place: 1_000_000,
   // WorkshopStep.notes and Workshop.links: as many as the read lists.
   stepNotes: 1000,
   links: 2000,
   // StepDraft: notes and remove.
   draft: 200,
 });
-// Where a note without a place goes in its frame: the step's live notes fill a grid row by row.
+// Where a note without a place goes in its frame: the first place of this grid, row by row, that no live note of the
+// step holds.
 export const GRID = Object.freeze({ columns: 5, x: 160, y: 120 });
 const NOTE_ID = /^sn_[0-9a-hjkmnp-tv-z]{12}$/u;
 const NOTE_ID_LENGTH = 15;
@@ -83,11 +83,17 @@ function statementsOf(store) {
       steps: store.prepare('SELECT step, confirmed_at, written_at, pull_request_id FROM workshop_steps WHERE workshop_id = ? AND project_id = ?'),
       confirm: store.prepare('UPDATE workshop_steps SET confirmed_at = ? WHERE workshop_id = ? AND step = ? AND confirmed_at IS NULL'),
       linkStep: store.prepare('UPDATE workshop_steps SET pull_request_id = ? WHERE workshop_id = ? AND step = ?'),
-      writeStep: store.prepare('UPDATE workshop_steps SET written_at = ?, pull_request_id = ? WHERE workshop_id = ? AND step = ?'),
+      writeLinked: store.prepare(
+        'UPDATE workshop_steps SET written_at = ? WHERE workshop_id = ? AND pull_request_id = ? AND written_at IS NULL',
+      ),
+      unlinkSteps: store.prepare(
+        'UPDATE workshop_steps SET pull_request_id = NULL WHERE workshop_id = ? AND pull_request_id = ? AND written_at IS NULL',
+      ),
       pass: store.prepare('INSERT INTO stage_passes (project_id, stage, passed_at) VALUES (?, ?, ?)'),
       notes: store.prepare(`SELECT ${NOTE} FROM sticky_notes WHERE workshop_id = ? AND removed_at IS NULL ORDER BY id`),
       note: store.prepare(`SELECT ${NOTE} FROM sticky_notes WHERE id = ? AND workshop_id = ?`),
       stepNotes: store.prepare('SELECT count(*) AS n FROM sticky_notes WHERE workshop_id = ? AND step = ? AND removed_at IS NULL'),
+      stepPlaces: store.prepare('SELECT x, y FROM sticky_notes WHERE workshop_id = ? AND step = ? AND removed_at IS NULL'),
       insertNote: store.prepare(
         `INSERT INTO sticky_notes (workshop_id, step, kind, body, x, y, made_by, credential_id, confidence, created_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -149,13 +155,16 @@ function linkOf(row) {
   };
 }
 
+// The steps of a workshop by name.
+const stepsOf = (statements, workshop, projectId) => new Map(statements.steps.all(workshop, projectId).map((row) => [row.step, row]));
+
 // A workshop as the contract's Workshop: its steps in their order, each with its live notes, oldest first, and its
 // live links, oldest first.
 function workshopOf(statements, projectId, row) {
   const workshop = Number(row.id);
   const notes = new Map(STEPS.map((step) => [step, []]));
   for (const note of statements.notes.all(workshop)) notes.get(note.step).push(noteOf(note));
-  const steps = new Map(statements.steps.all(workshop, projectId).map((step) => [step.step, step]));
+  const steps = stepsOf(statements, workshop, projectId);
   return {
     id: idOf('ws', workshop),
     state: row.state,
@@ -186,9 +195,6 @@ function openWorkshopOf(statements, projectId) {
   return { ...row, id: Number(row.id) };
 }
 
-// The steps of a workshop by name.
-const stepsOf = (statements, workshop, projectId) => new Map(statements.steps.all(workshop, projectId).map((row) => [row.step, row]));
-
 // The live note of the open workshop an ID names, or note_not_found.
 function liveNote(statements, workshop, id) {
   const key = keyOf('sn', id);
@@ -199,17 +205,18 @@ function liveNote(statements, workshop, id) {
 
 const stepNotes = (statements, workshop, step) => Number(statements.stepNotes.get(workshop, step).n);
 
+// The grid place a note's place is, numbered row by row from 0, or null when it is none.
+function slotOf(x, y) {
+  const column = x / GRID.x;
+  const row = y / GRID.y;
+  if (!Number.isInteger(column) || !Number.isInteger(row) || column < 0 || column >= GRID.columns || row < 0) return null;
+  return row * GRID.columns + column;
+}
+
 // The request's fields. Each refusal names the field and never repeats its value (rule 5).
 
 function stepField(value, field) {
   if (typeof value !== 'string' || !STEPS.includes(value)) throw invalidRequest(field, `${field} must be one of the event storming steps`);
-  return value;
-}
-
-function placeField(value, field) {
-  if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > LIMITS.place) {
-    throw invalidRequest(field, `${field} must be a number from -${LIMITS.place} to ${LIMITS.place}`);
-  }
   return value;
 }
 
@@ -229,8 +236,8 @@ function newNoteOf(body) {
     step: stepField(required(body, 'step'), 'step'),
     kind: kindField(required(body, 'kind'), 'kind'),
     text: textField(required(body, 'text'), 'text'),
-    x: placeField(required(body, 'x'), 'x'),
-    y: placeField(required(body, 'y'), 'y'),
+    x: coordinateOf(required(body, 'x'), 'x'),
+    y: coordinateOf(required(body, 'y'), 'y'),
   };
 }
 
@@ -241,8 +248,8 @@ function noteChangeOf(body) {
   return {
     step: Object.hasOwn(body, 'step') ? stepField(body.step, 'step') : undefined,
     text: Object.hasOwn(body, 'text') ? textField(body.text, 'text') : undefined,
-    x: Object.hasOwn(body, 'x') ? placeField(body.x, 'x') : undefined,
-    y: Object.hasOwn(body, 'y') ? placeField(body.y, 'y') : undefined,
+    x: Object.hasOwn(body, 'x') ? coordinateOf(body.x, 'x') : undefined,
+    y: Object.hasOwn(body, 'y') ? coordinateOf(body.y, 'y') : undefined,
   };
 }
 
@@ -275,8 +282,8 @@ function draftOf(body) {
       kind: kindField(required(note, 'kind', `${at}.kind`), `${at}.kind`),
       text: textField(required(note, 'text', `${at}.text`), `${at}.text`),
       confidence,
-      x: Object.hasOwn(note, 'x') ? placeField(note.x, `${at}.x`) : null,
-      y: Object.hasOwn(note, 'y') ? placeField(note.y, `${at}.y`) : null,
+      x: Object.hasOwn(note, 'x') ? coordinateOf(note.x, `${at}.x`) : null,
+      y: Object.hasOwn(note, 'y') ? coordinateOf(note.y, `${at}.y`) : null,
     };
   });
   let remove = [];
@@ -293,7 +300,7 @@ function draftOf(body) {
 function reportOf(body) {
   onlyFields(body, new Set(['event', 'pull_request']));
   const event = required(body, 'event');
-  if (!Object.hasOwn(EVENTS, event)) throw invalidRequest('event', 'event must be opened, merged or closed');
+  if (typeof event !== 'string' || !Object.hasOwn(EVENTS, event)) throw invalidRequest('event', 'event must be opened, merged or closed');
   const link = formOf(body, 'pull_request', { pattern: LINK, length: LINK_LENGTH, required: true });
   return { event, link };
 }
@@ -477,10 +484,24 @@ function draftWorkshopStep({ store, params, request, body, credential, now }) {
   if (live + draft.notes.length > LIMITS.stepNotes) throw invalidRequest('notes', `a step holds at most ${LIMITS.stepNotes} notes`);
   const time = timeOf(now);
   for (const key of removing) removeWithLinks(statements, workshop.id, key, time);
-  const placed = draft.notes.map((note, index) => {
-    const slot = live + index;
-    const x = note.x ?? (slot % GRID.columns) * GRID.x;
-    const y = note.y ?? Math.floor(slot / GRID.columns) * GRID.y;
+  // The grid places the step's live notes and the draft's placed notes hold; a note without a place takes the next
+  // free one, so that no note lands on another.
+  const taken = new Set();
+  const hold = (x, y) => {
+    const slot = slotOf(x, y);
+    if (slot !== null) taken.add(slot);
+  };
+  for (const row of statements.stepPlaces.all(workshop.id, params.step)) hold(Number(row.x), Number(row.y));
+  for (const note of draft.notes) if (note.x !== null && note.y !== null) hold(note.x, note.y);
+  let free = 0;
+  const placed = draft.notes.map((note) => {
+    let { x, y } = note;
+    if (x === null || y === null) {
+      while (taken.has(free)) free += 1;
+      taken.add(free);
+      x ??= (free % GRID.columns) * GRID.x;
+      y ??= Math.floor(free / GRID.columns) * GRID.y;
+    }
     const { lastInsertRowid } = statements.insertNote.run(
       workshop.id, params.step, note.kind, note.text, x, y, 'agent', credential.key, note.confidence, time,
     );
@@ -492,8 +513,9 @@ function draftWorkshopStep({ store, params, request, body, credential, now }) {
   return { status: 201, body: { workshop: idOf('ws', workshop.id), step: params.step, notes: placed, removed: removing.length } };
 }
 
-// API-261: reports the pull request that writes a confirmed step into the domain document. merged marks the step
-// written; when every step is written, the workshop closes and the domain document is the source again (SPEC-040).
+// API-261: reports the pull request that writes a confirmed step into the domain document. The steps linked to a
+// pull request follow it: written once it is merged, unlinked once it closes. When every step is written, the
+// workshop closes and the domain document is the source again (SPEC-040).
 function reportStepWritten({ store, params, request, body, credential, now }) {
   const statements = statementsOf(store);
   const project = projectOf(statements, params.project);
@@ -507,14 +529,16 @@ function reportStepWritten({ store, params, request, body, credential, now }) {
     throw new Problem('steps_open', undefined, {}, { steps: open });
   }
   const number = pullRequestNumber(link, project.repository);
-  const answer = (changed, writtenAt, state) => ({
+  const answer = (changed, writtenAt, state = 'open') => ({
     body: { workshop: idOf('ws', workshop.id), step: params.step, workshop_state: state, written_at: writtenAt, changed },
   });
-  if (step.written_at !== null) return answer(false, step.written_at, 'open');
+  if (step.written_at !== null) return answer(false, step.written_at);
   const row = statements.pullRequest.get(project.id, number);
   if (row !== undefined && row.purpose !== 'domain_document') {
     throw invalidRequest('pull_request', 'this pull request was reported for other work than the domain document');
   }
+  // A pull request never reported that closed links no step, so nothing is kept of it.
+  if (row === undefined && event === 'closed') return answer(false, null);
   const time = timeOf(now);
   // The pull request moves on: open to merged or closed, closed to open again or merged; a merged one stays merged.
   let changed = false;
@@ -532,25 +556,20 @@ function reportStepWritten({ store, params, request, body, credential, now }) {
       changed = true;
     }
   }
-  // The step follows its pull request: linked while it is open, written once it is merged, unlinked when it closes.
-  let writtenAt = null;
+  // opened and merged link the step to the pull request unless it is closed; closed links none.
   const linked = step.pull_request_id === null ? null : Number(step.pull_request_id);
-  if (state === 'merged') {
-    statements.writeStep.run(time, pullRequest, workshop.id, params.step);
-    writtenAt = time;
-    changed = true;
-  } else if (state === 'open' && linked !== pullRequest) {
+  if (event !== 'closed' && state !== 'closed' && linked !== pullRequest) {
     statements.linkStep.run(pullRequest, workshop.id, params.step);
     changed = true;
-  } else if (state === 'closed' && linked === pullRequest) {
-    statements.linkStep.run(null, workshop.id, params.step);
-    changed = true;
   }
-  if (!changed) return answer(false, null, 'open');
+  if (state === 'merged' && statements.writeLinked.run(time, workshop.id, pullRequest).changes > 0) changed = true;
+  if (state === 'closed' && statements.unlinkSteps.run(workshop.id, pullRequest).changes > 0) changed = true;
+  if (!changed) return answer(false, null);
   stepsChanged(store, { project: project.id, workshop: workshop.id, time });
-  const done = writtenAt !== null && STEPS.every((name) => name === params.step || steps.get(name).written_at !== null);
+  const after = stepsOf(statements, workshop.id, project.id);
+  const done = STEPS.every((name) => after.get(name).written_at !== null);
   if (done) statements.closeWorkshop.run(time, workshop.id);
-  return answer(true, writtenAt, done ? 'closed' : 'open');
+  return answer(true, after.get(params.step).written_at, done ? 'closed' : 'open');
 }
 
 // The routes of the ten operations (see router.js): API-260 and API-261 of the agent family, the rest of the owner's.
