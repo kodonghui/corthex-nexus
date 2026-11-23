@@ -152,6 +152,24 @@ describe('the ERD drawer', () => {
     assert.deepEqual(ofKind(elements, 'line').map((line) => [line.detail.from, line.detail.to]),
       [['TBL-1', 'table:publishers'], ['TBL-2', 'table:publishers'], ['TBL-2', 'TBL-1']]);
     assert.deepEqual(elements.map((element) => element.kind), ['table', 'table', 'table', 'line', 'line', 'line']);
+    // The missing table's key is its name in lower case, whichever foreign key names it first.
+    const first = pictureOf({ name: 'a', foreign_keys: [foreignKey(['id'], 'Ghost', 1)] }, { name: 'b', foreign_keys: [foreignKey(['id'], 'ghost', 2)] });
+    const keysOf = (picture) => ofKind(draw(picture).elements, 'table', 'missing').map((table) => table.key);
+    assert.deepEqual(keysOf(first), ['table:ghost']);
+    first.tables.reverse();
+    assert.deepEqual(keysOf(first), ['table:ghost']);
+    // Once the schema creates it, with no trace ID, the table keeps that key, whatever its case.
+    const created = draw(pictureOf({ name: 'a', foreign_keys: [foreignKey(['id'], 'Ghost', 1)] }, { name: 'Ghost' })).elements;
+    assert.deepEqual(ofKind(created, 'table').map((table) => table.key), ['table:a', 'table:ghost']);
+    assert.deepEqual(ofKind(created, 'line').map((line) => line.detail.to), ['table:ghost']);
+  });
+
+  test('a left-out statement shows its file and line, or its file alone when the two pass 300 characters', () => {
+    const long = `db/${'x'.repeat(293)}.sql`;
+    assert.equal(long.length, 300);
+    const { elements } = draw(pictureOf(), [partial(`${long}:123456: too long a where`), partial('db/nexus.sql:7: short')]);
+    assert.deepEqual(ofKind(elements, 'statement', 'left_out').map((element) => [element.name, element.detail.where]),
+      [['too long a where', long], ['short', 'db/nexus.sql:7']]);
   });
 
   test('a table entry the drawer cannot read is left out, marked with its where, and lines still reach it', () => {
@@ -184,6 +202,11 @@ describe('the ERD drawer', () => {
       check('picture-left-out', 'the picture source is in another repository', STAGE),
       partial('no file named here'),
       partial('/srv/outside.sql:4: not a path in the repository'),
+      partial('picture truncated: 5000 tables'),
+      partial('db/a.sql: could not decode at offset:12: bad'),
+      partial('db/my schema.sql:41: a path with a space'),
+      partial('unsupported in v1.2: ALTER TABLE'),
+      partial('db/x..sql:4: two dots'),
       { rule: 'picture-partial', stage: STAGE, message: 7 },
       'not a check',
     ];
@@ -192,6 +215,13 @@ describe('the ERD drawer', () => {
       { path: 'db/extra.sql', line: null, detail: 'source object is unreadable or exceeds 1 MB' },
       { path: null, line: null, detail: 'no file named here' },
       { path: null, line: null, detail: '/srv/outside.sql:4: not a path in the repository' },
+      // The path ends at the first colon and is a picture source's path: other words are no path, a colon and a
+      // number in the detail are no line, and a path with a space keeps its line.
+      { path: null, line: null, detail: 'picture truncated: 5000 tables' },
+      { path: 'db/a.sql', line: null, detail: 'could not decode at offset:12: bad' },
+      { path: 'db/my schema.sql', line: 41, detail: 'a path with a space' },
+      { path: null, line: null, detail: 'unsupported in v1.2: ALTER TABLE' },
+      { path: 'db/x..sql', line: 4, detail: 'two dots' },
     ]);
     assert.deepEqual(pictureWarnings(checks, STAGE, '').map((warning) => warning.path), ['db/extra.sql']);
     assert.deepEqual(pictureWarnings('none', STAGE, 'nexus'), []);
@@ -306,6 +336,27 @@ describe('the ERD through the push', () => {
     assert.equal(last.source_digest, sha256(JSON.stringify([[SOURCE, sha256(text)]])));
   });
 
+  test('warnings join the digest only of a drawer that reads them', async () => {
+    const ignoring = await startServer({ store: db, now: () => clock.now, routes: snapshotRoutes({ drawers: { erd: ({ text }) => ({ elements: [{ kind: 'table', name: String(text.length) }] }) } }) });
+    try {
+      const name = 'erd-ignoring';
+      const { picture } = storedPicture();
+      const [a, b] = [newCommit(), newCommit()];
+      const send = (snapshot) => {
+        clock.now += 1000;
+        return ignoring.send({ method: 'POST', path: '/api/snapshots', headers: { ...JSON_TYPE, ...headers }, body: JSON.stringify(snapshot) });
+      };
+      assert.deepEqual((await send(snapshotWith(name, picture, [partial('db/nexus.sql:9: one')], { commit: a }))).json.diagrams, counted({ drawn: 1 }));
+      const [first] = drawings(diagramOf(name).id);
+      assert.equal(first.source_digest, sha256(JSON.stringify([[SOURCE, sha256(JSON.stringify(picture))]])));
+      // Other warnings alone draw nothing new for it.
+      assert.deepEqual((await send(snapshotWith(name, picture, [], { commit: b, replaces: a }))).json.diagrams, counted({ unchanged: 1 }));
+      assert.equal(drawings(diagramOf(name).id).length, 1);
+    } finally {
+      await ignoring.close();
+    }
+  });
+
   test('a picture in another format fails the drawing at its source, and the diagram keeps its last good drawing', async () => {
     const name = 'erd-format';
     const { picture } = storedPicture();
@@ -319,6 +370,11 @@ describe('the ERD through the push', () => {
     assert.deepEqual([good.status, failed.status, failed.failed_path, failed.failed_line], ['drawn', 'failed', 'db/nexus.sql', null]);
     assert.deepEqual(elements(failed.id), []);
     assert.equal(elements(good.id).length, 26 + 48);
+    // The same picture failing again, whatever the hub left out, makes no new drawing.
+    const c = newCommit();
+    const again = await push(snapshotWith(name, { format: 2, tables: [] }, [partial('db/nexus.sql:3: left out')], { commit: c, replaces: b }));
+    assert.deepEqual(again.json.diagrams, counted({ failed: 1 }));
+    assert.equal(drawings(diagram.id).length, 2);
   });
 
   test('no log line holds the picture\'s text (rule 5)', async () => {

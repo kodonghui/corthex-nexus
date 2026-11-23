@@ -63,7 +63,8 @@
 // - warnings: for a stage's picture (01, 05 and 07), what the hub left out of it: the hub's picture-partial checks of
 //   the picture's stage and part, from the snapshot's checks that /snapshot keeps (see pictureWarnings below), each
 //   { path, line, detail }: path and line where the hub found it, each null when the hub names none, and detail what it
-//   says. Any other document has none. When there are any, they join the drawing's source_digest.
+//   says. Any other document has none. When the drawer reads them and there are any, they join the drawing's
+//   source_digest, as the documents it reads do.
 // - name: optional, the diagram's name, up to 200 characters.
 // - elements: up to 5000, each { key, trace_id, kind, name, parent, status, detail }: kind a lowercase word of up to 40
 //   characters, such as table, line or token; name text, cut to 200 characters, '' when it has none (SPEC-010);
@@ -125,9 +126,12 @@ const REST = '/snapshot';
 const WARNINGS = '/snapshot#picture-partial';
 // A drawer gets at most as many warnings as the push answer names failures.
 const MAX_WARNINGS = 500;
-// The hub's picture-partial message: "<path>:<line>: <detail>", or "<path>: <detail>" for a whole file.
-const AT_LINE = /^(.+?):([1-9][0-9]{0,8}): (.*)$/s;
-const AT_FILE = /^(.+?): (.*)$/s;
+// The hub's picture-partial message: "<path>:<line>: <detail>", or "<path>: <detail>" for a whole file. The path ends
+// at the first colon and is the path of a picture source, a file the hub reads for stage 01, 05 or 07 (.md,
+// .markdown, .sql, .yaml or .yml), so a message that starts with other words, or whose detail holds a colon and a
+// number, never gets a path or line it does not name, while a path with a space keeps its own.
+const AT_PATH = /^([^:]+):(?:([1-9][0-9]{0,8}):)? (.*)$/s;
+const FILE_NAME = /(?:^|\/)[^/]*[^/\s]\.(?:md|markdown|sql|ya?ml)$/i;
 const NONE = Object.freeze([]);
 
 // What a drawer throws for a source it cannot read: where it failed, a path in the repository and a line, or neither
@@ -302,10 +306,12 @@ function isRepositoryPath(text) {
 // A picture-partial message as { path, line, detail }: the repository path and the line it starts with, each null
 // when it names none, and the rest. A message that starts with no path is all detail.
 function warningOf(message) {
-  const atLine = AT_LINE.exec(message);
-  const found = atLine ?? AT_FILE.exec(message);
-  if (found === null || !isRepositoryPath(found[1])) return Object.freeze({ path: null, line: null, detail: message });
-  return Object.freeze({ path: found[1], line: atLine === null ? null : Number(atLine[2]), detail: found.at(-1) });
+  const found = AT_PATH.exec(message);
+  const path = found?.[1];
+  if (found === null || path.trim() !== path || !FILE_NAME.test(path) || !isRepositoryPath(path)) {
+    return Object.freeze({ path: null, line: null, detail: message });
+  }
+  return Object.freeze({ path, line: found[2] === undefined ? null : Number(found[2]), detail: found[3] });
 }
 
 // The warnings of a stage's picture, from a snapshot's checks: the hub's picture-partial checks of the stage that name
@@ -321,10 +327,11 @@ export function pictureWarnings(checks, stage, part) {
     .map((check) => warningOf(check.message)));
 }
 
-// The checks a snapshot's rest keeps.
+// The checks a snapshot's rest keeps, a list.
 function checksOf(statements, snapshotId) {
   const row = statements.document.get(snapshotId, REST);
-  return row === undefined ? [] : JSON.parse(row.body).checks;
+  const checks = row === undefined ? null : JSON.parse(row.body).checks;
+  return Array.isArray(checks) ? checks : [];
 }
 
 // A failure's where, as the push answer and a drawing's failed_at give it: the path and its line, or the path alone
@@ -336,7 +343,8 @@ function whereOf({ path, line }) {
 }
 
 // Runs a drawer on a document: { status, digest, name, rows, failure }. The digest covers each document it read, its
-// own included, by path and SHA-256 in the order of their paths, and the warnings it was given when there are any.
+// own included, by path and SHA-256 in the order of their paths, and the warnings when it read them and there are any,
+// so that a drawer that draws no warnings is not drawn again when only they change.
 function drawOne(statements, snapshotId, drawer, document, kind, warnings) {
   const reads = new Map();
   const read = (path) => {
@@ -346,14 +354,28 @@ function drawOne(statements, snapshotId, drawer, document, kind, warnings) {
   };
   const text = read(document.path);
   if (text === null) throw new Error('a kept document is in its snapshot');
+  let warned = false;
   const digest = () => {
     const entries = [...reads].map(([path, row]) => [path, row?.sha256 ?? null]);
-    if (warnings.length > 0) entries.push([WARNINGS, sha256(JSON.stringify(warnings))]);
+    if (warned && warnings.length > 0) entries.push([WARNINGS, sha256(JSON.stringify(warnings))]);
     return sha256(JSON.stringify(entries.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))));
   };
   const { stage, part, key, where: source } = document;
   try {
-    const result = drawer({ stage, part, key, kind, source, text, read, warnings });
+    const result = drawer({
+      stage,
+      part,
+      key,
+      kind,
+      source,
+      text,
+      read,
+      // Read when the drawer takes them, as read() notes the documents it reads.
+      get warnings() {
+        warned = true;
+        return warnings;
+      },
+    });
     if (!isObject(result) || !Array.isArray(result.elements)) throw new TypeError('a drawer returns { name, elements }');
     if (result.name !== undefined && result.name !== null && typeof result.name !== 'string') throw new TypeError('a diagram\'s name is text');
     // A drawing that fails names nothing: the diagram keeps its name with its last good drawing.

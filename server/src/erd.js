@@ -138,16 +138,19 @@ function keyer() {
 }
 
 // The drawer of the erd kind (see the top of this file).
-export function erd({ text, warnings = [] }) {
-  const picture = JSON.parse(text);
+export function erd(given) {
+  const picture = JSON.parse(given.text);
   if (!isObject(picture) || picture.format !== 1 || !Array.isArray(picture.tables)) throw new SourceFailure();
   const keyOf = keyer();
 
-  // The tables of the picture, those it cannot read included, each with its key.
+  // The tables of the picture, those it cannot read included, each with its key. A table without a trace ID is keyed
+  // by its name in lower case, as SQL names a table without case, so that a missing table keeps its key once the
+  // schema creates it, however a foreign key spelled it.
+  const tableKey = (traceId, name) => keyOf(elementKey({ trace_id: traceId, kind: 'table', name: name.toLowerCase() }));
   const tables = picture.tables.map((entry) => {
     const name = isObject(entry) && isText(entry.name) ? entry.name : '';
     const traceId = traceIdOf(entry);
-    return { entry, read: readTable(entry), name, traceId, key: keyOf(elementKey({ trace_id: traceId, kind: 'table', name })) };
+    return { entry, read: readTable(entry), name, traceId, key: tableKey(traceId, name) };
   });
   const exact = new Map();
   const folded = new Map();
@@ -162,7 +165,8 @@ export function erd({ text, warnings = [] }) {
   const targetOf = (name) => {
     const found = exact.get(name) ?? folded.get(name.toLowerCase());
     if (found !== undefined) return found;
-    if (!missing.has(name.toLowerCase())) missing.set(name.toLowerCase(), { name, key: keyOf(elementKey({ kind: 'table', name })) });
+    // Keyed as a table without a trace ID, so that the key does not hang on which foreign key comes first.
+    if (!missing.has(name.toLowerCase())) missing.set(name.toLowerCase(), { name, key: tableKey(null, name) });
     return missing.get(name.toLowerCase()).key;
   };
   const lines = tables.flatMap(({ read, key: from }) => (read === null ? [] : read.foreignKeys.map((foreign) => ({
@@ -172,12 +176,7 @@ export function erd({ text, warnings = [] }) {
     line.name = line.foreign.columns.join(', ');
     line.key = keyOf(elementKey({ kind: 'line', name: line.name, parent: line.from }));
   }
-  const statements = warnings.map(({ path, line, detail }) => ({
-    name: detail,
-    where: path === null ? null : line === null ? path : `${path}:${line}`,
-    key: keyOf(elementKey({ kind: 'statement', name: detail })),
-  }));
-  if (tables.length + missing.size + lines.length + statements.length > MAX_ELEMENTS) throw new SourceFailure();
+  if (tables.length + missing.size + lines.length > MAX_ELEMENTS) throw new SourceFailure();
 
   // The boxes: the tables of the picture, then the missing ones.
   const boxes = [
@@ -202,6 +201,17 @@ export function erd({ text, warnings = [] }) {
     const { x, y, width, height } = placed.nodes[index];
     return { x, y, width, height };
   };
+
+  // The statements the hub left out. Their warnings are read only once the tables are placed, so that they join the
+  // digest of no drawing that failed without them: a picture that fails before this fails again with the same digest,
+  // and makes no new drawing, whatever the hub left out.
+  const statements = (given.warnings ?? []).map(({ path, line, detail }) => ({
+    name: detail,
+    // The file and its line, or the file alone when the two would be too long, as a failure's where.
+    where: path === null ? null : line === null || characters(`${path}:${line}`) > MAX_WHERE ? path : `${path}:${line}`,
+    key: keyOf(elementKey({ kind: 'statement', name: detail })),
+  }));
+  if (tables.length + missing.size + lines.length + statements.length > MAX_ELEMENTS) throw new SourceFailure();
 
   const elements = tables.map(({ entry, read, name, traceId, key }, index) => (read === null
     ? { key, trace_id: traceId, kind: 'table', name, status: 'unreadable', detail: { columns: [], where: whereOf(entry?.where), box: box(index) } }
