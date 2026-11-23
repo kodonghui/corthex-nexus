@@ -63,6 +63,7 @@ export function startShell(root, screen, address) {
     staleBar,
     errorNotice,
     since,
+    outcome,
   };
   const header = createHeader(address);
   const tabs = screen.tabs ? stageTabs(address) : null;
@@ -157,6 +158,27 @@ export function startShell(root, screen, address) {
         hide();
       }
     });
+  }
+
+  // A screen's own read or write, such as SCR-144's removal preview or a tool link (see the server README's "App
+  // shell"), meets the shell's states as the screen's reads do: a 401 goes through the gate, keeping unsent text, a 403
+  // shows its message in place of the page, and a 404 of what the page shows, such as project_not_found, shows it
+  // gone. The shell takes the page then, and returns null. Otherwise it returns stateOf's { state, kind } for the
+  // screen to show by what it sent: normal (a success, or a 404 that is the normal state), error with its kind, or stale.
+  function outcome(answer) {
+    const found = stateOf(answer, states);
+    if (ended) return null;
+    if (found.state === 'permission') {
+      permission(found.kind, answer);
+      return null;
+    }
+    if (found.kind === 'gone') {
+      data = null;
+      render({ failure: answer, kind: 'gone' });
+      return null;
+    }
+    if (found.state === 'normal') succeeded();
+    return found;
   }
 
   // A read answered, so the gate let the page through: a later 401 may reload once again.

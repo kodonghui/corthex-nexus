@@ -17,10 +17,11 @@
 // - skeleton(ctx): the grey shapes of its loading state;
 // - render(ctx) and panel(ctx): its body and, on the workbench, its work panel, as nodes.
 // ctx is { address, data, shell }: shell gives read, reload, onLeave, keepDraft, draftOf, isPhone, message, staleBar,
-// errorNotice and since.
+// errorNotice, since and outcome.
 
 import { isDiagramId, isThreadId, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
 import { h } from './dom.js';
+import { projectBody, projectDescription, projectSkeleton } from './project.js';
 import { SHARED_STATES } from './states.js';
 import { stageOf } from './stages.js';
 import { todoBody } from './todo.js';
@@ -94,8 +95,9 @@ export const SCREENS = Object.freeze({
     title: ({ data }) => data.project.title,
     projectTitle: ({ data }) => data.project.title,
     crumb: ({ data }) => [{ text: '프로젝트', href: PROJECTS_HREF }, { text: data.project.title }],
-    skeleton: () => [skeletonGroup(13)],
-    render: () => [],
+    description: projectDescription,
+    skeleton: projectSkeleton,
+    render: projectBody,
   },
   'SCR-145': {
     layout: 'workbench',

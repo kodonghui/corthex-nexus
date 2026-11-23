@@ -172,7 +172,8 @@ export function fakePage({ pathname = '/', search = '', session = {}, local = {}
   };
   document.documentElement = new FakeElement('html', document);
   const app = new FakeElement('div', document);
-  const location = { pathname, search, reloads: 0, reload() { this.reloads += 1; } };
+  // assign() keeps the addresses the page went to, in assigned, and goes nowhere.
+  const location = { pathname, search, reloads: 0, assigned: [], reload() { this.reloads += 1; }, assign(url) { this.assigned.push(String(url)); } };
   const page = {
     app,
     document,

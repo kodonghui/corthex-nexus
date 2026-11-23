@@ -1,19 +1,42 @@
-// Reads of NEXUS's API from a page. A read returns an outcome, which states.js turns into a screen's state:
+// Reads and writes of NEXUS's API from a page. Each returns an outcome, which states.js turns into a screen's state:
 // - { status, body } for a success, body being its JSON object;
 // - { status, code, traceId } for any other answer, from its Problem when it is one;
-// - { failure } when no answer of NEXUS came: 'gate' when the gate redirected the read to its sign-in, 'timeout',
+// - { failure } when no answer of NEXUS came: 'gate' when the gate redirected the request to its sign-in, 'timeout',
 //   'network', or 'answer' for a success that is not a JSON object.
 // The page holds nothing of a project before the API answers it, and keeps none of it after (see storage.js).
 
 export const READ_TIMEOUT_MS = 30_000;
 
-export async function read(path) {
+export function read(path) {
+  return request(path, { headers: { accept: 'application/json' } });
+}
+
+// A write of the owner's (docs/08-screens, section 2): method (POST or DELETE) on path, with body as JSON, or no body
+// when it is null, and the request key, a write ID that newRequestKey() made, in double quotes as the contract's
+// Idempotency-Key takes it. The shell's write (shell.js) sends a 401 or 403 through the permission rule.
+export function write(method, path, body, key) {
+  const headers = { accept: 'application/json', 'idempotency-key': `"${key}"` };
+  if (body !== null) headers['content-type'] = 'application/json';
+  return request(path, { method, headers, body: body === null ? undefined : JSON.stringify(body) });
+}
+
+// The contract's write ID, the request key's value: nw_ and 12 random characters of its base 32. The caller keeps a
+// key only after a timeout or a lost connection, so that a retry that reaches a write that went through gets its
+// first answer, and makes a new one when its input changes or after any answer.
+const BASE32 = '0123456789abcdefghjkmnpqrstvwxyz';
+
+export function newRequestKey() {
+  // 256 is a multiple of 32, so each character is equally likely.
+  return `nw_${Array.from(crypto.getRandomValues(new Uint8Array(12)), (byte) => BASE32[byte % 32]).join('')}`;
+}
+
+async function request(path, init) {
   let response;
   try {
-    // redirect: 'manual', since a redirect is the gate's (NEXUS never redirects a read), and following it to the
-    // gate's sign-in fails as a cross-site read anyway.
+    // redirect: 'manual', since a redirect is the gate's (NEXUS never redirects a request), and following it to the
+    // gate's sign-in fails as a cross-site request anyway.
     response = await fetch(path, {
-      headers: { accept: 'application/json' },
+      ...init,
       credentials: 'same-origin',
       redirect: 'manual',
       cache: 'no-store',
