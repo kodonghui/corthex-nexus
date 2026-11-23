@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; and TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-277, API-278, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-426's [screen states](#screen-states), the drawer of stage 08; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; and TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion. It takes the operations of `src/routes.js`, so far API-242, API-243, API-245, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-277, API-278, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -132,7 +132,7 @@ The schema lists only the fields NEXUS reads and says NEXUS keeps the others as 
 
 ## Drawing
 
-The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board), TASK-422's [ERD](#erd), TASK-423's [item table](#item-table) and TASK-425's [sitemap](#sitemap) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, the reading of a picture's entries and warnings, and the placing of boxes sized for their text. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
+The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board), TASK-422's [ERD](#erd), TASK-423's [item table](#item-table), TASK-425's [sitemap](#sitemap) and TASK-426's [screen states](#screen-states) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, the reading of a picture's entries and warnings, and the placing of boxes sized for their text. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
 
 **Diagrams.** A diagram is drawn from one document of the snapshot. Its `source_key` is that document's path in `snapshot_files` (see Documents above), so a drawing finds its source from the diagram alone.
 
@@ -454,6 +454,71 @@ It also checks:
 - unreadable entries and keys;
 - `itemNames`;
 - no log line holding an item's text (rule 5).
+
+## Screen states
+
+`src/screen-states.js` is TASK-426, the drawer of the `screen_states` kind. It draws a stage-08 screen definition as one panel for each state of its state table, with the state's name, its description and the responses that lead to it (SPEC-008). Under corthex-hub/0.3 the pinned hub's `snapshot03.py` sends each screen definition as a picture of its own: the file's path is its `key` and its whole text is `source.text`, with no translation beside it. So one screen file is one diagram. NEXUS reads the file's Markdown itself, with this repository's code and no package. Under 0.2 the stage shows its item table (TASK-423).
+
+**What it reads.**
+- **The state table.** It is the first Markdown table of the file, outside a fenced code block and a front-matter block, any of whose rows starts with a state ID such as `SCR-142#normal`. A front-matter block is read as the hub reads one: a first line of `---`, closed by a line of `---` or `...` within the file's first 200 lines. A state ID is a trace ID, `#`, and a state: a lowercase letter and up to 30 lowercase letters, digits, hyphens and underscores, as the hub reads states. The table has the stage-08 template's three columns: the state, what the user sees and can do, and the responses that lead to it.
+- **A table** is a line that starts with `|`, a separator line under it, and the lines that start with `|` after them, as the hub reads tables. A cell ends at a `|` that no backslash escapes.
+- **The diagram's name** is the file's first heading of level 1, as written, such as `SCR-142 Owner to-do`. A file with none is named by its file's name, such as `SCR-142.md`. The drawer gives that name itself, because `drawing.js` keeps a diagram's last name when its drawer gives none, so a heading taken out later would otherwise leave its old name.
+
+What it draws:
+
+| Element | `kind`, `status` | `detail` |
+| --- | --- | --- |
+| Each row of the state table, in the table's order; its key and name are the state as written | `state`; `no_description` when it has no description | `description`, `responses`, `where` and `box` |
+
+The coordinator chose the next five points for TASK-426, and the maintainer approved them through the delegate they named for checkpoints. The pull request records them with the options not taken.
+
+- **Order.** The panels follow the rows of the state table, in their order.
+- **Grid.** The drawer works out a grid of three columns itself, as the stage-09 mockup draws the panels of stage 08 at 1440 pixels. `layout.js` puts boxes that no line joins in one row, so it makes no grid.
+  - The panels fill each row left to right in the table's order. A panel is 328 pixels wide, a third of the mockup's 1008-pixel board column, with 12-pixel gaps.
+  - A panel is at least 168 pixels high, and as high as its text needs. It has 12 pixels of padding above and below and 16 at the sides, and 8 pixels between its name, its description and its responses.
+  - Text is measured at 20 pixels a line and 7.2 pixels a character, so a line holds 41 narrow characters; a wide character such as Hangul counts twice. Text wraps at spaces, and a word longer than a line breaks at the line's end. An empty description or list of responses still takes a line, where the page shows "No description" or `-`.
+  - A row is as high as its tallest panel, and every panel of the row is that high. A panel is at most 100000 pixels high, the largest box `layout.js` takes. So a very long table places its panels past 1,000,000 pixels, as a very wide sitemap does.
+  - `box` is `{ x, y, width, height }`, the panel's top left corner and its size. The page shows one column on a phone (TASK-458), where moving is not offered.
+- **Description.** It is the second cell as written: Markdown such as a code span is kept, and only `\|` is unescaped. TASK-458 decides how to show it.
+  - A cell that is empty, white space or `-` alone is no description. The panel is empty, with `description` `''`, and marked with status `no_description` (SPEC-008).
+  - The page shows the mark as the stage-09 mockup does: a dashed border, the "No description" tag, and a note that the document has no description of this state.
+- **Responses.** They are the third cell split at the commas outside brackets, each as written, such as `API-275#409 (not-drawn)`. A cell that is empty, white space or `-` alone has none, `[]`, and the page shows `-`.
+- **Diagram name.** It is the file's first heading, as the stage-09 mockup titles its stage-08 view by the screen's heading.
+
+The rest:
+
+- **Keys.** A panel's key is the state as written, such as `SCR-142#normal`. So a panel keeps its key, and the threads on it, while its state keeps its ID, wherever its row stands. If the table names a state twice, the first keeps the key and the later ones get `#2`, `#3` and so on. `SCR-142#normal` is not a trace ID, so a panel has none.
+- **`where`** is the file and the row's line, such as `docs/08-screens/SCR-142.md:30`, or the file alone when the two would pass 300 characters.
+- **A state table it cannot read** fails the drawing at its source. The diagram keeps its last good drawing and shows where it failed (SPEC-001):
+  - A file with no state table fails at the file, with no line.
+  - A line of the state table that does not have three cells fails at that line. This includes the header and the separator.
+  - A row whose first cell is not a state ID fails at that row's line.
+  - A table of more than 5000 states fails at the file.
+- **Warnings and other documents.** `drawing.js` gives a file's picture no warnings. The hub's `picture-partial` checks of stage 08 name screen files it did not send, not parts of a file it sent, so the drawer reads none. It reads no other document either, so a drawing's digest is its file's.
+
+`test/screen-states.test.js` checks TASK-426's done condition: this repository's 5 screens draw 39 panels with name, description and responses.
+- `test/screen-states-pictures.json` holds the pinned hub's corthex-hub/0.3 pictures of `docs/08-screens`, each with its file's SHA-256. It leaves out the commit and time, which the hub takes from Git. The hub sends the pictures with no part, since no part of `.corthex/project.json` starts their names, and adds a `part-unknown` check for each.
+- `test/screen-states-expected.json` holds their drawings. The test compares them exactly, both alone and through the push with the server's own drawer. It also reads each panel's state, description and responses from the file in its own simple way, as a cross-check.
+- The test fails when a screen file changes, is added or is removed and the pictures do not. It also fails when a drawing changes and its file does not.
+- `tests/test_screen_states_pictures.py` makes the pictures again with the pinned hub's `snapshot03.py` from the working tree's files. It fails when they differ from the stored ones.
+
+To make both files again, from the repository's root:
+
+```sh
+CORTHEX_HUB_CHECKOUT=<the pinned hub checkout> python tests/test_screen_states_pictures.py --write
+(cd server && node test/screen-states-expected.js --write)
+```
+
+It also checks, with files it makes:
+- SPEC-008's screen of 6 states, which draws 6 panels in two rows of three;
+- states without a description: an empty cell, white space and `-` each draw an empty panel marked `no_description`;
+- a description as written, and responses split at commas;
+- panel heights and the grid;
+- which table is the state table: the first with state rows, outside code fences and front matter, with front matter closed within 200 lines;
+- the diagram's name from the first heading, and the file's name once the heading is taken out, through the push;
+- a state table it cannot read, which fails at its line or at the file, and through the push keeps the last good drawing;
+- keys;
+- that no log line holds the file's text (rule 5).
 
 ## After a drawing
 

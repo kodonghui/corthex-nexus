@@ -328,8 +328,11 @@ describe('item tables through the push', () => {
   test('without a drawer for a stage\'s files, the stage shows no picture and keeps its item table', async () => {
     const name = 'item-table-no-drawer';
     await push(own, repositorySnapshot(FORMAT_03, { name }));
-    // The server has no drawer of user flows, screen states or mockups yet.
-    for (const stage of [FLOWS, '08-screen-states', '09-mockup']) assert.equal(diagram(name, `/items/${stage}`).removed_at, null);
+    // The server has no drawer of user flows or mockups yet.
+    for (const stage of [FLOWS, '09-mockup']) assert.equal(diagram(name, `/items/${stage}`).removed_at, null);
+    // It draws screen states (TASK-426), so stage 08 shows its pictures and no item table.
+    assert.equal(diagram(name, '/items/08-screen-states'), undefined);
+    assert.equal(diagram(name, 'docs/08-screens/SCR-142.md').kind, 'screen_states');
   });
 
   test('a table removed because its stage is no longer read did not make way: its threads move to the diagram', async () => {
