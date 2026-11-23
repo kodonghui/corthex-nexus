@@ -547,7 +547,7 @@ describe('drawing a snapshot', () => {
   });
 
   test('a kind without a drawer draws nothing', async () => {
-    const none = await serverWith(DRAWERS);
+    const none = await serverWith({});
     const answer = await push(repositorySnapshot(FORMAT_03, { name: 'no-drawers' }), none);
     assert.deepEqual([answer.status, answer.json.diagrams], [201, counted({})]);
     assert.deepEqual(diagrams('no-drawers'), []);
@@ -619,7 +619,8 @@ describe('drawing a snapshot', () => {
 
   test('the drawers are checked when the push\'s routes are made', () => {
     assert.deepEqual([...KINDS].sort(), ['ddd_board', 'erd', 'item_table', 'mockup', 'screen_states', 'sitemap', 'user_flow']);
-    assert.deepEqual(DRAWERS, {});
+    // The drawing tasks add theirs to DRAWERS, which the push's routes take unless a test gives its own.
+    assert.equal(checkDrawers(DRAWERS), DRAWERS);
     assert.equal(checkDrawers(testDrawers()) !== null, true);
     for (const drawers of [null, [], { board: () => ({ elements: [] }) }, { erd: 'draw' }]) {
       assert.throws(() => snapshotRoutes({ drawers }), TypeError);

@@ -1,0 +1,2505 @@
+{
+ "about": "The pinned hub's stage-05 picture of db/nexus.sql, as its erd.py makes it, and the SHA-256 of the file. tests/test_erd_picture.py checks it against the pinned hub and says how to make it again.",
+ "source": "db/nexus.sql",
+ "sha256": "04d7ddd4747787cffc1afd781b7fd358f561bfd73607af7c71a089e9483be825",
+ "part": "nexus",
+ "checks": [],
+ "picture": {
+  "format": 1,
+  "tables": [
+   {
+    "id": "TBL-146",
+    "name": "agent_credentials",
+    "context": "CTX-043",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:33"
+     },
+     {
+      "name": "name",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:34"
+     },
+     {
+      "name": "secret_digest",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:35"
+     },
+     {
+      "name": "issued_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:36"
+     },
+     {
+      "name": "revoked_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:37"
+     },
+     {
+      "name": "last_used_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:38"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "name"
+      ],
+      "partial": false
+     },
+     {
+      "columns": [
+       "secret_digest"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [],
+    "where": "db/nexus.sql:29",
+    "terms": [
+     "TERM-221"
+    ]
+   },
+   {
+    "id": "TBL-147",
+    "name": "project_spaces",
+    "context": "CTX-037",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:46"
+     },
+     {
+      "name": "name",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:47"
+     },
+     {
+      "name": "repository",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:49"
+     },
+     {
+      "name": "held_commit",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:50"
+     },
+     {
+      "name": "created_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:51"
+     },
+     {
+      "name": "created_by_credential",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:52"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "name"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "created_by_credential"
+      ],
+      "table": "agent_credentials",
+      "references": [
+       "id"
+      ],
+      "on_delete": "restrict",
+      "where": "db/nexus.sql:52"
+     }
+    ],
+    "where": "db/nexus.sql:41",
+    "terms": [
+     "TERM-189"
+    ]
+   },
+   {
+    "id": "TBL-148",
+    "name": "snapshots",
+    "context": "CTX-037",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:59"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:60"
+     },
+     {
+      "name": "revision",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:61"
+     },
+     {
+      "name": "commit_sha",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:62"
+     },
+     {
+      "name": "replaced_commit",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:63"
+     },
+     {
+      "name": "format_version",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:64"
+     },
+     {
+      "name": "bytes",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:65"
+     },
+     {
+      "name": "received_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:66"
+     },
+     {
+      "name": "credential_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:67"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "project_id",
+       "revision"
+      ],
+      "partial": false
+     },
+     {
+      "columns": [
+       "project_id",
+       "commit_sha"
+      ],
+      "partial": false
+     },
+     {
+      "columns": [
+       "id",
+       "project_id"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "project_id"
+      ],
+      "table": "project_spaces",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:60"
+     },
+     {
+      "columns": [
+       "credential_id"
+      ],
+      "table": "agent_credentials",
+      "references": [
+       "id"
+      ],
+      "on_delete": "restrict",
+      "where": "db/nexus.sql:67"
+     }
+    ],
+    "where": "db/nexus.sql:55",
+    "terms": [
+     "TERM-189"
+    ]
+   },
+   {
+    "id": "TBL-149",
+    "name": "document_blobs",
+    "context": "CTX-037",
+    "removed": false,
+    "columns": [
+     {
+      "name": "sha256",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:78"
+     },
+     {
+      "name": "body",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:79"
+     },
+     {
+      "name": "bytes",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:80"
+     }
+    ],
+    "primary_key": [
+     "sha256"
+    ],
+    "unique": [],
+    "foreign_keys": [],
+    "where": "db/nexus.sql:73",
+    "terms": [
+     "TERM-189"
+    ]
+   },
+   {
+    "id": "TBL-150",
+    "name": "snapshot_files",
+    "context": "CTX-037",
+    "removed": false,
+    "columns": [
+     {
+      "name": "snapshot_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:86"
+     },
+     {
+      "name": "path",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:87"
+     },
+     {
+      "name": "stage",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:88"
+     },
+     {
+      "name": "blob_sha256",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:89"
+     }
+    ],
+    "primary_key": [
+     "snapshot_id",
+     "path"
+    ],
+    "unique": [],
+    "foreign_keys": [
+     {
+      "columns": [
+       "snapshot_id"
+      ],
+      "table": "snapshots",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:86"
+     },
+     {
+      "columns": [
+       "blob_sha256"
+      ],
+      "table": "document_blobs",
+      "references": [
+       "sha256"
+      ],
+      "on_delete": "restrict",
+      "where": "db/nexus.sql:89"
+     }
+    ],
+    "where": "db/nexus.sql:83",
+    "terms": [
+     "TERM-189"
+    ]
+   },
+   {
+    "id": "TBL-151",
+    "name": "diagrams",
+    "context": "CTX-037",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:105"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:106"
+     },
+     {
+      "name": "stage",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:107"
+     },
+     {
+      "name": "source_key",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:108"
+     },
+     {
+      "name": "kind",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:109"
+     },
+     {
+      "name": "name",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:110"
+     },
+     {
+      "name": "created_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:111"
+     },
+     {
+      "name": "removed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:112"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "project_id",
+       "stage",
+       "source_key"
+      ],
+      "partial": false
+     },
+     {
+      "columns": [
+       "id",
+       "project_id"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "project_id"
+      ],
+      "table": "project_spaces",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:106"
+     }
+    ],
+    "where": "db/nexus.sql:94",
+    "terms": [
+     "TERM-194"
+    ]
+   },
+   {
+    "id": "TBL-152",
+    "name": "drawings",
+    "context": "CTX-037",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:124"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:125"
+     },
+     {
+      "name": "diagram_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:126"
+     },
+     {
+      "name": "snapshot_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:127"
+     },
+     {
+      "name": "document_version",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:128"
+     },
+     {
+      "name": "status",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:129"
+     },
+     {
+      "name": "source_digest",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:130"
+     },
+     {
+      "name": "failed_path",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:131"
+     },
+     {
+      "name": "failed_line",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:132"
+     },
+     {
+      "name": "drawn_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:133"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "diagram_id",
+       "snapshot_id"
+      ],
+      "partial": false
+     },
+     {
+      "columns": [
+       "id",
+       "diagram_id"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "diagram_id",
+       "project_id"
+      ],
+      "table": "diagrams",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:138"
+     },
+     {
+      "columns": [
+       "snapshot_id",
+       "project_id"
+      ],
+      "table": "snapshots",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:139"
+     }
+    ],
+    "where": "db/nexus.sql:117",
+    "terms": [
+     "TERM-194"
+    ]
+   },
+   {
+    "id": "TBL-153",
+    "name": "elements",
+    "context": "CTX-037",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:149"
+     },
+     {
+      "name": "drawing_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:150"
+     },
+     {
+      "name": "element_key",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:151"
+     },
+     {
+      "name": "trace_id",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:152"
+     },
+     {
+      "name": "kind",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:153"
+     },
+     {
+      "name": "name",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:154"
+     },
+     {
+      "name": "parent_key",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:155"
+     },
+     {
+      "name": "status",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:156"
+     },
+     {
+      "name": "detail",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:157"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "drawing_id",
+       "element_key"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "drawing_id"
+      ],
+      "table": "drawings",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:150"
+     }
+    ],
+    "where": "db/nexus.sql:144",
+    "terms": [
+     "TERM-194"
+    ]
+   },
+   {
+    "id": "TBL-154",
+    "name": "element_positions",
+    "context": "CTX-037",
+    "removed": false,
+    "columns": [
+     {
+      "name": "diagram_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:166"
+     },
+     {
+      "name": "element_key",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:167"
+     },
+     {
+      "name": "x",
+      "type": "REAL",
+      "null": false,
+      "where": "db/nexus.sql:168"
+     },
+     {
+      "name": "y",
+      "type": "REAL",
+      "null": false,
+      "where": "db/nexus.sql:169"
+     },
+     {
+      "name": "moved_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:170"
+     }
+    ],
+    "primary_key": [
+     "diagram_id",
+     "element_key"
+    ],
+    "unique": [],
+    "foreign_keys": [
+     {
+      "columns": [
+       "diagram_id"
+      ],
+      "table": "diagrams",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:166"
+     }
+    ],
+    "where": "db/nexus.sql:161",
+    "terms": [
+     "TERM-198"
+    ]
+   },
+   {
+    "id": "TBL-155",
+    "name": "comment_threads",
+    "context": "CTX-038",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:180"
+     },
+     {
+      "name": "diagram_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:181"
+     },
+     {
+      "name": "drawing_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:182"
+     },
+     {
+      "name": "target_kind",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:183"
+     },
+     {
+      "name": "element_key",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:184"
+     },
+     {
+      "name": "removed_name",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:185"
+     },
+     {
+      "name": "state",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:186"
+     },
+     {
+      "name": "waits_on",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:187"
+     },
+     {
+      "name": "opened_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:188"
+     },
+     {
+      "name": "closed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:189"
+     },
+     {
+      "name": "closed_by",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:190"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "id",
+       "diagram_id"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "diagram_id"
+      ],
+      "table": "diagrams",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:181"
+     },
+     {
+      "columns": [
+       "drawing_id",
+       "diagram_id"
+      ],
+      "table": "drawings",
+      "references": [
+       "id",
+       "diagram_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:195"
+     }
+    ],
+    "where": "db/nexus.sql:174",
+    "terms": [
+     "TERM-200"
+    ]
+   },
+   {
+    "id": "TBL-156",
+    "name": "comments",
+    "context": "CTX-038",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:205"
+     },
+     {
+      "name": "thread_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:206"
+     },
+     {
+      "name": "seq",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:207"
+     },
+     {
+      "name": "author",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:208"
+     },
+     {
+      "name": "credential_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:209"
+     },
+     {
+      "name": "body",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:210"
+     },
+     {
+      "name": "detail",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:211"
+     },
+     {
+      "name": "created_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:212"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "thread_id",
+       "seq"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "thread_id"
+      ],
+      "table": "comment_threads",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:206"
+     },
+     {
+      "columns": [
+       "credential_id"
+      ],
+      "table": "agent_credentials",
+      "references": [
+       "id"
+      ],
+      "on_delete": "restrict",
+      "where": "db/nexus.sql:209"
+     }
+    ],
+    "where": "db/nexus.sql:200",
+    "terms": [
+     "TERM-200"
+    ]
+   },
+   {
+    "id": "TBL-157",
+    "name": "pull_requests",
+    "context": "CTX-038",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:223"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:224"
+     },
+     {
+      "name": "purpose",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:225"
+     },
+     {
+      "name": "number",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:226"
+     },
+     {
+      "name": "state",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:227"
+     },
+     {
+      "name": "merge_commit",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:228"
+     },
+     {
+      "name": "reported_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:229"
+     },
+     {
+      "name": "closed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:230"
+     },
+     {
+      "name": "credential_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:231"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "project_id",
+       "number"
+      ],
+      "partial": false
+     },
+     {
+      "columns": [
+       "id",
+       "project_id"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "project_id"
+      ],
+      "table": "project_spaces",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:224"
+     },
+     {
+      "columns": [
+       "credential_id"
+      ],
+      "table": "agent_credentials",
+      "references": [
+       "id"
+      ],
+      "on_delete": "restrict",
+      "where": "db/nexus.sql:231"
+     }
+    ],
+    "where": "db/nexus.sql:217",
+    "terms": []
+   },
+   {
+    "id": "TBL-158",
+    "name": "change_sets",
+    "context": "CTX-038",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:245"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:246"
+     },
+     {
+      "name": "diagram_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:247"
+     },
+     {
+      "name": "drawing_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:248"
+     },
+     {
+      "name": "origin",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:249"
+     },
+     {
+      "name": "thread_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:250"
+     },
+     {
+      "name": "credential_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:251"
+     },
+     {
+      "name": "state",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:252"
+     },
+     {
+      "name": "created_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:253"
+     },
+     {
+      "name": "decided_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:254"
+     },
+     {
+      "name": "pull_request_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:255"
+     },
+     {
+      "name": "reflected_drawing_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:256"
+     },
+     {
+      "name": "detail",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:257"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "id",
+       "diagram_id"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "credential_id"
+      ],
+      "table": "agent_credentials",
+      "references": [
+       "id"
+      ],
+      "on_delete": "restrict",
+      "where": "db/nexus.sql:251"
+     },
+     {
+      "columns": [
+       "diagram_id",
+       "project_id"
+      ],
+      "table": "diagrams",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:262"
+     },
+     {
+      "columns": [
+       "drawing_id",
+       "diagram_id"
+      ],
+      "table": "drawings",
+      "references": [
+       "id",
+       "diagram_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:263"
+     },
+     {
+      "columns": [
+       "thread_id",
+       "diagram_id"
+      ],
+      "table": "comment_threads",
+      "references": [
+       "id",
+       "diagram_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:264"
+     },
+     {
+      "columns": [
+       "pull_request_id",
+       "project_id"
+      ],
+      "table": "pull_requests",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:265"
+     },
+     {
+      "columns": [
+       "reflected_drawing_id",
+       "diagram_id"
+      ],
+      "table": "drawings",
+      "references": [
+       "id",
+       "diagram_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:266"
+     }
+    ],
+    "where": "db/nexus.sql:237",
+    "terms": [
+     "TERM-203"
+    ]
+   },
+   {
+    "id": "TBL-159",
+    "name": "changes",
+    "context": "CTX-038",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:278"
+     },
+     {
+      "name": "change_set_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:279"
+     },
+     {
+      "name": "seq",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:280"
+     },
+     {
+      "name": "op",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:281"
+     },
+     {
+      "name": "element_key",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:282"
+     },
+     {
+      "name": "new_name",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:283"
+     },
+     {
+      "name": "target_key",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:284"
+     },
+     {
+      "name": "detail",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:285"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "change_set_id",
+       "seq"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "change_set_id"
+      ],
+      "table": "change_sets",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:279"
+     }
+    ],
+    "where": "db/nexus.sql:275",
+    "terms": [
+     "TERM-203"
+    ]
+   },
+   {
+    "id": "TBL-160",
+    "name": "confirmations",
+    "context": "CTX-039",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:297"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:298"
+     },
+     {
+      "name": "diagram_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:299"
+     },
+     {
+      "name": "drawing_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:300"
+     },
+     {
+      "name": "state",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:301"
+     },
+     {
+      "name": "confirmed_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:302"
+     },
+     {
+      "name": "ended_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:303"
+     },
+     {
+      "name": "invalidated_by_drawing",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:304"
+     },
+     {
+      "name": "recorded_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:305"
+     },
+     {
+      "name": "record_pull_request_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:306"
+     },
+     {
+      "name": "cancel_recorded_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:307"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "id",
+       "diagram_id"
+      ],
+      "partial": false
+     },
+     {
+      "columns": [
+       "diagram_id"
+      ],
+      "partial": true
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "diagram_id",
+       "project_id"
+      ],
+      "table": "diagrams",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:312"
+     },
+     {
+      "columns": [
+       "drawing_id",
+       "diagram_id"
+      ],
+      "table": "drawings",
+      "references": [
+       "id",
+       "diagram_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:313"
+     },
+     {
+      "columns": [
+       "invalidated_by_drawing",
+       "diagram_id"
+      ],
+      "table": "drawings",
+      "references": [
+       "id",
+       "diagram_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:314"
+     },
+     {
+      "columns": [
+       "record_pull_request_id",
+       "project_id"
+      ],
+      "table": "pull_requests",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:315"
+     }
+    ],
+    "where": "db/nexus.sql:291",
+    "terms": [
+     "TERM-206"
+    ]
+   },
+   {
+    "id": "TBL-161",
+    "name": "stage_passes",
+    "context": "CTX-039",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:328"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:329"
+     },
+     {
+      "name": "stage",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:330"
+     },
+     {
+      "name": "passed_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:331"
+     },
+     {
+      "name": "changed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:332"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [],
+    "foreign_keys": [
+     {
+      "columns": [
+       "project_id"
+      ],
+      "table": "project_spaces",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:329"
+     }
+    ],
+    "where": "db/nexus.sql:323",
+    "terms": [
+     "TERM-206"
+    ]
+   },
+   {
+    "id": "TBL-162",
+    "name": "workshops",
+    "context": "CTX-040",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:340"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:341"
+     },
+     {
+      "name": "state",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:342"
+     },
+     {
+      "name": "opened_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:343"
+     },
+     {
+      "name": "closed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:344"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "id",
+       "project_id"
+      ],
+      "partial": false
+     },
+     {
+      "columns": [
+       "project_id"
+      ],
+      "partial": true
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "project_id"
+      ],
+      "table": "project_spaces",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:341"
+     }
+    ],
+    "where": "db/nexus.sql:336",
+    "terms": [
+     "TERM-211"
+    ]
+   },
+   {
+    "id": "TBL-163",
+    "name": "workshop_steps",
+    "context": "CTX-040",
+    "removed": false,
+    "columns": [
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:355"
+     },
+     {
+      "name": "workshop_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:356"
+     },
+     {
+      "name": "step",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:357"
+     },
+     {
+      "name": "confirmed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:358"
+     },
+     {
+      "name": "written_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:359"
+     },
+     {
+      "name": "pull_request_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:360"
+     }
+    ],
+    "primary_key": [
+     "workshop_id",
+     "step"
+    ],
+    "unique": [],
+    "foreign_keys": [
+     {
+      "columns": [
+       "workshop_id",
+       "project_id"
+      ],
+      "table": "workshops",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:363"
+     },
+     {
+      "columns": [
+       "pull_request_id",
+       "project_id"
+      ],
+      "table": "pull_requests",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:364"
+     }
+    ],
+    "where": "db/nexus.sql:351",
+    "terms": [
+     "TERM-211"
+    ]
+   },
+   {
+    "id": "TBL-164",
+    "name": "sticky_notes",
+    "context": "CTX-040",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:374"
+     },
+     {
+      "name": "workshop_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:375"
+     },
+     {
+      "name": "step",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:376"
+     },
+     {
+      "name": "kind",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:377"
+     },
+     {
+      "name": "body",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:378"
+     },
+     {
+      "name": "x",
+      "type": "REAL",
+      "null": false,
+      "where": "db/nexus.sql:379"
+     },
+     {
+      "name": "y",
+      "type": "REAL",
+      "null": false,
+      "where": "db/nexus.sql:380"
+     },
+     {
+      "name": "made_by",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:381"
+     },
+     {
+      "name": "credential_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:382"
+     },
+     {
+      "name": "confidence",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:383"
+     },
+     {
+      "name": "from_miro",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:384"
+     },
+     {
+      "name": "created_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:385"
+     },
+     {
+      "name": "removed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:386"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "id",
+       "workshop_id"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "credential_id"
+      ],
+      "table": "agent_credentials",
+      "references": [
+       "id"
+      ],
+      "on_delete": "restrict",
+      "where": "db/nexus.sql:382"
+     },
+     {
+      "columns": [
+       "workshop_id",
+       "step"
+      ],
+      "table": "workshop_steps",
+      "references": [
+       "workshop_id",
+       "step"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:390"
+     }
+    ],
+    "where": "db/nexus.sql:369",
+    "terms": [
+     "TERM-211"
+    ]
+   },
+   {
+    "id": "TBL-165",
+    "name": "sticky_links",
+    "context": "CTX-040",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:398"
+     },
+     {
+      "name": "workshop_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:399"
+     },
+     {
+      "name": "from_note",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:400"
+     },
+     {
+      "name": "to_note",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:401"
+     },
+     {
+      "name": "made_by",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:402"
+     },
+     {
+      "name": "credential_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:403"
+     },
+     {
+      "name": "created_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:404"
+     },
+     {
+      "name": "removed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:405"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [],
+    "foreign_keys": [
+     {
+      "columns": [
+       "credential_id"
+      ],
+      "table": "agent_credentials",
+      "references": [
+       "id"
+      ],
+      "on_delete": "restrict",
+      "where": "db/nexus.sql:403"
+     },
+     {
+      "columns": [
+       "from_note",
+       "workshop_id"
+      ],
+      "table": "sticky_notes",
+      "references": [
+       "id",
+       "workshop_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:408"
+     },
+     {
+      "columns": [
+       "to_note",
+       "workshop_id"
+      ],
+      "table": "sticky_notes",
+      "references": [
+       "id",
+       "workshop_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:409"
+     }
+    ],
+    "where": "db/nexus.sql:394",
+    "terms": [
+     "TERM-211"
+    ]
+   },
+   {
+    "id": "TBL-166",
+    "name": "todos",
+    "context": "CTX-041",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:420"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:421"
+     },
+     {
+      "name": "side",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:422"
+     },
+     {
+      "name": "kind",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:423"
+     },
+     {
+      "name": "diagram_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:426"
+     },
+     {
+      "name": "thread_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:427"
+     },
+     {
+      "name": "change_set_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:428"
+     },
+     {
+      "name": "confirmation_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:429"
+     },
+     {
+      "name": "workshop_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:430"
+     },
+     {
+      "name": "step",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:431"
+     },
+     {
+      "name": "created_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:432"
+     },
+     {
+      "name": "closed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:433"
+     },
+     {
+      "name": "close_reason",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:434"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "id",
+       "project_id"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "project_id"
+      ],
+      "table": "project_spaces",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:421"
+     },
+     {
+      "columns": [
+       "diagram_id",
+       "project_id"
+      ],
+      "table": "diagrams",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:444"
+     },
+     {
+      "columns": [
+       "thread_id",
+       "diagram_id"
+      ],
+      "table": "comment_threads",
+      "references": [
+       "id",
+       "diagram_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:445"
+     },
+     {
+      "columns": [
+       "change_set_id",
+       "diagram_id"
+      ],
+      "table": "change_sets",
+      "references": [
+       "id",
+       "diagram_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:446"
+     },
+     {
+      "columns": [
+       "confirmation_id",
+       "diagram_id"
+      ],
+      "table": "confirmations",
+      "references": [
+       "id",
+       "diagram_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:447"
+     },
+     {
+      "columns": [
+       "workshop_id",
+       "project_id"
+      ],
+      "table": "workshops",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:448"
+     },
+     {
+      "columns": [
+       "workshop_id",
+       "step"
+      ],
+      "table": "workshop_steps",
+      "references": [
+       "workshop_id",
+       "step"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:449"
+     }
+    ],
+    "where": "db/nexus.sql:414",
+    "terms": []
+   },
+   {
+    "id": "TBL-167",
+    "name": "claims",
+    "context": "CTX-041",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:465"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:466"
+     },
+     {
+      "name": "todo_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:467"
+     },
+     {
+      "name": "session",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:468"
+     },
+     {
+      "name": "credential_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:469"
+     },
+     {
+      "name": "claimed_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:470"
+     },
+     {
+      "name": "last_write_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:471"
+     },
+     {
+      "name": "pull_request_id",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:472"
+     },
+     {
+      "name": "released_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:473"
+     },
+     {
+      "name": "release_reason",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:474"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "todo_id"
+      ],
+      "partial": true
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "credential_id"
+      ],
+      "table": "agent_credentials",
+      "references": [
+       "id"
+      ],
+      "on_delete": "restrict",
+      "where": "db/nexus.sql:469"
+     },
+     {
+      "columns": [
+       "todo_id",
+       "project_id"
+      ],
+      "table": "todos",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:476"
+     },
+     {
+      "columns": [
+       "pull_request_id",
+       "project_id"
+      ],
+      "table": "pull_requests",
+      "references": [
+       "id",
+       "project_id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:477"
+     }
+    ],
+    "where": "db/nexus.sql:460",
+    "terms": [
+     "TERM-217"
+    ]
+   },
+   {
+    "id": "TBL-168",
+    "name": "tool_links",
+    "context": "CTX-042",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:489"
+     },
+     {
+      "name": "project_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:490"
+     },
+     {
+      "name": "scope",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:491"
+     },
+     {
+      "name": "tool",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:492"
+     },
+     {
+      "name": "url",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:493"
+     },
+     {
+      "name": "status",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:494"
+     },
+     {
+      "name": "status_read_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:495"
+     },
+     {
+      "name": "added_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:496"
+     },
+     {
+      "name": "removed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:497"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "project_id",
+       "scope",
+       "url"
+      ],
+      "partial": true
+     }
+    ],
+    "foreign_keys": [
+     {
+      "columns": [
+       "project_id"
+      ],
+      "table": "project_spaces",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:490"
+     }
+    ],
+    "where": "db/nexus.sql:484",
+    "terms": [
+     "TERM-218"
+    ]
+   },
+   {
+    "id": "TBL-169",
+    "name": "request_keys",
+    "context": "",
+    "removed": false,
+    "columns": [
+     {
+      "name": "actor",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:506"
+     },
+     {
+      "name": "request_key",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:507"
+     },
+     {
+      "name": "action",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:508"
+     },
+     {
+      "name": "status_code",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:509"
+     },
+     {
+      "name": "answer",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:510"
+     },
+     {
+      "name": "created_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:511"
+     }
+    ],
+    "primary_key": [
+     "actor",
+     "request_key"
+    ],
+    "unique": [],
+    "foreign_keys": [],
+    "where": "db/nexus.sql:502",
+    "terms": []
+   },
+   {
+    "id": "TBL-170",
+    "name": "backups",
+    "context": "",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:520"
+     },
+     {
+      "name": "name",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:521"
+     },
+     {
+      "name": "attempt",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:522"
+     },
+     {
+      "name": "state",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:523"
+     },
+     {
+      "name": "bytes",
+      "type": "INTEGER",
+      "null": true,
+      "where": "db/nexus.sql:524"
+     },
+     {
+      "name": "started_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:525"
+     },
+     {
+      "name": "finished_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:526"
+     },
+     {
+      "name": "removed_at",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:527"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [
+     {
+      "columns": [
+       "name",
+       "attempt"
+      ],
+      "partial": false
+     }
+    ],
+    "foreign_keys": [],
+    "where": "db/nexus.sql:516",
+    "terms": []
+   },
+   {
+    "id": "TBL-171",
+    "name": "restore_rehearsals",
+    "context": "",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:535"
+     },
+     {
+      "name": "release",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:536"
+     },
+     {
+      "name": "backup_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:537"
+     },
+     {
+      "name": "result",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:538"
+     },
+     {
+      "name": "rehearsed_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:539"
+     },
+     {
+      "name": "note",
+      "type": "TEXT",
+      "null": true,
+      "where": "db/nexus.sql:540"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [],
+    "foreign_keys": [
+     {
+      "columns": [
+       "backup_id"
+      ],
+      "table": "backups",
+      "references": [
+       "id"
+      ],
+      "on_delete": "restrict",
+      "where": "db/nexus.sql:537"
+     }
+    ],
+    "where": "db/nexus.sql:532",
+    "terms": []
+   }
+  ],
+  "without_table": [
+   "TERM-222",
+   "TERM-223",
+   "TERM-224",
+   "TERM-225",
+   "TERM-226"
+  ]
+ }
+}

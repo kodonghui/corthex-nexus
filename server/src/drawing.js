@@ -51,7 +51,8 @@
 // other diagram that is not removed, those kept as last drawn included. A diagram this call does not draw again fails
 // when its last drawing failed and earlier holds its source, as drawing it again would. It refuses nothing.
 //
-// A drawer: drawer({ stage, part, key, kind, source, text, read }) returns { name, elements }, at once (no promise).
+// A drawer: drawer({ stage, part, key, kind, source, text, read, warnings }) returns { name, elements }, at once (no
+// promise).
 // - stage, part, key: the document's (key null but for a file of stage 03, 08 or 09); kind: the diagram's kind.
 // - source: the repository path the document comes from: the file's key, or the stage's source as the snapshot's stage
 //   record names it.
@@ -59,6 +60,11 @@
 //   and 07) or the stage's items as a JSON array (an item table).
 // - read(path): the text of another document of the same snapshot by its path, or null when it holds none. What it
 //   reads joins the drawing's source_digest, so a change there draws the diagram again.
+// - warnings: for a stage's picture (01, 05 and 07), what the hub left out of it: the hub's picture-partial checks of
+//   the picture's stage and part, from the snapshot's checks that /snapshot keeps (see pictureWarnings below), each
+//   { path, line, detail }: path and line where the hub found it, each null when the hub names none, and detail what it
+//   says. Any other document has none. When the drawer reads them and there are any, they join the drawing's
+//   source_digest, as the documents it reads do.
 // - name: optional, the diagram's name, up to 200 characters.
 // - elements: up to 5000, each { key, trace_id, kind, name, parent, status, detail }: kind a lowercase word of up to 40
 //   characters, such as table, line or token; name text, cut to 200 characters, '' when it has none (SPEC-010);
@@ -70,6 +76,7 @@
 //   source when left out, and line a line number or none. Any other error is a fault.
 
 import { createHash } from 'node:crypto';
+import { erd } from './erd.js';
 import { idOf } from './ids.js';
 
 // The kind of diagram each picture stage draws. A stage that is not here shows its items as an item table, and so do
@@ -89,8 +96,9 @@ export const KINDS = Object.freeze([...Object.values(PICTURE_KINDS), ITEM_TABLE]
 
 // The drawers, by kind of diagram (see the top of this file). Each drawing task adds its own: ddd_board TASK-421, erd
 // TASK-422, item_table TASK-423, user_flow TASK-424, sitemap TASK-425, screen_states TASK-426 and mockup TASK-427.
-// A kind without a drawer is not drawn: its documents make no diagram.
-export const DRAWERS = Object.freeze({});
+// A kind without a drawer is not drawn: its documents make no diagram. erd.js imports this file in turn, which works
+// because each drawer is a function declaration, set before either file runs.
+export const DRAWERS = Object.freeze({ erd });
 
 // The names a diagram has until its drawer names it, such as when its first drawing fails.
 const NAMES = Object.freeze({ ddd_board: 'DDD board', erd: 'ERD', sitemap: 'Sitemap' });
@@ -111,6 +119,20 @@ const KIND = /^[a-z][a-z0-9_]*$/;
 const CONTROL = /[\u0000-\u001f\u007f]/;
 // A derived key longer than the contract allows keeps its start and ends with # and 16 hex digits of its SHA-256.
 const HASHED = 16;
+// The snapshot's rest, which keeps its checks as they came (see snapshot.js), and the name that the warnings a drawer
+// was given take in its source_digest. No document has that name: NEXUS names none of its own so, and a key never
+// starts with /.
+const REST = '/snapshot';
+const WARNINGS = '/snapshot#picture-partial';
+// A drawer gets at most as many warnings as the push answer names failures.
+const MAX_WARNINGS = 500;
+// The hub's picture-partial message: "<path>:<line>: <detail>", or "<path>: <detail>" for a whole file. The path ends
+// at the first colon and is the path of a picture source, a file the hub reads for stage 01, 05 or 07 (.md,
+// .markdown, .sql, .yaml or .yml), so a message that starts with other words, or whose detail holds a colon and a
+// number, never gets a path or line it does not name, while a path with a space keeps its own.
+const AT_PATH = /^([^:]+):(?:([1-9][0-9]{0,8}):)? (.*)$/s;
+const FILE_NAME = /(?:^|\/)[^/]*[^/\s]\.(?:md|markdown|sql|ya?ml)$/i;
+const NONE = Object.freeze([]);
 
 // What a drawer throws for a source it cannot read: where it failed, a path in the repository and a line, or neither
 // for the document's own source. The drawing fails there, and the diagram keeps its last good drawing (SPEC-001).
@@ -275,6 +297,43 @@ function failureOf(error, source) {
   return { path, line };
 }
 
+// Whether text is a path in the repository as Git lists it, of up to 300 characters (see snapshot.js).
+function isRepositoryPath(text) {
+  return characters(text) <= MAX_WHERE && !CONTROL.test(text) && !text.includes('\\')
+    && text.split('/').every((name) => name !== '' && name !== '.' && name !== '..');
+}
+
+// A picture-partial message as { path, line, detail }: the repository path and the line it starts with, each null
+// when it names none, and the rest. A message that starts with no path is all detail.
+function warningOf(message) {
+  const found = AT_PATH.exec(message);
+  const path = found?.[1];
+  if (found === null || path.trim() !== path || !FILE_NAME.test(path) || !isRepositoryPath(path)) {
+    return Object.freeze({ path: null, line: null, detail: message });
+  }
+  return Object.freeze({ path, line: found[2] === undefined ? null : Number(found[2]), detail: found[3] });
+}
+
+// The warnings of a stage's picture, from a snapshot's checks: the hub's picture-partial checks of the stage that name
+// the picture's part or none, in their order, up to 500, each as { path, line, detail }. The hub adds one for each
+// statement or entry it leaves out of a picture, naming the picture's part when it has one, and one for a source file
+// it could not read, naming none.
+export function pictureWarnings(checks, stage, part) {
+  if (!Array.isArray(checks)) return NONE;
+  return Object.freeze(checks
+    .filter((check) => isObject(check) && check.rule === 'picture-partial' && check.stage === stage && typeof check.message === 'string'
+      && ((check.part ?? '') === '' || check.part === part))
+    .slice(0, MAX_WARNINGS)
+    .map((check) => warningOf(check.message)));
+}
+
+// The checks a snapshot's rest keeps, a list.
+function checksOf(statements, snapshotId) {
+  const row = statements.document.get(snapshotId, REST);
+  const checks = row === undefined ? null : JSON.parse(row.body).checks;
+  return Array.isArray(checks) ? checks : [];
+}
+
 // A failure's where, as the push answer and a drawing's failed_at give it: the path and its line, or the path alone
 // when the two would be too long.
 function whereOf({ path, line }) {
@@ -284,8 +343,9 @@ function whereOf({ path, line }) {
 }
 
 // Runs a drawer on a document: { status, digest, name, rows, failure }. The digest covers each document it read, its
-// own included, by path and SHA-256 in the order of their paths.
-function drawOne(statements, snapshotId, drawer, document, kind) {
+// own included, by path and SHA-256 in the order of their paths, and the warnings when it read them and there are any,
+// so that a drawer that draws no warnings is not drawn again when only they change.
+function drawOne(statements, snapshotId, drawer, document, kind, warnings) {
   const reads = new Map();
   const read = (path) => {
     if (typeof path !== 'string') throw new TypeError('read takes a document\'s path');
@@ -294,11 +354,28 @@ function drawOne(statements, snapshotId, drawer, document, kind) {
   };
   const text = read(document.path);
   if (text === null) throw new Error('a kept document is in its snapshot');
-  const digest = () => sha256(JSON.stringify([...reads].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([path, row]) => [path, row?.sha256 ?? null])));
+  let warned = false;
+  const digest = () => {
+    const entries = [...reads].map(([path, row]) => [path, row?.sha256 ?? null]);
+    if (warned && warnings.length > 0) entries.push([WARNINGS, sha256(JSON.stringify(warnings))]);
+    return sha256(JSON.stringify(entries.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))));
+  };
   const { stage, part, key, where: source } = document;
   try {
-    const result = drawer({ stage, part, key, kind, source, text, read });
+    const result = drawer({
+      stage,
+      part,
+      key,
+      kind,
+      source,
+      text,
+      read,
+      // Read when the drawer takes them, as read() notes the documents it reads.
+      get warnings() {
+        warned = true;
+        return warnings;
+      },
+    });
     if (!isObject(result) || !Array.isArray(result.elements)) throw new TypeError('a drawer returns { name, elements }');
     if (result.name !== undefined && result.name !== null && typeof result.name !== 'string') throw new TypeError('a diagram\'s name is text');
     // A drawing that fails names nothing: the diagram keeps its name with its last good drawing.
@@ -379,13 +456,21 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, e
   const counts = { drawn: 0, unchanged: 0, failed: 0, removed: 0 };
   const failures = [];
   const held = new Set();
+  // The warnings of a stage's picture (01, 05 and 07), from the snapshot's checks, read once, when the first such
+  // picture is drawn; any other document has none.
+  let checks = null;
+  const warningsOf = (document) => {
+    if (document.kind !== 'picture' || document.key !== null) return NONE;
+    checks ??= checksOf(statements, snapshot.id);
+    return pictureWarnings(checks, document.stage, document.part);
+  };
 
   for (const document of documents) {
     if (!inScope(document.stage)) continue;
     const kind = kindOf(document, carries, pictured);
     const drawer = kind !== null && Object.hasOwn(drawers, kind) ? drawers[kind] : undefined;
     if (drawer === undefined) continue;
-    const outcome = drawOne(statements, snapshot.id, drawer, document, kind);
+    const outcome = drawOne(statements, snapshot.id, drawer, document, kind, warningsOf(document));
     let diagram = bySource.get(stageAndPath(document.stage, document.path));
     if (diagram === undefined) {
       const { lastInsertRowid } = statements.insertDiagram.run(
