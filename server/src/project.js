@@ -32,6 +32,12 @@ const PART = /^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$/;
 const PART_LENGTH = 100;
 const STAGE_SET = new Set(STAGES);
 
+// The order of a project's diagrams, as an ORDER BY of diagrams under the alias d: those that are not removed first,
+// each by name and then by ID, so that a stage's first diagram, the one its address opens, is the first of the stage
+// that is not removed (SPEC-016); then the removed ones in the same order (SPEC-027). The project read lists the
+// diagrams by it, and an agent's comment without item or diagram goes on the first (comments.js).
+export const DIAGRAM_ORDER = 'd.removed_at IS NOT NULL, d.name, d.id';
+
 // The statements of each store, prepared on first use (see credentials.js).
 const prepared = new WeakMap();
 
@@ -46,8 +52,7 @@ function statementsOf(store) {
          LEFT JOIN document_blobs b ON b.sha256 = f.blob_sha256
          WHERE s.project_id = ? AND s.commit_sha = ?`,
       ),
-      // Each diagram of the project: those that are not removed first, each by name and then by ID, as the stage's
-      // first diagram is the first by name (SPEC-016); then the removed ones in the same order (SPEC-027).
+      // Each diagram of the project, in DIAGRAM_ORDER.
       diagrams: store.prepare(
         `SELECT d.id, d.stage, d.source_key, d.kind, d.name, d.removed_at,
                 EXISTS (SELECT 1 FROM drawings w WHERE w.diagram_id = d.id AND w.status = 'drawn') AS drawn,
@@ -57,7 +62,7 @@ function statementsOf(store) {
          FROM diagrams d
          LEFT JOIN confirmations k ON k.id = (SELECT max(id) FROM confirmations WHERE diagram_id = d.id)
          WHERE d.project_id = ?
-         ORDER BY d.removed_at IS NOT NULL, d.name, d.id`,
+         ORDER BY ${DIAGRAM_ORDER}`,
       ),
       // Oldest first, so that the last row of each stage is its latest pass.
       passes: store.prepare('SELECT stage, passed_at, changed_at FROM stage_passes WHERE project_id = ? ORDER BY passed_at, id'),
