@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-426's [screen states](#screen-states), the drawer of stage 08; TASK-427's [mockup](#mockup), the drawer of stage 09, and the [mockup page](#the-mockup-page) it serves in a sandbox; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion; TASK-436's [agent reads](#agent-reads), what deleting the space removes and one thread, change set, reflection entry or confirmation, as the hub's `remove` and `show` commands read them; and TASK-441's [diagram read](#diagram), a diagram with its elements by name and their positions, its overlays, its confirmation, what changed since it and its threads. It takes the operations of `src/routes.js`, so far API-242, API-243, API-244, API-245, API-246, API-247, API-248, API-249, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-265, API-277, API-278, API-279, API-280, API-281 and API-293; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-424's [user flow](#user-flow), the drawer of stage 03's flow files; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-426's [screen states](#screen-states), the drawer of stage 08; TASK-427's [mockup](#mockup), the drawer of stage 09, and the [mockup page](#the-mockup-page) it serves in a sandbox; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion; TASK-436's [agent reads](#agent-reads), what deleting the space removes and one thread, change set, reflection entry or confirmation, as the hub's `remove` and `show` commands read them; and TASK-441's [diagram read](#diagram), a diagram with its elements by name and their positions, its overlays, its confirmation, what changed since it and its threads. It takes the operations of `src/routes.js`, so far API-242, API-243, API-244, API-245, API-246, API-247, API-248, API-249, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-265, API-277, API-278, API-279, API-280, API-281 and API-293; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -132,7 +132,7 @@ The schema lists only the fields NEXUS reads and says NEXUS keeps the others as 
 
 ## Drawing
 
-The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board), TASK-422's [ERD](#erd), TASK-423's [item table](#item-table), TASK-425's [sitemap](#sitemap), TASK-426's [screen states](#screen-states) and TASK-427's [mockup](#mockup) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, the reading of a picture's entries and warnings, and the placing of boxes sized for their text. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
+The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board), TASK-422's [ERD](#erd), TASK-423's [item table](#item-table), TASK-424's [user flow](#user-flow), TASK-425's [sitemap](#sitemap), TASK-426's [screen states](#screen-states) and TASK-427's [mockup](#mockup) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, the reading of a picture's entries and warnings, and the placing of boxes sized for their text. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
 
 **Diagrams.** A diagram is drawn from one document of the snapshot. Its `source_key` is that document's path in `snapshot_files` (see Documents above), so a drawing finds its source from the diagram alone.
 
@@ -305,6 +305,86 @@ It also checks, with pictures and checks it makes:
 - a picture in the wrong format or with more than 5000 elements;
 - that no log line holds the picture's text (rule 5).
 
+## User flow
+
+`src/user-flow.js` is TASK-424, the drawer of the `user_flow` kind: it draws each flow file's Mermaid flowchart as one diagram of its boxes, decisions and labelled arrows (SPEC-006). Its source is one picture of a corthex-hub/0.3 snapshot: a flow file of stage 03, with its path as the key and its whole text, as the pinned hub's `snapshot03.py` sends it. NEXUS parses the flowchart itself, with a parser of the subset below written in that file and no package. The diagram is named by the file's first heading, such as "FL-001 Put a project on NEXUS". A file with none is named by its file's name, such as `FL-001-put-a-project-on-nexus.md`, as a diagram whose first drawing fails is named until it draws. The drawer gives that name itself, because `drawing.js` keeps a diagram's last name when its drawer gives none, so a heading taken out later would otherwise leave its old name.
+
+What it draws, in this order:
+
+| Element | `kind` | `detail` |
+| --- | --- | --- |
+| Each lane, a subgraph other than the legend, in its order, named by its title, its parent the lane it stands in | `lane` | `id`, the subgraph's ID; `where` |
+| Each box, in the order the flowchart first names it, named by its label without the lines that hold only trace IDs, its parent its lane | `terminal`, `step`, `decision`, `document`, `store`, `llm` or `grading` | `id`, the node's ID; `lines`, the label's lines as the author broke them, without those of IDs; `ids`, those trace IDs; `marks`, `key` and `gap` from its classes; `lane`, its lane's key or null; `where`; `box` |
+| Each arrow, in its order, named by its label, its parent the box it leaves | `arrow` | `id`, the edge's ID or null; `from` and `to`, the keys of its boxes; `label`; `line`: `pass`, `grade`, `write`, `read` or `thick`; `where`; `points`; `label_box`, its label's box or null |
+
+`where` is the file and line that defines the element, such as `docs/03-user-flow/FL-001-put-a-project-on-nexus.md:11`: for a box, the last line that gives its shape, or the first that names it when none does.
+
+The coordinator chose the next five points for TASK-424, and puts them to the maintainer through the delegate they named for checkpoints.
+
+- **Box and line kinds.** The drawer reads the whole of the corthex-diagram grammar, so that a flow written to it draws whole.
+  - A box's kind comes from its shape: a stadium is a `terminal`, a start or an end; a rectangle a `step`; a diamond a `decision`; `doc` a `document`; a cylinder a `store`; a framed rectangle an `llm` box. A step of class `grade` is a `grading` box.
+  - Its classes `key` and `gap` are its `marks`.
+  - `-->` is a `pass` line and `-.->` a `grade` line. `==>` is a `write` or `read` line by its class, or `thick` with neither.
+  - Only the mockup's three kinds, the start or end, the step and the decision, and the gap mark have an approved look. How the page draws document, store, LLM and grading boxes, the key mark and the write, read and grade lines is TASK-458's to propose.
+- **Direction.** `TD` and `TB` draw top to bottom, and so does a flowchart that names no direction. `LR` draws left to right. `BT` and `RL` are outside the subset.
+- **Lanes.** A subgraph is a lane: an element of kind `lane` that is the parent of its boxes, and each box names its lane in `detail.lane`, so the panel can show it.
+  - A lane has no frame. The boxes are placed as usual and nothing overlaps. Frames can come once `layout.js` keeps a lane together.
+  - A box is in the first lane that names it. Naming it outside any lane does not count, as in Mermaid.
+  - The legend subgraph, titled Legend or 범례, is left out with the subgraphs in it, their boxes and the links that touch them, since the page shows its own legend.
+  - `direction` inside a subgraph is skipped.
+- **One flowchart per file.** The flowchart is the one mermaid block whose first statement is `flowchart` or `graph`. Other mermaid blocks, such as a sequence diagram, are skipped. A file with none fails at its source with no line. A second flowchart fails at its first line, so that the owner never confirms a diagram that leaves part of the file out.
+- **A box's text.** A box's name is its label without the lines that hold only trace IDs, joined with spaces, such as "Create an empty project space". Those IDs are its `ids`, which the page shows under the name, as the mockup does. `lines` keeps the author's line breaks, and the box's size follows them.
+
+**The subset it reads.** Anything else fails the drawing at its line of the file, so the page shows the source text with that line marked (SPEC-006, SCR-145).
+- **The file.** Markdown, whose fenced code blocks open with three or more backticks or tildes. The flowchart is in a block whose info string is `mermaid`; a block left open runs to the end of the file. The file's first ATX heading outside the code blocks names the diagram.
+- **The first statement.** Before it, blank lines, `%%` comment lines and front matter between two `---` lines are skipped. It is `flowchart` or `graph`, with `TD`, `TB`, `LR` or nothing, and an optional `;`.
+- **Statements**, one or more on a line, with `;` between them. Blank lines and lines that start with `%%`, Mermaid's directives `%%{…}%%` among them, are skipped.
+  - **A node** is its ID alone, a step labelled by it, or its ID with a shape: `A(["…"])` terminal, `A["…"]` step, `A{"…"}` decision, `A[("…")]` store, `A[["…"]]` LLM, or `A@{ shape: …, label: "…" }`. The `shape` is one of the grammar's names, `stadium`, `rect`, `diam`, `doc`, `cyl` and `fr-rect`, or one of Mermaid's other names for them: `pill`, `terminal`, `rectangle`, `proc`, `process`, `diamond`, `decision`, `question`, `document`, `cylinder`, `database`, `db`, `framed-rectangle`, `subproc`, `subprocess` and `subroutine`. The `label` is optional.
+  - A label is quoted text with no quote in it, or bare text with no quote. `<br>`, `<br/>` or `<br />` breaks it into lines.
+  - `:::name` after a node gives it a class.
+  - A node ID is letters, digits and `_`, with single dashes inside, of up to 64 characters, and not `end`. The last shape a node is given draws it, as in Mermaid.
+  - **Links** join nodes, in chains such as `A --> B --> C`: `-->` (or longer, `--->`), `==>`, `-.->`, and the invisible `~~~`, which places its boxes and draws no arrow. A label is `-->|…|`, or one of the text forms `-- … -->`, `== … ==>` and `-. … .->`, quoted or not. An edge ID goes before the link: `A e1@--> B`.
+  - `subgraph ID` or `subgraph ID["title"]`, and `end`; `direction` inside a subgraph.
+  - `class A,B name`, for nodes and edge IDs. `classDef`, `style` and `linkStyle` are read and not drawn, since NEXUS draws with its own tokens.
+- **Refused**, each at its line:
+  - `BT` and `RL`;
+  - any other shape, such as `(…)`, `((…))`, `{{…}}`, `[/…/]`, `[\…\]` or `>…]`, and any other `@{ … }` shape or key;
+  - Markdown strings, a quote followed by a backtick;
+  - links with no head or another head: `---`, `-.-`, `===`, `--o`, `--x` and `<-->`;
+  - `&`, `click`, `direction` outside a subgraph, and any other statement, such as `accTitle`;
+  - an ID given to two of a node, an edge and a lane, at the line that gives it the second time; a subgraph left open, at its line; front matter left open, at its first line.
+
+The rest:
+
+- **Keys.** A box's key is its node ID, so the box keeps it, and the threads on it, when its label or place changes. A lane's key is `lane:` and its ID. An arrow's key is its from and to boxes, `A->B`; a second arrow between the same two gets `#2`, a third `#3` and so on.
+- **Sizes.** A box is as large as its text and shape take, for the page that draws it (TASK-458).
+  - Its text is its lines and the line of its IDs, 20 pixels a line, with 12 pixels of padding round them. Its width is its longest line's in 12-pixel IBM Plex Mono, up to 480 pixels, plus the padding, and at least 80 pixels. The page wraps a longer line, and the box is as tall as the lines it wraps to.
+  - A terminal is wider by half its height, for its round ends. A decision's diamond is as wide as its text's box plus twice that box's height, and as tall as that box plus half its width. A store is 16 pixels taller, a document 8 pixels taller and an LLM box 16 pixels wider.
+  - An arrow's label is a 20-pixel line, as wide as its text with 4 pixels at each side, and wraps the same way.
+  - `box` and `label_box` are `{ x, y, width, height }`, and `points` `[{ x, y }]`, as `layout.js` gives them.
+- **A flowchart it cannot draw** fails at its source with no line: one with more than 5000 elements, or one too large for `layout.js` to place.
+
+`test/user-flow.test.js` checks TASK-424's done condition:
+- **This repository's 13 flows draw as stored expected drawings.** `test/user-flow-pictures.json` is the pinned hub's corthex-hub/0.3 pictures of `docs/03-user-flow`, with each file's SHA-256. `test/user-flow-expected.json` is their drawings. The test compares them exactly, alone and through the push with the server's own drawers, where stage 03 lists the 13 diagrams (SPEC-006's criterion) and no item table. It fails when a flow file changes and the pictures do not, and when a drawing changes and its file does not.
+- **A flowchart that does not parse shows its source text and the error line.** Each refused form fails at its line of the file. Through the push, the drawing fails with its file and line, the snapshot keeps the file's text for the page to show, and the diagram keeps its last good drawing.
+
+The server's tests run with Node alone, so `tests/test_user_flow_pictures.py` makes the pictures again with the pinned hub's own `snapshot03.py`, over this working tree's files, and fails when they differ from the stored ones. To make both files again, from the repository's root:
+
+```sh
+CORTHEX_HUB_CHECKOUT=<the pinned hub checkout> python tests/test_user_flow_pictures.py --write
+(cd server && node test/user-flow-expected.js --write)
+```
+
+It also checks:
+- each shape, link, label form and line kind, and the keys;
+- lanes, the legend and `~~~`;
+- the directions;
+- what is skipped round the flowchart, CRLF line endings, and a file with no flowchart or two;
+- more than 5000 elements, and a long line of statements read at once;
+- thousands of broken and random texts, which draw within the interface or fail at their source, and nothing else;
+- stage 03's item table making way for the flows;
+- that no log line holds a flow's text (rule 5).
+
 ## ERD
 
 `src/erd.js` is TASK-422, the drawer of the `erd` kind: it draws the stage-05 picture as tables with their columns and keys, and a line for each foreign key (SPEC-004). Its source is the pinned hub's parsed picture of the project's schema, as the contract's `Snapshot` says of stage 05, so NEXUS parses no SQL. The hub's `erd.py` reads the schema, and its picture, format 1, holds each table with its trace ID, name, columns (name, type, whether it takes null, and where), primary key, unique rules, foreign keys and where, the file and line it comes from.
@@ -423,7 +503,7 @@ The coordinator chose the rules below for TASK-423, and the maintainer approved 
 - under a format that carries its pictures, while the snapshot holds none of its files that a drawer draws;
 - under one that does not, while every picture last drawn of it is removed.
 
-So the table makes way for the first picture drawn of its stage, and comes back, the same diagram with its threads, when the stage has none again. Until TASK-424 adds its drawer, the server draws no file of 03, so that stage shows its item table in both formats. TASK-426's [screen states](#screen-states) and TASK-427's [mockup](#mockup) draw the files of 08 and 09, so their tables make way for them under a format that carries them.
+So the table makes way for the first picture drawn of its stage, and comes back, the same diagram with its threads, when the stage has none again. TASK-424's [user flow](#user-flow), TASK-426's [screen states](#screen-states) and TASK-427's [mockup](#mockup) draw the files of 03, 08 and 09, so their tables make way for them under a format that carries them.
 
 **Stage with no items.** A stage whose record in the snapshot says the hub read its source (`read` true) and that has no items keeps an empty `/items/<stage>`, which draws an empty table: the page says the stage has no items yet (SCR-145). A truncated snapshot keeps none, as above. A stage the hub did not read, one with no source or with a missing or skipped one, has no table and shows "Nothing sent yet". A read stage whose items all go keeps its table, with no rows. With a drawer for every kind, as the tests give, this repository's push draws 12 diagrams in corthex-hub/0.2 and 28 in 0.3, where it drew 8 and 26: the empty tables of 08, 09, 12 and 13 in 0.2, and of 12 and 13 in 0.3, where 08 and 09 show their files.
 

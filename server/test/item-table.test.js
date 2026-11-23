@@ -178,7 +178,7 @@ describe('item tables through the push', () => {
       .run('push-job', sha256(secret), at(START));
     headers = { 'CF-Access-Client-Id': idOf('ac', Number(lastInsertRowid)), 'CF-Access-Client-Secret': secret };
     // The server's own drawers; and the server's item-table drawer with test drawers for the pictures of 03, 08 and
-    // 09, which have no drawer of their own yet (TASK-424, TASK-426, TASK-427).
+    // 09, so that each stage's table makes way the same whatever its own drawer draws.
     own = await startServer({ store: db, now: () => clock.now, routes: snapshotRoutes() });
     pictured = await startServer({ store: db, now: () => clock.now, routes: snapshotRoutes({ drawers: { ...testDrawers(), item_table: DRAWERS.item_table } }) });
   });
@@ -325,13 +325,15 @@ describe('item tables through the push', () => {
     assert.equal(diagram(name, '/items/08-screen-states'), undefined);
   });
 
-  test('without a drawer for a stage\'s files, the stage shows no picture and keeps its item table', async () => {
+  test('with the server\'s own drawers, the files of 03, 08 and 09 draw, and those stages show no item table', async () => {
     const name = 'item-table-no-drawer';
-    await push(own, repositorySnapshot(FORMAT_03, { name }));
-    // The server has no drawer of user flows yet.
-    assert.equal(diagram(name, `/items/${FLOWS}`).removed_at, null);
-    // It draws screen states (TASK-426) and a mockup's page (TASK-427), so stages 08 and 09 show their pictures and no
-    // item table.
+    const answer = await push(own, repositorySnapshot(FORMAT_03, { name }));
+    assert.deepEqual(answer.failures, []);
+    // The server draws the files of 03 (TASK-424), 08 (TASK-426) and 09 (TASK-427), so each of those stages shows its
+    // pictures from its first push, and no item table.
+    assert.equal(diagram(name, `/items/${FLOWS}`), undefined);
+    assert.equal(live(name, FLOWS), 13);
+    assert.deepEqual([...new Set(listed(name, FLOWS).map(([kind]) => kind))], ['user_flow']);
     assert.equal(diagram(name, '/items/08-screen-states'), undefined);
     assert.equal(diagram(name, 'docs/08-screens/SCR-142.md').kind, 'screen_states');
     assert.equal(diagram(name, '/items/09-mockup'), undefined);
@@ -339,10 +341,12 @@ describe('item tables through the push', () => {
   });
 
   test('a table removed because its stage is no longer read did not make way: its threads move to the diagram', async () => {
-    // Under 0.3, a format that carries stage 03's pictures: with no drawer of its files, the stage shows its table.
+    // Under 0.3, a format that carries stage 03's pictures: with none of its files, the stage shows its table (note 3).
     const name = 'item-table-not-read';
     const [a, b] = [newCommit(), newCommit()];
-    await push(own, repositorySnapshot(FORMAT_03, { name, commit: a }));
+    const first = repositorySnapshot(FORMAT_03, { name, commit: a });
+    first.pictures = first.pictures.filter((picture) => picture.stage !== FLOWS);
+    await push(own, first);
     const table = diagram(name, `/items/${FLOWS}`);
     const [drawing] = drawings(table.id);
     const row = elements(drawing.id).find((each) => each.element_key === 'FL-001');

@@ -1,0 +1,8515 @@
+{
+ "docs/03-user-flow/FL-001-put-a-project-on-nexus.md": {
+  "name": "FL-001 Put a project on NEXUS",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Agent pushes a new project",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Agent pushes a new project"
+     ],
+     "ids": [
+      "REQ-018"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:11",
+     "box": {
+      "x": 186.5,
+      "y": 0,
+      "width": 244,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "decision",
+    "name": "Credential valid?",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Credential valid?"
+     ],
+     "ids": [
+      "REQ-066"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:12",
+     "box": {
+      "x": 171,
+      "y": 112,
+      "width": 275,
+      "height": 138
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "decision",
+    "name": "Owner confirmed the first send?",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Owner confirmed the first",
+      "send?"
+     ],
+     "ids": [
+      "REQ-003"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:13",
+     "box": {
+      "x": 270,
+      "y": 318,
+      "width": 372,
+      "height": 186
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "decision",
+    "name": "A file looks like a secret or an email?",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "A file looks like a secret",
+      "or an email?"
+     ],
+     "ids": [
+      "REQ-077"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:14",
+     "box": {
+      "x": 424.5,
+      "y": 572,
+      "width": 380,
+      "height": 190
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "step",
+    "name": "Create an empty project space",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Create an empty project",
+      "space"
+     ],
+     "ids": [
+      "REQ-001",
+      "REQ-019"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:15",
+     "box": {
+      "x": 632.25,
+      "y": 830,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "step",
+    "name": "Draw the stage diagrams and item tables",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Draw the stage diagrams",
+      "and item tables"
+     ],
+     "ids": [
+      "REQ-001",
+      "REQ-004",
+      "REQ-005",
+      "REQ-006"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:16",
+     "box": {
+      "x": 592.75,
+      "y": 962,
+      "width": 269,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "G",
+    "kind": "step",
+    "name": "List the project in the owner's to-do",
+    "parent": null,
+    "detail": {
+     "id": "G",
+     "lines": [
+      "List the project in the",
+      "owner's to-do"
+     ],
+     "ids": [
+      "REQ-052"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:17",
+     "box": {
+      "x": 632.25,
+      "y": 1094,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "R1",
+    "kind": "step",
+    "name": "Refuse the request",
+    "parent": null,
+    "detail": {
+     "id": "R1",
+     "lines": [
+      "Refuse the request"
+     ],
+     "ids": [
+      "REQ-066"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:18",
+     "box": {
+      "x": 0,
+      "y": 379,
+      "width": 154,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "R2",
+    "kind": "step",
+    "name": "Reject and ask for the first-send confirmation",
+    "parent": null,
+    "detail": {
+     "id": "R2",
+     "lines": [
+      "Reject and ask for the",
+      "first-send confirmation"
+     ],
+     "ids": [
+      "REQ-003"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:19",
+     "box": {
+      "x": 188,
+      "y": 625,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "R3",
+    "kind": "step",
+    "name": "Refuse the file and name it in the answer",
+    "parent": null,
+    "detail": {
+     "id": "R3",
+     "lines": [
+      "Refuse the file and name",
+      "it in the answer"
+     ],
+     "ids": [
+      "REQ-077"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:20",
+     "box": {
+      "x": 403.25,
+      "y": 830,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:21",
+     "box": {
+      "x": 292.25,
+      "y": 1238,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:22",
+     "points": [
+      {
+       "x": 308.5,
+       "y": 64
+      },
+      {
+       "x": 308.5,
+       "y": 112
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->R1",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "R1",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:23",
+     "points": [
+      {
+       "x": 262.67,
+       "y": 250
+      },
+      {
+       "x": 262.67,
+       "y": 262
+      },
+      {
+       "x": 77,
+       "y": 262
+      },
+      {
+       "x": 77,
+       "y": 379
+      }
+     ],
+     "label_box": {
+      "x": 83,
+      "y": 274,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "B",
+    "detail": {
+     "id": "e3",
+     "from": "B",
+     "to": "C",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:24",
+     "points": [
+      {
+       "x": 354.33,
+       "y": 250
+      },
+      {
+       "x": 354.33,
+       "y": 262
+      },
+      {
+       "x": 456,
+       "y": 262
+      },
+      {
+       "x": 456,
+       "y": 318
+      }
+     ],
+     "label_box": {
+      "x": 462,
+      "y": 274,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->R2",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "C",
+    "detail": {
+     "id": "e4",
+     "from": "C",
+     "to": "R2",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:25",
+     "points": [
+      {
+       "x": 394,
+       "y": 504
+      },
+      {
+       "x": 394,
+       "y": 516
+      },
+      {
+       "x": 283,
+       "y": 516
+      },
+      {
+       "x": 283,
+       "y": 625
+      }
+     ],
+     "label_box": {
+      "x": 289,
+      "y": 528,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "C",
+    "detail": {
+     "id": "e5",
+     "from": "C",
+     "to": "D",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:26",
+     "points": [
+      {
+       "x": 518,
+       "y": 504
+      },
+      {
+       "x": 518,
+       "y": 516
+      },
+      {
+       "x": 614.5,
+       "y": 516
+      },
+      {
+       "x": 614.5,
+       "y": 572
+      }
+     ],
+     "label_box": {
+      "x": 620.5,
+      "y": 528,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->R3",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "D",
+    "detail": {
+     "id": "e6",
+     "from": "D",
+     "to": "R3",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:27",
+     "points": [
+      {
+       "x": 551.17,
+       "y": 762
+      },
+      {
+       "x": 551.17,
+       "y": 774
+      },
+      {
+       "x": 501.75,
+       "y": 774
+      },
+      {
+       "x": 501.75,
+       "y": 830
+      }
+     ],
+     "label_box": {
+      "x": 507.75,
+      "y": 786,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "D",
+    "detail": {
+     "id": "e7",
+     "from": "D",
+     "to": "E",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:28",
+     "points": [
+      {
+       "x": 677.83,
+       "y": 762
+      },
+      {
+       "x": 677.83,
+       "y": 774
+      },
+      {
+       "x": 727.25,
+       "y": 774
+      },
+      {
+       "x": 727.25,
+       "y": 830
+      }
+     ],
+     "label_box": {
+      "x": 733.25,
+      "y": 786,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "E->F",
+    "kind": "arrow",
+    "name": "",
+    "parent": "E",
+    "detail": {
+     "id": "e8",
+     "from": "E",
+     "to": "F",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:29",
+     "points": [
+      {
+       "x": 727.25,
+       "y": 914
+      },
+      {
+       "x": 727.25,
+       "y": 962
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "F->G",
+    "kind": "arrow",
+    "name": "",
+    "parent": "F",
+    "detail": {
+     "id": "e9",
+     "from": "F",
+     "to": "G",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:30",
+     "points": [
+      {
+       "x": 727.25,
+       "y": 1046
+      },
+      {
+       "x": 727.25,
+       "y": 1094
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "G->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "G",
+    "detail": {
+     "id": "e10",
+     "from": "G",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:31",
+     "points": [
+      {
+       "x": 727.25,
+       "y": 1178
+      },
+      {
+       "x": 727.25,
+       "y": 1226
+      },
+      {
+       "x": 373.85,
+       "y": 1226
+      },
+      {
+       "x": 373.85,
+       "y": 1238
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R1->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R1",
+    "detail": {
+     "id": "e11",
+     "from": "R1",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:32",
+     "points": [
+      {
+       "x": 77,
+       "y": 443
+      },
+      {
+       "x": 77,
+       "y": 1226
+      },
+      {
+       "x": 312.65,
+       "y": 1226
+      },
+      {
+       "x": 312.65,
+       "y": 1238
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R2->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R2",
+    "detail": {
+     "id": "e12",
+     "from": "R2",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:33",
+     "points": [
+      {
+       "x": 283,
+       "y": 709
+      },
+      {
+       "x": 283,
+       "y": 1214
+      },
+      {
+       "x": 333.05,
+       "y": 1214
+      },
+      {
+       "x": 333.05,
+       "y": 1238
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R3->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R3",
+    "detail": {
+     "id": "e13",
+     "from": "R3",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-001-put-a-project-on-nexus.md:34",
+     "points": [
+      {
+       "x": 501.75,
+       "y": 914
+      },
+      {
+       "x": 501.75,
+       "y": 1214
+      },
+      {
+       "x": 353.45,
+       "y": 1214
+      },
+      {
+       "x": 353.45,
+       "y": 1238
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md": {
+  "name": "FL-002 Read a stage from the to-do",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Owner opens NEXUS",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Owner opens NEXUS"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:11",
+     "box": {
+      "x": 187.25,
+      "y": 0,
+      "width": 169,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "decision",
+    "name": "Signed in through the gate?",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Signed in through the",
+      "gate?"
+     ],
+     "ids": [
+      "REQ-062",
+      "REQ-063"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:12",
+     "box": {
+      "x": 99.75,
+      "y": 92,
+      "width": 344,
+      "height": 172
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "step",
+    "name": "Show the owner's to-do",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Show the owner's to-do"
+     ],
+     "ids": [
+      "REQ-052"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:13",
+     "box": {
+      "x": 362.25,
+      "y": 332,
+      "width": 183,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "step",
+    "name": "Owner picks a project and a stage",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Owner picks a project and",
+      "a stage"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:14",
+     "box": {
+      "x": 351.75,
+      "y": 444,
+      "width": 204,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "decision",
+    "name": "Does the stage have a picture?",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Does the stage have a",
+      "picture?"
+     ],
+     "ids": [
+      "REQ-004",
+      "REQ-005",
+      "REQ-006",
+      "REQ-007",
+      "REQ-008",
+      "REQ-009",
+      "REQ-010"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:15",
+     "box": {
+      "x": 137.75,
+      "y": 556,
+      "width": 632,
+      "height": 316
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "step",
+    "name": "Open the diagram with names, IDs hidden",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Open the diagram with",
+      "names, IDs hidden"
+     ],
+     "ids": [
+      "REQ-004",
+      "REQ-005",
+      "REQ-011",
+      "REQ-070"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:16",
+     "box": {
+      "x": 202.5,
+      "y": 940,
+      "width": 269,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "G",
+    "kind": "step",
+    "name": "Open the item table",
+    "parent": null,
+    "detail": {
+     "id": "G",
+     "lines": [
+      "Open the item table"
+     ],
+     "ids": [
+      "REQ-006",
+      "REQ-011"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:17",
+     "box": {
+      "x": 550.75,
+      "y": 950,
+      "width": 161,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "H",
+    "kind": "step",
+    "name": "Mark what changed since the last confirmation",
+    "parent": null,
+    "detail": {
+     "id": "H",
+     "lines": [
+      "Mark what changed since",
+      "the last confirmation"
+     ],
+     "ids": [
+      "REQ-041"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:18",
+     "box": {
+      "x": 358.75,
+      "y": 1072,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "I",
+    "kind": "decision",
+    "name": "What does the owner do?",
+    "parent": null,
+    "detail": {
+     "id": "I",
+     "lines": [
+      "What does the owner do?"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:19",
+     "box": {
+      "x": 314.75,
+      "y": 1204,
+      "width": 278,
+      "height": 139
+     }
+    }
+   },
+   {
+    "key": "J",
+    "kind": "step",
+    "name": "Store the new position in NEXUS only",
+    "parent": null,
+    "detail": {
+     "id": "J",
+     "lines": [
+      "Store the new position in",
+      "NEXUS only"
+     ],
+     "ids": [
+      "REQ-013",
+      "REQ-015"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:20",
+     "box": {
+      "x": 111.75,
+      "y": 1411,
+      "width": 204,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "K",
+    "kind": "step",
+    "name": "Put the ID and name on the clipboard",
+    "parent": null,
+    "detail": {
+     "id": "K",
+     "lines": [
+      "Put the ID and name on the",
+      "clipboard"
+     ],
+     "ids": [
+      "REQ-012"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:21",
+     "box": {
+      "x": 367.5,
+      "y": 1411,
+      "width": 212,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "R1",
+    "kind": "step",
+    "name": "Not admitted",
+    "parent": null,
+    "detail": {
+     "id": "R1",
+     "lines": [
+      "Not admitted"
+     ],
+     "ids": [
+      "REQ-062",
+      "REQ-066"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:22",
+     "box": {
+      "x": 0,
+      "y": 332,
+      "width": 140,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:23",
+     "box": {
+      "x": 389.75,
+      "y": 1555,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:24",
+     "points": [
+      {
+       "x": 271.75,
+       "y": 44
+      },
+      {
+       "x": 271.75,
+       "y": 92
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->R1",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "R1",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:25",
+     "points": [
+      {
+       "x": 214.42,
+       "y": 264
+      },
+      {
+       "x": 214.42,
+       "y": 276
+      },
+      {
+       "x": 70,
+       "y": 276
+      },
+      {
+       "x": 70,
+       "y": 332
+      }
+     ],
+     "label_box": {
+      "x": 76,
+      "y": 288,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "B",
+    "detail": {
+     "id": "e3",
+     "from": "B",
+     "to": "C",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:26",
+     "points": [
+      {
+       "x": 329.08,
+       "y": 264
+      },
+      {
+       "x": 329.08,
+       "y": 276
+      },
+      {
+       "x": 453.75,
+       "y": 276
+      },
+      {
+       "x": 453.75,
+       "y": 332
+      }
+     ],
+     "label_box": {
+      "x": 459.75,
+      "y": 288,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "",
+    "parent": "C",
+    "detail": {
+     "id": "e4",
+     "from": "C",
+     "to": "D",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:27",
+     "points": [
+      {
+       "x": 453.75,
+       "y": 396
+      },
+      {
+       "x": 453.75,
+       "y": 444
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "",
+    "parent": "D",
+    "detail": {
+     "id": "e5",
+     "from": "D",
+     "to": "E",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:28",
+     "points": [
+      {
+       "x": 453.75,
+       "y": 508
+      },
+      {
+       "x": 453.75,
+       "y": 556
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "E->F",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "E",
+    "detail": {
+     "id": "e6",
+     "from": "E",
+     "to": "F",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:29",
+     "points": [
+      {
+       "x": 348.42,
+       "y": 872
+      },
+      {
+       "x": 348.42,
+       "y": 884
+      },
+      {
+       "x": 337,
+       "y": 884
+      },
+      {
+       "x": 337,
+       "y": 940
+      }
+     ],
+     "label_box": {
+      "x": 343,
+      "y": 896,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "E->G",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "E",
+    "detail": {
+     "id": "e7",
+     "from": "E",
+     "to": "G",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:30",
+     "points": [
+      {
+       "x": 559.08,
+       "y": 872
+      },
+      {
+       "x": 559.08,
+       "y": 884
+      },
+      {
+       "x": 631.25,
+       "y": 884
+      },
+      {
+       "x": 631.25,
+       "y": 950
+      }
+     ],
+     "label_box": {
+      "x": 637.25,
+      "y": 896,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "F->H",
+    "kind": "arrow",
+    "name": "",
+    "parent": "F",
+    "detail": {
+     "id": "e8",
+     "from": "F",
+     "to": "H",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:31",
+     "points": [
+      {
+       "x": 337,
+       "y": 1024
+      },
+      {
+       "x": 337,
+       "y": 1060
+      },
+      {
+       "x": 422.08,
+       "y": 1060
+      },
+      {
+       "x": 422.08,
+       "y": 1072
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "G->H",
+    "kind": "arrow",
+    "name": "",
+    "parent": "G",
+    "detail": {
+     "id": "e9",
+     "from": "G",
+     "to": "H",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:32",
+     "points": [
+      {
+       "x": 631.25,
+       "y": 1014
+      },
+      {
+       "x": 631.25,
+       "y": 1060
+      },
+      {
+       "x": 485.42,
+       "y": 1060
+      },
+      {
+       "x": 485.42,
+       "y": 1072
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "H->I",
+    "kind": "arrow",
+    "name": "",
+    "parent": "H",
+    "detail": {
+     "id": "e10",
+     "from": "H",
+     "to": "I",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:33",
+     "points": [
+      {
+       "x": 453.75,
+       "y": 1156
+      },
+      {
+       "x": 453.75,
+       "y": 1204
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "I->J",
+    "kind": "arrow",
+    "name": "move an element on a PC",
+    "parent": "I",
+    "detail": {
+     "id": "e11",
+     "from": "I",
+     "to": "J",
+     "label": "move an element on a PC",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:34",
+     "points": [
+      {
+       "x": 384.25,
+       "y": 1343
+      },
+      {
+       "x": 384.25,
+       "y": 1355
+      },
+      {
+       "x": 213.75,
+       "y": 1355
+      },
+      {
+       "x": 213.75,
+       "y": 1411
+      }
+     ],
+     "label_box": {
+      "x": 219.75,
+      "y": 1367,
+      "width": 174,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "I->K",
+    "kind": "arrow",
+    "name": "copy an element",
+    "parent": "I",
+    "detail": {
+     "id": "e12",
+     "from": "I",
+     "to": "K",
+     "label": "copy an element",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:35",
+     "points": [
+      {
+       "x": 453.75,
+       "y": 1343
+      },
+      {
+       "x": 453.75,
+       "y": 1355
+      },
+      {
+       "x": 473.5,
+       "y": 1355
+      },
+      {
+       "x": 473.5,
+       "y": 1411
+      }
+     ],
+     "label_box": {
+      "x": 479.5,
+      "y": 1367,
+      "width": 116,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "I->Z",
+    "kind": "arrow",
+    "name": "read only",
+    "parent": "I",
+    "detail": {
+     "id": "e13",
+     "from": "I",
+     "to": "Z",
+     "label": "read only",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:36",
+     "points": [
+      {
+       "x": 523.25,
+       "y": 1343
+      },
+      {
+       "x": 523.25,
+       "y": 1355
+      },
+      {
+       "x": 607.5,
+       "y": 1355
+      },
+      {
+       "x": 607.5,
+       "y": 1543
+      },
+      {
+       "x": 471.35,
+       "y": 1543
+      },
+      {
+       "x": 471.35,
+       "y": 1555
+      }
+     ],
+     "label_box": {
+      "x": 613.5,
+      "y": 1367,
+      "width": 73,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "J->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "J",
+    "detail": {
+     "id": "e14",
+     "from": "J",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:37",
+     "points": [
+      {
+       "x": 213.75,
+       "y": 1495
+      },
+      {
+       "x": 213.75,
+       "y": 1531
+      },
+      {
+       "x": 430.55,
+       "y": 1531
+      },
+      {
+       "x": 430.55,
+       "y": 1555
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "K->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "K",
+    "detail": {
+     "id": "e15",
+     "from": "K",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:38",
+     "points": [
+      {
+       "x": 473.5,
+       "y": 1495
+      },
+      {
+       "x": 473.5,
+       "y": 1531
+      },
+      {
+       "x": 450.95,
+       "y": 1531
+      },
+      {
+       "x": 450.95,
+       "y": 1555
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R1->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R1",
+    "detail": {
+     "id": "e16",
+     "from": "R1",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:39",
+     "points": [
+      {
+       "x": 70,
+       "y": 396
+      },
+      {
+       "x": 70,
+       "y": 1543
+      },
+      {
+       "x": 410.15,
+       "y": 1543
+      },
+      {
+       "x": 410.15,
+       "y": 1555
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md": {
+  "name": "FL-003 Comment and answer an AI proposal",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Owner comments on a diagram, element or row",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Owner comments on a",
+      "diagram, element or row"
+     ],
+     "ids": [
+      "REQ-020"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:11",
+     "box": {
+      "x": 287.25,
+      "y": 0,
+      "width": 232,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "step",
+    "name": "Add the comment to the agent to-do",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Add the comment to the",
+      "agent to-do"
+     ],
+     "ids": [
+      "REQ-053"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:12",
+     "box": {
+      "x": 311.75,
+      "y": 132,
+      "width": 183,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "decision",
+    "name": "Another session holds it?",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Another session holds it?"
+     ],
+     "ids": [
+      "REQ-054",
+      "REQ-055"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:13",
+     "box": {
+      "x": 237.25,
+      "y": 284,
+      "width": 332,
+      "height": 166
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "decision",
+    "name": "Answer or change?",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Answer or change?"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:14",
+     "box": {
+      "x": 395.5,
+      "y": 518,
+      "width": 235,
+      "height": 118
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "step",
+    "name": "Agent replies in the thread",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Agent replies in the",
+      "thread"
+     ],
+     "ids": [
+      "REQ-021"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:15",
+     "box": {
+      "x": 148.75,
+      "y": 704,
+      "width": 168,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "step",
+    "name": "Agent posts an AI proposal laid over the diagram",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Agent posts an AI proposal",
+      "laid over the diagram"
+     ],
+     "ids": [
+      "REQ-022"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:16",
+     "box": {
+      "x": 645.5,
+      "y": 704,
+      "width": 212,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "G",
+    "kind": "decision",
+    "name": "Who answers the proposal?",
+    "parent": null,
+    "detail": {
+     "id": "G",
+     "lines": [
+      "Who answers the proposal?"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:17",
+     "box": {
+      "x": 605.5,
+      "y": 836,
+      "width": 292,
+      "height": 146
+     }
+    }
+   },
+   {
+    "key": "H",
+    "kind": "decision",
+    "name": "Accept?",
+    "parent": null,
+    "detail": {
+     "id": "H",
+     "lines": [
+      "Accept?"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:18",
+     "box": {
+      "x": 436.25,
+      "y": 1050,
+      "width": 168,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "I",
+    "kind": "step",
+    "name": "Add the reflection to the agent to-do",
+    "parent": null,
+    "detail": {
+     "id": "I",
+     "lines": [
+      "Add the reflection to the",
+      "agent to-do"
+     ],
+     "ids": [
+      "REQ-023"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:19",
+     "box": {
+      "x": 483.75,
+      "y": 1202,
+      "width": 204,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "J",
+    "kind": "step",
+    "name": "Mark it rejected, thread stays open",
+    "parent": null,
+    "detail": {
+     "id": "J",
+     "lines": [
+      "Mark it rejected, thread",
+      "stays open"
+     ],
+     "ids": [
+      "REQ-024"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:20",
+     "box": {
+      "x": 254.75,
+      "y": 1202,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "K",
+    "kind": "step",
+    "name": "Owner closes the thread when done",
+    "parent": null,
+    "detail": {
+     "id": "K",
+     "lines": [
+      "Owner closes the thread",
+      "when done"
+     ],
+     "ids": [
+      "REQ-034"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:21",
+     "box": {
+      "x": 198,
+      "y": 1334,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "R1",
+    "kind": "step",
+    "name": "Refuse the claim",
+    "parent": null,
+    "detail": {
+     "id": "R1",
+     "lines": [
+      "Refuse the claim"
+     ],
+     "ids": [
+      "REQ-055"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:22",
+     "box": {
+      "x": 0,
+      "y": 545,
+      "width": 140,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "R2",
+    "kind": "step",
+    "name": "Not offered on a phone",
+    "parent": null,
+    "detail": {
+     "id": "R2",
+     "lines": [
+      "Not offered on a phone"
+     ],
+     "ids": [
+      "REQ-068"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:23",
+     "box": {
+      "x": 660,
+      "y": 1060,
+      "width": 183,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "R3",
+    "kind": "step",
+    "name": "Refuse the agent credential",
+    "parent": null,
+    "detail": {
+     "id": "R3",
+     "lines": [
+      "Refuse the agent",
+      "credential"
+     ],
+     "ids": [
+      "REQ-025"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:24",
+     "box": {
+      "x": 875,
+      "y": 1050,
+      "width": 140,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:25",
+     "box": {
+      "x": 462,
+      "y": 1478,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "Y",
+    "kind": "terminal",
+    "name": "Reflect it: FL-005",
+    "parent": null,
+    "detail": {
+     "id": "Y",
+     "lines": [
+      "Reflect it: FL-005"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:26",
+     "box": {
+      "x": 497.75,
+      "y": 1354,
+      "width": 176,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:27",
+     "points": [
+      {
+       "x": 403.25,
+       "y": 84
+      },
+      {
+       "x": 403.25,
+       "y": 132
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "agent claims",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "C",
+     "label": "agent claims",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:28",
+     "points": [
+      {
+       "x": 403.25,
+       "y": 216
+      },
+      {
+       "x": 403.25,
+       "y": 284
+      }
+     ],
+     "label_box": {
+      "x": 409.25,
+      "y": 240,
+      "width": 95,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->R1",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "C",
+    "detail": {
+     "id": "e3",
+     "from": "C",
+     "to": "R1",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:29",
+     "points": [
+      {
+       "x": 347.92,
+       "y": 450
+      },
+      {
+       "x": 347.92,
+       "y": 462
+      },
+      {
+       "x": 70,
+       "y": 462
+      },
+      {
+       "x": 70,
+       "y": 545
+      }
+     ],
+     "label_box": {
+      "x": 76,
+      "y": 474,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "C",
+    "detail": {
+     "id": "e4",
+     "from": "C",
+     "to": "D",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:30",
+     "points": [
+      {
+       "x": 458.58,
+       "y": 450
+      },
+      {
+       "x": 458.58,
+       "y": 462
+      },
+      {
+       "x": 513,
+       "y": 462
+      },
+      {
+       "x": 513,
+       "y": 518
+      }
+     ],
+     "label_box": {
+      "x": 519,
+      "y": 474,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "answer",
+    "parent": "D",
+    "detail": {
+     "id": "e5",
+     "from": "D",
+     "to": "E",
+     "label": "answer",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:31",
+     "points": [
+      {
+       "x": 473.83,
+       "y": 636
+      },
+      {
+       "x": 473.83,
+       "y": 648
+      },
+      {
+       "x": 232.75,
+       "y": 648
+      },
+      {
+       "x": 232.75,
+       "y": 704
+      }
+     ],
+     "label_box": {
+      "x": 238.75,
+      "y": 660,
+      "width": 52,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->F",
+    "kind": "arrow",
+    "name": "change",
+    "parent": "D",
+    "detail": {
+     "id": "e6",
+     "from": "D",
+     "to": "F",
+     "label": "change",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:32",
+     "points": [
+      {
+       "x": 552.17,
+       "y": 636
+      },
+      {
+       "x": 552.17,
+       "y": 648
+      },
+      {
+       "x": 751.5,
+       "y": 648
+      },
+      {
+       "x": 751.5,
+       "y": 704
+      }
+     ],
+     "label_box": {
+      "x": 757.5,
+      "y": 660,
+      "width": 52,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "E->K",
+    "kind": "arrow",
+    "name": "",
+    "parent": "E",
+    "detail": {
+     "id": "e7",
+     "from": "E",
+     "to": "K",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:33",
+     "points": [
+      {
+       "x": 232.75,
+       "y": 788
+      },
+      {
+       "x": 232.75,
+       "y": 1322
+      },
+      {
+       "x": 261.33,
+       "y": 1322
+      },
+      {
+       "x": 261.33,
+       "y": 1334
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "F->G",
+    "kind": "arrow",
+    "name": "",
+    "parent": "F",
+    "detail": {
+     "id": "e8",
+     "from": "F",
+     "to": "G",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:34",
+     "points": [
+      {
+       "x": 751.5,
+       "y": 788
+      },
+      {
+       "x": 751.5,
+       "y": 836
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "G->H",
+    "kind": "arrow",
+    "name": "owner on a PC",
+    "parent": "G",
+    "detail": {
+     "id": "e9",
+     "from": "G",
+     "to": "H",
+     "label": "owner on a PC",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:35",
+     "points": [
+      {
+       "x": 678.5,
+       "y": 982
+      },
+      {
+       "x": 678.5,
+       "y": 994
+      },
+      {
+       "x": 520.25,
+       "y": 994
+      },
+      {
+       "x": 520.25,
+       "y": 1050
+      }
+     ],
+     "label_box": {
+      "x": 526.25,
+      "y": 1006,
+      "width": 102,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "G->R2",
+    "kind": "arrow",
+    "name": "owner on a phone",
+    "parent": "G",
+    "detail": {
+     "id": "e10",
+     "from": "G",
+     "to": "R2",
+     "label": "owner on a phone",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:36",
+     "points": [
+      {
+       "x": 751.5,
+       "y": 982
+      },
+      {
+       "x": 751.5,
+       "y": 1060
+      }
+     ],
+     "label_box": {
+      "x": 757.5,
+      "y": 1006,
+      "width": 124,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "G->R3",
+    "kind": "arrow",
+    "name": "an agent",
+    "parent": "G",
+    "detail": {
+     "id": "e11",
+     "from": "G",
+     "to": "R3",
+     "label": "an agent",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:37",
+     "points": [
+      {
+       "x": 824.5,
+       "y": 982
+      },
+      {
+       "x": 824.5,
+       "y": 994
+      },
+      {
+       "x": 945,
+       "y": 994
+      },
+      {
+       "x": 945,
+       "y": 1050
+      }
+     ],
+     "label_box": {
+      "x": 951,
+      "y": 1006,
+      "width": 66,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "H->I",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "H",
+    "detail": {
+     "id": "e12",
+     "from": "H",
+     "to": "I",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:38",
+     "points": [
+      {
+       "x": 548.25,
+       "y": 1134
+      },
+      {
+       "x": 548.25,
+       "y": 1146
+      },
+      {
+       "x": 585.75,
+       "y": 1146
+      },
+      {
+       "x": 585.75,
+       "y": 1202
+      }
+     ],
+     "label_box": {
+      "x": 591.75,
+      "y": 1158,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "H->J",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "H",
+    "detail": {
+     "id": "e13",
+     "from": "H",
+     "to": "J",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:39",
+     "points": [
+      {
+       "x": 492.25,
+       "y": 1134
+      },
+      {
+       "x": 492.25,
+       "y": 1146
+      },
+      {
+       "x": 353.25,
+       "y": 1146
+      },
+      {
+       "x": 353.25,
+       "y": 1202
+      }
+     ],
+     "label_box": {
+      "x": 359.25,
+      "y": 1158,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "I->Y",
+    "kind": "arrow",
+    "name": "",
+    "parent": "I",
+    "detail": {
+     "id": "e14",
+     "from": "I",
+     "to": "Y",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:40",
+     "points": [
+      {
+       "x": 585.75,
+       "y": 1286
+      },
+      {
+       "x": 585.75,
+       "y": 1354
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "J->K",
+    "kind": "arrow",
+    "name": "",
+    "parent": "J",
+    "detail": {
+     "id": "e15",
+     "from": "J",
+     "to": "K",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:41",
+     "points": [
+      {
+       "x": 353.25,
+       "y": 1286
+      },
+      {
+       "x": 353.25,
+       "y": 1322
+      },
+      {
+       "x": 324.67,
+       "y": 1322
+      },
+      {
+       "x": 324.67,
+       "y": 1334
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "K->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "K",
+    "detail": {
+     "id": "e16",
+     "from": "K",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:42",
+     "points": [
+      {
+       "x": 293,
+       "y": 1418
+      },
+      {
+       "x": 293,
+       "y": 1454
+      },
+      {
+       "x": 502.8,
+       "y": 1454
+      },
+      {
+       "x": 502.8,
+       "y": 1478
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R1->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R1",
+    "detail": {
+     "id": "e17",
+     "from": "R1",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:43",
+     "points": [
+      {
+       "x": 70,
+       "y": 609
+      },
+      {
+       "x": 70,
+       "y": 1466
+      },
+      {
+       "x": 482.4,
+       "y": 1466
+      },
+      {
+       "x": 482.4,
+       "y": 1478
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R2->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R2",
+    "detail": {
+     "id": "e18",
+     "from": "R2",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:44",
+     "points": [
+      {
+       "x": 751.5,
+       "y": 1124
+      },
+      {
+       "x": 751.5,
+       "y": 1454
+      },
+      {
+       "x": 523.2,
+       "y": 1454
+      },
+      {
+       "x": 523.2,
+       "y": 1478
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R3->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R3",
+    "detail": {
+     "id": "e19",
+     "from": "R3",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:45",
+     "points": [
+      {
+       "x": 945,
+       "y": 1134
+      },
+      {
+       "x": 945,
+       "y": 1466
+      },
+      {
+       "x": 543.6,
+       "y": 1466
+      },
+      {
+       "x": 543.6,
+       "y": 1478
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-004-edit-a-diagram-directly.md": {
+  "name": "FL-004 Edit a diagram directly",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Owner renames an element or connects two",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Owner renames an element",
+      "or connects two"
+     ],
+     "ids": [
+      "REQ-026"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:11",
+     "box": {
+      "x": 155.5,
+      "y": 0,
+      "width": 239,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "decision",
+    "name": "On a PC?",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "On a PC?"
+     ],
+     "ids": [
+      "REQ-068"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:12",
+     "box": {
+      "x": 170,
+      "y": 132,
+      "width": 210,
+      "height": 105
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "step",
+    "name": "Record it as an accepted change set",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Record it as an accepted",
+      "change set"
+     ],
+     "ids": [
+      "REQ-026"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:13",
+     "box": {
+      "x": 292.75,
+      "y": 305,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "step",
+    "name": "Show the elements as waiting for reflection",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Show the elements as",
+      "waiting for reflection"
+     ],
+     "ids": [
+      "REQ-027"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:14",
+     "box": {
+      "x": 299.75,
+      "y": 437,
+      "width": 183,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "decision",
+    "name": "Owner cancels before reflection?",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Owner cancels before",
+      "reflection?"
+     ],
+     "ids": [
+      "REQ-028"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:15",
+     "box": {
+      "x": 223.25,
+      "y": 569,
+      "width": 336,
+      "height": 168
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "step",
+    "name": "Drop the change set and redraw without it",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Drop the change set and",
+      "redraw without it"
+     ],
+     "ids": [
+      "REQ-028"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:16",
+     "box": {
+      "x": 181.75,
+      "y": 805,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "G",
+    "kind": "step",
+    "name": "Add the reflection to the agent to-do",
+    "parent": null,
+    "detail": {
+     "id": "G",
+     "lines": [
+      "Add the reflection to the",
+      "agent to-do"
+     ],
+     "ids": [
+      "REQ-053"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:17",
+     "box": {
+      "x": 403.75,
+      "y": 805,
+      "width": 204,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "R1",
+    "kind": "step",
+    "name": "No direct edit on a phone",
+    "parent": null,
+    "detail": {
+     "id": "R1",
+     "lines": [
+      "No direct edit on a phone"
+     ],
+     "ids": [
+      "REQ-068"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:18",
+     "box": {
+      "x": 0,
+      "y": 315,
+      "width": 204,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:19",
+     "box": {
+      "x": 109.5,
+      "y": 937,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "Y",
+    "kind": "terminal",
+    "name": "Reflect it: FL-005",
+    "parent": null,
+    "detail": {
+     "id": "Y",
+     "lines": [
+      "Reflect it: FL-005"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:20",
+     "box": {
+      "x": 417.75,
+      "y": 937,
+      "width": 176,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:21",
+     "points": [
+      {
+       "x": 275,
+       "y": 84
+      },
+      {
+       "x": 275,
+       "y": 132
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->R1",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "R1",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:22",
+     "points": [
+      {
+       "x": 240,
+       "y": 237
+      },
+      {
+       "x": 240,
+       "y": 249
+      },
+      {
+       "x": 102,
+       "y": 249
+      },
+      {
+       "x": 102,
+       "y": 315
+      }
+     ],
+     "label_box": {
+      "x": 108,
+      "y": 261,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "B",
+    "detail": {
+     "id": "e3",
+     "from": "B",
+     "to": "C",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:23",
+     "points": [
+      {
+       "x": 310,
+       "y": 237
+      },
+      {
+       "x": 310,
+       "y": 249
+      },
+      {
+       "x": 391.25,
+       "y": 249
+      },
+      {
+       "x": 391.25,
+       "y": 305
+      }
+     ],
+     "label_box": {
+      "x": 397.25,
+      "y": 261,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "",
+    "parent": "C",
+    "detail": {
+     "id": "e4",
+     "from": "C",
+     "to": "D",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:24",
+     "points": [
+      {
+       "x": 391.25,
+       "y": 389
+      },
+      {
+       "x": 391.25,
+       "y": 437
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "",
+    "parent": "D",
+    "detail": {
+     "id": "e5",
+     "from": "D",
+     "to": "E",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:25",
+     "points": [
+      {
+       "x": 391.25,
+       "y": 521
+      },
+      {
+       "x": 391.25,
+       "y": 569
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "E->F",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "E",
+    "detail": {
+     "id": "e6",
+     "from": "E",
+     "to": "F",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:26",
+     "points": [
+      {
+       "x": 335.25,
+       "y": 737
+      },
+      {
+       "x": 335.25,
+       "y": 749
+      },
+      {
+       "x": 276.75,
+       "y": 749
+      },
+      {
+       "x": 276.75,
+       "y": 805
+      }
+     ],
+     "label_box": {
+      "x": 282.75,
+      "y": 761,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "E->G",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "E",
+    "detail": {
+     "id": "e7",
+     "from": "E",
+     "to": "G",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:27",
+     "points": [
+      {
+       "x": 447.25,
+       "y": 737
+      },
+      {
+       "x": 447.25,
+       "y": 749
+      },
+      {
+       "x": 505.75,
+       "y": 749
+      },
+      {
+       "x": 505.75,
+       "y": 805
+      }
+     ],
+     "label_box": {
+      "x": 511.75,
+      "y": 761,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "F->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "F",
+    "detail": {
+     "id": "e8",
+     "from": "F",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:28",
+     "points": [
+      {
+       "x": 276.75,
+       "y": 889
+      },
+      {
+       "x": 276.75,
+       "y": 925
+      },
+      {
+       "x": 177.5,
+       "y": 925
+      },
+      {
+       "x": 177.5,
+       "y": 937
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "G->Y",
+    "kind": "arrow",
+    "name": "",
+    "parent": "G",
+    "detail": {
+     "id": "e9",
+     "from": "G",
+     "to": "Y",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:29",
+     "points": [
+      {
+       "x": 505.75,
+       "y": 889
+      },
+      {
+       "x": 505.75,
+       "y": 937
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R1->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R1",
+    "detail": {
+     "id": "e10",
+     "from": "R1",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-004-edit-a-diagram-directly.md:30",
+     "points": [
+      {
+       "x": 102,
+       "y": 379
+      },
+      {
+       "x": 102,
+       "y": 925
+      },
+      {
+       "x": 143.5,
+       "y": 925
+      },
+      {
+       "x": 143.5,
+       "y": 937
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md": {
+  "name": "FL-005 Reflect accepted changes into Git",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Agent claims a change set to reflect",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Agent claims a change set",
+      "to reflect"
+     ],
+     "ids": [
+      "REQ-053",
+      "REQ-054"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:11",
+     "box": {
+      "x": 105,
+      "y": 0,
+      "width": 246,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "step",
+    "name": "Agent opens one PR for the diagram's change sets",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Agent opens one PR for the",
+      "diagram's change sets"
+     ],
+     "ids": [
+      "REQ-032"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:12",
+     "box": {
+      "x": 122,
+      "y": 132,
+      "width": 212,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "step",
+    "name": "Link the reported PR to its change sets",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Link the reported PR to",
+      "its change sets"
+     ],
+     "ids": [
+      "REQ-029"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:13",
+     "box": {
+      "x": 133,
+      "y": 264,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "step",
+    "name": "Keep the claim while the PR is open",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Keep the claim while the",
+      "PR is open"
+     ],
+     "ids": [
+      "REQ-057"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:14",
+     "box": {
+      "x": 129.5,
+      "y": 396,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "decision",
+    "name": "PR merged?",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "PR merged?"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:15",
+     "box": {
+      "x": 136,
+      "y": 528,
+      "width": 184,
+      "height": 92
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "step",
+    "name": "Draw the snapshot with the merge commit",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Draw the snapshot with the",
+      "merge commit"
+     ],
+     "ids": [
+      "REQ-001"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:16",
+     "box": {
+      "x": 0,
+      "y": 688,
+      "width": 212,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "G",
+    "kind": "step",
+    "name": "Mark the change sets reflected",
+    "parent": null,
+    "detail": {
+     "id": "G",
+     "lines": [
+      "Mark the change sets",
+      "reflected"
+     ],
+     "ids": [
+      "REQ-030"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:17",
+     "box": {
+      "x": 22,
+      "y": 820,
+      "width": 168,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "H",
+    "kind": "step",
+    "name": "Close the threads that asked for them",
+    "parent": null,
+    "detail": {
+     "id": "H",
+     "lines": [
+      "Close the threads that",
+      "asked for them"
+     ],
+     "ids": [
+      "REQ-031"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:18",
+     "box": {
+      "x": 14.5,
+      "y": 952,
+      "width": 183,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "R1",
+    "kind": "step",
+    "name": "Release the claim after 60 idle minutes",
+    "parent": null,
+    "detail": {
+     "id": "R1",
+     "lines": [
+      "Release the claim after 60",
+      "idle minutes"
+     ],
+     "ids": [
+      "REQ-056"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:19",
+     "box": {
+      "x": 244,
+      "y": 688,
+      "width": 212,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:20",
+     "box": {
+      "x": 177,
+      "y": 1084,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:21",
+     "points": [
+      {
+       "x": 228,
+       "y": 84
+      },
+      {
+       "x": 228,
+       "y": 132
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "C",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:22",
+     "points": [
+      {
+       "x": 228,
+       "y": 216
+      },
+      {
+       "x": 228,
+       "y": 264
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "",
+    "parent": "C",
+    "detail": {
+     "id": "e3",
+     "from": "C",
+     "to": "D",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:23",
+     "points": [
+      {
+       "x": 228,
+       "y": 348
+      },
+      {
+       "x": 228,
+       "y": 396
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "",
+    "parent": "D",
+    "detail": {
+     "id": "e4",
+     "from": "D",
+     "to": "E",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:24",
+     "points": [
+      {
+       "x": 228,
+       "y": 480
+      },
+      {
+       "x": 228,
+       "y": 528
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "E->F",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "E",
+    "detail": {
+     "id": "e5",
+     "from": "E",
+     "to": "F",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:25",
+     "points": [
+      {
+       "x": 197.33,
+       "y": 620
+      },
+      {
+       "x": 197.33,
+       "y": 632
+      },
+      {
+       "x": 106,
+       "y": 632
+      },
+      {
+       "x": 106,
+       "y": 688
+      }
+     ],
+     "label_box": {
+      "x": 112,
+      "y": 644,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "E->R1",
+    "kind": "arrow",
+    "name": "closed without merge",
+    "parent": "E",
+    "detail": {
+     "id": "e6",
+     "from": "E",
+     "to": "R1",
+     "label": "closed without merge",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:26",
+     "points": [
+      {
+       "x": 258.67,
+       "y": 620
+      },
+      {
+       "x": 258.67,
+       "y": 632
+      },
+      {
+       "x": 350,
+       "y": 632
+      },
+      {
+       "x": 350,
+       "y": 688
+      }
+     ],
+     "label_box": {
+      "x": 356,
+      "y": 644,
+      "width": 152,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "F->G",
+    "kind": "arrow",
+    "name": "",
+    "parent": "F",
+    "detail": {
+     "id": "e7",
+     "from": "F",
+     "to": "G",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:27",
+     "points": [
+      {
+       "x": 106,
+       "y": 772
+      },
+      {
+       "x": 106,
+       "y": 820
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "G->H",
+    "kind": "arrow",
+    "name": "",
+    "parent": "G",
+    "detail": {
+     "id": "e8",
+     "from": "G",
+     "to": "H",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:28",
+     "points": [
+      {
+       "x": 106,
+       "y": 904
+      },
+      {
+       "x": 106,
+       "y": 952
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "H->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "H",
+    "detail": {
+     "id": "e9",
+     "from": "H",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:29",
+     "points": [
+      {
+       "x": 106,
+       "y": 1036
+      },
+      {
+       "x": 106,
+       "y": 1072
+      },
+      {
+       "x": 211,
+       "y": 1072
+      },
+      {
+       "x": 211,
+       "y": 1084
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R1->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R1",
+    "detail": {
+     "id": "e10",
+     "from": "R1",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-005-reflect-accepted-changes-into-git.md:30",
+     "points": [
+      {
+       "x": 350,
+       "y": 772
+      },
+      {
+       "x": 350,
+       "y": 1072
+      },
+      {
+       "x": 245,
+       "y": 1072
+      },
+      {
+       "x": 245,
+       "y": 1084
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-006-confirm-a-diagram.md": {
+  "name": "FL-006 Confirm a diagram",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Owner opens a diagram to confirm",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Owner opens a diagram to",
+      "confirm"
+     ],
+     "ids": [
+      "REQ-052"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:11",
+     "box": {
+      "x": 485.75,
+      "y": 0,
+      "width": 239,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "step",
+    "name": "Show what changed since the last confirmation",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Show what changed since",
+      "the last confirmation"
+     ],
+     "ids": [
+      "REQ-041"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:12",
+     "box": {
+      "x": 510.25,
+      "y": 132,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "decision",
+    "name": "Who asks?",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Who asks?"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:13",
+     "box": {
+      "x": 516.75,
+      "y": 264,
+      "width": 177,
+      "height": 89
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "decision",
+    "name": "Confirm or cancel?",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Confirm or cancel?"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:14",
+     "box": {
+      "x": 181.75,
+      "y": 421,
+      "width": 242,
+      "height": 121
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "step",
+    "name": "Record the confirmation with the version shown",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Record the confirmation",
+      "with the version shown"
+     ],
+     "ids": [
+      "REQ-035"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:15",
+     "box": {
+      "x": 95,
+      "y": 610,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "step",
+    "name": "Add recording it to the agent to-do",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Add recording it to the",
+      "agent to-do"
+     ],
+     "ids": [
+      "REQ-038"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:16",
+     "box": {
+      "x": 95,
+      "y": 742,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "G",
+    "kind": "step",
+    "name": "Agent reports the merged record",
+    "parent": null,
+    "detail": {
+     "id": "G",
+     "lines": [
+      "Agent reports the merged",
+      "record"
+     ],
+     "ids": [
+      "REQ-039"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:17",
+     "box": {
+      "x": 91.5,
+      "y": 874,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "H",
+    "kind": "decision",
+    "name": "Every diagram and table of the stage recorded?",
+    "parent": null,
+    "detail": {
+     "id": "H",
+     "lines": [
+      "Every diagram and table of",
+      "the stage recorded?"
+     ],
+     "ids": [
+      "REQ-042"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:18",
+     "box": {
+      "x": 0,
+      "y": 1006,
+      "width": 380,
+      "height": 190
+     }
+    }
+   },
+   {
+    "key": "I",
+    "kind": "step",
+    "name": "Treat the stage checkpoint as passed",
+    "parent": null,
+    "detail": {
+     "id": "I",
+     "lines": [
+      "Treat the stage checkpoint",
+      "as passed"
+     ],
+     "ids": [
+      "REQ-042"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:19",
+     "box": {
+      "x": 20,
+      "y": 1264,
+      "width": 212,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "J",
+    "kind": "step",
+    "name": "Put it back in the to-do as not confirmed",
+    "parent": null,
+    "detail": {
+     "id": "J",
+     "lines": [
+      "Put it back in the to-do",
+      "as not confirmed"
+     ],
+     "ids": [
+      "REQ-037"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:20",
+     "box": {
+      "x": 317,
+      "y": 610,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "R1",
+    "kind": "step",
+    "name": "No confirmation on a phone",
+    "parent": null,
+    "detail": {
+     "id": "R1",
+     "lines": [
+      "No confirmation on a phone"
+     ],
+     "ids": [
+      "REQ-068"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:21",
+     "box": {
+      "x": 499.25,
+      "y": 449.5,
+      "width": 212,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "R2",
+    "kind": "step",
+    "name": "Refuse the agent credential",
+    "parent": null,
+    "detail": {
+     "id": "R2",
+     "lines": [
+      "Refuse the agent",
+      "credential"
+     ],
+     "ids": [
+      "REQ-036"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:22",
+     "box": {
+      "x": 743.25,
+      "y": 439.5,
+      "width": 140,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:23",
+     "box": {
+      "x": 364.5,
+      "y": 1408,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:24",
+     "points": [
+      {
+       "x": 605.25,
+       "y": 84
+      },
+      {
+       "x": 605.25,
+       "y": 132
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "C",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:25",
+     "points": [
+      {
+       "x": 605.25,
+       "y": 216
+      },
+      {
+       "x": 605.25,
+       "y": 264
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "owner on a PC",
+    "parent": "C",
+    "detail": {
+     "id": "e3",
+     "from": "C",
+     "to": "D",
+     "label": "owner on a PC",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:26",
+     "points": [
+      {
+       "x": 561,
+       "y": 353
+      },
+      {
+       "x": 561,
+       "y": 365
+      },
+      {
+       "x": 302.75,
+       "y": 365
+      },
+      {
+       "x": 302.75,
+       "y": 421
+      }
+     ],
+     "label_box": {
+      "x": 308.75,
+      "y": 377,
+      "width": 102,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->R1",
+    "kind": "arrow",
+    "name": "owner on a phone",
+    "parent": "C",
+    "detail": {
+     "id": "e4",
+     "from": "C",
+     "to": "R1",
+     "label": "owner on a phone",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:27",
+     "points": [
+      {
+       "x": 605.25,
+       "y": 353
+      },
+      {
+       "x": 605.25,
+       "y": 449.5
+      }
+     ],
+     "label_box": {
+      "x": 611.25,
+      "y": 377,
+      "width": 124,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->R2",
+    "kind": "arrow",
+    "name": "an agent",
+    "parent": "C",
+    "detail": {
+     "id": "e5",
+     "from": "C",
+     "to": "R2",
+     "label": "an agent",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:28",
+     "points": [
+      {
+       "x": 649.5,
+       "y": 353
+      },
+      {
+       "x": 649.5,
+       "y": 365
+      },
+      {
+       "x": 813.25,
+       "y": 365
+      },
+      {
+       "x": 813.25,
+       "y": 439.5
+      }
+     ],
+     "label_box": {
+      "x": 819.25,
+      "y": 377,
+      "width": 66,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "confirm",
+    "parent": "D",
+    "detail": {
+     "id": "e6",
+     "from": "D",
+     "to": "E",
+     "label": "confirm",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:29",
+     "points": [
+      {
+       "x": 262.42,
+       "y": 542
+      },
+      {
+       "x": 262.42,
+       "y": 554
+      },
+      {
+       "x": 190,
+       "y": 554
+      },
+      {
+       "x": 190,
+       "y": 610
+      }
+     ],
+     "label_box": {
+      "x": 196,
+      "y": 566,
+      "width": 59,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->J",
+    "kind": "arrow",
+    "name": "cancel",
+    "parent": "D",
+    "detail": {
+     "id": "e7",
+     "from": "D",
+     "to": "J",
+     "label": "cancel",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:30",
+     "points": [
+      {
+       "x": 343.08,
+       "y": 542
+      },
+      {
+       "x": 343.08,
+       "y": 554
+      },
+      {
+       "x": 415.5,
+       "y": 554
+      },
+      {
+       "x": 415.5,
+       "y": 610
+      }
+     ],
+     "label_box": {
+      "x": 421.5,
+      "y": 566,
+      "width": 52,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "E->F",
+    "kind": "arrow",
+    "name": "",
+    "parent": "E",
+    "detail": {
+     "id": "e8",
+     "from": "E",
+     "to": "F",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:31",
+     "points": [
+      {
+       "x": 190,
+       "y": 694
+      },
+      {
+       "x": 190,
+       "y": 742
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "F->G",
+    "kind": "arrow",
+    "name": "",
+    "parent": "F",
+    "detail": {
+     "id": "e9",
+     "from": "F",
+     "to": "G",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:32",
+     "points": [
+      {
+       "x": 190,
+       "y": 826
+      },
+      {
+       "x": 190,
+       "y": 874
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "G->H",
+    "kind": "arrow",
+    "name": "",
+    "parent": "G",
+    "detail": {
+     "id": "e10",
+     "from": "G",
+     "to": "H",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:33",
+     "points": [
+      {
+       "x": 190,
+       "y": 958
+      },
+      {
+       "x": 190,
+       "y": 1006
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "H->I",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "H",
+    "detail": {
+     "id": "e11",
+     "from": "H",
+     "to": "I",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:34",
+     "points": [
+      {
+       "x": 126.67,
+       "y": 1196
+      },
+      {
+       "x": 126.67,
+       "y": 1208
+      },
+      {
+       "x": 126,
+       "y": 1208
+      },
+      {
+       "x": 126,
+       "y": 1264
+      }
+     ],
+     "label_box": {
+      "x": 132,
+      "y": 1220,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "H->Z",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "H",
+    "detail": {
+     "id": "e12",
+     "from": "H",
+     "to": "Z",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:35",
+     "points": [
+      {
+       "x": 253.33,
+       "y": 1196
+      },
+      {
+       "x": 253.33,
+       "y": 1208
+      },
+      {
+       "x": 282.25,
+       "y": 1208
+      },
+      {
+       "x": 282.25,
+       "y": 1384
+      },
+      {
+       "x": 398.5,
+       "y": 1384
+      },
+      {
+       "x": 398.5,
+       "y": 1408
+      }
+     ],
+     "label_box": {
+      "x": 288.25,
+      "y": 1220,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "I->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "I",
+    "detail": {
+     "id": "e13",
+     "from": "I",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:36",
+     "points": [
+      {
+       "x": 126,
+       "y": 1348
+      },
+      {
+       "x": 126,
+       "y": 1396
+      },
+      {
+       "x": 381.5,
+       "y": 1396
+      },
+      {
+       "x": 381.5,
+       "y": 1408
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "J->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "J",
+    "detail": {
+     "id": "e14",
+     "from": "J",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:37",
+     "points": [
+      {
+       "x": 415.5,
+       "y": 694
+      },
+      {
+       "x": 415.5,
+       "y": 1408
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R1->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R1",
+    "detail": {
+     "id": "e15",
+     "from": "R1",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:38",
+     "points": [
+      {
+       "x": 605.25,
+       "y": 513.5
+      },
+      {
+       "x": 605.25,
+       "y": 1384
+      },
+      {
+       "x": 432.5,
+       "y": 1384
+      },
+      {
+       "x": 432.5,
+       "y": 1408
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R2->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R2",
+    "detail": {
+     "id": "e16",
+     "from": "R2",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:39",
+     "points": [
+      {
+       "x": 813.25,
+       "y": 523.5
+      },
+      {
+       "x": 813.25,
+       "y": 1396
+      },
+      {
+       "x": 449.5,
+       "y": 1396
+      },
+      {
+       "x": 449.5,
+       "y": 1408
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-007-draw-a-new-snapshot.md": {
+  "name": "FL-007 Draw a new snapshot",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Agent pushes a snapshot after a merge",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Agent pushes a snapshot",
+      "after a merge"
+     ],
+     "ids": [
+      "REQ-018"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:11",
+     "box": {
+      "x": 205.5,
+      "y": 0,
+      "width": 232,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "decision",
+    "name": "Credential valid and not revoked?",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Credential valid and not",
+      "revoked?"
+     ],
+     "ids": [
+      "REQ-065",
+      "REQ-066"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:12",
+     "box": {
+      "x": 139,
+      "y": 132,
+      "width": 365,
+      "height": 183
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "decision",
+    "name": "Commit descends from the held one?",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Commit descends from the",
+      "held one?"
+     ],
+     "ids": [
+      "REQ-001",
+      "REQ-002"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:13",
+     "box": {
+      "x": 284.75,
+      "y": 383,
+      "width": 365,
+      "height": 183
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "decision",
+    "name": "A file looks like a secret or an email?",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "A file looks like a secret",
+      "or an email?"
+     ],
+     "ids": [
+      "REQ-077"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:14",
+     "box": {
+      "x": 437.5,
+      "y": 634,
+      "width": 380,
+      "height": 190
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "step",
+    "name": "Redraw, keeping stored positions",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Redraw, keeping stored",
+      "positions"
+     ],
+     "ids": [
+      "REQ-001",
+      "REQ-014",
+      "REQ-071"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:15",
+     "box": {
+      "x": 641.75,
+      "y": 892,
+      "width": 204,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "step",
+    "name": "Move comments of removed elements to the diagram",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Move comments of removed",
+      "elements to the diagram"
+     ],
+     "ids": [
+      "REQ-033"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:16",
+     "box": {
+      "x": 645.25,
+      "y": 1024,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "G",
+    "kind": "step",
+    "name": "Mark change sets with a merged PR reflected",
+    "parent": null,
+    "detail": {
+     "id": "G",
+     "lines": [
+      "Mark change sets with a",
+      "merged PR reflected"
+     ],
+     "ids": [
+      "REQ-030"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:17",
+     "box": {
+      "x": 648.75,
+      "y": 1156,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "H",
+    "kind": "decision",
+    "name": "Changed a confirmed diagram's document?",
+    "parent": null,
+    "detail": {
+     "id": "H",
+     "lines": [
+      "Changed a confirmed",
+      "diagram's document?"
+     ],
+     "ids": [
+      "REQ-040"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:18",
+     "box": {
+      "x": 579.25,
+      "y": 1288,
+      "width": 329,
+      "height": 165
+     }
+    }
+   },
+   {
+    "key": "I",
+    "kind": "step",
+    "name": "Invalidate the confirmation, back to the to-do",
+    "parent": null,
+    "detail": {
+     "id": "I",
+     "lines": [
+      "Invalidate the",
+      "confirmation, back to the",
+      "to-do"
+     ],
+     "ids": [
+      "REQ-040"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:19",
+     "box": {
+      "x": 579.75,
+      "y": 1521,
+      "width": 204,
+      "height": 104
+     }
+    }
+   },
+   {
+    "key": "R1",
+    "kind": "step",
+    "name": "Refuse the request",
+    "parent": null,
+    "detail": {
+     "id": "R1",
+     "lines": [
+      "Refuse the request"
+     ],
+     "ids": [
+      "REQ-065",
+      "REQ-066"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:20",
+     "box": {
+      "x": 0,
+      "y": 442.5,
+      "width": 154,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "R2",
+    "kind": "step",
+    "name": "Reject and keep the held diagrams",
+    "parent": null,
+    "detail": {
+     "id": "R2",
+     "lines": [
+      "Reject and keep the held",
+      "diagrams"
+     ],
+     "ids": [
+      "REQ-002"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:21",
+     "box": {
+      "x": 184.5,
+      "y": 687,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "R3",
+    "kind": "step",
+    "name": "Refuse the file and name it in the answer",
+    "parent": null,
+    "detail": {
+     "id": "R3",
+     "lines": [
+      "Refuse the file and name",
+      "it in the answer"
+     ],
+     "ids": [
+      "REQ-077"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:22",
+     "box": {
+      "x": 405,
+      "y": 892,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:23",
+     "box": {
+      "x": 391,
+      "y": 1697,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:24",
+     "points": [
+      {
+       "x": 321.5,
+       "y": 84
+      },
+      {
+       "x": 321.5,
+       "y": 132
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->R1",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "R1",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:25",
+     "points": [
+      {
+       "x": 260.67,
+       "y": 315
+      },
+      {
+       "x": 260.67,
+       "y": 327
+      },
+      {
+       "x": 77,
+       "y": 327
+      },
+      {
+       "x": 77,
+       "y": 442.5
+      }
+     ],
+     "label_box": {
+      "x": 83,
+      "y": 339,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "B",
+    "detail": {
+     "id": "e3",
+     "from": "B",
+     "to": "C",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:26",
+     "points": [
+      {
+       "x": 382.33,
+       "y": 315
+      },
+      {
+       "x": 382.33,
+       "y": 327
+      },
+      {
+       "x": 467.25,
+       "y": 327
+      },
+      {
+       "x": 467.25,
+       "y": 383
+      }
+     ],
+     "label_box": {
+      "x": 473.25,
+      "y": 339,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->R2",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "C",
+    "detail": {
+     "id": "e4",
+     "from": "C",
+     "to": "R2",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:27",
+     "points": [
+      {
+       "x": 406.42,
+       "y": 566
+      },
+      {
+       "x": 406.42,
+       "y": 578
+      },
+      {
+       "x": 283,
+       "y": 578
+      },
+      {
+       "x": 283,
+       "y": 687
+      }
+     ],
+     "label_box": {
+      "x": 289,
+      "y": 590,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "C",
+    "detail": {
+     "id": "e5",
+     "from": "C",
+     "to": "D",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:28",
+     "points": [
+      {
+       "x": 528.08,
+       "y": 566
+      },
+      {
+       "x": 528.08,
+       "y": 578
+      },
+      {
+       "x": 627.5,
+       "y": 578
+      },
+      {
+       "x": 627.5,
+       "y": 634
+      }
+     ],
+     "label_box": {
+      "x": 633.5,
+      "y": 590,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->R3",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "D",
+    "detail": {
+     "id": "e6",
+     "from": "D",
+     "to": "R3",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:29",
+     "points": [
+      {
+       "x": 564.17,
+       "y": 824
+      },
+      {
+       "x": 564.17,
+       "y": 836
+      },
+      {
+       "x": 503.5,
+       "y": 836
+      },
+      {
+       "x": 503.5,
+       "y": 892
+      }
+     ],
+     "label_box": {
+      "x": 509.5,
+      "y": 848,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "D",
+    "detail": {
+     "id": "e7",
+     "from": "D",
+     "to": "E",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:30",
+     "points": [
+      {
+       "x": 690.83,
+       "y": 824
+      },
+      {
+       "x": 690.83,
+       "y": 836
+      },
+      {
+       "x": 743.75,
+       "y": 836
+      },
+      {
+       "x": 743.75,
+       "y": 892
+      }
+     ],
+     "label_box": {
+      "x": 749.75,
+      "y": 848,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "E->F",
+    "kind": "arrow",
+    "name": "",
+    "parent": "E",
+    "detail": {
+     "id": "e8",
+     "from": "E",
+     "to": "F",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:31",
+     "points": [
+      {
+       "x": 743.75,
+       "y": 976
+      },
+      {
+       "x": 743.75,
+       "y": 1024
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "F->G",
+    "kind": "arrow",
+    "name": "",
+    "parent": "F",
+    "detail": {
+     "id": "e9",
+     "from": "F",
+     "to": "G",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:32",
+     "points": [
+      {
+       "x": 743.75,
+       "y": 1108
+      },
+      {
+       "x": 743.75,
+       "y": 1156
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "G->H",
+    "kind": "arrow",
+    "name": "",
+    "parent": "G",
+    "detail": {
+     "id": "e10",
+     "from": "G",
+     "to": "H",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:33",
+     "points": [
+      {
+       "x": 743.75,
+       "y": 1240
+      },
+      {
+       "x": 743.75,
+       "y": 1288
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "H->I",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "H",
+    "detail": {
+     "id": "e11",
+     "from": "H",
+     "to": "I",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:34",
+     "points": [
+      {
+       "x": 688.92,
+       "y": 1453
+      },
+      {
+       "x": 688.92,
+       "y": 1465
+      },
+      {
+       "x": 681.75,
+       "y": 1465
+      },
+      {
+       "x": 681.75,
+       "y": 1521
+      }
+     ],
+     "label_box": {
+      "x": 687.75,
+      "y": 1477,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "H->Z",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "H",
+    "detail": {
+     "id": "e12",
+     "from": "H",
+     "to": "Z",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:35",
+     "points": [
+      {
+       "x": 798.58,
+       "y": 1453
+      },
+      {
+       "x": 798.58,
+       "y": 1465
+      },
+      {
+       "x": 805.75,
+       "y": 1465
+      },
+      {
+       "x": 805.75,
+       "y": 1685
+      },
+      {
+       "x": 476,
+       "y": 1685
+      },
+      {
+       "x": 476,
+       "y": 1697
+      }
+     ],
+     "label_box": {
+      "x": 811.75,
+      "y": 1477,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "I->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "I",
+    "detail": {
+     "id": "e13",
+     "from": "I",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:36",
+     "points": [
+      {
+       "x": 681.75,
+       "y": 1625
+      },
+      {
+       "x": 681.75,
+       "y": 1673
+      },
+      {
+       "x": 459,
+       "y": 1673
+      },
+      {
+       "x": 459,
+       "y": 1697
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R1->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R1",
+    "detail": {
+     "id": "e14",
+     "from": "R1",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:37",
+     "points": [
+      {
+       "x": 77,
+       "y": 506.5
+      },
+      {
+       "x": 77,
+       "y": 1673
+      },
+      {
+       "x": 408,
+       "y": 1673
+      },
+      {
+       "x": 408,
+       "y": 1697
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R2->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R2",
+    "detail": {
+     "id": "e15",
+     "from": "R2",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:38",
+     "points": [
+      {
+       "x": 283,
+       "y": 771
+      },
+      {
+       "x": 283,
+       "y": 1661
+      },
+      {
+       "x": 425,
+       "y": 1661
+      },
+      {
+       "x": 425,
+       "y": 1697
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R3->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R3",
+    "detail": {
+     "id": "e16",
+     "from": "R3",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-007-draw-a-new-snapshot.md:39",
+     "points": [
+      {
+       "x": 503.5,
+       "y": 976
+      },
+      {
+       "x": 503.5,
+       "y": 1661
+      },
+      {
+       "x": 442,
+       "y": 1661
+      },
+      {
+       "x": 442,
+       "y": 1697
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md": {
+  "name": "FL-008 Read and comment on a phone",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Owner opens NEXUS on a phone",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Owner opens NEXUS on a",
+      "phone"
+     ],
+     "ids": [
+      "REQ-062"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:11",
+     "box": {
+      "x": 229.5,
+      "y": 0,
+      "width": 225,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "step",
+    "name": "Show diagrams, item tables and comments",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Show diagrams, item tables",
+      "and comments"
+     ],
+     "ids": [
+      "REQ-067"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:12",
+     "box": {
+      "x": 236,
+      "y": 132,
+      "width": 212,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "decision",
+    "name": "What does the owner do?",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "What does the owner do?"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:13",
+     "box": {
+      "x": 203,
+      "y": 264,
+      "width": 278,
+      "height": 139
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "step",
+    "name": "Add the comment or reply",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Add the comment or reply"
+     ],
+     "ids": [
+      "REQ-079",
+      "REQ-020",
+      "REQ-021"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:14",
+     "box": {
+      "x": 0,
+      "y": 481,
+      "width": 204,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "R1",
+    "kind": "step",
+    "name": "Not offered on a phone, do it on a PC",
+    "parent": null,
+    "detail": {
+     "id": "R1",
+     "lines": [
+      "Not offered on a phone, do",
+      "it on a PC"
+     ],
+     "ids": [
+      "REQ-068"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:15",
+     "box": {
+      "x": 236,
+      "y": 471,
+      "width": 212,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:16",
+     "box": {
+      "x": 291,
+      "y": 603,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:17",
+     "points": [
+      {
+       "x": 342,
+       "y": 84
+      },
+      {
+       "x": 342,
+       "y": 132
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "C",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:18",
+     "points": [
+      {
+       "x": 342,
+       "y": 216
+      },
+      {
+       "x": 342,
+       "y": 264
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "comment or reply",
+    "parent": "C",
+    "detail": {
+     "id": "e3",
+     "from": "C",
+     "to": "D",
+     "label": "comment or reply",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:19",
+     "points": [
+      {
+       "x": 272.5,
+       "y": 403
+      },
+      {
+       "x": 272.5,
+       "y": 415
+      },
+      {
+       "x": 102,
+       "y": 415
+      },
+      {
+       "x": 102,
+       "y": 481
+      }
+     ],
+     "label_box": {
+      "x": 108,
+      "y": 427,
+      "width": 124,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->R1",
+    "kind": "arrow",
+    "name": "confirm, answer a proposal or edit",
+    "parent": "C",
+    "detail": {
+     "id": "e4",
+     "from": "C",
+     "to": "R1",
+     "label": "confirm, answer a proposal or edit",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:20",
+     "points": [
+      {
+       "x": 342,
+       "y": 403
+      },
+      {
+       "x": 342,
+       "y": 471
+      }
+     ],
+     "label_box": {
+      "x": 348,
+      "y": 427,
+      "width": 253,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->Z",
+    "kind": "arrow",
+    "name": "read only",
+    "parent": "C",
+    "detail": {
+     "id": "e5",
+     "from": "C",
+     "to": "Z",
+     "label": "read only",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:21",
+     "points": [
+      {
+       "x": 411.5,
+       "y": 403
+      },
+      {
+       "x": 411.5,
+       "y": 415
+      },
+      {
+       "x": 613,
+       "y": 415
+      },
+      {
+       "x": 613,
+       "y": 591
+      },
+      {
+       "x": 367.5,
+       "y": 591
+      },
+      {
+       "x": 367.5,
+       "y": 603
+      }
+     ],
+     "label_box": {
+      "x": 619,
+      "y": 427,
+      "width": 73,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "D",
+    "detail": {
+     "id": "e6",
+     "from": "D",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:22",
+     "points": [
+      {
+       "x": 102,
+       "y": 545
+      },
+      {
+       "x": 102,
+       "y": 591
+      },
+      {
+       "x": 316.5,
+       "y": 591
+      },
+      {
+       "x": 316.5,
+       "y": 603
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R1->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R1",
+    "detail": {
+     "id": "e7",
+     "from": "R1",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:23",
+     "points": [
+      {
+       "x": 342,
+       "y": 555
+      },
+      {
+       "x": 342,
+       "y": 603
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md": {
+  "name": "FL-009 Issue and revoke an agent credential",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Owner issues a credential for an agent",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Owner issues a credential",
+      "for an agent"
+     ],
+     "ids": [
+      "REQ-064"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:11",
+     "box": {
+      "x": 30.5,
+      "y": 0,
+      "width": 246,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "step",
+    "name": "Show the secret once",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Show the secret once"
+     ],
+     "ids": [
+      "REQ-064"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:12",
+     "box": {
+      "x": 69.5,
+      "y": 132,
+      "width": 168,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "step",
+    "name": "Store only its digest",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Store only its digest"
+     ],
+     "ids": [
+      "REQ-078"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:13",
+     "box": {
+      "x": 65.5,
+      "y": 244,
+      "width": 176,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "step",
+    "name": "Agent sends hub commands with it",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Agent sends hub commands",
+      "with it"
+     ],
+     "ids": [
+      "REQ-018"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:14",
+     "box": {
+      "x": 55,
+      "y": 356,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "decision",
+    "name": "Owner revokes it?",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Owner revokes it?"
+     ],
+     "ids": [
+      "REQ-065"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:15",
+     "box": {
+      "x": 16,
+      "y": 488,
+      "width": 275,
+      "height": 138
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "step",
+    "name": "Refuse the credential's next request",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Refuse the credential's",
+      "next request"
+     ],
+     "ids": [
+      "REQ-065"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:16",
+     "box": {
+      "x": 0,
+      "y": 694,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:17",
+     "box": {
+      "x": 102.5,
+      "y": 826,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:18",
+     "points": [
+      {
+       "x": 153.5,
+       "y": 84
+      },
+      {
+       "x": 153.5,
+       "y": 132
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "C",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:19",
+     "points": [
+      {
+       "x": 153.5,
+       "y": 196
+      },
+      {
+       "x": 153.5,
+       "y": 244
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "",
+    "parent": "C",
+    "detail": {
+     "id": "e3",
+     "from": "C",
+     "to": "D",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:20",
+     "points": [
+      {
+       "x": 153.5,
+       "y": 308
+      },
+      {
+       "x": 153.5,
+       "y": 356
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "",
+    "parent": "D",
+    "detail": {
+     "id": "e4",
+     "from": "D",
+     "to": "E",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:21",
+     "points": [
+      {
+       "x": 153.5,
+       "y": 440
+      },
+      {
+       "x": 153.5,
+       "y": 488
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "E->F",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "E",
+    "detail": {
+     "id": "e5",
+     "from": "E",
+     "to": "F",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:22",
+     "points": [
+      {
+       "x": 107.67,
+       "y": 626
+      },
+      {
+       "x": 107.67,
+       "y": 638
+      },
+      {
+       "x": 95,
+       "y": 638
+      },
+      {
+       "x": 95,
+       "y": 694
+      }
+     ],
+     "label_box": {
+      "x": 101,
+      "y": 650,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "E->Z",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "E",
+    "detail": {
+     "id": "e6",
+     "from": "E",
+     "to": "Z",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:23",
+     "points": [
+      {
+       "x": 199.33,
+       "y": 626
+      },
+      {
+       "x": 199.33,
+       "y": 638
+      },
+      {
+       "x": 212,
+       "y": 638
+      },
+      {
+       "x": 212,
+       "y": 814
+      },
+      {
+       "x": 170.5,
+       "y": 814
+      },
+      {
+       "x": 170.5,
+       "y": 826
+      }
+     ],
+     "label_box": {
+      "x": 218,
+      "y": 650,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "F->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "F",
+    "detail": {
+     "id": "e7",
+     "from": "F",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-009-issue-and-revoke-agent-access.md:24",
+     "points": [
+      {
+       "x": 95,
+       "y": 778
+      },
+      {
+       "x": 95,
+       "y": 814
+      },
+      {
+       "x": 136.5,
+       "y": 814
+      },
+      {
+       "x": 136.5,
+       "y": 826
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-010-delete-a-project-space.md": {
+  "name": "FL-010 Delete a project space",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Deletion of a project space asked",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Deletion of a project",
+      "space asked"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:11",
+     "box": {
+      "x": 179,
+      "y": 0,
+      "width": 208,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "decision",
+    "name": "Who asks?",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Who asks?"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:12",
+     "box": {
+      "x": 194.5,
+      "y": 112,
+      "width": 177,
+      "height": 89
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "step",
+    "name": "Show what the deletion removes",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Show what the deletion",
+      "removes"
+     ],
+     "ids": [
+      "REQ-016"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:13",
+     "box": {
+      "x": 94.75,
+      "y": 269,
+      "width": 183,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "decision",
+    "name": "Owner confirms?",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Owner confirms?"
+     ],
+     "ids": [
+      "REQ-016"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:14",
+     "box": {
+      "x": 56.25,
+      "y": 401,
+      "width": 260,
+      "height": 130
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "step",
+    "name": "Remove snapshots, diagrams, comments, confirmations, layouts",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Remove snapshots,",
+      "diagrams, comments,",
+      "confirmations, layouts"
+     ],
+     "ids": [
+      "REQ-016"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:15",
+     "box": {
+      "x": 0,
+      "y": 599,
+      "width": 183,
+      "height": 104
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "step",
+    "name": "Keep everything",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Keep everything"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:16",
+     "box": {
+      "x": 215,
+      "y": 629,
+      "width": 132,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "R1",
+    "kind": "step",
+    "name": "Refuse the agent credential",
+    "parent": null,
+    "detail": {
+     "id": "R1",
+     "lines": [
+      "Refuse the agent",
+      "credential"
+     ],
+     "ids": [
+      "REQ-017"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:17",
+     "box": {
+      "x": 351.75,
+      "y": 269,
+      "width": 140,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:18",
+     "box": {
+      "x": 230,
+      "y": 751,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:19",
+     "points": [
+      {
+       "x": 283,
+       "y": 64
+      },
+      {
+       "x": 283,
+       "y": 112
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "the owner",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "C",
+     "label": "the owner",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:20",
+     "points": [
+      {
+       "x": 253.5,
+       "y": 201
+      },
+      {
+       "x": 253.5,
+       "y": 213
+      },
+      {
+       "x": 186.25,
+       "y": 213
+      },
+      {
+       "x": 186.25,
+       "y": 269
+      }
+     ],
+     "label_box": {
+      "x": 192.25,
+      "y": 225,
+      "width": 73,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "B->R1",
+    "kind": "arrow",
+    "name": "an agent",
+    "parent": "B",
+    "detail": {
+     "id": "e3",
+     "from": "B",
+     "to": "R1",
+     "label": "an agent",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:21",
+     "points": [
+      {
+       "x": 312.5,
+       "y": 201
+      },
+      {
+       "x": 312.5,
+       "y": 213
+      },
+      {
+       "x": 421.75,
+       "y": 213
+      },
+      {
+       "x": 421.75,
+       "y": 269
+      }
+     ],
+     "label_box": {
+      "x": 427.75,
+      "y": 225,
+      "width": 66,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "",
+    "parent": "C",
+    "detail": {
+     "id": "e4",
+     "from": "C",
+     "to": "D",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:22",
+     "points": [
+      {
+       "x": 186.25,
+       "y": 353
+      },
+      {
+       "x": 186.25,
+       "y": 401
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "D",
+    "detail": {
+     "id": "e5",
+     "from": "D",
+     "to": "E",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:23",
+     "points": [
+      {
+       "x": 142.92,
+       "y": 531
+      },
+      {
+       "x": 142.92,
+       "y": 543
+      },
+      {
+       "x": 91.5,
+       "y": 543
+      },
+      {
+       "x": 91.5,
+       "y": 599
+      }
+     ],
+     "label_box": {
+      "x": 97.5,
+      "y": 555,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->F",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "D",
+    "detail": {
+     "id": "e6",
+     "from": "D",
+     "to": "F",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:24",
+     "points": [
+      {
+       "x": 229.58,
+       "y": 531
+      },
+      {
+       "x": 229.58,
+       "y": 543
+      },
+      {
+       "x": 281,
+       "y": 543
+      },
+      {
+       "x": 281,
+       "y": 629
+      }
+     ],
+     "label_box": {
+      "x": 287,
+      "y": 555,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "E->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "E",
+    "detail": {
+     "id": "e7",
+     "from": "E",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:25",
+     "points": [
+      {
+       "x": 91.5,
+       "y": 703
+      },
+      {
+       "x": 91.5,
+       "y": 739
+      },
+      {
+       "x": 255.5,
+       "y": 739
+      },
+      {
+       "x": 255.5,
+       "y": 751
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "F->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "F",
+    "detail": {
+     "id": "e8",
+     "from": "F",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:26",
+     "points": [
+      {
+       "x": 281,
+       "y": 673
+      },
+      {
+       "x": 281,
+       "y": 751
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "R1->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R1",
+    "detail": {
+     "id": "e9",
+     "from": "R1",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-010-delete-a-project-space.md:27",
+     "points": [
+      {
+       "x": 421.75,
+       "y": 353
+      },
+      {
+       "x": 421.75,
+       "y": 739
+      },
+      {
+       "x": 306.5,
+       "y": 739
+      },
+      {
+       "x": 306.5,
+       "y": 751
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md": {
+  "name": "FL-011 Back up and rehearse a restore",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Daily schedule",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Daily schedule"
+     ],
+     "ids": [
+      "REQ-076"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:11",
+     "box": {
+      "x": 136.75,
+      "y": 0,
+      "width": 157,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "step",
+    "name": "Back up the data",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Back up the data"
+     ],
+     "ids": [
+      "REQ-076"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:12",
+     "box": {
+      "x": 145.25,
+      "y": 122,
+      "width": 140,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "decision",
+    "name": "Backup succeeded?",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Backup succeeded?"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:13",
+     "box": {
+      "x": 97.75,
+      "y": 244,
+      "width": 235,
+      "height": 118
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "step",
+    "name": "Drop backups older than 30 days",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Drop backups older than 30",
+      "days"
+     ],
+     "ids": [
+      "REQ-076"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:14",
+     "box": {
+      "x": 0,
+      "y": 430,
+      "width": 212,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "step",
+    "name": "Tell the owner (not in the source)",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Tell the owner",
+      "(not in the source)"
+     ],
+     "ids": [],
+     "marks": [
+      "gap"
+     ],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:15",
+     "box": {
+      "x": 244,
+      "y": 440,
+      "width": 161,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "P",
+    "kind": "terminal",
+    "name": "Before a release",
+    "parent": null,
+    "detail": {
+     "id": "P",
+     "lines": [
+      "Before a release"
+     ],
+     "ids": [
+      "REQ-080"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:16",
+     "box": {
+      "x": 413.75,
+      "y": 0,
+      "width": 172,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "Q",
+    "kind": "step",
+    "name": "Restore the latest backup on a test copy",
+    "parent": null,
+    "detail": {
+     "id": "Q",
+     "lines": [
+      "Restore the latest backup",
+      "on a test copy"
+     ],
+     "ids": [
+      "REQ-080"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:17",
+     "box": {
+      "x": 397.75,
+      "y": 112,
+      "width": 204,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "S",
+    "kind": "step",
+    "name": "Record the rehearsal for the release",
+    "parent": null,
+    "detail": {
+     "id": "S",
+     "lines": [
+      "Record the rehearsal for",
+      "the release"
+     ],
+     "ids": [
+      "REQ-080"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:18",
+     "box": {
+      "x": 401.25,
+      "y": 261,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:19",
+     "box": {
+      "x": 273.5,
+      "y": 562,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:20",
+     "points": [
+      {
+       "x": 215.25,
+       "y": 64
+      },
+      {
+       "x": 215.25,
+       "y": 122
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "C",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:21",
+     "points": [
+      {
+       "x": 215.25,
+       "y": 186
+      },
+      {
+       "x": 215.25,
+       "y": 244
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "C",
+    "detail": {
+     "id": "e3",
+     "from": "C",
+     "to": "D",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:22",
+     "points": [
+      {
+       "x": 176.08,
+       "y": 362
+      },
+      {
+       "x": 176.08,
+       "y": 374
+      },
+      {
+       "x": 106,
+       "y": 374
+      },
+      {
+       "x": 106,
+       "y": 430
+      }
+     ],
+     "label_box": {
+      "x": 112,
+      "y": 386,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->E",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "C",
+    "detail": {
+     "id": "e4",
+     "from": "C",
+     "to": "E",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:23",
+     "points": [
+      {
+       "x": 254.42,
+       "y": 362
+      },
+      {
+       "x": 254.42,
+       "y": 374
+      },
+      {
+       "x": 324.5,
+       "y": 374
+      },
+      {
+       "x": 324.5,
+       "y": 440
+      }
+     ],
+     "label_box": {
+      "x": 330.5,
+      "y": 386,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "D",
+    "detail": {
+     "id": "e5",
+     "from": "D",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:24",
+     "points": [
+      {
+       "x": 106,
+       "y": 514
+      },
+      {
+       "x": 106,
+       "y": 550
+      },
+      {
+       "x": 299,
+       "y": 550
+      },
+      {
+       "x": 299,
+       "y": 562
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "E->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "E",
+    "detail": {
+     "id": "e6",
+     "from": "E",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:25",
+     "points": [
+      {
+       "x": 324.5,
+       "y": 504
+      },
+      {
+       "x": 324.5,
+       "y": 562
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "P->Q",
+    "kind": "arrow",
+    "name": "",
+    "parent": "P",
+    "detail": {
+     "id": "e7",
+     "from": "P",
+     "to": "Q",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:26",
+     "points": [
+      {
+       "x": 499.75,
+       "y": 64
+      },
+      {
+       "x": 499.75,
+       "y": 112
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "Q->S",
+    "kind": "arrow",
+    "name": "",
+    "parent": "Q",
+    "detail": {
+     "id": "e8",
+     "from": "Q",
+     "to": "S",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:27",
+     "points": [
+      {
+       "x": 499.75,
+       "y": 196
+      },
+      {
+       "x": 499.75,
+       "y": 261
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "S->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "S",
+    "detail": {
+     "id": "e9",
+     "from": "S",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-011-back-up-and-rehearse-a-restore.md:28",
+     "points": [
+      {
+       "x": 499.75,
+       "y": 345
+      },
+      {
+       "x": 499.75,
+       "y": 550
+      },
+      {
+       "x": 350,
+       "y": 550
+      },
+      {
+       "x": 350,
+       "y": 562
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md": {
+  "name": "FL-012 Run an event storming workshop",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Owner or agent opens a workshop",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Owner or agent opens a",
+      "workshop"
+     ],
+     "ids": [
+      "REQ-044"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:11",
+     "box": {
+      "x": 167,
+      "y": 0,
+      "width": 225,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "step",
+    "name": "Create a board, one frame per step, as the source",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Create a board, one frame",
+      "per step, as the source"
+     ],
+     "ids": [
+      "REQ-044",
+      "REQ-048"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:12",
+     "box": {
+      "x": 177.5,
+      "y": 132,
+      "width": 204,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "M",
+    "kind": "decision",
+    "name": "Start from a Miro board?",
+    "parent": null,
+    "detail": {
+     "id": "M",
+     "lines": [
+      "Start from a Miro board?"
+     ],
+     "ids": [
+      "REQ-051"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:13",
+     "box": {
+      "x": 117,
+      "y": 264,
+      "width": 325,
+      "height": 163
+     }
+    }
+   },
+   {
+    "key": "N",
+    "kind": "step",
+    "name": "Copy the sticky notes' text, colour and position",
+    "parent": null,
+    "detail": {
+     "id": "N",
+     "lines": [
+      "Copy the sticky notes'",
+      "text, colour and position"
+     ],
+     "ids": [
+      "REQ-051"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:14",
+     "box": {
+      "x": 115.5,
+      "y": 495,
+      "width": 204,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "step",
+    "name": "Agent drafts a step with confidence labels",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Agent drafts a step with",
+      "confidence labels"
+     ],
+     "ids": [
+      "REQ-045"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:15",
+     "box": {
+      "x": 181,
+      "y": 627,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "decision",
+    "name": "Removes a sticky note a person made?",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Removes a sticky note a",
+      "person made?"
+     ],
+     "ids": [
+      "REQ-047"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:16",
+     "box": {
+      "x": 0,
+      "y": 759,
+      "width": 358,
+      "height": 179
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "step",
+    "name": "Owner edits sticky notes on a PC",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Owner edits sticky notes",
+      "on a PC"
+     ],
+     "ids": [
+      "REQ-046"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:17",
+     "box": {
+      "x": 80.5,
+      "y": 1138,
+      "width": 197,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "decision",
+    "name": "Owner confirms the step?",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Owner confirms the step?"
+     ],
+     "ids": [
+      "REQ-043"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:18",
+     "box": {
+      "x": 16.5,
+      "y": 1290,
+      "width": 325,
+      "height": 163
+     }
+    }
+   },
+   {
+    "key": "G",
+    "kind": "step",
+    "name": "Add writing the step to the agent to-do",
+    "parent": null,
+    "detail": {
+     "id": "G",
+     "lines": [
+      "Add writing the step to",
+      "the agent to-do"
+     ],
+     "ids": [
+      "REQ-049"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:19",
+     "box": {
+      "x": 84,
+      "y": 1521,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "H",
+    "kind": "decision",
+    "name": "Last step confirmed and written?",
+    "parent": null,
+    "detail": {
+     "id": "H",
+     "lines": [
+      "Last step confirmed and",
+      "written?"
+     ],
+     "ids": [
+      "REQ-050"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:20",
+     "box": {
+      "x": 100.5,
+      "y": 1653,
+      "width": 358,
+      "height": 179
+     }
+    }
+   },
+   {
+    "key": "I",
+    "kind": "step",
+    "name": "Close the workshop",
+    "parent": null,
+    "detail": {
+     "id": "I",
+     "lines": [
+      "Close the workshop"
+     ],
+     "ids": [
+      "REQ-050"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:21",
+     "box": {
+      "x": 202.5,
+      "y": 1900,
+      "width": 154,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "R1",
+    "kind": "step",
+    "name": "Refuse the agent's change",
+    "parent": null,
+    "detail": {
+     "id": "R1",
+     "lines": [
+      "Refuse the agent's change"
+     ],
+     "ids": [
+      "REQ-047"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:22",
+     "box": {
+      "x": 15,
+      "y": 1006,
+      "width": 204,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:23",
+     "box": {
+      "x": 228.5,
+      "y": 2012,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:24",
+     "points": [
+      {
+       "x": 279.5,
+       "y": 84
+      },
+      {
+       "x": 279.5,
+       "y": 132
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->M",
+    "kind": "arrow",
+    "name": "",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "M",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:25",
+     "points": [
+      {
+       "x": 279.5,
+       "y": 216
+      },
+      {
+       "x": 279.5,
+       "y": 264
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "M->N",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "M",
+    "detail": {
+     "id": "e3",
+     "from": "M",
+     "to": "N",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:26",
+     "points": [
+      {
+       "x": 225.33,
+       "y": 427
+      },
+      {
+       "x": 225.33,
+       "y": 439
+      },
+      {
+       "x": 217.5,
+       "y": 439
+      },
+      {
+       "x": 217.5,
+       "y": 495
+      }
+     ],
+     "label_box": {
+      "x": 223.5,
+      "y": 451,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "M->C",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "M",
+    "detail": {
+     "id": "e4",
+     "from": "M",
+     "to": "C",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:27",
+     "points": [
+      {
+       "x": 333.67,
+       "y": 427
+      },
+      {
+       "x": 333.67,
+       "y": 439
+      },
+      {
+       "x": 341.5,
+       "y": 439
+      },
+      {
+       "x": 341.5,
+       "y": 615
+      },
+      {
+       "x": 312.33,
+       "y": 615
+      },
+      {
+       "x": 312.33,
+       "y": 627
+      }
+     ],
+     "label_box": {
+      "x": 347.5,
+      "y": 451,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "N->C",
+    "kind": "arrow",
+    "name": "",
+    "parent": "N",
+    "detail": {
+     "id": "e5",
+     "from": "N",
+     "to": "C",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:28",
+     "points": [
+      {
+       "x": 217.5,
+       "y": 579
+      },
+      {
+       "x": 217.5,
+       "y": 615
+      },
+      {
+       "x": 246.67,
+       "y": 615
+      },
+      {
+       "x": 246.67,
+       "y": 627
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "C->D",
+    "kind": "arrow",
+    "name": "",
+    "parent": "C",
+    "detail": {
+     "id": "e6",
+     "from": "C",
+     "to": "D",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:29",
+     "points": [
+      {
+       "x": 246.67,
+       "y": 711
+      },
+      {
+       "x": 246.67,
+       "y": 723
+      },
+      {
+       "x": 179,
+       "y": 723
+      },
+      {
+       "x": 179,
+       "y": 759
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "D->R1",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "D",
+    "detail": {
+     "id": "e7",
+     "from": "D",
+     "to": "R1",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:30",
+     "points": [
+      {
+       "x": 119.33,
+       "y": 938
+      },
+      {
+       "x": 119.33,
+       "y": 950
+      },
+      {
+       "x": 117,
+       "y": 950
+      },
+      {
+       "x": 117,
+       "y": 1006
+      }
+     ],
+     "label_box": {
+      "x": 123,
+      "y": 962,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "D",
+    "detail": {
+     "id": "e8",
+     "from": "D",
+     "to": "E",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:31",
+     "points": [
+      {
+       "x": 238.67,
+       "y": 938
+      },
+      {
+       "x": 238.67,
+       "y": 950
+      },
+      {
+       "x": 259,
+       "y": 950
+      },
+      {
+       "x": 259,
+       "y": 1126
+      },
+      {
+       "x": 211.83,
+       "y": 1126
+      },
+      {
+       "x": 211.83,
+       "y": 1138
+      }
+     ],
+     "label_box": {
+      "x": 265,
+      "y": 962,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "R1->E",
+    "kind": "arrow",
+    "name": "",
+    "parent": "R1",
+    "detail": {
+     "id": "e9",
+     "from": "R1",
+     "to": "E",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:32",
+     "points": [
+      {
+       "x": 117,
+       "y": 1070
+      },
+      {
+       "x": 117,
+       "y": 1126
+      },
+      {
+       "x": 146.17,
+       "y": 1126
+      },
+      {
+       "x": 146.17,
+       "y": 1138
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "E->F",
+    "kind": "arrow",
+    "name": "",
+    "parent": "E",
+    "detail": {
+     "id": "e10",
+     "from": "E",
+     "to": "F",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:33",
+     "points": [
+      {
+       "x": 146.17,
+       "y": 1222
+      },
+      {
+       "x": 146.17,
+       "y": 1234
+      },
+      {
+       "x": 173,
+       "y": 1234
+      },
+      {
+       "x": 173,
+       "y": 1278
+      },
+      {
+       "x": 124.83,
+       "y": 1278
+      },
+      {
+       "x": 124.83,
+       "y": 1290
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "F->E",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "F",
+    "detail": {
+     "id": "e11",
+     "from": "F",
+     "to": "E",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:34",
+     "points": [
+      {
+       "x": 233.17,
+       "y": 1290
+      },
+      {
+       "x": 233.17,
+       "y": 1278
+      },
+      {
+       "x": 259,
+       "y": 1278
+      },
+      {
+       "x": 259,
+       "y": 1234
+      },
+      {
+       "x": 211.83,
+       "y": 1234
+      },
+      {
+       "x": 211.83,
+       "y": 1222
+      }
+     ],
+     "label_box": {
+      "x": 265,
+      "y": 1246,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "F->G",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "F",
+    "detail": {
+     "id": "e12",
+     "from": "F",
+     "to": "G",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:35",
+     "points": [
+      {
+       "x": 179,
+       "y": 1453
+      },
+      {
+       "x": 179,
+       "y": 1521
+      }
+     ],
+     "label_box": {
+      "x": 185,
+      "y": 1477,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "G->H",
+    "kind": "arrow",
+    "name": "",
+    "parent": "G",
+    "detail": {
+     "id": "e13",
+     "from": "G",
+     "to": "H",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:36",
+     "points": [
+      {
+       "x": 179,
+       "y": 1605
+      },
+      {
+       "x": 179,
+       "y": 1641
+      },
+      {
+       "x": 219.83,
+       "y": 1641
+      },
+      {
+       "x": 219.83,
+       "y": 1653
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "H->C",
+    "kind": "arrow",
+    "name": "no, next step",
+    "parent": "H",
+    "detail": {
+     "id": "e14",
+     "from": "H",
+     "to": "C",
+     "label": "no, next step",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:37",
+     "points": [
+      {
+       "x": 339.17,
+       "y": 1653
+      },
+      {
+       "x": 339.17,
+       "y": 1641
+      },
+      {
+       "x": 380,
+       "y": 1641
+      },
+      {
+       "x": 380,
+       "y": 723
+      },
+      {
+       "x": 312.33,
+       "y": 723
+      },
+      {
+       "x": 312.33,
+       "y": 711
+      }
+     ],
+     "label_box": {
+      "x": 386,
+      "y": 1094,
+      "width": 102,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "H->I",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "H",
+    "detail": {
+     "id": "e15",
+     "from": "H",
+     "to": "I",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:38",
+     "points": [
+      {
+       "x": 279.5,
+       "y": 1832
+      },
+      {
+       "x": 279.5,
+       "y": 1900
+      }
+     ],
+     "label_box": {
+      "x": 285.5,
+      "y": 1856,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "I->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "I",
+    "detail": {
+     "id": "e16",
+     "from": "I",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-012-run-an-event-storming-workshop.md:39",
+     "points": [
+      {
+       "x": 279.5,
+       "y": 1964
+      },
+      {
+       "x": 279.5,
+       "y": 2012
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ },
+ "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md": {
+  "name": "FL-013 Link a Notion page or a Jira project",
+  "elements": [
+   {
+    "key": "A",
+    "kind": "terminal",
+    "name": "Owner adds a link to a project or stage",
+    "parent": null,
+    "detail": {
+     "id": "A",
+     "lines": [
+      "Owner adds a link to a",
+      "project or stage"
+     ],
+     "ids": [
+      "REQ-058"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:11",
+     "box": {
+      "x": 109.5,
+      "y": 0,
+      "width": 225,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "B",
+    "kind": "decision",
+    "name": "Can the tool be read now?",
+    "parent": null,
+    "detail": {
+     "id": "B",
+     "lines": [
+      "Can the tool be read now?"
+     ],
+     "ids": [
+      "REQ-061"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:12",
+     "box": {
+      "x": 56,
+      "y": 132,
+      "width": 332,
+      "height": 166
+     }
+    }
+   },
+   {
+    "key": "C",
+    "kind": "step",
+    "name": "Show the status read from it, never writing",
+    "parent": null,
+    "detail": {
+     "id": "C",
+     "lines": [
+      "Show the status read from",
+      "it, never writing"
+     ],
+     "ids": [
+      "REQ-058",
+      "REQ-060"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:13",
+     "box": {
+      "x": 0,
+      "y": 366,
+      "width": 204,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "D",
+    "kind": "step",
+    "name": "Show the last known status and its time",
+    "parent": null,
+    "detail": {
+     "id": "D",
+     "lines": [
+      "Show the last known status",
+      "and its time"
+     ],
+     "ids": [
+      "REQ-061"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:14",
+     "box": {
+      "x": 236,
+      "y": 366,
+      "width": 212,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "E",
+    "kind": "decision",
+    "name": "Owner removes the link?",
+    "parent": null,
+    "detail": {
+     "id": "E",
+     "lines": [
+      "Owner removes the link?"
+     ],
+     "ids": [
+      "REQ-059"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:15",
+     "box": {
+      "x": 63,
+      "y": 498,
+      "width": 318,
+      "height": 159
+     }
+    }
+   },
+   {
+    "key": "F",
+    "kind": "step",
+    "name": "Drop the link",
+    "parent": null,
+    "detail": {
+     "id": "F",
+     "lines": [
+      "Drop the link"
+     ],
+     "ids": [
+      "REQ-059"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:16",
+     "box": {
+      "x": 122.5,
+      "y": 725,
+      "width": 118,
+      "height": 64
+     }
+    }
+   },
+   {
+    "key": "Z",
+    "kind": "terminal",
+    "name": "End",
+    "parent": null,
+    "detail": {
+     "id": "Z",
+     "lines": [
+      "End"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:17",
+     "box": {
+      "x": 171,
+      "y": 837,
+      "width": 102,
+      "height": 44
+     }
+    }
+   },
+   {
+    "key": "A->B",
+    "kind": "arrow",
+    "name": "",
+    "parent": "A",
+    "detail": {
+     "id": "e1",
+     "from": "A",
+     "to": "B",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:18",
+     "points": [
+      {
+       "x": 222,
+       "y": 84
+      },
+      {
+       "x": 222,
+       "y": 132
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "B->C",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "B",
+    "detail": {
+     "id": "e2",
+     "from": "B",
+     "to": "C",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:19",
+     "points": [
+      {
+       "x": 166.67,
+       "y": 298
+      },
+      {
+       "x": 166.67,
+       "y": 310
+      },
+      {
+       "x": 102,
+       "y": 310
+      },
+      {
+       "x": 102,
+       "y": 366
+      }
+     ],
+     "label_box": {
+      "x": 108,
+      "y": 322,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "B->D",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "B",
+    "detail": {
+     "id": "e3",
+     "from": "B",
+     "to": "D",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:20",
+     "points": [
+      {
+       "x": 277.33,
+       "y": 298
+      },
+      {
+       "x": 277.33,
+       "y": 310
+      },
+      {
+       "x": 342,
+       "y": 310
+      },
+      {
+       "x": 342,
+       "y": 366
+      }
+     ],
+     "label_box": {
+      "x": 348,
+      "y": 322,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "C->E",
+    "kind": "arrow",
+    "name": "",
+    "parent": "C",
+    "detail": {
+     "id": "e4",
+     "from": "C",
+     "to": "E",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:21",
+     "points": [
+      {
+       "x": 102,
+       "y": 450
+      },
+      {
+       "x": 102,
+       "y": 486
+      },
+      {
+       "x": 169,
+       "y": 486
+      },
+      {
+       "x": 169,
+       "y": 498
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "D->E",
+    "kind": "arrow",
+    "name": "",
+    "parent": "D",
+    "detail": {
+     "id": "e5",
+     "from": "D",
+     "to": "E",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:22",
+     "points": [
+      {
+       "x": 342,
+       "y": 450
+      },
+      {
+       "x": 342,
+       "y": 486
+      },
+      {
+       "x": 275,
+       "y": 486
+      },
+      {
+       "x": 275,
+       "y": 498
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "E->F",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "E",
+    "detail": {
+     "id": "e6",
+     "from": "E",
+     "to": "F",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:23",
+     "points": [
+      {
+       "x": 169,
+       "y": 657
+      },
+      {
+       "x": 169,
+       "y": 669
+      },
+      {
+       "x": 181.5,
+       "y": 669
+      },
+      {
+       "x": 181.5,
+       "y": 725
+      }
+     ],
+     "label_box": {
+      "x": 187.5,
+      "y": 681,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "E->Z",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "E",
+    "detail": {
+     "id": "e7",
+     "from": "E",
+     "to": "Z",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:24",
+     "points": [
+      {
+       "x": 275,
+       "y": 657
+      },
+      {
+       "x": 275,
+       "y": 669
+      },
+      {
+       "x": 262.5,
+       "y": 669
+      },
+      {
+       "x": 262.5,
+       "y": 825
+      },
+      {
+       "x": 239,
+       "y": 825
+      },
+      {
+       "x": 239,
+       "y": 837
+      }
+     ],
+     "label_box": {
+      "x": 268.5,
+      "y": 681,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "F->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "F",
+    "detail": {
+     "id": "e8",
+     "from": "F",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-013-link-a-notion-page-or-jira-project.md:25",
+     "points": [
+      {
+       "x": 181.5,
+       "y": 789
+      },
+      {
+       "x": 181.5,
+       "y": 825
+      },
+      {
+       "x": 205,
+       "y": 825
+      },
+      {
+       "x": 205,
+       "y": 837
+      }
+     ],
+     "label_box": null
+    }
+   }
+  ]
+ }
+}
