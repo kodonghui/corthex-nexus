@@ -7,7 +7,8 @@
 - Every response that the contract lists for an operation a screen calls leads to one of the screen's states, and
   the six kinds of state (normal, loading, empty, error, permission, stale) are each described.
 - The Korean copy has the same states with the same responses, the README lists the same states, and the
-  wireframes draw every state, and only those, at 360 and 1440 pixels.
+  wireframes draw every state, and only those, at 360 and 1440 pixels, each state differently from the
+  others of its screen and width. A state listed twice fails.
 """
 import os
 import re
@@ -67,6 +68,8 @@ class ScreensTest(unittest.TestCase):
     def states(self, sid, ko=False):
         """state ID -> the set of responses it names."""
         rows = section(self.definition(sid, ko), "상태" if ko else "States")
+        ids = [row[0] for row in rows]
+        self.assertEqual(len(ids), len(set(ids)), "a state listed twice in %s" % sid)
         return {row[0]: set(re.findall(r"API-\d+#\w+", row[2])) for row in rows}
 
     def test_every_screen_has_a_definition_and_a_korean_copy(self):
@@ -134,6 +137,18 @@ class ScreensTest(unittest.TestCase):
                         for w in WIDTHS}
             with self.subTest(file=name):
                 self.assertEqual(frames, expected)
+
+    def test_each_frame_draws_its_own_state(self):
+        frame = re.compile(r'^<div class="frame w(\d+)" id="(SCR-\d{3})-([a-z0-9-]+)-\d+"><div class="cap">[^<]*</div>'
+                           r'<div class="scr">(.*)</div></div>$', re.M)
+        for name in ("wireframes.html", "wireframes.ko.html"):
+            seen = {}
+            for width, sid, state, body in frame.findall(read("docs", "08-screens", name)):
+                seen.setdefault((sid, width), {}).setdefault(body, []).append(state)
+            with self.subTest(file=name):
+                self.assertTrue(seen)
+                same = [(key, states) for key, bodies in seen.items() for states in bodies.values() if len(states) > 1]
+                self.assertEqual(same, [], "frames that draw the same picture for different states")
 
 
 if __name__ == "__main__":

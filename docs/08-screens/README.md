@@ -14,15 +14,15 @@ Inputs: the sitemap (stage 07, five screens), the functional spec (stage 04), th
 | [SCR-143 Projects](SCR-143.md) | normal, loading, empty, error, permission, stale, secret |
 | [SCR-144 Project](SCR-144.md) | normal, loading, empty, error, permission, stale, delete |
 | [SCR-145 Stage workbench](SCR-145.md) | normal, loading, empty, error, permission, stale, waiting, confirmed, not-drawn, workshop |
-| [SCR-146 Changes since the last confirmation](SCR-146.md) | normal, loading, empty, error, permission, stale, waiting |
+| [SCR-146 Changes since the last confirmation](SCR-146.md) | normal, loading, empty, error, permission, stale, waiting, not-drawn |
 
 ## 2. What every screen shares
 
 - Header. Every screen has the 2026-11-21 mockup's header: NEXUS, the project menu, "My turn N" and the dark-screen switch. When the count or the menu cannot be read, it is left out and the rest of the screen works.
 - Messages. A screen shows the message of the error code in the contract's list (stage 06), in Korean, with the trace ID under "Something went wrong". A definition says where it shows more.
-- Repeats. A button is off while its request runs, and one result shows. Each write carries a new request key; a retry after an error makes a new one.
+- Repeats. A button is off while its request runs, and one result shows. Each new write carries a new request key. A retry after a timeout or a lost connection sends the same key, so a write that went through is not done twice and its first result comes back (rule 3 of the spec); the key changes only when the owner changes the input.
 - Stale. A screen shows when it read its data and reads again when its tab comes back into view. A 409 that says the data changed keeps what the owner typed and offers a reload.
-- Phone. On a phone, a touch screen narrower than 1056 pixels, every screen uses the phone layout: one column, and the work panel becomes a sheet under the diagram with the threads and the comment box. Moving, direct edits, answering proposals, confirming, credentials, tool links and deletion are not offered there, with a note to use a PC (SPEC-051); comments and replies work. A narrow window on a PC stacks the panel under the diagram and keeps every action. Each state's 360-pixel frame is its phone layout.
+- Phone. On a phone, a touch screen narrower than 1056 pixels, every screen uses the phone layout: one column, and the work panel becomes a sheet under the diagram with the threads and the comment box. Moving, direct edits (renaming, connecting, cancelling an edit, and a workshop's sticky notes, steps and Miro import), answering proposals, confirming and cancelling a confirmation, credentials, tool links and deletion are not offered there, with a note to use a PC (SPEC-051); comments and replies work. A narrow window on a PC stacks the panel under the diagram and keeps every action. Each state's 360-pixel frame is its phone layout.
 - Widths. Each state is drawn at 360 and 1440 pixels, the phone and the mockup's width. Long names wrap by word (Korean too) and never push the work panel off the screen.
 - Data exposure. Pages load only the owner's data through the owner operations; an agent credential's secret shows once, on the page that issued it, and never again.
 
@@ -64,10 +64,12 @@ As in stage 07, the states start from the mockup's workbench. The work panel's t
 
 ## 6. Checkpoint
 
-The screen definitions are approved before implementation. This stage removes, defers or changes no approved item. It reads 1 approved row more narrowly, asked as its own question; without its own answer the row stays as approved.
+The screen definitions are approved before implementation. This stage removes, defers or changes no approved item. It reads 3 approved items more narrowly, each asked as its own question; one without its own answer stays as approved.
 
 | Item | Approved text | This stage's reading | Why |
 | --- | --- | --- | --- |
 | SPEC-051 | Confirming, answering proposals, direct edits and moving → not offered, with a note to use a PC. | A phone does not offer issuing or revoking agent credentials, linking tools or deleting a project space either. | Stage-01 hotspot 5 was answered "view and comment only" for a phone (REQ-068); SPEC-051 names four actions and leaves these three unnamed. The secret shows only once (SPEC-049) and a deletion cannot be undone, so both stay with the PC. |
+| SCR-143 (stage 07) | The owner's project spaces with each stage's state and tool links, and the agent credentials: issue one, whose secret shows once, and revoke one. | The projects list shows each project's stages passed out of 13 and its to-do count; each stage's state and the tool links are on SCR-144, one click away. | The approved contract's project list (API-262) returns those counts, not each stage's state or the tool links; showing them here would take one project read per row. |
+| SCR-146 (stage 07) | The diff view: every element added, removed or changed since the last confirmed version, before and after (SPEC-034). | Each changed element is marked added, removed or changed, with its name; "before" is a link to the document at the confirmed version in the repository, not a value per element. | SPEC-034 asks to mark the changed elements, and the approved contract (API-265) returns their keys and the confirmed commit, not their earlier values. |
 
 Passed on 2026-11-23. The maintainer approved every recommendation through the delegate they named for checkpoints; the answer is in the project's records.
