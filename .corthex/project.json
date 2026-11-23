@@ -59,7 +59,8 @@
     "09-mockup": {
       "human": "nexus",
       "source": "design/base.tokens.json",
-      "truth": "source"
+      "truth": "source",
+      "page": "design/mockup/nexus-mockup.html"
     },
     "10-wbs": {
       "human": "nexus",
