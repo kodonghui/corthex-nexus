@@ -257,7 +257,15 @@ describe('deleting a project space', () => {
     s.comment(s.thread(diagrams[1]), { author: 'owner' });
     const counted = (await preview('delta')).json.deletes;
     assert.deepEqual([counted.diagrams, counted.comments], [3, 5]);
+    // The project list (API-262) has it before the deletion and not after.
+    const listed = async () => {
+      const answer = await server.send({ path: '/api/projects', headers: owner() });
+      assert.equal(answer.status, 200);
+      return answer.json.projects.map((project) => project.name);
+    };
+    assert.ok((await listed()).includes('delta'));
     assert.equal((await remove('delta')).status, 200);
+    assert.equal((await listed()).includes('delta'), false);
     assert.equal(db.prepare("SELECT count(*) AS n FROM project_spaces WHERE name = 'delta'").get().n, 0);
     assert.equal(db.prepare('SELECT count(*) AS n FROM comment_threads WHERE diagram_id IN (?, ?, ?)').get(...diagrams.map((d) => d.id)).n, 0);
   });

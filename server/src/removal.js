@@ -36,26 +36,29 @@ function statementsOf(store) {
     statements = {
       project: store.prepare('SELECT id, name, held_commit FROM project_spaces WHERE name = ?'),
       held: store.prepare('SELECT revision FROM snapshots WHERE project_id = ? AND commit_sha = ?'),
+      // Drawings, change sets and confirmations are counted through their diagram, whose project a key holds them to
+      // (db/nexus.sql), since their indexes start with the diagram: no count reads a whole table.
       counts: store.prepare(
         `SELECT
            (SELECT count(*) FROM snapshots WHERE project_id = :project) AS snapshots,
            (SELECT count(*) FROM diagrams WHERE project_id = :project) AS diagrams,
-           (SELECT count(*) FROM drawings WHERE project_id = :project) AS drawings,
+           (SELECT count(*) FROM drawings w JOIN diagrams d ON d.id = w.diagram_id WHERE d.project_id = :project) AS drawings,
            (SELECT count(*) FROM comment_threads h JOIN diagrams d ON d.id = h.diagram_id WHERE d.project_id = :project) AS threads,
            (SELECT count(*) FROM comments c JOIN comment_threads h ON h.id = c.thread_id JOIN diagrams d ON d.id = h.diagram_id
             WHERE d.project_id = :project) AS comments,
-           (SELECT count(*) FROM change_sets WHERE project_id = :project) AS change_sets,
-           (SELECT count(*) FROM confirmations WHERE project_id = :project) AS confirmations,
+           (SELECT count(*) FROM change_sets c JOIN diagrams d ON d.id = c.diagram_id WHERE d.project_id = :project) AS change_sets,
+           (SELECT count(*) FROM confirmations c JOIN diagrams d ON d.id = c.diagram_id WHERE d.project_id = :project) AS confirmations,
            (SELECT count(*) FROM element_positions p JOIN diagrams d ON d.id = p.diagram_id WHERE d.project_id = :project) AS positions,
            (SELECT count(*) FROM workshops WHERE project_id = :project) AS workshops,
            (SELECT count(*) FROM sticky_notes n JOIN workshops w ON w.id = n.workshop_id WHERE w.project_id = :project) AS notes,
            (SELECT count(*) FROM tool_links WHERE project_id = :project) AS tool_links,
            (SELECT count(*) FROM comment_threads h JOIN diagrams d ON d.id = h.diagram_id
             WHERE d.project_id = :project AND h.state = 'open') AS open_threads,
-           (SELECT count(*) FROM change_sets WHERE project_id = :project AND state IN ('proposed', 'accepted')) AS open_change_sets,
-           (SELECT count(*) FROM confirmations WHERE project_id = :project
-            AND ((state <> 'cancelled' AND recorded_at IS NULL)
-              OR (state = 'cancelled' AND recorded_at IS NOT NULL AND cancel_recorded_at IS NULL))) AS to_record`,
+           (SELECT count(*) FROM change_sets c JOIN diagrams d ON d.id = c.diagram_id
+            WHERE d.project_id = :project AND c.state IN ('proposed', 'accepted')) AS open_change_sets,
+           (SELECT count(*) FROM confirmations c JOIN diagrams d ON d.id = c.diagram_id WHERE d.project_id = :project
+            AND ((c.state <> 'cancelled' AND c.recorded_at IS NULL)
+              OR (c.state = 'cancelled' AND c.recorded_at IS NOT NULL AND c.cancel_recorded_at IS NULL))) AS to_record`,
       ),
       // The blobs the project's snapshot files name, before the deletion takes the files.
       blobs: store.prepare(
