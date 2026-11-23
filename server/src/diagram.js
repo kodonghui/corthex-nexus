@@ -29,6 +29,7 @@
 // project read does not list either.
 
 import { pullRequestLink } from './claims.js';
+import { confirmationBody } from './confirmations.js';
 import { failureWhere } from './drawer.js';
 import { idOf, keyOf } from './ids.js';
 import { itemNames } from './item-table.js';
@@ -125,7 +126,8 @@ function statementsOf(store) {
          WHERE t.diagram_id = ? AND t.kind = 'reflect' AND t.closed_at IS NULL ORDER BY t.created_at, t.id`,
       ),
       confirmation: store.prepare(
-        `SELECT k.id, k.drawing_id, w.document_version, k.state, k.confirmed_at, k.ended_at, k.recorded_at, k.cancel_recorded_at
+        `SELECT k.id, k.diagram_id, k.drawing_id, w.document_version, k.state, k.confirmed_at, k.ended_at, k.recorded_at,
+                k.cancel_recorded_at
          FROM confirmations k JOIN drawings w ON w.id = k.drawing_id WHERE k.diagram_id = ? ORDER BY k.id DESC LIMIT 1`,
       ),
     };
@@ -351,17 +353,7 @@ export function readDiagram(store, name, id) {
     elements,
     overlays,
     since_confirmation: since,
-    confirmation: confirmed === null ? null : {
-      id: idOf('nk', Number(confirmed.id)),
-      diagram: diagramRef,
-      drawing: idOf('dw', Number(confirmed.drawing_id)),
-      version: confirmed.document_version,
-      state: confirmed.state,
-      confirmed_at: confirmed.confirmed_at,
-      ended_at: confirmed.ended_at,
-      recorded_at: confirmed.recorded_at,
-      cancel_recorded_at: confirmed.cancel_recorded_at,
-    },
+    confirmation: confirmed === null ? null : confirmationBody(confirmed),
     threads,
   };
 }

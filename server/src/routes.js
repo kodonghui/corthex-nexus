@@ -4,6 +4,7 @@
 
 import { CLAIM_ROUTES } from './claims.js';
 import { COMMENT_ROUTES } from './comments.js';
+import { CONFIRMATION_ROUTES } from './confirmations.js';
 import { CREDENTIAL_ROUTES } from './credentials.js';
 import { DIAGRAM_ROUTES } from './diagram.js';
 import { DIRECT_EDIT_ROUTES } from './direct-edits.js';
@@ -46,4 +47,6 @@ export const ROUTES = Object.freeze([
   ...THREAD_ROUTES,
   // TASK-445: API-272 and API-273.
   ...DIRECT_EDIT_ROUTES,
+  // TASK-446: API-275 and API-276.
+  ...CONFIRMATION_ROUTES,
 ]);
