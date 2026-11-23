@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; and TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair. It takes the operations of `src/routes.js`, so far API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; and TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot. It takes the operations of `src/routes.js`, so far API-242, API-243, API-279, API-280 and API-281; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -96,6 +96,39 @@ The owner issues, lists and revokes the credentials agents use (`src/credentials
 The tests check the three operations as each later operation is checked:
 - `test/responses.js` checks each answer against the response the contract lists for its status, schema included, and that every listed response was answered, each Problem code its examples give included.
 - `test/tables.js` (note 23 of the WBS) wraps the store. SQLite's authorizer reports each table a statement reads and writes as it is prepared. Each run of the statement is noted for the operation whose handler runs it (`src/operation.js`), or for the request layer outside every handler. The tables the schema's keys reach are left out: those a foreign key's check reads, and those a cascade deletes from. An operation must touch exactly the tables its `x-corthex.tables` lists, and the request layer only TBL-169 and TBL-146. `test/tables.test.js` checks that the tests of every route in `src/routes.js` call this check.
+- `PENDING` in `test/tables.js` names the tables an operation lists that a later task of the WBS builds its part of: API-242 lists TBL-151 to TBL-153, which TASK-419's drawing writes. Until that task lands, the check leaves them out. A pending table that the operation touches still fails the check, so the entry goes with the task that builds it, and `test/tables.test.js` checks that each entry names tables the operation lists and the WBS gives that task.
+
+## Snapshot intake
+
+The hub sends each project's snapshot with push and reads the commit NEXUS holds before every push (`src/snapshots.js`, `src/snapshot.js`; SPEC-001, SPEC-002, SPEC-014). Both are agent operations. A project is a row of TBL-147 `project_spaces`, each snapshot it keeps a row of TBL-148 `snapshots`, and what a snapshot holds is kept in TBL-149 `document_blobs` and TBL-150 `snapshot_files`.
+
+- **Formats.** NEXUS takes the snapshot formats `corthex-hub/0.2` and `corthex-hub/0.3`, named by the snapshot's `schema`; any other gets `unsupported_format` (400) with `versions`. 0.2 carries the pictures of stages 01, 05 and 07. 0.3 adds a picture for each file of stages 03, 08 and 09, with the file's path as its `key` and its whole text as `source.text`.
+- **Push** (API-242, `POST /api/snapshots`, a body of up to 8 MiB). The snapshot is checked against the contract's `Snapshot` schema, the rules of its format included, then against the rules NEXUS adds to keep it: its commit at `repos["."].default.commit`, where the pinned hub sends it; `repos["."].url`, when given, an https address; each picture of that commit and of a part `project.parts` names, or of no part; one picture per stage and part for stages 01, 05 and 07, and one per file for 03, 08 and 09; keys that are paths in the repository; and no JSON nested deeper than 100 levels. A broken rule gets `invalid_snapshot` (400), whose `field` says where, never the value. A push that carries `Idempotency-Key` gets `invalid_request`: the hub sends none, since the same commit again is how NEXUS knows a repeat.
+- **The first send** of a project creates its space, held at the snapshot's commit, with the snapshot as revision 1 (SPEC-002): 201 and `created` true. The pinned hub sends one only after the user's yes (`push --first`). Two first sends at once run one after the other, so the second is the same commit.
+- **The next commit** must name the held commit in `replaces` (REQ-002), or it gets `commit_not_replaced` (409) with `held_commit`. It becomes the next revision and the held commit, and `replaced` names the commit before it.
+- **A commit held at an earlier revision** gets `older_snapshot` (409) with that `revision`.
+- **The held commit again** is the same revision, and nothing is kept again: 200 and `same_commit` true. In a newer format than it came in, such as 0.3 after 0.2, it completes that revision: NEXUS keeps the picture files the older format did not carry, and the held commit's format becomes the newer one. The rest of the revision stays as first kept.
+- **Another repository.** A snapshot whose `repos["."].url` is not the project's gets `repository_mismatch` (409), and so does one without it once the project has one.
+- **The held commit** (API-243, `GET /api/snapshots/{project}/held`) answers `default_commit`, its `revision` and the `format` it came in, and the `formats` NEXUS takes, so that the hub can tell whether to send the same commit again in a newer format. A project with no space gets `project_not_found`.
+
+A refused push changes nothing, since it runs in its write's transaction.
+
+**Documents.** NEXUS keeps a snapshot as documents, each text once by its SHA-256 in `document_blobs`, named by a path in `snapshot_files`:
+
+| Path | Stage | Text |
+| --- | --- | --- |
+| the picture's `key` | 03, 08 or 09 | the file's whole text, `source.text` |
+| `/pictures/<stage>`, or `/pictures/<stage>/<part>` for a part | 01, 05 or 07 | the hub's parsed picture, `source`, as JSON |
+| `/items/<stage>` | that stage | the snapshot's items of that stage, as a JSON array |
+| `/snapshot` | none | the rest as it came: every other field, the pictures without their sources and the items of no stage |
+
+The schema lists only the fields NEXUS reads and says NEXUS keeps the others as they come; `/snapshot` keeps them, the project's title and parts among them. A key never starts with `/`, so the two kinds of names never meet.
+
+**Secrets and email addresses** (REQ-077, `src/sensitive.js`). A document whose text looks like a secret (an OpenAI-style, GitHub, Slack or AWS key, or a private key's first line) or an email address is left out. The answer's `refused` names it with its part, its stage, where it is from (its key, or the stage's source as the snapshot's stage record names it) and `why`, `secret` or `email`, up to 500 of them. The patterns are the pinned hub's own, which redacts every text before it sends it, so NEXUS leaves out no more than the hub hides. The rest, `/snapshot`, has no stage to name it by, so a snapshot whose other fields hold such text, which the hub never sends, gets `invalid_snapshot` naming the field. No answer or table holds the text of a document left out or what was found in it, and no log line holds its path either (rule 5).
+
+**Drawing.** After it keeps a snapshot, the push calls `drawSnapshot` of `src/drawing.js` once, in the same transaction, with the project, the snapshot, whether it completes a revision and the documents kept. That function is where TASK-419 hooks in the diagrams and drawings (TBL-151 to TBL-153); until then it draws nothing: the answer's `diagrams` counts are 0 and its `failures` empty. What a drawing changes after it, the answer's `confirmations_invalidated`, `change_sets_reflected` and `threads_moved`, is TASK-435's, so those are 0 until it lands.
+
+`test/snapshots.test.js` sends 0.2 and 0.3 snapshots of this repository that `test/snapshots.js` builds from its files when the tests run, so no snapshot file is kept in Git. It builds 0.2 from the schema too, rather than with the pinned hub, because the server's tests run with Node alone. It makes every secret-looking and email-looking value at run time from parts.
 
 ## Answers
 

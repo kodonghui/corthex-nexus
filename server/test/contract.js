@@ -69,7 +69,15 @@ export function validate(doc, value, schemaOrRef, where = '$') {
     if (value.length < (schema.minItems ?? 0) || value.length > (schema.maxItems ?? value.length)) {
       errors.push(`${where} has a count outside its limits`);
     }
+    // The contract asks unique items of lists of texts only.
+    if (schema.uniqueItems === true && new Set(value.map((item) => JSON.stringify(item))).size !== value.length) {
+      errors.push(`${where} has an item twice`);
+    }
     value.forEach((item, index) => errors.push(...validate(doc, item, schema.items ?? {}, `${where}[${index}]`)));
+  }
+  // if and then, as the Snapshot schema gives each format's rules: then applies when the value passes if.
+  if (schema.if !== undefined && schema.then !== undefined && validate(doc, value, schema.if, where).length === 0) {
+    errors.push(...validate(doc, value, schema.then, where));
   }
   if (kindOf(value) === 'object') {
     for (const name of schema.required ?? []) if (!(name in value)) errors.push(`${where} lacks ${name}`);
