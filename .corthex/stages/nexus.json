@@ -72,7 +72,7 @@
       ]
     },
     "04-functional-spec": {
-      "state": "in_progress",
+      "state": "done",
       "checkpoints": [
         {
           "approved": "Stage 04 spec freeze for the first release: the fifty-two SPEC rows; a confirmation is refused while change sets wait for reflection; the limits and other choices of section 4 stand. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -103,13 +103,18 @@
           "approved": "After the second review of pull request 104, at commit e3fbd62: SPEC-001 names the revision a newer format completes; SPEC-005 keeps a stage's last pictures under a snapshot that does not carry them; SPEC-009 says what the frame cannot stop and reopens once; SPEC-016 sends a comment without item or diagram to the stage's first diagram; SPEC-018 takes proposals only on drawn pictures other than the mockup. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "After the fourth review of pull request 104, at commit 97ec500: SPEC-027 moves the threads when a new drawing of the element's diagram no longer has it, as REQ-033 says, so a snapshot that keeps a stage's pictures (SPEC-005) moves none. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
-      "next": "After the fourth review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T15:38:42+09:00"
+      "next": "Stage 05: write the schema and its ERD from the spec",
+      "updated": "2026-11-23T15:42:06+09:00"
     },
     "05-erd": {
-      "state": "in_progress",
+      "state": "done",
       "checkpoints": [
         {
           "approved": "Stage 05 schema freeze before the API contract: the 26 tables TBL-146 to TBL-171 in db/nexus.sql; SQL that SQLite 3 runs, where it runs decided in stage 11; every snapshot kept with its documents once by hash and the elements of every drawing. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -135,10 +140,15 @@
           "approved": "After the third review of pull request 104, at commit 9c7a003: TBL-151 sets removed_at only when a snapshot whose format carries the stage no longer holds the diagram, so a corthex-hub/0.2 snapshot keeps the pictures of stages 03, 08 and 09 (SPEC-005); no table, column or constraint changed. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "After the fourth review of pull request 104, at commit 97ec500: TBL-151 sets removed_at when a snapshot no longer holds the diagram, except that a picture of a stage whose pictures the snapshot's format does not carry stays as last drawn (SPEC-005); no table, column or constraint changed. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
-      "next": "After the fourth review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T15:38:42+09:00",
+      "next": "Stage 06: write the API contract from the spec and the schema",
+      "updated": "2026-11-23T15:42:06+09:00",
       "checks": [
         {
           "level": "info",
