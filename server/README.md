@@ -4,13 +4,14 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-424's [user flow](#user-flow), the drawer of stage 03's flow files; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-426's [screen states](#screen-states), the drawer of stage 08; TASK-427's [mockup](#mockup), the drawer of stage 09, and the [mockup page](#the-mockup-page) it serves in a sandbox; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion; TASK-436's [agent reads](#agent-reads), what deleting the space removes and one thread, change set, reflection entry or confirmation, as the hub's `remove` and `show` commands read them; and TASK-441's [diagram read](#diagram), a diagram with its elements by name and their positions, its overlays, its confirmation, what changed since it and its threads. It takes the operations of `src/routes.js`, so far API-242, API-243, API-244, API-245, API-246, API-247, API-248, API-249, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-265, API-277, API-278, API-279, API-280, API-281 and API-293; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-424's [user flow](#user-flow), the drawer of stage 03's flow files; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-426's [screen states](#screen-states), the drawer of stage 08; TASK-427's [mockup](#mockup), the drawer of stage 09, and the [mockup page](#the-mockup-page) it serves in a sandbox; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion; TASK-436's [agent reads](#agent-reads), what deleting the space removes and one thread, change set, reflection entry or confirmation, as the hub's `remove` and `show` commands read them; TASK-441's [diagram read](#diagram), a diagram with its elements by name and their positions, its overlays, its confirmation, what changed since it and its threads; and TASK-450's [daily backup](#daily-backup), which backs up the store once a day, keeps 30 days of backups and rehearses a restore before a release. It takes the operations of `src/routes.js`, so far API-242, API-243, API-244, API-245, API-246, API-247, API-248, API-249, API-250, API-251, API-252, API-253, API-254, API-255, API-262, API-263, API-264, API-265, API-277, API-278, API-279, API-280, API-281 and API-293; every other path answers the `not_found` Problem until the tasks that build its operations add them. It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
 ```sh
 cd server
 NEXUS_DATA_DIR=/absolute/path/to/a/data/folder \
+NEXUS_BACKUP_DIR=/absolute/path/to/a/backup/folder \
 NEXUS_ACCESS_ISSUER=https://<team>.cloudflareaccess.com \
 NEXUS_ACCESS_AUD=<the application's audience tag> \
 NEXUS_OWNER_EMAIL=<the owner's email address> \
@@ -26,11 +27,13 @@ The values in angle brackets are placeholders; the real ones stay in the server'
 | `NEXUS_HOST` | `127.0.0.1` | The address the server listens on: an IP address or `localhost`. The gate's tunnel reaches the server on the same machine. |
 | `NEXUS_PORT` | `8787` | The port, 0 to 65535. With 0 the system chooses a free port, which the start line names. |
 | `NEXUS_DATA_DIR` | none | The absolute path of the folder that holds the store. A new install creates the folder, readable by its owner only; the store file is always readable by its owner only, whatever the folder allows. |
+| `NEXUS_BACKUP_DIR` | none | The absolute path of the folder that holds the daily backups (see [Daily backup](#daily-backup)). The first backup creates it, readable by its owner only. |
+| `NEXUS_BACKUP_TIME` | `03:00` | When the day's backup runs, as `HH:MM` in UTC. The default is an example; the deploy (TASK-464) sets the real time. |
 | `NEXUS_ACCESS_ISSUER` | none | The gate's team address, `https://<team>.cloudflareaccess.com`: the issuer its sign-ins name, under which `/cdn-cgi/access/certs` lists their keys. An https origin with no path, port or query. |
 | `NEXUS_ACCESS_AUD` | none | The audience tag of the gate's NEXUS application, 64 lowercase hex digits. |
 | `NEXUS_OWNER_EMAIL` | none | The email address of the one owner, as the gate's sign-in carries it; matched without case. |
 
-An empty variable takes the default; `NEXUS_DATA_DIR` and the three gate settings have none and must be set. An invalid value stops the server with exit code 1 and one line that names the setting and its rule, never the value, since a value set by mistake can be a secret.
+An empty variable takes the default; `NEXUS_DATA_DIR`, `NEXUS_BACKUP_DIR` and the three gate settings have none and must be set, so a server with no backup folder does not start. An invalid value stops the server with exit code 1 and one line that names the setting and its rule, never the value, since a value set by mistake can be a secret.
 
 ## Store
 
@@ -73,7 +76,7 @@ A route (`src/router.js`) names its operation's `operationId` as `action`, the 4
 
 **Writes, one at a time** (rule 4, `src/writes.js`). A write arrives when its request has passed the steps above, with its body read in full. It waits in one queue for the whole server and runs when the writes before it have ended, whatever their project. Rule 4 asks this of writes to one project. One queue is stricter, and it is what the store allows: the store is one SQLite connection, which holds one transaction at a time. So a long write, such as a large snapshot, holds the writes of other projects until it ends.
 
-A write runs in one transaction (`BEGIN IMMEDIATE` to `COMMIT`), from its request key's check to its key's row, so a write that fails or is refused changes nothing. The same queue runs admission's note of when a credential was last used, so that note never lands inside another write's transaction. Its handler may wait (`await`), and the next write waits with it. A read that runs meanwhile on the same connection sees the write's rows before they commit, so a write handler does its waiting before it writes. A handler never begins or ends a transaction itself. It refuses by throwing a Problem. A success is 200 or 201 with a non-empty JSON object, as the contract makes every success. Any other answer, such as another status, a body that is not such an object or a framing header, is a fault that answers `internal`; a write's answer is checked before anything is stored, so such a write changes nothing.
+A write runs in one transaction (`BEGIN IMMEDIATE` to `COMMIT`), from its request key's check to its key's row, so a write that fails or is refused changes nothing. The same queue runs admission's note of when a credential was last used, so that note never lands inside another write's transaction; so does the daily backup's copy (see [Daily backup](#daily-backup)). Its handler may wait (`await`), and the next write waits with it. A read that runs meanwhile on the same connection sees the write's rows before they commit, so a write handler does its waiting before it writes. A handler never begins or ends a transaction itself. It refuses by throwing a Problem. A success is 200 or 201 with a non-empty JSON object, as the contract makes every success. Any other answer, such as another status, a body that is not such an object or a framing header, is a fault that answers `internal`; a write's answer is checked before anything is stored, so such a write changes nothing.
 
 **Request keys** (rule 3, `src/keys.js`). The first answer to each key is kept in TBL-169 `request_keys`. It is the request layer's own table: every write with a key fills it, so no operation lists it (note 21 of the WBS).
 - The same key from the same caller within 7 days gets the first status and answer, and nothing is written. The key keeps the answer's status and body, not headers of the write's own, which no operation with a request key has in the contract. Keys are kept 7 days, beyond the 24 hours that rule 3 asks, because the hub keeps an unsent write that long and sends it again under the same key.
@@ -894,6 +897,54 @@ The coordinator chose three rules for TASK-441, and the maintainer approved them
 
 The answer names what other tables hold, so API-265 lists 15 tables. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint on 2026-11-24.
 
+## Daily backup
+
+`src/backups.js` is TASK-450 (SPEC-052, FL-011): the server backs up its store once a day, keeps each backup 30 days, retries a failed backup once within the hour and warns the owner when the retry failed too. It runs in the server, not as a request: the contract names no operation for it.
+
+- **When.** One backup a UTC day, at the time `NEXUS_BACKUP_TIME` gives. A server that starts after that time, on a day with no backup yet, backs up at once, so a restart never skips a day. The job looks at the clock at least once an hour, so it notices a clock that was set meanwhile.
+- **What.** Each backup is a copy of the store made with `node:sqlite`'s own `backup()`, named by its day: `nexus-v3-backup-YYYY-MM-DD.sqlite` in the folder `NEXUS_BACKUP_DIR` names.
+  - It is written as `<name>.partial`, readable by its owner only like the store, and renamed when it is whole. So a file with a backup's name is always a complete store, and a failed attempt leaves no file.
+  - The copy runs as one task of the server's one write queue (see [Requests](#requests)). The store is one connection, which cannot copy itself while a write's transaction is open, so the writes wait for the copy while the reads go on.
+- **The retry.** A first attempt that fails is retried once, under the same name, 15 minutes after it failed. When the retry fails too, the owner's to-do and the project list show the warning (see [Projects and to-do](#projects-and-to-do)) until a backup succeeds.
+- **After a crash.** At start, an attempt left running is recorded failed, and its partial file is removed.
+  - A first attempt's retry then runs at once, even past the hour, and the warning shows only if that retry fails. A retry left running is the end, so the warning shows.
+  - A retry that fell due while the server was stopped also runs at start, unless the next day's time has come; that day's backup then runs instead.
+- **30 days.** After a backup succeeds, the backups whose day is more than 30 days before its day are removed. Of 31 daily backups, the next one removes the oldest, and 30 remain plus the new one.
+  - Nothing is removed after a failure, so the last good backups stay while backups fail.
+  - A removed backup keeps its row, with the time its file was removed (TBL-170's `removed_at`).
+- **Not enough disk.** Before an attempt, when the folder's free space is less than the store's size, the backups past 30 days are removed first, the oldest first, never a newer one. When the space is still short, the attempt fails without writing (`not_enough_disk`), so a backup never fills the disk.
+- **Deleted projects.** A backup is a copy of the whole store, so a deleted project stays in the backups until they age out (see [Project removal](#project-removal)).
+
+### The restore rehearsal
+
+Before each release, the release step (TASK-464) rehearses a restore from the latest backup and records it (REQ-080, TBL-171):
+
+```sh
+cd server
+NEXUS_DATA_DIR=/absolute/path/to/a/data/folder \
+NEXUS_BACKUP_DIR=/absolute/path/to/a/backup/folder \
+node src/rehearse.js <release>
+```
+
+`src/rehearsal.js` takes the latest backup that succeeded and whose file is kept, and copies it into a new folder.
+- It opens the copy as the server opens its store, which applies this code's migrations to the copy.
+- It reads the copy: SQLite's integrity check, its foreign keys, and every row of every table.
+- It removes the folder afterwards.
+
+The result is recorded in the store as it is. The command neither creates the store nor applies a migration to it, so it can run beside a server whose code is older. Its one line names no path.
+
+- **It succeeded.** The row says `succeeded`, with a note of what was read. The line is `rehearsal_recorded`, and the command exits 0.
+- **A check failed.** The row says `failed`, with a note naming the check and the kind of error, never a path. The checks are `copy`, `open`, `integrity`, `foreign_keys` and `read`. The command exits 1, so the release step stops. No screen shows it.
+- **No backup to rehearse.** Nothing is recorded, since a rehearsal names its backup. The line `rehearsal_refused` says `no_backup`, and the command exits 1.
+- **Called wrong.** The command exits 2 when the release is missing, or is not a name of up to 64 letters, digits, dots, pluses, hyphens and underscores, or when a setting is missing.
+
+`test/backups.test.js` checks TASK-450's done condition with a clock of its own:
+- 31 daily backups from 2026-10-24 to 2026-11-23, then the backup of 2026-11-24, which removes 2026-10-24 and leaves 2026-10-25 to 2026-11-24;
+- a backup folder taken by a file, whose failed retry shows on the owner's to-do (API-263) until the next day's backup succeeds;
+- the retry's time, the backup at start, a crash, the disk and the queue.
+
+`test/rehearsal.test.js` restores the latest backup into a fresh store and reads it. It also records each failed check, records nothing without a backup, and runs the command as the release step will.
+
 ## Answers
 
 - An operation answers JSON. A refusal is a Problem as `application/problem+json`, with `title`, `status`, `detail`, `code`, `traceId` and the members its code carries, such as `field` or `limit`. Its shape is exactly `components.schemas.Problem` of the contract.
@@ -923,11 +974,15 @@ The server writes one JSON line to standard output for each request, when its an
 | `error` | Only when a handler failed or a refusal could not be sent: the kind of error, a built-in error type with Node's code if it has one, such as `Error ENOENT`. |
 | `aborted` | Only when the connection dropped before the answer ended: `true`. |
 
-It also writes a line when it starts listening (with its host and port), when it stops and when a setting is invalid, and one line in place of Node's report when it crashes. Before it listens it writes one line about the store: `store_opened` with the store's `version` and the migrations it `applied`, `store_refused` with a `reason` (`not_a_v3_store`, `newer_store`, `migrations_invalid` or `foreign_keys_broken`), or `store_failed` with the kind of `error`. None of them names the data folder.
+It also writes a line when it starts listening (with its host and port), when it stops and when a setting is invalid, and one line in place of Node's report when it crashes. Before it listens it writes one line about the store: `store_opened` with the store's `version` and the migrations it `applied`, `store_refused` with a `reason` (`not_a_v3_store`, `newer_store`, `migrations_invalid` or `foreign_keys_broken`), or `store_failed` with the kind of `error`. None of them names the data folder. The daily backup writes a line for each attempt:
+- `backup_succeeded`, with the backup's `day`, its `attempt`, its `bytes`, how many old backups it `removed` and its `ms`;
+- or `backup_failed`, with the `day` and the `attempt`, and either a `reason` or the kind of `error`. The reason is `not_enough_disk`, or `interrupted` for an attempt a crash left running.
+
+None of them names a folder or a file's path.
 
 So every refused request is logged with its time, its action, its sender and its reason, the Problem's `code` (rule 8). No line holds a credential's secret or digest: the sender is the credential's name, which the owner chose, and the reason is one of the words above.
 
-Rule 5 of the [functional spec](../docs/04-functional-spec/spec.md) keeps an agent credential's secret, a credential digest, a sign-in token, a server path and the text of a refused file out of every log line. So no field is copied from the request, its path, query, headers or body, or from an error's message or stack; `test/logs.test.js`, `test/main.test.js` and `test/admission.test.js` check this, the data folder, the owner's sign-in and the emails included, with values made at run time. No line names a gate setting or a request key's digest either (`test/keys.test.js` checks the digest).
+Rule 5 of the [functional spec](../docs/04-functional-spec/spec.md) keeps an agent credential's secret, a credential digest, a sign-in token, a server path and the text of a refused file out of every log line. So no field is copied from the request, its path, query, headers or body, or from an error's message or stack; `test/logs.test.js`, `test/main.test.js` and `test/admission.test.js` check this, the data and backup folders, the owner's sign-in and the emails included, with values made at run time. No line names a gate setting or a request key's digest either (`test/keys.test.js` checks the digest).
 
 ## Picture layout
 
