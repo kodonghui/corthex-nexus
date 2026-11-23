@@ -351,7 +351,7 @@ What it draws, in this order:
 | A line from each screen that has a parent to that screen, named by the screen's name, its parent the parent screen | `line` | `from` and `to`, the keys of the two screens; `points` |
 | A part of the sitemap the hub left out, one for each of the picture's warnings, named by what the hub says of it | `source`, `left_out` | `where`, its file and line; the file alone when the hub names no line or the two would pass 300 characters; or null |
 
-The coordinator chose the next three points for TASK-425, and the maintainer's delegate has yet to decide on them.
+The coordinator chose the next three points for TASK-425, and the maintainer approved them through the delegate they named for checkpoints.
 
 - **Tree layout.** `layout.js` places the screens top down:
   - A root stands at the top, and each screen in the layer under its parent's. The screens of one parent stand side by side, in the source's order.
