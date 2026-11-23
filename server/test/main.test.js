@@ -95,6 +95,12 @@ test('starts with the environment\'s settings and logs one line per request', as
   assert.match(line.traceId, TRACE_ID);
   assert.equal(line.status, 404);
   assert.equal(line.code, 'not_found');
+  // It serves the operations of routes.js, each admitted by its family: the credentials need the owner's sign-in.
+  const credentials = await send(listening.port, { path: '/api/credentials', headers: { 'CF-Access-Client-Secret': values.secret } });
+  assert.equal(credentials.status, 401);
+  assert.equal(credentials.json.code, 'unauthenticated');
+  await waitFor(() => server.lines().length === 4);
+  assert.deepEqual([server.lines()[3].action, server.lines()[3].sender], ['listCredentials', 'unknown']);
   assertNoneIn(server.output.stdout + server.output.stderr, values);
 
   // Started again on the same folder, it applies nothing.

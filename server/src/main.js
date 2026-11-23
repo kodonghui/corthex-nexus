@@ -3,6 +3,7 @@
 import { createNexusServer } from './app.js';
 import { createGate } from './gate.js';
 import { errorKind, jsonLines, logCrashes } from './log.js';
+import { ROUTES } from './routes.js';
 import { readSettings, SettingsError } from './settings.js';
 import { openStore, StoreError } from './store.js';
 
@@ -42,7 +43,7 @@ function start() {
 
   // The gate's sign-in: its keys are read from the team's certs endpoint when an owner request first needs them.
   const gate = createGate(settings.gate);
-  const server = createNexusServer({ settings, log, store, gate });
+  const server = createNexusServer({ settings, routes: ROUTES, log, store, gate });
   server.once('error', (error) => {
     log({ time: time(), event: 'listen_failed', error: errorKind(error) });
     store.close();

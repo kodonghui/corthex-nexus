@@ -32,10 +32,11 @@ export function isWrite(route) {
 }
 
 // write(route, context, request) runs route.handle(context) as a write and returns its answer (see answer.js), or the
-// first answer of its request key. request is { pathname, key, bytes }: the path as sent, the request key or null,
-// and the body's bytes or null. context.caller is the actor the key belongs to: 'owner' or an agent credential's ID.
-export function createWrites({ store, now = Date.now }) {
-  const queue = createQueue();
+// first answer of its request key. request is { pathname, key, bytes, recheck }: the path as sent, the request key or
+// null, the body's bytes or null, and admission's recheck() or null, which refuses the write in its transaction when
+// what admitted it no longer holds, such as a credential revoked by a write before it (rule 4). context.caller is the
+// actor the key belongs to: 'owner' or an agent credential's ID. queue is the server's one queue of store writes.
+export function createWrites({ store, now = Date.now, queue = createQueue() }) {
   const keys = store === null ? null : requestKeys(store, now);
 
   async function run(route, context, request) {
@@ -49,6 +50,8 @@ export function createWrites({ store, now = Date.now }) {
     }
     store.exec('BEGIN IMMEDIATE');
     try {
+      // A write that an earlier one made invalid is refused (rule 4), even when it repeats a request key.
+      request.recheck?.();
       let action = null;
       if (request.key !== null) {
         // request_keys.action: the operationId and the SHA-256 of the path and body (see keys.js).
