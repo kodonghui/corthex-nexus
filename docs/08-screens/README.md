@@ -85,3 +85,7 @@ Approved items changed, each asked on its own and approved through the same dele
 #### After the second review of pull request 104
 
 More approved items changed, each asked on its own and approved through the same delegate. Here: the query of SCR-145 and SCR-146 is the existing ?d=. SCR-145's normal state says that the bar above the mockup frame marks it as a mockup page and NEXUS never asks for a sign-in inside it, that the view opens the page again only once and then stops with Open again, that a mockup takes no AI proposals, and that elements, state panels and tokens included, are selected by keyboard too. The number of states is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the seventh review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate. Here: SCR-145 lists the stage's diagrams also when a removed one is still listed because it has open threads, and its normal state says that a removed diagram comes last, marked removed, and opens with its threads (SPEC-027). The number of states is unchanged. This part waits for its own checkpoint.

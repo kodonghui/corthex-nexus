@@ -114,3 +114,7 @@ The stage tabs of the 78 state frames are again exactly as stage 09 approved the
 #### After the second review of pull request 104
 
 The state panels of the 08 view and the tokens of the 09 view are buttons that show which one is selected, like the boxes of the 03 view, so a keyboard selects them too. The bar above the mockup frame says it is a mockup page, that NEXUS never asks for a sign-in inside it and that a page it opens is opened again once; the 09 view's "AI proposals" section says that a mockup takes none. The state frames are still exactly as stage 09 approved them, and no token is added or changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the seventh review of pull request 104
+
+The mockup page's copy of SCR-145's normal state follows stage 08: a removed diagram with open threads comes last, marked removed, and opens with its threads (SPEC-027). The page is generated again; nothing else in it changed and no approved item of this stage changed. This part waits for its own checkpoint.

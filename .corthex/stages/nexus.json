@@ -190,7 +190,7 @@
       "updated": "2026-11-23T16:04:49+09:00"
     },
     "07-sitemap": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Stage 07 navigation structure: the five screens SCR-142 to SCR-146 in docs/07-sitemap/nexus.yaml, from the owner's to-do at / through the projects, one project and the stage workbench to the changes since the last confirmation, starting from the click mockup of 2026-11-21. No approved item removed, deferred or changed. The nine differences from that mockup, each asked on its own, answered with the recommendations of section 4 of the README. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -218,11 +218,11 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "Stage 08: write a screen definition with its states for each of the five screens",
-      "updated": "2026-11-23T15:30:54+09:00"
+      "next": "After the seventh review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T16:13:29+09:00"
     },
     "08-screen-states": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Stage 08 screen states at commit 3ceffcd: one definition for each of the five screens SCR-142 to SCR-146 in docs/08-screens/, 37 states with the responses that lead to them, and grey wireframes of every state at 360 and 1440 pixels, starting from the click mockup of 2026-11-21. No approved item removed, deferred or changed; the narrower reading of SPEC-051 in section 6 of the README, asked on its own, answered with the recommendation. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -255,11 +255,11 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-23T15:13:08+09:00"
+      "next": "After the seventh review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T16:13:29+09:00"
     },
     "09-mockup": {
-      "state": "done",
+      "state": "in_progress",
       "checkpoints": [
         {
           "approved": "Stage 09 mockup at commit 7fff711: the direction of the 2026-11-21 click mockup for the five screens SCR-142 to SCR-146, every one of the 39 states drawn at 360 and 1440 pixels in the light and dark themes, 78 frames in design/mockup/nexus-mockup.html; and the tokens frozen before development: IBM Carbon Gray 10 and Gray 100 with the CORTHEX layer unchanged, and the six nexus.shell tokens of design/base.tokens.json. No approved item removed, deferred or changed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -287,8 +287,8 @@
           "date": "2026-11-23"
         }
       ],
-      "next": "Stage 10: plan the work of the first release from the approved design of stages 01 to 09",
-      "updated": "2026-11-23T15:13:08+09:00"
+      "next": "After the seventh review of pull request 104: this stage's changed part waits for its own checkpoint",
+      "updated": "2026-11-23T16:14:37+09:00"
     },
     "10-wbs": {
       "state": "not_started",
