@@ -312,6 +312,30 @@ describe('direct edits', () => {
     assert.equal((await edit(space.name, board.id, rename(board.drawing, 'CTX-030', 'Older intake'))).status, 201);
   });
 
+  test('a rename takes every element but the two whose names the drawer makes: the Hotspots lane and a sitemap line', async () => {
+    const { space, erd } = erdProject();
+    const refused = (answer) => assert.deepEqual([answer.status, answer.json.code, answer.json.field], [400, 'invalid_request', 'element']);
+    const board = s.diagram(space, { stage: '01-domain', sourceKey: '/pictures/01-domain', kind: 'ddd_board', name: 'Board' });
+    s.elements(board.drawing, [
+      { key: 'hotspot_lane:Hotspots', kind: 'hotspot_lane', name: 'Hotspots' },
+      { key: 'hotspot:slow', kind: 'hotspot', name: 'Slow pushes', parent: 'hotspot_lane:Hotspots' },
+    ]);
+    const sitemap = s.diagram(space, { stage: '07-sitemap', sourceKey: '/pictures/07-sitemap', kind: 'sitemap', name: 'Sitemap' });
+    s.elements(sitemap.drawing, [
+      { key: 'SCR-141', trace_id: 'SCR-141', kind: 'screen', name: 'Projects' },
+      { key: 'SCR-145', trace_id: 'SCR-145', kind: 'screen', name: 'Workbench', parent: 'SCR-141' },
+      { key: 'line:SCR-145', kind: 'line', name: 'Workbench', parent: 'SCR-141', detail: { from: 'SCR-141', to: 'SCR-145', points: [] } },
+    ]);
+    const was = dump();
+    refused(await edit(space.name, board.id, rename(board.drawing, 'hotspot_lane:Hotspots', 'Risks')));
+    refused(await edit(space.name, sitemap.id, rename(sitemap.drawing, 'line:SCR-145', 'Open')));
+    assert.equal(dump(), was);
+    // A hotspot, a screen and an ERD line, named by its foreign key, have their names in the document.
+    assert.equal((await edit(space.name, board.id, rename(board.drawing, 'hotspot:slow', 'Slow drawings'))).status, 201);
+    assert.equal((await edit(space.name, sitemap.id, rename(sitemap.drawing, 'SCR-145', 'Diagram'))).status, 201);
+    assert.equal((await edit(space.name, erd.id, rename(erd.drawing, 'line:TBL-147>TBL-146', 'credential_id'))).status, 201);
+  });
+
   test('a connection joins the kinds its picture draws lines between; a picture with no line takes none', async () => {
     const { space, erd } = erdProject();
     const refused = (answer, field) => assert.deepEqual([answer.status, answer.json.code, answer.json.field], [400, 'invalid_request', field]);
@@ -427,6 +451,11 @@ describe('direct edits', () => {
     const target = await edit(space.name, erd.id, connect(erd.drawing, 'TBL-146', 'TBL-998'));
     assert.deepEqual([target.status, target.json.code, target.json.element], [404, 'element_not_found', 'TBL-998']);
     assert.equal(dump(), was);
+    // An item table of stage 09, drawn while the stage has no mockup page, takes edits as any item table does.
+    const other = s.project();
+    const items = s.diagram(other, { stage: '09-mockup', sourceKey: '/items/09-mockup', kind: 'item_table', name: 'Mockup' });
+    s.elements(items.drawing, [{ key: 'SCR-145', trace_id: 'SCR-145', kind: 'row', name: 'Workbench', detail: { status: 'active', links: [] } }]);
+    assert.equal((await edit(other.name, items.id, rename(items.drawing, 'SCR-145', 'Diagram workbench'))).status, 201);
   });
 
   test('an edit names the drawing the diagram shows; another one is document_changed', async () => {

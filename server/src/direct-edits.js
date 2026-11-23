@@ -9,8 +9,9 @@
 // has none of ProposalRequest's names, so it reads with no items or adds, reason and change null and source_text false
 // (reads.js). The diagram read lays it over its element, newest on top (SPEC-022, diagram.js).
 // - The diagram. A removed one takes no direct edit (SPEC-027), nor does one of a stage the contract does not name,
-//   which no read lists: both answer diagram_not_found. Stage 09's mockup takes no overlay (SPEC-018), so it takes no
-//   direct edit either: invalid_request on op.
+//   which no read lists: both answer diagram_not_found. The mockup page, stage 09's picture, takes no overlay
+//   (SPEC-018), so it takes no direct edit either: invalid_request on op. An item table of stage 09, drawn while the
+//   stage has no mockup page, takes edits as any item table does.
 // - The drawing. The diagram shows its latest drawing that drew: the current one, or the last good one when the
 //   current one failed (SPEC-001). The request names that drawing: another drawing of the diagram answers
 //   document_changed with the drawing shown, or the latest when none drew, and its version; a drawing of no drawing of
@@ -21,6 +22,9 @@
 //   ERD table that a foreign key names and the schema does not define) or left_out (what a drawer does not draw: an
 //   ERD statement, a sitemap source, a DDD table) has no text a reflection could change, so it is refused as not
 //   there. One drawn as removed is still in its document, and takes edits.
+// - A rename takes every element of the drawing shown but two whose names the drawer makes, not the document
+//   (UNNAMED): the DDD board's Hotspots lane, always named Hotspots, and a sitemap line, named after the screen it leads
+//   to, whose relation is that screen's parent. Either is refused with invalid_request on element.
 // - A connection joins two elements of the kinds its picture draws its lines between (JOINS). Any other element or
 //   target is refused with invalid_request on its field, and a picture that draws no line, such as screen states,
 //   refuses a connection with invalid_request on op.
@@ -34,8 +38,11 @@
 // - A rename of an element that an open AI proposal also renames is made as any other, and the later accepted wins. A
 //   direct edit is accepted when it is made, a proposal when the owner accepts it (decided_at). The diagram read lists
 //   accepted change sets on an element newest accepted on top (SPEC-022, diagram.js), and the reflection applies them
-//   in the order they were accepted, within an entry and across entries (entries.js's heldChangeSets), so the page
-//   shows the name the reflection will leave.
+//   in the order they were accepted: within an entry as entries.js's heldChangeSets lists them, and across entries in
+//   the agent to-do's order, a change set accepted while a pull request is open waiting in a later entry. When a pull
+//   request closes unmerged, its change sets wait again in the older entry, which can then hold change sets accepted
+//   before and after those of a newer one; TASK-447's reflection applies the changes to one element by decided_at
+//   then, and names in its comment the change it left. So the page shows the name the reflection will leave.
 // Waiting means accepted and not yet reflected.
 //
 // API-273 cancels a direct edit that is not reflected (SPEC-023): the change set is marked cancelled and leaves the
@@ -63,8 +70,8 @@ import { changeSetOf } from './reads.js';
 import { STAGES } from './snapshot.js';
 
 const STAGE_SET = new Set(STAGES);
-// The stage whose picture is the mockup page, which takes no overlay (SPEC-009, SPEC-018).
-const MOCKUP_STAGE = '09-mockup';
+// The kind of stage 09's picture, the mockup page, which takes no overlay (SPEC-009, SPEC-018).
+const MOCKUP = 'mockup';
 const DRAWING_ID = /^dw_[0-9a-hjkmnp-tv-z]{12}$/;
 const OPS = Object.freeze(['rename', 'connect']);
 const FIELDS = new Set(['drawing', 'op', 'element', 'name', 'target']);
@@ -77,6 +84,11 @@ const JOINS = new Map([
   ['user_flow', new Set(['terminal', 'step', 'decision', 'document', 'store', 'llm', 'grading'])],
   ['ddd_board', new Set(['context', 'external'])],
   ['item_table', new Set(['row'])],
+]);
+// The kinds whose name the drawer makes, not the document, which take no rename (see the top of this file).
+const UNNAMED = new Map([
+  ['ddd_board', new Set(['hotspot_lane'])],
+  ['sitemap', new Set(['line'])],
 ]);
 // The statuses of an element whose document does not hold it as drawn (see the top of this file).
 const GONE = new Set(['unreadable', 'missing', 'left_out']);
@@ -178,12 +190,12 @@ function editOf(body) {
 }
 
 // The diagram {diagram} of the project, which takes a direct edit: not removed (SPEC-027), of a stage the contract
-// names, and not stage 09's mockup.
+// names, and not the mockup page.
 function editableDiagram(statements, project, id) {
   const key = keyOf('dg', id);
   const row = key === null ? undefined : statements.diagram.get(key, project.id);
   if (row === undefined || row.removed_at !== null || !STAGE_SET.has(row.stage)) throw new Problem('diagram_not_found');
-  if (row.stage === MOCKUP_STAGE) throw invalidRequest('op', 'a mockup takes no direct edit');
+  if (row.kind === MOCKUP) throw invalidRequest('op', 'a mockup takes no direct edit');
   return { id: Number(row.id), kind: row.kind };
 }
 
@@ -236,6 +248,7 @@ function makeDirectEdit({ store, params, body, now }) {
   if (edit.op === 'connect' && joins === undefined) throw invalidRequest('op', 'this diagram draws no line to connect');
   const drawing = shownDrawing(statements, diagram, edit.drawing);
   const drawn = elementOf(statements, drawing, edit.element);
+  if (edit.op === 'rename' && UNNAMED.get(diagram.kind)?.has(drawn.kind)) throw invalidRequest('element', 'this element takes no rename');
   if (edit.op === 'connect') {
     const target = elementOf(statements, drawing, edit.target);
     if (!joins.has(drawn.kind)) throw invalidRequest('element', 'this element takes no connection');
