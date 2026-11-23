@@ -1,28 +1,63 @@
-// Shared by the tests: a server on a free loopback port whose log lines are kept, a plain HTTP client, and a gate
-// with a local signing key. node --test also runs this file, which holds no test.
+// Shared by the tests: a server on a free loopback port whose log lines are kept, a plain HTTP client, a raw one,
+// data folders and stores that are removed after each test, and a gate with a local signing key. node --test also
+// runs this file, which holds no test.
 
 import assert from 'node:assert/strict';
 import { createHash, generateKeyPairSync, randomBytes, randomUUID, sign } from 'node:crypto';
 import { once } from 'node:events';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { request as httpRequest } from 'node:http';
+import { connect } from 'node:net';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { createNexusServer } from '../src/app.js';
 import { createGate } from '../src/gate.js';
 import { jsonLines } from '../src/log.js';
+import { openStore } from '../src/store.js';
 
 export const TRACE_ID = /^[0-9a-f]{16}(?:-[A-Z]{3})?$/;
 
-export async function startServer({ routes = [], store = null, gate = null } = {}) {
+// The 32 characters of the contract's IDs, [0-9a-hjkmnp-tv-z].
+const ID_ALPHABET = '0123456789abcdefghjkmnpqrstvwxyz';
+
+// A new ID of the contract's form with its prefix, such as nw for a write ID or ac for an agent credential. Tests make
+// them at run time, so that no literal in the history reads as a key to the secret scan.
+export function newId(prefix) {
+  return `${prefix}_${Array.from(randomBytes(12), (byte) => ID_ALPHABET[byte % ID_ALPHABET.length]).join('')}`;
+}
+
+// A new data folder for one test, removed after it.
+export function dataFolder(t, prefix = 'nexus-test-') {
+  const folder = mkdtempSync(join(tmpdir(), prefix));
+  t.after(() => rmSync(folder, { recursive: true, force: true, maxRetries: 5 }));
+  return folder;
+}
+
+// A new store in its own data folder, closed and removed after the test.
+export function testStore(t) {
+  const folder = mkdtempSync(join(tmpdir(), 'nexus-store-'));
+  const { db } = openStore(folder);
+  t.after(() => {
+    db.close();
+    rmSync(folder, { recursive: true, force: true, maxRetries: 5 });
+  });
+  return db;
+}
+
+// gate and now are createApp's (see app.js): owner operations need a gate, such as localGate's.
+export async function startServer({ routes = [], store = null, gate = null, now } = {}) {
   const text = [];
   const stream = { write: (chunk) => text.push(chunk) };
   const settings = Object.freeze({ host: '127.0.0.1', port: 0 });
-  const server = createNexusServer({ settings, routes, log: jsonLines(stream), store, gate });
+  const server = createNexusServer({ settings, routes, log: jsonLines(stream), store, gate, now });
   server.listen(settings.port, settings.host);
   await once(server, 'listening');
   const { port } = server.address();
   return {
     // Every character the server wrote to its log.
     logText: () => text.join(''),
+    port,
     send: (options) => send(port, options),
     // The parsed log lines, once there are at least count of them.
     async logged(count) {
@@ -43,13 +78,7 @@ export function send(port, { method = 'GET', path = '/', headers = {}, body } = 
       response.on('data', (chunk) => chunks.push(chunk));
       response.on('end', () => {
         const text = Buffer.concat(chunks).toString('utf8');
-        let json;
-        try {
-          json = JSON.parse(text);
-        } catch {
-          json = undefined;
-        }
-        resolve({ status: response.statusCode, headers: response.headers, rawHeaders: response.rawHeaders, text, json });
+        resolve({ status: response.statusCode, headers: response.headers, rawHeaders: response.rawHeaders, text, json: parsed(text) });
       });
       response.on('error', reject);
     });
@@ -59,6 +88,64 @@ export function send(port, { method = 'GET', path = '/', headers = {}, body } = 
     if (body !== undefined) request.write(body);
     request.end();
   });
+}
+
+const CRLF = '\r\n';
+
+// Writes raw bytes to a server and reads its answers until it closes the connection or waitMs passes, for what the
+// HTTP client cannot do, such as declaring a body it never sends. Returns { answers, closed, ms }: each answer as
+// { status, headers, text, json }, whether the server closed the connection, and how long that took.
+export function exchange(port, chunks, { waitMs = 3000 } = {}) {
+  return new Promise((resolve) => {
+    const started = Date.now();
+    const socket = connect(port, '127.0.0.1');
+    const received = [];
+    let timer;
+    const finish = (closed) => {
+      clearTimeout(timer);
+      socket.destroy();
+      resolve({ answers: answersIn(Buffer.concat(received)), closed, ms: Date.now() - started });
+    };
+    timer = setTimeout(() => finish(false), waitMs);
+    socket.on('data', (chunk) => received.push(chunk));
+    // A reset after the answer is a close too; the answers read before it are kept.
+    socket.on('error', () => {});
+    socket.on('close', () => finish(true));
+    for (const chunk of chunks) socket.write(chunk);
+  });
+}
+
+// The head of a raw request: its request line and headers, then the empty line.
+export function head(method, path, headers) {
+  return [`${method} ${path} HTTP/1.1`, 'Host: 127.0.0.1', ...Object.entries(headers).map(([name, value]) => `${name}: ${value}`), '', '']
+    .join(CRLF);
+}
+
+function answersIn(bytes) {
+  const answers = [];
+  let rest = bytes;
+  while (rest.length > 0) {
+    const end = rest.indexOf(CRLF + CRLF);
+    if (end === -1) break;
+    const [statusLine, ...lines] = rest.subarray(0, end).toString('latin1').split(CRLF);
+    const headers = Object.fromEntries(lines.map((line) => {
+      const colon = line.indexOf(':');
+      return [line.slice(0, colon).trim().toLowerCase(), line.slice(colon + 1).trim()];
+    }));
+    const length = Number(headers['content-length'] ?? 0);
+    const text = rest.subarray(end + 4, end + 4 + length).toString('utf8');
+    answers.push({ status: Number(statusLine.split(' ')[1]), headers, text, json: parsed(text) });
+    rest = rest.subarray(end + 4 + length);
+  }
+  return answers;
+}
+
+function parsed(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
 }
 
 export async function waitFor(condition, timeoutMs = 5000) {

@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; and TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request. It takes no operation yet, so every path answers the `not_found` Problem until the tasks that build the operations add them.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; and TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request. It takes no operation yet, so every path answers the `not_found` Problem until the tasks that build the operations add them.
 
 ## Running
 
@@ -53,9 +53,38 @@ Each request reaches its operation's handler only once admission (`src/admission
 - **Agent operations** take an agent credential, the `CF-Access-Client-Id` and `-Secret` pair, which TASK-417 checks in `src/admission.js`. Until then every agent request gets `access_missing` (401), and an agent credential on an owner operation is a request without the owner's sign-in.
 - **A route** of an action the contract does not name, which only a test makes, says `family: 'none'` to be admitted unchecked; any other route the contract does not name stops the server when it is made, so no operation goes unchecked because its family was left out.
 
+## Requests
+
+A route (`src/router.js`) names its operation's `operationId` as `action`, the 404 code of each path parameter as `params`, the kind of body it takes as `body` and whether it takes a request key as `requestKey`. A request goes through these steps in order, and any of them can refuse it:
+
+1. **Path and method.** A path that is no operation answers `not_found`; one that takes other methods only answers `method_not_allowed`.
+2. **Admission.** The request is admitted by its operation's family, as above, before its path parameters or its body are read. The caller a request key belongs to is `owner` for an admitted owner operation; TASK-417 gives an agent operation its credential's ID.
+3. **Path parameters.** A path parameter is percent-decoded, and a value that is not in the contract's form of what it names gets the 404 of that thing, such as `project_not_found` for `{project}` (`src/params.js`). So a handler never gets a value holding `/`, `..` or a control character. The detail never repeats the value.
+4. **Request key.** An operation that takes one needs `Idempotency-Key` in the contract's form, a write ID in double quotes; without it the answer is `invalid_request` with `field` `Idempotency-Key`.
+5. **Body.** An operation that takes a body takes a JSON object only (`src/body.js`):
+   - not `application/json`, a charset other than UTF-8, or a content coding: `json_required` (415);
+   - over its limit, by its declared length or once the bytes read pass it: `snapshot_too_large` for a snapshot (8 MiB), and `body_too_large` for a Miro export (5 MiB) or any other body (2 MiB), with `limit` (413). The rest of the body is not read;
+   - not UTF-8 JSON text of an object: `invalid_request`, or `invalid_snapshot` for a snapshot, with `field` `body` (400).
+6. **The operation.** A read runs at once. A write, which is every operation whose method is not GET, runs as described below.
+
+**Unread bodies.** An answer sent before the body was read in full, such as a refusal, leaves the rest of the body unread. Node reads such a body to its end before the connection takes another request. The server lets it do so only when the declared length is within the operation's body limit (2 MiB on a path that takes no body), so that a caller that is still sending reads its answer rather than a reset connection. A longer body, a body whose length is not declared and a body already partly read close the connection (`Connection: close`). So the server never reads more than that limit of a body it did not take.
+
+**Writes, one at a time** (rule 4, `src/writes.js`). A write arrives when its request has passed the steps above, with its body read in full. It waits in one queue for the whole server and runs when the writes before it have ended, whatever their project. Rule 4 asks this of writes to one project. One queue is stricter, and it is what the store allows: the store is one SQLite connection, which holds one transaction at a time. So a long write, such as a large snapshot, holds the writes of other projects until it ends.
+
+A write runs in one transaction (`BEGIN IMMEDIATE` to `COMMIT`), from its request key's check to its key's row, so a write that fails or is refused changes nothing. Its handler may wait (`await`), and the next write waits with it. A read that runs meanwhile on the same connection sees the write's rows before they commit, so a write handler does its waiting before it writes. A handler never begins or ends a transaction itself. It refuses by throwing a Problem. A success is 200 or 201 with a non-empty JSON object, as the contract makes every success. Any other answer, such as another status, a body that is not such an object or a framing header, is a fault that answers `internal`; a write's answer is checked before anything is stored, so such a write changes nothing.
+
+**Request keys** (rule 3, `src/keys.js`). The first answer to each key is kept in TBL-169 `request_keys`. It is the request layer's own table: every write with a key fills it, so no operation lists it (note 21 of the WBS).
+- The same key from the same caller within 7 days gets the first status and answer, and nothing is written. The key keeps the answer's status and body, not headers of the write's own, which no operation with a request key has in the contract. Keys are kept 7 days, beyond the 24 hours that rule 3 asks, because the hub keeps an unsent write that long and sends it again under the same key.
+- The `action` column holds the `operationId`, a space, and the SHA-256 in hex of the request's path and body bytes as sent. The same key sent again for another operation, another path or another body therefore finds another action and gets `request_key_reused` (409). The digest is of the request, not of a credential. It lives only in the owner-only store, and no log line holds it (rule 5).
+- A refused or failed write leaves no key behind, so the same key runs it again.
+- A key belongs to its caller (`actor`: `owner` or the credential's ID), so two callers' keys never meet.
+- The write of a new key drops every key older than 7 days.
+- A route's `repeat(result)` gives what a repeat answers instead of the first answer. API-280 uses it to keep no secret, and answers a repeat with 200 and `secret` null.
+
 ## Answers
 
-- An operation answers JSON. A refusal is a Problem as `application/problem+json`, with `title`, `status`, `detail`, `code` and `traceId`, in the shape of `components.schemas.Problem` of the contract.
+- An operation answers JSON. A refusal is a Problem as `application/problem+json`, with `title`, `status`, `detail`, `code`, `traceId` and the members its code carries, such as `field` or `limit`. Its shape is exactly `components.schemas.Problem` of the contract.
+- The registry (`src/problem.js`) holds every code of `components.x-corthex.errors` with its status, title, members, `message` and `message_ko`. The Problem schema allows no other member, so the two messages are not sent with an answer. They stay in the registry, as `ERRORS` and on each `Problem`, so that the pages can show a refusal in Korean with what to do next, by its code (rule 7). TASK-454, the app shell, serves them.
 - A path that is no operation answers `not_found` (404). Under `/api/spaces` its detail names the agent commands NEXUS takes: push, todo, claim, comment, decide, reflect, status and record (SPEC-014). The detail never repeats the path.
 - A path that takes other methods only answers `method_not_allowed` (405) with `Allow`.
 - A request that admission refuses answers `unauthenticated` (401), `not_owner` (403), `cross_site` (403) or `access_missing` (401), as above.
@@ -83,7 +112,7 @@ It also writes a line when it starts listening (with its host and port), when it
 
 So every refused request is logged with its time, its action, its sender and its reason, the Problem's `code` (rule 8).
 
-Rule 5 of the [functional spec](../docs/04-functional-spec/spec.md) keeps an agent credential's secret, a credential digest, a sign-in token, a server path and the text of a refused file out of every log line. So no field is copied from the request, its path, query, headers or body, or from an error's message or stack; `test/logs.test.js`, `test/main.test.js` and `test/admission.test.js` check this, the data folder, the owner's sign-in and the emails included, with values made at run time. No line names a gate setting either.
+Rule 5 of the [functional spec](../docs/04-functional-spec/spec.md) keeps an agent credential's secret, a credential digest, a sign-in token, a server path and the text of a refused file out of every log line. So no field is copied from the request, its path, query, headers or body, or from an error's message or stack; `test/logs.test.js`, `test/main.test.js` and `test/admission.test.js` check this, the data folder, the owner's sign-in and the emails included, with values made at run time. No line names a gate setting or a request key's digest either (`test/keys.test.js` checks the digest).
 
 ## Tests
 
@@ -92,4 +121,4 @@ cd server
 node --test
 ```
 
-Node's own test runner runs `test/*.test.js`. `.github/workflows/check.yml` runs them on Node 24 for every pull request, and `all-checks` waits for them.
+Node's own test runner runs `test/*.test.js`. `test/contract.js` reads [api/openapi.yaml](../api/openapi.yaml) with Node alone, as `tests/yaml_subset.py` does, so that the tests check the registry, the limits, the request key and the path parameters' forms against the contract. `.github/workflows/check.yml` runs them on Node 24 for every pull request, and `all-checks` waits for them.

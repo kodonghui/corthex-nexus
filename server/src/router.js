@@ -1,12 +1,20 @@
 // The router: a table of operations, each a method and a path template of api/openapi.yaml such as
 // /api/spaces/{project}/todo, matched one segment at a time.
 //
-// A route is { method, path, action, handle }: action is the operation's operationId, which the log names, and
-// handle(context) answers it. A path parameter matches one non-empty segment and is passed percent-decoded, or as
-// sent when it does not decode. The router does not check it: the decoded text can hold any character, such as / or
-// .., and the contract gives a value in another form the 404 of what it names, so each handler checks its
-// parameters against their schemas before using them. Where two templates match a path, the one with a literal
-// segment where the other has a parameter wins.
+// A route is { method, path, action, handle, params, body, requestKey, repeat }:
+// - action is the operation's operationId, which the log names, and handle(context) answers it.
+// - params names, for each parameter of the path, the 404 code of what it names (see params.js), such as
+//   { project: 'project_not_found' }. A path parameter matches one non-empty segment and is percent-decoded, or kept
+//   as sent when it does not decode; app.js answers a value that is not in its form with that code, so a handler
+//   gets only values in the contract's form, never one holding / or .. or a control character.
+// - body is the kind of JSON body the operation takes (see body.js): 'json', 'miro' or 'snapshot'; without it the
+//   operation takes no body and the server reads none.
+// - requestKey is true when the operation takes an Idempotency-Key (rule 3, see writes.js), and repeat(result), if
+//   given, is what a repeat of the key answers instead of the first result.
+// Where two templates match a path, the one with a literal segment where the other has a parameter wins.
+
+import { BODY_KINDS } from './body.js';
+import { FORMS } from './params.js';
 
 const PARAMETER = /^\{([a-z_][a-z0-9_]*)\}$/;
 const LITERAL = /^[A-Za-z0-9._~-]+$/;
@@ -41,11 +49,19 @@ export function createRouter(routes) {
 }
 
 function compile(route) {
-  const { method, path, action, handle } = route;
+  const { method, path, action, handle, params = {}, body, requestKey = false, repeat } = route;
   if (!METHODS.has(method)) throw new Error(`unknown method ${method}`);
   if (typeof path !== 'string' || !path.startsWith('/')) throw new Error(`path ${path} must start with /`);
   if (typeof action !== 'string' || action === '') throw new Error(`${method} ${path} needs its action`);
   if (typeof handle !== 'function') throw new Error(`${method} ${path} needs its handler`);
+  if (body !== undefined && !Object.hasOwn(BODY_KINDS, body)) throw new Error(`${method} ${path} has an unknown body`);
+  if (typeof requestKey !== 'boolean') throw new Error(`${method} ${path}: requestKey is true or false`);
+  if (method === 'GET' && (body !== undefined || requestKey)) {
+    throw new Error(`GET ${path} takes no body or request key`);
+  }
+  if (repeat !== undefined && (typeof repeat !== 'function' || !requestKey)) {
+    throw new Error(`${method} ${path}: repeat is a function, for a route with a request key`);
+  }
   const parts = path.slice(1).split('/').map((segment) => {
     const parameter = PARAMETER.exec(segment);
     if (parameter !== null) return { parameter: parameter[1] };
@@ -54,10 +70,24 @@ function compile(route) {
   });
   const names = parts.filter((part) => part.parameter).map((part) => part.parameter);
   if (new Set(names).size !== names.length) throw new Error(`path ${path} repeats a parameter`);
+  if (typeof params !== 'object' || params === null) throw new Error(`${method} ${path}: params is an object`);
+  for (const name of Object.keys(params)) {
+    if (!names.includes(name)) throw new Error(`${method} ${path} has no parameter ${name}`);
+  }
+  const checks = names.map((name) => {
+    const code = Object.hasOwn(params, name) ? params[name] : undefined;
+    if (!Object.hasOwn(FORMS, code)) throw new Error(`${method} ${path} needs the 404 code of {${name}}`);
+    return [name, code];
+  });
   return {
     method,
+    path,
     action,
     handle,
+    checks,
+    body,
+    requestKey,
+    repeat,
     literals: parts.map((part) => part.literal !== undefined),
     shape: `/${parts.map((part) => (part.literal !== undefined ? part.literal : '{}')).join('/')}`,
     match(segments) {

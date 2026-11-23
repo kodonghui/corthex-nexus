@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { after, before, describe, test } from 'node:test';
 import { Writable } from 'node:stream';
 import { errorKind, jsonLines, logCrashes } from '../src/log.js';
-import { assertNoneIn, forbiddenValues, localGate, OWNER_EMAIL, startServer, TRACE_ID } from './support.js';
+import { assertNoneIn, forbiddenValues, localGate, newId, OWNER_EMAIL, startServer, TRACE_ID } from './support.js';
 
 const SERVER_DIRECTORY = fileURLToPath(new URL('..', import.meta.url));
 
@@ -41,6 +41,7 @@ describe('the request log', () => {
           path: '/api/spaces/{project}/comments',
           action: 'postAgentComment',
           family: 'none',
+          params: { project: 'project_not_found' },
           async handle({ request }) {
             const chunks = [];
             for await (const chunk of request) chunks.push(chunk);
@@ -53,7 +54,18 @@ describe('the request log', () => {
           method: 'GET',
           path: '/api/projects/{project}',
           action: 'getProject',
+          params: { project: 'project_not_found' },
           handle: ({ params }) => ({ body: { name: params.project } }),
+        },
+        {
+          // A write that takes a JSON body and a request key, refused before its handler.
+          method: 'POST',
+          path: '/api/projects/{project}/tool-links',
+          action: 'addToolLink',
+          params: { project: 'project_not_found' },
+          body: 'json',
+          requestKey: true,
+          handle: () => ({ status: 201, body: { ok: true } }),
         },
       ],
     });
@@ -67,6 +79,8 @@ describe('the request log', () => {
       Cookie: `CF_Authorization=${values.signInToken}`,
       Authorization: `Bearer ${values.signInToken}`,
     };
+    // The owner's sign-in in place of the made-up token, beside the made-up values in the other headers.
+    const owner = { ...signIn, 'Cf-Access-Jwt-Assertion': values.ownerSignIn };
     const refusedFile = JSON.stringify({
       schema: 'corthex-hub/0.3',
       files: [{ path: fileOf('docs/notes.md'), text: values.refusedText, digest: values.digestBase64 }],
@@ -81,12 +95,34 @@ describe('the request log', () => {
       { method: 'PUT', path: `/api/projects/${values.digestBase64url}`, headers: signIn, body: refusedFile },
       // An owner operation refused without a valid sign-in, with the values in its headers.
       { method: 'GET', path: `/api/projects/${values.digestHex}`, headers: { ...credential, ...signIn } },
-      // An owner operation that answers, with the values in its parameter, query and headers.
+      // An owner operation that answers, with the values in its parameter (a digest has a project name's form), query
+      // and headers.
       {
         method: 'GET',
-        path: `/api/projects/${values.secret}?d=${encodeURIComponent(values.serverPath0)}`,
-        headers: { ...signIn, 'Cf-Access-Jwt-Assertion': values.ownerSignIn },
+        path: `/api/projects/${values.digestHex}?d=${encodeURIComponent(values.serverPath0)}`,
+        headers: owner,
       },
+      // A parameter in another form, a malformed request key, a body that is not JSON and one that is not JSON text.
+      { method: 'GET', path: `/api/projects/${values.secret}`, headers: owner },
+      {
+        method: 'POST',
+        path: '/api/projects/demo/tool-links',
+        headers: { ...owner, 'Idempotency-Key': `"${values.secret}"`, 'Content-Type': 'application/json' },
+        body: refusedFile,
+      },
+      {
+        method: 'POST',
+        path: '/api/projects/demo/tool-links',
+        headers: { ...owner, 'Idempotency-Key': `"${newId('nw')}"`, 'Content-Type': 'application/json' },
+        body: `{"text": "${values.refusedText}", "path": ${JSON.stringify(values.serverPath0)}`,
+      },
+      {
+        method: 'POST',
+        path: '/api/projects/demo/tool-links',
+        headers: { ...owner, 'Idempotency-Key': `"${newId('nw')}"`, 'Content-Type': 'text/plain' },
+        body: refusedFile,
+      },
+
       // An operation whose handler fails with the values in its error.
       { method: 'POST', path: '/api/spaces/demo/comments', headers: { ...credential, 'Content-Type': 'application/json' }, body: refusedFile },
     ]) {
@@ -121,14 +157,21 @@ describe('the request log', () => {
         ['PUT', null, 405, 'method_not_allowed'],
         ['GET', 'getProject', 401, 'unauthenticated'],
         ['GET', 'getProject', 200, null],
+        ['GET', 'getProject', 404, 'project_not_found'],
+        ['POST', 'addToolLink', 400, 'invalid_request'],
+        ['POST', 'addToolLink', 400, 'invalid_request'],
+        ['POST', 'addToolLink', 415, 'json_required'],
         ['POST', 'postAgentComment', 500, 'internal'],
       ],
     );
     // The sender is the owner once the sign-in is checked, and "unknown" otherwise (rule 8).
-    assert.deepEqual(lines.map((line) => line.sender), ['unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'owner', 'unknown']);
+    assert.deepEqual(
+      lines.map((line) => line.sender),
+      ['unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'owner', 'owner', 'owner', 'owner', 'owner', 'unknown'],
+    );
     // The made-up sign-in token is well formed, but no key of the gate signed it.
     assert.equal(lines[4].reason, 'unknown_key');
-    assert.equal(lines[6].error, 'Error ENOENT');
+    assert.equal(lines.at(-1).error, 'Error ENOENT');
   });
 
   test('holds no secret, digest, sign-in token, server path or refused file text (rule 5)', async () => {

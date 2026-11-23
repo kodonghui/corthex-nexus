@@ -10,7 +10,7 @@ import { AGENT_ACTIONS, familyOf, OWNER_ACTIONS } from '../src/admission.js';
 import { createApp } from '../src/app.js';
 import { createGate, GateKeysError } from '../src/gate.js';
 import {
-  assertNoneIn, forbiddenValues, ISSUER, localGate, OWNER_EMAIL, signToken, startServer, TRACE_ID,
+  assertNoneIn, forbiddenValues, ISSUER, localGate, newId, OWNER_EMAIL, signToken, startServer, TRACE_ID,
 } from './support.js';
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -82,10 +82,12 @@ describe('an owner request', () => {
   const marker = `project-data-${randomBytes(8).toString('hex')}`;
   const calls = { count: 0 };
   // Each handler answers project data, so a refusal that reached one would show it.
-  const answering = (method, path, action) => ({
+  // params names the 404 code of each path parameter (see params.js); the IDs below are in their contract's forms.
+  const answering = (method, path, action, params = {}) => ({
     method,
     path,
     action,
+    params,
     handle: () => {
       calls.count += 1;
       return { body: { projects: [{ name: marker }] } };
@@ -101,10 +103,16 @@ describe('an owner request', () => {
       gate: local.gate,
       routes: [
         answering('GET', '/api/projects', 'listProjects'),
-        answering('POST', '/api/projects/{project}/diagrams/{diagram}/threads', 'startThread'),
-        answering('PATCH', '/api/projects/{project}/workshop/notes/{note}', 'changeNote'),
-        answering('DELETE', '/api/projects/{project}/tool-links/{link}', 'removeToolLink'),
-        answering('GET', '/api/spaces/{project}/todo', 'getAgentTodo'),
+        answering('POST', '/api/projects/{project}/diagrams/{diagram}/threads', 'startThread', {
+          project: 'project_not_found', diagram: 'diagram_not_found',
+        }),
+        answering('PATCH', '/api/projects/{project}/workshop/notes/{note}', 'changeNote', {
+          project: 'project_not_found', note: 'note_not_found',
+        }),
+        answering('DELETE', '/api/projects/{project}/tool-links/{link}', 'removeToolLink', {
+          project: 'project_not_found', link: 'tool_link_not_found',
+        }),
+        answering('GET', '/api/spaces/{project}/todo', 'getAgentTodo', { project: 'space_not_found' }),
       ],
     });
   });
@@ -154,7 +162,7 @@ describe('an owner request', () => {
   const list = (headers = {}) => ({ method: 'GET', path: '/api/projects', headers, action: 'listProjects' });
   const write = (headers = {}) => ({
     method: 'POST',
-    path: '/api/projects/demo/diagrams/dg_1/threads',
+    path: `/api/projects/demo/diagrams/${newId('dg')}/threads`,
     headers: { 'Content-Type': 'application/json', ...headers },
     body: '{"text":"a comment"}',
     action: 'startThread',
@@ -237,9 +245,9 @@ describe('an owner request', () => {
       await refused(write(owner), { status: 403, code: 'cross_site', sender: 'owner' });
     }
     const owner = signedIn(local.token(), { 'Sec-Fetch-Site': 'cross-site' });
-    await refused({ ...write(owner), method: 'PATCH', path: '/api/projects/demo/workshop/notes/nt_1', action: 'changeNote' },
+    await refused({ ...write(owner), method: 'PATCH', path: `/api/projects/demo/workshop/notes/${newId('sn')}`, action: 'changeNote' },
       { status: 403, code: 'cross_site', sender: 'owner' });
-    await refused({ method: 'DELETE', path: '/api/projects/demo/tool-links/tl_1', headers: owner, action: 'removeToolLink' },
+    await refused({ method: 'DELETE', path: `/api/projects/demo/tool-links/${newId('tl')}`, headers: owner, action: 'removeToolLink' },
       { status: 403, code: 'cross_site', sender: 'owner' });
     // From NEXUS's own page, typed into the address bar, or from no browser at all, a write is admitted.
     for (const site of ['same-origin', 'none', undefined]) {
