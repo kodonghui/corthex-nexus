@@ -109,7 +109,7 @@
       "updated": "2026-11-23T15:13:08+09:00"
     },
     "05-erd": {
-      "state": "in_progress",
+      "state": "done",
       "checkpoints": [
         {
           "approved": "Stage 05 schema freeze before the API contract: the 26 tables TBL-146 to TBL-171 in db/nexus.sql; SQL that SQLite 3 runs, where it runs decided in stage 11; every snapshot kept with its documents once by hash and the elements of every drawing. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -130,10 +130,15 @@
           "approved": "The API corrections found by the stage-06 contract against the pinned hub, each asked on its own, before the schema was applied anywhere, so migration 0001 holds them: comments.detail and change_sets.detail, JSON objects for the hub's fields without a column; pull_requests may be merged without merge_commit. No table added or removed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "After the third review of pull request 104, at commit 9c7a003: TBL-151 sets removed_at only when a snapshot whose format carries the stage no longer holds the diagram, so a corthex-hub/0.2 snapshot keeps the pictures of stages 03, 08 and 09 (SPEC-005); no table, column or constraint changed. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
-      "next": "After the third review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T15:26:54+09:00",
+      "next": "Stage 06: write the API contract from the spec and the schema",
+      "updated": "2026-11-23T15:30:54+09:00",
       "checks": [
         {
           "level": "info",
@@ -143,7 +148,7 @@
       ]
     },
     "06-api": {
-      "state": "in_progress",
+      "state": "done",
       "checkpoints": [
         {
           "approved": "Stage 06 contract freeze for the first release: the 51 operations API-242 to API-292 in api/openapi.yaml, the agent family taking the pinned hub's wire unchanged and the owner family apart, the 59 error codes and the choices of section 3; the four items of section 6 answered with the recommendations, with the stage-04 spec and the stage-05 schema corrected in the same pull request. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -164,13 +169,18 @@
           "approved": "After the second review of pull request 104, at commit e3fbd62: ProposalStage and not_drawn for a stage with no drawn picture; diagram_ambiguous only for an item several diagrams hold; an item-less comment goes on the first diagram; API-242 keeps pictures under 0.2 and traces SPEC-005 to SPEC-009; API-293 states the frame's limits, reopens once and is header-tested in stage 12; the 0.3 picture source is the file's text, with if/then rules and room for 1,000 pictures. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "After the third review of pull request 104, at commit 9c7a003: every answer of API-293 declares the sandbox header and nosniff; a 0.3 picture key is never empty; the proposal's diagram describes proposals only; not_drawn tells an agent to comment; the Korean README drops the old ambiguity sentence. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
-      "next": "After the third review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T15:26:54+09:00"
+      "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
+      "updated": "2026-11-23T15:30:54+09:00"
     },
     "07-sitemap": {
-      "state": "in_progress",
+      "state": "done",
       "checkpoints": [
         {
           "approved": "Stage 07 navigation structure: the five screens SCR-142 to SCR-146 in docs/07-sitemap/nexus.yaml, from the owner's to-do at / through the projects, one project and the stage workbench to the changes since the last confirmation, starting from the click mockup of 2026-11-21. No approved item removed, deferred or changed. The nine differences from that mockup, each asked on its own, answered with the recommendations of section 4 of the README. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
@@ -191,10 +201,15 @@
           "approved": "After the second review of pull request 104, at commit e3fbd62: SCR-145 and SCR-146 use the existing ?d= query instead of a new ?diagram=. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "After the third review of pull request 104, at commit 9c7a003: section 5 gives ?thread= to the workbench only and ?d= to the workbench and its changes page. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
         }
       ],
-      "next": "After the third review of pull request 104: this stage's changed part waits for its own checkpoint",
-      "updated": "2026-11-23T15:26:54+09:00"
+      "next": "Stage 08: write a screen definition with its states for each of the five screens",
+      "updated": "2026-11-23T15:30:54+09:00"
     },
     "08-screen-states": {
       "state": "done",

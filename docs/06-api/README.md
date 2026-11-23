@@ -248,4 +248,4 @@ After the second review of pull request 104, more items changed, each asked on i
 
 #### After the third review of pull request 104
 
-The contract now says what the second review approved: every answer of API-293 declares the sandbox header and nosniff; a 0.3 key is never empty; the proposal's diagram describes proposals only; not_drawn tells an agent whose proposal gets it to comment. No approved item changed here. This part waits for its own checkpoint.
+The contract now says what the second review approved: every answer of API-293 declares the sandbox header and nosniff; a 0.3 key is never empty; the proposal's diagram describes proposals only; not_drawn tells an agent whose proposal gets it to comment. No approved item changed here. This part passed its own checkpoint on 2026-11-23 through the same delegate.

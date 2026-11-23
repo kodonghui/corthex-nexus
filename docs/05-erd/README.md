@@ -167,4 +167,4 @@ No table was added or removed, and no other column or constraint changed.
 
 #### After the third review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate: TBL-151 sets removed_at only when a snapshot whose format carries the stage no longer holds the diagram, so a corthex-hub/0.2 snapshot leaves the pictures of stages 03, 08 and 09 as they are (SPEC-005). No table, column or constraint changed. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate: TBL-151 sets removed_at only when a snapshot whose format carries the stage no longer holds the diagram, so a corthex-hub/0.2 snapshot leaves the pictures of stages 03, 08 and 09 as they are (SPEC-005). No table, column or constraint changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.

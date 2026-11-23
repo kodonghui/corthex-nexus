@@ -165,4 +165,4 @@ One approved item changed, asked on its own and approved through the same delega
 
 #### After the third review of pull request 104
 
-Section 5 gives `?thread=` to the workbench only; the changes page has no threads. No approved item changed. This part waits for its own checkpoint.
+Section 5 gives `?thread=` to the workbench only; the changes page has no threads. No approved item changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
