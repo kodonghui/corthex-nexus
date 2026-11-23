@@ -14,8 +14,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # The repository's unit tests: the hub pin, the public-safety rules on the tree, and the pinned hub reading
-  # .corthex/ and running the push job's lines on this tree (tests/test_hub_project.py).
+  # The repository's unit tests: the hub pin, the public-safety rules on the tree, the pinned hub reading
+  # .corthex/ and running the push job's lines on this tree (tests/test_hub_project.py), and its snapshots and
+  # answers against the running v2 and the v3 contract with a loopback test server (tests/test_hub_compatibility.py).
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 10

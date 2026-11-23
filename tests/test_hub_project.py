@@ -57,7 +57,10 @@ def push_step():
     return lines, re.findall(r"^ +([A-Z_]+): \$\{\{", text, re.M)
 
 
-class HubProjectTest(unittest.TestCase):
+class HubCheckoutCase(unittest.TestCase):
+    """A repository in a temporary folder with this checkout's files on its default branch, and the pinned hub beside
+    it as the push job lays them out; tests/test_hub_compatibility.py builds on it too."""
+
     @classmethod
     def setUpClass(cls):
         cls.hub_checkout = locate_hub()
@@ -98,6 +101,27 @@ class HubProjectTest(unittest.TestCase):
         return subprocess.run([sys.executable, str(script)] + list(words), cwd=str(self.project), env=env,
                               capture_output=True, text=True, encoding="utf8", timeout=120)
 
+    def run_push_step(self, secrets, extra=""):
+        """The push step's lines, with `python3` as this test's Python, in the step's folder, with the step's env.
+
+        `extra` adds words to the step's last line, the hub's command."""
+        lines, names = push_step()
+        self.assertEqual(names, ["DEFAULT_BRANCH"] + list(SECRETS))
+        self.assertTrue(lines[-1].endswith(" push --job --json"), lines[-1])
+        bash = shutil.which("bash")
+        if not bash:
+            raise unittest.SkipTest("needs bash")
+        home = Path(tempfile.mkdtemp(prefix="runner-home-", dir=str(self.base)))
+        env = dict(base_environment(home), DEFAULT_BRANCH="main", HUB_TEST_PYTHON=sys.executable, **secrets)
+        script = "\n".join(['python3() { "$HUB_TEST_PYTHON" "$@"; }'] + lines[:-1] + [lines[-1] + extra]) + "\n"
+        result = subprocess.run([bash, "-e", "-c", script], cwd=str(self.project), env=env, capture_output=True,
+                                text=True, encoding="utf8", timeout=120)
+        rows = result.stdout.strip().splitlines()
+        self.assertTrue(rows, "exit %d and no result line: %s" % (result.returncode, result.stderr[-600:]))
+        return result.returncode, json.loads(rows[-1]), home
+
+
+class HubProjectTest(HubCheckoutCase):
     def assert_settings_read(self, snapshot):
         self.assertEqual(snapshot["project"]["name"], "corthex-nexus")
         self.assertEqual(snapshot["project"].get("parts"), ["nexus"])
@@ -119,26 +143,6 @@ class HubProjectTest(unittest.TestCase):
                           "snapshot", "--path", str(self.project), "--print")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assert_settings_read(json.loads(result.stdout))
-
-    def run_push_step(self, secrets, extra=""):
-        """The push step's lines, with `python3` as this test's Python, in the step's folder, with the step's env.
-
-        `extra` adds words to the step's last line, the hub's command."""
-        lines, names = push_step()
-        self.assertEqual(names, ["DEFAULT_BRANCH"] + list(SECRETS))
-        self.assertTrue(lines[-1].endswith(" push --job --json"), lines[-1])
-        bash = shutil.which("bash")
-        if not bash:
-            raise unittest.SkipTest("needs bash")
-        home = self.base / "runner-home"
-        home.mkdir()
-        env = dict(base_environment(home), DEFAULT_BRANCH="main", HUB_TEST_PYTHON=sys.executable, **secrets)
-        script = "\n".join(['python3() { "$HUB_TEST_PYTHON" "$@"; }'] + lines[:-1] + [lines[-1] + extra]) + "\n"
-        result = subprocess.run([bash, "-e", "-c", script], cwd=str(self.project), env=env, capture_output=True,
-                                text=True, encoding="utf8", timeout=120)
-        rows = result.stdout.strip().splitlines()
-        self.assertTrue(rows, "exit %d and no result line: %s" % (result.returncode, result.stderr[-600:]))
-        return result.returncode, json.loads(rows[-1]), home
 
     def test_the_push_job_passes_without_its_secrets(self):
         code, row, _ = self.run_push_step({name: "" for name in SECRETS})
