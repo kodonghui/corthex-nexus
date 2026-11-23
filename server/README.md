@@ -249,9 +249,10 @@ What it draws, in this order:
 - **Stickies.**
   - A read-model or aggregate cell that names several things is split at commas and line breaks, as the hub reads its definitions, into a sticky for each name.
   - Each such sticky carries the trace ID of its glossary term: the term the hub's lists give for that context and name, compared without white space or case.
+  - A TERM ID that those lists give is dropped from a name wherever it stands, with any brackets it leaves empty, as the hub drops it. So "Diagram TERM-5" and "Diagram (TERM-5)" both draw a sticky named "Diagram".
   - A cell that names nothing, such as `-` or `none`, has no sticky.
-  - A row given by a policy ("Policy: when ...") has a `policy` sticky named by what follows "Policy:". The command's `actor` is what comes before it.
-- **Hotspots.** A hotspot stands in the frame of the first context it names that the board draws, or else in the Hotspots lane; `contexts` lists every context it names. It is `answered` when its state starts with "answered", and `open` otherwise.
+  - A row given by a policy ("Policy: when ...") has a `policy` sticky named by what follows "Policy:", and none when that names nothing. The command's `actor` is what comes before it.
+- **Hotspots.** A hotspot stands in the frame of the first context it names that the board draws, or else in the Hotspots lane; `contexts` lists every context it names. It is `answered` when its state starts with "answered", or with "답함" as a Korean document writes it, and `open` otherwise.
 - **Dependencies.** A dependency names a context by its trace ID at the start of its text, or by the context's name in any case. Any other name, such as "Miro" or "Every context", is an external system's box, one box for each name.
 - **Places.** `layout.js` places each region:
   - the timeline left to right, a lane to a row and a place to a column;

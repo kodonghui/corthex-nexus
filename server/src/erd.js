@@ -98,7 +98,6 @@ function sizeOf(name, rows) {
   };
 }
 
-
 // The drawer of the erd kind (see the top of this file).
 export function erd(given) {
   const picture = JSON.parse(given.text);

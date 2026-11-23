@@ -294,6 +294,9 @@ describe('the DDD board drawer', () => {
         { text: '2. Nowhere?', contexts: ['CTX-9'], state: 'reviewed in stage 02' },
         { text: '3. None?', contexts: [], state: 'Answered' },
         { text: '4. Open?', contexts: ['CTX-1'], state: 'open' },
+        // A Korean domain document writes "answered" as "답함", and the hub reads its tables as it reads English ones.
+        { text: '5. 한국어?', contexts: ['CTX-2'], state: '답함, 열린 질문 하나' },
+        { text: '6. 다시?', contexts: ['CTX-2'], state: '02단계에서 다시 봄' },
       ],
     }));
     assert.deepEqual(ofKind(elements, 'hotspot', 'answered').concat(ofKind(elements, 'hotspot', 'open'))
@@ -302,6 +305,8 @@ describe('the DDD board drawer', () => {
       ['hotspot:None?', 'hotspot_lane:Hotspots', 'answered', null],
       ['hotspot:Nowhere?', 'hotspot_lane:Hotspots', 'open', null],
       ['hotspot:Open?', 'CTX-1', 'open', null],
+      ['hotspot:다시?', 'CTX-2', 'open', null],
+      ['hotspot:한국어?', 'CTX-2', 'answered', null],
     ]);
     // A hotspot stands in its frame's aggregate band, after the frame's rows.
     const keyed = byKey(elements);
@@ -362,6 +367,37 @@ describe('the DDD board drawer', () => {
       ['CTX-2/command:Do', null, null, 'Owner'],
       ['CTX-2/command:Do/aggregate:Thing', 'TERM-9', null, null],
     ]);
+  });
+
+  test('a row\'s cells as the hub reads them: a TERM ID anywhere in a name, a term ID too long for one, and a policy that names nothing', () => {
+    const long = `${'A'.repeat(29)}-1`;
+    const picture = pictureOf({
+      contexts: [{ id: 'CTX-1', name: 'One', rows: [
+        { given_by: 'Agent, Policy:', policy: true, read_model: 'Board TERM-5', command: 'Do', aggregate: 'Shape (TERM-4), Hash (SHA-256)' },
+        { given_by: 'Policy: -', policy: true, command: 'Go', aggregate: 'Long' },
+      ] }],
+      // The hub drops each explicit TERM ID from a name and keeps any other trace ID, as these names show.
+      aggregates: [
+        { name: 'Shape', context: 'CTX-1', removed: false, term: 'TERM-4', where: 'x' },
+        { name: 'Hash (SHA-256)', context: 'CTX-1', removed: false, where: 'x' },
+        { name: 'Long', context: 'CTX-1', removed: true, term: long, where: 'x' },
+      ],
+      readModels: [{ name: 'Board', context: 'CTX-1', removed: false, term: 'TERM-5', where: 'x' }],
+    });
+    const { elements } = draw(picture);
+    const stickies = elements.filter(({ kind }) => STICKIES.includes(kind));
+    assert.deepEqual(stickies.map(({ key, trace_id: traceId, status, detail }) => [key, traceId ?? null, status ?? null, detail.actor ?? null]), [
+      ['CTX-1/command:Do/read_model:Board', 'TERM-5', null, null],
+      ['CTX-1/command:Do', null, null, 'Agent'],
+      ['CTX-1/command:Do/aggregate:Shape', 'TERM-4', null, null],
+      ['CTX-1/command:Do/aggregate:Hash (SHA-256)', null, null, null],
+      ['CTX-1/command:Go', null, null, ''],
+      // A term ID longer than a trace ID may be is no trace ID, so the sticky has none, though its term is removed.
+      ['CTX-1/command:Go/aggregate:Long', null, 'removed', null],
+    ]);
+    // So the push takes the drawing: every trace ID keeps to the contract's form and its 30 characters.
+    assert.ok(elements.every(({ trace_id: traceId }) => traceId === undefined || traceId === null
+      || (traceId.length <= 30 && /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/.test(traceId))));
   });
 
   test('a picture not in format 1 with a list of contexts, with parts that are not lists or more than 5000 elements, fails at its source', () => {

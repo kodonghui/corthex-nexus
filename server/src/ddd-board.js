@@ -36,15 +36,16 @@
 //   row's. A cell of read models or aggregates that names several is a sticky for each name, and a read model or
 //   aggregate has the trace ID of its glossary term and status removed when the hub's term list marks it removed. A
 //   command has detail.actor, who gives it; a row given by a policy ("Policy: when ...") has a policy sticky named by
-//   what follows "Policy:", and its actor is what comes before it, if anything. Then the context's hotspots;
+//   what follows "Policy:", none when that names nothing, and its actor is what comes before it, if anything. Then the
+//   context's hotspots;
 // - each external system, a name a dependency gives that is no context of the picture, once for each name, "Every
 //   context" included: kind external, detail { box };
 // - each dependency: kind dependency, named by its why, parent the box it starts from, detail { from, to, kind, why,
 //   data, where, points }, from and to the keys of its boxes and points its line from the one to the other;
 // - the Hotspots lane when it holds any: kind hotspot_lane, name Hotspots, detail { box }; then its hotspots;
 // - each hotspot: kind hotspot, named by its text, parent the context or the Hotspots lane it stands in (see
-//   hotspotFrame), status answered when its state starts with "answered" and open otherwise, and detail { number,
-//   state, answer, contexts, where, box };
+//   hotspotFrame), status answered when its state starts with "answered" or "답함" (ANSWERED) and open otherwise,
+//   and detail { number, state, answer, contexts, where, box };
 // - each table or other part of the document the hub left out (SPEC-003), from the warnings: kind table, status
 //   left_out, named by what the hub says of it, with detail { where }, its file and line. It has no box.
 // An entry of the picture that is not in its form is left out and marked: kind context, command (a row), lane,
@@ -60,8 +61,8 @@
 // more elements than a drawing holds, and one too large for layout.js to place. Nothing here logs (rule 5).
 
 import {
-  characters, elementKey, isName, isObject, isText, isTextList, keyer, leftOut, MAX_ELEMENTS, optional, SourceFailure, TRACE_ID,
-  traceIdOf, whereText,
+  characters, elementKey, isName, isObject, isText, isTextList, keyer, leftOut, MAX_ELEMENTS, optional, SourceFailure, traceIdOf,
+  whereText,
 } from './drawer.js';
 import { layout } from './layout.js';
 
@@ -84,8 +85,9 @@ function hotspotFrame(contexts, frames) {
   }
   return null;
 }
-// A hotspot is answered when its state starts with "answered", such as "answered, one open question".
-const ANSWERED = /^answered\b/i;
+// A hotspot is answered when its state starts with "answered", such as "answered, one open question", or with its
+// Korean form "답함", as a Korean domain document writes it and the hub reads it.
+const ANSWERED = /^(?:answered\b|답함)/i;
 
 // Sizes, for 12-pixel IBM Plex Mono, whose characters are 0.6 em wide: a sticky as the mockup draws one, a lane's name
 // at its start, and a frame's header with the context's trace ID, name and type.
@@ -110,8 +112,9 @@ const EMPTY = new Set(['', '-', 'none', 'null', 'n/a', 'n a', 'na', 'tbd', 'not 
 const POLICY = /(?:\bPolicy|정책)\s*:\s*/i;
 // A hotspot's number at the start of its text, as the hub reads it.
 const NUMBER = /^\d+\s*[.)]?\s+/;
-// A trace ID at the start of a dependency's end.
+// A trace ID at the start of a dependency's end, and one anywhere in a cell's name.
 const LEADING_ID = /^([A-Z][A-Z0-9]*-[0-9]{1,6})(?![A-Za-z0-9-])/;
+const ID_IN_TEXT = /(?<![A-Za-z0-9-])[A-Z][A-Z0-9]*-[0-9]{1,6}(?![A-Za-z0-9-])/g;
 
 const isFlag = (value) => typeof value === 'boolean';
 const isPlaces = (value) => Array.isArray(value) && value.every(isTextList);
@@ -166,28 +169,32 @@ function termsOf(entries) {
     if (!optional(entry.removed, isFlag)) continue;
     const at = `${entry.context ?? ''}\n${word(entry.name)}`;
     if (!terms.has(at)) {
-      terms.set(at, { traceId: isText(entry.term) && TRACE_ID.test(entry.term) ? entry.term : null, removed: entry.removed === true });
+      terms.set(at, { traceId: traceIdOf({ id: entry.term }), removed: entry.removed === true });
     }
   }
   return terms;
 }
 
 // The names a cell of read models or aggregates holds, as the hub reads its definitions: split at commas and line
-// breaks, a trace ID in brackets after a name dropped, and what names nothing left out.
-function namesOf(cell) {
+// breaks, each glossary TERM ID of the picture's terms (termIds) dropped from a name wherever it stands, with the
+// brackets it leaves empty, and what names nothing left out. The hub drops a TERM ID by the project's ID formats,
+// which the picture does not carry, so the IDs its terms give stand in for them.
+function namesOf(cell, termIds) {
   return cell.split(/\s*,\s*|\s*<br\s*\/?>\s*/i)
-    .map((name) => name.replace(/\(\s*[A-Z][A-Z0-9]*-[0-9]{1,6}\s*\)/g, ' ').replace(/\s+/g, ' ').trim())
+    .map((name) => name.replace(ID_IN_TEXT, (id) => (termIds.has(id) ? '' : id)).replace(/\(\s*\)/g, '').replace(/\s+/g, ' ').trim())
     .filter((name) => !EMPTY.has(name.toLowerCase()));
 }
 
-// Who gives a row's command: { actor, policy }, the policy what follows "Policy:" when the hub marks the row a policy's.
+// Who gives a row's command: { actor, policy }, the policy what follows "Policy:" when the hub marks the row a policy's,
+// and none when that names nothing.
 function givenByOf({ givenBy, policy }) {
   if (!policy) return { actor: givenBy.trim(), policy: '' };
   const found = POLICY.exec(givenBy);
   if (found === null) return { actor: '', policy: givenBy.trim() };
+  const named = givenBy.slice(found.index + found[0].length).trim();
   return {
     actor: givenBy.slice(0, found.index).replace(/[\s,;]+$/, ''),
-    policy: givenBy.slice(found.index + found[0].length).trim() || givenBy.trim(),
+    policy: EMPTY.has(named.toLowerCase()) ? '' : named,
   };
 }
 
@@ -226,6 +233,7 @@ export function dddBoard(given) {
   };
   const [timeline, dependencies, hotspots, aggregates, readModels] = ['timeline', 'dependencies', 'hotspots', 'aggregates', 'read_models'].map(listOf);
   const terms = { aggregate: termsOf(aggregates), read_model: termsOf(readModels) };
+  const termIds = new Set([...terms.aggregate.values(), ...terms.read_model.values()].map(({ traceId }) => traceId).filter((id) => id !== null));
   const keyOf = keyer();
 
   // The timeline's lanes, each with its events.
@@ -251,7 +259,7 @@ export function dddBoard(given) {
     if (isName(frame.name) && !byName.has(frame.name.toLowerCase())) byName.set(frame.name.toLowerCase(), frame);
   }
   for (const frame of frames) {
-    for (const entry of frame.read?.rows ?? []) frame.stickies.push(stickiesOf(entry, frame, terms, keyOf));
+    for (const entry of frame.read?.rows ?? []) frame.stickies.push(stickiesOf(entry, frame, terms, termIds, keyOf));
   }
 
   // The hotspots, each in its context's frame or in the Hotspots lane.
@@ -403,7 +411,7 @@ export function dddBoard(given) {
 }
 
 // The stickies of a row of a context's command table, in band order: each { key, kind, name, traceId, status, detail }.
-function stickiesOf(entry, frame, terms, keyOf) {
+function stickiesOf(entry, frame, terms, termIds, keyOf) {
   const row = readRow(entry);
   const where = whereText(isObject(entry) ? entry.where : undefined);
   if (row === null) {
@@ -426,9 +434,9 @@ function stickiesOf(entry, frame, terms, keyOf) {
     };
   };
   return [
-    ...namesOf(row.readModel).map((name) => sticky('read_model', name)),
+    ...namesOf(row.readModel, termIds).map((name) => sticky('read_model', name)),
     ...(EMPTY.has(command.toLowerCase()) ? [] : [sticky('command', command, { actor })]),
-    ...namesOf(row.aggregate).map((name) => sticky('aggregate', name)),
+    ...namesOf(row.aggregate, termIds).map((name) => sticky('aggregate', name)),
     ...row.events.filter((event) => !EMPTY.has(event.trim().toLowerCase())).map((name) => sticky('event', name)),
     ...(policy === '' ? [] : [sticky('policy', policy)]),
   ];
