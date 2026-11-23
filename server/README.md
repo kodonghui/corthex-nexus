@@ -907,6 +907,7 @@ The answer names what other tables hold, so API-265 lists 15 tables. The correct
   - The copy runs as one task of the server's one write queue (see [Requests](#requests)). The store is one connection, which cannot copy itself while a write's transaction is open, so the writes wait for the copy while the reads go on.
 - **The retry.** A first attempt that fails is retried once, under the same name, 15 minutes after it failed. A retry that would come after the next day's time is dropped, and that day's backup runs at its time instead, so no backup is named by a day it is not of. When the retry fails too, the owner's to-do and the project list show the warning (see [Projects and to-do](#projects-and-to-do)) until a backup succeeds.
 - **After a crash.** At start, an attempt left running is recorded failed, and its partial file is removed. An attempt whose end the store could not record is recorded failed in the same way when the job next looks.
+  - An attempt left running whose file has the backup's name is recorded succeeded instead, as of when the file was written: the partial file is renamed only once the copy is whole. A backup holds its own row as running, since the row is written before the copy, so a store restored from a backup records that backup as it was, and nothing runs over it.
   - A first attempt's retry then runs at once, even past the hour, and the warning shows only if that retry fails. A retry left running is the end, so the warning shows.
   - A retry that fell due while the server was stopped also runs at start, unless the next day's time has come; that day's backup then runs instead.
 - **30 days.** After a backup succeeds, the backups whose day is more than 30 days before its day are removed. Of 31 daily backups, the next one removes the oldest, and 30 remain plus the new one.
@@ -980,7 +981,7 @@ It also writes a line when it starts listening (with its host and port), when it
 - `backup_succeeded`, with the backup's `day`, its `attempt`, its `bytes`, how many old backups it `removed` and its `ms`;
 - or `backup_failed`, with the `day` and the `attempt`, and either a `reason` or the kind of `error`. The reason is `not_enough_disk`, or `interrupted` for an attempt left running by a crash or by a store that could not record its end.
 
-It also writes `backup_removal_failed`, with the `day` and the kind of `error`, after a backup that succeeded when the old backups could not be removed. When the job cannot read or write the store, it writes `backup_job_failed` with the kind of `error`, and looks again within the hour. None of them names a folder or a file's path.
+It writes `backup_recorded`, with the `day`, the `attempt` and the `bytes`, for an attempt left running whose backup is whole. It also writes `backup_removal_failed`, with the `day` and the kind of `error`, after a backup that succeeded when the old backups could not be removed. When the job cannot read or write the store, it writes `backup_job_failed` with the kind of `error`, and looks again within the hour. None of them names a folder or a file's path.
 
 So every refused request is logged with its time, its action, its sender and its reason, the Problem's `code` (rule 8). No line holds a credential's secret or digest: the sender is the credential's name, which the owner chose, and the reason is one of the words above.
 

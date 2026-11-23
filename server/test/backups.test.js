@@ -5,7 +5,7 @@
 
 import assert from 'node:assert/strict';
 import {
-  existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync, writeFileSync,
+  existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
 import { backup as sqliteBackup, DatabaseSync } from 'node:sqlite';
@@ -507,6 +507,35 @@ describe('the daily backup', () => {
       [backupName('2026-11-24'), 1, 'failed', '2026-11-24T23:58:00.000Z'],
       [backupName('2026-11-25'), 1, 'succeeded', '2026-11-25T00:05:00.000Z'],
     ]);
+  });
+
+  test('a store restored from a backup records that backup as it was, and nothing runs over it', async (t) => {
+    const store = testStore(t);
+    seed(store).project('alpha');
+    const job = backupJob(t, store, { start: at('2026-11-24T03:00:00.000Z') });
+    await job.job.start();
+    const file = join(job.folder, backupName('2026-11-24'));
+    const { size, mtime } = statSync(file);
+    // The owner restores the store from the day's backup: a copy of the file, whose own row says running.
+    const restoredFolder = dataFolder(t, 'nexus-restored-');
+    const restoredFile = join(restoredFolder, 'restored.sqlite');
+    writeFileSync(restoredFile, readFileSync(file));
+    const restored = new DatabaseSync(restoredFile);
+    try {
+      assert.deepEqual(restored.prepare('SELECT attempt, state FROM backups').all().map((row) => [row.attempt, row.state]), [[1, 'running']]);
+      const again = backupJob(t, restored, { start: at('2026-11-24T10:00:00.000Z'), directory: job.folder });
+      await again.job.start();
+      assert.deepEqual(again.rows().map((row) => [row.attempt, row.state, row.bytes, row.finished_at]), [
+        [1, 'succeeded', size, mtime.toISOString()],
+      ]);
+      assert.deepEqual(again.lines, [{ time: '2026-11-24T10:00:00.000Z', event: 'backup_recorded', day: '2026-11-24', attempt: 1, bytes: size }]);
+      assert.deepEqual(again.files(), [backupName('2026-11-24')]);
+      assert.equal(statSync(file).mtime.getTime(), mtime.getTime());
+      assert.equal(backupWarning(restored), null);
+      again.job.stop();
+    } finally {
+      restored.close();
+    }
   });
 
   test('a stop that comes while the job waits in the queue starts nothing', async (t) => {

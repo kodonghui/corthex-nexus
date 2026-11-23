@@ -80,12 +80,8 @@ export function rehearse({ store, backupDirectory, release, now = Date.now, work
 // Copies the backup at file into a fresh folder, opens it as a store and reads it. Returns what was read, as the
 // rehearsal's note, or throws CheckFailed with the check that failed.
 function restoreAndRead(file, workDirectory) {
-  const folder = check('copy', () => {
-    for (const name of readdirSync(workDirectory)) {
-      if (WORK_FOLDER.test(name)) rmSync(join(workDirectory, name), { recursive: true, force: true, maxRetries: 5 });
-    }
-    return mkdtempSync(join(workDirectory, WORK));
-  });
+  removeLeftovers(workDirectory);
+  const folder = check('copy', () => mkdtempSync(join(workDirectory, WORK)));
   let db = null;
   try {
     check('copy', () => copyFileSync(file, join(folder, STORE_FILE)));
@@ -108,6 +104,25 @@ function restoreAndRead(file, workDirectory) {
       rmSync(folder, { recursive: true, force: true, maxRetries: 5 });
     } catch {
       // Removed by the next rehearsal, before it makes its own.
+    }
+  }
+}
+
+// Removes the folders that rehearsals killed before their end left in workDirectory, each with a copy of a store. One
+// that cannot be removed now is tried again by the next rehearsal; it never fails this one.
+function removeLeftovers(workDirectory) {
+  let names = [];
+  try {
+    names = readdirSync(workDirectory);
+  } catch {
+    // No folder: the copy check says so.
+  }
+  for (const name of names) {
+    if (!WORK_FOLDER.test(name)) continue;
+    try {
+      rmSync(join(workDirectory, name), { recursive: true, force: true, maxRetries: 5 });
+    } catch {
+      // Tried again by the next rehearsal.
     }
   }
 }

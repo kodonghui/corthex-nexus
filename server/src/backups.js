@@ -9,9 +9,10 @@
 // - One backup a UTC day, named by its day, nexus-v3-backup-YYYY-MM-DD.sqlite, at the time NEXUS_BACKUP_TIME gives. A
 //   server that starts after the day's time, when the day has no attempt yet, backs up at once, so a restart after
 //   that time does not skip the day.
-// - A first attempt that fails is retried once, 15 minutes after it failed, under the same name (attempt 2). A retry
-//   that fails is the end: the warning below shows it. An attempt left running, by a crash or by a store that could
-//   not record its end, is recorded failed at the job's next look, and a retry that was missed so runs at once.
+// - A first attempt that fails is retried once, 15 minutes after it failed, under the same name (attempt 2), unless
+//   that is after the next day's time. A retry that fails is the end: the warning below shows it. An attempt left
+//   running, by a crash or by a store that could not record its end, is recorded at the job's next look: succeeded
+//   when its backup file is whole, as in a store restored from that backup, or failed, and its retry then runs.
 // - After a backup succeeds, the backups whose day is more than 30 days before its day are removed; nothing is removed
 //   after a failure, so the last good backups stay while backups fail. They are found by their files' names in the
 //   folder, so a backup whose row the store does not hold, as after a restore from an older backup, goes too. A
@@ -131,14 +132,33 @@ export function createBackups({
   // The names whose first attempt was left running, recorded failed since: their retry runs at once.
   const missed = new Set();
 
-  // Records an attempt left running as failed: by a crash, or by a store that could not record its end. The job looks
-  // only from its queue task, where no attempt of its own runs, so a row still running is one of these.
+  // Records an attempt left running: by a crash, by a store that could not record its end, or in a store restored from
+  // a backup, which holds its own row as running since the row is written before the copy. The job looks only from its
+  // queue task, where no attempt of its own runs, so a row still running is one of these. When its backup file has its
+  // name, the copy was whole, since a partial file is renamed only once it is complete: it is recorded succeeded, as of
+  // when the file was written. Otherwise it is recorded failed, and a first attempt's retry runs at once.
   function recordInterrupted() {
     for (const row of statements.running.all()) {
+      const day = dayOfName(row.name);
+      const whole = day === null ? null : wholeBackup(row.name);
+      if (whole !== null) {
+        statements.succeed.run(whole.size, whole.mtime.toISOString(), row.id);
+        log({ time: iso(now()), event: 'backup_recorded', day, attempt: row.attempt, bytes: whole.size });
+        continue;
+      }
       statements.fail.run(iso(now()), row.id);
       if (row.attempt === 1) missed.add(row.name);
-      const day = dayOfName(row.name);
       log({ time: iso(now()), event: 'backup_failed', ...(day === null ? {} : { day }), attempt: row.attempt, reason: 'interrupted' });
+    }
+  }
+
+  // The file of a backup's name, when it is one: its size and when it was written.
+  function wholeBackup(name) {
+    try {
+      const stats = statSync(join(directory, name));
+      return stats.isFile() ? stats : null;
+    } catch {
+      return null;
     }
   }
 
@@ -158,7 +178,7 @@ export function createBackups({
       const attempts = statements.attempts.all(latest.name);
       const first = attempts.find((row) => row.attempt === 1);
       if (first?.state === 'failed' && attempts.every((row) => row.attempt !== 2)) {
-        const at = Math.max(nowMs, missed.has(latest.name) ? nowMs : Date.parse(endOf(first)) + RETRY_MS);
+        const at = missed.has(latest.name) ? nowMs : Math.max(nowMs, Date.parse(endOf(first)) + RETRY_MS);
         if (at < startOf(day) + DAY_MS + minuteOfDay * 60_000) return { at, day, attempt: 2 };
       }
     }
