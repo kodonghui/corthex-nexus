@@ -1088,7 +1088,7 @@ paths:
       x-corthex:
         id: API-250
         spec: [SPEC-014, SPEC-044, SPEC-045]
-        tables: [TBL-167]
+        tables: [TBL-147, TBL-157, TBL-166, TBL-167]
         release: Must
         family: agent
       security:
@@ -1225,7 +1225,7 @@ paths:
       x-corthex:
         id: API-251
         spec: [SPEC-014, SPEC-045]
-        tables: [TBL-167]
+        tables: [TBL-147, TBL-157, TBL-166, TBL-167]
         release: Must
         family: agent
       security:

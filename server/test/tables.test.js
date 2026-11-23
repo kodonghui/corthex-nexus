@@ -1,6 +1,7 @@
 // The tables each operation touches (note 23 of the WBS): the recorder of tables.js tells an operation's own tables
-// from those the schema's keys reach, each operation the server takes has its tables checked against the contract,
-// and a handler runs as its operation.
+// from those the schema's keys reach, and those it changes from those it only reads; each operation the server takes
+// has its tables checked against the contract, and each table it changes against its spec rows; and a handler runs as
+// its operation.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -9,7 +10,9 @@ import { runAs, runningAction } from '../src/operation.js';
 import { createRouter } from '../src/router.js';
 import { ROUTES } from '../src/routes.js';
 import { testStore } from './support.js';
-import { checkLayer, checkTables, listedTables, PENDING, recordTables, TABLE_IDS } from './tables.js';
+import {
+  checkLayer, checkTables, FED_BY, listedTables, PENDING, recordTables, specRows, TABLE_IDS,
+} from './tables.js';
 
 const TIME = '2026-11-23T01:00:00.000Z';
 
@@ -88,6 +91,45 @@ test('fails an operation that touches a table its x-corthex.tables does not list
   assert.throws(() => checkTables(recorder, 'noSuchOperation'), /no operation of the contract/);
   store.prepare('SELECT id FROM backups').all();
   assert.throws(() => checkLayer(recorder), /the request layer touched backups/);
+});
+
+test('keeps the tables an operation changes apart from those it only reads, a cascade\'s deletes aside', (t) => {
+  const recorder = recordTables(testStore(t));
+  const { store } = recorder;
+  const changed = (sql, ...values) => {
+    const action = `test ${sql}`;
+    runAs(action, () => store.prepare(sql).run(...values));
+    return [[...recorder.changed(action)].sort(), [...recorder.tables(action)].sort()];
+  };
+  assert.deepEqual(changed('SELECT c.id FROM claims c JOIN todos t ON t.id = c.todo_id'), [[], ['claims', 'todos']]);
+  assert.deepEqual(changed("UPDATE claims SET released_at = ?, release_reason = 'idle' WHERE id IN (SELECT id FROM backups)", TIME),
+    [['claims'], ['backups', 'claims']]);
+  assert.deepEqual(changed('INSERT INTO agent_credentials (name, secret_digest, issued_at) VALUES (?, ?, ?)', 'w', 'd'.repeat(64), TIME),
+    [['agent_credentials'], ['agent_credentials']]);
+  assert.deepEqual(changed('DELETE FROM project_spaces WHERE id = 1'), [['project_spaces'], ['project_spaces']]);
+  // exec is noted as well.
+  runAs('test exec', () => store.exec("UPDATE backups SET state = 'failed' WHERE id = 0"));
+  assert.deepEqual([...recorder.changed('test exec')], ['backups']);
+});
+
+test('fails an operation that changes a table none of its spec rows feeds, SPEC-014 aside', (t) => {
+  assert.deepEqual([...FED_BY.get('TBL-167')].sort(), ['SPEC-017', 'SPEC-018', 'SPEC-032', 'SPEC-044', 'SPEC-045', 'SPEC-050']);
+  assert.deepEqual([...specRows('revokeCredential')], ['SPEC-050']);
+  const recorder = recordTables(testStore(t));
+  const { store } = recorder;
+  // revokeCredential lists TBL-146 and TBL-167, both fed by SPEC-050: reading one and changing the other passes.
+  runAs('revokeCredential', () => store.prepare('SELECT id FROM agent_credentials').all());
+  runAs('revokeCredential', () => store.prepare("UPDATE claims SET released_at = ?, release_reason = 'revoked' WHERE id = 0").run(TIME));
+  checkTables(recorder, 'revokeCredential');
+  // getAgentTodo's spec rows feed none of TBL-147: touching every table it lists passes until it changes that one.
+  const reader = recordTables(testStore(t));
+  for (const id of listedTables('getAgentTodo')) {
+    const table = [...TABLE_IDS].find(([, each]) => each === id)[0];
+    runAs('getAgentTodo', () => reader.store.prepare(`SELECT 1 FROM ${table}`).all());
+  }
+  checkTables(reader, 'getAgentTodo');
+  runAs('getAgentTodo', () => reader.store.prepare("UPDATE project_spaces SET repository = NULL WHERE id = 0").run());
+  assert.throws(() => checkTables(reader, 'getAgentTodo'), /getAgentTodo changes TBL-147, which none of .*SPEC-043.* feeds/);
 });
 
 test('leaves to a later task only tables its operation lists and the WBS gives that task, and only while untouched', (t) => {

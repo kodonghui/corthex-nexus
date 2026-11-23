@@ -221,8 +221,11 @@ class ApiContract(unittest.TestCase):
                     if status != "default":
                         self.assertEqual(str(value["status"]), status, "%s %s %s" % (method, path, name))
 
-    def test_every_table_a_write_lists_is_fed_by_its_spec_rows(self):
-        # A write changes each table it lists, so one of its spec rows is in that table's trace list in the schema.
+    def test_every_write_lists_a_table_its_spec_rows_feed(self):
+        # An operation's list names the tables it reads as well as those it changes (note 23 of the WBS), so a table
+        # a write lists may be one it only reads. A write changes at least one table it lists, so at least one of them
+        # has one of its spec rows in its trace list in the schema. That each table a write changes is fed by its spec
+        # rows is checked when the write runs, in the server's table check (server/test/tables.js).
         with open(os.path.join(ROOT, "db", "nexus.sql"), encoding="utf-8") as f:
             fed = {m.group(1): set(re.findall(r"SPEC-\d+", m.group(2)))
                    for m in re.finditer(r"^-- (TBL-\d+) [^←\n]*← ([^|\n]*?) \| ", f.read(), flags=re.M)}
@@ -233,8 +236,8 @@ class ApiContract(unittest.TestCase):
             specs = set(x.get("spec", [])) - {"SPEC-014"}
             for table in x["tables"]:
                 self.assertIn(table, fed, "%s %s" % (x["id"], table))
-                self.assertTrue(fed[table] & specs, "%s lists %s, which none of %s feeds"
-                                % (x["id"], table, ", ".join(sorted(specs))))
+            self.assertTrue(any(fed[table] & specs for table in x["tables"]),
+                            "%s lists no table that %s feeds" % (x["id"], ", ".join(sorted(specs))))
 
     def test_the_readme_error_tables_copy_the_contract(self):
         row = re.compile(r"^\| `([a-z_]+)` \| (\d{3}) \| (.*) \|$", re.M)

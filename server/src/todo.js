@@ -13,24 +13,22 @@
 // read_at is the time of the answer, which the hub keeps as the session's read.
 //
 // The Nexus-Session header names the session that reads, so that each claim says whether it is the session's own
-// (mine); without it no claim is. A claim is live while its pull request is open, and otherwise for 60 minutes after
-// the later of its last write and its pull request's close (SPEC-045); a claim that is not live is not shown. Claims
-// themselves are TASK-434's.
+// (mine); without it no claim is. A claim is shown by claims.js's one rule of when it ends (SPEC-045): while its pull
+// request is open, and otherwise for 60 minutes after the later of its last write and its pull request's close. Claims
+// themselves are claims.js's (TASK-434).
 //
 // Nothing here logs; a comment's text is in the answer only, never in a log line (rule 5).
 
+import { claimOf, pullRequestLink, sessionOf } from './claims.js';
 import { heldChangeSets, isCheckpointStep } from './entries.js';
 import { idOf } from './ids.js';
-import { invalidRequest, Problem } from './problem.js';
+import { Problem } from './problem.js';
 
 // AgentTodo's maxItems, and TodoReflection.change_sets'.
 const LISTED = 5000;
 const LISTED_STEPS = 11;
 const HELD_CHANGE_SETS = 200;
-// A claim ends this long after the session's last write on its entry, or after its pull request closed (SPEC-045).
-const CLAIM_MS = 60 * 60 * 1000;
-// The contract's SessionLabel, ItemRef and Part.
-const SESSION = /^[A-Za-z0-9._:-]{1,100}$/;
+// The contract's ItemRef and Part.
 const TRACE_ID = /^[A-Z][A-Z0-9]*-[0-9]{1,6}$/;
 const TRACE_ID_LENGTH = 30;
 const PART = /^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$/;
@@ -105,24 +103,6 @@ function statementsOf(store) {
   return statements;
 }
 
-// The Nexus-Session header's session label, or null without one. A value that is not a SessionLabel is refused; the
-// detail never repeats it.
-function sessionOf(headers) {
-  const value = headers['nexus-session'];
-  if (value === undefined) return null;
-  if (typeof value !== 'string' || !SESSION.test(value)) {
-    throw invalidRequest('Nexus-Session', 'Nexus-Session is a session label of 1 to 100 letters, digits, dots, underscores, colons and hyphens');
-  }
-  return value;
-}
-
-// The link of a pull request of the project's repository, as the hub reports it: the repository's address and
-// /pull/ and its number. null when the project names no repository.
-export function pullRequestLink(repository, number) {
-  if (repository === null || number === null || number === undefined) return null;
-  return `${repository.replace(/\/+$/, '').replace(/\.git$/, '')}/pull/${Number(number)}`;
-}
-
 // The part of the project a diagram belongs to, '' for the project as a whole (see the server's README, Drawing): a
 // stage's picture names it in its source_key, /pictures/<stage>/<part>; an item table has none; a file's picture of
 // stage 03, 08 or 09 has it only in the /snapshot document of the snapshot its last drawing comes from, beside the
@@ -150,27 +130,6 @@ export function diagramPart(store, diagram, parts = new Map()) {
   return parts.get(snapshot).get(`${stage}\n${key}`) ?? '';
 }
 
-// A live claim as the contract's Claim, or null when the claim has lapsed (SPEC-045).
-function claimOf(row, entry, session, now, repository) {
-  if (row === undefined) return null;
-  const open = row.pull_state === 'open';
-  let endsAt = null;
-  if (!open) {
-    const from = Math.max(Date.parse(row.last_write_at), row.pull_closed_at === null ? 0 : Date.parse(row.pull_closed_at));
-    if (from + CLAIM_MS <= now) return null;
-    endsAt = new Date(from + CLAIM_MS).toISOString();
-  }
-  return {
-    entry,
-    session: row.session,
-    mine: session !== null && row.session === session,
-    claimed_at: row.claimed_at,
-    last_write_at: row.last_write_at,
-    ends_at: endsAt,
-    pull_request: row.number === null ? null : pullRequestLink(repository, row.number),
-  };
-}
-
 // The agent to-do of the project named name, as the contract's AgentTodo, or null when no project space has the
 // name. session is the reading session's label or null, and now the time in milliseconds.
 export function agentTodo(store, { name, session = null, now }) {
@@ -188,7 +147,7 @@ export function agentTodo(store, { name, session = null, now }) {
   const claims = new Map(statements.claims.all(projectId).map((row) => [Number(row.todo_id), row]));
   let taken = 0;
   const claimed = (todo, entry) => {
-    const claim = claimOf(claims.get(Number(todo)), entry, session, now, repository);
+    const claim = claimOf(claims.get(Number(todo)), { entry, session, now, repository });
     if (claim !== null && !claim.mine) taken += 1;
     return claim;
   };

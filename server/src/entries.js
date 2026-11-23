@@ -34,7 +34,8 @@
 // is, and so does the agent's entry to record it, since a record of that version stays true. A diagram that comes back
 // gets its confirm entry again, unless its confirmation is still live. The rule is takesConfirmation below.
 //
-// Claims (TBL-167) are TASK-434's. Closing an entry leaves its claim as it is: a claim of a closed entry holds nothing.
+// Claims (TBL-167) are claims.js's. Closing an entry here leaves its claim row as it is: a claim of a closed entry holds
+// nothing. The agent operation that closes its own entry releases its claim with claims.js's finishClaim.
 
 const STEP_CHECKPOINTS = Object.freeze(['1-b', '7', '9']);
 
@@ -108,14 +109,15 @@ const SIDES = Object.freeze({
   write_step: 'agent',
 });
 
-function checkKey(value, name) {
+// The checks of a row key and of a time, which claims.js shares.
+export function checkKey(value, name) {
   if (!Number.isSafeInteger(value) || value < 1) throw new TypeError(`${name} is a row key`);
 }
 
 // An entry's times are answered as they are kept, so a time has the contract's Time form: UTC with milliseconds.
 const TIME = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/;
 
-function checkTime(time) {
+export function checkTime(time) {
   const valid = typeof time === 'string' && TIME.test(time) && !Number.isNaN(Date.parse(time))
     && new Date(time).toISOString() === time;
   if (!valid) throw new TypeError('time is a UTC time with milliseconds, such as 2026-11-23T01:00:00.000Z');

@@ -2,6 +2,7 @@
 // api/openapi.yaml adds its routes here, and test/tables.test.js checks that each one's tests compare the tables it
 // touches with the contract (note 23 of the WBS).
 
+import { CLAIM_ROUTES } from './claims.js';
 import { CREDENTIAL_ROUTES } from './credentials.js';
 import { PROJECT_ROUTES } from './project.js';
 import { SNAPSHOT_ROUTES } from './snapshots.js';
@@ -16,4 +17,6 @@ export const ROUTES = Object.freeze([
   ...TODO_ROUTES,
   // TASK-440: API-264.
   ...PROJECT_ROUTES,
+  // TASK-434: API-250 and API-251.
+  ...CLAIM_ROUTES,
 ]);
