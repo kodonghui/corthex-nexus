@@ -6,7 +6,12 @@ import { errorKind, jsonLines, methodOf, traceIdFor } from './log.js';
 import { internal, methodNotAllowed, notFound, Problem } from './problem.js';
 import { createRouter } from './router.js';
 
-const SAFE_HEADERS = Object.freeze({ 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
+// Headers of every answer, which a handler may replace.
+const DEFAULT_HEADERS = Object.freeze({ 'cache-control': 'no-store' });
+// Headers that frame the message or the connection, which only Node and the server set.
+const FRAMING_HEADERS = new Set([
+  'connection', 'content-length', 'keep-alive', 'proxy-connection', 'te', 'trailer', 'transfer-encoding', 'upgrade',
+]);
 
 // The request listener. routes are the operations the server takes (see router.js); a handler gets
 // { request, params, traceId, settings } and returns { status, body, headers }, body being a JSON object.
@@ -54,7 +59,13 @@ export function createApp({ settings, routes = [], log = jsonLines() }) {
         response.destroy();
         return;
       }
-      send(response, problem.status, 'application/problem+json', problem.body(traceId), problem.headers);
+      try {
+        send(response, problem.status, 'application/problem+json', problem.body(traceId), problem.headers);
+      } catch (sendError) {
+        // A refusal that cannot be sent drops the connection; the listener itself never fails.
+        entry.error ??= errorKind(sendError);
+        response.destroy();
+      }
     }
   };
 }
@@ -70,14 +81,20 @@ function pathOf(target) {
   return end === -1 ? target : target.slice(0, end);
 }
 
-function send(response, status, type, body, headers = {}) {
+// Header names are matched without case, so a handler's header replaces a default of the same name, and the body's
+// type, its length and nosniff are always the server's. A framing header from a handler is a fault of the server.
+function send(response, status, type, body, headers) {
   const text = JSON.stringify(body);
   if (typeof text !== 'string') throw new TypeError('an answer needs a JSON body');
-  response.writeHead(status, {
-    ...SAFE_HEADERS,
-    ...headers,
-    'Content-Type': type,
-    'Content-Length': Buffer.byteLength(text),
-  });
+  const all = Object.assign(Object.create(null), DEFAULT_HEADERS);
+  for (const [name, value] of Object.entries(headers ?? {})) {
+    const key = name.toLowerCase();
+    if (FRAMING_HEADERS.has(key)) throw new TypeError(`a handler cannot set ${key}`);
+    all[key] = value;
+  }
+  all['x-content-type-options'] = 'nosniff';
+  all['content-type'] = type;
+  all['content-length'] = Buffer.byteLength(text);
+  response.writeHead(status, all);
   response.end(text);
 }

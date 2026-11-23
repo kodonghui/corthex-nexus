@@ -28,7 +28,10 @@ export async function startServer({ routes = [] } = {}) {
       await waitFor(() => text.join('').split('\n').filter(Boolean).length >= count);
       return text.join('').split('\n').filter(Boolean).map((line) => JSON.parse(line));
     },
-    close: () => new Promise((resolve) => server.close(resolve)),
+    close: () => new Promise((resolve) => {
+      server.close(resolve);
+      server.closeAllConnections();
+    }),
   };
 }
 
@@ -45,11 +48,13 @@ export function send(port, { method = 'GET', path = '/', headers = {}, body } = 
         } catch {
           json = undefined;
         }
-        resolve({ status: response.statusCode, headers: response.headers, text, json });
+        resolve({ status: response.statusCode, headers: response.headers, rawHeaders: response.rawHeaders, text, json });
       });
       response.on('error', reject);
     });
     request.on('error', reject);
+    // A server that never answers fails the test instead of holding it.
+    request.setTimeout(5000, () => request.destroy(new Error('no answer within 5 seconds')));
     if (body !== undefined) request.write(body);
     request.end();
   });

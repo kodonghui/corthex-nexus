@@ -42,7 +42,7 @@ The server writes one JSON line to standard output for each request, when its an
 | `status` | The answer's status, or `null` when the connection dropped before the answer started. |
 | `code` | The Problem's code, or `null`. |
 | `ms` | How long the answer took, in milliseconds. |
-| `error` | Only for a handler that failed: the kind of error, a built-in error type with Node's code if it has one, such as `Error ENOENT`. |
+| `error` | Only when a handler failed or a refusal could not be sent: the kind of error, a built-in error type with Node's code if it has one, such as `Error ENOENT`. |
 | `aborted` | Only when the connection dropped before the answer ended: `true`. |
 
 It also writes a line when it starts listening (with its host and port), when it stops and when a setting is invalid, and one line in place of Node's report when it crashes.

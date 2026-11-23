@@ -5,6 +5,9 @@
 // checks, never copied from the request (its path, query, headers or body) or from an error's message or stack.
 
 import { randomBytes } from 'node:crypto';
+import dns from 'node:dns';
+import { constants } from 'node:os';
+import { getSystemErrorMap } from 'node:util';
 
 // The gate's CF-Ray, as the contract's traceId pattern allows: 16 hex digits and the data centre's code.
 const CF_RAY = /^[0-9a-f]{16}-[A-Z]{3}$/;
@@ -12,8 +15,17 @@ const METHOD = /^[A-Z][A-Z-]{0,19}$/;
 const ERROR_NAMES = new Set([
   'Error', 'AggregateError', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError',
 ]);
-// Node's own error codes, such as ENOENT or ERR_INVALID_ARG_TYPE.
-const ERROR_CODE = /^(?:E[A-Z0-9]{1,20}|ERR_[A-Z0-9_]{1,60})$/;
+// Error codes by name only: the system's and libuv's, such as ENOENT or EAI_AGAIN, the resolver's, such as ENOTFOUND,
+// and Node's own, such as ERR_INVALID_ARG_TYPE.
+const SYSTEM_CODES = new Set([
+  ...Object.keys(constants.errno),
+  ...[...getSystemErrorMap().values()].map(([name]) => name),
+  ...Object.values(dns).filter((value) => typeof value === 'string' && /^E[A-Z]+$/.test(value)),
+]);
+const NODE_CODE = /^ERR_[A-Z0-9_]{1,60}$/;
+const ignore = () => {};
+// The streams whose write errors are already dropped.
+const guarded = new WeakSet();
 
 // The ID of one request in the log and in its Problem answer: the gate's CF-Ray when it has the right form,
 // otherwise 16 random hex digits.
@@ -31,11 +43,17 @@ export function errorKind(error) {
   const name = error?.constructor?.name;
   const kind = ERROR_NAMES.has(name) ? name : 'Error';
   const code = error?.code;
-  return typeof code === 'string' && ERROR_CODE.test(code) ? `${kind} ${code}` : kind;
+  const known = typeof code === 'string' && (SYSTEM_CODES.has(code) || NODE_CODE.test(code));
+  return known ? `${kind} ${code}` : kind;
 }
 
-// Writes each entry as one line of JSON.
+// Writes each entry as one line of JSON. A log that cannot be written, such as a closed pipe (EPIPE), must not stop
+// the server, so the stream's write errors are dropped.
 export function jsonLines(stream = process.stdout) {
+  if (typeof stream.on === 'function' && !guarded.has(stream)) {
+    stream.on('error', ignore);
+    guarded.add(stream);
+  }
   return (entry) => {
     stream.write(`${JSON.stringify(entry)}\n`);
   };

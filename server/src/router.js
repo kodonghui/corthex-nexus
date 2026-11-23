@@ -2,8 +2,10 @@
 // /api/spaces/{project}/todo, matched one segment at a time.
 //
 // A route is { method, path, action, handle }: action is the operation's operationId, which the log names, and
-// handle(context) answers it. A path parameter is one non-empty segment, percent-decoded; a segment that does not
-// decode matches nothing, so its request gets not_found. Where two templates match a path, the one with a literal
+// handle(context) answers it. A path parameter matches one non-empty segment and is passed percent-decoded, or as
+// sent when it does not decode. The router does not check it: the decoded text can hold any character, such as / or
+// .., and the contract gives a value in another form the 404 of what it names, so each handler checks its
+// parameters against their schemas before using them. Where two templates match a path, the one with a literal
 // segment where the other has a parameter wins.
 
 const PARAMETER = /^\{([a-z_][a-z0-9_]*)\}$/;
@@ -73,7 +75,7 @@ function compile(route) {
         try {
           params[part.parameter] = decodeURIComponent(segment);
         } catch {
-          return null;
+          params[part.parameter] = segment;
         }
       }
       return params;

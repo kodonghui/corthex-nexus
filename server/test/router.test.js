@@ -3,8 +3,8 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import { createRouter } from '../src/router.js';
-import { AGENT_COMMANDS } from '../src/problem.js';
-import { startServer, TRACE_ID } from './support.js';
+import { AGENT_COMMANDS, Problem } from '../src/problem.js';
+import { startServer, TRACE_ID, waitFor } from './support.js';
 
 const PROBLEM_KEYS = ['code', 'detail', 'status', 'title', 'traceId'];
 const handle = () => ({ body: {} });
@@ -69,6 +69,34 @@ describe('the routes', () => {
         { method: 'POST', path: '/api/snapshots', action: 'pushSnapshot', handle: () => ({ status: 201, body: { created: true } }) },
         { method: 'GET', path: '/api/fails', action: 'fails', handle: () => { throw new Error('broken'); } },
         { method: 'GET', path: '/api/empty', action: 'empty', handle: () => ({}) },
+        {
+          method: 'GET',
+          path: '/api/headers',
+          action: 'headers',
+          handle: () => ({
+            body: { ok: true },
+            headers: { 'content-type': 'text/html', 'cache-control': 'max-age=60', 'X-Content-Type-Options': 'sniff' },
+          }),
+        },
+        { method: 'GET', path: '/api/no-headers', action: 'noHeaders', handle: () => ({ body: { ok: true }, headers: null }) },
+        {
+          method: 'GET',
+          path: '/api/proto-header',
+          action: 'protoHeader',
+          handle: () => ({ body: { ok: true }, headers: JSON.parse('{"__proto__": "x", "X-Kept": "y"}') }),
+        },
+        ...['Transfer-Encoding', 'content-length', 'Connection'].map((name, index) => ({
+          method: 'GET',
+          path: `/api/framing/${index}`,
+          action: 'framing',
+          handle: () => ({ body: { ok: true }, headers: { [name]: name === 'Connection' ? 'close' : '1' } }),
+        })),
+        {
+          method: 'GET',
+          path: '/api/unsendable',
+          action: 'unsendable',
+          handle: () => { throw new Problem('not_found', 'x', { 'X-Bad': 'a\nb' }); },
+        },
       ],
     });
   });
@@ -88,8 +116,14 @@ describe('the routes', () => {
     assert.deepEqual((await server.send({ path: '/api/spaces/a%20b/todo?x=1' })).json, { project: 'a b' });
   });
 
-  test('match no path with an empty, extra or undecodable segment', async () => {
-    for (const path of ['/api/spaces//todo', '/api/spaces/demo/todo/', '/api/spaces/%E0%A4%A/todo', '/API/spaces/demo/todo']) {
+  test('pass a parameter unchecked, for its handler to check against its schema', async () => {
+    // The contract gives a value in another form the 404 of what it names, which only the operation knows.
+    assert.deepEqual((await server.send({ path: '/api/spaces/%E0%A4%A/todo' })).json, { project: '%E0%A4%A' });
+    assert.deepEqual((await server.send({ path: '/api/spaces/%2E%2E%2Fetc/todo' })).json, { project: '../etc' });
+  });
+
+  test('match no path with an empty or extra segment, or in another case', async () => {
+    for (const path of ['/api/spaces//todo', '/api/spaces/demo/todo/', '/API/spaces/demo/todo']) {
       const answer = await server.send({ path });
       assert.equal(answer.status, 404, path);
       assert.equal(answer.json.code, 'not_found');
@@ -115,6 +149,57 @@ describe('the routes', () => {
       assert.equal(answer.json.code, 'internal');
       assert.equal(answer.json.detail, 'an unexpected error; the trace ID names it');
       assert.doesNotMatch(answer.text, /broken/);
+    }
+  });
+
+  test('keep the type, the length and nosniff of their answers, whatever headers a handler gives', async () => {
+    const answer = await server.send({ path: '/api/headers' });
+    assert.equal(answer.status, 200);
+    assert.equal(answer.headers['content-type'], 'application/json; charset=utf-8');
+    assert.equal(answer.headers['content-length'], String(Buffer.byteLength(answer.text)));
+    assert.equal(answer.headers['x-content-type-options'], 'nosniff');
+    assert.equal(answer.headers['cache-control'], 'max-age=60');
+    const names = answer.rawHeaders.filter((_, index) => index % 2 === 0).map((name) => name.toLowerCase());
+    assert.equal(names.length, new Set(names).size, 'no header is sent twice');
+    assert.deepEqual(answer.json, { ok: true });
+  });
+
+  test('take no headers, or a header named __proto__, from a handler', async () => {
+    const none = await server.send({ path: '/api/no-headers' });
+    assert.equal(none.status, 200);
+    assert.equal(none.headers['cache-control'], 'no-store');
+    const proto = await server.send({ path: '/api/proto-header' });
+    assert.equal(proto.status, 200);
+    assert.equal(proto.headers['x-kept'], 'y');
+    assert.equal(proto.headers['content-type'], 'application/json; charset=utf-8');
+  });
+
+  test('refuse a framing header from a handler as an internal fault', async () => {
+    for (const index of [0, 1, 2]) {
+      const answer = await server.send({ path: `/api/framing/${index}` });
+      assert.equal(answer.status, 500, String(index));
+      assert.equal(answer.json.code, 'internal');
+      assert.equal(answer.headers['transfer-encoding'], undefined);
+      assert.equal(answer.headers['content-length'], String(Buffer.byteLength(answer.text)));
+    }
+  });
+
+  test('drop the connection, and keep serving, when a refusal cannot be sent', { timeout: 10_000 }, async () => {
+    const rejections = [];
+    const onRejection = (reason) => rejections.push(reason);
+    process.on('unhandledRejection', onRejection);
+    try {
+      await assert.rejects(server.send({ path: '/api/unsendable' }));
+      assert.equal((await server.send({ path: '/api/spaces/demo/todo' })).status, 200);
+      await new Promise((resolve) => setImmediate(resolve));
+      assert.deepEqual(rejections, []);
+      // Its log line says why, unlike a caller that hung up.
+      await waitFor(() => server.logText().includes('"action":"unsendable"'));
+      const line = server.logText().split('\n').filter(Boolean).map((text) => JSON.parse(text))
+        .find((each) => each.action === 'unsendable');
+      assert.deepEqual([line.status, line.code, line.error, line.aborted], [null, 'not_found', 'TypeError ERR_INVALID_CHAR', true]);
+    } finally {
+      process.off('unhandledRejection', onRejection);
     }
   });
 

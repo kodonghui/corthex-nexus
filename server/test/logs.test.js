@@ -11,7 +11,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, before, describe, test } from 'node:test';
-import { errorKind, logCrashes } from '../src/log.js';
+import { Writable } from 'node:stream';
+import { errorKind, jsonLines, logCrashes } from '../src/log.js';
 import { assertNoneIn, forbiddenValues, startServer, TRACE_ID } from './support.js';
 
 const SERVER_DIRECTORY = fileURLToPath(new URL('..', import.meta.url));
@@ -131,6 +132,31 @@ describe('the request log', () => {
   });
 });
 
+describe('a log that cannot be written', () => {
+  test('does not stop the server', async () => {
+    let writes = 0;
+    const stream = new Writable({
+      write(chunk, encoding, callback) {
+        writes += 1;
+        callback(Object.assign(new Error('write EPIPE'), { code: 'EPIPE' }));
+      },
+    });
+    const log = jsonLines(stream);
+    jsonLines(stream);
+    assert.equal(stream.listenerCount('error'), 1);
+    // A sink with on but no listeners() gets the listener too.
+    const added = [];
+    jsonLines({ write() {}, on: (event, listener) => added.push([event, typeof listener]) });
+    assert.deepEqual(added, [['error', 'function']]);
+    log({ event: 'one' });
+    log({ event: 'two' });
+    // An 'error' event without a listener would fail this test as an uncaught exception.
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(writes, 1);
+    assert.ok(stream.destroyed);
+  });
+});
+
 describe('the crash line', () => {
   test('names the kind of error only, then stops the process', () => {
     const values = forbiddenValues([SERVER_DIRECTORY]);
@@ -152,7 +178,14 @@ describe('the crash line', () => {
     assert.equal(errorKind(new RangeError('x')), 'RangeError');
     assert.equal(errorKind(Object.assign(new Error('x'), { code: 'ERR_INVALID_ARG_TYPE' })), 'Error ERR_INVALID_ARG_TYPE');
     assert.equal(errorKind(new LeakyError('x')), 'Error');
+    for (const code of ['ENOENT', 'ECONNREFUSED', 'EAI_AGAIN', 'EOF', 'ENOTFOUND']) {
+      assert.equal(errorKind(Object.assign(new Error('x'), { code })), `Error ${code}`);
+    }
     assert.equal(errorKind(Object.assign(new Error('x'), { code: 'a secret' })), 'Error');
+    // A code of an error's shape that comes from data, such as the start of a digest, is no known code.
+    const digestStart = randomBytes(8).toString('hex').toUpperCase();
+    assert.equal(errorKind(Object.assign(new Error('x'), { code: `E${digestStart}` })), 'Error');
+    assert.equal(errorKind(Object.assign(new Error('x'), { code: 'EABCDEF' })), 'Error');
     assert.equal(errorKind('a thrown text'), 'Error');
     assert.equal(errorKind(undefined), 'Error');
   });
