@@ -7,8 +7,8 @@
 // - The change set. The ID names a change set of the project (otherwise change_set_not_found). A direct edit is
 //   accepted when it is made and cancelled, not answered (API-273): change_set_state with its state, as a proposal sent
 //   to API-273 is refused.
-// - Accepting (API-270, SPEC-019) marks a proposed proposal accepted at the time of the answer, decided_at, the time a
-//   reflection orders accepted change sets by, as it orders a direct edit by the time it was made. Then entries.js's
+// - Accepting (API-270, SPEC-019) marks a proposed proposal accepted at the time of the answer, decided_at, the time
+//   TASK-445 has the readers order accepted change sets by, the later accepted on top. Then entries.js's
 //   changeSetsChanged closes the owner's proposal entry as done and puts the proposal in its diagram's reflection entry
 //   on the agent to-do (SPEC-026), so API-245, API-247's reflection and heldChangeSets read it as any accepted change
 //   set.
