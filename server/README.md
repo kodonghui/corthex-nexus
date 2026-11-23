@@ -802,7 +802,7 @@ The coordinator chose three rules for TASK-441, and the maintainer approved them
 
 `test/diagram.test.js` checks TASK-441's done condition: it reads a diagram of 300 elements in under a second. The diagram also has 300 positions, 100 threads and 50 overlays, and all 300 elements changed since its confirmation. A first read warms up the server and the store. The test then times five reads, and the middle one counts, so that one read slowed by another program on a busy machine does not fail it. The test also reads every diagram that this repository's push draws with the server's own drawers, answers every response API-265 lists, and checks the tables it touches (note 23).
 
-The answer names what other tables hold, so API-265 lists 15 tables. The correction at the end of the [API README](../docs/06-api/README.md) waits for its own checkpoint.
+The answer names what other tables hold, so API-265 lists 15 tables. The correction at the end of the [API README](../docs/06-api/README.md) passed its own checkpoint on 2026-11-24.
 
 ## Answers
 
