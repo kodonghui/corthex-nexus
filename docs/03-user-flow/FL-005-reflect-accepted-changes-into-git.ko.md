@@ -8,8 +8,6 @@
 
 근거 요구사항: REQ-001, REQ-029, REQ-030, REQ-031, REQ-032, REQ-053, REQ-054, REQ-056, REQ-057
 
-화면(07단계): SCR-145
-
 ```mermaid
 flowchart TD
   A(["에이전트가<br/>반영할<br/>변경안을 점유<br/>REQ-053, REQ-054"])

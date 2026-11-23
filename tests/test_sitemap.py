@@ -2,10 +2,12 @@
 
 - Every screen has an SCR ID, a name, a path, who can see it, a status, its flows and its terms; IDs and paths are
   unique and the tree starts at `/`.
-- Every user flow has a screen, every flow a screen names exists, and each flow file lists the screens that show it.
+- Every user flow has a screen and every flow a screen names exists. The README's table of flow steps names real
+  steps, and it gives each screen exactly the flows the sitemap gives it.
 - Each screen names one context and only read models of that context, and every read model of the domain design
   has a screen or is listed as without one, as NEXUS compares them with the DDD board.
-- The README draws every screen once on the board and once in the list.
+- The README draws every screen once on the board and once in the list, with the sitemap's flows and read models.
+- The stage's note fits in the 300 characters that the hub keeps.
 """
 import json
 import os
@@ -33,6 +35,12 @@ def screens(nodes, parent=None):
 def flow_files():
     return sorted(name for name in os.listdir(FLOWS) if re.match(r"FL-\d{3}-.*\.md$", name)
                   and not name.endswith(".ko.md"))
+
+
+def flow_steps(flow):
+    """The box IDs of a flow diagram, such as A or R1."""
+    name = next(n for n in flow_files() if n.startswith(flow))
+    return set(re.findall(r"^\s+([A-Z][0-9]?)[\[({]", read("docs", "03-user-flow", name), re.M))
 
 
 def read_models():
@@ -76,7 +84,7 @@ class SitemapTest(unittest.TestCase):
         self.assertEqual(self.tree[0]["path"], "/")
         for node, parent in self.all:
             if parent is not None:
-                self.assertTrue(node["path"].startswith(parent["path"].rstrip("/") + "/") or parent["path"] == "/",
+                self.assertTrue(node["path"].startswith(parent["path"].rstrip("/") + "/"),
                                 "%s sits under %s" % (node["path"], parent["path"]))
 
     def test_the_pages_the_hub_links_to_keep_their_addresses(self):
@@ -90,17 +98,20 @@ class SitemapTest(unittest.TestCase):
         self.assertEqual(named - flows, set(), "screens name flows that do not exist")
         self.assertEqual(flows - named, set(), "flows without a screen")
 
-    def test_each_flow_file_lists_the_screens_that_show_it(self):
-        expected = {}
-        for node, _ in self.all:
-            for flow in node["flows"]:
-                expected.setdefault(flow, []).append(node["id"])
-        for name in flow_files():
-            text = read("docs", "03-user-flow", name)
-            match = re.search(r"^Screens \(stage 07\): (.+)$", text, re.M)
-            with self.subTest(flow=name[:6]):
-                self.assertIsNotNone(match, "no screens line")
-                self.assertEqual(match.group(1).split(", "), expected.get(name[:6], []))
+    def test_the_step_table_names_real_steps_and_matches_the_sitemap(self):
+        on_screen = {(f, n["id"]) for n, _ in self.all for f in n["flows"]}
+        for name in ("README.md", "README.ko.md"):
+            text = read("docs", "07-sitemap", name)
+            rows = re.findall(r"^\| (FL-\d{3}) \| ([^|]+) \| ([^|]+) \|$", text, re.M)
+            self.assertTrue(rows, "no step table in %s" % name)
+            in_table = set()
+            for flow, steps, shown in rows:
+                with self.subTest(file=name, flow=flow, steps=steps):
+                    self.assertLessEqual(set(steps.strip().split(", ")), flow_steps(flow), "steps not in the flow")
+                    in_table |= {(flow, scr) for scr in re.findall(r"SCR-\d{3}", shown)}
+            with self.subTest(file=name):
+                self.assertEqual(in_table - on_screen, set(), "table puts a flow on a screen the sitemap does not")
+                self.assertEqual(on_screen - in_table, set(), "sitemap puts a flow on a screen with no step in the table")
 
     def test_terms_are_read_models_of_the_screen_context(self):
         models = read_models()
@@ -115,8 +126,10 @@ class SitemapTest(unittest.TestCase):
                     self.assertIn(term, models, "%s is not a read model" % term)
                     self.assertEqual(models[term], contexts[0], "%s belongs to another context" % term)
                     shown.add(term)
-        marker = re.search(r"^# without a screen:(.*)$", self.text, re.M)
-        without = set(re.findall(r"TERM-\d+", marker.group(1))) if marker else set()
+        # The hub's own reading of the marker (sitemap.py): any case and spacing, every matching line.
+        markers = [m.group(1) for m in (re.match(r"\s*#\s*without a screen\s*:\s*(.*)", line, re.I)
+                                        for line in self.text.splitlines()) if m]
+        without = {term for m in markers for term in re.findall(r"TERM-\d+", m)}
         self.assertEqual(shown & without, set(), "a read model both shown and listed without a screen")
         self.assertEqual(set(models) - shown - without, set(), "read models with no screen and not listed")
 
@@ -128,10 +141,18 @@ class SitemapTest(unittest.TestCase):
             for node, parent in self.all:
                 with self.subTest(file=name, screen=node["id"]):
                     self.assertEqual(len(re.findall(r'\["%s<br/>' % node["id"], board)), 1)
-                    self.assertEqual(sum(1 for r in rows if r.startswith("| %s |" % node["id"])), 1)
+                    mine = [r for r in rows if r.startswith("| %s |" % node["id"])]
+                    self.assertEqual(len(mine), 1)
+                    cells = [c.strip() for c in mine[0].strip("|").split("|")]
+                    self.assertEqual(cells[4], ", ".join(node["flows"]))
+                    self.assertEqual(cells[5], ", ".join(node["terms"]))
                     if parent is not None:
                         self.assertIn("%s --> %s" % (parent["id"].replace("-", ""), node["id"].replace("-", "")),
                                       board)
+
+    def test_the_stage_note_fits_what_the_hub_keeps(self):
+        note = json.loads(read(".corthex", "project.json"))["stages"]["07-sitemap"].get("note", "")
+        self.assertLessEqual(len(note), 300, "the hub cuts notes at 300 characters")
 
 
 if __name__ == "__main__":

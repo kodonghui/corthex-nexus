@@ -6,8 +6,6 @@ Goal: NEXUS backs up its data every day, and a restore is rehearsed before each 
 
 Serves: REQ-076, REQ-080
 
-Screens (stage 07): SCR-142
-
 ```mermaid
 flowchart TD
   A(["Daily schedule<br/>REQ-076"])

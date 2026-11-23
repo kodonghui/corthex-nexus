@@ -8,8 +8,6 @@
 
 근거 요구사항: REQ-076, REQ-080
 
-화면(07단계): SCR-142
-
 ```mermaid
 flowchart TD
   A(["매일 일정<br/>REQ-076"])

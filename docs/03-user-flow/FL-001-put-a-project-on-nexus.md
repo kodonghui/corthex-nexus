@@ -6,8 +6,6 @@ Goal: An agent sends a project's first snapshot, and the owner finds the project
 
 Serves: REQ-001, REQ-003, REQ-004, REQ-005, REQ-006, REQ-018, REQ-019, REQ-052, REQ-066, REQ-077
 
-Screens (stage 07): SCR-142, SCR-145
-
 ```mermaid
 flowchart TD
   A(["Agent pushes a new project<br/>REQ-018"])

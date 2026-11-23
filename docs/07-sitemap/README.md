@@ -27,7 +27,7 @@ flowchart TD
 | ID | Screen | Path | Who can see it | Flows | Read model |
 | --- | --- | --- | --- | --- | --- |
 | SCR-142 | Owner to-do | `/` | the owner, signed in through the gate | FL-001, FL-002, FL-003, FL-006, FL-007, FL-008, FL-011 | CTX-041, TERM-225 |
-| SCR-143 | ↳ Projects | `/p` | the owner, signed in through the gate | FL-002, FL-009 | CTX-037, TERM-223 |
+| SCR-143 | ↳ Projects | `/p` | the owner, signed in through the gate | FL-001, FL-002, FL-009, FL-010 | CTX-037, TERM-223 |
 | SCR-144 | ↳ ↳ Project | `/p/{project}` | the owner, signed in through the gate | FL-002, FL-006, FL-010, FL-013 | CTX-037, TERM-223 |
 | SCR-145 | ↳ ↳ ↳ Stage workbench | `/p/{project}/{part}/{stage}` | the owner, signed in through the gate | FL-001, FL-002, FL-003, FL-004, FL-005, FL-006, FL-007, FL-008, FL-012, FL-013 | CTX-037, TERM-222 |
 | SCR-146 | ↳ ↳ ↳ ↳ Changes since the last confirmation | `/p/{project}/{part}/{stage}/changes` | the owner, signed in through the gate | FL-002, FL-004, FL-006 | CTX-039, TERM-224 |
@@ -72,37 +72,42 @@ Every flow step that shows the owner something has a screen. The letters are the
 
 | Flow | Steps | Screen |
 | --- | --- | --- |
-| FL-001 | G | SCR-142 |
+| FL-001 | E | SCR-143 |
 | FL-001 | F | SCR-145 |
+| FL-001 | G | SCR-142 |
 | FL-002 | C | SCR-142 |
 | FL-002 | D | SCR-143, SCR-144 |
 | FL-002 | F, G | SCR-145 |
 | FL-002 | H | SCR-145, SCR-146 |
 | FL-002 | J, K | SCR-145 |
 | FL-002 | R1 | the gate's page |
-| FL-003 | A, F, G, H, J, K | SCR-145 |
+| FL-003 | A, E, F, G, H, I, J, K | SCR-145 |
+| FL-003 | F | SCR-142 |
 | FL-003 | R2 | SCR-145 on a phone |
-| FL-004 | A, D, E, F | SCR-145, SCR-146 |
+| FL-004 | A, F | SCR-145 |
+| FL-004 | D | SCR-145, SCR-146 |
+| FL-004 | E | SCR-146 |
 | FL-004 | R1 | SCR-145 on a phone |
-| FL-005 | G | SCR-145 |
-| FL-006 | A, D | SCR-145, SCR-146 |
-| FL-006 | B | SCR-146 |
+| FL-005 | F, G, H | SCR-145 |
+| FL-006 | A | SCR-142, SCR-145 |
+| FL-006 | B, D | SCR-145, SCR-146 |
+| FL-006 | E | SCR-145 |
 | FL-006 | I | SCR-144, SCR-145 |
 | FL-006 | J | SCR-142 |
 | FL-006 | R1 | SCR-145 on a phone |
 | FL-007 | E, F, G | SCR-145 |
-| FL-007 | I | SCR-142 |
-| FL-008 | A | SCR-142 |
-| FL-008 | B, D | SCR-145 |
-| FL-008 | R1 | SCR-145 on a phone |
+| FL-007 | I | SCR-142, SCR-145 |
+| FL-008 | A | SCR-142 on a phone |
+| FL-008 | B, D, R1 | SCR-145 on a phone |
 | FL-009 | A, B, E | SCR-143 |
-| FL-010 | C, D | SCR-144 |
+| FL-010 | A, C, D, F | SCR-144 |
+| FL-010 | E | SCR-143 |
 | FL-011 | E | SCR-142 |
 | FL-012 | A, B, C, E, F, I, M, N | SCR-145 |
-| FL-013 | A, E | SCR-144 |
+| FL-013 | A, E, F | SCR-144 |
 | FL-013 | C, D | SCR-144, SCR-145 |
 
-Steps that show nothing on a page: the agent's sending, claiming and reporting (FL-001, FL-005, FL-007, FL-012), refusals that answer an agent (the R steps of FL-001, FL-003, FL-006, FL-007, FL-010, FL-012) and the backup jobs and restore rehearsal (FL-011).
+Steps that show nothing on a page: what agents send, claim and report, and the answers they get, among them the refusals R1 to R3 of FL-001 and FL-007, R1 and R3 of FL-003, R2 of FL-006 and R1 of FL-010 and FL-012, the release of an idle claim (FL-005 R1) and the refusal of a revoked credential (FL-009 F); storing a credential's digest (FL-009 C); and the backup jobs and restore rehearsal (FL-011). A decision box takes the screen of the step it leads to.
 
 ## 4. The 2026-11-21 mockup
 

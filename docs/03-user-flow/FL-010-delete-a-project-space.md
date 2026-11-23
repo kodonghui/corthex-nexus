@@ -6,8 +6,6 @@ Goal: The owner removes a project from NEXUS after seeing what goes with it.
 
 Serves: REQ-016, REQ-017
 
-Screens (stage 07): SCR-144
-
 ```mermaid
 flowchart TD
   A(["Deletion of a project<br/>space asked"])

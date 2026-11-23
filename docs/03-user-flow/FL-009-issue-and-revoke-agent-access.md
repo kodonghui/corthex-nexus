@@ -6,8 +6,6 @@ Goal: The owner gives an agent a credential for hub commands and can take it bac
 
 Serves: REQ-018, REQ-064, REQ-065, REQ-078
 
-Screens (stage 07): SCR-143
-
 ```mermaid
 flowchart TD
   A(["Owner issues a credential<br/>for an agent<br/>REQ-064"])

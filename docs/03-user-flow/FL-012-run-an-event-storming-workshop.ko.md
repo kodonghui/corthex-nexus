@@ -8,8 +8,6 @@
 
 근거 요구사항: REQ-043, REQ-044, REQ-045, REQ-046, REQ-047, REQ-048, REQ-049, REQ-050, REQ-051
 
-화면(07단계): SCR-145
-
 ```mermaid
 flowchart TD
   A(["사용자나<br/>에이전트가<br/>워크숍을 엶<br/>REQ-044"])

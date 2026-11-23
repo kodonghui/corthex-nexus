@@ -8,8 +8,6 @@
 
 근거 요구사항: REQ-020, REQ-021, REQ-022, REQ-023, REQ-024, REQ-025, REQ-034, REQ-053, REQ-054, REQ-055, REQ-068
 
-화면(07단계): SCR-142, SCR-145
-
 ```mermaid
 flowchart TD
   A(["사용자가<br/>그림, 요소,<br/>행에 댓글<br/>REQ-020"])

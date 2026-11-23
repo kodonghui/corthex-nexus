@@ -15,7 +15,7 @@
       path: /p
       access: the owner, signed in through the gate
       status: active
-      flows: [FL-002, FL-009]
+      flows: [FL-001, FL-002, FL-009, FL-010]
       terms: [CTX-037, TERM-223]
       children:
         - id: SCR-144

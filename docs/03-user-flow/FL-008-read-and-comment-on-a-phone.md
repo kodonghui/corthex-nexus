@@ -6,8 +6,6 @@ Goal: The owner reads diagrams and comments on a phone and leaves comments; deci
 
 Serves: REQ-020, REQ-021, REQ-062, REQ-067, REQ-068, REQ-079
 
-Screens (stage 07): SCR-142, SCR-145
-
 ```mermaid
 flowchart TD
   A(["Owner opens NEXUS on a<br/>phone<br/>REQ-062"])

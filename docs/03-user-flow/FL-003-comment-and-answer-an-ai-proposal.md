@@ -6,8 +6,6 @@ Goal: The owner comments on a diagram, an agent answers or proposes a change, an
 
 Serves: REQ-020, REQ-021, REQ-022, REQ-023, REQ-024, REQ-025, REQ-034, REQ-053, REQ-054, REQ-055, REQ-068
 
-Screens (stage 07): SCR-142, SCR-145
-
 ```mermaid
 flowchart TD
   A(["Owner comments on a<br/>diagram, element or row<br/>REQ-020"])
