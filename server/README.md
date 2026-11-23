@@ -417,7 +417,7 @@ What it draws:
 - **A source it cannot draw** fails at its source: one that is not a list, or one of more than 5000 items. The hub sends at most 3000 items in a snapshot.
 - **A truncated snapshot**, one the hub cut to fit its size limit, draws the rows that came. The hub cuts items from the end, so a read stage none of whose items came may have lost them all: it gets no empty table, and shows no table, as a stage the hub did not read. The hub's `truncated` check is among the snapshot's checks.
 
-The coordinator chose the three rules below, which wait for the maintainer's delegate.
+The coordinator chose the rules below for TASK-423, and the maintainer approved them through the delegate they named for checkpoints.
 
 **Stage without pictures** (note 3 of the WBS). A stage of 03, 08 or 09 shows its item table while it has no picture that is not removed:
 - under a format that carries its pictures, while the snapshot holds none of its files that a drawer draws;
@@ -426,6 +426,8 @@ The coordinator chose the three rules below, which wait for the maintainer's del
 So the table makes way for the first picture drawn of its stage, and comes back, the same diagram with its threads, when the stage has none again. Until TASK-424, TASK-426 and TASK-427 add their drawers, the server draws no file of 03, 08 or 09, so those stages show their item tables in both formats.
 
 **Stage with no items.** A stage whose record in the snapshot says the hub read its source (`read` true) and that has no items keeps an empty `/items/<stage>`, which draws an empty table: the page says the stage has no items yet (SCR-145). A truncated snapshot keeps none, as above. A stage the hub did not read, one with no source or with a missing or skipped one, has no table and shows "Nothing sent yet". A read stage whose items all go keeps its table, with no rows. With a drawer for every kind, as the tests give, this repository's push draws 12 diagrams in corthex-hub/0.2 and 28 in 0.3, where it drew 8 and 26: the empty tables of 08, 09, 12 and 13 in 0.2, and of 12 and 13 in 0.3, where 08 and 09 show their files.
+
+**An empty table can be confirmed.** An empty table is a drawn item table, so the owner can confirm it (SPEC-029), and a stage whose only table is empty passes once that confirmation is recorded (SPEC-035). SPEC-035's "a stage with nothing to confirm" is one with no diagram or table at all, which shows "Nothing sent yet". The page shows what such a confirmation confirms (TASK-461).
 
 **A row's content.** A row keeps the IDs it links to, and the drawing reads only its own stage's items. So a title changed in another stage draws no table again and invalidates no confirmation of it (SPEC-033). The page shows each link by its name, which the read of a diagram gives (TASK-441, API-265) from the project's latest item documents. `itemNames(texts)` in `src/item-table.js` maps IDs to titles from those documents for it. A link it cannot find, or whose item has no title, is shown by its ID, as SPEC-010's exception says.
 
