@@ -47,8 +47,9 @@
     },
     "07-sitemap": {
       "human": "nexus",
-      "source": "docs/07-sitemap/sitemap.yaml",
-      "truth": "source"
+      "source": "docs/07-sitemap/nexus.yaml",
+      "truth": "source",
+      "note": "The source is docs/07-sitemap/nexus.yaml rather than sitemap.yaml, because the hub gives a part only to files whose names start with the part name nexus. docs/07-sitemap/README.md compares the screens with the click mockup of 2026-11-21."
     },
     "08-screen-states": {
       "human": "nexus",
