@@ -2,7 +2,8 @@
 
 import { createServer } from 'node:http';
 import { performance } from 'node:perf_hooks';
-import { errorKind, jsonLines, methodOf, traceIdFor } from './log.js';
+import { createAdmission, familyOf } from './admission.js';
+import { errorKind, jsonLines, methodOf, randomTraceId } from './log.js';
 import { internal, methodNotAllowed, notFound, Problem } from './problem.js';
 import { createRouter } from './router.js';
 
@@ -15,19 +16,25 @@ const FRAMING_HEADERS = new Set([
 
 // The request listener. routes are the operations the server takes (see router.js); a handler gets
 // { request, params, traceId, settings, store } and returns { status, body, headers }, body being a JSON object.
-// store is the open store's DatabaseSync (see store.js).
-export function createApp({ settings, routes = [], log = jsonLines(), store = null }) {
+// store is the open store's DatabaseSync (see store.js). Each request is admitted by its operation's family before
+// its handler runs (see admission.js); gate is the gate's sign-in (see gate.js), which owner operations need.
+export function createApp({ settings, routes = [], log = jsonLines(), store = null, gate = null }) {
   const find = createRouter(routes);
+  // An action's family, from the contract: one action is one operation, so it has one family.
+  const families = new Map(routes.map((route) => [route.action, familyOf(route)]));
+  if (gate === null && [...families.values()].includes('owner')) throw new Error('owner operations need the gate');
+  const admit = createAdmission(gate);
 
   return async function listener(request, response) {
     const started = performance.now();
-    const traceId = traceIdFor(request.headers);
-    // Every field is the server's own (see log.js); the request's path, query, headers and body stay out.
+    // Every field is the server's own (see log.js); the request's path, query, headers and body stay out. The trace
+    // ID and the sender change once admission knows the gate sent the request and who sent it.
     const entry = {
       time: new Date().toISOString(),
-      traceId,
+      traceId: randomTraceId(),
       method: methodOf(request.method),
       action: null,
+      sender: 'unknown',
       status: null,
       code: null,
       ms: 0,
@@ -50,6 +57,9 @@ export function createApp({ settings, routes = [], log = jsonLines(), store = nu
       if (match === null) throw notFound(pathname);
       if (match.allow) throw methodNotAllowed(match.allow);
       entry.action = match.route.action;
+      // A refused request never reaches its handler, so its answer holds nothing of the store.
+      await admit(families.get(match.route.action), request, entry);
+      const { traceId } = entry;
       const result = await match.route.handle({ request, params: match.params, traceId, settings, store });
       send(response, result.status ?? 200, 'application/json; charset=utf-8', result.body, result.headers);
     } catch (error) {
@@ -61,7 +71,7 @@ export function createApp({ settings, routes = [], log = jsonLines(), store = nu
         return;
       }
       try {
-        send(response, problem.status, 'application/problem+json', problem.body(traceId), problem.headers);
+        send(response, problem.status, 'application/problem+json', problem.body(entry.traceId), problem.headers);
       } catch (sendError) {
         // A refusal that cannot be sent drops the connection; the listener itself never fails.
         entry.error ??= errorKind(sendError);

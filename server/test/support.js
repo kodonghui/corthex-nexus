@@ -1,21 +1,22 @@
-// Shared by the tests: a server on a free loopback port whose log lines are kept, and a plain HTTP client.
-// node --test also runs this file, which holds no test.
+// Shared by the tests: a server on a free loopback port whose log lines are kept, a plain HTTP client, and a gate
+// with a local signing key. node --test also runs this file, which holds no test.
 
 import assert from 'node:assert/strict';
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { createHash, generateKeyPairSync, randomBytes, randomUUID, sign } from 'node:crypto';
 import { once } from 'node:events';
 import { request as httpRequest } from 'node:http';
 import { setTimeout as delay } from 'node:timers/promises';
 import { createNexusServer } from '../src/app.js';
+import { createGate } from '../src/gate.js';
 import { jsonLines } from '../src/log.js';
 
 export const TRACE_ID = /^[0-9a-f]{16}(?:-[A-Z]{3})?$/;
 
-export async function startServer({ routes = [], store = null } = {}) {
+export async function startServer({ routes = [], store = null, gate = null } = {}) {
   const text = [];
   const stream = { write: (chunk) => text.push(chunk) };
   const settings = Object.freeze({ host: '127.0.0.1', port: 0 });
-  const server = createNexusServer({ settings, routes, log: jsonLines(stream), store });
+  const server = createNexusServer({ settings, routes, log: jsonLines(stream), store, gate });
   server.listen(settings.port, settings.host);
   await once(server, 'listening');
   const { port } = server.address();
@@ -104,4 +105,47 @@ export function assertNoneIn(text, values) {
     assert.ok(value.length >= 8, `${name} is too short to search for`);
     assert.equal(text.includes(value), false, `the log holds the ${name}`);
   }
+}
+
+// The gate's settings in the tests. Placeholders: no test reaches a gate or the network.
+export const ISSUER = 'https://gate.example.com';
+export const OWNER_EMAIL = 'owner@example.com';
+
+// A gate whose key pair is made here, as Access signs its sign-ins: RS256 with a key the certs endpoint names by its
+// kid. token(claims, header) signs the owner's sign-in with claims laid over it; a claim set to undefined is left out.
+export function localGate({ now } = {}) {
+  const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+  const kid = randomBytes(32).toString('hex');
+  const audience = randomBytes(32).toString('hex');
+  const keys = { key: async (id) => (id === kid ? publicKey : null) };
+  return {
+    audience,
+    kid,
+    privateKey,
+    publicKey,
+    gate: createGate({ issuer: ISSUER, audience, owner: OWNER_EMAIL, keys, now }),
+    token(claims = {}, header = {}) {
+      const seconds = Math.floor(Date.now() / 1000);
+      return signToken(privateKey, { alg: 'RS256', kid, typ: 'JWT', ...header }, {
+        aud: [audience],
+        email: OWNER_EMAIL,
+        exp: seconds + 3600,
+        iat: seconds,
+        nbf: seconds,
+        iss: ISSUER,
+        type: 'app',
+        identity_nonce: randomBytes(12).toString('base64url'),
+        sub: randomUUID(),
+        country: 'KR',
+        ...claims,
+      });
+    },
+    // The certs endpoint's answer for this gate's key.
+    certs: () => ({ keys: [{ ...publicKey.export({ format: 'jwk' }), kid, alg: 'RS256', use: 'sig' }] }),
+  };
+}
+
+export function signToken(privateKey, header, claims) {
+  const signed = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(claims))}`;
+  return `${signed}.${sign('sha256', Buffer.from(signed), privateKey).toString('base64url')}`;
 }

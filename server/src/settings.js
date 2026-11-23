@@ -13,7 +13,17 @@ const DEFAULTS = Object.freeze({
   // The data folder has no default: the operator names it, so the server never makes its store in a folder it
   // guessed (SPEC-015).
   NEXUS_DATA_DIR: '',
+  // The gate's sign-in has no default either: without them no owner could be admitted (SPEC-048).
+  NEXUS_ACCESS_ISSUER: '',
+  NEXUS_ACCESS_AUD: '',
+  NEXUS_OWNER_EMAIL: '',
 });
+// Access names each application by a 64-hex-digit audience tag.
+const AUDIENCE = /^[0-9a-f]{64}$/;
+// One address of the one owner, as the gate's sign-in carries it.
+const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}$/;
+// A domain name, never an IP address, whose last label is letters.
+const HOST_NAME = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
 
 export class SettingsError extends Error {
   constructor(setting, rule) {
@@ -40,7 +50,39 @@ export function readSettings(env = process.env) {
   if (dataDirectory === '' || dataDirectory.includes('\u0000') || !fullyAbsolute(dataDirectory)) {
     throw new SettingsError('NEXUS_DATA_DIR', 'must be set to an absolute folder path');
   }
-  return Object.freeze({ host, port: Number(port), dataDirectory: resolve(dataDirectory) });
+  // The gate's sign-in (gate.js): the issuer its tokens name and whose certs endpoint lists its keys, the audience tag
+  // of the NEXUS application, and the owner it admits.
+  const issuer = issuerOf(valueOf(env, 'NEXUS_ACCESS_ISSUER'));
+  if (issuer === null) {
+    throw new SettingsError('NEXUS_ACCESS_ISSUER', 'must be the gate\'s https team address, with no path');
+  }
+  const audience = valueOf(env, 'NEXUS_ACCESS_AUD');
+  if (!AUDIENCE.test(audience)) {
+    throw new SettingsError('NEXUS_ACCESS_AUD', 'must be the application\'s audience tag, 64 lowercase hex digits');
+  }
+  const owner = valueOf(env, 'NEXUS_OWNER_EMAIL');
+  if (!EMAIL.test(owner)) throw new SettingsError('NEXUS_OWNER_EMAIL', 'must be the owner\'s email address');
+  return Object.freeze({
+    host,
+    port: Number(port),
+    dataDirectory: resolve(dataDirectory),
+    gate: Object.freeze({ issuer, audience, owner: owner.toLowerCase() }),
+  });
+}
+
+// The origin of an https address with no path, query, user or port, such as https://team.cloudflareaccess.com, as
+// the gate's tokens name it; otherwise null.
+function issuerOf(value) {
+  if (/\s/.test(value)) return null;
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+  const plain = url.protocol === 'https:' && url.username === '' && url.password === '' && url.port === ''
+    && url.pathname === '/' && url.search === '' && url.hash === '' && HOST_NAME.test(url.hostname);
+  return plain ? url.origin : null;
 }
 
 // An absolute path that names its drive too: on Windows, \data and /data are absolute but take the drive of the

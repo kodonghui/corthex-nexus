@@ -11,7 +11,7 @@ import { performance } from 'node:perf_hooks';
 import { DatabaseSync } from 'node:sqlite';
 import { describe, test } from 'node:test';
 import { APPLICATION_ID, migrate, openStore, readMigrations, STORE_FILE, StoreError } from '../src/store.js';
-import { startServer } from './support.js';
+import { localGate, startServer } from './support.js';
 
 const SCHEMA = new URL('../../db/nexus.sql', import.meta.url);
 const STORE_MODULE = new URL('../src/store.js', import.meta.url).href;
@@ -428,10 +428,13 @@ describe('the server', () => {
   test('gives each handler the store it was given', async (t) => {
     const folder = dataFolder(t);
     const { db } = openStore(folder);
+    // The project list is the owner's, so the request carries the owner's sign-in.
+    const local = localGate();
     let server;
     try {
       server = await startServer({
         store: db,
+        gate: local.gate,
         routes: [{
           method: 'GET',
           path: '/api/projects',
@@ -439,7 +442,7 @@ describe('the server', () => {
           handle: ({ store }) => ({ body: { projects: store.prepare('SELECT name FROM project_spaces').all().map((row) => row.name) } }),
         }],
       });
-      const answer = await server.send({ path: '/api/projects' });
+      const answer = await server.send({ path: '/api/projects', headers: { 'Cf-Access-Jwt-Assertion': local.token() } });
       assert.equal(answer.status, 200);
       // SPEC-015: a new install lists no project.
       assert.deepEqual(answer.json, { projects: [] });
