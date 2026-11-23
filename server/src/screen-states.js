@@ -40,7 +40,7 @@
 // drawing.js gives a file's picture no warnings: the hub's picture-partial checks of stage 08 name screen files it did
 // not send, not parts of a file it sent. So the drawer reads none, and no other document. Nothing here logs (rule 5).
 
-import { CHARACTER, failureWhere, keyer, MAX_ELEMENTS, SourceFailure } from './drawer.js';
+import { CHARACTER, failureWhere, keyer, MAX_ELEMENTS, SourceFailure, wrappedLines } from './drawer.js';
 import { LAYOUT_LIMITS } from './layout.js';
 
 // The grid, as the stage-09 mockup draws the panels of stage 08 at 1440 pixels: three columns of a 1008-pixel board
@@ -70,8 +70,6 @@ const CELL = /(?<!\\)\|/;
 // A state ID: a trace ID of the contract's form, #, and a state as the hub reads one (its STATE).
 const STATE_ID = /^[A-Z][A-Z0-9]*-[0-9]{1,6}#[a-z][a-z0-9_-]{0,30}$/;
 const NONE = /^(?:-|)$/;
-// Hangul, CJK and full-width forms, which take about two narrow characters' room.
-const WIDE = /[\u1100-\u115f\u2e80-\u303e\u3041-\u33ff\u3400-\u4dbf\u4e00-\u9fff\ua960-\ua97f\uac00-\ud7a3\uf900-\ufaff\ufe30-\ufe4f\uff00-\uff60\uffe0-\uffe6\u{20000}-\u{3fffd}]/u;
 
 // The cells of a table line, as the hub reads them: the line without its outer |, split at each | that no backslash
 // escapes, each cell trimmed.
@@ -104,30 +102,9 @@ function responsesOf(cell) {
   return responses.map((response) => response.trim()).filter((response) => response !== '');
 }
 
-// The narrow characters' room a text takes, a wide character counting twice.
-function columnsOf(text) {
-  let columns = 0;
-  for (const character of text) columns += WIDE.test(character) ? 2 : 1;
-  return columns;
-}
-
-// The lines a text takes in a panel, wrapped at spaces, a word longer than a line broken where it reaches its end; one
-// line at least, as the page shows "No description" or "-" in place of an empty one.
-function linesOf(text) {
-  let lines = 1;
-  let used = 0;
-  for (const word of text.split(/\s+/).filter((part) => part !== '')) {
-    const size = columnsOf(word);
-    if (used > 0 && used + 1 + size <= PER_LINE) {
-      used += 1 + size;
-      continue;
-    }
-    if (used > 0) lines += 1;
-    lines += Math.ceil(size / PER_LINE) - 1;
-    used = size - (Math.ceil(size / PER_LINE) - 1) * PER_LINE;
-  }
-  return lines;
-}
+// The lines a text takes in a panel (see drawer.js's wrappedLines): one line at least, as the page shows "No
+// description" or "-" in place of an empty one.
+const linesOf = (text) => wrappedLines(text, PER_LINE);
 
 // A panel's height for its name, its description and its responses as the page shows them, the responses joined by
 // commas: at least 168 pixels, and at most the largest box layout.js takes.

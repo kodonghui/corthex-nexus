@@ -16,7 +16,8 @@
 //
 // It draws, in this order:
 // - each lane, a subgraph other than the legend, in its order: kind lane, named by its title, its parent the lane it
-//   stands in, and detail { id, where }. A lane has no box: layout.js keeps no lane together yet.
+//   stands in, and detail { id, where }. A lane has no box: layout.js keeps no lane together yet. A box is in the first
+//   lane to close that names it, as in Mermaid, so an inner lane before the lane round it.
 // - each box, in the order the flowchart first names it: its kind from its shape (terminal, step, decision, document,
 //   store, llm, or grading for a step of class grade), named by its label without the lines that hold only trace IDs,
 //   its parent its lane, and detail { id, lines, ids, marks, lane, where, box }: id the node's ID, which is its key;
@@ -34,13 +35,17 @@
 // A flowchart with more elements than a drawing holds, or too large for layout.js to place, fails at its source.
 // Nothing here logs (rule 5).
 
-import { CHARACTER, characters, failureWhere, keyer, MAX_ELEMENTS, PADDING, placed, SourceFailure, TRACE_ID } from './drawer.js';
+import {
+  CHARACTER, characters, columnsOf, failureWhere, keyer, MAX_ELEMENTS, PADDING, placed, SourceFailure, TRACE_ID, wrappedLines,
+} from './drawer.js';
 
-// A box's text: 20-pixel lines with drawer.js's padding round them. A line wider than MAX_TEXT_WIDTH is wrapped by the
-// page, so the box is no wider and is as tall as the lines it wraps to; so is an arrow's label.
+// A box's text: 20-pixel lines with drawer.js's padding round them, a wide character such as Hangul twice as wide as
+// another. A line wider than MAX_TEXT_WIDTH, PER_LINE narrow characters, is wrapped by the page at its spaces, so the box
+// is no wider and is as tall as the lines it wraps to; so is an arrow's label.
 const LINE = 20;
 const MIN_WIDTH = 80;
 const MAX_TEXT_WIDTH = 480;
+const PER_LINE = Math.floor(MAX_TEXT_WIDTH / CHARACTER);
 // Room a shape takes beyond its text: a store's top and bottom curves, a document's wavy foot, an LLM box's inner
 // frame. A terminal's round ends and a decision's corners are worked out in sizeOf.
 const STORE_CAPS = 16;
@@ -157,11 +162,13 @@ class Scanner {
     return text;
   }
 
-  // The rest of the line, without a closing semicolon.
+  // The rest of the statement, up to the semicolon that ends it or the end of the line, trimmed.
   rest() {
-    const text = this.text.slice(this.at).trim();
-    this.at = this.text.length;
-    return text.endsWith(';') ? text.slice(0, -1).trimEnd() : text;
+    const end = this.text.indexOf(';', this.at);
+    const stop = end < 0 ? this.text.length : end;
+    const text = this.text.slice(this.at, stop).trim();
+    this.at = stop;
+    return text;
   }
 }
 
@@ -222,15 +229,17 @@ function statementsOf(lines) {
     index += 1;
     while (index < lines.length && blank(lines[index])) index += 1;
   }
-  if (index >= lines.length || !/^(flowchart|graph)(?=\s|;|$)/.test(lines[index].text.trim())) return null;
+  // A variant such as flowchart-elk is a flowchart too, which fails at its first line.
+  if (index >= lines.length || !/^(flowchart|graph)(?=\s|;|-|$)/.test(lines[index].text.trim())) return null;
   return lines.slice(index);
 }
 
 // The flowchart read: { direction, nodes, edges, lanes }, each node { id, kind, label, classes, lane, legend, line },
 // each edge { id, from, to, form, label, line, classes }, each lane { id, title, parent, line, legend }.
 function parse(lines) {
-  const [header, ...statements] = lines;
-  const direction = directionOf(header);
+  const [header, ...rest] = lines;
+  const { direction, after } = directionOf(header);
+  const statements = after === null ? rest : [after, ...rest];
   const nodes = new Map();
   const edges = [];
   const edgeIds = new Map();
@@ -239,19 +248,30 @@ function parse(lines) {
   const classed = [];
   const taken = (id) => nodes.has(id) || edgeIds.has(id) || subgraphs.has(id);
 
-  // A node named in a statement. Its lane is the first lane it is named in; a shape gives its kind and label, the last
-  // one winning as in Mermaid; a node named only by its ID is a step labelled by it.
+  // A node named in a statement. A shape gives its kind and label, the last one winning as in Mermaid; a node named only
+  // by its ID is a step labelled by it. The lane it is named in notes it, for its lane (see closeLane).
   const nameNode = (id, line, shape) => {
-    const lane = stack.at(-1) ?? null;
     let node = nodes.get(id);
     if (node === undefined) {
       if (edgeIds.has(id) || subgraphs.has(id)) fail(line);
       node = { id, kind: 'step', label: id, classes: [], lane: null, legend: false, line };
       nodes.set(id, node);
     }
-    if (node.lane === null && lane !== null) Object.assign(node, { lane: lane.id, legend: lane.legend });
+    stack.at(-1)?.named.push(id);
     if (shape !== null) Object.assign(node, { kind: shape.kind, label: shape.label ?? node.label, line });
     return node;
+  };
+
+  // A lane that closes takes the nodes named in it that no lane has taken, as Mermaid's subgraphs take their nodes when
+  // they close: so a node is in the first lane to close that names it, an inner lane before the lane round it, and a
+  // node named outside every lane is in none.
+  const closeLane = () => {
+    const lane = stack.pop();
+    for (const id of lane.named) {
+      const node = nodes.get(id);
+      if (node.lane === null) Object.assign(node, { lane: lane.id, legend: lane.legend });
+    }
+    lane.named = null;
   };
 
   // @{ shape: …, label: "…" } on one line: shape is one of SHAPES, label is optional.
@@ -365,7 +385,7 @@ function parse(lines) {
       title = linesOf(scanner.labelBefore(']')).join(' ');
     }
     const parent = stack.at(-1) ?? null;
-    const lane = { id, title, parent: parent?.id ?? null, line, legend: parent?.legend === true || LEGEND.has(title.toLowerCase()) };
+    const lane = { id, title, parent: parent?.id ?? null, line, legend: parent?.legend === true || LEGEND.has(title.toLowerCase()), named: [] };
     subgraphs.set(id, lane);
     stack.push(lane);
   };
@@ -390,7 +410,7 @@ function parse(lines) {
     const { line } = scanner;
     if (keyword === 'end') {
       if (stack.length === 0) fail(line);
-      stack.pop();
+      closeLane();
     } else if (keyword === 'subgraph') {
       subgraph(scanner);
     } else if (keyword === 'direction') {
@@ -442,16 +462,16 @@ function parse(lines) {
   return { direction, nodes: [...nodes.values()], edges, lanes };
 }
 
-// The direction of the flowchart's first line: TD and TB top to bottom, LR left to right, top to bottom when it names
-// none; BT and RL, and anything else, are outside the subset.
+// The flowchart's first statement: { direction, after }. Its direction is TD and TB top to bottom, LR left to right,
+// top to bottom when it names none; BT and RL, and anything else, are outside the subset. after is what follows its
+// semicolon on its line, read as statements, or null.
 function directionOf({ text, number }) {
   const scanner = new Scanner(text.trim(), number);
   scanner.take(/flowchart|graph/y);
   const rest = scanner.rest();
-  if (rest === '') return 'TB';
-  const direction = DIRECTIONS.get(rest);
+  const direction = rest === '' ? 'TB' : DIRECTIONS.get(rest);
   if (direction === undefined) fail(number);
-  return direction;
+  return { direction, after: scanner.done() ? null : { text: scanner.text.slice(scanner.at + 1), number } };
 }
 
 // The arrow at the scanner, consumed: { form, label }, with the label of the text forms (-- text -->, == text ==>,
@@ -543,8 +563,8 @@ function unquote(text, line) {
 }
 
 // A line of text on the page: its width, up to MAX_TEXT_WIDTH, and the lines it takes there when the page wraps it.
-const textWidthOf = (text) => Math.min(MAX_TEXT_WIDTH, Math.ceil(characters(text) * CHARACTER));
-const rowsOf = (text) => Math.max(1, Math.ceil((characters(text) * CHARACTER) / MAX_TEXT_WIDTH));
+const textWidthOf = (text) => Math.min(MAX_TEXT_WIDTH, Math.ceil(columnsOf(text) * CHARACTER));
+const rowsOf = (text) => wrappedLines(text, PER_LINE);
 
 // A box's size for its kind and text (see the top of this file): its lines and the line of its IDs.
 function sizeOf(kind, lines, ids) {

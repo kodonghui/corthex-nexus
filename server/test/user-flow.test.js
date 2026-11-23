@@ -264,16 +264,47 @@ describe('the user-flow drawer', () => {
     assert.deepEqual([labelled.width, labelled.height], [Math.ceil(3 * 7.2) + 8, 20]);
   });
 
-  test('a long label or box line is as wide as the page wraps it, and as tall as the lines it wraps to', () => {
+  test('a long label or box line is as wide as the page wraps it at its spaces, and as tall as the lines it wraps to', () => {
+    // 400 words of 4 letters, 13 to a line of 66 narrow characters (480 pixels), take 31 lines.
     const long = 'word '.repeat(400).trim();
-    const elements = drawn([`A["${long}"] -->|${long}| B`]);
-    const box = byKey(elements).get('A').detail.box;
-    assert.deepEqual([box.width, box.height], [480 + 24, Math.ceil((long.length * 7.2) / 480) * 20 + 24]);
-    const label = byKey(elements).get('A->B').detail.label_box;
-    assert.deepEqual([label.width, label.height], [480 + 8, Math.ceil((long.length * 7.2) / 480) * 20]);
+    const elements = drawn([`A["${long}"] -->|${long}| B`, `C["${'x'.repeat(200)}"]`]);
+    const keyed = byKey(elements);
+    const size = (box) => [box.width, box.height];
+    assert.deepEqual(size(keyed.get('A').detail.box), [480 + 24, 31 * 20 + 24]);
+    assert.deepEqual(size(keyed.get('A->B').detail.label_box), [480 + 8, 31 * 20]);
+    // A word longer than a line breaks where it reaches the line's end.
+    assert.deepEqual(size(keyed.get('C').detail.box), [480 + 24, 4 * 20 + 24]);
   });
 
-  test('lanes: each subgraph but the legend is a lane, the parent of the boxes named first in a lane in it; the legend and ~~~ draw nothing', () => {
+  test('a wide character such as Hangul takes twice the room of another', () => {
+    const elements = drawn([`A["${'가'.repeat(22)}"] -->|${'나'.repeat(5)}| B["${'a'.repeat(22)}"]`, `C["${'다'.repeat(40)}"]`]);
+    const keyed = byKey(elements);
+    assert.equal(keyed.get('A').detail.box.width, Math.ceil(44 * 7.2) + 24);
+    assert.equal(keyed.get('B').detail.box.width, Math.ceil(22 * 7.2) + 24);
+    assert.equal(keyed.get('A->B').detail.label_box.width, Math.ceil(10 * 7.2) + 8);
+    // 40 Hangul syllables are 80 narrow characters' room: a line of 66 holds 33, so they take two lines.
+    assert.deepEqual([keyed.get('C').detail.box.width, keyed.get('C').detail.box.height], [480 + 24, 2 * 20 + 24]);
+  });
+
+  test('statements share a line with ; between them, after the first statement and after style, classDef and direction', () => {
+    const elements = drawn([], { header: 'graph TD;A-->B;B-->C' });
+    assert.deepEqual(ofKind(elements, 'arrow').map((arrow) => [arrow.key, arrow.detail.where]), [['A->B', `${FILE}:4`], ['B->C', `${FILE}:4`]]);
+    // style and class name no box: A is the one its own statement names.
+    const more = drawn([
+      'A; style A fill:#f00; B --> C',
+      'classDef key fill:#ff0; class A key;',
+      'subgraph one',
+      '  direction LR; D --> E',
+      'end; linkStyle 0 stroke:#000; E --> F',
+    ]);
+    assert.deepEqual(more.map((element) => [element.key, element.parent]), [
+      ['lane:one', null], ['A', null], ['B', null], ['C', null], ['D', 'lane:one'], ['E', 'lane:one'], ['F', null],
+      ['B->C', 'B'], ['D->E', 'D'], ['E->F', 'E'],
+    ]);
+    assert.deepEqual(byKey(more).get('A').detail.marks, ['key']);
+  });
+
+  test('lanes: each subgraph but the legend is a lane, the parent of its boxes; the legend and ~~~ draw nothing', () => {
     const elements = drawn([
       'subgraph one["① Owner"]',
       '  direction LR',
@@ -302,7 +333,8 @@ describe('the user-flow drawer', () => {
       'end',
       'E',
     ]);
-    // C, linked outside any lane, is in the lane that lists it, as in Mermaid; A stays in the first lane that named it.
+    // C, linked outside any lane, is in the lane that lists it, as in Mermaid; A stays in the first lane that closed with
+    // it.
     assert.deepEqual(elements.map((element) => [element.key, element.kind, element.name, element.parent, element.detail.lane ?? null]), [
       ['lane:one', 'lane', '① Owner', null, null],
       ['lane:inner', 'lane', 'inner', 'lane:one', null],
@@ -319,12 +351,32 @@ describe('the user-flow drawer', () => {
     assertDrawing(elements);
   });
 
+  test('a box is in the first lane to close that names it, as Mermaid places it: an inner lane before the lane round it', () => {
+    const elements = drawn([
+      'subgraph outer',
+      '  A --> B',
+      '  subgraph inner',
+      '    B',
+      '  end',
+      'end',
+      'subgraph first',
+      '  C',
+      'end',
+      'subgraph second',
+      '  C --> D',
+      'end',
+    ]);
+    assert.deepEqual(ofKind(elements, ...BOX_KINDS).map((box) => [box.key, box.parent]), [
+      ['A', 'lane:outer'], ['B', 'lane:inner'], ['C', 'lane:first'], ['D', 'lane:second'],
+    ]);
+  });
+
   test('direction: TD and TB top to bottom, LR left to right, none top to bottom; BT and RL fail at the flowchart\'s line', () => {
     const boxes = (header) => {
       const keyed = byKey(drawn(['A --> B'], { header }));
       return [keyed.get('A').detail.box, keyed.get('B').detail.box];
     };
-    for (const header of ['flowchart TD', 'flowchart TB', 'graph TD', 'flowchart', 'graph', 'flowchart TD;', '  flowchart   TB  ']) {
+    for (const header of ['flowchart TD', 'flowchart TB', 'graph TD', 'flowchart', 'graph', 'flowchart TD;', '  flowchart   TB  ', 'graph;']) {
       const [a, b] = boxes(header);
       assert.ok(b.y >= a.y + a.height, header);
     }
@@ -332,8 +384,9 @@ describe('the user-flow drawer', () => {
       const [a, b] = boxes(header);
       assert.ok(b.x >= a.x + a.width, header);
     }
-    for (const header of ['flowchart BT', 'flowchart RL', 'graph BT', 'flowchart td', 'flowchart TD LR', 'flowchart TD; A --> B', 'flowchart-v2 TD']) {
-      assert.equal(failsAt(['A --> B'], { header }), header.startsWith('flowchart-v2') ? null : 4, header);
+    // A variant such as flowchart-elk is a flowchart that fails at its first line too.
+    for (const header of ['flowchart BT', 'flowchart RL', 'graph BT', 'flowchart td', 'flowchart TD LR', 'flowchart TD A --> B', 'flowchart-v2 TD', 'flowchart-elk TD', 'graph-x']) {
+      assert.equal(failsAt(['A --> B'], { header }), 4, header);
     }
   });
 

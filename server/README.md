@@ -132,7 +132,7 @@ The schema lists only the fields NEXUS reads and says NEXUS keeps the others as 
 
 ## Drawing
 
-The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board), TASK-422's [ERD](#erd), TASK-423's [item table](#item-table), TASK-424's [user flow](#user-flow), TASK-425's [sitemap](#sitemap), TASK-426's [screen states](#screen-states) and TASK-427's [mockup](#mockup) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, the reading of a picture's entries and warnings, and the placing of boxes sized for their text. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
+The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a drawing of each diagram from the snapshot (TBL-152 `drawings`) and the drawing's elements (TBL-153 `elements`), in the push's transaction (`src/drawing.js`; SPEC-001, SPEC-005). Each stage's drawer, TASK-421 to TASK-427, turns a document into elements and plugs in through `DRAWERS`. TASK-419 built what they plug into, and its tests draw with drawers of their own. `DRAWERS` holds TASK-421's [DDD board](#ddd-board), TASK-422's [ERD](#erd), TASK-423's [item table](#item-table), TASK-424's [user flow](#user-flow), TASK-425's [sitemap](#sitemap), TASK-426's [screen states](#screen-states) and TASK-427's [mockup](#mockup) drawers so far. What the drawers share is in `src/drawer.js`: the `SourceFailure` they throw, element keys, the contract's limits, the reading of a picture's entries and warnings, the measure of text, where a wide character such as Hangul takes the room of two, and the placing of boxes sized for their text. A drawer imports it in place of `src/drawing.js`, so no two files import each other.
 
 **Diagrams.** A diagram is drawn from one document of the snapshot. Its `source_key` is that document's path in `snapshot_files` (see Documents above), so a drawing finds its source from the diagram alone.
 
@@ -329,7 +329,7 @@ The coordinator chose the next five points for TASK-424, and puts them to the ma
 - **Direction.** `TD` and `TB` draw top to bottom, and so does a flowchart that names no direction. `LR` draws left to right. `BT` and `RL` are outside the subset.
 - **Lanes.** A subgraph is a lane: an element of kind `lane` that is the parent of its boxes, and each box names its lane in `detail.lane`, so the panel can show it.
   - A lane has no frame. The boxes are placed as usual and nothing overlaps. Frames can come once `layout.js` keeps a lane together.
-  - A box is in the first lane that names it. Naming it outside any lane does not count, as in Mermaid.
+  - A box is in the first lane to close that names it, as Mermaid places it: an inner lane before the lane round it. Naming it outside any lane does not count.
   - The legend subgraph, titled Legend or 범례, is left out with the subgraphs in it, their boxes and the links that touch them, since the page shows its own legend.
   - `direction` inside a subgraph is skipped.
 - **One flowchart per file.** The flowchart is the one mermaid block whose first statement is `flowchart` or `graph`. Other mermaid blocks, such as a sequence diagram, are skipped. A file with none fails at its source with no line. A second flowchart fails at its first line, so that the owner never confirms a diagram that leaves part of the file out.
@@ -337,8 +337,8 @@ The coordinator chose the next five points for TASK-424, and puts them to the ma
 
 **The subset it reads.** Anything else fails the drawing at its line of the file, so the page shows the source text with that line marked (SPEC-006, SCR-145).
 - **The file.** Markdown, whose fenced code blocks open with three or more backticks or tildes. The flowchart is in a block whose info string is `mermaid`; a block left open runs to the end of the file. The file's first ATX heading outside the code blocks names the diagram.
-- **The first statement.** Before it, blank lines, `%%` comment lines and front matter between two `---` lines are skipped. It is `flowchart` or `graph`, with `TD`, `TB`, `LR` or nothing, and an optional `;`.
-- **Statements**, one or more on a line, with `;` between them. Blank lines and lines that start with `%%`, Mermaid's directives `%%{…}%%` among them, are skipped.
+- **The first statement.** Before it, blank lines, `%%` comment lines and front matter between two `---` lines are skipped. It is `flowchart` or `graph`, with `TD`, `TB`, `LR` or nothing, and an optional `;` that other statements may follow on its line.
+- **Statements**, one or more on a line, with `;` between them: a `style`, `classDef`, `linkStyle` or `direction` statement ends at its `;` too. Blank lines and lines that start with `%%`, Mermaid's directives `%%{…}%%` among them, are skipped.
   - **A node** is its ID alone, a step labelled by it, or its ID with a shape: `A(["…"])` terminal, `A["…"]` step, `A{"…"}` decision, `A[("…")]` store, `A[["…"]]` LLM, or `A@{ shape: …, label: "…" }`. The `shape` is one of the grammar's names, `stadium`, `rect`, `diam`, `doc`, `cyl` and `fr-rect`, or one of Mermaid's other names for them: `pill`, `terminal`, `rectangle`, `proc`, `process`, `diamond`, `decision`, `question`, `document`, `cylinder`, `database`, `db`, `framed-rectangle`, `subproc`, `subprocess` and `subroutine`. The `label` is optional.
   - A label is quoted text with no quote in it, or bare text with no quote. `<br>`, `<br/>` or `<br />` breaks it into lines.
   - `:::name` after a node gives it a class.
@@ -347,7 +347,7 @@ The coordinator chose the next five points for TASK-424, and puts them to the ma
   - `subgraph ID` or `subgraph ID["title"]`, and `end`; `direction` inside a subgraph.
   - `class A,B name`, for nodes and edge IDs. `classDef`, `style` and `linkStyle` are read and not drawn, since NEXUS draws with its own tokens.
 - **Refused**, each at its line:
-  - `BT` and `RL`;
+  - `BT` and `RL`, and a variant of the first statement such as `flowchart-elk`;
   - any other shape, such as `(…)`, `((…))`, `{{…}}`, `[/…/]`, `[\…\]` or `>…]`, and any other `@{ … }` shape or key;
   - Markdown strings, a quote followed by a backtick;
   - links with no head or another head: `---`, `-.-`, `===`, `--o`, `--x` and `<-->`;
@@ -358,7 +358,7 @@ The rest:
 
 - **Keys.** A box's key is its node ID, so the box keeps it, and the threads on it, when its label or place changes. A lane's key is `lane:` and its ID. An arrow's key is its from and to boxes, `A->B`; a second arrow between the same two gets `#2`, a third `#3` and so on.
 - **Sizes.** A box is as large as its text and shape take, for the page that draws it (TASK-458).
-  - Its text is its lines and the line of its IDs, 20 pixels a line, with 12 pixels of padding round them. Its width is its longest line's in 12-pixel IBM Plex Mono, up to 480 pixels, plus the padding, and at least 80 pixels. The page wraps a longer line, and the box is as tall as the lines it wraps to.
+  - Its text is its lines and the line of its IDs, 20 pixels a line, with 12 pixels of padding round them. Its width is its longest line's in 12-pixel IBM Plex Mono, 7.2 pixels a character and twice that for a wide character such as Hangul, up to 480 pixels, plus the padding, and at least 80 pixels. The page wraps a longer line at its spaces, as `drawer.js`'s `wrappedLines` counts, breaking a word longer than a line at the line's end, and the box is as tall as the lines it wraps to.
   - A terminal is wider by half its height, for its round ends. A decision's diamond is as wide as its text's box plus twice that box's height, and as tall as that box plus half its width. A store is 16 pixels taller, a document 8 pixels taller and an LLM box 16 pixels wider.
   - An arrow's label is a 20-pixel line, as wide as its text with 4 pixels at each side, and wraps the same way.
   - `box` and `label_box` are `{ x, y, width, height }`, and `points` `[{ x, y }]`, as `layout.js` gives them.
@@ -377,8 +377,9 @@ CORTHEX_HUB_CHECKOUT=<the pinned hub checkout> python tests/test_user_flow_pictu
 
 It also checks:
 - each shape, link, label form and line kind, and the keys;
-- lanes, the legend and `~~~`;
-- the directions;
+- lanes, nested lanes, the legend and `~~~`;
+- wide characters and wrapped lines in the sizes;
+- the directions, and statements that share a line;
 - what is skipped round the flowchart, CRLF line endings, and a file with no flowchart or two;
 - more than 5000 elements, and a long line of statements read at once;
 - thousands of broken and random texts, which draw within the interface or fail at their source, and nothing else;
