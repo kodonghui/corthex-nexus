@@ -21,14 +21,19 @@
 //   drawing's version is refused as document_changed, naming the drawing and its version, unless NEXUS holds the commit
 //   and the diagram showed that same drawing at it: a push that left the diagram unchanged did not change its document.
 // - Changes. With source_text on stage 03 or 08, whose diagram is one file, NEXUS draws the text with that diagram's own
-//   drawer as the file at the diagram's key (drawing.js's drawProposed) and compares the two drawings by element key: in
-//   the proposed drawing's order, an element only it has is a connect from its detail.from to its detail.to when it is
-//   a line or an arrow between two of its elements, and an add otherwise; an element with another name is a rename;
-//   then each element only the current drawing has, in its order, is a remove. Every other difference, a position
-//   among them, makes no change. A text that does not draw gets invalid_request on source_text, naming the line it
-//   fails at, and so do more than 500 changes. On stage 01, 05 and 07 NEXUS draws the hub's parsed picture and reads
-//   none of their Markdown, SQL or YAML, so source_text is kept and makes no change: the change set marks its items
-//   with the change text, as without source_text (see the README's gap).
+//   drawer as the file at the diagram's key (drawing.js's drawProposed). On stage 05 or 07 (TASK-466) it reads the text
+//   as SQL or YAML into the picture the pinned hub would send (sql-picture.js, sitemap-picture.js), as the one file the
+//   current drawing's elements name in their where, with the hub's ID prefixes and those of the drawing's tables or
+//   screens, and draws that picture with the diagram's drawer, what the reading leaves out as its warnings, as a push
+//   draws it. It then compares the two drawings by element key: in the proposed drawing's order, an element only it has
+//   is a connect from its detail.from to its detail.to when it is a line or an arrow between two of its elements, and
+//   an add otherwise; a line or an arrow that both have but that joins other elements is a remove and then the connect
+//   (or add) of the new one; an element with another name is a rename; then each element only the current drawing has,
+//   in its order, is a remove. Every other difference, a position or a column among them, makes no change. A text that
+//   does not draw gets invalid_request on source_text, naming the line it fails at, and so do SQL that reads no table,
+//   YAML that reads no screen and more than 500 changes. On stage 01, and on 05 or 07 when the current drawing comes
+//   from several files, source_text is kept and makes no change: the change set marks its items with the change text,
+//   as without source_text (see the README's gap).
 // - The thread. Every proposal adds one agent entry to its thread, its change text, and the thread then waits on the
 //   owner. With comment, it is that thread, of the stage and part, as a reply's (comments.js's writeOnThread): a closed
 //   thread gets thread_closed, and while it waits on the agent, the proposal keeps the claim of its comment entry
@@ -47,17 +52,26 @@ import { writeSteps } from './changes.js';
 import { keepClaim, sessionOf } from './claims.js';
 import { addAgentEntry, boundedText, emptyOf, formOf, onlyFields, openOwnThread, textOf, writeOnThread } from './comments.js';
 import { MAX_TRACE_ID, TRACE_ID } from './drawer.js';
-import { diagramTraceId, drawProposed } from './drawing.js';
+import { diagramTraceId, drawProposed, pictureWarnings } from './drawing.js';
 import { changeSetsChanged, openAgentEntry, threadChanged } from './entries.js';
 import { idOf, keyOf } from './ids.js';
+import { idFormat } from './picture-text.js';
 import { invalidRequest, Problem } from './problem.js';
 import { DIAGRAM_ORDER, projectHead } from './project.js';
 import { changeSetOf } from './reads.js';
+import { readSitemapPicture } from './sitemap-picture.js';
+import { readSqlPicture } from './sql-picture.js';
 import { diagramPart } from './todo.js';
 
-// The contract's ProposalStage, and the stages of it whose diagram is one file, which source_text draws.
+// The contract's ProposalStage; the stages of it whose diagram is one file, which source_text draws; and those whose
+// source_text NEXUS reads into the hub's picture (TASK-466): the reader, the picture's list, and the kind of element
+// and of trace ID each of its entries is.
 const PROPOSAL_STAGES = Object.freeze(['01-domain', '03-user-flow', '05-erd', '07-sitemap', '08-screen-states']);
 const DRAWN_FROM_TEXT = new Set(['03-user-flow', '08-screen-states']);
+const READ_FROM_TEXT = new Map([
+  ['05-erd', Object.freeze({ read: readSqlPicture, list: 'tables', kind: 'table' })],
+  ['07-sitemap', Object.freeze({ read: readSitemapPicture, list: 'screens', kind: 'screen' })],
+]);
 const ITEM_TABLE = 'item_table';
 // Elements that join two others: a connect when the proposed drawing adds one.
 const JOINING = new Set(['line', 'arrow']);
@@ -106,7 +120,7 @@ function statementsOf(store) {
       holds: store.prepare(
         "SELECT 1 AS held FROM elements WHERE drawing_id = ? AND trace_id = ? AND (status IS NULL OR status <> 'unreadable') LIMIT 1",
       ),
-      elements: store.prepare('SELECT element_key, kind, name FROM elements WHERE drawing_id = ? ORDER BY id'),
+      elements: store.prepare('SELECT element_key, trace_id, kind, name, detail FROM elements WHERE drawing_id = ? ORDER BY id'),
       insertChangeSet: store.prepare(
         `INSERT INTO change_sets (project_id, diagram_id, drawing_id, origin, thread_id, credential_id, state, created_at, detail)
          VALUES (?, ?, ?, 'proposal', ?, ?, 'proposed', ?, ?)`,
@@ -260,29 +274,65 @@ function checkCommit(statements, project, diagram, drawing, commit) {
 
 const nameOrNone = (name) => (name === '' ? null : name);
 
+// The file of an element's where, a repository path and its line, such as db/nexus.sql:41; null for none.
+const LINED = /^(.+):[0-9]+$/su;
+function fileOf(where) {
+  if (typeof where !== 'string' || where === '') return null;
+  return LINED.exec(where)?.[1] ?? where;
+}
+
+// The proposed drawing of a text on stage 05 or 07 (see the top of this file), as drawProposed gives it; null when the
+// current drawing comes from several files, or { failure: { line, says } } for a text that reads no table or screen.
+function readProposed(request, diagram, current) {
+  const reader = READ_FROM_TEXT.get(diagram.stage);
+  const files = new Set(current.map(({ detail }) => fileOf(detail.where)).filter((file) => file !== null));
+  if (files.size > 1) return null;
+  const [file = diagram.source_key] = files;
+  // The prefixes of the drawing's own trace IDs of the reader's kind, which the project's ID formats may name.
+  const prefixes = current
+    .filter((element) => element.kind === reader.kind && typeof element.trace_id === 'string')
+    .map((element) => [element.trace_id.split('-')[0], reader.kind]);
+  const { picture, checks, failure } = reader.read([[file, request.sourceText]], { ids: idFormat(prefixes), part: request.part });
+  if (failure !== null && failure !== undefined) return { failure: { line: failure.line } };
+  if (picture === null || picture[reader.list].length === 0) return { failure: { line: null, says: `source_text reads no ${reader.kind}` } };
+  return drawProposed({
+    stage: diagram.stage, part: request.part, kind: diagram.kind, key: null, source: file, text: JSON.stringify(picture),
+    warnings: pictureWarnings(checks, diagram.stage, request.part),
+  });
+}
+
 // The changes a proposed document makes to the drawing (see the top of this file): each { op, element, name, target }.
 function changesOf(statements, request, diagram, drawing) {
-  if (request.sourceText === undefined || !DRAWN_FROM_TEXT.has(diagram.stage)) return [];
-  const proposed = drawProposed({
-    stage: diagram.stage, part: request.part, kind: diagram.kind, key: diagram.source_key, text: request.sourceText,
+  if (request.sourceText === undefined) return [];
+  if (!DRAWN_FROM_TEXT.has(diagram.stage) && !READ_FROM_TEXT.has(diagram.stage)) return [];
+  const current = statements.elements.all(Number(drawing.id)).map((element) => {
+    const detail = element.detail === null ? null : JSON.parse(element.detail);
+    return { ...element, detail: detail !== null && typeof detail === 'object' && !Array.isArray(detail) ? detail : {} };
   });
+  const proposed = DRAWN_FROM_TEXT.has(diagram.stage)
+    ? drawProposed({ stage: diagram.stage, part: request.part, kind: diagram.kind, key: diagram.source_key, text: request.sourceText })
+    : readProposed(request, diagram, current);
   if (proposed === null) return [];
   if (proposed.failure !== undefined) {
-    const { line } = proposed.failure;
-    throw invalidRequest('source_text', line === null ? 'source_text does not draw' : `source_text does not draw at its line ${line}`);
+    const { line, says = 'source_text does not draw' } = proposed.failure;
+    throw invalidRequest('source_text', line === null ? says : `${says} at its line ${line}`);
   }
-  const current = statements.elements.all(Number(drawing.id));
   const before = new Map(current.map((element) => [element.element_key, element]));
   const after = new Set(proposed.elements.map((element) => element.key));
   const changes = [];
   for (const element of proposed.elements) {
     const was = before.get(element.key);
+    const { from, to } = element.detail;
+    const joining = JOINING.has(element.kind);
+    const made = joining && after.has(from) && after.has(to) && from !== to
+      ? { op: 'connect', element: from, name: nameOrNone(element.name), target: to }
+      : { op: 'add', element: element.key, name: nameOrNone(element.name), target: null };
     if (was === undefined) {
-      const { from, to } = element.detail;
-      const joins = JOINING.has(element.kind) && after.has(from) && after.has(to) && from !== to;
-      changes.push(joins
-        ? { op: 'connect', element: from, name: nameOrNone(element.name), target: to }
-        : { op: 'add', element: element.key, name: nameOrNone(element.name), target: null });
+      changes.push(made);
+    } else if (joining && JOINING.has(was.kind) && (was.detail.from !== from || was.detail.to !== to)) {
+      // A line that now joins other elements under the same key, as an ERD line keyed by its table and columns whose
+      // foreign key references another table: the old line goes, and then the new one comes.
+      changes.push({ op: 'remove', element: element.key, name: null, target: null }, made);
     } else if (was.name !== element.name) {
       changes.push({ op: 'rename', element: element.key, name: element.name, target: null });
     }

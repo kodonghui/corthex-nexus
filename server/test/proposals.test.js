@@ -3,17 +3,21 @@
 // claims they change, the tables they touch (note 23) and their log lines. The project's diagrams, drawings, elements
 // and threads are written straight into the store with test/seed.js, as the push and the owner's operations of other
 // tasks would write them; the drawings of stage 03 and 08 are this repository's own flow and screen files, drawn by
-// their drawers as a push draws them.
+// their drawers as a push draws them, and those of the space sources, for TASK-466, the pinned hub's pictures of this
+// repository's db/nexus.sql and docs/07-sitemap/nexus.yaml (erd-picture.json and sitemap-picture.json).
 
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
-import { drawProposed } from '../src/drawing.js';
+import { TRACE_ID as ITEM_ID } from '../src/drawer.js';
+import { drawProposed, pictureWarnings } from '../src/drawing.js';
 import { threadChanged } from '../src/entries.js';
 import { idOf } from '../src/ids.js';
+import { idFormat } from '../src/picture-text.js';
 import { ROUTES } from '../src/routes.js';
+import { readSqlPicture } from '../src/sql-picture.js';
 import { openStore } from '../src/store.js';
 import { read } from './contract.js';
 import { responseRecord } from './responses.js';
@@ -56,6 +60,48 @@ const FL3_CHANGES = [
   { op: 'remove', element: 'R2->Z', name: null, target: null },
 ];
 const SCR_TEXT = read(SCR);
+// TASK-466: the pinned hub's pictures of this repository's schema and sitemap, and their texts.
+const fixture = (name) => JSON.parse(readFileSync(new URL(name, import.meta.url), 'utf8'));
+const ERD_PICTURE = fixture('erd-picture.json');
+const SITEMAP_PICTURE = fixture('sitemap-picture.json');
+const SQL_TEXT = read('db/nexus.sql');
+const YAML_TEXT = read('docs/07-sitemap/nexus.yaml');
+// The proposed schema: request_keys renamed, the elements' drawing_id referencing diagrams in place of drawings, a
+// column's type changed, restore_rehearsals removed, agent_notes added with a foreign key, a unique index on an
+// expression, which the hub leaves out, and a view, which it passes over.
+const SQL_PROPOSED = SQL_TEXT
+  .replace('CREATE TABLE request_keys (', 'CREATE TABLE idempotency_keys (')
+  .replace('drawing_id   INTEGER NOT NULL REFERENCES drawings (id) ON DELETE CASCADE,\n  element_key',
+    'drawing_id   INTEGER NOT NULL REFERENCES diagrams (id) ON DELETE CASCADE,\n  element_key')
+  .replace('  bytes        INTEGER,\n', '  bytes        BIGINT,\n')
+  .replace(/-- TBL-171 restore_rehearsals[^]*?CREATE INDEX restore_rehearsals_by_backup[^\n]*\n/u, '')
+  .concat('\n-- TBL-172 agent_notes (operations)\n',
+    'CREATE TABLE agent_notes (id INTEGER PRIMARY KEY, credential_id INTEGER NOT NULL REFERENCES agent_credentials (id), body TEXT);\n',
+    'CREATE UNIQUE INDEX todos_kind_lower ON todos (lower(kind));\n',
+    'CREATE VIEW open_todos AS SELECT * FROM todos WHERE closed_at IS NULL;\n');
+const LEFT_OUT = 'unique index has an unreadable column expression; rule omitted';
+const SQL_CHANGES = [
+  { op: 'rename', element: 'TBL-169', name: 'idempotency_keys', target: null },
+  { op: 'add', element: 'TBL-172', name: 'agent_notes', target: null },
+  { op: 'remove', element: 'TBL-153/line:drawing_id', name: null, target: null },
+  { op: 'connect', element: 'TBL-153', name: 'drawing_id', target: 'TBL-151' },
+  { op: 'connect', element: 'TBL-172', name: 'credential_id', target: 'TBL-146' },
+  { op: 'add', element: `statement:${LEFT_OUT}`, name: LEFT_OUT, target: null },
+  { op: 'remove', element: 'TBL-171', name: null, target: null },
+  { op: 'remove', element: 'TBL-171/line:backup_id', name: null, target: null },
+];
+// The proposed sitemap: SCR-146 renamed and moved from under SCR-145 to under SCR-144, and SCR-147 added under SCR-143.
+const SCR146 = YAML_TEXT.slice(YAML_TEXT.indexOf('                - id: SCR-146'));
+const YAML_PROPOSED = YAML_TEXT.slice(0, YAML_TEXT.indexOf(SCR146))
+  .concat(SCR146.replace(/^ {4}/gmu, '').replace('Changes since the last confirmation', 'Changes since confirmation'))
+  .concat('        - id: SCR-147\n          name: Agent sessions\n          path: /p/{project}/sessions\n');
+const YAML_CHANGES = [
+  { op: 'rename', element: 'SCR-146', name: 'Changes since confirmation', target: null },
+  { op: 'add', element: 'SCR-147', name: 'Agent sessions', target: null },
+  { op: 'connect', element: 'SCR-144', name: 'Changes since confirmation', target: 'SCR-146' },
+  { op: 'connect', element: 'SCR-143', name: 'Agent sessions', target: 'SCR-147' },
+  { op: 'remove', element: 'SCR-145/line:SCR-146', name: null, target: null },
+];
 
 describe('agent proposals', () => {
   const responses = responseRecord();
@@ -77,6 +123,7 @@ describe('agent proposals', () => {
   let screen;
   let board;
   let sitemap;
+  let sources;
   let clock = START;
 
   // An element of a drawing, by its trace ID, which is its key (TBL-153).
@@ -85,6 +132,13 @@ describe('agent proposals', () => {
   const drawFile = (drawing, stage, kind, key, text) => {
     const { elements } = drawProposed({ stage, part: 'nexus', kind, key, text });
     s.elements(drawing, elements);
+  };
+  // A stage's picture drawn as the push draws it, with the hub's warnings; an element keyed by a trace ID holds it.
+  const drawPicture = (drawing, stage, kind, part, { source, picture, checks }) => {
+    const { elements } = drawProposed({
+      stage, part, kind, key: null, source, text: JSON.stringify(picture), warnings: pictureWarnings(checks, stage, part),
+    });
+    s.elements(drawing, elements.map((each) => ({ ...each, trace_id: ITEM_ID.test(each.key) ? each.key : null })));
   };
 
   // Sends a write of action with its JSON body, request key and session, and checks the answer against the contract.
@@ -111,6 +165,9 @@ describe('agent proposals', () => {
     part: 'nexus', stage: '03-user-flow', items: ['FL-003'], reason: 'The agent may withdraw a proposal.', change: 'Add the withdrawal.',
     ...extra,
   });
+  const sourceProposal = (extra = {}) => propose({
+    part: 'nexus', stage: '05-erd', items: ['TBL-169'], reason: 'The schema reads better so.', change: 'Change the schema.', ...extra,
+  }, { project: sources.name });
 
   // An owner's thread that waits on the agent, with its comment entry: { thread, id, entry }.
   const waiting = (where, options = {}) => {
@@ -182,6 +239,22 @@ describe('agent proposals', () => {
     sitemap = s.diagram(space, { stage: '07-sitemap', sourceKey: '/pictures/07-sitemap/nexus', kind: 'sitemap', name: 'Sitemap', status: 'failed' });
     s.snapshot(space, { parts: ['nexus'], pictures: PICTURES });
     commits.push(space.commit);
+    // TASK-466: a space whose ERD and sitemap are the pinned hub's pictures of this repository's schema and sitemap;
+    // in part own an ERD of the project's own table ID prefix, and in part split one drawn from two files.
+    sources = s.project('sources', { parts: ['nexus', 'own', 'split'] });
+    const schema = s.diagram(sources, { sourceKey: '/pictures/05-erd/nexus' });
+    drawPicture(schema.drawing, '05-erd', 'erd', 'nexus', ERD_PICTURE);
+    const screens = s.diagram(sources, { stage: '07-sitemap', sourceKey: '/pictures/07-sitemap/nexus', kind: 'sitemap', name: 'Sitemap' });
+    drawPicture(screens.drawing, '07-sitemap', 'sitemap', 'nexus', SITEMAP_PICTURE);
+    const own = s.diagram(sources, { sourceKey: '/pictures/05-erd/own' });
+    const ownSql = '-- T-1 users of the own part\nCREATE TABLE users (id INTEGER PRIMARY KEY);\n';
+    const ownPicture = readSqlPicture([['db/own.sql', ownSql]], { ids: idFormat([['T', 'table']]), part: 'own' });
+    drawPicture(own.drawing, '05-erd', 'erd', 'own', { source: 'db/own.sql', ...ownPicture });
+    const split = s.diagram(sources, { sourceKey: '/pictures/05-erd/split' });
+    s.elements(split.drawing, [
+      { key: 'TBL-301', trace_id: 'TBL-301', kind: 'table', name: 'left', detail: { where: 'db/left.sql:2' } },
+      { key: 'TBL-302', trace_id: 'TBL-302', kind: 'table', name: 'right', detail: { where: 'db/right.sql:2' } },
+    ]);
     // A space whose stage 08 shows its item table, and whose other stages drew nothing.
     bare = s.project('bare');
     bareItems = s.diagram(bare, { stage: '08-screen-states', sourceKey: '/items/08-screen-states', kind: 'item_table', name: 'Item table' });
@@ -289,12 +362,61 @@ describe('agent proposals', () => {
     assert.equal(count('change_sets'), sets);
   });
 
-  test('on stage 01, 05 and 07 source_text is kept and makes no change: the items carry the change text', async () => {
+  test('on stage 01, and on 05 drawn from several files, source_text is kept and makes no change: the items carry the change text', async () => {
     clock = START + 3 * MINUTE;
-    const answer = await propose(erdProposal({ source_text: 'CREATE TABLE agent_keys (id INTEGER PRIMARY KEY);' }));
-    assert.deepEqual([answer.status, answer.json.source_text, answer.json.changes, answer.json.items], [201, true, [], ['TBL-146']]);
     const domain = await propose({ ...erdProposal({ stage: '01-domain', items: ['CTX-038'] }), source_text: '# Domain\n' });
     assert.deepEqual([domain.status, domain.json.diagram, domain.json.source_text, domain.json.changes], [201, idOf('dg', board.id), true, []]);
+    const split = await sourceProposal({ part: 'split', items: ['TBL-301'], source_text: 'CREATE TABLE agent_keys (id INTEGER PRIMARY KEY);' });
+    assert.deepEqual([split.status, split.json.source_text, split.json.changes, split.json.items], [201, true, [], ['TBL-301']]);
+  });
+
+  test('with source_text on stage 05, NEXUS reads the SQL as the pinned hub does, and the differences become changes (TASK-466)', async () => {
+    clock = START + 3 * MINUTE;
+    // Each edit of the schema took place, so that a change of db/nexus.sql cannot quietly leave one out.
+    for (const part of ['CREATE TABLE idempotency_keys (', 'REFERENCES diagrams (id)', 'bytes        BIGINT,', 'CREATE TABLE agent_notes']) {
+      assert.ok(SQL_PROPOSED.includes(part), part);
+    }
+    assert.equal(SQL_PROPOSED.includes('CREATE TABLE restore_rehearsals'), false);
+    const answer = await sourceProposal({ source_text: SQL_PROPOSED });
+    assert.equal(answer.status, 201);
+    assert.deepEqual([answer.json.source_text, answer.json.items, answer.json.changes], [true, ['TBL-169'], SQL_CHANGES]);
+    assert.equal(JSON.parse(setRow(lastSet()).detail).source_text, SQL_PROPOSED);
+    // The schema as it is makes no change, and neither do a column's type, a comment or a statement the hub passes over.
+    for (const text of [SQL_TEXT, SQL_TEXT.replace('  bytes        INTEGER,\n', '  bytes        BIGINT, -- in bytes\n'), `${SQL_TEXT}CREATE VIEW v AS SELECT 1;\n`]) {
+      const same = await sourceProposal({ source_text: text });
+      assert.deepEqual([same.status, same.json.changes], [201, []]);
+    }
+    // A table keyed by the project's own ID prefix, which the drawing's tables have, keeps its key.
+    const own = await sourceProposal({ part: 'own', items: ['T-1'], source_text: '-- T-1 members\nCREATE TABLE members (id INTEGER PRIMARY KEY);\n' });
+    assert.deepEqual([own.status, own.json.changes], [201, [{ op: 'rename', element: 'T-1', name: 'members', target: null }]]);
+  });
+
+  test('with source_text on stage 07, NEXUS reads the YAML as the pinned hub does: a moved screen moves its line (TASK-466)', async () => {
+    clock = START + 3 * MINUTE;
+    assert.ok(YAML_PROPOSED.includes('\n            - id: SCR-146\n              name: Changes since confirmation\n'));
+    const answer = await sourceProposal({ stage: '07-sitemap', items: ['SCR-146'], source_text: YAML_PROPOSED });
+    assert.equal(answer.status, 201);
+    assert.deepEqual([answer.json.items, answer.json.changes], [['SCR-146'], YAML_CHANGES]);
+    const same = await sourceProposal({ stage: '07-sitemap', items: ['SCR-146'], source_text: `${YAML_TEXT}# a comment\n` });
+    assert.deepEqual([same.status, same.json.changes], [201, []]);
+  });
+
+  test('SQL that reads no table, YAML that reads no screen or does not read, get invalid_request on source_text (TASK-466)', async () => {
+    const sets = count('change_sets');
+    const sitemapAt = (text) => ({ stage: '07-sitemap', items: ['SCR-146'], source_text: text });
+    for (const [body, detail] of [
+      [{ source_text: 'INSERT INTO request_keys VALUES (1);\nCREATE VIEW v AS SELECT 1;\n' }, 'source_text reads no table'],
+      [sitemapAt('# no screen here\n---\n'), 'source_text reads no screen'],
+      [sitemapAt('- id: SCR-146\n  name: a : b\n'), 'source_text does not draw at its line 2'],
+      [sitemapAt('- id: SCR-146\n\tname: tabbed\n'), 'source_text does not draw at its line 2'],
+      [sitemapAt('- id: SCR-146\n  name: &anchor x\n'), 'source_text does not draw at its line 2'],
+      [sitemapAt('- id: SCR-146\n  name: "\\ud800"\n'), 'source_text does not draw at its line 2'],
+    ]) {
+      const refused = await sourceProposal(body);
+      assert.deepEqual([refused.status, refused.json.code, refused.json.field, refused.json.detail], [400, 'invalid_request', 'source_text', detail]);
+      assert.equal(refused.text.includes(body.source_text.trim().split('\n')[1] ?? body.source_text), false);
+    }
+    assert.equal(count('change_sets'), sets);
   });
 
   test('stage 09, and a stage or diagram with no drawn picture, are refused, and nothing is written (SPEC-018)', async () => {
@@ -652,6 +774,7 @@ describe('agent proposals', () => {
     }
     const text = server.logText();
     for (const value of [S1, S2, 'Rename agent_credentials', 'The owner asked', 'Agent withdraws the proposal', 'CREATE TABLE agent_keys',
+      'CREATE TABLE agent_notes', 'Agent sessions', 'tabbed', 'idempotency_keys',
       'value-that-must-not-come-back', folder, folder.replaceAll('\\', '/'), JSON.stringify(folder).slice(1, -1)]) {
       assert.equal(text.includes(value), false, value);
     }
