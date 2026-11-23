@@ -105,11 +105,18 @@ function readableKeys(statements, drawing) {
   return keys;
 }
 
-// The last name an element had in a drawing of its diagram that drew it readable, or its key when it had none.
-function lastNameOf(statements, diagram, key) {
+// The last name an element had in a drawing of its diagram that drew it readable, or null when it had none.
+function readableNameOf(statements, diagram, key) {
   const name = statements.lastName.get(diagram, key)?.name;
-  return typeof name === 'string' && name !== '' ? name : key;
+  return typeof name === 'string' && name !== '' ? name : null;
 }
+
+// The name a moved thread is marked with: that last readable name, or the element's key when it had none.
+const lastNameOf = (statements, diagram, key) => readableNameOf(statements, diagram, key) ?? key;
+
+// The same last readable name for comments.js's targetOf, so that a comment on an element that left is marked as a
+// thread the push moved is (SPEC-016, SPEC-027).
+export const lastReadableName = (store, diagram, key) => readableNameOf(statementsOf(store), diagram, key);
 
 // Moves the open threads of the diagram's elements that keys does not hold to the diagram, and links again those moved
 // before whose element keys holds. keys is null for a removed diagram, which holds none. Returns how many moved.

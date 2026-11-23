@@ -28,8 +28,12 @@
 //   session's claim refuses it with claimed), and since the write closes that entry, it then releases the session's
 //   claim as done (finishClaim).
 //
+// The owner's side of a thread (TASK-443, threads.js) shares the reading of a request's fields, a thread's target and
+// its summary, and entryOf.
+//
 // Nothing here logs; a comment's text, a session's label and a link are in the store and the answers only (rule 5).
 
+import { lastReadableName } from './after-drawing.js';
 import { finishClaim, keepClaim, sessionOf } from './claims.js';
 import { openAgentEntry, threadChanged } from './entries.js';
 import { idOf, keyOf } from './ids.js';
@@ -251,7 +255,9 @@ function threadOf(statements, project, id) {
   return { id: key, state: row.state, waitsOn: row.waits_on, closedBy: row.closed_by };
 }
 
-// The contract's ThreadSummary of a thread, with the time of its last entry.
+// The contract's ThreadSummary of a thread { id, state, waitsOn, closedBy }, with the time of its last entry.
+export const threadSummary = (store, thread) => summaryOf(statementsOf(store), thread);
+
 function summaryOf(statements, thread) {
   return {
     id: idOf('nc', thread.id),
@@ -340,14 +346,20 @@ const itemNotFound = (item) => new Problem('item_not_found', undefined, {}, { it
 
 // The thread's target (TBL-155): the diagram as a whole without element; an element, or a row of an item table, that
 // the current drawing holds readable; or else the diagram, keeping the key of the element that left with its last name.
-// An element the current drawing draws as unreadable counts as gone, as after-drawing.js counts it (SPEC-027).
-function targetOf(statements, diagram, drawing, element) {
+// An element the current drawing draws as unreadable counts as gone, as after-drawing.js counts it (SPEC-027). element
+// is { element_key, name } of the drawing the comment is at, which is drawn, so the diagram has a current drawing.
+// The last name is the element's last readable name in any drawing of the diagram, the one after-drawing.js marks a
+// moved thread with; else its name in the drawing the comment is at, for an element only ever drawn unreadable; else
+// its key. So a comment at an older drawing on an element renamed and then removed shows the later name.
+export function targetOf(store, diagram, element) {
   if (element === null) return { kind: 'diagram', key: null, removedName: null };
+  const statements = statementsOf(store);
   const key = element.element_key;
   const current = statements.current.get(Number(diagram.id));
   const held = statements.holds.get(Number(current.id), key) !== undefined;
   if (held) return { kind: diagram.kind === 'item_table' ? 'row' : 'element', key, removedName: null };
-  return { kind: 'diagram', key, removedName: element.name === '' ? key : element.name };
+  const name = lastReadableName(store, Number(diagram.id), key) ?? (element.name === '' ? key : element.name);
+  return { kind: 'diagram', key, removedName: name };
 }
 
 // API-252: an agent's comment opens a thread that waits on the owner, a question of the owner's to-do (SPEC-016).
@@ -360,7 +372,7 @@ function leaveComment({ store, params, request: incoming, body, credential, now 
   // NEXUS v3 opens no discrepancies, so none is ever found.
   if (request.discrepancy !== undefined) throw new Problem('discrepancy_not_found');
   const { diagram, drawing, element } = placeOf(store, statements, project, request);
-  const target = targetOf(statements, diagram, drawing, element);
+  const target = targetOf(store, diagram, element);
   const time = timeNow(now);
   const { lastInsertRowid } = statements.insertThread.run(
     Number(diagram.id), Number(drawing.id), target.kind, target.key, target.removedName, time,
