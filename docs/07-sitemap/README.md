@@ -161,4 +161,4 @@ One approved item changed, asked on its own and approved through the same delega
 
 #### After the second review of pull request 104
 
-One approved item changed, asked on its own and approved through the same delegate: the query is the `?d=` that section 5 already names, not a new `?diagram=`, so a diagram opened from the to-do and one opened from the list behave the same. This part waits for its own checkpoint.
+One approved item changed, asked on its own and approved through the same delegate: the query is the `?d=` that section 5 already names, not a new `?diagram=`, so a diagram opened from the to-do and one opened from the list behave the same. This part passed its own checkpoint on 2026-11-23 through the same delegate.
