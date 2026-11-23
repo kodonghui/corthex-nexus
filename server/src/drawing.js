@@ -41,12 +41,15 @@
 // - documents: the documents kept now, each { path, stage, part, key, kind, sha256, where } (see snapshot.js): kind is
 //   picture, items or snapshot; key is the file's path for a picture of stage 03, 08 or 09, otherwise null; where is
 //   the repository path it comes from. A document left out as REQ-077 asks is not among them.
+// - earlier: for a completed revision, the push's other documents, which the revision kept before and this call does
+//   not draw again, each { path, stage, part }; none otherwise.
 // - time: the push's time, for created_at, drawn_at and removed_at.
 // - drawers: the drawers by kind, DRAWERS unless a test gives its own.
 // It returns what the push answer says of the drawing: { diagrams: { drawn, unchanged, failed, removed }, failures },
 // failures as the contract's PushAnswer gives them. drawn counts the new drawings that drew, failed the diagrams whose
-// source in these documents fails, whether it changed or not, removed the diagrams this snapshot removed, and unchanged
-// every other diagram that is not removed, those kept as last drawn included. It refuses nothing.
+// source in the push fails, whether it changed or not, removed the diagrams this snapshot removed, and unchanged every
+// other diagram that is not removed, those kept as last drawn included. A diagram this call does not draw again fails
+// when its last drawing failed and earlier holds its source, as drawing it again would. It refuses nothing.
 //
 // A drawer: drawer({ stage, part, key, kind, source, text, read }) returns { name, elements }, at once (no promise).
 // - stage, part, key: the document's (key null but for a file of stage 03, 08 or 09); kind: the diagram's kind.
@@ -61,6 +64,7 @@
 //   characters, such as table, line or token; name text, cut to 200 characters, '' when it has none (SPEC-010);
 //   trace_id, key and parent optional, a trace ID and element keys of the contract's forms, parent the key of another
 //   element of the drawing; status optional, up to 60 characters; detail optional, a JSON object of what the kind draws.
+//   An optional member left out or null has none, and a detail of none is {}.
 //   More elements than 5000 fail the drawing at its source.
 // - It throws new SourceFailure({ path, line }) for a source it cannot read: path a repository path, the document's
 //   source when left out, and line a line number or none. Any other error is a fault.
@@ -172,7 +176,6 @@ function statementsOf(store) {
          FROM diagrams d LEFT JOIN drawings w ON w.id = (SELECT max(id) FROM drawings WHERE diagram_id = d.id)
          WHERE d.project_id = ? ORDER BY d.id`,
       ),
-      live: store.prepare('SELECT count(*) AS n FROM diagrams WHERE project_id = ? AND removed_at IS NULL'),
       document: store.prepare(
         `SELECT b.body, b.sha256 FROM snapshot_files f JOIN document_blobs b ON b.sha256 = f.blob_sha256
          WHERE f.snapshot_id = ? AND f.path = ?`,
@@ -215,7 +218,8 @@ function elementsOf(elements) {
   const rows = elements.map((element, index) => {
     const at = `elements[${index}]`;
     if (!isObject(element)) throw new TypeError(`${at} must be an object`);
-    const { kind, name, detail = {} } = element;
+    const { kind, name } = element;
+    const detail = element.detail ?? {};
     if (typeof kind !== 'string' || kind.length > MAX_KIND || !KIND.test(kind)) throw new TypeError(`${at}.kind must be a lowercase word`);
     if (typeof name !== 'string') throw new TypeError(`${at}.name must be text`);
     if (!isObject(detail)) throw new TypeError(`${at}.detail must be an object`);
@@ -297,10 +301,11 @@ function drawOne(statements, snapshotId, drawer, document, kind) {
     const result = drawer({ stage, part, key, kind, source, text, read });
     if (!isObject(result) || !Array.isArray(result.elements)) throw new TypeError('a drawer returns { name, elements }');
     if (result.name !== undefined && result.name !== null && typeof result.name !== 'string') throw new TypeError('a diagram\'s name is text');
-    const name = typeof result.name === 'string' && result.name.trim() !== '' ? cut(result.name, MAX_NAME) : null;
+    // A drawing that fails names nothing: the diagram keeps its name with its last good drawing.
     if (result.elements.length > MAX_ELEMENTS) {
-      return { status: 'failed', digest: digest(), name, rows: [], failure: { path: source, line: null } };
+      return { status: 'failed', digest: digest(), name: null, rows: [], failure: { path: source, line: null } };
     }
+    const name = typeof result.name === 'string' && result.name.trim() !== '' ? cut(result.name, MAX_NAME) : null;
     return { status: 'drawn', digest: digest(), name, rows: elementsOf(result.elements), failure: null };
   } catch (error) {
     if (!(error instanceof SourceFailure)) throw error;
@@ -335,8 +340,31 @@ function defaultName(kind, document) {
   return document.stage;
 }
 
+const sourceOf = (stage, path) => `${stage}\n${path}`;
+
+// A failures entry of the push answer: the diagram, the part and stage of its document, and where it failed.
+const failureEntry = (diagramId, document, failure) => ({
+  diagram: idOf('dg', Number(diagramId)), part: document.part, stage: document.stage, where: whereOf(failure),
+});
+
+// Counts a diagram that is not removed and that this call does not draw again: failed, and named in failures, when its
+// last drawing failed and the push holds its source, as drawing it again would find; otherwise unchanged. sent holds
+// the push's documents by stage and path.
+function countNotDrawn(diagram, sent, counts, failures) {
+  const document = sent.get(sourceOf(diagram.stage, diagram.source_key));
+  if (diagram.status !== 'failed' || document === undefined) {
+    counts.unchanged += 1;
+    return;
+  }
+  counts.failed += 1;
+  const line = diagram.failed_line === null ? null : Number(diagram.failed_line);
+  failures.push(failureEntry(diagram.id, document, { path: diagram.failed_path, line }));
+}
+
+const sentBy = (documents) => new Map(documents.map((document) => [sourceOf(document.stage, document.path), document]));
+
 // Draws a kept snapshot (see the top of this file).
-export function drawSnapshot({ store, project, snapshot, completed, documents, time, drawers = DRAWERS }) {
+export function drawSnapshot({ store, project, snapshot, completed, documents, earlier = [], time, drawers = DRAWERS }) {
   checkDrawers(drawers);
   const statements = statementsOf(store);
   const carries = new Set(snapshot.carries);
@@ -344,7 +372,8 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, t
   const scope = completed ? new Set(snapshot.carries.filter((stage) => !snapshot.carried.includes(stage))) : null;
   const inScope = (stage) => scope === null || scope.has(stage);
   const diagrams = statements.diagrams.all(project.id);
-  const bySource = new Map(diagrams.map((diagram) => [`${diagram.stage}\n${diagram.source_key}`, diagram]));
+  const bySource = new Map(diagrams.map((diagram) => [sourceOf(diagram.stage, diagram.source_key), diagram]));
+  const sent = sentBy(earlier);
   // The stages a snapshot drew pictures of, whose item tables made way for them.
   const pictured = new Set(diagrams.filter((diagram) => diagram.kind !== ITEM_TABLE).map((diagram) => diagram.stage));
   const counts = { drawn: 0, unchanged: 0, failed: 0, removed: 0 };
@@ -357,7 +386,7 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, t
     const drawer = kind !== null && Object.hasOwn(drawers, kind) ? drawers[kind] : undefined;
     if (drawer === undefined) continue;
     const outcome = drawOne(statements, snapshot.id, drawer, document, kind);
-    let diagram = bySource.get(`${document.stage}\n${document.path}`);
+    let diagram = bySource.get(sourceOf(document.stage, document.path));
     if (diagram === undefined) {
       const { lastInsertRowid } = statements.insertDiagram.run(
         project.id, document.stage, document.path, kind, outcome.name ?? defaultName(kind, document), time,
@@ -378,7 +407,7 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, t
     }
     if (outcome.status === 'failed') {
       counts.failed += 1;
-      failures.push({ diagram: idOf('dg', Number(diagram.id)), part: document.part, stage: document.stage, where: whereOf(outcome.failure) });
+      failures.push(failureEntry(diagram.id, document, outcome.failure));
     } else {
       counts[unchanged ? 'unchanged' : 'drawn'] += 1;
     }
@@ -388,7 +417,7 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, t
     if (held.has(diagram.id) || diagram.removed_at !== null) continue;
     // A diagram this call does not draw, or a picture the format does not carry, kept as last drawn (SPEC-005).
     if (!inScope(diagram.stage) || (diagram.kind !== ITEM_TABLE && !carries.has(diagram.stage))) {
-      counts.unchanged += 1;
+      countNotDrawn(diagram, sent, counts, failures);
       continue;
     }
     statements.remove.run(time, diagram.id);
@@ -398,8 +427,14 @@ export function drawSnapshot({ store, project, snapshot, completed, documents, t
 }
 
 // What the push answer says of the drawing when the same commit comes again in the same or an older format, which
-// draws nothing: every diagram that is not removed is unchanged.
-export function heldDrawing({ store, project }) {
-  const unchanged = Number(statementsOf(store).live.get(project.id).n);
-  return { diagrams: { drawn: 0, unchanged, failed: 0, removed: 0 }, failures: [] };
+// draws nothing: documents are the push's, each { path, stage, part }. Every diagram that is not removed is unchanged,
+// but one whose last drawing failed and whose source the push holds, which fails as the commit's first answer said.
+export function heldDrawing({ store, project, documents }) {
+  const counts = { drawn: 0, unchanged: 0, failed: 0, removed: 0 };
+  const failures = [];
+  const sent = sentBy(documents);
+  for (const diagram of statementsOf(store).diagrams.all(project.id)) {
+    if (diagram.removed_at === null) countNotDrawn(diagram, sent, counts, failures);
+  }
+  return { diagrams: counts, failures: failures.slice(0, MAX_FAILURES) };
 }

@@ -152,17 +152,20 @@ function pushSnapshot(drawers, { store, request, body, size, credential, now }) 
 
 // The held commit again: the same revision. In a newer format than it came in, it completes that revision with the
 // documents of the picture stages the older format did not carry and draws them; otherwise nothing is kept again or
-// drawn, and every diagram is unchanged.
+// drawn, and every diagram is unchanged but those whose source fails, named in failures again.
 function again({ statements, store, project, held, snapshot, time, drawers }) {
   const revision = Number(held.revision);
+  // The push's documents, less those left out as REQ-077 asks: a diagram that is not drawn again and whose source is
+  // among them fails as its last drawing did.
+  const sent =snapshot.documents.filter((document) => document.why === null);
   let drawn;
   let refused = [];
   if (isNewer(snapshot.format, held.format_version)) {
     const carried = carriedBy(held.format_version);
     const before = new Set(carried);
-    const added = snapshot.documents.filter((document) => document.kind === 'picture' && !before.has(document.stage));
+    const isAdded = (document) => document.kind === 'picture' && !before.has(document.stage);
     statements.format.run(snapshot.format, held.id);
-    const kept = keep(statements, Number(held.id), added);
+    const kept = keep(statements, Number(held.id), snapshot.documents.filter(isAdded));
     refused = kept.refused;
     drawn = drawSnapshot({
       store,
@@ -170,11 +173,12 @@ function again({ statements, store, project, held, snapshot, time, drawers }) {
       snapshot: { id: Number(held.id), revision, commit: snapshot.commit, format: snapshot.format, carries: snapshot.carries, carried },
       completed: true,
       documents: kept.kept,
+      earlier: sent.filter((document) => !isAdded(document)),
       time,
       drawers,
     });
   } else {
-    drawn = heldDrawing({ store, project });
+    drawn = heldDrawing({ store, project, documents: sent });
   }
   return answer({ project: project.name, revision, commit: snapshot.commit, replaced: null, created: false, sameCommit: true, drawn, refused });
 }

@@ -126,7 +126,7 @@ The schema lists only the fields NEXUS reads and says NEXUS keeps the others as 
 
 **Secrets and email addresses** (REQ-077, `src/sensitive.js`). A document whose text looks like a secret (an OpenAI-style, GitHub, Slack or AWS key, or a private key's first line) or an email address is left out. The answer's `refused` names it with its part, its stage, where it is from (its key, or the stage's source as the snapshot's stage record names it) and `why`, `secret` or `email`, up to 500 of them. The patterns are the pinned hub's own, which redacts every text before it sends it, so NEXUS leaves out no more than the hub hides. The rest, `/snapshot`, has no stage to name it by, so a snapshot whose other fields hold such text, which the hub never sends, gets `invalid_snapshot` naming the field. No answer or table holds the text of a document left out or what was found in it, and no log line holds its path either (rule 5).
 
-**Drawing.** After it keeps a snapshot, the push draws it in the same transaction, as [Drawing](#drawing) says, and the answer's `diagrams` and `failures` say what it drew. The same commit again in the same or an older format draws nothing: every diagram is `unchanged`. What a drawing changes after it, the answer's `confirmations_invalidated`, `change_sets_reflected` and `threads_moved`, is TASK-435's, so those are 0 until it lands.
+**Drawing.** After it keeps a snapshot, the push draws it in the same transaction, as [Drawing](#drawing) says, and the answer's `diagrams` and `failures` say what it drew. The same commit again in the same or an older format draws nothing: every diagram is `unchanged`, except one whose source in the push failed, which is `failed` and named in `failures` again. What a drawing changes after it, the answer's `confirmations_invalidated`, `change_sets_reflected` and `threads_moved`, is TASK-435's, so those are 0 until it lands.
 
 `test/snapshots.test.js` sends 0.2 and 0.3 snapshots of this repository that `test/snapshots.js` builds from its files when the tests run, so no snapshot file is kept in Git. It builds 0.2 from the schema too, rather than with the pinned hub, because the server's tests run with Node alone. It makes every secret-looking and email-looking value at run time from parts. Its pushes draw with the test drawers of `test/drawers.js`, so its answers count diagrams.
 
@@ -162,7 +162,7 @@ The push draws each snapshot it keeps into diagrams (TBL-151 `diagrams`), a draw
 
 **The answer.** API-242's `diagrams` counts:
 - `drawn`: the new drawings that drew;
-- `failed`: the diagrams whose source in this snapshot fails, whether it changed or not. Each is named in `failures` with its `diagram`, `part`, `stage` and `where`, the path and its line, up to 500;
+- `failed`: the diagrams whose source in the push fails, whether it changed or not. Each is named in `failures` with its `diagram`, `part`, `stage` and `where`, the path and its line, up to 500. A diagram that is not drawn again, in a completed revision or the same commit again, fails when its last drawing failed and the push holds its source;
 - `removed`: the diagrams the snapshot removed;
 - `unchanged`: every other diagram that is not removed, those kept as last drawn included.
 
@@ -189,11 +189,11 @@ function erd({ stage, part, key, kind, source, text, read }) {
 
 | It returns | Meaning |
 | --- | --- |
-| `name` | Optional: the diagram's name, cut to 200 characters. Until a drawer names it, a diagram is named `DDD board`, `ERD` or `Sitemap`, by its file's name, or by its stage. |
+| `name` | Optional: the diagram's name, cut to 200 characters. Until a drawer names it, a diagram is named `DDD board`, `ERD` or `Sitemap`, by its file's name, or by its stage. A drawing that fails leaves the name as it was. |
 | `elements` | Up to 5000. More fail the drawing at its source. |
 | `elements[].kind` | A lowercase word of up to 40 characters, such as `table`, `line` or `token`. |
 | `elements[].name` | Text, cut to 200 characters; `''` when it has none (SPEC-010). |
-| `elements[].trace_id`, `key`, `parent`, `status`, `detail` | Optional: a trace ID; the element's key; the key of another element of the drawing; up to 60 characters; a JSON object of what the kind draws, such as a table's columns. |
+| `elements[].trace_id`, `key`, `parent`, `status`, `detail` | Optional: a trace ID; the element's key; the key of another element of the drawing; up to 60 characters; a JSON object of what the kind draws, such as a table's columns. Left out or null, each has none, and `detail` is `{}`. |
 
 - **A source it cannot read:** it throws `new SourceFailure({ path, line })`. `path` is a repository path of up to 300 characters, the document's `source` when left out; `line` is a line number or none.
 - **A fault:** any other error, or an answer that breaks the rules above. The push answers `internal` and changes nothing, and the log names only the error's kind.

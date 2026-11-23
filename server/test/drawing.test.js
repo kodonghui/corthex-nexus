@@ -252,6 +252,21 @@ describe('drawing a snapshot', () => {
       assert.deepEqual(rows(), { ...before, snapshots: before.snapshots + 1, snapshot_files: rows().snapshot_files });
     });
 
+    test('the same commit again names them again, and in an older format those it carries, and changes nothing', async () => {
+      const before = rows();
+      const same = await push(broken(c));
+      assert.deepEqual([same.json.same_commit, same.json.diagrams, same.json.failures],
+        [true, counted({ unchanged: DIAGRAMS_03 - 3, failed: 3 }), expectedFailures]);
+      // corthex-hub/0.2 does not carry the flow, which stays as last drawn (SPEC-005).
+      const older = repositorySnapshot(FORMAT_02, { name, commit: c });
+      pictureOf(older, '05-erd').source.tables[2].broken = true;
+      pictureOf(older, '07-sitemap').source.screens[0].broken = 'source';
+      const answer = await push(older);
+      assert.deepEqual([answer.json.same_commit, answer.json.diagrams, answer.json.failures],
+        [true, counted({ unchanged: DIAGRAMS_03 - 2, failed: 2 }), expectedFailures.slice(0, 2)]);
+      assert.deepEqual(rows(), before);
+    });
+
     test('a source that reads again draws again', async () => {
       clock.now = START + 3000;
       const answer = await push(repositorySnapshot(FORMAT_03, { name, commit: d, replaces: c }));
@@ -365,7 +380,7 @@ describe('drawing a snapshot', () => {
         { key: 'lane:owner', kind: 'lane', name: 'Owner' },
         { kind: 'event', name: 'Snapshot\n  accepted', parent: 'lane:owner' },
         { kind: 'line', key: 'TBL-152>TBL-151', name: '' },
-        { kind: 'note', name: 'Same' },
+        { kind: 'note', name: 'Same', trace_id: null, parent: null, status: null, detail: null },
         { trace_id: 'CTX-037', kind: 'context', name: '' },
         { kind: 'context', name: 'x'.repeat(300), status: 'marked', detail: { columns: [{ name: 'id' }] } },
       ];
@@ -389,6 +404,10 @@ describe('drawing a snapshot', () => {
       assert.equal([...long].length, 200);
       assert.match(long, /^context:x+#[0-9a-f]{16}$/);
       assert.deepEqual(first.find((element) => element.element_key === long).detail, '{"columns":[{"name":"id"}]}');
+      // Optional members given as null are left out: a detail of none is {}.
+      assert.deepEqual(first.find((element) => element.element_key === 'note:Same'), {
+        element_key: 'note:Same', trace_id: null, kind: 'note', name: 'Same', parent_key: null, status: null, detail: '{}',
+      });
       // The same source drawn in another order is a new drawing, whose elements keep their keys.
       reversed = true;
       const answer = await push(repositorySnapshot(FORMAT_02, { name: name2, commit: d, replaces: c }), drawn);
@@ -448,6 +467,25 @@ describe('drawing a snapshot', () => {
       }
       assert.equal(diagram(name, '/items/03-user-flow').removed_at, at(START + 6000));
       assert.equal(drawings(diagram(name, '/items/03-user-flow').id).length, 1);
+    });
+
+    test('and names a source of the older format that failed, which it does not draw again', async () => {
+      const failing = 'completed-failing';
+      const commit = newCommit();
+      // The same commit in both formats, whose ERD cannot read its third table.
+      const [older, newer] = [FORMAT_02, FORMAT_03].map((format) => {
+        const snapshot = repositorySnapshot(format, { name: failing, commit });
+        pictureOf(snapshot, '05-erd').source.tables[2].broken = true;
+        return snapshot;
+      });
+      const where = pictureOf(older, '05-erd').source.tables[2].where;
+      const first = await push(older);
+      const expected = [failureOf(failing, '/pictures/05-erd/nexus', 'nexus', '05-erd', where)];
+      assert.deepEqual([first.json.diagrams, first.json.failures], [counted({ drawn: DIAGRAMS_02 - 1, failed: 1 }), expected]);
+      const answer = await push(newer);
+      assert.deepEqual([answer.json.same_commit, answer.json.diagrams, answer.json.failures],
+        [true, counted({ drawn: 19, unchanged: DIAGRAMS_02 - 2, failed: 1, removed: 1 }), expected]);
+      assert.deepEqual(drawings(diagram(failing, '/pictures/05-erd/nexus').id).map((drawing) => drawing.status), ['failed']);
     });
   });
 
@@ -518,8 +556,10 @@ describe('drawing a snapshot', () => {
     assert.deepEqual(new Set(diagrams('tables-only').map((row) => row.kind)), new Set(['item_table']));
   });
 
-  test('more than 5000 elements fail the drawing at its source', async () => {
-    const many = (count) => () => ({ elements: Array.from({ length: count }, (_, index) => ({ kind: 'screen', name: `screen ${index}` })) });
+  test('more than 5000 elements fail the drawing at its source, and the diagram keeps its name', async () => {
+    const many = (count) => () => ({
+      name: `${count} screens`, elements: Array.from({ length: count }, (_, index) => ({ kind: 'screen', name: `screen ${index}` })),
+    });
     const name = 'many';
     const [a, b] = [newCommit(), newCommit()];
     const fits = await serverWith({ sitemap: many(5000) });
@@ -531,6 +571,8 @@ describe('drawing a snapshot', () => {
       [failureOf(name, '/pictures/07-sitemap/nexus', 'nexus', '07-sitemap', snapshot.stages['07-sitemap'].source)]]);
     const row = diagram(name, '/pictures/07-sitemap/nexus');
     assert.equal(elements(lastDrawn(row.id).id).length, 5000);
+    // The diagram keeps its name with its last good drawing.
+    assert.equal(row.name, '5000 screens');
   });
 
   test('a drawer that breaks the interface fails the push with internal, and the push changes nothing', async () => {
