@@ -14,7 +14,7 @@ Sizes: S is about half a day of one Claude worker, M a day and L two days. A Cla
 - Release: TASK-463 to TASK-465; stage-12 QA and its release gate come before the deploy.
 - Tasks that serve only Should or Could rows (SPEC-026, SPEC-036 to SPEC-041, SPEC-046 and SPEC-047) come after the Must tasks of their iteration.
 
-The first development task is TASK-413, the server skeleton, once questions 1 to 4 are answered.
+The first development task is TASK-413, the server skeleton; questions 1 to 4 were answered at this stage's checkpoint on 2026-11-23.
 
 ## 2. Tasks
 
@@ -76,7 +76,7 @@ The first development task is TASK-413, the server skeleton, once questions 1 to
 
 ## 3. Open questions
 
-Each has a recommendation. Questions 1 to 4 are asked one by one at this stage's checkpoint; 5 and 6 are asked of the maintainer directly at their tasks.
+Each has a recommendation. Questions 1 to 4 were asked one by one at this stage's checkpoint and each was answered with its recommendation on 2026-11-23; 5 and 6 are asked of the maintainer directly at their tasks.
 
 1. **Runtime.** Node 24 LTS with its own node:http and node:sqlite and no runtime dependency, behind the gate as v2 ran. The alternative is a Cloudflare Worker with D1, which the schema also fits but which cannot keep backup files beside the server (SPEC-052).
 2. **Screens.** Plain HTML, CSS and JavaScript modules served by the server, with no framework and no build step, as the stage-09 mockup is written. A framework would add build dependencies. A screen task's "matches at both widths" is checked by a browser walk with the agent's own browser tool, recorded in its pull request; a headless browser in the tests would be a development dependency, asked first.
@@ -127,3 +127,5 @@ tests/test_wbs.py checks that every spec row, every operation and every screen h
 ## 7. Checkpoint
 
 The plan for the next iteration, iteration 1, is agreed, with the answers to questions 1 to 4.
+
+Passed on 2026-11-23 at commit 74708c9. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.

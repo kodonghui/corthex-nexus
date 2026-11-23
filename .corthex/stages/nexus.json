@@ -331,10 +331,16 @@
       "updated": "2026-11-23T16:41:20+09:00"
     },
     "10-wbs": {
-      "state": "in_progress",
-      "checkpoints": [],
-      "next": "Checkpoint: the plan of iteration 1 (TASK-413 to TASK-432) with the answers to questions 1 to 4; stage 11 starts with TASK-413 once it passes",
-      "updated": "2026-11-23T17:55:51+09:00"
+      "state": "done",
+      "checkpoints": [
+        {
+          "approved": "Stage 10 WBS, pull request 106, at commit 74708c9: 53 tasks, TASK-413 to TASK-465, in three iterations and a release; the plan of iteration 1, TASK-413 to TASK-432 with the hub tasks TASK-428 to TASK-432; and the answers to questions 1 to 4, each its recommendation: Node 24 with node:http and node:sqlite and no runtime dependency, plain HTML, CSS and JavaScript modules, the layered layout written in this repository, and IBM Plex Sans KR and IBM Plex Mono served from a pinned copy. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-23"
+        }
+      ],
+      "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465",
+      "updated": "2026-11-23T18:38:33+09:00"
     },
     "11-development": {
       "state": "not_started",
