@@ -3912,7 +3912,7 @@ paths:
       x-corthex:
         id: API-293
         spec: [SPEC-009]
-        tables: [TBL-149, TBL-150, TBL-151, TBL-152]
+        tables: [TBL-147, TBL-149, TBL-150, TBL-151, TBL-152]
         release: Must
         family: owner
         media: text/html
