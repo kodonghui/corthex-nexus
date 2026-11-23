@@ -17,7 +17,8 @@
 // sends what it leaves out not in the picture but as picture-partial checks, which drawing.js gives as warnings.
 //
 // The board has three regions, top to bottom in the order of REGIONS, each placed by layout.js and the three then
-// placed one under another by it (the maintainer's delegate decides on the arrangement; see the server's README):
+// placed one under another by it (the arrangement the maintainer approved through their delegate; see the server's
+// README):
 // - timeline: a lane for each timeline lane, its name at its start and its events left to right in the order of
 //   their places, the alternatives at one place one above another;
 // - contexts: a frame for each context, holding its command tables: each row a column of stickies, in the bands of
@@ -61,10 +62,9 @@
 // more elements than a drawing holds, and one too large for layout.js to place. Nothing here logs (rule 5).
 
 import {
-  characters, elementKey, isName, isObject, isText, isTextList, keyer, leftOut, MAX_ELEMENTS, optional, SourceFailure, traceIdOf,
-  whereText,
+  CHARACTER, characters, elementKey, isName, isObject, isText, isTextList, keyer, leftOut, MAX_ELEMENTS, optional, PADDING, placed,
+  SourceFailure, traceIdOf, whereText,
 } from './drawer.js';
-import { layout } from './layout.js';
 
 // The board's regions, top to bottom: the one place that orders them.
 export const REGIONS = Object.freeze(['timeline', 'contexts', 'hotspots']);
@@ -89,11 +89,9 @@ function hotspotFrame(contexts, frames) {
 // Korean form "답함", as a Korean domain document writes it and the hub reads it.
 const ANSWERED = /^(?:answered\b|답함)/i;
 
-// Sizes, for 12-pixel IBM Plex Mono, whose characters are 0.6 em wide: a sticky as the mockup draws one, a lane's name
-// at its start, and a frame's header with the context's trace ID, name and type.
+// Sizes, with drawer.js's CHARACTER and PADDING: a sticky as the mockup draws one, a lane's name at its start, and a
+// frame's header with the context's trace ID, name and type.
 const STICKY = Object.freeze({ width: 148, height: 80 });
-const CHARACTER = 7.2;
-const PADDING = 12;
 const HEADER = 32;
 const LABEL = Object.freeze({ min: 96, max: 240 });
 const TITLE = Object.freeze({ min: STICKY.width + 2 * PADDING, max: 480 });
@@ -200,17 +198,6 @@ function givenByOf({ givenBy, policy }) {
 
 // The width of a lane's name or a frame's header.
 const widthOf = (text, { min, max }) => Math.min(max, Math.max(min, Math.ceil(characters(text) * CHARACTER) + 2 * PADDING));
-
-// Places a graph with layout.js. A RangeError can only be a graph too large to place, as every box and line here is
-// in layout.js's form, so the picture fails at its source.
-function placed(graph, options) {
-  try {
-    return layout(graph, options);
-  } catch (error) {
-    if (error instanceof RangeError) throw new SourceFailure();
-    throw error;
-  }
-}
 
 // The lines that keep a row's stickies in one column, band under band: each sticky of one band to the first of the
 // next band that has any, and the first of the one to each of the next.

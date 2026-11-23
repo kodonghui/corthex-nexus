@@ -1,0 +1,242 @@
+{
+ "elements": [
+  {
+   "key": "SCR-142",
+   "trace_id": "SCR-142",
+   "kind": "screen",
+   "name": "Owner to-do",
+   "parent": null,
+   "status": null,
+   "detail": {
+    "path": "/",
+    "access": "the owner, signed in through the gate",
+    "flows": [
+     "FL-001",
+     "FL-002",
+     "FL-003",
+     "FL-006",
+     "FL-007",
+     "FL-008",
+     "FL-011"
+    ],
+    "context": "CTX-041",
+    "terms": [
+     "TERM-225"
+    ],
+    "removed": false,
+    "where": "docs/07-sitemap/nexus.yaml:5",
+    "box": {
+     "x": 78,
+     "y": 0,
+     "width": 120,
+     "height": 64
+    }
+   }
+  },
+  {
+   "key": "SCR-143",
+   "trace_id": "SCR-143",
+   "kind": "screen",
+   "name": "Projects",
+   "parent": "SCR-142",
+   "status": null,
+   "detail": {
+    "path": "/p",
+    "access": "the owner, signed in through the gate",
+    "flows": [
+     "FL-001",
+     "FL-002",
+     "FL-009",
+     "FL-010"
+    ],
+    "context": "CTX-037",
+    "terms": [
+     "TERM-223"
+    ],
+    "removed": false,
+    "where": "docs/07-sitemap/nexus.yaml:13",
+    "box": {
+     "x": 78,
+     "y": 112,
+     "width": 120,
+     "height": 64
+    }
+   }
+  },
+  {
+   "key": "SCR-144",
+   "trace_id": "SCR-144",
+   "kind": "screen",
+   "name": "Project",
+   "parent": "SCR-143",
+   "status": null,
+   "detail": {
+    "path": "/p/{project}",
+    "access": "the owner, signed in through the gate",
+    "flows": [
+     "FL-002",
+     "FL-006",
+     "FL-010",
+     "FL-013"
+    ],
+    "context": "CTX-037",
+    "terms": [
+     "TERM-223"
+    ],
+    "removed": false,
+    "where": "docs/07-sitemap/nexus.yaml:21",
+    "box": {
+     "x": 78,
+     "y": 224,
+     "width": 120,
+     "height": 64
+    }
+   }
+  },
+  {
+   "key": "SCR-145",
+   "trace_id": "SCR-145",
+   "kind": "screen",
+   "name": "Stage workbench",
+   "parent": "SCR-144",
+   "status": null,
+   "detail": {
+    "path": "/p/{project}/{part}/{stage}",
+    "access": "the owner, signed in through the gate",
+    "flows": [
+     "FL-001",
+     "FL-002",
+     "FL-003",
+     "FL-004",
+     "FL-005",
+     "FL-006",
+     "FL-007",
+     "FL-008",
+     "FL-012",
+     "FL-013"
+    ],
+    "context": "CTX-037",
+    "terms": [
+     "TERM-222"
+    ],
+    "removed": false,
+    "where": "docs/07-sitemap/nexus.yaml:29",
+    "box": {
+     "x": 28.5,
+     "y": 336,
+     "width": 219,
+     "height": 64
+    }
+   }
+  },
+  {
+   "key": "SCR-146",
+   "trace_id": "SCR-146",
+   "kind": "screen",
+   "name": "Changes since the last confirmation",
+   "parent": "SCR-145",
+   "status": null,
+   "detail": {
+    "path": "/p/{project}/{part}/{stage}/changes",
+    "access": "the owner, signed in through the gate",
+    "flows": [
+     "FL-002",
+     "FL-004",
+     "FL-006"
+    ],
+    "context": "CTX-039",
+    "terms": [
+     "TERM-224"
+    ],
+    "removed": false,
+    "where": "docs/07-sitemap/nexus.yaml:38",
+    "box": {
+     "x": 0,
+     "y": 448,
+     "width": 276,
+     "height": 64
+    }
+   }
+  },
+  {
+   "key": "SCR-142/line:SCR-143",
+   "kind": "line",
+   "name": "Projects",
+   "parent": "SCR-142",
+   "detail": {
+    "from": "SCR-142",
+    "to": "SCR-143",
+    "points": [
+     {
+      "x": 138,
+      "y": 64
+     },
+     {
+      "x": 138,
+      "y": 112
+     }
+    ]
+   }
+  },
+  {
+   "key": "SCR-143/line:SCR-144",
+   "kind": "line",
+   "name": "Project",
+   "parent": "SCR-143",
+   "detail": {
+    "from": "SCR-143",
+    "to": "SCR-144",
+    "points": [
+     {
+      "x": 138,
+      "y": 176
+     },
+     {
+      "x": 138,
+      "y": 224
+     }
+    ]
+   }
+  },
+  {
+   "key": "SCR-144/line:SCR-145",
+   "kind": "line",
+   "name": "Stage workbench",
+   "parent": "SCR-144",
+   "detail": {
+    "from": "SCR-144",
+    "to": "SCR-145",
+    "points": [
+     {
+      "x": 138,
+      "y": 288
+     },
+     {
+      "x": 138,
+      "y": 336
+     }
+    ]
+   }
+  },
+  {
+   "key": "SCR-145/line:SCR-146",
+   "kind": "line",
+   "name": "Changes since the last confirmation",
+   "parent": "SCR-145",
+   "detail": {
+    "from": "SCR-145",
+    "to": "SCR-146",
+    "points": [
+     {
+      "x": 138,
+      "y": 400
+     },
+     {
+      "x": 138,
+      "y": 448
+     }
+    ]
+   }
+  }
+ ]
+}
