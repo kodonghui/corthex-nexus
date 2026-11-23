@@ -901,7 +901,7 @@ The answer names what other tables hold, so API-265 lists 15 tables. The correct
 
 `src/backups.js` is TASK-450 (SPEC-052, FL-011): the server backs up its store once a day, keeps each backup 30 days, retries a failed backup once within the hour and warns the owner when the retry failed too. It runs in the server, not as a request: the contract names no operation for it.
 
-- **When.** One backup a UTC day, at the time `NEXUS_BACKUP_TIME` gives. A server that starts after that time, on a day with no backup yet, backs up at once, so a restart never skips a day. The job looks at the clock at least once an hour, so it notices a clock that was set meanwhile.
+- **When.** One backup a UTC day, at the time `NEXUS_BACKUP_TIME` gives. A server that starts after that time, on a day with no backup yet, backs up at once, so a restart after that time does not skip the day. The job looks at the clock at least once an hour, so it notices a clock that was set meanwhile.
 - **What.** Each backup is a copy of the store made with `node:sqlite`'s own `backup()`, named by its day: `nexus-v3-backup-YYYY-MM-DD.sqlite` in the folder `NEXUS_BACKUP_DIR` names.
   - It is written as `<name>.partial`, readable by its owner only like the store, and renamed when it is whole. So a file with a backup's name is always a complete store, and a failed attempt leaves no file.
   - The copy runs as one task of the server's one write queue (see [Requests](#requests)). The store is one connection, which cannot copy itself while a write's transaction is open, so the writes wait for the copy while the reads go on.
@@ -911,7 +911,9 @@ The answer names what other tables hold, so API-265 lists 15 tables. The correct
   - A retry that fell due while the server was stopped also runs at start, unless the next day's time has come; that day's backup then runs instead.
 - **30 days.** After a backup succeeds, the backups whose day is more than 30 days before its day are removed. Of 31 daily backups, the next one removes the oldest, and 30 remain plus the new one.
   - Nothing is removed after a failure, so the last good backups stay while backups fail.
+  - The backups are found by their files' names in the folder. So a backup the store holds no row of, as after a restore from an older backup, goes too.
   - A removed backup keeps its row, with the time its file was removed (TBL-170's `removed_at`).
+  - A removal that fails leaves the backup that succeeded as it is, and the next success removes what is left.
 - **Not enough disk.** Before an attempt, when the folder's free space is less than the store's size, the backups past 30 days are removed first, the oldest first, never a newer one. When the space is still short, the attempt fails without writing (`not_enough_disk`), so a backup never fills the disk.
 - **Deleted projects.** A backup is a copy of the whole store, so a deleted project stays in the backups until they age out (see [Project removal](#project-removal)).
 
@@ -926,7 +928,7 @@ NEXUS_BACKUP_DIR=/absolute/path/to/a/backup/folder \
 node src/rehearse.js <release>
 ```
 
-`src/rehearsal.js` takes the latest backup that succeeded and whose file is kept, and copies it into a new folder.
+`src/rehearsal.js` takes the latest backup that succeeded and whose file is kept, and copies it into a new folder in the backups' folder, which only the server's user opens. A folder that a rehearsal killed before its end left there, with its copy of the store, is removed first.
 - It opens the copy as the server opens its store, which applies this code's migrations to the copy.
 - It reads the copy: SQLite's integrity check, its foreign keys, and every row of every table.
 - It removes the folder afterwards.
@@ -936,12 +938,12 @@ The result is recorded in the store as it is. The command neither creates the st
 - **It succeeded.** The row says `succeeded`, with a note of what was read. The line is `rehearsal_recorded`, and the command exits 0.
 - **A check failed.** The row says `failed`, with a note naming the check and the kind of error, never a path. The checks are `copy`, `open`, `integrity`, `foreign_keys` and `read`. The command exits 1, so the release step stops. No screen shows it.
 - **No backup to rehearse.** Nothing is recorded, since a rehearsal names its backup. The line `rehearsal_refused` says `no_backup`, and the command exits 1.
-- **Called wrong.** The command exits 2 when the release is missing, or is not a name of up to 64 letters, digits, dots, pluses, hyphens and underscores, or when a setting is missing.
+- **Called wrong.** The command exits 2 when a setting is missing or the release is missing. It also exits 2 when the release is not a name of up to 64 letters, digits, dots, pluses, hyphens and underscores that starts with a letter or a digit.
 
 `test/backups.test.js` checks TASK-450's done condition with a clock of its own:
 - 31 daily backups from 2026-10-24 to 2026-11-23, then the backup of 2026-11-24, which removes 2026-10-24 and leaves 2026-10-25 to 2026-11-24;
 - a backup folder taken by a file, whose failed retry shows on the owner's to-do (API-263) until the next day's backup succeeds;
-- the retry's time, the backup at start, a crash, the disk and the queue.
+- the retry's time, the backup at start, a crash, the disk and the queue, a removal or a record that fails, and a backup with no row.
 
 `test/rehearsal.test.js` restores the latest backup into a fresh store and reads it. It also records each failed check, records nothing without a backup, and runs the command as the release step will.
 
@@ -978,7 +980,7 @@ It also writes a line when it starts listening (with its host and port), when it
 - `backup_succeeded`, with the backup's `day`, its `attempt`, its `bytes`, how many old backups it `removed` and its `ms`;
 - or `backup_failed`, with the `day` and the `attempt`, and either a `reason` or the kind of `error`. The reason is `not_enough_disk`, or `interrupted` for an attempt a crash left running.
 
-None of them names a folder or a file's path.
+It also writes `backup_removal_failed`, with the `day` and the kind of `error`, after a backup that succeeded when the old backups could not be removed. When the job cannot read or write the store, it writes `backup_job_failed` with the kind of `error`, and looks again within the hour. None of them names a folder or a file's path.
 
 So every refused request is logged with its time, its action, its sender and its reason, the Problem's `code` (rule 8). No line holds a credential's secret or digest: the sender is the credential's name, which the owner chose, and the reason is one of the words above.
 

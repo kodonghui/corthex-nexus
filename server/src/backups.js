@@ -7,18 +7,22 @@
 // writes wait for the backup while the reads go on. Its rules, as decided for TASK-450:
 //
 // - One backup a UTC day, named by its day, nexus-v3-backup-YYYY-MM-DD.sqlite, at the time NEXUS_BACKUP_TIME gives. A
-//   server that starts after the day's time, when the day has no attempt yet, backs up at once, so a restart never
-//   skips a day.
+//   server that starts after the day's time, when the day has no attempt yet, backs up at once, so a restart after
+//   that time does not skip the day.
 // - A first attempt that fails is retried once, 15 minutes after it failed, under the same name (attempt 2). A retry
 //   that fails is the end: the warning below shows it. At start, an attempt left running, as by a crash, is recorded
 //   failed, and a retry that was missed so runs at once.
 // - After a backup succeeds, the backups whose day is more than 30 days before its day are removed; nothing is removed
-//   after a failure, so the last good backups stay while backups fail.
+//   after a failure, so the last good backups stay while backups fail. They are found by their files' names in the
+//   folder, so a backup whose row the store does not hold, as after a restore from an older backup, goes too. A
+//   removal that fails leaves the backup that succeeded as it is, and the next success removes them.
 // - Not enough disk: before an attempt, when the folder's free space is less than the store's size, the backups past
 //   30 days go first, the oldest first, never a newer one; when it is still short, the attempt fails without writing.
 // - An attempt writes name.partial, readable by its owner only like the store, and renames it when it is complete, so
 //   a file of the backup's name is always whole; a failed attempt leaves no file. A row's removed_at is when its file
 //   was removed.
+// - A job that cannot read or write the store logs backup_job_failed and looks again within the hour, so the schedule
+//   never stops while the server runs.
 //
 // The warning (BackupWarning) shows once a backup failed for good, which is when its retry failed (attempt 2): a
 // first attempt that failed is not the end while its retry is due (SPEC-052). It stays until a later backup succeeds
@@ -80,10 +84,9 @@ function statementsOf(store) {
       start: store.prepare("INSERT INTO backups (name, attempt, state, started_at) VALUES (?, ?, 'running', ?) RETURNING id"),
       succeed: store.prepare("UPDATE backups SET state = 'succeeded', bytes = ?, finished_at = ? WHERE id = ?"),
       fail: store.prepare("UPDATE backups SET state = 'failed', finished_at = ? WHERE id = ?"),
-      kept: store.prepare(
-        "SELECT id, name FROM backups WHERE state = 'succeeded' AND removed_at IS NULL ORDER BY started_at, id",
+      removed: store.prepare(
+        "UPDATE backups SET removed_at = ? WHERE name = ? AND state = 'succeeded' AND removed_at IS NULL",
       ),
-      removed: store.prepare('UPDATE backups SET removed_at = ? WHERE id = ?'),
       size: store.prepare('SELECT page_count * page_size AS bytes FROM pragma_page_count(), pragma_page_size()'),
     };
     prepared.set(store, statements);
@@ -155,6 +158,9 @@ export function createBackups({
     const startedMs = now();
     const { id } = statements.start.get(name, number, iso(startedMs));
     const partial = join(directory, `${name}.partial`);
+    const file = join(directory, name);
+    let renamed = false;
+    let bytes;
     try {
       mkdirSync(directory, { recursive: true, mode: 0o700 });
       const needed = Number(statements.size.get().bytes);
@@ -166,34 +172,47 @@ export function createBackups({
       closeSync(openSync(partial, 'w', 0o600));
       chmodSync(partial, 0o600);
       await copy(store, partial);
-      const file = join(directory, name);
+      bytes = statSync(partial).size;
       renameSync(partial, file);
-      const bytes = statSync(file).size;
+      renamed = true;
       statements.succeed.run(bytes, iso(now()), id);
-      const removed = removeBackups(day, () => false);
-      log({ time: iso(now()), event: 'backup_succeeded', day, attempt: number, bytes, removed, ms: now() - startedMs });
     } catch (error) {
+      // A failed attempt leaves no file: its partial file, or its backup when its row could not say it succeeded.
       try {
-        rmSync(partial, { force: true });
+        rmSync(renamed ? file : partial, { force: true });
       } catch {
         // A partial file that cannot be removed is removed at the next start.
       }
       statements.fail.run(iso(now()), id);
       const reason = error instanceof NotEnoughDisk ? { reason: 'not_enough_disk' } : { error: errorKind(error) };
       log({ time: iso(now()), event: 'backup_failed', day, attempt: number, ...reason });
+      return;
     }
+    // The backup succeeded. The backups it ends are removed apart, so a removal that fails never fails the backup.
+    let removed = 0;
+    let removal = null;
+    try {
+      removed = removeBackups(day, () => false);
+    } catch (error) {
+      removal = errorKind(error);
+    }
+    log({ time: iso(now()), event: 'backup_succeeded', day, attempt: number, bytes, removed, ms: now() - startedMs });
+    if (removal !== null) log({ time: iso(now()), event: 'backup_removal_failed', day, error: removal });
   }
 
-  // Removes the kept backups whose day is more than 30 days before day, the oldest first, until enough() says there
-  // is room. Returns how many it removed.
+  // Removes the backups in the folder whose day is more than 30 days before day, the oldest first, until enough() says
+  // there is room, and records when each was removed. Returns how many it removed.
   function removeBackups(day, enough) {
     const oldest = daysBefore(day, KEEP_DAYS);
+    const old = readdirSync(directory, { withFileTypes: true })
+      .filter((entry) => entry.isFile() && (dayOfName(entry.name) ?? oldest) < oldest)
+      .map((entry) => entry.name)
+      .sort();
     let count = 0;
-    for (const row of statements.kept.all()) {
-      const kept = dayOfName(row.name);
-      if (kept === null || kept >= oldest) continue;
-      rmSync(join(directory, row.name), { force: true });
-      statements.removed.run(iso(now()), row.id);
+    for (const name of old) {
+      // The row first: a file whose removal fails is found again by the next removal.
+      statements.removed.run(iso(now()), name);
+      rmSync(join(directory, name), { force: true });
       count += 1;
       if (enough()) break;
     }
@@ -215,7 +234,7 @@ export function createBackups({
       });
     } catch (error) {
       // A store that cannot be read or written: the job looks again within the hour.
-      log({ time: iso(now()), event: 'backup_failed', error: errorKind(error) });
+      log({ time: iso(now()), event: 'backup_job_failed', error: errorKind(error) });
       next = { at: now() + LOOK_AGAIN_MS };
     }
     if (!stopped) timer = timers.setTimeout(tick, Math.min(Math.max(next.at - now(), 0), LOOK_AGAIN_MS));
@@ -223,25 +242,35 @@ export function createBackups({
 
   return {
     async start() {
-      await queue(() => {
-        // An attempt a crash left running is recorded failed; a first attempt's retry then runs at once.
-        for (const row of statements.running.all()) {
-          statements.fail.run(iso(now()), row.id);
-          if (row.attempt === 1) missed.add(row.name);
-          const day = dayOfName(row.name);
-          log({ time: iso(now()), event: 'backup_failed', ...(day === null ? {} : { day }), attempt: row.attempt, reason: 'interrupted' });
-        }
-        // The partial files it left, which no backup is.
-        let names = [];
-        try {
-          names = readdirSync(directory);
-        } catch {
-          // No folder yet: the first attempt makes it.
-        }
-        for (const name of names) {
-          if (PARTIAL.test(name)) rmSync(join(directory, name), { force: true });
-        }
-      });
+      try {
+        await queue(() => {
+          // An attempt a crash left running is recorded failed; a first attempt's retry then runs at once.
+          for (const row of statements.running.all()) {
+            statements.fail.run(iso(now()), row.id);
+            if (row.attempt === 1) missed.add(row.name);
+            const day = dayOfName(row.name);
+            log({ time: iso(now()), event: 'backup_failed', ...(day === null ? {} : { day }), attempt: row.attempt, reason: 'interrupted' });
+          }
+          // The partial files it left, which no backup is. One that cannot be removed now is left for the next start.
+          let names = [];
+          try {
+            names = readdirSync(directory);
+          } catch {
+            // No folder yet: the first attempt makes it.
+          }
+          for (const name of names) {
+            if (!PARTIAL.test(name)) continue;
+            try {
+              rmSync(join(directory, name), { force: true });
+            } catch {
+              // Left for the next start; the attempt of its day writes it anew.
+            }
+          }
+        });
+      } catch (error) {
+        // What a crash left could not be recorded: the schedule starts all the same.
+        log({ time: iso(now()), event: 'backup_job_failed', error: errorKind(error) });
+      }
       await tick();
     },
     stop() {

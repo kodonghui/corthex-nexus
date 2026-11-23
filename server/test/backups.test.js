@@ -388,10 +388,70 @@ describe('the daily backup', () => {
     await job.job.start();
     assert.deepEqual(job.rows(), []);
     assert.equal(job.next(), at('2026-11-24T04:00:00.000Z'));
-    assert.deepEqual(job.lines.map((line) => [line.event, line.error]), [['backup_failed', 'Error ERR_SQLITE_ERROR']]);
+    assert.deepEqual(job.lines.map((line) => [line.event, line.error]), [['backup_job_failed', 'Error ERR_SQLITE_ERROR']]);
     store.exec('DROP TRIGGER no_backup');
     await job.run();
     assert.deepEqual(job.rows().map((row) => row.state), ['succeeded']);
+  });
+
+  test('the schedule starts even when what a crash left cannot be recorded', async (t) => {
+    const store = testStore(t);
+    store.prepare("INSERT INTO backups (name, attempt, state, started_at) VALUES (?, 1, 'running', '2026-11-23T03:00:00.000Z')")
+      .run(backupName('2026-11-23'));
+    // No row can be marked failed, so the attempt left running cannot be recorded.
+    store.exec("CREATE TRIGGER no_failure BEFORE UPDATE OF state ON backups WHEN NEW.state = 'failed' BEGIN SELECT RAISE(ABORT, 'no'); END");
+    const job = backupJob(t, store, { start: at('2026-11-24T03:00:00.000Z') });
+    await job.job.start();
+    assert.deepEqual(job.lines.map((line) => [line.event, line.day, line.error]), [
+      ['backup_job_failed', undefined, 'Error ERR_SQLITE_ERROR'],
+      ['backup_succeeded', '2026-11-24', undefined],
+    ]);
+    assert.deepEqual(job.files(), [backupName('2026-11-24')]);
+    // It looks again within the hour, as it always does.
+    assert.equal(job.next(), at('2026-11-24T04:00:00.000Z'));
+  });
+
+  test('a backup whose row cannot say it succeeded leaves no file, and a removal that fails never fails a backup', async (t) => {
+    const store = testStore(t);
+    const folder = join(dataFolder(t, 'nexus-backups-'), 'backups');
+    keptBackup(store, folder, '2026-10-20');
+    // The copy is whole and has its name, but its row cannot be marked succeeded: the attempt failed, and its file goes.
+    store.exec("CREATE TRIGGER no_success BEFORE UPDATE OF state ON backups WHEN NEW.state = 'succeeded' BEGIN SELECT RAISE(ABORT, 'no'); END");
+    const job = backupJob(t, store, { start: at('2026-11-24T03:00:00.000Z'), directory: folder });
+    await job.job.start();
+    assert.deepEqual(job.files(), [backupName('2026-10-20')]);
+    assert.deepEqual(job.rows().at(-1).state, 'failed');
+    assert.deepEqual(job.lines.at(-1), { time: '2026-11-24T03:00:00.000Z', event: 'backup_failed', day: '2026-11-24', attempt: 1, error: 'Error ERR_SQLITE_ERROR' });
+    store.exec('DROP TRIGGER no_success');
+    // The retry succeeds, but the backup past 30 days cannot be recorded removed: the backup stays succeeded with its
+    // file, the old one stays, and the removal is logged apart.
+    store.exec("CREATE TRIGGER no_removal BEFORE UPDATE OF removed_at ON backups BEGIN SELECT RAISE(ABORT, 'no'); END");
+    await job.run();
+    assert.deepEqual(job.rows().at(-1).state, 'succeeded');
+    assert.deepEqual(job.files(), [backupName('2026-10-20'), backupName('2026-11-24')]);
+    assert.deepEqual(job.lines.slice(-2).map((line) => [line.event, line.day, line.attempt, line.removed, line.error]), [
+      ['backup_succeeded', '2026-11-24', 2, 0, undefined],
+      ['backup_removal_failed', '2026-11-24', undefined, undefined, 'Error ERR_SQLITE_ERROR'],
+    ]);
+    assert.equal(backupWarning(store), null);
+    // The next success removes it.
+    store.exec('DROP TRIGGER no_removal');
+    await job.until(at('2026-11-25T03:00:00.000Z'));
+    assert.deepEqual(job.files(), [backupName('2026-11-24'), backupName('2026-11-25')]);
+    assert.equal(job.rows().find((row) => row.name === backupName('2026-10-20')).removed_at, '2026-11-25T03:00:00.000Z');
+  });
+
+  test('a backup the store has no row of, as after a restore from an older backup, is removed past 30 days too', async (t) => {
+    const store = testStore(t);
+    const folder = join(dataFolder(t, 'nexus-backups-'), 'backups');
+    mkdirSync(folder, { recursive: true });
+    for (const day of ['2026-10-20', '2026-10-30']) writeFileSync(join(folder, backupName(day)), 'a backup');
+    // A folder of a backup's name is no backup.
+    mkdirSync(join(folder, backupName('2026-10-01')));
+    const job = backupJob(t, store, { start: at('2026-11-24T03:00:00.000Z'), directory: folder });
+    await job.job.start();
+    assert.deepEqual(job.files(), [backupName('2026-10-01'), backupName('2026-10-30'), backupName('2026-11-24')]);
+    assert.equal(job.lines.at(-1).removed, 1);
   });
 
   test('stop() ends the schedule', async (t) => {

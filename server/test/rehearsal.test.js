@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import {
-  closeSync, openSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, writeSync,
+  closeSync, mkdirSync, openSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, writeSync,
 } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -128,6 +128,23 @@ describe('the restore rehearsal', () => {
     assert.deepEqual(rehearsals(store).map((row) => [row.release, row.result]), [
       ['v3.0.0', 'failed'], ['v3.0.1', 'failed'], ['v3.0.2', 'failed'], ['v3.0.3', 'failed'],
     ]);
+  });
+
+  test('works in the backups\' folder, and first removes the folder a killed rehearsal left there', async (t) => {
+    const store = testStore(t);
+    const folder = dataFolder(t, 'nexus-backups-');
+    seed(store).project('alpha');
+    await backUp(store, folder, '2026-11-24');
+    // What a rehearsal killed before its end left: its folder, with its copy of the store.
+    const left = join(folder, 'nexus-rehearsal-Ab12Cd');
+    mkdirSync(left);
+    writeFileSync(join(left, STORE_FILE), 'a copy of the store');
+    writeFileSync(join(folder, 'nexus-rehearsal-log.txt'), 'the operator\'s');
+    assert.equal(rehearse({ store, backupDirectory: folder, release: 'v3.0.0' }).result, 'succeeded');
+    assert.deepEqual(readdirSync(folder).sort(), ['nexus-rehearsal-log.txt', backupName('2026-11-24')]);
+    // A backups' folder that is gone is a copy that failed.
+    const gone = join(folder, 'gone');
+    assert.equal(rehearse({ store, backupDirectory: gone, release: 'v3.0.1' }).note, 'copy failed: Error ENOENT');
   });
 
   test('records nothing with no backup to rehearse, or with a release that is not a name', async (t) => {

@@ -57,7 +57,7 @@ function start() {
   server.listen(settings.port, settings.host, () => {
     log({ time: time(), event: 'listening', host: settings.host, port: server.address().port });
     // The daily backup starts once the server listens: a day whose time has passed without a backup backs up now.
-    backups.start().catch((error) => log({ time: time(), event: 'backup_failed', error: errorKind(error) }));
+    backups.start().catch((error) => log({ time: time(), event: 'backup_job_failed', error: errorKind(error) }));
   });
 
   const stop = () => {

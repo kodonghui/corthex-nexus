@@ -5,14 +5,15 @@
 // The latest backup is the last one that succeeded and whose file is still kept. It is copied into a new folder as the
 // store's file and opened as the server opens its store (store.js), so this code's migrations are applied to the copy:
 // the rehearsal restores the backup into this release. The copy is then read: SQLite's integrity check, its foreign
-// keys, and every row of every table. The folder is removed afterwards, whatever the result.
+// keys, and every row of every table. The folder is removed afterwards, whatever the result. It is made in the backups'
+// folder, which only the server's user opens, never in a folder other users share; and a folder that a rehearsal killed
+// before its end left there, with its copy of the store, is removed before a new one is made.
 //
 // The result is recorded in the store the command opens, as it is (openExistingStore): succeeded, with what was read,
 // or failed, with a note that names the check that failed and the kind of error, never a path. With no backup to
 // rehearse nothing is recorded, since a rehearsal names its backup.
 
-import { copyFileSync, mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { copyFileSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { dayOfName } from './backups.js';
 import { errorKind } from './log.js';
@@ -21,6 +22,9 @@ import { openStore, STORE_FILE, StoreError } from './store.js';
 // A release's name, such as v3.0.0: a letter or digit, then up to 63 letters, digits, dots, pluses, hyphens and
 // underscores.
 export const RELEASE = /^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$/;
+// The fresh folder of a rehearsal: this prefix, then the six characters mkdtemp adds.
+const WORK = 'nexus-rehearsal-';
+const WORK_FOLDER = /^nexus-rehearsal-[A-Za-z0-9]{6}$/;
 
 // A rehearsal that cannot be recorded: reason is release_invalid or no_backup.
 export class RehearsalRefused extends Error {
@@ -42,8 +46,9 @@ class CheckFailed extends Error {
 
 // Rehearses a restore of the latest backup in backupDirectory and records it in store for release. Returns the row it
 // recorded: { id, release, backup: { id, day }, result, rehearsed_at, note }. Throws RehearsalRefused, recording
-// nothing, when the release's name is not one or no backup is kept. workDirectory is where the fresh folder is made.
-export function rehearse({ store, backupDirectory, release, now = Date.now, workDirectory = tmpdir() }) {
+// nothing, when the release's name is not one or no backup is kept. workDirectory is where the fresh folder is made:
+// the backups' folder unless a test gives another.
+export function rehearse({ store, backupDirectory, release, now = Date.now, workDirectory = backupDirectory }) {
   if (typeof release !== 'string' || !RELEASE.test(release)) throw new RehearsalRefused('release_invalid');
   const backup = store.prepare(
     "SELECT id, name FROM backups WHERE state = 'succeeded' AND removed_at IS NULL ORDER BY started_at DESC, id DESC LIMIT 1",
@@ -75,7 +80,12 @@ export function rehearse({ store, backupDirectory, release, now = Date.now, work
 // Copies the backup at file into a fresh folder, opens it as a store and reads it. Returns what was read, as the
 // rehearsal's note, or throws CheckFailed with the check that failed.
 function restoreAndRead(file, workDirectory) {
-  const folder = mkdtempSync(join(workDirectory, 'nexus-rehearsal-'));
+  const folder = check('copy', () => {
+    for (const name of readdirSync(workDirectory)) {
+      if (WORK_FOLDER.test(name)) rmSync(join(workDirectory, name), { recursive: true, force: true, maxRetries: 5 });
+    }
+    return mkdtempSync(join(workDirectory, WORK));
+  });
   let db = null;
   try {
     check('copy', () => copyFileSync(file, join(folder, STORE_FILE)));
