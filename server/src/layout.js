@@ -1040,18 +1040,23 @@ function route(model, line, index) {
     points = points.map((point, at) => ({ x: point.x + dx, y: at === 0 || at === points.length - 1 ? bottom : point.y + dy }));
   } else if (fromFixed !== null && toFixed !== null) {
     points = straightBetween(model, line);
-  } else {
-    // Points of the line that the fixed box covers are dropped first.
-    if (fromFixed !== null) {
-      const box = fixedBox(model, line.from);
-      while (points.length > 2 && inside(box, points[1])) points.splice(1, 1);
-      points[0] = clip(box, points[1]);
+  } else if (fromFixed !== null) {
+    // The line leaves the fixed box straight towards the first point after the last part of the layout's route that
+    // runs through the box, so that it never runs back through the box.
+    const box = fixedBox(model, line.from);
+    let next = 1;
+    for (let at = 0; at + 1 < points.length; at += 1) {
+      if (runsThrough(box, points[at], points[at + 1])) next = at + 1;
     }
-    if (toFixed !== null) {
-      const box = fixedBox(model, line.to);
-      while (points.length > 2 && inside(box, points[points.length - 2])) points.splice(points.length - 2, 1);
-      points[points.length - 1] = clip(box, points[points.length - 2]);
+    points = [clip(box, points[next]), ...points.slice(next)];
+  } else if (toFixed !== null) {
+    // The line follows the layout's route up to the first part that runs through the fixed box, then goes straight.
+    const box = fixedBox(model, line.to);
+    let last = points.length - 2;
+    for (let at = points.length - 2; at >= 0; at -= 1) {
+      if (runsThrough(box, points[at], points[at + 1])) last = at;
     }
+    points = [...points.slice(0, last + 1), clip(box, points[last])];
   }
   const rounded = points.map((point) => ({ x: round(point.x), y: round(point.y) }));
   const kept = simplify(rounded);
@@ -1112,8 +1117,15 @@ function labelBox(model, line) {
 
 const middleOf = (box) => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 });
 
-const inside = (box, point) => point.x > box.x && point.x < box.x + box.width
-  && point.y > box.y && point.y < box.y + box.height;
+// Whether a part of the layout's route, across or down, runs through the inside of a box.
+function runsThrough(box, from, to) {
+  if (from.x === to.x) {
+    return from.x > box.x && from.x < box.x + box.width
+      && Math.max(from.y, to.y) > box.y && Math.min(from.y, to.y) < box.y + box.height;
+  }
+  return from.y > box.y && from.y < box.y + box.height
+    && Math.max(from.x, to.x) > box.x && Math.min(from.x, to.x) < box.x + box.width;
+}
 
 // Where the line from the middle of a box towards a point leaves the box; straight down from a point at the middle.
 // The side it leaves by rounds away from the box.

@@ -506,7 +506,49 @@ test('a line from a fixed box to itself moves with it, label included, and a lin
   }
 });
 
-test('a box fixed where the layout put it changes nothing else', () => {
+// Whether the segment from p to q runs through the inside of the box, in any direction (Liang and Barsky).
+function runsThrough(box, p, q) {
+  const e = FLOAT_ERROR;
+  const dx = q.x - p.x;
+  const dy = q.y - p.y;
+  let low = 0;
+  let high = 1;
+  for (const [step, room] of [[-dx, p.x - box.x - e], [dx, box.x + box.width - e - p.x], [-dy, p.y - box.y - e], [dy, box.y + box.height - e - p.y]]) {
+    if (step === 0) {
+      if (room < 0) return false;
+    } else if (step < 0) {
+      low = Math.max(low, room / step);
+    } else {
+      high = Math.min(high, room / step);
+    }
+  }
+  return high - low > 1e-9;
+}
+
+test('a line with one fixed end never runs back through its fixed box', () => {
+  for (let seed = 1; seed <= 300; seed += 1) {
+    const random = generator(seed);
+    const count = 2 + pick(random, 14);
+    const nodes = Array.from({ length: count }, (_, index) => ({ id: `n${index}`, width: 20 + pick(random, 150), height: 20 + pick(random, 80) }));
+    const edges = Array.from({ length: 2 * count }, () => ({ from: `n${pick(random, count)}`, to: `n${pick(random, count)}` }));
+    const { bounds } = layout({ nodes, edges });
+    const fixed = pick(random, count);
+    nodes[fixed].position = { x: bounds.x + pick(random, Math.max(1, bounds.width)), y: bounds.y + pick(random, Math.max(1, bounds.height)) };
+    const result = layout({ nodes, edges });
+    const box = result.nodes[fixed];
+    result.edges.forEach((edge, index) => {
+      if ((edge.from === box.id) === (edge.to === box.id)) return;
+      for (let at = 1; at < edge.points.length; at += 1) {
+        assert.ok(!runsThrough(box, edge.points[at - 1], edge.points[at]), `small graph ${seed}: edge ${index} runs through ${box.id}`);
+      }
+    });
+    assertLines(result, `small graph ${seed}`);
+  }
+});
+
+// A line to the fixed box ends where a line from its middle leaves it (README), so only the box's own loop and the
+// other boxes and lines stay as they were.
+test('a box fixed where the layout put it moves no other box, no line between other boxes and not its own loop', () => {
   const graph = {
     nodes: ['a', 'p', 'q'].map((id) => ({ id, width: 100, height: 50 })),
     edges: [{ from: 'a', to: 'a', label: { width: 40, height: 16 } }, { from: 'a', to: 'p' }, { from: 'p', to: 'q' }, { from: 'a', to: 'q' }],
