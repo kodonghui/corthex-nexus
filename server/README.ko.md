@@ -752,14 +752,14 @@ API-293(`GET /api/projects/{project}/diagrams/{diagram}/page`, `src/mockup-page.
 - **스레드**(API-246, `nc_`)는 프로젝트의 어떤 스레드든 돼요. 소유자의 것이든 에이전트의 것이든, 열렸든 닫혔든, 다이어그램이 지워졌든 아니든 읽어요(SPEC-027). 글은 모두 순서대로 답하고, 글마다 `src/comments.js`의 `entryOf`가 만들어요. 에이전트의 글을 더할 때 답하는 것도 이 함수예요. `change_sets`는 `thread_id`로 그 스레드에 답하는 변경 세트이고, 오래된 것부터 200개까지예요.
 - **변경 세트**(API-247, `np_`)는 AI 제안이나 직접 편집이고, 그 단계(TBL-159)를 순서대로 답해요.
   - **제안의 이름.** TBL-158의 `detail`은 hub가 보낸 제안을 ProposalRequest의 이름 그대로 둬요. `items`, `adds`, `reason`, `change`, 그리고 제안한 문서인 `source_text`예요. 응답은 `source_text`가 왔는지만 알려요. 직접 편집의 detail에는 이것이 하나도 없어서, `items`와 `adds`는 비고 `reason`과 `change`는 null, `source_text`는 false예요. detail을 쓰는 태스크, 곧 TASK-438(에이전트의 제안)과 TASK-444(소유자의 직접 편집)도 이 이름을 따라야 해요. 이 이름을 정하는 곳은 여기 한 곳이에요.
-  - **`reflection`**은 그 변경 세트를 담아 다시 읽히는 반영 항목이에요. 받아들인 변경 세트는 자기 그룹에 그것을 담은 열린 반영 항목이에요. PR 안에서 취소한 변경 세트는 그것을 PR에서 빼는 항목이고, 열렸든 done이든 같아요. 반영된 변경 세트는 그 다이어그램에서 done으로 닫힌 반영 항목 가운데, `change_set_id`가 가리키는 변경 세트가 같은 PR에 든 가장 나중 항목이에요. 제안 상태이거나, 거절됐거나, PR 밖에서 취소한 변경 세트는 null이에요.
+  - **`reflection`**은 그 변경 세트를 담아 다시 읽히는 반영 항목이에요. 받아들인 변경 세트는 자기 그룹에 그것을 담은 열린 반영 항목이고, 그 항목이 적는 처음 200개 안에 있을 때만 그래요. PR 안에서 취소한 변경 세트는 그것을 PR에서 빼는 항목이고, 열렸든 done이든 같아요. 반영된 변경 세트는 그 다이어그램에서 done으로 닫힌 반영 항목 가운데, `change_set_id`가 가리키는 변경 세트가 같은 PR에 든 가장 나중 항목이에요. 제안 상태이거나, 거절됐거나, PR 밖에서 취소한 변경 세트는 null이에요.
 - **반영이나 빼기 항목**(API-248, `ne_`)은 TBL-166의 `reflect`나 `remove_from_pr` 항목이고, 열렸든 닫혔든 읽어요.
   - **변경 세트.** 열린 항목은 `src/entries.js`의 `heldChangeSets`가 찾는 것을 담아요. TBL-166은 닫힌 항목의 `change_set_id`만 남기므로, 닫힌 항목은 아직 가리킬 수 있는 것을 적어요. done으로 닫힌 반영 항목은 그 다이어그램에서 `change_set_id`가 가리키는 변경 세트의 PR로 반영된 변경 세트를 적어요. withdrawn이 된 반영 항목과 빼기 항목은 `change_set_id`가 가리키는 변경 세트를 적어요.
   - **`state`**는 닫힌 항목이면 닫힌 대로 `done`이나 `withdrawn`이에요. 열린 항목은 API-258의 보고가 정하는 대로 PR을 따라요. PR이 없으면 `waiting`, 열려 있으면 `in_review`, 병합됐으면 `merged`, 병합 커밋까지 보고했으면 `reported`예요. `commit`은 그 병합 커밋이에요.
   - **`claim`**은 열린 항목의 살아 있는 claim이에요([claim](#claim) 참고).
 - **확정**(API-249, `nk_`)은 hub가 체크포인트라고 부르는 것이고, 프로젝트의 어떤 확정이든 돼요.
   - **`state`**는 취소했으면 `withdrawn`이고, `withdrawn_at`은 취소한 시각이에요. 그 밖에는 무효가 된 확정도 `passed`예요. 에이전트 할 일도 이렇게 읽어요.
-  - **`record_state`**는 해야 할 기록이 어디까지 갔는지 알려요. 기록한 확정을 취소했으면 그 취소의 기록이고, 아니면 확정 자신의 기록이에요. 그 기록을 했으면 `recorded`, `record_pull_request_id`가 열린 PR을 가리키는 동안 `in_review`, 그 밖에는 `waiting`이에요. 기록하기 전에 취소한 확정은 기록한 것이 없으므로 `withdrawn`이고 `record_state`는 `waiting`이에요. 에이전트는 `state`를 먼저 읽으므로, withdrawn인 확정을 기록하지 않아요.
+  - **`record_state`**는 해야 할 기록이 어디까지 갔는지 알려요. 기록한 확정을 취소했으면 그 취소의 기록이고, 아니면 확정 자신의 기록이에요. 그 기록을 했으면 `recorded`, `record_pull_request_id`가 열린 PR을 가리키는 동안 `in_review`, 그 밖에는 `waiting`이에요. 기록하기 전에 취소한 확정은 기록한 것이 없으므로, 기록의 PR이 열려 있어도 `withdrawn`이고 `record_state`는 `waiting`이에요. 에이전트는 `state`를 먼저 읽으므로, withdrawn인 확정을 기록하지 않아요.
   - **`claim`**은 열린 기록 항목의 살아 있는 claim이에요.
 - **part**는 에이전트 할 일이 찾는 대로 찾아요([할 일 항목](#할-일-항목) 참고).
 - **찾지 못함.** 어떤 프로젝트 공간도 갖지 않은 이름은 `project_not_found`를 받아요. 다른 프로젝트의 ID나 어떤 행도 가리키지 않는 ID는 오퍼레이션의 코드, 곧 `comment_not_found`, `proposal_not_found`, `edit_not_found`, `checkpoint_not_found`를 받아요. 다른 종류의 항목을 가리키는 `ne_` ID도 `edit_not_found`를 받아요.

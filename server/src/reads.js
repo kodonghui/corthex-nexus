@@ -79,9 +79,12 @@ function statementsOf(store) {
          FROM todos t JOIN diagrams d ON d.id = t.diagram_id
          WHERE t.id = ? AND t.project_id = ? AND t.kind IN ('reflect', 'remove_from_pr')`,
       ),
-      // The diagram's open reflection entries, oldest first, as heldChangeSets takes an entry.
-      openReflections: store.prepare(
-        "SELECT id, kind, diagram_id, change_set_id FROM todos WHERE diagram_id = ? AND project_id = ? AND kind = 'reflect' AND closed_at IS NULL ORDER BY id",
+      // The diagram's open reflection entry of the group of a pull request, or of none, as heldChangeSets takes an entry:
+      // entries.js keys an entry's group by its anchor's pull request.
+      openReflectionIn: store.prepare(
+        `SELECT t.id, t.kind, t.diagram_id, t.change_set_id FROM todos t JOIN change_sets c ON c.id = t.change_set_id
+         WHERE t.diagram_id = ? AND t.project_id = ? AND t.kind = 'reflect' AND t.closed_at IS NULL AND c.pull_request_id IS ?
+         ORDER BY t.id LIMIT 1`,
       ),
       // The latest removal entry of a change set, open or closed.
       removalOf: store.prepare(
@@ -209,16 +212,18 @@ function heldBy(store, statements, project, entry) {
 }
 
 // The reflection entry that reads back with the change set in it (ChangeSet.reflection, API-248), or null: for an
-// accepted change set, the open reflection entry whose group holds it; for one cancelled in a pull request, the removal
-// entry that takes it out, open or done; for a reflected one, the latest reflection of its diagram closed as done whose
-// anchor is in its pull request; for any other (proposed, rejected, or cancelled outside a pull request), none.
+// accepted change set, the open reflection entry whose group holds it, while it is among the first 200 that entry
+// lists (heldBy); for one cancelled in a pull request, the removal entry that takes it out, open or done; for a
+// reflected one, the latest reflection of its diagram closed as done whose anchor is in its pull request; for any
+// other (proposed, rejected, or cancelled outside a pull request), none.
 function reflectionOf(store, statements, project, set) {
   const id = Number(set.id);
   const diagram = Number(set.diagram_id);
   let found;
   if (set.state === 'accepted') {
-    found = statements.openReflections.all(diagram, project.id)
-      .find((entry) => heldChangeSets(store, { project: project.id, entry }).changeSets.includes(id));
+    const open = statements.openReflectionIn.get(diagram, project.id, set.pull_request_id === null ? null : Number(set.pull_request_id));
+    const lists = open !== undefined && heldChangeSets(store, { project: project.id, entry: open }).changeSets.slice(0, HELD).includes(id);
+    found = lists ? open : undefined;
   } else if (set.state === 'cancelled' && set.pull_request_id !== null) {
     found = statements.removalOf.get(id, diagram, project.id);
   } else if (set.state === 'reflected' && set.pull_request_id !== null) {
@@ -297,9 +302,13 @@ function getEdit({ store, params, now }) {
   };
 }
 
-// How far the record that is due got (Checkpoint.record_state).
-function recordState(row, cancelDue, pullRequest) {
-  if ((cancelDue ? row.cancel_recorded_at : row.recorded_at) !== null) return 'recorded';
+// How far the record that is due got (Checkpoint.record_state): the cancel's once a recorded confirmation is cancelled,
+// and the confirmation's own otherwise. A confirmation cancelled before its record has none due and nothing recorded,
+// so it stays waiting, whatever its record's pull request.
+function recordState(row, pullRequest) {
+  const cancelled = row.state === 'cancelled';
+  if (cancelled && row.recorded_at === null) return 'waiting';
+  if ((cancelled ? row.cancel_recorded_at : row.recorded_at) !== null) return 'recorded';
   return pullRequest?.state === 'open' ? 'in_review' : 'waiting';
 }
 
@@ -311,7 +320,6 @@ function getCheckpoint({ store, params, now }) {
   const row = statements.confirmation.get(key, project.id);
   if (row === undefined) throw new Problem('checkpoint_not_found');
   const cancelled = row.state === 'cancelled';
-  const cancelDue = cancelled && row.recorded_at !== null;
   const pullRequest = row.record_pull_request_id === null ? undefined : statements.pullRequest.get(Number(row.record_pull_request_id));
   const open = openAgentEntry(store, { project: project.id, prefix: 'nk', key });
   const id = idOf('nk', key);
@@ -327,7 +335,7 @@ function getCheckpoint({ store, params, now }) {
       withdrawn_at: cancelled ? row.ended_at : null,
       recorded_at: row.recorded_at,
       cancel_recorded_at: row.cancel_recorded_at,
-      record_state: recordState(row, cancelDue, pullRequest),
+      record_state: recordState(row, pullRequest),
       pull_request: linkOf(project, pullRequest),
       claim: open === null ? null : claimOfEntry(statements, project, Number(open.id), id, now()),
     },

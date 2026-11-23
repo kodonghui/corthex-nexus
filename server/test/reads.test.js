@@ -298,6 +298,15 @@ describe('agent reads', () => {
     assert.equal((await proposal(idOf('np', later))).json.reflection, idOf('ne', second));
     assert.equal((await proposal(idOf('np', made))).json.reflection, idOf('ne', reflect));
 
+    // A group of more than 200: an entry lists its first 200, so a change set past them names no entry.
+    const crowded = s.diagram(space, { stage: '01-domain', sourceKey: '/pictures/01-domain/nexus', kind: 'ddd_board', name: 'DDD board' });
+    const crowd = Array.from({ length: 201 }, () => s.changeSet(space, crowded));
+    changed(crowded);
+    const group = entryOf('reflect', crowded);
+    assert.equal((await proposal(idOf('np', crowd[199]))).json.reflection, idOf('ne', group));
+    assert.equal((await proposal(idOf('np', crowd[200]))).json.reflection, null);
+    assert.deepEqual((await edit(idOf('ne', group))).json.change_sets, crowd.slice(0, 200).map((key) => idOf('np', key)));
+
     // Each reflection named reads back with the change set in it (Q1, Q3).
     for (const key of [made, inPull, later]) {
       const named = (await proposal(idOf('np', key))).json.reflection;
@@ -461,18 +470,21 @@ describe('agent reads', () => {
       ['recorded', TIME, null],
     );
 
-    // Q2: cancelled before its record, it is withdrawn with nothing recorded and record_state waiting, and the agent
-    // to-do lists it no more.
+    // Q2: cancelled before its record, it is withdrawn with nothing recorded and record_state waiting, even while its
+    // record's pull request is open, and the agent to-do lists it no more.
     const early = fileDiagram('early');
     const unrecorded = s.confirm(space, early);
     confirmations(early);
+    const pr42 = s.pullRequest(space, { number: 42, purpose: 'record' });
+    db.prepare('UPDATE confirmations SET record_pull_request_id = ? WHERE id = ?').run(pr42, unrecorded);
+    assert.equal((await checkpoint(idOf('nk', unrecorded))).json.record_state, 'in_review');
     s.cancel(unrecorded);
     confirmations(early);
     const withdrawn = await checkpoint(idOf('nk', unrecorded));
     assert.deepEqual(
       [withdrawn.json.state, withdrawn.json.confirmation, withdrawn.json.withdrawn_at, withdrawn.json.recorded_at,
         withdrawn.json.record_state, withdrawn.json.pull_request, withdrawn.json.claim],
-      ['withdrawn', 'cancelled', TIME, null, 'waiting', null, null],
+      ['withdrawn', 'cancelled', TIME, null, 'waiting', pull(42), null],
     );
     const listed = agentTodo(db, { name: NAME, now: clock }).checkpoints.entries.map((each) => each.id);
     assert.equal(listed.includes(idOf('nk', unrecorded)), false);
