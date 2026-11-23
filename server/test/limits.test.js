@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import { BODY_KINDS } from '../src/body.js';
 import { LIMITS } from '../src/limits.js';
+import { tooLarge } from '../src/problem.js';
 import { contract, operations } from './contract.js';
 import { exchange, head, startServer } from './support.js';
 
@@ -39,8 +40,12 @@ test('every body of the contract is a JSON object of one of the three kinds, wit
     assert.equal(operation.requestBody.required, true, where);
     assert.deepEqual(Object.keys(operation.requestBody.content), ['application/json'], where);
     assert.equal(operation.requestBody.description, `At most ${kind.limit} bytes.`, where);
-    for (const { value } of Object.values(operation.responses['413'].content['application/problem+json'].examples)) {
-      assert.deepEqual([value.code, value.limit], [kind.tooLarge, kind.limit], where);
+    const overLimit = Object.values(operation.responses['413'].content['application/problem+json'].examples);
+    assert.ok(overLimit.length > 0, where);
+    for (const { value } of overLimit) {
+      // The example is the answer the server builds for this body: its code, its limit and its detail.
+      const built = tooLarge(kind.tooLarge, kind.limit);
+      assert.deepEqual([value.code, value.limit, value.detail], [built.code, kind.limit, built.detail], where);
     }
     for (const { value } of Object.values(operation.responses['415'].content['application/problem+json'].examples)) {
       assert.equal(value.code, 'json_required', where);
