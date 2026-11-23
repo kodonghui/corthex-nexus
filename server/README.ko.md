@@ -1095,7 +1095,7 @@ python tests/test_tokens_css.py --write
 
 `src/proposals.js`는 TASK-438이에요. 에이전트가 제안, 곧 그려진 그림 위에 얹는 변경 세트를 올리고, 아직 제안 상태인 동안 거두는 부분이에요(API-256 `POST /api/spaces/{project}/proposals`, API-257 `POST /api/spaces/{project}/proposals/{proposal}/withdraw`; SPEC-014, SPEC-018, SPEC-027). 둘 다 JSON 본문과 요청 키를 받는 에이전트 오퍼레이션이에요(규칙 3). 둘 다 claim된 항목에 쓸 수도 있어서 `Nexus-Session`이 꼭 있어야 해요. 소유자의 로그인은 `agent_only`를 받아요. 소유자는 대신 직접 편집해요.
 
-아래 규칙 가운데 승인된 문서에 없는 세 가지는 TASK-438을 위해 코디네이터가 골랐어요. `source_text`가 변경이 되는 방식, 제안이 스레드에 쓰는 것, 지운 다이어그램은 제안을 받지 않는다는 것(WBS 메모 6)이에요. 이 셋은 PR과 함께 메인테이너의 대리인을 기다려요.
+아래 규칙 가운데 승인된 문서에 없는 네 가지는 TASK-438을 위해 코디네이터가 골랐고, 2026-11-24에 메인테이너가 체크포인트용으로 정한 대리인을 통해 승인했어요. `source_text`가 변경이 되는 방식, 제안이 스레드에 쓰는 것, 지운 다이어그램은 제안을 받지 않는다는 것(WBS 메모 6), 그리고 다이어그램이 같은 드로잉을 보여 준 커밋에 대한 `document_changed`의 예외예요. 계약의 글은 그대로이고, 이 예외는 이 서버가 "현재 드로잉의 커밋"을 읽는 방식이에요.
 
 - **제안**은 TBL-158 `change_sets`의 행 하나예요. origin은 `proposal`, 상태는 `proposed`이고, 다이어그램 하나의 현재 드로잉을 기준으로 하며, 에이전트의 자격 증명과 스레드를 적어요. 그 단계는 TBL-159 `changes`의 행이고 순서대로 쌓여요. TBL-158의 `detail`은 요청을 ProposalRequest의 이름 그대로 둬요. [에이전트 읽기](#에이전트-읽기)가 말하는 `items`, `adds`, `reason`, `change`, `source_text`예요. 그래서 API-247, API-265, `heldChangeSets`가 다른 변경 세트처럼 읽어요. 응답은 계약의 ChangeSet이고, API-247도 답하는 `src/reads.js`의 `changeSetOf`가 만들어요.
 - **어느 단계인가.** 01, 03, 05, 07, 08단계의 그려진 그림만 제안을 받아요(계약의 ProposalStage). 09단계와 그 밖의 단계는 `stage`에 대한 `invalid_request`를 받아요. 목업 페이지에는 오버레이를 얹지 않으므로, 에이전트는 대신 댓글을 달아요. 가리킨 항목 표, 그려진 적이 없는 다이어그램, 그려진 그림이 없는 단계와 part는 `not_drawn`을 받아요.
@@ -1127,10 +1127,7 @@ python tests/test_tokens_css.py --write
 - **NEXUS가 하는 일.** 01, 05, 07단계에서는 `source_text`를 `detail`에 두고 응답의 `source_text`도 true이지만, 변경은 만들지 않아요. 변경 세트는 `source_text`가 없을 때처럼 item을 change 글로 표시해요.
 - **이유.** NEXUS는 이 단계들을 hub가 파싱한 그림으로 그리고, 그 Markdown, SQL, YAML은 읽지 않아요. 파싱은 hub 자신의 읽기 함수가 해요. 01단계의 그림은 여러 파일에서 오기도 하는데, `source_text`에는 경로가 없어요.
 - **승인된 문서와의 빈틈.** 계약은 `source_text`를 "제안한 문서, NEXUS가 여기서 변경을 계산한다"고 하고, SPEC-018의 인수 조건은 "소유자는 X 위에 Y를 제안으로 표시된 채 본다"예요. 01, 05, 07단계에서는 이름 바꾸기가 Y over X가 아니라 change 글로 표시된 X로 보여요. 고정한 hub의 `propose`가 내놓는 단계가 바로 이 셋이에요(e410ce9의 `commands.py`에 있는 `PICTURE_STAGES`).
-- **나중을 위한 선택지.**
-  - (a) NEXUS가 05단계의 SQL과 07단계의 YAML을 직접 읽는 후속 태스크예요. TASK-424가 흐름을 확인했듯이 고정한 hub가 저장한 그림과 맞춰 보고, 01단계는 경로가 생길 때까지 기다려요. 코디네이터는 이것을 권해요.
-  - (b) hub가 글과 함께 제안한 그림을 보내도록 바꿔요. 계약 변경과 새 hub 고정이 필요해요.
-  - (c) 그대로 둬요.
+- **다음 일.** 메인테이너가 2026-11-24에 같은 대리인을 통해 후속 태스크를 골랐어요. WBS의 TASK-466(Must)이고, NEXUS가 05단계의 SQL과 07단계의 YAML을 직접 읽어요. TASK-424가 흐름을 확인했듯이 고정한 hub가 저장한 그림과 맞춰 봐요. 01단계는 hub가 경로를 보낼 때까지 WBS 4절의 차이로 남고, TASK-463 배포 때 hub 변경과 함께 다시 봐요. 고르지 않은 것: 지금 hub가 글과 함께 제안한 그림을 보내도록 바꾸기(계약 변경과 새 hub 고정이 필요해요), 그대로 두기.
 - TASK-449의 고정한 hub 실행에는 `propose`가 들어 있지 않아요. 그래서 누구도 이 빈틈을 고장 난 명령으로 읽지 않아요.
 
 `test/proposals.test.js`는 TASK-438의 완료 조건을 확인해요. 09단계와 그려진 그림이 없는 단계는 거절돼요. 이 저장소의 FL-003과 SCR-144를 그 그리기 함수로 그린 드로잉에서, `source_text`는 rename, add, connect, remove가 되고, 01, 05단계에서는 변경 없이 남아요. 지운 다이어그램, claim, 상태마다의 거두기, 로그 줄도 확인해요. API-256과 API-257이 적은 응답을 모두 받고, 건드리는 테이블을 확인해요(메모 23).
