@@ -29,7 +29,7 @@
             - id: SCR-145
               name: Stage workbench
               path: /p/{project}/{part}/{stage}
-              query: "?diagram={diagram}, optional: one of the stage's diagrams; without it, the first by name"
+              query: "?d={diagram}, optional: one of the stage's diagrams; without it, the first by name"
               access: the owner, signed in through the gate
               status: active
               flows: [FL-001, FL-002, FL-003, FL-004, FL-005, FL-006, FL-007, FL-008, FL-012, FL-013]
@@ -38,7 +38,7 @@
                 - id: SCR-146
                   name: Changes since the last confirmation
                   path: /p/{project}/{part}/{stage}/changes
-                  query: "?diagram={diagram}, optional: one of the stage's diagrams; without it, the first by name"
+                  query: "?d={diagram}, optional: one of the stage's diagrams; without it, the first by name"
                   access: the owner, signed in through the gate
                   status: active
                   flows: [FL-002, FL-004, FL-006]

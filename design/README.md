@@ -110,3 +110,7 @@ The maintainer chose to draw user flows, screen states and mockups from the firs
 #### After the review of pull request 104
 
 The stage tabs of the 78 state frames are again exactly as stage 09 approved them; the script opens the view of stage 03, 08 or 09 from a tab, so no state frame changed. The stage-09 view gained the thread and comment box of a selected token, on a phone under the frame's token list; the flow and screen lists above the 03 and 08 views are links. No token is added or changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the second review of pull request 104
+
+The state panels of the 08 view and the tokens of the 09 view are buttons that show which one is selected, like the boxes of the 03 view, so a keyboard selects them too. The bar above the mockup frame says it is a mockup page, that NEXUS never asks for a sign-in inside it and that a page it opens is opened again once; the 09 view's "AI proposals" section says that a mockup takes none. The state frames are still exactly as stage 09 approved them, and no token is added or changed. This part waits for its own checkpoint.

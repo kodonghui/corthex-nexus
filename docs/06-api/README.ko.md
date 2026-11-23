@@ -150,10 +150,10 @@
 - hub의 reflect 이벤트 needs-user는 invalid_request로 거절해요. 이 이벤트에 뜻을 주는 요구사항이 없고, 에이전트는 대신 댓글 스레드에서 소유자에게 물어요.
 - 에이전트의 결정 보고는 링크가 달린 스레드 항목이에요. 무엇을 묻지 않고 결정이 기록된 곳을 남기는 것이라 닫힌 스레드에도 받아요.
 - NEXUS는 스냅숏 형식 corthex-hub/0.2와 corthex-hub/0.3을 받아요. 0.3은 03·08·09단계의 그림 원본을 파일마다 그림 하나로 더하고, 그림마다 원본 파일 경로(key)를 붙여요. 서버가 가진 커밋(API-243)의 답에 받는 형식(formats)을 적고, hub는 거기에 0.3이 있을 때만 0.3을 보내요. 그래서 모르는 그림 단계와 형식을 거절하는 운영 중인 v2는 같은 hub에서 계속 0.2를 받아요. 서버에 아직 없는 프로젝트의 첫 push는 가진 커밋이 없으므로 0.2로 가요. 가진 커밋의 답은 그 커밋이 온 형식(format)도 적고, 같은 커밋이 더 새 형식으로 다시 오면 반복이 아니라 그 리비전을 채워요(API-242). 그래서 0.3 hub의 다음 push가 새 커밋을 기다리지 않고 새 그림을 그리고, 그 단계의 항목 표는 그림에 자리를 내줘요(SPEC-005). formats는 어떤 corthex-hub/N.N이든 받아서, 나중 서버가 더 새 형식을 적을 수 있어요.
-- 파일마다 그림이 하나인 단계는 그림이 여럿이고, API-264가 그 목록을 줘요. 댓글(API-252)과 제안(API-256)은 diagram으로 하나를 고르거나, 그 항목을 가진 그림이 하나뿐이면 항목이 골라요. 그렇지 않으면 diagram_ambiguous를 받아요. 고정 hub는 diagram을 보내지 않으니, 거기서 그 hub의 댓글과 제안은 FL-002나 SCR-145처럼 그림 하나에만 있는 항목에서 돼요.
+- 파일마다 그림이 하나인 단계는 그림이 여럿이고, API-264가 그 목록을 줘요. 댓글(API-252)과 제안(API-256)은 diagram으로 하나를 고르거나, 그 항목을 가진 그림이 하나뿐이면 항목이 골라요. 그렇지 않으면 diagram_ambiguous를 받아요. 항목이 없는 댓글(체크포인트 요청 같은)은 그 단계의 첫 그림에 붙고, 여러 그림에 있는 항목은 diagram_ambiguous를 받아요. 고정 hub는 diagram을 보내지 않으니, 거기서 그 hub의 댓글과 제안은 FL-002나 SCR-145처럼 그림 하나에만 있는 항목과 항목 없는 댓글에서 돼요. 제안은 01·03·05·07·08단계의 그려진 그림에만 가요(ProposalStage). 목업은 받지 않고, 그려진 그림이 없는 단계는 not_drawn을 답해요. 한 번 그림으로 그려진 단계는 0.2 스냅숏이 그 그림을 싣지 않아도 마지막 그림을 그대로 둬요. 그래서 고정 hub와 0.3 hub가 같은 프로젝트를 보내도 그림이 사라졌다 나타나지 않아요.
 - 목업의 요소는 그 페이지가 쓰는 디자인 토큰이에요. 페이지가 var()로 읽는 CSS 사용자 속성마다 하나예요(API-265, SPEC-009). 그래서 토큰 목록에 따로 필드가 필요 없고, 토큰에도 스레드를 달 수 있어요.
-- 0.3에서 hub는 03·08·09단계 원본을 찾고 그림마다 part를 정해요. 이 저장소의 09단계 source는 토큰 파일이라 목업 페이지를 따로 적어야 해요. 이 저장소의 0.3 스냅숏은 약 625,796바이트로 재져요(0.2 스냅숏 128,540바이트와 원본 JSON 497,256바이트). 고정 hub의 예산 1,000,000바이트의 절반을 넘고, API-293의 한도 1MiB 페이지도 담지 못해요. 0.3 hub의 예산은 서버의 8MiB 안에서 늘려요. 둘 다 10단계의 hub 작업이에요.
-- 목업 페이지(API-293)는 hub가 보낸 HTML 그대로예요. Content-Security-Policy sandbox allow-scripts, 네트워크 차단(default-src 'none', 인라인 스크립트와 스타일만, 이미지와 글꼴은 data:만), frame-ancestors 'self', X-Content-Type-Options nosniff로 줘요. 다이어그램 화면은 이것을 sandbox allow-scripts인 iframe으로 열어서, 그 안의 스크립트는 돌지만 NEXUS의 출처·쿠키·API에 닿지 못해요. 목업이 프레임을 다른 페이지로 옮기면 그 페이지는 이 정책 밖이라, 화면은 프레임을 지켜보다가 두 번째 문서가 열리면 목업 페이지를 다시 열어요. 페이지는 프레임의 상태 코드를 읽을 수 없어서, 화면은 먼저 페이지를 직접 요청해 상태만 읽고 200일 때만 프레임에 열어요. 페이지는 text/html; charset=utf-8로 줘요. 페이지가 네트워크에서 불러오는 글꼴은 불러오지 못해요. 앱이 IBM Plex를 어떻게 불러올지는 개발 때 정해요.
+- 0.3에서 hub는 03·08·09단계 원본을 찾고 그림마다 part를 정해요. 이 저장소의 09단계 source는 토큰 파일이라 목업 페이지를 따로 적어야 해요. 그 단계의 0.3 그림은 파일의 글 전체를 source.text로 싣고, 번역 사본은 보내지 않아요. 그런 그림이 있는 0.2 스냅숏이나 key·text가 없는 0.3 그림은 invalid_snapshot이고, 스키마에도 적었어요. 이 저장소의 0.3 스냅숏은 약 625,796바이트로 재져요(0.2 스냅숏 128,540바이트와 원본 JSON 497,256바이트). 고정 hub의 예산 1,000,000바이트의 절반을 넘고, API-293의 한도 1MiB 페이지도 담지 못해요. 0.3 hub의 예산은 서버의 8MiB 안에서 늘려요. 둘 다 10단계의 hub 작업이에요.
+- 목업 페이지(API-293)는 hub가 보낸 HTML 그대로예요. Content-Security-Policy sandbox allow-scripts, 네트워크 차단(default-src 'none', 인라인 스크립트와 스타일만, 이미지와 글꼴은 data:만), frame-ancestors 'self', X-Content-Type-Options nosniff로 줘요. 다이어그램 화면은 이것을 sandbox allow-scripts인 iframe으로 열어서, 그 안의 스크립트는 돌지만 NEXUS의 출처·쿠키·API에 닿지 못해요. 목업이 프레임을 다른 페이지로 옮기면 그 페이지는 이 정책 밖이고, 목업에 입력한 글이 그 이동과 함께 나갈 수 있어요. 이것은 어떤 헤더로도 막지 못해요. 그래서 프레임 위 막대가 늘 목업 페이지임을 보이고, NEXUS는 프레임 안에서 로그인을 묻지 않아요. 화면은 프레임을 지켜보다가 두 번째 문서가 열리면 목업 페이지를 한 번 다시 열고, 또 그러면 "다시 열기" 버튼과 함께 멈춰요. 헤더는 탭에서 바로 연 페이지도 sandbox로 만들고, 12단계에서 API-293의 모든 응답에 그 헤더가 있는지 시험해요. 페이지는 프레임의 상태 코드를 읽을 수 없어서, 화면은 먼저 페이지를 직접 요청해 상태만 읽고 200일 때만 프레임에 열어요. 페이지는 text/html; charset=utf-8로 줘요. 페이지가 네트워크에서 불러오는 글꼴은 불러오지 못해요. 앱이 IBM Plex를 어떻게 불러올지는 개발 때 정해요.
 - 입력 검증 오류는 글자 수 초과(text_too_long, field와 limit 포함)까지 모두 400이에요. 413은 본문이 바이트 한도를 넘을 때만 써요: 스냅숏 8 MiB, Miro 내보내기 5 MiB, 그 밖의 본문 2 MiB(hub가 줄 세우는 가장 큰 쓰기 크기).
 - 아무것도 바꾸지 않는 반복 요청은 changed false로 성공해요. 형식이 틀린 경로 ID는 400이 아니라 그것이 가리키는 것의 404를 받아요. hub가 그렇게 읽어요.
 - hub가 링크하는 페이지 주소 /p/{project}/{part 또는 _}/{stage}와 /p/{project}#data는 그대로 둬요. 07단계에서 자리를 정해요.
@@ -170,11 +170,11 @@
 | SPEC-002 Create a project space on the first send | API-242, API-243 |
 | SPEC-003 Draw the DDD board | API-242, API-265 |
 | SPEC-004 Draw the ERD | API-242, API-265 |
-| SPEC-005 Show an item table | API-265 |
-| SPEC-006 Draw user-flow diagrams | API-265 |
-| SPEC-007 Draw the sitemap tree | API-265 |
-| SPEC-008 Draw screen-state panels | API-265 |
-| SPEC-009 Show mockups with their tokens | API-265, API-293 |
+| SPEC-005 Show an item table | API-242, API-265 |
+| SPEC-006 Draw user-flow diagrams | API-242, API-265 |
+| SPEC-007 Draw the sitemap tree | API-242, API-265 |
+| SPEC-008 Draw screen-state panels | API-242, API-265 |
+| SPEC-009 Show mockups with their tokens | API-242, API-265, API-293 |
 | SPEC-010 Show names, hide trace IDs | API-265 |
 | SPEC-011 Copy an element | API-265 |
 | SPEC-012 Move an element and keep its place | API-265, API-274 |
@@ -243,3 +243,5 @@
 #### PR 104 리뷰 뒤
 
 승인된 항목 2개가 바뀌고 기능 변경 항목 4개를 정확히 했어요. 하나씩 여쭈어 같은 대리인을 통해 승인했어요. 같은 커밋이 더 새 형식으로 오면 그 리비전을 채우고(API-242), 가진 커밋의 답이 그 커밋이 온 형식을 적고 formats는 어떤 corthex-hub/N.N이든 받아요(API-243). 댓글과 제안은 선택 필드 diagram을 받고 정해지지 않는 대상을 diagram_ambiguous로 거절해요(API-252, API-256). 목업의 요소는 그 토큰이에요(API-265). API-293은 프레임이 막는 것, 화면이 상태를 읽는 법, 페이지가 다른 페이지를 열 때를 적어요. 오퍼레이션 수는 그대로예요. 이 몫은 2026-11-23에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+PR 104의 두 번째 리뷰 뒤 항목이 더 바뀌었고, 하나씩 여쭈어 같은 대리인을 통해 승인했어요. 항목 없는 댓글은 단계의 첫 그림에 붙어요. 제안은 ProposalStage를 받고, 그려진 그림이 없는 단계는 not_drawn을 답해요. 그림으로 그려진 단계는 0.2 스냅숏에서도 그림을 지녀요. API-293은 프레임이 막지 못하는 것을 적고 한 번만 다시 열어요. 0.3 그림 원본은 파일의 글이고, 규칙을 스키마에 적고 그림 1,000개까지 받아요. API-242가 SPEC-005~009를 이어요. 이 몫은 따로 체크포인트를 기다려요.

@@ -34,7 +34,7 @@ flowchart TD
 
 Read model without a screen: TERM-226 (Agent to-do: agents read it through the hub, not on a page).
 
-SCR-145 and SCR-146 take an optional `?diagram={diagram}`: stages 03, 08 and 09 have one diagram per file, so the address names which one; without it the stage's first diagram by name opens, so the hub's stage links work as before.
+SCR-145 and SCR-146 take the optional `?d={diagram}` of section 5: stages 03, 08 and 09 have one diagram per file, so the address names which one; without it the stage's first diagram by name opens, so the hub's stage links work as before.
 
 ## 2. What each screen shows
 
@@ -142,7 +142,7 @@ Where stages 01 to 06 decided otherwise than the mockup; each is asked on its ow
 ## 5. Addresses
 
 - The addresses the hub links to, `/p/{project}/{part or _}/{stage}` and `/p/{project}#data`, stay as stage 06 decided.
-- On the stage workbench, `?d=<diagram ID>` names one diagram and `?thread=<thread ID>` one thread. They are states of the same screen, so they have no screen of their own.
+- On the stage workbench and its changes page, `?d=<diagram ID>` names one diagram and `?thread=<thread ID>` one thread. They are states of the same screen, so they have no screen of their own.
 - The gate keeps the sign-in, and someone it does not admit sees the gate's page; NEXUS has no sign-in screen (SPEC-048).
 
 ## 6. Checkpoint
@@ -158,3 +158,7 @@ The maintainer chose to draw user flows, screen states and mockups from the firs
 #### After the review of pull request 104
 
 One approved item changed, asked on its own and approved through the same delegate: the address of SCR-145, and of SCR-146 under it, takes an optional `?diagram={diagram}` for a stage with several diagrams. The paths and the tree are unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the second review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: the query is the `?d=` that section 5 already names, not a new `?diagram=`, so a diagram opened from the to-do and one opened from the list behave the same. This part waits for its own checkpoint.

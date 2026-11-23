@@ -21,11 +21,11 @@ paths:
     post:
       operationId: pushSnapshot
       summary: Accept a snapshot
-      description: "The hub's push. NEXUS stores the snapshot, keeps each picture source and each stage's items as a document (TBL-149, TBL-150), draws the stage diagrams and item tables from them and answers with the revision. A corthex-hub/0.3 snapshot also carries the user flows, screen states and mockups, one picture per file with its key (SPEC-006, SPEC-008, SPEC-009). A project without a space gets one (SPEC-002): the pinned hub sends a snapshot of a project the server does not hold only after the user's yes, given as push --first. When the project holds a commit, the snapshot must name it in replaces, which the hub sets only for a commit that descends from it or after the user agreed to replace it. The same commit again answers its revision and redraws nothing, unless it comes in a newer format than the one that commit came in: then it completes that revision, so NEXUS keeps the files the older format did not carry, draws those stages (a stage's item table makes way for its pictures, SPEC-005) and answers the same revision with same_commit true and what it drew. A source whose text looks like a secret or an email address is left out and named in refused (REQ-077). A source that cannot be parsed keeps the diagram's last good drawing and is named in failures. The hub sends no request key and no session here; a repeat is recognised by its commit. After drawing, NEXUS invalidates confirmations whose document changed (SPEC-033), marks reflected the change sets of reported reflections (SPEC-025) and moves the threads of removed elements to their diagram (SPEC-027)."
+      description: "The hub's push. NEXUS stores the snapshot, keeps each picture source and each stage's items as a document (TBL-149, TBL-150), draws the stage diagrams and item tables from them and answers with the revision. A corthex-hub/0.3 snapshot also carries the user flows, screen states and mockups, one picture per file with its key (SPEC-006, SPEC-008, SPEC-009). A project without a space gets one (SPEC-002): the pinned hub sends a snapshot of a project the server does not hold only after the user's yes, given as push --first. When the project holds a commit, the snapshot must name it in replaces, which the hub sets only for a commit that descends from it or after the user agreed to replace it. The same commit again answers its revision and redraws nothing, unless it comes in a newer format than the one that commit came in: then it completes that revision, so NEXUS keeps the files the older format did not carry, draws those stages (a stage's item table makes way for its pictures, SPEC-005) and answers the same revision with same_commit true and what it drew. A stage drawn as pictures before keeps its last pictures when a snapshot's format does not carry them (SPEC-005). A source whose text looks like a secret or an email address is left out and named in refused (REQ-077). A source that cannot be parsed keeps the diagram's last good drawing and is named in failures. The hub sends no request key and no session here; a repeat is recognised by its commit. After drawing, NEXUS invalidates confirmations whose document changed (SPEC-033), marks reflected the change sets of reported reflections (SPEC-025) and moves the threads of removed elements to their diagram (SPEC-027)."
       tags: [agent]
       x-corthex:
         id: API-242
-        spec: [SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-014, SPEC-025, SPEC-027, SPEC-033]
+        spec: [SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-014, SPEC-025, SPEC-027, SPEC-033]
         tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153]
         release: Must
         family: agent
@@ -1351,7 +1351,7 @@ paths:
     post:
       operationId: leaveComment
       summary: Comment as an agent
-      description: Opens a thread on the stage's diagram of the part, or on the element whose trace ID item names, in the diagram that diagram names or that item picks in a stage with several (SPEC-016), at the current drawing or at commit when NEXUS holds it, and puts it in the owner's to-do as a question (SPEC-016). quote, asks and look_first are kept with the comment. A checkpoint request (asks checkpoint) has no item, at most 10 lines and 1,200 characters, and look_first. A discrepancy is never found, since NEXUS v3 has none.
+      description: Opens a thread on the stage's diagram of the part, or on the element whose trace ID item names, in the diagram that diagram names or that item picks in a stage with several, or with neither on the stage's first diagram (SPEC-016), at the current drawing or at commit when NEXUS holds it, and puts it in the owner's to-do as a question (SPEC-016). quote, asks and look_first are kept with the comment. A checkpoint request (asks checkpoint) has no item, at most 10 lines and 1,200 characters, and look_first. A discrepancy is never found, since NEXUS v3 has none.
       tags: [agent]
       x-corthex:
         id: API-252
@@ -1513,7 +1513,7 @@ paths:
                   value:
                     title: Name the diagram
                     status: 409
-                    detail: the stage has more than one diagram and the request does not pick one
+                    detail: more than one diagram of the stage holds the item; name the diagram
                     code: diagram_ambiguous
                     traceId: "4d6f8a0c2e1b3957"
                     diagrams: [dg_2b4c6d8e0f1g, dg_3c5d7e9f1g2h]
@@ -2132,7 +2132,7 @@ paths:
     post:
       operationId: makeProposal
       summary: Post an AI proposal
-      description: Stores the change set against the current drawing and lays it over the diagram, the one that diagram names or that the items pick in a stage with several (SPEC-018). With source_text, NEXUS draws the proposed document and keeps the differences as changes; without it, the change set marks items with the change text. A proposal answering a comment claims it for the session; one of the agent's own opens a thread for it. A commit other than the current drawing's is refused as document_changed. The owner's sign-in gets agent_only, since the owner edits directly instead.
+      description: Stores the change set against the current drawing and lays it over the diagram, the one that diagram names or that the items pick in a stage with several (SPEC-018). Only a drawn picture of a stage other than the mockup's takes a proposal; a stage with no drawn picture answers not_drawn. With source_text, NEXUS draws the proposed document and keeps the differences as changes; without it, the change set marks items with the change text. A proposal answering a comment claims it for the session; one of the agent's own opens a thread for it. A commit other than the current drawing's is refused as document_changed. The owner's sign-in gets agent_only, since the owner edits directly instead.
       tags: [agent]
       x-corthex:
         id: API-256
@@ -2296,11 +2296,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
               examples:
+                not-drawn:
+                  value:
+                    title: Nothing drawn to propose on
+                    status: 409
+                    detail: the stage has no drawn picture; comment instead
+                    code: not_drawn
+                    traceId: "7a9c1e3b5d0f2468"
                 diagram-ambiguous:
                   value:
                     title: Name the diagram
                     status: 409
-                    detail: the stage has more than one diagram and the request does not pick one
+                    detail: more than one diagram of the stage holds the item; name the diagram
                     code: diagram_ambiguous
                     traceId: "6e8a0c2e4b1d3f57"
                     diagrams: [dg_2b4c6d8e0f1g, dg_3c5d7e9f1g2h]
@@ -3899,7 +3906,7 @@ paths:
     get:
       operationId: getMockupPage
       summary: Open a mockup page
-      description: "The HTML of a stage-09 mockup as the hub sent it, from the diagram's current drawing or, when that failed, its last good one (SPEC-009). It is served apart from NEXUS, as text/html; charset=utf-8: the Content-Security-Policy makes it a sandbox in which its scripts run but which has no NEXUS origin, so they reach neither NEXUS's cookies nor its API, and the page itself loads nothing from the network; only a NEXUS page may frame it. The diagram view first requests the page itself and reads only its status, stopping the transfer once the status arrives, because a page cannot read the status of a frame; it opens the page in an iframe with sandbox allow-scripts and nothing more only on 200, and lists the mockup's elements from API-265, its tokens, beside it. A page the mockup navigates its frame to is outside this policy, so the view watches the frame: when it loads a second document, the view opens the mockup page again and says that the mockup tried to open another page. Fonts the page loads from the network do not load."
+      description: "The HTML of a stage-09 mockup as the hub sent it, from the diagram's current drawing or, when that failed, its last good one (SPEC-009). It is served apart from NEXUS, as text/html; charset=utf-8: the Content-Security-Policy makes it a sandbox in which its scripts run but which has no NEXUS origin, so they reach neither NEXUS's cookies nor its API, and the page itself loads nothing from the network; only a NEXUS page may frame it. The diagram view first requests the page itself and reads only its status, stopping the transfer once the status arrives, because a page cannot read the status of a frame; it opens the page in an iframe with sandbox allow-scripts and nothing more only on 200, and lists the mockup's elements from API-265, its tokens, beside it. A page the mockup navigates its frame to is outside this policy, and text typed into the mockup can leave with that navigation, which no header stops; so a bar above the frame always marks it as a mockup page, NEXUS never asks for a sign-in inside it, and the view watches the frame: when it loads a second document, the view opens the mockup page again once and says that the mockup tried to open another page, and a second time it stops with \"The mockup keeps opening other pages\" and an Open again button. The Content-Security-Policy also sandboxes the page when it is opened in a tab of its own. Fonts the page loads from the network do not load."
       tags: [owner]
       x-corthex:
         id: API-293
@@ -8946,7 +8953,7 @@ components:
         client: Reload the page and try again.
       diagram_ambiguous:
         status: 409
-        meaning: A comment or a proposal in a stage with more than one diagram that neither names a diagram nor has an item only one of them holds (SPEC-016, SPEC-018); diagrams lists them.
+        meaning: A comment or a proposal without diagram whose item several diagrams of the stage hold (SPEC-016, SPEC-018); diagrams lists them.
         message: Name the diagram.
         message_ko: "그림을 하나 골라 주세요."
         client: An agent sends the request again with diagram.
@@ -9042,7 +9049,7 @@ components:
         client: Keep the form and mark the name.
       not_drawn:
         status: 409
-        meaning: A confirmation of a diagram whose current drawing failed or that has none, or a mockup page that has never drawn.
+        meaning: A confirmation of a diagram whose current drawing failed or that has none, a mockup page that has never drawn, or a proposal for a stage with no drawn picture.
         message: Fix the document so that it draws, then confirm.
         message_ko: "문서를 고쳐 그려지게 한 뒤 확정하세요."
         client: Show where the drawing failed.
@@ -9422,6 +9429,10 @@ components:
       type: string
       enum: ["01-domain", "03-user-flow", "05-erd", "07-sitemap", "08-screen-states", "09-mockup"]
       description: "A stage the hub sends a picture source for: 01, 05 and 07 in corthex-hub/0.2, and also 03, 08 and 09 in corthex-hub/0.3. A 0.2 snapshot with a picture of stage 03, 08 or 09 is invalid_snapshot."
+    ProposalStage:
+      type: string
+      enum: ["01-domain", "03-user-flow", "05-erd", "07-sitemap", "08-screen-states"]
+      description: "A stage that takes AI proposals: a picture stage other than 09, whose mockup page takes no overlay and whose tokens have no trace ID; an agent comments on a mockup instead. A stage with no drawn picture, such as one shown as an item table, answers not_drawn."
     Part:
       type: string
       description: A part of the project, or the empty string for the project as a whole.
@@ -9651,6 +9662,18 @@ components:
       description: The snapshot of the pinned corthex-hub, as it sends it. Only the fields NEXUS reads are listed; it keeps the others as they come.
       required: [schema, generator, generated_at, project, repos, stages, items, checks, pictures]
       additionalProperties: true
+      if:
+        required: [schema]
+        properties:
+          schema:
+            const: corthex-hub/0.2
+      then:
+        properties:
+          pictures:
+            items:
+              properties:
+                stage:
+                  enum: ["01-domain", "05-erd", "07-sitemap"]
       properties:
         schema:
           type: string
@@ -9734,21 +9757,35 @@ components:
               key:
                 type: string
                 maxLength: 300
-                description: "In corthex-hub/0.3, the repository path of the source file of a picture of stage 03, 08 or 09, which has one picture per file. NEXUS keeps it as the diagram's source_key (TBL-151); a picture of those stages without it is invalid_snapshot."
+                description: "In corthex-hub/0.3, the repository path of the source file of a picture of stage 03, 08 or 09, which has one picture per file. NEXUS keeps it as the diagram's source_key (TBL-151); a picture of those stages without it is invalid_snapshot. Translation copies, such as a .ko.md beside its .md, are not sent."
               commit:
                 $ref: "#/components/schemas/Commit"
               source:
                 type: object
+                description: "For stages 01, 05 and 07, the pinned hub's parsed picture. For stages 03, 08 and 09, text: the whole text of the file that key names, which NEXUS parses itself (the Mermaid flow of a user flow, the state table of a screen definition, the HTML of a mockup page)."
                 additionalProperties: true
-                properties: {}
-          maxItems: 150
+                properties:
+                  text:
+                    type: string
+                    maxLength: 1048576
+            if:
+              required: [stage]
+              properties:
+                stage:
+                  enum: ["03-user-flow", "08-screen-states", "09-mockup"]
+            then:
+              required: [key]
+              properties:
+                source:
+                  required: [text]
+          maxItems: 1000
         left_out:
           type: array
           items:
             type: object
             additionalProperties: true
             properties: {}
-          maxItems: 150
+          maxItems: 1000
         replaces:
           $ref: "#/components/schemas/Commit"
     PushAnswer:
@@ -10532,7 +10569,7 @@ components:
           $ref: "#/components/schemas/Stage"
         diagram:
           $ref: "#/components/schemas/DiagramId"
-          description: "The diagram, for a stage with more than one (stages 03, 08 and 09 have one per file). Without it the item picks the diagram, which works when one diagram of the stage holds it; otherwise the request gets diagram_ambiguous."
+          description: "The diagram, for a stage with more than one (stages 03, 08 and 09 have one per file). Without it the item picks the one diagram of the stage that holds it, and a comment with no item goes on the stage's first diagram by name, the one the stage's address opens; an item that several diagrams hold gets diagram_ambiguous."
         commit:
           $ref: "#/components/schemas/Commit"
         discrepancy:
@@ -10591,10 +10628,10 @@ components:
         part:
           $ref: "#/components/schemas/Part"
         stage:
-          $ref: "#/components/schemas/PictureStage"
+          $ref: "#/components/schemas/ProposalStage"
         diagram:
           $ref: "#/components/schemas/DiagramId"
-          description: "The diagram, for a stage with more than one (stages 03, 08 and 09 have one per file). Without it the item picks the diagram, which works when one diagram of the stage holds it; otherwise the request gets diagram_ambiguous."
+          description: "The diagram, for a stage with more than one (stages 03, 08 and 09 have one per file). Without it the item picks the one diagram of the stage that holds it, and a comment with no item goes on the stage's first diagram by name, the one the stage's address opens; an item that several diagrams hold gets diagram_ambiguous."
         commit:
           $ref: "#/components/schemas/Commit"
         discrepancy:

@@ -81,3 +81,7 @@ The maintainer chose to draw user flows, screen states and mockups from the firs
 #### After the review of pull request 104
 
 Approved items changed, each asked on its own and approved through the same delegate. Here: SCR-145 and SCR-146 take the optional query ?diagram=, SCR-145's data gains the stage's diagrams and its actions "Open another diagram of the stage"; its normal state says how the diagrams are listed, that a mockup's tokens are its elements, that the view reads the page's status first and what happens when the page opens another page. The number of states is unchanged. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+#### After the second review of pull request 104
+
+More approved items changed, each asked on its own and approved through the same delegate. Here: the query of SCR-145 and SCR-146 is the existing ?d=. SCR-145's normal state says that the bar above the mockup frame marks it as a mockup page and NEXUS never asks for a sign-in inside it, that the view opens the page again only once and then stops with Open again, that a mockup takes no AI proposals, and that elements, state panels and tokens included, are selected by keyboard too. The number of states is unchanged. This part waits for its own checkpoint.
