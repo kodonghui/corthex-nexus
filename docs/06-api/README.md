@@ -257,3 +257,7 @@ One approved item changed, asked on its own and approved through the same delega
 #### After the eighth review of pull request 104
 
 One approved item changed, asked on its own and approved through the same delegate: a removed diagram takes no new thread (API-252, API-267), no direct edit (API-272), no move (API-274) and no confirmation (API-275), each answering 404 diagram_not_found, whose meaning now says so; a proposal on it is refused like one on a drawing that is no longer current (API-270, document_changed). No code, operation or owner message was added or changed. This part waits for its own checkpoint.
+
+#### After the ninth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate: the client line of diagram_not_found says that after a write the diagram is read again first, since a removed one still listed opens for its threads only (SPEC-027), and its meaning names a direct edit instead of "a change", which also read as a proposal (API-270 answers document_changed). The code, the status and the owner message are unchanged. This part waits for its own checkpoint.

@@ -9015,10 +9015,10 @@ components:
         client: An agent sends the request again with diagram.
       diagram_not_found:
         status: 404
-        meaning: No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a change, a move, a confirmation or a new thread names was removed (SPEC-027).
+        meaning: No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027).
         message: This diagram is not in NEXUS.
         message_ko: "NEXUS에 없는 다이어그램이에요."
-        client: Link to the project.
+        client: Link to the project; after a write, read the diagram again first, since a removed one still listed opens for its threads only (SPEC-027).
       discrepancy_not_found:
         status: 404
         meaning: NEXUS v3 has no discrepancies, so every nd_ ID is unknown.

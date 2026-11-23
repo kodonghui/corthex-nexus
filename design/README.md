@@ -122,3 +122,7 @@ The mockup page's copy of SCR-145's normal state follows stage 08: a removed dia
 #### After the eighth review of pull request 104
 
 The mockup page's copy of SCR-145's and SCR-146's normal states follows stage 08: a removed diagram opens for its threads only (SPEC-027). The page is generated again; nothing else in it changed and no approved item of this stage changed. This part waits for its own checkpoint.
+
+#### After the ninth review of pull request 104
+
+The mockup page's copy of SCR-145's and SCR-146's error states follows stage 08: after a 404 for the diagram on a write, the diagram is read again first, and a removed one still listed opens for its threads only (SPEC-027). The page is generated again; nothing else in it changed and no approved item of this stage changed. This part waits for its own checkpoint.

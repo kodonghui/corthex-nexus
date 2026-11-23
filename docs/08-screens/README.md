@@ -93,3 +93,7 @@ One approved item changed, asked on its own and approved through the same delega
 #### After the eighth review of pull request 104
 
 One approved item changed, asked on its own and approved through the same delegate. Here: on SCR-145 a removed diagram opens for its threads only, with no new comment, move, direct edit, proposal answer or confirm button, and SCR-146 shows only its changes, with no confirm button (SPEC-027). The number of states is unchanged. This part waits for its own checkpoint.
+
+#### After the ninth review of pull request 104
+
+One approved item changed, asked on its own and approved through the same delegate. Here: after a 404 for the diagram on a write, SCR-145 reads the diagram again first, and a removed one still listed opens for its threads only; after a confirmation SCR-146 does the same and shows only its changes; otherwise both still say the diagram is not in NEXUS (SPEC-027). The number of states is unchanged. This part waits for its own checkpoint.
