@@ -22,7 +22,8 @@ import { createQueue, createWrites, isWrite } from './writes.js';
 // 'owner' or the agent credential's ID, and credential is the agent credential { id, key, name } or null. gate is the
 // gate's sign-in (see gate.js), which owner operations need; agent operations need the store, which holds the agent
 // credentials. body is the parsed JSON body and size its length in bytes as sent, or null for an operation that takes
-// no body. now() is the time in milliseconds.
+// no body. now() is the time in milliseconds. queue is the server's one queue of store writes (writes.js), which
+// main.js shares with the daily backup (backups.js).
 //
 // A request goes through these steps, each of which can refuse it: its path and method; its admission; its path
 // parameters' forms (the 404 of what each names); its request key's form (rule 3); its body, JSON within its limit;
@@ -30,15 +31,15 @@ import { createQueue, createWrites, isWrite } from './writes.js';
 // path and method name an operation, every answer carries the headers its route names, refusals and faults included
 // (see router.js). A route whose media is a page answers its handler's text as that type (see answer.js).
 export function createApp({
-  settings, routes = [], log = jsonLines(), store = null, gate = null, now = Date.now,
+  settings, routes = [], log = jsonLines(), store = null, gate = null, now = Date.now, queue = createQueue(),
 }) {
   const find = createRouter(routes);
   // An action's family, from the contract: one action is one operation, so it has one family.
   const families = new Map(routes.map((route) => [route.action, familyOf(route)]));
   if (gate === null && [...families.values()].includes('owner')) throw new Error('owner operations need the gate');
   if (store === null && [...families.values()].includes('agent')) throw new Error('agent operations need the store');
-  // One queue for every write to the store: the operations' writes and admission's note of a credential's use.
-  const queue = createQueue();
+  // One queue for every write to the store: the operations' writes, admission's note of a credential's use and the
+  // daily backup.
   const admit = createAdmission({ gate, store, queue, now });
   const write = createWrites({ store, now, queue });
 

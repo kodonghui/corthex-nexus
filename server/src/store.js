@@ -46,6 +46,7 @@ const REASONS = Object.freeze({
   newer_store: 'the store was migrated by a newer server than this one; it was left as it is',
   migrations_invalid: 'the migrations are not numbered from 0001 without a gap',
   foreign_keys_broken: 'a migration left rows whose foreign keys point at no row; nothing was changed',
+  no_store: 'the data folder holds no store',
 });
 
 // The migrations in order: { number, sql } for each file named like 0001_initial.sql. The numbers run from 1 without
@@ -83,6 +84,26 @@ export function openStore(dataDirectory, { migrations = readMigrations() } = {})
     db.close();
     throw error;
   }
+}
+
+// Opens the store in the data folder as it is, for a command run beside the server, such as the restore rehearsal
+// (rehearsal.js), whose code may be newer than the running server's: it neither creates the store nor applies a
+// migration, so it never changes the server's schema under it. A missing store and a file that is not a NEXUS v3
+// store are refused.
+export function openExistingStore(dataDirectory) {
+  const path = join(dataDirectory, STORE_FILE);
+  if (!existsSync(path)) throw new StoreError('no_store');
+  checkHeader(path);
+  const db = new DatabaseSync(path, { enableForeignKeyConstraints: true, timeout: BUSY_TIMEOUT_MS });
+  try {
+    if (pragma(db, 'application_id') !== APPLICATION_ID) throw new StoreError('not_a_v3_store');
+    // A store a newer server migrated is left as it is, as openStore leaves it.
+    if (pragma(db, 'user_version') > readMigrations().length) throw new StoreError('newer_store');
+  } catch (error) {
+    db.close();
+    throw error;
+  }
+  return db;
 }
 
 // Applies to db, in one transaction, each migration after the store's user version, and marks the store as NEXUS

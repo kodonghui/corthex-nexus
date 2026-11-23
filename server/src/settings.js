@@ -17,11 +17,17 @@ const DEFAULTS = Object.freeze({
   NEXUS_ACCESS_ISSUER: '',
   NEXUS_ACCESS_AUD: '',
   NEXUS_OWNER_EMAIL: '',
+  // The backups' folder has no default either: the operator names where the daily backups are kept (SPEC-052).
+  NEXUS_BACKUP_DIR: '',
+  // When the day's backup runs, as HH:MM in UTC. This default is an example; the deploy (TASK-464) sets the real time.
+  NEXUS_BACKUP_TIME: '03:00',
 });
 // Access names each application by a 64-hex-digit audience tag.
 const AUDIENCE = /^[0-9a-f]{64}$/;
 // One address of the one owner, as the gate's sign-in carries it.
 const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}$/;
+// A time of day, HH:MM from 00:00 to 23:59.
+const TIME_OF_DAY = /^([01][0-9]|2[0-3]):([0-5][0-9])$/;
 // A domain name, never an IP address, whose last label is letters.
 const HOST_NAME = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
 
@@ -44,12 +50,7 @@ export function readSettings(env = process.env) {
   if (!/^[0-9]{1,5}$/.test(port) || Number(port) > 65535) {
     throw new SettingsError('NEXUS_PORT', 'must be a whole number from 0 to 65535');
   }
-  // The folder of the store, nexus-v3.sqlite (see store.js). An absolute path, so it does not depend on the folder
-  // the server is started from.
-  const dataDirectory = valueOf(env, 'NEXUS_DATA_DIR');
-  if (dataDirectory === '' || dataDirectory.includes('\u0000') || !fullyAbsolute(dataDirectory)) {
-    throw new SettingsError('NEXUS_DATA_DIR', 'must be set to an absolute folder path');
-  }
+  const { dataDirectory, backup } = readStoreSettings(env);
   // The gate's sign-in (gate.js): the issuer its tokens name and whose certs endpoint lists its keys, the audience tag
   // of the NEXUS application, and the owner it admits.
   const issuer = issuerOf(valueOf(env, 'NEXUS_ACCESS_ISSUER'));
@@ -65,9 +66,34 @@ export function readSettings(env = process.env) {
   return Object.freeze({
     host,
     port: Number(port),
-    dataDirectory: resolve(dataDirectory),
+    dataDirectory,
+    backup,
     gate: Object.freeze({ issuer, audience, owner: owner.toLowerCase() }),
   });
+}
+
+// The settings of the store and its backups, which the server and the restore rehearsal (rehearse.js) both read:
+// { dataDirectory, backup: { directory, hour, minute } }.
+export function readStoreSettings(env = process.env) {
+  // The folder of the store, nexus-v3.sqlite (see store.js). An absolute path, so it does not depend on the folder
+  // the server is started from.
+  const dataDirectory = absoluteFolder(env, 'NEXUS_DATA_DIR');
+  // The folder of the daily backups (backups.js), kept beside the server (SPEC-052).
+  const directory = absoluteFolder(env, 'NEXUS_BACKUP_DIR');
+  const time = TIME_OF_DAY.exec(valueOf(env, 'NEXUS_BACKUP_TIME'));
+  if (time === null) throw new SettingsError('NEXUS_BACKUP_TIME', 'must be a time of day in UTC, HH:MM from 00:00 to 23:59');
+  return Object.freeze({
+    dataDirectory,
+    backup: Object.freeze({ directory, hour: Number(time[1]), minute: Number(time[2]) }),
+  });
+}
+
+function absoluteFolder(env, name) {
+  const value = valueOf(env, name);
+  if (value === '' || value.includes('\u0000') || !fullyAbsolute(value)) {
+    throw new SettingsError(name, 'must be set to an absolute folder path');
+  }
+  return resolve(value);
 }
 
 // The origin of an https address with no path, query, user or port, such as https://team.cloudflareaccess.com, as

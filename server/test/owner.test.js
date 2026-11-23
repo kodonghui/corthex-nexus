@@ -1,7 +1,8 @@
 // The owner's projects and to-do (TASK-439; API-262, API-263, SPEC-015, SPEC-042, SPEC-048, SPEC-052, rule 5): every
 // response the two operations list, their answers against the contract's ProjectList and OwnerTodo, the tables they
 // touch (notes 22 and 23) and their log lines. The rows are written straight into the store with test/seed.js, the
-// entries are opened by src/entries.js, and the backups of TBL-170 are written here as TASK-450's job will write them.
+// entries are opened by src/entries.js, and the backups of TBL-170 are written here as TASK-450's job (src/backups.js)
+// writes them.
 
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
