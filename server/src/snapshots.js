@@ -17,14 +17,16 @@
 // A refused push changes nothing. A kept snapshot keeps its documents (TBL-149, TBL-150), each text once by its
 // SHA-256; a document whose text looks like a secret or an email address is left out and named in refused (REQ-077).
 // Then drawing.js draws it (TASK-419): its diagrams, drawings and elements. The answer counts what drew and names the
-// sources that failed; what a drawing changes after it, confirmations, change sets and threads, is TASK-435's (note 14
-// of the WBS), so those counts are 0 until it lands.
+// sources that failed. after-drawing.js then changes what the drawing calls for (TASK-435, note 14 of the WBS): it
+// invalidates confirmations whose documents changed, marks stage passes changed, reflects the change sets of a reported
+// merge commit and moves the threads of elements that left, with the to-do; the answer counts them.
 //
 // The hub sends push with no request key: a repeat is recognised by its commit (rule 3). A push that carries one is
 // refused, since the same key would not give the first answer as rule 3 says. No log line holds a document's text, a
 // path of the snapshot or what was found in it (rule 5).
 
 import { createHash } from 'node:crypto';
+import { afterDrawing } from './after-drawing.js';
 import { checkDrawers, drawSnapshot, DRAWERS, heldDrawing } from './drawing.js';
 import { invalidRequest, Problem } from './problem.js';
 import { carriedBy, FORMATS, isNewer, readSnapshot } from './snapshot.js';
@@ -83,7 +85,9 @@ function keep(statements, snapshotId, documents) {
 }
 
 // The answer of API-242, the contract's PushAnswer.
-function answer({ project, revision, commit, replaced, created, sameCommit, drawn, refused }) {
+const NOTHING_AFTER = Object.freeze({ confirmations_invalidated: 0, change_sets_reflected: 0, threads_moved: 0 });
+
+function answer({ project, revision, commit, replaced, created, sameCommit, drawn, refused, after = NOTHING_AFTER }) {
   return {
     status: created ? 201 : 200,
     body: {
@@ -96,9 +100,9 @@ function answer({ project, revision, commit, replaced, created, sameCommit, draw
       diagrams: drawn.diagrams,
       failures: drawn.failures,
       refused,
-      confirmations_invalidated: 0,
-      change_sets_reflected: 0,
-      threads_moved: 0,
+      confirmations_invalidated: after.confirmations_invalidated,
+      change_sets_reflected: after.change_sets_reflected,
+      threads_moved: after.threads_moved,
     },
   };
 }
@@ -147,7 +151,8 @@ function pushSnapshot(drawers, { store, request, body, size, credential, now }) 
     time,
     drawers,
   });
-  return answer({ project: project.name, revision, commit: snapshot.commit, replaced, created, sameCommit: false, drawn, refused });
+  const after = afterDrawing(store, { project: project.id, commit: snapshot.commit, changed: drawn.changed, time });
+  return answer({ project: project.name, revision, commit: snapshot.commit, replaced, created, sameCommit: false, drawn, refused, after });
 }
 
 // The held commit again: the same revision. In a newer format than it came in, it completes that revision with the
@@ -160,6 +165,7 @@ function again({ statements, store, project, held, snapshot, time, drawers }) {
   const sent = snapshot.documents.filter((document) => document.why === null);
   let drawn;
   let refused = [];
+  let after;
   if (isNewer(snapshot.format, held.format_version)) {
     const carried = carriedBy(held.format_version);
     const before = new Set(carried);
@@ -177,10 +183,11 @@ function again({ statements, store, project, held, snapshot, time, drawers }) {
       time,
       drawers,
     });
+    after = afterDrawing(store, { project: project.id, commit: snapshot.commit, changed: drawn.changed, time });
   } else {
     drawn = heldDrawing({ store, project, documents: sent });
   }
-  return answer({ project: project.name, revision, commit: snapshot.commit, replaced: null, created: false, sameCommit: true, drawn, refused });
+  return answer({ project: project.name, revision, commit: snapshot.commit, replaced: null, created: false, sameCommit: true, drawn, refused, after });
 }
 
 // API-243: the held commit, its revision and the format it came in, and the formats NEXUS takes.

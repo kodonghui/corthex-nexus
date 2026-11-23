@@ -142,16 +142,20 @@ test('leaves to a later task only tables its operation lists and the WBS gives t
     const touches = row[0].split('|')[4];
     for (const table of tables) assert.ok(touches.includes(table), `${task} does not touch ${table}`);
   }
-  // TASK-419 drew the snapshot, whose tables TASK-418 left pending: pushSnapshot is checked against every table it
-  // lists, so touching only the tables that keep the snapshot fails.
+  // TASK-419 drew the snapshot, whose tables TASK-418 left pending, and TASK-435 changes what a drawing calls for:
+  // pushSnapshot is checked against every table it lists, so touching only the tables that keep and draw the snapshot
+  // fails.
   assert.equal(Object.hasOwn(PENDING, 'pushSnapshot'), false);
   const recorder = recordTables(testStore(t));
   const { store } = recorder;
-  for (const table of ['project_spaces', 'snapshots', 'document_blobs', 'snapshot_files']) {
-    runAs('pushSnapshot', () => store.prepare(`SELECT 1 FROM ${table}`).all());
-  }
+  const touch = (tables) => {
+    for (const table of tables) runAs('pushSnapshot', () => store.prepare(`SELECT 1 FROM ${table}`).all());
+  };
+  touch(['project_spaces', 'snapshots', 'document_blobs', 'snapshot_files']);
   assert.throws(() => checkTables(recorder, 'pushSnapshot'), /pushSnapshot touches other tables/);
-  for (const table of ['diagrams', 'drawings', 'elements']) runAs('pushSnapshot', () => store.prepare(`SELECT 1 FROM ${table}`).all());
+  touch(['diagrams', 'drawings', 'elements']);
+  assert.throws(() => checkTables(recorder, 'pushSnapshot'), /pushSnapshot touches other tables/);
+  touch(['comment_threads', 'pull_requests', 'change_sets', 'confirmations', 'stage_passes', 'todos']);
   checkTables(recorder, 'pushSnapshot');
 });
 

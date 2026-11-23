@@ -25,8 +25,8 @@ paths:
       tags: [agent]
       x-corthex:
         id: API-242
-        spec: [SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-014, SPEC-025, SPEC-027, SPEC-033]
-        tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153]
+        spec: [SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-014, SPEC-025, SPEC-027, SPEC-033, SPEC-035]
+        tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-157, TBL-158, TBL-160, TBL-161, TBL-166]
         release: Must
         family: agent
         omit:
