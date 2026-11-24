@@ -254,7 +254,8 @@ describe('SCR-145 pictures', () => {
     for (const clipboard of ['allowed', 'refused']) {
       const page = await openStage('board', { clipboard });
       try {
-        assert.equal(selectedOf(page).hidden, true);
+        // With nothing chosen the section is the whole diagram's (TASK-459).
+        assert.deepEqual(selectedOf(page).all('b').map((b) => b.textContent), ['그림 전체']);
         const head = pictureBox(page).all('button', 'ctx-head').find((button) => button.textContent === '경계 컨텍스트 · Diagram');
         head.click();
         const panel = selectedOf(page);

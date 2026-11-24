@@ -67,7 +67,7 @@ export function startShell(root, screen, address) {
       if (!round.has(path)) round.set(path, read(path));
       return round.get(path);
     },
-    reload: () => load(true),
+    reload,
     write: writeOf,
     redraw,
     missed: (name) => misses[name] ?? null,
@@ -184,6 +184,14 @@ export function startShell(root, screen, address) {
     if (same) return showTimes();
     if (refresh) return again(showData);
     showData();
+  }
+
+  // Reads the screen's data again. reload('instead') is a read again after which a gone thing opens what the screen
+  // gives instead, as after a switch: TASK-459 reads a removed diagram again so, after closing its last thread, since
+  // nothing may keep it listed then (SPEC-027).
+  function reload(how) {
+    if (how === 'instead') via = 'switch';
+    load(true);
   }
 
   // A write of the screen's (api.js write), whose outcome it returns. A 401 or 403 goes through the permission rule,
