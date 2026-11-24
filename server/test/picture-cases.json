@@ -1,5 +1,5 @@
 {
- "about": "The pinned hub's pictures and checks of Markdown, SQL and YAML texts this repository's own files do not show, which NEXUS's readers must make alike. tests/test_picture_cases.py checks them against the pinned hub and says how to make them again.",
+ "about": "The pinned hub's pictures and checks of Markdown, SQL and YAML texts this repository's own files do not show, and of files with one file's text replaced, which NEXUS's readers must make alike. tests/test_picture_cases.py checks them against the pinned hub and says how to make them again.",
  "cases": [
   {
    "name": "Markdown, English tables: contexts, commands, read models, the glossary, dependencies, hotspots, a timeline",
@@ -928,6 +928,1274 @@
     "dependencies": [],
     "hotspots": []
    }
+  },
+  {
+   "name": "Markdown, two files with one replaced",
+   "stage": "01-domain",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/01-domain/a.md",
+     "# Ordering\n\n| Lane | Events |\n| --- | --- |\n| Orders | Order placed or Order rejected \u2192 Order paid |\n\n### CTX-1 Ordering\nPurpose: take orders\n\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Customer | Basket | Place order | Order | Order placed, or Order rejected |\n| Policy: when paid | Order list | Ship order | Order, Parcel | Order shipped |\n\n| Read model | Shows |\n| --- | --- |\n| Basket | the basket |\n\n| From | To | Kind | Why | Data |\n| --- | --- | --- | --- | --- |\n| CTX-1 | CTX-2 | call | Bill the order | order total |\n\n| Hotspot | Context | State | Answer or next step |\n| --- | --- | --- | --- |\n| 1. Who pays the parcel? | CTX-1 | open | ask |\n\n| ID | Term | Status |\n| --- | --- | --- |\n| TERM-1 | Order | |\n| TERM-2 | Basket | |\n"
+    ],
+    [
+     "docs/01-domain/b.md",
+     "# Billing\n\n### CTX-2 Billing\n- External systems: the bank\n\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Bank | Ledger | Record payment | Invoice | Invoice paid |\n\n| From | To | Kind | Why | Data |\n| --- | --- | --- | --- | --- |\n| CTX-2 | CTX-1 | event | Paid | invoice id |\n\n| Hotspot | Context | State | Answer or next step |\n| --- | --- | --- | --- |\n| 2. Refunds? | CTX-2 | open | |\n\n| ID | Term | Status |\n| --- | --- | --- |\n| TERM-3 | Invoice | |\n| TERM-4 | Ledger | removed |\n"
+    ]
+   ],
+   "replace": [
+    [
+     "docs/01-domain/a.md",
+     "# Ordering\n\n| Lane | Events |\n| --- | --- |\n\n### CTX-1 Orders\nPurpose: take orders\n\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Customer | Basket | Place order | Order | Order placed, or Order rejected |\n\n| Read model | Shows |\n| --- | --- |\n| Basket | the basket |\n\n| From | To | Kind | Why | Data |\n| --- | --- | --- | --- | --- |\n| CTX-1 | CTX-2 | call | Bill the order | order total |\n\n| Hotspot | Context | State | Answer or next step |\n| --- | --- | --- | --- |\n| 1. Who pays the parcel? | CTX-1 | answered | the shop |\n\n| ID | Term | Status |\n| --- | --- | --- |\n| TERM-1 | Order | |\n| TERM-2 | Basket | |\n"
+    ],
+    [
+     "docs/01-domain/b.md",
+     "# Billing\n\n| Lane | Events |\n| --- | --- |\n| Bills | Invoice sent \u2192 Invoice paid |\n\n### CTX-2 Billing\n- External systems: the bank\n\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Bank | | Record payment | Invoice | Invoice paid |\n\n| From | To | Kind | Why | Data |\n| --- | --- | --- | --- | --- |\n\n| Hotspot | Context | State | Answer or next step |\n| --- | --- | --- | --- |\n| 2. Refunds? | CTX-2 | open | |\n\n| ID | Term | Status |\n| --- | --- | --- |\n| TERM-3 | Invoice | |\n| TERM-4 | Ledger | removed |\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "Parcel has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-1"
+     ],
+     "args": {
+      "name": "Parcel",
+      "context": "CTX-1"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "Order list has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-1"
+     ],
+     "args": {
+      "name": "Order list",
+      "context": "CTX-1"
+     },
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "contexts": [
+     {
+      "id": "CTX-1",
+      "name": "Ordering",
+      "type": "",
+      "purpose": "take orders",
+      "removed": false,
+      "external": "",
+      "rows": [
+       {
+        "given_by": "Customer",
+        "policy": false,
+        "read_model": "Basket",
+        "command": "Place order",
+        "aggregate": "Order",
+        "events": [
+         "Order placed",
+         "Order rejected"
+        ],
+        "where": "docs/01-domain/a.md:12"
+       },
+       {
+        "given_by": "Policy: when paid",
+        "policy": true,
+        "read_model": "Order list",
+        "command": "Ship order",
+        "aggregate": "Order, Parcel",
+        "events": [
+         "Order shipped"
+        ],
+        "where": "docs/01-domain/a.md:13"
+       }
+      ],
+      "where": "docs/01-domain/a.md:7"
+     },
+     {
+      "id": "CTX-2",
+      "name": "Billing",
+      "type": "",
+      "purpose": "",
+      "removed": false,
+      "external": "the bank",
+      "rows": [
+       {
+        "given_by": "Bank",
+        "policy": false,
+        "read_model": "Ledger",
+        "command": "Record payment",
+        "aggregate": "Invoice",
+        "events": [
+         "Invoice paid"
+        ],
+        "where": "docs/01-domain/b.md:8"
+       }
+      ],
+      "where": "docs/01-domain/b.md:3"
+     }
+    ],
+    "aggregates": [
+     {
+      "name": "Order",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:12",
+      "term": "TERM-1"
+     },
+     {
+      "name": "Parcel",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:13"
+     },
+     {
+      "name": "Invoice",
+      "context": "CTX-2",
+      "removed": false,
+      "where": "docs/01-domain/b.md:8",
+      "term": "TERM-3"
+     }
+    ],
+    "read_models": [
+     {
+      "name": "Basket",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:12",
+      "term": "TERM-2"
+     },
+     {
+      "name": "Order list",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:13"
+     },
+     {
+      "name": "Ledger",
+      "context": "CTX-2",
+      "removed": true,
+      "where": "docs/01-domain/b.md:8",
+      "term": "TERM-4"
+     }
+    ],
+    "dependencies": [
+     {
+      "from": "CTX-1",
+      "to": "CTX-2",
+      "kind": "call",
+      "why": "Bill the order",
+      "data": "order total",
+      "where": "docs/01-domain/a.md:21"
+     },
+     {
+      "from": "CTX-2",
+      "to": "CTX-1",
+      "kind": "event",
+      "why": "Paid",
+      "data": "invoice id",
+      "where": "docs/01-domain/b.md:12"
+     }
+    ],
+    "hotspots": [
+     {
+      "text": "1. Who pays the parcel?",
+      "contexts": [
+       "CTX-1"
+      ],
+      "state": "open",
+      "answer": "ask",
+      "where": "docs/01-domain/a.md:25",
+      "number": 1
+     },
+     {
+      "text": "2. Refunds?",
+      "contexts": [
+       "CTX-2"
+      ],
+      "state": "open",
+      "answer": "",
+      "where": "docs/01-domain/b.md:16",
+      "number": 2
+     }
+    ],
+    "timeline": [
+     {
+      "lane": "Orders",
+      "places": [
+       [
+        "Order placed",
+        "Order rejected"
+       ],
+       [
+        "Order paid"
+       ]
+      ],
+      "where": "docs/01-domain/a.md:5"
+     }
+    ]
+   },
+   "replaced": [
+    {
+     "file": "docs/01-domain/a.md",
+     "checks": [],
+     "picture": {
+      "format": 1,
+      "contexts": [
+       {
+        "id": "CTX-1",
+        "name": "Orders",
+        "type": "",
+        "purpose": "take orders",
+        "removed": false,
+        "external": "",
+        "rows": [
+         {
+          "given_by": "Customer",
+          "policy": false,
+          "read_model": "Basket",
+          "command": "Place order",
+          "aggregate": "Order",
+          "events": [
+           "Order placed",
+           "Order rejected"
+          ],
+          "where": "docs/01-domain/a.md:11"
+         }
+        ],
+        "where": "docs/01-domain/a.md:6"
+       },
+       {
+        "id": "CTX-2",
+        "name": "Billing",
+        "type": "",
+        "purpose": "",
+        "removed": false,
+        "external": "the bank",
+        "rows": [
+         {
+          "given_by": "Bank",
+          "policy": false,
+          "read_model": "Ledger",
+          "command": "Record payment",
+          "aggregate": "Invoice",
+          "events": [
+           "Invoice paid"
+          ],
+          "where": "docs/01-domain/b.md:8"
+         }
+        ],
+        "where": "docs/01-domain/b.md:3"
+       }
+      ],
+      "aggregates": [
+       {
+        "name": "Order",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:11",
+        "term": "TERM-1"
+       },
+       {
+        "name": "Invoice",
+        "context": "CTX-2",
+        "removed": false,
+        "where": "docs/01-domain/b.md:8",
+        "term": "TERM-3"
+       }
+      ],
+      "read_models": [
+       {
+        "name": "Basket",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:11",
+        "term": "TERM-2"
+       },
+       {
+        "name": "Ledger",
+        "context": "CTX-2",
+        "removed": true,
+        "where": "docs/01-domain/b.md:8",
+        "term": "TERM-4"
+       }
+      ],
+      "dependencies": [
+       {
+        "from": "CTX-1",
+        "to": "CTX-2",
+        "kind": "call",
+        "why": "Bill the order",
+        "data": "order total",
+        "where": "docs/01-domain/a.md:19"
+       },
+       {
+        "from": "CTX-2",
+        "to": "CTX-1",
+        "kind": "event",
+        "why": "Paid",
+        "data": "invoice id",
+        "where": "docs/01-domain/b.md:12"
+       }
+      ],
+      "hotspots": [
+       {
+        "text": "1. Who pays the parcel?",
+        "contexts": [
+         "CTX-1"
+        ],
+        "state": "answered",
+        "answer": "the shop",
+        "where": "docs/01-domain/a.md:23",
+        "number": 1
+       },
+       {
+        "text": "2. Refunds?",
+        "contexts": [
+         "CTX-2"
+        ],
+        "state": "open",
+        "answer": "",
+        "where": "docs/01-domain/b.md:16",
+        "number": 2
+       }
+      ]
+     }
+    },
+    {
+     "file": "docs/01-domain/b.md",
+     "checks": [
+      {
+       "rule": "board-term-missing",
+       "level": "warn",
+       "message": "Parcel has no glossary terms",
+       "by": "scan",
+       "stage": "01-domain",
+       "refs": [
+        "CTX-1"
+       ],
+       "args": {
+        "name": "Parcel",
+        "context": "CTX-1"
+       },
+       "part": "nexus"
+      },
+      {
+       "rule": "board-term-missing",
+       "level": "warn",
+       "message": "Order list has no glossary terms",
+       "by": "scan",
+       "stage": "01-domain",
+       "refs": [
+        "CTX-1"
+       ],
+       "args": {
+        "name": "Order list",
+        "context": "CTX-1"
+       },
+       "part": "nexus"
+      }
+     ],
+     "picture": {
+      "format": 1,
+      "contexts": [
+       {
+        "id": "CTX-1",
+        "name": "Ordering",
+        "type": "",
+        "purpose": "take orders",
+        "removed": false,
+        "external": "",
+        "rows": [
+         {
+          "given_by": "Customer",
+          "policy": false,
+          "read_model": "Basket",
+          "command": "Place order",
+          "aggregate": "Order",
+          "events": [
+           "Order placed",
+           "Order rejected"
+          ],
+          "where": "docs/01-domain/a.md:12"
+         },
+         {
+          "given_by": "Policy: when paid",
+          "policy": true,
+          "read_model": "Order list",
+          "command": "Ship order",
+          "aggregate": "Order, Parcel",
+          "events": [
+           "Order shipped"
+          ],
+          "where": "docs/01-domain/a.md:13"
+         }
+        ],
+        "where": "docs/01-domain/a.md:7"
+       },
+       {
+        "id": "CTX-2",
+        "name": "Billing",
+        "type": "",
+        "purpose": "",
+        "removed": false,
+        "external": "the bank",
+        "rows": [
+         {
+          "given_by": "Bank",
+          "policy": false,
+          "read_model": "",
+          "command": "Record payment",
+          "aggregate": "Invoice",
+          "events": [
+           "Invoice paid"
+          ],
+          "where": "docs/01-domain/b.md:12"
+         }
+        ],
+        "where": "docs/01-domain/b.md:7"
+       }
+      ],
+      "aggregates": [
+       {
+        "name": "Order",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:12",
+        "term": "TERM-1"
+       },
+       {
+        "name": "Parcel",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:13"
+       },
+       {
+        "name": "Invoice",
+        "context": "CTX-2",
+        "removed": false,
+        "where": "docs/01-domain/b.md:12",
+        "term": "TERM-3"
+       }
+      ],
+      "read_models": [
+       {
+        "name": "Basket",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:12",
+        "term": "TERM-2"
+       },
+       {
+        "name": "Order list",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:13"
+       }
+      ],
+      "dependencies": [
+       {
+        "from": "CTX-1",
+        "to": "CTX-2",
+        "kind": "call",
+        "why": "Bill the order",
+        "data": "order total",
+        "where": "docs/01-domain/a.md:21"
+       }
+      ],
+      "hotspots": [
+       {
+        "text": "1. Who pays the parcel?",
+        "contexts": [
+         "CTX-1"
+        ],
+        "state": "open",
+        "answer": "ask",
+        "where": "docs/01-domain/a.md:25",
+        "number": 1
+       },
+       {
+        "text": "2. Refunds?",
+        "contexts": [
+         "CTX-2"
+        ],
+        "state": "open",
+        "answer": "",
+        "where": "docs/01-domain/b.md:19",
+        "number": 2
+       }
+      ],
+      "timeline": [
+       {
+        "lane": "Orders",
+        "places": [
+         [
+          "Order placed",
+          "Order rejected"
+         ],
+         [
+          "Order paid"
+         ]
+        ],
+        "where": "docs/01-domain/a.md:5"
+       },
+       {
+        "lane": "Bills",
+        "places": [
+         [
+          "Invoice sent"
+         ],
+         [
+          "Invoice paid"
+         ]
+        ],
+        "where": "docs/01-domain/b.md:5"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "SQL, two files with one replaced",
+   "stage": "05-erd",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "db/a.sql",
+     "-- TBL-1 users\nCREATE TABLE app.users (id INTEGER PRIMARY KEY, email TEXT UNIQUE);\n-- TBL-2 orders\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total NUMERIC(10, 2));\nALTER TABLE items ADD CONSTRAINT items_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE;\n"
+    ],
+    [
+     "db/b.sql",
+     "-- TBL-3 items\nCREATE TABLE items (id INTEGER PRIMARY KEY, order_id INTEGER, user_id INTEGER REFERENCES users (id));\nALTER TABLE orders ADD FOREIGN KEY (user_id) REFERENCES users (id);\nALTER TABLE public.users ADD FOREIGN KEY (id) REFERENCES people (id);\n"
+    ]
+   ],
+   "replace": [
+    [
+     "db/a.sql",
+     "-- TBL-1 users\nCREATE TABLE app.users (id INTEGER PRIMARY KEY, email TEXT UNIQUE, name TEXT);\n-- TBL-2 orders\nCREATE TABLE purchases (id INTEGER PRIMARY KEY, user_id INTEGER, total NUMERIC(10, 2));\nALTER TABLE items ADD CONSTRAINT items_order FOREIGN KEY (order_id) REFERENCES purchases (id) ON DELETE CASCADE;\n"
+    ],
+    [
+     "db/b.sql",
+     "-- TBL-3 items\nCREATE TABLE line_items (id INTEGER PRIMARY KEY, order_id INTEGER, user_id INTEGER REFERENCES users (id));\nALTER TABLE orders ADD FOREIGN KEY (id) REFERENCES line_items (id);\nALTER TABLE public.users ADD FOREIGN KEY (id) REFERENCES people (id);\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "tables": [
+     {
+      "id": "TBL-1",
+      "name": "users",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "INTEGER",
+        "null": false,
+        "where": "db/a.sql:2"
+       },
+       {
+        "name": "email",
+        "type": "TEXT",
+        "null": true,
+        "where": "db/a.sql:2"
+       }
+      ],
+      "primary_key": [
+       "id"
+      ],
+      "unique": [
+       {
+        "columns": [
+         "email"
+        ],
+        "partial": false
+       }
+      ],
+      "foreign_keys": [
+       {
+        "columns": [
+         "id"
+        ],
+        "table": "people",
+        "references": [
+         "id"
+        ],
+        "on_delete": "",
+        "where": "db/b.sql:4"
+       }
+      ],
+      "where": "db/a.sql:1"
+     },
+     {
+      "id": "TBL-2",
+      "name": "orders",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "INTEGER",
+        "null": false,
+        "where": "db/a.sql:4"
+       },
+       {
+        "name": "user_id",
+        "type": "INTEGER",
+        "null": true,
+        "where": "db/a.sql:4"
+       },
+       {
+        "name": "total",
+        "type": "NUMERIC(10, 2)",
+        "null": true,
+        "where": "db/a.sql:4"
+       }
+      ],
+      "primary_key": [
+       "id"
+      ],
+      "unique": [],
+      "foreign_keys": [
+       {
+        "columns": [
+         "user_id"
+        ],
+        "table": "users",
+        "references": [
+         "id"
+        ],
+        "on_delete": "",
+        "where": "db/b.sql:3"
+       }
+      ],
+      "where": "db/a.sql:3"
+     },
+     {
+      "id": "TBL-3",
+      "name": "items",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "INTEGER",
+        "null": false,
+        "where": "db/b.sql:2"
+       },
+       {
+        "name": "order_id",
+        "type": "INTEGER",
+        "null": true,
+        "where": "db/b.sql:2"
+       },
+       {
+        "name": "user_id",
+        "type": "INTEGER",
+        "null": true,
+        "where": "db/b.sql:2"
+       }
+      ],
+      "primary_key": [
+       "id"
+      ],
+      "unique": [],
+      "foreign_keys": [
+       {
+        "columns": [
+         "user_id"
+        ],
+        "table": "users",
+        "references": [
+         "id"
+        ],
+        "on_delete": "",
+        "where": "db/b.sql:2"
+       },
+       {
+        "columns": [
+         "order_id"
+        ],
+        "table": "orders",
+        "references": [
+         "id"
+        ],
+        "on_delete": "cascade",
+        "where": "db/a.sql:5"
+       }
+      ],
+      "where": "db/b.sql:1"
+     }
+    ],
+    "without_table": []
+   },
+   "replaced": [
+    {
+     "file": "db/a.sql",
+     "checks": [],
+     "picture": {
+      "format": 1,
+      "tables": [
+       {
+        "id": "TBL-1",
+        "name": "users",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/a.sql:2"
+         },
+         {
+          "name": "email",
+          "type": "TEXT",
+          "null": true,
+          "where": "db/a.sql:2"
+         },
+         {
+          "name": "name",
+          "type": "TEXT",
+          "null": true,
+          "where": "db/a.sql:2"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [
+         {
+          "columns": [
+           "email"
+          ],
+          "partial": false
+         }
+        ],
+        "foreign_keys": [
+         {
+          "columns": [
+           "id"
+          ],
+          "table": "people",
+          "references": [
+           "id"
+          ],
+          "on_delete": "",
+          "where": "db/b.sql:4"
+         }
+        ],
+        "where": "db/a.sql:1"
+       },
+       {
+        "id": "TBL-2",
+        "name": "purchases",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/a.sql:4"
+         },
+         {
+          "name": "user_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/a.sql:4"
+         },
+         {
+          "name": "total",
+          "type": "NUMERIC(10, 2)",
+          "null": true,
+          "where": "db/a.sql:4"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [],
+        "foreign_keys": [],
+        "where": "db/a.sql:3"
+       },
+       {
+        "id": "TBL-3",
+        "name": "items",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/b.sql:2"
+         },
+         {
+          "name": "order_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/b.sql:2"
+         },
+         {
+          "name": "user_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/b.sql:2"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+         {
+          "columns": [
+           "user_id"
+          ],
+          "table": "users",
+          "references": [
+           "id"
+          ],
+          "on_delete": "",
+          "where": "db/b.sql:2"
+         },
+         {
+          "columns": [
+           "order_id"
+          ],
+          "table": "purchases",
+          "references": [
+           "id"
+          ],
+          "on_delete": "cascade",
+          "where": "db/a.sql:5"
+         }
+        ],
+        "where": "db/b.sql:1"
+       }
+      ],
+      "without_table": []
+     }
+    },
+    {
+     "file": "db/b.sql",
+     "checks": [],
+     "picture": {
+      "format": 1,
+      "tables": [
+       {
+        "id": "TBL-1",
+        "name": "users",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/a.sql:2"
+         },
+         {
+          "name": "email",
+          "type": "TEXT",
+          "null": true,
+          "where": "db/a.sql:2"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [
+         {
+          "columns": [
+           "email"
+          ],
+          "partial": false
+         }
+        ],
+        "foreign_keys": [
+         {
+          "columns": [
+           "id"
+          ],
+          "table": "people",
+          "references": [
+           "id"
+          ],
+          "on_delete": "",
+          "where": "db/b.sql:4"
+         }
+        ],
+        "where": "db/a.sql:1"
+       },
+       {
+        "id": "TBL-2",
+        "name": "orders",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/a.sql:4"
+         },
+         {
+          "name": "user_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/a.sql:4"
+         },
+         {
+          "name": "total",
+          "type": "NUMERIC(10, 2)",
+          "null": true,
+          "where": "db/a.sql:4"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+         {
+          "columns": [
+           "id"
+          ],
+          "table": "line_items",
+          "references": [
+           "id"
+          ],
+          "on_delete": "",
+          "where": "db/b.sql:3"
+         }
+        ],
+        "where": "db/a.sql:3"
+       },
+       {
+        "id": "TBL-3",
+        "name": "line_items",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/b.sql:2"
+         },
+         {
+          "name": "order_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/b.sql:2"
+         },
+         {
+          "name": "user_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/b.sql:2"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+         {
+          "columns": [
+           "user_id"
+          ],
+          "table": "users",
+          "references": [
+           "id"
+          ],
+          "on_delete": "",
+          "where": "db/b.sql:2"
+         }
+        ],
+        "where": "db/b.sql:1"
+       }
+      ],
+      "without_table": []
+     }
+    }
+   ]
+  },
+  {
+   "name": "YAML, two files with one replaced",
+   "stage": "07-sitemap",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/07-sitemap/a.yaml",
+     "- id: SCR-1\n  name: Home\n  path: /\n  children:\n    - id: SCR-2\n      name: Orders\n      children:\n        - id: SCR-3\n          name: Order\n"
+    ],
+    [
+     "docs/07-sitemap/b.yaml",
+     "- id: SCR-4\n  name: Billing\n  children:\n    - id: SCR-5\n      name: Invoices\n    - id: SCR-6\n      name: Invoice\n"
+    ]
+   ],
+   "replace": [
+    [
+     "docs/07-sitemap/a.yaml",
+     "- id: SCR-1\n  name: Start\n  path: /\n  children:\n    - id: SCR-2\n      name: Orders\n    - id: SCR-7\n      name: Baskets\n      children:\n        - id: SCR-3\n          name: Order\n- id: SCR-8\n  name: Help\n"
+    ],
+    [
+     "docs/07-sitemap/b.yaml",
+     "- id: SCR-4\n  name: Billing\n  children:\n    - id: SCR-6\n      name: Invoice\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "screens": [
+     {
+      "id": "SCR-1",
+      "name": "Home",
+      "path": "/",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/a.yaml:1"
+     },
+     {
+      "id": "SCR-2",
+      "name": "Orders",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/a.yaml:5",
+      "parent": 0
+     },
+     {
+      "id": "SCR-3",
+      "name": "Order",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/a.yaml:8",
+      "parent": 1
+     },
+     {
+      "id": "SCR-4",
+      "name": "Billing",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/b.yaml:1"
+     },
+     {
+      "id": "SCR-5",
+      "name": "Invoices",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/b.yaml:4",
+      "parent": 3
+     },
+     {
+      "id": "SCR-6",
+      "name": "Invoice",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/b.yaml:6",
+      "parent": 3
+     }
+    ],
+    "without_screen": []
+   },
+   "replaced": [
+    {
+     "file": "docs/07-sitemap/a.yaml",
+     "checks": [],
+     "picture": {
+      "format": 1,
+      "screens": [
+       {
+        "id": "SCR-1",
+        "name": "Start",
+        "path": "/",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:1"
+       },
+       {
+        "id": "SCR-2",
+        "name": "Orders",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:5",
+        "parent": 0
+       },
+       {
+        "id": "SCR-7",
+        "name": "Baskets",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:7",
+        "parent": 0
+       },
+       {
+        "id": "SCR-3",
+        "name": "Order",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:10",
+        "parent": 2
+       },
+       {
+        "id": "SCR-8",
+        "name": "Help",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:12"
+       },
+       {
+        "id": "SCR-4",
+        "name": "Billing",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/b.yaml:1"
+       },
+       {
+        "id": "SCR-5",
+        "name": "Invoices",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/b.yaml:4",
+        "parent": 5
+       },
+       {
+        "id": "SCR-6",
+        "name": "Invoice",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/b.yaml:6",
+        "parent": 5
+       }
+      ],
+      "without_screen": []
+     }
+    },
+    {
+     "file": "docs/07-sitemap/b.yaml",
+     "checks": [],
+     "picture": {
+      "format": 1,
+      "screens": [
+       {
+        "id": "SCR-1",
+        "name": "Home",
+        "path": "/",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:1"
+       },
+       {
+        "id": "SCR-2",
+        "name": "Orders",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:5",
+        "parent": 0
+       },
+       {
+        "id": "SCR-3",
+        "name": "Order",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:8",
+        "parent": 1
+       },
+       {
+        "id": "SCR-4",
+        "name": "Billing",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/b.yaml:1"
+       },
+       {
+        "id": "SCR-6",
+        "name": "Invoice",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/b.yaml:4",
+        "parent": 3
+       }
+      ],
+      "without_screen": []
+     }
+    }
+   ]
   },
   {
    "name": "SQL, MySQL: backslash strings, a comment after the columns, keys and a foreign key added later",

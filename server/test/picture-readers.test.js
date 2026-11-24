@@ -2,14 +2,17 @@
 // repository's docs/01-domain/nexus.md, db/nexus.sql and docs/07-sitemap/nexus.yaml they make the pictures that
 // tests/test_ddd_board_picture.py, tests/test_erd_picture.py and tests/test_sitemap_picture.py keep in
 // ddd-board-picture.json, erd-picture.json and sitemap-picture.json, and of each case in picture-cases.json, which
-// tests/test_picture_cases.py keeps, the hub's picture and checks. Then the limits that are NEXUS's own: YAML nested
-// deeper than the hub can read, and long texts that are read in time that grows with their length.
+// tests/test_picture_cases.py keeps, the hub's picture and checks. A case's replaced files are put in place of what one
+// file gave its picture (picture-merge.js), which makes the hub's picture of the files with that one changed. Then the
+// limits that are NEXUS's own: YAML nested deeper than the hub can read, and long texts that are read in time that
+// grows with their length.
 
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readDomainPicture } from '../src/domain-picture.js';
+import { byCodePoint, fileOf, mergePicture } from '../src/picture-merge.js';
 import { idFormat, oneLine, plain, splitLines, strip, unescapeHtml } from '../src/picture-text.js';
 import { readSqlPicture, sqlStatements } from '../src/sql-picture.js';
 import { MAX_BLOCKS, MAX_LISTS, readSitemapPicture, readYaml } from '../src/sitemap-picture.js';
@@ -17,6 +20,8 @@ import { MAX_BLOCKS, MAX_LISTS, readSitemapPicture, readYaml } from '../src/site
 const fixture = (name) => JSON.parse(readFileSync(new URL(name, import.meta.url), 'utf8'));
 const READERS = { '01-domain': readDomainPicture, '05-erd': readSqlPicture, '07-sitemap': readSitemapPicture };
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
+// The hub's picture-partial checks, as a drawing's warnings come from them, in one order.
+const partials = (checks) => checks.filter((check) => check.rule === 'picture-partial').map((check) => check.message).sort();
 
 // As tests/test_picture_cases.py's shape: each list longer than three as its count, first and last.
 const shape = (value) => {
@@ -54,7 +59,7 @@ test("NEXUS reads this repository's stage-01 documents as the pinned hub does (d
 
 test('NEXUS reads each case as the pinned hub does', () => {
   const { cases } = fixture('picture-cases.json');
-  assert.ok(cases.length >= 22);
+  assert.ok(cases.length >= 25);
   assert.deepEqual([...new Set(cases.map((each) => each.stage))].sort(), Object.keys(READERS));
   for (const each of cases) {
     const extra = Object.entries(each.ids ?? {}).map(([kind, prefix]) => [prefix, kind]);
@@ -62,6 +67,49 @@ test('NEXUS reads each case as the pinned hub does', () => {
     assert.deepEqual(each.shape ? shape(picture) : picture, each.picture, each.name);
     assert.deepEqual(checks, each.checks, each.name);
   }
+});
+
+test("a text in place of one of two files makes the hub's picture of the files so changed, on stages 01, 05 and 07", () => {
+  const cases = fixture('picture-cases.json').cases.filter((each) => each.replaced !== undefined);
+  assert.deepEqual(cases.map((each) => each.stage), Object.keys(READERS));
+  for (const each of cases) {
+    const extra = Object.entries(each.ids ?? {}).map(([kind, prefix]) => [prefix, kind]);
+    assert.equal(each.documents.length, 2, each.name);
+    assert.deepEqual(each.replaced.map((replaced) => replaced.file), each.documents.map(([file]) => file), each.name);
+    for (const [index, replaced] of each.replaced.entries()) {
+      const [file, text] = each.replace[index];
+      const name = `${each.name}: ${file}`;
+      // The text changes the picture, and the merge makes the hub's picture of the changed files.
+      assert.notDeepEqual(replaced.picture, each.picture, name);
+      const merged = mergePicture(each.stage, each.picture, file, text, { ids: idFormat(extra), part: each.part });
+      assert.equal(merged.failure, null, name);
+      assert.deepEqual(merged.picture, replaced.picture, name);
+      // What the hub left out of the other file stays, and the text's own warnings come with it, as a proposal keeps them.
+      const kept = each.checks.filter((check) => !check.message.startsWith(`${file}:`));
+      assert.deepEqual(partials([...kept, ...merged.checks]), partials(replaced.checks), name);
+    }
+    // The picture the merge was given is as it was.
+    assert.deepEqual(READERS[each.stage](each.documents, { ids: idFormat(extra), part: each.part }).picture, each.picture, each.name);
+  }
+});
+
+test('a text that reads nothing, or that does not read, comes back as the reader gives it, with no merge', () => {
+  for (const [stage, current, text] of [
+    ['05-erd', fixture('erd-picture.json').picture, 'CREATE VIEW v AS SELECT 1;'],
+    ['07-sitemap', fixture('sitemap-picture.json').picture, '# nothing\n'],
+    ['01-domain', fixture('ddd-board-picture.json').picture, '# no context\n'],
+  ]) {
+    assert.equal(mergePicture(stage, current, 'a', text).empty, true, stage);
+  }
+  const failed = mergePicture('07-sitemap', null, 'a.yaml', '- name: a\n  name: b\n');
+  assert.deepEqual([failed.empty, failed.failure], [true, { file: 'a.yaml', line: 2 }]);
+  assert.throws(() => mergePicture('03-user-flow', null, 'a', 'x'), TypeError);
+});
+
+test("an entry's file is its where without the line, and files go in the order Python sorts them", () => {
+  assert.deepEqual(['db/a.sql:41', 'db/a:b.sql:2', 'docs/x.md', '', null, 7].map(fileOf), ['db/a.sql', 'db/a:b.sql', 'docs/x.md', null, null, null]);
+  // By code point: U+FF5E sorts before U+1F600, though its first UTF-16 unit is the greater.
+  assert.deepEqual(['b', '\u{1F600}', 'a', '\uFF5E', 'ab'].sort(byCodePoint), ['a', 'ab', 'b', '\uFF5E', '\u{1F600}']);
 });
 
 test("plain and unescapeHtml read a stage-01 text as the hub's plain and Python's html.unescape do", () => {
@@ -148,4 +196,5 @@ test('long texts are read in time that grows with their length', { timeout: 60_0
   const read = readDomainPicture([['t.md', markdown]]);
   assert.equal(read.picture.contexts.length, 1);
   assert.equal(read.picture.timeline[0].places.length, 200);
+  assert.equal(mergePicture('01-domain', read.picture, 't.md', markdown).picture.contexts.length, 1);
 });

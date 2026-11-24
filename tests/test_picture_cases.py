@@ -9,6 +9,11 @@ case below, the picture and checks that `server/test/picture-cases.json` stores.
 three files do not show: the stage-01 tables in English and Korean, other SQL dialects, comments and markers, the YAML
 template's errors, line breaks and limits.
 
+A case with `replace` also stores, for each file and text it names, the hub's picture and checks of the case's files
+with that one file's text in place of its own. NEXUS keeps only the hub's picture of a push, so a proposal that
+changes one file of a drawing read from several puts what the text reads in place of what that file gave the picture
+(`server/src/picture-merge.js`); the test checks that this makes the hub's picture of the changed files.
+
 This test makes the stored file again with the pinned hub, the clean checkout at the commit of `hub-ref.json` that
 `CORTHEX_HUB_CHECKOUT` names (prepare it with `python tools/fetch_hub_ref.py`), and fails when it differs: when a case
 here changed, or when a new hub pin reads one otherwise. Nothing is fetched and no server is contacted.
@@ -35,17 +40,20 @@ from hub_ref import locate_hub  # noqa: E402
 SCRIPTS = "plugins/corthex-nexus/skills/corthex-hub/scripts"
 FIXTURE = ROOT / "server" / "test" / "picture-cases.json"
 ABOUT = ("The pinned hub's pictures and checks of Markdown, SQL and YAML texts this repository's own files do not show, "
-         "which NEXUS's readers must make alike. tests/test_picture_cases.py checks them against the pinned hub and says "
-         "how to make them again.")
+         "and of files with one file's text replaced, which NEXUS's readers must make alike. "
+         "tests/test_picture_cases.py checks them against the pinned hub and says how to make them again.")
 
 
 def text(*lines, end="\n"):
     return end.join(lines) + end
 
 
-def case(name, stage, documents, ids=None, part="nexus", shape=False):
-    return {"name": name, "stage": stage, "ids": ids, "part": part, "shape": shape,
+def case(name, stage, documents, ids=None, part="nexus", shape=False, replace=None):
+    made = {"name": name, "stage": stage, "ids": ids, "part": part, "shape": shape,
             "documents": [[file, body] for file, body in documents]}
+    if replace:
+        made["replace"] = [[file, body] for file, body in replace]
+    return made
 
 
 MARKDOWN = "01-domain"
@@ -54,6 +62,136 @@ YAML = "07-sitemap"
 COMMANDS = "| Given by | Read model | Command | Aggregate | Events |"
 DIVIDER5 = "| --- | --- | --- | --- | --- |"
 DIVIDER4 = "| --- | --- | --- | --- |"
+
+# Two stage-01 files, each of one context, and the texts that replace one of them: in a.md a context renamed, a
+# command gone, a hotspot answered and its lane gone, the picture's only one, so that the picture has no timeline;
+# in b.md a lane added and a read model and a dependency gone.
+DOMAIN_A = text(
+    "# Ordering",
+    "",
+    "| Lane | Events |",
+    "| --- | --- |",
+    "| Orders | Order placed or Order rejected → Order paid |",
+    "",
+    "### CTX-1 Ordering",
+    "Purpose: take orders",
+    "",
+    COMMANDS, DIVIDER5,
+    "| Customer | Basket | Place order | Order | Order placed, or Order rejected |",
+    "| Policy: when paid | Order list | Ship order | Order, Parcel | Order shipped |",
+    "",
+    "| Read model | Shows |",
+    "| --- | --- |",
+    "| Basket | the basket |",
+    "",
+    "| From | To | Kind | Why | Data |",
+    "| --- | --- | --- | --- | --- |",
+    "| CTX-1 | CTX-2 | call | Bill the order | order total |",
+    "",
+    "| Hotspot | Context | State | Answer or next step |",
+    "| --- | --- | --- | --- |",
+    "| 1. Who pays the parcel? | CTX-1 | open | ask |",
+    "",
+    "| ID | Term | Status |",
+    "| --- | --- | --- |",
+    "| TERM-1 | Order | |",
+    "| TERM-2 | Basket | |",
+)
+DOMAIN_B = text(
+    "# Billing",
+    "",
+    "### CTX-2 Billing",
+    "- External systems: the bank",
+    "",
+    COMMANDS, DIVIDER5,
+    "| Bank | Ledger | Record payment | Invoice | Invoice paid |",
+    "",
+    "| From | To | Kind | Why | Data |",
+    "| --- | --- | --- | --- | --- |",
+    "| CTX-2 | CTX-1 | event | Paid | invoice id |",
+    "",
+    "| Hotspot | Context | State | Answer or next step |",
+    "| --- | --- | --- | --- |",
+    "| 2. Refunds? | CTX-2 | open | |",
+    "",
+    "| ID | Term | Status |",
+    "| --- | --- | --- |",
+    "| TERM-3 | Invoice | |",
+    "| TERM-4 | Ledger | removed |",
+)
+DOMAIN_A_CHANGED = (DOMAIN_A.replace("### CTX-1 Ordering", "### CTX-1 Orders")
+                    .replace("| Policy: when paid | Order list | Ship order | Order, Parcel | Order shipped |\n", "")
+                    .replace("| Orders | Order placed or Order rejected → Order paid |\n", "")
+                    .replace("| 1. Who pays the parcel? | CTX-1 | open | ask |", "| 1. Who pays the parcel? | CTX-1 | answered | the shop |"))
+DOMAIN_B_CHANGED = (DOMAIN_B.replace("# Billing\n", "# Billing\n\n| Lane | Events |\n| --- | --- |\n| Bills | Invoice sent → Invoice paid |\n")
+                    .replace("| Bank | Ledger | Record payment | Invoice | Invoice paid |", "| Bank | | Record payment | Invoice | Invoice paid |")
+                    .replace("| CTX-2 | CTX-1 | event | Paid | invoice id |\n", ""))
+
+# Two SQL files, each of whose ALTER TABLE gives a table of the other a foreign key, one through a schema's alias, and
+# the texts that replace one of them.
+SQL_A = text(
+    "-- TBL-1 users",
+    "CREATE TABLE app.users (id INTEGER PRIMARY KEY, email TEXT UNIQUE);",
+    "-- TBL-2 orders",
+    "CREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total NUMERIC(10, 2));",
+    "ALTER TABLE items ADD CONSTRAINT items_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE;",
+)
+SQL_B = text(
+    "-- TBL-3 items",
+    "CREATE TABLE items (id INTEGER PRIMARY KEY, order_id INTEGER, user_id INTEGER REFERENCES users (id));",
+    "ALTER TABLE orders ADD FOREIGN KEY (user_id) REFERENCES users (id);",
+    "ALTER TABLE public.users ADD FOREIGN KEY (id) REFERENCES people (id);",
+)
+SQL_A_CHANGED = (SQL_A.replace("CREATE TABLE orders (", "CREATE TABLE purchases (")
+                 .replace("REFERENCES orders (id)", "REFERENCES purchases (id)")
+                 .replace("email TEXT UNIQUE", "email TEXT UNIQUE, name TEXT"))
+SQL_B_CHANGED = (SQL_B.replace("CREATE TABLE items (", "CREATE TABLE line_items (")
+                 .replace("ALTER TABLE orders ADD FOREIGN KEY (user_id) REFERENCES users (id);",
+                          "ALTER TABLE orders ADD FOREIGN KEY (id) REFERENCES line_items (id);"))
+
+# Two YAML files of nested screens, and the texts that replace one of them, which moves the other's screens.
+YAML_A = text(
+    "- id: SCR-1",
+    "  name: Home",
+    "  path: /",
+    "  children:",
+    "    - id: SCR-2",
+    "      name: Orders",
+    "      children:",
+    "        - id: SCR-3",
+    "          name: Order",
+)
+YAML_B = text(
+    "- id: SCR-4",
+    "  name: Billing",
+    "  children:",
+    "    - id: SCR-5",
+    "      name: Invoices",
+    "    - id: SCR-6",
+    "      name: Invoice",
+)
+YAML_A_CHANGED = text(
+    "- id: SCR-1",
+    "  name: Start",
+    "  path: /",
+    "  children:",
+    "    - id: SCR-2",
+    "      name: Orders",
+    "    - id: SCR-7",
+    "      name: Baskets",
+    "      children:",
+    "        - id: SCR-3",
+    "          name: Order",
+    "- id: SCR-8",
+    "  name: Help",
+)
+YAML_B_CHANGED = text(
+    "- id: SCR-4",
+    "  name: Billing",
+    "  children:",
+    "    - id: SCR-6",
+    "      name: Invoice",
+)
 
 CASES = [
     case("Markdown, English tables: contexts, commands, read models, the glossary, dependencies, hotspots, a timeline", MARKDOWN, [
@@ -216,6 +354,12 @@ CASES = [
         COMMANDS, DIVIDER5,
         *("| A | B | C%d | D | E |" % n for n in range(205)),
     ))], shape=True),
+    case("Markdown, two files with one replaced", MARKDOWN, [("docs/01-domain/a.md", DOMAIN_A), ("docs/01-domain/b.md", DOMAIN_B)],
+         replace=[("docs/01-domain/a.md", DOMAIN_A_CHANGED), ("docs/01-domain/b.md", DOMAIN_B_CHANGED)]),
+    case("SQL, two files with one replaced", SQL, [("db/a.sql", SQL_A), ("db/b.sql", SQL_B)],
+         replace=[("db/a.sql", SQL_A_CHANGED), ("db/b.sql", SQL_B_CHANGED)]),
+    case("YAML, two files with one replaced", YAML, [("docs/07-sitemap/a.yaml", YAML_A), ("docs/07-sitemap/b.yaml", YAML_B)],
+         replace=[("docs/07-sitemap/a.yaml", YAML_A_CHANGED), ("docs/07-sitemap/b.yaml", YAML_B_CHANGED)]),
     case("SQL, MySQL: backslash strings, a comment after the columns, keys and a foreign key added later", SQL, [("db/mysql.sql", text(
         "-- TBL-1 users of CTX-1, with TERM-1 and TERM-2",
         "CREATE TABLE IF NOT EXISTS `users` (",
@@ -459,7 +603,15 @@ def hub_cases():
         checks = []
         documents = [(file, body) for file, body in each["documents"]]
         picture = hub.parse_picture(each["stage"], documents, checks, hub, each["part"])
-        made.append({**each, "checks": checks, "picture": shape(picture) if each["shape"] else picture})
+        result = {**each, "checks": checks, "picture": shape(picture) if each["shape"] else picture}
+        if "replace" in each:
+            result["replaced"] = []
+            for name, body in each["replace"]:
+                changed = []
+                again = hub.parse_picture(each["stage"], [(file, body if file == name else kept) for file, kept in documents],
+                                          changed, hub, each["part"])
+                result["replaced"].append({"file": name, "checks": changed, "picture": again})
+        made.append(result)
     return {"about": ABOUT, "cases": made}
 
 

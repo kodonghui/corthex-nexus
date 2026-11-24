@@ -12,6 +12,11 @@
 // - checks are the hub's picture-partial checks, { rule, level, message, by, stage, part? }, one for each statement or
 //   rule it leaves out, which drawing.js's pictureWarnings turns into the drawer's warnings.
 // - ids is picture-text.js's idFormat.
+// - known, for a proposal on a drawing read from several files (TASK-470), is the tables the drawing's other files
+//   created, as their picture has them: a table this text alters, gives a unique index or names only by its name is
+//   found among them as among the text's own, as the hub reads every file's statements against every file's tables,
+//   and its foreign keys and unique rules join that table in place. They are not in the picture returned, and a
+//   comment this text gives one of them is not read, since their pictures keep the comments they were drawn with.
 //
 // It reads what the hub reads: CREATE TABLE with its columns, keys, unique rules and foreign keys; ALTER TABLE's
 // foreign keys; CREATE UNIQUE INDEX on named columns; and a table's comment, as a -- line before it, COMMENT after its
@@ -477,10 +482,19 @@ const TERMS_NONE = new RegExp(`(?<![${WORD}])terms[${SPACE}]*:[${SPACE}]*none(?!
 const MAX_TABLES = 500;
 
 // The hub's erd.parse (see the top of this file).
-export function readSqlPicture(documents, { ids = idFormat(), part = '' } = {}) {
+export function readSqlPicture(documents, { ids = idFormat(), part = '', known: others = [] } = {}) {
   const picture = { format: 1, tables: [], without_table: [] };
   const checks = [];
   const made = new Map();
+  // The other files' tables, each by the key its unqualified name gives; tables that share a name, whose schemas their
+  // pictures do not keep, each by a key no statement has, so that the name alone finds none of them.
+  const shared = new Map();
+  for (const table of others) shared.set(casefold(table.name), (shared.get(casefold(table.name)) ?? 0) + 1);
+  for (const [index, table] of others.entries()) {
+    const name = casefold(table.name);
+    const id = shared.get(name) === 1 ? JSON.stringify([null, name]) : JSON.stringify(['', index]);
+    made.set(id, { key: { schema: null, name, id }, table });
+  }
   const statements = [];
   const annotations = new Map();
   const issue = (file, line, detail) => {

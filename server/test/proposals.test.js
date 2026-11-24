@@ -3,8 +3,10 @@
 // claims they change, the tables they touch (note 23) and their log lines. The project's diagrams, drawings, elements
 // and threads are written straight into the store with test/seed.js, as the push and the owner's operations of other
 // tasks would write them; the drawings of stage 03 and 08 are this repository's own flow and screen files, drawn by
-// their drawers as a push draws them, and those of the space sources, for TASK-466, the pinned hub's pictures of this
-// repository's db/nexus.sql and docs/07-sitemap/nexus.yaml (erd-picture.json and sitemap-picture.json).
+// their drawers as a push draws them, and those of the space sources, for TASK-466 and TASK-470, the pinned hub's
+// pictures of this repository's docs/01-domain/nexus.md, db/nexus.sql and docs/07-sitemap/nexus.yaml
+// (ddd-board-picture.json, erd-picture.json and sitemap-picture.json), and in its part split, pictures read from two
+// files each, all kept in the snapshot as the push sent them.
 
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -15,8 +17,10 @@ import { TRACE_ID as ITEM_ID } from '../src/drawer.js';
 import { drawProposed, pictureWarnings } from '../src/drawing.js';
 import { threadChanged } from '../src/entries.js';
 import { idOf } from '../src/ids.js';
+import { readDomainPicture } from '../src/domain-picture.js';
 import { idFormat } from '../src/picture-text.js';
 import { ROUTES } from '../src/routes.js';
+import { readSitemapPicture } from '../src/sitemap-picture.js';
 import { readSqlPicture } from '../src/sql-picture.js';
 import { openStore } from '../src/store.js';
 import { read } from './contract.js';
@@ -66,6 +70,33 @@ const ERD_PICTURE = fixture('erd-picture.json');
 const SITEMAP_PICTURE = fixture('sitemap-picture.json');
 const SQL_TEXT = read('db/nexus.sql');
 const YAML_TEXT = read('docs/07-sitemap/nexus.yaml');
+// TASK-470: the pinned hub's stage-01 picture of this repository's domain document, and its text.
+const DDD_PICTURE = fixture('ddd-board-picture.json');
+const DOMAIN_FILE = 'docs/01-domain/nexus.md';
+const DOMAIN_TEXT = read(DOMAIN_FILE);
+// TASK-470: part split's board, ERD and sitemap, each read from two files. In the ERD, db/left.sql gives a table of
+// db/right.sql a foreign key and has a unique index the hub leaves out.
+const COMMANDS = '| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n';
+const SPLIT_DOMAIN = [
+  ['docs/01-domain/a.md', `### CTX-301 Ordering\n\n${COMMANDS}| Customer | Basket | Place order | Order | Order placed |\n`],
+  ['docs/01-domain/b.md', `### CTX-302 Billing\n\n${COMMANDS}| Bank | Ledger | Record payment | Invoice | Invoice paid |\n`],
+];
+const SPLIT_SQL = [
+  ['db/left.sql', '-- TBL-301 left items\nCREATE TABLE left_items (id INTEGER PRIMARY KEY, code TEXT);\n'
+    + 'CREATE UNIQUE INDEX left_code ON left_items (lower(code));\n'
+    + 'ALTER TABLE right_items ADD FOREIGN KEY (left_id) REFERENCES left_items (id);\n'],
+  ['db/right.sql', '-- TBL-302 right items\nCREATE TABLE right_items (id INTEGER PRIMARY KEY, left_id INTEGER);\n'],
+];
+const SPLIT_YAML = [
+  ['docs/07-sitemap/a.yaml', '- id: SCR-301\n  name: Start\n  children:\n    - id: SCR-302\n      name: Orders\n'],
+  ['docs/07-sitemap/b.yaml', '- id: SCR-303\n  name: Billing\n  children:\n    - id: SCR-304\n      name: Invoices\n'],
+];
+const SPLIT = [
+  { stage: '01-domain', kind: 'ddd_board', name: 'DDD board', ...readDomainPicture(SPLIT_DOMAIN, { part: 'split' }), files: SPLIT_DOMAIN },
+  { stage: '05-erd', kind: 'erd', name: 'ERD', ...readSqlPicture(SPLIT_SQL, { part: 'split' }), files: SPLIT_SQL },
+  { stage: '07-sitemap', kind: 'sitemap', name: 'Sitemap', ...readSitemapPicture(SPLIT_YAML, { part: 'split' }), files: SPLIT_YAML },
+];
+const SPLIT_LEFT_OUT = 'unique index has an unreadable column expression; rule omitted';
 // The proposed schema: request_keys renamed, the elements' drawing_id referencing diagrams in place of drawings, a
 // column's type changed, restore_rehearsals removed, agent_notes added with a foreign key, a unique index on an
 // expression, which the hub leaves out, and a view, which it passes over.
@@ -241,20 +272,29 @@ describe('agent proposals', () => {
     commits.push(space.commit);
     // TASK-466: a space whose ERD and sitemap are the pinned hub's pictures of this repository's schema and sitemap;
     // in part own an ERD of the project's own table ID prefix, and in part split one drawn from two files.
-    sources = s.project('sources', { parts: ['nexus', 'own', 'split'] });
+    // TASK-470: its board too, and in part split a board, an ERD and a sitemap each drawn from two files; the snapshot
+    // keeps each picture as the push sent it, and the hub's checks.
+    sources = s.project('sources', { parts: ['nexus', 'own', 'split'], checks: SPLIT.flatMap((each) => each.checks) });
+    const keep = (stage, part, picture) => s.document(sources, `/pictures/${stage}/${part}`, stage, JSON.stringify(picture));
     const schema = s.diagram(sources, { sourceKey: '/pictures/05-erd/nexus' });
     drawPicture(schema.drawing, '05-erd', 'erd', 'nexus', ERD_PICTURE);
+    keep('05-erd', 'nexus', ERD_PICTURE.picture);
     const screens = s.diagram(sources, { stage: '07-sitemap', sourceKey: '/pictures/07-sitemap/nexus', kind: 'sitemap', name: 'Sitemap' });
     drawPicture(screens.drawing, '07-sitemap', 'sitemap', 'nexus', SITEMAP_PICTURE);
+    keep('07-sitemap', 'nexus', SITEMAP_PICTURE.picture);
+    const domain = s.diagram(sources, { stage: '01-domain', sourceKey: '/pictures/01-domain/nexus', kind: 'ddd_board', name: 'DDD board' });
+    drawPicture(domain.drawing, '01-domain', 'ddd_board', 'nexus', DDD_PICTURE);
+    keep('01-domain', 'nexus', DDD_PICTURE.picture);
     const own = s.diagram(sources, { sourceKey: '/pictures/05-erd/own' });
     const ownSql = '-- T-1 users of the own part\nCREATE TABLE users (id INTEGER PRIMARY KEY);\n';
     const ownPicture = readSqlPicture([['db/own.sql', ownSql]], { ids: idFormat([['T', 'table']]), part: 'own' });
     drawPicture(own.drawing, '05-erd', 'erd', 'own', { source: 'db/own.sql', ...ownPicture });
-    const split = s.diagram(sources, { sourceKey: '/pictures/05-erd/split' });
-    s.elements(split.drawing, [
-      { key: 'TBL-301', trace_id: 'TBL-301', kind: 'table', name: 'left', detail: { where: 'db/left.sql:2' } },
-      { key: 'TBL-302', trace_id: 'TBL-302', kind: 'table', name: 'right', detail: { where: 'db/right.sql:2' } },
-    ]);
+    keep('05-erd', 'own', ownPicture.picture);
+    for (const { stage, kind, name, picture, checks, files } of SPLIT) {
+      const split = s.diagram(sources, { stage, sourceKey: `/pictures/${stage}/split`, kind, name });
+      drawPicture(split.drawing, stage, kind, 'split', { source: files[0][0], picture, checks });
+      keep(stage, 'split', picture);
+    }
     // A space whose stage 08 shows its item table, and whose other stages drew nothing.
     bare = s.project('bare');
     bareItems = s.diagram(bare, { stage: '08-screen-states', sourceKey: '/items/08-screen-states', kind: 'item_table', name: 'Item table' });
@@ -362,61 +402,65 @@ describe('agent proposals', () => {
     assert.equal(count('change_sets'), sets);
   });
 
-  test('on stage 01, and on 05 drawn from several files, source_text is kept and makes no change: the items carry the change text', async () => {
+  test('with source_text on stage 01, NEXUS reads the Markdown as the pinned hub does, and the differences become changes (TASK-470)', async () => {
     clock = START + 3 * MINUTE;
-    const domain = await propose({ ...erdProposal({ stage: '01-domain', items: ['CTX-038'] }), source_text: '# Domain\n' });
-    assert.deepEqual([domain.status, domain.json.diagram, domain.json.source_text, domain.json.changes], [201, idOf('dg', board.id), true, []]);
-    const split = await sourceProposal({ part: 'split', items: ['TBL-301'], source_text: 'CREATE TABLE agent_keys (id INTEGER PRIMARY KEY);' });
-    assert.deepEqual([split.status, split.json.source_text, split.json.changes, split.json.items], [201, true, [], ['TBL-301']]);
-  });
-
-  test('with source_text on stage 05, NEXUS reads the SQL as the pinned hub does, and the differences become changes (TASK-466)', async () => {
-    clock = START + 3 * MINUTE;
-    // Each edit of the schema took place, so that a change of db/nexus.sql cannot quietly leave one out.
-    for (const part of ['CREATE TABLE idempotency_keys (', 'REFERENCES diagrams (id)', 'bytes        BIGINT,', 'CREATE TABLE agent_notes']) {
-      assert.ok(SQL_PROPOSED.includes(part), part);
-    }
-    assert.equal(SQL_PROPOSED.includes('CREATE TABLE restore_rehearsals'), false);
-    const answer = await sourceProposal({ source_text: SQL_PROPOSED });
+    const domainAt = (extra) => sourceProposal({ stage: '01-domain', items: ['CTX-038'], ...extra });
+    const renamed = DOMAIN_TEXT.replace('### CTX-038 Review\n', '### CTX-038 Review and proposals\n');
+    assert.notEqual(renamed, DOMAIN_TEXT);
+    const answer = await domainAt({ source_text: renamed });
     assert.equal(answer.status, 201);
-    assert.deepEqual([answer.json.source_text, answer.json.items, answer.json.changes], [true, ['TBL-169'], SQL_CHANGES]);
-    assert.equal(JSON.parse(setRow(lastSet()).detail).source_text, SQL_PROPOSED);
-    // The schema as it is makes no change, and neither do a column's type, a comment or a statement the hub passes over.
-    for (const text of [SQL_TEXT, SQL_TEXT.replace('  bytes        INTEGER,\n', '  bytes        BIGINT, -- in bytes\n'), `${SQL_TEXT}CREATE VIEW v AS SELECT 1;\n`]) {
-      const same = await sourceProposal({ source_text: text });
-      assert.deepEqual([same.status, same.json.changes], [201, []]);
+    assert.deepEqual([answer.json.source_text, answer.json.items, answer.json.changes],
+      [true, ['CTX-038'], [{ op: 'rename', element: 'CTX-038', name: 'Review and proposals', target: null }]]);
+    // The document as it is makes no change, nor does it with a byte order mark, nor a path that names its one file.
+    for (const extra of [{ source_text: DOMAIN_TEXT }, { source_text: `\uFEFF${DOMAIN_TEXT}` }, { source_text: DOMAIN_TEXT, source_path: DOMAIN_FILE }]) {
+      const same = await domainAt(extra);
+      assert.deepEqual([same.status, same.json.changes], [201, []], Object.keys(extra).join());
     }
-    // A table keyed by the project's own ID prefix, which the drawing's tables have, keeps its key.
-    const own = await sourceProposal({ part: 'own', items: ['T-1'], source_text: '-- T-1 members\nCREATE TABLE members (id INTEGER PRIMARY KEY);\n' });
-    assert.deepEqual([own.status, own.json.changes], [201, [{ op: 'rename', element: 'T-1', name: 'members', target: null }]]);
-  });
-
-  test('with source_text on stage 07, NEXUS reads the YAML as the pinned hub does: a moved screen moves its line (TASK-466)', async () => {
-    clock = START + 3 * MINUTE;
-    assert.ok(YAML_PROPOSED.includes('\n            - id: SCR-146\n              name: Changes since confirmation\n'));
-    const answer = await sourceProposal({ stage: '07-sitemap', items: ['SCR-146'], source_text: YAML_PROPOSED });
-    assert.equal(answer.status, 201);
-    assert.deepEqual([answer.json.items, answer.json.changes], [['SCR-146'], YAML_CHANGES]);
-    const same = await sourceProposal({ stage: '07-sitemap', items: ['SCR-146'], source_text: `${YAML_TEXT}# a comment\n` });
-    assert.deepEqual([same.status, same.json.changes], [201, []]);
-  });
-
-  test('SQL that reads no table, YAML that reads no screen or does not read, get invalid_request on source_text (TASK-466)', async () => {
+    // The path is not kept.
+    assert.deepEqual(Object.keys(JSON.parse(setRow(lastSet()).detail)), ['items', 'reason', 'change', 'source_text']);
+    // Markdown that reads no context is refused, and nothing is written.
     const sets = count('change_sets');
-    const sitemapAt = (text) => ({ stage: '07-sitemap', items: ['SCR-146'], source_text: text });
-    for (const [body, detail] of [
-      [{ source_text: 'INSERT INTO request_keys VALUES (1);\nCREATE VIEW v AS SELECT 1;\n' }, 'source_text reads no table'],
-      [sitemapAt('# no screen here\n---\n'), 'source_text reads no screen'],
-      [sitemapAt('- id: SCR-146\n  name: a : b\n'), 'source_text does not draw at its line 2'],
-      [sitemapAt('- id: SCR-146\n\tname: tabbed\n'), 'source_text does not draw at its line 2'],
-      [sitemapAt('- id: SCR-146\n  name: &anchor x\n'), 'source_text does not draw at its line 2'],
-      [sitemapAt('- id: SCR-146\n  name: "\\ud800"\n'), 'source_text does not draw at its line 2'],
-    ]) {
-      const refused = await sourceProposal(body);
-      assert.deepEqual([refused.status, refused.json.code, refused.json.field, refused.json.detail], [400, 'invalid_request', 'source_text', detail]);
-      assert.equal(refused.text.includes(body.source_text.trim().split('\n')[1] ?? body.source_text), false);
-    }
+    const none = await domainAt({ source_text: '# Domain\n\nNo context here.\n' });
+    assert.deepEqual([none.status, none.json.code, none.json.field, none.json.detail], [400, 'invalid_request', 'source_text', 'source_text reads no context']);
     assert.equal(count('change_sets'), sets);
+  });
+
+  test('with source_text and source_path on a drawing of several files, the text takes that file\'s place, and only its differences are changes (TASK-470)', async () => {
+    clock = START + 3 * MINUTE;
+    const splitAt = (stage, items, path, text) => sourceProposal({ part: 'split', stage, items, source_path: path, source_text: text });
+    const [domain, sql, yaml] = SPLIT.map((each) => Object.fromEntries(each.files));
+    // Stage 01: a context of b.md renamed; a.md's context and stickies stay.
+    const board = await splitAt('01-domain', ['CTX-302'], 'docs/01-domain/b.md', domain['docs/01-domain/b.md'].replace('CTX-302 Billing', 'CTX-302 Payments'));
+    assert.deepEqual([board.status, board.json.changes], [201, [{ op: 'rename', element: 'CTX-302', name: 'Payments', target: null }]]);
+    // Stage 05: a table added to db/right.sql with a foreign key; the foreign key db/left.sql gives its table and the
+    // unique index the hub left out of db/left.sql stay.
+    const added = `${sql['db/right.sql']}-- TBL-303 extras\nCREATE TABLE extras (id INTEGER PRIMARY KEY, right_id INTEGER REFERENCES right_items (id));\n`;
+    const right = await splitAt('05-erd', ['TBL-302'], 'db/right.sql', added);
+    assert.deepEqual([right.status, right.json.changes], [201, [
+      { op: 'add', element: 'TBL-303', name: 'extras', target: null },
+      { op: 'connect', element: 'TBL-303', name: 'right_id', target: 'TBL-302' },
+    ]]);
+    // A table of db/left.sql renamed, the table its ALTER TABLE reaches in db/right.sql keeping its foreign key.
+    const left = await splitAt('05-erd', ['TBL-301'], 'db/left.sql', sql['db/left.sql'].replaceAll('left_items', 'left_rows'));
+    assert.deepEqual([left.status, left.json.changes], [201, [{ op: 'rename', element: 'TBL-301', name: 'left_rows', target: null }]]);
+    // Without the unique index, what the hub left out of it goes.
+    const index = await splitAt('05-erd', ['TBL-301'], 'db/left.sql', sql['db/left.sql'].replace(/CREATE UNIQUE INDEX[^\n]*\n/u, ''));
+    assert.deepEqual([index.status, index.json.changes], [201, [{ op: 'remove', element: `statement:${SPLIT_LEFT_OUT}`, name: null, target: null }]]);
+    // Stage 07: a screen added in a.yaml, which moves b.yaml's screens down the hub's list; they make no change.
+    const screens = `${yaml['docs/07-sitemap/a.yaml']}    - id: SCR-305\n      name: Baskets\n`;
+    const sitemap = await splitAt('07-sitemap', ['SCR-301'], 'docs/07-sitemap/a.yaml', screens);
+    assert.deepEqual([sitemap.status, sitemap.json.changes], [201, [
+      { op: 'add', element: 'SCR-305', name: 'Baskets', target: null },
+      { op: 'connect', element: 'SCR-301', name: 'Baskets', target: 'SCR-305' },
+    ]]);
+    // Each file as it is makes no change.
+    for (const { stage, files } of SPLIT) {
+      for (const [path, text] of files) {
+        const items = [{ '01-domain': 'CTX-301', '05-erd': 'TBL-301', '07-sitemap': 'SCR-301' }[stage]];
+        const same = await splitAt(stage, items, path, text);
+        assert.deepEqual([same.status, same.json.changes], [201, []], path);
+      }
+    }
   });
 
   test('stage 09, and a stage or diagram with no drawn picture, are refused, and nothing is written (SPEC-018)', async () => {

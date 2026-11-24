@@ -29,20 +29,20 @@ export function seed(db, { time = TIME } = {}) {
 
   // A project space holding one snapshot: { id, name, commit, snapshot }. pictures is what the snapshot's /snapshot
   // document lists, as the intake keeps it (see src/snapshot.js), so that a file picture's part can be found; title and
-  // parts, when given, are the project's there.
-  function project(name = `demo-${randomBytes(3).toString('hex')}`, { repository = REPOSITORY, pictures = [], title, parts } = {}) {
+  // parts, when given, are the project's there, and checks the hub's checks it keeps.
+  function project(name = `demo-${randomBytes(3).toString('hex')}`, { repository = REPOSITORY, pictures = [], title, parts, checks } = {}) {
     const id = insert(
       'INSERT INTO project_spaces (name, repository, held_commit, created_at, created_by_credential) VALUES (?, ?, NULL, ?, ?)',
       name, repository, time, agent.key,
     );
     const space = { id, name };
-    snapshot(space, { pictures, title, parts });
+    snapshot(space, { pictures, title, parts, checks });
     return space;
   }
 
   // The project's next snapshot, received at at and now held, with its /snapshot document: sets space.commit and
-  // space.snapshot. title and parts, when given, are the project's in that document.
-  function snapshot(space, { pictures = [], title, parts, at = time } = {}) {
+  // space.snapshot. title and parts, when given, are the project's in that document, and checks the hub's checks.
+  function snapshot(space, { pictures = [], title, parts, checks, at = time } = {}) {
     const held = commit();
     const { revision } = db.prepare('SELECT coalesce(max(revision), 0) + 1 AS revision FROM snapshots WHERE project_id = ?').get(space.id);
     const id = insert(
@@ -54,7 +54,7 @@ export function seed(db, { time = TIME } = {}) {
     const head = { name: space.name };
     if (title !== undefined) head.title = title;
     if (parts !== undefined) head.parts = parts;
-    const rest = JSON.stringify({ project: head, pictures });
+    const rest = JSON.stringify({ project: head, pictures, ...(checks === undefined ? {} : { checks }) });
     db.prepare('INSERT INTO document_blobs (sha256, body, bytes) VALUES (?, ?, ?) ON CONFLICT (sha256) DO NOTHING')
       .run(sha256(rest), rest, Buffer.byteLength(rest));
     db.prepare("INSERT INTO snapshot_files (snapshot_id, path, stage, blob_sha256) VALUES (?, '/snapshot', '', ?)").run(id, sha256(rest));
