@@ -26,10 +26,7 @@ hub-ref.json that CORTHEX_HUB_CHECKOUT names; nothing is fetched and nothing bey
 
 import hashlib
 import json
-import os
-import re
 import secrets
-import shutil
 import subprocess
 import tempfile
 import threading
@@ -38,7 +35,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from test_hub_project import HubCheckoutCase, base_environment
+from test_hub_project import HubCheckoutCase, base_environment, node_program
 
 ROOT = Path(__file__).resolve().parents[1]
 HARNESS = ROOT / "tests" / "hub_run_server.mjs"
@@ -71,14 +68,6 @@ def calls(*commands):
     return [action for command in commands for action in CALLS[command]]
 
 
-def node_program(case):
-    node = shutil.which("node")
-    case.assertTrue(node, "the hub run needs Node 24 (AGENTS.md)")
-    version = subprocess.run([node, "--version"], capture_output=True, text=True, timeout=30).stdout.strip()
-    case.assertGreaterEqual(int(re.match(r"v(\d+)", version).group(1)), 24, "the hub run needs Node 24")
-    return node
-
-
 class LocalServer:
     """The v3 server of tests/hub_run_server.mjs in a data folder of its own, until close()."""
 
@@ -93,11 +82,12 @@ class LocalServer:
         reader = threading.Thread(target=lambda: first.append(self.process.stdout.readline()), daemon=True)
         reader.start()
         reader.join(60)
-        if not first or not first[0].strip():
+        try:
+            started = json.loads(first[0])
+            self.url, self.owner_sign_in = started["url"], started["owner"]
+        except (IndexError, ValueError, KeyError, TypeError):
             self.close()
             raise AssertionError("the server did not start: " + (base / "server.err").read_text(encoding="utf8")[-600:])
-        started = json.loads(first[0])
-        self.url, self.owner_sign_in = started["url"], started["owner"]
         # The loopback address goes straight to the server, whatever proxy the environment names.
         self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
@@ -133,7 +123,7 @@ class LocalServer:
 
 class HubRunTest(HubCheckoutCase):
     def setUp(self):
-        self.node = node_program(self)
+        self.node = node_program(self, "the hub run")
         super().setUp()
         self.run_git("symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/main")
         self.server = LocalServer(self.node, self.base)
@@ -190,7 +180,7 @@ class HubRunTest(HubCheckoutCase):
         code, row, home = self.run_push_step({"CORTHEX_NEXUS_URL": self.server.url,
                                               "CORTHEX_NEXUS_CLIENT_ID": self.credential,
                                               "CORTHEX_NEXUS_CLIENT_SECRET": self.secret})
-        self.outputs.append(json.dumps(row))
+        self.outputs.append(self.push_output)
         self.assertEqual((code, row["command"], row["project"], row["outcome"], row["problem"], row["failure"],
                           row["remarks"]), (0, "push", PROJECT, "done", None, None, []), row)
         return row["answer"], home
@@ -205,27 +195,33 @@ class HubRunTest(HubCheckoutCase):
 
     # The owner's side, through the owner operations.
 
-    def diagram_of(self, stage, part):
+    def drawings(self, *stages):
+        """The diagram and its drawing shown for each stage of the nexus part, from one project read."""
         status, project = self.server.owner("GET", "/api/projects/%s" % PROJECT)
         self.assertEqual(status, 200, project)
-        found = [d for s in project["stages"] if (s["stage"], s["part"]) == (stage, part) for d in s["diagrams"]]
-        self.assertEqual(len(found), 1, found)
-        status, diagram = self.server.owner("GET", "/api/projects/%s/diagrams/%s" % (PROJECT, found[0]["id"]))
-        self.assertEqual(status, 200, diagram)
-        return diagram["id"], diagram["drawing"]["id"]
+        found = []
+        for stage in stages:
+            diagrams = [d for s in project["stages"] if (s["stage"], s["part"]) == (stage, "nexus") for d in s["diagrams"]]
+            self.assertEqual(len(diagrams), 1, diagrams)
+            status, diagram = self.server.owner("GET", "/api/projects/%s/diagrams/%s" % (PROJECT, diagrams[0]["id"]))
+            self.assertEqual(status, 200, diagram)
+            found.append((diagram["id"], diagram["drawing"]["id"]))
+        return found
 
-    def owner_writes(self, thread):
-        """The owner replies in the thread, renames an element of the ERD and confirms the sitemap. Returns the
-        reflection's and the confirmation's entries."""
+    def owner_reply(self, thread):
+        """The owner replies in the thread, which then waits on the agent."""
         status, reply = self.server.owner("POST", "/api/projects/%s/threads/%s/comments" % (PROJECT, thread),
                                           {"text": "Yes: a revoked credential keeps its name."})
         self.assertEqual((status, reply["thread"]["waits_on"]), (201, "agent"), reply)
-        erd, erd_drawing = self.diagram_of("05-erd", "nexus")
+
+    def owner_edit_and_confirmation(self):
+        """The owner renames an element of the ERD and confirms the sitemap. Returns the reflection's and the
+        confirmation's entries."""
+        (erd, erd_drawing), (sitemap, sitemap_drawing) = self.drawings("05-erd", "07-sitemap")
         status, edit = self.server.owner("POST", "/api/projects/%s/diagrams/%s/direct-edits" % (PROJECT, erd),
                                          {"drawing": erd_drawing, "op": "rename", "element": "TBL-146",
                                           "name": "agent_keys"})
         self.assertEqual(status, 201, edit)
-        sitemap, sitemap_drawing = self.diagram_of("07-sitemap", "nexus")
         status, confirmed = self.server.owner("POST", "/api/projects/%s/diagrams/%s/confirmation" % (PROJECT, sitemap),
                                               {"drawing": sitemap_drawing})
         self.assertEqual(status, 201, confirmed)
@@ -249,18 +245,22 @@ class HubRunTest(HubCheckoutCase):
         lines = [json.loads(line) for line in self.stop_server()]
         self.assertEqual([line["action"] for line in lines if line["sender"] == "hub-run"], calls(*commands))
         digest = hashlib.sha256(self.secret.encode("ascii")).hexdigest()
-        text = "\n".join(json.dumps(line) for line in lines)
-        for value in (self.secret, digest, self.server.owner_sign_in, str(self.server.data),
-                      str(self.server.data).replace("\\", "/"), self.session["CORTHEX_NEXUS_SESSION"],
+        # The log's own text, where JSON escapes a path's backslashes, and its values as read.
+        text = "\n".join(self.log_lines + [value for line in lines for value in map(str, line.values())])
+        data = str(self.server.data)
+        for value in (self.secret, digest, self.server.owner_sign_in, data, data.replace("\\", "/"),
+                      json.dumps(data)[1:-1], self.session["CORTHEX_NEXUS_SESSION"],
                       self.other["CORTHEX_NEXUS_SESSION"], PULL % 1, PULL % 2, QUESTION, DECISION):
-            self.assertNotIn(value, text, "the server's log holds what it keeps out")
+            # assertFalse, so that a failure never prints the value it found.
+            self.assertFalse(value in text, "the server's log holds what it keeps out; value withheld")
         for output in self.outputs:
-            self.assertNotIn(self.secret, output, "the hub shows the credential's secret")
+            self.assertFalse(self.secret in output, "the hub shows the credential's secret; value withheld")
 
     def test_each_command_gets_an_answer_the_hub_reads(self):
         first = self.commit
         thread = self.first_push_and_comment()
-        reflection, confirmation = self.owner_writes(thread)
+        self.owner_reply(thread)
+        reflection, confirmation = self.owner_edit_and_confirmation()
 
         todo = self.read(self.session, "todo", PROJECT)
         self.assertEqual((todo["default_commit"], todo["session"]),
@@ -321,7 +321,7 @@ class HubRunTest(HubCheckoutCase):
                          (1, "refused", None, None, "first push needs --first"), row)
 
         thread = self.first_push_and_comment()
-        self.owner_writes(thread)
+        self.owner_reply(thread)
         self.read(self.session, "claim", PROJECT, thread)
         # Another session's claim and write on the entry the first holds.
         for words in (("claim", PROJECT, thread),

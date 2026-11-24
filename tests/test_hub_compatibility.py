@@ -22,7 +22,6 @@ every request; nothing is fetched and no NEXUS server is contacted.
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -33,7 +32,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import test_api as contract  # noqa: E402
-from test_hub_project import SECRETS, HubCheckoutCase, base_environment  # noqa: E402
+from test_hub_project import SECRETS, HubCheckoutCase, base_environment, node_program  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = "corthex-nexus"
@@ -287,10 +286,7 @@ class HubCompatibilityTest(HubCheckoutCase):
 
     def assert_taken_by_the_v3_intake(self, snapshot):
         """The v3 server's readSnapshot takes the snapshot in its format and leaves out none of its documents."""
-        node = shutil.which("node")
-        self.assertTrue(node, "the v3 intake check needs Node 24 (AGENTS.md)")
-        version = subprocess.run([node, "--version"], capture_output=True, text=True, timeout=30).stdout.strip()
-        self.assertGreaterEqual(int(re.match(r"v(\d+)", version).group(1)), 24, "the v3 intake check needs Node 24")
+        node = node_program(self, "the v3 intake check")
         folder = Path(tempfile.mkdtemp(prefix="intake-", dir=str(self.base)))
         (folder / "intake.mjs").write_text(INTAKE, encoding="utf8")
         (folder / "snapshot.json").write_text(json.dumps(snapshot, ensure_ascii=False), encoding="utf8")
