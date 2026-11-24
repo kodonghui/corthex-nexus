@@ -94,6 +94,14 @@ export function threadsWhole(state) {
   state.threads.fromAddress = false;
 }
 
+// After the section was drawn anew in place of the control that had the focus: the list's first thread takes it, else
+// the box for a new comment, so the keyboard stays in the section.
+export function threadsFocus(state) {
+  const boxes = state.threads?.boxes ?? null;
+  if (boxes === null) return;
+  (boxes.list.querySelector('button') ?? boxes.add.querySelector('input'))?.focus();
+}
+
 // The section's threads, for the element chosen or, when it is null, the diagram as a whole: the list, the thread
 // shown and the box for a new comment, each a part drawn again on its own.
 export function threadsPart(state, element) {
@@ -351,7 +359,9 @@ function refill(box, field, ...nodes) {
   if (had && field !== null) document.getElementById(field)?.focus();
 }
 
-// A box to write in: its label, the field and 보내기, and under them what went wrong. The text is kept as it is typed.
+// A box to write in: its label, the field and 보내기. A refused text is said under the field, as in project.js, so a
+// phone shows it there and not under 보내기; anything else that went wrong is said under the box. The text is kept as
+// it is typed.
 function textForm(state, { id, what, label, placeholder, action }) {
   const t = state.threads;
   const error = t.errors.get(what) ?? null;
@@ -371,9 +381,9 @@ function textForm(state, { id, what, label, placeholder, action }) {
   };
   return h('form', { class: 'th-form', novalidate: true, on: { submit } },
     h('label', { class: 'l', for: id }, label),
-    h('div', { class: 'form' }, h('div', {}, field),
+    h('div', { class: 'form' }, h('div', {}, field, bad ? errorOf(state, what, error, id) : null),
       h('button', { type: 'submit', class: 'btn primary', disabled: busy, 'aria-busy': busy ? 'true' : null }, THREAD_WORDS.send)),
-    errorOf(state, what, error, id));
+    bad ? null : errorOf(state, what, error, id));
 }
 
 function closeRow(state, thread) {
@@ -395,7 +405,8 @@ function errorOf(state, what, error, id) {
   if (error === null) return null;
   const { shell } = state.ctx;
   if (error.by === 'field') {
-    return h('p', { class: 'err-text', id: `${id}-error` }, error.text, error.limit ? ` ${THREAD_WORDS.limit}` : null);
+    // A div, not a p, as in projects.js: the shell's `.nx p{margin:0}` would take away err-text's space under the field.
+    return h('div', { class: 'err-text', id: `${id}-error` }, error.text, error.limit ? ` ${THREAD_WORDS.limit}` : null);
   }
   if (error.by === 'gone') {
     return h('div', { class: 'nt warn', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, shell.message(error.code))),
@@ -476,9 +487,11 @@ function startOf(state, place, text) {
     body,
     done: (thread) => {
       const t = state.threads;
-      if (!Array.isArray(diagram.threads)) diagram.threads = [];
-      if (!diagram.threads.some((each) => each.id === thread.id)) {
-        diagram.threads.push({
+      // The diagram shown now: a read again may have drawn the view anew while the comment was sent.
+      const now = state.ctx.data.diagram;
+      if (!Array.isArray(now.threads)) now.threads = [];
+      if (!now.threads.some((each) => each.id === thread.id)) {
+        now.threads.push({
           id: thread.id, target: thread.target, element: thread.element, removed_name: thread.removed_name, state: thread.state,
           waits_on: thread.waits_on, last_at: thread.last_at, entries: thread.entries.length,
         });
@@ -529,7 +542,9 @@ function closeOf(state, id) {
       brief(state, id, answer.thread);
       drawList(state);
       drawShown(state);
-      if (diagram.removed && !(diagram.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
+      // The diagram shown now, which brief marked: a read again may have drawn the view anew while the close was sent.
+      const now = state.ctx.data.diagram;
+      if (now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
     },
   };
 }
@@ -540,26 +555,29 @@ function summaryOf(summary) {
 
 // A reply to a thread closed meanwhile (SCR-145#stale): the bar over the picture, with 새로 고침, and the text moves
 // to the box that starts a new thread at the same place: the thread's element when it is drawn readable, else the
-// diagram as a whole. A removed diagram has no such box, so there the text stays where it was typed.
+// diagram as a whole. A removed diagram has no such box (SPEC-027), so there the thread stays as it is shown, the text
+// in its reply box, until the owner reads again with the bar's 새로 고침: typed text is kept where it can be seen.
 function closedMeanwhile(state, what, text) {
   const t = state.threads;
   const { shell } = state.ctx;
   const diagram = state.ctx.data.diagram;
+  t.host.notice(shell.staleBar({ text: shell.message('thread_closed'), kept: THREAD_WORDS.kept }));
+  if (diagram.removed) {
+    drawShown(state);
+    return;
+  }
   const id = what.slice('reply '.length);
   const thread = t.thread?.id === id ? t.thread : null;
   if (thread !== null) Object.assign(thread, { state: 'closed', waits_on: null });
   const listed = (diagram.threads ?? []).find((each) => each.id === id);
   if (listed !== undefined) Object.assign(listed, { state: 'closed', waits_on: null });
-  if (!diagram.removed) {
-    const where = thread ?? listed ?? null;
-    const key = where !== null && (where.removed_name ?? null) === null && where.target !== 'diagram' ? where.element : null;
-    const element = key === null ? null : (diagram.elements ?? []).find((each) => each.key === key && each.status !== 'unreadable') ?? null;
-    const place = placeOf(diagram, element);
-    const there = textOf(state, place.draft);
-    keepText(state, place.draft, there === '' ? text : `${there} ${text}`);
-    keepText(state, what, '');
-  }
-  t.host.notice(shell.staleBar({ text: shell.message('thread_closed'), kept: THREAD_WORDS.kept }));
+  const where = thread ?? listed ?? null;
+  const key = where !== null && (where.removed_name ?? null) === null && where.target !== 'diagram' ? where.element : null;
+  const element = key === null ? null : (diagram.elements ?? []).find((each) => each.key === key && each.status !== 'unreadable') ?? null;
+  const place = placeOf(diagram, element);
+  const there = textOf(state, place.draft);
+  keepText(state, place.draft, there === '' ? text : `${there} ${text}`);
+  keepText(state, what, '');
   drawList(state);
   drawShown(state);
   drawAdd(state);

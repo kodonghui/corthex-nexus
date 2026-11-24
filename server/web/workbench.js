@@ -24,7 +24,7 @@ import { mockupFrame } from './mockup-frame.js';
 import { overlayModel } from './overlays.js';
 import { chooser, PAD, pictureOf, shownName, STICKIES, tagWord, WORDS } from './picture.js';
 import { CONTAINERS, placement } from './relayout.js';
-import { THREAD_WORDS, threadsOpened, threadsPart, threadsWhole } from './threads.js';
+import { THREAD_WORDS, threadsFocus, threadsOpened, threadsPart, threadsWhole } from './threads.js';
 
 export const STEP = 8;
 export const LONG_STEP = 40;
@@ -132,7 +132,8 @@ function build(ctx, row) {
     state.frame?.end();
     state.frame = mockupFrame({ diagram, shell: ctx.shell });
     fill(state.pictureBox, state.frame.element);
-    const tokens = h('div', { class: 'tokens' });
+    // Tokens are chosen like any element, so Escape there chooses nothing again too.
+    const tokens = h('div', { class: 'tokens', on: { keydown: (event) => escape(state, event) } });
     state.tokenBox = tokens;
     if (state.phone) body.push(tokens);
     else {
@@ -289,12 +290,16 @@ function select(state, key) {
   drawSelected(state);
 }
 
-// Nothing chosen again: the Selected section lists the whole diagram's threads.
+// Nothing chosen again: the Selected section lists the whole diagram's threads. When the control that had the focus
+// was in the section, which is drawn anew, the focus stays in the section (threadsFocus).
 function whole(state) {
+  const active = document.activeElement ?? null;
+  const had = active !== null && state.selectedBox.contains(active);
   setPressed(state.view.nodes.get(state.selected), false);
   state.selected = null;
   threadsWhole(state);
   drawSelected(state);
+  if (had) threadsFocus(state);
 }
 
 // Escape, outside a field, chooses nothing again.

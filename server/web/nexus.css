@@ -217,6 +217,7 @@ label.l{display:block;margin-bottom:6px;font:var(--corthex-type-label-01);letter
 .cmt .tx{white-space:pre-wrap;overflow-wrap:anywhere}
 .cmt a{overflow-wrap:anywhere}
 .th-form{display:flex;flex-direction:column}
+@media (min-width:672px){.th-form .form{align-items:flex-start}}
 
 /* workshop */
 .steps{display:flex;flex-wrap:wrap;gap:8px}

@@ -61,6 +61,9 @@ export function startShell(root, screen, address) {
   // How many times the address changed in the page (arrive, or showGone's instead): a load whose address changed while
   // it read leaves its answers unshown, and the load the change asked for shows the new address.
   let arrivals = 0;
+  // Whether the load waiting in queued is a reload('instead'). The running load sets via back to 'open' when it
+  // settles, so the waiting one takes 'switch' only as it starts; a change of address forgets it.
+  let insteadNext = false;
 
   const shell = {
     read: (path) => {
@@ -140,6 +143,8 @@ export function startShell(root, screen, address) {
     if (queued !== null && !ended) {
       const next = queued;
       queued = null;
+      if (insteadNext) via = 'switch';
+      insteadNext = false;
       load(next);
     }
   }
@@ -190,7 +195,8 @@ export function startShell(root, screen, address) {
   // gives instead, as after a switch: TASK-459 reads a removed diagram again so, after closing its last thread, since
   // nothing may keep it listed then (SPEC-027).
   function reload(how) {
-    if (how === 'instead') via = 'switch';
+    if (how === 'instead' && busy) insteadNext = true;
+    else if (how === 'instead') via = 'switch';
     load(true);
   }
 
@@ -245,6 +251,7 @@ export function startShell(root, screen, address) {
     Object.assign(address, next);
     arrivals += 1;
     via = how;
+    insteadNext = false;
     note = null;
     load(false);
   }
@@ -264,6 +271,7 @@ export function startShell(root, screen, address) {
     Object.assign(address, parseAddress(pathname, search));
     arrivals += 1;
     via = 'instead';
+    insteadNext = false;
     note = other.note ?? null;
     load(false);
   }

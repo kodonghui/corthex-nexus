@@ -335,6 +335,9 @@ describe('SCR-145 pictures', () => {
       assert.equal(tokens[1].all('rect')[0].getAttribute('fill'), '#161616');
       const font = tokens.find((token) => token.textContent.endsWith('--corthex-type-body-01'));
       assert.deepEqual([font.all('rect').length, font.all('span', 'sw').length], [0, 1]);
+      // Escape in the token list chooses nothing again, as on the picture (TASK-459).
+      panelOf(mockup).all('div', 'tokens')[0].dispatch('keydown', { key: 'Escape' });
+      assert.deepEqual([tokens[1].getAttribute('aria-pressed'), selectedOf(mockup).all('b').map((b) => b.textContent)], ['false', ['그림 전체']]);
     } finally {
       mockup.close();
     }

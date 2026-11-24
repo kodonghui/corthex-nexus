@@ -259,10 +259,12 @@ describe('SCR-145 threads', () => {
       assert.deepEqual([fieldOf(page, 'th-reply').getAttribute('placeholder'), buttonOf(thread, THREAD_WORDS.close) !== undefined], [THREAD_WORDS.replyField, true]);
       assert.equal(fieldOf(page, 'th-new').getAttribute('placeholder'), THREAD_WORDS.fields.element);
 
-      // Escape chooses nothing again.
+      // Escape chooses nothing again. The row that had the focus is drawn anew, so the list's first row takes it.
+      rowNamed(page, 'agent_credentials').focus();
       sectionOf(page).dispatch('keydown', { key: 'Escape' });
       assert.equal(chosen.getAttribute('aria-pressed'), 'false');
       assert.deepEqual([textsIn(sectionOf(page), 'b'), shownThread(page), rowsOf(page).length], [[THREAD_WORDS.whole], null, 4]);
+      assert.equal(page.document.activeElement, rowNamed(page, THREAD_WORDS.whole));
 
       // The diagram's own thread shows under the list, with nothing chosen on the picture.
       rowNamed(page, THREAD_WORDS.whole).click();
@@ -280,9 +282,19 @@ describe('SCR-145 threads', () => {
       assert.deepEqual(rowsOf(page), [['project_spaces', THREAD_WORDS.closed]]);
       assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.closed]);
       assert.deepEqual([fieldOf(page, 'th-reply'), buttonOf(shownThread(page), THREAD_WORDS.close)], [null, undefined]);
-      // 그림 전체 스레드 goes back to the whole list.
-      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      // 그림 전체 스레드 goes back to the whole list; the button is gone with it, so the list's first row takes the focus.
+      const back = buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads);
+      back.focus();
+      back.click();
       assert.deepEqual([textsIn(sectionOf(page), 'b'), shownThread(page)], [[THREAD_WORDS.whole], null]);
+      assert.equal(page.document.activeElement, rowNamed(page, THREAD_WORDS.whole));
+      // Escape on the picture leaves the focus where it is.
+      pictureButton(page, 'tbl', 'project_spaces').click();
+      await page.settle();
+      const box = pictureButton(page, 'tbl', 'project_spaces');
+      box.focus();
+      page.app.all('div', 'wb-picture')[0].dispatch('keydown', { key: 'Escape' });
+      assert.deepEqual([box.getAttribute('aria-pressed'), page.document.activeElement], ['false', box]);
     } finally {
       page.close();
     }
@@ -350,6 +362,31 @@ describe('SCR-145 threads', () => {
     } finally {
       page.close();
     }
+    // A read again that draws the view anew while the comment is sent: the new thread goes in the list shown now.
+    let refreshed = false;
+    let answer = null;
+    const moved = await openStage('erd', {
+      answers: (path) => (path === diagramPath('erd') && refreshed ? json(200, diagramOf('erd', { threads: BRIEFS.erd.map((each) => ({ ...each, last_at: ago(1) })) })) : undefined),
+      posts: (path, body) => new Promise((resolve) => {
+        answer = () => resolve(written(path, body));
+      }),
+    });
+    try {
+      pictureButton(moved, 'tbl', 'snapshots').click();
+      const field = fieldOf(moved, 'th-new');
+      field.value = '스냅숏을 나눠 주세요.';
+      formOf(field).dispatch('submit');
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      refreshed = true;
+      moved.document.dispatch('visibilitychange');
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      answer();
+      await moved.settle();
+      assert.deepEqual(rowsOf(moved), [['snapshots', THREAD_WORDS.agents]]);
+      assert.deepEqual(textsIn(shownThread(moved), 'span', 'tx'), ['스냅숏을 나눠 주세요.']);
+    } finally {
+      moved.close();
+    }
   });
 
   test('an empty comment is refused by the box with 댓글을 적어 주세요., and nothing is sent', async () => {
@@ -358,7 +395,10 @@ describe('SCR-145 threads', () => {
       await send(page, 'th-new', '   ');
       const field = fieldOf(page, 'th-new');
       assert.deepEqual([field.getAttribute('aria-invalid'), field.getAttribute('class'), field.getAttribute('aria-describedby')], ['true', 'field bad', 'th-new-error']);
-      assert.equal(page.document.getElementById('th-new-error').textContent, THREAD_WORDS.empty);
+      const error = page.document.getElementById('th-new-error');
+      assert.equal(error.textContent, THREAD_WORDS.empty);
+      // Under the field and not under 보내기, which a phone puts under the field.
+      assert.equal(error.parentNode, field.parentNode);
       assert.deepEqual(page.sent, []);
     } finally {
       page.close();
@@ -401,6 +441,20 @@ describe('SCR-145 threads', () => {
       assert.equal(fieldOf(page, 'th-new').value, '그래도 확인해 주세요.');
     } finally {
       page.close();
+    }
+    // A removed diagram has no box for a new thread (SPEC-027): the thread stays as it is shown, the text in its reply
+    // box, until 새로 고침.
+    const removed = await openStage('old', { search: `?d=${ID.old}`, posts: () => problem(409, 'thread_closed')() });
+    try {
+      rowNamed(removed, THREAD_WORDS.whole).click();
+      await removed.settle();
+      await send(removed, 'th-reply', '그래도 확인해 주세요.');
+      const bar = removed.app.all('div', 'wb-notice')[0];
+      assert.deepEqual([textsIn(bar, 'b'), textsIn(bar, 'span')], [[message('thread_closed')], [THREAD_WORDS.kept]]);
+      assert.deepEqual([fieldOf(removed, 'th-reply').value, fieldOf(removed, 'th-new')], ['그래도 확인해 주세요.', null]);
+      assert.deepEqual(drafts(removed), [[`nexus-draft:${draftKey({ project: P, id: ID.old }, `reply ${T.old}`)}`, '그래도 확인해 주세요.']]);
+    } finally {
+      removed.close();
     }
   });
 
@@ -528,6 +582,82 @@ describe('SCR-145 threads', () => {
       assert.deepEqual(alone.app.all('h2').map((h2) => h2.textContent), ['아직 보낸 것이 없어요.']);
     } finally {
       alone.close();
+    }
+    // A read again still running when the close is answered: the reload waits for it, and still opens the first
+    // diagram in place of the removed one.
+    let shut = false;
+    let hold = null;
+    const busy = await openStage('old', {
+      search: `?d=${ID.old}`,
+      answers: (path) => {
+        if (path !== projectPath) return undefined;
+        const answer = json(200, projectOf(shut ? { '03-user-flow': ['flow'] } : {}));
+        const waiting = hold;
+        return waiting === null ? answer : async () => {
+          await waiting;
+          return answer();
+        };
+      },
+      posts: (path, body) => {
+        shut = true;
+        return written(path, body);
+      },
+    });
+    try {
+      rowNamed(busy, THREAD_WORDS.whole).click();
+      await busy.settle();
+      let release = null;
+      hold = new Promise((resolve) => {
+        release = resolve;
+      });
+      busy.document.dispatch('visibilitychange');
+      buttonOf(shownThread(busy), THREAD_WORDS.close).click();
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      hold = null;
+      release();
+      await busy.settle();
+      await busy.settle();
+      assert.deepEqual(busy.app.all('h1').map((h1) => h1.textContent), [NAME.flow]);
+      assert.deepEqual(busy.app.all('div', 'warn').map((note) => note.all('b')[0].textContent), [message('diagram_not_found')]);
+    } finally {
+      busy.close();
+    }
+    // A read again that draws the view anew while the close is sent: the close finds the last thread closed in the
+    // view shown now, and the first diagram opens.
+    let refreshed = false;
+    let gone = false;
+    let answerClose = null;
+    const rebuilt = await openStage('old', {
+      search: `?d=${ID.old}`,
+      answers: (path) => {
+        if (path === projectPath) return json(200, projectOf(gone ? { '03-user-flow': ['flow'] } : {}));
+        if (path === diagramPath('old') && refreshed) return json(200, diagramOf('old', { threads: [brief(T.old, 'diagram', null, 'open', 'owner', 1, 1)] }));
+        return undefined;
+      },
+      posts: (path, body) => new Promise((resolve) => {
+        answerClose = () => {
+          gone = true;
+          resolve(written(path, body));
+        };
+      }),
+    });
+    try {
+      rowNamed(rebuilt, THREAD_WORDS.whole).click();
+      await rebuilt.settle();
+      const before = rebuilt.app.all('div', 'wb-picture')[0];
+      buttonOf(shownThread(rebuilt), THREAD_WORDS.close).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      refreshed = true;
+      rebuilt.document.dispatch('visibilitychange');
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      // The read again drew the view anew before the close was answered.
+      assert.notEqual(rebuilt.app.all('div', 'wb-picture')[0], before);
+      answerClose();
+      await rebuilt.settle();
+      await rebuilt.settle();
+      assert.deepEqual(rebuilt.app.all('h1').map((h1) => h1.textContent), [NAME.flow]);
+    } finally {
+      rebuilt.close();
     }
   });
 

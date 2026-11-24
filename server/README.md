@@ -1177,7 +1177,7 @@ A screen is an object in `SCREENS` of `web/screens.js`, under its SCR ID. The sh
 
 `ctx` is `{ address, data, shell, via, note }`. `via` says how the address was reached: `'open'` (the page opened, or Back or Forward), `'switch'` (`shell.go`) or `'instead'`. `shell` gives:
 - `read`, `isPhone`
-- `reload(how)`: reads the screen's data again. `reload('instead')` is a read again after which a gone thing opens what `instead` gives, as after `shell.go`; TASK-459 uses it after closing the last thread of a removed diagram.
+- `reload(how)`: reads the screen's data again. `reload('instead')` is a read again after which a gone thing opens what `instead` gives, as after `shell.go`; asked while a load runs, it waits for that load and keeps its mode. TASK-459 uses it after closing the last thread of a removed diagram.
 - `write(method, path, body, key)`: a write of the screen's, whose outcome it returns. A 401 or 403 goes through the permission rule, as a read's does.
 - `redraw()`: draws the screen again from the data it holds, without a read, when the screen's own state has changed, such as a write that runs.
 - `missed(name)`: the failure of a part's read, or `null`.
@@ -1375,7 +1375,7 @@ TASK-459 (SPEC-016, SPEC-017, SPEC-027, SPEC-028, SPEC-051) adds the threads to 
   - where its thread is: the element's name, 그림 전체, or "사라진 요소 X" for a thread whose element left the drawing (SPEC-027);
   - its state: 내 차례 or 에이전트 차례 while it is open, 닫힘 once closed, and 반영되어 닫힘 for a thread a reflection closed. API-265 gives no `closed_by`, so that last one shows once the thread is read;
   - how long ago it moved. No version shows.
-- **Choosing.** Choosing a thread reads it (API-266) and shows it under the list. When its element is drawn, the element is chosen on the picture too. With an element or a row chosen, the section lists only that element's threads, those marked removed with its key included (SPEC-027), and shows the first open one, else the newest. 그림 전체 스레드 in the section's header, or Escape outside a field, chooses nothing again.
+- **Choosing.** Choosing a thread reads it (API-266) and shows it under the list. When its element is drawn, the element is chosen on the picture too. With an element or a row chosen, the section lists only that element's threads, those marked removed with its key included (SPEC-027), and shows the first open one, else the newest. 그림 전체 스레드 in the section's header, or Escape outside a field (on the picture, a mockup's token list or the section), chooses nothing again. When the focus was in the section, the list's first thread takes it.
 - **A thread shown.** Each entry shows:
   - AI for the agent or 나 for the owner, with its time;
   - the quote it answers, above its text;
@@ -1390,7 +1390,7 @@ TASK-459 (SPEC-016, SPEC-017, SPEC-027, SPEC-028, SPEC-051) adds the threads to 
 - **Answers to the writes.**
   - An empty text: "댓글을 적어 주세요." by the box, and nothing is sent (SPEC-016).
   - 400, 413, and 409 `request_key_reused`: the message by the box, with "최대 4,000자" after it for `text_too_long` and `body_too_large`. The text stays. For a close, these show with 다시 시도.
-  - 409 `thread_closed`: the 409 bar (`staleBar`) over the picture, with "닫힌 스레드예요. 새 댓글을 쓰세요.", "쓰던 댓글은 남아 있어요." and 새로 고침. The reply's text moves to the new-comment box of the same place: the thread's element when it is drawn readable, else the diagram. A removed diagram has no such box, so there the text stays where it was typed.
+  - 409 `thread_closed`: the 409 bar (`staleBar`) over the picture, with "닫힌 스레드예요. 새 댓글을 쓰세요.", "쓰던 댓글은 남아 있어요." and 새로 고침. The reply's text moves to the new-comment box of the same place: the thread's element when it is drawn readable, else the diagram. A removed diagram has no such box (SPEC-027), so there the thread stays as it is shown, the text in its reply box, until 새로 고침.
   - 404 for the project or the diagram: the diagram is read again first (SCR-145#error). Any other 404 (`element_not_found`, `drawing_not_found`, `thread_not_found`): its message with 새로 고침.
   - 401 and 403: the shell's permission rule.
   - Any other answer: its message with 다시 시도. A retry after a timeout or a lost connection keeps the request key while the text is the same.
@@ -1403,7 +1403,7 @@ TASK-459 (SPEC-016, SPEC-017, SPEC-027, SPEC-028, SPEC-051) adds the threads to 
 
 These rules, and the Korean words that the screen definitions, the mockup and the error registry do not give, were chosen by the coordinator for TASK-459. The pull request asks the maintainer's delegate to approve each on its own.
 
-`test/threads-screen.test.js` checks the section with stubbed answers and against the server. It covers the list, choosing and Escape, the entries and their links, replies, and new comments on an element, a row and the diagram at the drawing shown. It also covers an empty text, closing, a thread closed meanwhile, the unsent text kept through the gate, a phone, `?thread=`, the last thread of a removed diagram, an unreadable element, the retry's key, and text that stays text. It answers every response that API-266, API-267, API-268 and API-269 list. The browser walk of the pull request shows the section at 360 and 1440 px, in light and dark.
+`test/threads-screen.test.js` checks the section with stubbed answers and against the server. It covers the list, choosing and Escape, the entries and their links, replies, and new comments on an element, a row and the diagram at the drawing shown. It also covers an empty text, closing, a thread closed meanwhile (on a removed diagram too), a read again that draws the view anew during a write, the unsent text kept through the gate, a phone, `?thread=`, the last thread of a removed diagram, an unreadable element, the retry's key, and text that stays text. It answers every response that API-266, API-267, API-268 and API-269 list. The browser walk of the pull request shows the section at 360 and 1440 px, in light and dark.
 
 ## Proposals
 
