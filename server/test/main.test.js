@@ -136,6 +136,9 @@ test('stops on an invalid setting, naming it but not its value', async (t) => {
     [{ ...GATE_ENV, ...folders(), NEXUS_ACCESS_ISSUER: '' }, 'NEXUS_ACCESS_ISSUER'],
     [{ ...GATE_ENV, ...folders(), NEXUS_ACCESS_AUD: values.secret }, 'NEXUS_ACCESS_AUD'],
     [{ ...GATE_ENV, ...folders(), NEXUS_OWNER_EMAIL: values.secret }, 'NEXUS_OWNER_EMAIL'],
+    // The tool status read's tokens: one with a space, and a Jira token without its site. Neither calls a tool.
+    [{ ...GATE_ENV, ...folders(), NEXUS_NOTION_TOKEN: `${values.secret} ${values.secret}` }, 'NEXUS_NOTION_TOKEN'],
+    [{ ...GATE_ENV, ...folders(), NEXUS_JIRA_TOKEN: values.secret }, 'NEXUS_JIRA_SITE'],
   ]) {
     const server = undo.run(env);
     const [code] = await once(server.child, 'close');
