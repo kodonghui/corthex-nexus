@@ -50,6 +50,11 @@ export function projectHref(project) {
   return `/p/${encodeURIComponent(project)}`;
 }
 
+// A project's path in the API (API-264), which its other operations extend.
+export function projectApi(project) {
+  return `/api/projects/${encodeURIComponent(project)}`;
+}
+
 // The workbench of a stage, at a diagram and a thread when they are given.
 export function stageHref(project, part, stage, { diagram = null, thread = null } = {}) {
   return `${stagePath(project, part, stage)}${query({ d: diagram, thread })}`;

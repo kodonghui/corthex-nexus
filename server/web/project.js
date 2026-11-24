@@ -10,8 +10,11 @@
 // what they answered, the chosen scope, and the delete panel. A draw of new data keeps it, and nothing of it outlives
 // the page. The address typed into the link form is unsent text (shell.keepDraft), so it comes back after the gate;
 // the name typed into the delete panel is not kept anywhere, so closing the panel or leaving the page forgets it.
+//
+// A button whose write runs is busy (aria-disabled), not disabled, so it keeps the focus. Each draw keeps the focus
+// on the element of the same id, with the caret where it was in a field (see redraw).
 
-import { PROJECTS_HREF, projectHref, stageHref } from './address.js';
+import { projectApi, PROJECTS_HREF, projectHref, stageHref } from './address.js';
 import { newRequestKey, read, write } from './api.js';
 import { fill, h, icon } from './dom.js';
 import { objectParticle } from './korean.js';
@@ -19,6 +22,7 @@ import { clockOf, sentWords } from './states.js';
 import { STAGES, stageOf } from './stages.js';
 
 const TOOL_NAMES = Object.freeze({ notion: 'Notion', jira: 'Jira' });
+const toolName = (tool) => (Object.hasOwn(TOOL_NAMES, tool) ? TOOL_NAMES[tool] : String(tool));
 // A row's state as the mockup draws it: the dot's colour and its label. A pass marked changed keeps 통과 and adds the
 // tag; when no stage of the project was sent (SCR-144#empty), each row says NOTHING_SENT.
 const STATES = Object.freeze({
@@ -61,11 +65,37 @@ function heldFor(ctx) {
   return held;
 }
 
-const apiPath = (project) => `/api/projects/${encodeURIComponent(project)}`;
 const linkDraft = (project) => `${projectHref(project)} link`;
 // The request key to send the same input with again, or null for a new one: only when no answer came.
 const keyAfter = (answer, kept) => (UNANSWERED.has(answer.failure) ? kept : null);
 const turn = (button, on) => (on ? button.removeAttribute('disabled') : button.setAttribute('disabled', ''));
+const busy = (sending) => (sending ? 'true' : null);
+
+// What has the focus, inside within when it is given, as a function that puts it back after a draw: on the element of
+// the same id, with the caret where it was in a field, or on the element of the id instead when that one is gone or
+// off or had no id, such as a notice's 다시 시도.
+function focusNow(within = null) {
+  const doc = globalThis.document;
+  const active = doc?.activeElement ?? null;
+  if (active === null || active === doc.body || (within !== null && !within.contains(active))) return () => {};
+  const id = active.getAttribute?.('id') ?? null;
+  const caret = id !== null && typeof active.selectionStart === 'number' ? [active.selectionStart, active.selectionEnd] : null;
+  return (instead = null) => {
+    const usable = (element) => element !== null && element.getAttribute('disabled') === null;
+    let next = id === null ? null : doc.getElementById(id);
+    if (!usable(next)) next = instead === null ? null : doc.getElementById(instead);
+    if (!usable(next)) return;
+    next.focus({ preventScroll: true });
+    if (caret !== null && next.getAttribute('id') === id) next.setSelectionRange?.(...caret);
+  };
+}
+
+// Fills container with nodes as fill does, keeping the focus (focusNow).
+function redraw(container, nodes, instead = null) {
+  const back = focusNow(container);
+  fill(container, ...nodes);
+  back(instead);
+}
 const refused = (found, answer) => ({ kind: found.kind === 'input' ? 'input' : 'retry', outcome: answer });
 
 // The line under the title: the project's name, its revision and when it was last sent, as "12분 전에 보냄".
@@ -101,6 +131,8 @@ export function projectSkeleton(ctx) {
 export function projectBody(ctx) {
   const project = ctx.data.project;
   const state = heldFor(ctx);
+  // The shell puts the body on the page right after this returns; the focus comes back then.
+  queueMicrotask(focusNow());
   state.links = h('section', { class: 'group', 'aria-labelledby': 'links-h' });
   drawLinks(state);
   return [...stageGroups(project), state.links, dataSection(state)];
@@ -141,7 +173,7 @@ function stageRow(name, row, empty, links) {
       h('span', { class: 'cps' },
         h('span', { class: 'small cp' }, checkpoint),
         row.state === 'changed_since_pass' ? h('span', { class: 'tag purple' }, CHANGED) : null),
-      links.map((link) => outside(link.url, `${TOOL_NAMES[link.tool] ?? link.tool} · ${link.url} ↗`, 'small tl'))),
+      links.map((link) => outside(link.url, `${toolName(link.tool)} · ${link.url} ↗`, 'small tl'))),
     icon('next', 'ic chev'));
 }
 
@@ -172,13 +204,14 @@ function statusOf(link) {
 
 // The tool links: a card each, oldest first, with 지우기 on a PC; the form; and on a phone the line that says these are
 // done on a PC.
-function drawLinks(state) {
+function drawLinks(state, instead = null) {
   const links = state.ctx.data.project.tool_links;
-  fill(state.links,
+  redraw(state.links, [
     h('div', { class: 'gh' }, h('h2', { id: 'links-h' }, '도구 링크')),
     links.length === 0 ? h('p', { class: 'sec' }, '아직 이은 도구가 없어요.') : links.map((link) => linkCard(state, link)),
     linkForm(state, true),
-    phoneNotice());
+    phoneNotice(),
+  ], instead);
 }
 
 function phoneNotice() {
@@ -190,10 +223,10 @@ function linkCard(state, link) {
   const title = `tl-${link.id}`;
   return h('div', { class: 'card' },
     h('div', { class: 'top' },
-      h('b', { class: 'tl', id: title }, `${TOOL_NAMES[link.tool] ?? link.tool} · `, outside(link.url, link.url)),
+      h('b', { class: 'tl', id: title }, `${toolName(link.tool)} · `, outside(link.url, link.url)),
       h('button', {
-        type: 'button', class: 'btn ghost sm', 'data-pc-only': true, 'aria-describedby': title,
-        disabled: removal?.sending === true, on: { click: () => removeLink(state, link) },
+        type: 'button', id: `rm-${link.id}`, class: 'btn ghost sm', 'data-pc-only': true, 'aria-describedby': title,
+        'aria-disabled': busy(removal?.sending === true), on: { click: () => removeLink(state, link) },
       }, '지우기')),
     h('span', { class: 'small' }, `${scopeName(link.scope)} · ${statusOf(link)}`),
     removal?.error ? refusal(state, removal.error, () => removeLink(state, link)) : null);
@@ -223,8 +256,8 @@ function linkForm(state, ready) {
     STAGES.map((stage) => h('option', { value: stage.id }, `${stage.number} ${stage.name}`)));
   select.value = link.scope;
   const button = h('button', {
-    type: 'button', class: 'btn primary', disabled: !ready || link.sending,
-    on: { click: () => addLink(state, field, select, button) },
+    type: 'button', id: 'ln-go', class: 'btn primary', disabled: !ready, 'aria-disabled': busy(link.sending),
+    on: { click: () => addLink(state, field, select) },
   }, '잇기');
   return h('div', { class: 'linking', 'data-pc-only': true },
     h('div', { class: 'form' },
@@ -234,11 +267,11 @@ function linkForm(state, ready) {
         input ? h('p', { class: 'err-text', id: 'ln-err' }, shell.message(input.outcome.code)) : null),
       h('div', { class: 'scope' }, h('label', { class: 'l', for: 'lt' }, '어디에'), select),
       button),
-    link.error?.kind === 'retry' ? refusal(state, link.error, () => addLink(state, field, select, button)) : null);
+    link.error?.kind === 'retry' ? refusal(state, link.error, () => addLink(state, field, select)) : null);
 }
 
 // API-282. The same link again answers 200 with the link kept, so a link added twice is one link.
-async function addLink(state, field, select, button) {
+async function addLink(state, field, select) {
   const link = state.link;
   if (link.sending) return;
   const { shell, address } = state.ctx;
@@ -246,15 +279,16 @@ async function addLink(state, field, select, button) {
   if (link.attempt === null || link.attempt.scope !== sent.scope || link.attempt.url !== sent.url) {
     link.attempt = { ...sent, key: newRequestKey() };
   }
+  // What the last attempt answered goes while this one runs.
   link.sending = true;
-  turn(button, false);
-  const answer = await write('POST', `${apiPath(address.project)}/tool-links`, sent, link.attempt.key);
+  link.error = null;
+  drawLinks(state, 'ln-go');
+  const answer = await write('POST', `${projectApi(address.project)}/tool-links`, sent, link.attempt.key);
   link.sending = false;
   link.attempt = keyAfter(answer, link.attempt);
   const found = shell.outcome(answer);
   if (found === null || state !== held) return;
   if (found.state === 'normal') {
-    link.error = null;
     shell.keepDraft(linkDraft(address.project), '');
     drawLinks(state);
     shell.reload();
@@ -274,27 +308,27 @@ async function removeLink(state, link) {
   removal.sending = true;
   removal.error = null;
   state.removals.set(link.id, removal);
-  drawLinks(state);
-  const answer = await write('DELETE', `${apiPath(address.project)}/tool-links/${encodeURIComponent(link.id)}`, null, removal.key);
+  drawLinks(state, `rm-${link.id}`);
+  const answer = await write('DELETE', `${projectApi(address.project)}/tool-links/${encodeURIComponent(link.id)}`, null, removal.key);
   removal.key = keyAfter(answer, removal.key);
   const found = shell.outcome(answer);
   if (found === null || state !== held) return;
   if (found.state === 'normal') {
-    // The button stays off until the list read again leaves the link out; a read that fails shows it again.
+    // The button stays busy until the list read again leaves the link out; a read that fails shows it again.
     state.removals.delete(link.id);
     shell.reload();
     return;
   }
   removal.sending = false;
   removal.error = refused(found, answer);
-  drawLinks(state);
+  drawLinks(state, `rm-${link.id}`);
 }
 
 // #data: the button that opens and closes the delete panel (SCR-144#delete), and the panel. On a phone neither shows.
 function dataSection(state) {
   const deletion = state.deletion;
   state.toggle = h('button', {
-    type: 'button', class: 'btn ghost start',
+    type: 'button', id: 'dn-open', class: 'btn ghost start',
     on: { click: () => (deletion.open ? closeDeletion(state) : openDeletion(state)) },
   }, DELETE);
   state.panel = h('div', { class: 'cards' });
@@ -305,13 +339,13 @@ function dataSection(state) {
     state.panel);
 }
 
-function drawPanel(state) {
+function drawPanel(state, instead = null) {
   const open = state.deletion.open;
   state.toggle.setAttribute('aria-expanded', String(open));
   if (open) state.toggle.setAttribute('aria-controls', 'delete-panel');
   else state.toggle.removeAttribute('aria-controls');
   state.panel.hidden = !open;
-  fill(state.panel, open ? deletePanel(state) : null);
+  redraw(state.panel, [open ? deletePanel(state) : null], instead);
 }
 
 // Opening reads API-277 again, with grey counts until it answers.
@@ -321,7 +355,7 @@ async function openDeletion(state) {
   Object.assign(deletion, { open: true, round, preview: null, previewError: null, error: null });
   drawPanel(state);
   const { shell, address } = state.ctx;
-  const answer = await read(`${apiPath(address.project)}/removal`);
+  const answer = await read(`${projectApi(address.project)}/removal`);
   if (state !== held || deletion.round !== round || !deletion.open) return;
   const found = shell.outcome(answer);
   if (found === null) return;
@@ -342,20 +376,22 @@ function deletePanel(state) {
   const deletion = state.deletion;
   const name = address.project;
   const input = deletion.error?.kind === 'input' ? deletion.error : null;
+  // What goes shows before the owner confirms (SPEC-013): the button waits for the counts and the exact name.
+  const ready = () => deletion.preview !== null && deletion.typed === name;
   const field = h('input', {
     id: 'dn', class: input ? 'field bad' : 'field', autocomplete: 'off', spellcheck: 'false', autocapitalize: 'off',
     'aria-invalid': input ? 'true' : null, 'aria-describedby': input ? 'dn-err' : null,
     on: {
       input: () => {
         deletion.typed = field.value ?? '';
-        turn(button, deletion.typed === name && !deletion.sending);
+        turn(button, ready());
       },
     },
   });
   field.value = deletion.typed;
   const button = h('button', {
-    type: 'button', class: 'btn danger', disabled: deletion.typed !== name || deletion.sending,
-    on: { click: () => deleteSpace(state, button) },
+    type: 'button', id: 'dn-go', class: 'btn danger', disabled: !ready(), 'aria-disabled': busy(deletion.sending),
+    on: { click: () => deleteSpace(state) },
   }, '공간 지우기');
   let counts;
   if (deletion.previewError !== null) {
@@ -377,20 +413,22 @@ function deletePanel(state) {
         field,
         input ? h('p', { class: 'err-text', id: 'dn-err' }, shell.message(input.outcome.code)) : null),
       button),
-    deletion.error?.kind === 'retry' ? refusal(state, deletion.error, () => deleteSpace(state, button)) : null);
+    deletion.error?.kind === 'retry' ? refusal(state, deletion.error, () => deleteSpace(state)) : null);
 }
 
-// API-278, once the typed name is the project's (SPEC-013). The button is off while it runs; once the space is
-// removed, the projects list opens and says so once (SCR-143, TASK-456).
-async function deleteSpace(state, button) {
+// API-278, once the counts came and the typed name is the project's (SPEC-013). The button is busy while it runs, and
+// what the last attempt answered goes; once the space is removed, the projects list opens, where TASK-456's SCR-143
+// says so once.
+async function deleteSpace(state) {
   const deletion = state.deletion;
   const { shell, address } = state.ctx;
   const name = deletion.typed;
-  if (deletion.sending || name !== address.project) return;
+  if (deletion.sending || deletion.preview === null || name !== address.project) return;
   if (deletion.attempt === null || deletion.attempt.name !== name) deletion.attempt = { name, key: newRequestKey() };
   deletion.sending = true;
-  turn(button, false);
-  const answer = await write('POST', `${apiPath(address.project)}/removal`, { name }, deletion.attempt.key);
+  deletion.error = null;
+  drawPanel(state, 'dn-go');
+  const answer = await write('POST', `${projectApi(address.project)}/removal`, { name }, deletion.attempt.key);
   deletion.attempt = keyAfter(answer, deletion.attempt);
   const found = shell.outcome(answer);
   if (found === null || state !== held) return;
@@ -400,6 +438,6 @@ async function deleteSpace(state, button) {
   }
   deletion.sending = false;
   deletion.error = refused(found, answer);
-  drawPanel(state);
+  drawPanel(state, 'dn-go');
   if (deletion.error.kind === 'input') state.panel.querySelector('input')?.focus();
 }

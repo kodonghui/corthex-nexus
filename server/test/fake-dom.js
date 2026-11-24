@@ -161,6 +161,7 @@ export function fakePage({ pathname = '/', search = '', session = {}, local = {}
     visibilityState: 'visible',
     activeElement: null,
     createElement: (tag) => new FakeElement(tag, document),
+    getElementById: (id) => app.descendants().find((element) => element.getAttribute('id') === id) ?? null,
     createElementNS: (namespace, tag) => new FakeElement(tag, document),
     addEventListener(type, listener) {
       if (!this.listeners.has(type)) this.listeners.set(type, []);

@@ -122,7 +122,9 @@ async function openProject({ routes = {}, project = PROJECT, session = {} } = {}
 const mainOf = (page) => page.app.all('main')[0];
 const byId = (page, id) => page.app.descendants().find((element) => element.getAttribute('id') === id) ?? null;
 const buttonOf = (page, text) => mainOf(page).all('button').find((button) => button.textContent === text) ?? null;
-const off = (element) => element.getAttribute('disabled') !== null;
+// Off: disabled, or busy while its write runs (aria-disabled, so that it keeps the focus).
+const off = (element) => element.getAttribute('disabled') !== null || element.getAttribute('aria-disabled') === 'true';
+const busy = (element) => element.getAttribute('aria-disabled') === 'true' && element.getAttribute('disabled') === null;
 const reads = (page, path = PATH) => page.sent.filter((each) => each.method === 'GET' && each.path === path).length;
 const writes = (page) => page.sent.filter((each) => each.method !== 'GET');
 const stageRows = (page) => mainOf(page).all('div', 'stg').map((row) => {
@@ -304,7 +306,7 @@ describe('SCR-144', () => {
     try {
       // The shell's CSS hides [data-pc-only] and shows [data-phone-only] on a touch screen narrower than 1056 px only.
       const pcOnly = mainOf(page).descendants().filter((element) => element.getAttribute('data-pc-only') !== null);
-      assert.deepEqual(pcOnly.map((element) => element.getAttribute('id') ?? element.getAttribute('class')), ['btn ghost sm', 'btn ghost sm', 'linking', 'data']);
+      assert.deepEqual(pcOnly.map((element) => element.getAttribute('id') ?? element.getAttribute('class')), [`rm-${L1}`, `rm-${L2}`, 'linking', 'data']);
       assert.deepEqual(pcOnly.slice(0, 2).map((button) => button.textContent), ['지우기', '지우기']);
       assert.deepEqual(pcOnly[2].all('input').map((field) => field.getAttribute('id')), ['ln']);
       const phoneOnly = mainOf(page).descendants().filter((element) => element.getAttribute('data-phone-only') !== null);
@@ -442,7 +444,7 @@ describe('SCR-144', () => {
       choose(page, 'lt', '02-prd');
       buttonOf(page, '잇기').click();
       await waitFor(() => release !== null);
-      assert.equal(off(buttonOf(page, '잇기')), true);
+      assert.equal(busy(buttonOf(page, '잇기')), true);
       // A second click while it runs sends nothing more.
       buttonOf(page, '잇기').click();
       const [post] = writes(page);
@@ -559,7 +561,7 @@ describe('SCR-144', () => {
     try {
       mainOf(page).all('div', 'card')[0].all('button')[0].click();
       await waitFor(() => release !== null);
-      assert.equal(off(mainOf(page).all('div', 'card')[0].all('button')[0]), true);
+      assert.equal(busy(mainOf(page).all('div', 'card')[0].all('button')[0]), true);
       assert.equal(off(mainOf(page).all('div', 'card')[1].all('button')[0]), false);
       const [remove] = writes(page);
       assert.deepEqual([remove.method, remove.path, remove.body, remove.headers['content-type']], ['DELETE', `${LINKS}/${L1}`, undefined, undefined]);
@@ -568,6 +570,147 @@ describe('SCR-144', () => {
       await page.settle();
       assert.deepEqual(cardsOf(page).map((card) => card.title), [`Jira · ${JIRA}`]);
       assert.deepEqual(stageRows(page)[1].links, []);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('공간 지우기 stays off while API-277 could not be read, however the name is typed', async () => {
+    const page = await openProject({ routes: { [`GET ${REMOVAL}`]: json(500, problemBody(500, 'internal')) } });
+    try {
+      await openPanel(page);
+      const panel = byId(page, 'delete-panel');
+      assert.deepEqual(panel.all('div', 'err').map((each) => each.textContent), [message('internal')]);
+      type(page, 'dn', NAME);
+      assert.equal(off(buttonOf(page, '공간 지우기')), true);
+      buttonOf(page, '공간 지우기').click();
+      await page.settle();
+      assert.deepEqual(writes(page), []);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a retry takes the old notice away while it runs, and the focus stays on 잇기', async () => {
+    let release = null;
+    const answers = [
+      () => new DOMException('timed out', 'TimeoutError'),
+      () => new Promise((resolve) => {
+        release = () => resolve(json(400, problemBody(400, 'invalid_request'))());
+      }),
+    ];
+    const page = await openProject({ routes: { [`POST ${LINKS}`]: (request) => answers.shift()(request) } });
+    try {
+      type(page, 'ln', NEW_URL);
+      byId(page, 'ln-go').focus();
+      byId(page, 'ln-go').click();
+      await page.settle();
+      const form = () => mainOf(page).all('div', 'linking')[0];
+      assert.deepEqual(form().all('div', 'err').map((each) => each.textContent), [message('internal')]);
+      assert.equal(page.document.activeElement, byId(page, 'ln-go'));
+      const retry = form().all('button').find((button) => button.textContent === '다시 시도');
+      retry.focus();
+      retry.click();
+      await waitFor(() => release !== null);
+      // While the retry runs: no notice of the last attempt, 잇기 busy and focused in place of the button that went.
+      assert.deepEqual(form().all('div', 'err'), []);
+      assert.deepEqual([busy(byId(page, 'ln-go')), page.document.activeElement], [true, byId(page, 'ln-go')]);
+      release();
+      await page.settle();
+      assert.equal(byId(page, 'ln-err').textContent, message('invalid_request'));
+      assert.equal(page.document.activeElement, byId(page, 'ln'));
+    } finally {
+      page.close();
+    }
+  });
+
+  test('지우기 keeps the focus while its removal runs and after a refusal, with the address being typed left as it was', async () => {
+    let release = null;
+    const page = await openProject({
+      routes: {
+        [`DELETE ${LINKS}/${L1}`]: () => new Promise((resolve) => {
+          release = () => resolve(json(400, problemBody(400, 'invalid_request'))());
+        }),
+      },
+    });
+    try {
+      type(page, 'ln', NEW_URL);
+      byId(page, `rm-${L1}`).focus();
+      byId(page, `rm-${L1}`).click();
+      await waitFor(() => release !== null);
+      assert.deepEqual([busy(byId(page, `rm-${L1}`)), page.document.activeElement], [true, byId(page, `rm-${L1}`)]);
+      release();
+      await page.settle();
+      const card = mainOf(page).all('div', 'card')[0];
+      assert.deepEqual(card.all('p', 'err-text').map((each) => each.textContent), [message('invalid_request')]);
+      assert.deepEqual([off(byId(page, `rm-${L1}`)), page.document.activeElement], [false, byId(page, `rm-${L1}`)]);
+      assert.equal(byId(page, 'ln').value, NEW_URL);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a read again that draws the page anew keeps the focus where it was, in the address field', async () => {
+    let project = PROJECT;
+    const page = await openProject({ routes: { [`GET ${PATH}`]: () => json(200, project)() } });
+    try {
+      type(page, 'ln', NEW_URL);
+      const before = byId(page, 'ln');
+      before.focus();
+      project = { ...PROJECT, revision: 67 };
+      page.document.dispatch('visibilitychange');
+      await page.settle();
+      assert.ok(texts(page, 'p', 'sec')[0].includes('리비전 67'));
+      assert.notEqual(byId(page, 'ln'), before);
+      assert.deepEqual([page.document.activeElement, byId(page, 'ln').value], [byId(page, 'ln'), NEW_URL]);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('once a write finds the project gone, a read again still under way does not draw the page over it', async () => {
+    let release = null;
+    let first = true;
+    const page = await openProject({
+      routes: {
+        [`GET ${PATH}`]: () => {
+          if (first) {
+            first = false;
+            return json(200, PROJECT)();
+          }
+          return new Promise((resolve) => {
+            release = () => resolve(json(200, PROJECT)());
+          });
+        },
+        [`POST ${LINKS}`]: json(404, problemBody(404, 'project_not_found')),
+      },
+    });
+    try {
+      page.document.dispatch('visibilitychange');
+      await waitFor(() => release !== null);
+      // settle() would wait for the read under way, so this waits for the gone page instead.
+      type(page, 'ln', NEW_URL);
+      buttonOf(page, '잇기').click();
+      await waitFor(() => texts(page, 'h1')[0] === 'NEXUS에 없는 프로젝트예요.');
+      const gone = () => [texts(page, 'h1'), stageRows(page).length];
+      assert.deepEqual(gone(), [['NEXUS에 없는 프로젝트예요.'], 0]);
+      release();
+      await page.settle();
+      assert.deepEqual(gone(), [['NEXUS에 없는 프로젝트예요.'], 0]);
+      // Nothing more is read once it is gone.
+      page.document.dispatch('visibilitychange');
+      await page.settle();
+      assert.equal(reads(page), 2);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a tool the contract does not name shows as it came, even a name that objects carry', async () => {
+    const odd = { ...PROJECT, tool_links: [toolLink(L1, 'project', 'constructor', NOTION)] };
+    const page = await openProject({ project: odd });
+    try {
+      assert.deepEqual(cardsOf(page).map((card) => card.title), [`constructor · ${NOTION}`]);
     } finally {
       page.close();
     }
@@ -594,8 +737,14 @@ describe('SCR-144', () => {
       const grey = panel.all('ul', 'chg')[0];
       assert.deepEqual([grey.getAttribute('aria-busy'), grey.all('span', 'sk').length, grey.all('b').length], ['true', 5, 0]);
       assert.deepEqual(grey.all('span', 'grow').map((label) => label.textContent), ['스냅숏', '그림', '댓글', '확정', '레이아웃']);
+      // What goes shows before the owner confirms (SPEC-013): the name typed while the counts load turns nothing on.
+      byId(page, 'dn').focus();
+      type(page, 'dn', NAME);
+      assert.equal(off(buttonOf(page, '공간 지우기')), true);
       release();
       await page.settle();
+      // The counts came: the name and the focus stay in the field, and the button turns on.
+      assert.deepEqual([byId(page, 'dn').value, page.document.activeElement, off(buttonOf(page, '공간 지우기'))], [NAME, byId(page, 'dn'), false]);
       const counts = byId(page, 'delete-panel').all('ul', 'chg')[0];
       assert.deepEqual(counts.all('li').map((item) => [item.all('span', 'grow')[0].textContent, item.all('b')[0].textContent]), [
         ['스냅숏', '66개'], ['그림', '9개'], ['댓글', '41개'], ['확정', '12개'], ['레이아웃', '9개'],
@@ -605,7 +754,6 @@ describe('SCR-144', () => {
       assert.deepEqual([label.textContent, label.getAttribute('for'), label.all('span', 'mono')[0].textContent], ['지우려면 프로젝트 이름 book-club을 적으세요', 'dn', NAME]);
       // The button turns on when the name is the project's, exactly.
       const button = () => buttonOf(page, '공간 지우기');
-      assert.equal(off(button()), true);
       for (const [text, on] of [['book-clu', false], ['Book-club', false], [' book-club', false], [NAME, true], ['', false]]) {
         type(page, 'dn', text);
         assert.equal(off(button()), !on, text);

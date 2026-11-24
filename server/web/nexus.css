@@ -106,7 +106,7 @@ table.tb{width:100%;border-collapse:separate;border-spacing:0;background:var(--l
 .btn.ghost:hover{background:var(--background-hover)}
 .btn.danger{background:var(--button-danger-primary);color:var(--text-on-color)}
 .btn.danger-ghost{background:transparent;color:var(--button-danger-secondary)}
-.btn[disabled],.btn.off{background:var(--button-disabled);color:var(--text-on-color-disabled);border-color:transparent;cursor:not-allowed}
+.btn[disabled],.btn[aria-disabled="true"],.btn.off{background:var(--button-disabled);color:var(--text-on-color-disabled);border-color:transparent;cursor:not-allowed}
 .btn.wide{width:100%}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
 .field{width:100%;min-height:48px;padding:0 16px;background:var(--field-01);color:var(--text-primary);border:1px solid var(--border-strong-01);border-radius:var(--corthex-radius-box)}
@@ -224,7 +224,9 @@ a.step{color:inherit;text-decoration:none;cursor:pointer}
 .tok button[aria-pressed="true"]{font-weight:600;border-color:var(--interactive)}
 
 /* the project page (SCR-144): a stage's row in the mockup's columns, and a tool link's address on one line */
-.li.stg{min-height:52px;cursor:auto}
+.li.stg{min-height:52px;position:relative}
+.stg a.go::after{content:"";position:absolute;inset:0}
+.stg .tl{position:relative;z-index:1}
 .li.stg .grow{flex-direction:row;align-items:center;gap:12px}
 .stg a.go{flex:0 0 156px;display:flex;gap:12px}
 .stg .no{flex:0 0 24px}
