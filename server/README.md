@@ -1453,7 +1453,7 @@ Every write takes a request key. The workshop's screen is TASK-462's, and the [p
 
 The drawn DDD board, its confirmation (API-275) and the pushes of stage 01 go on as they are, and the step checkpoints add passes beside them. Until the second point is settled, a workshop with a step that has no notes cannot close until that step gets a note.
 
-The coordinator chose these rules for TASK-452: when the workshop closes, the pull request report, no claim, who made a note, removed notes and their links, the draft, confirming a step, the kind, links and the limits. They wait for the maintainer's delegate.
+The coordinator chose these rules for TASK-452: when the workshop closes, the pull request report, no claim, who made a note, removed notes and their links, the draft, confirming a step, the kind, links and the limits. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24, each asked on its own.
 
 `test/workshop.test.js` checks TASK-452's done condition: every response API-260, API-261 and API-284 to API-291 list. It also tests:
 - opening and reading, and the owner's notes and links;
@@ -1462,7 +1462,7 @@ The coordinator chose these rules for TASK-452: when the workshop closes, the pu
 - the limits, the request key and the log;
 - the tables each operation touches (note 23).
 
-Every operation finds the project space by its name and the workshop, so each lists TBL-147 and TBL-162 too. The correction at the end of the [API README](../docs/06-api/README.md) gives each list, and waits for its own checkpoint.
+Every operation finds the project space by its name and the workshop, so each lists TBL-147 and TBL-162 too. The correction at the end of the [API README](../docs/06-api/README.md) gives each list, and passed its own checkpoint on 2026-11-24, each list asked on its own.
 
 ## Answers
 

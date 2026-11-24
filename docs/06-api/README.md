@@ -357,7 +357,7 @@ Building TASK-452 found that the ten workshop operations listed only some of the
 - **API-260**, drafting a step: TBL-147, TBL-162, TBL-163, TBL-164 and TBL-165 instead of TBL-163 and TBL-164. Removing a note removes its links (TBL-165). The draft reads whether its step is confirmed (TBL-163), so TBL-163 stays, since note 23 counts a table read as well as one written.
 - **API-261**, reporting a step written: TBL-147, TBL-157, TBL-162, TBL-163 and TBL-166 instead of TBL-163, TBL-162 and TBL-157. A merged report closes the step's `write_step` entry (TBL-166).
   - It lists no TBL-167, against note 17: no workshop write makes or keeps a claim. A step has no entry ID that API-250 could claim, `TodoStep` shows no claim, and API-261 lists no `claimed` response.
-  - The coordinator chose this for TASK-452, and it is asked on its own.
+  - The coordinator chose this for TASK-452, and the maintainer approved it on its own through the same delegate on 2026-11-24; section 4 of the WBS records it against note 17.
 - **API-284**, opening a workshop: TBL-147, TBL-162 and TBL-163 instead of TBL-162 and TBL-163.
 - **API-285**, reading the workshop: TBL-147, TBL-162, TBL-163, TBL-164 and TBL-165 instead of TBL-163, TBL-164 and TBL-165.
 - **API-286**, adding a note: TBL-147, TBL-162 and TBL-164 instead of TBL-164.
@@ -367,6 +367,6 @@ Building TASK-452 found that the ten workshop operations listed only some of the
 - **API-290**, removing a link: TBL-147, TBL-162 and TBL-165 instead of TBL-165.
 - **API-291**, confirming a step: TBL-147, TBL-161, TBL-162, TBL-163, TBL-164 and TBL-166 instead of TBL-163, TBL-161 and TBL-166. A step without a live note gets `step_empty` (TBL-164).
 
-One more approved item changes, asked on its own: API-260's 400 response gains a `text_too_long` example, with `field` `notes[0].text` and `limit` 200. A draft's note text has the contract's limit of 200 characters (`DraftNote`), the other workshop writes with a text (API-286, API-287) list `text_too_long`, and the code is in the registry already.
+One more approved item changes, asked on its own and approved through the same delegate: API-260's 400 response gains a `text_too_long` example, with `field` `notes[0].text` and `limit` 200. A draft's note text has the contract's limit of 200 characters (`DraftNote`), the other workshop writes with a text (API-286, API-287) list `text_too_long`, and the code is in the registry already.
 
-No operation, field, code or spec row changed. This part waits for its own checkpoint.
+No operation, field, code or spec row changed. This part passed its own checkpoint on 2026-11-24 through the same delegate.
