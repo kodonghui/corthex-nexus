@@ -1509,6 +1509,7 @@ TASK-457(SPEC-013, SPEC-035, SPEC-046, SPEC-047, SPEC-010)은 `/p/{project}`의 
 
 - **PR**은 TBL-157의 행이고, 프로젝트에서 번호마다 하나예요. 어떤 번호를 처음 알릴 때 알린 자격 증명과 함께 만들어지고, 반영과 기록이 함께 쓸 수 있어요.
   - 링크는 프로젝트 저장소 주소, `/pull/`, 번호여야 해요. 다른 저장소이거나 저장소를 적지 않은 프로젝트 공간이면 `repository_mismatch`, 그 저장소의 다른 주소이면 `pull_request`에 대한 `invalid_request`를 받아요.
+  - [워크숍](#워크숍)의 알림이 도메인 문서를 위해 만든 번호는 `pull_request`에 대한 `invalid_request`를 받아요. 그 알림도 여기서 알린 번호를 거절하기 때문이에요(TASK-452).
   - 상태는 보고를 따라요. `opened`는 PR을 열고, NEXUS가 닫힌 것으로 알던 PR도 다시 열어요. GitHub은 닫힌 PR을 다시 열 수 있기 때문이에요. `merged`나 병합 커밋이 있는 `reflected`는 더 새로운 상태이므로 닫힌 PR도 병합으로 바꿔요. `closed`는 닫아요. 병합된 PR은 다시 열거나 닫지 않고, `event`에 대한 `invalid_request`, "pull request N is merged"를 받아요.
   - `needs-user`는 `event`에 대한 `invalid_request`로 거절해요. 에이전트는 그 대신 스레드에서 소유자에게 물어요.
 - **반영**(`reflect` 항목 `ne_`에 대한 API-258). 반영의 변경 세트는 `heldChangeSets`가 주는 그룹이에요([할 일 항목](#할-일-항목) 참고).

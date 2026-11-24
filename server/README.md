@@ -1503,6 +1503,7 @@ Every operation finds the project space by its name and the workshop, so each li
 
 - **A pull request** is a row of TBL-157, one per number in the project. The first report of a number makes it, with the reporting credential, and a reflection and a record may share it.
   - Its link must be the project's repository address, `/pull/` and its number. Another repository, or a project space that names none, gets `repository_mismatch`; another address of the repository gets `invalid_request` on `pull_request`.
+  - A number the [workshop](#workshop)'s report made for the domain document gets `invalid_request` on `pull_request`, as that report refuses a number reported here (TASK-452).
   - Its state follows the reports. `opened` opens it, again when NEXUS had it closed, since GitHub reopens a closed pull request. `merged`, or `reflected` with its merge commit, merges it, also from closed, as the newer state. `closed` closes it. A merged pull request is not reopened or closed: `invalid_request` on `event`, "pull request N is merged".
   - `needs-user` is refused with `invalid_request` on `event`: the agent asks the owner in the thread instead.
 - **A reflection** (API-258 on a `reflect` entry, `ne_`). Its change sets are its group, as `heldChangeSets` gives them (see [To-do entries](#to-do-entries)).

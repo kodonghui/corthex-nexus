@@ -6,7 +6,8 @@
 // A pull request is a row of TBL-157, one per number in the project: the first report of a number makes it, with the
 // reporting credential, and a reflection and a record may share it. Its link must be the project's repository's
 // address, /pull/ and its number: another repository, or a project space that names none, gets repository_mismatch,
-// and another address of the repository invalid_request on pull_request. Its state follows the reports: opened opens
+// and another address of the repository invalid_request on pull_request. A number the workshop reported for the
+// domain document gets invalid_request on pull_request, as the workshop's report refuses one reported here (TASK-452). Its state follows the reports: opened opens
 // it, again when NEXUS had it closed, since GitHub reopens a closed pull request; merged, or reflected with its merge
 // commit, merges it, also from closed, as the newer state; closed closes it. A merged pull request is not reopened or
 // closed: invalid_request on event, "pull request N is merged".
@@ -78,7 +79,7 @@ const RECORD_FIELDS = new Set(['event', 'pull_request']);
 // The statements of each store, prepared on first use (see credentials.js).
 const prepared = new WeakMap();
 
-const PULL = 'SELECT id, number, state, merge_commit, closed_at FROM pull_requests';
+const PULL = 'SELECT id, purpose, number, state, merge_commit, closed_at FROM pull_requests';
 
 function statementsOf(store) {
   let statements = prepared.get(store);
@@ -141,6 +142,15 @@ function reportOf(body, { fields, events }) {
     ? undefined
     : formOf(body, 'commit', { pattern: COMMIT, length: COMMIT_LIMIT, required: body.event === 'reflected' });
   return { event: body.event, pullRequest, commit };
+}
+
+// A pull request the workshop's report made for the domain document (TASK-452) writes steps only, as that report
+// refuses a number reported here: invalid_request on pull_request.
+function ownWork(statements, project, number) {
+  if (number !== null && statements.byNumber.get(project.id, number)?.purpose === 'domain_document') {
+    throw invalidRequest('pull_request', 'this pull request was reported for the domain document');
+  }
+  return number;
 }
 
 // The number of a pull request link of the project's repository (see the top of this file).
@@ -269,7 +279,7 @@ function reportEdit({ store, params, request, body, credential, now }) {
   const key = keyOf('ne', params.edit);
   const entry = key === null ? undefined : statements.entry.get(key, project.id);
   if (entry === undefined) throw new Problem('edit_not_found');
-  const number = report.pullRequest === undefined ? null : numberOf(project, report.pullRequest);
+  const number = ownWork(statements, project, report.pullRequest === undefined ? null : numberOf(project, report.pullRequest));
   const time = timeNow(now);
   let changed;
   if (entry.closed_at !== null) {
@@ -293,7 +303,7 @@ function reportCheckpoint({ store, params, request, body, credential, now }) {
   const key = keyOf('nk', params.checkpoint);
   const row = key === null ? undefined : statements.confirmation.get(key, project.id);
   if (row === undefined) throw new Problem('checkpoint_not_found');
-  const number = numberOf(project, report.pullRequest);
+  const number = ownWork(statements, project, numberOf(project, report.pullRequest));
   const time = timeNow(now);
   const answer = (changed) => ({ body: { checkpoint: checkpointBody(store, project, key, Date.parse(time), session), changed } });
   const diagram = Number(row.diagram_id);

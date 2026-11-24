@@ -688,6 +688,22 @@ describe('reports from the agent', () => {
     assert.deepEqual([reflected.json.edit.state, setRow(set).state], ['done', 'reflected']);
   });
 
+  test('a pull request the workshop reported for the domain document is refused, as the workshop refuses these (TASK-452)', async () => {
+    clock = START;
+    const { space, erd } = erdProject();
+    const confirmation = confirmed(space, erd);
+    edit(space, erd);
+    const [entry] = entries(space, 'reflect');
+    s.pullRequest(space, { number: 110, purpose: 'domain_document' });
+    const was = dump();
+    const reflection = await reportEdit(space, entry, { event: 'opened', pull_request: link(110) });
+    const record = await reportCheckpoint(space, confirmation, { event: 'opened', pull_request: link(110) });
+    for (const refused of [reflection, record]) {
+      assert.deepEqual([refused.status, refused.json.code, refused.json.field], [400, 'invalid_request', 'pull_request']);
+    }
+    assert.equal(dump(), was);
+  });
+
   test('a flow file\'s reflection and record name its part from the snapshot, as API-248 and API-249 read them', async () => {
     clock = START;
     const key = 'docs/03-user-flow/FL-001-put-a-project-on-nexus.md';
