@@ -403,4 +403,4 @@ Building TASK-469 found that SCR-145#confirmed shows "Recorded" with its pull re
 - **API-275's tables:** Confirmation is also the answer of confirming (API-275) and of cancelling a confirmation (API-276), `ConfirmationAnswer`, so they answer the field too, and read the pull request (TBL-157) to build it. API-275 lists TBL-147, TBL-151, TBL-152, TBL-157, TBL-158, TBL-160 and TBL-166 instead of TBL-147, TBL-151, TBL-152, TBL-158, TBL-160 and TBL-166.
 - **API-276's tables:** TBL-147, TBL-151, TBL-152, TBL-157, TBL-160 and TBL-166 instead of TBL-147, TBL-151, TBL-152, TBL-160 and TBL-166.
 
-No operation, status, code or spec row changes. This part waits for its own checkpoint.
+No operation, status, code or spec row changes. This part passed its own checkpoint on 2026-11-24 through the same delegate.
