@@ -834,7 +834,7 @@
      "name": "SCR-145#workshop",
      "status": null,
      "detail": {
-      "description": "Stage 01 while a workshop is open: one frame per step, free sticky notes in the six kinds, the step's Confirm, and Import from Miro; a step without notes says \"Add notes before confirming\". On a phone, the board read-only with \"Do this on a PC\": no sticky notes, step confirmation or import (SPEC-051).",
+      "description": "Stage 01 while a workshop is open: one frame per step, free sticky notes in the eight kinds the tokens colour (the legend's six, actor and external system), the step's Confirm, and Import from Miro; a step without notes says \"Add notes before confirming\". On a phone, the board read-only with \"Do this on a PC\": no sticky notes, step confirmation or import (SPEC-051).",
       "responses": [
        "API-284#201",
        "API-284#409 (workshop-open)",
@@ -854,7 +854,7 @@
        "x": 0,
        "y": 3496,
        "width": 328,
-       "height": 320
+       "height": 360
       }
      }
     }

@@ -468,10 +468,15 @@
           "approved": "Dropping \"the other way\", pull request 157, at commit db31b28: SCR-145's \"AI answers\" row and SCR-145#normal's \"AI proposals\" part, approved as showing a proposal's kind, text, reason and the other way (\"종류, 글, 이유, 다른 방법\"), now show its kind, text and reason, since the contract's ChangeSet and ProposalRequest carry a reason and a change only and an agent writes any other way inside its reason. Nothing else in SCR-145 and no number of states changes; the stage-07 README's carry-over line stays as the record of what passed then. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation, over a later contract change, through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "The workshop's eight sticky kinds, pull request 158, at commit ebff278: SCR-145#workshop, approved as \"free sticky notes in the six kinds\" (\"여섯 종류의 자유로운 스티커\"), now has free sticky notes in the eight kinds the tokens colour (the legend's six, actor and external system), since steps 2 and 5 of event storming start with the external-system and actor kinds; the legend stays the mockup's six. Nothing else in SCR-145 and no number of states changes; the stage-07 and stage-09 READMEs' carry-over lines stay as the record of what passed then. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-24T12:24:42+09:00"
+      "updated": "2026-11-24T12:42:06+09:00"
     },
     "09-mockup": {
       "state": "done",
@@ -515,10 +520,15 @@
           "approved": "Dropping \"the other way\", pull request 157, at commit db31b28: the mockup page's Korean copy of SCR-145's normal state (META) follows the stage-08 correction and is generated again from the stage-08 Korean definition; only that state's text changes, and no frame or token changes. The proposal cards in the 1440-pixel frames keep \"다른 방법: …\", as a difference that section 4 of the WBS records. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "The workshop's eight sticky kinds, pull request 158, at commit ebff278: the mockup page's Korean copy of SCR-145's workshop state (META) follows the stage-08 correction and is generated again from the stage-08 Korean definition; only that state's text changes, and no frame, template or token changes. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 10: plan the work of the first release from the approved design of stages 01 to 09",
-      "updated": "2026-11-24T12:24:42+09:00"
+      "updated": "2026-11-24T12:42:06+09:00"
     },
     "10-wbs": {
       "state": "done",
@@ -582,10 +592,15 @@
           "approved": "SCR-145 against the stage-09 mockup, pull request 157, at commit db31b28: the proposal cards in the 1440-pixel frames of SCR-145's normal, stale, waiting and confirmed states keep \"다른 방법: …\", which SCR-145 no longer asks for after the stage-08 correction; and stage 01's PC text is the mockup's again since TASK-460, which closes the second difference recorded with pull request 153. Section 4 records it, and stage 12's QA looks at it again. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "SCR-145#workshop against the stage-09 mockup, pull request 158, at commit ebff278: the panel's count is \"스티커 N개 · AI 초안 M개\", where the mockup has \"스티커 7개 · AI 초안 7개 중 사람이 고친 것 2개\", since API-285 cannot tell a corrected draft from the owner's own note. Section 4 records it, and stage 12's QA looks at it again. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",
-      "updated": "2026-11-24T12:24:42+09:00"
+      "updated": "2026-11-24T12:42:06+09:00"
     },
     "11-development": {
       "state": "not_started",

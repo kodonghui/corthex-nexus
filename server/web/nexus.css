@@ -229,6 +229,19 @@ a.step{color:inherit;text-decoration:none;cursor:pointer}
 .frame-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font:var(--corthex-type-heading-compact-01)}
 .frame-empty{display:flex;align-items:center;justify-content:center;height:120px;border:1px dashed var(--border-strong-01);border-radius:var(--corthex-radius-box);color:var(--text-secondary)}
 .conf{margin-left:auto;font-size:11px;font-weight:600;padding:0 6px;border:1px solid currentColor;border-radius:var(--corthex-radius-pill)}
+/* the workshop's board (TASK-462): the strip's steps are buttons; frames are SVG as the workbench's pictures, each
+   note coloured by its kind's sticky token, and the kind note uncoloured */
+button.step{color:inherit;cursor:pointer}
+.frame-h.next{margin-top:20px}
+.ws-bar,.ws-panel{display:flex;flex-direction:column;gap:16px}
+.ws-bar:empty,.ws-open:empty{display:none}
+.ws-link{fill:none;stroke:var(--text-secondary);stroke-width:1.5}
+.ws-head{fill:var(--text-secondary)}
+.stk.k-actor,.sw.k-actor,.tag.k-actor{background:var(--corthex-sticky-actor)}
+.stk.k-read-model,.sw.k-read-model,.tag.k-read-model{background:var(--corthex-sticky-read-model)}
+.stk.k-external-system,.sw.k-external-system,.tag.k-external-system{background:var(--corthex-sticky-external-system)}
+.tag.k-actor,.tag.k-read-model,.tag.k-external-system{color:var(--corthex-sticky-text)}
+.stk.k-note{background:var(--layer-02);color:var(--text-primary);border:1px solid var(--border-strong-01)}
 
 /* user flows, screen states and the mockup page */
 .flow{position:relative;width:540px;height:512px}

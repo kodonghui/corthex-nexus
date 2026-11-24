@@ -29,6 +29,7 @@ import { overlayModel } from './overlays.js';
 import { chooser, PAD, pictureOf, shownName, STICKIES, tagWord, WORDS } from './picture.js';
 import { CONTAINERS, placement } from './relayout.js';
 import { THREAD_WORDS, threadsFocus, threadsOpened, threadsPart, threadsWhole } from './threads.js';
+import { workshopEntry } from './workshop.js';
 
 export const STEP = 8;
 export const LONG_STEP = 40;
@@ -166,29 +167,33 @@ function build(ctx, row) {
   return { body, panel };
 }
 
-// The stage's diagrams above the picture, when there are several or a removed one is listed (SCR-145's data). A
-// choice opens in this page; the address gains ?d= with its ID.
+// The stage's diagrams above the picture, when there are several or a removed one is listed (SCR-145's data), after
+// the entry 워크숍 on stage 01 while the workshop is open (workshop.js, TASK-462). A choice opens in this page; the
+// address gains ?d= with its ID, or loses it for the workshop.
 function diagramList(ctx, row) {
   const diagrams = row?.diagrams ?? [];
-  if (diagrams.length < 2 && !diagrams.some((diagram) => diagram.removed)) return null;
+  const workshop = workshopEntry(ctx);
+  if (diagrams.length < 2 && !diagrams.some((diagram) => diagram.removed) && workshop === null) return null;
   const { address, shell } = ctx;
   const shown = ctx.data.diagram.id;
-  return h('nav', { class: 'steps', 'aria-label': `이 단계의 그림 ${diagrams.length}개` }, diagrams.map((diagram) => {
-    const href = stageHref(address.project, address.part, address.stage, { diagram: diagram.id });
-    const on = diagram.id === shown;
-    return h('a', {
-      class: on ? 'step on' : 'step',
-      href,
-      'aria-current': on ? 'page' : null,
-      on: {
-        click: (event) => {
-          if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || (event.button !== undefined && event.button !== 0)) return;
-          event.preventDefault();
-          if (!on) shell.go(href);
-        },
+  const entries = [
+    ...(workshop === null ? [] : [{ href: workshop.href, on: false, text: workshop.text, removed: false }]),
+    ...diagrams.map((diagram) => ({
+      href: stageHref(address.project, address.part, address.stage, { diagram: diagram.id }), on: diagram.id === shown, text: diagram.name, removed: diagram.removed,
+    })),
+  ];
+  return h('nav', { class: 'steps', 'aria-label': `이 단계의 그림 ${diagrams.length}개` }, entries.map(({ href, on, text, removed }) => h('a', {
+    class: on ? 'step on' : 'step',
+    href,
+    'aria-current': on ? 'page' : null,
+    on: {
+      click: (event) => {
+        if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || (event.button !== undefined && event.button !== 0)) return;
+        event.preventDefault();
+        if (!on) shell.go(href);
       },
-    }, diagram.name, diagram.removed ? h('span', { class: 'tag gray' }, WORKBENCH_WORDS.removed) : null);
-  }));
+    },
+  }, text, removed ? h('span', { class: 'tag gray' }, WORKBENCH_WORDS.removed) : null)));
 }
 
 // The drawing failed (SCR-145#not-drawn): where, and that the picture comes once the document is fixed. The last good

@@ -123,3 +123,11 @@ Building TASK-460 found that SCR-145 asks each AI proposal to show "the other wa
 - SCR-145#normal's "AI proposals" part: ""AI proposals": each with its kind, text, reason and the other way, and Accept and Reject ("All answered" when none)" (Korean: ""AI 제안": 종류, 글, 이유, 다른 방법, 수락·거절(없으면 "모두 처리함")") becomes ""AI proposals": each with its kind, text and reason, and Accept and Reject ("All answered" when none)" (Korean: ""AI 제안": 종류, 글, 이유, 수락·거절(없으면 "모두 처리함")").
 
 Nothing else in SCR-145 changes. The stage-07 README's "an AI proposal with its reason and the other way" stays, as the record of what passed then. The wireframes are made again from the definitions, so the frames of SCR-145#normal and SCR-145#error, which still had the text of the eighth and ninth reviews of pull request 104, also catch up with "Reject on a removed diagram" and the feature change of 2026-11-24; that catch-up is not part of this correction. The number of states is unchanged. This part passed its own checkpoint on 2026-11-24 through the same delegate.
+
+### The workshop's eight sticky kinds
+
+Building TASK-462 found that SCR-145#workshop offers free sticky notes in the legend's six kinds, while steps 2 and 5 of event storming start with the external-system and actor kinds, which the design tokens also colour (`--corthex-sticky-external-system`, `--corthex-sticky-actor`). With six kinds the owner could not add the notes those two steps are for. On pull request 158 the delegate approved adding a note in any of the eight kinds the tokens colour, with the legend kept as the mockup's six. One approved item, SCR-145, changes in one place, asked on its own:
+
+- SCR-145#workshop: "free sticky notes in the six kinds" (Korean: "여섯 종류의 자유로운 스티커") becomes "free sticky notes in the eight kinds the tokens colour (the legend's six, actor and external system)" (Korean: "토큰이 색을 주는 여덟 종류(범례의 여섯과 액터, 외부 시스템)의 자유로운 스티커").
+
+Nothing else in SCR-145 changes, and the legend stays the mockup's six kinds. The stage-07 and stage-09 READMEs' "the six sticky kinds and their colours" stay, as the record of what passed then. The wireframes are made again from the definitions: only SCR-145#workshop's text changes, and no frame. The number of states is unchanged. This part passed its own checkpoint on 2026-11-24 through the same delegate.

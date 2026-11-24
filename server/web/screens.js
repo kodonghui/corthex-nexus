@@ -1,8 +1,8 @@
 // The screens of the sitemap (docs/07-sitemap) as the shell runs them (see shell.js and the server README's "App
 // shell" section). Each draws its title, its place and its shared states from API-262, API-263 and API-264; its own
 // body in the normal and empty states is the task's that builds the screen (TASK-455 to TASK-462): SCR-142's is
-// todo.js (TASK-455), SCR-143's is projects.js (TASK-456), SCR-144's is project.js (TASK-457), and SCR-145's pictures
-// are workbench.js (TASK-458).
+// todo.js (TASK-455), SCR-143's is projects.js (TASK-456), SCR-144's is project.js (TASK-457), SCR-145's pictures
+// are workbench.js (TASK-458), and its workshop on stage 01 is workshop.js (TASK-462).
 //
 // A screen is an object:
 // - layout: 'list' (one column, main.main) or 'workbench' (the diagram's column and the work panel, div.wb);
@@ -16,6 +16,8 @@
 // - fixedTitle: its title before its data came, or null for a title from its data;
 // - title(ctx), crumb(ctx) and description (a text, { text, mono }, or a function of ctx giving one): drawn once its
 //   data came; without title, the fixed title stays;
+// - titleTags(ctx) and titleActions(ctx): optional, nodes drawn once its data came: tags after the title, and buttons
+//   at the end of the title's row, such as the workshop's 열림, 스티커 더하기 and Miro에서 가져오기;
 // - projectTitle(ctx): the project's title for the header's menu button, on a project's screens;
 // - check(ctx): null, or what is gone, { code, sub, link: { text, href }, tabs }, when its data shows the address
 //   names nothing, such as an unknown ?d=;
@@ -37,6 +39,7 @@ import { SHARED_STATES } from './states.js';
 import { stageOf } from './stages.js';
 import { todoBody } from './todo.js';
 import { descriptionOf, workbenchOf } from './workbench.js';
+import { openPart, workshopMissing, workshopMode, workshopRead, workshopShown, workshopView } from './workshop.js';
 
 const WORKBENCH_STATES = Object.freeze([...SHARED_STATES, 'waiting', 'confirmed', 'not-drawn', 'workshop']);
 const CHANGES_STATES = Object.freeze([...SHARED_STATES, 'waiting', 'not-drawn', 'confirmed']);
@@ -132,11 +135,22 @@ export const SCREENS = Object.freeze({
     tabs: true,
     states: WORKBENCH_STATES,
     reads: projectRead,
-    follow: workbenchRead,
+    // On stage 01 while the workshop is open and no ?d= or ?thread= names a drawn diagram, the workshop (API-285) in
+    // place of a diagram (workshop.js).
+    follow: (ctx) => (workshopShown(ctx) ? workshopRead(ctx) : workbenchRead(ctx)),
     fixedTitle: null,
-    // The diagram's name, or the stage's when nothing was sent for it.
-    title: ({ address, data }) => data.diagram?.name || chosenDiagram(stageRow(data.project, address), address.diagram)?.name || stageOf(address.stage).name,
-    description: ({ data, shell }) => descriptionOf(data.diagram, shell.isPhone()),
+    // The workshop's step; else the diagram's name, or the stage's when nothing was sent for it.
+    title: (ctx) => {
+      const { address, data } = ctx;
+      if (workshopShown(ctx)) return workshopMode(ctx) ? workshopView(ctx).title : stageOf(address.stage).name;
+      return data.diagram?.name || chosenDiagram(stageRow(data.project, address), address.diagram)?.name || stageOf(address.stage).name;
+    },
+    description: (ctx) => {
+      if (workshopShown(ctx)) return workshopMode(ctx) ? workshopView(ctx).description : null;
+      return descriptionOf(ctx.data.diagram, ctx.shell.isPhone());
+    },
+    titleTags: (ctx) => (workshopMode(ctx) ? workshopView(ctx).tags : null),
+    titleActions: (ctx) => (workshopMode(ctx) ? workshopView(ctx).actions : null),
     projectTitle: ({ data }) => data.project.title,
     crumb: ({ address, data }) => [{ text: data.project.title, href: projectHref(address.project) }, { text: stageName(address) }],
     check: stageGone,
@@ -144,15 +158,19 @@ export const SCREENS = Object.freeze({
     // After choosing a diagram of the list that is gone meanwhile, the stage's first diagram opens with a note (SCR-145).
     instead: ({ address }, gone) => (gone.code === 'diagram_not_found' ? { href: stageHref(address.project, address.part, address.stage), note: 'gone' } : null),
     skeleton: () => [h('div', { class: 'boardbox', 'aria-hidden': 'true' }, h('span', { class: 'sk board' }))],
-    // SCR-145#empty when nothing was sent for the stage; otherwise the workbench's pictures (workbench.js).
+    // SCR-145#workshop on stage 01 while the workshop shows (workshop.js); SCR-145#empty when nothing was sent for the
+    // stage; otherwise the workbench's pictures (workbench.js). On stage 01 with no workshop open, 워크숍 열기 comes first.
     render: (ctx) => {
+      if (workshopShown(ctx)) return workshopMode(ctx) ? workshopView(ctx).body : workshopMissing(ctx);
+      const open = openPart(ctx);
       if (ctx.data.diagram === undefined || ctx.data.diagram === null) {
-        return [h('div', { class: 'empty' }, h('h2', {}, '아직 보낸 것이 없어요.'), h('p', { class: 'sec' }, '에이전트가 다음에 보낼 때 나와요.'))];
+        return [open, h('div', { class: 'empty' }, h('h2', {}, '아직 보낸 것이 없어요.'), h('p', { class: 'sec' }, '에이전트가 다음에 보낼 때 나와요.'))];
       }
-      return workbenchOf(ctx, stageRow(ctx.data.project, ctx.address)).body;
+      return [open, ...workbenchOf(ctx, stageRow(ctx.data.project, ctx.address)).body];
     },
     // A ?thread= that is no thread's ID reads as a thread that is gone; a thread's ID is the workbench's to open.
     panel: (ctx) => {
+      if (workshopShown(ctx)) return workshopMode(ctx) ? workshopView(ctx).panel : [];
       const { address, data, shell } = ctx;
       const own = data.diagram ? workbenchOf(ctx, stageRow(data.project, address)).panel : [];
       if (address.thread === null || isThreadId(address.thread)) return own;
