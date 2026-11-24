@@ -3,8 +3,8 @@
 // shell, which reads API-264 and then the chosen diagram (API-265, screen.follow).
 //
 // - The stage's diagrams are listed above the picture when there are several, or a removed one is still listed
-//   (SPEC-027): API-264's order, removed ones with open threads last and marked. Choosing one opens it in this page
-//   (shell.go) with ?d= in the address.
+//   (SPEC-027): API-264's order, removed ones that something waits on last and marked. Choosing one opens it in this
+//   page (shell.go) with ?d= in the address.
 // - Every element is chosen by pointer or by keyboard (a button, or a line's path), and shows that it is chosen. The
 //   Selected panel shows its kind, its name and its trace ID apart, and copies "ID name" (SPEC-011).
 // - A box that is not drawn round others moves by dragging, or by the arrow keys, 8 pixels a step and 40 with Shift.
@@ -453,8 +453,8 @@ async function send(state, key, kept) {
     drawPicture(state);
     return;
   } else if (outcome.status === 404 && (outcome.code === 'diagram_not_found' || outcome.code === 'project_not_found')) {
-    // SCR-145#error: after a write, the diagram is read again first. A removed one still listed opens for its threads
-    // only, and otherwise the shell says that it is gone. The box goes back to where it was until then.
+    // SCR-145#error: after a write, the diagram is read again first. A removed one still listed opens for what waits on
+    // it (TASK-468), and otherwise the shell says that it is gone. The box goes back to where it was until then.
     state.moves.delete(key);
     state.again.delete(key);
     fill(state.notice);
