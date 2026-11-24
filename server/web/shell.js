@@ -211,8 +211,8 @@ export function startShell(root, screen, address) {
 
   // A write of the screen's (api.js write), whose outcome it returns. A 401 or 403 goes through the permission rule,
   // which ends the page or reloads it through the gate, as a read's does.
-  async function writeOf(method, path, body, key) {
-    return met(await write(method, path, body, key));
+  async function writeOf(method, path, body, key, options) {
+    return met(await write(method, path, body, key, options));
   }
 
   // An outcome of the screen's own request, met by the permission rule and the gate's mark, and returned.
@@ -380,7 +380,10 @@ export function startShell(root, screen, address) {
     const top = [];
     if (screen.crumb !== undefined && answered) top.push(crumbOf(screen.crumb(known)));
     else if (screen.crumb !== undefined && loading) top.push(h('span', { class: 'sk line w160', 'aria-hidden': 'true' }));
-    if (title !== null || loading) top.push(titleOf(title, tag, description));
+    // The title's own tags and buttons, such as the workshop's 열림 and 스티커 더하기, once the data came.
+    const tags = answered ? screen.titleTags?.(known) ?? null : null;
+    const actions = answered ? screen.titleActions?.(known) ?? null : null;
+    if (title !== null || loading) top.push(titleOf(title, tag, description, tags, actions));
     let body;
     if (loading) body = screen.skeleton?.(known) ?? [];
     else if (failure !== null) body = errorNotice(failure, () => load(false));
@@ -487,15 +490,16 @@ function crumbOf(items) {
 }
 
 // A screen's title, its tag of the read time and the text under it: a text, a node or a list of them, or { text, mono }
-// for a text in code type, such as a mockup's name.
-function titleOf(title, tag, description) {
+// for a text in code type, such as a mockup's name. tags go after the title and actions, buttons, at the row's end.
+function titleOf(title, tag, description, tags = null, actions = null) {
   const heading = title === null ? h('span', { class: 'sk head', 'aria-hidden': 'true' }) : h('h1', {}, title);
   // { text, mono } is a plain object; a text, a node or a list of them, such as SCR-144's, is drawn as it is.
   const plain = description !== null && typeof description === 'object' && Object.getPrototypeOf(description) === Object.prototype;
   const under = plain
     ? h('p', { class: description.mono ? 'sec mono' : 'sec' }, description.text)
     : description === null ? null : h('p', { class: 'sec' }, description);
-  return h('div', { class: 'title' }, h('div', { class: 't' }, h('div', { class: 'row' }, heading, tag), under));
+  return h('div', { class: 'title' }, h('div', { class: 't' }, h('div', { class: 'row' }, heading, tags, tag), under),
+    actions === null || actions.length === 0 ? null : h('div', { class: 'btns' }, actions));
 }
 
 // The stage tabs of the address's project and part, the current stage marked. They are the 13 stages whatever was

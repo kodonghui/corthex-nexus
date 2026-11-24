@@ -11,13 +11,14 @@ export function read(path) {
   return request(path, { headers: { accept: 'application/json' } });
 }
 
-// A write of the owner's (docs/08-screens, section 2): method (POST or DELETE) on path, with body as JSON, or no body
-// when it is null, and the request key, a write ID that newRequestKey() made, in double quotes as the contract's
-// Idempotency-Key takes it. The shell's write (shell.js) sends a 401 or 403 through the permission rule.
-export function write(method, path, body, key) {
+// A write of the owner's (docs/08-screens, section 2): method (POST, PATCH or DELETE) on path, with body as JSON, or no
+// body when it is null, and the request key, a write ID that newRequestKey() made, in double quotes as the contract's
+// Idempotency-Key takes it. With raw, body is a text that goes as it is, as JSON: a Miro export the owner chose, which
+// only the server reads (API-292). The shell's write (shell.js) sends a 401 or 403 through the permission rule.
+export function write(method, path, body, key, { raw = false } = {}) {
   const headers = { accept: 'application/json', 'idempotency-key': `"${key}"` };
   if (body !== null) headers['content-type'] = 'application/json';
-  return request(path, { method, headers, body: body === null ? undefined : JSON.stringify(body) });
+  return request(path, { method, headers, body: body === null ? undefined : raw ? body : JSON.stringify(body) });
 }
 
 // The contract's write ID, the request key's value: nw_ and 12 random characters of its base 32. The caller keeps a
