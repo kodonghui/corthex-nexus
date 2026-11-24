@@ -32,7 +32,7 @@
 // does not list either.
 
 import { pullRequestLink } from './claims.js';
-import { confirmationBody } from './confirmations.js';
+import { CONFIRMATION, CONFIRMATION_ROWS, confirmationBody } from './confirmations.js';
 import { failureWhere } from './drawer.js';
 import { idOf, keyOf } from './ids.js';
 import { itemNames } from './item-table.js';
@@ -129,10 +129,9 @@ function statementsOf(store) {
         `SELECT t.id, a.pull_request_id FROM todos t JOIN change_sets a ON a.id = t.change_set_id
          WHERE t.diagram_id = ? AND t.kind = 'reflect' AND t.closed_at IS NULL ORDER BY t.created_at, t.id`,
       ),
+      // The latest confirmation, with its record's pull request (confirmations.js).
       confirmation: store.prepare(
-        `SELECT k.id, k.diagram_id, k.drawing_id, w.document_version, k.state, k.confirmed_at, k.ended_at, k.recorded_at,
-                k.cancel_recorded_at
-         FROM confirmations k JOIN drawings w ON w.id = k.drawing_id WHERE k.diagram_id = ? ORDER BY k.id DESC LIMIT 1`,
+        `SELECT ${CONFIRMATION} FROM ${CONFIRMATION_ROWS} WHERE k.diagram_id = ? ORDER BY k.id DESC LIMIT 1`,
       ),
     };
     prepared.set(store, statements);
@@ -357,7 +356,7 @@ export function readDiagram(store, name, id) {
     elements,
     overlays,
     since_confirmation: since,
-    confirmation: confirmed === null ? null : confirmationBody(confirmed),
+    confirmation: confirmed === null ? null : confirmationBody(confirmed, project.repository),
     threads,
   };
 }

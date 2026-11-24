@@ -19,7 +19,7 @@ import { idOf } from '../src/ids.js';
 import { ROUTES } from '../src/routes.js';
 import { openStore } from '../src/store.js';
 import { responseRecord } from './responses.js';
-import { seed, TIME } from './seed.js';
+import { REPOSITORY, seed, TIME } from './seed.js';
 import { FORMAT_03, repositorySnapshot } from './snapshots.js';
 import { localGate, newId, startServer, testStore, TRACE_ID } from './support.js';
 import { checkLayer, checkTables, recordTables } from './tables.js';
@@ -252,7 +252,7 @@ describe('the diagram read', () => {
     assert.deepEqual(answer.json.since_confirmation, { version: v1, added: [], removed: [], changed: [] });
     assert.deepEqual(answer.json.confirmation, {
       id: idOf('nk', first), diagram: idOf('dg', erd.id), drawing: idOf('dw', erd.drawing), version: v1, state: 'confirmed',
-      confirmed_at: at(10), ended_at: null, recorded_at: null, cancel_recorded_at: null,
+      confirmed_at: at(10), ended_at: null, recorded_at: null, cancel_recorded_at: null, pull_request: null,
     });
 
     // V2 renames X to Y, removes Gone, adds New and changes a column of Typed. Kept moves down a line of its file and
@@ -283,6 +283,46 @@ describe('the diagram read', () => {
     answer = await read(space.name, erd.id);
     assert.deepEqual(answer.json.since_confirmation.changed, []);
     assert.equal(answer.json.last_drawn.id, idOf('dw', v2));
+  });
+
+  test('the confirmation names its record\'s pull request: none until reported, the open one, the one that recorded it, then the cancel\'s (API-259, TASK-469)', async () => {
+    const space = s.project();
+    const erd = s.diagram(space);
+    const confirmation = s.confirm(space, erd, { at: at(10) });
+    const fieldsOf = async () => {
+      const { json } = await read(space.name, erd.id);
+      return [json.confirmation.state, json.confirmation.recorded_at, json.confirmation.cancel_recorded_at, json.confirmation.pull_request];
+    };
+    // Confirmed, before the agent reports a pull request: null.
+    assert.deepEqual(await fieldsOf(), ['confirmed', null, null, null]);
+    // opened links the record's pull request, open while it is in review.
+    const record = s.pullRequest(space, { number: 21, purpose: 'record' });
+    s.linkRecord(confirmation, record);
+    assert.deepEqual(await fieldsOf(), ['confirmed', null, null, `${REPOSITORY}/pull/21`]);
+    // closed without merging unlinks it.
+    s.linkRecord(confirmation, null);
+    assert.deepEqual(await fieldsOf(), ['confirmed', null, null, null]);
+    // merged records it: the pull request that recorded it.
+    const recordedBy = s.pullRequest(space, { number: 22, state: 'merged', purpose: 'record' });
+    s.linkRecord(confirmation, recordedBy);
+    s.record(confirmation);
+    assert.deepEqual(await fieldsOf(), ['confirmed', TIME, null, `${REPOSITORY}/pull/22`]);
+    // Cancelled once recorded: the pull request that recorded it, until the cancel's is reported; then the cancel's,
+    // open and then merged with cancel_recorded_at.
+    s.cancel(confirmation);
+    assert.deepEqual(await fieldsOf(), ['cancelled', TIME, null, `${REPOSITORY}/pull/22`]);
+    const cancelBy = s.pullRequest(space, { number: 23, purpose: 'record' });
+    s.linkRecord(confirmation, cancelBy);
+    assert.deepEqual(await fieldsOf(), ['cancelled', TIME, null, `${REPOSITORY}/pull/23`]);
+    s.recordCancel(confirmation);
+    assert.deepEqual(await fieldsOf(), ['cancelled', TIME, TIME, `${REPOSITORY}/pull/23`]);
+
+    // A project that names no repository has no link to give: null.
+    const bare = s.project(undefined, { repository: null });
+    const bareErd = s.diagram(bare);
+    const bareConfirmation = s.confirm(bare, bareErd);
+    s.linkRecord(bareConfirmation, s.pullRequest(bare, { number: 5, purpose: 'record' }));
+    assert.equal((await read(bare.name, bareErd.id)).json.confirmation.pull_request, null);
   });
 
   test('an element is changed when its name, kind, trace ID, parent, status or detail changes, and not when only its place or line does', () => {

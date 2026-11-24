@@ -36,6 +36,7 @@
 //   TASK-447, when the agent records the cancel, marks the passes resting on that confirmation changed_at, as
 //   after-drawing.js does for an invalidation.
 
+import { pullRequestLink } from './claims.js';
 import { confirmationsChanged, waitingChangeSets } from './entries.js';
 import { idOf, keyOf } from './ids.js';
 import { invalidRequest, Problem } from './problem.js';
@@ -49,25 +50,29 @@ const LISTED_WAITING = 200;
 // The statements of each store, prepared on first use (see credentials.js).
 const prepared = new WeakMap();
 
-// A confirmation with the commit of the drawing it confirms, as a select list on confirmations k and drawings w.
-const CONFIRMATION = `k.id, k.diagram_id, k.drawing_id, w.document_version, k.state, k.confirmed_at, k.ended_at, k.recorded_at,
-  k.cancel_recorded_at`;
+// A confirmation with the commit of the drawing it confirms and the number of its record's pull request, as a select
+// list on CONFIRMATION_ROWS: confirmations k, drawings w and the pull request r of record_pull_request_id, which names
+// the pull request of the record that is due, or of the last one recorded (reports.js, TASK-469). The diagram read
+// (diagram.js) reads the same.
+export const CONFIRMATION = `k.id, k.diagram_id, k.drawing_id, w.document_version, k.state, k.confirmed_at, k.ended_at, k.recorded_at,
+  k.cancel_recorded_at, r.number AS record_number`;
+export const CONFIRMATION_ROWS = `confirmations k JOIN drawings w ON w.id = k.drawing_id
+  LEFT JOIN pull_requests r ON r.id = k.record_pull_request_id`;
 
 function statementsOf(store) {
   let statements = prepared.get(store);
   if (statements === undefined) {
     statements = {
-      project: store.prepare('SELECT id FROM project_spaces WHERE name = ?'),
+      project: store.prepare('SELECT id, repository FROM project_spaces WHERE name = ?'),
       diagram: store.prepare('SELECT id, stage, removed_at FROM diagrams WHERE id = ? AND project_id = ?'),
       drawing: store.prepare('SELECT id FROM drawings WHERE id = ? AND diagram_id = ?'),
       current: store.prepare('SELECT id, status, document_version FROM drawings WHERE diagram_id = ? ORDER BY id DESC LIMIT 1'),
       lastDrawn: store.prepare("SELECT id FROM drawings WHERE diagram_id = ? AND status = 'drawn' ORDER BY id DESC LIMIT 1"),
       live: store.prepare(
-        `SELECT ${CONFIRMATION} FROM confirmations k JOIN drawings w ON w.id = k.drawing_id
-         WHERE k.diagram_id = ? AND k.state = 'confirmed'`,
+        `SELECT ${CONFIRMATION} FROM ${CONFIRMATION_ROWS} WHERE k.diagram_id = ? AND k.state = 'confirmed'`,
       ),
       confirmation: store.prepare(
-        `SELECT ${CONFIRMATION} FROM confirmations k JOIN drawings w ON w.id = k.drawing_id WHERE k.id = ? AND k.project_id = ?`,
+        `SELECT ${CONFIRMATION} FROM ${CONFIRMATION_ROWS} WHERE k.id = ? AND k.project_id = ?`,
       ),
       insert: store.prepare(
         "INSERT INTO confirmations (project_id, diagram_id, drawing_id, state, confirmed_at) VALUES (?, ?, ?, 'confirmed', ?)",
@@ -81,9 +86,10 @@ function statementsOf(store) {
 
 const timeOf = (now) => new Date(now()).toISOString();
 
-// The contract's Confirmation, from a row with the commit of the drawing it confirms (document_version). The diagram
-// read gives the diagram's latest confirmation in the same form (diagram.js).
-export function confirmationBody(row) {
+// The contract's Confirmation, from a row of CONFIRMATION with the project's repository. pull_request is the link of
+// the record's pull request, as an overlay's is built (diagram.js), and null while the project names no repository.
+// The diagram read gives the diagram's latest confirmation in the same form (diagram.js).
+export function confirmationBody(row, repository) {
   return {
     id: idOf('nk', Number(row.id)),
     diagram: idOf('dg', Number(row.diagram_id)),
@@ -94,13 +100,15 @@ export function confirmationBody(row) {
     ended_at: row.ended_at,
     recorded_at: row.recorded_at,
     cancel_recorded_at: row.cancel_recorded_at,
+    pull_request: row.record_number === null ? null : pullRequestLink(repository, row.record_number),
   };
 }
 
+// The project space {project}: { id, repository }.
 function projectOf(statements, name) {
   const row = statements.project.get(name);
   if (row === undefined) throw new Problem('project_not_found');
-  return Number(row.id);
+  return { id: Number(row.id), repository: row.repository };
 }
 
 // The drawing a Confirm names. Each refusal names the field and never repeats its value (rule 5).
@@ -124,14 +132,16 @@ function confirmableDiagram(statements, project, id) {
 function confirmDiagram({ store, params, body, now }) {
   const named = drawingField(body);
   const statements = statementsOf(store);
-  const project = projectOf(statements, params.project);
+  const space = projectOf(statements, params.project);
+  const project = space.id;
+  const answer = (row) => confirmationBody(row, space.repository);
   const diagram = confirmableDiagram(statements, project, params.diagram);
   if (named === null || statements.drawing.get(named, diagram) === undefined) throw new Problem('drawing_not_found');
   const current = statements.current.get(diagram);
   const shown = current.status === 'drawn' ? Number(current.id) : Number(statements.lastDrawn.get(diagram)?.id ?? 0);
   const live = statements.live.get(diagram);
   if (live !== undefined && (named === Number(live.drawing_id) || named === shown)) {
-    return { body: { confirmation: confirmationBody(live), changed: false } };
+    return { body: { confirmation: answer(live), changed: false } };
   }
   if (current.status !== 'drawn') throw new Problem('not_drawn', 'the diagram has no current drawing');
   if (named !== Number(current.id)) {
@@ -142,22 +152,24 @@ function confirmDiagram({ store, params, body, now }) {
   const time = timeOf(now);
   const key = Number(statements.insert.run(project, diagram, named, time).lastInsertRowid);
   confirmationsChanged(store, { project, diagram, time });
-  return { status: 201, body: { confirmation: confirmationBody(statements.confirmation.get(key, project)), changed: true } };
+  return { status: 201, body: { confirmation: answer(statements.confirmation.get(key, project)), changed: true } };
 }
 
 // API-276: cancels the confirmation {confirmation} (SPEC-030, SPEC-031).
 function cancelConfirmation({ store, params, body, now }) {
   if (Object.keys(body).length > 0) throw invalidRequest('body', 'the body is the empty object {}');
   const statements = statementsOf(store);
-  const project = projectOf(statements, params.project);
+  const space = projectOf(statements, params.project);
+  const project = space.id;
+  const answer = (row) => confirmationBody(row, space.repository);
   const key = keyOf('nk', params.confirmation);
   const row = key === null ? undefined : statements.confirmation.get(key, project);
   if (row === undefined) throw new Problem('confirmation_not_found');
-  if (row.state !== 'confirmed') return { body: { confirmation: confirmationBody(row), changed: false } };
+  if (row.state !== 'confirmed') return { body: { confirmation: answer(row), changed: false } };
   const time = timeOf(now);
   statements.cancel.run(time, key);
   confirmationsChanged(store, { project, diagram: Number(row.diagram_id), time });
-  return { body: { confirmation: confirmationBody(statements.confirmation.get(key, project)), changed: true } };
+  return { body: { confirmation: answer(statements.confirmation.get(key, project)), changed: true } };
 }
 
 // The routes of API-275 and API-276 (see router.js), of the owner family.

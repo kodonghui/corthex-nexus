@@ -9,7 +9,7 @@ import { shownName, tagWord } from './picture.js';
 import { dayOf } from './states.js';
 
 // The words of the confirmation, as the stage-09 mockup, the screen definitions and the coordinator's choices for
-// TASK-461 give them.
+// TASK-461 and TASK-469 give them.
 export const CONFIRM_WORDS = Object.freeze({
   notConfirmed: '확정 전',
   confirmed: '확정함',
@@ -18,6 +18,8 @@ export const CONFIRM_WORDS = Object.freeze({
   confirmedHere: '이 버전으로 확정했어요. 에이전트가 기록하면 단계가 통과돼요.',
   cancelled: '확정을 취소했어요. 다시 확정할 때까지 할 일에 남아요.',
   recorded: '기록됨',
+  // Until the agent records it, the mockup's line where the record's pull request will show (TASK-469, choice 3).
+  untilRecorded: '기록되면 여기에 그 PR이 나와요.',
   leftOut: '남은 AI 제안은 확정에 들어가지 않아요.',
   fixFirst: '문서를 고쳐 그려지게 한 뒤 확정하세요.',
   askConfirm: '확정할까요?',
@@ -42,6 +44,7 @@ export const CONFIRM_WORDS = Object.freeze({
 });
 
 export const changedTag = (count) => `바뀐 곳 ${count}`;
+export const pullRequestWords = (number) => `PR #${number} ↗`;
 export const changedSentence = (count) => `확정한 뒤 바뀐 곳이 ${count}개 있어요. 다시 확정하면 에이전트가 기록해요.`;
 export const moreChanges = (count) => `+${count}개 더 · 바뀐 곳 모두 보기`;
 export const countTag = (count) => `${count}개`;
@@ -99,6 +102,15 @@ export function pageRow(row) {
   return h('div', { class: 'li keep still short' },
     h('span', { class: 'lead' }, markTag(row)),
     h('span', { class: 'grow' }, h('b', {}, rowName(row)), kind === null ? null : h('span', { class: 'small' }, kind)));
+}
+
+// The record's pull request after "기록됨 · 3분 전" (TASK-469, choice 2): "PR #12 ↗", its number from the link API-265
+// gives (src/claims.js's pullRequestLink, the repository's address, /pull/ and the number), opened in a new tab. Only an
+// https link of a pull request is a link; anything else, or none, is null, and "기록됨 · 3분 전" stands alone.
+export function recordPullRequest(link) {
+  const found = typeof link === 'string' ? /^https:\/\/\S+\/pull\/([1-9][0-9]*)$/.exec(link) : null;
+  if (found === null) return null;
+  return h('a', { href: link, target: '_blank', rel: 'noopener noreferrer' }, pullRequestWords(found[1]));
 }
 
 // The link to the confirmed version, "확정한 버전의 문서 ↗ a41c9e2 · 11월 22일 확정" (SPEC-034, SCR-146's "before"):
