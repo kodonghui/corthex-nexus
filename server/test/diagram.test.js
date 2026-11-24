@@ -415,8 +415,9 @@ describe('the diagram read', () => {
 
     // A withdrawn proposal and a reflected edit leave nothing either.
     const withdrawn = removedErd();
-    const withdrawnSet = s.changeSet(space, withdrawn, { origin: 'proposal', threadId: s.thread(withdrawn, { target: 'diagram' }) });
-    s.closeThread(Number(db.prepare('SELECT thread_id FROM change_sets WHERE id = ?').get(withdrawnSet).thread_id));
+    const withdrawnThread = s.thread(withdrawn, { target: 'diagram' });
+    const withdrawnSet = s.changeSet(space, withdrawn, { origin: 'proposal', threadId: withdrawnThread });
+    s.closeThread(withdrawnThread);
     await opens(withdrawn);
     s.setChangeSet(withdrawnSet, { state: 'cancelled' });
     await gone(withdrawn);
