@@ -72,7 +72,12 @@ const PROJECT = {
   workshop: null,
 };
 
-const FINE = { '/api/projects': json(200, PROJECTS), '/api/todo': json(200, TODO), '/api/projects/reading-club': json(200, PROJECT) };
+const FINE = {
+  '/api/projects': json(200, PROJECTS),
+  '/api/todo': json(200, TODO),
+  '/api/projects/reading-club': json(200, PROJECT),
+  '/api/credentials': json(200, { credentials: [] }),
+};
 
 // The screen of pathname on a fake page (test/screen-page.js), with the answers of FINE unless others are given.
 const open = (pathname, options = {}) => openPage(pathname, { answers: FINE, ...options });
@@ -429,7 +434,7 @@ describe('the shell', () => {
     } finally {
       page.close();
     }
-    const offline = await open('/p', { answers: { ...FINE, '/api/projects': new TypeError('fetch failed') } });
+    const offline = await open('/p/reading-club', { answers: { ...FINE, '/api/projects/reading-club': new TypeError('fetch failed') } });
     try {
       assert.deepEqual(texts(offline, 'b'), ['문제가 생겼어요. 다시 해 보세요.']);
       assert.deepEqual(texts(offline, 'span', 'helper'), []);
@@ -742,7 +747,8 @@ describe('the shell against the server', () => {
     rmSync(folder, { recursive: true, force: true, maxRetries: 5 });
   });
 
-  // Each response the operation lists: who asks, and what the screen then shows.
+  // Each response the operation lists: who asks, and what the screen then shows. SCR-143's reads (listProjects and
+  // listCredentials) are its parts, tested with the screen in projects-screen.test.js.
   const CASES = [
     { status: 200, who: 'owner', shows: (page, title) => assert.deepEqual(texts(page, 'h1'), [title]) },
     { status: 401, code: 'unauthenticated', who: 'nobody', shows: (page) => assert.deepEqual([texts(page, 'h1'), texts(page, 'button')], [['다시 로그인하세요.'], ['새로 고침']]) },
@@ -758,7 +764,6 @@ describe('the shell against the server', () => {
     },
   ];
   const SCREENS_OF = {
-    listProjects: { pathname: '/p', path: '/api/projects', title: '프로젝트' },
     getOwnerTodo: { pathname: '/', path: '/api/todo', title: '내 차례' },
     getProject: { pathname: '/p/reading-club', path: '/api/projects/reading-club', title: '독서 모임 앱', missing: '/p/no-such-project' },
   };

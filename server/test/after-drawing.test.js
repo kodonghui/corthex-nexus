@@ -219,6 +219,54 @@ describe('after a drawing', () => {
     assert.deepEqual(changeSetRow(late), { state: 'reflected', reflected_drawing_id: good });
   });
 
+  test('a merged document that lacks a change is reflected anyway, and one comment on the diagram says what is missing (SPEC-025, note 26)', async () => {
+    const space = project('lacking');
+    const tables = [table('TBL-146', 'agent_credentials'), table('TBL-147', 'project_spaces')];
+    await space.push({ tables });
+    const erdNow = diagram(space, ERD);
+    const edit = rows.changeSet(space, erdNow);
+    rows.change(edit, { op: 'rename', element: 'TBL-146', name: 'agent_keys' });
+    const merged = rows.pullRequest(space, { number: 15, state: 'merged' });
+    rows.setChangeSet(edit, { pullRequestId: merged });
+    changeSetsChanged(db, { project: space.id, diagram: erdNow.id, time: SEEDED });
+    const merge = newCommit();
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(merge, merged);
+
+    // The merge commit's snapshot still names the table agent_credentials.
+    assert.deepEqual(counts(await space.push({ tables, commit: merge })), [0, 1, 0]);
+    const shown = diagram(space, ERD).drawing;
+    assert.deepEqual(changeSetRow(edit), { state: 'reflected', reflected_drawing_id: shown });
+    // One thread on the diagram as a whole, at the drawing shown, waits on the owner with the agent's comment, in
+    // Korean as the owner's screen is.
+    const threads = db.prepare("SELECT id, drawing_id, state, waits_on FROM comment_threads WHERE diagram_id = ? AND target_kind = 'diagram'")
+      .all(erdNow.id).map((row) => ({ ...row, id: Number(row.id), drawing_id: Number(row.drawing_id) }));
+    assert.deepEqual(threads.map(({ id, ...row }) => row), [{ drawing_id: shown, state: 'open', waits_on: 'owner' }]);
+    assert.deepEqual(commentsOf(threads[0].id), [[
+      '병합한 PR #15의 문서에 이 변경이 없어요. 변경은 반영됨으로 표시했어요. 다시 필요하면 이 스레드에 답하거나 새 제안을 부탁하세요.',
+      '- 직접 편집, 이름 바꾸기: TBL-146 agent_credentials → agent_keys',
+    ].join('\n')]);
+    assert.ok(openEntries(db, space.id).some((entry) => entry.side === 'owner' && entry.kind === 'question' && entry.thread_id === threads[0].id));
+  });
+
+  test('a push that removes the last diagram of a stage without a recorded confirmation passes the stage (SPEC-035)', async () => {
+    const space = project('passes-on-removal');
+    const flows = [flow(FLOW_A, 'FL-001 Put a project on NEXUS'), flow(FLOW_B, 'FL-002 Draw the stages')];
+    await space.push({ flows });
+    rows.record(confirm(space, diagram(space, FLOW_A), { at: '2026-11-23T03:00:00.000Z' }));
+    const passes = () => db.prepare("SELECT passed_at, changed_at FROM stage_passes WHERE project_id = ? AND stage = '03-user-flow'")
+      .all(space.id).map((row) => ({ ...row }));
+    // FL-002 was never confirmed, so the stage has not passed; once a push removes it, every diagram of the stage has
+    // a recorded confirmation, and the push writes the pass with the date of the last confirmation.
+    assert.deepEqual(passes(), []);
+    await space.push({ flows: [flows[0]] });
+    assert.equal(diagram(space, FLOW_B).removed, true);
+    assert.deepEqual(passes(), [{ passed_at: '2026-11-23T03:00:00.000Z', changed_at: null }]);
+    assert.equal(stageRow(space, '03-user-flow').state, 'passed');
+    // A later push writes no second pass on the same confirmations.
+    await space.push({ flows: [flows[0]] });
+    assert.equal(passes().length, 1);
+  });
+
   test('an invalidated confirmation marks the passes it rested on changed since the pass, and the pass stays (SPEC-035)', async () => {
     const space = project('passed');
     const tables = [table('TBL-146', 'agent_credentials')];

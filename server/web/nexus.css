@@ -94,6 +94,23 @@ table.tb{width:100%;border-collapse:separate;border-spacing:0;background:var(--l
 .cards{display:flex;flex-direction:column;gap:8px}
 .card{display:flex;flex-direction:column;gap:6px;padding:12px 16px;background:var(--layer-01);border:1px solid var(--border-subtle-01);border-radius:var(--corthex-radius-box)}
 .card .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+/* the bar of the stages passed, in its 14 steps (0 to 13 of 13): projects.js sets data-passed, and no script sets a width */
+.bar[data-passed="0"] i{width:0%}
+.bar[data-passed="1"] i{width:7.69%}
+.bar[data-passed="2"] i{width:15.38%}
+.bar[data-passed="3"] i{width:23.08%}
+.bar[data-passed="4"] i{width:30.77%}
+.bar[data-passed="5"] i{width:38.46%}
+.bar[data-passed="6"] i{width:46.15%}
+.bar[data-passed="7"] i{width:53.85%}
+.bar[data-passed="8"] i{width:61.54%}
+.bar[data-passed="9"] i{width:69.23%}
+.bar[data-passed="10"] i{width:76.92%}
+.bar[data-passed="11"] i{width:84.62%}
+.bar[data-passed="12"] i{width:92.31%}
+.bar[data-passed="13"] i{width:100%}
+/* a question asked in a row or a card, such as SCR-143's before a revoke */
+.ask{display:inline-flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px}
 
 /* controls */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 16px;border:1px solid transparent;border-radius:var(--corthex-radius-box);cursor:pointer;text-decoration:none;white-space:nowrap;font:var(--corthex-type-body-compact-01);letter-spacing:var(--corthex-type-body-compact-01-letter-spacing)}
@@ -242,6 +259,10 @@ a.step{color:inherit;text-decoration:none;cursor:pointer}
 
 /* phone only and PC only */
 [data-phone-only]{display:none!important}
+
+/* a table at 672 px and wider and its cards below it, as the mockup's 1440- and 360-pixel frames of SCR-143 draw them */
+@media (min-width:672px){.narrow-only{display:none!important}}
+@media (max-width:671.98px){.wide-only{display:none!important}}
 
 /* the workbench stacks its panel under the diagram below 1056 px, on a phone and in a narrow PC window alike */
 @media (max-width:1055.98px){

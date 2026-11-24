@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
+import { keepingWrite, Problem } from '../src/problem.js';
 import { createQueue } from '../src/writes.js';
 import { localGate, newId, startServer, testStore, waitFor } from './support.js';
 
@@ -184,6 +185,44 @@ test('a write whose answer could not be sent, rather than a thrown Problem, chan
   assert.deepEqual([repeat.status, repeat.json.code], [500, 'internal']);
   assert.deepEqual([rows(), keys()], [0, 0]);
   assert.equal(store.isTransaction, false);
+});
+
+test('a thrown Problem rolls its write back; one that keeps its write commits it, and its request key answers it again', async (t) => {
+  const store = testStore(t);
+  const local = localGate();
+  const names = () => store.prepare('SELECT name FROM backups ORDER BY id').all().map((row) => row.name);
+  const keys = () => Number(store.prepare('SELECT count(*) AS n FROM request_keys').get().n);
+  const server = await startServer({
+    store,
+    gate: local.gate,
+    routes: [{
+      method: 'POST',
+      path: '/api/projects/{project}/workshop',
+      action: 'addToolLink',
+      params: { project: 'project_not_found' },
+      body: 'json',
+      requestKey: true,
+      handle({ body }) {
+        store.prepare("INSERT INTO backups (name, attempt, state, started_at) VALUES (?, 1, 'running', ?)").run(body.name, new Date().toISOString());
+        const problem = new Problem('confirmation_cancelled');
+        throw body.keep ? keepingWrite(problem) : problem;
+      },
+    }],
+  });
+  t.after(() => server.close());
+  const send = (body, key = `"${newId('nw')}"`) => server.send({
+    method: 'POST', path: '/api/projects/demo/workshop', headers: { ...signedIn(local), 'Idempotency-Key': key }, body: JSON.stringify(body),
+  });
+  const rolled = await send({ name: 'rolled back' });
+  assert.deepEqual([rolled.status, rolled.json.code, names(), keys()], [409, 'confirmation_cancelled', [], 0]);
+  const key = `"${newId('nw')}"`;
+  const kept = await send({ name: 'kept', keep: true }, key);
+  assert.deepEqual([kept.status, kept.headers['content-type'], kept.json.code, names(), keys()], [409, 'application/problem+json', 'confirmation_cancelled', ['kept'], 1]);
+  // Sent again, the key answers the same refusal, its trace ID included, and the write does not run again.
+  const again = await send({ name: 'kept', keep: true }, key);
+  assert.deepEqual([again.status, again.headers['content-type'], again.json, names()], [409, 'application/problem+json', kept.json, ['kept']]);
+  assert.equal(store.isTransaction, false);
+  assert.throws(() => keepingWrite(new Error('not a Problem')), TypeError);
 });
 
 test('the queue runs each task after the ones before it, whether they succeeded or failed', async () => {

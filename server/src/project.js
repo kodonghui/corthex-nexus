@@ -64,8 +64,9 @@ function statementsOf(store) {
          WHERE d.project_id = ?
          ORDER BY ${DIAGRAM_ORDER}`,
       ),
-      // Oldest first, so that the last row of each stage is its latest pass.
-      passes: store.prepare('SELECT stage, passed_at, changed_at FROM stage_passes WHERE project_id = ? ORDER BY passed_at, id'),
+      // In the order they were written, so that the last row of each stage is its latest pass. A pass written later
+      // can carry an earlier passed_at, the date of its last confirmation (passes.js), so passed_at does not order them.
+      passes: store.prepare('SELECT stage, passed_at, changed_at FROM stage_passes WHERE project_id = ? ORDER BY id'),
       links: store.prepare(
         `SELECT id, scope, tool, url, status, status_read_at, added_at FROM tool_links
          WHERE project_id = ? AND removed_at IS NULL ORDER BY added_at, id LIMIT ${LISTED_LINKS}`,
@@ -156,7 +157,7 @@ export function stageState(pass, live) {
   return { state: live ? 'open' : 'not_sent', passed_at: null };
 }
 
-// The latest pass of each stage of the project (TBL-161), by stage: the last of its passes, oldest first.
+// The latest pass of each stage of the project (TBL-161), by stage: the last of its passes written.
 export function latestPasses(store, projectId) {
   const passes = new Map();
   for (const pass of statementsOf(store).passes.all(projectId)) passes.set(pass.stage, pass);
