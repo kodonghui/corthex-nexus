@@ -4,7 +4,8 @@
 // (API-277, API-278). The server README's "Project screen" section says what each state shows.
 //
 // A tool link's address goes only into an href and into text, never into markup, and opens in a new tab with
-// rel="noopener noreferrer" (TASK-451). Its status stays "아직 안 읽음" until TASK-467 reads one.
+// rel="noopener noreferrer" (TASK-451). Its status shows "아직 안 읽음" until TASK-467 first reads it, and "읽음" with
+// the time for a read that found no status.
 //
 // What the page holds between its draws is in `held`, for the page's shell and project only: the writes under way and
 // what they answered, the chosen scope, and the delete panel. A draw of new data keeps it, and nothing of it outlives
@@ -35,6 +36,7 @@ const PASSED = new Set(['passed', 'changed_since_pass']);
 const NOTHING_SENT = '아직 보낸 것이 없어요';
 const CHANGED = '통과 뒤 바뀜';
 const NOT_READ = '아직 안 읽음';
+const READ = '읽음';
 const PC_ONLY = '도구 잇기와 링크 지우기, 공간 지우기는 PC에서 하세요.';
 const DELETE = '이 프로젝트 공간 지우기';
 // The counts the delete panel shows (SCR-144#delete), of the eleven API-277 gives.
@@ -196,10 +198,12 @@ function scopeName(scope) {
   return stage === undefined ? scope : `${stage.number} ${stage.name}`;
 }
 
-// The status last read and the time it was read, or "아직 안 읽음" until a read (SPEC-046; TASK-467 reads it).
+// The status last read and the time it was read (SPEC-046; TASK-467 reads it). A read that found no status, such as a
+// Notion page with no status property, shows "읽음" with its time; a link not read yet shows "아직 안 읽음".
 function statusOf(link) {
-  if (link.status === null || link.status === undefined) return NOT_READ;
-  return link.status_read_at ? `${link.status} · ${clockOf(link.status_read_at)}` : link.status;
+  const status = link.status ?? null;
+  if (!link.status_read_at) return status ?? NOT_READ;
+  return `${status ?? READ} · ${clockOf(link.status_read_at)}`;
 }
 
 // The tool links: a card each, oldest first, with 지우기 on a PC; the form; and on a phone the line that says these are

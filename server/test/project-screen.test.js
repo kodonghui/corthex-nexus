@@ -375,6 +375,29 @@ describe('SCR-144', () => {
     }
   });
 
+  test('a link read with no status shows "읽음" and the time it was read; a link not read yet shows "아직 안 읽음"', async () => {
+    const counts = '할 일 3 · 진행 중 2 · 완료 10';
+    const project = {
+      ...PROJECT,
+      tool_links: [
+        // A Notion page with no status property, read at READ_AT (TASK-467).
+        toolLink(L1, '02-prd', 'notion', NOTION, null, READ_AT),
+        toolLink(L2, 'project', 'jira', JIRA, counts, READ_AT),
+        toolLink(L3, 'project', 'notion', NEW_URL),
+      ],
+    };
+    const page = await openProject({ project });
+    try {
+      assert.deepEqual(cardsOf(page).map((card) => card.line), [
+        `02 PRD · 읽음 · ${clockOf(READ_AT)}`,
+        `프로젝트 · ${counts} · ${clockOf(READ_AT)}`,
+        '프로젝트 · 아직 안 읽음',
+      ]);
+    } finally {
+      page.close();
+    }
+  });
+
   test('loading: thirteen grey rows, a grey link and grey #data, with the form that keeps what is typed and sends nothing yet', async () => {
     const held = [];
     const routes = baseRoutes(PROJECT);
