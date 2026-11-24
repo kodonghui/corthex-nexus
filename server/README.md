@@ -1381,7 +1381,9 @@ TASK-457 (SPEC-013, SPEC-035, SPEC-046, SPEC-047, SPEC-010) is SCR-144, the page
 - **Phone.** On a phone, the form, each 지우기 and `#data` are left out, and the tool links' group says "도구 잇기와 링크 지우기, 공간 지우기는 PC에서 하세요." (SPEC-051). A narrow window on a PC keeps them all.
 - **Loading.** Thirteen grey rows in the stage list's place, a grey link card and a grey line at `#data`. The form is there already, and 잇기 waits for the project's read.
 
-These rules, and the words the screen definitions and the mockup do not give, were chosen by the coordinator for TASK-457 and go to the maintainer's delegate with the pull request.
+The screen differs from the stage-09 mockup in four places: a tool link's title is its address, since the contract carries no name; while loading, the header shows grey shapes for the values the read brings, a phone draws no `#data`, and 잇기 stays off until the project's read answers. The maintainer approved each difference through the delegate they named for checkpoints on 2026-11-24, and section 4 of the [WBS](../docs/10-wbs/wbs.md) lists them.
+
+These rules, and the words the screen definitions and the mockup do not give, were chosen by the coordinator for TASK-457, and the maintainer approved them through the delegate they named for checkpoints on 2026-11-24, each asked on its own.
 
 `test/project-screen.test.js` checks each state of SCR-144 against stubbed answers and against the server, and how the page shows every response API-264, API-277, API-278, API-282 and API-283 list. Each stubbed answer is checked against the contract, and the operations' own tests have the server give each response. It also tests the request keys of the writes and the particle. The browser walk of the pull request shows each state at 360 and 1440 px, in light and dark.
 
