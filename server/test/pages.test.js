@@ -100,7 +100,8 @@ describe('the pages', () => {
       return [name, values];
     }));
     assert.deepEqual(directives['default-src'], ["'none'"]);
-    for (const name of ['script-src', 'style-src', 'img-src', 'font-src', 'connect-src']) assert.deepEqual(directives[name], ["'self'"], name);
+    // frame-src 'self': the stage-09 mockup page (API-293), NEXUS's own answer, in its frame (TASK-458).
+    for (const name of ['script-src', 'style-src', 'img-src', 'font-src', 'connect-src', 'frame-src']) assert.deepEqual(directives[name], ["'self'"], name);
     for (const name of ['base-uri', 'form-action', 'frame-ancestors']) assert.deepEqual(directives[name], ["'none'"], name);
     assert.deepEqual(directives['require-trusted-types-for'], ["'script'"]);
     assert.equal(PAGE_POLICY.includes('unsafe'), false);
@@ -118,6 +119,23 @@ describe('the pages', () => {
       assert.equal(answer.headers['cache-control'], extname(path) === '.woff2' ? 'private, max-age=31536000, immutable' : 'no-store', path);
       assertPageHeaders(answer, path);
     }
+  });
+
+  test('src/layout.js answers at /web/layout.js as it is, for the workbench to lay out a moved box (TASK-458)', async () => {
+    const source = readFileSync(new URL('../src/layout.js', import.meta.url));
+    assert.equal(WEB_FILES.includes('layout.js'), false);
+    const answer = await server.send({ path: '/web/layout.js' });
+    assert.equal(answer.status, 200);
+    assert.equal(answer.headers['content-type'], 'text/javascript; charset=utf-8');
+    assert.ok(answer.bytes.equals(source));
+    assert.equal(answer.headers['cache-control'], 'no-store');
+    assertPageHeaders(answer, 'layout.js');
+    // A page runs it as its own code: it imports nothing, names no other site and writes no markup or style.
+    const text = source.toString('utf8');
+    assert.equal(/^\s*import\s/m.test(text), false);
+    assert.deepEqual([...text.matchAll(/https?:\/\/[^\s"'`)]+/g)], []);
+    assert.equal(/\bimport\(|\beval\(|\bdocument\b/.test(text), false);
+    assert.equal(/innerHTML|outerHTML|insertAdjacentHTML|new Function|\.style/.test(text), false);
   });
 
   test('an address that names no screen answers the shell with 404, which never holds the path or the query', async () => {

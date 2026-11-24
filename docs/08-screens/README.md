@@ -110,3 +110,7 @@ A removed diagram keeps what waits on it: it stays listed and opens while it has
 - SCR-145#error: "a removed one still listed opens for its threads and its proposals' Reject only (SPEC-027)" becomes "a removed one still listed opens for its threads, its proposals' Reject and its waiting direct edits' Cancel edit only (SPEC-027)".
 
 SCR-146 stays: a removed diagram shows only its changes, with no confirm button. SCR-144 has no text about removed diagrams, and the project screen (TASK-457) shows no diagram list. The number of states is unchanged; TASK-458 and TASK-460 draw it. This part passed its own checkpoint on 2026-11-24 through the same delegate.
+
+### The name of opening another diagram
+
+Building TASK-458 (note 5 of the WBS) found that SCR-145's action "Open another diagram of the stage", approved after the review of pull request 104, also opens a removed diagram that is still listed: since the seventh review of pull request 104, such a diagram is listed last, marked removed, and opens (SPEC-027), and since the feature change of 2026-11-24 it stays listed while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection. The name reads as if only the stage's current diagrams opened. One approved item changes, asked on its own: SCR-145's action is now "Open another diagram listed for the stage", and its operation, result and failure are unchanged. The number of states is unchanged. This part passed its own checkpoint on 2026-11-24 through the same delegate.

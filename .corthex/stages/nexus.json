@@ -458,10 +458,15 @@
           "approved": "SCR-145's normal and error states, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): the approved normal text \"A removed diagram with open threads comes last, marked removed, and opens for its threads and its AI proposals only: its threads are read, answered and closed, its proposals show Reject and never Accept, and no new comment, move, direct edit or confirm button shows (SPEC-027).\" and error text \"a removed one still listed opens for its threads and its proposals' Reject only (SPEC-027)\" now name the three reasons, and the This diagram section lists the waiting direct edits with Cancel edit in place of the confirm button; no Cancel confirmation shows. SCR-146 and SCR-144 are unchanged. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "The name of opening another diagram, pull request 153, at commit 38969e3 (note 5 of the WBS): SCR-145's action, approved as \"Open another diagram of the stage\" / \"단계의 다른 그림 열기\", is now \"Open another diagram listed for the stage\" / \"단계에 나열된 다른 그림 열기\", since it also opens a removed diagram still listed (SPEC-027). Its operation, result, failure and the number of states are unchanged. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-24T10:36:45+09:00"
+      "updated": "2026-11-24T10:46:20+09:00"
     },
     "09-mockup": {
       "state": "done",
@@ -557,10 +562,15 @@
           "approved": "TASK-468 added and TASK-458's row, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): TASK-468 (Must, S, a Claude worker, from SPEC-027, touching API-264, API-265, TBL-151, TBL-155 and TBL-158, after TASK-440, TASK-441, TASK-444 and TASK-445; TASK-464 and the removed-diagram case of TASK-458 and TASK-460 wait for it) builds the listing and the 404; TASK-458's approved \"the stage's diagrams with ?d=, removed ones with open threads last\" becomes \"the stage's diagrams with ?d=, removed ones still listed last\". Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "SCR-145 against the stage-09 mockup, pull request 153, at commit 38969e3: stage 08's list of diagrams shows each screen's full name, where the mockup shortens it; and the text under stage 01's title on a PC leaves out the mockup's F2 renaming until TASK-460, whose approved done condition (\"The waiting state of SCR-145 matches its screen definition at both widths; a phone offers none of these actions; every response API-270, API-271, API-272, API-273 lists has a passing test\") now also says that this text is the mockup's again. Section 4 records the two differences, and stage 12's QA looks at them again. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",
-      "updated": "2026-11-24T10:36:45+09:00"
+      "updated": "2026-11-24T10:46:20+09:00"
     },
     "11-development": {
       "state": "not_started",

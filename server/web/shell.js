@@ -5,8 +5,8 @@
 // The page holds no project data before the API answers it: the shell reads the screen's data and the header's, and
 // draws nothing of a project until a read answered it. It keeps nothing an API answered (see storage.js).
 
-import { PROJECTS_HREF, projectHref, stageHref, TODO_HREF } from './address.js';
-import { read } from './api.js';
+import { parseAddress, PROJECTS_HREF, projectHref, stageHref, TODO_HREF } from './address.js';
+import { probe, read, write } from './api.js';
 import { fill, h, icon } from './dom.js';
 import { MESSAGES } from './messages.js';
 import { STAGES } from './stages.js';
@@ -54,6 +54,13 @@ export function startShell(root, screen, address) {
   let misses = {};
   // Whether a part's read again failed and the part kept what it showed, so the read time shows (states.js readTag).
   let partStale = false;
+  // How the address was last reached: 'open' (the page opened, or the browser went back or forward to it), 'switch'
+  // (shell.go) or 'instead' (see showGone), and the note a screen's instead() left for its next view.
+  let via = 'open';
+  let note = null;
+  // How many times the address changed in the page (arrive, or showGone's instead): a load whose address changed while
+  // it read leaves its answers unshown, and the load the change asked for shows the new address.
+  let arrivals = 0;
 
   const shell = {
     read: (path) => {
@@ -61,8 +68,11 @@ export function startShell(root, screen, address) {
       return round.get(path);
     },
     reload: () => load(true),
+    write: writeOf,
     redraw,
     missed: (name) => misses[name] ?? null,
+    probe: probeOf,
+    go,
     onLeave: (keep) => leaving.push(keep),
     keepDraft,
     draftOf,
@@ -81,6 +91,7 @@ export function startShell(root, screen, address) {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && data !== null) load(true);
   });
+  globalThis.addEventListener?.('popstate', () => arrive(globalThis.location.pathname, globalThis.location.search, 'open'));
   setInterval(showTimes, TICK_MS);
   load(false);
   return shell;
@@ -96,6 +107,8 @@ export function startShell(root, screen, address) {
     }
     busy = true;
     round = new Map();
+    const at = arrivals;
+    const how = via;
     if (!refresh) {
       data = null;
       render({ loading: true });
@@ -108,9 +121,22 @@ export function startShell(root, screen, address) {
     ];
     const reads = Object.entries(screen.reads(address));
     const outcomes = await Promise.all(reads.map(([, path]) => shell.read(path)));
+    // The reads that need what the first ones answered, such as the workbench's diagram (API-265), which API-264's list
+    // names: made once every first read answered, and shown with them as one load.
+    if (screen.follow !== undefined && outcomes.every((outcome) => stateOf(outcome, states).state === 'normal')) {
+      const answered = Object.fromEntries(reads.map(([name], index) => [name, outcomes[index].body]));
+      const more = Object.entries(screen.follow({ address, data: answered, shell, via, note }));
+      reads.push(...more);
+      outcomes.push(...await Promise.all(more.map(([, path]) => shell.read(path))));
+    }
     await Promise.all(headerReads);
     busy = false;
-    if (!ended) settle(refresh, reads, outcomes);
+    if (!ended && at === arrivals) {
+      settle(refresh, reads, outcomes, how);
+      // Only the load the switch asked for opens something else instead of a gone thing; a later one, such as a read
+      // again or a reload after a write, shows it gone.
+      if (at === arrivals) via = 'open';
+    }
     if (queued !== null && !ended) {
       const next = queued;
       queued = null;
@@ -120,7 +146,7 @@ export function startShell(root, screen, address) {
 
   // Shows what a load's reads answered. A read of one of the screen's parts that fails leaves the rest of the screen
   // as it is: the part keeps what it showed, or has null on a first load, and the screen shows the failure there.
-  function settle(refresh, reads, outcomes) {
+  function settle(refresh, reads, outcomes, how) {
     const found = outcomes.map((outcome) => stateOf(outcome, states));
     const denied = found.findIndex(({ state }) => state === 'permission');
     if (denied !== -1) return permission(found[denied].kind, outcomes[denied]);
@@ -132,7 +158,8 @@ export function startShell(root, screen, address) {
     }
     if (failed !== -1) {
       data = null;
-      return render({ failure: outcomes[failed], kind: found[failed].kind });
+      if (found[failed].kind === 'gone') return showGone(goneOf(outcomes[failed].code), how);
+      return render({ failure: outcomes[failed] });
     }
     if (found.length === 0 || found.some(({ state }) => state === 'normal')) succeeded();
     const missed = {};
@@ -159,10 +186,78 @@ export function startShell(root, screen, address) {
     showData();
   }
 
+  // A write of the screen's (api.js write), whose outcome it returns. A 401 or 403 goes through the permission rule,
+  // which ends the page or reloads it through the gate, as a read's does.
+  async function writeOf(method, path, body, key) {
+    return met(await write(method, path, body, key));
+  }
+
+  // An outcome of the screen's own request, met by the permission rule and the gate's mark, and returned.
+  function met(outcome) {
+    const { state, kind } = stateOf(outcome, states);
+    if (state === 'permission') permission(kind, outcome);
+    else if (state === 'normal') succeeded();
+    return outcome;
+  }
+
   // Draws the screen again from the data it has, without a read, as after a change of its own state such as a write
   // that began or ended. It does nothing before the data came or once the page ended.
   function redraw() {
     if (data !== null && !ended) again(showData);
+  }
+
+  // The status of a page that an operation serves rather than JSON (api.js probe), such as the mockup page (API-293)
+  // before its frame shows it. A 401 or 403 goes through the permission rule, as a read's does.
+  async function probeOf(path) {
+    return met(await probe(path));
+  }
+
+  // Opens href in this page when it is another address of the same screen and place, such as another diagram of the
+  // stage (?d=): the address goes into the browser's history and the screen loads it, as on opening, with its loading
+  // state. Any other address opens as a page of its own.
+  function go(href) {
+    const { pathname, search } = partsOf(href);
+    if (!samePlace(parseAddress(pathname, search))) {
+      globalThis.location.assign(href);
+      return;
+    }
+    globalThis.history.pushState(null, '', href);
+    arrive(pathname, search, 'switch');
+  }
+
+  // Loads the address the page is now at, reached as how says (see via). The browser going back or forward to another
+  // page's address reloads the page.
+  function arrive(pathname, search, how) {
+    if (ended) return;
+    const next = parseAddress(pathname, search);
+    if (!samePlace(next)) {
+      globalThis.location.reload();
+      return;
+    }
+    Object.assign(address, next);
+    arrivals += 1;
+    via = how;
+    note = null;
+    load(false);
+  }
+
+  function samePlace(next) {
+    return next !== null && ['screen', 'project', 'part', 'stage'].every((name) => next[name] === address[name]);
+  }
+
+  // What is gone, in place of the view, unless the screen opens something else instead (screen.instead): when the load
+  // a switch asked for (how) finds it, the workbench opens the stage's first diagram with a note (SCR-145). The address
+  // it gives replaces the one in the history; a second gone thing shows as gone.
+  function showGone(gone, how = 'open') {
+    const other = how === 'switch' ? screen.instead?.(context(), gone) ?? null : null;
+    if (other === null) return render({ gone });
+    const { pathname, search } = partsOf(other.href);
+    globalThis.history.replaceState(null, '', other.href);
+    Object.assign(address, parseAddress(pathname, search));
+    arrivals += 1;
+    via = 'instead';
+    note = other.note ?? null;
+    load(false);
   }
 
   // Draws the view again where the page is scrolled to.
@@ -203,7 +298,7 @@ export function startShell(root, screen, address) {
     if (found.kind === 'gone') {
       ended = true;
       data = null;
-      render({ failure: answer, kind: 'gone' });
+      render({ gone: goneOf(answer.code) });
       return null;
     }
     if (found.state === 'normal') succeeded();
@@ -216,21 +311,27 @@ export function startShell(root, screen, address) {
   }
 
   function context() {
-    return { address, data, shell };
+    return { address, data, shell, via, note };
   }
 
   function showData() {
     const ctx = context();
     const gone = screen.check?.(ctx) ?? null;
     header.current(screen.projectTitle?.(ctx) ?? null);
-    if (gone !== null) return render({ gone });
+    // While a load settles, via is still how its address was reached; a later redraw's is 'open'.
+    if (gone !== null) return showGone(gone, via);
     render({ ctx });
   }
 
+  // What a read's 404 says is gone: its code, with what the shell, or else the screen (screen.gone), says under it and
+  // links to.
+  function goneOf(code) {
+    return { code, ...(GONE[code] ?? screen.gone?.(code, address) ?? {}) };
+  }
+
   // Draws the view: the loading state, a failed read, a gone thing, or the screen's data.
-  function render({ loading = false, failure = null, kind = null, gone = null, ctx = null }) {
+  function render({ loading = false, failure = null, gone = null, ctx = null }) {
     clocks = [];
-    if (gone === null && failure !== null && kind === 'gone') gone = { code: failure.code, ...(GONE[failure.code] ?? {}) };
     if (gone !== null) {
       if (tabs !== null) tabs.hidden = gone.tabs === false;
       document.title = 'NEXUS';
@@ -341,6 +442,12 @@ export function startShell(root, screen, address) {
   }
 }
 
+// The path and the query of an address of this site, such as stageHref gives: "/p/a/_/03-user-flow?d=dg_...".
+function partsOf(href) {
+  const at = href.indexOf('?');
+  return at === -1 ? { pathname: href, search: '' } : { pathname: href.slice(0, at), search: href.slice(at) };
+}
+
 function reloadButton() {
   return h('button', { type: 'button', class: 'btn tertiary', on: { click: () => globalThis.location.reload() } }, '새로 고침');
 }
@@ -354,11 +461,16 @@ function crumbOf(items) {
   return h('nav', { class: 'crumb', 'aria-label': '위치' }, parts);
 }
 
+// A screen's title, its tag of the read time and the text under it: a text, a node or a list of them, or { text, mono }
+// for a text in code type, such as a mockup's name.
 function titleOf(title, tag, description) {
   const heading = title === null ? h('span', { class: 'sk head', 'aria-hidden': 'true' }) : h('h1', {}, title);
-  return h('div', { class: 'title' }, h('div', { class: 't' },
-    h('div', { class: 'row' }, heading, tag),
-    description === null ? null : h('p', { class: 'sec' }, description)));
+  // { text, mono } is a plain object; a text, a node or a list of them, such as SCR-144's, is drawn as it is.
+  const plain = description !== null && typeof description === 'object' && Object.getPrototypeOf(description) === Object.prototype;
+  const under = plain
+    ? h('p', { class: description.mono ? 'sec mono' : 'sec' }, description.text)
+    : description === null ? null : h('p', { class: 'sec' }, description);
+  return h('div', { class: 'title' }, h('div', { class: 't' }, h('div', { class: 'row' }, heading, tag), under));
 }
 
 // The stage tabs of the address's project and part, the current stage marked. They are the 13 stages whatever was

@@ -5,8 +5,8 @@
 //
 // The server answers a GET of a path outside /api here, and only when it serves pages (main.js): the shell with 200 at
 // an address that names a screen (web/address.js parseAddress, which the page reads its screen from too), a file of
-// web/ at /web/<its path>, and the shell with 404 at any other path, where the page says "없는 주소예요." Every /api path
-// stays the API's, whose unknown ones answer the not_found Problem. Every answer carries PAGE_HEADERS, the
+// web/ at /web/<its path>, src/layout.js at /web/layout.js (SHARED), and the shell with 404 at any other path, where
+// the page says "없는 주소예요." Every /api path stays the API's, whose unknown ones answer the not_found Problem. Every answer carries PAGE_HEADERS, the
 // Content-Security-Policy that loads nothing from another site among them, and nosniff (see app.js).
 
 import { readdirSync, readFileSync } from 'node:fs';
@@ -22,9 +22,14 @@ const TYPES = Object.freeze({
   '.woff2': 'font/woff2',
 });
 const HTML = 'text/html; charset=utf-8';
-// Only the page itself, its own scripts, styles and fonts, and reads of NEXUS's API: no inline script or style, no
-// frame, no form sent by the browser, no plugin, and markup strings refused (Trusted Types), so a page builds its
-// elements from text (see web/dom.js).
+// The modules of src/ that a page loads too, at /web/<name>: layout.js imports nothing, so the workbench lays out a
+// moved box with the drawers' own layout (TASK-458, see web/relayout.js).
+const SHARED = Object.freeze(['layout.js']);
+// Only the page itself, its own scripts, styles and fonts, reads of NEXUS's API, and frames of NEXUS's own answers:
+// no inline script or style, no form sent by the browser, no plugin, and markup strings refused (Trusted Types), so a
+// page builds its elements from text (see web/dom.js). The one frame is the stage-09 mockup page (API-293, TASK-458),
+// whose own answer makes it a sandbox with no NEXUS origin; frame-src 'self' lets a frame load nothing from another
+// site, and a mockup that opens another site's page in its frame is refused.
 export const PAGE_POLICY = [
   "default-src 'none'",
   "script-src 'self'",
@@ -32,6 +37,7 @@ export const PAGE_POLICY = [
   "img-src 'self'",
   "font-src 'self'",
   "connect-src 'self'",
+  "frame-src 'self'",
   "base-uri 'none'",
   "form-action 'none'",
   "frame-ancestors 'none'",
@@ -57,6 +63,7 @@ export function createPages() {
     const type = TYPES[extname(path)];
     if (type !== undefined) files.set(`/web/${path}`, answer(200, type, readFileSync(new URL(path, WEB)), type === TYPES['.woff2']));
   }
+  for (const name of SHARED) files.set(`/web/${name}`, answer(200, TYPES['.js'], readFileSync(new URL(`../src/${name}`, import.meta.url))));
   files.set('/web/messages.js', answer(200, TYPES['.js'], Buffer.from(messagesModule())));
   const page = answer(200, HTML, shell);
   const missing = answer(404, HTML, shell);
