@@ -404,3 +404,13 @@ TASK-469를 만들다가, 에이전트가 확정을 기록하면 SCR-145#confirm
 - **API-276의 테이블:** TBL-147, TBL-151, TBL-152, TBL-160, TBL-166 대신 TBL-147, TBL-151, TBL-152, TBL-157, TBL-160, TBL-166을 적어요.
 
 오퍼레이션, 상태 코드, 코드, 명세 행은 바뀌지 않아요. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+### 제안의 소스 경로
+
+WBS 4절은 제안의 `source_text`가 01단계에서, 그리고 현재 드로잉이 여러 파일에서 읽힌 05·07단계에서 변경을 만들지 않는다고 적어요. 그래서 소유자는 SPEC-018의 "X 위의 Y" 대신 변경 설명이 붙은 X를 봐요. `source_text`는 경로가 없는 텍스트 하나라서, NEXUS는 그것이 어느 파일을 대신하는지 알 수 없어요. 2026-11-24에 관리자는 hub가 경로를 보내기로 결정했어요. TASK-470은 그 경로를 API-256의 요청에 더해요. NEXUS는 텍스트를 그 파일 대신 읽고, 드로잉이 다른 파일에서 읽은 것은 hub의 그림이 주는 그대로 둬요. 01단계에서는 NEXUS가 Markdown도 직접 읽어요. TASK-466이 SQL과 YAML을 읽는 것처럼요. 이것은 서버의 일이고 계약의 일은 아니에요. 경로는 NEXUS가 변경을 계산하는 동안에만 쓰고 저장하지 않으므로 05단계는 바뀌지 않아요. SPEC-018의 승인 기준이 이미 "X 위의 Y"를 요구하므로 04단계도 바뀌지 않아요. 승인된 항목 3개가 바뀌고, 하나씩 따로 여쭤요.
+
+- **ProposalRequest**에 `source_path`가 생겨요. 선택 필드이고, 그림의 `key`와 같은 1~300자 문자열이에요. 뜻은 "`source_text`가 대신하는 파일의 저장소 경로"예요. 드로잉이 여러 파일에서 읽혔으면 필요하고, 파일 하나에서 읽혔으면 빼도 되며, 보낸다면 그 파일을 적어야 해요. 드로잉이 읽지 않은 파일을 적으면 `invalid_request`로 거절해요. `source_text` 없이 `source_path`만 보내면 스키마에 어긋나요(`if`/`then`). 계약에는 영어 설명 "The repository path of the file that source_text is the whole proposed text of, as the hub's picture names its files, such as db/nexus.sql. NEXUS reads source_text as that file and keeps what the drawing read from its other files. A drawing read from several files needs it; where the drawing reads one file it may be left out, and when sent it names that file. A path that names no file the drawing reads is refused as invalid_request. It comes only with source_text and is not kept."을 적어요. 경로가 없으면 NEXUS는 지금처럼 드로잉이 읽은 파일 하나로 텍스트를 읽어요. 드로잉이 파일을 여럿 읽었으면 지금은 텍스트를 저장하고 변경을 만들지 않지만, 앞으로는 `source_path`에 대한 `invalid_request`로 거절해요.
+- **API-256의 설명**에서 "With source_text, NEXUS draws the proposed document and keeps the differences as changes"가 "With source_text, NEXUS draws the proposed document, as the file source_path names where the drawing reads several, and keeps the differences as changes"로 바뀌어요.
+- **API-256의 400 응답**에 `field`가 `source_path`인 `invalid_request` 예시 2개가 생겨요. "source_path names no file the drawing reads"와 "source_path is needed: the drawing reads several files"예요.
+
+API-256은 드로잉의 그림을 지니는 TBL-149와 TBL-150을 이미 적고 있으므로 테이블은 바뀌지 않아요. 오퍼레이션, 상태 코드, 코드, 명세 행은 바뀌지 않아요. 이 몫은 따로 체크포인트를 기다려요.

@@ -2132,7 +2132,7 @@ paths:
     post:
       operationId: makeProposal
       summary: Post an AI proposal
-      description: Stores the change set against the current drawing and lays it over the diagram, the one that diagram names or that the items pick in a stage with several (SPEC-018). Only a drawn picture of a stage other than the mockup's takes a proposal; a stage with no drawn picture answers not_drawn. With source_text, NEXUS draws the proposed document and keeps the differences as changes; without it, the change set marks items with the change text. A proposal answering a comment claims it for the session; one of the agent's own opens a thread for it. A commit other than the current drawing's is refused as document_changed. The owner's sign-in gets agent_only, since the owner edits directly instead.
+      description: Stores the change set against the current drawing and lays it over the diagram, the one that diagram names or that the items pick in a stage with several (SPEC-018). Only a drawn picture of a stage other than the mockup's takes a proposal; a stage with no drawn picture answers not_drawn. With source_text, NEXUS draws the proposed document, as the file source_path names where the drawing reads several, and keeps the differences as changes; without it, the change set marks items with the change text. A proposal answering a comment claims it for the session; one of the agent's own opens a thread for it. A commit other than the current drawing's is refused as document_changed. The owner's sign-in gets agent_only, since the owner edits directly instead.
       tags: [agent]
       x-corthex:
         id: API-256
@@ -2211,6 +2211,22 @@ paths:
                     traceId: d198b739b8963aa6
                     field: text
                     limit: 4000
+                source-path-unknown:
+                  value:
+                    title: The request is not valid
+                    status: 400
+                    detail: source_path names no file the drawing reads
+                    code: invalid_request
+                    traceId: 8d3f0b6a2c9e4715
+                    field: source_path
+                source-path-needed:
+                  value:
+                    title: The request is not valid
+                    status: 400
+                    detail: "source_path is needed: the drawing reads several files"
+                    code: invalid_request
+                    traceId: 4b7e1d9c0a3f6825
+                    field: source_path
         "401":
           description: "Refused: no valid credential or sign-in"
           content:
@@ -10737,8 +10753,17 @@ components:
           description: The proposed document, from which NEXUS works out the changes.
           minLength: 1
           maxLength: 1000000
+        source_path:
+          type: string
+          description: "The repository path of the file that source_text is the whole proposed text of, as the hub's picture names its files, such as db/nexus.sql. NEXUS reads source_text as that file and keeps what the drawing read from its other files. A drawing read from several files needs it; where the drawing reads one file it may be left out, and when sent it names that file. A path that names no file the drawing reads is refused as invalid_request. It comes only with source_text and is not kept."
+          minLength: 1
+          maxLength: 300
         comment:
           $ref: "#/components/schemas/CommentId"
+      if:
+        required: [source_path]
+      then:
+        required: [source_text]
     EditReport:
       type: object
       required: [event]
