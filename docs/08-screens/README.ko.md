@@ -123,3 +123,11 @@ TASK-460을 만들다가 SCR-145가 AI 제안마다 "다른 방법"을 보이라
 - SCR-145#normal의 "AI 제안" 부분: ""AI 제안": 종류, 글, 이유, 다른 방법, 수락·거절(없으면 "모두 처리함")"(영어: ""AI proposals": each with its kind, text, reason and the other way, and Accept and Reject ("All answered" when none)")이 ""AI 제안": 종류, 글, 이유, 수락·거절(없으면 "모두 처리함")"(영어: ""AI proposals": each with its kind, text and reason, and Accept and Reject ("All answered" when none)")이 됩니다.
 
 SCR-145의 다른 곳은 바뀌지 않습니다. 07단계 README의 "이유와 다른 방법을 적은 AI 제안"은 그때 통과한 것의 기록이라 그대로 둡니다. 와이어프레임은 정의에서 다시 만들었습니다. 그래서 PR 104 여덟·아홉 번째 리뷰의 글에 머물러 있던 SCR-145#normal과 SCR-145#error 프레임이 "지운 그림의 제안 거절"과 2026-11-24 기능 변경의 글도 따라잡습니다. 이 따라잡기는 이 정정의 일부가 아닙니다. 상태 수는 그대로입니다. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+### 워크숍 스티커 여덟 종류
+
+TASK-462를 만들다가 SCR-145#workshop은 범례의 여섯 종류로 자유로운 스티커를 붙이게 하지만, 이벤트 스토밍의 스텝 2와 스텝 5는 외부 시스템과 액터 종류로 시작한다는 것을 찾았습니다. 이 두 종류도 디자인 토큰이 색을 줍니다(`--corthex-sticky-external-system`, `--corthex-sticky-actor`). 여섯 종류로는 소유자가 그 두 스텝의 스티커를 붙일 수 없습니다. PR 158에서 대리인은 토큰이 색을 주는 여덟 종류 중 어느 것으로든 스티커를 더하고, 범례는 목업의 여섯 종류로 두는 것을 승인했습니다. 승인된 항목 1개(SCR-145)가 한 곳에서 바뀌고, 따로 여쭙니다.
+
+- SCR-145#workshop: "여섯 종류의 자유로운 스티커"(영어: "free sticky notes in the six kinds")가 "토큰이 색을 주는 여덟 종류(범례의 여섯과 액터, 외부 시스템)의 자유로운 스티커"(영어: "free sticky notes in the eight kinds the tokens colour (the legend's six, actor and external system)")가 됩니다.
+
+SCR-145의 다른 곳은 바뀌지 않고, 범례는 목업의 여섯 종류 그대로입니다. 07단계 README의 "스티커 여섯 종류와 그 색"과 09단계 README의 "스티커 여섯 종류와 색"은 그때 통과한 것의 기록이라 그대로 둡니다. 와이어프레임은 정의에서 다시 만들었고, SCR-145#workshop의 글만 바뀌고 프레임은 바뀌지 않습니다. 상태 수는 그대로입니다. 이 몫은 따로 체크포인트를 기다려요.
