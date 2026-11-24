@@ -393,4 +393,4 @@ TASK-453을 만들다가 Miro 보드 가져오기인 API-292가 TBL-164와 TBL-1
 - `diagram_not_found`의 뜻과 그것을 옮긴 영어 README 2절의 표: "the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027)"가 "the diagram that a new direct edit, a move, a confirmation or a new thread names was removed, or the diagram read (API-265) names a removed diagram with no open thread, proposed AI proposal or direct edit waiting for reflection left (SPEC-027)"이 돼요. 지운 그림에 대한 API-265의 404를 이제 계약에 적어요. 그림 읽기라고 적는 것은 목업 페이지(API-293)가 지운 목업의 페이지를 계속 주기 때문이고, 새 직접 편집이라고 적는 것은 그곳에서도 직접 편집 취소(API-273)는 받기 때문이에요.
 - `diagram_not_found`의 client 줄: "a removed one still listed opens for its threads only (SPEC-027)"가 "a removed one still listed opens for its threads, its proposals' Reject and its direct edits' Cancel edit (SPEC-027)"이 돼요.
 
-이 몫은 따로 체크포인트를 기다려요.
+이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.

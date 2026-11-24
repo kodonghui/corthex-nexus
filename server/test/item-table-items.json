@@ -2,7 +2,7 @@
  "about": "The pinned hub's items of this repository's stage 02, as its build_items makes them and its snapshot orders them, and the SHA-256 of the stage's source. tests/test_item_table_items.py checks them against the pinned hub and says how to make them again.",
  "stage": "02-prd",
  "source": "docs/02-prd/requirements.md",
- "sha256": "ce5a0690aa321bee0a5ab2a6025365da0848fb06b406e39406ee075833375abe",
+ "sha256": "8ef07b86f68c9267b82a2717bed267c78a6109d56210cc5d0fd543ddc9d546f1",
  "items": [
   {
    "id": "REQ-001",

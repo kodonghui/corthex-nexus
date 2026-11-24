@@ -393,4 +393,4 @@ A removed diagram keeps what waits on it: it stays listed and opens while it has
 - The meaning of `diagram_not_found`, and section 2's table with it: "the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027)" becomes "the diagram that a new direct edit, a move, a confirmation or a new thread names was removed, or the diagram read (API-265) names a removed diagram with no open thread, proposed AI proposal or direct edit waiting for reflection left (SPEC-027)". API-265's 404 for a removed diagram is now written in the contract; it names the diagram read, since the mockup page (API-293) still serves a removed mockup's page, and a new direct edit, since cancelling one (API-273) is taken there.
 - The client line of `diagram_not_found`: "a removed one still listed opens for its threads only (SPEC-027)" becomes "a removed one still listed opens for its threads, its proposals' Reject and its direct edits' Cancel edit (SPEC-027)".
 
-This part waits for its own checkpoint.
+This part passed its own checkpoint on 2026-11-24 through the same delegate.
