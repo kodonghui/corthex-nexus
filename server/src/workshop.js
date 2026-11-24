@@ -3,6 +3,8 @@
 // removes sticky notes on it (TBL-164, TBL-165), and confirms each step; an agent drafts a step's notes with their
 // confidence labels and reports the pull request that writes a confirmed step into the domain document. NEXUS calls no
 // AI model (spec rule 6): a draft and a report come from the agent through the API. The board's screen is TASK-462's.
+// The owner may also import a Miro board's sticky notes and connectors (TASK-453; API-292, SPEC-041), which miro.js
+// reads; they become the owner's notes and links under the same limits.
 //
 // The rules the specs, the contract and the tables left open, chosen by the coordinator for TASK-452 and waiting for
 // the maintainer's delegate (see the server README's "Workshop" section):
@@ -36,6 +38,7 @@ import { pullRequestLink, sessionOf } from './claims.js';
 import { boundedText, emptyOf, formOf, onlyFields } from './comments.js';
 import { isCheckpointStep, stepsChanged } from './entries.js';
 import { idOf, keyOf } from './ids.js';
+import { readMiroBoard } from './miro.js';
 import { STEPS } from './params.js';
 import { coordinateOf } from './positions.js';
 import { invalidRequest, Problem } from './problem.js';
@@ -97,6 +100,11 @@ function statementsOf(store) {
       insertNote: store.prepare(
         `INSERT INTO sticky_notes (workshop_id, step, kind, body, x, y, made_by, credential_id, confidence, created_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ),
+      // A note of a Miro import (API-292): the owner's, from_miro.
+      importNote: store.prepare(
+        `INSERT INTO sticky_notes (workshop_id, step, kind, body, x, y, made_by, from_miro, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, 'owner', 1, ?)`,
       ),
       changeNote: store.prepare(
         'UPDATE sticky_notes SET step = ?, body = ?, x = ?, y = ?, made_by = ?, credential_id = ?, confidence = ? WHERE id = ?',
@@ -572,7 +580,31 @@ function reportStepWritten({ store, params, request, body, credential, now }) {
   return answer(true, after.get(params.step).written_at, done ? 'closed' : 'open');
 }
 
-// The routes of the ten operations (see router.js): API-260 and API-261 of the agent family, the rest of the owner's.
+// API-292: adds the sticky notes and connectors of a Miro board export to the open workshop as the owner's notes and
+// links (SPEC-041), all or none: a step that would pass 1000 live notes, or a board 2000 live links, refuses the whole
+// file. Each import adds its notes again; a retry with its request key gets the first answer.
+function importMiroBoard({ store, params, body, now }) {
+  const statements = statementsOf(store);
+  const project = projectOf(statements, params.project);
+  const { notes, links } = readMiroBoard(body, LIMITS.text);
+  const workshop = openWorkshopOf(statements, project.id);
+  const added = new Map();
+  for (const { step } of notes) added.set(step, (added.get(step) ?? 0) + 1);
+  for (const [step, count] of added) {
+    if (stepNotes(statements, workshop.id, step) + count > LIMITS.stepNotes) {
+      throw invalidRequest('data', `the import would put more than ${LIMITS.stepNotes} notes in a step`);
+    }
+  }
+  if (Number(statements.linkCount.get(workshop.id).n) + links.length > LIMITS.links) {
+    throw invalidRequest('data', `the import would put more than ${LIMITS.links} links on the board`);
+  }
+  const time = timeOf(now);
+  const keys = notes.map(({ step, kind, text, x, y }) => Number(statements.importNote.run(workshop.id, step, kind, text, x, y, time).lastInsertRowid));
+  for (const { from, to } of links) statements.insertLink.run(workshop.id, keys[from], keys[to], time);
+  return { status: 201, body: { workshop: idOf('ws', workshop.id), notes: notes.length, links: links.length } };
+}
+
+// The routes of the eleven operations (see router.js): API-260 and API-261 of the agent family, the rest of the owner's.
 // Each write takes its request key (rule 3).
 const WRITE = Object.freeze({ requestKey: true });
 const PROJECT = Object.freeze({ project: 'project_not_found' });
@@ -633,5 +665,14 @@ export const WORKSHOP_ROUTES = Object.freeze([
     params: { ...PROJECT, step: 'step_not_found' },
     body: 'json',
     handle: confirmStep,
+  },
+  {
+    ...WRITE,
+    method: 'POST',
+    path: '/api/projects/{project}/workshop/imports',
+    action: 'importMiroBoard',
+    params: PROJECT,
+    body: 'miro',
+    handle: importMiroBoard,
   },
 ]);
