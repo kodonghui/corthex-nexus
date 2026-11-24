@@ -17,10 +17,11 @@
 // - skeleton(ctx): the grey shapes of its loading state;
 // - render(ctx) and panel(ctx): its body and, on the workbench, its work panel, as nodes.
 // ctx is { address, data, shell }: shell gives read, reload, onLeave, keepDraft, draftOf, isPhone, message, staleBar,
-// errorNotice and since.
+// errorNotice, since and outcome.
 
-import { isDiagramId, isThreadId, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
+import { isDiagramId, isThreadId, projectApi, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
 import { h } from './dom.js';
+import { projectBody, projectDescription, projectSkeleton } from './project.js';
 import { SHARED_STATES } from './states.js';
 import { stageOf } from './stages.js';
 import { todoBody } from './todo.js';
@@ -31,7 +32,7 @@ const CHANGES_STATES = Object.freeze([...SHARED_STATES, 'waiting', 'not-drawn', 
 export const LISTED_DIAGRAMS = 500;
 const DIAGRAM_GONE_SUB = '문서에서 빠졌거나 주소가 바뀌었어요. 작업대의 다른 단계는 그대로 열려요.';
 
-const projectRead = (address) => ({ project: `/api/projects/${encodeURIComponent(address.project)}` });
+const projectRead = (address) => ({ project: projectApi(address.project) });
 const skeletonRows = (count) => h('div', { class: 'cards' },
   Array.from({ length: count }, () => h('span', { class: 'sk row full', 'aria-hidden': 'true' })));
 const skeletonGroup = (count, heading = true) => h('section', { class: 'group', 'aria-hidden': 'true' },
@@ -94,8 +95,9 @@ export const SCREENS = Object.freeze({
     title: ({ data }) => data.project.title,
     projectTitle: ({ data }) => data.project.title,
     crumb: ({ data }) => [{ text: '프로젝트', href: PROJECTS_HREF }, { text: data.project.title }],
-    skeleton: () => [skeletonGroup(13)],
-    render: () => [],
+    description: projectDescription,
+    skeleton: projectSkeleton,
+    render: projectBody,
   },
   'SCR-145': {
     layout: 'workbench',
