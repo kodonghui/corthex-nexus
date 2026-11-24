@@ -16,6 +16,7 @@ import { snapshotRoutes } from '../src/snapshots.js';
 import { openStore } from '../src/store.js';
 import { CANNOT_DRAW, placeOf, testDrawers } from './drawers.js';
 import { responseRecord } from './responses.js';
+import { seed } from './seed.js';
 import { FORMAT_02, FORMAT_03, newCommit, repositorySnapshot } from './snapshots.js';
 import { assertNoneIn, startServer } from './support.js';
 import { checkLayer, checkTables, recordTables } from './tables.js';
@@ -537,6 +538,33 @@ describe('drawing a snapshot', () => {
       // The same diagram, its source unchanged: no new drawing.
       assert.equal(drawings(row.id).length, 1);
     }
+  });
+
+  test('the merge commit\'s drawing that lacks a change still reflects it, and a comment on the diagram says so (SPEC-025, note 26)', async () => {
+    const name = 'lacks-a-change';
+    const [a, b] = [newCommit(), newCommit()];
+    assert.equal((await push(repositorySnapshot(FORMAT_03, { name, commit: a }))).status, 201);
+    // A direct edit of the ERD, in a pull request merged as b, renames an element to a name no document has.
+    const rows = seed(db);
+    const space = { id: Number(project(name).id) };
+    const erd = diagrams(name).find((row) => row.kind === 'erd');
+    const where = { id: Number(erd.id), drawing: Number(lastDrawn(erd.id).id) };
+    const [{ element_key: key }] = elements(where.drawing);
+    const set = rows.changeSet(space, where);
+    rows.change(set, { op: 'rename', element: key, name: 'a_name_no_document_has' });
+    const merged = rows.pullRequest(space, { number: 17, state: 'merged' });
+    rows.setChangeSet(set, { pullRequestId: merged });
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(b, merged);
+
+    clock.now = START + 8000;
+    const answer = await push(repositorySnapshot(FORMAT_03, { name, commit: b, replaces: a }));
+    assert.deepEqual([answer.status, answer.json.change_sets_reflected], [200, 1]);
+    const [comment] = db.prepare(
+      "SELECT c.author, c.body FROM comments c JOIN comment_threads h ON h.id = c.thread_id WHERE h.diagram_id = ? AND h.target_kind = 'diagram'",
+    ).all(where.id);
+    assert.equal(comment.author, 'agent');
+    assert.ok(comment.body.startsWith('병합한 PR #17의 문서에 이 변경이 없어요.'));
+    assert.ok(comment.body.endsWith(' → a_name_no_document_has'));
   });
 
   test('a drawing reads other documents of its own snapshot, which its digest covers', async () => {

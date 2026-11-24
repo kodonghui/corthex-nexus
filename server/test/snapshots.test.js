@@ -17,6 +17,7 @@ import { openStore } from '../src/store.js';
 import { contract, validate } from './contract.js';
 import { testDrawers } from './drawers.js';
 import { responseRecord } from './responses.js';
+import { seed } from './seed.js';
 import { FORMAT_02, FORMAT_03, newCommit, REPOSITORY, repositorySnapshot } from './snapshots.js';
 import { assertNoneIn, exchange, forbiddenValues, head, localGate, newId, startServer, testStore, TRACE_ID } from './support.js';
 import { checkLayer, checkTables, recordTables } from './tables.js';
@@ -692,6 +693,32 @@ describe('snapshot intake', () => {
     assert.deepEqual((await other.logged(2)).map((line) => line.error), ['Error', 'Error']);
     assert.equal(other.logText().includes('the store failed'), false);
     assert.equal(Number(store.prepare('SELECT count(*) AS n FROM snapshots').get().n), 0);
+  });
+
+  test('a snapshot of a pull request\'s merge commit reflects its change sets, and says what its drawing lacks (SPEC-025, note 26)', async () => {
+    const name = 'merged-and-lacking';
+    const [a, b] = [newCommit(), newCommit()];
+    assert.equal((await push(repositorySnapshot(FORMAT_03, { name, commit: a }))).status, 201);
+    // A direct edit of the ERD, in a pull request merged as b, renames an element to a name no document has.
+    const rows = seed(db());
+    const space = { id: Number(project(name).id) };
+    const erd = db().prepare("SELECT id FROM diagrams WHERE project_id = ? AND kind = 'erd'").get(space.id);
+    const drawing = db().prepare("SELECT max(id) AS id FROM drawings WHERE diagram_id = ? AND status = 'drawn'").get(erd.id);
+    const where = { id: Number(erd.id), drawing: Number(drawing.id) };
+    const { element_key: key } = db().prepare('SELECT element_key FROM elements WHERE drawing_id = ? ORDER BY id LIMIT 1').get(where.drawing);
+    const set = rows.changeSet(space, where);
+    rows.change(set, { op: 'rename', element: key, name: 'a_name_no_document_has' });
+    const merged = rows.pullRequest(space, { number: 18, state: 'merged' });
+    rows.setChangeSet(set, { pullRequestId: merged });
+    db().prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(b, merged);
+
+    const answer = await push(repositorySnapshot(FORMAT_03, { name, commit: b, replaces: a }));
+    assert.deepEqual([answer.status, answer.json.change_sets_reflected], [200, 1]);
+    const bodies = db().prepare(
+      "SELECT c.body FROM comments c JOIN comment_threads h ON h.id = c.thread_id WHERE h.diagram_id = ? AND h.target_kind = 'diagram'",
+    ).all(where.id).map((row) => row.body);
+    assert.equal(bodies.length, 1);
+    assert.ok(bodies[0].startsWith('병합한 PR #18의 문서에 이 변경이 없어요.'));
   });
 
   test('answer every response API-242 and API-243 list', () => {

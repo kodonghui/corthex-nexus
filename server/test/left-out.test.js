@@ -76,16 +76,17 @@ describe('left-out sources', () => {
 
   // A project's pushes: each push sends the next commit, replacing the one before, in format, with the ERD's tables
   // (none when tables is null) in erdPart, the flow files (0.3 only), each in its part, the items, left_out and the
-  // checks given, and answers the push's answer. same sends the held commit again.
+  // checks given, and answers the push's answer. same sends the held commit again, and commit names the next one.
   function project(name) {
     let held;
     const space = { name };
     space.push = async ({
       format = FORMAT_03, tables = TABLES, erdPart = 'nexus', flows = [], items = [], left = [], checks = [], same = false,
+      commit = newCommit(),
     } = {}) => {
       if (!bases.has(format)) bases.set(format, repositorySnapshot(format, { name: 'base' }));
       const snapshot = structuredClone(bases.get(format));
-      const sent = same ? held : newCommit();
+      const sent = same ? held : commit;
       snapshot.project.name = name;
       snapshot.repos['.'].commit = sent;
       snapshot.repos['.'].default.commit = sent;
@@ -264,6 +265,30 @@ describe('left-out sources', () => {
     assert.deepEqual(drawingsOf(a).map(([status]) => status), ['drawn', 'failed', 'drawn']);
     assert.deepEqual(state(), kept);
     assert.deepEqual(listed(space, FLOWS), [['nexus', 'passed', [[idOf('dg', a.id), false, true]]]]);
+  });
+
+  test('a change set merged while its source is left out is reflected at the drawing shown, and a comment says what it lacks (note 26)', async () => {
+    const space = project('left-and-reflected');
+    await space.push({ flows: [FLOW_SET[0]] });
+    const a = diagram(space, FLOW_A);
+    const [{ element_key: key, name }] = db.prepare('SELECT element_key, name FROM elements WHERE drawing_id = ? ORDER BY id').all(a.drawing);
+    const set = rows.changeSet(space, a);
+    rows.change(set, { op: 'rename', element: key, name: 'A name the file does not have' });
+    const merged = rows.pullRequest(space, { number: 16, state: 'merged' });
+    rows.setChangeSet(set, { pullRequestId: merged });
+    const merge = newCommit();
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(merge, merged);
+
+    // The merge commit's snapshot leaves the file out: the diagram shows its last good drawing, which lacks the rename.
+    const left = await space.push({ left: [leftOut(FLOWS, 'size', FLOW_A)], commit: merge });
+    assert.deepEqual([counted(left), moved(left)], [[0, 1, 0], [0, 1, 0]]);
+    const reflected = db.prepare('SELECT state, reflected_drawing_id FROM change_sets WHERE id = ?').get(set);
+    assert.deepEqual([reflected.state, Number(reflected.reflected_drawing_id)], ['reflected', a.drawing]);
+    const [comment] = db.prepare(
+      "SELECT h.drawing_id, c.body FROM comments c JOIN comment_threads h ON h.id = c.thread_id WHERE h.diagram_id = ? AND h.target_kind = 'diagram'",
+    ).all(a.id);
+    assert.equal(Number(comment.drawing_id), a.drawing);
+    assert.equal(comment.body.split('\n')[1], `- 직접 편집, 이름 바꾸기: ${name === '' || name === key ? key : `${key} ${name}`} → A name the file does not have`);
   });
 
   test('touch the tables API-242 lists, and admission only the layer\'s (note 23)', () => {

@@ -21,7 +21,22 @@ const DEFAULTS = Object.freeze({
   NEXUS_BACKUP_DIR: '',
   // When the day's backup runs, as HH:MM in UTC. This default is an example; the deploy (TASK-464) sets the real time.
   NEXUS_BACKUP_TIME: '03:00',
+  // The read-only tokens of the tool status read (tool-status.js, TASK-467) have no default: without one, that tool is
+  // never called and its links show "not read yet" (SPEC-046).
+  NEXUS_NOTION_TOKEN: '',
+  NEXUS_JIRA_SITE: '',
+  NEXUS_JIRA_CLOUD_ID: '',
+  NEXUS_JIRA_EMAIL: '',
+  NEXUS_JIRA_TOKEN: '',
 });
+// The four settings of the Jira read, set all together or not at all.
+const JIRA_SETTINGS = Object.freeze(['NEXUS_JIRA_SITE', 'NEXUS_JIRA_CLOUD_ID', 'NEXUS_JIRA_EMAIL', 'NEXUS_JIRA_TOKEN']);
+// A token as an API takes it: visible ASCII characters, with no space, up to 1,024 of them.
+const TOKEN = /^[\x21-\x7e]{1,1024}$/;
+// One Jira Cloud site, such as example.atlassian.net.
+const JIRA_SITE = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.atlassian\.net$/;
+// A site's cloud ID, a UUID.
+const CLOUD_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 // Access names each application by a 64-hex-digit audience tag.
 const AUDIENCE = /^[0-9a-f]{64}$/;
 // One address of the one owner, as the gate's sign-in carries it.
@@ -69,7 +84,36 @@ export function readSettings(env = process.env) {
     dataDirectory,
     backup,
     gate: Object.freeze({ issuer, audience, owner: owner.toLowerCase() }),
+    tools: readToolSettings(env),
   });
+}
+
+// The settings of the tool status read (tool-status.js): { notion, jira }, each null when its settings are not set.
+// notion is { token }, a Notion integration's token whose only capability is reading content. jira is { site, cloudId,
+// email, token }: the one Jira Cloud site whose links are read, its cloud ID, and the account and scoped API token
+// that read it, the token with read:jira-work only. The values stay in the server's memory, never in the store or a
+// log line, and an invalid one is named by its setting only.
+export function readToolSettings(env = process.env) {
+  const notionToken = valueOf(env, 'NEXUS_NOTION_TOKEN');
+  if (notionToken !== '' && !TOKEN.test(notionToken)) {
+    throw new SettingsError('NEXUS_NOTION_TOKEN', 'must be the integration\'s token: up to 1024 visible ASCII characters, no space');
+  }
+  const given = JIRA_SETTINGS.filter((name) => valueOf(env, name) !== '');
+  let jira = null;
+  if (given.length > 0) {
+    const missing = JIRA_SETTINGS.find((name) => !given.includes(name));
+    if (missing !== undefined) throw new SettingsError(missing, 'must be set with the other NEXUS_JIRA_ settings, or none of them');
+    const site = valueOf(env, 'NEXUS_JIRA_SITE').toLowerCase();
+    if (!JIRA_SITE.test(site)) throw new SettingsError('NEXUS_JIRA_SITE', 'must be the Jira site\'s host, such as example.atlassian.net');
+    const cloudId = valueOf(env, 'NEXUS_JIRA_CLOUD_ID').toLowerCase();
+    if (!CLOUD_ID.test(cloudId)) throw new SettingsError('NEXUS_JIRA_CLOUD_ID', 'must be the site\'s cloud ID, a UUID');
+    const email = valueOf(env, 'NEXUS_JIRA_EMAIL');
+    if (!EMAIL.test(email)) throw new SettingsError('NEXUS_JIRA_EMAIL', 'must be the email address of the token\'s account');
+    const token = valueOf(env, 'NEXUS_JIRA_TOKEN');
+    if (!TOKEN.test(token)) throw new SettingsError('NEXUS_JIRA_TOKEN', 'must be the scoped API token: up to 1024 visible ASCII characters, no space');
+    jira = Object.freeze({ site, cloudId, email, token });
+  }
+  return Object.freeze({ notion: notionToken === '' ? null : Object.freeze({ token: notionToken }), jira });
 }
 
 // The settings of the store and its backups, which the server and the restore rehearsal (rehearse.js) both read:

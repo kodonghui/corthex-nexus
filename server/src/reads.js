@@ -28,7 +28,7 @@
 //   waiting otherwise. A confirmation cancelled before it was recorded is withdrawn with record_state waiting: an agent
 //   reads state first, so it never records a withdrawn one.
 // A reflection's or a confirmation's claim is its open entry's live claim (claims.js). These reads take no session, so
-// a claim is never mine. Nothing here logs; a comment's text and a session's label are in the answer only (rule 5).
+// a claim is never mine; API-258 and API-259 (reports.js) answer the same bodies with the reporting session's. Nothing here logs; a comment's text and a session's label are in the answer only (rule 5).
 
 import { claimOf, pullRequestLink } from './claims.js';
 import { entryOf } from './comments.js';
@@ -141,9 +141,10 @@ function whereOf(store, row) {
   return { part: diagramPart(store, diagram), stage: row.stage, diagram: idOf('dg', diagram.id) };
 }
 
-// The live claim of an open entry, as the contract's Claim of entry (its ID), or null.
-function claimOfEntry(statements, project, todo, entry, now) {
-  return claimOf(statements.claim.get(todo), { entry, session: null, now, repository: project.repository });
+// The live claim of an open entry, as the contract's Claim of entry (its ID), or null. session is the label of the
+// session that asks, which a read has not, or null.
+function claimOfEntry(statements, project, todo, entry, now, session = null) {
+  return claimOf(statements.claim.get(todo), { entry, session, now, repository: project.repository });
 }
 
 const linkOf = (project, row) => (row === undefined ? null : pullRequestLink(project.repository, row.number));
@@ -293,30 +294,36 @@ function reflectionState(entry, pullRequest) {
   return 'waiting';
 }
 
-// API-248: a reflection or removal entry of {project}, open or closed (SPEC-024, SPEC-026).
-function getEdit({ store, params, now }) {
+// A reflection or removal entry of the project, open or closed, as the contract's Reflection, or null when the project
+// has no such entry of that key. project is { id, repository }; now the time in milliseconds; session the label of the
+// session that asks, or null for a read. API-248 answers it, and so does API-258 (TASK-447, reports.js).
+export function reflectionBody(store, project, key, now, session = null) {
   const statements = statementsOf(store);
-  const project = projectOf(statements, params.project);
-  const key = keyFrom('ne', params.edit, 'edit_not_found');
   const entry = statements.entry.get(key, project.id);
-  if (entry === undefined) throw new Problem('edit_not_found');
+  if (entry === undefined) return null;
   const held = heldBy(store, statements, project, entry);
   const pullRequest = held.pullRequest === null ? undefined : statements.pullRequest.get(held.pullRequest);
   const id = idOf('ne', key);
   return {
-    body: {
-      id,
-      ...whereOf(store, entry),
-      task: entry.kind === 'reflect' ? 'reflect' : 'remove',
-      state: reflectionState(entry, pullRequest),
-      change_sets: held.changeSets.map((each) => idOf('np', each)),
-      pull_request: linkOf(project, pullRequest),
-      commit: pullRequest?.merge_commit ?? null,
-      made_at: entry.created_at,
-      closed_at: entry.closed_at,
-      claim: entry.closed_at === null ? claimOfEntry(statements, project, key, id, now()) : null,
-    },
+    id,
+    ...whereOf(store, entry),
+    task: entry.kind === 'reflect' ? 'reflect' : 'remove',
+    state: reflectionState(entry, pullRequest),
+    change_sets: held.changeSets.map((each) => idOf('np', each)),
+    pull_request: linkOf(project, pullRequest),
+    commit: pullRequest?.merge_commit ?? null,
+    made_at: entry.created_at,
+    closed_at: entry.closed_at,
+    claim: entry.closed_at === null ? claimOfEntry(statements, project, key, id, now, session) : null,
   };
+}
+
+// API-248: a reflection or removal entry of {project}, open or closed (SPEC-024, SPEC-026).
+function getEdit({ store, params, now }) {
+  const project = projectOf(statementsOf(store), params.project);
+  const body = reflectionBody(store, project, keyFrom('ne', params.edit, 'edit_not_found'), now());
+  if (body === null) throw new Problem('edit_not_found');
+  return { body };
 }
 
 // How far the record that is due got (Checkpoint.record_state): the cancel's once a recorded confirmation is cancelled,
@@ -329,34 +336,40 @@ function recordState(row, pullRequest) {
   return pullRequest?.state === 'open' ? 'in_review' : 'waiting';
 }
 
-// API-249: a confirmation of {project} and its record (SPEC-031).
-function getCheckpoint({ store, params, now }) {
+// A confirmation of the project and its record, as the contract's Checkpoint, or null when the project has no
+// confirmation of that key. project is { id, repository }; now the time in milliseconds; session the label of the
+// session that asks, or null for a read. API-249 answers it, and so does API-259 (TASK-447, reports.js).
+export function checkpointBody(store, project, key, now, session = null) {
   const statements = statementsOf(store);
-  const project = projectOf(statements, params.project);
-  const key = keyFrom('nk', params.checkpoint, 'checkpoint_not_found');
   const row = statements.confirmation.get(key, project.id);
-  if (row === undefined) throw new Problem('checkpoint_not_found');
+  if (row === undefined) return null;
   const cancelled = row.state === 'cancelled';
   const pullRequest = row.record_pull_request_id === null ? undefined : statements.pullRequest.get(Number(row.record_pull_request_id));
   const open = openAgentEntry(store, { project: project.id, prefix: 'nk', key });
   const id = idOf('nk', key);
   return {
-    body: {
-      id,
-      ...whereOf(store, row),
-      drawing: idOf('dw', Number(row.drawing_id)),
-      version: row.document_version,
-      state: cancelled ? 'withdrawn' : 'passed',
-      confirmation: row.state,
-      passed_at: row.confirmed_at,
-      withdrawn_at: cancelled ? row.ended_at : null,
-      recorded_at: row.recorded_at,
-      cancel_recorded_at: row.cancel_recorded_at,
-      record_state: recordState(row, pullRequest),
-      pull_request: linkOf(project, pullRequest),
-      claim: open === null ? null : claimOfEntry(statements, project, Number(open.id), id, now()),
-    },
+    id,
+    ...whereOf(store, row),
+    drawing: idOf('dw', Number(row.drawing_id)),
+    version: row.document_version,
+    state: cancelled ? 'withdrawn' : 'passed',
+    confirmation: row.state,
+    passed_at: row.confirmed_at,
+    withdrawn_at: cancelled ? row.ended_at : null,
+    recorded_at: row.recorded_at,
+    cancel_recorded_at: row.cancel_recorded_at,
+    record_state: recordState(row, pullRequest),
+    pull_request: linkOf(project, pullRequest),
+    claim: open === null ? null : claimOfEntry(statements, project, Number(open.id), id, now, session),
   };
+}
+
+// API-249: a confirmation of {project} and its record (SPEC-031).
+function getCheckpoint({ store, params, now }) {
+  const project = projectOf(statementsOf(store), params.project);
+  const body = checkpointBody(store, project, keyFrom('nk', params.checkpoint, 'checkpoint_not_found'), now());
+  if (body === null) throw new Problem('checkpoint_not_found');
+  return { body };
 }
 
 // The routes of API-244 and API-246 to API-249 (see router.js), of the agent family.

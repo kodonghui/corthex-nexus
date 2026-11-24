@@ -1,11 +1,11 @@
 // Settings from the environment.
 
 import assert from 'node:assert/strict';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { fullyAbsolute, readSettings, readStoreSettings, SettingsError } from '../src/settings.js';
+import { fullyAbsolute, readSettings, readStoreSettings, readToolSettings, SettingsError } from '../src/settings.js';
 
 // Absolute folders on this system; nothing is made there.
 const DATA = join(tmpdir(), 'nexus-settings-data');
@@ -21,26 +21,28 @@ const GATE_ENV = Object.freeze({
 });
 const GATE = { issuer: 'https://team.example.com', audience: AUDIENCE, owner: 'owner@example.com' };
 const withGate = (env) => ({ ...GATE_ENV, NEXUS_BACKUP_DIR: BACKUPS, ...env });
+// No tool token: the tool status read calls nothing.
+const NO_TOOLS = { notion: null, jira: null };
 
 test('the defaults listen on loopback port 8787', () => {
   assert.deepEqual(
     readSettings(withGate({ NEXUS_DATA_DIR: DATA })),
-    { host: '127.0.0.1', port: 8787, dataDirectory: DATA, backup: BACKUP, gate: GATE },
+    { host: '127.0.0.1', port: 8787, dataDirectory: DATA, backup: BACKUP, gate: GATE, tools: NO_TOOLS },
   );
   assert.deepEqual(
     readSettings(withGate({ NEXUS_HOST: '', NEXUS_PORT: '', NEXUS_DATA_DIR: DATA })),
-    { host: '127.0.0.1', port: 8787, dataDirectory: DATA, backup: BACKUP, gate: GATE },
+    { host: '127.0.0.1', port: 8787, dataDirectory: DATA, backup: BACKUP, gate: GATE, tools: NO_TOOLS },
   );
 });
 
 test('the environment sets the host, the port and the data folder', () => {
   assert.deepEqual(
     readSettings(withGate({ NEXUS_HOST: '::1', NEXUS_PORT: '9000', NEXUS_DATA_DIR: DATA })),
-    { host: '::1', port: 9000, dataDirectory: DATA, backup: BACKUP, gate: GATE },
+    { host: '::1', port: 9000, dataDirectory: DATA, backup: BACKUP, gate: GATE, tools: NO_TOOLS },
   );
   assert.deepEqual(
     readSettings(withGate({ NEXUS_HOST: 'localhost', NEXUS_PORT: '0', NEXUS_DATA_DIR: DATA })),
-    { host: 'localhost', port: 0, dataDirectory: DATA, backup: BACKUP, gate: GATE },
+    { host: 'localhost', port: 0, dataDirectory: DATA, backup: BACKUP, gate: GATE, tools: NO_TOOLS },
   );
   // The folder is kept in its plain form.
   assert.equal(readSettings(withGate({ NEXUS_DATA_DIR: join(DATA, 'sub', '..') })).dataDirectory, DATA);
@@ -72,6 +74,63 @@ test('the environment sets the gate\'s issuer, audience and owner', () => {
   assert.equal(read({ NEXUS_ACCESS_ISSUER: 'https://Team.Example.COM' }).issuer, 'https://team.example.com');
   // The owner is matched without case.
   assert.equal(read({ NEXUS_OWNER_EMAIL: 'OWNER@example.com' }).owner, 'owner@example.com');
+});
+
+test('the environment sets the tool status read\'s tokens, each tool on its own, and names a wrong one by its setting only', () => {
+  // Placeholders, and tokens made at run time: no real token or site is written here.
+  const notionToken = randomBytes(24).toString('hex');
+  const jiraToken = randomBytes(24).toString('base64url');
+  const cloudId = randomUUID();
+  const site = `t${randomBytes(6).toString('hex')}.atlassian.net`;
+  const JIRA_ENV = Object.freeze({
+    NEXUS_JIRA_SITE: site.toUpperCase(),
+    NEXUS_JIRA_CLOUD_ID: cloudId.toUpperCase(),
+    NEXUS_JIRA_EMAIL: 'owner@example.com',
+    NEXUS_JIRA_TOKEN: jiraToken,
+  });
+  const JIRA = { site, cloudId, email: 'owner@example.com', token: jiraToken };
+  const read = (env) => readSettings(withGate({ NEXUS_DATA_DIR: DATA, ...env })).tools;
+  assert.deepEqual(read({}), NO_TOOLS);
+  assert.deepEqual(read({ NEXUS_NOTION_TOKEN: '', NEXUS_JIRA_SITE: '' }), NO_TOOLS);
+  assert.deepEqual(read({ NEXUS_NOTION_TOKEN: notionToken }), { notion: { token: notionToken }, jira: null });
+  assert.deepEqual(read(JIRA_ENV), { notion: null, jira: JIRA });
+  const both = read({ NEXUS_NOTION_TOKEN: notionToken, ...JIRA_ENV });
+  assert.deepEqual(both, { notion: { token: notionToken }, jira: JIRA });
+  assert.ok(Object.isFrozen(both) && Object.isFrozen(both.notion) && Object.isFrozen(both.jira));
+  assert.deepEqual(readToolSettings({ NEXUS_NOTION_TOKEN: notionToken }), { notion: { token: notionToken }, jira: null });
+
+  const values = [notionToken, jiraToken, cloudId, 'owner@example.com', site];
+  const without = (name) => Object.fromEntries(Object.entries(JIRA_ENV).filter(([key]) => key !== name));
+  for (const [env, setting] of [
+    [{ NEXUS_NOTION_TOKEN: `${notionToken} ${notionToken}` }, 'NEXUS_NOTION_TOKEN'],
+    [{ NEXUS_NOTION_TOKEN: `${notionToken}\n` }, 'NEXUS_NOTION_TOKEN'],
+    [{ NEXUS_NOTION_TOKEN: `${notionToken}가` }, 'NEXUS_NOTION_TOKEN'],
+    [{ NEXUS_NOTION_TOKEN: notionToken.repeat(22) }, 'NEXUS_NOTION_TOKEN'],
+    // The four Jira settings go together: the first one missing is named.
+    [without('NEXUS_JIRA_SITE'), 'NEXUS_JIRA_SITE'],
+    [without('NEXUS_JIRA_CLOUD_ID'), 'NEXUS_JIRA_CLOUD_ID'],
+    [without('NEXUS_JIRA_EMAIL'), 'NEXUS_JIRA_EMAIL'],
+    [without('NEXUS_JIRA_TOKEN'), 'NEXUS_JIRA_TOKEN'],
+    [{ NEXUS_JIRA_TOKEN: jiraToken }, 'NEXUS_JIRA_SITE'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_SITE: `${site}.attacker.example` }, 'NEXUS_JIRA_SITE'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_SITE: `https://${site}` }, 'NEXUS_JIRA_SITE'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_SITE: `${site}/` }, 'NEXUS_JIRA_SITE'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_SITE: 'jira.example.com' }, 'NEXUS_JIRA_SITE'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_SITE: 'atlassian.net' }, 'NEXUS_JIRA_SITE'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_CLOUD_ID: cloudId.replaceAll('-', '') }, 'NEXUS_JIRA_CLOUD_ID'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_CLOUD_ID: `${cloudId}/rest` }, 'NEXUS_JIRA_CLOUD_ID'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_CLOUD_ID: `../${cloudId}` }, 'NEXUS_JIRA_CLOUD_ID'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_EMAIL: 'owner' }, 'NEXUS_JIRA_EMAIL'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_EMAIL: 'owner@example.com other@example.com' }, 'NEXUS_JIRA_EMAIL'],
+    [{ ...JIRA_ENV, NEXUS_JIRA_TOKEN: `${jiraToken} ${jiraToken}` }, 'NEXUS_JIRA_TOKEN'],
+  ]) {
+    assert.throws(() => read(env), (error) => {
+      assert.ok(error instanceof SettingsError);
+      assert.equal(error.setting, setting);
+      for (const value of values) assert.ok(!error.message.includes(value), `${setting}: the message holds a value`);
+      return true;
+    }, setting);
+  }
 });
 
 test('an invalid value names the setting and its rule, never the value', () => {

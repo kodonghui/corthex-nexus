@@ -7,7 +7,9 @@
 // writes of other projects until it ends.
 //
 // A write runs in one transaction (BEGIN IMMEDIATE ... COMMIT) from its request key's check to its key's row, so a
-// write that fails or is refused changes nothing and leaves no key, and a write that is stored keeps its key. Its
+// write that fails or is refused changes nothing and leaves no key, and a write that is stored keeps its key. One
+// refusal is stored all the same: a Problem marked by problem.js's keepingWrite, which API-259 alone throws (TASK-447).
+// Its write commits, and its request key keeps the refusal, so a repeat answers the same Problem. Its
 // handler may wait (await); the next write waits with it. A read that runs meanwhile on the same connection sees the
 // write's rows before they commit, so a write handler does its waiting before it writes. Its answer is checked whole
 // (see answer.js) before anything is stored, so a write whose answer could not be sent is rolled back, not stored.
@@ -49,10 +51,10 @@ export function createWrites({ store, now = Date.now, queue = createQueue() }) {
       throw new TypeError('a write with a request key needs its caller');
     }
     store.exec('BEGIN IMMEDIATE');
+    let action = null;
     try {
       // A write that an earlier one made invalid is refused (rule 4), even when it repeats a request key.
       request.recheck?.();
-      let action = null;
       if (request.key !== null) {
         // request_keys.action: the operationId and the SHA-256 of the path and body (see keys.js).
         action = actionOf(route.action, request.pathname, request.bytes);
@@ -75,9 +77,24 @@ export function createWrites({ store, now = Date.now, queue = createQueue() }) {
       store.exec('COMMIT');
       return answer;
     } catch (error) {
+      if (error instanceof Problem && error.keepsWrite === true && store.isTransaction) {
+        try {
+          keepRefused(error, context, request, action);
+        } catch (fault) {
+          if (store.isTransaction) store.exec('ROLLBACK');
+          throw fault;
+        }
+      }
       if (store.isTransaction) store.exec('ROLLBACK');
       throw error;
     }
+  }
+
+  // Stores a refusal that keeps its write (see the top of this file): its request key keeps the Problem as sent, with
+  // its trace ID. A fault meanwhile leaves the transaction open, and the caller rolls it back.
+  function keepRefused(problem, context, request, action) {
+    if (action !== null) keys.remember(context.caller, request.key, action, problem.status, JSON.stringify(problem.body(context.traceId)));
+    store.exec('COMMIT');
   }
 
   return (route, context, request) => queue(() => run(route, context, request));
