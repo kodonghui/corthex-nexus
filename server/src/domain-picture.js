@@ -276,10 +276,16 @@ export function readDomainPicture(documents, { ids = idFormat(), part = '' } = {
 
     const aggregateDefinitions = [];
     const modelDefinitions = [];
+    // The context and nearest context of the last heading at or before line. positions are in line order, so a binary
+    // search finds it, and a document of many headings and many rows reads in time that grows with its length.
     const located = (line) => {
-      let found = [null, null];
-      for (const [start, context, previous] of positions) if (start <= line) found = [context, previous];
-      return found;
+      let [low, high] = [0, positions.length];
+      while (low < high) {
+        const middle = (low + high) >>> 1;
+        if (positions[middle][0] <= line) low = middle + 1;
+        else high = middle;
+      }
+      return low === 0 ? [null, null] : [positions[low - 1][1], positions[low - 1][2]];
     };
     const addTerms = (target, value, context, where) => {
       // A TERM ID in parentheses belongs to the name before it, not to the next comma-separated aggregate.

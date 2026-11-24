@@ -97,6 +97,23 @@ const SPLIT = [
   { stage: '07-sitemap', kind: 'sitemap', name: 'Sitemap', ...readSitemapPicture(SPLIT_YAML, { part: 'split' }), files: SPLIT_YAML },
 ];
 const SPLIT_LEFT_OUT = 'unique index has an unreadable column expression; rule omitted';
+// The Codex review's case: part cut's board, ERD and sitemap, each read from two files whose second takes the list one
+// past its limit, so that the hub cut it in that file and warned of it.
+const id3 = (n) => String(n).padStart(3, '0');
+const CUT = [
+  ['01-domain', 'ddd_board', 'DDD board', 'CTX-401', readDomainPicture, [
+    ['docs/01-domain/a.md', '### CTX-401 A\n'],
+    ['docs/01-domain/b.md', Array.from({ length: 200 }, (_, n) => `### CTX-${id3(402 + n)} B${n}\n`).join('\n')],
+  ]],
+  ['05-erd', 'erd', 'ERD', 'TBL-401', readSqlPicture, [
+    ['db/a.sql', '-- TBL-401 a one\nCREATE TABLE a_one (id INTEGER);\n'],
+    ['db/b.sql', Array.from({ length: 500 }, (_, n) => `CREATE TABLE b${n} (id INTEGER);\n`).join('')],
+  ]],
+  ['07-sitemap', 'sitemap', 'Sitemap', 'SCR-401', readSitemapPicture, [
+    ['docs/07-sitemap/a.yaml', '- id: SCR-401\n  name: A\n'],
+    ['docs/07-sitemap/b.yaml', Array.from({ length: 500 }, (_, n) => `- id: SCR-${id3(402 + n)}\n  name: B${n}\n`).join('')],
+  ]],
+].map(([stage, kind, name, item, read, files]) => ({ stage, kind, name, item, files, ...read(files, { part: 'cut' }) }));
 // The hub's warning of a file past its limit of files, which it did not read: a left_out element of part own's ERD,
 // whose file it does not make one of the drawing's files.
 const OWN_NOT_READ = {
@@ -160,6 +177,7 @@ describe('agent proposals', () => {
   let board;
   let sitemap;
   let sources;
+  let cut;
   let clock = START;
 
   // An element of a drawing, by its trace ID, which is its key (TBL-153).
@@ -303,6 +321,13 @@ describe('agent proposals', () => {
       const split = s.diagram(sources, { stage, sourceKey: `/pictures/${stage}/split`, kind, name });
       drawPicture(split.drawing, stage, kind, 'split', { source: files[0][0], picture, checks });
       keep(stage, 'split', picture);
+    }
+    // The Codex review's case, in a space of its own.
+    cut = s.project('cut', { parts: ['cut'], checks: CUT.flatMap((each) => each.checks) });
+    for (const { stage, kind, name, picture, checks, files } of CUT) {
+      const drawn = s.diagram(cut, { stage, sourceKey: `/pictures/${stage}/cut`, kind, name });
+      drawPicture(drawn.drawing, stage, kind, 'cut', { source: files[0][0], picture, checks });
+      s.document(cut, `/pictures/${stage}/cut`, stage, JSON.stringify(picture));
     }
     // A space whose stage 08 shows its item table, and whose other stages drew nothing.
     bare = s.project('bare');
@@ -509,6 +534,21 @@ describe('agent proposals', () => {
       { op: 'remove', element: 'TBL-302', name: null, target: null },
       { op: 'remove', element: 'TBL-302/line:left_id', name: null, target: null },
     ]]);
+  });
+
+  test("a push's check of a whole list's limit stays when the hub's cut may lie in a file the text does not replace (TASK-470, Codex review)", async () => {
+    clock = START + 3 * MINUTE;
+    for (const { stage, item, files, checks } of CUT) {
+      assert.equal(checks.filter(({ message }) => /exceeds its picture limit|later (?:tables|screens) are omitted/u.test(message)).length, 1, stage);
+      // Each file as it is makes no change: a.*, whose text does not hold the cut, keeps the push's check, and b.*,
+      // which holds it, makes it again.
+      for (const [path, text] of files) {
+        const same = await propose({
+          part: 'cut', stage, items: [item], reason: 'The list is long.', change: 'Keep it.', source_path: path, source_text: text,
+        }, { project: cut.name });
+        assert.deepEqual([same.status, same.json.changes], [201, []], path);
+      }
+    }
   });
 
   test('source_path is needed on a drawing of several files, and one that names no file the drawing reads is refused (TASK-470)', async () => {

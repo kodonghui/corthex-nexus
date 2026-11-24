@@ -116,6 +116,16 @@ test('a text with none of its own entries takes its file\'s place; the picture i
   assert.throws(() => mergePicture('03-user-flow', null, 'a', 'x'), TypeError);
 });
 
+test('a document of many headings and many command rows reads in time that grows with its length (Codex review)', () => {
+  // 20,000 headings and 20,000 rows, about 440,000 characters: each row once found its context by every heading.
+  const text = `${'# CTX-1 C\n'.repeat(20_000)}| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n${'|x|x|x|x|x|\n'.repeat(20_000)}`;
+  const start = performance.now();
+  const { picture } = readDomainPicture([['a.md', text]]);
+  const took = performance.now() - start;
+  assert.equal(picture.contexts.length, 1);
+  assert.ok(took < 2_000, `${Math.round(took)} ms`);
+});
+
 test("a whole list's limit is checked once, on the merged list, naming the last file as the hub does", () => {
   const id = (n) => String(n).padStart(3, '0');
   const contexts = (from, count) => Array.from({ length: count }, (_, n) => `### CTX-${id(from + n)} C${from + n}\n`).join('\n');

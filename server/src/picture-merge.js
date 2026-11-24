@@ -96,13 +96,26 @@ const TOO_MANY_TABLES = `more than ${MAX_TABLES} tables; later tables are omitte
 const TOO_MANY_SCREENS = `more than ${MAX_SCREENS} screens; later screens are omitted`;
 const domainLimit = (key) => `${key} exceeds its picture limit`;
 
-// The details of the hub's checks of a whole list's limit, by stage. The merge checks each again on the merged list, so
-// a push's check of one, whichever file it names, gives way to the merge's.
+// The details of the hub's checks of a whole list's limit, by stage. The merge checks each again on the merged list.
 export const LIST_LIMITS = new Map([
   ['01-domain', new Set(DOMAIN_LISTS.map(([key]) => domainLimit(key)))],
   ['05-erd', new Set([TOO_MANY_TABLES])],
   ['07-sitemap', new Set([TOO_MANY_SCREENS])],
 ]);
+// The list each of those checks is of, by its detail.
+const LIST_OF = new Map([...DOMAIN_LISTS.map(([key]) => [domainLimit(key), key]), [TOO_MANY_TABLES, 'tables'], [TOO_MANY_SCREENS, 'screens']]);
+
+// Whether a push's check of a whole list's limit, { path, detail }, stays when file's text takes its place. The hub cut
+// the list after the last entry the picture holds, so what it left out is of that entry's file or of a later one, and
+// the check names that file or the last file it read. Only when both are file, which the merge reads whole, does the
+// merge's own check take its place; otherwise the cut may lie in a file the text does not replace, and the push's
+// check stays.
+export function keepsListLimit(current, file, { path, detail }) {
+  const key = LIST_OF.get(detail);
+  if (key === undefined) return false;
+  const files = listOf(current, key).map((entry) => fileOf(entry?.where) ?? '');
+  return path !== file || (files.length > 0 && lastFile(files) !== file);
+}
 
 // read is the text's picture, or {} for a text with no context, which gives the picture none of its entries.
 function mergeDomain(current, file, read, part, checks) {

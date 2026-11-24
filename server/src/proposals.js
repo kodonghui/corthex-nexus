@@ -59,7 +59,7 @@ import { MAX_TRACE_ID, TRACE_ID } from './drawer.js';
 import { diagramTraceId, drawProposed, pictureWarnings } from './drawing.js';
 import { changeSetsChanged, openAgentEntry, threadChanged } from './entries.js';
 import { idOf, keyOf } from './ids.js';
-import { fileOf, LIST_LIMITS, mergePicture } from './picture-merge.js';
+import { fileOf, keepsListLimit, LIST_LIMITS, mergePicture } from './picture-merge.js';
 import { idFormat } from './picture-text.js';
 import { invalidRequest, Problem } from './problem.js';
 import { DIAGRAM_ORDER, projectHead } from './project.js';
@@ -333,17 +333,21 @@ function readProposed(statements, request, diagram, drawing, current) {
     .filter((element) => Object.hasOwn(reader.ids, element.kind) && typeof element.trace_id === 'string')
     .map((element) => [element.trace_id.split('-')[0], reader.ids[element.kind]]);
   // The drawing's picture and what the hub left out of it, as the push gave them; with no file named, the text is all.
-  // The merge checks a whole list's limit again, so the push's check of one does not stay.
+  // The merge checks a whole list's limit again, so the push's check of one stays only when the hub's cut may lie in a
+  // file the text does not replace (picture-merge.js's keepsListLimit).
+  const limits = LIST_LIMITS.get(diagram.stage);
   const picture = files.size > 0 ? documentOf(statements, drawing, diagram.source_key) : null;
   const kept = picture === null ? [] : pictureWarnings(documentOf(statements, drawing, REST)?.checks, diagram.stage, request.part)
-    .filter((warning) => warning.path !== file && !LIST_LIMITS.get(diagram.stage).has(warning.detail));
+    .filter((warning) => (limits.has(warning.detail) ? keepsListLimit(picture, file, warning) : warning.path !== file));
   // A push reads a file without its byte order mark: the hub decodes it as utf-8-sig.
   const text = request.sourceText.replace(BYTE_ORDER_MARK, '');
   const read = mergePicture(diagram.stage, picture, file, text, { ids: idFormat(prefixes), part: request.part });
   if (read.failure !== null && read.failure !== undefined) return { failure: { line: read.failure.line } };
   if (read.empty) return { failure: { line: null, says: `source_text reads no ${reader.kind}` } };
-  // A table's limit that the merge checks again, as the push did for a table of another file, comes once.
-  const fresh = pictureWarnings(read.checks, diagram.stage, request.part);
+  // A table's limit that the merge checks again, as the push did for a table of another file, comes once, and a whole
+  // list's limit that the push's check keeps comes as the push gave it.
+  const keptLimits = new Set(kept.filter((warning) => limits.has(warning.detail)).map((warning) => warning.detail));
+  const fresh = pictureWarnings(read.checks, diagram.stage, request.part).filter((warning) => !keptLimits.has(warning.detail));
   const same = (a, b) => a.path === b.path && a.line === b.line && a.detail === b.detail;
   return drawProposed({
     stage: diagram.stage, part: request.part, kind: diagram.kind, key: null, source: file, text: JSON.stringify(read.picture),
