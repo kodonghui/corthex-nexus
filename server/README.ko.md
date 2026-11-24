@@ -1594,10 +1594,10 @@ TASK-466과 TASK-470을 위해 코디네이터가 고른 규칙이에요. 2026-1
 - **무엇을 거절하는가.** hub가 건너뛰는 문장은 변경이 되지 않고, hub가 빼는 문장은 `left_out` 요소라서 새로 생기면 `add`예요. 컨텍스트를 하나도 읽지 못한 Markdown, 테이블을 하나도 읽지 못한 SQL, 화면을 하나도 읽지 못한 YAML은 그려지지 않는 글처럼 `source_text`에 대한 `invalid_request`를 받아요. 그런 글은 거의 늘 잘못된 파일이에요. YAML 오류는 그 줄을 적어요.
 TASK-470을 만들면서 고른 규칙이 넷 더 있어요. 승인된 문서는 이것을 말하지 않고, TASK-470의 풀 리퀘스트에서 대리인의 답을 기다려요.
 
-- **바이트 순서 표시(BOM).** 글 맨 앞의 바이트 순서 표시는 읽지 않아요. hub가 push의 파일을 `utf-8-sig`로 풀기 때문이에요. hub의 `propose`는 `--source-file`을 UTF-8로 읽어 그 표시를 지니는데, 그대로 읽으면 테이블 이름이나 제목에 들어가 이름 바꾸기로 보여요.
-- **항목이 모두 빠진 파일.** 여러 파일의 드로잉에서 위의 거절은 그림에 컨텍스트, 테이블, 화면을 하나도 남기지 않는 글에 대한 것이에요. 다른 파일의 테이블만 바꾸는 SQL처럼 자기 항목이 없는 글도 그 파일 자리에 들어가고, 그 파일이 그림에 준 것은 hub에서처럼 빠져요.
+- **바이트 순서 표시(BOM).** 글 맨 앞의 바이트 순서 표시는 읽지 않아요. hub가 push의 파일을 `utf-8-sig`로 풀기 때문이에요. hub의 `propose`는 `--source-file`을 UTF-8로 읽어 그 표시를 지니는데, 그대로 읽으면 테이블 이름이나 제목에 들어가 이름 바꾸기로 보여요. `test/proposals.test.js`의 테스트 "a text with a byte order mark reads as the hub reads the same file in a push, on a drawing of one file and of several (TASK-470)"가 파일 하나인 드로잉과, 여러 파일인 드로잉마다 그 파일 하나하나를 표시와 함께 보내고 변경이 없음을 확인해요.
+- **항목이 모두 빠진 파일.** 여러 파일의 드로잉에서 위의 거절은 그림에 컨텍스트, 테이블, 화면을 하나도 남기지 않는 글에 대한 것이에요. 다른 파일의 테이블만 바꾸는 SQL처럼 자기 항목이 없는 글도 그 파일 자리에 들어가고, 그 파일이 그림에 준 것은 hub에서처럼 빠져요. `test/proposals.test.js`의 테스트 "SQL that only alters another file's table, on a drawing of several files, takes its file's place and is not refused (TASK-470)"가 Claude 리뷰가 찾은 이 사례를 지켜요.
 - **합치기가 hub와 다를 수 있는 곳.** [여러 파일](#여러-파일)이 적는 네 가지예요.
-- **승인한 차이 아래의 01단계.** 아래 차이 중 마지막 둘은 01단계의 읽기 함수에도 해당해요. 핫스팟 번호를 읽는 Python의 십진 숫자는 유니코드 클래스로 옮겼고, `domain.py`의 나누기 셋은 스캔으로 풀어 썼어요. Python의 방식은 목록 길이의 제곱에 비례하는 시간이 걸려요. 1,000,000자 글은 1.5초쯤에 읽어요.
+- **승인한 차이 아래의 01단계.** 아래 차이 중 마지막 둘은 01단계의 읽기 함수에도 해당해요. 핫스팟 번호를 읽는 Python의 십진 숫자는 유니코드 클래스로 옮겼고, `domain.py`의 나누기 셋은 스캔으로 풀어 썼어요. Python의 방식은 목록 길이의 제곱에 비례하는 시간이 걸려요. 1,000,000자 글 셋 중 가장 느린 애그리거트의 용어는 1,072 ms, 화살표와 대안의 레인은 91 ms와 175 ms에 읽어요(Windows PC, Node 24.18.0, a169be0). `server/`에서 `node --input-type=module -e "import { readDomainPicture } from './src/domain-picture.js'; const n = 1e6; const lanes = '| Lane | Events |\n| --- | --- |\n| l | '; const table = '### CTX-001 a\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| a | b | c | '; for (const [name, text] of [['arrows', lanes + '\u2192 '.repeat(n / 2) + ' |\n### CTX-001 a\n'], ['alternatives', lanes + 'a or '.repeat(n / 5) + ' |\n### CTX-001 a\n'], ['terms', table + 'x, '.repeat(n / 3) + ' | e |\n']]) { const start = performance.now(); readDomainPicture([['a.md', text]]); console.log(name, text.length, (performance.now() - start).toFixed(0) + ' ms'); }"`로 쟀어요.
 
 **NEXUS가 hub와 다르게 읽는 곳.** 이 저장소의 `docs/01-domain/nexus.md`, `db/nexus.sql`, `docs/07-sitemap/nexus.yaml`, 그리고 `test/picture-cases.json`의 사례마다 NEXUS의 그림과 검사는 고정한 hub의 것과 같아요. 다를 수 있는 곳은 넷이고, 2026-11-24에 같은 대리인을 통해 승인했어요.
 
@@ -1615,7 +1615,7 @@ NEXUS는 push의 hub 그림만 지니고, hub가 읽은 파일은 지니지 않�
 - **05단계**는 모든 파일의 문장을 모든 파일의 테이블에 대고 읽어요. 그래서 그 파일의 `ALTER TABLE`이 다른 파일의 테이블에 준 외래 키는 그 파일의 옛 글과 함께 빠져요. 글은 다른 파일의 테이블을 아는 채로 읽어서, 글의 `ALTER TABLE`과 유니크 인덱스가 그 테이블에 닿아요. 다른 파일의 `ALTER TABLE`이 그 파일의 테이블에 준 외래 키는 글에서 같은 이름의 테이블(여럿이면 마지막 것)에 글 자신의 외래 키 뒤로 남아요.
 - **경고.** hub가 다른 파일에서 뺀 것은 push의 검사가 말하는 대로 남고, 글을 읽으며 뺀 것이 함께 와요. 그림의 한도는 hub의 `picture-partial` 검사와 함께 다시 적용돼요. 테이블 500개, 테이블마다 열 300개, 유니크 규칙 50개, 외래 키 100개, 화면 500개, 그리고 01단계의 한도예요. 테이블 500개처럼 목록 전체의 한도는 합친 목록에서 한 번 검사하고, hub의 검사처럼 경로 순서로 마지막 파일을 적어요. push의 그 검사와, 글만 읽은 검사는 그것에 자리를 내줘요. hub가 한도 때문에 그림에서 뺀 것은 알 수 없으므로 계속 빠져 있어요.
 
-`test/picture-cases.json`에는 01, 05, 07단계마다 파일 둘과, 그 하나하나의 글을 바꾼 두 파일을 hub가 그린 그림이 들어 있고, 합치기가 그 그림을 만들어요. 합치기가 hub와 다를 수 있는 곳이에요. 어느 드로잉도 이것을 보여 주지 않아요.
+`test/picture-cases.json`에는 01, 05, 07단계마다 파일 둘과, 그 하나하나의 글을 바꾼 두 파일을 hub가 그린 그림이 들어 있고, 합치기가 그 그림을 만들어요. 합치기가 hub와 다를 수 있는 곳이에요. 지금 NEXUS가 그리는 어느 드로잉도 이것을 보여 주지 않으므로, 어느 것도 변경이 되지 않아요. 이유는 모두 같아요. 그림은 주석, 유니크 규칙, 용어, 스키마를 어느 파일이 줬는지 적지 않아요.
 
 - SQL 파일 하나가 다른 파일의 테이블에 단 주석은 다시 읽지 않아요. 그림은 테이블의 주석이 어디서 왔는지 말하지 않기 때문이에요. 한 파일이 다른 파일의 테이블에 준 유니크 규칙은 파일을 적지 않으므로 남고, 글에 아직 있으면 한 번 더 생겨요. 둘 다 변경이 되지 않아요. 이 저장소에서 테이블의 추적 ID를 적는 주석은 그 테이블을 만드는 파일에 있고, 유니크 규칙은 테이블 요소의 일부예요.
 - 다른 파일들이 같은 이름의 테이블 둘을 만들면, 글의 `ALTER TABLE`이나 유니크 인덱스는 어느 쪽에도 닿지 않아요. 그림은 테이블의 이름을 스키마 없이 지니기 때문이에요. hub에서는 둘의 스키마가 같으면 마지막 것에, 다르면 문장의 스키마가 가리키는 것에 닿아요.

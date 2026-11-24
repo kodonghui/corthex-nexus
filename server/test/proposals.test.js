@@ -484,6 +484,33 @@ describe('agent proposals', () => {
     }
   });
 
+  test('a text with a byte order mark reads as the hub reads the same file in a push, on a drawing of one file and of several (TASK-470)', async () => {
+    clock = START + 3 * MINUTE;
+    // The hub decodes a push's files as utf-8-sig, so each file as it is, with a byte order mark, makes no change.
+    const one = await sourceProposal({ stage: '01-domain', items: ['CTX-038'], source_text: `\uFEFF${DOMAIN_TEXT}` });
+    assert.deepEqual([one.status, one.json.changes], [201, []]);
+    for (const { stage, files } of SPLIT) {
+      for (const [path, text] of files) {
+        const items = [{ '01-domain': 'CTX-301', '05-erd': 'TBL-301', '07-sitemap': 'SCR-301' }[stage]];
+        const marked = await sourceProposal({ part: 'split', stage, items, source_path: path, source_text: `\uFEFF${text}` });
+        assert.deepEqual([marked.status, marked.json.changes], [201, []], path);
+      }
+    }
+  });
+
+  test('SQL that only alters another file\'s table, on a drawing of several files, takes its file\'s place and is not refused (TASK-470)', async () => {
+    clock = START + 3 * MINUTE;
+    // The Claude review's case: db/right.sql with no table of its own. Its table goes, with the foreign key db/left.sql's
+    // ALTER TABLE gave it, and db/left.sql's table stays.
+    const altered = await sourceProposal({
+      part: 'split', items: ['TBL-302'], source_path: 'db/right.sql', source_text: 'ALTER TABLE left_items ADD COLUMN note TEXT;\n',
+    });
+    assert.deepEqual([altered.status, altered.json.changes], [201, [
+      { op: 'remove', element: 'TBL-302', name: null, target: null },
+      { op: 'remove', element: 'TBL-302/line:left_id', name: null, target: null },
+    ]]);
+  });
+
   test('source_path is needed on a drawing of several files, and one that names no file the drawing reads is refused (TASK-470)', async () => {
     const sets = count('change_sets');
     const threads = count('comment_threads');
