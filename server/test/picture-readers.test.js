@@ -93,17 +93,47 @@ test("a text in place of one of two files makes the hub's picture of the files s
   }
 });
 
-test('a text that reads nothing, or that does not read, comes back as the reader gives it, with no merge', () => {
-  for (const [stage, current, text] of [
-    ['05-erd', fixture('erd-picture.json').picture, 'CREATE VIEW v AS SELECT 1;'],
-    ['07-sitemap', fixture('sitemap-picture.json').picture, '# nothing\n'],
-    ['01-domain', fixture('ddd-board-picture.json').picture, '# no context\n'],
+test('a text with none of its own entries takes its file\'s place; the picture is empty when no other file gives one', () => {
+  for (const [stage, current, file, text, key] of [
+    ['05-erd', fixture('erd-picture.json').picture, 'db/nexus.sql', 'CREATE VIEW v AS SELECT 1;', 'tables'],
+    ['07-sitemap', fixture('sitemap-picture.json').picture, 'docs/07-sitemap/nexus.yaml', '# nothing\n', 'screens'],
+    ['01-domain', fixture('ddd-board-picture.json').picture, 'docs/01-domain/nexus.md', '# no context\n', 'contexts'],
   ]) {
-    assert.equal(mergePicture(stage, current, 'a', text).empty, true, stage);
+    // In place of the picture's one file, it leaves none; as another file, it leaves the picture's entries as they are.
+    const emptied = mergePicture(stage, current, file, text);
+    assert.deepEqual([emptied.empty, emptied.picture[key]], [true, []], stage);
+    const other = mergePicture(stage, current, 'a', text);
+    assert.deepEqual([other.empty, other.picture[key]], [false, current[key]], stage);
   }
+  // A file of SQL that only alters another file's table reads in that file's place as the hub reads the two.
+  const left = 'CREATE TABLE a (id INTEGER PRIMARY KEY);\nCREATE TABLE c (id INTEGER, a_id INTEGER);\n';
+  const before = 'ALTER TABLE c ADD FOREIGN KEY (a_id) REFERENCES a (id);\n';
+  const after = `${before}ALTER TABLE c ADD COLUMN note TEXT;\n`;
+  const altered = mergePicture('05-erd', readSqlPicture([['db/a.sql', left], ['db/b.sql', before]]).picture, 'db/b.sql', after);
+  assert.deepEqual([altered.empty, altered.picture], [false, readSqlPicture([['db/a.sql', left], ['db/b.sql', after]]).picture]);
   const failed = mergePicture('07-sitemap', null, 'a.yaml', '- name: a\n  name: b\n');
   assert.deepEqual([failed.empty, failed.failure], [true, { file: 'a.yaml', line: 2 }]);
   assert.throws(() => mergePicture('03-user-flow', null, 'a', 'x'), TypeError);
+});
+
+test("a whole list's limit is checked once, on the merged list, naming the last file as the hub does", () => {
+  const id = (n) => String(n).padStart(3, '0');
+  const contexts = (from, count) => Array.from({ length: count }, (_, n) => `### CTX-${id(from + n)} C${from + n}\n`).join('\n');
+  const tables = (from, count) => Array.from({ length: count }, (_, n) => `CREATE TABLE t${from + n} (id INTEGER);\n`).join('');
+  const screens = (from, count) => Array.from({ length: count }, (_, n) => `- id: SCR-${id(from + n)}\n  name: S${from + n}\n`).join('');
+  for (const [stage, read, make, detail, limit] of [
+    ['01-domain', readDomainPicture, contexts, 'contexts exceeds its picture limit', 200],
+    ['05-erd', readSqlPicture, tables, 'more than 500 tables; later tables are omitted', 500],
+    ['07-sitemap', readSitemapPicture, screens, 'more than 500 screens; later screens are omitted', 500],
+  ]) {
+    const current = read([['a', make(1, 1)]]).picture;
+    // Over the limit with the other file's entry, and over it with the text alone, which the reader checks too.
+    for (const count of [limit, limit + 1]) {
+      const merged = mergePicture(stage, current, 'b', make(2, count));
+      const over = merged.checks.filter(({ message }) => message.endsWith(`: ${detail}`)).map(({ message }) => message);
+      assert.deepEqual([over, merged.picture[Object.keys(merged.picture)[1]].length], [[`b:1: ${detail}`], limit], `${stage} ${count}`);
+    }
+  }
 });
 
 test("an entry's file is its where without the line, and files go in the order Python sorts them", () => {

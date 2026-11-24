@@ -97,6 +97,11 @@ const SPLIT = [
   { stage: '07-sitemap', kind: 'sitemap', name: 'Sitemap', ...readSitemapPicture(SPLIT_YAML, { part: 'split' }), files: SPLIT_YAML },
 ];
 const SPLIT_LEFT_OUT = 'unique index has an unreadable column expression; rule omitted';
+// The hub's warning of a file past its limit of files, which it did not read: a left_out element of part own's ERD,
+// whose file it does not make one of the drawing's files.
+const OWN_NOT_READ = {
+  rule: 'picture-partial', level: 'warn', message: 'db/zz.sql:1: first of 2 supported sources omitted after 500 files', by: 'scan', stage: '05-erd', part: 'own',
+};
 // The proposed schema: request_keys renamed, the elements' drawing_id referencing diagrams in place of drawings, a
 // column's type changed, restore_rehearsals removed, agent_notes added with a foreign key, a unique index on an
 // expression, which the hub leaves out, and a view, which it passes over.
@@ -166,10 +171,13 @@ describe('agent proposals', () => {
   };
   // A stage's picture drawn as the push draws it, with the hub's warnings; an element keyed by a trace ID holds it.
   const drawPicture = (drawing, stage, kind, part, { source, picture, checks }) => {
-    const { elements } = drawProposed({
-      stage, part, kind, key: null, source, text: JSON.stringify(picture), warnings: pictureWarnings(checks, stage, part),
-    });
-    s.elements(drawing, elements.map((each) => ({ ...each, trace_id: ITEM_ID.test(each.key) ? each.key : null })));
+    const warnings = pictureWarnings(checks, stage, part);
+    const { elements } = drawProposed({ stage, part, kind, key: null, source, text: JSON.stringify(picture), warnings });
+    // A push keeps each warning's element as left_out, a status drawProposed does not give.
+    const left = new Set(warnings.map(({ detail }) => detail));
+    s.elements(drawing, elements.map((each) => ({
+      ...each, trace_id: ITEM_ID.test(each.key) ? each.key : null, status: left.has(each.name) ? 'left_out' : null,
+    })));
   };
 
   // Sends a write of action with its JSON body, request key and session, and checks the answer against the contract.
@@ -274,7 +282,7 @@ describe('agent proposals', () => {
     // in part own an ERD of the project's own table ID prefix, and in part split one drawn from two files.
     // TASK-470: its board too, and in part split a board, an ERD and a sitemap each drawn from two files; the snapshot
     // keeps each picture as the push sent it, and the hub's checks.
-    sources = s.project('sources', { parts: ['nexus', 'own', 'split'], checks: SPLIT.flatMap((each) => each.checks) });
+    sources = s.project('sources', { parts: ['nexus', 'own', 'split'], checks: [...SPLIT.flatMap((each) => each.checks), OWN_NOT_READ] });
     const keep = (stage, part, picture) => s.document(sources, `/pictures/${stage}/${part}`, stage, JSON.stringify(picture));
     const schema = s.diagram(sources, { sourceKey: '/pictures/05-erd/nexus' });
     drawPicture(schema.drawing, '05-erd', 'erd', 'nexus', ERD_PICTURE);
@@ -288,6 +296,7 @@ describe('agent proposals', () => {
     const own = s.diagram(sources, { sourceKey: '/pictures/05-erd/own' });
     const ownSql = '-- T-1 users of the own part\nCREATE TABLE users (id INTEGER PRIMARY KEY);\n';
     const ownPicture = readSqlPicture([['db/own.sql', ownSql]], { ids: idFormat([['T', 'table']]), part: 'own' });
+    ownPicture.checks.push(OWN_NOT_READ);
     drawPicture(own.drawing, '05-erd', 'erd', 'own', { source: 'db/own.sql', ...ownPicture });
     keep('05-erd', 'own', ownPicture.picture);
     for (const { stage, kind, name, picture, checks, files } of SPLIT) {
@@ -453,6 +462,18 @@ describe('agent proposals', () => {
       { op: 'add', element: 'SCR-305', name: 'Baskets', target: null },
       { op: 'connect', element: 'SCR-301', name: 'Baskets', target: 'SCR-305' },
     ]]);
+    // A file left with none of its own entries still takes its place: what it gave the picture goes, and the other
+    // file's entries stay.
+    for (const [stage, path, text, gone, other] of [
+      ['01-domain', 'docs/01-domain/b.md', '# Billing\n\nNot yet.\n', 'CTX-302', 'CTX-301'],
+      ['05-erd', 'db/right.sql', '-- no table yet\n', 'TBL-302', 'TBL-301'],
+      ['07-sitemap', 'docs/07-sitemap/b.yaml', '# no screen yet\n', 'SCR-303', 'SCR-301'],
+    ]) {
+      const emptied = await splitAt(stage, [gone], path, text);
+      assert.equal(emptied.status, 201, path);
+      assert.ok(emptied.json.changes.some(({ op, element }) => op === 'remove' && element === gone), path);
+      assert.ok(emptied.json.changes.every(({ element }) => element !== other), path);
+    }
     // Each file as it is makes no change.
     for (const { stage, files } of SPLIT) {
       for (const [path, text] of files) {
@@ -476,6 +497,8 @@ describe('agent proposals', () => {
       // A path that differs from the file only in case, or that names the picture's key.
       [{ part: 'split', items: ['TBL-301'], source_text: SPLIT_SQL[0][1], source_path: 'db/LEFT.sql' }, { project: sources.name }, unknown],
       [{ part: 'split', items: ['TBL-301'], source_text: SPLIT_SQL[0][1], source_path: '/pictures/05-erd/split' }, { project: sources.name }, unknown],
+      // A file the hub did not read, of which the drawing holds only the hub's warning.
+      [{ part: 'own', items: ['T-1'], source_text: '-- T-1 users\nCREATE TABLE users (id INTEGER PRIMARY KEY);\n', source_path: 'db/zz.sql' }, { project: sources.name }, unknown],
       // A drawing of one file, and one whose elements name no file.
       [{ items: ['TBL-169'], source_text: SQL_TEXT, source_path: 'db/other.sql' }, { project: sources.name }, unknown],
       [{ stage: '01-domain', items: ['CTX-038'], source_text: '### CTX-038 Review\n', source_path: DOMAIN_FILE }, {}, unknown],
@@ -511,7 +534,8 @@ describe('agent proposals', () => {
       const same = await sourceProposal({ source_text: text });
       assert.deepEqual([same.status, same.json.changes], [201, []]);
     }
-    // A table keyed by the project's own ID prefix, which the drawing's tables have, keeps its key.
+    // A table keyed by the project's own ID prefix, which the drawing's tables have, keeps its key. The file the hub
+    // did not read is not one of the drawing's files, so no source_path is needed, and its warning stays.
     const own = await sourceProposal({ part: 'own', items: ['T-1'], source_text: '-- T-1 members\nCREATE TABLE members (id INTEGER PRIMARY KEY);\n' });
     assert.deepEqual([own.status, own.json.changes], [201, [{ op: 'rename', element: 'T-1', name: 'members', target: null }]]);
   });

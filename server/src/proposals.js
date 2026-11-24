@@ -59,7 +59,7 @@ import { MAX_TRACE_ID, TRACE_ID } from './drawer.js';
 import { diagramTraceId, drawProposed, pictureWarnings } from './drawing.js';
 import { changeSetsChanged, openAgentEntry, threadChanged } from './entries.js';
 import { idOf, keyOf } from './ids.js';
-import { fileOf, mergePicture } from './picture-merge.js';
+import { fileOf, LIST_LIMITS, mergePicture } from './picture-merge.js';
 import { idFormat } from './picture-text.js';
 import { invalidRequest, Problem } from './problem.js';
 import { DIAGRAM_ORDER, projectHead } from './project.js';
@@ -131,7 +131,7 @@ function statementsOf(store) {
       holds: store.prepare(
         "SELECT 1 AS held FROM elements WHERE drawing_id = ? AND trace_id = ? AND (status IS NULL OR status <> 'unreadable') LIMIT 1",
       ),
-      elements: store.prepare('SELECT element_key, trace_id, kind, name, detail FROM elements WHERE drawing_id = ? ORDER BY id'),
+      elements: store.prepare('SELECT element_key, trace_id, kind, name, status, detail FROM elements WHERE drawing_id = ? ORDER BY id'),
       // A document of the snapshot a drawing was drawn from: its picture, or the snapshot's rest with its checks.
       document: store.prepare(
         `SELECT b.body FROM drawings w JOIN snapshot_files f ON f.snapshot_id = w.snapshot_id AND f.path = ?
@@ -310,12 +310,20 @@ function documentOf(statements, drawing, path) {
   }
 }
 
+// What the hub says of a file it did not read: one past its limit of files, or an object it could not read. Such a
+// file's warning is a left_out element of the drawing, but the drawing does not read the file.
+const NOT_READ = /^(?:first of [0-9]+ (?:supported sources omitted|files not read) after |source object is unreadable)/u;
+
 // The proposed drawing of a text on stage 01, 05 or 07 (see the top of this file), as drawProposed gives it, or
-// { failure: { line, says } } for a text that does not read or reads no context, table or screen. Refuses source_path
-// when the drawing's elements name several files and it is missing, and when it names none of the files they name.
+// { failure: { line, says } } for a text that does not read, or that leaves the picture no context, table or screen.
+// Refuses source_path when the drawing's elements name several files and it is missing, and when it names none of
+// the files they name.
 function readProposed(statements, request, diagram, drawing, current) {
   const reader = READ_FROM_TEXT.get(diagram.stage);
-  const files = new Set(current.map(({ detail }) => fileOf(detail.where)).filter((file) => file !== null));
+  const files = new Set(current
+    .filter((element) => !(element.status === 'left_out' && NOT_READ.test(element.name)))
+    .map(({ detail }) => fileOf(detail.where))
+    .filter((file) => file !== null));
   if (request.sourcePath === undefined && files.size > 1) throw invalidRequest('source_path', PATH_NEEDED);
   if (request.sourcePath !== undefined && !files.has(request.sourcePath)) throw invalidRequest('source_path', PATH_UNKNOWN);
   const [named = diagram.source_key] = files;
@@ -325,17 +333,21 @@ function readProposed(statements, request, diagram, drawing, current) {
     .filter((element) => Object.hasOwn(reader.ids, element.kind) && typeof element.trace_id === 'string')
     .map((element) => [element.trace_id.split('-')[0], reader.ids[element.kind]]);
   // The drawing's picture and what the hub left out of it, as the push gave them; with no file named, the text is all.
+  // The merge checks a whole list's limit again, so the push's check of one does not stay.
   const picture = files.size > 0 ? documentOf(statements, drawing, diagram.source_key) : null;
   const kept = picture === null ? [] : pictureWarnings(documentOf(statements, drawing, REST)?.checks, diagram.stage, request.part)
-    .filter((warning) => warning.path !== file);
+    .filter((warning) => warning.path !== file && !LIST_LIMITS.get(diagram.stage).has(warning.detail));
   // A push reads a file without its byte order mark: the hub decodes it as utf-8-sig.
   const text = request.sourceText.replace(BYTE_ORDER_MARK, '');
   const read = mergePicture(diagram.stage, picture, file, text, { ids: idFormat(prefixes), part: request.part });
   if (read.failure !== null && read.failure !== undefined) return { failure: { line: read.failure.line } };
   if (read.empty) return { failure: { line: null, says: `source_text reads no ${reader.kind}` } };
+  // A table's limit that the merge checks again, as the push did for a table of another file, comes once.
+  const fresh = pictureWarnings(read.checks, diagram.stage, request.part);
+  const same = (a, b) => a.path === b.path && a.line === b.line && a.detail === b.detail;
   return drawProposed({
     stage: diagram.stage, part: request.part, kind: diagram.kind, key: null, source: file, text: JSON.stringify(read.picture),
-    warnings: [...kept, ...pictureWarnings(read.checks, diagram.stage, request.part)].slice(0, MAX_WARNINGS),
+    warnings: [...kept.filter((warning) => !fresh.some((each) => same(each, warning))), ...fresh].slice(0, MAX_WARNINGS),
   });
 }
 
