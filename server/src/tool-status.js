@@ -12,15 +12,17 @@
 //   (in any case); a page with neither is read with status null; a page in the trash is "휴지통에 있음". Jira: the
 //   project's work items by status category, from three approximate counts, as "할 일 3 · 진행 중 2 · 완료 10". The
 //   status is cut to 120 characters, the contract's limit, with its control characters made spaces.
-// - When. Every minute the job looks for live links not read for 30 minutes, so a new link is read within a minute
-//   and each link about every 30 minutes. A round still running when the next look is due makes that look skip. It
-//   reads one link at a time, at most two requests a second for each tool, each request ending after 10 seconds.
+// - When. Every minute the job looks for live links not tried for 30 minutes, so a new link is read within a minute
+//   and each link about every 30 minutes; after a restart, a link counts from the read time the store keeps. Links
+//   never tried go first, then the one tried longest ago. A round still running when the next look is due makes that
+//   look skip. It reads one link at a time, at most two requests a second for each tool, each request ending after
+//   10 seconds.
 // - What a failure keeps. A link that cannot be read keeps its last status and the time it was read (REQ-061); one
 //   never read keeps status_read_at null, "not read yet". A 401, 403 or 429 stops that tool until the next 30
 //   minutes, so a refused token is not tried on every link. A tool with no token is never called.
-// - The log. One line per tool and round that asked anything: how many links were read, failed and gave no ID, and
-//   for each failure the link's ID, the kind and the HTTP status. Never a token, an address, a page ID, a project key,
-//   the site, its cloud ID, the account or anything a tool answered (rule 5).
+// - The log. One line per tool and round that asked anything, a round that stop() ended included: how many links were
+//   read, failed and gave no ID, and for each failure the link's ID, the kind and the HTTP status. Never a token, an
+//   address, a page ID, a project key, the site, its cloud ID, the account or anything a tool answered (rule 5).
 
 import { idOf } from './ids.js';
 import { errorKind } from './log.js';
@@ -53,24 +55,17 @@ const JIRA_PATHS = Object.freeze([
   new RegExp(`^/browse/(${JIRA_KEY})(?:-[0-9]{1,18})?/?$`, 'u'),
   new RegExp(`^/jira/(?:[a-z]{1,40}/){0,4}projects/(${JIRA_KEY})(?:/|$)`, 'u'),
 ]);
+const JIRA_KEY_ONLY = new RegExp(`^${JIRA_KEY}$`, 'u');
 // Characters a status does not keep: control characters and the line and paragraph separators.
 const CONTROL = /[\u0000-\u001f\u007f-\u009f\u2028\u2029]/gu;
 
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const iso = (ms) => new Date(ms).toISOString();
 
-function parse(url) {
-  try {
-    return new URL(url);
-  } catch {
-    return null;
-  }
-}
-
 // The page ID a Notion link gives, 32 lowercase hex digits, or null: for an address with no page ID, and for a
 // database view (?v=), which is not a page.
 export function notionPageOf(url) {
-  const parsed = parse(url);
+  const parsed = URL.parse(url);
   if (parsed === null || parsed.searchParams.has('v')) return null;
   const last = parsed.pathname.split('/').filter((segment) => segment !== '').at(-1);
   if (last === undefined || last.length > 2000) return null;
@@ -80,7 +75,7 @@ export function notionPageOf(url) {
 
 // The project key a Jira link on site gives, or null: for another site and for an address with no key.
 export function jiraProjectOf(url, site) {
-  const parsed = parse(url);
+  const parsed = URL.parse(url);
   if (parsed === null || parsed.hostname !== site) return null;
   for (const pattern of JIRA_PATHS) {
     const found = pattern.exec(parsed.pathname);
@@ -92,7 +87,7 @@ export function jiraProjectOf(url, site) {
 // The JQL of a project's work items of one status category. key has passed JIRA_KEY, so it holds no quote, and it is
 // put inside double quotes: a link can never change the query.
 export function categoryQuery(key, category) {
-  if (!new RegExp(`^${JIRA_KEY}$`, 'u').test(key)) throw new TypeError('a Jira project key');
+  if (!JIRA_KEY_ONLY.test(key)) throw new TypeError('a Jira project key');
   return `project = "${key}" AND statusCategory = "${category}"`;
 }
 
@@ -127,19 +122,17 @@ function failureOf(status) {
   return 'rejected';
 }
 
-// The answer's body as JSON, read up to ANSWER_BYTES; null for a larger or broken one.
+// The answer's body as JSON, read up to ANSWER_BYTES; null for a larger one, whose rest the loop's end cancels, or
+// for one that is not JSON. A body that stops on a timeout or a dropped connection throws, as fetch does.
 async function jsonOf(response) {
   const chunks = [];
   let size = 0;
+  for await (const chunk of response.body ?? []) {
+    size += chunk.byteLength;
+    if (size > ANSWER_BYTES) return null;
+    chunks.push(chunk);
+  }
   try {
-    for await (const chunk of response.body ?? []) {
-      size += chunk.byteLength;
-      if (size > ANSWER_BYTES) {
-        await response.body.cancel().catch(() => {});
-        return null;
-      }
-      chunks.push(chunk);
-    }
     return JSON.parse(Buffer.concat(chunks).toString('utf8'));
   } catch {
     return null;
@@ -154,10 +147,11 @@ export function createToolStatus({
   store, settings, queue, log, fetch = globalThis.fetch, now = Date.now, timers = { setTimeout, clearTimeout },
 }) {
   const statements = {
-    live: store.prepare('SELECT id, tool, url FROM tool_links WHERE removed_at IS NULL ORDER BY id'),
+    live: store.prepare('SELECT id, tool, url, status_read_at FROM tool_links WHERE removed_at IS NULL ORDER BY id'),
     keep: store.prepare('UPDATE tool_links SET status = ?, status_read_at = ? WHERE id = ? AND removed_at IS NULL'),
   };
-  // When each live link was last tried, and until when a tool that refused is left alone, in milliseconds.
+  // When each live link was last tried, or read as the store keeps it, and until when a tool that refused is left
+  // alone, in milliseconds.
   const tried = new Map();
   const pausedUntil = new Map();
   const lastRequest = new Map();
@@ -174,23 +168,23 @@ export function createToolStatus({
     if (wait > 0) await sleep(wait);
     if (stopped) return { kind: 'stopped', status: null };
     lastRequest.set(tool, now());
-    let response;
     try {
-      response = await fetch(url, {
+      const response = await fetch(url, {
         ...init,
         redirect: 'manual',
         signal: AbortSignal.any([stopping.signal, AbortSignal.timeout(REQUEST_MS)]),
       });
+      if (response.status !== 200) {
+        await response.body?.cancel().catch(() => {});
+        return { kind: failureOf(response.status), status: response.status };
+      }
+      const body = await jsonOf(response);
+      return isObject(body) ? { body } : { kind: 'answer', status: 200 };
     } catch (error) {
+      // The request, or the reading of its body, timed out, dropped, or was ended by stop().
       if (stopped) return { kind: 'stopped', status: null };
       return { kind: error?.name === 'TimeoutError' ? 'timeout' : 'network', status: null };
     }
-    if (response.status !== 200) {
-      await response.body?.cancel().catch(() => {});
-      return { kind: failureOf(response.status), status: response.status };
-    }
-    const body = await jsonOf(response);
-    return isObject(body) ? { body } : { kind: 'answer', status: 200 };
   }
 
   const readers = {};
@@ -242,6 +236,16 @@ export function createToolStatus({
       const links = await queue(() => statements.live.all());
       const live = new Set(links.map((link) => Number(link.id)));
       for (const id of tried.keys()) if (!live.has(id)) tried.delete(id);
+      // A link read before the server started counts from the time the store keeps, so a restart does not read every
+      // link again.
+      for (const link of links) {
+        const readAt = link.status_read_at === null ? NaN : Date.parse(link.status_read_at);
+        if (!tried.has(Number(link.id)) && Number.isFinite(readAt)) tried.set(Number(link.id), Math.min(readAt, now()));
+      }
+      // Links never tried come first, then the one tried longest ago, so a link that keeps failing cannot keep the
+      // others of its tool waiting.
+      const since = (link) => tried.get(Number(link.id)) ?? -Infinity;
+      links.sort((a, b) => since(a) - since(b) || Number(a.id) - Number(b.id));
       const tally = new Map();
       for (const link of links) {
         if (stopped) break;
@@ -269,7 +273,7 @@ export function createToolStatus({
         // A refused token or a tool that asks to slow down is left alone until the next 30 minutes.
         if (outcome.kind === 'refused' || outcome.kind === 'busy') pausedUntil.set(link.tool, now() + INTERVAL_MS);
       }
-      if (stopped) return;
+      // Logged even when stop() ended the round, so that every request made is in the log.
       for (const [tool, counts] of tally) {
         if (counts.read + counts.failed === 0) continue;
         log({ time: iso(now()), event: 'tool_status_read', tool, ...counts });

@@ -39,6 +39,8 @@ const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(b
 const page = (properties = {}, extra = {}) => json({ object: 'page', id: randomUUID(), properties, ...extra });
 const statusProperty = (name) => ({ id: 'a', type: 'status', status: name === null ? null : { id: 'b', name, color: 'blue' } });
 const selectProperty = (name) => ({ id: 'c', type: 'select', select: { id: 'd', name, color: 'red' } });
+// A 200 answer whose body fails while it is read, as a timeout or a dropped connection makes it.
+const broken = (error) => new Response(new ReadableStream({ pull(controller) { controller.error(error); } }), { status: 200 });
 
 // A clock whose time moves only when the test moves it, with timers that fire as it passes them.
 function fakeClock(start = START) {
@@ -322,6 +324,9 @@ test('a tool that cannot be read keeps the last status and the time it was read 
     [() => json({ message: 'bad' }, 400), 'rejected', 400],
     [() => { throw new DOMException('The operation timed out.', 'TimeoutError'); }, 'timeout', null],
     [() => { throw new TypeError('fetch failed'); }, 'network', null],
+    // The answer's head came, and its body then timed out or dropped.
+    [() => broken(new DOMException('The operation was aborted due to timeout', 'TimeoutError')), 'timeout', null],
+    [() => broken(new TypeError('terminated')), 'network', null],
     [() => new Response('{not json', { status: 200 }), 'answer', 200],
     [() => json({ object: 'database' }), 'answer', 200],
     [() => json(['page']), 'answer', 200],
@@ -366,6 +371,59 @@ test('a refused token or a 429 leaves that tool alone until the next 30 minutes;
     await env.clock.advance(INTERVAL_MS);
   }
   assert.deepEqual(links.map((id) => env.row(id)), links.map(() => ({ status: null, status_read_at: null })));
+});
+
+test('a link that keeps being refused does not keep the other links of its tool waiting', async (t) => {
+  const refused = hex32();
+  const env = setup(t, {
+    notion: (call) => (call.url.endsWith(refused) ? json({ message: 'no' }, 403) : page({ S: statusProperty('Live') })),
+  });
+  const first = env.link('notion', notionLink(refused));
+  const others = [env.link('notion', notionLink(hex32())), env.link('notion', notionLink(hex32()))];
+  await env.round();
+  assert.deepEqual(others.map((id) => env.row(id).status), [null, null]);
+  await env.clock.advance(INTERVAL_MS);
+  await env.round();
+  // The links never tried go first; the refused one comes after them and leaves the tool alone again.
+  assert.deepEqual(others.map((id) => env.row(id).status), ['Live', 'Live']);
+  assert.equal(env.row(first).status, null);
+  assert.deepEqual(env.stub.calls.map((call) => call.url.endsWith(refused)), [true, false, false, true]);
+});
+
+test('after a restart, a link counts from the time the store keeps, so it is not read again before 30 minutes', async (t) => {
+  const env = setup(t, { notion: () => page({ S: statusProperty('Live') }) });
+  const recent = env.link('notion', notionLink(hex32()));
+  const old = env.link('notion', notionLink(hex32()));
+  const kept = env.db.prepare('UPDATE tool_links SET status = ?, status_read_at = ? WHERE id = ?');
+  kept.run('Recent', new Date(START - 10 * 60_000).toISOString(), recent);
+  kept.run('Old', new Date(START - 40 * 60_000).toISOString(), old);
+  await env.round();
+  assert.deepEqual([env.row(recent).status, env.row(old).status], ['Recent', 'Live']);
+  await env.clock.advance(19 * 60_000);
+  await env.round();
+  assert.equal(env.row(recent).status, 'Recent');
+  await env.clock.advance(LOOK_MS);
+  await env.round();
+  assert.equal(env.row(recent).status, 'Live');
+  assert.equal(env.stub.calls.length, 2);
+});
+
+test('a round that stop() ends still logs the requests it made, and writes nothing after', async (t) => {
+  const hold = Promise.withResolvers();
+  const held = hex32();
+  const env = setup(t, {
+    notion: (call) => (call.url.endsWith(held) ? hold.promise : page({ S: statusProperty('Live') })),
+  });
+  const read = env.link('notion', notionLink(hex32()));
+  const ended = env.link('notion', notionLink(held));
+  const round = env.job.round();
+  await env.clock.advance(GAP_MS);
+  assert.equal(env.stub.calls.length, 2);
+  env.job.stop();
+  hold.resolve(page({ S: statusProperty('Late') }));
+  await round;
+  assert.deepEqual([env.row(read).status, env.row(ended).status], ['Live', null]);
+  assert.deepEqual(env.lines.map(({ event, tool, read: n, failed }) => [event, tool, n, failed]), [['tool_status_read', 'notion', 1, 0]]);
 });
 
 test('the looks: a new link within a minute, each link every 30 minutes, a running round skips the next look, stop ends them', async (t) => {
