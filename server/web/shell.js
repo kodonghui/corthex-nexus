@@ -6,7 +6,7 @@
 // draws nothing of a project until a read answered it. It keeps nothing an API answered (see storage.js).
 
 import { PROJECTS_HREF, projectHref, stageHref, TODO_HREF } from './address.js';
-import { read, write } from './api.js';
+import { read } from './api.js';
 import { fill, h, icon } from './dom.js';
 import { MESSAGES } from './messages.js';
 import { STAGES } from './stages.js';
@@ -61,7 +61,6 @@ export function startShell(root, screen, address) {
       return round.get(path);
     },
     reload: () => load(true),
-    write: writeOf,
     redraw,
     missed: (name) => misses[name] ?? null,
     onLeave: (keep) => leaving.push(keep),
@@ -158,16 +157,6 @@ export function startShell(root, screen, address) {
     if (same) return showTimes();
     if (refresh) return again(showData);
     showData();
-  }
-
-  // A write of the screen's (api.js write), whose outcome it returns. A 401 or 403 goes through the permission rule,
-  // which ends the page or reloads it through the gate, as a read's does.
-  async function writeOf(method, path, body, key) {
-    const outcome = await write(method, path, body, key);
-    const { state, kind } = stateOf(outcome, states);
-    if (state === 'permission') permission(kind, outcome);
-    else if (state === 'normal') succeeded();
-    return outcome;
   }
 
   // Draws the screen again from the data it has, without a read, as after a change of its own state such as a write

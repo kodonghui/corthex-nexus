@@ -14,7 +14,7 @@
 // is revoked here. It never goes to a browser store, the console, a log or an address, and the page never asks for it.
 
 import { isProjectName, PROJECTS_HREF, projectHref } from './address.js';
-import { newRequestKey } from './api.js';
+import { newRequestKey, write } from './api.js';
 import { h } from './dom.js';
 import { objectParticle } from './korean.js';
 import { STAGES } from './stages.js';
@@ -362,11 +362,12 @@ async function issue(page, shell) {
   page.refused = null;
   page.issueKey ??= newRequestKey();
   shell.redraw();
-  const outcome = await shell.write('POST', CREDENTIALS, { name: page.name }, page.issueKey);
+  const outcome = await write('POST', CREDENTIALS, { name: page.name }, page.issueKey);
   page.issuing = false;
-  const { state, kind } = stateOf(outcome);
-  // The shell ended the page or reloads it through the gate.
-  if (state === 'permission') return;
+  // The answer meets the shell's states (shell.outcome): null when the shell took the page, after a 401 or a 403.
+  const found = shell.outcome(outcome);
+  if (found === null) return;
+  const { state, kind } = found;
   if (outcome.failure === undefined) page.issueKey = null;
   if (state === 'normal' && typeof outcome.body.credential === 'object' && outcome.body.credential !== null) {
     page.issued = { credential: outcome.body.credential, secret: outcome.body.secret ?? null };
@@ -409,10 +410,13 @@ async function revoke(page, shell, credential) {
   page.focus = 'credentials';
   shell.redraw();
   const path = `${CREDENTIALS}/${encodeURIComponent(credential.id)}/revoke`;
-  const outcome = await shell.write('POST', path, {}, page.revokeKeys.get(credential.id));
+  const outcome = await write('POST', path, {}, page.revokeKeys.get(credential.id));
   page.revoking = null;
-  const { state, kind } = stateOf(outcome);
-  if (state === 'permission') return;
+  // A credential gone meanwhile (404 credential_not_found) is its row's to say, since the page still shows the others;
+  // shell.outcome would show the whole page gone. Any other answer meets the shell's states, as an issue's does.
+  const found = outcome.status === 404 ? stateOf(outcome) : shell.outcome(outcome);
+  if (found === null) return;
+  const { state, kind } = found;
   if (outcome.failure === undefined) page.revokeKeys.delete(credential.id);
   if (state === 'normal') {
     // The secret of a credential revoked here leaves the page with it.

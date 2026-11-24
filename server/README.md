@@ -1158,10 +1158,8 @@ A screen is an object in `SCREENS` of `web/screens.js`, under its SCR ID. The sh
 
 `ctx` is `{ address, data, shell }`. `shell` gives:
 - `read`, `reload`, `isPhone`
-- `write(method, path, body, key)`: an owner write with its request key. A 401 and a 403 follow the shell's rules, as a read's do, and it returns the outcome for the screen to show.
 - `redraw()`: draws the screen again from the data it holds, without a read, when the screen's own state has changed, such as a write that runs.
 - `missed(name)`: the failure of a part's read, or `null`.
-- `since(time, words)`: a time of the data as how long ago it was, such as "12분 전", in a `<time>` that holds the moment. `words` turns it into the screen's text, such as "12분 전에 보냄". It follows the shell's tick and each read.
 - `onLeave(keep)`: run before the page reloads through the gate.
 - `keepDraft`, `draftOf`
 - `message(code)`: the code's Korean message.
@@ -1292,6 +1290,7 @@ TASK-456 (SPEC-015, SPEC-049, SPEC-050) is SCR-143, the page at `/p`: the projec
   - 복사 puts the value on the clipboard and says "복사했어요" beside that button until the next copy, as SCR-145 copies (SPEC-011). When the browser refuses, the field's text shows selected for the owner to copy.
   - A repeat, when a retry reaches a request that had issued the credential, answers 200 with `secret` null. The panel then shows its heading and the Client ID, and says "이 자격은 이미 발급됐어요. 비밀값은 처음 응답에만 있어서 다시 보여 줄 수 없어요. 이 자격을 폐기하고 새로 발급하세요."
 - **Revoking** (API-281). 폐기 asks once, in its own row: "폐기할까요?" with 폐기 and 취소, and the focus goes to 취소. 취소 or Escape puts 폐기 back. While the revoke runs, the focus waits on the credentials' heading, and a refusal gives it back to the row's 폐기. Once the server answers, the list is read again and the row shows "폐기됨". A credential gone meanwhile says "NEXUS에 없는 자격 증명이에요." and the list is read again. Any other refusal shows the registry's message above the credentials, with the traceId. Each credential's request key follows the issue's rule.
+- **Answers.** Both writes meet the shell's states through `shell.outcome`, as SCR-144's do (see [How a screen plugs in](#how-a-screen-plugs-in)): a 401 goes through the gate, and a 403 shows only its message. API-281's 404 stays in its row, since the page still shows the other credentials.
 - **Phone.** A phone (SPEC-051) shows both lists to read, with "자격 발급과 폐기는 PC에서 하세요.", and neither the form nor 폐기. Below 672 px the tables are the mockup's cards. A narrow PC window keeps both actions.
 - **After a deletion.** SCR-144 (TASK-457) opens this page at `/p?deleted={project}` once API-278 has deleted the space. When the name is in `ProjectName`'s form and API-262 no longer lists it, the page says "{project}를 지웠어요" on top once. It then puts `/p` back in the address with `history.replaceState`, so a reload does not say it again, and stores nothing. `objectParticle` in `web/korean.js`, which SCR-144 shares, chooses 을 or 를 (see [Project screen](#project-screen)).
 - **Loading.** Grey rows for both tables, the credentials' heading, and the issue form off.

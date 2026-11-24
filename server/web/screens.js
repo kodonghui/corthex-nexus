@@ -1,7 +1,7 @@
 // The screens of the sitemap (docs/07-sitemap) as the shell runs them (see shell.js and the server README's "App
 // shell" section). Each draws its title, its place and its shared states from API-262, API-263 and API-264; its own
 // body in the normal and empty states is the task's that builds the screen (TASK-455 to TASK-462): SCR-142's is
-// todo.js (TASK-455), and SCR-143's is projects.js (TASK-456).
+// todo.js (TASK-455), SCR-143's is projects.js (TASK-456), and SCR-144's is project.js (TASK-457).
 //
 // A screen is an object:
 // - layout: 'list' (one column, main.main) or 'workbench' (the diagram's column and the work panel, div.wb);
@@ -18,8 +18,8 @@
 //   names nothing, such as an unknown ?d=;
 // - skeleton(ctx): the grey shapes of its loading state;
 // - render(ctx) and panel(ctx): its body and, on the workbench, its work panel, as nodes.
-// ctx is { address, data, shell }: shell gives read, reload, write, redraw, missed, onLeave, keepDraft, draftOf,
-// isPhone, message, staleBar, errorNotice, since and outcome.
+// ctx is { address, data, shell }: shell gives read, reload, redraw, missed, onLeave, keepDraft, draftOf, isPhone,
+// message, staleBar, errorNotice, since and outcome.
 
 import { isDiagramId, isThreadId, projectApi, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
 import { h } from './dom.js';
