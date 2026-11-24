@@ -199,11 +199,11 @@ function scopeName(scope) {
 }
 
 // The status last read and the time it was read (SPEC-046; TASK-467 reads it). A read that found no status, such as a
-// Notion page with no status property, shows "읽음" with its time; a link not read yet shows "아직 안 읽음".
+// Notion page with no status property or with its status empty, shows "읽음" with its time; a link not read yet shows
+// "아직 안 읽음".
 function statusOf(link) {
-  const status = link.status ?? null;
-  if (!link.status_read_at) return status ?? NOT_READ;
-  return `${status ?? READ} · ${clockOf(link.status_read_at)}`;
+  if (!link.status_read_at) return link.status ?? NOT_READ;
+  return `${link.status ?? READ} · ${clockOf(link.status_read_at)}`;
 }
 
 // The tool links: a card each, oldest first, with 지우기 on a PC; the form; and on a phone the line that says these are
