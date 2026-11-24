@@ -254,7 +254,8 @@ describe('SCR-145 pictures', () => {
     for (const clipboard of ['allowed', 'refused']) {
       const page = await openStage('board', { clipboard });
       try {
-        assert.equal(selectedOf(page).hidden, true);
+        // With nothing chosen the section is the whole diagram's (TASK-459).
+        assert.deepEqual(selectedOf(page).all('b').map((b) => b.textContent), ['그림 전체']);
         const head = pictureBox(page).all('button', 'ctx-head').find((button) => button.textContent === '경계 컨텍스트 · Diagram');
         head.click();
         const panel = selectedOf(page);
@@ -334,6 +335,9 @@ describe('SCR-145 pictures', () => {
       assert.equal(tokens[1].all('rect')[0].getAttribute('fill'), '#161616');
       const font = tokens.find((token) => token.textContent.endsWith('--corthex-type-body-01'));
       assert.deepEqual([font.all('rect').length, font.all('span', 'sw').length], [0, 1]);
+      // Escape in the token list chooses nothing again, as on the picture (TASK-459).
+      panelOf(mockup).all('div', 'tokens')[0].dispatch('keydown', { key: 'Escape' });
+      assert.deepEqual([tokens[1].getAttribute('aria-pressed'), selectedOf(mockup).all('b').map((b) => b.textContent)], ['false', ['그림 전체']]);
     } finally {
       mockup.close();
     }

@@ -11,9 +11,11 @@
 //   Each drag or run of keys is sent as one move once it stops for 400 ms, with a new request key (API-274). A removed
 //   diagram, a phone (SPEC-051), stage 08's panels, a row and a token take no move.
 // - Choosing does not draw the view again, so the mockup's frame keeps its page; a move draws the picture again.
+// - The Selected section holds the threads of what is chosen, or with nothing chosen those of the whole diagram
+//   (threads.js, TASK-459). Escape, or "그림 전체 스레드", chooses nothing again.
 //
-// The workbench keeps, for the shell it runs in, the chosen element and the moves not yet answered; it keeps nothing
-// in the browser's storage.
+// The workbench keeps, for the shell it runs in, the chosen element and the moves not yet answered; only the text the
+// owner types for a thread is kept in this tab (threads.js).
 
 import { diagramApi, stageHref } from './address.js';
 import { newRequestKey } from './api.js';
@@ -22,6 +24,7 @@ import { mockupFrame } from './mockup-frame.js';
 import { overlayModel } from './overlays.js';
 import { chooser, PAD, pictureOf, shownName, STICKIES, tagWord, WORDS } from './picture.js';
 import { CONTAINERS, placement } from './relayout.js';
+import { THREAD_WORDS, threadsFocus, threadsOpened, threadsPart, threadsWhole } from './threads.js';
 
 export const STEP = 8;
 export const LONG_STEP = 40;
@@ -107,9 +110,15 @@ function build(ctx, row) {
   state.model = overlayModel(diagram);
   state.names = new Map((diagram.elements ?? []).map((element) => [element.key, shownName(element)]));
   state.notice = h('div', { class: 'wb-notice' });
-  state.pictureBox = h('div', { class: 'wb-picture' });
-  state.selectedBox = h('section', { class: 'panel', hidden: true, 'aria-label': WORKBENCH_WORDS.selected });
+  state.pictureBox = h('div', { class: 'wb-picture', on: { keydown: (event) => escape(state, event) } });
+  state.selectedBox = h('section', { class: 'panel', 'aria-label': WORKBENCH_WORDS.selected, on: { keydown: (event) => escape(state, event) } });
   state.tokenBox = null;
+  threadsOpened(state, {
+    choose: (key) => (state.selected === key ? drawSelected(state) : select(state, key)),
+    notice: (nodes) => fill(state.notice, nodes),
+    live: () => states.get(state.ctx.shell) === state,
+    reload: (how) => state.ctx.shell.reload(how),
+  });
 
   const body = [
     ctx.note === 'gone' ? h('div', { class: 'nt warn', role: 'status' }, h('div', { class: 'b' }, h('b', {}, ctx.shell.message('diagram_not_found')))) : null,
@@ -123,7 +132,8 @@ function build(ctx, row) {
     state.frame?.end();
     state.frame = mockupFrame({ diagram, shell: ctx.shell });
     fill(state.pictureBox, state.frame.element);
-    const tokens = h('div', { class: 'tokens' });
+    // Tokens are chosen like any element, so Escape there chooses nothing again too.
+    const tokens = h('div', { class: 'tokens', on: { keydown: (event) => escape(state, event) } });
     state.tokenBox = tokens;
     if (state.phone) body.push(tokens);
     else {
@@ -280,27 +290,49 @@ function select(state, key) {
   drawSelected(state);
 }
 
-// The Selected panel: the element's kind, its trace ID and the like apart, its name, and the copy of "ID name".
+// Nothing chosen again: the Selected section lists the whole diagram's threads. When the control that had the focus
+// was in the section, which is drawn anew, the focus stays in the section (threadsFocus).
+function whole(state) {
+  const active = document.activeElement ?? null;
+  const had = active !== null && state.selectedBox.contains(active);
+  setPressed(state.view.nodes.get(state.selected), false);
+  state.selected = null;
+  threadsWhole(state);
+  drawSelected(state);
+  if (had) threadsFocus(state);
+}
+
+// Escape, outside a field, chooses nothing again.
+function escape(state, event) {
+  if (event.key !== 'Escape' || event.target?.tagName === 'INPUT') return;
+  if (state.selected === null && state.threads?.shown === null) return;
+  event.preventDefault();
+  whole(state);
+}
+
+// The Selected panel: the element's kind, its trace ID and the like apart, its name, the copy of "ID name", and its
+// threads; with nothing chosen, "그림 전체" and the whole diagram's threads (threads.js).
 function drawSelected(state) {
   const box = state.selectedBox;
   const element = (state.ctx.data.diagram.elements ?? []).find((each) => each.key === state.selected);
   if (element === undefined) {
-    box.hidden = true;
-    fill(box);
+    fill(box, h('div', { class: 'ph' }, h('h2', {}, WORKBENCH_WORDS.selected)), h('p', {}, h('b', {}, THREAD_WORDS.whole)), threadsPart(state, null));
     return;
   }
-  box.hidden = false;
   const status = h('span', { class: 'copied', role: 'status' });
   const kindTag = h('span', { class: STICKIES.has(element.kind) ? `tag k-${element.kind}` : 'tag gray' }, tagWord(state.ctx.data.diagram, element));
   const apart = traceLine(state.ctx.data.diagram, element);
   fill(box,
     h('div', { class: 'ph' }, h('h2', {}, WORKBENCH_WORDS.selected),
-      h('button', { type: 'button', class: 'btn ghost sm', on: { click: () => copy(copyText(element), status) } }, WORKBENCH_WORDS.copy)),
+      h('div', { class: 'btns' },
+        h('button', { type: 'button', class: 'btn ghost sm', on: { click: () => copy(copyText(element), status) } }, WORKBENCH_WORDS.copy),
+        h('button', { type: 'button', class: 'btn ghost sm', on: { click: () => whole(state) } }, THREAD_WORDS.wholeThreads))),
     h('div', { class: 'btns mid' }, kindTag,
       element.kind === 'command' && element.detail?.actor ? h('span', { class: 'small' }, `누가: ${element.detail.actor}`) : null,
       apart === null ? null : h('span', { class: 'small mono' }, apart)),
     h('p', {}, h('b', {}, shownName(element))),
-    status);
+    status,
+    threadsPart(state, element));
 }
 
 // The IDs of an element, shown apart from its name: its trace ID; a flow box's node and the IDs it names; a state's or

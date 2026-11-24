@@ -202,6 +202,22 @@ label.l{display:block;margin-bottom:6px;font:var(--corthex-type-label-01);letter
 .cmt{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:8px 12px;background:var(--layer-02);border-radius:var(--corthex-radius-box)}
 .cmt .who{font:var(--corthex-type-label-01);font-weight:600}
 .thread{display:flex;flex-direction:column;gap:8px}
+.panel .ph{flex-wrap:wrap}
+.panel .ph>.btns{justify-content:flex-end}
+.th-list,.th-shown,.th-add{display:flex;flex-direction:column;gap:8px}
+.th-list:empty,.th-shown:empty,.th-add:empty{display:none}
+.threads{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
+.threads button{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:8px 12px;background:var(--layer-02);border:1px solid transparent;border-radius:var(--corthex-radius-box);text-align:left;cursor:pointer;font:var(--corthex-type-label-01);letter-spacing:var(--corthex-type-label-01-letter-spacing)}
+.threads button:hover{background:var(--background-hover)}
+.threads button[aria-pressed="true"]{border:2px solid var(--interactive);padding:7px 11px}
+.threads .grow{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.threads .small{white-space:nowrap}
+.cmt .meta{display:flex;align-items:center;gap:8px}
+.cmt .q{margin:0;padding-left:8px;border-left:2px solid var(--border-strong-01);color:var(--text-secondary);white-space:pre-wrap;overflow-wrap:anywhere}
+.cmt .tx{white-space:pre-wrap;overflow-wrap:anywhere}
+.cmt a{overflow-wrap:anywhere}
+.th-form{display:flex;flex-direction:column}
+@media (min-width:672px){.th-form .form{align-items:flex-start}}
 
 /* workshop */
 .steps{display:flex;flex-wrap:wrap;gap:8px}
