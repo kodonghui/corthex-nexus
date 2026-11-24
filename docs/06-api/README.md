@@ -93,7 +93,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 | `comment_not_found` | 404 | No comment thread has that nc_ ID in this project. |
 | `confirmation_not_found` | 404 | No confirmation has that ID in this project. |
 | `credential_not_found` | 404 | No agent credential has that ID. |
-| `diagram_not_found` | 404 | No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027). |
+| `diagram_not_found` | 404 | No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a direct edit, a move, a confirmation or a new thread names was removed, or a removed diagram is read that has no open thread, proposed AI proposal or direct edit waiting for reflection left (SPEC-027). |
 | `discrepancy_not_found` | 404 | NEXUS v3 has no discrepancies, so every nd_ ID is unknown. |
 | `drawing_not_found` | 404 | The drawing the request names is not one of the diagram's. |
 | `edit_not_found` | 404 | No reflection entry has that ne_ ID in this project. |
@@ -383,3 +383,14 @@ Building TASK-453 found that API-292, importing a Miro board, listed TBL-164 and
 - **API-292's 400 response** gains a `text_too_long` example, with `field` `data[0].data.content` and `limit` 200; before, it listed `invalid_request` only. A note's text has the contract's limit of 200 characters (`Note`), the coordinator chose for TASK-453 that a text over it refuses the whole import with `text_too_long`, as on every workshop write, and the code is in the registry already.
 
 No operation, field, code or spec row changed. This part passed its own checkpoint on 2026-11-24 through the same delegate.
+
+### Feature change of 2026-11-24
+
+A removed diagram keeps what waits on it: it stays listed and opens while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection (section 6 of the functional spec). No operation, field, response, code or table list changes: API-264 and API-265 already list TBL-155 and TBL-158, which hold the three, and DiagramSummary gains no field, since the workbench's read (API-265) shows the proposals and the edits. Four approved texts change, each asked on its own:
+
+- API-264's description: "removed ones with open threads listed last (SPEC-005, SPEC-027)" becomes "removed ones listed last while they have an open thread, a proposed AI proposal or a direct edit waiting for reflection (SPEC-005, SPEC-027)".
+- DiagramSummary's `removed`: "A removed diagram is listed after the others only while it has open threads" becomes "A removed diagram is listed after the others only while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection".
+- The meaning of `diagram_not_found`, and section 2's table with it, gains ", or a removed diagram is read that has no open thread, proposed AI proposal or direct edit waiting for reflection left", so that API-265's 404 for a removed diagram is written in the contract.
+- The client line of `diagram_not_found`: "a removed one still listed opens for its threads only (SPEC-027)" becomes "a removed one still listed opens for its threads, its proposals' Reject and its direct edits' Cancel edit (SPEC-027)".
+
+This part waits for its own checkpoint.

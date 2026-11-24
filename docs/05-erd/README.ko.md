@@ -198,3 +198,7 @@ TASK-438을 만들다가, 제안 올리기(API-256, SPEC-018)가 TBL-156 comment
 ### 반영의 스레드
 
 TASK-447을 만들다가, API-258이 보고하거나 push인 API-242가 만나는 반영(SPEC-025)이 TBL-155 comment_threads에 행을 더하는데 그 추적 목록에 SPEC-025가 없는 것을 찾았어요. 병합한 문서에 변경이 없으면 반영은 그것을 알리는 댓글(WBS 메모 26)을 다이어그램이 보여 주는 드로잉에서 소유자를 기다리는 새 스레드로 쓰고, 제안의 스레드는 기다리는 변경 세트가 없어지면 `closed_by` `reflection`으로 닫혀요. TBL-156 comments에는 이미 SPEC-025가 있어요. 서버의 테이블 검사(WBS 메모 23)는 쓰기가 바꾸는 테이블마다 그 쓰기의 명세 행이 채우는 테이블이게 해요. 승인된 항목 1개가 바뀌고, 따로 여쭤요. TBL-155의 추적 줄 `-- TBL-155 comment_threads (CTX-038) ← SPEC-016, SPEC-017, SPEC-018, SPEC-027, SPEC-028, SPEC-042, SPEC-043 | terms: TERM-200`이 `-- TBL-155 comment_threads (CTX-038) ← SPEC-016, SPEC-017, SPEC-018, SPEC-025, SPEC-027, SPEC-028, SPEC-042, SPEC-043 | terms: TERM-200`이 돼요. 테이블, 열, 제약은 바뀌지 않았어요. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+### 2026-11-24 기능 변경
+
+지운 그림은 자기를 기다리는 것을 지켜요. 열린 스레드, 답을 기다리는 AI 제안, 반영을 기다리는 직접 편집 중 하나가 있는 동안 목록에 남고 열려요(기능 명세 6절). 셋은 이미 행에 있어요. TBL-155의 열린 스레드, 그리고 TBL-158의 origin과 state예요. AI 제안이면 `proposed`, 아직 반영하지 않은 직접 편집이면 `accepted`예요. 승인된 항목 1개가 바뀌고, 하나씩 여쭤요. db/nexus.sql의 TBL-151 주석은 지운 그림이 "stays listed while it has open threads (SPEC-027)"라고 적었고, 이제 "stays listed while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection (SPEC-027)"라고 적어요. 테이블, 열, 제약은 바뀌지 않고, 마이그레이션 0001에는 그 주석이 없어요. TBL-158의 추적 줄은 그대로예요. 목록은 TBL-158을 읽기만 하고, 서버의 테이블 검사(WBS 메모 23)는 테이블을 그것을 바꾸는 쓰기의 명세 행에 묶기 때문이에요. server/test/erd-picture.json은 파일의 새 SHA-256에 맞게 다시 만들었어요. 이 몫은 따로 체크포인트를 기다려요.

@@ -141,3 +141,7 @@ The scope freeze and the version freeze were asked together on 2026-11-23, with 
 ### Feature change of 2026-11-23
 
 The maintainer chose to draw user flows, screen states and mockups from the first release, with the hub sending their sources. Each approved item the change touches was asked on its own and approved through the delegate they named for checkpoints; the answers are in the project's records. Here: the releases table puts the pictures of stages 03, 07, 08 and 09 in the first release, and REQ-007 and REQ-008 (Should) and REQ-009 and REQ-010 (Could) become Must, their wording unchanged. The workshop, tool links, the themes and the Miro import stay Should or Could. This stage's part of the change passed its own checkpoint on 2026-11-23 through the same delegate.
+
+### Feature change of 2026-11-24
+
+A removed diagram keeps what waits on it: it stays listed and opens while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection (section 6 of the functional spec). No change in this stage: no requirement lists or opens a removed diagram. REQ-024 (a rejected proposal's thread stays open), REQ-028 (cancelling a direct edit not yet reflected) and REQ-033 (an element's threads move to the diagram) keep their words; the change lets the owner reach the first two on a removed diagram. This part waits for its own checkpoint.

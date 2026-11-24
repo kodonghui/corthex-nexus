@@ -126,3 +126,7 @@ The mockup page's copy of SCR-145's and SCR-146's normal states follows stage 08
 #### After the ninth review of pull request 104
 
 The mockup page's copy of SCR-145's and SCR-146's error states follows stage 08: after a 404 for the diagram on a write, the diagram is read again first, and a removed one still listed opens for its threads only (SPEC-027). The page is generated again; nothing else in it changed and no approved item of this stage changed. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+### Feature change of 2026-11-24
+
+The mockup page's Korean copy of SCR-145's normal and error states (`META` in its script) follows stage 08 again: the page is generated again from the stage-08 Korean definitions, each state's text with its phone sentence apart, as before. Besides this change's text, the copy catches up with TASK-444's Reject on a removed diagram, which the screens README's "Reject on a removed diagram" passed on 2026-11-24 and the page had not followed; that catch-up is not part of the removed-diagram rule. No other state's copy changed, no frame draws a removed diagram, and no token is added or changed. One approved item changes, asked on its own: the page's copy of those two states. This part waits for its own checkpoint.

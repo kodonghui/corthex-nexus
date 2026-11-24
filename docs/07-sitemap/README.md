@@ -170,3 +170,7 @@ Section 5 gives `?thread=` to the workbench only; the changes page has no thread
 #### After the seventh review of pull request 104
 
 One approved item changed, asked on its own and approved through the same delegate: the `?d=` of SCR-145 and SCR-146 also takes a removed diagram that is still listed because it has open threads (SPEC-027), so those threads stay reachable. This part passed its own checkpoint on 2026-11-23 through the same delegate.
+
+### Feature change of 2026-11-24
+
+A removed diagram keeps what waits on it (section 6 of the functional spec). No change in this stage: the `?d=` of SCR-145 and SCR-146 takes "a removed one still listed (SPEC-027)", which follows SPEC-027's listing whatever keeps a diagram listed. The paths and the tree are unchanged. This part waits for its own checkpoint.
