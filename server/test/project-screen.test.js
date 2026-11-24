@@ -58,7 +58,8 @@ const PROJECT = Object.freeze({
   pushed_at: earlier(12),
   parts: [],
   stages: STAGES.map((stage, index) => stageRow(stage.id, MOCKUP_STATES[index])),
-  tool_links: [toolLink(L1, '02-prd', 'notion', NOTION, '읽음', READ_AT), toolLink(L2, 'project', 'jira', JIRA)],
+  // The mockup's "읽음 · 10:40": a Notion page read with no status (TASK-467); a status read is shown as it came.
+  tool_links: [toolLink(L1, '02-prd', 'notion', NOTION, null, READ_AT), toolLink(L2, 'project', 'jira', JIRA)],
   workshop: null,
 });
 const COUNTS = { snapshots: 66, diagrams: 9, drawings: 70, threads: 20, comments: 41, change_sets: 5, confirmations: 12, positions: 9, workshops: 1, notes: 3, tool_links: 2 };
@@ -370,6 +371,32 @@ describe('SCR-144', () => {
     try {
       assert.deepEqual(mainOf(page).all('a').filter((link) => (link.getAttribute('href') ?? '').startsWith('javascript')), []);
       assert.equal(cardsOf(page)[0].title, 'Notion · javascript:alert(1)');
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a link read with no status shows "읽음" and the time it was read; a link not read yet shows "아직 안 읽음"', async () => {
+    const counts = '할 일 3 · 진행 중 2 · 완료 10';
+    const project = {
+      ...PROJECT,
+      tool_links: [
+        // A Notion page with no status property, read at READ_AT (TASK-467).
+        toolLink(L1, '02-prd', 'notion', NOTION, null, READ_AT),
+        toolLink(L2, 'project', 'jira', JIRA, counts, READ_AT),
+        // A Notion page's status read, shown as it came.
+        toolLink(L3, 'project', 'notion', NEW_URL, '진행 중', READ_AT),
+        toolLink('tl_0000000000a4', 'project', 'notion', `${NEW_URL}-2`),
+      ],
+    };
+    const page = await openProject({ project });
+    try {
+      assert.deepEqual(cardsOf(page).map((card) => card.line), [
+        `02 PRD · 읽음 · ${clockOf(READ_AT)}`,
+        `프로젝트 · ${counts} · ${clockOf(READ_AT)}`,
+        `프로젝트 · 진행 중 · ${clockOf(READ_AT)}`,
+        '프로젝트 · 아직 안 읽음',
+      ]);
     } finally {
       page.close();
     }

@@ -32,8 +32,21 @@ The values in angle brackets are placeholders; the real ones stay in the server'
 | `NEXUS_ACCESS_ISSUER` | none | The gate's team address, `https://<team>.cloudflareaccess.com`: the issuer its sign-ins name, under which `/cdn-cgi/access/certs` lists their keys. An https origin with no path, port or query. |
 | `NEXUS_ACCESS_AUD` | none | The audience tag of the gate's NEXUS application, 64 lowercase hex digits. |
 | `NEXUS_OWNER_EMAIL` | none | The email address of the one owner, as the gate's sign-in carries it; matched without case. |
+| `NEXUS_NOTION_TOKEN` | none | The token of the Notion integration that reads the status of Notion links (see [Tool status](#tool-status)), with the "Read content" capability only. Unset, Notion is never called and its links show "not read yet". |
+| `NEXUS_JIRA_SITE` | none | The one Jira Cloud site whose links are read, such as `example.atlassian.net`. A link on another site keeps "not read yet". |
+| `NEXUS_JIRA_CLOUD_ID` | none | That site's cloud ID, a UUID, which `https://<site>/_edge/tenant_info` gives. |
+| `NEXUS_JIRA_EMAIL` | none | The email address of the Atlassian account the Jira token belongs to, such as `owner@example.com`. |
+| `NEXUS_JIRA_TOKEN` | none | That account's scoped API token, with the `read:jira-work` scope only. |
 
-An empty variable takes the default; `NEXUS_DATA_DIR`, `NEXUS_BACKUP_DIR` and the three gate settings have none and must be set, so a server with no backup folder does not start. An invalid value stops the server with exit code 1 and one line that names the setting and its rule, never the value, since a value set by mistake can be a secret.
+An empty variable takes the default; `NEXUS_DATA_DIR`, `NEXUS_BACKUP_DIR` and the three gate settings have none and must be set, so a server with no backup folder does not start. The five tool settings may stay unset: the four `NEXUS_JIRA_` settings are set all together or not at all, and a tool with none is never called. An invalid value stops the server with exit code 1 and one line that names the setting and its rule, never the value, since a value set by mistake can be a secret.
+
+### The read-only tokens (for the deploy, TASK-464)
+
+The [tool status read](#tool-status) needs two read-only tokens. The maintainer makes them and puts them in the server's environment before the deploy. No token is ever in Git, and no test uses one.
+
+- **Notion.** In Notion's integration settings, make an internal integration for the workspace with the "Read content" capability only: no content insert or update, no comments and no user information. Share with it each page whose status NEXUS should show. Put its token in `NEXUS_NOTION_TOKEN`. A page not shared with it answers 404 and keeps "not read yet", or its last status.
+- **Jira.** In the Atlassian account's security settings, make a scoped API token for Jira with the `read:jira-work` scope only. A classic API token carries all of the account's rights, so it is not used. Put the site in `NEXUS_JIRA_SITE`, its cloud ID from `https://<site>/_edge/tenant_info` in `NEXUS_JIRA_CLOUD_ID`, the account's address in `NEXUS_JIRA_EMAIL` and the token in `NEXUS_JIRA_TOKEN`. The account reads only the projects it can browse. An Atlassian token expires, at most a year after it is made; an expired one fails with 401, and the links keep their last status, so it is renewed before then.
+- **Where.** Set them where the server's other settings are set, readable by the server's user only, and restart the server: the settings are read once at start. To withdraw a token, revoke it at its tool and remove the variable.
 
 ## Store
 
@@ -809,7 +822,7 @@ The four operations read and write more tables than they listed, the thread's wa
   - `confirmation`: its latest confirmation (TBL-160), `confirmed` while it is live and not recorded, `recorded` once recorded, `invalidated`, or `none` when it was cancelled or there is none;
   - `waiting`: its accepted change sets, which wait for reflection (TBL-158);
   - `open_threads`: its open threads (TBL-155).
-- **Tool links** (SPEC-046): the project's links that are not removed (TBL-168), oldest first, at most 200, each with the status last read and the time it was read, both null before the first read. TASK-451 adds and removes them (see [Tool links](#tool-links)); it neither calls a tool nor holds a token. Their status is read by TASK-467 in the WBS (Should). Until it is built, links keep both null, and every link shows "not read yet" (SPEC-046's exception).
+- **Tool links** (SPEC-046): the project's links that are not removed (TBL-168), oldest first, at most 200, each with the status last read and the time it was read, both null before the first read. TASK-451 adds and removes them (see [Tool links](#tool-links)); it neither calls a tool nor holds a token. Their status is read by the [tool status read](#tool-status) (TASK-467), about every 30 minutes; until a link's first read both are null, and it shows "not read yet" (SPEC-046's exception).
 - **The workshop**: the project's latest workshop (TBL-162), the open one or else the last closed one, or null when it never had one.
 - **A name** that no project space has gets `project_not_found`, whose detail never repeats it.
 
@@ -1337,10 +1350,9 @@ The two operations read and write more tables than they listed, so API-256 lists
 
 `src/tool-links.js` is TASK-451. The owner links a Notion page or a Jira project to the project or one of its stages (API-282, `POST /api/projects/{project}/tool-links`, SPEC-046), and removes the link (API-283, `DELETE /api/projects/{project}/tool-links/{link}`, SPEC-047). Both are owner writes with a request key. The project screen (SCR-144, TASK-457) shows them, and the [project read](#project) lists them.
 
-- **Only a link.** The server keeps the scope, the tool and the address (TBL-168), never what the page or project holds. This task neither calls a tool nor holds a token, so links keep `status` and `status_read_at` null, and each shows "not read yet" (SPEC-046's exception).
-  - Reading the status is approved behaviour (SPEC-046, REQ-058, REQ-061), but TASK-451's row is "link and remove".
-  - The status read is TASK-467 in the WBS (Should), designed with its own questions: what the status of a Notion page or a Jira project is, read-only tokens kept in the server's environment and never in the database, and when the server reads. Until it is built, every link shows "not read yet".
-- **Which addresses count.** The check is by host, never by path. So a database, a board or a filter address of the same tool is accepted too: the server reads neither tool and cannot tell them apart.
+- **Only a link.** The server keeps the scope, the tool and the address (TBL-168), never what the page or project holds. Adding or removing a link calls no tool.
+  - The [tool status read](#tool-status) (TASK-467) reads each live link's status later, with read-only tokens of the server's environment. Until a link's first read, `status` and `status_read_at` stay null, and it shows "not read yet" (SPEC-046's exception).
+- **Which addresses count.** The check is by host, never by path. So a database, a board or a filter address of the same tool is accepted too. The status read reads only a Notion page or a Jira project, and any other address keeps "not read yet".
   - Notion: `notion.so`, `notion.site`, `notion.com` and their subdomains, such as `www.notion.so` and `app.notion.com`.
   - Jira: a subdomain of `atlassian.net`, unless the first segment of its path is `wiki`, which is Confluence. That holds in any case or encoding, after extra slashes and before a `;` parameter.
   - The address must be https; an `http` or any other address is refused. It is at most 2,000 characters, without white space, a control character or a backslash. It must hold no user name or password, and no port but 443.
@@ -1370,7 +1382,7 @@ TASK-457 (SPEC-013, SPEC-035, SPEC-046, SPEC-047, SPEC-010) is SCR-144, the page
   - its state: 통과 for `passed`, 통과 with the purple tag "통과 뒤 바뀜" for `changed_since_pass` (SPEC-035), 진행 중 for `open` and 시작 전 for `not_sent`. When no stage of the project was sent, each row says "아직 보낸 것이 없어요" (SCR-144#empty). 건너뜀 never shows, since API-264 has no such state;
   - for a pass, "마지막 체크포인트 MM-DD", the local date of `passed_at`;
   - at the wide layout, the stage's tool links, each "Notion · " or "Jira · " with its address and ↗. The 360-pixel layout leaves them out, as the mockup does.
-- **Tool links.** A card for each link, oldest first. It shows "Notion · " or "Jira · " with the address itself as the link, on one line cut with an ellipsis. Under it are where the link belongs, "프로젝트" or a stage such as "02 PRD", and its status with the time it was read, or "아직 안 읽음". Until TASK-467 reads a status, every link says "아직 안 읽음". With no link, the group says "아직 이은 도구가 없어요."
+- **Tool links.** A card for each link, oldest first. It shows "Notion · " or "Jira · " with the address itself as the link, on one line cut with an ellipsis. Under it are where the link belongs, "프로젝트" or a stage such as "02 PRD", and its status with the time it was read, as the [tool status read](#tool-status) (TASK-467) keeps them, such as "할 일 3 · 진행 중 2 · 완료 10 · 10:40". A link read with no status, such as a Notion page with no status property or with its status empty, says "읽음" with the time, as the mockup's "읽음 · 10:40"; a link not read yet says "아직 안 읽음". With no link, the group says "아직 이은 도구가 없어요."
 - **The address.** It goes only into the link's `href` and its text (`textContent`), never into markup, and opens in a new tab with `rel="noopener noreferrer"`. An address that is not https, which the server never keeps, shows as text and links nowhere.
 - **Linking.** The form has "Notion 페이지나 Jira 프로젝트 주소" (placeholder `https://`), "어디에" with "프로젝트 전체" and the 13 stages, and 잇기. While its write runs, 잇기 is off with `aria-disabled`, so it keeps the focus, and what the last attempt answered goes. After a 201, or a 200 for the same link again, the field clears and the page reads API-264 again, so a link added twice is one link. A refused address (400, 409 `request_key_reused` or 413) keeps its text, marked invalid, with the registry's message under it, such as "표시한 입력을 확인하세요.", and the field takes the focus. The typed address is unsent text (`keepDraft`), so it comes back after the gate.
 - **Removing a link.** 지우기 on a card removes the link without asking again, and is off with `aria-disabled` while it runs, keeping the focus. After a 200, or a 404 `tool_link_not_found` for a link removed meanwhile, the page reads API-264 again and the link is gone. A refusal shows its message under the card.
@@ -1386,7 +1398,39 @@ The screen differs from the stage-09 mockup in four places: a tool link's title 
 
 These rules, and the words the screen definitions and the mockup do not give, were chosen by the coordinator for TASK-457, and the maintainer approved them through the delegate they named for checkpoints on 2026-11-24, each asked on its own.
 
-`test/project-screen.test.js` checks each state of SCR-144 against stubbed answers and against the server, and how the page shows every response API-264, API-277, API-278, API-282 and API-283 list. Each stubbed answer is checked against the contract, and the operations' own tests have the server give each response. It also tests the request keys of the writes and the particle. The browser walk of the pull request shows each state at 360 and 1440 px, in light and dark.
+TASK-467 changes one of them: a link read with no status says "읽음" with the time it was read, where TASK-457 showed "아직 안 읽음" for every link with no status. The maintainer approved that change of TASK-457's approved screen, for this one case, through the delegate they named for checkpoints on 2026-11-24, asked on its own.
+
+`test/project-screen.test.js` checks each state of SCR-144 against stubbed answers and against the server, and how the page shows every response API-264, API-277, API-278, API-282 and API-283 list. Each stubbed answer is checked against the contract, and the operations' own tests have the server give each response. It also tests the request keys of the writes, the particle, and a link's status in its three forms: read with a status, read with none, and not read yet. The browser walk of the pull request shows each state at 360 and 1440 px, in light and dark.
+
+## Tool status
+
+`src/tool-status.js` is TASK-467 (SPEC-046, REQ-058, REQ-061). The server reads the status of each live [tool link](#tool-links) and keeps it on the link with the time it was read (TBL-168). The [project read](#project) gives both, and the project screen (SCR-144, TASK-457) shows them.
+
+- **Tokens.** Read-only tokens that only the server's environment holds (see [Settings](#settings) and [the read-only tokens](#the-read-only-tokens-for-the-deploy-task-464)); never the store, a log line, an answer or Git. A tool with no token is never called, and its links keep "not read yet" (SPEC-046's exception).
+- **Where it asks.** Only two hosts, constants in the code and never a setting or a link: `https://api.notion.com` for Notion, and `https://api.atlassian.com` for Jira, through its gateway for scoped tokens, `/ex/jira/{cloud ID}/rest/api/3/`. The server never fetches the address a link keeps, so a link cannot send it elsewhere (no SSRF). From a link it takes only an ID, checked by its form:
+  - Notion: a page ID of exactly 32 hex digits, with or without the dashes of a UUID, ending the last segment of the path, alone or after a hyphen (`Page-title-<ID>`). It asks `GET /v1/pages/{ID}` with the `Notion-Version` header pinned in the code to `2025-09-03`. A database view (`?v=`) or an address with no such ID is not read and keeps "not read yet".
+  - Jira: a project key in Jira's form, a capital letter, then capitals, digits or `_`, 2 to 255 characters in all, from `/browse/KEY`, `/browse/KEY-12` or `/jira/.../projects/KEY`, on the one site `NEXUS_JIRA_SITE` names. A link on another site, or with no key, such as a dashboard or a filter, keeps "not read yet". The key goes into the JQL only after that check, inside double quotes, so a link cannot change the query.
+  - No redirect is followed: a 3xx answer is a failure. An answer is read up to 1 MiB. Each token goes only with its own tool's requests: Notion's as `Authorization: Bearer`, Jira's account and token as `Authorization: Basic`.
+- **The status**, as SCR-144 shows it, as given: text of at most 120 characters (the contract's limit), its control characters made spaces. Whoever can edit the page or the project's workflow chooses it, so the page (TASK-457) puts it only in `textContent`, never into HTML.
+  - Notion: the name of the page's first property of type status, or else of a select property named `Status` or `상태`, in any case. A page in the trash is `휴지통에 있음`. A page with neither property, or with its status empty, is read with status null and its time, which SCR-144 shows as "읽음 · HH:MM".
+  - Jira: the project's work items by status category, from three approximate counts (`project = "KEY" AND statusCategory = "To Do"`, then `"In Progress"` and `"Done"`), as `할 일 3 · 진행 중 2 · 완료 10`.
+- **When.** A timer in the server process, as the [daily backup](#daily-backup)'s: it starts when the server listens and stops with it. Every minute it looks for live links not tried for 30 minutes, so a link added through API-282 is read within a minute and each link about every 30 minutes. After a restart, a link counts from the read time the store keeps, so a restart does not read every link again. Links never tried go first, then the one tried longest ago, so a link that keeps failing cannot keep the others waiting. A round still running when the next look is due makes that look skip, so rounds never stack. Opening SCR-144 reads nothing: API-264 stays a plain read, and no operation's table list changes.
+- **How hard.** One link at a time across both tools, at most two requests a second for each tool, and 10 seconds for each request. Writes go through the store's one write queue, and a status is written only while the link is live: a link removed during its read keeps nothing.
+- **Failures (REQ-061).** A link that cannot be read keeps its last status and the time it was read, whatever the failure: a 401, 403, 404, 429 or 5xx answer, a redirect, a timeout, a network error or an answer of the wrong form. A link never read keeps "not read yet". A 401 or 403 (a refused token) or a 429 (asked to slow down) leaves that tool alone for 30 minutes, so a refused token is not tried on every link; the other tool is still read. A Notion page not shared with the integration answers 404.
+- **The log.** One `tool_status_read` line for each round and tool that asked anything, a round that the server's stop ended included (see [Log](#log)). It never holds a token, an address, a page ID, a project key, the site, its cloud ID, the account or anything a tool answered (rule 5). A link is named by its ID, which is not a secret.
+
+The coordinator chose these rules for TASK-467. The maintainer approved those no approved document states, with the new Korean words, through the delegate they named for checkpoints on 2026-11-24, each asked on its own.
+
+`test/tool-status.test.js` checks the read with a stubbed `fetch` and an injected clock, with no real token or service:
+- which ID a link gives, and the JQL a key makes;
+- each status, Notion's and Jira's;
+- that only the two hosts are asked, with no redirect followed, and each token only with its own tool's requests; and that Node's own `fetch`, as the server calls it, does not follow a local server's redirect;
+- that every failure keeps the last status and time, a body that times out or drops included, and the pause after a 401, 403 or 429, which a link refused on its own does not turn into a wait for the others;
+- the looks, the read time kept across a restart, a running round making the next look skip, and the stop, after which the round's line is still written;
+- a link removed during its read;
+- the log lines, with a token, an address, a page ID and a project key in the stubbed answers.
+
+`test/settings.test.js` and `test/main.test.js` check the settings, naming a wrong one but never its value.
 
 ## Answering proposals
 
@@ -1576,6 +1620,13 @@ It also writes a line when it starts listening (with its host and port), when it
 - or `backup_failed`, with the `day` and the `attempt`, and either a `reason` or the kind of `error`. The reason is `not_enough_disk`, or `interrupted` for an attempt left running by a crash or by a store that could not record its end.
 
 It writes `backup_recorded`, with the `day`, the `attempt` and the `bytes`, for an attempt left running whose backup is whole. It also writes `backup_removal_failed`, with the `day` and the kind of `error`, after a backup that succeeded when the old backups could not be removed. When the job cannot read or write the store, it writes `backup_job_failed` with the kind of `error`, and looks again within the hour. None of them names a folder or a file's path.
+
+The [tool status read](#tool-status) writes `tool_status_read` for each round and tool that asked anything, with:
+- the `tool`, `notion` or `jira`;
+- how many links were `read`, `failed`, or gave no ID (`no_id`);
+- `failures`, up to 20: each with the `link`'s ID, the `kind` (`refused`, `not_found`, `busy`, `redirect`, `server`, `rejected`, `timeout`, `network` or `answer`) and the HTTP `status`, or null.
+
+When a round cannot read or write the store, it writes `tool_status_failed` with the kind of `error`. Neither holds a token, an address, a page ID, a project key, the site or the account.
 
 So every refused request is logged with its time, its action, its sender and its reason, the Problem's `code` (rule 8). No line holds a credential's secret or digest: the sender is the credential's name, which the owner chose, and the reason is one of the words above.
 

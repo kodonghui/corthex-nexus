@@ -1,7 +1,7 @@
 // Tool links (TASK-451; API-282, API-283, SPEC-046, SPEC-047): the owner links a Notion page or a Jira project to a
-// project or one of its stages, and removes the link. The server keeps the link only (TBL-168). It never calls Notion
-// or Jira and holds no token; reading a link's status is TASK-467, so until it is built status and status_read_at
-// stay null and the page shows "not read yet" (SPEC-046).
+// project or one of its stages, and removes the link. The server keeps the link only (TBL-168). Adding or removing a
+// link calls neither Notion nor Jira; tool-status.js (TASK-467) reads a link's status later, and until its first read
+// status and status_read_at stay null and the page shows "not read yet" (SPEC-046).
 //
 // An address counts by its host, never by its path (the coordinator's choice for TASK-451, approved through the
 // maintainer's delegate):
