@@ -93,7 +93,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 | `comment_not_found` | 404 | No comment thread has that nc_ ID in this project. |
 | `confirmation_not_found` | 404 | No confirmation has that ID in this project. |
 | `credential_not_found` | 404 | No agent credential has that ID. |
-| `diagram_not_found` | 404 | No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a direct edit, a move, a confirmation or a new thread names was removed, or a removed diagram is read that has no open thread, proposed AI proposal or direct edit waiting for reflection left (SPEC-027). |
+| `diagram_not_found` | 404 | No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a new direct edit, a move, a confirmation or a new thread names was removed, or the diagram read (API-265) names a removed diagram with no open thread, proposed AI proposal or direct edit waiting for reflection left (SPEC-027). |
 | `discrepancy_not_found` | 404 | NEXUS v3 has no discrepancies, so every nd_ ID is unknown. |
 | `drawing_not_found` | 404 | The drawing the request names is not one of the diagram's. |
 | `edit_not_found` | 404 | No reflection entry has that ne_ ID in this project. |
@@ -390,7 +390,7 @@ A removed diagram keeps what waits on it: it stays listed and opens while it has
 
 - API-264's description: "removed ones with open threads listed last (SPEC-005, SPEC-027)" becomes "removed ones listed last while they have an open thread, a proposed AI proposal or a direct edit waiting for reflection (SPEC-005, SPEC-027)".
 - DiagramSummary's `removed`: "A removed diagram is listed after the others only while it has open threads" becomes "A removed diagram is listed after the others only while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection".
-- The meaning of `diagram_not_found`, and section 2's table with it, gains ", or a removed diagram is read that has no open thread, proposed AI proposal or direct edit waiting for reflection left", so that API-265's 404 for a removed diagram is written in the contract.
+- The meaning of `diagram_not_found`, and section 2's table with it: "the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027)" becomes "the diagram that a new direct edit, a move, a confirmation or a new thread names was removed, or the diagram read (API-265) names a removed diagram with no open thread, proposed AI proposal or direct edit waiting for reflection left (SPEC-027)". API-265's 404 for a removed diagram is now written in the contract; it names the diagram read, since the mockup page (API-293) still serves a removed mockup's page, and a new direct edit, since cancelling one (API-273) is taken there.
 - The client line of `diagram_not_found`: "a removed one still listed opens for its threads only (SPEC-027)" becomes "a removed one still listed opens for its threads, its proposals' Reject and its direct edits' Cancel edit (SPEC-027)".
 
 This part waits for its own checkpoint.
