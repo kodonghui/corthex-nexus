@@ -2,7 +2,8 @@
 // shell" section). Each draws its title, its place and its shared states from API-262, API-263 and API-264; its own
 // body in the normal and empty states is the task's that builds the screen (TASK-455 to TASK-462): SCR-142's is
 // todo.js (TASK-455), SCR-143's is projects.js (TASK-456), SCR-144's is project.js (TASK-457), SCR-145's pictures
-// are workbench.js (TASK-458), and its workshop on stage 01 is workshop.js (TASK-462).
+// are workbench.js (TASK-458), its workshop on stage 01 is workshop.js (TASK-462), and SCR-146's is changes-page.js
+// (TASK-461).
 //
 // A screen is an object:
 // - layout: 'list' (one column, main.main) or 'workbench' (the diagram's column and the work panel, div.wb);
@@ -25,12 +26,14 @@
 //   own (a project that is gone);
 // - instead(ctx, gone): after shell.go, what opens instead of a gone thing, { href, note }, or null: the address that
 //   replaces the one in the history, and a note the next view gets as ctx.note;
-// - skeleton(ctx): the grey shapes of its loading state;
+// - skeleton(ctx): the grey shapes of its loading state; panelSkeleton(ctx), on the workbench, its work panel's;
 // - render(ctx) and panel(ctx): its body and, on the workbench, its work panel, as nodes.
 // ctx is { address, data, shell, via, note }: via is how the address was reached ('open', 'switch' through shell.go, or
 // 'instead'), and shell gives read, reload, write, redraw, missed, probe, go, onLeave, keepDraft, draftOf, isPhone,
 // message, staleBar, errorNotice, since and outcome.
 
+import { changesBody, changesSkeleton, changesTags } from './changes-page.js';
+import { CONFIRM_WORDS } from './confirm.js';
 import { diagramApi, isDiagramId, isThreadId, projectApi, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
 import { h } from './dom.js';
 import { projectBody, projectDescription, projectSkeleton } from './project.js';
@@ -38,7 +41,7 @@ import { projectsBody, projectsSkeleton } from './projects.js';
 import { SHARED_STATES } from './states.js';
 import { stageOf } from './stages.js';
 import { todoBody } from './todo.js';
-import { descriptionOf, workbenchOf } from './workbench.js';
+import { descriptionOf, emptyPanel, panelSkeleton, workbenchOf } from './workbench.js';
 import { openPart, workshopMissing, workshopMode, workshopRead, workshopShown, workshopView } from './workshop.js';
 
 const WORKBENCH_STATES = Object.freeze([...SHARED_STATES, 'waiting', 'confirmed', 'not-drawn', 'workshop']);
@@ -158,6 +161,7 @@ export const SCREENS = Object.freeze({
     // After choosing a diagram of the list that is gone meanwhile, the stage's first diagram opens with a note (SCR-145).
     instead: ({ address }, gone) => (gone.code === 'diagram_not_found' ? { href: stageHref(address.project, address.part, address.stage), note: 'gone' } : null),
     skeleton: () => [h('div', { class: 'boardbox', 'aria-hidden': 'true' }, h('span', { class: 'sk board' }))],
+    panelSkeleton: ({ shell }) => panelSkeleton(shell.isPhone()),
     // SCR-145#workshop on stage 01 while the workshop shows (workshop.js); SCR-145#empty when nothing was sent for the
     // stage; otherwise the workbench's pictures (workbench.js). On stage 01 with no workshop open, 워크숍 열기 comes first.
     render: (ctx) => {
@@ -172,7 +176,7 @@ export const SCREENS = Object.freeze({
     panel: (ctx) => {
       if (workshopShown(ctx)) return workshopMode(ctx) ? workshopView(ctx).panel : [];
       const { address, data, shell } = ctx;
-      const own = data.diagram ? workbenchOf(ctx, stageRow(data.project, address)).panel : [];
+      const own = data.diagram ? workbenchOf(ctx, stageRow(data.project, address)).panel : emptyPanel(shell.isPhone());
       if (address.thread === null || isThreadId(address.thread)) return own;
       const diagram = chosenDiagram(stageRow(data.project, address), address.diagram);
       const again = stageHref(address.project, address.part, address.stage, { diagram: diagram?.id ?? null });
@@ -181,22 +185,26 @@ export const SCREENS = Object.freeze({
         h('a', { class: 'btn tertiary sm', href: again }, '새로 고침')), own];
     },
   },
+  // The changes since the last confirmation of the diagram the workbench opens (changes-page.js, TASK-461).
   'SCR-146': {
     layout: 'list',
     tabs: true,
     states: CHANGES_STATES,
     reads: projectRead,
-    fixedTitle: '확정 뒤 바뀐 곳',
-    description: '지난 확정 버전 뒤 더하고 빼고 바뀐 요소예요. 이름은 지금 그림의 이름이고, 뺀 요소는 키로 보여요.',
+    follow: workbenchRead,
+    fixedTitle: CONFIRM_WORDS.title,
+    description: CONFIRM_WORDS.description,
+    titleTags: changesTags,
     projectTitle: ({ data }) => data.project.title,
     crumb: ({ address, data }) => [
       { text: data.project.title, href: projectHref(address.project) },
       { text: stageName(address), href: stageHref(address.project, address.part, address.stage, { diagram: address.diagram }) },
-      { text: '확정 뒤 바뀐 곳' },
+      { text: CONFIRM_WORDS.title },
     ],
     check: stageGone,
-    skeleton: () => [skeletonGroup(4)],
-    render: () => [],
+    gone: (code, address) => (code === 'diagram_not_found' ? { sub: DIAGRAM_GONE_SUB, link: { text: '프로젝트로', href: projectHref(address.project) } } : null),
+    skeleton: changesSkeleton,
+    render: changesBody,
   },
 });
 

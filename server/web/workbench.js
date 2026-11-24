@@ -12,7 +12,8 @@
 //   diagram, a phone (SPEC-051), stage 08's panels, a row and a token take no move.
 // - Choosing does not draw the view again, so the mockup's frame keeps its page; a move draws the picture again.
 // - The changes, answering AI proposals, renaming, connecting and what waits for reflection, are changes.js's
-//   (TASK-460): the workbench puts its parts in place and passes it the choices and keys it takes.
+//   (TASK-460), and so is "이 그림" with the diagram's confirmation (TASK-461): the workbench puts their parts in place
+//   and passes changes.js the choices and keys it takes.
 // - The Selected section holds the threads of what is chosen, or with nothing chosen those of the whole diagram
 //   (threads.js, TASK-459). Escape, or "그림 전체 스레드", chooses nothing again; while 잇기 waits for the other end,
 //   Escape stops it instead, and "그림 전체 스레드" stops it too.
@@ -23,6 +24,7 @@
 import { diagramApi, stageHref } from './address.js';
 import { newRequestKey } from './api.js';
 import { CHANGE_WORDS, changeKey, changesOf, drawChanges, moreBlock, nameBlock, picked, renameFrom, stopConnecting } from './changes.js';
+import { CONFIRM_WORDS } from './confirm.js';
 import { fill, h, s } from './dom.js';
 import { mockupFrame } from './mockup-frame.js';
 import { overlayModel } from './overlays.js';
@@ -84,6 +86,25 @@ export function descriptionOf(diagram, phone) {
   const words = DESCRIPTIONS[diagram.kind];
   if (words === undefined) return null;
   return typeof words === 'string' ? words : words[phone ? 'phone' : 'pc'];
+}
+
+// SCR-145#loading's work panel: its sections' titles, with grey shapes where their contents come, as the mockup's
+// frames draw them, so that nothing moves when the data comes. A phone has the Selected section only.
+export function panelSkeleton(phone) {
+  const section = (title, ...shapes) => h('section', { class: 'panel' }, h('div', { class: 'ph' }, h('h2', {}, title)),
+    shapes.map((shape) => h('span', { class: `sk ${shape}`, 'aria-hidden': 'true' })));
+  const selected = section(WORKBENCH_WORDS.selected, 'line w50', 'row');
+  if (phone) return [selected];
+  return [section(WORKBENCH_WORDS.diagram, 'line w80', 'line w60', 'btn full'), section(WORKBENCH_WORDS.proposals, 'row', 'row'), selected];
+}
+
+// SCR-145#empty's work panel on a PC, when nothing was sent for the stage: nothing to confirm, and no AI proposal.
+export function emptyPanel(phone) {
+  if (phone) return [];
+  return [
+    h('section', { class: 'panel' }, h('div', { class: 'ph' }, h('h2', {}, WORKBENCH_WORDS.diagram)), h('p', { class: 'sec' }, CONFIRM_WORDS.nothingYet)),
+    h('section', { class: 'panel' }, h('div', { class: 'ph' }, h('h2', {}, WORKBENCH_WORDS.proposals)), h('p', { class: 'sec' }, CHANGE_WORDS.allAnswered)),
+  ];
 }
 
 // The workbench of one view of the screen, built once for both its body and its panel.
@@ -148,13 +169,11 @@ function build(ctx, row) {
     state.frame?.end();
     state.frame = mockupFrame({ diagram, shell: ctx.shell });
     fill(state.pictureBox, state.frame.element);
-    // Tokens are chosen like any element, so Escape there chooses nothing again too.
+    // Tokens are chosen like any element, so Escape there chooses nothing again too. On a PC they are listed in "이
+    // 그림", above its confirmation (changes.js); on a phone under the frame.
     const tokens = h('div', { class: 'tokens', on: { keydown: (event) => escape(state, event) } });
     state.tokenBox = tokens;
     if (state.phone) body.push(tokens);
-    else {
-      panel.push(h('section', { class: 'panel' }, h('div', { class: 'ph' }, h('h2', {}, WORKBENCH_WORDS.diagram)), tokens));
-    }
     panel.push(h('section', { class: 'panel' }, h('div', { class: 'ph' }, h('h2', {}, WORKBENCH_WORDS.proposals)),
       h('p', { class: 'sec' }, WORKBENCH_WORDS.noProposals)));
   }

@@ -7,7 +7,14 @@
 //   show 거절 only (SPEC-027). An accepted proposal stays there, "수락했어요. …" with 반영 대기, until it is reflected.
 // - "이 그림" while anything waits (SCR-145#waiting): 반영 대기 N, why confirming waits, the list of what waits (newest
 //   accepted first, as API-265 gives it), each direct edit with 편집 취소 (API-273), and the confirm button off. On a
-//   removed diagram the list only, in the button's place. TASK-461 adds the rest of the section.
+//   removed diagram the list only, in the button's place.
+// - "이 그림" otherwise (TASK-461; SPEC-029, SPEC-030, SPEC-034): the state of the latest confirmation (확정 전, 확정함,
+//   바뀐 곳 N, 그려지지 않음), up to four elements changed since it with "+N개 더" to SCR-146, the note on AI proposals,
+//   and 이 그림 확정, which asks once, "확정할까요?" with 확정 and 취소, before it is sent (API-275). A live confirmation
+//   has 확정 취소 instead, sent at once (API-276). A removed diagram has neither (SPEC-027). A mockup lists its tokens
+//   there. confirm.js holds the words and reads the confirmation.
+// - SCR-146 (changes-page.js) draws its body through this module too (state.drawPage), with the same line, the same
+//   waiting rows and 편집 취소, and the same 이 그림 확정.
 // - Renaming (API-272): the Selected panel's name field, reached by a double click or F2 on an element. Enter sends a
 //   changed name; Escape, or leaving the field, puts the name back and sends nothing. A refused name stays typed.
 // - Connecting (API-272): 잇기 in the Selected panel, and the next element chosen is the other end; 취소 or Escape stops.
@@ -17,8 +24,11 @@
 // Every answer that changes something reads the diagram again (shell.reload), so the picture shows what API-265 gives.
 // What this module keeps is in the workbench's state of the diagram (state.changes), never in the browser's storage.
 
-import { projectApi } from './address.js';
+import { changesHref, diagramApi, projectApi } from './address.js';
 import { newRequestKey } from './api.js';
+import {
+  changedSentence, changedSince, changedTag, CONFIRM_WORDS, isDrawn, liveConfirmation, moreChanges, panelRow, SHOWN_CHANGES,
+} from './confirm.js';
 import { fill, h } from './dom.js';
 import { isProposed, isWaiting, KIND_WORDS, kindOfKey, MARK_WORDS, waitingOf } from './overlays.js';
 
@@ -109,13 +119,13 @@ function nameOnTop(state, key) {
 
 const elementOf = (state, key) => (state.ctx.data.diagram.elements ?? []).find((element) => element.key === key);
 
-// Makes this view's parts, once per build of the workbench: the line over the picture, the panel's two sections (none
-// on a mockup, which takes no overlay), and the Selected panel's two blocks. New data from a read clears what the line
+// Makes this view's parts, once per build of the workbench: the line over the picture, the panel's two sections ("이
+// 그림" only on a mockup, which takes no overlay), and the Selected panel's two blocks. New data from a read clears what the line
 // said and the question asked; the name typed and refused stays.
 export function changesOf(state) {
   const fresh = state.changes === undefined;
   if (fresh) {
-    state.changes = { data: null, asking: null, busy: null, picking: null, draft: null, retry: null, said: null, focus: null };
+    state.changes = { data: null, asking: null, busy: null, picking: null, draft: null, retry: null, said: null, focus: null, confirmed: null };
   }
   const changes = state.changes;
   if (changes.data !== state.ctx.data) {
@@ -143,7 +153,7 @@ export function changesOf(state) {
   changes.element = null;
   changes.ids = new Map();
   const diagram = state.ctx.data.diagram;
-  return { line: changes.line, sections: diagram.kind === 'mockup' ? [] : [changes.diagramBox, changes.proposalBox] };
+  return { line: changes.line, sections: diagram.kind === 'mockup' ? [changes.diagramBox] : [changes.diagramBox, changes.proposalBox] };
 }
 
 // Draws the line, the two sections and the Selected panel's list again from the state; name draws the name field too.
@@ -155,28 +165,36 @@ export function drawChanges(state, { name = false } = {}) {
   const had = [...(changes.ids?.entries() ?? [])].find(([, element]) => element === active)?.[0] ?? null;
   changes.ids = new Map();
   drawLine(state);
-  drawDiagram(state);
-  drawProposals(state);
-  const element = changes.element === null ? undefined : elementOf(state, changes.element);
-  if (element !== undefined) {
-    if (name) drawName(state, element);
-    else if (changes.field !== null) own(state, 'element-name', changes.field);
-    drawMore(state, element);
+  if (state.drawPage !== undefined) {
+    // SCR-146 (changes-page.js): its body in place of the workbench's sections.
+    state.drawPage(state);
+  } else {
+    drawDiagram(state);
+    drawProposals(state);
+    const element = changes.element === null ? undefined : elementOf(state, changes.element);
+    if (element !== undefined) {
+      if (name) drawName(state, element);
+      else if (changes.field !== null) own(state, 'element-name', changes.field);
+      drawMore(state, element);
+    }
   }
   const wanted = changes.focus ?? had;
   changes.focus = null;
-  const target = wanted === null ? undefined : typeof wanted === 'object' ? state.view?.nodes.get(wanted.element) : changes.ids.get(wanted);
+  // SCR-146 has no picture: an element's focus goes to the page's first heading there.
+  const target = wanted === null
+    ? undefined
+    : typeof wanted === 'object' ? state.view?.nodes.get(wanted.element) ?? changes.ids.get('page-top') : changes.ids.get(wanted) ?? changes.ids.get('page-top');
   if (target === undefined || target === active) return;
   // The sections are not in the page yet when the workbench was just built: they take the focus once they are.
   if (target.isConnected === false) queueMicrotask(() => target.focus());
   else target.focus();
 }
 
-const own = (state, id, element) => {
+export const own = (state, id, element) => {
   state.changes.ids.set(id, element);
   return element;
 };
-const off = (state) => (state.changes.busy === null ? null : 'true');
+export const off = (state) => (state.changes.busy === null ? null : 'true');
 
 // What the line over the picture says: choosing the other end of a connection, a connection that exists, a change
 // that is gone, a refusal for a state that changed (SCR-145#stale), a request refused as it is, or a failure with
@@ -223,31 +241,184 @@ function readAgain(state) {
   state.ctx.shell.reload();
 }
 
-// "이 그림" while change sets wait (SCR-145#waiting): their count, why confirming waits, their list and the confirm
-// button off. A removed diagram has no confirm button, so its list stands in the button's place without the reason
-// (SPEC-027); a phone shows the reason and the list, without the button or 편집 취소.
+// "이 그림" on the workbench's panel (SCR-145): what waits for reflection while anything does (SCR-145#waiting), and
+// otherwise the state of the latest confirmation and its button. A removed diagram has no confirmation part, so what
+// waits stands alone, without the reason (SPEC-027); a phone shows what waits and a live confirmation, without buttons
+// (SPEC-051). A mockup takes no overlay and lists its tokens here on a PC (SPEC-009).
 function drawDiagram(state) {
+  const box = state.changes.diagramBox;
+  const parts = diagramParts(state);
+  box.hidden = parts === null;
+  fill(box, parts ?? []);
+}
+
+function diagramParts(state) {
+  const diagram = state.ctx.data.diagram;
+  const waiting = diagram.kind === 'mockup' ? [] : waitingOf(diagram);
+  const tokens = diagram.kind === 'mockup' && !state.phone ? state.tokenBox ?? null : null;
+  const heading = (...tags) => h('div', { class: 'ph' },
+    own(state, 'diagram-heading', h('h2', { id: 'diagram-heading', tabindex: '-1' }, CHANGE_WORDS.diagram)), tags);
+  const waitingTag = () => h('span', { class: 'tag teal' }, waitingCount(waiting.length));
+  const list = () => h('ul', { class: 'chg' }, waiting.map((set) => waitingRow(state, set, 'w')));
+  if (diagram.removed) {
+    if (waiting.length > 0) return [heading(waitingTag()), list()];
+    return tokens === null ? null : [heading(), tokens];
+  }
+  const live = liveConfirmation(diagram);
+  if (waiting.length > 0) {
+    // A live confirmation stays, with its line and 확정 취소; otherwise confirming waits, its button off.
+    if (live !== null) return [heading(confirmedTag(), waitingTag()), confirmedLines(state, live), list(), cancelButton(state, live)];
+    return [heading(waitingTag()), h('p', {}, CHANGE_WORDS.waitingWhy), list(), state.phone ? null : offButton()];
+  }
+  if (state.phone) return live === null ? null : [heading(confirmedTag()), confirmedLines(state, live)];
+  if (!isDrawn(diagram)) {
+    // SCR-145#not-drawn: nothing to confirm until the document draws; a live confirmation keeps its line and 확정 취소.
+    return [
+      heading(h('span', { class: 'tag red' }, CONFIRM_WORDS.notDrawn)),
+      h('p', {}, CONFIRM_WORDS.fixFirst),
+      live === null ? [tokens, offButton()] : [confirmedLines(state, live), tokens, cancelButton(state, live)],
+    ];
+  }
+  if (live !== null) return [heading(confirmedTag()), confirmedLines(state, live), tokens, cancelButton(state, live)];
+  return [
+    sinceParts(state, heading),
+    tokens,
+    diagram.kind === 'mockup' ? null : h('p', { class: 'small' }, CONFIRM_WORDS.leftOut),
+    confirmControl(state),
+  ];
+}
+
+// What a diagram not confirmed now shows (choice 3): never confirmed, "확정 전" and that nothing is marked; its last
+// confirmation ended by a change, "바뀐 곳 N", the sentence and up to four elements, or "확정 전" alone when no element
+// changed; cancelled, "확정 전", that it was cancelled, and the elements changed since. "+N개 더" goes to SCR-146 when
+// there are more than four.
+function sinceParts(state, heading) {
+  const diagram = state.ctx.data.diagram;
+  const since = changedSince(diagram);
+  const before = () => h('span', { class: 'tag gray' }, CONFIRM_WORDS.notConfirmed);
+  if (since === null) return [heading(before()), h('p', { class: 'sec' }, CONFIRM_WORDS.neverConfirmed)];
+  const count = since.rows.length;
+  const rows = count === 0 ? null : [
+    h('ul', { class: 'chg' }, since.rows.slice(0, SHOWN_CHANGES).map(panelRow)),
+    count > SHOWN_CHANGES ? h('a', { class: 'small', href: changesFor(state) }, moreChanges(count - SHOWN_CHANGES)) : null,
+  ];
+  if (diagram.confirmation?.state === 'cancelled') return [heading(before()), h('p', { class: 'sec' }, CONFIRM_WORDS.cancelled), rows];
+  if (count === 0) return [heading(before())];
+  return [heading(h('span', { class: 'tag purple' }, changedTag(count))), h('p', { class: 'sec' }, changedSentence(count)), rows];
+}
+
+// SCR-146 of the diagram shown.
+function changesFor(state) {
+  const { address, data } = state.ctx;
+  return changesHref(address.project, address.part, address.stage, { diagram: data.diagram.id });
+}
+
+const confirmedTag = () => h('span', { class: 'tag green' }, CONFIRM_WORDS.confirmed);
+
+// The live confirmation's line, and "기록됨 · 3분 전" once the agent recorded it (choice 4: API-265 names no pull
+// request of the record).
+function confirmedLines(state, live) {
+  return [
+    h('p', {}, CONFIRM_WORDS.confirmedHere),
+    live.recorded_at ? h('p', { class: 'small' }, state.ctx.shell.since(live.recorded_at, (ago) => `${CONFIRM_WORDS.recorded} · ${ago}`)) : null,
+  ];
+}
+
+// 이 그림 확정 drawn off, while something waits or the document does not draw: the panel's at its full width, SCR-146's
+// at its own.
+const offButton = (wide = true) => h('button', { type: 'button', class: wide ? 'btn primary wide' : 'btn primary', disabled: true }, CHANGE_WORDS.confirm);
+export const pageOffButton = () => offButton(false);
+
+// The ID the question of 이 그림 확정 is asked under, apart from every change set's.
+const CONFIRMING = 'confirm';
+
+// 이 그림 확정, or the question it asks once (choice 1): "확정할까요?" with 확정 and 취소; Escape stops asking. wide is
+// the panel's full-width button; SCR-146 draws it at its own width.
+export function confirmControl(state, { wide = true } = {}) {
+  const changes = state.changes;
+  if (changes.asking?.id === CONFIRMING) {
+    const yes = own(state, 'confirm-yes', h('button', {
+      type: 'button', class: 'btn primary sm', id: 'confirm-yes', 'aria-disabled': off(state), on: { click: () => confirmDiagram(state) },
+    }, CONFIRM_WORDS.yes));
+    const stop = own(state, 'confirm-stop', h('button', {
+      type: 'button', class: 'btn ghost sm', id: 'confirm-stop', 'aria-disabled': off(state), on: { click: () => stopConfirming(state) },
+    }, CONFIRM_WORDS.stop));
+    return h('div', {
+      class: 'btns mid', role: 'group', 'aria-labelledby': 'confirm-ask',
+      on: { keydown: (event) => event.key === 'Escape' && stopConfirming(state) },
+    }, h('span', { id: 'confirm-ask' }, CONFIRM_WORDS.askConfirm), yes, stop);
+  }
+  return own(state, 'confirm', h('button', {
+    type: 'button', class: wide ? 'btn primary wide' : 'btn primary', id: 'confirm', 'aria-disabled': off(state),
+    on: { click: () => askConfirming(state) },
+  }, CHANGE_WORDS.confirm));
+}
+
+// 확정 취소 on a PC, sent at once (choice 2).
+function cancelButton(state, live) {
+  if (state.phone) return null;
+  return own(state, 'cancel-confirmation', h('button', {
+    type: 'button', class: 'btn tertiary wide', id: 'cancel-confirmation', 'aria-disabled': off(state),
+    on: { click: () => cancelConfirmation(state, live) },
+  }, CONFIRM_WORDS.cancelConfirmation));
+}
+
+// Whether this diagram is confirmed here: on a PC, not removed, drawn, with nothing waiting and no live confirmation
+// (SPEC-029). The server refuses the rest anyway.
+export function confirmable(state) {
+  const diagram = state.ctx.data.diagram;
+  return !state.phone && !diagram.removed && isDrawn(diagram) && liveConfirmation(diagram) === null && waitingOf(diagram).length === 0;
+}
+
+function askConfirming(state) {
+  const changes = state.changes;
+  if (changes.busy !== null || !confirmable(state)) return;
+  changes.asking = { id: CONFIRMING, verb: 'confirm' };
+  changes.focus = 'confirm-stop';
+  drawChanges(state);
+}
+
+function stopConfirming(state) {
+  const changes = state.changes;
+  if (changes.asking?.id !== CONFIRMING || changes.busy !== null) return;
+  changes.asking = null;
+  changes.focus = 'confirm';
+  drawChanges(state);
+}
+
+// API-275 on the drawing shown, once asked, or sent again by 다시 시도. A 200 or a 201 is the confirmed state, which the
+// page that sent it says while that confirmation stays live (SCR-146#confirmed).
+async function confirmDiagram(state) {
+  const changes = state.changes;
+  if (changes.busy !== null || !confirmable(state)) return;
+  const diagram = state.ctx.data.diagram;
+  const outcome = await post(state, 'confirm', `${diagramApi(diagram.project, diagram.id)}/confirmation`, { drawing: diagram.drawing.id });
+  if (outcome === null) return;
+  if (outcome.status === 200 || outcome.status === 201) changes.confirmed = outcome.body?.confirmation?.id ?? null;
+  met(state, outcome, { verb: 'confirm', retry: () => confirmDiagram(state), focus: 'diagram-heading' });
+}
+
+// API-276 on the live confirmation; the heading takes the focus once the diagram is read again.
+async function cancelConfirmation(state, live) {
   const changes = state.changes;
   const diagram = state.ctx.data.diagram;
-  const waiting = waitingOf(diagram);
-  const box = changes.diagramBox;
-  if (diagram.kind === 'mockup' || waiting.length === 0) {
-    box.hidden = true;
-    fill(box);
-    return;
-  }
-  box.hidden = false;
-  fill(box,
-    h('div', { class: 'ph' }, h('h2', {}, CHANGE_WORDS.diagram), h('span', { class: 'tag teal' }, waitingCount(waiting.length))),
-    diagram.removed ? null : h('p', {}, CHANGE_WORDS.waitingWhy),
-    h('ul', { class: 'chg' }, waiting.map((set) => waitingRow(state, set, 'w'))),
-    diagram.removed || state.phone ? null : h('button', { type: 'button', class: 'btn primary wide', disabled: true }, CHANGE_WORDS.confirm));
+  if (state.phone || changes.busy !== null || diagram.removed) return;
+  const path = `${projectApi(diagram.project)}/confirmations/${encodeURIComponent(live.id)}/cancel`;
+  const outcome = await post(state, 'unconfirm', path, {});
+  if (outcome === null) return;
+  met(state, outcome, { verb: 'unconfirm', retry: () => cancelConfirmation(state, live), focus: 'diagram-heading' });
 }
 
 // A change set that waits, as the mockup's list writes it: a direct rename's new name over "이름 바꾸기 · X에서", a
 // direct connection's ends over 잇기, an accepted proposal's text over "AI 제안 수락". A direct edit has 편집 취소 on a
-// PC. where tells the two lists apart in the IDs.
+// PC. where tells the lists apart in the IDs.
 function waitingRow(state, set, where) {
+  const { id, title, how, cancel } = waitingParts(state, set, where);
+  return h('li', {}, h('span', { class: 'grow' }, h('b', { id: `${id}-title` }, title), h('br'), h('span', { class: 'sec' }, how)), cancel);
+}
+
+// The parts of a waiting change set's row, for the workbench's lists and SCR-146's: { id, title, how, cancel }.
+export function waitingParts(state, set, where) {
   const step = (set.changes ?? [])[0];
   let title;
   let how;
@@ -271,7 +442,7 @@ function waitingRow(state, set, where) {
       on: { click: () => cancelEdit(state, set) },
     }, CHANGE_WORDS.cancelEdit))
     : null;
-  return h('li', {}, h('span', { class: 'grow' }, h('b', { id: `${id}-title` }, title), h('br'), h('span', { class: 'sec' }, how)), cancel);
+  return { id, title, how, cancel };
 }
 
 // "AI 제안" on a PC: the proposals still proposed and those accepted and waiting, in API-265's order, with the count of
@@ -422,9 +593,11 @@ async function post(state, busy, path, body) {
   return outcome;
 }
 
-// What an answer leads to (SCR-145): done, the diagram is read again; a state that changed is the stale bar; a change
-// or an element gone says so with 새로 고침; a project or a diagram gone reads the diagram again first, so that a
-// removed one still listed opens as SPEC-027 says (SCR-145#error); any other failure says so with 다시 시도.
+// What an answer leads to (SCR-145, SCR-146): done, the diagram is read again; a confirm refused because something
+// waits or the document does not draw reads it again too, and the screen shows why (SCR-145#waiting, #not-drawn); a
+// state that changed is the stale bar; a change, an element, a drawing or a confirmation gone says so with 새로 고침; a
+// project or a diagram gone reads the diagram again first, so that a removed one still listed opens as SPEC-027 says
+// (SCR-145#error); any other failure says so with 다시 시도.
 async function met(state, outcome, { verb, retry, focus = null, element = null }) {
   const changes = state.changes;
   const { shell } = state.ctx;
@@ -443,7 +616,7 @@ async function met(state, outcome, { verb, retry, focus = null, element = null }
   }
   const found = shell.outcome(outcome);
   if (found === null) return;
-  if (found.state === 'normal') {
+  if (found.state === 'normal' || found.state === 'waiting' || found.state === 'not-drawn') {
     changes.asking = null;
     if (verb === 'rename') changes.draft = null;
     // The buttons stay off until the diagram read again is drawn; then the element changed, or the heading, takes the

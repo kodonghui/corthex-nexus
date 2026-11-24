@@ -369,6 +369,12 @@ svg.pic foreignObject{overflow:visible}
 table.items .rowpick{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px;padding:2px 4px;background:none;border:0;border-radius:var(--corthex-radius-box);color:var(--text-primary);font:inherit;text-align:left;cursor:pointer}
 table.items .rowpick .nm{font-weight:600}
 .btns.mid{align-items:center}
+/* SCR-146 (TASK-461): its parts sit in the page's column as its own children; its rows are no links, and a changed
+   element's row is 56 px high, as the mockup draws them */
+.page-part{display:contents}
+.li.still{cursor:default}
+.li.still:hover{background:transparent}
+.li.short{min-height:56px}
 .copied:empty{display:none}
 .copied .field{width:100%}
 .isolated .frame-note:empty{display:none}
