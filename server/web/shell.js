@@ -58,6 +58,9 @@ export function startShell(root, screen, address) {
   // (shell.go) or 'instead' (see showGone), and the note a screen's instead() left for its next view.
   let via = 'open';
   let note = null;
+  // How many times the address changed in the page (arrive, or showGone's instead): a load whose address changed while
+  // it read leaves its answers unshown, and the load the change asked for shows the new address.
+  let arrivals = 0;
 
   const shell = {
     read: (path) => {
@@ -104,6 +107,8 @@ export function startShell(root, screen, address) {
     }
     busy = true;
     round = new Map();
+    const at = arrivals;
+    const how = via;
     if (!refresh) {
       data = null;
       render({ loading: true });
@@ -126,7 +131,12 @@ export function startShell(root, screen, address) {
     }
     await Promise.all(headerReads);
     busy = false;
-    if (!ended) settle(refresh, reads, outcomes);
+    if (!ended && at === arrivals) {
+      settle(refresh, reads, outcomes, how);
+      // Only the load the switch asked for opens something else instead of a gone thing; a later one, such as a read
+      // again or a reload after a write, shows it gone.
+      if (at === arrivals) via = 'open';
+    }
     if (queued !== null && !ended) {
       const next = queued;
       queued = null;
@@ -136,7 +146,7 @@ export function startShell(root, screen, address) {
 
   // Shows what a load's reads answered. A read of one of the screen's parts that fails leaves the rest of the screen
   // as it is: the part keeps what it showed, or has null on a first load, and the screen shows the failure there.
-  function settle(refresh, reads, outcomes) {
+  function settle(refresh, reads, outcomes, how) {
     const found = outcomes.map((outcome) => stateOf(outcome, states));
     const denied = found.findIndex(({ state }) => state === 'permission');
     if (denied !== -1) return permission(found[denied].kind, outcomes[denied]);
@@ -148,7 +158,7 @@ export function startShell(root, screen, address) {
     }
     if (failed !== -1) {
       data = null;
-      if (found[failed].kind === 'gone') return showGone(goneOf(outcomes[failed].code));
+      if (found[failed].kind === 'gone') return showGone(goneOf(outcomes[failed].code), how);
       return render({ failure: outcomes[failed] });
     }
     if (found.length === 0 || found.some(({ state }) => state === 'normal')) succeeded();
@@ -179,7 +189,11 @@ export function startShell(root, screen, address) {
   // A write of the screen's (api.js write), whose outcome it returns. A 401 or 403 goes through the permission rule,
   // which ends the page or reloads it through the gate, as a read's does.
   async function writeOf(method, path, body, key) {
-    const outcome = await write(method, path, body, key);
+    return met(await write(method, path, body, key));
+  }
+
+  // An outcome of the screen's own request, met by the permission rule and the gate's mark, and returned.
+  function met(outcome) {
     const { state, kind } = stateOf(outcome, states);
     if (state === 'permission') permission(kind, outcome);
     else if (state === 'normal') succeeded();
@@ -195,11 +209,7 @@ export function startShell(root, screen, address) {
   // The status of a page that an operation serves rather than JSON (api.js probe), such as the mockup page (API-293)
   // before its frame shows it. A 401 or 403 goes through the permission rule, as a read's does.
   async function probeOf(path) {
-    const outcome = await probe(path);
-    const { state, kind } = stateOf(outcome, states);
-    if (state === 'permission') permission(kind, outcome);
-    else if (state === 'normal') succeeded();
-    return outcome;
+    return met(await probe(path));
   }
 
   // Opens href in this page when it is another address of the same screen and place, such as another diagram of the
@@ -225,6 +235,7 @@ export function startShell(root, screen, address) {
       return;
     }
     Object.assign(address, next);
+    arrivals += 1;
     via = how;
     note = null;
     load(false);
@@ -234,15 +245,16 @@ export function startShell(root, screen, address) {
     return next !== null && ['screen', 'project', 'part', 'stage'].every((name) => next[name] === address[name]);
   }
 
-  // What is gone, in place of the view, unless the screen opens something else instead (screen.instead): after a
-  // switch, the workbench opens the stage's first diagram with a note when the chosen one is gone meanwhile (SCR-145).
-  // The address it gives replaces the one in the history; a second gone thing shows as gone.
-  function showGone(gone) {
-    const other = via === 'switch' ? screen.instead?.(context(), gone) ?? null : null;
+  // What is gone, in place of the view, unless the screen opens something else instead (screen.instead): when the load
+  // a switch asked for (how) finds it, the workbench opens the stage's first diagram with a note (SCR-145). The address
+  // it gives replaces the one in the history; a second gone thing shows as gone.
+  function showGone(gone, how = 'open') {
+    const other = how === 'switch' ? screen.instead?.(context(), gone) ?? null : null;
     if (other === null) return render({ gone });
     const { pathname, search } = partsOf(other.href);
     globalThis.history.replaceState(null, '', other.href);
     Object.assign(address, parseAddress(pathname, search));
+    arrivals += 1;
     via = 'instead';
     note = other.note ?? null;
     load(false);
@@ -306,7 +318,8 @@ export function startShell(root, screen, address) {
     const ctx = context();
     const gone = screen.check?.(ctx) ?? null;
     header.current(screen.projectTitle?.(ctx) ?? null);
-    if (gone !== null) return showGone(gone);
+    // While a load settles, via is still how its address was reached; a later redraw's is 'open'.
+    if (gone !== null) return showGone(gone, via);
     render({ ctx });
   }
 

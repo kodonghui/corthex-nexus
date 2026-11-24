@@ -13,6 +13,7 @@
 // Its state lives in its nodes: the workbench keeps the same frame while the owner chooses tokens, and a new view of
 // the screen, after a read that changed the data, makes a new frame.
 
+import { diagramApi } from './address.js';
 import { fill, h } from './dom.js';
 
 export const FRAME_WORDS = Object.freeze({
@@ -26,7 +27,7 @@ export const FRAME_WORDS = Object.freeze({
 
 // The mockup page's path (API-293).
 export function pagePath(project, diagram) {
-  return `/api/projects/${encodeURIComponent(project)}/diagrams/${encodeURIComponent(diagram)}/page`;
+  return `${diagramApi(project, diagram)}/page`;
 }
 
 // The frame of diagram (API-265's Diagram) in a group with its bar, and its watcher.

@@ -71,7 +71,7 @@ export function tagWord(diagram, element) {
 }
 
 // The kinds a DDD board draws as stickies, in the mockup's colours.
-const STICKIES = new Set(['event', 'command', 'aggregate', 'policy', 'read_model', 'hotspot', 'external']);
+export const STICKIES = new Set(['event', 'command', 'aggregate', 'policy', 'read_model', 'hotspot', 'external']);
 const FRAMES = new Set(['context']);
 const LANES = new Set(['lane', 'hotspot_lane']);
 const FLOW_BOXES = new Set(['terminal', 'step', 'decision', 'document', 'store', 'llm', 'grading']);
@@ -309,7 +309,10 @@ function flowBoxOf(view, element, layers) {
   const marks = Array.isArray(element.detail?.marks) ? element.detail.marks : [];
   const shapeClass = ['fl-shape', `k-${element.kind}`, ...marks.map((mark) => `mark-${mark}`)].join(' ');
   const moved = view.place.moved?.has(element.key) === true;
-  (moved ? layers.moved : layers.back).push(shapeOf(element.kind, box, shapeClass));
+  const shape = shapeOf(element.kind, box, shapeClass);
+  // A drag moves the shape with the button (workbench.js).
+  view.shapes?.set(element.key, shape);
+  (moved ? layers.moved : layers.back).push(shape);
   const over = view.model.marks.get(element.key);
   const lines = Array.isArray(element.detail?.lines) && element.detail.lines.length > 0 ? element.detail.lines : [shownName(element)];
   const renamed = over?.rename && over.rename.name !== element.name;

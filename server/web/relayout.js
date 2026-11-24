@@ -141,9 +141,9 @@ function buildInput(diagram, boxes, lines, labels) {
   return null;
 }
 
-// A user flow's lanes have no box; a DDD board's frames do, but its kind is never built again. Listed so that a box
-// drawn round others never joins the input.
-const CONTAINERS = new Set(['lane', 'context', 'hotspot_lane']);
+// The kinds drawn round other elements. A user flow's lanes have no box; a DDD board's frames do, but its kind is never
+// built again. Listed so that a box drawn round others never joins the input, and the workbench never moves one alone.
+export const CONTAINERS = new Set(['lane', 'context', 'hotspot_lane']);
 
 // Whether layout.js's answer is the drawing, box for box, line for line and label for label.
 function sameDrawing(laid, boxed, lined, boxes, lines, labels, reversed) {

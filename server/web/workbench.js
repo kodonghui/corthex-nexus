@@ -15,21 +15,19 @@
 // The workbench keeps, for the shell it runs in, the chosen element and the moves not yet answered; it keeps nothing
 // in the browser's storage.
 
-import { stageHref } from './address.js';
+import { diagramApi, stageHref } from './address.js';
 import { newRequestKey } from './api.js';
 import { fill, h, s } from './dom.js';
 import { mockupFrame } from './mockup-frame.js';
 import { overlayModel } from './overlays.js';
-import { chooser, PAD, pictureOf, shownName, tagWord } from './picture.js';
-import { placement } from './relayout.js';
+import { chooser, PAD, pictureOf, shownName, STICKIES, tagWord, WORDS } from './picture.js';
+import { CONTAINERS, placement } from './relayout.js';
 
 export const STEP = 8;
 export const LONG_STEP = 40;
 export const SEND_AFTER_MS = 400;
 const DRAG_FROM = 3;
 const MOVED_KINDS = new Set(['ddd_board', 'erd', 'sitemap', 'user_flow']);
-const CONTAINERS = new Set(['lane', 'context', 'hotspot_lane']);
-const STICKY_KINDS = new Set(['event', 'command', 'aggregate', 'policy', 'read_model', 'hotspot', 'external']);
 
 export const WORKBENCH_WORDS = Object.freeze({
   phone: '옮기기, 이름 바꾸기, 잇기, 제안 답하기, 확정은 PC에서 하세요.',
@@ -43,7 +41,7 @@ export const WORKBENCH_WORDS = Object.freeze({
   moveGone: '다이어그램에 더 이상 없는 요소예요.',
   notDrawn: '이 문서는 그려지지 않아요.',
   notDrawnHow: '문서를 고쳐 다시 보내면 그림이 나와요.',
-  removed: '지움',
+  removed: WORDS.removed,
 });
 
 // The text under the title, by the diagram's kind (TASK-458's question 7): the mockup's words where it gives them.
@@ -197,6 +195,7 @@ function drawPicture(state) {
     selected: state.selected,
     names: state.names,
     nodes: new Map(),
+    shapes: new Map(),
     select: (key) => select(state, key),
     keydown: (element, event) => keydown(state, element, event),
     pointerdown: (element, event) => pointerdown(state, element, event),
@@ -292,7 +291,7 @@ function drawSelected(state) {
   }
   box.hidden = false;
   const status = h('span', { class: 'copied', role: 'status' });
-  const kindTag = h('span', { class: STICKY_KINDS.has(element.kind) ? `tag k-${element.kind}` : 'tag gray' }, tagWord(state.ctx.data.diagram, element));
+  const kindTag = h('span', { class: STICKIES.has(element.kind) ? `tag k-${element.kind}` : 'tag gray' }, tagWord(state.ctx.data.diagram, element));
   const apart = traceLine(state.ctx.data.diagram, element);
   fill(box,
     h('div', { class: 'ph' }, h('h2', {}, WORKBENCH_WORDS.selected),
@@ -359,11 +358,12 @@ function pointerdown(state, element, event) {
   const holder = node?.parentNode?.parentNode;
   if (!node || !holder) return;
   const at = state.view.place.boxes.get(element.key);
-  const drag = { key: element.key, start: { x: event.clientX, y: event.clientY }, at, holder, moved: false, to: at };
+  const shape = state.view.shapes.get(element.key) ?? null;
+  const drag = { key: element.key, start: { x: event.clientX, y: event.clientY }, at, holder, shape, moved: false, to: at };
   if (!state.drags.has(node)) {
     node.addEventListener('pointermove', (move) => dragged(state.drags.get(node), move));
     node.addEventListener('pointerup', (up) => dropped(state, node, up));
-    node.addEventListener('pointercancel', () => state.drags.delete(node));
+    node.addEventListener('pointercancel', () => cancelled(state, node));
   }
   state.drags.set(node, drag);
   node.setPointerCapture?.(event.pointerId);
@@ -378,6 +378,18 @@ function dragged(drag, event) {
   drag.to = { x: Math.round(drag.at.x + dx), y: Math.round(drag.at.y + dy) };
   drag.holder.setAttribute('x', drag.to.x - PAD);
   drag.holder.setAttribute('y', drag.to.y - PAD);
+  // A flow box's shape is drawn apart from its button: it follows by an SVG transform, never a style.
+  drag.shape?.setAttribute('transform', `translate(${drag.to.x - drag.at.x} ${drag.to.y - drag.at.y})`);
+}
+
+// A drag the browser took over, such as for a gesture: the box goes back to where it was, and nothing is sent.
+function cancelled(state, node) {
+  const drag = state.drags.get(node);
+  state.drags.delete(node);
+  if (drag === undefined || !drag.moved) return;
+  drag.holder.setAttribute('x', drag.at.x - PAD);
+  drag.holder.setAttribute('y', drag.at.y - PAD);
+  drag.shape?.removeAttribute('transform');
 }
 
 function dropped(state, node, event) {
@@ -408,7 +420,8 @@ function moveTo(state, key, to) {
 }
 
 // Sends the last place of a box (API-274). A move made while one is sent goes after its answer. A timeout or a lost
-// connection keeps the request key for its retry; any answer makes the next one new.
+// connection keeps the request key for its retry, { key, at }, used only while the box is still at the place sent
+// with it, since the same key with another body is refused; any answer makes the next one new.
 async function send(state, key, kept) {
   if (state.sending.has(key)) {
     state.again.add(key);
@@ -417,14 +430,15 @@ async function send(state, key, kept) {
   const at = state.moves.get(key);
   if (at === undefined) return;
   const diagram = state.ctx.data.diagram;
-  const requestKey = kept ?? newRequestKey();
+  const requestKey = kept !== null && kept.at.x === at.x && kept.at.y === at.y ? kept.key : newRequestKey();
   state.sending.add(key);
-  const path = `/api/projects/${encodeURIComponent(diagram.project)}/diagrams/${encodeURIComponent(diagram.id)}/positions`;
+  const path = `${diagramApi(diagram.project, diagram.id)}/positions`;
   const outcome = await state.ctx.shell.write('POST', path, { element: key, x: at.x, y: at.y }, requestKey);
   state.sending.delete(key);
   if (states.get(state.ctx.shell) !== state) return;
   if (outcome.status === 200) {
-    const element = (diagram.elements ?? []).find((each) => each.key === key);
+    // The data shown now, which a read again may have replaced while the move was sent.
+    const element = (state.ctx.data.diagram.elements ?? []).find((each) => each.key === key);
     if (element !== undefined) element.position = { x: outcome.body.x, y: outcome.body.y };
     const now = state.moves.get(key);
     if (now !== undefined && now.x === at.x && now.y === at.y) state.moves.delete(key);
@@ -448,7 +462,7 @@ async function send(state, key, kept) {
     state.ctx.shell.reload();
     return;
   } else {
-    const keep = outcome.failure === 'timeout' || outcome.failure === 'network' ? requestKey : null;
+    const keep = outcome.failure === 'timeout' || outcome.failure === 'network' ? { key: requestKey, at } : null;
     fill(state.notice, state.ctx.shell.errorNotice(outcome, () => {
       fill(state.notice);
       send(state, key, keep);

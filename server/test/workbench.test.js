@@ -391,6 +391,35 @@ describe('SCR-145 pictures', () => {
     }
   });
 
+  test('a flow box\'s shape follows its drag by an SVG transform; a drag the browser cancels puts the box back and sends nothing', async () => {
+    const page = await openStage('flow');
+    try {
+      const button = pictureBox(page).all('button', 'fbox')[0];
+      const holder = holderOf(button);
+      const placeOf = () => [Number(holder.getAttribute('x')), Number(holder.getAttribute('y'))];
+      const before = placeOf();
+      const transformed = () => pictureBox(page).descendants().filter((element) => element.getAttribute('transform') !== null);
+      assert.deepEqual(transformed(), []);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 150, clientY: 120 });
+      // The box goes to whole pixels, as API-274 takes them; the shape moves by as much.
+      const at = { x: before[0] + 6, y: before[1] + 6 };
+      const to = { x: Math.round(at.x + 50), y: Math.round(at.y + 20) };
+      assert.deepEqual(placeOf(), [to.x - 6, to.y - 6]);
+      assert.deepEqual(transformed().map((shape) => shape.getAttribute('transform')), [`translate(${to.x - at.x} ${to.y - at.y})`]);
+      button.dispatch('pointercancel');
+      assert.deepEqual(placeOf(), before);
+      assert.deepEqual(transformed(), []);
+      // The pointer let go after the cancel is no drop.
+      button.dispatch('pointerup', { clientX: 160, clientY: 130 });
+      await waitSend(page);
+      assert.deepEqual(page.sent, []);
+      assert.deepEqual(placeOf(), before);
+    } finally {
+      page.close();
+    }
+  });
+
   test('a phone, a removed diagram, stage 08\'s panels, a lane and a context take no move', async () => {
     const checks = [
       ['board', { phone: true }, (page) => buttonNamed(page, 'stk', 'Send snapshot')],
@@ -464,6 +493,75 @@ describe('SCR-145 pictures', () => {
     }
   });
 
+  test('다시 시도 after a box moved again sends its new place under a new request key', async () => {
+    let calls = 0;
+    const moved = (body, key) => {
+      calls += 1;
+      return calls === 1 ? new TypeError('Failed to fetch') : movedAnswer('erd')(body, key);
+    };
+    const page = await openStage('erd', { moved });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      const at = boxOf('erd', table.key);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 1);
+      // Moved again, and 다시 시도 before that move is sent: the same key with another body would be refused (409).
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      page.app.all('div', 'wb-notice')[0].all('button')[0].click();
+      await page.settle();
+      assert.deepEqual(page.sent[1].body, { element: table.key, x: at.x + 2 * STEP, y: at.y });
+      assert.notEqual(page.sent[1].key, page.sent[0].key);
+      // Its answer took the move; the timer of the second key press finds nothing left to send.
+      await waitSend(page);
+      assert.equal(page.sent.length, 2);
+      assert.deepEqual(page.app.all('div', 'wb-notice')[0].children, []);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a move\'s answer goes into the diagram shown now, which a read again replaced while it was sent', async () => {
+    let release;
+    const held = new Promise((resolve) => {
+      release = resolve;
+    });
+    let later = false;
+    const LATER = '2026-11-23T02:00:00.000Z';
+    const page = await openStage('erd', {
+      moved: (body, key) => held.then(() => movedAnswer('erd')(body, key)),
+      more: {
+        // The read again answers a later drawing of the same diagram, so the view is built again from it.
+        [diagramPath('erd')]: (path, init) => json(200, diagramOf('erd', later ? {
+          drawing: { id: `dw_${ID.erd.slice(3)}`, revision: 4, version: 'b'.repeat(40), status: 'drawn', failed_at: null, drawn_at: LATER },
+        } : {}))(path, init),
+      },
+    });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      const at = boxOf('erd', table.key);
+      const placeOf = () => {
+        const holder = holderOf(buttonNamed(page, 'tbl', table.name));
+        return [Number(holder.getAttribute('x')), Number(holder.getAttribute('y'))];
+      };
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      assert.equal(page.sent.length, 1);
+      later = true;
+      page.shell.reload();
+      // The move's answer is held, so the page cannot settle: the read again answers at once.
+      await delay(60);
+      assert.deepEqual(placeOf(), [at.x + STEP - 6, at.y - 6]);
+      release();
+      await page.settle();
+      // Drawn again from the data it has: the box stays where its answer put it.
+      page.shell.redraw();
+      assert.deepEqual(placeOf(), [at.x + STEP - 6, at.y - 6]);
+    } finally {
+      page.close();
+    }
+  });
+
   test('the stage\'s diagrams are listed with the removed one last; choosing one opens it in the page with ?d=, and back returns', async () => {
     const page = await openStage('flow');
     try {
@@ -500,6 +598,50 @@ describe('SCR-145 pictures', () => {
       assert.deepEqual(texts(page, 'h1'), [FLOWS[0].name]);
       assert.deepEqual(page.app.all('main')[0].all('div', 'warn').map((notice) => notice.textContent), [message('diagram_not_found')]);
       assert.equal(message('diagram_not_found'), 'NEXUS에 없는 다이어그램이에요.');
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a diagram gone after its switch was shown shows as gone on a read again, not as the stage\'s first diagram', async () => {
+    let gone = false;
+    const page = await openStage('flow', {
+      more: { [diagramPath('flow2')]: (path, init) => (gone ? problem(404, 'diagram_not_found') : json(200, diagramOf('flow2')))(path, init) },
+    });
+    try {
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await page.settle();
+      assert.deepEqual(texts(page, 'h1'), [FLOWS[1].name]);
+      gone = true;
+      page.shell.reload();
+      await page.settle();
+      assert.deepEqual([page.location.pathname, page.location.search], [pathOf('flow2'), `?d=${ID.flow2}`]);
+      assert.deepEqual(texts(page, 'h1'), [message('diagram_not_found')]);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a switch made while another still reads shows only the last one chosen', async () => {
+    let release;
+    const held = new Promise((resolve) => {
+      release = resolve;
+    });
+    // The first switch's diagram is gone, and answers only after the second switch was made.
+    const page = await openStage('flow', { more: { [diagramPath('flow2')]: () => held.then(() => problem(404, 'diagram_not_found')()) } });
+    try {
+      const second = `${pathOf('flow2')}?d=${ID.flow2}`;
+      const third = `${pathOf('oldFlow')}?d=${ID.oldFlow}`;
+      page.shell.go(second);
+      await delay(40);
+      assert.ok(page.calls.includes(diagramPath('flow2')));
+      page.shell.go(third);
+      release();
+      await page.settle();
+      assert.deepEqual(page.history.pushed, [second, third]);
+      assert.deepEqual([page.location.pathname, page.location.search], [pathOf('oldFlow'), `?d=${ID.oldFlow}`]);
+      assert.deepEqual(texts(page, 'h1'), [FLOWS[2].name]);
+      assert.deepEqual(page.app.all('main')[0].all('div', 'warn'), []);
     } finally {
       page.close();
     }

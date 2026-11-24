@@ -29,7 +29,7 @@
 // 'instead'), and shell gives read, reload, write, redraw, missed, probe, go, onLeave, keepDraft, draftOf, isPhone,
 // message, staleBar, errorNotice, since and outcome.
 
-import { isDiagramId, isThreadId, projectApi, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
+import { diagramApi, isDiagramId, isThreadId, projectApi, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
 import { h } from './dom.js';
 import { projectBody, projectDescription, projectSkeleton } from './project.js';
 import { projectsBody, projectsSkeleton } from './projects.js';
@@ -45,7 +45,7 @@ export const LISTED_DIAGRAMS = 500;
 const DIAGRAM_GONE_SUB = '문서에서 빠졌거나 주소가 바뀌었어요. 작업대의 다른 단계는 그대로 열려요.';
 
 const projectRead = (address) => ({ project: projectApi(address.project) });
-const diagramPath = (address, id) => `/api/projects/${encodeURIComponent(address.project)}/diagrams/${encodeURIComponent(id)}`;
+const diagramPath = (address, id) => diagramApi(address.project, id);
 const skeletonRows = (count) => h('div', { class: 'cards' },
   Array.from({ length: count }, () => h('span', { class: 'sk row full', 'aria-hidden': 'true' })));
 const skeletonGroup = (count, heading = true) => h('section', { class: 'group', 'aria-hidden': 'true' },

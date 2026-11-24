@@ -55,6 +55,11 @@ export function projectApi(project) {
   return `/api/projects/${encodeURIComponent(project)}`;
 }
 
+// A diagram's API path (API-265), under which its mockup page (API-293) and its positions (API-274) are.
+export function diagramApi(project, diagram) {
+  return `${projectApi(project)}/diagrams/${encodeURIComponent(diagram)}`;
+}
+
 // The workbench of a stage, at a diagram and a thread when they are given.
 export function stageHref(project, part, stage, { diagram = null, thread = null } = {}) {
   return `${stagePath(project, part, stage)}${query({ d: diagram, thread })}`;
