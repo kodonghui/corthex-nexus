@@ -401,7 +401,7 @@ Each non-functional Must (REQ-069, REQ-070, REQ-072, REQ-073, REQ-076, REQ-078) 
 
 ### 2.7 The release path on the real server
 
-These need the deployed v3, so none runs before TASK-464's deploy. Each is a gate case of the release, except the tool status read (Should).
+These need the deployed v3, so they run on the first group's deploy. The go/no-go checkpoint gives a go for that first group only (section 5). Then TASK-464 deploys the release commit to v3's new address while v2 keeps serving, as the maintainer decided at TASK-463. Each is a gate case of the wider release, which turns v2 off, except the tool status read (Should). The wider release waits until each passes.
 
 | ID | Case | From | Runs as | Gate | Steps | Expected | Status | Run evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -513,7 +513,7 @@ Coverage at commit fd85323: passing cases cover 12 of 13 flows (150 of 156 trans
 
 Release gate: 21 blocking items (TC-037, TC-038, TC-097, TC-205 to TC-212, TC-218, TC-219, TC-225 to TC-227, TC-230, TC-231, TC-233 to TC-235), 22 known risks (TC-198 to TC-202, TC-213, TC-215 to TC-217, TC-220, TC-221, TC-228, TC-229, TC-232, TC-236 to TC-243), 0 waivers.
 
-These counts are at commit fd85323. The gate is applied again on the release commit before the go/no-go checkpoint: every blocking item there needs a pass, or the maintainer's recorded waiver of that named item. A gate case that needs days of time on the real server, such as the daily backup (TC-037, TC-038, TC-210), can instead get a go for a first group only, and the wider release waits until it passes. Run L skipped two file-mode tests, a backup's and the store's, because Windows keeps no POSIX file mode; both pass in run C, on Linux. No case failed. The one open bug, BUG-001 (S3), is a race in a test, not a fault of the product, and does not block the release.
+These counts are at commit fd85323. The gate is applied again on the release commit before the go/no-go checkpoint: every blocking item there needs a pass, or the maintainer's recorded waiver of that named item. The gate cases that need the deployed v3 (TC-037, TC-038, TC-097 and TC-205 to TC-212) cannot pass before a deploy, and some need days of time. At the go/no-go checkpoint they are asked as a go for a first group only. TASK-464 deploys v3 to its new address while v2 keeps serving, so that deploy is the first group. TASK-464's "The stage-12 release gate passed first" is met when the gate's other blocking items pass and that go is given. The wider release, turning v2 off, waits until each of these cases passes; a failure or a missed signal holds it and opens a bug. Run L skipped two file-mode tests, a backup's and the store's, because Windows keeps no POSIX file mode; both pass in run C, on Linux. No case failed. The one open bug, BUG-001 (S3), is a race in a test, not a fault of the product, and does not block the release.
 
 ## 6. Bugs
 
