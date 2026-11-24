@@ -11,9 +11,9 @@
 //
 // The rules the spec, the contract and the tables left open, chosen by the coordinator for TASK-453 and waiting for the
 // maintainer's delegate (see the server README's "Miro import" section):
-// 1. Items: each item of data is an object with a string id and type. Only type sticky_note becomes a note; frames are
-//    read for their titles only, and every other type is skipped. A sticky note needs a string data.content and
-//    numeric position.x and position.y.
+// 1. Items: each item of data is an object with a string type and a string id no other item has. Only type sticky_note
+//    becomes a note; frames are read for their titles only, and every other type is skipped. A sticky note needs a
+//    string data.content and numeric position.x and position.y.
 // 2. Links: a connector whose startItem.id and endItem.id name two imported notes is a link from start to end. One to
 //    anything else, to the same note, or again between the same two notes in the same direction is skipped.
 // 3. Steps: a note in a frame (parent.id) whose title starts with a step name, after "Step" or "스텝" or not, goes to

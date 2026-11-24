@@ -554,6 +554,47 @@ describe('Miro import', () => {
     assert.equal(broken.logText().includes('the store failed'), false);
   });
 
+  test('a failure while writing rolls the whole import back: the notes written before it are gone', async (t) => {
+    const store = testStore(t);
+    const seeded = seed(store);
+    const space = seeded.project();
+    const workshop = seeded.workshop(space);
+    // A store whose link insert fails once the notes are in, as when the disk fails mid-write.
+    const failing = new Proxy(store, {
+      get(target, name) {
+        const value = Reflect.get(target, name, target);
+        if (name === 'prepare') {
+          return (sql) => {
+            const statement = target.prepare(sql);
+            if (!sql.startsWith('INSERT INTO sticky_links')) return statement;
+            return new Proxy(statement, {
+              get(inner, member) {
+                if (member === 'run') return () => { throw new Error('the store failed'); };
+                const own = Reflect.get(inner, member, inner);
+                return typeof own === 'function' ? own.bind(inner) : own;
+              },
+            });
+          };
+        }
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
+    });
+    const broken = await startServer({ store: failing, gate: local.gate, routes: ROUTES });
+    t.after(() => broken.close());
+    const answer = responses.note('importMiroBoard', await broken.send({
+      method: 'POST', path: `${board(space.name)}/imports`, headers: { ...JSON_TYPE, ...owner(), ...key() }, body: JSON.stringify(documentedBoard()),
+    }));
+    assert.deepEqual(problem(answer), [500, 'internal']);
+    assert.deepEqual(store.prepare('SELECT count(*) AS n FROM sticky_notes WHERE workshop_id = ?').get(workshop).n, 0);
+    // Without the failure, the same file writes its notes and links.
+    const working = await startServer({ store, gate: local.gate, routes: ROUTES });
+    t.after(() => working.close());
+    const imported = await working.send({
+      method: 'POST', path: `${board(space.name)}/imports`, headers: { ...JSON_TYPE, ...owner(), ...key() }, body: JSON.stringify(documentedBoard()),
+    });
+    assert.deepEqual([imported.status, imported.json.links], [201, LINKS.length]);
+  });
+
   test('calls out to nothing: no fetch, and no network module in the import\'s code', async () => {
     const { space } = await opened();
     const fetched = [];
