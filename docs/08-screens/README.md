@@ -130,4 +130,4 @@ Building TASK-462 found that SCR-145#workshop offers free sticky notes in the le
 
 - SCR-145#workshop: "free sticky notes in the six kinds" (Korean: "여섯 종류의 자유로운 스티커") becomes "free sticky notes in the eight kinds the tokens colour (the legend's six, actor and external system)" (Korean: "토큰이 색을 주는 여덟 종류(범례의 여섯과 액터, 외부 시스템)의 자유로운 스티커").
 
-Nothing else in SCR-145 changes, and the legend stays the mockup's six kinds. The stage-07 and stage-09 READMEs' "the six sticky kinds and their colours" stay, as the record of what passed then. The wireframes are made again from the definitions: only SCR-145#workshop's text changes, and no frame. The number of states is unchanged. This part waits for its own checkpoint.
+Nothing else in SCR-145 changes, and the legend stays the mockup's six kinds. The stage-07 and stage-09 READMEs' "the six sticky kinds and their colours" stay, as the record of what passed then. The wireframes are made again from the definitions: only SCR-145#workshop's text changes, and no frame. The number of states is unchanged. This part passed its own checkpoint on 2026-11-24 through the same delegate.
