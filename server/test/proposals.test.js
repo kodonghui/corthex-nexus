@@ -463,6 +463,87 @@ describe('agent proposals', () => {
     }
   });
 
+  test('source_path is needed on a drawing of several files, and one that names no file the drawing reads is refused (TASK-470)', async () => {
+    const sets = count('change_sets');
+    const threads = count('comment_threads');
+    const needed = 'source_path is needed: the drawing reads several files';
+    const unknown = 'source_path names no file the drawing reads';
+    for (const [body, options, detail] of [
+      [{ part: 'split', items: ['TBL-301'], source_text: SPLIT_SQL[0][1] }, { project: sources.name }, needed],
+      [{ part: 'split', stage: '01-domain', items: ['CTX-301'], source_text: SPLIT_DOMAIN[0][1] }, { project: sources.name }, needed],
+      [{ part: 'split', stage: '07-sitemap', items: ['SCR-301'], source_text: SPLIT_YAML[0][1] }, { project: sources.name }, needed],
+      [{ part: 'split', items: ['TBL-301'], source_text: SPLIT_SQL[0][1], source_path: 'db/other.sql' }, { project: sources.name }, unknown],
+      // A path that differs from the file only in case, or that names the picture's key.
+      [{ part: 'split', items: ['TBL-301'], source_text: SPLIT_SQL[0][1], source_path: 'db/LEFT.sql' }, { project: sources.name }, unknown],
+      [{ part: 'split', items: ['TBL-301'], source_text: SPLIT_SQL[0][1], source_path: '/pictures/05-erd/split' }, { project: sources.name }, unknown],
+      // A drawing of one file, and one whose elements name no file.
+      [{ items: ['TBL-169'], source_text: SQL_TEXT, source_path: 'db/other.sql' }, { project: sources.name }, unknown],
+      [{ stage: '01-domain', items: ['CTX-038'], source_text: '### CTX-038 Review\n', source_path: DOMAIN_FILE }, {}, unknown],
+      // Stage 03 and 08 draw the file at the diagram's key.
+      [{ stage: '03-user-flow', items: ['FL-003'], source_text: FL3_TEXT, source_path: flow('FL-020') }, {}, unknown],
+      [{ stage: '08-screen-states', items: ['SCR-144'], source_text: SCR_TEXT, source_path: 'docs/08-screens/SCR-145.md' }, {}, unknown],
+    ]) {
+      const refused = await propose({ ...erdProposal(), ...body }, options);
+      const where = `${body.stage ?? '05-erd'} ${body.source_path ?? 'no path'}`;
+      assert.deepEqual([refused.status, refused.json.code, refused.json.field, refused.json.detail], [400, 'invalid_request', 'source_path', detail], where);
+      assert.equal(refused.text.includes(body.source_text.trim().split('\n')[0]), false, where);
+    }
+    assert.deepEqual([count('change_sets'), count('comment_threads')], [sets, threads]);
+    // On stage 03 the path that names the diagram's key is taken.
+    clock = START + 3 * MINUTE;
+    const named = await propose(flowProposal({ source_text: FL3_PROPOSED, source_path: FL3 }));
+    assert.deepEqual([named.status, named.json.changes], [201, FL3_CHANGES]);
+  });
+
+  test('with source_text on stage 05, NEXUS reads the SQL as the pinned hub does, and the differences become changes (TASK-466)', async () => {
+    clock = START + 3 * MINUTE;
+    // Each edit of the schema took place, so that a change of db/nexus.sql cannot quietly leave one out.
+    for (const part of ['CREATE TABLE idempotency_keys (', 'REFERENCES diagrams (id)', 'bytes        BIGINT,', 'CREATE TABLE agent_notes']) {
+      assert.ok(SQL_PROPOSED.includes(part), part);
+    }
+    assert.equal(SQL_PROPOSED.includes('CREATE TABLE restore_rehearsals'), false);
+    const answer = await sourceProposal({ source_text: SQL_PROPOSED });
+    assert.equal(answer.status, 201);
+    assert.deepEqual([answer.json.source_text, answer.json.items, answer.json.changes], [true, ['TBL-169'], SQL_CHANGES]);
+    assert.equal(JSON.parse(setRow(lastSet()).detail).source_text, SQL_PROPOSED);
+    // The schema as it is makes no change, and neither do a column's type, a comment or a statement the hub passes over.
+    for (const text of [SQL_TEXT, SQL_TEXT.replace('  bytes        INTEGER,\n', '  bytes        BIGINT, -- in bytes\n'), `${SQL_TEXT}CREATE VIEW v AS SELECT 1;\n`]) {
+      const same = await sourceProposal({ source_text: text });
+      assert.deepEqual([same.status, same.json.changes], [201, []]);
+    }
+    // A table keyed by the project's own ID prefix, which the drawing's tables have, keeps its key.
+    const own = await sourceProposal({ part: 'own', items: ['T-1'], source_text: '-- T-1 members\nCREATE TABLE members (id INTEGER PRIMARY KEY);\n' });
+    assert.deepEqual([own.status, own.json.changes], [201, [{ op: 'rename', element: 'T-1', name: 'members', target: null }]]);
+  });
+
+  test('with source_text on stage 07, NEXUS reads the YAML as the pinned hub does: a moved screen moves its line (TASK-466)', async () => {
+    clock = START + 3 * MINUTE;
+    assert.ok(YAML_PROPOSED.includes('\n            - id: SCR-146\n              name: Changes since confirmation\n'));
+    const answer = await sourceProposal({ stage: '07-sitemap', items: ['SCR-146'], source_text: YAML_PROPOSED });
+    assert.equal(answer.status, 201);
+    assert.deepEqual([answer.json.items, answer.json.changes], [['SCR-146'], YAML_CHANGES]);
+    const same = await sourceProposal({ stage: '07-sitemap', items: ['SCR-146'], source_text: `${YAML_TEXT}# a comment\n` });
+    assert.deepEqual([same.status, same.json.changes], [201, []]);
+  });
+
+  test('SQL that reads no table, YAML that reads no screen or does not read, get invalid_request on source_text (TASK-466)', async () => {
+    const sets = count('change_sets');
+    const sitemapAt = (text) => ({ stage: '07-sitemap', items: ['SCR-146'], source_text: text });
+    for (const [body, detail] of [
+      [{ source_text: 'INSERT INTO request_keys VALUES (1);\nCREATE VIEW v AS SELECT 1;\n' }, 'source_text reads no table'],
+      [sitemapAt('# no screen here\n---\n'), 'source_text reads no screen'],
+      [sitemapAt('- id: SCR-146\n  name: a : b\n'), 'source_text does not draw at its line 2'],
+      [sitemapAt('- id: SCR-146\n\tname: tabbed\n'), 'source_text does not draw at its line 2'],
+      [sitemapAt('- id: SCR-146\n  name: &anchor x\n'), 'source_text does not draw at its line 2'],
+      [sitemapAt('- id: SCR-146\n  name: "\\ud800"\n'), 'source_text does not draw at its line 2'],
+    ]) {
+      const refused = await sourceProposal(body);
+      assert.deepEqual([refused.status, refused.json.code, refused.json.field, refused.json.detail], [400, 'invalid_request', 'source_text', detail]);
+      assert.equal(refused.text.includes(body.source_text.trim().split('\n')[1] ?? body.source_text), false);
+    }
+    assert.equal(count('change_sets'), sets);
+  });
+
   test('stage 09, and a stage or diagram with no drawn picture, are refused, and nothing is written (SPEC-018)', async () => {
     const sets = count('change_sets');
     const threads = count('comment_threads');
@@ -696,6 +777,12 @@ describe('agent proposals', () => {
       [erdProposal({ source_text: '' }), 'invalid_request', 'source_text'],
       [erdProposal({ source_text: 'x\uD800' }), 'invalid_request', 'source_text'],
       [erdProposal({ source_text: 'x'.repeat(1_000_001) }), 'text_too_long', 'source_text', 1_000_000],
+      [erdProposal({ source_path: 'db/nexus.sql' }), 'invalid_request', 'source_text'],
+      [erdProposal({ source_text: 'x', source_path: '' }), 'invalid_request', 'source_path'],
+      [erdProposal({ source_text: 'x', source_path: `${secretish}${'x'.repeat(301)}` }), 'invalid_request', 'source_path'],
+      [erdProposal({ source_text: 'x', source_path: 5 }), 'invalid_request', 'source_path'],
+      [erdProposal({ source_text: 'x', source_path: ['db/nexus.sql'] }), 'invalid_request', 'source_path'],
+      [erdProposal({ source_text: 'x', source_path: `${secretish}\uD800` }), 'invalid_request', 'source_path'],
       [erdProposal({ diagram: secretish }), 'invalid_request', 'diagram'],
       [erdProposal({ commit: 'abc' }), 'invalid_request', 'commit'],
       [erdProposal({ comment: secretish }), 'invalid_request', 'comment'],
