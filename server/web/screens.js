@@ -1,7 +1,8 @@
 // The screens of the sitemap (docs/07-sitemap) as the shell runs them (see shell.js and the server README's "App
 // shell" section). Each draws its title, its place and its shared states from API-262, API-263 and API-264; its own
 // body in the normal and empty states is the task's that builds the screen (TASK-455 to TASK-462): SCR-142's is
-// todo.js (TASK-455), SCR-143's is projects.js (TASK-456), and SCR-144's is project.js (TASK-457).
+// todo.js (TASK-455), SCR-143's is projects.js (TASK-456), SCR-144's is project.js (TASK-457), and SCR-145's pictures
+// are workbench.js (TASK-458).
 //
 // A screen is an object:
 // - layout: 'list' (one column, main.main) or 'workbench' (the diagram's column and the work panel, div.wb);
@@ -10,15 +11,22 @@
 // - reads(address): its API reads, { name: path }; the shell reads them and hands their bodies over as data[name];
 // - parts: the names of its reads that fail in their own part of the screen: data[name] keeps what it showed, or is
 //   null, shell.missed(name) gives the failure, and the rest of the screen shows as usual;
+// - follow(ctx): optional, the reads that need what reads answered, { name: path }, made once every read answered and
+//   shown with them as one load, such as the workbench's diagram (API-265), which API-264's list names;
 // - fixedTitle: its title before its data came, or null for a title from its data;
-// - title(ctx), crumb(ctx) and description (a text, or a function of ctx): drawn once its data came; without title,
-//   the fixed title stays;
+// - title(ctx), crumb(ctx) and description (a text, { text, mono }, or a function of ctx giving one): drawn once its
+//   data came; without title, the fixed title stays;
 // - projectTitle(ctx): the project's title for the header's menu button, on a project's screens;
 // - check(ctx): null, or what is gone, { code, sub, link: { text, href }, tabs }, when its data shows the address
 //   names nothing, such as an unknown ?d=;
+// - gone(code, address): what a read's 404 of that code says under it and links to, { sub, link }, beyond the shell's
+//   own (a project that is gone);
+// - instead(ctx, gone): after shell.go, what opens instead of a gone thing, { href, note }, or null: the address that
+//   replaces the one in the history, and a note the next view gets as ctx.note;
 // - skeleton(ctx): the grey shapes of its loading state;
 // - render(ctx) and panel(ctx): its body and, on the workbench, its work panel, as nodes.
-// ctx is { address, data, shell }: shell gives read, reload, redraw, missed, onLeave, keepDraft, draftOf, isPhone,
+// ctx is { address, data, shell, via, note }: via is how the address was reached ('open', 'switch' through shell.go, or
+// 'instead'), and shell gives read, reload, write, redraw, missed, probe, go, onLeave, keepDraft, draftOf, isPhone,
 // message, staleBar, errorNotice, since and outcome.
 
 import { isDiagramId, isThreadId, projectApi, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
@@ -28,6 +36,7 @@ import { projectsBody, projectsSkeleton } from './projects.js';
 import { SHARED_STATES } from './states.js';
 import { stageOf } from './stages.js';
 import { todoBody } from './todo.js';
+import { descriptionOf, workbenchOf } from './workbench.js';
 
 const WORKBENCH_STATES = Object.freeze([...SHARED_STATES, 'waiting', 'confirmed', 'not-drawn', 'workshop']);
 const CHANGES_STATES = Object.freeze([...SHARED_STATES, 'waiting', 'not-drawn', 'confirmed']);
@@ -36,6 +45,7 @@ export const LISTED_DIAGRAMS = 500;
 const DIAGRAM_GONE_SUB = '문서에서 빠졌거나 주소가 바뀌었어요. 작업대의 다른 단계는 그대로 열려요.';
 
 const projectRead = (address) => ({ project: projectApi(address.project) });
+const diagramPath = (address, id) => `/api/projects/${encodeURIComponent(address.project)}/diagrams/${encodeURIComponent(id)}`;
 const skeletonRows = (count) => h('div', { class: 'cards' },
   Array.from({ length: count }, () => h('span', { class: 'sk row full', 'aria-hidden': 'true' })));
 const skeletonGroup = (count, heading = true) => h('section', { class: 'group', 'aria-hidden': 'true' },
@@ -62,10 +72,23 @@ export function stageGone({ address, data }) {
   const toProject = { text: '프로젝트로', href: projectHref(address.project) };
   if (row === undefined) return { code: 'part_not_found', link: toProject, tabs: false };
   const whole = (row.diagrams ?? []).length < LISTED_DIAGRAMS;
-  if (address.diagram !== null && chosenDiagram(row, address.diagram) === null && (whole || !isDiagramId(address.diagram))) {
+  const read = data.diagram !== undefined && data.diagram !== null && data.diagram.id === address.diagram;
+  if (address.diagram !== null && !read && chosenDiagram(row, address.diagram) === null && (whole || !isDiagramId(address.diagram))) {
     return { code: 'diagram_not_found', sub: DIAGRAM_GONE_SUB, link: toProject };
   }
   return null;
+}
+
+// The workbench's diagram (API-265): the one ?d= names, or the stage's first that is not removed. An ID the stage's list
+// leaves out is read only while the list is full (LISTED_DIAGRAMS), as it may hold the diagram beyond it; otherwise
+// check() says it is gone.
+function workbenchRead({ address, data }) {
+  const row = stageRow(data.project, address);
+  if (row === undefined) return {};
+  const chosen = chosenDiagram(row, address.diagram);
+  if (chosen !== null) return { diagram: diagramPath(address, chosen.id) };
+  const full = (row.diagrams ?? []).length >= LISTED_DIAGRAMS;
+  return address.diagram !== null && full && isDiagramId(address.diagram) ? { diagram: diagramPath(address, address.diagram) } : {};
 }
 
 const stageName = (address) => {
@@ -109,25 +132,35 @@ export const SCREENS = Object.freeze({
     tabs: true,
     states: WORKBENCH_STATES,
     reads: projectRead,
+    follow: workbenchRead,
     fixedTitle: null,
     // The diagram's name, or the stage's when nothing was sent for it.
-    title: ({ address, data }) => chosenDiagram(stageRow(data.project, address), address.diagram)?.name || stageOf(address.stage).name,
+    title: ({ address, data }) => data.diagram?.name || chosenDiagram(stageRow(data.project, address), address.diagram)?.name || stageOf(address.stage).name,
+    description: ({ data, shell }) => descriptionOf(data.diagram, shell.isPhone()),
     projectTitle: ({ data }) => data.project.title,
     crumb: ({ address, data }) => [{ text: data.project.title, href: projectHref(address.project) }, { text: stageName(address) }],
     check: stageGone,
+    gone: (code, address) => (code === 'diagram_not_found' ? { sub: DIAGRAM_GONE_SUB, link: { text: '프로젝트로', href: projectHref(address.project) } } : null),
+    // After choosing a diagram of the list that is gone meanwhile, the stage's first diagram opens with a note (SCR-145).
+    instead: ({ address }, gone) => (gone.code === 'diagram_not_found' ? { href: stageHref(address.project, address.part, address.stage), note: 'gone' } : null),
     skeleton: () => [h('div', { class: 'boardbox', 'aria-hidden': 'true' }, h('span', { class: 'sk board' }))],
-    // SCR-145#empty when nothing was sent for the stage; the diagram itself is the workbench's.
-    render: ({ address, data }) => (chosenDiagram(stageRow(data.project, address), null) === null
-      ? [h('div', { class: 'empty' }, h('h2', {}, '아직 보낸 것이 없어요.'), h('p', { class: 'sec' }, '에이전트가 다음에 보낼 때 나와요.'))]
-      : []),
+    // SCR-145#empty when nothing was sent for the stage; otherwise the workbench's pictures (workbench.js).
+    render: (ctx) => {
+      if (ctx.data.diagram === undefined || ctx.data.diagram === null) {
+        return [h('div', { class: 'empty' }, h('h2', {}, '아직 보낸 것이 없어요.'), h('p', { class: 'sec' }, '에이전트가 다음에 보낼 때 나와요.'))];
+      }
+      return workbenchOf(ctx, stageRow(ctx.data.project, ctx.address)).body;
+    },
     // A ?thread= that is no thread's ID reads as a thread that is gone; a thread's ID is the workbench's to open.
-    panel: ({ address, data, shell }) => {
-      if (address.thread === null || isThreadId(address.thread)) return [];
+    panel: (ctx) => {
+      const { address, data, shell } = ctx;
+      const own = data.diagram ? workbenchOf(ctx, stageRow(data.project, address)).panel : [];
+      if (address.thread === null || isThreadId(address.thread)) return own;
       const diagram = chosenDiagram(stageRow(data.project, address), address.diagram);
       const again = stageHref(address.project, address.part, address.stage, { diagram: diagram?.id ?? null });
       return [h('div', { class: 'nt warn', role: 'status' },
         h('div', { class: 'b' }, h('b', {}, shell.message('thread_not_found'))),
-        h('a', { class: 'btn tertiary sm', href: again }, '새로 고침'))];
+        h('a', { class: 'btn tertiary sm', href: again }, '새로 고침')), own];
     },
   },
   'SCR-146': {

@@ -8,11 +8,15 @@ import { parseAddress } from '../web/address.js';
 import { fakePage } from './fake-dom.js';
 import { waitFor } from './support.js';
 
-// web/messages.js is made by the server as it starts (src/pages.js); here it is made the same way for the import.
+// web/messages.js is made by the server as it starts (src/pages.js); here it is made the same way for the import. The
+// server serves src/layout.js as /web/layout.js (SHARED in src/pages.js); here a page's import of it reads that file.
 registerHooks({
   resolve(specifier, context, next) {
     if (specifier === './messages.js' && context.parentURL?.endsWith('/web/shell.js')) {
       return { url: `data:text/javascript;charset=utf-8,${encodeURIComponent(messagesModule())}`, shortCircuit: true };
+    }
+    if (specifier === './layout.js' && context.parentURL?.includes('/web/')) {
+      return { url: new URL('../src/layout.js', import.meta.url).href, shortCircuit: true };
     }
     return next(specifier, context);
   },
@@ -27,9 +31,10 @@ export const problem = (status, code) => json(status, { title: 'x', status, deta
 export const GATE = () => ({ type: 'opaqueredirect', status: 0, json: async () => { throw new SyntaxError('no body'); } });
 
 // Runs the screen of pathname and search on a fake page, with answers by path (each a function that makes a Response,
-// or an Error to throw) or a function of the path. The page's globals stay installed until close().
-export async function openPage(pathname, { search = '', answers = {}, session = {}, local = {}, blocked = false } = {}) {
-  const page = fakePage({ pathname, search, session, local, blocked });
+// or an Error to throw) or a function of the path and the request. The page's globals stay installed until close();
+// phone and clipboard are fakePage's.
+export async function openPage(pathname, { search = '', answers = {}, session = {}, local = {}, blocked = false, phone = false, clipboard = 'allowed' } = {}) {
+  const page = fakePage({ pathname, search, session, local, blocked, phone, clipboard });
   const restore = page.install();
   const realFetch = globalThis.fetch;
   let pending = 0;
