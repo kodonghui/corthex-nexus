@@ -47,9 +47,10 @@ export function mediaAnswer(type, result) {
   return answer(200, MEDIA[type], result.text, result.headers);
 }
 
-// The first answer to a request key, as it was sent: its status and JSON text, which the key keeps (see keys.js).
+// The first answer to a request key, as it was sent: its status and JSON text, which the key keeps (see keys.js). A
+// refusal is kept only when its write is (writes.js), and is sent again as the Problem it was.
 export function keptAnswer(status, text) {
-  return answer(status, JSON_TYPE, text);
+  return answer(status, SUCCESSES.has(status) ? JSON_TYPE : PROBLEM_TYPE, text);
 }
 
 // The answer of a Problem, whose headers, such as Allow, are the server's own.
