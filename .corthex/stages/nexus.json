@@ -497,10 +497,15 @@
           "approved": "SCR-144 against the stage-09 mockup, pull request 148, at commit 9d744e2: a tool link's title is its address, not the mockup's name, since ToolLink carries none; while loading, the header shows grey shapes where the mockup draws the crumb, title, the line under it and the group's heading; a phone draws no #data while loading, which the 360-pixel loading frame draws (SPEC-051); and 잇기 stays off until the project's read answers, where the loading frame draws it on. Section 4 records the four differences, and stage 12's QA looks at them again. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "SCR-143 against the stage-09 mockup, pull request 147, at commit c84ebe7: the credentials keep API-279's order, the live ones first, each the newest first, where the mockup's sample lists the live ones oldest first; and the name field sets no maxlength, where the mockup's has maxlength=\"64\", which counts UTF-16 units and silently cuts a pasted name, so the server's refusal shows by the field. Section 4 records the two differences, and stage 12's QA looks at them again. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",
-      "updated": "2026-11-24T09:22:00+09:00"
+      "updated": "2026-11-24T09:58:33+09:00"
     },
     "11-development": {
       "state": "not_started",
