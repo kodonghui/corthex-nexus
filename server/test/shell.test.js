@@ -72,11 +72,21 @@ const PROJECT = {
   workshop: null,
 };
 
+// API-265's Diagram of a diagram the workbench opens (TASK-458), drawn with no elements.
+const diagramBody = (id, stage, kind, name, removed = false) => ({
+  id, project: 'reading-club', part: '', stage, kind, name, removed,
+  drawing: { id: `dw_${id.slice(3)}`, revision: 3, version: 'a'.repeat(40), status: 'drawn', failed_at: null, drawn_at: TIME },
+  last_drawn: null, elements: [], overlays: [], since_confirmation: null, confirmation: null, threads: [],
+});
+const diagramRead = (id) => `/api/projects/reading-club/diagrams/${id}`;
 const FINE = {
   '/api/projects': json(200, PROJECTS),
   '/api/todo': json(200, TODO),
   '/api/projects/reading-club': json(200, PROJECT),
   '/api/credentials': json(200, { credentials: [] }),
+  [diagramRead(DIAGRAM)]: json(200, diagramBody(DIAGRAM, '01-domain', 'ddd_board', '도메인 보드')),
+  [diagramRead('dg_0000000000a3')]: json(200, diagramBody('dg_0000000000a3', '08-screen-states', 'screen_states', 'SCR-001.md')),
+  [diagramRead(REMOVED)]: json(200, diagramBody(REMOVED, '08-screen-states', 'screen_states', 'SCR-000.md', true)),
 };
 
 // The screen of pathname on a fake page (test/screen-page.js), with the answers of FINE unless others are given.
@@ -530,7 +540,9 @@ describe('the shell', () => {
     }
     const well = await open('/p/reading-club/_/01-domain', { search: '?thread=nc_0000000000a1' });
     try {
-      assert.deepEqual(well.app.all('aside')[0].children, []);
+      // The panel holds only the workbench's own sections, the Selected one hidden until an element is chosen.
+      assert.deepEqual(well.app.all('aside')[0].all('div', 'nt'), []);
+      assert.deepEqual(well.app.all('aside')[0].children.filter((child) => child.shown), []);
     } finally {
       well.close();
     }
@@ -680,12 +692,26 @@ describe('the shell', () => {
     assert.equal(LISTED_DIAGRAMS, contract.components.schemas.StageState.properties.diagrams.maxItems);
     const many = Array.from({ length: LISTED_DIAGRAMS }, (_, index) => diagramOf(`dg_${String(index).padStart(12, '0')}`, `flow-${index}.md`));
     const full = { ...PROJECT, stages: PROJECT.stages.map((row) => (row.stage === '03-user-flow' ? { ...row, state: 'open', diagrams: many } : row)) };
-    const answers = { ...FINE, '/api/projects/reading-club': json(200, full) };
+    // The workbench reads such a diagram itself (API-265, TASK-458): it opens when the read finds it, and is gone when
+    // the read answers diagram_not_found, with 프로젝트로.
+    const answers = {
+      ...FINE,
+      '/api/projects/reading-club': json(200, full),
+      [diagramRead('dg_00000000zzzz')]: json(200, diagramBody('dg_00000000zzzz', '03-user-flow', 'user_flow', 'flow-beyond.md')),
+      [diagramRead('dg_00000000zzzy')]: problem(404, 'diagram_not_found'),
+    };
     const beyond = await open('/p/reading-club/_/03-user-flow', { search: '?d=dg_00000000zzzz', answers });
     try {
-      assert.deepEqual(texts(beyond, 'h1'), ['사용자 흐름']);
+      assert.deepEqual(texts(beyond, 'h1'), ['flow-beyond.md']);
     } finally {
       beyond.close();
+    }
+    const missing = await open('/p/reading-club/_/03-user-flow', { search: '?d=dg_00000000zzzy', answers });
+    try {
+      assert.deepEqual(texts(missing, 'h1'), ['NEXUS에 없는 다이어그램이에요.']);
+      assert.deepEqual(missing.app.all('a', 'btn').map((link) => [link.textContent, link.getAttribute('href')]), [['프로젝트로', '/p/reading-club']]);
+    } finally {
+      missing.close();
     }
     const malformed = await open('/p/reading-club/_/03-user-flow', { search: '?d=bad', answers });
     try {

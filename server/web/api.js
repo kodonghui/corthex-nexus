@@ -65,3 +65,36 @@ export function outcomeOf(type, status, body) {
     traceId: object && typeof body.traceId === 'string' ? body.traceId : null,
   };
 }
+
+// The status of a page that an operation serves rather than JSON, such as a stage-09 mockup page (API-293), read
+// before a frame shows it (TASK-458). A success is { status, body: null }: its body is left unread, since the frame
+// loads the page itself. Any other answer is the outcome outcomeOf gives, its Problem read as a read's is.
+export async function probe(path) {
+  let response;
+  try {
+    response = await fetch(path, {
+      headers: { accept: 'text/html, application/problem+json' },
+      credentials: 'same-origin',
+      redirect: 'manual',
+      cache: 'no-store',
+      signal: AbortSignal.timeout(READ_TIMEOUT_MS),
+    });
+  } catch (error) {
+    return { failure: error?.name === 'TimeoutError' ? 'timeout' : 'network' };
+  }
+  if (response.type !== 'opaqueredirect' && response.status >= 200 && response.status < 300) {
+    try {
+      await response.body?.cancel();
+    } catch {
+      // A body that cannot be cancelled is left to the browser.
+    }
+    return { status: response.status, body: null };
+  }
+  let body = null;
+  try {
+    body = await response.json();
+  } catch (error) {
+    if (error?.name === 'TimeoutError') return { failure: 'timeout' };
+  }
+  return outcomeOf(response.type, response.status, body);
+}

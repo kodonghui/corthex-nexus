@@ -20,6 +20,21 @@ export function h(tag, props = {}, ...children) {
   return element;
 }
 
+// An SVG element, as h makes an HTML one: s('path', { class: 'ln', d }, child, ...). Its place and size go in its own
+// attributes (x, y, width, height, d, points), never in a style.
+export function s(tag, props = {}, ...children) {
+  const element = document.createElementNS(SVG, tag);
+  for (const [name, value] of Object.entries(props)) {
+    if (name === 'on') {
+      for (const [event, handler] of Object.entries(value)) element.addEventListener(event, handler);
+    } else if (value !== null && value !== false && value !== undefined) {
+      element.setAttribute(name, value === true ? '' : String(value));
+    }
+  }
+  element.append(...children.flat(Infinity).filter((child) => child !== null && child !== false && child !== undefined));
+  return element;
+}
+
 // The icons, drawn as the mockup draws them: the header's, and the chevron at the end of a list row.
 const ICONS = Object.freeze({
   chevron: { size: 16, path: 'M4 6 L8 10 L12 6' },
