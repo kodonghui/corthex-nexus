@@ -20,6 +20,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -47,6 +48,17 @@ def base_environment(home):
     return env
 
 
+def remove_folder(folder, tries=6):
+    """Removes a TemporaryDirectory, trying again a few times as the Node tests' rmSync with maxRetries does: on
+    Windows a scanner or a child process that is still exiting can hold a file for a moment. The last error is raised."""
+    for attempt in range(1, tries):
+        try:
+            return folder.cleanup()
+        except OSError:
+            time.sleep(0.1 * attempt)
+    folder.cleanup()
+
+
 def node_program(case, purpose):
     """Node from the PATH, version 24 or later, which the v3 server's code needs (AGENTS.md)."""
     node = shutil.which("node")
@@ -68,7 +80,10 @@ def push_step():
 
 class HubCheckoutCase(unittest.TestCase):
     """A repository in a temporary folder with this checkout's files on its default branch, and the pinned hub beside
-    it as the push job lays them out; tests/test_hub_compatibility.py builds on it too."""
+    it as the push job lays them out; tests/test_hub_compatibility.py builds on it too.
+
+    The folder is removed when the test ends, pass or fail. A subclass that starts a process or opens a file under
+    `self.base` stops it in a cleanup registered after `super().setUp()`, so that it ends before the folder goes."""
 
     @classmethod
     def setUpClass(cls):
@@ -76,10 +91,10 @@ class HubCheckoutCase(unittest.TestCase):
         cls.git = git_program()
 
     def setUp(self):
-        # TemporaryDirectory clears the read-only mark that Git puts on .git/objects files on Windows before it removes
-        # them; shutil.rmtree with ignore_errors left those files, and the folder, behind after every test.
+        # TemporaryDirectory's cleanup, unlike shutil.rmtree, clears the read-only mark that Git puts on the files under
+        # .git/objects on Windows when a removal is refused, and tries again.
         folder = tempfile.TemporaryDirectory(prefix="nexus-hub-project-")
-        self.addCleanup(folder.cleanup)
+        self.addCleanup(remove_folder, folder)
         self.base = Path(folder.name)
         self.work = self.base / "work"
         self.project = self.work / "project"
