@@ -388,7 +388,8 @@ export function startShell(root, screen, address) {
     if (loading) body = screen.skeleton?.(known) ?? [];
     else if (failure !== null) body = errorNotice(failure, () => load(false));
     else body = [reread === null ? null : errorNotice(reread, () => load(true)), ...screen.render(known)];
-    const panel = loading || failure !== null ? [] : screen.panel?.(known) ?? [];
+    // The work panel's loading state is the screen's own (screen.panelSkeleton), such as its sections' titles.
+    const panel = failure !== null ? [] : loading ? screen.panelSkeleton?.(known) ?? [] : screen.panel?.(known) ?? [];
     if (screen.layout === 'workbench') {
       fill(view, h('div', { class: 'wb' },
         h('main', { class: 'board-col' }, top, body),
@@ -402,6 +403,8 @@ export function startShell(root, screen, address) {
   // The read time beside the title, and how long ago each time of the view was; the tick runs it every 30 seconds.
   function showTimes() {
     const now = Date.now();
+    // A part drawn again, such as the workbench's "이 그림", leaves its old times out of the page: they go.
+    clocks = clocks.filter(({ element }) => element.isConnected !== false);
     for (const { element, time, words } of clocks) {
       const text = words(ago(time, now));
       if (element.textContent !== text) element.textContent = text;

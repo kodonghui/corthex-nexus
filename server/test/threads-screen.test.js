@@ -579,7 +579,8 @@ describe('SCR-145 threads', () => {
       buttonOf(shownThread(alone), THREAD_WORDS.close).click();
       await alone.settle();
       await alone.settle();
-      assert.deepEqual(alone.app.all('h2').map((h2) => h2.textContent), ['아직 보낸 것이 없어요.']);
+      // The stage's empty state, with the work panel's on a PC (TASK-461).
+      assert.deepEqual(alone.app.all('h2').map((h2) => h2.textContent), ['아직 보낸 것이 없어요.', '이 그림', 'AI 제안']);
     } finally {
       alone.close();
     }

@@ -131,3 +131,11 @@ TASK-462를 만들다가 SCR-145#workshop은 범례의 여섯 종류로 자유�
 - SCR-145#workshop: "여섯 종류의 자유로운 스티커"(영어: "free sticky notes in the six kinds")가 "토큰이 색을 주는 여덟 종류(범례의 여섯과 액터, 외부 시스템)의 자유로운 스티커"(영어: "free sticky notes in the eight kinds the tokens colour (the legend's six, actor and external system)")가 됩니다.
 
 SCR-145의 다른 곳은 바뀌지 않고, 범례는 목업의 여섯 종류 그대로입니다. 07단계 README의 "스티커 여섯 종류와 그 색"과 09단계 README의 "스티커 여섯 종류와 색"은 그때 통과한 것의 기록이라 그대로 둡니다. 와이어프레임은 정의에서 다시 만들었고, SCR-145#workshop의 글만 바뀌고 프레임은 바뀌지 않습니다. 상태 수는 그대로입니다. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+### 반영을 기다리는 변경 세트 모두
+
+TASK-461을 만들다가 SCR-146#waiting은 반영을 기다리는 직접 편집만 나열하지만, SPEC-029는 수락한 AI 제안을 포함해 반영을 기다리는 변경 세트가 하나라도 있으면 확정을 거절한다는 것을 찾았습니다(API-275의 409 `waiting_reflection`). 직접 편집만 나열하면 페이지가 아무것도 나열하지 않은 채 "반영을 기다리는 변경을 먼저 반영하거나 취소하세요"를 보여 줄 수 있습니다. SCR-145#waiting은 이미 둘 다 나열합니다. PR 160에서 대리인은 반영을 기다리는 변경 세트를 모두 적는 08단계 정정을 골랐습니다. 승인된 항목 1개(SCR-146)가 한 곳에서 바뀌고, 따로 여쭙니다.
+
+- SCR-146#waiting: "반영을 기다리는 직접 편집: 맨 위에 각각 편집 취소와 함께(휴대폰에서는 없이). 확정 버튼은 꺼지고 "반영을 기다리는 변경을 먼저 반영하거나 취소하세요"."(영어: "Direct edits waiting for reflection: they come first, each with Cancel edit (on a phone, without it), and the confirm button is off with "Reflect or cancel the waiting changes first".")가 "반영을 기다리는 변경 세트 모두: 맨 위에, 직접 편집은 각각 편집 취소와 함께(휴대폰에서는 없이), 수락한 AI 제안은 편집 취소 없이. 확정 버튼은 꺼지고 "반영을 기다리는 변경을 먼저 반영하거나 취소하세요"."(영어: "Every change set waiting for reflection: they come first, each direct edit with Cancel edit (on a phone, without it) and each accepted AI proposal without it, and the confirm button is off with "Reflect or cancel the waiting changes first".")가 됩니다.
+
+SCR-146의 다른 곳은 바뀌지 않고, 이 상태로 오는 응답은 API-275#409 (waiting-reflection) 그대로입니다. 와이어프레임은 정의에서 다시 만들었고, SCR-146#waiting의 글만 바뀌고 프레임은 바뀌지 않습니다. 상태 수는 그대로입니다. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.

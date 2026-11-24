@@ -200,8 +200,10 @@ describe('SCR-145 changes', () => {
       const section = sectionOf(none, CHANGE_WORDS.proposals);
       assert.deepEqual([section.all('span', 'tag').length, section.all('div', 'prop').length], [0, 0]);
       assert.deepEqual(shownTexts(section, 'p'), [CHANGE_WORDS.proposalsNote, CHANGE_WORDS.allAnswered]);
-      // Nothing waits: TASK-460 draws no "이 그림" section, which TASK-461 completes.
-      assert.equal(sectionOf(none, CHANGE_WORDS.diagram).hidden, true);
+      // Nothing waits: "이 그림" shows the confirmation's state instead (TASK-461), here never confirmed.
+      const diagram = sectionOf(none, CHANGE_WORDS.diagram);
+      assert.equal(diagram.hidden, false);
+      assert.deepEqual(diagram.all('span', 'tag').map((tag) => tag.textContent), ['확정 전']);
     } finally {
       none.close();
     }
@@ -307,7 +309,8 @@ describe('SCR-145 changes', () => {
       assert.deepEqual(page.sent.map((each) => [each.path, each.body]), [[changeSetPath(RENAMED.id, 'cancel'), {}]]);
       const table = buttonNamed(page, B.name);
       assert.equal(table.className.split(' ').includes('waiting'), false);
-      assert.equal(sectionOf(page, CHANGE_WORDS.diagram).hidden, true);
+      // "이 그림" lists nothing that waits any more (TASK-461 shows its confirmation there).
+      assert.deepEqual(sectionOf(page, CHANGE_WORDS.diagram).all('span', 'tag').map((tag) => tag.textContent), ['확정 전']);
       focused(page, table);
     } finally {
       page.close();
