@@ -329,10 +329,15 @@
           "approved": "Report table and spec correction, pull request 150, at commit b568e23 (note 23): API-258's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-166 and TBL-167 instead of the approved TBL-157, TBL-158, TBL-166 and TBL-167; API-259's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-160, TBL-161, TBL-166 and TBL-167 instead of the approved TBL-160, TBL-157, TBL-166 and TBL-167; API-259's x-corthex.spec lists SPEC-014, SPEC-032 and SPEC-035 instead of the approved SPEC-014 and SPEC-032; and API-242's lists TBL-156 and TBL-159 beside its approved TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-157, TBL-158, TBL-160, TBL-161 and TBL-166. No operation, field, response or code changed. Each list was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Miro import table and example correction, pull request 152, at commit 096ac37 (note 23): API-292's x-corthex.tables lists TBL-147, TBL-162, TBL-164 and TBL-165 instead of the approved TBL-164 and TBL-165, and its 400 response gains a text_too_long example, field data[0].data.content and limit 200, beside the approved invalid_request. No operation, field, code or spec row changed. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T09:42:36+09:00"
+      "updated": "2026-11-24T10:04:22+09:00"
     },
     "07-sitemap": {
       "state": "done",

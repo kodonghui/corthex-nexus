@@ -1699,7 +1699,7 @@ Where a form was not documented, and how the import reads it:
 
 `test/miro-import.test.js` builds its board from these pages' examples: the sticky note's ID and its content `Hello`, the parent frame's ID, the frame title `Sample frame title`, the user and the times, the connector's caption and style, the image's and the embed's addresses, the items page's cursor, and the Web SDK's sticky note, whose content is `<p>This is a sticky note. It looks just like the actual paper one.</p>`.
 
-The coordinator chose these rules for TASK-453: the items, links, steps, colours and kinds, places, text, what is skipped, the limits, a confirmed step and importing again. They wait for the maintainer's delegate, each asked on its own.
+The coordinator chose these rules for TASK-453: the items, links, steps, colours and kinds, places, text, what is skipped, the limits, a confirmed step and importing again. The maintainer approved them, with the new kind string `note`, through the delegate they named for checkpoints on 2026-11-24, each asked on its own.
 
 `test/miro-import.test.js` checks TASK-453's done condition: every response API-292 lists. It also tests:
 - the documented board through each rule above, and the colours and kinds against the design tokens;
@@ -1708,7 +1708,7 @@ The coordinator chose these rules for TASK-453: the items, links, steps, colours
 - a confirmed step, importing twice and the request key;
 - no `fetch`, the log, and the tables the import touches (note 23).
 
-API-292 finds the project space by its name and the open workshop, so it lists TBL-147 and TBL-162 too, and its 400 response gains a `text_too_long` example. The correction at the end of the [API README](../docs/06-api/README.md) gives both, and waits for its own checkpoint.
+API-292 finds the project space by its name and the open workshop, so it lists TBL-147 and TBL-162 too, and its 400 response gains a `text_too_long` example. The correction at the end of the [API README](../docs/06-api/README.md) gives both, and passed its own checkpoint on 2026-11-24, each asked on its own.
 
 ## Answers
 

@@ -382,4 +382,4 @@ Building TASK-453 found that API-292, importing a Miro board, listed TBL-164 and
 - **API-292's tables:** TBL-147, TBL-162, TBL-164 and TBL-165 instead of TBL-164 and TBL-165.
 - **API-292's 400 response** gains a `text_too_long` example, with `field` `data[0].data.content` and `limit` 200; before, it listed `invalid_request` only. A note's text has the contract's limit of 200 characters (`Note`), the coordinator chose for TASK-453 that a text over it refuses the whole import with `text_too_long`, as on every workshop write, and the code is in the registry already.
 
-No operation, field, code or spec row changed. This part waits for its own checkpoint.
+No operation, field, code or spec row changed. This part passed its own checkpoint on 2026-11-24 through the same delegate.
