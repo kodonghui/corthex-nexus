@@ -47,6 +47,15 @@ def base_environment(home):
     return env
 
 
+def node_program(case, purpose):
+    """Node from the PATH, version 24 or later, which the v3 server's code needs (AGENTS.md)."""
+    node = shutil.which("node")
+    case.assertTrue(node, "%s needs Node 24 (AGENTS.md)" % purpose)
+    version = subprocess.run([node, "--version"], capture_output=True, text=True, timeout=30).stdout.strip()
+    case.assertGreaterEqual(int(re.match(r"v(\d+)", version).group(1)), 24, "%s needs Node 24" % purpose)
+    return node
+
+
 def push_step():
     """The `run:` lines and the `env` names of the push workflow's step that runs the hub."""
     text = PUSH_WORKFLOW.read_text(encoding="utf8")
@@ -104,7 +113,8 @@ class HubCheckoutCase(unittest.TestCase):
     def run_push_step(self, secrets, extra=""):
         """The push step's lines, with `python3` as this test's Python, in the step's folder, with the step's env.
 
-        `extra` adds words to the step's last line, the hub's command."""
+        `extra` adds words to the step's last line, the hub's command. The step's whole output, standard output and
+        error, is kept in `self.push_output`."""
         lines, names = push_step()
         self.assertEqual(names, ["DEFAULT_BRANCH"] + list(SECRETS))
         self.assertTrue(lines[-1].endswith(" push --job --json"), lines[-1])
@@ -116,6 +126,7 @@ class HubCheckoutCase(unittest.TestCase):
         script = "\n".join(['python3() { "$HUB_TEST_PYTHON" "$@"; }'] + lines[:-1] + [lines[-1] + extra]) + "\n"
         result = subprocess.run([bash, "-e", "-c", script], cwd=str(self.project), env=env, capture_output=True,
                                 text=True, encoding="utf8", timeout=120)
+        self.push_output = result.stdout + result.stderr
         rows = result.stdout.strip().splitlines()
         self.assertTrue(rows, "exit %d and no result line: %s" % (result.returncode, result.stderr[-600:]))
         return result.returncode, json.loads(rows[-1]), home
