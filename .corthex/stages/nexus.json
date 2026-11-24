@@ -617,10 +617,15 @@
           "approved": "TASK-469 added and TASK-461's done condition, pull request 160, at commit cd81ed3: SCR-145#confirmed shows \"Recorded\" with its pull request after the record, and API-265's confirmation carries none, so TASK-461 shows \"기록됨 · {how long ago}\" alone. TASK-469 (Must, S, after TASK-447 and TASK-461, before TASK-464) gives API-265's confirmation the record's pull request by a stage-06 correction asked on its own pull request, and \"이 그림\" then shows it; that part of TASK-461's done condition moves to TASK-469, and SCR-145 stays as approved. Also SCR-146#waiting against the stage-09 mockup: the frames' heading \"반영을 기다리는 직접 편집\" against the screen's \"반영을 기다리는 변경\", recorded in section 4 and looked at again in stage 12's QA. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "TASK-470 added, and the maintainer's answers for TASK-463 and TASK-465 named, on pull request 162 at its record commit. On stage 01, and on a stage-05 or 07 drawing from several files, a proposal's source_text makes no changes, since it names no path; the maintainer decided directly on 2026-11-24 to make the hub send the path and publish it with hub 0.6.0 at the deploy. TASK-470 (Must, L, after TASK-438 and TASK-466, before TASK-464) gives API-256 a source_path by a stage-06 correction asked on its own, and NEXUS reads stage 01's Markdown itself. Five rules were asked with it, each answered on its own: source_path is optional; a drawing from several files sent with no path is refused as invalid_request; a path naming no file the drawing reads is refused; the path is not kept; the stage-01 reader is inside TASK-470. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records. TASK-463 and TASK-465 now name the maintainer's own answers of 2026-11-24 (v3 first at a new address, v2 turned off once v3 is confirmed; v2's data kept with its backup, nothing deleted), which were asked of the maintainer directly.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",
-      "updated": "2026-11-24T13:45:50+09:00"
+      "updated": "2026-11-24T18:05:48+09:00"
     },
     "11-development": {
       "state": "not_started",
