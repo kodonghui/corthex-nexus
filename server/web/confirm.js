@@ -20,7 +20,6 @@ export const CONFIRM_WORDS = Object.freeze({
   recorded: '기록됨',
   leftOut: '남은 AI 제안은 확정에 들어가지 않아요.',
   fixFirst: '문서를 고쳐 그려지게 한 뒤 확정하세요.',
-  confirm: '이 그림 확정',
   askConfirm: '확정할까요?',
   yes: '확정',
   stop: '취소',
@@ -105,7 +104,8 @@ export function pageRow(row) {
 // The link to the confirmed version, "확정한 버전의 문서 ↗ a41c9e2 · 11월 22일 확정" (SPEC-034, SCR-146's "before"):
 // the repository at the confirmed commit, opened in a new tab. API-265 names no document's path, so it is the whole
 // repository at that commit (choice 6). The contract's Link is an https address; anything else, or no repository,
-// shows the same words as text.
+// shows the same words as text. The address loses its trailing slashes and .git, as src/claims.js's repositoryBase
+// does for a pull request's link.
 export function confirmedVersion(repository, version, confirmation) {
   const words = [
     `${CONFIRM_WORDS.confirmedDocument} ↗ `,
@@ -114,6 +114,6 @@ export function confirmedVersion(repository, version, confirmation) {
   ];
   const safe = typeof repository === 'string' && /^https:\/\/\S+$/.test(repository);
   if (!safe) return h('p', { class: 'small' }, words);
-  const href = `${repository.replace(/\/+$/, '')}/tree/${encodeURIComponent(version)}`;
+  const href = `${repository.replace(/\/+$/, '').replace(/\.git$/, '')}/tree/${encodeURIComponent(version)}`;
   return h('a', { class: 'small', href, target: '_blank', rel: 'noopener noreferrer' }, words);
 }

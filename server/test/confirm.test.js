@@ -640,6 +640,8 @@ describe('SCR-146', () => {
         assert.equal(confirmedVersion(repository, CONFIRMED_AT, null).tagName, 'P', String(repository));
       }
       assert.equal(confirmedVersion('https://example.com/demo/', CONFIRMED_AT, null).getAttribute('href'), `https://example.com/demo/tree/${CONFIRMED_AT}`);
+      // Without .git, as a pull request's link (src/claims.js repositoryBase).
+      assert.equal(confirmedVersion('https://example.com/demo.git', CONFIRMED_AT, null).getAttribute('href'), `https://example.com/demo/tree/${CONFIRMED_AT}`);
     } finally {
       restore();
     }

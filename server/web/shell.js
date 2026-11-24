@@ -403,6 +403,8 @@ export function startShell(root, screen, address) {
   // The read time beside the title, and how long ago each time of the view was; the tick runs it every 30 seconds.
   function showTimes() {
     const now = Date.now();
+    // A part drawn again, such as the workbench's "이 그림", leaves its old times out of the page: they go.
+    clocks = clocks.filter(({ element }) => element.isConnected !== false);
     for (const { element, time, words } of clocks) {
       const text = words(ago(time, now));
       if (element.textContent !== text) element.textContent = text;

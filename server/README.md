@@ -1476,7 +1476,7 @@ TASK-461 (SPEC-023, SPEC-029, SPEC-030, SPEC-034) adds confirming a diagram to S
 - **Loading and empty panels.** While SCR-145 loads, its work panel keeps its sections' titles, "이 그림", "AI 제안" and "고른 요소", with grey shapes where their contents come. A phone keeps "고른 요소" only. With nothing sent for the stage, a PC's panel says "확정할 그림이 아직 없어요." and "모두 처리함". The shell draws a screen's `panelSkeleton` for this.
 - **SCR-146** (`/p/{project}/{part}/{stage}/changes`, `?d=`) reads the diagram the workbench opens (API-265):
   - Its title holds "N개" while any element changed.
-  - "확정한 버전의 문서 ↗ {the commit's first seven characters} · {M월 D일} 확정" leads to `{repository}/tree/{commit}` in a new tab, with `rel="noopener noreferrer"`, only when API-264's repository is an https address. Otherwise it is text.
+  - "확정한 버전의 문서 ↗ {the commit's first seven characters} · {M월 D일} 확정" leads to `{repository}/tree/{commit}` in a new tab, with `rel="noopener noreferrer"`, only when API-264's repository is an https address. The repository's address loses its trailing slashes and `.git`, as a pull request's link does. Otherwise it is text.
   - "반영을 기다리는 변경" with "반영 대기 N" comes first and lists every change set that waits, each direct edit with 편집 취소 on a PC (API-273).
   - "바뀐 요소" lists each element added, changed or removed since. A row has its tag, its name in the drawing now (its key once removed), and its kind. With no confirmation the page says "아직 확정하지 않아 비교할 버전이 없어요.", and with nothing changed "확정한 뒤 바뀐 곳이 없어요." (SCR-146#empty).
   - When the document does not draw, "문서를 고쳐 그려지게 한 뒤 확정하세요." shows with 그림에서 보기 (SCR-146#not-drawn).
