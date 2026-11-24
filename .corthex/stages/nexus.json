@@ -463,10 +463,15 @@
           "approved": "The name of opening another diagram, pull request 153, at commit 38969e3 (note 5 of the WBS): SCR-145's action, approved as \"Open another diagram of the stage\" / \"단계의 다른 그림 열기\", is now \"Open another diagram listed for the stage\" / \"단계에 나열된 다른 그림 열기\", since it also opens a removed diagram still listed (SPEC-027). Its operation, result, failure and the number of states are unchanged. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Dropping \"the other way\", pull request 157, at commit db31b28: SCR-145's \"AI answers\" row and SCR-145#normal's \"AI proposals\" part, approved as showing a proposal's kind, text, reason and the other way (\"종류, 글, 이유, 다른 방법\"), now show its kind, text and reason, since the contract's ChangeSet and ProposalRequest carry a reason and a change only and an agent writes any other way inside its reason. Nothing else in SCR-145 and no number of states changes; the stage-07 README's carry-over line stays as the record of what passed then. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation, over a later contract change, through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-24T10:46:20+09:00"
+      "updated": "2026-11-24T12:24:42+09:00"
     },
     "09-mockup": {
       "state": "done",
@@ -505,10 +510,15 @@
           "approved": "The mockup page's Korean copy (META) of SCR-145's normal and error states, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): generated again from the stage-08 Korean definitions, which also catches up with TASK-444's Reject change of 2026-11-24; the approved copies were \"열린 스레드가 있는 지운 그림은 맨 뒤에 지움 표시로 나오고, 스레드를 보려고만 열림. 스레드 읽기·답하기·닫기만 있고, 새 댓글, 옮기기, 직접 편집, 제안 답하기, 확정 버튼은 없음(SPEC-027).\" and \"목록에 남은 지운 그림이면 스레드를 보려고만 엶(SPEC-027).\" No frame and no token changed. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Dropping \"the other way\", pull request 157, at commit db31b28: the mockup page's Korean copy of SCR-145's normal state (META) follows the stage-08 correction and is generated again from the stage-08 Korean definition; only that state's text changes, and no frame or token changes. The proposal cards in the 1440-pixel frames keep \"다른 방법: …\", as a difference that section 4 of the WBS records. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 10: plan the work of the first release from the approved design of stages 01 to 09",
-      "updated": "2026-11-24T10:36:45+09:00"
+      "updated": "2026-11-24T12:24:42+09:00"
     },
     "10-wbs": {
       "state": "done",
@@ -567,10 +577,15 @@
           "approved": "SCR-145 against the stage-09 mockup, pull request 153, at commit 38969e3: stage 08's list of diagrams shows each screen's full name, where the mockup shortens it; and the text under stage 01's title on a PC leaves out the mockup's F2 renaming until TASK-460, whose approved done condition (\"The waiting state of SCR-145 matches its screen definition at both widths; a phone offers none of these actions; every response API-270, API-271, API-272, API-273 lists has a passing test\") now also says that this text is the mockup's again. Section 4 records the two differences, and stage 12's QA looks at them again. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "SCR-145 against the stage-09 mockup, pull request 157, at commit db31b28: the proposal cards in the 1440-pixel frames of SCR-145's normal, stale, waiting and confirmed states keep \"다른 방법: …\", which SCR-145 no longer asks for after the stage-08 correction; and stage 01's PC text is the mockup's again since TASK-460, which closes the second difference recorded with pull request 153. Section 4 records it, and stage 12's QA looks at it again. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",
-      "updated": "2026-11-24T10:46:20+09:00"
+      "updated": "2026-11-24T12:24:42+09:00"
     },
     "11-development": {
       "state": "not_started",
