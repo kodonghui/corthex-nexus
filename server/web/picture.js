@@ -60,6 +60,16 @@ export const TAG_WORDS = Object.freeze({
   source: '소스',
 });
 
+// The words of a line in the Selected panel's tag, by the kind of its diagram (question 6): an ERD's line is a foreign
+// key, a sitemap's joins two screens.
+export const LINE_WORDS = Object.freeze({ erd: '외래 키', sitemap: '화면 사이 선' });
+
+// The word of an element's kind in the Selected panel's tag.
+export function tagWord(diagram, element) {
+  if (element.kind === 'line' && LINE_WORDS[diagram.kind] !== undefined) return LINE_WORDS[diagram.kind];
+  return TAG_WORDS[element.kind] ?? element.kind;
+}
+
 // The kinds a DDD board draws as stickies, in the mockup's colours.
 const STICKIES = new Set(['event', 'command', 'aggregate', 'policy', 'read_model', 'hotspot', 'external']);
 const FRAMES = new Set(['context']);

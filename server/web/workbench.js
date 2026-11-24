@@ -20,7 +20,7 @@ import { newRequestKey } from './api.js';
 import { fill, h, s } from './dom.js';
 import { mockupFrame } from './mockup-frame.js';
 import { overlayModel } from './overlays.js';
-import { chooser, PAD, pictureOf, shownName, TAG_WORDS } from './picture.js';
+import { chooser, PAD, pictureOf, shownName, tagWord } from './picture.js';
 import { placement } from './relayout.js';
 
 export const STEP = 8;
@@ -292,7 +292,7 @@ function drawSelected(state) {
   }
   box.hidden = false;
   const status = h('span', { class: 'copied', role: 'status' });
-  const kindTag = h('span', { class: STICKY_KINDS.has(element.kind) ? `tag k-${element.kind}` : 'tag gray' }, TAG_WORDS[element.kind] ?? element.kind);
+  const kindTag = h('span', { class: STICKY_KINDS.has(element.kind) ? `tag k-${element.kind}` : 'tag gray' }, tagWord(state.ctx.data.diagram, element));
   const apart = traceLine(state.ctx.data.diagram, element);
   fill(box,
     h('div', { class: 'ph' }, h('h2', {}, WORKBENCH_WORDS.selected),

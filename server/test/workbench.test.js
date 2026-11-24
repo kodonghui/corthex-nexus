@@ -302,6 +302,16 @@ describe('SCR-145 pictures', () => {
     } finally {
       board.close();
     }
+    // A line's tag says what it joins: a foreign key on an ERD, a line between screens on a sitemap.
+    for (const [which, word] of [['erd', '외래 키'], ['sitemap', '화면 사이 선']]) {
+      const page = await openStage(which);
+      try {
+        pictureBox(page).all('path', 'pic-hit')[0].dispatch('keydown', { key: 'Enter' });
+        assert.deepEqual(selectedOf(page).all('span', 'tag').map((tag) => tag.textContent), [word], which);
+      } finally {
+        page.close();
+      }
+    }
     const states = await openStage('states');
     try {
       const panel = pictureBox(states).all('button', 'spanel')[1];
