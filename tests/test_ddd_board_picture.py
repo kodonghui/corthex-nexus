@@ -1,9 +1,11 @@
 """The stage-01 picture that the DDD board drawer's test draws is the pinned hub's own picture of docs/01-domain/.
 
 The DDD board drawer (TASK-421) draws the stage-01 picture the hub sends, which the hub's domain.py parses from the
-project's domain document, so NEXUS parses no Markdown. `server/test/ddd-board.test.js` draws
+project's domain document; a push's Markdown is the hub's to read. `server/test/ddd-board.test.js` draws
 `server/test/ddd-board-picture.json`, the picture the pinned hub makes of this repository's stage-01 source, and
-compares the drawing with the stored one, `server/test/ddd-board-expected.json`. The server's tests run with Node
+compares the drawing with the stored one, `server/test/ddd-board-expected.json`. A proposal's source_text on stage 01
+is Markdown that NEXUS reads itself (TASK-470), and `server/test/picture-readers.test.js` checks that its reader,
+`server/src/domain-picture.js`, makes this same picture of the same documents. The server's tests run with Node
 alone, so this test makes the picture again with the pinned hub, the clean checkout at the commit of `hub-ref.json`
 that `CORTHEX_HUB_CHECKOUT` names (prepare it with `python tools/fetch_hub_ref.py`), as the hub's snapshot makes it
 for this repository's stage 01: the stage source's Markdown files, a translation beside its original left out, each

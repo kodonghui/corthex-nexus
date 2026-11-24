@@ -1,11 +1,13 @@
-"""NEXUS's own SQL and YAML readers read the cases below as the pinned hub reads them (TASK-466).
+"""NEXUS's own Markdown, SQL and YAML readers read the cases below as the pinned hub reads them (TASK-466, TASK-470).
 
-A proposal's source_text on stage 05 or 07 is SQL or YAML, which NEXUS reads itself with `server/src/sql-picture.js`
-and `server/src/sitemap-picture.js`, ports of the pinned hub's erd.py and sitemap.py with their helpers in hub.py.
-`server/test/picture-readers.test.js` checks that those readers make, of db/nexus.sql and docs/07-sitemap/nexus.yaml,
-the pictures `tests/test_erd_picture.py` and `tests/test_sitemap_picture.py` keep, and, of each case below, the
-picture and checks that `server/test/picture-cases.json` stores. The cases are what this repository's two files do
-not show: other SQL dialects, comments and markers, the YAML template's errors, line breaks and limits.
+A proposal's source_text on stage 01, 05 or 07 is Markdown, SQL or YAML, which NEXUS reads itself with
+`server/src/domain-picture.js`, `server/src/sql-picture.js` and `server/src/sitemap-picture.js`, ports of the pinned
+hub's domain.py, erd.py and sitemap.py with their helpers in hub.py. `server/test/picture-readers.test.js` checks that
+those readers make, of docs/01-domain/nexus.md, db/nexus.sql and docs/07-sitemap/nexus.yaml, the pictures
+`tests/test_ddd_board_picture.py`, `tests/test_erd_picture.py` and `tests/test_sitemap_picture.py` keep, and, of each
+case below, the picture and checks that `server/test/picture-cases.json` stores. The cases are what this repository's
+three files do not show: the stage-01 tables in English and Korean, other SQL dialects, comments and markers, the YAML
+template's errors, line breaks and limits.
 
 This test makes the stored file again with the pinned hub, the clean checkout at the commit of `hub-ref.json` that
 `CORTHEX_HUB_CHECKOUT` names (prepare it with `python tools/fetch_hub_ref.py`), and fails when it differs: when a case
@@ -32,9 +34,9 @@ from hub_ref import locate_hub  # noqa: E402
 
 SCRIPTS = "plugins/corthex-nexus/skills/corthex-hub/scripts"
 FIXTURE = ROOT / "server" / "test" / "picture-cases.json"
-ABOUT = ("The pinned hub's pictures and checks of SQL and YAML texts this repository's own files do not show, which "
-         "NEXUS's readers must make alike. tests/test_picture_cases.py checks them against the pinned hub and says how "
-         "to make them again.")
+ABOUT = ("The pinned hub's pictures and checks of Markdown, SQL and YAML texts this repository's own files do not show, "
+         "which NEXUS's readers must make alike. tests/test_picture_cases.py checks them against the pinned hub and says "
+         "how to make them again.")
 
 
 def text(*lines, end="\n"):
@@ -46,10 +48,174 @@ def case(name, stage, documents, ids=None, part="nexus", shape=False):
             "documents": [[file, body] for file, body in documents]}
 
 
+MARKDOWN = "01-domain"
 SQL = "05-erd"
 YAML = "07-sitemap"
+COMMANDS = "| Given by | Read model | Command | Aggregate | Events |"
+DIVIDER5 = "| --- | --- | --- | --- | --- |"
+DIVIDER4 = "| --- | --- | --- | --- |"
 
 CASES = [
+    case("Markdown, English tables: contexts, commands, read models, the glossary, dependencies, hotspots, a timeline", MARKDOWN, [
+        ("docs/01-domain/shop.md", text(
+            "# Shop domain",
+            "",
+            "## 2. Event storming",
+            "",
+            "| Lane | Events |",
+            "| --- | --- |",
+            "| Orders | Order placed or Order rejected → Order paid, or Order cancelled → Order shipped |",
+            "| Empty | |",
+            "| Many | a → b or c or d |",
+            "",
+            "## 3. Contexts",
+            "",
+            "| Context | Type | Aggregates |",
+            "| :--- | ---: | :---: |",
+            "| CTX-1 | **core** | Order (TERM-1), Customer, Basket TERM-9 |",
+            "| CTX-2 Billing | supporting | Invoice<br>Payment<br/>Refund |",
+            "| CTX-9 | generic | — |",
+            "",
+            "## 4. Context tables",
+            "",
+            "### CTX-1 **Ordering** — the shop",
+            "Purpose: take an order &amp; keep it",
+            "- External systems: [Payment gateway](https://example.invalid/pay) <b>and</b> mail",
+            "",
+            COMMANDS, DIVIDER5,
+            "| Customer | Basket view | Place order | Order | Order placed, or Order rejected |",
+            "| Policy: when paid | Order list | Ship order | Order | Order shipped |",
+            "| Customer | Order list | Cancel order | Order (TERM-1) | Order cancelled, |",
+            "| ~~Old actor~~ | | Old command | none | |",
+            "",
+            "| Read model | Shows |",
+            "| --- | --- |",
+            "| Basket view | the basket |",
+            "| Order list | orders |",
+            "| Unused view | nothing |",
+            "",
+            "#### Notes under the context",
+            "",
+            "Purpose: still the context's",
+            "",
+            "### CTX-2 Billing",
+            "",
+            "Purpose: bill",
+            "",
+            COMMANDS, DIVIDER5,
+            "| Bank | Ledger | Record payment | Invoice, Payment | Payment recorded |",
+            "",
+            "```",
+            "### CTX-8 in a fence",
+            COMMANDS, DIVIDER5,
+            "| x | y | z | w | v |",
+            "```",
+            "",
+            "~~### CTX-7 struck~~",
+            "",
+            "## 5. Dependencies",
+            "",
+            "| From | To | Kind | Why | Data |",
+            "| --- | --- | --- | --- | --- |",
+            "| CTX-1 | CTX-2 | call | Bill the order | order total |",
+            "| CTX-2 | CTX-1 | Event | Paid | invoice id |",
+            "| Mail | CTX-1 | other | x | y |",
+            "",
+            "## 6. Hotspots",
+            "",
+            "| Hotspot | Context | State | Answer or next step |",
+            "| --- | --- | --- | --- |",
+            "| 1. Who pays? | CTX-1, CTX-2 | open | ask |",
+            "| 0 zero | CTX-1 | answered | |",
+            "| 12) twelve | | open | |",
+            "| no number | CTX-9 | open | |",
+            "| 3.not spaced | CTX-1 | open | |",
+            "",
+            "## 7. Glossary",
+            "",
+            "| ID | Term | Status |",
+            "| --- | --- | --- |",
+            "| TERM-1 | Order | |",
+            "| TERM-2 | Customer | |",
+            "| TERM-3 | Customer | |",
+            "| TERM-4 | Basket view | removed |",
+            "| TERM-5 | Invoice | deleted, for now |",
+            "| TERM-6 | [Ledger](https://example.invalid/l) | |",
+            "| CTX-2 | Billing | removed |",
+        ))]),
+    case("Markdown, Korean tables and policy", MARKDOWN, [("docs/01-domain/shop.ko.md", text(
+        "# 상점",
+        "",
+        "| 흐름 | 사건 |",
+        "| --- | --- |",
+        "| 주문 | 주문됨 또는 거절됨 → 배송됨 |",
+        "",
+        "| 컨텍스트 | 종류 | 애그리거트 |",
+        "| --- | --- | --- |",
+        "| CTX-5 | 핵심 | 주문, 고객 |",
+        "",
+        "### CTX-5 주문",
+        "목적: 주문을 받아요",
+        "- 바깥 시스템: 결제",
+        "",
+        "| 주는 쪽 | 읽기 모델 | 명령 | 애그리거트 | 사건 |",
+        DIVIDER5,
+        "| 고객 | 장바구니 | 주문하기 | 주문 | 주문됨, 또는 거절됨 |",
+        "| 정책: 결제되면 | | 배송하기 | 주문 | 배송됨 |",
+        "| 정책 : 띄어 쓴 정책 | | 알리기 | 알림 | 알림 감 |",
+        "",
+        "| 읽기 모델 | 보여 주는 것 |",
+        "| --- | --- |",
+        "| 장바구니 | 담은 것 |",
+        "",
+        "| 어디서 | 어디로 | 종류 | 까닭 | 오가는 것 |",
+        DIVIDER5,
+        "| CTX-5 | CTX-6 | 바로 묻기 | 결제 | 금액 |",
+        "| CTX-6 | CTX-5 | 사건 알림 | 결제됨 | 영수증 |",
+        "",
+        "| 핫스팟 | 컨텍스트 | 상태 | 답이나 다음 할 일 |",
+        DIVIDER4,
+        "| 1. 환불은? | CTX-5 | 열림 | 묻기 |",
+        "",
+        "| ID | 용어 | 상태 |",
+        "| --- | --- | --- |",
+        "| TERM-7 | 주문 | |",
+        "| TERM-8 | 장바구니 | 삭제됨 |",
+    ))]),
+    case("Markdown, command tables under no context heading, a heading that ends a context, and texts with none", MARKDOWN, [
+        ("docs/01-domain/a.md", text(
+            COMMANDS, DIVIDER5,
+            "| A | B | C | D | E |",
+            "",
+            "## CTX-1 First",
+            "### Under the context",
+            COMMANDS, DIVIDER5,
+            "| A1 | B1 | C1 | D1 | E1 |",
+            "## Other section",
+            COMMANDS, DIVIDER5,
+            "| A2 | B2 | C2 | D2 | E2 |",
+            "",
+            "#### CTX-2#draft Second: a state and a trailing colon",
+            "# [CTX-3]: linked & &lt;escaped&gt; &#65;&#x42; &notin; &amp;amp; <i>tagged</i> __bold__ ~x~ `code`",
+        )),
+        ("docs/01-domain/b.md", "# Just a title\n\nSome text\n"),
+        ("docs/01-domain/c.md", "   \n\n"),
+        ("docs/01-domain/d.md", "| Lane | Events |\n| --- | --- |\n| Lone lane | x |\n"),
+    ]),
+    case("Markdown, a project's own trace ID prefixes", MARKDOWN, [("docs/01-domain/own.md", text(
+        "## C-1 Own",
+        COMMANDS, DIVIDER5,
+        "| Actor | View | Do | Thing G-2 | Done |",
+        "",
+        "| ID | Term | Status |",
+        "| --- | --- | --- |",
+        "| G-3 | View | |",
+    ))], ids={"context": "C", "term": "G"}),
+    case("Markdown, more than 200 contexts and 200 rows", MARKDOWN, [("docs/01-domain/many.md", text(
+        *("### CTX-%d Context %d" % (n, n) for n in range(1, 203)),
+        COMMANDS, DIVIDER5,
+        *("| A | B | C%d | D | E |" % n for n in range(205)),
+    ))], shape=True),
     case("SQL, MySQL: backslash strings, a comment after the columns, keys and a foreign key added later", SQL, [("db/mysql.sql", text(
         "-- TBL-1 users of CTX-1, with TERM-1 and TERM-2",
         "CREATE TABLE IF NOT EXISTS `users` (",

@@ -1,7 +1,8 @@
-// The pinned hub's text helpers that its stage-05 and stage-07 readers use (TASK-466; hub.py at the commit of
+// The pinned hub's text helpers that its stage-01, 05 and 07 readers use (TASK-466, TASK-470; hub.py at the commit of
 // hub-ref.json): Python's line breaks and white space, one_line with its redaction of secrets and email addresses,
-// norm, the removed words, and the trace ID formats (IdFormat's find and lead). sql-picture.js and sitemap-picture.js
-// read a proposal's SQL and YAML with them, so that NEXUS reads a text as the hub reads it (SPEC-018).
+// plain with Python's html.unescape, norm, the removed words, and the trace ID formats (IdFormat's find and lead).
+// domain-picture.js, sql-picture.js and sitemap-picture.js read a proposal's Markdown, SQL and YAML with them, so that
+// NEXUS reads a text as the hub reads it (SPEC-018).
 //
 // Python's str methods and re module read some characters otherwise than JavaScript's, so they are written out here:
 // - Lines break where Python's str.splitlines breaks them: at \r\n, \n, \r, \v, \f, \x1c, \x1d, \x1e, \x85,
@@ -11,8 +12,11 @@
 // - A word character is a letter, a digit or _, as Python's \w takes str.isalnum(): \p{L}, \p{N} and _.
 // - Case folding is JavaScript's upper case then lower case, which matches Python's str.casefold() for the letters
 //   that differ from lower(), such as ß and ς, and differs only in a few rare scripts.
+// - html.unescape's tables are Python's own, in html-entities.json, which tests/test_html_entities.py keeps.
 //
 // Nothing here logs (rule 5).
+
+import { readFileSync } from 'node:fs';
 
 // Python's white space, as a character class's contents, and its line breaks.
 export const SPACE = '\\t\\n\\v\\f\\r\\x1c-\\x1f \\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000';
@@ -87,8 +91,9 @@ function redacted(text) {
   return result + text.slice(last);
 }
 
-// The hub's TEXT_CHARS, one_line's limit when none is given.
+// The hub's TEXT_CHARS, one_line's limit when none is given, and TITLE_CHARS, plain's.
 export const TEXT_CHARS = 300;
+export const TITLE_CHARS = 120;
 
 // The hub's one_line: a string on one line with secrets redacted, cut to limit characters with …, or '' for anything
 // that is not a string.
@@ -98,6 +103,80 @@ export function oneLine(value, limit = TEXT_CHARS) {
   const characters = [...text];
   if (characters.length <= limit) return text;
   return `${rstrip(characters.slice(0, limit - 1).join(''))}…`;
+}
+
+// Python's html.unescape: each character reference of text decoded as the HTML5 standard says, by Python's tables.
+const ENTITIES = JSON.parse(readFileSync(new URL('html-entities.json', import.meta.url), 'utf8'));
+const NAMED = new Map(Object.entries(ENTITIES.named));
+const REPLACED = new Map(Object.entries(ENTITIES.replaced).map(([code, text]) => [Number(code), text]));
+const DROPPED = new Set(ENTITIES.dropped);
+const CHARREF = /&(#[0-9]+;?|#[xX][0-9a-fA-F]+;?|[^\t\n\f <&#;]{1,32};?)/gu;
+
+// A numeric reference's number, or Infinity when it is past any character: Python reads every digit, however many.
+function referenceNumber(digits, radix) {
+  const significant = digits.replace(/^0+/u, '');
+  return significant.length > 8 ? Infinity : significant === '' ? 0 : Number.parseInt(significant, radix);
+}
+
+function decoded(reference) {
+  if (reference[0] === '#') {
+    const hex = reference[1] === 'x' || reference[1] === 'X';
+    const digits = reference.slice(hex ? 2 : 1).replace(/;$/u, '');
+    const code = referenceNumber(digits, hex ? 16 : 10);
+    if (REPLACED.has(code)) return REPLACED.get(code);
+    if ((code >= 0xd800 && code <= 0xdfff) || code > 0x10ffff) return '�';
+    if (DROPPED.has(code)) return '';
+    return String.fromCodePoint(code);
+  }
+  if (NAMED.has(reference)) return NAMED.get(reference);
+  // The longest name it starts with, as the standard reads a name with no semicolon.
+  const characters = [...reference];
+  for (let length = characters.length - 1; length > 1; length -= 1) {
+    const name = characters.slice(0, length).join('');
+    if (NAMED.has(name)) return NAMED.get(name) + characters.slice(length).join('');
+  }
+  return `&${reference}`;
+}
+
+export const unescapeHtml = (text) => (text.includes('&') ? text.replace(CHARREF, (_, reference) => decoded(reference)) : text);
+
+// The hub's MD_LINK, !?\[([^\]]*)\]\([^)]*\), each link replaced by its text. Written out as a scan with the same
+// result: tried at each [ of a long text with no ] or ), the pattern would take time that grows with the square of the
+// text's length. A [ whose first ] is not followed by ( shares that ] with every [ before it, so the scan goes on
+// after it; with no ] or ) left, no link follows.
+function linkTexts(text) {
+  let result = '';
+  let last = 0;
+  let from = 0;
+  for (;;) {
+    const open = text.indexOf('[', from);
+    if (open === -1) break;
+    const close = text.indexOf(']', open + 1);
+    if (close === -1) break;
+    if (text[close + 1] !== '(') {
+      from = close + 1;
+      continue;
+    }
+    const end = text.indexOf(')', close + 2);
+    if (end === -1) break;
+    const start = open > last && text[open - 1] === '!' ? open - 1 : open;
+    result += text.slice(last, start) + text.slice(open + 1, close);
+    last = end + 1;
+    from = end + 1;
+  }
+  return result + text.slice(last);
+}
+
+const TAG = /<[^>]{0,300}>/gu;
+const MARKUP = /\*\*|__|~~|`/gu;
+
+// The hub's plain: Markdown or HTML text as plain text on one line, with secrets redacted, cut to limit characters.
+export function plain(value, limit = TITLE_CHARS) {
+  if (typeof value !== 'string') return '';
+  let text = linkTexts(value);
+  text = text.replaceAll('<br>', ' ').replace(TAG, ' ');
+  text = unescapeHtml(text).replace(MARKUP, '');
+  return oneLine(text, limit);
 }
 
 const NOT_WORD = new RegExp(`[^${WORD}${SPACE}-]`, 'gu');
@@ -117,6 +196,8 @@ const KINDS = Object.freeze([
 ]);
 const PREFIX = /^[A-Z][A-Z0-9]*$/;
 const LEAD = new RegExp(`^[${SPACE}*_\`~[(]+`, 'u');
+const STATE = /^#([a-z][a-z0-9_-]{0,30})/u;
+const TRAIL = new RegExp(`^[${SPACE}\\]):：.\\-–—·|*_\`~]+`, 'u');
 const escaped = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 // The hub's IdFormat with its default prefixes, which the hub uses for a project whose settings name none, and the
@@ -136,10 +217,16 @@ export function idFormat(extra = []) {
     kind: (id) => kindOf.get(id.split('-')[0]) ?? null,
     // [id, kind] for each ID in text.
     find: (text) => [...text.matchAll(every)].map((found) => [found[0], kindOf.get(found[1])]),
-    // [id, kind] when text starts with an ID, after any white space, *, _, `, ~, [ or (, else null.
+    // [id, kind, state, rest] when text starts with an ID, after any white space, *, _, `, ~, [ or (, else null:
+    // state the #state after it or null, and rest the text after them without the marks that end an ID's title.
     lead: (text) => {
-      const found = first.exec(text.replace(LEAD, ''));
-      return found === null ? null : [found[0], kindOf.get(found[1])];
+      const stripped = text.replace(LEAD, '');
+      const found = first.exec(stripped);
+      if (found === null) return null;
+      let rest = stripped.slice(found[0].length);
+      const state = STATE.exec(rest);
+      if (state !== null) rest = rest.slice(state[0].length);
+      return [found[0], kindOf.get(found[1]), state === null ? null : state[1], rest.replace(TRAIL, '')];
     },
   });
 }

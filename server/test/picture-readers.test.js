@@ -1,6 +1,7 @@
-// NEXUS's SQL and YAML readers (TASK-466; SPEC-018) read as the pinned hub reads: of this repository's db/nexus.sql and
-// docs/07-sitemap/nexus.yaml they make the pictures that tests/test_erd_picture.py and tests/test_sitemap_picture.py
-// keep in erd-picture.json and sitemap-picture.json, and of each case in picture-cases.json, which
+// NEXUS's Markdown, SQL and YAML readers (TASK-466, TASK-470; SPEC-018) read as the pinned hub reads: of this
+// repository's docs/01-domain/nexus.md, db/nexus.sql and docs/07-sitemap/nexus.yaml they make the pictures that
+// tests/test_ddd_board_picture.py, tests/test_erd_picture.py and tests/test_sitemap_picture.py keep in
+// ddd-board-picture.json, erd-picture.json and sitemap-picture.json, and of each case in picture-cases.json, which
 // tests/test_picture_cases.py keeps, the hub's picture and checks. Then the limits that are NEXUS's own: YAML nested
 // deeper than the hub can read, and long texts that are read in time that grows with their length.
 
@@ -8,12 +9,14 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { idFormat, oneLine, splitLines, strip } from '../src/picture-text.js';
+import { readDomainPicture } from '../src/domain-picture.js';
+import { idFormat, oneLine, plain, splitLines, strip, unescapeHtml } from '../src/picture-text.js';
 import { readSqlPicture, sqlStatements } from '../src/sql-picture.js';
 import { MAX_BLOCKS, MAX_LISTS, readSitemapPicture, readYaml } from '../src/sitemap-picture.js';
 
 const fixture = (name) => JSON.parse(readFileSync(new URL(name, import.meta.url), 'utf8'));
-const READERS = { '05-erd': readSqlPicture, '07-sitemap': readSitemapPicture };
+const READERS = { '01-domain': readDomainPicture, '05-erd': readSqlPicture, '07-sitemap': readSitemapPicture };
+const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 // As tests/test_picture_cases.py's shape: each list longer than three as its count, first and last.
 const shape = (value) => {
@@ -28,7 +31,7 @@ for (const [stored, read] of [['erd-picture.json', readSqlPicture], ['sitemap-pi
   test(`NEXUS reads this repository's stage source as the pinned hub does (${stored})`, () => {
     const kept = fixture(stored);
     const bytes = readFileSync(new URL(`../../${kept.source}`, import.meta.url));
-    assert.equal(createHash('sha256').update(bytes).digest('hex'), kept.sha256, `${kept.source} changed since the stored picture`);
+    assert.equal(sha256(bytes), kept.sha256, `${kept.source} changed since the stored picture`);
     const text = bytes.toString('utf8').replace(/^\uFEFF/, '');
     const { picture, checks } = read([[kept.source, text]], { part: kept.part });
     assert.deepEqual(picture, kept.picture);
@@ -36,15 +39,44 @@ for (const [stored, read] of [['erd-picture.json', readSqlPicture], ['sitemap-pi
   });
 }
 
+test("NEXUS reads this repository's stage-01 documents as the pinned hub does (ddd-board-picture.json)", () => {
+  const kept = fixture('ddd-board-picture.json');
+  assert.ok(kept.documents.length >= 1);
+  const documents = kept.documents.map(({ path, sha256: digest }) => {
+    const bytes = readFileSync(new URL(`../../${path}`, import.meta.url));
+    assert.equal(sha256(bytes), digest, `${path} changed since the stored picture`);
+    return [path, bytes.toString('utf8').replace(/^\uFEFF/u, '')];
+  });
+  const { picture, checks } = readDomainPicture(documents, { part: kept.part });
+  assert.deepEqual(picture, kept.picture);
+  assert.deepEqual(checks, kept.checks);
+});
+
 test('NEXUS reads each case as the pinned hub does', () => {
   const { cases } = fixture('picture-cases.json');
-  assert.ok(cases.length >= 15);
+  assert.ok(cases.length >= 22);
+  assert.deepEqual([...new Set(cases.map((each) => each.stage))].sort(), Object.keys(READERS));
   for (const each of cases) {
     const extra = Object.entries(each.ids ?? {}).map(([kind, prefix]) => [prefix, kind]);
     const { picture, checks } = READERS[each.stage](each.documents, { ids: idFormat(extra), part: each.part });
     assert.deepEqual(each.shape ? shape(picture) : picture, each.picture, each.name);
     assert.deepEqual(checks, each.checks, each.name);
   }
+});
+
+test("plain and unescapeHtml read a stage-01 text as the hub's plain and Python's html.unescape do", () => {
+  for (const [text, want] of [
+    ['a &amp; b &lt;x&gt; &ampx &notit; &notin;', 'a & b <x> &x \u00ACit; \u2209'],
+    ['&#0; &#128; &#x110000; &#55296; &#65; &#x41 &#0000000000065;', '\uFFFD \u20AC \uFFFD \uFFFD A A A'],
+    // Code points HTML does not allow are dropped; a carriage return is kept.
+    ['&#1; &#x7f; &#13; &#65534;', '  \r '],
+    ['&frac12x &AElig &zz; &', '\u00BDx \u00C6 &zz; &'],
+  ]) {
+    assert.equal(unescapeHtml(text), want, text);
+  }
+  assert.equal(plain('[a](b) ![c](d) [e] (f) **bold** <b>tag</b>x<br>y `v`'), 'a c [e] (f) bold tag x y v');
+  assert.equal(plain('a'.repeat(200)).length, 120);
+  assert.equal(plain(null), '');
 });
 
 test('a YAML text that does not read gives the line where it stops, and a text that reads gives none', () => {
@@ -101,4 +133,19 @@ test('long texts are read in time that grows with their length', { timeout: 60_0
   const yaml = `- name: ${'a '.repeat(size / 2)}\n${'  # c\n'.repeat(size / 8)}  path: '${"''".repeat(size / 4)}'\n`;
   assert.equal(readSitemapPicture([['t.yaml', yaml]]).picture.screens.length, 1);
   assert.equal(splitLines('\r\n'.repeat(size)).length, size);
+  // Stage-01 Markdown: long lists of names, of lane places and of alternatives, long runs of <, [, & and white space,
+  // and many rows.
+  const commands = '| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |';
+  const markdown = [
+    `### CTX-1 ${'<'.repeat(size / 4)}${'['.repeat(size / 4)}${'&'.repeat(size / 4)}`,
+    `Purpose:${' '.repeat(size / 4)}x`,
+    commands,
+    `| a | b | c | ${'x, '.repeat(size / 3)} | e |`,
+    `| Policy${' '.repeat(size / 4)} | b | c | d${' '.repeat(size / 4)}e | ${'f or '.repeat(size / 5)} |`,
+    '| a | b | c | d | e |\n'.repeat(size / 40),
+    `| Lane | Events |\n| --- | --- |\n| l | ${'a → '.repeat(size / 4)} |\n| m | ${'a or '.repeat(size / 5)} |`,
+  ].join('\n');
+  const read = readDomainPicture([['t.md', markdown]]);
+  assert.equal(read.picture.contexts.length, 1);
+  assert.equal(read.picture.timeline[0].places.length, 200);
 });
