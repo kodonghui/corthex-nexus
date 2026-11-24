@@ -1401,7 +1401,7 @@ TASK-459 (SPEC-016, SPEC-017, SPEC-027, SPEC-028, SPEC-051) adds the threads to 
   - A box of an element chosen before the gate shows its text once the element is chosen again.
 - **Phone** (SPEC-051). A phone reads, comments, replies and closes as a PC does.
 
-These rules, and the Korean words that the screen definitions, the mockup and the error registry do not give, were chosen by the coordinator for TASK-459. The pull request asks the maintainer's delegate to approve each on its own.
+These rules, and the Korean words that the screen definitions, the mockup and the error registry do not give, were chosen by the coordinator for TASK-459. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24, each asked on its own.
 
 `test/threads-screen.test.js` checks the section with stubbed answers and against the server. It covers the list, choosing and Escape, the entries and their links, replies, and new comments on an element, a row and the diagram at the drawing shown. It also covers an empty text, closing, a thread closed meanwhile (on a removed diagram too), a read again that draws the view anew during a write, the unsent text kept through the gate, a phone, `?thread=`, the last thread of a removed diagram, an unreadable element, the retry's key, and text that stays text. It answers every response that API-266, API-267, API-268 and API-269 list. The browser walk of the pull request shows the section at 360 and 1440 px, in light and dark.
 
