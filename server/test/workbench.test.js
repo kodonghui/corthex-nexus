@@ -160,6 +160,8 @@ const movedAnswer = (which) => (body) => json(200, { diagram: ID[which], element
 const pictureBox = (page) => page.app.all('div', 'wb-picture')[0];
 const panelOf = (page) => page.app.all('aside')[0];
 const selectedOf = (page) => panelOf(page).all('section').find((section) => section.getAttribute('aria-label') === WORKBENCH_WORDS.selected);
+// The name the Selected panel shows: in its name field on a PC for an element that takes a rename (TASK-460), else as text.
+const nameIn = (panel) => panel.all('input').find((input) => input.getAttribute('id') === 'element-name')?.value ?? panel.all('b')[0]?.textContent;
 // The chooser of an element: the button or line drawn for its key, found by the name it shows.
 const buttonNamed = (page, className, name) => pictureBox(page).all('button', className).find((button) => button.all('b').some((b) => b.textContent === name));
 const holderOf = (button) => button.parentNode.parentNode;
@@ -263,7 +265,7 @@ describe('SCR-145 pictures', () => {
         assert.equal(head.getAttribute('aria-pressed'), 'true');
         assert.deepEqual(panel.all('span', 'tag').map((tag) => tag.textContent), ['경계 컨텍스트']);
         assert.deepEqual(panel.all('span', 'mono').map((span) => span.textContent), ['CTX-037']);
-        assert.deepEqual(panel.all('b').map((b) => b.textContent), ['Diagram']);
+        assert.deepEqual([nameIn(panel), panel.all('b').map((b) => b.textContent)], ['Diagram', []]);
         panel.all('button').find((button) => button.textContent === WORKBENCH_WORDS.copy).click();
         await page.settle();
         const status = panel.all('span', 'copied')[0];
@@ -362,7 +364,7 @@ describe('SCR-145 pictures', () => {
       assert.match(page.sent[0].key, /^"nw_[0-9a-hjkmnp-tv-z]{12}"$/);
       button = buttonNamed(page, 'tbl', table.name);
       assert.deepEqual([Number(holderOf(button).getAttribute('x')), Number(holderOf(button).getAttribute('y'))], [at.x + STEP - 6, at.y + LONG_STEP - 6]);
-      assert.equal(selectedOf(page).all('b')[0].textContent, table.name);
+      assert.equal(nameIn(selectedOf(page)), table.name);
       // The next move is another action, under another key.
       button.dispatch('keydown', { key: 'ArrowLeft' });
       await waitSend(page);

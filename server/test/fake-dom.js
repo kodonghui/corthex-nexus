@@ -83,9 +83,9 @@ export class FakeElement {
   }
 
   // Sends an event of type to this element's listeners and then its ancestors' and the document's, as a bubbling
-  // event does.
+  // event does; preventDefault marks it defaultPrevented for the listeners after.
   dispatch(type, fields = {}) {
-    const event = { type, target: this, preventDefault() {}, ...fields };
+    const event = { type, target: this, defaultPrevented: false, preventDefault() { this.defaultPrevented = true; }, ...fields };
     for (let node = this; node !== null; node = node.parent) {
       for (const listener of node.listeners.get(type) ?? []) listener(event);
     }

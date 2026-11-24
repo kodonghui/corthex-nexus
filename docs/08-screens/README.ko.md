@@ -114,3 +114,12 @@ SCR-146은 그대로입니다. 지운 그림은 바뀐 곳만 보이고 확정 �
 ### 다른 그림 열기의 이름
 
 TASK-458을 만들다가(WBS 메모 5) PR 104 리뷰 뒤 승인한 SCR-145의 동작 "단계의 다른 그림 열기"가 목록에 남은 지운 그림도 연다는 것을 찾았습니다. PR 104 일곱 번째 리뷰 뒤로 그런 그림은 맨 뒤에 지움 표시로 나열되고 열리며(SPEC-027), 2026-11-24 기능 변경 뒤로는 열린 스레드, 답을 기다리는 AI 제안, 반영을 기다리는 직접 편집 중 하나가 있는 동안 목록에 남습니다. 그런데 이 이름은 그 단계의 지금 그림만 여는 것처럼 읽힙니다. 승인된 항목 1개가 바뀌고, 따로 여쭙니다. SCR-145의 동작 이름은 이제 "단계에 나열된 다른 그림 열기"이고, 오퍼레이션, 결과, 실패는 그대로입니다. 상태 수는 그대로입니다. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+### "다른 방법" 빼기
+
+TASK-460을 만들다가 SCR-145가 AI 제안마다 "다른 방법"을 보이라고 하지만 계약에는 그런 필드가 없다는 것을 찾았습니다. ChangeSet과 ProposalRequest는 이유와 변경만 담으므로, 에이전트는 다른 방법이 있으면 이유 안에 적습니다. PR 157에서 대리인은 필드를 더하는 나중의 계약 변경 대신 이 정정을 골랐습니다. 승인된 항목 1개(SCR-145)가 두 곳에서 바뀌고, 따로 여쭙니다.
+
+- "AI answers" 줄: "AI 제안은 종류, 글, 이유, 다른 방법을 보여 주고, 수락·반영 전에는 점선"(영어: "an AI proposal shows its kind, text, reason and the other way, dashed until accepted and reflected")이 "AI 제안은 종류, 글, 이유를 보여 주고, 수락·반영 전에는 점선"(영어: "an AI proposal shows its kind, text and reason, dashed until accepted and reflected")이 됩니다.
+- SCR-145#normal의 "AI 제안" 부분: ""AI 제안": 종류, 글, 이유, 다른 방법, 수락·거절(없으면 "모두 처리함")"(영어: ""AI proposals": each with its kind, text, reason and the other way, and Accept and Reject ("All answered" when none)")이 ""AI 제안": 종류, 글, 이유, 수락·거절(없으면 "모두 처리함")"(영어: ""AI proposals": each with its kind, text and reason, and Accept and Reject ("All answered" when none)")이 됩니다.
+
+SCR-145의 다른 곳은 바뀌지 않습니다. 07단계 README의 "이유와 다른 방법을 적은 AI 제안"은 그때 통과한 것의 기록이라 그대로 둡니다. 와이어프레임은 정의에서 다시 만들었습니다. 그래서 PR 104 여덟·아홉 번째 리뷰의 글에 머물러 있던 SCR-145#normal과 SCR-145#error 프레임이 "지운 그림의 제안 거절"과 2026-11-24 기능 변경의 글도 따라잡습니다. 이 따라잡기는 이 정정의 일부가 아닙니다. 상태 수는 그대로입니다. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.

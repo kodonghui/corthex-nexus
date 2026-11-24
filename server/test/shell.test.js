@@ -543,9 +543,12 @@ describe('the shell', () => {
     const well = await open('/p/reading-club/_/01-domain', { search: '?thread=nc_0000000000a1', answers: { ...FINE, [thread]: problem(404, 'thread_not_found') } });
     try {
       // A thread's ID is the workbench's to read (TASK-459): the panel holds only its own sections, and no note of the
-      // shell's comes before them.
+      // shell's comes before them. Those shown are AI 제안 on a PC (TASK-460) and the Selected one, with the whole
+      // diagram's threads.
       assert.ok(well.calls.includes(thread));
-      assert.deepEqual(well.app.all('aside')[0].children.map((child) => child.tagName), ['SECTION']);
+      assert.deepEqual(well.app.all('aside')[0].children.map((child) => child.tagName), ['SECTION', 'SECTION', 'SECTION']);
+      assert.deepEqual(well.app.all('aside')[0].children.filter((child) => child.shown)
+        .map((child) => child.getAttribute('aria-label')), ['AI 제안', '고른 요소']);
     } finally {
       well.close();
     }
@@ -649,10 +652,12 @@ describe('the shell', () => {
       await delay(10);
       // A write ends while that read is held, and the screen asks for its data again.
       title = '바뀐 이름';
-      page.shell.reload();
+      const asked = page.shell.reload();
       wait = null;
       release();
-      await waitFor(() => texts(page, 'h1')[0] === '바뀐 이름');
+      // The promise of the reload asked for ends once the load it waited for has run, its answer shown.
+      await asked;
+      assert.deepEqual(texts(page, 'h1'), ['바뀐 이름']);
       await page.settle();
       assert.equal(page.calls.filter((path) => path === '/api/projects/reading-club').length, 3);
       assert.deepEqual(texts(page, 'h1'), ['바뀐 이름']);
