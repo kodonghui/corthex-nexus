@@ -13,12 +13,13 @@
 //     first time, back from removal, or a picture that replaces the stage's item table. The stage then no longer has a
 //     recorded confirmation for every diagram, which SPEC-035's pass rests on. No approved document states this rule;
 //     the coordinator chose it for TASK-435, and the maintainer approved it through the delegate they named for
-//     checkpoints. A removed diagram changes no pass, since it counts for none (SPEC-027).
+//     checkpoints. A removed diagram marks no pass changed, since it counts for none (SPEC-027).
+//   - A removed diagram can complete its stage: when every other diagram of the stage has a recorded confirmation,
+//     passes.js's passStage writes the stage's pass, as API-259 does when a record merges (TASK-447).
 // - Reflections (SPEC-025). The accepted change sets of a reflection pull request whose reported merge commit is the
-//   drawn snapshot's commit are reflected, at the drawing the diagram shows after the push, its latest that drew (a
-//   failed drawing shows the last good one, SPEC-001), even when that drawing lacks the change: the comment saying what
-//   is missing is TASK-447's (note 26 of the WBS). Only that exact commit marks them (API-258). The thread of a
-//   proposal then closes, by reflection, once none of its change sets is proposed or accepted.
+//   drawn snapshot's commit are reflected, at the drawing the diagram shows after the push, even when that drawing
+//   lacks the change, and a comment says what is missing: reflection.js's reflectMerged, which API-258 also runs when
+//   NEXUS already holds the merge commit (TASK-447).
 // - Threads (SPEC-027). An element leaves its stage document when a drawing of its diagram that drew no longer has it,
 //   or draws it as unreadable (its part left out as unreadable counts as gone), or when the snapshot removes its
 //   diagram, other than an item table that makes way for the stage's pictures (SPEC-005). Its open threads move to the
@@ -33,14 +34,16 @@
 //   snapshot removes drops all its positions, so an element of it that comes back stands where its drawer puts it. A
 //   failed drawing, a source left out and a diagram drawn as before drop none. No drawing reads a position.
 // - The to-do follows through entries.js, in the same transaction: confirmationsChanged for each diagram drawn for the
-//   first time, back, removed or invalidated; changeSetsChanged for each diagram with reflected change sets; and
-//   threadChanged for each thread a reflection closed.
+//   first time, back, removed or invalidated; and, through reflectMerged, changeSetsChanged for each diagram with
+//   reflected change sets and threadChanged for each thread a reflection closed or opened.
 //
 // It returns the push answer's counts: { confirmations_invalidated, change_sets_reflected, threads_moved }. Nothing
 // here logs (rule 5).
 
-import { changeSetsChanged, confirmationsChanged, threadChanged } from './entries.js';
+import { confirmationsChanged } from './entries.js';
+import { passStage } from './passes.js';
 import { placeable } from './positions.js';
+import { reflectMerged } from './reflection.js';
 
 // PushAnswer's counts are at most 1,000,000.
 const COUNT = 1_000_000;
@@ -64,13 +67,12 @@ function statementsOf(store) {
       // Whether a diagram has a drawing that drew before the given one.
       drawnBefore: store.prepare("SELECT 1 AS drawn FROM drawings WHERE diagram_id = ? AND status = 'drawn' AND id < ? LIMIT 1"),
       currentDrawn: store.prepare("SELECT id FROM drawings WHERE diagram_id = ? AND status = 'drawn' ORDER BY id DESC LIMIT 1"),
-      latestDrawing: store.prepare('SELECT max(id) AS id FROM drawings WHERE diagram_id = ?'),
       // Stage passes: those an invalidated confirmation rested on, and the stage's latest.
       changeSince: store.prepare(
         'UPDATE stage_passes SET changed_at = ? WHERE project_id = ? AND stage = ? AND changed_at IS NULL AND passed_at >= ?',
       ),
       latestPass: store.prepare(
-        'SELECT id, changed_at FROM stage_passes WHERE project_id = ? AND stage = ? ORDER BY passed_at DESC, id DESC LIMIT 1',
+        'SELECT id, changed_at FROM stage_passes WHERE project_id = ? AND stage = ? ORDER BY id DESC LIMIT 1',
       ),
       changePass: store.prepare('UPDATE stage_passes SET changed_at = ? WHERE id = ? AND changed_at IS NULL'),
       // Threads.
@@ -85,18 +87,6 @@ function statementsOf(store) {
       ),
       move: store.prepare("UPDATE comment_threads SET target_kind = 'diagram', removed_name = ? WHERE id = ?"),
       relink: store.prepare('UPDATE comment_threads SET removed_name = NULL WHERE id = ?'),
-      // Reflections: the accepted change sets of the reflection pull requests whose merge commit is commit.
-      reflecting: store.prepare(
-        `SELECT c.id, c.diagram_id, c.thread_id FROM change_sets c
-         JOIN pull_requests p ON p.id = c.pull_request_id AND p.project_id = c.project_id
-         WHERE c.project_id = ? AND c.state = 'accepted' AND p.purpose = 'reflection' AND p.merge_commit = ?
-         ORDER BY c.id`,
-      ),
-      reflect: store.prepare("UPDATE change_sets SET state = 'reflected', reflected_drawing_id = ? WHERE id = ? AND state = 'accepted'"),
-      asking: store.prepare("SELECT 1 AS asking FROM change_sets WHERE thread_id = ? AND state IN ('proposed', 'accepted') LIMIT 1"),
-      closeThread: store.prepare(
-        "UPDATE comment_threads SET state = 'closed', waits_on = NULL, closed_at = ?, closed_by = 'reflection' WHERE id = ? AND state = 'open'",
-      ),
       // Positions: those of a diagram, an element of a drawing, and dropping one or all of a diagram's.
       // The diagram's positions, each with its element in the drawing, kind and detail null when it has none.
       positions: store.prepare(
@@ -170,11 +160,13 @@ export function afterDrawing(store, { project, commit, changed, time }) {
   const statements = statementsOf(store);
   const counts = { confirmations_invalidated: 0, change_sets_reflected: 0, threads_moved: 0 };
   const confirming = new Set();
+  const removedFrom = new Set();
 
   for (const diagram of changed) {
     const { id, stage } = diagram;
     if (diagram.removed) {
       confirming.add(id);
+      removedFrom.add(stage);
       if (!diagram.madeWay) counts.threads_moved += followElements(statements, id, null);
       statements.dropPositions.run(id);
       continue;
@@ -205,23 +197,11 @@ export function afterDrawing(store, { project, commit, changed, time }) {
     }
   }
 
-  // Reflections, at the drawing the diagram shows after the push. A change set is made against a drawing that drew,
-  // so the diagram has one; its latest drawing is only a guard.
-  const reflected = new Set();
-  const asked = new Set();
-  for (const set of statements.reflecting.all(project, commit)) {
-    const diagram = Number(set.diagram_id);
-    const shown = statements.currentDrawn.get(diagram) ?? statements.latestDrawing.get(diagram);
-    statements.reflect.run(Number(shown.id), Number(set.id));
-    counts.change_sets_reflected += 1;
-    reflected.add(diagram);
-    if (set.thread_id !== null) asked.add(Number(set.thread_id));
-  }
-  for (const diagram of reflected) changeSetsChanged(store, { project, diagram, time });
-  for (const thread of asked) {
-    if (statements.asking.get(thread) !== undefined) continue;
-    if (statements.closeThread.run(time, thread).changes > 0) threadChanged(store, { project, thread, time });
-  }
+  // A stage whose diagram the snapshot removed may now have a recorded confirmation for every diagram it keeps.
+  for (const stage of removedFrom) passStage(store, { project, stage });
+
+  // Reflections, at the drawing the diagram shows after the push (reflection.js).
+  counts.change_sets_reflected += reflectMerged(store, { project, commit, time });
 
   for (const diagram of confirming) confirmationsChanged(store, { project, diagram, time });
   return Object.fromEntries(Object.entries(counts).map(([name, value]) => [name, Math.min(value, COUNT)]));

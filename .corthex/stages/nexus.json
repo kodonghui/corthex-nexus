@@ -170,10 +170,15 @@
           "approved": "A proposal's entry in its thread, pull request 137, at commit 4255159: TBL-156's trace line names SPEC-018 beside SPEC-016, SPEC-017, SPEC-025 and SPEC-051, since a proposal adds its change text to its thread as an agent entry; no table, column or constraint changed, and the ERD drawing is as it was. The approved item it changes was answered on its own before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "A reflection's threads, pull request 150, at commit b568e23: TBL-155 comment_threads' trace line in db/nexus.sql gains SPEC-025, so it reads \"-- TBL-155 comment_threads (CTX-038) ← SPEC-016, SPEC-017, SPEC-018, SPEC-025, SPEC-027, SPEC-028, SPEC-042, SPEC-043 | terms: TERM-200\" instead of the approved line without SPEC-025, since a reflection opens the note 26 thread and closes a proposal's thread. No table, column or constraint changed, and the ERD drawing is the same. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-24T06:44:03+09:00",
+      "updated": "2026-11-24T09:42:36+09:00",
       "checks": [
         {
           "level": "info",
@@ -319,10 +324,15 @@
           "approved": "Workshop table correction, pull request 149, at commit 28d60c2: the x-corthex.tables of the ten workshop operations change, each from its approved list (note 23). API-260 lists TBL-147, TBL-162, TBL-163, TBL-164 and TBL-165 instead of TBL-163 and TBL-164; API-261 lists TBL-147, TBL-157, TBL-162, TBL-163 and TBL-166 instead of TBL-163, TBL-162 and TBL-157, with no TBL-167; API-284 lists TBL-147, TBL-162 and TBL-163 instead of TBL-162 and TBL-163; API-285 lists TBL-147, TBL-162, TBL-163, TBL-164 and TBL-165 instead of TBL-163, TBL-164 and TBL-165; API-286 and API-287 each list TBL-147, TBL-162 and TBL-164 instead of TBL-164; API-288 lists TBL-147, TBL-162, TBL-164 and TBL-165 instead of TBL-164 and TBL-165; API-289 lists TBL-147, TBL-162, TBL-164 and TBL-165 instead of TBL-165; API-290 lists TBL-147, TBL-162 and TBL-165 instead of TBL-165; API-291 lists TBL-147, TBL-161, TBL-162, TBL-163, TBL-164 and TBL-166 instead of TBL-163, TBL-161 and TBL-166. API-260's 400 response gains a text_too_long example with field notes[0].text and limit 200. No operation, field, code or spec row changed. Each list and the example were asked as their own questions and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Report table and spec correction, pull request 150, at commit b568e23 (note 23): API-258's x-corthex.tables lists TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-166 and TBL-167 instead of the approved TBL-157, TBL-158, TBL-166 and TBL-167; API-259's lists TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-157, TBL-160, TBL-161, TBL-166 and TBL-167 instead of the approved TBL-160, TBL-157, TBL-166 and TBL-167; API-259's x-corthex.spec lists SPEC-014, SPEC-032 and SPEC-035 instead of the approved SPEC-014 and SPEC-032; and API-242's lists TBL-156 and TBL-159 beside its approved TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-157, TBL-158, TBL-160, TBL-161 and TBL-166. No operation, field, response or code changed. Each list was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T09:05:33+09:00"
+      "updated": "2026-11-24T09:42:36+09:00"
     },
     "07-sitemap": {
       "state": "done",

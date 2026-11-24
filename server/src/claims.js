@@ -84,11 +84,15 @@ function checkSession(session) {
   if (typeof session !== 'string' || !SESSION.test(session)) throw new TypeError('session is a session label');
 }
 
+// The repository's address that its pull requests' links begin with, ending in /: without trailing slashes and .git.
+// The one rule that makes a link (pullRequestLink) and reads one (reports.js).
+export const repositoryBase = (repository) => `${repository.replace(/\/+$/, '').replace(/\.git$/, '')}/`;
+
 // The link of a pull request of the project's repository, as the hub reports it: the repository's address and
 // /pull/ and its number. null when the project names no repository.
 export function pullRequestLink(repository, number) {
   if (repository === null || number === null || number === undefined) return null;
-  return `${repository.replace(/\/+$/, '').replace(/\.git$/, '')}/pull/${Number(number)}`;
+  return `${repositoryBase(repository)}pull/${Number(number)}`;
 }
 
 // SPEC-045, the one rule of when a claim ends: null while its pull request is open, and otherwise the time in

@@ -171,7 +171,7 @@ CREATE TABLE element_positions (
   PRIMARY KEY (diagram_id, element_key)
 );
 
--- TBL-155 comment_threads (CTX-038) ← SPEC-016, SPEC-017, SPEC-018, SPEC-027, SPEC-028, SPEC-042, SPEC-043 | terms: TERM-200
+-- TBL-155 comment_threads (CTX-038) ← SPEC-016, SPEC-017, SPEC-018, SPEC-025, SPEC-027, SPEC-028, SPEC-042, SPEC-043 | terms: TERM-200
 -- A comment and its replies on a diagram, an element or a table row, at the drawing shown,
 -- which is a drawing of the same diagram. An open thread waits on the side that did not write
 -- last. removed_name marks a thread moved to the diagram because its element left, with the
