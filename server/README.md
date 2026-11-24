@@ -1784,6 +1784,8 @@ TASK-449 (SPEC-014) runs the pinned hub's eight agent commands against this serv
 - **The log.** The server's log names, in order, the operations each command called. None of its lines holds the credential's secret or its digest, the owner's sign-in, the data folder, a session, a pull request's link or a comment's text (rule 5).
 - **The checkpoint's link.** With `--nexus`, the hub's `status` needs an https link for the checkpoint: `--where`, or else a link it builds from `nexus.url` in the device's profile, `<nexus.url>/overview/<project>/<part or _>/<stage>#<checkpoint>`. That is v2's address. This server shows a stage at `/p/<project>/<part or _>/<stage>` (SCR-145, see [App shell](#app-shell)) and answers `/overview/...` with its 404 page. So the run passes `--where` in this server's form, on a placeholder host, and until the pinned hub builds this server's address, a checkpoint that names a NEXUS checkpoint needs `--where`.
 
+The coordinator chose these rules for TASK-449: what `status` answers, the checkpoint's link and the owner's sign-in in the test. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24, each asked on its own. The hub change that builds this server's address, and its publication, are asked of the maintainer at TASK-463; until then the pinned hub and its pin stay as they are.
+
 ## Answers
 
 - An operation answers JSON. A refusal is a Problem as `application/problem+json`, with `title`, `status`, `detail`, `code`, `traceId` and the members its code carries, such as `field` or `limit`. Its shape is exactly `components.schemas.Problem` of the contract.
