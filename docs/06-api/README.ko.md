@@ -383,3 +383,14 @@ TASK-453을 만들다가 Miro 보드 가져오기인 API-292가 TBL-164와 TBL-1
 - **API-292의 400 응답**에 `text_too_long` 예시가 생겨요. `field`는 `data[0].data.content`, `limit`은 200이에요. 전에는 `invalid_request`만 적었어요. 계약에서 스티커의 텍스트는 200자까지이고(`Note`), 코디네이터는 TASK-453에서 이를 넘는 텍스트가 워크숍의 모든 쓰기처럼 가져오기 전체를 `text_too_long`으로 거절하게 골랐으며, 이 코드는 이미 등록부에 있어요.
 
 오퍼레이션, 필드, 코드, 명세 행은 바뀌지 않았어요. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+### 2026-11-24 기능 변경
+
+지운 그림은 자기를 기다리는 것을 지켜요. 열린 스레드, 답을 기다리는 AI 제안, 반영을 기다리는 직접 편집 중 하나가 있는 동안 목록에 남고 열려요(기능 명세 6절). 오퍼레이션, 필드, 응답, 코드, 테이블 목록은 바뀌지 않아요. API-264와 API-265는 셋을 지닌 TBL-155와 TBL-158을 이미 적었고, DiagramSummary에는 필드를 더하지 않아요. 작업대의 읽기(API-265)가 제안과 편집을 보여 주기 때문이에요. 승인된 글 4개가 바뀌고, 하나씩 여쭤요.
+
+- API-264의 설명: "removed ones with open threads listed last (SPEC-005, SPEC-027)"가 "removed ones listed last while they have an open thread, a proposed AI proposal or a direct edit waiting for reflection (SPEC-005, SPEC-027)"이 돼요.
+- DiagramSummary의 `removed`: "A removed diagram is listed after the others only while it has open threads"가 "A removed diagram is listed after the others only while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection"이 돼요.
+- `diagram_not_found`의 뜻과 그것을 옮긴 영어 README 2절의 표: "the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027)"가 "the diagram that a new direct edit, a move, a confirmation or a new thread names was removed, or the diagram read (API-265) names a removed diagram with no open thread, proposed AI proposal or direct edit waiting for reflection left (SPEC-027)"이 돼요. 지운 그림에 대한 API-265의 404를 이제 계약에 적어요. 그림 읽기라고 적는 것은 목업 페이지(API-293)가 지운 목업의 페이지를 계속 주기 때문이고, 새 직접 편집이라고 적는 것은 그곳에서도 직접 편집 취소(API-273)는 받기 때문이에요.
+- `diagram_not_found`의 client 줄: "a removed one still listed opens for its threads only (SPEC-027)"가 "a removed one still listed opens for its threads, its proposals' Reject and its direct edits' Cancel edit (SPEC-027)"이 돼요.
+
+이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.

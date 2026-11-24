@@ -50,3 +50,7 @@ Passed on 2026-11-23. The maintainer approved every recommendation through the d
 - The thirteen flows pass with their main and failure paths.
 - A failed daily backup is not a new requirement: stage 04 writes it as an exception of REQ-076 and shows a warning at the top of the owner's to-do. Messages outside NEXUS stay deferred, as stage 01 decided.
 - REQ-069, REQ-072, REQ-073, REQ-074 and REQ-075 are carried to stages 08, 09 and 12.
+
+### Feature change of 2026-11-24
+
+A removed diagram keeps what waits on it (section 6 of the functional spec). No change in this stage: no flow walks a removed diagram. FL-007 moves the threads of a removed element (REQ-033) and stands as drawn, and FL-003's rejection (REQ-024) and FL-004's cancel before reflection (REQ-028) do not depend on whether the diagram is removed. This part passed its own checkpoint on 2026-11-24 through the same delegate.
