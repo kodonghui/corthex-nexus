@@ -661,6 +661,20 @@ describe('SCR-145 pictures', () => {
     assert.deepEqual([board.place.boxes.get(board.first.key).x, board.place.boxes.get(board.first.key).y], [board.to.x, board.to.y]);
   });
 
+  test('a sticky moved on the board is painted after every other box, so that it shows whole over them', async () => {
+    const page = await openStage('board');
+    try {
+      const event = ELEMENTS.board.find((element) => element.kind === 'event');
+      buttonNamed(page, 'stk', event.name).dispatch('keydown', { key: 'ArrowRight', shiftKey: true });
+      const svg = pictureBox(page).all('svg', 'pic')[0];
+      const holders = svg.children.filter((child) => child.tagName.toLowerCase() === 'foreignobject');
+      assert.equal(holders.at(-1), holderOf(buttonNamed(page, 'stk', event.name)));
+      await waitSend(page);
+    } finally {
+      page.close();
+    }
+  });
+
   test('the guard: a flow whose drawing layout.js does not give back is drawn over, with only the moved box\'s lines re-routed', () => {
     const elements = FLOWS[0].elements.map(asElement);
     // A drawing laid out by some other hand: one line's route is not the one layout.js gives.
@@ -944,7 +958,7 @@ describe('SCR-145 against the server', () => {
       assert.ok(moved !== -1 && page.asked.indexOf(`GET ${diagramRead('05-erd')}`, moved) > moved, page.asked.join(', '));
       assert.deepEqual(notice(page).children, []);
       const at = element.position ?? element.detail.box;
-      const holder = holderOf(pictureBox(page).all('button', 'tbl')[0]);
+      const holder = holderOf(buttonNamed(page, 'tbl', element.name));
       assert.deepEqual([Number(holder.getAttribute('x')), Number(holder.getAttribute('y'))], [at.x - 6, at.y - 6]);
     };
     const cases = casesOf('moveElement', [
@@ -963,7 +977,7 @@ describe('SCR-145 against the server', () => {
           assert.equal(message('element_not_found'), WORKBENCH_WORDS.moveGone);
           // The box goes back to where it was: the place the owner put it before, or else where it is drawn.
           const at = element.position ?? element.detail.box;
-          const holder = holderOf(pictureBox(page).all('button', 'tbl')[0]);
+          const holder = holderOf(buttonNamed(page, 'tbl', element.name));
           assert.deepEqual([Number(holder.getAttribute('x')), Number(holder.getAttribute('y'))], [at.x - 6, at.y - 6]);
         },
       },
@@ -992,7 +1006,8 @@ describe('SCR-145 against the server', () => {
       assert.deepEqual([answer.status, answer.json.code], [each.status, each.code]);
       const page = await openOn(good, stagePath('05-erd'), { replay: { [`POST ${path}`]: replayOf(answer) } });
       try {
-        pictureBox(page).all('button', 'tbl')[0].dispatch('keydown', { key: 'ArrowRight' });
+        // The table found by its name: a moved one is painted after the others.
+        buttonNamed(page, 'tbl', element.name).dispatch('keydown', { key: 'ArrowRight' });
         await waitSend(page);
         // A read again after the answer.
         await page.settle();

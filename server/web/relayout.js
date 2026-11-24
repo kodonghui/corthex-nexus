@@ -32,8 +32,8 @@ export function endsOf(element) {
   return pointsOf(element) !== null && typeof from === 'string' && typeof to === 'string' ? { from, to } : null;
 }
 
-// The places of the diagram's boxes and lines: { mode, boxes, lines, labels, bounds }, boxes, lines and labels being
-// maps by element key. moves, a map of key to { x, y }, holds the places the owner is moving boxes to and has not yet
+// The places of the diagram's boxes and lines: { mode, boxes, lines, labels, bounds, moved }, boxes, lines and labels
+// being maps by element key, and moved the set of the keys of the boxes placed where the owner put them. moves, a map of key to { x, y }, holds the places the owner is moving boxes to and has not yet
 // sent, over the positions the diagram answered.
 export function placement(diagram, moves = new Map()) {
   const elements = diagram.elements ?? [];
@@ -54,7 +54,7 @@ export function placement(diagram, moves = new Map()) {
       labels.set(element.key, element.detail.label_box ?? null);
     }
   }
-  if (moved.size === 0) return { mode: 'drawn', boxes, lines, labels, bounds: boundsOf(boxes, lines, labels) };
+  if (moved.size === 0) return { mode: 'drawn', boxes, lines, labels, bounds: boundsOf(boxes, lines, labels), moved: new Set() };
   const input = REBUILT.includes(diagram.kind) ? inputOf(diagram, boxes, lines, labels) : null;
   if (input !== null) {
     try {
@@ -68,7 +68,7 @@ export function placement(diagram, moves = new Map()) {
         routed.set(key, input.reversed ? points.reverse() : points);
         routedLabels.set(key, laid.edges[index].label);
       });
-      return { mode: 'clear', boxes: placed, lines: routed, labels: routedLabels, bounds: boundsOf(placed, routed, routedLabels) };
+      return { mode: 'clear', boxes: placed, lines: routed, labels: routedLabels, bounds: boundsOf(placed, routed, routedLabels), moved: new Set(moved.keys()) };
     } catch {
       // A layout that cannot place the moved boxes draws them over the others.
     }
@@ -88,7 +88,7 @@ export function placement(diagram, moves = new Map()) {
     const label = labels.get(element.key);
     if (label) routedLabels.set(element.key, { ...label, x: (points[0].x + points[1].x) / 2 + 4, y: (points[0].y + points[1].y) / 2 - label.height / 2 });
   }
-  return { mode: 'over', boxes: placed, lines: routed, labels: routedLabels, bounds: boundsOf(placed, routed, routedLabels) };
+  return { mode: 'over', boxes: placed, lines: routed, labels: routedLabels, bounds: boundsOf(placed, routed, routedLabels), moved: new Set(moved.keys()) };
 }
 
 // The input the drawer gave layout.js, built again from the drawing's elements, or null when it does not give back

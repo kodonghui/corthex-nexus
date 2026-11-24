@@ -127,7 +127,8 @@ function svgPicture(view) {
   const y = bounds.y - MARGIN;
   const width = Math.max(1, bounds.width + 2 * MARGIN);
   const height = Math.max(1, bounds.height + 2 * MARGIN);
-  const layers = { back: [], lines: [], boxes: [], over: [] };
+  // A moved box is painted after the others, so that where it lies over one it shows whole (relayout.js's 'over').
+  const layers = { back: [], lines: [], boxes: [], moved: [], over: [] };
   for (const element of diagram.elements ?? []) {
     if (LANES.has(element.kind)) laneOf(view, element, layers);
     else if (FRAMES.has(element.kind)) frameOf(view, element, layers);
@@ -147,7 +148,7 @@ function svgPicture(view) {
   }
   const svg = s('svg', {
     class: `pic k-${diagram.kind}`, width, height, viewBox: `${x} ${y} ${width} ${height}`,
-  }, layers.back, layers.lines, layers.boxes, layers.over);
+  }, layers.back, layers.lines, layers.boxes, layers.moved, layers.over);
   // The workbench keeps the box's scroll across redraws and opens a picture at its first box (workbench.js).
   view.box = h('div', { class: 'boardbox' }, h('div', { class: 'pic-wrap', role: 'group', 'aria-label': labelOf(diagram, place) }, svg));
   view.origin = { x, y };
@@ -228,7 +229,12 @@ function whereLine(element) {
 function boxOf(view, element, layers, content, className) {
   const box = view.place.boxes.get(element.key);
   if (box === undefined) return;
-  layers.boxes.push(boxed(box, chooser(view, element, className, content)));
+  boxLayer(view, element, layers).push(boxed(box, chooser(view, element, className, content)));
+}
+
+// The layer a box is painted in: the moved boxes' own, over the others, or the boxes'.
+function boxLayer(view, element, layers) {
+  return view.place.moved?.has(element.key) ? layers.moved : layers.boxes;
 }
 
 // A DDD board's sticky: its kind as the mockup's cap (a command's actor after it), the marks, and its name.
@@ -302,12 +308,13 @@ function flowBoxOf(view, element, layers) {
   if (box === undefined) return;
   const marks = Array.isArray(element.detail?.marks) ? element.detail.marks : [];
   const shapeClass = ['fl-shape', `k-${element.kind}`, ...marks.map((mark) => `mark-${mark}`)].join(' ');
-  layers.back.push(shapeOf(element.kind, box, shapeClass));
+  const moved = view.place.moved?.has(element.key) === true;
+  (moved ? layers.moved : layers.back).push(shapeOf(element.kind, box, shapeClass));
   const over = view.model.marks.get(element.key);
   const lines = Array.isArray(element.detail?.lines) && element.detail.lines.length > 0 ? element.detail.lines : [shownName(element)];
   const renamed = over?.rename && over.rename.name !== element.name;
   const ids = Array.isArray(element.detail?.ids) ? element.detail.ids : [];
-  layers.boxes.push(boxed(box, chooser(view, element, `fbox k-${element.kind}`, [
+  boxLayer(view, element, layers).push(boxed(box, chooser(view, element, `fbox k-${element.kind}`, [
     over?.proposed || over?.waiting || over?.since || element.status ? h('span', { class: 'cap' }, aiBadge(over), stateChips(element), markChips(over)) : null,
     renamed ? [h('b', { class: 'nm' }, over.rename.name), h('s', { class: 'was' }, element.name)] : lines.map((line) => h('b', { class: 'ln1' }, line)),
     ids.length > 0 ? h('span', { class: 'id' }, ids.join(', ')) : null,
