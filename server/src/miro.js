@@ -41,7 +41,7 @@ const CONTENT_LENGTH = 6000;
 const TITLE_LENGTH = 60;
 
 // Miro's 16 sticky colours (StickyNoteStyle.fillColor) and the kind each gives, named as the design tokens name the
-// sticky colours (design/corthex/light.tokens.json, color.sticky). A colour not listed gives NOTE.
+// sticky colours (corthex.sticky in design/corthex/light.tokens.json). A colour not listed gives NOTE.
 export const COLOURS = Object.freeze({
   orange: 'event',
   light_blue: 'command',
@@ -143,7 +143,8 @@ function noteOf(item, index, frames, textLimit) {
   return { id: item.id, step: framed ?? KIND_STEPS[kind], kind, text, x: position.x, y: position.y };
 }
 
-// A place moved by its step's smallest, which must lie within ±1,000,000.
+// A place moved by its step's smallest, which must lie within ±1,000,000. A number JSON.parse made Infinity, such as
+// 1e400, gives Infinity or NaN here, and is refused.
 function placed(value, smallest) {
   try {
     return coordinateOf(value - smallest, 'data');
@@ -162,7 +163,7 @@ export function readMiroBoard(body, textLimit) {
   const frames = new Map();
   for (const item of data) {
     if (!isId(own(item, 'id')) || typeof own(item, 'type') !== 'string' || ids.has(item.id)) {
-      throw invalidRequest('data', `each item of data must be an object with its own id of 1 to ${ID_LENGTH} characters and a type`);
+      throw invalidRequest('data', `each item of data must be an object with a type and an id of 1 to ${ID_LENGTH} characters that no other item has`);
     }
     ids.add(item.id);
     if (item.type === 'frame') frames.set(item.id, stepOfTitle(own(own(item, 'data'), 'title')));

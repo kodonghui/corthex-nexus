@@ -38,9 +38,9 @@ import { pullRequestLink, sessionOf } from './claims.js';
 import { boundedText, emptyOf, formOf, onlyFields } from './comments.js';
 import { isCheckpointStep, stepsChanged } from './entries.js';
 import { idOf, keyOf } from './ids.js';
+import { readMiroBoard } from './miro.js';
 import { STEPS } from './params.js';
 import { coordinateOf } from './positions.js';
-import { readMiroBoard } from './miro.js';
 import { invalidRequest, Problem } from './problem.js';
 
 // The stage whose checkpoints steps 1-b, 7 and 9 pass (REQ-043).

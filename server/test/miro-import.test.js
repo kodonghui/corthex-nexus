@@ -264,12 +264,19 @@ describe('Miro import', () => {
     assert.deepEqual(read1.notes.map(({ step, x, y }) => [step, x, y]), [['1', 0, 0], ['1', 1000, 40], ['4', 0, 0]]);
     const { space, workshop } = await opened();
     const before = rows(workshop);
+    // A number JSON.parse makes Infinity passes as a number, and the place refuses it, alone or beside a finite one.
+    const infinite = (xs) => JSON.stringify(notesBoard(xs.map(() => ({})))).replace(/"x":0/gu, () => `"x":${xs.shift()}`);
     for (const body of [
       notesBoard([{ x: -600_000 }, { x: 600_000 }]),
       notesBoard([{ y: -1e308 }, { y: 1e308 }]),
+      infinite(['1e400']),
+      infinite(['-1e400']),
+      infinite(['1e400', '0']),
+      infinite(['1e400', '-1e400']),
     ]) {
       refusedOn(await importing(space.name, body), 'data');
     }
+    assert.equal(JSON.parse(infinite(['1e400'])).data[0].position.x, Infinity);
     // Notes far apart in different steps are each placed in their own.
     assert.equal((await importing(space.name, notesBoard([{ x: -900_000 }, { colour: 'red', x: 900_000 }]))).status, 201);
     assert.deepEqual(rows(workshop).notes.slice(before.notes.length).map((row) => [row.step, Number(row.x), Number(row.y)]), [['1', 0, 0], ['4', 0, 0]]);
