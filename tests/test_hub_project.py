@@ -76,8 +76,11 @@ class HubCheckoutCase(unittest.TestCase):
         cls.git = git_program()
 
     def setUp(self):
-        self.base = Path(tempfile.mkdtemp(prefix="nexus-hub-project-"))
-        self.addCleanup(shutil.rmtree, str(self.base), True)
+        # TemporaryDirectory clears the read-only mark that Git puts on .git/objects files on Windows before it removes
+        # them; shutil.rmtree with ignore_errors left those files, and the folder, behind after every test.
+        folder = tempfile.TemporaryDirectory(prefix="nexus-hub-project-")
+        self.addCleanup(folder.cleanup)
+        self.base = Path(folder.name)
         self.work = self.base / "work"
         self.project = self.work / "project"
         self.project.mkdir(parents=True)
