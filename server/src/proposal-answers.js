@@ -20,8 +20,8 @@
 //     they change nothing. It gets document_changed naming the shown drawing and its version, so the owner asks for a
 //     new proposal.
 //   - A removed diagram takes no accepted proposal (SPEC-027). It gets document_changed too, as the contract's text
-//     says, naming the drawing the removed diagram still shows, its latest that drew, which the diagram read opens it
-//     at for its threads (note 7).
+//     says, naming the drawing the removed diagram still shows, its latest that drew, at which the diagram read opens
+//     it while something waits on it (note 7).
 // - Rejecting (API-271, SPEC-020) marks a proposed proposal rejected at decided_at; changeSetsChanged closes the
 //   owner's proposal entry as done, and the diagram read no longer lays it over the diagram. Rejected again, it answers
 //   changed false; accepted, reflected or cancelled, it gets change_set_state with its state. A removed diagram's

@@ -21,7 +21,7 @@ import { openStore } from '../src/store.js';
 import { responseRecord } from './responses.js';
 import { seed, TIME } from './seed.js';
 import { FORMAT_03, repositorySnapshot } from './snapshots.js';
-import { localGate, startServer, testStore, TRACE_ID } from './support.js';
+import { localGate, newId, startServer, testStore, TRACE_ID } from './support.js';
 import { checkLayer, checkTables, recordTables } from './tables.js';
 
 const at = (minutes) => new Date(Date.parse('2026-11-23T00:00:00.000Z') + minutes * 60 * 1000).toISOString();
@@ -347,6 +347,88 @@ describe('the diagram read', () => {
     s.removeDiagram(gone.id, false);
     answer = await read(space.name, gone.id);
     assert.deepEqual([answer.status, answer.json.removed, answer.json.threads[0].state], [200, false, 'closed']);
+  });
+
+  test('a removed diagram opens while a proposed AI proposal or a waiting direct edit keeps it, until the owner answers the last (SPEC-027, SPEC-020, TASK-468)', async () => {
+    const space = s.project();
+    let made = 0;
+    const removedErd = () => {
+      made += 1;
+      const erd = s.diagram(space, { sourceKey: `/pictures/05-erd/gone-${made}`, removed: true });
+      s.elements(erd.drawing, [table('TBL-146', 'agent_credentials', { box: box(0) })]);
+      return erd;
+    };
+    // The owner's writes, each with its own request key: rejecting a proposal (API-271), closing a thread (API-269)
+    // and cancelling a direct edit (API-273).
+    const write = async (action, path) => responses.note(action, await server.send({
+      method: 'POST', path, body: '{}',
+      headers: { ...owner(), 'Content-Type': 'application/json', 'Idempotency-Key': `"${newId('nw')}"` },
+    }));
+    const reject = (id) => write('rejectProposal', `/api/projects/${space.name}/change-sets/${idOf('np', id)}/reject`);
+    const close = (id) => write('closeThread', `/api/projects/${space.name}/threads/${idOf('nc', id)}/close`);
+    const cancel = (id) => write('cancelDirectEdit', `/api/projects/${space.name}/change-sets/${idOf('np', id)}/cancel`);
+    const opens = async (diagram) => {
+      const answer = await read(space.name, diagram.id);
+      assert.equal(answer.status, 200, answer.text);
+      assert.equal(answer.json.removed, true);
+      return answer.json;
+    };
+    const gone = async (diagram) => {
+      const answer = await read(space.name, diagram.id);
+      assert.deepEqual([answer.status, answer.json.code], [404, 'diagram_not_found']);
+    };
+
+    // A proposed AI proposal whose thread the owner closed keeps the diagram; rejecting it leaves nothing.
+    const asked = removedErd();
+    const askedThread = s.thread(asked, { target: 'diagram' });
+    const proposal = s.changeSet(space, asked, { origin: 'proposal', threadId: askedThread });
+    changeSetsChanged(db, { project: space.id, diagram: asked.id, time: at(1) });
+    assert.equal((await close(askedThread)).status, 200);
+    assert.deepEqual((await opens(asked)).overlays.map((overlay) => overlay.state), ['proposed']);
+    assert.equal((await reject(proposal)).status, 200);
+    await gone(asked);
+
+    // With its thread open, the rejection keeps the diagram (SPEC-020) until the owner closes the thread.
+    const open = removedErd();
+    const openThread = s.thread(open, { target: 'diagram' });
+    const openProposal = s.changeSet(space, open, { origin: 'proposal', threadId: openThread });
+    changeSetsChanged(db, { project: space.id, diagram: open.id, time: at(2) });
+    assert.equal((await reject(openProposal)).status, 200);
+    assert.deepEqual((await opens(open)).threads.map((thread) => thread.state), ['open']);
+    assert.equal((await close(openThread)).status, 200);
+    await gone(open);
+
+    // A direct edit waiting for reflection keeps it; cancelling it leaves nothing.
+    const edited = removedErd();
+    const edit = s.changeSet(space, edited);
+    s.change(edit, { element: 'TBL-146', name: 'agent_keys' });
+    changeSetsChanged(db, { project: space.id, diagram: edited.id, time: at(3) });
+    assert.deepEqual((await opens(edited)).overlays.map((overlay) => overlay.state), ['accepted']);
+    assert.equal((await cancel(edit)).status, 200);
+    await gone(edited);
+
+    // A withdrawn proposal and a reflected edit leave nothing either.
+    const withdrawn = removedErd();
+    const withdrawnSet = s.changeSet(space, withdrawn, { origin: 'proposal', threadId: s.thread(withdrawn, { target: 'diagram' }) });
+    s.closeThread(Number(db.prepare('SELECT thread_id FROM change_sets WHERE id = ?').get(withdrawnSet).thread_id));
+    await opens(withdrawn);
+    s.setChangeSet(withdrawnSet, { state: 'cancelled' });
+    await gone(withdrawn);
+    const reflected = removedErd();
+    const reflectedSet = s.changeSet(space, reflected);
+    await opens(reflected);
+    s.setChangeSet(reflectedSet, { reflectedDrawing: reflected.drawing });
+    await gone(reflected);
+
+    // An accepted AI proposal, which waits on the agent, and a live confirmation keep nothing.
+    const accepted = removedErd();
+    const acceptedThread = s.thread(accepted, { target: 'diagram' });
+    s.closeThread(acceptedThread);
+    s.changeSet(space, accepted, { origin: 'proposal', threadId: acceptedThread, state: 'accepted' });
+    await gone(accepted);
+    const confirmed = removedErd();
+    s.confirm(space, confirmed);
+    await gone(confirmed);
   });
 
   test('keeps to the contract\'s form whatever the stored rows hold', async () => {

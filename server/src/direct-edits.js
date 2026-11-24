@@ -61,7 +61,8 @@
 //   proposal, which the owner answers and does not cancel (API-270, API-271): the page offers Cancel edit on a direct
 //   edit only.
 // - A removed diagram's direct edit is cancelled like any other (note 8 of the WBS): SPEC-027 refuses a new thread, a
-//   move, a direct edit, accepting a proposal and confirming, and a cancel only takes a change out.
+//   move, a new direct edit, accepting a proposal and confirming, and a cancel only takes a change out. A waiting edit
+//   keeps the removed diagram listed and open (KEEPS_REMOVED in project.js), so the owner reaches it there.
 
 import { isElementKey, writeSteps } from './changes.js';
 import { pullRequestLink } from './claims.js';

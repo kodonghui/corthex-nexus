@@ -26,7 +26,7 @@
 //   diagram's own comments: target diagram, the key kept and removed_name its last readable name. When a later drawing
 //   has the element again, readable, its threads stay on the diagram and link to it again: removed_name is cleared. A
 //   failed drawing moves nothing, and neither does a 0.2 snapshot that keeps a stage's pictures, since it removes none.
-//   A removed diagram stays listed while it has open threads (project.js).
+//   A removed diagram stays listed while something waits on it (KEEPS_REMOVED in project.js).
 // - Positions (SPEC-012, TBL-154). Where the owner put an element stays while the drawing the diagram shows places it.
 //   A new drawing that drew drops the positions of the elements it no longer places, as positions.js's placeable
 //   says: an element that left the document, or one that no longer has a box of its own. An element drawn as

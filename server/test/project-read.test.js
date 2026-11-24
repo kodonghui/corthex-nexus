@@ -143,6 +143,53 @@ describe('the project read', () => {
     assert.equal(answer.json.stages.flatMap((row) => row.diagrams).some((each) => each.id === idOf('dg', closed.id)), false);
   });
 
+  test('a removed diagram is listed while a proposed AI proposal or a direct edit waiting for reflection keeps it, and not for an accepted proposal or a live confirmation (SPEC-027, SPEC-020, TASK-468)', async () => {
+    const space = s.project();
+    const flow = (key, name) => s.diagram(space, { stage: '03-user-flow', sourceKey: `docs/03-user-flow/${key}`, kind: 'user_flow', name, removed: true });
+    // A thread on the diagram that the owner closed.
+    const closedThread = (where) => {
+      const id = s.thread(where, { target: 'diagram' });
+      s.closeThread(id);
+      return id;
+    };
+    // Kept, each with its threads closed: a proposed AI proposal; a direct edit waiting for reflection; and one in an
+    // open pull request, which still waits.
+    const proposed = flow('FL-001-proposed.md', 'FL-001');
+    s.changeSet(space, proposed, { origin: 'proposal', threadId: closedThread(proposed) });
+    const edited = flow('FL-002-edited.md', 'FL-002');
+    s.changeSet(space, edited);
+    const linked = flow('FL-003-linked.md', 'FL-003');
+    s.changeSet(space, linked, { pullRequestId: s.pullRequest(space, { number: 7 }) });
+    // Kept by nothing: an accepted AI proposal, which waits on the agent; a live confirmation, recorded or not; a
+    // rejected and a withdrawn proposal; and a cancelled and a reflected edit; each with its threads closed.
+    const accepted = flow('FL-004-accepted.md', 'FL-004');
+    s.changeSet(space, accepted, { origin: 'proposal', threadId: closedThread(accepted), state: 'accepted' });
+    const confirmed = flow('FL-005-confirmed.md', 'FL-005');
+    s.confirm(space, confirmed);
+    const recorded = flow('FL-006-recorded.md', 'FL-006');
+    s.record(s.confirm(space, recorded));
+    const answered = flow('FL-007-answered.md', 'FL-007');
+    for (const state of ['rejected', 'cancelled']) s.changeSet(space, answered, { origin: 'proposal', threadId: closedThread(answered), state });
+    const done = flow('FL-008-done.md', 'FL-008');
+    s.changeSet(space, done, { state: 'cancelled' });
+    s.setChangeSet(s.changeSet(space, done), { reflectedDrawing: done.drawing });
+    // A rejected proposal's thread stays open (SPEC-020), so it keeps its diagram until the owner closes it.
+    const rejected = flow('FL-009-rejected.md', 'FL-009');
+    s.changeSet(space, rejected, { origin: 'proposal', threadId: s.thread(rejected, { target: 'diagram' }), state: 'rejected' });
+
+    const answer = await read(space.name);
+    assert.equal(answer.status, 200);
+    const flows = rowOf(answer, '03-user-flow');
+    assert.deepEqual(flows.diagrams.map((each) => [each.name, each.removed, each.waiting, each.open_threads]), [
+      ['FL-001', true, 0, 0],
+      ['FL-002', true, 1, 0],
+      ['FL-003', true, 1, 0],
+      ['FL-009', true, 0, 1],
+    ]);
+    // A removed diagram makes no row open, whatever keeps it listed.
+    assert.deepEqual([flows.state, flows.passed_at], ['not_sent', null]);
+  });
+
   test('groups the stages by part, and shows every diagram\'s state, the tool links and the latest workshop (SPEC-005, SPEC-046)', async () => {
     const pictures = [
       { part: 'web', stage: '09-mockup', key: 'design/web-mockup.html', commit: '' },

@@ -7,7 +7,8 @@
 // draws a moved box at its place, routes its lines and keeps the other boxes clear of it (TASK-458).
 //
 // - Which diagram: one of the project's, of a stage the contract names, that no snapshot removed. A removed diagram
-//   opens for its threads only and takes no move (SPEC-027): it answers diagram_not_found, as a direct edit there does.
+//   opens only for what waits on it and takes no move (SPEC-027): it answers diagram_not_found, as a new direct edit
+//   there does.
 // - Which element: one of the drawing the diagram shows, its latest that drew, so a move still works while its latest
 //   drawing failed (SPEC-001). The body names no drawing, so a page opened before the latest push moves an element
 //   that drawing still holds, and gets element_not_found for one it no longer holds. A diagram that never drew has no
