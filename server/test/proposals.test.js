@@ -3,8 +3,10 @@
 // claims they change, the tables they touch (note 23) and their log lines. The project's diagrams, drawings, elements
 // and threads are written straight into the store with test/seed.js, as the push and the owner's operations of other
 // tasks would write them; the drawings of stage 03 and 08 are this repository's own flow and screen files, drawn by
-// their drawers as a push draws them, and those of the space sources, for TASK-466, the pinned hub's pictures of this
-// repository's db/nexus.sql and docs/07-sitemap/nexus.yaml (erd-picture.json and sitemap-picture.json).
+// their drawers as a push draws them, and those of the space sources, for TASK-466 and TASK-470, the pinned hub's
+// pictures of this repository's docs/01-domain/nexus.md, db/nexus.sql and docs/07-sitemap/nexus.yaml
+// (ddd-board-picture.json, erd-picture.json and sitemap-picture.json), and in its part split, pictures read from two
+// files each, all kept in the snapshot as the push sent them.
 
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -15,8 +17,10 @@ import { TRACE_ID as ITEM_ID } from '../src/drawer.js';
 import { drawProposed, pictureWarnings } from '../src/drawing.js';
 import { threadChanged } from '../src/entries.js';
 import { idOf } from '../src/ids.js';
+import { readDomainPicture } from '../src/domain-picture.js';
 import { idFormat } from '../src/picture-text.js';
 import { ROUTES } from '../src/routes.js';
+import { readSitemapPicture } from '../src/sitemap-picture.js';
 import { readSqlPicture } from '../src/sql-picture.js';
 import { openStore } from '../src/store.js';
 import { read } from './contract.js';
@@ -66,6 +70,55 @@ const ERD_PICTURE = fixture('erd-picture.json');
 const SITEMAP_PICTURE = fixture('sitemap-picture.json');
 const SQL_TEXT = read('db/nexus.sql');
 const YAML_TEXT = read('docs/07-sitemap/nexus.yaml');
+// TASK-470: the pinned hub's stage-01 picture of this repository's domain document, and its text.
+const DDD_PICTURE = fixture('ddd-board-picture.json');
+const DOMAIN_FILE = 'docs/01-domain/nexus.md';
+const DOMAIN_TEXT = read(DOMAIN_FILE);
+// TASK-470: part split's board, ERD and sitemap, each read from two files. In the ERD, db/left.sql gives a table of
+// db/right.sql a foreign key and has a unique index the hub leaves out.
+const COMMANDS = '| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n';
+const SPLIT_DOMAIN = [
+  ['docs/01-domain/a.md', `### CTX-301 Ordering\n\n${COMMANDS}| Customer | Basket | Place order | Order | Order placed |\n`],
+  ['docs/01-domain/b.md', `### CTX-302 Billing\n\n${COMMANDS}| Bank | Ledger | Record payment | Invoice | Invoice paid |\n`],
+];
+const SPLIT_SQL = [
+  ['db/left.sql', '-- TBL-301 left items\nCREATE TABLE left_items (id INTEGER PRIMARY KEY, code TEXT);\n'
+    + 'CREATE UNIQUE INDEX left_code ON left_items (lower(code));\n'
+    + 'ALTER TABLE right_items ADD FOREIGN KEY (left_id) REFERENCES left_items (id);\n'],
+  ['db/right.sql', '-- TBL-302 right items\nCREATE TABLE right_items (id INTEGER PRIMARY KEY, left_id INTEGER);\n'],
+];
+const SPLIT_YAML = [
+  ['docs/07-sitemap/a.yaml', '- id: SCR-301\n  name: Start\n  children:\n    - id: SCR-302\n      name: Orders\n'],
+  ['docs/07-sitemap/b.yaml', '- id: SCR-303\n  name: Billing\n  children:\n    - id: SCR-304\n      name: Invoices\n'],
+];
+const SPLIT = [
+  { stage: '01-domain', kind: 'ddd_board', name: 'DDD board', ...readDomainPicture(SPLIT_DOMAIN, { part: 'split' }), files: SPLIT_DOMAIN },
+  { stage: '05-erd', kind: 'erd', name: 'ERD', ...readSqlPicture(SPLIT_SQL, { part: 'split' }), files: SPLIT_SQL },
+  { stage: '07-sitemap', kind: 'sitemap', name: 'Sitemap', ...readSitemapPicture(SPLIT_YAML, { part: 'split' }), files: SPLIT_YAML },
+];
+const SPLIT_LEFT_OUT = 'unique index has an unreadable column expression; rule omitted';
+// The Codex review's case: part cut's board, ERD and sitemap, each read from two files whose second takes the list one
+// past its limit, so that the hub cut it in that file and warned of it.
+const id3 = (n) => String(n).padStart(3, '0');
+const CUT = [
+  ['01-domain', 'ddd_board', 'DDD board', 'CTX-401', readDomainPicture, [
+    ['docs/01-domain/a.md', '### CTX-401 A\n'],
+    ['docs/01-domain/b.md', Array.from({ length: 200 }, (_, n) => `### CTX-${id3(402 + n)} B${n}\n`).join('\n')],
+  ]],
+  ['05-erd', 'erd', 'ERD', 'TBL-401', readSqlPicture, [
+    ['db/a.sql', '-- TBL-401 a one\nCREATE TABLE a_one (id INTEGER);\n'],
+    ['db/b.sql', Array.from({ length: 500 }, (_, n) => `CREATE TABLE b${n} (id INTEGER);\n`).join('')],
+  ]],
+  ['07-sitemap', 'sitemap', 'Sitemap', 'SCR-401', readSitemapPicture, [
+    ['docs/07-sitemap/a.yaml', '- id: SCR-401\n  name: A\n'],
+    ['docs/07-sitemap/b.yaml', Array.from({ length: 500 }, (_, n) => `- id: SCR-${id3(402 + n)}\n  name: B${n}\n`).join('')],
+  ]],
+].map(([stage, kind, name, item, read, files]) => ({ stage, kind, name, item, files, ...read(files, { part: 'cut' }) }));
+// The hub's warning of a file past its limit of files, which it did not read: a left_out element of part own's ERD,
+// whose file it does not make one of the drawing's files.
+const OWN_NOT_READ = {
+  rule: 'picture-partial', level: 'warn', message: 'db/zz.sql:1: first of 2 supported sources omitted after 500 files', by: 'scan', stage: '05-erd', part: 'own',
+};
 // The proposed schema: request_keys renamed, the elements' drawing_id referencing diagrams in place of drawings, a
 // column's type changed, restore_rehearsals removed, agent_notes added with a foreign key, a unique index on an
 // expression, which the hub leaves out, and a view, which it passes over.
@@ -124,6 +177,7 @@ describe('agent proposals', () => {
   let board;
   let sitemap;
   let sources;
+  let cut;
   let clock = START;
 
   // An element of a drawing, by its trace ID, which is its key (TBL-153).
@@ -135,10 +189,13 @@ describe('agent proposals', () => {
   };
   // A stage's picture drawn as the push draws it, with the hub's warnings; an element keyed by a trace ID holds it.
   const drawPicture = (drawing, stage, kind, part, { source, picture, checks }) => {
-    const { elements } = drawProposed({
-      stage, part, kind, key: null, source, text: JSON.stringify(picture), warnings: pictureWarnings(checks, stage, part),
-    });
-    s.elements(drawing, elements.map((each) => ({ ...each, trace_id: ITEM_ID.test(each.key) ? each.key : null })));
+    const warnings = pictureWarnings(checks, stage, part);
+    const { elements } = drawProposed({ stage, part, kind, key: null, source, text: JSON.stringify(picture), warnings });
+    // A push keeps each warning's element as left_out, a status drawProposed does not give.
+    const left = new Set(warnings.map(({ detail }) => detail));
+    s.elements(drawing, elements.map((each) => ({
+      ...each, trace_id: ITEM_ID.test(each.key) ? each.key : null, status: left.has(each.name) ? 'left_out' : null,
+    })));
   };
 
   // Sends a write of action with its JSON body, request key and session, and checks the answer against the contract.
@@ -241,20 +298,37 @@ describe('agent proposals', () => {
     commits.push(space.commit);
     // TASK-466: a space whose ERD and sitemap are the pinned hub's pictures of this repository's schema and sitemap;
     // in part own an ERD of the project's own table ID prefix, and in part split one drawn from two files.
-    sources = s.project('sources', { parts: ['nexus', 'own', 'split'] });
+    // TASK-470: its board too, and in part split a board, an ERD and a sitemap each drawn from two files; the snapshot
+    // keeps each picture as the push sent it, and the hub's checks.
+    sources = s.project('sources', { parts: ['nexus', 'own', 'split'], checks: [...SPLIT.flatMap((each) => each.checks), OWN_NOT_READ] });
+    const keep = (stage, part, picture) => s.document(sources, `/pictures/${stage}/${part}`, stage, JSON.stringify(picture));
     const schema = s.diagram(sources, { sourceKey: '/pictures/05-erd/nexus' });
     drawPicture(schema.drawing, '05-erd', 'erd', 'nexus', ERD_PICTURE);
+    keep('05-erd', 'nexus', ERD_PICTURE.picture);
     const screens = s.diagram(sources, { stage: '07-sitemap', sourceKey: '/pictures/07-sitemap/nexus', kind: 'sitemap', name: 'Sitemap' });
     drawPicture(screens.drawing, '07-sitemap', 'sitemap', 'nexus', SITEMAP_PICTURE);
+    keep('07-sitemap', 'nexus', SITEMAP_PICTURE.picture);
+    const domain = s.diagram(sources, { stage: '01-domain', sourceKey: '/pictures/01-domain/nexus', kind: 'ddd_board', name: 'DDD board' });
+    drawPicture(domain.drawing, '01-domain', 'ddd_board', 'nexus', DDD_PICTURE);
+    keep('01-domain', 'nexus', DDD_PICTURE.picture);
     const own = s.diagram(sources, { sourceKey: '/pictures/05-erd/own' });
     const ownSql = '-- T-1 users of the own part\nCREATE TABLE users (id INTEGER PRIMARY KEY);\n';
     const ownPicture = readSqlPicture([['db/own.sql', ownSql]], { ids: idFormat([['T', 'table']]), part: 'own' });
+    ownPicture.checks.push(OWN_NOT_READ);
     drawPicture(own.drawing, '05-erd', 'erd', 'own', { source: 'db/own.sql', ...ownPicture });
-    const split = s.diagram(sources, { sourceKey: '/pictures/05-erd/split' });
-    s.elements(split.drawing, [
-      { key: 'TBL-301', trace_id: 'TBL-301', kind: 'table', name: 'left', detail: { where: 'db/left.sql:2' } },
-      { key: 'TBL-302', trace_id: 'TBL-302', kind: 'table', name: 'right', detail: { where: 'db/right.sql:2' } },
-    ]);
+    keep('05-erd', 'own', ownPicture.picture);
+    for (const { stage, kind, name, picture, checks, files } of SPLIT) {
+      const split = s.diagram(sources, { stage, sourceKey: `/pictures/${stage}/split`, kind, name });
+      drawPicture(split.drawing, stage, kind, 'split', { source: files[0][0], picture, checks });
+      keep(stage, 'split', picture);
+    }
+    // The Codex review's case, in a space of its own.
+    cut = s.project('cut', { parts: ['cut'], checks: CUT.flatMap((each) => each.checks) });
+    for (const { stage, kind, name, picture, checks, files } of CUT) {
+      const drawn = s.diagram(cut, { stage, sourceKey: `/pictures/${stage}/cut`, kind, name });
+      drawPicture(drawn.drawing, stage, kind, 'cut', { source: files[0][0], picture, checks });
+      s.document(cut, `/pictures/${stage}/cut`, stage, JSON.stringify(picture));
+    }
     // A space whose stage 08 shows its item table, and whose other stages drew nothing.
     bare = s.project('bare');
     bareItems = s.diagram(bare, { stage: '08-screen-states', sourceKey: '/items/08-screen-states', kind: 'item_table', name: 'Item table' });
@@ -362,12 +436,153 @@ describe('agent proposals', () => {
     assert.equal(count('change_sets'), sets);
   });
 
-  test('on stage 01, and on 05 drawn from several files, source_text is kept and makes no change: the items carry the change text', async () => {
+  test('with source_text on stage 01, NEXUS reads the Markdown as the pinned hub does, and the differences become changes (TASK-470)', async () => {
     clock = START + 3 * MINUTE;
-    const domain = await propose({ ...erdProposal({ stage: '01-domain', items: ['CTX-038'] }), source_text: '# Domain\n' });
-    assert.deepEqual([domain.status, domain.json.diagram, domain.json.source_text, domain.json.changes], [201, idOf('dg', board.id), true, []]);
-    const split = await sourceProposal({ part: 'split', items: ['TBL-301'], source_text: 'CREATE TABLE agent_keys (id INTEGER PRIMARY KEY);' });
-    assert.deepEqual([split.status, split.json.source_text, split.json.changes, split.json.items], [201, true, [], ['TBL-301']]);
+    const domainAt = (extra) => sourceProposal({ stage: '01-domain', items: ['CTX-038'], ...extra });
+    const renamed = DOMAIN_TEXT.replace('### CTX-038 Review\n', '### CTX-038 Review and proposals\n');
+    assert.notEqual(renamed, DOMAIN_TEXT);
+    const answer = await domainAt({ source_text: renamed });
+    assert.equal(answer.status, 201);
+    assert.deepEqual([answer.json.source_text, answer.json.items, answer.json.changes],
+      [true, ['CTX-038'], [{ op: 'rename', element: 'CTX-038', name: 'Review and proposals', target: null }]]);
+    // The document as it is makes no change, nor does it with a byte order mark, nor a path that names its one file.
+    for (const extra of [{ source_text: DOMAIN_TEXT }, { source_text: `\uFEFF${DOMAIN_TEXT}` }, { source_text: DOMAIN_TEXT, source_path: DOMAIN_FILE }]) {
+      const same = await domainAt(extra);
+      assert.deepEqual([same.status, same.json.changes], [201, []], Object.keys(extra).join());
+    }
+    // The path is not kept.
+    assert.deepEqual(Object.keys(JSON.parse(setRow(lastSet()).detail)), ['items', 'reason', 'change', 'source_text']);
+    // Markdown that reads no context is refused, and nothing is written.
+    const sets = count('change_sets');
+    const none = await domainAt({ source_text: '# Domain\n\nNo context here.\n' });
+    assert.deepEqual([none.status, none.json.code, none.json.field, none.json.detail], [400, 'invalid_request', 'source_text', 'source_text reads no context']);
+    assert.equal(count('change_sets'), sets);
+  });
+
+  test('with source_text and source_path on a drawing of several files, the text takes that file\'s place, and only its differences are changes (TASK-470)', async () => {
+    clock = START + 3 * MINUTE;
+    const splitAt = (stage, items, path, text) => sourceProposal({ part: 'split', stage, items, source_path: path, source_text: text });
+    const [domain, sql, yaml] = SPLIT.map((each) => Object.fromEntries(each.files));
+    // Stage 01: a context of b.md renamed; a.md's context and stickies stay.
+    const board = await splitAt('01-domain', ['CTX-302'], 'docs/01-domain/b.md', domain['docs/01-domain/b.md'].replace('CTX-302 Billing', 'CTX-302 Payments'));
+    assert.deepEqual([board.status, board.json.changes], [201, [{ op: 'rename', element: 'CTX-302', name: 'Payments', target: null }]]);
+    // Stage 05: a table added to db/right.sql with a foreign key; the foreign key db/left.sql gives its table and the
+    // unique index the hub left out of db/left.sql stay.
+    const added = `${sql['db/right.sql']}-- TBL-303 extras\nCREATE TABLE extras (id INTEGER PRIMARY KEY, right_id INTEGER REFERENCES right_items (id));\n`;
+    const right = await splitAt('05-erd', ['TBL-302'], 'db/right.sql', added);
+    assert.deepEqual([right.status, right.json.changes], [201, [
+      { op: 'add', element: 'TBL-303', name: 'extras', target: null },
+      { op: 'connect', element: 'TBL-303', name: 'right_id', target: 'TBL-302' },
+    ]]);
+    // A table of db/left.sql renamed, the table its ALTER TABLE reaches in db/right.sql keeping its foreign key.
+    const left = await splitAt('05-erd', ['TBL-301'], 'db/left.sql', sql['db/left.sql'].replaceAll('left_items', 'left_rows'));
+    assert.deepEqual([left.status, left.json.changes], [201, [{ op: 'rename', element: 'TBL-301', name: 'left_rows', target: null }]]);
+    // Without the unique index, what the hub left out of it goes.
+    const index = await splitAt('05-erd', ['TBL-301'], 'db/left.sql', sql['db/left.sql'].replace(/CREATE UNIQUE INDEX[^\n]*\n/u, ''));
+    assert.deepEqual([index.status, index.json.changes], [201, [{ op: 'remove', element: `statement:${SPLIT_LEFT_OUT}`, name: null, target: null }]]);
+    // Stage 07: a screen added in a.yaml, which moves b.yaml's screens down the hub's list; they make no change.
+    const screens = `${yaml['docs/07-sitemap/a.yaml']}    - id: SCR-305\n      name: Baskets\n`;
+    const sitemap = await splitAt('07-sitemap', ['SCR-301'], 'docs/07-sitemap/a.yaml', screens);
+    assert.deepEqual([sitemap.status, sitemap.json.changes], [201, [
+      { op: 'add', element: 'SCR-305', name: 'Baskets', target: null },
+      { op: 'connect', element: 'SCR-301', name: 'Baskets', target: 'SCR-305' },
+    ]]);
+    // A file left with none of its own entries still takes its place: what it gave the picture goes, and the other
+    // file's entries stay.
+    for (const [stage, path, text, gone, other] of [
+      ['01-domain', 'docs/01-domain/b.md', '# Billing\n\nNot yet.\n', 'CTX-302', 'CTX-301'],
+      ['05-erd', 'db/right.sql', '-- no table yet\n', 'TBL-302', 'TBL-301'],
+      ['07-sitemap', 'docs/07-sitemap/b.yaml', '# no screen yet\n', 'SCR-303', 'SCR-301'],
+    ]) {
+      const emptied = await splitAt(stage, [gone], path, text);
+      assert.equal(emptied.status, 201, path);
+      assert.ok(emptied.json.changes.some(({ op, element }) => op === 'remove' && element === gone), path);
+      assert.ok(emptied.json.changes.every(({ element }) => element !== other), path);
+    }
+    // Each file as it is makes no change.
+    for (const { stage, files } of SPLIT) {
+      for (const [path, text] of files) {
+        const items = [{ '01-domain': 'CTX-301', '05-erd': 'TBL-301', '07-sitemap': 'SCR-301' }[stage]];
+        const same = await splitAt(stage, items, path, text);
+        assert.deepEqual([same.status, same.json.changes], [201, []], path);
+      }
+    }
+  });
+
+  test('a text with a byte order mark reads as the hub reads the same file in a push, on a drawing of one file and of several (TASK-470)', async () => {
+    clock = START + 3 * MINUTE;
+    // The hub decodes a push's files as utf-8-sig, so each file as it is, with a byte order mark, makes no change.
+    const one = await sourceProposal({ stage: '01-domain', items: ['CTX-038'], source_text: `\uFEFF${DOMAIN_TEXT}` });
+    assert.deepEqual([one.status, one.json.changes], [201, []]);
+    for (const { stage, files } of SPLIT) {
+      for (const [path, text] of files) {
+        const items = [{ '01-domain': 'CTX-301', '05-erd': 'TBL-301', '07-sitemap': 'SCR-301' }[stage]];
+        const marked = await sourceProposal({ part: 'split', stage, items, source_path: path, source_text: `\uFEFF${text}` });
+        assert.deepEqual([marked.status, marked.json.changes], [201, []], path);
+      }
+    }
+  });
+
+  test('SQL that only alters another file\'s table, on a drawing of several files, takes its file\'s place and is not refused (TASK-470)', async () => {
+    clock = START + 3 * MINUTE;
+    // The Claude review's case: db/right.sql with no table of its own. Its table goes, with the foreign key db/left.sql's
+    // ALTER TABLE gave it, and db/left.sql's table stays.
+    const altered = await sourceProposal({
+      part: 'split', items: ['TBL-302'], source_path: 'db/right.sql', source_text: 'ALTER TABLE left_items ADD COLUMN note TEXT;\n',
+    });
+    assert.deepEqual([altered.status, altered.json.changes], [201, [
+      { op: 'remove', element: 'TBL-302', name: null, target: null },
+      { op: 'remove', element: 'TBL-302/line:left_id', name: null, target: null },
+    ]]);
+  });
+
+  test("a push's check of a whole list's limit stays when the hub's cut may lie in a file the text does not replace (TASK-470, Codex review)", async () => {
+    clock = START + 3 * MINUTE;
+    for (const { stage, item, files, checks } of CUT) {
+      assert.equal(checks.filter(({ message }) => /exceeds its picture limit|later (?:tables|screens) are omitted/u.test(message)).length, 1, stage);
+      // Each file as it is makes no change: a.*, whose text does not hold the cut, keeps the push's check, and b.*,
+      // which holds it, makes it again.
+      for (const [path, text] of files) {
+        const same = await propose({
+          part: 'cut', stage, items: [item], reason: 'The list is long.', change: 'Keep it.', source_path: path, source_text: text,
+        }, { project: cut.name });
+        assert.deepEqual([same.status, same.json.changes], [201, []], path);
+      }
+    }
+  });
+
+  test('source_path is needed on a drawing of several files, and one that names no file the drawing reads is refused (TASK-470)', async () => {
+    const sets = count('change_sets');
+    const threads = count('comment_threads');
+    const needed = 'source_path is needed: the drawing reads several files';
+    const unknown = 'source_path names no file the drawing reads';
+    for (const [body, options, detail] of [
+      [{ part: 'split', items: ['TBL-301'], source_text: SPLIT_SQL[0][1] }, { project: sources.name }, needed],
+      [{ part: 'split', stage: '01-domain', items: ['CTX-301'], source_text: SPLIT_DOMAIN[0][1] }, { project: sources.name }, needed],
+      [{ part: 'split', stage: '07-sitemap', items: ['SCR-301'], source_text: SPLIT_YAML[0][1] }, { project: sources.name }, needed],
+      [{ part: 'split', items: ['TBL-301'], source_text: SPLIT_SQL[0][1], source_path: 'db/other.sql' }, { project: sources.name }, unknown],
+      // A path that differs from the file only in case, or that names the picture's key.
+      [{ part: 'split', items: ['TBL-301'], source_text: SPLIT_SQL[0][1], source_path: 'db/LEFT.sql' }, { project: sources.name }, unknown],
+      [{ part: 'split', items: ['TBL-301'], source_text: SPLIT_SQL[0][1], source_path: '/pictures/05-erd/split' }, { project: sources.name }, unknown],
+      // A file the hub did not read, of which the drawing holds only the hub's warning.
+      [{ part: 'own', items: ['T-1'], source_text: '-- T-1 users\nCREATE TABLE users (id INTEGER PRIMARY KEY);\n', source_path: 'db/zz.sql' }, { project: sources.name }, unknown],
+      // A drawing of one file, and one whose elements name no file.
+      [{ items: ['TBL-169'], source_text: SQL_TEXT, source_path: 'db/other.sql' }, { project: sources.name }, unknown],
+      [{ stage: '01-domain', items: ['CTX-038'], source_text: '### CTX-038 Review\n', source_path: DOMAIN_FILE }, {}, unknown],
+      // Stage 03 and 08 draw the file at the diagram's key.
+      [{ stage: '03-user-flow', items: ['FL-003'], source_text: FL3_TEXT, source_path: flow('FL-020') }, {}, unknown],
+      [{ stage: '08-screen-states', items: ['SCR-144'], source_text: SCR_TEXT, source_path: 'docs/08-screens/SCR-145.md' }, {}, unknown],
+    ]) {
+      const refused = await propose({ ...erdProposal(), ...body }, options);
+      const where = `${body.stage ?? '05-erd'} ${body.source_path ?? 'no path'}`;
+      assert.deepEqual([refused.status, refused.json.code, refused.json.field, refused.json.detail], [400, 'invalid_request', 'source_path', detail], where);
+      assert.equal(refused.text.includes(body.source_text.trim().split('\n')[0]), false, where);
+    }
+    assert.deepEqual([count('change_sets'), count('comment_threads')], [sets, threads]);
+    // On stage 03 the path that names the diagram's key is taken.
+    clock = START + 3 * MINUTE;
+    const named = await propose(flowProposal({ source_text: FL3_PROPOSED, source_path: FL3 }));
+    assert.deepEqual([named.status, named.json.changes], [201, FL3_CHANGES]);
   });
 
   test('with source_text on stage 05, NEXUS reads the SQL as the pinned hub does, and the differences become changes (TASK-466)', async () => {
@@ -386,7 +601,8 @@ describe('agent proposals', () => {
       const same = await sourceProposal({ source_text: text });
       assert.deepEqual([same.status, same.json.changes], [201, []]);
     }
-    // A table keyed by the project's own ID prefix, which the drawing's tables have, keeps its key.
+    // A table keyed by the project's own ID prefix, which the drawing's tables have, keeps its key. The file the hub
+    // did not read is not one of the drawing's files, so no source_path is needed, and its warning stays.
     const own = await sourceProposal({ part: 'own', items: ['T-1'], source_text: '-- T-1 members\nCREATE TABLE members (id INTEGER PRIMARY KEY);\n' });
     assert.deepEqual([own.status, own.json.changes], [201, [{ op: 'rename', element: 'T-1', name: 'members', target: null }]]);
   });
@@ -652,6 +868,12 @@ describe('agent proposals', () => {
       [erdProposal({ source_text: '' }), 'invalid_request', 'source_text'],
       [erdProposal({ source_text: 'x\uD800' }), 'invalid_request', 'source_text'],
       [erdProposal({ source_text: 'x'.repeat(1_000_001) }), 'text_too_long', 'source_text', 1_000_000],
+      [erdProposal({ source_path: 'db/nexus.sql' }), 'invalid_request', 'source_text'],
+      [erdProposal({ source_text: 'x', source_path: '' }), 'invalid_request', 'source_path'],
+      [erdProposal({ source_text: 'x', source_path: `${secretish}${'x'.repeat(301)}` }), 'invalid_request', 'source_path'],
+      [erdProposal({ source_text: 'x', source_path: 5 }), 'invalid_request', 'source_path'],
+      [erdProposal({ source_text: 'x', source_path: ['db/nexus.sql'] }), 'invalid_request', 'source_path'],
+      [erdProposal({ source_text: 'x', source_path: `${secretish}\uD800` }), 'invalid_request', 'source_path'],
       [erdProposal({ diagram: secretish }), 'invalid_request', 'diagram'],
       [erdProposal({ commit: 'abc' }), 'invalid_request', 'commit'],
       [erdProposal({ comment: secretish }), 'invalid_request', 'comment'],

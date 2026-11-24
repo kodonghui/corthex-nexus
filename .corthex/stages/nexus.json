@@ -369,10 +369,15 @@
           "approved": "The record's pull request on a confirmation, TASK-469, pull request 161, at commit 160ca69, approved before the code on the drafted text, which that commit holds unchanged (checked against the text asked): Confirmation, approved with id, diagram, drawing, version, state, confirmed_at, ended_at, recorded_at and cancel_recorded_at, gains pull_request (required, a Link or null, the shape of an overlay's pull_request in the same read), defined as the pull request of the record that is due, or of the last one recorded, as the agent reports it (API-259); the three examples that carry a confirmation gain pull_request: null; API-275's tables and API-276's tables gain TBL-157. No operation, status, code or spec row changes, and stage 05 does not change. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "A proposal's source path, TASK-470, pull request 163, at commit c0803cd, approved before the code on the drafted text, which that commit holds unchanged (checked against the text asked; no word of it changed up to f3a1f9c): ProposalRequest gains source_path, optional, 1 to 300 characters, allowed only with source_text, with its definition word for word; API-256's description reads the proposed document \"as the file source_path names where the drawing reads several\"; API-256's 400 response gains the examples source-path-unknown and source-path-needed, both invalid_request on source_path. API-256's tables, its operations, statuses, codes and spec rows, and stage 05 do not change: the path is not kept. Each of the three items was asked on its own, with the five rules TASK-470 needed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T14:36:57+09:00"
+      "updated": "2026-11-24T18:42:21+09:00"
     },
     "07-sitemap": {
       "state": "done",

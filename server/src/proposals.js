@@ -21,19 +21,23 @@
 //   drawing's version is refused as document_changed, naming the drawing and its version, unless NEXUS holds the commit
 //   and the diagram showed that same drawing at it: a push that left the diagram unchanged did not change its document.
 // - Changes. With source_text on stage 03 or 08, whose diagram is one file, NEXUS draws the text with that diagram's own
-//   drawer as the file at the diagram's key (drawing.js's drawProposed). On stage 05 or 07 (TASK-466) it reads the text
-//   as SQL or YAML into the picture the pinned hub would send (sql-picture.js, sitemap-picture.js), as the one file the
-//   current drawing's elements name in their where, with the hub's ID prefixes and those of the drawing's tables or
-//   screens, and draws that picture with the diagram's drawer, what the reading leaves out as its warnings, as a push
-//   draws it. It then compares the two drawings by element key: in the proposed drawing's order, an element only it has
-//   is a connect from its detail.from to its detail.to when it is a line or an arrow between two of its elements, and
-//   an add otherwise; a line or an arrow that both have but that joins other elements is a remove and then the connect
-//   (or add) of the new one; an element with another name is a rename; then each element only the current drawing has,
-//   in its order, is a remove. Every other difference, a position or a column among them, makes no change. A text that
-//   does not draw gets invalid_request on source_text, naming the line it fails at, and so do SQL that reads no table,
-//   YAML that reads no screen and more than 500 changes. On stage 01, and on 05 or 07 when the current drawing comes
-//   from several files, source_text is kept and makes no change: the change set marks its items with the change text,
-//   as without source_text (see the README's gap).
+//   drawer as the file at the diagram's key (drawing.js's drawProposed); a source_path other than that key names no
+//   file the drawing reads. On stage 01, 05 or 07 (TASK-466, TASK-470) it reads the text as Markdown, SQL or YAML into
+//   the picture the pinned hub would send (domain-picture.js, sql-picture.js, sitemap-picture.js), with the hub's ID
+//   prefixes and those of the drawing's own trace IDs, as the file source_path names, and puts it in place of what that
+//   file gave the drawing's picture, the one its push sent (picture-merge.js). The files the drawing reads are those
+//   its elements name in their where: when they are several, source_path is needed; with one, it may be left out and
+//   names that one when sent; with none, the text is the whole picture and source_path is left out. A source_path
+//   missing where it is needed, or naming no file the drawing reads, gets invalid_request on source_path, and it is
+//   not kept. NEXUS then draws that picture with the diagram's drawer as a push draws it, with the warnings the push
+//   kept of the other files and those of the reading. It then compares the two drawings by element key: in the
+//   proposed drawing's order, an element only it has is a connect from its detail.from to its detail.to when it is a
+//   line or an arrow between two of its elements, and an add otherwise; a line or an arrow that both have but that
+//   joins other elements is a remove and then the connect (or add) of the new one; an element with another name is a
+//   rename; then each element only the current drawing has, in its order, is a remove. Every other difference, a
+//   position or a column among them, makes no change. A text that does not draw gets invalid_request on source_text,
+//   naming the line it fails at, and so do Markdown that reads no context, SQL that reads no table, YAML that reads no
+//   screen and more than 500 changes. A text's leading byte order mark is not read, as the hub reads a file without it.
 // - The thread. Every proposal adds one agent entry to its thread, its change text, and the thread then waits on the
 //   owner. With comment, it is that thread, of the stage and part, as a reply's (comments.js's writeOnThread): a closed
 //   thread gets thread_closed, and while it waits on the agent, the proposal keeps the claim of its comment entry
@@ -55,22 +59,22 @@ import { MAX_TRACE_ID, TRACE_ID } from './drawer.js';
 import { diagramTraceId, drawProposed, pictureWarnings } from './drawing.js';
 import { changeSetsChanged, openAgentEntry, threadChanged } from './entries.js';
 import { idOf, keyOf } from './ids.js';
+import { fileOf, keepsListLimit, LIST_LIMITS, mergePicture } from './picture-merge.js';
 import { idFormat } from './picture-text.js';
 import { invalidRequest, Problem } from './problem.js';
 import { DIAGRAM_ORDER, projectHead } from './project.js';
 import { changeSetOf } from './reads.js';
-import { readSitemapPicture } from './sitemap-picture.js';
-import { readSqlPicture } from './sql-picture.js';
 import { diagramPart } from './todo.js';
 
 // The contract's ProposalStage; the stages of it whose diagram is one file, which source_text draws; and those whose
-// source_text NEXUS reads into the hub's picture (TASK-466): the reader, the picture's list, and the kind of element
-// and of trace ID each of its entries is.
+// source_text NEXUS reads into the hub's picture (TASK-466, TASK-470; picture-merge.js): the kind of entry the
+// picture must hold one of, and the kind of trace ID that the drawing's elements of each kind hold.
 const PROPOSAL_STAGES = Object.freeze(['01-domain', '03-user-flow', '05-erd', '07-sitemap', '08-screen-states']);
 const DRAWN_FROM_TEXT = new Set(['03-user-flow', '08-screen-states']);
 const READ_FROM_TEXT = new Map([
-  ['05-erd', Object.freeze({ read: readSqlPicture, list: 'tables', kind: 'table' })],
-  ['07-sitemap', Object.freeze({ read: readSitemapPicture, list: 'screens', kind: 'screen' })],
+  ['01-domain', Object.freeze({ kind: 'context', ids: Object.freeze({ context: 'context', aggregate: 'term', read_model: 'term' }) })],
+  ['05-erd', Object.freeze({ kind: 'table', ids: Object.freeze({ table: 'table' }) })],
+  ['07-sitemap', Object.freeze({ kind: 'screen', ids: Object.freeze({ screen: 'screen' }) })],
 ]);
 const ITEM_TABLE = 'item_table';
 // Elements that join two others: a connect when the proposed drawing adds one.
@@ -78,6 +82,8 @@ const JOINING = new Set(['line', 'arrow']);
 // The contract's limits and forms: ProposalRequest's items, adds and source_text, ChangeSet.changes, Problem.diagrams.
 const ITEMS = 50;
 const SOURCE_TEXT_LIMIT = 1_000_000;
+const SOURCE_PATH = /./su;
+const SOURCE_PATH_LIMIT = 300;
 const CHANGES = 500;
 const AMBIGUOUS_LISTED = 500;
 const PART = /^(?:[a-z0-9]+(?:-[a-z0-9]+)*)?$/;
@@ -86,7 +92,12 @@ const COMMIT = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/;
 const DIAGRAM = /^dg_[0-9a-hjkmnp-tv-z]{12}$/;
 const DISCREPANCY = /^nd_[0-9a-hjkmnp-tv-z]{12}$/;
 const COMMENT = /^nc_[0-9a-hjkmnp-tv-z]{12}$/;
-const FIELDS = new Set(['part', 'stage', 'diagram', 'commit', 'discrepancy', 'items', 'reason', 'change', 'adds', 'source_text', 'comment']);
+const FIELDS = new Set([
+  'part', 'stage', 'diagram', 'commit', 'discrepancy', 'items', 'reason', 'change', 'adds', 'source_text', 'source_path', 'comment',
+]);
+// The refusals of source_path, as the contract's examples of API-256 word them.
+const PATH_NEEDED = 'source_path is needed: the drawing reads several files';
+const PATH_UNKNOWN = 'source_path names no file the drawing reads';
 
 // The statements of each store, prepared on first use (see credentials.js).
 const prepared = new WeakMap();
@@ -120,7 +131,12 @@ function statementsOf(store) {
       holds: store.prepare(
         "SELECT 1 AS held FROM elements WHERE drawing_id = ? AND trace_id = ? AND (status IS NULL OR status <> 'unreadable') LIMIT 1",
       ),
-      elements: store.prepare('SELECT element_key, trace_id, kind, name, detail FROM elements WHERE drawing_id = ? ORDER BY id'),
+      elements: store.prepare('SELECT element_key, trace_id, kind, name, status, detail FROM elements WHERE drawing_id = ? ORDER BY id'),
+      // A document of the snapshot a drawing was drawn from: its picture, or the snapshot's rest with its checks.
+      document: store.prepare(
+        `SELECT b.body FROM drawings w JOIN snapshot_files f ON f.snapshot_id = w.snapshot_id AND f.path = ?
+         JOIN document_blobs b ON b.sha256 = f.blob_sha256 WHERE w.id = ?`,
+      ),
       insertChangeSet: store.prepare(
         `INSERT INTO change_sets (project_id, diagram_id, drawing_id, origin, thread_id, credential_id, state, created_at, detail)
          VALUES (?, ?, ?, 'proposal', ?, ?, 'proposed', ?, ?)`,
@@ -155,6 +171,10 @@ function traceIdsOf(body, field, { required = false } = {}) {
 // API-256's ProposalRequest.
 function proposalOf(body) {
   onlyFields(body, FIELDS);
+  // source_path comes only with source_text (the contract's if and then).
+  if (Object.hasOwn(body, 'source_path') && !Object.hasOwn(body, 'source_text')) {
+    throw invalidRequest('source_text', 'source_text is required with source_path');
+  }
   const part = formOf(body, 'part', { pattern: PART, length: PART_LENGTH, required: true });
   if (!Object.hasOwn(body, 'stage')) throw invalidRequest('stage', 'stage is required');
   if (!PROPOSAL_STAGES.includes(body.stage)) {
@@ -172,6 +192,7 @@ function proposalOf(body) {
     reason: textOf(body, 'reason'),
     change: textOf(body, 'change'),
     sourceText: Object.hasOwn(body, 'source_text') ? sourceTextOf(body.source_text) : undefined,
+    sourcePath: formOf(body, 'source_path', { pattern: SOURCE_PATH, length: SOURCE_PATH_LIMIT }),
   };
 }
 
@@ -273,31 +294,64 @@ function checkCommit(statements, project, diagram, drawing, commit) {
 }
 
 const nameOrNone = (name) => (name === '' ? null : name);
+const BYTE_ORDER_MARK = /^\uFEFF/u;
+// The snapshot's rest, which keeps its checks (snapshot.js), and as many warnings as a drawer gets (drawing.js).
+const REST = '/snapshot';
+const MAX_WARNINGS = 500;
 
-// The file of an element's where, a repository path and its line, such as db/nexus.sql:41; null for none.
-const LINED = /^(.+):[0-9]+$/su;
-function fileOf(where) {
-  if (typeof where !== 'string' || where === '') return null;
-  return LINED.exec(where)?.[1] ?? where;
+// A JSON document of the snapshot the drawing was drawn from, or null when it holds none.
+function documentOf(statements, drawing, path) {
+  const row = statements.document.get(path, Number(drawing.id));
+  if (row === undefined) return null;
+  try {
+    return JSON.parse(row.body);
+  } catch {
+    return null;
+  }
 }
 
-// The proposed drawing of a text on stage 05 or 07 (see the top of this file), as drawProposed gives it; null when the
-// current drawing comes from several files, or { failure: { line, says } } for a text that reads no table or screen.
-function readProposed(request, diagram, current) {
+// What the hub says of a file it did not read: one past its limit of files, or an object it could not read. Such a
+// file's warning is a left_out element of the drawing, but the drawing does not read the file.
+const NOT_READ = /^(?:first of [0-9]+ (?:supported sources omitted|files not read) after |source object is unreadable)/u;
+
+// The proposed drawing of a text on stage 01, 05 or 07 (see the top of this file), as drawProposed gives it, or
+// { failure: { line, says } } for a text that does not read, or that leaves the picture no context, table or screen.
+// Refuses source_path when the drawing's elements name several files and it is missing, and when it names none of
+// the files they name.
+function readProposed(statements, request, diagram, drawing, current) {
   const reader = READ_FROM_TEXT.get(diagram.stage);
-  const files = new Set(current.map(({ detail }) => fileOf(detail.where)).filter((file) => file !== null));
-  if (files.size > 1) return null;
-  const [file = diagram.source_key] = files;
-  // The prefixes of the drawing's own trace IDs of the reader's kind, which the project's ID formats may name.
+  const files = new Set(current
+    .filter((element) => !(element.status === 'left_out' && NOT_READ.test(element.name)))
+    .map(({ detail }) => fileOf(detail.where))
+    .filter((file) => file !== null));
+  if (request.sourcePath === undefined && files.size > 1) throw invalidRequest('source_path', PATH_NEEDED);
+  if (request.sourcePath !== undefined && !files.has(request.sourcePath)) throw invalidRequest('source_path', PATH_UNKNOWN);
+  const [named = diagram.source_key] = files;
+  const file = request.sourcePath ?? named;
+  // The prefixes of the drawing's own trace IDs, which the project's ID formats may name, by the kind each holds.
   const prefixes = current
-    .filter((element) => element.kind === reader.kind && typeof element.trace_id === 'string')
-    .map((element) => [element.trace_id.split('-')[0], reader.kind]);
-  const { picture, checks, failure } = reader.read([[file, request.sourceText]], { ids: idFormat(prefixes), part: request.part });
-  if (failure !== null && failure !== undefined) return { failure: { line: failure.line } };
-  if (picture === null || picture[reader.list].length === 0) return { failure: { line: null, says: `source_text reads no ${reader.kind}` } };
+    .filter((element) => Object.hasOwn(reader.ids, element.kind) && typeof element.trace_id === 'string')
+    .map((element) => [element.trace_id.split('-')[0], reader.ids[element.kind]]);
+  // The drawing's picture and what the hub left out of it, as the push gave them; with no file named, the text is all.
+  // The merge checks a whole list's limit again, so the push's check of one stays only when the hub's cut may lie in a
+  // file the text does not replace (picture-merge.js's keepsListLimit).
+  const limits = LIST_LIMITS.get(diagram.stage);
+  const picture = files.size > 0 ? documentOf(statements, drawing, diagram.source_key) : null;
+  const kept = picture === null ? [] : pictureWarnings(documentOf(statements, drawing, REST)?.checks, diagram.stage, request.part)
+    .filter((warning) => (limits.has(warning.detail) ? keepsListLimit(picture, file, warning) : warning.path !== file));
+  // A push reads a file without its byte order mark: the hub decodes it as utf-8-sig.
+  const text = request.sourceText.replace(BYTE_ORDER_MARK, '');
+  const read = mergePicture(diagram.stage, picture, file, text, { ids: idFormat(prefixes), part: request.part });
+  if (read.failure !== null && read.failure !== undefined) return { failure: { line: read.failure.line } };
+  if (read.empty) return { failure: { line: null, says: `source_text reads no ${reader.kind}` } };
+  // A table's limit that the merge checks again, as the push did for a table of another file, comes once, and a whole
+  // list's limit that the push's check keeps comes as the push gave it.
+  const keptLimits = new Set(kept.filter((warning) => limits.has(warning.detail)).map((warning) => warning.detail));
+  const fresh = pictureWarnings(read.checks, diagram.stage, request.part).filter((warning) => !keptLimits.has(warning.detail));
+  const same = (a, b) => a.path === b.path && a.line === b.line && a.detail === b.detail;
   return drawProposed({
-    stage: diagram.stage, part: request.part, kind: diagram.kind, key: null, source: file, text: JSON.stringify(picture),
-    warnings: pictureWarnings(checks, diagram.stage, request.part),
+    stage: diagram.stage, part: request.part, kind: diagram.kind, key: null, source: file, text: JSON.stringify(read.picture),
+    warnings: [...kept.filter((warning) => !fresh.some((each) => same(each, warning))), ...fresh].slice(0, MAX_WARNINGS),
   });
 }
 
@@ -309,9 +363,14 @@ function changesOf(statements, request, diagram, drawing) {
     const detail = element.detail === null ? null : JSON.parse(element.detail);
     return { ...element, detail: detail !== null && typeof detail === 'object' && !Array.isArray(detail) ? detail : {} };
   });
+  if (DRAWN_FROM_TEXT.has(diagram.stage) && request.sourcePath !== undefined && request.sourcePath !== diagram.source_key) {
+    throw invalidRequest('source_path', PATH_UNKNOWN);
+  }
   const proposed = DRAWN_FROM_TEXT.has(diagram.stage)
-    ? drawProposed({ stage: diagram.stage, part: request.part, kind: diagram.kind, key: diagram.source_key, text: request.sourceText })
-    : readProposed(request, diagram, current);
+    ? drawProposed({
+      stage: diagram.stage, part: request.part, kind: diagram.kind, key: diagram.source_key, text: request.sourceText.replace(BYTE_ORDER_MARK, ''),
+    })
+    : readProposed(statements, request, diagram, drawing, current);
   if (proposed === null) return [];
   if (proposed.failure !== undefined) {
     const { line, says = 'source_text does not draw' } = proposed.failure;

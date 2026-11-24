@@ -1,6 +1,2202 @@
 {
- "about": "The pinned hub's pictures and checks of SQL and YAML texts this repository's own files do not show, which NEXUS's readers must make alike. tests/test_picture_cases.py checks them against the pinned hub and says how to make them again.",
+ "about": "The pinned hub's pictures and checks of Markdown, SQL and YAML texts this repository's own files do not show, and of files with one file's text replaced, which NEXUS's readers must make alike. tests/test_picture_cases.py checks them against the pinned hub and says how to make them again.",
  "cases": [
+  {
+   "name": "Markdown, English tables: contexts, commands, read models, the glossary, dependencies, hotspots, a timeline",
+   "stage": "01-domain",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/01-domain/shop.md",
+     "# Shop domain\n\n## 2. Event storming\n\n| Lane | Events |\n| --- | --- |\n| Orders | Order placed or Order rejected \u2192 Order paid, or Order cancelled \u2192 Order shipped |\n| Empty | |\n| Many | a \u2192 b or c or d |\n\n## 3. Contexts\n\n| Context | Type | Aggregates |\n| :--- | ---: | :---: |\n| CTX-1 | **core** | Order (TERM-1), Customer, Basket TERM-9 |\n| CTX-2 Billing | supporting | Invoice<br>Payment<br/>Refund |\n| CTX-9 | generic | \u2014 |\n\n## 4. Context tables\n\n### CTX-1 **Ordering** \u2014 the shop\nPurpose: take an order &amp; keep it\n- External systems: [Payment gateway](https://example.invalid/pay) <b>and</b> mail\n\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Customer | Basket view | Place order | Order | Order placed, or Order rejected |\n| Policy: when paid | Order list | Ship order | Order | Order shipped |\n| Customer | Order list | Cancel order | Order (TERM-1) | Order cancelled, |\n| ~~Old actor~~ | | Old command | none | |\n\n| Read model | Shows |\n| --- | --- |\n| Basket view | the basket |\n| Order list | orders |\n| Unused view | nothing |\n\n#### Notes under the context\n\nPurpose: still the context's\n\n### CTX-2 Billing\n\nPurpose: bill\n\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Bank | Ledger | Record payment | Invoice, Payment | Payment recorded |\n\n```\n### CTX-8 in a fence\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| x | y | z | w | v |\n```\n\n~~### CTX-7 struck~~\n\n## 5. Dependencies\n\n| From | To | Kind | Why | Data |\n| --- | --- | --- | --- | --- |\n| CTX-1 | CTX-2 | call | Bill the order | order total |\n| CTX-2 | CTX-1 | Event | Paid | invoice id |\n| Mail | CTX-1 | other | x | y |\n\n## 6. Hotspots\n\n| Hotspot | Context | State | Answer or next step |\n| --- | --- | --- | --- |\n| 1. Who pays? | CTX-1, CTX-2 | open | ask |\n| 0 zero | CTX-1 | answered | |\n| 12) twelve | | open | |\n| no number | CTX-9 | open | |\n| 3.not spaced | CTX-1 | open | |\n\n## 7. Glossary\n\n| ID | Term | Status |\n| --- | --- | --- |\n| TERM-1 | Order | |\n| TERM-2 | Customer | |\n| TERM-3 | Customer | |\n| TERM-4 | Basket view | removed |\n| TERM-5 | Invoice | deleted, for now |\n| TERM-6 | [Ledger](https://example.invalid/l) | |\n| CTX-2 | Billing | removed |\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "Customer has multiple glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-1"
+     ],
+     "args": {
+      "name": "Customer",
+      "context": "CTX-1"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "Payment has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-2"
+     ],
+     "args": {
+      "name": "Payment",
+      "context": "CTX-2"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "Refund has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-2"
+     ],
+     "args": {
+      "name": "Refund",
+      "context": "CTX-2"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "Order list has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-1"
+     ],
+     "args": {
+      "name": "Order list",
+      "context": "CTX-1"
+     },
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "contexts": [
+     {
+      "id": "CTX-1",
+      "name": "Ordering \u2014 the shop",
+      "type": "core",
+      "purpose": "still the context's",
+      "removed": false,
+      "external": "Payment gateway and mail",
+      "rows": [
+       {
+        "given_by": "Customer",
+        "policy": false,
+        "read_model": "Basket view",
+        "command": "Place order",
+        "aggregate": "Order",
+        "events": [
+         "Order placed",
+         "Order rejected"
+        ],
+        "where": "docs/01-domain/shop.md:27"
+       },
+       {
+        "given_by": "Policy: when paid",
+        "policy": true,
+        "read_model": "Order list",
+        "command": "Ship order",
+        "aggregate": "Order",
+        "events": [
+         "Order shipped"
+        ],
+        "where": "docs/01-domain/shop.md:28"
+       },
+       {
+        "given_by": "Customer",
+        "policy": false,
+        "read_model": "Order list",
+        "command": "Cancel order",
+        "aggregate": "Order (TERM-1)",
+        "events": [
+         "Order cancelled"
+        ],
+        "where": "docs/01-domain/shop.md:29"
+       },
+       {
+        "given_by": "",
+        "policy": false,
+        "read_model": "",
+        "command": "Old command",
+        "aggregate": "none",
+        "events": [],
+        "where": "docs/01-domain/shop.md:30"
+       }
+      ],
+      "where": "docs/01-domain/shop.md:21"
+     },
+     {
+      "id": "CTX-2",
+      "name": "Billing",
+      "type": "supporting",
+      "purpose": "bill",
+      "removed": true,
+      "external": "",
+      "rows": [
+       {
+        "given_by": "Bank",
+        "policy": false,
+        "read_model": "Ledger",
+        "command": "Record payment",
+        "aggregate": "Invoice, Payment",
+        "events": [
+         "Payment recorded"
+        ],
+        "where": "docs/01-domain/shop.md:48"
+       }
+      ],
+      "where": "docs/01-domain/shop.md:42"
+     }
+    ],
+    "aggregates": [
+     {
+      "name": "Order",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/shop.md:15",
+      "term": "TERM-1"
+     },
+     {
+      "name": "Customer",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/shop.md:15",
+      "term": "TERM-2"
+     },
+     {
+      "name": "Basket",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/shop.md:15",
+      "term": "TERM-9"
+     },
+     {
+      "name": "Invoice",
+      "context": "CTX-2",
+      "removed": true,
+      "where": "docs/01-domain/shop.md:16",
+      "term": "TERM-5"
+     },
+     {
+      "name": "Payment",
+      "context": "CTX-2",
+      "removed": false,
+      "where": "docs/01-domain/shop.md:16"
+     },
+     {
+      "name": "Refund",
+      "context": "CTX-2",
+      "removed": false,
+      "where": "docs/01-domain/shop.md:16"
+     }
+    ],
+    "read_models": [
+     {
+      "name": "Basket view",
+      "context": "CTX-1",
+      "removed": true,
+      "where": "docs/01-domain/shop.md:27",
+      "term": "TERM-4"
+     },
+     {
+      "name": "Order list",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/shop.md:28"
+     },
+     {
+      "name": "Ledger",
+      "context": "CTX-2",
+      "removed": false,
+      "where": "docs/01-domain/shop.md:48",
+      "term": "TERM-6"
+     }
+    ],
+    "dependencies": [
+     {
+      "from": "CTX-1",
+      "to": "CTX-2",
+      "kind": "call",
+      "why": "Bill the order",
+      "data": "order total",
+      "where": "docs/01-domain/shop.md:63"
+     },
+     {
+      "from": "CTX-2",
+      "to": "CTX-1",
+      "kind": "event",
+      "why": "Paid",
+      "data": "invoice id",
+      "where": "docs/01-domain/shop.md:64"
+     },
+     {
+      "from": "Mail",
+      "to": "CTX-1",
+      "kind": "",
+      "why": "x",
+      "data": "y",
+      "where": "docs/01-domain/shop.md:65"
+     }
+    ],
+    "hotspots": [
+     {
+      "text": "1. Who pays?",
+      "contexts": [
+       "CTX-1",
+       "CTX-2"
+      ],
+      "state": "open",
+      "answer": "ask",
+      "where": "docs/01-domain/shop.md:71",
+      "number": 1
+     },
+     {
+      "text": "0 zero",
+      "contexts": [
+       "CTX-1"
+      ],
+      "state": "answered",
+      "answer": "",
+      "where": "docs/01-domain/shop.md:72"
+     },
+     {
+      "text": "12) twelve",
+      "contexts": [],
+      "state": "open",
+      "answer": "",
+      "where": "docs/01-domain/shop.md:73",
+      "number": 12
+     },
+     {
+      "text": "no number",
+      "contexts": [
+       "CTX-9"
+      ],
+      "state": "open",
+      "answer": "",
+      "where": "docs/01-domain/shop.md:74"
+     },
+     {
+      "text": "3.not spaced",
+      "contexts": [
+       "CTX-1"
+      ],
+      "state": "open",
+      "answer": "",
+      "where": "docs/01-domain/shop.md:75"
+     }
+    ],
+    "timeline": [
+     {
+      "lane": "Orders",
+      "places": [
+       [
+        "Order placed",
+        "Order rejected"
+       ],
+       [
+        "Order paid",
+        "Order cancelled"
+       ],
+       [
+        "Order shipped"
+       ]
+      ],
+      "where": "docs/01-domain/shop.md:7"
+     },
+     {
+      "lane": "Empty",
+      "places": [],
+      "where": "docs/01-domain/shop.md:8"
+     },
+     {
+      "lane": "Many",
+      "places": [
+       [
+        "a"
+       ],
+       [
+        "b",
+        "c",
+        "d"
+       ]
+      ],
+      "where": "docs/01-domain/shop.md:9"
+     }
+    ]
+   }
+  },
+  {
+   "name": "Markdown, Korean tables and policy",
+   "stage": "01-domain",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/01-domain/shop.ko.md",
+     "# \uc0c1\uc810\n\n| \ud750\ub984 | \uc0ac\uac74 |\n| --- | --- |\n| \uc8fc\ubb38 | \uc8fc\ubb38\ub428 \ub610\ub294 \uac70\uc808\ub428 \u2192 \ubc30\uc1a1\ub428 |\n\n| \ucee8\ud14d\uc2a4\ud2b8 | \uc885\ub958 | \uc560\uadf8\ub9ac\uac70\ud2b8 |\n| --- | --- | --- |\n| CTX-5 | \ud575\uc2ec | \uc8fc\ubb38, \uace0\uac1d |\n\n### CTX-5 \uc8fc\ubb38\n\ubaa9\uc801: \uc8fc\ubb38\uc744 \ubc1b\uc544\uc694\n- \ubc14\uae65 \uc2dc\uc2a4\ud15c: \uacb0\uc81c\n\n| \uc8fc\ub294 \ucabd | \uc77d\uae30 \ubaa8\ub378 | \uba85\ub839 | \uc560\uadf8\ub9ac\uac70\ud2b8 | \uc0ac\uac74 |\n| --- | --- | --- | --- | --- |\n| \uace0\uac1d | \uc7a5\ubc14\uad6c\ub2c8 | \uc8fc\ubb38\ud558\uae30 | \uc8fc\ubb38 | \uc8fc\ubb38\ub428, \ub610\ub294 \uac70\uc808\ub428 |\n| \uc815\ucc45: \uacb0\uc81c\ub418\uba74 | | \ubc30\uc1a1\ud558\uae30 | \uc8fc\ubb38 | \ubc30\uc1a1\ub428 |\n| \uc815\ucc45 : \ub744\uc5b4 \uc4f4 \uc815\ucc45 | | \uc54c\ub9ac\uae30 | \uc54c\ub9bc | \uc54c\ub9bc \uac10 |\n\n| \uc77d\uae30 \ubaa8\ub378 | \ubcf4\uc5ec \uc8fc\ub294 \uac83 |\n| --- | --- |\n| \uc7a5\ubc14\uad6c\ub2c8 | \ub2f4\uc740 \uac83 |\n\n| \uc5b4\ub514\uc11c | \uc5b4\ub514\ub85c | \uc885\ub958 | \uae4c\ub2ed | \uc624\uac00\ub294 \uac83 |\n| --- | --- | --- | --- | --- |\n| CTX-5 | CTX-6 | \ubc14\ub85c \ubb3b\uae30 | \uacb0\uc81c | \uae08\uc561 |\n| CTX-6 | CTX-5 | \uc0ac\uac74 \uc54c\ub9bc | \uacb0\uc81c\ub428 | \uc601\uc218\uc99d |\n\n| \ud56b\uc2a4\ud31f | \ucee8\ud14d\uc2a4\ud2b8 | \uc0c1\ud0dc | \ub2f5\uc774\ub098 \ub2e4\uc74c \ud560 \uc77c |\n| --- | --- | --- | --- |\n| 1. \ud658\ubd88\uc740? | CTX-5 | \uc5f4\ub9bc | \ubb3b\uae30 |\n\n| ID | \uc6a9\uc5b4 | \uc0c1\ud0dc |\n| --- | --- | --- |\n| TERM-7 | \uc8fc\ubb38 | |\n| TERM-8 | \uc7a5\ubc14\uad6c\ub2c8 | \uc0ad\uc81c\ub428 |\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "\uace0\uac1d has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-5"
+     ],
+     "args": {
+      "name": "\uace0\uac1d",
+      "context": "CTX-5"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "\uc54c\ub9bc has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-5"
+     ],
+     "args": {
+      "name": "\uc54c\ub9bc",
+      "context": "CTX-5"
+     },
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "contexts": [
+     {
+      "id": "CTX-5",
+      "name": "\uc8fc\ubb38",
+      "type": "\ud575\uc2ec",
+      "purpose": "\uc8fc\ubb38\uc744 \ubc1b\uc544\uc694",
+      "removed": false,
+      "external": "\uacb0\uc81c",
+      "rows": [
+       {
+        "given_by": "\uace0\uac1d",
+        "policy": false,
+        "read_model": "\uc7a5\ubc14\uad6c\ub2c8",
+        "command": "\uc8fc\ubb38\ud558\uae30",
+        "aggregate": "\uc8fc\ubb38",
+        "events": [
+         "\uc8fc\ubb38\ub428",
+         "\uac70\uc808\ub428"
+        ],
+        "where": "docs/01-domain/shop.ko.md:17"
+       },
+       {
+        "given_by": "\uc815\ucc45: \uacb0\uc81c\ub418\uba74",
+        "policy": true,
+        "read_model": "",
+        "command": "\ubc30\uc1a1\ud558\uae30",
+        "aggregate": "\uc8fc\ubb38",
+        "events": [
+         "\ubc30\uc1a1\ub428"
+        ],
+        "where": "docs/01-domain/shop.ko.md:18"
+       },
+       {
+        "given_by": "\uc815\ucc45 : \ub744\uc5b4 \uc4f4 \uc815\ucc45",
+        "policy": true,
+        "read_model": "",
+        "command": "\uc54c\ub9ac\uae30",
+        "aggregate": "\uc54c\ub9bc",
+        "events": [
+         "\uc54c\ub9bc \uac10"
+        ],
+        "where": "docs/01-domain/shop.ko.md:19"
+       }
+      ],
+      "where": "docs/01-domain/shop.ko.md:11"
+     }
+    ],
+    "aggregates": [
+     {
+      "name": "\uc8fc\ubb38",
+      "context": "CTX-5",
+      "removed": false,
+      "where": "docs/01-domain/shop.ko.md:9",
+      "term": "TERM-7"
+     },
+     {
+      "name": "\uace0\uac1d",
+      "context": "CTX-5",
+      "removed": false,
+      "where": "docs/01-domain/shop.ko.md:9"
+     },
+     {
+      "name": "\uc54c\ub9bc",
+      "context": "CTX-5",
+      "removed": false,
+      "where": "docs/01-domain/shop.ko.md:19"
+     }
+    ],
+    "read_models": [
+     {
+      "name": "\uc7a5\ubc14\uad6c\ub2c8",
+      "context": "CTX-5",
+      "removed": true,
+      "where": "docs/01-domain/shop.ko.md:17",
+      "term": "TERM-8"
+     }
+    ],
+    "dependencies": [
+     {
+      "from": "CTX-5",
+      "to": "CTX-6",
+      "kind": "call",
+      "why": "\uacb0\uc81c",
+      "data": "\uae08\uc561",
+      "where": "docs/01-domain/shop.ko.md:27"
+     },
+     {
+      "from": "CTX-6",
+      "to": "CTX-5",
+      "kind": "event",
+      "why": "\uacb0\uc81c\ub428",
+      "data": "\uc601\uc218\uc99d",
+      "where": "docs/01-domain/shop.ko.md:28"
+     }
+    ],
+    "hotspots": [
+     {
+      "text": "1. \ud658\ubd88\uc740?",
+      "contexts": [
+       "CTX-5"
+      ],
+      "state": "\uc5f4\ub9bc",
+      "answer": "\ubb3b\uae30",
+      "where": "docs/01-domain/shop.ko.md:32",
+      "number": 1
+     }
+    ],
+    "timeline": [
+     {
+      "lane": "\uc8fc\ubb38",
+      "places": [
+       [
+        "\uc8fc\ubb38\ub428",
+        "\uac70\uc808\ub428"
+       ],
+       [
+        "\ubc30\uc1a1\ub428"
+       ]
+      ],
+      "where": "docs/01-domain/shop.ko.md:5"
+     }
+    ]
+   }
+  },
+  {
+   "name": "Markdown, command tables under no context heading, a heading that ends a context, and texts with none",
+   "stage": "01-domain",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/01-domain/a.md",
+     "| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| A | B | C | D | E |\n\n## CTX-1 First\n### Under the context\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| A1 | B1 | C1 | D1 | E1 |\n## Other section\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| A2 | B2 | C2 | D2 | E2 |\n\n#### CTX-2#draft Second: a state and a trailing colon\n# [CTX-3]: linked & &lt;escaped&gt; &#65;&#x42; &notin; &amp;amp; <i>tagged</i> __bold__ ~x~ `code`\n"
+    ],
+    [
+     "docs/01-domain/b.md",
+     "# Just a title\n\nSome text\n"
+    ],
+    [
+     "docs/01-domain/c.md",
+     "   \n\n"
+    ],
+    [
+     "docs/01-domain/d.md",
+     "| Lane | Events |\n| --- | --- |\n| Lone lane | x |\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/01-domain/a.md:3: command table is under no context heading",
+     "by": "scan",
+     "stage": "01-domain",
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/01-domain/a.md:13: command table is under no context heading",
+     "by": "scan",
+     "stage": "01-domain",
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "D has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "args": {
+      "name": "D",
+      "context": ""
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "D1 has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-1"
+     ],
+     "args": {
+      "name": "D1",
+      "context": "CTX-1"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "D2 has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-1"
+     ],
+     "args": {
+      "name": "D2",
+      "context": "CTX-1"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "B has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "args": {
+      "name": "B",
+      "context": ""
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "B1 has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-1"
+     ],
+     "args": {
+      "name": "B1",
+      "context": "CTX-1"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "B2 has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-1"
+     ],
+     "args": {
+      "name": "B2",
+      "context": "CTX-1"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/01-domain/b.md:1: document has no context heading",
+     "by": "scan",
+     "stage": "01-domain",
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/01-domain/d.md:1: document has no context heading",
+     "by": "scan",
+     "stage": "01-domain",
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "contexts": [
+     {
+      "id": "CTX-1",
+      "name": "First",
+      "type": "",
+      "purpose": "",
+      "removed": false,
+      "external": "",
+      "rows": [
+       {
+        "given_by": "A1",
+        "policy": false,
+        "read_model": "B1",
+        "command": "C1",
+        "aggregate": "D1",
+        "events": [
+         "E1"
+        ],
+        "where": "docs/01-domain/a.md:9"
+       },
+       {
+        "given_by": "A2",
+        "policy": false,
+        "read_model": "B2",
+        "command": "C2",
+        "aggregate": "D2",
+        "events": [
+         "E2"
+        ],
+        "where": "docs/01-domain/a.md:13"
+       }
+      ],
+      "where": "docs/01-domain/a.md:5"
+     },
+     {
+      "id": "CTX-2",
+      "name": "Second: a state and a trailing colon",
+      "type": "",
+      "purpose": "",
+      "removed": false,
+      "external": "",
+      "rows": [],
+      "where": "docs/01-domain/a.md:15"
+     },
+     {
+      "id": "CTX-3",
+      "name": "linked & AB \u2209 & tagged bold ~x~ code",
+      "type": "",
+      "purpose": "",
+      "removed": false,
+      "external": "",
+      "rows": [],
+      "where": "docs/01-domain/a.md:16"
+     },
+     {
+      "id": "",
+      "name": "",
+      "type": "",
+      "purpose": "",
+      "removed": false,
+      "external": "",
+      "rows": [
+       {
+        "given_by": "A",
+        "policy": false,
+        "read_model": "B",
+        "command": "C",
+        "aggregate": "D",
+        "events": [
+         "E"
+        ],
+        "where": "docs/01-domain/a.md:3"
+       }
+      ],
+      "where": "docs/01-domain/a.md:3"
+     }
+    ],
+    "aggregates": [
+     {
+      "name": "D",
+      "context": "",
+      "removed": false,
+      "where": "docs/01-domain/a.md:3"
+     },
+     {
+      "name": "D1",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:9"
+     },
+     {
+      "name": "D2",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:13"
+     }
+    ],
+    "read_models": [
+     {
+      "name": "B",
+      "context": "",
+      "removed": false,
+      "where": "docs/01-domain/a.md:3"
+     },
+     {
+      "name": "B1",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:9"
+     },
+     {
+      "name": "B2",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:13"
+     }
+    ],
+    "dependencies": [],
+    "hotspots": []
+   }
+  },
+  {
+   "name": "Markdown, a project's own trace ID prefixes",
+   "stage": "01-domain",
+   "ids": {
+    "context": "C",
+    "term": "G"
+   },
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/01-domain/own.md",
+     "## C-1 Own\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Actor | View | Do | Thing G-2 | Done |\n\n| ID | Term | Status |\n| --- | --- | --- |\n| G-3 | View | |\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "contexts": [
+     {
+      "id": "C-1",
+      "name": "Own",
+      "type": "",
+      "purpose": "",
+      "removed": false,
+      "external": "",
+      "rows": [
+       {
+        "given_by": "Actor",
+        "policy": false,
+        "read_model": "View",
+        "command": "Do",
+        "aggregate": "Thing G-2",
+        "events": [
+         "Done"
+        ],
+        "where": "docs/01-domain/own.md:4"
+       }
+      ],
+      "where": "docs/01-domain/own.md:1"
+     }
+    ],
+    "aggregates": [
+     {
+      "name": "Thing",
+      "context": "C-1",
+      "removed": false,
+      "where": "docs/01-domain/own.md:4",
+      "term": "G-2"
+     }
+    ],
+    "read_models": [
+     {
+      "name": "View",
+      "context": "C-1",
+      "removed": false,
+      "where": "docs/01-domain/own.md:4",
+      "term": "G-3"
+     }
+    ],
+    "dependencies": [],
+    "hotspots": []
+   }
+  },
+  {
+   "name": "Markdown, more than 200 contexts and 200 rows",
+   "stage": "01-domain",
+   "ids": null,
+   "part": "nexus",
+   "shape": true,
+   "documents": [
+    [
+     "docs/01-domain/many.md",
+     "### CTX-1 Context 1\n### CTX-2 Context 2\n### CTX-3 Context 3\n### CTX-4 Context 4\n### CTX-5 Context 5\n### CTX-6 Context 6\n### CTX-7 Context 7\n### CTX-8 Context 8\n### CTX-9 Context 9\n### CTX-10 Context 10\n### CTX-11 Context 11\n### CTX-12 Context 12\n### CTX-13 Context 13\n### CTX-14 Context 14\n### CTX-15 Context 15\n### CTX-16 Context 16\n### CTX-17 Context 17\n### CTX-18 Context 18\n### CTX-19 Context 19\n### CTX-20 Context 20\n### CTX-21 Context 21\n### CTX-22 Context 22\n### CTX-23 Context 23\n### CTX-24 Context 24\n### CTX-25 Context 25\n### CTX-26 Context 26\n### CTX-27 Context 27\n### CTX-28 Context 28\n### CTX-29 Context 29\n### CTX-30 Context 30\n### CTX-31 Context 31\n### CTX-32 Context 32\n### CTX-33 Context 33\n### CTX-34 Context 34\n### CTX-35 Context 35\n### CTX-36 Context 36\n### CTX-37 Context 37\n### CTX-38 Context 38\n### CTX-39 Context 39\n### CTX-40 Context 40\n### CTX-41 Context 41\n### CTX-42 Context 42\n### CTX-43 Context 43\n### CTX-44 Context 44\n### CTX-45 Context 45\n### CTX-46 Context 46\n### CTX-47 Context 47\n### CTX-48 Context 48\n### CTX-49 Context 49\n### CTX-50 Context 50\n### CTX-51 Context 51\n### CTX-52 Context 52\n### CTX-53 Context 53\n### CTX-54 Context 54\n### CTX-55 Context 55\n### CTX-56 Context 56\n### CTX-57 Context 57\n### CTX-58 Context 58\n### CTX-59 Context 59\n### CTX-60 Context 60\n### CTX-61 Context 61\n### CTX-62 Context 62\n### CTX-63 Context 63\n### CTX-64 Context 64\n### CTX-65 Context 65\n### CTX-66 Context 66\n### CTX-67 Context 67\n### CTX-68 Context 68\n### CTX-69 Context 69\n### CTX-70 Context 70\n### CTX-71 Context 71\n### CTX-72 Context 72\n### CTX-73 Context 73\n### CTX-74 Context 74\n### CTX-75 Context 75\n### CTX-76 Context 76\n### CTX-77 Context 77\n### CTX-78 Context 78\n### CTX-79 Context 79\n### CTX-80 Context 80\n### CTX-81 Context 81\n### CTX-82 Context 82\n### CTX-83 Context 83\n### CTX-84 Context 84\n### CTX-85 Context 85\n### CTX-86 Context 86\n### CTX-87 Context 87\n### CTX-88 Context 88\n### CTX-89 Context 89\n### CTX-90 Context 90\n### CTX-91 Context 91\n### CTX-92 Context 92\n### CTX-93 Context 93\n### CTX-94 Context 94\n### CTX-95 Context 95\n### CTX-96 Context 96\n### CTX-97 Context 97\n### CTX-98 Context 98\n### CTX-99 Context 99\n### CTX-100 Context 100\n### CTX-101 Context 101\n### CTX-102 Context 102\n### CTX-103 Context 103\n### CTX-104 Context 104\n### CTX-105 Context 105\n### CTX-106 Context 106\n### CTX-107 Context 107\n### CTX-108 Context 108\n### CTX-109 Context 109\n### CTX-110 Context 110\n### CTX-111 Context 111\n### CTX-112 Context 112\n### CTX-113 Context 113\n### CTX-114 Context 114\n### CTX-115 Context 115\n### CTX-116 Context 116\n### CTX-117 Context 117\n### CTX-118 Context 118\n### CTX-119 Context 119\n### CTX-120 Context 120\n### CTX-121 Context 121\n### CTX-122 Context 122\n### CTX-123 Context 123\n### CTX-124 Context 124\n### CTX-125 Context 125\n### CTX-126 Context 126\n### CTX-127 Context 127\n### CTX-128 Context 128\n### CTX-129 Context 129\n### CTX-130 Context 130\n### CTX-131 Context 131\n### CTX-132 Context 132\n### CTX-133 Context 133\n### CTX-134 Context 134\n### CTX-135 Context 135\n### CTX-136 Context 136\n### CTX-137 Context 137\n### CTX-138 Context 138\n### CTX-139 Context 139\n### CTX-140 Context 140\n### CTX-141 Context 141\n### CTX-142 Context 142\n### CTX-143 Context 143\n### CTX-144 Context 144\n### CTX-145 Context 145\n### CTX-146 Context 146\n### CTX-147 Context 147\n### CTX-148 Context 148\n### CTX-149 Context 149\n### CTX-150 Context 150\n### CTX-151 Context 151\n### CTX-152 Context 152\n### CTX-153 Context 153\n### CTX-154 Context 154\n### CTX-155 Context 155\n### CTX-156 Context 156\n### CTX-157 Context 157\n### CTX-158 Context 158\n### CTX-159 Context 159\n### CTX-160 Context 160\n### CTX-161 Context 161\n### CTX-162 Context 162\n### CTX-163 Context 163\n### CTX-164 Context 164\n### CTX-165 Context 165\n### CTX-166 Context 166\n### CTX-167 Context 167\n### CTX-168 Context 168\n### CTX-169 Context 169\n### CTX-170 Context 170\n### CTX-171 Context 171\n### CTX-172 Context 172\n### CTX-173 Context 173\n### CTX-174 Context 174\n### CTX-175 Context 175\n### CTX-176 Context 176\n### CTX-177 Context 177\n### CTX-178 Context 178\n### CTX-179 Context 179\n### CTX-180 Context 180\n### CTX-181 Context 181\n### CTX-182 Context 182\n### CTX-183 Context 183\n### CTX-184 Context 184\n### CTX-185 Context 185\n### CTX-186 Context 186\n### CTX-187 Context 187\n### CTX-188 Context 188\n### CTX-189 Context 189\n### CTX-190 Context 190\n### CTX-191 Context 191\n### CTX-192 Context 192\n### CTX-193 Context 193\n### CTX-194 Context 194\n### CTX-195 Context 195\n### CTX-196 Context 196\n### CTX-197 Context 197\n### CTX-198 Context 198\n### CTX-199 Context 199\n### CTX-200 Context 200\n### CTX-201 Context 201\n### CTX-202 Context 202\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| A | B | C0 | D | E |\n| A | B | C1 | D | E |\n| A | B | C2 | D | E |\n| A | B | C3 | D | E |\n| A | B | C4 | D | E |\n| A | B | C5 | D | E |\n| A | B | C6 | D | E |\n| A | B | C7 | D | E |\n| A | B | C8 | D | E |\n| A | B | C9 | D | E |\n| A | B | C10 | D | E |\n| A | B | C11 | D | E |\n| A | B | C12 | D | E |\n| A | B | C13 | D | E |\n| A | B | C14 | D | E |\n| A | B | C15 | D | E |\n| A | B | C16 | D | E |\n| A | B | C17 | D | E |\n| A | B | C18 | D | E |\n| A | B | C19 | D | E |\n| A | B | C20 | D | E |\n| A | B | C21 | D | E |\n| A | B | C22 | D | E |\n| A | B | C23 | D | E |\n| A | B | C24 | D | E |\n| A | B | C25 | D | E |\n| A | B | C26 | D | E |\n| A | B | C27 | D | E |\n| A | B | C28 | D | E |\n| A | B | C29 | D | E |\n| A | B | C30 | D | E |\n| A | B | C31 | D | E |\n| A | B | C32 | D | E |\n| A | B | C33 | D | E |\n| A | B | C34 | D | E |\n| A | B | C35 | D | E |\n| A | B | C36 | D | E |\n| A | B | C37 | D | E |\n| A | B | C38 | D | E |\n| A | B | C39 | D | E |\n| A | B | C40 | D | E |\n| A | B | C41 | D | E |\n| A | B | C42 | D | E |\n| A | B | C43 | D | E |\n| A | B | C44 | D | E |\n| A | B | C45 | D | E |\n| A | B | C46 | D | E |\n| A | B | C47 | D | E |\n| A | B | C48 | D | E |\n| A | B | C49 | D | E |\n| A | B | C50 | D | E |\n| A | B | C51 | D | E |\n| A | B | C52 | D | E |\n| A | B | C53 | D | E |\n| A | B | C54 | D | E |\n| A | B | C55 | D | E |\n| A | B | C56 | D | E |\n| A | B | C57 | D | E |\n| A | B | C58 | D | E |\n| A | B | C59 | D | E |\n| A | B | C60 | D | E |\n| A | B | C61 | D | E |\n| A | B | C62 | D | E |\n| A | B | C63 | D | E |\n| A | B | C64 | D | E |\n| A | B | C65 | D | E |\n| A | B | C66 | D | E |\n| A | B | C67 | D | E |\n| A | B | C68 | D | E |\n| A | B | C69 | D | E |\n| A | B | C70 | D | E |\n| A | B | C71 | D | E |\n| A | B | C72 | D | E |\n| A | B | C73 | D | E |\n| A | B | C74 | D | E |\n| A | B | C75 | D | E |\n| A | B | C76 | D | E |\n| A | B | C77 | D | E |\n| A | B | C78 | D | E |\n| A | B | C79 | D | E |\n| A | B | C80 | D | E |\n| A | B | C81 | D | E |\n| A | B | C82 | D | E |\n| A | B | C83 | D | E |\n| A | B | C84 | D | E |\n| A | B | C85 | D | E |\n| A | B | C86 | D | E |\n| A | B | C87 | D | E |\n| A | B | C88 | D | E |\n| A | B | C89 | D | E |\n| A | B | C90 | D | E |\n| A | B | C91 | D | E |\n| A | B | C92 | D | E |\n| A | B | C93 | D | E |\n| A | B | C94 | D | E |\n| A | B | C95 | D | E |\n| A | B | C96 | D | E |\n| A | B | C97 | D | E |\n| A | B | C98 | D | E |\n| A | B | C99 | D | E |\n| A | B | C100 | D | E |\n| A | B | C101 | D | E |\n| A | B | C102 | D | E |\n| A | B | C103 | D | E |\n| A | B | C104 | D | E |\n| A | B | C105 | D | E |\n| A | B | C106 | D | E |\n| A | B | C107 | D | E |\n| A | B | C108 | D | E |\n| A | B | C109 | D | E |\n| A | B | C110 | D | E |\n| A | B | C111 | D | E |\n| A | B | C112 | D | E |\n| A | B | C113 | D | E |\n| A | B | C114 | D | E |\n| A | B | C115 | D | E |\n| A | B | C116 | D | E |\n| A | B | C117 | D | E |\n| A | B | C118 | D | E |\n| A | B | C119 | D | E |\n| A | B | C120 | D | E |\n| A | B | C121 | D | E |\n| A | B | C122 | D | E |\n| A | B | C123 | D | E |\n| A | B | C124 | D | E |\n| A | B | C125 | D | E |\n| A | B | C126 | D | E |\n| A | B | C127 | D | E |\n| A | B | C128 | D | E |\n| A | B | C129 | D | E |\n| A | B | C130 | D | E |\n| A | B | C131 | D | E |\n| A | B | C132 | D | E |\n| A | B | C133 | D | E |\n| A | B | C134 | D | E |\n| A | B | C135 | D | E |\n| A | B | C136 | D | E |\n| A | B | C137 | D | E |\n| A | B | C138 | D | E |\n| A | B | C139 | D | E |\n| A | B | C140 | D | E |\n| A | B | C141 | D | E |\n| A | B | C142 | D | E |\n| A | B | C143 | D | E |\n| A | B | C144 | D | E |\n| A | B | C145 | D | E |\n| A | B | C146 | D | E |\n| A | B | C147 | D | E |\n| A | B | C148 | D | E |\n| A | B | C149 | D | E |\n| A | B | C150 | D | E |\n| A | B | C151 | D | E |\n| A | B | C152 | D | E |\n| A | B | C153 | D | E |\n| A | B | C154 | D | E |\n| A | B | C155 | D | E |\n| A | B | C156 | D | E |\n| A | B | C157 | D | E |\n| A | B | C158 | D | E |\n| A | B | C159 | D | E |\n| A | B | C160 | D | E |\n| A | B | C161 | D | E |\n| A | B | C162 | D | E |\n| A | B | C163 | D | E |\n| A | B | C164 | D | E |\n| A | B | C165 | D | E |\n| A | B | C166 | D | E |\n| A | B | C167 | D | E |\n| A | B | C168 | D | E |\n| A | B | C169 | D | E |\n| A | B | C170 | D | E |\n| A | B | C171 | D | E |\n| A | B | C172 | D | E |\n| A | B | C173 | D | E |\n| A | B | C174 | D | E |\n| A | B | C175 | D | E |\n| A | B | C176 | D | E |\n| A | B | C177 | D | E |\n| A | B | C178 | D | E |\n| A | B | C179 | D | E |\n| A | B | C180 | D | E |\n| A | B | C181 | D | E |\n| A | B | C182 | D | E |\n| A | B | C183 | D | E |\n| A | B | C184 | D | E |\n| A | B | C185 | D | E |\n| A | B | C186 | D | E |\n| A | B | C187 | D | E |\n| A | B | C188 | D | E |\n| A | B | C189 | D | E |\n| A | B | C190 | D | E |\n| A | B | C191 | D | E |\n| A | B | C192 | D | E |\n| A | B | C193 | D | E |\n| A | B | C194 | D | E |\n| A | B | C195 | D | E |\n| A | B | C196 | D | E |\n| A | B | C197 | D | E |\n| A | B | C198 | D | E |\n| A | B | C199 | D | E |\n| A | B | C200 | D | E |\n| A | B | C201 | D | E |\n| A | B | C202 | D | E |\n| A | B | C203 | D | E |\n| A | B | C204 | D | E |\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "D has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-202"
+     ],
+     "args": {
+      "name": "D",
+      "context": "CTX-202"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "B has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-202"
+     ],
+     "args": {
+      "name": "B",
+      "context": "CTX-202"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "picture-partial",
+     "level": "warn",
+     "message": "docs/01-domain/many.md:1: contexts exceeds its picture limit",
+     "by": "scan",
+     "stage": "01-domain",
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "contexts": {
+     "count": 200,
+     "first": {
+      "id": "CTX-1",
+      "name": "Context 1",
+      "type": "",
+      "purpose": "",
+      "removed": false,
+      "external": "",
+      "rows": [],
+      "where": "docs/01-domain/many.md:1"
+     },
+     "last": {
+      "id": "CTX-200",
+      "name": "Context 200",
+      "type": "",
+      "purpose": "",
+      "removed": false,
+      "external": "",
+      "rows": [],
+      "where": "docs/01-domain/many.md:200"
+     }
+    },
+    "aggregates": [
+     {
+      "name": "D",
+      "context": "CTX-202",
+      "removed": false,
+      "where": "docs/01-domain/many.md:205"
+     }
+    ],
+    "read_models": [
+     {
+      "name": "B",
+      "context": "CTX-202",
+      "removed": false,
+      "where": "docs/01-domain/many.md:205"
+     }
+    ],
+    "dependencies": [],
+    "hotspots": []
+   }
+  },
+  {
+   "name": "Markdown, two files with one replaced",
+   "stage": "01-domain",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/01-domain/a.md",
+     "# Ordering\n\n| Lane | Events |\n| --- | --- |\n| Orders | Order placed or Order rejected \u2192 Order paid |\n\n### CTX-1 Ordering\nPurpose: take orders\n\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Customer | Basket | Place order | Order | Order placed, or Order rejected |\n| Policy: when paid | Order list | Ship order | Order, Parcel | Order shipped |\n\n| Read model | Shows |\n| --- | --- |\n| Basket | the basket |\n\n| From | To | Kind | Why | Data |\n| --- | --- | --- | --- | --- |\n| CTX-1 | CTX-2 | call | Bill the order | order total |\n\n| Hotspot | Context | State | Answer or next step |\n| --- | --- | --- | --- |\n| 1. Who pays the parcel? | CTX-1 | open | ask |\n\n| ID | Term | Status |\n| --- | --- | --- |\n| TERM-1 | Order | |\n| TERM-2 | Basket | |\n"
+    ],
+    [
+     "docs/01-domain/b.md",
+     "# Billing\n\n### CTX-2 Billing\n- External systems: the bank\n\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Bank | Ledger | Record payment | Invoice | Invoice paid |\n\n| From | To | Kind | Why | Data |\n| --- | --- | --- | --- | --- |\n| CTX-2 | CTX-1 | event | Paid | invoice id |\n\n| Hotspot | Context | State | Answer or next step |\n| --- | --- | --- | --- |\n| 2. Refunds? | CTX-2 | open | |\n\n| ID | Term | Status |\n| --- | --- | --- |\n| TERM-3 | Invoice | |\n| TERM-4 | Ledger | removed |\n"
+    ]
+   ],
+   "replace": [
+    [
+     "docs/01-domain/a.md",
+     "# Ordering\n\n| Lane | Events |\n| --- | --- |\n\n### CTX-1 Orders\nPurpose: take orders\n\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Customer | Basket | Place order | Order | Order placed, or Order rejected |\n\n| Read model | Shows |\n| --- | --- |\n| Basket | the basket |\n\n| From | To | Kind | Why | Data |\n| --- | --- | --- | --- | --- |\n| CTX-1 | CTX-2 | call | Bill the order | order total |\n\n| Hotspot | Context | State | Answer or next step |\n| --- | --- | --- | --- |\n| 1. Who pays the parcel? | CTX-1 | answered | the shop |\n\n| ID | Term | Status |\n| --- | --- | --- |\n| TERM-1 | Order | |\n| TERM-2 | Basket | |\n"
+    ],
+    [
+     "docs/01-domain/b.md",
+     "# Billing\n\n| Lane | Events |\n| --- | --- |\n| Bills | Invoice sent \u2192 Invoice paid |\n\n### CTX-2 Billing\n- External systems: the bank\n\n| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n| Bank | | Record payment | Invoice | Invoice paid |\n\n| From | To | Kind | Why | Data |\n| --- | --- | --- | --- | --- |\n\n| Hotspot | Context | State | Answer or next step |\n| --- | --- | --- | --- |\n| 2. Refunds? | CTX-2 | open | |\n\n| ID | Term | Status |\n| --- | --- | --- |\n| TERM-3 | Invoice | |\n| TERM-4 | Ledger | removed |\n"
+    ]
+   ],
+   "checks": [
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "Parcel has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-1"
+     ],
+     "args": {
+      "name": "Parcel",
+      "context": "CTX-1"
+     },
+     "part": "nexus"
+    },
+    {
+     "rule": "board-term-missing",
+     "level": "warn",
+     "message": "Order list has no glossary terms",
+     "by": "scan",
+     "stage": "01-domain",
+     "refs": [
+      "CTX-1"
+     ],
+     "args": {
+      "name": "Order list",
+      "context": "CTX-1"
+     },
+     "part": "nexus"
+    }
+   ],
+   "picture": {
+    "format": 1,
+    "contexts": [
+     {
+      "id": "CTX-1",
+      "name": "Ordering",
+      "type": "",
+      "purpose": "take orders",
+      "removed": false,
+      "external": "",
+      "rows": [
+       {
+        "given_by": "Customer",
+        "policy": false,
+        "read_model": "Basket",
+        "command": "Place order",
+        "aggregate": "Order",
+        "events": [
+         "Order placed",
+         "Order rejected"
+        ],
+        "where": "docs/01-domain/a.md:12"
+       },
+       {
+        "given_by": "Policy: when paid",
+        "policy": true,
+        "read_model": "Order list",
+        "command": "Ship order",
+        "aggregate": "Order, Parcel",
+        "events": [
+         "Order shipped"
+        ],
+        "where": "docs/01-domain/a.md:13"
+       }
+      ],
+      "where": "docs/01-domain/a.md:7"
+     },
+     {
+      "id": "CTX-2",
+      "name": "Billing",
+      "type": "",
+      "purpose": "",
+      "removed": false,
+      "external": "the bank",
+      "rows": [
+       {
+        "given_by": "Bank",
+        "policy": false,
+        "read_model": "Ledger",
+        "command": "Record payment",
+        "aggregate": "Invoice",
+        "events": [
+         "Invoice paid"
+        ],
+        "where": "docs/01-domain/b.md:8"
+       }
+      ],
+      "where": "docs/01-domain/b.md:3"
+     }
+    ],
+    "aggregates": [
+     {
+      "name": "Order",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:12",
+      "term": "TERM-1"
+     },
+     {
+      "name": "Parcel",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:13"
+     },
+     {
+      "name": "Invoice",
+      "context": "CTX-2",
+      "removed": false,
+      "where": "docs/01-domain/b.md:8",
+      "term": "TERM-3"
+     }
+    ],
+    "read_models": [
+     {
+      "name": "Basket",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:12",
+      "term": "TERM-2"
+     },
+     {
+      "name": "Order list",
+      "context": "CTX-1",
+      "removed": false,
+      "where": "docs/01-domain/a.md:13"
+     },
+     {
+      "name": "Ledger",
+      "context": "CTX-2",
+      "removed": true,
+      "where": "docs/01-domain/b.md:8",
+      "term": "TERM-4"
+     }
+    ],
+    "dependencies": [
+     {
+      "from": "CTX-1",
+      "to": "CTX-2",
+      "kind": "call",
+      "why": "Bill the order",
+      "data": "order total",
+      "where": "docs/01-domain/a.md:21"
+     },
+     {
+      "from": "CTX-2",
+      "to": "CTX-1",
+      "kind": "event",
+      "why": "Paid",
+      "data": "invoice id",
+      "where": "docs/01-domain/b.md:12"
+     }
+    ],
+    "hotspots": [
+     {
+      "text": "1. Who pays the parcel?",
+      "contexts": [
+       "CTX-1"
+      ],
+      "state": "open",
+      "answer": "ask",
+      "where": "docs/01-domain/a.md:25",
+      "number": 1
+     },
+     {
+      "text": "2. Refunds?",
+      "contexts": [
+       "CTX-2"
+      ],
+      "state": "open",
+      "answer": "",
+      "where": "docs/01-domain/b.md:16",
+      "number": 2
+     }
+    ],
+    "timeline": [
+     {
+      "lane": "Orders",
+      "places": [
+       [
+        "Order placed",
+        "Order rejected"
+       ],
+       [
+        "Order paid"
+       ]
+      ],
+      "where": "docs/01-domain/a.md:5"
+     }
+    ]
+   },
+   "replaced": [
+    {
+     "file": "docs/01-domain/a.md",
+     "checks": [],
+     "picture": {
+      "format": 1,
+      "contexts": [
+       {
+        "id": "CTX-1",
+        "name": "Orders",
+        "type": "",
+        "purpose": "take orders",
+        "removed": false,
+        "external": "",
+        "rows": [
+         {
+          "given_by": "Customer",
+          "policy": false,
+          "read_model": "Basket",
+          "command": "Place order",
+          "aggregate": "Order",
+          "events": [
+           "Order placed",
+           "Order rejected"
+          ],
+          "where": "docs/01-domain/a.md:11"
+         }
+        ],
+        "where": "docs/01-domain/a.md:6"
+       },
+       {
+        "id": "CTX-2",
+        "name": "Billing",
+        "type": "",
+        "purpose": "",
+        "removed": false,
+        "external": "the bank",
+        "rows": [
+         {
+          "given_by": "Bank",
+          "policy": false,
+          "read_model": "Ledger",
+          "command": "Record payment",
+          "aggregate": "Invoice",
+          "events": [
+           "Invoice paid"
+          ],
+          "where": "docs/01-domain/b.md:8"
+         }
+        ],
+        "where": "docs/01-domain/b.md:3"
+       }
+      ],
+      "aggregates": [
+       {
+        "name": "Order",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:11",
+        "term": "TERM-1"
+       },
+       {
+        "name": "Invoice",
+        "context": "CTX-2",
+        "removed": false,
+        "where": "docs/01-domain/b.md:8",
+        "term": "TERM-3"
+       }
+      ],
+      "read_models": [
+       {
+        "name": "Basket",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:11",
+        "term": "TERM-2"
+       },
+       {
+        "name": "Ledger",
+        "context": "CTX-2",
+        "removed": true,
+        "where": "docs/01-domain/b.md:8",
+        "term": "TERM-4"
+       }
+      ],
+      "dependencies": [
+       {
+        "from": "CTX-1",
+        "to": "CTX-2",
+        "kind": "call",
+        "why": "Bill the order",
+        "data": "order total",
+        "where": "docs/01-domain/a.md:19"
+       },
+       {
+        "from": "CTX-2",
+        "to": "CTX-1",
+        "kind": "event",
+        "why": "Paid",
+        "data": "invoice id",
+        "where": "docs/01-domain/b.md:12"
+       }
+      ],
+      "hotspots": [
+       {
+        "text": "1. Who pays the parcel?",
+        "contexts": [
+         "CTX-1"
+        ],
+        "state": "answered",
+        "answer": "the shop",
+        "where": "docs/01-domain/a.md:23",
+        "number": 1
+       },
+       {
+        "text": "2. Refunds?",
+        "contexts": [
+         "CTX-2"
+        ],
+        "state": "open",
+        "answer": "",
+        "where": "docs/01-domain/b.md:16",
+        "number": 2
+       }
+      ]
+     }
+    },
+    {
+     "file": "docs/01-domain/b.md",
+     "checks": [
+      {
+       "rule": "board-term-missing",
+       "level": "warn",
+       "message": "Parcel has no glossary terms",
+       "by": "scan",
+       "stage": "01-domain",
+       "refs": [
+        "CTX-1"
+       ],
+       "args": {
+        "name": "Parcel",
+        "context": "CTX-1"
+       },
+       "part": "nexus"
+      },
+      {
+       "rule": "board-term-missing",
+       "level": "warn",
+       "message": "Order list has no glossary terms",
+       "by": "scan",
+       "stage": "01-domain",
+       "refs": [
+        "CTX-1"
+       ],
+       "args": {
+        "name": "Order list",
+        "context": "CTX-1"
+       },
+       "part": "nexus"
+      }
+     ],
+     "picture": {
+      "format": 1,
+      "contexts": [
+       {
+        "id": "CTX-1",
+        "name": "Ordering",
+        "type": "",
+        "purpose": "take orders",
+        "removed": false,
+        "external": "",
+        "rows": [
+         {
+          "given_by": "Customer",
+          "policy": false,
+          "read_model": "Basket",
+          "command": "Place order",
+          "aggregate": "Order",
+          "events": [
+           "Order placed",
+           "Order rejected"
+          ],
+          "where": "docs/01-domain/a.md:12"
+         },
+         {
+          "given_by": "Policy: when paid",
+          "policy": true,
+          "read_model": "Order list",
+          "command": "Ship order",
+          "aggregate": "Order, Parcel",
+          "events": [
+           "Order shipped"
+          ],
+          "where": "docs/01-domain/a.md:13"
+         }
+        ],
+        "where": "docs/01-domain/a.md:7"
+       },
+       {
+        "id": "CTX-2",
+        "name": "Billing",
+        "type": "",
+        "purpose": "",
+        "removed": false,
+        "external": "the bank",
+        "rows": [
+         {
+          "given_by": "Bank",
+          "policy": false,
+          "read_model": "",
+          "command": "Record payment",
+          "aggregate": "Invoice",
+          "events": [
+           "Invoice paid"
+          ],
+          "where": "docs/01-domain/b.md:12"
+         }
+        ],
+        "where": "docs/01-domain/b.md:7"
+       }
+      ],
+      "aggregates": [
+       {
+        "name": "Order",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:12",
+        "term": "TERM-1"
+       },
+       {
+        "name": "Parcel",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:13"
+       },
+       {
+        "name": "Invoice",
+        "context": "CTX-2",
+        "removed": false,
+        "where": "docs/01-domain/b.md:12",
+        "term": "TERM-3"
+       }
+      ],
+      "read_models": [
+       {
+        "name": "Basket",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:12",
+        "term": "TERM-2"
+       },
+       {
+        "name": "Order list",
+        "context": "CTX-1",
+        "removed": false,
+        "where": "docs/01-domain/a.md:13"
+       }
+      ],
+      "dependencies": [
+       {
+        "from": "CTX-1",
+        "to": "CTX-2",
+        "kind": "call",
+        "why": "Bill the order",
+        "data": "order total",
+        "where": "docs/01-domain/a.md:21"
+       }
+      ],
+      "hotspots": [
+       {
+        "text": "1. Who pays the parcel?",
+        "contexts": [
+         "CTX-1"
+        ],
+        "state": "open",
+        "answer": "ask",
+        "where": "docs/01-domain/a.md:25",
+        "number": 1
+       },
+       {
+        "text": "2. Refunds?",
+        "contexts": [
+         "CTX-2"
+        ],
+        "state": "open",
+        "answer": "",
+        "where": "docs/01-domain/b.md:19",
+        "number": 2
+       }
+      ],
+      "timeline": [
+       {
+        "lane": "Orders",
+        "places": [
+         [
+          "Order placed",
+          "Order rejected"
+         ],
+         [
+          "Order paid"
+         ]
+        ],
+        "where": "docs/01-domain/a.md:5"
+       },
+       {
+        "lane": "Bills",
+        "places": [
+         [
+          "Invoice sent"
+         ],
+         [
+          "Invoice paid"
+         ]
+        ],
+        "where": "docs/01-domain/b.md:5"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "SQL, two files with one replaced",
+   "stage": "05-erd",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "db/a.sql",
+     "-- TBL-1 users\nCREATE TABLE app.users (id INTEGER PRIMARY KEY, email TEXT UNIQUE);\n-- TBL-2 orders\nCREATE TABLE orders (id INTEGER PRIMARY KEY, user_id INTEGER, total NUMERIC(10, 2));\nALTER TABLE items ADD CONSTRAINT items_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE;\n"
+    ],
+    [
+     "db/b.sql",
+     "-- TBL-3 items\nCREATE TABLE items (id INTEGER PRIMARY KEY, order_id INTEGER, user_id INTEGER REFERENCES users (id));\nALTER TABLE orders ADD FOREIGN KEY (user_id) REFERENCES users (id);\nALTER TABLE public.users ADD FOREIGN KEY (id) REFERENCES people (id);\n"
+    ]
+   ],
+   "replace": [
+    [
+     "db/a.sql",
+     "-- TBL-1 users\nCREATE TABLE app.users (id INTEGER PRIMARY KEY, email TEXT UNIQUE, name TEXT);\n-- TBL-2 orders\nCREATE TABLE purchases (id INTEGER PRIMARY KEY, user_id INTEGER, total NUMERIC(10, 2));\nALTER TABLE items ADD CONSTRAINT items_order FOREIGN KEY (order_id) REFERENCES purchases (id) ON DELETE CASCADE;\n"
+    ],
+    [
+     "db/b.sql",
+     "-- TBL-3 items\nCREATE TABLE line_items (id INTEGER PRIMARY KEY, order_id INTEGER, user_id INTEGER REFERENCES users (id));\nALTER TABLE orders ADD FOREIGN KEY (id) REFERENCES line_items (id);\nALTER TABLE public.users ADD FOREIGN KEY (id) REFERENCES people (id);\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "tables": [
+     {
+      "id": "TBL-1",
+      "name": "users",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "INTEGER",
+        "null": false,
+        "where": "db/a.sql:2"
+       },
+       {
+        "name": "email",
+        "type": "TEXT",
+        "null": true,
+        "where": "db/a.sql:2"
+       }
+      ],
+      "primary_key": [
+       "id"
+      ],
+      "unique": [
+       {
+        "columns": [
+         "email"
+        ],
+        "partial": false
+       }
+      ],
+      "foreign_keys": [
+       {
+        "columns": [
+         "id"
+        ],
+        "table": "people",
+        "references": [
+         "id"
+        ],
+        "on_delete": "",
+        "where": "db/b.sql:4"
+       }
+      ],
+      "where": "db/a.sql:1"
+     },
+     {
+      "id": "TBL-2",
+      "name": "orders",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "INTEGER",
+        "null": false,
+        "where": "db/a.sql:4"
+       },
+       {
+        "name": "user_id",
+        "type": "INTEGER",
+        "null": true,
+        "where": "db/a.sql:4"
+       },
+       {
+        "name": "total",
+        "type": "NUMERIC(10, 2)",
+        "null": true,
+        "where": "db/a.sql:4"
+       }
+      ],
+      "primary_key": [
+       "id"
+      ],
+      "unique": [],
+      "foreign_keys": [
+       {
+        "columns": [
+         "user_id"
+        ],
+        "table": "users",
+        "references": [
+         "id"
+        ],
+        "on_delete": "",
+        "where": "db/b.sql:3"
+       }
+      ],
+      "where": "db/a.sql:3"
+     },
+     {
+      "id": "TBL-3",
+      "name": "items",
+      "context": "",
+      "removed": false,
+      "columns": [
+       {
+        "name": "id",
+        "type": "INTEGER",
+        "null": false,
+        "where": "db/b.sql:2"
+       },
+       {
+        "name": "order_id",
+        "type": "INTEGER",
+        "null": true,
+        "where": "db/b.sql:2"
+       },
+       {
+        "name": "user_id",
+        "type": "INTEGER",
+        "null": true,
+        "where": "db/b.sql:2"
+       }
+      ],
+      "primary_key": [
+       "id"
+      ],
+      "unique": [],
+      "foreign_keys": [
+       {
+        "columns": [
+         "user_id"
+        ],
+        "table": "users",
+        "references": [
+         "id"
+        ],
+        "on_delete": "",
+        "where": "db/b.sql:2"
+       },
+       {
+        "columns": [
+         "order_id"
+        ],
+        "table": "orders",
+        "references": [
+         "id"
+        ],
+        "on_delete": "cascade",
+        "where": "db/a.sql:5"
+       }
+      ],
+      "where": "db/b.sql:1"
+     }
+    ],
+    "without_table": []
+   },
+   "replaced": [
+    {
+     "file": "db/a.sql",
+     "checks": [],
+     "picture": {
+      "format": 1,
+      "tables": [
+       {
+        "id": "TBL-1",
+        "name": "users",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/a.sql:2"
+         },
+         {
+          "name": "email",
+          "type": "TEXT",
+          "null": true,
+          "where": "db/a.sql:2"
+         },
+         {
+          "name": "name",
+          "type": "TEXT",
+          "null": true,
+          "where": "db/a.sql:2"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [
+         {
+          "columns": [
+           "email"
+          ],
+          "partial": false
+         }
+        ],
+        "foreign_keys": [
+         {
+          "columns": [
+           "id"
+          ],
+          "table": "people",
+          "references": [
+           "id"
+          ],
+          "on_delete": "",
+          "where": "db/b.sql:4"
+         }
+        ],
+        "where": "db/a.sql:1"
+       },
+       {
+        "id": "TBL-2",
+        "name": "purchases",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/a.sql:4"
+         },
+         {
+          "name": "user_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/a.sql:4"
+         },
+         {
+          "name": "total",
+          "type": "NUMERIC(10, 2)",
+          "null": true,
+          "where": "db/a.sql:4"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [],
+        "foreign_keys": [],
+        "where": "db/a.sql:3"
+       },
+       {
+        "id": "TBL-3",
+        "name": "items",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/b.sql:2"
+         },
+         {
+          "name": "order_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/b.sql:2"
+         },
+         {
+          "name": "user_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/b.sql:2"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+         {
+          "columns": [
+           "user_id"
+          ],
+          "table": "users",
+          "references": [
+           "id"
+          ],
+          "on_delete": "",
+          "where": "db/b.sql:2"
+         },
+         {
+          "columns": [
+           "order_id"
+          ],
+          "table": "purchases",
+          "references": [
+           "id"
+          ],
+          "on_delete": "cascade",
+          "where": "db/a.sql:5"
+         }
+        ],
+        "where": "db/b.sql:1"
+       }
+      ],
+      "without_table": []
+     }
+    },
+    {
+     "file": "db/b.sql",
+     "checks": [],
+     "picture": {
+      "format": 1,
+      "tables": [
+       {
+        "id": "TBL-1",
+        "name": "users",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/a.sql:2"
+         },
+         {
+          "name": "email",
+          "type": "TEXT",
+          "null": true,
+          "where": "db/a.sql:2"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [
+         {
+          "columns": [
+           "email"
+          ],
+          "partial": false
+         }
+        ],
+        "foreign_keys": [
+         {
+          "columns": [
+           "id"
+          ],
+          "table": "people",
+          "references": [
+           "id"
+          ],
+          "on_delete": "",
+          "where": "db/b.sql:4"
+         }
+        ],
+        "where": "db/a.sql:1"
+       },
+       {
+        "id": "TBL-2",
+        "name": "orders",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/a.sql:4"
+         },
+         {
+          "name": "user_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/a.sql:4"
+         },
+         {
+          "name": "total",
+          "type": "NUMERIC(10, 2)",
+          "null": true,
+          "where": "db/a.sql:4"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+         {
+          "columns": [
+           "id"
+          ],
+          "table": "line_items",
+          "references": [
+           "id"
+          ],
+          "on_delete": "",
+          "where": "db/b.sql:3"
+         }
+        ],
+        "where": "db/a.sql:3"
+       },
+       {
+        "id": "TBL-3",
+        "name": "line_items",
+        "context": "",
+        "removed": false,
+        "columns": [
+         {
+          "name": "id",
+          "type": "INTEGER",
+          "null": false,
+          "where": "db/b.sql:2"
+         },
+         {
+          "name": "order_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/b.sql:2"
+         },
+         {
+          "name": "user_id",
+          "type": "INTEGER",
+          "null": true,
+          "where": "db/b.sql:2"
+         }
+        ],
+        "primary_key": [
+         "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+         {
+          "columns": [
+           "user_id"
+          ],
+          "table": "users",
+          "references": [
+           "id"
+          ],
+          "on_delete": "",
+          "where": "db/b.sql:2"
+         }
+        ],
+        "where": "db/b.sql:1"
+       }
+      ],
+      "without_table": []
+     }
+    }
+   ]
+  },
+  {
+   "name": "YAML, two files with one replaced",
+   "stage": "07-sitemap",
+   "ids": null,
+   "part": "nexus",
+   "shape": false,
+   "documents": [
+    [
+     "docs/07-sitemap/a.yaml",
+     "- id: SCR-1\n  name: Home\n  path: /\n  children:\n    - id: SCR-2\n      name: Orders\n      children:\n        - id: SCR-3\n          name: Order\n"
+    ],
+    [
+     "docs/07-sitemap/b.yaml",
+     "- id: SCR-4\n  name: Billing\n  children:\n    - id: SCR-5\n      name: Invoices\n    - id: SCR-6\n      name: Invoice\n"
+    ]
+   ],
+   "replace": [
+    [
+     "docs/07-sitemap/a.yaml",
+     "- id: SCR-1\n  name: Start\n  path: /\n  children:\n    - id: SCR-2\n      name: Orders\n    - id: SCR-7\n      name: Baskets\n      children:\n        - id: SCR-3\n          name: Order\n- id: SCR-8\n  name: Help\n"
+    ],
+    [
+     "docs/07-sitemap/b.yaml",
+     "- id: SCR-4\n  name: Billing\n  children:\n    - id: SCR-6\n      name: Invoice\n"
+    ]
+   ],
+   "checks": [],
+   "picture": {
+    "format": 1,
+    "screens": [
+     {
+      "id": "SCR-1",
+      "name": "Home",
+      "path": "/",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/a.yaml:1"
+     },
+     {
+      "id": "SCR-2",
+      "name": "Orders",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/a.yaml:5",
+      "parent": 0
+     },
+     {
+      "id": "SCR-3",
+      "name": "Order",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/a.yaml:8",
+      "parent": 1
+     },
+     {
+      "id": "SCR-4",
+      "name": "Billing",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/b.yaml:1"
+     },
+     {
+      "id": "SCR-5",
+      "name": "Invoices",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/b.yaml:4",
+      "parent": 3
+     },
+     {
+      "id": "SCR-6",
+      "name": "Invoice",
+      "path": "",
+      "access": "",
+      "flows": [],
+      "context": "",
+      "removed": false,
+      "where": "docs/07-sitemap/b.yaml:6",
+      "parent": 3
+     }
+    ],
+    "without_screen": []
+   },
+   "replaced": [
+    {
+     "file": "docs/07-sitemap/a.yaml",
+     "checks": [],
+     "picture": {
+      "format": 1,
+      "screens": [
+       {
+        "id": "SCR-1",
+        "name": "Start",
+        "path": "/",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:1"
+       },
+       {
+        "id": "SCR-2",
+        "name": "Orders",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:5",
+        "parent": 0
+       },
+       {
+        "id": "SCR-7",
+        "name": "Baskets",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:7",
+        "parent": 0
+       },
+       {
+        "id": "SCR-3",
+        "name": "Order",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:10",
+        "parent": 2
+       },
+       {
+        "id": "SCR-8",
+        "name": "Help",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:12"
+       },
+       {
+        "id": "SCR-4",
+        "name": "Billing",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/b.yaml:1"
+       },
+       {
+        "id": "SCR-5",
+        "name": "Invoices",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/b.yaml:4",
+        "parent": 5
+       },
+       {
+        "id": "SCR-6",
+        "name": "Invoice",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/b.yaml:6",
+        "parent": 5
+       }
+      ],
+      "without_screen": []
+     }
+    },
+    {
+     "file": "docs/07-sitemap/b.yaml",
+     "checks": [],
+     "picture": {
+      "format": 1,
+      "screens": [
+       {
+        "id": "SCR-1",
+        "name": "Home",
+        "path": "/",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:1"
+       },
+       {
+        "id": "SCR-2",
+        "name": "Orders",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:5",
+        "parent": 0
+       },
+       {
+        "id": "SCR-3",
+        "name": "Order",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/a.yaml:8",
+        "parent": 1
+       },
+       {
+        "id": "SCR-4",
+        "name": "Billing",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/b.yaml:1"
+       },
+       {
+        "id": "SCR-6",
+        "name": "Invoice",
+        "path": "",
+        "access": "",
+        "flows": [],
+        "context": "",
+        "removed": false,
+        "where": "docs/07-sitemap/b.yaml:4",
+        "parent": 3
+       }
+      ],
+      "without_screen": []
+     }
+    }
+   ]
+  },
   {
    "name": "SQL, MySQL: backslash strings, a comment after the columns, keys and a foreign key added later",
    "stage": "05-erd",

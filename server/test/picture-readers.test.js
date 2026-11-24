@@ -1,19 +1,27 @@
-// NEXUS's SQL and YAML readers (TASK-466; SPEC-018) read as the pinned hub reads: of this repository's db/nexus.sql and
-// docs/07-sitemap/nexus.yaml they make the pictures that tests/test_erd_picture.py and tests/test_sitemap_picture.py
-// keep in erd-picture.json and sitemap-picture.json, and of each case in picture-cases.json, which
-// tests/test_picture_cases.py keeps, the hub's picture and checks. Then the limits that are NEXUS's own: YAML nested
-// deeper than the hub can read, and long texts that are read in time that grows with their length.
+// NEXUS's Markdown, SQL and YAML readers (TASK-466, TASK-470; SPEC-018) read as the pinned hub reads: of this
+// repository's docs/01-domain/nexus.md, db/nexus.sql and docs/07-sitemap/nexus.yaml they make the pictures that
+// tests/test_ddd_board_picture.py, tests/test_erd_picture.py and tests/test_sitemap_picture.py keep in
+// ddd-board-picture.json, erd-picture.json and sitemap-picture.json, and of each case in picture-cases.json, which
+// tests/test_picture_cases.py keeps, the hub's picture and checks. A case's replaced files are put in place of what one
+// file gave its picture (picture-merge.js), which makes the hub's picture of the files with that one changed. Then the
+// limits that are NEXUS's own: YAML nested deeper than the hub can read, and long texts that are read in time that
+// grows with their length.
 
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { idFormat, oneLine, splitLines, strip } from '../src/picture-text.js';
+import { readDomainPicture } from '../src/domain-picture.js';
+import { byCodePoint, fileOf, mergePicture } from '../src/picture-merge.js';
+import { idFormat, oneLine, plain, splitLines, strip, unescapeHtml } from '../src/picture-text.js';
 import { readSqlPicture, sqlStatements } from '../src/sql-picture.js';
 import { MAX_BLOCKS, MAX_LISTS, readSitemapPicture, readYaml } from '../src/sitemap-picture.js';
 
 const fixture = (name) => JSON.parse(readFileSync(new URL(name, import.meta.url), 'utf8'));
-const READERS = { '05-erd': readSqlPicture, '07-sitemap': readSitemapPicture };
+const READERS = { '01-domain': readDomainPicture, '05-erd': readSqlPicture, '07-sitemap': readSitemapPicture };
+const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
+// The hub's picture-partial checks, as a drawing's warnings come from them, in one order.
+const partials = (checks) => checks.filter((check) => check.rule === 'picture-partial').map((check) => check.message).sort();
 
 // As tests/test_picture_cases.py's shape: each list longer than three as its count, first and last.
 const shape = (value) => {
@@ -28,7 +36,7 @@ for (const [stored, read] of [['erd-picture.json', readSqlPicture], ['sitemap-pi
   test(`NEXUS reads this repository's stage source as the pinned hub does (${stored})`, () => {
     const kept = fixture(stored);
     const bytes = readFileSync(new URL(`../../${kept.source}`, import.meta.url));
-    assert.equal(createHash('sha256').update(bytes).digest('hex'), kept.sha256, `${kept.source} changed since the stored picture`);
+    assert.equal(sha256(bytes), kept.sha256, `${kept.source} changed since the stored picture`);
     const text = bytes.toString('utf8').replace(/^\uFEFF/, '');
     const { picture, checks } = read([[kept.source, text]], { part: kept.part });
     assert.deepEqual(picture, kept.picture);
@@ -36,15 +44,138 @@ for (const [stored, read] of [['erd-picture.json', readSqlPicture], ['sitemap-pi
   });
 }
 
+test("NEXUS reads this repository's stage-01 documents as the pinned hub does (ddd-board-picture.json)", () => {
+  const kept = fixture('ddd-board-picture.json');
+  assert.ok(kept.documents.length >= 1);
+  const documents = kept.documents.map(({ path, sha256: digest }) => {
+    const bytes = readFileSync(new URL(`../../${path}`, import.meta.url));
+    assert.equal(sha256(bytes), digest, `${path} changed since the stored picture`);
+    return [path, bytes.toString('utf8').replace(/^\uFEFF/u, '')];
+  });
+  const { picture, checks } = readDomainPicture(documents, { part: kept.part });
+  assert.deepEqual(picture, kept.picture);
+  assert.deepEqual(checks, kept.checks);
+});
+
 test('NEXUS reads each case as the pinned hub does', () => {
   const { cases } = fixture('picture-cases.json');
-  assert.ok(cases.length >= 15);
+  assert.ok(cases.length >= 25);
+  assert.deepEqual([...new Set(cases.map((each) => each.stage))].sort(), Object.keys(READERS));
   for (const each of cases) {
     const extra = Object.entries(each.ids ?? {}).map(([kind, prefix]) => [prefix, kind]);
     const { picture, checks } = READERS[each.stage](each.documents, { ids: idFormat(extra), part: each.part });
     assert.deepEqual(each.shape ? shape(picture) : picture, each.picture, each.name);
     assert.deepEqual(checks, each.checks, each.name);
   }
+});
+
+test("a text in place of one of two files makes the hub's picture of the files so changed, on stages 01, 05 and 07", () => {
+  const cases = fixture('picture-cases.json').cases.filter((each) => each.replaced !== undefined);
+  assert.deepEqual(cases.map((each) => each.stage), Object.keys(READERS));
+  for (const each of cases) {
+    const extra = Object.entries(each.ids ?? {}).map(([kind, prefix]) => [prefix, kind]);
+    assert.equal(each.documents.length, 2, each.name);
+    assert.deepEqual(each.replaced.map((replaced) => replaced.file), each.documents.map(([file]) => file), each.name);
+    for (const [index, replaced] of each.replaced.entries()) {
+      const [file, text] = each.replace[index];
+      const name = `${each.name}: ${file}`;
+      // The text changes the picture, and the merge makes the hub's picture of the changed files.
+      assert.notDeepEqual(replaced.picture, each.picture, name);
+      const merged = mergePicture(each.stage, each.picture, file, text, { ids: idFormat(extra), part: each.part });
+      assert.equal(merged.failure, null, name);
+      assert.deepEqual(merged.picture, replaced.picture, name);
+      // What the hub left out of the other file stays, and the text's own warnings come with it, as a proposal keeps them.
+      const kept = each.checks.filter((check) => !check.message.startsWith(`${file}:`));
+      assert.deepEqual(partials([...kept, ...merged.checks]), partials(replaced.checks), name);
+    }
+    // The picture the merge was given is as it was.
+    assert.deepEqual(READERS[each.stage](each.documents, { ids: idFormat(extra), part: each.part }).picture, each.picture, each.name);
+  }
+});
+
+test('a text with none of its own entries takes its file\'s place; the picture is empty when no other file gives one', () => {
+  for (const [stage, current, file, text, key] of [
+    ['05-erd', fixture('erd-picture.json').picture, 'db/nexus.sql', 'CREATE VIEW v AS SELECT 1;', 'tables'],
+    ['07-sitemap', fixture('sitemap-picture.json').picture, 'docs/07-sitemap/nexus.yaml', '# nothing\n', 'screens'],
+    ['01-domain', fixture('ddd-board-picture.json').picture, 'docs/01-domain/nexus.md', '# no context\n', 'contexts'],
+  ]) {
+    // In place of the picture's one file, it leaves none; as another file, it leaves the picture's entries as they are.
+    const emptied = mergePicture(stage, current, file, text);
+    assert.deepEqual([emptied.empty, emptied.picture[key]], [true, []], stage);
+    const other = mergePicture(stage, current, 'a', text);
+    assert.deepEqual([other.empty, other.picture[key]], [false, current[key]], stage);
+  }
+  // A file of SQL that only alters another file's table reads in that file's place as the hub reads the two.
+  const left = 'CREATE TABLE a (id INTEGER PRIMARY KEY);\nCREATE TABLE c (id INTEGER, a_id INTEGER);\n';
+  const before = 'ALTER TABLE c ADD FOREIGN KEY (a_id) REFERENCES a (id);\n';
+  const after = `${before}ALTER TABLE c ADD COLUMN note TEXT;\n`;
+  const altered = mergePicture('05-erd', readSqlPicture([['db/a.sql', left], ['db/b.sql', before]]).picture, 'db/b.sql', after);
+  assert.deepEqual([altered.empty, altered.picture], [false, readSqlPicture([['db/a.sql', left], ['db/b.sql', after]]).picture]);
+  const failed = mergePicture('07-sitemap', null, 'a.yaml', '- name: a\n  name: b\n');
+  assert.deepEqual([failed.empty, failed.failure], [true, { file: 'a.yaml', line: 2 }]);
+  assert.throws(() => mergePicture('03-user-flow', null, 'a', 'x'), TypeError);
+});
+
+test('a document of many headings and many command rows reads in time that grows with its length (Codex review)', () => {
+  // 20,000 headings and 20,000 rows, about 440,000 characters: each row once found its context by every heading.
+  const text = `${'# CTX-1 C\n'.repeat(20_000)}| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n${'|x|x|x|x|x|\n'.repeat(20_000)}`;
+  const start = performance.now();
+  const { picture } = readDomainPicture([['a.md', text]]);
+  const took = performance.now() - start;
+  assert.equal(picture.contexts.length, 1);
+  assert.ok(took < 2_000, `${Math.round(took)} ms`);
+});
+
+test('a document of many command rows and many read-model rows reads in time that grows with its length (Codex review)', () => {
+  // 8,000 command rows and 8,000 rows of a read model none of them names: each read-model row once scanned every row.
+  const commands = '| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n';
+  const text = `### CTX-001 A\n${commands}${'| a | m | c | g | e |\n'.repeat(8_000)}\n| Read model | Shows |\n| --- | --- |\n${'| n | x |\n'.repeat(8_000)}`;
+  const start = performance.now();
+  const { picture } = readDomainPicture([['a.md', text]]);
+  const took = performance.now() - start;
+  assert.equal(picture.contexts.length, 1);
+  assert.ok(took < 2_000, `${Math.round(took)} ms`);
+});
+
+test("a whole list's limit is checked once, on the merged list, naming the last file as the hub does", () => {
+  const id = (n) => String(n).padStart(3, '0');
+  const contexts = (from, count) => Array.from({ length: count }, (_, n) => `### CTX-${id(from + n)} C${from + n}\n`).join('\n');
+  const tables = (from, count) => Array.from({ length: count }, (_, n) => `CREATE TABLE t${from + n} (id INTEGER);\n`).join('');
+  const screens = (from, count) => Array.from({ length: count }, (_, n) => `- id: SCR-${id(from + n)}\n  name: S${from + n}\n`).join('');
+  for (const [stage, read, make, detail, limit] of [
+    ['01-domain', readDomainPicture, contexts, 'contexts exceeds its picture limit', 200],
+    ['05-erd', readSqlPicture, tables, 'more than 500 tables; later tables are omitted', 500],
+    ['07-sitemap', readSitemapPicture, screens, 'more than 500 screens; later screens are omitted', 500],
+  ]) {
+    const current = read([['a', make(1, 1)]]).picture;
+    // Over the limit with the other file's entry, and over it with the text alone, which the reader checks too.
+    for (const count of [limit, limit + 1]) {
+      const merged = mergePicture(stage, current, 'b', make(2, count));
+      const over = merged.checks.filter(({ message }) => message.endsWith(`: ${detail}`)).map(({ message }) => message);
+      assert.deepEqual([over, merged.picture[Object.keys(merged.picture)[1]].length], [[`b:1: ${detail}`], limit], `${stage} ${count}`);
+    }
+  }
+});
+
+test("an entry's file is its where without the line, and files go in the order Python sorts them", () => {
+  assert.deepEqual(['db/a.sql:41', 'db/a:b.sql:2', 'docs/x.md', '', null, 7].map(fileOf), ['db/a.sql', 'db/a:b.sql', 'docs/x.md', null, null, null]);
+  // By code point: U+FF5E sorts before U+1F600, though its first UTF-16 unit is the greater.
+  assert.deepEqual(['b', '\u{1F600}', 'a', '\uFF5E', 'ab'].sort(byCodePoint), ['a', 'ab', 'b', '\uFF5E', '\u{1F600}']);
+});
+
+test("plain and unescapeHtml read a stage-01 text as the hub's plain and Python's html.unescape do", () => {
+  for (const [text, want] of [
+    ['a &amp; b &lt;x&gt; &ampx &notit; &notin;', 'a & b <x> &x \u00ACit; \u2209'],
+    ['&#0; &#128; &#x110000; &#55296; &#65; &#x41 &#0000000000065;', '\uFFFD \u20AC \uFFFD \uFFFD A A A'],
+    // Code points HTML does not allow are dropped; a carriage return is kept.
+    ['&#1; &#x7f; &#13; &#65534;', '  \r '],
+    ['&frac12x &AElig &zz; &', '\u00BDx \u00C6 &zz; &'],
+  ]) {
+    assert.equal(unescapeHtml(text), want, text);
+  }
+  assert.equal(plain('[a](b) ![c](d) [e] (f) **bold** <b>tag</b>x<br>y `v`'), 'a c [e] (f) bold tag x y v');
+  assert.equal(plain('a'.repeat(200)).length, 120);
+  assert.equal(plain(null), '');
 });
 
 test('a YAML text that does not read gives the line where it stops, and a text that reads gives none', () => {
@@ -101,4 +232,20 @@ test('long texts are read in time that grows with their length', { timeout: 60_0
   const yaml = `- name: ${'a '.repeat(size / 2)}\n${'  # c\n'.repeat(size / 8)}  path: '${"''".repeat(size / 4)}'\n`;
   assert.equal(readSitemapPicture([['t.yaml', yaml]]).picture.screens.length, 1);
   assert.equal(splitLines('\r\n'.repeat(size)).length, size);
+  // Stage-01 Markdown: long lists of names, of lane places and of alternatives, long runs of <, [, & and white space,
+  // and many rows.
+  const commands = '| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |';
+  const markdown = [
+    `### CTX-1 ${'<'.repeat(size / 4)}${'['.repeat(size / 4)}${'&'.repeat(size / 4)}`,
+    `Purpose:${' '.repeat(size / 4)}x`,
+    commands,
+    `| a | b | c | ${'x, '.repeat(size / 3)} | e |`,
+    `| Policy${' '.repeat(size / 4)} | b | c | d${' '.repeat(size / 4)}e | ${'f or '.repeat(size / 5)} |`,
+    '| a | b | c | d | e |\n'.repeat(size / 40),
+    `| Lane | Events |\n| --- | --- |\n| l | ${'a → '.repeat(size / 4)} |\n| m | ${'a or '.repeat(size / 5)} |`,
+  ].join('\n');
+  const read = readDomainPicture([['t.md', markdown]]);
+  assert.equal(read.picture.contexts.length, 1);
+  assert.equal(read.picture.timeline[0].places.length, 200);
+  assert.equal(mergePicture('01-domain', read.picture, 't.md', markdown).picture.contexts.length, 1);
 });
