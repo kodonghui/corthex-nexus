@@ -32,7 +32,7 @@
 // does not list either.
 
 import { pullRequestLink } from './claims.js';
-import { CONFIRMATION, CONFIRMATION_ROWS, confirmationBody } from './confirmations.js';
+import { confirmationBody, SELECT_CONFIRMATION } from './confirmations.js';
 import { failureWhere } from './drawer.js';
 import { idOf, keyOf } from './ids.js';
 import { itemNames } from './item-table.js';
@@ -131,7 +131,7 @@ function statementsOf(store) {
       ),
       // The latest confirmation, with its record's pull request (confirmations.js).
       confirmation: store.prepare(
-        `SELECT ${CONFIRMATION} FROM ${CONFIRMATION_ROWS} WHERE k.diagram_id = ? ORDER BY k.id DESC LIMIT 1`,
+        `${SELECT_CONFIRMATION} WHERE k.diagram_id = ? ORDER BY k.id DESC LIMIT 1`,
       ),
     };
     prepared.set(store, statements);

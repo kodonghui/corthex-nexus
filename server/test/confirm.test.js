@@ -17,7 +17,7 @@ import { GATE_KEY } from '../web/states.js';
 import { contract, validate } from './contract.js';
 import { listedResponses, responseRecord } from './responses.js';
 import { json, message, openPage, problem, texts } from './screen-page.js';
-import { seed } from './seed.js';
+import { REPOSITORY, seed } from './seed.js';
 import { localGate, newId, startServer } from './support.js';
 
 // The modules that import ./layout.js load once screen-page.js has taught the import where the server serves it from.
@@ -29,7 +29,6 @@ const { tagWord } = await import('../web/picture.js');
 
 const TIME = '2026-11-23T01:00:00.000Z';
 const P = 'reading-club';
-const REPOSITORY = 'https://github.com/example/demo';
 const ID = Object.freeze({ erd: 'dg_0000000000c5', board: 'dg_0000000000c1', mockup: 'dg_0000000000c9', oldErd: 'dg_0000000000c6' });
 const DRAWING = Object.freeze({ erd: 'dw_0000000000c5', board: 'dw_0000000000c1', mockup: 'dw_0000000000c9', oldErd: 'dw_0000000000c6', confirmed: 'dw_0000000000c0' });
 const CONFIRMED_AT = 'b41c9e2'.padEnd(40, '0');

@@ -307,15 +307,41 @@ describe('the diagram read', () => {
     s.linkRecord(confirmation, recordedBy);
     s.record(confirmation);
     assert.deepEqual(await fieldsOf(), ['confirmed', TIME, null, `${REPOSITORY}/pull/22`]);
-    // Cancelled once recorded: the pull request that recorded it, until the cancel's is reported; then the cancel's,
-    // open and then merged with cancel_recorded_at.
+    // Cancelled once recorded, the cancel's record is due: null until its pull request is reported, though the column
+    // still names the one that recorded the confirmation; then the cancel's, open and then merged.
     s.cancel(confirmation);
-    assert.deepEqual(await fieldsOf(), ['cancelled', TIME, null, `${REPOSITORY}/pull/22`]);
+    assert.deepEqual(await fieldsOf(), ['cancelled', TIME, null, null]);
     const cancelBy = s.pullRequest(space, { number: 23, purpose: 'record' });
     s.linkRecord(confirmation, cancelBy);
     assert.deepEqual(await fieldsOf(), ['cancelled', TIME, null, `${REPOSITORY}/pull/23`]);
+    // merged, as API-259's merged report moves it, records the cancel.
+    db.prepare("UPDATE pull_requests SET state = 'merged', closed_at = ? WHERE id = ?").run(TIME, cancelBy);
     s.recordCancel(confirmation);
     assert.deepEqual(await fieldsOf(), ['cancelled', TIME, TIME, `${REPOSITORY}/pull/23`]);
+
+    // Its cancel's pull request closed without merging unlinks it: null again.
+    const cancelClosed = s.project();
+    const cancelErd = s.diagram(cancelClosed);
+    const recordedThenCancelled = s.confirm(cancelClosed, cancelErd);
+    s.record(recordedThenCancelled);
+    s.cancel(recordedThenCancelled);
+    s.linkRecord(recordedThenCancelled, null);
+    assert.equal((await read(cancelClosed.name, cancelErd.id)).json.confirmation.pull_request, null);
+
+    // Cancelled before it was recorded, its record is withdrawn: its open pull request is no longer named. Once that
+    // pull request merges all the same (API-259 marks it recorded), the cancel is due and none is reported: null.
+    const early = s.project();
+    const earlyErd = s.diagram(early);
+    const withdrawn = s.confirm(early, earlyErd);
+    const earlyPull = s.pullRequest(early, { number: 24, purpose: 'record' });
+    s.linkRecord(withdrawn, earlyPull);
+    assert.equal((await read(early.name, earlyErd.id)).json.confirmation.pull_request, `${REPOSITORY}/pull/24`);
+    s.cancel(withdrawn);
+    assert.equal((await read(early.name, earlyErd.id)).json.confirmation.pull_request, null);
+    db.prepare("UPDATE pull_requests SET state = 'merged', closed_at = ? WHERE id = ?").run(TIME, earlyPull);
+    s.record(withdrawn);
+    const merged = (await read(early.name, earlyErd.id)).json.confirmation;
+    assert.deepEqual([merged.recorded_at, merged.pull_request], [TIME, null]);
 
     // A project that names no repository has no link to give: null.
     const bare = s.project(undefined, { repository: null });

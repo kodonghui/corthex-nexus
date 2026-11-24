@@ -188,22 +188,27 @@ describe('confirmations', () => {
     const again = await confirm(space.name, erd.id, erd.drawing);
     assert.deepEqual([again.status, again.json.confirmation.pull_request], [200, `${REPOSITORY}/pull/31`]);
     assert.deepEqual(again.json.confirmation, (await read(space.name, erd.id)).confirmation);
-    // Cancelled before it was recorded, the answer still names it; cancelled again, the same.
+    // Cancelled before it was recorded, its record is withdrawn: the answer names no pull request, cancelled again
+    // neither, as the diagram read.
     const cancelled = await cancel(space.name, made.json.confirmation.id);
     assert.deepEqual([cancelled.status, cancelled.json.changed, cancelled.json.confirmation.state], [200, true, 'cancelled']);
     assert.deepEqual(cancelled.json.confirmation, (await read(space.name, erd.id)).confirmation);
-    assert.equal(cancelled.json.confirmation.pull_request, `${REPOSITORY}/pull/31`);
+    assert.equal(cancelled.json.confirmation.pull_request, null);
     const twice = await cancel(space.name, made.json.confirmation.id);
-    assert.deepEqual([twice.json.changed, twice.json.confirmation.pull_request], [false, `${REPOSITORY}/pull/31`]);
+    assert.deepEqual([twice.json.changed, twice.json.confirmation.pull_request], [false, null]);
 
-    // A recorded confirmation, cancelled: the pull request that recorded it.
+    // A recorded confirmation names the pull request that recorded it; cancelled, the cancel's record is due and none
+    // is reported: null.
     const other = erdProject();
     const first = await confirm(other.space.name, other.erd.id, other.erd.drawing);
     const key = keyOf(first.json.confirmation.id);
     s.linkRecord(key, s.pullRequest(other.space, { number: 32, state: 'merged', purpose: 'record' }));
     s.record(key);
+    const recordedAgain = await confirm(other.space.name, other.erd.id, other.erd.drawing);
+    assert.deepEqual([recordedAgain.status, recordedAgain.json.confirmation.pull_request], [200, `${REPOSITORY}/pull/32`]);
     const recorded = await cancel(other.space.name, first.json.confirmation.id);
-    assert.deepEqual([recorded.json.confirmation.recorded_at, recorded.json.confirmation.pull_request], [SEEDED, `${REPOSITORY}/pull/32`]);
+    assert.deepEqual([recorded.json.confirmation.recorded_at, recorded.json.confirmation.pull_request], [SEEDED, null]);
+    assert.deepEqual(recorded.json.confirmation, (await read(other.space.name, other.erd.id)).confirmation);
 
     // A project that names no repository: null, a pull request linked or not.
     const bare = s.project(undefined, { repository: null });
