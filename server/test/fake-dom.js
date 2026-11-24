@@ -163,8 +163,9 @@ const BLOCKED = Object.freeze({
 
 // A page at pathname and search: { app, document, location, history, session, local, ticks, copied, install, pop }.
 // install() puts its document, location, history, storage, matchMedia, setInterval, the window's addEventListener, a
-// navigator with a clipboard and CSS.supports on globalThis, and returns a function that takes them away again; the
-// interval functions the page starts are kept in ticks for the test to run. blocked refuses sessionStorage; phone
+// clipboard on the navigator and CSS.supports on globalThis, and returns a function that takes them away again; a
+// history or a clipboard that a test put in place before keeps its place. The interval functions the page starts are
+// kept in ticks for the test to run. blocked refuses sessionStorage; phone
 // makes the page a phone's (a narrow screen with a coarse pointer); clipboard 'refused' makes writing to it fail, and
 // what is written goes into copied. history.pushState and replaceState move location; location.assign keeps each
 // address in assigned; pop(href) goes back or forward to href, as the browser's buttons do.
@@ -219,12 +220,13 @@ export function fakePage({ pathname = '/', search = '', session = {}, local = {}
       for (const listener of windowListeners.get('popstate') ?? []) listener({ type: 'popstate' });
     },
     install() {
-      const names = ['document', 'location', 'history', 'sessionStorage', 'localStorage', 'matchMedia', 'setInterval', 'addEventListener', 'navigator', 'CSS'];
+      const names = ['document', 'location', 'history', 'sessionStorage', 'localStorage', 'matchMedia', 'setInterval', 'addEventListener', 'CSS'];
       const before = Object.fromEntries(names.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
+      const ownClipboard = Object.getOwnPropertyDescriptor(globalThis.navigator, 'clipboard');
       const values = {
         document,
         location,
-        history,
+        history: before.history?.value ?? history,
         sessionStorage: blocked ? BLOCKED : page.session,
         localStorage: page.local,
         matchMedia: (query) => ({
@@ -236,23 +238,23 @@ export function fakePage({ pathname = '/', search = '', session = {}, local = {}
           if (!windowListeners.has(type)) windowListeners.set(type, []);
           windowListeners.get(type).push(listener);
         },
-        navigator: {
-          clipboard: {
-            async writeText(text) {
-              if (clipboard === 'refused') throw new Error('NotAllowedError');
-              page.copied.push(text);
-            },
-          },
-        },
         // A stand-in for the browser's colour parser: a hex colour, rgb(), hsl() or a word.
         CSS: { supports: (property, value) => property === 'color' && /^(?:#[0-9a-f]{3,8}|(?:rgb|hsl)a?\([^()]*\)|[a-z]+)$/i.test(value) },
       };
       for (const name of names) Object.defineProperty(globalThis, name, { value: values[name], configurable: true, writable: true });
+      const pageClipboard = {
+        async writeText(text) {
+          if (clipboard === 'refused') throw new Error('NotAllowedError');
+          page.copied.push(text);
+        },
+      };
+      if (ownClipboard === undefined) Object.defineProperty(globalThis.navigator, 'clipboard', { value: pageClipboard, configurable: true, writable: true });
       return () => {
         for (const name of names) {
           if (before[name] === undefined) delete globalThis[name];
           else Object.defineProperty(globalThis, name, before[name]);
         }
+        if (ownClipboard === undefined) delete globalThis.navigator.clipboard;
       };
     },
   };
