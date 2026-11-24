@@ -1,0 +1,1 @@
+Screenshots of the TASK-461 browser walk (pull request 160, SCR-145 confirmations and SCR-146), taken on a local server with test data only. This branch holds nothing else and can be deleted after the review.
