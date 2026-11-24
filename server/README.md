@@ -1398,7 +1398,7 @@ The screen differs from the stage-09 mockup in four places: a tool link's title 
 
 These rules, and the words the screen definitions and the mockup do not give, were chosen by the coordinator for TASK-457, and the maintainer approved them through the delegate they named for checkpoints on 2026-11-24, each asked on its own.
 
-TASK-467 changes one of them: a link read with no status says "읽음" with the time it was read, where TASK-457 showed "아직 안 읽음" for every link with no status. That change waits for the maintainer's delegate.
+TASK-467 changes one of them: a link read with no status says "읽음" with the time it was read, where TASK-457 showed "아직 안 읽음" for every link with no status. The maintainer approved that change of TASK-457's approved screen, for this one case, through the delegate they named for checkpoints on 2026-11-24, asked on its own.
 
 `test/project-screen.test.js` checks each state of SCR-144 against stubbed answers and against the server, and how the page shows every response API-264, API-277, API-278, API-282 and API-283 list. Each stubbed answer is checked against the contract, and the operations' own tests have the server give each response. It also tests the request keys of the writes, the particle, and a link's status in its three forms: read with a status, read with none, and not read yet. The browser walk of the pull request shows each state at 360 and 1440 px, in light and dark.
 
@@ -1419,7 +1419,7 @@ TASK-467 changes one of them: a link read with no status says "읽음" with the 
 - **Failures (REQ-061).** A link that cannot be read keeps its last status and the time it was read, whatever the failure: a 401, 403, 404, 429 or 5xx answer, a redirect, a timeout, a network error or an answer of the wrong form. A link never read keeps "not read yet". A 401 or 403 (a refused token) or a 429 (asked to slow down) leaves that tool alone for 30 minutes, so a refused token is not tried on every link; the other tool is still read. A Notion page not shared with the integration answers 404.
 - **The log.** One `tool_status_read` line for each round and tool that asked anything, a round that the server's stop ended included (see [Log](#log)). It never holds a token, an address, a page ID, a project key, the site, its cloud ID, the account or anything a tool answered (rule 5). A link is named by its ID, which is not a secret.
 
-The coordinator chose these rules for TASK-467; those no approved document states wait for the maintainer's delegate.
+The coordinator chose these rules for TASK-467. The maintainer approved those no approved document states, with the new Korean words, through the delegate they named for checkpoints on 2026-11-24, each asked on its own.
 
 `test/tool-status.test.js` checks the read with a stubbed `fetch` and an injected clock, with no real token or service:
 - which ID a link gives, and the JQL a key makes;
