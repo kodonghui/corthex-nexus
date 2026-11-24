@@ -336,6 +336,8 @@ describe('SCR-145 workshop', () => {
       assert.equal(page.sent.length, 2);
       button = noteNamed(page, '알림 보내기');
       button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      // The same button takes its drag listeners once, whatever number of presses it saw.
+      assert.equal(button.listeners.get('pointerup').length, 1);
       button.dispatch('pointermove', { clientX: 150, clientY: 130 });
       assert.deepEqual(placeOf(button), [530, 30]);
       button.dispatch('pointerup', { clientX: 150, clientY: 130 });

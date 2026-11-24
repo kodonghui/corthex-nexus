@@ -146,7 +146,7 @@ export function workshopEntry({ address, data }) {
 
 // The view of the workshop, built once for its title, description, tag, buttons, body and panel.
 const built = new WeakMap();
-// The workshop's own state, by the shell it runs in.
+// The workshop's own state, by the shell it runs in. A shell runs one project's stage: another opens a page of its own.
 const states = new WeakMap();
 
 export function workshopView(ctx) {
@@ -175,6 +175,7 @@ function stateFor(ctx) {
     again: new Set(),
     timer: null,
     drags: new WeakMap(),
+    wired: new WeakSet(),
     nodes: new Map(),
     linking: false,
     adding: null,
@@ -413,7 +414,7 @@ function noteNode(state, note) {
   const known = Object.hasOwn(KIND_WORDS, note.kind);
   const className = `stk k-${known ? note.kind : 'note'}`;
   const confidence = note.confidence === null || note.confidence === undefined ? null
-    : h('span', { class: 'conf' }, CONFIDENCE_WORDS[note.confidence] ?? note.confidence);
+    : h('span', { class: 'conf' }, Object.hasOwn(CONFIDENCE_WORDS, note.confidence) ? CONFIDENCE_WORDS[note.confidence] : note.confidence);
   const content = [
     h('span', { class: 'cap' }, h('span', { class: 'cw' }, known ? KIND_WORDS[note.kind] : note.kind), confidence),
     h('b', { class: 'nm' }, note.text),
@@ -656,7 +657,9 @@ function pointerdown(state, id, event) {
   if (!node || !holder) return;
   const at = placeOf(state, note);
   const drag = { id, start: { x: event.clientX, y: event.clientY }, at, holder, moved: false, to: at };
-  if (!state.drags.has(node)) {
+  // A note's button takes its drag listeners once, however many drags it sees before it is drawn again.
+  if (!state.wired.has(node)) {
+    state.wired.add(node);
     node.addEventListener('pointermove', (move) => dragged(state.drags.get(node), move));
     node.addEventListener('pointerup', (up) => dropped(state, node, up));
     node.addEventListener('pointercancel', () => cancelled(state, node));
