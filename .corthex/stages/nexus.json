@@ -25,10 +25,15 @@
           "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: TERM-194 and the list in section 1 name the user flow among the pictures NEXUS draws. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "No change, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): the domain design states no rule for listing or opening a removed diagram; Reject proposal and Cancel edit (CTX-038) and hotspot 3's answer stand as written. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 02: write the PRD from the domain design",
-      "updated": "2026-11-23T13:57:15+09:00"
+      "updated": "2026-11-24T10:36:45+09:00"
     },
     "02-prd": {
       "state": "done",
@@ -47,10 +52,15 @@
           "approved": "Feature change of 2026-11-23 at commit 8dac12f, pictures of stages 03, 08 and 09 in the first release: the release table puts the pictures of stages 03, 07, 08 and 09 in the first release and REQ-007 to REQ-010 become Must. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "No change, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): no requirement lists or opens a removed diagram; REQ-024, REQ-028 and REQ-033 keep their words. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 03: draw the user flows from the requirements",
-      "updated": "2026-11-23T13:57:15+09:00"
+      "updated": "2026-11-24T10:36:45+09:00"
     },
     "03-user-flow": {
       "state": "done",
@@ -59,10 +69,15 @@
           "approved": "Stage 03: the thirteen user flows with their main and failure paths; a failed daily backup becomes an exception of REQ-076 in stage 04 with a warning in the owner's to-do; the five cross-screen requirements go to stages 08, 09 and 12. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "No change, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): no flow walks a removed diagram; FL-007, FL-003's rejection and FL-004's cancel stand as drawn. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 04: write the functional spec from the requirements and flows",
-      "updated": "2026-11-23T13:57:15+09:00",
+      "updated": "2026-11-24T10:36:45+09:00",
       "checks": [
         {
           "level": "info",
@@ -113,10 +128,15 @@
           "approved": "After the tenth review of pull request 104, at commit eb9c079: SPEC-027 says when an element leaves its stage document, counts an element of an unreadable part as gone until the part reads again, and keeps a removed diagram out of its stage's diagrams, listed last while it has open threads and open for its threads only. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "SPEC-027's exception for a removed diagram, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): the approved text \"and is listed after the others, marked removed, only while it has open threads; it opens for reading, replying to and closing its threads only, and a new thread, a move, a direct edit, accepting a proposal and confirming are refused.\" becomes \"and is listed after the others, marked removed, only while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection; it opens for reading, replying to and closing its threads, rejecting its AI proposals and cancelling its direct edits, and a new thread, a move, a new direct edit, accepting a proposal and confirming are refused.\" It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
-      "updated": "2026-11-23T16:41:20+09:00"
+      "updated": "2026-11-24T10:36:45+09:00"
     },
     "05-erd": {
       "state": "done",
@@ -175,10 +195,15 @@
           "approved": "A reflection's threads, pull request 150, at commit b568e23: TBL-155 comment_threads' trace line in db/nexus.sql gains SPEC-025, so it reads \"-- TBL-155 comment_threads (CTX-038) ← SPEC-016, SPEC-017, SPEC-018, SPEC-025, SPEC-027, SPEC-028, SPEC-042, SPEC-043 | terms: TERM-200\" instead of the approved line without SPEC-025, since a reflection opens the note 26 thread and closes a proposal's thread. No table, column or constraint changed, and the ERD drawing is the same. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "TBL-151's comment in db/nexus.sql, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): the approved \"it stays listed while it has open threads (SPEC-027).\" becomes \"it stays listed while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection (SPEC-027).\" No table, column or constraint changed, and TBL-158's trace line stays. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-24T09:42:36+09:00",
+      "updated": "2026-11-24T10:36:45+09:00",
       "checks": [
         {
           "level": "info",
@@ -334,10 +359,15 @@
           "approved": "Miro import table and example correction, pull request 152, at commit 096ac37 (note 23): API-292's x-corthex.tables lists TBL-147, TBL-162, TBL-164 and TBL-165 instead of the approved TBL-164 and TBL-165, and its 400 response gains a text_too_long example, field data[0].data.content and limit 200, beside the approved invalid_request. No operation, field, code or spec row changed. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Four contract texts, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): API-264's description, the approved \"removed ones with open threads listed last (SPEC-005, SPEC-027)\"; DiagramSummary's removed description, the approved \"A removed diagram is listed after the others only while it has open threads\"; diagram_not_found's meaning, the approved \"No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027).\", with the API README's error table; and its client line, the approved \"after a write, read the diagram again first, since a removed one still listed opens for its threads only (SPEC-027).\" Each now names the three reasons, and the meaning names API-265's 404 for a removed diagram with none left. No operation, field, response, code or table list changed. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T10:04:22+09:00"
+      "updated": "2026-11-24T10:36:45+09:00"
     },
     "07-sitemap": {
       "state": "done",
@@ -371,10 +401,15 @@
           "approved": "After the tenth review of pull request 104, at commit eb9c079: the ?d= of SCR-145 and SCR-146 also takes a removed diagram that is still listed. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "No change, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): ?d= already takes a removed diagram still listed (SPEC-027), whatever keeps it listed. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 08: write a screen definition with its states for each of the five screens",
-      "updated": "2026-11-23T16:41:20+09:00"
+      "updated": "2026-11-24T10:36:45+09:00"
     },
     "08-screen-states": {
       "state": "done",
@@ -418,10 +453,15 @@
           "approved": "SCR-145 on a removed diagram, pull request 142, at commit 1ae89b0: SCR-145#normal says a removed diagram with open threads opens for its threads and its AI proposals only, its proposals showing Reject and never Accept, where it said for its threads only; SCR-145#error says a removed one still listed opens for its threads and its proposals' Reject only. The number of states is unchanged, and the Korean definition changes the same way. SPEC-027 stays as approved: its refusals name accepting a proposal, not rejecting one, as asked on its own. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "SCR-145's normal and error states, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): the approved normal text \"A removed diagram with open threads comes last, marked removed, and opens for its threads and its AI proposals only: its threads are read, answered and closed, its proposals show Reject and never Accept, and no new comment, move, direct edit or confirm button shows (SPEC-027).\" and error text \"a removed one still listed opens for its threads and its proposals' Reject only (SPEC-027)\" now name the three reasons, and the This diagram section lists the waiting direct edits with Cancel edit in place of the confirm button; no Cancel confirmation shows. SCR-146 and SCR-144 are unchanged. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-24T08:13:36+09:00"
+      "updated": "2026-11-24T10:36:45+09:00"
     },
     "09-mockup": {
       "state": "done",
@@ -455,10 +495,15 @@
           "approved": "After the tenth review of pull request 104, at commit eb9c079: the mockup page's copy of SCR-145's and SCR-146's states follows stage 08; nothing else changed. The approved items it changes were answered one by one before the documents changed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-23"
+        },
+        {
+          "approved": "The mockup page's Korean copy (META) of SCR-145's normal and error states, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): generated again from the stage-08 Korean definitions, which also catches up with TASK-444's Reject change of 2026-11-24; the approved copies were \"열린 스레드가 있는 지운 그림은 맨 뒤에 지움 표시로 나오고, 스레드를 보려고만 열림. 스레드 읽기·답하기·닫기만 있고, 새 댓글, 옮기기, 직접 편집, 제안 답하기, 확정 버튼은 없음(SPEC-027).\" and \"목록에 남은 지운 그림이면 스레드를 보려고만 엶(SPEC-027).\" No frame and no token changed. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 10: plan the work of the first release from the approved design of stages 01 to 09",
-      "updated": "2026-11-23T16:41:20+09:00"
+      "updated": "2026-11-24T10:36:45+09:00"
     },
     "10-wbs": {
       "state": "done",
@@ -507,10 +552,15 @@
           "approved": "SCR-143 against the stage-09 mockup, pull request 147, at commit c84ebe7: the credentials keep API-279's order, the live ones first, each the newest first, where the mockup's sample lists the live ones oldest first; and the name field sets no maxlength, where the mockup's has maxlength=\"64\", which counts UTF-16 units and silently cuts a pasted name, so the server's refusal shows by the field. Section 4 records the two differences, and stage 12's QA looks at them again. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "TASK-468 added and TASK-458's row, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): TASK-468 (Must, S, a Claude worker, from SPEC-027, touching API-264, API-265, TBL-151, TBL-155 and TBL-158, after TASK-440, TASK-441, TASK-444 and TASK-445; TASK-464 and the removed-diagram case of TASK-458 and TASK-460 wait for it) builds the listing and the 404; TASK-458's approved \"the stage's diagrams with ?d=, removed ones with open threads last\" becomes \"the stage's diagrams with ?d=, removed ones still listed last\". Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",
-      "updated": "2026-11-24T09:58:33+09:00"
+      "updated": "2026-11-24T10:36:45+09:00"
     },
     "11-development": {
       "state": "not_started",

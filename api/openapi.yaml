@@ -3625,7 +3625,7 @@ paths:
     get:
       operationId: getProject
       summary: Read a project
-      description: The stages with their diagrams and states, a stage passed once every diagram of it that is not removed has a recorded confirmation (SPEC-035), removed ones with open threads listed last (SPEC-005, SPEC-027), and the tool links with their last status (SPEC-046).
+      description: The stages with their diagrams and states, a stage passed once every diagram of it that is not removed has a recorded confirmation (SPEC-035), removed ones listed last while they have an open thread, a proposed AI proposal or a direct edit waiting for reflection (SPEC-005, SPEC-027), and the tool links with their last status (SPEC-046).
       tags: [owner]
       x-corthex:
         id: API-264
@@ -9033,10 +9033,10 @@ components:
         client: An agent sends the request again with diagram.
       diagram_not_found:
         status: 404
-        meaning: No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027).
+        meaning: No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a new direct edit, a move, a confirmation or a new thread names was removed, or the diagram read (API-265) names a removed diagram with no open thread, proposed AI proposal or direct edit waiting for reflection left (SPEC-027).
         message: This diagram is not in NEXUS.
         message_ko: "NEXUS에 없는 다이어그램이에요."
-        client: "Link to the project; after a write, read the diagram again first, since a removed one still listed opens for its threads only (SPEC-027). An agent does not send the comment again as it is: it pushes the stage so that it draws, or names an item that a drawn diagram of the stage holds; an open thread of a removed diagram still takes replies (API-253)."
+        client: "Link to the project; after a write, read the diagram again first, since a removed one still listed opens for its threads, its proposals' Reject and its direct edits' Cancel edit (SPEC-027). An agent does not send the comment again as it is: it pushes the stage so that it draws, or names an item that a drawn diagram of the stage holds; an open thread of a removed diagram still takes replies (API-253)."
       discrepancy_not_found:
         status: 404
         meaning: NEXUS v3 has no discrepancies, so every nd_ ID is unknown.
@@ -11011,7 +11011,7 @@ components:
           maxLength: 200
         removed:
           type: boolean
-          description: A removed diagram is listed after the others only while it has open threads; it counts for no stage pass and is never the stage's first diagram (SPEC-005, SPEC-027).
+          description: A removed diagram is listed after the others only while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection; it counts for no stage pass and is never the stage's first diagram (SPEC-005, SPEC-027).
         drawn:
           type: boolean
         confirmation:

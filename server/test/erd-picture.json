@@ -1,7 +1,7 @@
 {
  "about": "The pinned hub's stage-05 picture of db/nexus.sql, as its erd.py makes it, and the SHA-256 of the file. tests/test_erd_picture.py checks it against the pinned hub and says how to make it again.",
  "source": "db/nexus.sql",
- "sha256": "94bb9ec869f9d12ba5fedc3aae9dc711915d5d61360dca6b8c1dfaae1851367b",
+ "sha256": "e4f79585470b48164ed67dc615a718c3597a89063174d554e80a58be8e3fd94d",
  "part": "nexus",
  "checks": [],
  "picture": {
