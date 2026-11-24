@@ -341,7 +341,8 @@ function issueForm({ name, off, busy = false, refused, page = null, shell = null
       h('div', {}, h('label', { class: 'l', for: 'credential-name' }, '새 자격 이름'), field),
       h('button', { type: 'button', class: 'btn primary', disabled: off || busy, on: page === null ? {} : { click: () => issue(page, shell) } }, '발급')),
     refused === null ? null : [
-      h('p', { class: 'err-text', id: 'credential-name-refused', role: 'alert' }, shell.message(refused.code)),
+      // A div, not a p: the shell's `.nx p{margin:0}` would take away err-text's space under the field.
+      h('div', { class: 'err-text', id: 'credential-name-refused', role: 'alert' }, shell.message(refused.code)),
       refused.traceId ? h('span', { class: 'helper mono' }, `traceId ${refused.traceId}`) : null,
     ]);
 }

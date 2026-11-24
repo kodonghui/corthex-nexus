@@ -462,6 +462,8 @@ describe('the projects and the credentials (SCR-143)', () => {
       await page.settle();
       assert.equal(page.sent[1].key, page.sent[0].key);
       assert.equal(byId(page, 'credential-name-refused').textContent, '다른 이름을 고르세요.');
+      // Not a p, which the shell's `.nx p{margin:0}` would pull up against the field.
+      assert.equal(byId(page, 'credential-name-refused').tagName, 'DIV');
       assert.equal(field().getAttribute('value'), 'ci');
       // The server refused the name: it is marked.
       assert.equal(field().getAttribute('aria-invalid'), 'true');
