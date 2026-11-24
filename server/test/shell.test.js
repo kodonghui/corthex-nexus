@@ -540,9 +540,10 @@ describe('the shell', () => {
     }
     const well = await open('/p/reading-club/_/01-domain', { search: '?thread=nc_0000000000a1' });
     try {
-      // The panel holds only the workbench's own sections, the Selected one hidden until an element is chosen.
+      // The panel holds only the workbench's own sections: AI 제안 on a PC (TASK-460), and the Selected one hidden until an element is chosen.
       assert.deepEqual(well.app.all('aside')[0].all('div', 'nt'), []);
-      assert.deepEqual(well.app.all('aside')[0].children.filter((child) => child.shown), []);
+      assert.deepEqual(well.app.all('aside')[0].children.filter((child) => child.shown)
+        .map((child) => child.getAttribute('aria-label')), ['AI 제안']);
     } finally {
       well.close();
     }

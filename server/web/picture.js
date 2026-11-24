@@ -204,6 +204,8 @@ export function chooser(view, element, className, content, extra = {}) {
       click: () => view.select(element.key),
       keydown: (event) => view.keydown(element, event),
       pointerdown: (event) => view.pointerdown(element, event),
+      // A double click renames (TASK-460).
+      dblclick: () => view.dblclick?.(element),
     },
   }, content);
   view.nodes.set(element.key, button);
@@ -378,10 +380,14 @@ function lineOf(view, element, layers) {
     'aria-label': text !== '' ? text : `${names.get(from) ?? from} → ${names.get(to) ?? to}`,
     on: {
       click: () => view.select(element.key),
+      dblclick: () => view.dblclick?.(element),
       keydown: (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           view.select(element.key);
+        } else {
+          // F2 and Escape, which the workbench's changes take (TASK-460); a line takes no arrow.
+          view.keydown?.(element, event);
         }
       },
     },

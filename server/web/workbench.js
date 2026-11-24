@@ -11,12 +11,15 @@
 //   Each drag or run of keys is sent as one move once it stops for 400 ms, with a new request key (API-274). A removed
 //   diagram, a phone (SPEC-051), stage 08's panels, a row and a token take no move.
 // - Choosing does not draw the view again, so the mockup's frame keeps its page; a move draws the picture again.
+// - The changes, answering AI proposals, renaming, connecting and what waits for reflection, are changes.js's
+//   (TASK-460): the workbench puts its parts in place and passes it the choices and keys it takes.
 //
 // The workbench keeps, for the shell it runs in, the chosen element and the moves not yet answered; it keeps nothing
 // in the browser's storage.
 
 import { diagramApi, stageHref } from './address.js';
 import { newRequestKey } from './api.js';
+import { CHANGE_WORDS, changeKey, changesOf, drawChanges, moreBlock, nameBlock, picked, renameFrom } from './changes.js';
 import { fill, h, s } from './dom.js';
 import { mockupFrame } from './mockup-frame.js';
 import { overlayModel } from './overlays.js';
@@ -35,8 +38,8 @@ export const WORKBENCH_WORDS = Object.freeze({
   copied: '복사했어요',
   copyField: 'ID와 이름',
   selected: '고른 요소',
-  diagram: '이 그림',
-  proposals: 'AI 제안',
+  diagram: CHANGE_WORDS.diagram,
+  proposals: CHANGE_WORDS.proposals,
   noProposals: '목업은 AI 제안을 받지 않아요. 에이전트는 토큰이나 목업에 댓글을 달아요.',
   moveGone: '다이어그램에 더 이상 없는 요소예요.',
   notDrawn: '이 문서는 그려지지 않아요.',
@@ -44,9 +47,10 @@ export const WORKBENCH_WORDS = Object.freeze({
   removed: WORDS.removed,
 });
 
-// The text under the title, by the diagram's kind (TASK-458's question 7): the mockup's words where it gives them.
+// The text under the title, by the diagram's kind (TASK-458's question 7): the mockup's words where it gives them. The
+// board's on a PC is the mockup's again, F2 renaming included, since TASK-460 renames (WBS section 4).
 const DESCRIPTIONS = Object.freeze({
-  ddd_board: { pc: 'Git 문서에서 그린 그림이에요. 끌어 옮겨 보세요. 키보드로는 화살표로 옮겨요.', phone: 'Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.' },
+  ddd_board: { pc: 'Git 문서에서 그린 그림이에요. 끌어 옮기고, 두 번 눌러 이름을 바꿔 보세요. 키보드로는 화살표로 옮기고 F2로 이름을 바꿔요.', phone: 'Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.' },
   user_flow: 'Git 문서의 Mermaid 흐름도에서 그린 그림이에요. 흐름 파일마다 그림이 하나 있어요.',
   erd: 'Git의 스키마에서 그린 ERD예요. 테이블마다 상자가 하나 있어요.',
   sitemap: 'Git의 사이트맵에서 그린 화면 트리예요.',
@@ -93,6 +97,9 @@ function stateOf(ctx) {
   if (state === undefined || state.diagram !== diagram.id) {
     state?.frame?.end();
     state = { diagram: diagram.id, selected: null, moves: new Map(), pending: new Set(), sending: new Set(), again: new Set(), timer: null, frame: null, drags: new WeakMap() };
+    // Whether the workbench still shows this diagram, for an answer that comes after a switch.
+    const own = state;
+    state.live = () => states.get(ctx.shell) === own;
     states.set(ctx.shell, state);
   }
   return state;
@@ -110,15 +117,17 @@ function build(ctx, row) {
   state.pictureBox = h('div', { class: 'wb-picture' });
   state.selectedBox = h('section', { class: 'panel', hidden: true, 'aria-label': WORKBENCH_WORDS.selected });
   state.tokenBox = null;
+  const changes = changesOf(state);
 
   const body = [
     ctx.note === 'gone' ? h('div', { class: 'nt warn', role: 'status' }, h('div', { class: 'b' }, h('b', {}, ctx.shell.message('diagram_not_found')))) : null,
     diagramList(ctx, row),
     notDrawn(diagram),
     state.notice,
+    changes.line,
     state.pictureBox,
   ];
-  const panel = [];
+  const panel = [...changes.sections];
   if (diagram.kind === 'mockup') {
     state.frame?.end();
     state.frame = mockupFrame({ diagram, shell: ctx.shell });
@@ -137,6 +146,7 @@ function build(ctx, row) {
   if (state.phone) body.push(h('div', { class: 'nt info', role: 'status' }, h('div', { class: 'b' }, h('span', {}, WORKBENCH_WORDS.phone))));
   panel.push(state.selectedBox);
   drawSelected(state);
+  drawChanges(state);
   return { body, panel };
 }
 
@@ -198,6 +208,7 @@ function drawPicture(state) {
     shapes: new Map(),
     select: (key) => select(state, key),
     keydown: (element, event) => keydown(state, element, event),
+    dblclick: (element) => renameFrom(state, element, () => select(state, element.key)),
     pointerdown: (element, event) => pointerdown(state, element, event),
   };
   const before = state.view?.box;
@@ -273,6 +284,8 @@ function setPressed(node, on) {
 }
 
 function select(state, key) {
+  // While 잇기 waits for the other end, a choice is that end (changes.js).
+  if (picked(state, key)) return;
   if (state.selected === key) return;
   setPressed(state.view.nodes.get(state.selected), false);
   state.selected = key;
@@ -280,7 +293,8 @@ function select(state, key) {
   drawSelected(state);
 }
 
-// The Selected panel: the element's kind, its trace ID and the like apart, its name, and the copy of "ID name".
+// The Selected panel: the element's kind, its trace ID and the like apart, its name (a field to rename it, changes.js),
+// the copy of "ID name", and changes.js's 잇기 and the element's changes that wait.
 function drawSelected(state) {
   const box = state.selectedBox;
   const element = (state.ctx.data.diagram.elements ?? []).find((each) => each.key === state.selected);
@@ -299,8 +313,9 @@ function drawSelected(state) {
     h('div', { class: 'btns mid' }, kindTag,
       element.kind === 'command' && element.detail?.actor ? h('span', { class: 'small' }, `누가: ${element.detail.actor}`) : null,
       apart === null ? null : h('span', { class: 'small mono' }, apart)),
-    h('p', {}, h('b', {}, shownName(element))),
-    status);
+    nameBlock(state, element),
+    status,
+    moreBlock(state, element));
 }
 
 // The IDs of an element, shown apart from its name: its trace ID; a flow box's node and the IDs it names; a state's or
@@ -343,6 +358,7 @@ function movable(state, element) {
 const ARROWS = Object.freeze({ ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] });
 
 function keydown(state, element, event) {
+  if (changeKey(state, element, event, () => select(state, element.key))) return;
   const way = ARROWS[event.key];
   if (way === undefined || !movable(state, element)) return;
   event.preventDefault();
