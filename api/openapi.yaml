@@ -8772,7 +8772,7 @@ paths:
       x-corthex:
         id: API-292
         spec: [SPEC-041]
-        tables: [TBL-164, TBL-165]
+        tables: [TBL-147, TBL-162, TBL-164, TBL-165]
         release: Could
         family: owner
       security:
@@ -8815,6 +8815,15 @@ paths:
                     code: invalid_request
                     traceId: "7dc74c5dd9bc808b"
                     field: text
+                text-too-long:
+                  value:
+                    title: The text is too long
+                    status: 400
+                    detail: data[0].data.content is over 200 characters
+                    code: text_too_long
+                    traceId: "a8ecefa4a1f4aa5f"
+                    field: data[0].data.content
+                    limit: 200
         "401":
           description: "Refused: no valid credential or sign-in"
           content:

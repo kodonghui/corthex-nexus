@@ -370,3 +370,12 @@ Building TASK-452 found that the ten workshop operations listed only some of the
 One more approved item changes, asked on its own and approved through the same delegate: API-260's 400 response gains a `text_too_long` example, with `field` `notes[0].text` and `limit` 200. A draft's note text has the contract's limit of 200 characters (`DraftNote`), the other workshop writes with a text (API-286, API-287) list `text_too_long`, and the code is in the registry already.
 
 No operation, field, code or spec row changed. This part passed its own checkpoint on 2026-11-24 through the same delegate.
+
+### Miro import table and example correction
+
+Building TASK-453 found that API-292, importing a Miro board, listed TBL-164 and TBL-165, while it also finds the project space by its name (TBL-147) and the project's open workshop (TBL-162) before it reads or writes anything else. It still uses each table it listed: it counts each step's live notes and adds the imported notes (TBL-164), and counts the board's live links and adds the imported links (TBL-165). It reads no step (TBL-163): a confirmed step takes the import and stays confirmed. The server's table check (note 23 of the WBS) holds an operation to exactly the tables it reads and writes, and each table it changes must be fed by one of its spec rows: SPEC-041 feeds TBL-164 and TBL-165. Two approved items change, each asked on its own:
+
+- **API-292's tables:** TBL-147, TBL-162, TBL-164 and TBL-165 instead of TBL-164 and TBL-165.
+- **API-292's 400 response** gains a `text_too_long` example, with `field` `data[0].data.content` and `limit` 200; before, it listed `invalid_request` only. A note's text has the contract's limit of 200 characters (`Note`), the coordinator chose for TASK-453 that a text over it refuses the whole import with `text_too_long`, as on every workshop write, and the code is in the registry already.
+
+No operation, field, code or spec row changed. This part waits for its own checkpoint.
