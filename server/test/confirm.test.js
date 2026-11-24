@@ -17,7 +17,7 @@ import { GATE_KEY } from '../web/states.js';
 import { contract, validate } from './contract.js';
 import { listedResponses, responseRecord } from './responses.js';
 import { json, message, openPage, problem, texts } from './screen-page.js';
-import { seed } from './seed.js';
+import { REPOSITORY, seed } from './seed.js';
 import { localGate, newId, startServer } from './support.js';
 
 // The modules that import ./layout.js load once screen-page.js has taught the import where the server serves it from.
@@ -29,7 +29,6 @@ const { tagWord } = await import('../web/picture.js');
 
 const TIME = '2026-11-23T01:00:00.000Z';
 const P = 'reading-club';
-const REPOSITORY = 'https://github.com/example/demo';
 const ID = Object.freeze({ erd: 'dg_0000000000c5', board: 'dg_0000000000c1', mockup: 'dg_0000000000c9', oldErd: 'dg_0000000000c6' });
 const DRAWING = Object.freeze({ erd: 'dw_0000000000c5', board: 'dw_0000000000c1', mockup: 'dw_0000000000c9', oldErd: 'dw_0000000000c6', confirmed: 'dw_0000000000c0' });
 const CONFIRMED_AT = 'b41c9e2'.padEnd(40, '0');
@@ -70,7 +69,8 @@ function diagramOf(which, fields = {}) {
 // The latest confirmation of which's diagram in a state, at CONFIRMED_AT, with what changed since then.
 const confirmationOf = (which, state, fields = {}) => ({
   id: 'nk_0000000000k1', diagram: ID[which], drawing: DRAWING.confirmed, version: CONFIRMED_AT, state, confirmed_at: TIME,
-  ended_at: state === 'confirmed' ? null : TIME, recorded_at: null, cancel_recorded_at: null, ...fields,
+  ended_at: state === 'confirmed' ? null : TIME, recorded_at: null, cancel_recorded_at: null, pull_request: null,
+  ...fields,
 });
 const sinceOf = ({ added = [], changed = [], removed = [] } = {}) => ({ version: CONFIRMED_AT, added, changed, removed });
 // The mockup's six: three tables added, two changed and one removed.
@@ -250,31 +250,71 @@ describe('SCR-145 "이 그림"', () => {
     }
   });
 
-  test('confirmed (SCR-145#confirmed): 확정함, the message and 확정 취소; once recorded, "기록됨 · …"; a phone shows the message only', async () => {
-    const page = await openAt('erd', { diagram: confirmedWith('erd', 'confirmed', sinceOf()) });
-    try {
-      const section = diagramSection(page);
-      assert.deepEqual(tagsIn(section), ['확정함']);
-      assert.deepEqual(shownTexts(section, 'p'), ['이 버전으로 확정했어요. 에이전트가 기록하면 단계가 통과돼요.']);
-      assert.deepEqual(buttonsIn(section), ['확정 취소']);
-      assert.equal(byId(page, 'cancel-confirmation').getAttribute('class'), 'btn tertiary wide');
-    } finally {
-      page.close();
+  test('confirmed (SCR-145#confirmed): 확정함, the message, "기록되면 여기에 그 PR이 나와요." and 확정 취소, also while the record\'s pull request is open; a phone without 확정 취소', async () => {
+    for (const phone of [false, true]) {
+      for (const fields of [{}, { pull_request: `${REPOSITORY}/pull/12` }]) {
+        const page = await openAt('erd', { phone, diagram: confirmedWith('erd', 'confirmed', sinceOf(), fields) });
+        const which = `${phone ? 'phone' : 'PC'} ${JSON.stringify(fields)}`;
+        try {
+          const section = diagramSection(page);
+          assert.deepEqual(tagsIn(section), ['확정함'], which);
+          assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.confirmedHere, '기록되면 여기에 그 PR이 나와요.'], which);
+          assert.deepEqual(shownTexts(section, 'p', 'small'), ['기록되면 여기에 그 PR이 나와요.'], which);
+          // The open pull request is not shown before the record (choice 3).
+          assert.deepEqual([section.all('a').length, section.all('time').length], [0, 0], which);
+          assert.deepEqual(buttonsIn(section), phone ? [] : ['확정 취소'], which);
+          if (!phone) assert.equal(byId(page, 'cancel-confirmation').getAttribute('class'), 'btn tertiary wide');
+        } finally {
+          page.close();
+        }
+      }
     }
-    const recorded = await openAt('erd', { diagram: confirmedWith('erd', 'confirmed', sinceOf(), { recorded_at: new Date(Date.now() - 3 * 60_000).toISOString() }) });
-    try {
-      const section = diagramSection(recorded);
-      assert.deepEqual(shownTexts(section, 'p', 'small'), ['기록됨 · 3분 전']);
-      assert.equal(section.all('time').length, 1);
-    } finally {
-      recorded.close();
+  });
+
+  test('recorded (SCR-145#confirmed): "기록됨 · 3분 전 · PR #12 ↗", the pull request a link in a new tab; without one "기록됨 · 3분 전" alone, on a PC and a phone', async () => {
+    const recordedAt = new Date(Date.now() - 3 * 60_000).toISOString();
+    for (const phone of [false, true]) {
+      const page = await openAt('erd', { phone, diagram: confirmedWith('erd', 'confirmed', sinceOf(), { recorded_at: recordedAt, pull_request: `${REPOSITORY}/pull/12` }) });
+      try {
+        const section = diagramSection(page);
+        assert.deepEqual(tagsIn(section), ['확정함']);
+        assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.confirmedHere, '기록됨 · 3분 전 · PR #12 ↗']);
+        const [link, ...more] = section.all('a');
+        assert.deepEqual([more.length, link.textContent, link.getAttribute('href'), link.getAttribute('target'), link.getAttribute('rel')], [
+          0, 'PR #12 ↗', `${REPOSITORY}/pull/12`, '_blank', 'noopener noreferrer',
+        ]);
+        assert.deepEqual(section.all('time').map((time) => time.textContent), ['기록됨 · 3분 전']);
+        assert.deepEqual(buttonsIn(section), phone ? [] : ['확정 취소']);
+      } finally {
+        page.close();
+      }
+      // Recorded with no link to give (no repository, or a cancel's pull request closed unmerged): the time alone.
+      const bare = await openAt('erd', { phone, diagram: confirmedWith('erd', 'confirmed', sinceOf(), { recorded_at: recordedAt }) });
+      try {
+        const section = diagramSection(bare);
+        assert.deepEqual(shownTexts(section, 'p', 'small'), ['기록됨 · 3분 전']);
+        assert.equal(section.all('a').length, 0);
+      } finally {
+        bare.close();
+      }
     }
-    const phone = await openAt('erd', { phone: true, diagram: confirmedWith('erd', 'confirmed', sinceOf()) });
+    // Only an https link of a pull request is a link, what the contract would refuse included.
+    const { recordPullRequest } = await import('../web/confirm.js');
+    const { fakePage } = await import('./fake-dom.js');
+    const restore = fakePage({ pathname: '/' }).install();
     try {
-      const section = diagramSection(phone);
-      assert.deepEqual([tagsIn(section), shownTexts(section, 'p'), buttonsIn(section)], [['확정함'], [CONFIRM_WORDS.confirmedHere], []]);
+      for (const link of [
+        null, 'http://example.com/demo/pull/12', 'javascript:alert(1)//pull/12', 'https://example.com/demo/pull/',
+        'https://example.com/demo/pull/0', 'https://example.com/demo/tree/12', 'https://example.com/demo/pull/12 x',
+      ]) {
+        assert.equal(recordPullRequest(link), null, String(link));
+      }
+      const link = recordPullRequest('https://example.com/demo/pull/7');
+      assert.deepEqual([link.tagName, link.textContent, link.getAttribute('href'), link.getAttribute('target'), link.getAttribute('rel')], [
+        'A', 'PR #7 ↗', 'https://example.com/demo/pull/7', '_blank', 'noopener noreferrer',
+      ]);
     } finally {
-      phone.close();
+      restore();
     }
   });
 
@@ -308,7 +348,7 @@ describe('SCR-145 "이 그림"', () => {
     try {
       const section = diagramSection(live);
       assert.deepEqual(tagsIn(section), ['확정함', waitingCount(1)]);
-      assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.confirmedHere]);
+      assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.confirmedHere, CONFIRM_WORDS.untilRecorded]);
       assert.deepEqual(buttonsIn(section), [CHANGE_WORDS.cancelEdit, '확정 취소']);
     } finally {
       live.close();

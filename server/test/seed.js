@@ -198,6 +198,11 @@ export function seed(db, { time = TIME } = {}) {
   function recordCancel(id) {
     db.prepare('UPDATE confirmations SET cancel_recorded_at = ? WHERE id = ?').run(time, id);
   }
+  // Names the pull request of the confirmation's record that is due, or of the last one recorded, as API-259 links it
+  // (record_pull_request_id); null unlinks it.
+  function linkRecord(id, pullRequestId) {
+    db.prepare('UPDATE confirmations SET record_pull_request_id = ? WHERE id = ?').run(pullRequestId, id);
+  }
 
   function removeDiagram(id, removed = true) {
     db.prepare('UPDATE diagrams SET removed_at = ? WHERE id = ?').run(removed ? time : null, id);
@@ -252,8 +257,8 @@ export function seed(db, { time = TIME } = {}) {
 
   return {
     agent, credential, project, snapshot, diagram, drawing, elements, position, document, thread, comment, closeThread, pullRequest,
-    changeSet, change, setChangeSet, confirm, cancel, invalidate, record, recordCancel, removeDiagram, workshop, confirmStep, writeStep,
-    closeWorkshop, claim, pass, changePass, toolLink,
+    changeSet, change, setChangeSet, confirm, cancel, invalidate, record, recordCancel, linkRecord, removeDiagram, workshop, confirmStep,
+    writeStep, closeWorkshop, claim, pass, changePass, toolLink,
   };
 }
 

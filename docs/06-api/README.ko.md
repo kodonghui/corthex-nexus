@@ -394,3 +394,13 @@ TASK-453을 만들다가 Miro 보드 가져오기인 API-292가 TBL-164와 TBL-1
 - `diagram_not_found`의 client 줄: "a removed one still listed opens for its threads only (SPEC-027)"가 "a removed one still listed opens for its threads, its proposals' Reject and its direct edits' Cancel edit (SPEC-027)"이 돼요.
 
 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+### 확정에 기록의 PR
+
+TASK-469를 만들다가, 에이전트가 확정을 기록하면 SCR-145#confirmed는 "기록됨"과 그 PR을 보여 주는데(영어: "Recorded" with its pull request), 그림 읽기(API-265)가 주는 확정에는 그 PR이 없다는 것을 찾았어요. API-265의 확정은 계약의 `Confirmation`이고, 승인된 필드는 `id`, `diagram`, `drawing`, `version`, `state`, `confirmed_at`, `ended_at`, `recorded_at`, `cancel_recorded_at`예요. 서버는 그 PR을 이미 지니고 있어요. TASK-447의 API-259가 TBL-160(`record_pull_request_id`)에 쓰고, 체크포인트 읽기(API-249)는 이미 그것을 `pull_request`로 답해요. TBL-160에 그 열이 있으므로 05단계는 바뀌지 않아요. 승인된 항목 3개가 바뀌고, 하나씩 따로 여쭤요.
+
+- **Confirmation**에 `pull_request`가 생겨요. 필수이고, `Link` 또는 null이에요. 같은 읽기가 오버레이의 `pull_request`(`ChangeSet`)에 이미 쓰는 모양이라 API-265 안에서 한 모양을 지키고, 서버도 그것처럼 프로젝트의 저장소와 PR 번호로 만들어요. 뜻은 TBL-160이 지니는 그대로예요. 에이전트가 보고하는 대로(API-259) 해야 할 기록의 PR이거나, 마지막으로 기록된 기록의 PR이에요. 해야 할 기록은 확정이 기록될 때까지는 확정 자신의 기록이고, 기록된 확정이 취소되면 그 취소의 기록이에요. 해야 할 기록이 있는 동안에는 그 열린 PR이고, 에이전트가 보고하기 전과 그 PR이 병합되지 않고 닫힌 뒤에는 null이에요. 기록된 뒤에는 그것을 기록한 PR이에요. 프로젝트에 저장소가 없는 동안에는 null이에요. 계약에는 영어 설명 "The pull request of the record that is due, or of the last one recorded, as the agent reports it (API-259). The record that is due is the confirmation's own until it is recorded, then, once a recorded confirmation is cancelled, the cancel's. While one is due, this is its open pull request, or null before the agent reports one and after it closed without merging; once one is recorded, the pull request that recorded it. Null while the project names no repository."을 적어요. 확정을 담은 예시 3개(API-275의 201과 200, API-276의 200)에는 `pull_request: null`이 생겨요.
+- **API-275의 테이블:** 확정하기(API-275)와 확정 취소하기(API-276)의 응답 `ConfirmationAnswer`도 Confirmation이라 이 필드를 답하고, 그것을 만들려고 PR(TBL-157)을 읽어요. API-275는 TBL-147, TBL-151, TBL-152, TBL-158, TBL-160, TBL-166 대신 TBL-147, TBL-151, TBL-152, TBL-157, TBL-158, TBL-160, TBL-166을 적어요.
+- **API-276의 테이블:** TBL-147, TBL-151, TBL-152, TBL-160, TBL-166 대신 TBL-147, TBL-151, TBL-152, TBL-157, TBL-160, TBL-166을 적어요.
+
+오퍼레이션, 상태 코드, 코드, 명세 행은 바뀌지 않아요. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.

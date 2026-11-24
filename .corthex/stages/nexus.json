@@ -364,10 +364,15 @@
           "approved": "Four contract texts, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): API-264's description, the approved \"removed ones with open threads listed last (SPEC-005, SPEC-027)\"; DiagramSummary's removed description, the approved \"A removed diagram is listed after the others only while it has open threads\"; diagram_not_found's meaning, the approved \"No diagram has that ID, or the stage has nothing drawn yet, or the diagram that a direct edit, a move, a confirmation or a new thread names was removed (SPEC-027).\", with the API README's error table; and its client line, the approved \"after a write, read the diagram again first, since a removed one still listed opens for its threads only (SPEC-027).\" Each now names the three reasons, and the meaning names API-265's 404 for a removed diagram with none left. No operation, field, response, code or table list changed. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "The record's pull request on a confirmation, TASK-469, pull request 161, at commit 160ca69, approved before the code on the drafted text, which that commit holds unchanged (checked against the text asked): Confirmation, approved with id, diagram, drawing, version, state, confirmed_at, ended_at, recorded_at and cancel_recorded_at, gains pull_request (required, a Link or null, the shape of an overlay's pull_request in the same read), defined as the pull request of the record that is due, or of the last one recorded, as the agent reports it (API-259); the three examples that carry a confirmation gain pull_request: null; API-275's tables and API-276's tables gain TBL-157. No operation, status, code or spec row changes, and stage 05 does not change. Each was asked as its own question and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T10:36:45+09:00"
+      "updated": "2026-11-24T14:36:57+09:00"
     },
     "07-sitemap": {
       "state": "done",

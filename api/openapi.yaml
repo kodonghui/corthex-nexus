@@ -5866,7 +5866,7 @@ paths:
       x-corthex:
         id: API-275
         spec: [SPEC-027, SPEC-029, SPEC-031]
-        tables: [TBL-147, TBL-151, TBL-152, TBL-158, TBL-160, TBL-166]
+        tables: [TBL-147, TBL-151, TBL-152, TBL-157, TBL-158, TBL-160, TBL-166]
         release: Must
         family: owner
       security:
@@ -5902,6 +5902,7 @@ paths:
                       ended_at: null
                       recorded_at: null
                       cancel_recorded_at: null
+                      pull_request: null
                     changed: true
         "200":
           description: Already confirmed
@@ -5922,6 +5923,7 @@ paths:
                       ended_at: null
                       recorded_at: null
                       cancel_recorded_at: null
+                      pull_request: null
                     changed: false
                   summary: Confirmed again at the same version
         "400":
@@ -6099,7 +6101,7 @@ paths:
       x-corthex:
         id: API-276
         spec: [SPEC-030, SPEC-031]
-        tables: [TBL-147, TBL-151, TBL-152, TBL-160, TBL-166]
+        tables: [TBL-147, TBL-151, TBL-152, TBL-157, TBL-160, TBL-166]
         release: Must
         family: owner
       security:
@@ -6135,6 +6137,7 @@ paths:
                       ended_at: "2026-11-23T02:05:00.000Z"
                       recorded_at: null
                       cancel_recorded_at: null
+                      pull_request: null
                     changed: true
         "400":
           description: "Refused: the request is not valid"
@@ -11229,7 +11232,7 @@ components:
           maximum: 100000
     Confirmation:
       type: object
-      required: [id, diagram, drawing, version, state, confirmed_at, ended_at, recorded_at, cancel_recorded_at]
+      required: [id, diagram, drawing, version, state, confirmed_at, ended_at, recorded_at, cancel_recorded_at, pull_request]
       additionalProperties: false
       properties:
         id:
@@ -11257,6 +11260,11 @@ components:
           anyOf:
             - $ref: "#/components/schemas/Time"
             - type: "null"
+        pull_request:
+          anyOf:
+            - $ref: "#/components/schemas/Link"
+            - type: "null"
+          description: "The pull request of the record that is due, or of the last one recorded, as the agent reports it (API-259). The record that is due is the confirmation's own until it is recorded, then, once a recorded confirmation is cancelled, the cancel's. While one is due, this is its open pull request, or null before the agent reports one and after it closed without merging; once one is recorded, the pull request that recorded it. Null while the project names no repository."
     Diagram:
       type: object
       required: [id, project, part, stage, kind, name, removed, drawing, last_drawn, elements, overlays, since_confirmation, confirmation, threads]

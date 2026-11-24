@@ -27,7 +27,8 @@
 import { changesHref, diagramApi, projectApi } from './address.js';
 import { newRequestKey } from './api.js';
 import {
-  changedSentence, changedSince, changedTag, CONFIRM_WORDS, isDrawn, liveConfirmation, moreChanges, panelRow, SHOWN_CHANGES,
+  changedSentence, changedSince, changedTag, CONFIRM_WORDS, isDrawn, liveConfirmation, moreChanges, panelRow, recordPullRequest,
+  SHOWN_CHANGES,
 } from './confirm.js';
 import { fill, h } from './dom.js';
 import { isProposed, isWaiting, KIND_WORDS, kindOfKey, MARK_WORDS, waitingOf } from './overlays.js';
@@ -315,12 +316,17 @@ function changesFor(state) {
 
 const confirmedTag = () => h('span', { class: 'tag green' }, CONFIRM_WORDS.confirmed);
 
-// The live confirmation's line, and "기록됨 · 3분 전" once the agent recorded it (choice 4: API-265 names no pull
-// request of the record).
+// The live confirmation's line and, in small text under it, "기록됨 · 3분 전 · PR #12 ↗" once the agent recorded it, the
+// pull request a link only for an https link (TASK-469, choice 2), and the mockup's "기록되면 여기에 그 PR이 나와요."
+// until then, while the record's pull request is open too (choice 3). A phone shows the same lines.
 function confirmedLines(state, live) {
+  if (!live.recorded_at) return [h('p', {}, CONFIRM_WORDS.confirmedHere), h('p', { class: 'small' }, CONFIRM_WORDS.untilRecorded)];
+  const link = recordPullRequest(live.pull_request);
   return [
     h('p', {}, CONFIRM_WORDS.confirmedHere),
-    live.recorded_at ? h('p', { class: 'small' }, state.ctx.shell.since(live.recorded_at, (ago) => `${CONFIRM_WORDS.recorded} · ${ago}`)) : null,
+    h('p', { class: 'small' },
+      state.ctx.shell.since(live.recorded_at, (ago) => `${CONFIRM_WORDS.recorded} · ${ago}`),
+      link === null ? null : [' · ', link]),
   ];
 }
 

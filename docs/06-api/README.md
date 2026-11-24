@@ -394,3 +394,13 @@ A removed diagram keeps what waits on it: it stays listed and opens while it has
 - The client line of `diagram_not_found`: "a removed one still listed opens for its threads only (SPEC-027)" becomes "a removed one still listed opens for its threads, its proposals' Reject and its direct edits' Cancel edit (SPEC-027)".
 
 This part passed its own checkpoint on 2026-11-24 through the same delegate.
+
+### The record's pull request on a confirmation
+
+Building TASK-469 found that SCR-145#confirmed shows "Recorded" with its pull request once the agent records the confirmation (Korean: "기록됨"과 그 PR), while the diagram read (API-265) gives the confirmation without that pull request. API-265's confirmation is the contract's `Confirmation`, approved with the fields `id`, `diagram`, `drawing`, `version`, `state`, `confirmed_at`, `ended_at`, `recorded_at` and `cancel_recorded_at`. The server already keeps the pull request: TASK-447's API-259 writes it in TBL-160 (`record_pull_request_id`), and the checkpoint read (API-249) already answers it as `pull_request`. TBL-160 has the column, so stage 05 does not change. Three approved items change, each asked on its own:
+
+- **Confirmation** gains `pull_request`, required, a `Link` or null: the shape the same read already uses for an overlay's `pull_request` (`ChangeSet`), so one shape holds in API-265, and the server builds it as it builds that one, from the project's repository and the pull request's number. It is defined by what TBL-160 holds: "The pull request of the record that is due, or of the last one recorded, as the agent reports it (API-259). The record that is due is the confirmation's own until it is recorded, then, once a recorded confirmation is cancelled, the cancel's. While one is due, this is its open pull request, or null before the agent reports one and after it closed without merging; once one is recorded, the pull request that recorded it. Null while the project names no repository." The three examples that carry a confirmation (API-275's 201 and 200, API-276's 200) gain `pull_request: null`.
+- **API-275's tables:** Confirmation is also the answer of confirming (API-275) and of cancelling a confirmation (API-276), `ConfirmationAnswer`, so they answer the field too, and read the pull request (TBL-157) to build it. API-275 lists TBL-147, TBL-151, TBL-152, TBL-157, TBL-158, TBL-160 and TBL-166 instead of TBL-147, TBL-151, TBL-152, TBL-158, TBL-160 and TBL-166.
+- **API-276's tables:** TBL-147, TBL-151, TBL-152, TBL-157, TBL-160 and TBL-166 instead of TBL-147, TBL-151, TBL-152, TBL-160 and TBL-166.
+
+No operation, status, code or spec row changes. This part passed its own checkpoint on 2026-11-24 through the same delegate.
