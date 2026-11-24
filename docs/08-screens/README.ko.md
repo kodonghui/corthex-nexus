@@ -138,4 +138,4 @@ TASK-461을 만들다가 SCR-146#waiting은 반영을 기다리는 직접 편집
 
 - SCR-146#waiting: "반영을 기다리는 직접 편집: 맨 위에 각각 편집 취소와 함께(휴대폰에서는 없이). 확정 버튼은 꺼지고 "반영을 기다리는 변경을 먼저 반영하거나 취소하세요"."(영어: "Direct edits waiting for reflection: they come first, each with Cancel edit (on a phone, without it), and the confirm button is off with "Reflect or cancel the waiting changes first".")가 "반영을 기다리는 변경 세트 모두: 맨 위에, 직접 편집은 각각 편집 취소와 함께(휴대폰에서는 없이), 수락한 AI 제안은 편집 취소 없이. 확정 버튼은 꺼지고 "반영을 기다리는 변경을 먼저 반영하거나 취소하세요"."(영어: "Every change set waiting for reflection: they come first, each direct edit with Cancel edit (on a phone, without it) and each accepted AI proposal without it, and the confirm button is off with "Reflect or cancel the waiting changes first".")가 됩니다.
 
-SCR-146의 다른 곳은 바뀌지 않고, 이 상태로 오는 응답은 API-275#409 (waiting-reflection) 그대로입니다. 와이어프레임은 정의에서 다시 만들었고, SCR-146#waiting의 글만 바뀌고 프레임은 바뀌지 않습니다. 상태 수는 그대로입니다. 이 몫은 따로 체크포인트를 기다려요.
+SCR-146의 다른 곳은 바뀌지 않고, 이 상태로 오는 응답은 API-275#409 (waiting-reflection) 그대로입니다. 와이어프레임은 정의에서 다시 만들었고, SCR-146#waiting의 글만 바뀌고 프레임은 바뀌지 않습니다. 상태 수는 그대로입니다. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.

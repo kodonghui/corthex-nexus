@@ -1486,9 +1486,9 @@ TASK-461 (SPEC-023, SPEC-029, SPEC-030, SPEC-034) adds confirming a diagram to S
 - **Phone** (SPEC-051). "이 그림" shows only what waits and a live confirmation, without buttons. SCR-146 shows its lists only, with "편집 취소와 확정은 PC에서 하세요.".
 - **State.** The question asked and the confirmation this page made live in the screen's state of the diagram shown, never in the browser's storage.
 
-The coordinator chose these rules for TASK-461, and the Korean words that the screen definitions, the mockup, the sitemap and the error registry do not give. They wait for the maintainer's delegate on the pull request. Two of them differ from the approved screen definitions, and the pull request puts them to the delegate apart:
-- SCR-145#confirmed shows "기록됨" without the record's pull request, which API-265's confirmation does not carry.
-- SCR-146#waiting lists every change set that waits, accepted AI proposals included, under "반영을 기다리는 변경"; the definition names direct edits only.
+The coordinator chose these rules for TASK-461, and the Korean words that the screen definitions, the mockup, the sitemap and the error registry do not give. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24, each asked on its own. Two of them differed from the approved screen definitions and were asked apart:
+- SCR-145#confirmed shows "기록됨" without the record's pull request, which API-265's confirmation does not carry. SCR-145 stays as approved, and TASK-469 was added to the WBS: a stage-06 correction gives API-265's confirmation the record's pull request, and "이 그림" then shows it beside 기록됨.
+- SCR-146#waiting lists every change set that waits, accepted AI proposals included, under "반영을 기다리는 변경". The screens README's "Every change set waiting for reflection" changed SCR-146 to match, which passed its own checkpoint on 2026-11-24 through the same delegate.
 
 `test/confirm.test.js` checks both screens with stubbed answers and against the server:
 - each state of "이 그림", asking once, 확정 취소 and a refused confirm read again;
