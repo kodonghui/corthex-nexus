@@ -1015,7 +1015,7 @@
      "name": "SCR-146#waiting",
      "status": null,
      "detail": {
-      "description": "Direct edits waiting for reflection: they come first, each with Cancel edit (on a phone, without it), and the confirm button is off with \"Reflect or cancel the waiting changes first\".",
+      "description": "Every change set waiting for reflection: they come first, each direct edit with Cancel edit (on a phone, without it) and each accepted AI proposal without it, and the confirm button is off with \"Reflect or cancel the waiting changes first\".",
       "responses": [
        "API-275#409 (waiting-reflection)"
       ],
@@ -1024,7 +1024,7 @@
        "x": 0,
        "y": 784,
        "width": 328,
-       "height": 180
+       "height": 200
       }
      }
     },
@@ -1043,7 +1043,7 @@
        "x": 340,
        "y": 784,
        "width": 328,
-       "height": 180
+       "height": 200
       }
      }
     },
@@ -1063,7 +1063,7 @@
        "x": 680,
        "y": 784,
        "width": 328,
-       "height": 180
+       "height": 200
       }
      }
     }
