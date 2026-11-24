@@ -358,12 +358,13 @@ describe('the diagram read', () => {
       s.elements(erd.drawing, [table('TBL-146', 'agent_credentials', { box: box(0) })]);
       return erd;
     };
-    // The owner's writes, each with its own request key: rejecting a proposal (API-271), closing a thread (API-269)
-    // and cancelling a direct edit (API-273).
+    // The owner's writes, each with its own request key: accepting (API-270) and rejecting (API-271) a proposal,
+    // closing a thread (API-269) and cancelling a direct edit (API-273).
     const write = async (action, path) => responses.note(action, await server.send({
       method: 'POST', path, body: '{}',
       headers: { ...owner(), 'Content-Type': 'application/json', 'Idempotency-Key': `"${newId('nw')}"` },
     }));
+    const accept = (id) => write('acceptProposal', `/api/projects/${space.name}/change-sets/${idOf('np', id)}/accept`);
     const reject = (id) => write('rejectProposal', `/api/projects/${space.name}/change-sets/${idOf('np', id)}/reject`);
     const close = (id) => write('closeThread', `/api/projects/${space.name}/threads/${idOf('nc', id)}/close`);
     const cancel = (id) => write('cancelDirectEdit', `/api/projects/${space.name}/change-sets/${idOf('np', id)}/cancel`);
@@ -384,6 +385,11 @@ describe('the diagram read', () => {
     const proposal = s.changeSet(space, asked, { origin: 'proposal', threadId: askedThread });
     changeSetsChanged(db, { project: space.id, diagram: asked.id, time: at(1) });
     assert.equal((await close(askedThread)).status, 200);
+    assert.deepEqual((await opens(asked)).overlays.map((overlay) => overlay.state), ['proposed']);
+    // Accepting it there is refused (SPEC-027, API-270's document_changed), so it stays proposed and keeps the diagram:
+    // only a proposal accepted before the removal is accepted on a removed diagram.
+    const refused = await accept(proposal);
+    assert.deepEqual([refused.status, refused.json.code], [409, 'document_changed']);
     assert.deepEqual((await opens(asked)).overlays.map((overlay) => overlay.state), ['proposed']);
     assert.equal((await reject(proposal)).status, 200);
     await gone(asked);
