@@ -23,10 +23,13 @@
 //   each has and when the last was written (TBL-156); a thread whose element left keeps its key and is marked with the
 //   element's last name (SPEC-027).
 //
-// A removed diagram is answered only while it has an open thread, as the project read lists it (SPEC-027): it opens
-// for its threads only, which the page holds to. One whose threads are all closed answers diagram_not_found, as an ID
-// no diagram of the project has (note 10 of the WBS). So does one of a stage the contract does not name, which the
-// project read does not list either.
+// A removed diagram is answered only while something waits on it, as the project read lists it (KEEPS_REMOVED in
+// project.js; SPEC-027, as the feature change of pull request 154 approved it): an open thread, a proposed AI proposal
+// or a direct edit waiting for reflection. It opens for those: its threads are read, replied to and closed, its
+// proposals rejected (API-271) and its edits cancelled (API-273), and the page holds to that. One with none of them
+// left answers diagram_not_found, as an ID no diagram of the project has (note 10 of the WBS); a live confirmation or
+// an accepted proposal alone keeps nothing. So does one of a stage the contract does not name, which the project read
+// does not list either.
 
 import { pullRequestLink } from './claims.js';
 import { confirmationBody } from './confirmations.js';
@@ -34,6 +37,7 @@ import { failureWhere } from './drawer.js';
 import { idOf, keyOf } from './ids.js';
 import { itemNames } from './item-table.js';
 import { Problem } from './problem.js';
+import { KEEPS_REMOVED } from './project.js';
 import { STAGES } from './snapshot.js';
 import { diagramPart } from './todo.js';
 
@@ -72,7 +76,7 @@ function statementsOf(store) {
       project: store.prepare('SELECT id, name, repository, held_commit FROM project_spaces WHERE name = ?'),
       diagram: store.prepare(
         `SELECT d.id, d.stage, d.source_key, d.kind, d.name, d.removed_at,
-                EXISTS (SELECT 1 FROM comment_threads h WHERE h.diagram_id = d.id AND h.state = 'open') AS open_threads
+                ${KEEPS_REMOVED} AS kept
          FROM diagrams d WHERE d.id = ? AND d.project_id = ?`,
       ),
       // The latest drawing, and the latest that drew.
@@ -260,7 +264,7 @@ export function readDiagram(store, name, id) {
   const diagram = key === null ? undefined : statements.diagram.get(key, projectId);
   if (diagram === undefined) return 'diagram_not_found';
   const removed = diagram.removed_at !== null;
-  if (removed && Number(diagram.open_threads) === 0) return 'diagram_not_found';
+  if (removed && Number(diagram.kept) === 0) return 'diagram_not_found';
   if (!STAGE_SET.has(diagram.stage)) return 'diagram_not_found';
   const diagramId = Number(diagram.id);
   const part = diagramPart(store, { id: diagramId, stage: diagram.stage, kind: diagram.kind, source_key: diagram.source_key });
@@ -359,7 +363,8 @@ export function readDiagram(store, name, id) {
 }
 
 // API-265: the diagram {diagram} of the project {project}. A name no project space has answers project_not_found; an
-// ID no diagram of the project has, or a removed diagram without an open thread, answers diagram_not_found.
+// ID no diagram of the project has, or a removed diagram that nothing waits on (KEEPS_REMOVED), answers
+// diagram_not_found.
 function getDiagram({ store, params }) {
   const body = readDiagram(store, params.project, params.diagram);
   if (typeof body === 'string') throw new Problem(body);

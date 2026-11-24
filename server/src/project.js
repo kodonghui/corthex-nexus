@@ -6,8 +6,9 @@
 // - the head, from the project space (TBL-147) and its held snapshot (TBL-148): the revision and the time it was
 //   received, and the title and parts its /snapshot document holds (TBL-150, TBL-149; see snapshot.js);
 // - stages: groups of the 13 stages, one group per part (stageGroups), each row with the diagrams of its stage and part
-//   (TBL-151) and its state (stageState). A diagram tells whether it was drawn (TBL-152), its confirmation (TBL-160),
-//   its change sets waiting for reflection (TBL-158) and its open threads (TBL-155);
+//   (TBL-151), a removed one only while something waits on it (KEEPS_REMOVED), and its state (stageState). A diagram
+//   tells whether it was drawn (TBL-152), its confirmation (TBL-160), its change sets waiting for reflection (TBL-158)
+//   and its open threads (TBL-155);
 // - tool_links: the live tool links (TBL-168), oldest first, with the status last read;
 // - workshop: the project's latest workshop (TBL-162), open or closed, or null.
 // Stage passes and tool links are only read here: TASK-447 and the workshop tasks write passes, TASK-435 marks them
@@ -38,6 +39,22 @@ const STAGE_SET = new Set(STAGES);
 // diagrams by it, and an agent's comment without item or diagram goes on the first (comments.js).
 export const DIAGRAM_ORDER = 'd.removed_at IS NOT NULL, d.name, d.id';
 
+// What keeps a removed diagram listed by the project read and opened by the diagram read (diagram.js), as an SQL
+// expression over a diagram under the alias d: 1 for a removed diagram that something keeps, else 0. A diagram that is
+// not removed needs nothing to keep it, so its threads and change sets are not looked at. What keeps one (SPEC-027, as
+// the feature change of pull request 154 approved it) is an open thread (TBL-155), a proposed AI proposal, or a direct
+// edit waiting for reflection, accepted and not reflected (TBL-158). The owner answers each there: replies to and
+// closes the thread, rejects the proposal (API-271) and cancels the edit (API-273). A live confirmation alone keeps
+// nothing, since a removed diagram counts for no pass and the record of its version stays true (note 4 of the WBS), nor
+// does an accepted AI proposal, which waits on the agent's reflection, not on the owner. A rejected proposal's thread
+// stays open (SPEC-020), so it keeps the diagram until the owner closes it.
+export const KEEPS_REMOVED = `(CASE WHEN d.removed_at IS NULL THEN 0
+  WHEN EXISTS (SELECT 1 FROM comment_threads h WHERE h.diagram_id = d.id AND h.state = 'open') THEN 1
+  WHEN EXISTS (SELECT 1 FROM change_sets c WHERE c.diagram_id = d.id
+               AND ((c.origin = 'proposal' AND c.state = 'proposed')
+                    OR (c.origin = 'direct_edit' AND c.state = 'accepted'))) THEN 1
+  ELSE 0 END)`;
+
 // The statements of each store, prepared on first use (see credentials.js).
 const prepared = new WeakMap();
 
@@ -58,6 +75,7 @@ function statementsOf(store) {
                 EXISTS (SELECT 1 FROM drawings w WHERE w.diagram_id = d.id AND w.status = 'drawn') AS drawn,
                 (SELECT count(*) FROM comment_threads h WHERE h.diagram_id = d.id AND h.state = 'open') AS open_threads,
                 (SELECT count(*) FROM change_sets c WHERE c.diagram_id = d.id AND c.state = 'accepted') AS waiting,
+                ${KEEPS_REMOVED} AS kept,
                 k.state AS confirmation_state, k.recorded_at
          FROM diagrams d
          LEFT JOIN confirmations k ON k.id = (SELECT max(id) FROM confirmations WHERE diagram_id = d.id)
@@ -181,13 +199,13 @@ export function readProject(store, name) {
   const projectId = Number(project.id);
   const head = projectHead(store, project);
 
-  // The listed diagrams: every diagram that is not removed, and a removed one only while it has open threads
-  // (SPEC-027). Each with its part (see todo.js).
+  // The listed diagrams: every diagram that is not removed, and a removed one only while something waits on it
+  // (KEEPS_REMOVED, SPEC-027). Each with its part (see todo.js).
   const parts = new Map();
   const listed = [];
   for (const row of statements.diagrams.all(projectId)) {
     const removed = row.removed_at !== null;
-    if (removed && Number(row.open_threads) === 0) continue;
+    if (removed && Number(row.kept) === 0) continue;
     if (!STAGE_SET.has(row.stage)) continue;
     listed.push({
       stage: row.stage,
