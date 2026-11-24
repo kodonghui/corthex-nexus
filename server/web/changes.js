@@ -617,6 +617,11 @@ function stopPicking(state, back) {
   return true;
 }
 
+// Stops choosing the other end without a connection, when the workbench chooses nothing or a thread's element.
+export function stopConnecting(state) {
+  if (state.changes !== undefined) stopPicking(state, false);
+}
+
 function escape(state, event) {
   if (event.key !== 'Escape' || state.changes.picking === null) return;
   event.preventDefault();

@@ -63,13 +63,16 @@ export function startShell(root, screen, address) {
   // How many times the address changed in the page (arrive, or showGone's instead): a load whose address changed while
   // it read leaves its answers unshown, and the load the change asked for shows the new address.
   let arrivals = 0;
+  // Whether the load waiting in queued is a reload('instead'). The running load sets via back to 'open' when it
+  // settles, so the waiting one takes 'switch' only as it starts; a change of address forgets it.
+  let insteadNext = false;
 
   const shell = {
     read: (path) => {
       if (!round.has(path)) round.set(path, read(path));
       return round.get(path);
     },
-    reload: () => load(true),
+    reload,
     write: writeOf,
     redraw,
     missed: (name) => misses[name] ?? null,
@@ -145,6 +148,8 @@ export function startShell(root, screen, address) {
     if (queued !== null && !ended) {
       const next = queued;
       queued = null;
+      if (insteadNext) via = 'switch';
+      insteadNext = false;
       load(next).then(() => asked.forEach((resolve) => resolve()));
     } else {
       queued = null;
@@ -193,6 +198,15 @@ export function startShell(root, screen, address) {
     if (same) return showTimes();
     if (refresh) return again(showData);
     showData();
+  }
+
+  // Reads the screen's data again. reload('instead') is a read again after which a gone thing opens what the screen
+  // gives instead, as after a switch: TASK-459 reads a removed diagram again so, after closing its last thread, since
+  // nothing may keep it listed then (SPEC-027). Its promise ends once that read again has ended (see load).
+  function reload(how) {
+    if (how === 'instead' && busy) insteadNext = true;
+    else if (how === 'instead') via = 'switch';
+    return load(true);
   }
 
   // A write of the screen's (api.js write), whose outcome it returns. A 401 or 403 goes through the permission rule,
@@ -246,6 +260,7 @@ export function startShell(root, screen, address) {
     Object.assign(address, next);
     arrivals += 1;
     via = how;
+    insteadNext = false;
     note = null;
     load(false);
   }
@@ -265,6 +280,7 @@ export function startShell(root, screen, address) {
     Object.assign(address, parseAddress(pathname, search));
     arrivals += 1;
     via = 'instead';
+    insteadNext = false;
     note = other.note ?? null;
     load(false);
   }

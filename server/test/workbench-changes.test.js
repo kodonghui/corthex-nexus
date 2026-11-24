@@ -24,6 +24,7 @@ import { localGate, newId, startServer, waitFor } from './support.js';
 const { CHANGE_WORDS, kindLine, renamedFrom, toAnswer, waitingCount } = await import('../web/changes.js');
 const { descriptionOf, WORKBENCH_WORDS } = await import('../web/workbench.js');
 const { MARK_WORDS } = await import('../web/overlays.js');
+const { THREAD_WORDS } = await import('../web/threads.js');
 
 const TIME = '2026-11-23T01:00:00.000Z';
 const P = 'reading-club';
@@ -338,7 +339,8 @@ describe('SCR-145 changes', () => {
     try {
       buttonNamed(page, A.name).dispatch('keydown', { key: 'F2' });
       const panel = selectedOf(page);
-      assert.deepEqual([panel.hidden, shownTexts(panel, 'label')], [false, [CHANGE_WORDS.nameLabel]]);
+      // The name field, and then the threads' box for a new comment (TASK-459).
+      assert.deepEqual([panel.hidden, shownTexts(panel, 'label')], [false, [CHANGE_WORDS.nameLabel, THREAD_WORDS.comment]]);
       focused(page, fieldOf(page));
       assert.deepEqual([fieldOf(page).value, fieldOf(page).selectedAll], [A.name, true]);
       // Enter on the name it has sends nothing.
@@ -470,6 +472,16 @@ describe('SCR-145 changes', () => {
       assert.equal(buttonNamed(page, A.name).getAttribute('aria-pressed'), 'true');
       buttonNamed(page, B.name).dispatch('keydown', { key: 'Escape' });
       assert.equal(lineOf(page).children.length, 0);
+      // That Escape was 잇기's: it does not also choose nothing again (TASK-459), so A stays chosen with its 잇기.
+      assert.equal(buttonNamed(page, A.name).getAttribute('aria-pressed'), 'true');
+      assert.ok(connectButton() !== null);
+      // 그림 전체 스레드 stops 잇기 too, so the element chosen next, as a thread's element would be, is not the other end.
+      connectButton().click();
+      press(selectedOf(page).all('button').find((button) => button.textContent === THREAD_WORDS.wholeThreads));
+      assert.deepEqual([lineOf(page).children.length, connectButton()], [0, null]);
+      buttonNamed(page, B.name).click();
+      assert.deepEqual([page.sent, buttonNamed(page, B.name).getAttribute('aria-pressed')], [[], 'true']);
+      buttonNamed(page, A.name).click();
       connectButton().click();
       press(byId(page, 'pick-stop'));
       assert.equal(lineOf(page).children.length, 0);
@@ -570,7 +582,8 @@ describe('SCR-145 changes', () => {
       buttonNamed(page, 'project_rooms').dispatch('keydown', { key: 'F2' });
       buttonNamed(page, 'project_rooms').dispatch('dblclick');
       assert.ok(fieldOf(page) === null && byId(page, 'connect') === null);
-      assert.deepEqual(buttonsIn(selectedOf(page)), [WORKBENCH_WORDS.copy]);
+      // No change's button: only the copy and the threads', which a phone keeps (TASK-459).
+      assert.deepEqual(buttonsIn(selectedOf(page)), [WORKBENCH_WORDS.copy, THREAD_WORDS.wholeThreads, THREAD_WORDS.send]);
       assert.ok(texts(page, 'span').includes(WORKBENCH_WORDS.phone));
       assert.deepEqual(page.sent, []);
     } finally {

@@ -532,18 +532,23 @@ describe('the shell', () => {
     try {
       assert.deepEqual(texts(page, 'h1'), ['도메인 보드']);
       const panel = page.app.all('aside')[0];
-      assert.deepEqual(texts({ app: panel }, 'b'), ['NEXUS에 더 이상 없는 댓글 스레드예요.']);
+      // The note, and then the Selected section, here the whole diagram's (TASK-459).
+      assert.deepEqual(texts({ app: panel }, 'b'), ['NEXUS에 더 이상 없는 댓글 스레드예요.', '그림 전체']);
       assert.deepEqual(panel.all('a').map((link) => [link.textContent, link.getAttribute('href')]),
         [['새로 고침', `/p/reading-club/_/01-domain?d=${DIAGRAM}`]]);
     } finally {
       page.close();
     }
-    const well = await open('/p/reading-club/_/01-domain', { search: '?thread=nc_0000000000a1' });
+    const thread = '/api/projects/reading-club/threads/nc_0000000000a1';
+    const well = await open('/p/reading-club/_/01-domain', { search: '?thread=nc_0000000000a1', answers: { ...FINE, [thread]: problem(404, 'thread_not_found') } });
     try {
-      // The panel holds only the workbench's own sections: AI 제안 on a PC (TASK-460), and the Selected one hidden until an element is chosen.
-      assert.deepEqual(well.app.all('aside')[0].all('div', 'nt'), []);
+      // A thread's ID is the workbench's to read (TASK-459): the panel holds only its own sections, and no note of the
+      // shell's comes before them. Those shown are AI 제안 on a PC (TASK-460) and the Selected one, with the whole
+      // diagram's threads.
+      assert.ok(well.calls.includes(thread));
+      assert.deepEqual(well.app.all('aside')[0].children.map((child) => child.tagName), ['SECTION', 'SECTION', 'SECTION']);
       assert.deepEqual(well.app.all('aside')[0].children.filter((child) => child.shown)
-        .map((child) => child.getAttribute('aria-label')), ['AI 제안']);
+        .map((child) => child.getAttribute('aria-label')), ['AI 제안', '고른 요소']);
     } finally {
       well.close();
     }
