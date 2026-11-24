@@ -491,6 +491,16 @@ export class Problem extends Error {
   }
 }
 
+// A refusal that keeps what its write did (TASK-447): writes.js commits the write's transaction, with its request key
+// keeping the refusal, instead of rolling it back. Only API-259 uses it, for the one case the contract names: a
+// confirmation cancelled before its record merged "answers confirmation_cancelled, and the agent to-do gets recording
+// the cancel". Returns the Problem.
+export function keepingWrite(problem) {
+  if (!(problem instanceof Problem)) throw new TypeError('only a Problem keeps a write');
+  problem.keepsWrite = true;
+  return problem;
+}
+
 // A path that is no operation. The detail never repeats the path the request gave.
 export function notFound(pathname) {
   if (pathname === '/api/spaces' || pathname?.startsWith('/api/spaces/')) {

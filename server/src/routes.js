@@ -16,6 +16,7 @@ import { PROPOSAL_ANSWER_ROUTES } from './proposal-answers.js';
 import { PROPOSAL_ROUTES } from './proposals.js';
 import { READ_ROUTES } from './reads.js';
 import { REMOVAL_ROUTES } from './removal.js';
+import { REPORT_ROUTES } from './reports.js';
 import { SNAPSHOT_ROUTES } from './snapshots.js';
 import { THREAD_ROUTES } from './threads.js';
 import { TODO_ROUTES } from './todo.js';
@@ -61,4 +62,6 @@ export const ROUTES = Object.freeze([
   ...POSITION_ROUTES,
   // TASK-452: API-260, API-261 and API-284 to API-291.
   ...WORKSHOP_ROUTES,
+  // TASK-447: API-258 and API-259.
+  ...REPORT_ROUTES,
 ]);
