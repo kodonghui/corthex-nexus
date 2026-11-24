@@ -413,4 +413,4 @@ Section 4 of the WBS records that a proposal's `source_text` makes no change on 
 - **API-256's description**: "With source_text, NEXUS draws the proposed document and keeps the differences as changes" becomes "With source_text, NEXUS draws the proposed document, as the file source_path names where the drawing reads several, and keeps the differences as changes".
 - **API-256's 400 response** gains two `invalid_request` examples with `field` `source_path`: "source_path names no file the drawing reads" and "source_path is needed: the drawing reads several files".
 
-API-256 already lists TBL-149 and TBL-150, which hold the drawing's picture, so its tables do not change. No operation, status, code or spec row changes. This part waits for its own checkpoint.
+API-256 already lists TBL-149 and TBL-150, which hold the drawing's picture, so its tables do not change. No operation, status, code or spec row changes. This part passed its own checkpoint on 2026-11-24 through the same delegate.

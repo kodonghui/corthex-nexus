@@ -413,4 +413,4 @@ WBS 4절은 제안의 `source_text`가 01단계에서, 그리고 현재 드로�
 - **API-256의 설명**에서 "With source_text, NEXUS draws the proposed document and keeps the differences as changes"가 "With source_text, NEXUS draws the proposed document, as the file source_path names where the drawing reads several, and keeps the differences as changes"로 바뀌어요.
 - **API-256의 400 응답**에 `field`가 `source_path`인 `invalid_request` 예시 2개가 생겨요. "source_path names no file the drawing reads"와 "source_path is needed: the drawing reads several files"예요.
 
-API-256은 드로잉의 그림을 지니는 TBL-149와 TBL-150을 이미 적고 있으므로 테이블은 바뀌지 않아요. 오퍼레이션, 상태 코드, 코드, 명세 행은 바뀌지 않아요. 이 몫은 따로 체크포인트를 기다려요.
+API-256은 드로잉의 그림을 지니는 TBL-149와 TBL-150을 이미 적고 있으므로 테이블은 바뀌지 않아요. 오퍼레이션, 상태 코드, 코드, 명세 행은 바뀌지 않아요. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
