@@ -389,6 +389,49 @@ describe('SCR-145 changes', () => {
       assert.equal(fieldOf(page).value, ' ');
       fieldOf(page).dispatch('keydown', { key: 'Escape' });
       assert.deepEqual([fieldOf(page).value, fieldOf(page).className, byId(page, 'element-name-err') === null], [A.name, 'field', true]);
+      // Enter on the name shown, once refused, sends nothing and takes the message away; the field keeps the focus.
+      buttonNamed(page, A.name).dispatch('keydown', { key: 'F2' });
+      typeName(page, ' ').dispatch('keydown', { key: 'Enter' });
+      await page.settle();
+      assert.equal(fieldOf(page).className, 'field bad');
+      typeName(page, A.name).dispatch('keydown', { key: 'Enter' });
+      assert.deepEqual([fieldOf(page).className, fieldOf(page).getAttribute('aria-invalid'), byId(page, 'element-name-err') === null], ['field', null, true]);
+      focused(page, fieldOf(page));
+      assert.equal(page.sent.length, 2);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a name refused once another element is chosen stays with its own element, and the focus stays where it is', async () => {
+    const answer = held(problem(400, 'invalid_request'));
+    const page = await openStage('erd', { posted: () => answer.answer });
+    try {
+      buttonNamed(page, A.name).dispatch('keydown', { key: 'F2' });
+      typeName(page, ' ').dispatch('keydown', { key: 'Enter' });
+      press(buttonNamed(page, B.name));
+      answer.release();
+      await page.settle();
+      assert.deepEqual([fieldOf(page).value, fieldOf(page).className], [B.name, 'field']);
+      focused(page, buttonNamed(page, B.name));
+      buttonNamed(page, A.name).click();
+      assert.deepEqual([fieldOf(page).value, fieldOf(page).className, byId(page, 'element-name-err').textContent], [' ', 'field bad', message('invalid_request')]);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a read again that draws the workbench anew gives the focus back to the name field, with the name typed', async () => {
+    const page = await openStage('erd');
+    try {
+      buttonNamed(page, A.name).dispatch('keydown', { key: 'F2' });
+      typeName(page, 'agent_k');
+      page.reads[diagramPath('erd')] = json(200, diagramOf('erd', { overlays: [PROPOSED] }));
+      page.document.dispatch('visibilitychange');
+      await page.settle();
+      assert.ok(sectionOf(page, CHANGE_WORDS.proposals).all('div', 'prop').length > 0);
+      focused(page, fieldOf(page));
+      assert.equal(fieldOf(page).value, 'agent_k');
     } finally {
       page.close();
     }
@@ -447,6 +490,16 @@ describe('SCR-145 changes', () => {
       assert.deepEqual(page.sent[1].body, { drawing: DRAWING.erd, op: 'connect', element: A.key, target: C.key });
       assert.deepEqual(rowsOf(sectionOf(page, CHANGE_WORDS.diagram).all('ul', 'chg')[0]), [[`${A.name} → ${C.name}`, CHANGE_WORDS.connect, [CHANGE_WORDS.cancelEdit]]]);
       assert.equal(lineOf(page).children.length, 0);
+      // The connection lies on both its ends: the element it goes to lists it too (SPEC-022).
+      buttonNamed(page, C.name).click();
+      assert.deepEqual(rowsOf(selectedOf(page).all('ul', 'chg')[0]), [[`${A.name} → ${C.name}`, CHANGE_WORDS.connect, [CHANGE_WORDS.cancelEdit]]]);
+      // A connection the server refuses as it is (400) shows its message, with no 다시 시도 that would send it again.
+      answer = problem(400, 'invalid_request');
+      connectButton().click();
+      buttonNamed(page, B.name).click();
+      await page.settle();
+      assert.deepEqual(page.sent[2].body, { drawing: DRAWING.erd, op: 'connect', element: C.key, target: B.key });
+      assert.deepEqual([shownTexts(lineOf(page), 'b'), buttonsIn(lineOf(page))], [[message('invalid_request')], []]);
     } finally {
       page.close();
     }
@@ -670,6 +723,8 @@ describe('SCR-145 changes against the server', () => {
     [shownTexts(lineOf(page), 'b'), buttonsIn(lineOf(page)), shownTexts(lineOf(page), 'span').filter((span) => !span.startsWith('traceId'))],
     [[message(code)], buttons, spans],
   );
+  // A request the server refuses as it is (400, 413): its message, with no 다시 시도 that would send it again.
+  const refused = (code) => inLine(code, []);
   const stale = (code, spans = []) => inLine(code, ['새로 고침'], spans);
   const gone = (code) => inLine(code, ['새로 고침']);
   const byField = (code) => (page) => {
@@ -787,7 +842,7 @@ describe('SCR-145 changes against the server', () => {
     const reused = keyHeader();
     return [
       { status: 200, page: true },
-      { status: 400, code: 'invalid_request', request: () => post(path(), { body: '{"x":1}' }), shows: inLine('invalid_request') },
+      { status: 400, code: 'invalid_request', request: () => post(path(), { body: '{"x":1}' }), shows: refused('invalid_request') },
       { status: 401, code: 'unauthenticated', request: () => post(path(), { headers: { ...JSON_TYPE, ...keyHeader() } }), shows: gateShows },
       { status: 403, code: 'owner_only', request: () => post(path(), { headers: { ...JSON_TYPE, ...s.agent.headers, ...keyHeader() } }), shows: permissionShows('owner_only') },
       { status: 403, code: 'not_owner', request: () => post(path(), { headers: { ...JSON_TYPE, ...someone(), ...keyHeader() } }), shows: permissionShows('not_owner') },
@@ -803,7 +858,7 @@ describe('SCR-145 changes against the server', () => {
         },
         shows: inLine('request_key_reused'),
       },
-      { status: 413, code: 'body_too_large', request: () => post(path(), { body: JSON.stringify({ pad: 'x'.repeat(2 * MiB) }) }), shows: inLine('body_too_large') },
+      { status: 413, code: 'body_too_large', request: () => post(path(), { body: JSON.stringify({ pad: 'x'.repeat(2 * MiB) }) }), shows: refused('body_too_large') },
       { status: 415, code: 'json_required', request: () => post(path(), { headers: { 'Content-Type': 'text/plain', ...owner(), ...keyHeader() } }), shows: inLine('json_required') },
       { status: 500, code: 'internal', fails: true, request: () => post(path()), shows: inLine('internal') },
       ...more,
@@ -897,7 +952,7 @@ describe('SCR-145 changes against the server', () => {
     const act = async (page) => byId(page, `w-${shown.edits.replay}-cancel`).click();
     await everyResponse('cancelDirectEdit', answerPath(shown, shown.edits.replay, 'cancel'), act, [
       { status: 200, page: true },
-      { status: 400, code: 'invalid_request', request: () => post(path, { body: '{"x":1}' }), shows: inLine('invalid_request') },
+      { status: 400, code: 'invalid_request', request: () => post(path, { body: '{"x":1}' }), shows: refused('invalid_request') },
       { status: 401, code: 'unauthenticated', request: () => post(path, { headers: { ...JSON_TYPE, ...keyHeader() } }), shows: gateShows },
       { status: 403, code: 'owner_only', request: () => post(path, { headers: { ...JSON_TYPE, ...s.agent.headers, ...keyHeader() } }), shows: permissionShows('owner_only') },
       { status: 403, code: 'not_owner', request: () => post(path, { headers: { ...JSON_TYPE, ...someone(), ...keyHeader() } }), shows: permissionShows('not_owner') },
@@ -915,7 +970,7 @@ describe('SCR-145 changes against the server', () => {
       },
       // An AI proposal is answered, not cancelled: change_set_state with its state.
       { status: 409, code: 'change_set_state', request: async () => post(answerPath(other, await propose(other), 'cancel')), shows: stale('change_set_state') },
-      { status: 413, code: 'body_too_large', request: () => post(path, { body: JSON.stringify({ pad: 'x'.repeat(2 * MiB) }) }), shows: inLine('body_too_large') },
+      { status: 413, code: 'body_too_large', request: () => post(path, { body: JSON.stringify({ pad: 'x'.repeat(2 * MiB) }) }), shows: refused('body_too_large') },
       { status: 415, code: 'json_required', request: () => post(path, { headers: { 'Content-Type': 'text/plain', ...owner(), ...keyHeader() } }), shows: inLine('json_required') },
       { status: 500, code: 'internal', fails: true, request: () => post(path), shows: inLine('internal') },
     ]);

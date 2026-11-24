@@ -82,8 +82,7 @@ const JOINS = Object.freeze({
 
 // The drawing a direct edit names: the one the diagram shows, the last good one when the current one failed.
 export function shownDrawing(diagram) {
-  if (diagram.drawing?.status === 'failed') return diagram.last_drawn?.id ?? null;
-  return diagram.drawing?.id ?? null;
+  return diagram.drawing?.status === 'drawn' ? diagram.drawing.id : diagram.last_drawn?.id ?? null;
 }
 
 // Whether the owner edits this diagram here: on a PC, not removed (SPEC-027), not the mockup, with a drawing shown.
@@ -130,6 +129,10 @@ export function changesOf(state) {
     changes.picking = null;
     changes.said = null;
   }
+  // The element of this module's that has the focus takes it back from the workbench built again, by its ID.
+  const active = globalThis.document?.activeElement ?? null;
+  const had = [...(changes.ids?.entries() ?? [])].find(([, element]) => element === active)?.[0] ?? null;
+  if (changes.focus === null && had !== null) changes.focus = had;
   changes.line = h('div', { class: 'wb-notice wb-line' });
   changes.diagramBox = h('section', { class: 'panel', hidden: true, 'aria-label': CHANGE_WORDS.diagram });
   changes.proposalBox = h('section', { class: 'panel', hidden: true, 'aria-label': CHANGE_WORDS.proposals });
@@ -176,7 +179,8 @@ const own = (state, id, element) => {
 const off = (state) => (state.changes.busy === null ? null : 'true');
 
 // What the line over the picture says: choosing the other end of a connection, a connection that exists, a change
-// that is gone, a refusal for a state that changed (SCR-145#stale), or a failure with 다시 시도.
+// that is gone, a refusal for a state that changed (SCR-145#stale), a request refused as it is, or a failure with
+// 다시 시도.
 function drawLine(state) {
   const changes = state.changes;
   const { shell } = state.ctx;
@@ -199,6 +203,11 @@ function drawLine(state) {
     fill(changes.line, h('div', { class: 'nt warn', role: 'alert' },
       h('div', { class: 'b' }, h('b', {}, shell.message(said.code)), kept === null ? null : h('span', {}, kept)),
       h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => readAgain(state) } }, CHANGE_WORDS.reload)));
+  } else if (said.kind === 'refused') {
+    // A request the server refuses as it is (400, 413): its message, and no 다시 시도, which would send it again.
+    fill(changes.line,
+      h('div', { class: 'nt err', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, shell.message(said.code)))),
+      said.traceId ? h('span', { class: 'helper mono' }, `traceId ${said.traceId}`) : null);
   } else {
     fill(changes.line, shell.errorNotice(said.outcome, () => {
       state.changes.said = null;
@@ -377,9 +386,11 @@ async function directEdit(state, edit) {
   const input = outcome.status === 400 || outcome.status === 413 || (outcome.status === 409 && outcome.code === 'request_key_reused');
   if (edit.op === 'rename' && input) {
     // A refused name (empty, or over 200 characters): the message by the field, the name kept as typed.
+    // An element chosen meanwhile keeps the focus; the refused name shows when this one is chosen again.
     keepDraft(state, edit.element, { code: outcome.code ?? 'invalid_request', traceId: outcome.traceId ?? null });
-    changes.focus = 'element-name';
-    drawChanges(state, { name: true });
+    const here = changes.element === edit.element;
+    if (here) changes.focus = 'element-name';
+    drawChanges(state, { name: here });
     return;
   }
   if (outcome.status === 200 && edit.op === 'connect') {
@@ -433,6 +444,7 @@ async function met(state, outcome, { verb, retry, focus = null, element = null }
   const found = shell.outcome(outcome);
   if (found === null) return;
   if (found.state === 'normal') {
+    changes.asking = null;
     if (verb === 'rename') changes.draft = null;
     // The buttons stay off until the diagram read again is drawn; then the element changed, or the heading, takes the
     // focus.
@@ -451,6 +463,8 @@ async function met(state, outcome, { verb, retry, focus = null, element = null }
   if (verb === 'rename') keepDraft(state, element, null);
   if (found.state === 'stale') {
     changes.said = { kind: 'stale', code: outcome.code ?? 'document_changed', verb };
+  } else if (outcome.status === 400 || outcome.status === 413) {
+    changes.said = { kind: 'refused', code: outcome.code ?? 'invalid_request', traceId: outcome.traceId ?? null };
   } else {
     changes.said = { kind: 'error', outcome, retry };
   }
@@ -518,7 +532,12 @@ function nameKey(state, element, field, event) {
     const name = field.value ?? '';
     if (state.changes.busy !== null) return;
     if (name === nameOnTop(state, element.key)) {
+      const refused = state.changes.draft?.key === element.key && state.changes.draft.refused !== null;
       putBack(state, element);
+      if (refused) {
+        drawName(state, element);
+        state.changes.field?.focus();
+      }
       return;
     }
     typed(state, element, field);
@@ -564,7 +583,9 @@ function drawMore(state, element) {
   const changes = state.changes;
   const diagram = state.ctx.data.diagram;
   const ids = new Set(state.model.marks.get(element.key)?.sets ?? []);
-  const waiting = (diagram.overlays ?? []).filter((set) => ids.has(set.id) && isWaiting(set));
+  // A connection lies on both its ends, though the picture marks the one it starts from (overlays.js).
+  const ends = (set) => (set.changes ?? []).some((step) => step.op === 'connect' && step.target === element.key);
+  const waiting = (diagram.overlays ?? []).filter((set) => isWaiting(set) && (ids.has(set.id) || ends(set)));
   changes.connectButton = joins(state, element)
     ? own(state, 'connect', h('button', {
       type: 'button', class: 'btn ghost sm', id: 'connect', 'aria-pressed': changes.picking === element.key ? 'true' : 'false',

@@ -1207,7 +1207,7 @@ A screen never draws the shared states itself.
 
 Data that may be out of date is handled this way:
 - The data stays on screen until a new read replaces it. A read again that answers what is shown leaves the view as it is, with what the owner typed, chose or scrolled to. One that answers something new draws the view again at the same scroll position, so a screen that holds typed text keeps it with `keepDraft` as the owner types and fills it back from `draftOf`.
-- A load asked for while a read runs, such as `shell.reload()` after a write, waits for that read and then runs once, so no answer older than the request stays on screen.
+- A load asked for while a read runs, such as `shell.reload()` after a write, waits for that read and then runs once, so no answer older than the request stays on screen. Its promise ends when that load has ended, so a screen that waits for it, as the workbench's changes do, sees the answer read again.
 - The page reads again when the tab comes back into view. No timer reads again while the tab stays in view.
 - Once the data is more than 5 minutes old, or a read again has failed, "HH:MM에 읽음" shows beside the title.
 - A read again that fails keeps the data and shows the error notice above it.
@@ -1379,7 +1379,7 @@ TASK-460 (SPEC-019 to SPEC-023, SPEC-027) adds the changes to SCR-145's [workben
   - A row is a direct rename's new name over "이름 바꾸기 · {old name}에서", a direct connection's "{from} → {to}" over 잇기, or an accepted proposal's change over "AI 제안 수락". A direct edit has 편집 취소 on a PC.
   - When nothing waits, TASK-460 draws no "이 그림" section; TASK-461 adds the rest of it, the confirmation included.
   - On a removed diagram the section holds the tag and the list only, in the confirm button's place (note 8 of the WBS).
-- **The Selected panel's list** (SPEC-022). The chosen element's change sets that wait are listed under 반영 대기, newest on top, as rows of the list above.
+- **The Selected panel's list** (SPEC-022). The chosen element's change sets that wait are listed under 반영 대기, newest on top, as rows of the list above. A connection is listed on both its ends, though the picture marks the end it starts from.
 - **Renaming** (SPEC-021, API-272). On a PC, on a diagram not removed, the Selected panel shows the name of an element the server renames in a field labelled "이름 · 두 번 누르거나 F2", holding the name shown on top.
   - A double click or F2 on an element chooses it and focuses the field, its text selected. Enter sends a name that differs from the one shown, as `{ drawing, op: "rename", element, name }`. Escape, or leaving the field without Enter, puts the name back and sends nothing; Escape also gives the focus back to the element.
   - The Hotspots lane, an ERD or sitemap line, an element drawn unreadable, missing or left out, and a mockup token keep their name as text, as the server's [direct edits](#direct-edits) take no rename of them.
@@ -1393,6 +1393,7 @@ TASK-460 (SPEC-019 to SPEC-023, SPEC-027) adds the changes to SCR-145's [workben
   - 409 `change_set_state` or `document_changed`: the line over the picture says what changed, with 새로 고침, and a refused 수락 adds "새 제안을 부탁하세요." (SCR-145#stale).
   - 404 for a change set, an element or a drawing: its message with 새로 고침. 404 for the project or the diagram: the diagram is read again first, as for a move, so a removed one still listed opens for what waits on it (TASK-468).
   - 401 and 403: the shell's permission rule, as for a read.
+  - 400 or 413 other than a refused name, such as a connection the sitemap's tree refuses: its message, with no 다시 시도, since the same request gets the same answer.
   - Any other answer: its message with 다시 시도. A retry after a timeout or a lost connection sends the same request with the same request key; any other makes a new one.
 - **Phone** (SPEC-051). A phone shows the marks, the "이 그림" section's reason and list and the Selected panel's list, without a button, and no "AI 제안" section, name field, 잇기, 편집 취소 or question.
 - **Stage 01's text.** Under stage 01's title on a PC, the screen says the stage-09 mockup's text again: "Git 문서에서 그린 그림이에요. 끌어 옮기고, 두 번 눌러 이름을 바꿔 보세요. 키보드로는 화살표로 옮기고 F2로 이름을 바꿔요." (section 4 of the [WBS](../docs/10-wbs/wbs.md)).

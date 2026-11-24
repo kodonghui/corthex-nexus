@@ -647,10 +647,12 @@ describe('the shell', () => {
       await delay(10);
       // A write ends while that read is held, and the screen asks for its data again.
       title = '바뀐 이름';
-      page.shell.reload();
+      const asked = page.shell.reload();
       wait = null;
       release();
-      await waitFor(() => texts(page, 'h1')[0] === '바뀐 이름');
+      // The promise of the reload asked for ends once the load it waited for has run, its answer shown.
+      await asked;
+      assert.deepEqual(texts(page, 'h1'), ['바뀐 이름']);
       await page.settle();
       assert.equal(page.calls.filter((path) => path === '/api/projects/reading-club').length, 3);
       assert.deepEqual(texts(page, 'h1'), ['바뀐 이름']);

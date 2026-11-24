@@ -45,8 +45,10 @@ export function startShell(root, screen, address) {
   let reread = null;
   let ended = false;
   let busy = false;
-  // A load asked for while one runs, such as a reload after a write: null, or whether it reads again (refresh).
+  // A load asked for while one runs, such as a reload after a write: null, or whether it reads again (refresh). Each
+  // ask's promise ends once that load has ended, as if it had run at once.
   let queued = null;
+  let waiting = [];
   let tag = null;
   // The times the view shows as how long ago they were (since), each moved on with the read time.
   let clocks = [];
@@ -98,12 +100,13 @@ export function startShell(root, screen, address) {
 
   // Reads the screen's data and the header's. A first load shows the loading state; a read again (refresh) keeps
   // what is shown until its answer replaces it, and when it fails keeps it with the error notice and the read time.
-  // A load asked for while one runs waits for it and then runs once, so no answer older than the request stays.
+  // A load asked for while one runs waits for it and then runs once, so no answer older than the request stays; its
+  // promise ends when that load ends.
   async function load(refresh) {
-    if (ended) return;
+    if (ended) return undefined;
     if (busy) {
       queued = queued === false ? false : refresh;
-      return;
+      return new Promise((resolve) => { waiting.push(resolve); });
     }
     busy = true;
     round = new Map();
@@ -137,11 +140,17 @@ export function startShell(root, screen, address) {
       // again or a reload after a write, shows it gone.
       if (at === arrivals) via = 'open';
     }
+    const asked = waiting;
+    waiting = [];
     if (queued !== null && !ended) {
       const next = queued;
       queued = null;
-      load(next);
+      load(next).then(() => asked.forEach((resolve) => resolve()));
+    } else {
+      queued = null;
+      asked.forEach((resolve) => resolve());
     }
+    return undefined;
   }
 
   // Shows what a load's reads answered. A read of one of the screen's parts that fails leaves the rest of the screen
