@@ -3039,7 +3039,7 @@ paths:
       x-corthex:
         id: API-260
         spec: [SPEC-037, SPEC-038]
-        tables: [TBL-163, TBL-164]
+        tables: [TBL-147, TBL-162, TBL-163, TBL-164, TBL-165]
         release: Should
         family: agent
       security:
@@ -3096,6 +3096,15 @@ paths:
                     code: invalid_request
                     traceId: "15edfd9aaa1de701"
                     field: text
+                text-too-long:
+                  value:
+                    title: The text is too long
+                    status: 400
+                    detail: notes[0].text is over 200 characters
+                    code: text_too_long
+                    traceId: "4c3da1076a38796e"
+                    field: notes[0].text
+                    limit: 200
         "401":
           description: "Refused: no valid credential or sign-in"
           content:
@@ -3239,7 +3248,7 @@ paths:
       x-corthex:
         id: API-261
         spec: [SPEC-039, SPEC-040]
-        tables: [TBL-163, TBL-162, TBL-157]
+        tables: [TBL-147, TBL-157, TBL-162, TBL-163, TBL-166]
         release: Should
         family: agent
       security:
@@ -7311,7 +7320,7 @@ paths:
       x-corthex:
         id: API-284
         spec: [SPEC-036]
-        tables: [TBL-162, TBL-163]
+        tables: [TBL-147, TBL-162, TBL-163]
         release: Should
         family: owner
       security:
@@ -7541,7 +7550,7 @@ paths:
       x-corthex:
         id: API-285
         spec: [SPEC-036, SPEC-038]
-        tables: [TBL-163, TBL-164, TBL-165]
+        tables: [TBL-147, TBL-162, TBL-163, TBL-164, TBL-165]
         release: Should
         family: owner
         omit:
@@ -7711,7 +7720,7 @@ paths:
       x-corthex:
         id: API-286
         spec: [SPEC-038]
-        tables: [TBL-164]
+        tables: [TBL-147, TBL-162, TBL-164]
         release: Should
         family: owner
       security:
@@ -7899,7 +7908,7 @@ paths:
       x-corthex:
         id: API-287
         spec: [SPEC-038]
-        tables: [TBL-164]
+        tables: [TBL-147, TBL-162, TBL-164]
         release: Should
         family: owner
       security:
@@ -8094,7 +8103,7 @@ paths:
       x-corthex:
         id: API-288
         spec: [SPEC-038]
-        tables: [TBL-164, TBL-165]
+        tables: [TBL-147, TBL-162, TBL-164, TBL-165]
         release: Should
         family: owner
       security:
@@ -8237,7 +8246,7 @@ paths:
       x-corthex:
         id: API-289
         spec: [SPEC-038]
-        tables: [TBL-165]
+        tables: [TBL-147, TBL-162, TBL-164, TBL-165]
         release: Should
         family: owner
       security:
@@ -8431,7 +8440,7 @@ paths:
       x-corthex:
         id: API-290
         spec: [SPEC-038]
-        tables: [TBL-165]
+        tables: [TBL-147, TBL-162, TBL-165]
         release: Should
         family: owner
       security:
@@ -8574,7 +8583,7 @@ paths:
       x-corthex:
         id: API-291
         spec: [SPEC-039]
-        tables: [TBL-163, TBL-161, TBL-166]
+        tables: [TBL-147, TBL-161, TBL-162, TBL-163, TBL-164, TBL-166]
         release: Should
         family: owner
       security:

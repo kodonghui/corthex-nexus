@@ -4,7 +4,7 @@
 
 The server of NEXUS v3, built task by task from the [WBS](../docs/10-wbs/wbs.md). It runs on Node 24 with Node's own modules and has no dependency to install. It runs behind the Cloudflare Access gate, as v2 did.
 
-It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-424's [user flow](#user-flow), the drawer of stage 03's flow files; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-426's [screen states](#screen-states), the drawer of stage 08; TASK-427's [mockup](#mockup), the drawer of stage 09, and the [mockup page](#the-mockup-page) it serves in a sandbox; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-443's [threads](#threads), by which the owner reads a thread, comments on a diagram, an element or a row, replies and closes a thread; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion; TASK-436's [agent reads](#agent-reads), what deleting the space removes and one thread, change set, reflection entry or confirmation, as the hub's `remove` and `show` commands read them; TASK-441's [diagram read](#diagram), a diagram with its elements by name and their positions, its overlays, its confirmation, what changed since it and its threads; TASK-442's [moving an element](#moving-an-element), where the owner puts an element of a diagram, which the next drawing keeps; TASK-445's [direct edits](#direct-edits), by which the owner renames an element or connects two and cancels such an edit while it waits for reflection; TASK-446's [confirmations](#confirmations), by which the owner confirms a diagram or an item table and cancels a confirmation; TASK-450's [daily backup](#daily-backup), which backs up the store once a day, keeps 30 days of backups and rehearses a restore before a release; TASK-454's [app shell](#app-shell), the pages the owner opens, with their header, stage tabs, addresses and shared states; TASK-438's [proposals](#proposals), by which an agent posts a change set laid over a drawn picture and withdraws it; TASK-444's [answering proposals](#answering-proposals), by which the owner accepts or rejects one; TASK-451's [tool links](#tool-links), linking a Notion page or a Jira project to the project or a stage and removing the link; and TASK-455's [owner to-do screen](#owner-to-do-screen), SCR-142, what waits on the owner across every project. It takes the operations of `src/routes.js`, so far API-242, API-243, API-244, API-245, API-246, API-247, API-248, API-249, API-250, API-251, API-252, API-253, API-254, API-255, API-256, API-257, API-262, API-263, API-264, API-265, API-266, API-267, API-268, API-269, API-270, API-271, API-272, API-273, API-274, API-275, API-276, API-277, API-278, API-279, API-280, API-281, API-282, API-283 and API-293; every other path under `/api` answers the `not_found` Problem until the tasks that build its operations add them. A GET of a path outside `/api` is a page of the [app shell](#app-shell). It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
+It has TASK-413's skeleton, a router for the operations of [api/openapi.yaml](../api/openapi.yaml), settings from the environment and one log line per request; TASK-414's store, the database that the migrations of [db/migrations](../db/migrations/) build; TASK-415's request layer: the error registry, the body limits, JSON only, request keys and one write at a time; TASK-416's admission, which checks the gate's sign-in of the one owner on every owner request; TASK-417's agent credentials: the owner issues, lists and revokes them, and every agent request is checked by its pair; TASK-418's [snapshot intake](#snapshot-intake), where the hub's push keeps a project's snapshot; TASK-419's [drawing](#drawing), which draws a kept snapshot into diagrams, drawings and elements through each stage's drawer; TASK-421's [DDD board](#ddd-board), the drawer of stage 01; TASK-422's [ERD](#erd), the drawer of stage 05; TASK-423's [item table](#item-table), the drawer of the stages without pictures; TASK-424's [user flow](#user-flow), the drawer of stage 03's flow files; TASK-425's [sitemap](#sitemap), the drawer of stage 07; TASK-426's [screen states](#screen-states), the drawer of stage 08; TASK-427's [mockup](#mockup), the drawer of stage 09, and the [mockup page](#the-mockup-page) it serves in a sandbox; TASK-435's [after a drawing](#after-a-drawing), what a push changes once it has drawn: confirmations, stage passes, reflections and threads; TASK-433's [to-do entries](#to-do-entries), the one place that opens and closes the entries of the owner's to-do and the agent to-do, with the agent to-do it answers; TASK-434's [claims](#claims), by which an agent session holds an entry of the agent to-do alone, keeps it and lets it go; TASK-437's [comments](#comments), by which an agent comments on a diagram, replies, marks a thread answered and reports where a decision is recorded; TASK-443's [threads](#threads), by which the owner reads a thread, comments on a diagram, an element or a row, replies and closes a thread; TASK-440's [project read](#project), a project's stages with their diagrams and states, its stage passes and its tool links; TASK-439's [projects and to-do](#projects-and-to-do), the project list and what waits on the owner, with the warning of a failed backup; TASK-448's [project removal](#project-removal), what deleting a project space removes and the deletion; TASK-436's [agent reads](#agent-reads), what deleting the space removes and one thread, change set, reflection entry or confirmation, as the hub's `remove` and `show` commands read them; TASK-441's [diagram read](#diagram), a diagram with its elements by name and their positions, its overlays, its confirmation, what changed since it and its threads; TASK-442's [moving an element](#moving-an-element), where the owner puts an element of a diagram, which the next drawing keeps; TASK-445's [direct edits](#direct-edits), by which the owner renames an element or connects two and cancels such an edit while it waits for reflection; TASK-446's [confirmations](#confirmations), by which the owner confirms a diagram or an item table and cancels a confirmation; TASK-450's [daily backup](#daily-backup), which backs up the store once a day, keeps 30 days of backups and rehearses a restore before a release; TASK-454's [app shell](#app-shell), the pages the owner opens, with their header, stage tabs, addresses and shared states; TASK-438's [proposals](#proposals), by which an agent posts a change set laid over a drawn picture and withdraws it; TASK-444's [answering proposals](#answering-proposals), by which the owner accepts or rejects one; TASK-451's [tool links](#tool-links), linking a Notion page or a Jira project to the project or a stage and removing the link; TASK-455's [owner to-do screen](#owner-to-do-screen), SCR-142, what waits on the owner across every project; and TASK-452's [workshop](#workshop), stage-01 event storming on a board: the owner's sticky notes and links, the agent's step drafts, confirming a step and the agent's report of the pull request that writes it. It takes the operations of `src/routes.js`, so far API-242, API-243, API-244, API-245, API-246, API-247, API-248, API-249, API-250, API-251, API-252, API-253, API-254, API-255, API-256, API-257, API-260, API-261, API-262, API-263, API-264, API-265, API-266, API-267, API-268, API-269, API-270, API-271, API-272, API-273, API-274, API-275, API-276, API-277, API-278, API-279, API-280, API-281, API-282, API-283, API-284, API-285, API-286, API-287, API-288, API-289, API-290, API-291 and API-293; every other path under `/api` answers the `not_found` Problem until the tasks that build its operations add them. A GET of a path outside `/api` is a page of the [app shell](#app-shell). It also holds TASK-420, the [picture layout](#picture-layout) the drawing tasks use.
 
 ## Running
 
@@ -1377,6 +1377,92 @@ The coordinator chose the rules for a removed diagram (note 7 of the WBS) and re
 `test/proposal-answers.test.js` checks TASK-444's done condition with proposals made by API-256: an accepted one waits for reflection on the agent to-do, a rejected one's overlay is gone and its thread stays open, and one already answered gets `change_set_state`. It also covers proposals accepted out of the order they were made, the document changed, a removed diagram, a closed thread, a thread that waits on the agent with its claim, and the log lines. It answers every response API-270 and API-271 list, and checks the tables they touch (note 23).
 
 The two operations read more tables than they listed, so API-270 lists 9 tables and API-271 lists 8 (notes 18 and 23 of the WBS). The correction at the end of the [API README](../docs/06-api/README.md) and the change to SCR-145 at the end of the [screens README](../docs/08-screens/README.md) passed their own checkpoints on 2026-11-24.
+
+## Workshop
+
+`src/workshop.js` is TASK-452: stage-01 event storming on a NEXUS board (SPEC-036 to SPEC-040).
+
+The owner's operations:
+- open a workshop (API-284, `POST /api/projects/{project}/workshop`) and read it (API-285, `GET` on the same path);
+- add a sticky note (API-286, `POST /api/projects/{project}/workshop/notes`), move or rename it (API-287, `PATCH /api/projects/{project}/workshop/notes/{note}`) and remove it (API-288, `DELETE` on the same path);
+- link two notes (API-289, `POST /api/projects/{project}/workshop/links`) and remove a link (API-290, `DELETE /api/projects/{project}/workshop/links/{link}`);
+- confirm a step (API-291, `POST /api/projects/{project}/workshop/steps/{step}/confirm`).
+
+The agent's operations:
+- draft a step (API-260, `POST /api/spaces/{project}/workshop/steps/{step}/draft`);
+- report the pull request that writes a confirmed step into the domain document (API-261, `POST /api/spaces/{project}/workshop/steps/{step}/report`).
+
+Every write takes a request key. The workshop's screen is TASK-462's, and the [project read](#project) names the latest workshop.
+
+- **No AI call.** NEXUS calls no AI model (spec rule 6). A draft's notes and their confidence labels come from the agent through API-260.
+- **Stage 01 only.** A workshop belongs to the project. Its board has 11 frames, one for each event storming step, `0`, `1`, `1-b` and `2` to `9`, in that order (TBL-163). Steps 1-b, 7 and 9 are stage 01's checkpoints.
+- **Opening and reading.**
+  - A project has at most one open workshop. Opening another gets `workshop_open`, which names the open one in `workshop`.
+  - The read answers the open workshop, or else the last closed one, with each step's live notes and the board's live links, oldest first. A project that never had a workshop gets `workshop_not_found`.
+  - A change to the board without an open workshop gets `workshop_closed`.
+- **Notes** (TBL-164). A note has a step, a kind, a text and a place.
+  - `kind` is free text of 1 to 40 characters, kept as sent. The screen colours the six kinds it knows.
+  - `text` is 1 to 200 characters, and `x` and `y` lie between -1,000,000 and 1,000,000.
+  - A text over 200 characters or a kind over 40 gets `text_too_long`, with `field` and `limit`, on every workshop write.
+  - A change (API-287) changes the fields sent, and the last change wins.
+- **Who made a note** (REQ-047).
+  - The owner's notes are made by `owner`. The agent's are made by `agent`, with the credential and a confidence label.
+  - When the owner renames an agent's note (changes its text), the note becomes the owner's: `made_by` is `owner`, and the credential and the label are cleared. The agent can then no longer remove it.
+  - A move or a change of step keeps who made the note.
+- **Links** (TBL-165) are directed. The same from and to is the same link, answered 200, and the reverse is another link. The two notes may be in different steps. Both must be live notes of the open workshop, and a note is not linked to itself.
+- **Removing.**
+  - Removing a note, by the owner or by the agent's draft, removes its live links too, a person's link included.
+  - A removed note or link keeps its row with `removed_at`, and the read no longer lists it.
+  - Removed again, it changes nothing: `changed` is false.
+- **Limits.** A step holds at most 1,000 live notes, and a board at most 2,000 live links, as many as the read lists. Past that comes `invalid_request` on `notes` (API-260), `step` (API-286, API-287) or `from` (API-289).
+- **The draft** (API-260, SPEC-037) places 1 to 200 notes in the step's frame, each with its confidence label: `certain`, `inferred` or `guess`.
+  - `remove` names notes of the same step, which go before the new notes are placed.
+  - A note of another step, or an ID the open workshop does not hold, gets `note_not_found`. A note a person made gets `note_made_by_owner`. Either way the draft writes nothing.
+  - A note already removed is passed over and not counted in `removed`.
+  - The agent's own notes are every note an agent made, whatever its credential, since credentials are replaced.
+  - A note without `x` or `y` takes it from a grid in its frame, 5 columns 160 apart and rows 120 apart: the first grid place, row by row, that no live note of the step holds, nor a note the draft places. So a draft never places a note on another, and a place a removed note left is taken again.
+  - A confirmed step takes no draft: `step_confirmed`.
+- **Confirming a step** (API-291, SPEC-039).
+  - It writes the step's `confirmed_at`, in any order of steps, and leaves the step's notes as they are. A step without a live note gets `step_empty`.
+  - Steps 1-b, 7 and 9 each write one pass of stage `01-domain` (TBL-161).
+  - The agent to-do gets `write_step` for the step (see [To-do entries](#to-do-entries)).
+  - Confirmed again, the step answers its first confirmation with `changed` false, and nothing is written.
+  - The owner can still change a confirmed step's notes, and the step stays confirmed.
+- **The report** (API-261, SPEC-039, SPEC-040) names the pull request that writes the step into the domain document.
+  - A step that is not confirmed gets `steps_open`, which names in `steps` every step of the workshop not confirmed yet.
+  - The link must be the project's repository, `/pull/` and a number, as the [agent to-do](#to-do-entries) gives it. Case is ignored. A link of another repository, or any link for a project that names no repository, gets `repository_mismatch`. A link of another form gets `invalid_request` on `pull_request`.
+  - Each number is one pull request (TBL-157), with the purpose `domain_document`, and it may write several steps. A number already reported for a reflection or a record gets `invalid_request` on `pull_request`.
+  - `opened` links the pull request to the step.
+  - `closed`, without a merge, marks the pull request closed and unlinks every step of the workshop linked to it, which stays confirmed and waiting. Opened again, the step reported is linked again.
+  - `merged` links the step too, marks the pull request merged and writes every step of the workshop linked to it, which closes their `write_step` entries.
+  - A pull request already merged stays merged. A step reported `opened` or `merged` on it is written; one reported `closed` on it changes nothing.
+  - A pull request never reported that is reported `closed` links no step, so nothing is kept of it, and the answer's `changed` is false.
+  - A written step stays written: a later report answers `changed` false. So does a report that changes nothing, such as the same event again.
+  - Once the workshop closes, a report gets `workshop_closed`, as any change to the board does. A retry with the first request key gets the first answer.
+  - The workshop closes when all 11 steps are confirmed and written. The merged report that writes the last step not written closes it, and answers `workshop_state` `closed`. A step needs a note to be confirmed, so every frame, step 0 included, needs one. Nothing else closes a workshop.
+- **No claim.** No workshop write makes or keeps a claim. A step has no entry ID, so it is never claimed (see [To-do entries](#to-do-entries)). `Nexus-Session`, which API-260 and API-261 need, is checked as a session label and kept nowhere.
+- **Not found.** No detail repeats the value.
+  - A name no project space has gets `project_not_found`.
+  - A step that is not one of the 11 gets `step_not_found`.
+  - A note or link of another workshop, or an ID in no note's or link's form, gets `note_not_found` or `note_link_not_found`.
+- **No log line** holds a note's text, the project's name, a link or a path (rule 5).
+
+**Open for the workshop release.** The requirements leave two points open, and TASK-452 changes neither:
+- how REQ-042 reads for stage 01 while a workshop is open;
+- how the owner ends a workshop without finishing it.
+
+The drawn DDD board, its confirmation (API-275) and the pushes of stage 01 go on as they are, and the step checkpoints add passes beside them. Until the second point is settled, a workshop with a step that has no notes cannot close until that step gets a note.
+
+The coordinator chose these rules for TASK-452: when the workshop closes, the pull request report, no claim, who made a note, removed notes and their links, the draft, confirming a step, the kind, links and the limits. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24, each asked on its own.
+
+`test/workshop.test.js` checks TASK-452's done condition: every response API-260, API-261 and API-284 to API-291 list. It also tests:
+- opening and reading, and the owner's notes and links;
+- the draft, its grid and its removals, and who made a note;
+- confirming, the report and closing;
+- the limits, the request key and the log;
+- the tables each operation touches (note 23).
+
+Every operation finds the project space by its name and the workshop, so each lists TBL-147 and TBL-162 too. The correction at the end of the [API README](../docs/06-api/README.md) gives each list, and passed its own checkpoint on 2026-11-24, each list asked on its own.
 
 ## Answers
 

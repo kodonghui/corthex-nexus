@@ -314,10 +314,15 @@
           "approved": "Move and position table and spec correction, pull request 144, at commit 6ad2570: API-274's x-corthex.tables lists TBL-147, TBL-151, TBL-152, TBL-153 and TBL-154 instead of the approved TBL-154; API-242's lists TBL-154 after TBL-153 besides the thirteen tables approved before; and API-242's x-corthex.spec lists SPEC-012 after SPEC-009 besides the fourteen rows approved before (note 23; db/nexus.sql feeds TBL-154 from SPEC-012 only). No operation, field, response or code changed, and db/nexus.sql is as it was. Each of the three lists was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Workshop table correction, pull request 149, at commit 28d60c2: the x-corthex.tables of the ten workshop operations change, each from its approved list (note 23). API-260 lists TBL-147, TBL-162, TBL-163, TBL-164 and TBL-165 instead of TBL-163 and TBL-164; API-261 lists TBL-147, TBL-157, TBL-162, TBL-163 and TBL-166 instead of TBL-163, TBL-162 and TBL-157, with no TBL-167; API-284 lists TBL-147, TBL-162 and TBL-163 instead of TBL-162 and TBL-163; API-285 lists TBL-147, TBL-162, TBL-163, TBL-164 and TBL-165 instead of TBL-163, TBL-164 and TBL-165; API-286 and API-287 each list TBL-147, TBL-162 and TBL-164 instead of TBL-164; API-288 lists TBL-147, TBL-162, TBL-164 and TBL-165 instead of TBL-164 and TBL-165; API-289 lists TBL-147, TBL-162, TBL-164 and TBL-165 instead of TBL-165; API-290 lists TBL-147, TBL-162 and TBL-165 instead of TBL-165; API-291 lists TBL-147, TBL-161, TBL-162, TBL-163, TBL-164 and TBL-166 instead of TBL-163, TBL-161 and TBL-166. API-260's 400 response gains a text_too_long example with field notes[0].text and limit 200. No operation, field, code or spec row changed. Each list and the example were asked as their own questions and answered before the stage passed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T08:20:28+09:00"
+      "updated": "2026-11-24T09:05:33+09:00"
     },
     "07-sitemap": {
       "state": "done",
@@ -472,10 +477,15 @@
           "approved": "Stages 05 and 07 drawn from several files, pull request 146, at commit da9416e: TASK-466 reads source_text as the one file the current drawing's elements name; when they name several, source_text is kept but makes no change, as on stage 01, so SPEC-018's \"the owner sees Y over X, marked as proposed\" is not met there. Section 4 records the difference beside stage 01's, with the same cause and fix, looked at again at TASK-463. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Note 17 against TASK-452, pull request 149, at commit 28d60c2: note 17 says API-261 leaves out \"the to-do it closes and the claim it needs (TBL-166, TBL-167)\"; TASK-452 makes and keeps no claim on any workshop write, since a step has no entry ID that API-250 could claim, TodoStep shows no claim and API-261 lists no claimed response, so API-261 lists TBL-166 and not TBL-167, and API-260 keeps TBL-163 because note 23 counts reads. Section 4 records the difference. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
+          "by": "the maintainer",
+          "date": "2026-11-24"
         }
       ],
       "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",
-      "updated": "2026-11-24T08:37:27+09:00"
+      "updated": "2026-11-24T09:05:33+09:00"
     },
     "11-development": {
       "state": "not_started",

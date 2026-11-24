@@ -8,7 +8,8 @@
 const ID = (prefix) => new RegExp(`^${prefix}_[0-9a-hjkmnp-tv-z]{12}$`);
 const PROJECT_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const PROJECT_NAME_LENGTH = 64;
-const STEPS = new Set(['0', '1', '1-b', '2', '3', '4', '5', '6', '7', '8', '9']);
+// Event storming's steps in their order (the contract's Step, TERM-212), which the workshop's frames follow too.
+export const STEPS = Object.freeze(['0', '1', '1-b', '2', '3', '4', '5', '6', '7', '8', '9']);
 
 const projectName = (value) => value.length <= PROJECT_NAME_LENGTH && PROJECT_NAME.test(value);
 const matching = (pattern) => (value) => pattern.test(value);
@@ -30,7 +31,7 @@ export const FORMS = Object.freeze({
   tool_link_not_found: matching(ID('tl')),
   note_not_found: matching(ID('sn')),
   note_link_not_found: matching(ID('sl')),
-  step_not_found: (value) => STEPS.has(value),
+  step_not_found: (value) => STEPS.includes(value),
 });
 
 // The code of the first parameter, in path order, whose value is not in the form its route names, or null when every
