@@ -220,6 +220,32 @@ describe('confirmations', () => {
     assert.deepEqual([bareMade.status, bareMade.json.confirmation.pull_request, bareAgain.json.confirmation.pull_request], [201, null, null]);
   });
 
+  test('a pull request that merged as another confirmation\'s record is not named by one cancelled before its own (API-259)', async () => {
+    const report = async (name, confirmation, event, number) => (await server.send({
+      method: 'POST',
+      path: `/api/spaces/${name}/checkpoints/${confirmation}/report`,
+      headers: { ...s.agent.headers, ...JSON_TYPE, ...key(), 'Nexus-Session': 'claude-code-4f2a91' },
+      body: JSON.stringify({ event, pull_request: `${REPOSITORY}/pull/${number}` }),
+    })).status;
+    // Two diagrams of one project, confirmed, and one pull request reported for both records.
+    const { space, erd } = erdProject();
+    const other = s.diagram(space, { sourceKey: '/pictures/05-erd-second', name: 'ERD 2' });
+    s.elements(other.drawing, [table('TBL-146', 'agent_credentials')]);
+    const one = (await confirm(space.name, erd.id, erd.drawing)).json.confirmation.id;
+    const two = (await confirm(space.name, other.id, other.drawing)).json.confirmation.id;
+    assert.deepEqual([await report(space.name, one, 'opened', 34), await report(space.name, two, 'opened', 34)], [200, 200]);
+    // The first is cancelled before its record, and the pull request merges as the second's.
+    const cancelled = await cancel(space.name, one);
+    assert.deepEqual([cancelled.json.changed, cancelled.json.confirmation.pull_request], [true, null]);
+    assert.equal(await report(space.name, two, 'merged', 34), 200);
+    // Cancelled again, the answer names no pull request: #34 recorded neither it nor its cancel. Confirmed again, the
+    // second names the one that recorded it.
+    const again = await cancel(space.name, one);
+    assert.deepEqual([again.json.changed, again.json.confirmation.recorded_at, again.json.confirmation.pull_request], [false, null, null]);
+    const recorded = await confirm(space.name, other.id, other.drawing);
+    assert.deepEqual([recorded.status, recorded.json.confirmation.pull_request], [200, `${REPOSITORY}/pull/34`]);
+  });
+
   test('a confirm names the latest drawing, which drew; another is document_changed, and a failed one not_drawn', async () => {
     const { space, erd } = erdProject();
     s.snapshot(space);

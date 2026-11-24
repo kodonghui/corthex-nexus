@@ -351,6 +351,47 @@ describe('the diagram read', () => {
     assert.equal((await read(bare.name, bareErd.id)).json.confirmation.pull_request, null);
   });
 
+  test('a merged pull request is named only by the confirmation it recorded, when two share one and one is cancelled first (API-275, API-259, API-276)', async () => {
+    const send = async (path, headers, body) => (await server.send({
+      method: 'POST', path, headers: { ...headers, 'Content-Type': 'application/json', 'Idempotency-Key': `"${newId('nw')}"` }, body: JSON.stringify(body),
+    }));
+    const confirm = async (space, where) => (await send(`${path(space.name, where.id)}/confirmation`, owner(), { drawing: idOf('dw', where.drawing) })).json.confirmation.id;
+    const report = (space, confirmation, event, number) => send(`/api/spaces/${space.name}/checkpoints/${confirmation}/report`,
+      { ...s.agent.headers, 'Nexus-Session': 'claude-code-4f2a91' }, { event, pull_request: `${REPOSITORY}/pull/${number}` });
+    const cancel = (space, confirmation) => send(`/api/projects/${space.name}/confirmations/${confirmation}/cancel`, owner(), {});
+    const fieldsOf = async (space, where) => {
+      const { confirmation } = (await read(space.name, where.id)).json;
+      return [confirmation.state, confirmation.recorded_at === null, confirmation.pull_request];
+    };
+    // Two diagrams of one project, confirmed, and one pull request reported for both records.
+    const space = s.project();
+    const first = s.diagram(space);
+    const second = s.diagram(space, { sourceKey: '/pictures/05-erd-second', name: 'ERD 2' });
+    const [one, two] = [await confirm(space, first), await confirm(space, second)];
+    for (const confirmation of [one, two]) assert.equal((await report(space, confirmation, 'opened', 40)).status, 200);
+    assert.deepEqual(await fieldsOf(space, first), ['confirmed', true, `${REPOSITORY}/pull/40`]);
+    // The first is cancelled before its record: its record is withdrawn, and it names no pull request.
+    assert.equal((await cancel(space, one)).status, 200);
+    assert.deepEqual(await fieldsOf(space, first), ['cancelled', true, null]);
+    // The pull request merges as the second's record. It recorded neither the first nor a cancel of it: still null.
+    assert.deepEqual([(await report(space, two, 'merged', 40)).status], [200]);
+    assert.deepEqual(await fieldsOf(space, second), ['confirmed', false, `${REPOSITORY}/pull/40`]);
+    assert.deepEqual(await fieldsOf(space, first), ['cancelled', true, null]);
+
+    // Both live: once it merges as one's record, the other's record is still due and the pull request is not open, so
+    // null until it is reported merged for that one too, which records it.
+    const pair = s.project();
+    const left = s.diagram(pair);
+    const right = s.diagram(pair, { sourceKey: '/pictures/05-erd-second', name: 'ERD 2' });
+    const [l, r] = [await confirm(pair, left), await confirm(pair, right)];
+    for (const confirmation of [l, r]) assert.equal((await report(pair, confirmation, 'opened', 41)).status, 200);
+    assert.equal((await report(pair, r, 'merged', 41)).status, 200);
+    assert.deepEqual(await fieldsOf(pair, right), ['confirmed', false, `${REPOSITORY}/pull/41`]);
+    assert.deepEqual(await fieldsOf(pair, left), ['confirmed', true, null]);
+    assert.equal((await report(pair, l, 'merged', 41)).status, 200);
+    assert.deepEqual(await fieldsOf(pair, left), ['confirmed', false, `${REPOSITORY}/pull/41`]);
+  });
+
   test('an element is changed when its name, kind, trace ID, parent, status or detail changes, and not when only its place or line does', () => {
     const row = (fields = {}) => ({
       element_key: 'K', trace_id: 'CTX-001', kind: 'context', name: 'Drawing', parent_key: null, status: null,

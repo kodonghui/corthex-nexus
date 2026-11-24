@@ -89,13 +89,19 @@ const timeOf = (now) => new Date(now()).toISOString();
 // pull_request is the link of the record's pull request as the contract defines it (TASK-469), built as an overlay's
 // is (diagram.js), and null while the project names no repository. The record that is due is the confirmation's own
 // until it is recorded, then, once a recorded confirmation is cancelled, the cancel's. While one is due, it is the
-// open pull request reported for it; once none is due, the merged one that recorded the last; otherwise null.
-// record_pull_request_id can name another, which so gives null: the pull request that recorded the confirmation while
-// the cancel is due, or the open one of a confirmation cancelled before it was recorded, whose record is withdrawn
-// and on which API-259 takes no opened or closed report.
+// open pull request reported for it. Once none is due, it is the merged one that recorded the last record made: the
+// confirmation's own (recorded_at), or the cancel's once that is recorded (cancel_recorded_at). Otherwise it is null.
+// record_pull_request_id can name another, which so gives null:
+// - the pull request that recorded the confirmation, while the cancel is due;
+// - one that merged as another confirmation's record (one pull request can hold several), while this one's record is
+//   still due, or after this one was cancelled before its own record;
+// - the open one of a confirmation cancelled before it was recorded, whose record is withdrawn and on which API-259
+//   takes no opened or closed report.
 export function confirmationBody(row, repository) {
-  const due = row.state === 'cancelled' ? row.recorded_at !== null && row.cancel_recorded_at === null : row.recorded_at === null;
-  const named = row.record_number !== null && row.record_pull_state === (due ? 'open' : 'merged');
+  const cancelled = row.state === 'cancelled';
+  const due = cancelled ? row.recorded_at !== null && row.cancel_recorded_at === null : row.recorded_at === null;
+  const made = cancelled ? row.cancel_recorded_at !== null : row.recorded_at !== null;
+  const named = row.record_number !== null && (due ? row.record_pull_state === 'open' : made && row.record_pull_state === 'merged');
   return {
     id: idOf('nk', Number(row.id)),
     diagram: idOf('dg', Number(row.diagram_id)),
