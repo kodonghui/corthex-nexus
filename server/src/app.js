@@ -106,7 +106,11 @@ export function createApp({
       const size = bytes === null ? null : bytes.length;
       const context = { request, params, traceId, settings, store, caller, credential, body, size, now };
       let answer;
-      if (isWrite(route)) answer = await write(route, context, { pathname, key, bytes, recheck });
+      if (isWrite(route)) {
+        answer = await write(route, context, { pathname, key, bytes, recheck });
+        // A kept refusal answered again (writes.js) is logged with its code, as when it was made.
+        if (typeof answer.code === 'string') entry.code = answer.code;
+      }
       else if (route.media !== undefined) answer = mediaAnswer(route.media, await route.handle(context));
       else answer = answerOf(await route.handle(context));
       send(response, answer, closesConnection(request, drainLimit), routeHeaders);

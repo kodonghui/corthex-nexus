@@ -22,7 +22,8 @@
 //     next push of that commit reflects them, and another commit marks nothing: reflected can be reported again with a
 //     commit NEXUS holds.
 //   - closed unlinks the group, whose change sets wait again (entries.js meets it with any entry opened meanwhile), and
-//     the claim's 60 minutes start from the close (SPEC-045).
+//     the claim's 60 minutes start from the close (SPEC-045). So does every other group in that pull request, of any
+//     diagram, since a closed pull request holds none.
 //   - A removal entry (SPEC-023) closes on any report of its change set's pull request; another pull request gets
 //     pull_request_mismatch. It leaves the pull request's state to the reports of its reflection.
 //   - needs-user is refused with invalid_request on event: the agent asks the owner in the thread instead.
@@ -42,7 +43,11 @@
 //     merges marks the passes that rested on the confirmation changed (passes.js's cancelRecorded, TASK-446).
 //   - A confirmation cancelled before its record merged answers confirmation_cancelled (SPEC-032). When the report is
 //     merged, Git now holds the record, so it is marked recorded and the agent to-do gets recording the cancel
-//     (SPEC-030), and the refusal keeps that write (problem.js's keepingWrite). opened and closed write nothing.
+//     (SPEC-030), and the refusal keeps that write (problem.js's keepingWrite); that pull request reported merged
+//     again answers the same, writing nothing. opened and closed write nothing. Another open pull request already
+//     linked gets pull_request_mismatch first.
+//   - While the cancel is due, the pull request that recorded the confirmation, or another NEXUS had as merged by the
+//     time of the cancel, answers changed false: it cannot hold the cancel's record.
 //   - With nothing due, the pull request that recorded it reported again answers changed false; another gets
 //     pull_request_mismatch.
 // Every report on an open entry keeps its claim (claims.js's keepClaim), so another session's gets claimed; one that
@@ -50,7 +55,7 @@
 // (reads.js), its claim told mine for the reporting session, and changed. Nothing here logs: a link, a commit and a
 // session's label are in the store and the answer only (rule 5).
 
-import { finishClaim, keepClaim, pullRequestLink, sessionOf } from './claims.js';
+import { finishClaim, keepClaim, pullRequestLink, repositoryBase, sessionOf } from './claims.js';
 import { formOf, onlyFields } from './comments.js';
 import { changeSetsChanged, confirmationsChanged, heldChangeSets, openAgentEntry, removalReported } from './entries.js';
 import { keyOf } from './ids.js';
@@ -94,10 +99,12 @@ function statementsOf(store) {
       ),
       movePull: store.prepare('UPDATE pull_requests SET state = ?, closed_at = ?, merge_commit = ? WHERE id = ?'),
       link: store.prepare("UPDATE change_sets SET pull_request_id = ?1 WHERE id = ?2 AND state = 'accepted' AND pull_request_id IS NOT ?1"),
+      // The accepted change sets in a pull request, of every diagram of the project.
+      inPull: store.prepare("SELECT id, diagram_id FROM change_sets WHERE project_id = ? AND pull_request_id = ? AND state = 'accepted'"),
       claimPull: store.prepare('UPDATE claims SET pull_request_id = ? WHERE todo_id = ? AND project_id = ? AND released_at IS NULL'),
       holds: store.prepare('SELECT 1 AS held FROM snapshots WHERE project_id = ? AND commit_sha = ? LIMIT 1'),
       confirmation: store.prepare(
-        `SELECT k.id, k.diagram_id, k.state, k.recorded_at, k.record_pull_request_id, k.cancel_recorded_at, d.stage
+        `SELECT k.id, k.diagram_id, k.state, k.ended_at, k.recorded_at, k.record_pull_request_id, k.cancel_recorded_at, d.stage
          FROM confirmations k JOIN diagrams d ON d.id = k.diagram_id WHERE k.id = ? AND k.project_id = ?`,
       ),
       linkRecord: store.prepare('UPDATE confirmations SET record_pull_request_id = ? WHERE id = ?'),
@@ -139,7 +146,7 @@ function reportOf(body, { fields, events }) {
 // The number of a pull request link of the project's repository (see the top of this file).
 function numberOf(project, link) {
   if (project.repository === null) throw new Problem('repository_mismatch', 'the project names no repository');
-  const base = `${project.repository.replace(/\/+$/, '').replace(/\.git$/, '')}/`;
+  const base = repositoryBase(project.repository);
   if (link.slice(0, base.length).toLowerCase() !== base.toLowerCase()) throw new Problem('repository_mismatch');
   const [, number] = /^pull\/([^/]+)\/?$/.exec(link.slice(base.length)) ?? [];
   if (number === undefined || !NUMBER.test(number)) {
@@ -234,14 +241,19 @@ function reflectionReport(store, statements, { project, entry, report, number, c
     ? pullRequestOf(statements, { project, number, purpose: 'reflection', credential, time })
     : { ...linked, made: false };
   let changed = movePullRequest(statements, pull, { event: report.event, commit: report.commit, time }) || pull.made;
+  const diagrams = new Set([Number(entry.diagram_id)]);
   if (report.event === 'closed') {
-    for (const set of held.changeSets) changed = statements.link.run(null, set).changes > 0 || changed;
+    // A closed pull request holds no change set: every group in it waits again, whichever diagram it is of.
+    for (const set of statements.inPull.all(project.id, pull.id)) {
+      changed = statements.link.run(null, Number(set.id)).changes > 0 || changed;
+      diagrams.add(Number(set.diagram_id));
+    }
   } else if (linked === undefined) {
     for (const set of held.changeSets) statements.link.run(pull.id, set);
     changed = true;
   }
   statements.claimPull.run(pull.id, Number(entry.id), project.id);
-  changeSetsChanged(store, { project: project.id, diagram: Number(entry.diagram_id), time });
+  for (const diagram of diagrams) changeSetsChanged(store, { project: project.id, diagram, time });
   if (report.event === 'reflected' && statements.holds.get(project.id, report.commit) !== undefined) {
     changed = reflectMerged(store, { project: project.id, commit: report.commit, time }) > 0 || changed;
   }
@@ -291,6 +303,7 @@ function reportCheckpoint({ store, params, request, body, credential, now }) {
   // Cancelled before its record merged: refused, and a record that merged is kept, so that its cancel is recorded.
   if (cancelled && row.recorded_at === null) {
     if (report.event !== 'merged') throw new Problem('confirmation_cancelled');
+    if (linked?.state === 'open' && linked.number !== number) throw mismatch(project, linked);
     const pull = pullRequestOf(statements, { project, number, purpose: 'record', credential: credential.key, time });
     movePullRequest(statements, pull, { event: 'merged', time });
     statements.recorded.run(time, pull.id, key);
@@ -303,8 +316,16 @@ function reportCheckpoint({ store, params, request, body, credential, now }) {
     if (linked === undefined || linked.number === number) return answer(false);
     throw mismatch(project, linked);
   }
-  // The cancel is due, and the pull request that recorded the confirmation is reported again.
-  if (cancelDue && linked?.state === 'merged' && linked.number === number) return answer(false);
+  // The cancel is due, and the pull request that recorded the confirmation is reported again, or another that NEXUS had
+  // as merged by the time of the cancel, which cannot hold the cancel's record: nothing changes. When the record merged
+  // after the cancel, the report is the one the confirmation was cancelled before, and it is answered so again.
+  if (cancelDue) {
+    const reported = statements.byNumber.get(project.id, number);
+    const recordedBy = linked?.state === 'merged' && linked.number === number;
+    const before = reported?.state === 'merged' && reported.closed_at !== null && reported.closed_at <= row.ended_at;
+    if (recordedBy && row.recorded_at > row.ended_at) throw new Problem('confirmation_cancelled');
+    if (recordedBy || before) return answer(false);
+  }
   if (linked?.state === 'open' && linked.number !== number) throw mismatch(project, linked);
 
   const open = openAgentEntry(store, { project: project.id, prefix: 'nk', key });

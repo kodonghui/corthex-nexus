@@ -17,6 +17,7 @@ import { changeSetsChanged, confirmationsChanged, removeFromPullRequest } from '
 import { idOf } from '../src/ids.js';
 import { LIMITS } from '../src/limits.js';
 import { cancelRecorded, passStage } from '../src/passes.js';
+import { latestPasses } from '../src/project.js';
 import { ROUTES } from '../src/routes.js';
 import { openStore } from '../src/store.js';
 import { responseRecord } from './responses.js';
@@ -203,6 +204,19 @@ describe('reports from the agent', () => {
     assert.equal(passStage(db, { project: other.space.id, stage }), '2026-11-23T04:00:00.000Z');
     assert.throws(() => passStage(db, { project: space.id, stage: '' }), TypeError);
 
+    // A pass written later may carry an earlier date: the stage's latest pass is the last written, which the project
+    // read shows. The table confirmed last is changed, then removed, so the stage passes again at the ERD's date.
+    const pair = erdProject();
+    const items = itemTable(pair.space);
+    s.record(s.confirm(pair.space, pair.erd, { at: '2026-11-23T01:00:00.000Z' }));
+    s.record(s.confirm(pair.space, items, { at: '2026-11-23T03:00:00.000Z' }));
+    assert.equal(passStage(db, { project: pair.space.id, stage }), '2026-11-23T03:00:00.000Z');
+    const [{ id: changed }] = rows('SELECT id FROM stage_passes WHERE project_id = ?', pair.space.id);
+    s.changePass(Number(changed));
+    s.removeDiagram(items.id);
+    assert.equal(passStage(db, { project: pair.space.id, stage }), '2026-11-23T01:00:00.000Z');
+    assert.deepEqual({ ...latestPasses(db, pair.space.id).get(stage) }, { stage, passed_at: '2026-11-23T01:00:00.000Z', changed_at: null });
+
     // A recorded cancel marks the passes made while the confirmation was live, from its confirmed_at to its ended_at,
     // and leaves those before and after it, and one already marked, as they are.
     const third = erdProject();
@@ -352,6 +366,22 @@ describe('reports from the agent', () => {
     assert.deepEqual([pullRow(space, 31).state, pullRow(space, 31).closed_at, setRow(late).pull_request], ['merged', at(clock), 31]);
   });
 
+  test('closed unlinks every group in the pull request, of each diagram, and each waits again', async () => {
+    clock = START;
+    const { space, erd } = erdProject();
+    const items = itemTable(space);
+    const first = edit(space, erd);
+    const second = edit(space, items, { op: 'rename', element: 'REQ-001', name: 'Sign in' });
+    const [one, two] = entries(space, 'reflect');
+    await reportEdit(space, one, { event: 'opened', pull_request: link(33) });
+    await reportEdit(space, two, { event: 'opened', pull_request: link(33) });
+    const closed = await reportEdit(space, one, { event: 'closed' });
+    assert.deepEqual([closed.status, closed.json.changed], [200, true]);
+    assert.deepEqual([setRow(first).pull_request, setRow(second).pull_request], [null, null]);
+    assert.deepEqual([(await readEdit(space, one)).state, (await readEdit(space, two)).state], ['waiting', 'waiting']);
+    assert.deepEqual(entries(space, 'reflect'), [one, two]);
+  });
+
   test('a closed pull request\'s change sets meet those accepted meanwhile: the older entry holds them all, the newer is withdrawn', async () => {
     clock = START;
     const { space, erd } = erdProject();
@@ -453,6 +483,20 @@ describe('reports from the agent', () => {
     assert.deepEqual(rows('SELECT state, closed_by FROM comment_threads WHERE id = ?', asked), [{ state: 'closed', closed_by: 'reflection' }]);
     assert.ok(closedEntries(db, space.id).some((each) => each.kind === 'reflect' && each.reason === 'done'));
 
+    // A later step of the same change set replaces an earlier one: the drawing shows the rename, so nothing is missing.
+    const third = erdProject();
+    const both = s.changeSet(third.space, third.erd, { pullRequestId: s.pullRequest(third.space, { number: 95 }) });
+    s.change(both, { op: 'add', element: 'TBL-171', name: 'tool_logs' });
+    s.change(both, { op: 'rename', element: 'TBL-171', name: 'tool_events' });
+    s.snapshot(third.space);
+    const drawn = s.drawing(third.space, third.erd.id);
+    s.elements(drawn, [table('TBL-146', 'agent_credentials'), table('TBL-147', 'project_spaces'), table('TBL-171', 'tool_events')]);
+    changeSetsChanged(db, { project: third.space.id, diagram: third.erd.id, time: TIME });
+    const [thirdEntry] = entries(third.space, 'reflect');
+    const quiet = await reportEdit(third.space, thirdEntry, { event: 'reflected', commit: third.space.commit });
+    assert.deepEqual([quiet.json.edit.state, setRow(both).state], ['done', 'reflected']);
+    assert.deepEqual(rows("SELECT id FROM comment_threads WHERE diagram_id = ? AND target_kind = 'diagram'", third.erd.id), []);
+
     // A long list stays within a comment's 4,000 characters, and counts the changes it leaves out.
     const other = erdProject();
     const many = s.changeSet(other.space, other.erd, { pullRequestId: s.pullRequest(other.space, { number: 94 }) });
@@ -538,6 +582,19 @@ describe('reports from the agent', () => {
     // The record's own pull request reported again: changed false, the cancel's record still due.
     const repeat = await reportCheckpoint(space, confirmation, { event: 'merged', pull_request: link(70) });
     assert.deepEqual([repeat.status, repeat.json.changed, repeat.json.checkpoint.record_state], [200, false, 'waiting']);
+    // Once a pull request for the cancel was opened and closed, the record's own pull request, or another merged by the
+    // time of the cancel, still holds no record of the cancel.
+    await reportCheckpoint(space, confirmation, { event: 'opened', pull_request: link(72) });
+    await reportCheckpoint(space, confirmation, { event: 'closed', pull_request: link(72) });
+    s.pullRequest(space, { number: 69, state: 'merged' });
+    db.prepare("UPDATE pull_requests SET closed_at = '2026-11-22T12:00:00.000Z' WHERE project_id = ? AND number IN (69, 70)").run(space.id);
+    for (const number of [70, 69]) {
+      const old = await reportCheckpoint(space, confirmation, { event: 'merged', pull_request: link(number) });
+      assert.deepEqual(
+        [old.status, old.json.changed, old.json.checkpoint.record_state, confirmationRow(confirmation).cancel_recorded_at],
+        [200, false, 'waiting', null],
+      );
+    }
 
     const opened = await reportCheckpoint(space, confirmation, { event: 'opened', pull_request: link(71) });
     assert.deepEqual([opened.json.changed, opened.json.checkpoint.record_state, opened.json.checkpoint.pull_request], [true, 'in_review', link(71)]);
@@ -579,6 +636,11 @@ describe('reports from the agent', () => {
 
     // merged: Git holds the record now, so it is marked recorded and the agent to-do gets recording the cancel
     // (SPEC-030), and the refusal keeps that write.
+    // Another pull request than the open one linked gets pull_request_mismatch, and nothing is written.
+    const other = await reportCheckpoint(space, confirmation, { event: 'merged', pull_request: link(81) });
+    assert.deepEqual([other.status, other.json.code, other.json.pull_request], [409, 'pull_request_mismatch', link(80)]);
+    assert.equal(dump(), was);
+
     clock = START + 5 * MINUTE;
     const key = `"${newId('nw')}"`;
     const merged = await reportCheckpoint(space, confirmation, { event: 'merged', pull_request: link(80) }, { key });
@@ -591,12 +653,19 @@ describe('reports from the agent', () => {
     // The same request key answers the same refusal and writes nothing more (rule 3).
     was = dump();
     clock = START + 6 * MINUTE;
+    const lines = (await server.logged(0)).length;
     const repeat = await reportCheckpoint(space, confirmation, { event: 'merged', pull_request: link(80) }, { key });
     assert.deepEqual([repeat.status, repeat.json], [409, merged.json]);
     assert.equal(dump(), was);
-    // Under another key, the record is in Git: changed false, and the cancel's record is due.
+    // Its log line names the refusal's code, as the first one's did.
+    const line = (await server.logged(lines + 1)).at(-1);
+    assert.deepEqual([line.action, line.status, line.code], ['reportCheckpoint', 409, 'confirmation_cancelled']);
+    // Under another key, the same report is still of a confirmation cancelled before its record merged: the same
+    // refusal, and nothing written, while the cancel's record is due.
     const again = await reportCheckpoint(space, confirmation, { event: 'merged', pull_request: link(80) });
-    assert.deepEqual([again.status, again.json.changed, again.json.checkpoint.state, again.json.checkpoint.record_state], [200, false, 'withdrawn', 'waiting']);
+    assert.deepEqual([again.status, again.json.code], [409, 'confirmation_cancelled']);
+    assert.equal(dump(), was);
+    assert.equal(openEntries(db, space.id).filter((each) => each.kind === 'record_cancel').length, 1);
   });
 
   test('one pull request may hold a reflection and a record, and its merge commit reflects the change sets whatever its first report was', async () => {

@@ -72,7 +72,7 @@ function statementsOf(store) {
         'UPDATE stage_passes SET changed_at = ? WHERE project_id = ? AND stage = ? AND changed_at IS NULL AND passed_at >= ?',
       ),
       latestPass: store.prepare(
-        'SELECT id, changed_at FROM stage_passes WHERE project_id = ? AND stage = ? ORDER BY passed_at DESC, id DESC LIMIT 1',
+        'SELECT id, changed_at FROM stage_passes WHERE project_id = ? AND stage = ? ORDER BY id DESC LIMIT 1',
       ),
       changePass: store.prepare('UPDATE stage_passes SET changed_at = ? WHERE id = ? AND changed_at IS NULL'),
       // Threads.

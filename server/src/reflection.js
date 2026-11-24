@@ -20,11 +20,12 @@
 //     lists the target among its links (as direct-edits.js finds a connection), with the step's label when it has one;
 //   - add: the element is in the drawing, readable, with the step's name when it has one;
 //   - remove: the element is not in the drawing, or is drawn as removed.
-// - The later accepted wins (TASK-445). A step that a change set of the diagram accepted later (decided_at) replaces
-//   is not missing: a later rename, add or remove of the same element replaces a rename or an add; a later rename or
-//   add replaces a remove; a later remove of either end replaces a connect. When that later change set is reflected
-//   in the same reflection, the step is left unsaid; when it was reflected before, as when pull requests merge out of
-//   the order their change sets were accepted in, the comment names the change the reflection left.
+// - The later accepted wins (TASK-445). A step that a later step of its own change set, or a change set of the diagram
+//   accepted later (decided_at), replaces is not missing: a later rename, add or remove of the same element replaces
+//   a rename or an add; a later rename or add replaces a remove; a later remove of either end replaces a connect. When
+//   the replacing step is reflected in the same reflection, the step is left unsaid; when its change set was reflected
+//   before, as when pull requests merge out of the order their change sets were accepted in, or still waits, the
+//   comment names the change the reflection left.
 //
 // It returns how many change sets it reflected. Nothing here logs: names are in the store and the comment only
 // (rule 5).
@@ -150,23 +151,39 @@ function commentText(number, lines) {
   return text;
 }
 
+// The change sets of a diagram that are accepted or reflected, in the order they were accepted, from the first of
+// those reflected now, since only a later one replaces a step. Each reads its steps once, when they are first needed.
+function decidedFrom(statements, diagram, now) {
+  const rows = statements.decided.all(diagram);
+  return rows.slice(rows.findIndex((row) => now.has(Number(row.id)))).map((row) => {
+    let steps = null;
+    return {
+      id: Number(row.id),
+      origin: row.origin,
+      drawing: Number(row.drawing_id),
+      get steps() {
+        steps ??= statements.steps.all(Number(row.id)).map((step) => ({ ...step }));
+        return steps;
+      },
+    };
+  });
+}
+
 // The lines that say what the drawing lacks of mine, the change sets of one pull request reflected now on one diagram;
-// now holds every change set reflected now (see the top of this file).
-function lacking(statements, { diagram, shown, mine, now }, cache) {
-  const itemTable = statements.diagramKind.get(diagram)?.kind === 'item_table';
+// decided is decidedFrom's answer for the diagram, and now holds every change set reflected now (see the top of this
+// file).
+function lacking(statements, { shown, itemTable, decided, mine, now }, cache) {
   const shownElements = elementsOf(statements, shown, cache);
-  const decided = statements.decided.all(diagram).map((row) => ({
-    id: Number(row.id), origin: row.origin, state: row.state, drawing: Number(row.drawing_id),
-    steps: statements.steps.all(Number(row.id)).map((step) => ({ ...step })),
-  }));
   const lines = [];
   decided.forEach((set, index) => {
     if (!mine.has(set.id)) return;
     const made = elementsOf(statements, set.drawing, cache);
-    for (const step of set.steps) {
-      if (shows(step, shownElements, itemTable)) continue;
+    set.steps.forEach((step, at) => {
+      if (shows(step, shownElements, itemTable)) return;
+      // A later step of the same change set, reflected with it, replaces it: nothing is missing.
+      if (set.steps.slice(at + 1).some((each) => replaces(each, step))) return;
       const later = decided.slice(index + 1).filter((other) => other.steps.some((each) => replaces(each, step))).at(-1);
-      if (later !== undefined && now.has(later.id)) continue;
+      if (later !== undefined && now.has(later.id)) return;
       if (later !== undefined) {
         const left = later.steps.filter((each) => replaces(each, step)).at(-1);
         const kept = changeLine(later, left, elementsOf(statements, later.drawing, cache), shownElements);
@@ -174,7 +191,7 @@ function lacking(statements, { diagram, shown, mine, now }, cache) {
       } else {
         lines.push(changeLine(set, step, made, shownElements));
       }
-    }
+    });
   });
   return lines;
 }
@@ -205,8 +222,10 @@ export function reflectMerged(store, { project, commit, time }) {
 
   const cache = new Map();
   for (const [diagram, { shown, pulls }] of diagrams) {
+    const itemTable = statements.diagramKind.get(diagram)?.kind === 'item_table';
+    const decided = decidedFrom(statements, diagram, now);
     for (const pull of pulls.values()) {
-      const lines = lacking(statements, { diagram, shown, mine: pull.sets, now }, cache);
+      const lines = lacking(statements, { shown, itemTable, decided, mine: pull.sets, now }, cache);
       if (lines.length === 0) continue;
       const thread = openOwnThread(store, { diagram, drawing: shown, time });
       addAgentEntry(store, { thread, credential: pull.credential, text: commentText(pull.number, lines), detail: {}, time });
