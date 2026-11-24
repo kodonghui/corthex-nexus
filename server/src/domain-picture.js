@@ -299,6 +299,10 @@ export function readDomainPicture(documents, { ids = idFormat(), part = '' } = {
       }
     };
 
+    // The contexts whose command rows name each read model, by its word, in the order of contexts: kept as rows are read,
+    // so that a read model's own row finds them without scanning every command row.
+    const order = new Map([...contexts.values()].map((context, index) => [context, index]));
+    const usedBy = new Map();
     for (const [line, row] of rows) {
       const where = `${file}:${line}`;
       if (has(row, ['context', 'type', 'aggregates'])) {
@@ -316,6 +320,7 @@ export function readDomainPicture(documents, { ids = idFormat(), part = '' } = {
           if (context === null) {
             if (!contexts.has('')) {
               contexts.set('', { id: '', name: '', type: '', purpose: '', removed: false, external: '', rows: [], where });
+              order.set(contexts.get(''), order.size);
             }
             context = contexts.get('');
           }
@@ -327,12 +332,15 @@ export function readDomainPicture(documents, { ids = idFormat(), part = '' } = {
           given_by: given, policy: POLICY.test(given), read_model: plain(row.read_model, 120), command: plain(row.command, 120),
           aggregate: plain(row.aggregate, 120), events: events.slice(0, 20), where,
         });
+        const model = wordOf(context.rows.at(-1).read_model);
+        if (!usedBy.has(model)) usedBy.set(model, new Set());
+        usedBy.get(model).add(context);
         addTerms(aggregateDefinitions, row.aggregate, context.id, where);
         addTerms(modelDefinitions, row.read_model, context.id, where);
       }
       if (has(row, ['read_model', 'shows'])) {
         const name = wordOf(plain(row.read_model, 120));
-        const used = [...contexts.values()].filter((context) => context.rows.some((each) => wordOf(each.read_model) === name));
+        const used = [...(usedBy.get(name) ?? [])].sort((a, b) => order.get(a) - order.get(b));
         for (const context of used) addTerms(modelDefinitions, row.read_model, context.id, where);
       }
       if (has(row, ['from', 'to', 'kind', 'why', 'data'])) {

@@ -126,6 +126,17 @@ test('a document of many headings and many command rows reads in time that grows
   assert.ok(took < 2_000, `${Math.round(took)} ms`);
 });
 
+test('a document of many command rows and many read-model rows reads in time that grows with its length (Codex review)', () => {
+  // 8,000 command rows and 8,000 rows of a read model none of them names: each read-model row once scanned every row.
+  const commands = '| Given by | Read model | Command | Aggregate | Events |\n| --- | --- | --- | --- | --- |\n';
+  const text = `### CTX-001 A\n${commands}${'| a | m | c | g | e |\n'.repeat(8_000)}\n| Read model | Shows |\n| --- | --- |\n${'| n | x |\n'.repeat(8_000)}`;
+  const start = performance.now();
+  const { picture } = readDomainPicture([['a.md', text]]);
+  const took = performance.now() - start;
+  assert.equal(picture.contexts.length, 1);
+  assert.ok(took < 2_000, `${Math.round(took)} ms`);
+});
+
 test("a whole list's limit is checked once, on the merged list, naming the last file as the hub does", () => {
   const id = (n) => String(n).padStart(3, '0');
   const contexts = (from, count) => Array.from({ length: count }, (_, n) => `### CTX-${id(from + n)} C${from + n}\n`).join('\n');
