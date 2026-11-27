@@ -9008,7 +9008,7 @@ components:
     errors:
       access_missing:
         status: 401
-        meaning: "An agent path without a valid agent credential: none, an unknown client ID, a wrong secret or a revoked credential. One code for all four, so a caller learns nothing about which."
+        meaning: "An agent path without a valid agent credential: absent, malformed, mixed or duplicate headers, an unknown client ID, a wrong secret or a revoked credential. One code for all cases, so a caller learns nothing about which."
         message: Set a valid agent credential and send again.
         message_ko: "유효한 에이전트 자격 증명을 설정하고 다시 보내세요."
         client: The pinned hub keeps a queued write and sends it again later; set the credential.

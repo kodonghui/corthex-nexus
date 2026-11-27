@@ -81,7 +81,7 @@ const timeOf = (now) => new Date(now()).toISOString();
 // The credential named by exactly one complete NEXUS or legacy header pair: { credential } with its id, key
 // and name when the pair is a live credential's, or { reason } when it is not. The reason goes to the log only: the
 // answer is access_missing whatever it is, so a caller learns nothing about which (rule 8, the contract's
-// access_missing). no_credential: neither header; malformed: a header missing or not in its form; unknown_credential:
+// access_missing). no_credential: no credential headers; malformed: a missing, mixed, duplicate or invalid header; unknown_credential:
 // no credential has the ID; wrong_secret; revoked.
 export function checkCredential(store, headers) {
   const legacyId = headers['cf-access-client-id'];

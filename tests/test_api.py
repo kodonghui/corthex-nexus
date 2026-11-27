@@ -285,6 +285,7 @@ class ApiContract(unittest.TestCase):
             self.assertIn("401", op["responses"], "%s %s" % (method, path))
             family = op["x-corthex"]["family"]
             if family == "agent":
+                self.assertEqual(len(op["security"]), 2, "%s %s" % (method, path))
                 pairs = {frozenset(requirement) for requirement in op["security"]}
                 self.assertEqual(pairs, {
                     frozenset(("agentClientId", "agentClientSecret")),

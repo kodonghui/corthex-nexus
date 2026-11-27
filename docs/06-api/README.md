@@ -82,7 +82,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 | `invalid_snapshot` | 400 | A snapshot field breaks the hub's format; field names it. |
 | `text_too_long` | 400 | A text is over its limit; field and limit name them. |
 | `unsupported_format` | 400 | A snapshot schema NEXUS does not know; versions lists the ones it takes (SPEC-014). |
-| `access_missing` | 401 | An agent path without a valid agent credential: none, an unknown client ID, a wrong secret or a revoked credential. One code for all four, so a caller learns nothing about which. |
+| `access_missing` | 401 | An agent path without a valid agent credential: absent, malformed, mixed or duplicate headers, an unknown client ID, a wrong secret or a revoked credential. One code for all cases, so a caller learns nothing about which. |
 | `unauthenticated` | 401 | An owner path without a valid sign-in from the gate, or with an expired one. |
 | `agent_only` | 403 | The owner's sign-in on an agent path. |
 | `cross_site` | 403 | A browser write whose Sec-Fetch-Site is neither same-origin nor none. |
