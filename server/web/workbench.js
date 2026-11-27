@@ -993,7 +993,13 @@ async function send(state, key, kept) {
     const now = state.moves.get(key);
     if (now !== undefined && now.x === at.x && now.y === at.y) state.moves.delete(key);
     fill(state.moveNotice);
-    if (state.sending.size === 0 && state.pending.size === 0 && state.failed.size === 0) drawPicture(state);
+    if (state.sending.size === 0 && state.pending.size === 0 && state.failed.size === 0) {
+      for (const each of state.ctx.data.diagram.elements ?? []) {
+        const node = state.view.nodes.get(each.key);
+        if (movable(state, each)) node?.setAttribute('data-diagram-movable', '');
+        else node?.removeAttribute('data-diagram-movable');
+      }
+    }
   } else if (outcome.status === 400 && outcome.code === 'invalid_request') {
     state.moves.delete(key); state.before.delete(key); state.pending.delete(key); state.again.delete(key); state.failed.delete(key);
     store('sessionStorage', historyMark(state.diagram), null);

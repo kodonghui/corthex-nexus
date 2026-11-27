@@ -196,6 +196,24 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('a saved keyboard move keeps focus unless the owner moved it elsewhere', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      const box = buttonNamed(page, 'tbl', table.name);
+      box.focus();
+      box.dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.ok(page.document.activeElement === buttonNamed(page, 'tbl', table.name), 'the moved box retains focus');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      const input = page.document.createElement('input');
+      page.app.append(input);
+      input.focus();
+      await waitSend(page);
+      assert.ok(page.document.activeElement === input, 'an input chosen later retains focus');
+    } finally { page.close(); }
+  });
+
   test('an interrupted uncertain undo keeps its marker through a failed recovery read', async () => {
     let release, recovering = false, reads = 0;
     const held = new Promise((resolve) => { release = resolve; });
