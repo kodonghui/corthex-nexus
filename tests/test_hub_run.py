@@ -247,7 +247,8 @@ class HubRunFixture(HubCheckoutCase):
         data = str(self.server.data)
         protected = (self.secret, digest, self.server.owner_sign_in, data, data.replace("\\", "/"),
                      json.dumps(data)[1:-1], self.session["CORTHEX_NEXUS_SESSION"],
-                     self.other["CORTHEX_NEXUS_SESSION"], PULL % 1, PULL % 2, QUESTION, DECISION) + extra
+                     self.other["CORTHEX_NEXUS_SESSION"], PULL % 1, PULL % 2, QUESTION, DECISION,
+                     "Yes: a revoked credential keeps its name.") + extra
         # Check raw JSON too: paths may have escaped backslashes. Never print a protected value on failure.
         for value in protected:
             self.assertFalse(value in text or json.dumps(value, ensure_ascii=False)[1:-1] in text,
