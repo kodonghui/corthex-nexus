@@ -195,9 +195,9 @@ class HubCompatibilityTest(HubCheckoutCase):
 
     # How the hub runs: the push job's own lines, a session's push, and snapshot --print.
 
-    def push_job(self, server, **secrets):
+    def push_job(self, server, *, use_workflow_header_mode=True, **secrets):
         values = dict({name: "" for name in SECRETS}, CORTHEX_NEXUS_URL=server.url, **secrets)
-        code, row, _ = self.run_push_step(values)
+        code, row, _ = self.run_push_step(values, use_workflow_header_mode=use_workflow_header_mode)
         return code, row
 
     def session_push(self, server, *words, **credentials):
@@ -377,6 +377,19 @@ class HubCompatibilityTest(HubCheckoutCase):
                 self.assertFalse(schemes[scheme]["name"].lower() in request["headers"],
                                  "dedicated credential header unexpectedly present")
         self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
+
+    def test_a_v3_push_job_uses_dedicated_headers_after_override_removal(self):
+        pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair"}
+        with LoopbackServer({("GET", HELD_PATH): self.v3_held()}) as server:
+            server.answers[("POST", PUSH_PATH)] = (200, self.push_answer("200", "drawn", self.held))
+            code, row = self.push_job(server, use_workflow_header_mode=False, **pair)
+        self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
+        self.assertGreaterEqual(len(server.requests), 1)
+        for request in server.requests:
+            self.assertEqual(request["headers"].get("nexus-agent-client-id"), pair["CORTHEX_NEXUS_CLIENT_ID"])
+            self.assertEqual(request["headers"].get("nexus-agent-client-secret"), pair["CORTHEX_NEXUS_CLIENT_SECRET"])
+            self.assertFalse("cf-access-client-id" in request["headers"] or
+                             "cf-access-client-secret" in request["headers"], "mixed credential headers")
 
     def test_a_v3_session_uses_dedicated_credential_headers(self):
         pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair"}
