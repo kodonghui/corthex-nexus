@@ -237,6 +237,7 @@ function legendOf(diagram, model) {
 
 // The picture, drawn again with the moves not yet answered; the element that had the focus gets it back.
 function drawPicture(state) {
+  if (state.dragNode) cancelled(state, state.dragNode);
   const { ctx } = state;
   const diagram = ctx.data.diagram;
   const view = {
@@ -282,7 +283,8 @@ function drawPicture(state) {
         event.preventDefault();
         if (state.dragNode) return;
         const rect = view.box.getBoundingClientRect();
-        changeZoom(state, state.zoom * Math.exp(-event.deltaY * 0.002), event.clientX - rect.left, event.clientY - rect.top);
+        const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? view.box.clientHeight : 1);
+        changeZoom(state, state.zoom * Math.exp(-delta * 0.002), event.clientX - rect.left, event.clientY - rect.top);
       }, { passive: false });
       let pinch = null;
       view.box.addEventListener('touchstart', (event) => {
@@ -350,9 +352,8 @@ function zoomControls(state) {
   const fit = h('button', { class: 'btn tertiary', type: 'button', on: { click: () => {
     const { box, size } = state.view;
     // The box shrinks with the picture; use the available viewport rather than its current height when fitting again.
-    const top = Math.max(0, box.getBoundingClientRect?.().top ?? 0);
     const metrics = boxMetrics(box);
-    const availableHeight = Math.max(1, Math.min(metrics.maxHeight, (globalThis.innerHeight ?? 674) - top) - metrics.vertical);
+    const availableHeight = Math.max(1, Math.min(metrics.maxHeight, globalThis.innerHeight ?? 674) - metrics.vertical);
     const availableWidth = Math.max(1, box.clientWidth - metrics.horizontalPadding);
     const fitted = fitZoom(size.width, size.height, availableWidth, availableHeight);
     changeZoom(state, fitted, 0, 0);
@@ -395,8 +396,8 @@ function changeZoom(state, wanted, x, y) {
   if (next === state.zoom) return;
   // The SVG starts inside the scroll box's border and padding.
   const { insetX, insetY } = boxMetrics(box);
-  const centerX = (x ?? box.clientWidth / 2) - insetX;
-  const centerY = (y ?? box.clientHeight / 2) - insetY;
+  const centerX = (x ?? (box.clientWidth / 2 + (box.clientLeft ?? 1))) - insetX;
+  const centerY = (y ?? (box.clientHeight / 2 + (box.clientTop ?? 1))) - insetY;
   const left = zoomScroll(box.scrollLeft, centerX, state.zoom, next);
   const top = zoomScroll(box.scrollTop, centerY, state.zoom, next);
   state.zoom = next;
