@@ -77,7 +77,7 @@
        "x": 0,
        "y": 492,
        "width": 328,
-       "height": 168
+       "height": 240
       }
      }
     },
@@ -99,7 +99,7 @@
        "x": 340,
        "y": 492,
        "width": 328,
-       "height": 168
+       "height": 240
       }
      }
     },
@@ -109,14 +109,14 @@
      "name": "SCR-142#stale",
      "status": null,
      "detail": {
-      "description": "\"Read at 10:42\" beside the title; the list reads again when the tab comes back into view. An entry answered meanwhile opens to its new state on SCR-145.",
+      "description": "\"Read at 10:42\" beside the title; the list reads again when the tab comes back into view. A failed refresh keeps the previous counts or list marked as old with a retry; an initial failure never displays zero. An entry answered meanwhile opens to its new state on SCR-145.",
       "responses": [],
       "where": "docs/08-screens/SCR-142.md:35",
       "box": {
        "x": 680,
        "y": 492,
        "width": 328,
-       "height": 168
+       "height": 240
       }
      }
     }
@@ -428,7 +428,7 @@
      "name": "SCR-144#stale",
      "status": null,
      "detail": {
-      "description": "\"Read at 10:42\"; read again when the tab comes back into view.",
+      "description": "\"Read at 10:42\"; read again when the tab comes back into view. A failed to-do refresh keeps the previous tasks marked as old with a retry; open stage groups remain open across redraws.",
       "responses": [],
       "where": "docs/08-screens/SCR-144.md:38",
       "box": {

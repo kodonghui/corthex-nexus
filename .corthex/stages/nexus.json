@@ -298,6 +298,11 @@
           "approved": "SPEC-042 records a project card link to its newest question after a measured three-click question path; this preserves the chosen project-first direction. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-042 records the measured correction that a failed refresh retains previous tasks marked old with retry and an opened stage group survives a redraw. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
@@ -836,6 +841,11 @@
         },
         {
           "approved": "SCR-142 records a project card link to its newest question after a measured three-click question path; this preserves the chosen project-first direction. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-142 and SCR-144 records the measured correction that a failed refresh retains previous tasks marked old with retry and an opened stage group survives a redraw. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
         }

@@ -8,9 +8,9 @@
 // - "바뀐 요소": each element added, changed or removed since the last confirmation, with its tag, its name in the
 //   drawing now, or its key once removed, and its kind; or the empty state when it was never confirmed or nothing
 //   changed since.
-// - The end: 이 그림 확정 on a PC for a diagram not removed and not confirmed now (choice 7), asked once and off while
+// - The end: 이 그림 확정 on PC or phone for a diagram not removed and not confirmed now (choice 7), asked once and off while
 //   something waits or the document does not draw, and 그림으로. After its own confirm the page says so
-//   (SCR-146#confirmed). A phone reads the lists only (SPEC-051).
+//   (SCR-146#confirmed). A phone cannot cancel a direct edit or confirmation (SPEC-051).
 //
 // changes.js sends 편집 취소 and 이 그림 확정 and draws the line of their answers above the body, as on the workbench
 // (state.drawPage); confirm.js holds the words. The page keeps, for the shell it runs in, only what changes.js keeps.

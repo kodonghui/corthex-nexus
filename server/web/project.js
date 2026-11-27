@@ -144,17 +144,22 @@ export function projectBody(ctx) {
 
 // Put this project's actionable questions and reviews before its stages.
 function projectTasks({ data, shell }) {
-  const entries = shell.missed('todo') ? null : data.todo?.entries ?? null;
+  const failure = shell.missed('todo');
+  const entries = data.todo?.entries ?? null;
   const head = h('div', { class: 'gh' }, h('h2', {}, '지금 할 일'));
   if (entries === null) return h('section', { class: 'group' }, head,
     h('div', { class: 'nt warn', role: 'status' }, '할 일을 불러오지 못했어요.',
       h('button', { type: 'button', class: 'btn tertiary', on: { click: () => shell.reload() } }, '다시 시도')));
+  const stale = failure ? h('div', { class: 'nt warn', role: 'status' }, '이전 정보예요. 최신 할 일을 다시 확인해 주세요.',
+    h('button', { type: 'button', class: 'btn tertiary', on: { click: () => shell.reload() } }, '다시 시도')) : null;
   const own = entries.filter((entry) => entry.project === data.project.name);
   const ordered = [...own.filter((entry) => entry.kind === 'question'), ...own.filter((entry) => entry.kind !== 'question')];
   const capped = entries.length >= 5000;
-  if (own.length === 0) return h('section', { class: 'group' }, head,
-    h('p', {}, capped ? '표시된 할 일이 없어요. 전체 목록이 길어 일부가 빠졌을 수 있어요.' : '지금 기다리는 일이 없어요.'));
+  if (own.length === 0) return h('section', { class: 'group' }, head, stale,
+    h('p', {}, capped ? '표시된 할 일이 없어요. 전체 목록이 길어 일부가 빠졌을 수 있어요.'
+      : failure ? '이전 확인에서는 기다리는 일이 없었어요.' : '지금 기다리는 일이 없어요.'));
   return h('section', { class: 'group' }, head,
+    stale,
     capped ? h('p', { class: 'sec' }, '전체 목록이 길어 일부가 빠졌을 수 있어요.') : null,
     h('div', { class: 'list' }, ordered.map((entry) => {
       const stage = stageOf(entry.stage);
@@ -189,6 +194,11 @@ const STAGE_NAMES = Object.freeze({
 
 function stageGroups(project, state) {
   const empty = project.stages.every((row) => row.state === 'not_sent');
+  // A native toggle event may still be queued when a refresh rebuilds the group.
+  for (const [key, node] of state.stageNodes) {
+    if (node.getAttribute('open') === null) state.openStages.delete(key);
+    else state.openStages.add(key);
+  }
   state.stageNodes = new Map();
   const links = new Map();
   for (const link of project.tool_links) {

@@ -32,25 +32,34 @@ export const REASONS = Object.freeze({
 // The body of SCR-142 from data.todo (API-263) and data.projects (API-262).
 export function todoBody({ address, data, shell }) {
   if (address.view !== 'todo') return projectHome(data, shell);
-  if (shell.missed('todo')) return shell.errorNotice(shell.missed('todo'), () => shell.reload());
-  if (data.todo == null) return [h('div', { class: 'nt warn', role: 'status' }, '할 일을 불러오지 못했어요.')];
+  const missed = shell.missed('todo');
+  if (data.todo == null) return missed ? shell.errorNotice(missed, () => shell.reload())
+    : [h('div', { class: 'nt warn', role: 'status' }, '할 일을 불러오지 못했어요.')];
+  const stale = missed ? oldTodoNotice(shell, missed) : null;
   const entries = data.todo.entries ?? [];
   const projects = data.projects.projects ?? [];
   const warning = data.todo.backup ? backupWarning(data.todo.backup) : null;
-  if (entries.length === 0) return [warning, nothingToDo(projects, shell)];
+  if (entries.length === 0) return [warning, stale, nothingToDo(projects, shell, Boolean(missed))];
   const titles = new Map(projects.map((project) => [project.name, project.title || project.name]));
   // Each 프로젝트 보기 is named with its group's heading too, so that a list of the links tells them apart.
-  return [warning, groupsOf(entries).map(([project, items], index) => h('section', { class: 'group' },
+  return [warning, stale, groupsOf(entries).map(([project, items], index) => h('section', { class: 'group' },
     h('div', { class: 'gh' },
       h('h2', { id: `todo-group-${index}` }, titles.get(project) ?? project),
       h('a', { class: 'small', id: `todo-open-${index}`, href: projectHref(project), 'aria-labelledby': `todo-open-${index} todo-group-${index}` }, '프로젝트 보기')),
     h('div', { class: 'list' }, items.map((entry) => entryRow(entry, shell)))))];
 }
 
+// A failed refresh keeps the last answer visible but never presents it as current.
+function oldTodoNotice(shell, failure) {
+  return [h('div', { class: 'nt warn', role: 'status' }, '이전 정보예요. 최신 할 일을 다시 확인해 주세요.'),
+    ...shell.errorNotice(failure, () => shell.reload())];
+}
+
 // Project-first home: only known counts are shown, and a capped to-do is labelled as a minimum.
 function projectHome(data, shell) {
   const projects = data.projects.projects ?? [];
-  const entries = shell.missed('todo') ? null : data.todo?.entries ?? null;
+  const failure = shell.missed('todo');
+  const entries = data.todo?.entries ?? null;
   const capped = entries !== null && entries.length >= 5000;
   const counts = new Map();
   for (const entry of entries ?? []) {
@@ -64,12 +73,13 @@ function projectHome(data, shell) {
   }
   const warning = data.todo?.backup ? backupWarning(data.todo.backup) : null;
   const missing = entries === null ? [h('p', {}, '할 일 수를 불러오지 못했어요.'),
-    ...(shell.missed('todo') ? shell.errorNotice(shell.missed('todo'), () => shell.reload()) : [])] : null;
-  if (projects.length === 0) return [warning, missing, h('div', { class: 'empty' },
+    ...(failure ? shell.errorNotice(failure, () => shell.reload()) : [])] : null;
+  const stale = entries !== null && failure ? oldTodoNotice(shell, failure) : null;
+  if (projects.length === 0) return [warning, missing, stale, h('div', { class: 'empty' },
     h('h2', {}, '아직 프로젝트가 없어요'),
     h('p', {}, '함께 일하는 AI에게 프로젝트를 NEXUS로 보내 달라고 요청해 주세요.'),
     h('a', { href: PROJECTS_HREF, class: 'btn tertiary' }, '프로젝트 설정'))];
-  return [warning, missing,
+  return [warning, missing, stale,
     h('section', { class: 'group', 'aria-label': '프로젝트' }, h('div', { class: 'list' }, projects.map((project) => {
       const { questions, reviews, firstQuestion } = counts.get(project.name) ?? { questions: 0, reviews: 0, firstQuestion: null };
       const number = (value) => capped ? `${value}개 이상` : `${value}개`;
@@ -118,16 +128,16 @@ export function backupWarning(backup) {
 }
 
 // SCR-142#empty: nothing waits, with the projects, each to SCR-144; or, with no project yet, the agent credentials.
-function nothingToDo(projects, shell) {
+function nothingToDo(projects, shell, stale = false) {
   if (projects.length === 0) {
     return h('div', { class: 'empty' },
-      h('h2', {}, '기다리는 일이 없어요'),
+      h('h2', {}, stale ? '이전 확인에서는 기다리는 일이 없었어요' : '기다리는 일이 없어요'),
       h('p', { class: 'sec' }, '에이전트가 처음 보내면 여기에 나와요.'),
       h('a', { class: 'btn tertiary', href: PROJECTS_HREF }, '에이전트 자격'));
   }
   return [
     h('div', { class: 'empty' },
-      h('h2', {}, '기다리는 일이 없어요'),
+      h('h2', {}, stale ? '이전 확인에서는 기다리는 일이 없었어요' : '기다리는 일이 없어요'),
       h('p', { class: 'sec' }, '에이전트가 확정할 그림이나 질문을 보내면 여기에 나와요.')),
     h('section', { class: 'group' },
       h('div', { class: 'gh' }, h('h2', {}, '프로젝트')),

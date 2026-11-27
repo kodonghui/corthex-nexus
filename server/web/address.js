@@ -2,7 +2,7 @@
 // The server serves the shell for exactly the addresses parseAddress names a screen for (see src/pages.js), and the
 // page reads its screen from the same function, so the two never disagree.
 //
-//   /                                          SCR-142, the owner's to-do
+//   /                                          SCR-142, project home; ?view=todo opens the owner's to-do
 //   /p                                         SCR-143, the projects
 //   /p/{project}                               SCR-144, a project (#data is the page's own)
 //   /p/{project}/{part or _}/{stage}           SCR-145, the stage workbench, with ?d={diagram} and ?thread={thread}

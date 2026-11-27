@@ -271,6 +271,34 @@ describe('SCR-144', () => {
     } finally { page.close(); }
   });
 
+  test('a stage group opened just before its toggle event survives a redraw', async () => {
+    const page = await openProject();
+    try {
+      const old = mainOf(page).all('details', 'stage-section')[0];
+      old.setAttribute('open', '');
+      page.shell.redraw();
+      await page.settle();
+      const current = mainOf(page).all('details', 'stage-section')[0];
+      assert.notEqual(current.getAttribute('open'), null);
+      old.dispatch('toggle');
+      assert.notEqual(current.getAttribute('open'), null);
+    } finally { page.close(); }
+  });
+
+  test('a failed refresh keeps the previous project tasks labelled as old', async () => {
+    let failing = false;
+    const items = [{ kind: 'question', project: NAME, part: '', stage: '01-domain', diagram: 'dg_0000000000a1', thread: 'nc_0000000000b1', diagram_name: '내용' }];
+    const page = await openProject({ routes: { 'GET /api/todo': () => failing ? problem(500, 'internal')() : json(200, { entries: items, backup: null })() } });
+    try {
+      assert.match(mainOf(page).textContent, /질문에 답하기/);
+      failing = true;
+      await page.shell.reload();
+      assert.match(mainOf(page).textContent, /이전 정보예요/);
+      assert.match(mainOf(page).textContent, /질문에 답하기/);
+      assert.ok(mainOf(page).all('button').some((button) => button.textContent === '다시 시도'));
+    } finally { page.close(); }
+  });
+
   test('the stubbed answers are the contract\'s', () => {
     assert.deepEqual(validate(contract, PROJECT, schemaOf('Project')), []);
     assert.deepEqual(validate(contract, PREVIEW, schemaOf('RemovalPreview')), []);

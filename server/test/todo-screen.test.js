@@ -162,18 +162,32 @@ describe('SCR-142', () => {
     finally { full.close(); }
   });
 
-  test('a failed refresh marks earlier project counts unknown until a successful retry', async () => {
+  test('a failed refresh keeps earlier project counts labelled as old until a successful retry', async () => {
     const answers = answersOf();
     const page = await openPage('/', { answers });
     try {
       assert.match(mainOf(page).textContent, /답할 질문 1개/);
       answers['/api/todo'] = problem(500, 'internal');
       await page.shell.reload();
-      assert.match(mainOf(page).textContent, /할 일 수를 읽지 못했어요/);
-      assert.doesNotMatch(mainOf(page).textContent, /답할 질문 1개/);
+      assert.match(mainOf(page).textContent, /이전 정보예요/);
+      assert.match(mainOf(page).textContent, /답할 질문 1개/);
+      assert.ok(mainOf(page).all('button').some((button) => button.textContent === '다시 시도'));
       answers['/api/todo'] = json(200, TODO);
       await page.shell.reload();
       assert.match(mainOf(page).textContent, /답할 질문 1개/);
+    } finally { page.close(); }
+  });
+
+  test('a failed full-to-do refresh keeps its previous rows with an old-data warning', async () => {
+    const answers = answersOf();
+    const page = await openTodo({ answers });
+    try {
+      assert.equal(rowsOf(page).length, ENTRIES.length);
+      answers['/api/todo'] = problem(500, 'internal');
+      await page.shell.reload();
+      assert.equal(rowsOf(page).length, ENTRIES.length);
+      assert.match(mainOf(page).textContent, /이전 정보예요/);
+      assert.ok(mainOf(page).all('button').some((button) => button.textContent === '다시 시도'));
     } finally { page.close(); }
   });
   test('normal: the entries by project in API-263\'s order, each by its names, its kind, why it waits and how long', async () => {
