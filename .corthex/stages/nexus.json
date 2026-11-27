@@ -376,13 +376,13 @@
           "date": "2026-11-24"
         },
         {
-          "approved": "BUG-008 API correction: add a NEXUS agent header pair alongside the legacy pair; accept exactly one complete pair and refuse mixed, incomplete, duplicate or concurrent pairs, update the hub to send the new pair, and verify the Cloudflare route after implementation. The maintainer approved each item through their named checkpoint delegate; the answer and delegation are in the project records.",
+          "approved": "BUG-008 API correction, pull request 170, contract commit 0d7d14f, approved on the drafted correction before that commit: add a NEXUS agent header pair alongside the legacy pair; accept exactly one complete pair and refuse mixed, incomplete, duplicate or concurrent pairs, update the hub to send the new pair, and verify the Cloudflare route after implementation. The maintainer approved each item through their named checkpoint delegate; the answer and delegation are in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-24T18:42:21+09:00"
+      "updated": "2026-11-27T12:23:51+00:00"
     },
     "07-sitemap": {
       "state": "done",

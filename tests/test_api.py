@@ -290,6 +290,8 @@ class ApiContract(unittest.TestCase):
                     frozenset(("agentClientId", "agentClientSecret")),
                     frozenset(("nexusAgentClientId", "nexusAgentClientSecret")),
                 }, "%s %s" % (method, path))
+            else:
+                self.assertEqual(op["security"], [{"ownerSignIn": []}], "%s %s" % (method, path))
             code = "access_missing" if family == "agent" else "unauthenticated"
             codes = {e["value"]["code"] for e in op["responses"]["401"]["content"]["application/problem+json"]["examples"].values()}
             self.assertEqual(codes, {code}, "%s %s" % (method, path))

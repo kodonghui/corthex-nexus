@@ -9388,7 +9388,7 @@ components:
       type: apiKey
       in: header
       name: CF-Access-Client-Secret
-      description: The agent credential's secret, which the pinned hub reads from CORTHEX_NEXUS_CLIENT_SECRET.
+      description: The legacy agent credential secret, paired only with CF-Access-Client-Id; the pinned hub reads it from CORTHEX_NEXUS_CLIENT_SECRET.
     nexusAgentClientId:
       type: apiKey
       in: header
