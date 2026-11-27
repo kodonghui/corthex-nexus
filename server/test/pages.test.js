@@ -8,6 +8,7 @@ import { readdirSync, readFileSync, rmSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
 import { after, before, describe, test } from 'node:test';
 import { createPages, isApiPath, messagesModule, PAGE_HEADERS, PAGE_POLICY } from '../src/pages.js';
 import { ERRORS } from '../src/problem.js';
@@ -97,8 +98,9 @@ describe('the pages', () => {
   test('versioned assets use one content-derived namespace and the browser may cache them', async () => {
     const page = await server.send({ path: '/' });
     const paths = [...page.text.matchAll(/(?:href|src)="(\/web\/v\/[a-f0-9]{64}\/[^\"]+\.(?:js|css))"/g)].map((match) => match[1]);
-    const expected = [...read('shell.html').toString('utf8').matchAll(/(?:href|src)="(\/web\/[^"?#]+\.(?:js|css))"/g)].map((match) => match[1]);
+    const expected = [...read('shell.html').toString('utf8').matchAll(/(?:href|src)="(\/web\/[^"?#]+\.(?:js|css))"/g)].map((match) => match[1]).filter((path) => path !== '/web/recovery.js');
     assert.ok(expected.length > 0);
+    assert.match(page.text, /<script src="\/web\/recovery\.js"><\/script>/);
     assert.deepEqual(paths.map((path) => path.replace(/^\/web\/v\/[a-f0-9]{64}\//, '/web/')), expected);
     assert.equal(new Set(paths.map((path) => path.split('/')[3])).size, 1);
     for (const path of paths) {
@@ -123,6 +125,25 @@ describe('the pages', () => {
     const answer = await server.send({ path: '/p' });
     assert.match(answer.text, /화면을 불러오고 있어요/);
     assert.match(answer.text, /<a href="">새로고침<\/a>/);
+  });
+
+  test('a failed versioned script changes the startup notice to an error and keeps a reload link', () => {
+    let listener;
+    const status = { replaceChildren: (...children) => { status.children = children; } };
+    const doc = { getElementById: () => status, createElement: () => ({ setAttribute(name, value) { this[name] = value; } }) };
+    runInNewContext(read('recovery.js').toString('utf8'), {
+      globalThis: { addEventListener: (type, handler, capture) => { assert.equal(type, 'error'); assert.equal(capture, true); listener = handler; } },
+      document: doc, location: { href: 'https://example.test/p' }, URL,
+    });
+    listener({ target: { tagName: 'SCRIPT', src: 'https://example.test/web/v/old/main.js' } });
+    assert.match(status.children[0], /불러오지 못했어요/);
+    assert.equal(status.children[1].href, '');
+    assert.equal(status.children[1].textContent, '새로고침');
+    delete status.children;
+    listener({ target: { tagName: 'IMG', src: 'https://example.test/web/v/old/p.png' } });
+    assert.equal(status.children, undefined);
+    listener({ target: {}, filename: 'https://example.test/web/v/old/main.js' });
+    assert.match(status.children[0], /불러오지 못했어요/);
   });
 
   test('the Content-Security-Policy loads nothing from another site and allows no inline code', () => {
@@ -247,7 +268,9 @@ describe('the pages', () => {
     const shell = read('shell.html').toString('utf8');
     const links = [...shell.matchAll(/\b(?:src|href)="([^"]*)"/g)].map(([, link]) => link);
     assert.ok(links.length >= 5);
-    for (const link of links) assert.ok(link === '' || /^\/web\/[A-Za-z0-9./-]+$/.test(link), link);
+    assert.equal((shell.match(/<a href="">새로고침<\/a>/g) ?? []).length, 1);
+    const onlyAssets = shell.replace('<a href="">새로고침</a>', '');
+    for (const [, link] of onlyAssets.matchAll(/\b(?:src|href)="([^"]*)"/g)) assert.match(link, /^\/web\/[A-Za-z0-9./-]+$/, link);
     assert.equal(/<style|\sstyle=|<script(?![^>]*\ssrc=)/i.test(shell), false);
     for (const path of TEXTS) {
       const text = read(path).toString('utf8');

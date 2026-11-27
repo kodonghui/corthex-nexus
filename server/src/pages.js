@@ -68,15 +68,16 @@ export function createPages() {
   files.set('/web/messages.js', answer(200, TYPES['.js'], Buffer.from(messagesModule())));
   // A release namespace covers the complete module graph, including generated messages and shared layout. Changing
   // any asset changes every module's address; an old page cannot accidentally mix modules from two releases.
-  const versioned = [...files.entries()].filter(([path]) => path.endsWith('.js') || path.endsWith('.css')).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0);
+  const versioned = [...files.entries()].filter(([path]) => path !== '/web/recovery.js' && (path.endsWith('.js') || path.endsWith('.css'))).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0);
   const hash = createHash('sha256');
   for (const [path, file] of versioned) hash.update(path).update('\0').update(file.text).update('\0');
   const version = hash.digest('hex');
   for (const [path, file] of versioned) files.set(`/web/v/${version}/${path.slice(5)}`, answer(200, file.type, file.text, IMMUTABLE_CACHE));
   // Keep the unversioned paths for pages already open during the first upgrade; they remain no-store.
-  const rendered = Buffer.from(shell.replace(/(href|src)="(\/web\/[^"?#]+\.(?:js|css))"/g, (match, attr, path) => {
+  const rendered = Buffer.from(shell.replace(/(href|src)=(['"])(\/web\/[^'"?#]+\.(?:js|css))([?#][^'"]*)?\2/g, (match, attr, quote, path, suffix = '') => {
     if (!files.has(path)) throw new Error(`shell names a missing static asset: ${path}`);
-    return `${attr}="/web/v/${version}/${path.slice(5)}"`;
+    if (path === '/web/recovery.js') return match;
+    return `${attr}=${quote}/web/v/${version}/${path.slice(5)}${suffix}${quote}`;
   }));
   const page = answer(200, HTML, rendered);
   const missing = answer(404, HTML, rendered);
