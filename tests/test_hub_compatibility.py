@@ -200,9 +200,9 @@ class HubCompatibilityTest(HubCheckoutCase):
         code, row, _ = self.run_push_step(values)
         return code, row
 
-    def session_push(self, server, *words):
+    def session_push(self, server, *words, **credentials):
         home = Path(tempfile.mkdtemp(prefix="session-home-", dir=str(self.base)))
-        env = dict(base_environment(home), CORTHEX_NEXUS_URL=server.url, CORTHEX_NEXUS_PUSH=PROJECT)
+        env = dict(base_environment(home), CORTHEX_NEXUS_URL=server.url, CORTHEX_NEXUS_PUSH=PROJECT, **credentials)
         result = self.hub(env, "push", PROJECT, "--json", *words)
         rows = result.stdout.strip().splitlines()
         self.assertTrue(rows, "exit %d and no result line: %s" % (result.returncode, result.stderr[-600:]))
@@ -368,14 +368,28 @@ class HubCompatibilityTest(HubCheckoutCase):
         self.assert_text_pictures(sent[0])
         self.assert_requests_match_the_contract(server)
         schemes = self.doc["components"]["securitySchemes"]
+        # The actual workflow explicitly keeps the legacy headers while its target is v2.
         for request in server.requests:
-            for scheme, variable in (("nexusAgentClientId", "CORTHEX_NEXUS_CLIENT_ID"),
-                                     ("nexusAgentClientSecret", "CORTHEX_NEXUS_CLIENT_SECRET")):
+            for scheme, variable in (("agentClientId", "CORTHEX_NEXUS_CLIENT_ID"),
+                                     ("agentClientSecret", "CORTHEX_NEXUS_CLIENT_SECRET")):
                 self.assertEqual(request["headers"].get(schemes[scheme]["name"].lower()), pair[variable], scheme)
-            for scheme in ("agentClientId", "agentClientSecret"):
+            for scheme in ("nexusAgentClientId", "nexusAgentClientSecret"):
                 self.assertFalse(schemes[scheme]["name"].lower() in request["headers"],
-                                 "legacy credential header unexpectedly present")
+                                 "dedicated credential header unexpectedly present")
         self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
+
+    def test_a_v3_session_uses_dedicated_credential_headers(self):
+        pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair"}
+        with LoopbackServer({("GET", HELD_PATH): self.v3_held()}) as server:
+            server.answers[("POST", PUSH_PATH)] = (200, self.push_answer("200", "drawn", self.held))
+            code, row = self.session_push(server, **pair)
+        self.assertEqual((code, row["outcome"]), (0, "done"), row)
+        self.assertGreaterEqual(len(server.requests), 1)
+        for request in server.requests:
+            self.assertEqual(request["headers"].get("nexus-agent-client-id"), pair["CORTHEX_NEXUS_CLIENT_ID"])
+            self.assertEqual(request["headers"].get("nexus-agent-client-secret"), pair["CORTHEX_NEXUS_CLIENT_SECRET"])
+            self.assertFalse("cf-access-client-id" in request["headers"] or
+                             "cf-access-client-secret" in request["headers"], "mixed credential headers")
 
     def test_a_server_that_lists_a_newer_format_gets_the_newest_the_hub_knows(self):
         with LoopbackServer({("GET", HELD_PATH): self.v3_held(formats=(OLD, NEW, "corthex-hub/0.9"))}) as server:
@@ -411,9 +425,15 @@ class HubCompatibilityTest(HubCheckoutCase):
     # TASK-431: the running v2.
 
     def test_a_v2_server_gets_02_from_the_push_job(self):
+        pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair"}
         with LoopbackServer({("GET", HELD_PATH): self.v2_held()}) as server:
             server.answers[("POST", PUSH_PATH)] = (200, self.v2_pushed(8))
-            code, row = self.push_job(server)
+            code, row = self.push_job(server, **pair)
+        for request in server.requests:
+            self.assertEqual(request["headers"].get("cf-access-client-id"), pair["CORTHEX_NEXUS_CLIENT_ID"])
+            self.assertEqual(request["headers"].get("cf-access-client-secret"), pair["CORTHEX_NEXUS_CLIENT_SECRET"])
+            self.assertFalse("nexus-agent-client-id" in request["headers"] or
+                             "nexus-agent-client-secret" in request["headers"], "mixed credential headers")
         sent = server.sent()
         self.assertEqual([s["schema"] for s in sent], [OLD])
         self.assertEqual(sent[0]["replaces"], self.held)
