@@ -195,14 +195,14 @@ class HubCompatibilityTest(HubCheckoutCase):
 
     # How the hub runs: the push job's own lines, a session's push, and snapshot --print.
 
-    def push_job(self, server, **secrets):
+    def push_job(self, server, *, use_workflow_header_mode=True, **secrets):
         values = dict({name: "" for name in SECRETS}, CORTHEX_NEXUS_URL=server.url, **secrets)
-        code, row, _ = self.run_push_step(values)
+        code, row, _ = self.run_push_step(values, use_workflow_header_mode=use_workflow_header_mode)
         return code, row
 
-    def session_push(self, server, *words):
+    def session_push(self, server, *words, **credentials):
         home = Path(tempfile.mkdtemp(prefix="session-home-", dir=str(self.base)))
-        env = dict(base_environment(home), CORTHEX_NEXUS_URL=server.url, CORTHEX_NEXUS_PUSH=PROJECT)
+        env = dict(base_environment(home), CORTHEX_NEXUS_URL=server.url, CORTHEX_NEXUS_PUSH=PROJECT, **credentials)
         result = self.hub(env, "push", PROJECT, "--json", *words)
         rows = result.stdout.strip().splitlines()
         self.assertTrue(rows, "exit %d and no result line: %s" % (result.returncode, result.stderr[-600:]))
@@ -356,7 +356,7 @@ class HubCompatibilityTest(HubCheckoutCase):
         self.assertEqual(snapshot["schema"], OLD)
         self.assert_snapshot(snapshot)
 
-    def test_a_v3_server_that_lists_03_gets_03(self):
+    def test_the_v2_configured_workflow_sends_03_to_a_v3_server(self):
         # The credential pair goes in the headers that the contract's security schemes name.
         pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_" + "fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture" + "-pair"}
         with LoopbackServer({("GET", HELD_PATH): self.v3_held()}) as server:
@@ -368,11 +368,41 @@ class HubCompatibilityTest(HubCheckoutCase):
         self.assert_text_pictures(sent[0])
         self.assert_requests_match_the_contract(server)
         schemes = self.doc["components"]["securitySchemes"]
+        # The actual workflow explicitly keeps the legacy headers while its target is v2.
         for request in server.requests:
             for scheme, variable in (("agentClientId", "CORTHEX_NEXUS_CLIENT_ID"),
                                      ("agentClientSecret", "CORTHEX_NEXUS_CLIENT_SECRET")):
                 self.assertEqual(request["headers"].get(schemes[scheme]["name"].lower()), pair[variable], scheme)
+            for scheme in ("nexusAgentClientId", "nexusAgentClientSecret"):
+                self.assertFalse(schemes[scheme]["name"].lower() in request["headers"],
+                                 "dedicated credential header unexpectedly present")
         self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
+
+    def test_a_v3_push_job_uses_dedicated_headers_after_override_removal(self):
+        pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair"}
+        with LoopbackServer({("GET", HELD_PATH): self.v3_held()}) as server:
+            server.answers[("POST", PUSH_PATH)] = (200, self.push_answer("200", "drawn", self.held))
+            code, row = self.push_job(server, use_workflow_header_mode=False, **pair)
+        self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
+        self.assertGreaterEqual(len(server.requests), 1)
+        for request in server.requests:
+            self.assertEqual(request["headers"].get("nexus-agent-client-id"), pair["CORTHEX_NEXUS_CLIENT_ID"])
+            self.assertEqual(request["headers"].get("nexus-agent-client-secret"), pair["CORTHEX_NEXUS_CLIENT_SECRET"])
+            self.assertFalse("cf-access-client-id" in request["headers"] or
+                             "cf-access-client-secret" in request["headers"], "mixed credential headers")
+
+    def test_a_v3_session_uses_dedicated_credential_headers(self):
+        pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair"}
+        with LoopbackServer({("GET", HELD_PATH): self.v3_held()}) as server:
+            server.answers[("POST", PUSH_PATH)] = (200, self.push_answer("200", "drawn", self.held))
+            code, row = self.session_push(server, **pair)
+        self.assertEqual((code, row["outcome"]), (0, "done"), row)
+        self.assertGreaterEqual(len(server.requests), 1)
+        for request in server.requests:
+            self.assertEqual(request["headers"].get("nexus-agent-client-id"), pair["CORTHEX_NEXUS_CLIENT_ID"])
+            self.assertEqual(request["headers"].get("nexus-agent-client-secret"), pair["CORTHEX_NEXUS_CLIENT_SECRET"])
+            self.assertFalse("cf-access-client-id" in request["headers"] or
+                             "cf-access-client-secret" in request["headers"], "mixed credential headers")
 
     def test_a_server_that_lists_a_newer_format_gets_the_newest_the_hub_knows(self):
         with LoopbackServer({("GET", HELD_PATH): self.v3_held(formats=(OLD, NEW, "corthex-hub/0.9"))}) as server:
@@ -408,20 +438,71 @@ class HubCompatibilityTest(HubCheckoutCase):
     # TASK-431: the running v2.
 
     def test_a_v2_server_gets_02_from_the_push_job(self):
+        pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair"}
         with LoopbackServer({("GET", HELD_PATH): self.v2_held()}) as server:
             server.answers[("POST", PUSH_PATH)] = (200, self.v2_pushed(8))
-            code, row = self.push_job(server)
+            code, row = self.push_job(server, **pair)
+        for request in server.requests:
+            self.assertEqual(request["headers"].get("cf-access-client-id"), pair["CORTHEX_NEXUS_CLIENT_ID"])
+            self.assertEqual(request["headers"].get("cf-access-client-secret"), pair["CORTHEX_NEXUS_CLIENT_SECRET"])
+            self.assertFalse("nexus-agent-client-id" in request["headers"] or
+                             "nexus-agent-client-secret" in request["headers"], "mixed credential headers")
         sent = server.sent()
         self.assertEqual([s["schema"] for s in sent], [OLD])
         self.assertEqual(sent[0]["replaces"], self.held)
         self.assert_requests_match_the_contract(server)
         self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
 
+    def test_a_v2_loopback_push_without_credentials_sends_no_credential_headers(self):
+        with LoopbackServer({("GET", HELD_PATH): self.v2_held()}) as server:
+            server.answers[("POST", PUSH_PATH)] = (200, self.v2_pushed(8))
+            code, row = self.push_job(server)
+        self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
+        self.assertGreaterEqual(len(server.requests), 1)
+        for request in server.requests:
+            self.assertFalse(any(name in request["headers"] for name in (
+                "cf-access-client-id", "cf-access-client-secret", "nexus-agent-client-id", "nexus-agent-client-secret")),
+                "credential headers unexpectedly present")
+
     def test_a_v2_server_holding_the_commit_gets_nothing_again(self):
         with LoopbackServer({("GET", HELD_PATH): self.v2_held(self.commit)}) as server:
             code, row = self.push_job(server)
         self.assertEqual([(r["method"], r["path"]) for r in server.requests], [("GET", HELD_PATH)])
         self.assertEqual((code, row["outcome"], row["answer"]), (0, "done", {"sent": False, "why": "already-held"}))
+
+    def test_a_v2_session_with_override_sends_legacy_credential_headers(self):
+        pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair",
+                "CORTHEX_NEXUS_AUTH_HEADERS": "cf-access"}
+        with LoopbackServer({("GET", HELD_PATH): self.v2_held()}) as server:
+            server.answers[("POST", PUSH_PATH)] = (200, self.v2_pushed(8))
+            code, row = self.session_push(server, **pair)
+        self.assertEqual((code, row["outcome"]), (0, "done"), row)
+        self.assertGreaterEqual(len(server.requests), 1)
+        for request in server.requests:
+            self.assertEqual(request["headers"].get("cf-access-client-id"), pair["CORTHEX_NEXUS_CLIENT_ID"])
+            self.assertEqual(request["headers"].get("cf-access-client-secret"), pair["CORTHEX_NEXUS_CLIENT_SECRET"])
+            self.assertFalse("nexus-agent-client-id" in request["headers"] or
+                             "nexus-agent-client-secret" in request["headers"], "mixed credential headers")
+
+    def test_a_v2_session_with_profile_override_sends_legacy_credential_headers(self):
+        home = Path(tempfile.mkdtemp(prefix="session-profile-", dir=str(self.base)))
+        settings = home / ".corthex"
+        settings.mkdir()
+        (settings / "profile.json").write_text(json.dumps({"nexus": {"auth_headers": "cf-access", "push": [PROJECT]}}), encoding="utf8")
+        (settings / "projects.json").write_text(json.dumps({"projects": [{"name": PROJECT, "path": str(self.project)}]}), encoding="utf8")
+        pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair"}
+        with LoopbackServer({("GET", HELD_PATH): self.v2_held()}) as server:
+            server.answers[("POST", PUSH_PATH)] = (200, self.v2_pushed(8))
+            env = dict(base_environment(home), CORTHEX_NEXUS_URL=server.url, CORTHEX_NEXUS_PUSH=PROJECT, **pair)
+            result = self.hub(env, "push", PROJECT, "--json")
+        self.assertEqual(result.returncode, 0, "profile-configured push did not complete")
+        self.assertEqual(json.loads(result.stdout.strip().splitlines()[-1])["outcome"], "done")
+        self.assertGreaterEqual(len(server.requests), 1)
+        for request in server.requests:
+            self.assertEqual(request["headers"].get("cf-access-client-id"), pair["CORTHEX_NEXUS_CLIENT_ID"])
+            self.assertEqual(request["headers"].get("cf-access-client-secret"), pair["CORTHEX_NEXUS_CLIENT_SECRET"])
+            self.assertFalse("nexus-agent-client-id" in request["headers"] or
+                             "nexus-agent-client-secret" in request["headers"], "mixed credential headers")
 
     def test_a_v2_server_gets_02_from_a_first_push(self):
         missing = (404, {"title": "No such project", "status": 404, "code": "project_not_found", "traceId": TRACE})
