@@ -661,7 +661,7 @@ function updateHistoryControls(state) {
 function historyKey(state, event) {
   if (!state || state.phone || state.ctx.data.diagram.removed || !state.historyUI || state.pictureBox?.isConnected === false) return;
   const key = String(event.key);
-  const physicalZ = event.code === 'KeyZ' && !/^[a-z]$/i.test(key);
+  const physicalZ = event.code === 'KeyZ' && /^\p{L}$/u.test(key) && !/^\p{Script=Latin}$/u.test(key);
   if (!(event.ctrlKey || event.metaKey) || event.altKey || (key.toLowerCase() !== 'z' && !physicalZ)) return;
   const target = event.target;
   if (target?.isContentEditable || target?.closest?.('input, textarea, select, [contenteditable]:not([contenteditable="false"])')) return;
@@ -920,7 +920,8 @@ function moveTo(state, key, to) {
     const element = (state.ctx.data.diagram.elements ?? []).find((each) => each.key === key);
     const automatic = element?.position_saved === false;
     const box = element?.detail?.box;
-    state.before.set(key, { x: previous.x, y: previous.y, automatic,
+    const saved = element?.position_saved === true && element.position ? element.position : previous;
+    state.before.set(key, { x: saved.x, y: saved.y, automatic,
       drawn: automatic && box ? { x: box.x, y: box.y } : null });
   }
   if (state.selected !== key) {

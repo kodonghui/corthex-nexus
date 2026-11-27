@@ -701,12 +701,33 @@ describe('SCR-145 pictures', () => {
       input.dispatch('keydown', { key: 'ㅋ', code: 'KeyZ', ctrlKey: true });
       assert.equal(page.sent.length, 1);
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'y', code: 'KeyZ', ctrlKey: true });
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: ';', code: 'KeyZ', ctrlKey: true });
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'é', code: 'KeyZ', ctrlKey: true });
       await delay(30);
       assert.equal(page.sent.length, 1);
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ㅋ', code: 'KeyZ', ctrlKey: true });
       await page.settle();
       assert.equal(page.sent.length, 2);
       assert.ok(page.sent[1].body.expected);
+    } finally { page.close(); }
+  });
+
+  test('undo restores the saved position when layout shifted the displayed box', async () => {
+    const diagram = diagramOf('erd');
+    const [first, second] = diagram.elements.filter((element) => element.kind === 'table');
+    first.position_saved = true;
+    first.position = { x: first.detail.box.x, y: first.detail.box.y };
+    second.position_saved = true;
+    second.position = { x: first.position.x + 1, y: first.position.y + 1 };
+    const displayed = placement(diagram).boxes.get(first.key);
+    assert.notDeepEqual({ x: displayed.x, y: displayed.y }, first.position);
+    const page = await openStage('erd', { more: { [diagramPath('erd')]: json(200, diagram) } });
+    try {
+      buttonNamed(page, 'tbl', first.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.deepEqual({ x: page.sent[1].body.x, y: page.sent[1].body.y }, first.position);
     } finally { page.close(); }
   });
 
