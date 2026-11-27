@@ -1135,7 +1135,8 @@ The page reads `?d=` and `?thread=` as given, and the screen decides what they n
 | File | What it does |
 | --- | --- |
 | `src/pages.js` | Answers a GET of a path outside `/api` (see [security](#security-of-the-pages)). `pages` of `createApp` turns it on, and `src/main.js` gives it. |
-| `web/shell.html` | The one page, with the styles, `theme.js`, `main.js` and `<div id="app">`. |
+| `web/shell.html` | The one page, with styles, scripts, the app root and the startup and recovery notices. |
+| `web/recovery.js` | The stable unversioned bootstrap that reports versioned asset failures and offers a reload. |
 | `web/theme.js` | A classic script that sets `data-theme` before the page is first drawn. It uses the theme stored in `localStorage` `nexus-theme`, or else follows the system. |
 | `web/main.js` | Reads the address and starts the shell with its screen, or with the 404 screen. |
 | `web/shell.js` | The shell: the header, the stage tabs, the shared states and the read time. |

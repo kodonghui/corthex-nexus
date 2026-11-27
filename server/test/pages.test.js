@@ -128,29 +128,36 @@ describe('the pages', () => {
   });
 
   test('a failed versioned script or stylesheet keeps a visible error and reload link', () => {
-    const listeners = {};
-    const status = { replaceChildren: (...children) => { status.children = children; } };
-    const startup = { replaceChildren: (...children) => { startup.children = children; } };
-    const doc = { getElementById: (id) => id === 'recovery-alert' ? status : id === 'startup-status' ? startup : null, createElement: () => ({ setAttribute(name, value) { this[name] = value; } }) };
-    runInNewContext(read('recovery.js').toString('utf8'), {
-      globalThis: { addEventListener: (type, handler) => { listeners[type] = handler; } },
-      document: doc, location: { href: 'https://example.test/p' }, URL,
-    });
-    listeners.error({ target: { tagName: 'SCRIPT', src: 'https://example.test/web/v/old/main.js' } });
-    assert.match(status.children[0], /문제가 생겼어요/);
-    assert.deepEqual(startup.children, []);
-    assert.equal(status.children[1].href, '');
-    assert.equal(status.children[1].textContent, '새로고침');
-    delete status.children;
-    listeners.error({ target: { tagName: 'IMG', src: 'https://example.test/web/v/old/p.png' } });
-    assert.equal(status.children, undefined);
-    listeners.error({ target: {}, filename: 'https://example.test/web/v/old/main.js' });
-    assert.match(status.children[0], /문제가 생겼어요/);
-    listeners.error({ target: { tagName: 'LINK', href: 'https://example.test/web/v/old/a.css' } });
-    assert.match(status.children[0], /문제가 생겼어요/);
-    delete status.children;
-    listeners.load();
-    assert.match(status.children[0], /문제가 생겼어요/);
+    for (const failure of [
+      { target: { tagName: 'SCRIPT', src: 'https://example.test/web/v/old/main.js' } },
+      { target: { tagName: 'LINK', href: 'https://example.test/web/v/old/a.css' } },
+      { target: {}, filename: 'https://example.test/web/v/old/main.js' },
+    ]) {
+      const listeners = {};
+      const status = { replaceChildren: (...children) => { status.children = children; } };
+      const startup = { replaceChildren: (...children) => { startup.children = children; } };
+      let bodyReady = failure.target.tagName !== 'LINK';
+      const doc = { getElementById: (id) => !bodyReady ? null : id === 'recovery-alert' ? status : id === 'startup-status' ? startup : null, createElement: () => ({ setAttribute(name, value) { this[name] = value; } }) };
+      runInNewContext(read('recovery.js').toString('utf8'), {
+        globalThis: { addEventListener: (type, handler) => { listeners[type] = handler; } },
+        document: doc, location: { href: 'https://example.test/p' }, URL,
+      });
+      listeners.error({ target: { tagName: 'IMG', src: 'https://example.test/web/v/old/p.png' } });
+      assert.equal(status.children, undefined);
+      listeners.error(failure);
+      if (!bodyReady) {
+        assert.equal(status.children, undefined);
+        bodyReady = true;
+        listeners.load();
+      }
+      assert.match(status.children[0], /문제가 생겼어요/);
+      assert.deepEqual(startup.children, []);
+      assert.equal(status.children[1].href, '');
+      assert.equal(status.children[1].textContent, '새로고침');
+      const shown = status.children;
+      listeners.load();
+      assert.equal(status.children, shown);
+    }
   });
 
   test('the Content-Security-Policy loads nothing from another site and allows no inline code', () => {

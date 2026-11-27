@@ -1,9 +1,11 @@
 // A tiny stable bootstrap: a module may fail across a server restart before the app can show its own error state.
 // It stays at a stable path so it can report versioned script and stylesheet failures.
 let failed = false;
+let shown = false;
 function showFailure() {
   const status = document.getElementById('recovery-alert');
-  if (!status) return;
+  if (!status || shown) return;
+  shown = true;
   document.getElementById('startup-status')?.replaceChildren();
   const link = document.createElement('a');
   link.setAttribute('href', '');

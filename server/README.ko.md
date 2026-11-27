@@ -1135,7 +1135,8 @@ TASK-454(SPEC-048, SPEC-051)는 소유자가 여는 페이지의 틀이에요. [
 | 파일 | 하는 일 |
 | --- | --- |
 | `src/pages.js` | `/api` 밖 경로의 GET에 응답해요([보안](#페이지의-보안) 참고). `createApp`의 `pages`로 켜고, `src/main.js`가 넘겨요. |
-| `web/shell.html` | 유일한 페이지예요. 스타일, `theme.js`, `main.js`, `<div id="app">`이 들어 있어요. |
+| `web/shell.html` | 유일한 페이지예요. 스타일과 스크립트, 앱을 그릴 곳, 시작과 복구 안내가 들어 있어요. |
+| `web/recovery.js` | 버전 없는 고정 스크립트예요. 버전 파일이 실패하면 알리고 새로고침을 안내해요. |
 | `web/theme.js` | 페이지를 처음 그리기 전에 `data-theme`을 정하는 classic 스크립트예요. `localStorage`의 `nexus-theme`에 저장된 테마를 쓰고, 없으면 시스템 테마를 따라요. |
 | `web/main.js` | 주소를 읽고 그 화면으로, 또는 404 화면으로 셸을 시작해요. |
 | `web/shell.js` | 셸이에요. 헤더, 단계 탭, 공통 상태, 읽은 시각을 맡아요. |
