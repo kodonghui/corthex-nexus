@@ -16,7 +16,7 @@ export function zoomStep(value, direction) {
     return step(Math.max(0.1, value - ZOOM_STEP));
   }
   if (value <= MIN_ZOOM) return 0.025;
-  if (value < 0.1) return step(Math.min(0.1, value * 2));
+  if (value < 0.1) return step(value * 2);
   return step(value + ZOOM_STEP);
 }
 

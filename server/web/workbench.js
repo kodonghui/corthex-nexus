@@ -237,7 +237,10 @@ function legendOf(diagram, model) {
 
 // The picture, drawn again with the moves not yet answered; the element that had the focus gets it back.
 function drawPicture(state) {
-  if (state.dragNode) cancelled(state, state.dragNode);
+  if (state.dragNode) {
+    cancelled(state, state.dragNode);
+    state.notice.append(h('div', { class: 'nt warn', role: 'alert' }, '그림이 새로 바뀌어 옮기기를 멈췄어요. 다시 옮겨 주세요.'));
+  }
   const { ctx } = state;
   const diagram = ctx.data.diagram;
   const view = {
@@ -295,6 +298,11 @@ function drawPicture(state) {
       }, { passive: true });
       view.box.addEventListener('touchmove', (event) => {
         if (!pinch || event.touches.length !== 2 || pinch.distance === 0) return;
+        if (event.cancelable === false) {
+          pinch = null;
+          state.zoomUI.notice.textContent = '스크롤을 멈춘 뒤 두 손가락으로 다시 확대해 주세요.';
+          return;
+        }
         event.preventDefault();
         const [a, b] = event.touches;
         const rect = view.box.getBoundingClientRect();
@@ -344,7 +352,8 @@ function scrollTo(view, scroll) {
 function zoomControls(state) {
   const decrease = h('button', { class: 'btn tertiary', type: 'button', 'aria-label': '그림 축소', on: { click: () => changeZoom(state, zoomStep(state.zoom, -1)) } }, '−');
   const increase = h('button', { class: 'btn tertiary', type: 'button', 'aria-label': '그림 확대', on: { click: () => changeZoom(state, zoomStep(state.zoom, 1)) } }, '+');
-  const value = h('output', { 'aria-live': 'polite', 'aria-label': '그림 배율' });
+  const value = h('output', { 'aria-live': 'off', 'aria-label': '그림 배율' });
+  const announcement = h('span', { class: 'sr-only', 'aria-live': 'polite' });
   const notice = h('span', { role: 'status' });
   const readable = h('button', { class: 'btn tertiary', type: 'button', on: { click: () => changeZoom(state, 1) } }, '글자 크게 보기');
   const hint = h('span', { class: 'small' }, state.ctx.shell.isPhone()
@@ -364,9 +373,9 @@ function zoomControls(state) {
     box.scrollLeft = 0;
     box.scrollTop = 0;
   } } }, '화면에 맞추기');
-  state.zoomUI = { decrease, increase, fit, value, notice, readable };
+  state.zoomUI = { decrease, increase, fit, value, notice, readable, announcement };
   updateZoomControls(state);
-  return h('div', { class: 'zoom-controls', role: 'group', 'aria-label': '그림 크기' }, decrease, value, increase, fit, readable, hint, notice);
+  return h('div', { class: 'zoom-controls', role: 'group', 'aria-label': '그림 크기' }, decrease, value, increase, fit, readable, hint, notice, announcement);
 }
 
 function boxMetrics(box) {
@@ -389,6 +398,8 @@ function updateZoomControls(state) {
   if (increase.disabled && focused === increase) decrease.focus();
   if (readable.hidden && focused === readable) increase.focus();
   value.textContent = `${Math.round(state.zoom * 1000) / 10}%`;
+  clearTimeout(state.zoomAnnouncement);
+  state.zoomAnnouncement = setTimeout(() => { state.zoomUI.announcement.textContent = `그림 배율 ${value.textContent}`; }, 250);
 }
 
 function changeZoom(state, wanted, x, y) {

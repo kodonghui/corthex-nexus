@@ -16,6 +16,8 @@ test('buttons allow useful adjustments below ten percent in both directions', ()
   assert.deepEqual([0.01, 0.025, 0.05].map((value) => zoomStep(value, 1)), [0.025, 0.05, 0.1]);
   assert.equal(zoomStep(0.15, -1), 0.1);
   assert.equal(zoomStep(0.1, 1), 0.2);
+  assert.equal(zoomStep(0.09995, 1), 0.2);
+  assert.equal(zoomStep(0.09, 1), 0.18);
 });
 
 test('zoom keeps a focal point steady in the scrolled picture', () => {

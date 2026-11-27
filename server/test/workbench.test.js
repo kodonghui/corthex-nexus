@@ -226,6 +226,21 @@ describe('SCR-145 pictures', () => {
       for (let count = 0; count < 10; count += 1) board.dispatch('wheel', { ctrlKey: true, deltaY: -1, clientX: 0, clientY: 0 });
       assert.ok(Number(svg.getAttribute('width')) > before);
       assert.equal(page.sent.length, 0);
+      await delay(300);
+      assert.match(area.all('span', 'sr-only')[0].textContent, /^그림 배율 /);
+    } finally { page.close(); }
+  });
+
+  test('an uncancellable pan asks for a fresh pinch instead of mixing gestures', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const touches = [{ clientX: 0, clientY: 0 }, { clientX: 30, clientY: 0 }];
+      board.dispatch('touchstart', { touches });
+      board.dispatch('touchmove', { touches, cancelable: false });
+      assert.match(area.textContent, /스크롤을 멈춘 뒤 두 손가락으로 다시 확대/);
+      assert.equal(page.sent.length, 0);
     } finally { page.close(); }
   });
 
@@ -243,6 +258,7 @@ describe('SCR-145 pictures', () => {
       const before = Number(svg.getAttribute('width'));
       board.dispatch('wheel', { ctrlKey: true, deltaY: -3, deltaMode: 1, clientX: 0, clientY: 0 });
       assert.ok(Number(svg.getAttribute('width')) > before * 1.09);
+      assert.match(page.app.textContent, /그림이 새로 바뀌어 옮기기를 멈췄어요/);
     } finally { page.close(); }
   });
 
