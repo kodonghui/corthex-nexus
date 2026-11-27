@@ -240,14 +240,16 @@ class HubRunFixture(HubCheckoutCase):
         return thread["id"]
 
     def assert_private_log(self, *extra):
-        """Check protected synthetic values in raw JSON, parsed values and client outputs without printing them."""
+        """Check protected values in the server log and the credential secret in hub output."""
         lines = [json.loads(line) for line in self.stop_server()]
         text = "\n".join(self.log_lines + [value for line in lines for value in map(str, line.values())])
         digest = hashlib.sha256(self.secret.encode("ascii")).hexdigest()
         data = str(self.server.data)
         protected = (self.secret, digest, self.server.owner_sign_in, data, data.replace("\\", "/"),
                      json.dumps(data)[1:-1], self.session["CORTHEX_NEXUS_SESSION"],
-                     self.other["CORTHEX_NEXUS_SESSION"], PULL % 1, PULL % 2, QUESTION, DECISION) + extra
+                     self.other["CORTHEX_NEXUS_SESSION"], PULL % 1, PULL % 2, QUESTION, DECISION,
+                     "Yes: a revoked credential keeps its name.") + extra
+        # Check raw JSON too: paths may have escaped backslashes. Never print a protected value on failure.
         for value in protected:
             self.assertFalse(value in text or json.dumps(value, ensure_ascii=False)[1:-1] in text,
                              "the server log holds protected test data; value withheld")
