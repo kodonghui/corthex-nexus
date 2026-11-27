@@ -272,6 +272,19 @@ describe('SCR-145 "이 그림"', () => {
     }
   });
 
+  test('a phone retains a live confirmation tag when the current drawing fails', async () => {
+    const diagram = confirmedWith('erd', 'confirmed', sinceOf());
+    diagram.last_drawn = diagram.drawing;
+    diagram.drawing = { ...diagram.drawing, status: 'failed', failed_at: null };
+    const page = await openAt('erd', { phone: true, diagram });
+    try {
+      const section = diagramSection(page);
+      assert.deepEqual(tagsIn(section), ['확정함', '그려지지 않음']);
+      assert.ok(shownTexts(section, 'p').includes(CONFIRM_WORDS.confirmedHere));
+      assert.deepEqual(buttonsIn(section), []);
+    } finally { page.close(); }
+  });
+
   test('recorded (SCR-145#confirmed): "기록됨 · 3분 전 · PR #12 ↗", the pull request a link in a new tab; without one "기록됨 · 3분 전" alone, on a PC and a phone', async () => {
     const recordedAt = new Date(Date.now() - 3 * 60_000).toISOString();
     for (const phone of [false, true]) {

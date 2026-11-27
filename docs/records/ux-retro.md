@@ -36,3 +36,5 @@ Next PR candidates from review: reconcile historical QA expectations with the ne
 The 1440 px simulated walk above does not meet the final grandmother persona’s 360 px phone-only condition and is exploratory evidence only.
 
 A final review found the stage-08 wireframes retained older guidance and a failed empty table could point to a missing location → synchronized the affected descriptions and representative frames, and asked for document repair without claiming where the error appears → automated checks cover failed tables without a location on PC and phone; the wireframe is a source-aligned sketch, not a human usability pass.
+
+A further review found that a phone could lose the confirmed tag if a later drawing failed → show both the live confirmation and failed-drawing tags → an automated phone regression checks both labels without offering a decision; the real-person task remains untested.

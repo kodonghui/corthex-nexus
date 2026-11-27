@@ -1460,7 +1460,7 @@ TASK-461 (SPEC-023, SPEC-029, SPEC-030, SPEC-034) adds confirming a diagram to S
 | `web/changes.js` | Beside [Workbench changes](#workbench-changes), the rest of the work panel's "이 그림" section, 이 그림 확정하고 기록 요청 with its question, and 확정 취소 (API-275, API-276). |
 | `web/changes-page.js` | SCR-146's body, its loading state and its title's tag. It draws through `web/changes.js`, so the two screens share the line of answers, the waiting rows, 편집 취소 and 이 그림 확정하고 기록 요청. |
 
-- **"이 그림"** (SCR-145#normal, SPEC-034). On a PC, while nothing waits, the section suggests answering any questions and reviewing changes, then explains that confirming sends a recording task and all stage drawings and tables must be recorded before the stage passes. It shows the state of the latest confirmation that API-265 gives:
+- **"이 그림"** (SCR-145#normal, SPEC-034). On a PC, when the diagram is drawn, not already confirmed and nothing waits, the section suggests answering any questions and reviewing changes, then explains that confirming sends a recording task and all stage drawings and tables must be recorded before the stage passes. It shows the state of the latest confirmation that API-265 gives:
   - never confirmed: "확정 전", "아직 확정한 적이 없어서 바뀐 곳 표시가 없어요.", "남은 AI 제안은 확정에 들어가지 않아요." and 이 그림 확정하고 기록 요청;
   - ended because the document changed (invalidated): "바뀐 곳 N" and "확정한 뒤 바뀐 곳이 N개 있어요. 다시 확정하면 에이전트가 기록해요.", then up to four changed elements, 더함 first, then 바뀜, then 뺌 by key. "+N개 더 · 바뀐 곳 모두 보기" leads to SCR-146 when there are more than four. The note and 이 그림 확정하고 기록 요청 follow. With no element changed, "확정 전" shows alone with the note and the button;
   - cancelled: "확정 전", "확정을 취소했어요. 다시 확정할 때까지 할 일에 남아요.", the elements changed since, the note and 이 그림 확정하고 기록 요청;

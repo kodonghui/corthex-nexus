@@ -272,7 +272,7 @@ function diagramParts(state) {
     return [heading(waitingTag()), h('p', {}, CHANGE_WORDS.waitingWhy), list(), state.phone ? null : offButton()];
   }
   if (state.phone) {
-    if (!isDrawn(diagram)) return [heading(h('span', { class: 'tag red' }, CONFIRM_WORDS.notDrawn)),
+    if (!isDrawn(diagram)) return [heading(...(live === null ? [] : [confirmedTag()]), h('span', { class: 'tag red' }, CONFIRM_WORDS.notDrawn)),
       h('p', {}, CONFIRM_WORDS.phoneNotDrawn), live === null ? h('p', { class: 'small' }, CONFIRM_WORDS.phone) : confirmedLines(state, live)];
     if (live !== null) return [heading(confirmedTag()), confirmedLines(state, live)];
     return [sinceParts(state, heading), h('p', {}, CONFIRM_WORDS.beforeConfirm), h('p', { class: 'small' }, CONFIRM_WORDS.phone)];
