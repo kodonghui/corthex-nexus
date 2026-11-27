@@ -28,6 +28,13 @@ class SourcePathWalk(HubRunFixture):
             (self.project / path).write_text(original, encoding='utf8')
         self.commit = self.commit_and_publish('Synthetic multi-file source fixture')
         self.read(self.session, 'push', PROJECT, '--first')
+        # The first push creates the project; the next reads held formats and remembers the server version.
+        self.read(self.session, 'push', PROJECT)
+        server_url = self.server.url.rstrip('/')
+        server_key = hashlib.sha256(server_url.encode('utf8')).hexdigest()[:32]
+        server_record = Path(self.session['HOME']) / '.corthex' / 'hub' / 'servers' / (server_key + '.json')
+        observed = json.loads(server_record.read_text(encoding='utf8'))
+        self.assertEqual((observed['url'], observed['v3']), (server_url, True))
         status, direct = self.server.owner('POST', '/api/credentials', {'name': 'source-direct'})
         self.assertEqual(status, 201)
         direct_secret = direct['secret']
@@ -77,8 +84,20 @@ class SourcePathWalk(HubRunFixture):
                                  (400, 'invalid_request', 'source_path', 'source_path is needed: the drawing reads several files'))
             self.assertEqual(proposal_count(), before_refusals)
 
+        # Also exercise the usual case: the edited source is inside the checkout and needs no explicit path.
+        stage, item, path, original, proposed, _, expected_name = cases[1]
+        source = self.project / path
+        source.write_text(proposed, encoding='utf8')
+        try:
+            result = self.read(self.session, 'propose', PROJECT, '--part', 'nexus', '--stage', stage, '--item', item,
+                               '--reason', 'Synthetic reason', '--change', 'Synthetic change', '--source-file', str(source))
+            self.assertEqual([(change['op'], change['element'], change['name']) for change in result['changes']],
+                             [('rename', item, expected_name)])
+        finally:
+            source.write_text(original, encoding='utf8')
+
         # The three 400s without paths use direct HTTP: this hub always sends a path with --source-file.
-        self.assert_calls_and_log('push', *(['propose'] * 6))
+        self.assert_calls_and_log('push', 'push', *(['propose'] * 7))
         log = '\n'.join(self.log_lines)
         direct_actions = [json.loads(line)['action'] for line in self.log_lines
                           if json.loads(line).get('sender') == 'source-direct']
