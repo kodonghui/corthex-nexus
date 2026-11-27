@@ -670,7 +670,8 @@ function dropped(state, node, event) {
   if (drag === undefined) return;
   dragged(drag, event);
   if (drag.moved) {
-    const returned = Math.hypot(event.clientX - drag.start.x, event.clientY - drag.start.y) < drag.threshold;
+    const distance = Math.hypot(event.clientX - drag.start.x, event.clientY - drag.start.y);
+    const returned = drag.zoom < 0.25 ? distance < drag.threshold : distance === 0;
     moveTo(state, drag.key, returned ? drag.at : drag.to);
   }
 }

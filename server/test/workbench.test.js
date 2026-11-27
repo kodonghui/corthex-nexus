@@ -820,6 +820,19 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('a deliberate two-pixel final move is saved at normal zoom', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const at = boxOf('sitemap', 'SCR-143');
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      button.dispatch('pointerup', { clientX: 102, clientY: 100 });
+      await waitSend(page);
+      assert.deepEqual(page.sent.map((each) => each.body), [{ element: 'SCR-143', x: at.x + 2, y: at.y }]);
+    } finally { page.close(); }
+  });
+
   test('at low zoom, releasing close to the starting point is not a large accidental move', async () => {
     const page = await openStage('sitemap');
     try {
