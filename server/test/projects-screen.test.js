@@ -267,19 +267,23 @@ describe('the projects and the credentials (SCR-143)', () => {
   test('stale: a table whose read again fails keeps its rows with the failure, and the read time shows', async () => {
     let fail = false;
     const nativeNow = Date.now;
-    const firstRead = Date.parse('2026-11-27T16:01:59.000Z');
-    const afterFirstRead = () => firstRead + MINUTE;
+    const firstRead = Date.parse('2026-11-27T16:01:10.000Z');
+    const afterFirstRead = firstRead + MINUTE;
+    const clockAt = (at) => {
+      const start = nativeNow();
+      Date.now = () => at + nativeNow() - start;
+    };
     let page;
     try {
-      Date.now = () => firstRead;
+      clockAt(firstRead);
       page = await open({ reads: { '/api/credentials': (path) => (fail ? problem(500, 'internal')() : FINE[path]()) } });
-      Date.now = afterFirstRead;
+      clockAt(afterFirstRead);
       const tag = () => page.app.all('span', 'tag').find((each) => each.parent.className === 'row');
       assert.equal(tag().shown, false);
       const readAt = firstRead;
-      Date.now = () => readAt + STALE_AFTER_MS + 1000;
+      clockAt(readAt + STALE_AFTER_MS + 1000);
       for (const tick of page.ticks) tick();
-      Date.now = afterFirstRead;
+      clockAt(afterFirstRead);
       assert.equal(tag().textContent, `${clockOf(readAt)}에 읽음`);
       fail = true;
       page.document.dispatch('visibilitychange');
@@ -294,10 +298,10 @@ describe('the projects and the credentials (SCR-143)', () => {
       await page.settle();
       assert.equal(errorShown(page), false);
       assert.equal(tag().shown, false);
-      Date.now = () => afterFirstRead() + STALE_AFTER_MS + 1000;
+      clockAt(afterFirstRead + STALE_AFTER_MS + 1000);
       for (const tick of page.ticks) tick();
       assert.equal(tag().shown, true);
-      assert.equal(tag().textContent, `${clockOf(afterFirstRead())}에 읽음`);
+      assert.equal(tag().textContent, `${clockOf(afterFirstRead)}에 읽음`);
     } finally {
       Date.now = nativeNow;
       page?.close();
