@@ -1,5 +1,7 @@
 """QA walk on the pinned hub and a disposable loopback v3 server (TC-215 to TC-220)."""
 
+from contextlib import closing
+
 import http.client
 import http.server
 import json
@@ -14,13 +16,8 @@ import test_hub_run as hub_run
 PROJECT, PULL = hub_run.PROJECT, hub_run.PULL
 
 
-def load_tests(loader, standard_tests, pattern):
-    """Run this walk once; its base fixture has its own tests in test_hub_run."""
-    names = [name for name in loader.getTestCaseNames(HubQaWalk) if name in HubQaWalk.__dict__]
-    return unittest.TestSuite(HubQaWalk(name) for name in names)
 
-
-class HubQaWalk(hub_run.HubRunTest):
+class HubQaWalk(hub_run.HubRunFixture):
     def test_two_sessions_trade_a_thread(self):
         thread = self.first_push_and_comment()
         self.owner_reply(thread)
@@ -76,9 +73,9 @@ class HubQaWalk(hub_run.HubRunTest):
         self.commit = self.commit_and_publish("Synthetic QA revision")
         self.assertEqual(self.read(self.session, "push", PROJECT)["revision"], 2)
         def snapshot_count():
-            with sqlite3.connect(str(self.server.data / "nexus-v3.sqlite")) as database:
-                return database.execute("SELECT count(*) FROM snapshots WHERE commit_sha = ?", (self.commit,)).fetchone()[0]
-        self.assertEqual(snapshot_count(), 1)
+            with closing(sqlite3.connect(str(self.server.data / "nexus-v3.sqlite"))) as database:
+                return database.execute("SELECT count(*) FROM snapshots").fetchone()[0]
+        self.assertEqual(snapshot_count(), 2)
         status, _ = self.server.owner("POST", path, {"name": PROJECT})
         self.assertEqual(status, 200)
         self.assertEqual(snapshot_count(), 0)
