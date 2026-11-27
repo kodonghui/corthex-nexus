@@ -283,6 +283,13 @@ const ENTRIES = {
     message: 'This part is not in the project.',
     message_ko: '프로젝트에 없는 부분이에요.',
   },
+  position_changed: {
+    status: 409,
+    title: 'The position changed',
+    detail: 'the element position no longer matches the expected position',
+    message: 'The position changed elsewhere. Reload the diagram.',
+    message_ko: '다른 곳에서 위치가 바뀌었어요. 그림을 다시 읽어 주세요.',
+  },
   project_not_found: {
     status: 404,
     title: 'No such project',

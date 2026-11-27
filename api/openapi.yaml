@@ -5734,11 +5734,11 @@ paths:
     post:
       operationId: moveElement
       summary: Move an element
-      description: Saves the position in NEXUS and never in Git (SPEC-012); the last move wins. A removed diagram takes no move and answers diagram_not_found (SPEC-027).
+      description: Saves the position in NEXUS and never in Git (SPEC-012); the last ordinary move wins. If expected is supplied, the current position must match it atomically or position_changed is returned (SPEC-055). A removed diagram takes no move and answers diagram_not_found (SPEC-027).
       tags: [owner]
       x-corthex:
         id: API-274
-        spec: [SPEC-012, SPEC-027]
+        spec: [SPEC-012, SPEC-027, SPEC-055]
         tables: [TBL-147, TBL-151, TBL-152, TBL-153, TBL-154]
         release: Must
         family: owner
@@ -5863,6 +5863,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
               examples:
+                position-changed:
+                  value:
+                    title: The position changed
+                    status: 409
+                    detail: the element position no longer matches the expected position
+                    code: position_changed
+                    traceId: "8c2e605074407bb0"
                 request-key-reused:
                   value:
                     title: The request key was used for another action
@@ -9234,6 +9241,12 @@ components:
         message: This part is not in the project.
         message_ko: "프로젝트에 없는 부분이에요."
         client: Name a part of the project.
+      position_changed:
+        status: 409
+        meaning: The element no longer has the position expected by a conditional move.
+        message: The position changed elsewhere. Reload the diagram.
+        message_ko: "다른 곳에서 위치가 바뀌었어요. 그림을 다시 읽어 주세요."
+        client: Reload the diagram without overwriting the newer position.
       project_not_found:
         status: 404
         meaning: No project space has that name, or it was deleted.
@@ -9728,7 +9741,7 @@ components:
           format: uri-reference
         code:
           type: string
-          enum: [access_missing, agent_only, body_too_large, change_set_not_found, change_set_state, checkpoint_not_found, claimed, comment_not_found, commit_not_replaced, confirmation_cancelled, confirmation_not_found, credential_not_found, cross_site, diagram_ambiguous, diagram_not_found, discrepancy_not_found, document_changed, drawing_not_found, edit_not_found, element_not_found, entry_closed, entry_not_found, internal, invalid_request, invalid_snapshot, item_not_found, json_required, method_not_allowed, name_taken, not_drawn, not_found, not_owner, note_link_not_found, note_made_by_owner, note_not_found, older_snapshot, owner_only, part_not_found, project_not_found, proposal_not_found, pull_request_mismatch, pull_request_needed, repository_mismatch, request_key_reused, snapshot_too_large, space_not_found, step_confirmed, step_empty, step_not_found, steps_open, text_too_long, thread_closed, thread_not_found, tool_link_not_found, unauthenticated, unsupported_format, waiting_reflection, workshop_closed, workshop_not_found, workshop_open]
+          enum: [access_missing, agent_only, body_too_large, change_set_not_found, change_set_state, checkpoint_not_found, claimed, comment_not_found, commit_not_replaced, confirmation_cancelled, confirmation_not_found, credential_not_found, cross_site, diagram_ambiguous, diagram_not_found, discrepancy_not_found, document_changed, drawing_not_found, edit_not_found, element_not_found, entry_closed, entry_not_found, internal, invalid_request, invalid_snapshot, item_not_found, json_required, method_not_allowed, name_taken, not_drawn, not_found, not_owner, note_link_not_found, note_made_by_owner, note_not_found, older_snapshot, owner_only, part_not_found, position_changed, project_not_found, proposal_not_found, pull_request_mismatch, pull_request_needed, repository_mismatch, request_key_reused, snapshot_too_large, space_not_found, step_confirmed, step_empty, step_not_found, steps_open, text_too_long, thread_closed, thread_not_found, tool_link_not_found, unauthenticated, unsupported_format, waiting_reflection, workshop_closed, workshop_not_found, workshop_open]
           description: The error code, listed under components.x-corthex.errors.
         traceId:
           type: string
@@ -11493,6 +11506,20 @@ components:
           type: number
           minimum: -1000000
           maximum: 1000000
+        expected:
+          type: object
+          description: Current position required for a conditional move.
+          required: [x, "y"]
+          additionalProperties: false
+          properties:
+            x:
+              type: number
+              minimum: -1000000
+              maximum: 1000000
+            "y":
+              type: number
+              minimum: -1000000
+              maximum: 1000000
     MoveAnswer:
       type: object
       required: [diagram, element, x, "y", moved_at]

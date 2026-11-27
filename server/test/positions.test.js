@@ -108,6 +108,28 @@ describe('moving an element', () => {
     assert.deepEqual(others(), was);
   });
 
+  test('a conditional move refuses a position changed by another tab without overwriting it', async () => {
+    const { erd } = erdProject('conditional-move');
+    const element = 'TBL-147';
+    const first = await move('conditional-move', erd.id, { element, x: 500, y: 80, expected: { x: 300, y: 60 } });
+    assert.equal(first.status, 200);
+    assert.equal((await move('conditional-move', erd.id, { element, x: 700, y: 90 })).status, 200);
+    const stale = await move('conditional-move', erd.id, { element, x: 300, y: 60, expected: { x: 500, y: 80 } });
+    assert.deepEqual([stale.status, stale.json.code], [409, 'position_changed']);
+    assert.deepEqual(positionsOf(erd.id).map(({ x, y }) => ({ x, y })), [{ x: 700, y: 90 }]);
+    const current = await move('conditional-move', erd.id, { element, x: 300, y: 60, expected: { x: 700, y: 90 } });
+    assert.equal(current.status, 200);
+    for (const expected of [null, { x: 300 }, { x: 300, y: 60, extra: 1 }, { x: '300', y: 60 }]) {
+      const invalid = await move('conditional-move', erd.id, { element, x: 400, y: 60, expected });
+      assert.deepEqual([invalid.status, invalid.json.code], [400, 'invalid_request']);
+    }
+    const concurrent = await Promise.all([
+      move('conditional-move', erd.id, { element, x: 400, y: 60, expected: { x: 300, y: 60 } }),
+      move('conditional-move', erd.id, { element, x: 500, y: 60, expected: { x: 300, y: 60 } }),
+    ]);
+    assert.deepEqual(concurrent.map((answer) => answer.status).sort(), [200, 409]);
+  });
+
   test('moves an element of the last good drawing while the latest failed, and one drawn as unreadable or missing (SPEC-001, SPEC-004, note 1)', async () => {
     const space = s.project('bravo');
     const erd = s.diagram(space);

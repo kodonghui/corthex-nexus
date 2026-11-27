@@ -172,6 +172,69 @@ const waitSend = async (page) => {
 };
 
 describe('SCR-145 pictures', () => {
+  test('undo and redo restore a saved move without intercepting text undo', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      const at = boxOf('erd', table.key);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      let controls = pictureBox(page).all('div', 'move-history')[0].all('button');
+      assert.equal(controls[0].disabled, false);
+      const input = page.document.createElement('input');
+      page.app.append(input);
+      input.dispatch('keydown', { key: 'z', ctrlKey: true });
+      assert.equal(page.sent.length, 1);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
+      await page.settle();
+      assert.deepEqual(page.sent[1].body, { element: table.key, x: at.x, y: at.y, expected: { x: at.x + STEP, y: at.y } });
+      controls = pictureBox(page).all('div', 'move-history')[0].all('button');
+      assert.equal(controls[1].disabled, false);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true, shiftKey: true });
+      await page.settle();
+      assert.deepEqual(page.sent[2].body, { element: table.key, x: at.x + STEP, y: at.y, expected: { x: at.x, y: at.y } });
+    } finally { page.close(); }
+  });
+
+  test('a conflicting undo reloads instead of overwriting another tab', async () => {
+    const page = await openStage('erd', { moved: (body) => body.expected
+      ? problem(409, 'position_changed')() : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.ok(page.sent[1].body.expected);
+      assert.match(page.app.textContent, /다른 곳에서 위치가 바뀌었어요/);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+    } finally { page.close(); }
+  });
+
+  test('only the latest 50 moves are undoable, and a new move clears redo', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      for (let index = 0; index < 51; index += 1) {
+        buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+        await waitSend(page);
+      }
+      for (let index = 0; index < 50; index += 1) {
+        pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+        await page.settle();
+      }
+      let controls = pictureBox(page).all('div', 'move-history')[0].all('button');
+      assert.equal(controls[0].disabled, true);
+      assert.equal(controls[1].disabled, false);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      controls = pictureBox(page).all('div', 'move-history')[0].all('button');
+      assert.equal(controls[1].disabled, true);
+      assert.equal(page.sent.filter((entry) => entry.body.expected).length, 50);
+    } finally { page.close(); }
+  });
+
   test('each kind of diagram draws by the names of its elements, never by a trace ID or a diagram ID (SPEC-010)', async () => {
     const cases = {
       board: (box) => {
@@ -1137,6 +1200,10 @@ describe('SCR-145 against the server', () => {
         },
         shows: inNotice('request_key_reused'),
       },
+      {
+        status: 409, code: 'position_changed', historyOnly: true,
+        request: () => post({ body: body({ expected: { x: -999999, y: -999999 } }) }),
+      },
       { status: 413, code: 'body_too_large', request: () => post({ body: JSON.stringify({ element: element.key, x: 1, y: 2, pad: 'x'.repeat(2 * 1024 * 1024) }) }), shows: inNotice('body_too_large') },
       { status: 415, code: 'json_required', request: () => post({ headers: { 'Content-Type': 'text/plain', ...owner(), ...key() } }), shows: inNotice('json_required') },
       { status: 500, code: 'internal', fails: true, request: () => post(), shows: inNotice('internal') },
@@ -1152,6 +1219,8 @@ describe('SCR-145 against the server', () => {
         failing = false;
       }
       assert.deepEqual([answer.status, answer.json.code], [each.status, each.code]);
+      // A conditional conflict is exercised in the undo test above; an ordinary move never sends expected.
+      if (each.historyOnly) continue;
       const page = await openOn(good, stagePath('05-erd'), { replay: { [`POST ${path}`]: replayOf(answer) } });
       try {
         // The table found by its name: a moved one is painted after the others.

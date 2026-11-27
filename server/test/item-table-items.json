@@ -2,7 +2,7 @@
  "about": "The pinned hub's items of this repository's stage 02, as its build_items makes them and its snapshot orders them, and the SHA-256 of the stage's source. tests/test_item_table_items.py checks them against the pinned hub and says how to make them again.",
  "stage": "02-prd",
  "source": "docs/02-prd/requirements.md",
- "sha256": "8ef07b86f68c9267b82a2717bed267c78a6109d56210cc5d0fd543ddc9d546f1",
+ "sha256": "9646193ec9cdb918f5910e8b90acff23f6018c21205235542b6b005ebdd4f9ec",
  "items": [
   {
    "id": "REQ-001",
@@ -1013,6 +1013,19 @@
    "status": "active",
    "type": "non-functional",
    "priority": "Should"
+  },
+  {
+   "id": "REQ-083",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:103",
+   "title": "When the owner moves a diagram element, the system shall let the owner undo and redo those moves in that tab.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
   }
  ]
 }

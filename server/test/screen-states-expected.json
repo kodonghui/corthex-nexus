@@ -490,7 +490,7 @@
        "API-285#404 (workshop-not-found)",
        "API-293#200"
       ],
-      "where": "docs/08-screens/SCR-145.md:47",
+      "where": "docs/08-screens/SCR-145.md:48",
       "box": {
        "x": 0,
        "y": 0,
@@ -507,7 +507,7 @@
      "detail": {
       "description": "The tab row and the panel's section titles stay; the diagram area and the panel's lists are grey shapes in their places, so nothing moves when the data arrives.",
       "responses": [],
-      "where": "docs/08-screens/SCR-145.md:48",
+      "where": "docs/08-screens/SCR-145.md:49",
       "box": {
        "x": 340,
        "y": 0,
@@ -526,7 +526,7 @@
       "responses": [
        "API-265#200"
       ],
-      "where": "docs/08-screens/SCR-145.md:49",
+      "where": "docs/08-screens/SCR-145.md:50",
       "box": {
        "x": 680,
        "y": 0,
@@ -595,7 +595,7 @@
        "API-273#default",
        "API-274#400",
        "API-274#404",
-       "API-274#409",
+       "API-274#409 (request-key-reused)",
        "API-274#413",
        "API-274#415",
        "API-274#default",
@@ -660,7 +660,7 @@
        "API-293#404",
        "API-293#default"
       ],
-      "where": "docs/08-screens/SCR-145.md:50",
+      "where": "docs/08-screens/SCR-145.md:51",
       "box": {
        "x": 0,
        "y": 1752,
@@ -728,7 +728,7 @@
        "API-293#401",
        "API-293#403"
       ],
-      "where": "docs/08-screens/SCR-145.md:51",
+      "where": "docs/08-screens/SCR-145.md:52",
       "box": {
        "x": 340,
        "y": 1752,
@@ -751,6 +751,7 @@
        "API-271#409 (change-set-state)",
        "API-272#409 (document-changed)",
        "API-273#409 (change-set-state)",
+       "API-274#409 (position-changed)",
        "API-275#409 (document-changed)",
        "API-286#409 (workshop-closed)",
        "API-287#409 (workshop-closed)",
@@ -760,7 +761,7 @@
        "API-291#409 (workshop-closed)",
        "API-292#409 (workshop-closed)"
       ],
-      "where": "docs/08-screens/SCR-145.md:52",
+      "where": "docs/08-screens/SCR-145.md:53",
       "box": {
        "x": 680,
        "y": 1752,
@@ -779,7 +780,7 @@
       "responses": [
        "API-275#409 (waiting-reflection)"
       ],
-      "where": "docs/08-screens/SCR-145.md:53",
+      "where": "docs/08-screens/SCR-145.md:54",
       "box": {
        "x": 0,
        "y": 3224,
@@ -799,7 +800,7 @@
        "API-275#201",
        "API-275#200"
       ],
-      "where": "docs/08-screens/SCR-145.md:54",
+      "where": "docs/08-screens/SCR-145.md:55",
       "box": {
        "x": 340,
        "y": 3224,
@@ -819,7 +820,7 @@
        "API-275#409 (not-drawn)",
        "API-293#409"
       ],
-      "where": "docs/08-screens/SCR-145.md:55",
+      "where": "docs/08-screens/SCR-145.md:56",
       "box": {
        "x": 680,
        "y": 3224,
@@ -849,7 +850,7 @@
        "API-291#409 (step-empty)",
        "API-292#201"
       ],
-      "where": "docs/08-screens/SCR-145.md:56",
+      "where": "docs/08-screens/SCR-145.md:57",
       "box": {
        "x": 0,
        "y": 3496,

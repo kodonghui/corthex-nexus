@@ -288,6 +288,8 @@ button.step{color:inherit;cursor:pointer}
 
 /* the workbench's pictures (TASK-458): SVG boxes with buttons in foreignObjects, lines as paths; every colour by class */
 .wb-picture,.wb-notice{display:flex;flex-direction:column;gap:12px}
+.move-history{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.move-history .btn:disabled{background:var(--button-disabled);color:var(--text-on-color-disabled);border-color:transparent;cursor:not-allowed}
 .wb-notice:empty{display:none}
 .wb-picture .boardbox{max-height:650px}
 .pic-wrap{position:relative;width:max-content}

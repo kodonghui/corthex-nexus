@@ -126,6 +126,7 @@
 | `pull_request_mismatch` | 409 | 다른 풀 리퀘스트에 들어간 작업이에요. |
 | `pull_request_needed` | 409 | 풀 리퀘스트를 먼저 보고하세요. |
 | `repository_mismatch` | 409 | 프로젝트의 저장소를 쓰세요. |
+| `position_changed` | 409 | 다른 곳에서 위치가 바뀌었어요. 그림을 다시 읽어 주세요. |
 | `request_key_reused` | 409 | 새 요청으로 다시 보내세요. |
 | `step_confirmed` | 409 | 이미 확정된 단계예요. |
 | `step_empty` | 409 | 확정하기 전에 스티커를 붙이세요. |

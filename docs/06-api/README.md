@@ -126,6 +126,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 | `pull_request_mismatch` | 409 | The entry is linked to another pull request (SPEC-024); pull_request names it. |
 | `pull_request_needed` | 409 | A report of reflected for an entry that names no pull request, in the body or before. |
 | `repository_mismatch` | 409 | The snapshot or the pull request is of another repository than the project's (SPEC-024). |
+| `position_changed` | 409 | The element no longer has the position expected by a conditional move. |
 | `request_key_reused` | 409 | An Idempotency-Key that an earlier request of another action took (rule 3). |
 | `step_confirmed` | 409 | An agent draft for a confirmed step (SPEC-037). |
 | `step_empty` | 409 | Confirming a step without notes (SPEC-039). |
