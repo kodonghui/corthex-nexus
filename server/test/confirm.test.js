@@ -181,8 +181,8 @@ describe('SCR-145 "이 그림"', () => {
       assert.equal(section.hidden, false);
       assert.deepEqual(shownTexts(section, 'h2'), [CHANGE_WORDS.diagram]);
       assert.deepEqual(tagsIn(section), ['확정 전']);
-      assert.deepEqual(shownTexts(section, 'p'), ['아직 확정한 적이 없어서 바뀐 곳 표시가 없어요.', '남은 AI 제안은 확정에 들어가지 않아요.']);
-      assert.deepEqual(buttonsIn(section), ['이 그림 확정']);
+      assert.deepEqual(shownTexts(section, 'p'), ['아직 확정한 적이 없어서 바뀐 곳 표시가 없어요.', '남은 AI 제안은 확정에 들어가지 않아요.', CONFIRM_WORDS.beforeConfirm]);
+      assert.deepEqual(buttonsIn(section), ['이 그림 확정하고 기록 요청']);
       assert.equal(byId(page, 'confirm').getAttribute('class'), 'btn primary wide');
       // The panel's order: 이 그림, AI 제안, the Selected section.
       assert.deepEqual(panelOf(page).children.filter((child) => child.shown).map((child) => child.getAttribute('aria-label')), [CHANGE_WORDS.diagram, CHANGE_WORDS.proposals, WORKBENCH_WORDS.selected]);
@@ -191,7 +191,8 @@ describe('SCR-145 "이 그림"', () => {
     }
     const phone = await openAt('erd', { phone: true });
     try {
-      assert.equal(diagramSection(phone).hidden, true);
+      assert.equal(diagramSection(phone).hidden, false);
+      assert.deepEqual(shownTexts(diagramSection(phone), 'p'), [CONFIRM_WORDS.beforeConfirm, '확정은 PC에서 할 수 있어요.']);
       assert.ok(byId(phone, 'confirm') === null);
     } finally {
       phone.close();
@@ -212,7 +213,7 @@ describe('SCR-145 "이 그림"', () => {
       assert.deepEqual([more.textContent, more.getAttribute('href')], [moreChanges(2), `/p/${P}/_/05-erd/changes?d=${ID.erd}`]);
       assert.equal(moreChanges(2), '+2개 더 · 바뀐 곳 모두 보기');
       assert.deepEqual(shownTexts(section, 'p', 'small'), [CONFIRM_WORDS.leftOut]);
-      assert.deepEqual(buttonsIn(section), ['이 그림 확정']);
+      assert.deepEqual(buttonsIn(section), ['이 그림 확정하고 기록 요청']);
     } finally {
       page.close();
     }
@@ -233,8 +234,8 @@ describe('SCR-145 "이 그림"', () => {
     try {
       const section = diagramSection(quiet);
       assert.deepEqual(tagsIn(section), ['확정 전']);
-      assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.leftOut]);
-      assert.deepEqual(buttonsIn(section), ['이 그림 확정']);
+      assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.leftOut, CONFIRM_WORDS.beforeConfirm]);
+      assert.deepEqual(buttonsIn(section), ['이 그림 확정하고 기록 요청']);
     } finally {
       quiet.close();
     }
@@ -244,7 +245,7 @@ describe('SCR-145 "이 그림"', () => {
       assert.deepEqual(tagsIn(section), ['확정 전', '바뀜']);
       assert.deepEqual(shownTexts(section, 'p', 'sec'), ['확정을 취소했어요. 다시 확정할 때까지 할 일에 남아요.']);
       assert.deepEqual(section.all('li').map((li) => li.all('span', 'grow')[0].textContent), [D.name]);
-      assert.deepEqual(buttonsIn(section), ['이 그림 확정']);
+      assert.deepEqual(buttonsIn(section), ['이 그림 확정하고 기록 요청']);
     } finally {
       cancelled.close();
     }
@@ -258,8 +259,8 @@ describe('SCR-145 "이 그림"', () => {
         try {
           const section = diagramSection(page);
           assert.deepEqual(tagsIn(section), ['확정함'], which);
-          assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.confirmedHere, '기록되면 여기에 그 PR이 나와요.'], which);
-          assert.deepEqual(shownTexts(section, 'p', 'small'), ['기록되면 여기에 그 PR이 나와요.'], which);
+          assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.confirmedHere, CONFIRM_WORDS.untilRecorded], which);
+          assert.deepEqual(shownTexts(section, 'p', 'small'), [CONFIRM_WORDS.untilRecorded], which);
           // The open pull request is not shown before the record (choice 3).
           assert.deepEqual([section.all('a').length, section.all('time').length], [0, 0], which);
           assert.deepEqual(buttonsIn(section), phone ? [] : ['확정 취소'], which);
@@ -326,7 +327,7 @@ describe('SCR-145 "이 그림"', () => {
       assert.deepEqual(tagsIn(section), ['그려지지 않음']);
       assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.fixFirst]);
       const button = section.all('button')[0];
-      assert.deepEqual([button.textContent, button.getAttribute('disabled')], ['이 그림 확정', '']);
+      assert.deepEqual([button.textContent, button.getAttribute('disabled')], ['이 그림 확정하고 기록 요청', '']);
       button.click();
       assert.equal(page.sent.length, 0);
     } finally {
@@ -372,7 +373,7 @@ describe('SCR-145 "이 그림"', () => {
     try {
       const section = diagramSection(page);
       assert.deepEqual(shownTexts(section, 'h3'), ['이 목업이 쓰는 토큰 2개']);
-      assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.neverConfirmed]);
+      assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.neverConfirmed, CONFIRM_WORDS.beforeConfirm]);
       const order = section.descendants().filter((element) => element.tagName === 'H3' || element.getAttribute('id') === 'confirm').map((element) => element.tagName);
       assert.deepEqual(order, ['H3', 'BUTTON']);
       // One 이 그림 section, then the mockup's own AI 제안 note.
@@ -382,7 +383,8 @@ describe('SCR-145 "이 그림"', () => {
     }
     const phone = await openAt('mockup', { phone: true });
     try {
-      assert.equal(diagramSection(phone).hidden, true);
+      assert.equal(diagramSection(phone).hidden, false);
+      assert.deepEqual(shownTexts(diagramSection(phone), 'p'), [CONFIRM_WORDS.beforeConfirm, '확정은 PC에서 할 수 있어요.']);
       assert.deepEqual(texts(phone, 'h3'), ['이 목업이 쓰는 토큰 2개']);
     } finally {
       phone.close();
@@ -395,7 +397,7 @@ describe('SCR-145 "이 그림"', () => {
     try {
       press(byId(page, 'confirm'));
       const group = diagramSection(page).all('div', 'btns').find((div) => div.getAttribute('role') === 'group');
-      assert.deepEqual([shownTexts(group, 'span'), buttonsIn(group)], [['확정할까요?'], ['확정', '취소']]);
+      assert.deepEqual([shownTexts(group, 'span'), buttonsIn(group)], [[CONFIRM_WORDS.askConfirm], [CONFIRM_WORDS.yes, '취소']]);
       assert.equal(group.getAttribute('aria-labelledby'), 'confirm-ask');
       focused(page, byId(page, 'confirm-stop'), '취소 has the focus');
       press(byId(page, 'confirm-stop'));
@@ -441,7 +443,7 @@ describe('SCR-145 "이 그림"', () => {
       const section = diagramSection(page);
       assert.deepEqual(tagsIn(section), ['확정 전']);
       assert.deepEqual(shownTexts(section, 'p', 'sec'), [CONFIRM_WORDS.cancelled]);
-      assert.deepEqual(buttonsIn(section), ['이 그림 확정']);
+      assert.deepEqual(buttonsIn(section), ['이 그림 확정하고 기록 요청']);
     } finally {
       page.close();
     }
@@ -502,12 +504,14 @@ describe('SCR-145 "이 그림"', () => {
     try {
       assert.deepEqual(texts({ app: panelOf(page) }, 'h2'), ['이 그림', 'AI 제안']);
       assert.deepEqual(texts({ app: panelOf(page) }, 'p'), ['확정할 그림이 아직 없어요.', '모두 처리함']);
+      assert.match(page.app.textContent, /AI 대화창에 .*필요한 기능 내용을 정리해 NEXUS에 보내줘/);
     } finally {
       page.close();
     }
     const phone = await empty(true);
     try {
       assert.equal(panelOf(phone).children.length, 0);
+      assert.match(phone.app.textContent, /AI 대화창에 .*필요한 기능 내용을 정리해 NEXUS에 보내줘/);
     } finally {
       phone.close();
     }
@@ -536,7 +540,7 @@ describe('SCR-146', () => {
       assert.deepEqual(group.all('div', 'li').map((row) => row.className), Array(6).fill('li keep still short'));
       assert.equal(group.all('div', 'li')[5].all('b')[0].all('span', 'mono').length, 1);
       const end = mainOf(page).children.at(-1).children.at(-1);
-      assert.deepEqual([...end.all('button'), ...end.all('a')].map((each) => [each.textContent, each.className]), [['이 그림 확정', 'btn primary'], ['그림으로', 'btn ghost']]);
+      assert.deepEqual([...end.all('button'), ...end.all('a')].map((each) => [each.textContent, each.className]), [['이 그림 확정하고 기록 요청', 'btn primary'], ['그림으로', 'btn ghost']]);
       assert.equal(end.all('a')[0].getAttribute('href'), `/p/${P}/_/05-erd?d=${ID.erd}`);
       assert.equal(page.document.title, '확정 뒤 바뀐 곳 · NEXUS');
     } finally {
@@ -557,7 +561,7 @@ describe('SCR-146', () => {
   test('a phone reads the lists only, with "편집 취소와 확정은 PC에서 하세요."', async () => {
     const page = await openAt('erd', { screen: 'changes', phone: true, diagram: { ...confirmedWith('erd', 'invalidated'), overlays: [RENAMED] } });
     try {
-      assert.deepEqual(texts(page, 'button').filter((text) => text === '이 그림 확정' || text === '편집 취소'), []);
+      assert.deepEqual(texts(page, 'button').filter((text) => text === '이 그림 확정하고 기록 요청' || text === '편집 취소'), []);
       assert.deepEqual(pageRows(groupNamed(page, '반영을 기다리는 변경')), [['반영 대기', 'project_rooms', `이름 바꾸기 · ${B.name}에서`]]);
       const note = mainOf(page).all('div', 'info')[0];
       assert.deepEqual([note.textContent, note.getAttribute('role')], ['편집 취소와 확정은 PC에서 하세요.', 'status']);
@@ -577,7 +581,7 @@ describe('SCR-146', () => {
         [MARK_WORDS.wait, ACCEPTED.change, CHANGE_WORDS.acceptedProposal],
       ]);
       assert.deepEqual(groups[0].all('div', 'li').map(buttonsIn), [['편집 취소'], []]);
-      const confirm = mainOf(page).all('button').find((button) => button.textContent === '이 그림 확정');
+      const confirm = mainOf(page).all('button').find((button) => button.textContent === '이 그림 확정하고 기록 요청');
       assert.equal(confirm.getAttribute('disabled'), '');
       assert.ok(texts(page, 'span', 'small').includes('반영을 기다리는 변경을 먼저 반영하거나 취소하세요.'));
     } finally {
@@ -613,7 +617,7 @@ describe('SCR-146', () => {
       press(byId(page, 'confirm-yes'));
       await page.settle();
       const note = mainOf(page).all('div', 'ok')[0];
-      assert.deepEqual([note.textContent, note.getAttribute('role')], ['이 버전으로 확정했어요. 에이전트가 기록하면 단계가 통과돼요.', 'status']);
+      assert.deepEqual([note.textContent, note.getAttribute('role')], [CONFIRM_WORDS.confirmedHere, 'status']);
       focused(page, note, 'the message has the focus');
       assert.deepEqual(shownTexts(mainOf(page).all('div', 'empty')[0], 'p'), ['확정한 뒤 바뀐 곳이 없어요.']);
       assert.equal(mainOf(page).all('a', 'small').length, 0);
@@ -695,7 +699,7 @@ describe('SCR-146', () => {
       assert.deepEqual([shownTexts(note, 'b'), note.all('a').map((link) => [link.textContent, link.getAttribute('href')])], [
         [CONFIRM_WORDS.fixFirst], [['그림에서 보기', `/p/${P}/_/05-erd?d=${ID.erd}`]],
       ]);
-      const confirm = mainOf(page).all('button').find((button) => button.textContent === '이 그림 확정');
+      const confirm = mainOf(page).all('button').find((button) => button.textContent === '이 그림 확정하고 기록 요청');
       assert.equal(confirm.getAttribute('disabled'), '');
       assert.ok(groupNamed(page, '바뀐 요소') !== undefined);
     } finally {
@@ -707,7 +711,7 @@ describe('SCR-146', () => {
     const page = await openAt('oldErd', { screen: 'changes', diagram: diagramOf('oldErd', { since_confirmation: SIX, confirmation: confirmationOf('oldErd', 'invalidated'), overlays: [{ ...RENAMED, diagram: ID.oldErd, drawing: DRAWING.oldErd }] }) });
     try {
       assert.ok(groupNamed(page, '바뀐 요소') !== undefined);
-      assert.deepEqual(texts(page, 'button').filter((text) => text === '이 그림 확정' || text === '편집 취소'), ['편집 취소']);
+      assert.deepEqual(texts(page, 'button').filter((text) => text === '이 그림 확정하고 기록 요청' || text === '편집 취소'), ['편집 취소']);
     } finally {
       page.close();
     }
@@ -727,7 +731,7 @@ describe('SCR-146', () => {
         const main = page.app.all('main')[0];
         assert.deepEqual(texts(page, 'h1'), ['확정 뒤 바뀐 곳']);
         assert.equal(main.all('div', 'cards')[0].all('span', 'row').length, 3);
-        assert.deepEqual(main.all('button').map((button) => [button.textContent, button.getAttribute('disabled')]), phone ? [] : [['이 그림 확정', '']]);
+        assert.deepEqual(main.all('button').map((button) => [button.textContent, button.getAttribute('disabled')]), phone ? [] : [['이 그림 확정하고 기록 요청', '']]);
       } finally {
         restore();
         globalThis.fetch = realFetch;
@@ -931,7 +935,7 @@ describe('SCR-145 and SCR-146 against the server', () => {
     const edit = await directEdit(where, newName('project_rooms'));
     const page = await openOn(where, { screen: 'changes' });
     try {
-      assert.equal(mainOf(page).all('button').find((button) => button.textContent === '이 그림 확정').getAttribute('disabled'), '');
+      assert.equal(mainOf(page).all('button').find((button) => button.textContent === '이 그림 확정하고 기록 요청').getAttribute('disabled'), '');
       byId(page, `w-${edit}-cancel`).click();
       await page.settle();
       await confirmOnPage(page);

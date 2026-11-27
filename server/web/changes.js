@@ -47,7 +47,7 @@ export const CHANGE_WORDS = Object.freeze({
   accepted: '수락했어요. 에이전트가 문서에 넣으면 실선이 돼요.',
   askNew: '새 제안을 부탁하세요.',
   waitingWhy: '반영을 기다리는 변경을 먼저 반영하거나 취소하세요. 에이전트가 문서에 넣으면 이 표시가 사라져요.',
-  confirm: '이 그림 확정',
+  confirm: '이 그림 확정하고 기록 요청',
   cancelEdit: '편집 취소',
   acceptedProposal: 'AI 제안 수락',
   nameLabel: '이름 · 두 번 누르거나 F2',
@@ -271,7 +271,9 @@ function diagramParts(state) {
     if (live !== null) return [heading(confirmedTag(), waitingTag()), confirmedLines(state, live), list(), cancelButton(state, live)];
     return [heading(waitingTag()), h('p', {}, CHANGE_WORDS.waitingWhy), list(), state.phone ? null : offButton()];
   }
-  if (state.phone) return live === null ? null : [heading(confirmedTag()), confirmedLines(state, live)];
+  if (state.phone) return live === null
+    ? [heading(), h('p', {}, isDrawn(diagram) ? CONFIRM_WORDS.beforeConfirm : CONFIRM_WORDS.fixFirst), h('p', { class: 'small' }, '확정은 PC에서 할 수 있어요.')]
+    : [heading(confirmedTag()), confirmedLines(state, live)];
   if (!isDrawn(diagram)) {
     // SCR-145#not-drawn: nothing to confirm until the document draws; a live confirmation keeps its line and 확정 취소.
     return [
@@ -285,6 +287,7 @@ function diagramParts(state) {
     sinceParts(state, heading),
     tokens,
     diagram.kind === 'mockup' ? null : h('p', { class: 'small' }, CONFIRM_WORDS.leftOut),
+    h('p', {}, CONFIRM_WORDS.beforeConfirm),
     confirmControl(state),
   ];
 }

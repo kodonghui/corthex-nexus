@@ -6,17 +6,17 @@
 
 목표: 사용자가 NEXUS를 열고 할 일에서 단계를 골라 그림이나 항목 표를 읽습니다.
 
-근거 요구사항: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-041, REQ-052, REQ-062, REQ-063, REQ-066, REQ-070
+근거 요구사항: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-041, REQ-052, REQ-062, REQ-063, REQ-066, REQ-070, REQ-082
 
 ```mermaid
 flowchart TD
   A(["사용자가<br/>NEXUS를 엶"])
   B{"로그인<br/>게이트를<br/>통과했나?<br/>REQ-062, REQ-063"}
-  C["사용자 할 일<br/>보여 주기<br/>REQ-052"]
+  C["할 일과 다음<br/>행동 보여 주기<br/>REQ-052, REQ-082"]
   D["사용자가<br/>프로젝트와<br/>단계를 고름"]
   E{"그 단계에<br/>그림이 있나?<br/>REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010"}
   F["그림을<br/>이름으로<br/>열기, ID는<br/>숨김<br/>REQ-004, REQ-005, REQ-011, REQ-070"]
-  G["항목 표 열기<br/>REQ-006, REQ-011"]
+  G["표를 열거나 빈<br/>단계에서 보낼<br/>자료 안내<br/>REQ-006, REQ-011, REQ-082"]
   H["지난 확정 뒤<br/>바뀐 곳 표시<br/>REQ-041"]
   I{"사용자가<br/>무엇을 하나?"}
   J["새 위치를<br/>NEXUS에만<br/>저장<br/>REQ-013, REQ-015"]

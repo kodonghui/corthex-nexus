@@ -15,6 +15,7 @@
 // of element key to the name it is shown by), nodes (a Map that each chosen thing's node goes into, by key) }.
 
 import { h, s } from './dom.js';
+import { emptyStageGuidance } from './guidance.js';
 import { aiBadge, ghostCap, KIND_WORDS, markChips, nameWith, overClasses } from './overlays.js';
 import { endsOf, straight } from './relayout.js';
 
@@ -471,7 +472,7 @@ function statePanels(view) {
 // as drawn. Each row's name is the button that chooses it; a row has no box, so it never moves.
 function itemTable(view) {
   const rows = (view.diagram.elements ?? []).filter((element) => element.kind === 'row');
-  if (rows.length === 0) return h('div', { class: 'empty' }, h('h2', {}, WORDS.noItems));
+  if (rows.length === 0) return h('div', { class: 'empty' }, h('h2', {}, WORDS.noItems), h('p', {}, emptyStageGuidance(view.diagram.stage)));
   return h('table', { class: 'tb items', 'aria-label': view.diagram.name },
     h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, '이름'), h('th', { scope: 'col' }, '상태'), h('th', { scope: 'col' }, '링크'))),
     h('tbody', {}, rows.map((element) => {
