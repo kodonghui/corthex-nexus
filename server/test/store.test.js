@@ -111,9 +111,9 @@ describe('the store of a new install', () => {
 
     const built = shapeOf(db);
     assert.deepEqual(built, shapeOf(schema));
-    // The schema's 26 tables, TBL-146 to TBL-171, were compared, each with its trace ID in db/nexus.sql.
+    // The schema's 27 tables, TBL-146 to TBL-172, were compared, each with its trace ID in db/nexus.sql.
     const traced = [...readFileSync(SCHEMA, 'utf8').matchAll(/^-- TBL-(\d{3}) (\w+) /gm)];
-    assert.deepEqual(traced.map((match) => Number(match[1])), Array.from({ length: 26 }, (_, index) => 146 + index));
+    assert.deepEqual(traced.map((match) => Number(match[1])), Array.from({ length: 27 }, (_, index) => 146 + index));
     assert.deepEqual(Object.keys(built.columns).sort(), traced.map((match) => match[2]).sort());
 
     assert.equal(db.prepare('PRAGMA integrity_check').get().integrity_check, 'ok');

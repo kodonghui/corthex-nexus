@@ -1832,7 +1832,7 @@
    "detail": {
     "number": 14,
     "state": "answered",
-    "answer": "The thread stays open until the owner closes it (stage 02, REQ-024, REQ-034)",
+    "answer": "Rejection alone leaves it open; a verified recorded decision without outstanding work resolves it and can be reopened (item 242, REQ-024, REQ-034)",
     "contexts": [
      "CTX-038"
     ],
@@ -2116,9 +2116,9 @@
    }
   },
   {
-   "key": "CTX-039/command:Invalidate confirmation/policy:when Diagram drawn changes the document of a confirmed diagram",
+   "key": "CTX-039/command:Invalidate confirmation/policy:when Diagram drawn changes a confirmed diagram without proof of a decision record",
    "kind": "policy",
-   "name": "when Diagram drawn changes the document of a confirmed diagram",
+   "name": "when Diagram drawn changes a confirmed diagram without proof of a decision record",
    "parent": "CTX-039",
    "detail": {
     "where": "docs/01-domain/nexus.md:174",
@@ -2139,7 +2139,7 @@
    "detail": {
     "number": 2,
     "state": "answered",
-    "answer": "Lift it and confirm again (the maintainer's answer of 2026-11-23)",
+    "answer": "Keep it only for verified records of already approved decisions; otherwise confirm again (item 242, 2026-11-27).",
     "contexts": [
      "CTX-039"
     ],
@@ -3201,13 +3201,13 @@
   {
    "key": "CTX-037/dependency:CTX-039 event",
    "kind": "dependency",
-   "name": "Invalidate a confirmed diagram whose document changed",
+   "name": "Invalidate an unproved change to a confirmed diagram",
    "parent": "CTX-037",
    "detail": {
     "from": "CTX-037",
     "to": "CTX-039",
     "kind": "event",
-    "why": "Invalidate a confirmed diagram whose document changed",
+    "why": "Invalidate an unproved change to a confirmed diagram",
     "data": "Diagram drawn: diagram, document version",
     "where": "docs/01-domain/nexus.md:249",
     "points": [

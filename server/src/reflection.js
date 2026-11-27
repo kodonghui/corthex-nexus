@@ -8,8 +8,8 @@
 //   marks them (API-258).
 // - Where. Each is reflected at the drawing its diagram shows: its latest that drew, since a failed drawing shows the
 //   last good one (SPEC-001). It is reflected even when that drawing lacks the change (SPEC-025).
-// - Threads (REQ-031). The thread of a proposal closes, by reflection, once none of its change sets is proposed or
-//   accepted.
+// - Threads (REQ-031). A proposal thread resolves after all proposals are handled only when the reflected changes
+//   are verified and no later conversation entry leaves an unresolved question.
 // - What is missing (note 26). For each diagram and pull request, every step of the reflected change sets that the
 //   drawing does not show is listed in one comment, on a new thread on the diagram as a whole at that drawing, which
 //   waits on the owner and so is a question of the owner's to-do. The comment is the agent's that reported the pull
@@ -31,6 +31,7 @@
 // (rule 5).
 
 import { addAgentEntry, openOwnThread } from './comments.js';
+import { INCOMPLETE_DRAWING, recordResolved } from './decision-evidence.js';
 import { TRACE_ID } from './drawer.js';
 import { changeSetsChanged, threadChanged } from './entries.js';
 import { LIMITS } from './limits.js';
@@ -57,8 +58,15 @@ function statementsOf(store) {
       ),
       currentDrawn: store.prepare("SELECT id FROM drawings WHERE diagram_id = ? AND status = 'drawn' ORDER BY id DESC LIMIT 1"),
       latestDrawing: store.prepare('SELECT max(id) AS id FROM drawings WHERE diagram_id = ?'),
+      latestStatus: store.prepare('SELECT status FROM drawings WHERE diagram_id = ? ORDER BY id DESC LIMIT 1'),
+      incomplete: store.prepare(INCOMPLETE_DRAWING),
       reflect: store.prepare("UPDATE change_sets SET state = 'reflected', reflected_drawing_id = ? WHERE id = ? AND state = 'accepted'"),
       asking: store.prepare("SELECT 1 AS asking FROM change_sets WHERE thread_id = ? AND state IN ('proposed', 'accepted') LIMIT 1"),
+      threadEntries: store.prepare('SELECT seq, author, body, created_at FROM comments WHERE thread_id = ? ORDER BY seq'),
+      threadSets: store.prepare("SELECT id, diagram_id, state, detail, created_at, decided_at FROM change_sets WHERE thread_id = ? AND origin = 'proposal' AND state IN ('reflected', 'rejected', 'cancelled')"),
+      lastReopen: store.prepare("SELECT max(created_at) AS at FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'"),
+      reflectedThreads: store.prepare(`SELECT DISTINCT c.thread_id FROM change_sets c JOIN comment_threads t ON t.id = c.thread_id
+        WHERE c.project_id = ? AND c.diagram_id = ? AND c.origin = 'proposal' AND c.state = 'reflected' AND t.state = 'open'`),
       closeThread: store.prepare(
         "UPDATE comment_threads SET state = 'closed', waits_on = NULL, closed_at = ?, closed_by = 'reflection' WHERE id = ? AND state = 'open'",
       ),
@@ -233,9 +241,72 @@ export function reflectMerged(store, { project, commit, time }) {
     }
     changeSetsChanged(store, { project, diagram, time });
   }
-  for (const thread of asked) {
-    if (statements.asking.get(thread) !== undefined) continue;
-    if (statements.closeThread.run(time, thread).changes > 0) threadChanged(store, { project, thread, time });
-  }
+  resolveReflected(store, { project, threads: asked, time });
   return sets.length;
+}
+
+// A reflected proposal that could not be proved on its merge can become provable
+// after a later, complete drawing. Recheck it without reflecting its set twice.
+export function recheckReflected(store, { project, diagram, time }) {
+  const statements = statementsOf(store);
+  const threads = statements.reflectedThreads.all(project, diagram).map((row) => Number(row.thread_id));
+  resolveReflected(store, { project, threads, time });
+}
+
+function resolveReflected(store, { project, threads, time }) {
+  const statements = statementsOf(store);
+  const cache = new Map();
+  const decidedCache = new Map();
+  const stepsCache = new Map();
+  const stepsFor = (id) => {
+    if (!stepsCache.has(id)) stepsCache.set(id, statements.steps.all(id));
+    return stepsCache.get(id);
+  };
+  for (const thread of threads) {
+    if (statements.asking.get(thread) !== undefined) continue;
+    const proposals = statements.threadSets.all(thread);
+    if (proposals.length === 0) continue;
+    const entries = statements.threadEntries.all(thread);
+    const proposalSequences = new Set();
+    for (const set of proposals) {
+      const matches = entries.filter((entry) => entry.author === 'agent' && entry.created_at === set.created_at
+        && entry.body === JSON.parse(set.detail).change);
+      // Without an unambiguous proposal entry, the order of the conversation
+      // cannot be proved. Sequence, not timestamp, also handles simultaneous writes.
+      if (matches.length !== 1) break;
+      proposalSequences.add(Number(matches[0].seq));
+    }
+    if (proposalSequences.size !== proposals.length) continue;
+    const earliestProposal = Math.min(...proposalSequences);
+    const extra = entries.some((entry) => Number(entry.seq) > earliestProposal && !proposalSequences.has(Number(entry.seq)));
+    if (extra) continue;
+    const reflected = proposals.filter((set) => set.state === 'reflected');
+    const reopenedAt = statements.lastReopen.get(thread)?.at;
+    if (reopenedAt != null && !reflected.some((set) => set.decided_at != null && set.decided_at > reopenedAt)) continue;
+    const verified = reflected.length > 0 && reflected.every((set) => {
+      const steps = stepsFor(set.id);
+      const shown = statements.currentDrawn.get(Number(set.diagram_id))?.id;
+      if (shown === undefined) return false;
+      const itemTable = statements.diagramKind.get(Number(set.diagram_id))?.kind === 'item_table';
+      const elements = elementsOf(statements, shown, cache);
+      if (!decidedCache.has(set.diagram_id)) decidedCache.set(set.diagram_id, statements.decided.all(set.diagram_id));
+      const decided = decidedCache.get(set.diagram_id);
+      const index = decided.findIndex((row) => Number(row.id) === Number(set.id));
+      const shownOrReplaced = (step, position) => {
+        if (shows(step, elements, itemTable)) return true;
+        const later = [
+          ...steps.slice(position + 1).map((replacement) => ({ state: 'reflected', replacement })),
+          ...decided.slice(index + 1).flatMap((other) => stepsFor(other.id).map((replacement) => ({ state: other.state, replacement }))),
+        ].filter(({ replacement }) => replaces(replacement, step)).at(-1);
+        return later !== undefined && later.state === 'reflected' && shows(later.replacement, elements, itemTable);
+      };
+      return statements.latestStatus.get(set.diagram_id)?.status === 'drawn' && !statements.incomplete.get(shown)
+        && index >= 0 && steps.length > 0 && steps.every(shownOrReplaced);
+    });
+    if (!verified) continue;
+    if (statements.closeThread.run(time, thread).changes > 0) {
+      recordResolved(store, { thread, detail: { change_sets: reflected.map((set) => Number(set.id)) }, time });
+      threadChanged(store, { project, thread, time });
+    }
+  }
 }

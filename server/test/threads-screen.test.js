@@ -22,7 +22,7 @@ import { localGate, startServer } from './support.js';
 
 // The modules that import ./layout.js load once screen-page.js has taught the import where the server serves it from.
 const { WORKBENCH_WORDS } = await import('../web/workbench.js');
-const { THREAD_WORDS, countOf, draftKey, goneName, hashOf } = await import('../web/threads.js');
+const { THREAD_WORDS, countOf, draftKey, goneName, hashOf, refreshAfterClose, threadsOpened } = await import('../web/threads.js');
 
 const P = 'reading-club';
 const NOW = Date.now();
@@ -418,6 +418,490 @@ describe('SCR-145 threads', () => {
       assert.deepEqual([fieldOf(page, 'th-reply'), buttonOf(shownThread(page), THREAD_WORDS.close)], [null, undefined]);
       // The element still takes a new thread.
       assert.equal(fieldOf(page, 'th-new').getAttribute('placeholder'), THREAD_WORDS.fields.element);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a resolved conversation shows its record and can be reopened on a phone', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.closed);
+    const resolved = threadOf('erd', original, { closed_by: 'reflection', resolved: true });
+    const page = await openStage('erd', {
+      phone: true,
+      more: { [threadPath(T.closed)]: json(200, resolved) },
+      posts: (path) => json(200, { thread: { id: T.closed, state: 'open', waits_on: 'agent', closed_by: null, last_at: ago(0) }, changed: true })(),
+    });
+    try {
+      pictureButton(page, 'tbl', 'project_spaces').click();
+      await page.settle();
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.resolved]);
+      assert.ok(shownThread(page).all('a').some((link) => link.textContent.includes('/pull/7')));
+      buttonOf(shownThread(page), THREAD_WORDS.reopen).click();
+      await page.settle();
+      assert.equal(page.sent[0].path, `${threadPath(T.closed)}/reopen`);
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.agents]);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('the thread list marks a resolved conversation before its details are opened', async () => {
+    const briefs = BRIEFS.erd.map((brief) => brief.id === T.closed ? { ...brief, resolved: true } : brief);
+    const page = await openStage('erd', { more: { [diagramPath('erd')]: json(200, diagramOf('erd', { threads: briefs })) } });
+    try {
+      assert.ok(rowsOf(page).some(([name, state]) => name === 'project_spaces' && state === THREAD_WORDS.resolved));
+      assert.equal(shownThread(page), null);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('an older reflection closure without a resolution event has no reopen action', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.closed);
+    const legacy = threadOf('erd', original, { closed_by: 'reflection' });
+    const page = await openStage('erd', { more: { [threadPath(T.closed)]: json(200, legacy) } });
+    try {
+      pictureButton(page, 'tbl', 'project_spaces').click();
+      await page.settle();
+      assert.equal(buttonOf(shownThread(page), THREAD_WORDS.reopen), undefined);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a close racing with automatic resolution reads the resolved state', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const open = threadOf('erd', original);
+    const resolved = threadOf('erd', original, { state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true, closed_at: ago(0) });
+    let closed = false;
+    const page = await openStage('erd', {
+      answers: (path) => path === threadPath(T.mine) ? json(200, closed ? resolved : open) : undefined,
+      posts: () => {
+        closed = true;
+        return json(200, { thread: { id: T.mine, state: 'closed', waits_on: null, closed_by: 'reflection', last_at: ago(0) }, changed: false })();
+      },
+    });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      buttonOf(shownThread(page), THREAD_WORDS.close).click();
+      await page.settle();
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.resolved]);
+      assert.ok(buttonOf(shownThread(page), THREAD_WORDS.reopen));
+      assert.ok(rowsOf(page).some(([, state]) => state === THREAD_WORDS.resolved));
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a full thread read clears a stale resolved list flag', async () => {
+    const briefs = BRIEFS.erd.map((brief) => brief.id === T.closed ? { ...brief, resolved: true } : brief);
+    const original = BRIEFS.erd.find((brief) => brief.id === T.closed);
+    const legacy = threadOf('erd', original, { closed_by: 'reflection' });
+    const page = await openStage('erd', { more: {
+      [diagramPath('erd')]: json(200, diagramOf('erd', { threads: briefs })),
+      [threadPath(T.closed)]: json(200, legacy),
+    } });
+    try {
+      rowNamed(page, 'project_spaces').click();
+      await page.settle();
+      assert.deepEqual(rowsOf(page), [['project_spaces', THREAD_WORDS.reflected]]);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a close racing resolution does not discard another thread read', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const open = threadOf('erd', original);
+    const resolved = threadOf('erd', original, { state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true, closed_at: ago(0) });
+    let closeAnswer;
+    let releaseOther;
+    let closed = false;
+    const page = await openStage('erd', {
+      answers: (path) => {
+        if (path === threadPath(T.mine)) return json(200, closed ? resolved : open);
+        if (path === threadPath(T.whole)) return () => new Promise((resolve) => { releaseOther = () => resolve(json(200, threadOf('erd', BRIEFS.erd.find((brief) => brief.id === T.whole)))()); });
+        return undefined;
+      },
+      posts: () => new Promise((resolve) => { closeAnswer = () => { closed = true; resolve(json(200, { thread: { id: T.mine, state: 'closed', waits_on: null, closed_by: 'reflection', last_at: ago(0) }, changed: false })()); }; }),
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      buttonOf(shownThread(page), THREAD_WORDS.close).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      closeAnswer();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      releaseOther();
+      await page.settle();
+      assert.equal(shownThread(page).getAttribute('aria-label'), THREAD_WORDS.whole);
+      assert.ok(rowsOf(page).some(([name, state]) => name === 'agent_credentials' && state === THREAD_WORDS.resolved));
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a reply answer reloads the shown thread when an older read was in flight', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const entries = [...structuredClone(ENTRIES), { seq: 3, author: 'owner', kind: 'comment', text: '새 답변', made_at: ago(0) }];
+    const updated = threadOf('erd', original, { waits_on: 'agent', entries });
+    let releaseWrite;
+    let releaseOld;
+    let hold = false;
+    let heldReads = 0;
+    const page = await openStage('erd', {
+      answers: (path) => {
+        if (path !== threadPath(T.mine) || !hold) return undefined;
+        heldReads += 1;
+        if (heldReads === 1) return () => new Promise((resolve) => { releaseOld = () => resolve(json(200, threadOf('erd', original))()); });
+        return json(200, updated);
+      },
+      posts: (path, body) => new Promise((resolve) => { releaseWrite = () => resolve(written(path, body)); }),
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      const field = fieldOf(page, 'th-reply');
+      field.value = '새 답변';
+      formOf(field).dispatch('submit');
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      hold = true;
+      rowNamed(page, 'agent_credentials').click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      assert.ok(releaseOld);
+      releaseWrite();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      releaseOld();
+      await page.settle();
+      assert.ok(shownThread(page));
+      assert.ok(textsIn(shownThread(page), 'span', 'tx').includes('새 답변'));
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a reply already present in a newer read is not shown or counted twice', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const entries = [...structuredClone(ENTRIES), { seq: 3, author: 'owner', kind: 'comment', text: '새 답변', made_at: ago(0) }];
+    const updated = threadOf('erd', original, { waits_on: 'agent', last_at: ago(0), entries });
+    let releaseWrite;
+    let writtenAlready = false;
+    const page = await openStage('erd', {
+      answers: (path) => path === threadPath(T.mine) && writtenAlready ? json(200, updated) : undefined,
+      posts: (path, body) => new Promise((resolve) => { releaseWrite = () => resolve(written(path, body)); }),
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      const field = fieldOf(page, 'th-reply');
+      field.value = '새 답변';
+      formOf(field).dispatch('submit');
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      writtenAlready = true;
+      rowNamed(page, 'agent_credentials').click();
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      releaseWrite();
+      await page.settle();
+      assert.equal(textsIn(shownThread(page), 'span', 'tx').filter((text) => text === '새 답변').length, 1);
+      assert.deepEqual(textsIn(sectionOf(page), 'h3'), [countOf(1, 3)]);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a later reply read remains in the list when the older write answer arrives', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const entries = [...structuredClone(ENTRIES),
+      { seq: 3, author: 'owner', kind: 'comment', text: '새 답변', made_at: ago(1) },
+      { seq: 4, author: 'agent', kind: 'comment', text: '새 질문', made_at: ago(0) }];
+    const updated = threadOf('erd', original, { waits_on: 'owner', last_at: ago(0), entries });
+    let releaseWrite;
+    let writtenAlready = false;
+    const page = await openStage('erd', {
+      answers: (path) => path === threadPath(T.mine) && writtenAlready ? json(200, updated) : undefined,
+      posts: (path, body) => new Promise((resolve) => { releaseWrite = () => resolve(written(path, body)); }),
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      const field = fieldOf(page, 'th-reply');
+      field.value = '새 답변';
+      formOf(field).dispatch('submit');
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      writtenAlready = true;
+      rowNamed(page, 'agent_credentials').click();
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      releaseWrite();
+      await page.settle();
+      assert.ok(rowsOf(page).some(([name, status]) => name === 'agent_credentials' && status === THREAD_WORDS.mine));
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a pending background read is replaced after the reply arrives', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const entries = [...structuredClone(ENTRIES),
+      { seq: 3, author: 'owner', kind: 'comment', text: '새 답변', made_at: ago(1) },
+      { seq: 4, author: 'agent', kind: 'comment', text: '새 질문', made_at: ago(0) }];
+    const updated = threadOf('erd', original, { waits_on: 'owner', last_at: ago(0), entries });
+    let releaseWrite;
+    let releaseOld;
+    let holding = false;
+    let reads = 0;
+    const page = await openStage('erd', {
+      answers: (path) => {
+        if (path !== threadPath(T.mine) || !holding) return undefined;
+        reads += 1;
+        return reads === 1 ? () => new Promise((resolve) => { releaseOld = () => resolve(json(200, threadOf('erd', original))()); }) : json(200, updated);
+      },
+      posts: (path, body) => new Promise((resolve) => { releaseWrite = () => resolve(written(path, body)); }),
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      const field = fieldOf(page, 'th-reply');
+      field.value = '새 답변';
+      formOf(field).dispatch('submit');
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      holding = true;
+      rowNamed(page, 'agent_credentials').click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      releaseWrite();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      releaseOld();
+      await page.settle();
+      assert.ok(rowsOf(page).some(([name, status]) => name === 'agent_credentials' && status === THREAD_WORDS.mine));
+      assert.equal(reads, 2);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a reply with an intervening agent entry reads the missing entry', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const entries = [...structuredClone(ENTRIES),
+      { seq: 3, author: 'agent', kind: 'comment', text: '사이에 온 질문', made_at: ago(1) },
+      { seq: 4, author: 'owner', kind: 'comment', text: '내 답변', made_at: ago(0) }];
+    const updated = threadOf('erd', original, { waits_on: 'agent', last_at: ago(0), entries });
+    let sent = false;
+    const page = await openStage('erd', {
+      answers: (path) => path === threadPath(T.mine) && sent ? json(200, updated) : undefined,
+      posts: () => {
+        sent = true;
+        return json(201, { thread: { id: T.mine, state: 'open', waits_on: 'agent', closed_by: null, last_at: ago(0) }, entry: entries[3] })();
+      },
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      const field = fieldOf(page, 'th-reply');
+      field.value = '내 답변';
+      formOf(field).dispatch('submit');
+      await page.settle();
+      assert.ok(textsIn(shownThread(page), 'span', 'tx').includes('사이에 온 질문'));
+      assert.deepEqual(textsIn(sectionOf(page), 'h3'), [countOf(1, 4)]);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a close racing resolution supersedes an older read of the same thread', async () => {
+    for (const oldFirst of [true, false]) {
+      const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+      const open = threadOf('erd', original);
+      const resolved = threadOf('erd', original, { state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true, closed_at: ago(0) });
+      const realFetch = globalThis.fetch;
+      const responses = [];
+      globalThis.fetch = () => new Promise((resolve) => responses.push(resolve));
+      const state = {
+        ctx: { address: {}, data: { diagram: { id: ID.erd, project: P, threads: [{ ...original }] } }, shell: {} },
+        threads: { shown: T.mine, thread: open, failed: null, seq: 0, choose: false, boxes: null },
+      };
+      try {
+        threadsOpened(state, { live: () => true, choose: () => {}, notice: () => {} });
+        const newer = refreshAfterClose(state, T.mine);
+        assert.equal(responses.length, 2);
+        if (oldFirst) { responses[0](json(200, open)()); await new Promise((resolve) => setTimeout(resolve, 10)); responses[1](json(200, resolved)()); }
+        else { responses[1](json(200, resolved)()); await newer; responses[0](json(200, open)()); }
+        await newer;
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        assert.equal(state.threads.thread.resolved, true);
+        assert.equal(state.ctx.data.diagram.threads[0].resolved, true);
+      } finally {
+        globalThis.fetch = realFetch;
+      }
+    }
+  });
+
+  test('a newer read updates the list after selection moves to another thread', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const resolved = threadOf('erd', original, { state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true, closed_at: ago(0) });
+    const realFetch = globalThis.fetch;
+    const responses = [];
+    globalThis.fetch = () => new Promise((resolve) => responses.push(resolve));
+    const state = {
+      ctx: { address: {}, data: { diagram: { id: ID.erd, project: P, threads: [{ ...original }] } }, shell: {} },
+      threads: { shown: T.mine, thread: resolved, failed: null, seq: 0, choose: false, boxes: null,
+        host: { live: () => true, choose: () => {}, notice: () => {} } },
+    };
+    try {
+      const older = refreshAfterClose(state, T.mine);
+      threadsOpened(state, state.threads.host);
+      assert.equal(responses.length, 2);
+      state.threads.shown = T.whole;
+      state.threads.seq += 1;
+      responses[1](json(200, resolved)());
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      responses[0](json(200, resolved)());
+      await older;
+      assert.equal(state.ctx.data.diagram.threads[0].resolved, true);
+      assert.equal(state.threads.shown, T.whole);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  test('a missing thread is removed from the list even after selection moves', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const realFetch = globalThis.fetch;
+    let respond;
+    globalThis.fetch = () => new Promise((resolve) => { respond = resolve; });
+    let reloaded = false;
+    const state = {
+      ctx: { address: {}, data: { diagram: { id: ID.erd, project: P, removed: true, threads: [{ ...original }] } }, shell: {} },
+      threads: { shown: T.mine, thread: null, failed: null, seq: 0, choose: false, boxes: null },
+    };
+    try {
+      threadsOpened(state, { live: () => true, choose: () => {}, notice: () => {}, reload: () => { reloaded = true; } });
+      state.threads.shown = T.whole;
+      state.threads.seq += 1;
+      respond(problem(404, 'thread_not_found')());
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      assert.deepEqual(state.ctx.data.diagram.threads, []);
+      assert.equal(reloaded, false);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  test('a close follow-up preserves the element choice requested by the address', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const result = threadOf('erd', original, { state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true });
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = json(200, result);
+    let chosen = null;
+    const state = {
+      names: new Map([[result.element, 'element']]),
+      ctx: { address: {}, data: { diagram: { id: ID.erd, project: P, threads: [{ ...original }] } }, shell: {} },
+      threads: { shown: T.mine, thread: null, failed: null, seq: 0, choose: true, boxes: null,
+        host: { live: () => true, choose: (key) => { chosen = key; }, notice: () => {} } },
+    };
+    try {
+      await refreshAfterClose(state, T.mine);
+      assert.equal(chosen, result.element);
+      assert.equal(state.threads.choose, false);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  test('a racing close refreshes a shown thread even without a list brief', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const open = threadOf('erd', original, { target: 'diagram', element: null, item: '' });
+    const resolved = threadOf('erd', original, { target: 'diagram', element: null, item: '', state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true, closed_at: ago(0) });
+    let closed = false;
+    const page = await openStage('erd', {
+      search: `?d=${ID.erd}&thread=${T.mine}`,
+      more: { [diagramPath('erd')]: json(200, diagramOf('erd', { threads: BRIEFS.erd.filter((brief) => brief.id !== T.mine) })) },
+      answers: (path) => path === threadPath(T.mine) ? json(200, closed ? resolved : open) : undefined,
+      posts: () => { closed = true; return json(200, { thread: { id: T.mine, state: 'closed', waits_on: null, closed_by: 'reflection', last_at: ago(0) }, changed: false })(); },
+    });
+    try {
+      buttonOf(shownThread(page), THREAD_WORDS.close).click();
+      await page.settle();
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.resolved]);
+      assert.ok(buttonOf(shownThread(page), THREAD_WORDS.reopen));
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a failed follow-up read keeps the successful close visible', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    let closed = false;
+    const page = await openStage('erd', {
+      answers: (path) => path === threadPath(T.mine) ? (closed ? problem(500, 'internal') : json(200, threadOf('erd', original))) : undefined,
+      posts: () => { closed = true; return json(200, { thread: { id: T.mine, state: 'closed', waits_on: null, closed_by: 'reflection', last_at: ago(0) }, changed: false })(); },
+    });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      buttonOf(shownThread(page), THREAD_WORDS.close).click();
+      await page.settle();
+      assert.ok(shownThread(page));
+      assert.equal(buttonOf(shownThread(page), THREAD_WORDS.close), undefined);
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.reflected]);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a failed follow-up while the selected thread loads offers a retry', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    let releaseClose;
+    let releaseOld;
+    let hold = false;
+    let closed = false;
+    const page = await openStage('erd', {
+      answers: (path) => {
+        if (path !== threadPath(T.mine)) return undefined;
+        if (closed) return problem(500, 'internal');
+        if (hold) return () => new Promise((resolve) => { releaseOld = () => resolve(json(200, threadOf('erd', original))()); });
+        return undefined;
+      },
+      posts: () => new Promise((resolve) => { releaseClose = () => { closed = true; resolve(json(200, { thread: { id: T.mine, state: 'closed', waits_on: null, closed_by: 'reflection', last_at: ago(0) }, changed: false })()); }; }),
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      buttonOf(shownThread(page), THREAD_WORDS.close).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      hold = true;
+      rowNamed(page, 'agent_credentials').click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      assert.ok(releaseOld);
+      releaseClose();
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      releaseOld();
+      await page.settle();
+      assert.equal(shownThread(page), null);
+      assert.ok(sectionOf(page).all('button').some((button) => button.textContent.includes('다시 시도')));
     } finally {
       page.close();
     }

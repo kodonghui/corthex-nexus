@@ -427,6 +427,9 @@ describe('the diagram read', () => {
     // The thread of an element that left the document, moved to the diagram as TASK-435 moves it.
     const moved = s.thread(erd, { elementKey: 'TBL-160', at: at(6) });
     db.prepare("UPDATE comment_threads SET target_kind = 'diagram', removed_name = 'old_table' WHERE id = ?").run(moved);
+    const resolved = s.thread(erd, { at: at(8) });
+    s.closeThread(resolved, { by: 'reflection' });
+    db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'resolved', ?)").run(resolved, at(9));
 
     const answer = await read(space.name, erd.id);
     assert.deepEqual(answer.json.threads, [
@@ -434,6 +437,7 @@ describe('the diagram read', () => {
       { id: idOf('nc', onDiagram), target: 'diagram', element: null, removed_name: null, state: 'open', waits_on: 'owner', last_at: at(4), entries: 1 },
       { id: idOf('nc', moved), target: 'diagram', element: 'TBL-160', removed_name: 'old_table', state: 'open', waits_on: 'agent', last_at: at(6), entries: 1 },
       { id: idOf('nc', closed), target: 'element', element: 'TBL-146', removed_name: null, state: 'closed', waits_on: null, last_at: at(2), entries: 2 },
+      { id: idOf('nc', resolved), target: 'element', element: 'TBL-146', removed_name: null, state: 'closed', waits_on: null, resolved: true, last_at: at(8), entries: 1 },
     ]);
   });
 

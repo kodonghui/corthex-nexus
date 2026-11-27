@@ -78,7 +78,7 @@ class WbsTest(unittest.TestCase):
         self.assertEqual(sorted(set(self.spec) - used), [])
 
     def test_every_operation_table_and_screen_has_a_task(self):
-        self.assertEqual(len(self.api), 52)
+        self.assertEqual(len(self.api), 53)
         touched = set()
         for row in self.en:
             got = set(expand(row[3]))

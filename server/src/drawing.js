@@ -30,8 +30,7 @@
 // whatever part NEXUS last read for it, which a revision a newer format completed does not record, and an entry for a
 // source in another repository names every part of its stage, part '' too (see snapshot.js). The diagram keeps its
 // last good drawing and gets a failed drawing at its source, with no line: the file's key, or the stage's source as
-// the snapshot's stage record names it. As for any failed drawing, nothing moves and its confirmation and its stage's
-// pass stay (see after-drawing.js), and the push counts it failed and names it in failures; a picture so kept still
+// the snapshot's stage record names it. As for any failed drawing, nothing moves and its confirmation is invalidated (see after-drawing.js), and the push counts it failed and names it in failures; a picture so kept still
 // shows as its stage's picture, and the next push that sends its source draws it again. A left_out entry names no item
 // table, and an item table that makes way for its stage's pictures still does. What the snapshot names only by a
 // count, such as the files past the hub's limits, is removed as any source the snapshot does not hold. No approved

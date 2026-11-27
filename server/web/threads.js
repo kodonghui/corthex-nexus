@@ -34,10 +34,12 @@ export const THREAD_WORDS = Object.freeze({
   agents: '에이전트 차례',
   closed: '닫힘',
   reflected: '반영되어 닫힘',
+  resolved: '해결됨',
   lookFirst: '먼저 볼 것: ',
   reply: '답글 쓰기',
   replyField: '이 스레드에 남길 말',
   close: '스레드 닫기',
+  reopen: '다시 열기',
   comment: '댓글 쓰기',
   send: '보내기',
   fields: Object.freeze({ element: '이 요소에 남길 말', row: '이 행에 남길 말', diagram: '이 그림에 남길 말' }),
@@ -66,10 +68,16 @@ export function threadsOpened(state, host) {
   if (state.threads === undefined) {
     state.threads = {
       shown: null, thread: null, failed: null, seq: 0, handled: null, choose: false, fromAddress: false,
-      texts: new Map(), errors: new Map(), sending: new Set(), boxes: null, place: null, element: null,
+      texts: new Map(), errors: new Map(), sending: new Set(), reads: new Map(), readGeneration: 0,
+      boxes: null, place: null, element: null,
     };
   }
   const t = state.threads;
+  if (t.resultsDiagram !== state.ctx.data.diagram) {
+    t.resultsDiagram = state.ctx.data.diagram;
+    t.readResults = new Map();
+    t.readSequences = new Map();
+  }
   t.host = host;
   const wanted = state.ctx.address.thread;
   if (isThreadId(wanted) && t.handled !== wanted) {
@@ -91,6 +99,7 @@ export function threadsWhole(state) {
   state.threads.shown = null;
   state.threads.thread = null;
   state.threads.failed = null;
+  state.threads.choose = false;
   state.threads.fromAddress = false;
 }
 
@@ -115,6 +124,7 @@ export function threadsPart(state, element) {
       t.shown = next;
       t.thread = null;
       t.failed = null;
+      t.choose = false;
       t.fromAddress = false;
       if (next !== null) readThread(state, next);
     }
@@ -192,6 +202,7 @@ function whereOf(state, brief) {
 // A thread's state: whose turn an open one is, and who closed a closed one (closed_by is known once it was read).
 export function stateTag(thread) {
   if (thread.state === 'closed') {
+    if (thread.resolved === true) return h('span', { class: 'tag green' }, THREAD_WORDS.resolved);
     return thread.closed_by === 'reflection'
       ? h('span', { class: 'tag green' }, THREAD_WORDS.reflected)
       : h('span', { class: 'tag gray' }, THREAD_WORDS.closed);
@@ -229,6 +240,7 @@ function chooseThread(state, brief) {
     t.shown = brief.id;
     t.thread = null;
     t.failed = null;
+    t.choose = false;
     t.fromAddress = false;
     readThread(state, brief.id);
   }
@@ -244,26 +256,41 @@ function chooseThread(state, brief) {
 // diagram, or one gone, says that it is no longer in NEXUS; a 401, a 403 or a gone project is the shell's.
 async function readThread(state, id) {
   const t = state.threads;
+  const generation = nextRead(t, id);
   t.seq += 1;
   const seq = t.seq;
   const diagram = state.ctx.data.diagram;
   const outcome = await read(`${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}`);
-  if (!t.host.live() || seq !== t.seq || t.shown !== id) return;
-  const choose = t.choose;
-  t.choose = false;
+  if (t.reads.get(id) !== generation) return;
+  t.reads.delete(id);
+  if (!t.host.live() || state.ctx.data.diagram !== diagram) return;
+  const showing = seq === t.seq && t.shown === id;
   if (outcome.status === 200 && outcome.body.diagram === diagram.id) {
+    t.readResults ??= new Map();
+    t.readResults.set(id, generation);
+    t.readSequences ??= new Map();
+    t.readSequences.set(id, outcome.body.entries.at(-1)?.seq ?? 0);
+    brief(state, id, outcome.body, 0, true);
+    if (!showing) { drawList(state); return; }
+    const choose = t.choose;
+    t.choose = false;
     t.thread = outcome.body;
     t.failed = null;
-    brief(state, id, outcome.body);
     const key = outcome.body.element;
     if (choose && key !== null && state.names.has(key)) {
       t.host.choose(key);
       return;
     }
   } else if (outcome.status === 200 || (outcome.status === 404 && outcome.code === 'thread_not_found')) {
+    diagram.threads = (diagram.threads ?? []).filter((each) => each.id !== id);
+    if ((showing || t.shown === null) && diagram.removed && !diagram.threads.some((each) => each.state === 'open')) { t.host.reload('instead'); return; }
+    if (!showing) { drawList(state); return; }
+    t.choose = false;
     t.thread = null;
     t.failed = { gone: true };
   } else {
+    if (!showing) return;
+    t.choose = false;
     if (state.ctx.shell.outcome(outcome) === null) return;
     t.thread = null;
     t.failed = { outcome };
@@ -273,13 +300,75 @@ async function readThread(state, id) {
 }
 
 // The diagram's brief of a thread takes what a read or a write answered about it; added counts an entry a write added.
-function brief(state, id, thread, added = 0) {
+function brief(state, id, thread, added = 0, authoritative = false) {
+  if (!authoritative) state.threads.reads?.delete(id);
   const found = (state.ctx.data.diagram.threads ?? []).find((each) => each.id === id);
   if (found === undefined) return;
   found.state = thread.state;
   found.waits_on = thread.waits_on;
+  if (thread.resolved === true) found.resolved = true;
+  else if (authoritative || thread.state === 'open' || thread.closed_by === 'owner' || Object.hasOwn(thread, 'resolved')) delete found.resolved;
   found.last_at = thread.last_at;
   found.entries = Array.isArray(thread.entries) ? thread.entries.length : found.entries + added;
+}
+
+function nextRead(threads, id) {
+  threads.reads ??= new Map();
+  const generation = (threads.readGeneration ?? 0) + 1;
+  threads.readGeneration = generation;
+  threads.reads.set(id, generation);
+  return generation;
+}
+
+// A close may race an automatic resolution. Read its state without superseding a
+// different thread's in-flight read, and do not turn a successful close into an error.
+export async function refreshAfterClose(state, id) {
+  const t = state.threads;
+  const diagram = state.ctx.data.diagram;
+  const generation = nextRead(t, id);
+  const seq = t.seq;
+  const outcome = await read(`${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}`);
+  if (t.reads.get(id) !== generation) return;
+  t.reads.delete(id);
+  if (!t.host.live() || state.ctx.data.diagram !== diagram) return;
+  const showing = t.shown === id && t.seq === seq;
+  if ((outcome.status === 200 && outcome.body.diagram !== diagram.id) || (outcome.status === 404 && outcome.code === 'thread_not_found')) {
+    diagram.threads = (diagram.threads ?? []).filter((each) => each.id !== id);
+    if (showing) {
+      t.thread = null;
+      t.failed = { gone: true };
+      drawShown(state);
+    }
+    drawList(state);
+    if ((showing || t.shown === null) && diagram.removed && !(diagram.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
+    return;
+  }
+  if (outcome.status !== 200) {
+    const found = state.ctx.shell.outcome(outcome);
+    if (found !== null && showing) {
+      if (t.thread === null) { t.failed = { outcome }; drawShown(state); }
+      else t.host.notice(state.ctx.shell.errorNotice(outcome, () => refreshAfterClose(state, id)));
+    }
+    return;
+  }
+  t.readResults ??= new Map();
+  t.readResults.set(id, generation);
+  t.readSequences ??= new Map();
+  t.readSequences.set(id, outcome.body.entries.at(-1)?.seq ?? 0);
+  brief(state, id, outcome.body, 0, true);
+  if (showing) {
+    t.thread = outcome.body;
+    t.failed = null;
+    const choose = t.choose;
+    t.choose = false;
+    const key = outcome.body.element;
+    if (choose && key !== null && state.names.has(key)) {
+      t.host.choose(key);
+      return;
+    }
+    drawShown(state);
+  }
+  drawList(state);
 }
 
 function drawShown(state) {
@@ -313,7 +402,7 @@ function drawShown(state) {
     h('div', { class: 'btns mid' }, h('span', { class: 'small' }, whereOf(state, thread)), stateTag(thread)),
     thread.entries.map((entry) => entryOf(shell, entry)),
     open ? replyForm(state, thread) : null,
-    open ? closeRow(state, thread) : null));
+    open ? closeRow(state, thread) : thread.resolved === true ? closeRow(state, thread, true) : null));
 }
 
 // One entry of a thread: who wrote it and when, the quote it answers, its text, what to look at first and the
@@ -386,15 +475,15 @@ function textForm(state, { id, what, label, placeholder, action }) {
     bad ? null : errorOf(state, what, error, id));
 }
 
-function closeRow(state, thread) {
-  const what = `close ${thread.id}`;
+function closeRow(state, thread, reopen = false) {
+  const what = `${reopen ? 'reopen' : 'close'} ${thread.id}`;
   const t = state.threads;
   const busy = t.sending.has(what);
   return [
     h('div', { class: 'btns' }, h('button', {
-      type: 'button', class: 'btn tertiary sm', disabled: busy, 'aria-busy': busy ? 'true' : null,
-      on: { click: () => write(state, what, '', () => closeOf(state, thread.id)) },
-    }, THREAD_WORDS.close)),
+      type: 'button', class: reopen ? 'btn tertiary' : 'btn tertiary sm', disabled: busy, 'aria-busy': busy ? 'true' : null,
+      on: { click: () => write(state, what, '', () => closeOf(state, thread.id, reopen)) },
+    }, reopen ? THREAD_WORDS.reopen : THREAD_WORDS.close)),
     errorOf(state, what, t.errors.get(what) ?? null, 'th-close'),
   ];
 }
@@ -418,7 +507,7 @@ function errorOf(state, what, error, id) {
   });
 }
 
-const closing = (what) => what.startsWith('close ');
+const closing = (what) => what.startsWith('close ') || what.startsWith('reopen ');
 
 // Sends a box's text, or a close: action(text) gives the path, the body and what a success does. The request key is
 // new for each send, and kept only to retry the same text after a timeout or a lost connection, since the same key
@@ -510,17 +599,34 @@ function startOf(state, place, text) {
 
 // API-268: the owner's reply, added at the end; the thread then waits on the agent.
 function replyOf(state, id, text) {
-  const project = state.ctx.data.diagram.project;
+  const diagram = state.ctx.data.diagram;
+  const project = diagram.project;
   return {
     path: `${projectApi(project)}/threads/${encodeURIComponent(id)}/comments`,
     body: { text },
     done: (answer) => {
       const t = state.threads;
+      const pendingRead = t.reads?.has(id) === true;
+      const listed = (state.ctx.data.diagram.threads ?? []).find((entry) => entry.id === id);
+      let summary = answer.thread;
+      let gap = false;
       if (t.thread?.id === id) {
-        t.thread.entries.push(answer.entry);
-        Object.assign(t.thread, summaryOf(answer.thread));
+        const last = t.thread.entries.at(-1);
+        gap = last && answer.entry.seq > last.seq + 1;
+        const newer = last && last.seq >= answer.entry.seq;
+        if (!t.thread.entries.some((entry) => entry.seq === answer.entry.seq)) {
+          t.thread.entries.push(answer.entry);
+          t.thread.entries.sort((left, right) => left.seq - right.seq);
+        }
+        if (!newer) Object.assign(t.thread, summaryOf(answer.thread));
+        else summary = t.thread;
+      } else if (listed && (listed.entries > answer.entry.seq || (t.readSequences?.get(id) ?? 0) >= answer.entry.seq)) {
+        summary = listed;
       }
-      brief(state, id, answer.thread, 1);
+      const added = listed ? Math.max(0, answer.entry.seq - listed.entries) : 0;
+      brief(state, id, summary, added);
+      if (t.shown === id && (t.thread === null || pendingRead || gap)) readThread(state, id);
+      else if (pendingRead || diagram !== state.ctx.data.diagram || (listed && added > 1)) refreshAfterClose(state, id);
       keepText(state, `reply ${id}`, '');
       drawList(state);
       drawShown(state);
@@ -531,20 +637,32 @@ function replyOf(state, id, text) {
 // API-269: the thread shows closed. When it was the last open thread of a removed diagram, the diagram is read again:
 // with nothing else waiting on it (a proposed AI proposal or a waiting direct edit, TASK-468) it is gone, and the
 // stage's first diagram opens in its place (SPEC-027).
-function closeOf(state, id) {
+function closeOf(state, id, reopen = false) {
   const diagram = state.ctx.data.diagram;
+  const startedAt = state.threads.readGeneration ?? 0;
   return {
-    path: `${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}/close`,
+    path: `${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}/${reopen ? 'reopen' : 'close'}`,
     body: {},
     done: (answer) => {
       const t = state.threads;
-      if (t.thread?.id === id) Object.assign(t.thread, summaryOf(answer.thread));
-      brief(state, id, answer.thread);
+      const pendingRead = t.reads?.has(id) === true;
+      const readSinceWrite = (t.readResults?.get(id) ?? 0) > startedAt;
+      const listed = (state.ctx.data.diagram.threads ?? []).find((entry) => entry.id === id);
+      const resolved = readSinceWrite && (t.thread?.id === id ? t.thread.resolved === true : listed?.resolved === true);
+      if (t.thread?.id === id && !resolved) {
+        Object.assign(t.thread, summaryOf(answer.thread));
+        if (reopen) delete t.thread.resolved;
+      }
+      brief(state, id, resolved ? (t.thread?.id === id ? t.thread : listed) : answer.thread);
       drawList(state);
       drawShown(state);
       // The diagram shown now, which brief marked: a read again may have drawn the view anew while the close was sent.
       const now = state.ctx.data.diagram;
-      if (now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
+      if (!reopen && now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
+      else if (!reopen && answer.thread.state === 'closed' && answer.thread.closed_by === 'reflection') refreshAfterClose(state, id);
+      else if (readSinceWrite || diagram !== state.ctx.data.diagram) refreshAfterClose(state, id);
+      else if (t.shown === id && (t.thread === null || pendingRead)) readThread(state, id);
+      else if (pendingRead) refreshAfterClose(state, id);
     },
   };
 }

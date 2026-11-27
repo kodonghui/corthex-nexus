@@ -1,7 +1,7 @@
 {
  "about": "The pinned hub's stage-05 picture of db/nexus.sql, as its erd.py makes it, and the SHA-256 of the file. tests/test_erd_picture.py checks it against the pinned hub and says how to make it again.",
  "source": "db/nexus.sql",
- "sha256": "e4f79585470b48164ed67dc615a718c3597a89063174d554e80a58be8e3fd94d",
+ "sha256": "d3f00651a0e5b880c073b49ff938ea4b395a4635ac851fcec9468704214f6ea1",
  "part": "nexus",
  "checks": [],
  "picture": {
@@ -850,49 +850,49 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:205"
+      "where": "db/nexus.sql:206"
      },
      {
       "name": "thread_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:206"
+      "where": "db/nexus.sql:207"
      },
      {
       "name": "seq",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:207"
+      "where": "db/nexus.sql:208"
      },
      {
       "name": "author",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:208"
+      "where": "db/nexus.sql:209"
      },
      {
       "name": "credential_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:209"
+      "where": "db/nexus.sql:210"
      },
      {
       "name": "body",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:210"
+      "where": "db/nexus.sql:211"
      },
      {
       "name": "detail",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:211"
+      "where": "db/nexus.sql:212"
      },
      {
       "name": "created_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:212"
+      "where": "db/nexus.sql:213"
      }
     ],
     "primary_key": [
@@ -917,7 +917,7 @@
        "id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:206"
+      "where": "db/nexus.sql:207"
      },
      {
       "columns": [
@@ -928,10 +928,10 @@
        "id"
       ],
       "on_delete": "restrict",
-      "where": "db/nexus.sql:209"
+      "where": "db/nexus.sql:210"
      }
     ],
-    "where": "db/nexus.sql:200",
+    "where": "db/nexus.sql:201",
     "terms": [
      "TERM-200"
     ]
@@ -946,55 +946,55 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:223"
+      "where": "db/nexus.sql:224"
      },
      {
       "name": "project_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:224"
+      "where": "db/nexus.sql:225"
      },
      {
       "name": "purpose",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:225"
+      "where": "db/nexus.sql:226"
      },
      {
       "name": "number",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:226"
+      "where": "db/nexus.sql:227"
      },
      {
       "name": "state",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:227"
+      "where": "db/nexus.sql:228"
      },
      {
       "name": "merge_commit",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:228"
+      "where": "db/nexus.sql:229"
      },
      {
       "name": "reported_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:229"
+      "where": "db/nexus.sql:230"
      },
      {
       "name": "closed_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:230"
+      "where": "db/nexus.sql:231"
      },
      {
       "name": "credential_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:231"
+      "where": "db/nexus.sql:232"
      }
     ],
     "primary_key": [
@@ -1026,7 +1026,7 @@
        "id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:224"
+      "where": "db/nexus.sql:225"
      },
      {
       "columns": [
@@ -1037,10 +1037,10 @@
        "id"
       ],
       "on_delete": "restrict",
-      "where": "db/nexus.sql:231"
+      "where": "db/nexus.sql:232"
      }
     ],
-    "where": "db/nexus.sql:217",
+    "where": "db/nexus.sql:218",
     "terms": []
    },
    {
@@ -1053,79 +1053,79 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:245"
+      "where": "db/nexus.sql:246"
      },
      {
       "name": "project_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:246"
+      "where": "db/nexus.sql:247"
      },
      {
       "name": "diagram_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:247"
+      "where": "db/nexus.sql:248"
      },
      {
       "name": "drawing_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:248"
+      "where": "db/nexus.sql:249"
      },
      {
       "name": "origin",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:249"
+      "where": "db/nexus.sql:250"
      },
      {
       "name": "thread_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:250"
+      "where": "db/nexus.sql:251"
      },
      {
       "name": "credential_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:251"
+      "where": "db/nexus.sql:252"
      },
      {
       "name": "state",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:252"
+      "where": "db/nexus.sql:253"
      },
      {
       "name": "created_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:253"
+      "where": "db/nexus.sql:254"
      },
      {
       "name": "decided_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:254"
+      "where": "db/nexus.sql:255"
      },
      {
       "name": "pull_request_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:255"
+      "where": "db/nexus.sql:256"
      },
      {
       "name": "reflected_drawing_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:256"
+      "where": "db/nexus.sql:257"
      },
      {
       "name": "detail",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:257"
+      "where": "db/nexus.sql:258"
      }
     ],
     "primary_key": [
@@ -1150,7 +1150,7 @@
        "id"
       ],
       "on_delete": "restrict",
-      "where": "db/nexus.sql:251"
+      "where": "db/nexus.sql:252"
      },
      {
       "columns": [
@@ -1163,7 +1163,7 @@
        "project_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:262"
+      "where": "db/nexus.sql:263"
      },
      {
       "columns": [
@@ -1176,7 +1176,7 @@
        "diagram_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:263"
+      "where": "db/nexus.sql:264"
      },
      {
       "columns": [
@@ -1189,7 +1189,7 @@
        "diagram_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:264"
+      "where": "db/nexus.sql:265"
      },
      {
       "columns": [
@@ -1202,7 +1202,7 @@
        "project_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:265"
+      "where": "db/nexus.sql:266"
      },
      {
       "columns": [
@@ -1215,10 +1215,10 @@
        "diagram_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:266"
+      "where": "db/nexus.sql:267"
      }
     ],
-    "where": "db/nexus.sql:237",
+    "where": "db/nexus.sql:238",
     "terms": [
      "TERM-203"
     ]
@@ -1233,49 +1233,49 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:278"
+      "where": "db/nexus.sql:279"
      },
      {
       "name": "change_set_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:279"
+      "where": "db/nexus.sql:280"
      },
      {
       "name": "seq",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:280"
+      "where": "db/nexus.sql:281"
      },
      {
       "name": "op",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:281"
+      "where": "db/nexus.sql:282"
      },
      {
       "name": "element_key",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:282"
+      "where": "db/nexus.sql:283"
      },
      {
       "name": "new_name",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:283"
+      "where": "db/nexus.sql:284"
      },
      {
       "name": "target_key",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:284"
+      "where": "db/nexus.sql:285"
      },
      {
       "name": "detail",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:285"
+      "where": "db/nexus.sql:286"
      }
     ],
     "primary_key": [
@@ -1300,10 +1300,10 @@
        "id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:279"
+      "where": "db/nexus.sql:280"
      }
     ],
-    "where": "db/nexus.sql:275",
+    "where": "db/nexus.sql:276",
     "terms": [
      "TERM-203"
     ]
@@ -1318,67 +1318,67 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:297"
+      "where": "db/nexus.sql:298"
      },
      {
       "name": "project_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:298"
+      "where": "db/nexus.sql:299"
      },
      {
       "name": "diagram_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:299"
+      "where": "db/nexus.sql:300"
      },
      {
       "name": "drawing_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:300"
+      "where": "db/nexus.sql:301"
      },
      {
       "name": "state",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:301"
+      "where": "db/nexus.sql:302"
      },
      {
       "name": "confirmed_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:302"
+      "where": "db/nexus.sql:303"
      },
      {
       "name": "ended_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:303"
+      "where": "db/nexus.sql:304"
      },
      {
       "name": "invalidated_by_drawing",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:304"
+      "where": "db/nexus.sql:305"
      },
      {
       "name": "recorded_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:305"
+      "where": "db/nexus.sql:306"
      },
      {
       "name": "record_pull_request_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:306"
+      "where": "db/nexus.sql:307"
      },
      {
       "name": "cancel_recorded_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:307"
+      "where": "db/nexus.sql:308"
      }
     ],
     "primary_key": [
@@ -1411,7 +1411,7 @@
        "project_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:312"
+      "where": "db/nexus.sql:313"
      },
      {
       "columns": [
@@ -1424,7 +1424,7 @@
        "diagram_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:313"
+      "where": "db/nexus.sql:314"
      },
      {
       "columns": [
@@ -1437,7 +1437,7 @@
        "diagram_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:314"
+      "where": "db/nexus.sql:315"
      },
      {
       "columns": [
@@ -1450,10 +1450,10 @@
        "project_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:315"
+      "where": "db/nexus.sql:316"
      }
     ],
-    "where": "db/nexus.sql:291",
+    "where": "db/nexus.sql:292",
     "terms": [
      "TERM-206"
     ]
@@ -1468,31 +1468,31 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:328"
+      "where": "db/nexus.sql:329"
      },
      {
       "name": "project_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:329"
+      "where": "db/nexus.sql:330"
      },
      {
       "name": "stage",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:330"
+      "where": "db/nexus.sql:331"
      },
      {
       "name": "passed_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:331"
+      "where": "db/nexus.sql:332"
      },
      {
       "name": "changed_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:332"
+      "where": "db/nexus.sql:333"
      }
     ],
     "primary_key": [
@@ -1509,10 +1509,10 @@
        "id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:329"
+      "where": "db/nexus.sql:330"
      }
     ],
-    "where": "db/nexus.sql:323",
+    "where": "db/nexus.sql:324",
     "terms": [
      "TERM-206"
     ]
@@ -1527,31 +1527,31 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:340"
+      "where": "db/nexus.sql:341"
      },
      {
       "name": "project_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:341"
+      "where": "db/nexus.sql:342"
      },
      {
       "name": "state",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:342"
+      "where": "db/nexus.sql:343"
      },
      {
       "name": "opened_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:343"
+      "where": "db/nexus.sql:344"
      },
      {
       "name": "closed_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:344"
+      "where": "db/nexus.sql:345"
      }
     ],
     "primary_key": [
@@ -1582,10 +1582,10 @@
        "id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:341"
+      "where": "db/nexus.sql:342"
      }
     ],
-    "where": "db/nexus.sql:336",
+    "where": "db/nexus.sql:337",
     "terms": [
      "TERM-211"
     ]
@@ -1600,37 +1600,37 @@
       "name": "project_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:355"
+      "where": "db/nexus.sql:356"
      },
      {
       "name": "workshop_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:356"
+      "where": "db/nexus.sql:357"
      },
      {
       "name": "step",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:357"
+      "where": "db/nexus.sql:358"
      },
      {
       "name": "confirmed_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:358"
+      "where": "db/nexus.sql:359"
      },
      {
       "name": "written_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:359"
+      "where": "db/nexus.sql:360"
      },
      {
       "name": "pull_request_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:360"
+      "where": "db/nexus.sql:361"
      }
     ],
     "primary_key": [
@@ -1650,7 +1650,7 @@
        "project_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:363"
+      "where": "db/nexus.sql:364"
      },
      {
       "columns": [
@@ -1663,10 +1663,10 @@
        "project_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:364"
+      "where": "db/nexus.sql:365"
      }
     ],
-    "where": "db/nexus.sql:351",
+    "where": "db/nexus.sql:352",
     "terms": [
      "TERM-211"
     ]
@@ -1681,79 +1681,79 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:374"
+      "where": "db/nexus.sql:375"
      },
      {
       "name": "workshop_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:375"
+      "where": "db/nexus.sql:376"
      },
      {
       "name": "step",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:376"
+      "where": "db/nexus.sql:377"
      },
      {
       "name": "kind",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:377"
+      "where": "db/nexus.sql:378"
      },
      {
       "name": "body",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:378"
+      "where": "db/nexus.sql:379"
      },
      {
       "name": "x",
       "type": "REAL",
       "null": false,
-      "where": "db/nexus.sql:379"
+      "where": "db/nexus.sql:380"
      },
      {
       "name": "y",
       "type": "REAL",
       "null": false,
-      "where": "db/nexus.sql:380"
+      "where": "db/nexus.sql:381"
      },
      {
       "name": "made_by",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:381"
+      "where": "db/nexus.sql:382"
      },
      {
       "name": "credential_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:382"
+      "where": "db/nexus.sql:383"
      },
      {
       "name": "confidence",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:383"
+      "where": "db/nexus.sql:384"
      },
      {
       "name": "from_miro",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:384"
+      "where": "db/nexus.sql:385"
      },
      {
       "name": "created_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:385"
+      "where": "db/nexus.sql:386"
      },
      {
       "name": "removed_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:386"
+      "where": "db/nexus.sql:387"
      }
     ],
     "primary_key": [
@@ -1778,7 +1778,7 @@
        "id"
       ],
       "on_delete": "restrict",
-      "where": "db/nexus.sql:382"
+      "where": "db/nexus.sql:383"
      },
      {
       "columns": [
@@ -1791,10 +1791,10 @@
        "step"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:390"
+      "where": "db/nexus.sql:391"
      }
     ],
-    "where": "db/nexus.sql:369",
+    "where": "db/nexus.sql:370",
     "terms": [
      "TERM-211"
     ]
@@ -1809,49 +1809,49 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:398"
+      "where": "db/nexus.sql:399"
      },
      {
       "name": "workshop_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:399"
+      "where": "db/nexus.sql:400"
      },
      {
       "name": "from_note",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:400"
+      "where": "db/nexus.sql:401"
      },
      {
       "name": "to_note",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:401"
+      "where": "db/nexus.sql:402"
      },
      {
       "name": "made_by",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:402"
+      "where": "db/nexus.sql:403"
      },
      {
       "name": "credential_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:403"
+      "where": "db/nexus.sql:404"
      },
      {
       "name": "created_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:404"
+      "where": "db/nexus.sql:405"
      },
      {
       "name": "removed_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:405"
+      "where": "db/nexus.sql:406"
      }
     ],
     "primary_key": [
@@ -1868,7 +1868,7 @@
        "id"
       ],
       "on_delete": "restrict",
-      "where": "db/nexus.sql:403"
+      "where": "db/nexus.sql:404"
      },
      {
       "columns": [
@@ -1881,7 +1881,7 @@
        "workshop_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:408"
+      "where": "db/nexus.sql:409"
      },
      {
       "columns": [
@@ -1894,10 +1894,10 @@
        "workshop_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:409"
+      "where": "db/nexus.sql:410"
      }
     ],
-    "where": "db/nexus.sql:394",
+    "where": "db/nexus.sql:395",
     "terms": [
      "TERM-211"
     ]
@@ -1912,79 +1912,79 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:420"
+      "where": "db/nexus.sql:421"
      },
      {
       "name": "project_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:421"
+      "where": "db/nexus.sql:422"
      },
      {
       "name": "side",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:422"
+      "where": "db/nexus.sql:423"
      },
      {
       "name": "kind",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:423"
+      "where": "db/nexus.sql:424"
      },
      {
       "name": "diagram_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:426"
+      "where": "db/nexus.sql:427"
      },
      {
       "name": "thread_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:427"
+      "where": "db/nexus.sql:428"
      },
      {
       "name": "change_set_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:428"
+      "where": "db/nexus.sql:429"
      },
      {
       "name": "confirmation_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:429"
+      "where": "db/nexus.sql:430"
      },
      {
       "name": "workshop_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:430"
+      "where": "db/nexus.sql:431"
      },
      {
       "name": "step",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:431"
+      "where": "db/nexus.sql:432"
      },
      {
       "name": "created_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:432"
+      "where": "db/nexus.sql:433"
      },
      {
       "name": "closed_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:433"
+      "where": "db/nexus.sql:434"
      },
      {
       "name": "close_reason",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:434"
+      "where": "db/nexus.sql:435"
      }
     ],
     "primary_key": [
@@ -2009,7 +2009,7 @@
        "id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:421"
+      "where": "db/nexus.sql:422"
      },
      {
       "columns": [
@@ -2022,7 +2022,7 @@
        "project_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:444"
+      "where": "db/nexus.sql:445"
      },
      {
       "columns": [
@@ -2035,7 +2035,7 @@
        "diagram_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:445"
+      "where": "db/nexus.sql:446"
      },
      {
       "columns": [
@@ -2048,7 +2048,7 @@
        "diagram_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:446"
+      "where": "db/nexus.sql:447"
      },
      {
       "columns": [
@@ -2061,7 +2061,7 @@
        "diagram_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:447"
+      "where": "db/nexus.sql:448"
      },
      {
       "columns": [
@@ -2074,7 +2074,7 @@
        "project_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:448"
+      "where": "db/nexus.sql:449"
      },
      {
       "columns": [
@@ -2087,10 +2087,10 @@
        "step"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:449"
+      "where": "db/nexus.sql:450"
      }
     ],
-    "where": "db/nexus.sql:414",
+    "where": "db/nexus.sql:415",
     "terms": []
    },
    {
@@ -2103,61 +2103,61 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:465"
+      "where": "db/nexus.sql:466"
      },
      {
       "name": "project_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:466"
+      "where": "db/nexus.sql:467"
      },
      {
       "name": "todo_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:467"
+      "where": "db/nexus.sql:468"
      },
      {
       "name": "session",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:468"
+      "where": "db/nexus.sql:469"
      },
      {
       "name": "credential_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:469"
+      "where": "db/nexus.sql:470"
      },
      {
       "name": "claimed_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:470"
+      "where": "db/nexus.sql:471"
      },
      {
       "name": "last_write_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:471"
+      "where": "db/nexus.sql:472"
      },
      {
       "name": "pull_request_id",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:472"
+      "where": "db/nexus.sql:473"
      },
      {
       "name": "released_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:473"
+      "where": "db/nexus.sql:474"
      },
      {
       "name": "release_reason",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:474"
+      "where": "db/nexus.sql:475"
      }
     ],
     "primary_key": [
@@ -2181,7 +2181,7 @@
        "id"
       ],
       "on_delete": "restrict",
-      "where": "db/nexus.sql:469"
+      "where": "db/nexus.sql:470"
      },
      {
       "columns": [
@@ -2194,7 +2194,7 @@
        "project_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:476"
+      "where": "db/nexus.sql:477"
      },
      {
       "columns": [
@@ -2207,10 +2207,10 @@
        "project_id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:477"
+      "where": "db/nexus.sql:478"
      }
     ],
-    "where": "db/nexus.sql:460",
+    "where": "db/nexus.sql:461",
     "terms": [
      "TERM-217"
     ]
@@ -2225,55 +2225,55 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:489"
+      "where": "db/nexus.sql:490"
      },
      {
       "name": "project_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:490"
+      "where": "db/nexus.sql:491"
      },
      {
       "name": "scope",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:491"
+      "where": "db/nexus.sql:492"
      },
      {
       "name": "tool",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:492"
+      "where": "db/nexus.sql:493"
      },
      {
       "name": "url",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:493"
+      "where": "db/nexus.sql:494"
      },
      {
       "name": "status",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:494"
+      "where": "db/nexus.sql:495"
      },
      {
       "name": "status_read_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:495"
+      "where": "db/nexus.sql:496"
      },
      {
       "name": "added_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:496"
+      "where": "db/nexus.sql:497"
      },
      {
       "name": "removed_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:497"
+      "where": "db/nexus.sql:498"
      }
     ],
     "primary_key": [
@@ -2299,10 +2299,10 @@
        "id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:490"
+      "where": "db/nexus.sql:491"
      }
     ],
-    "where": "db/nexus.sql:484",
+    "where": "db/nexus.sql:485",
     "terms": [
      "TERM-218"
     ]
@@ -2317,37 +2317,37 @@
       "name": "actor",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:506"
+      "where": "db/nexus.sql:507"
      },
      {
       "name": "request_key",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:507"
+      "where": "db/nexus.sql:508"
      },
      {
       "name": "action",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:508"
+      "where": "db/nexus.sql:509"
      },
      {
       "name": "status_code",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:509"
+      "where": "db/nexus.sql:510"
      },
      {
       "name": "answer",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:510"
+      "where": "db/nexus.sql:511"
      },
      {
       "name": "created_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:511"
+      "where": "db/nexus.sql:512"
      }
     ],
     "primary_key": [
@@ -2356,7 +2356,7 @@
     ],
     "unique": [],
     "foreign_keys": [],
-    "where": "db/nexus.sql:502",
+    "where": "db/nexus.sql:503",
     "terms": []
    },
    {
@@ -2369,49 +2369,49 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:520"
+      "where": "db/nexus.sql:521"
      },
      {
       "name": "name",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:521"
+      "where": "db/nexus.sql:522"
      },
      {
       "name": "attempt",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:522"
+      "where": "db/nexus.sql:523"
      },
      {
       "name": "state",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:523"
+      "where": "db/nexus.sql:524"
      },
      {
       "name": "bytes",
       "type": "INTEGER",
       "null": true,
-      "where": "db/nexus.sql:524"
+      "where": "db/nexus.sql:525"
      },
      {
       "name": "started_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:525"
+      "where": "db/nexus.sql:526"
      },
      {
       "name": "finished_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:526"
+      "where": "db/nexus.sql:527"
      },
      {
       "name": "removed_at",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:527"
+      "where": "db/nexus.sql:528"
      }
     ],
     "primary_key": [
@@ -2427,7 +2427,7 @@
      }
     ],
     "foreign_keys": [],
-    "where": "db/nexus.sql:516",
+    "where": "db/nexus.sql:517",
     "terms": []
    },
    {
@@ -2440,37 +2440,37 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:535"
+      "where": "db/nexus.sql:536"
      },
      {
       "name": "release",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:536"
+      "where": "db/nexus.sql:537"
      },
      {
       "name": "backup_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:537"
+      "where": "db/nexus.sql:538"
      },
      {
       "name": "result",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:538"
+      "where": "db/nexus.sql:539"
      },
      {
       "name": "rehearsed_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:539"
+      "where": "db/nexus.sql:540"
      },
      {
       "name": "note",
       "type": "TEXT",
       "null": true,
-      "where": "db/nexus.sql:540"
+      "where": "db/nexus.sql:541"
      }
     ],
     "primary_key": [
@@ -2487,11 +2487,70 @@
        "id"
       ],
       "on_delete": "restrict",
-      "where": "db/nexus.sql:537"
+      "where": "db/nexus.sql:538"
      }
     ],
-    "where": "db/nexus.sql:532",
+    "where": "db/nexus.sql:533",
     "terms": []
+   },
+   {
+    "id": "TBL-172",
+    "name": "thread_resolution_events",
+    "context": "CTX-038",
+    "removed": false,
+    "columns": [
+     {
+      "name": "id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:549"
+     },
+     {
+      "name": "thread_id",
+      "type": "INTEGER",
+      "null": false,
+      "where": "db/nexus.sql:550"
+     },
+     {
+      "name": "event",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:551"
+     },
+     {
+      "name": "detail",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:552"
+     },
+     {
+      "name": "created_at",
+      "type": "TEXT",
+      "null": false,
+      "where": "db/nexus.sql:553"
+     }
+    ],
+    "primary_key": [
+     "id"
+    ],
+    "unique": [],
+    "foreign_keys": [
+     {
+      "columns": [
+       "thread_id"
+      ],
+      "table": "comment_threads",
+      "references": [
+       "id"
+      ],
+      "on_delete": "cascade",
+      "where": "db/nexus.sql:550"
+     }
+    ],
+    "where": "db/nexus.sql:545",
+    "terms": [
+     "TERM-200"
+    ]
    }
   ],
   "without_table": [

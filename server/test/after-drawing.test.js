@@ -20,6 +20,7 @@ import { SourceFailure } from '../src/drawing.js';
 import { changeSetsChanged, confirmationsChanged } from '../src/entries.js';
 import { idOf } from '../src/ids.js';
 import { readProject } from '../src/project.js';
+import { reflectMerged } from '../src/reflection.js';
 import { snapshotRoutes } from '../src/snapshots.js';
 import { openStore } from '../src/store.js';
 import { placeOf, testDrawers } from './drawers.js';
@@ -146,25 +147,27 @@ describe('after a drawing', () => {
     assert.deepEqual(counts(await space.push({ tables, items: [item('REQ-001', '02-prd', 'Draw them')] })), [0, 0, 0]);
     assert.equal(confirmation(first).state, 'confirmed');
 
-    // A failed drawing invalidates nothing; the fix back to the confirmed text keeps it, though it draws again.
+    // A failed drawing cannot prove that the confirmation still applies.
     const broken = [...tables, table('TBL-148', 'snapshots', { broken: true })];
     const failed = await space.push({ tables: broken });
     assert.equal(failed.diagrams.failed, 1);
-    assert.deepEqual(counts(failed), [0, 0, 0]);
-    assert.equal(confirmation(first).state, 'confirmed');
+    assert.deepEqual(counts(failed), [1, 0, 0]);
+    assert.equal(confirmation(first).state, 'invalidated');
     const fixed = await space.push({ tables });
     assert.deepEqual([fixed.diagrams.drawn, ...counts(fixed)], [1, 0, 0, 0]);
-    assert.equal(confirmation(first).state, 'confirmed');
+    assert.equal(confirmation(first).state, 'invalidated');
+    const reconfirmed = confirm(space, diagram(space, ERD));
 
     // A change to its document invalidates it, by the drawing that drew the change, and the owner confirms again.
     const changed = await space.push({ tables: [table('TBL-146', 'agent_credentials'), table('TBL-147', 'project_spaces_v2')] });
     assert.deepEqual(counts(changed), [1, 0, 0]);
     erdNow = diagram(space, ERD);
-    assert.deepEqual(confirmation(first), { state: 'invalidated', ended_at: time(), invalidated_by_drawing: erdNow.drawing });
+    assert.deepEqual(confirmation(reconfirmed), { state: 'invalidated', ended_at: time(), invalidated_by_drawing: erdNow.drawing });
     const waiting = openEntries(db, space.id).filter((entry) => entry.diagram_id === erdNow.id);
     assert.deepEqual(waiting.map((entry) => [entry.side, entry.kind, entry.confirmation_id]), [
       ['agent', 'record_confirmation', first],
-      ['owner', 'confirm', first],
+      ['agent', 'record_confirmation', reconfirmed],
+      ['owner', 'confirm', reconfirmed],
     ]);
   });
 
@@ -174,7 +177,9 @@ describe('after a drawing', () => {
     await space.push({ tables });
     const erdNow = diagram(space, ERD);
     const asked = rows.thread(erdNow, { elementKey: 'TBL-147' });
-    const proposal = rows.changeSet(space, erdNow, { origin: 'proposal', threadId: asked, state: 'accepted' });
+    const proposal = rows.changeSet(space, erdNow, { origin: 'proposal', threadId: asked, state: 'accepted', detail: { change: 'Rename the table' } });
+    rows.comment(asked, { body: 'Rename the table' });
+    rows.change(proposal, { op: 'rename', element: 'TBL-147', name: 'project_spaces' });
     const edit = rows.changeSet(space, erdNow);
     const other = rows.changeSet(space, erdNow);
     const merged = rows.pullRequest(space, { number: 12, state: 'merged' });
@@ -217,6 +222,98 @@ describe('after a drawing', () => {
     assert.deepEqual(counts(await space.push({ tables: [...tables, table('TBL-148', 'snapshots', { broken: true })], commit: failing })), [0, 1, 0]);
     assert.equal(drawingsOf(diagram(space, ERD)).at(-1).status, 'failed');
     assert.deepEqual(changeSetRow(late), { state: 'reflected', reflected_drawing_id: good });
+  });
+
+  test('reflection leaves a thread open when a later owner question remains unanswered', async () => {
+    const space = project('reflection-with-question');
+    const tables = [table('TBL-146', 'agent_credentials')];
+    await space.push({ tables });
+    const current = diagram(space, ERD);
+    const thread = rows.thread(current, { elementKey: 'TBL-146' });
+    const proposalAt = '2026-11-24T01:00:30.000Z';
+    const proposal = rows.changeSet(space, current, {
+      origin: 'proposal', threadId: thread, state: 'accepted', at: proposalAt,
+      detail: { change: 'Keep the agreed name' }, decidedAt: '2026-11-24T01:00:40.000Z',
+    });
+    rows.change(proposal, { op: 'rename', element: 'TBL-146', name: 'agent_credentials' });
+    rows.comment(thread, { body: 'Keep the agreed name', at: proposalAt });
+    rows.comment(thread, { author: 'owner', body: 'What happens after this change?', at: proposalAt });
+    const pull = rows.pullRequest(space, { number: 91, state: 'merged' });
+    rows.setChangeSet(proposal, { pullRequestId: pull });
+    const merge = newCommit();
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(merge, pull);
+    await space.push({ tables, commit: merge });
+    assert.equal(threadRow(thread).state, 'open');
+  });
+
+  test('a reflected proposal is checked again when a failed drawing is repaired', async () => {
+    const space = project('reflection-after-repair');
+    await space.push({ tables: [table('TBL-146', 'old name')] });
+    const current = diagram(space, ERD);
+    const thread = rows.thread(current, { elementKey: 'TBL-146' });
+    const proposalAt = '2026-11-23T01:01:00.000Z';
+    const pull = rows.pullRequest(space, { number: 95, state: 'merged' });
+    const proposal = rows.changeSet(space, current, { origin: 'proposal', threadId: thread, state: 'accepted', pullRequestId: pull,
+      at: proposalAt, decidedAt: proposalAt, detail: { change: 'Use the new name' } });
+    rows.change(proposal, { element: 'TBL-146', name: 'new name' });
+    rows.comment(thread, { body: 'Use the new name', at: proposalAt });
+    const merge = newCommit();
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(merge, pull);
+    await space.push({ tables: [table('TBL-146', 'new name', { broken: true })], commit: merge });
+    assert.equal(changeSetRow(proposal).state, 'reflected');
+    assert.equal(threadRow(thread).state, 'open');
+    await space.push({ tables: [table('TBL-146', 'new name')] });
+    assert.equal(threadRow(thread).state, 'closed');
+    db.prepare("UPDATE comment_threads SET state = 'open', waits_on = 'agent', closed_at = NULL, closed_by = NULL WHERE id = ?").run(thread);
+    db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'reopened', ?)").run(thread, at(clock.now));
+    await space.push({ tables: [table('TBL-146', 'new name'), table('TBL-147', 'another table')] });
+    assert.equal(threadRow(thread).state, 'open');
+  });
+
+  test('multiple handled proposals can resolve when the later reflected change replaces the first', async () => {
+    const space = project('multiple-reflected');
+    await space.push({ tables: [table('TBL-146', 'start')] });
+    const current = diagram(space, ERD);
+    const thread = rows.thread(current, { elementKey: 'TBL-146', at: '2026-11-23T01:00:00.000Z' });
+    const pull = rows.pullRequest(space, { number: 92, state: 'merged' });
+    const firstAt = '2026-11-23T01:01:00.000Z';
+    const secondAt = '2026-11-23T01:02:00.000Z';
+    const first = rows.changeSet(space, current, { origin: 'proposal', threadId: thread, state: 'accepted', pullRequestId: pull,
+      at: firstAt, decidedAt: firstAt, detail: { change: 'First proposal' } });
+    const second = rows.changeSet(space, current, { origin: 'proposal', threadId: thread, state: 'accepted', pullRequestId: pull,
+      at: secondAt, decidedAt: secondAt, detail: { change: 'Second proposal' } });
+    rows.comment(thread, { body: 'First proposal', at: firstAt });
+    rows.comment(thread, { body: 'Second proposal', at: secondAt });
+    rows.change(first, { op: 'rename', element: 'TBL-146', name: 'middle' });
+    rows.change(second, { op: 'rename', element: 'TBL-146', name: 'final' });
+    const merge = newCommit();
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(merge, pull);
+    await space.push({ tables: [table('TBL-146', 'final')], commit: merge });
+    assert.equal(threadRow(thread).state, 'closed');
+    assert.equal(Number(db.prepare("SELECT count(*) AS n FROM thread_resolution_events WHERE thread_id = ? AND event = 'resolved'").get(thread).n), 1);
+  });
+
+  test('proposals on one conversation can resolve after separate merges', async () => {
+    const space = project('proposals-in-separate-merges');
+    await space.push({ tables: [table('TBL-146', 'first name'), table('TBL-147', 'second name')] });
+    space.snapshot = Number(db.prepare('SELECT id FROM snapshots WHERE project_id = ? AND commit_sha = ?').get(space.id, space.commit).id);
+    const firstDiagram = diagram(space, ERD);
+    const thread = rows.thread(firstDiagram, { elementKey: 'TBL-146' });
+    const firstAt = '2026-11-23T01:01:00.000Z';
+    const secondAt = '2026-11-23T01:02:00.000Z';
+    const first = rows.changeSet(space, firstDiagram, { origin: 'proposal', threadId: thread, state: 'accepted', at: firstAt,
+      decidedAt: firstAt, detail: { change: 'First proposal' } });
+    rows.setChangeSet(first, { reflectedDrawing: firstDiagram.drawing });
+    rows.change(first, { element: 'TBL-146', name: 'first name' });
+    rows.comment(thread, { body: 'First proposal', at: firstAt });
+    const pull = rows.pullRequest(space, { number: 93, state: 'merged' });
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(space.commit, pull);
+    const second = rows.changeSet(space, firstDiagram, { origin: 'proposal', threadId: thread, state: 'accepted', pullRequestId: pull,
+      at: secondAt, decidedAt: secondAt, detail: { change: 'Second proposal' } });
+    rows.change(second, { element: 'TBL-147', name: 'second name' });
+    rows.comment(thread, { body: 'Second proposal', at: secondAt });
+    assert.equal(reflectMerged(db, { project: space.id, commit: space.commit, time: at(clock.now) }), 1);
+    assert.equal(threadRow(thread).state, 'closed');
   });
 
   test('a merged document that lacks a change is reflected anyway, and one comment on the diagram says what is missing (SPEC-025, note 26)', async () => {

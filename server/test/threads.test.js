@@ -23,7 +23,7 @@ import { checkLayer, checkTables, recordTables } from './tables.js';
 const START = Date.parse('2026-11-23T02:00:00.000Z');
 const MINUTE = 60 * 1000;
 const MiB = 1024 * 1024;
-const ACTIONS = ['getThread', 'startThread', 'replyInThread', 'closeThread'];
+const ACTIONS = ['getThread', 'startThread', 'replyInThread', 'closeThread', 'reopenThread'];
 const ERD = '/pictures/05-erd/nexus';
 const FLOW = 'docs/03-user-flow/FL-001-put-a-project-on-nexus.md';
 const GONE = 'docs/03-user-flow/FL-009-gone.md';
@@ -76,6 +76,7 @@ describe('the owner\'s threads', () => {
   );
   const reply = (id, text, options = {}) => call('replyInThread', 'POST', threadPath(id, '/comments', options.project), { body: { text }, ...options });
   const close = (id, options = {}) => call('closeThread', 'POST', threadPath(id, '/close', options.project), { body: {}, ...options });
+  const reopen = (id, options = {}) => call('reopenThread', 'POST', threadPath(id, '/reopen', options.project), { body: {}, ...options });
   // An agent's read of the same thread (API-246), which answers the same Thread.
   const agentRead = async (id) => (await server.send({ path: `/api/spaces/${space.name}/comments/${id}`, headers: s.agent.headers })).json;
 
@@ -315,6 +316,37 @@ describe('the owner\'s threads', () => {
     assert.deepEqual([refused.status, refused.json.code, comments(asked).length, threadRow(asked).state], [409, 'thread_closed', 1, 'closed']);
   });
 
+  test('the owner can reopen an automatically resolved thread, retaining its history', async () => {
+    const id = thread(erd, { elementKey: 'TBL-146' });
+    s.closeThread(id, { by: 'reflection' });
+    db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'resolved', ?)").run(id, TIME);
+    threadChanged(db, { project: space.id, thread: id, time: TIME });
+    const key = `"${newId('nw')}"`;
+    const request = { method: 'POST', path: threadPath(nc(id), '/reopen'), headers: { ...owner(), 'Content-Type': 'application/json', 'Idempotency-Key': key }, body: '{}' };
+    const result = responses.note('reopenThread', await server.send(request));
+    assert.equal(result.status, 200);
+    assert.equal(result.json.changed, true);
+    assert.equal(result.json.thread.waits_on, 'agent');
+    assert.deepEqual(open(id), ['agent comment']);
+    assert.equal(Number(db.prepare("SELECT count(*) AS n FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'").get(id).n), 1);
+    const repeat = await server.send(request);
+    assert.equal(repeat.status, 200);
+    assert.equal(Number(db.prepare("SELECT count(*) AS n FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'").get(id).n), 1);
+    const ownerClosed = thread(erd, { elementKey: 'TBL-146' });
+    s.closeThread(ownerClosed);
+    const other = { ...request, path: threadPath(nc(ownerClosed), '/reopen'), headers: { ...request.headers, 'Idempotency-Key': `"${newId('nw')}"` } };
+    assert.equal(responses.note('reopenThread', await server.send(other)).status, 400);
+    const legacy = thread(erd, { elementKey: 'TBL-146' });
+    s.closeThread(legacy, { by: 'reflection' });
+    assert.equal((await reopen(nc(legacy))).status, 400);
+    const agent = { ...request, headers: { ...s.agent.headers, 'Content-Type': 'application/json', 'Idempotency-Key': `"${newId('nw')}"` } };
+    assert.equal((await server.send(agent)).status, 403);
+    assert.equal((await reopen(nc(id), { project: 'no-such-project' })).status, 404);
+    assert.equal((await reopen(idOf('nc', 999999))).status, 404);
+    const reused = { ...request, path: threadPath(nc(ownerClosed), '/reopen') };
+    assert.equal(responses.note('reopenThread', await server.send(reused)).status, 409);
+  });
+
   test('closing a thread leaves a proposal that answers it as it is', async () => {
     const asked = thread(erd, { author: 'agent', body: 'Rename agent_credentials to credentials?' });
     const proposal = s.changeSet(space, erd, { origin: 'proposal', threadId: asked });
@@ -456,6 +488,7 @@ describe('the owner\'s threads', () => {
       ['startThread', `/api/projects/${space.name}/diagrams/${dg(erd)}/threads`],
       ['replyInThread', threadPath(nc(asked), '/comments')],
       ['closeThread', threadPath(nc(asked), '/close')],
+      ['reopenThread', threadPath(nc(asked), '/reopen')],
     ];
     for (const [action, path] of paths) {
       const wrongType = await call(action, 'POST', path, { raw: '{}', type: 'text/plain' });
@@ -480,6 +513,7 @@ describe('the owner\'s threads', () => {
       (headers) => start(dg(erd), { drawing: dw(erd.drawing), target: 'diagram', text: TEXT }, { headers }),
       (headers) => reply(nc(asked), TEXT, { headers }),
       (headers) => close(nc(asked), { headers }),
+      (headers) => reopen(nc(asked), { headers }),
     ];
     for (const sendAs of sends) {
       for (const [headers, status, code] of [[{}, 401, 'unauthenticated'], [someone, 403, 'not_owner'], [s.agent.headers, 403, 'owner_only']]) {
@@ -524,14 +558,15 @@ describe('the owner\'s threads', () => {
       ['startThread', 'POST', `/api/projects/broken/diagrams/${dg(where)}/threads`, { drawing: dw(where.drawing), target: 'diagram', text: 'x' }],
       ['replyInThread', 'POST', `/api/projects/broken/threads/${nc(asked)}/comments`, { text: 'x' }],
       ['closeThread', 'POST', `/api/projects/broken/threads/${nc(asked)}/close`, {}],
+      ['reopenThread', 'POST', `/api/projects/broken/threads/${nc(asked)}/reopen`, {}],
     ];
     for (const [action, method, path, body] of sent) {
       const headers = method === 'GET' ? owner() : { ...write, 'Idempotency-Key': `"${newId('nw')}"` };
       const answer = responses.note(action, await third.send({ method, path, headers, body: body === undefined ? undefined : JSON.stringify(body) }));
       assert.deepEqual([answer.status, answer.json.code], [500, 'internal'], action);
     }
-    const lines = await third.logged(4);
-    assert.deepEqual(lines.map((line) => line.error), ['Error', 'Error', 'Error', 'Error']);
+    const lines = await third.logged(5);
+    assert.deepEqual(lines.map((line) => line.error), ['Error', 'Error', 'Error', 'Error', 'Error']);
     assert.equal(third.logText().includes('the store failed'), false);
     assert.deepEqual([store.prepare('SELECT count(*) AS n FROM comments').get().n, store.prepare('SELECT count(*) AS n FROM request_keys').get().n], [1, 0]);
   });
@@ -559,6 +594,7 @@ describe('the owner\'s threads', () => {
     checkTables(recorder, 'startThread');
     checkTables(recorder, 'replyInThread');
     checkTables(recorder, 'closeThread');
+    checkTables(recorder, 'reopenThread');
     checkLayer(recorder);
   });
 });

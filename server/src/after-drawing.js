@@ -5,7 +5,7 @@
 // - Confirmations (SPEC-033). A diagram's live confirmation is invalidated by a new drawing of it that drew, when the
 //   documents that drawing read differ from those of the confirmed drawing (their source_digest): a change only in a
 //   file the diagram does not draw from keeps it, and so does a change that comes back to the confirmed text. A failed
-//   drawing invalidates nothing, since the diagram still shows its last good drawing (SPEC-001).
+//   drawing cannot prove the confirmation still applies and requires confirmation again (SPEC-033).
 // - Stage passes (SPEC-035, TBL-161). A pass stays in the record, and is marked changed since the pass (changed_at):
 //   - when a confirmation it rests on is invalidated: every pass of the stage made since that confirmation was
 //     confirmed and not marked yet;
@@ -41,9 +41,11 @@
 // here logs (rule 5).
 
 import { confirmationsChanged } from './entries.js';
+import { isDecisionRecord } from './decision-record.js';
 import { passStage } from './passes.js';
 import { placeable } from './positions.js';
-import { reflectMerged } from './reflection.js';
+import { reflectMerged, recheckReflected } from './reflection.js';
+import { resolveDecision } from './resolve-decision.js';
 
 // PushAnswer's counts are at most 1,000,000.
 const COUNT = 1_000_000;
@@ -58,7 +60,7 @@ function statementsOf(store) {
     statements = {
       // A diagram's live confirmation, with the documents its drawing read.
       live: store.prepare(
-        `SELECT k.id, k.confirmed_at, w.source_digest FROM confirmations k JOIN drawings w ON w.id = k.drawing_id
+        `SELECT k.id, k.confirmed_at, k.drawing_id, w.source_digest FROM confirmations k JOIN drawings w ON w.id = k.drawing_id
          WHERE k.diagram_id = ? AND k.state = 'confirmed'`,
       ),
       invalidate: store.prepare(
@@ -67,6 +69,7 @@ function statementsOf(store) {
       // Whether a diagram has a drawing that drew before the given one.
       drawnBefore: store.prepare("SELECT 1 AS drawn FROM drawings WHERE diagram_id = ? AND status = 'drawn' AND id < ? LIMIT 1"),
       currentDrawn: store.prepare("SELECT id FROM drawings WHERE diagram_id = ? AND status = 'drawn' ORDER BY id DESC LIMIT 1"),
+      previousDrawn: store.prepare("SELECT id FROM drawings WHERE diagram_id = ? AND status = 'drawn' AND id >= ? AND id < ? ORDER BY id DESC LIMIT 1"),
       // Stage passes: those an invalidated confirmation rested on, and the stage's latest.
       changeSince: store.prepare(
         'UPDATE stage_passes SET changed_at = ? WHERE project_id = ? AND stage = ? AND changed_at IS NULL AND passed_at >= ?',
@@ -80,6 +83,10 @@ function statementsOf(store) {
       threads: store.prepare(
         'SELECT id, state, target_kind, element_key, removed_name FROM comment_threads WHERE diagram_id = ? AND element_key IS NOT NULL ORDER BY id',
       ),
+      openThreads: store.prepare(`SELECT h.id FROM comment_threads h WHERE h.diagram_id = ? AND h.state = 'open'
+        AND EXISTS (SELECT 1 FROM comments c WHERE c.thread_id = h.id
+          AND c.seq = (SELECT max(last.seq) FROM comments last WHERE last.thread_id = h.id)
+          AND json_type(c.detail, '$.link') = 'text')`),
       lastName: store.prepare(
         `SELECT e.name FROM elements e JOIN drawings w ON w.id = e.drawing_id
          WHERE w.diagram_id = ? AND w.status = 'drawn' AND e.element_key = ? AND (e.status IS NULL OR e.status <> 'unreadable')
@@ -172,12 +179,25 @@ export function afterDrawing(store, { project, commit, changed, time }) {
       continue;
     }
     const drew = diagram.drawing !== null && diagram.status === 'drawn';
-    if (diagram.created || diagram.restored || drew) confirming.add(id);
+    const failed = diagram.drawing !== null && diagram.status === 'failed';
+    if (diagram.created || diagram.restored || drew || failed) confirming.add(id);
 
     if (drew) {
       keepPlaced(statements, id, diagram.drawing);
       const live = statements.live.get(id);
-      if (live !== undefined && live.source_digest !== diagram.digest) {
+      if (live !== undefined && live.source_digest !== diagram.digest && !isDecisionRecord(store, {
+        diagram: id, confirmedDrawing: Number(live.drawing_id),
+        baselineDrawing: Number(statements.previousDrawn.get(id, live.drawing_id, diagram.drawing)?.id ?? live.drawing_id),
+        drawing: diagram.drawing, confirmedAt: live.confirmed_at, time,
+      })) {
+        statements.invalidate.run(time, diagram.drawing, Number(live.id));
+        statements.changeSince.run(time, project, stage, live.confirmed_at);
+        counts.confirmations_invalidated += 1;
+      }
+    }
+    if (failed) {
+      const live = statements.live.get(id);
+      if (live !== undefined) {
         statements.invalidate.run(time, diagram.drawing, Number(live.id));
         statements.changeSince.run(time, project, stage, live.confirmed_at);
         counts.confirmations_invalidated += 1;
@@ -202,6 +222,14 @@ export function afterDrawing(store, { project, commit, changed, time }) {
 
   // Reflections, at the drawing the diagram shows after the push (reflection.js).
   counts.change_sets_reflected += reflectMerged(store, { project, commit, time });
+
+  for (const diagram of changed) {
+    if (diagram.removed || diagram.status !== 'drawn') continue;
+    recheckReflected(store, { project, diagram: diagram.id, time });
+    for (const thread of statements.openThreads.all(diagram.id)) {
+      resolveDecision(store, { project, thread: Number(thread.id), time });
+    }
+  }
 
   for (const diagram of confirming) confirmationsChanged(store, { project, diagram, time });
   return Object.fromEntries(Object.entries(counts).map(([name, value]) => [name, Math.min(value, COUNT)]));

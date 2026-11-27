@@ -36,6 +36,8 @@ import urllib.request
 from pathlib import Path
 
 from test_hub_project import HubCheckoutCase, base_environment, node_program
+from test_hub_compatibility import LoopbackServer
+import test_api as contract
 
 ROOT = Path(__file__).resolve().parents[1]
 HARNESS = ROOT / "tests" / "hub_run_server.mjs"
@@ -265,6 +267,30 @@ class HubRunFixture(HubCheckoutCase):
 
 
 class HubRunTest(HubRunFixture):
+    def test_pinned_hub_reads_the_optional_resolved_decision_summary(self):
+        thread = "nc_0123456789ab"
+        link = PULL % 1
+        answer = {
+            "thread": {"id": thread, "state": "closed", "waits_on": None, "closed_by": "reflection",
+                       "resolved": True, "last_at": "2026-11-23T01:00:00.000Z"},
+            "entry": {"seq": 1, "author": "agent", "kind": "decision", "text": DECISION,
+                      "link": link, "made_at": "2026-11-23T01:00:00.000Z"},
+        }
+        self.assertEqual(contract.validate(contract.load(), answer, {"$ref": "#/components/schemas/EntryAnswer"}), [])
+        path = "/api/spaces/%s/comments/%s/decisions" % (PROJECT, thread)
+        with LoopbackServer({("POST", path): (201, answer)}) as server:
+            env = self.agent_environment("resolved-response")
+            env["CORTHEX_NEXUS_URL"] = server.url
+            decided = self.read(env, "decide", PROJECT, thread, "--link", link, "--text", DECISION)
+        self.assertIs(decided["thread"]["resolved"], True)
+
+    def test_pinned_hub_sends_a_commit_record_link_without_a_new_field(self):
+        thread = self.first_push_and_comment()
+        self.owner_reply(thread)
+        link = "https://github.com/kodonghui/corthex-nexus/commit/" + self.commit
+        decided = self.read(self.session, "decide", PROJECT, thread, "--link", link, "--text", DECISION)
+        self.assertEqual((decided["entry"]["kind"], decided["entry"]["link"]), ("decision", link), decided)
+
     def test_each_command_gets_an_answer_the_hub_reads(self):
         first = self.commit
         thread = self.first_push_and_comment()
