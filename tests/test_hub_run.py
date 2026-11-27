@@ -48,7 +48,7 @@ WHERE = "https://nexus.example.com/p/%s/nexus/07-sitemap" % PROJECT
 # The 32 characters of the contract's IDs, for a request key of the owner's writes.
 ID_ALPHABET = "0123456789abcdefghjkmnpqrstvwxyz"
 # The operations each command calls, as the server's log names them; status calls none. A push that sends nothing
-# reads the held commit only.
+# reads the held commit only. The shared map also names propose for test_hub_source_path.py.
 CALLS = {
     "push": ["getHeldCommit", "pushSnapshot"],
     "propose": ["makeProposal"],

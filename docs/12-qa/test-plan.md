@@ -417,7 +417,7 @@ These need the deployed v3, so they run on the first group's deploy. The go/no-g
 
 ### 2.8 The pinned hub end to end
 
-The plan below names e410ce9, the pin when it was written. The requested TC-214 to TC-220 walk uses a checkout pinned to that earlier SHA; the current checkout follows hub-ref.json at 1becbab. TC-221 uses that newer pin. The newer run and its result are recorded in QA PR 166, separately from this pin PR. The local harness runs the exact pin of its own checkout against a disposable v3 server.
+The plan below names e410ce9, the pin when it was written. The requested TC-214 to TC-220 walk uses a checkout pinned to that earlier SHA; the current checkout follows hub-ref.json at 1becbab. TC-221 uses that newer pin. The TC-221 row below and the fd85323 coverage summary preserve the earlier plan; the newer run and its result are recorded in QA PR 166, separately from this pin PR. The local harness runs the exact pin of its own checkout against a disposable v3 server.
 
 | ID | Case | From | Runs as | Gate | Steps | Expected | Status | Run evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
