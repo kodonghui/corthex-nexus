@@ -174,7 +174,7 @@ const groupNamed = (page, heading) => mainOf(page).all('section', 'group').find(
 const kindOf = (element) => tagWord({ kind: 'erd' }, asElement(element));
 
 describe('SCR-145 "이 그림"', () => {
-  test('never confirmed: 확정 전, that nothing is marked, the note on AI proposals and 이 그림 확정; a phone shows no section', async () => {
+  test('never confirmed: 확정 전, that nothing is marked, the note on AI proposals and 이 그림 확정; a phone shows guidance without the action', async () => {
     const page = await openAt('erd');
     try {
       const section = diagramSection(page);
@@ -192,7 +192,7 @@ describe('SCR-145 "이 그림"', () => {
     const phone = await openAt('erd', { phone: true });
     try {
       assert.equal(diagramSection(phone).hidden, false);
-      assert.deepEqual(shownTexts(diagramSection(phone), 'p'), [CONFIRM_WORDS.beforeConfirm, '확정은 PC에서 할 수 있어요.']);
+      assert.deepEqual(shownTexts(diagramSection(phone), 'p'), [CONFIRM_WORDS.neverConfirmed, CONFIRM_WORDS.beforeConfirm, CONFIRM_WORDS.phone]);
       assert.ok(byId(phone, 'confirm') === null);
     } finally {
       phone.close();
@@ -251,7 +251,7 @@ describe('SCR-145 "이 그림"', () => {
     }
   });
 
-  test('confirmed (SCR-145#confirmed): 확정함, the message, "기록되면 여기에 그 PR이 나와요." and 확정 취소, also while the record\'s pull request is open; a phone without 확정 취소', async () => {
+  test('confirmed (SCR-145#confirmed): 확정함, the message, the recording explanation and 확정 취소, also while the record\'s pull request is open; a phone without 확정 취소', async () => {
     for (const phone of [false, true]) {
       for (const fields of [{}, { pull_request: `${REPOSITORY}/pull/12` }]) {
         const page = await openAt('erd', { phone, diagram: confirmedWith('erd', 'confirmed', sinceOf(), fields) });
@@ -333,6 +333,13 @@ describe('SCR-145 "이 그림"', () => {
     } finally {
       page.close();
     }
+    const phone = await openAt('erd', { phone: true, diagram: diagramOf('erd', { drawing: failed, last_drawn: diagramOf('erd').drawing }) });
+    try {
+      const section = diagramSection(phone);
+      assert.deepEqual(tagsIn(section), ['그려지지 않음']);
+      assert.deepEqual(shownTexts(section, 'p'), ['문서가 그려지지 않았어요.', CONFIRM_WORDS.phone]);
+      assert.equal(section.all('button').length, 0);
+    } finally { phone.close(); }
   });
 
   test('what waits keeps the waiting state; with a live confirmation it shows both tags and 확정 취소 in the off button\'s place', async () => {
@@ -384,14 +391,14 @@ describe('SCR-145 "이 그림"', () => {
     const phone = await openAt('mockup', { phone: true });
     try {
       assert.equal(diagramSection(phone).hidden, false);
-      assert.deepEqual(shownTexts(diagramSection(phone), 'p'), [CONFIRM_WORDS.beforeConfirm, '확정은 PC에서 할 수 있어요.']);
+      assert.deepEqual(shownTexts(diagramSection(phone), 'p'), [CONFIRM_WORDS.neverConfirmed, CONFIRM_WORDS.beforeConfirm, CONFIRM_WORDS.phone]);
       assert.deepEqual(texts(phone, 'h3'), ['이 목업이 쓰는 토큰 2개']);
     } finally {
       phone.close();
     }
   });
 
-  test('이 그림 확정 asks once, "확정할까요?" with 확정 and 취소; 취소 and Escape stop; 확정 sends API-275 with every button off until the diagram is read again', async () => {
+  test('the record request asks once with confirm and cancel; 취소 and Escape stop; 확정 sends API-275 with every button off until the diagram is read again', async () => {
     const answer = held(json(201, { confirmation: confirmationOf('erd', 'confirmed', { drawing: DRAWING.erd, version: 'a'.repeat(40) }), changed: true }));
     const page = await openAt('erd', { posted: () => answer.answer });
     try {
@@ -527,6 +534,7 @@ describe('SCR-146', () => {
       const title = page.app.all('div', 'title')[0];
       assert.deepEqual(title.all('span', 'tag').filter((tag) => tag.shown).map((tag) => [tag.textContent, tag.className]), [[countTag(6), 'tag purple']]);
       assert.deepEqual(shownTexts(title, 'p'), [CONFIRM_WORDS.description]);
+      assert.ok(shownTexts(mainOf(page), 'p').includes(CONFIRM_WORDS.beforeConfirm));
       const link = mainOf(page).all('a', 'small')[0];
       assert.deepEqual([link.textContent, link.getAttribute('href'), link.getAttribute('target'), link.getAttribute('rel')], [
         `확정한 버전의 문서 ↗ b41c9e2 · ${new Date(TIME).getMonth() + 1}월 ${new Date(TIME).getDate()}일 확정`,

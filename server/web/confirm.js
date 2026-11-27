@@ -18,7 +18,7 @@ export const CONFIRM_WORDS = Object.freeze({
   confirmedHere: '이 그림을 확정했어요. 이 단계의 모든 그림과 표가 기록되면 단계가 통과돼요.',
   cancelled: '확정을 취소했어요. 다시 확정할 때까지 할 일에 남아요.',
   recorded: '기록됨',
-  // Until the agent records it, the mockup's line where the record's pull request will show (TASK-469, choice 3).
+  // Until the agent records it, explain whose turn it is and where the result will appear.
   untilRecorded: '함께 일하는 AI가 기록할 차례예요. 기록되면 여기에 결과가 나와요.',
   leftOut: '남은 AI 제안은 확정에 들어가지 않아요.',
   fixFirst: '문서를 고쳐 그려지게 한 뒤 확정하세요.',

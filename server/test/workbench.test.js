@@ -452,7 +452,7 @@ describe('SCR-145 pictures', () => {
     }
     const phone = await openStage('board', { phone: true });
     try {
-      assert.deepEqual(texts(phone, 'p', 'sec'), ['Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.']);
+      assert.deepEqual(texts(phone, 'p', 'sec'), ['Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.', '아직 확정한 적이 없어서 바뀐 곳 표시가 없어요.']);
       assert.ok(texts(phone, 'span').includes(WORKBENCH_WORDS.phone));
     } finally {
       phone.close();
