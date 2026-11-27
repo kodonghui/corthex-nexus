@@ -37,6 +37,7 @@ jobs:
           CORTHEX_NEXUS_URL: ${{ secrets.CORTHEX_NEXUS_URL }}
           CORTHEX_NEXUS_CLIENT_ID: ${{ secrets.CORTHEX_NEXUS_CLIENT_ID }}
           CORTHEX_NEXUS_CLIENT_SECRET: ${{ secrets.CORTHEX_NEXUS_CLIENT_SECRET }}
+          # At the v3 cutover, remove this setting and switch the URL and credential secrets to v3.
           CORTHEX_NEXUS_AUTH_HEADERS: cf-access
         run: |
           git symbolic-ref refs/remotes/origin/HEAD "refs/remotes/origin/$DEFAULT_BRANCH"

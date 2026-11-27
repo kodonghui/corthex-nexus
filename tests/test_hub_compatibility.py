@@ -356,7 +356,7 @@ class HubCompatibilityTest(HubCheckoutCase):
         self.assertEqual(snapshot["schema"], OLD)
         self.assert_snapshot(snapshot)
 
-    def test_a_v3_server_that_lists_03_gets_03(self):
+    def test_the_v2_configured_workflow_sends_03_to_a_v3_server(self):
         # The credential pair goes in the headers that the contract's security schemes name.
         pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_" + "fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture" + "-pair"}
         with LoopbackServer({("GET", HELD_PATH): self.v3_held()}) as server:

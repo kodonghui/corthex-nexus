@@ -143,8 +143,8 @@ class HubCheckoutCase(unittest.TestCase):
         env = dict(base_environment(home), DEFAULT_BRANCH="main", HUB_TEST_PYTHON=sys.executable, **secrets)
         # Include the literal workflow setting, not only the expression-backed secrets.
         setting = re.search(r"^ +CORTHEX_NEXUS_AUTH_HEADERS: ([a-z-]+)\s*$", PUSH_WORKFLOW.read_text(encoding="utf8"), re.M)
-        if setting:
-            env["CORTHEX_NEXUS_AUTH_HEADERS"] = setting.group(1)
+        self.assertIsNotNone(setting, "update this workflow fixture when its header mode changes")
+        env["CORTHEX_NEXUS_AUTH_HEADERS"] = setting.group(1)
         script = "\n".join(['python3() { "$HUB_TEST_PYTHON" "$@"; }'] + lines[:-1] + [lines[-1] + extra]) + "\n"
         result = subprocess.run([bash, "-e", "-c", script], cwd=str(self.project), env=env, capture_output=True,
                                 text=True, encoding="utf8", timeout=120)
