@@ -419,7 +419,6 @@ FL-010 케이스, TC-058, TC-134, TC-177, TC-218, TC-219, 반복의 TC-151, 그�
 
 고정 hub 테스트가 이미 다루는 항목은 통과이고 나머지는 계획입니다. 아래 계획의 e410ce9는 작성 당시 고정값입니다. 요청된 TC-214~220 검증은 hub-ref.json이 그 SHA를 고정한 NEXUS 체크아웃을 썼으며, 현재 체크아웃은 e6b46ac을 고정해 새 hub를 검사합니다. TC-221은 새 고정을 씁니다. 아래 TC-221 행과 fd85323 커버리지 요약은 이전 계획을 보존하고, 새 실행과 결과는 이 고정 PR과 별도로 QA PR 166에 기록합니다. 로컬 하네스는 각 체크아웃의 정확한 고정 hub를 임시 v3 서버에 연결합니다.
 
-
 | ID | 케이스 | 출처 | 실행 방식 | 게이트 | 단계 | 기대 결과 | 상태 | 실행 근거 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | TC-214 | 실제 hub의 첫 전송과 할 일. 넘겨받은 메모 1. | FL-001, SPEC-002, SPEC-043, API-245#404, API-245#200, API-242#201 | e2e | gate | 고정한 hub를 로컬 v3에 대고: 첫 push 전에 todo, --first 없이 push, push --first, 그다음 todo. | todo는 없는 공간(404 `space_not_found`)을 빈 할 일로 읽음. --first 없는 push는 보내지 않음. push --first는 리비전 1. todo가 항목을 보임. | pass | 실행 P·C, 커밋 fd85323: tests/test_hub_run.py › HubRunTest.test_the_hub_reads_the_refusals_by_design; tests/test_hub_run.py › HubRunTest.test_each_command_gets_an_answer_the_hub_reads. |
