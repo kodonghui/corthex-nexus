@@ -17,10 +17,11 @@ PROJECT, PULL = hub_run.PROJECT, hub_run.PULL
 
 
 class HubQaWalk(hub_run.HubRunFixture):
-    def tearDown(self):
-        self.assert_private_log(PULL % 12, PULL % 80, PULL % 81, PULL % 82,
-                                "A synthetic reply.", "A second synthetic reply.", "Synthetic retry reply.",
-                                "Synthetic reason", "Synthetic change", "Synthetic question")
+    def setUp(self):
+        super().setUp()
+        self.addCleanup(self.assert_private_log, PULL % 12, PULL % 80, PULL % 81, PULL % 82,
+                        "A synthetic reply.", "A second synthetic reply.", "Synthetic retry reply.",
+                        "Synthetic reason", "Synthetic change", "Synthetic question")
 
     def test_two_sessions_trade_a_thread(self):
         thread = self.first_push_and_comment()
