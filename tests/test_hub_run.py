@@ -239,22 +239,26 @@ class HubRunFixture(HubCheckoutCase):
                          ("05-erd", "TBL-146", "owner", "agent"), thread)
         return thread["id"]
 
-    def assert_calls_and_log(self, *commands):
-        """The server's log names the agent operations the commands called, in order, and no line holds what rule 5
-        keeps out, nor a session, a link or a comment's text."""
+    def assert_private_log(self, *extra):
+        """Check protected synthetic values in raw JSON, parsed values and client outputs without printing them."""
         lines = [json.loads(line) for line in self.stop_server()]
-        self.assertEqual([line["action"] for line in lines if line["sender"] == "hub-run"], calls(*commands))
-        digest = hashlib.sha256(self.secret.encode("ascii")).hexdigest()
-        # The log's own text, where JSON escapes a path's backslashes, and its values as read.
         text = "\n".join(self.log_lines + [value for line in lines for value in map(str, line.values())])
+        digest = hashlib.sha256(self.secret.encode("ascii")).hexdigest()
         data = str(self.server.data)
-        for value in (self.secret, digest, self.server.owner_sign_in, data, data.replace("\\", "/"),
-                      json.dumps(data)[1:-1], self.session["CORTHEX_NEXUS_SESSION"],
-                      self.other["CORTHEX_NEXUS_SESSION"], PULL % 1, PULL % 2, QUESTION, DECISION):
-            # assertFalse, so that a failure never prints the value it found.
-            self.assertFalse(value in text, "the server's log holds what it keeps out; value withheld")
+        protected = (self.secret, digest, self.server.owner_sign_in, data, data.replace("\\", "/"),
+                     json.dumps(data)[1:-1], self.session["CORTHEX_NEXUS_SESSION"],
+                     self.other["CORTHEX_NEXUS_SESSION"], PULL % 1, PULL % 2, QUESTION, DECISION) + extra
+        for value in protected:
+            self.assertFalse(value in text or json.dumps(value, ensure_ascii=False)[1:-1] in text,
+                             "the server log holds protected test data; value withheld")
         for output in self.outputs:
             self.assertFalse(self.secret in output, "the hub shows the credential's secret; value withheld")
+
+    def assert_calls_and_log(self, *commands):
+        """Check the hub's ordered operations and rule-5 protected values."""
+        lines = [json.loads(line) for line in self.stop_server()]
+        self.assertEqual([line["action"] for line in lines if line["sender"] == "hub-run"], calls(*commands))
+        self.assert_private_log()
 
 
 class HubRunTest(HubRunFixture):
