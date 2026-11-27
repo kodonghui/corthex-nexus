@@ -87,6 +87,7 @@ class HubQaWalk(hub_run.HubRunTest):
             drop = None
             observed = []
             duplicate_headers = []
+            failures = []
 
             def log_message(self, *args):
                 pass
@@ -105,9 +106,15 @@ class HubQaWalk(hub_run.HubRunTest):
                 headers = {k: v for k, v in self.headers.items()
                            if k.lower() not in ("host", "connection", "content-length")}
                 connection = http.client.HTTPConnection(target.hostname, target.port, timeout=20)
-                connection.request(self.command, self.path, body=body or None, headers=headers)
-                answer = connection.getresponse()
-                payload = answer.read()
+                try:
+                    connection.request(self.command, self.path, body=body or None, headers=headers)
+                    answer = connection.getresponse()
+                    payload = answer.read()
+                except (OSError, TimeoutError):
+                    DropOnce.failures.append(True)
+                    connection.close()
+                    self.send_error(502)
+                    return
                 if self.command == "POST" and (self.path.endswith("/replies") or self.path.endswith("/answered")):
                     DropOnce.observed.append((answer.status, payload, self.headers.get("Idempotency-Key")))
                 if self.command == "POST" and self.path.endswith(DropOnce.drop or "NEVER"):
@@ -118,7 +125,7 @@ class HubQaWalk(hub_run.HubRunTest):
                     return
                 self.send_response(answer.status)
                 for key, value in answer.getheaders():
-                    if key.lower() not in ("connection", "transfer-encoding", "content-length"):
+                    if key.lower() not in ("connection", "transfer-encoding", "content-length", "server", "date"):
                         self.send_header(key, value)
                 self.send_header("Content-Length", str(len(payload)))
                 self.end_headers()
@@ -149,6 +156,7 @@ class HubQaWalk(hub_run.HubRunTest):
         finally:
             proxy.shutdown()
             proxy.server_close()
+            self.assertFalse(DropOnce.failures, "proxy failed to reach the local server")
 
     def test_redraw_invalidates_reflects_and_moves_a_thread(self):
         self.first_push_and_comment()
