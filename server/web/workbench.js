@@ -362,13 +362,20 @@ function zoomControls(state) {
     const { box, size } = state.view;
     // The box shrinks with the picture; use the available viewport rather than its current height when fitting again.
     fit.scrollIntoView?.({ block: 'start', inline: 'nearest' });
-    const top = Math.max(0, box.getBoundingClientRect?.().top ?? 0);
-    const metrics = boxMetrics(box);
-    const availableHeight = Math.max(1, Math.min(metrics.maxHeight, (globalThis.innerHeight ?? 674) - top) - metrics.vertical);
-    const availableWidth = Math.max(1, box.clientWidth - metrics.horizontalPadding);
-    const fitted = fitZoom(size.width, size.height, availableWidth, availableHeight);
+    const available = () => {
+      const top = Math.max(0, box.getBoundingClientRect?.().top ?? 0);
+      const metrics = boxMetrics(box);
+      return { width: Math.max(1, box.clientWidth - metrics.horizontalPadding),
+        height: Math.max(1, Math.min(metrics.maxHeight, (globalThis.innerHeight ?? 674) - top) - metrics.vertical) };
+    };
+    let space = available();
+    let fitted = fitZoom(size.width, size.height, space.width, space.height);
     changeZoom(state, fitted, 0, 0);
-    notice.textContent = size.width * fitted > availableWidth || size.height * fitted > availableHeight
+    // A scale below 100% reveals the readable-size button, which can wrap the controls and move the picture down.
+    space = available();
+    fitted = fitZoom(size.width, size.height, space.width, space.height);
+    changeZoom(state, fitted, 0, 0);
+    notice.textContent = size.width * fitted > space.width || size.height * fitted > space.height
       ? '그림이 너무 커서 전체를 한 화면에 담지 못했어요.' : '';
     box.scrollLeft = 0;
     box.scrollTop = 0;

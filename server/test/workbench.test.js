@@ -231,6 +231,27 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('fit remeasures after a newly visible reading button wraps the controls', async () => {
+    const page = await openStage('sitemap');
+    const previousHeight = globalThis.innerHeight;
+    try {
+      globalThis.innerHeight = 800;
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      const buttons = area.all('div', 'zoom-controls')[0].all('button');
+      Object.assign(board, { clientWidth: 360, clientHeight: 500, scrollLeft: 0, scrollTop: 0 });
+      board.getBoundingClientRect = () => ({ left: 0, top: buttons[3].hidden ? 300 : 400 });
+      buttons[2].click();
+      assert.equal(buttons[3].hidden, false);
+      assert.ok(Number(svg.getAttribute('height')) <= 800 - 400 - 26);
+    } finally {
+      if (previousHeight === undefined) delete globalThis.innerHeight;
+      else globalThis.innerHeight = previousHeight;
+      page.close();
+    }
+  });
+
   test('an uncancellable pan asks for a fresh pinch instead of mixing gestures', async () => {
     const page = await openStage('sitemap');
     try {
