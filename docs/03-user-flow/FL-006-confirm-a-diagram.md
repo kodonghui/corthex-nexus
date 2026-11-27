@@ -2,7 +2,7 @@
 
 [한국어](FL-006-confirm-a-diagram.ko.md)
 
-Goal: The owner confirms a diagram or an item table on a PC, an agent records it, and the stage passes once all are recorded.
+Goal: The owner confirms a diagram or an item table on a PC or phone after another question, an agent records it, and the stage passes once all are recorded.
 
 Serves: REQ-035, REQ-036, REQ-037, REQ-038, REQ-039, REQ-041, REQ-042, REQ-052, REQ-068, REQ-082
 
@@ -18,15 +18,17 @@ flowchart TD
   H{"Every diagram and table of<br/>the stage recorded?<br/>REQ-042"}
   I["Treat the stage checkpoint<br/>as passed<br/>REQ-042"]
   J["Put it back in the to-do<br/>as not confirmed<br/>REQ-037"]
-  R1["No confirmation on a phone<br/>REQ-068"]
+  P{"Confirm or cancel on<br/>the phone?"}
+  L{"Confirm this diagram?"}
+  R1["Cancel confirmation on a PC<br/>REQ-068"]
   R2["Refuse the agent<br/>credential<br/>REQ-036"]
   Z(["End"])
   A e1@--> B
   B e2@--> C
   C e3@-->|owner on a PC| D
-  C e4@-->|owner on a phone| R1
+  C e4@-->|owner on a phone| P
   C e5@-->|an agent| R2
-  D e6@-->|confirm| E
+  D e6@-->|confirm| L
   D e7@-->|cancel| J
   E e8@--> F
   F e9@--> G
@@ -37,6 +39,10 @@ flowchart TD
   J e14@--> Z
   R1 e15@--> Z
   R2 e16@--> Z
+  P e17@-->|confirm| L
+  P e18@-->|cancel confirmation| R1
+  L e19@-->|yes| E
+  L e20@-->|no| Z
   %% legend: below
   classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529
   classDef proc fill:#f8f9fa,stroke:#495057,color:#212529
@@ -45,8 +51,8 @@ flowchart TD
   classDef pass stroke:#868e96,stroke-width:1.5px
   class A,Z term
   class B,E,F,G,I,J,R1,R2 proc
-  class C,D,H decide
-  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16 pass
+  class C,D,H,P,L decide
+  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20 pass
 ```
 
 | Shape | Means |
@@ -57,5 +63,5 @@ flowchart TD
 
 ## Failure paths
 
-- No confirmation on a phone (REQ-068)
+- Cancel confirmation on a PC (REQ-068)
 - Refuse the agent credential (REQ-036)

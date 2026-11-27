@@ -285,7 +285,7 @@ describe('the shell', () => {
       assert.deepEqual(menu.all('a').map((link) => [link.textContent, link.getAttribute('href'), link.getAttribute('aria-current')]), [
         ['텃밭 계획표', '/p/garden', null],
         ['독서 모임 앱', '/p/reading-club', 'page'],
-        ['프로젝트 목록', '/p', null],
+        ['프로젝트 목록', '/', null],
       ]);
       assert.equal(menu.hidden, true);
       button.click();
@@ -353,7 +353,7 @@ describe('the shell', () => {
     try {
       assert.equal(first.location.reloads, 1);
       assert.ok(first.session.getItem(GATE_KEY) !== null);
-      assert.deepEqual(texts(first, 'h1'), ['내 차례']);
+      assert.deepEqual(texts(first, 'h1'), ['프로젝트']);
     } finally {
       first.close();
     }
@@ -403,7 +403,7 @@ describe('the shell', () => {
     const page = await open('/', { session: { [GATE_KEY]: String(Date.now()) } });
     try {
       assert.equal(page.session.getItem(GATE_KEY), null);
-      assert.deepEqual(texts(page, 'h1'), ['내 차례']);
+      assert.deepEqual(texts(page, 'h1'), ['프로젝트']);
     } finally {
       page.close();
     }
@@ -431,9 +431,10 @@ describe('the shell', () => {
     const page = await open('/', { answers });
     try {
       assert.ok(errorShown(page));
-      assert.deepEqual(texts(page, 'b'), ['문제가 생겼어요. 다시 해 보세요.']);
+      assert.ok(texts(page, 'b').includes('문제가 생겼어요. 다시 해 보세요.'));
+      assert.match(page.app.textContent, /할 일 수를 읽지 못했어요/);
       assert.deepEqual(texts(page, 'span', 'helper'), [`traceId ${TRACE}`]);
-      assert.deepEqual(texts(page, 'h1'), ['내 차례']);
+      assert.deepEqual(texts(page, 'h1'), ['프로젝트']);
       assert.ok(headerOf(page).all('ul', 'menu')[0].all('a').length === 3);
       fail = false;
       const calls = page.calls.length;
@@ -458,7 +459,7 @@ describe('the shell', () => {
     try {
       assert.deepEqual(texts(page, 'h1'), ['NEXUS에 없는 프로젝트예요.']);
       assert.deepEqual(texts(page, 'p'), ['지워졌거나 주소가 바뀌었어요.']);
-      assert.deepEqual(page.app.all('a', 'btn').map((link) => [link.textContent, link.getAttribute('href')]), [['프로젝트 목록', '/p']]);
+      assert.deepEqual(page.app.all('a', 'btn').map((link) => [link.textContent, link.getAttribute('href')]), [['프로젝트 목록', '/']]);
     } finally {
       page.close();
     }
@@ -574,7 +575,7 @@ describe('the shell', () => {
     const page = await open('/x');
     try {
       assert.deepEqual(texts(page, 'h1'), ['없는 주소예요.']);
-      assert.deepEqual(page.app.all('a', 'btn').map((link) => [link.textContent, link.getAttribute('href')]), [['내 차례', '/']]);
+      assert.deepEqual(page.app.all('a', 'btn').map((link) => [link.textContent, link.getAttribute('href')]), [['내 차례', '/?view=todo']]);
       assert.equal(headerOf(page).all('span', 'cnt')[0].textContent, '3');
     } finally {
       page.close();
@@ -678,7 +679,7 @@ describe('the shell', () => {
       page.document.dispatch('visibilitychange');
       await page.settle();
       assert.deepEqual(texts(page, 'h1'), ['NEXUS에 없는 프로젝트예요.']);
-      assert.deepEqual(page.app.all('a', 'btn').map((link) => [link.textContent, link.getAttribute('href')]), [['프로젝트 목록', '/p']]);
+      assert.deepEqual(page.app.all('a', 'btn').map((link) => [link.textContent, link.getAttribute('href')]), [['프로젝트 목록', '/']]);
       assert.equal(errorShown(page), false);
       assert.equal(page.app.all('nav', 'tabs')[0].shown, false);
     } finally {
@@ -800,7 +801,7 @@ describe('the shell against the server', () => {
     },
   ];
   const SCREENS_OF = {
-    getOwnerTodo: { pathname: '/', path: '/api/todo', title: '내 차례' },
+    getOwnerTodo: { pathname: '/', path: '/api/todo', title: '프로젝트' },
     getProject: { pathname: '/p/reading-club', path: '/api/projects/reading-club', title: '독서 모임 앱', missing: '/p/no-such-project' },
   };
 

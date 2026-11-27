@@ -60,6 +60,8 @@ function heldFor(ctx) {
       toggle: null,
       link: { sending: false, attempt: null, error: null, scope: 'project' },
       removals: new Map(),
+      openStages: new Set(),
+      stageNodes: new Map(),
       deletion: { open: false, round: 0, typed: '', preview: null, previewError: null, sending: false, attempt: null, error: null },
     };
   }
@@ -105,7 +107,7 @@ export function projectDescription({ data, shell }) {
   const { name, revision, pushed_at: pushedAt } = data.project;
   return [
     name,
-    revision === null || revision === undefined ? null : ` · 리비전 ${revision}`,
+    revision === null || revision === undefined ? null : ` · 버전 ${revision}`,
     pushedAt ? [' · ', shell.since(pushedAt, sentWords)] : null,
   ];
 }
@@ -137,13 +139,57 @@ export function projectBody(ctx) {
   queueMicrotask(focusNow());
   state.links = h('section', { class: 'group', 'aria-labelledby': 'links-h' });
   drawLinks(state);
-  return [...stageGroups(project), state.links, dataSection(state)];
+  return [projectTasks(ctx), ...stageGroups(project, state), state.links, dataSection(state)];
 }
 
-// The stages grouped by part as API-264 lists them, 13 rows a group. The project as a whole ('') keeps the mockup's
-// "단계" and "파트 없음"; a part's group is named by the part.
-function stageGroups(project) {
+// Put this project's actionable questions and reviews before its stages.
+function projectTasks({ data, shell }) {
+  const entries = shell.missed('todo') ? null : data.todo?.entries ?? null;
+  const head = h('div', { class: 'gh' }, h('h2', {}, '지금 할 일'));
+  if (entries === null) return h('section', { class: 'group' }, head,
+    h('div', { class: 'nt warn', role: 'status' }, '할 일을 불러오지 못했어요.',
+      h('button', { type: 'button', class: 'btn tertiary', on: { click: () => shell.reload() } }, '다시 시도')));
+  const own = entries.filter((entry) => entry.project === data.project.name);
+  const ordered = [...own.filter((entry) => entry.kind === 'question'), ...own.filter((entry) => entry.kind !== 'question')];
+  const capped = entries.length >= 5000;
+  if (own.length === 0) return h('section', { class: 'group' }, head,
+    h('p', {}, capped ? '표시된 할 일이 없어요. 전체 목록이 길어 일부가 빠졌을 수 있어요.' : '지금 기다리는 일이 없어요.'));
+  return h('section', { class: 'group' }, head,
+    capped ? h('p', { class: 'sec' }, '전체 목록이 길어 일부가 빠졌을 수 있어요.') : null,
+    h('div', { class: 'list' }, ordered.map((entry) => {
+      const stage = stageOf(entry.stage);
+      const action = entry.kind === 'question' ? '질문에 답하기' : entry.kind === 'proposal' ? 'AI가 제안한 내용 보기' : '내용 확인하기';
+      const detail = [stage ? `${stage.number} ${stage.name}` : entry.stage, entry.diagram_name].filter(Boolean).join(' · ');
+      return h('a', { class: 'li', href: stageHref(entry.project, entry.part, entry.stage, { diagram: entry.diagram, thread: entry.thread }) },
+        h('span', { class: 'grow' }, h('b', {}, action), h('span', { class: 'sec' }, detail)), icon('next', 'ic chev'));
+    })));
+}
+
+// Each part keeps its 13 stage rows, initially collapsed under three plain-language purposes.
+const STAGE_GROUPS = Object.freeze([
+  { through: 4, label: '무엇을 만들지 정하기' },
+  { through: 9, label: '어떻게 만들지 정하기' },
+  { through: 13, label: '만들고 확인하기' },
+]);
+const STAGE_NAMES = Object.freeze({
+  '01-domain': '만들 내용 함께 정하기',
+  '02-prd': '필요한 기능 정하기',
+  '03-user-flow': '사용 순서 보기',
+  '04-functional-spec': '기능 동작 자세히 보기',
+  '05-erd': '보관할 정보 보기',
+  '06-api': '서비스 연결 살펴보기',
+  '07-sitemap': '화면 연결 보기',
+  '08-screen-states': '상황별 화면 보기',
+  '09-mockup': '화면 미리 보기',
+  '10-wbs': '작업 나누기',
+  '11-development': '만들기',
+  '12-qa': '시험하기',
+  '13-presentation': '결과 소개하기',
+});
+
+function stageGroups(project, state) {
   const empty = project.stages.every((row) => row.state === 'not_sent');
+  state.stageNodes = new Map();
   const links = new Map();
   for (const link of project.tool_links) {
     if (link.scope === 'project') continue;
@@ -158,8 +204,27 @@ function stageGroups(project) {
   return [...groups].map(([part, rows]) => h('section', { class: 'group' },
     h('div', { class: 'gh' },
       h('h2', {}, part === '' ? '단계' : part),
-      h('span', { class: 'small' }, part === '' ? `파트 없음 · ${rows.length}단계` : `${rows.length}단계`)),
-    h('div', { class: 'list' }, rows.map((row) => stageRow(project.name, row, empty, links.get(row.stage) ?? [])))));
+      h('span', { class: 'small' }, `${rows.length}단계`)),
+    STAGE_GROUPS.map(({ through, label }, index) => {
+      const previous = index === 0 ? 0 : STAGE_GROUPS[index - 1].through;
+      const members = rows.filter((row) => {
+        const number = Number(stageOf(row.stage)?.number);
+        return number > previous && number <= through;
+      });
+      if (members.length === 0) return null;
+      const passed = members.filter((row) => PASSED.has(row.state)).length;
+      const changed = members.filter((row) => row.state === 'changed_since_pass').length;
+      const key = `${part === '' ? '_' : part}-${through}`;
+      const details = h('details', { class: 'stage-section', open: state.openStages.has(key), on: { toggle: () => {
+        if (state.stageNodes.get(key) !== details) return;
+        if (details.getAttribute('open') === null) state.openStages.delete(key);
+        else state.openStages.add(key);
+      } } },
+        h('summary', { id: `stage-group-${key}` }, label, h('span', { class: 'small' }, `${members.length}단계 중 ${passed} 통과${changed ? ` · ${changed}단계 확인 필요` : ''}`)),
+        h('div', { class: 'list' }, members.map((row) => stageRow(project.name, row, empty, links.get(row.stage) ?? []))));
+      state.stageNodes.set(key, details);
+      return details;
+    })));
 }
 
 // A stage's row: its number and name, which open its workbench; its state; the date of its last checkpoint and
@@ -170,7 +235,8 @@ function stageRow(name, row, empty, links) {
   const checkpoint = PASSED.has(row.state) && row.passed_at ? `마지막 체크포인트 ${monthDay(row.passed_at)}` : '';
   return h('div', { class: 'li keep stg' },
     h('span', { class: 'grow' },
-      h('a', { class: 'go', href: stageHref(name, row.part, row.stage) }, h('span', { class: 'no mono sec' }, stage.number), ' ', stage.name),
+      h('a', { class: 'go', href: stageHref(name, row.part, row.stage) }, h('span', { class: 'no mono sec' }, stage.number), ' ',
+        STAGE_NAMES[row.stage] ?? stage.name, h('span', { class: 'small' }, ` (${stage.name})`)),
       h('span', { class: `dot ${dot}` }, h('span', {}, empty ? NOTHING_SENT : label)),
       h('span', { class: 'cps' },
         h('span', { class: 'small cp' }, checkpoint),

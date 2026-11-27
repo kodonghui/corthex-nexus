@@ -275,7 +275,7 @@ function diagramParts(state) {
     if (!isDrawn(diagram)) return [heading(...(live === null ? [] : [confirmedTag()]), h('span', { class: 'tag red' }, CONFIRM_WORDS.notDrawn)),
       h('p', {}, CONFIRM_WORDS.phoneNotDrawn), live === null ? h('p', { class: 'small' }, CONFIRM_WORDS.phone) : confirmedLines(state, live)];
     if (live !== null) return [heading(confirmedTag()), confirmedLines(state, live)];
-    return [sinceParts(state, heading), h('p', {}, CONFIRM_WORDS.beforeConfirm), h('p', { class: 'small' }, CONFIRM_WORDS.phone)];
+    return [sinceParts(state, heading), h('p', {}, CONFIRM_WORDS.beforeConfirm), confirmControl(state), h('p', { class: 'small' }, CONFIRM_WORDS.phone)];
   }
   if (!isDrawn(diagram)) {
     // SCR-145#not-drawn: nothing to confirm until the document draws; a live confirmation keeps its line and 확정 취소.
@@ -379,7 +379,7 @@ function cancelButton(state, live) {
 // (SPEC-029). The server refuses the rest anyway.
 export function confirmable(state) {
   const diagram = state.ctx.data.diagram;
-  return !state.phone && !diagram.removed && isDrawn(diagram) && liveConfirmation(diagram) === null && waitingOf(diagram).length === 0;
+  return !diagram.removed && isDrawn(diagram) && liveConfirmation(diagram) === null && waitingOf(diagram).length === 0;
 }
 
 function askConfirming(state) {
@@ -458,12 +458,12 @@ export function waitingParts(state, set, where) {
 }
 
 // "AI 제안" on a PC: the proposals still proposed and those accepted and waiting, in API-265's order, with the count of
-// those to answer, or "모두 처리함". A mockup takes no proposal, and a phone answers none (SPEC-051).
+// those to answer, or "모두 처리함". A mockup takes no proposal (SPEC-051).
 function drawProposals(state) {
   const changes = state.changes;
   const diagram = state.ctx.data.diagram;
   const box = changes.proposalBox;
-  if (state.phone || diagram.kind === 'mockup') {
+  if (diagram.kind === 'mockup') {
     box.hidden = true;
     fill(box);
     return;
@@ -520,7 +520,7 @@ function answers(state, set) {
 
 function ask(state, set, verb) {
   const changes = state.changes;
-  if (state.phone || changes.busy !== null) return;
+  if (changes.busy !== null) return;
   if (verb === 'accept' && state.ctx.data.diagram.removed) return;
   changes.asking = { id: set.id, verb };
   changes.focus = `p-${set.id}-stop`;
@@ -539,7 +539,7 @@ function stopAsking(state, set) {
 // API-270 or API-271 on the proposal asked about, or sent again by 다시 시도.
 async function answer(state, set, verb) {
   const changes = state.changes;
-  if (state.phone || changes.busy !== null) return;
+  if (changes.busy !== null) return;
   if (verb === 'accept' && state.ctx.data.diagram.removed) return;
   const path = `${projectApi(state.ctx.data.diagram.project)}/change-sets/${encodeURIComponent(set.id)}/${verb}`;
   const outcome = await post(state, verb, path, {});

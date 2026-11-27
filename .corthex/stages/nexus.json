@@ -35,6 +35,11 @@
           "approved": "Item 242: the maintainer said 둘 다 바꿔 on 2026-11-27 for confirmation retention and automatic conversation resolution; the answer is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "The maintainer directly passed the follow-up phone decision: diagram confirmation and proposal acceptance or rejection are available on a phone after another question; direct editing stays on a PC. The earlier hotspot answer remains historical. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 02: write the PRD from the domain design",
@@ -82,6 +87,16 @@
           "approved": "REQ-083 adds per-tab position undo and redo. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "The maintainer chose the project-first direction; REQ-052 changes accordingly and REQ-035 and REQ-068 allow phone decisions with another question. The maintainer approved stage 02 through the checkpoint delegate; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "REQ-052 records a project card link to its newest question after a measured three-click question path; this preserves the chosen project-first direction. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 03: draw the user flows from the requirements",
@@ -117,6 +132,16 @@
         },
         {
           "approved": "FL-002 adds undo and redo of a move. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "FL-002 starts at projects; FL-003, FL-006 and FL-008 allow the approved phone decisions after another question, retaining PC-only editing and confirmation cancellation. Approved through the checkpoint delegate; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "FL-002 records a project card link to its newest question after a measured three-click question path; this preserves the chosen project-first direction. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
         }
@@ -263,6 +288,16 @@
           "approved": "SPEC-055 records the measured correction that a confirmed reset keeps redo when its reread is interrupted, and a blocked move explains the wait without arrow-key scrolling. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-019, SPEC-020, SPEC-029, SPEC-042 and SPEC-051 describe the project-first home and phone decisions; existing version, waiting and ownership safeguards remain. Approved through the checkpoint delegate; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-042 records a project card link to its newest question after a measured three-click question path; this preserves the chosen project-first direction. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
@@ -348,6 +383,11 @@
         },
         {
           "approved": "No table change: history stays in the tab and existing saved positions are reused. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "No data model change is needed for the approved project-first view and phone decisions; existing records are reused. Approved through the checkpoint delegate; the answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
         }
@@ -554,6 +594,11 @@
           "approved": "API-274 adds an optional reset together with expected to restore automatic placement after an atomic position comparison; API-265 adds optional position_saved so clients distinguish automatic and saved positions. Existing requests retain their behavior. The maintainer's checkpoint delegate authorized this correction on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "No API operation or wire-format change is needed for the approved project-first view and phone decisions; the existing owner operations and reads are reused. Approved through the checkpoint delegate; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
@@ -614,6 +659,11 @@
         },
         {
           "approved": "No new screen or route is needed for position history. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-142 opens on projects, with the full owner to-do reachable in the same screen and SCR-143 and SCR-144 as its sibling destinations. Existing project and diagram addresses remain. Approved through the checkpoint delegate; the answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
         }
@@ -778,6 +828,16 @@
           "approved": "SCR-145 records the measured correction that a confirmed reset keeps redo when its reread is interrupted, and a blocked move explains the wait without arrow-key scrolling. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "The project-first home and phone confirmation and proposal states reflect the approved choice; phone direct editing and confirmation cancellation remain PC-only. Approved through the checkpoint delegate; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-142 records a project card link to its newest question after a measured three-click question path; this preserves the chosen project-first direction. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
@@ -835,6 +895,16 @@
           "approved": "Every change set waiting for reflection, pull request 160, at commit cd81ed3: the mockup page's Korean copy of SCR-146's waiting state (META) follows the stage-08 correction and is generated again from the stage-08 Korean definition; only that state's text changes, and no frame, template or token changes. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "The maintainer directly selected option B, project first, on 2026-11-27. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "the project-first mockup records a project card link to its newest question after a measured three-click question path; this preserves the chosen project-first direction. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 10: plan the work of the first release from the approved design of stages 01 to 09",

@@ -119,8 +119,8 @@ function changedPart(since, confirmedHere, heading) {
 // picture where the failure shows.
 function notDrawn(state, live) {
   const diagram = state.ctx.data.diagram;
-  if (state.phone || diagram.removed || live !== null || isDrawn(diagram)) return null;
-  return h('div', { class: 'nt err', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, CONFIRM_WORDS.fixFirst)),
+  if (diagram.removed || live !== null || isDrawn(diagram)) return null;
+  return h('div', { class: 'nt err', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, state.phone ? CONFIRM_WORDS.phoneNotDrawn : CONFIRM_WORDS.fixFirst)),
     h('a', { class: 'btn ghost sm', href: toDiagram(state.ctx) }, CONFIRM_WORDS.seeInDiagram));
 }
 
@@ -129,7 +129,7 @@ function notDrawn(state, live) {
 function endRow(ctx, state, confirmedHere, waiting) {
   const diagram = ctx.data.diagram ?? null;
   const phone = ctx.shell.isPhone();
-  const offers = state !== null && !phone && !diagram.removed && liveConfirmation(diagram) === null;
+  const offers = state !== null && !diagram.removed && liveConfirmation(diagram) === null;
   const back = h('a', { class: confirmedHere ? 'btn tertiary' : 'btn ghost', href: toDiagram(ctx) }, CONFIRM_WORDS.toDiagram);
   return [
     offers && confirmable(state) ? h('p', {}, CONFIRM_WORDS.beforeConfirm) : null,

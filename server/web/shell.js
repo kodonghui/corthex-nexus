@@ -5,7 +5,7 @@
 // The page holds no project data before the API answers it: the shell reads the screen's data and the header's, and
 // draws nothing of a project until a read answered it. It keeps nothing an API answered (see storage.js).
 
-import { parseAddress, PROJECTS_HREF, projectHref, stageHref, TODO_HREF } from './address.js';
+import { parseAddress, HOME_HREF, projectHref, stageHref, TODO_HREF } from './address.js';
 import { probe, read, write } from './api.js';
 import { fill, h, icon } from './dom.js';
 import { MESSAGES } from './messages.js';
@@ -20,7 +20,7 @@ const PHONE = '(max-width: 1055.98px) and (pointer: coarse)';
 const TICK_MS = 30_000;
 // The 404 of a read, by its code: what the screen says under the code's message, and where its link goes.
 const GONE = Object.freeze({
-  project_not_found: { sub: '지워졌거나 주소가 바뀌었어요.', link: { text: '프로젝트 목록', href: PROJECTS_HREF }, tabs: false },
+  project_not_found: { sub: '지워졌거나 주소가 바뀌었어요.', link: { text: '프로젝트 목록', href: HOME_HREF }, tabs: false },
 });
 
 // The Korean message of a Problem code, from the contract's registry (see src/problem.js).
@@ -269,7 +269,7 @@ export function startShell(root, screen, address) {
   }
 
   function samePlace(next) {
-    return next !== null && ['screen', 'project', 'part', 'stage'].every((name) => next[name] === address[name]);
+    return next !== null && ['screen', 'project', 'part', 'stage', 'view'].every((name) => next[name] === address[name]);
   }
 
   // What is gone, in place of the view, unless the screen opens something else instead (screen.instead): when the load
@@ -374,7 +374,8 @@ export function startShell(root, screen, address) {
     const known = ctx ?? context();
     // What the screen draws from its data only once the data came; until then its fixed title, if it has one.
     const answered = !loading && failure === null;
-    const title = answered && screen.title !== undefined ? screen.title(known) : screen.fixedTitle ?? null;
+    const fixed = typeof screen.fixedTitle === 'function' ? screen.fixedTitle(known) : screen.fixedTitle ?? null;
+    const title = answered && screen.title !== undefined ? screen.title(known) : fixed;
     const description = typeof screen.description === 'function'
       ? (answered ? screen.description(known) : null)
       : screen.description ?? null;
@@ -533,9 +534,9 @@ function createHeader(address) {
   const theme = h('button', { type: 'button', class: 'hb', on: { click: switchTheme } }, themeLabel, icon('moon', 'ic theme-icon'));
   // The menu opens under its button, which .pm holds with it (nexus.css), so no script places it.
   const element = h('header', { class: 'hd' },
-    h('a', { class: 'brand hb', href: TODO_HREF }, 'NEXUS'), h('div', { class: 'pm' }, button, list), h('span', { class: 'sp' }), turn, theme);
+    h('a', { class: 'brand hb', href: HOME_HREF }, 'NEXUS'), h('div', { class: 'pm' }, button, list), h('span', { class: 'sp' }), turn, theme);
   let titled = false;
-  const all = h('li', { role: 'none', class: 'all' }, h('a', { role: 'menuitem', href: PROJECTS_HREF }, '프로젝트 목록'));
+  const all = h('li', { role: 'none', class: 'all' }, h('a', { role: 'menuitem', href: HOME_HREF }, '프로젝트 목록'));
   fill(list, all);
   showTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
   globalThis.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', (event) => {
