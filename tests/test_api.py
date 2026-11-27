@@ -12,7 +12,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 METHODS = ("get", "put", "post", "delete", "patch")
 
 # The calls of the pinned corthex-hub (0.6.0 in the push job, the published 0.5.x in sessions; 0.6.0 makes the same
-# calls as 0.4.0 and 0.5.0), read from its transport, commands and outbox:
+# endpoint calls as 0.4.0 and 0.5.0; source-path payloads differ), read from its transport, commands and outbox:
 # (method, path): (Idempotency-Key, Nexus-Session) where the session is None, "optional" or "required".
 HUB = {
     ("post", "/api/snapshots"): (False, None),

@@ -1987,9 +1987,9 @@ TASK-449 (SPEC-014) runs the pinned hub's eight agent commands against this serv
   - Another session's `claim`, and its `decide`, on the entry the first session holds get `claimed` (409) with the holding session. The hub exits 1 with the Problem and does not keep the write to send again.
   - The push job sends the first push's commit again in `corthex-hub/0.3` once, as `same_commit`, then nothing, as `already-held`.
 - **The log.** The server's log names, in order, the operations each command called. None of its lines holds the credential's secret or its digest, the owner's sign-in, the data folder, a session, a pull request's link or a comment's text (rule 5).
-- **The checkpoint's link.** With `--nexus`, the hub's `status` needs an https link for the checkpoint: `--where`, or else a link it builds from `nexus.url` in the device's profile, `<nexus.url>/overview/<project>/<part or _>/<stage>#<checkpoint>`. That is v2's address. This server shows a stage at `/p/<project>/<part or _>/<stage>` (SCR-145, see [App shell](#app-shell)) and answers `/overview/...` with its 404 page. So the run passes `--where` in this server's form, on a placeholder host, and until the pinned hub builds this server's address, a checkpoint that names a NEXUS checkpoint needs `--where`.
+- **The checkpoint's link.** The earlier pin e410ce9 built a v2 `/overview/` link, so the TASK-449 run supplies `--where` in the v3 form on a placeholder host. The current pin 1becbab remembers a server observed by push or todo and builds the v3 `/p/<project>/<part or _>/<stage>` link offline; if the server has not been observed, it asks for `--where` or a todo read. This avoids treating a v2 link as a v3 page.
 
-The coordinator chose these rules for TASK-449: what `status` answers, the checkpoint's link and the owner's sign-in in the test. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24, each asked on its own. The hub change that builds this server's address, and its publication, are asked of the maintainer at TASK-463; until then the pinned hub and its pin stay as they are.
+The TASK-449 rules and their approvals above remain the historical record. The new hub pin supplies the v3 link; publishing it remains a separate release step.
 
 ## Answers
 
