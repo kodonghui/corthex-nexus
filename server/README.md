@@ -2085,8 +2085,9 @@ node --test
 ```
 
 Node's own test runner runs `test/*.test.js`. `test/contract.js` reads [api/openapi.yaml](../api/openapi.yaml) with Node alone, as `tests/yaml_subset.py` does, so that the tests check the registry, the limits, the request key, the path parameters' forms, each operation's answers and the tables it touches against the contract. `.github/workflows/check.yml` runs them on Node 24 for every pull request, and `all-checks` waits for them.
-# Undoing a diagram move
 
-On a PC, the workbench keeps up to 50 saved moves per diagram in the current tab. The buttons and Control-Z / Control-Shift-Z undo or redo positions; text fields keep their own editing history. A new move clears redo. This history does not include names, connections, comments or confirmations and is lost when the tab closes.
+## Undoing a diagram move
 
-API-274 accepts an optional expected position. The server compares it with the current position in the same transaction as the write; a mismatch returns `position_changed` without writing, and the workbench reloads the diagram. An ordinary move without an expected position still uses last-write-wins. A position changed away and back to the same coordinates cannot be distinguished by this coordinate check.
+On a PC, the workbench keeps up to 50 saved moves per diagram in the current tab. The buttons and Control-Z / Control-Shift-Z undo or redo positions; text fields keep their own editing history. A new move clears redo. This history does not include names, connections, comments or confirmations and is lost when the page reloads or the tab closes. A tab-storage marker containing the diagram ID, but no coordinates or history, lets the next page explain an uncertain move; if storage is blocked the marker cannot survive navigation.
+
+API-274 accepts an optional expected position. The server compares it with the current position in the same transaction as the write; a mismatch returns `position_changed` without writing, and the workbench reloads the diagram. An ordinary move without an expected position still uses last-write-wins. A position changed away and back to the same coordinates cannot be distinguished by this coordinate check. When there is no saved position, the expected coordinates refer to the original drawn box, which may differ from automatic relayout. Undoing a previously automatic position restores its visible coordinates as an explicit saved position; it does not restore automatic placement.

@@ -30,6 +30,7 @@ import { mockupFrame } from './mockup-frame.js';
 import { overlayModel } from './overlays.js';
 import { chooser, PAD, pictureOf, shownName, STICKIES, tagWord, WORDS } from './picture.js';
 import { CONTAINERS, placement } from './relayout.js';
+import { store, stored } from './storage.js';
 import { THREAD_WORDS, threadsFocus, threadsOpened, threadsPart, threadsWhole } from './threads.js';
 import { workshopEntry } from './workshop.js';
 
@@ -114,6 +115,7 @@ const states = new WeakMap();
 // A tab keeps each diagram's recent position history until the page is reloaded.
 const histories = new WeakMap();
 const historyListeners = new WeakSet();
+const historyMark = (diagram) => `nexus-move-uncertain:${diagram}`;
 
 export function workbenchOf(ctx, row) {
   if (!built.has(ctx)) built.set(ctx, build(ctx, row));
@@ -123,13 +125,24 @@ export function workbenchOf(ctx, row) {
 function stateOf(ctx) {
   const diagram = ctx.data.diagram;
   let state = states.get(ctx.shell);
-  if (state === undefined || state.diagram !== diagram.id) {
+  const interrupted = state && state.pictureBox?.isConnected === false
+    && (state.history.busy || state.moves.size > 0 || state.sending.size > 0);
+  if (state === undefined || state.diagram !== diagram.id || interrupted) {
     state?.frame?.end();
+    if (state && (state.history.busy || state.moves.size > 0 || state.sending.size > 0)) {
+      clearTimeout(state.timer);
+      for (const key of [...state.pending]) { state.pending.delete(key); send(state, key, null); }
+      state.history.undo.length = 0; state.history.redo.length = 0;
+      state.history.busy = false; state.history.epoch += 1; state.history.invalidated = true;
+    }
     let byDiagram = histories.get(ctx.shell);
     if (byDiagram === undefined) { byDiagram = new Map(); histories.set(ctx.shell, byDiagram); }
     let history = byDiagram.get(diagram.id);
-    if (history === undefined) { history = { undo: [], redo: [], busy: false }; byDiagram.set(diagram.id, history); }
-    state = { diagram: diagram.id, selected: null, moves: new Map(), before: new Map(), pending: new Set(), sending: new Set(), again: new Set(), timer: null, frame: null, drags: new WeakMap(), history };
+    if (history === undefined) {
+      history = { undo: [], redo: [], busy: false, epoch: 0, invalidated: stored('sessionStorage', historyMark(diagram.id)) === '1' };
+      byDiagram.set(diagram.id, history);
+    }
+    state = { diagram: diagram.id, selected: null, moves: new Map(), before: new Map(), pending: new Set(), sending: new Set(), failed: new Set(), again: new Set(), timer: null, frame: null, drags: new WeakMap(), history };
     // Whether the workbench still shows this diagram, for an answer that comes after a switch.
     const own = state;
     state.live = () => states.get(ctx.shell) === own;
@@ -151,6 +164,11 @@ function build(ctx, row) {
   state.model = overlayModel(diagram);
   state.names = new Map((diagram.elements ?? []).map((element) => [element.key, shownName(element)]));
   state.notice = h('div', { class: 'wb-notice' });
+  if (state.history.invalidated) {
+    fill(state.notice, h('div', { class: 'nt warn', role: 'alert' }, '저장 결과를 확인하지 못해 이동 기록을 지웠어요. 그림을 다시 확인해 주세요.'));
+    state.history.invalidated = false;
+    store('sessionStorage', historyMark(state.diagram), null);
+  }
   state.pictureBox = h('div', { class: 'wb-picture', on: { keydown: (event) => escape(state, event) } });
   state.selectedBox = h('section', { class: 'panel', 'aria-label': WORKBENCH_WORDS.selected, on: { keydown: (event) => escape(state, event) } });
   state.tokenBox = null;
@@ -471,7 +489,11 @@ async function runHistory(state, redo, retryKey = null) {
   updateHistoryControls(state);
   const path = `${diagramApi(state.ctx.data.diagram.project, state.diagram)}/positions`;
   const requestKey = retryKey ?? newRequestKey();
+  const epoch = history.epoch;
+  store('sessionStorage', historyMark(state.diagram), '1');
   const outcome = await state.ctx.shell.write('POST', path, { element: entry.key, x: target.x, y: target.y, expected }, requestKey);
+  if (history.epoch !== epoch) return;
+  if ([200, 404, 409].includes(outcome.status)) store('sessionStorage', historyMark(state.diagram), null);
   if (outcome.status === 200) {
     fromStack.pop();
     toStack.push(entry);
@@ -494,6 +516,13 @@ async function runHistory(state, redo, retryKey = null) {
     updateHistoryControls(state);
     return;
   }
+  if (outcome.status === 404 && ['element_not_found', 'diagram_not_found', 'project_not_found'].includes(outcome.code)) {
+    history.undo.length = 0; history.redo.length = 0; history.busy = false;
+    await state.ctx.shell.reload();
+    if (state.live()) fill(state.notice, h('div', { class: 'nt warn', role: 'alert' }, '그림이 바뀌어 이동 기록을 지웠어요. 그림을 다시 확인해 주세요.'));
+    updateHistoryControls(state);
+    return;
+  }
   if (outcome.failure === 'timeout' || outcome.failure === 'network') {
     fill(state.notice, state.ctx.shell.errorNotice(outcome, () => runHistory(state, redo, requestKey)),
       h('button', { class: 'btn tertiary sm', type: 'button', on: { click: () => {
@@ -511,7 +540,9 @@ async function runHistory(state, redo, retryKey = null) {
 // Whether element moves: a box not drawn round others, on a picture that moves, of a diagram not removed, on a PC.
 function movable(state, element) {
   const diagram = state.ctx.data.diagram;
-  return !state.phone && !state.history.busy && !diagram.removed && MOVED_KINDS.has(diagram.kind) && !CONTAINERS.has(element.kind) && state.view.place.boxes.has(element.key);
+  return !state.phone && !state.history.busy && state.failed.size === 0 && state.sending.size === 0
+    && (state.pending.size === 0 || state.pending.has(element.key)) && !diagram.removed
+    && MOVED_KINDS.has(diagram.kind) && !CONTAINERS.has(element.kind) && state.view.place.boxes.has(element.key);
 }
 
 const ARROWS = Object.freeze({ ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] });
@@ -579,7 +610,6 @@ function dropped(state, node, event) {
 function moveTo(state, key, to) {
   const previous = state.view.place.boxes.get(key);
   if (!state.before.has(key) && previous) state.before.set(key, { x: previous.x, y: previous.y });
-  state.history.redo.length = 0;
   if (state.selected !== key) {
     state.selected = key;
     drawSelected(state);
@@ -612,11 +642,18 @@ async function send(state, key, kept) {
   const requestKey = retry ? kept.key : newRequestKey();
   const before = retry ? kept.before : state.before.get(key);
   if (!retry) state.before.delete(key);
+  state.failed.delete(key);
   state.sending.add(key);
+  if (state.live()) fill(state.notice, h('div', { class: 'nt info', role: 'status' }, '이동을 저장하고 있어요. 잠시만 기다려 주세요.'));
+  const epoch = state.history.epoch;
+  store('sessionStorage', historyMark(state.diagram), '1');
   const path = `${diagramApi(diagram.project, diagram.id)}/positions`;
   const outcome = await state.ctx.shell.write('POST', path, { element: key, x: at.x, y: at.y }, requestKey);
   state.sending.delete(key);
+  if (state.history.epoch !== epoch) return;
+  if (state.sending.size === 0 && state.failed.size === 0 && [200, 404, 409].includes(outcome.status)) store('sessionStorage', historyMark(state.diagram), null);
   if (outcome.status === 200 && before && (before.x !== at.x || before.y !== at.y)) {
+    state.history.redo.length = 0;
     state.history.undo.push({ key, from: before, to: { x: outcome.body.x, y: outcome.body.y } });
     if (state.history.undo.length > 50) state.history.undo.shift();
   }
@@ -629,9 +666,12 @@ async function send(state, key, kept) {
     if (now !== undefined && now.x === at.x && now.y === at.y) state.moves.delete(key);
     fill(state.notice);
   } else if (outcome.status === 401 || outcome.status === 403 || outcome.failure === 'gate') {
+    state.failed.add(key);
+    updateHistoryControls(state);
     return;
   } else if (outcome.status === 404 && outcome.code === 'element_not_found') {
     state.moves.delete(key);
+    state.before.delete(key);
     state.again.delete(key);
     fill(state.notice, h('div', { class: 'nt warn', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, WORKBENCH_WORDS.moveGone)),
       h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => state.ctx.shell.reload() } }, '새로 고침')));
@@ -641,12 +681,14 @@ async function send(state, key, kept) {
     // SCR-145#error: after a write, the diagram is read again first. A removed one still listed opens for what waits on
     // it (TASK-468), and otherwise the shell says that it is gone. The box goes back to where it was until then.
     state.moves.delete(key);
+    state.before.delete(key);
     state.again.delete(key);
     fill(state.notice);
     drawPicture(state);
     state.ctx.shell.reload();
     return;
   } else {
+    state.failed.add(key);
     const keep = outcome.failure === 'timeout' || outcome.failure === 'network' ? { key: requestKey, at, before } : null;
     if (keep === null && before && !state.before.has(key)) state.before.set(key, before);
     fill(state.notice, state.ctx.shell.errorNotice(outcome, () => {

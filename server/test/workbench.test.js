@@ -131,11 +131,12 @@ function answersOf(more = {}) {
 
 // Opens a stage's page with answers by path, a POST answered by moved (a function of the request's body and
 // headers); every POST is kept in page.sent as { path, body, key }.
-async function openStage(which, { search = '', more = {}, moved = null, phone = false, clipboard = 'allowed' } = {}) {
+async function openStage(which, { search = '', more = {}, moved = null, phone = false, clipboard = 'allowed', session = {} } = {}) {
   const answers = answersOf(more);
   const sent = [];
   const page = await openPage(pathOf(which), {
     search,
+    session,
     phone,
     clipboard,
     answers: (path, init) => {
@@ -208,6 +209,71 @@ describe('SCR-145 pictures', () => {
       assert.equal(page.sent.length, 2);
       assert.ok(page.sent[1].body.expected);
       assert.match(page.app.textContent, /다른 곳에서 위치가 바뀌었어요/);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+    } finally { page.close(); }
+  });
+
+  test('leaving after an uncertain undo clears the locked history on return', async () => {
+    const page = await openStage('flow', { moved: (body) => body.expected
+      ? new TypeError('Failed to fetch') : movedAnswer('flow')(body) });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await page.settle();
+      page.pop(pathOf('flow'));
+      await page.settle();
+      assert.match(page.app.textContent, /저장 결과를 확인하지 못해 이동 기록을 지웠어요/);
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 3);
+    } finally { page.close(); }
+  });
+
+  test('a new page explains uncertain history using the tab marker and then consumes it', async () => {
+    const key = `nexus-move-uncertain:${ID.flow}`;
+    const page = await openStage('flow', { session: { [key]: '1' } });
+    try {
+      assert.match(page.app.textContent, /저장 결과를 확인하지 못해 이동 기록을 지웠어요/);
+      assert.equal(page.session.getItem(key), null);
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 1);
+      assert.equal(page.session.getItem(key), null);
+    } finally { page.close(); }
+  });
+
+  test('a late move answer cannot add stale history after switching away and back', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow', { moved: (body) => held.then(() => movedAnswer('flow')(body)) });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(80);
+      page.pop(pathOf('flow'));
+      await delay(80);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+      release();
+      await page.settle();
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+    } finally { release(); page.close(); }
+  });
+
+  test('a missing element during undo drops stale history and reloads', async () => {
+    const page = await openStage('erd', { moved: (body) => body.expected
+      ? problem(404, 'element_not_found')() : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.match(page.app.textContent, /그림이 바뀌어 이동 기록을 지웠어요/);
       assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
     } finally { page.close(); }
   });
@@ -522,7 +588,7 @@ describe('SCR-145 pictures', () => {
     }
   });
 
-  test('a move made while one is sent goes after its answer; a lost connection keeps the request key for 다시 시도', async () => {
+  test('a move waits for an in-flight save; a lost connection keeps the request key for retry', async () => {
     let release;
     const held = new Promise((resolve) => {
       release = resolve;
@@ -545,6 +611,9 @@ describe('SCR-145 pictures', () => {
       assert.equal(page.sent.length, 1);
       release();
       await page.settle();
+      assert.deepEqual(page.sent.map((each) => each.body.x), [at.x + STEP]);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
       assert.deepEqual(page.sent.map((each) => each.body.x), [at.x + STEP, at.x + 2 * STEP]);
       // A third move whose connection is lost: the error, and its retry under the same key.
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
@@ -562,7 +631,7 @@ describe('SCR-145 pictures', () => {
     }
   });
 
-  test('다시 시도 after a box moved again sends its new place under a new request key', async () => {
+  test('a failed move blocks another move until retry and preserves its original position for undo', async () => {
     let calls = 0;
     const moved = (body, key) => {
       calls += 1;
@@ -575,19 +644,34 @@ describe('SCR-145 pictures', () => {
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
       await waitSend(page);
       assert.equal(page.sent.length, 1);
-      // Moved again, and 다시 시도 before that move is sent: the same key with another body would be refused (409).
+      // The retry must settle the uncertain save before another move can change its original position.
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
       page.app.all('div', 'wb-notice')[0].all('button')[0].click();
       await page.settle();
-      assert.deepEqual(page.sent[1].body, { element: table.key, x: at.x + 2 * STEP, y: at.y });
-      assert.notEqual(page.sent[1].key, page.sent[0].key);
-      // Its answer took the move; the timer of the second key press finds nothing left to send.
-      await waitSend(page);
+      assert.deepEqual(page.sent[1].body, { element: table.key, x: at.x + STEP, y: at.y });
+      assert.equal(page.sent[1].key, page.sent[0].key);
       assert.equal(page.sent.length, 2);
       assert.deepEqual(page.app.all('div', 'wb-notice')[0].children, []);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.deepEqual(page.sent[2].body, { element: table.key, x: at.x, y: at.y, expected: { x: at.x + STEP, y: at.y } });
     } finally {
       page.close();
     }
+  });
+
+  test('different boxes do not start competing saves before the first is settled', async () => {
+    const page = await openStage('erd');
+    try {
+      const tables = ELEMENTS.erd.filter((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', tables[0].name).dispatch('keydown', { key: 'ArrowRight' });
+      buttonNamed(page, 'tbl', tables[1].name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.deepEqual(page.sent.map((entry) => entry.body.element), [tables[0].key]);
+      buttonNamed(page, 'tbl', tables[1].name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.deepEqual(page.sent.map((entry) => entry.body.element), [tables[0].key, tables[1].key]);
+    } finally { page.close(); }
   });
 
   test('a move\'s answer goes into the diagram shown now, which a read again replaced while it was sent', async () => {

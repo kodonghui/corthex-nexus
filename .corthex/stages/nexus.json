@@ -148,6 +148,11 @@
           "approved": "SPEC-055 defines position history and SPEC-012 now refuses conditional undo or redo when the position changed; ordinary moves still use last-write wins. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-055 clarifies interrupted writes, missing elements and the limitation that undo saves previously automatic positions as explicit coordinates. This small correction to the approved position-history behavior was made under the checkpoint delegate's 2026-11-27 authorization; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",

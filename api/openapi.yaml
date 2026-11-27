@@ -11508,7 +11508,7 @@ components:
           maximum: 1000000
         expected:
           type: object
-          description: Current position required for a conditional move.
+          description: Current saved position required for a conditional move, or the original drawing box when no position is saved; an automatic relayout can show a different location.
           required: [x, "y"]
           additionalProperties: false
           properties:
