@@ -2,7 +2,7 @@
  "about": "The pinned hub's items of this repository's stage 02, as its build_items makes them and its snapshot orders them, and the SHA-256 of the stage's source. tests/test_item_table_items.py checks them against the pinned hub and says how to make them again.",
  "stage": "02-prd",
  "source": "docs/02-prd/requirements.md",
- "sha256": "e362dbda1572b194a44bb7b28826dea70c8d3230d41b10b93d311ed6cbeee1b8",
+ "sha256": "a5705f8205202089e96057438ebb350f1ba12c3081d9fd8698cf864f9ce07d98",
  "items": [
   {
    "id": "REQ-001",
@@ -1015,10 +1015,23 @@
    "priority": "Should"
   },
   {
-   "id": "REQ-082",
+   "id": "REQ-081",
    "kind": "requirement",
    "stage": "02-prd",
    "where": "docs/02-prd/requirements.md:103",
+   "title": "When the owner views a diagram, the system shall let them zoom in, zoom out and fit the diagram to the available view.",
+   "status": "active",
+   "type": "functional",
+   "priority": "Must",
+   "links": [
+    "CTX-037"
+   ]
+  },
+  {
+   "id": "REQ-082",
+   "kind": "requirement",
+   "stage": "02-prd",
+   "where": "docs/02-prd/requirements.md:104",
    "title": "When the owner opens a stage or to-do, the system shall explain the next action and the consequence of confirmation.",
    "status": "active",
    "type": "functional",
