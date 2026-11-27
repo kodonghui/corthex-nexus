@@ -83,22 +83,23 @@ describe('the pages', () => {
   });
 
   test('every screen address answers the shell, with the page headers (SCR-142 to SCR-146)', async () => {
-    let shell;
+    const shell = read('shell.html').toString('utf8');
     for (const path of [...SCREEN_ADDRESSES, `/p/${marks.name}/${marks.part}/05-erd?d=dg_000000000001&thread=nc_000000000001`]) {
       const answer = await server.send({ path });
       assert.equal(answer.status, 200, path);
       assert.equal(answer.headers['content-type'], 'text/html; charset=utf-8', path);
       assert.equal(answer.headers['cache-control'], 'no-store', path);
       assertPageHeaders(answer, path);
-      shell ??= answer.text;
-      assert.equal(answer.text, shell, path);
+      assert.equal(answer.text.replaceAll(/\/web\/v\/[a-f0-9]{64}\//g, '/web/'), shell, path);
     }
   });
 
   test('versioned assets use one content-derived namespace and the browser may cache them', async () => {
     const page = await server.send({ path: '/' });
-    const paths = [...page.text.matchAll(/(?:href|src)="(\/web\/v\/[a-f0-9]{64}\/[^\"]+)"/g)].map((match) => match[1]);
-    assert.equal(paths.length, 5);
+    const paths = [...page.text.matchAll(/(?:href|src)="(\/web\/v\/[a-f0-9]{64}\/[^\"]+\.(?:js|css))"/g)].map((match) => match[1]);
+    const expected = [...read('shell.html').toString('utf8').matchAll(/(?:href|src)="(\/web\/[^"?#]+\.(?:js|css))"/g)].map((match) => match[1]);
+    assert.ok(expected.length > 0);
+    assert.deepEqual(paths.map((path) => path.replace(/^\/web\/v\/[a-f0-9]{64}\//, '/web/')), expected);
     assert.equal(new Set(paths.map((path) => path.split('/')[3])).size, 1);
     for (const path of paths) {
       const answer = await server.send({ path });
@@ -116,6 +117,12 @@ describe('the pages', () => {
       assert.equal(answer.status, 200, path);
       assert.equal(answer.headers['cache-control'], 'private, max-age=31536000, immutable');
     }
+  });
+
+  test('the shell offers a reload when scripts cannot start after a release change', async () => {
+    const answer = await server.send({ path: '/p' });
+    assert.match(answer.text, /화면을 불러오고 있어요/);
+    assert.match(answer.text, /<a href="">새로고침<\/a>/);
   });
 
   test('the Content-Security-Policy loads nothing from another site and allows no inline code', () => {
@@ -163,14 +170,14 @@ describe('the pages', () => {
   });
 
   test('an address that names no screen answers the shell with 404, which never holds the path or the query', async () => {
-    const shell = (await server.send({ path: '/' })).bytes;
+    const shell = read('shell.html').toString('utf8');
     const marker = `marker${Date.now()}`;
     for (const path of [...OTHER_ADDRESSES, `/${marker}?q=${marker}`, `/p/${marker}/x/y/z?d=${marker}`]) {
       const answer = await server.send({ path });
       assert.equal(answer.status, 404, path);
       assert.equal(answer.headers['content-type'], 'text/html; charset=utf-8', path);
       assertPageHeaders(answer, path);
-      assert.ok(answer.bytes.equals(shell), path);
+      assert.equal(answer.text.replaceAll(/\/web\/v\/[a-f0-9]{64}\//g, '/web/'), shell, path);
       assert.equal(answer.text.includes(marker), false, path);
     }
   });
@@ -240,7 +247,7 @@ describe('the pages', () => {
     const shell = read('shell.html').toString('utf8');
     const links = [...shell.matchAll(/\b(?:src|href)="([^"]*)"/g)].map(([, link]) => link);
     assert.ok(links.length >= 5);
-    for (const link of links) assert.match(link, /^\/web\/[A-Za-z0-9./-]+$/, link);
+    for (const link of links) assert.ok(link === '' || /^\/web\/[A-Za-z0-9./-]+$/.test(link), link);
     assert.equal(/<style|\sstyle=|<script(?![^>]*\ssrc=)/i.test(shell), false);
     for (const path of TEXTS) {
       const text = read(path).toString('utf8');
