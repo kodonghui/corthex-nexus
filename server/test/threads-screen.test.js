@@ -545,6 +545,48 @@ describe('SCR-145 threads', () => {
     }
   });
 
+  test('a reply answer reloads the shown thread when an older read was in flight', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const entries = [...structuredClone(ENTRIES), { seq: 3, author: 'owner', kind: 'comment', text: '새 답변', made_at: ago(0) }];
+    const updated = threadOf('erd', original, { waits_on: 'agent', entries });
+    let releaseWrite;
+    let releaseOld;
+    let hold = false;
+    let heldReads = 0;
+    const page = await openStage('erd', {
+      answers: (path) => {
+        if (path !== threadPath(T.mine) || !hold) return undefined;
+        heldReads += 1;
+        if (heldReads === 1) return () => new Promise((resolve) => { releaseOld = () => resolve(json(200, threadOf('erd', original))()); });
+        return json(200, updated);
+      },
+      posts: (path, body) => new Promise((resolve) => { releaseWrite = () => resolve(written(path, body)); }),
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      const field = fieldOf(page, 'th-reply');
+      field.value = '새 답변';
+      formOf(field).dispatch('submit');
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      hold = true;
+      rowNamed(page, 'agent_credentials').click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      assert.ok(releaseOld);
+      releaseWrite();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      releaseOld();
+      await page.settle();
+      assert.ok(shownThread(page));
+      assert.ok(textsIn(shownThread(page), 'span', 'tx').includes('새 답변'));
+    } finally {
+      page.close();
+    }
+  });
+
   test('a close racing resolution supersedes an older read of the same thread', async () => {
     for (const oldFirst of [true, false]) {
       const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
@@ -570,6 +612,34 @@ describe('SCR-145 threads', () => {
       } finally {
         globalThis.fetch = realFetch;
       }
+    }
+  });
+
+  test('a newer read updates the list after selection moves to another thread', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const resolved = threadOf('erd', original, { state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true, closed_at: ago(0) });
+    const realFetch = globalThis.fetch;
+    const responses = [];
+    globalThis.fetch = () => new Promise((resolve) => responses.push(resolve));
+    const state = {
+      ctx: { address: {}, data: { diagram: { id: ID.erd, project: P, threads: [{ ...original }] } }, shell: {} },
+      threads: { shown: T.mine, thread: resolved, failed: null, seq: 0, choose: false, boxes: null,
+        host: { live: () => true, choose: () => {}, notice: () => {} } },
+    };
+    try {
+      const older = refreshAfterClose(state, T.mine);
+      threadsOpened(state, state.threads.host);
+      assert.equal(responses.length, 2);
+      state.threads.shown = T.whole;
+      state.threads.seq += 1;
+      responses[1](json(200, resolved)());
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      responses[0](json(200, resolved)());
+      await older;
+      assert.equal(state.ctx.data.diagram.threads[0].resolved, true);
+      assert.equal(state.threads.shown, T.whole);
+    } finally {
+      globalThis.fetch = realFetch;
     }
   });
 

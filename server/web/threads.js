@@ -68,7 +68,8 @@ export function threadsOpened(state, host) {
   if (state.threads === undefined) {
     state.threads = {
       shown: null, thread: null, failed: null, seq: 0, handled: null, choose: false, fromAddress: false,
-      texts: new Map(), errors: new Map(), sending: new Set(), boxes: null, place: null, element: null,
+      texts: new Map(), errors: new Map(), sending: new Set(), reads: new Map(), readGeneration: 0,
+      boxes: null, place: null, element: null,
     };
   }
   const t = state.threads;
@@ -93,6 +94,7 @@ export function threadsWhole(state) {
   state.threads.shown = null;
   state.threads.thread = null;
   state.threads.failed = null;
+  state.threads.choose = false;
   state.threads.fromAddress = false;
 }
 
@@ -117,6 +119,7 @@ export function threadsPart(state, element) {
       t.shown = next;
       t.thread = null;
       t.failed = null;
+      t.choose = false;
       t.fromAddress = false;
       if (next !== null) readThread(state, next);
     }
@@ -232,6 +235,7 @@ function chooseThread(state, brief) {
     t.shown = brief.id;
     t.thread = null;
     t.failed = null;
+    t.choose = false;
     t.fromAddress = false;
     readThread(state, brief.id);
   }
@@ -252,22 +256,29 @@ async function readThread(state, id) {
   const seq = t.seq;
   const diagram = state.ctx.data.diagram;
   const outcome = await read(`${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}`);
-  if (!t.host.live() || seq !== t.seq || t.shown !== id || t.reads.get(id) !== generation) return;
-  const choose = t.choose;
-  t.choose = false;
+  if (t.reads.get(id) !== generation) return;
+  t.reads.delete(id);
+  if (!t.host.live() || state.ctx.data.diagram !== diagram) return;
+  const showing = seq === t.seq && t.shown === id;
   if (outcome.status === 200 && outcome.body.diagram === diagram.id) {
+    brief(state, id, outcome.body, 0, true);
+    if (!showing) { drawList(state); return; }
+    const choose = t.choose;
+    t.choose = false;
     t.thread = outcome.body;
     t.failed = null;
-    brief(state, id, outcome.body, 0, true);
     const key = outcome.body.element;
     if (choose && key !== null && state.names.has(key)) {
       t.host.choose(key);
       return;
     }
-  } else if (outcome.status === 200 || (outcome.status === 404 && outcome.code === 'thread_not_found')) {
+  } else if (!showing) return;
+  else if (outcome.status === 200 || (outcome.status === 404 && outcome.code === 'thread_not_found')) {
+    t.choose = false;
     t.thread = null;
     t.failed = { gone: true };
   } else {
+    t.choose = false;
     if (state.ctx.shell.outcome(outcome) === null) return;
     t.thread = null;
     t.failed = { outcome };
@@ -278,7 +289,7 @@ async function readThread(state, id) {
 
 // The diagram's brief of a thread takes what a read or a write answered about it; added counts an entry a write added.
 function brief(state, id, thread, added = 0, authoritative = false) {
-  if (!authoritative) nextRead(state.threads, id);
+  if (!authoritative) state.threads.reads?.delete(id);
   const found = (state.ctx.data.diagram.threads ?? []).find((each) => each.id === id);
   if (found === undefined) return;
   found.state = thread.state;
@@ -291,7 +302,8 @@ function brief(state, id, thread, added = 0, authoritative = false) {
 
 function nextRead(threads, id) {
   threads.reads ??= new Map();
-  const generation = (threads.reads.get(id) ?? 0) + 1;
+  const generation = (threads.readGeneration ?? 0) + 1;
+  threads.readGeneration = generation;
   threads.reads.set(id, generation);
   return generation;
 }
@@ -304,14 +316,18 @@ export async function refreshAfterClose(state, id) {
   const generation = nextRead(t, id);
   const seq = t.seq;
   const outcome = await read(`${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}`);
-  if (!t.host.live() || state.ctx.data.diagram !== diagram || t.reads.get(id) !== generation) return;
+  if (t.reads.get(id) !== generation) return;
+  t.reads.delete(id);
+  if (!t.host.live() || state.ctx.data.diagram !== diagram) return;
   const showing = t.shown === id && t.seq === seq;
   if ((outcome.status === 200 && outcome.body.diagram !== diagram.id) || (outcome.status === 404 && outcome.code === 'thread_not_found')) {
+    diagram.threads = (diagram.threads ?? []).filter((each) => each.id !== id);
     if (showing) {
       t.thread = null;
       t.failed = { gone: true };
       drawShown(state);
     }
+    drawList(state);
     return;
   }
   if (outcome.status !== 200) {
@@ -567,6 +583,7 @@ function replyOf(state, id, text) {
         Object.assign(t.thread, summaryOf(answer.thread));
       }
       brief(state, id, answer.thread, 1);
+      if (t.shown === id && t.thread === null) readThread(state, id);
       keepText(state, `reply ${id}`, '');
       drawList(state);
       drawShown(state);
@@ -595,6 +612,7 @@ function closeOf(state, id, reopen = false) {
       const now = state.ctx.data.diagram;
       if (!reopen && now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
       else if (!reopen && answer.thread.state === 'closed' && answer.thread.closed_by === 'reflection') refreshAfterClose(state, id);
+      else if (t.shown === id && t.thread === null) readThread(state, id);
     },
   };
 }
