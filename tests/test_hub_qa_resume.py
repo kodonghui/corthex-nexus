@@ -1,14 +1,23 @@
-"""QA walk on the pinned hub and a disposable loopback v3 server (TC-215, TC-218)."""
+"""QA walk on the pinned hub and a disposable loopback v3 server (TC-215 to TC-220)."""
 
 import http.client
 import http.server
 import threading
 import urllib.parse
+import unittest
 
-from test_hub_run import HubRunTest, PROJECT, PULL
+import test_hub_run as hub_run
+
+PROJECT, PULL = hub_run.PROJECT, hub_run.PULL
 
 
-class HubQaWalk(HubRunTest):
+def load_tests(loader, standard_tests, pattern):
+    """Run this walk once; its base fixture has its own tests in test_hub_run."""
+    names = [name for name in loader.getTestCaseNames(HubQaWalk) if name in HubQaWalk.__dict__]
+    return unittest.TestSuite(HubQaWalk(name) for name in names)
+
+
+class HubQaWalk(hub_run.HubRunTest):
     def test_two_sessions_trade_a_thread(self):
         thread = self.first_push_and_comment()
         self.owner_reply(thread)
