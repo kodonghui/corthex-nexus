@@ -183,6 +183,11 @@
           "approved": "SPEC-053 brings fit controls into view before measuring available height, reduces accidental low-zoom drags and explains a cancelled drag or uncancellable pan. The maintainer's checkpoint delegate authorized these corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 clarifies that minus uses the smaller step when the displayed scale rounds to 10%, avoiding a button that appears stuck. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
@@ -611,6 +616,11 @@
         },
         {
           "approved": "SCR-145 records bringing fit controls into view, the low-zoom drag threshold and messages for an interrupted drag or uncancellable pan. The maintainer's checkpoint delegate authorized these corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 clarifies that minus uses the smaller step when the displayed scale rounds to 10%, avoiding a button that appears stuck. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         }

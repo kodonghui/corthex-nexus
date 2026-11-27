@@ -312,6 +312,12 @@ describe('SCR-145 pictures', () => {
       board.dispatch('touchstart', { touches: [{ clientX: 0, clientY: 0 }, { clientX: 30, clientY: 0 }] });
       page.shell.redraw();
       assert.match(pictureBox(page).textContent, /그림이 바뀌어 확대를 멈췄어요/);
+      const svg = pictureBox(page).all('svg', 'pic')[0];
+      const before = svg.getAttribute('width');
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      board.dispatch('touchmove', { touches: [{ clientX: 0, clientY: 0 }, { clientX: 60, clientY: 0 }] });
+      assert.equal(svg.getAttribute('width'), before);
+      assert.match(pictureBox(page).textContent, /그림이 바뀌어 확대를 멈췄어요/);
       assert.equal(page.sent.length, 0);
     } finally { page.close(); }
   });

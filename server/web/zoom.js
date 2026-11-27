@@ -12,7 +12,7 @@ export function zoomStep(value, direction) {
   const step = (number) => clampZoom(Math.round(number * 1000) / 1000);
   if (direction < 0) {
     if (value <= 0.025) return MIN_ZOOM;
-    if (value <= 0.1) return step(value / 2);
+    if (Math.round(value * 1000) <= 100) return step(value / 2);
     return step(Math.max(0.1, value - ZOOM_STEP));
   }
   if (value <= MIN_ZOOM) return 0.025;

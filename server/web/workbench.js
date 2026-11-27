@@ -300,6 +300,7 @@ function drawPicture(state) {
       }, { passive: false });
       let pinch = null;
       view.box.addEventListener('touchstart', (event) => {
+        if (state.view !== view) return;
         if (event.touches.length !== 2) return;
         if (state.dragNode) cancelled(state, state.dragNode);
         const [a, b] = event.touches;
@@ -307,6 +308,7 @@ function drawPicture(state) {
         state.pinching = true;
       }, { passive: true });
       view.box.addEventListener('touchmove', (event) => {
+        if (state.view !== view) return;
         if (!pinch || event.touches.length !== 2 || pinch.distance === 0) return;
         if (event.cancelable === false) {
           pinch = null;
@@ -320,8 +322,8 @@ function drawPicture(state) {
         changeZoom(state, pinch.zoom * Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) / pinch.distance,
           (a.clientX + b.clientX) / 2 - rect.left, (a.clientY + b.clientY) / 2 - rect.top);
       }, { passive: false });
-      view.box.addEventListener('touchend', () => { pinch = null; state.pinching = false; });
-      view.box.addEventListener('touchcancel', () => { pinch = null; state.pinching = false; });
+      view.box.addEventListener('touchend', () => { if (state.view === view) { pinch = null; state.pinching = false; } });
+      view.box.addEventListener('touchcancel', () => { if (state.view === view) { pinch = null; state.pinching = false; } });
     } else fill(state.pictureBox, picture);
   }
   if (view.box !== undefined) {
@@ -576,7 +578,7 @@ function keydown(state, element, event) {
   moveTo(state, element.key, { x: positionBound(at.x + way[0] * step), y: positionBound(at.y + way[1] * step) });
 }
 
-// A drag: the box follows the pointer, and the move is taken once it is let go 3 pixels or more from where it started.
+// A drag follows the pointer; below 25% it needs an eight-pixel gesture, otherwise DRAG_FROM pixels.
 function pointerdown(state, element, event) {
   if ((event.pointerType === 'touch' && event.isPrimary === false) || (event.button !== undefined && event.button !== 0) || !movable(state, element)) return;
   const node = state.view.nodes.get(element.key);
