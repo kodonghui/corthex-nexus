@@ -1,6 +1,6 @@
 // Agent credentials (SPEC-049, SPEC-050, rule 1, rule 5, rule 8; TASK-417): the owner issues, lists and revokes them
 // (API-279, API-280, API-281), the secret shows once and only its digest is kept, every agent request is checked by its
-// CF-Access-Client-Id and -Secret pair, and revoking releases the credential's claims. Credential values are made at
+// NEXUS or legacy ID and secret pair, and revoking releases the credential's claims. Credential values are made at
 // run time; no test holds one as a literal.
 
 import assert from 'node:assert/strict';
@@ -288,6 +288,45 @@ describe('agent credentials', () => {
     // The owner's sign-in beside a live pair does not change who sent it.
     const both = await agentRead({ ...pair(credential, secret), ...owner() });
     assert.equal(both.line.sender, 'ci-runner');
+  });
+
+  test('BUG-008: accepts either complete agent header pair and refuses ambiguous pairs', async () => {
+    const { credential, secret } = await issued('alternate-headers');
+    const modern = { 'Nexus-Agent-Client-Id': credential.id, 'Nexus-Agent-Client-Secret': secret };
+    const legacy = pair(credential, secret);
+    for (const headers of [legacy, modern]) {
+      const { answer } = await agentRead(headers);
+      assert.equal(answer.status, 200);
+    }
+    for (const headers of [
+      { 'Nexus-Agent-Client-Id': credential.id },
+      { 'Nexus-Agent-Client-Secret': secret },
+      { 'Nexus-Agent-Client-Id': credential.id, 'CF-Access-Client-Secret': secret },
+      { ...legacy, ...modern },
+      { ...modern, 'CF-Access-Client-Id': credential.id },
+      { ...modern, 'CF-Access-Client-Id': '' },
+      { ...modern, ...pair({ id: newId('ac') }, secret) },
+      { ...modern, ...pair(credential, randomBytes(32).toString('base64url')) },
+      { ...legacy, ...modern, 'Nexus-Agent-Client-Id': newId('ac') },
+      { ...legacy, ...modern, 'Nexus-Agent-Client-Secret': randomBytes(32).toString('base64url') },
+      { ...modern, 'Nexus-Agent-Client-Id': [credential.id, credential.id] },
+      { ...modern, 'Nexus-Agent-Client-Secret': `${secret}, ${secret}` },
+      { ...modern, 'Nexus-Agent-Client-Secret': 'invalid' },
+    ]) {
+      const { answer, line } = await agentRead(headers);
+      assert.equal(answer.status, 401);
+      assert.equal(answer.json.code, 'access_missing');
+      assert.equal(line.reason, 'malformed');
+      assertNoneIn(answer.text, { modernSecret: secret });
+    }
+    assertNoneIn(server.logText(), { modernSecret: secret });
+    const ownerAttempt = await sent({ method: 'GET', path: '/api/credentials', headers: modern });
+    assert.equal(ownerAttempt.answer.status, 403);
+    assert.equal(ownerAttempt.answer.json.code, 'owner_only');
+    await revoke(credential.id);
+    const revoked = await agentRead(modern);
+    assert.equal(revoked.answer.status, 401);
+    assert.equal(revoked.line.reason, 'revoked');
   });
 
   test('marks a credential used, at most once a minute, and shows it in the list', async () => {
