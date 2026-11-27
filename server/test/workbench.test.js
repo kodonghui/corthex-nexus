@@ -45,7 +45,7 @@ const stored = (name) => JSON.parse(readFileSync(new URL(`./${name}`, import.met
 // An element of a drawer's drawing as API-265 answers it.
 const asElement = (element) => ({
   key: element.key, trace_id: element.trace_id ?? null, kind: element.kind, name: element.name ?? '', parent: element.parent ?? null,
-  status: element.status ?? null, detail: element.detail ?? {}, position: null,
+  status: element.status ?? null, detail: element.detail ?? {}, position: null, position_saved: false,
 });
 const FLOWS = Object.values(stored('user-flow-expected.json'));
 const ELEMENTS = Object.freeze({
@@ -188,12 +188,52 @@ describe('SCR-145 pictures', () => {
       assert.equal(page.sent.length, 1);
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
       await page.settle();
-      assert.deepEqual(page.sent[1].body, { element: table.key, x: at.x, y: at.y, expected: { x: at.x + STEP, y: at.y } });
+      assert.deepEqual(page.sent[1].body, { element: table.key, x: at.x, y: at.y, expected: { x: at.x + STEP, y: at.y }, reset: true });
       controls = pictureBox(page).all('div', 'move-history')[0].all('button');
       assert.equal(controls[1].disabled, false);
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true, shiftKey: true });
       await page.settle();
       assert.deepEqual(page.sent[2].body, { element: table.key, x: at.x + STEP, y: at.y, expected: { x: at.x, y: at.y } });
+    } finally { page.close(); }
+  });
+
+  test('undoing two previously automatic boxes restores the original layout', async () => {
+    const page = await openStage('erd');
+    try {
+      const [first, second] = ELEMENTS.erd.filter((element) => element.kind === 'table');
+      const place = (table) => {
+        const holder = holderOf(buttonNamed(page, 'tbl', table.name));
+        return [Number(holder.getAttribute('x')), Number(holder.getAttribute('y'))];
+      };
+      const initial = [place(first), place(second)];
+      buttonNamed(page, 'tbl', first.name).dispatch('keydown', { key: 'ArrowRight', shiftKey: true });
+      await waitSend(page);
+      buttonNamed(page, 'tbl', second.name).dispatch('keydown', { key: 'ArrowDown' });
+      await waitSend(page);
+      for (let count = 0; count < 2; count += 1) {
+        pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+        await page.settle();
+      }
+      assert.deepEqual(page.sent.slice(2).map((entry) => entry.body.reset), [true, true]);
+      assert.deepEqual([place(first), place(second)], initial);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[1].click();
+      await page.settle();
+      assert.equal(page.sent.at(-1).body.reset, undefined);
+      assert.deepEqual(page.sent.at(-1).body.expected, { x: first.detail.box.x, y: first.detail.box.y });
+    } finally { page.close(); }
+  });
+
+  test('an older diagram response without position_saved is treated conservatively', async () => {
+    const old = diagramOf('erd');
+    old.elements = old.elements.map(({ position_saved, ...element }) => element);
+    const page = await openStage('erd', { more: { [diagramPath('erd')]: json(200, old) } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent[1].body.reset, undefined);
     } finally { page.close(); }
   });
 
@@ -654,7 +694,7 @@ describe('SCR-145 pictures', () => {
       assert.deepEqual(page.app.all('div', 'wb-notice')[0].children, []);
       pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
       await page.settle();
-      assert.deepEqual(page.sent[2].body, { element: table.key, x: at.x, y: at.y, expected: { x: at.x + STEP, y: at.y } });
+      assert.deepEqual(page.sent[2].body, { element: table.key, x: at.x, y: at.y, expected: { x: at.x + STEP, y: at.y }, reset: true });
     } finally {
       page.close();
     }

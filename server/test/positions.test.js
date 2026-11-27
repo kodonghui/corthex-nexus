@@ -130,6 +130,31 @@ describe('moving an element', () => {
     assert.deepEqual(concurrent.map((answer) => answer.status).sort(), [200, 409]);
   });
 
+  test('a conditional reset removes the saved position and refuses a stale or unconditional reset', async () => {
+    const { erd } = erdProject('reset-move');
+    const element = 'TBL-147';
+    assert.equal((await move('reset-move', erd.id, { element, x: 500, y: 80 })).status, 200);
+    const stale = await move('reset-move', erd.id, { element, x: 300, y: 60, expected: { x: 400, y: 80 }, reset: true });
+    assert.deepEqual([stale.status, stale.json.code], [409, 'position_changed']);
+    assert.deepEqual(positionsOf(erd.id).map(({ x, y }) => ({ x, y })), [{ x: 500, y: 80 }]);
+    for (const fields of [{ reset: true }, { reset: 'yes' }]) {
+      const invalid = await move('reset-move', erd.id, { element, x: 300, y: 60, ...fields });
+      assert.deepEqual([invalid.status, invalid.json.code], [400, 'invalid_request']);
+    }
+    const body = { element, x: 1, y: 2, expected: { x: 500, y: 80 }, reset: true };
+    const resetKey = { 'Idempotency-Key': `"${newId('nw')}"` };
+    const reset = await move('reset-move', erd.id, body, resetKey);
+    assert.deepEqual([reset.status, reset.json.x, reset.json.y], [200, 300, 60]);
+    assert.deepEqual(positionsOf(erd.id), []);
+    assert.equal((await read('reset-move', erd.id)).json.elements.find((row) => row.key === element).position_saved, false);
+    assert.equal((await move('reset-move', erd.id, { element, x: 700, y: 90 })).status, 200);
+    assert.equal((await read('reset-move', erd.id)).json.elements.find((row) => row.key === element).position_saved, true);
+    assert.equal((await move('reset-move', erd.id, body, resetKey)).status, 200);
+    assert.deepEqual(positionsOf(erd.id).map(({ x, y }) => ({ x, y })), [{ x: 700, y: 90 }]);
+    assert.equal((await move('reset-move', erd.id, { element, x: 300, y: 60 })).status, 200);
+    assert.equal((await read('reset-move', erd.id)).json.elements.find((row) => row.key === element).position_saved, true);
+  });
+
   test('moves an element of the last good drawing while the latest failed, and one drawn as unreadable or missing (SPEC-001, SPEC-004, note 1)', async () => {
     const space = s.project('bravo');
     const erd = s.diagram(space);

@@ -87,19 +87,19 @@ describe('the diagram read', () => {
       elements: [
         {
           key: 'TBL-146', trace_id: 'TBL-146', kind: 'table', name: 'agent_credentials', parent: null, status: null,
-          detail: { columns: [], where: 'db/nexus.sql:10', box: box(40, 60) }, position: { x: 40, y: 60 },
+          detail: { columns: [], where: 'db/nexus.sql:10', box: box(40, 60) }, position: { x: 40, y: 60 }, position_saved: false,
         },
         {
           key: 'TBL-147', trace_id: 'TBL-147', kind: 'table', name: '', parent: null, status: null,
-          detail: { columns: [], box: box(300, 60) }, position: { x: 512.5, y: -20 },
+          detail: { columns: [], box: box(300, 60) }, position: { x: 512.5, y: -20 }, position_saved: true,
         },
         {
           key: 'line:TBL-147>TBL-146', trace_id: null, kind: 'line', name: 'created_by_credential', parent: 'TBL-147', status: null,
-          detail: { from: 'TBL-147', to: 'TBL-146', points: [{ x: 1, y: 2 }] }, position: null,
+          detail: { from: 'TBL-147', to: 'TBL-146', points: [{ x: 1, y: 2 }] }, position: null, position_saved: false,
         },
         {
           key: 'TBL-148', trace_id: 'TBL-148', kind: 'table', name: 'snapshots', parent: null, status: 'missing',
-          detail: { columns: [], box: box(2_000_000) }, position: null,
+          detail: { columns: [], box: box(2_000_000) }, position: null, position_saved: false,
         },
       ],
       overlays: [],
@@ -157,7 +157,7 @@ describe('the diagram read', () => {
     assert.equal(answer.status, 200);
     assert.deepEqual(answer.json.elements, [
       {
-        key: 'REQ-001', trace_id: 'REQ-001', kind: 'row', name: 'Accept a snapshot', parent: null, status: null, position: null,
+        key: 'REQ-001', trace_id: 'REQ-001', kind: 'row', name: 'Accept a snapshot', parent: null, status: null, position: null, position_saved: false,
         detail: {
           status: 'active',
           // A blank title and an ID no item document has give '': the page shows the ID.
@@ -165,7 +165,7 @@ describe('the diagram read', () => {
           where,
         },
       },
-      { key: 'row:odd', trace_id: null, kind: 'row', name: '', parent: null, status: 'unreadable', position: null, detail: { status: '', links: [], where: null } },
+      { key: 'row:odd', trace_id: null, kind: 'row', name: '', parent: null, status: 'unreadable', position: null, position_saved: false, detail: { status: '', links: [], where: null } },
     ]);
 
     // A newer snapshot renames CTX-037 in stage 01, and holds no stage-02 items: the link takes the new name without a

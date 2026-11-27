@@ -3807,7 +3807,7 @@ paths:
       tags: [owner]
       x-corthex:
         id: API-265
-        spec: [SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-011, SPEC-012, SPEC-022, SPEC-027, SPEC-034, SPEC-051]
+        spec: [SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-010, SPEC-011, SPEC-012, SPEC-022, SPEC-027, SPEC-034, SPEC-051, SPEC-055]
         tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-160, TBL-166]
         release: Must
         family: owner
@@ -5734,7 +5734,7 @@ paths:
     post:
       operationId: moveElement
       summary: Move an element
-      description: Saves the position in NEXUS and never in Git (SPEC-012); the last ordinary move wins. If expected is supplied, the current position must match it atomically or position_changed is returned (SPEC-055). A removed diagram takes no move and answers diagram_not_found (SPEC-027).
+      description: Saves the position in NEXUS and never in Git (SPEC-012); the last ordinary move wins. If expected is supplied, the current position must match it atomically or position_changed is returned. With expected and reset true, removes the saved position to restore automatic placement and returns the drawing box coordinates (SPEC-055). A removed diagram takes no move and answers diagram_not_found (SPEC-027).
       tags: [owner]
       x-corthex:
         id: API-274
@@ -11286,6 +11286,9 @@ components:
                   minimum: -1000000
                   maximum: 1000000
             - type: "null"
+        position_saved:
+          type: boolean
+          description: True when this element has an owner-saved position; absent on older servers.
     ThreadBrief:
       type: object
       required: [id, target, element, removed_name, state, waits_on, last_at, entries]
@@ -11520,6 +11523,9 @@ components:
               type: number
               minimum: -1000000
               maximum: 1000000
+        reset:
+          type: boolean
+          description: True restores automatic placement after a successful expected-position comparison; expected is required. The x and y inputs remain required and are not used for a reset.
     MoveAnswer:
       type: object
       required: [diagram, element, x, "y", moved_at]

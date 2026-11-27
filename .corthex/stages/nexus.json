@@ -150,7 +150,7 @@
           "date": "2026-11-27"
         },
         {
-          "approved": "SPEC-055 clarifies interrupted writes, missing elements and the limitation that undo saves previously automatic positions as explicit coordinates. This small correction to the approved position-history behavior was made under the checkpoint delegate's 2026-11-27 authorization; the basis is in the project records.",
+          "approved": "SPEC-055 clarifies interrupted writes and missing elements, and restores automatic placement when undoing a first move. This correction to the approved position-history behavior was authorized through the maintainer's checkpoint delegate on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         }
@@ -409,6 +409,11 @@
           "approved": "API-274 optionally compares the expected saved position and refuses a changed position atomically. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "API-274 adds an optional reset together with expected to restore automatic placement after an atomic position comparison; API-265 adds optional position_saved so clients distinguish automatic and saved positions. Existing requests retain their behavior. The maintainer's checkpoint delegate authorized this correction on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
@@ -531,6 +536,11 @@
         },
         {
           "approved": "SCR-145 shows undo and redo, keyboard behavior, pending and conflict states. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 clarifies that undo restores automatic placement when applicable, following the stage-06 reset correction. The maintainer's checkpoint delegate authorized this correction on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         }

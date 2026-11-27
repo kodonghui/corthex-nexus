@@ -484,14 +484,16 @@ async function runHistory(state, redo, retryKey = null) {
   const entry = fromStack.at(-1);
   if (!entry) return;
   const target = redo ? entry.to : entry.from;
-  const expected = redo ? entry.from : entry.to;
+  const expected = redo ? (entry.automatic ? entry.drawn : entry.from) : entry.to;
+  const reset = !redo && entry.automatic;
   history.busy = true;
   updateHistoryControls(state);
   const path = `${diagramApi(state.ctx.data.diagram.project, state.diagram)}/positions`;
   const requestKey = retryKey ?? newRequestKey();
   const epoch = history.epoch;
   store('sessionStorage', historyMark(state.diagram), '1');
-  const outcome = await state.ctx.shell.write('POST', path, { element: entry.key, x: target.x, y: target.y, expected }, requestKey);
+  const outcome = await state.ctx.shell.write('POST', path,
+    { element: entry.key, x: target.x, y: target.y, expected, ...(reset ? { reset: true } : {}) }, requestKey);
   if (history.epoch !== epoch) return;
   if ([200, 404, 409].includes(outcome.status)) store('sessionStorage', historyMark(state.diagram), null);
   if (outcome.status === 200) {
@@ -500,7 +502,10 @@ async function runHistory(state, redo, retryKey = null) {
     history.busy = false;
     if (!state.live()) return;
     const element = (state.ctx.data.diagram.elements ?? []).find((each) => each.key === entry.key);
-    if (element) element.position = { x: outcome.body.x, y: outcome.body.y };
+    if (element) {
+      element.position = reset ? entry.drawn : { x: outcome.body.x, y: outcome.body.y };
+      element.position_saved = !reset;
+    }
     fill(state.notice, h('div', { class: 'nt info', role: 'status' }, redo ? '이동을 다시 실행했어요.' : '이동을 되돌렸어요.'));
     state.focus = entry.key;
     drawPicture(state);
@@ -609,7 +614,13 @@ function dropped(state, node, event) {
 // Puts a box at a place: chosen, drawn there with its lines, and sent once the moves stop.
 function moveTo(state, key, to) {
   const previous = state.view.place.boxes.get(key);
-  if (!state.before.has(key) && previous) state.before.set(key, { x: previous.x, y: previous.y });
+  if (!state.before.has(key) && previous) {
+    const element = (state.ctx.data.diagram.elements ?? []).find((each) => each.key === key);
+    const automatic = element?.position_saved === false;
+    const box = element?.detail?.box;
+    state.before.set(key, { x: previous.x, y: previous.y, automatic,
+      drawn: automatic && box ? { x: box.x, y: box.y } : null });
+  }
   if (state.selected !== key) {
     state.selected = key;
     drawSelected(state);
@@ -654,14 +665,18 @@ async function send(state, key, kept) {
   if (state.sending.size === 0 && state.failed.size === 0 && [200, 404, 409].includes(outcome.status)) store('sessionStorage', historyMark(state.diagram), null);
   if (outcome.status === 200 && before && (before.x !== at.x || before.y !== at.y)) {
     state.history.redo.length = 0;
-    state.history.undo.push({ key, from: before, to: { x: outcome.body.x, y: outcome.body.y } });
+    state.history.undo.push({ key, from: { x: before.x, y: before.y }, automatic: before.automatic,
+      drawn: before.drawn, to: { x: outcome.body.x, y: outcome.body.y } });
     if (state.history.undo.length > 50) state.history.undo.shift();
   }
   if (states.get(state.ctx.shell) !== state) return;
   if (outcome.status === 200) {
     // The data shown now, which a read again may have replaced while the move was sent.
     const element = (state.ctx.data.diagram.elements ?? []).find((each) => each.key === key);
-    if (element !== undefined) element.position = { x: outcome.body.x, y: outcome.body.y };
+    if (element !== undefined) {
+      element.position = { x: outcome.body.x, y: outcome.body.y };
+      element.position_saved = true;
+    }
     const now = state.moves.get(key);
     if (now !== undefined && now.x === at.x && now.y === at.y) state.moves.delete(key);
     fill(state.notice);

@@ -192,6 +192,7 @@ function elementOf(row, moved, names) {
     status: row.status,
     detail,
     position: moved.get(row.element_key) ?? box,
+    position_saved: moved.has(row.element_key),
   };
 }
 
