@@ -172,7 +172,7 @@ function build(ctx, row) {
   if (state.history.invalidated) {
     fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, '저장 결과를 확인하지 못해 이동 기록을 지웠어요. 그림을 다시 확인해 주세요.'));
     state.history.invalidated = false;
-    if (state.history.pendingWrites === 0) store('sessionStorage', historyMark(state.diagram), null);
+    if (state.history.pendingWrites === 0 && !state.history.needsRefresh) store('sessionStorage', historyMark(state.diagram), null);
   }
   state.dragNotice = h('div', { class: 'wb-notice' });
   if (state.history.needsRefresh && state.history.pendingWrites === 0) queueMicrotask(() => recoverInterrupted(state, state.history.interruptedOutcome));
@@ -659,7 +659,7 @@ function updateHistoryControls(state) {
 }
 
 function historyKey(state, event) {
-  if (!state || state.phone || state.ctx.data.diagram.removed || !state.historyUI || state.pictureBox?.isConnected === false) return;
+  if (event.defaultPrevented || !state || state.phone || state.ctx.data.diagram.removed || !state.historyUI || state.pictureBox?.isConnected === false) return;
   const key = String(event.key);
   const physicalZ = event.code === 'KeyZ' && /^\p{L}$/u.test(key) && !/^\p{Script=Latin}$/u.test(key);
   if (!(event.ctrlKey || event.metaKey) || event.altKey || (key.toLowerCase() !== 'z' && !physicalZ)) return;
@@ -803,9 +803,7 @@ async function recoverInterrupted(state, outcome) {
   if (!shown || shown.history !== history || !shown.live()) return;
   if (fresh?.id === shown.diagram) {
     history.needsRefresh = false;
-    if (history.interruptedOutcome?.status >= 200 && history.interruptedOutcome.status < 500) {
-      store('sessionStorage', historyMark(shown.diagram), null);
-    }
+    store('sessionStorage', historyMark(shown.diagram), null);
     fill(shown.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, '이전 이동 결과를 다시 읽었어요. 그림을 확인해 주세요.'));
     drawPicture(shown);
     updateHistoryControls(shown);
@@ -921,8 +919,17 @@ function moveTo(state, key, to) {
     const automatic = element?.position_saved === false;
     const box = element?.detail?.box;
     const saved = element?.position_saved === true && element.position ? element.position : previous;
-    state.before.set(key, { x: saved.x, y: saved.y, automatic,
+    state.before.set(key, { x: saved.x, y: saved.y, automatic, visible: { x: previous.x, y: previous.y },
       drawn: automatic && box ? { x: box.x, y: box.y } : null });
+  }
+  const start = state.before.get(key)?.visible;
+  if (state.pending.has(key) && start && start.x === to.x && start.y === to.y) {
+    clearTimeout(state.timer);
+    state.pending.delete(key); state.moves.delete(key); state.before.delete(key);
+    state.focus = key;
+    drawPicture(state);
+    updateHistoryControls(state);
+    return;
   }
   if (state.selected !== key) {
     state.selected = key;
@@ -986,6 +993,7 @@ async function send(state, key, kept) {
     const now = state.moves.get(key);
     if (now !== undefined && now.x === at.x && now.y === at.y) state.moves.delete(key);
     fill(state.moveNotice);
+    if (state.sending.size === 0 && state.pending.size === 0 && state.failed.size === 0) drawPicture(state);
   } else if (outcome.status === 400 && outcome.code === 'invalid_request') {
     state.moves.delete(key); state.before.delete(key); state.pending.delete(key); state.again.delete(key); state.failed.delete(key);
     store('sessionStorage', historyMark(state.diagram), null);

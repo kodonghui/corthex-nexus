@@ -173,6 +173,57 @@ const waitSend = async (page) => {
 };
 
 describe('SCR-145 pictures', () => {
+  test('returning to the original place before saving leaves an automatic box automatic', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowLeft' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 0);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+    } finally { page.close(); }
+  });
+
+  test('another box becomes movable after the queued move saves', async () => {
+    const page = await openStage('erd');
+    try {
+      const [first, second] = ELEMENTS.erd.filter((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', first.name).dispatch('keydown', { key: 'ArrowRight' });
+      buttonNamed(page, 'tbl', first.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(buttonNamed(page, 'tbl', second.name).getAttribute('data-diagram-movable'), '');
+    } finally { page.close(); }
+  });
+
+  test('an interrupted uncertain undo keeps its marker through a failed recovery read', async () => {
+    let release, recovering = false, reads = 0;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow', {
+      moved: (body) => body.expected ? held.then(() => new TypeError('Failed to fetch')) : movedAnswer('flow')(body),
+      more: { [diagramPath('flow')]: () => recovering && ++reads > 1 ? problem(500, 'internal')() : json(200, diagramOf('flow'))() },
+    });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await delay(30);
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(60);
+      release();
+      await delay(60);
+      recovering = true;
+      page.pop(pathOf('flow'));
+      await page.settle();
+      assert.ok(reads >= 2);
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.flow}`), '1');
+      recovering = false;
+      page.app.all('button').find((button) => button.textContent === '다시 시도').click();
+      await page.settle();
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.flow}`), null);
+    } finally { release(); page.close(); }
+  });
+
   test('undo and redo restore a saved move without intercepting text undo', async () => {
     const page = await openStage('erd');
     try {
@@ -536,6 +587,7 @@ describe('SCR-145 pictures', () => {
       await page.settle();
       assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), '1');
       assert.equal(page.app.all('button').some((button) => button.textContent === '다시 시도'), true);
+      assert.ok(page.app.textContent.includes(TRACE), 'the failed screen read is explained with its trace ID');
       failRead = false;
       page.app.all('button').find((button) => button.textContent === '새로 고침').click();
       await page.settle();
@@ -703,6 +755,7 @@ describe('SCR-145 pictures', () => {
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'y', code: 'KeyZ', ctrlKey: true });
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: ';', code: 'KeyZ', ctrlKey: true });
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'é', code: 'KeyZ', ctrlKey: true });
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', code: 'KeyZ', ctrlKey: true, defaultPrevented: true });
       await delay(30);
       assert.equal(page.sent.length, 1);
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ㅋ', code: 'KeyZ', ctrlKey: true });
