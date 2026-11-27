@@ -369,9 +369,12 @@ class HubCompatibilityTest(HubCheckoutCase):
         self.assert_requests_match_the_contract(server)
         schemes = self.doc["components"]["securitySchemes"]
         for request in server.requests:
-            for scheme, variable in (("agentClientId", "CORTHEX_NEXUS_CLIENT_ID"),
-                                     ("agentClientSecret", "CORTHEX_NEXUS_CLIENT_SECRET")):
+            for scheme, variable in (("nexusAgentClientId", "CORTHEX_NEXUS_CLIENT_ID"),
+                                     ("nexusAgentClientSecret", "CORTHEX_NEXUS_CLIENT_SECRET")):
                 self.assertEqual(request["headers"].get(schemes[scheme]["name"].lower()), pair[variable], scheme)
+            for scheme in ("agentClientId", "agentClientSecret"):
+                self.assertFalse(schemes[scheme]["name"].lower() in request["headers"],
+                                 "legacy credential header unexpectedly present")
         self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
 
     def test_a_server_that_lists_a_newer_format_gets_the_newest_the_hub_knows(self):

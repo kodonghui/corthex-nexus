@@ -98,7 +98,7 @@ Each has a recommendation. Questions 1 to 4 were asked one by one at this stage'
 
 ## 4. Differences from approved items
 
-The e410ce9 statements below preserve the history of the approved differences. The hub pin has since moved to 1becbab, which sends source_path; TASK-470 closed the NEXUS side. TC-221 verifies the combination separately.
+The e410ce9 statements below preserve the history of the approved differences. The hub pin has since moved to e6b46ac, which includes 1becbab and sends source_path; TASK-470 closed the NEXUS side. TC-221 verifies the combination separately.
 
 - The stage-06 checkpoint of 2026-11-23 left SPEC-006, SPEC-008 and SPEC-009 out of the first release. The feature change of the same day reversed that decision (the maintainer's, in the project's records), and this WBS puts the three rows in the first release (TASK-424, TASK-426, TASK-427, TASK-428, TASK-429, TASK-431).
 - SPEC-018's acceptance, "Given a comment asking to rename X, when the agent posts a proposal renaming X to Y, then the owner sees Y over X, marked as proposed", and the contract's `source_text`, "The proposed document, from which NEXUS works out the changes", are met by TASK-438 (pull request 137) on stages 03 and 08 only, where NEXUS draws `source_text` with the diagram's own drawer. The pinned hub's `propose` offers only stages 01, 05 and 07 (`PICTURE_STAGES` in its `commands.py` at e410ce9), so it reaches neither today. On stages 05 and 07 NEXUS draws from the hub's parsed picture and reads no SQL or YAML, so TASK-466 was added for them on 2026-11-24.

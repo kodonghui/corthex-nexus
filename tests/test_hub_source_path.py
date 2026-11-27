@@ -1,4 +1,4 @@
-"""TC-221: hub 1becbab against a throwaway v3 server and synthetic multi-file sources."""
+"""TC-221: hub e6b46ac against a throwaway v3 server and synthetic multi-file sources."""
 import hashlib
 import importlib.util
 import json
