@@ -290,6 +290,13 @@ button.step{color:inherit;cursor:pointer}
 .wb-picture,.wb-notice{display:flex;flex-direction:column;gap:12px}
 .wb-notice:empty{display:none}
 .wb-picture .boardbox{max-height:650px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.wb-picture .boardbox{touch-action:pan-x pan-y}
+@media (min-width:1056px), (pointer:fine){.wb-picture .boardbox [data-diagram-movable]{touch-action:none}}
+.zoom-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.zoom-controls .zoom-readable[hidden]{display:inline-block!important;visibility:hidden}
+.zoom-controls output{min-width:4em;text-align:center}
+.zoom-controls .btn:disabled{background:var(--button-disabled);color:var(--text-on-color-disabled);border-color:transparent;cursor:not-allowed}
 .pic-wrap{position:relative;width:max-content}
 svg.pic{display:block;overflow:visible}
 svg.pic foreignObject{overflow:visible}
