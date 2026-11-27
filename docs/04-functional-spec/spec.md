@@ -113,9 +113,15 @@ Each row adds only what differs from these rules.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | SPEC-052 | Back up daily | Must | REQ-076, REQ-080, FL-011 | None. | Backs up the data once a day, keeps each backup 30 days, and before each release records a restore rehearsed from the latest backup. | A backup fails → retried once within the hour, then the owner's to-do shows the warning (SPEC-042); not enough disk → the oldest backup past 30 days goes first, never a newer one. | Given 31 daily backups, when the next backup runs, then the oldest is removed and 30 remain plus the new one. | active |
 
+### Guidance
+
+| ID | Behaviour | Release | From | Preconditions | Main behaviour | Exceptions | Acceptance criteria | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| SPEC-054 | Guide the next action | Must | REQ-082, FL-002, FL-006 | A stage or owner to-do is open. | An empty stage names the material and gives words to ask the AI the owner is using to prepare and send it; a question shows how to answer; before confirmation, it suggests answering any questions and reviewing changes, and explains the target, the agent recording it and when the stage passes. | No source material yet → explain the next action; on a phone, the existing PC-only action limits remain. | Given an empty stage, when the owner opens it, then the stage names the material and says to ask an agent to send it. | active |
+
 ## 3. Coverage
 
-Every functional requirement has at least one row (69 of 69). Non-functional requirements are checked in stage 12, except three that a row also covers: REQ-078 in SPEC-049, and REQ-076 and REQ-080 in SPEC-052, because stage 03 gave the backup a flow.
+Every functional requirement has at least one row (70 of 70). Non-functional requirements are checked in stage 12, except three that a row also covers: REQ-078 in SPEC-049, and REQ-076 and REQ-080 in SPEC-052, because stage 03 gave the backup a flow.
 
 ## 4. Choices this spec makes
 

@@ -36,6 +36,7 @@ import { changesBody, changesSkeleton, changesTags } from './changes-page.js';
 import { CONFIRM_WORDS } from './confirm.js';
 import { diagramApi, isDiagramId, isThreadId, projectApi, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
 import { h } from './dom.js';
+import { emptyStageGuidance } from './guidance.js';
 import { projectBody, projectDescription, projectSkeleton } from './project.js';
 import { projectsBody, projectsSkeleton } from './projects.js';
 import { SHARED_STATES } from './states.js';
@@ -168,7 +169,7 @@ export const SCREENS = Object.freeze({
       if (workshopShown(ctx)) return workshopMode(ctx) ? workshopView(ctx).body : workshopMissing(ctx);
       const open = openPart(ctx);
       if (ctx.data.diagram === undefined || ctx.data.diagram === null) {
-        return [open, h('div', { class: 'empty' }, h('h2', {}, '아직 보낸 것이 없어요.'), h('p', { class: 'sec' }, '에이전트가 다음에 보낼 때 나와요.'))];
+        return [open, h('div', { class: 'empty' }, h('h2', {}, '아직 보낸 것이 없어요.'), h('p', {}, emptyStageGuidance(ctx.address.stage)))];
       }
       return [open, ...workbenchOf(ctx, stageRow(ctx.data.project, ctx.address)).body];
     },

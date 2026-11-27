@@ -9368,6 +9368,7 @@ components:
         client: Open the named workshop.
     no_operation:
       SPEC-052: "A server job, not a request: the daily backup and its retry. Its failure reaches the owner through getOwnerTodo (SPEC-042)."
+      SPEC-054: "Screen guidance uses existing reads and introduces no operation."
     limits:
       snapshot_bytes: 8388608
       body_bytes: 2097152

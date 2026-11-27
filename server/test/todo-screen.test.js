@@ -159,7 +159,7 @@ describe('SCR-142', () => {
         { tag: '확정', look: 'tag gray', place: '01 도메인 · 도메인 보드', reason: '새 문서로 확정이 풀렸어요', time: '12분 전', href: `/p/reading-club/_/01-domain?d=${D1}` },
         { tag: 'AI 제안', look: 'ai', place: '01 도메인 · 도메인 보드', reason: null, time: '3시간 전', href: `/p/reading-club/_/01-domain?d=${D1}&thread=${T1}` },
         { tag: 'AI 제안', look: 'ai', place: '01 도메인 · 도메인 보드', reason: null, time: '3시간 전', href: `/p/reading-club/_/01-domain?d=${D1}` },
-        { tag: '질문', look: 'tag cyan', place: '05 ERD · ERD', reason: null, time: '어제', href: `/p/reading-club/nexus/05-erd?d=${D2}&thread=${T2}` },
+        { tag: '질문', look: 'tag cyan', place: '05 ERD · ERD', reason: '열어서 질문을 읽고 댓글에 답해 주세요.', time: '어제', href: `/p/reading-club/nexus/05-erd?d=${D2}&thread=${T2}` },
         { tag: '확정', look: 'tag gray', place: '02 PRD · 요구사항 표', reason: '아직 확정한 적이 없어요', time: '2일 전', href: `/p/demo/_/02-prd?d=${D3}` },
         { tag: '확정', look: 'tag gray', place: '03 사용자 흐름 · FL-001', reason: '확정을 취소했어요', time: '10일 전', href: `/p/old-notes/_/03-user-flow?d=${D4}` },
       ]);
@@ -455,11 +455,11 @@ describe('SCR-142 against the server', () => {
       assert.deepEqual(rowsOf(page).map(({ tag, place, reason, time, href }) => ({ tag, place, reason, time, href })), entries.map((each) => ({
         tag: words[each.kind],
         place: `${each.stage.slice(0, 2)} ${{ '02-prd': 'PRD', '03-user-flow': '사용자 흐름', '05-erd': 'ERD' }[each.stage]} · ${each.diagram_name}`,
-        reason: each.kind === 'confirm' ? REASONS[each.reason] : null,
+        reason: each.kind === 'confirm' ? REASONS[each.reason] : each.kind === 'question' ? '열어서 질문을 읽고 댓글에 답해 주세요.' : null,
         time: ago(each.since, now),
         href: stageHref(each.project, each.part, each.stage, { diagram: each.diagram, thread: each.thread }),
       })));
-      assert.deepEqual(rowsOf(page).filter((row) => row.reason !== null).map((row) => row.reason), ['확정을 취소했어요', '새 문서로 확정이 풀렸어요', '아직 확정한 적이 없어요', '아직 확정한 적이 없어요']);
+      assert.deepEqual(rowsOf(page).filter((row) => row.reason !== null).map((row) => row.reason), ['열어서 질문을 읽고 댓글에 답해 주세요.', '확정을 취소했어요', '새 문서로 확정이 풀렸어요', '아직 확정한 적이 없어요', '아직 확정한 적이 없어요']);
       assert.ok(rowsOf(page).some((row) => row.href.includes('/nexus/03-user-flow?d=dg_') && row.href.includes('&thread=nc_')));
       assert.deepEqual(texts(page, 'b').filter((text) => text.includes('백업')), [`${dayOf(answer.json.backup.failed_at)} 백업이 실패했어요.`]);
       assert.doesNotMatch(mainOf(page).textContent, /\b(?:dg|nc|np)_/);

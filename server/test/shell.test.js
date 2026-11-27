@@ -492,7 +492,7 @@ describe('the shell', () => {
       assert.deepEqual(texts(empty, 'h1'), ['PRD']);
       // The body's empty state, and on a PC the work panel's (TASK-461): nothing to confirm, no AI proposal.
       assert.deepEqual(texts(empty, 'h2'), ['아직 보낸 것이 없어요.', '이 그림', 'AI 제안']);
-      assert.ok(texts(empty, 'p').includes('에이전트가 다음에 보낼 때 나와요.'));
+      assert.ok(texts(empty, 'p').some((text) => text.includes('지금 쓰는 AI 대화창')));
       assert.deepEqual(texts({ app: empty.app.all('aside')[0] }, 'p'), ['확정할 그림이 아직 없어요.', '모두 처리함']);
     } finally {
       empty.close();
