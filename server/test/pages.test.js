@@ -129,7 +129,7 @@ describe('the pages', () => {
 
   test('a failed versioned script or stylesheet keeps a visible error and reload link', () => {
     const listeners = {};
-    const status = { replaceChildren: (...children) => { status.children = children; } };
+    const status = { setAttribute(name, value) { this[name] = value; }, replaceChildren: (...children) => { status.children = children; } };
     const app = { prepend: (child) => { app.child = child; } };
     let current = status;
     const doc = { getElementById: (id) => id === 'app' ? app : current, createElement: () => ({ setAttribute(name, value) { this[name] = value; }, replaceChildren(...children) { this.children = children; } }) };
@@ -139,6 +139,7 @@ describe('the pages', () => {
     });
     listeners.error({ target: { tagName: 'SCRIPT', src: 'https://example.test/web/v/old/main.js' } });
     assert.match(status.children[0], /문제가 생겼어요/);
+    assert.equal(status.role, 'alert');
     assert.equal(status.children[1].href, '');
     assert.equal(status.children[1].textContent, '새로고침');
     delete status.children;

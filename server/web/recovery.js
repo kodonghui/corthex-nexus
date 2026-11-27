@@ -11,6 +11,7 @@ function showFailure() {
     status.setAttribute('role', 'alert');
     app.prepend(status);
   }
+  status.setAttribute('role', 'alert');
   const link = document.createElement('a');
   link.setAttribute('href', '');
   link.textContent = '새로고침';
