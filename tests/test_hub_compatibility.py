@@ -484,6 +484,26 @@ class HubCompatibilityTest(HubCheckoutCase):
             self.assertFalse("nexus-agent-client-id" in request["headers"] or
                              "nexus-agent-client-secret" in request["headers"], "mixed credential headers")
 
+    def test_a_v2_session_with_profile_override_sends_legacy_credential_headers(self):
+        home = Path(tempfile.mkdtemp(prefix="session-profile-", dir=str(self.base)))
+        settings = home / ".corthex"
+        settings.mkdir()
+        (settings / "profile.json").write_text(json.dumps({"nexus": {"auth_headers": "cf-access", "push": [PROJECT]}}), encoding="utf8")
+        (settings / "projects.json").write_text(json.dumps({"projects": [{"name": PROJECT, "path": str(self.project)}]}), encoding="utf8")
+        pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair"}
+        with LoopbackServer({("GET", HELD_PATH): self.v2_held()}) as server:
+            server.answers[("POST", PUSH_PATH)] = (200, self.v2_pushed(8))
+            env = dict(base_environment(home), CORTHEX_NEXUS_URL=server.url, CORTHEX_NEXUS_PUSH=PROJECT, **pair)
+            result = self.hub(env, "push", PROJECT, "--json")
+        self.assertEqual(result.returncode, 0, "profile-configured push did not complete")
+        self.assertEqual(json.loads(result.stdout.strip().splitlines()[-1])["outcome"], "done")
+        self.assertGreaterEqual(len(server.requests), 1)
+        for request in server.requests:
+            self.assertEqual(request["headers"].get("cf-access-client-id"), pair["CORTHEX_NEXUS_CLIENT_ID"])
+            self.assertEqual(request["headers"].get("cf-access-client-secret"), pair["CORTHEX_NEXUS_CLIENT_SECRET"])
+            self.assertFalse("nexus-agent-client-id" in request["headers"] or
+                             "nexus-agent-client-secret" in request["headers"], "mixed credential headers")
+
     def test_a_v2_server_gets_02_from_a_first_push(self):
         missing = (404, {"title": "No such project", "status": 404, "code": "project_not_found", "traceId": TRACE})
         with LoopbackServer({("GET", HELD_PATH): missing}) as server:

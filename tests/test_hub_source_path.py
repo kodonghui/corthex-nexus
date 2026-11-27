@@ -122,7 +122,8 @@ class SourcePathWalk(HubRunFixture):
         home = Path(self.session['HOME'])
         settings = home / '.corthex'
         settings.mkdir(parents=True, exist_ok=True)
-        url = 'https://nexus.example.com'
+        # Keep even an accidental network request on loopback.
+        url = 'https://127.0.0.1'
         (settings / 'projects.json').write_text(json.dumps({'projects': [{'name': PROJECT, 'path': str(self.project)}]}), encoding='utf8')
         (settings / 'profile.json').write_text(json.dumps({'nexus': {'url': url, 'push': [PROJECT]}}), encoding='utf8')
         script = self.work / 'hub' / SKILL / 'scripts' / 'hub.py'
