@@ -423,6 +423,28 @@ describe('SCR-145 threads', () => {
     }
   });
 
+  test('a resolved conversation shows its record and can be reopened on a phone', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.closed);
+    const resolved = threadOf('erd', original, { closed_by: 'reflection', resolved: true });
+    const page = await openStage('erd', {
+      phone: true,
+      more: { [threadPath(T.closed)]: json(200, resolved) },
+      posts: (path) => json(200, { thread: { id: T.closed, state: 'open', waits_on: 'agent', closed_by: null, last_at: ago(0) }, changed: true })(),
+    });
+    try {
+      pictureButton(page, 'tbl', 'project_spaces').click();
+      await page.settle();
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.resolved]);
+      assert.ok(shownThread(page).all('a').some((link) => link.textContent.includes('/pull/7')));
+      buttonOf(shownThread(page), THREAD_WORDS.reopen).click();
+      await page.settle();
+      assert.equal(page.sent[0].path, `${threadPath(T.closed)}/reopen`);
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.agents]);
+    } finally {
+      page.close();
+    }
+  });
+
   test('a reply to a thread closed meanwhile shows the bar over the picture, and its text moves to the new comment of the same place', async () => {
     const page = await openStage('erd', { posts: () => problem(409, 'thread_closed')() });
     try {

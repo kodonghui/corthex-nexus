@@ -116,9 +116,9 @@ export const PENDING = Object.freeze({});
 // PENDING leaves to a later task: a table it touched but does not list fails, and so does a listed table it never
 // touched. Then checks that each table it changed is fed by one of its spec rows (SPEC-014 aside). So it is checked
 // once every response of the operation has run, at the end of the operation's tests.
-export function checkTables(recorder, action) {
+export function checkTables(recorder, action, { coveredElsewhere = [] } = {}) {
   const pending = Object.hasOwn(PENDING, action) ? PENDING[action].tables : [];
-  const listed = [...listedTables(action)].filter((table) => !pending.includes(table)).sort();
+  const listed = [...listedTables(action)].filter((table) => !pending.includes(table) && !coveredElsewhere.includes(table)).sort();
   const touched = [...recorder.tables(action)].map((table) => TABLE_IDS.get(table) ?? table).sort();
   assert.deepEqual(touched, listed, `${action} touches other tables than x-corthex.tables lists`);
   const rows = [...specRows(action)].filter((row) => row !== 'SPEC-014');

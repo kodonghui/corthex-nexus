@@ -34,6 +34,8 @@ const OF_PROJECT = Object.freeze({
   comment_threads: 'SELECT count(*) AS n FROM comment_threads h JOIN diagrams d ON d.id = h.diagram_id WHERE d.project_id = ?',
   comments: `SELECT count(*) AS n FROM comments c JOIN comment_threads h ON h.id = c.thread_id JOIN diagrams d ON d.id = h.diagram_id
              WHERE d.project_id = ?`,
+  thread_resolution_events: `SELECT count(*) AS n FROM thread_resolution_events e JOIN comment_threads h ON h.id = e.thread_id
+    JOIN diagrams d ON d.id = h.diagram_id WHERE d.project_id = ?`,
   pull_requests: 'SELECT count(*) AS n FROM pull_requests WHERE project_id = ?',
   change_sets: 'SELECT count(*) AS n FROM change_sets WHERE project_id = ?',
   changes: 'SELECT count(*) AS n FROM changes c JOIN change_sets s ON s.id = c.change_set_id WHERE s.project_id = ?',
@@ -120,6 +122,7 @@ describe('deleting a project space', () => {
     s.comment(question, { author: 'agent' });
     const closed = s.thread(flow);
     s.closeThread(closed);
+    db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'resolved', ?)").run(closed, TIME);
 
     // Change sets: a proposal, a direct edit in a pull request, both open; a cancelled one.
     const pullRequest = s.pullRequest(space, { number: 7 });

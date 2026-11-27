@@ -21,12 +21,12 @@ paths:
     post:
       operationId: pushSnapshot
       summary: Accept a snapshot
-      description: "The hub's push. NEXUS stores the snapshot, keeps each picture source and each stage's items as a document (TBL-149, TBL-150), draws the stage diagrams and item tables from them and answers with the revision. A corthex-hub/0.3 snapshot also carries the user flows, screen states and mockups, one picture per file with its key (SPEC-006, SPEC-008, SPEC-009). A project without a space gets one (SPEC-002): the pinned hub sends a snapshot of a project the server does not hold only after the user's yes, given as push --first. When the project holds a commit, the snapshot must name it in replaces, which the hub sets only for a commit that descends from it or after the user agreed to replace it. The same commit again answers its revision and redraws nothing, unless it comes in a newer format than the one that commit came in: then it completes that revision, so NEXUS keeps the files the older format did not carry, draws those stages (a stage's item table makes way for its pictures, SPEC-005) and answers the same revision with same_commit true and what it drew. A stage drawn as pictures before keeps its last pictures when a snapshot's format does not carry them (SPEC-005). A source whose text looks like a secret or an email address is left out and named in refused (REQ-077). A source that cannot be parsed keeps the diagram's last good drawing and is named in failures. The hub sends no request key and no session here; a repeat is recognised by its commit. After drawing, NEXUS invalidates confirmations whose document changed (SPEC-033), marks reflected the change sets of reported reflections (SPEC-025) and moves the threads of removed elements to their diagram (SPEC-027)."
+      description: "The hub's push. NEXUS stores the snapshot, keeps each picture source and each stage's items as a document (TBL-149, TBL-150), draws the stage diagrams and item tables from them and answers with the revision. A corthex-hub/0.3 snapshot also carries the user flows, screen states and mockups, one picture per file with its key (SPEC-006, SPEC-008, SPEC-009). A project without a space gets one (SPEC-002): the pinned hub sends a snapshot of a project the server does not hold only after the user's yes, given as push --first. When the project holds a commit, the snapshot must name it in replaces, which the hub sets only for a commit that descends from it or after the user agreed to replace it. The same commit again answers its revision and redraws nothing, unless it comes in a newer format than the one that commit came in: then it completes that revision, so NEXUS keeps the files the older format did not carry, draws those stages (a stage's item table makes way for its pictures, SPEC-005) and answers the same revision with same_commit true and what it drew. A stage drawn as pictures before keeps its last pictures when a snapshot's format does not carry them (SPEC-005). A source whose text looks like a secret or an email address is left out and named in refused (REQ-077). A source that cannot be parsed keeps the diagram's last good drawing and is named in failures. The hub sends no request key and no session here; a repeat is recognised by its commit. After drawing, NEXUS keeps a confirmation only for verified decision records, invalidates it for an unproved or failed drawing (SPEC-033), marks reflected the change sets of reported reflections (SPEC-025) and moves the threads of removed elements to their diagram (SPEC-027)."
       tags: [agent]
       x-corthex:
         id: API-242
-        spec: [SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-012, SPEC-014, SPEC-025, SPEC-027, SPEC-033, SPEC-035]
-        tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-160, TBL-161, TBL-166]
+        spec: [SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-005, SPEC-006, SPEC-007, SPEC-008, SPEC-009, SPEC-012, SPEC-014, SPEC-025, SPEC-027, SPEC-033, SPEC-035, SPEC-028]
+        tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-154, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-160, TBL-161, TBL-166, TBL-172]
         release: Must
         family: agent
         omit:
@@ -640,7 +640,7 @@ paths:
       x-corthex:
         id: API-246
         spec: [SPEC-014, SPEC-016]
-        tables: [TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-156, TBL-158]
+        tables: [TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-156, TBL-158, TBL-172]
         release: Must
         family: agent
         omit:
@@ -1968,12 +1968,12 @@ paths:
     post:
       operationId: recordDecision
       summary: Report where a decision is recorded
-      description: "Adds an entry of kind decision with the link, and the text when there is one; it is an agent's entry, so an open thread then waits on the owner. A closed thread takes it too and stays closed: the link is a record, not a question."
+      description: "Adds an agent decision entry. The link alone does not prove the decision was recorded: the thread waits on the owner only when a question or proposal remains, and an eligible verified record resolves it. A closed thread remains closed."
       tags: [agent]
       x-corthex:
         id: API-255
-        spec: [SPEC-014, SPEC-017]
-        tables: [TBL-147, TBL-151, TBL-155, TBL-156, TBL-157, TBL-166, TBL-167]
+        spec: [SPEC-014, SPEC-017, SPEC-028]
+        tables: [TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-157, TBL-158, TBL-166, TBL-167, TBL-172]
         release: Must
         family: agent
       security:
@@ -2644,8 +2644,8 @@ paths:
       tags: [agent]
       x-corthex:
         id: API-258
-        spec: [SPEC-014, SPEC-023, SPEC-024, SPEC-025, SPEC-045]
-        tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-166, TBL-167]
+        spec: [SPEC-014, SPEC-023, SPEC-024, SPEC-025, SPEC-045, SPEC-028]
+        tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-157, TBL-158, TBL-159, TBL-166, TBL-167, TBL-172]
         release: Must
         family: agent
       security:
@@ -4163,7 +4163,7 @@ paths:
       x-corthex:
         id: API-266
         spec: [SPEC-016, SPEC-017]
-        tables: [TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-156, TBL-158]
+        tables: [TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-155, TBL-156, TBL-158, TBL-172]
         release: Must
         family: owner
         omit:
@@ -4749,6 +4749,183 @@ paths:
                     code: invalid_request
                     traceId: d5124be1442eeebc
                     field: text
+        "401":
+          description: "Refused: no valid credential or sign-in"
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                unauthenticated:
+                  value:
+                    title: Sign in to NEXUS
+                    status: 401
+                    detail: this request carries no valid sign-in
+                    code: unauthenticated
+                    traceId: "3beb001954f3a1b6"
+        "403":
+          description: "Refused: this caller may not do this"
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                owner-only:
+                  value:
+                    title: Only the owner can do this
+                    status: 403
+                    detail: an agent credential cannot do this; the owner does it in NEXUS
+                    code: owner_only
+                    traceId: "239fbcf6f16c56fa"
+                not-owner:
+                  value:
+                    title: Only the owner can open NEXUS
+                    status: 403
+                    detail: this sign-in is not the owner's
+                    code: not_owner
+                    traceId: "710477401a436b51"
+                cross-site:
+                  value:
+                    title: A request from another site
+                    status: 403
+                    detail: a request from another site cannot change NEXUS
+                    code: cross_site
+                    traceId: "02ceba894c2237a3"
+        "404":
+          description: Not found
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                project-not-found:
+                  value:
+                    title: No such project
+                    status: 404
+                    detail: no project space has this name
+                    code: project_not_found
+                    traceId: "1bff78a306f810a8"
+                thread-not-found:
+                  value:
+                    title: No such thread
+                    status: 404
+                    detail: no thread has this ID in the project
+                    code: thread_not_found
+                    traceId: "6d8848544b201af6"
+        "409":
+          description: "Refused: it clashes with the current state"
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                request-key-reused:
+                  value:
+                    title: The request key was used for another action
+                    status: 409
+                    detail: this request key was used for another action
+                    code: request_key_reused
+                    traceId: bc0e0674871c59f2
+        "413":
+          description: "Refused: too large"
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                body-too-large:
+                  value:
+                    title: The request is too large
+                    status: 413
+                    detail: the body is over 2097152 bytes
+                    code: body_too_large
+                    traceId: "0acb287bfad25646"
+                    limit: 2097152
+        "415":
+          description: "Refused: not JSON"
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                json-required:
+                  value:
+                    title: Send JSON
+                    status: 415
+                    detail: send the body as application/json
+                    code: json_required
+                    traceId: c52fe448a6d61c94
+        default:
+          description: Any other error
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                internal:
+                  value:
+                    title: Something went wrong
+                    status: 500
+                    detail: an unexpected error; the trace ID names it
+                    code: internal
+                    traceId: "14689067279fe603"
+  /api/projects/{project}/threads/{thread}/reopen:
+    post:
+      operationId: reopenThread
+      summary: Reopen an automatically resolved thread
+      description: "The owner reopens an automatically resolved thread and it waits on the agent. An already open thread answers changed false. Owner-closed threads are not reopened by this operation; history is retained."
+      tags: [owner]
+      x-corthex:
+        id: API-294
+        spec: [SPEC-028]
+        tables: [TBL-147, TBL-151, TBL-155, TBL-156, TBL-166, TBL-172]
+        release: Must
+        family: owner
+      security:
+        - ownerSignIn: []
+      parameters:
+        - $ref: "#/components/parameters/project"
+        - $ref: "#/components/parameters/thread"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        description: At most 2097152 bytes.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Empty"
+      responses:
+        "200":
+          description: Reopened
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnsweredAnswer"
+              examples:
+                reopened:
+                  value:
+                    thread:
+                      id: nc_6t9w2z5c8f1j
+                      state: open
+                      waits_on: agent
+                      closed_by: null
+                      last_at: "2026-11-23T02:05:00.000Z"
+                    changed: true
+        "400":
+          description: "Refused: the request is not valid"
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/Problem"
+              examples:
+                invalid-request:
+                  value:
+                    title: The request is not valid
+                    status: 400
+                    detail: only an automatically resolved thread can be reopened
+                    code: invalid_request
+                    traceId: d5124be1442eeebc
+                    field: thread
         "401":
           description: "Refused: no valid credential or sign-in"
           content:
@@ -10448,6 +10625,9 @@ components:
             - type: string
               enum: [owner, reflection]
             - type: "null"
+        resolved:
+          type: boolean
+          description: True when the current closure has verified resolution evidence.
         opened_at:
           $ref: "#/components/schemas/Time"
         closed_at:

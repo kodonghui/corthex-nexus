@@ -1,6 +1,6 @@
 // The ERD drawer (TASK-422; SPEC-004; TBL-151, TBL-152, TBL-153): the stage-05 picture drawn as tables with their
 // columns and keys, and foreign-key lines, placed by layout.js. The done condition:
-// - This repository's 26 tables draw as a stored expected drawing. test/erd-picture.json is the pinned hub's picture
+// - This repository's 27 tables draw as a stored expected drawing. test/erd-picture.json is the pinned hub's picture
 //   of db/nexus.sql with the file's SHA-256, which tests/test_erd_picture.py checks against the pinned hub; this test
 //   fails when db/nexus.sql changes and the picture does not. test/erd-expected.json is its drawing, compared exactly,
 //   so this test fails when the drawing changes and the file does not. To make both again, from the repository's root:
@@ -76,7 +76,7 @@ describe('the ERD drawer', () => {
     assert.equal(stored.sha256, sha256(schema), `db/nexus.sql changed since test/erd-picture.json was made: ${AGAIN}`);
   });
 
-  test('this repository\'s 26 tables draw as the stored expected drawing', () => {
+  test('this repository\'s 27 tables draw as the stored expected drawing', () => {
     const stored = storedPicture();
     const drawing = drawingOf(stored);
     assert.deepStrictEqual(drawing, storedDrawing(), `the drawing of test/erd-picture.json changed: ${AGAIN}`);
@@ -85,7 +85,7 @@ describe('the ERD drawer', () => {
     const schema = readFileSync(new URL('../../db/nexus.sql', import.meta.url), 'utf8');
     const named = [...schema.matchAll(/^-- (TBL-\d+) ([a-z_]+) /gm)].map(([, id, name]) => [id, name]);
     const tables = ofKind(drawing.elements, 'table');
-    assert.equal(tables.length, 26);
+    assert.equal(tables.length, 27);
     assert.deepEqual(tables.map((table) => [table.trace_id, table.name]), named);
     assert.deepEqual(tables.map((table) => table.key), named.map(([id]) => id));
     stored.picture.tables.forEach((entry, index) => {
@@ -102,7 +102,7 @@ describe('the ERD drawer', () => {
     // One line for each foreign key, from the table that holds it to the table it names, nothing missing or left out.
     const lines = ofKind(drawing.elements, 'line');
     const keys = stored.picture.tables.flatMap((entry, index) => entry.foreign_keys.map((key) => [tables[index].key, key]));
-    assert.equal(lines.length, 48);
+    assert.equal(lines.length, 49);
     assert.equal(lines.length, keys.length);
     const byName = new Map(tables.map((table) => [table.name, table]));
     lines.forEach((line, index) => {
@@ -369,7 +369,7 @@ describe('the ERD through the push', () => {
     const [good, failed] = drawings(diagram.id);
     assert.deepEqual([good.status, failed.status, failed.failed_path, failed.failed_line], ['drawn', 'failed', 'db/nexus.sql', null]);
     assert.deepEqual(elements(failed.id), []);
-    assert.equal(elements(good.id).length, 26 + 48);
+    assert.equal(elements(good.id).length, 27 + 49);
     // The same picture failing again, whatever the hub left out, makes no new drawing.
     const c = newCommit();
     const again = await push(snapshotWith(name, { format: 2, tables: [] }, [partial('db/nexus.sql:3: left out')], { commit: c, replaces: b }));

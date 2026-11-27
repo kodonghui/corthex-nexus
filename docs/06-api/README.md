@@ -8,7 +8,7 @@ Source: [api/openapi.yaml](../../api/openapi.yaml), OpenAPI 3.1. Inputs: the fun
 
 ## 1. Operations
 
-Two families share one error shape. The agent family (20 operations) takes the pinned hub's commands in their format; the owner family (32) serves the pages. An agent credential on an owner path gets owner_only, the owner's sign-in on an agent path agent_only.
+Two families share one error shape. The agent family (20 operations) takes the pinned hub's commands in their format; the owner family (33) serves the pages. An agent credential on an owner path gets owner_only, the owner's sign-in on an agent path agent_only.
 
 ### Agent family
 
@@ -47,6 +47,7 @@ Two families share one error shape. The agent family (20 operations) takes the p
 | API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | Comment as the owner | Must | SPEC-016, SPEC-027, SPEC-051 |
 | API-268 | `POST /api/projects/{project}/threads/{thread}/comments` | Reply as the owner | Must | SPEC-017, SPEC-051 |
 | API-269 | `POST /api/projects/{project}/threads/{thread}/close` | Close a thread | Must | SPEC-028 |
+| API-294 | `POST /api/projects/{project}/threads/{thread}/reopen` | Reopen an automatically resolved thread | Must | SPEC-028 |
 | API-270 | `POST /api/projects/{project}/change-sets/{change_set}/accept` | Accept an AI proposal | Must | SPEC-019, SPEC-027 |
 | API-271 | `POST /api/projects/{project}/change-sets/{change_set}/reject` | Reject an AI proposal | Must | SPEC-020 |
 | API-272 | `POST /api/projects/{project}/diagrams/{diagram}/direct-edits` | Rename or connect directly | Must | SPEC-021, SPEC-027 |
@@ -193,7 +194,7 @@ API-265 serves the pictures of SPEC-006, SPEC-008 and SPEC-009 from the first re
 | SPEC-025 Mark changes reflected | API-242, API-258 |
 | SPEC-026 Hand over a diagram's change sets together | API-245, API-248 |
 | SPEC-027 Keep the comments of a removed element | API-242, API-252, API-264, API-265, API-267, API-270, API-272, API-274, API-275 |
-| SPEC-028 Close a thread | API-269 |
+| SPEC-028 Close a thread | API-269, API-294 |
 | SPEC-029 Confirm a diagram or item table | API-275 |
 | SPEC-030 Cancel a confirmation | API-276 |
 | SPEC-031 Ask the agent to record a confirmation | API-245, API-249, API-275, API-276 |
@@ -414,3 +415,9 @@ Section 4 of the WBS records that a proposal's `source_text` makes no change on 
 - **API-256's 400 response** gains two `invalid_request` examples with `field` `source_path`: "source_path names no file the drawing reads" and "source_path is needed: the drawing reads several files".
 
 API-256 already lists TBL-149 and TBL-150, which hold the drawing's picture, so its tables do not change. No operation, status, code or spec row changes. This part passed its own checkpoint on 2026-11-24 through the same delegate.
+
+## Item 242: decision records and reopening
+
+API-255 continues to accept the pinned hub’s existing request and response. A link alone does not prove a record, nor does every agent decision require another owner action. An automatic resolution requires a verified recorded decision, no unhandled proposal and no further question. API-294 lets the owner reopen an automatically resolved thread; API-269 is unchanged. Resolution and reopening are kept in TBL-172, and reads retain the result and record. Existing waiting threads are evaluated against the same rule without treating a link as proof; uncertain ones remain open.
+
+Migration assessment, 2026-11-27, from a read-only backup: five conversations wait on the owner; four have a final decision link, none has an exact match to the latest owner text, and no reported merged pull request has a commit. None meets the automatic-resolution proof, so leave all five open. A later decision, push or merge report re-evaluates eligible conversations using the same rule.

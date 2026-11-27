@@ -5,7 +5,7 @@
  "documents": [
   {
    "path": "docs/01-domain/nexus.md",
-   "sha256": "b24d81407619053d24afab5db2287d8b77353748ecbe051770f2442f723951e2"
+   "sha256": "7e1e12b0c099f06574cc6118d37bd64d1296430764a1d90a48f7911f4a9a18f3"
   }
  ],
  "checks": [],
@@ -243,7 +243,7 @@
       "where": "docs/01-domain/nexus.md:173"
      },
      {
-      "given_by": "Policy: when Diagram drawn changes the document of a confirmed diagram",
+      "given_by": "Policy: when Diagram drawn changes a confirmed diagram without proof of a decision record",
       "policy": true,
       "read_model": "",
       "command": "Invalidate confirmation",
@@ -622,7 +622,7 @@
     "from": "CTX-037",
     "to": "CTX-039",
     "kind": "event",
-    "why": "Invalidate a confirmed diagram whose document changed",
+    "why": "Invalidate an unproved change to a confirmed diagram",
     "data": "Diagram drawn: diagram, document version",
     "where": "docs/01-domain/nexus.md:249"
    },
@@ -756,7 +756,7 @@
      "CTX-039"
     ],
     "state": "answered",
-    "answer": "Lift it and confirm again (the maintainer's answer of 2026-11-23)",
+    "answer": "Keep it only for verified records of already approved decisions; otherwise confirm again (item 242, 2026-11-27).",
     "where": "docs/01-domain/nexus.md:301",
     "number": 2
    },
@@ -883,7 +883,7 @@
      "CTX-038"
     ],
     "state": "answered",
-    "answer": "The thread stays open until the owner closes it (stage 02, REQ-024, REQ-034)",
+    "answer": "Rejection alone leaves it open; a verified recorded decision without outstanding work resolves it and can be reopened (item 242, REQ-024, REQ-034)",
     "where": "docs/01-domain/nexus.md:313",
     "number": 14
    }

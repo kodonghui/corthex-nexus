@@ -428,6 +428,39 @@ describe('reports from the agent', () => {
     assert.deepEqual([refused.status, refused.json.code, refused.json.state], [409, 'change_set_state', 'cancelled']);
   });
 
+  test('a late merge report resolves a decision already present in the held drawing', async () => {
+    const space = s.project('late-record');
+    const path = '/pictures/01-domain/nexus';
+    const board = s.diagram(space, { stage: '01-domain', sourceKey: path, kind: 'ddd_board' });
+    const text = 'The approved answer.';
+    s.document(space, path, '01-domain', JSON.stringify({ format: 1, hotspots: [{ answer: text }] }));
+    const thread = s.thread(board, { target: 'diagram', body: text });
+    s.comment(thread, { body: text });
+    db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ link: link(97) }), thread);
+    const pull = s.pullRequest(space, { number: 97 });
+    const set = s.changeSet(space, board, { pullRequestId: pull });
+    s.change(set, { op: 'rename', element: 'CTX-001', name: 'Example' });
+    changeSetsChanged(db, { project: space.id, diagram: board.id, time: TIME });
+    const [entry] = entries(space, 'reflect');
+    const result = await reportEdit(space, entry, { event: 'reflected', pull_request: link(97), commit: space.commit });
+    assert.equal(result.status, 200);
+    assert.equal(rows('SELECT state FROM comment_threads WHERE id = ?', thread)[0].state, 'closed');
+  });
+
+  test('a reported merge resolves a proposal only when the drawing proves its change', async () => {
+    const { space, erd } = erdProject();
+    const thread = s.thread(erd, { elementKey: 'TBL-146' });
+    const pullRequest = s.pullRequest(space, { number: 96 });
+    const proposal = s.changeSet(space, erd, { origin: 'proposal', state: 'accepted', threadId: thread, pullRequestId: pullRequest });
+    s.change(proposal, { op: 'rename', element: 'TBL-146', name: 'agent_credentials' });
+    changeSetsChanged(db, { project: space.id, diagram: erd.id, time: TIME });
+    const [entry] = entries(space, 'reflect');
+    const result = await reportEdit(space, entry, { event: 'reflected', pull_request: link(96), commit: space.commit });
+    assert.equal(result.status, 200);
+    assert.equal(rows('SELECT state FROM comment_threads WHERE id = ?', thread)[0].state, 'closed');
+    assert.equal(rows("SELECT event FROM thread_resolution_events WHERE thread_id = ?", thread)[0].event, 'resolved');
+  });
+
   test('a merged document that lacks a change: reflected anyway, and one comment on the diagram says what is missing (SPEC-025, note 26)', async () => {
     clock = START;
     const { space, erd } = erdProject();
@@ -479,8 +512,8 @@ describe('reports from the agent', () => {
       ].join('\n'),
     }]);
     assert.ok(openEntries(db, space.id).some((each) => each.side === 'owner' && each.kind === 'question' && each.thread_id === Number(thread.id)));
-    // The proposal's own thread closes by reflection (REQ-031), and the reflection entry is done.
-    assert.deepEqual(rows('SELECT state, closed_by FROM comment_threads WHERE id = ?', asked), [{ state: 'closed', closed_by: 'reflection' }]);
+    // The proposal's own thread stays open because the drawing does not prove its connection.
+    assert.deepEqual(rows('SELECT state, closed_by FROM comment_threads WHERE id = ?', asked), [{ state: 'open', closed_by: null }]);
     assert.ok(closedEntries(db, space.id).some((each) => each.kind === 'reflect' && each.reason === 'done'));
 
     // A later step of the same change set replaces an earlier one: the drawing shows the rename, so nothing is missing.

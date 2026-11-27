@@ -65,6 +65,7 @@ function statementsOf(store) {
          WHERE h.id = ? AND d.project_id = ?`,
       ),
       entries: store.prepare(`SELECT seq, author, body, detail, created_at FROM comments WHERE thread_id = ? ORDER BY seq LIMIT ${ENTRIES}`),
+      resolution: store.prepare('SELECT event FROM thread_resolution_events WHERE thread_id = ? ORDER BY id DESC LIMIT 1'),
       answering: store.prepare(`SELECT id FROM change_sets WHERE thread_id = ? ORDER BY id LIMIT ${THREAD_CHANGE_SETS}`),
       changeSet: store.prepare(
         `SELECT c.id, c.diagram_id, c.drawing_id, c.origin, c.thread_id, c.state, c.created_at, c.decided_at, c.pull_request_id,
@@ -176,6 +177,7 @@ export function threadBody(store, project, key) {
     state: row.state,
     waits_on: row.waits_on,
     closed_by: row.closed_by,
+    ...(row.state === 'closed' && statements.resolution.get(key)?.event === 'resolved' ? { resolved: true } : {}),
     opened_at: row.opened_at,
     closed_at: row.closed_at,
     last_at: entries.at(-1).made_at,

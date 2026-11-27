@@ -146,25 +146,27 @@ describe('after a drawing', () => {
     assert.deepEqual(counts(await space.push({ tables, items: [item('REQ-001', '02-prd', 'Draw them')] })), [0, 0, 0]);
     assert.equal(confirmation(first).state, 'confirmed');
 
-    // A failed drawing invalidates nothing; the fix back to the confirmed text keeps it, though it draws again.
+    // A failed drawing cannot prove that the confirmation still applies.
     const broken = [...tables, table('TBL-148', 'snapshots', { broken: true })];
     const failed = await space.push({ tables: broken });
     assert.equal(failed.diagrams.failed, 1);
-    assert.deepEqual(counts(failed), [0, 0, 0]);
-    assert.equal(confirmation(first).state, 'confirmed');
+    assert.deepEqual(counts(failed), [1, 0, 0]);
+    assert.equal(confirmation(first).state, 'invalidated');
     const fixed = await space.push({ tables });
     assert.deepEqual([fixed.diagrams.drawn, ...counts(fixed)], [1, 0, 0, 0]);
-    assert.equal(confirmation(first).state, 'confirmed');
+    assert.equal(confirmation(first).state, 'invalidated');
+    const reconfirmed = confirm(space, diagram(space, ERD));
 
     // A change to its document invalidates it, by the drawing that drew the change, and the owner confirms again.
     const changed = await space.push({ tables: [table('TBL-146', 'agent_credentials'), table('TBL-147', 'project_spaces_v2')] });
     assert.deepEqual(counts(changed), [1, 0, 0]);
     erdNow = diagram(space, ERD);
-    assert.deepEqual(confirmation(first), { state: 'invalidated', ended_at: time(), invalidated_by_drawing: erdNow.drawing });
+    assert.deepEqual(confirmation(reconfirmed), { state: 'invalidated', ended_at: time(), invalidated_by_drawing: erdNow.drawing });
     const waiting = openEntries(db, space.id).filter((entry) => entry.diagram_id === erdNow.id);
     assert.deepEqual(waiting.map((entry) => [entry.side, entry.kind, entry.confirmation_id]), [
       ['agent', 'record_confirmation', first],
-      ['owner', 'confirm', first],
+      ['agent', 'record_confirmation', reconfirmed],
+      ['owner', 'confirm', reconfirmed],
     ]);
   });
 
@@ -175,6 +177,7 @@ describe('after a drawing', () => {
     const erdNow = diagram(space, ERD);
     const asked = rows.thread(erdNow, { elementKey: 'TBL-147' });
     const proposal = rows.changeSet(space, erdNow, { origin: 'proposal', threadId: asked, state: 'accepted' });
+    rows.change(proposal, { op: 'rename', element: 'TBL-147', name: 'project_spaces' });
     const edit = rows.changeSet(space, erdNow);
     const other = rows.changeSet(space, erdNow);
     const merged = rows.pullRequest(space, { number: 12, state: 'merged' });
@@ -217,6 +220,25 @@ describe('after a drawing', () => {
     assert.deepEqual(counts(await space.push({ tables: [...tables, table('TBL-148', 'snapshots', { broken: true })], commit: failing })), [0, 1, 0]);
     assert.equal(drawingsOf(diagram(space, ERD)).at(-1).status, 'failed');
     assert.deepEqual(changeSetRow(late), { state: 'reflected', reflected_drawing_id: good });
+  });
+
+  test('reflection leaves a thread open when a later owner question remains unanswered', async () => {
+    const space = project('reflection-with-question');
+    const tables = [table('TBL-146', 'agent_credentials')];
+    await space.push({ tables });
+    const current = diagram(space, ERD);
+    const thread = rows.thread(current, { elementKey: 'TBL-146' });
+    const proposal = rows.changeSet(space, current, {
+      origin: 'proposal', threadId: thread, state: 'accepted', decidedAt: '2026-11-24T01:00:40.000Z',
+    });
+    rows.change(proposal, { op: 'rename', element: 'TBL-146', name: 'agent_credentials' });
+    rows.comment(thread, { author: 'owner', body: 'What happens after this change?', at: '2026-11-24T01:00:30.000Z' });
+    const pull = rows.pullRequest(space, { number: 91, state: 'merged' });
+    rows.setChangeSet(proposal, { pullRequestId: pull });
+    const merge = newCommit();
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(merge, pull);
+    await space.push({ tables, commit: merge });
+    assert.equal(threadRow(thread).state, 'open');
   });
 
   test('a merged document that lacks a change is reflected anyway, and one comment on the diagram says what is missing (SPEC-025, note 26)', async () => {

@@ -84,6 +84,7 @@
 | TASK-469 | 확정의 기록 PR: 먼저 06단계 정정으로 API-265의 확정이 그 확정을 기록하는 PR을 주고, SCR-145의 "이 그림"이 기록됨 옆에 그것을 보여 줌 (PR 160, 4절) | SPEC-029, SPEC-031, SPEC-035 | SCR-145, API-265, TBL-157, TBL-160 | TASK-447, TASK-461 | Claude worker | S | 06단계 정정이 코드보다 먼저 따로 체크포인트를 통과함; SCR-145#confirmed가 "기록됨"과 그 PR을 포함해 두 너비에서 화면 정의와 맞고, 기록 전에는 목업의 "기록되면 여기에 그 PR이 나와요."가 보임; API-265의 응답마다 통과하는 테스트가 있음 |
 | TASK-470 | 제안의 소스 경로: 먼저 06단계 정정으로 API-256이 source_text가 대신하는 파일의 저장소 경로 source_path를 받고, NEXUS가 01단계의 Markdown을 직접 읽어, 01단계와 여러 파일에서 그린 05·07단계 드로잉에서도 source_text가 변경을 만듦 (TASK-438·TASK-466의 빈틈, 4절) | SPEC-018 | API-256, TBL-149, TBL-150, TBL-158, TBL-159 | TASK-438, TASK-466 | Claude worker | L | 06단계 정정이 코드 전에 따로 체크포인트를 통과함; 01단계에 source_text가 있으면, 그리고 여러 파일에서 그린 05·07단계 드로잉에 source_text와 source_path가 있으면 차이가 변경이 됨; 이 저장소의 docs/01-domain을 NEXUS가 읽은 결과가 고정 hub가 만든 그림(server/test/ddd-board-picture.json에 저장)과 같고, 01·05·07단계마다 두 파일 중 하나를 바꾼 사례에서 NEXUS의 그림이 고정 hub가 두 파일로 만든 그림(server/test/picture-cases.json에 저장)과 같음; API-256의 응답마다 통과하는 테스트가 있음 |
 | TASK-471 | 빈 단계, 질문과 확정 순서 안내 | SPEC-054 | SCR-142, SCR-145, SCR-146 | TASK-455, TASK-458, TASK-461 | 관리자 | M | 빈 단계마다 필요한 자료와 다음 행동; 질문의 답변 방법; 확정 대상과 기록 순서를 PC와 휴대폰에서 알림 |
+| TASK-472 | 검증된 확정을 유지하고 기록된 대화를 해결하기 | SPEC-017, SPEC-028, SPEC-033 | API-294, TBL-172, SCR-145 | TASK-435, TASK-443, TASK-447 | maintainer | L | 검증된 기록은 확정을 유지한다; 기록되었고 남은 일이 없는 결정만 해결하며 다시 열 수 있다; 근거가 없으면 열린 채 둔다; API-294의 모든 응답을 시험한다. |
 
 ## 3. 열린 질문
 

@@ -43,3 +43,5 @@
                   status: active
                   flows: [FL-002, FL-004, FL-006]
                   terms: [CTX-039, TERM-224]
+
+# Item 242: resolution and reopening stay inside SCR-145; no new route.

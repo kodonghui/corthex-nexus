@@ -67,6 +67,8 @@ function statementsOf(store) {
       close: store.prepare(
         "UPDATE comment_threads SET state = 'closed', waits_on = NULL, closed_at = ?, closed_by = 'owner' WHERE id = ? AND state = 'open'",
       ),
+      reopen: store.prepare("UPDATE comment_threads SET state = 'open', waits_on = 'agent', closed_at = NULL, closed_by = NULL WHERE id = ? AND state = 'closed' AND closed_by = 'reflection'"),
+      reopened: store.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'reopened', ?)"),
     };
     prepared.set(store, statements);
   }
@@ -218,6 +220,23 @@ function closeThread({ store, params, body, now }) {
   return { body: { thread: threadSummary(store, closed), changed: true } };
 }
 
+// API-294: only the owner can reopen an automatically resolved thread. Retain an audit
+// event and send the conversation to the agent, even when its target was removed.
+function reopenThread({ store, params, body, now }) {
+  emptyOf(body);
+  const statements = statementsOf(store);
+  const project = projectOf(statements, params.project);
+  const thread = threadOf(statements, project, params.thread);
+  if (thread.state === 'open') return { body: { thread: threadSummary(store, thread), changed: false } };
+  if (thread.closedBy !== 'reflection') throw invalidRequest('thread', 'only an automatically resolved thread can be reopened');
+  const time = timeNow(now);
+  statements.reopen.run(thread.id);
+  statements.reopened.run(thread.id, time);
+  threadChanged(store, { project, thread: thread.id, time });
+  const reopened = { ...thread, state: 'open', waitsOn: 'agent', closedBy: null };
+  return { body: { thread: threadSummary(store, reopened), changed: true } };
+}
+
 // The routes of API-266 to API-269 (see router.js), of the owner family; the writes with a JSON body and a request key
 // (rule 3).
 const THREAD_PARAMS = Object.freeze({ project: 'project_not_found', thread: 'thread_not_found' });
@@ -231,4 +250,5 @@ export const THREAD_ROUTES = Object.freeze([
   { ...WRITE, path: '/api/projects/{project}/diagrams/{diagram}/threads', action: 'startThread', params: DIAGRAM_PARAMS, handle: startThread },
   { ...WRITE, path: `${THREAD_PATH}/comments`, action: 'replyInThread', params: THREAD_PARAMS, handle: replyInThread },
   { ...WRITE, path: `${THREAD_PATH}/close`, action: 'closeThread', params: THREAD_PARAMS, handle: closeThread },
+  { ...WRITE, path: `${THREAD_PATH}/reopen`, action: 'reopenThread', params: THREAD_PARAMS, handle: reopenThread },
 ]);

@@ -2,7 +2,7 @@
  "about": "The pinned hub's items of this repository's stage 02, as its build_items makes them and its snapshot orders them, and the SHA-256 of the stage's source. tests/test_item_table_items.py checks them against the pinned hub and says how to make them again.",
  "stage": "02-prd",
  "source": "docs/02-prd/requirements.md",
- "sha256": "e362dbda1572b194a44bb7b28826dea70c8d3230d41b10b93d311ed6cbeee1b8",
+ "sha256": "1295f24f9e8efdd74cd50c9b9daf0da93bf38a28c39659833bced275a7489230",
  "items": [
   {
    "id": "REQ-001",
@@ -438,7 +438,7 @@
    "kind": "requirement",
    "stage": "02-prd",
    "where": "docs/02-prd/requirements.md:56",
-   "title": "When the owner closes a comment thread, the system shall mark it closed.",
+   "title": "When the owner closes a comment thread, or a decision is verified as recorded with no unhandled proposal or further que…",
    "status": "active",
    "type": "functional",
    "priority": "Must",
@@ -516,7 +516,7 @@
    "kind": "requirement",
    "stage": "02-prd",
    "where": "docs/02-prd/requirements.md:62",
-   "title": "When a drawn snapshot changes the document of a confirmed diagram, the system shall invalidate the confirmation, so tha…",
+   "title": "When a snapshot changes a confirmed diagram, the system shall retain its confirmation only if each change is verified a…",
    "status": "active",
    "type": "functional",
    "priority": "Must",

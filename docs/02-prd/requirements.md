@@ -53,13 +53,13 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 | REQ-031 | When a change set is reflected, the system shall close the comment threads that asked for it. | functional | Must | CTX-038 | CTX-038 table | active |
 | REQ-032 | The system shall give an agent a diagram's accepted change sets together, so that one reflection pull request can carry them. | functional | Should | CTX-038 | Stage-01 hotspot 6 (answered 2026-11-23) | active |
 | REQ-033 | When an element leaves the stage document, the system shall move its open comment threads to the diagram's own comments, marked as from a removed element. | functional | Must | CTX-038 | Stage-01 hotspot 3 (answered 2026-11-23) | active |
-| REQ-034 | When the owner closes a comment thread, the system shall mark it closed. | functional | Must | CTX-038 | Stage-01 hotspot 14 (answered 2026-11-23) | active |
+| REQ-034 | When the owner closes a comment thread, or a decision is verified as recorded with no unhandled proposal or further question, the system shall remove it from both to-dos, show the result and record, and allow the owner to reopen an automatically resolved thread. | functional | Must | CTX-038 | Stage-01 hotspot 14; feature change 2026-11-27 | active |
 | REQ-035 | When the owner confirms a diagram or an item table on a PC, the system shall record the confirmation with the document version shown. | functional | Must | CTX-039 | Redesign decision on confirmation | active |
 | REQ-036 | If an agent credential asks to confirm or cancel a confirmation, then the system shall refuse it. | functional | Must | CTX-039 | CTX-039 rule; CORTHEX principle 5 | active |
 | REQ-037 | When the owner cancels a confirmation, the system shall put the diagram back in the owner's to-do as not confirmed. | functional | Must | CTX-039 | CTX-039 table | active |
 | REQ-038 | When a confirmation is recorded, the system shall add recording it in the stage record to the agent's to-do. | functional | Must | CTX-039 | CTX-039 table | active |
 | REQ-039 | When an agent reports the merged record of a confirmation, the system shall mark the confirmation recorded. | functional | Must | CTX-039 | CTX-039 rule | active |
-| REQ-040 | When a drawn snapshot changes the document of a confirmed diagram, the system shall invalidate the confirmation, so that the diagram returns to the owner's to-do. | functional | Must | CTX-039 | Answer 2026-11-23 (stage-01 hotspot 2) | active |
+| REQ-040 | When a snapshot changes a confirmed diagram, the system shall retain its confirmation only if each change is verified as recording an already approved decision, keeping the record history; otherwise it shall require confirmation again. Actual changes to content, answers, relationships or warnings, incomplete or failed drawings, and changes that cannot be proved require confirmation again. | functional | Must | CTX-039 | Stage-01 hotspot 2; feature change 2026-11-27 | active |
 | REQ-041 | The system shall show the elements that changed in the document since a diagram's last confirmation. | functional | Must | CTX-039 | Redesign decision on confirmation | active |
 | REQ-042 | When every diagram and item table of a stage has a recorded confirmation, the system shall treat the stage's checkpoint as passed. | functional | Must | CTX-039 | Stage-01 hotspot 9 (answered 2026-11-23) | active |
 | REQ-043 | While a workshop is open, the system shall treat the step confirmations at steps 1-b, 7 and 9 as the stage-01 checkpoints. | functional | Should | CTX-040 | Stage-01 hotspot 9 (answered 2026-11-23) | active |
@@ -114,7 +114,7 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 | 8. Moving the running NEXUS's records to v3 | No; they stay in the archive tag and the Git records | REQ-019 |
 | 9. A confirmation and a stage checkpoint | A stage passes its checkpoint once every diagram and item table of it has a recorded confirmation; on the stage-01 board the step confirmations at steps 1-b, 7 and 9 do | REQ-042, REQ-043 |
 | 12, 13. Rules and command rows approved as drawn | Carried into the requirements above as written | REQ-001 to REQ-066 |
-| 14. A comment thread after a rejected proposal | It stays open until the owner closes it | REQ-024, REQ-034 |
+| 14. A comment thread after a rejected proposal | Rejection alone leaves it open; a separately verified decision record can resolve it |  REQ-024, REQ-034 |
 
 ## 4. Conflicts, duplicates and open questions
 

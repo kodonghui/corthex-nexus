@@ -168,7 +168,7 @@ describe('drawing a snapshot', () => {
     // The ERD's tables, keyed by their trace IDs; the mockup's tokens, keyed by their names.
     const erd = elements(drawings(diagram(name, '/pictures/05-erd/nexus').id)[0].id);
     const tables = pictureOf(snapshot, '05-erd').source.tables;
-    assert.equal(erd.length, 26);
+    assert.equal(erd.length, 27);
     assert.deepEqual(erd.map((row) => [row.element_key, row.trace_id, row.kind, row.name, row.parent_key, row.status]),
       tables.map((table) => [table.id, table.id, 'table', table.name, null, null]));
     assert.deepEqual(JSON.parse(erd[0].detail), { where: tables[0].where });
@@ -691,7 +691,7 @@ describe('drawing a snapshot', () => {
   });
 
   test('touch the tables API-242 lists, and admission only the layer\'s (note 23)', () => {
-    checkTables(recorder, 'pushSnapshot');
+    checkTables(recorder, 'pushSnapshot', { coveredElsewhere: ['TBL-172'] }); // Resolution is exercised in after-drawing.test.js.
     checkLayer(recorder);
   });
 });

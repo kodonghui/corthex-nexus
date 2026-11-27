@@ -303,6 +303,56 @@ describe('agent comments', () => {
     assert.deepEqual(entriesOf(thread), ['agent comment done', 'owner question done']);
   });
 
+  test('a decision resolves only after its text is verified in the reported merged snapshot', async () => {
+    const example = s.project('decision-proof');
+    const path = '/pictures/01-domain/nexus';
+    const board = s.diagram(example, { stage: '01-domain', sourceKey: path, kind: 'ddd_board' });
+    const text = 'Use the agreed option.';
+    s.document(example, path, '01-domain', JSON.stringify({ format: 1, hotspots: [{ answer: text }] }));
+    const thread = s.thread(board, { target: 'diagram', body: text });
+    threadChanged(db, { project: example.id, thread, time: TIME });
+    const pull = s.pullRequest(example, { number: 42, state: 'merged' });
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(example.commit, pull);
+    const repository = db.prepare('SELECT repository FROM project_spaces WHERE id = ?').get(example.id).repository;
+    const result = await decide(idOf('nc', thread), { link: `${repository}/pull/42`, text }, { project: example.name });
+    assert.equal(result.status, 201);
+    assert.equal(result.json.thread.state, 'closed');
+    assert.equal(Number(db.prepare("SELECT count(*) AS n FROM thread_resolution_events WHERE thread_id = ? AND event = 'resolved'").get(thread).n), 1);
+    assert.equal(openEntry('question', thread), null);
+    const recommendation = s.thread(board, { target: 'diagram', author: 'agent', body: text });
+    db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 1').run(JSON.stringify({ asks: 'recommended' }), recommendation);
+    s.comment(recommendation, { author: 'owner', body: '추천안' });
+    const chosen = await decide(idOf('nc', recommendation), { link: `${repository}/pull/42`, text }, { project: example.name });
+    assert.equal(chosen.json.thread.state, 'closed');
+    db.prepare("UPDATE comment_threads SET state = 'open', waits_on = 'agent', closed_at = NULL, closed_by = NULL WHERE id = ?").run(thread);
+    db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'reopened', ?)").run(thread, at(clock));
+    const reopened = await decide(idOf('nc', thread), { link: `${repository}/pull/42`, text }, { project: example.name });
+    assert.equal(reopened.json.thread.state, 'open');
+    const pending = s.thread(board, { target: 'diagram', body: text });
+    s.changeSet(example, board, { origin: 'proposal', threadId: pending });
+    const stillOpen = await decide(idOf('nc', pending), { link: `${repository}/pull/42`, text }, { project: example.name });
+    assert.equal(stillOpen.json.thread.state, 'open');
+    const unanswered = s.thread(board, { target: 'diagram', body: text });
+    s.comment(unanswered, { author: 'owner', body: 'What about the next question?' });
+    const unansweredResult = await decide(idOf('nc', unanswered), { link: `${repository}/pull/42`, text }, { project: example.name });
+    assert.equal(unansweredResult.json.thread.state, 'open');
+    const otherDiagram = s.diagram(example);
+    s.elements(otherDiagram.drawing, [{ key: 'TBL-146', trace_id: 'TBL-146', name: text }]);
+    const otherThread = s.thread(otherDiagram, { target: 'diagram', body: text });
+    const otherResult = await decide(idOf('nc', otherThread), { link: `${repository}/pull/42`, text }, { project: example.name });
+    assert.equal(otherResult.json.thread.state, 'closed');
+  });
+
+  test('five existing waiting conversations remain open when their links cannot prove records', async () => {
+    const threads = Array.from({ length: 5 }, () => waiting());
+    for (const { id, thread } of threads) {
+      const result = await decide(id, { link: LINK, text: 'The decision is recorded.' });
+      assert.equal(result.status, 201);
+      assert.equal(threadRow(thread).state, 'open');
+      assert.deepEqual(entriesOf(thread).at(-1), 'owner question open');
+    }
+  });
+
   test('a comment on an item goes on its element or row, at commit when NEXUS holds it; one that left gets the diagram (SPEC-016, SPEC-027)', async () => {
     clock = START + 50 * MINUTE;
     const now = await comment(erdComment());

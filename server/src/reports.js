@@ -64,6 +64,7 @@ import { cancelRecorded, passStage } from './passes.js';
 import { invalidRequest, keepingWrite, Problem } from './problem.js';
 import { checkpointBody, reflectionBody } from './reads.js';
 import { reflectMerged } from './reflection.js';
+import { resolveDecision } from './resolve-decision.js';
 
 // The contract's forms: Link, Commit, and the events of EditReport and CheckpointReport.
 const LINK = /^https:\/\/\S+$/;
@@ -102,6 +103,12 @@ function statementsOf(store) {
       link: store.prepare("UPDATE change_sets SET pull_request_id = ?1 WHERE id = ?2 AND state = 'accepted' AND pull_request_id IS NOT ?1"),
       // The accepted change sets in a pull request, of every diagram of the project.
       inPull: store.prepare("SELECT id, diagram_id FROM change_sets WHERE project_id = ? AND pull_request_id = ? AND state = 'accepted'"),
+      openThreads: store.prepare(`SELECT h.id FROM comment_threads h JOIN diagrams d ON d.id = h.diagram_id
+        WHERE d.project_id = ? AND h.state = 'open' AND EXISTS (
+          SELECT 1 FROM comments c WHERE c.thread_id = h.id
+            AND c.seq = (SELECT max(last.seq) FROM comments last WHERE last.thread_id = h.id)
+            AND json_extract(c.detail, '$.link') = ?
+        )`),
       claimPull: store.prepare('UPDATE claims SET pull_request_id = ? WHERE todo_id = ? AND project_id = ? AND released_at IS NULL'),
       holds: store.prepare('SELECT 1 AS held FROM snapshots WHERE project_id = ? AND commit_sha = ? LIMIT 1'),
       confirmation: store.prepare(
@@ -266,6 +273,9 @@ function reflectionReport(store, statements, { project, entry, report, number, c
   for (const diagram of diagrams) changeSetsChanged(store, { project: project.id, diagram, time });
   if (report.event === 'reflected' && statements.holds.get(project.id, report.commit) !== undefined) {
     changed = reflectMerged(store, { project: project.id, commit: report.commit, time }) > 0 || changed;
+    for (const thread of statements.openThreads.all(project.id, pullRequestLink(project.repository, pull.number))) {
+      changed = resolveDecision(store, { project: project.id, thread: Number(thread.id), time }) || changed;
+    }
   }
   return changed;
 }

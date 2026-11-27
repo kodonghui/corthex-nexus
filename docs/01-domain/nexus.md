@@ -154,7 +154,7 @@ Purpose: gather comments and replies on a diagram, AI proposals and direct edits
 - Aggregate rules: Change set: the owner's direct edit counts as an accepted change set (inferred). Outside the stage-01 board, only renaming and connecting make a change set; moving is layout (redesign decision on direct edit).
 - Aggregate rules: Change set: a reflection is done only when its pull request is merged and the snapshot of that commit is drawn (inferred: the source is Git).
 - Aggregate rules: Comment thread: attached to an element's trace ID and to the document version of that time (inferred).
-- Aggregate rules: Comment thread: a rejected proposal or a cancelled edit leaves its thread open for the owner to answer or close, and the owner can close a thread at any time (inferred).
+- Aggregate rules: Comment thread: a rejection or cancelled edit alone leaves its thread open; the owner can close it at any time. A verified recorded decision with no unhandled proposal or question resolves it, and the owner can reopen it (item 242).
 - Given–When–Then: Given an ERD with an AI proposal laid over it, When the owner gives Accept proposal, Then Proposal accepted, and the reflection appears in the agent's to-do.
 - Given–When–Then: Given an accepted change set and an open reflection pull request, When the snapshot of that pull request's commit is drawn, Then Change reflected and Comment closed.
 - Given–When–Then: Given a table in an ERD, When the owner gives Rename element, Then Element renamed, and the diagram shows it as waiting for reflection until it is reflected.
@@ -171,13 +171,13 @@ Purpose: the owner passes one picture or table at its document version, and the 
 | Owner (PC) | Diagram view, Diff view | Confirm diagram | Confirmation | Diagram confirmed |
 | Owner (PC) | Diagram view | Cancel confirmation | Confirmation | Confirmation cancelled |
 | Agent | Agent to-do | Record confirmation | Confirmation | Confirmation recorded |
-| Policy: when Diagram drawn changes the document of a confirmed diagram |  | Invalidate confirmation | Confirmation | Confirmation invalidated |
+| Policy: when Diagram drawn changes a confirmed diagram without proof of a decision record |  | Invalidate confirmation | Confirmation | Confirmation invalidated |
 
 - Aggregate rules: Confirmation: only the owner confirms; an agent never does (brief of 2026-11-21, a confirmation per picture; CORTHEX principle 5).
-- Aggregate rules: Confirmation: bound to the document version the owner was looking at (inferred, as v2's approval of a content version). When the document changes later, the confirmation becomes invalid and the diagram needs a new one (the maintainer's answer of 2026-11-23).
+- Aggregate rules: Confirmation: bound to the document version the owner was looking at (inferred, as v2's approval of a content version). A later push keeps that confirmation only when every change is verified as the record of an already approved decision; it keeps the history. A substantive change, incomplete or failed drawing, or unproved change needs confirmation again (item 242, 2026-11-27).
 - Aggregate rules: Confirmation: a stage counts as passed only once the confirmation is in the stage record in Git (document: CORTHEX NEXUS work rules). One diagram's confirmation is one stage checkpoint, and the stage-01 board has one each at steps 1-b, 7 and 9 (guess).
 - Given–When–Then: Given an ERD drawn at document version B, When the owner gives Confirm diagram, Then Diagram confirmed at B, and the record appears in the agent's to-do.
-- Given–When–Then: Given an ERD confirmed at B, When the snapshot of document version C changes the ERD, Then Confirmation invalidated, and a new confirmation appears in the owner's to-do.
+- Given–When–Then: Given an ERD confirmed at B, When the snapshot of document version C changes the ERD without proof of a decision record, Then Confirmation invalidated, and a new confirmation appears in the owner's to-do.
 - External systems: none (the Git host through the agent)
 - Links: asks Diagram for document versions; follows Diagram drawn to invalidate; tells To-do about Diagram confirmed and Confirmation invalidated.
 - Hotspots: 2, 5, 9
@@ -246,7 +246,7 @@ Purpose: check the owner's sign-in and the agents' credentials.
 | From | To | Kind | Pattern | Why | Data |
 | --- | --- | --- | --- | --- | --- |
 | Agent (corthex-hub) | CTX-037 | call (sync) | open host service, published language | Send a snapshot | commit, stage documents |
-| CTX-037 | CTX-039 | event (async) | customer and supplier | Invalidate a confirmed diagram whose document changed | Diagram drawn: diagram, document version |
+| CTX-037 | CTX-039 | event (async) | customer and supplier | Invalidate an unproved change to a confirmed diagram | Diagram drawn: diagram, document version |
 | CTX-037 | CTX-038 | event (async) | customer and supplier | Check whether a reflection pull request went in | Diagram drawn: commits it holds |
 | CTX-037 | CTX-041 | event (async) | | Show the owner a drawn diagram to confirm | Diagram drawn |
 | CTX-038 | CTX-037 | call (sync) | conformist | Attach comments and edits to elements | element trace ID, document version |
@@ -298,7 +298,7 @@ The Diagram context holds the document version in the middle: Review and Confirm
 | Hotspot | Context | State | Answer or next step |
 | --- | --- | --- | --- |
 | 1. During a workshop, is the source the board or the document? | CTX-040 | answered | The board, during a workshop (the maintainer's answer of 2026-11-23) |
-| 2. When the document changes after a confirmation, is the confirmation lifted? | CTX-039 | answered | Lift it and confirm again (the maintainer's answer of 2026-11-23) |
+| 2. When the document changes after a confirmation, is the confirmation lifted? | CTX-039 | answered | Keep it only for verified records of already approved decisions; otherwise confirm again (item 242, 2026-11-27). |
 | 3. When an element leaves the document, where do its comments stay? | CTX-038 | answered | Move them to the diagram's comments, marked as from a removed element (stage 02, REQ-033) |
 | 4. Does v3 accept the current corthex-hub commands (push, todo, claim, comment, decide, reflect, status, record) as they are? | CTX-037, CTX-041 | answered | Accept them as they are (stage 02, REQ-018) |
 | 5. Can the confirm button work on a phone? | CTX-039 | answered | No: view and comment only (stage 02, REQ-068) |
@@ -310,7 +310,7 @@ The Diagram context holds the document version in the middle: Review and Confirm
 | 11. The direct-edit scope was written two ways in the project's records: move, rename and connect only, or a free canvas on the stage-01 board with move, rename and connect elsewhere | CTX-038, CTX-040 | answered | Follows the redesign decision the maintainer approved on 2026-11-22: a free canvas on the stage-01 board |
 | 12. Diagram and Confirmation rules inferred by the AI: one confirmation per diagram, a diagram from one snapshot, a layout that never changes meaning | CTX-037, CTX-039 | reviewed in stage 02 | Carried into the requirements as written, which the stage-02 version freeze approved (REQ-001 to REQ-066) |
 | 13. The command rows of every context | CTX-037, CTX-038, CTX-039, CTX-040, CTX-041, CTX-042 | reviewed in stage 02 | Carried into the requirements as written, which the stage-02 version freeze approved (REQ-001 to REQ-066) |
-| 14. A rejected proposal or a cancelled edit leaves its comment thread open for the owner to close | CTX-038 | answered | The thread stays open until the owner closes it (stage 02, REQ-024, REQ-034) |
+| 14. A rejected proposal or a cancelled edit leaves its comment thread open for the owner to close | CTX-038 | answered | Rejection alone leaves it open; a verified recorded decision without outstanding work resolves it and can be reopened (item 242, REQ-024, REQ-034) |
 
 ## 7. Glossary
 
@@ -333,7 +333,7 @@ The Diagram context holds the document version in the middle: Review and Confirm
 | TERM-203 | Change set | A change to put into a document, such as an accepted AI proposal or a direct edit | CTX-038 | `ChangeSet` | patch |
 | TERM-204 | Reflection | Putting a change set into the stage document through a pull request, done when the snapshot of that commit is drawn | CTX-038 | `Reflection` | apply, sync |
 | TERM-205 | Reflection PR | The pull request that puts a change set into a stage document | CTX-038 | `reflectionPr` | fix PR |
-| TERM-206 | Confirmation | The owner passing one diagram or item table at its document version, recorded as a stage checkpoint pass | CTX-039 | `Confirmation` | approval (confused with a whole stage's approval), lock |
+| TERM-206 | Confirmation | The owner passing one diagram or item table at its document version, recorded as a stage checkpoint pass; verified decision records can retain that confirmation while its original version remains in history | CTX-039 | `Confirmation` | approval (confused with a whole stage's approval), lock |
 | TERM-207 | Checkpoint | The point in a CORTHEX stage where the owner reviews and passes the work | CTX-039 | `Checkpoint` | review gate |
 | TERM-208 | Confirmation invalidated | The state of a confirmed diagram whose document changed, so it needs a new confirmation | CTX-039 | `invalidated` | expired |
 | TERM-209 | Diff | The elements that changed in the document since the last confirmation | CTX-039 | `diff` | delta |
@@ -381,3 +381,5 @@ Checked for gaps against four similar products: GitHub pull request review, Figm
 
 - Merge this document and the stage record through a documents-only pull request, then push the snapshot so that NEXUS draws the DDD board.
 - Then stage 02, the PRD. Hotspots 3 to 9, 12 and 13 are settled in stage 02 or 05.
+
+Feature change, item 242, 2026-11-27: the maintainer said ‘둘 다 바꿔’ for retaining confirmations and automatically resolving conversations. Each changed value must match normalized decision text linked to the same diagram and decided after its confirmation. A verified decision record with no unhandled proposal or further question resolves the conversation; its result and record remain visible and the owner can reopen it. A link alone proves neither the decision nor its record.

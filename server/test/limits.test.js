@@ -54,7 +54,7 @@ test('every body of the contract is a JSON object of one of the three kinds, wit
       .map(({ value }) => value.code);
     assert.ok(invalid.includes(kind.invalid), where);
   }
-  assert.equal(bodies, 31, 'the contract\'s bodies were read');
+  assert.equal(bodies, 32, 'the contract\'s bodies were read');
 });
 
 describe('a request body', () => {

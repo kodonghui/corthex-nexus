@@ -34,10 +34,12 @@ export const THREAD_WORDS = Object.freeze({
   agents: '에이전트 차례',
   closed: '닫힘',
   reflected: '반영되어 닫힘',
+  resolved: '해결됨',
   lookFirst: '먼저 볼 것: ',
   reply: '답글 쓰기',
   replyField: '이 스레드에 남길 말',
   close: '스레드 닫기',
+  reopen: '다시 열기',
   comment: '댓글 쓰기',
   send: '보내기',
   fields: Object.freeze({ element: '이 요소에 남길 말', row: '이 행에 남길 말', diagram: '이 그림에 남길 말' }),
@@ -192,6 +194,7 @@ function whereOf(state, brief) {
 // A thread's state: whose turn an open one is, and who closed a closed one (closed_by is known once it was read).
 export function stateTag(thread) {
   if (thread.state === 'closed') {
+    if (thread.resolved === true) return h('span', { class: 'tag green' }, THREAD_WORDS.resolved);
     return thread.closed_by === 'reflection'
       ? h('span', { class: 'tag green' }, THREAD_WORDS.reflected)
       : h('span', { class: 'tag gray' }, THREAD_WORDS.closed);
@@ -313,7 +316,7 @@ function drawShown(state) {
     h('div', { class: 'btns mid' }, h('span', { class: 'small' }, whereOf(state, thread)), stateTag(thread)),
     thread.entries.map((entry) => entryOf(shell, entry)),
     open ? replyForm(state, thread) : null,
-    open ? closeRow(state, thread) : null));
+    open ? closeRow(state, thread) : thread.closed_by === 'reflection' ? closeRow(state, thread, true) : null));
 }
 
 // One entry of a thread: who wrote it and when, the quote it answers, its text, what to look at first and the
@@ -386,15 +389,15 @@ function textForm(state, { id, what, label, placeholder, action }) {
     bad ? null : errorOf(state, what, error, id));
 }
 
-function closeRow(state, thread) {
-  const what = `close ${thread.id}`;
+function closeRow(state, thread, reopen = false) {
+  const what = `${reopen ? 'reopen' : 'close'} ${thread.id}`;
   const t = state.threads;
   const busy = t.sending.has(what);
   return [
     h('div', { class: 'btns' }, h('button', {
-      type: 'button', class: 'btn tertiary sm', disabled: busy, 'aria-busy': busy ? 'true' : null,
-      on: { click: () => write(state, what, '', () => closeOf(state, thread.id)) },
-    }, THREAD_WORDS.close)),
+      type: 'button', class: reopen ? 'btn tertiary' : 'btn tertiary sm', disabled: busy, 'aria-busy': busy ? 'true' : null,
+      on: { click: () => write(state, what, '', () => closeOf(state, thread.id, reopen)) },
+    }, reopen ? THREAD_WORDS.reopen : THREAD_WORDS.close)),
     errorOf(state, what, t.errors.get(what) ?? null, 'th-close'),
   ];
 }
@@ -418,7 +421,7 @@ function errorOf(state, what, error, id) {
   });
 }
 
-const closing = (what) => what.startsWith('close ');
+const closing = (what) => what.startsWith('close ') || what.startsWith('reopen ');
 
 // Sends a box's text, or a close: action(text) gives the path, the body and what a success does. The request key is
 // new for each send, and kept only to retry the same text after a timeout or a lost connection, since the same key
@@ -531,20 +534,23 @@ function replyOf(state, id, text) {
 // API-269: the thread shows closed. When it was the last open thread of a removed diagram, the diagram is read again:
 // with nothing else waiting on it (a proposed AI proposal or a waiting direct edit, TASK-468) it is gone, and the
 // stage's first diagram opens in its place (SPEC-027).
-function closeOf(state, id) {
+function closeOf(state, id, reopen = false) {
   const diagram = state.ctx.data.diagram;
   return {
-    path: `${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}/close`,
+    path: `${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}/${reopen ? 'reopen' : 'close'}`,
     body: {},
     done: (answer) => {
       const t = state.threads;
-      if (t.thread?.id === id) Object.assign(t.thread, summaryOf(answer.thread));
+      if (t.thread?.id === id) {
+        Object.assign(t.thread, summaryOf(answer.thread));
+        if (reopen) delete t.thread.resolved;
+      }
       brief(state, id, answer.thread);
       drawList(state);
       drawShown(state);
       // The diagram shown now, which brief marked: a read again may have drawn the view anew while the close was sent.
       const now = state.ctx.data.diagram;
-      if (now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
+      if (!reopen && now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
     },
   };
 }
