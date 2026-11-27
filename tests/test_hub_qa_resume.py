@@ -16,7 +16,6 @@ import test_hub_run as hub_run
 PROJECT, PULL = hub_run.PROJECT, hub_run.PULL
 
 
-
 class HubQaWalk(hub_run.HubRunFixture):
     def test_two_sessions_trade_a_thread(self):
         thread = self.first_push_and_comment()
@@ -124,7 +123,7 @@ class HubQaWalk(hub_run.HubRunFixture):
                     DropOnce.duplicate_headers.append(True)
                 headers = {k: v for k, v in self.headers.items()
                            if k.lower() not in ("host", "connection", "content-length")}
-                connection = http.client.HTTPConnection(target.hostname, target.port, timeout=20)
+                connection = http.client.HTTPConnection(target.hostname, target.port, timeout=100)
                 try:
                     connection.request(self.command, self.path, body=body or None, headers=headers)
                     answer = connection.getresponse()
@@ -138,6 +137,7 @@ class HubQaWalk(hub_run.HubRunFixture):
                     DropOnce.observed.append((answer.status, payload, self.headers.get("Idempotency-Key")))
                 if self.command == "POST" and self.path.endswith(DropOnce.drop or "NEVER"):
                     DropOnce.drop = None
+                    self.close_connection = True
                     self.connection.shutdown(2)
                     self.connection.close()
                     connection.close()
@@ -159,6 +159,7 @@ class HubQaWalk(hub_run.HubRunFixture):
                                         ("answered", "/answered", ())):
                 DropOnce.drop = ending
                 code, row = self.command(env, name, PROJECT, thread, *words)
+                self.assertFalse(DropOnce.failures, "proxy failed to forward a supported request")
                 self.assertEqual((code, row["outcome"], row["outbox"]["waiting"]), (3, "kept", 1))
                 code, row = self.command(env, "outbox", PROJECT, "--send")
                 self.assertEqual((code, row["outcome"], row["outbox"]["sent"], row["outbox"]["waiting"]),

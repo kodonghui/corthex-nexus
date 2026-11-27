@@ -256,6 +256,7 @@ class HubRunFixture(HubCheckoutCase):
         for output in self.outputs:
             self.assertFalse(self.secret in output, "the hub shows the credential's secret; value withheld")
 
+
 class HubRunTest(HubRunFixture):
     def test_each_command_gets_an_answer_the_hub_reads(self):
         first = self.commit
