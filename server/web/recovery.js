@@ -2,16 +2,9 @@
 // It stays at a stable path so it can report versioned script and stylesheet failures.
 let failed = false;
 function showFailure() {
-  let status = document.getElementById('startup-status');
-  if (!status) {
-    const app = document.getElementById('app');
-    if (!app) return;
-    status = document.createElement('p');
-    status.setAttribute('id', 'startup-status');
-    status.setAttribute('role', 'alert');
-    app.prepend(status);
-  }
-  status.setAttribute('role', 'alert');
+  const status = document.getElementById('recovery-alert');
+  if (!status) return;
+  document.getElementById('startup-status')?.replaceChildren();
   const link = document.createElement('a');
   link.setAttribute('href', '');
   link.textContent = '새로고침';

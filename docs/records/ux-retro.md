@@ -10,7 +10,7 @@ AI walkthroughs are failure signals, never proof that a person can complete a ta
 
 ## Baseline, 2026-11-27
 
-An isolated test snapshot showed a 11,231 × 76 px board in a 976 px wide view. Full fitting was not available and the original implementation had no diagram undo. The initial baseline is incomplete until the same tasks are measured after changes. The test data and measurements are synthetic; private project observations remain in the project records.
+An isolated test snapshot showed an 11,231 × 76 px board in a 976 px wide view. Full fitting was not available and the original implementation had no diagram undo. The initial baseline is incomplete until the same tasks are measured after changes. The test data and measurements are synthetic; private project observations remain in the project records.
 
 Goal-only simulations are used to find possible problems, not to claim a grandmother completed a task. Repeat the same tasks in isolated data after each change and record human validation separately.
 

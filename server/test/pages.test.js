@@ -129,17 +129,16 @@ describe('the pages', () => {
 
   test('a failed versioned script or stylesheet keeps a visible error and reload link', () => {
     const listeners = {};
-    const status = { setAttribute(name, value) { this[name] = value; }, replaceChildren: (...children) => { status.children = children; } };
-    const app = { prepend: (child) => { app.child = child; } };
-    let current = status;
-    const doc = { getElementById: (id) => id === 'app' ? app : current, createElement: () => ({ setAttribute(name, value) { this[name] = value; }, replaceChildren(...children) { this.children = children; } }) };
+    const status = { replaceChildren: (...children) => { status.children = children; } };
+    const startup = { replaceChildren: (...children) => { startup.children = children; } };
+    const doc = { getElementById: (id) => id === 'recovery-alert' ? status : id === 'startup-status' ? startup : null, createElement: () => ({ setAttribute(name, value) { this[name] = value; } }) };
     runInNewContext(read('recovery.js').toString('utf8'), {
       globalThis: { addEventListener: (type, handler) => { listeners[type] = handler; } },
       document: doc, location: { href: 'https://example.test/p' }, URL,
     });
     listeners.error({ target: { tagName: 'SCRIPT', src: 'https://example.test/web/v/old/main.js' } });
     assert.match(status.children[0], /문제가 생겼어요/);
-    assert.equal(status.role, 'alert');
+    assert.deepEqual(startup.children, []);
     assert.equal(status.children[1].href, '');
     assert.equal(status.children[1].textContent, '새로고침');
     delete status.children;
@@ -147,13 +146,11 @@ describe('the pages', () => {
     assert.equal(status.children, undefined);
     listeners.error({ target: {}, filename: 'https://example.test/web/v/old/main.js' });
     assert.match(status.children[0], /문제가 생겼어요/);
-    current = null;
     listeners.error({ target: { tagName: 'LINK', href: 'https://example.test/web/v/old/a.css' } });
-    assert.equal(app.child.role, 'alert');
-    assert.match(app.child.children[0], /문제가 생겼어요/);
-    delete app.child;
+    assert.match(status.children[0], /문제가 생겼어요/);
+    delete status.children;
     listeners.load();
-    assert.equal(app.child.role, 'alert');
+    assert.match(status.children[0], /문제가 생겼어요/);
   });
 
   test('the Content-Security-Policy loads nothing from another site and allows no inline code', () => {
