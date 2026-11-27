@@ -587,6 +587,38 @@ describe('SCR-145 threads', () => {
     }
   });
 
+  test('a reply already present in a newer read is not shown or counted twice', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const entries = [...structuredClone(ENTRIES), { seq: 3, author: 'owner', kind: 'comment', text: '새 답변', made_at: ago(0) }];
+    const updated = threadOf('erd', original, { waits_on: 'agent', last_at: ago(0), entries });
+    let releaseWrite;
+    let writtenAlready = false;
+    const page = await openStage('erd', {
+      answers: (path) => path === threadPath(T.mine) && writtenAlready ? json(200, updated) : undefined,
+      posts: (path, body) => new Promise((resolve) => { releaseWrite = () => resolve(written(path, body)); }),
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      const field = fieldOf(page, 'th-reply');
+      field.value = '새 답변';
+      formOf(field).dispatch('submit');
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      writtenAlready = true;
+      rowNamed(page, 'agent_credentials').click();
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      releaseWrite();
+      await page.settle();
+      assert.equal(textsIn(shownThread(page), 'span', 'tx').filter((text) => text === '새 답변').length, 1);
+      assert.deepEqual(textsIn(sectionOf(page), 'h3'), [countOf(1, 3)]);
+    } finally {
+      page.close();
+    }
+  });
+
   test('a close racing resolution supersedes an older read of the same thread', async () => {
     for (const oldFirst of [true, false]) {
       const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
@@ -643,6 +675,27 @@ describe('SCR-145 threads', () => {
     }
   });
 
+  test('a missing thread is removed from the list even after selection moves', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const realFetch = globalThis.fetch;
+    let respond;
+    globalThis.fetch = () => new Promise((resolve) => { respond = resolve; });
+    const state = {
+      ctx: { address: {}, data: { diagram: { id: ID.erd, project: P, threads: [{ ...original }] } }, shell: {} },
+      threads: { shown: T.mine, thread: null, failed: null, seq: 0, choose: false, boxes: null },
+    };
+    try {
+      threadsOpened(state, { live: () => true, choose: () => {}, notice: () => {} });
+      state.threads.shown = T.whole;
+      state.threads.seq += 1;
+      respond(problem(404, 'thread_not_found')());
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      assert.deepEqual(state.ctx.data.diagram.threads, []);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
   test('a racing close refreshes a shown thread even without a list brief', async () => {
     const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
     const open = threadOf('erd', original, { target: 'diagram', element: null, item: '' });
@@ -679,6 +732,44 @@ describe('SCR-145 threads', () => {
       assert.ok(shownThread(page));
       assert.equal(buttonOf(shownThread(page), THREAD_WORDS.close), undefined);
       assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.reflected]);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a failed follow-up while the selected thread loads offers a retry', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    let releaseClose;
+    let releaseOld;
+    let hold = false;
+    let closed = false;
+    const page = await openStage('erd', {
+      answers: (path) => {
+        if (path !== threadPath(T.mine)) return undefined;
+        if (closed) return problem(500, 'internal');
+        if (hold) return () => new Promise((resolve) => { releaseOld = () => resolve(json(200, threadOf('erd', original))()); });
+        return undefined;
+      },
+      posts: () => new Promise((resolve) => { releaseClose = () => { closed = true; resolve(json(200, { thread: { id: T.mine, state: 'closed', waits_on: null, closed_by: 'reflection', last_at: ago(0) }, changed: false })()); }; }),
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      buttonOf(shownThread(page), THREAD_WORDS.close).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      hold = true;
+      rowNamed(page, 'agent_credentials').click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      assert.ok(releaseOld);
+      releaseClose();
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      releaseOld();
+      await page.settle();
+      assert.equal(shownThread(page), null);
+      assert.ok(sectionOf(page).all('button').some((button) => button.textContent.includes('다시 시도')));
     } finally {
       page.close();
     }
