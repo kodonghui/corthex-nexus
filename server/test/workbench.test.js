@@ -285,6 +285,7 @@ describe('SCR-145 pictures', () => {
     try {
       const button = buttonNamed(page, 'scr', 'Projects');
       button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
       page.shell.redraw();
       const area = pictureBox(page);
       const board = area.all('div', 'boardbox')[0];
@@ -295,6 +296,28 @@ describe('SCR-145 pictures', () => {
       board.dispatch('wheel', { ctrlKey: true, deltaY: -3, deltaMode: 1, clientX: 0, clientY: 0 });
       assert.ok(Number(svg.getAttribute('width')) > before * 1.09);
       assert.match(page.app.textContent, /그림이 새로 바뀌어 옮기기를 멈췄어요/);
+    } finally { page.close(); }
+  });
+
+  test('a press without a drag is not reported as a cancelled move, and lost capture releases zoom', async () => {
+    const page = await openStage('sitemap');
+    try {
+      let button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      page.shell.redraw();
+      assert.doesNotMatch(page.app.textContent, /그림이 새로 바뀌어 옮기기를 멈췄어요/);
+      button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 2 });
+      button.dispatch('lostpointercapture');
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      Object.assign(board, { clientWidth: 500, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      const before = Number(svg.getAttribute('width'));
+      board.dispatch('wheel', { ctrlKey: true, deltaY: -3, deltaMode: 1, clientX: 0, clientY: 0 });
+      assert.ok(Number(svg.getAttribute('width')) > before);
+      assert.equal(page.sent.length, 0);
     } finally { page.close(); }
   });
 
@@ -311,6 +334,24 @@ describe('SCR-145 pictures', () => {
       button.dispatch('pointerup', { clientX: 104, clientY: 100 });
       await waitSend(page);
       assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('an arrow move remains visible after fitting a large diagram', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      const initialWidth = Number(svg.getAttribute('width'));
+      Object.assign(board, { clientWidth: 45, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      area.all('div', 'zoom-controls')[0].all('button')[2].click();
+      const zoom = Number(svg.getAttribute('width')) / initialWidth;
+      const button = buttonNamed(page, 'scr', 'Projects');
+      const before = Number(holderOf(button).getAttribute('x'));
+      button.dispatch('keydown', { key: 'ArrowRight' });
+      const after = Number(holderOf(buttonNamed(page, 'scr', 'Projects')).getAttribute('x'));
+      assert.ok((after - before) * zoom >= 7.9);
     } finally { page.close(); }
   });
   test('an empty table explains unreadable or removed material without asking to send it again', async () => {

@@ -238,8 +238,9 @@ function legendOf(diagram, model) {
 // The picture, drawn again with the moves not yet answered; the element that had the focus gets it back.
 function drawPicture(state) {
   if (state.dragNode) {
+    const moved = state.drags.get(state.dragNode)?.moved;
     cancelled(state, state.dragNode);
-    state.notice.append(h('div', { class: 'nt warn', role: 'alert' }, '그림이 새로 바뀌어 옮기기를 멈췄어요. 다시 옮겨 주세요.'));
+    if (moved) state.notice.append(h('div', { class: 'nt warn', role: 'alert' }, '그림이 새로 바뀌어 옮기기를 멈췄어요. 다시 옮겨 주세요.'));
   }
   const { ctx } = state;
   const diagram = ctx.data.diagram;
@@ -557,7 +558,8 @@ function keydown(state, element, event) {
   const way = ARROWS[event.key];
   if (way === undefined || !movable(state, element)) return;
   event.preventDefault();
-  const step = event.shiftKey ? LONG_STEP : STEP;
+  // Keep arrow movement visible in screen pixels at every zoom level, as a drag is.
+  const step = Math.round((event.shiftKey ? LONG_STEP : STEP) / state.zoom);
   const at = state.view.place.boxes.get(element.key);
   moveTo(state, element.key, { x: at.x + way[0] * step, y: at.y + way[1] * step });
 }
@@ -575,6 +577,7 @@ function pointerdown(state, element, event) {
     node.addEventListener('pointermove', (move) => dragged(state.drags.get(node), move));
     node.addEventListener('pointerup', (up) => dropped(state, node, up));
     node.addEventListener('pointercancel', () => cancelled(state, node));
+    node.addEventListener('lostpointercapture', () => cancelled(state, node));
   }
   state.drags.set(node, drag);
   state.dragNode = node;
