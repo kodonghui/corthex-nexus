@@ -470,6 +470,20 @@ class HubCompatibilityTest(HubCheckoutCase):
         self.assertEqual([(r["method"], r["path"]) for r in server.requests], [("GET", HELD_PATH)])
         self.assertEqual((code, row["outcome"], row["answer"]), (0, "done", {"sent": False, "why": "already-held"}))
 
+    def test_a_v2_session_with_override_sends_legacy_credential_headers(self):
+        pair = {"CORTHEX_NEXUS_CLIENT_ID": "ac_fixture", "CORTHEX_NEXUS_CLIENT_SECRET": "fixture-pair",
+                "CORTHEX_NEXUS_AUTH_HEADERS": "cf-access"}
+        with LoopbackServer({("GET", HELD_PATH): self.v2_held()}) as server:
+            server.answers[("POST", PUSH_PATH)] = (200, self.v2_pushed(8))
+            code, row = self.session_push(server, **pair)
+        self.assertEqual((code, row["outcome"]), (0, "done"), row)
+        self.assertGreaterEqual(len(server.requests), 1)
+        for request in server.requests:
+            self.assertEqual(request["headers"].get("cf-access-client-id"), pair["CORTHEX_NEXUS_CLIENT_ID"])
+            self.assertEqual(request["headers"].get("cf-access-client-secret"), pair["CORTHEX_NEXUS_CLIENT_SECRET"])
+            self.assertFalse("nexus-agent-client-id" in request["headers"] or
+                             "nexus-agent-client-secret" in request["headers"], "mixed credential headers")
+
     def test_a_v2_server_gets_02_from_a_first_push(self):
         missing = (404, {"title": "No such project", "status": 404, "code": "project_not_found", "traceId": TRACE})
         with LoopbackServer({("GET", HELD_PATH): missing}) as server:
