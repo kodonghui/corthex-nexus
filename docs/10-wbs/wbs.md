@@ -100,6 +100,8 @@ Each has a recommendation. Questions 1 to 4 were asked one by one at this stage'
 
 ## 4. Differences from approved items
 
+The e410ce9 statements below preserve the history of the approved differences. The hub pin has since moved to e6b46ac, which includes 1becbab and sends source_path; TASK-470 closed the NEXUS side. TC-221 verifies the combination separately.
+
 - TASK-471 changes the stage-09 mockup confirmation labels, recording explanation and phone presentation, and the old TASK-469 text, to the stage-08 guidance; the mockup remains a historical design until its next approved revision. The same corrected explanation is used on SCR-146; the small correction was made under the maintainer delegate's authorization on 2026-11-27.
 
 - The stage-06 checkpoint of 2026-11-23 left SPEC-006, SPEC-008 and SPEC-009 out of the first release. The feature change of the same day reversed that decision (the maintainer's, in the project's records), and this WBS puts the three rows in the first release (TASK-424, TASK-426, TASK-427, TASK-428, TASK-429, TASK-431).
