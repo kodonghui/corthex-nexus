@@ -452,6 +452,58 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('a queued move is not sent while a second drag is in progress', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      const button = buttonNamed(page, 'tbl', table.name);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100, pointerId: 1 });
+      await delay(SEND_AFTER_MS + 80);
+      assert.equal(page.sent.length, 0);
+      button.dispatch('pointerup', { clientX: 120, clientY: 100, pointerId: 1 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 1);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent[1].body.reset, true);
+    } finally { page.close(); }
+  });
+
+  test('a canceled second drag still sends the earlier queued move', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      const button = buttonNamed(page, 'tbl', table.name);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      await delay(SEND_AFTER_MS + 80);
+      assert.equal(page.sent.length, 0);
+      button.dispatch('pointercancel');
+      await waitSend(page);
+      assert.equal(page.sent.length, 1);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent[1].body.reset, true);
+    } finally { page.close(); }
+  });
+
+  test('a definite non-permission rejection cancels a move and allows another', async () => {
+    let attempts = 0;
+    const page = await openStage('erd', { moved: (body) => ++attempts === 1 ? problem(409, 'request_key_reused')() : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.app.all('button').some((button) => button.textContent === '다시 시도'), false);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 2);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, false);
+    } finally { page.close(); }
+  });
+
   test('a redraw cancels an unfinished drag and re-enables undo', async () => {
     const page = await openStage('erd');
     try {
@@ -2423,6 +2475,10 @@ describe('SCR-145 against the server', () => {
     const inNotice = (code, buttons = ['다시 시도']) => (page) => assert.deepEqual(
       [notice(page).all('b').map((b) => b.textContent), notice(page).all('button').map((button) => button.textContent)], [[message(code)], buttons],
     );
+    const canceledNotice = (code) => (page) => {
+      inNotice(code, [])(page);
+      assert.match(notice(page).textContent, /이동을 저장하지 못해 취소했어요/);
+    };
     // A 404 for the project or the diagram after a write: the page reads the diagram again first (SCR-145#error), which
     // here the server answers as before, so the diagram shows again with its box where it was and no notice.
     const readAgain = (page) => {
@@ -2460,14 +2516,14 @@ describe('SCR-145 against the server', () => {
           await good.send(post({ headers: { ...json, ...owner(), ...reused } }));
           return post({ headers: { ...json, ...owner(), ...reused }, body: body({ x: 99 }) });
         },
-        shows: inNotice('request_key_reused'),
+        shows: canceledNotice('request_key_reused'),
       },
       {
         status: 409, code: 'position_changed', historyOnly: true,
         request: () => post({ body: body({ expected: { x: -999999, y: -999999 } }) }),
       },
-      { status: 413, code: 'body_too_large', request: () => post({ body: JSON.stringify({ element: element.key, x: 1, y: 2, pad: 'x'.repeat(2 * 1024 * 1024) }) }), shows: inNotice('body_too_large') },
-      { status: 415, code: 'json_required', request: () => post({ headers: { 'Content-Type': 'text/plain', ...owner(), ...key() } }), shows: inNotice('json_required') },
+      { status: 413, code: 'body_too_large', request: () => post({ body: JSON.stringify({ element: element.key, x: 1, y: 2, pad: 'x'.repeat(2 * 1024 * 1024) }) }), shows: canceledNotice('body_too_large') },
+      { status: 415, code: 'json_required', request: () => post({ headers: { 'Content-Type': 'text/plain', ...owner(), ...key() } }), shows: canceledNotice('json_required') },
       { status: 500, code: 'internal', fails: true, request: () => post(), shows: inNotice('internal') },
     ]);
     for (const each of cases) {

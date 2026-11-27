@@ -951,12 +951,19 @@ function moveTo(state, key, to) {
   drawPicture(state);
   state.pending.add(key);
   clearTimeout(state.timer);
-  state.timer = setTimeout(() => {
-    for (const each of [...state.pending]) {
-      state.pending.delete(each);
-      send(state, each, null);
-    }
-  }, SEND_AFTER_MS);
+  state.timer = setTimeout(() => sendPending(state), SEND_AFTER_MS);
+}
+
+// A drag begun while a move is queued must finish before its saved-position history can be recorded.
+function sendPending(state) {
+  if (state.dragNode != null) {
+    state.timer = setTimeout(() => sendPending(state), SEND_AFTER_MS);
+    return;
+  }
+  for (const key of [...state.pending]) {
+    state.pending.delete(key);
+    send(state, key, null);
+  }
 }
 
 // Sends the last place of a box (API-274). A move made while one is sent goes after its answer. A timeout or a lost
@@ -1005,13 +1012,6 @@ async function send(state, key, kept) {
     if (now !== undefined && now.x === at.x && now.y === at.y) state.moves.delete(key);
     fill(state.moveNotice);
     if (state.sending.size === 0 && state.pending.size === 0 && state.failed.size === 0) updateMoveTargets(state);
-  } else if (outcome.status === 400 && outcome.code === 'invalid_request') {
-    state.moves.delete(key); state.before.delete(key); state.pending.delete(key); state.again.delete(key); state.failed.delete(key);
-    store('sessionStorage', historyMark(state.diagram), null);
-    fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, '그 위치로 옮길 수 없어 이동을 취소했어요. 다른 위치로 옮겨 주세요.'));
-    drawPicture(state);
-    updateHistoryControls(state);
-    return;
   } else if (outcome.status === 401 || outcome.status === 403 || outcome.failure === 'gate') {
     state.failed.add(key);
     updateHistoryControls(state);
@@ -1033,6 +1033,17 @@ async function send(state, key, kept) {
     fill(state.moveNotice);
     drawPicture(state);
     state.ctx.shell.reload();
+    return;
+  } else if (outcome.status >= 400 && outcome.status < 500) {
+    state.moves.delete(key); state.before.delete(key); state.pending.delete(key); state.again.delete(key); state.failed.delete(key);
+    store('sessionStorage', historyMark(state.diagram), null);
+    const notice = outcome.status === 400 && outcome.code === 'invalid_request'
+      ? '그 위치로 옮길 수 없어 이동을 취소했어요. 다른 위치로 옮겨 주세요.'
+      : '이동을 저장하지 못해 취소했어요. 그림을 확인하고 다시 옮겨 주세요.';
+    const reason = outcome.status === 400 && outcome.code === 'invalid_request' ? null : h('b', {}, state.ctx.shell.message(outcome.code ?? 'internal'));
+    fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, reason, h('div', {}, notice)));
+    drawPicture(state);
+    updateHistoryControls(state);
     return;
   } else {
     state.failed.add(key);
