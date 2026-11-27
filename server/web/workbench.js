@@ -775,6 +775,7 @@ async function runHistory(state, redo, retryKey = null) {
           store('sessionStorage', historyMark(state.diagram), null);
           fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, '저장 결과를 확인하지 못해 이동 기록을 지웠어요. 그림을 다시 확인해 주세요.'));
           updateHistoryControls(state);
+          updateMoveTargets(state);
         }
         refreshing = false;
       } } }, '새로 고침'));

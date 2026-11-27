@@ -233,6 +233,29 @@ describe('SCR-145 pictures', () => {
     } finally { release(); page.close(); }
   });
 
+  test('refreshing an uncertain undo restores move targets when fresh data redraws the picture', async () => {
+    let changed = false;
+    const fresh = diagramOf('erd');
+    const table = fresh.elements.find((element) => element.kind === 'table');
+    const page = await openStage('erd', {
+      moved: (body) => body.expected ? new TypeError('Failed to fetch') : movedAnswer('erd')(body),
+      more: { [diagramPath('erd')]: () => {
+        if (changed) { table.position_saved = true; table.position = { x: table.detail.box.x + 24, y: table.detail.box.y }; }
+        return json(200, fresh)();
+      } },
+    });
+    try {
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      changed = true;
+      page.app.all('button').find((button) => button.textContent === '새로 고침').click();
+      await page.settle();
+      assert.equal(buttonNamed(page, 'tbl', table.name).getAttribute('data-diagram-movable'), '');
+    } finally { page.close(); }
+  });
+
   test('an interrupted uncertain undo keeps its marker through a failed recovery read', async () => {
     let release, recovering = false, reads = 0;
     const held = new Promise((resolve) => { release = resolve; });
