@@ -247,11 +247,12 @@ function chooseThread(state, brief) {
 // diagram, or one gone, says that it is no longer in NEXUS; a 401, a 403 or a gone project is the shell's.
 async function readThread(state, id) {
   const t = state.threads;
+  const generation = nextRead(t, id);
   t.seq += 1;
   const seq = t.seq;
   const diagram = state.ctx.data.diagram;
   const outcome = await read(`${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}`);
-  if (!t.host.live() || seq !== t.seq || t.shown !== id) return;
+  if (!t.host.live() || seq !== t.seq || t.shown !== id || t.reads.get(id) !== generation) return;
   const choose = t.choose;
   t.choose = false;
   if (outcome.status === 200 && outcome.body.diagram === diagram.id) {
@@ -277,9 +278,9 @@ async function readThread(state, id) {
 
 // The diagram's brief of a thread takes what a read or a write answered about it; added counts an entry a write added.
 function brief(state, id, thread, added = 0, authoritative = false) {
+  if (!authoritative) nextRead(state.threads, id);
   const found = (state.ctx.data.diagram.threads ?? []).find((each) => each.id === id);
   if (found === undefined) return;
-  delete found.resolutionRead;
   found.state = thread.state;
   found.waits_on = thread.waits_on;
   if (thread.resolved === true) found.resolved = true;
@@ -288,22 +289,38 @@ function brief(state, id, thread, added = 0, authoritative = false) {
   found.entries = Array.isArray(thread.entries) ? thread.entries.length : found.entries + added;
 }
 
+function nextRead(threads, id) {
+  threads.reads ??= new Map();
+  const generation = (threads.reads.get(id) ?? 0) + 1;
+  threads.reads.set(id, generation);
+  return generation;
+}
+
 // A close may race an automatic resolution. Read its state without superseding a
 // different thread's in-flight read, and do not turn a successful close into an error.
-async function refreshAfterClose(state, id) {
+export async function refreshAfterClose(state, id) {
   const t = state.threads;
   const diagram = state.ctx.data.diagram;
-  const found = (diagram.threads ?? []).find((each) => each.id === id);
-  if (!found) return;
-  const token = Symbol('resolution read');
+  const generation = nextRead(t, id);
   const seq = t.seq;
-  found.resolutionRead = token;
   const outcome = await read(`${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}`);
-  if (!t.host.live() || state.ctx.data.diagram !== diagram || found.resolutionRead !== token) return;
-  delete found.resolutionRead;
-  if (outcome.status !== 200 || outcome.body.diagram !== diagram.id) return;
+  if (!t.host.live() || state.ctx.data.diagram !== diagram || t.reads.get(id) !== generation) return;
+  const showing = t.shown === id && t.seq === seq;
+  if ((outcome.status === 200 && outcome.body.diagram !== diagram.id) || (outcome.status === 404 && outcome.code === 'thread_not_found')) {
+    if (showing) {
+      t.thread = null;
+      t.failed = { gone: true };
+      drawShown(state);
+    }
+    return;
+  }
+  if (outcome.status !== 200) {
+    const found = state.ctx.shell.outcome(outcome);
+    if (found !== null && showing) t.host.notice(state.ctx.shell.errorNotice(outcome, () => refreshAfterClose(state, id)));
+    return;
+  }
   brief(state, id, outcome.body, 0, true);
-  if (t.shown === id && t.seq === seq) {
+  if (showing) {
     t.thread = outcome.body;
     t.failed = null;
     drawShown(state);

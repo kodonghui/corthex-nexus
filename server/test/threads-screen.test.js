@@ -22,7 +22,7 @@ import { localGate, startServer } from './support.js';
 
 // The modules that import ./layout.js load once screen-page.js has taught the import where the server serves it from.
 const { WORKBENCH_WORDS } = await import('../web/workbench.js');
-const { THREAD_WORDS, countOf, draftKey, goneName, hashOf } = await import('../web/threads.js');
+const { THREAD_WORDS, countOf, draftKey, goneName, hashOf, refreshAfterClose, threadsOpened } = await import('../web/threads.js');
 
 const P = 'reading-club';
 const NOW = Date.now();
@@ -540,6 +540,55 @@ describe('SCR-145 threads', () => {
       await page.settle();
       assert.equal(shownThread(page).getAttribute('aria-label'), THREAD_WORDS.whole);
       assert.ok(rowsOf(page).some(([name, state]) => name === 'agent_credentials' && state === THREAD_WORDS.resolved));
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a close racing resolution supersedes an older read of the same thread', async () => {
+    for (const oldFirst of [true, false]) {
+      const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+      const open = threadOf('erd', original);
+      const resolved = threadOf('erd', original, { state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true, closed_at: ago(0) });
+      const realFetch = globalThis.fetch;
+      const responses = [];
+      globalThis.fetch = () => new Promise((resolve) => responses.push(resolve));
+      const state = {
+        ctx: { address: {}, data: { diagram: { id: ID.erd, project: P, threads: [{ ...original }] } }, shell: {} },
+        threads: { shown: T.mine, thread: open, failed: null, seq: 0, choose: false, boxes: null },
+      };
+      try {
+        threadsOpened(state, { live: () => true, choose: () => {}, notice: () => {} });
+        const newer = refreshAfterClose(state, T.mine);
+        assert.equal(responses.length, 2);
+        if (oldFirst) { responses[0](json(200, open)()); await new Promise((resolve) => setTimeout(resolve, 10)); responses[1](json(200, resolved)()); }
+        else { responses[1](json(200, resolved)()); await newer; responses[0](json(200, open)()); }
+        await newer;
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        assert.equal(state.threads.thread.resolved, true);
+        assert.equal(state.ctx.data.diagram.threads[0].resolved, true);
+      } finally {
+        globalThis.fetch = realFetch;
+      }
+    }
+  });
+
+  test('a racing close refreshes a shown thread even without a list brief', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const open = threadOf('erd', original, { target: 'diagram', element: null, item: '' });
+    const resolved = threadOf('erd', original, { target: 'diagram', element: null, item: '', state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true, closed_at: ago(0) });
+    let closed = false;
+    const page = await openStage('erd', {
+      search: `?d=${ID.erd}&thread=${T.mine}`,
+      more: { [diagramPath('erd')]: json(200, diagramOf('erd', { threads: BRIEFS.erd.filter((brief) => brief.id !== T.mine) })) },
+      answers: (path) => path === threadPath(T.mine) ? json(200, closed ? resolved : open) : undefined,
+      posts: () => { closed = true; return json(200, { thread: { id: T.mine, state: 'closed', waits_on: null, closed_by: 'reflection', last_at: ago(0) }, changed: false })(); },
+    });
+    try {
+      buttonOf(shownThread(page), THREAD_WORDS.close).click();
+      await page.settle();
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.resolved]);
+      assert.ok(buttonOf(shownThread(page), THREAD_WORDS.reopen));
     } finally {
       page.close();
     }
