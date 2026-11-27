@@ -355,7 +355,7 @@ function zoomControls(state) {
   const value = h('output', { 'aria-live': 'off', 'aria-label': '그림 배율' });
   const announcement = h('span', { class: 'sr-only', 'aria-live': 'polite' });
   const notice = h('span', { role: 'status' });
-  const readable = h('button', { class: 'btn tertiary', type: 'button', on: { click: () => changeZoom(state, 1) } }, '글자 크게 보기');
+  const readable = h('button', { class: 'btn tertiary zoom-readable', type: 'button', on: { click: () => changeZoom(state, 1) } }, '글자 크게 보기');
   const hint = h('span', { class: 'small' }, state.ctx.shell.isPhone()
     ? '작게 본 그림은 원하는 곳을 두 번 누르거나 두 손가락을 벌리면 커져요.' : '작게 본 그림은 원하는 곳을 두 번 누르면 커져요.');
   const fit = h('button', { class: 'btn tertiary', type: 'button', on: { click: () => {
@@ -405,8 +405,6 @@ function updateZoomControls(state) {
   if (increase.disabled && focused === increase) decrease.focus();
   if (readable.hidden && focused === readable) increase.focus();
   value.textContent = `${Math.round(state.zoom * 1000) / 10}%`;
-  clearTimeout(state.zoomAnnouncement);
-  state.zoomAnnouncement = setTimeout(() => { state.zoomUI.announcement.textContent = `그림 배율 ${value.textContent}`; }, 250);
 }
 
 function changeZoom(state, wanted, x, y) {
@@ -426,6 +424,8 @@ function changeZoom(state, wanted, x, y) {
   box.scrollLeft = left;
   box.scrollTop = top;
   updateZoomControls(state);
+  clearTimeout(state.zoomAnnouncement);
+  state.zoomAnnouncement = setTimeout(() => { state.zoomUI.announcement.textContent = `그림 배율 ${state.zoomUI.value.textContent}`; }, 250);
 }
 
 // A mockup's tokens (SPEC-009), each chosen like any element, with a swatch of its first value when that is a colour.

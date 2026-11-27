@@ -294,6 +294,7 @@ button.step{color:inherit;cursor:pointer}
 .wb-picture .boardbox{touch-action:pan-x pan-y}
 @media (min-width:1056px), (pointer:fine){.wb-picture .boardbox .stk,.wb-picture .boardbox .tbl,.wb-picture .boardbox .scr,.wb-picture .boardbox .fbox{touch-action:none}}
 .zoom-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.zoom-controls .zoom-readable[hidden]{display:inline-block!important;visibility:hidden}
 .zoom-controls output{min-width:4em;text-align:center}
 .zoom-controls .btn:disabled{background:var(--button-disabled);color:var(--text-on-color-disabled);border-color:transparent;cursor:not-allowed}
 .pic-wrap{position:relative;width:max-content}

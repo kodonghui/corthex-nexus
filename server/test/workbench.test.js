@@ -231,6 +231,21 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('redrawing a picture without changing zoom does not announce a new zoom', async () => {
+    const page = await openStage('sitemap');
+    try {
+      page.shell.redraw();
+      await delay(300);
+      assert.equal(pictureBox(page).all('span', 'sr-only')[0].textContent, '');
+      pictureBox(page).all('div', 'zoom-controls')[0].all('button')[1].click();
+      await delay(300);
+      assert.equal(pictureBox(page).all('span', 'sr-only')[0].textContent, '그림 배율 110%');
+      page.shell.redraw();
+      await delay(300);
+      assert.equal(pictureBox(page).all('span', 'sr-only')[0].textContent, '');
+    } finally { page.close(); }
+  });
+
   test('fit remeasures after a newly visible reading button wraps the controls', async () => {
     const page = await openStage('sitemap');
     const previousHeight = globalThis.innerHeight;
