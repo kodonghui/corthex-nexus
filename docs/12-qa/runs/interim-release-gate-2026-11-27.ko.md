@@ -2,7 +2,7 @@
 
 [English](interim-release-gate-2026-11-27.md)
 
-추천은 첫 그룹을 포함해 **no-go**다. 이는 QA 계획과 로컬 검증의 임시 판정이며 릴리스 커밋의 게이트는 아니다. [QA 초안 PR 166](https://github.com/kodonghui/corthex-nexus/pull/166)의 커밋 `5d7184b`에 있는 계획의 243개 케이스는 당시 pass 206, not run 36, blocked 1이었다. 이후 GitHub OAuth의 `workflow` 권한이 추가돼 PR 167의 hub 워크플로 변경을 푸시할 수 있게 됐고 TC-221이 hub `1becbab`을 쓴 NEXUS PR 167 커밋 `6145f53`에서 예비 통과하고 `e95fdbd`와 `fc621d3`에서 다시 통과했다. 이후 PR head `657ef23`의 GitHub 실행 46012385489에서 새 `e6b46ac` 고정의 source-path 검사도 통과했으며 최종 고정 head에서 다시 확인해야 한다. 그 PR이 병합 전이어서 TC-221은 미실행으로 두며 QA PR 166의 커밋 `71bc506` 기준 현재 pass 206, not run 37, blocked 0이다. 다수의 pass는 이전 커밋의 증거이므로 릴리스 커밋에서 다시 확인해야 한다. waiver는 없다. 제안된 S2/P1 BUG-008이 열려 게이트를 막으며 S3 발견 사항 5건 BUG-002~005와 BUG-007이 [QA 버그 파일](../bugs/)에서 열려 있다. BUG-001은 PR 165에서 수정·병합됐고 QA 초안 커밋 `bc3a3d0`에 반영됐다.
+추천은 첫 그룹을 포함해 **no-go**다. 이는 QA 계획과 로컬 검증의 임시 판정이며 릴리스 커밋의 게이트는 아니다. [QA 초안 PR 166](https://github.com/kodonghui/corthex-nexus/pull/166)의 커밋 `5d7184b`에 있는 계획의 243개 케이스는 당시 pass 206, not run 36, blocked 1이었다. GitHub OAuth의 `workflow` 권한이 추가돼 PR 167의 hub 워크플로 변경을 푸시할 수 있게 됐고 TC-221이 hub `1becbab`을 쓴 NEXUS PR 167 커밋 `6145f53`에서 예비 통과하고 `e95fdbd`와 `fc621d3`에서 다시 통과했다. 이후 PR head `657ef23`의 GitHub 실행 46012385489에서 새 `e6b46ac` 고정의 source-path 검사도 통과했으며 최종 고정 head에서 다시 확인해야 한다. 그 PR이 병합 전이어서 TC-221은 미실행으로 두며 QA PR 166의 커밋 `71bc506` 기준 현재 pass 206, not run 37, blocked 0이다. 다수의 pass는 이전 커밋의 증거이므로 릴리스 커밋에서 다시 확인해야 한다. waiver는 없다. 제안된 S2/P1 BUG-008이 열려 게이트를 막으며 S3 발견 사항 5건 BUG-002~005와 BUG-007이 [QA 버그 파일](../bugs/)에서 열려 있다. BUG-001은 PR 165에서 수정·병합됐고 QA 초안 커밋 `bc3a3d0`에 반영됐다.
 
 ## 차단 항목
 
