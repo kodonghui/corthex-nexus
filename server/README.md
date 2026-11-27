@@ -1137,7 +1137,8 @@ The page reads `?d=` and `?thread=` as given, and the screen decides what they n
 | File | What it does |
 | --- | --- |
 | `src/pages.js` | Answers a GET of a path outside `/api` (see [security](#security-of-the-pages)). `pages` of `createApp` turns it on, and `src/main.js` gives it. |
-| `web/shell.html` | The one page, with the styles, `theme.js`, `main.js` and `<div id="app">`. |
+| `web/shell.html` | The one page, with styles, scripts, the app root and the startup and recovery notices. |
+| `web/recovery.js` | The stable unversioned bootstrap that reports versioned asset failures and offers a reload. |
 | `web/theme.js` | A classic script that sets `data-theme` before the page is first drawn. It uses the theme stored in `localStorage` `nexus-theme`, or else follows the system. |
 | `web/main.js` | Reads the address and starts the shell with its screen, or with the 404 screen. |
 | `web/shell.js` | The shell: the header, the stage tabs, the shared states and the read time. |
@@ -1246,7 +1247,7 @@ The fonts are IBM Plex Sans KR (release `@ibm/plex-sans-kr@1.1.0`) and IBM Plex 
 - **Headers.** Every page answer carries:
   - `Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; require-trusted-types-for 'script'`. It loads nothing from another site and runs no inline script or style. Its one frame is the stage-09 mockup page (API-293), whose own answer makes it a sandbox with no NEXUS origin; a mockup that opens another site's page in its frame is refused.
   - `X-Content-Type-Options: nosniff`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`.
-  - `Cache-Control: no-store`. The fonts are the one exception: their path names their release, so they get `private, max-age=31536000, immutable`.
+  - HTML and the legacy unversioned files use `Cache-Control: no-store`. The shell names JS and CSS under a private, immutable versioned path. Its SHA-256 covers the versioned JS and CSS files including the shared layout and generated messages; changing any one gives the whole module graph a new path. Old version paths answer 404 after a restart with different files, so a page using versioned paths cannot silently load a new module. Legacy unversioned paths can still mix releases and stay available for older clients. The small unversioned recovery script is privately cached for 60 seconds, reports versioned script or stylesheet failures and offers a reload; the static fallback also offers a reload if that script cannot run. Fonts keep their release-named private immutable paths. API and mockup cache rules are unchanged. `test/pages.test.js` checks the versioned bytes, headers and stale paths.
 - **Text only.** The scripts build every element from text (`textContent` and attribute values). They never parse markup and never touch an element's `style`; the project menu is placed by CSS alone, and a picture's boxes and lines by SVG attributes. A test checks the scripts for both.
 - **Reads and writes.** The page reads and writes the API only:
   - from its own site, with its own cookies;
