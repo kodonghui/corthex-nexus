@@ -1137,7 +1137,8 @@ TASK-454(SPEC-048, SPEC-051)는 소유자가 여는 페이지의 틀이에요. [
 | 파일 | 하는 일 |
 | --- | --- |
 | `src/pages.js` | `/api` 밖 경로의 GET에 응답해요([보안](#페이지의-보안) 참고). `createApp`의 `pages`로 켜고, `src/main.js`가 넘겨요. |
-| `web/shell.html` | 유일한 페이지예요. 스타일, `theme.js`, `main.js`, `<div id="app">`이 들어 있어요. |
+| `web/shell.html` | 유일한 페이지예요. 스타일과 스크립트, 앱을 그릴 곳, 시작과 복구 안내가 들어 있어요. |
+| `web/recovery.js` | 버전 없는 고정 스크립트예요. 버전 파일이 실패하면 알리고 새로고침을 안내해요. |
 | `web/theme.js` | 페이지를 처음 그리기 전에 `data-theme`을 정하는 classic 스크립트예요. `localStorage`의 `nexus-theme`에 저장된 테마를 쓰고, 없으면 시스템 테마를 따라요. |
 | `web/main.js` | 주소를 읽고 그 화면으로, 또는 404 화면으로 셸을 시작해요. |
 | `web/shell.js` | 셸이에요. 헤더, 단계 탭, 공통 상태, 읽은 시각을 맡아요. |
@@ -1246,7 +1247,7 @@ python tests/test_tokens_css.py --write
 - **헤더.** 페이지 응답마다 다음 헤더가 붙어요.
   - `Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; require-trusted-types-for 'script'`. 다른 사이트에서 아무것도 불러오지 않고, 인라인 스크립트와 스타일도 실행하지 않아요. 프레임은 09단계 목업 페이지(API-293) 하나뿐이고, 그 응답이 NEXUS의 출처가 없는 샌드박스로 만들어요. 목업이 프레임 안에서 다른 사이트의 페이지를 열면 거절돼요.
   - `X-Content-Type-Options: nosniff`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`.
-  - `Cache-Control: no-store`. 글꼴만 예외예요. 경로에 릴리스가 들어 있어서 `private, max-age=31536000, immutable`을 받아요.
+  - HTML과 버전 없는 기존 파일은 `Cache-Control: no-store`를 써요. 셸은 JS와 CSS를 비공개 불변 캐시가 가능한 버전 경로로 불러요. 버전 SHA-256에는 공유 레이아웃과 생성 메시지를 포함한 버전 경로의 JS와 CSS가 들어가므로 하나라도 바뀌면 모듈 전체의 경로가 바뀌어요. 파일이 바뀐 뒤 서버를 재시작하면 이전 버전 경로는 404라 버전 경로를 쓰는 페이지가 새 모듈을 조용히 섞어 읽지 않아요. 이전 클라이언트를 위한 버전 없는 경로에서는 릴리스가 섞일 수 있어요. 버전 없는 작은 복구 스크립트는 비공개로 60초 동안 캐시하고, 버전 스크립트나 스타일시트 로딩 실패를 알리고 새로고침을 안내해요. 복구 스크립트도 실행되지 않으면 HTML의 기본 안내에서 새로고침할 수 있어요. 글꼴은 릴리스가 들어간 비공개 불변 경로를 유지하고 API와 목업의 캐시 규칙은 바꾸지 않아요. `test/pages.test.js`가 버전 경로의 내용과 헤더, 이전 경로를 확인해요.
 - **텍스트만.** 스크립트는 모든 요소를 텍스트(`textContent`와 속성 값)로 만들어요. 마크업을 해석하지 않고 요소의 `style`도 건드리지 않아요. 프로젝트 메뉴의 위치도 CSS만으로, 그림의 박스와 선의 위치는 SVG 속성으로 정해요. 테스트가 스크립트에서 두 가지를 모두 확인해요.
 - **읽기와 쓰기.** 페이지는 API를 다음처럼만 읽고 써요.
   - 자기 사이트에서, 자기 쿠키로 읽어요.
