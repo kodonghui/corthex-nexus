@@ -590,6 +590,7 @@ function pointerdown(state, element, event) {
     node.addEventListener('pointermove', (move) => dragged(state.drags.get(node), move));
     node.addEventListener('pointerup', (up) => dropped(state, node, up));
     node.addEventListener('pointercancel', () => cancelled(state, node));
+    node.addEventListener('lostpointercapture', () => cancelled(state, node));
   }
   state.drags.set(node, drag);
   state.dragNode = node;
@@ -735,6 +736,7 @@ async function send(state, key, kept) {
     const keep = outcome.failure === 'timeout' || outcome.failure === 'network' ? { key: requestKey, at, before } : null;
     if (keep === null && before && !state.before.has(key)) state.before.set(key, before);
     fill(state.moveNotice, state.ctx.shell.errorNotice(outcome, () => {
+      if (state.sending.has(key)) return;
       fill(state.moveNotice);
       send(state, key, keep);
     }));

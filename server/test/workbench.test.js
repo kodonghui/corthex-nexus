@@ -357,6 +357,22 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('losing pointer capture cancels the drag and re-enables undo', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const button = buttonNamed(page, 'tbl', table.name);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('lostpointercapture');
+      button.dispatch('keydown', { key: 'z', ctrlKey: true });
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.ok(page.sent[1].body.expected);
+    } finally { page.close(); }
+  });
+
   test('a removed diagram does not accept the undo shortcut after reload', async () => {
     let removed = false;
     const page = await openStage('erd', { more: { [diagramPath('erd')]: () => json(200, diagramOf('erd', { removed }))() } });
@@ -872,6 +888,34 @@ describe('SCR-145 pictures', () => {
     } finally {
       page.close();
     }
+  });
+
+  test('double retry of a failed move does not queue an untracked save', async () => {
+    let attempts = 0, release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: (body) => {
+      attempts += 1;
+      if (attempts === 1) return new TypeError('Failed to fetch');
+      if (attempts === 2) return held.then(() => new TypeError('Failed to fetch'));
+      return movedAnswer('erd')(body);
+    } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const retry = page.app.all('div', 'wb-notice')[0].all('button')[0];
+      retry.click(); retry.click();
+      await delay(30);
+      assert.equal(page.sent.length, 2);
+      release();
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      page.app.all('div', 'wb-notice')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent.length, 3);
+      assert.equal(page.sent[2].key, page.sent[0].key);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, false);
+    } finally { release(); page.close(); }
   });
 
   test('different boxes do not start competing saves before the first is settled', async () => {
