@@ -36,6 +36,8 @@ Run V: on product and test commit `b68c73e`, GitHub Actions run 45992085399 pass
 
 Run W: on product and test commit `4b163ee`, GitHub Actions run 45993850825 passed the Python suite with hub e410ce9, the Node 24 server suite and `all-checks`, including the then-current TC-215 to TC-220 tests and fixture. Recheck subsequent changes on their new commit.
 
+Run X: on product and test commit `b8a38ff`, GitHub Actions run 45998760999 passed the Python suite with hub e410ce9, the Node 24 server suite and `all-checks`, including the then-current TC-215 to TC-220 tests and fixture.
+
 ### 1.2 Runs as
 
 | Runs as | Here |
@@ -525,7 +527,7 @@ Historical release gate at fd85323: 21 blocking items (TC-037, TC-038, TC-097, T
 
 These counts are at commit fd85323. The gate is applied again on the release commit before the go/no-go checkpoint: every blocking item there needs a pass, or the maintainer's recorded waiver of that named item. The gate cases that need the deployed v3 (TC-037, TC-038, TC-097 and TC-205 to TC-212) cannot pass before a deploy, and some need days of time. At the go/no-go checkpoint they are asked as a go for a first group only. TASK-464 deploys v3 to its new address while v2 keeps serving, so that deploy is the first group. TASK-464's "The stage-12 release gate passed first" is met when the gate's other blocking items pass and that go is given. The wider release, turning v2 off, waits until each of these cases passes; a failure or a missed signal holds it and opens a bug. Run L skipped two file-mode tests, a backup's and the store's, because Windows keeps no POSIX file mode; both pass in run C, on Linux. At fd85323 no case failed. The one then-open bug, BUG-001 (S3), is a race in a test, not a fault of the product, and does not block the release.
 
-Interim status (runs T through W, the TC-221 pin runs and this documentation update): of 243 planned cases, 206 are pass, 37 not run and 0 blocked. Of 19 gate cases without a pass, 11 are deploy-path cases following the first-group procedure above; the other eight, TC-225, TC-226, TC-227, TC-230, TC-231, TC-233, TC-234 and TC-235, also block the first group. There are 18 non-gate risks and no waivers. The deployment-reported [BUG-008](https://github.com/kodonghui/corthex-nexus/pull/169) is open with proposed severity S2/P1 and blocks the gate. S3 defects BUG-002 to BUG-005 and BUG-007 are open; BUG-001 is fixed by merged PR 165. This is not the final gate on a release commit: many existing passes cite earlier commits, and the latest head and screen flows still need verification.
+Interim status (runs T through X, the TC-221 pin runs and this documentation update): of 243 planned cases, 206 are pass, 37 not run and 0 blocked. Of 19 gate cases without a pass, 11 are deploy-path cases following the first-group procedure above; the other eight, TC-225, TC-226, TC-227, TC-230, TC-231, TC-233, TC-234 and TC-235, also block the first group. There are 18 non-gate risks and no waivers. The deployment-reported [BUG-008](https://github.com/kodonghui/corthex-nexus/pull/169) is open with proposed severity S2/P1 and blocks the gate. S3 defects BUG-002 to BUG-005 and BUG-007 are open; BUG-001 is fixed by merged PR 165. This is not the final gate on a release commit: many existing passes cite earlier commits, and the latest head and screen flows still need verification.
 
 ## 6. Bugs
 
