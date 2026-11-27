@@ -757,6 +757,7 @@ async function runHistory(state, redo, retryKey = null) {
     history.undo.length = 0; history.redo.length = 0; history.busy = false;
     fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, '이동을 처리하지 못해 이동 기록을 지웠어요. 그림을 다시 확인해 주세요.'));
     updateHistoryControls(state);
+    updateMoveTargets(state);
     return;
   }
   if (outcome.failure === 'timeout' || outcome.failure === 'network' || outcome.failure === 'answer' || outcome.status >= 500) {
@@ -818,6 +819,15 @@ function movable(state, element) {
   return !state.phone && !state.history.busy && state.history.pendingWrites === 0 && !state.history.needsRefresh && state.failed.size === 0 && state.sending.size === 0
     && (state.pending.size === 0 || state.pending.has(element.key)) && !diagram.removed
     && MOVED_KINDS.has(diagram.kind) && !CONTAINERS.has(element.kind) && state.view.place.boxes.has(element.key);
+}
+
+// Update the existing targets without rebuilding the picture or moving keyboard focus.
+function updateMoveTargets(state) {
+  for (const element of state.ctx.data.diagram.elements ?? []) {
+    const node = state.view?.nodes.get(element.key);
+    if (movable(state, element)) node?.setAttribute('data-diagram-movable', '');
+    else node?.removeAttribute('data-diagram-movable');
+  }
 }
 
 const ARROWS = Object.freeze({ ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] });
@@ -993,13 +1003,7 @@ async function send(state, key, kept) {
     const now = state.moves.get(key);
     if (now !== undefined && now.x === at.x && now.y === at.y) state.moves.delete(key);
     fill(state.moveNotice);
-    if (state.sending.size === 0 && state.pending.size === 0 && state.failed.size === 0) {
-      for (const each of state.ctx.data.diagram.elements ?? []) {
-        const node = state.view.nodes.get(each.key);
-        if (movable(state, each)) node?.setAttribute('data-diagram-movable', '');
-        else node?.removeAttribute('data-diagram-movable');
-      }
-    }
+    if (state.sending.size === 0 && state.pending.size === 0 && state.failed.size === 0) updateMoveTargets(state);
   } else if (outcome.status === 400 && outcome.code === 'invalid_request') {
     state.moves.delete(key); state.before.delete(key); state.pending.delete(key); state.again.delete(key); state.failed.delete(key);
     store('sessionStorage', historyMark(state.diagram), null);

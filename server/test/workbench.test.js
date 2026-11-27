@@ -214,6 +214,25 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('a definitely rejected undo restores movable targets after a concurrent redraw', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: (body) => body.expected ? held.then(() => problem(409, 'request_key_reused')()) : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await delay(30);
+      page.shell.redraw();
+      await delay(30);
+      assert.equal(buttonNamed(page, 'tbl', table.name).getAttribute('data-diagram-movable'), null);
+      release();
+      await page.settle();
+      assert.equal(buttonNamed(page, 'tbl', table.name).getAttribute('data-diagram-movable'), '');
+    } finally { release(); page.close(); }
+  });
+
   test('an interrupted uncertain undo keeps its marker through a failed recovery read', async () => {
     let release, recovering = false, reads = 0;
     const held = new Promise((resolve) => { release = resolve; });
