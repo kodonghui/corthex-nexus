@@ -261,6 +261,8 @@ async function readThread(state, id) {
   if (!t.host.live() || state.ctx.data.diagram !== diagram) return;
   const showing = seq === t.seq && t.shown === id;
   if (outcome.status === 200 && outcome.body.diagram === diagram.id) {
+    t.readResults ??= new Map();
+    t.readResults.set(id, generation);
     brief(state, id, outcome.body, 0, true);
     if (!showing) { drawList(state); return; }
     const choose = t.choose;
@@ -274,7 +276,7 @@ async function readThread(state, id) {
     }
   } else if (outcome.status === 200 || (outcome.status === 404 && outcome.code === 'thread_not_found')) {
     diagram.threads = (diagram.threads ?? []).filter((each) => each.id !== id);
-    if (diagram.removed && !diagram.threads.some((each) => each.state === 'open')) { t.host.reload('instead'); return; }
+    if (showing && diagram.removed && !diagram.threads.some((each) => each.state === 'open')) { t.host.reload('instead'); return; }
     if (!showing) { drawList(state); return; }
     t.choose = false;
     t.thread = null;
@@ -331,7 +333,7 @@ export async function refreshAfterClose(state, id) {
       drawShown(state);
     }
     drawList(state);
-    if (diagram.removed && !(diagram.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
+    if (showing && diagram.removed && !(diagram.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
     return;
   }
   if (outcome.status !== 200) {
@@ -342,10 +344,19 @@ export async function refreshAfterClose(state, id) {
     }
     return;
   }
+  t.readResults ??= new Map();
+  t.readResults.set(id, generation);
   brief(state, id, outcome.body, 0, true);
   if (showing) {
     t.thread = outcome.body;
     t.failed = null;
+    const choose = t.choose;
+    t.choose = false;
+    const key = outcome.body.element;
+    if (choose && key !== null && state.names.has(key)) {
+      t.host.choose(key);
+      return;
+    }
     drawShown(state);
   }
   drawList(state);
@@ -590,20 +601,20 @@ function replyOf(state, id, text) {
       let summary = answer.thread;
       if (t.thread?.id === id) {
         const last = t.thread.entries.at(-1);
-        const newer = last && (last.seq > answer.entry.seq || (last.seq === answer.entry.seq && t.thread.state === 'closed'));
+        const newer = last && last.seq >= answer.entry.seq;
         if (!t.thread.entries.some((entry) => entry.seq === answer.entry.seq)) {
           t.thread.entries.push(answer.entry);
           t.thread.entries.sort((left, right) => left.seq - right.seq);
         }
         if (!newer) Object.assign(t.thread, summaryOf(answer.thread));
         else summary = t.thread;
-      } else if (listed?.state === 'closed' && answer.thread.state === 'open'
-          && Date.parse(listed.last_at) >= Date.parse(answer.thread.last_at)) {
+      } else if (listed && listed.entries >= answer.entry.seq) {
         summary = listed;
       }
-      const added = listed && listed.entries >= answer.entry.seq ? 0 : 1;
+      const added = listed ? Math.max(0, answer.entry.seq - listed.entries) : 0;
       brief(state, id, summary, added);
       if (t.shown === id && (t.thread === null || pendingRead)) readThread(state, id);
+      else if (pendingRead) refreshAfterClose(state, id);
       keepText(state, `reply ${id}`, '');
       drawList(state);
       drawShown(state);
@@ -616,12 +627,14 @@ function replyOf(state, id, text) {
 // stage's first diagram opens in its place (SPEC-027).
 function closeOf(state, id, reopen = false) {
   const diagram = state.ctx.data.diagram;
+  const startedAt = state.threads.readGeneration ?? 0;
   return {
     path: `${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}/${reopen ? 'reopen' : 'close'}`,
     body: {},
     done: (answer) => {
       const t = state.threads;
       const pendingRead = t.reads?.has(id) === true;
+      const readSinceWrite = (t.readResults?.get(id) ?? 0) > startedAt;
       if (t.thread?.id === id) {
         Object.assign(t.thread, summaryOf(answer.thread));
         if (reopen) delete t.thread.resolved;
@@ -633,7 +646,9 @@ function closeOf(state, id, reopen = false) {
       const now = state.ctx.data.diagram;
       if (!reopen && now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
       else if (!reopen && answer.thread.state === 'closed' && answer.thread.closed_by === 'reflection') refreshAfterClose(state, id);
+      else if (readSinceWrite) refreshAfterClose(state, id);
       else if (t.shown === id && (t.thread === null || pendingRead)) readThread(state, id);
+      else if (pendingRead) refreshAfterClose(state, id);
     },
   };
 }
