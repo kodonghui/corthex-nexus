@@ -21,4 +21,6 @@ SSH 루프백 터널을 통해 브라우저에서 임시 v3 서버를 점검했�
 
 계획은 적용되는 모든 전이·역할·너비의 캡처와 데이터 확인을 요구하므로 위 이 부분 점검에서 적용되는 짝별 조합까지 전이별 증거를 완성했다고 판정한 화살표는 TC-225 0/13, TC-226 0/16, TC-227 0/19, TC-230 0/16, TC-231 0/16, TC-233 0/7, TC-234 0/9, TC-235 0/9이다. 위에 적은 개별 동작과 데이터 확인은 수행했지만, 전이별 완전한 증거를 구성하지 않아 보수적으로 셌다.
 
+TC-226의 추가 역할 캡처: 소유자 [1440](evidence/aside-local-2026-11-27/tc226-role-1440_owner.png), [360](evidence/aside-local-2026-11-27/tc226-role-360_owner.png); 만료 [1440](evidence/aside-local-2026-11-27/tc226-role-1440_expired.png), [360](evidence/aside-local-2026-11-27/tc226-role-360_expired.png); 로그인 없음 [1440](evidence/aside-local-2026-11-27/tc226-role-1440_none.png), [360](evidence/aside-local-2026-11-27/tc226-role-360_none.png). 강제 실패 복구: [1440](evidence/aside-local-2026-11-27/tc226-network-1440_recovered.png), [360](evidence/aside-local-2026-11-27/tc226-network-360_recovered.png).
+
 여덟 케이스는 릴리스 게이트에서 모두 **not run**이다. 시험 게이트는 실제 Access 로그인 흐름이 아니고 브라우저 fetch 거부는 물리적인 연결 단절이 아니다. 이번 실행에서 새로 확정된 제품 결함은 없다. 기존 백업 안내 불일치는 [BUG-005](../bugs/BUG-005.ko.md)에 남아 있다. 선택 단계인 AI 탐색 테스트는 실행하지 않았다.
