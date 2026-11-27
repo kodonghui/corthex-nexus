@@ -288,6 +288,33 @@ describe('SCR-145 pictures', () => {
     }
   });
 
+  test('fit grows a tiny picture before remeasuring when the page cannot scroll yet', async () => {
+    const page = await openStage('sitemap');
+    const previousHeight = globalThis.innerHeight;
+    try {
+      globalThis.innerHeight = 800;
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      const buttons = area.all('div', 'zoom-controls')[0].all('button');
+      Object.assign(board, { clientWidth: 1000, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      for (let n = 0; n < 30; n += 1) buttons[0].click();
+      assert.equal(area.all('output')[0].textContent, '1%');
+      let top = 300;
+      board.getBoundingClientRect = () => ({ left: 0, top });
+      buttons[2].getBoundingClientRect = () => ({ top: top - 80 });
+      buttons[2].scrollIntoView = () => { top = Math.min(300, 800 - 26 - Number(svg.getAttribute('height'))); };
+      buttons[2].click();
+      assert.ok(Number.parseFloat(area.all('output')[0].textContent) > 100);
+      assert.ok(Number(svg.getAttribute('height')) <= 800 - top - 26);
+      assert.equal(page.sent.length, 0);
+    } finally {
+      if (previousHeight === undefined) delete globalThis.innerHeight;
+      else globalThis.innerHeight = previousHeight;
+      page.close();
+    }
+  });
+
   test('an uncancellable pan asks for a fresh pinch instead of mixing gestures', async () => {
     const page = await openStage('sitemap');
     try {

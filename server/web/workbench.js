@@ -386,16 +386,20 @@ function zoomControls(state) {
     const { box, size } = state.view;
     // The box shrinks with the picture; use the available viewport rather than its current height when fitting again.
     fit.scrollIntoView?.({ block: 'start', inline: 'nearest' });
-    const available = () => {
-      const top = Math.max(0, box.getBoundingClientRect?.().top ?? 0);
+    const available = (top = Math.max(0, box.getBoundingClientRect?.().top ?? 0)) => {
       const metrics = boxMetrics(box);
       return { width: Math.max(1, box.clientWidth - metrics.horizontalPadding),
         height: Math.max(1, Math.min(metrics.maxHeight, (globalThis.innerHeight ?? 674) - top) - metrics.vertical) };
     };
-    let space = available();
+    // A tiny picture may leave too little page height for the controls to scroll to the top.
+    // Enlarge provisionally for the space below those controls, then scroll and measure the real space.
+    const boxTop = box.getBoundingClientRect?.().top ?? 0;
+    const controlTop = fit.getBoundingClientRect?.().top ?? 0;
+    let space = available(Math.max(0, boxTop - Math.max(0, controlTop)));
     let fitted = fitZoom(size.width, size.height, space.width, space.height);
     changeZoom(state, fitted, 0, 0);
-    // A scale below 100% reveals the readable-size button, which can wrap the controls and move the picture down.
+    fit.scrollIntoView?.({ block: 'start', inline: 'nearest' });
+    // A scale below 100% can reveal controls and move the picture down; use its actual position.
     space = available();
     fitted = fitZoom(size.width, size.height, space.width, space.height);
     changeZoom(state, fitted, 0, 0);
