@@ -176,7 +176,8 @@ describe('after a drawing', () => {
     await space.push({ tables });
     const erdNow = diagram(space, ERD);
     const asked = rows.thread(erdNow, { elementKey: 'TBL-147' });
-    const proposal = rows.changeSet(space, erdNow, { origin: 'proposal', threadId: asked, state: 'accepted' });
+    const proposal = rows.changeSet(space, erdNow, { origin: 'proposal', threadId: asked, state: 'accepted', detail: { change: 'Rename the table' } });
+    rows.comment(asked, { body: 'Rename the table' });
     rows.change(proposal, { op: 'rename', element: 'TBL-147', name: 'project_spaces' });
     const edit = rows.changeSet(space, erdNow);
     const other = rows.changeSet(space, erdNow);
@@ -228,17 +229,43 @@ describe('after a drawing', () => {
     await space.push({ tables });
     const current = diagram(space, ERD);
     const thread = rows.thread(current, { elementKey: 'TBL-146' });
+    const proposalAt = '2026-11-24T01:00:30.000Z';
     const proposal = rows.changeSet(space, current, {
-      origin: 'proposal', threadId: thread, state: 'accepted', decidedAt: '2026-11-24T01:00:40.000Z',
+      origin: 'proposal', threadId: thread, state: 'accepted', at: proposalAt,
+      detail: { change: 'Keep the agreed name' }, decidedAt: '2026-11-24T01:00:40.000Z',
     });
     rows.change(proposal, { op: 'rename', element: 'TBL-146', name: 'agent_credentials' });
-    rows.comment(thread, { author: 'owner', body: 'What happens after this change?', at: '2026-11-24T01:00:30.000Z' });
+    rows.comment(thread, { body: 'Keep the agreed name', at: proposalAt });
+    rows.comment(thread, { author: 'owner', body: 'What happens after this change?', at: proposalAt });
     const pull = rows.pullRequest(space, { number: 91, state: 'merged' });
     rows.setChangeSet(proposal, { pullRequestId: pull });
     const merge = newCommit();
     db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(merge, pull);
     await space.push({ tables, commit: merge });
     assert.equal(threadRow(thread).state, 'open');
+  });
+
+  test('multiple handled proposals can resolve when the later reflected change replaces the first', async () => {
+    const space = project('multiple-reflected');
+    await space.push({ tables: [table('TBL-146', 'start')] });
+    const current = diagram(space, ERD);
+    const thread = rows.thread(current, { elementKey: 'TBL-146', at: '2026-11-23T01:00:00.000Z' });
+    const pull = rows.pullRequest(space, { number: 92, state: 'merged' });
+    const firstAt = '2026-11-23T01:01:00.000Z';
+    const secondAt = '2026-11-23T01:02:00.000Z';
+    const first = rows.changeSet(space, current, { origin: 'proposal', threadId: thread, state: 'accepted', pullRequestId: pull,
+      at: firstAt, decidedAt: firstAt, detail: { change: 'First proposal' } });
+    const second = rows.changeSet(space, current, { origin: 'proposal', threadId: thread, state: 'accepted', pullRequestId: pull,
+      at: secondAt, decidedAt: secondAt, detail: { change: 'Second proposal' } });
+    rows.comment(thread, { body: 'First proposal', at: firstAt });
+    rows.comment(thread, { body: 'Second proposal', at: secondAt });
+    rows.change(first, { op: 'rename', element: 'TBL-146', name: 'middle' });
+    rows.change(second, { op: 'rename', element: 'TBL-146', name: 'final' });
+    const merge = newCommit();
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(merge, pull);
+    await space.push({ tables: [table('TBL-146', 'final')], commit: merge });
+    assert.equal(threadRow(thread).state, 'closed');
+    assert.equal(Number(db.prepare("SELECT count(*) AS n FROM thread_resolution_events WHERE thread_id = ? AND event = 'resolved'").get(thread).n), 1);
   });
 
   test('a merged document that lacks a change is reflected anyway, and one comment on the diagram says what is missing (SPEC-025, note 26)', async () => {

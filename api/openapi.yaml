@@ -1973,7 +1973,7 @@ paths:
       x-corthex:
         id: API-255
         spec: [SPEC-014, SPEC-017, SPEC-028]
-        tables: [TBL-147, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-157, TBL-158, TBL-166, TBL-167, TBL-172]
+        tables: [TBL-147, TBL-148, TBL-149, TBL-150, TBL-151, TBL-152, TBL-153, TBL-155, TBL-156, TBL-157, TBL-158, TBL-166, TBL-167, TBL-172]
         release: Must
         family: agent
       security:

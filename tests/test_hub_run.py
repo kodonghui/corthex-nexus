@@ -265,6 +265,13 @@ class HubRunFixture(HubCheckoutCase):
 
 
 class HubRunTest(HubRunFixture):
+    def test_pinned_hub_sends_a_commit_record_link_without_a_new_field(self):
+        thread = self.first_push_and_comment()
+        self.owner_reply(thread)
+        link = "https://github.com/kodonghui/corthex-nexus/commit/" + self.commit
+        decided = self.read(self.session, "decide", PROJECT, thread, "--link", link, "--text", DECISION)
+        self.assertEqual((decided["entry"]["kind"], decided["entry"]["link"]), ("decision", link), decided)
+
     def test_each_command_gets_an_answer_the_hub_reads(self):
         first = self.commit
         thread = self.first_push_and_comment()

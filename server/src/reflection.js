@@ -31,6 +31,7 @@
 // (rule 5).
 
 import { addAgentEntry, openOwnThread } from './comments.js';
+import { INCOMPLETE_DRAWING, recordResolved } from './decision-evidence.js';
 import { TRACE_ID } from './drawer.js';
 import { changeSetsChanged, threadChanged } from './entries.js';
 import { LIMITS } from './limits.js';
@@ -58,15 +59,14 @@ function statementsOf(store) {
       currentDrawn: store.prepare("SELECT id FROM drawings WHERE diagram_id = ? AND status = 'drawn' ORDER BY id DESC LIMIT 1"),
       latestDrawing: store.prepare('SELECT max(id) AS id FROM drawings WHERE diagram_id = ?'),
       latestStatus: store.prepare('SELECT status FROM drawings WHERE diagram_id = ? ORDER BY id DESC LIMIT 1'),
-      incomplete: store.prepare("SELECT 1 FROM elements WHERE drawing_id = ? AND status IN ('unreadable', 'missing', 'left_out') LIMIT 1"),
+      incomplete: store.prepare(INCOMPLETE_DRAWING),
       reflect: store.prepare("UPDATE change_sets SET state = 'reflected', reflected_drawing_id = ? WHERE id = ? AND state = 'accepted'"),
       asking: store.prepare("SELECT 1 AS asking FROM change_sets WHERE thread_id = ? AND state IN ('proposed', 'accepted') LIMIT 1"),
-      latestComment: store.prepare('SELECT author, detail, created_at FROM comments WHERE thread_id = ? ORDER BY seq DESC LIMIT 1'),
-      threadSets: store.prepare("SELECT id, diagram_id, decided_at, created_at FROM change_sets WHERE thread_id = ? AND origin = 'proposal' AND state = 'reflected'"),
+      threadEntries: store.prepare('SELECT seq, author, body, created_at FROM comments WHERE thread_id = ? ORDER BY seq'),
+      threadSets: store.prepare("SELECT id, diagram_id, state, detail, created_at FROM change_sets WHERE thread_id = ? AND origin = 'proposal' AND state IN ('reflected', 'rejected', 'cancelled')"),
       closeThread: store.prepare(
         "UPDATE comment_threads SET state = 'closed', waits_on = NULL, closed_at = ?, closed_by = 'reflection' WHERE id = ? AND state = 'open'",
       ),
-      resolutionEvent: store.prepare("INSERT INTO thread_resolution_events (thread_id, event, detail, created_at) VALUES (?, 'resolved', ?, ? )"),
       // The change sets of a diagram that are accepted or reflected, in the order they were accepted (TASK-445).
       decided: store.prepare(
         `SELECT id, origin, state, drawing_id FROM change_sets WHERE diagram_id = ? AND state IN ('accepted', 'reflected')
@@ -241,21 +241,43 @@ export function reflectMerged(store, { project, commit, time }) {
   for (const thread of asked) {
     if (statements.asking.get(thread) !== undefined) continue;
     const proposals = statements.threadSets.all(thread);
-    const last = statements.latestComment.get(thread);
-    const earliestProposal = proposals.map((set) => set.created_at).sort()[0];
-    // A later entry may contain a new question; without an explicit answer we cannot
-    // prove that the whole conversation was settled by this proposal.
-    if (last !== undefined && last.created_at > earliestProposal) continue;
-    const verified = proposals.every((set) => {
+    if (proposals.length === 0) continue;
+    const entries = statements.threadEntries.all(thread);
+    const proposalSequences = new Set();
+    for (const set of proposals) {
+      const matches = entries.filter((entry) => entry.author === 'agent' && entry.created_at === set.created_at
+        && entry.body === JSON.parse(set.detail).change);
+      // Without an unambiguous proposal entry, the order of the conversation
+      // cannot be proved. Sequence, not timestamp, also handles simultaneous writes.
+      if (matches.length !== 1) break;
+      proposalSequences.add(Number(matches[0].seq));
+    }
+    if (proposalSequences.size !== proposals.length) continue;
+    const earliestProposal = Math.min(...proposalSequences);
+    const extra = entries.some((entry) => Number(entry.seq) > earliestProposal && !proposalSequences.has(Number(entry.seq)));
+    if (extra) continue;
+    const reflected = proposals.filter((set) => set.state === 'reflected');
+    const verified = reflected.length > 0 && reflected.every((set) => {
       const steps = statements.steps.all(set.id);
       const shown = diagrams.get(Number(set.diagram_id)).shown;
       const itemTable = statements.diagramKind.get(Number(set.diagram_id))?.kind === 'item_table';
+      const elements = elementsOf(statements, shown, cache);
+      const decided = statements.decided.all(set.diagram_id);
+      const index = decided.findIndex((row) => Number(row.id) === Number(set.id));
+      const shownOrReplaced = (step, position) => {
+        if (shows(step, elements, itemTable)) return true;
+        const later = [
+          ...steps.slice(position + 1).map((replacement) => ({ state: 'reflected', replacement })),
+          ...decided.slice(index + 1).flatMap((other) => statements.steps.all(other.id).map((replacement) => ({ state: other.state, replacement }))),
+        ].filter(({ replacement }) => replaces(replacement, step)).at(-1);
+        return later !== undefined && later.state === 'reflected' && shows(later.replacement, elements, itemTable);
+      };
       return statements.latestStatus.get(set.diagram_id)?.status === 'drawn' && !statements.incomplete.get(shown)
-        && steps.length > 0 && steps.every((step) => shows(step, elementsOf(statements, shown, cache), itemTable));
+        && index >= 0 && steps.length > 0 && steps.every(shownOrReplaced);
     });
     if (!verified) continue;
     if (statements.closeThread.run(time, thread).changes > 0) {
-      statements.resolutionEvent.run(thread, JSON.stringify({ change_sets: sets.filter((set) => Number(set.thread_id) === thread).map((set) => Number(set.id)) }), time);
+      recordResolved(store, { thread, detail: { change_sets: sets.filter((set) => Number(set.thread_id) === thread).map((set) => Number(set.id)) }, time });
       threadChanged(store, { project, thread, time });
     }
   }

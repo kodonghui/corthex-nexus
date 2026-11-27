@@ -6,18 +6,20 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { readDomainPicture } from '../src/domain-picture.js';
-import { confirmationsChanged } from '../src/entries.js';
+import { COMMENT_ROUTES } from '../src/comments.js';
+import { confirmationsChanged, threadChanged } from '../src/entries.js';
+import { idOf } from '../src/ids.js';
 import { snapshotRoutes } from '../src/snapshots.js';
 import { openStore } from '../src/store.js';
 import { seed } from './seed.js';
 import { FORMAT_03, newCommit, repositorySnapshot } from './snapshots.js';
-import { startServer } from './support.js';
+import { newId, startServer } from './support.js';
 
 test('a verified decision recorded on the same diagram keeps its confirmation', async () => {
   const folder = mkdtempSync(join(tmpdir(), 'nexus-record-test-'));
   const { db } = openStore(folder);
   const rows = seed(db);
-  const server = await startServer({ store: db, routes: snapshotRoutes() });
+  const server = await startServer({ store: db, routes: [...snapshotRoutes(), ...COMMENT_ROUTES] });
   const picture = JSON.parse(readFileSync(new URL('./ddd-board-picture.json', import.meta.url))).picture;
   picture.hotspots[0].state = 'open';
   picture.hotspots[0].answer = '';
@@ -27,6 +29,8 @@ test('a verified decision recorded on the same diagram keeps its confirmation', 
   picture.hotspots[2].answer = '';
   picture.hotspots[3].state = 'open';
   picture.hotspots[3].answer = '';
+  picture.hotspots[4].state = 'open';
+  picture.hotspots[4].answer = '';
   const first = newCommit();
   const next = newCommit();
   const push = async (commit, source, replaces) => {
@@ -41,18 +45,19 @@ test('a verified decision recorded on the same diagram keeps its confirmation', 
     const project = Number(db.prepare('SELECT id FROM project_spaces WHERE name = ?').get('verified-record').id);
     const diagram = Number(db.prepare("SELECT id FROM diagrams WHERE project_id = ? AND stage = '01-domain'").get(project).id);
     const drawing = Number(db.prepare('SELECT max(id) AS id FROM drawings WHERE diagram_id = ?').get(diagram).id);
+    const hotspot = (index) => db.prepare("SELECT element_key FROM elements WHERE drawing_id = ? AND kind = 'hotspot' AND json_extract(detail, '$.number') = ?").get(drawing, picture.hotspots[index].number).element_key;
     const time = '2026-11-27T10:00:00.000Z';
     const confirmation = rows.confirm({ id: project }, { id: diagram, drawing }, { at: time });
     const pass = rows.pass({ id: project }, '01-domain', { passedAt: '2026-11-27T10:00:30.000Z' });
     confirmationsChanged(db, { project, diagram, time });
     const decided = 'Record the previously approved answer.';
-    const thread = rows.thread({ id: diagram, drawing }, { target: 'diagram', body: decided, at: '2026-11-27T10:01:00.000Z' });
+    const thread = rows.thread({ id: diagram, drawing }, { elementKey: hotspot(0), body: decided, at: '2026-11-27T10:01:00.000Z' });
     rows.comment(thread, { body: decided, at: '2026-11-27T10:02:00.000Z' });
     const repository = db.prepare('SELECT repository FROM project_spaces WHERE id = ?').get(project).repository;
     const pull = rows.pullRequest({ id: project }, { number: 91, state: 'merged' });
     db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(next, pull);
     db.prepare("UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2").run(JSON.stringify({ link: `${repository}/pull/91` }), thread);
-    const proposalThread = rows.thread({ id: diagram, drawing }, { target: 'diagram', at: '2026-11-27T10:01:00.000Z' });
+    const proposalThread = rows.thread({ id: diagram, drawing }, { elementKey: hotspot(1), at: '2026-11-27T10:01:00.000Z' });
     const proposalText = 'Use the accepted proposal.';
     rows.changeSet({ id: project }, { id: diagram, drawing }, {
       origin: 'proposal', threadId: proposalThread, state: 'accepted', detail: { change: proposalText },
@@ -60,15 +65,18 @@ test('a verified decision recorded on the same diagram keeps its confirmation', 
     });
     const recommendationText = 'Use the recommended option.';
     const recommended = rows.thread({ id: diagram, drawing }, {
-      target: 'diagram', author: 'agent', body: recommendationText, at: '2026-11-27T10:01:00.000Z',
+      elementKey: hotspot(2), author: 'agent', body: recommendationText, at: '2026-11-27T10:01:00.000Z',
     });
     db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 1').run(JSON.stringify({ asks: 'recommended' }), recommended);
     rows.comment(recommended, { author: 'owner', body: '추천안', at: '2026-11-27T10:02:00.000Z' });
     rows.comment(recommended, { body: recommendationText, at: '2026-11-27T10:03:00.000Z' });
     db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 3').run(JSON.stringify({ link: `${repository}/pull/91` }), recommended);
     const answeredText = 'Keep the answered decision.';
-    const answered = rows.thread({ id: diagram, drawing }, { target: 'diagram', body: answeredText, at: '2026-11-27T10:01:00.000Z' });
-    db.prepare("UPDATE comment_threads SET waits_on = 'owner' WHERE id = ?").run(answered);
+    const answered = rows.thread({ id: diagram, drawing }, { elementKey: hotspot(3), body: answeredText, at: '2026-11-27T10:01:00.000Z' });
+    threadChanged(db, { project, thread: answered, time: '2026-11-27T10:01:00.000Z' });
+    const marked = await server.send({ method: 'POST', path: `/api/spaces/verified-record/comments/${idOf('nc', answered)}/answered`,
+      headers: { 'Content-Type': 'application/json', ...rows.agent.headers, 'Nexus-Session': 'record-test', 'Idempotency-Key': `"${newId('nw')}"` }, body: '{}' });
+    assert.equal(marked.status, 200);
     const updated = structuredClone(picture);
     updated.hotspots[0].answer = decided;
     updated.hotspots[0].state = 'answered';
@@ -93,7 +101,9 @@ test('a verified decision recorded on the same diagram keeps its confirmation', 
     const winner = candidates[competing.findIndex((result) => result.status === 'fulfilled')];
     assert.equal(db.prepare('SELECT state FROM confirmations WHERE id = ?').get(confirmation).state, 'confirmed');
     const changed = structuredClone(updated);
-    changed.contexts[0].purpose += ' Changed.';
+    // An identical answer from a different hotspot is not evidence for this one.
+    changed.hotspots[4].answer = decided;
+    changed.hotspots[4].state = 'answered';
     await push(newCommit(), changed, winner);
     assert.equal(db.prepare('SELECT state FROM confirmations WHERE id = ?').get(confirmation).state, 'invalidated');
     assert.notEqual(db.prepare('SELECT changed_at FROM stage_passes WHERE id = ?').get(pass).changed_at, null);

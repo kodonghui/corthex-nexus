@@ -337,10 +337,16 @@ describe('agent comments', () => {
     const unansweredResult = await decide(idOf('nc', unanswered), { link: `${repository}/pull/42`, text }, { project: example.name });
     assert.equal(unansweredResult.json.thread.state, 'open');
     const otherDiagram = s.diagram(example);
-    s.elements(otherDiagram.drawing, [{ key: 'TBL-146', trace_id: 'TBL-146', name: text }]);
+    s.elements(otherDiagram.drawing, [
+      { key: 'TBL-146', trace_id: 'TBL-146', name: text },
+      { key: 'TBL-147', trace_id: 'TBL-147', name: 'Another item' },
+    ]);
     const otherThread = s.thread(otherDiagram, { target: 'diagram', body: text });
     const otherResult = await decide(idOf('nc', otherThread), { link: `${repository}/pull/42`, text }, { project: example.name });
     assert.equal(otherResult.json.thread.state, 'closed');
+    const wrongTarget = s.thread(otherDiagram, { elementKey: 'TBL-147', body: text });
+    const wrongResult = await decide(idOf('nc', wrongTarget), { link: `${repository}/pull/42`, text }, { project: example.name });
+    assert.equal(wrongResult.json.thread.state, 'open');
   });
 
   test('five existing waiting conversations remain open when their links cannot prove records', async () => {
@@ -351,6 +357,62 @@ describe('agent comments', () => {
       assert.equal(threadRow(thread).state, 'open');
       assert.deepEqual(entriesOf(thread).at(-1), 'owner question open');
     }
+  });
+
+  test('a decision resolves when the merge snapshot is held even after an unchanged or later drawing', async () => {
+    for (const redraw of [false, true]) {
+      const example = s.project(`record-timing-${redraw}`);
+      const path = '/pictures/01-domain/nexus';
+      const board = s.diagram(example, { stage: '01-domain', sourceKey: path, kind: 'ddd_board' });
+      const text = 'The selected answer.';
+      const source = JSON.stringify({ format: 1, hotspots: [{ number: 1, answer: text }] });
+      s.document(example, path, '01-domain', source);
+      const thread = s.thread(board, { target: 'diagram', body: text });
+      s.snapshot(example);
+      s.document(example, path, '01-domain', source);
+      const merge = example.commit;
+      const pull = s.pullRequest(example, { number: 43, state: 'merged' });
+      db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(merge, pull);
+      if (redraw) {
+        s.snapshot(example);
+        s.document(example, path, '01-domain', source);
+        s.drawing(example, board.id);
+      }
+      const repository = db.prepare('SELECT repository FROM project_spaces WHERE id = ?').get(example.id).repository;
+      const result = await decide(idOf('nc', thread), { link: `${repository}/pull/43`, text }, { project: example.name });
+      assert.equal(result.json.thread.state, 'closed');
+    }
+  });
+
+  test('the pinned decision request alone cannot prove which commit merged', async () => {
+    const example = s.project('legacy-record');
+    const path = '/pictures/01-domain/nexus';
+    const board = s.diagram(example, { stage: '01-domain', sourceKey: path, kind: 'ddd_board' });
+    const text = 'The selected answer.';
+    s.document(example, path, '01-domain', JSON.stringify({ format: 1, hotspots: [{ number: 1, answer: text }] }));
+    const thread = s.thread(board, { target: 'diagram', body: text });
+    const repository = db.prepare('SELECT repository FROM project_spaces WHERE id = ?').get(example.id).repository;
+    const result = await decide(idOf('nc', thread), { link: `${repository}/pull/44`, text }, { project: example.name });
+    assert.equal(result.json.thread.state, 'open');
+    assert.equal(result.json.thread.waits_on, 'agent');
+  });
+
+  test('the pinned decision request can identify a verified held commit without a new hub field', async () => {
+    const example = s.project('commit-record');
+    const path = '/pictures/01-domain/nexus';
+    const board = s.diagram(example, { stage: '01-domain', sourceKey: path, kind: 'ddd_board' });
+    const text = 'The selected answer.';
+    s.document(example, path, '01-domain', JSON.stringify({ format: 1, hotspots: [{ number: 1, answer: text }] }));
+    const repository = db.prepare('SELECT repository FROM project_spaces WHERE id = ?').get(example.id).repository;
+    const submit = async (link, body = text) => {
+      const thread = s.thread(board, { target: 'diagram', body });
+      const result = await decide(idOf('nc', thread), { link, text }, { project: example.name });
+      return result.json.thread.state;
+    };
+    assert.equal(await submit(`${repository}/commit/${example.commit}`), 'closed');
+    assert.equal(await submit(`${repository}/commit/${'f'.repeat(40)}`), 'open');
+    assert.equal(await submit(`https://example.invalid/other/commit/${example.commit}`), 'open');
+    assert.equal(await submit(`${repository}/commit/${example.commit}`, 'Another answer.'), 'open');
   });
 
   test('a comment on an item goes on its element or row, at commit when NEXUS holds it; one that left gets the diagram (SPEC-016, SPEC-027)', async () => {

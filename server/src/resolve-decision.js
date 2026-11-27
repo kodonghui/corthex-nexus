@@ -1,21 +1,20 @@
-// Automatically resolve only a decision whose exact text is in a drawn, reported
-// merge commit of the same repository. A link or an agent assertion alone is not proof.
+// Automatically resolve only a decision whose exact text is in a held snapshot of
+// the same repository. A link or an agent assertion alone is not proof.
 import { pullRequestLink, repositoryBase } from './claims.js';
+import { INCOMPLETE_DRAWING, normalizeDecisionText as normalize, recordResolved, RECOMMENDATION_CHOICES } from './decision-evidence.js';
 import { threadChanged } from './entries.js';
 
-const normalize = (text) => text.normalize('NFKC').trim().replace(/\s+/gu, ' ').toLocaleLowerCase('und');
-const choices = new Set(['추천안', '추천안으로', 'recommended', 'the recommendation']);
 function approvedText(entries, owner, last) {
   if (normalize(owner.body) === normalize(last.body)) return true;
   const recommendation = entries.find((entry) => entry.seq === owner.seq - 1);
-  return choices.has(normalize(owner.body)) && recommendation?.author === 'agent'
+  return RECOMMENDATION_CHOICES.has(normalize(owner.body)) && recommendation?.author === 'agent'
     && JSON.parse(recommendation.detail).asks === 'recommended'
     && normalize(recommendation.body) === normalize(last.body);
 }
 const cached = new WeakMap();
 function queries(store) {
   if (!cached.has(store)) cached.set(store, {
-    thread: store.prepare(`SELECT t.state, t.diagram_id, d.source_key, d.kind, p.repository FROM comment_threads t
+    thread: store.prepare(`SELECT t.state, t.diagram_id, t.element_key, d.source_key, d.kind, p.repository, p.held_commit FROM comment_threads t
       JOIN diagrams d ON d.id = t.diagram_id JOIN project_spaces p ON p.id = d.project_id
       WHERE t.id = ? AND p.id = ?`),
     entries: store.prepare('SELECT seq, author, body, detail, created_at FROM comments WHERE thread_id = ? ORDER BY seq DESC LIMIT 200'),
@@ -23,13 +22,14 @@ function queries(store) {
     pending: store.prepare("SELECT 1 FROM change_sets WHERE thread_id = ? AND state IN ('proposed', 'accepted') LIMIT 1"),
     ownerPending: store.prepare("SELECT 1 FROM change_sets WHERE thread_id = ? AND state = 'proposed' LIMIT 1"),
     pull: store.prepare("SELECT number, merge_commit FROM pull_requests WHERE project_id = ? AND number = ? AND state = 'merged' AND merge_commit IS NOT NULL"),
+    snapshot: store.prepare('SELECT id, revision FROM snapshots WHERE project_id = ? AND commit_sha = ?'),
     current: store.prepare('SELECT id, status, document_version, snapshot_id FROM drawings WHERE diagram_id = ? ORDER BY id DESC LIMIT 1'),
-    incomplete: store.prepare("SELECT 1 FROM elements WHERE drawing_id = ? AND status IN ('unreadable', 'missing', 'left_out') LIMIT 1"),
-    names: store.prepare("SELECT name FROM elements WHERE drawing_id = ? AND (status IS NULL OR status <> 'removed')"),
+    incomplete: store.prepare(INCOMPLETE_DRAWING),
+    names: store.prepare("SELECT element_key, name FROM elements WHERE drawing_id = ? AND (status IS NULL OR status <> 'removed')"),
+    hotspot: store.prepare("SELECT json_extract(detail, '$.number') AS number FROM elements WHERE drawing_id = ? AND element_key = ? AND kind = 'hotspot'"),
     source: store.prepare(`SELECT b.body FROM snapshot_files f JOIN document_blobs b ON b.sha256 = f.blob_sha256
       WHERE f.snapshot_id = ? AND f.path = ?`),
     close: store.prepare("UPDATE comment_threads SET state = 'closed', waits_on = NULL, closed_at = ?, closed_by = 'reflection' WHERE id = ? AND state = 'open'"),
-    event: store.prepare("INSERT INTO thread_resolution_events (thread_id, event, detail, created_at) VALUES (?, 'resolved', ?, ?)"),
   });
   return cached.get(store);
 }
@@ -67,21 +67,40 @@ export function resolveDecision(store, { project, thread, time }) {
       || entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined)) return false;
   const drawing = q.current.get(row.diagram_id);
   if (!drawing || drawing.status !== 'drawn' || q.incomplete.get(drawing.id)) return false;
-  const base = `${repositoryBase(row.repository)}pull/`;
-  const suffix = link.startsWith(base) ? link.slice(base.length) : '';
-  if (!/^[1-9][0-9]{0,8}$/.test(suffix)) return false;
-  const pull = q.pull.get(project, Number(suffix));
-  if (pull && (pull.merge_commit !== drawing.document_version || pullRequestLink(row.repository, pull.number) !== link)) return false;
-  if (!pull) return false;
+  const base = repositoryBase(row.repository);
+  const pullSuffix = link.startsWith(`${base}pull/`) ? link.slice(`${base}pull/`.length) : '';
+  const commitSuffix = link.startsWith(`${base}commit/`) ? link.slice(`${base}commit/`.length) : '';
+  let commit, pull;
+  if (/^[1-9][0-9]{0,8}$/.test(pullSuffix)) {
+    pull = q.pull.get(project, Number(pullSuffix));
+    if (!pull || pullRequestLink(row.repository, pull.number) !== link) return false;
+    commit = pull.merge_commit;
+  } else if (/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(commitSuffix)) {
+    commit = commitSuffix;
+  } else return false;
+  const recorded = q.snapshot.get(project, commit);
+  const held = q.snapshot.get(project, row.held_commit);
+  if (!recorded || !held || Number(recorded.revision) > Number(held.revision)) return false;
   if (row.kind === 'ddd_board') {
-    const source = q.source.get(drawing.snapshot_id, row.source_key);
-    if (!source) return false;
-    let picture;
-    try { picture = JSON.parse(source.body); } catch { return false; }
-    if (!Array.isArray(picture.hotspots) || !picture.hotspots.some((item) => typeof item?.answer === 'string' && normalize(item.answer) === text)) return false;
-  } else if (!q.names.all(drawing.id).some((element) => normalize(element.name) === text)) return false;
+    const target = row.element_key === null ? null : q.hotspot.get(drawing.id, row.element_key);
+    if (row.element_key !== null && !target) return false;
+    const holdsAnswer = (snapshot) => {
+      const source = q.source.get(snapshot, row.source_key);
+      if (!source) return false;
+      let picture;
+      try { picture = JSON.parse(source.body); } catch { return false; }
+      if (!Array.isArray(picture.hotspots)) return false;
+      const matches = picture.hotspots.filter((item) => typeof item?.answer === 'string' && normalize(item.answer) === text);
+      return row.element_key === null ? matches.length === 1 : matches.some((item) => item.number === target.number);
+    };
+    if (!holdsAnswer(recorded.id) || !holdsAnswer(drawing.snapshot_id)) return false;
+  } else {
+    if (drawing.document_version !== commit) return false;
+    const matches = q.names.all(drawing.id).filter((element) => normalize(element.name) === text);
+    if (row.element_key === null ? matches.length !== 1 : !matches.some((element) => element.element_key === row.element_key)) return false;
+  }
   if (q.close.run(time, thread).changes === 0) return false;
-  q.event.run(thread, JSON.stringify({ decision_seq: Number(last.seq), drawing: Number(drawing.id), pull_request: Number(pull.number) }), time);
+  recordResolved(store, { thread, detail: { decision_seq: Number(last.seq), drawing: Number(drawing.id), ...(pull ? { pull_request: Number(pull.number) } : { commit }) }, time });
   threadChanged(store, { project, thread, time });
   return true;
 }

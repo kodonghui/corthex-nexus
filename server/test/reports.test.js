@@ -451,7 +451,9 @@ describe('reports from the agent', () => {
     const { space, erd } = erdProject();
     const thread = s.thread(erd, { elementKey: 'TBL-146' });
     const pullRequest = s.pullRequest(space, { number: 96 });
-    const proposal = s.changeSet(space, erd, { origin: 'proposal', state: 'accepted', threadId: thread, pullRequestId: pullRequest });
+    const proposal = s.changeSet(space, erd, { origin: 'proposal', state: 'accepted', threadId: thread, pullRequestId: pullRequest,
+      detail: { change: 'Keep the agreed name' } });
+    s.comment(thread, { body: 'Keep the agreed name' });
     s.change(proposal, { op: 'rename', element: 'TBL-146', name: 'agent_credentials' });
     changeSetsChanged(db, { project: space.id, diagram: erd.id, time: TIME });
     const [entry] = entries(space, 'reflect');
