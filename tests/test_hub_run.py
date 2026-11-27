@@ -43,7 +43,7 @@ PROJECT = "corthex-nexus"
 # Pull request links in the project's repository. The server reads only their form; nothing opens them.
 PULL = "https://github.com/kodonghui/corthex-nexus/pull/%d"
 # The stage page of a checkpoint in the address form of SCR-145, on a placeholder host. The hub needs an https link
-# for a checkpoint that names a NEXUS checkpoint, and the local server has none.
+# for the TASK-449 explicit-link check; the local server has no https address.
 WHERE = "https://nexus.example.com/p/%s/nexus/07-sitemap" % PROJECT
 # The 32 characters of the contract's IDs, for a request key of the owner's writes.
 ID_ALPHABET = "0123456789abcdefghjkmnpqrstvwxyz"
@@ -51,6 +51,7 @@ ID_ALPHABET = "0123456789abcdefghjkmnpqrstvwxyz"
 # reads the held commit only.
 CALLS = {
     "push": ["getHeldCommit", "pushSnapshot"],
+    "propose": ["makeProposal"],
     "push sending nothing": ["getHeldCommit"],
     "todo": ["getAgentTodo"],
     "claim": ["claimEntry"],

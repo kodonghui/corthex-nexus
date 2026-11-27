@@ -98,7 +98,7 @@
 
 ## 4. 승인된 항목과 다른 점
 
-아래 e410ce9 관련 설명은 당시의 승인과 차이의 이력이다. 이후 고정한 hub 1becbab은 source_path를 보내며 TASK-470이 NEXUS 쪽 차이를 닫았다. TC-221은 그 조합을 별도로 검증한다.
+아래 e410ce9 관련 설명은 당시의 승인과 차이의 이력입니다. 이후 고정한 hub 1becbab은 source_path를 보내며 TASK-470이 NEXUS 쪽 차이를 닫았습니다. TC-221은 그 조합을 별도로 검증합니다.
 
 - 2026-11-23 06단계 체크포인트는 SPEC-006, SPEC-008, SPEC-009를 첫 릴리스에서 뺐습니다. 같은 날 기능 변경이 그 결정을 뒤집었고(관리자 결정, 프로젝트 기록에 있음), 이 WBS는 세 줄을 첫 릴리스에 넣습니다(TASK-424, TASK-426, TASK-427, TASK-428, TASK-429, TASK-431).
 - SPEC-018의 승인 기준 "Given a comment asking to rename X, when the agent posts a proposal renaming X to Y, then the owner sees Y over X, marked as proposed"와 계약의 `source_text` "The proposed document, from which NEXUS works out the changes"는 TASK-438(PR 137)에서 03·08단계에서만 맞습니다. 이 두 단계에서는 NEXUS가 다이어그램의 그리기 함수로 `source_text`를 그립니다. 고정 hub의 `propose`는 01·05·07단계만 받으므로(e410ce9의 `commands.py`에 있는 `PICTURE_STAGES`), 지금은 두 단계 어디에도 닿지 않습니다. 05·07단계는 hub가 읽은 그림으로 그리고 NEXUS가 SQL이나 YAML을 읽지 않으므로, 2026-11-24에 이 두 단계를 위해 TASK-466을 더했습니다.
