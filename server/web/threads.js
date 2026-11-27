@@ -73,6 +73,11 @@ export function threadsOpened(state, host) {
     };
   }
   const t = state.threads;
+  if (t.resultsDiagram !== state.ctx.data.diagram) {
+    t.resultsDiagram = state.ctx.data.diagram;
+    t.readResults = new Map();
+    t.readSequences = new Map();
+  }
   t.host = host;
   const wanted = state.ctx.address.thread;
   if (isThreadId(wanted) && t.handled !== wanted) {
@@ -263,6 +268,8 @@ async function readThread(state, id) {
   if (outcome.status === 200 && outcome.body.diagram === diagram.id) {
     t.readResults ??= new Map();
     t.readResults.set(id, generation);
+    t.readSequences ??= new Map();
+    t.readSequences.set(id, outcome.body.entries.at(-1)?.seq ?? 0);
     brief(state, id, outcome.body, 0, true);
     if (!showing) { drawList(state); return; }
     const choose = t.choose;
@@ -276,7 +283,7 @@ async function readThread(state, id) {
     }
   } else if (outcome.status === 200 || (outcome.status === 404 && outcome.code === 'thread_not_found')) {
     diagram.threads = (diagram.threads ?? []).filter((each) => each.id !== id);
-    if (showing && diagram.removed && !diagram.threads.some((each) => each.state === 'open')) { t.host.reload('instead'); return; }
+    if ((showing || t.shown === null) && diagram.removed && !diagram.threads.some((each) => each.state === 'open')) { t.host.reload('instead'); return; }
     if (!showing) { drawList(state); return; }
     t.choose = false;
     t.thread = null;
@@ -333,7 +340,7 @@ export async function refreshAfterClose(state, id) {
       drawShown(state);
     }
     drawList(state);
-    if (showing && diagram.removed && !(diagram.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
+    if ((showing || t.shown === null) && diagram.removed && !(diagram.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
     return;
   }
   if (outcome.status !== 200) {
@@ -346,6 +353,8 @@ export async function refreshAfterClose(state, id) {
   }
   t.readResults ??= new Map();
   t.readResults.set(id, generation);
+  t.readSequences ??= new Map();
+  t.readSequences.set(id, outcome.body.entries.at(-1)?.seq ?? 0);
   brief(state, id, outcome.body, 0, true);
   if (showing) {
     t.thread = outcome.body;
@@ -599,8 +608,10 @@ function replyOf(state, id, text) {
       const pendingRead = t.reads?.has(id) === true;
       const listed = (state.ctx.data.diagram.threads ?? []).find((entry) => entry.id === id);
       let summary = answer.thread;
+      let gap = false;
       if (t.thread?.id === id) {
         const last = t.thread.entries.at(-1);
+        gap = last && answer.entry.seq > last.seq + 1;
         const newer = last && last.seq >= answer.entry.seq;
         if (!t.thread.entries.some((entry) => entry.seq === answer.entry.seq)) {
           t.thread.entries.push(answer.entry);
@@ -608,12 +619,12 @@ function replyOf(state, id, text) {
         }
         if (!newer) Object.assign(t.thread, summaryOf(answer.thread));
         else summary = t.thread;
-      } else if (listed && listed.entries >= answer.entry.seq) {
+      } else if (listed && (t.readSequences?.get(id) ?? 0) >= answer.entry.seq) {
         summary = listed;
       }
       const added = listed ? Math.max(0, answer.entry.seq - listed.entries) : 0;
       brief(state, id, summary, added);
-      if (t.shown === id && (t.thread === null || pendingRead)) readThread(state, id);
+      if (t.shown === id && (t.thread === null || pendingRead || gap)) readThread(state, id);
       else if (pendingRead) refreshAfterClose(state, id);
       keepText(state, `reply ${id}`, '');
       drawList(state);
@@ -635,11 +646,13 @@ function closeOf(state, id, reopen = false) {
       const t = state.threads;
       const pendingRead = t.reads?.has(id) === true;
       const readSinceWrite = (t.readResults?.get(id) ?? 0) > startedAt;
-      if (t.thread?.id === id) {
+      const listed = (diagram.threads ?? []).find((entry) => entry.id === id);
+      const resolved = readSinceWrite && (t.thread?.id === id ? t.thread.resolved === true : listed?.resolved === true);
+      if (t.thread?.id === id && !resolved) {
         Object.assign(t.thread, summaryOf(answer.thread));
         if (reopen) delete t.thread.resolved;
       }
-      brief(state, id, answer.thread);
+      brief(state, id, resolved ? (t.thread?.id === id ? t.thread : listed) : answer.thread);
       drawList(state);
       drawShown(state);
       // The diagram shown now, which brief marked: a read again may have drawn the view anew while the close was sent.

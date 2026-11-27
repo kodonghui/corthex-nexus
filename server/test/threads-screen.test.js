@@ -700,6 +700,34 @@ describe('SCR-145 threads', () => {
     }
   });
 
+  test('a reply with an intervening agent entry reads the missing entry', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const entries = [...structuredClone(ENTRIES),
+      { seq: 3, author: 'agent', kind: 'comment', text: '사이에 온 질문', made_at: ago(1) },
+      { seq: 4, author: 'owner', kind: 'comment', text: '내 답변', made_at: ago(0) }];
+    const updated = threadOf('erd', original, { waits_on: 'agent', last_at: ago(0), entries });
+    let sent = false;
+    const page = await openStage('erd', {
+      answers: (path) => path === threadPath(T.mine) && sent ? json(200, updated) : undefined,
+      posts: () => {
+        sent = true;
+        return json(201, { thread: { id: T.mine, state: 'open', waits_on: 'agent', closed_by: null, last_at: ago(0) }, entry: entries[3] })();
+      },
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      const field = fieldOf(page, 'th-reply');
+      field.value = '내 답변';
+      formOf(field).dispatch('submit');
+      await page.settle();
+      assert.ok(textsIn(shownThread(page), 'span', 'tx').includes('사이에 온 질문'));
+      assert.deepEqual(textsIn(sectionOf(page), 'h3'), [countOf(1, 4)]);
+    } finally {
+      page.close();
+    }
+  });
+
   test('a close racing resolution supersedes an older read of the same thread', async () => {
     for (const oldFirst of [true, false]) {
       const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
