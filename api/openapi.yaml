@@ -6702,7 +6702,7 @@ paths:
     post:
       operationId: issueCredential
       summary: Issue an agent credential
-      description: "Creates a credential and shows its secret once; NEXUS keeps only its digest (SPEC-049, REQ-078). The agent sends the credential's id as CF-Access-Client-Id and the secret as CF-Access-Client-Secret. A repeat with the same request key answers 200 with secret null: the secret is never kept to show again, so when the first answer is lost the owner revokes the credential and issues another."
+      description: "Creates a credential and shows its secret once; NEXUS keeps only its digest (SPEC-049, REQ-078). The agent sends the credential's ID and secret in one complete Nexus-Agent-Client-Id and Nexus-Agent-Client-Secret pair, or the legacy CF-Access-Client-Id and CF-Access-Client-Secret pair. A repeat with the same request key answers 200 with secret null: the secret is never kept to show again, so when the first answer is lost the owner revokes the credential and issues another."
       tags: [owner]
       x-corthex:
         id: API-280

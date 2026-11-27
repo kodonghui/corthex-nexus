@@ -376,7 +376,7 @@
           "date": "2026-11-24"
         },
         {
-          "approved": "BUG-006 API correction: add a NEXUS agent header pair alongside the legacy pair; accept exactly one complete pair and refuse mixed, incomplete, duplicate or concurrent pairs, update the hub to send the new pair, and verify the Cloudflare route after implementation. The maintainer approved each item through their named checkpoint delegate; the answer and delegation are in the project records.",
+          "approved": "BUG-008 API correction: add a NEXUS agent header pair alongside the legacy pair; accept exactly one complete pair and refuse mixed, incomplete, duplicate or concurrent pairs, update the hub to send the new pair, and verify the Cloudflare route after implementation. The maintainer approved each item through their named checkpoint delegate; the answer and delegation are in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         }

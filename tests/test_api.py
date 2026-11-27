@@ -284,6 +284,12 @@ class ApiContract(unittest.TestCase):
                 self.assertLessEqual(set(requirement), set(schemes))
             self.assertIn("401", op["responses"], "%s %s" % (method, path))
             family = op["x-corthex"]["family"]
+            if family == "agent":
+                pairs = {frozenset(requirement) for requirement in op["security"]}
+                self.assertEqual(pairs, {
+                    frozenset(("agentClientId", "agentClientSecret")),
+                    frozenset(("nexusAgentClientId", "nexusAgentClientSecret")),
+                }, "%s %s" % (method, path))
             code = "access_missing" if family == "agent" else "unauthenticated"
             codes = {e["value"]["code"] for e in op["responses"]["401"]["content"]["application/problem+json"]["examples"].values()}
             self.assertEqual(codes, {code}, "%s %s" % (method, path))

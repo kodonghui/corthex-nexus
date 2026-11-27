@@ -290,7 +290,7 @@ describe('agent credentials', () => {
     assert.equal(both.line.sender, 'ci-runner');
   });
 
-  test('BUG-006: accepts either complete agent header pair and refuses ambiguous pairs', async () => {
+  test('BUG-008: accepts either complete agent header pair and refuses ambiguous pairs', async () => {
     const { credential, secret } = await issued('alternate-headers');
     const modern = { 'Nexus-Agent-Client-Id': credential.id, 'Nexus-Agent-Client-Secret': secret };
     const legacy = pair(credential, secret);
@@ -304,6 +304,9 @@ describe('agent credentials', () => {
       { 'Nexus-Agent-Client-Id': credential.id, 'CF-Access-Client-Secret': secret },
       { ...legacy, ...modern },
       { ...modern, 'CF-Access-Client-Id': credential.id },
+      { ...modern, 'CF-Access-Client-Id': '' },
+      { ...modern, ...pair({ id: newId('ac') }, secret) },
+      { ...modern, ...pair(credential, randomBytes(32).toString('base64url')) },
       { ...modern, 'Nexus-Agent-Client-Id': [credential.id, credential.id] },
       { ...modern, 'Nexus-Agent-Client-Secret': `${secret}, ${secret}` },
       { ...modern, 'Nexus-Agent-Client-Secret': 'invalid' },
