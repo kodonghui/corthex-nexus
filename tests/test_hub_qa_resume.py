@@ -2,6 +2,7 @@
 
 import http.client
 import http.server
+import json
 import threading
 import urllib.parse
 import unittest
@@ -43,12 +44,19 @@ class HubQaWalk(hub_run.HubRunTest):
         edit, checkpoint = self.owner_edit_and_confirmation()
         proposal = self.read(self.session, "propose", PROJECT, "--part", "nexus", "--stage", "05-erd",
                              "--item", "TBL-146", "--reason", "Synthetic reason", "--change", "Synthetic change")
-        for entry in (thread, proposal["id"], edit, checkpoint):
-            self.assertEqual(self.read(self.session, "show", PROJECT, entry)["id"], entry)
+        entries = (thread, proposal["id"], edit, checkpoint)
+        before = [self.read(self.session, "show", PROJECT, entry) for entry in entries]
+        status, preview = self.server.owner("GET", "/api/projects/" + PROJECT + "/removal")
+        self.assertEqual(status, 200)
         code, row = self.command(self.session, "remove", PROJECT)
         self.assertEqual((code, row["outcome"], row["answer"]["project"]), (0, "done", PROJECT))
+        self.assertEqual((row["answer"]["deletes"], row["answer"]["open"]), (preview["deletes"], preview["open"]))
+        self.assertEqual(row["address"], self.server.url + "/p/" + PROJECT + "#data")
         status, project = self.server.owner("GET", "/api/projects/" + PROJECT)
         self.assertEqual((status, project["name"]), (200, PROJECT))
+        self.assertEqual([self.read(self.session, "show", PROJECT, entry) for entry in entries], before)
+        actions = [json.loads(line)["action"] for line in self.stop_server()]
+        self.assertNotIn("deleteProject", actions)
 
     def test_deletion_then_first_send_again(self):
         first = self.read(self.session, "push", PROJECT, "--first")
@@ -78,6 +86,7 @@ class HubQaWalk(hub_run.HubRunTest):
         class DropOnce(http.server.BaseHTTPRequestHandler):
             drop = None
             observed = []
+            duplicate_headers = []
 
             def log_message(self, *args):
                 pass
@@ -90,6 +99,9 @@ class HubQaWalk(hub_run.HubRunTest):
 
             def forward(self):
                 body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
+                names = [key.lower() for key in self.headers.keys()]
+                if len(names) != len(set(names)):
+                    DropOnce.duplicate_headers.append(True)
                 headers = {k: v for k, v in self.headers.items()
                            if k.lower() not in ("host", "connection", "content-length")}
                 connection = http.client.HTTPConnection(target.hostname, target.port, timeout=20)
@@ -125,6 +137,7 @@ class HubQaWalk(hub_run.HubRunTest):
                 code, row = self.command(env, "outbox", PROJECT, "--send")
                 self.assertEqual((code, row["outcome"], row["outbox"]["sent"], row["outbox"]["waiting"]),
                                  (0, "done", 1, 0))
+            self.assertFalse(DropOnce.duplicate_headers, "the proxy cannot preserve repeated request headers")
             self.assertEqual(len(DropOnce.observed), 4)
             for index, expected in ((0, 201), (2, 200)):
                 first, repeated = DropOnce.observed[index:index + 2]
@@ -138,16 +151,19 @@ class HubQaWalk(hub_run.HubRunTest):
             proxy.server_close()
 
     def test_redraw_invalidates_reflects_and_moves_a_thread(self):
-        thread = self.first_push_and_comment()
+        self.first_push_and_comment()
+        moved_thread = self.read(self.session, "comment", PROJECT, "--part", "nexus", "--stage", "05-erd",
+                                 "--item", "TBL-147", "--text", "Synthetic question", "--asks", "answer")["id"]
         edit, checkpoint = self.owner_edit_and_confirmation()
         self.read(self.session, "reflect", PROJECT, edit, "opened", "--pr", PULL % 12)
         self.read(self.session, "reflect", PROJECT, edit, "merged", "--pr", PULL % 12)
 
         schema = self.project / "db/nexus.sql"
         original = schema.read_text(encoding="utf8")
-        start = original.index("-- TBL-146 ")
-        end = original.index("-- TBL-147 ", start)
-        schema.write_text(original[:start] + original[end:], encoding="utf8")
+        start = original.index("-- TBL-147 ")
+        end = original.index("-- TBL-148 ", start)
+        changed = (original[:start] + original[end:]).replace("agent_credentials", "agent_keys")
+        schema.write_text(changed, encoding="utf8")
         sitemap = self.project / "docs/07-sitemap/nexus.yaml"
         original = sitemap.read_text(encoding="utf8")
         self.assertIn("name: Owner to-do", original)
@@ -162,8 +178,8 @@ class HubQaWalk(hub_run.HubRunTest):
         todo = self.read(self.session, "todo", PROJECT)
         self.assertEqual(todo["reflections"]["total"], 0)
         self.assertEqual(todo["checkpoints"]["total"], 1)
-        moved = self.read(self.session, "show", PROJECT, thread)
-        self.assertEqual((moved["target"], moved["removed_name"]), ("diagram", "agent_credentials"))
+        moved = self.read(self.session, "show", PROJECT, moved_thread)
+        self.assertEqual((moved["target"], moved["removed_name"]), ("diagram", "project_spaces"))
         self.assertEqual(self.read(self.session, "show", PROJECT, edit)["state"], "done")
         self.assertEqual(self.read(self.session, "show", PROJECT, checkpoint)["confirmation"], "invalidated")
 
