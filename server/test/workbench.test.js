@@ -298,6 +298,101 @@ describe('SCR-145 pictures', () => {
     } finally { release(); page.close(); }
   });
 
+  test('undo waits for the automatic-layout reload before accepting another undo', async () => {
+    const page = await openStage('erd');
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      for (const each of ELEMENTS.erd.filter((element) => element.kind === 'table').slice(0, 2)) {
+        buttonNamed(page, 'tbl', each.name).dispatch('keydown', { key: 'ArrowRight' });
+        await waitSend(page);
+      }
+      const reload = page.shell.reload.bind(page.shell);
+      page.shell.reload = async (...args) => { await held; return reload(...args); };
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
+      await delay(50);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
+      await delay(50);
+      assert.equal(page.sent.length, 3);
+      release();
+      await page.settle();
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
+      await page.settle();
+      assert.equal(page.sent.length, 4);
+    } finally { release(); page.close(); }
+  });
+
+  test('undo does not race an active pointer drag', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const button = buttonNamed(page, 'tbl', table.name);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('keydown', { key: 'z', ctrlKey: true });
+      await delay(30);
+      assert.equal(page.sent.length, 1);
+      button.dispatch('pointerup', { clientX: 110, clientY: 100, pointerId: 1 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 2);
+      assert.equal(page.sent[1].body.expected, undefined);
+    } finally { page.close(); }
+  });
+
+  test('a redraw cancels an unfinished drag and re-enables undo', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const button = buttonNamed(page, 'tbl', table.name);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      page.shell.redraw();
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.ok(page.sent[1].body.expected);
+    } finally { page.close(); }
+  });
+
+  test('a removed diagram does not accept the undo shortcut after reload', async () => {
+    let removed = false;
+    const page = await openStage('erd', { more: { [diagramPath('erd')]: () => json(200, diagramOf('erd', { removed }))() } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      removed = true;
+      await page.shell.reload();
+      page.app.dispatch('keydown', { key: 'z', ctrlKey: true });
+      await delay(30);
+      assert.equal(page.sent.length, 1);
+    } finally { page.close(); }
+  });
+
+  test('a failed move keeps its retry after the workbench is rebuilt', async () => {
+    let attempts = 0;
+    const page = await openStage('erd', { moved: (body) => {
+      attempts += 1;
+      return attempts === 1 ? new TypeError('Failed to fetch') : movedAnswer('erd')(body);
+    } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.app.all('div', 'wb-notice')[0].all('button').length, 1);
+      await page.shell.reload();
+      const retry = page.app.all('div', 'wb-notice')[0].all('button')[0];
+      assert.ok(retry);
+      retry.click();
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, false);
+    } finally { page.close(); }
+  });
+
   test('an invalid move rolls back so the box can be moved back within range', async () => {
     const diagram = structuredClone(diagramOf('erd'));
     const element = diagram.elements.find((each) => each.kind === 'table');
@@ -744,7 +839,7 @@ describe('SCR-145 pictures', () => {
       await page.settle();
       assert.equal(page.sent.length, 4);
       assert.equal(page.sent[3].key, page.sent[2].key);
-      assert.deepEqual(page.app.all('div', 'wb-notice')[0].children, []);
+      assert.equal(page.app.all('div', 'wb-notice')[0].textContent, '');
     } finally {
       page.close();
     }
@@ -770,7 +865,7 @@ describe('SCR-145 pictures', () => {
       assert.deepEqual(page.sent[1].body, { element: table.key, x: at.x + STEP, y: at.y });
       assert.equal(page.sent[1].key, page.sent[0].key);
       assert.equal(page.sent.length, 2);
-      assert.deepEqual(page.app.all('div', 'wb-notice')[0].children, []);
+      assert.equal(page.app.all('div', 'wb-notice')[0].textContent, '');
       pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
       await page.settle();
       assert.deepEqual(page.sent[2].body, { element: table.key, x: at.x, y: at.y, expected: { x: at.x + STEP, y: at.y }, reset: true });
@@ -1223,7 +1318,7 @@ describe('SCR-145 against the server', () => {
       const name = button.all('b', 'nm')[0].textContent;
       button.dispatch('keydown', { key: 'ArrowDown', shiftKey: true });
       await waitSend(page);
-      assert.deepEqual(page.app.all('div', 'wb-notice')[0].children, []);
+      assert.equal(page.app.all('div', 'wb-notice')[0].textContent, '');
       const read = (await good.send({ path: diagramRead('05-erd'), headers: owner() })).json;
       const moved = read.elements.find((element) => element.name === name);
       assert.deepEqual(moved.position, { x: moved.detail.box.x, y: moved.detail.box.y + LONG_STEP });
@@ -1370,7 +1465,7 @@ describe('SCR-145 against the server', () => {
     const readAgain = (page) => {
       const moved = page.asked.indexOf(`POST ${path}`);
       assert.ok(moved !== -1 && page.asked.indexOf(`GET ${diagramRead('05-erd')}`, moved) > moved, page.asked.join(', '));
-      assert.deepEqual(notice(page).children, []);
+      assert.equal(notice(page).textContent, '');
       const at = element.position ?? element.detail.box;
       const holder = holderOf(buttonNamed(page, 'tbl', element.name));
       assert.deepEqual([Number(holder.getAttribute('x')), Number(holder.getAttribute('y'))], [at.x - 6, at.y - 6]);

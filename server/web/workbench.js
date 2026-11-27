@@ -163,9 +163,12 @@ function build(ctx, row) {
   if (state.selected !== null && !(diagram.elements ?? []).some((element) => element.key === state.selected)) state.selected = null;
   state.model = overlayModel(diagram);
   state.names = new Map((diagram.elements ?? []).map((element) => [element.key, shownName(element)]));
-  state.notice = h('div', { class: 'wb-notice' });
+  // A failed move's retry must survive a workbench rebuild and unrelated thread messages.
+  state.moveNotice = (state.history.busy || state.failed.size > 0) && state.moveNotice ? state.moveNotice : h('div', {});
+  state.threadNotice = h('div', {});
+  state.notice = h('div', { class: 'wb-notice' }, state.moveNotice, state.threadNotice);
   if (state.history.invalidated) {
-    fill(state.notice, h('div', { class: 'nt warn', role: 'alert' }, '저장 결과를 확인하지 못해 이동 기록을 지웠어요. 그림을 다시 확인해 주세요.'));
+    fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, '저장 결과를 확인하지 못해 이동 기록을 지웠어요. 그림을 다시 확인해 주세요.'));
     state.history.invalidated = false;
     store('sessionStorage', historyMark(state.diagram), null);
   }
@@ -180,7 +183,7 @@ function build(ctx, row) {
       stopConnecting(state);
       return select(state, key);
     },
-    notice: (nodes) => fill(state.notice, nodes),
+    notice: (nodes) => fill(state.threadNotice, nodes),
     live: () => states.get(state.ctx.shell) === state,
     reload: (how) => state.ctx.shell.reload(how),
   });
@@ -265,6 +268,7 @@ function legendOf(diagram, model) {
 
 // The picture, drawn again with the moves not yet answered; the element that had the focus gets it back.
 function drawPicture(state) {
+  if (state.dragNode != null) cancelled(state, state.dragNode);
   const { ctx } = state;
   const diagram = ctx.data.diagram;
   const view = {
@@ -453,7 +457,7 @@ function historyControls(state) {
 }
 
 function historyPending(state) {
-  return state.history.busy || state.pending.size > 0 || state.sending.size > 0 || state.moves.size > 0;
+  return state.history.busy || state.dragNode != null || state.pending.size > 0 || state.sending.size > 0 || state.moves.size > 0;
 }
 
 function updateHistoryControls(state) {
@@ -465,7 +469,7 @@ function updateHistoryControls(state) {
 }
 
 function historyKey(state, event) {
-  if (!state || state.phone || !state.historyUI || state.pictureBox?.isConnected === false) return;
+  if (!state || state.phone || state.ctx.data.diagram.removed || !state.historyUI || state.pictureBox?.isConnected === false) return;
   if (!(event.ctrlKey || event.metaKey) || event.altKey || String(event.key).toLowerCase() !== 'z') return;
   const target = event.target;
   if (target?.isContentEditable || target?.closest?.('input, textarea, select, [contenteditable]:not([contenteditable="false"])')) return;
@@ -505,8 +509,7 @@ async function runHistory(state, redo, retryKey = null) {
     if (reset) entry.drawn = { x: outcome.body.x, y: outcome.body.y };
     fromStack.pop();
     toStack.push(entry);
-    history.busy = false;
-    if (!state.live()) return;
+    if (!state.live()) { history.busy = false; return; }
     const element = (state.ctx.data.diagram.elements ?? []).find((each) => each.key === entry.key);
     if (element) {
       element.position = reset ? entry.drawn : { x: outcome.body.x, y: outcome.body.y };
@@ -515,9 +518,10 @@ async function runHistory(state, redo, retryKey = null) {
     }
     if (reset) {
       await state.ctx.shell.reload();
-      if (!state.live()) return;
+      if (!state.live()) { history.busy = false; return; }
     }
-    fill(state.notice, h('div', { class: 'nt info', role: 'status' }, redo ? '이동을 다시 실행했어요.' : '이동을 되돌렸어요.'));
+    history.busy = false;
+    fill(state.moveNotice, h('div', { class: 'nt info', role: 'status' }, redo ? '이동을 다시 실행했어요.' : '이동을 되돌렸어요.'));
     state.focus = entry.key;
     drawPicture(state);
     return;
@@ -528,19 +532,19 @@ async function runHistory(state, redo, retryKey = null) {
     history.redo.length = 0;
     history.busy = false;
     await state.ctx.shell.reload();
-    if (state.live()) fill(state.notice, h('div', { class: 'nt warn', role: 'alert' }, '다른 곳에서 위치가 바뀌었어요. 그림을 다시 확인해 주세요.'));
+    if (state.live()) fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, '다른 곳에서 위치가 바뀌었어요. 그림을 다시 확인해 주세요.'));
     updateHistoryControls(state);
     return;
   }
   if (outcome.status === 404 && ['element_not_found', 'diagram_not_found', 'project_not_found'].includes(outcome.code)) {
     history.undo.length = 0; history.redo.length = 0; history.busy = false;
     await state.ctx.shell.reload();
-    if (state.live()) fill(state.notice, h('div', { class: 'nt warn', role: 'alert' }, '그림이 바뀌어 이동 기록을 지웠어요. 그림을 다시 확인해 주세요.'));
+    if (state.live()) fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, '그림이 바뀌어 이동 기록을 지웠어요. 그림을 다시 확인해 주세요.'));
     updateHistoryControls(state);
     return;
   }
   if (outcome.failure === 'timeout' || outcome.failure === 'network') {
-    fill(state.notice, state.ctx.shell.errorNotice(outcome, () => runHistory(state, redo, requestKey)),
+    fill(state.moveNotice, state.ctx.shell.errorNotice(outcome, () => runHistory(state, redo, requestKey)),
       h('button', { class: 'btn tertiary sm', type: 'button', on: { click: () => {
         history.undo.length = 0; history.redo.length = 0; history.busy = false;
         state.ctx.shell.reload();
@@ -550,7 +554,7 @@ async function runHistory(state, redo, retryKey = null) {
   history.busy = false;
   updateHistoryControls(state);
   if (outcome.status === 401 || outcome.status === 403 || outcome.failure === 'gate') return;
-  fill(state.notice, state.ctx.shell.errorNotice(outcome, () => runHistory(state, redo)));
+  fill(state.moveNotice, state.ctx.shell.errorNotice(outcome, () => runHistory(state, redo)));
 }
 
 // Whether element moves: a box not drawn round others, on a picture that moves, of a diagram not removed, on a PC.
@@ -588,6 +592,8 @@ function pointerdown(state, element, event) {
     node.addEventListener('pointercancel', () => cancelled(state, node));
   }
   state.drags.set(node, drag);
+  state.dragNode = node;
+  updateHistoryControls(state);
   node.setPointerCapture?.(event.pointerId);
 }
 
@@ -608,6 +614,8 @@ function dragged(drag, event) {
 function cancelled(state, node) {
   const drag = state.drags.get(node);
   state.drags.delete(node);
+  if (state.dragNode === node) state.dragNode = null;
+  updateHistoryControls(state);
   if (drag === undefined || !drag.moved) return;
   drag.holder.setAttribute('x', drag.at.x - PAD);
   drag.holder.setAttribute('y', drag.at.y - PAD);
@@ -617,9 +625,11 @@ function cancelled(state, node) {
 function dropped(state, node, event) {
   const drag = state.drags.get(node);
   state.drags.delete(node);
-  if (drag === undefined) return;
+  if (state.dragNode === node) state.dragNode = null;
+  if (drag === undefined) { updateHistoryControls(state); return; }
   dragged(drag, event);
   if (drag.moved) moveTo(state, drag.key, drag.to);
+  else updateHistoryControls(state);
 }
 
 // Puts a box at a place: chosen, drawn there with its lines, and sent once the moves stop.
@@ -666,7 +676,7 @@ async function send(state, key, kept) {
   if (!retry) state.before.delete(key);
   state.failed.delete(key);
   state.sending.add(key);
-  if (state.live()) fill(state.notice, h('div', { class: 'nt info', role: 'status' }, '이동을 저장하고 있어요. 잠시만 기다려 주세요.'));
+  if (state.live()) fill(state.moveNotice, h('div', { class: 'nt info', role: 'status' }, '이동을 저장하고 있어요. 잠시만 기다려 주세요.'));
   const epoch = state.history.epoch;
   store('sessionStorage', historyMark(state.diagram), '1');
   const path = `${diagramApi(diagram.project, diagram.id)}/positions`;
@@ -690,11 +700,11 @@ async function send(state, key, kept) {
     }
     const now = state.moves.get(key);
     if (now !== undefined && now.x === at.x && now.y === at.y) state.moves.delete(key);
-    fill(state.notice);
+    fill(state.moveNotice);
   } else if (outcome.status === 400 && outcome.code === 'invalid_request') {
     state.moves.delete(key); state.before.delete(key); state.pending.delete(key); state.again.delete(key); state.failed.delete(key);
     store('sessionStorage', historyMark(state.diagram), null);
-    fill(state.notice, h('div', { class: 'nt warn', role: 'alert' }, '그 위치로 옮길 수 없어 이동을 취소했어요. 다른 위치로 옮겨 주세요.'));
+    fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, '그 위치로 옮길 수 없어 이동을 취소했어요. 다른 위치로 옮겨 주세요.'));
     drawPicture(state);
     updateHistoryControls(state);
     return;
@@ -706,7 +716,7 @@ async function send(state, key, kept) {
     state.moves.delete(key);
     state.before.delete(key);
     state.again.delete(key);
-    fill(state.notice, h('div', { class: 'nt warn', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, WORKBENCH_WORDS.moveGone)),
+    fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, WORKBENCH_WORDS.moveGone)),
       h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => state.ctx.shell.reload() } }, '새로 고침')));
     drawPicture(state);
     return;
@@ -716,7 +726,7 @@ async function send(state, key, kept) {
     state.moves.delete(key);
     state.before.delete(key);
     state.again.delete(key);
-    fill(state.notice);
+    fill(state.moveNotice);
     drawPicture(state);
     state.ctx.shell.reload();
     return;
@@ -724,8 +734,8 @@ async function send(state, key, kept) {
     state.failed.add(key);
     const keep = outcome.failure === 'timeout' || outcome.failure === 'network' ? { key: requestKey, at, before } : null;
     if (keep === null && before && !state.before.has(key)) state.before.set(key, before);
-    fill(state.notice, state.ctx.shell.errorNotice(outcome, () => {
-      fill(state.notice);
+    fill(state.moveNotice, state.ctx.shell.errorNotice(outcome, () => {
+      fill(state.moveNotice);
       send(state, key, keep);
     }));
   }
