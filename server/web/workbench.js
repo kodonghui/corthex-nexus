@@ -38,6 +38,7 @@ export const STEP = 8;
 export const LONG_STEP = 40;
 export const SEND_AFTER_MS = 400;
 const DRAG_FROM = 3;
+const ZOOM_WAIT_DRAG = '옮기기를 마친 뒤 그림 크기를 바꿔 주세요.';
 const MOVED_KINDS = new Set(['ddd_board', 'erd', 'sitemap', 'user_flow']);
 
 export const WORKBENCH_WORDS = Object.freeze({
@@ -294,7 +295,7 @@ function drawPicture(state) {
         if (!event.ctrlKey) return;
         event.preventDefault();
         if (state.dragNode) {
-          state.zoomUI.notice.textContent = '옮기기를 마친 뒤 그림 크기를 바꿔 주세요.';
+          state.zoomUI.notice.textContent = ZOOM_WAIT_DRAG;
           return;
         }
         const rect = view.box.getBoundingClientRect();
@@ -304,7 +305,11 @@ function drawPicture(state) {
       let pinch = null;
       const beginPinch = (touches) => {
         if (touches.length !== 2) { pinch = null; state.pinching = false; return; }
-        if (state.dragNode) cancelled(state, state.dragNode);
+        if (state.dragNode) {
+          const moved = state.drags.get(state.dragNode)?.moved;
+          cancelled(state, state.dragNode);
+          if (moved) fill(state.dragNotice, h('div', { class: 'nt warn', role: 'alert' }, '두 손가락 확대를 시작해 옮기기를 멈췄어요. 다시 옮겨 주세요.'));
+        }
         const [a, b] = touches;
         pinch = { distance: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), zoom: state.zoom };
         state.pinching = true;
@@ -602,7 +607,8 @@ function pointerdown(state, element, event) {
   fill(state.dragNotice);
   const at = state.view.place.boxes.get(element.key);
   const shape = state.view.shapes.get(element.key) ?? null;
-  const drag = { key: element.key, start: { x: event.clientX, y: event.clientY }, at, holder, shape, moved: false, to: at, zoom: state.zoom };
+  const drag = { key: element.key, start: { x: event.clientX, y: event.clientY }, at, holder, shape, moved: false, to: at, zoom: state.zoom,
+    threshold: state.zoom < 0.25 ? 8 : DRAG_FROM };
   if (!state.dragListeners.has(node)) {
     node.addEventListener('pointermove', (move) => dragged(state.drags.get(node), move));
     node.addEventListener('pointerup', (up) => dropped(state, node, up));
@@ -619,7 +625,7 @@ function dragged(drag, event) {
   if (drag === undefined) return;
   const dx = event.clientX - drag.start.x;
   const dy = event.clientY - drag.start.y;
-  if (!drag.moved && Math.hypot(dx, dy) < (drag.zoom < 0.25 ? 8 : DRAG_FROM)) return;
+  if (!drag.moved && Math.hypot(dx, dy) < drag.threshold) return;
   drag.moved = true;
   drag.to = { x: positionBound(drag.at.x + dx / drag.zoom), y: positionBound(drag.at.y + dy / drag.zoom) };
   drag.holder.setAttribute('x', drag.to.x - PAD);
@@ -630,6 +636,7 @@ function dragged(drag, event) {
 
 // A drag the browser took over, such as for a gesture: the box goes back to where it was, and nothing is sent.
 function cancelled(state, node) {
+  if (state.zoomUI?.notice.textContent === ZOOM_WAIT_DRAG) state.zoomUI.notice.textContent = '';
   const drag = state.drags.get(node);
   state.drags.delete(node);
   if (state.dragNode === node) state.dragNode = null;
@@ -640,13 +647,14 @@ function cancelled(state, node) {
 }
 
 function dropped(state, node, event) {
+  if (state.zoomUI?.notice.textContent === ZOOM_WAIT_DRAG) state.zoomUI.notice.textContent = '';
   const drag = state.drags.get(node);
   state.drags.delete(node);
   if (state.dragNode === node) state.dragNode = null;
   if (drag === undefined) return;
   dragged(drag, event);
   if (drag.moved) {
-    const returned = Math.hypot(event.clientX - drag.start.x, event.clientY - drag.start.y) < (drag.zoom < 0.25 ? 8 : DRAG_FROM);
+    const returned = Math.hypot(event.clientX - drag.start.x, event.clientY - drag.start.y) < drag.threshold;
     moveTo(state, drag.key, returned ? drag.at : drag.to);
   }
 }

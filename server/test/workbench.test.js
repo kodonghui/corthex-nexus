@@ -247,6 +247,7 @@ describe('SCR-145 pictures', () => {
       board.dispatch('wheel', { ctrlKey: true, deltaY: 3, clientX: 0, clientY: 0 });
       assert.match(area.textContent, /옮기기를 마친 뒤/);
       button.dispatch('pointercancel');
+      assert.doesNotMatch(area.textContent, /옮기기를 마친 뒤/);
       assert.equal(page.sent.length, 0);
     } finally { page.close(); }
   });
@@ -315,6 +316,21 @@ describe('SCR-145 pictures', () => {
       board.dispatch('touchend', { touches: [point(0), point(40)] });
       board.dispatch('touchmove', { touches: [point(0), point(60)] });
       assert.equal(Number(svg.getAttribute('width')), initial * 1.5);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('starting a pinch explains that an active drag was cancelled', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const button = buttonNamed(page, 'scr', 'Projects');
+      const board = pictureBox(page).all('div', 'boardbox')[0];
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      board.dispatch('touchstart', { touches: [{ clientX: 0, clientY: 0 }, { clientX: 30, clientY: 0 }] });
+      assert.match(page.app.textContent, /두 손가락 확대를 시작해 옮기기를 멈췄어요/);
+      button.dispatch('pointerup', { clientX: 120, clientY: 100 });
+      await waitSend(page);
       assert.equal(page.sent.length, 0);
     } finally { page.close(); }
   });
