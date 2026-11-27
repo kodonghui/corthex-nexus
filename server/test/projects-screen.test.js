@@ -266,12 +266,17 @@ describe('the projects and the credentials (SCR-143)', () => {
 
   test('stale: a table whose read again fails keeps its rows with the failure, and the read time shows', async () => {
     let fail = false;
-    const page = await open({ reads: { '/api/credentials': (path) => (fail ? problem(500, 'internal')() : FINE[path]()) } });
-    const realNow = Date.now;
+    const nativeNow = Date.now;
+    const firstRead = Date.parse('2026-11-27T16:01:59.000Z');
+    const realNow = () => firstRead + MINUTE;
+    let page;
     try {
+      Date.now = () => firstRead;
+      page = await open({ reads: { '/api/credentials': (path) => (fail ? problem(500, 'internal')() : FINE[path]()) } });
+      Date.now = realNow;
       const tag = () => page.app.all('span', 'tag').find((each) => each.parent.className === 'row');
       assert.equal(tag().shown, false);
-      const readAt = realNow();
+      const readAt = firstRead;
       Date.now = () => readAt + STALE_AFTER_MS + 1000;
       for (const tick of page.ticks) tick();
       Date.now = realNow;
@@ -283,14 +288,18 @@ describe('the projects and the credentials (SCR-143)', () => {
       assert.equal(tables(page).length, 2);
       assert.deepEqual(cells(tables(page)[1].all('tr')[1]).slice(0, 1), ['ci']);
       assert.equal(tag().shown, true);
+      assert.equal(tag().textContent, `${clockOf(readAt)}에 읽음`);
       fail = false;
       page.document.dispatch('visibilitychange');
       await page.settle();
       assert.equal(errorShown(page), false);
       assert.equal(tag().shown, false);
+      Date.now = () => realNow() + STALE_AFTER_MS + 1000;
+      for (const tick of page.ticks) tick();
+      assert.equal(tag().textContent, `${clockOf(realNow())}에 읽음`);
     } finally {
-      Date.now = realNow;
-      page.close();
+      Date.now = nativeNow;
+      page?.close();
     }
   });
 
