@@ -23,3 +23,9 @@ test('zoom keeps a focal point steady in the scrolled picture', () => {
   assert.equal(zoomScroll(250, 50, 2, 1), 100);
   assert.equal(zoomScroll(0, 100, 1, 0.25), 0);
 });
+
+test('small trackpad wheel changes accumulate at low magnification', () => {
+  let scale = 0.1;
+  for (let count = 0; count < 10; count += 1) scale = clampZoom(scale * Math.exp(0.002));
+  assert.ok(scale > 0.101);
+});

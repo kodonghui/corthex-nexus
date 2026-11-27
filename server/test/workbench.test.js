@@ -209,6 +209,22 @@ describe('SCR-145 pictures', () => {
       assert.equal(page.sent.length, 0);
     } finally { page.close(); }
   });
+
+  test('small control-wheel events enlarge a fitted picture instead of being rounded away', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      Object.assign(board, { clientWidth: 25, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      area.all('div', 'zoom-controls')[0].all('button')[2].click();
+      const svg = area.all('svg', 'pic')[0];
+      const before = Number(svg.getAttribute('width'));
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      for (let count = 0; count < 10; count += 1) board.dispatch('wheel', { ctrlKey: true, deltaY: -1, clientX: 0, clientY: 0 });
+      assert.ok(Number(svg.getAttribute('width')) > before);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
   test('each kind of diagram draws by the names of its elements, never by a trace ID or a diagram ID (SPEC-010)', async () => {
     const cases = {
       board: (box) => {
@@ -423,7 +439,7 @@ describe('SCR-145 pictures', () => {
       button.dispatch('pointerup', { clientX: 101, clientY: 101 });
       await waitSend(page);
       assert.deepEqual(page.sent, []);
-      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointerdown', { button: 0, pointerType: 'touch', isPrimary: true, clientX: 100, clientY: 100, pointerId: 1 });
       button.dispatch('pointermove', { clientX: 150, clientY: 120 });
       assert.deepEqual([Number(holderOf(button).getAttribute('x')), Number(holderOf(button).getAttribute('y'))], [at.x + 50 - 6, at.y + 20 - 6]);
       button.dispatch('pointerup', { clientX: 160, clientY: 130 });

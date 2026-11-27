@@ -4,19 +4,20 @@ export const MAX_ZOOM = 2;
 export const ZOOM_STEP = 0.1;
 
 export function clampZoom(value) {
-  return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.round(value * 1000) / 1000));
+  return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, value));
 }
 
 // Coarse steps at normal magnifications and smaller, reversible steps for very large diagrams.
 export function zoomStep(value, direction) {
+  const step = (number) => clampZoom(Math.round(number * 1000) / 1000);
   if (direction < 0) {
     if (value <= 0.025) return MIN_ZOOM;
-    if (value <= 0.1) return clampZoom(value / 2);
-    return clampZoom(Math.max(0.1, value - ZOOM_STEP));
+    if (value <= 0.1) return step(value / 2);
+    return step(Math.max(0.1, value - ZOOM_STEP));
   }
   if (value <= MIN_ZOOM) return 0.025;
-  if (value < 0.1) return clampZoom(Math.min(0.1, value * 2));
-  return clampZoom(value + ZOOM_STEP);
+  if (value < 0.1) return step(Math.min(0.1, value * 2));
+  return step(value + ZOOM_STEP);
 }
 
 export function fitZoom(width, height, availableWidth, availableHeight) {

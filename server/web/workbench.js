@@ -263,7 +263,13 @@ function drawPicture(state) {
   } else {
     const picture = pictureOf(view);
     if (view.svg) {
+      const prior = state.zoomUI;
+      const focusIndex = prior ? [prior.decrease, prior.increase, prior.fit, prior.readable].indexOf(document.activeElement) : -1;
+      const oldNotice = prior?.notice.textContent ?? '';
       fill(state.pictureBox, zoomControls(state), picture);
+      state.zoomUI.notice.textContent = oldNotice;
+      const newControls = [state.zoomUI.decrease, state.zoomUI.increase, state.zoomUI.fit, state.zoomUI.readable];
+      if (focusIndex >= 0 && !newControls[focusIndex].disabled && !newControls[focusIndex].hidden) newControls[focusIndex].focus();
       view.box.addEventListener('dblclick', (event) => {
         if (state.zoom >= 1) return;
         event.preventDefault();
@@ -274,12 +280,14 @@ function drawPicture(state) {
       view.box.addEventListener('wheel', (event) => {
         if (!event.ctrlKey) return;
         event.preventDefault();
+        if (state.dragNode) return;
         const rect = view.box.getBoundingClientRect();
         changeZoom(state, state.zoom * Math.exp(-event.deltaY * 0.002), event.clientX - rect.left, event.clientY - rect.top);
       }, { passive: false });
       let pinch = null;
       view.box.addEventListener('touchstart', (event) => {
         if (event.touches.length !== 2) return;
+        if (state.dragNode) cancelled(state, state.dragNode);
         const [a, b] = event.touches;
         pinch = { distance: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), zoom: state.zoom };
       }, { passive: true });
@@ -325,7 +333,7 @@ function scrollTo(view, scroll) {
     }
     if (first === null) return;
     const left = (first.x - origin.x) * (view.zoom ?? 1);
-    box.scrollLeft = Math.max(0, Math.min(left, left + first.width / 2 - (box.clientWidth ?? 0) / 2));
+    box.scrollLeft = Math.max(0, Math.min(left, left + first.width * (view.zoom ?? 1) / 2 - (box.clientWidth ?? 0) / 2));
   };
   if (box.isConnected === false) queueMicrotask(apply);
   else apply();
@@ -343,8 +351,9 @@ function zoomControls(state) {
     const { box, size } = state.view;
     // The box shrinks with the picture; use the available viewport rather than its current height when fitting again.
     const top = Math.max(0, box.getBoundingClientRect?.().top ?? 0);
-    const availableHeight = Math.max(100, Math.min(624, (globalThis.innerHeight ?? 674) - top - 26));
-    const availableWidth = Math.max(1, box.clientWidth - 24);
+    const metrics = boxMetrics(box);
+    const availableHeight = Math.max(1, Math.min(metrics.maxHeight, (globalThis.innerHeight ?? 674) - top) - metrics.vertical);
+    const availableWidth = Math.max(1, box.clientWidth - metrics.horizontalPadding);
     const fitted = fitZoom(size.width, size.height, availableWidth, availableHeight);
     changeZoom(state, fitted, 0, 0);
     notice.textContent = size.width * fitted > availableWidth || size.height * fitted > availableHeight
@@ -352,9 +361,19 @@ function zoomControls(state) {
     box.scrollLeft = 0;
     box.scrollTop = 0;
   } } }, '화면에 맞추기');
-  state.zoomUI = { decrease, increase, value, notice, readable };
+  state.zoomUI = { decrease, increase, fit, value, notice, readable };
   updateZoomControls(state);
   return h('div', { class: 'zoom-controls', role: 'group', 'aria-label': '그림 크기' }, decrease, value, increase, fit, readable, hint, notice);
+}
+
+function boxMetrics(box) {
+  const css = globalThis.getComputedStyle?.(box);
+  const number = (value, fallback) => Number.isFinite(Number.parseFloat(value)) ? Number.parseFloat(value) : fallback;
+  const left = number(css?.paddingLeft, 12), right = number(css?.paddingRight, 12);
+  const top = number(css?.paddingTop, 12), bottom = number(css?.paddingBottom, 12);
+  const borderX = number(css?.borderLeftWidth, 1), borderY = number(css?.borderTopWidth, 1);
+  return { insetX: left + borderX, insetY: top + borderY, horizontalPadding: left + right,
+    vertical: top + bottom + borderY + number(css?.borderBottomWidth, 1), maxHeight: number(css?.maxHeight, 650) };
 }
 
 function updateZoomControls(state) {
@@ -374,9 +393,10 @@ function changeZoom(state, wanted, x, y) {
   const next = clampZoom(wanted);
   state.zoomUI.notice.textContent = '';
   if (next === state.zoom) return;
-  // The scroll box has a 1px border and 12px padding; the SVG begins inside that inset.
-  const centerX = (x ?? box.clientWidth / 2) - 13;
-  const centerY = (y ?? box.clientHeight / 2) - 13;
+  // The SVG starts inside the scroll box's border and padding.
+  const { insetX, insetY } = boxMetrics(box);
+  const centerX = (x ?? box.clientWidth / 2) - insetX;
+  const centerY = (y ?? box.clientHeight / 2) - insetY;
   const left = zoomScroll(box.scrollLeft, centerX, state.zoom, next);
   const top = zoomScroll(box.scrollTop, centerY, state.zoom, next);
   state.zoom = next;
@@ -523,7 +543,7 @@ function keydown(state, element, event) {
 
 // A drag: the box follows the pointer, and the move is taken once it is let go 3 pixels or more from where it started.
 function pointerdown(state, element, event) {
-  if (event.pointerType === 'touch' || (event.button !== undefined && event.button !== 0) || !movable(state, element)) return;
+  if ((event.pointerType === 'touch' && event.isPrimary === false) || (event.button !== undefined && event.button !== 0) || !movable(state, element)) return;
   const node = state.view.nodes.get(element.key);
   const holder = node?.parentNode?.parentNode;
   if (!node || !holder) return;
@@ -536,6 +556,7 @@ function pointerdown(state, element, event) {
     node.addEventListener('pointercancel', () => cancelled(state, node));
   }
   state.drags.set(node, drag);
+  state.dragNode = node;
   node.setPointerCapture?.(event.pointerId);
 }
 
@@ -556,6 +577,7 @@ function dragged(drag, event) {
 function cancelled(state, node) {
   const drag = state.drags.get(node);
   state.drags.delete(node);
+  if (state.dragNode === node) state.dragNode = null;
   if (drag === undefined || !drag.moved) return;
   drag.holder.setAttribute('x', drag.at.x - PAD);
   drag.holder.setAttribute('y', drag.at.y - PAD);
@@ -565,6 +587,7 @@ function cancelled(state, node) {
 function dropped(state, node, event) {
   const drag = state.drags.get(node);
   state.drags.delete(node);
+  if (state.dragNode === node) state.dragNode = null;
   if (drag === undefined) return;
   dragged(drag, event);
   if (drag.moved) moveTo(state, drag.key, drag.to);
