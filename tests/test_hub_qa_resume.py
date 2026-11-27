@@ -99,6 +99,10 @@ class HubQaWalk(hub_run.HubRunTest):
                 self.forward()
 
             def forward(self):
+                if self.headers.get("Transfer-Encoding") is not None:
+                    DropOnce.failures.append(True)
+                    self.send_error(501)
+                    return
                 body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
                 names = [key.lower() for key in self.headers.keys()]
                 if len(names) != len(set(names)):
@@ -110,7 +114,7 @@ class HubQaWalk(hub_run.HubRunTest):
                     connection.request(self.command, self.path, body=body or None, headers=headers)
                     answer = connection.getresponse()
                     payload = answer.read()
-                except (OSError, TimeoutError):
+                except (OSError, http.client.HTTPException):
                     DropOnce.failures.append(True)
                     connection.close()
                     self.send_error(502)
@@ -156,7 +160,7 @@ class HubQaWalk(hub_run.HubRunTest):
         finally:
             proxy.shutdown()
             proxy.server_close()
-            self.assertFalse(DropOnce.failures, "proxy failed to reach the local server")
+        self.assertFalse(DropOnce.failures, "proxy failed to forward a supported request")
 
     def test_redraw_invalidates_reflects_and_moves_a_thread(self):
         self.first_push_and_comment()
