@@ -237,6 +237,85 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('redo after reset expects the new drawing coordinates returned by the server', async () => {
+    const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+    const drawn = boxOf('erd', table.key);
+    const changed = { x: drawn.x + 100, y: drawn.y + 40 };
+    let newer = false;
+    const moved = (body) => {
+      if (body.reset) {
+        newer = true;
+        return json(200, { diagram: ID.erd, element: body.element, ...changed, moved_at: TIME })();
+      }
+      return movedAnswer('erd')(body);
+    };
+    const page = await openStage('erd', { moved, more: { [diagramPath('erd')]: () => {
+      const diagram = structuredClone(diagramOf('erd'));
+      if (newer) Object.assign(diagram.elements.find((each) => each.key === table.key).detail.box, changed);
+      return json(200, diagram)();
+    } } });
+    try {
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      pictureBox(page).all('div', 'move-history')[0].all('button')[1].click();
+      await page.settle();
+      assert.deepEqual(page.sent.at(-1).body.expected, changed);
+    } finally { page.close(); }
+  });
+
+  test('two clicks on retry send one history operation and keep the older undo', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    let attempts = 0;
+    const moved = (body) => {
+      if (!body.expected) return movedAnswer('erd')(body);
+      attempts += 1;
+      if (attempts === 1) return new TypeError('Failed to fetch');
+      if (attempts === 2) return held.then(() => movedAnswer('erd')(body));
+      return movedAnswer('erd')(body);
+    };
+    const page = await openStage('erd', { moved });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      for (let count = 0; count < 2; count += 1) {
+        buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+        await waitSend(page);
+      }
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      const retry = page.app.all('div', 'wb-notice')[0].all('button')[0];
+      retry.click(); retry.click();
+      await delay(30);
+      assert.equal(page.sent.length, 4);
+      release();
+      await page.settle();
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, false);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent.length, 5);
+    } finally { release(); page.close(); }
+  });
+
+  test('an invalid move rolls back so the box can be moved back within range', async () => {
+    const diagram = structuredClone(diagramOf('erd'));
+    const element = diagram.elements.find((each) => each.kind === 'table');
+    element.detail.box.x = 1_000_000;
+    element.position = { x: 1_000_000, y: element.detail.box.y };
+    element.position_saved = true;
+    const moved = (body) => body.x > 1_000_000 ? problem(400, 'invalid_request')() : movedAnswer('erd')(body);
+    const page = await openStage('erd', { moved, more: { [diagramPath('erd')]: json(200, diagram) } });
+    try {
+      buttonNamed(page, 'tbl', element.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.match(page.app.textContent, /그 위치로 옮길 수 없어 이동을 취소했어요/);
+      buttonNamed(page, 'tbl', element.name).dispatch('keydown', { key: 'ArrowLeft' });
+      await waitSend(page);
+      assert.equal(page.sent.at(-1).body.x, 1_000_000 - STEP);
+    } finally { page.close(); }
+  });
+
   test('a conflicting undo reloads instead of overwriting another tab', async () => {
     const page = await openStage('erd', { moved: (body) => body.expected
       ? problem(409, 'position_changed')() : movedAnswer('erd')(body) });
@@ -1298,7 +1377,8 @@ describe('SCR-145 against the server', () => {
     };
     const cases = casesOf('moveElement', [
       { status: 200, done: true },
-      { status: 400, code: 'invalid_request', request: () => post({ headers: { ...json, ...owner() } }), shows: inNotice('invalid_request') },
+      { status: 400, code: 'invalid_request', request: () => post({ headers: { ...json, ...owner() } }),
+        shows: (page) => assert.match(notice(page).textContent, /그 위치로 옮길 수 없어 이동을 취소했어요/) },
       { status: 401, code: 'unauthenticated', request: () => post({ headers: { ...json, ...key() } }), shows: gateShows },
       { status: 403, code: 'owner_only', request: () => post({ headers: { ...json, ...s.agent.headers, ...key() } }), shows: permissionShows('owner_only') },
       { status: 403, code: 'not_owner', request: () => post({ headers: { ...json, ...someone(), ...key() } }), shows: permissionShows('not_owner') },

@@ -416,7 +416,7 @@ Section 4 of the WBS records that a proposal's `source_text` makes no change on 
 
 API-256 already lists TBL-149 and TBL-150, which hold the drawing's picture, so its tables do not change. No operation, status, code or spec row changes. This part passed its own checkpoint on 2026-11-24 through the same delegate.
 
-API-274 accepts optional `reset: true` together with `expected`: after the atomic position comparison succeeds, it removes the saved position and returns the original drawing coordinates. This restores automatic placement for an undo without overwriting a different current position; the original `x` and `y` fields remain required for compatibility. The maintainer's checkpoint delegate authorized this correction on 2026-11-27; the project's records hold the answer.
+API-274 accepts optional `reset: true` together with `expected`: after the atomic position comparison succeeds, it removes the saved position and returns the current drawing coordinates. This restores automatic placement for an undo without overwriting a different current position; the original `x` and `y` fields remain required for compatibility. The maintainer's checkpoint delegate authorized this correction on 2026-11-27; the project's records hold the answer.
 
 API-265's element response adds optional `position_saved`, true only when the owner has a saved position. The coordinate field keeps its existing fallback to the drawing box. This lets the undo client distinguish an automatic position from a saved position at the same coordinates; an older response without the field is treated conservatively as saved. The maintainer's checkpoint delegate authorized this addition to the same correction on 2026-11-27; its basis is in the project records.
 

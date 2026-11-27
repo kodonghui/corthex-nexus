@@ -153,6 +153,11 @@
           "approved": "SPEC-055 clarifies interrupted writes and missing elements, and restores automatic placement when undoing a first move. This correction to the approved position-history behavior was authorized through the maintainer's checkpoint delegate on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-055 uses current drawing coordinates after reset, recovers from a rejected invalid move, and serializes a retry after a lost response. The maintainer's checkpoint delegate authorized these corrections on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",

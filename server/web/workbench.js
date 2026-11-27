@@ -133,13 +133,13 @@ function stateOf(ctx) {
       clearTimeout(state.timer);
       for (const key of [...state.pending]) { state.pending.delete(key); send(state, key, null); }
       state.history.undo.length = 0; state.history.redo.length = 0;
-      state.history.busy = false; state.history.epoch += 1; state.history.invalidated = true;
+      state.history.busy = false; state.history.inFlight = null; state.history.epoch += 1; state.history.invalidated = true;
     }
     let byDiagram = histories.get(ctx.shell);
     if (byDiagram === undefined) { byDiagram = new Map(); histories.set(ctx.shell, byDiagram); }
     let history = byDiagram.get(diagram.id);
     if (history === undefined) {
-      history = { undo: [], redo: [], busy: false, epoch: 0, invalidated: stored('sessionStorage', historyMark(diagram.id)) === '1' };
+      history = { undo: [], redo: [], busy: false, inFlight: null, epoch: 0, invalidated: stored('sessionStorage', historyMark(diagram.id)) === '1' };
       byDiagram.set(diagram.id, history);
     }
     state = { diagram: diagram.id, selected: null, moves: new Map(), before: new Map(), pending: new Set(), sending: new Set(), failed: new Set(), again: new Set(), timer: null, frame: null, drags: new WeakMap(), history };
@@ -478,6 +478,7 @@ function historyKey(state, event) {
 
 async function runHistory(state, redo, retryKey = null) {
   const history = state.history;
+  if (history.inFlight !== null) return;
   if (retryKey === null && historyPending(state)) return;
   const fromStack = redo ? history.redo : history.undo;
   const toStack = redo ? history.undo : history.redo;
@@ -491,12 +492,17 @@ async function runHistory(state, redo, retryKey = null) {
   const path = `${diagramApi(state.ctx.data.diagram.project, state.diagram)}/positions`;
   const requestKey = retryKey ?? newRequestKey();
   const epoch = history.epoch;
+  const flight = Symbol('history-write');
+  history.inFlight = flight;
   store('sessionStorage', historyMark(state.diagram), '1');
   const outcome = await state.ctx.shell.write('POST', path,
     { element: entry.key, x: target.x, y: target.y, expected, ...(reset ? { reset: true } : {}) }, requestKey);
+  if (history.inFlight !== flight) return;
+  history.inFlight = null;
   if (history.epoch !== epoch) return;
   if ([200, 404, 409].includes(outcome.status)) store('sessionStorage', historyMark(state.diagram), null);
   if (outcome.status === 200) {
+    if (reset) entry.drawn = { x: outcome.body.x, y: outcome.body.y };
     fromStack.pop();
     toStack.push(entry);
     history.busy = false;
@@ -505,6 +511,11 @@ async function runHistory(state, redo, retryKey = null) {
     if (element) {
       element.position = reset ? entry.drawn : { x: outcome.body.x, y: outcome.body.y };
       element.position_saved = !reset;
+      if (reset && element.detail?.box) Object.assign(element.detail.box, entry.drawn);
+    }
+    if (reset) {
+      await state.ctx.shell.reload();
+      if (!state.live()) return;
     }
     fill(state.notice, h('div', { class: 'nt info', role: 'status' }, redo ? '이동을 다시 실행했어요.' : '이동을 되돌렸어요.'));
     state.focus = entry.key;
@@ -680,6 +691,13 @@ async function send(state, key, kept) {
     const now = state.moves.get(key);
     if (now !== undefined && now.x === at.x && now.y === at.y) state.moves.delete(key);
     fill(state.notice);
+  } else if (outcome.status === 400 && outcome.code === 'invalid_request') {
+    state.moves.delete(key); state.before.delete(key); state.pending.delete(key); state.again.delete(key); state.failed.delete(key);
+    store('sessionStorage', historyMark(state.diagram), null);
+    fill(state.notice, h('div', { class: 'nt warn', role: 'alert' }, '그 위치로 옮길 수 없어 이동을 취소했어요. 다른 위치로 옮겨 주세요.'));
+    drawPicture(state);
+    updateHistoryControls(state);
+    return;
   } else if (outcome.status === 401 || outcome.status === 403 || outcome.failure === 'gate') {
     state.failed.add(key);
     updateHistoryControls(state);
