@@ -303,6 +303,9 @@ function drawPicture(state) {
         changeZoom(state, state.zoom * Math.exp(-delta * 0.002), event.clientX - rect.left, event.clientY - rect.top);
       }, { passive: false });
       let pinch = null;
+      // Touch.target stays where each finger started, even when it moves across the page.
+      const pictureTouches = (event) => Array.from(event.touches ?? []).filter((touch) =>
+        touch.target == null || view.box.contains(touch.target));
       const beginPinch = (touches) => {
         if (touches.length !== 2) { pinch = null; state.pinching = false; return; }
         if (state.dragNode) {
@@ -316,11 +319,12 @@ function drawPicture(state) {
       };
       view.box.addEventListener('touchstart', (event) => {
         if (state.view !== view) return;
-        beginPinch(event.touches);
+        beginPinch(pictureTouches(event));
       }, { passive: true });
       view.box.addEventListener('touchmove', (event) => {
         if (state.view !== view) return;
-        if (!pinch || event.touches.length !== 2 || pinch.distance === 0) return;
+        const touches = pictureTouches(event);
+        if (!pinch || touches.length !== 2 || pinch.distance === 0) return;
         if (event.cancelable === false) {
           pinch = null;
           state.pinching = false;
@@ -328,12 +332,12 @@ function drawPicture(state) {
           return;
         }
         event.preventDefault();
-        const [a, b] = event.touches;
+        const [a, b] = touches;
         const rect = view.box.getBoundingClientRect();
         changeZoom(state, pinch.zoom * Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) / pinch.distance,
           (a.clientX + b.clientX) / 2 - rect.left, (a.clientY + b.clientY) / 2 - rect.top);
       }, { passive: false });
-      view.box.addEventListener('touchend', (event) => { if (state.view === view) beginPinch(event.touches ?? []); });
+      view.box.addEventListener('touchend', (event) => { if (state.view === view) beginPinch(pictureTouches(event)); });
       view.box.addEventListener('touchcancel', () => { if (state.view === view) { pinch = null; state.pinching = false; } });
     } else fill(state.pictureBox, picture);
   }
@@ -383,6 +387,7 @@ function zoomControls(state) {
   const hint = h('span', { class: 'small' }, state.ctx.shell.isPhone()
     ? '작게 본 그림은 원하는 곳을 두 번 누르거나 두 손가락을 벌리면 커져요.' : '작게 본 그림은 원하는 곳을 두 번 누르면 커져요.');
   const fit = h('button', { class: 'btn tertiary', type: 'button', on: { click: () => {
+    if (waitForDrag(state)) return;
     const { box, size } = state.view;
     // The box shrinks with the picture; use the available viewport rather than its current height when fitting again.
     fit.scrollIntoView?.({ block: 'start', inline: 'nearest' });
@@ -435,7 +440,14 @@ function updateZoomControls(state) {
   value.textContent = `${Math.round(state.zoom * 1000) / 10}%`;
 }
 
+function waitForDrag(state) {
+  if (!state.dragNode) return false;
+  state.zoomUI.notice.textContent = ZOOM_WAIT_DRAG;
+  return true;
+}
+
 function changeZoom(state, wanted, x, y) {
+  if (waitForDrag(state)) return;
   const { box, svg, size } = state.view;
   const next = clampZoom(wanted);
   if (next === state.zoom) {

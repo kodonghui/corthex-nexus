@@ -252,6 +252,51 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('zoom buttons and fit wait for an active drag', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const svg = area.all('svg', 'pic')[0];
+      const buttons = area.all('div', 'zoom-controls')[0].all('button');
+      const original = svg.getAttribute('width');
+      const box = buttonNamed(page, 'scr', 'Projects');
+      box.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      box.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      for (const index of [0, 1, 2]) {
+        buttons[index].click();
+        assert.equal(svg.getAttribute('width'), original);
+        assert.match(area.textContent, /옮기기를 마친 뒤/);
+      }
+      box.dispatch('pointercancel');
+      assert.doesNotMatch(area.textContent, /옮기기를 마친 뒤/);
+      buttons[1].click();
+      assert.equal(Number(svg.getAttribute('width')), Number(original) * 1.1);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('a touch outside the picture does not participate in its pinch', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      const svg = area.all('svg', 'pic')[0];
+      const box = buttonNamed(page, 'scr', 'Projects');
+      const outside = page.document.createElement('div');
+      page.app.append(outside);
+      const point = (x, target) => ({ clientX: x, clientY: 0, target });
+      const initial = Number(svg.getAttribute('width'));
+      board.dispatch('touchstart', { touches: [point(0, outside), point(30, board)] });
+      board.dispatch('touchmove', { touches: [point(0, outside), point(60, board)] });
+      assert.equal(Number(svg.getAttribute('width')), initial);
+      board.dispatch('touchstart', { touches: [point(0, board), point(30, box)] });
+      board.dispatch('touchmove', { touches: [point(0, board), point(60, box)] });
+      assert.equal(Number(svg.getAttribute('width')), initial * 2);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
   test('redrawing a picture without changing zoom does not announce a new zoom', async () => {
     const page = await openStage('sitemap');
     try {
