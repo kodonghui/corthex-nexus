@@ -417,7 +417,7 @@ These need the deployed v3, so they run on the first group's deploy. The go/no-g
 
 ### 2.8 The pinned hub end to end
 
-The pinned hub's commands against a local v3 server, as `tests/test_hub_run.py` runs them. What that test already covers passes; the rest is planned.
+The runs below planned e410ce9, the pin when the plan was written; TC-214 to TC-220 are walked at that exact earlier pin. The current pin for TC-221 is 1becbab, the hub 0.6.0 source-path change, and its evidence is recorded separately. The pinned hub's commands run against a local v3 server as `tests/test_hub_run.py` runs them.
 
 | ID | Case | From | Runs as | Gate | Steps | Expected | Status | Run evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
