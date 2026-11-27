@@ -257,7 +257,7 @@ async function readThread(state, id) {
   if (outcome.status === 200 && outcome.body.diagram === diagram.id) {
     t.thread = outcome.body;
     t.failed = null;
-    brief(state, id, outcome.body);
+    brief(state, id, outcome.body, 0, true);
     const key = outcome.body.element;
     if (choose && key !== null && state.names.has(key)) {
       t.host.choose(key);
@@ -276,15 +276,39 @@ async function readThread(state, id) {
 }
 
 // The diagram's brief of a thread takes what a read or a write answered about it; added counts an entry a write added.
-function brief(state, id, thread, added = 0) {
+function brief(state, id, thread, added = 0, authoritative = false) {
   const found = (state.ctx.data.diagram.threads ?? []).find((each) => each.id === id);
   if (found === undefined) return;
+  delete found.resolutionRead;
   found.state = thread.state;
   found.waits_on = thread.waits_on;
   if (thread.resolved === true) found.resolved = true;
-  else if (thread.state === 'open' || thread.closed_by === 'owner' || Object.hasOwn(thread, 'resolved')) delete found.resolved;
+  else if (authoritative || thread.state === 'open' || thread.closed_by === 'owner' || Object.hasOwn(thread, 'resolved')) delete found.resolved;
   found.last_at = thread.last_at;
   found.entries = Array.isArray(thread.entries) ? thread.entries.length : found.entries + added;
+}
+
+// A close may race an automatic resolution. Read its state without superseding a
+// different thread's in-flight read, and do not turn a successful close into an error.
+async function refreshAfterClose(state, id) {
+  const t = state.threads;
+  const diagram = state.ctx.data.diagram;
+  const found = (diagram.threads ?? []).find((each) => each.id === id);
+  if (!found) return;
+  const token = Symbol('resolution read');
+  const seq = t.seq;
+  found.resolutionRead = token;
+  const outcome = await read(`${projectApi(diagram.project)}/threads/${encodeURIComponent(id)}`);
+  if (!t.host.live() || state.ctx.data.diagram !== diagram || found.resolutionRead !== token) return;
+  delete found.resolutionRead;
+  if (outcome.status !== 200 || outcome.body.diagram !== diagram.id) return;
+  brief(state, id, outcome.body, 0, true);
+  if (t.shown === id && t.seq === seq) {
+    t.thread = outcome.body;
+    t.failed = null;
+    drawShown(state);
+  }
+  drawList(state);
 }
 
 function drawShown(state) {
@@ -553,7 +577,7 @@ function closeOf(state, id, reopen = false) {
       // The diagram shown now, which brief marked: a read again may have drawn the view anew while the close was sent.
       const now = state.ctx.data.diagram;
       if (!reopen && now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
-      else if (!reopen && answer.thread.state === 'closed' && answer.thread.closed_by === 'reflection') readThread(state, id);
+      else if (!reopen && answer.thread.state === 'closed' && answer.thread.closed_by === 'reflection') refreshAfterClose(state, id);
     },
   };
 }

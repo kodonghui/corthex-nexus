@@ -494,6 +494,77 @@ describe('SCR-145 threads', () => {
     }
   });
 
+  test('a full thread read clears a stale resolved list flag', async () => {
+    const briefs = BRIEFS.erd.map((brief) => brief.id === T.closed ? { ...brief, resolved: true } : brief);
+    const original = BRIEFS.erd.find((brief) => brief.id === T.closed);
+    const legacy = threadOf('erd', original, { closed_by: 'reflection' });
+    const page = await openStage('erd', { more: {
+      [diagramPath('erd')]: json(200, diagramOf('erd', { threads: briefs })),
+      [threadPath(T.closed)]: json(200, legacy),
+    } });
+    try {
+      rowNamed(page, 'project_spaces').click();
+      await page.settle();
+      assert.deepEqual(rowsOf(page), [['project_spaces', THREAD_WORDS.reflected]]);
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a close racing resolution does not discard another thread read', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const open = threadOf('erd', original);
+    const resolved = threadOf('erd', original, { state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true, closed_at: ago(0) });
+    let closeAnswer;
+    let releaseOther;
+    let closed = false;
+    const page = await openStage('erd', {
+      answers: (path) => {
+        if (path === threadPath(T.mine)) return json(200, closed ? resolved : open);
+        if (path === threadPath(T.whole)) return () => new Promise((resolve) => { releaseOther = () => resolve(json(200, threadOf('erd', BRIEFS.erd.find((brief) => brief.id === T.whole)))()); });
+        return undefined;
+      },
+      posts: () => new Promise((resolve) => { closeAnswer = () => { closed = true; resolve(json(200, { thread: { id: T.mine, state: 'closed', waits_on: null, closed_by: 'reflection', last_at: ago(0) }, changed: false })()); }; }),
+    });
+    try {
+      rowNamed(page, 'agent_credentials').click();
+      await page.settle();
+      buttonOf(shownThread(page), THREAD_WORDS.close).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      buttonOf(sectionOf(page), THREAD_WORDS.wholeThreads).click();
+      rowNamed(page, THREAD_WORDS.whole).click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      closeAnswer();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      releaseOther();
+      await page.settle();
+      assert.equal(shownThread(page).getAttribute('aria-label'), THREAD_WORDS.whole);
+      assert.ok(rowsOf(page).some(([name, state]) => name === 'agent_credentials' && state === THREAD_WORDS.resolved));
+    } finally {
+      page.close();
+    }
+  });
+
+  test('a failed follow-up read keeps the successful close visible', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    let closed = false;
+    const page = await openStage('erd', {
+      answers: (path) => path === threadPath(T.mine) ? (closed ? problem(500, 'internal') : json(200, threadOf('erd', original))) : undefined,
+      posts: () => { closed = true; return json(200, { thread: { id: T.mine, state: 'closed', waits_on: null, closed_by: 'reflection', last_at: ago(0) }, changed: false })(); },
+    });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      buttonOf(shownThread(page), THREAD_WORDS.close).click();
+      await page.settle();
+      assert.ok(shownThread(page));
+      assert.equal(buttonOf(shownThread(page), THREAD_WORDS.close), undefined);
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.reflected]);
+    } finally {
+      page.close();
+    }
+  });
+
   test('a reply to a thread closed meanwhile shows the bar over the picture, and its text moves to the new comment of the same place', async () => {
     const page = await openStage('erd', { posts: () => problem(409, 'thread_closed')() });
     try {
