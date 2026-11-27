@@ -9383,22 +9383,22 @@ components:
       type: apiKey
       in: header
       name: CF-Access-Client-Id
-      description: "The legacy header for the agent credential ID (ac_…), paired only with CF-Access-Client-Secret. The pinned hub reads the ID from CORTHEX_NEXUS_CLIENT_ID. Agent paths must pass through the gate; NEXUS verifies the credential (SPEC-049). The public path still needs deployment verification."
+      description: "The legacy header for the agent credential ID (ac_…), paired only with CF-Access-Client-Secret. The pinned hub reads the ID from CORTHEX_NEXUS_CLIENT_ID for either header pair; it selects this pair when configured for cf-access, or by default when it knows the server is v2. Agent paths must pass through the gate; NEXUS verifies the credential (SPEC-049)."
     agentClientSecret:
       type: apiKey
       in: header
       name: CF-Access-Client-Secret
-      description: The legacy agent credential secret, paired only with CF-Access-Client-Id; the pinned hub reads it from CORTHEX_NEXUS_CLIENT_SECRET.
+      description: The legacy agent credential secret, paired only with CF-Access-Client-Id. The pinned hub reads CORTHEX_NEXUS_CLIENT_SECRET for either header pair.
     nexusAgentClientId:
       type: apiKey
       in: header
       name: Nexus-Agent-Client-Id
-      description: "The ID of the NEXUS agent credential, paired only with Nexus-Agent-Client-Secret. Send exactly one complete pair: this pair or the legacy CF-Access pair. Mixed, incomplete or duplicate headers, including both complete pairs, are refused as malformed with 401 access_missing; no pair is no_credential. Wrong, unknown and revoked credentials are also refused with 401 access_missing. Header values are never logged."
+      description: "The ID of the NEXUS agent credential, paired only with Nexus-Agent-Client-Secret. The pinned hub reads CORTHEX_NEXUS_CLIENT_ID and selects this pair by default for v3 and an unknown server. Send exactly one complete pair: this pair or the legacy CF-Access pair. Mixed, incomplete or duplicate headers, including both complete pairs, are refused as malformed with 401 access_missing; no pair is no_credential. Wrong, unknown and revoked credentials are also refused with 401 access_missing. Header values are never logged."
     nexusAgentClientSecret:
       type: apiKey
       in: header
       name: Nexus-Agent-Client-Secret
-      description: The secret of the NEXUS agent credential, paired only with Nexus-Agent-Client-Id.
+      description: The secret of the NEXUS agent credential, paired only with Nexus-Agent-Client-Id. The pinned hub reads CORTHEX_NEXUS_CLIENT_SECRET for either header pair.
     ownerSignIn:
       type: apiKey
       in: header
