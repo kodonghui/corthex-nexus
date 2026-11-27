@@ -2,7 +2,7 @@
 // SPEC-049).
 //
 // An owner operation admits only the gate's sign-in of the one owner, and a write of the owner's only from NEXUS's own
-// pages. An agent operation admits only a live agent credential, the CF-Access-Client-Id and -Secret pair (see
+// pages. An agent operation admits only a live agent credential, sent as one complete NEXUS or legacy header pair (see
 // credentials.js). Each check records on the request's log entry what rule 8 asks of a refusal: the sender, "unknown"
 // until a check names it, never a name the request gives, and the check that failed.
 

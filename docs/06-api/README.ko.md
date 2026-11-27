@@ -143,7 +143,7 @@
 
 - 에이전트 계열은 고정한 hub의 경로·헤더·필드와 hub가 읽는 응답 필드를 모두 그대로 받아, hub를 고치지 않고 써요(SPEC-014). hub의 remove 대체 경로(GET /api/snapshots/{project}/removal)와 v2 게시는 받지 않아요. 앞의 것은 /data가 없을 때만, 뒤의 것은 publish-v2 명령에서만 불러요.
 - 에이전트 ID는 hub의 형식을 따라요: 스레드 nc_, 변경 세트 np_, 반영 항목 ne_(다이어그램마다 하나, 기다리는 변경 세트를 모두 담음, SPEC-026), 확정 nk_. v3에는 차이(discrepancy)가 없어서 할 일의 discrepancies는 늘 비어 있고 nd_ ID는 늘 찾지 못해요.
-- 에이전트 자격 증명은 hub가 이미 보내는 CF-Access-Client-Id와 CF-Access-Client-Secret 한 쌍이고, NEXUS가 발급해요(SPEC-049). 없거나 모르거나 틀리거나 폐기된 자격 증명은 모두 access_missing(401) 하나로 답해요. hub는 이 코드를 다시 보낼 만한 것으로 여겨, 줄에 선 쓰기를 버리지 않고 자격 증명이 고쳐질 때까지 기다려요.
+- 에이전트는 NEXUS가 발급한 자격 증명을 완전한 헤더 쌍 하나로 보내요. `Nexus-Agent-Client-Id`와 `Nexus-Agent-Client-Secret` 또는 기존 `CF-Access-Client-Id`와 `CF-Access-Client-Secret`이에요(SPEC-049). 혼합, 누락, 중복, 두 쌍의 동시 전송과 알 수 없거나 틀리거나 폐기된 자격은 `access_missing`(401)으로 거부해요. 고정한 hub는 기존 쌍을 보내며 hub 갱신은 새 쌍을 보내요.
 - 요청 키는 규칙 3이 요구하는 24시간보다 긴 7일 동안 보관해요. hub가 보내지 못한 쓰기를 7일 동안 같은 키로 다시 보내기 때문이에요.
 - 할 일 항목에 대한 에이전트의 쓰기는 그 세션이 항목을 맡게 하고, 다른 세션이 맡은 항목에 쓰면 claimed로 거절해요. 그래서 댓글에 답하는 제안은 그 댓글을 맡은 상태가 돼요(SPEC-018).
 - 반영 보고의 변경 세트는 reflected가 가리키는 병합 커밋의 스냅숏을 NEXUS가 그릴 때만, 또는 이미 그 스냅숏이 있으면 바로 반영 완료로 표시해요(SPEC-025). 서버는 Git 조상 관계를 읽을 수 없어서 다른 커밋의 스냅숏으로는 표시하지 않아요. push 작업이 병합 커밋을 끝내 보내지 않으면, 에이전트가 NEXUS가 가진 커밋으로 reflected를 다시 보고해요.
