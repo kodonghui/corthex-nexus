@@ -188,6 +188,11 @@
           "approved": "SPEC-053 clarifies that minus uses the smaller step when the displayed scale rounds to 10%, avoiding a button that appears stuck. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 records the measured small correction: a wheel gesture explains a scale limit or an active drag, and returning within the low-zoom drag threshold saves no move. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
@@ -621,6 +626,11 @@
         },
         {
           "approved": "SCR-145 clarifies that minus uses the smaller step when the displayed scale rounds to 10%, avoiding a button that appears stuck. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 records the measured small correction: a wheel gesture explains a scale limit or an active drag, and returning within the low-zoom drag threshold saves no move. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         }

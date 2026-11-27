@@ -293,7 +293,10 @@ function drawPicture(state) {
       view.box.addEventListener('wheel', (event) => {
         if (!event.ctrlKey) return;
         event.preventDefault();
-        if (state.dragNode) return;
+        if (state.dragNode) {
+          state.zoomUI.notice.textContent = '옮기기를 마친 뒤 그림 크기를 바꿔 주세요.';
+          return;
+        }
         const rect = view.box.getBoundingClientRect();
         const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? view.box.clientHeight : 1);
         changeZoom(state, state.zoom * Math.exp(-delta * 0.002), event.clientX - rect.left, event.clientY - rect.top);
@@ -426,7 +429,11 @@ function updateZoomControls(state) {
 function changeZoom(state, wanted, x, y) {
   const { box, svg, size } = state.view;
   const next = clampZoom(wanted);
-  if (next === state.zoom) return;
+  if (next === state.zoom) {
+    if (!state.zoomUI.notice.textContent && next === MAX_ZOOM) state.zoomUI.notice.textContent = '그림은 200%까지 확대할 수 있어요.';
+    if (!state.zoomUI.notice.textContent && next === MIN_ZOOM) state.zoomUI.notice.textContent = '그림은 1%까지 축소할 수 있어요.';
+    return;
+  }
   state.zoomUI.notice.textContent = '';
   // The SVG starts inside the scroll box's border and padding.
   const { insetX, insetY } = boxMetrics(box);
@@ -578,7 +585,12 @@ function keydown(state, element, event) {
   // Keep arrow movement visible in screen pixels at every zoom level, as a drag is.
   const step = Math.round((event.shiftKey ? LONG_STEP : STEP) / state.zoom);
   const at = state.view.place.boxes.get(element.key);
-  moveTo(state, element.key, { x: positionBound(at.x + way[0] * step), y: positionBound(at.y + way[1] * step) });
+  const wanted = { x: at.x + way[0] * step, y: at.y + way[1] * step };
+  const to = { x: positionBound(wanted.x), y: positionBound(wanted.y) };
+  moveTo(state, element.key, to);
+  if (Math.abs(wanted.x) > 1_000_000 || Math.abs(wanted.y) > 1_000_000) {
+    fill(state.dragNotice, h('div', { class: 'nt warn', role: 'status' }, '이 방향으로는 더 옮길 수 없어요.'));
+  }
 }
 
 // A drag follows the pointer; below 25% it needs an eight-pixel gesture, otherwise DRAG_FROM pixels.
@@ -634,7 +646,7 @@ function dropped(state, node, event) {
   if (drag === undefined) return;
   dragged(drag, event);
   if (drag.moved) {
-    const returned = event.clientX === drag.start.x && event.clientY === drag.start.y;
+    const returned = Math.hypot(event.clientX - drag.start.x, event.clientY - drag.start.y) < (drag.zoom < 0.25 ? 8 : DRAG_FROM);
     moveTo(state, drag.key, returned ? drag.at : drag.to);
   }
 }

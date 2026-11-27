@@ -233,6 +233,24 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('a wheel gesture explains the maximum scale and waits for an active drag', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      for (let count = 0; count < 10; count += 1) area.all('div', 'zoom-controls')[0].all('button')[1].click();
+      board.dispatch('wheel', { ctrlKey: true, deltaY: -3, clientX: 0, clientY: 0 });
+      assert.match(area.textContent, /200%까지 확대/);
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      board.dispatch('wheel', { ctrlKey: true, deltaY: 3, clientX: 0, clientY: 0 });
+      assert.match(area.textContent, /옮기기를 마친 뒤/);
+      button.dispatch('pointercancel');
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
   test('redrawing a picture without changing zoom does not announce a new zoom', async () => {
     const page = await openStage('sitemap');
     try {
@@ -415,6 +433,7 @@ describe('SCR-145 pictures', () => {
       buttonNamed(page, 'scr', 'Projects').dispatch('keydown', { key: 'ArrowRight' });
       await waitSend(page);
       assert.equal(page.sent.length, 1);
+      assert.match(page.app.textContent, /이 방향으로는 더 옮길 수 없어요/);
     } finally { page.close(); }
   });
   test('an empty table explains unreadable or removed material without asking to send it again', async () => {
@@ -710,6 +729,23 @@ describe('SCR-145 pictures', () => {
       assert.equal(page.document.activeElement.getAttribute('aria-pressed'), 'true');
       assert.equal(page.document.activeElement.className.includes('fbox'), true);
       assert.equal(pictureBox(page).descendants().some((element) => element.getAttribute('transform') === 'translate(0 0)'), false);
+    } finally { page.close(); }
+  });
+
+  test('at low zoom, releasing close to the starting point is not a large accidental move', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      Object.assign(board, { clientWidth: 25, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      area.all('div', 'zoom-controls')[0].all('button')[2].click();
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      button.dispatch('pointerup', { clientX: 101, clientY: 100 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 0);
+      assert.equal(page.document.activeElement.getAttribute('aria-pressed'), 'true');
     } finally { page.close(); }
   });
 
