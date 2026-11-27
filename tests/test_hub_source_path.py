@@ -70,7 +70,7 @@ class SourcePathWalk(HubRunFixture):
             data = json.dumps({'part': 'nexus', 'stage': stage, 'items': [item], 'reason': 'Synthetic reason',
                                'change': 'Synthetic change', 'source_text': proposed}).encode('utf8')
             headers = {'Content-Type': 'application/json', 'Accept': 'application/json',
-                       'CF-Access-Client-Id': direct['credential']['id'], 'CF-Access-Client-Secret': direct_secret,
+                       'Nexus-Agent-Client-Id': direct['credential']['id'], 'Nexus-Agent-Client-Secret': direct_secret,
                        'Nexus-Session': 'source-direct-session',
                        'Idempotency-Key': '"nw_00000000000' + str(index) + '"'}
             request = urllib.request.Request(self.server.url + '/api/spaces/' + PROJECT + '/proposals',

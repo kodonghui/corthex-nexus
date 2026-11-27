@@ -1633,7 +1633,7 @@ CORTHEX_HUB_CHECKOUT=<the pinned hub checkout> python tests/test_picture_cases.p
 ### 메운 빈틈: 01단계와 여러 파일의 source_text에서 나오는 변경
 
 - **빈틈이었던 것.** TASK-438과 TASK-466은 01단계에서, 그리고 현재 드로잉의 요소가 `where`에 파일을 둘 이상 적은 05, 07단계에서 `source_text`를 변경 없이 뒀어요. 그래서 이름 바꾸기가 Y over X가 아니라 change 글로 표시된 X로 보였고, 계약("제안한 문서, NEXUS가 여기서 변경을 계산한다")과 SPEC-018의 인수 조건("소유자는 X 위에 Y를 제안으로 표시된 채 본다")에 못 미쳤어요. `source_text`는 경로가 없는 글 하나였고, NEXUS는 Markdown을 읽지 않았으며, 파일이 여럿이면 그 글이 어느 파일인지 알 수 없었어요. WBS 4절은 둘 다 hub가 경로를 보낼 때까지의 차이로 뒀어요.
-- **무엇이 메우는가.** TASK-470은 ProposalRequest에 `source_path`를 더하고([API README](../docs/06-api/README.ko.md)가 계약의 수정을 적어요), 01단계의 Markdown을 읽고, 여러 파일에서 읽은 그림에서 파일 하나 자리에 글을 넣어요. 고정한 hub의 `propose`가 내놓는 단계는 01, 05, 07이고(1becbab의 `commands.py`에 있는 `PICTURE_STAGES`), `--source-file`의 글 전체를 보내요.
+- **무엇이 메우는가.** TASK-470은 ProposalRequest에 `source_path`를 더하고([API README](../docs/06-api/README.ko.md)가 계약의 수정을 적어요), 01단계의 Markdown을 읽고, 여러 파일에서 읽은 그림에서 파일 하나 자리에 글을 넣어요. 고정한 hub의 `propose`가 내놓는 단계는 01, 05, 07이고(e6b46ac의 `commands.py`에 있는 `PICTURE_STAGES`), `--source-file`의 글 전체를 보내요.
 - **hub가 보내는 것.** 이전 고정 e410ce9는 `source_path`를 보내지 않았어요. 현재 고정 e6b46ac은 `--source-file`과 파일의 저장소 경로를 `source_path`로 보내요. 여러 파일에서 읽은 그림은 그 경로의 파일만 교체해 변경을 계산하며, 읽지 않은 경로 또는 여러 파일에서 경로가 없으면 `invalid_request`로 거절해요. hub는 UTF-8 바이트 순서 표시를 읽고 NEXUS도 이를 처리해요.
 - TASK-449의 기존 실행에는 `propose`가 없어요. TC-221은 임시 서버와 합성 다중 파일에서 이 경로를 별도로 검증해요. 지정 경로와 읽지 않은 경로는 hub로, 경로 누락은 hub가 항상 경로를 보내므로 API 직접 요청으로 확인해요.
 
