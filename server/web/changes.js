@@ -50,7 +50,7 @@ export const CHANGE_WORDS = Object.freeze({
   confirm: '이 그림 확정',
   cancelEdit: '편집 취소',
   acceptedProposal: 'AI 제안 수락',
-  nameLabel: '이름 · 두 번 누르거나 F2',
+  nameLabel: '이름 · F2 또는 100% 이상에서 두 번 누르기',
   connect: '잇기',
   pick: '이을 요소를 고르세요.',
   connected: '이미 이어져 있어요.',

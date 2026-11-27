@@ -147,11 +147,13 @@ function svgPicture(view) {
     layers.over.push(s('path', { class: link.waiting ? 'ov-link wait' : 'ov-link', d: pathOf(points) }), s('path', { class: 'ov-head', d: headOf(points) }));
   }
   const svg = s('svg', {
-    class: `pic k-${diagram.kind}`, width, height, viewBox: `${x} ${y} ${width} ${height}`,
+    class: `pic k-${diagram.kind}`, width: width * (view.zoom ?? 1), height: height * (view.zoom ?? 1), viewBox: `${x} ${y} ${width} ${height}`,
   }, layers.back, layers.lines, layers.boxes, layers.moved, layers.over);
   // The workbench keeps the box's scroll across redraws and opens a picture at its first box (workbench.js).
   view.box = h('div', { class: 'boardbox' }, h('div', { class: 'pic-wrap', role: 'group', 'aria-label': labelOf(diagram, place) }, svg));
   view.origin = { x, y };
+  view.svg = svg;
+  view.size = { width, height };
   return view.box;
 }
 

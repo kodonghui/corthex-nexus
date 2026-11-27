@@ -57,6 +57,11 @@
           "approved": "No change, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): no requirement lists or opens a removed diagram; REQ-024, REQ-028 and REQ-033 keep their words. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Zoom requirement REQ-081 added; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 03: draw the user flows from the requirements",
@@ -74,6 +79,11 @@
           "approved": "No change, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): no flow walks a removed diagram; FL-007, FL-003's rejection and FL-004's cancel stand as drawn. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "FL-002 adds zoom and fit; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 04: write the functional spec from the requirements and flows",
@@ -133,6 +143,26 @@
           "approved": "SPEC-027's exception for a removed diagram, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): the approved text \"and is listed after the others, marked removed, only while it has open threads; it opens for reading, replying to and closing its threads only, and a new thread, a move, a direct edit, accepting a proposal and confirming are refused.\" becomes \"and is listed after the others, marked removed, only while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection; it opens for reading, replying to and closing its threads, rejecting its AI proposals and cancelling its direct edits, and a new thread, a move, a new direct edit, accepting a proposal and confirming are refused.\" It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "SPEC-053 defines zoom and fit; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 zoom and fit range corrected from 25–200% to 1–200%; fit explains when the picture cannot fit even at 1%. The maintainer approved the correction through the delegate named for checkpoints on 2026-11-27. Below 10%, buttons use smaller steps so the approved range is usable; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 corrects the new below-100% zoom state: double-click enlarges that point; at 100% and above double-click keeps the prior rename action and F2 still renames. This measured correction follows the maintainer delegate's direction of 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 adds a visible return to 100% from the new zoomed-out state after the goal-only task needed 11 plus presses. This measured correction follows the maintainer delegate direction of 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
@@ -200,6 +230,11 @@
           "approved": "TBL-151's comment in db/nexus.sql, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): the approved \"it stays listed while it has open threads (SPEC-027).\" becomes \"it stays listed while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection (SPEC-027).\" No table, column or constraint changed, and TBL-158's trace line stays. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "No change for zoom: view scale is local and needs no stored data; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
@@ -379,6 +414,11 @@
           "approved": "BUG-008 API correction, pull request 170, contract commit 0d7d14f, approved on the drafted correction before that commit: add a NEXUS agent header pair alongside the legacy pair; accept exactly one complete pair and refuse mixed, incomplete, duplicate or concurrent pairs, update the hub to send the new pair, and verify the Cloudflare route after implementation. The maintainer approved each item through their named checkpoint delegate; the answer and delegation are in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 needs no operation; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
@@ -421,6 +461,11 @@
           "approved": "No change, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): ?d= already takes a removed diagram still listed (SPEC-027), whatever keeps it listed. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "No change for zoom: no screen or route is added; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 08: write a screen definition with its states for each of the five screens",
@@ -493,6 +538,26 @@
           "approved": "Every change set waiting for reflection, pull request 160, at commit cd81ed3: SCR-146#waiting, approved as \"Direct edits waiting for reflection: they come first, each with Cancel edit (on a phone, without it), and the confirm button is off with \"Reflect or cancel the waiting changes first\".\" (\"반영을 기다리는 직접 편집: …\"), now lists every change set waiting for reflection, each direct edit with Cancel edit (on a phone, without it) and each accepted AI proposal without it, since SPEC-029 refuses a confirmation while any change set waits, an accepted AI proposal included (API-275's 409 waiting_reflection). Nothing else in SCR-146 and no number of states changes. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "SCR-145 adds zoom and fit controls; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 zoom controls corrected from 25–200% to 1–200% and an explanation is shown if 1% still cannot fit. The maintainer approved the correction through the delegate named for checkpoints on 2026-11-27. Smaller button steps below 10% make the range usable; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 explains the below-100% double-click and preserves rename by F2 or double-click at 100% and above. This measured correction follows the maintainer delegate's direction of 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 adds 글자 크게 보기 below 100% after the goal-only task needed 11 plus presses. This measured correction follows the maintainer delegate direction of 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",

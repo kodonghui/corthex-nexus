@@ -172,6 +172,43 @@ const waitSend = async (page) => {
 };
 
 describe('SCR-145 pictures', () => {
+  test('zoom changes only the picture view and fit offers a bounded scale', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const svg = area.all('svg', 'pic')[0];
+      const board = area.all('div', 'boardbox')[0];
+      Object.assign(board, { clientWidth: 500, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      const original = Number(svg.getAttribute('width'));
+      const controls = area.all('div', 'zoom-controls')[0];
+      const buttons = controls.all('button');
+      buttons[1].click();
+      assert.equal(controls.all('output')[0].textContent, '110%');
+      assert.equal(Number(svg.getAttribute('width')), original * 1.1);
+      buttons[0].click();
+      assert.equal(controls.all('output')[0].textContent, '100%');
+      buttons[2].click();
+      assert.ok(Number.parseFloat(controls.all('output')[0].textContent) >= 1);
+      board.clientWidth = 25;
+      buttons[2].click();
+      assert.equal(controls.all('output')[0].textContent, '1%');
+      assert.match(controls.textContent, /그림이 너무 커서 전체를 한 화면에 담지 못했어요/);
+      buttons[1].click();
+      assert.equal(controls.all('output')[0].textContent, '2.5%');
+      assert.doesNotMatch(controls.textContent, /그림이 너무 커서/);
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      let stopped = false;
+      board.dispatch('dblclick', { clientX: 15, clientY: 15, stopPropagation() { stopped = true; } });
+      assert.equal(controls.all('output')[0].textContent, '10%');
+      assert.equal(stopped, true);
+      assert.equal(buttons[3].textContent, '글자 크게 보기');
+      assert.equal(buttons[3].hidden, false);
+      buttons[3].click();
+      assert.equal(controls.all('output')[0].textContent, '100%');
+      assert.equal(buttons[3].hidden, true);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
   test('each kind of diagram draws by the names of its elements, never by a trace ID or a diagram ID (SPEC-010)', async () => {
     const cases = {
       board: (box) => {

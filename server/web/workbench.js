@@ -32,6 +32,7 @@ import { chooser, PAD, pictureOf, shownName, STICKIES, tagWord, WORDS } from './
 import { CONTAINERS, placement } from './relayout.js';
 import { THREAD_WORDS, threadsFocus, threadsOpened, threadsPart, threadsWhole } from './threads.js';
 import { workshopEntry } from './workshop.js';
+import { clampZoom, fitZoom, MAX_ZOOM, MIN_ZOOM, zoomScroll, zoomStep } from './zoom.js';
 
 export const STEP = 8;
 export const LONG_STEP = 40;
@@ -57,7 +58,7 @@ export const WORKBENCH_WORDS = Object.freeze({
 // The text under the title, by the diagram's kind (TASK-458's question 7): the mockup's words where it gives them. The
 // board's on a PC is the mockup's again, F2 renaming included, since TASK-460 renames (WBS section 4).
 const DESCRIPTIONS = Object.freeze({
-  ddd_board: { pc: 'Git 문서에서 그린 그림이에요. 끌어 옮기고, 두 번 눌러 이름을 바꿔 보세요. 키보드로는 화살표로 옮기고 F2로 이름을 바꿔요.', phone: 'Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.' },
+  ddd_board: { pc: 'Git 문서에서 그린 그림이에요. 끌어 옮기고 F2로 이름을 바꿔요. 100% 이상에서는 두 번 눌러 이름을 바꿀 수도 있어요.', phone: 'Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.' },
   user_flow: 'Git 문서의 Mermaid 흐름도에서 그린 그림이에요. 흐름 파일마다 그림이 하나 있어요.',
   erd: 'Git의 스키마에서 그린 ERD예요. 테이블마다 상자가 하나 있어요.',
   sitemap: 'Git의 사이트맵에서 그린 화면 트리예요.',
@@ -122,7 +123,7 @@ function stateOf(ctx) {
   let state = states.get(ctx.shell);
   if (state === undefined || state.diagram !== diagram.id) {
     state?.frame?.end();
-    state = { diagram: diagram.id, selected: null, moves: new Map(), pending: new Set(), sending: new Set(), again: new Set(), timer: null, frame: null, drags: new WeakMap() };
+    state = { diagram: diagram.id, selected: null, moves: new Map(), pending: new Set(), sending: new Set(), again: new Set(), timer: null, frame: null, drags: new WeakMap(), zoom: 1 };
     // Whether the workbench still shows this diagram, for an answer that comes after a switch.
     const own = state;
     state.live = () => states.get(ctx.shell) === own;
@@ -246,6 +247,7 @@ function drawPicture(state) {
     names: state.names,
     nodes: new Map(),
     shapes: new Map(),
+    zoom: state.zoom,
     select: (key) => select(state, key),
     keydown: (element, event) => keydown(state, element, event),
     dblclick: (element) => renameFrom(state, element, () => select(state, element.key)),
@@ -259,7 +261,39 @@ function drawPicture(state) {
   if (diagram.kind === 'mockup') {
     if (state.tokenBox !== null) fill(state.tokenBox, tokenList(view));
   } else {
-    fill(state.pictureBox, pictureOf(view));
+    const picture = pictureOf(view);
+    if (view.svg) {
+      fill(state.pictureBox, zoomControls(state), picture);
+      view.box.addEventListener('dblclick', (event) => {
+        if (state.zoom >= 1) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const rect = view.box.getBoundingClientRect();
+        changeZoom(state, Math.min(1, state.zoom * 4), event.clientX - rect.left, event.clientY - rect.top);
+      }, true);
+      view.box.addEventListener('wheel', (event) => {
+        if (!event.ctrlKey) return;
+        event.preventDefault();
+        const rect = view.box.getBoundingClientRect();
+        changeZoom(state, state.zoom * Math.exp(-event.deltaY * 0.002), event.clientX - rect.left, event.clientY - rect.top);
+      }, { passive: false });
+      let pinch = null;
+      view.box.addEventListener('touchstart', (event) => {
+        if (event.touches.length !== 2) return;
+        const [a, b] = event.touches;
+        pinch = { distance: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), zoom: state.zoom };
+      }, { passive: true });
+      view.box.addEventListener('touchmove', (event) => {
+        if (!pinch || event.touches.length !== 2 || pinch.distance === 0) return;
+        event.preventDefault();
+        const [a, b] = event.touches;
+        const rect = view.box.getBoundingClientRect();
+        changeZoom(state, pinch.zoom * Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) / pinch.distance,
+          (a.clientX + b.clientX) / 2 - rect.left, (a.clientY + b.clientY) / 2 - rect.top);
+      }, { passive: false });
+      view.box.addEventListener('touchend', () => { pinch = null; });
+      view.box.addEventListener('touchcancel', () => { pinch = null; });
+    } else fill(state.pictureBox, picture);
   }
   if (view.box !== undefined) {
     state.scrolled = diagram.id;
@@ -290,11 +324,67 @@ function scrollTo(view, scroll) {
       if (first === null || shown.y < first.y || (shown.y === first.y && shown.x < first.x)) first = shown;
     }
     if (first === null) return;
-    const left = first.x - origin.x;
+    const left = (first.x - origin.x) * (view.zoom ?? 1);
     box.scrollLeft = Math.max(0, Math.min(left, left + first.width / 2 - (box.clientWidth ?? 0) / 2));
   };
   if (box.isConnected === false) queueMicrotask(apply);
   else apply();
+}
+
+function zoomControls(state) {
+  const decrease = h('button', { class: 'btn tertiary', type: 'button', 'aria-label': '그림 축소', on: { click: () => changeZoom(state, zoomStep(state.zoom, -1)) } }, '−');
+  const increase = h('button', { class: 'btn tertiary', type: 'button', 'aria-label': '그림 확대', on: { click: () => changeZoom(state, zoomStep(state.zoom, 1)) } }, '+');
+  const value = h('output', { 'aria-live': 'polite', 'aria-label': '그림 배율' });
+  const notice = h('span', { role: 'status' });
+  const readable = h('button', { class: 'btn tertiary', type: 'button', on: { click: () => changeZoom(state, 1) } }, '글자 크게 보기');
+  const hint = h('span', { class: 'small' }, state.ctx.shell.isPhone()
+    ? '작게 본 그림은 원하는 곳을 두 번 누르거나 두 손가락을 벌리면 커져요.' : '작게 본 그림은 원하는 곳을 두 번 누르면 커져요.');
+  const fit = h('button', { class: 'btn tertiary', type: 'button', on: { click: () => {
+    const { box, size } = state.view;
+    // The box shrinks with the picture; use the available viewport rather than its current height when fitting again.
+    const top = Math.max(0, box.getBoundingClientRect?.().top ?? 0);
+    const availableHeight = Math.max(100, Math.min(624, (globalThis.innerHeight ?? 674) - top - 26));
+    const availableWidth = Math.max(1, box.clientWidth - 24);
+    const fitted = fitZoom(size.width, size.height, availableWidth, availableHeight);
+    changeZoom(state, fitted, 0, 0);
+    notice.textContent = size.width * fitted > availableWidth || size.height * fitted > availableHeight
+      ? '그림이 너무 커서 전체를 한 화면에 담지 못했어요.' : '';
+    box.scrollLeft = 0;
+    box.scrollTop = 0;
+  } } }, '화면에 맞추기');
+  state.zoomUI = { decrease, increase, value, notice, readable };
+  updateZoomControls(state);
+  return h('div', { class: 'zoom-controls', role: 'group', 'aria-label': '그림 크기' }, decrease, value, increase, fit, readable, hint, notice);
+}
+
+function updateZoomControls(state) {
+  const { decrease, increase, value, readable } = state.zoomUI;
+  const focused = document.activeElement;
+  decrease.disabled = state.zoom <= MIN_ZOOM;
+  increase.disabled = state.zoom >= MAX_ZOOM;
+  readable.hidden = state.zoom >= 1;
+  if (decrease.disabled && focused === decrease) increase.focus();
+  if (increase.disabled && focused === increase) decrease.focus();
+  if (readable.hidden && focused === readable) increase.focus();
+  value.textContent = `${Math.round(state.zoom * 1000) / 10}%`;
+}
+
+function changeZoom(state, wanted, x, y) {
+  const { box, svg, size } = state.view;
+  const next = clampZoom(wanted);
+  state.zoomUI.notice.textContent = '';
+  if (next === state.zoom) return;
+  // The scroll box has a 1px border and 12px padding; the SVG begins inside that inset.
+  const centerX = (x ?? box.clientWidth / 2) - 13;
+  const centerY = (y ?? box.clientHeight / 2) - 13;
+  const left = zoomScroll(box.scrollLeft, centerX, state.zoom, next);
+  const top = zoomScroll(box.scrollTop, centerY, state.zoom, next);
+  state.zoom = next;
+  svg.setAttribute('width', size.width * next);
+  svg.setAttribute('height', size.height * next);
+  box.scrollLeft = left;
+  box.scrollTop = top;
+  updateZoomControls(state);
 }
 
 // A mockup's tokens (SPEC-009), each chosen like any element, with a swatch of its first value when that is a colour.
@@ -433,13 +523,13 @@ function keydown(state, element, event) {
 
 // A drag: the box follows the pointer, and the move is taken once it is let go 3 pixels or more from where it started.
 function pointerdown(state, element, event) {
-  if ((event.button !== undefined && event.button !== 0) || !movable(state, element)) return;
+  if (event.pointerType === 'touch' || (event.button !== undefined && event.button !== 0) || !movable(state, element)) return;
   const node = state.view.nodes.get(element.key);
   const holder = node?.parentNode?.parentNode;
   if (!node || !holder) return;
   const at = state.view.place.boxes.get(element.key);
   const shape = state.view.shapes.get(element.key) ?? null;
-  const drag = { key: element.key, start: { x: event.clientX, y: event.clientY }, at, holder, shape, moved: false, to: at };
+  const drag = { key: element.key, start: { x: event.clientX, y: event.clientY }, at, holder, shape, moved: false, to: at, zoom: state.zoom };
   if (!state.drags.has(node)) {
     node.addEventListener('pointermove', (move) => dragged(state.drags.get(node), move));
     node.addEventListener('pointerup', (up) => dropped(state, node, up));
@@ -455,7 +545,7 @@ function dragged(drag, event) {
   const dy = event.clientY - drag.start.y;
   if (!drag.moved && Math.hypot(dx, dy) < DRAG_FROM) return;
   drag.moved = true;
-  drag.to = { x: Math.round(drag.at.x + dx), y: Math.round(drag.at.y + dy) };
+  drag.to = { x: Math.round(drag.at.x + dx / drag.zoom), y: Math.round(drag.at.y + dy / drag.zoom) };
   drag.holder.setAttribute('x', drag.to.x - PAD);
   drag.holder.setAttribute('y', drag.to.y - PAD);
   // A flow box's shape is drawn apart from its button: it follows by an SVG transform, never a style.

@@ -730,7 +730,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:11",
      "box": {
-      "x": 187.25,
+      "x": 234.5,
       "y": 0,
       "width": 169,
       "height": 44
@@ -756,7 +756,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:12",
      "box": {
-      "x": 99.75,
+      "x": 147,
       "y": 92,
       "width": 344,
       "height": 172
@@ -780,7 +780,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:13",
      "box": {
-      "x": 362.25,
+      "x": 476.5,
       "y": 332,
       "width": 183,
       "height": 64
@@ -803,7 +803,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:14",
      "box": {
-      "x": 351.75,
+      "x": 466,
       "y": 444,
       "width": 204,
       "height": 64
@@ -834,7 +834,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:15",
      "box": {
-      "x": 137.75,
+      "x": 252,
       "y": 556,
       "width": 632,
       "height": 316
@@ -862,7 +862,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:16",
      "box": {
-      "x": 202.5,
+      "x": 182.75,
       "y": 940,
       "width": 269,
       "height": 84
@@ -887,7 +887,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:17",
      "box": {
-      "x": 550.75,
+      "x": 629.5,
       "y": 950,
       "width": 161,
       "height": 64
@@ -912,7 +912,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:18",
      "box": {
-      "x": 358.75,
+      "x": 473,
       "y": 1072,
       "width": 190,
       "height": 84
@@ -934,7 +934,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:19",
      "box": {
-      "x": 314.75,
+      "x": 429,
       "y": 1204,
       "width": 278,
       "height": 139
@@ -960,8 +960,8 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:20",
      "box": {
-      "x": 111.75,
-      "y": 1411,
+      "x": 92,
+      "y": 1423,
       "width": 204,
       "height": 84
      }
@@ -985,10 +985,34 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:21",
      "box": {
-      "x": 367.5,
-      "y": 1411,
+      "x": 328,
+      "y": 1423,
       "width": 212,
       "height": 84
+     }
+    }
+   },
+   {
+    "key": "L",
+    "kind": "step",
+    "name": "Zoom or fit the picture",
+    "parent": null,
+    "detail": {
+     "id": "L",
+     "lines": [
+      "Zoom or fit the picture"
+     ],
+     "ids": [
+      "REQ-081"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:22",
+     "box": {
+      "x": 670,
+      "y": 1433,
+      "width": 190,
+      "height": 64
      }
     }
    },
@@ -1008,7 +1032,7 @@
      ],
      "marks": [],
      "lane": null,
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:22",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:23",
      "box": {
       "x": 0,
       "y": 332,
@@ -1030,10 +1054,10 @@
      "ids": [],
      "marks": [],
      "lane": null,
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:23",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:24",
      "box": {
-      "x": 389.75,
-      "y": 1555,
+      "x": 370,
+      "y": 1567,
       "width": 102,
       "height": 44
      }
@@ -1050,14 +1074,14 @@
      "to": "B",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:24",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:25",
      "points": [
       {
-       "x": 271.75,
+       "x": 319,
        "y": 44
       },
       {
-       "x": 271.75,
+       "x": 319,
        "y": 92
       }
      ],
@@ -1075,14 +1099,14 @@
      "to": "R1",
      "label": "no",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:25",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:26",
      "points": [
       {
-       "x": 214.42,
+       "x": 261.67,
        "y": 264
       },
       {
-       "x": 214.42,
+       "x": 261.67,
        "y": 276
       },
       {
@@ -1113,27 +1137,27 @@
      "to": "C",
      "label": "yes",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:26",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:27",
      "points": [
       {
-       "x": 329.08,
+       "x": 376.33,
        "y": 264
       },
       {
-       "x": 329.08,
+       "x": 376.33,
        "y": 276
       },
       {
-       "x": 453.75,
+       "x": 568,
        "y": 276
       },
       {
-       "x": 453.75,
+       "x": 568,
        "y": 332
       }
      ],
      "label_box": {
-      "x": 459.75,
+      "x": 574,
       "y": 288,
       "width": 30,
       "height": 20
@@ -1151,14 +1175,14 @@
      "to": "D",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:27",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:28",
      "points": [
       {
-       "x": 453.75,
+       "x": 568,
        "y": 396
       },
       {
-       "x": 453.75,
+       "x": 568,
        "y": 444
       }
      ],
@@ -1176,14 +1200,14 @@
      "to": "E",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:28",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:29",
      "points": [
       {
-       "x": 453.75,
+       "x": 568,
        "y": 508
       },
       {
-       "x": 453.75,
+       "x": 568,
        "y": 556
       }
      ],
@@ -1201,27 +1225,27 @@
      "to": "F",
      "label": "yes",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:29",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:30",
      "points": [
       {
-       "x": 348.42,
+       "x": 462.67,
        "y": 872
       },
       {
-       "x": 348.42,
+       "x": 462.67,
        "y": 884
       },
       {
-       "x": 337,
+       "x": 317.25,
        "y": 884
       },
       {
-       "x": 337,
+       "x": 317.25,
        "y": 940
       }
      ],
      "label_box": {
-      "x": 343,
+      "x": 323.25,
       "y": 896,
       "width": 30,
       "height": 20
@@ -1239,27 +1263,27 @@
      "to": "G",
      "label": "no",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:30",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:31",
      "points": [
       {
-       "x": 559.08,
+       "x": 673.33,
        "y": 872
       },
       {
-       "x": 559.08,
+       "x": 673.33,
        "y": 884
       },
       {
-       "x": 631.25,
+       "x": 710,
        "y": 884
       },
       {
-       "x": 631.25,
+       "x": 710,
        "y": 950
       }
      ],
      "label_box": {
-      "x": 637.25,
+      "x": 716,
       "y": 896,
       "width": 23,
       "height": 20
@@ -1277,22 +1301,22 @@
      "to": "H",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:31",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:32",
      "points": [
       {
-       "x": 337,
+       "x": 317.25,
        "y": 1024
       },
       {
-       "x": 337,
+       "x": 317.25,
        "y": 1060
       },
       {
-       "x": 422.08,
+       "x": 536.33,
        "y": 1060
       },
       {
-       "x": 422.08,
+       "x": 536.33,
        "y": 1072
       }
      ],
@@ -1310,22 +1334,22 @@
      "to": "H",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:32",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:33",
      "points": [
       {
-       "x": 631.25,
+       "x": 710,
        "y": 1014
       },
       {
-       "x": 631.25,
+       "x": 710,
        "y": 1060
       },
       {
-       "x": 485.42,
+       "x": 599.67,
        "y": 1060
       },
       {
-       "x": 485.42,
+       "x": 599.67,
        "y": 1072
       }
      ],
@@ -1343,14 +1367,14 @@
      "to": "I",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:33",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:34",
      "points": [
       {
-       "x": 453.75,
+       "x": 568,
        "y": 1156
       },
       {
-       "x": 453.75,
+       "x": 568,
        "y": 1204
       }
      ],
@@ -1368,28 +1392,28 @@
      "to": "J",
      "label": "move an element on a PC",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:34",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:35",
      "points": [
       {
-       "x": 384.25,
+       "x": 475.33,
        "y": 1343
       },
       {
-       "x": 384.25,
+       "x": 475.33,
        "y": 1355
       },
       {
-       "x": 213.75,
+       "x": 194,
        "y": 1355
       },
       {
-       "x": 213.75,
-       "y": 1411
+       "x": 194,
+       "y": 1423
       }
      ],
      "label_box": {
-      "x": 219.75,
-      "y": 1367,
+      "x": 200,
+      "y": 1379,
       "width": 174,
       "height": 20
      }
@@ -1406,28 +1430,28 @@
      "to": "K",
      "label": "copy an element",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:35",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:36",
      "points": [
       {
-       "x": 453.75,
+       "x": 521.67,
        "y": 1343
       },
       {
-       "x": 453.75,
-       "y": 1355
+       "x": 521.67,
+       "y": 1367
       },
       {
-       "x": 473.5,
-       "y": 1355
+       "x": 434,
+       "y": 1367
       },
       {
-       "x": 473.5,
-       "y": 1411
+       "x": 434,
+       "y": 1423
       }
      ],
      "label_box": {
-      "x": 479.5,
-      "y": 1367,
+      "x": 440,
+      "y": 1379,
       "width": 116,
       "height": 20
      }
@@ -1444,36 +1468,28 @@
      "to": "Z",
      "label": "read only",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:36",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:37",
      "points": [
       {
-       "x": 523.25,
+       "x": 568,
        "y": 1343
       },
       {
-       "x": 523.25,
-       "y": 1355
-      },
-      {
-       "x": 607.5,
-       "y": 1355
-      },
-      {
-       "x": 607.5,
+       "x": 568,
        "y": 1543
       },
       {
-       "x": 471.35,
+       "x": 451.6,
        "y": 1543
       },
       {
-       "x": 471.35,
-       "y": 1555
+       "x": 451.6,
+       "y": 1567
       }
      ],
      "label_box": {
-      "x": 613.5,
-      "y": 1367,
+      "x": 574,
+      "y": 1379,
       "width": 73,
       "height": 20
      }
@@ -1490,23 +1506,23 @@
      "to": "Z",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:37",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:38",
      "points": [
       {
-       "x": 213.75,
-       "y": 1495
+       "x": 194,
+       "y": 1507
       },
       {
-       "x": 213.75,
-       "y": 1531
+       "x": 194,
+       "y": 1543
       },
       {
-       "x": 430.55,
-       "y": 1531
+       "x": 410.8,
+       "y": 1543
       },
       {
-       "x": 430.55,
-       "y": 1555
+       "x": 410.8,
+       "y": 1567
       }
      ],
      "label_box": null
@@ -1523,23 +1539,23 @@
      "to": "Z",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:38",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:39",
      "points": [
       {
-       "x": 473.5,
-       "y": 1495
+       "x": 434,
+       "y": 1507
       },
       {
-       "x": 473.5,
-       "y": 1531
+       "x": 434,
+       "y": 1543
       },
       {
-       "x": 450.95,
-       "y": 1531
+       "x": 431.2,
+       "y": 1543
       },
       {
-       "x": 450.95,
-       "y": 1555
+       "x": 431.2,
+       "y": 1567
       }
      ],
      "label_box": null
@@ -1556,7 +1572,7 @@
      "to": "Z",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:39",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:40",
      "points": [
       {
        "x": 70,
@@ -1564,15 +1580,102 @@
       },
       {
        "x": 70,
-       "y": 1543
-      },
-      {
-       "x": 410.15,
-       "y": 1543
-      },
-      {
-       "x": 410.15,
        "y": 1555
+      },
+      {
+       "x": 390.4,
+       "y": 1555
+      },
+      {
+       "x": 390.4,
+       "y": 1567
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "I->L",
+    "kind": "arrow",
+    "name": "zoom or fit",
+    "parent": "I",
+    "detail": {
+     "id": "e17",
+     "from": "I",
+     "to": "L",
+     "label": "zoom or fit",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:41",
+     "points": [
+      {
+       "x": 614.33,
+       "y": 1343
+      },
+      {
+       "x": 614.33,
+       "y": 1367
+      },
+      {
+       "x": 672,
+       "y": 1367
+      },
+      {
+       "x": 672,
+       "y": 1411
+      },
+      {
+       "x": 733.33,
+       "y": 1411
+      },
+      {
+       "x": 733.33,
+       "y": 1433
+      }
+     ],
+     "label_box": {
+      "x": 678,
+      "y": 1379,
+      "width": 88,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "L->I",
+    "kind": "arrow",
+    "name": "",
+    "parent": "L",
+    "detail": {
+     "id": "e18",
+     "from": "L",
+     "to": "I",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:42",
+     "points": [
+      {
+       "x": 796.67,
+       "y": 1433
+      },
+      {
+       "x": 796.67,
+       "y": 1411
+      },
+      {
+       "x": 778,
+       "y": 1411
+      },
+      {
+       "x": 778,
+       "y": 1355
+      },
+      {
+       "x": 660.67,
+       "y": 1355
+      },
+      {
+       "x": 660.67,
+       "y": 1343
       }
      ],
      "label_box": null
