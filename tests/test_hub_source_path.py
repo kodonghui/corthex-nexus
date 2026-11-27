@@ -1,7 +1,9 @@
-"""TC-221: the 0.6.0 pinned hub against a throwaway v3 server and synthetic multi-file sources."""
+"""TC-221: hub 1becbab against a throwaway v3 server and synthetic multi-file sources."""
 import hashlib
 import importlib.util
 import json
+import sqlite3
+from contextlib import closing
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -37,7 +39,8 @@ class SourcePathWalk(HubRunFixture):
             status, diagram = self.server.owner('GET', '/api/projects/' + PROJECT + '/diagrams/' + diagram_id)
             self.assertEqual(status, 200)
             where = [((element.get('detail') or {}).get('where') or '') for element in diagram['elements']]
-            paths = {item.rsplit(':', 1)[0] for item in where if ':' in item}
+            paths = {item.rsplit(':', 1)[0] if item.rsplit(':', 1)[-1].isdigit() else item
+                     for item in where if item}
             self.assertEqual(paths, wanted)
         for index, (stage, item, path, original, proposed, missing, expected_name) in enumerate(cases):
             source = self.base / ('proposed-' + str(index))
@@ -49,6 +52,11 @@ class SourcePathWalk(HubRunFixture):
             self.assertEqual(len(changes), 1, (stage, changes))
             self.assertEqual((changes[0]['op'], changes[0]['element'], changes[0]['name']),
                              ('rename', item, expected_name))
+            database_uri = (self.server.data / 'nexus-v3.sqlite').resolve().as_uri() + '?mode=ro'
+            def proposal_count():
+                with closing(sqlite3.connect(database_uri, uri=True)) as database:
+                    return database.execute("SELECT count(*) FROM change_sets WHERE origin = 'proposal'").fetchone()[0]
+            before_refusals = proposal_count()
             refused = self.refused(self.session, 'propose', *words, '--source-path', missing)
             self.assertEqual((refused['status'], refused['code'], refused['field'], refused['detail']),
                              (400, 'invalid_request', 'source_path', 'source_path names no file the drawing reads'))
@@ -67,12 +75,18 @@ class SourcePathWalk(HubRunFixture):
                 body = json.loads(error.read())
                 self.assertEqual((error.code, body['code'], body['field'], body['detail']),
                                  (400, 'invalid_request', 'source_path', 'source_path is needed: the drawing reads several files'))
+            self.assertEqual(proposal_count(), before_refusals)
 
         # The three 400s without paths use direct HTTP: this hub always sends a path with --source-file.
         self.assert_calls_and_log('push', *(['propose'] * 6))
         log = '\n'.join(self.log_lines)
-        for _, _, path, original, proposed, missing, _ in cases:
-            for private in (path, missing, original.strip(), proposed.strip()):
+        direct_actions = [json.loads(line)['action'] for line in self.log_lines
+                          if json.loads(line).get('sender') == 'source-direct']
+        self.assertEqual(direct_actions, ['makeProposal'] * 3)
+        for _, _, path, original, proposed, missing, expected_name in cases:
+            private_parts = (path, missing, Path(path).name, Path(missing).name, expected_name,
+                             *original.splitlines(), *proposed.splitlines())
+            for private in private_parts:
                 self.assertFalse(private in log or json.dumps(private, ensure_ascii=False)[1:-1] in log,
                                  'the log includes source data; value withheld')
         for private in (direct_secret, hashlib.sha256(direct_secret.encode('ascii')).hexdigest()):
