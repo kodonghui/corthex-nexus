@@ -314,6 +314,25 @@ class HubRunTest(HubRunFixture):
 
         self.assert_calls_and_log("push", "comment", "todo", "claim", "decide", "reflect", "record", "status", "push")
 
+    def test_the_v3_push_job_after_header_cutover(self):
+        first = self.read(self.session, "push", PROJECT, "--first")
+        self.assertEqual((first["revision"], first["commit"]), (1, self.commit))
+        with (self.project / "README.md").open("a", encoding="utf8") as readme:
+            readme.write("\nSynthetic v3 push revision.\n")
+        self.commit = self.commit_and_publish("Synthetic v3 push revision")
+        code, row, _ = self.run_push_step({"CORTHEX_NEXUS_URL": self.server.url,
+                                          "CORTHEX_NEXUS_CLIENT_ID": self.credential,
+                                          "CORTHEX_NEXUS_CLIENT_SECRET": self.secret},
+                                         use_workflow_header_mode=False)
+        self.outputs.append(self.push_output)
+        self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
+        self.assertEqual((row["answer"]["pushed"]["revision"], row["answer"]["pushed"]["commit"]),
+                         (2, self.commit))
+        status, project = self.server.owner("GET", "/api/projects/" + PROJECT)
+        self.assertEqual(status, 200)
+        self.assertEqual(project["revision"], 2)
+        self.assert_calls_and_log("push", "push")
+
     def test_the_hub_reads_the_refusals_by_design(self):
         # Before the first push, the space is missing: the to-do is empty, and push waits for the user's yes.
         empty = self.read(self.session, "todo", PROJECT)
