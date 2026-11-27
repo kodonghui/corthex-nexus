@@ -453,6 +453,17 @@ class HubCompatibilityTest(HubCheckoutCase):
         self.assert_requests_match_the_contract(server)
         self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
 
+    def test_a_v2_loopback_push_without_credentials_sends_no_credential_headers(self):
+        with LoopbackServer({("GET", HELD_PATH): self.v2_held()}) as server:
+            server.answers[("POST", PUSH_PATH)] = (200, self.v2_pushed(8))
+            code, row = self.push_job(server)
+        self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
+        self.assertGreaterEqual(len(server.requests), 1)
+        for request in server.requests:
+            self.assertFalse(any(name in request["headers"] for name in (
+                "cf-access-client-id", "cf-access-client-secret", "nexus-agent-client-id", "nexus-agent-client-secret")),
+                "credential headers unexpectedly present")
+
     def test_a_v2_server_holding_the_commit_gets_nothing_again(self):
         with LoopbackServer({("GET", HELD_PATH): self.v2_held(self.commit)}) as server:
             code, row = self.push_job(server)

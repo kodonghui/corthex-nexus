@@ -143,8 +143,11 @@ class HubCheckoutCase(unittest.TestCase):
         env = dict(base_environment(home), DEFAULT_BRANCH="main", HUB_TEST_PYTHON=sys.executable, **secrets)
         # Include the literal workflow setting, not only the expression-backed secrets.
         workflow = PUSH_WORKFLOW.read_text(encoding="utf8")
-        setting = re.search(r"^ +CORTHEX_NEXUS_AUTH_HEADERS: ([a-z-]+)\s*$", workflow, re.M)
-        if "CORTHEX_NEXUS_AUTH_HEADERS:" in workflow:
+        step = re.search(r"^      - name: Push the snapshot\n(.*?)(?=^      - name:|\Z)", workflow, re.M | re.S)
+        self.assertIsNotNone(step, "the push step is missing")
+        step_text = step.group(1)
+        setting = re.search(r"^ +CORTHEX_NEXUS_AUTH_HEADERS: ([a-z-]+)\s*$", step_text, re.M)
+        if "CORTHEX_NEXUS_AUTH_HEADERS:" in step_text:
             self.assertIsNotNone(setting, "update this workflow fixture for its header mode syntax")
         if use_workflow_header_mode and setting:
             env["CORTHEX_NEXUS_AUTH_HEADERS"] = setting.group(1)
