@@ -100,6 +100,7 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 | REQ-078 | The system shall store agent credentials only as digests. | non-functional | Must | CTX-043 | CTX-043 rule | active |
 | REQ-079 | While the owner uses a phone, the system shall let the owner add comments and replies. | functional | Must | none | Redesign decision on mobile | active |
 | REQ-080 | The system shall keep, for each release, the record of a restore from backup rehearsed before it. | non-functional | Should | none | Inferred | active |
+| REQ-081 | When the owner views a diagram, the system shall let them zoom in, zoom out and fit the diagram to the available view. | functional | Must | CTX-037 | Usability change 2026-11-27 | active |
 | REQ-082 | When the owner opens a stage or to-do, the system shall explain the next action and the consequence of confirmation. | functional | Must | CTX-037 | Usability change 2026-11-27 | active |
 
 ## 3. Stage-01 hotspots settled here

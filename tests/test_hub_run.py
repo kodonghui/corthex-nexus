@@ -37,6 +37,7 @@ from pathlib import Path
 
 from test_hub_project import HubCheckoutCase, base_environment, node_program
 from test_hub_compatibility import LoopbackServer
+import test_api as contract
 
 ROOT = Path(__file__).resolve().parents[1]
 HARNESS = ROOT / "tests" / "hub_run_server.mjs"
@@ -275,6 +276,7 @@ class HubRunTest(HubRunFixture):
             "entry": {"seq": 1, "author": "agent", "kind": "decision", "text": DECISION,
                       "link": link, "made_at": "2026-11-23T01:00:00.000Z"},
         }
+        self.assertEqual(contract.validate(contract.load(), answer, {"$ref": "#/components/schemas/EntryAnswer"}), [])
         path = "/api/spaces/%s/comments/%s/decisions" % (PROJECT, thread)
         with LoopbackServer({("POST", path): (201, answer)}) as server:
             env = self.agent_environment("resolved-response")

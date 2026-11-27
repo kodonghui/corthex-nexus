@@ -282,7 +282,7 @@ function brief(state, id, thread, added = 0) {
   found.state = thread.state;
   found.waits_on = thread.waits_on;
   if (thread.resolved === true) found.resolved = true;
-  else delete found.resolved;
+  else if (thread.state === 'open' || thread.closed_by === 'owner' || Object.hasOwn(thread, 'resolved')) delete found.resolved;
   found.last_at = thread.last_at;
   found.entries = Array.isArray(thread.entries) ? thread.entries.length : found.entries + added;
 }
@@ -553,6 +553,7 @@ function closeOf(state, id, reopen = false) {
       // The diagram shown now, which brief marked: a read again may have drawn the view anew while the close was sent.
       const now = state.ctx.data.diagram;
       if (!reopen && now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
+      else if (!reopen && answer.thread.state === 'closed' && answer.thread.closed_by === 'reflection') readThread(state, id);
     },
   };
 }

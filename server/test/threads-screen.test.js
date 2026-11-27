@@ -469,6 +469,31 @@ describe('SCR-145 threads', () => {
     }
   });
 
+  test('a close racing with automatic resolution reads the resolved state', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.mine);
+    const open = threadOf('erd', original);
+    const resolved = threadOf('erd', original, { state: 'closed', waits_on: null, closed_by: 'reflection', resolved: true, closed_at: ago(0) });
+    let closed = false;
+    const page = await openStage('erd', {
+      answers: (path) => path === threadPath(T.mine) ? json(200, closed ? resolved : open) : undefined,
+      posts: () => {
+        closed = true;
+        return json(200, { thread: { id: T.mine, state: 'closed', waits_on: null, closed_by: 'reflection', last_at: ago(0) }, changed: false })();
+      },
+    });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      buttonOf(shownThread(page), THREAD_WORDS.close).click();
+      await page.settle();
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.resolved]);
+      assert.ok(buttonOf(shownThread(page), THREAD_WORDS.reopen));
+      assert.ok(rowsOf(page).some(([, state]) => state === THREAD_WORDS.resolved));
+    } finally {
+      page.close();
+    }
+  });
+
   test('a reply to a thread closed meanwhile shows the bar over the picture, and its text moves to the new comment of the same place', async () => {
     const page = await openStage('erd', { posts: () => problem(409, 'thread_closed')() });
     try {

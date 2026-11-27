@@ -6,7 +6,7 @@
 
 목표: 사용자가 NEXUS를 열고 할 일에서 단계를 골라 그림이나 항목 표를 읽습니다.
 
-근거 요구사항: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-041, REQ-052, REQ-062, REQ-063, REQ-066, REQ-070, REQ-082
+근거 요구사항: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-041, REQ-052, REQ-062, REQ-063, REQ-066, REQ-070, REQ-081, REQ-082
 
 ```mermaid
 flowchart TD
@@ -21,6 +21,7 @@ flowchart TD
   I{"사용자가<br/>무엇을 하나?"}
   J["새 위치를<br/>NEXUS에만<br/>저장<br/>REQ-013, REQ-015"]
   K["ID와 이름을<br/>클립보드에<br/>넣기<br/>REQ-012"]
+  L["그림 확대·축소<br/>또는 화면 맞춤<br/>REQ-081"]
   R1["들어갈 수 없음<br/>REQ-062, REQ-066"]
   Z(["끝"])
   A e1@--> B
@@ -39,6 +40,8 @@ flowchart TD
   J e14@--> Z
   K e15@--> Z
   R1 e16@--> Z
+  I e17@-->|확대·축소 또는 맞춤| L
+  L e18@--> I
   %% legend: below
   classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529
   classDef proc fill:#f8f9fa,stroke:#495057,color:#212529
@@ -46,9 +49,9 @@ flowchart TD
   classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057
   classDef pass stroke:#868e96,stroke-width:1.5px
   class A,Z term
-  class C,D,F,G,H,J,K,R1 proc
+  class C,D,F,G,H,J,K,L,R1 proc
   class B,E,I decide
-  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16 pass
+  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18 pass
 ```
 
 | 모양 | 뜻 |
