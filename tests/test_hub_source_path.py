@@ -1,4 +1,4 @@
-"""TC-221: hub e6b46ac against a throwaway v3 server and synthetic multi-file sources."""
+"""Pinned-hub source-path and offline-link checks against a disposable v3 fixture."""
 import hashlib
 import importlib.util
 import json
@@ -49,7 +49,13 @@ class SourcePathWalk(HubRunFixture):
             paths = {item.rsplit(':', 1)[0] if item.rsplit(':', 1)[-1].isdigit() else item
                      for item in where if item}
             self.assertEqual(paths, wanted)
+        database_uri = (self.server.data / 'nexus-v3.sqlite').resolve().as_uri() + '?mode=ro'
+        def proposal_count():
+            with closing(sqlite3.connect(database_uri, uri=True)) as database:
+                return database.execute("SELECT count(*) FROM change_sets WHERE origin = 'proposal'").fetchone()[0]
+
         for index, (stage, item, path, original, proposed, missing, expected_name) in enumerate(cases):
+            before_proposal = proposal_count()
             source = self.base / ('proposed-' + str(index))
             source.write_text(proposed, encoding='utf8')
             words = (PROJECT, '--part', 'nexus', '--stage', stage, '--item', item,
@@ -59,11 +65,8 @@ class SourcePathWalk(HubRunFixture):
             self.assertEqual(len(changes), 1, (stage, changes))
             self.assertEqual((changes[0]['op'], changes[0]['element'], changes[0]['name']),
                              ('rename', item, expected_name))
-            database_uri = (self.server.data / 'nexus-v3.sqlite').resolve().as_uri() + '?mode=ro'
-            def proposal_count():
-                with closing(sqlite3.connect(database_uri, uri=True)) as database:
-                    return database.execute("SELECT count(*) FROM change_sets WHERE origin = 'proposal'").fetchone()[0]
             before_refusals = proposal_count()
+            self.assertEqual(before_refusals, before_proposal + 1)
             refused = self.refused(self.session, 'propose', *words, '--source-path', missing)
             self.assertEqual((refused['status'], refused['code'], refused['field'], refused['detail']),
                              (400, 'invalid_request', 'source_path', 'source_path names no file the drawing reads'))
