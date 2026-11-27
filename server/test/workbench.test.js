@@ -187,6 +187,17 @@ describe('SCR-145 pictures', () => {
       } finally { page.close(); }
     }
   });
+  test('an empty failed table without a failure location does not point to one', async () => {
+    const drawing = { ...diagramOf('table').drawing, status: 'failed', failed_at: null };
+    for (const phone of [false, true]) {
+      const page = await openStage('table', { phone, more: { [diagramPath('table')]: json(200, diagramOf('table', { elements: [], drawing })) } });
+      try {
+        const body = pictureBox(page).textContent;
+        assert.match(body, /문서 수정을 요청/);
+        assert.doesNotMatch(body, /위에 표시된 위치/);
+      } finally { page.close(); }
+    }
+  });
   test('each kind of diagram draws by the names of its elements, never by a trace ID or a diagram ID (SPEC-010)', async () => {
     const cases = {
       board: (box) => {
