@@ -123,7 +123,7 @@ function stateOf(ctx) {
   let state = states.get(ctx.shell);
   if (state === undefined || state.diagram !== diagram.id) {
     state?.frame?.end();
-    state = { diagram: diagram.id, selected: null, moves: new Map(), pending: new Set(), sending: new Set(), again: new Set(), timer: null, frame: null, drags: new WeakMap(), zoom: 1 };
+    state = { diagram: diagram.id, selected: null, moves: new Map(), pending: new Set(), sending: new Set(), again: new Set(), timer: null, frame: null, drags: new WeakMap(), dragListeners: new WeakSet(), zoom: 1, pinching: false };
     // Whether the workbench still shows this diagram, for an answer that comes after a switch.
     const own = state;
     state.live = () => states.get(ctx.shell) === own;
@@ -141,6 +141,7 @@ function build(ctx, row) {
   state.model = overlayModel(diagram);
   state.names = new Map((diagram.elements ?? []).map((element) => [element.key, shownName(element)]));
   state.notice = h('div', { class: 'wb-notice' });
+  state.dragNotice = h('div', { class: 'wb-notice' });
   state.pictureBox = h('div', { class: 'wb-picture', on: { keydown: (event) => escape(state, event) } });
   state.selectedBox = h('section', { class: 'panel', 'aria-label': WORKBENCH_WORDS.selected, on: { keydown: (event) => escape(state, event) } });
   state.tokenBox = null;
@@ -162,6 +163,7 @@ function build(ctx, row) {
     diagramList(ctx, row),
     notDrawn(diagram),
     state.notice,
+    state.dragNotice,
     changes.line,
     state.pictureBox,
   ];
@@ -237,10 +239,12 @@ function legendOf(diagram, model) {
 
 // The picture, drawn again with the moves not yet answered; the element that had the focus gets it back.
 function drawPicture(state) {
+  const pinchInterrupted = state.pinching;
+  state.pinching = false;
   if (state.dragNode) {
     const moved = state.drags.get(state.dragNode)?.moved;
     cancelled(state, state.dragNode);
-    if (moved) state.notice.append(h('div', { class: 'nt warn', role: 'alert' }, '그림이 새로 바뀌어 옮기기를 멈췄어요. 다시 옮겨 주세요.'));
+    if (moved) fill(state.dragNotice, h('div', { class: 'nt warn', role: 'alert' }, '그림이 새로 바뀌어 옮기기를 멈췄어요. 다시 옮겨 주세요.'));
   }
   const { ctx } = state;
   const diagram = ctx.data.diagram;
@@ -268,11 +272,15 @@ function drawPicture(state) {
   } else {
     const picture = pictureOf(view);
     if (view.svg) {
+      for (const element of diagram.elements ?? []) {
+        if (movable(state, element)) view.nodes.get(element.key)?.setAttribute('data-diagram-movable', '');
+      }
       const prior = state.zoomUI;
       const focusIndex = prior ? [prior.decrease, prior.increase, prior.fit, prior.readable].indexOf(document.activeElement) : -1;
       const oldNotice = prior?.notice.textContent ?? '';
       fill(state.pictureBox, zoomControls(state), picture);
       state.zoomUI.notice.textContent = oldNotice;
+      if (pinchInterrupted) state.zoomUI.notice.textContent = '그림이 바뀌어 확대를 멈췄어요. 두 손가락으로 다시 확대해 주세요.';
       const newControls = [state.zoomUI.decrease, state.zoomUI.increase, state.zoomUI.fit, state.zoomUI.readable];
       if (focusIndex >= 0 && !newControls[focusIndex].disabled && !newControls[focusIndex].hidden) newControls[focusIndex].focus();
       view.box.addEventListener('dblclick', (event) => {
@@ -296,11 +304,13 @@ function drawPicture(state) {
         if (state.dragNode) cancelled(state, state.dragNode);
         const [a, b] = event.touches;
         pinch = { distance: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), zoom: state.zoom };
+        state.pinching = true;
       }, { passive: true });
       view.box.addEventListener('touchmove', (event) => {
         if (!pinch || event.touches.length !== 2 || pinch.distance === 0) return;
         if (event.cancelable === false) {
           pinch = null;
+          state.pinching = false;
           state.zoomUI.notice.textContent = '스크롤을 멈춘 뒤 두 손가락으로 다시 확대해 주세요.';
           return;
         }
@@ -310,8 +320,8 @@ function drawPicture(state) {
         changeZoom(state, pinch.zoom * Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) / pinch.distance,
           (a.clientX + b.clientX) / 2 - rect.left, (a.clientY + b.clientY) / 2 - rect.top);
       }, { passive: false });
-      view.box.addEventListener('touchend', () => { pinch = null; });
-      view.box.addEventListener('touchcancel', () => { pinch = null; });
+      view.box.addEventListener('touchend', () => { pinch = null; state.pinching = false; });
+      view.box.addEventListener('touchcancel', () => { pinch = null; state.pinching = false; });
     } else fill(state.pictureBox, picture);
   }
   if (view.box !== undefined) {
@@ -411,8 +421,8 @@ function updateZoomControls(state) {
 function changeZoom(state, wanted, x, y) {
   const { box, svg, size } = state.view;
   const next = clampZoom(wanted);
-  state.zoomUI.notice.textContent = '';
   if (next === state.zoom) return;
+  state.zoomUI.notice.textContent = '';
   // The SVG starts inside the scroll box's border and padding.
   const { insetX, insetY } = boxMetrics(box);
   const centerX = (x ?? (box.clientWidth / 2 + (box.clientLeft ?? 1))) - insetX;
@@ -552,16 +562,18 @@ function movable(state, element) {
 }
 
 const ARROWS = Object.freeze({ ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] });
+const positionBound = (value) => Math.max(-1_000_000, Math.min(1_000_000, Math.round(value)));
 
 function keydown(state, element, event) {
   if (changeKey(state, element, event, () => select(state, element.key))) return;
   const way = ARROWS[event.key];
   if (way === undefined || !movable(state, element)) return;
   event.preventDefault();
+  fill(state.dragNotice);
   // Keep arrow movement visible in screen pixels at every zoom level, as a drag is.
   const step = Math.round((event.shiftKey ? LONG_STEP : STEP) / state.zoom);
   const at = state.view.place.boxes.get(element.key);
-  moveTo(state, element.key, { x: at.x + way[0] * step, y: at.y + way[1] * step });
+  moveTo(state, element.key, { x: positionBound(at.x + way[0] * step), y: positionBound(at.y + way[1] * step) });
 }
 
 // A drag: the box follows the pointer, and the move is taken once it is let go 3 pixels or more from where it started.
@@ -570,14 +582,16 @@ function pointerdown(state, element, event) {
   const node = state.view.nodes.get(element.key);
   const holder = node?.parentNode?.parentNode;
   if (!node || !holder) return;
+  fill(state.dragNotice);
   const at = state.view.place.boxes.get(element.key);
   const shape = state.view.shapes.get(element.key) ?? null;
   const drag = { key: element.key, start: { x: event.clientX, y: event.clientY }, at, holder, shape, moved: false, to: at, zoom: state.zoom };
-  if (!state.drags.has(node)) {
+  if (!state.dragListeners.has(node)) {
     node.addEventListener('pointermove', (move) => dragged(state.drags.get(node), move));
     node.addEventListener('pointerup', (up) => dropped(state, node, up));
     node.addEventListener('pointercancel', () => cancelled(state, node));
     node.addEventListener('lostpointercapture', () => cancelled(state, node));
+    state.dragListeners.add(node);
   }
   state.drags.set(node, drag);
   state.dragNode = node;
@@ -590,7 +604,7 @@ function dragged(drag, event) {
   const dy = event.clientY - drag.start.y;
   if (!drag.moved && Math.hypot(dx, dy) < (drag.zoom < 0.25 ? 8 : DRAG_FROM)) return;
   drag.moved = true;
-  drag.to = { x: Math.round(drag.at.x + dx / drag.zoom), y: Math.round(drag.at.y + dy / drag.zoom) };
+  drag.to = { x: positionBound(drag.at.x + dx / drag.zoom), y: positionBound(drag.at.y + dy / drag.zoom) };
   drag.holder.setAttribute('x', drag.to.x - PAD);
   drag.holder.setAttribute('y', drag.to.y - PAD);
   // A flow box's shape is drawn apart from its button: it follows by an SVG transform, never a style.
@@ -619,6 +633,8 @@ function dropped(state, node, event) {
 
 // Puts a box at a place: chosen, drawn there with its lines, and sent once the moves stop.
 function moveTo(state, key, to) {
+  const current = state.view.place.boxes.get(key);
+  if (current && current.x === to.x && current.y === to.y) return;
   if (state.selected !== key) {
     state.selected = key;
     drawSelected(state);

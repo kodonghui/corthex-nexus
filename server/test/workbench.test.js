@@ -196,6 +196,8 @@ describe('SCR-145 pictures', () => {
       buttons[2].click();
       assert.equal(controls.all('output')[0].textContent, '1%');
       assert.match(controls.textContent, /그림이 너무 커서 전체를 한 화면에 담지 못했어요/);
+      board.dispatch('wheel', { ctrlKey: true, deltaY: 3, clientX: 0, clientY: 0 });
+      assert.match(controls.textContent, /그림이 너무 커서 전체를 한 화면에 담지 못했어요/);
       buttons[1].click();
       assert.equal(controls.all('output')[0].textContent, '2.5%');
       assert.doesNotMatch(controls.textContent, /그림이 너무 커서/);
@@ -296,6 +298,21 @@ describe('SCR-145 pictures', () => {
       board.dispatch('wheel', { ctrlKey: true, deltaY: -3, deltaMode: 1, clientX: 0, clientY: 0 });
       assert.ok(Number(svg.getAttribute('width')) > before * 1.09);
       assert.match(page.app.textContent, /그림이 새로 바뀌어 옮기기를 멈췄어요/);
+      const next = buttonNamed(page, 'scr', 'Projects');
+      next.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 2 });
+      assert.doesNotMatch(page.app.textContent, /그림이 새로 바뀌어 옮기기를 멈췄어요/);
+      next.dispatch('pointercancel');
+    } finally { page.close(); }
+  });
+
+  test('a redraw during a pinch explains how to resume zooming', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const board = pictureBox(page).all('div', 'boardbox')[0];
+      board.dispatch('touchstart', { touches: [{ clientX: 0, clientY: 0 }, { clientX: 30, clientY: 0 }] });
+      page.shell.redraw();
+      assert.match(pictureBox(page).textContent, /그림이 바뀌어 확대를 멈췄어요/);
+      assert.equal(page.sent.length, 0);
     } finally { page.close(); }
   });
 
@@ -309,6 +326,10 @@ describe('SCR-145 pictures', () => {
       button = buttonNamed(page, 'scr', 'Projects');
       button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 2 });
       button.dispatch('lostpointercapture');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 3 });
+      button.dispatch('pointerup', { clientX: 100, clientY: 100 });
+      assert.equal(button.listeners.get('pointermove').length, 1);
+      assert.equal(button.listeners.get('lostpointercapture').length, 1);
       const area = pictureBox(page);
       const board = area.all('div', 'boardbox')[0];
       const svg = area.all('svg', 'pic')[0];
@@ -352,6 +373,23 @@ describe('SCR-145 pictures', () => {
       button.dispatch('keydown', { key: 'ArrowRight' });
       const after = Number(holderOf(buttonNamed(page, 'scr', 'Projects')).getAttribute('x'));
       assert.ok((after - before) * zoom >= 7.9);
+      await waitSend(page);
+    } finally { page.close(); }
+  });
+
+  test('moving at the API coordinate limit clamps once and does not send a no-op', async () => {
+    const diagram = diagramOf('sitemap');
+    const element = diagram.elements.find((item) => item.name === 'Projects');
+    element.position = { x: 999999, y: 20 };
+    const page = await openStage('sitemap', { more: { [diagramPath('sitemap')]: json(200, diagram) } });
+    try {
+      buttonNamed(page, 'scr', 'Projects').dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 1, JSON.stringify(page.sent));
+      assert.equal(page.sent[0].body.x, 1000000);
+      buttonNamed(page, 'scr', 'Projects').dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 1);
     } finally { page.close(); }
   });
   test('an empty table explains unreadable or removed material without asking to send it again', async () => {
@@ -646,6 +684,7 @@ describe('SCR-145 pictures', () => {
       const page = await openStage(which, options);
       try {
         const button = find(page);
+        assert.equal(button.getAttribute('data-diagram-movable'), null, which);
         const before = holderOf(button).getAttribute?.('x') ?? null;
         button.dispatch('keydown', { key: 'ArrowRight', preventDefault() {} });
         button.dispatch('pointerdown', { button: 0, clientX: 0, clientY: 0 });
