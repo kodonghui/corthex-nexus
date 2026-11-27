@@ -127,6 +127,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 | `pull_request_mismatch` | 409 | The entry is linked to another pull request (SPEC-024); pull_request names it. |
 | `pull_request_needed` | 409 | A report of reflected for an entry that names no pull request, in the body or before. |
 | `repository_mismatch` | 409 | The snapshot or the pull request is of another repository than the project's (SPEC-024). |
+| `position_changed` | 409 | The element no longer has the position expected by a conditional move. |
 | `request_key_reused` | 409 | An Idempotency-Key that an earlier request of another action took (rule 3). |
 | `step_confirmed` | 409 | An agent draft for a confirmed step (SPEC-037). |
 | `step_empty` | 409 | Confirming a step without notes (SPEC-039). |
@@ -415,6 +416,12 @@ Section 4 of the WBS records that a proposal's `source_text` makes no change on 
 - **API-256's 400 response** gains two `invalid_request` examples with `field` `source_path`: "source_path names no file the drawing reads" and "source_path is needed: the drawing reads several files".
 
 API-256 already lists TBL-149 and TBL-150, which hold the drawing's picture, so its tables do not change. No operation, status, code or spec row changes. This part passed its own checkpoint on 2026-11-24 through the same delegate.
+
+API-274 accepts optional `reset: true` together with `expected`: after the atomic position comparison succeeds, it removes the saved position and returns the current drawing coordinates. This restores automatic placement for an undo without overwriting a different current position; the original `x` and `y` fields remain required for compatibility. The maintainer's checkpoint delegate authorized this correction on 2026-11-27; the project's records hold the answer.
+
+API-265's element response adds optional `position_saved`, true only when the owner has a saved position. The coordinate field keeps its existing fallback to the drawing box. This lets the undo client distinguish an automatic position from a saved position at the same coordinates; an older response without the field is treated conservatively as saved. The maintainer's checkpoint delegate authorized this addition to the same correction on 2026-11-27; its basis is in the project records.
+
+Compatibility note: clients that validate the old `Element` schema with `additionalProperties: false` can reject the added response field. Deploy the matching owner client with the server and check any external strict validators before release; the old fieldless response remains supported by the new client.
 
 ## Item 242: decision records and reopening
 

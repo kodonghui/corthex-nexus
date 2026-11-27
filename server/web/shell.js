@@ -76,6 +76,9 @@ export function startShell(root, screen, address) {
     write: writeOf,
     redraw,
     missed: (name) => misses[name] ?? null,
+    // A refresh is authoritative only when the whole screen read succeeded, including its dependent reads.
+    fresh: (name) => !ended && reread === null && !partStale && !misses[name] ? data?.[name] ?? null : null,
+    readFailure: (name) => reread ?? misses[name] ?? { failure: 'network' },
     probe: probeOf,
     go,
     onLeave: (keep) => leaving.push(keep),

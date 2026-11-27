@@ -1,6 +1,7 @@
 // What a page keeps in the browser, and nothing else: the theme the owner chose (localStorage), and in this tab only
 // (sessionStorage) the text the owner typed and has not sent yet, and the time of the one reload through the gate
-// (see states.js). Nothing an API answered is ever kept. Storage that is blocked or full keeps nothing, silently.
+// (see states.js), and a diagram ID marker for an uncertain move so a reload can explain lost history. No coordinates
+// or API response body are kept. Storage that is blocked or full keeps nothing, silently.
 
 const DRAFT = 'nexus-draft:';
 

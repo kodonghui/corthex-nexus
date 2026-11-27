@@ -45,7 +45,7 @@ const stored = (name) => JSON.parse(readFileSync(new URL(`./${name}`, import.met
 // An element of a drawer's drawing as API-265 answers it.
 const asElement = (element) => ({
   key: element.key, trace_id: element.trace_id ?? null, kind: element.kind, name: element.name ?? '', parent: element.parent ?? null,
-  status: element.status ?? null, detail: element.detail ?? {}, position: null,
+  status: element.status ?? null, detail: element.detail ?? {}, position: null, position_saved: false,
 });
 const FLOWS = Object.values(stored('user-flow-expected.json'));
 const ELEMENTS = Object.freeze({
@@ -131,11 +131,12 @@ function answersOf(more = {}) {
 
 // Opens a stage's page with answers by path, a POST answered by moved (a function of the request's body and
 // headers); every POST is kept in page.sent as { path, body, key }.
-async function openStage(which, { search = '', more = {}, moved = null, phone = false, clipboard = 'allowed' } = {}) {
+async function openStage(which, { search = '', more = {}, moved = null, phone = false, clipboard = 'allowed', session = {} } = {}) {
   const answers = answersOf(more);
   const sent = [];
   const page = await openPage(pathOf(which), {
     search,
+    session,
     phone,
     clipboard,
     answers: (path, init) => {
@@ -172,6 +173,983 @@ const waitSend = async (page) => {
 };
 
 describe('SCR-145 pictures', () => {
+  test('returning to the original place before saving leaves an automatic box automatic', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowLeft' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 0);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+    } finally { page.close(); }
+  });
+
+  test('another box becomes movable after the queued move saves', async () => {
+    const page = await openStage('erd');
+    try {
+      const [first, second] = ELEMENTS.erd.filter((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', first.name).dispatch('keydown', { key: 'ArrowRight' });
+      buttonNamed(page, 'tbl', first.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(buttonNamed(page, 'tbl', second.name).getAttribute('data-diagram-movable'), '');
+    } finally { page.close(); }
+  });
+
+  test('a saved keyboard move keeps focus unless the owner moved it elsewhere', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      const box = buttonNamed(page, 'tbl', table.name);
+      box.focus();
+      box.dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.ok(page.document.activeElement === buttonNamed(page, 'tbl', table.name), 'the moved box retains focus');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      const input = page.document.createElement('input');
+      page.app.append(input);
+      input.focus();
+      await waitSend(page);
+      assert.ok(page.document.activeElement === input, 'an input chosen later retains focus');
+    } finally { page.close(); }
+  });
+
+  test('a definitely rejected undo restores movable targets after a concurrent redraw', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: (body) => body.expected ? held.then(() => problem(409, 'request_key_reused')()) : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await delay(30);
+      page.shell.redraw();
+      await delay(30);
+      assert.equal(buttonNamed(page, 'tbl', table.name).getAttribute('data-diagram-movable'), null);
+      release();
+      await page.settle();
+      assert.equal(buttonNamed(page, 'tbl', table.name).getAttribute('data-diagram-movable'), '');
+    } finally { release(); page.close(); }
+  });
+
+  test('a rejected keyboard move keeps focus on the box', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: () => held.then(() => problem(409, 'request_key_reused')()) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      const box = buttonNamed(page, 'tbl', table.name);
+      box.focus();
+      box.dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      release();
+      await page.settle();
+      assert.ok(page.document.activeElement === buttonNamed(page, 'tbl', table.name), 'the moved box retains focus');
+    } finally { release(); page.close(); }
+  });
+
+  test('a rejected keyboard move does not steal focus the owner moved elsewhere', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: () => held.then(() => problem(409, 'request_key_reused')()) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      const input = page.document.createElement('input');
+      page.app.append(input); input.focus();
+      release();
+      await page.settle();
+      assert.ok(page.document.activeElement === input, 'the chosen input retains focus');
+    } finally { release(); page.close(); }
+  });
+
+  test('switching during the reread after a confirmed reset keeps redo', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow');
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const reload = page.shell.reload.bind(page.shell);
+      page.shell.reload = async (...args) => { await held; return reload(...args); };
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await delay(50);
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(80);
+      page.pop(pathOf('flow'));
+      await delay(80);
+      release();
+      await page.settle();
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[1].disabled, false);
+      assert.doesNotMatch(page.app.textContent, /저장 결과를 확인하지 못해 이동 기록을 지웠어요/);
+    } finally { release(); page.close(); }
+  });
+
+  test('refreshing an uncertain undo restores move targets when fresh data redraws the picture', async () => {
+    let changed = false;
+    const fresh = diagramOf('erd');
+    const table = fresh.elements.find((element) => element.kind === 'table');
+    const page = await openStage('erd', {
+      moved: (body) => body.expected ? new TypeError('Failed to fetch') : movedAnswer('erd')(body),
+      more: { [diagramPath('erd')]: () => {
+        if (changed) { table.position_saved = true; table.position = { x: table.detail.box.x + 24, y: table.detail.box.y }; }
+        return json(200, fresh)();
+      } },
+    });
+    try {
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      changed = true;
+      page.app.all('button').find((button) => button.textContent === '새로 고침').click();
+      await page.settle();
+      assert.equal(buttonNamed(page, 'tbl', table.name).getAttribute('data-diagram-movable'), '');
+    } finally { page.close(); }
+  });
+
+  test('an interrupted uncertain undo keeps its marker through a failed recovery read', async () => {
+    let release, recovering = false, reads = 0;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow', {
+      moved: (body) => body.expected ? held.then(() => new TypeError('Failed to fetch')) : movedAnswer('flow')(body),
+      more: { [diagramPath('flow')]: () => recovering && ++reads > 1 ? problem(500, 'internal')() : json(200, diagramOf('flow'))() },
+    });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await delay(30);
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(60);
+      release();
+      await delay(60);
+      recovering = true;
+      page.pop(pathOf('flow'));
+      await page.settle();
+      assert.ok(reads >= 2);
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.flow}`), '1');
+      recovering = false;
+      page.app.all('button').find((button) => button.textContent === '다시 시도').click();
+      await page.settle();
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.flow}`), null);
+    } finally { release(); page.close(); }
+  });
+
+  test('undo and redo restore a saved move without intercepting text undo', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      const at = boxOf('erd', table.key);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      let controls = pictureBox(page).all('div', 'move-history')[0].all('button');
+      assert.equal(controls[0].disabled, false);
+      const input = page.document.createElement('input');
+      page.app.append(input);
+      input.dispatch('keydown', { key: 'z', ctrlKey: true });
+      assert.equal(page.sent.length, 1);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
+      await page.settle();
+      assert.deepEqual(page.sent[1].body, { element: table.key, x: at.x, y: at.y, expected: { x: at.x + STEP, y: at.y }, reset: true });
+      controls = pictureBox(page).all('div', 'move-history')[0].all('button');
+      assert.equal(controls[1].disabled, false);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true, shiftKey: true });
+      await page.settle();
+      assert.deepEqual(page.sent[2].body, { element: table.key, x: at.x + STEP, y: at.y, expected: { x: at.x, y: at.y } });
+    } finally { page.close(); }
+  });
+
+  test('undoing two previously automatic boxes restores the original layout', async () => {
+    const page = await openStage('erd');
+    try {
+      const [first, second] = ELEMENTS.erd.filter((element) => element.kind === 'table');
+      const place = (table) => {
+        const holder = holderOf(buttonNamed(page, 'tbl', table.name));
+        return [Number(holder.getAttribute('x')), Number(holder.getAttribute('y'))];
+      };
+      const initial = [place(first), place(second)];
+      buttonNamed(page, 'tbl', first.name).dispatch('keydown', { key: 'ArrowRight', shiftKey: true });
+      await waitSend(page);
+      buttonNamed(page, 'tbl', second.name).dispatch('keydown', { key: 'ArrowDown' });
+      await waitSend(page);
+      for (let count = 0; count < 2; count += 1) {
+        pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+        await page.settle();
+      }
+      assert.deepEqual(page.sent.slice(2).map((entry) => entry.body.reset), [true, true]);
+      assert.deepEqual([place(first), place(second)], initial);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[1].click();
+      await page.settle();
+      assert.equal(page.sent.at(-1).body.reset, undefined);
+      assert.deepEqual(page.sent.at(-1).body.expected, { x: first.detail.box.x, y: first.detail.box.y });
+    } finally { page.close(); }
+  });
+
+  test('an older diagram response without position_saved is treated conservatively', async () => {
+    const old = diagramOf('erd');
+    old.elements = old.elements.map(({ position_saved, ...element }) => element);
+    const page = await openStage('erd', { more: { [diagramPath('erd')]: json(200, old) } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent[1].body.reset, undefined);
+    } finally { page.close(); }
+  });
+
+  test('redo after reset expects the new drawing coordinates returned by the server', async () => {
+    const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+    const drawn = boxOf('erd', table.key);
+    const changed = { x: drawn.x + 100, y: drawn.y + 40 };
+    let newer = false;
+    const moved = (body) => {
+      if (body.reset) {
+        newer = true;
+        return json(200, { diagram: ID.erd, element: body.element, ...changed, moved_at: TIME })();
+      }
+      return movedAnswer('erd')(body);
+    };
+    const page = await openStage('erd', { moved, more: { [diagramPath('erd')]: () => {
+      const diagram = structuredClone(diagramOf('erd'));
+      if (newer) Object.assign(diagram.elements.find((each) => each.key === table.key).detail.box, changed);
+      return json(200, diagram)();
+    } } });
+    try {
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      pictureBox(page).all('div', 'move-history')[0].all('button')[1].click();
+      await page.settle();
+      assert.deepEqual(page.sent.at(-1).body.expected, changed);
+    } finally { page.close(); }
+  });
+
+  test('two clicks on retry send one history operation and keep the older undo', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    let attempts = 0;
+    const moved = (body) => {
+      if (!body.expected) return movedAnswer('erd')(body);
+      attempts += 1;
+      if (attempts === 1) return new TypeError('Failed to fetch');
+      if (attempts === 2) return held.then(() => movedAnswer('erd')(body));
+      return movedAnswer('erd')(body);
+    };
+    const page = await openStage('erd', { moved });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      for (let count = 0; count < 2; count += 1) {
+        buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+        await waitSend(page);
+      }
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      const retry = page.app.all('div', 'wb-notice')[0].all('button')[0];
+      retry.click(); retry.click();
+      await delay(30);
+      assert.equal(page.sent.length, 4);
+      release();
+      await page.settle();
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, false);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent.length, 5);
+    } finally { release(); page.close(); }
+  });
+
+  test('undo waits for the automatic-layout reload before accepting another undo', async () => {
+    const page = await openStage('erd');
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      for (const each of ELEMENTS.erd.filter((element) => element.kind === 'table').slice(0, 2)) {
+        buttonNamed(page, 'tbl', each.name).dispatch('keydown', { key: 'ArrowRight' });
+        await waitSend(page);
+      }
+      const reload = page.shell.reload.bind(page.shell);
+      page.shell.reload = async (...args) => { await held; return reload(...args); };
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
+      await delay(50);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
+      await delay(50);
+      assert.equal(page.sent.length, 3);
+      release();
+      await page.settle();
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
+      await page.settle();
+      assert.equal(page.sent.length, 4);
+    } finally { release(); page.close(); }
+  });
+
+  test('undo does not race an active pointer drag', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const button = buttonNamed(page, 'tbl', table.name);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('keydown', { key: 'z', ctrlKey: true });
+      await delay(30);
+      assert.equal(page.sent.length, 1);
+      button.dispatch('pointerup', { clientX: 110, clientY: 100, pointerId: 1 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 2);
+      assert.equal(page.sent[1].body.expected, undefined);
+    } finally { page.close(); }
+  });
+
+  test('a queued move is not sent while a second drag is in progress', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      const button = buttonNamed(page, 'tbl', table.name);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100, pointerId: 1 });
+      await delay(SEND_AFTER_MS + 80);
+      assert.equal(page.sent.length, 0);
+      button.dispatch('pointerup', { clientX: 120, clientY: 100, pointerId: 1 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 1);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent[1].body.reset, true);
+    } finally { page.close(); }
+  });
+
+  test('an arrow during a pending save does not scroll and explains the wait', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: (body) => held.then(() => movedAnswer('erd')(body)) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      let prevented = false;
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight', preventDefault() { prevented = true; } });
+      assert.equal(prevented, true);
+      assert.match(page.app.textContent, /저장이 끝날 때까지 기다려 주세요/);
+      release();
+      await page.settle();
+      assert.equal(page.sent.length, 1);
+      assert.doesNotMatch(page.app.textContent, /저장이 끝날 때까지 기다려 주세요/);
+    } finally { release(); page.close(); }
+  });
+
+  test('a canceled second drag still sends the earlier queued move', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      const button = buttonNamed(page, 'tbl', table.name);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      await delay(SEND_AFTER_MS + 80);
+      assert.equal(page.sent.length, 0);
+      button.dispatch('pointercancel');
+      await waitSend(page);
+      assert.equal(page.sent.length, 1);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent[1].body.reset, true);
+    } finally { page.close(); }
+  });
+
+  test('a definite non-permission rejection cancels a move and allows another', async () => {
+    let attempts = 0;
+    const page = await openStage('erd', { moved: (body) => ++attempts === 1 ? problem(409, 'request_key_reused')() : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.app.all('button').some((button) => button.textContent === '다시 시도'), false);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 2);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, false);
+    } finally { page.close(); }
+  });
+
+  test('a redraw cancels an unfinished drag and re-enables undo', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const button = buttonNamed(page, 'tbl', table.name);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      page.shell.redraw();
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', ctrlKey: true });
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.ok(page.sent[1].body.expected);
+    } finally { page.close(); }
+  });
+
+  test('losing pointer capture cancels the drag and re-enables undo', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const button = buttonNamed(page, 'tbl', table.name);
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('lostpointercapture');
+      button.dispatch('keydown', { key: 'z', ctrlKey: true });
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.ok(page.sent[1].body.expected);
+    } finally { page.close(); }
+  });
+
+  test('a removed diagram does not accept the undo shortcut after reload', async () => {
+    let removed = false;
+    const page = await openStage('erd', { more: { [diagramPath('erd')]: () => json(200, diagramOf('erd', { removed }))() } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      removed = true;
+      await page.shell.reload();
+      page.app.dispatch('keydown', { key: 'z', ctrlKey: true });
+      await delay(30);
+      assert.equal(page.sent.length, 1);
+    } finally { page.close(); }
+  });
+
+  test('a failed move keeps its retry after the workbench is rebuilt', async () => {
+    let attempts = 0;
+    const page = await openStage('erd', { moved: (body) => {
+      attempts += 1;
+      return attempts === 1 ? new TypeError('Failed to fetch') : movedAnswer('erd')(body);
+    } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.app.all('div', 'wb-notice')[0].all('button').length, 1);
+      await page.shell.reload();
+      const retry = page.app.all('div', 'wb-notice')[0].all('button')[0];
+      assert.ok(retry);
+      retry.click();
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, false);
+    } finally { page.close(); }
+  });
+
+  test('a server-rejected move rolls back so a valid move can follow', async () => {
+    const diagram = structuredClone(diagramOf('erd'));
+    const element = diagram.elements.find((each) => each.kind === 'table');
+    const start = 1_000_000 - 2 * STEP;
+    element.detail.box.x = start;
+    element.position = { x: start, y: element.detail.box.y };
+    element.position_saved = true;
+    let attempts = 0;
+    const moved = (body) => ++attempts === 1 ? problem(400, 'invalid_request')() : movedAnswer('erd')(body);
+    const page = await openStage('erd', { moved, more: { [diagramPath('erd')]: json(200, diagram) } });
+    try {
+      buttonNamed(page, 'tbl', element.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent[0].body.x, start + STEP);
+      assert.match(page.app.textContent, /그 위치로 옮길 수 없어 이동을 취소했어요/);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+      buttonNamed(page, 'tbl', element.name).dispatch('keydown', { key: 'ArrowLeft' });
+      await waitSend(page);
+      assert.equal(page.sent.at(-1).body.x, start - STEP);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, false);
+    } finally { page.close(); }
+  });
+
+  test('a two-pixel normal-scale drag creates an undo entry', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const at = boxOf('sitemap', 'SCR-143');
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      button.dispatch('pointerup', { clientX: 102, clientY: 100 });
+      await waitSend(page);
+      assert.equal(page.sent[0].body.x, at.x + 2);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.deepEqual(page.sent[1].body.expected, { x: at.x + 2, y: at.y });
+      assert.equal(page.sent[1].body.x, at.x);
+    } finally { page.close(); }
+  });
+
+  test('refreshing after an uncertain undo clears its retry and marker after a successful read', async () => {
+    const page = await openStage('erd', { moved: (body) => body.expected ? new TypeError('Failed to fetch') : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), '1');
+      const refresh = page.app.all('button').find((button) => button.textContent === '새로 고침');
+      assert.ok(refresh);
+      refresh.click();
+      await page.settle();
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), null);
+      assert.equal(page.app.all('button').some((button) => button.textContent === '다시 시도'), false);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+    } finally { page.close(); }
+  });
+
+  test('refreshing an uncertain undo cannot race its retry', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: (body) => body.expected ? new TypeError('Failed to fetch') : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      const reload = page.shell.reload.bind(page.shell);
+      page.shell.reload = async (...args) => { await held; return reload(...args); };
+      const refresh = page.app.all('button').find((button) => button.textContent === '새로 고침');
+      const retry = page.app.all('button').find((button) => button.textContent === '다시 시도');
+      refresh.click(); retry.click();
+      await delay(30);
+      assert.equal(page.sent.length, 2);
+      release();
+      await page.settle();
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), null);
+    } finally { release(); page.close(); }
+  });
+
+  test('retrying an uncertain undo cannot race a refresh', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    let attempts = 0;
+    const page = await openStage('erd', { moved: (body) => {
+      if (!body.expected) return movedAnswer('erd')(body);
+      attempts += 1;
+      return attempts === 1 ? new TypeError('Failed to fetch') : held.then(() => movedAnswer('erd')(body));
+    } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      const reload = page.shell.reload.bind(page.shell);
+      let reloads = 0;
+      page.shell.reload = async (...args) => { reloads += 1; return reload(...args); };
+      const refresh = page.app.all('button').find((button) => button.textContent === '새로 고침');
+      page.app.all('button').find((button) => button.textContent === '다시 시도').click();
+      refresh.click();
+      await delay(30);
+      assert.equal(reloads, 0);
+      release();
+      await page.settle();
+      assert.equal(page.sent.length, 3);
+      assert.equal(page.sent[1].key, page.sent[2].key);
+    } finally { release(); page.close(); }
+  });
+
+  test('a failed refresh retains the uncertain marker and permits trying again', async () => {
+    let failRead = false;
+    const page = await openStage('erd', { moved: (body) => body.expected ? new TypeError('Failed to fetch') : movedAnswer('erd')(body),
+      more: { [diagramPath('erd')]: () => failRead ? problem(500, 'internal')() : json(200, diagramOf('erd'))() } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      failRead = true;
+      page.app.all('button').find((button) => button.textContent === '새로 고침').click();
+      await page.settle();
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), '1');
+      assert.equal(page.app.all('button').some((button) => button.textContent === '다시 시도'), true);
+      assert.ok(page.app.textContent.includes(TRACE), 'the failed screen read is explained with its trace ID');
+      failRead = false;
+      page.app.all('button').find((button) => button.textContent === '새로 고침').click();
+      await page.settle();
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), null);
+    } finally { page.close(); }
+  });
+
+  test('a failed project refresh cannot be mistaken for a fresh diagram', async () => {
+    let failProject = false, diagramReads = 0;
+    const page = await openStage('erd', { moved: (body) => body.expected ? new TypeError('Failed to fetch') : movedAnswer('erd')(body),
+      more: {
+        [`/api/projects/${P}`]: () => failProject ? problem(500, 'internal')() : json(200, projectOf())(),
+        [diagramPath('erd')]: () => { diagramReads += 1; return json(200, diagramOf('erd'))(); },
+      } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      const before = diagramReads;
+      failProject = true;
+      page.app.all('button').find((button) => button.textContent === '새로 고침').click();
+      await page.settle();
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), '1');
+      assert.equal(diagramReads, before);
+      assert.equal(page.app.all('button').some((button) => button.textContent === '다시 시도'), true);
+    } finally { page.close(); }
+  });
+
+  test('a server error after undo keeps the same request key for retry', async () => {
+    let attempts = 0;
+    const page = await openStage('erd', { moved: (body) => body.expected && ++attempts === 1
+      ? problem(500, 'internal')() : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), '1');
+      page.app.all('button').find((button) => button.textContent === '다시 시도').click();
+      await page.settle();
+      assert.equal(page.sent[1].key, page.sent[2].key);
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), null);
+    } finally { page.close(); }
+  });
+
+  test('definite rejected undo clears stale history instead of offering a loop', async () => {
+    for (const [status, code] of [[400, 'invalid_request'], [409, 'request_key_reused'], [404, 'drawing_not_found']]) {
+      const page = await openStage('erd', { moved: (body) => body.expected ? problem(status, code)() : movedAnswer('erd')(body) });
+      try {
+        const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+        buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+        await waitSend(page);
+        pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+        await page.settle();
+        assert.match(page.app.textContent, /이동 기록을 지웠어요/);
+        assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+        assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), null);
+        assert.equal(page.app.all('button').some((button) => button.textContent === '다시 시도'), false);
+      } finally { page.close(); }
+    }
+  });
+
+  test('an unfinished flushed move retains its uncertain marker after switching back', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow', { moved: (body) => held.then(() => movedAnswer('flow')(body)) });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(80);
+      page.pop(pathOf('flow'));
+      await delay(80);
+      assert.equal(page.sent.length, 1);
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.flow}`), '1');
+    } finally { release(); page.close(); }
+  });
+
+  test('a late move after switching back blocks new moves until it resolves', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow', { moved: (body) => held.then(() => movedAnswer('flow')(body)) });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(80);
+      page.pop(pathOf('flow'));
+      await delay(80);
+      assert.equal(page.sent.length, 1);
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      assert.equal(page.sent.length, 1);
+      release();
+      await page.settle();
+      assert.equal(pictureBox(page).all('button', 'fbox')[0].getAttribute('data-diagram-movable'), '');
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 2);
+    } finally { release(); page.close(); }
+  });
+
+  test('a failed read after a late move blocks new moves until the read succeeds', async () => {
+    let release, failRead = false;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow', { moved: (body) => held.then(() => movedAnswer('flow')(body)),
+      more: { [diagramPath('flow')]: () => failRead ? problem(500, 'internal')() : json(200, diagramOf('flow'))() } });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(80);
+      page.pop(pathOf('flow'));
+      await delay(80);
+      failRead = true;
+      release();
+      await page.settle();
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      assert.equal(page.sent.length, 1);
+      failRead = false;
+      page.app.all('button').find((button) => button.textContent === '다시 시도').click();
+      await page.settle();
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 2);
+    } finally { release(); page.close(); }
+  });
+
+  test('a failed project reread after a late move keeps movement blocked', async () => {
+    let release, failProject = false, diagramReads = 0;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow', { moved: (body) => held.then(() => movedAnswer('flow')(body)), more: {
+      [`/api/projects/${P}`]: () => failProject ? problem(500, 'internal')() : json(200, projectOf())(),
+      [diagramPath('flow')]: () => { diagramReads += 1; return json(200, diagramOf('flow'))(); },
+    } });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(80);
+      page.pop(pathOf('flow'));
+      await delay(80);
+      const before = diagramReads;
+      failProject = true;
+      release();
+      await page.settle();
+      assert.equal(diagramReads, before);
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      assert.equal(page.sent.length, 1);
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.flow}`), '1');
+    } finally { release(); page.close(); }
+  });
+
+  test('the physical Z key undoes a move with a non-Latin keyboard layout', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const input = page.document.createElement('input');
+      page.app.append(input);
+      input.dispatch('keydown', { key: 'ㅋ', code: 'KeyZ', ctrlKey: true });
+      assert.equal(page.sent.length, 1);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'y', code: 'KeyZ', ctrlKey: true });
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: ';', code: 'KeyZ', ctrlKey: true });
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'é', code: 'KeyZ', ctrlKey: true });
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'z', code: 'KeyZ', ctrlKey: true, defaultPrevented: true });
+      await delay(30);
+      assert.equal(page.sent.length, 1);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ㅋ', code: 'KeyZ', ctrlKey: true });
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.ok(page.sent[1].body.expected);
+    } finally { page.close(); }
+  });
+
+  test('undo restores the saved position when layout shifted the displayed box', async () => {
+    const diagram = diagramOf('erd');
+    const [first, second] = diagram.elements.filter((element) => element.kind === 'table');
+    first.position_saved = true;
+    first.position = { x: first.detail.box.x, y: first.detail.box.y };
+    second.position_saved = true;
+    second.position = { x: first.position.x + 1, y: first.position.y + 1 };
+    const displayed = placement(diagram).boxes.get(first.key);
+    assert.notDeepEqual({ x: displayed.x, y: displayed.y }, first.position);
+    const page = await openStage('erd', { more: { [diagramPath('erd')]: json(200, diagram) } });
+    try {
+      buttonNamed(page, 'tbl', first.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.deepEqual({ x: page.sent[1].body.x, y: page.sent[1].body.y }, first.position);
+    } finally { page.close(); }
+  });
+
+  test('keyboard focus stays on undo after an undo when another undo is available', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      for (let i = 0; i < 2; i += 1) {
+        buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+        await waitSend(page);
+      }
+      const undo = pictureBox(page).all('div', 'move-history')[0].all('button')[0];
+      undo.focus(); undo.click();
+      await page.settle();
+      const next = pictureBox(page).all('div', 'move-history')[0].all('button')[0];
+      assert.equal(next.disabled, false);
+      assert.equal(page.document.activeElement === next, true);
+    } finally { page.close(); }
+  });
+
+  test('focus moves to redo when the last undo becomes unavailable', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const undo = pictureBox(page).all('div', 'move-history')[0].all('button')[0];
+      undo.focus(); undo.click();
+      await page.settle();
+      const controls = pictureBox(page).all('div', 'move-history')[0].all('button');
+      assert.equal(controls[0].disabled, true);
+      assert.equal(controls[1].disabled, false);
+      assert.equal(page.document.activeElement === controls[1], true);
+    } finally { page.close(); }
+  });
+
+  test('an undo completion does not steal focus moved to a text field', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: (body) => body.expected ? held.then(() => movedAnswer('erd')(body)) : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      for (let i = 0; i < 2; i += 1) {
+        buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+        await waitSend(page);
+      }
+      const undo = pictureBox(page).all('div', 'move-history')[0].all('button')[0];
+      undo.focus(); undo.click();
+      await delay(30);
+      const input = page.document.createElement('input');
+      page.app.append(input); input.focus();
+      release();
+      await page.settle();
+      assert.equal(page.document.activeElement === input, true);
+    } finally { release(); page.close(); }
+  });
+
+  test('a successful automatic reset waits for a successful reread before offering redo', async () => {
+    let failRead = false;
+    const page = await openStage('erd', { moved: (body) => {
+      if (body.reset) failRead = true;
+      return movedAnswer('erd')(body);
+    }, more: { [diagramPath('erd')]: () => failRead ? problem(500, 'internal')() : json(200, diagramOf('erd'))() } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.doesNotMatch(page.app.textContent, /이동을 되돌렸어요/);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[1].disabled, true);
+      const retry = page.app.all('div', 'wb-notice')[0].all('button').find((button) => button.textContent === '다시 시도');
+      assert.ok(retry);
+      failRead = false;
+      retry.click();
+      await page.settle();
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[1].disabled, false);
+    } finally { page.close(); }
+  });
+
+  test('a conflicting undo reloads instead of overwriting another tab', async () => {
+    const page = await openStage('erd', { moved: (body) => body.expected
+      ? problem(409, 'position_changed')() : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.ok(page.sent[1].body.expected);
+      assert.match(page.app.textContent, /다른 곳에서 위치가 바뀌었어요/);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+    } finally { page.close(); }
+  });
+
+  test('leaving after an uncertain undo clears the locked history on return', async () => {
+    const page = await openStage('flow', { moved: (body) => body.expected
+      ? new TypeError('Failed to fetch') : movedAnswer('flow')(body) });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await page.settle();
+      page.pop(pathOf('flow'));
+      await page.settle();
+      assert.match(page.app.textContent, /저장 결과를 확인하지 못해 이동 기록을 지웠어요/);
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 3);
+    } finally { page.close(); }
+  });
+
+  test('a new page explains uncertain history using the tab marker and then consumes it', async () => {
+    const key = `nexus-move-uncertain:${ID.flow}`;
+    const page = await openStage('flow', { session: { [key]: '1' } });
+    try {
+      assert.match(page.app.textContent, /저장 결과를 확인하지 못해 이동 기록을 지웠어요/);
+      assert.equal(page.session.getItem(key), null);
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 1);
+      assert.equal(page.session.getItem(key), null);
+    } finally { page.close(); }
+  });
+
+  test('a late move answer cannot add stale history after switching away and back', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow', { moved: (body) => held.then(() => movedAnswer('flow')(body)) });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(80);
+      page.pop(pathOf('flow'));
+      await delay(80);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+      release();
+      await page.settle();
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+    } finally { release(); page.close(); }
+  });
+
+  test('a missing element during undo drops stale history and reloads', async () => {
+    const page = await openStage('erd', { moved: (body) => body.expected
+      ? problem(404, 'element_not_found')() : movedAnswer('erd')(body) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.match(page.app.textContent, /그림이 바뀌어 이동 기록을 지웠어요/);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
+    } finally { page.close(); }
+  });
+
+  test('only the latest 50 moves are undoable, and a new move clears redo', async () => {
+    const page = await openStage('erd');
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      for (let index = 0; index < 51; index += 1) {
+        buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+        await waitSend(page);
+      }
+      for (let index = 0; index < 50; index += 1) {
+        pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+        await page.settle();
+      }
+      let controls = pictureBox(page).all('div', 'move-history')[0].all('button');
+      assert.equal(controls[0].disabled, true);
+      assert.equal(controls[1].disabled, false);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      controls = pictureBox(page).all('div', 'move-history')[0].all('button');
+      assert.equal(controls[1].disabled, true);
+      assert.equal(page.sent.filter((entry) => entry.body.expected).length, 50);
+    } finally { page.close(); }
+  });
+
   test('zoom changes only the picture view and fit offers a bounded scale', async () => {
     const page = await openStage('sitemap');
     try {
@@ -884,7 +1862,7 @@ describe('SCR-145 pictures', () => {
     }
   });
 
-  test('a move made while one is sent goes after its answer; a lost connection keeps the request key for 다시 시도', async () => {
+  test('a move waits for an in-flight save; a lost connection keeps the request key for retry', async () => {
     let release;
     const held = new Promise((resolve) => {
       release = resolve;
@@ -907,6 +1885,9 @@ describe('SCR-145 pictures', () => {
       assert.equal(page.sent.length, 1);
       release();
       await page.settle();
+      assert.deepEqual(page.sent.map((each) => each.body.x), [at.x + STEP]);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
       assert.deepEqual(page.sent.map((each) => each.body.x), [at.x + STEP, at.x + 2 * STEP]);
       // A third move whose connection is lost: the error, and its retry under the same key.
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
@@ -918,13 +1899,13 @@ describe('SCR-145 pictures', () => {
       await page.settle();
       assert.equal(page.sent.length, 4);
       assert.equal(page.sent[3].key, page.sent[2].key);
-      assert.deepEqual(page.app.all('div', 'wb-notice')[0].children, []);
+      assert.equal(page.app.all('div', 'wb-notice')[0].textContent, '');
     } finally {
       page.close();
     }
   });
 
-  test('다시 시도 after a box moved again sends its new place under a new request key', async () => {
+  test('a failed move blocks another move until retry and preserves its original position for undo', async () => {
     let calls = 0;
     const moved = (body, key) => {
       calls += 1;
@@ -937,19 +1918,62 @@ describe('SCR-145 pictures', () => {
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
       await waitSend(page);
       assert.equal(page.sent.length, 1);
-      // Moved again, and 다시 시도 before that move is sent: the same key with another body would be refused (409).
+      // The retry must settle the uncertain save before another move can change its original position.
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
       page.app.all('div', 'wb-notice')[0].all('button')[0].click();
       await page.settle();
-      assert.deepEqual(page.sent[1].body, { element: table.key, x: at.x + 2 * STEP, y: at.y });
-      assert.notEqual(page.sent[1].key, page.sent[0].key);
-      // Its answer took the move; the timer of the second key press finds nothing left to send.
-      await waitSend(page);
+      assert.deepEqual(page.sent[1].body, { element: table.key, x: at.x + STEP, y: at.y });
+      assert.equal(page.sent[1].key, page.sent[0].key);
       assert.equal(page.sent.length, 2);
-      assert.deepEqual(page.app.all('div', 'wb-notice')[0].children, []);
+      assert.equal(page.app.all('div', 'wb-notice')[0].textContent, '');
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.deepEqual(page.sent[2].body, { element: table.key, x: at.x, y: at.y, expected: { x: at.x + STEP, y: at.y }, reset: true });
     } finally {
       page.close();
     }
+  });
+
+  test('double retry of a failed move does not queue an untracked save', async () => {
+    let attempts = 0, release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: (body) => {
+      attempts += 1;
+      if (attempts === 1) return new TypeError('Failed to fetch');
+      if (attempts === 2) return held.then(() => new TypeError('Failed to fetch'));
+      return movedAnswer('erd')(body);
+    } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const retry = page.app.all('div', 'wb-notice')[0].all('button')[0];
+      retry.click(); retry.click();
+      await delay(30);
+      assert.equal(page.sent.length, 2);
+      release();
+      await page.settle();
+      assert.equal(page.sent.length, 2);
+      page.app.all('div', 'wb-notice')[0].all('button')[0].click();
+      await page.settle();
+      assert.equal(page.sent.length, 3);
+      assert.equal(page.sent[2].key, page.sent[0].key);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, false);
+    } finally { release(); page.close(); }
+  });
+
+  test('different boxes do not start competing saves before the first is settled', async () => {
+    const page = await openStage('erd');
+    try {
+      const tables = ELEMENTS.erd.filter((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', tables[0].name).dispatch('keydown', { key: 'ArrowRight' });
+      buttonNamed(page, 'tbl', tables[1].name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.deepEqual(page.sent.map((entry) => entry.body.element), [tables[0].key]);
+      buttonNamed(page, 'tbl', tables[1].name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.deepEqual(page.sent.map((entry) => entry.body.element), [tables[0].key, tables[1].key]);
+    } finally { page.close(); }
   });
 
   test('a move\'s answer goes into the diagram shown now, which a read again replaced while it was sent', async () => {
@@ -1382,7 +2406,7 @@ describe('SCR-145 against the server', () => {
       const name = button.all('b', 'nm')[0].textContent;
       button.dispatch('keydown', { key: 'ArrowDown', shiftKey: true });
       await waitSend(page);
-      assert.deepEqual(page.app.all('div', 'wb-notice')[0].children, []);
+      assert.equal(page.app.all('div', 'wb-notice')[0].textContent, '');
       const read = (await good.send({ path: diagramRead('05-erd'), headers: owner() })).json;
       const moved = read.elements.find((element) => element.name === name);
       assert.deepEqual(moved.position, { x: moved.detail.box.x, y: moved.detail.box.y + LONG_STEP });
@@ -1524,19 +2548,24 @@ describe('SCR-145 against the server', () => {
     const inNotice = (code, buttons = ['다시 시도']) => (page) => assert.deepEqual(
       [notice(page).all('b').map((b) => b.textContent), notice(page).all('button').map((button) => button.textContent)], [[message(code)], buttons],
     );
+    const canceledNotice = (code) => (page) => {
+      inNotice(code, [])(page);
+      assert.match(notice(page).textContent, /이동을 저장하지 못해 취소했어요/);
+    };
     // A 404 for the project or the diagram after a write: the page reads the diagram again first (SCR-145#error), which
     // here the server answers as before, so the diagram shows again with its box where it was and no notice.
     const readAgain = (page) => {
       const moved = page.asked.indexOf(`POST ${path}`);
       assert.ok(moved !== -1 && page.asked.indexOf(`GET ${diagramRead('05-erd')}`, moved) > moved, page.asked.join(', '));
-      assert.deepEqual(notice(page).children, []);
+      assert.equal(notice(page).textContent, '');
       const at = element.position ?? element.detail.box;
       const holder = holderOf(buttonNamed(page, 'tbl', element.name));
       assert.deepEqual([Number(holder.getAttribute('x')), Number(holder.getAttribute('y'))], [at.x - 6, at.y - 6]);
     };
     const cases = casesOf('moveElement', [
       { status: 200, done: true },
-      { status: 400, code: 'invalid_request', request: () => post({ headers: { ...json, ...owner() } }), shows: inNotice('invalid_request') },
+      { status: 400, code: 'invalid_request', request: () => post({ headers: { ...json, ...owner() } }),
+        shows: (page) => assert.match(notice(page).textContent, /그 위치로 옮길 수 없어 이동을 취소했어요/) },
       { status: 401, code: 'unauthenticated', request: () => post({ headers: { ...json, ...key() } }), shows: gateShows },
       { status: 403, code: 'owner_only', request: () => post({ headers: { ...json, ...s.agent.headers, ...key() } }), shows: permissionShows('owner_only') },
       { status: 403, code: 'not_owner', request: () => post({ headers: { ...json, ...someone(), ...key() } }), shows: permissionShows('not_owner') },
@@ -1560,10 +2589,14 @@ describe('SCR-145 against the server', () => {
           await good.send(post({ headers: { ...json, ...owner(), ...reused } }));
           return post({ headers: { ...json, ...owner(), ...reused }, body: body({ x: 99 }) });
         },
-        shows: inNotice('request_key_reused'),
+        shows: canceledNotice('request_key_reused'),
       },
-      { status: 413, code: 'body_too_large', request: () => post({ body: JSON.stringify({ element: element.key, x: 1, y: 2, pad: 'x'.repeat(2 * 1024 * 1024) }) }), shows: inNotice('body_too_large') },
-      { status: 415, code: 'json_required', request: () => post({ headers: { 'Content-Type': 'text/plain', ...owner(), ...key() } }), shows: inNotice('json_required') },
+      {
+        status: 409, code: 'position_changed', historyOnly: true,
+        request: () => post({ body: body({ expected: { x: -999999, y: -999999 } }) }),
+      },
+      { status: 413, code: 'body_too_large', request: () => post({ body: JSON.stringify({ element: element.key, x: 1, y: 2, pad: 'x'.repeat(2 * 1024 * 1024) }) }), shows: canceledNotice('body_too_large') },
+      { status: 415, code: 'json_required', request: () => post({ headers: { 'Content-Type': 'text/plain', ...owner(), ...key() } }), shows: canceledNotice('json_required') },
       { status: 500, code: 'internal', fails: true, request: () => post(), shows: inNotice('internal') },
     ]);
     for (const each of cases) {
@@ -1577,6 +2610,8 @@ describe('SCR-145 against the server', () => {
         failing = false;
       }
       assert.deepEqual([answer.status, answer.json.code], [each.status, each.code]);
+      // A conditional conflict is exercised in the undo test above; an ordinary move never sends expected.
+      if (each.historyOnly) continue;
       const page = await openOn(good, stagePath('05-erd'), { replay: { [`POST ${path}`]: replayOf(answer) } });
       try {
         // The table found by its name: a moved one is painted after the others.

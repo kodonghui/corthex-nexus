@@ -32,7 +32,7 @@ import { STAGES } from './snapshot.js';
 
 // The contract's Move: an element key of 1 to 200 characters that starts and ends with no white space (drawer.js's
 // ELEMENT_KEY), and a place within ±1,000,000.
-const FIELDS = new Set(['element', 'x', 'y']);
+const FIELDS = new Set(['element', 'x', 'y', 'expected', 'reset']);
 const KEY_LENGTH = 200;
 const FAR = 1_000_000;
 const STAGE_SET = new Set(STAGES);
@@ -52,6 +52,8 @@ function statementsOf(store) {
       // The drawing the diagram shows: its latest that drew (SPEC-001).
       shown: store.prepare("SELECT id FROM drawings WHERE diagram_id = ? AND status = 'drawn' ORDER BY id DESC LIMIT 1"),
       element: store.prepare('SELECT element_key, kind, detail FROM elements WHERE drawing_id = ? AND element_key = ?'),
+      position: store.prepare('SELECT x, y FROM element_positions WHERE diagram_id = ? AND element_key = ?'),
+      reset: store.prepare('DELETE FROM element_positions WHERE diagram_id = ? AND element_key = ?'),
       move: store.prepare(
         `INSERT INTO element_positions (diagram_id, element_key, x, y, moved_at) VALUES (?, ?, ?, ?, ?)
          ON CONFLICT (diagram_id, element_key) DO UPDATE SET x = excluded.x, y = excluded.y, moved_at = excluded.moved_at`,
@@ -77,8 +79,8 @@ export function placeable({ kind, detail }) {
 
 // The contract's Move from the body, or invalid_request on the field it breaks. No detail repeats a value.
 function moveOf(body) {
-  if (Object.keys(body).some((field) => !FIELDS.has(field))) throw invalidRequest('body', 'the body takes element, x and y only');
-  const { element, x, y } = body;
+  if (Object.keys(body).some((field) => !FIELDS.has(field))) throw invalidRequest('body', 'the body takes element, x, y and optional expected and reset only');
+  const { element, x, y, expected, reset } = body;
   if (element === undefined) throw invalidRequest('element', 'element is required');
   if (typeof element !== 'string' || element.length === 0 || [...element].length > KEY_LENGTH || !ELEMENT_KEY.test(element)) {
     throw invalidRequest('element', `element must be an element key of 1 to ${KEY_LENGTH} characters`);
@@ -87,7 +89,16 @@ function moveOf(body) {
     if (value === undefined) throw invalidRequest(field, `${field} is required`);
     coordinateOf(value, field);
   }
-  return { element, x, y };
+  if (expected !== undefined) {
+    if (!isObject(expected) || Object.keys(expected).some((field) => field !== 'x' && field !== 'y')) {
+      throw invalidRequest('expected', 'expected takes x and y only');
+    }
+    coordinateOf(expected.x, 'expected.x');
+    coordinateOf(expected.y, 'expected.y');
+  }
+  if (reset !== undefined && typeof reset !== 'boolean') throw invalidRequest('reset', 'reset must be a boolean');
+  if (reset === true && expected === undefined) throw invalidRequest('expected', 'expected is required for reset');
+  return { element, x, y, expected, reset };
 }
 
 // A place's coordinate, a finite number from -1,000,000 to 1,000,000 (the contract's x and y), or invalid_request on
@@ -109,13 +120,22 @@ function moveElement({ store, params, body, now }) {
   const key = keyOf('dg', params.diagram);
   const diagram = key === null ? undefined : statements.diagram.get(key, Number(project.id));
   if (diagram === undefined || diagram.removed_at !== null || !STAGE_SET.has(diagram.stage)) throw new Problem('diagram_not_found');
-  const { element, x, y } = moveOf(body);
+  const { element, x, y, expected, reset } = moveOf(body);
   const diagramId = Number(diagram.id);
   const shown = statements.shown.get(diagramId);
   const row = shown === undefined ? undefined : statements.element.get(Number(shown.id), element);
   if (row === undefined) throw new Problem('element_not_found', undefined, {}, { element });
   if (!placeable(row)) throw invalidRequest('element', 'this element has no place of its own to move');
+  if (expected !== undefined) {
+    const current = statements.position.get(diagramId, element) ?? JSON.parse(row.detail).box;
+    if (current.x !== expected.x || current.y !== expected.y) throw new Problem('position_changed');
+  }
   const time = new Date(now()).toISOString();
+  if (reset === true) {
+    statements.reset.run(diagramId, element);
+    const box = JSON.parse(row.detail).box;
+    return { body: { diagram: idOf('dg', diagramId), element, x: box.x, y: box.y, moved_at: time } };
+  }
   statements.move.run(diagramId, element, x, y, time);
   return { body: { diagram: idOf('dg', diagramId), element, x, y, moved_at: time } };
 }

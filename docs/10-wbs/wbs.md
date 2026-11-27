@@ -86,6 +86,7 @@ The first development task is TASK-413, the server skeleton; questions 1 to 4 we
 | TASK-471 | Explain empty stages, questions and confirmation | SPEC-054 | SCR-142, SCR-145, SCR-146 | TASK-455, TASK-458, TASK-461 | maintainer | M | Each empty stage names the material and next action; question rows say how to reply; confirmation explains its target and recording order on PC and phone |
 | TASK-472 | Zoom and fit a diagram on desktop and phone | SPEC-053 | SCR-145 | TASK-458 | maintainer | M | Buttons, Control-wheel and pinch keep the intended focal point and fit works within the range; a browser walk checks 360 and 1440 pixels without saving a position |
 | TASK-473 | Retain verified confirmations and resolve recorded conversations | SPEC-017, SPEC-028, SPEC-033 | API-294, TBL-172, SCR-145 | TASK-435, TASK-443, TASK-447 | maintainer | L | Verified records retain confirmations; only recorded decisions without outstanding work resolve and can be reopened; missing proof remains open; every response API-294 lists has a passing test. |
+| TASK-474 | Undo and redo diagram moves with conflict detection | SPEC-055 | SCR-145, API-265, API-274 | TASK-442, TASK-458 | maintainer | L | A tab can undo and redo 50 moves without overwriting a changed position from another tab; typing keeps text undo and the behavior is verified on a PC; every response API-265, API-274 lists has a passing test |
 
 ## 3. Open questions
 
