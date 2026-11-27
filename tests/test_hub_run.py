@@ -121,7 +121,7 @@ class LocalServer:
             return refused.code, json.loads(refused.read())
 
 
-class HubRunTest(HubCheckoutCase):
+class HubRunFixture(HubCheckoutCase):
     def setUp(self):
         self.node = node_program(self, "the hub run")
         super().setUp()
@@ -256,6 +256,8 @@ class HubRunTest(HubCheckoutCase):
         for output in self.outputs:
             self.assertFalse(self.secret in output, "the hub shows the credential's secret; value withheld")
 
+
+class HubRunTest(HubRunFixture):
     def test_each_command_gets_an_answer_the_hub_reads(self):
         first = self.commit
         thread = self.first_push_and_comment()
