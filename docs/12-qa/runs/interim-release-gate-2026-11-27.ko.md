@@ -2,7 +2,7 @@
 
 [English](interim-release-gate-2026-11-27.md)
 
-추천은 첫 그룹을 포함해 **no-go**다. 이는 QA 계획과 로컬 검증의 임시 판정이며 릴리스 커밋의 게이트는 아니다. [QA 초안 PR 166](https://github.com/kodonghui/corthex-nexus/pull/166)의 커밋 `5d7184b`에 있는 계획의 243개 케이스는 당시 pass 206, not run 36, blocked 1이었다. GitHub OAuth의 `workflow` 권한이 추가돼 PR 167의 hub 워크플로 변경을 푸시할 수 있게 됐고 TC-221이 hub `1becbab`을 쓴 NEXUS PR 167 커밋 `6145f53`에서 예비 통과하고 `e95fdbd`와 `fc621d3`에서 다시 통과했다. 이후 PR head `9e7009c`의 [GitHub 실행 46027355864](https://github.com/kodonghui/corthex-nexus/actions/runs/46027355864)에서 hub `e6b46ac`의 source-path 검사도 통과했으며 최종 병합 고정에서 다시 확인해야 한다. 그 PR이 병합 전이어서 TC-221은 미실행으로 두며 QA PR 166의 커밋 `71bc506` 기준 현재 pass 206, not run 37, blocked 0이다. 다수의 pass는 이전 커밋의 증거이므로 릴리스 커밋에서 다시 확인해야 한다. waiver는 없다. S2/P1 BUG-008은 공개 경로 재검증이 통과됐다고 보고됐고 PR 169는 fixed로 기록했지만 아직 병합되지 않았다. S3 발견 사항 5건 BUG-002~005와 BUG-007은 [QA 버그 파일](../bugs/)에서 열려 있다. BUG-001은 PR 165에서 수정·병합됐고 QA 초안 커밋 `bc3a3d0`에 반영됐다.
+추천은 첫 그룹을 포함해 **no-go**다. 이는 QA 계획과 로컬 검증의 임시 판정이며 릴리스 커밋의 게이트는 아니다. [QA 초안 PR 166](https://github.com/kodonghui/corthex-nexus/pull/166)의 커밋 `5d7184b`에 있는 계획의 243개 케이스는 당시 pass 206, not run 36, blocked 1이었다. GitHub OAuth의 `workflow` 권한이 추가돼 PR 167의 hub 워크플로 변경을 푸시할 수 있게 됐고 TC-221이 hub `1becbab`을 쓴 NEXUS PR 167 커밋 `6145f53`에서 예비 통과하고 PR 167의 `e95fdbd`와 `fc621d3`에서 해당 집중 테스트가 다시 통과했다. `e95fdbd` 리뷰 작업 트리에서는 전체 Node 검사의 별도 BUG-007 시간 테스트가 실패했다. 이후 PR head `9e7009c`의 [GitHub 실행 46027355864](https://github.com/kodonghui/corthex-nexus/actions/runs/46027355864)에서 hub `e6b46ac`의 source-path 검사도 통과했으며 최종 병합 고정에서 다시 확인해야 한다. 그 PR이 병합 전이어서 TC-221은 미실행으로 두며 QA PR 166의 커밋 `71bc506` 기준 현재 pass 206, not run 37, blocked 0이다. 다수의 pass는 이전 커밋의 증거이므로 릴리스 커밋에서 다시 확인해야 한다. waiver는 없다. 코디네이터는 BUG-008의 공개 경로 재검증 통과를 보고했고 PR 169는 심각도 S2·우선순위 P1의 fixed로 기록했지만 아직 병합되지 않았다. S3 발견 사항 5건 BUG-002~005와 BUG-007은 [QA 버그 파일](../bugs/)에서 열려 있다. BUG-001은 PR 165에서 수정·병합됐고 QA 초안 커밋 `bc3a3d0`에 반영됐다.
 
 ## BUG-008: 재검증 통과, 원본 병합 대기
 
@@ -12,7 +12,7 @@ PR 167은 새 hub 고정을 제안한다. 현재 push 작업은 v2를 위해 기
 
 ## 차단 항목
 
-BUG-008 재검증은 통과했고 PR 169에 fixed로 기록됐으나, 원본 종료가 병합돼 대조되기 전까지 정식 게이트의 후속 확인 항목이다.
+BUG-008 재검증은 통과했고 PR 169에 fixed로 기록됐으나 원본 종료는 미병합이다. 그 원본 갱신을 병합하고 대조하기 전까지 현재 12단계 계획은 BUG-008을 정식 게이트 차단 항목으로 유지한다.
 
 게이트 케이스 8개 TC-225, TC-226, TC-227, TC-230, TC-231, TC-233, TC-234, TC-235는 필수 브라우저 흐름 검증이 남았다. 계획에 적힌 화살표·역할·너비별 스크린샷과 데이터 확인이 필요하다. 이 항목들은 첫 그룹도 막는다. 로컬 합성 화면 캡처는 일부 상태만 다루므로 이 케이스들을 끝내지 못한다. 격리된 로컬 환경에는 실제 휴대폰과 실제 Access 로그인·만료 경로가 없었으며 테스트 게이트는 그 결과를 입증하지 못한다.
 
