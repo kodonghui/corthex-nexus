@@ -317,7 +317,9 @@ describe('agent credentials', () => {
       assert.equal(answer.status, 401);
       assert.equal(answer.json.code, 'access_missing');
       assert.equal(line.reason, 'malformed');
+      assertNoneIn(answer.text, { modernSecret: secret });
     }
+    assertNoneIn(server.logText(), { modernSecret: secret });
     const ownerAttempt = await sent({ method: 'GET', path: '/api/credentials', headers: modern });
     assert.equal(ownerAttempt.answer.status, 403);
     assert.equal(ownerAttempt.answer.json.code, 'owner_only');
