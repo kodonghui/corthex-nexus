@@ -82,7 +82,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 | `invalid_snapshot` | 400 | A snapshot field breaks the hub's format; field names it. |
 | `text_too_long` | 400 | A text is over its limit; field and limit name them. |
 | `unsupported_format` | 400 | A snapshot schema NEXUS does not know; versions lists the ones it takes (SPEC-014). |
-| `access_missing` | 401 | An agent path without a valid agent credential: none, an unknown client ID, a wrong secret or a revoked credential. One code for all four, so a caller learns nothing about which. |
+| `access_missing` | 401 | An agent path without a valid agent credential: absent, malformed, mixed or duplicate headers, an unknown client ID, a wrong secret or a revoked credential. One code for all cases, so a caller learns nothing about which. |
 | `unauthenticated` | 401 | An owner path without a valid sign-in from the gate, or with an expired one. |
 | `agent_only` | 403 | The owner's sign-in on an agent path. |
 | `cross_site` | 403 | A browser write whose Sec-Fetch-Site is neither same-origin nor none. |
@@ -143,7 +143,7 @@ Every refusal is a Problem (title, status, detail, code, traceId) as application
 
 - The agent family keeps every path, header and field of the pinned hub, and every answer field the hub reads, so the hub runs unchanged (SPEC-014). The hub's remove fallback (GET /api/snapshots/{project}/removal) and its v2 publication are not served: the hub calls the first only when /data is missing, and the second only with its publish-v2 command.
 - Agent IDs keep the hub's forms: a thread is nc_, a change set np_, a reflection entry ne_ (one per diagram, holding all its waiting change sets, SPEC-026) and a confirmation nk_. NEXUS v3 has no discrepancies, so the to-do's discrepancies list is always empty and an nd_ ID is never found.
-- The agent's credential is the pair the hub already sends, CF-Access-Client-Id and CF-Access-Client-Secret, issued by NEXUS (SPEC-049). A missing, unknown, wrong or revoked credential gets one code, access_missing (401), which the hub treats as worth retrying, so a queued write waits for a fixed credential instead of being dropped.
+- An agent sends its NEXUS-issued credential in exactly one complete pair: `Nexus-Agent-Client-Id` and `Nexus-Agent-Client-Secret`, or the legacy `CF-Access-Client-Id` and `CF-Access-Client-Secret` (SPEC-049). Mixed, incomplete, duplicate or simultaneous pairs are refused, as are missing, unknown, wrong or revoked credentials, with `access_missing` (401). The pinned hub sends the legacy pair; a hub update will send the new pair.
 - Request keys are kept 7 days, not only the 24 hours that rule 3 requires, because the hub keeps an unsent write 7 days and sends it again under the same key.
 - Every agent write on a to-do entry claims it for the session, and a write on an entry another session claims gets claimed; so a proposal answering a comment holds its claim (SPEC-018).
 - A reflection's change sets are marked reflected only when NEXUS draws the snapshot of the merge commit that reflected names, or at once when it already holds one (SPEC-025). The server cannot read Git ancestry, so a snapshot of another commit marks nothing; when the push job never sends the merge commit, the agent reports reflected again with a commit NEXUS holds.
