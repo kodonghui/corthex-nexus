@@ -266,15 +266,24 @@ describe('the projects and the credentials (SCR-143)', () => {
 
   test('stale: a table whose read again fails keeps its rows with the failure, and the read time shows', async () => {
     let fail = false;
-    const page = await open({ reads: { '/api/credentials': (path) => (fail ? problem(500, 'internal')() : FINE[path]()) } });
-    const realNow = Date.now;
+    const nativeNow = Date.now;
+    const firstRead = Date.parse('2026-11-27T16:01:10.000Z');
+    const afterFirstRead = firstRead + MINUTE;
+    const clockAt = (at) => {
+      const start = nativeNow();
+      Date.now = () => at + nativeNow() - start;
+    };
+    let page;
     try {
+      clockAt(firstRead);
+      page = await open({ reads: { '/api/credentials': (path) => (fail ? problem(500, 'internal')() : FINE[path]()) } });
+      clockAt(afterFirstRead);
       const tag = () => page.app.all('span', 'tag').find((each) => each.parent.className === 'row');
       assert.equal(tag().shown, false);
-      const readAt = realNow();
-      Date.now = () => readAt + STALE_AFTER_MS + 1000;
+      const readAt = firstRead;
+      clockAt(readAt + STALE_AFTER_MS + 1000);
       for (const tick of page.ticks) tick();
-      Date.now = realNow;
+      clockAt(afterFirstRead);
       assert.equal(tag().textContent, `${clockOf(readAt)}에 읽음`);
       fail = true;
       page.document.dispatch('visibilitychange');
@@ -283,14 +292,19 @@ describe('the projects and the credentials (SCR-143)', () => {
       assert.equal(tables(page).length, 2);
       assert.deepEqual(cells(tables(page)[1].all('tr')[1]).slice(0, 1), ['ci']);
       assert.equal(tag().shown, true);
+      assert.equal(tag().textContent, `${clockOf(readAt)}에 읽음`);
       fail = false;
       page.document.dispatch('visibilitychange');
       await page.settle();
       assert.equal(errorShown(page), false);
       assert.equal(tag().shown, false);
+      clockAt(afterFirstRead + STALE_AFTER_MS + 1000);
+      for (const tick of page.ticks) tick();
+      assert.equal(tag().shown, true);
+      assert.equal(tag().textContent, `${clockOf(afterFirstRead)}에 읽음`);
     } finally {
-      Date.now = realNow;
-      page.close();
+      Date.now = nativeNow;
+      page?.close();
     }
   });
 
