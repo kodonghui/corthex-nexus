@@ -148,14 +148,14 @@ describe('the pages', () => {
       if (!bodyReady) {
         assert.equal(status.children, undefined);
         bodyReady = true;
-        listeners.load();
+        listeners.DOMContentLoaded();
       }
       assert.match(status.children[0], /문제가 생겼어요/);
       assert.deepEqual(startup.children, []);
       assert.equal(status.children[1].href, '');
       assert.equal(status.children[1].textContent, '새로고침');
       const shown = status.children;
-      listeners.load();
+      listeners.DOMContentLoaded();
       assert.equal(status.children, shown);
     }
   });
