@@ -374,6 +374,11 @@
           "approved": "A proposal's source path, TASK-470, pull request 163, at commit c0803cd, approved before the code on the drafted text, which that commit holds unchanged (checked against the text asked; no word of it changed up to f3a1f9c): ProposalRequest gains source_path, optional, 1 to 300 characters, allowed only with source_text, with its definition word for word; API-256's description reads the proposed document \"as the file source_path names where the drawing reads several\"; API-256's 400 response gains the examples source-path-unknown and source-path-needed, both invalid_request on source_path. API-256's tables, its operations, statuses, codes and spec rows, and stage 05 do not change: the path is not kept. Each of the three items was asked on its own, with the five rules TASK-470 needed. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "BUG-006 API correction: add a NEXUS agent header pair alongside the legacy pair; accept exactly one complete pair and refuse mixed, incomplete, duplicate or concurrent pairs, update the hub to send the new pair, and verify the Cloudflare route after implementation. The maintainer approved each item through their named checkpoint delegate; the answer and delegation are in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",

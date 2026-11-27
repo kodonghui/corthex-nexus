@@ -34,6 +34,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       requestBody:
         required: true
         description: At most 8388608 bytes.
@@ -263,6 +265,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
       responses:
@@ -354,6 +358,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
       responses:
@@ -458,6 +464,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/SessionOptional"
@@ -641,6 +649,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/comment"
@@ -758,6 +768,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/proposal"
@@ -875,6 +887,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/edit"
@@ -988,6 +1002,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/checkpoint"
@@ -1094,6 +1110,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/entry"
@@ -1231,6 +1249,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/entry"
@@ -1362,6 +1382,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/IdempotencyKey"
@@ -1582,6 +1604,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/comment"
@@ -1778,6 +1802,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/comment"
@@ -1953,6 +1979,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/comment"
@@ -2143,6 +2171,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/IdempotencyKey"
@@ -2418,6 +2448,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/proposal"
@@ -2619,6 +2651,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/edit"
@@ -2854,6 +2888,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/checkpoint"
@@ -3061,6 +3097,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/step"
@@ -3270,6 +3308,8 @@ paths:
       security:
         - agentClientId: []
           agentClientSecret: []
+        - nexusAgentClientId: []
+          nexusAgentClientSecret: []
       parameters:
         - $ref: "#/components/parameters/project"
         - $ref: "#/components/parameters/step"
@@ -9349,6 +9389,16 @@ components:
       in: header
       name: CF-Access-Client-Secret
       description: The agent credential's secret, which the pinned hub reads from CORTHEX_NEXUS_CLIENT_SECRET.
+    nexusAgentClientId:
+      type: apiKey
+      in: header
+      name: Nexus-Agent-Client-Id
+      description: "The ID of the NEXUS agent credential, paired only with Nexus-Agent-Client-Secret. Send exactly one complete pair: this pair or the legacy CF-Access pair. Mixed, incomplete or duplicate headers, including both complete pairs, are refused as malformed with 401 access_missing; no pair is no_credential. Wrong, unknown and revoked credentials are also refused with 401 access_missing. Header values are never logged."
+    nexusAgentClientSecret:
+      type: apiKey
+      in: header
+      name: Nexus-Agent-Client-Secret
+      description: The secret of the NEXUS agent credential, paired only with Nexus-Agent-Client-Id.
     ownerSignIn:
       type: apiKey
       in: header
