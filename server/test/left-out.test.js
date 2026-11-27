@@ -233,7 +233,7 @@ describe('left-out sources', () => {
     assert.deepEqual([erd, a, prd].map(removedAt), [null, null, null]);
   });
 
-  test('a left-out source keeps its confirmation, its stage\'s pass and its open threads, and the next push that sends it draws it', async () => {
+  test('a left-out source requires confirmation again, keeps its thread, and draws when sent again', async () => {
     const space = project('kept');
     await space.push({ flows: [FLOW_SET[0]] });
     const a = diagram(space, FLOW_A);
@@ -251,20 +251,21 @@ describe('left-out sources', () => {
     assert.deepEqual(state(), kept);
 
     const left = await space.push({ left: [leftOut(FLOWS, 'size', FLOW_A)] });
-    assert.deepEqual([counted(left), moved(left)], [[0, 1, 0], [0, 0, 0]]);
-    assert.deepEqual(state(), kept);
-    assert.deepEqual(listed(space, FLOWS), [['nexus', 'passed', [[idOf('dg', a.id), false, true]]]]);
+    assert.deepEqual([counted(left), moved(left)], [[0, 1, 0], [1, 0, 0]]);
+    const invalidated = ['invalidated', new Date(clock.now).toISOString(), kept[2], true];
+    assert.deepEqual(state(), invalidated);
+    assert.deepEqual(listed(space, FLOWS), [['nexus', 'changed_since_pass', [[idOf('dg', a.id), false, true]]]]);
 
     // The same commit again answers it failed as before.
     const same = await space.push({ left: [leftOut(FLOWS, 'size', FLOW_A)], same: true });
     assert.deepEqual([same.same_commit, same.diagrams.failed, same.failures], [true, 1, [failure(a, FLOWS, FLOW_A)]]);
 
-    // Sent again as it was, it draws again: its confirmation, the pass and the thread stay as they were.
+    // Sent again as it was, it draws again, but the ended confirmation does not revive.
     const back = await space.push({ flows: [FLOW_SET[0]] });
     assert.deepEqual([counted(back), moved(back)], [[1, 0, 0], [0, 0, 0]]);
     assert.deepEqual(drawingsOf(a).map(([status]) => status), ['drawn', 'failed', 'drawn']);
-    assert.deepEqual(state(), kept);
-    assert.deepEqual(listed(space, FLOWS), [['nexus', 'passed', [[idOf('dg', a.id), false, true]]]]);
+    assert.deepEqual(state(), invalidated);
+    assert.deepEqual(listed(space, FLOWS), [['nexus', 'changed_since_pass', [[idOf('dg', a.id), false, true]]]]);
   });
 
   test('a change set merged while its source is left out is reflected at the drawing shown, and a comment says what it lacks (note 26)', async () => {
@@ -292,7 +293,7 @@ describe('left-out sources', () => {
   });
 
   test('touch the tables API-242 lists, and admission only the layer\'s (note 23)', () => {
-    checkTables(recorder, 'pushSnapshot');
+    checkTables(recorder, 'pushSnapshot', { coveredElsewhere: ['TBL-172'] }); // Resolution is exercised in after-drawing.test.js.
     checkLayer(recorder);
   });
 });

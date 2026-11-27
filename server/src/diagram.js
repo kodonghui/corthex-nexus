@@ -95,7 +95,8 @@ function statementsOf(store) {
       threads: store.prepare(
         `SELECT h.id, h.target_kind, h.element_key, h.removed_name, h.state, h.waits_on, h.opened_at,
                 (SELECT count(*) FROM comments c WHERE c.thread_id = h.id) AS entries,
-                (SELECT c.created_at FROM comments c WHERE c.thread_id = h.id ORDER BY c.seq DESC LIMIT 1) AS last_at
+                (SELECT c.created_at FROM comments c WHERE c.thread_id = h.id ORDER BY c.seq DESC LIMIT 1) AS last_at,
+                (SELECT event FROM thread_resolution_events r WHERE r.thread_id = h.id ORDER BY r.id DESC LIMIT 1) AS resolution
          FROM comment_threads h WHERE h.diagram_id = ?
          ORDER BY h.state = 'closed', h.opened_at, h.id LIMIT ${LISTED_THREADS}`,
       ),
@@ -339,6 +340,7 @@ export function readDiagram(store, name, id) {
     removed_name: nameOf(row.removed_name),
     state: row.state,
     waits_on: row.waits_on,
+    ...(row.state === 'closed' && row.resolution === 'resolved' ? { resolved: true } : {}),
     last_at: row.last_at ?? row.opened_at,
     entries: Math.min(Math.max(Number(row.entries), 1), ENTRIES),
   }));

@@ -15,7 +15,7 @@ flowchart TD
   E["Redraw, keeping stored<br/>positions<br/>REQ-001, REQ-014, REQ-071"]
   F["Move comments of removed<br/>elements to the diagram<br/>REQ-033"]
   G["Mark change sets with a<br/>merged PR reflected<br/>REQ-030"]
-  H{"Changed a confirmed<br/>diagram's document?<br/>REQ-040"}
+  H{"Change is not proved as<br/>only recorded decisions?<br/>REQ-040"}
   I["Invalidate the<br/>confirmation, back to the<br/>to-do<br/>REQ-040"]
   R1["Refuse the request<br/>REQ-065, REQ-066"]
   R2["Reject and keep the held<br/>diagrams<br/>REQ-002"]

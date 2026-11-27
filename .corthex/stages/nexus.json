@@ -30,10 +30,15 @@
           "approved": "No change, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): the domain design states no rule for listing or opening a removed diagram; Reject proposal and Cancel edit (CTX-038) and hotspot 3's answer stand as written. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Item 242: the maintainer said 둘 다 바꿔 on 2026-11-27 for confirmation retention and automatic conversation resolution; the answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 02: write the PRD from the domain design",
-      "updated": "2026-11-24T10:36:45+09:00"
+      "updated": "2026-11-27T18:42:06+00:00"
     },
     "02-prd": {
       "state": "done",
@@ -67,10 +72,15 @@
           "approved": "Zoom requirement REQ-081 added; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242: REQ-034 and REQ-040 change as approved on 2026-11-27 by the delegate named by the maintainer; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 03: draw the user flows from the requirements",
-      "updated": "2026-11-24T10:36:45+09:00"
+      "updated": "2026-11-27T18:42:06+00:00"
     },
     "03-user-flow": {
       "state": "done",
@@ -94,10 +104,15 @@
           "approved": "FL-002 adds zoom and fit; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242: FL-007 changes to retain a confirmation only for verified decision records; approved on 2026-11-27 by the delegate named by the maintainer.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 04: write the functional spec from the requirements and flows",
-      "updated": "2026-11-24T10:36:45+09:00",
+      "updated": "2026-11-27T18:42:06+00:00",
       "checks": [
         {
           "level": "info",
@@ -203,10 +218,15 @@
           "approved": "SPEC-053 clarifies that buttons, double-click and wheel wait during an active drag, and pinch counts fingers that began inside the picture. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242: SPEC-017, SPEC-028 and SPEC-033 change as approved on 2026-11-27 by the delegate named by the maintainer; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
-      "updated": "2026-11-24T10:36:45+09:00"
+      "updated": "2026-11-27T18:42:06+00:00"
     },
     "05-erd": {
       "state": "done",
@@ -280,10 +300,15 @@
           "approved": "No change for zoom: view scale is local and needs no stored data; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242: the proposed confirmation retention and automatic conversation resolution, including the resolve and reopen contract at stage 06, approved 2026-11-27 by the maintainer’s delegate; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-24T10:36:45+09:00",
+      "updated": "2026-11-27T18:42:06+00:00",
       "checks": [
         {
           "level": "info",
@@ -469,10 +494,15 @@
           "approved": "SPEC-053 needs no operation; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242: the proposed confirmation retention and automatic conversation resolution, including the resolve and reopen contract at stage 06, approved 2026-11-27 by the maintainer’s delegate; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-27T12:23:51+00:00"
+      "updated": "2026-11-27T18:42:06+00:00"
     },
     "07-sitemap": {
       "state": "done",
@@ -521,10 +551,15 @@
           "approved": "No change for zoom: no screen or route is added; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242: the proposed confirmation retention and automatic conversation resolution, including the resolve and reopen contract at stage 06, approved 2026-11-27 by the maintainer’s delegate; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 08: write a screen definition with its states for each of the five screens",
-      "updated": "2026-11-24T10:36:45+09:00"
+      "updated": "2026-11-27T18:42:06+00:00"
     },
     "08-screen-states": {
       "state": "done",
@@ -653,10 +688,15 @@
           "approved": "SCR-145 clarifies that buttons, double-click and wheel wait during an active drag, and pinch counts fingers that began inside the picture. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242: the proposed confirmation retention and automatic conversation resolution, including the resolve and reopen contract at stage 06, approved 2026-11-27 by the maintainer’s delegate; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-24T13:45:50+09:00"
+      "updated": "2026-11-27T18:42:06+00:00"
     },
     "09-mockup": {
       "state": "done",

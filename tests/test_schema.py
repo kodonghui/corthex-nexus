@@ -313,6 +313,7 @@ def fill_project(db, n, name):
         ("comment_threads (id, diagram_id, drawing_id, target_kind, element_key, state, waits_on, opened_at)",
          (i + 1, i + 1, i + 1, "element", "TBL-146", "open", "agent", t)),
         ("comments (thread_id, seq, author, body, created_at)", (i + 1, 1, "owner", "Why?", t)),
+        ("thread_resolution_events (thread_id, event, created_at)", (i + 1, "resolved", t)),
         ("pull_requests (id, project_id, purpose, number, state, reported_at, credential_id)",
          (i + 1, n, "reflection", 1, "open", t, 1)),
         ("change_sets (id, project_id, diagram_id, drawing_id, origin, thread_id, credential_id, state, created_at, "

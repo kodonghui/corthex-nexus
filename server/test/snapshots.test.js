@@ -727,7 +727,7 @@ describe('snapshot intake', () => {
   });
 
   test('touch the tables their x-corthex.tables lists, and admission only the layer\'s (note 23)', () => {
-    checkTables(recorder, 'pushSnapshot');
+    checkTables(recorder, 'pushSnapshot', { coveredElsewhere: ['TBL-172'] }); // Resolution is exercised in after-drawing.test.js.
     checkTables(recorder, 'getHeldCommit');
     checkLayer(recorder);
   });

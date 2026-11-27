@@ -8,7 +8,7 @@ Source: [api/openapi.yaml](../../api/openapi.yaml), OpenAPI 3.1. Inputs: the fun
 
 ## 1. Operations
 
-Two families share one error shape. The agent family (20 operations) takes the pinned hub's commands in their format; the owner family (32) serves the pages. An agent credential on an owner path gets owner_only, the owner's sign-in on an agent path agent_only.
+Two families share one error shape. The agent family (20 operations) takes the pinned hub's commands in their format; the owner family (33) serves the pages. An agent credential on an owner path gets owner_only, the owner's sign-in on an agent path agent_only.
 
 ### Agent family
 
@@ -47,6 +47,7 @@ Two families share one error shape. The agent family (20 operations) takes the p
 | API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | Comment as the owner | Must | SPEC-016, SPEC-027, SPEC-051 |
 | API-268 | `POST /api/projects/{project}/threads/{thread}/comments` | Reply as the owner | Must | SPEC-017, SPEC-051 |
 | API-269 | `POST /api/projects/{project}/threads/{thread}/close` | Close a thread | Must | SPEC-028 |
+| API-294 | `POST /api/projects/{project}/threads/{thread}/reopen` | Reopen an automatically resolved thread | Must | SPEC-028 |
 | API-270 | `POST /api/projects/{project}/change-sets/{change_set}/accept` | Accept an AI proposal | Must | SPEC-019, SPEC-027 |
 | API-271 | `POST /api/projects/{project}/change-sets/{change_set}/reject` | Reject an AI proposal | Must | SPEC-020 |
 | API-272 | `POST /api/projects/{project}/diagrams/{diagram}/direct-edits` | Rename or connect directly | Must | SPEC-021, SPEC-027 |
@@ -193,7 +194,7 @@ API-265 serves the pictures of SPEC-006, SPEC-008 and SPEC-009 from the first re
 | SPEC-025 Mark changes reflected | API-242, API-258 |
 | SPEC-026 Hand over a diagram's change sets together | API-245, API-248 |
 | SPEC-027 Keep the comments of a removed element | API-242, API-252, API-264, API-265, API-267, API-270, API-272, API-274, API-275 |
-| SPEC-028 Close a thread | API-269 |
+| SPEC-028 Close a thread | API-269, API-294 |
 | SPEC-029 Confirm a diagram or item table | API-275 |
 | SPEC-030 Cancel a confirmation | API-276 |
 | SPEC-031 Ask the agent to record a confirmation | API-245, API-249, API-275, API-276 |
@@ -414,3 +415,17 @@ Section 4 of the WBS records that a proposal's `source_text` makes no change on 
 - **API-256's 400 response** gains two `invalid_request` examples with `field` `source_path`: "source_path names no file the drawing reads" and "source_path is needed: the drawing reads several files".
 
 API-256 already lists TBL-149 and TBL-150, which hold the drawing's picture, so its tables do not change. No operation, status, code or spec row changes. This part passed its own checkpoint on 2026-11-24 through the same delegate.
+
+## Item 242: decision records and reopening
+
+API-255 continues to accept the pinned hub’s existing request and response. A link alone does not prove a record, nor does every agent decision require another owner action. An automatic resolution requires a verified recorded decision, no unhandled proposal and no further question. API-294 lets the owner reopen an automatically resolved thread; API-269 is unchanged. Resolution and reopening are kept in TBL-172, and reads retain the result and record. Existing waiting threads are evaluated against the same rule without treating a link as proof; uncertain ones remain open.
+
+For the existing hub, the agent can put the project's full commit link in the existing `decide --link` field after the default-branch snapshot is pushed. NEXUS requires that it holds that commit and the current snapshot, and checks the approved text against the relevant drawing in both; the link by itself proves nothing. A pull-request link can also resolve when a merge commit has been reported and its held snapshot passes the same checks. An unreported or unheld commit remains waiting for the agent.
+
+For a decision entry, the record snapshot must arrive after the owner's answer and introduce that text in the relevant drawing compared with the immediately preceding held snapshot. If the earlier source, the earlier drawing, or the order cannot be verified, the thread remains open. Reopening invalidates earlier decision evidence until a new owner answer or acceptance is recorded. A proposal already reflected on an incomplete drawing is checked again after a later successful drawing.
+
+API-265 adds an optional `resolved` flag to a thread brief so the diagram's list can show the same resolved state as the full conversation. API-255 adds the same optional flag to its thread summary when that conversation is resolved. These read the existing resolution history (TBL-172); in these two answers an omitted flag means the thread is not marked resolved. Other operations' unchanged summaries do not determine resolution; the client reads the conversation when it needs that state. The pinned hub's requests are unchanged and it accepts the extended response.
+
+For a proposal, later conversation entries other than identified proposals leave the thread open when the server cannot prove whether they add a question. A reflected change that is missing from the drawing also stays open; a separate thread identifies the missing change. This conservative rule can leave a harmless acknowledgement waiting until the conversation is handled explicitly.
+
+Migration assessment, 2026-11-27, from a read-only backup: five conversations wait on the owner; four have a final decision link, none has an exact match to the latest owner text, and no reported merged pull request has a commit. None meets the automatic-resolution proof, so leave all five open. A later decision, push or merge report re-evaluates eligible conversations using the same rule.

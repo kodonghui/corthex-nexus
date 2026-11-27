@@ -128,17 +128,17 @@ const SQL_PROPOSED = SQL_TEXT
     'drawing_id   INTEGER NOT NULL REFERENCES diagrams (id) ON DELETE CASCADE,\n  element_key')
   .replace('  bytes        INTEGER,\n', '  bytes        BIGINT,\n')
   .replace(/-- TBL-171 restore_rehearsals[^]*?CREATE INDEX restore_rehearsals_by_backup[^\n]*\n/u, '')
-  .concat('\n-- TBL-172 agent_notes (operations)\n',
+  .concat('\n-- TBL-173 agent_notes (operations)\n',
     'CREATE TABLE agent_notes (id INTEGER PRIMARY KEY, credential_id INTEGER NOT NULL REFERENCES agent_credentials (id), body TEXT);\n',
     'CREATE UNIQUE INDEX todos_kind_lower ON todos (lower(kind));\n',
     'CREATE VIEW open_todos AS SELECT * FROM todos WHERE closed_at IS NULL;\n');
 const LEFT_OUT = 'unique index has an unreadable column expression; rule omitted';
 const SQL_CHANGES = [
   { op: 'rename', element: 'TBL-169', name: 'idempotency_keys', target: null },
-  { op: 'add', element: 'TBL-172', name: 'agent_notes', target: null },
+  { op: 'add', element: 'TBL-173', name: 'agent_notes', target: null },
   { op: 'remove', element: 'TBL-153/line:drawing_id', name: null, target: null },
   { op: 'connect', element: 'TBL-153', name: 'drawing_id', target: 'TBL-151' },
-  { op: 'connect', element: 'TBL-172', name: 'credential_id', target: 'TBL-146' },
+  { op: 'connect', element: 'TBL-173', name: 'credential_id', target: 'TBL-146' },
   { op: 'add', element: `statement:${LEFT_OUT}`, name: LEFT_OUT, target: null },
   { op: 'remove', element: 'TBL-171', name: null, target: null },
   { op: 'remove', element: 'TBL-171/line:backup_id', name: null, target: null },

@@ -39,6 +39,7 @@ import { openAgentEntry, threadChanged } from './entries.js';
 import { idOf, keyOf } from './ids.js';
 import { LIMITS } from './limits.js';
 import { invalidRequest, Problem } from './problem.js';
+import { decisionWaitingForRecord, resolveDecision } from './resolve-decision.js';
 import { DIAGRAM_ORDER, projectHead } from './project.js';
 import { STAGES } from './snapshot.js';
 import { diagramTraceId } from './drawing.js';
@@ -103,10 +104,12 @@ function statementsOf(store) {
       ),
       thread: store.prepare(`${THREAD} WHERE h.id = ? AND d.project_id = ?`),
       last: store.prepare('SELECT seq, created_at FROM comments WHERE thread_id = ? ORDER BY seq DESC LIMIT 1'),
+      resolution: store.prepare('SELECT event FROM thread_resolution_events WHERE thread_id = ? ORDER BY id DESC LIMIT 1'),
       insertComment: store.prepare(
         "INSERT INTO comments (thread_id, seq, author, credential_id, body, detail, created_at) VALUES (?, ?, 'agent', ?, ?, ?, ?)",
       ),
       waitOnOwner: store.prepare("UPDATE comment_threads SET waits_on = 'owner' WHERE id = ? AND state = 'open'"),
+      waitOnAgent: store.prepare("UPDATE comment_threads SET waits_on = 'agent' WHERE id = ? AND state = 'open'"),
     };
     prepared.set(store, statements);
   }
@@ -470,8 +473,8 @@ function markAnswered({ store, params, request, body, credential, now }) {
   return { body: { thread: summaryOf(statements, done.thread), changed: true } };
 }
 
-// API-255: an entry of kind decision with its link. An open thread then waits on the owner, as after any agent's entry;
-// a closed one takes it and stays closed.
+// API-255: a decision entry with its link. An open thread can resolve when its record is verified, wait on the agent
+// while a record is missing, or wait on the owner; a closed one takes the entry and stays closed.
 function recordDecision({ store, params, request, body, credential, now }) {
   const session = sessionOf(request.headers, { required: true });
   const decision = decisionOf(body);
@@ -484,10 +487,21 @@ function recordDecision({ store, params, request, body, credential, now }) {
   });
   if (thread.state === 'closed') {
     const entry = add();
-    return { status: 201, body: { thread: summaryOf(statements, thread), entry } };
+    const summary = summaryOf(statements, thread);
+    if (statements.resolution.get(thread.id)?.event === 'resolved') summary.resolved = true;
+    return { status: 201, body: { thread: summary, entry } };
   }
   const done = onOwner(store, statements, { project, thread, session, credential, time }, add);
-  return { status: 201, body: { thread: summaryOf(statements, done.thread), entry: done.written } };
+  const resolved = resolveDecision(store, { project: project.id, thread: thread.id, time });
+  let result = resolved ? { ...done.thread, state: 'closed', waitsOn: null, closedBy: 'reflection' } : done.thread;
+  if (!resolved && decisionWaitingForRecord(store, { project: project.id, thread: thread.id })) {
+    statements.waitOnAgent.run(thread.id);
+    threadChanged(store, { project: project.id, thread: thread.id, time });
+    result = { ...done.thread, waitsOn: 'agent' };
+  }
+  const summary = summaryOf(statements, result);
+  if (resolved) summary.resolved = true;
+  return { status: 201, body: { thread: summary, entry: done.written } };
 }
 
 // The routes of API-252 to API-255 (see router.js), of the agent family, each with its JSON body and request key

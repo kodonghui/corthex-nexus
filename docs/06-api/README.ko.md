@@ -8,7 +8,7 @@
 
 ## 1. 오퍼레이션
 
-두 계열이 하나의 오류 형식을 써요. 에이전트 계열(20개)은 고정한 hub의 명령을 그 형식 그대로 받고, 소유자 계열(32개)은 화면이 써요. 에이전트 자격 증명으로 소유자 경로를 부르면 owner_only, 소유자 로그인으로 에이전트 경로를 부르면 agent_only로 거절해요.
+두 계열이 하나의 오류 형식을 써요. 에이전트 계열(20개)은 고정한 hub의 명령을 그 형식 그대로 받고, 소유자 계열(33개)은 화면이 써요. 에이전트 자격 증명으로 소유자 경로를 부르면 owner_only, 소유자 로그인으로 에이전트 경로를 부르면 agent_only로 거절해요.
 
 ### 에이전트 계열
 
@@ -47,6 +47,7 @@
 | API-267 | `POST /api/projects/{project}/diagrams/{diagram}/threads` | 소유자로 댓글 달기 | Must | SPEC-016, SPEC-027, SPEC-051 |
 | API-268 | `POST /api/projects/{project}/threads/{thread}/comments` | 소유자로 답하기 | Must | SPEC-017, SPEC-051 |
 | API-269 | `POST /api/projects/{project}/threads/{thread}/close` | 스레드 닫기 | Must | SPEC-028 |
+| API-294 | `POST /api/projects/{project}/threads/{thread}/reopen` | 자동 해결된 스레드 다시 열기 | Must | SPEC-028 |
 | API-270 | `POST /api/projects/{project}/change-sets/{change_set}/accept` | AI 제안 받아들이기 | Must | SPEC-019, SPEC-027 |
 | API-271 | `POST /api/projects/{project}/change-sets/{change_set}/reject` | AI 제안 거절하기 | Must | SPEC-020 |
 | API-272 | `POST /api/projects/{project}/diagrams/{diagram}/direct-edits` | 직접 이름 바꾸기·연결하기 | Must | SPEC-021, SPEC-027 |
@@ -193,7 +194,7 @@
 | SPEC-025 Mark changes reflected | API-242, API-258 |
 | SPEC-026 Hand over a diagram's change sets together | API-245, API-248 |
 | SPEC-027 Keep the comments of a removed element | API-242, API-252, API-264, API-265, API-267, API-270, API-272, API-274, API-275 |
-| SPEC-028 Close a thread | API-269 |
+| SPEC-028 Close a thread | API-269, API-294 |
 | SPEC-029 Confirm a diagram or item table | API-275 |
 | SPEC-030 Cancel a confirmation | API-276 |
 | SPEC-031 Ask the agent to record a confirmation | API-245, API-249, API-275, API-276 |
@@ -414,3 +415,17 @@ WBS 4절은 제안의 `source_text`가 01단계에서, 그리고 현재 드로�
 - **API-256의 400 응답**에 `field`가 `source_path`인 `invalid_request` 예시 2개가 생겨요. "source_path names no file the drawing reads"와 "source_path is needed: the drawing reads several files"예요.
 
 API-256은 드로잉의 그림을 지니는 TBL-149와 TBL-150을 이미 적고 있으므로 테이블은 바뀌지 않아요. 오퍼레이션, 상태 코드, 코드, 명세 행은 바뀌지 않아요. 이 몫은 2026-11-24에 같은 대리인을 통해 따로 체크포인트를 통과했어요.
+
+## 항목 242: 결정 기록과 다시 열기
+
+API-255는 고정된 hub의 기존 요청과 응답을 그대로 받습니다. 링크만으로 기록을 입증하지 않으며, 에이전트의 결정 기록마다 사용자 행동이 필요한 것도 아닙니다. 자동 해결에는 검증된 결정 기록, 미처리 제안 없음, 추가 질문 없음이 모두 필요합니다. API-294로 사용자가 자동 해결된 스레드를 다시 열며 API-269는 그대로입니다. 해결과 다시 열기는 TBL-172에 남고 결과와 기록을 계속 읽을 수 있습니다. 기존 대기 스레드에도 같은 규칙을 적용하며 근거가 불확실하면 열린 채 둡니다.
+
+기존 hub에서는 기본 브랜치의 스냅숏이 올라온 뒤 에이전트가 기존 `decide --link`에 프로젝트의 전체 커밋 링크를 넣을 수 있습니다. NEXUS는 해당 커밋과 현재 스냅숏을 보관하는지 확인하고 두 그림에서 해당 항목의 승인된 글을 견줍니다. 링크만으로는 입증하지 않습니다. PR 링크도 병합 커밋이 보고되고 그 스냅숏을 보관하며 같은 검증을 통과하면 해결할 수 있습니다. 커밋이 보고되지 않았거나 보관되지 않았다면 에이전트를 기다립니다.
+
+결정 글은 사용자 답변 뒤에 도착한 기록 스냅숏이 바로 앞에 보관한 스냅숏과 비교해 해당 그림에 그 글을 새로 담아야 합니다. 이전 원본이나 그림 또는 순서를 확인할 수 없으면 대화는 열린 채 둡니다. 다시 열면 새로운 사용자 답변이나 수락 전까지 이전 결정 근거는 무효입니다. 불완전한 그림에서 이미 반영된 제안은 나중에 그림이 성공하면 다시 확인합니다.
+
+API-265의 대화 요약에는 선택적인 `resolved` 표시가 추가되어 그림의 목록과 대화 상세가 같은 해결 상태를 보여 줍니다. API-255도 해결된 대화의 요약에 같은 선택 표시를 더합니다. 기존 해결 이력(TBL-172)을 읽으며 이 두 응답에 표시가 없으면 해결됨으로 표시하지 않습니다. 다른 작업의 변경되지 않은 요약만으로는 해결 상태를 판단하지 않고, 필요할 때 대화 상세를 다시 읽습니다. 고정된 hub의 요청은 바뀌지 않으며 추가된 응답을 받아들입니다.
+
+제안 뒤에 확인된 다른 제안이 아닌 글이 있으면 서버가 추가 질문인지 입증할 수 없어 대화를 열어 둡니다. 반영된 변경이 그림에 빠진 경우도 열린 채로 두고 별도 대화에 빠진 변경을 알립니다. 이 보수적인 규칙 때문에 단순한 확인 인사도 대화를 명시적으로 처리하기 전까지 남을 수 있습니다.
+
+2026-11-27 읽기 전용 백업을 통한 이행 평가: 사용자 차례 대화 다섯 건 중 네 건의 마지막 글에 결정 링크가 있지만 마지막 사용자 글과 정확히 일치하는 건은 없고 병합 커밋이 보고된 PR도 없습니다. 자동 해결 근거를 갖춘 건이 없으므로 다섯 건 모두 열린 채 둡니다. 나중에 결정, push 또는 병합 보고가 오면 같은 규칙으로 해당 대화를 다시 평가합니다.

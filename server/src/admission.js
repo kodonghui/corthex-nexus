@@ -18,7 +18,7 @@ export const OWNER_ACTIONS = Object.freeze([
   'confirmDiagram', 'confirmStep', 'connectNotes', 'deleteProject', 'getDiagram', 'getMockupPage', 'getOwnerTodo',
   'getProject', 'getRemovalPreview', 'getThread', 'getWorkshop', 'importMiroBoard', 'issueCredential',
   'listCredentials', 'listProjects', 'makeDirectEdit', 'moveElement', 'openWorkshop', 'rejectProposal', 'removeNote',
-  'removeNoteLink', 'removeToolLink', 'replyInThread', 'revokeCredential', 'startThread',
+  'removeNoteLink', 'removeToolLink', 'reopenThread', 'replyInThread', 'revokeCredential', 'startThread',
 ]);
 export const AGENT_ACTIONS = Object.freeze([
   'claimEntry', 'draftWorkshopStep', 'getAgentTodo', 'getCheckpoint', 'getComment', 'getEdit', 'getHeldCommit',

@@ -157,7 +157,7 @@ test('leaves to a later task only tables its operation lists and the WBS gives t
   assert.throws(() => checkTables(recorder, 'pushSnapshot'), /pushSnapshot touches other tables/);
   touch(['comment_threads', 'comments', 'pull_requests', 'change_sets', 'changes', 'confirmations', 'stage_passes', 'todos']);
   assert.throws(() => checkTables(recorder, 'pushSnapshot'), /pushSnapshot touches other tables/);
-  touch(['element_positions']);
+  touch(['element_positions', 'thread_resolution_events']);
   checkTables(recorder, 'pushSnapshot');
 });
 
