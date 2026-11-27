@@ -64,7 +64,7 @@ class SourcePathWalk(HubRunFixture):
                                'change': 'Synthetic change', 'source_text': proposed}).encode('utf8')
             headers = {'Content-Type': 'application/json', 'Accept': 'application/json',
                        'CF-Access-Client-Id': direct['credential']['id'], 'CF-Access-Client-Secret': direct_secret,
-                       'Nexus-Session': self.session['CORTHEX_NEXUS_SESSION'],
+                       'Nexus-Session': 'source-direct-session',
                        'Idempotency-Key': '"nw_00000000000' + str(index) + '"'}
             request = urllib.request.Request(self.server.url + '/api/spaces/' + PROJECT + '/proposals',
                                              data=data, headers=headers, method='POST')
@@ -89,7 +89,7 @@ class SourcePathWalk(HubRunFixture):
             for private in private_parts:
                 self.assertFalse(private in log or json.dumps(private, ensure_ascii=False)[1:-1] in log,
                                  'the log includes source data; value withheld')
-        for private in (direct_secret, hashlib.sha256(direct_secret.encode('ascii')).hexdigest()):
+        for private in (direct_secret, hashlib.sha256(direct_secret.encode('ascii')).hexdigest(), 'source-direct-session'):
             self.assertFalse(private in log, 'the server log includes direct-API credential data; value withheld')
         for output in self.outputs:
             self.assertFalse(hashlib.sha256(self.secret.encode('ascii')).hexdigest() in output,
@@ -109,7 +109,9 @@ class SourcePathWalk(HubRunFixture):
         spec.loader.exec_module(hub)
         hub.companion('records').remember_server(home, url, True, SimpleNamespace(**vars(hub)))
         self.stop_server()
-        result = self.read(self.session, 'status', PROJECT, '07-sitemap', '--part', 'nexus', '--repository',
+        offline_env = dict(self.session)
+        offline_env.pop('CORTHEX_NEXUS_URL', None)
+        result = self.read(offline_env, 'status', PROJECT, '07-sitemap', '--part', 'nexus', '--repository',
                            '--state', 'done', '--checkpoint', 'Synthetic approval', '--by', 'the maintainer',
                            '--date', '2026-11-27', '--nexus', 'nk_000000000000')
         self.assertEqual(result['record']['checkpoints'][-1]['where'], url + '/p/' + PROJECT + '/nexus/07-sitemap')
